@@ -40,6 +40,10 @@ void main() {
     expect(AppDurations.short, greaterThan(Duration.zero));
     expect(AppDurations.short, lessThan(AppDurations.medium));
     expect(AppDurations.medium, lessThan(AppDurations.long));
+    expect(AppDurations.standardCurve.transform(0), 0);
+    expect(AppDurations.standardCurve.transform(1), 1);
+    expect(AppDurations.emphasizedCurve.transform(0), 0);
+    expect(AppDurations.emphasizedCurve.transform(1), 1);
   });
 
   testWidgets('la preferenza di sistema disabilita il motion', (tester) async {

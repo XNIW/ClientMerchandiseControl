@@ -54,6 +54,10 @@ Gli attori indiretti sono:
 Il client non concede autorità a nessuno di questi attori e non è un confine di
 autorizzazione.
 
+Il personale del negozio è uno stakeholder esterno e non usa l'app cliente per operare.
+L'esplorazione pubblica è anonima; autenticazione e profilo arrivano soltanto per
+funzioni che richiedono identità, consenso o dati personali.
+
 ## Confine di sistema
 
 - Admin Console governa pubblicazione, copy, immagini, prezzi, promozioni, disponibilità
@@ -66,6 +70,17 @@ autorizzazione.
 - Dati sensibili, autorizzazioni, rivalidazioni e idempotenza sono sempre server-side.
 
 Il dettaglio architetturale è in `docs/ARCHITECTURE/STOREFRONT-DATA-BOUNDARY.md`.
+
+## Dipendenze cross-repo
+
+- Admin Console e Supabase dovranno produrre e proteggere la proiezione Storefront.
+- Android/iOS operativi e Win7POS restano fonti di processi e inventory, mai dipendenze
+  runtime dirette del client.
+- TASK-003 assegna ownership e contratto; TASK-004–TASK-011 realizzano ambienti, schema,
+  proiezioni, query e connessione staging.
+- Il client resta avviabile offline finché quel contratto non esiste. La futura
+  esperienza offline del catalogo, inclusi cache, freshness e invalidazione, appartiene
+  a TASK-017.
 
 ## Principi di prodotto
 
@@ -99,6 +114,13 @@ TASK-002 non fissa target numerici senza baseline né abilita analytics.
 - creare marketplace, programma fedeltà, social feed o advertising;
 - scegliere provider di pagamento o logistica in anticipo;
 - collegare backend, dati reali o feature commerciali in TASK-002.
+
+## Possibili capability post-MVP
+
+Multi-store, loyalty, advertising, social commerce e altre estensioni non sono approvate
+né inserite automaticamente nel backlog. Potranno essere valutate soltanto dopo
+evidenza d'uso, stabilità dell'MVP e autorizzazione dell'utente; TASK-002 non assegna
+priorità o ownership a tali ipotesi.
 
 ## Confine di TASK-002
 

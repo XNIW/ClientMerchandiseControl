@@ -3,21 +3,29 @@
 Questi journey descrivono il comportamento futuro atteso. TASK-002 non li implementa e
 non introduce dati simulati.
 
-## Journey principali
+## Journey minimi
 
 | # | Journey futuro | Percorso nominale | Failure e recovery essenziali | Owner |
 |---|---|---|---|---|
-| 1 | Avvio ed esplorazione anonima | apertura → Home → catalogo | backend non disponibile: stato esplicito, retry, nessun login forzato | TASK-011–TASK-014 |
-| 2 | Browse per categoria | catalogo → categoria → lista | categoria vuota o rimossa: spiegazione e ritorno al catalogo | TASK-014 |
-| 3 | Ricerca e filtri | query → risultati → filtro/ordine | zero risultati: query preservata e modifica filtri | TASK-015 |
-| 4 | Valutazione prodotto | risultato → dettaglio → prezzo/disponibilità | dato stale o prodotto non pubblicato: blocco fail-closed e alternativa | TASK-016–TASK-017 |
-| 5 | Preferito o condivisione | dettaglio → salva/condividi → ritorno | deep link non valido o offline: messaggio recuperabile | TASK-018 |
-| 6 | Accesso e profilo | intent protetto → motivo → login → ritorno al punto iniziale | sessione scaduta: rinnovo sicuro senza loop o perdita contesto | TASK-020–TASK-021 |
-| 7 | Carrello e rivalidazione | aggiunta → quantità → riepilogo → revalidation | prezzo cambiato: mostra vecchio/nuovo; indisponibile: conserva righe valide | TASK-023–TASK-024 |
-| 8 | Prenotazione e fulfillment | carrello → hold → ritiro/consegna → conferma | hold scaduto o opzione non disponibile: spiegazione e nuova scelta | TASK-025–TASK-026 |
-| 9 | Creazione e tracking ordine | conferma → ordine idempotente → dettaglio/storico | risposta incerta: recupero per idempotency key, mai doppio ordine | TASK-027–TASK-028 |
-| 10 | Preparazione e notifiche | evento server → notifica consentita → stato ordine | token/permesso assente: stato resta disponibile nell'app | TASK-029–TASK-031 |
-| 11 | Pagamento, se adottato | provider approvato → autorizzazione → esito riconciliato | esito ambiguo: nessuna seconda addebito e stato verificato server-side | TASK-032–TASK-034 |
+| 1 | Apertura e scoperta catalogo | apertura anonima → Home → catalogo/categoria | catalogo vuoto: spiegazione e prossima azione, nessun login forzato | TASK-011–TASK-014 |
+| 2 | Ricerca prodotto | query → risultati → filtro/ordine → prodotto | zero risultati: query preservata e modifica filtri | TASK-015–TASK-016 |
+| 3 | Visualizzazione promozione | prodotto pubblicato → prezzo originale/attuale → condizioni/validità | promo scaduta o non verificabile: mostra solo il prezzo autorevole | TASK-008, TASK-013, TASK-016 |
+| 4 | Prodotto verso carrello | dettaglio → aggiunta → carrello → rivalidazione | aggiunta non valida: motivo, contenuto precedente preservato | TASK-016, TASK-023 |
+| 5 | Prenotazione | carrello → hold atomico → scadenza esplicita | hold fallito/scaduto: nessun successo, nuova scelta possibile | TASK-024–TASK-025 |
+| 6 | Ritiro | hold → opzione ritiro configurata → luogo/orario → conferma | slot o ritiro non più disponibile: torna alla scelta senza perdere righe valide | TASK-026–TASK-030 |
+| 7 | Consegna | indirizzo → copertura/costo → riepilogo → conferma | indirizzo non coperto o costo cambiato: spiega e richiede conferma | TASK-021, TASK-026 |
+| 8 | Ordine verso stato | creazione idempotente → conferma → dettaglio/storico → eventi | risposta incerta: recupero per idempotency key, mai doppio ordine | TASK-027–TASK-031 |
+| 9 | Errore di connessione | richiesta → timeout/offline → stato conservato → retry/reconnect | distingue cache stale da dato assente e non duplica intenti | TASK-017, TASK-034 |
+| 10 | Prezzo cambiato | rivalidazione → vecchio/nuovo prezzo → nuova conferma | rifiuto: ritorno al carrello; nessun addebito o ordine implicito | TASK-023, TASK-027 |
+| 11 | Prodotto non più disponibile | rivalidazione → riga indisponibile → alternative/continua | conserva righe valide e non espone stock operativo | TASK-024–TASK-025 |
+
+## Journey aggiuntivi già previsti
+
+| Journey futuro | Regola essenziale | Owner |
+|---|---|---|
+| Accesso e profilo | motivo prima del login, ritorno al punto iniziale, sessione fail-closed | TASK-020–TASK-021 |
+| Preferito, condivisione e deep link | un link non valido non aggira shop scope o autenticazione | TASK-018 |
+| Pagamento, se adottato | esito ambiguo riconciliato server-side, mai secondo addebito automatico | TASK-032–TASK-034 |
 
 ## Regole trasversali
 
@@ -30,8 +38,6 @@ non introduce dati simulati.
 7. Deep link e notifiche non aggirano login, autorizzazione o shop scope.
 8. Immagini mancanti non impediscono nome, prezzo, stato e azione essenziale.
 9. Orientamento, resize, text scale e cambio tema preservano tab e contesto.
-
-## Criterio di uscita futuro
 
 Ogni task proprietario trasforma il journey interessato in criteri, test nominali,
 failure path e smoke reali. Questa mappa non sostituisce i contratti né l'acceptance dei

@@ -40,6 +40,23 @@ Admin e POS e le rispettive palette non sono prove di una decisione commerciale.
 - sistema adattabile a un futuro brand senza riscrivere feature;
 - nessun asset o nome “temporaneo” presentato come ufficiale.
 
+## Usi consentiti e da evitare
+
+Consentiti:
+
+- technical display name come fallback chiaramente provvisorio;
+- seed teal e font di sistema come foundation accessibile;
+- gerarchia sobria e stati commerciali descritti con testo e semantica;
+- promozioni solo da dati server validi, con prezzo originale, attuale e condizioni.
+
+Da evitare:
+
+- logo, tagline, legal name o claim inventati;
+- superlativi, garanzie o risparmi non verificabili;
+- disponibilità falsa, stock grezzo o scarsità simulata;
+- countdown fittizi, urgenza artificiale, preselezioni o altri dark pattern;
+- uso di un colore, nome operativo esterno o `shop_name` come brand senza approvazione.
+
 ## Tono di voce
 
 - frasi brevi, dirette e orientate al compito;

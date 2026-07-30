@@ -23,6 +23,7 @@ restano `en`, `es`, `it` e `zh-Hans`.
 ## Regole di scrittura
 
 - Una chiave ARB per messaggio; nessuna concatenazione di frasi.
+- Nessuna stringa UI customer-facing hardcoded nei widget.
 - Il template spagnolo contiene descrizione e, per i placeholder futuri, tipo ed esempio.
 - CTA nel formato verbo + oggetto.
 - Niente `backend`, `task`, `contract`, stack trace o codici nel copy cliente.

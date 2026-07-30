@@ -21,7 +21,8 @@ Le feature consumano token, `Theme.of(context).colorScheme` e
 - radii per control, card e pill;
 - target minimo 48, icon size e larghezza contenuto massima 960;
 - breakpoint ordinati con layout wide da 720;
-- motion short/medium/long, ridotta a zero quando il sistema disabilita le animazioni.
+- motion short/medium/long e curve standard/enfatizzata, con durata ridotta a zero
+  quando il sistema disabilita le animazioni.
 
 I breakpoint descrivono lo spazio disponibile al widget, non il modello di device.
 
@@ -43,6 +44,21 @@ deve avere anche testo, icona o semantica; il colore non è mai l'unico segnale.
 Il font è quello di sistema. I widget usano i ruoli Material (`headlineSmall`,
 `bodyLarge`, `labelLarge` e altri quando necessari) e rispettano il text scaling. Non
 vengono fissati font size nelle feature.
+
+| Contenuto | Ruolo Material previsto |
+|---|---|
+| Display/editoriale raro | `displaySmall` |
+| Heading pagina o sezione | `headlineSmall` |
+| Titolo elemento | `titleLarge` / `titleMedium` |
+| Testo principale | `bodyLarge` |
+| Label e CTA | `labelLarge` |
+| Prezzo principale futuro | `headlineSmall` + semantic color `price` |
+| Prezzo originale futuro | `bodyMedium` + `originalPrice` e semantica testuale |
+| Badge futuro | `labelMedium` |
+| Supporto/metadato | `bodySmall` |
+
+I ruoli prezzo e badge sono contratti per i task commerciali futuri, non componenti o
+dati introdotti da TASK-002.
 
 ## Componenti foundation
 

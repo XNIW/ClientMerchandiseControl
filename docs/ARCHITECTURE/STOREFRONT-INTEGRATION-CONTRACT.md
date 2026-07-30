@@ -394,13 +394,13 @@ stato o dipendenze del Master Plan.
 | Task | Responsabilità rispetto al contratto |
 |---|---|
 | TASK-003 | baseline logica, ownership, attori, shop scope, trust e change protocol |
-| TASK-004 | environment strategy, configurazione e binding fail-closed del singolo shop |
+| TASK-004 | environment strategy, callback e configurazione fail-closed, senza fallback cross-environment |
 | TASK-005 | schema fisico, migration ownership, grant, RLS e operazioni server-side conformi |
 | TASK-006 | proiezione Storefront dal dominio operativo senza accesso runtime diretto del client |
 | TASK-007 | pubblicazione e visibilità shop-scoped |
 | TASK-008 | prezzo cliente, promozioni, validità e commercial truth |
 | TASK-009 | sorgenti, rendition, pubblicazione e invalidazione delle immagini |
-| TASK-010 | query/API fisica, search, pagination, error contract, fixture, version negotiation e contract test |
+| TASK-010 | query/API fisica, discovery e binding di `shop_id` con validazione server-side, search, pagination, error contract, fixture, version negotiation e contract test |
 | TASK-011 | connessione staging, health/readiness e failure di trasporto |
 | TASK-012–TASK-019 | presentazione pubblica, discovery, cache/freshness e performance del catalogo |
 | TASK-020 | identità, session lifecycle e deep link senza scorciatoie autorizzative |

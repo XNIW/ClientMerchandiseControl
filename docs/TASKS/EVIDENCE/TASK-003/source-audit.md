@@ -82,8 +82,8 @@ rispettivamente nei task TASK-005, TASK-006 e TASK-010/TASK-011.
 - Il contratto POS ha versioni centralizzate nell'Admin e replicate nel consumer
   Win7POS:
   `Admin:docs/POS_SYNC_ARCHITECTURE.md:71-90`.
-- Il repository contiene 96 file migration SQL. La CI avvia Supabase locale, applica
-  le migration e lancia pgTAP:
+- La CI Admin avvia Supabase locale, applica le migration presenti nel repository e
+  lancia pgTAP:
   `Admin:.github/workflows/ci.yml:22-51`.
 - Il workflow staging verifica ref allowlisted, branch, delta ledger locale/remoto,
   dry-run e apply esplicito:
@@ -95,8 +95,10 @@ rispettivamente nei task TASK-005, TASK-006 e TASK-010/TASK-011.
   `Admin:docs/TASKS/EVIDENCE/TASK-143/README.md:197-203`.
 - `shops.shop_id` nasce UUID primary key e le relazioni shop-scoped usano UUID:
   `Admin:supabase/migrations/20260530041048_task_005g_admin_web_schema_rls.sql:27-55`.
-- Il management contract immagini usa bucket privato `product-images`, limiti, UUID
-  shop/product/version e input distinti per intent/finalize/remove/read:
+- L'evidence schema immagini dichiara il bucket `product-images` con `public=false`;
+  il management contract ne fissa nome, limiti, UUID shop/product/version e input
+  distinti per intent/finalize/remove/read:
+  `Admin:docs/TASKS/EVIDENCE/TASK-137/01-schema-rls-and-grants.md:14-25` e
   `Admin:src/server/shop-admin/product-images/contract.ts:3-50,59-120`.
 - Non esiste `supabase/functions/` nel repository Admin. Le funzioni server correnti
   sono route Next.js e funzioni PostgreSQL/RPC, non Edge Functions.
@@ -247,7 +249,9 @@ non un dominio dati pubblico.
 - Sale/refund/void generano movimenti stock idempotenti e aggiornano `product_meta`;
   l'outbox conserva payload e hash stabili:
   `POS:src/Win7POS.Data/Repositories/SaleRepository.cs:653-842`.
-- `PosAdminWebClient` è il solo trasporto HTTP concreto:
+- L'architettura POS assegna a `PosAdminWebClient` l'unico trasporto HTTP concreto
+  verso Admin Web; l'implementazione corrispondente è nel layer Data:
+  `POS:docs/ARCHITECTURE/POS_ADMIN_SUPABASE_SYNC_ARCHITECTURE.md:100-106` e
   `POS:src/Win7POS.Data/Online/PosAdminWebClient.cs:14-20,53-100,189-201`.
 - Le immagini sono soltanto `DESIGN_READY / IMPLEMENTATION_NOT_STARTED`; nessun campo,
   migration, download o UI è implementato:

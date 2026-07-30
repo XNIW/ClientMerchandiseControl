@@ -10,16 +10,16 @@
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_FIXER
-- **Review outcome**: CHANGES_REQUIRED
-- **Reviewer**: nuove sessioni indipendenti read-only da assegnare
+- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Review outcome**: APPROVED
+- **Reviewer**: due sessioni indipendenti read-only
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **DONE**: NO
 - **Merge**: NO — PR batch con TASK-003 dopo review e CI finali
 - **User approval**: APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-004/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -349,7 +349,29 @@ terminato exit 0. Nessun processo è rimasto attivo.
 - **Review outcome**: resta `CHANGES_REQUIRED` fino alla re-review indipendente
 - **Merge**: vietato fino a `APPROVED`, closeout e CI finali
 
+## Re-review — `CODEX_RE_REVIEWER`
+
+Due sessioni read-only indipendenti dal Fixer hanno verificato il commit
+`0feca6625df0108810a52e27ba593a469eb3b6f2`.
+
+- `T004-REV-001`–`T004-REV-004`: tutti `CLOSED`;
+- test autonomi: 29/29 mirati e 72/72 completi;
+- screenshot: due PNG ispezionati, dimensioni/byte/digest coerenti;
+- security e confinement: `PASS`;
+- CI handoff `30591364046`: SHA esatto, 3/3 job, tutti gli step `success`,
+  annotation 0/0/0;
+- nuovi finding: 0 P0, 0 P1, 0 P2 e un P3 documentale non bloccante
+  (`T004-REREV-001`).
+
+### Handoff a USER_APPROVER
+
+- **Esito**: `APPROVED`
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`
+- **Autorizzazione**: già concessa in forma condizionata dal prompt end-to-end
+- **Prossimo passo**: closeout `DONE`, CI sul closeout, review integrata PR batch
+- **Merge**: ancora vietato
+
 ## Chiusura
 
-Non applicabile in Planning. `DONE`, PR batch e merge richiedono Execution, review
-indipendente, zero finding P0/P1/P2, gate terminali e conferma già condizionata.
+Non ancora applicata. `DONE` richiede il commit di approvazione verde e il closeout
+esplicito; PR batch e merge richiedono inoltre review integrata e CI terminale.

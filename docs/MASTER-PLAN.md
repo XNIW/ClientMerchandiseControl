@@ -10,9 +10,9 @@
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
-- **Prossima azione autorizzata**: verificare indipendentemente la chiusura di
-  `T004-REV-001`–`T004-REV-004`, i gate Fix, gli screenshot e la CI
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Prossima azione autorizzata**: applicare l'autorizzazione condizionata già
+  concessa, registrare il closeout TASK-004 e attestarne la CI finale
 
 ## Repository coinvolti
 
@@ -115,4 +115,4 @@ vincolante un solo task `ACTIVE` alla volta.
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
 `TASK-003` è `DONE` con re-review `APPROVED` e CI finale attestata.
-`TASK-004` è l'unico task `ACTIVE` in `REVIEW` dopo il ciclo di Fix.
+`TASK-004` è l'unico task `ACTIVE` in `REVIEW`, con re-review `APPROVED`.

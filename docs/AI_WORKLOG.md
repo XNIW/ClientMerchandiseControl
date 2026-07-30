@@ -454,3 +454,21 @@
 - **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 - **Blocker/note**: nessun gate aperto; il Fix non si auto-approva, re-review
   indipendente obbligatoria e merge vietato.
+
+## 2026-07-30 — Re-review TASK-004 approvata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-004
+- **Fase**: REVIEW
+- **Revisione**: `0feca6625df0108810a52e27ba593a469eb3b6f2`
+- **Azioni principali**: due sessioni read-only indipendenti dal Fixer hanno
+  verificato singolarmente i quattro finding, le regressioni, screenshot/manifest,
+  security, confinement, matrici e CI.
+- **Verifiche**: finding originari 4/4 chiusi; test autonomi 29/29 e 72/72; due PNG
+  ispezionati con digest coerenti; CI handoff `30591364046` sullo SHA esatto, 3/3
+  job, tutti gli step `success`, annotation 0/0/0.
+- **Finding finali**: 0 P0, 0 P1, 0 P2; un P3 non bloccante per una riga evidence con
+  conteggio storico 70/70 anziché 72/72.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+- **Blocker/note**: autorizzazione condizionata già concessa; closeout e CI sul suo
+  SHA restano obbligatori prima di PR/merge batch.

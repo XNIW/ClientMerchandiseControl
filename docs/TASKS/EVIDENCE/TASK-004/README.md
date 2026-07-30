@@ -1,7 +1,7 @@
 # TASK-004 evidence
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 - Base: closeout TASK-003
   `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`
@@ -18,11 +18,14 @@ Snapshot di handoff:
 - Smoke Fix: Android Emulator e iOS Simulator development 1/1 `PASS`
 - CI tecnica: run `30588442946` sullo SHA esatto `9ecffdfc7de38e979a48bac201ddd36a5296b78b`,
   3/3 job, tutti gli step `success`, annotation 0/0/0
-- Review: `CHANGES_REQUIRED`, 0 P0, 0 P1, 3 P2, 1 P3
-- Fix: quattro finding corretti; re-review `NOT_RUN`
+- Review iniziale: `CHANGES_REQUIRED`, 0 P0, 0 P1, 3 P2, 1 P3
+- Fix: quattro finding corretti
+- Re-review: `APPROVED`, 0 P0, 0 P1, 0 P2, 1 P3 non bloccante
 - CI handoff Execution: run `30589127508` sullo SHA esatto `fb9724d…`,
   3/3 job, tutti gli step `success`, annotation 0/0/0
 - CI tecnica Fix: run `30590869991` sullo SHA esatto `bccb6f5…`,
+  3/3 job, tutti gli step `success`, annotation 0/0/0
+- CI handoff Fix: run `30591364046` sullo SHA esatto `0feca66…`,
   3/3 job, tutti gli step `success`, annotation 0/0/0
 - DONE/PR/merge: `NOT_RUN`
 
@@ -36,11 +39,11 @@ Evidence disponibili:
 - `runtime-smoke.md`
 - `review-report.md`
 - `fix-evidence.md`
+- `re-review-report.md`
 - `screenshots/manifest.md`
 
 Evidence previste in review:
 
-- eventuale `re-review-report.md`
 - `closeout.md`
 
 ## Criteri di accettazione — stato corrente
@@ -73,8 +76,8 @@ Evidence previste in review:
 | CA-24 | PASS | 29/29 mirati con regressioni callback/bootstrap |
 | CA-25 | PASS | `scripts/check.sh` exit 0; 70/70 test e due build |
 | CA-26 | PASS | smoke 1/1 dual-platform, comandi/output e screenshot manifest |
-| CA-27 | NOT_RUN | re-review indipendente non ancora iniziata |
-| CA-28 | PASS | CI Fix `30590869991`, SHA esatto, 3/3 job e annotation 0/0/0 |
+| CA-27 | PASS | re-review `APPROVED`, zero P0/P1/P2 aperti |
+| CA-28 | PASS | CI handoff `30591364046`, SHA esatto, 3/3 job e annotation 0/0/0 |
 
 ## Test case — stato corrente
 
@@ -105,5 +108,5 @@ Evidence previste in review:
 | T-23 | PASS | diff confinement e scan simboli fuori scope |
 | T-24 | PASS | scan security/config/artifact e zero-write |
 | T-25 | PASS | test mirati e `scripts/check.sh` exit 0 |
-| T-26 | NOT_RUN | re-review non ancora iniziata |
-| T-27 | PASS | CI `30590869991` su `bccb6f5…`, step e annotation ispezionati |
+| T-26 | PASS | due sessioni read-only, quattro finding originari chiusi |
+| T-27 | PASS | CI `30591364046` su `0feca66…`, step e annotation ispezionati |

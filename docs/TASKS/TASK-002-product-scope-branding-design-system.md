@@ -7,16 +7,16 @@
   tokens
 - **File task**: `docs/TASKS/TASK-002-product-scope-branding-design-system.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_PLANNER
+- **Ultimo agente**: CODEX_EXECUTOR
 - **DONE**: NO
 - **Merge**: NO
 - **User approval**: GRANTED_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-002/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -96,12 +96,12 @@ visual, launcher/store icon e identità definitiva restano di TASK-038.
 | CA-14 | ColorScheme e ThemeExtension gestiscono light e dark mode | UNIT/WIDGET |
 | CA-15 | Nessun colore semanticamente rilevante resta hardcoded nei feature widget | STATIC |
 | CA-16 | Shell e placeholder usano realmente i token | STATIC/WIDGET |
-| CA-17 | Quattro destinazioni, route, stato tab e back non regrediscono | WIDGET/SMOKE |
-| CA-18 | La UI funziona con text scale 200% | WIDGET/SMOKE |
-| CA-19 | Nessun overflow evidente in portrait, landscape o finestra ampia | WIDGET/SMOKE |
-| CA-20 | Touch target e Semantics restano accessibili e lo stato non dipende solo dal colore | UNIT/WIDGET/SMOKE |
-| CA-21 | Nessun prodotto, prezzo o stock finto viene introdotto | STATIC/WIDGET/SMOKE |
-| CA-22 | Nessuna chiamata Supabase o richiesta di rete viene aggiunta | STATIC/UNIT/SMOKE |
+| CA-17 | Quattro destinazioni, route, stato tab e back non regrediscono | WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-18 | La UI funziona con text scale 200% | WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-19 | Nessun overflow evidente in portrait, landscape o finestra ampia | WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-20 | Touch target e Semantics restano accessibili e lo stato non dipende solo dal colore | UNIT/WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-21 | Nessun prodotto, prezzo o stock finto viene introdotto | STATIC/WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-22 | Nessuna chiamata Supabase o richiesta di rete viene aggiunta | STATIC/UNIT/ANDROID_EMU/IOS_SIM |
 | CA-23 | Nessun secret, dato reale o URL production viene introdotto | SECURITY/GIT |
 | CA-24 | Nessuna dipendenza speculativa viene introdotta | STATIC/GIT |
 | CA-25 | Format, analyze, script e tutti i test sono `PASS` | FORMAT/ANALYZE/UNIT/WIDGET |
@@ -144,7 +144,7 @@ registrato nel report finale; nessuno dei due può essere pre-dichiarato `PASS`.
 | T-15 | CA-18, CA-19 | WIDGET | Provare 320px/200%, landscape/200% e finestra ampia su tutte le tab |
 | T-16 | CA-20 | WIDGET | Misurare touch target e verificare heading, label e live region |
 | T-17 | CA-21 | STATIC/WIDGET | Cercare e verificare assenza di prodotto/prezzo/stock finto |
-| T-18 | CA-22 | STATIC/UNIT/SMOKE | Verificare zero networking nuovo, offline boot e log runtime |
+| T-18 | CA-22 | STATIC/UNIT/ANDROID_EMU/IOS_SIM | Verificare zero networking nuovo, offline boot e log runtime |
 | T-19 | CA-23 | SECURITY/GIT | Eseguire secret/prod URL/artifact scan mirato al diff e repository |
 | T-20 | CA-24 | STATIC/GIT | Confrontare pubspec/lock e ispezionare `pub deps/outdated` |
 | T-21 | CA-25 | FORMAT/ANALYZE/UNIT/WIDGET | Eseguire tutti i quality gate e script |
@@ -168,6 +168,7 @@ registrato nel report finale; nessuno dei due può essere pre-dichiarato `PASS`.
 | D-04 | TASK-002 applica la foundation alla shell placeholder esistente; TASK-012 resta owner della productizzazione data-backed e dell'acceptance estesa. | Evitare sovrapposizione e scope creep | ATTIVA |
 | D-05 | Font di sistema e zero nuove dipendenze sono la scelta prevista. | Flutter SDK copre la foundation richiesta | ATTIVA |
 | D-06 | Le letture cross-repo sono read-only e referenziate per SHA; dirty state preesistenti non vengono corretti. | Preservare confini e lavoro esterno | ATTIVA |
+| D-07 | L'emendamento recovery del `USER_APPROVER` richiede backup non distruttivo e smoke automatico reale Android/iOS. È ammessa soltanto la dev dependency `integration_test` fornita dal Flutter SDK; restano vietate nuove dipendenze runtime o esterne. I tipi generici `SMOKE` sono normalizzati in `ANDROID_EMU` e `IOS_SIM`. | Colmare CA-28/CA-29 senza dipendere dalla GUI e riallineare i test alla tassonomia del protocollo | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 
@@ -229,12 +230,74 @@ shell Flutter già esistente, senza anticipare funzionalità commerciali o backe
 
 ## Execution — `CODEX_EXECUTOR`
 
-Non ancora compilata. L'Executor deve applicare esclusivamente il Planning sopra e
-registrare comandi, exit code, warning, matrici e handoff reali.
+### Implementazione
+
+- ampliati product scope, MVP, utenti/jobs, journey, UX, brand e content/localization
+  senza anticipare backend o funzionalità commerciali;
+- accettati ADR-007 e ADR-008 e aggiornato il contratto architetturale;
+- aggiunti brand registry, token dimensionali/motion e semantic colors light/dark;
+- applicati i token a theme, shell, page, banner e placeholder;
+- mantenuti `StatefulShellRoute.indexedStack`, quattro destinazioni, back e subtree;
+- sostituito gergo tecnico nei placeholder con copy cliente es/it/en/zh-Hans;
+- aggiunti test deterministici e smoke reale automatico su Android/iOS;
+- applicato l'emendamento D-07 senza nuove dipendenze runtime o esterne.
+
+Commit tecnico verificato:
+`ec599758948a303b0862935fcf9ae9003a64aa00`.
+
+### Gate ed evidence
+
+| Gate | Esito | Evidence |
+|---|---|---|
+| `bash scripts/check.sh` | `PASS`, exit `0` | format, analyze, 59/59 test, build Android/iOS |
+| Android Emulator | `PASS`, exit `0` | API 35, integration smoke 1/1 |
+| iOS Simulator | `PASS`, exit `0` | iOS 26.5, integration smoke 1/1 |
+| Security diff | `PASS` | scan `40f261c3-5a0d-4e50-8603-3c4ab42cc838`, 15/15, 0 finding |
+| Dipendenze | `PASS` | `pub deps` e `pub outdated`; solo `integration_test` SDK dev-only |
+| Static/Git | `PASS` | raw value, fake commerce, networking, secret, URL e identifier |
+| Repository esterni | `PASS` | fingerprint iniziali/finali 4/4 identici |
+| Backup recovery | `PASS` | bundle completo e patch branch verificati |
+
+Evidence persistenti:
+
+- `docs/TASKS/EVIDENCE/TASK-002/execution-evidence.md`;
+- `docs/TASKS/EVIDENCE/TASK-002/runtime-smoke.md`;
+- `docs/TASKS/EVIDENCE/TASK-002/security-diff-scan.md`;
+- `docs/TASKS/EVIDENCE/TASK-002/external-repository-integrity.md`;
+- `docs/TASKS/EVIDENCE/TASK-002/recovery-backup.md`;
+- `docs/TASKS/EVIDENCE/TASK-002/screenshot-manifest.md`;
+- matrici in `docs/TASKS/EVIDENCE/TASK-002/README.md`.
+
+Log completi, coverage e artifact build restano locali e non versionati.
+
+### Warning e deviazioni
+
+- iterazioni pre-finali del nuovo integration test hanno rilevato e corretto verifica
+  Semantics e teardown; i due run finali sono `PASS`;
+- `simctl log erase` non è permesso sul runtime corrente: usato filtro temporale per
+  processo, senza conservare log grezzi;
+- `aapt2` non è nel `PATH`: controllo ripetuto con path SDK esplicito;
+- package già vincolati hanno major più recenti disponibili; nessun upgrade rientra nello
+  scope.
+
+Nessun gate obbligatorio resta `FAIL`, `BLOCKED` o `NOT_RUN`. Nessun file backend,
+feature commerciale, dato reale, secret o repository esterno è stato modificato.
+
+### Handoff a Review
+
+- **Transizione**: `EXECUTION -> REVIEW`
+- **Esito Executor**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`
+- **Prossimo ruolo**: `CODEX_REVIEWER`
+- **Review richiesta**: intent/CA/diff/evidence/runtime/security/Git indipendenti
+- **Finding aperti dichiarati dall'Executor**: nessuno; il Reviewer non deve assumere
+  corretto questo claim
+- **Merge**: vietato prima di review `APPROVED`, CI closeout `PASS` e conferma già
+  condizionata del `USER_APPROVER`
+- **Timestamp**: `2026-07-30T15:05:10-04:00`
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
-Non ancora eseguita.
+Non ancora eseguita. La transizione a Review non costituisce approvazione.
 
 ## Fix — `CODEX_FIXER`
 

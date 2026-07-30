@@ -8,11 +8,12 @@
 - **Task attivo**: TASK-002
 - **File task**: `docs/TASKS/TASK-002-product-scope-branding-design-system.md`
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
-- **Prossima azione autorizzata**: eseguire il Planning approvato di TASK-002 senza
-  ampliare scope, backlog o repository coinvolti
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Prossima azione autorizzata**: eseguire review indipendente di TASK-002 su intent,
+  criteri, diff, evidence, runtime, security e stato Git; nessun merge prima di
+  `APPROVED` e CI closeout `PASS`
 
 ## Repository coinvolti
 
@@ -98,5 +99,6 @@ Non risultano blocker di progetto attivi al bootstrap.
 - `TASK-001` — review `APPROVED`, conferma `USER_APPROVER` ricevuta il 2026-07-30,
   PR #1 merged con merge commit `f6bd88263fe8369c9ececa38367f629f3d1a929f`.
 
-`TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001. `TASK-003`
-resta `TODO` e nessun altro task è attivo.
+`TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
+consegnato a `REVIEW` con tutti i gate Execution obbligatori `PASS`. `TASK-003` resta
+`TODO` e nessun altro task è attivo.

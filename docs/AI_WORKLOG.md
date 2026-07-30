@@ -136,3 +136,23 @@
 - **Fase finale**: EXECUTION
 - **Blocker/note**: autorizzazione `USER_APPROVER` già concessa dal prompt end-to-end.
   `TASK-003` resta `TODO`; nessun backend o feature commerciale entra nello scope.
+
+## 2026-07-30 — Recovery, implementazione e handoff a Review TASK-002
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-002
+- **Fase iniziale**: EXECUTION
+- **Azioni principali**: creato e verificato un backup non distruttivo; completati
+  product/brand/UX/design-system deliverable; applicati token e semantic theme alla
+  shell; aggiunto smoke Flutter SDK reale; prodotte evidence sanitizzate; preservati i
+  quattro repository esterni.
+- **Verifiche**: `scripts/check.sh` exit 0 con 59 test e build Android/iOS; integration
+  smoke Android API 35 e iOS 26.5 exit 0; log applicativi senza crash/error/backend
+  marker; scan Codex Security 15/15 con 0 finding; fingerprint esterni 4/4 invariati;
+  package, identifier e target invariati.
+- **Risultato**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Branch/commit/PR**: `task/002-product-scope-branding-design-system`; commit tecnico
+  `ec599758948a303b0862935fcf9ae9003a64aa00`; PR da aprire sul commit di handoff.
+- **Fase finale**: REVIEW
+- **Blocker/note**: nessun gate Execution obbligatorio aperto. La review indipendente,
+  la CI closeout, `DONE` e il merge non sono ancora eseguiti; `TASK-003` resta `TODO`.

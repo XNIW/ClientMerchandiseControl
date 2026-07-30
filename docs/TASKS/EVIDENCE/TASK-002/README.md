@@ -1,82 +1,98 @@
 # TASK-002 evidence
 
-Snapshot iniziale:
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+Snapshot di handoff:
+`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+
+- Base: `f6bd88263fe8369c9ececa38367f629f3d1a929f`
+- Commit tecnico verificato:
+  `ec599758948a303b0862935fcf9ae9003a64aa00`
+- Gate Execution obbligatori: tutti `PASS`
+- Review indipendente: non ancora eseguita
+- CI closeout e post-merge: non ancora eseguiti
+
+Evidence principali:
+
+- `execution-evidence.md`
+- `runtime-smoke.md`
+- `security-diff-scan.md`
+- `external-repository-integrity.md`
+- `recovery-backup.md`
+- `screenshot-manifest.md`
 
 ## Criteri di accettazione
 
 | CA | Tipo | Esito | Evidenza |
 |---|---|---|---|
-| CA-01 | GIT/STATIC | PASS | PR #1 merged, merge commit `f6bd88263fe8369c9ececa38367f629f3d1a929f` |
-| CA-02 | STATIC | PASS | task e `planning-summary.md` |
-| CA-03 | STATIC | NOT_RUN | deliverable Execution |
-| CA-04 | STATIC | NOT_RUN | deliverable Execution |
-| CA-05 | STATIC | NOT_RUN | deliverable Execution |
-| CA-06 | STATIC | NOT_RUN | deliverable Execution |
-| CA-07 | STATIC | NOT_RUN | deliverable Execution |
-| CA-08 | STATIC/UNIT | NOT_RUN | deliverable Execution |
-| CA-09 | STATIC/GIT | PASS | `product-and-brand-audit.md` |
-| CA-10 | STATIC/UNIT | NOT_RUN | configurazione da implementare |
-| CA-11 | STATIC/WIDGET | NOT_RUN | deliverable Execution |
-| CA-12 | STATIC/UNIT/WIDGET | NOT_RUN | design system da implementare |
-| CA-13 | UNIT/STATIC | NOT_RUN | token da implementare |
-| CA-14 | UNIT/WIDGET | NOT_RUN | tema da implementare |
-| CA-15 | STATIC | NOT_RUN | scan post-implementazione |
-| CA-16 | STATIC/WIDGET | NOT_RUN | refactor da implementare |
-| CA-17 | WIDGET/SMOKE | NOT_RUN | gate Execution |
-| CA-18 | WIDGET/SMOKE | NOT_RUN | gate Execution |
-| CA-19 | WIDGET/SMOKE | NOT_RUN | gate Execution |
-| CA-20 | UNIT/WIDGET/SMOKE | NOT_RUN | gate Execution |
-| CA-21 | STATIC/WIDGET/SMOKE | NOT_RUN | gate Execution |
-| CA-22 | STATIC/UNIT/SMOKE | NOT_RUN | gate Execution |
-| CA-23 | SECURITY/GIT | NOT_RUN | gate Execution |
-| CA-24 | STATIC/GIT | NOT_RUN | audit dipendenze Execution |
-| CA-25 | FORMAT/ANALYZE/UNIT/WIDGET | NOT_RUN | quality gate |
-| CA-26 | BUILD_ANDROID | NOT_RUN | build gate |
-| CA-27 | BUILD_IOS | NOT_RUN | build gate |
-| CA-28 | ANDROID_EMU | NOT_RUN | smoke gate |
-| CA-29 | IOS_SIM | NOT_RUN | smoke gate |
-| CA-30 | WIDGET/ANDROID_EMU/IOS_SIM | NOT_RUN | test/smoke gate |
-| CA-31 | STATIC/MANUAL | NOT_RUN | review futura |
-| CA-32 | CI | NOT_RUN | SHA di closeout non ancora creato |
-| CA-33 | STATIC/GIT | NOT_RUN | tracking finale |
-| CA-34 | STATIC/GIT | NOT_RUN | chiusura futura condizionata |
-| CA-35 | GIT | NOT_RUN | controllo post-merge |
-| CA-36 | STATIC/GIT | NOT_RUN | controllo terminale |
-| CA-37 | GIT | NOT_RUN | confronto repository esterni finale |
-| CA-38 | STATIC/GIT | NOT_RUN | confronto identifier e target finale |
+| CA-01 | GIT/STATIC | PASS | PR #1 merged; merge `f6bd88263fe8369c9ececa38367f629f3d1a929f` |
+| CA-02 | STATIC | PASS | task, `planning-summary.md`, 38 CA, 30 test e D-07 autorizzata |
+| CA-03 | STATIC | PASS | `docs/PRODUCT/PRODUCT-SCOPE.md` |
+| CA-04 | STATIC | PASS | `docs/PRODUCT/MVP-SCOPE.md`, confini e tracciabilità backlog |
+| CA-05 | STATIC | PASS | `docs/PRODUCT/TARGET-USERS-AND-JOBS.md` |
+| CA-06 | STATIC | PASS | `docs/PRODUCT/USER-JOURNEYS.md` |
+| CA-07 | STATIC | PASS | `docs/PRODUCT/UX-PRINCIPLES.md` |
+| CA-08 | STATIC/UNIT | PASS | `BRAND-FOUNDATION.md`, `app_brand.dart`, 2 test brand |
+| CA-09 | STATIC/GIT | PASS | `product-and-brand-audit.md`; nessuna fonte brand autorevole inventata |
+| CA-10 | STATIC/UNIT | PASS | public brand nullo/provisional e fallback tecnico testato |
+| CA-11 | STATIC/WIDGET | PASS | content contract, ARB es/it/en/zh-Hans e rendering locale nei 59 test |
+| CA-12 | STATIC/UNIT/WIDGET | PASS | design system semantico consumato da shell e widget foundation |
+| CA-13 | UNIT/STATIC | PASS | token centralizzati e test invarianti |
+| CA-14 | UNIT/WIDGET | PASS | Material 3, ThemeExtension, light/dark, `copyWith` e `lerp` |
+| CA-15 | STATIC | PASS | scan raw color/metriche: 0 match fuori dai token |
+| CA-16 | STATIC/WIDGET | PASS | shell, page, banner e placeholder usano i token; widget test |
+| CA-17 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | quattro tab, back e subtree nei test e nei due smoke |
+| CA-18 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | 200% su tutte le tab nei test e nei due smoke |
+| CA-19 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | 320×568, 568×320, 390×844, 1024×768 e device reali senza eccezioni |
+| CA-20 | UNIT/WIDGET/ANDROID_EMU/IOS_SIM | PASS | contrasto, Semantics, selected/tap e touch target |
+| CA-21 | STATIC/WIDGET/ANDROID_EMU/IOS_SIM | PASS | scan, placeholder e smoke senza record/valori commerciali finti |
+| CA-22 | STATIC/UNIT/ANDROID_EMU/IOS_SIM | PASS | zero networking nuovo; unit/smoke/log confermano development offline |
+| CA-23 | SECURITY/GIT | PASS | `security-diff-scan.md`: 15/15 receipt, 0 finding |
+| CA-24 | STATIC/GIT | PASS | unica dev dependency SDK `integration_test`; graph/outdated audit |
+| CA-25 | FORMAT/ANALYZE/UNIT/WIDGET | PASS | `bash scripts/check.sh`, exit `0`, 59/59 |
+| CA-26 | BUILD_ANDROID | PASS | APK debug, hash in `execution-evidence.md` |
+| CA-27 | BUILD_IOS | PASS | Runner Simulator, inventory hash in `execution-evidence.md` |
+| CA-28 | ANDROID_EMU | PASS | `runtime-smoke.md`, Android API 35, exit `0` |
+| CA-29 | IOS_SIM | PASS | `runtime-smoke.md`, iOS 26.5, exit `0` |
+| CA-30 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | theme light/dark nei test, smoke e diagnostica visuale |
+| CA-31 | STATIC/MANUAL | NOT_RUN | review indipendente non ancora iniziata |
+| CA-32 | CI | NOT_RUN | SHA di closeout non ancora creato né pushato |
+| CA-33 | STATIC/GIT | PASS | task, Master Plan, worklog, matrici ed evidence allineati all'handoff |
+| CA-34 | STATIC/GIT | NOT_RUN | richiede review `APPROVED` prima del closeout |
+| CA-35 | GIT | NOT_RUN | controllo terminale post-merge |
+| CA-36 | STATIC/GIT | NOT_RUN | richiede closeout e ritorno progetto `IDLE` |
+| CA-37 | GIT | PASS | `external-repository-integrity.md`: zero-write 4/4 |
+| CA-38 | STATIC/GIT | PASS | package, identifier e target invariati; `execution-evidence.md` |
 
 ## Test case
 
 | Test | Tipo | Esito | Evidenza |
 |---|---|---|---|
-| T-01 | GIT | PASS | PR #1 e merge commit |
-| T-02 | STATIC | PASS | Planning registrato e autorizzato |
-| T-03 | STATIC | NOT_RUN | Execution |
-| T-04 | STATIC | NOT_RUN | Execution |
-| T-05 | STATIC | NOT_RUN | Execution |
-| T-06 | STATIC | NOT_RUN | Execution |
-| T-07 | STATIC/GIT/UNIT | NOT_RUN | Execution |
-| T-08 | STATIC/WIDGET | NOT_RUN | Execution |
-| T-09 | UNIT/STATIC | NOT_RUN | Execution |
-| T-10 | UNIT/WIDGET | NOT_RUN | Execution |
-| T-11 | UNIT | NOT_RUN | Execution |
-| T-12 | STATIC | NOT_RUN | Execution |
-| T-13 | WIDGET | NOT_RUN | Execution |
-| T-14 | WIDGET | NOT_RUN | Execution |
-| T-15 | WIDGET | NOT_RUN | Execution |
-| T-16 | WIDGET | NOT_RUN | Execution |
-| T-17 | STATIC/WIDGET | NOT_RUN | Execution |
-| T-18 | STATIC/UNIT/SMOKE | NOT_RUN | Execution |
-| T-19 | SECURITY/GIT | NOT_RUN | Execution |
-| T-20 | STATIC/GIT | NOT_RUN | Execution |
-| T-21 | FORMAT/ANALYZE/UNIT/WIDGET | NOT_RUN | Execution |
-| T-22 | BUILD_ANDROID/BUILD_IOS | NOT_RUN | Execution |
-| T-23 | ANDROID_EMU | NOT_RUN | Execution |
-| T-24 | IOS_SIM | NOT_RUN | Execution |
-| T-25 | MANUAL/STATIC | NOT_RUN | Review |
-| T-26 | CI | NOT_RUN | CI closeout |
-| T-27 | STATIC/GIT | NOT_RUN | Chiusura |
-| T-28 | GIT | NOT_RUN | Post-merge |
-| T-29 | GIT | NOT_RUN | Confronto repository esterni |
-| T-30 | STATIC/GIT | NOT_RUN | Confronto identifier e target |
+| T-01 | GIT | PASS | PR #1 e merge commit verificati |
+| T-02 | STATIC | PASS | Planning completo, autorizzato ed emendato con D-07 |
+| T-03 | STATIC | PASS | product/MVP scope e tracciabilità verificati |
+| T-04 | STATIC | PASS | profili, jobs e vincoli verificati |
+| T-05 | STATIC | PASS | journey nominali, failure e revalidation documentati |
+| T-06 | STATIC | PASS | checklist UX/commercial truth/accessibilità/resilienza |
+| T-07 | STATIC/GIT/UNIT | PASS | registry, audit fonti, fallback e test brand |
+| T-08 | STATIC/WIDGET | PASS | parità e rendering es/it/en/zh-Hans/fallback |
+| T-09 | UNIT/STATIC | PASS | token e invarianti nei 59 test |
+| T-10 | UNIT/WIDGET | PASS | tema light/dark, extension, `copyWith` e `lerp` |
+| T-11 | UNIT | PASS | coppie di contrasto semantico testate |
+| T-12 | STATIC | PASS | scan raw color/metriche, zero match fuori design system |
+| T-13 | WIDGET | PASS | consumo token e Semantics componenti |
+| T-14 | WIDGET | PASS | tab, back e persistenza |
+| T-15 | WIDGET | PASS | matrice viewport e testo 200% su tutte le tab |
+| T-16 | WIDGET | PASS | touch target, heading, label e live region |
+| T-17 | STATIC/WIDGET | PASS | nessun dato commerciale fittizio |
+| T-18 | STATIC/UNIT/ANDROID_EMU/IOS_SIM | PASS | bootstrap offline, due smoke e log sanitizzati |
+| T-19 | SECURITY/GIT | PASS | scan security sigillato e contratto validato |
+| T-20 | STATIC/GIT | PASS | diff pubspec/lock, deps e outdated |
+| T-21 | FORMAT/ANALYZE/UNIT/WIDGET | PASS | gate aggregato exit `0` |
+| T-22 | BUILD_ANDROID/BUILD_IOS | PASS | entrambe le build exit `0` |
+| T-23 | ANDROID_EMU | PASS | smoke automatico reale Android, exit `0` |
+| T-24 | IOS_SIM | PASS | smoke automatico reale iOS, exit `0` |
+| T-25 | MANUAL/STATIC | NOT_RUN | owner: `CODEX_REVIEWER` |
+| T-26 | CI | NOT_RUN | prerequisito: commit closeout pushato |
+| T-27 | STATIC/GIT | NOT_RUN | sub-check CA-33 `PASS`; CA-34/36 attendono review/closeout |
+| T-28 | GIT | NOT_RUN | PR non ancora merged |
+| T-29 | GIT | PASS | fingerprint esterni iniziali/finali identici |
+| T-30 | STATIC/GIT | PASS | package, target e identifier confrontati con la baseline |

@@ -1,8 +1,9 @@
 # TASK-001 evidence
 
 Stato snapshot: re-review completata e autorizzazione finale registrata;
-`DONE / REVIEW / USER_APPROVED_DONE`. Il merge della PR #1 è autorizzato e attende la CI
-del commit documentale; TASK-002 resta `TODO`.
+`DONE / REVIEW / USER_APPROVED_DONE`. La PR #1 è merged con merge commit
+`f6bd88263fe8369c9ececa38367f629f3d1a929f`; TASK-002 è stato attivato soltanto dopo
+la sincronizzazione di `main`.
 
 ## Criteri di accettazione
 
@@ -72,3 +73,6 @@ criterio verificato durante Execution e Review.
 - SHA revisionato: `975ce7294555446b10eddb373769f8604b45c37c`.
 - CI sullo SHA revisionato: run `30557641291`, tre job `PASS`, zero annotation.
 - Finding aperti: 0 P0, 0 P1, 0 P2.
+- CI closeout: run `30562229686` sul commit `2e053cab8ed32b921f222e0666530574b137601f`,
+  tre job `PASS`, zero annotation.
+- Merge: PR #1 `MERGED` il 2026-07-30T16:43:58Z.

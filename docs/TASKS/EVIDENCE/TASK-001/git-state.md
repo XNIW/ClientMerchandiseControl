@@ -43,3 +43,14 @@ I commit/ref letti sono elencati in
 - installazione locale della toolchain Flutter/CocoaPods/Android necessaria ai gate.
 
 Nessun repository esterno è stato scritto.
+
+## Closeout e merge
+
+- Commit documentale: `2e053cab8ed32b921f222e0666530574b137601f`.
+- CI closeout: run `30562229686`, `PASS`.
+- PR #1: `MERGED` il 2026-07-30T16:43:58Z.
+- Merge commit su `main`: `f6bd88263fe8369c9ececa38367f629f3d1a929f`.
+- Branch TASK-001 remoto: eliminato.
+- Branch TASK-001 locale: eliminato dopo verifica `--merged`.
+- `main` locale e `origin/main`: allineati al merge commit prima di creare il branch
+  TASK-002.

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
-class ResponsiveContent extends StatelessWidget {
-  const ResponsiveContent({
+import '../tokens/app_breakpoints.dart';
+import '../tokens/app_sizes.dart';
+import '../tokens/app_spacing.dart';
+
+class StorefrontPage extends StatelessWidget {
+  const StorefrontPage({
     required this.child,
     super.key,
-    this.maxWidth = 960,
+    this.maxWidth = AppSizes.contentMaxWidth,
   });
 
   final Widget child;
@@ -14,11 +18,14 @@ class ResponsiveContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final horizontalPadding = constraints.maxWidth >= 720 ? 32.0 : 20.0;
+        final horizontalPadding = constraints.maxWidth >= AppBreakpoints.wide
+            ? AppSpacing.xxl
+            : AppSpacing.lg;
+
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(
             horizontal: horizontalPadding,
-            vertical: 24,
+            vertical: AppSpacing.xl,
           ),
           child: Center(
             child: ConstrainedBox(

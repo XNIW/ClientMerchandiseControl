@@ -6,11 +6,11 @@
   "navigationCart": "Cart",
   "navigationAccount": "Account",
   "homeTitle": "Home",
-  "homeFoundationMessage": "The storefront foundation is ready. The public catalog will be connected in a later task.",
+  "homeFoundationMessage": "You will soon be able to discover what's new at the store here.",
   "catalogTitle": "Catalog",
-  "catalogFoundationMessage": "The catalog is not connected yet. Only published products will appear here.",
+  "catalogFoundationMessage": "The catalog will be available here soon.",
   "cartTitle": "Cart",
-  "cartFoundationMessage": "The cart will be implemented after the public price and availability contract.",
+  "cartFoundationMessage": "Your cart will be available when you can choose products.",
   "accountTitle": "Account",
-  "accountFoundationMessage": "Customer profiles and secure access will be implemented in later tasks."
+  "accountFoundationMessage": "You can access your account when this feature is available."
 }

@@ -6,11 +6,11 @@
   "navigationCart": "Carrello",
   "navigationAccount": "Account",
   "homeTitle": "Home",
-  "homeFoundationMessage": "La fondazione del negozio è pronta. Il catalogo pubblico verrà collegato in un task successivo.",
+  "homeFoundationMessage": "Presto potrai scoprire qui le novità del negozio.",
   "catalogTitle": "Catalogo",
-  "catalogFoundationMessage": "Il catalogo non è ancora collegato. Qui appariranno soltanto prodotti pubblicati.",
+  "catalogFoundationMessage": "Il catalogo sarà presto disponibile qui.",
   "cartTitle": "Carrello",
-  "cartFoundationMessage": "Il carrello verrà implementato dopo il contratto pubblico di prezzi e disponibilità.",
+  "cartFoundationMessage": "Il carrello sarà disponibile quando potrai scegliere i prodotti.",
   "accountTitle": "Account",
-  "accountFoundationMessage": "Il profilo cliente e l'accesso sicuro verranno implementati in task successivi."
+  "accountFoundationMessage": "Potrai accedere al tuo account quando questa funzione sarà disponibile."
 }

@@ -23,4 +23,4 @@ Per TASK-001 il ciclo di review si è concluso con:
 - Conferma utente: ricevuta il 2026-07-30 tramite prompt end-to-end;
 - Stato dopo conferma: `DONE`;
 - Handoff dopo conferma: `USER_APPROVED_DONE`;
-- Merge: autorizzato, da eseguire soltanto dopo CI verde sul commit di closeout.
+- Merge: completato con PR #1 dopo CI verde sul commit di closeout.

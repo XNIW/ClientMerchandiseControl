@@ -101,3 +101,122 @@
 - **Fase finale**: REVIEW
 - **Blocker/note**: nessun blocker; il merge attende la CI del commit documentale.
   TASK-002 resta `TODO` fino alla presenza effettiva di TASK-001 su `main`.
+
+## 2026-07-30 — CI closeout e merge TASK-001
+
+- **Agente**: Codex, su autorizzazione `USER_APPROVER`
+- **Task**: TASK-001
+- **Fase iniziale**: REVIEW / closeout
+- **Azioni principali**: pubblicato il commit documentale; atteso il run sullo SHA
+  esatto; verificati job, step e annotation; unita la PR #1 con merge commit normale;
+  sincronizzata `main`; eliminati i branch TASK-001 remoto e locale.
+- **Verifiche**: run `30562229686` sul commit
+  `2e053cab8ed32b921f222e0666530574b137601f`, Quality 2m01s, Android 6m46s e iOS
+  3m26s tutti `PASS`, zero annotation; PR #1 `MERGED`.
+- **Risultato**: PASS
+- **Branch/commit/PR**: merge commit
+  `f6bd88263fe8369c9ececa38367f629f3d1a929f`; PR `#1`.
+- **Fase finale**: DONE
+- **Blocker/note**: nessun blocker; `main` locale e `origin/main` allineati prima
+  dell'attivazione di TASK-002.
+
+## 2026-07-30 — Planning e transizione a Execution TASK-002
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-002
+- **Fase iniziale**: PLANNING
+- **Azioni principali**: creato il branch TASK-002; auditati product scope, MVP, backlog,
+  ADR, codice Flutter, UX/accessibilità/localizzazioni e fonti brand cross-repo in sola
+  lettura; definiti scope, non-scope, 38 criteri e 30 test case.
+- **Verifiche**: TASK-001 merged; branch derivato dal merge commit; nessun public brand,
+  logo o palette ufficiale verificato; nessun repository esterno modificato.
+- **Risultato**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Branch/commit/PR**: `task/002-product-scope-branding-design-system`; PR non ancora
+  aperta.
+- **Fase finale**: EXECUTION
+- **Blocker/note**: autorizzazione `USER_APPROVER` già concessa dal prompt end-to-end.
+  `TASK-003` resta `TODO`; nessun backend o feature commerciale entra nello scope.
+
+## 2026-07-30 — Recovery, implementazione e handoff a Review TASK-002
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-002
+- **Fase iniziale**: EXECUTION
+- **Azioni principali**: creato e verificato un backup non distruttivo; completati
+  product/brand/UX/design-system deliverable; applicati token e semantic theme alla
+  shell; aggiunto smoke Flutter SDK reale; prodotte evidence sanitizzate; preservati i
+  quattro repository esterni.
+- **Verifiche**: `scripts/check.sh` exit 0 con 59 test e build Android/iOS; integration
+  smoke Android API 35 e iOS 26.5 exit 0; log applicativi senza crash/error/backend
+  marker; scan Codex Security 15/15 con 0 finding; fingerprint esterni 4/4 invariati;
+  package, identifier e target invariati.
+- **Risultato**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Branch/commit/PR**: `task/002-product-scope-branding-design-system`; commit tecnico
+  `ec599758948a303b0862935fcf9ae9003a64aa00`; PR da aprire sul commit di handoff.
+- **Fase finale**: REVIEW
+- **Blocker/note**: nessun gate Execution obbligatorio aperto. La review indipendente,
+  la CI closeout, `DONE` e il merge non sono ancora eseguiti; `TASK-003` resta `TODO`.
+
+## 2026-07-30 — Review indipendente TASK-002 e transizione a Fix
+
+- **Agente**: `CODEX_REVIEWER`
+- **Task**: TASK-002
+- **Fase iniziale**: REVIEW
+- **Revisione**: `92d2697f0577cfb510d0a4bdd323195d6cfb42b2`
+- **Azioni principali**: tre shard read-only indipendenti su governance/evidence,
+  Flutter/runtime/security e UI/accessibilità; consolidati finding duplicati.
+- **Verifiche**: `scripts/check.sh` exit 0 con 59/59 test e build; smoke Android/iOS
+  1/1; CI `30573839944` 3/3 job `PASS`, zero annotation; screenshot 9/9; repository
+  esterni invariati.
+- **Finding**: 0 P0, 0 P1, 2 P2, 4 P3.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`
+- **Fase finale**: FIX
+- **Blocker/note**: risolvere lo snapshot operativo incoerente e rendere
+  riproducibile la fingerprint esterna; merge vietato e TASK-003 resta `TODO`.
+
+## 2026-07-30 — Fix finding TASK-002 e handoff a re-review
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-002
+- **Fase iniziale**: FIX
+- **Azioni principali**: riallineato lo snapshot operativo; introdotto il controllo
+  automatico di coerenza governance; versionato l'algoritmo completo delle fingerprint;
+  corrette le imprecisioni documentali P3 su runtime e PR.
+- **Verifiche**: otto fingerprint su otto ricreate con procedura read-only; governance
+  automatizzata; `scripts/check.sh` exit 0 con 59/59 test e build; smoke Android retry
+  e iOS 1/1; dependency audit, secret/URL scan e diff check `PASS`.
+- **Deviazione**: primo smoke Android `FAIL` pre-test per cache emulatore piena; cache
+  ricreabile liberata e retry `PASS`.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`
+- **Fase finale**: REVIEW
+- **Blocker/note**: il Fix non si auto-approva; re-review indipendente obbligatoria,
+  merge vietato e TASK-003 resta `TODO`.
+
+## 2026-07-30 — Re-review TASK-002 approvata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-002
+- **Fase iniziale/finale**: REVIEW
+- **Revisione**: `8253fc9cc3e7f2dfae3d2e10744b9e59bc1e8dbb`
+- **Azioni principali**: due re-review read-only fresche; verificati singolarmente i
+  finding e i regression check; ispezionati diff, PR, CI e repository esterni.
+- **Verifiche**: governance positiva exit 0 e negativa exit 1 atteso; fingerprint 8/8;
+  `scripts/check.sh`, smoke Android/iOS e CI `30575613471` 3/3 `PASS`, zero annotation.
+- **Finding finali**: 0 P0, 0 P1, 0 P2; 2 P3 UI non bloccanti; nessun nuovo finding.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`
+- **Blocker/note**: autorizzazione condizionata già concessa; closeout e CI sul suo SHA
+  restano obbligatori prima del merge. TASK-003 non è attivato.
+
+## 2026-07-30 — Autorizzazione utente e closeout TASK-002
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-002
+- **Fase**: REVIEW
+- **Azioni principali**: applicata l'autorizzazione condizionata del prompt dopo
+  re-review `APPROVED`; task marcato `DONE`; progetto riportato a `IDLE` senza attivare
+  TASK-003.
+- **Prerequisiti verificati**: 0 P0/P1/P2; gate locali e runtime `PASS`; CI Fix
+  `30575613471` 3/3 `PASS`; PR #2 aperta sul commit corretto.
+- **Risultato**: `USER_APPROVED_DONE`
+- **Blocker/note**: commit di closeout, CI finale e merge PR #2 ancora da completare;
+  in caso di CI rossa il task torna al ciclo coerente, senza forzature.

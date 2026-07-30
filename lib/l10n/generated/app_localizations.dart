@@ -103,82 +103,82 @@ abstract class AppLocalizations {
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
   ];
 
-  /// No description provided for @backendNotConfigured.
+  /// Diagnóstico visible solo en builds debug de development sin backend configurado.
   ///
   /// In es, this message translates to:
   /// **'Backend no configurado: modo de desarrollo sin conexión.'**
   String get backendNotConfigured;
 
-  /// No description provided for @navigationHome.
+  /// Etiqueta de la navegación hacia Inicio.
   ///
   /// In es, this message translates to:
   /// **'Inicio'**
   String get navigationHome;
 
-  /// No description provided for @navigationCatalog.
+  /// Etiqueta de la navegación hacia el catálogo.
   ///
   /// In es, this message translates to:
   /// **'Catálogo'**
   String get navigationCatalog;
 
-  /// No description provided for @navigationCart.
+  /// Etiqueta de la navegación hacia el carrito.
   ///
   /// In es, this message translates to:
   /// **'Carrito'**
   String get navigationCart;
 
-  /// No description provided for @navigationAccount.
+  /// Etiqueta de la navegación hacia la cuenta.
   ///
   /// In es, this message translates to:
   /// **'Cuenta'**
   String get navigationAccount;
 
-  /// No description provided for @homeTitle.
+  /// Título de la pantalla Inicio.
   ///
   /// In es, this message translates to:
   /// **'Inicio'**
   String get homeTitle;
 
-  /// No description provided for @homeFoundationMessage.
+  /// Estado temporal de Inicio mientras no hay contenido público.
   ///
   /// In es, this message translates to:
-  /// **'La base de la tienda está lista. El catálogo público se conectará en una tarea posterior.'**
+  /// **'Pronto podrás descubrir aquí las novedades de la tienda.'**
   String get homeFoundationMessage;
 
-  /// No description provided for @catalogTitle.
+  /// Título de la pantalla Catálogo.
   ///
   /// In es, this message translates to:
   /// **'Catálogo'**
   String get catalogTitle;
 
-  /// No description provided for @catalogFoundationMessage.
+  /// Estado temporal del catálogo antes de su conexión.
   ///
   /// In es, this message translates to:
-  /// **'El catálogo todavía no está conectado. Aquí se mostrarán solo productos publicados.'**
+  /// **'El catálogo estará disponible aquí próximamente.'**
   String get catalogFoundationMessage;
 
-  /// No description provided for @cartTitle.
+  /// Título de la pantalla Carrito.
   ///
   /// In es, this message translates to:
   /// **'Carrito'**
   String get cartTitle;
 
-  /// No description provided for @cartFoundationMessage.
+  /// Estado temporal del carrito antes de que existan productos.
   ///
   /// In es, this message translates to:
-  /// **'El carrito se implementará cuando exista el contrato público de precios y disponibilidad.'**
+  /// **'Tu carrito estará disponible cuando puedas elegir productos.'**
   String get cartFoundationMessage;
 
-  /// No description provided for @accountTitle.
+  /// Título de la pantalla Cuenta.
   ///
   /// In es, this message translates to:
   /// **'Cuenta'**
   String get accountTitle;
 
-  /// No description provided for @accountFoundationMessage.
+  /// Estado temporal de la cuenta antes de habilitar el acceso.
   ///
   /// In es, this message translates to:
-  /// **'El perfil del cliente y el acceso seguro se implementarán en tareas posteriores.'**
+  /// **'Podrás acceder a tu cuenta cuando esta función esté disponible.'**
   String get accountFoundationMessage;
 }
 

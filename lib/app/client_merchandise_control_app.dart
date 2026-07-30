@@ -24,7 +24,7 @@ class ClientMerchandiseControlApp extends ConsumerWidget {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      onGenerateTitle: (_) => AppBrand.technicalDisplayName,
+      onGenerateTitle: (_) => AppBrand.effectiveDisplayName,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,

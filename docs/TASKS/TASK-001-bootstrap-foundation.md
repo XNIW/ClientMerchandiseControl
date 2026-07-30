@@ -16,7 +16,7 @@
 - **Approver**: USER_APPROVER
 - **Indicatore**: USER_APPROVED_DONE
 - **DONE**: YES
-- **Merge**: AUTHORIZED — PENDING
+- **Merge**: YES — PR #1
 - **Conferma utente**: GRANTED
 - **User approval source**: “Prompt end-to-end dell’utente successivo alla review
   APPROVED”
@@ -344,7 +344,8 @@ reviewer indipendenti rispetto ai fixer. `APPROVED` non equivale a `DONE`: il ta
 - **Security check**: PASS
 - **Conferma utente**: ricevuta il 2026-07-30T12:32:00-04:00
 - **Merge autorizzato da USER_APPROVER**: sì
-- **Stato merge al momento del closeout**: in attesa della CI del commit documentale
+- **Stato merge**: completato il 2026-07-30T16:43:58Z
+- **Merge commit**: `f6bd88263fe8369c9ececa38367f629f3d1a929f`
 - **Follow-up candidate**: TASK-002, non attivato
 - **Riepilogo finale**: fondazione Flutter e governance Codex-only approvate dalla
   re-review, con gate locali, smoke dual-platform, security e CI superati; autorizzazione

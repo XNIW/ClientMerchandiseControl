@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../design_system/theme/storefront_semantic_colors.dart';
+import '../design_system/tokens/app_radii.dart';
+import '../design_system/tokens/app_sizes.dart';
+
 abstract final class AppTheme {
-  static const _seedColor = Color(0xFF245C55);
+  static const provisionalSeedColor = Color(0xFF245C55);
 
   static ThemeData light() => _theme(Brightness.light);
 
@@ -9,7 +13,7 @@ abstract final class AppTheme {
 
   static ThemeData _theme(Brightness brightness) {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: _seedColor,
+      seedColor: provisionalSeedColor,
       brightness: brightness,
     );
 
@@ -17,12 +21,29 @@ abstract final class AppTheme {
       useMaterial3: true,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: colorScheme.surface,
+      materialTapTargetSize: MaterialTapTargetSize.padded,
       cardTheme: CardThemeData(
         elevation: 0,
         color: colorScheme.surfaceContainer,
         margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.card),
+        ),
       ),
+      iconButtonTheme: const IconButtonThemeData(
+        style: ButtonStyle(
+          minimumSize: WidgetStatePropertyAll(
+            Size.square(AppSizes.minimumTouchTarget),
+          ),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: AppSizes.navigationBarHeight,
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.pill),
+        ),
+      ),
+      extensions: [StorefrontSemanticColors.forScheme(colorScheme)],
     );
   }
 }

@@ -29,28 +29,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get homeFoundationMessage =>
-      'La base de la tienda está lista. El catálogo público se conectará en una tarea posterior.';
+      'Pronto podrás descubrir aquí las novedades de la tienda.';
 
   @override
   String get catalogTitle => 'Catálogo';
 
   @override
   String get catalogFoundationMessage =>
-      'El catálogo todavía no está conectado. Aquí se mostrarán solo productos publicados.';
+      'El catálogo estará disponible aquí próximamente.';
 
   @override
   String get cartTitle => 'Carrito';
 
   @override
   String get cartFoundationMessage =>
-      'El carrito se implementará cuando exista el contrato público de precios y disponibilidad.';
+      'Tu carrito estará disponible cuando puedas elegir productos.';
 
   @override
   String get accountTitle => 'Cuenta';
 
   @override
   String get accountFoundationMessage =>
-      'El perfil del cliente y el acceso seguro se implementarán en tareas posteriores.';
+      'Podrás acceder a tu cuenta cuando esta función esté disponible.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -76,23 +76,23 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get homeTitle => '首页';
 
   @override
-  String get homeFoundationMessage => '商店应用基础已就绪。公共商品目录将在后续任务中接入。';
+  String get homeFoundationMessage => '你很快就能在这里发现商店的最新内容。';
 
   @override
   String get catalogTitle => '商品目录';
 
   @override
-  String get catalogFoundationMessage => '商品目录尚未接入。此处未来只显示已发布的商品。';
+  String get catalogFoundationMessage => '商品目录即将在这里开放。';
 
   @override
   String get cartTitle => '购物车';
 
   @override
-  String get cartFoundationMessage => '购物车将在公共价格与库存合同确定后实现。';
+  String get cartFoundationMessage => '可以选择商品后，你就能使用购物车。';
 
   @override
   String get accountTitle => '账户';
 
   @override
-  String get accountFoundationMessage => '客户资料和安全登录将在后续任务中实现。';
+  String get accountFoundationMessage => '此功能开放后，你就能访问自己的账户。';
 }

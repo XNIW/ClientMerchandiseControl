@@ -1,16 +1,55 @@
 {
   "@@locale": "es",
   "backendNotConfigured": "Backend no configurado: modo de desarrollo sin conexión.",
+  "@backendNotConfigured": {
+    "description": "Diagnóstico visible solo en builds debug de development sin backend configurado."
+  },
   "navigationHome": "Inicio",
+  "@navigationHome": {
+    "description": "Etiqueta de la navegación hacia Inicio."
+  },
   "navigationCatalog": "Catálogo",
+  "@navigationCatalog": {
+    "description": "Etiqueta de la navegación hacia el catálogo."
+  },
   "navigationCart": "Carrito",
+  "@navigationCart": {
+    "description": "Etiqueta de la navegación hacia el carrito."
+  },
   "navigationAccount": "Cuenta",
+  "@navigationAccount": {
+    "description": "Etiqueta de la navegación hacia la cuenta."
+  },
   "homeTitle": "Inicio",
-  "homeFoundationMessage": "La base de la tienda está lista. El catálogo público se conectará en una tarea posterior.",
+  "@homeTitle": {
+    "description": "Título de la pantalla Inicio."
+  },
+  "homeFoundationMessage": "Pronto podrás descubrir aquí las novedades de la tienda.",
+  "@homeFoundationMessage": {
+    "description": "Estado temporal de Inicio mientras no hay contenido público."
+  },
   "catalogTitle": "Catálogo",
-  "catalogFoundationMessage": "El catálogo todavía no está conectado. Aquí se mostrarán solo productos publicados.",
+  "@catalogTitle": {
+    "description": "Título de la pantalla Catálogo."
+  },
+  "catalogFoundationMessage": "El catálogo estará disponible aquí próximamente.",
+  "@catalogFoundationMessage": {
+    "description": "Estado temporal del catálogo antes de su conexión."
+  },
   "cartTitle": "Carrito",
-  "cartFoundationMessage": "El carrito se implementará cuando exista el contrato público de precios y disponibilidad.",
+  "@cartTitle": {
+    "description": "Título de la pantalla Carrito."
+  },
+  "cartFoundationMessage": "Tu carrito estará disponible cuando puedas elegir productos.",
+  "@cartFoundationMessage": {
+    "description": "Estado temporal del carrito antes de que existan productos."
+  },
   "accountTitle": "Cuenta",
-  "accountFoundationMessage": "El perfil del cliente y el acceso seguro se implementarán en tareas posteriores."
+  "@accountTitle": {
+    "description": "Título de la pantalla Cuenta."
+  },
+  "accountFoundationMessage": "Podrás acceder a tu cuenta cuando esta función esté disponible.",
+  "@accountFoundationMessage": {
+    "description": "Estado temporal de la cuenta antes de habilitar el acceso."
+  }
 }

@@ -6,20 +6,20 @@
 - **Titolo**: Cross-repo ownership e Storefront integration contract
 - **File task**: `docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md`
 - **Stato**: ACTIVE
-- **Fase**: PLANNING
-- **Responsabile**: CODEX_PLANNER
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_PLANNER
+- **Ultimo agente**: CODEX_EXECUTOR
 - **Review outcome**: non ancora eseguita
 - **Reviewer**: non assegnato
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **DONE**: NO
 - **Merge**: NO
 - **User approval**: GRANTED_BY_END_TO_END_PROMPT, da applicare con transizione esplicita
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-003/`
-- **Handoff**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 
 ## Dipendenze
 
@@ -236,7 +236,46 @@ bloccano l'autenticazione dietro il catalogo.
 
 ## Execution — `CODEX_EXECUTOR`
 
-Non avviata. L'executor compilerà questa sezione senza riscrivere il Planning.
+### Obiettivo compreso
+
+Produrre soltanto i deliverable documentali e di governance approvati nel Planning,
+senza modificare runtime, configurazione, backend o repository esterni.
+
+### File controllati
+
+In compilazione durante Execution.
+
+### Piano minimo
+
+1. consolidare audit e integrità esterna;
+2. scrivere ownership, integration contract e auth boundary;
+3. registrare ADR-009/ADR-010 e riallineare l'architettura;
+4. correggere soltanto le tre dipendenze autorizzate;
+5. verificare contratto, DAG, security, gate e handoff.
+
+### Modifiche fatte
+
+Non ancora registrate.
+
+### Check eseguiti
+
+Non ancora registrati.
+
+### Matrice CA -> evidence
+
+Non ancora registrata.
+
+### Matrice T-NN -> risultato
+
+Non ancora registrata.
+
+### Rischi rimasti
+
+Non ancora registrati.
+
+### Handoff a Review
+
+Non ancora disponibile.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 

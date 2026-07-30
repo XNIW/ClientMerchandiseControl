@@ -1,14 +1,15 @@
 # TASK-003 evidence
 
 Snapshot di handoff:
-`ACTIVE / PLANNING / CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
 
 - Base milestone: merge TASK-002
   `46686ace3b4670f207147f12110d8133ced01e8e`
 - Branch: `milestone/003-004-storefront-contract-environments`
 - Tipo task: documentale, architetturale e governance
 - Audit preliminare: read-only, ref fisse, nessuna modifica esterna
-- Gate Execution: non ancora eseguiti
+- Planning: autorizzato dal prompt end-to-end senza variazioni di scope
+- Gate Execution: in corso
 - Review: non ancora eseguita
 
 Evidence previste:

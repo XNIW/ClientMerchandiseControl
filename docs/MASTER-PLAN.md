@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-003
 - **File task**: `docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md`
 - **Stato task**: ACTIVE
-- **Fase**: PLANNING
-- **Responsabile**: CODEX_PLANNER
-- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
-- **Prossima azione autorizzata**: applicare l'autorizzazione condizionata del prompt e
-  transitare TASK-003 a `EXECUTION` senza modificare il Planning
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Prossima azione autorizzata**: eseguire il Planning TASK-003 senza ampliarne scope,
+  quindi produrre evidence e handoff a review indipendente
 
 ## Repository coinvolti
 
@@ -103,4 +103,4 @@ Non risultano blocker di progetto attivi al bootstrap.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
-`TASK-003` è l'unico task `ACTIVE`, in `PLANNING`; nessun altro task è attivo.
+`TASK-003` è l'unico task `ACTIVE`, in `EXECUTION`; nessun altro task è attivo.

@@ -257,3 +257,14 @@
   ancora aperta.
 - **Blocker/note**: nessun blocker. L'autorizzazione condizionata è già nel prompt e
   sarà applicata con una transizione esplicita a Execution; TASK-004 resta `TODO`.
+
+## 2026-07-30 — Autorizzazione Planning TASK-003
+
+- **Agente**: `USER_APPROVER`, registrazione operativa `CODEX_EXECUTOR`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: PLANNING → EXECUTION
+- **Azioni principali**: applicata l'autorizzazione condizionata del prompt end-to-end
+  al Planning versionato in `cc4c2ed`, senza modificare scope, CA, test o priorità.
+- **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`
+- **Blocker/note**: nessun blocker; TASK-004 resta `TODO` e nessun repository esterno
+  è writer.

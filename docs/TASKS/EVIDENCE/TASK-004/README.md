@@ -1,7 +1,7 @@
 # TASK-004 evidence
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 - Base: closeout TASK-003
   `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`
@@ -12,12 +12,17 @@ Snapshot di handoff:
 - Commit tecnico:
   `9ecffdfc7de38e979a48bac201ddd36a5296b78b`
 - Gate Execution: tutti gli applicabili `PASS`
-- Test: 70/70 suite completa; 27/27 mirati; 1/1 compile-time staging locale
-- Smoke: Android Emulator e iOS Simulator development `PASS`
+- Commit tecnico Fix:
+  `bccb6f55a9ceaf46d946c95fc79b5b7d3ae02055`
+- Test Fix: 72/72 suite completa; 29/29 mirati; 1/1 compile-time staging locale
+- Smoke Fix: Android Emulator e iOS Simulator development 1/1 `PASS`
 - CI tecnica: run `30588442946` sullo SHA esatto `9ecffdfc7de38e979a48bac201ddd36a5296b78b`,
   3/3 job, tutti gli step `success`, annotation 0/0/0
 - Review: `CHANGES_REQUIRED`, 0 P0, 0 P1, 3 P2, 1 P3
+- Fix: quattro finding corretti; re-review `NOT_RUN`
 - CI handoff Execution: run `30589127508` sullo SHA esatto `fb9724d…`,
+  3/3 job, tutti gli step `success`, annotation 0/0/0
+- CI tecnica Fix: run `30590869991` sullo SHA esatto `bccb6f5…`,
   3/3 job, tutti gli step `success`, annotation 0/0/0
 - DONE/PR/merge: `NOT_RUN`
 
@@ -30,10 +35,11 @@ Evidence disponibili:
 - `security-diff-scan.md`
 - `runtime-smoke.md`
 - `review-report.md`
+- `fix-evidence.md`
+- `screenshots/manifest.md`
 
 Evidence previste in review:
 
-- eventuale `fix-evidence.md`
 - eventuale `re-review-report.md`
 - `closeout.md`
 
@@ -50,10 +56,10 @@ Evidence previste in review:
 | CA-07 | PASS | test development URL/key/callback/Google e initializer zero |
 | CA-08 | PASS | test staging completo e missing-field matrix |
 | CA-09 | PASS | test staging `false` e contratto kill switch |
-| CA-10 | FAIL | T004-REV-002: production completa attraversa il bootstrap |
+| CA-10 | PASS | Fix: bootstrap production rifiutato, initializer zero |
 | CA-11 | PASS | test tuple, origin HTTPS e publishable/anon |
 | CA-12 | PASS | test secret/service-role/malformed e messaggi sanitizzati |
-| CA-13 | FAIL | T004-REV-001: leading/trailing whitespace viene trimmato |
+| CA-13 | PASS | Fix: callback raw byte-esatta e regressioni whitespace |
 | CA-14 | PASS | test errori, diagnostics e `toString` senza raw values |
 | CA-15 | PASS | mappa sanitizzata con ambiente e tre booleani |
 | CA-16 | PASS | esempio development JSON, cinque chiavi e offline |
@@ -64,11 +70,11 @@ Evidence previste in review:
 | CA-21 | PASS | diff scan: zero readiness/OAuth/native/shop/query |
 | CA-22 | PASS | scan tracked/untracked: zero valore staging/prod, secret o local config |
 | CA-23 | PASS | 11 file tecnici allowlisted; Supabase/repository esterni zero-write |
-| CA-24 | FAIL | suite priva delle regressioni callback raw e bootstrap production |
+| CA-24 | PASS | 29/29 mirati con regressioni callback/bootstrap |
 | CA-25 | PASS | `scripts/check.sh` exit 0; 70/70 test e due build |
-| CA-26 | FAIL | T004-REV-003: evidence smoke non riproducibile e senza screenshot |
-| CA-27 | FAIL | review con tre P2 aperti |
-| CA-28 | PASS | CI handoff `30589127508`, SHA esatto, 3/3 job e annotation 0/0/0 |
+| CA-26 | PASS | smoke 1/1 dual-platform, comandi/output e screenshot manifest |
+| CA-27 | NOT_RUN | re-review indipendente non ancora iniziata |
+| CA-28 | PASS | CI Fix `30590869991`, SHA esatto, 3/3 job e annotation 0/0/0 |
 
 ## Test case — stato corrente
 
@@ -81,12 +87,12 @@ Evidence previste in review:
 | T-05 | PASS | staging completo con auth attiva |
 | T-06 | PASS | staging completo con auth disabilitata |
 | T-07 | PASS | staging missing-field matrix |
-| T-08 | FAIL | bootstrap production completa non bloccato |
+| T-08 | PASS | production completa: errore sanitizzato e initializer zero |
 | T-09 | PASS | environment case/whitespace/vuoti/ignoti |
 | T-10 | PASS | tuple e origin HTTPS matrix |
 | T-11 | PASS | publishable moderna, legacy anon e privilegiata/malformed |
-| T-12 | FAIL | callback canonica con whitespace viene accettata |
-| T-13 | FAIL | matrice non copre whitespace raw |
+| T-12 | PASS | callback canonica esatta accettata |
+| T-13 | PASS | leading/trailing/newline/whitespace-only rifiutati |
 | T-14 | PASS | flag strict true/false/assente/case/invalido |
 | T-15 | PASS | diagnostica strutturata sanitizzata |
 | T-16 | PASS | errori non ripetono marker sensibili |
@@ -94,10 +100,10 @@ Evidence previste in review:
 | T-18 | PASS | presenza/ignore/tracking file locale |
 | T-19 | PASS | tre comandi README verificati letteralmente |
 | T-20 | PASS | test banner e guard debug |
-| T-21 | FAIL | comando/output/screenshot Android non persistiti |
-| T-22 | FAIL | comando/output/screenshot iOS non persistiti |
+| T-21 | PASS | Android 1/1, exit 0, screenshot e manifest |
+| T-22 | PASS | iOS 1/1, exit 0, screenshot e manifest |
 | T-23 | PASS | diff confinement e scan simboli fuori scope |
 | T-24 | PASS | scan security/config/artifact e zero-write |
 | T-25 | PASS | test mirati e `scripts/check.sh` exit 0 |
-| T-26 | FAIL | review `CHANGES_REQUIRED`, tre P2 aperti |
-| T-27 | PASS | CI `30589127508` su `fb9724d…`, step e annotation ispezionati |
+| T-26 | NOT_RUN | re-review non ancora iniziata |
+| T-27 | PASS | CI `30590869991` su `bccb6f5…`, step e annotation ispezionati |

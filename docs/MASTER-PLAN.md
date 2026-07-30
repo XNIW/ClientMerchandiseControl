@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-004
 - **File task**: `docs/TASKS/TASK-004-environment-strategy-configuration-contract.md`
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
-- **Prossima azione autorizzata**: correggere esclusivamente i finding
-  `T004-REV-001`–`T004-REV-004`, aggiungere regressioni e riconsegnare a Review
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Prossima azione autorizzata**: verificare indipendentemente la chiusura di
+  `T004-REV-001`–`T004-REV-004`, i gate Fix, gli screenshot e la CI
 
 ## Repository coinvolti
 
@@ -115,4 +115,4 @@ vincolante un solo task `ACTIVE` alla volta.
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
 `TASK-003` è `DONE` con re-review `APPROVED` e CI finale attestata.
-`TASK-004` è l'unico task `ACTIVE` in `FIX`.
+`TASK-004` è l'unico task `ACTIVE` in `REVIEW` dopo il ciclo di Fix.

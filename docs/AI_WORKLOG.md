@@ -434,3 +434,23 @@
 - **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 - **Blocker/note**: Fix limitato a `T004-REV-001`–`T004-REV-004`; re-review
   indipendente obbligatoria, PR/merge vietati.
+
+## 2026-07-30 — Fix finding TASK-004 e handoff a re-review
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-004
+- **Fase iniziale/finale**: FIX -> REVIEW
+- **Commit tecnico**: `bccb6f55a9ceaf46d946c95fc79b5b7d3ae02055`
+- **Azioni principali**: rimossa la normalizzazione della callback raw; bootstrap
+  limitato a staging; aggiunte regressioni; rieseguiti smoke Android/iOS con comandi,
+  output, screenshot sanitizzati e manifest; corrette intestazioni evidence.
+- **Verifiche**: test mirati 29/29; `scripts/check.sh` exit 0 con 72/72 test e build
+  dual-platform; compile-time staging 1/1 e build staging dual-platform; smoke 1/1
+  Android/iOS; security/confinement/local config/screenshot manifest `PASS`.
+- **CI**: run `30590869991` sullo SHA tecnico esatto, Quality/Android/iOS `PASS`,
+  tutti gli step `success`, annotation 0/0/0.
+- **Deviazioni**: primo install Android senza spazio; retry automatico dopo
+  disinstallazione della versione precedente, stesso APK, processo finale exit 0.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: nessun gate aperto; il Fix non si auto-approva, re-review
+  indipendente obbligatoria e merge vietato.

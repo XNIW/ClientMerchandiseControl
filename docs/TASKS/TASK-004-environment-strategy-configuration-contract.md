@@ -6,20 +6,20 @@
 - **Titolo**: Environment strategy development/staging/production e configuration contract
 - **File task**: `docs/TASKS/TASK-004-environment-strategy-configuration-contract.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_REVIEWER
+- **Ultimo agente**: CODEX_FIXER
 - **Review outcome**: CHANGES_REQUIRED
-- **Reviewer**: tre sessioni indipendenti read-only
+- **Reviewer**: nuove sessioni indipendenti read-only da assegnare
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **DONE**: NO
 - **Merge**: NO — PR batch con TASK-003 dopo review e CI finali
 - **User approval**: APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-004/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -315,8 +315,39 @@ Il report completo è
 
 ## Fix — `CODEX_FIXER`
 
-Non iniziato. Il Fixer deve correggere esclusivamente `T004-REV-001`–
-`T004-REV-004`, rieseguire i gate impattati e consegnare nuovamente a Review.
+Il commit tecnico Fix è
+`bccb6f55a9ceaf46d946c95fc79b5b7d3ae02055`.
+
+- `T004-REV-001`: callback validata sul valore raw, senza trim; regressioni
+  development/staging/production;
+- `T004-REV-002`: bootstrap Supabase autorizzato soltanto in staging; production
+  solleva errore sanitizzato con zero initializer call;
+- `T004-REV-003`: smoke Android/iOS rieseguiti 1/1 sul commit tecnico, comandi e
+  output persistiti, due screenshot sanitizzati con manifest/digest;
+- `T004-REV-004`: intestazioni evidence rese coerenti con lo stato corrente.
+
+Gate finali Fix:
+
+- test mirati 29/29, exit 0;
+- `bash scripts/check.sh`, exit 0: format/analyze, 72/72 test, build Android/iOS;
+- compile-time staging 1/1 e build staging Android/iOS, exit 0;
+- smoke Android/iOS development 1/1, entrambi exit 0;
+- security, confinement, file locale ignorato e screenshot manifest `PASS`;
+- CI `30590869991` sullo SHA tecnico esatto: 3/3 job, tutti gli step `success`,
+  annotation 0/0/0.
+
+Il primo install Android nello smoke ha esaurito lo spazio del simulatore; Flutter ha
+rimosso la versione precedente, reinstallato lo stesso APK e il comando complessivo ha
+terminato exit 0. Nessun processo è rimasto attivo.
+
+### Handoff a re-review
+
+- **Transizione**: `FIX -> REVIEW`
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`
+- **Prossimo ruolo**: `CODEX_RE_REVIEWER`
+- **Target**: commit tecnico Fix più questo commit di evidence/handoff
+- **Review outcome**: resta `CHANGES_REQUIRED` fino alla re-review indipendente
+- **Merge**: vietato fino a `APPROVED`, closeout e CI finali
 
 ## Chiusura
 

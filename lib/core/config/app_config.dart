@@ -26,7 +26,7 @@ class AppConfig {
     final environment = AppEnvironment.parse(appEnvironment);
     final normalizedUrl = _normalize(supabaseUrl);
     final normalizedKey = _normalize(supabasePublishableKey);
-    final normalizedRedirectUri = _normalize(authRedirectUri);
+    final rawRedirectUri = authRedirectUri.isEmpty ? null : authRedirectUri;
     final normalizedGoogleAuthEnabled = _normalize(googleAuthEnabled);
 
     if ((normalizedUrl == null) != (normalizedKey == null)) {
@@ -45,9 +45,9 @@ class AppConfig {
       );
     }
 
-    final canonicalRedirectUri = normalizedRedirectUri == null
+    final canonicalRedirectUri = rawRedirectUri == null
         ? null
-        : _canonicalAuthRedirectUri(normalizedRedirectUri);
+        : _canonicalAuthRedirectUri(rawRedirectUri);
     final googleAuth = _parseGoogleAuthEnabled(
       normalizedGoogleAuthEnabled,
       environment: environment,

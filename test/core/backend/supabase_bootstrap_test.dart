@@ -69,6 +69,48 @@ void main() {
     expect(receivedKey, expectedKey);
   });
 
+  test('rifiuta production completa senza chiamare l’initializer', () async {
+    const productionUrl = 'https://production.example.invalid';
+    const productionKey = 'sb_publishable_production';
+    var initializationCalls = 0;
+
+    final future = SupabaseBootstrap.initialize(
+      AppConfig.fromValues(
+        appEnvironment: 'production',
+        supabaseUrl: productionUrl,
+        supabasePublishableKey: productionKey,
+        authRedirectUri: callback,
+        googleAuthEnabled: 'false',
+      ),
+      initializer: ({required url, required publishableKey}) async {
+        initializationCalls += 1;
+      },
+    );
+
+    await expectLater(
+      future,
+      throwsA(
+        isA<AppConfigurationException>()
+            .having(
+              (error) => error.toString(),
+              'URL sanitizzato',
+              isNot(contains(productionUrl)),
+            )
+            .having(
+              (error) => error.toString(),
+              'key sanitizzata',
+              isNot(contains(productionKey)),
+            )
+            .having(
+              (error) => error.toString(),
+              'callback sanitizzata',
+              isNot(contains(callback)),
+            ),
+      ),
+    );
+    expect(initializationCalls, 0);
+  });
+
   test(
     'propaga un errore dell’initializer senza ripetere la chiamata',
     () async {

@@ -37,7 +37,7 @@ Evidence previste in review:
 - eventuale `re-review-report.md`
 - `closeout.md`
 
-## Criteri di accettazione — stato Planning
+## Criteri di accettazione — stato corrente
 
 | CA | Esito | Motivo |
 |---|---|---|
@@ -70,7 +70,7 @@ Evidence previste in review:
 | CA-27 | FAIL | review con tre P2 aperti |
 | CA-28 | PASS | CI handoff `30589127508`, SHA esatto, 3/3 job e annotation 0/0/0 |
 
-## Test case — stato Planning
+## Test case — stato corrente
 
 | Test | Esito | Motivo |
 |---|---|---|

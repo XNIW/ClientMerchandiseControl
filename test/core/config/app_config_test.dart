@@ -106,6 +106,7 @@ void main() {
           supabasePublishableKey: stagingKey,
         ),
         () => AppConfig.fromValues(authRedirectUri: callback),
+        () => AppConfig.fromValues(authRedirectUri: '   '),
         () => AppConfig.fromValues(googleAuthEnabled: 'true'),
       ];
 
@@ -350,6 +351,31 @@ void main() {
           throwsA(isA<AppConfigurationException>()),
           reason: redirectUri,
         );
+      }
+    });
+
+    test('rifiuta whitespace nella callback raw in staging e production', () {
+      const whitespaceVariants = [
+        ' $callback',
+        '$callback ',
+        '$callback\n',
+        '   ',
+      ];
+
+      for (final environment in ['staging', 'production']) {
+        for (final redirectUri in whitespaceVariants) {
+          expect(
+            () => AppConfig.fromValues(
+              appEnvironment: environment,
+              supabaseUrl: 'https://$environment.example.invalid',
+              supabasePublishableKey: 'sb_publishable_$environment',
+              authRedirectUri: redirectUri,
+              googleAuthEnabled: 'false',
+            ),
+            throwsA(isA<AppConfigurationException>()),
+            reason: '$environment deve rifiutare callback non byte-esatta',
+          );
+        }
       }
     });
 

@@ -15,8 +15,17 @@ abstract final class SupabaseBootstrap {
     AppConfig config, {
     SupabaseInitializer? initializer,
   }) async {
-    if (config.environment == AppEnvironment.development ||
-        !config.isBackendConfigured) {
+    if (config.environment == AppEnvironment.development) {
+      return BackendStatus.notConfigured;
+    }
+
+    if (config.environment == AppEnvironment.production) {
+      throw const AppConfigurationException(
+        'Il bootstrap Supabase production non è autorizzato in questo milestone.',
+      );
+    }
+
+    if (!config.isBackendConfigured) {
       return BackendStatus.notConfigured;
     }
 

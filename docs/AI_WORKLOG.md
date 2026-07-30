@@ -342,3 +342,18 @@
 - **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`
 - **Blocker/note**: autorizzazione condizionata già concessa; closeout e CI sul suo SHA
   restano obbligatori prima di TASK-004. Merge batch ancora vietato.
+
+## 2026-07-30 — Autorizzazione utente e closeout TASK-003
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-003
+- **Fase**: REVIEW
+- **Azioni principali**: applicata l'autorizzazione condizionata del prompt dopo
+  re-review `APPROVED`; task marcato `DONE`; progetto riportato a `IDLE` senza attivare
+  TASK-004.
+- **Prerequisiti verificati**: 0 P0/P1/P2; gate autonomi `PASS`; CI handoff
+  `30584376506` e CI approvazione `30585252387`, entrambe 3/3 `PASS` con zero
+  annotation.
+- **Risultato**: `USER_APPROVED_DONE`
+- **Blocker/note**: commit di closeout e CI finale sul suo SHA ancora da completare;
+  PR e merge batch restano vietati e TASK-004 resta `TODO` fino al gate verde.

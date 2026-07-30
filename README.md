@@ -87,19 +87,18 @@ scripts/check.sh
 
 ## Governance
 
-Leggere prima [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md), quindi il
-[task attivo](docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md)
-e il [protocollo workflow](docs/CODEX-WORKFLOW-PROTOCOL.md).
+Leggere prima [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md), quindi il task attivo indicato
+dal Master Plan e il [protocollo workflow](docs/CODEX-WORKFLOW-PROTOCOL.md).
 `AGENTS.md` è l'unica istruzione operativa root. Può esistere un solo task attivo;
 Codex assume ruoli logici distinti per planning, execution, review, fix e re-review.
 Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successivo.
 
 ## Stato
 
-- **Task attivo**: TASK-003
-- **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Task attivo**: nessuno
+- **Stato task**: non applicabile
+- **Fase**: non applicabile
+- **Indicatore**: USER_APPROVED_DONE
 
-`TASK-001` e `TASK-002` sono `DONE` e merged. `TASK-003` è l'unico task attivo; la
-re-review è `APPROVED` e attende il closeout autorizzato.
+`TASK-001`, `TASK-002` e `TASK-003` sono `DONE`; nessun task è attivo. TASK-004 resta
+`TODO` fino alla CI finale del closeout TASK-003.

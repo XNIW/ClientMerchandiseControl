@@ -5,21 +5,21 @@
 - **Task ID**: TASK-003
 - **Titolo**: Cross-repo ownership e Storefront integration contract
 - **File task**: `docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Ultimo agente**: USER_APPROVER
 - **Review outcome**: APPROVED
 - **Reviewer**: tre sessioni di re-review indipendenti read-only
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
-- **DONE**: NO
-- **Merge**: NO
-- **User approval**: GRANTED_BY_END_TO_END_PROMPT, da applicare con transizione esplicita
+- **Indicatore**: USER_APPROVED_DONE
+- **DONE**: YES
+- **Merge**: NO — milestone batch dopo TASK-004
+- **User approval**: GRANTED_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-003/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -382,10 +382,19 @@ Evidence: `docs/TASKS/EVIDENCE/TASK-003/fix-evidence.md`.
 
 ## Chiusura
 
-- **Conferma utente**: condizionata nel prompt end-to-end
-- **Merge autorizzato da USER_APPROVER**: sì, solo nella PR batch dopo TASK-004 e CI
-  finale verde
+- **Conferma utente**: `GRANTED`, applicata dopo re-review `APPROVED`
+- **Fonte autorizzazione**: prompt end-to-end dell'utente
+- **Finding aperti**: 0 P0, 0 P1, 0 P2; 2 P3 documentali non bloccanti
+- **CI sullo SHA di handoff revisionato**: `PASS`, run `30584376506`, commit
+  `f9cc304…`
+- **CI sul commit di approvazione**: `PASS`, run `30585252387`, commit `bd00b85…`
+- **CI sul commit di closeout**: `NOT_RUN`, da attestare dopo il push
+- **Merge autorizzato da USER_APPROVER**: solo come batch dopo TASK-004 `DONE` e CI
+  finale verde; non applicato da questo closeout
+- **Stato merge**: `NOT_RUN`, PR batch non ancora aperta
 - **Follow-up candidate**: eventuale riconciliazione di artifact Supabase storici in
   TASK-005; nessun apply da questo task
-- **Riepilogo finale**: non ancora disponibile
-- **Data completamento**: non ancora
+- **Prossimo task autorizzabile**: TASK-004, ma soltanto dopo CI finale del closeout
+- **Riepilogo finale**: ownership e contratto Storefront approvati; finding bloccanti
+  chiusi; task marcato `DONE` senza attivare il successivo
+- **Data completamento**: 2026-07-30

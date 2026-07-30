@@ -1,7 +1,7 @@
 # TASK-003 evidence
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 - Base milestone: merge TASK-002
   `46686ace3b4670f207147f12110d8133ced01e8e`
@@ -25,7 +25,10 @@ Snapshot di handoff:
   non bloccanti
 - CI handoff: run `30584376506` `PASS` sullo SHA esatto `f9cc304`, 3/3 job,
   tutti gli step completati e annotation 0/0/0
+- CI approvazione: run `30585252387` `PASS` sullo SHA esatto `bd00b85`, 3/3 job,
+  tutti gli step completati e annotation 0/0/0
 - CI closeout: `NOT_RUN`; il relativo SHA non esiste ancora
+- User approval: `GRANTED`; TASK-003 `DONE`, TASK-004 ancora `TODO`
 
 Evidence:
 
@@ -36,7 +39,7 @@ Evidence:
 - `review-report.md`
 - `fix-evidence.md`
 - `re-review-report.md`
-- `closeout.md` da produrre dopo review `APPROVED`
+- `closeout.md`
 
 ## Criteri di accettazione
 

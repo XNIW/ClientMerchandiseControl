@@ -69,6 +69,22 @@ flutter run --dart-define-from-file=config/app_config.local.json
 `config/*.local.json` è ignorato. Non inserire service role, secret key, password o valori
 production nel repository.
 
+Per preparare staging, copiare l'esempio nel file locale ignorato, valorizzare URL e
+publishable key non-production e impostare `GOOGLE_AUTH_ENABLED=false` finché la
+callback non è registrata dal task OAuth:
+
+```bash
+cp config/app_config.staging.example.json config/app_config.staging.local.json
+flutter run --dart-define-from-file=config/app_config.staging.local.json
+flutter build apk --debug --dart-define-from-file=config/app_config.staging.local.json
+flutter build ios --simulator --debug --dart-define-from-file=config/app_config.staging.local.json
+```
+
+Il contratto staging richiede la callback
+`com.xniw.clientmerchandisecontrol://auth-callback/`. La configurazione locale corrente
+usa `GOOGLE_AUTH_ENABLED=false` fino a TASK-020. Configuration completeness non equivale
+a backend health: la readiness reale appartiene a TASK-011.
+
 ## Test e build
 
 ```bash

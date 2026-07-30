@@ -82,14 +82,71 @@ requisiti di evidence sono definiti in `docs/CODEX-WORKFLOW-PROTOCOL.md`.
   workstream catalogo e autenticazione;
 - soltanto le dipendenze autorizzate di TASK-010, TASK-011 e TASK-020 possono cambiare;
   titoli, scope, risultati attesi, numerazione e stati dei task futuri restano invariati;
-- TASK-003 è l'unico task `ACTIVE`; il parallelismo del grafo non autorizza execution
-  concorrenti o più writer;
+- durante l'esecuzione di TASK-003, TASK-003 era l'unico task `ACTIVE`; il parallelismo
+  del grafo non autorizzava execution concorrenti o più writer;
 - il diff è limitato ai documenti, ADR, evidence e governance elencati nel task:
   `lib/`, `test/`, `integration_test/`, `config/`, `pubspec*`, target nativi e backend
   devono restare invariati;
 - `git diff --check`, link scan, governance check, scansione secret/URL/config locale,
   parser DAG e `bash scripts/check.sh` devono avere comando, output pertinente ed exit
   code registrati.
+
+## Gate specifici TASK-004
+
+### Contratto e matrice
+
+- `CMC-CLIENT-CONFIG 1.0.0` dichiara esattamente `APP_ENV`, `SUPABASE_URL`,
+  `SUPABASE_PUBLISHABLE_KEY`, `AUTH_REDIRECT_URI` e `GOOGLE_AUTH_ENABLED`, senza altri
+  input compile-time;
+- `APP_ENV` ammette soltanto development, staging e production; l'omissione seleziona
+  development, ma non introduce fallback tra ambienti;
+- development vuoto è valido e non chiama l'inizializzatore Supabase; URL, key,
+  callback o Google attivo devono fallire prima del bootstrap remoto;
+- staging richiede tuple URL/key, callback canonica e flag Google esplicito; `false`
+  resta un kill switch valido;
+- production richiede gli stessi input completi, accetta soltanto Google `false` in
+  questo milestone e non usa valori staging;
+- URL/key sono atomici, l'URL è una origin HTTPS e soltanto publishable key moderne o
+  legacy `anon` sono accettate;
+- la sola callback valida è
+  `com.xniw.clientmerchandisecontrol://auth-callback/`, inclusi scheme, host, path e
+  slash finale esatti, senza wildcard, user info, porta, query o fragment;
+- il parser Google accetta soltanto i literal lowercase `true` e `false`; l'assenza è
+  ammessa soltanto in development e vale `false`;
+- diagnostica, `toString` ed errori espongono soltanto ambiente e booleani, mai URL, key,
+  callback o input rifiutati.
+
+Il gate unitario mirato è:
+
+`flutter test test/core/config/app_config_test.dart test/core/backend/supabase_bootstrap_test.dart`
+
+### Esempi e configurazione locale
+
+- i due example JSON contengono esattamente le cinque chiavi contrattuali, sono JSON
+  validi e non contengono URL/key reali;
+- l'esempio development è offline; l'esempio staging usa la callback canonica e
+  placeholder non operativi;
+- `config/app_config.staging.local.json` esiste localmente, è coperto da
+  `/config/*.local.json` e non compare in `git ls-files`, diff o evidence;
+- README contiene i comandi run, APK debug e iOS Simulator con
+  `--dart-define-from-file=config/app_config.staging.local.json`;
+- nessuna configurazione production o valore remoto reale è versionato.
+
+La verifica del file locale controlla soltanto esistenza, ignore e tracking; non ne
+stampa o persiste il contenuto.
+
+### Confinamento e security
+
+- nessun nuovo package, flag, `.env`, logger, health probe, query, OAuth, session
+  lifecycle, deep link nativo, `shop_id`, schema o dato commerciale;
+- manifest Android, plist iOS, dipendenze e repository esterni restano invariati;
+- Supabase e gli altri sistemi osservati restano zero-write;
+- secret key, `service_role`, credenziali provider, token, URL production, config
+  locali, artifact e valori staging reali sono assenti da Git, output ed evidence;
+- la validità della configurazione non viene dichiarata come readiness, OAuth
+  funzionante o autorizzazione;
+- `git diff --check`, test mirati, `bash scripts/check.sh`, build e smoke development
+  dual-platform devono avere output pertinente ed exit code reali.
 
 ## Gate runtime
 
@@ -99,6 +156,10 @@ TASK-002 lo smoke include quattro tab, back, light/dark, portrait/landscape, tes
 ingrandito e controllo dei log. TASK-003 è documentale: non richiede nuovi smoke quando
 il diff confinement conferma zero modifiche runtime; il gate aggregato continua però a
 verificare test e build della baseline.
+
+Per TASK-004 lo smoke usa development senza define su entrambi i simulatori, verifica
+avvio e interazione con la shell offline, banner tecnico debug e assenza di
+inizializzazione Supabase. Non effettua login, connessione staging o test live remoti.
 
 ## Gate security
 
@@ -111,6 +172,12 @@ credenziali DB, dump, file `.env*`, config locale, log e artifact cross-repo. Le
 possono registrare presenza, classe del target, digest e ref abbreviata; non il valore
 sensibile. Le superfici operative osservate non diventano per questo API Storefront
 autorizzate.
+
+Per TASK-004 la scansione copre inoltre i cinque input contrattuali, callback inattese,
+chiavi moderne/legacy privilegiate, configurazioni production e file
+`config/*.local.json`. La publishable key non è un secret, ma il valore staging reale
+resta fuori da Git, log ed evidence; la scansione deve registrare soltanto esito e classe
+del controllo.
 
 ## Gate CI
 

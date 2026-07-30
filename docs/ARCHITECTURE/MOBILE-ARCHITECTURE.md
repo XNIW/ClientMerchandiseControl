@@ -26,17 +26,27 @@ arrivano insieme alle feature data-backed.
 
 ## App e navigazione
 
-`main.dart` delega a `bootstrap.dart`. Il bootstrap legge configurazione compile-time,
-valida l'ambiente, inizializza Supabase solo con URL e publishable key completi e avvia
-`ProviderScope`.
+`main.dart` delega a `bootstrap.dart`. `AppConfig` è l'unica authority del contratto
+compile-time [`CMC-CLIENT-CONFIG 1.0.0`](ENVIRONMENT-STRATEGY.md): legge esattamente
+`APP_ENV`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `AUTH_REDIRECT_URI` e
+`GOOGLE_AUTH_ENABLED`, valida l'intera matrice prima di qualunque inizializzazione e
+fornisce al bootstrap soltanto lo stato già normalizzato.
+
+Development non accetta valori backend/callback né Google attivo e non inizializza
+Supabase. Staging ammette l'inizializzazione SDK soltanto con tuple, callback e flag
+completi; questo non equivale a readiness, che appartiene a TASK-011. Production non
+eredita mai staging e, finché OAuth production non è autorizzato, accetta soltanto il
+kill switch Google disabilitato. Il flag non implementa login, sessione o deep link:
+queste responsabilità restano TASK-020.
 
 `ClientMerchandiseControlApp` compone tema, localizzazione e router.
 `StatefulShellRoute.indexedStack` mantiene quattro branch — Home, Catalogo, Carrello e
 Account — e ne preserva lo stato. Dalle tab root secondarie il back ritorna a Home.
 
 In development senza configurazione l'app resta offline e usabile e mostra un banner
-diagnostico debug accessibile. In production una configurazione incompleta è un errore
-esplicito.
+diagnostico debug accessibile. Staging e production incompleti sono errori espliciti,
+senza fallback tra ambienti. Diagnostica ed errori espongono soltanto ambiente e
+indicatori booleani, mai URL, key o callback raw.
 
 ## Design system
 
@@ -124,8 +134,11 @@ shop e identità quando applicabile, senza contenere credenziali privilegiate.
 
 ## Errori e assenza del backend
 
-- Development non configurato resta offline e non effettua richieste.
+- Development resta offline e rifiuta qualunque configurazione remota.
 - Staging e production incompleti falliscono in modo chiuso secondo il contratto
+  ambiente.
+- Una configurazione staging valida non prova connessione o salute del backend.
+- Il kill switch Google disabilita la capability locale senza selezionare un altro
   ambiente.
 - Un errore Auth non abilita fallback anonimi per dati customer.
 - Un errore Storefront non abilita accesso a inventory o POS.
@@ -149,5 +162,6 @@ assegnate a:
   performance.
 
 Questo documento preserva le decisioni Flutter, Riverpod, go_router, MVVM, design system
-e bootstrap già adottate. TASK-003 non aggiunge networking, schema, DTO, repository,
-ViewModel, configurazione o dati reali.
+e bootstrap già adottate. TASK-004 aggiunge soltanto il confine di configurazione: non
+aggiunge readiness, flussi OAuth, deep link nativi, schema, DTO, repository, ViewModel o
+dati reali.

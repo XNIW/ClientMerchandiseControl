@@ -1,13 +1,13 @@
 # TASK-002 evidence
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 - Base: `f6bd88263fe8369c9ececa38367f629f3d1a929f`
 - Commit tecnico verificato:
   `ec599758948a303b0862935fcf9ae9003a64aa00`
 - Gate Execution obbligatori: tutti `PASS`
-- Review indipendente: `CHANGES_REQUIRED`, 0 P0/P1, 2 P2, 4 P3
+- Review indipendente: `CHANGES_REQUIRED`, Fix completato, re-review da eseguire
 - CI closeout e post-merge: non ancora eseguiti
 
 Evidence principali:
@@ -19,6 +19,7 @@ Evidence principali:
 - `recovery-backup.md`
 - `screenshot-manifest.md`
 - `review-report.md`
+- `fix-evidence.md`
 
 ## Criteri di accettazione
 
@@ -42,7 +43,7 @@ Evidence principali:
 | CA-16 | STATIC/WIDGET | PASS | shell, page, banner e placeholder usano i token; widget test |
 | CA-17 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | quattro tab, back e subtree nei test e nei due smoke |
 | CA-18 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | 200% su tutte le tab nei test e nei due smoke |
-| CA-19 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | 320×568, 568×320, 390×844, 1024×768 e device reali senza eccezioni |
+| CA-19 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | 320×568, 568×320, 390×844, 1024×768 su Android Emulator/iOS Simulator senza eccezioni |
 | CA-20 | UNIT/WIDGET/ANDROID_EMU/IOS_SIM | PASS | contrasto, Semantics, selected/tap e touch target |
 | CA-21 | STATIC/WIDGET/ANDROID_EMU/IOS_SIM | PASS | scan, placeholder e smoke senza record/valori commerciali finti |
 | CA-22 | STATIC/UNIT/ANDROID_EMU/IOS_SIM | PASS | zero networking nuovo; unit/smoke/log confermano development offline |
@@ -54,13 +55,13 @@ Evidence principali:
 | CA-28 | ANDROID_EMU | PASS | `runtime-smoke.md`, Android API 35, exit `0` |
 | CA-29 | IOS_SIM | PASS | `runtime-smoke.md`, iOS 26.5, exit `0` |
 | CA-30 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | theme light/dark nei test, smoke e diagnostica visuale |
-| CA-31 | STATIC/MANUAL | FAIL | review `CHANGES_REQUIRED`: 2 P2 aperti |
+| CA-31 | STATIC/MANUAL | NOT_RUN | Fix completato; re-review indipendente richiesta |
 | CA-32 | CI | NOT_RUN | SHA di closeout non ancora creato né pushato |
-| CA-33 | STATIC/GIT | FAIL | `T002-REV-001`: README root fermo alla fase Execution |
+| CA-33 | STATIC/GIT | PASS | controllo automatizzato di task/stato/fase/handoff, exit `0` |
 | CA-34 | STATIC/GIT | NOT_RUN | richiede review `APPROVED` prima del closeout |
 | CA-35 | GIT | NOT_RUN | controllo terminale post-merge |
 | CA-36 | STATIC/GIT | NOT_RUN | richiede closeout e ritorno progetto `IDLE` |
-| CA-37 | GIT | FAIL | `T002-REV-002`: digest corretti ma algoritmo non riproducibile dalla evidence |
+| CA-37 | GIT | PASS | algoritmo versionato; otto digest ricalcolati e identici, exit `0` |
 | CA-38 | STATIC/GIT | PASS | package, identifier e target invariati; `execution-evidence.md` |
 
 ## Test case
@@ -91,9 +92,9 @@ Evidence principali:
 | T-22 | BUILD_ANDROID/BUILD_IOS | PASS | entrambe le build exit `0` |
 | T-23 | ANDROID_EMU | PASS | smoke automatico reale Android, exit `0` |
 | T-24 | IOS_SIM | PASS | smoke automatico reale iOS, exit `0` |
-| T-25 | MANUAL/STATIC | FAIL | review `CHANGES_REQUIRED`; `review-report.md` |
+| T-25 | MANUAL/STATIC | NOT_RUN | re-review richiesta dopo Fix; review iniziale in `review-report.md` |
 | T-26 | CI | NOT_RUN | prerequisito: commit closeout pushato |
-| T-27 | STATIC/GIT | FAIL | CA-33 fallisce per snapshot root incoerente |
+| T-27 | STATIC/GIT | NOT_RUN | CA-33 `PASS`; CA-34/36 attendono re-review/closeout |
 | T-28 | GIT | NOT_RUN | PR non ancora merged |
-| T-29 | GIT | FAIL | valori identici, ma procedura versionata non riproducibile |
+| T-29 | GIT | PASS | procedura esatta versionata; fingerprint 4/4 ricreate |
 | T-30 | STATIC/GIT | PASS | package, target e identifier confrontati con la baseline |

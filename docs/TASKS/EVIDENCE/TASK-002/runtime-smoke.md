@@ -43,3 +43,17 @@ risultato di rete del sistema operativo è attribuito all'app.
 Le immagini sotto `screenshots/` sono diagnostica visuale sanitizzata. Il gate runtime
 deriva dai run automatici sopra, non dagli screenshot isolati. Il manifest separato
 registra hash, dimensioni e scenario di ciascuna immagine.
+
+## Re-run dopo Fix
+
+I gate runtime sono stati ripetuti dopo le correzioni di review:
+
+- Android, tentativo 1: `FAIL` prima dell'avvio del test,
+  `INSTALL_FAILED_INSUFFICIENT_STORAGE`;
+- remediation: rimossa soltanto cache ricreabile dell'emulatore con
+  `pm trim-caches 2G`, spazio disponibile da 636 MiB a 1,1 GiB;
+- Android, retry: `PASS`, exit `0`, 1/1;
+- iOS Simulator: `PASS`, exit `0`, 1/1.
+
+Il primo esito Android non è attribuito al codice applicativo e non viene occultato; il
+retry è stato eseguito soltanto dopo aver risolto la causa ambientale.

@@ -96,7 +96,10 @@ merge e attivazione del task successivo.
 
 ## Stato
 
-`TASK-001` è `DONE` e la PR #1 è merged. `TASK-002` è
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`: il Planning autorizzato
-copre product scope, brand foundation provvisoria, principi UX, localizzazione e design
-token applicati alla shell esistente. `TASK-003` resta `TODO`.
+- **Task attivo**: TASK-002
+- **Stato task**: ACTIVE
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+
+`TASK-001` è `DONE` e la PR #1 è merged. I finding obbligatori di TASK-002 sono stati
+corretti e attendono re-review indipendente; `TASK-003` resta `TODO`.

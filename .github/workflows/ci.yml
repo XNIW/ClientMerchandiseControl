@@ -32,6 +32,8 @@ jobs:
         run: bash scripts/check-action-pins.sh
       - name: Validate shell scripts
         run: bash -n scripts/*.sh
+      - name: Validate governance state
+        run: bash scripts/check-governance-state.sh
       - name: Set up Flutter
         # subosito/flutter-action v2.23.0
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2

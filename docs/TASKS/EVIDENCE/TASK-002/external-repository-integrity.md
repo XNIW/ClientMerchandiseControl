@@ -2,12 +2,67 @@
 
 Confronto finale read-only: `2026-07-30T19:04:34Z`.
 
-Metodologia ripetuta identica tra baseline e verifica finale, senza fetch e con
-`GIT_OPTIONAL_LOCKS=0`:
+Metodologia ripetuta identica tra baseline e verifica finale, senza fetch o operazioni
+mutative. Il Fix ha rieseguito la procedura il `2026-07-30T19:28:52Z`, exit `0`: tutti
+gli otto digest coincidono con la tabella.
 
-- `STATUS_SHA256`: output raw `git status --porcelain=v2 -z`;
-- `CONTENT_FINGERPRINT_V1`: stato, diff binario da `HEAD` e digest dei blob untracked
-  non ignorati.
+Algoritmo esatto usato su macOS/zsh, con il path del repository passato come unico
+argomento:
+
+```zsh
+#!/bin/zsh
+set -euo pipefail
+
+export GIT_OPTIONAL_LOCKS=0
+export LC_ALL=C
+
+repo_dir=${1:?"usage: $0 /path/to/repository"}
+
+status_sha256() {
+  git -C "$repo_dir" \
+    status --porcelain=v2 -z --branch --untracked-files=all |
+    shasum -a 256 |
+    awk '{print $1}'
+}
+
+content_fingerprint_v1() {
+  {
+    printf 'external-repo-fingerprint-v1\0'
+
+    git -C "$repo_dir" \
+      status --porcelain=v2 -z --branch --untracked-files=all
+
+    printf '\0TRACKED_DIFF_HEAD\0'
+
+    git -C "$repo_dir" \
+      diff --binary --no-ext-diff --no-textconv HEAD --
+
+    printf '\0UNTRACKED_BLOBS\0'
+
+    while IFS= read -r -d '' rel; do
+      printf 'PATH\0%s\0' "$rel"
+
+      if [ -L "$repo_dir/$rel" ]; then
+        printf 'SYMLINK\0%s\0' "$(readlink "$repo_dir/$rel")"
+      elif [ -f "$repo_dir/$rel" ]; then
+        printf 'FILE\0'
+        shasum -a 256 < "$repo_dir/$rel"
+      else
+        printf 'SPECIAL\0'
+        stat -f '%HT %p %z' "$repo_dir/$rel"
+      fi
+    done < <(
+      git -C "$repo_dir" \
+        ls-files --others --exclude-standard -z
+    )
+  } |
+    shasum -a 256 |
+    awk '{print $1}'
+}
+
+printf 'STATUS_SHA256 %s\n' "$(status_sha256)"
+printf 'CONTENT_FINGERPRINT_V1 %s\n' "$(content_fingerprint_v1)"
+```
 
 | Repository | HEAD e branch | STATUS SHA-256 | CONTENT SHA-256 | Esito |
 |---|---|---|---|---|

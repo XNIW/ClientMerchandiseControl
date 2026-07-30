@@ -173,3 +173,21 @@
 - **Fase finale**: FIX
 - **Blocker/note**: risolvere lo snapshot operativo incoerente e rendere
   riproducibile la fingerprint esterna; merge vietato e TASK-003 resta `TODO`.
+
+## 2026-07-30 — Fix finding TASK-002 e handoff a re-review
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-002
+- **Fase iniziale**: FIX
+- **Azioni principali**: riallineato lo snapshot operativo; introdotto il controllo
+  automatico di coerenza governance; versionato l'algoritmo completo delle fingerprint;
+  corrette le imprecisioni documentali P3 su runtime e PR.
+- **Verifiche**: otto fingerprint su otto ricreate con procedura read-only; governance
+  automatizzata; `scripts/check.sh` exit 0 con 59/59 test e build; smoke Android retry
+  e iOS 1/1; dependency audit, secret/URL scan e diff check `PASS`.
+- **Deviazione**: primo smoke Android `FAIL` pre-test per cache emulatore piena; cache
+  ricreabile liberata e retry `PASS`.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`
+- **Fase finale**: REVIEW
+- **Blocker/note**: il Fix non si auto-approva; re-review indipendente obbligatoria,
+  merge vietato e TASK-003 resta `TODO`.

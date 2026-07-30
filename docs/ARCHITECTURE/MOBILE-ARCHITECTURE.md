@@ -46,8 +46,108 @@ palette, font scale, breakpoint o spacing paralleli.
 
 ## Dati e sicurezza
 
-Il client consumerà soltanto il futuro dominio Storefront protetto server-side. Non
-accede all'inventory operativa, non custodisce secret privilegiati e non autorizza
-pubblicazione, prezzo, disponibilità, hold, fulfillment o pagamento.
+Il client è eseguito su un dispositivo pubblico e non costituisce mai un confine di
+fiducia. Consumerà soltanto il futuro contratto Storefront, shop-scoped e protetto
+server-side. La publishable key identifica il progetto Supabase ma non concede da sola
+accesso; grant e RLS restano entrambi obbligatori.
 
-TASK-002 non aggiunge networking, modello commerciale o dati reali.
+Il client possiede:
+
+- rendering, navigazione e accessibilità;
+- raccolta degli intenti guest/customer;
+- stato, cache e retry locali entro i contratti dei task proprietari;
+- deep link e presentazione di freshness, errori ed esiti server.
+
+Il client non possiede e non può dedurre:
+
+- autorizzazione o ruoli;
+- pubblicazione, prezzo, promozione o disponibilità commerciale;
+- stock, costo, fornitore o altri dati inventory operativi;
+- hold, conferma ordine, fulfillment, vendita fiscale o pagamento;
+- decisioni staff o capability server.
+
+## Ruoli nel client
+
+| Ruolo | Comportamento mobile | Enforcement |
+|---|---|---|
+| `guest` | consulta la superficie Storefront pubblicata senza login | grant e RLS pubblici sul solo contratto allowlisted |
+| `customer` | usa risorse pubblicate consentite ad `authenticated` e, con sessione valida, dati propri e intenti cliente | identità Auth più grant, RLS e validazione server-side |
+| `staff` | nessun percorso operativo nel client pubblico | Admin Console e controlli server-side |
+| `server` | nessuna credenziale o logica privilegiata distribuita nell'app | runtime server autorizzato, auditabile e idempotente |
+
+Le capability `anon` e `authenticated` sono esplicite e non si ereditano implicitamente.
+Una route visibile, uno stato Riverpod, un valore in cache, email, `shop_id` o
+`user_metadata` non autorizzano accessi. La UI può anticipare o nascondere controlli per
+chiarezza, ma il server deve rifiutare ogni operazione non consentita anche da un client
+modificato.
+
+## Confine di accesso dati
+
+Repository e service mobili futuri possono dipendere soltanto dal contratto Storefront
+definito per il loro task. Sono vietati:
+
+- query dirette a tabelle, view, RPC o bucket inventory;
+- collegamenti a database, API o protocollo Win7POS;
+- chiamate alle API di management Admin o a endpoint staff-only;
+- fallback verso Android/iOS operativi, POS o superfici legacy quando Storefront non è
+  disponibile;
+- `service_role`, token staff, secret di signing o URL production versionati nel client;
+- generic schema discovery usata per raggiungere risorse non allowlisted.
+
+Android/iOS Merchandise Control e Win7POS restano fonti e consumer del dominio
+operativo attraverso pipeline server controllate. Non sono repository dati, SDK o
+dipendenze runtime di questa app.
+
+## Commercial truth e mutazioni
+
+Il client presenta l'ultimo stato Storefront ricevuto insieme alla sua freshness, ma non
+lo trasforma in verità autorizzativa. Prima di confermare un'azione commerciale il
+server rivalida almeno shop, identità quando richiesta, prezzo, promozione,
+disponibilità e idempotency key. Le mutazioni sensibili sono autorizzate, atomiche,
+auditabili e fail-closed.
+
+Ordine cliente e vendita fiscale POS mantengono identità e lifecycle distinti. Il client
+non scrive una vendita POS, non scarica stock e non interpreta un successo locale come
+conferma server.
+
+## Auth, shop scope e stato locale
+
+Il catalogo pubblico resta accessibile al guest. L'autenticazione abilita soltanto le
+capability customer esplicitamente previste; non eredita automaticamente i grant `anon`
+e non introduce un ruolo staff. Session identity e authorization sono concetti
+distinti.
+
+Ogni risorsa futura è vincolata a uno `shop_id` UUID validato dal server. Il client può
+trasportare il contesto shop per routing e presentazione, ma non sceglie autonomamente
+l'ambito autorizzato. Cache e persistenza locale devono essere separate per ambiente,
+shop e identità quando applicabile, senza contenere credenziali privilegiate.
+
+## Errori e assenza del backend
+
+- Development non configurato resta offline e non effettua richieste.
+- Staging e production incompleti falliscono in modo chiuso secondo il contratto
+  ambiente.
+- Un errore Auth non abilita fallback anonimi per dati customer.
+- Un errore Storefront non abilita accesso a inventory o POS.
+- Dati scaduti vengono dichiarati come tali; il client non inventa prezzo, stock o
+  disponibilità per completare la UI.
+
+## Sequenza di implementazione
+
+TASK-003 definisce soltanto ownership e trust boundary. Le implementazioni restano
+assegnate a:
+
+- TASK-004 per environment strategy e configurazione;
+- TASK-005 per schema Storefront, migrations, grant e RLS;
+- TASK-006–TASK-010 per proiezione, control plane, prezzi, immagini e query contract;
+- TASK-011 per connessione staging e backend/auth readiness;
+- TASK-012 per shell cliente data-backed;
+- TASK-017 per cache catalogo, freshness e invalidazione;
+- TASK-020 per OAuth, deep link e session lifecycle;
+- TASK-021–TASK-032 per dati cliente e flussi commerciali;
+- TASK-033–TASK-037 per hardening, resilienza, osservabilità, accessibilità e
+  performance.
+
+Questo documento preserva le decisioni Flutter, Riverpod, go_router, MVVM, design system
+e bootstrap già adottate. TASK-003 non aggiunge networking, schema, DTO, repository,
+ViewModel, configurazione o dati reali.

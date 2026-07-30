@@ -16,12 +16,15 @@
 
 ## Repository coinvolti
 
-- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer di TASK-002.
-- `XNIW/merchandise-control-admin-web` — futuro control plane Storefront.
-- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura in TASK-002.
-- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura in TASK-002.
-- `XNIW/Win7POS` — POS e stock operativo, sola lettura in TASK-002.
-- Supabase esistente — backend futuro; nessun accesso o modifica in TASK-002.
+- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer di TASK-003.
+- `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
+  authority candidata, auditata in sola lettura.
+- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
+- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura.
+- `XNIW/Win7POS` — POS e stock operativo, sola lettura.
+- Supabase non-production esistente — metadata auditati in sola lettura; nessuna
+  modifica di schema, Auth, Storage, branch o configurazione.
+- Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 
 ## Principi architetturali
 
@@ -47,15 +50,15 @@
 |---|---|---|---|---|---|
 | TASK-001 | Repository governance, Flutter foundation, CI e dual-platform smoke | DONE | nessuna | Client | Fondazione compilabile, verificata e pronta a review |
 | TASK-002 | Product scope definitivo, branding, UX principles e design tokens | DONE | TASK-001 | Client | Identità e principi UX approvati |
-| TASK-003 | Cross-repo ownership e Storefront integration contract | TODO | TASK-001, TASK-002 | Client, Admin, Android, iOS, POS | Contratto di ownership senza ambiguità |
+| TASK-003 | Cross-repo ownership e Storefront integration contract | ACTIVE | TASK-001, TASK-002 | Client, Admin, Android, iOS, POS | Contratto di ownership senza ambiguità |
 | TASK-004 | Environment strategy development/staging/production e configuration contract | TODO | TASK-001, TASK-003 | Client, Admin | Strategia ambienti e config verificabile |
 | TASK-005 | Supabase Storefront schema, RLS, grants e migration ownership | TODO | TASK-003, TASK-004 | Admin, Supabase, Client | Schema pubblico protetto e ownership migration |
 | TASK-006 | Storefront catalog projection e aggiornamento dal dominio operativo | TODO | TASK-005 | Admin, Supabase, Android, iOS, POS | Proiezione catalogo pubblica affidabile |
 | TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | TODO | TASK-005, TASK-006 | Admin, Supabase | Controlli di pubblicazione shop-scoped |
 | TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | TODO | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Gestione commerciale pubblica |
 | TASK-009 | Pipeline immagini pubbliche Storefront | TODO | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
-| TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO | TASK-005, TASK-006, TASK-009 | Client, Admin, Supabase | Contratto query catalogo testabile |
-| TASK-011 | Connessione Flutter allo staging e backend health state | TODO | TASK-004, TASK-005, TASK-010 | Client, Supabase | Connessione staging fail-closed |
+| TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO | TASK-005, TASK-006, TASK-008, TASK-009 | Client, Admin, Supabase | Contratto query catalogo testabile |
+| TASK-011 | Connessione Flutter allo staging e backend health state | TODO | TASK-004 | Client, Supabase | Connessione staging fail-closed |
 | TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | TODO | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
 | TASK-013 | Home e prodotti/promozioni in evidenza | TODO | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
 | TASK-014 | Categorie e griglia catalogo con caricamento immagini | TODO | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
@@ -64,7 +67,7 @@
 | TASK-017 | Cache catalogo offline, refresh e invalidazione | TODO | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
 | TASK-018 | Preferiti, condivisione e deep link prodotto | TODO | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
 | TASK-019 | Catalog performance e acceptance su dataset esteso | TODO | TASK-010, TASK-014, TASK-015, TASK-017 | Client, Supabase | Budget prestazioni misurato |
-| TASK-020 | Supabase Auth, deep link e session lifecycle | TODO | TASK-004, TASK-005, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
+| TASK-020 | Supabase Auth, deep link e session lifecycle | TODO | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
 | TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
 | TASK-022 | Registrazione device, consenso notifiche e token lifecycle | TODO | TASK-020, TASK-021 | Client, Supabase | Consenso e token gestiti |
 | TASK-023 | Carrello persistente e price revalidation | TODO | TASK-012, TASK-016, TASK-017 | Client, Supabase | Carrello coerente e rivalidato |
@@ -92,6 +95,11 @@
 
 Le dipendenze della tabella formano un grafo aciclico orientato verso task con ID maggiore.
 Non risultano blocker di progetto attivi al bootstrap.
+
+Dopo la foundation comune di TASK-003/TASK-004, il grafo separa un workstream catalogo
+(TASK-005–TASK-010) e un workstream autenticazione (TASK-011, TASK-012, TASK-020–TASK-022).
+Il parallelismo descrive dipendenze indipendenti, non execution concorrente: resta
+vincolante un solo task `ACTIVE` alla volta.
 
 ## Task completati
 

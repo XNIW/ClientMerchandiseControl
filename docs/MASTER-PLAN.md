@@ -9,10 +9,10 @@
 - **File task**: `docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md`
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
-- **Prossima azione autorizzata**: re-review indipendente dei finding
-  `T003-REV-001`–`T003-REV-003`, dei gate impattati e dell'intera matrice
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Prossima azione autorizzata**: applicare l'autorizzazione condizionata già concessa
+  dal prompt end-to-end, chiudere TASK-003 e verificare la CI sul commit di closeout
 
 ## Repository coinvolti
 
@@ -111,5 +111,5 @@ vincolante un solo task `ACTIVE` alla volta.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
-`TASK-003` è l'unico task `ACTIVE`, in `REVIEW` dopo il Fix; nessun altro task è
-attivo.
+`TASK-003` è l'unico task `ACTIVE`; la re-review è `APPROVED` con 0 P0/P1/P2 aperti.
+TASK-004 resta `TODO` fino al closeout verde di TASK-003.

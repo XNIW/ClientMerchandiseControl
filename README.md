@@ -99,6 +99,7 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 - **Task attivo**: TASK-003
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
-`TASK-001` e `TASK-002` sono `DONE` e merged. `TASK-003` è l'unico task attivo.
+`TASK-001` e `TASK-002` sono `DONE` e merged. `TASK-003` è l'unico task attivo; la
+re-review è `APPROVED` e attende il closeout autorizzato.

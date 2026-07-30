@@ -325,3 +325,20 @@
 - **Fase finale**: REVIEW
 - **Blocker/note**: il Fix non si auto-approva; re-review indipendente obbligatoria,
   merge vietato e TASK-004 resta `TODO`.
+
+## 2026-07-30 — Re-review TASK-003 approvata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: REVIEW
+- **Revisione**: `f9cc304816d8f2a1f5bdfabd195f01453967dae8`
+- **Azioni principali**: tre shard read-only freschi su architettura/contratto,
+  governance/evidence/CI e security/provenance; verificato singolarmente ogni finding.
+- **Verifiche**: finding originari 3/3 chiusi; architettura 39/39; provenance 59/59;
+  DAG 42 nodi/zero cicli; fingerprint esterne invarianti; security/confinement `PASS`;
+  CI handoff `30584376506` sullo SHA esatto, 3/3 job, tutti gli step success e
+  annotation 0/0/0.
+- **Finding finali**: 0 P0, 0 P1, 0 P2; 2 P3 documentali non bloccanti.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`
+- **Blocker/note**: autorizzazione condizionata già concessa; closeout e CI sul suo SHA
+  restano obbligatori prima di TASK-004. Merge batch ancora vietato.

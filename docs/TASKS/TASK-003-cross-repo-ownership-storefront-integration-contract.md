@@ -7,19 +7,19 @@
 - **File task**: `docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_FIXER
-- **Review outcome**: CHANGES_REQUIRED
-- **Reviewer**: tre sessioni indipendenti read-only
+- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Review outcome**: APPROVED
+- **Reviewer**: tre sessioni di re-review indipendenti read-only
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **DONE**: NO
 - **Merge**: NO
 - **User approval**: GRANTED_BY_END_TO_END_PROMPT, da applicare con transizione esplicita
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-003/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -339,6 +339,18 @@ Review indipendente read-only eseguita sulla revisione
 - **Report**: `docs/TASKS/EVIDENCE/TASK-003/review-report.md`.
 - **Transizione**: `REVIEW -> FIX`.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+Re-review indipendente read-only eseguita sulla revisione
+`f9cc304816d8f2a1f5bdfabd195f01453967dae8`.
+
+- **Sessioni**: tre shard freschi, distinti dal Fixer.
+- **Finding risolti**: `T003-REV-001`–`T003-REV-003`.
+- **Finding aperti**: 0 P0, 0 P1, 0 P2; 2 P3 non bloccanti.
+- **Gate autonomi**: architettura 39/39, provenance 59/59, governance, DAG,
+  matrici, security, fingerprint e CI handoff `30584376506` `PASS`.
+- **Esito**: `APPROVED`.
+- **Report**: `docs/TASKS/EVIDENCE/TASK-003/re-review-report.md`.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Fix — `CODEX_FIXER`
 

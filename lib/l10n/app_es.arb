@@ -1,0 +1,16 @@
+{
+  "@@locale": "es",
+  "backendNotConfigured": "Backend no configurado: modo de desarrollo sin conexión.",
+  "navigationHome": "Inicio",
+  "navigationCatalog": "Catálogo",
+  "navigationCart": "Carrito",
+  "navigationAccount": "Cuenta",
+  "homeTitle": "Inicio",
+  "homeFoundationMessage": "La base de la tienda está lista. El catálogo público se conectará en una tarea posterior.",
+  "catalogTitle": "Catálogo",
+  "catalogFoundationMessage": "El catálogo todavía no está conectado. Aquí se mostrarán solo productos publicados.",
+  "cartTitle": "Carrito",
+  "cartFoundationMessage": "El carrito se implementará cuando exista el contrato público de precios y disponibilidad.",
+  "accountTitle": "Cuenta",
+  "accountFoundationMessage": "El perfil del cliente y el acceso seguro se implementarán en tareas posteriores."
+}

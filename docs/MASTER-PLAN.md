@@ -8,10 +8,10 @@
 - **Task attivo**: TASK-001
 - **File task**: `docs/TASKS/TASK-001-bootstrap-foundation.md`
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX
-- **Indicatore**: IN_PROGRESS
-- **Prossima azione autorizzata**: completare esclusivamente l'Execution di TASK-001
+- **Fase**: REVIEW
+- **Responsabile**: CLAUDE/CHATGPT
+- **Indicatore**: READY_FOR_REVIEW
+- **Prossima azione autorizzata**: revisionare esclusivamente TASK-001; non attivare TASK-002
 
 ## Repository coinvolti
 

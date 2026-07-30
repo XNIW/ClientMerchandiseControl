@@ -1,6 +1,6 @@
 # TASK-001 evidence
 
-Stato snapshot: Execution locale completata; PR e CI ancora da eseguire.
+Stato snapshot: Execution completata; `ACTIVE / REVIEW / READY_FOR_REVIEW`.
 
 ## Criteri di accettazione
 
@@ -22,11 +22,11 @@ Stato snapshot: Execution locale completata; PR e CI ancora da eseguire.
 | CA-14 | BUILD_IOS | PASS | Runner.app Simulator |
 | CA-15 | ANDROID_EMU | PASS | `android-smoke.md`, screenshot |
 | CA-16 | IOS_SIM | PASS | `ios-smoke.md`, screenshot |
-| CA-17 | CI | NOT_RUN | PR non ancora aperta |
+| CA-17 | CI | PASS | `ci-status.md`, tre job conclusi con successo |
 | CA-18 | SECURITY/GIT | PASS | `security-check.md` |
-| CA-19 | GIT | NOT_RUN | Repo/branch presenti; commit finale e PR pendenti |
+| CA-19 | GIT | PASS | repository privato, branch, commit e PR #1 |
 | CA-20 | GIT | PASS | `git-state.md` |
-| CA-21 | STATIC/GIT | NOT_RUN | Transizione finale dopo CI |
+| CA-21 | STATIC/GIT | PASS | task e Master Plan in Review, mai Done |
 
 ## Test case
 
@@ -51,6 +51,6 @@ Stato snapshot: Execution locale completata; PR e CI ancora da eseguire.
 | T-17 | BUILD_IOS | PASS | iOS Simulator debug |
 | T-18 | ANDROID_EMU | PASS | `android-smoke.md` |
 | T-19 | IOS_SIM | PASS | `ios-smoke.md` |
-| T-20 | CI | NOT_RUN | PR non ancora aperta |
+| T-20 | CI | PASS | GitHub Actions Quality, Android e iOS |
 | T-21 | SECURITY | PASS | `security-check.md` |
-| T-22 | GIT | NOT_RUN | commit finale/PR/tracking pendenti |
+| T-22 | GIT | PASS | remote privato, tracking e handoff verificati |

@@ -17,7 +17,12 @@
 
 ## Toolchain TASK-001
 
-Flutter stable viene installato dal bundle ufficiale macOS arm64, con verifica SHA-256.
-Versioni e risultato finale di `flutter doctor -v` saranno riportati nelle evidence.
+Flutter 3.44.8 stable è stato installato dal bundle ufficiale macOS arm64 con verifica
+SHA-256. CocoaPods 1.17.0 e gli strumenti Android richiesti sono presenti; tutte le
+licenze Android risultano accettate.
+
+`scripts/doctor.sh` risolve Flutter dal `PATH` o da `FLUTTER_ROOT`, con fallback
+portabile a `$HOME/develop/flutter`. Il controllo finale termina con exit `0` e
+`No issues found`.
 
 Nessun path personale completo deve essere copiato negli artefatti di evidence.

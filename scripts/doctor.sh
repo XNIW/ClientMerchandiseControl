@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if ! command -v flutter >/dev/null 2>&1; then
+  flutter_bin="${FLUTTER_ROOT:-${HOME}/develop/flutter}/bin"
+  if [[ ! -x "${flutter_bin}/flutter" ]]; then
+    printf 'Flutter non trovato. Configurare PATH o FLUTTER_ROOT.\n' >&2
+    exit 127
+  fi
+  export PATH="${flutter_bin}:${PATH}"
+fi
+
 sanitize() {
   local machine_name
   machine_name="$(hostname)"

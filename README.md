@@ -94,5 +94,5 @@ dell'utente.
 
 ## Stato
 
-`TASK-001` è `ACTIVE / EXECUTION` durante il bootstrap. La consegna prevista è
-`ACTIVE / REVIEW / READY_FOR_REVIEW`, mai `DONE` in questa execution.
+`TASK-001` è `ACTIVE / REVIEW / READY_FOR_REVIEW`. La review non è ancora stata
+eseguita e il task non è `DONE`.

@@ -1,5 +1,11 @@
 # Workflow Claude / ChatGPT
 
+## Lingua del progetto
+
+Planning, review, tracking e comunicazioni di progetto sono in italiano. Identificatori
+tecnici, API, comandi e contenuti localizzati dell'app possono mantenere la lingua
+richiesta dalle rispettive specifiche.
+
 ## Ruolo
 
 Claude/ChatGPT è planner e reviewer, non executor principale.

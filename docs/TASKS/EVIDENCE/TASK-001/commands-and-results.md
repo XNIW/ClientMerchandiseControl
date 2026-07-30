@@ -18,9 +18,11 @@ Output sintetico e sanitizzato. Nessun log build completo è versionato.
 | `flutter build apk --debug` | 0 | PASS | Primo build 354,6 s; rerun 6,9 s |
 | `flutter build ios --simulator --debug` | 0 | PASS | Primo build 67,8 s; rerun 13,2 s |
 | `scripts/check.sh` | 0 | PASS | Sequenza completa superata |
+| `scripts/check.sh` senza Flutter iniziale nel PATH | 0 | PASS | fallback `FLUTTER_ROOT`/`$HOME/develop/flutter` verificato |
 | `bash -n scripts/doctor.sh scripts/check.sh` | 0 | PASS | Script validi |
 | parse YAML CI con Ruby/Psych | 0 | PASS | Sintassi valida |
 | `git diff --check` | 0 | PASS | Nessun errore whitespace |
+| GitHub Actions run `30514420504` | 0 | PASS | Quality, Android e iOS conclusi senza annotazioni |
 
 Il primo giro test ha avuto exit `1`: ha rilevato simbolo CLP in posizione errata e una
 simulazione locale non corretta. Il formatter e il resolver locale sono stati corretti;

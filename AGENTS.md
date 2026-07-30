@@ -1,5 +1,11 @@
 # Istruzioni per Codex
 
+## Lingua del progetto
+
+Codex comunica, pianifica, documenta e produce gli handoff di questo progetto in
+italiano. Restano in inglese soltanto identificatori tecnici, API, comandi, nomi imposti
+dagli strumenti e testi applicativi richiesti dalle specifiche di localizzazione.
+
 ## Ruolo
 
 Codex è executor e fixer. Opera soltanto nelle fasi `EXECUTION` e `FIX`, applica il

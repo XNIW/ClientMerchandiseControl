@@ -6,13 +6,13 @@
 - **Titolo**: Repository Governance, Flutter Foundation, CI e Dual-Platform Smoke
 - **File task**: `docs/TASKS/TASK-001-bootstrap-foundation.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX
+- **Fase**: REVIEW
+- **Responsabile**: CLAUDE/CHATGPT
 - **Data creazione**: 2026-07-29
 - **Ultimo aggiornamento**: 2026-07-29
 - **Ultimo agente**: CODEX
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-001/`
-- **Handoff**: IN_PROGRESS
+- **Handoff**: READY_FOR_REVIEW
 
 ## Dipendenze
 
@@ -172,30 +172,41 @@ In esecuzione secondo l'Approccio approvato.
 
 - Creati repository privato, seed `main` e branch TASK-001.
 - Create governance, Master Plan, ADR, documentazione prodotto/architettura e task.
-- Toolchain, app, test, CI ed evidence sono in corso.
+- Installata Flutter stable 3.44.8 e completata la toolchain Android/iOS.
+- Generata una sola app Flutter con target Android/iOS e identificatori approvati.
+- Implementate configurazione compile-time fail-closed, bootstrap Supabase offline,
+  shell Riverpod/go_router, Material 3, tema di sistema e localizzazioni es/it/en/zh.
+- Implementati formatter CLP, unit/widget test, script di verifica e CI.
+- Eseguiti build e smoke reali su Android Emulator e iOS Simulator.
+- Creati evidence, commit, push e PR; nessun merge o auto-merge.
 
 ### Check eseguiti
 
-I risultati finali saranno consolidati in
+`flutter doctor -v`, format, analyze, 16 test, build Android, build iOS Simulator,
+smoke Android/iOS, security scan e tre job GitHub Actions sono `PASS`. I risultati
+sanitizzati sono consolidati in
 `docs/TASKS/EVIDENCE/TASK-001/commands-and-results.md`.
 
 ### Matrice CA -> evidence
 
-Vedere `docs/TASKS/EVIDENCE/TASK-001/README.md` al termine dell'Execution.
+Tutti i criteri CA-01–CA-21 risultano `PASS`; vedere
+`docs/TASKS/EVIDENCE/TASK-001/README.md`.
 
 ### Matrice T-NN -> risultato
 
-Vedere `docs/TASKS/EVIDENCE/TASK-001/README.md` al termine dell'Execution.
+Tutti i test case T-01–T-22 risultano `PASS`; vedere
+`docs/TASKS/EVIDENCE/TASK-001/README.md`.
 
 ### Rischi rimasti
 
-Toolchain, build, smoke e CI non ancora conclusi.
+Branding e design definitivi, contratto Storefront, ambienti reali e backend restano
+fuori scope e sono assegnati ai task futuri. Nessun blocker di TASK-001 è attivo.
 
 ### Handoff a Review
 
-- **Prossima fase**: non ancora disponibile
-- **Prossimo agente**: CODEX
-- **Azione**: completare tutti i gate obbligatori.
+- **Prossima fase**: REVIEW
+- **Prossimo agente**: CLAUDE/CHATGPT
+- **Azione**: verificare CA-01–CA-21 e T-01–T-22 contro le evidence; non attivare TASK-002.
 
 ## Review — solo planner/reviewer
 
@@ -208,6 +219,7 @@ Non applicabile prima della review.
 ## Chiusura
 
 - **Conferma utente**: non ancora ricevuta
-- **Follow-up candidate**: nessuno attivato
-- **Riepilogo finale**: da compilare dopo Execution
+- **Follow-up candidate**: TASK-002, non attivato
+- **Riepilogo finale**: fondazione Flutter e governance consegnate a review con gate locali,
+  smoke dual-platform e CI superati
 - **Data completamento**: non applicabile

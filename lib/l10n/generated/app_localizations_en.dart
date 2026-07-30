@@ -29,26 +29,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeFoundationMessage =>
-      'The storefront foundation is ready. The public catalog will be connected in a later task.';
+      'You will soon be able to discover what\'s new at the store here.';
 
   @override
   String get catalogTitle => 'Catalog';
 
   @override
   String get catalogFoundationMessage =>
-      'The catalog is not connected yet. Only published products will appear here.';
+      'The catalog will be available here soon.';
 
   @override
   String get cartTitle => 'Cart';
 
   @override
   String get cartFoundationMessage =>
-      'The cart will be implemented after the public price and availability contract.';
+      'Your cart will be available when you can choose products.';
 
   @override
   String get accountTitle => 'Account';
 
   @override
   String get accountFoundationMessage =>
-      'Customer profiles and secure access will be implemented in later tasks.';
+      'You can access your account when this feature is available.';
 }

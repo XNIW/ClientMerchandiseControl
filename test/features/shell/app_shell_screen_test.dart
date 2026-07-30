@@ -1,5 +1,8 @@
 import 'package:client_merchandise_control/app/client_merchandise_control_app.dart';
+import 'package:client_merchandise_control/app/design_system/tokens/app_sizes.dart';
+import 'package:client_merchandise_control/app/design_system/tokens/app_spacing.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,27 +18,20 @@ void main() {
   const destinations = <({String key, String message})>[
     (
       key: 'nav-home',
-      message:
-          'La base de la tienda está lista. '
-          'El catálogo público se conectará en una tarea posterior.',
+      message: 'Pronto podrás descubrir aquí las novedades de la tienda.',
     ),
     (
       key: 'nav-catalog',
-      message:
-          'El catálogo todavía no está conectado. '
-          'Aquí se mostrarán solo productos publicados.',
+      message: 'El catálogo estará disponible aquí próximamente.',
     ),
     (
       key: 'nav-cart',
-      message:
-          'El carrito se implementará cuando exista el contrato público '
-          'de precios y disponibilidad.',
+      message: 'Tu carrito estará disponible cuando puedas elegir productos.',
     ),
     (
       key: 'nav-account',
       message:
-          'El perfil del cliente y el acceso seguro se implementarán '
-          'en tareas posteriores.',
+          'Podrás acceder a tu cuenta cuando esta función esté disponible.',
     ),
   ];
 
@@ -108,6 +104,23 @@ void main() {
     );
   });
 
+  testWidgets('preserva il subtree Home dopo il cambio tab', (tester) async {
+    await tester.pumpWidget(buildApp());
+    await tester.pumpAndSettle();
+
+    final homeFinder = find.byType(HomeScreen, skipOffstage: false);
+    final initialHomeElement = tester.element(homeFinder);
+
+    await tester.tap(find.byKey(const ValueKey('nav-account')));
+    await tester.pumpAndSettle();
+    expect(homeFinder, findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('nav-home')));
+    await tester.pumpAndSettle();
+
+    expect(tester.element(homeFinder), same(initialHomeElement));
+  });
+
   testWidgets('espone una sola semantica titolo nel contenuto', (tester) async {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
@@ -128,18 +141,27 @@ void main() {
     expect(titleSemantics, hasLength(1));
   });
 
-  testWidgets('resta usabile a 320px con testo al 200%', (tester) async {
-    await tester.binding.setSurfaceSize(const Size(320, 568));
+  testWidgets('resta usabile su tutte le tab a testo 200%', (tester) async {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
-    await tester.pumpWidget(buildApp());
-    await tester.pumpAndSettle();
+    for (final size in const [Size(320, 568), Size(568, 320)]) {
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+      await tester.binding.setSurfaceSize(size);
+      await tester.pumpWidget(buildApp());
+      await tester.pumpAndSettle();
 
-    expect(find.text(destinations[0].message), findsOneWidget);
-    expect(find.byType(NavigationBar), findsOneWidget);
-    expect(tester.takeException(), isNull);
+      for (var index = 0; index < destinations.length; index++) {
+        if (index != 0) {
+          await tester.tap(find.byKey(ValueKey(destinations[index].key)));
+          await tester.pumpAndSettle();
+        }
+        expect(find.text(destinations[index].message), findsOneWidget);
+        expect(tester.takeException(), isNull, reason: '$size tab $index');
+      }
+    }
   });
 
   testWidgets('adatta il padding alle larghezze compatta ed estesa', (
@@ -147,8 +169,8 @@ void main() {
   ) async {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     for (final testCase in [
-      (size: const Size(390, 844), horizontalPadding: 20.0),
-      (size: const Size(1000, 844), horizontalPadding: 32.0),
+      (size: const Size(390, 844), horizontalPadding: AppSpacing.lg),
+      (size: const Size(1024, 768), horizontalPadding: AppSpacing.xxl),
     ]) {
       await tester.binding.setSurfaceSize(testCase.size);
       await tester.pumpWidget(buildApp());
@@ -161,9 +183,26 @@ void main() {
         scrollView.padding,
         EdgeInsets.symmetric(
           horizontal: testCase.horizontalPadding,
-          vertical: 24,
+          vertical: AppSpacing.xl,
         ),
       );
     }
+  });
+
+  testWidgets('le destinazioni rispettano target e label accessibili', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildApp());
+    await tester.pumpAndSettle();
+
+    for (final destination in destinations) {
+      final size = tester.getSize(find.byKey(ValueKey(destination.key)));
+      expect(size.width, greaterThanOrEqualTo(AppSizes.minimumTouchTarget));
+      expect(size.height, greaterThanOrEqualTo(AppSizes.minimumTouchTarget));
+    }
+
+    expect(tester, meetsGuideline(labeledTapTargetGuideline));
+    expect(tester, meetsGuideline(androidTapTargetGuideline));
+    expect(tester, meetsGuideline(iOSTapTargetGuideline));
   });
 }

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/design_system/tokens/app_durations.dart';
+import '../../../app/design_system/tokens/app_spacing.dart';
+import '../../../app/design_system/widgets/storefront_status_banner.dart';
 import '../../../core/backend/backend_status.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/config/app_environment.dart';
@@ -36,16 +39,27 @@ class AppShellScreen extends ConsumerWidget {
           child: Column(
             children: [
               if (showDevelopmentBanner)
-                MaterialBanner(
-                  content: Text(l10n.backendNotConfigured),
-                  leading: const Icon(Icons.cloud_off_outlined),
-                  actions: const [SizedBox.shrink()],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.sm,
+                    AppSpacing.lg,
+                    0,
+                  ),
+                  child: StorefrontStatusBanner(
+                    message: l10n.backendNotConfigured,
+                    icon: Icons.cloud_off_outlined,
+                  ),
                 ),
               Expanded(child: navigationShell),
             ],
           ),
         ),
         bottomNavigationBar: NavigationBar(
+          animationDuration: AppDurations.effective(
+            context,
+            AppDurations.medium,
+          ),
           selectedIndex: navigationShell.currentIndex,
           onDestinationSelected: (index) {
             navigationShell.goBranch(

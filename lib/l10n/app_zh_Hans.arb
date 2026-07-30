@@ -6,11 +6,11 @@
   "navigationCart": "购物车",
   "navigationAccount": "账户",
   "homeTitle": "首页",
-  "homeFoundationMessage": "商店应用基础已就绪。公共商品目录将在后续任务中接入。",
+  "homeFoundationMessage": "你很快就能在这里发现商店的最新内容。",
   "catalogTitle": "商品目录",
-  "catalogFoundationMessage": "商品目录尚未接入。此处未来只显示已发布的商品。",
+  "catalogFoundationMessage": "商品目录即将在这里开放。",
   "cartTitle": "购物车",
-  "cartFoundationMessage": "购物车将在公共价格与库存合同确定后实现。",
+  "cartFoundationMessage": "可以选择商品后，你就能使用购物车。",
   "accountTitle": "账户",
-  "accountFoundationMessage": "客户资料和安全登录将在后续任务中实现。"
+  "accountFoundationMessage": "此功能开放后，你就能访问自己的账户。"
 }

@@ -6,11 +6,11 @@
   "navigationCart": "Carrito",
   "navigationAccount": "Cuenta",
   "homeTitle": "Inicio",
-  "homeFoundationMessage": "La base de la tienda está lista. El catálogo público se conectará en una tarea posterior.",
+  "homeFoundationMessage": "Pronto podrás descubrir aquí las novedades de la tienda.",
   "catalogTitle": "Catálogo",
-  "catalogFoundationMessage": "El catálogo todavía no está conectado. Aquí se mostrarán solo productos publicados.",
+  "catalogFoundationMessage": "El catálogo estará disponible aquí próximamente.",
   "cartTitle": "Carrito",
-  "cartFoundationMessage": "El carrito se implementará cuando exista el contrato público de precios y disponibilidad.",
+  "cartFoundationMessage": "Tu carrito estará disponible cuando puedas elegir productos.",
   "accountTitle": "Cuenta",
-  "accountFoundationMessage": "El perfil del cliente y el acceso seguro se implementarán en tareas posteriores."
+  "accountFoundationMessage": "Podrás acceder a tu cuenta cuando esta función esté disponible."
 }

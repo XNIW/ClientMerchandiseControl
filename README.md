@@ -99,7 +99,7 @@ merge e attivazione del task successivo.
 - **Task attivo**: TASK-002
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
-`TASK-001` è `DONE` e la PR #1 è merged. I finding obbligatori di TASK-002 sono stati
-corretti e attendono re-review indipendente; `TASK-003` resta `TODO`.
+`TASK-001` è `DONE` e la PR #1 è merged. La re-review di TASK-002 è `APPROVED` e
+l'autorizzazione condizionata al closeout è già presente; `TASK-003` resta `TODO`.

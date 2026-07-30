@@ -9,11 +9,11 @@
 - **File task**: `docs/TASKS/TASK-002-product-scope-branding-design-system.md`
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
-- **Prossima azione autorizzata**: verificare indipendentemente la risoluzione di
-  `T002-REV-001` e `T002-REV-002`, rieseguire i gate impattati e assegnare un esito;
-  nessun merge prima di `APPROVED` e CI closeout `PASS`
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Prossima azione autorizzata**: applicare l'autorizzazione condizionata già concessa
+  dal prompt end-to-end, chiudere TASK-002 e pubblicare il commit di closeout; nessun
+  merge prima della CI finale `PASS` sullo SHA conclusivo
 
 ## Repository coinvolti
 

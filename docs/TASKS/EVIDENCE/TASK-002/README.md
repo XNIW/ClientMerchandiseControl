@@ -1,13 +1,13 @@
 # TASK-002 evidence
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 - Base: `f6bd88263fe8369c9ececa38367f629f3d1a929f`
 - Commit tecnico verificato:
   `ec599758948a303b0862935fcf9ae9003a64aa00`
 - Gate Execution obbligatori: tutti `PASS`
-- Review indipendente: `CHANGES_REQUIRED`, Fix completato, re-review da eseguire
+- Review indipendente: re-review `APPROVED`, 0 P0/P1/P2 aperti
 - CI closeout e post-merge: non ancora eseguiti
 
 Evidence principali:
@@ -20,6 +20,7 @@ Evidence principali:
 - `screenshot-manifest.md`
 - `review-report.md`
 - `fix-evidence.md`
+- `re-review-report.md`
 
 ## Criteri di accettazione
 
@@ -55,7 +56,7 @@ Evidence principali:
 | CA-28 | ANDROID_EMU | PASS | `runtime-smoke.md`, Android API 35, exit `0` |
 | CA-29 | IOS_SIM | PASS | `runtime-smoke.md`, iOS 26.5, exit `0` |
 | CA-30 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | theme light/dark nei test, smoke e diagnostica visuale |
-| CA-31 | STATIC/MANUAL | NOT_RUN | Fix completato; re-review indipendente richiesta |
+| CA-31 | STATIC/MANUAL | PASS | due re-reviewer: 0 P0/P1/P2 aperti; `re-review-report.md` |
 | CA-32 | CI | NOT_RUN | SHA di closeout non ancora creato né pushato |
 | CA-33 | STATIC/GIT | PASS | controllo automatizzato di task/stato/fase/handoff, exit `0` |
 | CA-34 | STATIC/GIT | NOT_RUN | richiede review `APPROVED` prima del closeout |
@@ -92,7 +93,7 @@ Evidence principali:
 | T-22 | BUILD_ANDROID/BUILD_IOS | PASS | entrambe le build exit `0` |
 | T-23 | ANDROID_EMU | PASS | smoke automatico reale Android, exit `0` |
 | T-24 | IOS_SIM | PASS | smoke automatico reale iOS, exit `0` |
-| T-25 | MANUAL/STATIC | NOT_RUN | re-review richiesta dopo Fix; review iniziale in `review-report.md` |
+| T-25 | MANUAL/STATIC | PASS | re-review indipendente `APPROVED`; 4 finding risolti |
 | T-26 | CI | NOT_RUN | prerequisito: commit closeout pushato |
 | T-27 | STATIC/GIT | NOT_RUN | CA-33 `PASS`; CA-34/36 attendono re-review/closeout |
 | T-28 | GIT | NOT_RUN | PR non ancora merged |

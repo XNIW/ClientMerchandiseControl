@@ -191,3 +191,18 @@
 - **Fase finale**: REVIEW
 - **Blocker/note**: il Fix non si auto-approva; re-review indipendente obbligatoria,
   merge vietato e TASK-003 resta `TODO`.
+
+## 2026-07-30 — Re-review TASK-002 approvata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-002
+- **Fase iniziale/finale**: REVIEW
+- **Revisione**: `8253fc9cc3e7f2dfae3d2e10744b9e59bc1e8dbb`
+- **Azioni principali**: due re-review read-only fresche; verificati singolarmente i
+  finding e i regression check; ispezionati diff, PR, CI e repository esterni.
+- **Verifiche**: governance positiva exit 0 e negativa exit 1 atteso; fingerprint 8/8;
+  `scripts/check.sh`, smoke Android/iOS e CI `30575613471` 3/3 `PASS`, zero annotation.
+- **Finding finali**: 0 P0, 0 P1, 0 P2; 2 P3 UI non bloccanti; nessun nuovo finding.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`
+- **Blocker/note**: autorizzazione condizionata già concessa; closeout e CI sul suo SHA
+  restano obbligatori prima del merge. TASK-003 non è attivato.

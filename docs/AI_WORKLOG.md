@@ -156,3 +156,20 @@
 - **Fase finale**: REVIEW
 - **Blocker/note**: nessun gate Execution obbligatorio aperto. La review indipendente,
   la CI closeout, `DONE` e il merge non sono ancora eseguiti; `TASK-003` resta `TODO`.
+
+## 2026-07-30 — Review indipendente TASK-002 e transizione a Fix
+
+- **Agente**: `CODEX_REVIEWER`
+- **Task**: TASK-002
+- **Fase iniziale**: REVIEW
+- **Revisione**: `92d2697f0577cfb510d0a4bdd323195d6cfb42b2`
+- **Azioni principali**: tre shard read-only indipendenti su governance/evidence,
+  Flutter/runtime/security e UI/accessibilità; consolidati finding duplicati.
+- **Verifiche**: `scripts/check.sh` exit 0 con 59/59 test e build; smoke Android/iOS
+  1/1; CI `30573839944` 3/3 job `PASS`, zero annotation; screenshot 9/9; repository
+  esterni invariati.
+- **Finding**: 0 P0, 0 P1, 2 P2, 4 P3.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`
+- **Fase finale**: FIX
+- **Blocker/note**: risolvere lo snapshot operativo incoerente e rendere
+  riproducibile la fingerprint esterna; merge vietato e TASK-003 resta `TODO`.

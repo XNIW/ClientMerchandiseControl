@@ -8,12 +8,12 @@
 - **Task attivo**: TASK-002
 - **File task**: `docs/TASKS/TASK-002-product-scope-branding-design-system.md`
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
-- **Prossima azione autorizzata**: eseguire review indipendente di TASK-002 su intent,
-  criteri, diff, evidence, runtime, security e stato Git; nessun merge prima di
-  `APPROVED` e CI closeout `PASS`
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Prossima azione autorizzata**: correggere esclusivamente i finding
+  `T002-REV-001` e `T002-REV-002`, aggiornare le evidence e riconsegnare TASK-002 a
+  re-review; nessun merge prima di `APPROVED` e CI closeout `PASS`
 
 ## Repository coinvolti
 

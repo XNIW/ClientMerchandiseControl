@@ -1,13 +1,13 @@
 # TASK-002 evidence
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 - Base: `f6bd88263fe8369c9ececa38367f629f3d1a929f`
 - Commit tecnico verificato:
   `ec599758948a303b0862935fcf9ae9003a64aa00`
 - Gate Execution obbligatori: tutti `PASS`
-- Review indipendente: non ancora eseguita
+- Review indipendente: `CHANGES_REQUIRED`, 0 P0/P1, 2 P2, 4 P3
 - CI closeout e post-merge: non ancora eseguiti
 
 Evidence principali:
@@ -18,6 +18,7 @@ Evidence principali:
 - `external-repository-integrity.md`
 - `recovery-backup.md`
 - `screenshot-manifest.md`
+- `review-report.md`
 
 ## Criteri di accettazione
 
@@ -53,13 +54,13 @@ Evidence principali:
 | CA-28 | ANDROID_EMU | PASS | `runtime-smoke.md`, Android API 35, exit `0` |
 | CA-29 | IOS_SIM | PASS | `runtime-smoke.md`, iOS 26.5, exit `0` |
 | CA-30 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | theme light/dark nei test, smoke e diagnostica visuale |
-| CA-31 | STATIC/MANUAL | NOT_RUN | review indipendente non ancora iniziata |
+| CA-31 | STATIC/MANUAL | FAIL | review `CHANGES_REQUIRED`: 2 P2 aperti |
 | CA-32 | CI | NOT_RUN | SHA di closeout non ancora creato né pushato |
-| CA-33 | STATIC/GIT | PASS | task, Master Plan, worklog, matrici ed evidence allineati all'handoff |
+| CA-33 | STATIC/GIT | FAIL | `T002-REV-001`: README root fermo alla fase Execution |
 | CA-34 | STATIC/GIT | NOT_RUN | richiede review `APPROVED` prima del closeout |
 | CA-35 | GIT | NOT_RUN | controllo terminale post-merge |
 | CA-36 | STATIC/GIT | NOT_RUN | richiede closeout e ritorno progetto `IDLE` |
-| CA-37 | GIT | PASS | `external-repository-integrity.md`: zero-write 4/4 |
+| CA-37 | GIT | FAIL | `T002-REV-002`: digest corretti ma algoritmo non riproducibile dalla evidence |
 | CA-38 | STATIC/GIT | PASS | package, identifier e target invariati; `execution-evidence.md` |
 
 ## Test case
@@ -90,9 +91,9 @@ Evidence principali:
 | T-22 | BUILD_ANDROID/BUILD_IOS | PASS | entrambe le build exit `0` |
 | T-23 | ANDROID_EMU | PASS | smoke automatico reale Android, exit `0` |
 | T-24 | IOS_SIM | PASS | smoke automatico reale iOS, exit `0` |
-| T-25 | MANUAL/STATIC | NOT_RUN | owner: `CODEX_REVIEWER` |
+| T-25 | MANUAL/STATIC | FAIL | review `CHANGES_REQUIRED`; `review-report.md` |
 | T-26 | CI | NOT_RUN | prerequisito: commit closeout pushato |
-| T-27 | STATIC/GIT | NOT_RUN | sub-check CA-33 `PASS`; CA-34/36 attendono review/closeout |
+| T-27 | STATIC/GIT | FAIL | CA-33 fallisce per snapshot root incoerente |
 | T-28 | GIT | NOT_RUN | PR non ancora merged |
-| T-29 | GIT | PASS | fingerprint esterni iniziali/finali identici |
+| T-29 | GIT | FAIL | valori identici, ma procedura versionata non riproducibile |
 | T-30 | STATIC/GIT | PASS | package, target e identifier confrontati con la baseline |

@@ -146,7 +146,12 @@ void main() {
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
-    for (final size in const [Size(320, 568), Size(568, 320)]) {
+    for (final size in const [
+      Size(320, 568),
+      Size(568, 320),
+      Size(390, 844),
+      Size(1024, 768),
+    ]) {
       await tester.pumpWidget(const SizedBox());
       await tester.pump();
       await tester.binding.setSurfaceSize(size);

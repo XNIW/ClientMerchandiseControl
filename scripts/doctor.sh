@@ -1,14 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! command -v flutter >/dev/null 2>&1; then
-  flutter_bin="${FLUTTER_ROOT:-${HOME}/develop/flutter}/bin"
-  if [[ ! -x "${flutter_bin}/flutter" ]]; then
-    printf 'Flutter non trovato. Configurare PATH o FLUTTER_ROOT.\n' >&2
-    exit 127
-  fi
-  export PATH="${flutter_bin}:${PATH}"
-fi
+cmc_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=resolve-flutter.sh
+source "${cmc_script_dir}/resolve-flutter.sh"
 
 sanitize() {
   local machine_name

@@ -25,7 +25,7 @@ class FeaturePlaceholder extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, size: 36, semanticLabel: title),
+              ExcludeSemantics(child: Icon(icon, size: 36)),
               const SizedBox(height: 20),
               Semantics(
                 header: true,

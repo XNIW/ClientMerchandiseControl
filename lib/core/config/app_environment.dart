@@ -5,7 +5,7 @@ enum AppEnvironment {
 
   static AppEnvironment parse(String value) {
     return switch (value.trim().toLowerCase()) {
-      '' || 'development' => AppEnvironment.development,
+      'development' => AppEnvironment.development,
       'staging' => AppEnvironment.staging,
       'production' => AppEnvironment.production,
       _ => throw AppConfigurationException(

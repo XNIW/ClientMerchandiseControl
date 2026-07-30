@@ -1,0 +1,16 @@
+{
+  "@@locale": "zh_Hans",
+  "backendNotConfigured": "后端尚未配置：当前为离线开发模式。",
+  "navigationHome": "首页",
+  "navigationCatalog": "商品目录",
+  "navigationCart": "购物车",
+  "navigationAccount": "账户",
+  "homeTitle": "首页",
+  "homeFoundationMessage": "商店应用基础已就绪。公共商品目录将在后续任务中接入。",
+  "catalogTitle": "商品目录",
+  "catalogFoundationMessage": "商品目录尚未接入。此处未来只显示已发布的商品。",
+  "cartTitle": "购物车",
+  "cartFoundationMessage": "购物车将在公共价格与库存合同确定后实现。",
+  "accountTitle": "账户",
+  "accountFoundationMessage": "客户资料和安全登录将在后续任务中实现。"
+}

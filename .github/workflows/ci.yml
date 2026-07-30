@@ -26,24 +26,39 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Validate workflow action pins
+        run: bash scripts/check-action-pins.sh
+      - name: Validate shell scripts
+        run: bash -n scripts/*.sh
       - name: Set up Flutter
         # subosito/flutter-action v2.23.0
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
       - name: Resolve dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
       - name: Generate localizations
         run: flutter gen-l10n
+      - name: Verify generated and locked files
+        run: |
+          git diff --exit-code -- pubspec.lock lib/l10n/generated
+          if [[ -n "$(git status --porcelain --untracked-files=all -- pubspec.lock lib/l10n/generated)" ]]; then
+            git status --short --untracked-files=all -- pubspec.lock lib/l10n/generated
+            exit 1
+          fi
       - name: Check formatting
         run: dart format --output=none --set-exit-if-changed .
       - name: Analyze
         run: flutter analyze
       - name: Test
         run: flutter test --coverage
+      - name: Check whitespace errors
+        run: git diff --check
 
   android-build:
     name: Android debug build
@@ -51,16 +66,18 @@ jobs:
     timeout-minutes: 25
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Set up Flutter
         # subosito/flutter-action v2.23.0
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
       - name: Resolve dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
       - name: Build APK
         run: flutter build apk --debug
 
@@ -70,15 +87,17 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Set up Flutter
         # subosito/flutter-action v2.23.0
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-          cache: true
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
       - name: Resolve dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
       - name: Build iOS Simulator
         run: flutter build ios --simulator --debug

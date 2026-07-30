@@ -9,6 +9,55 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
+  String get backendNotConfigured =>
+      'Backend no configurado: modo de desarrollo sin conexión.';
+
+  @override
+  String get navigationHome => 'Inicio';
+
+  @override
+  String get navigationCatalog => 'Catálogo';
+
+  @override
+  String get navigationCart => 'Carrito';
+
+  @override
+  String get navigationAccount => 'Cuenta';
+
+  @override
+  String get homeTitle => 'Inicio';
+
+  @override
+  String get homeFoundationMessage =>
+      'La base de la tienda está lista. El catálogo público se conectará en una tarea posterior.';
+
+  @override
+  String get catalogTitle => 'Catálogo';
+
+  @override
+  String get catalogFoundationMessage =>
+      'El catálogo todavía no está conectado. Aquí se mostrarán solo productos publicados.';
+
+  @override
+  String get cartTitle => 'Carrito';
+
+  @override
+  String get cartFoundationMessage =>
+      'El carrito se implementará cuando exista el contrato público de precios y disponibilidad.';
+
+  @override
+  String get accountTitle => 'Cuenta';
+
+  @override
+  String get accountFoundationMessage =>
+      'El perfil del cliente y el acceso seguro se implementarán en tareas posteriores.';
+}
+
+/// The translations for Chinese, using the Han script (`zh_Hans`).
+class AppLocalizationsZhHans extends AppLocalizationsZh {
+  AppLocalizationsZhHans() : super('zh_Hans');
+
+  @override
   String get backendNotConfigured => '后端尚未配置：当前为离线开发模式。';
 
   @override

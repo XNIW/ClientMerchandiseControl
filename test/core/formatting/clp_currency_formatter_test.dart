@@ -13,16 +13,26 @@ void main() {
   });
 
   test('gestisce valori negativi', () {
-    final result = formatter.format(-47100);
-
-    expect(result, contains(r'$'));
-    expect(result, contains('47.100'));
-    expect(result, contains('-'));
+    expect(formatter.format(-47100), r'-$47.100');
   });
 
-  test('gestisce stringhe numeriche, null e input non valido', () {
+  test('gestisce zero e valori molto grandi in modo deterministico', () {
+    expect(formatter.format(0), r'$0');
+    expect(formatter.format(999999999), r'$999.999.999');
+  });
+
+  test('determina il segno dopo l’arrotondamento ai pesos interi', () {
+    expect(formatter.format(-0.4), r'$0');
+    expect(formatter.format('-0,4'), r'$0');
+    expect(formatter.format(0.4), r'$0');
+    expect(formatter.format(-0.5), r'-$1');
+  });
+
+  test('gestisce stringhe numeriche, null, non finiti e input non valido', () {
     expect(formatter.format('47100'), r'$47.100');
     expect(formatter.format(null), '-');
+    expect(formatter.format(double.infinity), '-');
+    expect(formatter.format(double.nan), '-');
     expect(formatter.format('non-numero'), '-');
   });
 }

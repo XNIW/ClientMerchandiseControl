@@ -21,12 +21,13 @@ class ClpCurrencyFormatter {
       return '-';
     }
 
+    final roundedAmount = amount.round();
     final digits = _formatter
-        .format(amount.abs())
+        .format(roundedAmount.abs())
         .replaceAll(r'$', '')
         .replaceAll('\u00a0', '')
         .replaceAll('\u202f', '');
-    final prefix = amount.isNegative ? r'-$' : r'$';
+    final prefix = roundedAmount.isNegative ? r'-$' : r'$';
     return '$prefix$digits';
   }
 

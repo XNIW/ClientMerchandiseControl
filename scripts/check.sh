@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if ! command -v flutter >/dev/null 2>&1; then
-  flutter_bin="${FLUTTER_ROOT:-${HOME}/develop/flutter}/bin"
-  if [[ ! -x "${flutter_bin}/flutter" ]]; then
-    printf 'Flutter non trovato. Configurare PATH o FLUTTER_ROOT.\n' >&2
-    exit 127
-  fi
-  export PATH="${flutter_bin}:${PATH}"
-fi
+cmc_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=resolve-flutter.sh
+source "${cmc_script_dir}/resolve-flutter.sh"
 
-flutter pub get
+bash -n "${cmc_script_dir}"/*.sh
+bash "${cmc_script_dir}/check-action-pins.sh"
+git diff --check
+git diff --cached --check
+flutter pub get --enforce-lockfile
 flutter gen-l10n
 dart format --output=none --set-exit-if-changed .
 flutter analyze
 flutter test --coverage
 flutter build apk --debug
 flutter build ios --simulator --debug
+git diff --check
+git diff --cached --check

@@ -1,0 +1,7 @@
+arb-dir: lib/l10n
+template-arb-file: app_es.arb
+output-localization-file: app_localizations.dart
+output-dir: lib/l10n/generated
+nullable-getter: false
+# gen-l10n richiede il bundle base zh: contiene intenzionalmente lo spagnolo.
+# L'app espone soltanto zh-Hans, definito in app_zh_Hans.arb.

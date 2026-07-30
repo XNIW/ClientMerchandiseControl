@@ -1,0 +1,16 @@
+{
+  "@@locale": "en",
+  "backendNotConfigured": "Backend not configured: offline development mode.",
+  "navigationHome": "Home",
+  "navigationCatalog": "Catalog",
+  "navigationCart": "Cart",
+  "navigationAccount": "Account",
+  "homeTitle": "Home",
+  "homeFoundationMessage": "The storefront foundation is ready. The public catalog will be connected in a later task.",
+  "catalogTitle": "Catalog",
+  "catalogFoundationMessage": "The catalog is not connected yet. Only published products will appear here.",
+  "cartTitle": "Cart",
+  "cartFoundationMessage": "The cart will be implemented after the public price and availability contract.",
+  "accountTitle": "Account",
+  "accountFoundationMessage": "Customer profiles and secure access will be implemented in later tasks."
+}

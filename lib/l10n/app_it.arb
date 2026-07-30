@@ -1,0 +1,16 @@
+{
+  "@@locale": "it",
+  "backendNotConfigured": "Backend non configurato: modalità development offline.",
+  "navigationHome": "Home",
+  "navigationCatalog": "Catalogo",
+  "navigationCart": "Carrello",
+  "navigationAccount": "Account",
+  "homeTitle": "Home",
+  "homeFoundationMessage": "La fondazione del negozio è pronta. Il catalogo pubblico verrà collegato in un task successivo.",
+  "catalogTitle": "Catalogo",
+  "catalogFoundationMessage": "Il catalogo non è ancora collegato. Qui appariranno soltanto prodotti pubblicati.",
+  "cartTitle": "Carrello",
+  "cartFoundationMessage": "Il carrello verrà implementato dopo il contratto pubblico di prezzi e disponibilità.",
+  "accountTitle": "Account",
+  "accountFoundationMessage": "Il profilo cliente e l'accesso sicuro verranno implementati in task successivi."
+}

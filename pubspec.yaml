@@ -1,0 +1,26 @@
+name: client_merchandise_control
+description: "Fondazione Flutter Android/iOS per il client Storefront Merchandise Control."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  go_router: ^17.3.0
+  intl: ^0.20.2
+  supabase_flutter: ^2.16.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  generate: true
+  uses-material-design: true

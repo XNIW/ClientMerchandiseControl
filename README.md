@@ -1,0 +1,102 @@
+# ClientMerchandiseControl
+
+Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
+Merchandise Control. La fondazione corrente offre una shell localizzata e compilabile;
+catalogo, account, carrello e ordini verranno collegati nei task futuri.
+
+## Relazione con Merchandise Control
+
+Il client consumerà un futuro dominio pubblico Storefront sul Supabase esistente. Non
+legge direttamente le tabelle inventory interne. Admin Console governerà pubblicazione,
+prezzi, promozioni e fulfillment; Merchandise Control e Win7POS restano sistemi
+operativi.
+
+## Stack
+
+- Flutter 3.44.8 / Dart 3.12.2;
+- Android Kotlin e iOS Swift;
+- Material 3;
+- Riverpod;
+- go_router;
+- Supabase Flutter;
+- gen_l10n e intl.
+
+## Struttura
+
+- `lib/app/`: app, router, tema e branding tecnico;
+- `lib/core/`: configurazione, bootstrap backend, formatter e widget condivisi;
+- `lib/features/`: shell e feature-first UI;
+- `lib/l10n/`: risorse spagnolo, italiano, inglese e cinese semplificato;
+- `test/`: unit e widget test;
+- `docs/`: governance, architettura, roadmap, task ed evidence;
+- `scripts/`: doctor e quality gate locali.
+
+## Requisiti
+
+- macOS con Xcode per il target iOS;
+- Android SDK/Emulator per il target Android;
+- Flutter stable `3.44.8`;
+- CocoaPods per le dipendenze iOS.
+
+Verificare l'ambiente:
+
+```bash
+scripts/doctor.sh
+```
+
+## Setup
+
+```bash
+flutter pub get
+flutter gen-l10n
+```
+
+Avvio development senza backend:
+
+```bash
+flutter run
+```
+
+L'app non effettua richieste Supabase quando URL e publishable key sono assenti.
+
+Per usare una configurazione locale:
+
+```bash
+cp config/app_config.example.json config/app_config.local.json
+flutter run --dart-define-from-file=config/app_config.local.json
+```
+
+`config/*.local.json` è ignorato. Non inserire service role, secret key, password o valori
+production nel repository.
+
+## Test e build
+
+```bash
+dart format --output=none --set-exit-if-changed .
+flutter analyze
+flutter test --coverage
+flutter build apk --debug
+flutter build ios --simulator --debug
+```
+
+Il gate completo è:
+
+```bash
+scripts/check.sh
+```
+
+## Governance
+
+Leggere prima [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md), quindi il file del task attivo
+indicato dal Master Plan, quando presente, e il
+[protocollo workflow](docs/CODEX-WORKFLOW-PROTOCOL.md). `AGENTS.md` è l'unica istruzione
+operativa root. Può esistere un solo task attivo; Codex assume ruoli logici distinti per
+planning, execution, review, fix e re-review. Soltanto `USER_APPROVER` autorizza `DONE`,
+merge e attivazione del task successivo.
+
+## Stato
+
+`TASK-001` è `DONE / REVIEW / USER_APPROVED_DONE`: i finding della review iniziale sono
+stati corretti, la re-review indipendente è `APPROVED` e l'autorizzazione finale
+dell'utente è registrata. Il merge della PR #1 è autorizzato e attende il check sul
+commit documentale; `TASK-002` resta `TODO` fino al merge effettivo.

@@ -6,20 +6,20 @@
 - **Titolo**: Environment strategy development/staging/production e configuration contract
 - **File task**: `docs/TASKS/TASK-004-environment-strategy-configuration-contract.md`
 - **Stato**: ACTIVE
-- **Fase**: PLANNING
-- **Responsabile**: CODEX_PLANNER
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_PLANNER
+- **Ultimo agente**: CODEX_EXECUTOR
 - **Review outcome**: NOT_RUN
 - **Reviewer**: non assegnato
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **DONE**: NO
 - **Merge**: NO — PR batch con TASK-003 dopo review e CI finali
-- **User approval**: GRANTED_BY_END_TO_END_PROMPT, da applicare con transizione esplicita
+- **User approval**: APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-004/`
-- **Handoff**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 
 ## Dipendenze
 
@@ -231,7 +231,9 @@ e pronto per la connessione di TASK-011 e l'autenticazione di TASK-020.
 
 ## Execution — `CODEX_EXECUTOR`
 
-Non iniziata. Il planner non registra modifiche o risultati Execution.
+Autorizzazione condizionata applicata il 2026-07-30 senza modificare scope, criteri,
+test o decisioni del Planning. L'implementazione non è ancora registrata in questo
+commit di transizione.
 
 ## Review — `CODEX_REVIEWER`
 

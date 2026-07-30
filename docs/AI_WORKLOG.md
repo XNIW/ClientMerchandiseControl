@@ -386,3 +386,14 @@
 - **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
 - **Blocker/note**: l'autorizzazione condizionata è già nel prompt end-to-end e sarà
   applicata con una transizione esplicita; callback remota e OAuth restano TASK-020.
+
+## 2026-07-30 — Autorizzazione Planning TASK-004
+
+- **Agente**: `USER_APPROVER` / transizione registrata da `CODEX_EXECUTOR`
+- **Task**: TASK-004
+- **Fase iniziale/finale**: PLANNING -> EXECUTION
+- **Azioni principali**: applicata l'autorizzazione condizionata del prompt end-to-end
+  con un commit distinto, senza modificare scope, criteri, test o decisioni.
+- **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+- **Blocker/note**: nessun blocker; readiness resta TASK-011 e OAuth/deep link/allow-list
+  restano TASK-020.

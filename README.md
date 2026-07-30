@@ -97,8 +97,8 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 
 - **Task attivo**: TASK-004
 - **Stato task**: ACTIVE
-- **Fase**: PLANNING
-- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Fase**: EXECUTION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 
 `TASK-001`, `TASK-002` e `TASK-003` sono `DONE`; `TASK-004` è l'unico task attivo e
 definisce la strategia ambienti e il contratto di configurazione.

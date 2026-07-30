@@ -1,13 +1,13 @@
 # TASK-004 evidence
 
 Snapshot di handoff:
-`ACTIVE / PLANNING / CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
 
 - Base: closeout TASK-003
   `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`
 - Branch: `milestone/003-004-storefront-contract-environments`
 - Tipo task: configurazione runtime, documentazione e test
-- Planning: completo; autorizzazione condizionata da applicare con commit separato
+- Planning: completo; autorizzazione condizionata applicata con commit separato
 - Audit staging: read-only e sanitizzato; nessuna modifica remota
 - Gate Execution: tutti `NOT_RUN`, perché l'Execution non è iniziata
 - Review: `NOT_RUN`

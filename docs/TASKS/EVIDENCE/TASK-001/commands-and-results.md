@@ -11,10 +11,10 @@ Output sintetico e sanitizzato. Nessun log build completo è versionato.
 | `flutter create -h` | 0 | PASS | `--empty` e target supportati verificati |
 | `flutter create --empty --platforms=android,ios ... .` | 0 | PASS | Progetto creato nella root |
 | `flutter pub get` | 0 | PASS | Lockfile generato |
-| `flutter gen-l10n` | 0 | PASS | es/it/en/zh generate |
+| `flutter gen-l10n` | 0 | PASS | es/it/en/zh-Hans generate |
 | `dart format --output=none --set-exit-if-changed .` | 0 | PASS | 0 file da modificare nel gate finale |
 | `flutter analyze` | 0 | PASS | No issues found |
-| `flutter test --coverage` | 0 | PASS | 16 test passati |
+| `flutter test --coverage` | 0 | PASS | 16 test passati nella execution iniziale |
 | `flutter build apk --debug` | 0 | PASS | Primo build 354,6 s; rerun 6,9 s |
 | `flutter build ios --simulator --debug` | 0 | PASS | Primo build 67,8 s; rerun 13,2 s |
 | `scripts/check.sh` | 0 | PASS | Sequenza completa superata |
@@ -23,6 +23,12 @@ Output sintetico e sanitizzato. Nessun log build completo è versionato.
 | parse YAML CI con Ruby/Psych | 0 | PASS | Sintassi valida |
 | `git diff --check` | 0 | PASS | Nessun errore whitespace |
 | GitHub Actions run `30514420504` | 0 | PASS | Quality, Android e iOS conclusi senza annotazioni |
+
+## Riesecuzione post-fix
+
+La matrice completa post-fix è in `review-commands-and-results.md`: 38 test, analyze,
+format, build Android/iOS Simulator, `scripts/check.sh`, smoke reali dual-platform,
+security mirata, due re-review e GitHub Actions run `30555712533` sono `PASS`.
 
 Il primo giro test ha avuto exit `1`: ha rilevato simbolo CLP in posizione errata e una
 simulazione locale non corretta. Il formatter e il resolver locale sono stati corretti;

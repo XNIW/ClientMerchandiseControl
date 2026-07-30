@@ -6,13 +6,19 @@
 - **Titolo**: Repository Governance, Flutter Foundation, CI e Dual-Platform Smoke
 - **File task**: `docs/TASKS/TASK-001-bootstrap-foundation.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-07-29
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_REVIEWER
+- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Review outcome**: APPROVED
+- **Reviewer**: CODEX_REVIEWER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **DONE**: NO
+- **Merge**: NO
+- **Conferma utente**: PENDING
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-001/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -80,6 +86,11 @@ creare una fondazione reale e compilabile senza collegare backend o dati product
 | CA-20 | Gli altri repository non sono stati modificati | GIT |
 | CA-21 | Task e Master Plan terminano ACTIVE / REVIEW / READY_FOR_REVIEW, mai DONE | STATIC/GIT |
 | CA-22 | Governance operativa esclusivamente Codex, senza dipendenze attive da reviewer o agenti esterni | STATIC/GIT |
+
+Nota di tracciamento: D-05 normalizza il token legacy `READY_FOR_REVIEW` di CA-21
+nell'handoff Codex-only appropriato alla review conclusa,
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. Restano invariati gli obblighi
+`ACTIVE / REVIEW`, mai `DONE`, e nessuna attivazione automatica del task successivo.
 
 ## Test case
 
@@ -242,16 +253,81 @@ sono registrati prima di qualsiasi correzione.
 
 ## Fix — Codex
 
-- **Stato**: IN_PROGRESS
+- **Stato**: COMPLETE
 - **Data avvio**: 2026-07-30
+- **Data conclusione**: 2026-07-30
 - **Agente**: CODEX_FIXER
 - **Scope**: esclusivamente finding e migrazione governance autorizzati dalla review di
   TASK-001; nessuna attivazione di TASK-002.
+
+### Modifiche fatte
+
+- Migrata la governance operativa a Codex-only con un solo file root e un solo
+  protocollo; eliminato il precedente file di istruzioni concorrente.
+- Corretto il contratto `zh-Hans`, il resolver multi-preferenza e i metadata iOS.
+- Rafforzati parsing configurazione, allowlist delle chiavi Supabase e bootstrap offline
+  verificabile senza rete.
+- Corretti back di sistema, semantica header, copertura widget/accessibilità e formatter
+  CLP.
+- Fissate le GitHub Actions a SHA, resa riproducibile la toolchain e rafforzati gate,
+  Gradle, firma Android release, label e ignore sensibili.
+- Aggiunti test di regressione e screenshot smoke post-fix.
+
+### Check eseguiti
+
+Format, analyze, 38 test, gate completo, build Android, build iOS Simulator, smoke reali
+Android/iOS, controlli security mirati e tre job CI sul commit tecnico sono `PASS`.
+Dettagli, exit code, durate e deviazioni sono nelle evidence.
+
+### Matrice CA -> evidence
+
+Tutti i criteri CA-01–CA-22 risultano `PASS`; vedere
+`docs/TASKS/EVIDENCE/TASK-001/README.md`.
+
+### Matrice T-NN -> risultato
+
+Tutti i test T-01–T-23 risultano `PASS`; vedere
+`docs/TASKS/EVIDENCE/TASK-001/README.md`.
+
+### Handoff a Re-review
+
+- **Prossima fase**: REVIEW
+- **Prossimo agente**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Azione**: verificare ogni finding, rieseguire i gate obbligatori e produrre un
+  verdetto indipendente senza correggere il proprio finding.
+
+## Re-review — Codex re-reviewer indipendente
+
+### Esito finale
+
+- **Data**: 2026-07-30
+- **Agente**: CODEX_RE_REVIEWER
+- **Verdetto**: APPROVED
+- **Finding iniziali verificati**: 14 `RESOLVED`; 0 ancora aperti.
+- **Nuovi finding**: nessuno.
+- **Gate**: quality locali, build, smoke dual-platform, security mirata e CI del commit
+  tecnico `PASS`.
+- **Evidence**: report, comandi, security, smoke, CI e matrici nella directory evidence
+  del task.
+
+Le verifiche applicative e quelle governance/CI/security sono state rieseguite da due
+reviewer indipendenti rispetto ai fixer. `APPROVED` non equivale a `DONE`: il task resta
+`ACTIVE / REVIEW` e richiede la conferma esplicita dell'utente.
+
+### Handoff a User Approver
+
+- **Prossima fase**: REVIEW
+- **Prossimo agente**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Azione**: valutare l'esito; nessun merge, passaggio a `DONE` o attivazione di
+  TASK-002 è autorizzato automaticamente.
 
 ## Chiusura
 
 - **Conferma utente**: non ancora ricevuta
 - **Follow-up candidate**: TASK-002, non attivato
-- **Riepilogo finale**: fondazione Flutter e governance consegnate a review con gate locali,
-  smoke dual-platform e CI superati
+- **Riepilogo finale**: fondazione Flutter e governance Codex-only approvate dalla
+  re-review, con gate locali, smoke dual-platform, security e CI superati; in attesa
+  della decisione utente
 - **Data completamento**: non applicabile

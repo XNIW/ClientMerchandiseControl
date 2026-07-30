@@ -49,3 +49,38 @@
   `83b855728f5cf3192f7f1daa1e37b787440423a9`; PR `#1` aperta e non merged.
 - **Fase finale**: FIX
 - **Blocker/note**: nessun blocker; correzioni limitate a TASK-001, TASK-002 non attivato.
+
+## 2026-07-30 — Fix finding e migrazione governance Codex-only
+
+- **Agente**: Codex (`CODEX_FIXER`)
+- **Task**: TASK-001
+- **Fase iniziale**: FIX
+- **Azioni principali**: migrata la governance a un workflow esclusivamente Codex;
+  corretti i 14 finding di configurazione, localizzazione, UI/accessibilità, test,
+  CI/supply chain e hardening nativo; aggiunti test di regressione ed evidence smoke.
+- **Verifiche**: format, analyze, 38 test, `scripts/check.sh`, build Android/iOS
+  Simulator, smoke interattivi Android/iOS e controlli security mirati tutti `PASS`.
+- **Risultato**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Branch/commit/PR**: `task/001-bootstrap-foundation`; governance `4c4b2e3`; fix
+  `3f0d992`; PR `#1`.
+- **Fase finale**: REVIEW
+- **Blocker/note**: nessun blocker; nessun merge, repository esterno o TASK-002
+  modificato.
+
+## 2026-07-30 — Re-review approvata e attesa conferma utente
+
+- **Agente**: Codex (`CODEX_RE_REVIEWER`)
+- **Task**: TASK-001
+- **Fase iniziale**: REVIEW
+- **Azioni principali**: due re-review indipendenti hanno verificato rispettivamente
+  app/config/UI e governance/CI/security; tutti i finding sono stati confrontati con
+  codice, test ed evidence post-fix.
+- **Verifiche**: 14/14 finding `RESOLVED`, nessun finding nuovo; quality gate locali,
+  build e smoke dual-platform, scan mirato e CI del commit tecnico `PASS`.
+- **Risultato**: APPROVED
+- **Branch/commit/PR**: `task/001-bootstrap-foundation`; commit tecnico `3f0d992`; PR
+  `#1` aperta.
+- **Fase finale**: REVIEW
+- **Blocker/note**: nessun blocker; indicatore
+  `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. Il task resta `ACTIVE`, non
+  `DONE`; PR non merged e TASK-002 non attivato.

@@ -96,5 +96,7 @@ merge e attivazione del task successivo.
 
 ## Stato
 
-`TASK-001` è `ACTIVE / FIX / CODEX_FIX_IN_PROGRESS` dopo la prima review indipendente. Il
-task non è `DONE` e `TASK-002` non è attivo.
+`TASK-001` è
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`: i finding della
+review iniziale sono stati corretti e la re-review indipendente è `APPROVED`. Il task non
+è `DONE`, la PR non è merged e `TASK-002` non è attivo.

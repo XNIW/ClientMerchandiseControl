@@ -8,10 +8,10 @@
 - **Task attivo**: TASK-001
 - **File task**: `docs/TASKS/TASK-001-bootstrap-foundation.md`
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_FIX_IN_PROGRESS
-- **Prossima azione autorizzata**: correggere esclusivamente i finding della review indipendente di TASK-001; non attivare TASK-002
+- **Fase**: REVIEW
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Prossima azione autorizzata**: valutare la review approvata di TASK-001; soltanto l'utente può autorizzare DONE, merge o attivazione di TASK-002
 
 ## Repository coinvolti
 

@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-003
 - **File task**: `docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md`
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
-- **Prossima azione autorizzata**: correggere esclusivamente i finding
-  `T003-REV-001`–`T003-REV-003`, rieseguire i gate impattati e tornare a Review
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Prossima azione autorizzata**: re-review indipendente dei finding
+  `T003-REV-001`–`T003-REV-003`, dei gate impattati e dell'intera matrice
 
 ## Repository coinvolti
 
@@ -111,4 +111,5 @@ vincolante un solo task `ACTIVE` alla volta.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
-`TASK-003` è l'unico task `ACTIVE`, in `FIX`; nessun altro task è attivo.
+`TASK-003` è l'unico task `ACTIVE`, in `REVIEW` dopo il Fix; nessun altro task è
+attivo.

@@ -305,3 +305,23 @@
 - **Blocker/note**: correggere ownership logica temporanea, shop binding fuori scope e
   locator di provenance; re-review indipendente obbligatoria, merge vietato e TASK-004
   resta `TODO`.
+
+## 2026-07-30 — Fix finding TASK-003 e handoff a re-review
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: FIX → REVIEW
+- **Azioni principali**: reso permanente lo split di ownership logica/fisica;
+  separata la configurazione TASK-004 dalla discovery/binding shop di TASK-010;
+  rafforzati i locator di provenance.
+- **Verifiche**: regression check dei tre finding `PASS`; validator 59/59; security,
+  confinement, fingerprint e diff check `PASS`; `scripts/check.sh` exit 0 con 59/59
+  test e build Android/iOS; CI `30583398168` sullo SHA tecnico
+  `f0e4aae8d4a24806707bd0b4f672d9c9a02a241d`, 3/3 job, tutti gli step success e
+  zero annotation.
+- **Deviazioni**: due primi diagnostici hanno fallito per label/comandi attesi errati;
+  corretti sui testi reali e ripetuti con `PASS`, senza modifica prodotto ulteriore.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`
+- **Fase finale**: REVIEW
+- **Blocker/note**: il Fix non si auto-approva; re-review indipendente obbligatoria,
+  merge vietato e TASK-004 resta `TODO`.

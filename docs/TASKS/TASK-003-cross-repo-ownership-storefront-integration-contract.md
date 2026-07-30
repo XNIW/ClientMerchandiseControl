@@ -6,20 +6,20 @@
 - **Titolo**: Cross-repo ownership e Storefront integration contract
 - **File task**: `docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_REVIEWER
+- **Ultimo agente**: CODEX_FIXER
 - **Review outcome**: CHANGES_REQUIRED
 - **Reviewer**: tre sessioni indipendenti read-only
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **DONE**: NO
 - **Merge**: NO
 - **User approval**: GRANTED_BY_END_TO_END_PROMPT, da applicare con transizione esplicita
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-003/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -342,8 +342,31 @@ Review indipendente read-only eseguita sulla revisione
 
 ## Fix — `CODEX_FIXER`
 
-Pronto per correggere esclusivamente `T003-REV-001`–`T003-REV-003`; non ancora
-avviato.
+Fix limitato a `T003-REV-001`–`T003-REV-003`, applicato nel commit tecnico
+`f0e4aae8d4a24806707bd0b4f672d9c9a02a241d`.
+
+- reso permanente lo split Client-logical/Admin-machine-readable con conformance
+  bidirezionale;
+- separata la configurazione ambientale TASK-004 dalla discovery/binding shop di
+  TASK-010;
+- aggiunti locator diretti e ristretto il claim migration nella provenance;
+- regression check dei tre finding, validator 59/59, security, confinement,
+  fingerprint e `scripts/check.sh` `PASS`;
+- CI `30583398168` sullo SHA tecnico esatto: Quality, Android e iOS `PASS`, tutti gli
+  step success e zero annotation;
+- due primi controlli diagnostici formulati su label/comandi errati sono registrati
+  onestamente nell'evidence; i retry corretti sono `PASS`.
+
+Evidence: `docs/TASKS/EVIDENCE/TASK-003/fix-evidence.md`.
+
+### Handoff a re-review
+
+- **Transizione**: `FIX -> REVIEW`
+- **Esito Fixer**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`
+- **Prossimo ruolo**: `CODEX_RE_REVIEWER`
+- **Finding da verificare**: `T003-REV-001`–`T003-REV-003`
+- **Auto-approvazione**: non eseguita
+- **Merge e TASK-004**: vietati fino a re-review `APPROVED` e closeout verde
 
 ## Chiusura
 

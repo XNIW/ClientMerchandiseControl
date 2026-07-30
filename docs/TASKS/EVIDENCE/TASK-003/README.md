@@ -1,7 +1,7 @@
 # TASK-003 evidence
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 - Base milestone: merge TASK-002
   `46686ace3b4670f207147f12110d8133ced01e8e`
@@ -9,7 +9,7 @@ Snapshot di handoff:
 - Commit tecnico verificato:
   `e2ad429f25341f9009c3087673c36746e23bf059`
 - Tipo task: documentale, architetturale e governance
-- Audit: read-only, 57/57 riferimenti a ref fisse, nessuna modifica esterna
+- Audit: read-only, 59/59 riferimenti a ref fisse, nessuna modifica esterna
 - Planning: autorizzato dal prompt end-to-end senza variazioni di scope
 - Gate Execution applicabili: tutti `PASS`
 - CI Execution: run `30580693884` `PASS` sullo SHA `e2ad429f`, 3/3 job,
@@ -17,6 +17,12 @@ Snapshot di handoff:
 - CI sul commit revisionato: run `30581659849` `PASS` sullo SHA `769a30f`,
   3/3 job, tutti gli step completati e zero annotation
 - Review indipendente: `CHANGES_REQUIRED`, 0 P0, 0 P1, 2 P2, 1 P3
+- Commit tecnico Fix:
+  `f0e4aae8d4a24806707bd0b4f672d9c9a02a241d`
+- CI Fix: run `30583398168` `PASS` sullo SHA tecnico esatto, 3/3 job,
+  tutti gli step completati e zero annotation
+- Handoff Fix: i tre finding sono corretti e attendono verifica indipendente; nessun
+  esito viene anticipato
 
 Evidence:
 
@@ -25,7 +31,8 @@ Evidence:
 - `external-integrity.md`
 - `execution-evidence.md`
 - `review-report.md`
-- eventuali `fix-evidence.md` e `re-review-report.md`
+- `fix-evidence.md`
+- `re-review-report.md` da produrre in re-review
 - `closeout.md` da produrre dopo review `APPROVED`
 
 ## Criteri di accettazione
@@ -34,7 +41,7 @@ Evidence:
 |---|---|---|---|
 | CA-01 | GIT/STATIC | PASS | TASK-001/TASK-002 `DONE`; merge TASK-002 `46686ace3b4670f207147f12110d8133ced01e8e` |
 | CA-02 | STATIC/GIT | PASS | task e Master coerenti; governance script exit 0; 32 CA e 22 test |
-| CA-03 | GIT/STATIC | PASS | `source-audit.md`, `external-integrity.md`; 57/57 ref valide e fingerprint finali invariati |
+| CA-03 | GIT/STATIC | PASS | `source-audit.md`, `external-integrity.md`; 59/59 ref valide e fingerprint finali invariati |
 | CA-04 | STATIC/SECURITY | PASS | progetto `merchandisecontrol-dev` sanitizzato e distinto dal workspace storico non-Git |
 | CA-05 | STATIC | PASS | `CROSS-REPO-OWNERSHIP.md`, responsabilità, non-responsabilità e forbidden flow |
 | CA-06 | STATIC | FAIL | `T003-REV-001`: ownership logica Client resa temporanea nella matrice |
@@ -63,7 +70,7 @@ Evidence:
 | CA-29 | SECURITY/GIT | PASS | scan diff: zero secret, JWT, private key, URL Supabase completo, token o artifact |
 | CA-30 | STATIC/FORMAT/ANALYZE/UNIT/BUILD_ANDROID/BUILD_IOS/GIT | PASS | gate statici e `scripts/check.sh` exit 0; 59/59 test e due build |
 | CA-31 | MANUAL/STATIC | FAIL | review `CHANGES_REQUIRED`: 2 P2 aperti; `review-report.md` |
-| CA-32 | CI | PASS | run `30581659849` sullo SHA revisionato `769a30f`: 3/3 job, tutti gli step success e 0 annotation |
+| CA-32 | CI | PASS | run Fix `30583398168` sullo SHA tecnico esatto `f0e4aae`: 3/3 job, tutti gli step success e 0 annotation |
 
 ## Test case
 
@@ -86,12 +93,13 @@ Evidence:
 | T-15 | STATIC/GIT | FAIL | `T003-REV-002`: mapping attribuisce shop binding fuori scope a TASK-004 |
 | T-16 | GIT | PASS | diff confinement: soltanto 12 documenti autorizzati |
 | T-17 | SECURITY/GIT | PASS | scan secret/prod URL/config/artifact: zero pattern sensibile |
-| T-18 | STATIC/GIT | PASS | governance, 57 ref, link locali e diff check exit 0 |
+| T-18 | STATIC/GIT | PASS | governance, 59 ref, link locali e diff check exit 0 |
 | T-19 | FORMAT/ANALYZE/UNIT/BUILD_ANDROID/BUILD_IOS | PASS | `bash scripts/check.sh`, exit 0 |
 | T-20 | MANUAL/STATIC | FAIL | review indipendente eseguita con esito `CHANGES_REQUIRED` |
-| T-21 | CI | PASS | run `30581659849`, SHA `769a30f`, tutti i job/step verdi e 0 annotation |
+| T-21 | CI | PASS | run Fix `30583398168`, SHA esatto `f0e4aae`, tutti i job/step verdi e 0 annotation |
 | T-22 | GIT/SECURITY | PASS | Client confinato; repository esterni e Supabase zero-write |
 
-I gate Execution erano completi al relativo handoff. La review autonoma ha aperto
-`T003-REV-001`–`T003-REV-003`; i quattro `FAIL` sopra guidano il Fix e non vengono
-riscritti come `PASS` prima della re-review.
+I gate Execution erano completi al relativo handoff. Il Fix ha corretto
+`T003-REV-001`–`T003-REV-003` e ha superato i regression check e la CI sul proprio SHA.
+I quattro `FAIL` sopra restano invariati fino alla re-review: soltanto il
+`CODEX_RE_REVIEWER` può chiudere i finding e rivalutarli come `PASS`.

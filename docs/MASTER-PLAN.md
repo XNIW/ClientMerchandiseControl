@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-004
 - **File task**: `docs/TASKS/TASK-004-environment-strategy-configuration-contract.md`
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
-- **Prossima azione autorizzata**: implementare esclusivamente il Planning TASK-004,
-  eseguire i gate applicabili e consegnare a `REVIEW`
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Prossima azione autorizzata**: eseguire review indipendenti read-only su intent,
+  diff, comportamento, matrici, security, smoke e CI di TASK-004
 
 ## Repository coinvolti
 
@@ -115,4 +115,4 @@ vincolante un solo task `ACTIVE` alla volta.
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
 `TASK-003` è `DONE` con re-review `APPROVED` e CI finale attestata.
-`TASK-004` è l'unico task `ACTIVE` in `EXECUTION`.
+`TASK-004` è l'unico task `ACTIVE` in `REVIEW`.

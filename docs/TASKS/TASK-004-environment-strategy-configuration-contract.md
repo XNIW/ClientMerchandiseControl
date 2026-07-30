@@ -6,20 +6,20 @@
 - **Titolo**: Environment strategy development/staging/production e configuration contract
 - **File task**: `docs/TASKS/TASK-004-environment-strategy-configuration-contract.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
 - **Ultimo agente**: CODEX_EXECUTOR
 - **Review outcome**: NOT_RUN
-- **Reviewer**: non assegnato
+- **Reviewer**: sessioni indipendenti read-only da assegnare
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **DONE**: NO
 - **Merge**: NO — PR batch con TASK-003 dopo review e CI finali
 - **User approval**: APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-004/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -231,13 +231,68 @@ e pronto per la connessione di TASK-011 e l'autenticazione di TASK-020.
 
 ## Execution — `CODEX_EXECUTOR`
 
-Autorizzazione condizionata applicata il 2026-07-30 senza modificare scope, criteri,
-test o decisioni del Planning. L'implementazione non è ancora registrata in questo
-commit di transizione.
+### Obiettivo compreso
+
+Implementare soltanto il contratto locale `CMC-CLIENT-CONFIG 1.0.0`, mantenendo
+development offline e separando rigorosamente configuration completeness da readiness
+e OAuth.
+
+### Modifiche fatte
+
+- esteso `AppConfig` con callback, flag Google strict, matrice fail-closed e diagnostica
+  sanitizzata;
+- aggiunto un guard development esplicito a `SupabaseBootstrap`;
+- aggiunti test di ambiente, tuple, key, callback, flag, secrecy, esempi e compile-time
+  config;
+- creati esempio staging e file staging locale ignorato con kill switch `false`;
+- documentati environment strategy, ADR-005, mobile boundary, quality gate e comandi
+  README;
+- nessuna dipendenza, configurazione nativa, readiness, OAuth, query o write remoto.
+
+Il commit tecnico verificato è
+`9ecffdfc7de38e979a48bac201ddd36a5296b78b`.
+
+### Gate eseguiti
+
+- `bash scripts/doctor.sh`: exit 0, toolchain completa;
+- test mirati finali: 27/27 `PASS`;
+- compile-time test con file staging locale ignorato: 1/1 `PASS`;
+- `bash scripts/check.sh`: exit 0, format/analyze, 70/70 test, APK debug e iOS
+  Simulator build `PASS`;
+- build Android/iOS con file staging locale: entrambi exit 0;
+- smoke development Android Emulator: exit 0;
+- smoke development iOS Simulator: exit 0;
+- bash syntax, dependency tree, outdated informativo, JSON, governance, security,
+  confinement e local config attestation: exit 0;
+- CI run `30588442946` sullo SHA tecnico esatto: Quality, Android e iOS `PASS`, tutti
+  gli step `success`, annotation 0/0/0.
+
+### Deviazioni e warning
+
+- il primo test mirato è terminato exit 1 per un import test mancante; l'import è stato
+  corretto e i retry mirati/finali sono `PASS`;
+- sette package hanno versioni più recenti incompatibili con i constraint correnti:
+  warning informativo, nessun upgrade autorizzato;
+- `flutter gen-l10n` ricorda che `l10n.yaml` governa le opzioni: comportamento atteso;
+- il doctor ha riportato un warning discovery per un Apple Watch, senza issue Flutter
+  e senza impatto sui simulatori usati.
+- un primo loop di validazione evidence ha usato il nome speciale zsh `path`, rendendo
+  `git` non risolvibile nel solo sottoprocesso; il retry con `evidence_file` è `PASS`.
+
+### Handoff a Review
+
+- **Transizione**: `EXECUTION -> REVIEW`
+- **Handoff**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`
+- **Prossimo ruolo**: `CODEX_REVIEWER`
+- **Target review**: commit tecnico `9ecffdfc7de38e979a48bac201ddd36a5296b78b`
+  più questo commit di handoff
+- **Review outcome**: `NOT_RUN`
+- **Merge**: vietato fino a review, closeout e CI batch finali
 
 ## Review — `CODEX_REVIEWER`
 
-Non iniziata. Il reviewer sarà assegnato dopo l'handoff Execution.
+Non iniziata. Le sessioni reviewer devono verificare autonomamente config/semantica,
+security/confinement e governance/evidence/CI.
 
 ## Fix — `CODEX_FIXER`
 

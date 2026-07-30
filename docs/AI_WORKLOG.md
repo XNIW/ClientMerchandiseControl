@@ -397,3 +397,22 @@
 - **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
 - **Blocker/note**: nessun blocker; readiness resta TASK-011 e OAuth/deep link/allow-list
   restano TASK-020.
+
+## 2026-07-30 — Execution TASK-004 e handoff a Review
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-004
+- **Fase iniziale/finale**: EXECUTION -> REVIEW
+- **Commit tecnico**: `9ecffdfc7de38e979a48bac201ddd36a5296b78b`
+- **Azioni principali**: implementato `CMC-CLIENT-CONFIG 1.0.0`, development offline,
+  staging/production fail-closed, callback esatta, kill switch Google, diagnostica
+  sanitizzata, esempi e file locale ignorato; aggiornati documenti e test.
+- **Verifiche**: doctor exit 0; 27/27 test mirati; 1/1 compile-time staging; gate
+  aggregato exit 0 con 70/70 test e build dual-platform; smoke Android/iOS exit 0;
+  build staging dual-platform exit 0; security/confinement/local config `PASS`.
+- **CI**: run `30588442946` sullo SHA tecnico esatto, Quality/Android/iOS `PASS`,
+  tutti gli step `success`, annotation 0/0/0.
+- **Deviazioni**: primo test mirato exit 1 per import test mancante, corretto con retry
+  `PASS`; warning dipendenze outdated non azionato.
+- **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+- **Blocker/note**: nessun blocker; review indipendente obbligatoria, PR/merge vietati.

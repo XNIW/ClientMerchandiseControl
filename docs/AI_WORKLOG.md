@@ -416,3 +416,21 @@
   `PASS`; warning dipendenze outdated non azionato.
 - **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 - **Blocker/note**: nessun blocker; review indipendente obbligatoria, PR/merge vietati.
+
+## 2026-07-30 — Review indipendente TASK-004 e transizione a Fix
+
+- **Agente**: `CODEX_REVIEWER`
+- **Task**: TASK-004
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revisione**: `fb9724da29e7222e886c047c24fa7d3cd360fca0`
+- **Azioni principali**: tre shard read-only indipendenti su config/bootstrap,
+  security/confinement e governance/evidence/CI; lo shard security originario
+  bloccato è stato sostituito senza usarne i claim.
+- **Verifiche**: config/bootstrap 27/27; format/analyze/diff, secret scan e
+  confinement `PASS`; CI handoff `30589127508` sullo SHA esatto, 3/3 job, tutti gli
+  step `success`, annotation 0/0/0.
+- **Finding**: 0 P0, 0 P1, 3 P2, 1 P3: callback trimmata, bootstrap production
+  autorizzato, evidence smoke non riproducibile, intestazioni evidence errate.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: Fix limitato a `T004-REV-001`–`T004-REV-004`; re-review
+  indipendente obbligatoria, PR/merge vietati.

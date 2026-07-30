@@ -6,20 +6,20 @@
 - **Titolo**: Environment strategy development/staging/production e configuration contract
 - **File task**: `docs/TASKS/TASK-004-environment-strategy-configuration-contract.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_EXECUTOR
-- **Review outcome**: NOT_RUN
-- **Reviewer**: sessioni indipendenti read-only da assegnare
+- **Ultimo agente**: CODEX_REVIEWER
+- **Review outcome**: CHANGES_REQUIRED
+- **Reviewer**: tre sessioni indipendenti read-only
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **DONE**: NO
 - **Merge**: NO — PR batch con TASK-003 dopo review e CI finali
 - **User approval**: APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-004/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -291,12 +291,32 @@ Il commit tecnico verificato è
 
 ## Review — `CODEX_REVIEWER`
 
-Non iniziata. Le sessioni reviewer devono verificare autonomamente config/semantica,
-security/confinement e governance/evidence/CI.
+Tre sessioni indipendenti read-only hanno revisionato il commit
+`fb9724da29e7222e886c047c24fa7d3cd360fca0`. Il verdetto è
+`CHANGES_REQUIRED`: 0 P0, 0 P1, 3 P2 e 1 P3.
+
+- `T004-REV-001` P2: callback non byte-esatta perché trimmata;
+- `T004-REV-002` P2: bootstrap production consentito fuori dalla matrice;
+- `T004-REV-003` P2: smoke privi di comandi/output e screenshot persistenti;
+- `T004-REV-004` P3: intestazioni delle matrici evidence riferite al Planning.
+
+Test mirati, format/analyze, security/confinement e CI handoff
+`30589127508` sono `PASS`; i finding restano riproducibili nonostante tali gate.
+Il report completo è
+`docs/TASKS/EVIDENCE/TASK-004/review-report.md`.
+
+### Handoff a Fix
+
+- **Transizione**: `REVIEW -> FIX`
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`
+- **Prossimo ruolo**: `CODEX_FIXER`
+- **Scope**: esclusivamente i quattro finding approvati e le relative regressioni
+- **Re-review**: obbligatoria e indipendente
 
 ## Fix — `CODEX_FIXER`
 
-Non iniziato. Questa sezione sarà usata soltanto per finding approvati.
+Non iniziato. Il Fixer deve correggere esclusivamente `T004-REV-001`–
+`T004-REV-004`, rieseguire i gate impattati e consegnare nuovamente a Review.
 
 ## Chiusura
 

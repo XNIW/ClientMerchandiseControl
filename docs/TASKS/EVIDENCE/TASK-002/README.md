@@ -1,7 +1,7 @@
 # TASK-002 evidence
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 - Base: `f6bd88263fe8369c9ececa38367f629f3d1a929f`
 - Commit tecnico verificato:
@@ -21,6 +21,7 @@ Evidence principali:
 - `review-report.md`
 - `fix-evidence.md`
 - `re-review-report.md`
+- `closeout.md`
 
 ## Criteri di accettazione
 
@@ -59,9 +60,9 @@ Evidence principali:
 | CA-31 | STATIC/MANUAL | PASS | due re-reviewer: 0 P0/P1/P2 aperti; `re-review-report.md` |
 | CA-32 | CI | NOT_RUN | SHA di closeout non ancora creato né pushato |
 | CA-33 | STATIC/GIT | PASS | controllo automatizzato di task/stato/fase/handoff, exit `0` |
-| CA-34 | STATIC/GIT | NOT_RUN | richiede review `APPROVED` prima del closeout |
+| CA-34 | STATIC/GIT | PASS | re-review `APPROVED` e autorizzazione prompt applicata |
 | CA-35 | GIT | NOT_RUN | controllo terminale post-merge |
-| CA-36 | STATIC/GIT | NOT_RUN | richiede closeout e ritorno progetto `IDLE` |
+| CA-36 | STATIC/GIT | PASS | TASK-003 `TODO`, nessun task attivo, progetto `IDLE` |
 | CA-37 | GIT | PASS | algoritmo versionato; otto digest ricalcolati e identici, exit `0` |
 | CA-38 | STATIC/GIT | PASS | package, identifier e target invariati; `execution-evidence.md` |
 
@@ -95,7 +96,7 @@ Evidence principali:
 | T-24 | IOS_SIM | PASS | smoke automatico reale iOS, exit `0` |
 | T-25 | MANUAL/STATIC | PASS | re-review indipendente `APPROVED`; 4 finding risolti |
 | T-26 | CI | NOT_RUN | prerequisito: commit closeout pushato |
-| T-27 | STATIC/GIT | NOT_RUN | CA-33 `PASS`; CA-34/36 attendono re-review/closeout |
+| T-27 | STATIC/GIT | PASS | CA-33/34/36 `PASS`; `closeout.md` |
 | T-28 | GIT | NOT_RUN | PR non ancora merged |
 | T-29 | GIT | PASS | procedura esatta versionata; fingerprint 4/4 ricreate |
 | T-30 | STATIC/GIT | PASS | package, target e identifier confrontati con la baseline |

@@ -4,16 +4,15 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-002
-- **File task**: `docs/TASKS/TASK-002-product-scope-branding-design-system.md`
-- **Stato task**: ACTIVE
-- **Fase**: REVIEW
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: non applicabile
+- **Fase**: non applicabile
 - **Responsabile**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
-- **Prossima azione autorizzata**: applicare l'autorizzazione condizionata già concessa
-  dal prompt end-to-end, chiudere TASK-002 e pubblicare il commit di closeout; nessun
-  merge prima della CI finale `PASS` sullo SHA conclusivo
+- **Indicatore**: USER_APPROVED_DONE
+- **Prossima azione autorizzata**: pubblicare il closeout TASK-002, attendere CI finale
+  sullo SHA conclusivo e unire PR #2; TASK-003 resta `TODO` fino al merge effettivo
 
 ## Repository coinvolti
 
@@ -47,7 +46,7 @@
 | ID | Titolo | Stato | Dipendenze | Repository interessati | Risultato atteso |
 |---|---|---|---|---|---|
 | TASK-001 | Repository governance, Flutter foundation, CI e dual-platform smoke | DONE | nessuna | Client | Fondazione compilabile, verificata e pronta a review |
-| TASK-002 | Product scope definitivo, branding, UX principles e design tokens | ACTIVE | TASK-001 | Client | Identità e principi UX approvati |
+| TASK-002 | Product scope definitivo, branding, UX principles e design tokens | DONE | TASK-001 | Client | Identità e principi UX approvati |
 | TASK-003 | Cross-repo ownership e Storefront integration contract | TODO | TASK-001, TASK-002 | Client, Admin, Android, iOS, POS | Contratto di ownership senza ambiguità |
 | TASK-004 | Environment strategy development/staging/production e configuration contract | TODO | TASK-001, TASK-003 | Client, Admin | Strategia ambienti e config verificabile |
 | TASK-005 | Supabase Storefront schema, RLS, grants e migration ownership | TODO | TASK-003, TASK-004 | Admin, Supabase, Client | Schema pubblico protetto e ownership migration |
@@ -98,7 +97,9 @@ Non risultano blocker di progetto attivi al bootstrap.
 
 - `TASK-001` — review `APPROVED`, conferma `USER_APPROVER` ricevuta il 2026-07-30,
   PR #1 merged con merge commit `f6bd88263fe8369c9ececa38367f629f3d1a929f`.
+- `TASK-002` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
+  2026-07-30; PR #2 e CI finale ancora da completare.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
-consegnato a `REVIEW` con tutti i gate Execution obbligatori `PASS`. `TASK-003` resta
-`TODO` e nessun altro task è attivo.
+chiuso soltanto dopo Fix e re-review `APPROVED`. `TASK-003` resta `TODO` e nessun altro
+task è attivo.

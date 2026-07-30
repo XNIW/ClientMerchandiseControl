@@ -6,17 +6,21 @@
 - **Titolo**: Product scope definitivo, branding foundation, UX principles e design
   tokens
 - **File task**: `docs/TASKS/TASK-002-product-scope-branding-design-system.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_RE_REVIEWER
-- **DONE**: NO
-- **Merge**: NO
+- **Ultimo agente**: USER_APPROVER
+- **Review outcome**: APPROVED
+- **Reviewer**: CODEX_RE_REVIEWER
+- **Approver**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
+- **DONE**: YES
+- **Merge**: NO — PR #2 aperta
 - **User approval**: GRANTED_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-002/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -348,9 +352,14 @@ Evidence: `docs/TASKS/EVIDENCE/TASK-002/fix-evidence.md`.
 
 ## Chiusura
 
-- **Conferma utente**: già concessa in forma condizionata dal prompt end-to-end
-- **Merge autorizzato da USER_APPROVER**: sì, soltanto dopo review APPROVED, gate
-  obbligatori e CI finale `PASS`
+- **Conferma utente**: `GRANTED`, applicata dopo re-review `APPROVED`
+- **Fonte autorizzazione**: prompt end-to-end dell'utente
+- **Finding aperti**: 0 P0, 0 P1, 0 P2; 2 P3 non bloccanti
+- **CI sullo SHA Fix revisionato**: `PASS`, run `30575613471`, commit `8253fc9…`
+- **CI sul commit di closeout**: `NOT_RUN`, da attestare dopo il push
+- **Merge autorizzato da USER_APPROVER**: sì, soltanto dopo CI finale `PASS`
+- **Stato merge**: `NOT_RUN`, PR #2 ancora aperta
 - **Follow-up candidate**: TASK-003, non attivato
-- **Riepilogo finale**: non disponibile prima di Execution e Review
-- **Data completamento**: non applicabile
+- **Riepilogo finale**: foundation prodotto/design approvata; P2 risolti e regression
+  governance attiva; task marcato `DONE` senza attivare il successivo
+- **Data completamento**: 2026-07-30

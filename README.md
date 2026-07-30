@@ -96,10 +96,10 @@ merge e attivazione del task successivo.
 
 ## Stato
 
-- **Task attivo**: TASK-002
-- **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Task attivo**: nessuno
+- **Stato task**: non applicabile
+- **Fase**: non applicabile
+- **Indicatore**: USER_APPROVED_DONE
 
-`TASK-001` è `DONE` e la PR #1 è merged. La re-review di TASK-002 è `APPROVED` e
-l'autorizzazione condizionata al closeout è già presente; `TASK-003` resta `TODO`.
+`TASK-001` e `TASK-002` sono `DONE`; la PR #2 attende la CI finale e il merge.
+`TASK-003` resta `TODO`.

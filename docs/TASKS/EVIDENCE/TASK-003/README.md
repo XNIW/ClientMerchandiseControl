@@ -27,8 +27,11 @@ Snapshot di handoff:
   tutti gli step completati e annotation 0/0/0
 - CI approvazione: run `30585252387` `PASS` sullo SHA esatto `bd00b85`, 3/3 job,
   tutti gli step completati e annotation 0/0/0
-- CI closeout: `NOT_RUN`; il relativo SHA non esiste ancora
-- User approval: `GRANTED`; TASK-003 `DONE`, TASK-004 ancora `TODO`
+- CI closeout: run `30585880180` `PASS` sullo SHA esatto
+  `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`, 3/3 job, tutti gli step
+  `success` e annotation 0/0/0
+- User approval: `GRANTED`; TASK-003 `DONE`, attivazione TASK-004 autorizzata dopo
+  l'attestazione della CI finale
 
 Evidence:
 
@@ -76,7 +79,7 @@ Evidence:
 | CA-29 | SECURITY/GIT | PASS | scan diff: zero secret, JWT, private key, URL Supabase completo, token o artifact |
 | CA-30 | STATIC/FORMAT/ANALYZE/UNIT/BUILD_ANDROID/BUILD_IOS/GIT | PASS | gate statici e `scripts/check.sh` exit 0; 59/59 test e due build |
 | CA-31 | MANUAL/STATIC | PASS | tre re-review read-only: 0 P0/P1/P2 aperti; `re-review-report.md` |
-| CA-32 | CI | NOT_RUN | richiede il futuro commit di closeout e una CI sul suo SHA esatto |
+| CA-32 | CI | PASS | run `30585880180` sullo SHA esatto `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`; 3/3 job, tutti gli step `success`, annotation 0/0/0 |
 
 ## Test case
 
@@ -102,10 +105,10 @@ Evidence:
 | T-18 | STATIC/GIT | PASS | governance, 59 ref, link locali e diff check exit 0 |
 | T-19 | FORMAT/ANALYZE/UNIT/BUILD_ANDROID/BUILD_IOS | PASS | `bash scripts/check.sh`, exit 0 |
 | T-20 | MANUAL/STATIC | PASS | re-review `APPROVED`; tre finding originari chiusi, 0 P0/P1/P2 |
-| T-21 | CI | NOT_RUN | richiede il futuro commit di closeout e una CI sul suo SHA esatto |
+| T-21 | CI | PASS | `gh run view 30585880180` e API check-runs: SHA esatto, 3/3 job `success`, annotation 0/0/0 |
 | T-22 | GIT/SECURITY | PASS | Client confinato; repository esterni e Supabase zero-write |
 
 I gate Execution e Fix erano completi ai rispettivi handoff. La re-review ha chiuso
 `T003-REV-001`–`T003-REV-003` e rivalutato i relativi criteri/test come `PASS`.
-`CA-32`/`T-21` restano `NOT_RUN` fino alla CI sul futuro SHA di closeout: il run handoff
-`30584376506` attesta la revisione approvata ma non anticipa il gate terminale.
+`CA-32`/`T-21` sono attestati dal run terminale `30585880180` sul commit di closeout
+esatto; TASK-003 non ha più gate aperti.

@@ -388,13 +388,15 @@ Evidence: `docs/TASKS/EVIDENCE/TASK-003/fix-evidence.md`.
 - **CI sullo SHA di handoff revisionato**: `PASS`, run `30584376506`, commit
   `f9cc304…`
 - **CI sul commit di approvazione**: `PASS`, run `30585252387`, commit `bd00b85…`
-- **CI sul commit di closeout**: `NOT_RUN`, da attestare dopo il push
+- **CI sul commit di closeout**: `PASS`, run `30585880180` sullo SHA esatto
+  `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`, 3/3 job, tutti gli step `success`
+  e annotation 0/0/0
 - **Merge autorizzato da USER_APPROVER**: solo come batch dopo TASK-004 `DONE` e CI
   finale verde; non applicato da questo closeout
 - **Stato merge**: `NOT_RUN`, PR batch non ancora aperta
 - **Follow-up candidate**: eventuale riconciliazione di artifact Supabase storici in
   TASK-005; nessun apply da questo task
-- **Prossimo task autorizzabile**: TASK-004, ma soltanto dopo CI finale del closeout
+- **Prossimo task autorizzabile**: TASK-004; prerequisito CI finale soddisfatto
 - **Riepilogo finale**: ownership e contratto Storefront approvati; finding bloccanti
   chiusi; task marcato `DONE` senza attivare il successivo
 - **Data completamento**: 2026-07-30

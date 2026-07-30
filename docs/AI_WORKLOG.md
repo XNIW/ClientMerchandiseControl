@@ -357,3 +357,32 @@
 - **Risultato**: `USER_APPROVED_DONE`
 - **Blocker/note**: commit di closeout e CI finale sul suo SHA ancora da completare;
   PR e merge batch restano vietati e TASK-004 resta `TODO` fino al gate verde.
+
+## 2026-07-30 — Attestazione CI finale TASK-003
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-003
+- **Fase**: REVIEW / attestazione post-closeout
+- **Azioni principali**: verificato il run terminale sul commit di closeout prima di
+  attivare il task successivo.
+- **Verifiche**: run `30585880180` sullo SHA esatto
+  `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`; Quality, Android e iOS `PASS`,
+  tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `PASS`; `CA-32` e `T-21` chiusi.
+- **Blocker/note**: nessun blocker; PR e merge restano batch con TASK-004.
+
+## 2026-07-30 — Planning TASK-004
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-004
+- **Fase iniziale/finale**: PLANNING
+- **Azioni principali**: attivato il solo TASK-004 dopo la CI finale di TASK-003;
+  definita la matrice development/staging/production, il contratto a cinque input,
+  la callback mobile esatta, la policy fail-closed, lo scope runtime e le matrici
+  CA/test; auditato lo staging in sola lettura senza esporre valori.
+- **Verifiche Planning**: progetto staging canonico attivo; provider Google configurato;
+  callback mobile richiesta assente dalla allow-list; file locale ancora da creare in
+  Execution e nessuna modifica remota eseguita.
+- **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+- **Blocker/note**: l'autorizzazione condizionata è già nel prompt end-to-end e sarà
+  applicata con una transizione esplicita; callback remota e OAuth restano TASK-020.

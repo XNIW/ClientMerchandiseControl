@@ -18,8 +18,8 @@ Le condizioni sono state verificate sulla revisione
 | CI handoff | PASS | run `30584376506` sullo SHA `f9cc304…`, 3/3 job, tutti gli step, annotation 0/0/0 |
 | CI approvazione | PASS | run `30585252387` sullo SHA `bd00b85…`, 3/3 job, tutti gli step, annotation 0/0/0 |
 | Conferma USER_APPROVER | PASS | autorizzazione condizionata nel prompt end-to-end |
-| TASK-004 non attivato | PASS | backlog `TODO`, progetto riportato a `IDLE` |
-| CI dello SHA di closeout | NOT_RUN | attestazione esterna dopo il push, per evitare ciclo evidence/commit |
+| TASK-004 non attivato al closeout | PASS | backlog `TODO`, progetto riportato a `IDLE` nel commit `108b4f2…` |
+| CI dello SHA di closeout | PASS | run `30585880180` sullo SHA esatto `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`; 3/3 job e annotation 0/0/0 |
 | PR/merge milestone | NOT_RUN | previsti soltanto dopo TASK-004 e la relativa review/CI |
 
 ## Decisione
@@ -34,6 +34,5 @@ Le condizioni sono state verificate sulla revisione
 - **Merge batch TASK-003/TASK-004**: autorizzazione non ancora applicabile; richiede
   TASK-004 `DONE` e CI batch finale verde
 
-`CA-32` e `T-21` restano intenzionalmente `NOT_RUN` nel commit che devono attestare.
-Il run CI finale sullo SHA di closeout sarà verificato esternamente e registrato prima
-dell'attivazione di TASK-004.
+`CA-32` e `T-21` sono `PASS`. L'attestazione è stata registrata soltanto dopo la
+conclusione del run sullo SHA di closeout, prima dell'attivazione di TASK-004.

@@ -4,19 +4,19 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: non applicabile
-- **Fase**: non applicabile
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: pubblicare il closeout TASK-003, attendere la CI
-  finale sul suo SHA e attestarla; TASK-004 resta `TODO` fino a quel risultato
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-004
+- **File task**: `docs/TASKS/TASK-004-environment-strategy-configuration-contract.md`
+- **Stato task**: ACTIVE
+- **Fase**: PLANNING
+- **Responsabile**: CODEX_PLANNER
+- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Prossima azione autorizzata**: applicare l'autorizzazione condizionata del prompt
+  end-to-end con una transizione esplicita a `EXECUTION`, senza modificare il Planning
 
 ## Repository coinvolti
 
-- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer di TASK-003.
+- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer di TASK-004.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
   authority candidata, auditata in sola lettura.
 - `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
@@ -51,7 +51,7 @@
 | TASK-001 | Repository governance, Flutter foundation, CI e dual-platform smoke | DONE | nessuna | Client | Fondazione compilabile, verificata e pronta a review |
 | TASK-002 | Product scope definitivo, branding, UX principles e design tokens | DONE | TASK-001 | Client | Identità e principi UX approvati |
 | TASK-003 | Cross-repo ownership e Storefront integration contract | DONE | TASK-001, TASK-002 | Client, Admin, Android, iOS, POS | Contratto di ownership senza ambiguità |
-| TASK-004 | Environment strategy development/staging/production e configuration contract | TODO | TASK-001, TASK-003 | Client, Admin | Strategia ambienti e config verificabile |
+| TASK-004 | Environment strategy development/staging/production e configuration contract | ACTIVE | TASK-001, TASK-003 | Client, Admin | Strategia ambienti e config verificabile |
 | TASK-005 | Supabase Storefront schema, RLS, grants e migration ownership | TODO | TASK-003, TASK-004 | Admin, Supabase, Client | Schema pubblico protetto e ownership migration |
 | TASK-006 | Storefront catalog projection e aggiornamento dal dominio operativo | TODO | TASK-005 | Admin, Supabase, Android, iOS, POS | Proiezione catalogo pubblica affidabile |
 | TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | TODO | TASK-005, TASK-006 | Admin, Supabase | Controlli di pubblicazione shop-scoped |
@@ -109,9 +109,10 @@ vincolante un solo task `ACTIVE` alla volta.
   2026-07-30; CI finale run `30577156105` `PASS` sullo SHA `3706127`, PR #2 merged
   con merge commit `46686ace3b4670f207147f12110d8133ced01e8e`.
 - `TASK-003` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
-  2026-07-30; 0 P0/P1/P2 aperti, closeout in attesa della CI sul proprio SHA.
+  2026-07-30; 0 P0/P1/P2 aperti, CI finale run `30585880180` `PASS` sullo SHA
+  `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
-`TASK-003` è `DONE` con re-review `APPROVED`; nessun task è `ACTIVE`.
-TASK-004 resta `TODO` fino alla CI verde sul closeout TASK-003.
+`TASK-003` è `DONE` con re-review `APPROVED` e CI finale attestata.
+`TASK-004` è l'unico task `ACTIVE` in `PLANNING`.

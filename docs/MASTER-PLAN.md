@@ -4,24 +4,24 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: nessuno
-- **Fase**: nessuna
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: attendere la CI del closeout e unire la PR #1; attivare
-  TASK-002 soltanto dopo che TASK-001 è presente su `main`
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-002
+- **File task**: `docs/TASKS/TASK-002-product-scope-branding-design-system.md`
+- **Stato task**: ACTIVE
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Prossima azione autorizzata**: eseguire il Planning approvato di TASK-002 senza
+  ampliare scope, backlog o repository coinvolti
 
 ## Repository coinvolti
 
-- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer di TASK-001.
+- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer di TASK-002.
 - `XNIW/merchandise-control-admin-web` — futuro control plane Storefront.
-- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura in TASK-001.
-- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura in TASK-001.
-- `XNIW/Win7POS` — POS e stock operativo, sola lettura in TASK-001.
-- Supabase esistente — backend futuro; nessuna modifica in TASK-001.
+- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura in TASK-002.
+- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura in TASK-002.
+- `XNIW/Win7POS` — POS e stock operativo, sola lettura in TASK-002.
+- Supabase esistente — backend futuro; nessun accesso o modifica in TASK-002.
 
 ## Principi architetturali
 
@@ -46,7 +46,7 @@
 | ID | Titolo | Stato | Dipendenze | Repository interessati | Risultato atteso |
 |---|---|---|---|---|---|
 | TASK-001 | Repository governance, Flutter foundation, CI e dual-platform smoke | DONE | nessuna | Client | Fondazione compilabile, verificata e pronta a review |
-| TASK-002 | Product scope definitivo, branding, UX principles e design tokens | TODO | TASK-001 | Client | Identità e principi UX approvati |
+| TASK-002 | Product scope definitivo, branding, UX principles e design tokens | ACTIVE | TASK-001 | Client | Identità e principi UX approvati |
 | TASK-003 | Cross-repo ownership e Storefront integration contract | TODO | TASK-001, TASK-002 | Client, Admin, Android, iOS, POS | Contratto di ownership senza ambiguità |
 | TASK-004 | Environment strategy development/staging/production e configuration contract | TODO | TASK-001, TASK-003 | Client, Admin | Strategia ambienti e config verificabile |
 | TASK-005 | Supabase Storefront schema, RLS, grants e migration ownership | TODO | TASK-003, TASK-004 | Admin, Supabase, Client | Schema pubblico protetto e ownership migration |
@@ -96,6 +96,7 @@ Non risultano blocker di progetto attivi al bootstrap.
 ## Task completati
 
 - `TASK-001` — review `APPROVED`, conferma `USER_APPROVER` ricevuta il 2026-07-30,
-  closeout registrato; merge della PR #1 autorizzato e ancora da eseguire.
+  PR #1 merged con merge commit `f6bd88263fe8369c9ececa38367f629f3d1a929f`.
 
-`TASK-002` resta `TODO` e non viene attivato prima del merge effettivo di TASK-001.
+`TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001. `TASK-003`
+resta `TODO` e nessun altro task è attivo.

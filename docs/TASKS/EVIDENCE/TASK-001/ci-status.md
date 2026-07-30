@@ -25,9 +25,16 @@
 - **Step**: tutti `PASS`
 - **Annotazioni**: 0 per ciascun job
 
-Il commit documentale di closeout avvia un nuovo run. Il relativo SHA e il dettaglio dei
-job vengono verificati dopo il push e riportati nello stato della PR e nell'handoff,
-evitando il ciclo infinito evidence -> commit -> CI -> evidence.
+## CI del commit documentale di closeout
+
+- **Run**: `30562229686`
+- **Commit**: `2e053cab8ed32b921f222e0666530574b137601f`
+- **Conclusione**: `PASS`
+- **Quality**: `PASS`, 2m01s
+- **Android debug build**: `PASS`, 6m46s
+- **iOS Simulator debug build**: `PASS`, 3m26s
+- **Step**: tutti `PASS`
+- **Annotazioni**: 0 per ciascun job
 
 Il run storico `30514420504` aveva già confermato `actions/checkout@v7`, ma il tag era
 ancora mutabile. Il run post-fix verifica i riferimenti action a SHA, il resolver Flutter,

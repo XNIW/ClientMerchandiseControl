@@ -101,3 +101,38 @@
 - **Fase finale**: REVIEW
 - **Blocker/note**: nessun blocker; il merge attende la CI del commit documentale.
   TASK-002 resta `TODO` fino alla presenza effettiva di TASK-001 su `main`.
+
+## 2026-07-30 — CI closeout e merge TASK-001
+
+- **Agente**: Codex, su autorizzazione `USER_APPROVER`
+- **Task**: TASK-001
+- **Fase iniziale**: REVIEW / closeout
+- **Azioni principali**: pubblicato il commit documentale; atteso il run sullo SHA
+  esatto; verificati job, step e annotation; unita la PR #1 con merge commit normale;
+  sincronizzata `main`; eliminati i branch TASK-001 remoto e locale.
+- **Verifiche**: run `30562229686` sul commit
+  `2e053cab8ed32b921f222e0666530574b137601f`, Quality 2m01s, Android 6m46s e iOS
+  3m26s tutti `PASS`, zero annotation; PR #1 `MERGED`.
+- **Risultato**: PASS
+- **Branch/commit/PR**: merge commit
+  `f6bd88263fe8369c9ececa38367f629f3d1a929f`; PR `#1`.
+- **Fase finale**: DONE
+- **Blocker/note**: nessun blocker; `main` locale e `origin/main` allineati prima
+  dell'attivazione di TASK-002.
+
+## 2026-07-30 — Planning e transizione a Execution TASK-002
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-002
+- **Fase iniziale**: PLANNING
+- **Azioni principali**: creato il branch TASK-002; auditati product scope, MVP, backlog,
+  ADR, codice Flutter, UX/accessibilità/localizzazioni e fonti brand cross-repo in sola
+  lettura; definiti scope, non-scope, 38 criteri e 30 test case.
+- **Verifiche**: TASK-001 merged; branch derivato dal merge commit; nessun public brand,
+  logo o palette ufficiale verificato; nessun repository esterno modificato.
+- **Risultato**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Branch/commit/PR**: `task/002-product-scope-branding-design-system`; PR non ancora
+  aperta.
+- **Fase finale**: EXECUTION
+- **Blocker/note**: autorizzazione `USER_APPROVER` già concessa dal prompt end-to-end.
+  `TASK-003` resta `TODO`; nessun backend o feature commerciale entra nello scope.

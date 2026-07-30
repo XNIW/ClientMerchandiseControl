@@ -33,3 +33,12 @@ CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION` a
 La PR #1 può essere unita soltanto dopo che la CI sul commit documentale di closeout è
 terminale e verde. `TASK-002` resta `TODO` e non viene attivato fino a quando il merge di
 TASK-001 non è effettivamente presente su `main`.
+
+## Esito merge
+
+- **Commit documentale**: `2e053cab8ed32b921f222e0666530574b137601f`.
+- **CI closeout**: PASS, run `30562229686`, zero annotation.
+- **PR #1**: MERGED il 2026-07-30T16:43:58Z.
+- **Merge commit**: `f6bd88263fe8369c9ececa38367f629f3d1a929f`.
+- **Attivazione TASK-002**: eseguita soltanto dopo l'allineamento di `main` locale e
+  `origin/main` al merge commit.

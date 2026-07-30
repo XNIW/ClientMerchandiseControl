@@ -23,3 +23,9 @@ pubbliche contenenti exploit, credenziali o dati personali.
 
 Redigere output, screenshot e log. Non includere credenziali production o dati cliente.
 Ogni sospetto secret va rimosso dalla history prima di pubblicare il branch.
+
+Le verifiche di sicurezza seguono `docs/CODEX-WORKFLOW-PROTOCOL.md`: l'executor non
+auto-approva i propri controlli e `CODEX_REVIEWER` o `CODEX_RE_REVIEWER` ripete le
+verifiche applicabili sul commit revisionato. Gli unici esiti ammessi sono `PASS`,
+`FAIL`, `NOT_RUN` e `BLOCKED`; un sospetto non verificabile non diventa un `PASS`
+inferito.

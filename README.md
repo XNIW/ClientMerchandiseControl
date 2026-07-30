@@ -88,11 +88,13 @@ scripts/check.sh
 ## Governance
 
 Leggere prima [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md), quindi il
-[task attivo](docs/TASKS/TASK-001-bootstrap-foundation.md). Esiste un solo task attivo;
-Codex esegue/fixa e Claude/ChatGPT pianifica/revisiona. `DONE` richiede conferma esplicita
-dell'utente.
+[task attivo](docs/TASKS/TASK-001-bootstrap-foundation.md) e il
+[protocollo workflow](docs/CODEX-WORKFLOW-PROTOCOL.md). `AGENTS.md` è l'unica istruzione
+operativa root. Esiste un solo task attivo; Codex assume ruoli logici distinti per
+planning, execution, review, fix e re-review. Soltanto `USER_APPROVER` autorizza `DONE`,
+merge e attivazione del task successivo.
 
 ## Stato
 
-`TASK-001` è `ACTIVE / REVIEW / READY_FOR_REVIEW`. La review non è ancora stata
-eseguita e il task non è `DONE`.
+`TASK-001` è `ACTIVE / FIX / CODEX_FIX_IN_PROGRESS` dopo la prima review indipendente. Il
+task non è `DONE` e `TASK-002` non è attivo.

@@ -4,12 +4,13 @@ Il progetto usa una governance task-based con un solo task attivo.
 
 ## Flusso
 
-1. Il planner crea il planning e porta il task da `PLANNING` a `EXECUTION`.
-2. Codex implementa su un branch `task/NNN-descrizione`.
-3. L'Execution produce evidence e passa a `REVIEW`.
-4. La review decide `APPROVED`, `CHANGES_REQUIRED` o `REJECTED`.
-5. Un fix torna sempre a `REVIEW`.
-6. `DONE` richiede review approvata e conferma esplicita dell'utente.
+1. `CODEX_PLANNER` prepara il planning e attende l'autorizzazione dell'utente.
+2. `CODEX_EXECUTOR` implementa su un branch `task/NNN-descrizione`.
+3. L'Execution produce evidence e passa a `CODEX_REVIEWER`.
+4. La review indipendente decide `APPROVED`, `CHANGES_REQUIRED`, `REJECTED` o `BLOCKED`.
+5. `CODEX_FIXER` corregge i finding autorizzati e torna sempre a
+   `CODEX_RE_REVIEWER`.
+6. Soltanto `USER_APPROVER` può autorizzare `DONE`, merge e task successivo.
 
 Non avviare un secondo task mentre il primo è `ACTIVE`.
 
@@ -24,7 +25,7 @@ Non avviare un secondo task mentre il primo è `ACTIVE`.
 
 Eseguire `scripts/check.sh` e documentare ogni risultato. Un comando non eseguito è
 `NOT_RUN`, non `PASS`. Consultare `docs/QUALITY-GATES.md` e
-`docs/CODEX-EXECUTION-PROTOCOL.md`.
+`docs/CODEX-WORKFLOW-PROTOCOL.md`.
 
 ## Evidence e secret
 

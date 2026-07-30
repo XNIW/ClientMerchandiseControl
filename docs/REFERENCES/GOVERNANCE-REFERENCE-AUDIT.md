@@ -5,6 +5,11 @@ Data audit: 2026-07-29. Metodo: GitHub API/CLI in sola lettura sui ref indicati.
 I checkout locali Android e Win7POS contenevano modifiche non riconosciute e non sono stati
 usati come fonti. Nessun repository di riferimento è stato modificato.
 
+> Nota storica non operativa: i nomi di file e strumenti nella tabella seguente
+> descrivono esattamente i ref consultati il 2026-07-29. Non sono istruzioni per il
+> repository corrente. Dal 2026-07-30 la governance attiva è esclusivamente
+> `AGENTS.md` con `docs/CODEX-WORKFLOW-PROTOCOL.md`.
+
 | Repository | Ref letto | File pertinenti |
 |---|---|---|
 | `XNIW/iOSMerchandiseControl` | `c1b7b706c5f05cd7e8dda74cea1122f6483df7ec` | `AGENTS.md`, `CLAUDE.md`, `docs/MASTER-PLAN.md`, `docs/TASKS/TASK-TEMPLATE.md`, `docs/CODEX-EXECUTION-PROTOCOL.md` |

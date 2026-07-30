@@ -25,6 +25,11 @@
 ## Tracking
 
 - Task:
-- Stato: `READY_FOR_REVIEW — NOT DONE`
+- Fase:
+- Responsabile Codex:
+- Handoff:
+- Review outcome: `NOT_RUN`
+- Conferma `USER_APPROVER`: non ricevuta
+- Stato: `ACTIVE — NOT DONE`
 
 Nessun claim production-ready.

@@ -26,3 +26,11 @@ portabile a `$HOME/develop/flutter`. Il controllo finale termina con exit `0` e
 `No issues found`.
 
 Nessun path personale completo deve essere copiato negli artefatti di evidence.
+
+## Uso della toolchain nel workflow
+
+`CODEX_EXECUTOR` e `CODEX_FIXER` registrano versione, comando ed exit code dei gate
+eseguiti. `CODEX_REVIEWER` e `CODEX_RE_REVIEWER` non riusano tali claim come prova:
+risolvono la toolchain sul proprio ambiente e rieseguono le verifiche obbligatorie. Un
+tool assente o un processo non terminato è `BLOCKED` o `NOT_RUN` con motivazione, mai un
+`PASS` inferito.

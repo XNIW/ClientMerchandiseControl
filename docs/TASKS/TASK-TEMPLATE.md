@@ -7,11 +7,13 @@
 - **File task**: `docs/TASKS/TASK-XXX-slug.md`
 - **Stato**: TODO | ACTIVE | BLOCKED | DONE
 - **Fase**: PLANNING | EXECUTION | REVIEW | FIX
-- **Responsabile**: CLAUDE/CHATGPT | CODEX | USER
+- **Responsabile**: uno tra `CODEX_PLANNER`, `CODEX_EXECUTOR`, `CODEX_REVIEWER`,
+  `CODEX_FIXER`, `CODEX_RE_REVIEWER`, `USER_APPROVER`
 - **Data creazione**: YYYY-MM-DD
 - **Ultimo aggiornamento**: YYYY-MM-DD
 - **Ultimo agente**:
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-XXX/`
+- **Handoff**:
 
 ## Dipendenze
 
@@ -46,7 +48,7 @@ Le decisioni superate restano visibili con stato `OBSOLETA`.
 |---|---|---|---|
 | D-01 |  |  | ATTIVA / OBSOLETA |
 
-## Planning — solo planner/reviewer
+## Planning — `CODEX_PLANNER`
 
 ### Obiettivo
 
@@ -58,7 +60,12 @@ Le decisioni superate restano visibili con stato `OBSOLETA`.
 
 ### Handoff a Execution
 
-## Execution — solo Codex
+- **Prossima fase**: EXECUTION
+- **Prossimo ruolo**: CODEX_EXECUTOR
+- **Handoff**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Autorizzazione USER_APPROVER**: non ricevuta
+
+## Execution — `CODEX_EXECUTOR`
 
 ### Obiettivo compreso
 
@@ -78,7 +85,11 @@ Le decisioni superate restano visibili con stato `OBSOLETA`.
 
 ### Handoff a Review
 
-## Review — solo planner/reviewer
+- **Prossima fase**: REVIEW
+- **Prossimo ruolo**: CODEX_REVIEWER
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+
+## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
 ### Problemi critici
 
@@ -90,11 +101,16 @@ Le decisioni superate restano visibili con stato `OBSOLETA`.
 
 ### Esito
 
-`APPROVED` | `CHANGES_REQUIRED` | `REJECTED`
+`APPROVED` | `CHANGES_REQUIRED` | `REJECTED` | `BLOCKED`
 
 ### Handoff
 
-## Fix — solo Codex
+- `APPROVED` -> `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`
+- `CHANGES_REQUIRED` -> `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`
+- `REJECTED` -> `CODEX_REVIEW_REJECTED_TO_PLANNING`
+- `BLOCKED` -> `CODEX_REVIEW_BLOCKED`
+
+## Fix — `CODEX_FIXER`
 
 ### Fix applicati
 
@@ -102,9 +118,14 @@ Le decisioni superate restano visibili con stato `OBSOLETA`.
 
 ### Handoff a Review
 
+- **Prossima fase**: REVIEW
+- **Prossimo ruolo**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW | CODEX_FIX_BLOCKED_TO_RE_REVIEW
+
 ## Chiusura
 
 - **Conferma utente**: non ancora | ricevuta
+- **Merge autorizzato da USER_APPROVER**: no | sì
 - **Follow-up candidate**:
 - **Riepilogo finale**:
 - **Data completamento**:

@@ -1,6 +1,6 @@
 # TASK-001 evidence
 
-Stato snapshot: Execution completata; `ACTIVE / REVIEW / READY_FOR_REVIEW`.
+Stato snapshot: prima review completata; `ACTIVE / FIX / CODEX_FIX_IN_PROGRESS`.
 
 ## Criteri di accettazione
 
@@ -27,6 +27,7 @@ Stato snapshot: Execution completata; `ACTIVE / REVIEW / READY_FOR_REVIEW`.
 | CA-19 | GIT | PASS | repository privato, branch, commit e PR #1 |
 | CA-20 | GIT | PASS | `git-state.md` |
 | CA-21 | STATIC/GIT | PASS | task e Master Plan in Review, mai Done |
+| CA-22 | STATIC/GIT | PASS | `codex-only-governance-migration.md` |
 
 ## Test case
 
@@ -54,3 +55,4 @@ Stato snapshot: Execution completata; `ACTIVE / REVIEW / READY_FOR_REVIEW`.
 | T-20 | CI | PASS | GitHub Actions Quality, Android e iOS |
 | T-21 | SECURITY | PASS | `security-check.md` |
 | T-22 | GIT | PASS | remote privato, tracking e handoff verificati |
+| T-23 | STATIC/GIT | PASS | `codex-only-governance-migration.md` |

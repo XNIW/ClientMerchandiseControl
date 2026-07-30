@@ -6,13 +6,13 @@
 - **Titolo**: Repository Governance, Flutter Foundation, CI e Dual-Platform Smoke
 - **File task**: `docs/TASKS/TASK-001-bootstrap-foundation.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CLAUDE/CHATGPT
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-07-29
-- **Ultimo aggiornamento**: 2026-07-29
-- **Ultimo agente**: CODEX
+- **Ultimo aggiornamento**: 2026-07-30
+- **Ultimo agente**: CODEX_REVIEWER
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-001/`
-- **Handoff**: READY_FOR_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -30,6 +30,8 @@
 - unit/widget test e quality gate;
 - Android build, iOS Simulator build e smoke reali su entrambe le piattaforme;
 - GitHub Actions ed evidence.
+- migrazione della governance operativa a un workflow esclusivamente Codex, con ruoli
+  separati per planning, execution, review, fix e re-review.
 
 ## Contesto
 
@@ -77,6 +79,7 @@ creare una fondazione reale e compilabile senza collegare backend o dati product
 | CA-19 | Repository privato, branch, commit e PR esistono | GIT |
 | CA-20 | Gli altri repository non sono stati modificati | GIT |
 | CA-21 | Task e Master Plan terminano ACTIVE / REVIEW / READY_FOR_REVIEW, mai DONE | STATIC/GIT |
+| CA-22 | Governance operativa esclusivamente Codex, senza dipendenze attive da reviewer o agenti esterni | STATIC/GIT |
 
 ## Test case
 
@@ -104,6 +107,7 @@ creare una fondazione reale e compilabile senza collegare backend o dati product
 | T-20 | CA-17 | CI | Validare ed eseguire GitHub Actions |
 | T-21 | CA-18 | SECURITY | Secret/artifact scan mirato |
 | T-22 | CA-19, CA-21 | GIT | Verificare remote privato, branch, commit, PR e tracking |
+| T-23 | CA-22 | STATIC/GIT | Verificare ruoli Codex, stati, handoff e assenza di riferimenti operativi attivi a sistemi esterni |
 
 ## Decisioni
 
@@ -113,6 +117,7 @@ creare una fondazione reale e compilabile senza collegare backend o dati product
 | D-02 | Flutter stable, una codebase e soli target Android/iOS | Vincolo architetturale approvato | ATTIVA |
 | D-03 | Development senza backend resta offline; production incompleta fallisce | Evitare fallback e rete accidentale | ATTIVA |
 | D-04 | Nessun layer vuoto o package speculativo | Fondazione minima e mantenibile | ATTIVA |
+| D-05 | L'emendamento utente del 2026-07-30 autorizza la review indipendente completa di TASK-001, la migrazione della governance a un workflow Codex-only e la correzione dei finding P0–P2 e dei P3 semplici in scope. | Rendere esplicito l'override approvato per questa revisione senza modificare backlog, priorità o task futuri | ATTIVA |
 
 ## Planning — user override trascritto
 
@@ -148,7 +153,7 @@ devono essere modificati.
 ### Handoff a Execution
 
 - **Prossima fase**: EXECUTION
-- **Prossimo agente**: CODEX
+- **Prossimo agente**: CODEX_EXECUTOR (ruolo normalizzato dall'emendamento Codex-only)
 - **Azione**: eseguire il piano approvato e produrre evidence per CA-01–CA-21.
 
 ## Execution — Codex
@@ -205,16 +210,43 @@ fuori scope e sono assegnati ai task futuri. Nessun blocker di TASK-001 è attiv
 ### Handoff a Review
 
 - **Prossima fase**: REVIEW
-- **Prossimo agente**: CLAUDE/CHATGPT
+- **Prossimo agente storico**: reviewer indipendente previsto dalla governance precedente;
+  riferimento conservato a fini cronologici e non più operativo
 - **Azione**: verificare CA-01–CA-21 e T-01–T-22 contro le evidence; non attivare TASK-002.
 
-## Review — solo planner/reviewer
+## Review — Codex reviewer indipendente
 
-Non ancora eseguita.
+### Esito iniziale
 
-## Fix — solo Codex
+- **Data**: 2026-07-30
+- **Agente**: CODEX_REVIEWER
+- **Verdetto**: CHANGES_REQUIRED
+- **Finding**: 0 P0, 3 P1, 8 P2 e 3 P3.
+- **Evidence**:
+  `docs/TASKS/EVIDENCE/TASK-001/review-baseline.md`,
+  `docs/TASKS/EVIDENCE/TASK-001/review-report.md`,
+  `docs/TASKS/EVIDENCE/TASK-001/review-security-check.md` e
+  `docs/TASKS/EVIDENCE/TASK-001/review-commands-and-results.md`.
 
-Non applicabile prima della review.
+La baseline dichiarata dall'Execution è stata rieseguita con esito `PASS`, inclusi i
+build Android e iOS Simulator. La review statica e di sicurezza ha però rilevato gap
+funzionali, di fail-closed, accessibilità, riproducibilità CI e governance. I finding
+sono registrati prima di qualsiasi correzione.
+
+### Handoff a Fix
+
+- **Prossima fase**: FIX
+- **Prossimo agente**: CODEX_FIXER
+- **Azione**: correggere tutti i finding P1/P2 e i P3 semplici in scope, aggiungere test
+  di regressione e restituire TASK-001 a una nuova review indipendente.
+
+## Fix — Codex
+
+- **Stato**: IN_PROGRESS
+- **Data avvio**: 2026-07-30
+- **Agente**: CODEX_FIXER
+- **Scope**: esclusivamente finding e migrazione governance autorizzati dalla review di
+  TASK-001; nessuna attivazione di TASK-002.
 
 ## Chiusura
 

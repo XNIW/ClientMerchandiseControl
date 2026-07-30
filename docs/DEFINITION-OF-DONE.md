@@ -10,12 +10,14 @@ Un task è tecnicamente pronto alla chiusura quando:
 - il worktree è pulito e la PR è revisionabile;
 - la review è `APPROVED`.
 
-Il passaggio a `DONE` richiede inoltre conferma esplicita dell'utente. Codex non imposta
-mai autonomamente `DONE`.
+Il passaggio a `DONE` richiede inoltre conferma esplicita di `USER_APPROVER`.
+Nessun ruolo Codex imposta autonomamente `DONE`, esegue merge o attiva il task
+successivo.
 
-Per TASK-001 lo stato finale richiesto da questa execution è:
+Per TASK-001 lo stato finale richiesto dal ciclo di review è:
 
 - Stato: `ACTIVE`;
 - Fase: `REVIEW`;
-- Handoff: `READY_FOR_REVIEW`;
+- Review outcome: `APPROVED`;
+- Handoff: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
 - Conferma utente: non ancora ricevuta.

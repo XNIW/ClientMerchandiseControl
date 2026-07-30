@@ -287,3 +287,21 @@
   tecnico `e2ad429f25341f9009c3087673c36746e23bf059`; PR batch non ancora aperta.
 - **Blocker/note**: nessun gate Execution obbligatorio aperto. `CA-31`/`T-20` sono
   assegnati alla review indipendente; TASK-004 resta `TODO`, merge vietato.
+
+## 2026-07-30 — Review indipendente TASK-003 e transizione a Fix
+
+- **Agente**: `CODEX_REVIEWER`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: REVIEW → FIX
+- **Revisione**: `769a30fc6c465c663ed5a9491dd099a830ce2128`
+- **Azioni principali**: tre shard read-only indipendenti su architettura/contratto,
+  governance/evidence/CI e security/provenance; consolidato un finding duplicato.
+- **Verifiche**: governance, DAG 42 nodi, 57/57 citazioni, fingerprint esterne,
+  scan security/confinement e metadata Supabase read-only `PASS`; CI
+  `30581659849` sullo SHA revisionato con Quality/Android/iOS `PASS`, tutti gli step
+  success e zero annotation.
+- **Finding**: 0 P0, 0 P1, 2 P2, 1 P3.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`
+- **Blocker/note**: correggere ownership logica temporanea, shop binding fuori scope e
+  locator di provenance; re-review indipendente obbligatoria, merge vietato e TASK-004
+  resta `TODO`.

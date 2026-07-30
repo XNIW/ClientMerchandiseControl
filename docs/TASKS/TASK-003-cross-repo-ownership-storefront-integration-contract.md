@@ -6,20 +6,20 @@
 - **Titolo**: Cross-repo ownership e Storefront integration contract
 - **File task**: `docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_EXECUTOR
-- **Review outcome**: non ancora eseguita
-- **Reviewer**: sessioni indipendenti da assegnare
+- **Ultimo agente**: CODEX_REVIEWER
+- **Review outcome**: CHANGES_REQUIRED
+- **Reviewer**: tre sessioni indipendenti read-only
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **DONE**: NO
 - **Merge**: NO
 - **User approval**: GRANTED_BY_END_TO_END_PROMPT, da applicare con transizione esplicita
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-003/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -324,11 +324,26 @@ La matrice canonica di 22 righe è in
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
-Pronta per sessioni read-only indipendenti dall'Execution; non ancora avviata.
+Review indipendente read-only eseguita sulla revisione
+`769a30fc6c465c663ed5a9491dd099a830ce2128`.
+
+- **Shard**: architettura/contratto, governance/evidence/CI,
+  security/provenance.
+- **Gate autonomi**: governance, DAG, 57 citazioni, fingerprint, security,
+  confinement e CI `30581659849` sullo SHA esatto `PASS`.
+- **Finding consolidati**: 0 P0, 0 P1, 2 P2, 1 P3.
+- **P2 aperti**: ownership logica resa temporanea; binding shop assegnato fuori scope
+  a TASK-004.
+- **P3 aperto**: tre locator di provenance migliorabili.
+- **Esito**: `CHANGES_REQUIRED`.
+- **Report**: `docs/TASKS/EVIDENCE/TASK-003/review-report.md`.
+- **Transizione**: `REVIEW -> FIX`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 
-Non avviato. Sarà usato soltanto per finding approvati nello scope.
+Pronto per correggere esclusivamente `T003-REV-001`–`T003-REV-003`; non ancora
+avviato.
 
 ## Chiusura
 

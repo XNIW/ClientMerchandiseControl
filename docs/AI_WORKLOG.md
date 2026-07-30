@@ -240,3 +240,20 @@
 - **Fase finale**: DONE
 - **Blocker/note**: nessun blocker; TASK-003 può essere attivato in `PLANNING` sul
   branch milestone autorizzato.
+
+## 2026-07-30 — Planning TASK-003
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: PLANNING
+- **Azioni principali**: attivato il solo TASK-003 sul branch milestone; auditati in
+  sola lettura Client, Admin, Android, iOS, POS, workspace Supabase storico e progetto
+  non-production collegato; definiti scope, non-scope, 32 CA, 22 test e due ADR.
+- **Verifiche**: TASK-002 merged su `46686ac`; ref e dirty state esterni preservati;
+  Admin/ledger 96 migrations, zero Edge Functions; nessun dominio Storefront esistente;
+  audit del DAG e delle dipendenze artificiali completato.
+- **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`
+- **Branch/commit/PR**: `milestone/003-004-storefront-contract-environments`; PR non
+  ancora aperta.
+- **Blocker/note**: nessun blocker. L'autorizzazione condizionata è già nel prompt e
+  sarà applicata con una transizione esplicita a Execution; TASK-004 resta `TODO`.

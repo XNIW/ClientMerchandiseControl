@@ -4,15 +4,15 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: non applicabile
-- **Fase**: non applicabile
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: attivare TASK-003 in `PLANNING` sul branch milestone
-  `milestone/003-004-storefront-contract-environments`
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-003
+- **File task**: `docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md`
+- **Stato task**: ACTIVE
+- **Fase**: PLANNING
+- **Responsabile**: CODEX_PLANNER
+- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Prossima azione autorizzata**: applicare l'autorizzazione condizionata del prompt e
+  transitare TASK-003 a `EXECUTION` senza modificare il Planning
 
 ## Repository coinvolti
 
@@ -103,5 +103,4 @@ Non risultano blocker di progetto attivi al bootstrap.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
-`TASK-003` resta `TODO` e nessun altro task è attivo fino alla sua transizione
-documentata a `PLANNING`.
+`TASK-003` è l'unico task `ACTIVE`, in `PLANNING`; nessun altro task è attivo.

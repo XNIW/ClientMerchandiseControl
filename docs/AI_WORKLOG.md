@@ -220,3 +220,23 @@
 - **Risultato**: `USER_APPROVED_DONE`
 - **Blocker/note**: commit di closeout, CI finale e merge PR #2 ancora da completare;
   in caso di CI rossa il task torna al ciclo coerente, senza forzature.
+
+## 2026-07-30 — CI finale e merge TASK-002
+
+- **Agente**: Codex, su autorizzazione `USER_APPROVER`
+- **Task**: TASK-002
+- **Fase iniziale**: REVIEW / closeout
+- **Azioni principali**: atteso e ispezionato il run sullo SHA esatto; resa pronta la
+  PR #2; applicato il merge commit normale; eliminati i branch TASK-002 remoto e locale;
+  sincronizzata `main`.
+- **Verifiche**: run `30577156105` sul commit
+  `370612755cf053dde8e859c877067007c15c6590`, Quality 2m01s, Android 8m21s e iOS
+  3m14s tutti `PASS`, tutti gli step completati e zero annotation; PR #2 `MERGED`;
+  `main` locale e `origin/main` entrambi a
+  `46686ace3b4670f207147f12110d8133ced01e8e`; worktree pulito.
+- **Risultato**: `PASS`
+- **Branch/commit/PR**: merge commit
+  `46686ace3b4670f207147f12110d8133ced01e8e`; PR `#2`.
+- **Fase finale**: DONE
+- **Blocker/note**: nessun blocker; TASK-003 può essere attivato in `PLANNING` sul
+  branch milestone autorizzato.

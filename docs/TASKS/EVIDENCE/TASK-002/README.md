@@ -8,7 +8,8 @@ Snapshot di handoff:
   `ec599758948a303b0862935fcf9ae9003a64aa00`
 - Gate Execution obbligatori: tutti `PASS`
 - Review indipendente: re-review `APPROVED`, 0 P0/P1/P2 aperti
-- CI closeout e post-merge: non ancora eseguiti
+- CI closeout: run `30577156105` `PASS` sullo SHA `3706127`, 3/3 job e 0 annotation
+- Post-merge: PR #2 `MERGED`; `main` locale e `origin/main` allineati a `46686ac`
 
 Evidence principali:
 
@@ -58,10 +59,10 @@ Evidence principali:
 | CA-29 | IOS_SIM | PASS | `runtime-smoke.md`, iOS 26.5, exit `0` |
 | CA-30 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | theme light/dark nei test, smoke e diagnostica visuale |
 | CA-31 | STATIC/MANUAL | PASS | due re-reviewer: 0 P0/P1/P2 aperti; `re-review-report.md` |
-| CA-32 | CI | NOT_RUN | SHA di closeout non ancora creato né pushato |
+| CA-32 | CI | PASS | run `30577156105` sullo SHA `3706127`: Quality, Android e iOS `PASS`; tutti gli step completati e 0 annotation |
 | CA-33 | STATIC/GIT | PASS | controllo automatizzato di task/stato/fase/handoff, exit `0` |
 | CA-34 | STATIC/GIT | PASS | re-review `APPROVED` e autorizzazione prompt applicata |
-| CA-35 | GIT | NOT_RUN | controllo terminale post-merge |
+| CA-35 | GIT | PASS | PR #2 `MERGED`; merge `46686ac`; branch TASK-002 eliminato; `main == origin/main`; worktree pulito |
 | CA-36 | STATIC/GIT | PASS | TASK-003 `TODO`, nessun task attivo, progetto `IDLE` |
 | CA-37 | GIT | PASS | algoritmo versionato; otto digest ricalcolati e identici, exit `0` |
 | CA-38 | STATIC/GIT | PASS | package, identifier e target invariati; `execution-evidence.md` |
@@ -95,8 +96,8 @@ Evidence principali:
 | T-23 | ANDROID_EMU | PASS | smoke automatico reale Android, exit `0` |
 | T-24 | IOS_SIM | PASS | smoke automatico reale iOS, exit `0` |
 | T-25 | MANUAL/STATIC | PASS | re-review indipendente `APPROVED`; 4 finding risolti |
-| T-26 | CI | NOT_RUN | prerequisito: commit closeout pushato |
+| T-26 | CI | PASS | run `30577156105`, SHA esatto `3706127`, 3/3 job e 0 annotation |
 | T-27 | STATIC/GIT | PASS | CA-33/34/36 `PASS`; `closeout.md` |
-| T-28 | GIT | NOT_RUN | PR non ancora merged |
+| T-28 | GIT | PASS | PR #2 merged alle `20:09:08Z`; merge `46686ac`; branch eliminato e main sincronizzato |
 | T-29 | GIT | PASS | procedura esatta versionata; fingerprint 4/4 ricreate |
 | T-30 | STATIC/GIT | PASS | package, target e identifier confrontati con la baseline |

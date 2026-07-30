@@ -17,7 +17,8 @@
 - **Approver**: USER_APPROVER
 - **Indicatore**: USER_APPROVED_DONE
 - **DONE**: YES
-- **Merge**: NO — PR #2 aperta
+- **Merge**: YES — PR #2 merged il 2026-07-30 con merge commit
+  `46686ace3b4670f207147f12110d8133ced01e8e`
 - **User approval**: GRANTED_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-002/`
 - **Handoff**: USER_APPROVED_DONE
@@ -358,7 +359,9 @@ Evidence: `docs/TASKS/EVIDENCE/TASK-002/fix-evidence.md`.
 - **CI sullo SHA Fix revisionato**: `PASS`, run `30575613471`, commit `8253fc9…`
 - **CI sul commit di closeout**: `NOT_RUN`, da attestare dopo il push
 - **Merge autorizzato da USER_APPROVER**: sì, soltanto dopo CI finale `PASS`
-- **Stato merge**: `NOT_RUN`, PR #2 ancora aperta
+- **Stato merge**: `PASS`, PR #2 merged il 2026-07-30 alle `20:09:08Z`; branch remoto
+  e locale eliminati, `main` locale allineato a `origin/main` sul merge commit
+  `46686ace3b4670f207147f12110d8133ced01e8e`
 - **Follow-up candidate**: TASK-003, non attivato
 - **Riepilogo finale**: foundation prodotto/design approvata; P2 risolti e regression
   governance attiva; task marcato `DONE` senza attivare il successivo

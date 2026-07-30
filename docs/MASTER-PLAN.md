@@ -11,8 +11,8 @@
 - **Fase**: non applicabile
 - **Responsabile**: USER_APPROVER
 - **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: pubblicare il closeout TASK-002, attendere CI finale
-  sullo SHA conclusivo e unire PR #2; TASK-003 resta `TODO` fino al merge effettivo
+- **Prossima azione autorizzata**: attivare TASK-003 in `PLANNING` sul branch milestone
+  `milestone/003-004-storefront-contract-environments`
 
 ## Repository coinvolti
 
@@ -98,8 +98,10 @@ Non risultano blocker di progetto attivi al bootstrap.
 - `TASK-001` — review `APPROVED`, conferma `USER_APPROVER` ricevuta il 2026-07-30,
   PR #1 merged con merge commit `f6bd88263fe8369c9ececa38367f629f3d1a929f`.
 - `TASK-002` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
-  2026-07-30; PR #2 e CI finale ancora da completare.
+  2026-07-30; CI finale run `30577156105` `PASS` sullo SHA `3706127`, PR #2 merged
+  con merge commit `46686ace3b4670f207147f12110d8133ced01e8e`.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
-chiuso soltanto dopo Fix e re-review `APPROVED`. `TASK-003` resta `TODO` e nessun altro
-task è attivo.
+chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
+`TASK-003` resta `TODO` e nessun altro task è attivo fino alla sua transizione
+documentata a `PLANNING`.

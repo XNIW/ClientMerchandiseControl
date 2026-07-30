@@ -87,12 +87,11 @@ scripts/check.sh
 
 ## Governance
 
-Leggere prima [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md), quindi il
-[task attivo](docs/TASKS/TASK-002-product-scope-branding-design-system.md) e il
-[protocollo workflow](docs/CODEX-WORKFLOW-PROTOCOL.md). `AGENTS.md` è l'unica istruzione
-operativa root. Può esistere un solo task attivo; Codex assume ruoli logici distinti per
-planning, execution, review, fix e re-review. Soltanto `USER_APPROVER` autorizza `DONE`,
-merge e attivazione del task successivo.
+Leggere prima [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md), quindi il file del task attivo
+quando presente e il [protocollo workflow](docs/CODEX-WORKFLOW-PROTOCOL.md).
+`AGENTS.md` è l'unica istruzione operativa root. Può esistere un solo task attivo;
+Codex assume ruoli logici distinti per planning, execution, review, fix e re-review.
+Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successivo.
 
 ## Stato
 
@@ -101,5 +100,5 @@ merge e attivazione del task successivo.
 - **Fase**: non applicabile
 - **Indicatore**: USER_APPROVED_DONE
 
-`TASK-001` e `TASK-002` sono `DONE`; la PR #2 attende la CI finale e il merge.
-`TASK-003` resta `TODO`.
+`TASK-001` e `TASK-002` sono `DONE` e merged. `TASK-003` resta `TODO` fino alla
+transizione documentata a `PLANNING`.

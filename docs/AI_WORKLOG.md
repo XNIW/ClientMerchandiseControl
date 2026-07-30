@@ -84,3 +84,20 @@
 - **Blocker/note**: nessun blocker; indicatore
   `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. Il task resta `ACTIVE`, non
   `DONE`; PR non merged e TASK-002 non attivato.
+
+## 2026-07-30 — Autorizzazione utente e closeout TASK-001
+
+- **Agente**: `USER_APPROVER`, registrazione operativa Codex
+- **Task**: TASK-001
+- **Fase iniziale**: REVIEW
+- **Azioni principali**: verificato preflight locale e GitHub; confermati review
+  `APPROVED`, 0 finding P0/P1/P2, CI sullo SHA revisionato, build e smoke
+  dual-platform; registrata l'autorizzazione end-to-end dell'utente a `DONE` e merge.
+- **Verifiche**: `git diff --check`, sintassi di tutti gli script, `scripts/check.sh`
+  con 38 test e build Android/iOS, PR #1 e run `30557641291` tutti `PASS`.
+- **Risultato**: USER_APPROVED_DONE
+- **Branch/commit/PR**: `task/001-bootstrap-foundation`; SHA revisionato
+  `975ce7294555446b10eddb373769f8604b45c37c`; PR `#1`.
+- **Fase finale**: REVIEW
+- **Blocker/note**: nessun blocker; il merge attende la CI del commit documentale.
+  TASK-002 resta `TODO` fino alla presenza effettiva di TASK-001 su `main`.

@@ -1,7 +1,8 @@
 # TASK-001 evidence
 
-Stato snapshot: re-review completata;
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+Stato snapshot: re-review completata e autorizzazione finale registrata;
+`DONE / REVIEW / USER_APPROVED_DONE`. Il merge della PR #1 è autorizzato e attende la CI
+del commit documentale; TASK-002 resta `TODO`.
 
 ## Criteri di accettazione
 
@@ -9,7 +10,7 @@ Stato snapshot: re-review completata;
 |---|---|---|---|
 | CA-01 | STATIC | PASS | `GOVERNANCE-REFERENCE-AUDIT.md` |
 | CA-02 | STATIC | PASS | Governance root e `docs/` |
-| CA-03 | STATIC | PASS | 42 righe backlog, una sola ACTIVE |
+| CA-03 | STATIC | PASS | 42 righe backlog; un solo ACTIVE durante l'esecuzione, nessuno dopo il closeout |
 | CA-04 | STATIC | PASS | Soli `android/` e `ios/` |
 | CA-05 | STATIC/BUILD | PASS | ID nativi + build PASS |
 | CA-06 | STATIC/ANALYZE | PASS | `lib/`, pubspec, analyze |
@@ -27,7 +28,7 @@ Stato snapshot: re-review completata;
 | CA-18 | SECURITY/GIT | PASS | `security-check.md` + `review-security-check.md` |
 | CA-19 | GIT | PASS | repository privato, branch, commit e PR #1 |
 | CA-20 | GIT | PASS | `git-state.md` |
-| CA-21 | STATIC/GIT | PASS | task e Master Plan `ACTIVE / REVIEW`, mai `DONE` |
+| CA-21 | STATIC/GIT | PASS | invarianti rispettati fino alla review; transizione a `DONE` soltanto dopo conferma utente |
 | CA-22 | STATIC/GIT | PASS | `codex-only-governance-migration.md` |
 
 ## Test case
@@ -59,6 +60,15 @@ Stato snapshot: re-review completata;
 | T-23 | STATIC/GIT | PASS | `codex-only-governance-migration.md` |
 
 CA-21 conserva il token storico `READY_FOR_REVIEW` nel planning approvato; D-05 lo
-normalizza all'handoff Codex-only finale
-`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`, senza alterare gli invarianti
-`ACTIVE / REVIEW`, mai `DONE`.
+normalizza all'handoff Codex-only di review
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. D-06 registra poi la distinta
+transizione autorizzata da `USER_APPROVER` a `DONE`, senza alterare retroattivamente il
+criterio verificato durante Execution e Review.
+
+## Closeout
+
+- Preflight: `preflight-closeout.md`.
+- Autorizzazione e decisione finale: `user-approval-and-closeout.md`.
+- SHA revisionato: `975ce7294555446b10eddb373769f8604b45c37c`.
+- CI sullo SHA revisionato: run `30557641291`, tre job `PASS`, zero annotation.
+- Finding aperti: 0 P0, 0 P1, 0 P2.

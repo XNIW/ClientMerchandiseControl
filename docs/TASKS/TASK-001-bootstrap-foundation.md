@@ -5,20 +5,25 @@
 - **Task ID**: TASK-001
 - **Titolo**: Repository Governance, Flutter Foundation, CI e Dual-Platform Smoke
 - **File task**: `docs/TASKS/TASK-001-bootstrap-foundation.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-07-29
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Ultimo agente**: USER_APPROVER
 - **Review outcome**: APPROVED
 - **Reviewer**: CODEX_REVIEWER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
-- **DONE**: NO
-- **Merge**: NO
-- **Conferma utente**: PENDING
+- **Approver**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
+- **DONE**: YES
+- **Merge**: AUTHORIZED — PENDING
+- **Conferma utente**: GRANTED
+- **User approval source**: “Prompt end-to-end dell’utente successivo alla review
+  APPROVED”
+- **Merge authorization**: GRANTED
+- **Finding aperti**: 0 P0, 0 P1, 0 P2
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-001/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -129,6 +134,7 @@ nell'handoff Codex-only appropriato alla review conclusa,
 | D-03 | Development senza backend resta offline; production incompleta fallisce | Evitare fallback e rete accidentale | ATTIVA |
 | D-04 | Nessun layer vuoto o package speculativo | Fondazione minima e mantenibile | ATTIVA |
 | D-05 | L'emendamento utente del 2026-07-30 autorizza la review indipendente completa di TASK-001, la migrazione della governance a un workflow Codex-only e la correzione dei finding P0–P2 e dei P3 semplici in scope. | Rendere esplicito l'override approvato per questa revisione senza modificare backlog, priorità o task futuri | ATTIVA |
+| D-06 | Il prompt end-to-end dell'utente successivo alla review `APPROVED` concede la conferma finale, autorizza `DONE`, il merge della PR #1 e, soltanto dopo il merge effettivo, l'attivazione di TASK-002. | Registrare senza ambiguità l'autorità di `USER_APPROVER` e preservare l'ordine delle transizioni | ATTIVA |
 
 ## Planning — user override trascritto
 
@@ -325,9 +331,23 @@ reviewer indipendenti rispetto ai fixer. `APPROVED` non equivale a `DONE`: il ta
 
 ## Chiusura
 
-- **Conferma utente**: non ancora ricevuta
+- **User approval source**: prompt end-to-end dell’utente successivo alla review
+  `APPROVED`
+- **User approval**: GRANTED
+- **Review outcome**: APPROVED
+- **Reviewer**: CODEX_REVIEWER
+- **Approver**: USER_APPROVER
+- **Finding aperti**: 0 P0, 0 P1, 0 P2
+- **CI sullo SHA revisionato**: PASS — run `30557641291`, commit
+  `975ce7294555446b10eddb373769f8604b45c37c`
+- **Build e smoke obbligatori**: Android PASS; iOS PASS
+- **Security check**: PASS
+- **Conferma utente**: ricevuta il 2026-07-30T12:32:00-04:00
+- **Merge autorizzato da USER_APPROVER**: sì
+- **Stato merge al momento del closeout**: in attesa della CI del commit documentale
 - **Follow-up candidate**: TASK-002, non attivato
 - **Riepilogo finale**: fondazione Flutter e governance Codex-only approvate dalla
-  re-review, con gate locali, smoke dual-platform, security e CI superati; in attesa
-  della decisione utente
-- **Data completamento**: non applicabile
+  re-review, con gate locali, smoke dual-platform, security e CI superati; autorizzazione
+  finale registrata e task marcato `DONE`. TASK-002 resta `TODO` fino al merge effettivo
+  della PR #1.
+- **Data completamento**: 2026-07-30

@@ -4,14 +4,15 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-001
-- **File task**: `docs/TASKS/TASK-001-bootstrap-foundation.md`
-- **Stato task**: ACTIVE
-- **Fase**: REVIEW
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: nessuno
+- **Fase**: nessuna
 - **Responsabile**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
-- **Prossima azione autorizzata**: valutare la review approvata di TASK-001; soltanto l'utente può autorizzare DONE, merge o attivazione di TASK-002
+- **Indicatore**: USER_APPROVED_DONE
+- **Prossima azione autorizzata**: attendere la CI del closeout e unire la PR #1; attivare
+  TASK-002 soltanto dopo che TASK-001 è presente su `main`
 
 ## Repository coinvolti
 
@@ -44,7 +45,7 @@
 
 | ID | Titolo | Stato | Dipendenze | Repository interessati | Risultato atteso |
 |---|---|---|---|---|---|
-| TASK-001 | Repository governance, Flutter foundation, CI e dual-platform smoke | ACTIVE | nessuna | Client | Fondazione compilabile, verificata e pronta a review |
+| TASK-001 | Repository governance, Flutter foundation, CI e dual-platform smoke | DONE | nessuna | Client | Fondazione compilabile, verificata e pronta a review |
 | TASK-002 | Product scope definitivo, branding, UX principles e design tokens | TODO | TASK-001 | Client | Identità e principi UX approvati |
 | TASK-003 | Cross-repo ownership e Storefront integration contract | TODO | TASK-001, TASK-002 | Client, Admin, Android, iOS, POS | Contratto di ownership senza ambiguità |
 | TASK-004 | Environment strategy development/staging/production e configuration contract | TODO | TASK-001, TASK-003 | Client, Admin | Strategia ambienti e config verificabile |
@@ -94,5 +95,7 @@ Non risultano blocker di progetto attivi al bootstrap.
 
 ## Task completati
 
-Nessuno. TASK-001 non può essere aggiunto qui prima di review `APPROVED` e conferma
-esplicita dell'utente.
+- `TASK-001` — review `APPROVED`, conferma `USER_APPROVER` ricevuta il 2026-07-30,
+  closeout registrato; merge della PR #1 autorizzato e ancora da eseguire.
+
+`TASK-002` resta `TODO` e non viene attivato prima del merge effettivo di TASK-001.

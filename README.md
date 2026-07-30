@@ -87,16 +87,16 @@ scripts/check.sh
 
 ## Governance
 
-Leggere prima [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md), quindi il
-[task attivo](docs/TASKS/TASK-001-bootstrap-foundation.md) e il
+Leggere prima [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md), quindi il file del task attivo
+indicato dal Master Plan, quando presente, e il
 [protocollo workflow](docs/CODEX-WORKFLOW-PROTOCOL.md). `AGENTS.md` è l'unica istruzione
-operativa root. Esiste un solo task attivo; Codex assume ruoli logici distinti per
+operativa root. Può esistere un solo task attivo; Codex assume ruoli logici distinti per
 planning, execution, review, fix e re-review. Soltanto `USER_APPROVER` autorizza `DONE`,
 merge e attivazione del task successivo.
 
 ## Stato
 
-`TASK-001` è
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`: i finding della
-review iniziale sono stati corretti e la re-review indipendente è `APPROVED`. Il task non
-è `DONE`, la PR non è merged e `TASK-002` non è attivo.
+`TASK-001` è `DONE / REVIEW / USER_APPROVED_DONE`: i finding della review iniziale sono
+stati corretti, la re-review indipendente è `APPROVED` e l'autorizzazione finale
+dell'utente è registrata. Il merge della PR #1 è autorizzato e attende il check sul
+commit documentale; `TASK-002` resta `TODO` fino al merge effettivo.

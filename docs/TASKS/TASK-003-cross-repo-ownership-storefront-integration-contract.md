@@ -6,20 +6,20 @@
 - **Titolo**: Cross-repo ownership e Storefront integration contract
 - **File task**: `docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
 - **Ultimo agente**: CODEX_EXECUTOR
 - **Review outcome**: non ancora eseguita
-- **Reviewer**: non assegnato
+- **Reviewer**: sessioni indipendenti da assegnare
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **DONE**: NO
 - **Merge**: NO
 - **User approval**: GRANTED_BY_END_TO_END_PROMPT, da applicare con transizione esplicita
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-003/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -243,7 +243,11 @@ senza modificare runtime, configurazione, backend o repository esterni.
 
 ### File controllati
 
-In compilazione durante Execution.
+- dodici deliverable architetturali, ADR, governance e provenance nel commit tecnico
+  `e2ad429f25341f9009c3087673c36746e23bf059`;
+- task, evidence index, `README.md`, Master Plan e worklog per il solo handoff;
+- nessun file `lib/`, `test/`, `integration_test/`, `config/`, Android, iOS,
+  `pubspec*` o repository esterno.
 
 ### Piano minimo
 
@@ -255,31 +259,72 @@ In compilazione durante Execution.
 
 ### Modifiche fatte
 
-Non ancora registrate.
+- definita una matrice univoca di ownership e flussi vietati tra Client, Admin,
+  Android, iOS, POS e Supabase;
+- introdotto il contratto logico versionato `CMC-STOREFRONT-LOGICAL` 1.0.0 con shop
+  scope, allowlist/denylist, commercial truth, immagini, ordine e compatibility;
+- separati autenticazione, identità di sessione e autorizzazione per
+  guest/customer/staff/server;
+- riallineati data boundary, system context e mobile architecture;
+- registrati ADR-009 per i workstream catalogo/auth e ADR-010 per contract/change
+  ownership;
+- corrette esclusivamente le dipendenze di TASK-010, TASK-011 e TASK-020;
+- versionati audit sanitizzato, 57 riferimenti a ref fisse e procedura di fingerprint
+  zero-write.
 
 ### Check eseguiti
 
-Non ancora registrati.
+| Verifica | Esito | Evidenza |
+|---|---|---|
+| Governance e DAG | `PASS` | governance exit 0; 42 nodi, zero cicli, un solo `ACTIVE` |
+| Fonti e link | `PASS` | 57/57 citazioni valide; link locali zero mancanti |
+| Security e confinement | `PASS` | zero pattern sensibili; 12 documenti, zero runtime/config/backend |
+| Repository esterni | `PASS` | quattro fingerprint Git e manifest storico invariati |
+| Toolchain e dipendenze | `PASS` | doctor, shell syntax, `pub deps` e `pub outdated` exit 0 |
+| Gate aggregato | `PASS` | `scripts/check.sh`: format, analyze, 59/59 test, Android/iOS build |
+| CI Execution | `PASS` | run `30580693884`, SHA `e2ad429f`, 3/3 job, step success, 0 annotation |
+
+Ricevute complete e warning sono in
+`docs/TASKS/EVIDENCE/TASK-003/execution-evidence.md`.
 
 ### Matrice CA -> evidence
 
-Non ancora registrata.
+La matrice canonica di 32 righe è in
+`docs/TASKS/EVIDENCE/TASK-003/README.md`. `CA-01`–`CA-30` e `CA-32` hanno evidence
+Execution `PASS`; `CA-31` è correttamente `NOT_RUN` perché coincide con la review
+indipendente che questo handoff abilita.
 
 ### Matrice T-NN -> risultato
 
-Non ancora registrata.
+La matrice canonica di 22 righe è in
+`docs/TASKS/EVIDENCE/TASK-003/README.md`. `T-01`–`T-19`, `T-21` e `T-22` sono
+`PASS`; `T-20` è assegnato ai reviewer indipendenti.
 
 ### Rischi rimasti
 
-Non ancora registrati.
+- contratto Storefront, schema, API e health non sono ancora implementati;
+- i grant `anon` legacy osservati richiedono verifica/hardening in TASK-005 e non sono
+  usati dal Client;
+- il workspace Supabase storico resta provenance non-Git e non authority;
+- upgrade package disponibili restano fuori scope;
+- il closeout richiede nuova CI sul proprio SHA conclusivo.
 
 ### Handoff a Review
 
-Non ancora disponibile.
+- **Transizione**: `EXECUTION -> REVIEW`
+- **Esito Executor**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`
+- **Commit tecnico**: `e2ad429f25341f9009c3087673c36746e23bf059`
+- **Prossimo ruolo**: `CODEX_REVIEWER`
+- **Review richiesta**: intent, 32 CA, 22 test, diff, provenance, architettura,
+  security, governance, CI e integrità esterna con verifiche autonome
+- **Finding aperti dichiarati dall'Executor**: nessuno; il reviewer non assume corretto
+  questo claim
+- **Merge**: vietato; TASK-004 resta `TODO`
+- **Timestamp**: `2026-07-30T20:55:02Z`
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
-Non avviata. Il reviewer sarà read-only e indipendente dall'Execution.
+Pronta per sessioni read-only indipendenti dall'Execution; non ancora avviata.
 
 ## Fix — `CODEX_FIXER`
 

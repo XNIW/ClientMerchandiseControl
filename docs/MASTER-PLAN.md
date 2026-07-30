@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-003
 - **File task**: `docs/TASKS/TASK-003-cross-repo-ownership-storefront-integration-contract.md`
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
-- **Prossima azione autorizzata**: eseguire il Planning TASK-003 senza ampliarne scope,
-  quindi produrre evidence e handoff a review indipendente
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Prossima azione autorizzata**: eseguire review indipendenti read-only sul commit
+  tecnico TASK-003, classificare finding e applicare la transizione coerente
 
 ## Repository coinvolti
 
@@ -111,4 +111,4 @@ vincolante un solo task `ACTIVE` alla volta.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
-`TASK-003` è l'unico task `ACTIVE`, in `EXECUTION`; nessun altro task è attivo.
+`TASK-003` è l'unico task `ACTIVE`, in `REVIEW`; nessun altro task è attivo.

@@ -98,7 +98,7 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 
 - **Task attivo**: TASK-003
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 `TASK-001` e `TASK-002` sono `DONE` e merged. `TASK-003` è l'unico task attivo.

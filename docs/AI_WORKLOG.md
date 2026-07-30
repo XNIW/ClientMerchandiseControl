@@ -268,3 +268,22 @@
 - **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`
 - **Blocker/note**: nessun blocker; TASK-004 resta `TODO` e nessun repository esterno
   è writer.
+
+## 2026-07-30 — Execution TASK-003 e handoff a Review
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: EXECUTION → REVIEW
+- **Azioni principali**: definiti ownership cross-repo, contratto logico Storefront
+  1.0.0, auth/data boundary, due ADR e workstream catalogo/auth; corrette soltanto le
+  tre dipendenze autorizzate; versionati audit e fingerprint sanitizzati.
+- **Verifiche**: 57/57 citazioni a ref fisse; DAG 42 nodi, zero cicli; fingerprint
+  esterne 5/5 invarianti; secret/confinement/link/diff scan `PASS`;
+  `scripts/check.sh` exit 0 con 59/59 test e build Android/iOS; CI
+  `30580693884` sullo SHA tecnico `e2ad429f` con 3/3 job, tutti gli step `success` e
+  zero annotation.
+- **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`
+- **Branch/commit/PR**: `milestone/003-004-storefront-contract-environments`; commit
+  tecnico `e2ad429f25341f9009c3087673c36746e23bf059`; PR batch non ancora aperta.
+- **Blocker/note**: nessun gate Execution obbligatorio aperto. `CA-31`/`T-20` sono
+  assegnati alla review indipendente; TASK-004 resta `TODO`, merge vietato.

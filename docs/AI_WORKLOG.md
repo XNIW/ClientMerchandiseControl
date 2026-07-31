@@ -500,3 +500,19 @@
 - **Risultato**: `CA-28` e `T-27` `PASS`; closeout TASK-004 terminale.
 - **Blocker/note**: review integrata, PR, CI della PR e merge normale batch ancora
   pendenti; nessun task successivo attivato.
+
+## 2026-07-30 — Review integrata TASK-003/TASK-004
+
+- **Agente**: `CODEX_REVIEWER`
+- **Milestone**: TASK-003/TASK-004
+- **Revisione**: `c8258f83c55b2b1a85f2e590d60f64fcfa1d5f0e`
+- **Azioni principali**: review read-only cumulativa da `origin/main`, con shard
+  architettura/contratto, governance/evidence e security/confinement.
+- **Verifiche**: governance, action pin, shell syntax, diff, 29/29 test mirati,
+  72/72 suite, analyze, DAG 42 nodi, config locale ignorata, scan security manuale,
+  screenshot e CI closeout `30592502472` `PASS`.
+- **Finding**: 0 P0, 0 P1, 4 P2 e 4 P3; lo scan app-backed è `BLOCKED` per timeout e
+  non è contato come `PASS`.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: PR/merge vietati; i quattro P2 richiedono Fix con regressioni e
+  re-review indipendente. TASK-011 resta `TODO`.

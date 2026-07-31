@@ -209,17 +209,22 @@ Sessione e verifier PKCE condividono `SecureSupabaseAuthStorage`: Android usa
 Keystore/RSA-OAEP/AES-GCM con backup applicativo disabilitato; iOS usa Keychain
 non sincronizzato e vincolato al device. Marker booleani non sensibili nel container
 applicativo cancellano le due chiavi Auth al primo avvio e ritentano un cleanup
-sessione/PKCE fallito prima del restore. Le mutazioni sono serializzate; le failure
-post-auth raggiungono il controller e la sessione scaduta/non dotata di expiry valida
-non espone identity. Un refresh retryable degrada la UI a guest senza eliminare il
-refresh token protetto, così l'SDK può recuperare con un successivo
-`tokenRefreshed`; soltanto un vero `signedOut` o il logout rimuove la sessione.
-Non esiste fallback SharedPreferences per token.
+sessione/PKCE fallito prima del restore. Ogni purge persiste prima un journal file di
+un byte in Application Support, poi i marker SharedPreferences e secure store; uno
+qualsiasi dei tre blocca il restore e i marker vengono cancellati solo dopo il delete
+riuscito. Le mutazioni sono serializzate; le failure post-auth raggiungono il
+controller e la sessione scaduta/non dotata di expiry valida non espone identity. Un
+refresh retryable degrada la UI a guest senza eliminare il refresh token protetto,
+così l'SDK può recuperare con un successivo `tokenRefreshed`; soltanto un vero
+`signedOut` o il logout rimuove la sessione. Non esiste fallback SharedPreferences per
+token. Se tutti e tre i canali persistenti e il delete falliscono insieme, il processo
+corrente fallisce chiuso; dopo process death un intento mai persistito non è
+ricostruibile.
 
 Il logout usa `SignOutScope.local`: la sessione in memoria viene rimossa e l'adapter
-tenta sempre, in modo indipendente, delete sessione e verifier. Un tombstone rimasto
-pendente blocca il restore e fa ritentare il purge al bootstrap. Un errore offline può
-produrre un avviso customer-safe ma lo stato resta guest.
+tenta sempre, in modo indipendente, delete sessione e verifier. Un marker rimasto
+pendente in uno dei tre canali blocca il restore e fa ritentare il purge al bootstrap.
+Un errore offline può produrre un avviso customer-safe ma lo stato resta guest.
 
 Ogni risorsa futura è vincolata a uno `shop_id` UUID validato dal server. Il client può
 trasportare il contesto shop per routing e presentazione, ma non sceglie autonomamente

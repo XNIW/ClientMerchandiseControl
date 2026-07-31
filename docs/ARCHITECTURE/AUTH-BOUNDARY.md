@@ -277,10 +277,14 @@ Home, Catalogo e Carrello non hanno route guard e restano disponibili.
 SharedPreferences contiene soltanto il marker booleano di installazione e due tombstone
 booleani non sensibili per i cleanup pendenti. Se il marker di installazione è assente,
 l'adapter elimina le chiavi Auth e i tombstone sicuri noti prima di marcarlo, mitigando
-la persistenza Keychain dopo uninstall. Ogni purge scrive inoltre un tombstone
-ridondante nel secure store prima del delete: al bootstrap basta uno dei due marker per
-negare il restore e ritentare la pulizia. Lettura, scrittura, delete o marker falliti
-producono un errore sanitizzato e nessun fallback plaintext.
+la persistenza Keychain dopo uninstall. Ogni purge scrive per primo un journal file di
+un byte in Application Support, poi i tombstone ridondanti SharedPreferences e secure
+store, prima del delete. Al bootstrap basta uno qualsiasi dei tre marker per negare il
+restore e ritentare la pulizia; i marker vengono rimossi soltanto dopo il delete
+riuscito. Lettura, scrittura, delete o marker falliti producono un errore sanitizzato e
+nessun fallback plaintext. Se falliscono simultaneamente il delete e tutte le mutazioni
+dei tre canali persistenti, il processo corrente fallisce chiuso ma un nuovo processo
+non può ricostruire un intento mai persistito.
 
 ### Identity non fidata
 

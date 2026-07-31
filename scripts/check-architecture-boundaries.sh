@@ -319,6 +319,14 @@ cmc_arch_require_literal \
   "token e verifier fuori da SharedPreferences, marker non sensibili ammessi"
 cmc_arch_require_literal \
   "${cmc_arch_auth}" \
+  "Ogni purge scrive per primo un journal file di" \
+  "journal persistente documentato nel boundary Auth"
+cmc_arch_require_literal \
+  "${cmc_arch_mobile}" \
+  "Se tutti e tre i canali persistenti e il delete falliscono insieme" \
+  "tre canali cleanup documentati nella mobile architecture"
+cmc_arch_require_literal \
+  "${cmc_arch_auth}" \
   "Una sessione valida prova soltanto l'identità Supabase." \
   "session identity distinta da authorization"
 cmc_arch_forbid_literal \

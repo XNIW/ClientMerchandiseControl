@@ -10,7 +10,9 @@
 - Sessione e verifier nello stesso adapter Keychain/Keystore fail-closed; persistenza
   esplicita prima di authenticated, failure osservabili e nessun fallback plaintext.
 - Android backup disabilitato; iOS Keychain non sincronizzato e this-device con
-  first-install cleanup e tombstone non sensibili per purge pendenti.
+  first-install cleanup e tre tombstone non sensibili per purge pendenti:
+  SharedPreferences, secure store e journal file Application Support scritto per
+  primo.
 - Controller eager, queue bounded, single-flight, generation token, replay cache
   bounded, exchange cancel compensato e sessioni scadute rifiutate.
 - Error mapping chiuso, `debug:false`, identity bounded e metadata non
@@ -50,6 +52,10 @@ Rischi residui:
 - il custom scheme non prova ownership; PKCE mitiga l'uso del code ma non il DoS;
 - un device rooted/jailbroken, OS o browser compromesso resta fuori dal trust boundary;
 - logout locale offline non garantisce revoca globale;
+- se falliscono simultaneamente delete e tutte le mutazioni dei tre canali
+  persistenti, un processo successivo non può distinguere l'intento di logout da
+  uno stato precedente; il processo corrente resta `configurationError`. Il journal
+  file chiude l'interleaving riproducibile in cui falliscono i due marker precedenti;
 - redirect allow-list e live OAuth restano `BLOCKED` da MFA;
 - la conferma OS iOS del custom scheme resta `BLOCKED` mentre il Mac è locked.
 - Cancel attende un exchange SDK non cancellabile prima di consentire Retry: preserva

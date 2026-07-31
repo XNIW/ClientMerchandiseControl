@@ -27,6 +27,7 @@ void main() {
     final storage = SecureSupabaseAuthStorage(
       secureStore: _NoopSecureStore(),
       installationMarkerStore: _MarkedInstall(),
+      cleanupJournalStore: _NoopCleanupJournalStore(),
     );
 
     final options = SupabaseBootstrap.buildAuthOptions(storage);
@@ -182,4 +183,15 @@ final class _MarkedInstall implements AuthInstallationMarkerStore {
 
   @override
   Future<void> markCleanupPending(AuthCleanupTarget target) async {}
+}
+
+final class _NoopCleanupJournalStore implements AuthCleanupJournalStore {
+  @override
+  Future<bool> isCleanupPending(AuthCleanupTarget target) async => false;
+
+  @override
+  Future<void> markCleanupPending(AuthCleanupTarget target) async {}
+
+  @override
+  Future<void> clearCleanupPending(AuthCleanupTarget target) async {}
 }

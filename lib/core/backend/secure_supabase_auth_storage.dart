@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -27,6 +29,14 @@ abstract interface class AuthInstallationMarkerStore {
 
   Future<void> markCurrentInstall();
 
+  Future<bool> isCleanupPending(AuthCleanupTarget target);
+
+  Future<void> markCleanupPending(AuthCleanupTarget target);
+
+  Future<void> clearCleanupPending(AuthCleanupTarget target);
+}
+
+abstract interface class AuthCleanupJournalStore {
   Future<bool> isCleanupPending(AuthCleanupTarget target);
 
   Future<void> markCleanupPending(AuthCleanupTarget target);
@@ -116,26 +126,93 @@ final class SharedPreferencesAuthInstallationMarkerStore
   }
 }
 
+/// Terzo canale persistente non sensibile, indipendente da SharedPreferences e
+/// Keychain/Keystore.
+///
+/// Il journal contiene soltanto file marker di un byte nel container privato
+/// Application Support. L'esistenza del file è sufficiente: anche un'interruzione
+/// successiva alla creazione mantiene il bootstrap in modalità cleanup.
+final class FileAuthCleanupJournalStore implements AuthCleanupJournalStore {
+  FileAuthCleanupJournalStore({
+    Future<Directory> Function()? supportDirectoryProvider,
+  }) : _supportDirectoryProvider =
+           supportDirectoryProvider ?? getApplicationSupportDirectory;
+
+  static const _directoryName = 'cmc_auth_cleanup_journal_v1';
+
+  final Future<Directory> Function() _supportDirectoryProvider;
+
+  @override
+  Future<bool> isCleanupPending(AuthCleanupTarget target) async {
+    return (await _markerFile(target)).exists();
+  }
+
+  @override
+  Future<void> markCleanupPending(AuthCleanupTarget target) async {
+    final marker = await _markerFile(target);
+    if (await marker.exists()) {
+      return;
+    }
+    await marker.create(recursive: true);
+    final file = await marker.open(mode: FileMode.writeOnlyAppend);
+    try {
+      await file.writeByte(1);
+      await file.flush();
+    } finally {
+      await file.close();
+    }
+  }
+
+  @override
+  Future<void> clearCleanupPending(AuthCleanupTarget target) async {
+    final marker = await _markerFile(target);
+    if (await marker.exists()) {
+      await marker.delete();
+    }
+  }
+
+  Future<File> _markerFile(AuthCleanupTarget target) async {
+    final supportDirectory = await _supportDirectoryProvider();
+    final journalDirectory = Directory(
+      '${supportDirectory.path}${Platform.pathSeparator}$_directoryName',
+    );
+    return File(
+      '${journalDirectory.path}${Platform.pathSeparator}${target.name}.pending',
+    );
+  }
+}
+
 /// Unico adapter per sessione Supabase e verifier PKCE.
 ///
 /// La sessione e il verifier vengono mappati su due sole chiavi del namespace
-/// sicuro. SharedPreferences contiene esclusivamente marker booleani non sensibili,
-/// usati per first-install cleanup e per ritentare purge interrotti prima del restore.
+/// sicuro. SharedPreferences e il journal Application Support contengono
+/// esclusivamente marker non sensibili, usati per first-install cleanup e per
+/// ritentare purge interrotti prima del restore.
 final class SecureSupabaseAuthStorage extends LocalStorage
     implements GotrueAsyncStorage {
   factory SecureSupabaseAuthStorage({
     required SecureAuthKeyValueStore secureStore,
     required AuthInstallationMarkerStore installationMarkerStore,
+    required AuthCleanupJournalStore cleanupJournalStore,
   }) {
-    return SecureSupabaseAuthStorage._(secureStore, installationMarkerStore);
+    return SecureSupabaseAuthStorage._(
+      secureStore,
+      installationMarkerStore,
+      cleanupJournalStore,
+    );
   }
 
-  SecureSupabaseAuthStorage._(this._secureStore, this._installationMarkerStore);
+  SecureSupabaseAuthStorage._(
+    this._secureStore,
+    this._installationMarkerStore,
+    this._cleanupJournalStore,
+  );
 
   factory SecureSupabaseAuthStorage.standard() {
     return SecureSupabaseAuthStorage(
       secureStore: FlutterSecureAuthKeyValueStore(),
       installationMarkerStore: SharedPreferencesAuthInstallationMarkerStore(),
+      cleanupJournalStore: FileAuthCleanupJournalStore(),
     );
   }
 
@@ -154,6 +231,7 @@ final class SecureSupabaseAuthStorage extends LocalStorage
 
   final SecureAuthKeyValueStore _secureStore;
   final AuthInstallationMarkerStore _installationMarkerStore;
+  final AuthCleanupJournalStore _cleanupJournalStore;
   final StreamController<AuthStorageException> _failures =
       StreamController<AuthStorageException>.broadcast(sync: true);
 
@@ -208,6 +286,9 @@ final class SecureSupabaseAuthStorage extends LocalStorage
         () => _installationMarkerStore.clearCleanupPending(
           AuthCleanupTarget.pkce,
         ),
+        () =>
+            _cleanupJournalStore.clearCleanupPending(AuthCleanupTarget.session),
+        () => _cleanupJournalStore.clearCleanupPending(AuthCleanupTarget.pkce),
       ]);
     } on Object {
       throw _reportFailure(
@@ -342,13 +423,17 @@ final class SecureSupabaseAuthStorage extends LocalStorage
     );
     final secureMarkerPending =
         await _read(_secureCleanupMarkerKey(target)) != null;
-    if (!sharedMarkerPending && !secureMarkerPending) {
+    final journalMarkerPending = await _cleanupJournalStore.isCleanupPending(
+      target,
+    );
+    if (!sharedMarkerPending && !secureMarkerPending && !journalMarkerPending) {
       return;
     }
     await _delete(_storageKey(target));
     await _runIndependently([
       () => _installationMarkerStore.clearCleanupPending(target),
       () => _delete(_secureCleanupMarkerKey(target)),
+      () => _cleanupJournalStore.clearCleanupPending(target),
     ]);
   }
 
@@ -360,6 +445,7 @@ final class SecureSupabaseAuthStorage extends LocalStorage
     StackTrace? firstStackTrace;
     var sharedMarkerWritten = false;
     var secureMarkerWritten = false;
+    var journalMarkerWritten = false;
     var deleteSucceeded = false;
 
     Future<void> capture(
@@ -376,6 +462,10 @@ final class SecureSupabaseAuthStorage extends LocalStorage
       }
     }
 
+    await capture(() async {
+      await _cleanupJournalStore.markCleanupPending(target);
+      journalMarkerWritten = true;
+    }, 'cleanup_journal_write_failed');
     await capture(() async {
       await _installationMarkerStore.markCleanupPending(target);
       sharedMarkerWritten = true;
@@ -401,6 +491,12 @@ final class SecureSupabaseAuthStorage extends LocalStorage
         secureMarkerWritten = true;
       }, 'cleanup_secure_marker_write_failed');
     }
+    if (!deleteSucceeded && !journalMarkerWritten) {
+      await capture(() async {
+        await _cleanupJournalStore.markCleanupPending(target);
+        journalMarkerWritten = true;
+      }, 'cleanup_journal_write_failed');
+    }
 
     if (deleteSucceeded) {
       await capture(
@@ -410,6 +506,10 @@ final class SecureSupabaseAuthStorage extends LocalStorage
       await capture(
         () => _delete(_secureCleanupMarkerKey(target)),
         'cleanup_secure_marker_clear_failed',
+      );
+      await capture(
+        () => _cleanupJournalStore.clearCleanupPending(target),
+        'cleanup_journal_clear_failed',
       );
     }
 

@@ -118,9 +118,13 @@ SharedPreferences/plaintext fallback; exchange ed eventi refresh non pubblicano
 authenticated prima di una scrittura esplicita riuscita.
 
 Marker non sensibili nel container applicativo rilevano il primo avvio dopo install e
-un cleanup sessione/PKCE rimasto pendente. Il bootstrap ritenta i delete prima di
-qualunque restore, mitigando sia la persistenza Keychain dopo disinstallazione sia una
-failure selettiva durante logout/cancel. Android Auto Backup viene disabilitato.
+un cleanup sessione/PKCE rimasto pendente. Il cleanup registra per primo un journal
+file di un byte in Application Support, indipendente dalle API SharedPreferences e
+Keychain/Keystore, quindi scrive i due marker ridondanti esistenti. Il bootstrap
+considera pendente uno qualsiasi dei tre marker e ritenta i delete prima di qualunque
+restore. Questo mitiga sia la persistenza Keychain dopo disinstallazione sia failure
+multiple durante logout/cancel. Android Auto Backup viene disabilitato; nessun marker
+contiene token, verifier, identificativi o PII.
 
 ## Stato dominio
 

@@ -23,9 +23,11 @@
 | `app_links` | 7.2.1 | direct |
 | `shared_preferences` | 2.5.5 | direct; già transitiva nella baseline, solo marker booleani non sensibili |
 | `flutter_secure_storage` | 10.3.1 | direct |
+| `path_provider` | 2.1.6 | direct; già risolta transitivamente, promossa per il solo path del journal non sensibile Application Support |
 
 Compatibilità verificata: Flutter/Dart correnti, Android API minima Flutter e iOS
-deployment target 13 soddisfano i requisiti di `flutter_secure_storage 10.3.1`.
+deployment target 13 soddisfano i requisiti di `flutter_secure_storage 10.3.1` e
+`path_provider 2.1.6`.
 
 ## Supabase staging
 

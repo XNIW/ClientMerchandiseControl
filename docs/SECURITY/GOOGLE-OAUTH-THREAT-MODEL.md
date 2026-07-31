@@ -24,7 +24,9 @@ riducono spoofing e injection. Non eliminano collisione o denial of service.
 La seconda area critica è la persistenza. Lo SDK bloccato usa SharedPreferences per
 sessione e verifier se non configurato diversamente. TASK-020 sostituisce entrambi con
 un adapter Keychain/Keystore fail-closed e conserva in SharedPreferences soltanto
-marker booleani non sensibili di installazione e cleanup pendente.
+marker booleani non sensibili di installazione e cleanup pendente. Un terzo journal
+non sensibile, in Application Support, registra per primo il cleanup prima di
+qualunque delete e resta separato dalle API SharedPreferences e Keychain/Keystore.
 
 L'identità Auth non è autorizzazione. Un client modificato, un metadata falsificato o
 una route visibile non devono ottenere dati: grant, RLS e validazione server-side
@@ -152,7 +154,7 @@ resi affidabili dal client.
 | TM-08 | Due tap aprono due browser e sovrascrivono verifier | account confusion/exchange failure | login single-flight e `_oauthFlowActive` | Browser/OS esterno resta non controllabile. Test doppio tap |
 | TM-09 | Cancel/provider failure seguito da callback/exchange tardivo | riautenticazione indesiderata o verifier nuovo eliminato | termination single-flight, suppress/ignore, attesa exchange, sign-out/purge compensativo prima di Retry; failure vecchia non elimina PKCE corrente | Process kill durante rete resta boundary OS; test successo/errore tardivo, provider cancellation, cold restore guest e callback vecchio→nuovo |
 | TM-10 | Logout mentre exchange/session event è in volo | stato torna authenticated | generation, soppressione eventi, coda pulita, attesa exchange e secondo purge compensativo prima di Guest/nuovo login | Verificare side effect sessione, future tardive e stream fuori ordine |
-| TM-11 | Logout offline o delete locale fallisce | token remoto o sessione locale restano validi | `SignOutScope.local`; delete sessione/verifier indipendenti; tombstone ridondanti SharedPreferences + secure store ritentati prima del restore | Logout è locale, non globale. Se entrambi i marker non sono scrivibili il device resta configurationError; test restart dopo failure marker/delete |
+| TM-11 | Logout offline o delete locale fallisce | token remoto o sessione locale restano validi | `SignOutScope.local`; delete sessione/verifier indipendenti; journal Application Support scritto per primo più tombstone SharedPreferences e secure store, tutti ritentati prima del restore | Logout è locale, non globale. Failure dei due marker precedenti e del delete è coperta dal journal/restart test. Se falliscono simultaneamente tutte le mutazioni dei tre canali persistenti, il processo corrente resta `configurationError`, ma dopo process death l'intento non è ricostruibile |
 | TM-12 | Access token scaduto o refresh token revocato | UI conserva customer stale oppure il client impedisce un recovery SDK valido | sessioni senza expiry valida o `Session.isExpired` non espongono identity; errore retryable degrada a guest ma preserva il refresh token in storage sicuro; un vero `signedOut` esegue purge | Test restore expired/offline, scadenza durante offline, refresh successivo e revoca |
 | TM-13 | Sessione/verifier finiscono in SharedPreferences | furto da backup/device | adapter unico LocalStorage+GotrueAsyncStorage; FSS; nessun fallback | Verificare source/lock e storage test; device compromesso resta rischio |
 | TM-14 | Android backup ripristina ciphertext senza chiave o su altro device | crash o sessione incoerente | `android:allowBackup=false`; namespace Keystore; this app non migra secret | Ispezionare merged manifest/build |
@@ -178,7 +180,7 @@ resi affidabili dal client.
 | Area | Implementazione | Verifica prevista |
 |---|---|---|
 | Config/bootstrap | `app_config.dart`, `supabase_bootstrap.dart` | config e bootstrap unit test |
-| Storage | `secure_supabase_auth_storage.dart` | CRUD, first-install, tombstone/restart, persistenza osservabile, failure e retry unit test; device reinstall |
+| Storage | `secure_supabase_auth_storage.dart` | CRUD, first-install, tre tombstone/restart, journal file reale, persistenza osservabile, failure e retry unit test; device reinstall |
 | Callback | `auth_callback_source.dart`, `auth_callback_validator.dart` | cold/warm, matrice URI, replay e device open-url |
 | SDK boundary | `supabase_auth_repository.dart` | port fake, exact redirect, exchange/session/logout |
 | Lifecycle | `auth_controller.dart` | single-flight, queue, cancel/exchange compensato, expiry, logout, race, retry e dispose |
@@ -196,6 +198,11 @@ resi affidabili dal client.
   server non deve fidarsi del client.
 - `SignOutScope.local` non promette logout globale; offline può impedire la revoca
   remota pur lasciando il device guest e senza token locale.
+- Se il filesystem, SharedPreferences e Keychain/Keystore rifiutano simultaneamente
+  ogni mutazione, incluso il journal, un nuovo processo non può ricostruire un intento
+  di logout mai persistito. Il runtime corrente fallisce chiuso; il journal
+  addizionale copre il caso riproducibile in cui falliscono i due marker precedenti e
+  il delete della sessione.
 - La redirect allow-list staging e il provider devono avere evidence before/after
   sanitizzata. Fino a tale verifica, live OAuth è dipendenza esterna non provata.
 - Lo smoke live può fermarsi a password, MFA, CAPTCHA, consent o account test assente;

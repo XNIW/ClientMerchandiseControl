@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:client_merchandise_control/core/backend/secure_supabase_auth_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,9 +13,12 @@ void main() {
         'unrelated': 'preserve-me',
       });
       final marker = _MemoryMarkerStore();
+      final journal = _MemoryCleanupJournalStore()
+        ..pendingCleanup.addAll(AuthCleanupTarget.values);
       final storage = SecureSupabaseAuthStorage(
         secureStore: secureStore,
         installationMarkerStore: marker,
+        cleanupJournalStore: journal,
       );
 
       await storage.initialize();
@@ -29,6 +34,7 @@ void main() {
       expect(marker.marked, isTrue);
       expect(marker.readCalls, 1);
       expect(marker.markCalls, 1);
+      expect(journal.pendingCleanup, isEmpty);
     },
   );
 
@@ -39,6 +45,7 @@ void main() {
     final storage = SecureSupabaseAuthStorage(
       secureStore: secureStore,
       installationMarkerStore: _MemoryMarkerStore(marked: true),
+      cleanupJournalStore: _MemoryCleanupJournalStore(),
     );
 
     await storage.initialize();
@@ -53,6 +60,7 @@ void main() {
     final storage = SecureSupabaseAuthStorage(
       secureStore: secureStore,
       installationMarkerStore: _MemoryMarkerStore(marked: true),
+      cleanupJournalStore: _MemoryCleanupJournalStore(),
     );
 
     await storage.persistSession('session-json');
@@ -86,6 +94,7 @@ void main() {
     final storage = SecureSupabaseAuthStorage(
       secureStore: secureStore,
       installationMarkerStore: _MemoryMarkerStore(marked: true),
+      cleanupJournalStore: _MemoryCleanupJournalStore(),
     );
 
     await expectLater(
@@ -107,6 +116,7 @@ void main() {
     final storage = SecureSupabaseAuthStorage(
       secureStore: secureStore,
       installationMarkerStore: _MemoryMarkerStore(marked: true),
+      cleanupJournalStore: _MemoryCleanupJournalStore(),
     );
 
     Object? captured;
@@ -126,6 +136,7 @@ void main() {
     final storage = SecureSupabaseAuthStorage(
       secureStore: secureStore,
       installationMarkerStore: _MemoryMarkerStore(marked: true),
+      cleanupJournalStore: _MemoryCleanupJournalStore(),
     );
 
     await expectLater(
@@ -149,6 +160,7 @@ void main() {
     final storage = SecureSupabaseAuthStorage(
       secureStore: _MemorySecureStore(),
       installationMarkerStore: marker,
+      cleanupJournalStore: _MemoryCleanupJournalStore(),
     );
 
     await expectLater(
@@ -167,6 +179,37 @@ void main() {
     expect(marker.readCalls, 2);
   });
 
+  test(
+    'errore lettura journal impedisce il restore e resta retryable',
+    () async {
+      final journal = _MemoryCleanupJournalStore(
+        readError: StateError('private journal detail'),
+      );
+      final storage = SecureSupabaseAuthStorage(
+        secureStore: _MemorySecureStore({
+          SecureSupabaseAuthStorage.sessionStorageKey: 'persisted-session',
+        }),
+        installationMarkerStore: _MemoryMarkerStore(marked: true),
+        cleanupJournalStore: journal,
+      );
+
+      await expectLater(
+        storage.initialize(),
+        throwsA(
+          isA<AuthStorageException>().having(
+            (error) => error.code,
+            'code',
+            'secure_storage_initialization_failed',
+          ),
+        ),
+      );
+
+      journal.readError = null;
+      await storage.initialize();
+      expect(await storage.accessToken(), 'persisted-session');
+    },
+  );
+
   test('cleanup pendente viene ritentato prima di qualunque restore', () async {
     final secureStore = _MemorySecureStore({
       SecureSupabaseAuthStorage.sessionStorageKey: 'stale-session',
@@ -177,6 +220,7 @@ void main() {
     final storage = SecureSupabaseAuthStorage(
       secureStore: secureStore,
       installationMarkerStore: marker,
+      cleanupJournalStore: _MemoryCleanupJournalStore(),
     );
 
     await storage.initialize();
@@ -201,6 +245,7 @@ void main() {
       final storage = SecureSupabaseAuthStorage(
         secureStore: secureStore,
         installationMarkerStore: marker,
+        cleanupJournalStore: _MemoryCleanupJournalStore(),
       );
 
       await expectLater(
@@ -233,6 +278,7 @@ void main() {
       final first = SecureSupabaseAuthStorage(
         secureStore: secureStore,
         installationMarkerStore: marker,
+        cleanupJournalStore: _MemoryCleanupJournalStore(),
       );
 
       await expectLater(
@@ -245,6 +291,7 @@ void main() {
       final restarted = SecureSupabaseAuthStorage(
         secureStore: secureStore,
         installationMarkerStore: marker,
+        cleanupJournalStore: _MemoryCleanupJournalStore(),
       );
       await restarted.initialize();
 
@@ -269,6 +316,7 @@ void main() {
       final storage = SecureSupabaseAuthStorage(
         secureStore: secureStore,
         installationMarkerStore: marker,
+        cleanupJournalStore: _MemoryCleanupJournalStore(),
       );
 
       await expectLater(
@@ -297,6 +345,7 @@ void main() {
       final first = SecureSupabaseAuthStorage(
         secureStore: secureStore,
         installationMarkerStore: marker,
+        cleanupJournalStore: _MemoryCleanupJournalStore(),
       );
 
       await expectLater(
@@ -315,6 +364,7 @@ void main() {
       final restarted = SecureSupabaseAuthStorage(
         secureStore: secureStore,
         installationMarkerStore: marker,
+        cleanupJournalStore: _MemoryCleanupJournalStore(),
       );
       await restarted.initialize();
 
@@ -328,12 +378,112 @@ void main() {
     },
   );
 
+  test(
+    'journal file blocca restore se marker, tombstone sicuro e delete falliscono',
+    () async {
+      final supportDirectory = await Directory.systemTemp.createTemp(
+        'cmc-auth-cleanup-journal-test.',
+      );
+      addTearDown(() async {
+        if (await supportDirectory.exists()) {
+          await supportDirectory.delete(recursive: true);
+        }
+      });
+      final secureStore =
+          _MemorySecureStore({
+              SecureSupabaseAuthStorage.sessionStorageKey: 'stale-session',
+            })
+            ..writeError = StateError('private secure marker detail')
+            ..deleteErrors[SecureSupabaseAuthStorage.sessionStorageKey] =
+                StateError('private delete detail');
+      final marker = _MemoryMarkerStore(
+        marked: true,
+        markCleanupErrorsRemaining: 2,
+      );
+      final firstJournal = FileAuthCleanupJournalStore(
+        supportDirectoryProvider: () async => supportDirectory,
+      );
+      final first = SecureSupabaseAuthStorage(
+        secureStore: secureStore,
+        installationMarkerStore: marker,
+        cleanupJournalStore: firstJournal,
+      );
+
+      await expectLater(
+        first.removePersistedSession(),
+        throwsA(isA<AuthStorageException>()),
+      );
+      expect(marker.pendingCleanup, isEmpty);
+      expect(
+        secureStore.values.containsKey(
+          SecureSupabaseAuthStorage.sessionCleanupMarkerStorageKey,
+        ),
+        isFalse,
+      );
+      expect(
+        await firstJournal.isCleanupPending(AuthCleanupTarget.session),
+        isTrue,
+      );
+      expect(
+        secureStore.values[SecureSupabaseAuthStorage.sessionStorageKey],
+        'stale-session',
+      );
+
+      secureStore
+        ..writeError = null
+        ..deleteErrors.clear();
+      final restartedJournal = FileAuthCleanupJournalStore(
+        supportDirectoryProvider: () async => supportDirectory,
+      );
+      final restarted = SecureSupabaseAuthStorage(
+        secureStore: secureStore,
+        installationMarkerStore: marker,
+        cleanupJournalStore: restartedJournal,
+      );
+
+      await restarted.initialize();
+
+      expect(await restarted.hasAccessToken(), isFalse);
+      expect(
+        await restartedJournal.isCleanupPending(AuthCleanupTarget.session),
+        isFalse,
+      );
+    },
+  );
+
+  test('journal file separa i target e rende il marker idempotente', () async {
+    final supportDirectory = await Directory.systemTemp.createTemp(
+      'cmc-auth-cleanup-journal-targets.',
+    );
+    addTearDown(() async {
+      if (await supportDirectory.exists()) {
+        await supportDirectory.delete(recursive: true);
+      }
+    });
+    final journal = FileAuthCleanupJournalStore(
+      supportDirectoryProvider: () async => supportDirectory,
+    );
+
+    await journal.markCleanupPending(AuthCleanupTarget.session);
+    await journal.markCleanupPending(AuthCleanupTarget.session);
+
+    expect(await journal.isCleanupPending(AuthCleanupTarget.session), isTrue);
+    expect(await journal.isCleanupPending(AuthCleanupTarget.pkce), isFalse);
+
+    await journal.markCleanupPending(AuthCleanupTarget.pkce);
+    await journal.clearCleanupPending(AuthCleanupTarget.session);
+
+    expect(await journal.isCleanupPending(AuthCleanupTarget.session), isFalse);
+    expect(await journal.isCleanupPending(AuthCleanupTarget.pkce), isTrue);
+  });
+
   test('failure di persistenza è osservabile con codice sanitizzato', () async {
     final secureStore = _MemorySecureStore()
       ..writeError = StateError('SENSITIVE_DRIVER_DETAIL');
     final storage = SecureSupabaseAuthStorage(
       secureStore: secureStore,
       installationMarkerStore: _MemoryMarkerStore(marked: true),
+      cleanupJournalStore: _MemoryCleanupJournalStore(),
     );
     final failure = storage.failures.first;
 
@@ -436,6 +586,31 @@ final class _MemoryMarkerStore implements AuthInstallationMarkerStore {
       markCleanupErrorsRemaining--;
       throw StateError('private marker write detail');
     }
+    pendingCleanup.add(target);
+  }
+
+  @override
+  Future<void> clearCleanupPending(AuthCleanupTarget target) async {
+    pendingCleanup.remove(target);
+  }
+}
+
+final class _MemoryCleanupJournalStore implements AuthCleanupJournalStore {
+  _MemoryCleanupJournalStore({this.readError});
+
+  Object? readError;
+  final Set<AuthCleanupTarget> pendingCleanup = {};
+
+  @override
+  Future<bool> isCleanupPending(AuthCleanupTarget target) async {
+    if (readError case final error?) {
+      throw error;
+    }
+    return pendingCleanup.contains(target);
+  }
+
+  @override
+  Future<void> markCleanupPending(AuthCleanupTarget target) async {
     pendingCleanup.add(target);
   }
 

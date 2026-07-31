@@ -12,6 +12,7 @@ cmc_fixture_total=0
 cmc_fixture_rejected=0
 cmc_fixture_positive_total=0
 cmc_fixture_accepted=0
+cmc_fixture_real_git="$(command -v git)"
 
 cmc_fixture_cleanup() {
   case "${cmc_fixture_root}" in
@@ -25,6 +26,19 @@ cmc_fixture_cleanup() {
 }
 
 trap cmc_fixture_cleanup EXIT
+
+cmc_fixture_token_body='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+cmc_fixture_supabase_prefix='sb_'
+cmc_fixture_supabase_value="${cmc_fixture_supabase_prefix}secret_${cmc_fixture_token_body}"
+cmc_fixture_google_prefix='GOC'
+cmc_fixture_google_value="${cmc_fixture_google_prefix}SPX-${cmc_fixture_token_body}"
+cmc_fixture_jwt_header='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
+cmc_fixture_jwt_payload='eyJyb2xlIjoic2VydmljZV9yb2xlIn0'
+cmc_fixture_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_jwt_payload}.${cmc_fixture_token_body}"
+cmc_fixture_pem_fence='-----'
+cmc_fixture_private_key_label='PRIVATE KEY'
+cmc_fixture_encrypted_key_label='ENCRYPTED PRIVATE KEY'
+cmc_fixture_dsa_key_label='DSA PRIVATE KEY'
 
 cmc_fixture_prepare() {
   local cmc_fixture_name="$1"
@@ -64,14 +78,90 @@ cmc_fixture_expect_acceptance() {
   fi
 }
 
+cmc_fixture_expect_rejection_with_path() {
+  local cmc_fixture_path="$1"
+  local cmc_fixture_path_prefix="$2"
+  shift 2
+  cmc_fixture_total=$((cmc_fixture_total + 1))
+  if CMC_FIXTURE_REAL_GIT="${cmc_fixture_real_git}" \
+    PATH="${cmc_fixture_path_prefix}:${PATH}" \
+    CMC_SECURITY_REPO_ROOT="${cmc_fixture_path}" \
+    bash "${cmc_fixture_validator}" "$@" >/dev/null 2>&1; then
+    printf 'Fixture security negativa accettata: %s\n' \
+      "${cmc_fixture_path##*/}" >&2
+  else
+    cmc_fixture_rejected=$((cmc_fixture_rejected + 1))
+  fi
+}
+
 bash "${cmc_fixture_validator}"
+
+cmc_fixture_git_failure="$(cmc_fixture_prepare git-enumerator-failure)"
+cmc_fixture_git_failure_bin="${cmc_fixture_git_failure}/tool-shim"
+mkdir -p "${cmc_fixture_git_failure_bin}"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'if [[ "$*" == *"ls-files --stage -z"* ]]; then' \
+  "  printf '100644 0000000000000000000000000000000000000000 0\\tlib/main.dart\\0'" \
+  '  exit 77' \
+  'fi' \
+  'exec "${CMC_FIXTURE_REAL_GIT}" "$@"' \
+  >"${cmc_fixture_git_failure_bin}/git"
+chmod 700 "${cmc_fixture_git_failure_bin}/git"
+cmc_fixture_expect_rejection_with_path \
+  "${cmc_fixture_git_failure}" \
+  "${cmc_fixture_git_failure_bin}"
 
 cmc_fixture_secret="$(cmc_fixture_prepare secret-shaped)"
 printf '%s\n' \
-  "const credential = 'sb_secret_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';" \
+  "const credential = '${cmc_fixture_supabase_value}';" \
   >"${cmc_fixture_secret}/lib/main.dart"
 git -C "${cmc_fixture_secret}" add lib/main.dart
 cmc_fixture_expect_rejection "${cmc_fixture_secret}"
+
+cmc_fixture_scanner_script="$(
+  cmc_fixture_prepare scanner-script-secret
+)"
+mkdir -p "${cmc_fixture_scanner_script}/scripts"
+printf '%s\n' "${cmc_fixture_supabase_value}" \
+  >"${cmc_fixture_scanner_script}/scripts/check-client-security.sh"
+git -C "${cmc_fixture_scanner_script}" add -- \
+  scripts/check-client-security.sh
+cmc_fixture_expect_rejection "${cmc_fixture_scanner_script}"
+
+cmc_fixture_test_script="$(
+  cmc_fixture_prepare scanner-test-script-secret
+)"
+mkdir -p "${cmc_fixture_test_script}/scripts"
+printf '%s\n' "${cmc_fixture_supabase_value}" \
+  >"${cmc_fixture_test_script}/scripts/test-client-security-scan.sh"
+git -C "${cmc_fixture_test_script}" add -- \
+  scripts/test-client-security-scan.sh
+cmc_fixture_expect_rejection "${cmc_fixture_test_script}"
+
+cmc_fixture_masked_index_secret="$(
+  cmc_fixture_prepare masked-index-secret
+)"
+mkdir -p "${cmc_fixture_masked_index_secret}/scripts"
+printf '%s\n' "${cmc_fixture_supabase_value}" \
+  >"${cmc_fixture_masked_index_secret}/scripts/check-client-security.sh"
+git -C "${cmc_fixture_masked_index_secret}" add -- \
+  scripts/check-client-security.sh
+printf 'safe fixture\n' \
+  >"${cmc_fixture_masked_index_secret}/scripts/check-client-security.sh"
+cmc_fixture_expect_rejection "${cmc_fixture_masked_index_secret}"
+
+cmc_fixture_worktree_symlink="$(
+  cmc_fixture_prepare worktree-symlink-secret
+)"
+ln -s 'safe-fixture' \
+  "${cmc_fixture_worktree_symlink}/lib/oauth-worktree-link"
+git -C "${cmc_fixture_worktree_symlink}" add -- \
+  lib/oauth-worktree-link
+rm "${cmc_fixture_worktree_symlink}/lib/oauth-worktree-link"
+ln -s "${cmc_fixture_google_value}" \
+  "${cmc_fixture_worktree_symlink}/lib/oauth-worktree-link"
+cmc_fixture_expect_rejection "${cmc_fixture_worktree_symlink}"
 
 cmc_fixture_config="$(cmc_fixture_prepare tracked-local-config)"
 mkdir -p "${cmc_fixture_config}/config"
@@ -87,17 +177,28 @@ cmc_fixture_expect_rejection "${cmc_fixture_artifact}"
 
 cmc_fixture_google_secret="$(cmc_fixture_prepare google-oauth-secret)"
 printf '%s\n' \
-  "const credential = 'GOCSPX-AAAAAAAAAAAAAAAAAAAAAAAAAAAA';" \
+  "const credential = '${cmc_fixture_google_value}';" \
   >"${cmc_fixture_google_secret}/lib/main.dart"
 git -C "${cmc_fixture_google_secret}" add lib/main.dart
 cmc_fixture_expect_rejection "${cmc_fixture_google_secret}"
 
 cmc_fixture_service_role="$(cmc_fixture_prepare legacy-service-role-jwt)"
 printf '%s\n' \
-  "const credential = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIn0.AAAAAAAAAAAAAAAAAAAA';" \
+  "const credential = '${cmc_fixture_jwt_value}';" \
   >"${cmc_fixture_service_role}/lib/main.dart"
 git -C "${cmc_fixture_service_role}" add lib/main.dart
 cmc_fixture_expect_rejection "${cmc_fixture_service_role}"
+
+cmc_fixture_decode_failure_bin="${cmc_fixture_service_role}/decode-shim"
+mkdir -p "${cmc_fixture_decode_failure_bin}"
+printf '%s\n' \
+  '#!/usr/bin/env bash' \
+  'exit 77' \
+  >"${cmc_fixture_decode_failure_bin}/openssl"
+chmod 700 "${cmc_fixture_decode_failure_bin}/openssl"
+cmc_fixture_expect_rejection_with_path \
+  "${cmc_fixture_service_role}" \
+  "${cmc_fixture_decode_failure_bin}"
 
 cmc_fixture_nested_config="$(cmc_fixture_prepare nested-local-config)"
 mkdir -p "${cmc_fixture_nested_config}/nested/config"
@@ -122,7 +223,7 @@ cmc_fixture_expect_rejection "${cmc_fixture_newline}"
 cmc_fixture_bundle="$(cmc_fixture_prepare bundle-secret)"
 mkdir -p "${cmc_fixture_bundle}/artifact"
 printf '%s\n' \
-  "GOCSPX-BBBBBBBBBBBBBBBBBBBBBBBBBBBB" \
+  "${cmc_fixture_google_value}" \
   >"${cmc_fixture_bundle}/artifact/bundle.bin"
 cmc_fixture_expect_rejection \
   "${cmc_fixture_bundle}" \
@@ -131,9 +232,9 @@ cmc_fixture_expect_rejection \
 cmc_fixture_pem_bundle="$(cmc_fixture_prepare bundle-private-key)"
 mkdir -p "${cmc_fixture_pem_bundle}/artifact"
 printf '%s\n' \
-  '-----BEGIN PRIVATE KEY-----' \
+  "${cmc_fixture_pem_fence}BEGIN ${cmc_fixture_private_key_label}${cmc_fixture_pem_fence}" \
   'QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB' \
-  '-----END PRIVATE KEY-----' \
+  "${cmc_fixture_pem_fence}END ${cmc_fixture_private_key_label}${cmc_fixture_pem_fence}" \
   >"${cmc_fixture_pem_bundle}/artifact/bundle.bin"
 cmc_fixture_expect_rejection \
   "${cmc_fixture_pem_bundle}" \
@@ -142,9 +243,9 @@ cmc_fixture_expect_rejection \
 cmc_fixture_encrypted_pem="$(cmc_fixture_prepare bundle-encrypted-private-key)"
 mkdir -p "${cmc_fixture_encrypted_pem}/artifact"
 printf '%s\n' \
-  '-----BEGIN ENCRYPTED PRIVATE KEY-----' \
+  "${cmc_fixture_pem_fence}BEGIN ${cmc_fixture_encrypted_key_label}${cmc_fixture_pem_fence}" \
   'QkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJC' \
-  '-----END ENCRYPTED PRIVATE KEY-----' \
+  "${cmc_fixture_pem_fence}END ${cmc_fixture_encrypted_key_label}${cmc_fixture_pem_fence}" \
   >"${cmc_fixture_encrypted_pem}/artifact/bundle.bin"
 cmc_fixture_expect_rejection \
   "${cmc_fixture_encrypted_pem}" \
@@ -153,9 +254,9 @@ cmc_fixture_expect_rejection \
 cmc_fixture_dsa_pem="$(cmc_fixture_prepare bundle-dsa-private-key)"
 mkdir -p "${cmc_fixture_dsa_pem}/artifact"
 printf '%s\n' \
-  '-----BEGIN DSA PRIVATE KEY-----' \
+  "${cmc_fixture_pem_fence}BEGIN ${cmc_fixture_dsa_key_label}${cmc_fixture_pem_fence}" \
   'Q0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0ND' \
-  '-----END DSA PRIVATE KEY-----' \
+  "${cmc_fixture_pem_fence}END ${cmc_fixture_dsa_key_label}${cmc_fixture_pem_fence}" \
   >"${cmc_fixture_dsa_pem}/artifact/bundle.bin"
 cmc_fixture_expect_rejection \
   "${cmc_fixture_dsa_pem}" \
@@ -189,7 +290,7 @@ chmod 600 "${cmc_fixture_unreadable_bundle}/artifact/unreadable.bin"
 
 cmc_fixture_symlink="$(cmc_fixture_prepare tracked-symlink-secret)"
 ln -s \
-  'GOCSPX-CCCCCCCCCCCCCCCCCCCCCCCCCCCC' \
+  "${cmc_fixture_google_value}" \
   "${cmc_fixture_symlink}/lib/oauth-link"
 git -C "${cmc_fixture_symlink}" add lib/oauth-link
 cmc_fixture_expect_rejection "${cmc_fixture_symlink}"

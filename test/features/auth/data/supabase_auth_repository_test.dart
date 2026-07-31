@@ -20,6 +20,7 @@ void main() {
     storage = SecureSupabaseAuthStorage(
       secureStore: secureStore,
       installationMarkerStore: _MarkedInstall(),
+      cleanupJournalStore: _MemoryCleanupJournalStore(),
     );
     repository = SupabaseAuthRepository(
       authPort: port,
@@ -465,4 +466,23 @@ final class _MarkedInstall implements AuthInstallationMarkerStore {
 
   @override
   Future<void> markCleanupPending(AuthCleanupTarget target) async {}
+}
+
+final class _MemoryCleanupJournalStore implements AuthCleanupJournalStore {
+  final Set<AuthCleanupTarget> pendingCleanup = {};
+
+  @override
+  Future<bool> isCleanupPending(AuthCleanupTarget target) async {
+    return pendingCleanup.contains(target);
+  }
+
+  @override
+  Future<void> markCleanupPending(AuthCleanupTarget target) async {
+    pendingCleanup.add(target);
+  }
+
+  @override
+  Future<void> clearCleanupPending(AuthCleanupTarget target) async {
+    pendingCleanup.remove(target);
+  }
 }

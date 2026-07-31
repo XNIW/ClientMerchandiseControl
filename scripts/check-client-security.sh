@@ -65,6 +65,8 @@ cmc_security_contains_service_role_jwt() {
   local cmc_security_tokens
   local cmc_security_payload
   local cmc_security_padding
+  local cmc_security_decoded_payload
+  local cmc_security_decode_status
   local cmc_security_grep_status
 
   if cmc_security_tokens="$(
@@ -87,14 +89,29 @@ cmc_security_contains_service_role_jwt() {
       0) cmc_security_padding='' ;;
       2) cmc_security_padding='==' ;;
       3) cmc_security_padding='=' ;;
-      *) continue ;;
+      *) return 2 ;;
     esac
-    if printf '%s' "${cmc_security_payload}${cmc_security_padding}" \
-      | tr '_-' '/+' \
-      | openssl base64 -d -A 2>/dev/null \
+    if cmc_security_decoded_payload="$(
+      printf '%s' "${cmc_security_payload}${cmc_security_padding}" \
+        | tr '_-' '/+' \
+        | openssl base64 -d -A 2>/dev/null
+    )"; then
+      :
+    else
+      cmc_security_decode_status="$?"
+      if [[ "${cmc_security_decode_status}" -ne 0 ]]; then
+        return 2
+      fi
+    fi
+    if printf '%s' "${cmc_security_decoded_payload}" \
       | LC_ALL=C grep -Eq \
         '"role"[[:space:]]*:[[:space:]]*"service_role"'; then
       return 0
+    else
+      cmc_security_grep_status="$?"
+      if [[ "${cmc_security_grep_status}" -ne 1 ]]; then
+        return 2
+      fi
     fi
   done <<<"${cmc_security_tokens}"
   return 1
@@ -241,6 +258,37 @@ cmc_security_artifact_path_is_forbidden() {
   return "${cmc_security_result}"
 }
 
+cmc_security_scan_source_snapshot() {
+  local cmc_security_snapshot_file="$1"
+  local cmc_security_snapshot_path="$2"
+  local cmc_security_snapshot_kind="$3"
+  local cmc_security_scan_status
+
+  if cmc_security_file_has_prohibited_value \
+    "${cmc_security_snapshot_file}" \
+    "${cmc_security_source_secret_pattern}"; then
+    printf '%q: valore secret-shaped rilevato nello snapshot %s; contenuto non stampato.\n' \
+      "${cmc_security_snapshot_path}" "${cmc_security_snapshot_kind}" >&2
+    cmc_security_violation_count=$((cmc_security_violation_count + 1))
+    return 0
+  else
+    cmc_security_scan_status="$?"
+  fi
+  if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
+    printf '%q: snapshot %s non verificabile; scan fail-closed.\n' \
+      "${cmc_security_snapshot_path}" "${cmc_security_snapshot_kind}" >&2
+    return 2
+  fi
+  return 0
+}
+
+cmc_security_index_list="${cmc_security_tmp_root}/git-index.records"
+if ! git -C "${cmc_security_repo_root}" ls-files --stage -z \
+  >"${cmc_security_index_list}"; then
+  printf 'Security scan Git: enumerazione indice non verificabile.\n' >&2
+  exit 1
+fi
+
 while IFS= read -r -d '' cmc_security_index_record; do
   cmc_security_index_metadata="${cmc_security_index_record%%$'\t'*}"
   cmc_security_path="${cmc_security_index_record#*$'\t'}"
@@ -248,50 +296,68 @@ while IFS= read -r -d '' cmc_security_index_record; do
     <<<"${cmc_security_index_metadata}"
   cmc_security_tracked_count=$((cmc_security_tracked_count + 1))
 
+  if [[ "${cmc_security_stage}" != '0' ]]; then
+    printf '%q: indice Git con stage non risolto; scan fail-closed.\n' \
+      "${cmc_security_path}" >&2
+    exit 1
+  fi
+
   if cmc_security_source_path_is_forbidden "${cmc_security_path}"; then
     printf '%q: path locale, credenziale o artifact non ammesso in Git.\n' \
       "${cmc_security_path}" >&2
     cmc_security_violation_count=$((cmc_security_violation_count + 1))
   fi
 
-  case "${cmc_security_path}" in
-    scripts/check-client-security.sh | scripts/test-client-security-scan.sh)
-      continue
-      ;;
-  esac
-
-  cmc_security_scan_file="${cmc_security_repo_root}/${cmc_security_path}"
-  if [[ "${cmc_security_mode}" == '120000' ]]; then
-    cmc_security_scan_file="$(
-      mktemp "${cmc_security_tmp_root}/git-symlink.XXXXXX"
-    )"
-    if ! git -C "${cmc_security_repo_root}" cat-file blob \
-      "${cmc_security_object}" >"${cmc_security_scan_file}"; then
-      printf 'Security scan Git: blob symlink non leggibile.\n' >&2
-      exit 1
-    fi
-  elif [[ "${cmc_security_mode}" != '100644' && \
+  if [[ "${cmc_security_mode}" != '100644' && \
     "${cmc_security_mode}" != '100755' ]]; then
-    printf '%q: mode Git non supportato dal security scan.\n' \
-      "${cmc_security_path}" >&2
-    exit 1
-  fi
-
-  if cmc_security_file_has_prohibited_value \
-    "${cmc_security_scan_file}" \
-    "${cmc_security_source_secret_pattern}"; then
-    printf '%q: valore secret-shaped rilevato; contenuto non stampato.\n' \
-      "${cmc_security_path}" >&2
-    cmc_security_violation_count=$((cmc_security_violation_count + 1))
-  else
-    cmc_security_scan_status="$?"
-    if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
-      printf '%q: file tracciato non verificabile; scan fail-closed.\n' \
+    if [[ "${cmc_security_mode}" != '120000' ]]; then
+      printf '%q: mode Git non supportato dal security scan.\n' \
         "${cmc_security_path}" >&2
       exit 1
     fi
   fi
-done < <(git -C "${cmc_security_repo_root}" ls-files --stage -z)
+
+  cmc_security_index_scan_file="$(
+    mktemp "${cmc_security_tmp_root}/git-index-blob.XXXXXX"
+  )"
+  if ! git -C "${cmc_security_repo_root}" cat-file blob \
+    "${cmc_security_object}" >"${cmc_security_index_scan_file}"; then
+    printf 'Security scan Git: blob indice non leggibile.\n' >&2
+    exit 1
+  fi
+  if ! cmc_security_scan_source_snapshot \
+    "${cmc_security_index_scan_file}" \
+    "${cmc_security_path}" \
+    'index'; then
+    exit 1
+  fi
+
+  cmc_security_worktree_path="${cmc_security_repo_root}/${cmc_security_path}"
+  if [[ -L "${cmc_security_worktree_path}" ]]; then
+    cmc_security_worktree_scan_file="$(
+      mktemp "${cmc_security_tmp_root}/git-worktree-link.XXXXXX"
+    )"
+    if ! readlink "${cmc_security_worktree_path}" \
+      >"${cmc_security_worktree_scan_file}"; then
+      printf '%q: symlink worktree non leggibile; scan fail-closed.\n' \
+        "${cmc_security_path}" >&2
+      exit 1
+    fi
+  elif [[ -f "${cmc_security_worktree_path}" && \
+    -r "${cmc_security_worktree_path}" ]]; then
+    cmc_security_worktree_scan_file="${cmc_security_worktree_path}"
+  else
+    printf '%q: snapshot worktree non leggibile; scan fail-closed.\n' \
+      "${cmc_security_path}" >&2
+    exit 1
+  fi
+  if ! cmc_security_scan_source_snapshot \
+    "${cmc_security_worktree_scan_file}" \
+    "${cmc_security_path}" \
+    'worktree'; then
+    exit 1
+  fi
+done <"${cmc_security_index_list}"
 
 if [[ "${cmc_security_tracked_count}" -eq 0 ]]; then
   printf 'Security scan non eseguibile: nessun file tracciato.\n' >&2

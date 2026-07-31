@@ -5,21 +5,21 @@
 - **Task ID**: TASK-004
 - **Titolo**: Environment strategy development/staging/production e configuration contract
 - **File task**: `docs/TASKS/TASK-004-environment-strategy-configuration-contract.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Ultimo agente**: USER_APPROVER
 - **Review outcome**: APPROVED
 - **Reviewer**: due sessioni indipendenti read-only
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
-- **DONE**: NO
-- **Merge**: NO — PR batch con TASK-003 dopo review e CI finali
-- **User approval**: APPLIED_FROM_END_TO_END_PROMPT
+- **Indicatore**: USER_APPROVED_DONE
+- **DONE**: YES
+- **Merge**: NO — PR batch TASK-003/TASK-004 non ancora aperta né integrata
+- **User approval**: GRANTED_AND_APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-004/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -373,5 +373,17 @@ Due sessioni read-only indipendenti dal Fixer hanno verificato il commit
 
 ## Chiusura
 
-Non ancora applicata. `DONE` richiede il commit di approvazione verde e il closeout
-esplicito; PR batch e merge richiedono inoltre review integrata e CI terminale.
+L'autorizzazione condizionata `USER_APPROVER` del prompt end-to-end è stata applicata
+il 2026-07-30 dopo avere verificato:
+
+- re-review `APPROVED` su `0feca6625df0108810a52e27ba593a469eb3b6f2`;
+- 0 P0, 0 P1 e 0 P2 aperti; resta soltanto `T004-REREV-001` P3 non bloccante;
+- CI handoff `30591364046` `PASS`, 3/3 job, step `success`, annotation 0/0/0;
+- CI approvazione `30591994550` `PASS` sullo SHA esatto
+  `0c644e18315e60d72321518572d34f4f95300d3c`, 3/3 job, tutti gli step
+  `success`, annotation 0/0/0.
+
+TASK-004 è quindi `DONE / REVIEW / USER_APPROVED_DONE`. La CI sul futuro SHA di
+closeout è ancora `NOT_RUN` e sarà attestata esternamente dopo il push. La PR batch,
+la review integrata e il merge normale TASK-003/TASK-004 sono ancora `NOT_RUN`;
+TASK-011 non è stato attivato.

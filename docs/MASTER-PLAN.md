@@ -4,15 +4,15 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-004
-- **File task**: `docs/TASKS/TASK-004-environment-strategy-configuration-contract.md`
-- **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
-- **Prossima azione autorizzata**: applicare l'autorizzazione condizionata già
-  concessa, registrare il closeout TASK-004 e attestarne la CI finale
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: non applicabile
+- **Stato task**: non applicabile
+- **Fase**: non applicabile
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
+- **Prossima azione autorizzata**: pubblicare il closeout TASK-004, attendere la CI
+  sul suo SHA, quindi eseguire review integrata, PR e merge batch già autorizzati
 
 ## Repository coinvolti
 
@@ -51,7 +51,7 @@
 | TASK-001 | Repository governance, Flutter foundation, CI e dual-platform smoke | DONE | nessuna | Client | Fondazione compilabile, verificata e pronta a review |
 | TASK-002 | Product scope definitivo, branding, UX principles e design tokens | DONE | TASK-001 | Client | Identità e principi UX approvati |
 | TASK-003 | Cross-repo ownership e Storefront integration contract | DONE | TASK-001, TASK-002 | Client, Admin, Android, iOS, POS | Contratto di ownership senza ambiguità |
-| TASK-004 | Environment strategy development/staging/production e configuration contract | ACTIVE | TASK-001, TASK-003 | Client, Admin | Strategia ambienti e config verificabile |
+| TASK-004 | Environment strategy development/staging/production e configuration contract | DONE | TASK-001, TASK-003 | Client, Admin | Strategia ambienti e config verificabile |
 | TASK-005 | Supabase Storefront schema, RLS, grants e migration ownership | TODO | TASK-003, TASK-004 | Admin, Supabase, Client | Schema pubblico protetto e ownership migration |
 | TASK-006 | Storefront catalog projection e aggiornamento dal dominio operativo | TODO | TASK-005 | Admin, Supabase, Android, iOS, POS | Proiezione catalogo pubblica affidabile |
 | TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | TODO | TASK-005, TASK-006 | Admin, Supabase | Controlli di pubblicazione shop-scoped |
@@ -111,8 +111,12 @@ vincolante un solo task `ACTIVE` alla volta.
 - `TASK-003` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
   2026-07-30; 0 P0/P1/P2 aperti, CI finale run `30585880180` `PASS` sullo SHA
   `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`.
+- `TASK-004` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
+  2026-07-30; 0 P0/P1/P2 aperti, CI approvazione run `30591994550` `PASS` sullo SHA
+  `0c644e18315e60d72321518572d34f4f95300d3c`; CI closeout e merge batch pendenti.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
 `TASK-003` è `DONE` con re-review `APPROVED` e CI finale attestata.
-`TASK-004` è l'unico task `ACTIVE` in `REVIEW`, con re-review `APPROVED`.
+`TASK-004` è `DONE` con re-review `APPROVED`; nessun task è `ACTIVE`.
+`TASK-011` resta `TODO` fino al merge effettivo della PR batch TASK-003/TASK-004.

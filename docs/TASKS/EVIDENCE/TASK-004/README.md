@@ -1,7 +1,7 @@
 # TASK-004 evidence
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 - Base: closeout TASK-003
   `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`
@@ -27,7 +27,10 @@ Snapshot di handoff:
   3/3 job, tutti gli step `success`, annotation 0/0/0
 - CI handoff Fix: run `30591364046` sullo SHA esatto `0feca66…`,
   3/3 job, tutti gli step `success`, annotation 0/0/0
-- DONE/PR/merge: `NOT_RUN`
+- CI approvazione: run `30591994550` sullo SHA esatto `0c644e1…`,
+  3/3 job, tutti gli step `success`, annotation 0/0/0
+- DONE: `YES`
+- CI closeout/PR/merge: `NOT_RUN`
 
 Evidence disponibili:
 
@@ -40,11 +43,12 @@ Evidence disponibili:
 - `review-report.md`
 - `fix-evidence.md`
 - `re-review-report.md`
+- `closeout.md`
 - `screenshots/manifest.md`
 
 Evidence previste in review:
 
-- `closeout.md`
+- attestazione esterna della CI sullo SHA di closeout
 
 ## Criteri di accettazione — stato corrente
 
@@ -77,7 +81,7 @@ Evidence previste in review:
 | CA-25 | PASS | `scripts/check.sh` exit 0; 70/70 test e due build |
 | CA-26 | PASS | smoke 1/1 dual-platform, comandi/output e screenshot manifest |
 | CA-27 | PASS | re-review `APPROVED`, zero P0/P1/P2 aperti |
-| CA-28 | PASS | CI handoff `30591364046`, SHA esatto, 3/3 job e annotation 0/0/0 |
+| CA-28 | NOT_RUN | richiede CI sul futuro SHA di closeout |
 
 ## Test case — stato corrente
 
@@ -109,4 +113,9 @@ Evidence previste in review:
 | T-24 | PASS | scan security/config/artifact e zero-write |
 | T-25 | PASS | test mirati e `scripts/check.sh` exit 0 |
 | T-26 | PASS | due sessioni read-only, quattro finding originari chiusi |
-| T-27 | PASS | CI `30591364046` su `0feca66…`, step e annotation ispezionati |
+| T-27 | NOT_RUN | richiede CI sul futuro SHA di closeout |
+
+La CI handoff e la CI approvazione non anticipano il gate terminale: `CA-28` e
+`T-27` saranno attestati dopo il push del commit di closeout. CA-25 conserva
+intenzionalmente il conteggio storico `70/70`, tracciato come finding P3
+`T004-REREV-001`, senza correzione silenziosa durante il closeout.

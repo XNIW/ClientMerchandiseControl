@@ -10,10 +10,10 @@
 - **Stato task**: BLOCKED
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
-- **Prossima azione autorizzata**: re-review indipendente del tecnico
-  `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382` e del relativo handoff;
-  nessun `APPROVED`, `DONE` o merge finché review o gate esterni restano aperti
+- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Prossima azione autorizzata**: attendere intervento umano MFA, conferma OS iOS
+  e ripristino billing/spending GitHub, quindi rieseguire i gate impattati;
+  nessun `APPROVED`, `DONE` o merge finché i gate esterni restano aperti
 
 ## Repository coinvolti
 
@@ -145,17 +145,14 @@ step, con billing/spending GitHub come prerequisito esterno.
 
 ## Task attivo — TASK-020
 
-Il Fix 4 sul tecnico `9dbd535` ha affrontato T020-RR3-C-001 e
-T020-RR3-A-001 senza dichiararli chiusi. Lo scanner accetta soltanto il legacy JWT
-con unico ruolo scalare letterale `anon` e respinge fail-closed JWT customer,
-service role, ruoli ignoti/mancanti/duplicati/escaped, JSON invalido, NUL e
-failure decoder/parser; le fixture sono 32/32 negative e 2/2 positive. Il path SDK
-di CMD-X08 è redatto. `scripts/check.sh`, build development/staging dual-platform e
-scan dei 629 file bundle sono `PASS`; l'audit candidate non trova P0/P1/P2 residui
-ma non sostituisce la re-review. La CI tecnica run `30630589047` resta
-`BLOCKED / CI_EXTERNAL` prima dei runner. Redirect allow-list e live OAuth restano
-`BLOCKED` da MFA; callback warm iOS resta `BLOCKED` dal dialogo OS con Mac locked.
-Nessun `APPROVED`, `DONE` o merge è autorizzato.
+La re-review 4 sul tecnico `9dbd535` e handoff `c0ebd75` ha chiuso
+T020-RR3-C-001 e T020-RR3-A-001. Cinque shard A–E hanno riportato 0 P0, 0 P1,
+0 P2 e 0 P3; scanner 336 file, fixture 32/32 negative + 2/2 positive, 21/21 probe
+avversari, artifact 548 + 81 = 629 e suite app/native mirate sono `PASS`. La PR #4
+resta `OPEN/DRAFT`, 143 path e zero TASK-003/004. L'esito complessivo è `BLOCKED`:
+run CI handoff `30631361964` senza runner/step per billing/spending; redirect
+allow-list e live OAuth bloccati da MFA; callback warm iOS bloccata dal dialogo OS
+con Mac locked. Nessun `APPROVED`, `DONE` o merge è autorizzato.
 
 Handoff:
-`CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`CODEX_REVIEW_BLOCKED`.

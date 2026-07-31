@@ -71,10 +71,10 @@ resta locale, ignorato e non entra in stage, diff o evidence.
   allow-list; il CLI non offre un point-update sicuro equivalente.
 - Il simulatore iOS richiede conferma OS per aprire il custom scheme e il Mac locked
   impedisce l'interazione locale.
-- La CI TASK-020 run `30630589047` sullo SHA tecnico Fix 4 `9dbd535` ha tre job
+- La CI TASK-020 run `30631361964` sullo SHA handoff Fix 4 `c0ebd75` ha tre job
   senza step, `runner_id=0` e una annotation/job per billing/spending GitHub;
   resta `BLOCKED / CI_EXTERNAL`.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-X01/X02/CMD-Z01/Z02/Z04/CMD-R01/CMD-Z08,
+`commands-and-results.md`, CMD-X01/X02/CMD-Z01/Z02/Z04/CMD-R01/CMD-W04,
 CA-01/03/04/11…CA-13/35…CA-39 e T-01…T-04/26…T-36.

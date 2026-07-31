@@ -403,3 +403,106 @@ reviewer li persiste in questa transizione, come previsto dall'handoff.
 `CHANGES_REQUIRED`
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Re-review 4 del Fix
+
+### Revision set
+
+- Commit tecnico Fix 4:
+  `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`
+- Handoff/evidence:
+  `c0ebd750404207ac417faac4e0ff6c04af5940fd`
+- Base:
+  `40d118eebf78eeabea9e26747adb00053dd875bc`
+- HEAD, upstream e PR head: allineati allo SHA handoff; worktree e index puliti
+- PR #4: `OPEN/DRAFT`, base `main`, 143 path, zero TASK-003/004
+- CI handoff: run `30631361964`, tre job senza runner/step e una annotation
+  billing/spending per job; `BLOCKED / CI_EXTERNAL`
+
+### Reviewer indipendenti
+
+| Reviewer | Specializzazione | Verifiche autonome | Esito |
+|---|---|---|---|
+| A | intent, CA, governance e scope | revision set, diff, 12/40/38, sanitizzazione e handoff | BLOCKED |
+| B | scanner JWT e fixture | syntax, 336 file, 32/32 + 2/2, 21 probe avversari e bundle | APPROVED |
+| C | security, threat model e artifact | scan Git/bundle, digest, PII/config e CI handoff | BLOCKED |
+| D | app, Auth, storage, UI e native | byte-identità Fix 3, analyze, 94/94 test e smoke provenance | BLOCKED |
+| E | evidence, Git, PR e CI | scope remoto, parser, artifact e run/job/annotation | BLOCKED |
+
+Tutti gli shard hanno operato read-only sul medesimo revision set. Gli esiti
+`BLOCKED` di A/C/D/E non contengono finding tecnici: riflettono esclusivamente i
+gate obbligatori esterni descritti sotto. Un controllo D supplementare, anch'esso
+read-only, ha eseguito 117/117 test mirati con esito `PASS`.
+
+L'ausilio opzionale CodeRabbit non ha prodotto una review per rate limit e repository
+non collegato all'organizzazione; non è una fonte di finding né un gate prescritto.
+La review A–E richiesta è stata comunque eseguita integralmente da cinque sessioni
+indipendenti.
+
+### Chiusura dei finding della re-review 3
+
+| ID | Stato re-review 4 | Evidence |
+|---|---|---|
+| T020-RR3-C-001 | CLOSED | unico ruolo scalare letterale `anon`; 32/32 negative, 2/2 positive e 21/21 probe |
+| T020-RR3-A-001 | CLOSED | CMD-X08 usa `<android-sdk>`; zero path host `/Users/` nell'evidence |
+| T020-REV-015 | CLOSED | scanner/fixture/source/index/worktree/artifact e CI contract verificati |
+| T020-REV-016 | CLOSED | SHA tecnico/handoff, PR e CI correlati senza auto-citazione circolare |
+| T020-REV-018 | CLOSED | 548 + 81 = 629 file e digest APK/Runner riprodotti |
+
+Il controllo semantico JWT è fail-closed:
+
+- la pipeline base64url -> OpenSSL -> `JSON::PP` conserva NUL e fallisce chiusa;
+- il payload deve essere un JSON object con un solo campo `role` top-level,
+  scalare e letteralmente `anon`;
+- customer, `service_role`, ruoli ignoti/mancanti/duplicati/escaped, tipi non
+  scalari, JSON invalido, padding impossibile e failure operative sono respinti;
+- index, worktree, symlink e artifact APK/directory sono verificati separatamente.
+
+I falsi positivi conservativi su escape Unicode, campi `role` annidati/duplicati o
+sequenze testuali ambigue non allargano il confine pubblicabile e non sono finding
+bloccanti.
+
+### Gate indipendenti
+
+- governance: `PASS`; tuple pre-consolidamento
+  `TASK-020 / BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW` e finale
+  `TASK-020 / BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`;
+- evidence: `PASS`; 12 file, 40 CA, 38 test e command ID validi;
+- scanner: `PASS`; 336 file, 32/32 negative, 2/2 positive e 21/21 probe;
+- artifact: `PASS`; APK 548 file e SHA-256
+  `164225362dd64e859b3cab2688350e891f944a64cc55ece3f867189d9cc56e18`;
+  Runner 81 file e tree SHA-256
+  `6295cd692517d40e4b817f3c96fd1b5972062a789aa0a5940196c37aff471a3d`;
+- app/native invariati: `PASS`; tree/blob `lib`, Android, iOS, test, integration
+  test, dipendenze e workflow identici al Fix 3; analyze zero issue e 94/94 test;
+- Git/PR: `PASS`; HEAD/upstream/PR `c0ebd75`, 143 path e zero TASK-003/004;
+- CI: `BLOCKED`; run `30631361964`, Quality `91158230335`, iOS
+  `91158230405` e Android `91158230451`, tutti `runner_id=0`, zero step e una
+  annotation billing/spending.
+
+### Blocker esterni
+
+- redirect allow-list, callback provider e OAuth live: `BLOCKED` da MFA umano;
+  kill switch `false`, zero write remoto;
+- callback warm iOS: `BLOCKED`; `simctl` exit 0 non prova la delivery e il
+  harness ha timeout finché il dialogo OS non viene accettato su Mac sbloccato;
+- CI: `BLOCKED / CI_EXTERNAL`; il titolare deve ripristinare Billing & plans o
+  spending limit prima che i runner eseguano codice.
+
+### Conteggio re-review 4
+
+| Severità | Aperti |
+|---|---:|
+| P0 | 0 |
+| P1 | 0 |
+| P2 | 0 |
+| P3 | 0 |
+
+### Esito re-review 4
+
+`BLOCKED`
+
+L'implementazione non presenta finding aperti, ma i gate obbligatori esterni non
+sono stati eseguiti con successo. `APPROVED`, `DONE` e merge non sono autorizzati.
+
+Handoff: `CODEX_REVIEW_BLOCKED`.

@@ -11,10 +11,10 @@
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-31
 - **Ultimo aggiornamento**: 2026-07-31
-- **Ultimo agente**: CODEX_FIXER
-- **Review outcome**: CHANGES_REQUIRED
+- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Review outcome**: BLOCKED
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_BLOCKED
 
 ## Dipendenze
 
@@ -493,6 +493,41 @@ callback warm iOS e CI restano blocker esterni distinti.
 Esito: `CHANGES_REQUIRED`.
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Re-review 4 del Fix
+
+Cinque re-reviewer read-only indipendenti hanno verificato il revision set:
+
+- tecnico `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`;
+- handoff/evidence `c0ebd750404207ac417faac4e0ff6c04af5940fd`.
+
+T020-RR3-C-001 e T020-RR3-A-001 risultano `CLOSED`. Lo scanner accetta soltanto
+il legacy JWT con unico ruolo scalare letterale `anon`; 32/32 fixture negative,
+2/2 positive e 21/21 probe avversari sono `PASS`. CMD-X08 usa
+`<android-sdk>/platform-tools/adb` e nell'evidence non resta alcun path host
+`/Users/`.
+
+Verifiche autonome:
+
+- A–E: 0 P0, 0 P1, 0 P2 e 0 P3; shard B `APPROVED`, A/C/D/E `BLOCKED`
+  esclusivamente per gate esterni;
+- governance/matrici: 12 file, 40 CA e 38 test `PASS`;
+- codice app/native invariato dal Fix 3; analyze zero issue e suite mirata 94/94
+  `PASS`, con controllo supplementare 117/117 `PASS`;
+- scanner/security: 336 file, bundle APK 548 + Runner 81 = 629, digest riprodotti
+  e invariati, zero JWT letterale;
+- PR #4: `OPEN/DRAFT`, head `c0ebd75`, 143 path e zero TASK-003/004;
+- CI handoff run `30631361964`: `BLOCKED / CI_EXTERNAL`; Quality
+  `91158230335`, iOS `91158230405` e Android `91158230451` hanno
+  `runner_id=0`, zero step e una annotation billing/spending ciascuno.
+
+Restano `BLOCKED` la redirect allow-list/OAuth live per MFA umano, la callback warm
+iOS per il dialogo OS con Mac locked e la CI prima del runner per billing/spending.
+Nessun `PASS` live/remoto è inferito.
+
+Esito: `BLOCKED`.
+
+Handoff: `CODEX_REVIEW_BLOCKED`.
 
 ## Fix — `CODEX_FIXER`
 

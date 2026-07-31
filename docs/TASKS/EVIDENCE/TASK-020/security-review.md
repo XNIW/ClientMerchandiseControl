@@ -1,4 +1,4 @@
-# Security review executor — TASK-020
+# Security review — TASK-020
 
 ## Controlli implementati
 
@@ -38,6 +38,10 @@
 | Symlink, snapshot Git e failure operative | PASS | CMD-Z02, blob/index/worktree `120000`, enumerazione parziale, read/decode/parser failure respinti fail-closed |
 | PEM ed estensioni sensibili | PASS | CMD-Z02/Z05, label standard/DSA/encrypted e denylist case-insensitive |
 
+La Re-review 4 ha rieseguito lo scanner su 336 file, 32/32 fixture negative,
+2/2 positive e 21/21 probe avversari senza trovare bypass o JWT letterali.
+T020-RR3-C-001 e T020-REV-015 sono `CLOSED`; 0 finding P0–P3 restano aperti.
+
 I delimitatori PEM nel `kernel_blob` iOS provengono dal parser della dipendenza
 transitiva: tre coppie begin/end sono adiacenti e il quarto marker non ha payload
 base64 nelle successive 200 stringhe. Non costituiscono una chiave incorporata.
@@ -71,6 +75,6 @@ Rischi residui:
 Nessun `PASS` remoto o live è inferito.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-X01/X03/CMD-Z01/Z02/Z05/CMD-R01,
+`commands-and-results.md`, CMD-X01/X03/CMD-Z01/Z02/Z05/CMD-W01/W02/CMD-R01,
 CA-03/05/08/21/22/24/33/36
 e T-02/05/15/17/25/26.

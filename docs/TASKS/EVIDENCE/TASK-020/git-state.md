@@ -1,6 +1,6 @@
 # Git state — TASK-020
 
-## Snapshot candidato handoff Fix 4
+## Snapshot Re-review 4
 
 - Branch: `milestone/011-012-020-authenticated-storefront-foundation`
 - Base milestone implementation: `9ab32c9`
@@ -30,24 +30,27 @@
   `a621c3c08e1f6968bfe9af9c2e9e1f8c8d1d2d3b`
 - SHA tecnico Fix 4:
   `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`
-- Tracking Fix 4: branch locale, upstream e head PR allineati a `9dbd535`;
+- Handoff Fix 4 -> Re-review 4:
+  `c0ebd750404207ac417faac4e0ff6c04af5940fd`
+- Tracking Re-review 4: branch locale, upstream e head PR allineati a `c0ebd75`;
   `+0/-0`
 - Config staging locale: ignorata, non tracciata e assente dallo status
 - Build/coverage artifact: non tracciati e assenti dallo status
 - Scope diff rispetto a `main`: soltanto TASK-011/TASK-012/TASK-020 e fondazione
   condivisa; zero path TASK-003, TASK-004 o `TASK-003-004`
 - Repository esterni/production/task futuri: non modificati
-- Worktree sullo SHA tecnico durante i gate Fix 4 e l'audit candidate: pulito
+- Worktree durante i cinque shard A–E read-only: pulito
 - Worktree al momento di questa evidence: contiene soltanto task/evidence/worklog
-  dell'handoff Fix 4 -> Re-review 4, da committare selettivamente
-- PR: #4 `OPEN/DRAFT`, base `main`, head remoto `9dbd535`, mergeable
+  della transizione Review `BLOCKED`, da committare selettivamente
+- PR: #4 `OPEN/DRAFT`, base `main`, head remoto `c0ebd75`, mergeable
   `MERGEABLE`, merge state `UNSTABLE`
 - Scope PR remoto: 143 path, confinati a TASK-011/TASK-012/TASK-020 e fondazione
   condivisa; zero path TASK-003/004
-- Commit/push tecnico Fix 4: `PASS`
-- CI sullo SHA tecnico: run `30630589047`, `BLOCKED / CI_EXTERNAL`, tre job
+- Commit/push handoff Fix 4: `PASS`
+- CI sullo SHA handoff: run `30631361964`, `BLOCKED / CI_EXTERNAL`, tre job
   senza runner o step e una annotation billing/spending per job
-- Merge/main sync: `BLOCKED` da re-review non ancora eseguita, CI e gate esterni
+- Re-review A–E: 0 P0/P1/P2/P3; esito complessivo `BLOCKED`
+- Merge/main sync: `BLOCKED` da CI, MFA/live OAuth e callback warm iOS
 
-Comandi: `commands-and-results.md`, CMD-Z03/Z06/Z07/Z08,
+Comandi: `commands-and-results.md`, CMD-W01/W03/W04,
 CA-01/02/40 e T-01/37/38.

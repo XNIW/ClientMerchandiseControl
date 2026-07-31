@@ -1,9 +1,11 @@
 # Commands and results — TASK-020
 
-## Revision set corrente — Fix 4 candidato a Re-review 4
+## Revision set corrente — Re-review 4
 
 - Commit tecnico Fix 4 verificato:
   `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`.
+- Handoff Fix 4 -> Re-review 4:
+  `c0ebd750404207ac417faac4e0ff6c04af5940fd`.
 - Handoff Re-review 3 -> Fix 4:
   `a621c3c08e1f6968bfe9af9c2e9e1f8c8d1d2d3b`.
 - Revision set precedente Fix 3 -> Re-review 3:
@@ -94,6 +96,11 @@
 | CMD-Z07 | transizione Re-review 3 -> Fix 4 `a621c3c`, GitHub Actions | `gh run view 30629914741 --json databaseId,event,headSha,status,conclusion,jobs,url`; API run/jobs e annotation dei check `91153621678`, `91153621741`, `91153621780` | BLOCKED | iOS, Quality e Android con `runner_id=0`, zero step e una annotation billing/spending ciascuno | CI_EXTERNAL prima del runner; nessun codice repository eseguito |
 | CMD-Z08 | tecnico Fix 4 `9dbd535`, GitHub Actions | `gh run view 30630589047 --json databaseId,event,headSha,status,conclusion,jobs,url`; API run/jobs e annotation dei check `91155745893`, `91155745943`, `91155745948` | BLOCKED | iOS, Android e Quality con `runner_id=0`, zero step e una annotation billing/spending ciascuno | CI_EXTERNAL prima del runner; prerequisito: ripristino Billing & plans |
 | CMD-Z09 | worktree evidence Fix 4 | `bash scripts/check-governance-state.sh && flutter test test/governance/task020_evidence_matrix_test.dart && git diff --check` | PASS | exit 0; governance `TASK-020 / BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`; parser 1/1; 12 file, 40 CA, 38 T; zero whitespace error | eseguito dopo l'aggiornamento completo di task, matrici ed evidence |
+| CMD-W01 | tecnico `9dbd535`, handoff `c0ebd75`, cinque shard A–E read-only | re-review indipendente di intent/governance, scanner, security/artifact, app/native ed evidence/Git/CI; confronto finding, diff, gate e blocker | PASS | 0 P0, 0 P1, 0 P2 e 0 P3; T020-RR3-C-001 e T020-RR3-A-001 `CLOSED`; shard B `APPROVED`, A/C/D/E `BLOCKED` soltanto per gate esterni | esito consolidato `BLOCKED`; nessun reviewer ha modificato worktree, index, branch, PR o sistemi remoti |
+| CMD-W02 | `c0ebd75`, scanner/security/artifact | `bash -n scripts/check-client-security.sh scripts/test-client-security-scan.sh`; `bash scripts/check-client-security.sh`; `bash scripts/test-client-security-scan.sh`; scan APK/Runner; 21 probe temporanei File::Temp auto-cleaned senza token completo persistito | PASS | syntax exit 0; 336 file; 32/32 negative e 2/2 positive; probe 21/21; APK 548 e Runner 81; digest invariati; zero JWT letterale in Git/bundle | solo unico ruolo scalare letterale `anon` accettato; falsi positivi conservativi documentati e non bloccanti |
+| CMD-W03 | `c0ebd75`, Git/PR | `git rev-parse HEAD`; `git rev-parse '@{upstream}'`; `git rev-parse origin/milestone/011-012-020-authenticated-storefront-foundation`; `git rev-parse main`; `git rev-parse origin/main`; `git status --short --branch`; `gh pr view 4 --json state,isDraft,baseRefName,headRefName,headRefOid,mergeable,mergeStateStatus,url`; API paginata file PR con conteggio e denylist TASK-003/004 | PASS | HEAD/upstream/origin/PR `c0ebd75`; main/origin/main `40d118e`; worktree pulito; PR `OPEN/DRAFT`, 143 path, zero TASK-003/004 | `MERGEABLE/UNSTABLE`; nessun merge, main sync o task futuro |
+| CMD-W04 | handoff `c0ebd75`, GitHub Actions | `gh run view 30631361964 --json databaseId,event,headSha,status,conclusion,jobs,url`; API run/jobs e annotation dei check `91158230335`, `91158230405`, `91158230451` | BLOCKED | Quality, iOS e Android con `runner_id=0`, zero step e una annotation `.github:1` billing/spending ciascuno | `CI_EXTERNAL` prima del runner; nessun codice repository eseguito; prerequisito Billing & plans |
+| CMD-W05 | worktree Re-review 4 | `bash scripts/check-governance-state.sh && flutter test test/governance/task020_evidence_matrix_test.dart && bash scripts/check-client-security.sh && git diff --check` | PASS | exit 0; governance `TASK-020 / BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`; parser 1/1; 12 file, 40 CA, 38 T; scanner 336 file; zero whitespace error | eseguito dopo il consolidamento completo di Review, task, Master ed evidence |
 
 I `FAIL` diagnostici restano evidence reali e non vengono trasformati in `PASS`: i
 rerun conformi sono identificati separatamente. I comandi con callback usano qui un
@@ -104,7 +111,7 @@ query o code.
 
 | CA | Tipo | Esito | Evidence |
 |---|---|---|---|
-| CA-01 | GIT/STATIC | PASS | CMD-Z01/Z06/Z09; dipendenze DONE, TASK-020 unico task corrente, governance e diff milestone confinati |
+| CA-01 | GIT/STATIC | PASS | CMD-W01/W03/W05; dipendenze DONE, TASK-020 unico task corrente, governance e diff milestone confinati |
 | CA-02 | GIT/STATIC | PASS | CMD-Z06; zero path TASK-003/004, catalogo reale, profilo, ordine o pagamento |
 | CA-03 | STATIC/SECURITY | PASS | CMD-X02; sorgenti/API GoTrue/Supabase installate e lockfile verificati |
 | CA-04 | UNIT/SECURITY | PASS | CMD-X01; matrice config development/staging/production fail-closed |
@@ -125,7 +132,7 @@ query o code.
 | CA-19 | UNIT | PASS | CMD-X01; dispose e future/eventi tardivi testati con compensazione |
 | CA-20 | UNIT/WIDGET/ANDROID_EMU/IOS_SIM | PASS | CMD-X01/X03/X06/X09; logout locale, cleanup indipendente, tre marker e nuovo login |
 | CA-21 | UNIT/STATIC/SECURITY | PASS | CMD-X01/X03/X04; adapter unico Keychain/Keystore, journal non sensibile e nessun fallback plaintext |
-| CA-22 | UNIT/SECURITY | PASS | CMD-B01/Z01/Z02/Z05; bundle storici e correnti puliti, zero token nel Git e ogni JWT diverso dal legacy con unico `role=anon`, incluso `authenticated`, è respinto fail-closed |
+| CA-22 | UNIT/SECURITY | PASS | CMD-B01/Z01/Z02/Z05/W02; bundle storici e correnti puliti, zero token e JWT customer/non-publishable respinti fail-closed |
 | CA-23 | UNIT/WIDGET/SECURITY | PASS | CMD-X01; identity bounded, markup/control/bidi rifiutati e avatar locale |
 | CA-24 | STATIC/SECURITY | PASS | CMD-X01/X04/X13; client non autorizzativo, publishable config soltanto e zero API dati vietate |
 | CA-25 | WIDGET | PASS | CMD-X01; tutti gli stati Account e azioni renderizzati |
@@ -136,20 +143,20 @@ query o code.
 | CA-30 | ANDROID_EMU/MANUAL/SECURITY | BLOCKED | build/fake/readiness/native PASS in CMD-X05/X06/X07/X08; live 17 passi fermato da allow-list/MFA, flag false |
 | CA-31 | IOS_SIM/MANUAL/SECURITY | BLOCKED | build/fake/readiness PASS in CMD-X05/X09/X10; live fermato da MFA e conferma OS CMD-X11, flag false |
 | CA-32 | ANDROID_EMU/IOS_SIM/MANUAL | BLOCKED | subset fake/error PASS in CMD-X01/X06/X09; matrice live richiede OAuth remoto abilitabile dopo MFA |
-| CA-33 | STATIC/SECURITY | PASS | threat model TM-01…TM-30 aggiornato; CMD-Z01/Z02/Z03 |
-| CA-34 | STATIC/GIT | PASS | CMD-Z09; 12 file esatti e parser valida 40 CA, 38 T, tipo/stato/cardinalità/comando |
-| CA-35 | STATIC/FORMAT/ANALYZE/UNIT/GIT | PASS | CMD-Z01/Z02/Z06/Z09 con comando, output ed exit reali |
-| CA-36 | STATIC/SECURITY/GIT | PASS | CMD-Z01/Z02/Z05; 32/32 fixture negative coprono JWT customer e ruoli non pubblicabili su source/index/worktree/artifact, 2/2 positive |
+| CA-33 | STATIC/SECURITY | PASS | threat model TM-01…TM-30 verificato; CMD-Z01/Z02/W01/W02 |
+| CA-34 | STATIC/GIT | PASS | CMD-W05; parser finale valida 12 file, 40 CA, 38 T, tipo/stato/cardinalità/comando |
+| CA-35 | STATIC/FORMAT/ANALYZE/UNIT/GIT | PASS | CMD-Z01/Z02/Z06/Z09/W01/W03/W05 con comando, output ed exit reali |
+| CA-36 | STATIC/SECURITY/GIT | PASS | CMD-Z01/Z02/Z05/W02; 32/32 fixture e 21/21 probe coprono JWT customer/non-publishable su ogni superficie, 2/2 positive |
 | CA-37 | BUILD_ANDROID/BUILD_IOS | PASS | CMD-Z01 development e CMD-Z04 staging, entrambi i target exit 0 |
-| CA-38 | MANUAL/STATIC/SECURITY | NOT_RUN | CMD-Z03 è soltanto audit candidate; re-review formale sul revision set Fix 4 non ancora eseguita |
-| CA-39 | CI | BLOCKED | CMD-Z08; run tecnica esatta, 3 job senza runner/step; prerequisito billing/spending GitHub |
-| CA-40 | GIT/CI | BLOCKED | CMD-Z03/Z06/Z08; PR #4 draft e scope remoto corretto, ma re-review/CI/live gate impediscono merge, DONE e sync main |
+| CA-38 | MANUAL/STATIC/SECURITY | PASS | CMD-W01/W02; cinque shard A–E sul revision set esatto, zero P0/P1/P2/P3 e finding RR3 chiusi |
+| CA-39 | CI | BLOCKED | CMD-W04; run handoff esatta, 3 job senza runner/step; prerequisito billing/spending GitHub |
+| CA-40 | GIT/CI | BLOCKED | CMD-W01/W03/W04; PR #4 draft e scope remoto corretto, ma CI/live gate impediscono merge, DONE e sync main |
 
 ## Matrice test
 
 | Test | Tipo | Esito | Risultato |
 |---|---|---|---|
-| T-01 | GIT/STATIC | PASS | CMD-Z01/Z06/Z09; governance, branch, dipendenze e diff verificati |
+| T-01 | GIT/STATIC | PASS | CMD-W01/W03/W05; governance, branch, dipendenze e diff verificati |
 | T-02 | STATIC/SECURITY | PASS | CMD-X02; API/storage installati auditati |
 | T-03 | UNIT/SECURITY | PASS | CMD-X01; matrice AppConfig/bootstrap completa |
 | T-04 | MANUAL/SECURITY | BLOCKED | CMD-R01; allow-list before/write/after fermata da MFA, nessun write; prerequisito MFA umano |
@@ -165,7 +172,7 @@ query o code.
 | T-14 | UNIT | PASS | CMD-X01/X03; logout, cleanup indipendente, journal e nuovo login |
 | T-15 | UNIT/STATIC/SECURITY | PASS | CMD-X01/X03/X04; storage CRUD, first install, cleanup a tre marker e failure stream |
 | T-16 | UNIT/WIDGET/SECURITY | PASS | CMD-X01; metadata ostili, fallback e avatar locale |
-| T-17 | UNIT/SECURITY | PASS | CMD-Z01/Z02; mapper/redactor e scanner source/index/worktree/artifact senza sentinella |
+| T-17 | UNIT/SECURITY | PASS | CMD-Z01/Z02/W02; mapper/redactor e scanner source/index/worktree/artifact senza sentinella |
 | T-18 | WIDGET | PASS | CMD-X01; ogni stato Account renderizzato |
 | T-19 | WIDGET | PASS | CMD-X01/X06/X09; browsing guest durante stati Auth |
 | T-20 | UNIT/WIDGET | PASS | CMD-X01; parità ARB e locale supportati |
@@ -173,17 +180,17 @@ query o code.
 | T-22 | ANDROID_EMU/IOS_SIM | PASS | CMD-X06/X09; guest flow dual-platform |
 | T-23 | ANDROID_EMU/IOS_SIM | PASS | CMD-X06/X09; callback fake dual-platform e ritorno Account |
 | T-24 | ANDROID_EMU/IOS_SIM | PASS | CMD-X06/X09; invalido/senza sessione, zero crash |
-| T-25 | STATIC/SECURITY | PASS | threat model TM-01…TM-30; CMD-Z01/Z02/Z03 |
-| T-26 | STATIC/SECURITY/GIT | PASS | CMD-B01/Z02/Z05/Z06; source/index/worktree/bundle storici e correnti puliti e JWT customer/non-publishable respinti |
-| T-27 | STATIC/GIT | PASS | CMD-Z09; parser evidence valida 12 file, 40 CA, 38 T, tipi, stati e comandi |
-| T-28 | STATIC/GIT | PASS | CMD-Z01/Z02/Z06/Z09; doctor, shell, pin, governance, architecture e diff |
+| T-25 | STATIC/SECURITY | PASS | threat model TM-01…TM-30; CMD-Z01/Z02/W01/W02 |
+| T-26 | STATIC/SECURITY/GIT | PASS | CMD-B01/Z02/Z05/Z06/W02; source/index/worktree/bundle puliti e JWT customer/non-publishable respinti |
+| T-27 | STATIC/GIT | PASS | CMD-W05; parser finale valida 12 file, 40 CA, 38 T, tipi, stati e comandi |
+| T-28 | STATIC/GIT | PASS | CMD-Z01/Z02/Z06/Z09/W01/W03/W05; doctor, shell, pin, governance, architecture e diff |
 | T-29 | FORMAT/ANALYZE/UNIT | PASS | CMD-Z01; pub/l10n/format/analyze/221 test/coverage/check |
 | T-30 | BUILD_ANDROID | PASS | CMD-Z01/Z04; APK development e staging |
 | T-31 | BUILD_IOS | PASS | CMD-Z01/Z04; iOS Simulator development e staging |
 | T-32 | ANDROID_EMU/MANUAL/SECURITY | BLOCKED | subset automatico PASS CMD-X06/X07/X08; 17 passi live dipendono da CMD-R01 |
 | T-33 | IOS_SIM/MANUAL/SECURITY | BLOCKED | subset automatico PASS CMD-X09/X10; live dipende da CMD-R01 e CMD-X11 |
 | T-34 | ANDROID_EMU/IOS_SIM/MANUAL | BLOCKED | error fake PASS CMD-X01/X06/X09; matrice live non eseguibile con flag false/MFA |
-| T-35 | MANUAL/STATIC/SECURITY | NOT_RUN | CMD-Z03 non sostituisce la re-review formale sul revision set tecnico/handoff Fix 4 |
-| T-36 | CI | BLOCKED | CMD-Z08; run `30630589047` sullo SHA tecnico fermata prima del runner |
-| T-37 | GIT | PASS | CMD-Z06; branch/upstream/PR allineati, worktree pulito al controllo e zero path TASK-003/004 |
-| T-38 | GIT/CI | NOT_RUN | CMD-Z06/Z08; verifica post-merge non eseguita perché review, CI e gate live non sono verdi e il merge resta vietato |
+| T-35 | MANUAL/STATIC/SECURITY | PASS | CMD-W01/W02; re-review A–E formale, zero finding e chiusura indipendente dei due RR3 |
+| T-36 | CI | BLOCKED | CMD-W04; run `30631361964` sullo SHA handoff fermata prima del runner |
+| T-37 | GIT | PASS | CMD-W03; branch/upstream/PR allineati, worktree pulito e zero path TASK-003/004 |
+| T-38 | GIT/CI | NOT_RUN | CMD-W03/W04; verifica post-merge non eseguita perché CI e gate live non sono verdi e il merge resta vietato |

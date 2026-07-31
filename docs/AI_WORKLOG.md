@@ -1180,3 +1180,31 @@
 - **Risultato**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 - **Blocker/note**: re-review indipendente obbligatoria sul revision set
   tecnico/handoff; nessun `APPROVED`, `DONE`, merge o task futuro è autorizzato.
+
+## 2026-07-31 — Re-review 4 TASK-020 bloccata da gate esterni
+
+- **Agente**: `CODEX_RE_REVIEWER`, cinque shard A–E read-only indipendenti
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> REVIEW; stato task `BLOCKED`
+- **Revision set**: tecnico Fix 4
+  `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`; handoff
+  `c0ebd750404207ac417faac4e0ff6c04af5940fd`; base
+  `40d118eebf78eeabea9e26747adb00053dd875bc`.
+- **Finding**: 0 P0, 0 P1, 0 P2 e 0 P3. T020-RR3-C-001,
+  T020-RR3-A-001 e T020-REV-015 sono `CLOSED`.
+- **Scanner/security**: 336 file, 32/32 fixture negative, 2/2 positive e 21/21
+  probe avversari `PASS`; APK 548 + Runner 81 = 629 file, digest riprodotti e
+  zero JWT letterale.
+- **App/native**: byte-identici al Fix 3; analyze zero issue e suite mirata 94/94
+  `PASS`, più controllo supplementare 117/117 `PASS`. Nessun live `PASS` inferito.
+- **Git/PR**: HEAD/upstream/PR `c0ebd75`, PR #4 `OPEN/DRAFT`, 143 path e zero
+  TASK-003/004; worktree pulito durante tutti gli shard.
+- **CI**: run handoff `30631361964` `BLOCKED / CI_EXTERNAL`; Quality
+  `91158230335`, iOS `91158230405` e Android `91158230451` con
+  `runner_id=0`, zero step e una annotation billing/spending ciascuno.
+- **Blocker**: allow-list/provider callback/OAuth live `BLOCKED` da MFA, flag
+  `false` e zero write remoto; callback warm iOS `BLOCKED` dal dialogo OS con
+  Mac locked; CI `BLOCKED` dal billing/spending.
+- **Risultato**: `CODEX_REVIEW_BLOCKED`.
+- **Blocker/note**: implementazione senza finding aperti ma gate obbligatori non
+  superati; nessun `APPROVED`, `DONE`, merge o task futuro è autorizzato.

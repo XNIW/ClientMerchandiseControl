@@ -1,7 +1,7 @@
 # Evidence TASK-020
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
 
 ## Stato
 
@@ -30,10 +30,11 @@ Snapshot di handoff:
   affrontati senza dichiararli chiusi, scanner 336 file, 32/32 fixture negative
   respinte e 2/2 positive accettate, build development/staging dual-platform e
   artifact finali 548 + 81 = 629 file
-- Re-review 4: `NOT_RUN` — obbligatoria sul revision set tecnico/handoff Fix 4
+- Re-review 4: `BLOCKED` — cinque shard A–E, 0 P0/P1/P2/P3; entrambi i finding
+  RR3 chiusi; scanner 32/32 + 2/2 e 21/21 probe `PASS`
 - CI: `BLOCKED / CI_EXTERNAL`
-- PR/merge: draft PR #4 sul tecnico `9dbd535`; run `30630589047` senza runner;
-  handoff Fix 4 da verificare in re-review; merge `BLOCKED`
+- PR/merge: draft PR #4 sull'handoff `c0ebd75`; run `30631361964` senza runner;
+  merge `BLOCKED`
 - DONE: `NO`
 
 ## Indice
@@ -69,9 +70,8 @@ duplicazioni che potrebbero divergere.
   nessun write remoto è stato eseguito.
 - iOS Simulator: conferma OS del custom scheme pendente; il Mac locked impedisce
   l'accettazione automatica del dialogo.
-- GitHub Actions: la run `30630589047` sullo SHA tecnico Fix 4 ha tre job senza
-  step, fermati prima del runner dal limite billing/spending; la run del commit
-  handoff sarà correlata dalla re-review senza auto-citazioni circolari.
+- GitHub Actions: la run `30631361964` sullo SHA handoff Fix 4 ha tre job senza
+  step, fermati prima del runner dal limite billing/spending.
 
 Le evidence finali dovranno contenere esattamente una riga per ciascuno dei 40 CA e
 38 test, con soli esiti `PASS`, `FAIL`, `BLOCKED` o `NOT_RUN`. Non sono ammessi URL,

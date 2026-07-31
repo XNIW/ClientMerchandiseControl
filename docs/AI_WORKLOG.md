@@ -783,3 +783,16 @@
 - **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
 - **Blocker/note**: nessuno; OAuth, callback, session lifecycle e modifiche Supabase
   restano TASK-020.
+
+## 2026-07-30 — Emendamento gate Planning TASK-012
+
+- **Agente**: `USER_APPROVER` / registrazione di `CODEX_EXECUTOR`
+- **Task**: TASK-012
+- **Fase**: EXECUTION, prima delle modifiche tecniche
+- **Autorità**: requisiti già presenti nel prompt end-to-end e nei quality gate
+  versionati; nessuna espansione di scope.
+- **Correzioni**: tipi di verifica normalizzati, gate obbligatori e screenshot
+  esplicitati, retry offline riallineato a TASK-011 e provenance baseline resa
+  riproducibile.
+- **Risultato**: Planning riallineato; implementazione tecnica ancora `NOT_RUN`.
+- **Blocker/note**: nessuno.

@@ -119,17 +119,17 @@ presentazionale del Catalogo, ma non autorizza query a tabelle.
 | CA-02 | La shell adotta pattern e-commerce generali ma non copia brand, asset, palette, copy, icone o layout proprietari | MANUAL/STATIC |
 | CA-03 | Material 3, `ColorScheme`, `StorefrontSemanticColors` e token TASK-002 restano le sole fonti di stile semantico | STATIC/WIDGET |
 | CA-04 | Il nome pubblico provvisorio deriva esclusivamente da `AppBrand`, senza duplicazioni UI | STATIC/UNIT |
-| CA-05 | Home, Catalogo, Carrello e Account restano quattro destinazioni persistenti e riconoscibili | WIDGET/INTEGRATION |
-| CA-06 | Cambiare tab preserva il subtree/stato e back da una tab secondaria torna ragionevolmente a Home | WIDGET/INTEGRATION |
-| CA-07 | Home, Catalogo e Carrello sono navigabili senza login in ogni stato backend recuperabile | WIDGET/INTEGRATION |
+| CA-05 | Home, Catalogo, Carrello e Account restano quattro destinazioni persistenti e riconoscibili | WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-06 | Cambiare tab preserva il subtree/stato e back da una tab secondaria torna ragionevolmente a Home | WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-07 | Home, Catalogo e Carrello sono navigabili senza login in ogni stato backend recuperabile | WIDGET/ANDROID_EMU/IOS_SIM |
 | CA-08 | Home espone app bar, gerarchia cliente e ricerca evidente | WIDGET |
-| CA-09 | Ricerca e CTA principali di Home conducono al Catalogo senza eseguire query | WIDGET/INTEGRATION |
+| CA-09 | Ricerca e CTA principali di Home conducono al Catalogo senza eseguire query | WIDGET/ANDROID_EMU/IOS_SIM |
 | CA-10 | Le categorie rapide sono affordance future oneste, accessibili e prive di dati inventati | WIDGET/SECURITY |
 | CA-11 | Offerte e prodotti in evidenza sono sezioni future chiaramente indisponibili, non skeleton spacciati per contenuto | WIDGET/MANUAL |
 | CA-12 | Home non presenta prodotti, immagini, prezzi, stock, sconti, urgenza o scarsità fittizi | STATIC/WIDGET/SECURITY |
 | CA-13 | Catalogo espone ricerca e controlli fondazione di filtro/ordinamento disabilitati e spiegati finché i task proprietari non forniscono comportamento reale | WIDGET |
 | CA-14 | Catalogo rappresenta distintamente loading, vuoto, offline, backend non disponibile ed errore recuperabile | UNIT/WIDGET |
-| CA-15 | Solo lo stato recuperabile offre retry manuale; azioni concorrenti non creano loop o polling | UNIT/WIDGET |
+| CA-15 | Gli stati retryable `offline` e `recoverableError` riusano una sola CTA e l'operazione manuale single-flight TASK-011, senza loop o polling | UNIT/WIDGET |
 | CA-16 | Catalogo non interroga tabelle, RPC, Storage, inventory o dati commerciali | STATIC/SECURITY |
 | CA-17 | Carrello mostra stato vuoto, spiegazione breve e CTA “Esplora il catalogo” | WIDGET |
 | CA-18 | Carrello non mostra checkout, totale, prezzo, costo consegna o promessa di disponibilità | STATIC/WIDGET |
@@ -143,14 +143,14 @@ presentazionale del Catalogo, ma non autorizza query a tabelle.
 | CA-26 | Nessuna stringa customer-facing o semantic label nuova è hardcoded fuori dai cataloghi ARB | STATIC |
 | CA-27 | Formattazione CLP resta centralizzata, senza decimali e senza valori commerciali finti nella UI | UNIT/STATIC |
 | CA-28 | Tema chiaro e scuro hanno contrasto e colori semantici coerenti senza colori funzionali hardcoded nei widget | STATIC/WIDGET |
-| CA-29 | Tutte le schermate restano utilizzabili a text scale 200% | WIDGET/INTEGRATION |
-| CA-30 | Heading, status, controlli e icone decorative hanno Semantics corrette e non duplicate | WIDGET/INTEGRATION |
-| CA-31 | Tutti i controlli interattivi nuovi e di navigazione rispettano il target minimo di 48 dp | WIDGET/INTEGRATION |
-| CA-32 | SafeArea con inset non nulli, portrait, landscape, 320 px compact e viewport large non producono overflow o contenuto irraggiungibile | WIDGET/INTEGRATION |
-| CA-33 | Contenuto full-width entro il max-width, scroll-to-end e bounds dimostrano che testo e CTA restano completi, raggiungibili e tappabili, chiudendo i P3 TASK-002 | WIDGET/INTEGRATION |
-| CA-34 | Rendering e azioni UI non bloccano il main thread e non aggiungono I/O sincrono o networking autonomo | STATIC/INTEGRATION |
-| CA-35 | Format, gen-l10n, analyze, suite completa e build Android/iOS sono `PASS` | FORMAT/ANALYZE/UNIT/BUILD_ANDROID/BUILD_IOS |
-| CA-36 | Smoke guest reale Android e iOS copre avvio, quattro tab, CTA, back, temi, 200% e orientamenti | ANDROID_EMU/IOS_SIM |
+| CA-29 | Tutte le schermate restano utilizzabili a text scale 200% | WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-30 | Heading, status, controlli e icone decorative hanno Semantics corrette e non duplicate | WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-31 | Tutti i controlli interattivi nuovi e di navigazione rispettano il target minimo di 48 dp | WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-32 | SafeArea con inset non nulli, portrait, landscape, 320 px compact e viewport large non producono overflow o contenuto irraggiungibile | WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-33 | Contenuto full-width entro il max-width, scroll-to-end e bounds dimostrano che testo e CTA restano completi, raggiungibili e tappabili, chiudendo i P3 TASK-002 | WIDGET/ANDROID_EMU/IOS_SIM |
+| CA-34 | Rendering e azioni UI non bloccano il main thread e non aggiungono I/O sincrono o networking autonomo | STATIC/ANDROID_EMU/IOS_SIM |
+| CA-35 | `doctor.sh`, pub get/deps/outdated, gen-l10n, syntax shell, action pins, format, analyze, test coverage, `scripts/check.sh` e build Android/iOS sono eseguiti con esito reale | STATIC/FORMAT/ANALYZE/UNIT/BUILD_ANDROID/BUILD_IOS/SECURITY |
+| CA-36 | Smoke guest reale e screenshot sanitizzati Android/iOS coprono avvio, quattro tab, CTA, back, temi, 200% e orientamenti | ANDROID_EMU/IOS_SIM |
 | CA-37 | Diff, dipendenze, artifact e scan security restano confinati allo scope | GIT/SECURITY |
 | CA-38 | Review indipendente termina con 0 finding P0, P1 o P2 aperti | MANUAL/STATIC |
 | CA-39 | CI sullo SHA finale completa job, step e annotation con esito `PASS` | CI |
@@ -184,12 +184,12 @@ presentazionale del Catalogo, ma non autorizza query a tabelle.
 | T-23 | CA-30 | WIDGET | Ispezionare Semantics heading, live status, label e decorazioni |
 | T-24 | CA-31 | WIDGET | Eseguire guideline e misurare target interattivi |
 | T-25 | CA-32, CA-33 | WIDGET | Provare inset SafeArea, portrait/landscape, full-width, scroll-to-end, bounds e zero overflow |
-| T-26 | CA-05, CA-06, CA-07, CA-36 | INTEGRATION | Eseguire `app_guest_flow_test.dart` con flusso completo |
-| T-27 | CA-35 | FORMAT/ANALYZE/UNIT | Eseguire gen-l10n, format, analyze e suite completa |
+| T-26 | CA-05, CA-06, CA-07, CA-36 | ANDROID_EMU/IOS_SIM | Eseguire `app_guest_flow_test.dart` con flusso completo sui due simulatori |
+| T-27 | CA-35 | STATIC/FORMAT/ANALYZE/UNIT/SECURITY | Eseguire doctor, pub get/deps/outdated, gen-l10n, syntax shell, action pins, format, analyze, test coverage e `scripts/check.sh` |
 | T-28 | CA-35 | BUILD_ANDROID | Compilare APK debug |
 | T-29 | CA-35 | BUILD_IOS | Compilare iOS Simulator debug |
-| T-30 | CA-36 | ANDROID_EMU | Eseguire smoke guest reale su Android Emulator |
-| T-31 | CA-36 | IOS_SIM | Eseguire smoke guest reale su iOS Simulator |
+| T-30 | CA-36 | ANDROID_EMU | Eseguire smoke guest reale e catturare screenshot sanitizzati su Android Emulator |
+| T-31 | CA-36 | IOS_SIM | Eseguire smoke guest reale e catturare screenshot sanitizzati su iOS Simulator |
 | T-32 | CA-37 | GIT/SECURITY | Eseguire diff check, governance, scan secret/artifact e confinement |
 | T-33 | CA-38 | MANUAL/STATIC | Eseguire review indipendenti UI/a11y e architettura/security |
 | T-34 | CA-39 | CI | Ispezionare SHA, job, step e annotation del run finale |
@@ -208,6 +208,7 @@ presentazionale del Catalogo, ma non autorizza query a tabelle.
 | D-08 | es-CL è locale primaria e fallback; il delegate può riusare il catalogo spagnolo finché non esistono varianti regionali divergenti. | Rendere esplicita la policy cilena senza duplicare copy identica | ATTIVA |
 | D-09 | Nessuna nuova dipendenza runtime, immagine remota di prodotto, font o asset viene introdotto. | Ridurre rischio supply-chain e contenuto non autorizzato | ATTIVA |
 | D-10 | `FeaturePlaceholder` viene rimosso solo se resta senza responsabilità o consumatori. | Evitare astrazioni vuote e file inutilizzati | ATTIVA |
+| D-11 | L'emendamento `USER_APPROVER` del 2026-07-30 normalizza i tipi di verifica, rende espliciti tutti i gate già obbligatori, include screenshot e corregge il retry offline senza cambiare scope. | Riallineare il Planning alla specifica originale e al protocollo prima dell'implementazione | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 

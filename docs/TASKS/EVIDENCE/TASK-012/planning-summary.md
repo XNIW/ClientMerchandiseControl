@@ -18,8 +18,8 @@
   Carrello vuoto e contratto Account guest/authenticated.
 - I P3 TASK-002 su scroll-to-end/bounds e larghezza cosmetica sono ancora aperti e
   vengono assorbiti nei criteri TASK-012.
-- Tre audit read-only indipendenti hanno confermato i confini UI, qualità e governance;
-  la baseline mirata l10n/theme/shell/CLP è 50/50 test `PASS`.
+- Tre audit read-only indipendenti hanno verificato UI, qualità e governance; comando,
+  exit code, conteggio e rilievi sono registrati in `planning-audit.md`.
 - I gap principali sono reachability reale a 200%, SafeArea con inset, parità
   automatica degli ARB, Semantics dell'albero completo e full-width coerente entro il
   max-width.
@@ -49,7 +49,7 @@
 
 | Gate | Esito | Motivo |
 |---|---|---|
-| Audit baseline | PASS | codice, test ed evidence letti; baseline mirata 50/50 |
+| Audit baseline | PASS | `planning-audit.md`: comando riproducibile, exit 0, 50/50 |
 | Governance Planning | PASS | un solo task attivato e handoff coerente |
 | Implementazione | NOT_RUN | fase non ancora autorizzata nel repository |
 | Test/build/smoke | NOT_RUN | dipendono dall'implementazione |

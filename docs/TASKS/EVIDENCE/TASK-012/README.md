@@ -18,6 +18,8 @@ Snapshot di handoff:
 
 - [planning-summary.md](planning-summary.md) — baseline, scope, criteri, strategia di
   verifica e confini con TASK-020.
+- [planning-audit.md](planning-audit.md) — comando baseline, shard read-only ed
+  emendamento D-11.
 
 Le evidence runtime, i risultati dei gate e le matrici CA/T saranno aggiunti dai ruoli
 proprietari nelle rispettive fasi. Nessun `PASS` di implementazione è inferito dal

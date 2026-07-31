@@ -7,14 +7,14 @@
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-07-30
-- **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_EXECUTOR
-- **Review outcome**: NOT_RUN
+- **Ultimo aggiornamento**: 2026-07-31
+- **Ultimo agente**: CODEX_REVIEWER
+- **Review outcome**: CHANGES_REQUIRED
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -371,12 +371,27 @@ A–E dello SHA consegnato; i blocker restano aperti.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
-Non avviata; revision set iniziale:
-`82439dd3fdbbc2920f27e4606dceadb412f0a6e7` più commit di handoff.
+Cinque reviewer read-only indipendenti hanno verificato il revision set:
+
+- tecnico `82439dd3fdbbc2920f27e4606dceadb412f0a6e7`;
+- handoff/evidence `2f25f3f74537856204fa42e9ea5d024f9c848332`.
+
+Esito consolidato: 0 P0, 1 P1, 18 P2 e 2 P3. Il P1 riguarda la sessione SDK/persistita
+che può sopravvivere a Cancel durante un exchange in-flight. I P2 coprono expiry,
+race restore/cancel/retry, persistenza e cleanup fail-closed, coverage runtime/UI,
+confinement PR, evidence/CI e policy della configurazione pubblicabile. I due P3
+riguardano retry dell'initialization storage e provenance temporale.
+
+Report completo:
+`docs/TASKS/EVIDENCE/TASK-020/review-report.md`.
+
+Esito: `CHANGES_REQUIRED`.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 
-Non avviata.
+Autorizzato esclusivamente sui finding T020-REV-001…T020-REV-021 consolidati.
 
 ## Chiusura
 

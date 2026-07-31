@@ -1,17 +1,17 @@
 # Evidence TASK-020
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Stato
 
 - Planning: `PASS`
 - Autorizzazione Execution: `PASS` — concessa e applicata dal prompt end-to-end
 - Execution: `PASS` per i gate automatizzabili; dipendenze esterne esplicitate
-- Review: `NOT_RUN`
+- Review: `CHANGES_REQUIRED` — cinque reviewer, 1 P1, 18 P2 e 2 P3 consolidati
 - Fix/re-review: `NOT_RUN`
-- CI: `NOT_RUN`
-- PR/merge: `NOT_RUN`
+- CI: `BLOCKED / CI_EXTERNAL`
+- PR/merge: draft PR #4 aperta; merge `NOT_RUN`
 - DONE: `NO`
 
 ## Indice
@@ -41,8 +41,8 @@ Snapshot di handoff:
   nessun write remoto è stato eseguito.
 - iOS Simulator: conferma OS del custom scheme pendente; il Mac locked impedisce
   l'accettazione automatica del dialogo.
-- GitHub Actions: il limite billing/spending osservato nel closeout TASK-012 resta da
-  riverificare sullo SHA finale.
+- GitHub Actions: due run TASK-020 sullo SHA di handoff sono stati fermati prima del
+  runner dal limite billing/spending.
 
 Le evidence finali dovranno contenere esattamente una riga per ciascuno dei 40 CA e
 38 test, con soli esiti `PASS`, `FAIL`, `BLOCKED` o `NOT_RUN`. Non sono ammessi URL,

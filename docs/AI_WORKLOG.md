@@ -965,3 +965,24 @@
 - **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 - **Blocker/note**: review indipendente A–E obbligatoria; redirect/live OAuth/iOS
   callback e CI restano aperti, nessun task futuro attivato.
+
+## 2026-07-31 — Review indipendente TASK-020 e handoff a Fix
+
+- **Agente**: `CODEX_REVIEWER`, cinque shard read-only indipendenti
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revision set**: tecnico
+  `82439dd3fdbbc2920f27e4606dceadb412f0a6e7`; handoff
+  `2f25f3f74537856204fa42e9ea5d024f9c848332`.
+- **Verifiche**: lifecycle/race/storage, callback/native, Account/l10n/a11y,
+  governance/evidence/Git/CI e security/threat model; suite mirate e smoke fake
+  Android/iOS rieseguiti in sola lettura.
+- **Finding consolidati**: 0 P0, 1 P1, 18 P2 e 2 P3. Il P1 riguarda Cancel durante
+  exchange con sessione SDK/persistita tardiva; i restanti finding coprono expiry,
+  interleaving, persistenza/cleanup, coverage, confinement ed evidence.
+- **CI/PR**: PR draft #4; run `30614374801` e `30614438284` sullo SHA handoff,
+  entrambi `BLOCKED / CI_EXTERNAL`, tre job senza step e billing/spending come
+  prerequisito.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: Fix limitato a T020-REV-001…T020-REV-021; MFA, dialogo OS iOS e
+  CI esterna restano distinti e non autorizzano `APPROVED`, `DONE` o merge.

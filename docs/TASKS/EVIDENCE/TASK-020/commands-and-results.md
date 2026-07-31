@@ -74,9 +74,9 @@ directory. Il rerun isolato sullo stesso worktree è terminato con exit 0.
 | CA-35 | PASS | tutti i gate repository obbligatori con exit reali |
 | CA-36 | PASS | dipendenze minime e scan mirato senza secret/artifact |
 | CA-37 | PASS | build development e staging Android/iOS reali |
-| CA-38 | NOT_RUN | review A–E attende SHA tecnico |
-| CA-39 | NOT_RUN | CI attende SHA revisionato |
-| CA-40 | NOT_RUN | PR/merge/main sync/IDLE non ancora eseguiti |
+| CA-38 | FAIL | review A–E completata; 1 P1 e 18 P2 consolidati aperti |
+| CA-39 | BLOCKED | run 30614374801/30614438284, zero step; CI_EXTERNAL billing |
+| CA-40 | FAIL | PR #4 draft esiste ma confinement da correggere; merge vietato |
 
 ## Matrice test
 
@@ -116,7 +116,7 @@ directory. Il rerun isolato sullo stesso worktree è terminato con exit 0.
 | T-32 | BLOCKED | 17 passi live Android dipendono da allow-list |
 | T-33 | BLOCKED | 17 passi live iOS dipendono da allow-list/dialogo OS |
 | T-34 | BLOCKED | smoke errori live non eseguibile con flag false |
-| T-35 | NOT_RUN | review A–E attende SHA tecnico |
-| T-36 | NOT_RUN | CI attende SHA revisionato |
-| T-37 | NOT_RUN | commit/PR scope e closeout ancora da eseguire |
+| T-35 | FAIL | cinque reviewer indipendenti; finding tecnici/documentali aperti |
+| T-36 | BLOCKED | due run sullo SHA handoff fermati prima del runner |
+| T-37 | FAIL | commit/tracking PASS; PR draft include tre path fuori confinement |
 | T-38 | NOT_RUN | merge e riallineamento main ancora da eseguire |

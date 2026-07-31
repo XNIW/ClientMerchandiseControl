@@ -1,7 +1,7 @@
 # Evidence TASK-020
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Stato
 
@@ -16,8 +16,10 @@ Snapshot di handoff:
 - Fix 2: `PASS` sul commit tecnico
   `036dcd1be047d49d6b53738d06e5e58caf608f34`; audit candidate 0 P0/P1/P2,
   gate 218/218, coverage 79,9%, build/smoke fake dual-platform e scanner 629 file
+- Re-review 2: `CHANGES_REQUIRED` — 0 P0, 0 P1, 4 P2 e 0 P3; scanner path,
+  tombstone multi-failure e provenance Git/CI/bundle
 - CI: `BLOCKED / CI_EXTERNAL`
-- PR/merge: draft PR #4 su `036dcd1`; run `30624421347` senza runner; merge
+- PR/merge: draft PR #4 su `7b4bf15`; run `30624825908` senza runner; merge
   `BLOCKED`
 - DONE: `NO`
 
@@ -54,7 +56,7 @@ duplicazioni che potrebbero divergere.
   nessun write remoto è stato eseguito.
 - iOS Simulator: conferma OS del custom scheme pendente; il Mac locked impedisce
   l'accettazione automatica del dialogo.
-- GitHub Actions: la run `30624421347` sullo SHA tecnico Fix 2 ha tre job senza step,
+- GitHub Actions: la run `30624825908` sullo SHA handoff Fix 2 ha tre job senza step,
   fermati prima del runner dal limite billing/spending.
 
 Le evidence finali dovranno contenere esattamente una riga per ciascuno dei 40 CA e

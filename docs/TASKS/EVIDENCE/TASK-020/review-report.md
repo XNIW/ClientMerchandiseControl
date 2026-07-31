@@ -222,3 +222,98 @@ Sedici finding originari sono `CLOSED`; cinque originari e cinque nuovi restano
 `CHANGES_REQUIRED`
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Re-review 2 del Fix
+
+### Revision set
+
+- Commit tecnico finale Fix 2:
+  `036dcd1be047d49d6b53738d06e5e58caf608f34`
+- Handoff/evidence:
+  `7b4bf152b496f7429b506c053f0e8ec5cf436b83`
+- Branch, upstream e PR head: allineati allo SHA handoff; worktree pulito
+- PR #4: `OPEN/DRAFT`, base `main`, 143 path, zero TASK-003/004
+- CI handoff: run `30624825908`, tre job senza runner/step e una annotation
+  billing/spending per job; `BLOCKED / CI_EXTERNAL`
+
+### Reviewer indipendenti
+
+| Reviewer | Specializzazione | Verifiche autonome | Esito |
+|---|---|---|---|
+| A | intent, CA, governance e scope | 39/39 mirati, scanner e PR scope | BLOCKED |
+| B | lifecycle Auth, race e restore | 53/53 mirati e probe URI | APPROVED |
+| C | storage, scanner e threat model | storage 13/13, scanner/fixture/bundle | CHANGES_REQUIRED |
+| D | UI, native, l10n e accessibilità | 40/40 mirati e artifact iOS | BLOCKED |
+| E | evidence, Git, PR e CI | parser 1/1, refs/run/annotation, bundle rerun | CHANGES_REQUIRED |
+
+Tutti gli shard hanno operato read-only sul medesimo revision set.
+
+### Chiusura dei dieci finding della re-review 1
+
+| ID | Stato re-review 2 | Evidence |
+|---|---|---|
+| T020-REV-003 | CLOSED | ricontrollo post-cleanup e regressione restore concorrente |
+| T020-REV-007 | OPEN | resta T020-RR2-002 sul caso simultaneo di tutti i canali persistenti |
+| T020-REV-015 | OPEN | resta T020-RR2-001 sui due path scanner esclusi |
+| T020-REV-016 | OPEN | resta T020-RR2-003 sulla provenance handoff/CI |
+| T020-REV-018 | OPEN | resta T020-RR2-004 su digest, conteggio e comandi esatti |
+| T020-RR-001 | CLOSED | purge prima/dopo exchange Logout e side effect testato |
+| T020-RR-002 | CLOSED | terminazione provider e dedup code-only dopo Retry |
+| T020-RR-003 | CLOSED | range task README corretto |
+| T020-RR-004 | CLOSED | formula temporale architetturale corretta |
+| T020-RR-005 | CLOSED | marker installazione/tombstone ridondanti documentati |
+
+### T020-RR2-001 — P2 — Path scanner esclusi integralmente
+
+- **Stato**: OPEN
+- **Posizione**: `scripts/check-client-security.sh`; script fixture scanner
+- **Evidence**: i due script vengono saltati prima dello scan dei valori e il file
+  fixture contiene shape sintetiche complete.
+- **Impatto**: un valore reale inserito in quei path può superare la CI.
+- **Correzione richiesta**: eliminare le esclusioni, comporre le fixture da
+  frammenti non secret-shaped e aggiungere regressioni sui due path.
+
+### T020-RR2-002 — P2 — Nessun tombstone dopo failure simultanee
+
+- **Stato**: OPEN
+- **Posizione**: `secure_supabase_auth_storage.dart`, cleanup marker/delete
+- **Evidence**: se falliscono entrambe le scritture SharedPreferences, il tombstone
+  sicuro e il delete sessione, al restart entrambi i marker possono risultare assenti.
+- **Impatto**: una sessione stale può tornare leggibile dopo recovery dei driver.
+- **Correzione richiesta**: strategia fail-closed persistente addizionale oppure
+  rischio esplicito con decisione utente; regressione restart sull'interleaving.
+
+### T020-RR2-003 — P2 — Provenance Git/CI ferma allo SHA tecnico
+
+- **Stato**: OPEN
+- **Posizione**: `git-state.md`, `ci-status.md`, matrice canonica
+- **Evidence**: lo snapshot versionato registra `036dcd1`/`30624421347`, mentre la
+  re-review usa `7b4bf15`/`30624825908`.
+- **Impatto**: CA/T Git/CI non sono attestati sul vero handoff.
+- **Correzione richiesta**: registrare SHA, PR, run/job/step/annotation e command ID
+  del revision set corrente.
+
+### T020-RR2-004 — P2 — Bundle evidence non riproducibile
+
+- **Stato**: OPEN
+- **Posizione**: `commands-and-results.md` e riferimenti security/task/worklog
+- **Evidence**: il rerun conta 627 file contro 629 documentati; nessun digest lega
+  APK/Runner.app allo SHA e header/comandi contengono revisioni o placeholder stale.
+- **Impatto**: CA-22/34/35/36 e T-26/27 non hanno provenance integra.
+- **Correzione richiesta**: build esatta, digest sanitizzati, conteggio coerente,
+  header corrente e comandi realmente eseguiti.
+
+### Conteggio re-review 2
+
+| Severità | Aperti |
+|---|---:|
+| P0 | 0 |
+| P1 | 0 |
+| P2 | 4 |
+| P3 | 0 |
+
+### Esito re-review 2
+
+`CHANGES_REQUIRED`
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

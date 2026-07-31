@@ -54,6 +54,9 @@
 | CMD-S12 | candidate Fix sul diff `51b6949..036dcd1`, tre audit read-only | audit lifecycle/evidence e due cicli scanner con probe sanitizzati | PASS | 0 P0/P1/P2 residui; controller+governance 26/26; bundle 629 file | non sostituisce la re-review A–E sul revision set di handoff |
 | CMD-S13 | `036dcd1`, Git/PR | `git status`, diff check/scope, push e `gh pr view 4` | PASS | worktree pulito prima dell'aggiornamento evidence; branch/upstream/PR head allineati; zero path TASK-003/004 | PR #4 `OPEN/DRAFT`, base `main`, head `036dcd1`, mergeable |
 | CMD-S14 | `036dcd1`, GitHub Actions | `gh run view 30624421347` + API job/annotation | BLOCKED | 3/3 job `failure`, `runner_id=0`, zero step, una annotation/job | billing/spending GitHub prima del runner; prerequisito: ripristino Billing & plans |
+| CMD-Q01 | tecnico `036dcd1`, handoff `7b4bf15`, cinque shard read-only A–E | re-review di intent, lifecycle, security, UI/native ed evidence/Git/CI con suite mirate | FAIL | 0 P0, 0 P1, 4 P2, 0 P3; suite 39/39, 53/53 e 40/40 `PASS` | esito consolidato `CHANGES_REQUIRED`; scanner path, tombstone e provenance evidence da correggere |
+| CMD-Q02 | handoff `7b4bf15`, GitHub Actions | `gh run view 30624825908` + API job/annotation | BLOCKED | 3/3 job `failure`, `runner_id=0`, zero step, una annotation/job | billing/spending GitHub prima del runner; prerequisito: ripristino Billing & plans |
+| CMD-Q03 | handoff `7b4bf15`, Git/PR | `git status`, ref locali/remote, API PR files/checks | PASS | branch/upstream/PR allineati, worktree pulito, 143 path e zero TASK-003/004 | PR #4 `OPEN/DRAFT`, base `main`, mergeable |
 
 I `FAIL` diagnostici restano evidence reali e non vengono trasformati in `PASS`: i
 rerun conformi sono identificati separatamente. I comandi con callback usano qui un
@@ -101,9 +104,9 @@ query o code.
 | CA-35 | STATIC/FORMAT/ANALYZE/UNIT/GIT | PASS | CMD-S01/S02/S13 con comando, output ed exit reali |
 | CA-36 | STATIC/SECURITY/GIT | PASS | CMD-S02/S11/CMD-B01; dipendenze minime, 336 file puliti, 16/16 fixture negative e 1/1 positiva |
 | CA-37 | BUILD_ANDROID/BUILD_IOS | PASS | CMD-S01 development e CMD-S03 staging, entrambi i target exit 0 |
-| CA-38 | MANUAL/STATIC/SECURITY | NOT_RUN | CMD-S12; audit candidate 0 P0/P1/P2, ma re-review A–E sul revision set di handoff non ancora eseguita |
-| CA-39 | CI | BLOCKED | CMD-S14; run esatta sullo SHA tecnico, 3 job senza runner/step; prerequisito billing/spending GitHub |
-| CA-40 | GIT/CI | BLOCKED | CMD-S13/S14; PR #4 draft e scope remoto corretto, ma re-review/CI/live gate impediscono merge, DONE e sync main |
+| CA-38 | MANUAL/STATIC/SECURITY | FAIL | CMD-Q01; cinque re-reviewer sul medesimo revision set, 0 P0/P1, 4 P2 e 0 P3 |
+| CA-39 | CI | BLOCKED | CMD-Q02; run esatta sullo SHA handoff, 3 job senza runner/step; prerequisito billing/spending GitHub |
+| CA-40 | GIT/CI | BLOCKED | CMD-Q01/Q02/Q03; PR #4 draft e scope remoto corretto, ma finding/CI/live gate impediscono merge, DONE e sync main |
 
 ## Matrice test
 
@@ -143,7 +146,7 @@ query o code.
 | T-32 | ANDROID_EMU/MANUAL/SECURITY | BLOCKED | subset automatico PASS CMD-S04/S05/S06; 17 passi live dipendono da CMD-R01 |
 | T-33 | IOS_SIM/MANUAL/SECURITY | BLOCKED | subset automatico PASS CMD-S07/S08; live dipende da CMD-R01 e CMD-S09 |
 | T-34 | ANDROID_EMU/IOS_SIM/MANUAL | BLOCKED | error fake PASS CMD-S01/S04/S07; matrice live non eseguibile con flag false/MFA |
-| T-35 | MANUAL/STATIC/SECURITY | NOT_RUN | CMD-S12; audit candidate chiusi, re-review A–E sul revision set di handoff ancora da eseguire |
-| T-36 | CI | BLOCKED | CMD-S14; run `30624421347` sullo SHA esatto fermata prima del runner |
-| T-37 | GIT | PASS | CMD-S13; branch/upstream/PR allineati, worktree tecnico pulito e zero path TASK-003/004 |
-| T-38 | GIT/CI | NOT_RUN | CMD-S14; verifica post-merge non eseguita perché re-review, CI e gate live non sono verdi e il merge resta vietato |
+| T-35 | MANUAL/STATIC/SECURITY | FAIL | CMD-Q01; cinque shard completati, quattro finding P2 ancora aperti |
+| T-36 | CI | BLOCKED | CMD-Q02; run `30624825908` sullo SHA handoff fermata prima del runner |
+| T-37 | GIT | PASS | CMD-Q03; branch/upstream/PR allineati, worktree pulito e zero path TASK-003/004 |
+| T-38 | GIT/CI | NOT_RUN | CMD-Q02/Q03; verifica post-merge non eseguita perché review, CI e gate live non sono verdi e il merge resta vietato |

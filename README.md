@@ -143,18 +143,18 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 
 - **Task attivo**: TASK-020
 - **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Stato task**: ACTIVE
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione
 `30601758281` 3/3 `PASS`; CI closeout `30602210469` è 3/3 `PASS` sullo SHA esatto.
 TASK-012 è `DONE` con re-review indipendente `APPROVED`, quattro P2 chiusi e CI
 handoff/approvazione `30606916073` / `30607430241` entrambe 3/3 `PASS`. TASK-020
-resta l'unico task corrente ed è `BLOCKED` in `REVIEW`: il Fix 2 ha consegnato lo
-SHA tecnico `036dcd1`, con audit candidate 0 P0/P1/P2 e handoff
-`CODEX_FIX_BLOCKED_TO_RE_REVIEW`. Redirect allow-list/live OAuth restano bloccati
-da MFA; callback warm iOS dal dialogo OS; CI run `30624421347` dal
+resta l'unico task corrente ed è `ACTIVE` in `FIX`: la re-review 2 del tecnico
+`036dcd1` / handoff `7b4bf15` ha consolidato 0 P0, 0 P1, 4 P2 e 0 P3 con handoff
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`. Redirect allow-list/live OAuth restano
+bloccati da MFA; callback warm iOS dal dialogo OS; CI run `30624825908` dal
 billing/spending. Nessuno di questi gate è dichiarato `PASS`. TASK-005–TASK-010,
 TASK-013–TASK-019 e TASK-021 in avanti non sono attivi.

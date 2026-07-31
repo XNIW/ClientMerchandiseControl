@@ -9,7 +9,9 @@
   `0ddd26abd9d6c7a5eaa70aaba2481cfe0b05bfa7`
 - SHA tecnico Fix 2:
   `036dcd1be047d49d6b53738d06e5e58caf608f34`
-- Workflow sullo SHA tecnico Fix 2: run `30624421347`, `BLOCKED / CI_EXTERNAL`
+- SHA handoff Fix 2:
+  `7b4bf152b496f7429b506c053f0e8ec5cf436b83`
+- Workflow sullo SHA handoff Fix 2: run `30624825908`, `BLOCKED / CI_EXTERNAL`
 - Auth fake, build Android/iOS, security/pin scan in CI sul Fix 2: `BLOCKED`; nessuno
   step ha acquisito un runner
 
@@ -47,6 +49,17 @@ I job `Android debug build` (`91136250565`), `iOS Simulator debug build`
 singola annotation billing/spending. `gh run view` e le tre query API sono terminate
 con exit 0; la CI non ha eseguito codice del repository.
 
+## Run reale sullo SHA handoff Fix 2
+
+| Run | Trigger | SHA | Job | Step | Annotation | Esito |
+|---|---|---|---:|---:|---:|---|
+| `30624825908` | `pull_request` | `7b4bf15` | 3/3 `failure` | 0 | 1/job | BLOCKED |
+
+I job `iOS Simulator debug build` (`91137530757`), `Android debug build`
+(`91137530779`) e `Quality` (`91137530796`) hanno `runner_id=0`, `steps: []` e una
+singola annotation billing/spending. `gh run view` e le query API sono terminate con
+exit 0; nessuna verifica CI è stata eseguita.
+
 - **Causa**: `CI_EXTERNAL`, billing/spending GitHub.
 - **Tentativi**: dispatch manuale e trigger PR reali.
 - **Prerequisito**: ripristino Billing & plans/spending limit da parte del titolare.
@@ -55,5 +68,5 @@ con exit 0; la CI non ha eseguito codice del repository.
 Nessun Google OAuth live, file staging locale, secret o account deve entrare in CI.
 
 Matrice CA/T canonica e command evidence: `commands-and-results.md`,
-CMD-CI01/CMD-CI02/CMD-S14,
+CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02,
 CA-39 e T-36.

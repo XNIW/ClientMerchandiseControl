@@ -1062,3 +1062,25 @@
 - **Risultato**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 - **Blocker/note**: re-review A–E obbligatoria sul revision set esatto; nessun
   `APPROVED`, `DONE`, merge o task futuro è autorizzato con gate esterni aperti.
+
+## 2026-07-31 — Re-review 2 TASK-020 e ritorno a Fix
+
+- **Agente**: `CODEX_RE_REVIEWER`, cinque shard read-only indipendenti
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> FIX; stato task `ACTIVE`
+- **Revision set**: tecnico
+  `036dcd1be047d49d6b53738d06e5e58caf608f34`; handoff pubblicato
+  `7b4bf152b496f7429b506c053f0e8ec5cf436b83`.
+- **Verifiche**: intent/CA/governance, lifecycle/race, storage/security,
+  UI/native/a11y, evidence/Git/PR/CI; suite autonome 39/39, 53/53, 40/40,
+  storage 13/13 e parser 1/1 `PASS`.
+- **Finding**: 0 P0, 0 P1, 4 P2 e 0 P3. Restano aperti T020-REV-007/015/016/018
+  tramite T020-RR2-001…004: due path scanner esclusi, failure simultanea di tutti
+  i marker/delete e due gap di provenance Git/CI/bundle.
+- **CI/PR**: PR #4 `OPEN/DRAFT`, head `7b4bf15`, 143 path e zero TASK-003/004;
+  run `30624825908` sullo SHA handoff, 3/3 job senza runner o step e una annotation
+  billing/spending per job: `BLOCKED / CI_EXTERNAL`.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: il Fix resta limitato ai quattro finding consolidati; MFA,
+  dialogo OS iOS e CI esterna restano separati e non autorizzano `APPROVED`, `DONE`
+  o merge.

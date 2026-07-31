@@ -18,25 +18,26 @@
   `51b6949e5438039dc3c08de8f77ab1f078b85479`
 - SHA tecnico finale Fix 2:
   `036dcd1be047d49d6b53738d06e5e58caf608f34`
-- Tracking tecnico: branch locale, upstream e head PR allineati a `036dcd1`;
+- Handoff Fix 2 -> re-review 2:
+  `7b4bf152b496f7429b506c053f0e8ec5cf436b83`
+- Tracking re-review: branch locale, upstream e head PR allineati a `7b4bf15`;
   `+0/-0`
 - Config staging locale: ignorata, non tracciata e assente dallo status
 - Build/coverage artifact: non tracciati e assenti dallo status
 - Scope diff rispetto a `main`: soltanto TASK-011/TASK-012/TASK-020 e fondazione
   condivisa; zero path TASK-003, TASK-004 o `TASK-003-004`
 - Repository esterni/production/task futuri: non modificati
-- Worktree sullo SHA tecnico durante gli audit read-only e prima delle evidence:
-  pulito
+- Worktree sullo SHA handoff durante i cinque shard read-only: pulito
 - Worktree al momento di questa evidence: contiene soltanto task/evidence/worklog
-  della transizione Fix -> Review, da committare selettivamente
-- PR: #4 `OPEN/DRAFT`, base `main`, head remoto `036dcd1`, mergeable `MERGEABLE`
+  della transizione Review -> Fix, da committare selettivamente
+- PR: #4 `OPEN/DRAFT`, base `main`, head remoto `7b4bf15`, mergeable `MERGEABLE`
 - Scope PR remoto: 143 path, confinati a TASK-011/TASK-012/TASK-020 e fondazione
   condivisa; zero path TASK-003/004
-- Commit/push tecnico Fix 2: `PASS`
-- CI sullo SHA tecnico: run `30624421347`, `BLOCKED / CI_EXTERNAL`, tre job
+- Commit/push handoff Fix 2: `PASS`
+- CI sullo SHA handoff: run `30624825908`, `BLOCKED / CI_EXTERNAL`, tre job
   senza runner o step e una annotation billing/spending per job
-- Merge/main sync: `BLOCKED` da re-review, CI e gate esterni
+- Merge/main sync: `BLOCKED` da finding, CI e gate esterni
 
-Comandi: `commands-and-results.md`, CMD-S01/S03/S10/S11/S12/S13/S14,
+Comandi: `commands-and-results.md`, CMD-Q01/Q02/Q03,
 CA-01/02/40 e T-01/37/38. Lo snapshot sarà aggiornato dal Fix dopo commit/push senza
 cancellare lavoro altrui né includere file locali.

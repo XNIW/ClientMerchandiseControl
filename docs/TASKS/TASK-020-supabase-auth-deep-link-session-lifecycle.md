@@ -6,15 +6,15 @@
 - **Titolo**: Supabase Auth, deep link e session lifecycle
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Stato**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-07-31
 - **Ultimo aggiornamento**: 2026-07-31
-- **Ultimo agente**: CODEX_FIXER
+- **Ultimo agente**: CODEX_RE_REVIEWER
 - **Review outcome**: CHANGES_REQUIRED
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -409,6 +409,38 @@ annotation billing/spending per job, quindi resta `BLOCKED / CI_EXTERNAL`.
 
 Report completo:
 `docs/TASKS/EVIDENCE/TASK-020/review-report.md`.
+
+Esito: `CHANGES_REQUIRED`.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Re-review 2 del Fix
+
+Cinque re-reviewer read-only indipendenti hanno verificato il revision set:
+
+- tecnico `036dcd1be047d49d6b53738d06e5e58caf608f34`;
+- handoff/evidence `7b4bf152b496f7429b506c053f0e8ec5cf436b83`.
+
+Gli shard intent/governance, lifecycle e UI/native non hanno trovato P0–P3 tecnici
+nuovi. Gli shard security ed evidence hanno consolidato quattro P2:
+
+- T020-RR2-001: lo scanner salta integralmente i propri due script, consentendo un
+  bypass tramite quei path;
+- T020-RR2-002: la combinazione failure di entrambi i marker, tombstone sicuro e
+  delete può lasciare una sessione stale ripristinabile;
+- T020-RR2-003: Git/CI evidence si ferma allo SHA tecnico e non registra lo SHA
+  handoff con run `30624825908`;
+- T020-RR2-004: artifact evidence senza digest, conteggio 629 divergente dal rerun
+  627, header revision set e comandi con placeholder non esatti.
+
+Totale aperto: 0 P0, 0 P1, 4 P2 e 0 P3. T020-REV-003 e T020-RR-001…005 risultano
+chiusi; T020-REV-007/015/016/018 restano aperti per i quattro finding sopra.
+
+Verifiche autonome: suite mirate lifecycle 53/53, intent/evidence 39/39 e UI/native
+40/40 `PASS`; scanner 336 file, fixture 16/16 + 1/1 e bundle corrente 627 file
+`PASS`; PR #4 `OPEN/DRAFT`, 143 path, zero TASK-003/004. La CI handoff run
+`30624825908` ha tre job senza runner o step e una annotation billing/spending per
+job, quindi resta `BLOCKED / CI_EXTERNAL`.
 
 Esito: `CHANGES_REQUIRED`.
 

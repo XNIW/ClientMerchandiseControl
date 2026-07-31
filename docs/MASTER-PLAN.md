@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-020
 - **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
-- **Prossima azione autorizzata**: implementare esclusivamente il Planning TASK-020
-  approvato e produrre evidence reale
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Prossima azione autorizzata**: review indipendente A–E sul revision set TASK-020;
+  nessun `APPROVED`, `DONE` o merge finché i gate esterni restano bloccati
 
 ## Repository coinvolti
 
@@ -138,17 +138,19 @@ esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
 `TASK-012` è `DONE` dopo re-review indipendente `APPROVED`; i quattro P2 sono chiusi.
 CI handoff `30606916073` e CI approvazione `30607430241` sono 3/3 `PASS`, tutti gli
 step applicabili `success` e annotation 0/0/0. TASK-020 è l'unico task `ACTIVE` ed è
-in `EXECUTION`; TASK-005–TASK-010 e TASK-013 in avanti restano invariati. La CI
+in `REVIEW`; TASK-005–TASK-010 e TASK-013 in avanti restano invariati. La CI
 closeout `30607868864` è `BLOCKED / CI_EXTERNAL`: due tentativi, zero runner e zero
 step, con billing/spending GitHub come prerequisito esterno.
 
 ## Task attivo — TASK-020
 
-Il Planning di Google OAuth, callback mobile, secure persistence e session lifecycle è
-approvato con 40 criteri e 38 test. Le versioni SDK bloccate sono state verificate e
-richiedono `detectSessionInUri:false`, callback validation applicativa e storage
-Keystore/Keychain custom per sessione e verifier PKCE. L'Execution è autorizzata
-esclusivamente entro tale scope.
+L'Execution ha consegnato dominio/repository/controller Auth, Google OAuth PKCE,
+callback nativo validato, secure persistence, Account integration, 192 test e build
+development/staging nel commit tecnico `82439dd`. I gate automatizzabili sono `PASS`;
+redirect allow-list e live OAuth restano `BLOCKED` da MFA, mentre la consegna callback
+iOS reale è `BLOCKED` da conferma OS con Mac locked. Per l'emendamento esplicito
+`USER_APPROVER` la review A–E e la PR possono proseguire, ma nessun blocker diventa
+`PASS` e non sono ammessi `APPROVED`, `DONE` o merge.
 
 Handoff:
-`CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`CODEX_EXECUTION_COMPLETE_TO_REVIEW`.

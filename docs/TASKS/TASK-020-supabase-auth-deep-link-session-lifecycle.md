@@ -7,14 +7,14 @@
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: USER_APPROVER
+- **Ultimo agente**: CODEX_EXECUTOR
 - **Review outcome**: NOT_RUN
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -226,6 +226,7 @@ può diventare `PASS`.
 | D-14 | Il threat model target-scoped è persistito nel path richiesto dall'utente, che prevale sul default della skill. | Rendere verificabili i rischi OAuth del milestone | ATTIVA |
 | D-15 | Il billing/spending GitHub osservato resta rischio `CI_EXTERNAL`; nessun run senza runner viene reinterpretato come verde. | Evidence reale e gate CI non inferiti | ATTIVA |
 | D-16 | TASK-020 chiude la PR milestone comune con TASK-011/TASK-012 solo dopo review A–E e CI verdi; nessun task futuro viene attivato. | Rispettare batch autorizzato e stop condition | ATTIVA |
+| D-17 | L'istruzione esplicita `USER_APPROVER` impone di completare review, test automatizzabili e PR anche quando password/MFA è l'unico blocker esterno; i gate live restano `BLOCKED` e non consentono `APPROVED`, `DONE` o merge. | Preservare il lavoro e distinguere review tecnica da accettazione finale senza inventare `PASS` | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 
@@ -323,12 +324,55 @@ esporre token o dati e senza estendere il client oltre il dominio Storefront fut
 
 ## Execution — `CODEX_EXECUTOR`
 
-Autorizzata sul Planning commit `8eab82b`; implementazione non ancora avviata in
-questo commit di transizione.
+### Implementazione
+
+Autorizzata sul Planning commit `8eab82b` e consegnata nel commit tecnico
+`82439dd3fdbbc2920f27e4606dceadb412f0a6e7`.
+
+- introdotti dominio, repository, controller Riverpod eager, callback source/validator
+  ed error mapper Auth senza dipendenze Supabase nei widget;
+- configurati Google OAuth, PKCE esplicito, browser esterno, auto-refresh, storage
+  sicuro unico e `detectSessionInUri:false`;
+- aggiunto adapter fail-closed per sessione e verifier su Keystore/Keychain, con
+  first-install cleanup mirato e backup Android disabilitato;
+- integrati Account, navigazione solo da successo callback, stati/customer copy nei
+  cinque bundle tecnici e regressioni accessibilità;
+- registrati intent-filter Android e URL scheme iOS minimi; iOS inoltra manualmente
+  App/Scene lifecycle allo stesso singleton `app_links`;
+- aggiunti threat model TM-01…TM-30, 12 evidence, 51 nuovi test unit/widget rispetto
+  alla baseline e integration fake/native dual-platform.
+
+### Gate ed evidence
+
+- `scripts/check.sh`: `PASS`, exit 0; format 84 file, analyze zero issue, 192/192,
+  coverage 1567/2009 (78,0%), APK e iOS Simulator development;
+- build staging: Android `PASS`; primo tentativo iOS parallelo `FAIL` per contesa lock
+  Flutter, rerun isolato `PASS`;
+- guest, callback fake e backend readiness: Android 3/3 `PASS`, iOS 3/3 `PASS`;
+- callback warm nativo Android: `PASS`; routing manifest/plist e validazione negativa:
+  `PASS`;
+- callback warm nativo iOS: `BLOCKED` dalla conferma OS del custom scheme mentre il
+  Mac è locked; LaunchServices ha risolto il bundle e nessun crash è avvenuto;
+- Supabase staging: progetto canonico `ACTIVE_HEALTHY`, Google attivo e authorize PKCE
+  302 verso Google `PASS`; redirect allow-list/write/after `BLOCKED` da MFA;
+- live OAuth ed error matrix live: `BLOCKED`; kill switch locale rimasto `false`;
+- scan source/diff/bundle/evidence: `PASS`, nessun valore secret-shaped, config locale,
+  runtime log Auth o artifact tracciato.
+
+La transizione a Review applica D-17: l'Execution non dichiara soddisfatti i gate
+esterni e non è eleggibile a `APPROVED`, `DONE` o merge. Serve una review indipendente
+A–E dello SHA consegnato; i blocker restano aperti.
+
+### Handoff
+
+- **Prossima fase**: REVIEW
+- **Prossimo ruolo**: CODEX_REVIEWER
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
-Non avviata.
+Non avviata; revision set iniziale:
+`82439dd3fdbbc2920f27e4606dceadb412f0a6e7` più commit di handoff.
 
 ## Fix — `CODEX_FIXER`
 

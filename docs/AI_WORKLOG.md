@@ -937,3 +937,31 @@
 - **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
 - **Blocker/note**: l'Execution deve restare entro TASK-020; review indipendente,
   gate reali e CI restano obbligatori prima di DONE/merge.
+
+## 2026-07-30 — Execution TASK-020 e handoff a Review
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-020
+- **Fase iniziale/finale**: EXECUTION -> REVIEW
+- **Commit tecnico**:
+  `82439dd3fdbbc2920f27e4606dceadb412f0a6e7`
+- **Azioni principali**: implementati Google OAuth Supabase con PKCE/browser esterno,
+  dominio/repository/controller Auth, callback strict, session lifecycle, storage
+  Keychain/Keystore fail-closed, integrazione Account, localizzazioni, configurazione
+  nativa e threat model TM-01…TM-30.
+- **Verifiche automatizzabili**: `scripts/check.sh` `PASS`; 192/192, coverage 78,0%,
+  analyze zero issue, build development/staging Android/iOS, integration fake 3/3 per
+  target, callback nativo Android, manifest/plist, architecture e security scan
+  `PASS`.
+- **Supabase**: staging canonico `ACTIVE_HEALTHY`, Google attivo e authorize PKCE 302
+  verso Google; allow-list before/write/after `BLOCKED` da MFA, zero write remoto e
+  kill switch locale ancora `false`.
+- **Limite iOS**: LaunchServices risolve il bundle ma la conferma OS del custom scheme
+  resta pendente; Mac locked impedisce l'interazione, quindi callback nativo e smoke
+  live restano `BLOCKED`.
+- **Emendamento USER_APPROVER**: password/MFA come blocker esterno non arrestano
+  review/test/PR automatizzabili; non autorizzano `PASS`, `APPROVED`, `DONE` o merge
+  con gate bloccati.
+- **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+- **Blocker/note**: review indipendente A–E obbligatoria; redirect/live OAuth/iOS
+  callback e CI restano aperti, nessun task futuro attivato.

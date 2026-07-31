@@ -2,7 +2,8 @@
 
 ## Stato
 
-- SHA TASK-020 finale: `NOT_RUN`
+- SHA tecnico TASK-020: `82439dd3fdbbc2920f27e4606dceadb412f0a6e7`
+- SHA handoff/review finale: `NOT_RUN`
 - Workflow sullo SHA finale: `NOT_RUN`
 - Job/step/annotation: `NOT_RUN`
 - Auth fake deterministica in CI: `NOT_RUN`

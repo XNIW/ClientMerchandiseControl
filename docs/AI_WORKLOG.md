@@ -592,3 +592,21 @@
 - **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
 - **Blocker/note**: nessuno; Supabase resta read-only e OAuth/allow-list restano
   TASK-020.
+
+## 2026-07-30 — Execution TASK-011
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: EXECUTION -> REVIEW
+- **Commit tecnico**: `2e646595ad01807be292179adc61013fdd1b2700`
+- **Azioni principali**: introdotti health service abortibile, mapping repository,
+  controller Riverpod single-flight, shell non bloccante, messaggi localizzati,
+  permission Android e test data-free.
+- **Verifiche**: suite completa 105/105, analyze pulito, `scripts/check.sh`, build
+  staging Android/iOS, probe host sanitizzato e smoke reali 1/1 su Android Emulator e
+  iOS Simulator; scan query/secret/config/artifact/network tutti `PASS`.
+- **CI tecnica**: run `30598076908` sullo SHA esatto, Quality/Android/iOS 3/3
+  `success`, tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+- **Blocker/note**: `CA-31` e `T-28` attendono Review indipendente; `CA-32` e `T-29`
+  attendono la CI sullo SHA finale. Nessun write Supabase eseguito.

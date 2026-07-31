@@ -7,20 +7,20 @@
 - **File task**:
   `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
 - **Ultimo agente**: CODEX_EXECUTOR
 - **Review outcome**: NOT_RUN
 - **Reviewer**: non ancora assegnato
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-012 e TASK-020
 - **User approval**: GRANTED_CONDITIONALLY_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-011/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -252,41 +252,146 @@ accesso ai dati Storefront o inventory.
 
 ### Obiettivo compreso
 
-`NOT_RUN` — fase non ancora iniziata.
+Connettere il client al solo staging canonico con inizializzazione SDK e probe Auth
+data-free realmente verificati, mantenendo development offline, production fail-closed,
+UI sempre renderizzabile e nessun accesso ai dati.
 
 ### File controllati
 
-`NOT_RUN` — fase non ancora iniziata.
+- runtime/config: `lib/bootstrap.dart`, `lib/core/backend/`;
+- UI/localizzazione: shell, banner readiness e cinque cataloghi ARB;
+- piattaforme: manifest Android principale e configurazione iOS;
+- dipendenze: `pubspec.yaml`, `pubspec.lock`;
+- test: unit, widget e integration smoke dedicato;
+- documenti: architettura, ambiente, quality gate, README ed evidence TASK-011.
 
 ### Piano minimo
 
-`NOT_RUN` — fase non ancora iniziata.
+1. Separare trasporto health, mapping repository e controller Riverpod.
+2. Rendere il probe abortibile, senza redirect, retry automatici o payload esposti.
+3. Renderizzare la shell prima della readiness e offrire solo retry manuale accessibile.
+4. Verificare policy native, suite, build e smoke reali dual-platform.
+5. Consegnare il commit tecnico e le evidence a reviewer indipendenti.
 
 ### Modifiche fatte
 
-`NOT_RUN` — fase non ancora iniziata.
+- introdotti i sette stati esatti di `BackendReadinessState`;
+- aggiunti `HttpBackendHealthService`, `BackendReadinessRepository` e
+  `BackendReadinessController` con timeout, abort, single-flight e generation guard;
+- `ready` richiede inizializzazione Supabase staging e health Auth valido;
+- development e production non inizializzano SDK né rete; production resta
+  `misconfigured`;
+- avvio app anticipato rispetto al check e banner localizzati/customer-safe con retry;
+- aggiunto `INTERNET` al manifest Android main, senza cleartext o eccezioni ATS;
+- dichiarato `http 1.6.0` come dipendenza diretta;
+- disabilitati persistence/auto-refresh/deep-link PKCE Auth predefiniti fino a TASK-020;
+- aggiunti test unit/widget e smoke data-free reali Android/iOS;
+- aggiornati architettura, strategia ambiente, quality gate e README.
+
+Commit tecnico revisionabile:
+`2e646595ad01807be292179adc61013fdd1b2700` (`32` file, `1811` inserimenti,
+`64` rimozioni).
 
 ### Check eseguiti
 
-`NOT_RUN` — fase non ancora iniziata.
+| Gate | Esito | Evidenza |
+|---|---|---|
+| `bash scripts/doctor.sh` | PASS | exit 0; simulatori Android/iOS disponibili; warning LAN device fisico non bloccante |
+| test mirati backend/shell | PASS | exit 0 |
+| `flutter analyze` | PASS | exit 0, nessuna issue |
+| `flutter test --coverage` | PASS | exit 0, 105/105 |
+| `bash scripts/check.sh` | PASS | exit 0; 105/105, analyze e build debug Android/iOS |
+| build staging Android | PASS | exit 0, APK debug con config locale ignorata |
+| build staging iOS | PASS | exit 0, Simulator debug con config locale ignorata |
+| smoke staging Android | PASS | exit 0, 1/1; readiness `ready`, sessione nulla, shell guest |
+| smoke staging iOS | PASS | exit 0, 1/1; readiness `ready`, sessione nulla, shell guest |
+| probe host Auth | PASS | HTTP 200, schema health valido, output sanitizzato |
+| gate static/security/Git | PASS | scope, query, secret, URL, artifact, permission e ATS verificati |
+| CI tecnica `30598076908` | PASS | SHA tecnico esatto, 3/3 job, step tutti `success`, annotation 0/0/0 |
 
 ### Matrice CA -> evidence
 
-`NOT_RUN` — fase non ancora iniziata.
+| CA | Esito | Evidenza |
+|---|---|---|
+| CA-01 | PASS | PR #3/merge e task unico verificati; `environment-audit.md`. |
+| CA-02 | PASS | Unico progetto non-production canonico, nessuna creazione. |
+| CA-03 | PASS | Config a cinque input valida, ignorata e non tracciata. |
+| CA-04 | PASS | Zero write remoto; solo metadata e health data-free. |
+| CA-05 | PASS | Enum con i sette stati esatti e test dedicati. |
+| CA-06 | PASS | Repository richiede SDK più health valido per `ready`. |
+| CA-07 | PASS | Test development: nessuna inizializzazione/rete. |
+| CA-08 | PASS | Test production: fail-closed, nessun fallback/rete. |
+| CA-09 | PASS | Test request: solo `GET /auth/v1/health` con `apikey`. |
+| CA-10 | PASS | Redirect disabilitati e URI derivata dalla origin validata. |
+| CA-11 | PASS | Scan query/API dati: nessuna tabella, RPC o Storage. |
+| CA-12 | PASS | Test health 200/schema valido -> `ready`. |
+| CA-13 | PASS | Test timeout/transport -> `offline` con abort. |
+| CA-14 | PASS | Test 401/403/404 -> `misconfigured`. |
+| CA-15 | PASS | Test 408/429/5xx/payload incoerente -> `recoverableError`. |
+| CA-16 | PASS | Stato presente e mai prodotto dal probe data-free. |
+| CA-17 | PASS | Un solo check iniziale, nessun timer/polling. |
+| CA-18 | PASS | Retry manuale e concorrente single-flight verificato. |
+| CA-19 | PASS | Dispose abortisce e completion obsoleta è ignorata. |
+| CA-20 | PASS | Widget/smoke mostrano shell durante readiness non pronta. |
+| CA-21 | PASS | Stringhe localizzate, Semantics e retry accessibile verificati. |
+| CA-22 | PASS | Test e scan escludono URL/key/body/token/dettagli tecnici. |
+| CA-23 | PASS | Manifest main con `INTERNET`, senza cleartext/wildcard. |
+| CA-24 | PASS | Nessun `NSAllowsArbitraryLoads`; build iOS riuscita. |
+| CA-25 | PASS | Suite copre stati, mapping, timeout, abort, retry e sanitizzazione. |
+| CA-26 | PASS | Probe reale sanitizzato HTTP 200/schema valido. |
+| CA-27 | PASS | Android Emulator reale: 1/1 e readiness `ready`. |
+| CA-28 | PASS | iOS Simulator reale: 1/1 e readiness `ready`. |
+| CA-29 | PASS | Format/analyze/test/build staging dual-platform riusciti. |
+| CA-30 | PASS | Diff, dipendenze, artifact e scan confinati. |
+| CA-31 | NOT_RUN | Appartiene alla Review indipendente. |
+| CA-32 | NOT_RUN | La CI tecnica è verde; manca la CI sullo SHA finale. |
 
 ### Matrice T-NN -> risultato
 
-`NOT_RUN` — fase non ancora iniziata.
+| Test | Esito | Evidenza |
+|---|---|---|
+| T-01 | PASS | Merge, branch, task unico e governance verificati. |
+| T-02 | PASS | Audit progetto/config e zero-write sanitizzato. |
+| T-03 | PASS | Enum e semantica stati coperti da test. |
+| T-04 | PASS | Matrice environment coperta da test. |
+| T-05 | PASS | Metodo/URI/header/redirect/assenza query verificati. |
+| T-06 | PASS | Health 200 valido -> `ready`. |
+| T-07 | PASS | Payload health invalido -> `recoverableError`. |
+| T-08 | PASS | Timeout con abort -> `offline`. |
+| T-09 | PASS | Errore trasporto -> `offline`. |
+| T-10 | PASS | 401/403/404 -> `misconfigured`. |
+| T-11 | PASS | 408/429/5xx/status inattesi coperti. |
+| T-12 | PASS | Check iniziale unico e nessun auto-retry. |
+| T-13 | PASS | Retry concorrenti condividono una operazione. |
+| T-14 | PASS | Retry widget -> `initializing`. |
+| T-15 | PASS | Dispose/abort/late-result verificati. |
+| T-16 | PASS | Shell renderizzata per tutti gli stati pertinenti. |
+| T-17 | PASS | Semantics e target retry verificati. |
+| T-18 | PASS | Locali es/en/it/zh-Hans e sanitizzazione verificati. |
+| T-19 | PASS | Android permission e ATS iOS fail-closed. |
+| T-20 | PASS | Scan security/Git/config/artifact/query riusciti. |
+| T-21 | PASS | L10n, format, analyze e 105/105 riusciti. |
+| T-22 | PASS | Probe host reale data-free riuscito. |
+| T-23 | PASS | Smoke Android Emulator 1/1. |
+| T-24 | PASS | Smoke iOS Simulator 1/1. |
+| T-25 | PASS | Build APK staging exit 0. |
+| T-26 | PASS | Build iOS Simulator staging exit 0. |
+| T-27 | PASS | `scripts/check.sh` e `git diff --check` exit 0. |
+| T-28 | NOT_RUN | Appartiene alla Review indipendente. |
+| T-29 | NOT_RUN | Appartiene alla CI finale. |
 
 ### Rischi rimasti
 
-`NOT_RUN` — fase non ancora iniziata.
+- il check health prova raggiungibilità Auth, non disponibilità futura delle tabelle;
+- i default Auth sono intenzionalmente disabilitati fino a TASK-020;
+- lo smoke usa simulatori e staging, non device fisici o produzione;
+- package più recenti incompatibili con i constraint sono informativi e non aggiornati.
 
 ### Handoff a Review
 
 - **Prossima fase**: REVIEW
 - **Prossimo ruolo**: CODEX_REVIEWER
-- **Handoff**: NOT_RUN
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 

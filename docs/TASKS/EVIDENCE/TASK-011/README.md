@@ -1,14 +1,18 @@
 # Evidence TASK-011
 
 Snapshot di handoff:
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Indice
 
 - `planning-summary.md`: scope, baseline, matrici iniziali e handoff Planning;
 - `environment-audit.md`: audit staging sanitizzato e probe data-free;
-- le evidence Execution, Review, Fix e closeout verranno aggiunte soltanto dalle
-  rispettive fasi.
+- `execution-evidence.md`: deliverable e matrici dell'Execution;
+- `commands-and-results.md`: gate locali, security e CI tecnica;
+- `runtime-smoke.md`: probe e smoke staging reali Android/iOS;
+- `security-review.md`: confinement e zero-write;
+- `ci-status.md`: ispezione CI tecnica e gate finale pendente;
+- le evidence Review, eventuale Fix e closeout verranno aggiunte dalle rispettive fasi.
 
 ## Regole
 
@@ -21,15 +25,14 @@ Snapshot di handoff:
 
 | CA | Tipo | Esito | Evidenza |
 |---|---|---|---|
-| CA-01–CA-04 | GIT/STATIC/MANUAL/SECURITY | PASS | `planning-summary.md`, `environment-audit.md`. |
-| CA-26 | INTEGRATION | PASS | Probe host ufficiale sanitizzato in `environment-audit.md`. |
-| CA-05–CA-25 | VARI | NOT_RUN | Richiedono Execution. |
-| CA-27–CA-32 | VARI | NOT_RUN | Richiedono smoke, gate, Review e CI. |
+| CA-01–CA-30 | VARI | PASS | Planning, environment, Execution, smoke e security evidence. |
+| CA-31 | MANUAL/STATIC | NOT_RUN | Richiede Review indipendente. |
+| CA-32 | CI | NOT_RUN | Richiede CI sullo SHA finale. |
 
 ## Matrice test
 
 | Test | Tipo | Esito | Evidenza |
 |---|---|---|---|
-| T-01, T-02, T-22 | GIT/STATIC/MANUAL/SECURITY/INTEGRATION | PASS | Planning e audit ambiente. |
-| T-03–T-21 | VARI | NOT_RUN | Richiedono Execution. |
-| T-23–T-29 | VARI | NOT_RUN | Richiedono smoke, gate, Review e CI. |
+| T-01–T-27 | VARI | PASS | Planning, Execution, smoke, build e scan. |
+| T-28 | MANUAL/STATIC | NOT_RUN | Richiede Review indipendente. |
+| T-29 | CI | NOT_RUN | Richiede CI sullo SHA finale. |

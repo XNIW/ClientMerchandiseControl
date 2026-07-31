@@ -2,6 +2,9 @@ import 'package:client_merchandise_control/app/client_merchandise_control_app.da
 import 'package:client_merchandise_control/app/design_system/tokens/app_sizes.dart';
 import 'package:client_merchandise_control/app/design_system/tokens/app_spacing.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/features/account/presentation/account_screen.dart';
+import 'package:client_merchandise_control/features/cart/presentation/cart_screen.dart';
+import 'package:client_merchandise_control/features/catalog/presentation/catalog_screen.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,24 +18,11 @@ void main() {
     );
   }
 
-  const destinations = <({String key, String message})>[
-    (
-      key: 'nav-home',
-      message: 'Pronto podrás descubrir aquí las novedades de la tienda.',
-    ),
-    (
-      key: 'nav-catalog',
-      message: 'El catálogo estará disponible aquí próximamente.',
-    ),
-    (
-      key: 'nav-cart',
-      message: 'Tu carrito estará disponible cuando puedas elegir productos.',
-    ),
-    (
-      key: 'nav-account',
-      message:
-          'Podrás acceder a tu cuenta cuando esta función esté disponible.',
-    ),
+  const destinations = <({String key, Type screen})>[
+    (key: 'nav-home', screen: HomeScreen),
+    (key: 'nav-catalog', screen: CatalogScreen),
+    (key: 'nav-cart', screen: CartScreen),
+    (key: 'nav-account', screen: AccountScreen),
   ];
 
   testWidgets('presenta le quattro destinazioni localizzate', (tester) async {
@@ -58,7 +48,7 @@ void main() {
         await tester.pumpAndSettle();
       }
 
-      expect(find.text(destination.message), findsOneWidget);
+      expect(find.byType(destination.screen), findsOneWidget);
       expect(
         tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
         index,
@@ -66,7 +56,7 @@ void main() {
       for (final other in destinations.where(
         (candidate) => candidate != destination,
       )) {
-        expect(find.text(other.message), findsNothing);
+        expect(find.byType(other.screen), findsNothing);
       }
     }
 
@@ -84,7 +74,7 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('nav-account')));
     await tester.pumpAndSettle();
-    expect(find.text(destinations[3].message), findsOneWidget);
+    expect(find.byType(destinations[3].screen), findsOneWidget);
     expect(
       tester.widget<PopScope<void>>(find.byType(PopScope<void>)).canPop,
       isFalse,
@@ -93,7 +83,7 @@ void main() {
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
 
-    expect(find.text(destinations[0].message), findsOneWidget);
+    expect(find.byType(destinations[0].screen), findsOneWidget);
     expect(
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
       0,
@@ -121,24 +111,23 @@ void main() {
     expect(tester.element(homeFinder), same(initialHomeElement));
   });
 
-  testWidgets('espone una sola semantica titolo nel contenuto', (tester) async {
+  testWidgets('espone un solo titolo route per la destinazione corrente', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
-    final decorativeIcon = find.descendant(
-      of: find.byType(ExcludeSemantics),
-      matching: find.byIcon(Icons.storefront_outlined),
-    );
-    final semanticsInCard = tester.widgetList<Semantics>(
-      find.descendant(of: find.byType(Card), matching: find.byType(Semantics)),
-    );
-    final titleSemantics = semanticsInCard.where(
-      (semantics) => semantics.properties.header == true,
+    final routeTitles = tester.widgetList<Semantics>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            widget.properties.header == true &&
+            widget.properties.namesRoute == true,
+      ),
     );
 
-    expect(decorativeIcon, findsOneWidget);
-    expect(tester.widget<Icon>(decorativeIcon).semanticLabel, isNull);
-    expect(titleSemantics, hasLength(1));
+    expect(routeTitles, hasLength(1));
+    expect(find.byKey(const ValueKey('shell-title-0')), findsOneWidget);
   });
 
   testWidgets('resta usabile su tutte le tab a testo 200%', (tester) async {
@@ -163,7 +152,7 @@ void main() {
           await tester.tap(find.byKey(ValueKey(destinations[index].key)));
           await tester.pumpAndSettle();
         }
-        expect(find.text(destinations[index].message), findsOneWidget);
+        expect(find.byType(destinations[index].screen), findsOneWidget);
         expect(tester.takeException(), isNull, reason: '$size tab $index');
       }
     }
@@ -182,7 +171,10 @@ void main() {
       await tester.pumpAndSettle();
 
       final scrollView = tester.widget<SingleChildScrollView>(
-        find.byType(SingleChildScrollView),
+        find.descendant(
+          of: find.byType(HomeScreen),
+          matching: find.byType(SingleChildScrollView),
+        ),
       );
       expect(
         scrollView.padding,

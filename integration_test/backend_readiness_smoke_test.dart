@@ -67,7 +67,7 @@ void main() {
     expect(
       find.descendant(
         of: find.byType(CatalogScreen),
-        matching: find.text(l10n.catalogFoundationMessage),
+        matching: find.text(l10n.catalogEmptyTitle),
       ),
       findsOneWidget,
     );

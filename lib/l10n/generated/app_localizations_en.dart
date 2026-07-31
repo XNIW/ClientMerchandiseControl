@@ -68,4 +68,151 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get accountFoundationMessage =>
       'You can access your account when this feature is available.';
+
+  @override
+  String get homeWelcomeTitle => 'Everything is ready to start exploring';
+
+  @override
+  String get homeWelcomeMessage =>
+      'Browse the store sections while we prepare the catalog.';
+
+  @override
+  String get homeSearchLabel => 'Search the store';
+
+  @override
+  String get homeSearchHint => 'What are you looking for?';
+
+  @override
+  String get homeCategoriesTitle => 'Explore by category';
+
+  @override
+  String get homeCategoriesMessage =>
+      'Categories will appear when the catalog is available.';
+
+  @override
+  String get homeExploreCategories => 'View categories';
+
+  @override
+  String get homeOffersTitle => 'Offers';
+
+  @override
+  String get homeOffersEmptyTitle => 'Offers, coming soon';
+
+  @override
+  String get homeOffersEmptyMessage =>
+      'Real offers will appear here when they are available.';
+
+  @override
+  String get homeFeaturedTitle => 'Featured products';
+
+  @override
+  String get homeFeaturedEmptyTitle => 'Featured products, coming soon';
+
+  @override
+  String get homeFeaturedEmptyMessage =>
+      'This section will show real products when the catalog is available.';
+
+  @override
+  String get homeExploreCatalog => 'Explore catalog';
+
+  @override
+  String get catalogSearchLabel => 'Search the catalog';
+
+  @override
+  String get catalogSearchHint => 'Search products or categories';
+
+  @override
+  String get catalogFilterLabel => 'Filter';
+
+  @override
+  String get catalogSortLabel => 'Sort';
+
+  @override
+  String get catalogControlsUnavailable =>
+      'Filters and sorting will be available with the catalog.';
+
+  @override
+  String get catalogConnectingTitle => 'Preparing the catalog';
+
+  @override
+  String get catalogConnectingMessage =>
+      'We\'re checking whether the store is available.';
+
+  @override
+  String get catalogEmptyTitle => 'Public catalog not connected yet';
+
+  @override
+  String get catalogEmptyMessage =>
+      'You can explore products when the store publishes its catalog.';
+
+  @override
+  String get catalogOfflineTitle => 'You\'re offline';
+
+  @override
+  String get catalogOfflineMessage =>
+      'Check your connection and try again. The rest of the app remains available.';
+
+  @override
+  String get catalogUnavailableTitle => 'The store is unavailable';
+
+  @override
+  String get catalogUnavailableMessage =>
+      'We can\'t prepare the public catalog right now.';
+
+  @override
+  String get catalogRetryTitle => 'We couldn\'t check the store';
+
+  @override
+  String get catalogRetryMessage =>
+      'Try again. You can also keep exploring other sections.';
+
+  @override
+  String get cartEmptyTitle => 'Your cart is empty';
+
+  @override
+  String get cartEmptyMessage =>
+      'When the catalog is available, you\'ll be able to add products here.';
+
+  @override
+  String get cartExploreCatalog => 'Explore catalog';
+
+  @override
+  String get accountGuestTitle => 'Your account';
+
+  @override
+  String get accountGuestBenefit =>
+      'Sign in to use personal features. You can keep browsing without an account.';
+
+  @override
+  String get accountContinueWithGoogle => 'Continue with Google';
+
+  @override
+  String get accountGoogleComingSoon =>
+      'Google sign-in will be available soon.';
+
+  @override
+  String get accountBrowseAsGuest => 'Keep browsing as a guest';
+
+  @override
+  String get accountAuthenticatedTitle => 'Signed in';
+
+  @override
+  String get accountNameFallback => 'Customer';
+
+  @override
+  String get accountEmailFallback => 'Email unavailable';
+
+  @override
+  String get accountSessionActive => 'Your session is active.';
+
+  @override
+  String get accountLogout => 'Sign out';
+
+  @override
+  String accountAvatarLabel(String name) {
+    return 'Avatar for $name';
+  }
+
+  @override
+  String get storefrontComingSoonLabel => 'Coming soon';
 }

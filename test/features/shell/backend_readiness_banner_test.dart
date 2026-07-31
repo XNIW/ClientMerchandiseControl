@@ -6,6 +6,7 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_contro
 import 'package:client_merchandise_control/core/backend/backend_readiness_repository.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -42,10 +43,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Comprobando la conexión de la tienda…'), findsOneWidget);
-    expect(
-      find.text('Pronto podrás descubrir aquí las novedades de la tienda.'),
-      findsOneWidget,
-    );
+    expect(find.byType(HomeScreen), findsOneWidget);
     expect(find.text('Reintentar'), findsNothing);
   });
 
@@ -92,11 +90,10 @@ void main() {
     await tester.pump();
 
     const message = 'La tienda no está disponible por el momento.';
-    const homeCopy = 'Pronto podrás descubrir aquí las novedades de la tienda.';
     final retryButton = find.widgetWithText(TextButton, 'Reintentar');
 
     expect(find.text(message), findsOneWidget);
-    expect(find.text(homeCopy), findsOneWidget);
+    expect(find.byType(HomeScreen), findsOneWidget);
     expect(
       find.byWidgetPredicate(
         (widget) => widget is Semantics && widget.properties.label == message,
@@ -122,14 +119,14 @@ void main() {
 
     expect(repository.calls, 1);
     expect(find.text('Comprobando la conexión de la tienda…'), findsOneWidget);
-    expect(find.text(homeCopy), findsOneWidget);
+    expect(find.byType(HomeScreen), findsOneWidget);
 
     repository.completeNext(BackendReadinessState.ready);
     await tester.pumpAndSettle();
 
     expect(repository.calls, 1);
     expect(find.text(message), findsNothing);
-    expect(find.text(homeCopy), findsOneWidget);
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 
   testWidgets('misconfigured non espone dettagli o valori', (tester) async {
@@ -163,10 +160,7 @@ void main() {
       find.text('Inicia sesión desde Cuenta para continuar.'),
       findsOneWidget,
     );
-    expect(
-      find.text('Pronto podrás descubrir aquí las novedades de la tienda.'),
-      findsOneWidget,
-    );
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 
   testWidgets('localizza offline e retry nei quattro locale', (tester) async {
@@ -225,7 +219,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     final retrySize = tester.getSize(
-      find.widgetWithText(TextButton, 'Reintentar'),
+      find.byKey(const ValueKey('storefront-status-action')),
     );
     expect(retrySize.height, greaterThanOrEqualTo(48));
     expect(tester, meetsGuideline(labeledTapTargetGuideline));

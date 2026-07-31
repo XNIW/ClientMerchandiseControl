@@ -14,6 +14,8 @@ class StorefrontPage extends StatelessWidget {
   final Widget child;
   final double maxWidth;
 
+  static const scrollViewKey = ValueKey<String>('storefront-page-scroll');
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -23,6 +25,7 @@ class StorefrontPage extends StatelessWidget {
             : AppSpacing.lg;
 
         return SingleChildScrollView(
+          key: scrollViewKey,
           padding: EdgeInsets.symmetric(
             horizontal: horizontalPadding,
             vertical: AppSpacing.xl,
@@ -30,7 +33,7 @@ class StorefrontPage extends StatelessWidget {
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),
-              child: child,
+              child: SizedBox(width: double.infinity, child: child),
             ),
           ),
         );

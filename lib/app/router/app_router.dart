@@ -7,9 +7,16 @@ import '../../features/catalog/presentation/catalog_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/shell/presentation/app_shell_screen.dart';
 
+abstract final class AppRoutes {
+  static const homeLocation = '/home';
+  static const catalogLocation = '/catalog';
+  static const cartLocation = '/cart';
+  static const accountLocation = '/account';
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
-    initialLocation: '/home',
+    initialLocation: AppRoutes.homeLocation,
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -19,7 +26,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/home',
+                path: AppRoutes.homeLocation,
                 builder: (context, state) => const HomeScreen(),
               ),
             ],
@@ -27,7 +34,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/catalog',
+                path: AppRoutes.catalogLocation,
                 builder: (context, state) => const CatalogScreen(),
               ),
             ],
@@ -35,7 +42,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/cart',
+                path: AppRoutes.cartLocation,
                 builder: (context, state) => const CartScreen(),
               ),
             ],
@@ -43,7 +50,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/account',
+                path: AppRoutes.accountLocation,
                 builder: (context, state) => const AccountScreen(),
               ),
             ],

@@ -68,4 +68,151 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get accountFoundationMessage =>
       'Potrai accedere al tuo account quando questa funzione sarà disponibile.';
+
+  @override
+  String get homeWelcomeTitle => 'Tutto pronto per iniziare a esplorare';
+
+  @override
+  String get homeWelcomeMessage =>
+      'Scopri le sezioni del negozio mentre prepariamo il catalogo.';
+
+  @override
+  String get homeSearchLabel => 'Cerca nel negozio';
+
+  @override
+  String get homeSearchHint => 'Cosa stai cercando?';
+
+  @override
+  String get homeCategoriesTitle => 'Esplora per categoria';
+
+  @override
+  String get homeCategoriesMessage =>
+      'Le categorie appariranno quando il catalogo sarà disponibile.';
+
+  @override
+  String get homeExploreCategories => 'Vedi categorie';
+
+  @override
+  String get homeOffersTitle => 'Offerte';
+
+  @override
+  String get homeOffersEmptyTitle => 'Offerte, prossimamente';
+
+  @override
+  String get homeOffersEmptyMessage =>
+      'Qui mostreremo offerte reali quando saranno disponibili.';
+
+  @override
+  String get homeFeaturedTitle => 'Prodotti in evidenza';
+
+  @override
+  String get homeFeaturedEmptyTitle => 'In evidenza, prossimamente';
+
+  @override
+  String get homeFeaturedEmptyMessage =>
+      'Questa sezione mostrerà prodotti reali quando il catalogo sarà disponibile.';
+
+  @override
+  String get homeExploreCatalog => 'Esplora catalogo';
+
+  @override
+  String get catalogSearchLabel => 'Cerca nel catalogo';
+
+  @override
+  String get catalogSearchHint => 'Cerca prodotti o categorie';
+
+  @override
+  String get catalogFilterLabel => 'Filtra';
+
+  @override
+  String get catalogSortLabel => 'Ordina';
+
+  @override
+  String get catalogControlsUnavailable =>
+      'Filtri e ordinamento saranno disponibili con il catalogo.';
+
+  @override
+  String get catalogConnectingTitle => 'Preparazione del catalogo';
+
+  @override
+  String get catalogConnectingMessage =>
+      'Stiamo verificando se il negozio è disponibile.';
+
+  @override
+  String get catalogEmptyTitle => 'Catalogo pubblico non ancora collegato';
+
+  @override
+  String get catalogEmptyMessage =>
+      'Potrai esplorare i prodotti quando il negozio pubblicherà il catalogo.';
+
+  @override
+  String get catalogOfflineTitle => 'Sei offline';
+
+  @override
+  String get catalogOfflineMessage =>
+      'Controlla la connessione e riprova. Il resto dell\'app rimane disponibile.';
+
+  @override
+  String get catalogUnavailableTitle => 'Il negozio non è disponibile';
+
+  @override
+  String get catalogUnavailableMessage =>
+      'Al momento non possiamo preparare il catalogo pubblico.';
+
+  @override
+  String get catalogRetryTitle => 'Non è stato possibile verificare il negozio';
+
+  @override
+  String get catalogRetryMessage =>
+      'Riprova. Puoi anche continuare a esplorare le altre sezioni.';
+
+  @override
+  String get cartEmptyTitle => 'Il carrello è vuoto';
+
+  @override
+  String get cartEmptyMessage =>
+      'Quando il catalogo sarà disponibile, potrai aggiungere qui i prodotti.';
+
+  @override
+  String get cartExploreCatalog => 'Esplora catalogo';
+
+  @override
+  String get accountGuestTitle => 'Il tuo account';
+
+  @override
+  String get accountGuestBenefit =>
+      'Accedi per usare le funzioni personali. Puoi continuare a esplorare senza account.';
+
+  @override
+  String get accountContinueWithGoogle => 'Continua con Google';
+
+  @override
+  String get accountGoogleComingSoon =>
+      'L\'accesso con Google sarà disponibile prossimamente.';
+
+  @override
+  String get accountBrowseAsGuest => 'Continua come ospite';
+
+  @override
+  String get accountAuthenticatedTitle => 'Accesso effettuato';
+
+  @override
+  String get accountNameFallback => 'Cliente';
+
+  @override
+  String get accountEmailFallback => 'Email non disponibile';
+
+  @override
+  String get accountSessionActive => 'La sessione è attiva.';
+
+  @override
+  String get accountLogout => 'Esci';
+
+  @override
+  String accountAvatarLabel(String name) {
+    return 'Avatar di $name';
+  }
+
+  @override
+  String get storefrontComingSoonLabel => 'Prossimamente';
 }

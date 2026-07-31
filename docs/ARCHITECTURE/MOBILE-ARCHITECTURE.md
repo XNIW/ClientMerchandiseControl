@@ -41,12 +41,18 @@ implementa login, sessione o deep link: queste responsabilità restano TASK-020.
 
 `ClientMerchandiseControlApp` compone tema, localizzazione e router.
 `StatefulShellRoute.indexedStack` mantiene quattro branch — Home, Catalogo, Carrello e
-Account — e ne preserva lo stato. Dalle tab root secondarie il back ritorna a Home.
+Account — e ne preserva lo stato. `AppRoutes` centralizza le location usate dalle CTA;
+dalle tab root secondarie il back ritorna a Home. La shell assegna a ogni branch una app
+bar riconoscibile: Home usa esclusivamente `AppBrand.effectiveDisplayName`, mentre le
+altre destinazioni usano titoli localizzati.
 
 In development senza configurazione l'app resta offline e usabile e mostra un banner
 diagnostico debug accessibile. Staging e production incompleti sono errori espliciti,
 senza fallback tra ambienti. Diagnostica ed errori espongono soltanto ambiente e
-indicatori booleani, mai URL, key o callback raw.
+indicatori booleani, mai URL, key o callback raw. La Home ospita il banner nel proprio
+scroll, così il viewport delle branch resta stabile; il Catalogo rappresenta localmente
+gli stessi stati quando rilevanti, mentre Carrello e Account non vengono occupati da
+diagnostica backend estranea al loro stato.
 
 ## Backend readiness
 
@@ -77,11 +83,35 @@ development mostra il solo banner tecnico debug. Fino a TASK-020 le opzioni Auth
 disabilitano persistence, auto-refresh e deep-link detection, evitando di importare
 prematuramente il session lifecycle.
 
+## Shell cliente guest
+
+TASK-012 sostituisce il placeholder tecnico con quattro superfici specifiche, senza
+aggiungere dati o networking:
+
+- Home offre gerarchia cliente, accessi a ricerca e categorie e sezioni future
+  chiaramente vuote; ogni CTA apre la branch Catalogo;
+- Catalogo presenta ricerca, filtri e ordinamento come controlli foundation
+  disabilitati e mappa la sola readiness esistente in stati loading, vuoto, offline,
+  unavailable e retryable; non esegue query;
+- Carrello presenta uno stato vuoto senza totale, checkout o promessa commerciale e
+  conduce al Catalogo;
+- Account usa un modello presentazionale puro per guest/authenticated. Il runtime resta
+  guest; il pulsante Google è fail-closed finché TASK-020 non collega OAuth e lo stato
+  authenticated richiede un callback logout esplicito.
+
+Nessuna superficie inventa prodotti, prezzi, stock, sconti, immagini o disponibilità.
+L'avatar authenticated accetta soltanto un `ImageProvider` già validato e iniettato: il
+widget non interpreta metadata o URI e non avvia rete autonomamente.
+
 ## Design system
 
 `AppTheme` è l'unico composition root light/dark. Token primitivi, semantic colors e
 widget foundation sono descritti in `DESIGN-SYSTEM.md`. Le feature non definiscono
-palette, font scale, breakpoint o spacing paralleli.
+palette, font scale, breakpoint o spacing paralleli. `StorefrontPage` occupa tutta la
+larghezza disponibile entro il max-width e mantiene scroll e padding responsive;
+empty state, sezione, search launcher e status banner hanno responsabilità condivise
+reali. I cataloghi ARB hanno parità per es-CL, it, en e zh-Hans; es-CL è la locale
+primaria e il fallback deterministico.
 
 ## Dati e sicurezza
 
@@ -192,5 +222,6 @@ assegnate a:
   performance.
 
 Questo documento preserva le decisioni Flutter, Riverpod, go_router, MVVM e design
-system già adottate. TASK-011 aggiunge soltanto readiness tecnica staging: non aggiunge
-flussi OAuth, deep link nativi, schema, DTO commerciali o dati reali.
+system già adottate. TASK-011 aggiunge soltanto readiness tecnica staging e TASK-012 la
+shell guest data-safe: nessuno dei due aggiunge flussi OAuth, deep link nativi, schema,
+DTO commerciali o dati reali.

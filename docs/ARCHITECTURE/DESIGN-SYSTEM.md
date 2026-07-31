@@ -9,7 +9,7 @@ davvero. Non è una libreria di componenti completa e non anticipa le UI data-ba
 
 1. `tokens/`: valori primitivi di spacing, radii, size, breakpoint e duration.
 2. `theme/`: `ColorScheme`, `TextTheme` di sistema e colori Storefront semantici.
-3. `widgets/`: composizioni foundation usate dalla shell e dai placeholder.
+3. `widgets/`: composizioni foundation usate dalla shell e dalle feature cliente.
 4. `AppTheme`: unico composition root light/dark.
 
 Le feature consumano token, `Theme.of(context).colorScheme` e
@@ -19,7 +19,8 @@ Le feature consumano token, `Theme.of(context).colorScheme` e
 
 - spacing su griglia 4 px, inclusi i valori necessari a layout correnti;
 - radii per control, card e pill;
-- target minimo 48, icon size e larghezza contenuto massima 960;
+- target minimo 48, icon/avatar size, altezza app bar e larghezza contenuto massima
+  960;
 - breakpoint ordinati con layout wide da 720;
 - motion short/medium/long e curve standard/enfatizzata, con durata ridotta a zero
   quando il sistema disabilita le animazioni.
@@ -62,18 +63,25 @@ dati introdotti da TASK-002.
 
 ## Componenti foundation
 
-- `StorefrontPage`: scroll verticale, padding responsive, centering e max width.
-- `FeaturePlaceholder`: card reale della shell, heading semantico e icona decorativa.
-- `StorefrontStatusBanner`: stato inline accessibile, live region e nessuna action finta.
+- `StorefrontPage`: scroll verticale, padding responsive, larghezza piena entro il
+  max-width e centering.
+- `StorefrontSection`: heading di sezione semantico con contenuto esplicito.
+- `StorefrontEmptyState`: stato vuoto accessibile senza azioni o dati impliciti.
+- `StorefrontSearchLauncher`: accesso semantico alla ricerca con target minimo e
+  callback reale.
+- `StorefrontStatusBanner`: stato inline accessibile e live region; l'azione appare
+  soltanto con callback reale e diventa compatta nei viewport con altezza o testo
+  critici.
 
-Non vengono creati componenti senza consumer. TASK-012 potrà estendere la libreria
-insieme alla shell prodotto.
+Non vengono creati componenti senza consumer. `FeaturePlaceholder` è stato rimosso
+quando le quattro feature hanno acquisito una responsabilità concreta.
 
 ## Invarianti
 
 - Material 3, light/dark e `ThemeMode.system`;
 - quattro route e `StatefulShellRoute.indexedStack` invariati;
 - `SafeArea`, back verso Home e persistenza tab invariati;
+- app bar e contenuto raggiungibili anche con brand e localizzazioni lunghi;
 - zero nuove dipendenze;
 - nessun colore semantico raw o metrica di layout nelle feature;
 - target 48×48, text scale 200% e motion preference rispettati.

@@ -1,8 +1,9 @@
 # ClientMerchandiseControl
 
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
-Merchandise Control. La fondazione corrente offre una shell localizzata e compilabile;
-catalogo, account, carrello e ordini verranno collegati nei task futuri.
+Merchandise Control. La fondazione corrente offre una shell guest localizzata,
+accessibile e data-safe con Home, Catalogo, Carrello e Account; dati Storefront,
+autenticazione e ordini verranno collegati nei task proprietari futuri.
 
 ## Relazione con Merchandise Control
 
@@ -85,6 +86,9 @@ Il contratto staging richiede la callback
 usa `GOOGLE_AUTH_ENABLED=false` fino a TASK-020. TASK-011 inizializza lo SDK senza
 session persistence e verifica l'endpoint Auth health ufficiale, senza interrogare
 tabelle o dati. Il banner resta customer-safe e il retry è soltanto manuale.
+TASK-012 non aggiunge query o dati commerciali: Catalogo rappresenta solo readiness,
+Account resta guest a runtime e il controllo Google rimane disabilitato fino a
+TASK-020.
 
 ## Test e build
 
@@ -101,6 +105,13 @@ Gli smoke staging reali, esclusi dalla CI perché usano il file locale ignorato,
 ```bash
 flutter test integration_test/backend_readiness_smoke_test.dart -d emulator-5554 --dart-define-from-file=config/app_config.staging.local.json
 flutter test integration_test/backend_readiness_smoke_test.dart -d <IOS_SIMULATOR_ID> --dart-define-from-file=config/app_config.staging.local.json
+```
+
+Lo smoke guest di TASK-012 non richiede backend:
+
+```bash
+flutter test integration_test/app_guest_flow_test.dart -d emulator-5554
+flutter test integration_test/app_guest_flow_test.dart -d <IOS_SIMULATOR_ID>
 ```
 
 Il gate completo è:

@@ -708,3 +708,20 @@
   `git diff --check` e governance `PASS`.
 - **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 - **Blocker/note**: terza re-review indipendente obbligatoria; nessun codice o remoto.
+
+## 2026-07-30 — Re-review TASK-011, ciclo 3
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: REVIEW -> REVIEW
+- **Revisione**: `a1a2818479df7b5e432f10f426e80388bc317a65`
+- **Chiusure**: `T011-REREV2-PROV-001`, `T011-REREV-SEC-001` e
+  `T011-REREV2-GOV-002` `CLOSED`; 0 P0/P1/P2 nuovi o aperti.
+- **Verifiche**: due shard read-only; claim task-scoped, traffico esterno separato,
+  proprietà sezioni, sanitizzazione, governance, worktree/origin e confinement `PASS`.
+- **CI finale**: `30601320650` sullo SHA revisionato; Quality/Android/iOS 3/3
+  `success`, tutti gli step `success`, annotation 0/0/0.
+- **Osservazione**: una nota P3 non bloccante su due etichette storiche Fix; nessun
+  impatto su stato, criteri o handoff.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+- **Blocker/note**: nessuno; la conferma condizionata richiede transizione distinta.

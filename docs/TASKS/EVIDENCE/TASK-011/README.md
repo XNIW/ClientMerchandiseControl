@@ -1,7 +1,7 @@
 # Evidence TASK-011
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Indice
 
@@ -18,7 +18,8 @@ Snapshot di handoff:
 - `re-review-report.md`: chiusura finding originali e nuovo finding provenance;
 - `remote-write-provenance.md`: writer set task-scoped e traffico esterno concorrente;
 - `re-review-2-report.md`: seconda re-review e finding documentali residui;
-- le evidence della terza re-review e closeout verranno aggiunte dalle rispettive fasi.
+- `re-review-3-report.md`: chiusura finding e CI finale sullo SHA revisionato;
+- il closeout verrà aggiunto dalla transizione utente distinta.
 
 ## Regole
 
@@ -31,14 +32,14 @@ Snapshot di handoff:
 
 | CA | Tipo | Esito | Evidenza |
 |---|---|---|---|
-| CA-01–CA-30 | VARI | PASS | Fix tecnico e documentale completato. |
-| CA-31 | MANUAL/SECURITY | NOT_RUN | Richiede terza re-review. |
-| CA-32 | CI | NOT_RUN | Richiede CI sullo SHA finale. |
+| CA-01–CA-30 | VARI | PASS | Fix tecnico e documentale verificato. |
+| CA-31 | MANUAL/SECURITY | PASS | Due shard approvati, 0 P0/P1/P2 aperti. |
+| CA-32 | CI | PASS | Run `30601320650`, SHA esatto, 3/3, step verdi, annotation 0/0/0. |
 
 ## Matrice test
 
 | Test | Tipo | Esito | Evidenza |
 |---|---|---|---|
-| T-01–T-27 | VARI | PASS | Fix tecnico e documentale completato. |
-| T-28 | MANUAL/SECURITY | NOT_RUN | Richiede terza re-review. |
-| T-29 | CI | NOT_RUN | Richiede CI sullo SHA finale. |
+| T-01–T-27 | VARI | PASS | Fix tecnico e documentale verificato. |
+| T-28 | MANUAL/SECURITY | PASS | Terza re-review `APPROVED`. |
+| T-29 | CI | PASS | Job, step e annotation ispezionati. |

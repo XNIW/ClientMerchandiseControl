@@ -11,16 +11,16 @@
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_FIXER
-- **Review outcome**: CHANGES_REQUIRED
-- **Reviewer**: CODEX_RE_REVIEWER — due sessioni read-only indipendenti
+- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Review outcome**: APPROVED
+- **Reviewer**: CODEX_RE_REVIEWER — due shard read-only indipendenti
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-012 e TASK-020
 - **User approval**: GRANTED_CONDITIONALLY_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-011/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -492,6 +492,27 @@ runtime, platform o security del client è aperto.
 Esito re-review 2: `CHANGES_REQUIRED`.
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Re-review dopo Fix 3
+
+Target revisionato:
+`a1a2818479df7b5e432f10f426e80388bc317a65`.
+
+Esiti dei due shard read-only:
+
+- provenance/security: `T011-REREV2-PROV-001` e `T011-REREV-SEC-001` `CLOSED`;
+- governance: `T011-REREV2-GOV-002` `CLOSED`;
+- nuovi finding P0/P1/P2: 0;
+- una osservazione P3 non bloccante riguarda due etichette storiche nel documento Fix;
+  restano leggibili come snapshot e non alterano stato, esito o handoff;
+- `CA-04`, `CA-31`, `T-02` e `T-28`: `PASS`.
+
+CI finale `30601320650` sullo SHA revisionato: Quality, Android debug e iOS Simulator
+3/3 `PASS`; tutti gli step `success`; annotation 0/0/0. `CA-32` e `T-29`: `PASS`.
+
+Esito re-review 3: `APPROVED`.
+
+Handoff: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Fix — `CODEX_FIXER`
 

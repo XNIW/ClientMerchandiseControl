@@ -123,10 +123,11 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 - **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
-TASK-011 è l'unico task attivo. Il terzo Fix ha qualificato i due claim residui e
-ricollocato la registrazione sotto la sezione Fix; la terza re-review indipendente è il
-gate corrente. OAuth, redirect allow-list e deep link restano TASK-020;
-TASK-005–TASK-010 e TASK-012 in avanti non sono attivi.
+TASK-011 è l'unico task attivo. La terza re-review indipendente è `APPROVED`: tutti i
+finding P0–P2 sono chiusi e CI finale `30601320650` è 3/3 `PASS` sullo SHA revisionato.
+La conferma utente condizionata resta da applicare con transizione distinta. OAuth,
+redirect allow-list e deep link restano TASK-020; TASK-005–TASK-010 e TASK-012 in
+avanti non sono attivi.

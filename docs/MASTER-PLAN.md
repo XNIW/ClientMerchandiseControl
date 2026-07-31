@@ -9,10 +9,10 @@
 - **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
-- **Prossima azione autorizzata**: verificare indipendentemente
-  `T011-REREV2-PROV-001` e `T011-REREV2-GOV-002`
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Prossima azione autorizzata**: applicare in una transizione distinta la conferma
+  condizionata già concessa nel prompt end-to-end
 
 ## Repository coinvolti
 
@@ -126,7 +126,7 @@ La re-review integrata del batch TASK-003/TASK-004 è `APPROVED` sullo SHA
 `30596267634` sullo SHA `ee58f29c9402f286a038f7cc79f1043539ea0b25` e il merge
 normale è stato verificato su main.
 
-`TASK-011` è l'unico task `ACTIVE` in `REVIEW` dopo il terzo Fix. I due claim residui
-sono ora esplicitamente task-scoped, la registrazione Fix è sotto la sezione corretta e
-l'evidence non auto-chiude il finding. CI precedente `30600817975` 3/3 `PASS`;
-TASK-005–TASK-010 e TASK-012 in avanti restano invariati.
+`TASK-011` è l'unico task `ACTIVE` in `REVIEW` con esito `APPROVED`. La terza
+re-review sullo SHA `a1a2818479df7b5e432f10f426e80388bc317a65` ha chiuso tutti i
+finding P0–P2; CI finale `30601320650` ha 3/3 job, tutti gli step `success` e
+annotation 0/0/0. TASK-005–TASK-010 e TASK-012 in avanti restano invariati.

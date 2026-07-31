@@ -59,6 +59,8 @@ cmc_fixture_expect_acceptance() {
   else
     printf 'Fixture security positiva respinta: %s\n' \
       "${cmc_fixture_path##*/}" >&2
+    CMC_SECURITY_REPO_ROOT="${cmc_fixture_path}" \
+      bash "${cmc_fixture_validator}" "$@" >&2 || true
   fi
 }
 
@@ -125,6 +127,72 @@ printf '%s\n' \
 cmc_fixture_expect_rejection \
   "${cmc_fixture_bundle}" \
   --artifact "${cmc_fixture_bundle}/artifact"
+
+cmc_fixture_pem_bundle="$(cmc_fixture_prepare bundle-private-key)"
+mkdir -p "${cmc_fixture_pem_bundle}/artifact"
+printf '%s\n' \
+  '-----BEGIN PRIVATE KEY-----' \
+  'QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB' \
+  '-----END PRIVATE KEY-----' \
+  >"${cmc_fixture_pem_bundle}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_pem_bundle}" \
+  --artifact "${cmc_fixture_pem_bundle}/artifact"
+
+cmc_fixture_encrypted_pem="$(cmc_fixture_prepare bundle-encrypted-private-key)"
+mkdir -p "${cmc_fixture_encrypted_pem}/artifact"
+printf '%s\n' \
+  '-----BEGIN ENCRYPTED PRIVATE KEY-----' \
+  'QkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJC' \
+  '-----END ENCRYPTED PRIVATE KEY-----' \
+  >"${cmc_fixture_encrypted_pem}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_encrypted_pem}" \
+  --artifact "${cmc_fixture_encrypted_pem}/artifact"
+
+cmc_fixture_dsa_pem="$(cmc_fixture_prepare bundle-dsa-private-key)"
+mkdir -p "${cmc_fixture_dsa_pem}/artifact"
+printf '%s\n' \
+  '-----BEGIN DSA PRIVATE KEY-----' \
+  'Q0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0ND' \
+  '-----END DSA PRIVATE KEY-----' \
+  >"${cmc_fixture_dsa_pem}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_dsa_pem}" \
+  --artifact "${cmc_fixture_dsa_pem}/artifact"
+
+cmc_fixture_sensitive_bundle="$(cmc_fixture_prepare bundle-sensitive-path)"
+mkdir -p "${cmc_fixture_sensitive_bundle}/artifact"
+printf 'synthetic fixture\n' \
+  >"${cmc_fixture_sensitive_bundle}/artifact/client.p12"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_sensitive_bundle}" \
+  --artifact "${cmc_fixture_sensitive_bundle}/artifact"
+
+cmc_fixture_upper_cert="$(cmc_fixture_prepare bundle-uppercase-certificate)"
+mkdir -p "${cmc_fixture_upper_cert}/artifact"
+printf 'synthetic fixture\n' \
+  >"${cmc_fixture_upper_cert}/artifact/client.CER"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_upper_cert}" \
+  --artifact "${cmc_fixture_upper_cert}/artifact"
+
+cmc_fixture_unreadable_bundle="$(cmc_fixture_prepare bundle-unreadable)"
+mkdir -p "${cmc_fixture_unreadable_bundle}/artifact"
+printf 'synthetic fixture\n' \
+  >"${cmc_fixture_unreadable_bundle}/artifact/unreadable.bin"
+chmod 000 "${cmc_fixture_unreadable_bundle}/artifact/unreadable.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_unreadable_bundle}" \
+  --artifact "${cmc_fixture_unreadable_bundle}/artifact"
+chmod 600 "${cmc_fixture_unreadable_bundle}/artifact/unreadable.bin"
+
+cmc_fixture_symlink="$(cmc_fixture_prepare tracked-symlink-secret)"
+ln -s \
+  'GOCSPX-CCCCCCCCCCCCCCCCCCCCCCCCCCCC' \
+  "${cmc_fixture_symlink}/lib/oauth-link"
+git -C "${cmc_fixture_symlink}" add lib/oauth-link
+cmc_fixture_expect_rejection "${cmc_fixture_symlink}"
 
 cmc_fixture_publishable="$(cmc_fixture_prepare publishable-artifact)"
 mkdir -p "${cmc_fixture_publishable}/artifact"

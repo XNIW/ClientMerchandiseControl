@@ -32,16 +32,53 @@ if ! git -C "${cmc_security_repo_root}" rev-parse --is-inside-work-tree \
   printf 'Security scan non eseguibile: repository Git non valido.\n' >&2
   exit 1
 fi
+if ! command -v openssl >/dev/null 2>&1 || \
+  ! command -v tr >/dev/null 2>&1; then
+  printf 'Security scan non eseguibile: dipendenza di decode assente.\n' >&2
+  exit 1
+fi
+
+cmc_security_tmp_parent="${TMPDIR:-/tmp}"
+cmc_security_tmp_parent="${cmc_security_tmp_parent%/}"
+cmc_security_tmp_root="$(
+  mktemp -d "${cmc_security_tmp_parent}/cmc-client-security.XXXXXX"
+)"
+cmc_security_cleanup() {
+  case "${cmc_security_tmp_root}" in
+    "${cmc_security_tmp_parent}"/cmc-client-security.*)
+      rm -rf -- "${cmc_security_tmp_root}"
+      ;;
+    *)
+      printf 'Cleanup security rifiutato per path inatteso.\n' >&2
+      ;;
+  esac
+}
+trap cmc_security_cleanup EXIT
 
 cmc_security_secret_value_pattern='(AKIA[0-9A-Z]{16}|github_pat_[0-9A-Za-z_]{20,}|gh[pousr]_[0-9A-Za-z]{30,}|sk-(proj|live|prod)-[0-9A-Za-z_-]{20,}|sk_(live|prod)_[0-9A-Za-z]{20,}|sb_secret_[0-9A-Za-z]{24,}|AIza[0-9A-Za-z_-]{30,}|GOCSPX-[0-9A-Za-z_-]{20,})'
-cmc_security_source_secret_pattern="(${cmc_security_secret_value_pattern}|-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----)"
+cmc_security_source_secret_pattern="(${cmc_security_secret_value_pattern}|-----BEGIN (RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY-----)"
 cmc_security_jwt_pattern='eyJ[0-9A-Za-z_-]{8,}\.[0-9A-Za-z_-]{8,}\.[0-9A-Za-z_-]{8,}'
 
 cmc_security_contains_service_role_jwt() {
   local cmc_security_file="$1"
   local cmc_security_token
+  local cmc_security_tokens
   local cmc_security_payload
   local cmc_security_padding
+  local cmc_security_grep_status
+
+  if cmc_security_tokens="$(
+    LC_ALL=C grep -aEo -- "${cmc_security_jwt_pattern}" \
+      "${cmc_security_file}"
+  )"; then
+    :
+  else
+    cmc_security_grep_status="$?"
+    if [[ "${cmc_security_grep_status}" -eq 1 ]]; then
+      return 1
+    fi
+    return 2
+  fi
 
   while IFS= read -r cmc_security_token; do
     cmc_security_payload="${cmc_security_token#*.}"
@@ -59,50 +96,163 @@ cmc_security_contains_service_role_jwt() {
         '"role"[[:space:]]*:[[:space:]]*"service_role"'; then
       return 0
     fi
-  done < <(
-    LC_ALL=C grep -aEo -- "${cmc_security_jwt_pattern}" \
-      "${cmc_security_file}" 2>/dev/null || true
-  )
+  done <<<"${cmc_security_tokens}"
   return 1
+}
+
+cmc_security_contains_private_key_pem() {
+  local cmc_security_file="$1"
+  local cmc_security_perl_status
+
+  if ! command -v perl >/dev/null 2>&1; then
+    return 2
+  fi
+  if perl -0777 -e '
+    use strict;
+    use warnings;
+    my $path = shift;
+    open my $handle, "<", $path or exit 2;
+    binmode $handle;
+    local $/;
+    my $content = <$handle>;
+    close $handle or exit 2;
+    my $label = qr/(?:RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY/;
+    my $headers = qr/(?:[A-Za-z0-9-]+:[^\r\n]*\r?\n)*/;
+    my $payload = qr/(?:[A-Za-z0-9+\/=]{16,}\r?\n)+/;
+    exit(
+      $content =~
+        /-----BEGIN ($label)-----\r?\n$headers\r?\n?$payload-----END \1-----/
+        ? 0
+        : 1
+    );
+  ' "${cmc_security_file}" 2>/dev/null; then
+    return 0
+  else
+    cmc_security_perl_status="$?"
+  fi
+  if [[ "${cmc_security_perl_status}" -eq 1 ]]; then
+    return 1
+  fi
+  return 2
 }
 
 cmc_security_file_has_prohibited_value() {
   local cmc_security_file="$1"
   local cmc_security_pattern="$2"
+  local cmc_security_check_pem="${3:-false}"
+  local cmc_security_scan_status
+
+  if [[ ! -f "${cmc_security_file}" || ! -r "${cmc_security_file}" ]]; then
+    return 2
+  fi
   if LC_ALL=C grep -aEq -- "${cmc_security_pattern}" \
     "${cmc_security_file}"; then
     return 0
+  else
+    cmc_security_scan_status="$?"
   fi
-  cmc_security_contains_service_role_jwt "${cmc_security_file}"
+  if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
+    return 2
+  fi
+  if cmc_security_contains_service_role_jwt "${cmc_security_file}"; then
+    return 0
+  else
+    cmc_security_scan_status="$?"
+  fi
+  if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
+    return 2
+  fi
+  if [[ "${cmc_security_check_pem}" == 'true' ]]; then
+    if cmc_security_contains_private_key_pem "${cmc_security_file}"; then
+      return 0
+    else
+      cmc_security_scan_status="$?"
+    fi
+    if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
+      return 2
+    fi
+  fi
+  return 1
 }
 
-while IFS= read -r -d '' cmc_security_path; do
-  if [[ ! -f "${cmc_security_repo_root}/${cmc_security_path}" ]]; then
-    continue
+cmc_security_path_match_begin() {
+  if shopt -q nocasematch; then
+    cmc_security_restore_nocasematch=false
+  else
+    shopt -s nocasematch
+    cmc_security_restore_nocasematch=true
   fi
-  cmc_security_tracked_count=$((cmc_security_tracked_count + 1))
+}
 
+cmc_security_path_match_end() {
+  if [[ "${cmc_security_restore_nocasematch}" == 'true' ]]; then
+    shopt -u nocasematch
+  fi
+}
+
+cmc_security_source_path_is_forbidden() {
+  local cmc_security_path="$1"
+  local cmc_security_result=1
+  local cmc_security_restore_nocasematch
+  cmc_security_path_match_begin
   case "${cmc_security_path}" in
     config/*.local.json | */config/*.local.json | \
       .env | .env.* | */.env | */.env.* | \
       build/* | */build/* | \
       coverage/* | */coverage/* | \
-      *.jks | *.keystore | *.p8 | *.p12 | *.pfx | *.mobileprovision | \
-      android/key.properties | \
-      android/app/google-services.json | \
-      ios/Runner/GoogleService-Info.plist)
+      *.jks | *.keystore | *.key | *.pem | \
+      *.p8 | *.p12 | *.pfx | *.cer | *.crt | *.der | \
+      *.mobileprovision | \
+      key.properties | */key.properties | \
+      google-services.json | */google-services.json | \
+      GoogleService-Info.plist | */GoogleService-Info.plist)
       case "${cmc_security_path}" in
         .env.example | .env.*.example | \
           */.env.example | */.env.*.example)
           ;;
         *)
-          printf '%q: path locale, credenziale o artifact non ammesso in Git.\n' \
-            "${cmc_security_path}" >&2
-          cmc_security_violation_count=$((cmc_security_violation_count + 1))
+          cmc_security_result=0
           ;;
       esac
       ;;
   esac
+  cmc_security_path_match_end
+  return "${cmc_security_result}"
+}
+
+cmc_security_artifact_path_is_forbidden() {
+  local cmc_security_path="$1"
+  local cmc_security_result=1
+  local cmc_security_restore_nocasematch
+  cmc_security_path_match_begin
+  case "${cmc_security_path}" in
+    config/*.local.json | */config/*.local.json | \
+      .env | .env.* | */.env | */.env.* | \
+      *.jks | *.keystore | *.key | *.pem | \
+      *.p8 | *.p12 | *.pfx | *.cer | *.crt | *.der | \
+      *.mobileprovision | \
+      key.properties | */key.properties | \
+      google-services.json | */google-services.json | \
+      GoogleService-Info.plist | */GoogleService-Info.plist)
+      cmc_security_result=0
+      ;;
+  esac
+  cmc_security_path_match_end
+  return "${cmc_security_result}"
+}
+
+while IFS= read -r -d '' cmc_security_index_record; do
+  cmc_security_index_metadata="${cmc_security_index_record%%$'\t'*}"
+  cmc_security_path="${cmc_security_index_record#*$'\t'}"
+  read -r cmc_security_mode cmc_security_object cmc_security_stage \
+    <<<"${cmc_security_index_metadata}"
+  cmc_security_tracked_count=$((cmc_security_tracked_count + 1))
+
+  if cmc_security_source_path_is_forbidden "${cmc_security_path}"; then
+    printf '%q: path locale, credenziale o artifact non ammesso in Git.\n' \
+      "${cmc_security_path}" >&2
+    cmc_security_violation_count=$((cmc_security_violation_count + 1))
+  fi
 
   case "${cmc_security_path}" in
     scripts/check-client-security.sh | scripts/test-client-security-scan.sh)
@@ -110,14 +260,38 @@ while IFS= read -r -d '' cmc_security_path; do
       ;;
   esac
 
+  cmc_security_scan_file="${cmc_security_repo_root}/${cmc_security_path}"
+  if [[ "${cmc_security_mode}" == '120000' ]]; then
+    cmc_security_scan_file="$(
+      mktemp "${cmc_security_tmp_root}/git-symlink.XXXXXX"
+    )"
+    if ! git -C "${cmc_security_repo_root}" cat-file blob \
+      "${cmc_security_object}" >"${cmc_security_scan_file}"; then
+      printf 'Security scan Git: blob symlink non leggibile.\n' >&2
+      exit 1
+    fi
+  elif [[ "${cmc_security_mode}" != '100644' && \
+    "${cmc_security_mode}" != '100755' ]]; then
+    printf '%q: mode Git non supportato dal security scan.\n' \
+      "${cmc_security_path}" >&2
+    exit 1
+  fi
+
   if cmc_security_file_has_prohibited_value \
-    "${cmc_security_repo_root}/${cmc_security_path}" \
+    "${cmc_security_scan_file}" \
     "${cmc_security_source_secret_pattern}"; then
     printf '%q: valore secret-shaped rilevato; contenuto non stampato.\n' \
       "${cmc_security_path}" >&2
     cmc_security_violation_count=$((cmc_security_violation_count + 1))
+  else
+    cmc_security_scan_status="$?"
+    if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
+      printf '%q: file tracciato non verificabile; scan fail-closed.\n' \
+        "${cmc_security_path}" >&2
+      exit 1
+    fi
   fi
-done < <(git -C "${cmc_security_repo_root}" ls-files -z)
+done < <(git -C "${cmc_security_repo_root}" ls-files --stage -z)
 
 if [[ "${cmc_security_tracked_count}" -eq 0 ]]; then
   printf 'Security scan non eseguibile: nessun file tracciato.\n' >&2
@@ -125,23 +299,6 @@ if [[ "${cmc_security_tracked_count}" -eq 0 ]]; then
 fi
 
 if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
-  cmc_security_tmp_parent="${TMPDIR:-/tmp}"
-  cmc_security_tmp_parent="${cmc_security_tmp_parent%/}"
-  cmc_security_tmp_root="$(
-    mktemp -d "${cmc_security_tmp_parent}/cmc-client-artifacts.XXXXXX"
-  )"
-  cmc_security_cleanup_artifacts() {
-    case "${cmc_security_tmp_root}" in
-      "${cmc_security_tmp_parent}"/cmc-client-artifacts.*)
-        rm -rf -- "${cmc_security_tmp_root}"
-        ;;
-      *)
-        printf 'Cleanup artifact security rifiutato per path inatteso.\n' >&2
-        ;;
-    esac
-  }
-  trap cmc_security_cleanup_artifacts EXIT
-
   cmc_security_artifact_index=0
   for cmc_security_artifact in "${cmc_security_artifacts[@]}"; do
     if [[ ! -e "${cmc_security_artifact}" ]]; then
@@ -152,7 +309,7 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
     cmc_security_scan_root="${cmc_security_artifact}"
     case "${cmc_security_artifact}" in
       *.apk | *.zip)
-        cmc_security_scan_root="${cmc_security_tmp_root}/${cmc_security_artifact_index}"
+        cmc_security_scan_root="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}"
         mkdir -p "${cmc_security_scan_root}"
         if ! unzip -qq "${cmc_security_artifact}" \
           -d "${cmc_security_scan_root}"; then
@@ -166,20 +323,50 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
       cmc_security_artifact_files=("${cmc_security_scan_root}")
     else
       cmc_security_artifact_files=()
+      cmc_security_artifact_list="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.files"
+      if ! find "${cmc_security_scan_root}" \
+        \( -type f -o -type l \) -print0 \
+        >"${cmc_security_artifact_list}"; then
+        printf 'Security scan artifact: enumerazione non verificabile.\n' >&2
+        exit 1
+      fi
       while IFS= read -r -d '' cmc_security_artifact_file; do
         cmc_security_artifact_files+=("${cmc_security_artifact_file}")
-      done < <(find "${cmc_security_scan_root}" -type f -print0)
+      done <"${cmc_security_artifact_list}"
     fi
 
     for cmc_security_artifact_file in \
       "${cmc_security_artifact_files[@]}"; do
       cmc_security_artifact_file_count=$((cmc_security_artifact_file_count + 1))
+      if [[ -L "${cmc_security_artifact_file}" ]]; then
+        printf 'Security scan artifact: symlink non verificabile.\n' >&2
+        exit 1
+      fi
+      if [[ -f "${cmc_security_scan_root}" ]]; then
+        cmc_security_artifact_relative="${cmc_security_scan_root##*/}"
+      else
+        cmc_security_artifact_relative="${cmc_security_artifact_file#"${cmc_security_scan_root}/"}"
+      fi
+      if cmc_security_artifact_path_is_forbidden \
+        "${cmc_security_artifact_relative}"; then
+        printf 'Artifact client: path credenziale/config vietato; contenuto non stampato.\n' \
+          >&2
+        cmc_security_violation_count=$((cmc_security_violation_count + 1))
+      fi
       if cmc_security_file_has_prohibited_value \
         "${cmc_security_artifact_file}" \
-        "${cmc_security_secret_value_pattern}"; then
+        "${cmc_security_secret_value_pattern}" \
+        true; then
         printf 'Artifact client: valore secret-shaped rilevato; contenuto non stampato.\n' \
           >&2
         cmc_security_violation_count=$((cmc_security_violation_count + 1))
+      else
+        cmc_security_scan_status="$?"
+        if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
+          printf 'Security scan artifact: file non leggibile; scan fail-closed.\n' \
+            >&2
+          exit 1
+        fi
       fi
     done
   done

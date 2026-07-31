@@ -132,4 +132,4 @@ query o code.
 | T-35 | MANUAL/STATIC/SECURITY | FAIL | CMD-RR01; cinque shard completati, finding tecnici/documentali ancora aperti |
 | T-36 | CI | BLOCKED | CMD-CI02; run `30619705565` sullo SHA esatto fermata prima del runner |
 | T-37 | GIT | PASS | CMD-F13/CMD-RR01; branch/upstream/PR allineati, worktree pulito e zero path TASK-003/004 |
-| T-38 | GIT/CI | BLOCKED | merge/sync/main/IDLE vietati finché re-review, CI e gate live restano non verdi |
+| T-38 | GIT/CI | NOT_RUN | CMD-CI02; verifica post-merge non eseguita perché re-review, CI e gate live non sono verdi e il merge resta vietato |

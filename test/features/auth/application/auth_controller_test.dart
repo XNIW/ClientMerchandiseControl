@@ -198,6 +198,66 @@ void main() {
   );
 
   test(
+    'callback provider cancellato identico termina anche il flow di retry',
+    () async {
+      container.read(authControllerProvider);
+      await _settle();
+      final controller = container.read(authControllerProvider.notifier);
+      final callback = Uri.parse(
+        '${AppConfig.allowedAuthRedirectUri}?error=access_denied',
+      );
+
+      await controller.startGoogleSignIn();
+      callbackSource.emit(callback);
+      await _settle();
+      expect(container.read(authControllerProvider), isA<AuthCancelled>());
+
+      await controller.retry();
+      callbackSource.emit(callback);
+      await _settle();
+
+      expect(repository.launchCalls, 2);
+      expect(repository.signOutCalls, 2);
+      expect(container.read(authControllerProvider), isA<AuthCancelled>());
+    },
+  );
+
+  test(
+    'callback provider fallito identico termina anche il flow di retry',
+    () async {
+      container.read(authControllerProvider);
+      await _settle();
+      final controller = container.read(authControllerProvider.notifier);
+      final callback = Uri.parse(
+        '${AppConfig.allowedAuthRedirectUri}?error=server_error',
+      );
+
+      await controller.startGoogleSignIn();
+      callbackSource.emit(callback);
+      await _settle();
+      expect(
+        container.read(authControllerProvider),
+        isA<AuthRecoverableError>(),
+      );
+
+      await controller.retry();
+      callbackSource.emit(callback);
+      await _settle();
+
+      expect(repository.launchCalls, 2);
+      expect(repository.signOutCalls, 2);
+      expect(
+        container.read(authControllerProvider),
+        isA<AuthRecoverableError>().having(
+          (state) => state.failure.kind,
+          'failure',
+          AuthFailureKind.providerUnavailable,
+        ),
+      );
+    },
+  );
+
+  test(
     'browser non lanciato produce errore recuperabile e consente retry',
     () async {
       repository.launchResult = false;

@@ -447,11 +447,6 @@ final class AuthController extends Notifier<AuthState> {
   }
 
   Future<void> _handleCallback(Uri callback) async {
-    final fingerprint = _fingerprint(callback);
-    if (!_rememberFingerprint(fingerprint)) {
-      return;
-    }
-
     final validation = _validator!.validate(callback);
     switch (validation) {
       case AuthCallbackRejected(:final failure):
@@ -479,6 +474,10 @@ final class AuthController extends Notifier<AuthState> {
         }
         return;
       case AuthCallbackAccepted(:final code):
+        final fingerprint = _fingerprint(callback);
+        if (!_rememberFingerprint(fingerprint)) {
+          return;
+        }
         if (state is AuthAuthenticated ||
             _ignoreCallbacksUntilNextLogin ||
             _suppressSessionAuthentication) {

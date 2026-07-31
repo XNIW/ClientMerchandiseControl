@@ -67,7 +67,13 @@ void main() {
 
     final declaredCommands = commandIds.toSet();
     for (final row in [...caRows, ...testRows]) {
-      for (final referencedCommand in _referencedCommands(row[3])) {
+      final referencedCommands = _referencedCommands(row[3]);
+      expect(
+        referencedCommands,
+        isNotEmpty,
+        reason: '${row.first} deve riferire almeno un comando dichiarato',
+      );
+      for (final referencedCommand in referencedCommands) {
         expect(
           declaredCommands,
           contains(referencedCommand),

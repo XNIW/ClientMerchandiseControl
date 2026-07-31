@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-012
 - **File task**: `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
-- **Prossima azione autorizzata**: revisionare indipendentemente TASK-012 sullo SHA
-  tecnico e assegnare l'esito previsto dal protocollo
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Prossima azione autorizzata**: correggere esclusivamente i quattro finding P2
+  approvati e riconsegnare TASK-012 a re-review
 
 ## Repository coinvolti
 
@@ -135,6 +135,6 @@ normale è stato verificato su main.
 re-review `30601320650` e CI approvazione `30601758281` sono 3/3 `PASS`, con tutti
 gli step `success` e annotation 0/0/0. CI closeout `30602210469` è `PASS` sullo SHA
 esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
-`TASK-012` è l'unico task `ACTIVE`, in `REVIEW`, dopo handoff Execution sullo SHA
-`14cdc5175b9a596c8a4237e6796fefe3e7beda63`; TASK-005–TASK-010 e TASK-013 in avanti
-restano invariati.
+`TASK-012` è l'unico task `ACTIVE`, in `FIX`, dopo review indipendente
+`CHANGES_REQUIRED` con 4 P2 aperti e 0 P0/P1/P3; TASK-005–TASK-010 e TASK-013 in
+avanti restano invariati.

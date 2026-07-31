@@ -7,18 +7,18 @@
 - **File task**:
   `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_EXECUTOR
-- **Review outcome**: NOT_RUN
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Ultimo agente**: CODEX_REVIEWER
+- **Review outcome**: CHANGES_REQUIRED
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-011 e TASK-020
 - **User approval**: GRANTED_AND_APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-012/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -321,7 +321,29 @@ Handoff: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
-Non iniziata.
+Review indipendente completata sul revision set:
+
+- commit tecnico `14cdc5175b9a596c8a4237e6796fefe3e7beda63`;
+- handoff/evidence `c4dc7af4df2e96a487d4e9c2e07ed4eab5428b23`;
+- CI handoff `30605208014`, 3/3 `PASS`, tutti gli step `success`, annotation
+  0/0/0.
+
+Finding:
+
+1. `T012-REV-UI-001` — **P2**: la Semantics della ricerca Catalogo aggrega Filter,
+   Sort e nasconde la spiegazione nel dump Android;
+2. `T012-REV-SEC-001` — **P2**: il logout authenticated è imposto soltanto da
+   `assert` e non è garantito in release;
+3. `T012-REV-SEC-002` — **P2**: il port avatar accetta qualunque `ImageProvider`,
+   incluso `NetworkImage`, e non garantisce zero I/O;
+4. `T012-REV-GOV-003` — **P2**: le matrici Execution aggregano intervalli CA/T invece
+   di usare una riga per ogni criterio e test.
+
+Conteggio: 0 P0, 0 P1, 4 P2, 0 P3. Esito: `CHANGES_REQUIRED`.
+
+Report: `docs/TASKS/EVIDENCE/TASK-012/review-report.md`.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 

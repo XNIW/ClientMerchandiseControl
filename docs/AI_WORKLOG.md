@@ -816,3 +816,21 @@
   `success`, annotation 0/0/0 sullo SHA tecnico.
 - **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 - **Blocker/note**: nessuno; review indipendente obbligatoria. TASK-020 non è attivo.
+
+## 2026-07-30 — Review indipendente TASK-012 e handoff a Fix
+
+- **Agente**: `CODEX_REVIEWER`, due shard read-only indipendenti
+- **Task**: TASK-012
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revision set**: tecnico `14cdc5175b9a596c8a4237e6796fefe3e7beda63`;
+  handoff `c4dc7af4df2e96a487d4e9c2e07ed4eab5428b23`.
+- **Verifiche**: suite completa 139/139, analyze, smoke Android/iOS, dump UIAutomator,
+  locale/ARB, reflow, governance, diff/security/confinement e CI handoff
+  `30605208014` 3/3 `PASS`.
+- **Finding**: 0 P0, 0 P1, 4 P2, 0 P3 — Semantics Catalogo, logout release, port
+  avatar network-capable e matrici CA/T aggregate.
+- **Limite non bloccante**: uno shard ausiliario CodeRabbit non contato è stato
+  `BLOCKED` da rate limit esterno; i due shard principali hanno completato la review.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: correggere esclusivamente i quattro finding approvati e tornare a
+  re-review; nessun task successivo attivato.

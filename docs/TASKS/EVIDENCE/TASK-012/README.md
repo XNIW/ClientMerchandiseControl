@@ -1,14 +1,14 @@
 # Evidence TASK-012
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Stato
 
 - Planning: `PASS`
 - Autorizzazione Execution: `PASS`
 - Execution: `PASS` — SHA tecnico `14cdc5175b9a596c8a4237e6796fefe3e7beda63`
-- Review: `NOT_RUN`
+- Review: `CHANGES_REQUIRED` — 0 P0, 0 P1, 4 P2, 0 P3
 - Fix/re-review: `NOT_RUN`
 - CI finale: `NOT_RUN`
 - DONE: `NO`
@@ -32,6 +32,7 @@ Snapshot di handoff:
   sanitizzati.
 - [screenshots/manifest.md](screenshots/manifest.md) — dimensioni, digest e scenari
   dei PNG ispezionati.
+- [review-report.md](review-report.md) — review indipendente, finding e handoff a Fix.
 
 Review, eventuale Fix/re-review, CI finale e closeout saranno aggiunti dai ruoli
 proprietari nelle rispettive fasi. Nessun esito di review è inferito dall'Execution.

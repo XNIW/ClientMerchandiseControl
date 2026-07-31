@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-011
 - **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
-- **Prossima azione autorizzata**: verificare indipendentemente la chiusura di
-  `T011-REV-001`–`006` e rieseguire i gate impattati
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Prossima azione autorizzata**: correggere esclusivamente
+  `T011-REREV-SEC-001`, precisando la provenance zero-write senza cambiare `CA-04`
 
 ## Repository coinvolti
 
@@ -126,8 +126,8 @@ La re-review integrata del batch TASK-003/TASK-004 è `APPROVED` sullo SHA
 `30596267634` sullo SHA `ee58f29c9402f286a038f7cc79f1043539ea0b25` e il merge
 normale è stato verificato su main.
 
-`TASK-011` è l'unico task `ACTIVE` in `REVIEW` dopo Fix. Lo SHA tecnico
-`8621606d03d06b70f2a421c985c63b96ee3ef47a` dichiara risolti i 5 P2 e il P3 con
-108/108 test, smoke bootstrap Android/iOS, evidence visuale e CI `30599648372` 3/3
-`PASS`. La chiusura resta subordinata a re-review indipendente; TASK-005–TASK-010 e
-TASK-012 in avanti restano invariati.
+`TASK-011` è l'unico task `ACTIVE` in `FIX`. La re-review ha chiuso i cinque P2 e il
+P3 originali, ma ha aperto `T011-REREV-SEC-001` P2: le evidence devono distinguere
+zero-write del client/azioni TASK-011 da traffico Admin esterno concorrente osservato.
+CI handoff `30600113945` 3/3 `PASS`; TASK-005–TASK-010 e TASK-012 in avanti restano
+invariati.

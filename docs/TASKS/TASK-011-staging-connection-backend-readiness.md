@@ -7,20 +7,20 @@
 - **File task**:
   `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
 - **Ultimo agente**: CODEX_FIXER
 - **Review outcome**: CHANGES_REQUIRED
 - **Reviewer**: CODEX_REVIEWER — tre sessioni read-only indipendenti
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-012 e TASK-020
 - **User approval**: GRANTED_CONDITIONALLY_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-011/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -448,6 +448,29 @@ Finding aperti: 0 P0, 0 P1, 5 P2, 1 P3.
 ### Handoff
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`
+
+### Re-review dopo Fix 1
+
+- Target:
+  `3c830b6c2708c491ee26fd8e7c7f3b0bc7e79a8e`
+- `T011-REV-001`–`006`: `CLOSED`
+- nuovi finding tecnici: 0 P0, 0 P1, 0 P2, 0 P3
+- `T011-REREV-SEC-001` P2: `OPEN`
+
+Il nuovo finding non riguarda il client: codice, smoke e gateway mostrano soltanto
+`GET /auth/v1/health`. I log globali staging mostrano però traffico Auth Admin
+concorrente, attribuito a una sorgente privilegiata esterna al task. Le frasi
+«Supabase rimasto zero-write» sono quindi troppo globali e devono distinguere:
+
+> Zero write del client e delle azioni Codex TASK-011; traffico Admin esterno
+> concorrente osservato, non attribuito al task e fuori scope.
+
+Gate indipendenti: 108/108, analyze, mutation, smoke Android/iOS, screenshot/digest,
+scan security e CI `30600113945` sullo SHA esatto 3/3 `PASS`, annotation 0/0/0.
+
+Esito re-review 1: `CHANGES_REQUIRED`.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 

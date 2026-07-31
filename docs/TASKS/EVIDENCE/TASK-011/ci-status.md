@@ -38,6 +38,18 @@
 | Step falliti | 0 |
 | Annotation | 0/0/0 |
 
+## Run handoff re-review
+
+| Campo | Valore |
+|---|---|
+| Run | `30600113945` |
+| Evento | `workflow_dispatch` |
+| SHA | `3c830b6c2708c491ee26fd8e7c7f3b0bc7e79a8e` |
+| Conclusione | `success` |
+| Job riusciti | 3/3 |
+| Step falliti | 0 |
+| Annotation | 0/0/0 |
+
 ## Stato gate finale
 
 Le run provano commit tecnici e handoff fin qui consegnati. `CA-32` e `T-29` restano

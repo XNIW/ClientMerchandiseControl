@@ -643,3 +643,20 @@
 - **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 - **Blocker/note**: nessun gate Fix aperto; re-review indipendente obbligatoria prima
   dell'approvazione. Supabase e repository esterni restano zero-write.
+
+## 2026-07-30 — Re-review TASK-011, ciclo 1
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revisione**: `3c830b6c2708c491ee26fd8e7c7f3b0bc7e79a8e`
+- **Finding originali**: `T011-REV-001`–`006` tutti `CLOSED`; 0 nuovi finding
+  tecnici P0/P1/P2/P3.
+- **Nuovo finding**: `T011-REREV-SEC-001` P2. I log read-only separano health GET del
+  client da traffico Auth Admin esterno concorrente; i claim zero-write globali nelle
+  evidence sono troppo ampi.
+- **Verifiche**: mutation, 108/108, analyze, smoke dual-platform, screenshot/digest,
+  scan security e CI `30600113945` 3/3 `success`, annotation 0/0/0.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: Fix solo documentale/provenance; nessun codice o remoto da
+  modificare, nessun identificatore sensibile da persistere.

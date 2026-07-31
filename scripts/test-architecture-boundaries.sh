@@ -94,6 +94,13 @@ cmc_fixture_replace_literal \
   "data-backed"
 cmc_fixture_expect_rejection "${cmc_fixture_task012_path}"
 
+cmc_fixture_task002_path="$(cmc_fixture_prepare invalid-task002-decision)"
+cmc_fixture_replace_literal \
+  "${cmc_fixture_task002_path}/docs/TASKS/TASK-002-product-scope-branding-design-system.md" \
+  "TASK-012 resta owner della shell guest/data-safe" \
+  "TASK-012 resta owner della shell data-backed"
+cmc_fixture_expect_rejection "${cmc_fixture_task002_path}"
+
 cmc_fixture_dag_path="$(cmc_fixture_prepare duplicate-dag-row)"
 cmc_fixture_dag_file="${cmc_fixture_dag_path}/docs/DECISIONS/ADR-009-parallel-catalog-authentication-workstreams.md"
 if ! grep -Fq -- "| TASK-005 | TASK-003, TASK-004 |" "${cmc_fixture_dag_file}"; then

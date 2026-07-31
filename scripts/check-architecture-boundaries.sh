@@ -161,10 +161,15 @@ cmc_arch_has_task012_data_backed_record() {
         table_task = tolower(trim(table_cells[2]))
         gsub(/`/, "", table_task)
       }
-      if (index(normalized, "data-backed") &&
-          ((record ~ /^\|/ && table_task == "task-012") ||
-           (record !~ /^\|/ && index(normalized, "task-012")))) {
-        violation = 1
+      if (index(normalized, "data-backed")) {
+        if (record ~ /^\|/ &&
+            table_task ~ /^task-[0-9][0-9][0-9]$/) {
+          if (table_task == "task-012") {
+            violation = 1
+          }
+        } else if (index(normalized, "task-012")) {
+          violation = 1
+        }
       }
       record = ""
     }

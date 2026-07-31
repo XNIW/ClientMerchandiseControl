@@ -796,3 +796,23 @@
   riproducibile.
 - **Risultato**: Planning riallineato; implementazione tecnica ancora `NOT_RUN`.
 - **Blocker/note**: nessuno.
+
+## 2026-07-30 — Execution TASK-012 e handoff a Review
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-012
+- **Fase iniziale/finale**: EXECUTION -> REVIEW
+- **Commit tecnico**:
+  `14cdc5175b9a596c8a4237e6796fefe3e7beda63`
+- **Azioni principali**: realizzate Home, Catalogo, Carrello e Account guest
+  customer-safe; completati design system, quattro locale, Semantics, reflow e
+  integration guest; nessun dato, query o OAuth anticipato.
+- **Failure osservati**: Semantics Google disabilitato, clamp scroll Home e due difetti
+  harness; tutti risolti con regressioni e registrati in `development-findings.md`.
+- **Verifiche locali**: analyze `PASS`; 139/139; gate aggregato e build Android/iOS
+  `PASS`; smoke reali Android/iOS 1/1; tre screenshot sanitizzati; scan secret,
+  config, artifact, dati e remote write `PASS`.
+- **CI tecnica**: run `30604787251`, Quality/Android/iOS 3/3 `success`, tutti gli step
+  `success`, annotation 0/0/0 sullo SHA tecnico.
+- **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+- **Blocker/note**: nessuno; review indipendente obbligatoria. TASK-020 non è attivo.

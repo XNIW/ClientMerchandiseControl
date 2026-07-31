@@ -7,18 +7,18 @@
 - **File task**:
   `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
 - **Ultimo agente**: CODEX_EXECUTOR
 - **Review outcome**: NOT_RUN
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-011 e TASK-020
 - **User approval**: GRANTED_AND_APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-012/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -292,7 +292,32 @@ offra a TASK-020 un contratto Account stabile senza anticipare autenticazione o 
 
 ## Execution — `CODEX_EXECUTOR`
 
-Autorizzata. L'implementazione tecnica non è ancora iniziata.
+Completata sul commit tecnico
+`14cdc5175b9a596c8a4237e6796fefe3e7beda63`.
+
+- sostituiti i placeholder con Home, Catalogo, Carrello e Account specifici e
+  customer-safe;
+- preservati indexed stack, stato/scroll delle branch, back e CTA reali;
+- introdotti soltanto componenti design-system con consumer concreti;
+- mantenuto Account guest a runtime, con authenticated puramente presentazionale e
+  Google fail-closed;
+- completati es-CL, it, en e zh-Hans, Semantics, target 48 dp, light/dark, text scale
+  200%, SafeArea e reflow;
+- eseguiti 139/139 test, gate aggregato, build e smoke dual-platform 1/1;
+- registrati e risolti tutti i failure di sviluppo senza occultarli;
+- verificati zero query/dati commerciali finti, zero secret/config locale e zero
+  modifiche remote o repository esterni;
+- CI tecnica `30604787251` sullo SHA esatto: Quality, Android e iOS 3/3 `PASS`, tutti
+  gli step `success`, annotation 0/0/0.
+
+Evidence:
+
+- `docs/TASKS/EVIDENCE/TASK-012/execution-evidence.md`;
+- `docs/TASKS/EVIDENCE/TASK-012/commands-and-results.md`;
+- `docs/TASKS/EVIDENCE/TASK-012/runtime-smoke.md`;
+- `docs/TASKS/EVIDENCE/TASK-012/security-review.md`.
+
+Handoff: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 

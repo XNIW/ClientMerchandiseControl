@@ -111,12 +111,13 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 
 ## Stato
 
-- **Task attivo**: nessuno
-- **Stato task**: non applicabile
-- **Fase**: non applicabile
-- **Indicatore**: USER_APPROVED_DONE
+- **Task attivo**: TASK-011
+- **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
+- **Stato task**: ACTIVE
+- **Fase**: PLANNING
+- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
 
-`TASK-001`–`TASK-004` sono `DONE`; nessun task è attivo. La PR batch e il merge
-TASK-003/TASK-004 restano pendenti prima dell'attivazione di TASK-011. La re-review
-integrata è `APPROVED` con 0 P0/P1/P2 aperti e CI tecnica 3/3 `PASS`; il prossimo
-gate è la CI della Pull Request sul suo SHA esatto, seguita dal merge normale.
+`TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
+TASK-011 è l'unico task attivo e il suo planning limita la connessione staging a un
+health probe ufficiale privo di dati. OAuth, redirect allow-list e deep link restano
+TASK-020; TASK-005–TASK-010 e TASK-012 in avanti non sono attivi.

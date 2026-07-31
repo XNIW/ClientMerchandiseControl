@@ -4,15 +4,15 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: non applicabile
-- **Stato task**: non applicabile
-- **Fase**: non applicabile
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: aprire la PR batch TASK-003/TASK-004, verificarne
-  la CI sullo SHA esatto ed eseguire il merge normale
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-011
+- **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
+- **Stato task**: ACTIVE
+- **Fase**: PLANNING
+- **Responsabile**: CODEX_PLANNER
+- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Prossima azione autorizzata**: applicare la preautorizzazione del prompt con una
+  transizione esplicita a EXECUTION e implementare soltanto TASK-011
 
 ## Repository coinvolti
 
@@ -58,7 +58,7 @@
 | TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | TODO | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Gestione commerciale pubblica |
 | TASK-009 | Pipeline immagini pubbliche Storefront | TODO | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
 | TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO | TASK-005, TASK-006, TASK-008, TASK-009 | Client, Admin, Supabase | Contratto query catalogo testabile |
-| TASK-011 | Connessione Flutter allo staging e backend health state | TODO | TASK-004 | Client, Supabase | Connessione staging fail-closed |
+| TASK-011 | Connessione Flutter allo staging e backend health state | ACTIVE | TASK-004 | Client, Supabase | Connessione staging fail-closed |
 | TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | TODO | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
 | TASK-013 | Home e prodotti/promozioni in evidenza | TODO | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
 | TASK-014 | Categorie e griglia catalogo con caricamento immagini | TODO | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
@@ -113,13 +113,20 @@ vincolante un solo task `ACTIVE` alla volta.
   `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`.
 - `TASK-004` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
   2026-07-30; 0 P0/P1/P2 aperti, CI closeout run `30592502472` `PASS` sullo SHA
-  `0fc8d8bbd7d8fded9bb93e1e92ac069164ba58a9`; merge batch pendente.
+  `0fc8d8bbd7d8fded9bb93e1e92ac069164ba58a9`; PR batch #3 merged con merge commit
+  `40d118eebf78eeabea9e26747adb00053dd875bc`.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
 `TASK-003` è `DONE` con re-review `APPROVED` e CI finale attestata.
-`TASK-004` è `DONE` con re-review `APPROVED`; nessun task è `ACTIVE`.
+`TASK-004` è `DONE` con re-review `APPROVED`.
 La re-review integrata del batch TASK-003/TASK-004 è `APPROVED` sullo SHA
 `211ad692010d7b54b8541c45cb7f6a38e3f7d5fe`: 0 P0/P1/P2 aperti, CI tecnica
-`30595351101` 3/3 `PASS`. `TASK-011` resta `TODO` fino al merge effettivo della PR
-batch, ancora pendente.
+`30595351101` 3/3 `PASS`. La PR #3 ha completato la CI pull request
+`30596267634` sullo SHA `ee58f29c9402f286a038f7cc79f1043539ea0b25` e il merge
+normale è stato verificato su main.
+
+`TASK-011` è l'unico task `ACTIVE` in `PLANNING`. Il planning usa il solo progetto
+Supabase non-production esistente, verificato read-only, e limita l'esecuzione a
+inizializzazione staging e readiness data-free; TASK-005–TASK-010 e TASK-012 in avanti
+restano invariati.

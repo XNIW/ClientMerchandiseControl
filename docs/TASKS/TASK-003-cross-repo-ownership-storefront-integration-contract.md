@@ -16,7 +16,8 @@
 - **Approver**: USER_APPROVER
 - **Indicatore**: USER_APPROVED_DONE
 - **DONE**: YES
-- **Merge**: NO — milestone batch dopo TASK-004
+- **Merge**: YES — PR #3, merge commit
+  `40d118eebf78eeabea9e26747adb00053dd875bc`
 - **User approval**: GRANTED_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-003/`
 - **Handoff**: USER_APPROVED_DONE

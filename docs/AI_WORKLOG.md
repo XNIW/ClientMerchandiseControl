@@ -553,3 +553,31 @@
 - **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 - **Blocker/note**: autorizzazione condizionata già concessa; PR batch, CI pull
   request e merge normale restano i gate successivi. TASK-011 resta `TODO`.
+
+## 2026-07-30 — Merge batch TASK-003/TASK-004
+
+- **Agente**: `USER_APPROVER` / merge registrato da `CODEX_PLANNER`
+- **Milestone**: TASK-003/TASK-004
+- **Azioni principali**: aperta PR #3 con titolo esatto, verificata la CI pull request
+  sullo SHA sorgente revisionato ed eseguito merge normale senza override.
+- **Verifiche**: run `30596267634` sullo SHA
+  `ee58f29c9402f286a038f7cc79f1043539ea0b25`; Quality, Android e iOS `PASS`, tutti
+  gli step `success`, annotation 0/0/0; merge commit
+  `40d118eebf78eeabea9e26747adb00053dd875bc`; main locale e origin allineati.
+- **Risultato**: `PASS`; gate batch chiuso.
+- **Blocker/note**: nessuno; nessun task successivo attivato prima del merge.
+
+## 2026-07-30 — Planning TASK-011
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: PLANNING
+- **Azioni principali**: attivato il solo TASK-011; definiti state model, probe Auth
+  data-free abortibile, mapping errori, retry manuale single-flight, UI sanitizzata,
+  permission Android, test e smoke staging dual-platform.
+- **Verifiche Planning**: unico progetto non-production canonico sano; config staging
+  locale valida/ignorata/non tracciata; health ufficiale HTTP 200 con schema valido;
+  zero write remoto; Android/iOS simulator disponibili.
+- **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+- **Blocker/note**: nessun blocker; l'autorizzazione condizionata è già nel prompt e
+  sarà applicata con transizione esplicita. OAuth e allow-list restano TASK-020.

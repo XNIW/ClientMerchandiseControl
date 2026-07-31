@@ -577,7 +577,7 @@
   permission Android, test e smoke staging dual-platform.
 - **Verifiche Planning**: unico progetto non-production canonico sano; config staging
   locale valida/ignorata/non tracciata; health ufficiale HTTP 200 con schema valido;
-  zero write remoto; Android/iOS simulator disponibili.
+  zero write del client/azioni Planning; Android/iOS simulator disponibili.
 - **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
 - **Blocker/note**: nessun blocker; l'autorizzazione condizionata è già nel prompt e
   sarà applicata con transizione esplicita. OAuth e allow-list restano TASK-020.
@@ -642,7 +642,8 @@
   tutti gli step `success`, annotation 0/0/0.
 - **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 - **Blocker/note**: nessun gate Fix aperto; re-review indipendente obbligatoria prima
-  dell'approvazione. Supabase e repository esterni restano zero-write.
+  dell'approvazione. Client e azioni Codex TASK-011 restano zero-write; nessun claim
+  sull'attività globale concorrente del progetto condiviso.
 
 ## 2026-07-30 — Re-review TASK-011, ciclo 1
 
@@ -660,3 +661,19 @@
 - **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 - **Blocker/note**: Fix solo documentale/provenance; nessun codice o remoto da
   modificare, nessun identificatore sensibile da persistere.
+
+## 2026-07-30 — Fix provenance TASK-011
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: FIX -> REVIEW
+- **Scope**: solo `T011-REREV-SEC-001`; zero modifiche a codice o remoto.
+- **Correzione**: tutte le evidence attive distinguono il writer set client/azioni
+  Codex TASK-011, verificato zero-write, dal traffico Admin staging esterno concorrente
+  osservato e non attribuito al task.
+- **Sanitizzazione**: nessun email, IP, UUID, request ID, URL/ref completa o dato
+  cliente persistito.
+- **Verifiche**: scan claim, `git diff --check`, governance e confinement documentale
+  `PASS`.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: seconda re-review obbligatoria; `CA-04` invariato.

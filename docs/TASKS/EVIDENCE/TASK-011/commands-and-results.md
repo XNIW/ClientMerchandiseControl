@@ -29,7 +29,7 @@
 | config/artifact tracking | PASS | file locale ignorato; artifact non tracciati |
 | Android network policy | PASS | `INTERNET` nel main; niente cleartext |
 | iOS network policy | PASS | nessuna eccezione ATS permissiva |
-| write Supabase | PASS | zero |
+| write Supabase attribuibile al client/azioni TASK-011 | PASS | zero; traffico esterno concorrente escluso dalla prova |
 
 ## CI tecnica
 

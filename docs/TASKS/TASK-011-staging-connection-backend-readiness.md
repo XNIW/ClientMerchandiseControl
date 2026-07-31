@@ -7,20 +7,20 @@
 - **File task**:
   `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
 - **Ultimo agente**: CODEX_FIXER
 - **Review outcome**: CHANGES_REQUIRED
 - **Reviewer**: CODEX_REVIEWER — tre sessioni read-only indipendenti
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-012 e TASK-020
 - **User approval**: GRANTED_CONDITIONALLY_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-011/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -316,7 +316,7 @@ Commit tecnico revisionabile:
 | CA-01 | PASS | PR #3/merge e task unico verificati; `environment-audit.md`. |
 | CA-02 | PASS | Unico progetto non-production canonico, nessuna creazione. |
 | CA-03 | PASS | Config a cinque input valida, ignorata e non tracciata. |
-| CA-04 | PASS | Zero write remoto; solo metadata e health data-free. |
+| CA-04 | PASS | Client e azioni Codex TASK-011 zero-write; solo metadata/health. Attività globale esterna non attribuita al task. |
 | CA-05 | PASS | Enum con i sette stati esatti e test dedicati. |
 | CA-06 | PASS | Repository richiede SDK più health valido per `ready`. |
 | CA-07 | PASS | Test development: nessuna inizializzazione/rete. |
@@ -351,7 +351,7 @@ Commit tecnico revisionabile:
 | Test | Esito | Evidenza |
 |---|---|---|
 | T-01 | PASS | Merge, branch, task unico e governance verificati. |
-| T-02 | PASS | Audit progetto/config e zero-write sanitizzato. |
+| T-02 | PASS | Audit progetto/config e zero-write task-scoped sanitizzato. |
 | T-03 | PASS | Enum e semantica stati coperti da test. |
 | T-04 | PASS | Matrice environment coperta da test. |
 | T-05 | PASS | Metodo/URI/header/redirect/assenza query verificati. |
@@ -441,7 +441,7 @@ Gate indipendenti:
 - CI handoff `30598639082`: SHA esatto
   `b4b2234f889df91ea422b769153f662c942dadf3`, 3/3 job, tutti gli step `success`,
   annotation 0/0/0;
-- worktree revisionato pulito e zero write Supabase.
+- worktree revisionato pulito e zero write attribuibile al client/azioni TASK-011;
 
 Finding aperti: 0 P0, 0 P1, 5 P2, 1 P3.
 
@@ -471,6 +471,23 @@ scan security e CI `30600113945` sullo SHA esatto 3/3 `PASS`, annotation 0/0/0.
 Esito re-review 1: `CHANGES_REQUIRED`.
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 2 — provenance zero-write
+
+`T011-REREV-SEC-001` è stato corretto senza cambiare `CA-04`, codice o remoto:
+
+- tutte le evidence distinguono ora client/azioni Codex TASK-011 dall'attività globale
+  del progetto condiviso;
+- il writer set del task è zero-write: il client usa soltanto health GET e le azioni
+  Codex sono state metadata/log/health read-only;
+- sono registrate due finestre di traffico Admin staging esterno concorrente, senza
+  email, IP, UUID, ref completa o altri identificatori;
+- nessuna attività esterna è attribuita al client o a Codex;
+- nessun claim di inattività globale del progetto rimane come prova di `CA-04`.
+
+Evidence: `docs/TASKS/EVIDENCE/TASK-011/remote-write-provenance.md`.
+
+Handoff Fix 2: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Fix — `CODEX_FIXER`
 

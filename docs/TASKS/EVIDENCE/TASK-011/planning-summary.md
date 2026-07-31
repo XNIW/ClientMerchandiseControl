@@ -25,7 +25,7 @@ Nessun URL, key, project ref completo, payload, token o dato personale è regist
 | CA-01 | GIT/STATIC | PASS | PR #3 merged; main sincronizzato prima del branch; solo TASK-011 attivato nel planning. |
 | CA-02 | MANUAL/SECURITY | PASS | Connettore autenticato: unico progetto non-production canonico sano; nessun progetto creato. |
 | CA-03 | GIT/SECURITY | PASS | Validazione shape, `git check-ignore` e `git ls-files` completate senza stampare contenuto. |
-| CA-04 | MANUAL/SECURITY | PASS | Audit e probe solo lettura; nessuna mutazione remota. |
+| CA-04 | MANUAL/SECURITY | PASS | Audit/probe del task solo lettura; nessuna mutazione del client o delle azioni Codex. |
 | CA-26 | INTEGRATION | PASS | Probe host ufficiale con timeout: HTTP 200, schema health valido, output sanitizzato. |
 | CA-05–CA-25 | VARI | NOT_RUN | Implementazione non autorizzata nella fase Planning. |
 | CA-27–CA-32 | VARI | NOT_RUN | Smoke, gate, review e CI appartengono alle fasi successive. |
@@ -35,7 +35,7 @@ Nessun URL, key, project ref completo, payload, token o dato personale è regist
 | Test | Tipo | Esito | Evidenza |
 |---|---|---|---|
 | T-01 | GIT/STATIC | PASS | Merge batch e branch verificati; transizione Master Plan preparata. |
-| T-02 | MANUAL/GIT/SECURITY | PASS | Progetto/config/zero-write attestati con output sanitizzato. |
+| T-02 | MANUAL/GIT/SECURITY | PASS | Progetto/config e zero-write task-scoped attestati con output sanitizzato. |
 | T-22 | INTEGRATION | PASS | `GET /auth/v1/health`, HTTP 200 e schema valido; nessun dato interrogato. |
 | T-03–T-21 | VARI | NOT_RUN | Richiedono implementazione. |
 | T-23–T-29 | VARI | NOT_RUN | Richiedono smoke, gate, review e CI. |
@@ -43,3 +43,7 @@ Nessun URL, key, project ref completo, payload, token o dato personale è regist
 ## Esito Planning
 
 `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`
+
+La precisazione task-scoped è stata aggiunta dal Fix di
+`T011-REREV-SEC-001`: non afferma assenza di traffico esterno concorrente nel progetto
+staging condiviso.

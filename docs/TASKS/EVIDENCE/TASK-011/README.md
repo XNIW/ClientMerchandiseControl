@@ -1,7 +1,7 @@
 # Evidence TASK-011
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Indice
 
@@ -16,8 +16,8 @@ Snapshot di handoff:
 - `fix-evidence.md`: risoluzione finding, regressioni e gate Fix;
 - `screenshots/manifest.md`: provenance e digest dei due PNG runtime;
 - `re-review-report.md`: chiusura finding originali e nuovo finding provenance;
-- le evidence del secondo Fix/re-review e closeout verranno aggiunte dalle rispettive
-  fasi.
+- `remote-write-provenance.md`: writer set task-scoped e traffico esterno concorrente;
+- le evidence della seconda re-review e closeout verranno aggiunte dalle rispettive fasi.
 
 ## Regole
 
@@ -30,14 +30,14 @@ Snapshot di handoff:
 
 | CA | Tipo | Esito | Evidenza |
 |---|---|---|---|
-| CA-01–CA-03, CA-05–CA-30 | VARI | PASS | Re-review tecnica completata. |
-| CA-04, CA-31 | MANUAL/SECURITY | FAIL | `T011-REREV-SEC-001` aperto. |
+| CA-01–CA-30 | VARI | PASS | Re-review tecnica e Fix provenance completati. |
+| CA-31 | MANUAL/SECURITY | NOT_RUN | Richiede seconda re-review. |
 | CA-32 | CI | NOT_RUN | Richiede CI sullo SHA finale. |
 
 ## Matrice test
 
 | Test | Tipo | Esito | Evidenza |
 |---|---|---|---|
-| T-01, T-03–T-27 | VARI | PASS | Re-review tecnica completata. |
-| T-02, T-28 | MANUAL/SECURITY | FAIL | Provenance zero-write da precisare. |
+| T-01–T-27 | VARI | PASS | Re-review tecnica e Fix provenance completati. |
+| T-28 | MANUAL/SECURITY | NOT_RUN | Richiede seconda re-review. |
 | T-29 | CI | NOT_RUN | Richiede CI sullo SHA finale. |

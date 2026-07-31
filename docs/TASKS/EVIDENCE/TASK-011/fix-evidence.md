@@ -69,10 +69,11 @@
 ## Sicurezza e scope
 
 - nessun valore della config staging è stato stampato o versionato;
-- nessun OAuth, callback nativo, session lifecycle o write remoto introdotto;
+- nessun OAuth, callback nativo, session lifecycle o write remoto introdotto dal task;
 - nessuna query/RPC/Storage o dato Storefront/inventory;
 - screenshot e log senza URL, key, token, account o dato personale;
-- repository esterni e Supabase rimasti zero-write.
+- client e azioni Codex TASK-011 rimasti zero-write; il traffico Admin esterno
+  concorrente del progetto condiviso è documentato separatamente e non attribuito.
 
 ## Matrice CA
 

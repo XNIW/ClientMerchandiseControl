@@ -62,7 +62,8 @@ Comandi, scenari e failure intermedi sono dettagliati in `runtime-smoke.md` e
 - Step: tutti `success`
 - Annotation: 0/0/0
 
-La CI richiesta da CA-39 resta distinta e sarà eseguita sullo SHA finale revisionato.
+La CI richiesta da CA-39 è rimasta distinta ed è registrata nelle sezioni di
+re-review e approvazione.
 
 ## Gate FIX
 
@@ -84,6 +85,16 @@ I gate sono stati rieseguiti dopo il commit sullo SHA esatto. La CI del Fix rest
 
 - Run: `30606916073`
 - SHA: `6ea315e2f05e36b73e73252b3937fdfd950aed4c`
+- Evento: `workflow_dispatch`
+- Esito: `completed / success`
+- Job: Quality, Android debug build e iOS Simulator debug build — 3/3 `success`
+- Step non-success non-skipped: 0/0/0
+- Annotation: 0/0/0
+
+## CI approvazione
+
+- Run: `30607430241`
+- SHA: `76fdb2233b0c523fd0dbfe5e51f380d25b52c529`
 - Evento: `workflow_dispatch`
 - Esito: `completed / success`
 - Job: Quality, Android debug build e iOS Simulator debug build — 3/3 `success`

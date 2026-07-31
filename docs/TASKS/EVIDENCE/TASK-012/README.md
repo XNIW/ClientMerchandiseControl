@@ -1,7 +1,7 @@
 # Evidence TASK-012
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Stato
 
@@ -11,8 +11,9 @@ Snapshot di handoff:
 - Review: `CHANGES_REQUIRED` — 0 P0, 0 P1, 4 P2, 0 P3
 - Fix: `PASS` — SHA tecnico `3acbc42d9abd5bffe0230d3b9bca27baf345cfea`
 - Re-review: `APPROVED` — quattro finding chiusi, 0 P0/P1/P2/P3 aperti
-- CI finale: `PASS` — run `30606916073`, 3/3 job, annotation 0/0/0
-- DONE: `NO`
+- CI finale: `PASS` — run `30606916073` e `30607430241`, 3/3 job ciascuno,
+  annotation 0/0/0
+- DONE: `YES`
 - PR/merge milestone: `NOT_RUN`
 
 ## Indice
@@ -39,5 +40,5 @@ Snapshot di handoff:
 - [re-review-report.md](re-review-report.md) — verifiche indipendenti, chiusura
   finding, matrici CA/T ed esito `APPROVED`.
 
-Il closeout resta una transizione distinta del `USER_APPROVER`; `APPROVED` non equivale
-a `DONE`.
+Il `USER_APPROVER` ha applicato la conferma condizionata in una transizione distinta
+dopo review `APPROVED` e CI verde. TASK-020 non è stato attivato da questo closeout.

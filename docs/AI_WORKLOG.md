@@ -872,3 +872,18 @@
   tramite Semantics tree, dump Android e smoke reale.
 - **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 - **Blocker/note**: nessuno; `DONE` richiede la transizione distinta USER_APPROVER.
+
+## 2026-07-30 — Autorizzazione utente e closeout TASK-012
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-012
+- **Fase iniziale/finale**: REVIEW -> REVIEW; ACTIVE -> DONE
+- **Prerequisiti**: re-review `APPROVED` sul revision set
+  `3acbc42d9abd5bffe0230d3b9bca27baf345cfea` /
+  `6ea315e2f05e36b73e73252b3937fdfd950aed4c`; CI handoff `30606916073` e CI
+  approvazione `30607430241` entrambe 3/3 `PASS`, annotation 0/0/0.
+- **Autorizzazione**: applicata la conferma condizionata del prompt end-to-end in una
+  transizione distinta, senza estensione di scope.
+- **Risultato**: `USER_APPROVED_DONE`.
+- **Blocker/note**: CI sul commit closeout `NOT_RUN`; TASK-020 resta `TODO`; PR,
+  review integrata e merge del milestone restano `NOT_RUN`.

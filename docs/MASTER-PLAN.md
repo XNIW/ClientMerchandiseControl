@@ -4,15 +4,15 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-012
-- **File task**: `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
-- **Stato task**: ACTIVE
-- **Fase**: REVIEW
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: non applicabile
+- **Stato task**: non applicabile
+- **Fase**: non applicabile
 - **Responsabile**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
-- **Prossima azione autorizzata**: applicare in una transizione distinta la conferma
-  condizionata USER_APPROVER già concessa dal prompt end-to-end
+- **Indicatore**: USER_APPROVED_DONE
+- **Prossima azione autorizzata**: pubblicare il closeout TASK-012 e attendere la CI
+  sul suo SHA; TASK-020 resta `TODO` fino a transizione distinta
 
 ## Repository coinvolti
 
@@ -59,7 +59,7 @@
 | TASK-009 | Pipeline immagini pubbliche Storefront | TODO | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
 | TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO | TASK-005, TASK-006, TASK-008, TASK-009 | Client, Admin, Supabase | Contratto query catalogo testabile |
 | TASK-011 | Connessione Flutter allo staging e backend health state | DONE | TASK-004 | Client, Supabase | Connessione staging fail-closed |
-| TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | ACTIVE | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
+| TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | DONE | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
 | TASK-013 | Home e prodotti/promozioni in evidenza | TODO | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
 | TASK-014 | Categorie e griglia catalogo con caricamento immagini | TODO | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
 | TASK-015 | Ricerca, filtri e ordinamento | TODO | TASK-010, TASK-014 | Client, Supabase | Discovery catalogo efficiente |
@@ -135,7 +135,8 @@ normale è stato verificato su main.
 re-review `30601320650` e CI approvazione `30601758281` sono 3/3 `PASS`, con tutti
 gli step `success` e annotation 0/0/0. CI closeout `30602210469` è `PASS` sullo SHA
 esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
-`TASK-012` è l'unico task `ACTIVE`, in `REVIEW` con re-review indipendente `APPROVED`
-sul revision set `3acbc42d9abd5bffe0230d3b9bca27baf345cfea` /
-`6ea315e2f05e36b73e73252b3937fdfd950aed4c`; i quattro P2 sono chiusi e la CI
-`30606916073` è 3/3 `PASS`. TASK-005–TASK-010 e TASK-013 in avanti restano invariati.
+`TASK-012` è `DONE` dopo re-review indipendente `APPROVED`; i quattro P2 sono chiusi.
+CI handoff `30606916073` e CI approvazione `30607430241` sono 3/3 `PASS`, tutti gli
+step applicabili `success` e annotation 0/0/0. Nessun task è attivo; TASK-020 resta
+`TODO` fino a transizione distinta. TASK-005–TASK-010 e TASK-013 in avanti restano
+invariati.

@@ -6,19 +6,21 @@
 - **Titolo**: App shell, design system, localizzazione, CLP e accessibility baseline
 - **File task**:
   `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Ultimo agente**: USER_APPROVER
 - **Review outcome**: APPROVED
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
-- **DONE**: NO
+- **Reviewer**: CODEX_RE_REVIEWER — due sessioni read-only indipendenti
+- **Approver**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
+- **DONE**: YES
 - **Merge**: NO — milestone batch con TASK-011 e TASK-020
 - **User approval**: GRANTED_AND_APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-012/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -405,9 +407,12 @@ Evidence: `docs/TASKS/EVIDENCE/TASK-012/fix-evidence.md`.
 
 ## Chiusura
 
-- **Conferma utente**: condizionata già ricevuta; non ancora applicabile
-- **Merge autorizzato da USER_APPROVER**: sì, soltanto dopo review finale approvata,
-  CI e PR milestone
+- **Conferma utente**: applicata dal prompt end-to-end dopo re-review `APPROVED` e CI
+  approvazione `30607430241` 3/3 `PASS`
+- **Merge autorizzato da USER_APPROVER**: sì, nel closeout della PR milestone dopo
+  TASK-020 e review integrata
 - **Follow-up candidate**: TASK-020, senza attivazione nel closeout TASK-012
-- **Riepilogo finale**: non disponibile
-- **Data completamento**: non disponibile
+- **Riepilogo finale**: shell guest/accessibile approvata; quattro P2 chiusi; zero
+  finding P0/P1/P2/P3 aperti; nessun auth reale anticipato
+- **Data completamento**: 2026-07-30
+- **Indicatore finale**: USER_APPROVED_DONE

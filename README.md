@@ -127,6 +127,6 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione
-`30601758281` 3/3 `PASS`; la CI sul commit di closeout è ancora `NOT_RUN`. Nessun task
-è attivo e TASK-012 resta `TODO`. OAuth, redirect allow-list e deep link restano
-TASK-020; TASK-005–TASK-010 e TASK-013 in avanti non sono attivi.
+`30601758281` 3/3 `PASS`; CI closeout `30602210469` è 3/3 `PASS` sullo SHA esatto.
+Nessun task è attivo e TASK-012 resta `TODO`. OAuth, redirect allow-list e deep link
+restano TASK-020; TASK-005–TASK-010 e TASK-013 in avanti non sono attivi.

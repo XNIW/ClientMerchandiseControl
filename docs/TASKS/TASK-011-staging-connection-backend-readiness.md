@@ -597,13 +597,15 @@ il 2026-07-30 dopo avere verificato:
   `6cdfdd9987a278ff00189de72247fe1f689d9c24`, 3/3 job, tutti gli step
   `success`, annotation 0/0/0.
 
-TASK-011 è quindi `DONE / REVIEW / USER_APPROVED_DONE`. La CI sul futuro SHA di
-closeout è `NOT_RUN`; PR, review integrata e merge del batch TASK-011/TASK-012/TASK-020
-restano `NOT_RUN`. TASK-012 resta `TODO` e non viene attivato in questo commit.
+TASK-011 è quindi `DONE / REVIEW / USER_APPROVED_DONE`. CI closeout `30602210469` è
+`PASS` sullo SHA esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`: 3/3 job,
+tutti gli step `success`, annotation 0/0/0. PR, review integrata e merge del batch
+TASK-011/TASK-012/TASK-020 restano `NOT_RUN`. TASK-012 resta `TODO` e non viene
+attivato in questo commit.
 
 - **Conferma utente**: GRANTED_AND_APPLIED_FROM_END_TO_END_PROMPT
 - **Merge autorizzato da USER_APPROVER**: sì, soltanto dopo TASK-011/012/020 `DONE`,
   review integrata, CI finale e PR batch verde
-- **Follow-up candidate**: TASK-012 dopo CI closeout TASK-011
+- **Follow-up candidate**: TASK-012 con transizione Planning distinta
 - **Riepilogo finale**: connessione staging fail-closed verificata e approvata
 - **Data completamento**: 2026-07-30

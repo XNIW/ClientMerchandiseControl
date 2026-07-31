@@ -34,7 +34,7 @@ Snapshot di handoff:
 |---|---|---|---|
 | CA-01–CA-30 | VARI | PASS | Fix tecnico e documentale verificato. |
 | CA-31 | MANUAL/SECURITY | PASS | Due shard approvati, 0 P0/P1/P2 aperti. |
-| CA-32 | CI | NOT_RUN | Richiede CI sullo SHA del commit di closeout. |
+| CA-32 | CI | PASS | CI closeout `30602210469`, SHA esatto, 3/3, annotation 0/0/0. |
 
 ## Matrice test
 
@@ -42,12 +42,13 @@ Snapshot di handoff:
 |---|---|---|---|
 | T-01–T-27 | VARI | PASS | Fix tecnico e documentale verificato. |
 | T-28 | MANUAL/SECURITY | PASS | Terza re-review `APPROVED`. |
-| T-29 | CI | NOT_RUN | Richiede ispezione della CI closeout. |
+| T-29 | CI | PASS | Job, step e annotation della CI closeout ispezionati. |
 
 ## Stato closeout
 
 - **DONE**: YES
 - **CI approvazione**: run `30601758281`, SHA
   `6cdfdd9987a278ff00189de72247fe1f689d9c24`, 3/3 `PASS`, annotation 0/0/0
-- **CI closeout**: NOT_RUN
+- **CI closeout**: run `30602210469`, SHA
+  `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 `PASS`, annotation 0/0/0
 - **PR/review integrata/merge milestone**: NOT_RUN

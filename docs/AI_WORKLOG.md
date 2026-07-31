@@ -740,3 +740,16 @@
 - **Risultato**: `USER_APPROVED_DONE`.
 - **Blocker/note**: CI sul commit closeout `NOT_RUN`; TASK-012 resta `TODO`; PR,
   review integrata e merge del milestone restano `NOT_RUN`.
+
+## 2026-07-30 — Attestazione CI closeout TASK-011
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-011
+- **Stato**: DONE
+- **Commit closeout**: `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`
+- **CI**: run `30602210469`; Quality, Android debug e iOS Simulator 3/3 `success`;
+  tutti gli step `success`; annotation 0/0/0.
+- **Verifiche Git**: worktree pulito, branch e origin allineati sullo SHA closeout
+  prima dell'attestazione.
+- **Risultato**: `PASS`.
+- **Blocker/note**: nessuno; TASK-012 resta `TODO` fino a transizione distinta.

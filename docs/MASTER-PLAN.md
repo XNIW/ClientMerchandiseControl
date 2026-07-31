@@ -11,8 +11,8 @@
 - **Fase**: non applicabile
 - **Responsabile**: USER_APPROVER
 - **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: pubblicare il closeout TASK-011 e attendere la CI
-  sul suo SHA; TASK-012 resta `TODO` fino a transizione distinta
+- **Prossima azione autorizzata**: attivare TASK-012 in `PLANNING` con una transizione
+  distinta; TASK-012 resta `TODO` fino a tale commit
 
 ## Repository coinvolti
 
@@ -117,7 +117,8 @@ vincolante un solo task `ACTIVE` alla volta.
   `40d118eebf78eeabea9e26747adb00053dd875bc`.
 - `TASK-011` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
   2026-07-30; 0 P0/P1/P2 aperti, CI approvazione `30601758281` `PASS` sullo SHA
-  `6cdfdd9987a278ff00189de72247fe1f689d9c24`; CI closeout ancora `NOT_RUN`.
+  `6cdfdd9987a278ff00189de72247fe1f689d9c24`; CI closeout `30602210469` `PASS`
+  sullo SHA `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
@@ -132,5 +133,6 @@ normale è stato verificato su main.
 `TASK-011` è `DONE`: la terza re-review sullo SHA
 `a1a2818479df7b5e432f10f426e80388bc317a65` ha chiuso tutti i finding P0–P2; CI
 re-review `30601320650` e CI approvazione `30601758281` sono 3/3 `PASS`, con tutti
-gli step `success` e annotation 0/0/0. Nessun task è `ACTIVE`; TASK-005–TASK-010 e
-TASK-012 in avanti restano invariati.
+gli step `success` e annotation 0/0/0. CI closeout `30602210469` è `PASS` sullo SHA
+esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
+Nessun task è `ACTIVE`; TASK-005–TASK-010 e TASK-012 in avanti restano invariati.

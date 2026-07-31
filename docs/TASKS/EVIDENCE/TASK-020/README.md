@@ -1,7 +1,7 @@
 # Evidence TASK-020
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 ## Stato
 
@@ -13,8 +13,11 @@ Snapshot di handoff:
   214/214, coverage 80,1%, build e smoke fake dual-platform
 - Re-review 1: `CHANGES_REQUIRED` — 16/21 finding originari chiusi; restano 1 P1,
   6 P2 e 3 P3
+- Fix 2: `PASS` sul commit tecnico
+  `036dcd1be047d49d6b53738d06e5e58caf608f34`; audit candidate 0 P0/P1/P2,
+  gate 218/218, coverage 79,9%, build/smoke fake dual-platform e scanner 629 file
 - CI: `BLOCKED / CI_EXTERNAL`
-- PR/merge: draft PR #4 su `0ddd26a`; run `30619705565` senza runner; merge
+- PR/merge: draft PR #4 su `036dcd1`; run `30624421347` senza runner; merge
   `BLOCKED`
 - DONE: `NO`
 
@@ -51,7 +54,7 @@ duplicazioni che potrebbero divergere.
   nessun write remoto è stato eseguito.
 - iOS Simulator: conferma OS del custom scheme pendente; il Mac locked impedisce
   l'accettazione automatica del dialogo.
-- GitHub Actions: la run `30619705565` sullo SHA di re-review ha tre job senza step,
+- GitHub Actions: la run `30624421347` sullo SHA tecnico Fix 2 ha tre job senza step,
   fermati prima del runner dal limite billing/spending.
 
 Le evidence finali dovranno contenere esattamente una riga per ciascuno dei 40 CA e

@@ -6,15 +6,15 @@
 - **Titolo**: Supabase Auth, deep link e session lifecycle
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-31
 - **Ultimo aggiornamento**: 2026-07-31
-- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Ultimo agente**: CODEX_FIXER
 - **Review outcome**: CHANGES_REQUIRED
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -454,6 +454,62 @@ Gate sul commit tecnico:
 I finding sono implementati ma non chiusi autonomamente dal fixer: serve re-review
 indipendente A–E. Poiché gate obbligatori restano non superabili, la transizione
 applicabile è:
+
+- **Prossima fase**: REVIEW
+- **Stato task**: BLOCKED
+- **Prossimo ruolo**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+
+### Fix 2 dopo la re-review 1
+
+Il secondo Fix è rimasto confinato ai dieci finding aperti dalla re-review 1 e ai
+difetti riproducibili emersi dagli audit candidate degli stessi finding.
+
+Commit tecnici:
+
+- lifecycle, storage, scanner/evidence e documentazione:
+  `51b6949e5438039dc3c08de8f77ab1f078b85479`;
+- chiusura dei gap residui scanner, callback provider Retry e matrice evidence:
+  `036dcd1be047d49d6b53738d06e5e58caf608f34`.
+
+Interventi:
+
+- T020-REV-003: restore e sessione corrente vengono ricontrollati dopo il cleanup
+  pre-login prima di qualunque launch browser;
+- T020-REV-007: tombstone ridondanti su secure storage e SharedPreferences bloccano
+  il restore e ritentano il purge dopo failure multiple;
+- T020-REV-015: scanner Git/artifact NUL-safe, service-role JWT e GOCSPX, blob
+  symlink, path/estensioni sensibili case-insensitive, PEM coerenti, read/find/grep
+  fail-closed e scan bundle CI;
+- T020-REV-016/018: 12 evidence esatte, ogni CA/T deve riferire un command ID
+  dichiarato, build e bundle sono legati allo SHA esatto e Git/CI reali sono
+  aggiornati;
+- T020-RR-001: Logout attende l'exchange e applica un secondo purge compensativo;
+- T020-RR-002: cancel/failure provider termina l'epoca OAuth; la deduplica resta
+  globale soltanto per callback con code e consente error/cancel identici dopo Retry;
+- T020-RR-003/004/005: range README, formula architetturale e marker storage
+  documentati senza ambiguità.
+
+Gate sullo SHA tecnico finale:
+
+- `scripts/check.sh`: `PASS`, exit 0; 218/218 test, coverage 1770/2214 (79,9%),
+  analyze zero issue, security/governance/architecture e build development duale;
+- build staging sequenziale Android/iOS: `PASS`, exit 0;
+- scanner: `PASS`, 336 file Git, 16/16 fixture negative, 1/1 positiva e 629 file
+  nei bundle staging ricostruiti;
+- suite mirata Auth/storage/evidence: `PASS`, 50/50;
+- guest, callback fake e readiness: Android 3/3 e iOS 3/3 `PASS`;
+- callback warm Android: `PASS`; callback warm iOS: `BLOCKED`, `simctl` exit 0 e
+  harness exit 1 per timeout 30 s sulla conferma OS con Mac locked;
+- audit candidate lifecycle/evidence/scanner: 0 P0, 0 P1 e 0 P2 residui; non
+  sostituiscono la re-review A–E;
+- CI run `30624421347` sullo SHA `036dcd1`: `BLOCKED / CI_EXTERNAL`, 3/3 job
+  senza runner o step e una annotation billing/spending per job;
+- allow-list, callback provider e OAuth live: `BLOCKED` da MFA; flag locale
+  `false`, zero write remoto.
+
+Il fixer non chiude autonomamente i finding. Con gate obbligatori esterni non
+superati, il revision set torna comunque a Review:
 
 - **Prossima fase**: REVIEW
 - **Stato task**: BLOCKED

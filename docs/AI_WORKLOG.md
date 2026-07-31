@@ -1034,3 +1034,31 @@
 - **Blocker/note**: il Fix resta limitato ai dieci finding consolidati; MFA,
   dialogo OS iOS e CI esterna restano separati e non autorizzano `APPROVED`, `DONE`
   o merge.
+
+## 2026-07-31 — Fix 2 TASK-020 e handoff bloccato a re-review
+
+- **Agente**: `CODEX_FIXER`, con audit candidate read-only lifecycle, security ed
+  evidence
+- **Task**: TASK-020
+- **Fase iniziale/finale**: FIX -> REVIEW; stato task `BLOCKED`
+- **Commit tecnici**:
+  `51b6949e5438039dc3c08de8f77ab1f078b85479` e
+  `036dcd1be047d49d6b53738d06e5e58caf608f34`.
+- **Finding affrontati**: T020-REV-003/007/015/016/018, T020-RR-001…005 e difetti
+  riproducibili nello stesso scope; restore pre-launch, Logout/exchange, provider
+  cancellation/Retry, tombstone ridondanti, scanner Git/bundle e matrice evidence.
+- **Gate**: `scripts/check.sh` `PASS`, exit 0; 218/218 test, coverage 1770/2214
+  (79,9%), analyze zero issue, build development Android/iOS. Build staging,
+  guest/callback fake/readiness Android 3/3 e iOS 3/3, callback warm Android,
+  scanner 336 file Git + 629 file bundle e fixture 16/16 + 1/1: `PASS`.
+- **Audit candidate**: 0 P0, 0 P1 e 0 P2 residui; non sostituiscono la re-review
+  A–E e non chiudono autonomamente i finding.
+- **CI/PR**: push tecnico e PR #4 `OPEN/DRAFT` allineati a `036dcd1`; run
+  `30624421347` `BLOCKED / CI_EXTERNAL`, 3/3 job con `runner_id=0`, zero step e una
+  annotation billing/spending per job.
+- **Blocker**: callback warm iOS `BLOCKED` (`simctl` exit 0, harness exit 1 per
+  timeout 30 s sulla conferma OS); allow-list/provider callback/OAuth live
+  `BLOCKED` da MFA, kill switch `false`, zero write remoto.
+- **Risultato**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Blocker/note**: re-review A–E obbligatoria sul revision set esatto; nessun
+  `APPROVED`, `DONE`, merge o task futuro è autorizzato con gate esterni aperti.

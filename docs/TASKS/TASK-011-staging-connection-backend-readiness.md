@@ -6,21 +6,21 @@
 - **Titolo**: Connessione Flutter allo staging e backend health state
 - **File task**:
   `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Ultimo agente**: USER_APPROVER
 - **Review outcome**: APPROVED
 - **Reviewer**: CODEX_RE_REVIEWER — due shard read-only indipendenti
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
-- **DONE**: NO
+- **Indicatore**: USER_APPROVED_DONE
+- **DONE**: YES
 - **Merge**: NO — milestone batch con TASK-012 e TASK-020
-- **User approval**: GRANTED_CONDITIONALLY_BY_END_TO_END_PROMPT
+- **User approval**: GRANTED_AND_APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-011/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -586,9 +586,24 @@ Handoff Fix 3: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 
-- **Conferma utente**: già concessa in forma condizionata, non ancora applicabile
+L'autorizzazione condizionata `USER_APPROVER` del prompt end-to-end è stata applicata
+il 2026-07-30 dopo avere verificato:
+
+- re-review `APPROVED` sullo SHA
+  `a1a2818479df7b5e432f10f426e80388bc317a65`;
+- 0 P0, 0 P1 e 0 P2 aperti; una sola osservazione P3 storica non bloccante;
+- CI re-review `30601320650` `PASS`, 3/3 job, step `success`, annotation 0/0/0;
+- CI approvazione `30601758281` `PASS` sullo SHA esatto
+  `6cdfdd9987a278ff00189de72247fe1f689d9c24`, 3/3 job, tutti gli step
+  `success`, annotation 0/0/0.
+
+TASK-011 è quindi `DONE / REVIEW / USER_APPROVED_DONE`. La CI sul futuro SHA di
+closeout è `NOT_RUN`; PR, review integrata e merge del batch TASK-011/TASK-012/TASK-020
+restano `NOT_RUN`. TASK-012 resta `TODO` e non viene attivato in questo commit.
+
+- **Conferma utente**: GRANTED_AND_APPLIED_FROM_END_TO_END_PROMPT
 - **Merge autorizzato da USER_APPROVER**: sì, soltanto dopo TASK-011/012/020 `DONE`,
   review integrata, CI finale e PR batch verde
-- **Follow-up candidate**: TASK-012 dopo closeout e CI finale TASK-011
-- **Riepilogo finale**: non disponibile
-- **Data completamento**: non disponibile
+- **Follow-up candidate**: TASK-012 dopo CI closeout TASK-011
+- **Riepilogo finale**: connessione staging fail-closed verificata e approvata
+- **Data completamento**: 2026-07-30

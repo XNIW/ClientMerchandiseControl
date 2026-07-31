@@ -4,19 +4,19 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-011
-- **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
-- **Stato task**: ACTIVE
-- **Fase**: REVIEW
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: non applicabile
+- **Stato task**: non applicabile
+- **Fase**: non applicabile
 - **Responsabile**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
-- **Prossima azione autorizzata**: applicare in una transizione distinta la conferma
-  condizionata già concessa nel prompt end-to-end
+- **Indicatore**: USER_APPROVED_DONE
+- **Prossima azione autorizzata**: pubblicare il closeout TASK-011 e attendere la CI
+  sul suo SHA; TASK-012 resta `TODO` fino a transizione distinta
 
 ## Repository coinvolti
 
-- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer di TASK-004.
+- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer del client.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
   authority candidata, auditata in sola lettura.
 - `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
@@ -58,7 +58,7 @@
 | TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | TODO | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Gestione commerciale pubblica |
 | TASK-009 | Pipeline immagini pubbliche Storefront | TODO | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
 | TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO | TASK-005, TASK-006, TASK-008, TASK-009 | Client, Admin, Supabase | Contratto query catalogo testabile |
-| TASK-011 | Connessione Flutter allo staging e backend health state | ACTIVE | TASK-004 | Client, Supabase | Connessione staging fail-closed |
+| TASK-011 | Connessione Flutter allo staging e backend health state | DONE | TASK-004 | Client, Supabase | Connessione staging fail-closed |
 | TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | TODO | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
 | TASK-013 | Home e prodotti/promozioni in evidenza | TODO | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
 | TASK-014 | Categorie e griglia catalogo con caricamento immagini | TODO | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
@@ -115,6 +115,9 @@ vincolante un solo task `ACTIVE` alla volta.
   2026-07-30; 0 P0/P1/P2 aperti, CI closeout run `30592502472` `PASS` sullo SHA
   `0fc8d8bbd7d8fded9bb93e1e92ac069164ba58a9`; PR batch #3 merged con merge commit
   `40d118eebf78eeabea9e26747adb00053dd875bc`.
+- `TASK-011` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
+  2026-07-30; 0 P0/P1/P2 aperti, CI approvazione `30601758281` `PASS` sullo SHA
+  `6cdfdd9987a278ff00189de72247fe1f689d9c24`; CI closeout ancora `NOT_RUN`.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
@@ -126,7 +129,8 @@ La re-review integrata del batch TASK-003/TASK-004 è `APPROVED` sullo SHA
 `30596267634` sullo SHA `ee58f29c9402f286a038f7cc79f1043539ea0b25` e il merge
 normale è stato verificato su main.
 
-`TASK-011` è l'unico task `ACTIVE` in `REVIEW` con esito `APPROVED`. La terza
-re-review sullo SHA `a1a2818479df7b5e432f10f426e80388bc317a65` ha chiuso tutti i
-finding P0–P2; CI finale `30601320650` ha 3/3 job, tutti gli step `success` e
-annotation 0/0/0. TASK-005–TASK-010 e TASK-012 in avanti restano invariati.
+`TASK-011` è `DONE`: la terza re-review sullo SHA
+`a1a2818479df7b5e432f10f426e80388bc317a65` ha chiuso tutti i finding P0–P2; CI
+re-review `30601320650` e CI approvazione `30601758281` sono 3/3 `PASS`, con tutti
+gli step `success` e annotation 0/0/0. Nessun task è `ACTIVE`; TASK-005–TASK-010 e
+TASK-012 in avanti restano invariati.

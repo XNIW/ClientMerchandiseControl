@@ -725,3 +725,18 @@
   impatto su stato, criteri o handoff.
 - **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 - **Blocker/note**: nessuno; la conferma condizionata richiede transizione distinta.
+
+## 2026-07-30 — Autorizzazione utente e closeout TASK-011
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: REVIEW -> REVIEW; ACTIVE -> DONE
+- **Prerequisiti**: re-review `APPROVED` sullo SHA
+  `a1a2818479df7b5e432f10f426e80388bc317a65`; CI re-review `30601320650`
+  e CI approvazione `30601758281` entrambe 3/3 `PASS`, tutti gli step `success`,
+  annotation 0/0/0.
+- **Autorizzazione**: applicata la conferma condizionata del prompt end-to-end in una
+  transizione distinta; nessuna estensione di scope.
+- **Risultato**: `USER_APPROVED_DONE`.
+- **Blocker/note**: CI sul commit closeout `NOT_RUN`; TASK-012 resta `TODO`; PR,
+  review integrata e merge del milestone restano `NOT_RUN`.

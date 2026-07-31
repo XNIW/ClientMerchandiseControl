@@ -1,7 +1,7 @@
 # Evidence TASK-011
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Indice
 
@@ -19,7 +19,7 @@ Snapshot di handoff:
 - `remote-write-provenance.md`: writer set task-scoped e traffico esterno concorrente;
 - `re-review-2-report.md`: seconda re-review e finding documentali residui;
 - `re-review-3-report.md`: chiusura finding e CI finale sullo SHA revisionato;
-- il closeout verrà aggiunto dalla transizione utente distinta.
+- `closeout.md`: applicazione conferma utente e gate closeout.
 
 ## Regole
 
@@ -34,7 +34,7 @@ Snapshot di handoff:
 |---|---|---|---|
 | CA-01–CA-30 | VARI | PASS | Fix tecnico e documentale verificato. |
 | CA-31 | MANUAL/SECURITY | PASS | Due shard approvati, 0 P0/P1/P2 aperti. |
-| CA-32 | CI | PASS | Run `30601320650`, SHA esatto, 3/3, step verdi, annotation 0/0/0. |
+| CA-32 | CI | NOT_RUN | Richiede CI sullo SHA del commit di closeout. |
 
 ## Matrice test
 
@@ -42,4 +42,12 @@ Snapshot di handoff:
 |---|---|---|---|
 | T-01–T-27 | VARI | PASS | Fix tecnico e documentale verificato. |
 | T-28 | MANUAL/SECURITY | PASS | Terza re-review `APPROVED`. |
-| T-29 | CI | PASS | Job, step e annotation ispezionati. |
+| T-29 | CI | NOT_RUN | Richiede ispezione della CI closeout. |
+
+## Stato closeout
+
+- **DONE**: YES
+- **CI approvazione**: run `30601758281`, SHA
+  `6cdfdd9987a278ff00189de72247fe1f689d9c24`, 3/3 `PASS`, annotation 0/0/0
+- **CI closeout**: NOT_RUN
+- **PR/review integrata/merge milestone**: NOT_RUN

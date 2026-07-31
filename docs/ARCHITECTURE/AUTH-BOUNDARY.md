@@ -183,7 +183,9 @@ I task che materializzano questo contratto MUST aggiungere almeno:
 - tentativi cross-user e cross-shop;
 - verifica che `user_metadata`, email e `shop_id` manipolati non elevino privilegi;
 - test di revoca, token scaduto e claim stale;
-- scansione di bundle, log ed evidence per secret e `service_role`;
+- scansione di source, index, worktree, bundle, log ed evidence per secret e JWT:
+  soltanto una legacy publishable key con ruolo `anon` può essere ammessa; sessioni
+  customer, `service_role`, ruoli mancanti o non pubblicabili falliscono chiuso;
 - verifica di view, funzioni, `EXECUTE`, `SECURITY DEFINER` e Storage;
 - test che ogni accesso denylist fallisca senza fallback.
 

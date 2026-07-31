@@ -35,6 +35,22 @@ cmc_fixture_google_value="${cmc_fixture_google_prefix}SPX-${cmc_fixture_token_bo
 cmc_fixture_jwt_header='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
 cmc_fixture_jwt_payload='eyJyb2xlIjoic2VydmljZV9yb2xlIn0'
 cmc_fixture_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_jwt_payload}.${cmc_fixture_token_body}"
+cmc_fixture_customer_jwt_payload='eyJyb2xlIjoiYXV0aGVudGljYXRlZCJ9'
+cmc_fixture_customer_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_customer_jwt_payload}.${cmc_fixture_token_body}"
+cmc_fixture_unknown_jwt_payload='eyJyb2xlIjoiZWRpdG9yIn0'
+cmc_fixture_unknown_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_unknown_jwt_payload}.${cmc_fixture_token_body}"
+cmc_fixture_invalid_jwt_payload='bm90LWpzb24'
+cmc_fixture_invalid_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_invalid_jwt_payload}.${cmc_fixture_token_body}"
+cmc_fixture_missing_role_jwt_payload='eyJzdWIiOiJjdXN0b21lciJ9'
+cmc_fixture_missing_role_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_missing_role_jwt_payload}.${cmc_fixture_token_body}"
+cmc_fixture_duplicate_role_jwt_payload='eyJyb2xlIjoiYW5vbiIsInJvbGUiOiJhdXRoZW50aWNhdGVkIn0'
+cmc_fixture_duplicate_role_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_duplicate_role_jwt_payload}.${cmc_fixture_token_body}"
+cmc_fixture_escaped_role_jwt_payload='eyJcdTAwNzJvbGUiOiJhdXRoZW50aWNhdGVkIiwicm9sZSI6ImFub24ifQ'
+cmc_fixture_escaped_role_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_escaped_role_jwt_payload}.${cmc_fixture_token_body}"
+cmc_fixture_nul_jwt_payload='eyJyb2xlIjoiYW4Ab24ifQ'
+cmc_fixture_nul_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_nul_jwt_payload}.${cmc_fixture_token_body}"
+cmc_fixture_anon_jwt_payload='eyJyb2xlIjoiYW5vbiJ9'
+cmc_fixture_anon_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_anon_jwt_payload}.${cmc_fixture_token_body}"
 cmc_fixture_pem_fence='-----'
 cmc_fixture_private_key_label='PRIVATE KEY'
 cmc_fixture_encrypted_key_label='ENCRYPTED PRIVATE KEY'
@@ -200,6 +216,98 @@ cmc_fixture_expect_rejection_with_path \
   "${cmc_fixture_service_role}" \
   "${cmc_fixture_decode_failure_bin}"
 
+cmc_fixture_customer_source="$(
+  cmc_fixture_prepare customer-jwt-source
+)"
+printf '%s\n' \
+  "const credential = '${cmc_fixture_customer_jwt_value}';" \
+  >"${cmc_fixture_customer_source}/lib/main.dart"
+git -C "${cmc_fixture_customer_source}" add lib/main.dart
+cmc_fixture_expect_rejection "${cmc_fixture_customer_source}"
+
+cmc_fixture_customer_index="$(
+  cmc_fixture_prepare customer-jwt-index
+)"
+printf '%s\n' \
+  "const credential = '${cmc_fixture_customer_jwt_value}';" \
+  >"${cmc_fixture_customer_index}/lib/main.dart"
+git -C "${cmc_fixture_customer_index}" add lib/main.dart
+printf 'void main() {}\n' >"${cmc_fixture_customer_index}/lib/main.dart"
+cmc_fixture_expect_rejection "${cmc_fixture_customer_index}"
+
+cmc_fixture_customer_worktree="$(
+  cmc_fixture_prepare customer-jwt-worktree
+)"
+printf '%s\n' \
+  "const credential = '${cmc_fixture_customer_jwt_value}';" \
+  >"${cmc_fixture_customer_worktree}/lib/main.dart"
+cmc_fixture_expect_rejection "${cmc_fixture_customer_worktree}"
+
+cmc_fixture_customer_artifact="$(
+  cmc_fixture_prepare customer-jwt-artifact
+)"
+mkdir -p "${cmc_fixture_customer_artifact}/artifact"
+printf '%s\n' \
+  "${cmc_fixture_customer_jwt_value}" \
+  >"${cmc_fixture_customer_artifact}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_customer_artifact}" \
+  --artifact "${cmc_fixture_customer_artifact}/artifact"
+
+cmc_fixture_unknown_role="$(
+  cmc_fixture_prepare unknown-role-jwt
+)"
+printf '%s\n' \
+  "const credential = '${cmc_fixture_unknown_jwt_value}';" \
+  >"${cmc_fixture_unknown_role}/lib/main.dart"
+git -C "${cmc_fixture_unknown_role}" add lib/main.dart
+cmc_fixture_expect_rejection "${cmc_fixture_unknown_role}"
+
+cmc_fixture_invalid_payload="$(
+  cmc_fixture_prepare invalid-json-jwt
+)"
+printf '%s\n' \
+  "const credential = '${cmc_fixture_invalid_jwt_value}';" \
+  >"${cmc_fixture_invalid_payload}/lib/main.dart"
+git -C "${cmc_fixture_invalid_payload}" add lib/main.dart
+cmc_fixture_expect_rejection "${cmc_fixture_invalid_payload}"
+
+cmc_fixture_missing_role="$(
+  cmc_fixture_prepare missing-role-jwt
+)"
+printf '%s\n' \
+  "const credential = '${cmc_fixture_missing_role_jwt_value}';" \
+  >"${cmc_fixture_missing_role}/lib/main.dart"
+git -C "${cmc_fixture_missing_role}" add lib/main.dart
+cmc_fixture_expect_rejection "${cmc_fixture_missing_role}"
+
+cmc_fixture_duplicate_role="$(
+  cmc_fixture_prepare duplicate-role-jwt
+)"
+printf '%s\n' \
+  "const credential = '${cmc_fixture_duplicate_role_jwt_value}';" \
+  >"${cmc_fixture_duplicate_role}/lib/main.dart"
+git -C "${cmc_fixture_duplicate_role}" add lib/main.dart
+cmc_fixture_expect_rejection "${cmc_fixture_duplicate_role}"
+
+cmc_fixture_escaped_role="$(
+  cmc_fixture_prepare escaped-role-jwt
+)"
+printf '%s\n' \
+  "const credential = '${cmc_fixture_escaped_role_jwt_value}';" \
+  >"${cmc_fixture_escaped_role}/lib/main.dart"
+git -C "${cmc_fixture_escaped_role}" add lib/main.dart
+cmc_fixture_expect_rejection "${cmc_fixture_escaped_role}"
+
+cmc_fixture_nul_payload="$(
+  cmc_fixture_prepare nul-payload-jwt
+)"
+printf '%s\n' \
+  "const credential = '${cmc_fixture_nul_jwt_value}';" \
+  >"${cmc_fixture_nul_payload}/lib/main.dart"
+git -C "${cmc_fixture_nul_payload}" add lib/main.dart
+cmc_fixture_expect_rejection "${cmc_fixture_nul_payload}"
+
 cmc_fixture_nested_config="$(cmc_fixture_prepare nested-local-config)"
 mkdir -p "${cmc_fixture_nested_config}/nested/config"
 printf '{}\n' \
@@ -303,6 +411,15 @@ printf '%s\n' \
 cmc_fixture_expect_acceptance \
   "${cmc_fixture_publishable}" \
   --artifact "${cmc_fixture_publishable}/artifact"
+
+cmc_fixture_anon_jwt="$(cmc_fixture_prepare legacy-anon-jwt)"
+mkdir -p "${cmc_fixture_anon_jwt}/artifact"
+printf '%s\n' \
+  "${cmc_fixture_anon_jwt_value}" \
+  >"${cmc_fixture_anon_jwt}/artifact/bundle.bin"
+cmc_fixture_expect_acceptance \
+  "${cmc_fixture_anon_jwt}" \
+  --artifact "${cmc_fixture_anon_jwt}/artifact"
 
 if [[ "${cmc_fixture_rejected}" -ne "${cmc_fixture_total}" ]]; then
   printf 'Fixture security respinte: %d/%d.\n' \

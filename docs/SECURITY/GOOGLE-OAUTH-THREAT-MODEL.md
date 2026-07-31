@@ -173,7 +173,7 @@ resi affidabili dal client.
 | TM-27 | Coda callback viene riempita con URI malevoli | memoria/availability | massimo quattro pending, bounds payload e 64 fingerprint | DoS locale limitato; nessun rate limit OS possibile |
 | TM-28 | Dispose lascia subscription o future che scrivono stato/sessione | crash/use-after-dispose o sessione tardiva | cancel subscription, `_disposed`, generation, guard state e compensazione best-effort dell'exchange posseduto | Test dispose + late exchange/event |
 | TM-29 | Config staging/production viene confusa | traffico o OAuth sull'ambiente errato | `AppConfig` exact matrix; development offline; production Google false; no fallback | File locale ignorato e scan Git; build per ambiente |
-| TM-30 | Evidence/CI include config locale, key, project ref, account o token | esposizione persistente | ignore rules, CI fake-only, scan mirato, evidence sanitizzate | Verificare diff, untracked, bundle/log e output prima del commit |
+| TM-30 | Evidence/CI include config locale, key, project ref, account o token | esposizione persistente | ignore rules, CI fake-only, scan source/index/worktree/bundle; soltanto legacy JWT `role=anon` è pubblicabile, customer/service/ruoli non pubblicabili falliscono chiuso; evidence sanitizzate | Verificare diff, untracked, bundle/log e output prima del commit |
 
 ## Controlli e verifiche repository
 

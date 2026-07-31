@@ -33,7 +33,9 @@ if ! git -C "${cmc_security_repo_root}" rev-parse --is-inside-work-tree \
   exit 1
 fi
 if ! command -v openssl >/dev/null 2>&1 || \
-  ! command -v tr >/dev/null 2>&1; then
+  ! command -v perl >/dev/null 2>&1 || \
+  ! command -v tr >/dev/null 2>&1 || \
+  ! perl -MJSON::PP -e 1 >/dev/null 2>&1; then
   printf 'Security scan non eseguibile: dipendenza di decode assente.\n' >&2
   exit 1
 fi
@@ -59,15 +61,14 @@ cmc_security_secret_value_pattern='(AKIA[0-9A-Z]{16}|github_pat_[0-9A-Za-z_]{20,
 cmc_security_source_secret_pattern="(${cmc_security_secret_value_pattern}|-----BEGIN (RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY-----)"
 cmc_security_jwt_pattern='eyJ[0-9A-Za-z_-]{8,}\.[0-9A-Za-z_-]{8,}\.[0-9A-Za-z_-]{8,}'
 
-cmc_security_contains_service_role_jwt() {
+cmc_security_contains_non_publishable_jwt() {
   local cmc_security_file="$1"
   local cmc_security_token
   local cmc_security_tokens
   local cmc_security_payload
   local cmc_security_padding
-  local cmc_security_decoded_payload
-  local cmc_security_decode_status
   local cmc_security_grep_status
+  local cmc_security_role_status
 
   if cmc_security_tokens="$(
     LC_ALL=C grep -aEo -- "${cmc_security_jwt_pattern}" \
@@ -91,28 +92,31 @@ cmc_security_contains_service_role_jwt() {
       3) cmc_security_padding='=' ;;
       *) return 2 ;;
     esac
-    if cmc_security_decoded_payload="$(
-      printf '%s' "${cmc_security_payload}${cmc_security_padding}" \
-        | tr '_-' '/+' \
-        | openssl base64 -d -A 2>/dev/null
-    )"; then
-      :
+    if printf '%s' "${cmc_security_payload}${cmc_security_padding}" \
+      | tr '_-' '/+' \
+      | openssl base64 -d -A 2>/dev/null \
+      | perl -MJSON::PP -e '
+      use strict;
+      use warnings;
+      local $/;
+      my $raw = <STDIN>;
+      my $payload = eval { JSON::PP->new->utf8->decode($raw) };
+      exit 2 if $@ || ref($payload) ne "HASH";
+      exit 1 if $raw =~ /\\u[0-9A-Fa-f]{4}/;
+      my $role_count = () = $raw =~ /"role"\s*:/g;
+      exit 1 if $role_count != 1;
+      exit 1 if !exists $payload->{role};
+      exit 1 if ref($payload->{role});
+      exit($payload->{role} eq "anon" ? 0 : 1);
+    '; then
+      continue
     else
-      cmc_security_decode_status="$?"
-      if [[ "${cmc_security_decode_status}" -ne 0 ]]; then
-        return 2
-      fi
+      cmc_security_role_status="$?"
     fi
-    if printf '%s' "${cmc_security_decoded_payload}" \
-      | LC_ALL=C grep -Eq \
-        '"role"[[:space:]]*:[[:space:]]*"service_role"'; then
+    if [[ "${cmc_security_role_status}" -eq 1 ]]; then
       return 0
-    else
-      cmc_security_grep_status="$?"
-      if [[ "${cmc_security_grep_status}" -ne 1 ]]; then
-        return 2
-      fi
     fi
+    return 2
   done <<<"${cmc_security_tokens}"
   return 1
 }
@@ -171,7 +175,7 @@ cmc_security_file_has_prohibited_value() {
   if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
     return 2
   fi
-  if cmc_security_contains_service_role_jwt "${cmc_security_file}"; then
+  if cmc_security_contains_non_publishable_jwt "${cmc_security_file}"; then
     return 0
   else
     cmc_security_scan_status="$?"

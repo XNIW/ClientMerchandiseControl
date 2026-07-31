@@ -79,3 +79,13 @@ La CI richiesta da CA-39 resta distinta e sarà eseguita sullo SHA finale revisi
 
 I gate sono stati rieseguiti dopo il commit sullo SHA esatto. La CI del Fix resta
 `NOT_RUN` fino al push del commit di handoff.
+
+## CI re-review
+
+- Run: `30606916073`
+- SHA: `6ea315e2f05e36b73e73252b3937fdfd950aed4c`
+- Evento: `workflow_dispatch`
+- Esito: `completed / success`
+- Job: Quality, Android debug build e iOS Simulator debug build — 3/3 `success`
+- Step non-success non-skipped: 0/0/0
+- Annotation: 0/0/0

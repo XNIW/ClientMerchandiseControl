@@ -8,17 +8,17 @@
   `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_FIXER
-- **Review outcome**: CHANGES_REQUIRED
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Review outcome**: APPROVED
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-011 e TASK-020
 - **User approval**: GRANTED_AND_APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-012/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -344,6 +344,29 @@ Conteggio: 0 P0, 0 P1, 4 P2, 0 P3. Esito: `CHANGES_REQUIRED`.
 Report: `docs/TASKS/EVIDENCE/TASK-012/review-report.md`.
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Re-review dopo FIX
+
+Due sessioni read-only indipendenti dal Fixer hanno verificato il revision set:
+
+- tecnico FIX `3acbc42d9abd5bffe0230d3b9bca27baf345cfea`;
+- handoff/evidence `6ea315e2f05e36b73e73252b3937fdfd950aed4c`;
+- CI `30606916073`, 3/3 job `success`, tutti gli step applicabili `success`,
+  annotation 0/0/0.
+
+Tutti i finding `T012-REV-UI-001`, `T012-REV-SEC-001`,
+`T012-REV-SEC-002` e `T012-REV-GOV-003` sono `CLOSED`. Nessun nuovo finding:
+0 P0, 0 P1, 0 P2, 0 P3.
+
+Verifiche indipendenti: suite completa 141/141, analyze, test mirati UI e
+security/governance, build/install normal app, smoke Android 1/1, dump Semantics
+nativo, scan rete/Auth/sessione, matrici 39/34, diff e confinement tutti `PASS`.
+
+Report: `docs/TASKS/EVIDENCE/TASK-012/re-review-report.md`.
+
+Esito: `APPROVED`.
+
+Handoff: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Fix — `CODEX_FIXER`
 

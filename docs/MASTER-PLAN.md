@@ -9,10 +9,10 @@
 - **File task**: `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
-- **Prossima azione autorizzata**: eseguire la re-review indipendente dei quattro
-  finding sul commit tecnico FIX e sul relativo handoff
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Prossima azione autorizzata**: applicare in una transizione distinta la conferma
+  condizionata USER_APPROVER già concessa dal prompt end-to-end
 
 ## Repository coinvolti
 
@@ -135,6 +135,7 @@ normale è stato verificato su main.
 re-review `30601320650` e CI approvazione `30601758281` sono 3/3 `PASS`, con tutti
 gli step `success` e annotation 0/0/0. CI closeout `30602210469` è `PASS` sullo SHA
 esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
-`TASK-012` è l'unico task `ACTIVE`, tornato in `REVIEW` dopo il Fix dei quattro P2 sul
-commit `3acbc42d9abd5bffe0230d3b9bca27baf345cfea`; la chiusura dei finding richiede
-re-review indipendente. TASK-005–TASK-010 e TASK-013 in avanti restano invariati.
+`TASK-012` è l'unico task `ACTIVE`, in `REVIEW` con re-review indipendente `APPROVED`
+sul revision set `3acbc42d9abd5bffe0230d3b9bca27baf345cfea` /
+`6ea315e2f05e36b73e73252b3937fdfd950aed4c`; i quattro P2 sono chiusi e la CI
+`30606916073` è 3/3 `PASS`. TASK-005–TASK-010 e TASK-013 in avanti restano invariati.

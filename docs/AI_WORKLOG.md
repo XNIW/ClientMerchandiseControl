@@ -853,3 +853,22 @@
 - **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 - **Blocker/note**: CI Fix `NOT_RUN` fino al push del commit di handoff; re-review
   indipendente obbligatoria, nessun task successivo attivato.
+
+## 2026-07-30 — Re-review TASK-012
+
+- **Agente**: `CODEX_RE_REVIEWER`, due shard read-only indipendenti
+- **Task**: TASK-012
+- **Fase iniziale/finale**: REVIEW -> REVIEW
+- **Revision set**: tecnico `3acbc42d9abd5bffe0230d3b9bca27baf345cfea`;
+  handoff `6ea315e2f05e36b73e73252b3937fdfd950aed4c`.
+- **Chiusure**: `T012-REV-UI-001`, `T012-REV-SEC-001`,
+  `T012-REV-SEC-002` e `T012-REV-GOV-003` `CLOSED`; 0 P0/P1/P2/P3 nuovi o aperti.
+- **Verifiche indipendenti**: suite 141/141, analyze, Account/governance 10/10,
+  UI mirati 20/20, build/install, smoke Android 1/1, dump nativo, scan
+  security/confinement e governance `PASS`.
+- **CI**: `30606916073` sullo SHA handoff; Quality/Android/iOS 3/3 `success`, tutti
+  gli step applicabili `success`, annotation 0/0/0.
+- **Limite non bloccante**: traversata manuale TalkBack/VoiceOver `NOT_RUN`; copertura
+  tramite Semantics tree, dump Android e smoke reale.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+- **Blocker/note**: nessuno; `DONE` richiede la transizione distinta USER_APPROVER.

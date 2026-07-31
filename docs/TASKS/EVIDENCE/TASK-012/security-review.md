@@ -7,7 +7,7 @@
 | Dati commerciali | PASS | Nessun prodotto, prezzo, stock, sconto, urgenza o immagine sintetici |
 | Accesso remoto | PASS | Nessuna query, RPC, Storage, Functions o nuova request |
 | Auth | PASS | Runtime guest; Google disabilitato; zero token/sessione/storage/callback |
-| Account model | PASS | Dati presentazionali iniettati; avatar accetta solo `ImageProvider`, nessun URI interpretato |
+| Account model | PASS | Dopo FIX, avatar limitato a bytes locali 1…512 KiB, copiati e renderizzati con `Image.memory`; nessun provider/URI remoto |
 | Segreti | PASS | Zero service role, secret key, token o config locale tracciati |
 | Supabase | PASS | Zero write staging e production; nessuna modifica remota |
 | Dipendenze | PASS | Nessuna dipendenza aggiunta o aggiornata |
@@ -32,7 +32,8 @@ schema, pubblicazione o disponibilità.
 - parità automatica di chiavi e placeholder per es, it, en, zh-Hans;
 - es-CL è primaria/fallback e `app_zh` resta sincronizzato;
 - nessun raw color funzionale o font size feature-specifico;
-- l'azione authenticated logout è obbligatoria per assert e non può diventare un no-op.
+- la factory authenticated richiede un callback logout non-null per tipo, anche in
+  release; l'implementazione interna non accetta callback nullable.
 
 ## Scan sanitizzati
 
@@ -42,8 +43,23 @@ schema, pubblicazione o disponibilità.
 - artifact build/coverage/log candidati a Git: 0;
 - log normal app Android/iOS con marker secret/config: 0;
 - screenshot con dato personale o configurazione: 0.
+- sink `NetworkImage`, `ImageProvider`, URI o HTTP nel perimetro Account: 0;
+- test avatar con `HttpOverrides`: 0 client HTTP creati.
+
+## Rettifica del ciclo FIX
+
+La review indipendente ha invalidato due claim dell'autoverifica Execution: il
+costruttore authenticated dipendeva da un `assert` e il port avatar accettava un
+`ImageProvider` generico. I finding `T012-REV-SEC-001` e
+`T012-REV-SEC-002` hanno quindi prevalso sui precedenti `PASS`.
+
+Il ciclo FIX ha rimosso entrambi i percorsi: le viste guest/authenticated hanno API
+distinte e l'avatar accetta soltanto una copia bounded di bytes locali. Bytes corrotti
+ricadono nel fallback deterministico; un payload vuoto o oltre 512 KiB viene rifiutato.
+La loro chiusura resta soggetta a re-review indipendente.
 
 ## Esito Execution
 
-Non sono rilevati problemi P0/P1/P2 dall'autoverifica di Execution. Questo non sostituisce
-la review indipendente e non costituisce approvazione del lavoro dell'executor.
+L'autoverifica Execution non aveva rilevato problemi P0/P1/P2, ma la review
+indipendente ha poi aperto i finding sopra rettificati. Questo documento non sostituisce
+la re-review e non costituisce approvazione del lavoro del fixer.

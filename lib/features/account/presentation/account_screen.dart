@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 
 import '../../../app/design_system/theme/storefront_semantic_colors.dart';
@@ -13,26 +15,69 @@ class AccountScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AccountView(model: const AccountPresentationModel.guest());
+    return const AccountView.guest();
   }
 }
 
-class AccountView extends StatelessWidget {
-  AccountView({
-    required this.model,
+sealed class AccountView extends StatelessWidget {
+  const AccountView._({super.key});
+
+  const factory AccountView.guest({
+    Key? key,
+    VoidCallback? onContinueWithGoogle,
+    VoidCallback? onBrowseAsGuest,
+  }) = _GuestAccountView;
+
+  const factory AccountView.authenticated({
+    Key? key,
+    required AuthenticatedAccountPresentationModel model,
+    required VoidCallback onLogout,
+  }) = _AuthenticatedAccountView;
+}
+
+final class _GuestAccountView extends AccountView {
+  const _GuestAccountView({
     super.key,
     this.onContinueWithGoogle,
     this.onBrowseAsGuest,
-    this.onLogout,
-  }) : assert(
-         !model.isAuthenticated || onLogout != null,
-         'Authenticated account presentation requires logout.',
-       );
+  }) : super._();
 
-  final AccountPresentationModel model;
   final VoidCallback? onContinueWithGoogle;
   final VoidCallback? onBrowseAsGuest;
-  final VoidCallback? onLogout;
+
+  @override
+  Widget build(BuildContext context) {
+    return _AccountSurface(
+      child: _GuestAccountContent(
+        onContinueWithGoogle: onContinueWithGoogle,
+        onBrowseAsGuest: onBrowseAsGuest,
+      ),
+    );
+  }
+}
+
+final class _AuthenticatedAccountView extends AccountView {
+  const _AuthenticatedAccountView({
+    required this.model,
+    required this.onLogout,
+    super.key,
+  }) : super._();
+
+  final AuthenticatedAccountPresentationModel model;
+  final VoidCallback onLogout;
+
+  @override
+  Widget build(BuildContext context) {
+    return _AccountSurface(
+      child: _AuthenticatedAccountContent(model: model, onLogout: onLogout),
+    );
+  }
+}
+
+class _AccountSurface extends StatelessWidget {
+  const _AccountSurface({required this.child});
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +87,7 @@ class AccountView extends StatelessWidget {
         key: const ValueKey('account-card'),
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
-          child: model.isAuthenticated
-              ? _AuthenticatedAccountContent(model: model, onLogout: onLogout)
-              : _GuestAccountContent(
-                  onContinueWithGoogle: onContinueWithGoogle,
-                  onBrowseAsGuest: onBrowseAsGuest,
-                ),
+          child: child,
         ),
       ),
     );
@@ -180,8 +220,8 @@ class _AuthenticatedAccountContent extends StatelessWidget {
     required this.onLogout,
   });
 
-  final AccountPresentationModel model;
-  final VoidCallback? onLogout;
+  final AuthenticatedAccountPresentationModel model;
+  final VoidCallback onLogout;
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +248,7 @@ class _AuthenticatedAccountContent extends StatelessWidget {
         const SizedBox(height: AppSpacing.xl),
         Align(
           child: _AccountAvatar(
-            image: model.avatarImage,
+            bytes: model.avatarBytes,
             semanticLabel: l10n.accountAvatarLabel(displayName),
           ),
         ),
@@ -298,9 +338,11 @@ class _AuthenticatedAccountContent extends StatelessWidget {
 }
 
 class _AccountAvatar extends StatelessWidget {
-  const _AccountAvatar({required this.image, required this.semanticLabel});
+  const _AccountAvatar({required this.bytes, required this.semanticLabel});
 
-  final ImageProvider<Object>? image;
+  static const _decodedDimension = 192;
+
+  final Uint8List? bytes;
   final String semanticLabel;
 
   @override
@@ -316,12 +358,14 @@ class _AccountAvatar extends StatelessWidget {
         child: ClipOval(
           child: SizedBox.square(
             dimension: AppSizes.accountAvatar,
-            child: image == null
+            child: bytes == null
                 ? fallback
-                : Image(
+                : Image.memory(
+                    bytes!,
                     key: const ValueKey('account-avatar-image'),
-                    image: image!,
                     fit: BoxFit.cover,
+                    cacheWidth: _decodedDimension,
+                    cacheHeight: _decodedDimension,
                     errorBuilder: (context, error, stackTrace) => fallback,
                   ),
           ),

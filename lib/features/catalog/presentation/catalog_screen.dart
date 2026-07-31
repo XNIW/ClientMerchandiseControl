@@ -46,6 +46,7 @@ class _CatalogControls extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Semantics(
+              container: true,
               textField: true,
               enabled: false,
               label: l10n.catalogSearchLabel,
@@ -80,11 +81,17 @@ class _CatalogControls extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            Text(
-              l10n.catalogControlsUnavailable,
-              key: const ValueKey('catalog-controls-explanation'),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+            Semantics(
+              container: true,
+              label: l10n.catalogControlsUnavailable,
+              child: ExcludeSemantics(
+                child: Text(
+                  l10n.catalogControlsUnavailable,
+                  key: const ValueKey('catalog-controls-explanation'),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ),
             ),
           ],

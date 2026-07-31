@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/core/backend/backend_health_service.dart';
@@ -9,6 +10,7 @@ import 'package:client_merchandise_control/features/catalog/presentation/catalog
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -39,6 +41,8 @@ void main() {
   testWidgets('espone discovery visibile, disabilitata e spiegata', (
     tester,
   ) async {
+    final semantics = tester.ensureSemantics();
+
     await tester.pumpWidget(
       buildCatalog(
         repository: _CatalogRepository(
@@ -72,17 +76,43 @@ void main() {
     expect(find.text(strings.catalogFilterLabel), findsOneWidget);
     expect(find.text(strings.catalogSortLabel), findsOneWidget);
     expect(find.text(strings.catalogControlsUnavailable), findsOneWidget);
+    final searchSemantics = tester.getSemantics(
+      find.bySemanticsLabel(strings.catalogSearchLabel),
+    );
+    final searchData = searchSemantics.getSemanticsData();
+    expect(searchData.label, strings.catalogSearchLabel);
+    expect(searchData.hint, strings.catalogSearchHint);
+    expect(searchData.flagsCollection.isTextField, isTrue);
+    expect(searchData.flagsCollection.isEnabled, ui.Tristate.isFalse);
+
+    final searchDescendantLabels = <String>[];
+    void collectDescendantLabels(SemanticsNode node) {
+      node.visitChildren((child) {
+        searchDescendantLabels.add(child.getSemanticsData().label);
+        collectDescendantLabels(child);
+        return true;
+      });
+    }
+
+    collectDescendantLabels(searchSemantics);
     expect(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is Semantics &&
-            widget.properties.textField == true &&
-            widget.properties.enabled == false &&
-            widget.properties.label == strings.catalogSearchLabel &&
-            widget.properties.hint == strings.catalogSearchHint,
+      searchDescendantLabels,
+      isNot(
+        contains(
+          anyOf(
+            strings.catalogFilterLabel,
+            strings.catalogSortLabel,
+            strings.catalogControlsUnavailable,
+          ),
+        ),
       ),
+    );
+    expect(
+      find.bySemanticsLabel(strings.catalogControlsUnavailable),
       findsOneWidget,
     );
+    expect(find.bySemanticsLabel(strings.catalogFilterLabel), findsOneWidget);
+    expect(find.bySemanticsLabel(strings.catalogSortLabel), findsOneWidget);
     expect(
       tester.getSize(find.byKey(const ValueKey('catalog-search'))).height,
       greaterThanOrEqualTo(48),
@@ -95,6 +125,7 @@ void main() {
       tester.getSize(find.byKey(const ValueKey('catalog-sort'))).height,
       greaterThanOrEqualTo(48),
     );
+    semantics.dispose();
   });
 
   testWidgets('distingue tutti gli stati senza dati commerciali finti', (

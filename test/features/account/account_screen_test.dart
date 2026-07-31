@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 
@@ -57,13 +59,6 @@ void main() {
     expect(find.byKey(const ValueKey('account-browse-button')), findsNothing);
   });
 
-  test('authenticated richiede un logout esplicito', () {
-    expect(
-      () => AccountView(model: const AccountPresentationModel.authenticated()),
-      throwsAssertionError,
-    );
-  });
-
   testWidgets('guest abilita soltanto le callback esplicitamente iniettate', (
     tester,
   ) async {
@@ -73,8 +68,7 @@ void main() {
 
     await tester.pumpWidget(
       buildApp(
-        AccountView(
-          model: const AccountPresentationModel.guest(),
+        AccountView.guest(
           onContinueWithGoogle: () => googleCalls++,
           onBrowseAsGuest: () => browseCalls++,
         ),
@@ -99,8 +93,8 @@ void main() {
 
     await tester.pumpWidget(
       buildApp(
-        AccountView(
-          model: const AccountPresentationModel.authenticated(
+        AccountView.authenticated(
+          model: AuthenticatedAccountPresentationModel(
             displayName: 'María',
             email: 'maria@example.test',
           ),
@@ -127,8 +121,8 @@ void main() {
 
     await tester.pumpWidget(
       buildApp(
-        AccountView(
-          model: const AccountPresentationModel.authenticated(
+        AccountView.authenticated(
+          model: AuthenticatedAccountPresentationModel(
             displayName: '   ',
             email: '',
           ),
@@ -160,11 +154,11 @@ void main() {
   ) async {
     await tester.pumpWidget(
       buildApp(
-        AccountView(
-          model: AccountPresentationModel.authenticated(
+        AccountView.authenticated(
+          model: AuthenticatedAccountPresentationModel(
             displayName: 'María',
             email: 'maria@example.test',
-            avatarImage: MemoryImage(Uint8List.fromList(const [0, 1, 2, 3])),
+            avatarBytes: Uint8List.fromList(const [0, 1, 2, 3]),
           ),
           onLogout: () {},
         ),
@@ -176,7 +170,73 @@ void main() {
       find.byKey(const ValueKey('account-avatar-fallback')),
       findsOneWidget,
     );
+    final image = tester.widget<Image>(
+      find.byKey(const ValueKey('account-avatar-image')),
+    );
+    expect(image.image, isA<ResizeImage>());
+    expect((image.image as ResizeImage).imageProvider, isA<MemoryImage>());
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('avatar locale valido usa solo memoria e resta visibile', (
+    tester,
+  ) async {
+    final avatarBytes = base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
+      '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+    );
+    var createdHttpClients = 0;
+
+    await HttpOverrides.runZoned(
+      () async {
+        await tester.pumpWidget(
+          buildApp(
+            AccountView.authenticated(
+              model: AuthenticatedAccountPresentationModel(
+                displayName: 'María',
+                email: 'maria@example.test',
+                avatarBytes: avatarBytes,
+              ),
+              onLogout: () {},
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+      },
+      createHttpClient: (_) {
+        createdHttpClients++;
+        throw StateError('L’avatar locale non deve creare client HTTP.');
+      },
+    );
+
+    final image = tester.widget<Image>(
+      find.byKey(const ValueKey('account-avatar-image')),
+    );
+    expect(image.image, isA<ResizeImage>());
+    expect((image.image as ResizeImage).imageProvider, isA<MemoryImage>());
+    expect(find.byKey(const ValueKey('account-avatar-fallback')), findsNothing);
+    expect(createdHttpClients, 0);
+    expect(tester.takeException(), isNull);
+  });
+
+  test('avatar locale è bounded e copiato difensivamente', () {
+    final source = Uint8List.fromList(const [1, 2, 3, 4]);
+    final model = AuthenticatedAccountPresentationModel(avatarBytes: source);
+    source[0] = 99;
+
+    final firstRead = model.avatarBytes!;
+    expect(firstRead, const [1, 2, 3, 4]);
+    firstRead[1] = 88;
+    expect(model.avatarBytes, const [1, 2, 3, 4]);
+
+    expect(
+      () => AuthenticatedAccountPresentationModel(
+        avatarBytes: Uint8List(
+          AuthenticatedAccountPresentationModel.maxAvatarBytes + 1,
+        ),
+      ),
+      throwsArgumentError,
+    );
   });
 
   testWidgets('testi lunghi e scala 200% non causano overflow', (tester) async {
@@ -192,8 +252,8 @@ void main() {
 
     await tester.pumpWidget(
       buildApp(
-        AccountView(
-          model: AccountPresentationModel.authenticated(
+        AccountView.authenticated(
+          model: AuthenticatedAccountPresentationModel(
             displayName: longName,
             email: longEmail,
           ),
@@ -227,11 +287,7 @@ void main() {
 
     await tester.pumpWidget(
       buildApp(
-        AccountView(
-          model: const AccountPresentationModel.guest(),
-          onContinueWithGoogle: () {},
-          onBrowseAsGuest: () {},
-        ),
+        AccountView.guest(onContinueWithGoogle: () {}, onBrowseAsGuest: () {}),
       ),
     );
     await tester.pumpAndSettle();

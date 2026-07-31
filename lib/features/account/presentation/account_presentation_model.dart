@@ -1,26 +1,35 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart';
-
-enum AccountPresentationStatus { guest, authenticated }
 
 @immutable
-final class AccountPresentationModel {
-  const AccountPresentationModel.guest()
-    : status = AccountPresentationStatus.guest,
-      displayName = null,
-      email = null,
-      avatarImage = null;
-
-  const AccountPresentationModel.authenticated({
+final class AuthenticatedAccountPresentationModel {
+  AuthenticatedAccountPresentationModel({
     this.displayName,
     this.email,
-    this.avatarImage,
-  }) : status = AccountPresentationStatus.authenticated;
+    Uint8List? avatarBytes,
+  }) : _avatarBytes = _validatedAvatarBytes(avatarBytes);
 
-  final AccountPresentationStatus status;
+  static const maxAvatarBytes = 512 * 1024;
+
   final String? displayName;
   final String? email;
-  final ImageProvider<Object>? avatarImage;
+  final Uint8List? _avatarBytes;
 
-  bool get isAuthenticated => status == AccountPresentationStatus.authenticated;
+  Uint8List? get avatarBytes {
+    final bytes = _avatarBytes;
+    return bytes == null ? null : Uint8List.fromList(bytes);
+  }
+
+  static Uint8List? _validatedAvatarBytes(Uint8List? bytes) {
+    if (bytes == null) {
+      return null;
+    }
+    if (bytes.isEmpty || bytes.length > maxAvatarBytes) {
+      throw ArgumentError.value(
+        bytes.length,
+        'avatarBytes.length',
+        'Avatar bytes must contain between 1 and $maxAvatarBytes bytes.',
+      );
+    }
+    return Uint8List.fromList(bytes);
+  }
 }

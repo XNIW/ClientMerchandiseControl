@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-011
 - **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato task**: ACTIVE
-- **Fase**: PLANNING
-- **Responsabile**: CODEX_PLANNER
-- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
-- **Prossima azione autorizzata**: applicare la preautorizzazione del prompt con una
-  transizione esplicita a EXECUTION e implementare soltanto TASK-011
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Prossima azione autorizzata**: implementare e verificare soltanto TASK-011 secondo
+  il planning approvato
 
 ## Repository coinvolti
 
@@ -126,7 +126,7 @@ La re-review integrata del batch TASK-003/TASK-004 è `APPROVED` sullo SHA
 `30596267634` sullo SHA `ee58f29c9402f286a038f7cc79f1043539ea0b25` e il merge
 normale è stato verificato su main.
 
-`TASK-011` è l'unico task `ACTIVE` in `PLANNING`. Il planning usa il solo progetto
+`TASK-011` è l'unico task `ACTIVE` in `EXECUTION`. Il planning approvato usa il solo progetto
 Supabase non-production esistente, verificato read-only, e limita l'esecuzione a
 inizializzazione staging e readiness data-free; TASK-005–TASK-010 e TASK-012 in avanti
 restano invariati.

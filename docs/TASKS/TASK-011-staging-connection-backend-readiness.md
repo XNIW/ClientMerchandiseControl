@@ -7,20 +7,20 @@
 - **File task**:
   `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato**: ACTIVE
-- **Fase**: PLANNING
-- **Responsabile**: CODEX_PLANNER
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_PLANNER
+- **Ultimo agente**: CODEX_EXECUTOR
 - **Review outcome**: NOT_RUN
 - **Reviewer**: non ancora assegnato
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-012 e TASK-020
 - **User approval**: GRANTED_CONDITIONALLY_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-011/`
-- **Handoff**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 
 ## Dipendenze
 

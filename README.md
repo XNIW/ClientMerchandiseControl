@@ -114,10 +114,10 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 - **Task attivo**: TASK-011
 - **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato task**: ACTIVE
-- **Fase**: PLANNING
-- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Fase**: EXECUTION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
-TASK-011 è l'unico task attivo e il suo planning limita la connessione staging a un
-health probe ufficiale privo di dati. OAuth, redirect allow-list e deep link restano
+TASK-011 è l'unico task attivo e il planning approvato limita la connessione staging a
+un health probe ufficiale privo di dati. OAuth, redirect allow-list e deep link restano
 TASK-020; TASK-005–TASK-010 e TASK-012 in avanti non sono attivi.

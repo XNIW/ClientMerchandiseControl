@@ -13,6 +13,8 @@ Snapshot di handoff:
 - Re-review: `APPROVED` — quattro finding chiusi, 0 P0/P1/P2/P3 aperti
 - CI finale: `PASS` — run `30606916073` e `30607430241`, 3/3 job ciascuno,
   annotation 0/0/0
+- CI closeout: `BLOCKED` — run `30607868864`, due tentativi, runner non assegnati per
+  billing/spending GitHub; nessuno step applicativo eseguito
 - DONE: `YES`
 - PR/merge milestone: `NOT_RUN`
 

@@ -414,5 +414,7 @@ Evidence: `docs/TASKS/EVIDENCE/TASK-012/fix-evidence.md`.
 - **Follow-up candidate**: TASK-020, senza attivazione nel closeout TASK-012
 - **Riepilogo finale**: shell guest/accessibile approvata; quattro P2 chiusi; zero
   finding P0/P1/P2/P3 aperti; nessun auth reale anticipato
+- **CI closeout**: `BLOCKED` — run `30607868864`, due tentativi senza runner per
+  billing/spending GitHub; CI approvazione `30607430241` resta `PASS`
 - **Data completamento**: 2026-07-30
 - **Indicatore finale**: USER_APPROVED_DONE

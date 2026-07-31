@@ -11,8 +11,8 @@
 - **Fase**: non applicabile
 - **Responsabile**: USER_APPROVER
 - **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: pubblicare il closeout TASK-012 e attendere la CI
-  sul suo SHA; TASK-020 resta `TODO` fino a transizione distinta
+- **Prossima azione autorizzata**: registrare il limite CI closeout esterno e attivare
+  TASK-020 soltanto con una transizione distinta
 
 ## Repository coinvolti
 
@@ -139,4 +139,5 @@ esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
 CI handoff `30606916073` e CI approvazione `30607430241` sono 3/3 `PASS`, tutti gli
 step applicabili `success` e annotation 0/0/0. Nessun task è attivo; TASK-020 resta
 `TODO` fino a transizione distinta. TASK-005–TASK-010 e TASK-013 in avanti restano
-invariati.
+invariati. La CI closeout `30607868864` è `BLOCKED / CI_EXTERNAL`: due tentativi, zero
+runner e zero step, con billing/spending GitHub come prerequisito esterno.

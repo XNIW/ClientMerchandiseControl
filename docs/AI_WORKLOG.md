@@ -887,3 +887,19 @@
 - **Risultato**: `USER_APPROVED_DONE`.
 - **Blocker/note**: CI sul commit closeout `NOT_RUN`; TASK-020 resta `TODO`; PR,
   review integrata e merge del milestone restano `NOT_RUN`.
+
+## 2026-07-30 — CI closeout TASK-012 bloccata esternamente
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-012
+- **Stato**: DONE
+- **Commit closeout**:
+  `8faca03aa4cda7f384fda2aee229468a79c5e8e9`
+- **CI**: run `30607868864`, due tentativi; Quality, Android e iOS hanno ottenuto
+  `failure` prima di acquisire un runner, con zero step eseguiti.
+- **Causa**: `CI_EXTERNAL` — billing/spending GitHub; annotation 1/1/1 identiche.
+- **Prerequisito**: ripristino billing o aumento del limite di spesa GitHub.
+- **Risultato**: `BLOCKED`; la CI approvazione `30607430241` sul commit revisionato
+  resta 3/3 `PASS`.
+- **Blocker/note**: limite esterno non attribuibile al codice; il lavoro locale
+  autorizzato può continuare, TASK-020 richiede comunque una transizione distinta.

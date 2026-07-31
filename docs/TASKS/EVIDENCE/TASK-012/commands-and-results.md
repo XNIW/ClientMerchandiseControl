@@ -100,3 +100,17 @@ I gate sono stati rieseguiti dopo il commit sullo SHA esatto. La CI del Fix rest
 - Job: Quality, Android debug build e iOS Simulator debug build — 3/3 `success`
 - Step non-success non-skipped: 0/0/0
 - Annotation: 0/0/0
+
+## CI closeout
+
+- Run: `30607868864`
+- SHA: `8faca03aa4cda7f384fda2aee229468a79c5e8e9`
+- Tentativi: 2
+- Esito: `BLOCKED`
+- Causa: `CI_EXTERNAL` — billing/spending GitHub impedisce l'assegnazione dei runner
+- Job avviati: 0/3; step eseguiti: 0
+- Annotation: 1/1/1, tutte con la stessa causa esterna
+- Prerequisito di sblocco: ripristino billing o aumento del limite di spesa GitHub
+
+Il blocco closeout non invalida i gate tecnici né la CI approvazione
+`30607430241`, eseguita con successo sul commit revisionato immediatamente precedente.

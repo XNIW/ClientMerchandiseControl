@@ -627,3 +627,19 @@
   `success`. Due mutation sono sopravvissute e lo smoke non esercita l'entrypoint.
 - **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 - **Blocker/note**: PR, `DONE` e TASK-012 vietati fino a Fix e re-review.
+
+## 2026-07-30 — Fix TASK-011
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: FIX -> REVIEW
+- **Commit tecnico**: `8621606d03d06b70f2a421c985c63b96ee3ef47a`
+- **Fix**: chiusi i cinque P2 e il P3 con identità GoTrue stretta, body 8 KiB,
+  regressioni auto-check/recoverable e smoke via bootstrap con navigazione.
+- **Verifiche**: mutation RED, 108/108, analyze, `scripts/check.sh`, build staging,
+  smoke Android/iOS 1/1, due screenshot sanitizzati e scan log/config/secret.
+- **CI**: run `30599648372` sullo SHA esatto; Quality, Android e iOS 3/3 `success`,
+  tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: nessun gate Fix aperto; re-review indipendente obbligatoria prima
+  dell'approvazione. Supabase e repository esterni restano zero-write.

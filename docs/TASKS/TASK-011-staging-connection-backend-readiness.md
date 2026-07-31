@@ -7,20 +7,20 @@
 - **File task**:
   `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_EXECUTOR
+- **Ultimo agente**: CODEX_FIXER
 - **Review outcome**: CHANGES_REQUIRED
 - **Reviewer**: CODEX_REVIEWER — tre sessioni read-only indipendenti
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-012 e TASK-020
 - **User approval**: GRANTED_CONDITIONALLY_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-011/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -453,15 +453,43 @@ Finding aperti: 0 P0, 0 P1, 5 P2, 1 P3.
 
 ### Fix applicati
 
-`NOT_RUN`
+- `T011-REV-001`: test auto-check senza `retry()`, exactly-one e nessun auto-retry;
+- `T011-REV-002`: widget test `recoverableError` con shell, copy, Semantics, target,
+  tap, transizione e singola chiamata;
+- `T011-REV-003`: smoke riscritto sul vero `bootstrap()`, banner `initializing`,
+  readiness reale e navigazione Catalogo;
+- `T011-REV-004`: smoke dual-platform rieseguito sullo SHA Fix; comandi, target,
+  output, PNG sanitizzati e digest persistiti;
+- `T011-REV-005`: health valido solo con `name == "GoTrue"` esatto;
+- `T011-REV-006`: body health limitato a 8 KiB, overflow abortito e mappato
+  `invalidResponse`.
+
+Commit tecnico Fix:
+`8621606d03d06b70f2a421c985c63b96ee3ef47a`.
 
 ### Check post-fix
 
-`NOT_RUN`
+| Gate | Esito | Evidenza |
+|---|---|---|
+| mutation auto-check | PASS | la rimozione della microtask rende rosso il nuovo test |
+| mutation retry recoverable | PASS | la rimozione dell'azione rende rosso il nuovo test |
+| test health | PASS | exit 0, 10/10 |
+| test backend + banner | PASS | exit 0, 41/41 |
+| `flutter analyze` | PASS | exit 0, nessuna issue |
+| `flutter test --coverage` | PASS | exit 0, 108/108 |
+| `bash scripts/check.sh` | PASS | exit 0; 108/108 e build debug Android/iOS |
+| build staging Android/iOS | PASS | entrambi exit 0 |
+| smoke bootstrap Android | PASS | exit 0, 1/1 |
+| smoke bootstrap iOS | PASS | exit 0, 1/1 |
+| screenshot/manifest | PASS | due PNG ispezionati, dimensioni/byte/SHA-256 verificati |
+| log/config/secret scan | PASS | processi app puliti; config ignorata/non tracciata |
+| CI Fix `30599648372` | PASS | SHA esatto, 3/3 job, step `success`, annotation 0/0/0 |
+
+Tutti i finding sono dichiarati risolti dal Fix e richiedono verifica indipendente.
 
 ### Handoff a Review
 
-`NOT_RUN`
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`
 
 ## Chiusura
 

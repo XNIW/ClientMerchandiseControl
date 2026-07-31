@@ -43,18 +43,32 @@
 
 La CI dello SHA finale resta `NOT_RUN` fino al closeout.
 
+## Gate Fix
+
+| Comando/verifica | Esito | Risultato sanitizzato |
+|---|---|---|
+| test health | PASS | exit 0, 10/10 |
+| test backend + banner | PASS | exit 0, 41/41 |
+| `flutter analyze` | PASS | exit 0 |
+| `flutter test --coverage` | PASS | exit 0, 108/108 |
+| `bash scripts/check.sh` | PASS | exit 0, 108/108 e build debug Android/iOS |
+| build staging Android | PASS | exit 0 |
+| build staging iOS | PASS | exit 0 |
+| smoke bootstrap Android | PASS | exit 0, 1/1 |
+| smoke bootstrap iOS | PASS | exit 0, 1/1 |
+| screenshot/digest/log/config | PASS | due PNG validi e scan sanitizzati |
+| CI `30599648372` | PASS | SHA Fix, 3/3 job, annotation 0/0/0 |
+
 ## Matrice CA
 
 | CA | Esito | Evidenza |
 |---|---|---|
-| CA-05–CA-25 | PASS | Gate unit/widget/static/build sopra. |
-| CA-29–CA-30 | PASS | Check completo, build e scan sopra. |
+| CA-05–CA-30 | PASS | Gate unit/widget/static/build/smoke Fix sopra. |
 | CA-32 | NOT_RUN | La run è tecnica, non sullo SHA finale. |
 
 ## Matrice test
 
 | Test | Esito | Evidenza |
 |---|---|---|
-| T-03–T-21 | PASS | Test e gate locali sopra. |
-| T-25–T-27 | PASS | Build e check completi sopra. |
+| T-03–T-27 | PASS | Test, smoke, build e gate Fix sopra. |
 | T-29 | NOT_RUN | Riservato allo SHA finale. |

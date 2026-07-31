@@ -1,7 +1,7 @@
 # Evidence TASK-011
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Indice
 
@@ -13,7 +13,9 @@ Snapshot di handoff:
 - `security-review.md`: confinement e zero-write;
 - `ci-status.md`: ispezione CI tecnica e gate finale pendente;
 - `review-report.md`: review indipendente, finding e matrici;
-- le evidence Fix, re-review e closeout verranno aggiunte dalle rispettive fasi.
+- `fix-evidence.md`: risoluzione finding, regressioni e gate Fix;
+- `screenshots/manifest.md`: provenance e digest dei due PNG runtime;
+- le evidence re-review e closeout verranno aggiunte dalle rispettive fasi.
 
 ## Regole
 
@@ -26,14 +28,14 @@ Snapshot di handoff:
 
 | CA | Tipo | Esito | Evidenza |
 |---|---|---|---|
-| CA-01–CA-05, CA-07–CA-24, CA-26, CA-29–CA-30 | VARI | PASS | Review indipendente. |
-| CA-06, CA-25, CA-27–CA-28, CA-31 | VARI | FAIL | Cinque P2 aperti in `review-report.md`. |
+| CA-01–CA-30 | VARI | PASS | Execution più Fix e gate tecnici completati. |
+| CA-31 | MANUAL/STATIC | NOT_RUN | Richiede re-review indipendente. |
 | CA-32 | CI | NOT_RUN | Richiede CI sullo SHA finale. |
 
 ## Matrice test
 
 | Test | Tipo | Esito | Evidenza |
 |---|---|---|---|
-| T-01–T-06, T-08–T-11, T-13–T-15, T-18–T-22, T-25–T-27 | VARI | PASS | Review indipendente. |
-| T-07, T-12, T-16–T-17, T-23–T-24, T-28 | VARI | FAIL | Finding P2 aperti. |
+| T-01–T-27 | VARI | PASS | Execution e Fix verificati. |
+| T-28 | MANUAL/STATIC | NOT_RUN | Richiede re-review indipendente. |
 | T-29 | CI | NOT_RUN | Richiede CI sullo SHA finale. |

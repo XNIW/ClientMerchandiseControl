@@ -20,7 +20,7 @@ Le condizioni sono state verificate sulla revisione
 | Conferma USER_APPROVER | PASS | autorizzazione condizionata nel prompt end-to-end |
 | TASK-011 non attivato | PASS | backlog `TODO`, progetto riportato a `IDLE` |
 | Repository esterni/Supabase | PASS | zero-write; audit staging soltanto read-only |
-| CI dello SHA di closeout | NOT_RUN | attestazione esterna dopo il push, per evitare ciclo evidence/commit |
+| CI dello SHA di closeout | PASS | run `30592502472` sullo SHA esatto `0fc8d8b…`, 3/3 job, tutti gli step, annotation 0/0/0 |
 | PR/merge milestone | NOT_RUN | richiedono CI closeout e review integrata batch |
 
 ## Decisione
@@ -35,6 +35,5 @@ Le condizioni sono state verificate sulla revisione
 - **Merge batch TASK-003/TASK-004**: autorizzato soltanto dopo CI closeout verde,
   review integrata e CI terminale della PR
 
-`CA-28` e `T-27` restano intenzionalmente `NOT_RUN` nel commit che devono attestare.
-Il run CI finale sullo SHA di closeout sarà verificato esternamente e registrato prima
-della PR batch. TASK-011 non è stato attivato.
+`CA-28` e `T-27` sono attestati da una verifica esterna al commit di closeout, evitando
+il ciclo evidence/commit. La PR batch resta `NOT_RUN`; TASK-011 non è stato attivato.

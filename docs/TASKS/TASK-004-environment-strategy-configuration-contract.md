@@ -384,6 +384,7 @@ il 2026-07-30 dopo avere verificato:
   `success`, annotation 0/0/0.
 
 TASK-004 è quindi `DONE / REVIEW / USER_APPROVED_DONE`. La CI sul futuro SHA di
-closeout è ancora `NOT_RUN` e sarà attestata esternamente dopo il push. La PR batch,
-la review integrata e il merge normale TASK-003/TASK-004 sono ancora `NOT_RUN`;
-TASK-011 non è stato attivato.
+closeout `30592502472` è `PASS` sullo SHA esatto
+`0fc8d8bbd7d8fded9bb93e1e92ac069164ba58a9`: 3/3 job, tutti gli step `success`,
+annotation 0/0/0. La PR batch, la review integrata e il merge normale
+TASK-003/TASK-004 sono ancora `NOT_RUN`; TASK-011 non è stato attivato.

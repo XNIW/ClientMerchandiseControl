@@ -488,3 +488,15 @@
 - **Risultato**: `USER_APPROVED_DONE`.
 - **Blocker/note**: CI sul commit di closeout, review integrata, PR e merge batch
   TASK-003/TASK-004 ancora pendenti; TASK-011 resta `TODO`.
+
+## 2026-07-30 — CI finale closeout TASK-004 attestata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-004
+- **Fase**: REVIEW
+- **Revisione**: `0fc8d8bbd7d8fded9bb93e1e92ac069164ba58a9`
+- **Verifiche**: run `30592502472` sullo SHA esatto; Quality 2m2s, iOS 3m27s,
+  Android 7m28s; 3/3 job `success`, tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `CA-28` e `T-27` `PASS`; closeout TASK-004 terminale.
+- **Blocker/note**: review integrata, PR, CI della PR e merge normale batch ancora
+  pendenti; nessun task successivo attivato.

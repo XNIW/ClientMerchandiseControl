@@ -29,8 +29,10 @@ Snapshot di handoff:
   3/3 job, tutti gli step `success`, annotation 0/0/0
 - CI approvazione: run `30591994550` sullo SHA esatto `0c644e1…`,
   3/3 job, tutti gli step `success`, annotation 0/0/0
+- CI closeout: run `30592502472` sullo SHA esatto `0fc8d8b…`,
+  3/3 job, tutti gli step `success`, annotation 0/0/0
 - DONE: `YES`
-- CI closeout/PR/merge: `NOT_RUN`
+- PR/merge: `NOT_RUN`
 
 Evidence disponibili:
 
@@ -48,7 +50,7 @@ Evidence disponibili:
 
 Evidence previste in review:
 
-- attestazione esterna della CI sullo SHA di closeout
+- review integrata della PR batch
 
 ## Criteri di accettazione — stato corrente
 
@@ -81,7 +83,7 @@ Evidence previste in review:
 | CA-25 | PASS | `scripts/check.sh` exit 0; 70/70 test e due build |
 | CA-26 | PASS | smoke 1/1 dual-platform, comandi/output e screenshot manifest |
 | CA-27 | PASS | re-review `APPROVED`, zero P0/P1/P2 aperti |
-| CA-28 | NOT_RUN | richiede CI sul futuro SHA di closeout |
+| CA-28 | PASS | CI closeout `30592502472`, SHA esatto, 3/3 job e annotation 0/0/0 |
 
 ## Test case — stato corrente
 
@@ -113,9 +115,7 @@ Evidence previste in review:
 | T-24 | PASS | scan security/config/artifact e zero-write |
 | T-25 | PASS | test mirati e `scripts/check.sh` exit 0 |
 | T-26 | PASS | due sessioni read-only, quattro finding originari chiusi |
-| T-27 | NOT_RUN | richiede CI sul futuro SHA di closeout |
+| T-27 | PASS | CI `30592502472` su `0fc8d8b…`, step e annotation ispezionati |
 
-La CI handoff e la CI approvazione non anticipano il gate terminale: `CA-28` e
-`T-27` saranno attestati dopo il push del commit di closeout. CA-25 conserva
-intenzionalmente il conteggio storico `70/70`, tracciato come finding P3
-`T004-REREV-001`, senza correzione silenziosa durante il closeout.
+CA-25 conserva intenzionalmente il conteggio storico `70/70`, tracciato come finding
+P3 `T004-REREV-001`, senza correzione silenziosa durante il closeout.

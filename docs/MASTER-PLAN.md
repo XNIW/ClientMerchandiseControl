@@ -11,8 +11,8 @@
 - **Fase**: non applicabile
 - **Responsabile**: USER_APPROVER
 - **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: pubblicare il closeout TASK-004, attendere la CI
-  sul suo SHA, quindi eseguire review integrata, PR e merge batch già autorizzati
+- **Prossima azione autorizzata**: completare la review integrata, aprire la PR batch
+  TASK-003/TASK-004, verificarne la CI e applicare il merge normale già autorizzato
 
 ## Repository coinvolti
 
@@ -112,8 +112,8 @@ vincolante un solo task `ACTIVE` alla volta.
   2026-07-30; 0 P0/P1/P2 aperti, CI finale run `30585880180` `PASS` sullo SHA
   `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`.
 - `TASK-004` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
-  2026-07-30; 0 P0/P1/P2 aperti, CI approvazione run `30591994550` `PASS` sullo SHA
-  `0c644e18315e60d72321518572d34f4f95300d3c`; CI closeout e merge batch pendenti.
+  2026-07-30; 0 P0/P1/P2 aperti, CI closeout run `30592502472` `PASS` sullo SHA
+  `0fc8d8bbd7d8fded9bb93e1e92ac069164ba58a9`; merge batch pendente.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.

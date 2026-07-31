@@ -36,7 +36,7 @@ catalogo pronto e non introduce query verso dati commerciali. TASK-020 possiede 
 deep link, session lifecycle e logout; profilo e dati cliente custom restano di TASK-021.
 TASK-012 costruisce la shell guest/data-safe, gli stati readiness e la baseline
 accessibile: non introduce catalogo reale, query commerciali o UI Storefront
-data-backed, che restano di TASK-013/TASK-014 dopo TASK-010.
+basate su dati commerciali reali, che restano di TASK-013/TASK-014 dopo TASK-010.
 
 ### Edge normativi sincronizzati con il Master Plan
 

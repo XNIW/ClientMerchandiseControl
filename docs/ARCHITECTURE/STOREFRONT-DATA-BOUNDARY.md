@@ -34,12 +34,12 @@ operative.
 
 ## Livelli di verità
 
-| Verità | Contenuto | Decision owner | Writer/enforcer | Consumer pubblico |
+| Verità | Contenuto | Business decision owner | Writer/enforcer | Consumer pubblico |
 |---|---|---|---|---|
-| Operativa | Inventory interna, costo, stock grezzo, storico, sessioni di lavoro, vendita fiscale e movimenti | Domini operativi e POS secondo ownership cross-repo | Android, iOS, POS e servizi operativi autorizzati | Mai |
-| Pubblicazione | Quali shop, categorie, prodotti, immagini e promozioni sono visibili | Admin Console | Projector/server Storefront | Sì, dopo pubblicazione |
-| Commerciale | Prezzo cliente, promozione valida, disponibilità commerciale e opzioni di fulfillment | Admin/server; POS resta owner della vendita fiscale | Servizi server-authoritative | Sì, come valore rivalidabile |
-| Customer | Identità, preferenze, profilo, carrello, intenti e ordini del cliente | Customer per i propri dati, server per invarianti | API/RPC customer-scoped | Soltanto il customer autorizzato |
+| Operativa | Inventory interna, costo, stock grezzo, storico, sessioni di lavoro, vendita fiscale e movimenti | Ruoli operativi/manageriali autorizzati dei domini operativi e POS | Android, iOS, POS e servizi operativi autorizzati | Mai |
+| Pubblicazione | Quali shop, categorie, prodotti, immagini e promozioni sono visibili | Shop owner/manager o ruolo commerciale Admin autorizzato | Projector/server Storefront | Sì, dopo pubblicazione |
+| Commerciale | Prezzo cliente, promozione valida, disponibilità commerciale e opzioni di fulfillment | Ruolo commerciale/fulfillment Admin autorizzato | Servizi server-authoritative | Sì, come valore rivalidabile |
+| Customer | Identità, preferenze, profilo, carrello, intenti e ordini del cliente | Customer per i propri dati/intenti; ruolo fulfillment Admin autorizzato per policy e accettazione | API/RPC customer-scoped | Soltanto il customer autorizzato |
 
 Supabase è piattaforma di persistenza ed enforcement; non decide autonomamente cosa
 pubblicare o quale prezzo applicare.

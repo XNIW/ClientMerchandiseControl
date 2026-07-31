@@ -64,8 +64,8 @@ visual, launcher/store icon e identità definitiva restano di TASK-038.
 - autenticazione, profilo, preferiti persistenti, carrello, checkout, prenotazioni,
   ordini, consegne, notifiche o pagamenti;
 - contratti cross-repo di TASK-003 o environment strategy di TASK-004;
-- productizzazione data-backed della shell, health state live e acceptance estesa di
-  TASK-012;
+- productizzazione guest/data-safe della shell, presentazione health/readiness live e
+  acceptance estesa di TASK-012;
 - logo, public brand approvato, legal name, font custom, store icon, release metadata o
   pubblicazione store di TASK-038;
 - analytics, crash reporting, telemetria, tablet layout finale o redesign di feature future;
@@ -170,7 +170,7 @@ registrato nel report finale; nessuno dei due può essere pre-dichiarato `PASS`.
 | D-01 | User-approved end-to-end execution override: il prompt corrente autorizza Planning, Execution, Review, Fix, re-review, `DONE` e merge di TASK-002 solo con gate reali `PASS` e zero P0/P1/P2 aperti. | Registrare l'autorità limitata a TASK-002 | ATTIVA |
 | D-02 | `technicalDisplayName` resta centralizzato; public brand, legal entity, store display name, tagline, logo e marketing asset sono `PROVISIONAL/UNVERIFIED`. | Nessuna fonte cross-repo autorizza un'identità cliente definitiva | ATTIVA |
 | D-03 | Il seed teal `#245C55` resta palette provvisoria; Material `ColorScheme` è la base e una sola ThemeExtension copre colori semantici non espressi dal framework. | Preservare continuità e accessibilità senza inventare il brand | ATTIVA |
-| D-04 | TASK-002 applica la foundation alla shell placeholder esistente; TASK-012 resta owner della productizzazione data-backed e dell'acceptance estesa. | Evitare sovrapposizione e scope creep | ATTIVA |
+| D-04 | TASK-002 applica la foundation alla shell placeholder esistente; TASK-012 resta owner della shell guest/data-safe, degli stati readiness e dell'acceptance estesa, senza catalogo reale. | Evitare sovrapposizione e scope creep | ATTIVA |
 | D-05 | Font di sistema e zero nuove dipendenze sono la scelta prevista. | Flutter SDK copre la foundation richiesta | ATTIVA |
 | D-06 | Le letture cross-repo sono read-only e referenziate per SHA; dirty state preesistenti non vengono corretti. | Preservare confini e lavoro esterno | ATTIVA |
 | D-07 | L'emendamento recovery del `USER_APPROVER` richiede backup non distruttivo e smoke automatico reale Android/iOS. È ammessa soltanto la dev dependency `integration_test` fornita dal Flutter SDK; restano vietate nuove dipendenze runtime o esterne. I tipi generici `SMOKE` sono normalizzati in `ANDROID_EMU` e `IOS_SIM`. | Colmare CA-28/CA-29 senza dipendere dalla GUI e riallineare i test alla tassonomia del protocollo | ATTIVA |
@@ -196,8 +196,8 @@ shell Flutter già esistente, senza anticipare funzionalità commerciali o backe
   offline sono invarianti da preservare.
 - Il copy placeholder contiene gergo di delivery (`task`, `contract`, `foundation`) da
   sostituire con testo cliente semplice; il banner backend resta tecnico e debug-only.
-- TASK-012 e TASK-038 mantengono ownership rispettivamente di shell data-backed e asset/
-  identità release definitive.
+- TASK-012 e TASK-038 mantengono ownership rispettivamente di shell guest/data-safe,
+  stati readiness e acceptance estesa, e di asset/identità release definitive.
 
 ### Approccio
 

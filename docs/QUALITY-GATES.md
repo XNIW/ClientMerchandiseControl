@@ -90,9 +90,9 @@ requisiti di evidence sono definiti in `docs/CODEX-WORKFLOW-PROTOCOL.md`.
   `lib/`, `test/`, `integration_test/`, `config/`, `pubspec*`, target nativi e backend
   devono restare invariati;
 - `git diff --check`, link scan, governance check, scansione secret/URL/config locale,
-  parser DAG, `bash scripts/check-architecture-boundaries.sh` e
-  `bash scripts/check.sh` devono avere comando, output pertinente ed exit code
-  registrati.
+  parser DAG, `bash scripts/check-architecture-boundaries.sh`,
+  `bash scripts/test-architecture-boundaries.sh` e `bash scripts/check.sh` devono avere
+  comando, output pertinente ed exit code registrati.
 
 ## Gate specifici TASK-004
 

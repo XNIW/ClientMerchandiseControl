@@ -903,3 +903,25 @@
   resta 3/3 `PASS`.
 - **Blocker/note**: limite esterno non attribuibile al codice; il lavoro locale
   autorizzato può continuare, TASK-020 richiede comunque una transizione distinta.
+
+## 2026-07-30 — Planning TASK-020
+
+- **Agente**: `CODEX_PLANNER`, con cinque shard read-only indipendenti
+- **Task**: TASK-020
+- **Fase iniziale/finale**: nessun task attivo -> PLANNING
+- **Azioni principali**: attivato soltanto TASK-020; auditate API
+  `supabase_flutter 2.16.0`/GoTrue, PKCE, storage, callback nativi, architettura,
+  threat model e matrice di verifica; definiti 40 CA e 38 test.
+- **Decisioni**: Supabase Google OAuth con PKCE/browser esterno; deep-link SDK
+  disabilitato e callback validato prima dell'exchange; un solo adapter
+  Keystore/Keychain per sessione e verifier; Account consumer del dominio Auth;
+  unico append esatto alla allow-list staging in Execution.
+- **Verifiche**: worktree/origin e config locale sanitizzata `PASS`; progetto staging
+  canonico `ACTIVE_HEALTHY`; analyze zero issue; suite 141/141; scan tracked
+  secret/artifact `PASS`.
+- **Limiti**: dashboard Auth corrente `BLOCKED` per assenza sessione browser; Chrome
+  connector non disponibile; CI esposta al billing/spending GitHub già osservato.
+- **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+- **Blocker/note**: nessun codice, dipendenza, config locale o write Supabase
+  modificato; l'autorizzazione end-to-end è concessa ma deve essere applicata in una
+  transizione e commit distinti.

@@ -71,8 +71,8 @@ flutter run --dart-define-from-file=config/app_config.local.json
 production nel repository.
 
 Per preparare staging, copiare l'esempio nel file locale ignorato, valorizzare URL e
-publishable key non-production e impostare `GOOGLE_AUTH_ENABLED=false` finché la
-callback non è registrata dal task OAuth:
+publishable key non-production e mantenere `GOOGLE_AUTH_ENABLED=false` finché la
+callback non è verificata e registrata durante l'Execution di TASK-020:
 
 ```bash
 cp config/app_config.staging.example.json config/app_config.staging.local.json
@@ -83,7 +83,7 @@ flutter build ios --simulator --debug --dart-define-from-file=config/app_config.
 
 Il contratto staging richiede la callback
 `com.xniw.clientmerchandisecontrol://auth-callback/`. La configurazione locale corrente
-usa `GOOGLE_AUTH_ENABLED=false` fino a TASK-020. TASK-011 inizializza lo SDK senza
+usa `GOOGLE_AUTH_ENABLED=false` fino all'Execution di TASK-020. TASK-011 inizializza lo SDK senza
 session persistence e verifica l'endpoint Auth health ufficiale, senza interrogare
 tabelle o dati. Il banner resta customer-safe e il retry è soltanto manuale.
 TASK-012 non aggiunge query o dati commerciali: Catalogo rappresenta solo readiness,
@@ -130,16 +130,18 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 
 ## Stato
 
-- **Task attivo**: nessuno
-- **File task**: non applicabile
-- **Stato task**: non applicabile
-- **Fase**: non applicabile
-- **Indicatore**: USER_APPROVED_DONE
+- **Task attivo**: TASK-020
+- **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
+- **Stato task**: ACTIVE
+- **Fase**: PLANNING
+- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione
 `30601758281` 3/3 `PASS`; CI closeout `30602210469` è 3/3 `PASS` sullo SHA esatto.
 TASK-012 è `DONE` con re-review indipendente `APPROVED`, quattro P2 chiusi e CI
-handoff/approvazione `30606916073` / `30607430241` entrambe 3/3 `PASS`. Nessun task è
-attivo e TASK-020 resta `TODO` fino a transizione distinta. OAuth, redirect allow-list
-e deep link restano TASK-020; TASK-005–TASK-010 e TASK-013 in avanti non sono attivi.
+handoff/approvazione `30606916073` / `30607430241` entrambe 3/3 `PASS`. TASK-020 è
+l'unico task `ACTIVE`, con Planning completo e handoff
+`CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`. OAuth, redirect allow-list e deep link
+non sono ancora stati implementati; TASK-005–TASK-010 e TASK-013 in avanti non sono
+attivi.

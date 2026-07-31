@@ -1,7 +1,7 @@
 # Evidence TASK-020
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Stato
 
@@ -23,9 +23,10 @@ Snapshot di handoff:
   affrontati, gli audit candidate riportano 0 P0/P1/P2, i gate locali hanno
   221/221 test e coverage 1802/2247 (80,2%), scanner 336 file con 22/22 fixture
   negative e 1/1 positiva, build e smoke fake dual-platform
-- Re-review 3: `NOT_RUN` — richiesta sul revision set tecnico/handoff corrente
+- Re-review 3: `CHANGES_REQUIRED` — RR2-001…004 chiusi; 0 P0, 0 P1, 1 P2 e
+  1 P3 aperti per JWT customer accettato dallo scanner e path host non redatto
 - CI: `BLOCKED / CI_EXTERNAL`
-- PR/merge: draft PR #4 sul tecnico `5740c83`; run `30626914509` senza runner;
+- PR/merge: draft PR #4 sull'handoff `891f961`; run `30628616615` senza runner;
   merge `BLOCKED`
 - DONE: `NO`
 
@@ -62,7 +63,7 @@ duplicazioni che potrebbero divergere.
   nessun write remoto è stato eseguito.
 - iOS Simulator: conferma OS del custom scheme pendente; il Mac locked impedisce
   l'accettazione automatica del dialogo.
-- GitHub Actions: la run `30626914509` sullo SHA tecnico Fix 3 ha tre job senza
+- GitHub Actions: la run `30628616615` sullo SHA handoff Fix 3 ha tre job senza
   step, fermati prima del runner dal limite billing/spending.
 
 Le evidence finali dovranno contenere esattamente una riga per ciascuno dei 40 CA e

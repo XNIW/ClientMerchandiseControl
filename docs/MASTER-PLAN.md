@@ -7,13 +7,13 @@
 - **Stato globale**: ACTIVE
 - **Task attivo**: TASK-020
 - **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
-- **Prossima azione autorizzata**: re-review indipendente A–E del revision set
-  tecnico `5740c83` e del relativo handoff; nessun `APPROVED`, `DONE` o merge
-  finché review o gate esterni restano aperti
+- **Stato task**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Prossima azione autorizzata**: correggere esclusivamente T020-RR3-C-001
+  (JWT customer nello scanner) e T020-RR3-A-001 (redazione path evidence);
+  nessun `APPROVED`, `DONE` o merge finché finding o gate esterni restano aperti
 
 ## Repository coinvolti
 
@@ -68,7 +68,7 @@
 | TASK-017 | Cache catalogo offline, refresh e invalidazione | TODO | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
 | TASK-018 | Preferiti, condivisione e deep link prodotto | TODO | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
 | TASK-019 | Catalog performance e acceptance su dataset esteso | TODO | TASK-010, TASK-014, TASK-015, TASK-017 | Client, Supabase | Budget prestazioni misurato |
-| TASK-020 | Supabase Auth, deep link e session lifecycle | BLOCKED | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
+| TASK-020 | Supabase Auth, deep link e session lifecycle | ACTIVE | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
 | TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
 | TASK-022 | Registrazione device, consenso notifiche e token lifecycle | TODO | TASK-020, TASK-021 | Client, Supabase | Consenso e token gestiti |
 | TASK-023 | Carrello persistente e price revalidation | TODO | TASK-012, TASK-016, TASK-017 | Client, Supabase | Carrello coerente e rivalidato |
@@ -145,14 +145,14 @@ step, con billing/spending GitHub come prerequisito esterno.
 
 ## Task attivo — TASK-020
 
-Il Fix 3 sul tecnico `5740c835a116af16ab2e7ca6c55c927d180ece90` ha affrontato
-i quattro P2 T020-RR2-001…004: scanner sui propri path e sugli snapshot index/worktree,
-journal cleanup indipendente, provenance Git/CI corrente e digest dei bundle finali.
-I gate locali sono `PASS` con 221/221 test, coverage 80,2%, build/smoke fake
-dual-platform e audit candidate 0 P0/P1/P2. Redirect allow-list e live OAuth restano
-`BLOCKED` da MFA; callback warm iOS resta `BLOCKED` dal dialogo OS con Mac locked;
-CI run `30626914509` resta `BLOCKED / CI_EXTERNAL` prima dei runner. Serve re-review
-indipendente; nessun `APPROVED`, `DONE` o merge è autorizzato.
+La re-review 3 sul tecnico `5740c83` e handoff `891f961` ha chiuso
+T020-RR2-001…004 e T020-REV-007/016/018, ma ha trovato 1 P2 e 1 P3. Un JWT
+customer valido `role=authenticated` supera lo scanner, lasciando T020-REV-015
+aperto; un command evidence contiene inoltre il prefisso assoluto del path SDK
+locale. La CI handoff run `30628616615` resta `BLOCKED / CI_EXTERNAL` prima dei
+runner. Redirect allow-list e live OAuth restano `BLOCKED` da MFA; callback warm
+iOS resta `BLOCKED` dal dialogo OS con Mac locked. Il Fix è limitato ai due finding;
+nessun `APPROVED`, `DONE` o merge è autorizzato.
 
 Handoff:
-`CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

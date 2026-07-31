@@ -1120,3 +1120,30 @@
 - **Blocker/note**: re-review A–E obbligatoria sul revision set tecnico/handoff;
   nessun `APPROVED`, `DONE`, merge o task futuro è autorizzato con gate esterni
   aperti.
+
+## 2026-07-31 — Re-review 3 TASK-020 e ritorno a Fix
+
+- **Agente**: `CODEX_RE_REVIEWER`, cinque shard read-only indipendenti
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> FIX; stato task `ACTIVE`
+- **Revision set**: tecnico
+  `5740c835a116af16ab2e7ca6c55c927d180ece90`; handoff
+  `891f96124f706c8a53168937ec701709301b3855`.
+- **Chiusure**: T020-RR2-001…004 e T020-REV-007/016/018 `CLOSED`; storage
+  33/33, scanner 336, fixture 22/22 + 1/1, boundary 5/5, artifact 548 + 81 e
+  parser 12/40/38 verificati autonomamente.
+- **Finding**: 0 P0, 0 P1, 1 P2 e 1 P3. T020-RR3-C-001 prova che un JWT
+  customer sintetico `role=authenticated` viene accettato dallo scanner; nel Git
+  corrente non esiste alcun JWT. T020-RR3-A-001 richiede la redazione del prefisso
+  host nel path ADB dell'evidence.
+- **Provenance**: PR #4 `OPEN/DRAFT`, head `891f961`, 143 path e zero
+  TASK-003/004. L'assenza di auto-citazione dello SHA nel relativo commit non è un
+  finding circolare; viene registrata dalla review.
+- **CI**: run `30628616615` `BLOCKED / CI_EXTERNAL`; job Android
+  `91149556012`, Quality `91149556044` e iOS `91149556060` con
+  `runner_id=0`, zero step e una annotation billing/spending ciascuno.
+- **Blocker**: allow-list/OAuth live `BLOCKED` da MFA; callback warm iOS
+  `BLOCKED` dal dialogo OS con Mac locked; CI `BLOCKED` dal billing.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: Fix limitato ai due finding; nessun `APPROVED`, `DONE`, merge
+  o task futuro è autorizzato.

@@ -6,15 +6,15 @@
 - **Titolo**: Supabase Auth, deep link e session lifecycle
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Stato**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-07-31
 - **Ultimo aggiornamento**: 2026-07-31
-- **Ultimo agente**: CODEX_FIXER
+- **Ultimo agente**: CODEX_RE_REVIEWER
 - **Review outcome**: CHANGES_REQUIRED
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -441,6 +441,54 @@ Verifiche autonome: suite mirate lifecycle 53/53, intent/evidence 39/39 e UI/nat
 `PASS`; PR #4 `OPEN/DRAFT`, 143 path, zero TASK-003/004. La CI handoff run
 `30624825908` ha tre job senza runner o step e una annotation billing/spending per
 job, quindi resta `BLOCKED / CI_EXTERNAL`.
+
+Esito: `CHANGES_REQUIRED`.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Re-review 3 del Fix
+
+Cinque re-reviewer read-only indipendenti hanno verificato il revision set:
+
+- tecnico `5740c835a116af16ab2e7ca6c55c927d180ece90`;
+- handoff/evidence `891f96124f706c8a53168937ec701709301b3855`.
+
+T020-RR2-001…004 risultano chiusi: scanner sui propri path e snapshot Git,
+journal cleanup indipendente, provenance handoff/CI e digest/conteggi bundle sono
+stati verificati autonomamente. T020-REV-007/016/018 sono chiusi; T020-REV-015
+resta aperto tramite un nuovo gap semantico dello scanner.
+
+Finding consolidati:
+
+- T020-RR3-C-001, P2: lo scanner decodifica i JWT ma rifiuta soltanto
+  `role=service_role`; un JWT sintetico valido `role=authenticated` è stato
+  accettato come artifact con exit 0. Nessun JWT è presente nel Git corrente, ma
+  un access token customer potrebbe superare source/index/worktree/bundle scan;
+- T020-RR3-A-001, P3: CMD-X08 persiste il prefisso assoluto del path SDK locale;
+  l'evidence deve redigere il path macchina senza alterare exit e risultato.
+
+Il rilievo dello shard A sulla mancata auto-citazione dell'handoff non è consolidato
+come finding: un commit non può contenere il proprio SHA o la propria run CI senza
+circolarità. Lo shard E ha verificato HEAD/upstream/PR sullo SHA `891f961`; questa
+re-review registra ora la provenance richiesta.
+
+Verifiche autonome:
+
+- storage/lifecycle: 33/33 `PASS`;
+- scanner source: 336 file `PASS`; fixture esistenti 22/22 negative e 1/1 positiva
+  `PASS`; boundary 5/5 `PASS`;
+- artifact: APK 548 file con digest
+  `88af2ad662d7f6f13f14cae00c576072c433cb5d9507f5206bbf688ee0f5ff70`;
+  Runner 81 file con tree digest
+  `4332441962a60da4c0544bef6825fb14dc3b6b7e1a16b4e3794da5730fa1d85c`;
+- matrici: 12 file, 40 CA e 38 test `PASS`;
+- PR #4: `OPEN/DRAFT`, base `main`, 143 path e zero TASK-003/004;
+- CI handoff run `30628616615`: `BLOCKED / CI_EXTERNAL`; job Android
+  `91149556012`, Quality `91149556044` e iOS `91149556060` con `runner_id=0`,
+  zero step e una annotation billing/spending ciascuno.
+
+Totale aperto: 0 P0, 0 P1, 1 P2 e 1 P3. Redirect allow-list/OAuth live,
+callback warm iOS e CI restano blocker esterni distinti.
 
 Esito: `CHANGES_REQUIRED`.
 

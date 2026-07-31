@@ -33,6 +33,7 @@
 | `git diff --check` | PASS | exit 0 |
 | Client security scanner | PASS | CMD-X04, 336 file Git, index e worktree correnti, zero violazioni |
 | Fixture scanner | PASS | CMD-X04, 22/22 negative respinte e 1/1 positiva accettata |
+| JWT customer semantic probe | FAIL | CMD-Y02, `role=authenticated` sintetico accettato con exit 0; zero JWT nel Git corrente |
 | Bundle staging ricostruiti | PASS | CMD-B01, 548 file APK + 81 file Runner = 629, zero secret privilegiati; digest before/after invariati |
 | Symlink, snapshot Git e failure operative | PASS | CMD-X04, blob/index/worktree `120000`, enumerazione parziale, read e decode failure respinti fail-closed |
 | PEM ed estensioni sensibili | PASS | CMD-X04/CMD-B01, label standard/DSA/encrypted e denylist case-insensitive |
@@ -58,6 +59,8 @@ Rischi residui:
   file chiude l'interleaving riproducibile in cui falliscono i due marker precedenti;
 - redirect allow-list e live OAuth restano `BLOCKED` da MFA;
 - la conferma OS iOS del custom scheme resta `BLOCKED` mentre il Mac è locked.
+- lo scanner corrente rifiuta `service_role` ma non un JWT customer
+  `role=authenticated`; T020-RR3-C-001 resta aperto in Fix;
 - Cancel attende un exchange SDK non cancellabile prima di consentire Retry: preserva
   l'invariante di sicurezza contro sessioni tardive, ma un trasporto che non completa
   può mantenere lo stato `cancelling`; un hardening richiede cancellazione reale al
@@ -66,6 +69,6 @@ Rischi residui:
 Nessun `PASS` remoto o live è inferito.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-X01/X03/X04/CMD-B01/CMD-R01,
+`commands-and-results.md`, CMD-X01/X03/X04/CMD-Y02/CMD-B01/CMD-R01,
 CA-03/05/08/21/22/24/33/36
 e T-02/05/15/17/25/26.

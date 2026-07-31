@@ -317,3 +317,89 @@ Tutti gli shard hanno operato read-only sul medesimo revision set.
 `CHANGES_REQUIRED`
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Re-review 3 del Fix
+
+### Revision set
+
+- Commit tecnico Fix 3:
+  `5740c835a116af16ab2e7ca6c55c927d180ece90`
+- Handoff/evidence:
+  `891f96124f706c8a53168937ec701709301b3855`
+- Branch, upstream e PR head: allineati allo SHA handoff; worktree pulito
+- PR #4: `OPEN/DRAFT`, base `main`, 143 path, zero TASK-003/004
+- CI handoff: run `30628616615`, tre job senza runner/step e una annotation
+  billing/spending per job; `BLOCKED / CI_EXTERNAL`
+
+### Reviewer indipendenti
+
+| Reviewer | Specializzazione | Verifiche autonome | Esito |
+|---|---|---|---|
+| A | intent, CA, governance e scope | revision set, matrici, scope e blocker | CHANGES_REQUIRED |
+| B | lifecycle Auth, race e storage | suite mirata 33/33 e review journal | APPROVED |
+| C | scanner, threat model e dipendenze | scanner/fixture/boundary e probe JWT | CHANGES_REQUIRED |
+| D | UI, native, l10n e accessibilità | provenance smoke e configurazione invariata | BLOCKED |
+| E | evidence, Git, PR e CI | parser, digest/count, scope e tre run CI | CHANGES_REQUIRED |
+
+Tutti gli shard hanno operato read-only sul medesimo revision set. Lo shard E non ha
+trovato un finding proprio, ma assegna l'esito complessivo coerente con il P2 dello
+shard C.
+
+### Chiusura dei finding della re-review 2
+
+| ID | Stato re-review 3 | Evidence |
+|---|---|---|
+| T020-RR2-001 | CLOSED | propri path, index/worktree, stage e symlink verificati |
+| T020-RR2-002 | CLOSED | journal pre-marker, restart e read fail-closed verificati |
+| T020-RR2-003 | CLOSED | handoff `891f961`, PR e run `30628616615` verificati e registrati qui |
+| T020-RR2-004 | CLOSED | 548 + 81 = 629 e digest riprodotti; 12/40/38 validati |
+| T020-REV-007 | CLOSED | cleanup a tre canali e regressione restart |
+| T020-REV-015 | OPEN | resta T020-RR3-C-001 sul JWT customer |
+| T020-REV-016 | CLOSED | provenance handoff/CI corrente |
+| T020-REV-018 | CLOSED | bundle e command evidence riproducibili |
+
+### T020-RR3-C-001 — P2 — JWT customer non rilevato
+
+- **Stato**: OPEN
+- **Posizione**: `scripts/check-client-security.sh`, decode semantico JWT
+- **Evidence**: un JWT sintetico valido con `role=authenticated`, fornito come
+  artifact, è accettato con exit 0; il codice rifiuta soltanto `service_role`.
+- **Impatto**: un customer access token può superare source/index/worktree/bundle
+  scan; CA-22, CA-36 e T-26 diventano `FAIL`. Nel Git corrente non è presente
+  alcun JWT letterale.
+- **Correzione richiesta**: consentire soltanto il legacy JWT pubblicabile con
+  `role=anon`; rifiutare `authenticated`, `service_role` e ruoli non pubblicabili.
+  Aggiungere fixture negative per source/index/worktree/artifact e una positiva
+  `anon`.
+
+### T020-RR3-A-001 — P3 — Path host non redatto
+
+- **Stato**: OPEN
+- **Posizione**: `commands-and-results.md`, CMD-X08
+- **Evidence**: il comando persiste il prefisso assoluto della home nel path ADB.
+- **Impatto**: disclosure non necessaria di un path macchina nell'evidence
+  versionata.
+- **Correzione richiesta**: redigere soltanto il prefisso host, mantenendo comando,
+  exit e risultato reali.
+
+### Finding non consolidato
+
+Lo shard A ha trattato la mancata presenza di `891f961` e della sua CI dentro il
+commit `891f961` come provenance stale. Il rilievo non è un finding: genererebbe una
+catena autoreferenziale infinita. Lo shard E ha verificato lo SHA e la run reali; il
+reviewer li persiste in questa transizione, come previsto dall'handoff.
+
+### Conteggio re-review 3
+
+| Severità | Aperti |
+|---|---:|
+| P0 | 0 |
+| P1 | 0 |
+| P2 | 1 |
+| P3 | 1 |
+
+### Esito re-review 3
+
+`CHANGES_REQUIRED`
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

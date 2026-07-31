@@ -24,25 +24,26 @@
   `7825145f16e0de33725a36470df0ebc20bedfcbe`
 - SHA tecnico Fix 3:
   `5740c835a116af16ab2e7ca6c55c927d180ece90`
-- Tracking tecnico Fix 3: branch locale, upstream e head PR allineati a `5740c83`;
+- Handoff Fix 3 -> Re-review 3:
+  `891f96124f706c8a53168937ec701709301b3855`
+- Tracking re-review 3: branch locale, upstream e head PR allineati a `891f961`;
   `+0/-0`
 - Config staging locale: ignorata, non tracciata e assente dallo status
 - Build/coverage artifact: non tracciati e assenti dallo status
 - Scope diff rispetto a `main`: soltanto TASK-011/TASK-012/TASK-020 e fondazione
   condivisa; zero path TASK-003, TASK-004 o `TASK-003-004`
 - Repository esterni/production/task futuri: non modificati
-- Worktree sullo SHA tecnico durante i tre audit candidate read-only: pulito
+- Worktree sullo SHA handoff durante i cinque shard read-only: pulito
 - Worktree al momento di questa evidence: contiene soltanto task/evidence/worklog
-  della transizione Fix -> Review, da committare selettivamente
-- PR: #4 `OPEN/DRAFT`, base `main`, head remoto `5740c83`, mergeable `MERGEABLE`
+  della transizione Review -> Fix, da committare selettivamente
+- PR: #4 `OPEN/DRAFT`, base `main`, head remoto `891f961`, mergeable
+  `MERGEABLE`, merge state `UNSTABLE`
 - Scope PR remoto: 143 path, confinati a TASK-011/TASK-012/TASK-020 e fondazione
   condivisa; zero path TASK-003/004
-- Commit/push tecnico Fix 3: `PASS`
-- CI sullo SHA tecnico: run `30626914509`, `BLOCKED / CI_EXTERNAL`, tre job
+- Commit/push handoff Fix 3: `PASS`
+- CI sullo SHA handoff: run `30628616615`, `BLOCKED / CI_EXTERNAL`, tre job
   senza runner o step e una annotation billing/spending per job
-- Merge/main sync: `BLOCKED` da re-review non ancora eseguita, CI e gate esterni
+- Merge/main sync: `BLOCKED` da 1 P2, 1 P3, CI e gate esterni
 
-Comandi: `commands-and-results.md`, CMD-X12/X13/X14,
-CA-01/02/40 e T-01/37/38. Lo SHA del commit che contiene questo handoff sarà
-registrato dalla re-review, evitando un riferimento circolare nell'evidence dello
-stesso commit.
+Comandi: `commands-and-results.md`, CMD-Y01/Y03/Y04,
+CA-01/02/40 e T-01/37/38.

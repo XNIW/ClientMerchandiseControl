@@ -13,6 +13,24 @@ class AppLocalizationsEs extends AppLocalizations {
       'Backend no configurado: modo de desarrollo sin conexión.';
 
   @override
+  String get backendChecking => 'Comprobando la conexión de la tienda…';
+
+  @override
+  String get backendOffline =>
+      'Sin conexión. Puedes seguir explorando y volver a intentarlo.';
+
+  @override
+  String get backendUnavailable =>
+      'La tienda no está disponible por el momento.';
+
+  @override
+  String get backendAuthenticationRequired =>
+      'Inicia sesión desde Cuenta para continuar.';
+
+  @override
+  String get backendRetry => 'Reintentar';
+
+  @override
   String get navigationHome => 'Inicio';
 
   @override

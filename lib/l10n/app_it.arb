@@ -1,6 +1,11 @@
 {
   "@@locale": "it",
   "backendNotConfigured": "Backend non configurato: modalità development offline.",
+  "backendChecking": "Verifica della connessione al negozio…",
+  "backendOffline": "Connessione assente. Puoi continuare a esplorare e riprovare.",
+  "backendUnavailable": "Il negozio non è disponibile al momento.",
+  "backendAuthenticationRequired": "Accedi da Account per continuare.",
+  "backendRetry": "Riprova",
   "navigationHome": "Home",
   "navigationCatalog": "Catalogo",
   "navigationCart": "Carrello",

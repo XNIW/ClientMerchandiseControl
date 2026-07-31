@@ -1,6 +1,11 @@
 {
   "@@locale": "zh",
   "backendNotConfigured": "Backend no configurado: modo de desarrollo sin conexión.",
+  "backendChecking": "Comprobando la conexión de la tienda…",
+  "backendOffline": "Sin conexión. Puedes seguir explorando y volver a intentarlo.",
+  "backendUnavailable": "La tienda no está disponible por el momento.",
+  "backendAuthenticationRequired": "Inicia sesión desde Cuenta para continuar.",
+  "backendRetry": "Reintentar",
   "navigationHome": "Inicio",
   "navigationCatalog": "Catálogo",
   "navigationCart": "Carrito",

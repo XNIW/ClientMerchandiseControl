@@ -1,6 +1,11 @@
 {
   "@@locale": "en",
   "backendNotConfigured": "Backend not configured: offline development mode.",
+  "backendChecking": "Checking the store connection…",
+  "backendOffline": "You're offline. You can keep browsing and try again.",
+  "backendUnavailable": "The store is temporarily unavailable.",
+  "backendAuthenticationRequired": "Sign in from Account to continue.",
+  "backendRetry": "Try again",
   "navigationHome": "Home",
   "navigationCatalog": "Catalog",
   "navigationCart": "Cart",

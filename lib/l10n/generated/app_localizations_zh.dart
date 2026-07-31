@@ -13,6 +13,24 @@ class AppLocalizationsZh extends AppLocalizations {
       'Backend no configurado: modo de desarrollo sin conexión.';
 
   @override
+  String get backendChecking => 'Comprobando la conexión de la tienda…';
+
+  @override
+  String get backendOffline =>
+      'Sin conexión. Puedes seguir explorando y volver a intentarlo.';
+
+  @override
+  String get backendUnavailable =>
+      'La tienda no está disponible por el momento.';
+
+  @override
+  String get backendAuthenticationRequired =>
+      'Inicia sesión desde Cuenta para continuar.';
+
+  @override
+  String get backendRetry => 'Reintentar';
+
+  @override
   String get navigationHome => 'Inicio';
 
   @override
@@ -59,6 +77,21 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get backendNotConfigured => '后端尚未配置：当前为离线开发模式。';
+
+  @override
+  String get backendChecking => '正在检查商店连接…';
+
+  @override
+  String get backendOffline => '当前无网络连接。你可以继续浏览并重试。';
+
+  @override
+  String get backendUnavailable => '商店暂时不可用。';
+
+  @override
+  String get backendAuthenticationRequired => '请从“账户”登录以继续。';
+
+  @override
+  String get backendRetry => '重试';
 
   @override
   String get navigationHome => '首页';

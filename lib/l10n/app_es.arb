@@ -4,6 +4,11 @@
   "@backendNotConfigured": {
     "description": "Diagnóstico visible solo en builds debug de development sin backend configurado."
   },
+  "backendChecking": "Comprobando la conexión de la tienda…",
+  "backendOffline": "Sin conexión. Puedes seguir explorando y volver a intentarlo.",
+  "backendUnavailable": "La tienda no está disponible por el momento.",
+  "backendAuthenticationRequired": "Inicia sesión desde Cuenta para continuar.",
+  "backendRetry": "Reintentar",
   "navigationHome": "Inicio",
   "@navigationHome": {
     "description": "Etiqueta de la navegación hacia Inicio."

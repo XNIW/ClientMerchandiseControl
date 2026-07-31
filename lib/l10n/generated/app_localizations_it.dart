@@ -13,6 +13,23 @@ class AppLocalizationsIt extends AppLocalizations {
       'Backend non configurato: modalità development offline.';
 
   @override
+  String get backendChecking => 'Verifica della connessione al negozio…';
+
+  @override
+  String get backendOffline =>
+      'Connessione assente. Puoi continuare a esplorare e riprovare.';
+
+  @override
+  String get backendUnavailable => 'Il negozio non è disponibile al momento.';
+
+  @override
+  String get backendAuthenticationRequired =>
+      'Accedi da Account per continuare.';
+
+  @override
+  String get backendRetry => 'Riprova';
+
+  @override
   String get navigationHome => 'Home';
 
   @override

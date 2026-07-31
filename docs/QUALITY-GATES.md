@@ -164,6 +164,27 @@ Per TASK-004 lo smoke usa development senza define su entrambi i simulatori, ver
 avvio e interazione con la shell offline, banner tecnico debug e assenza di
 inizializzazione Supabase. Non effettua login, connessione staging o test live remoti.
 
+## Gate specifici TASK-011
+
+- `BackendReadinessState` contiene i sette stati richiesti e non deriva `ready` dalla
+  sola configurazione o inizializzazione;
+- development e production eseguono zero initialize/probe; staging usa soltanto
+  `GET /auth/v1/health` con `apikey` e redirect disabilitati;
+- timeout completa l'abort trigger reale; dispose e cancel ignorano risultati obsoleti;
+- mapping copre 200/payload, 401/403/404, 408/429/5xx, risposta invalida e trasporto;
+- check iniziale e retry concorrenti sono single-flight; non esistono polling,
+  auto-retry o loop su resume;
+- UI customer-safe localizzata copre initializing/offline/misconfigured/auth-required/
+  recoverable, retry accessibile e browsing guest non bloccato;
+- Android main contiene `INTERNET`; iOS non contiene eccezioni ATS permissive;
+- test mirati:
+  `flutter test test/core/backend test/features/shell/backend_readiness_banner_test.dart`;
+- smoke reale staging Android/iOS tramite
+  `integration_test/backend_readiness_smoke_test.dart` e file locale ignorato;
+- build staging Android/iOS con `--dart-define-from-file`, separati dagli smoke;
+- scan statico conferma zero query/RPC/Storage/inventory, zero valori staging e zero
+  session/token nei log.
+
 ## Gate security
 
 Nessun secret, configurazione locale, dato cliente, provisioning profile, certificato,
@@ -181,6 +202,11 @@ chiavi moderne/legacy privilegiate, configurazioni production e file
 `config/*.local.json`. La publishable key non è un secret, ma il valore staging reale
 resta fuori da Git, log ed evidence; la scansione deve registrare soltanto esito e classe
 del controllo.
+
+Per TASK-011 la scansione copre inoltre request health, redirect, timeout/cancellation,
+permission Android, opzioni Auth disabilitate, query dati vietate, config locale e
+output smoke. La publishable key è inviata soltanto al gateway staging validato e non
+deve apparire in log, eccezioni, widget o evidence.
 
 ## Gate CI
 

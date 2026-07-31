@@ -34,10 +34,10 @@ fornisce al bootstrap soltanto lo stato già normalizzato.
 
 Development non accetta valori backend/callback né Google attivo e non inizializza
 Supabase. Staging ammette l'inizializzazione SDK soltanto con tuple, callback e flag
-completi; questo non equivale a readiness, che appartiene a TASK-011. Production non
-eredita mai staging e, finché OAuth production non è autorizzato, accetta soltanto il
-kill switch Google disabilitato. Il flag non implementa login, sessione o deep link:
-queste responsabilità restano TASK-020.
+completi; TASK-011 la completa con un health check Auth ufficiale e privo di dati.
+Production non eredita mai staging, non inizializza rete e, finché OAuth production non
+è autorizzato, accetta soltanto il kill switch Google disabilitato. Il flag non
+implementa login, sessione o deep link: queste responsabilità restano TASK-020.
 
 `ClientMerchandiseControlApp` compone tema, localizzazione e router.
 `StatefulShellRoute.indexedStack` mantiene quattro branch — Home, Catalogo, Carrello e
@@ -47,6 +47,35 @@ In development senza configurazione l'app resta offline e usabile e mostra un ba
 diagnostico debug accessibile. Staging e production incompleti sono errori espliciti,
 senza fallback tra ambienti. Diagnostica ed errori espongono soltanto ambiente e
 indicatori booleani, mai URL, key o callback raw.
+
+## Backend readiness
+
+`BackendReadinessState` separa configurazione, inizializzazione e raggiungibilità:
+
+- `unconfigured`: development offline, senza SDK o rete;
+- `initializing`: SDK staging locale e probe in corso;
+- `ready`: SDK inizializzato e `GET /auth/v1/health` concluso con HTTP 200 e payload
+  health valido;
+- `offline`: timeout abortito o errore di trasporto;
+- `misconfigured`: ambiente non autorizzato oppure gateway/key/endpoint rifiutati;
+- `authenticationRequired`: stato riservato a future operazioni session-aware;
+- `recoverableError`: backend temporaneamente indisponibile o risposta incoerente.
+
+`ready` attesta soltanto origin/key, gateway e liveness Auth. Non attesta database,
+PostgREST, schema Storefront, RLS, grant, dati, OAuth o autorizzazione cliente.
+
+Il health service costruisce un solo `GET` verso `/auth/v1/health`, usa esclusivamente
+l'header `apikey`, non segue redirect e non registra request, response o eccezioni raw.
+Un `AbortableRequest` applica timeout reale e cancellazione su dispose. Il repository
+inizializza lo SDK e mappa gli esiti; il controller Riverpod avvia un solo check staging,
+riusa l'operazione concorrente e permette soltanto retry manuale. Non esistono polling,
+auto-retry o recheck su resume in TASK-011.
+
+La shell viene renderizzata prima del check. Offline ed errori recuperabili mantengono
+il browsing guest disponibile e mostrano copy localizzata customer-safe con retry;
+development mostra il solo banner tecnico debug. Fino a TASK-020 le opzioni Auth SDK
+disabilitano persistence, auto-refresh e deep-link detection, evitando di importare
+prematuramente il session lifecycle.
 
 ## Design system
 
@@ -137,7 +166,8 @@ shop e identità quando applicabile, senza contenere credenziali privilegiate.
 - Development resta offline e rifiuta qualunque configurazione remota.
 - Staging e production incompleti falliscono in modo chiuso secondo il contratto
   ambiente.
-- Una configurazione staging valida non prova connessione o salute del backend.
+- Una configurazione staging valida avvia il check ma non ne predetermina l'esito.
+- Readiness `ready` prova soltanto la liveness Auth data-free, mai i dati Storefront.
 - Il kill switch Google disabilita la capability locale senza selezionare un altro
   ambiente.
 - Un errore Auth non abilita fallback anonimi per dati customer.
@@ -161,7 +191,6 @@ assegnate a:
 - TASK-033–TASK-037 per hardening, resilienza, osservabilità, accessibilità e
   performance.
 
-Questo documento preserva le decisioni Flutter, Riverpod, go_router, MVVM, design system
-e bootstrap già adottate. TASK-004 aggiunge soltanto il confine di configurazione: non
-aggiunge readiness, flussi OAuth, deep link nativi, schema, DTO, repository, ViewModel o
-dati reali.
+Questo documento preserva le decisioni Flutter, Riverpod, go_router, MVVM e design
+system già adottate. TASK-011 aggiunge soltanto readiness tecnica staging: non aggiunge
+flussi OAuth, deep link nativi, schema, DTO commerciali o dati reali.

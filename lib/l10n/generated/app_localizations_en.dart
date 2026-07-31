@@ -13,6 +13,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Backend not configured: offline development mode.';
 
   @override
+  String get backendChecking => 'Checking the store connection…';
+
+  @override
+  String get backendOffline =>
+      'You\'re offline. You can keep browsing and try again.';
+
+  @override
+  String get backendUnavailable => 'The store is temporarily unavailable.';
+
+  @override
+  String get backendAuthenticationRequired =>
+      'Sign in from Account to continue.';
+
+  @override
+  String get backendRetry => 'Try again';
+
+  @override
   String get navigationHome => 'Home';
 
   @override

@@ -1,6 +1,11 @@
 {
   "@@locale": "zh_Hans",
   "backendNotConfigured": "后端尚未配置：当前为离线开发模式。",
+  "backendChecking": "正在检查商店连接…",
+  "backendOffline": "当前无网络连接。你可以继续浏览并重试。",
+  "backendUnavailable": "商店暂时不可用。",
+  "backendAuthenticationRequired": "请从“账户”登录以继续。",
+  "backendRetry": "重试",
   "navigationHome": "首页",
   "navigationCatalog": "商品目录",
   "navigationCart": "购物车",

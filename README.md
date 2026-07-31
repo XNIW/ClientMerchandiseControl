@@ -82,8 +82,9 @@ flutter build ios --simulator --debug --dart-define-from-file=config/app_config.
 
 Il contratto staging richiede la callback
 `com.xniw.clientmerchandisecontrol://auth-callback/`. La configurazione locale corrente
-usa `GOOGLE_AUTH_ENABLED=false` fino a TASK-020. Configuration completeness non equivale
-a backend health: la readiness reale appartiene a TASK-011.
+usa `GOOGLE_AUTH_ENABLED=false` fino a TASK-020. TASK-011 inizializza lo SDK senza
+session persistence e verifica l'endpoint Auth health ufficiale, senza interrogare
+tabelle o dati. Il banner resta customer-safe e il retry è soltanto manuale.
 
 ## Test e build
 
@@ -93,6 +94,13 @@ flutter analyze
 flutter test --coverage
 flutter build apk --debug
 flutter build ios --simulator --debug
+```
+
+Gli smoke staging reali, esclusi dalla CI perché usano il file locale ignorato, sono:
+
+```bash
+flutter test integration_test/backend_readiness_smoke_test.dart -d emulator-5554 --dart-define-from-file=config/app_config.staging.local.json
+flutter test integration_test/backend_readiness_smoke_test.dart -d <IOS_SIMULATOR_ID> --dart-define-from-file=config/app_config.staging.local.json
 ```
 
 Il gate completo è:

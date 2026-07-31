@@ -109,6 +109,36 @@ abstract class AppLocalizations {
   /// **'Backend no configurado: modo de desarrollo sin conexión.'**
   String get backendNotConfigured;
 
+  /// No description provided for @backendChecking.
+  ///
+  /// In es, this message translates to:
+  /// **'Comprobando la conexión de la tienda…'**
+  String get backendChecking;
+
+  /// No description provided for @backendOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conexión. Puedes seguir explorando y volver a intentarlo.'**
+  String get backendOffline;
+
+  /// No description provided for @backendUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda no está disponible por el momento.'**
+  String get backendUnavailable;
+
+  /// No description provided for @backendAuthenticationRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión desde Cuenta para continuar.'**
+  String get backendAuthenticationRequired;
+
+  /// No description provided for @backendRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar'**
+  String get backendRetry;
+
   /// Etiqueta de la navegación hacia Inicio.
   ///
   /// In es, this message translates to:

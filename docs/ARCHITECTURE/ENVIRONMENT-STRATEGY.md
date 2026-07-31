@@ -47,7 +47,7 @@ remoti e fallback tra ambienti sono vietati.
 | URL e publishable key | assenti; qualunque valore è errore | entrambi obbligatori e validi | entrambi obbligatori e validi |
 | Callback | assente; qualunque valore è errore | callback canonica obbligatoria | callback canonica obbligatoria |
 | Google flag | assente o `false`; `true` è errore | `true` o `false` esplicito | soltanto `false` esplicito |
-| Backend | nessuna inizializzazione Supabase e nessuna richiesta | configurazione SDK ammessa; readiness e probe restano TASK-011 | nessun uso autorizzato in questo milestone |
+| Backend | nessuna inizializzazione Supabase e nessuna richiesta | SDK più health Auth data-free TASK-011 | nessun uso autorizzato in questo milestone |
 | OAuth | vietato | il flag dichiara soltanto capability/kill switch; flusso reale resta TASK-020 | vietato in questo milestone |
 | Dati | nessun dato commerciale | soltanto dati non-production, quando introdotti dai task proprietari | nessun dato o valore production versionato |
 | Diagnostica | banner tecnico soltanto in debug e soli indicatori sanitizzati | soli indicatori sanitizzati | errore fail-closed senza dettagli sensibili |
@@ -76,7 +76,24 @@ guest.
 
 Il profilo target può usare `true` soltanto quando TASK-020 avrà configurato e verificato
 allow-list remota, deep link nativi e flusso OAuth. In TASK-004 il file locale mantiene
-il kill switch su `false`; TASK-011 possiede connessione e readiness.
+il kill switch su `false`; TASK-011 inizializza lo SDK con session persistence,
+auto-refresh e deep-link detection disabilitati, quindi verifica soltanto Auth health.
+
+### Readiness staging
+
+Una configurazione completa seleziona la possibilità di eseguire il check, non lo stato
+`ready`. TASK-011 definisce:
+
+- un solo `GET` ufficiale a `/auth/v1/health`;
+- header `apikey` con la publishable key già validata;
+- redirect disabilitati, timeout con abort reale e cancellazione lifecycle;
+- retry esclusivamente manuale e single-flight;
+- mapping sanitizzato fra offline, misconfigured e recoverable error;
+- zero query, RPC, Storage, schema discovery o lettura dati.
+
+Soltanto HTTP 200 con payload health coerente produce `ready`. Il risultato prova
+liveness Auth e compatibilità origin/key, non autorizzazione, sessione, database o
+Storefront. 401/403 del health indicano configurazione respinta, non login cliente.
 
 ### Production
 
@@ -166,5 +183,6 @@ TASK-004 non effettua probe, query, login, scritture remote o modifiche a Supaba
 ## Riferimenti Supabase
 
 - [API keys](https://supabase.com/docs/guides/getting-started/api-keys)
+- [Auth health](https://supabase.com/docs/guides/troubleshooting/how-do-i-check-gotrueapi-version-of-a-supabase-project-lQAnOR)
 - [Redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls)
 - [Native mobile deep linking](https://supabase.com/docs/guides/auth/native-mobile-deep-linking)

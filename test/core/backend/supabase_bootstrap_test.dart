@@ -1,4 +1,4 @@
-import 'package:client_merchandise_control/core/backend/backend_status.dart';
+import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/backend/supabase_bootstrap.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/core/config/app_environment.dart';
@@ -17,7 +17,7 @@ void main() {
       },
     );
 
-    expect(status, BackendStatus.notConfigured);
+    expect(status, BackendReadinessState.unconfigured);
     expect(initializationCalls, 0);
   });
 
@@ -63,7 +63,7 @@ void main() {
       },
     );
 
-    expect(status, BackendStatus.ready);
+    expect(status, BackendReadinessState.initializing);
     expect(initializationCalls, 1);
     expect(receivedUrl, expectedUrl);
     expect(receivedKey, expectedKey);

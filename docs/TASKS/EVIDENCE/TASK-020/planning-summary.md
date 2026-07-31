@@ -82,4 +82,7 @@
 
 ## Handoff
 
-`CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`
+Planning commit `8eab82b`: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+
+Autorizzazione end-to-end applicata in transizione distinta:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION`.

@@ -7,14 +7,14 @@
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
 - **Stato**: ACTIVE
-- **Fase**: PLANNING
-- **Responsabile**: CODEX_PLANNER
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_PLANNER
+- **Ultimo agente**: USER_APPROVER
 - **Review outcome**: NOT_RUN
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 
 ## Dipendenze
 
@@ -316,14 +316,15 @@ esporre token o dati e senza estendere il client oltre il dominio Storefront fut
 - **Prossima fase**: EXECUTION
 - **Prossimo ruolo**: CODEX_EXECUTOR
 - **Planning pronto**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
-- **Autorizzazione USER_APPROVER**: concessa nel prompt end-to-end ma non ancora
-  applicata alla transizione repository
-- **Handoff**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Autorizzazione USER_APPROVER**: concessa e applicata dal prompt end-to-end il
+  2026-07-30
+- **Transizione**: PLANNING -> EXECUTION
+- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 
 ## Execution — `CODEX_EXECUTOR`
 
-Non avviata. Il prompt end-to-end verrà applicato con una transizione distinta dopo il
-commit del Planning.
+Autorizzata sul Planning commit `8eab82b`; implementazione non ancora avviata in
+questo commit di transizione.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
@@ -335,7 +336,8 @@ Non avviata.
 
 ## Chiusura
 
-- **Conferma utente**: preautorizzata, non ancora applicata
+- **Conferma utente**: autorizzazione Execution applicata; conferma DONE condizionata
+  a review/CI verdi
 - **Merge autorizzato da USER_APPROVER**: sì, condizionato a review e CI verdi
 - **Follow-up candidate**: nessuno attivabile in questo milestone
 - **Riepilogo finale**: non ancora disponibile

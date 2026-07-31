@@ -925,3 +925,15 @@
 - **Blocker/note**: nessun codice, dipendenza, config locale o write Supabase
   modificato; l'autorizzazione end-to-end è concessa ma deve essere applicata in una
   transizione e commit distinti.
+
+## 2026-07-30 — Autorizzazione Execution TASK-020
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-020
+- **Fase iniziale/finale**: PLANNING -> EXECUTION
+- **Planning approvato**: commit `8eab82b`, 40 CA e 38 test.
+- **Autorizzazione**: applicata la concessione condizionata del prompt end-to-end,
+  senza modifica di scope, criteri, priorità o task futuri.
+- **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+- **Blocker/note**: l'Execution deve restare entro TASK-020; review indipendente,
+  gate reali e CI restano obbligatori prima di DONE/merge.

@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-020
 - **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
 - **Stato task**: ACTIVE
-- **Fase**: PLANNING
-- **Responsabile**: CODEX_PLANNER
-- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
-- **Prossima azione autorizzata**: applicare in una transizione distinta
-  l'autorizzazione già concessa dal prompt end-to-end e passare a EXECUTION
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Prossima azione autorizzata**: implementare esclusivamente il Planning TASK-020
+  approvato e produrre evidence reale
 
 ## Repository coinvolti
 
@@ -138,17 +138,17 @@ esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
 `TASK-012` è `DONE` dopo re-review indipendente `APPROVED`; i quattro P2 sono chiusi.
 CI handoff `30606916073` e CI approvazione `30607430241` sono 3/3 `PASS`, tutti gli
 step applicabili `success` e annotation 0/0/0. TASK-020 è l'unico task `ACTIVE` ed è
-in `PLANNING`; TASK-005–TASK-010 e TASK-013 in avanti restano invariati. La CI
+in `EXECUTION`; TASK-005–TASK-010 e TASK-013 in avanti restano invariati. La CI
 closeout `30607868864` è `BLOCKED / CI_EXTERNAL`: due tentativi, zero runner e zero
 step, con billing/spending GitHub come prerequisito esterno.
 
 ## Task attivo — TASK-020
 
 Il Planning di Google OAuth, callback mobile, secure persistence e session lifecycle è
-completo con 40 criteri e 38 test. Le versioni SDK bloccate sono state verificate e
+approvato con 40 criteri e 38 test. Le versioni SDK bloccate sono state verificate e
 richiedono `detectSessionInUri:false`, callback validation applicativa e storage
-Keystore/Keychain custom per sessione e verifier PKCE. Nessun codice o write Supabase
-è stato eseguito in Planning.
+Keystore/Keychain custom per sessione e verifier PKCE. L'Execution è autorizzata
+esclusivamente entro tale scope.
 
 Handoff:
-`CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+`CODEX_PLANNING_APPROVED_TO_EXECUTION`.

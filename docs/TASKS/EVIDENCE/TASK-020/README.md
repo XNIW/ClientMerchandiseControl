@@ -1,14 +1,13 @@
 # Evidence TASK-020
 
 Snapshot di handoff:
-`ACTIVE / PLANNING / CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
 
 ## Stato
 
 - Planning: `PASS`
-- Autorizzazione Execution: `NOT_RUN` — concessa dal prompt, transizione distinta
-  ancora da applicare
-- Execution: `NOT_RUN`
+- Autorizzazione Execution: `PASS` — concessa e applicata dal prompt end-to-end
+- Execution: `IN_PROGRESS`
 - Review: `NOT_RUN`
 - Fix/re-review: `NOT_RUN`
 - CI: `NOT_RUN`

@@ -133,15 +133,14 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 - **Task attivo**: TASK-020
 - **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
 - **Stato task**: ACTIVE
-- **Fase**: PLANNING
-- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Fase**: EXECUTION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione
 `30601758281` 3/3 `PASS`; CI closeout `30602210469` è 3/3 `PASS` sullo SHA esatto.
 TASK-012 è `DONE` con re-review indipendente `APPROVED`, quattro P2 chiusi e CI
 handoff/approvazione `30606916073` / `30607430241` entrambe 3/3 `PASS`. TASK-020 è
-l'unico task `ACTIVE`, con Planning completo e handoff
-`CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`. OAuth, redirect allow-list e deep link
-non sono ancora stati implementati; TASK-005–TASK-010 e TASK-013 in avanti non sono
-attivi.
+l'unico task `ACTIVE`; il Planning è approvato e l'Execution è autorizzata con handoff
+`CODEX_PLANNING_APPROVED_TO_EXECUTION`. TASK-005–TASK-010 e TASK-013 in avanti non
+sono attivi.

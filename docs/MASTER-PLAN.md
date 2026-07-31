@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-011
 - **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
-- **Prossima azione autorizzata**: verificare indipendentemente la chiusura di
-  `T011-REREV-SEC-001` e l'assenza di claim zero-write globali
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Prossima azione autorizzata**: correggere esclusivamente
+  `T011-REREV2-PROV-001` e `T011-REREV2-GOV-002`
 
 ## Repository coinvolti
 
@@ -126,8 +126,8 @@ La re-review integrata del batch TASK-003/TASK-004 è `APPROVED` sullo SHA
 `30596267634` sullo SHA `ee58f29c9402f286a038f7cc79f1043539ea0b25` e il merge
 normale è stato verificato su main.
 
-`TASK-011` è l'unico task `ACTIVE` in `REVIEW` dopo il secondo Fix. Le evidence
-distinguono ora zero-write del client/azioni TASK-011 da traffico Admin esterno
-concorrente osservato, senza cambiare `CA-04` o attribuire attività esterna al task.
-CI handoff precedente `30600113945` 3/3 `PASS`; TASK-005–TASK-010 e TASK-012 in avanti
-restano invariati.
+`TASK-011` è l'unico task `ACTIVE` in `FIX`. La seconda re-review sullo SHA
+`978b25781605e9c20b4702c3aed6dd7b196803cd` ha rilevato due claim residui non
+task-scoped nel worklog e una violazione della proprietà delle sezioni; CI
+`30600817975` 3/3 `PASS`, ma il verdetto resta `CHANGES_REQUIRED`.
+TASK-005–TASK-010 e TASK-012 in avanti restano invariati.

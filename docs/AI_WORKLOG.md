@@ -677,3 +677,18 @@
   `PASS`.
 - **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 - **Blocker/note**: seconda re-review obbligatoria; `CA-04` invariato.
+
+## 2026-07-30 — Re-review TASK-011, ciclo 2
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revisione**: `978b25781605e9c20b4702c3aed6dd7b196803cd`
+- **Finding**: `T011-REREV2-PROV-001` P2 per due claim worklog non task-scoped;
+  `T011-REREV2-GOV-002` P2 per registrazione Fix nella sezione Review e auto-chiusura
+  prematura del finding.
+- **Verifiche**: due sessioni read-only; diff documentale, governance, sanitizzazione,
+  confinement, branch/origin `PASS`; CI `30600817975` sullo SHA esatto 3/3 `success`,
+  tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: correzione limitata a documentazione; nessun codice o remoto.

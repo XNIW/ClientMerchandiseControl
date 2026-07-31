@@ -7,20 +7,20 @@
 - **File task**:
   `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_FIXER
+- **Ultimo agente**: CODEX_RE_REVIEWER
 - **Review outcome**: CHANGES_REQUIRED
-- **Reviewer**: CODEX_REVIEWER — tre sessioni read-only indipendenti
+- **Reviewer**: CODEX_RE_REVIEWER — due sessioni read-only indipendenti
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-012 e TASK-020
 - **User approval**: GRANTED_CONDITIONALLY_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-011/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -488,6 +488,27 @@ Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 Evidence: `docs/TASKS/EVIDENCE/TASK-011/remote-write-provenance.md`.
 
 Handoff Fix 2: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review dopo Fix 2
+
+Target:
+`978b25781605e9c20b4702c3aed6dd7b196803cd`.
+
+Due sessioni read-only indipendenti hanno confermato confinement, sanitizzazione,
+governance e CI `30600817975` 3/3 `PASS`, tutti gli step `success`, annotation
+0/0/0. `T011-REREV-SEC-001` resta però aperto per due difetti documentali:
+
+- `T011-REREV2-PROV-001` P2: due claim nel worklog non qualificano il writer set
+  client/azioni Codex TASK-011;
+- `T011-REREV2-GOV-002` P2: la registrazione Fix 2 è collocata nella sezione Review e
+  l'evidence dichiara prematuramente di «chiudere» il finding.
+
+Le citazioni storiche nel report del ciclo 1 restano ammissibili. Nessun finding
+runtime, platform o security del client è aperto.
+
+Esito re-review 2: `CHANGES_REQUIRED`.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 

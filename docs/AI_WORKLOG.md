@@ -772,3 +772,14 @@
 - **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
 - **Blocker/note**: nessuno; autorizzazione condizionata già presente nel prompt
   end-to-end, da applicare in una transizione distinta.
+
+## 2026-07-30 — Autorizzazione Planning TASK-012
+
+- **Agente**: `USER_APPROVER` / transizione registrata da `CODEX_EXECUTOR`
+- **Task**: TASK-012
+- **Fase iniziale/finale**: PLANNING -> EXECUTION
+- **Azioni principali**: applicata l'autorizzazione condizionata del prompt end-to-end
+  con un commit distinto, senza cambiare scope, criteri, test o decisioni.
+- **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+- **Blocker/note**: nessuno; OAuth, callback, session lifecycle e modifiche Supabase
+  restano TASK-020.

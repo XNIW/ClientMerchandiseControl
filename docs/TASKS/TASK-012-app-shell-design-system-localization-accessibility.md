@@ -7,18 +7,18 @@
 - **File task**:
   `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
 - **Stato**: ACTIVE
-- **Fase**: PLANNING
-- **Responsabile**: CODEX_PLANNER
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_PLANNER
+- **Ultimo agente**: CODEX_EXECUTOR
 - **Review outcome**: NOT_RUN
-- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-011 e TASK-020
-- **User approval**: GRANTED_CONDITIONALLY_FROM_END_TO_END_PROMPT
+- **User approval**: GRANTED_AND_APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-012/`
-- **Handoff**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 
 ## Dipendenze
 
@@ -283,13 +283,15 @@ offra a TASK-020 un contratto Account stabile senza anticipare autenticazione o 
 
 - **Prossima fase**: EXECUTION
 - **Prossimo ruolo**: CODEX_EXECUTOR
-- **Handoff**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
-- **Autorizzazione USER_APPROVER**: già concessa in forma condizionata dal prompt
-  end-to-end; da applicare con transizione esplicita senza cambiare scope
+- **Planning pronto**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Autorizzazione USER_APPROVER**: ricevuta e applicata dal prompt end-to-end il
+  2026-07-30
+- **Transizione**: PLANNING -> EXECUTION
+- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 
 ## Execution — `CODEX_EXECUTOR`
 
-Non iniziata. La transizione a `EXECUTION` deve avvenire in un commit distinto.
+Autorizzata. L'implementazione tecnica non è ancora iniziata.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 

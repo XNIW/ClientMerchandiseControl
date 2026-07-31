@@ -122,12 +122,12 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 - **Task attivo**: TASK-012
 - **File task**: `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
 - **Stato task**: ACTIVE
-- **Fase**: PLANNING
-- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Fase**: EXECUTION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione
 `30601758281` 3/3 `PASS`; CI closeout `30602210469` è 3/3 `PASS` sullo SHA esatto.
-TASK-012 è l'unico task `ACTIVE`, in `PLANNING`, con handoff
-`CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`. OAuth, redirect allow-list e deep link
+TASK-012 è l'unico task `ACTIVE`, in `EXECUTION`, con planning approvato. OAuth,
+redirect allow-list e deep link
 restano TASK-020; TASK-005–TASK-010 e TASK-013 in avanti non sono attivi.

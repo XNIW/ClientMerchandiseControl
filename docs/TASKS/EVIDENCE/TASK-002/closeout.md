@@ -16,8 +16,9 @@ verificate sulla revisione Fix
 | CI del Fix | PASS | run `30575613471`, 3/3 job, tutti gli step, 0 annotation |
 | Conferma USER_APPROVER | PASS | autorizzazione condizionata nel prompt end-to-end |
 | TASK-003 non attivato | PASS | backlog `TODO`, progetto riportato a `IDLE` |
-| CI dello SHA di closeout | NOT_RUN | attestazione esterna dopo il push, per evitare ciclo evidence/commit |
-| Merge PR #2 | NOT_RUN | consentito soltanto dopo CI finale `PASS` |
+| CI dello SHA di closeout | PASS | run `30577156105` sullo SHA `3706127`: 3/3 job, tutti gli step, 0 annotation |
+| Merge PR #2 | PASS | merged alle `20:09:08Z` con merge commit `46686ace3b4670f207147f12110d8133ced01e8e` |
+| Stato Git post-merge | PASS | branch TASK-002 remoto e locale eliminati; `main` locale = `origin/main`; worktree pulito |
 
 ## Decisione
 
@@ -27,8 +28,8 @@ verificate sulla revisione Fix
 - **User approval**: `GRANTED`
 - **Stato task**: `DONE`
 - **Indicatore**: `USER_APPROVED_DONE`
-- **Merge authorization**: `GRANTED`, condizionata alla CI finale
+- **Merge authorization**: `APPLIED` dopo CI finale `PASS`
 
-CA-32 e CA-35 restano intenzionalmente `NOT_RUN` nel documento versionato dal commit
-che devono attestare. Il run CI finale e il merge vengono verificati esternamente e
-registrati nel report terminale/post-merge.
+CA-32 e CA-35 sono stati verificati dopo il commit di closeout. La CI appartiene
+esattamente allo SHA `370612755cf053dde8e859c877067007c15c6590`; il merge normale
+non ha usato override amministrativi.

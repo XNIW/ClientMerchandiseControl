@@ -1,5 +1,7 @@
 {
   "APP_ENV": "development",
   "SUPABASE_URL": "",
-  "SUPABASE_PUBLISHABLE_KEY": ""
+  "SUPABASE_PUBLISHABLE_KEY": "",
+  "AUTH_REDIRECT_URI": "",
+  "GOOGLE_AUTH_ENABLED": "false"
 }

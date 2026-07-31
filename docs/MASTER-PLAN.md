@@ -6,22 +6,25 @@
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: IDLE
 - **Task attivo**: nessuno
-- **File task**: nessuno
+- **File task**: non applicabile
 - **Stato task**: non applicabile
 - **Fase**: non applicabile
 - **Responsabile**: USER_APPROVER
 - **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: pubblicare il closeout TASK-002, attendere CI finale
-  sullo SHA conclusivo e unire PR #2; TASK-003 resta `TODO` fino al merge effettivo
+- **Prossima azione autorizzata**: aprire la PR batch TASK-003/TASK-004, verificarne
+  la CI sullo SHA esatto ed eseguire il merge normale
 
 ## Repository coinvolti
 
-- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer di TASK-002.
-- `XNIW/merchandise-control-admin-web` — futuro control plane Storefront.
-- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura in TASK-002.
-- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura in TASK-002.
-- `XNIW/Win7POS` — POS e stock operativo, sola lettura in TASK-002.
-- Supabase esistente — backend futuro; nessun accesso o modifica in TASK-002.
+- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer di TASK-004.
+- `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
+  authority candidata, auditata in sola lettura.
+- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
+- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura.
+- `XNIW/Win7POS` — POS e stock operativo, sola lettura.
+- Supabase non-production esistente — metadata auditati in sola lettura; nessuna
+  modifica di schema, Auth, Storage, branch o configurazione.
+- Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 
 ## Principi architetturali
 
@@ -47,15 +50,15 @@
 |---|---|---|---|---|---|
 | TASK-001 | Repository governance, Flutter foundation, CI e dual-platform smoke | DONE | nessuna | Client | Fondazione compilabile, verificata e pronta a review |
 | TASK-002 | Product scope definitivo, branding, UX principles e design tokens | DONE | TASK-001 | Client | Identità e principi UX approvati |
-| TASK-003 | Cross-repo ownership e Storefront integration contract | TODO | TASK-001, TASK-002 | Client, Admin, Android, iOS, POS | Contratto di ownership senza ambiguità |
-| TASK-004 | Environment strategy development/staging/production e configuration contract | TODO | TASK-001, TASK-003 | Client, Admin | Strategia ambienti e config verificabile |
+| TASK-003 | Cross-repo ownership e Storefront integration contract | DONE | TASK-001, TASK-002 | Client, Admin, Android, iOS, POS | Contratto di ownership senza ambiguità |
+| TASK-004 | Environment strategy development/staging/production e configuration contract | DONE | TASK-001, TASK-003 | Client, Admin | Strategia ambienti e config verificabile |
 | TASK-005 | Supabase Storefront schema, RLS, grants e migration ownership | TODO | TASK-003, TASK-004 | Admin, Supabase, Client | Schema pubblico protetto e ownership migration |
 | TASK-006 | Storefront catalog projection e aggiornamento dal dominio operativo | TODO | TASK-005 | Admin, Supabase, Android, iOS, POS | Proiezione catalogo pubblica affidabile |
 | TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | TODO | TASK-005, TASK-006 | Admin, Supabase | Controlli di pubblicazione shop-scoped |
 | TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | TODO | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Gestione commerciale pubblica |
 | TASK-009 | Pipeline immagini pubbliche Storefront | TODO | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
-| TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO | TASK-005, TASK-006, TASK-009 | Client, Admin, Supabase | Contratto query catalogo testabile |
-| TASK-011 | Connessione Flutter allo staging e backend health state | TODO | TASK-004, TASK-005, TASK-010 | Client, Supabase | Connessione staging fail-closed |
+| TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO | TASK-005, TASK-006, TASK-008, TASK-009 | Client, Admin, Supabase | Contratto query catalogo testabile |
+| TASK-011 | Connessione Flutter allo staging e backend health state | TODO | TASK-004 | Client, Supabase | Connessione staging fail-closed |
 | TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | TODO | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
 | TASK-013 | Home e prodotti/promozioni in evidenza | TODO | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
 | TASK-014 | Categorie e griglia catalogo con caricamento immagini | TODO | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
@@ -64,7 +67,7 @@
 | TASK-017 | Cache catalogo offline, refresh e invalidazione | TODO | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
 | TASK-018 | Preferiti, condivisione e deep link prodotto | TODO | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
 | TASK-019 | Catalog performance e acceptance su dataset esteso | TODO | TASK-010, TASK-014, TASK-015, TASK-017 | Client, Supabase | Budget prestazioni misurato |
-| TASK-020 | Supabase Auth, deep link e session lifecycle | TODO | TASK-004, TASK-005, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
+| TASK-020 | Supabase Auth, deep link e session lifecycle | TODO | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
 | TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
 | TASK-022 | Registrazione device, consenso notifiche e token lifecycle | TODO | TASK-020, TASK-021 | Client, Supabase | Consenso e token gestiti |
 | TASK-023 | Carrello persistente e price revalidation | TODO | TASK-012, TASK-016, TASK-017 | Client, Supabase | Carrello coerente e rivalidato |
@@ -93,13 +96,30 @@
 Le dipendenze della tabella formano un grafo aciclico orientato verso task con ID maggiore.
 Non risultano blocker di progetto attivi al bootstrap.
 
+Dopo la foundation comune di TASK-003/TASK-004, il grafo separa un workstream catalogo
+(TASK-005–TASK-010) e un workstream autenticazione (TASK-011, TASK-012, TASK-020–TASK-022).
+Il parallelismo descrive dipendenze indipendenti, non execution concorrente: resta
+vincolante un solo task `ACTIVE` alla volta.
+
 ## Task completati
 
 - `TASK-001` — review `APPROVED`, conferma `USER_APPROVER` ricevuta il 2026-07-30,
   PR #1 merged con merge commit `f6bd88263fe8369c9ececa38367f629f3d1a929f`.
 - `TASK-002` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
-  2026-07-30; PR #2 e CI finale ancora da completare.
+  2026-07-30; CI finale run `30577156105` `PASS` sullo SHA `3706127`, PR #2 merged
+  con merge commit `46686ace3b4670f207147f12110d8133ced01e8e`.
+- `TASK-003` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
+  2026-07-30; 0 P0/P1/P2 aperti, CI finale run `30585880180` `PASS` sullo SHA
+  `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`.
+- `TASK-004` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
+  2026-07-30; 0 P0/P1/P2 aperti, CI closeout run `30592502472` `PASS` sullo SHA
+  `0fc8d8bbd7d8fded9bb93e1e92ac069164ba58a9`; merge batch pendente.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
-chiuso soltanto dopo Fix e re-review `APPROVED`. `TASK-003` resta `TODO` e nessun altro
-task è attivo.
+chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
+`TASK-003` è `DONE` con re-review `APPROVED` e CI finale attestata.
+`TASK-004` è `DONE` con re-review `APPROVED`; nessun task è `ACTIVE`.
+La re-review integrata del batch TASK-003/TASK-004 è `APPROVED` sullo SHA
+`211ad692010d7b54b8541c45cb7f6a38e3f7d5fe`: 0 P0/P1/P2 aperti, CI tecnica
+`30595351101` 3/3 `PASS`. `TASK-011` resta `TODO` fino al merge effettivo della PR
+batch, ancora pendente.

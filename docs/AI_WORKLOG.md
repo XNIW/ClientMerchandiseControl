@@ -220,3 +220,336 @@
 - **Risultato**: `USER_APPROVED_DONE`
 - **Blocker/note**: commit di closeout, CI finale e merge PR #2 ancora da completare;
   in caso di CI rossa il task torna al ciclo coerente, senza forzature.
+
+## 2026-07-30 — CI finale e merge TASK-002
+
+- **Agente**: Codex, su autorizzazione `USER_APPROVER`
+- **Task**: TASK-002
+- **Fase iniziale**: REVIEW / closeout
+- **Azioni principali**: atteso e ispezionato il run sullo SHA esatto; resa pronta la
+  PR #2; applicato il merge commit normale; eliminati i branch TASK-002 remoto e locale;
+  sincronizzata `main`.
+- **Verifiche**: run `30577156105` sul commit
+  `370612755cf053dde8e859c877067007c15c6590`, Quality 2m01s, Android 8m21s e iOS
+  3m14s tutti `PASS`, tutti gli step completati e zero annotation; PR #2 `MERGED`;
+  `main` locale e `origin/main` entrambi a
+  `46686ace3b4670f207147f12110d8133ced01e8e`; worktree pulito.
+- **Risultato**: `PASS`
+- **Branch/commit/PR**: merge commit
+  `46686ace3b4670f207147f12110d8133ced01e8e`; PR `#2`.
+- **Fase finale**: DONE
+- **Blocker/note**: nessun blocker; TASK-003 può essere attivato in `PLANNING` sul
+  branch milestone autorizzato.
+
+## 2026-07-30 — Planning TASK-003
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: PLANNING
+- **Azioni principali**: attivato il solo TASK-003 sul branch milestone; auditati in
+  sola lettura Client, Admin, Android, iOS, POS, workspace Supabase storico e progetto
+  non-production collegato; definiti scope, non-scope, 32 CA, 22 test e due ADR.
+- **Verifiche**: TASK-002 merged su `46686ac`; ref e dirty state esterni preservati;
+  Admin/ledger 96 migrations, zero Edge Functions; nessun dominio Storefront esistente;
+  audit del DAG e delle dipendenze artificiali completato.
+- **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`
+- **Branch/commit/PR**: `milestone/003-004-storefront-contract-environments`; PR non
+  ancora aperta.
+- **Blocker/note**: nessun blocker. L'autorizzazione condizionata è già nel prompt e
+  sarà applicata con una transizione esplicita a Execution; TASK-004 resta `TODO`.
+
+## 2026-07-30 — Autorizzazione Planning TASK-003
+
+- **Agente**: `USER_APPROVER`, registrazione operativa `CODEX_EXECUTOR`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: PLANNING → EXECUTION
+- **Azioni principali**: applicata l'autorizzazione condizionata del prompt end-to-end
+  al Planning versionato in `cc4c2ed`, senza modificare scope, CA, test o priorità.
+- **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`
+- **Blocker/note**: nessun blocker; TASK-004 resta `TODO` e nessun repository esterno
+  è writer.
+
+## 2026-07-30 — Execution TASK-003 e handoff a Review
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: EXECUTION → REVIEW
+- **Azioni principali**: definiti ownership cross-repo, contratto logico Storefront
+  1.0.0, auth/data boundary, due ADR e workstream catalogo/auth; corrette soltanto le
+  tre dipendenze autorizzate; versionati audit e fingerprint sanitizzati.
+- **Verifiche**: 57/57 citazioni a ref fisse; DAG 42 nodi, zero cicli; fingerprint
+  esterne 5/5 invarianti; secret/confinement/link/diff scan `PASS`;
+  `scripts/check.sh` exit 0 con 59/59 test e build Android/iOS; CI
+  `30580693884` sullo SHA tecnico `e2ad429f` con 3/3 job, tutti gli step `success` e
+  zero annotation.
+- **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`
+- **Branch/commit/PR**: `milestone/003-004-storefront-contract-environments`; commit
+  tecnico `e2ad429f25341f9009c3087673c36746e23bf059`; PR batch non ancora aperta.
+- **Blocker/note**: nessun gate Execution obbligatorio aperto. `CA-31`/`T-20` sono
+  assegnati alla review indipendente; TASK-004 resta `TODO`, merge vietato.
+
+## 2026-07-30 — Review indipendente TASK-003 e transizione a Fix
+
+- **Agente**: `CODEX_REVIEWER`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: REVIEW → FIX
+- **Revisione**: `769a30fc6c465c663ed5a9491dd099a830ce2128`
+- **Azioni principali**: tre shard read-only indipendenti su architettura/contratto,
+  governance/evidence/CI e security/provenance; consolidato un finding duplicato.
+- **Verifiche**: governance, DAG 42 nodi, 57/57 citazioni, fingerprint esterne,
+  scan security/confinement e metadata Supabase read-only `PASS`; CI
+  `30581659849` sullo SHA revisionato con Quality/Android/iOS `PASS`, tutti gli step
+  success e zero annotation.
+- **Finding**: 0 P0, 0 P1, 2 P2, 1 P3.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`
+- **Blocker/note**: correggere ownership logica temporanea, shop binding fuori scope e
+  locator di provenance; re-review indipendente obbligatoria, merge vietato e TASK-004
+  resta `TODO`.
+
+## 2026-07-30 — Fix finding TASK-003 e handoff a re-review
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: FIX → REVIEW
+- **Azioni principali**: reso permanente lo split di ownership logica/fisica;
+  separata la configurazione TASK-004 dalla discovery/binding shop di TASK-010;
+  rafforzati i locator di provenance.
+- **Verifiche**: regression check dei tre finding `PASS`; validator 59/59; security,
+  confinement, fingerprint e diff check `PASS`; `scripts/check.sh` exit 0 con 59/59
+  test e build Android/iOS; CI `30583398168` sullo SHA tecnico
+  `f0e4aae8d4a24806707bd0b4f672d9c9a02a241d`, 3/3 job, tutti gli step success e
+  zero annotation.
+- **Deviazioni**: due primi diagnostici hanno fallito per label/comandi attesi errati;
+  corretti sui testi reali e ripetuti con `PASS`, senza modifica prodotto ulteriore.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`
+- **Fase finale**: REVIEW
+- **Blocker/note**: il Fix non si auto-approva; re-review indipendente obbligatoria,
+  merge vietato e TASK-004 resta `TODO`.
+
+## 2026-07-30 — Re-review TASK-003 approvata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-003
+- **Fase iniziale/finale**: REVIEW
+- **Revisione**: `f9cc304816d8f2a1f5bdfabd195f01453967dae8`
+- **Azioni principali**: tre shard read-only freschi su architettura/contratto,
+  governance/evidence/CI e security/provenance; verificato singolarmente ogni finding.
+- **Verifiche**: finding originari 3/3 chiusi; architettura 39/39; provenance 59/59;
+  DAG 42 nodi/zero cicli; fingerprint esterne invarianti; security/confinement `PASS`;
+  CI handoff `30584376506` sullo SHA esatto, 3/3 job, tutti gli step success e
+  annotation 0/0/0.
+- **Finding finali**: 0 P0, 0 P1, 0 P2; 2 P3 documentali non bloccanti.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`
+- **Blocker/note**: autorizzazione condizionata già concessa; closeout e CI sul suo SHA
+  restano obbligatori prima di TASK-004. Merge batch ancora vietato.
+
+## 2026-07-30 — Autorizzazione utente e closeout TASK-003
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-003
+- **Fase**: REVIEW
+- **Azioni principali**: applicata l'autorizzazione condizionata del prompt dopo
+  re-review `APPROVED`; task marcato `DONE`; progetto riportato a `IDLE` senza attivare
+  TASK-004.
+- **Prerequisiti verificati**: 0 P0/P1/P2; gate autonomi `PASS`; CI handoff
+  `30584376506` e CI approvazione `30585252387`, entrambe 3/3 `PASS` con zero
+  annotation.
+- **Risultato**: `USER_APPROVED_DONE`
+- **Blocker/note**: commit di closeout e CI finale sul suo SHA ancora da completare;
+  PR e merge batch restano vietati e TASK-004 resta `TODO` fino al gate verde.
+
+## 2026-07-30 — Attestazione CI finale TASK-003
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-003
+- **Fase**: REVIEW / attestazione post-closeout
+- **Azioni principali**: verificato il run terminale sul commit di closeout prima di
+  attivare il task successivo.
+- **Verifiche**: run `30585880180` sullo SHA esatto
+  `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`; Quality, Android e iOS `PASS`,
+  tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `PASS`; `CA-32` e `T-21` chiusi.
+- **Blocker/note**: nessun blocker; PR e merge restano batch con TASK-004.
+
+## 2026-07-30 — Planning TASK-004
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-004
+- **Fase iniziale/finale**: PLANNING
+- **Azioni principali**: attivato il solo TASK-004 dopo la CI finale di TASK-003;
+  definita la matrice development/staging/production, il contratto a cinque input,
+  la callback mobile esatta, la policy fail-closed, lo scope runtime e le matrici
+  CA/test; auditato lo staging in sola lettura senza esporre valori.
+- **Verifiche Planning**: progetto staging canonico attivo; provider Google configurato;
+  callback mobile richiesta assente dalla allow-list; file locale ancora da creare in
+  Execution e nessuna modifica remota eseguita.
+- **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+- **Blocker/note**: l'autorizzazione condizionata è già nel prompt end-to-end e sarà
+  applicata con una transizione esplicita; callback remota e OAuth restano TASK-020.
+
+## 2026-07-30 — Autorizzazione Planning TASK-004
+
+- **Agente**: `USER_APPROVER` / transizione registrata da `CODEX_EXECUTOR`
+- **Task**: TASK-004
+- **Fase iniziale/finale**: PLANNING -> EXECUTION
+- **Azioni principali**: applicata l'autorizzazione condizionata del prompt end-to-end
+  con un commit distinto, senza modificare scope, criteri, test o decisioni.
+- **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+- **Blocker/note**: nessun blocker; readiness resta TASK-011 e OAuth/deep link/allow-list
+  restano TASK-020.
+
+## 2026-07-30 — Execution TASK-004 e handoff a Review
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-004
+- **Fase iniziale/finale**: EXECUTION -> REVIEW
+- **Commit tecnico**: `9ecffdfc7de38e979a48bac201ddd36a5296b78b`
+- **Azioni principali**: implementato `CMC-CLIENT-CONFIG 1.0.0`, development offline,
+  staging/production fail-closed, callback esatta, kill switch Google, diagnostica
+  sanitizzata, esempi e file locale ignorato; aggiornati documenti e test.
+- **Verifiche**: doctor exit 0; 27/27 test mirati; 1/1 compile-time staging; gate
+  aggregato exit 0 con 70/70 test e build dual-platform; smoke Android/iOS exit 0;
+  build staging dual-platform exit 0; security/confinement/local config `PASS`.
+- **CI**: run `30588442946` sullo SHA tecnico esatto, Quality/Android/iOS `PASS`,
+  tutti gli step `success`, annotation 0/0/0.
+- **Deviazioni**: primo test mirato exit 1 per import test mancante, corretto con retry
+  `PASS`; warning dipendenze outdated non azionato.
+- **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+- **Blocker/note**: nessun blocker; review indipendente obbligatoria, PR/merge vietati.
+
+## 2026-07-30 — Review indipendente TASK-004 e transizione a Fix
+
+- **Agente**: `CODEX_REVIEWER`
+- **Task**: TASK-004
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revisione**: `fb9724da29e7222e886c047c24fa7d3cd360fca0`
+- **Azioni principali**: tre shard read-only indipendenti su config/bootstrap,
+  security/confinement e governance/evidence/CI; lo shard security originario
+  bloccato è stato sostituito senza usarne i claim.
+- **Verifiche**: config/bootstrap 27/27; format/analyze/diff, secret scan e
+  confinement `PASS`; CI handoff `30589127508` sullo SHA esatto, 3/3 job, tutti gli
+  step `success`, annotation 0/0/0.
+- **Finding**: 0 P0, 0 P1, 3 P2, 1 P3: callback trimmata, bootstrap production
+  autorizzato, evidence smoke non riproducibile, intestazioni evidence errate.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: Fix limitato a `T004-REV-001`–`T004-REV-004`; re-review
+  indipendente obbligatoria, PR/merge vietati.
+
+## 2026-07-30 — Fix finding TASK-004 e handoff a re-review
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-004
+- **Fase iniziale/finale**: FIX -> REVIEW
+- **Commit tecnico**: `bccb6f55a9ceaf46d946c95fc79b5b7d3ae02055`
+- **Azioni principali**: rimossa la normalizzazione della callback raw; bootstrap
+  limitato a staging; aggiunte regressioni; rieseguiti smoke Android/iOS con comandi,
+  output, screenshot sanitizzati e manifest; corrette intestazioni evidence.
+- **Verifiche**: test mirati 29/29; `scripts/check.sh` exit 0 con 72/72 test e build
+  dual-platform; compile-time staging 1/1 e build staging dual-platform; smoke 1/1
+  Android/iOS; security/confinement/local config/screenshot manifest `PASS`.
+- **CI**: run `30590869991` sullo SHA tecnico esatto, Quality/Android/iOS `PASS`,
+  tutti gli step `success`, annotation 0/0/0.
+- **Deviazioni**: primo install Android senza spazio; retry automatico dopo
+  disinstallazione della versione precedente, stesso APK, processo finale exit 0.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: nessun gate aperto; il Fix non si auto-approva, re-review
+  indipendente obbligatoria e merge vietato.
+
+## 2026-07-30 — Re-review TASK-004 approvata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-004
+- **Fase**: REVIEW
+- **Revisione**: `0feca6625df0108810a52e27ba593a469eb3b6f2`
+- **Azioni principali**: due sessioni read-only indipendenti dal Fixer hanno
+  verificato singolarmente i quattro finding, le regressioni, screenshot/manifest,
+  security, confinement, matrici e CI.
+- **Verifiche**: finding originari 4/4 chiusi; test autonomi 29/29 e 72/72; due PNG
+  ispezionati con digest coerenti; CI handoff `30591364046` sullo SHA esatto, 3/3
+  job, tutti gli step `success`, annotation 0/0/0.
+- **Finding finali**: 0 P0, 0 P1, 0 P2; un P3 non bloccante per una riga evidence con
+  conteggio storico 70/70 anziché 72/72.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+- **Blocker/note**: autorizzazione condizionata già concessa; closeout e CI sul suo
+  SHA restano obbligatori prima di PR/merge batch.
+
+## 2026-07-30 — Autorizzazione utente e closeout TASK-004
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-004
+- **Fase**: REVIEW
+- **Azioni principali**: applicata l'autorizzazione condizionata del prompt
+  end-to-end dopo re-review `APPROVED`; TASK-004 marcato `DONE` e progetto riportato
+  a `IDLE`, senza attivare TASK-011.
+- **Prerequisiti verificati**: 0 P0/P1/P2 aperti; un P3 documentale non bloccante;
+  CI approvazione `30591994550` `PASS` sullo SHA esatto
+  `0c644e18315e60d72321518572d34f4f95300d3c`, 3/3 job, tutti gli step `success`,
+  annotation 0/0/0.
+- **Risultato**: `USER_APPROVED_DONE`.
+- **Blocker/note**: CI sul commit di closeout, review integrata, PR e merge batch
+  TASK-003/TASK-004 ancora pendenti; TASK-011 resta `TODO`.
+
+## 2026-07-30 — CI finale closeout TASK-004 attestata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-004
+- **Fase**: REVIEW
+- **Revisione**: `0fc8d8bbd7d8fded9bb93e1e92ac069164ba58a9`
+- **Verifiche**: run `30592502472` sullo SHA esatto; Quality 2m2s, iOS 3m27s,
+  Android 7m28s; 3/3 job `success`, tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `CA-28` e `T-27` `PASS`; closeout TASK-004 terminale.
+- **Blocker/note**: review integrata, PR, CI della PR e merge normale batch ancora
+  pendenti; nessun task successivo attivato.
+
+## 2026-07-30 — Review integrata TASK-003/TASK-004
+
+- **Agente**: `CODEX_REVIEWER`
+- **Milestone**: TASK-003/TASK-004
+- **Revisione**: `c8258f83c55b2b1a85f2e590d60f64fcfa1d5f0e`
+- **Azioni principali**: review read-only cumulativa da `origin/main`, con shard
+  architettura/contratto, governance/evidence e security/confinement.
+- **Verifiche**: governance, action pin, shell syntax, diff, 29/29 test mirati,
+  72/72 suite, analyze, DAG 42 nodi, config locale ignorata, scan security manuale,
+  screenshot e CI closeout `30592502472` `PASS`.
+- **Finding**: 0 P0, 0 P1, 4 P2 e 4 P3; lo scan app-backed è `BLOCKED` per timeout e
+  non è contato come `PASS`.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: PR/merge vietati; i quattro P2 richiedono Fix con regressioni e
+  re-review indipendente. TASK-011 resta `TODO`.
+
+## 2026-07-30 — Fix integrato TASK-003/TASK-004
+
+- **Agente**: `CODEX_FIXER`
+- **Milestone**: TASK-003/TASK-004
+- **Fase**: FIX -> REVIEW
+- **Commit tecnici**: `0151793f009070d4f9a568582f37d59e6774cc2d`,
+  `9595c98944b505c7ea57b69e28f2218317fe5760` e
+  `211ad692010d7b54b8541c45cb7f6a38e3f7d5fe`
+- **Azioni principali**: separati business decision owner, control plane e
+  writer/enforcer; riallineati TASK-012 e DAG; introdotto un validator fail-closed con
+  cinque fixture negative.
+- **Verifiche**: Bash 3.2, governance, action pin, validator, 5/5 fixture,
+  confinement/security manuale e `scripts/check.sh` `PASS`; 72/72 test, analyze
+  pulito, build Android/iOS. `shellcheck` `NOT_RUN`; Codex Security app-backed
+  `BLOCKED` senza conversione in `PASS`.
+- **CI**: run finale tecnico `30595351101` sullo SHA esatto `211ad692…`, 3/3 job,
+  tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: due re-review intermedie hanno correttamente respinto validator
+  ancora incompleti nonostante CI verdi; nessun gate obbligatorio resta aperto.
+
+## 2026-07-30 — Re-review integrata TASK-003/TASK-004 approvata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Milestone**: TASK-003/TASK-004
+- **Revisione**: `211ad692010d7b54b8541c45cb7f6a38e3f7d5fe`
+- **Azioni principali**: tre sessioni read-only indipendenti hanno chiuso
+  `T003-INT-ARCH-001`–`004` e `T003004-REREV-SEC-001`, incluse mutazioni autonome
+  su ownership, marker/edge, decisione `D-04` e scope TASK-012.
+- **Verifiche**: validator baseline e 5/5 fixture `PASS`; DAG 42 task, zero cicli,
+  11/11 righe e 23/23 edge; CI `30595351101` 3/3 `PASS`, step `success`,
+  annotation 0/0/0; worktree pulito sul target revisionato.
+- **Finding finali**: 0 P0, 0 P1, 0 P2; quattro P3 storici non bloccanti.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+- **Blocker/note**: autorizzazione condizionata già concessa; PR batch, CI pull
+  request e merge normale restano i gate successivi. TASK-011 resta `TODO`.

@@ -24,4 +24,5 @@ Storefront light/dark. Una libreria ampia o nuove dipendenze sarebbero speculati
 
 Light e dark mode condividono la stessa tassonomia; il brand futuro può sostituire il
 tema senza riscrivere le feature. I test coprono invarianti, contrasto, `copyWith`,
-`lerp`, Semantics e layout. TASK-012 estenderà il sistema insieme alla shell data-backed.
+`lerp`, Semantics e layout. TASK-012 estenderà il sistema insieme alla shell
+guest/data-safe e alla presentazione degli stati readiness.

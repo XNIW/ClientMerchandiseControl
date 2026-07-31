@@ -69,6 +69,22 @@ flutter run --dart-define-from-file=config/app_config.local.json
 `config/*.local.json` è ignorato. Non inserire service role, secret key, password o valori
 production nel repository.
 
+Per preparare staging, copiare l'esempio nel file locale ignorato, valorizzare URL e
+publishable key non-production e impostare `GOOGLE_AUTH_ENABLED=false` finché la
+callback non è registrata dal task OAuth:
+
+```bash
+cp config/app_config.staging.example.json config/app_config.staging.local.json
+flutter run --dart-define-from-file=config/app_config.staging.local.json
+flutter build apk --debug --dart-define-from-file=config/app_config.staging.local.json
+flutter build ios --simulator --debug --dart-define-from-file=config/app_config.staging.local.json
+```
+
+Il contratto staging richiede la callback
+`com.xniw.clientmerchandisecontrol://auth-callback/`. La configurazione locale corrente
+usa `GOOGLE_AUTH_ENABLED=false` fino a TASK-020. Configuration completeness non equivale
+a backend health: la readiness reale appartiene a TASK-011.
+
 ## Test e build
 
 ```bash
@@ -87,12 +103,11 @@ scripts/check.sh
 
 ## Governance
 
-Leggere prima [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md), quindi il
-[task attivo](docs/TASKS/TASK-002-product-scope-branding-design-system.md) e il
-[protocollo workflow](docs/CODEX-WORKFLOW-PROTOCOL.md). `AGENTS.md` è l'unica istruzione
-operativa root. Può esistere un solo task attivo; Codex assume ruoli logici distinti per
-planning, execution, review, fix e re-review. Soltanto `USER_APPROVER` autorizza `DONE`,
-merge e attivazione del task successivo.
+Leggere prima [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md), quindi il task attivo indicato
+dal Master Plan e il [protocollo workflow](docs/CODEX-WORKFLOW-PROTOCOL.md).
+`AGENTS.md` è l'unica istruzione operativa root. Può esistere un solo task attivo;
+Codex assume ruoli logici distinti per planning, execution, review, fix e re-review.
+Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successivo.
 
 ## Stato
 
@@ -101,5 +116,7 @@ merge e attivazione del task successivo.
 - **Fase**: non applicabile
 - **Indicatore**: USER_APPROVED_DONE
 
-`TASK-001` e `TASK-002` sono `DONE`; la PR #2 attende la CI finale e il merge.
-`TASK-003` resta `TODO`.
+`TASK-001`–`TASK-004` sono `DONE`; nessun task è attivo. La PR batch e il merge
+TASK-003/TASK-004 restano pendenti prima dell'attivazione di TASK-011. La re-review
+integrata è `APPROVED` con 0 P0/P1/P2 aperti e CI tecnica 3/3 `PASS`; il prossimo
+gate è la CI della Pull Request sul suo SHA esatto, seguita dal merge normale.

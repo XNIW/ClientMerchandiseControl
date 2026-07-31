@@ -7,12 +7,12 @@
   scheme/host/path/payload prima dell'exchange.
 - Flutter deep linking, `detectSessionInUri` e auto-handling iOS del plugin
   disabilitati; un solo consumer Dart.
-- Sessione e verifier nello stesso adapter Keychain/Keystore fail-closed; nessun
-  fallback plaintext.
+- Sessione e verifier nello stesso adapter Keychain/Keystore fail-closed; persistenza
+  esplicita prima di authenticated, failure osservabili e nessun fallback plaintext.
 - Android backup disabilitato; iOS Keychain non sincronizzato e this-device con
-  first-install cleanup mirato.
+  first-install cleanup e tombstone non sensibili per purge pendenti.
 - Controller eager, queue bounded, single-flight, generation token, replay cache
-  bounded e soppressione dei risultati tardivi.
+  bounded, exchange cancel compensato e sessioni scadute rifiutate.
 - Error mapping chiuso, `debug:false`, identity bounded e metadata non
   autorizzativi; nessun avatar remoto.
 

@@ -113,11 +113,14 @@ dell'exchange e un solo source Dart consuma gli eventi.
 
 Un solo namespace Auth usa Android Keystore con cifratura autenticata e iOS Keychain
 non sincronizzato, limitato al device. Le chiavi ammesse sono bounded e separate. Gli
-errori falliscono chiuso senza SharedPreferences/plaintext fallback.
+errori vengono emessi al boundary Auth e falliscono chiuso senza
+SharedPreferences/plaintext fallback; exchange ed eventi refresh non pubblicano
+authenticated prima di una scrittura esplicita riuscita.
 
-Un marker non sensibile nel container applicativo rileva il primo avvio dopo install e
-cancella soltanto le chiavi Auth note, mitigando la persistenza Keychain dopo
-disinstallazione. Android Auto Backup viene disabilitato o escluso per il namespace.
+Marker non sensibili nel container applicativo rilevano il primo avvio dopo install e
+un cleanup sessione/PKCE rimasto pendente. Il bootstrap ritenta i delete prima di
+qualunque restore, mitigando sia la persistenza Keychain dopo disinstallazione sia una
+failure selettiva durante logout/cancel. Android Auto Backup viene disabilitato.
 
 ## Stato dominio
 
@@ -144,15 +147,16 @@ volta e non è loggato.
 | tap Google | authenticating |
 | secondo tap | invariato, nessuna seconda launch |
 | browser non lanciato | recoverableError |
-| cancel esplicito | cancelling -> cancelled, verifier invalidato |
-| callback valida | authenticated e Account |
+| cancel esplicito | cancelling; attende exchange, sign-out/purge; poi cancelled |
+| callback valida | persistenza confermata, authenticated e Account |
 | callback invalida | recoverableError/guest-safe |
 | refresh valido | authenticated idempotente |
-| sessione scaduta/revocata | recoverableError o guest |
+| sessione scaduta con refresh retryable | identity rifiutata, guest con notice; refresh token sicuro preservato per il retry SDK |
+| sessione revocata / `signedOut` | purge e guest con notice |
 | logout | signingOut -> guest |
 | logout offline | guest locale, limite revoca remota sanitizzato |
-| callback tardivo | ignorato/ripulito |
-| dispose | subscription cancellate, nessuna late emission |
+| callback tardivo | non può eliminare il verifier nuovo; exchange cancellato compensato |
+| dispose | subscription cancellate, nessuna late emission e compensazione exchange |
 
 ## Identity e UI
 

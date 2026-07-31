@@ -16,8 +16,7 @@
 - **Approver**: USER_APPROVER
 - **Indicatore**: USER_APPROVED_DONE
 - **DONE**: YES
-- **Merge**: YES — PR #3, merge commit
-  `40d118eebf78eeabea9e26747adb00053dd875bc`
+- **Merge**: NO — PR batch TASK-003/TASK-004 non ancora aperta né integrata
 - **User approval**: GRANTED_AND_APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-004/`
 - **Handoff**: USER_APPROVED_DONE

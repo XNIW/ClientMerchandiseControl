@@ -351,6 +351,270 @@ void main() {
       ),
     );
   });
+
+  test(
+    'cancel attende exchange, compensa la sessione e blocca retry prematuro',
+    () async {
+      final exchange = Completer<AuthenticatedCustomer>();
+      repository.exchangeCompleter = exchange;
+      repository.exchangeCreatesSession = true;
+      container.read(authControllerProvider);
+      await _settle();
+      final controller = container.read(authControllerProvider.notifier);
+      await controller.startGoogleSignIn();
+      callbackSource.emit(_validCallback('cancel-in-flight'));
+      await Future<void>.delayed(Duration.zero);
+
+      final cancellation = controller.cancelGoogleSignIn();
+      final prematureRetry = controller.retry();
+      expect(container.read(authControllerProvider), isA<AuthCancelling>());
+      expect(repository.launchCalls, 1);
+
+      exchange.complete(_customer('stale-session'));
+      await cancellation;
+      await prematureRetry;
+      await _settle();
+
+      expect(repository.signOutCalls, 1);
+      expect(repository.currentCustomer, isNull);
+      expect(container.read(authControllerProvider), isA<AuthCancelled>());
+
+      await controller.retry();
+      expect(repository.launchCalls, 2);
+    },
+  );
+
+  test(
+    'cancel non sovrascrive configurationError emesso durante exchange',
+    () async {
+      final exchange = Completer<AuthenticatedCustomer>();
+      repository.exchangeCompleter = exchange;
+      repository.exchangeCreatesSession = true;
+      container.read(authControllerProvider);
+      await _settle();
+      final controller = container.read(authControllerProvider.notifier);
+      await controller.startGoogleSignIn();
+      callbackSource.emit(_validCallback('cancel-storage-failure'));
+      await Future<void>.delayed(Duration.zero);
+
+      final cancellation = controller.cancelGoogleSignIn();
+      repository.emitError(
+        const AuthStorageException('secure_storage_write_failed'),
+      );
+      await _settle();
+      exchange.complete(_customer('must-be-purged'));
+      await cancellation;
+      await _settle();
+
+      expect(
+        container.read(authControllerProvider),
+        isA<AuthConfigurationError>().having(
+          (state) => state.failure.kind,
+          'failure',
+          AuthFailureKind.secureStorageUnavailable,
+        ),
+      );
+      expect(repository.currentCustomer, isNull);
+    },
+  );
+
+  test('restore valido termina il login senza aprire il browser', () async {
+    final repositoryReady = Completer<AuthRepository>();
+    repository.currentCustomer = _customer('restored-before-launch');
+    container.dispose();
+    container = ProviderContainer(
+      overrides: [
+        appConfigProvider.overrideWithValue(_enabledConfig()),
+        authRepositoryFactoryProvider.overrideWithValue(
+          (config) => repositoryReady.future,
+        ),
+        authCallbackSourceProvider.overrideWithValue(callbackSource),
+      ],
+    );
+    final controller = container.read(authControllerProvider.notifier);
+
+    final login = controller.startGoogleSignIn();
+    await Future<void>.delayed(Duration.zero);
+    repositoryReady.complete(repository);
+    await login;
+    await _settle();
+
+    expect(repository.launchCalls, 0);
+    expect(
+      container.read(authControllerProvider),
+      isA<AuthAuthenticated>().having(
+        (state) => state.origin,
+        'origin',
+        AuthSessionOrigin.restored,
+      ),
+    );
+  });
+
+  test(
+    'restore apparso dopo initialization non lascia UI authenticating',
+    () async {
+      final restored = _customer('restored-after-initial-read');
+      repository.currentCustomerOnRead = (read) => read == 1 ? null : restored;
+      container.read(authControllerProvider);
+      final controller = container.read(authControllerProvider.notifier);
+
+      await controller.startGoogleSignIn();
+      await _settle();
+
+      expect(repository.launchCalls, 0);
+      expect(
+        container.read(authControllerProvider),
+        isA<AuthAuthenticated>()
+            .having(
+              (state) => state.origin,
+              'origin',
+              AuthSessionOrigin.restored,
+            )
+            .having(
+              (state) => state.customer.subjectId,
+              'customer',
+              restored.subjectId,
+            ),
+      );
+    },
+  );
+
+  test('cancel prima della factory attende e pulisce lo stato Auth', () async {
+    final repositoryReady = Completer<AuthRepository>();
+    container.dispose();
+    container = ProviderContainer(
+      overrides: [
+        appConfigProvider.overrideWithValue(_enabledConfig()),
+        authRepositoryFactoryProvider.overrideWithValue(
+          (config) => repositoryReady.future,
+        ),
+        authCallbackSourceProvider.overrideWithValue(callbackSource),
+      ],
+    );
+    final controller = container.read(authControllerProvider.notifier);
+
+    final login = controller.startGoogleSignIn();
+    await Future<void>.delayed(Duration.zero);
+    final cancellation = controller.cancelGoogleSignIn();
+    repositoryReady.complete(repository);
+    await Future.wait([login, cancellation]);
+    await _settle();
+
+    expect(repository.launchCalls, 0);
+    expect(repository.signOutCalls, 1);
+    expect(container.read(authControllerProvider), isA<AuthCancelled>());
+  });
+
+  test(
+    'errore callback durante OAuth termina il flow e Retry rilancia',
+    () async {
+      container.read(authControllerProvider);
+      await _settle();
+      final controller = container.read(authControllerProvider.notifier);
+      await controller.startGoogleSignIn();
+
+      callbackSource.emitError(
+        const SocketException('private callback detail'),
+      );
+      await _settle();
+
+      expect(
+        container.read(authControllerProvider),
+        isA<AuthRecoverableError>(),
+      );
+      await controller.retry();
+      expect(repository.launchCalls, 2);
+    },
+  );
+
+  test(
+    'refresh retryable scaduto degrada a guest e consente recovery SDK',
+    () async {
+      repository.currentCustomer = _customer('expires-offline');
+      container.read(authControllerProvider);
+      await _settle();
+      repository.currentCustomer = null;
+
+      repository.emitError(const SocketException('private refresh detail'));
+      await _settle();
+
+      expect(
+        container.read(authControllerProvider),
+        isA<AuthGuest>().having(
+          (state) => state.notice?.kind,
+          'notice',
+          AuthFailureKind.sessionExpired,
+        ),
+      );
+      expect(repository.signOutCalls, 0);
+
+      final refreshed = _customer('refreshed-after-offline');
+      repository.currentCustomer = refreshed;
+      repository.emit(
+        AuthSessionEvent(
+          type: AuthSessionEventType.tokenRefreshed,
+          customer: refreshed,
+        ),
+      );
+      await _settle();
+
+      expect(
+        container.read(authControllerProvider),
+        isA<AuthAuthenticated>().having(
+          (state) => state.customer.subjectId,
+          'customer',
+          refreshed.subjectId,
+        ),
+      );
+    },
+  );
+
+  test(
+    'failure storage post-auth produce configurationError e purge',
+    () async {
+      repository.currentCustomer = _customer('storage-failure');
+      container.read(authControllerProvider);
+      await _settle();
+
+      repository.emitError(
+        const AuthStorageException('secure_storage_write_failed'),
+      );
+      await _settle();
+
+      expect(
+        container.read(authControllerProvider),
+        isA<AuthConfigurationError>().having(
+          (state) => state.failure.kind,
+          'failure',
+          AuthFailureKind.secureStorageUnavailable,
+        ),
+      );
+      expect(repository.signOutCalls, 1);
+      expect(repository.currentCustomer, isNull);
+    },
+  );
+
+  test('callback vecchio non elimina il verifier del flow nuovo', () async {
+    container.read(authControllerProvider);
+    await _settle();
+    final controller = container.read(authControllerProvider.notifier);
+    await controller.startGoogleSignIn();
+    await controller.cancelGoogleSignIn();
+    await controller.retry();
+    expect(repository.clearPendingCalls, 2);
+
+    repository.exchangeError = StateError('old callback rejected');
+    callbackSource.emit(_validCallback('old-code'));
+    await _settle();
+    expect(repository.clearPendingCalls, 2);
+    expect(container.read(authControllerProvider), isA<AuthRecoverableError>());
+
+    repository.exchangeError = null;
+    callbackSource.emit(_validCallback('new-code'));
+    await _settle();
+    expect(repository.clearPendingCalls, 2);
+    expect(container.read(authControllerProvider), isA<AuthAuthenticated>());
+  });
 }
 
 ProviderContainer _container(
@@ -406,6 +670,8 @@ final class _FakeCallbackSource implements AuthCallbackSource {
 
   void emit(Uri callback) => _callbacks.add(callback);
 
+  void emitError(Object error) => _callbacks.addError(error);
+
   @override
   Future<void> dispose() async {
     if (!_callbacks.isClosed) {
@@ -418,8 +684,21 @@ final class _FakeAuthRepository implements AuthRepository {
   final StreamController<AuthSessionEvent> _events =
       StreamController<AuthSessionEvent>.broadcast();
 
+  AuthenticatedCustomer? _currentCustomer;
+  int _currentCustomerReads = 0;
+  AuthenticatedCustomer? Function(int read)? currentCustomerOnRead;
+
   @override
-  AuthenticatedCustomer? currentCustomer;
+  AuthenticatedCustomer? get currentCustomer {
+    _currentCustomerReads++;
+    return currentCustomerOnRead?.call(_currentCustomerReads) ??
+        _currentCustomer;
+  }
+
+  set currentCustomer(AuthenticatedCustomer? customer) {
+    _currentCustomer = customer;
+  }
+
   bool launchResult = true;
   Completer<bool>? launchCompleter;
   Completer<AuthenticatedCustomer>? exchangeCompleter;
@@ -427,6 +706,7 @@ final class _FakeAuthRepository implements AuthRepository {
   Object? exchangeError;
   Object? clearPendingError;
   Object? signOutError;
+  bool exchangeCreatesSession = false;
 
   int launchCalls = 0;
   int exchangeCalls = 0;
@@ -457,9 +737,19 @@ final class _FakeAuthRepository implements AuthRepository {
       throw error;
     }
     final completer = exchangeCompleter;
-    return completer == null
+    final customer = completer == null
         ? _customer('callback-customer')
-        : completer.future;
+        : await completer.future;
+    if (exchangeCreatesSession) {
+      currentCustomer = customer;
+      emit(
+        AuthSessionEvent(
+          type: AuthSessionEventType.signedIn,
+          customer: customer,
+        ),
+      );
+    }
+    return customer;
   }
 
   @override
@@ -473,12 +763,22 @@ final class _FakeAuthRepository implements AuthRepository {
   @override
   Future<void> signOutLocal() async {
     signOutCalls++;
+    currentCustomer = null;
+    emit(
+      const AuthSessionEvent(
+        type: AuthSessionEventType.signedOut,
+        customer: null,
+        signOutReason: AuthSignOutReason.userInitiated,
+      ),
+    );
     if (signOutError case final error?) {
       throw error;
     }
   }
 
   void emit(AuthSessionEvent event) => _events.add(event);
+
+  void emitError(Object error) => _events.addError(error);
 
   Future<void> dispose() async {
     if (!_events.isClosed) {

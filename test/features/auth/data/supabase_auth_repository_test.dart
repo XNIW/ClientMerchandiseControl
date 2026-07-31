@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:client_merchandise_control/core/backend/secure_supabase_auth_storage.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/auth/data/supabase_auth_repository.dart';
 import 'package:client_merchandise_control/features/auth/domain/auth_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   late _FakeSupabaseAuthPort port;
@@ -65,18 +67,25 @@ void main() {
   test(
     'exchange usa soltanto il code e richiede una sessione customer',
     () async {
-      port.exchangeIdentity = const SupabaseIdentitySnapshot(
-        subjectId: 'subject',
-        email: null,
-        metadata: {'name': 'Safe Customer'},
+      port.exchangeResult = const SupabaseAuthExchange(
+        identity: SupabaseIdentitySnapshot(
+          subjectId: 'subject',
+          email: null,
+          metadata: {'name': 'Safe Customer'},
+        ),
+        serializedSession: '{"session":"bounded"}',
       );
 
       final customer = await repository.exchangeCodeForSession('fake-code');
 
       expect(port.exchangedCodes, ['fake-code']);
       expect(customer.displayName, 'Safe Customer');
+      expect(await storage.accessToken(), '{"session":"bounded"}');
 
-      port.exchangeIdentity = null;
+      port.exchangeResult = const SupabaseAuthExchange(
+        identity: null,
+        serializedSession: '{"session":"missing-customer"}',
+      );
       await expectLater(
         repository.exchangeCodeForSession('second-fake-code'),
         throwsA(
@@ -87,6 +96,7 @@ void main() {
           ),
         ),
       );
+      expect(await storage.accessToken(), isNull);
     },
   );
 
@@ -118,6 +128,7 @@ void main() {
           kind: SupabaseAuthChangeKind.signedOut,
           identity: null,
           signOutKind: SupabaseSignOutKind.sessionExpired,
+          shouldRemovePersistedSession: true,
         ),
       );
       await Future<void>.delayed(Duration.zero);
@@ -159,6 +170,203 @@ void main() {
       expect(port.signOutCalls, 1);
     },
   );
+
+  test('exchange fallisce chiuso se la sessione non è persistibile', () async {
+    port.exchangeResult = const SupabaseAuthExchange(
+      identity: SupabaseIdentitySnapshot(
+        subjectId: 'subject',
+        email: null,
+        metadata: {},
+      ),
+      serializedSession: '{"session":"must-not-leak"}',
+    );
+    secureStore.writeError = StateError('private driver detail');
+
+    await expectLater(
+      repository.exchangeCodeForSession('storage-failure-code'),
+      throwsA(isA<AuthStorageException>()),
+    );
+
+    expect(port.signOutCalls, 1);
+    expect(await storage.hasAccessToken(), isFalse);
+  });
+
+  test('failure di persistenza refresh raggiunge il boundary Auth', () async {
+    secureStore.writeError = StateError('private refresh detail');
+    final streamError = Completer<Object>();
+    final subscription = repository.sessionChanges.listen(
+      (_) {},
+      onError: (Object error, StackTrace stackTrace) {
+        if (!streamError.isCompleted) {
+          streamError.complete(error);
+        }
+      },
+    );
+
+    port.emit(
+      const SupabaseAuthChange(
+        kind: SupabaseAuthChangeKind.tokenRefreshed,
+        identity: SupabaseIdentitySnapshot(
+          subjectId: 'subject',
+          email: null,
+          metadata: {},
+        ),
+        serializedSession: '{"session":"rotated"}',
+      ),
+    );
+
+    expect(await streamError.future, isA<AuthStorageException>());
+    await subscription.cancel();
+  });
+
+  test(
+    'expiry sintetica non elimina il refresh token prima del retry SDK',
+    () async {
+      await storage.persistSession('expired-session-with-refresh-token');
+      final eventReady = Completer<AuthSessionEvent>();
+      final subscription = repository.sessionChanges.listen((event) {
+        if (!eventReady.isCompleted) {
+          eventReady.complete(event);
+        }
+      });
+
+      port.emit(
+        const SupabaseAuthChange(
+          kind: SupabaseAuthChangeKind.signedOut,
+          identity: null,
+          signOutKind: SupabaseSignOutKind.sessionExpired,
+          shouldRemovePersistedSession: false,
+        ),
+      );
+
+      final event = await eventReady.future;
+      expect(event.signOutReason, AuthSignOutReason.sessionExpired);
+      expect(await storage.accessToken(), 'expired-session-with-refresh-token');
+      await subscription.cancel();
+    },
+  );
+
+  test(
+    'logout tenta verifier anche quando il delete sessione fallisce',
+    () async {
+      await storage.persistSession('local-session');
+      await storage.setItem(
+        key: SecureSupabaseAuthStorage.sdkPkceStorageKey,
+        value: 'local-verifier',
+      );
+      secureStore.deleteErrors[SecureSupabaseAuthStorage.sessionStorageKey] =
+          StateError('private session delete detail');
+
+      await expectLater(
+        repository.signOutLocal(),
+        throwsA(isA<AuthStorageException>()),
+      );
+
+      expect(
+        secureStore.deleted,
+        containsAll([
+          SecureSupabaseAuthStorage.sessionStorageKey,
+          SecureSupabaseAuthStorage.pkceStorageKey,
+        ]),
+      );
+      expect(
+        secureStore.values[SecureSupabaseAuthStorage.pkceStorageKey],
+        isNull,
+      );
+    },
+  );
+
+  test('sessioni scadute o senza expiry non espongono identità', () {
+    final expired = _session(expiresAt: 1, refreshToken: 'refreshable');
+    final valid = _session(
+      expiresAt:
+          DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch ~/
+          1000,
+    );
+    final missingExpiry = Session(
+      accessToken: 'not-a-jwt',
+      tokenType: 'bearer',
+      user: _sdkUser(),
+    );
+
+    expect(PlatformSupabaseAuthPort.identityFromSession(expired), isNull);
+    expect(PlatformSupabaseAuthPort.identityFromSession(missingExpiry), isNull);
+    expect(
+      PlatformSupabaseAuthPort.shouldPreserveForSdkRecovery(expired),
+      isTrue,
+    );
+    expect(
+      PlatformSupabaseAuthPort.shouldPreserveForSdkRecovery(missingExpiry),
+      isFalse,
+    );
+    expect(
+      PlatformSupabaseAuthPort.shouldPreserveForSdkRecovery(
+        _session(expiresAt: 1),
+      ),
+      isFalse,
+    );
+    expect(
+      PlatformSupabaseAuthPort.identityFromSession(valid)?.subjectId,
+      'sdk-subject',
+    );
+  });
+
+  test('mapping SDK preserva solo sessione scaduta realmente refreshable', () {
+    final refreshableExpired = _session(
+      expiresAt: 1,
+      refreshToken: 'refreshable',
+    );
+    final missingExpiry = Session(
+      accessToken: 'not-a-jwt',
+      tokenType: 'bearer',
+      refreshToken: 'must-not-loop',
+      user: _sdkUser(),
+    );
+
+    final refreshableChange = PlatformSupabaseAuthPort.mapSdkAuthChange(
+      AuthState(AuthChangeEvent.initialSession, refreshableExpired),
+    );
+    final malformedChange = PlatformSupabaseAuthPort.mapSdkAuthChange(
+      AuthState(AuthChangeEvent.initialSession, missingExpiry),
+    );
+    final terminatedChange = PlatformSupabaseAuthPort.mapSdkAuthChange(
+      AuthState(
+        AuthChangeEvent.signedOut,
+        refreshableExpired,
+        signOutReason: SignOutReason.sessionExpired,
+      ),
+    );
+
+    expect(refreshableChange.kind, SupabaseAuthChangeKind.signedOut);
+    expect(refreshableChange.shouldRemovePersistedSession, isFalse);
+    expect(malformedChange.shouldRemovePersistedSession, isTrue);
+    expect(terminatedChange.shouldRemovePersistedSession, isTrue);
+  });
+}
+
+Session _session({required int expiresAt, String? refreshToken}) {
+  final header = base64Url
+      .encode(utf8.encode('{"alg":"none"}'))
+      .replaceAll('=', '');
+  final payload = base64Url
+      .encode(utf8.encode('{"exp":$expiresAt}'))
+      .replaceAll('=', '');
+  return Session(
+    accessToken: '$header.$payload.signature',
+    tokenType: 'bearer',
+    refreshToken: refreshToken,
+    user: _sdkUser(),
+  );
+}
+
+User _sdkUser() {
+  return const User(
+    id: 'sdk-subject',
+    appMetadata: {},
+    userMetadata: {},
+    aud: 'authenticated',
+    createdAt: '2026-01-01T00:00:00Z',
+  );
 }
 
 final class _FakeSupabaseAuthPort implements SupabaseAuthPort {
@@ -167,7 +375,10 @@ final class _FakeSupabaseAuthPort implements SupabaseAuthPort {
 
   @override
   SupabaseIdentitySnapshot? currentIdentity;
-  SupabaseIdentitySnapshot? exchangeIdentity;
+  SupabaseAuthExchange exchangeResult = const SupabaseAuthExchange(
+    identity: null,
+    serializedSession: '{"session":"fake"}',
+  );
   bool launchResult = false;
   Object? launchError;
   Object? exchangeError;
@@ -191,12 +402,12 @@ final class _FakeSupabaseAuthPort implements SupabaseAuthPort {
   }
 
   @override
-  Future<SupabaseIdentitySnapshot?> exchangeCode(String code) async {
+  Future<SupabaseAuthExchange> exchangeCode(String code) async {
     exchangedCodes.add(code);
     if (exchangeError case final error?) {
       throw error;
     }
-    return exchangeIdentity;
+    return exchangeResult;
   }
 
   @override
@@ -214,9 +425,16 @@ final class _FakeSupabaseAuthPort implements SupabaseAuthPort {
 
 final class _MemorySecureStore implements SecureAuthKeyValueStore {
   final Map<String, String> values = {};
+  final List<String> deleted = [];
+  final Map<String, Object> deleteErrors = {};
+  Object? writeError;
 
   @override
   Future<void> delete(String key) async {
+    deleted.add(key);
+    if (deleteErrors[key] case final error?) {
+      throw error;
+    }
     values.remove(key);
   }
 
@@ -225,14 +443,26 @@ final class _MemorySecureStore implements SecureAuthKeyValueStore {
 
   @override
   Future<void> write(String key, String value) async {
+    if (writeError case final error?) {
+      throw error;
+    }
     values[key] = value;
   }
 }
 
 final class _MarkedInstall implements AuthInstallationMarkerStore {
   @override
+  Future<void> clearCleanupPending(AuthCleanupTarget target) async {}
+
+  @override
+  Future<bool> isCleanupPending(AuthCleanupTarget target) async => false;
+
+  @override
   Future<bool> isCurrentInstallMarked() async => true;
 
   @override
   Future<void> markCurrentInstall() async {}
+
+  @override
+  Future<void> markCleanupPending(AuthCleanupTarget target) async {}
 }

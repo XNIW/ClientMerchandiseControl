@@ -297,6 +297,10 @@ Il client usa soltanto publishable key e non contiene credenziali privilegiate.
 ### Osservabilità ed evidence
 
 Supabase `debug` è disabilitato. Errori e copy usano categorie chiuse; non includono
-messaggi SDK raw. Sono vietati in log, test output persistente, screenshot, crash
-report, bundle, Git ed evidence: callback completa, code/state, access/refresh/provider
-token, session/User, URL/key, account test e PII.
+messaggi SDK raw. Origin staging e publishable key sono configurazione pubblica
+compile-time attesa nel bundle mobile, ma i loro valori raw restano vietati in log,
+test output persistente, screenshot, crash report ed evidence. Sono vietati ovunque
+nel client, nel bundle e in Git: secret key, legacy `service_role`, OAuth client
+secret, password, token amministrativi, certificati e credenziali di signing. Callback
+completa, code/state, access/refresh/provider token, session/User, account test e PII
+non devono comparire in alcun output persistente o evidence.

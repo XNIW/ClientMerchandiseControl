@@ -3,12 +3,14 @@ import 'dart:collection';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/backend/secure_supabase_auth_storage.dart';
 import '../../../core/config/app_config.dart';
 import '../data/auth_callback_validator.dart';
 import '../data/auth_error_mapper.dart';
 import '../domain/auth_failure.dart';
 import '../domain/auth_repository.dart';
 import '../domain/auth_state.dart';
+import '../domain/authenticated_customer.dart';
 import 'auth_providers.dart';
 
 final authControllerProvider = NotifierProvider<AuthController, AuthState>(
@@ -30,6 +32,8 @@ final class AuthController extends Notifier<AuthState> {
   Future<void>? _loginOperation;
   Future<void>? _callbackDrain;
   Future<void>? _logoutOperation;
+  Future<AuthenticatedCustomer>? _exchangeOperation;
+  Future<void>? _flowTermination;
 
   final ListQueue<Uri> _pendingCallbacks = ListQueue();
   final Set<int> _consumedFingerprints = <int>{};
@@ -62,6 +66,10 @@ final class AuthController extends Notifier<AuthState> {
   }
 
   Future<void> startGoogleSignIn() {
+    final termination = _flowTermination;
+    if (termination != null) {
+      return termination;
+    }
     final active = _loginOperation;
     if (active != null || _oauthFlowActive) {
       return active ?? Future<void>.value();
@@ -93,8 +101,27 @@ final class AuthController extends Notifier<AuthState> {
       _oauthFlowActive = false;
       return;
     }
+    if (state is AuthAuthenticated) {
+      _oauthFlowActive = false;
+      return;
+    }
+    final restoredCustomer = repository.currentCustomer;
+    if (restoredCustomer != null) {
+      _oauthFlowActive = false;
+      _setState(
+        AuthAuthenticated(
+          customer: restoredCustomer,
+          origin: AuthSessionOrigin.restored,
+        ),
+      );
+      return;
+    }
 
     try {
+      await repository.clearPendingOAuth();
+      if (!_isCurrent(generation)) {
+        return;
+      }
       final launched = await repository.launchGoogleSignIn();
       if (!_isCurrent(generation)) {
         return;
@@ -115,27 +142,130 @@ final class AuthController extends Notifier<AuthState> {
     }
   }
 
-  Future<void> cancelGoogleSignIn() async {
+  Future<void> cancelGoogleSignIn() {
+    final termination = _flowTermination;
+    if (termination != null) {
+      return termination;
+    }
     if (_disposed || (!_oauthFlowActive && state is! AuthAuthenticating)) {
-      return;
+      return Future<void>.value();
     }
 
+    return _startFlowTermination(cancelled: true);
+  }
+
+  Future<void> _startFlowTermination({
+    required bool cancelled,
+    Object? failure,
+  }) {
+    final active = _flowTermination;
+    if (active != null) {
+      return active;
+    }
+
+    late final Future<void> operation;
+    operation = _runFlowTermination(cancelled: cancelled, failure: failure)
+        .whenComplete(() {
+          if (identical(_flowTermination, operation)) {
+            _flowTermination = null;
+          }
+        });
+    _flowTermination = operation;
+    return operation;
+  }
+
+  Future<void> _runFlowTermination({
+    required bool cancelled,
+    Object? failure,
+  }) async {
+    ++_generation;
+    _oauthFlowActive = true;
+    _ignoreCallbacksUntilNextLogin = true;
+    _suppressSessionAuthentication = true;
+    _pendingCallbacks.clear();
+    _setState(const AuthCancelling());
+
+    Object? cleanupError;
+    try {
+      final initialization = _initialization;
+      if (_repository == null && initialization != null) {
+        await initialization;
+      }
+
+      final exchange = _exchangeOperation;
+      if (exchange != null) {
+        try {
+          await exchange;
+        } on Object {
+          // La compensazione è identica per successo o errore dell'exchange.
+        }
+      }
+      await _repository?.signOutLocal();
+    } on Object catch (error) {
+      cleanupError = error;
+    }
+
+    _oauthFlowActive = false;
+    if (_disposed) {
+      return;
+    }
+    if (state is AuthConfigurationError) {
+      return;
+    }
+    if (cleanupError != null) {
+      _publishMappedFailure(cleanupError);
+      return;
+    }
+    if (failure != null) {
+      _publishMappedFailure(failure);
+      return;
+    }
+    if (cancelled) {
+      _setState(const AuthCancelled());
+    } else {
+      _setState(
+        const AuthRecoverableError(AuthFailure(AuthFailureKind.unexpected)),
+      );
+    }
+  }
+
+  Future<void> _failClosedStorage(Object _) async {
+    if (_disposed || state is AuthConfigurationError) {
+      return;
+    }
     ++_generation;
     _oauthFlowActive = false;
     _ignoreCallbacksUntilNextLogin = true;
     _suppressSessionAuthentication = true;
-    _setState(const AuthCancelling());
-
+    _pendingCallbacks.clear();
+    _setState(
+      const AuthConfigurationError(
+        AuthFailure(AuthFailureKind.secureStorageUnavailable),
+      ),
+    );
     try {
-      await _repository?.clearPendingOAuth();
-      if (!_disposed) {
-        _setState(const AuthCancelled());
-      }
-    } on Object catch (error) {
-      if (!_disposed) {
-        _publishMappedFailure(error);
-      }
+      await _repository?.signOutLocal();
+    } on Object {
+      // Il configuration error resta il risultato fail-closed anche se il purge
+      // dovrà essere ritentato al bootstrap tramite i cleanup marker.
     }
+  }
+
+  void _suspendExpiredSession() {
+    if (_disposed) {
+      return;
+    }
+    ++_generation;
+    _oauthFlowActive = false;
+    _ignoreCallbacksUntilNextLogin = true;
+    _suppressSessionAuthentication = false;
+    _pendingCallbacks.clear();
+    _setState(
+      AuthGuest(
+        canAuthenticate: _config?.googleAuthEnabled ?? false,
+        notice: const AuthFailure(AuthFailureKind.sessionExpired),
+      ),
+    );
   }
 
   Future<void> retry() => startGoogleSignIn();
@@ -242,9 +372,14 @@ final class AuthController extends Notifier<AuthState> {
   }
 
   void _receiveCallbackError(Object error, StackTrace stackTrace) {
-    if (!_disposed) {
-      _publishMappedFailure(error);
+    if (_disposed) {
+      return;
     }
+    if (_oauthFlowActive || state is AuthAuthenticating) {
+      unawaited(_startFlowTermination(cancelled: false, failure: error));
+      return;
+    }
+    _publishMappedFailure(error);
   }
 
   void _scheduleCallbackDrain() {
@@ -284,12 +419,6 @@ final class AuthController extends Notifier<AuthState> {
         return;
       case AuthCallbackProviderFailure(:final wasCancelled):
         _oauthFlowActive = false;
-        try {
-          await _repository?.clearPendingOAuth();
-        } on Object catch (error) {
-          _publishMappedFailure(error);
-          return;
-        }
         if (!_disposed && state is! AuthAuthenticated) {
           _setState(
             wasCancelled
@@ -308,8 +437,11 @@ final class AuthController extends Notifier<AuthState> {
         }
         final generation = ++_generation;
         _setState(const AuthAuthenticating());
+        late final Future<AuthenticatedCustomer> exchange;
+        exchange = _repository!.exchangeCodeForSession(code);
+        _exchangeOperation = exchange;
         try {
-          final customer = await _repository!.exchangeCodeForSession(code);
+          final customer = await exchange;
           if (_isCurrent(generation) &&
               !_ignoreCallbacksUntilNextLogin &&
               !_suppressSessionAuthentication) {
@@ -322,21 +454,18 @@ final class AuthController extends Notifier<AuthState> {
             );
           }
         } on Object catch (error) {
-          try {
-            await _repository?.clearPendingOAuth();
-          } on Object {
-            if (_isCurrent(generation)) {
-              _setState(
-                const AuthConfigurationError(
-                  AuthFailure(AuthFailureKind.secureStorageUnavailable),
-                ),
-              );
-            }
+          if (!_isCurrent(generation)) {
             return;
           }
-          if (_isCurrent(generation)) {
-            _oauthFlowActive = false;
+          _oauthFlowActive = false;
+          if (error is AuthStorageException) {
+            await _failClosedStorage(error);
+          } else {
             _publishMappedFailure(error);
+          }
+        } finally {
+          if (identical(_exchangeOperation, exchange)) {
+            _exchangeOperation = null;
           }
         }
     }
@@ -360,7 +489,10 @@ final class AuthController extends Notifier<AuthState> {
 
     if (event.type == AuthSessionEventType.signedOut) {
       _oauthFlowActive = false;
-      if (state is AuthSigningOut) {
+      if (state is AuthSigningOut ||
+          state is AuthCancelling ||
+          _suppressSessionAuthentication ||
+          _flowTermination != null) {
         return;
       }
       final notice = event.signOutReason == AuthSignOutReason.sessionExpired
@@ -376,7 +508,22 @@ final class AuthController extends Notifier<AuthState> {
   }
 
   void _receiveSessionError(Object error, StackTrace stackTrace) {
-    if (_disposed || state is AuthAuthenticated) {
+    if (_disposed) {
+      return;
+    }
+    if (error is AuthStorageException) {
+      unawaited(_failClosedStorage(error));
+      return;
+    }
+    if (state is AuthAuthenticated) {
+      if (_repository?.currentCustomer != null) {
+        return;
+      }
+      _suspendExpiredSession();
+      return;
+    }
+    if (_oauthFlowActive || state is AuthAuthenticating) {
+      unawaited(_startFlowTermination(cancelled: false, failure: error));
       return;
     }
     _publishMappedFailure(error);
@@ -433,7 +580,28 @@ final class AuthController extends Notifier<AuthState> {
     ++_generation;
     _oauthFlowActive = false;
     _pendingCallbacks.clear();
+    final exchange = _exchangeOperation;
+    final repository = _repository;
+    if (exchange != null && repository != null) {
+      unawaited(_compensateDisposedExchange(exchange, repository));
+    }
     unawaited(_callbackSubscription?.cancel());
     unawaited(_sessionSubscription?.cancel());
+  }
+
+  static Future<void> _compensateDisposedExchange(
+    Future<AuthenticatedCustomer> exchange,
+    AuthRepository repository,
+  ) async {
+    try {
+      await exchange;
+    } on Object {
+      // Anche un exchange fallito può aver prodotto side effect parziali SDK.
+    }
+    try {
+      await repository.signOutLocal();
+    } on Object {
+      // Nessun errore o dettaglio sensibile deve uscire dal dispose.
+    }
   }
 }

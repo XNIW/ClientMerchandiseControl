@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:client_merchandise_control/app/client_merchandise_control_app.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
@@ -36,12 +37,62 @@ void main() {
       await tester.pump();
       expect(repository.launchCalls, 1);
 
+      for (final destination in const [
+        (ValueKey('nav-home'), HomeScreen),
+        (ValueKey('nav-catalog'), CatalogScreen),
+        (ValueKey('nav-cart'), CartScreen),
+      ]) {
+        await tester.tap(find.byKey(destination.$1));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(find.byType(destination.$2), findsOneWidget);
+      }
+
+      await tester.tap(find.byKey(const ValueKey('nav-account')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      final cancellation = Completer<void>();
+      repository.signOutCompleter = cancellation;
+      await tester.tap(find.byKey(const ValueKey('account-auth-secondary')));
+      await tester.pump();
+      expect(find.byKey(const ValueKey('account-auth-status')), findsOneWidget);
+      for (final destination in const [
+        (ValueKey('nav-home'), HomeScreen),
+        (ValueKey('nav-catalog'), CatalogScreen),
+        (ValueKey('nav-cart'), CartScreen),
+      ]) {
+        await tester.tap(find.byKey(destination.$1));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+        expect(find.byType(destination.$2), findsOneWidget);
+      }
+      cancellation.complete();
+      repository.signOutCompleter = null;
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('nav-account')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('account-auth-primary')),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const ValueKey('account-auth-primary')));
+      await tester.pump();
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('nav-home')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
       firstSource.emit(
         Uri.parse(
           '${AppConfig.allowedAuthRedirectUri}?code=integration-fake-code',
         ),
       );
       await tester.pumpAndSettle();
+      expect(find.byType(AccountScreen), findsOneWidget);
+      expect(
+        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+        3,
+      );
       expect(find.text('Integration Customer'), findsOneWidget);
       expect(
         find.byKey(const ValueKey('account-session-status')),
@@ -71,9 +122,26 @@ void main() {
         find.byKey(const ValueKey('account-google-button')),
         findsOneWidget,
       );
-      expect(repository.signOutCalls, 1);
+      expect(repository.signOutCalls, 2);
 
+      repository.launchError = const SocketException('offline sentinel');
       await tester.tap(find.byKey(const ValueKey('account-google-button')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('account-auth-status')), findsOneWidget);
+      for (final destination in const [
+        (ValueKey('nav-home'), HomeScreen),
+        (ValueKey('nav-catalog'), CatalogScreen),
+        (ValueKey('nav-cart'), CartScreen),
+      ]) {
+        await tester.tap(find.byKey(destination.$1));
+        await tester.pumpAndSettle();
+        expect(find.byType(destination.$2), findsOneWidget);
+      }
+      await tester.tap(find.byKey(const ValueKey('nav-account')));
+      await tester.pumpAndSettle();
+
+      repository.launchError = null;
+      await tester.tap(find.byKey(const ValueKey('account-auth-primary')));
       await tester.pump();
       await tester.pump();
       restartSource.emit(
@@ -98,6 +166,10 @@ void main() {
       binding.reportData = <String, Object?>{
         'fakeGoogleLaunch': 'PASS',
         'validatedCallback': 'PASS',
+        'callbackReturnsToAccount': 'PASS',
+        'guestNavigationDuringAuthenticating': 'PASS',
+        'guestNavigationDuringCancelling': 'PASS',
+        'guestNavigationDuringOffline': 'PASS',
         'authenticatedAccount': 'PASS',
         'coldRestoreWithoutForcedNavigation': 'PASS',
         'localLogout': 'PASS',
@@ -169,6 +241,8 @@ final class _IntegrationAuthRepository implements AuthRepository {
   int launchCalls = 0;
   int exchangeCalls = 0;
   int signOutCalls = 0;
+  Object? launchError;
+  Completer<void>? signOutCompleter;
 
   @override
   Stream<AuthSessionEvent> get sessionChanges => _events.stream;
@@ -186,12 +260,16 @@ final class _IntegrationAuthRepository implements AuthRepository {
   @override
   Future<bool> launchGoogleSignIn() async {
     launchCalls++;
+    if (launchError case final error?) {
+      throw error;
+    }
     return true;
   }
 
   @override
   Future<void> signOutLocal() async {
     signOutCalls++;
+    await signOutCompleter?.future;
     currentCustomer = null;
   }
 

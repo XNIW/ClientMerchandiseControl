@@ -23,8 +23,8 @@ riducono spoofing e injection. Non eliminano collisione o denial of service.
 
 La seconda area critica è la persistenza. Lo SDK bloccato usa SharedPreferences per
 sessione e verifier se non configurato diversamente. TASK-020 sostituisce entrambi con
-un adapter Keychain/Keystore fail-closed e conserva in SharedPreferences soltanto un
-marker booleano non sensibile.
+un adapter Keychain/Keystore fail-closed e conserva in SharedPreferences soltanto
+marker booleani non sensibili di installazione e cleanup pendente.
 
 L'identità Auth non è autorizzazione. Un client modificato, un metadata falsificato o
 una route visibile non devono ottenere dati: grant, RLS e validazione server-side
@@ -128,9 +128,11 @@ resi affidabili dal client.
 - Solo scheme, host, path `/` e query allowlisted raggiungono l'exchange.
 - Fragment e token implicit non sono mai accettati.
 - Un callback è consumato al massimo una volta nel processo.
-- Cancel, logout e dispose invalidano risultati tardivi.
+- Cancel attende e compensa un exchange già in-flight prima di rendere disponibile
+  Retry; logout e dispose invalidano o ripuliscono risultati tardivi.
 - Sessione e verifier non usano storage plaintext.
-- Un errore storage non abilita fallback.
+- Authenticated viene pubblicato solo dopo una persistenza esplicita riuscita; gli
+  errori storage SDK sono osservabili e non abilitano fallback.
 - Restore non forza Account; solo successo callback lo fa.
 - Home, Catalogo e Carrello restano guest-accessible.
 - Metadata/email/route/cache non autorizzano.
@@ -148,14 +150,14 @@ resi affidabili dal client.
 | TM-06 | Replay dello stesso callback o doppia consegna cold/warm | doppio exchange/stato fuori ordine | fingerprint bounded, coda seriale, PKCE code one-time | Collisione fingerprint può causare solo DoS locale. Test duplicate |
 | TM-07 | Callback valido arriva prima che Supabase sia pronto | callback perso o crash | listener eager, coda bounded prima della factory, drain seriale | Coda solo memoria e max quattro. Test cold callback |
 | TM-08 | Due tap aprono due browser e sovrascrivono verifier | account confusion/exchange failure | login single-flight e `_oauthFlowActive` | Browser/OS esterno resta non controllabile. Test doppio tap |
-| TM-09 | Cancel seguito da callback tardivo | riautenticazione indesiderata | generation, suppress/ignore flag, verifier cancellato | Dopo process kill il verifier assente fa fallire l'exchange. Test late callback |
-| TM-10 | Logout mentre exchange/session event è in volo | stato torna authenticated | generation, soppressione eventi, coda pulita, logout prevalente | Verificare future tardive e stream fuori ordine |
-| TM-11 | Logout offline fallisce la revoca server | token remoto ancora valido | SDK rimuove sessione in memoria prima della rete; adapter elimina sessione/verifier; UI resta guest | Logout è locale, non globale. Token remoto può vivere fino a scadenza se la rete manca; documentare nello smoke |
-| TM-12 | Refresh token scaduto/revocato | UI conserva customer stale | `onAuthStateChange`, reason `sessionExpired/sessionMissing`, guest con notice | Errori retryable possono mantenere sessione SDK valida; test expiry/revoca |
+| TM-09 | Cancel seguito da callback/exchange tardivo | riautenticazione indesiderata o verifier nuovo eliminato | termination single-flight, suppress/ignore, attesa exchange, sign-out/purge compensativo prima di Retry; failure vecchia non elimina PKCE corrente | Process kill durante rete resta boundary OS; test successo/errore tardivo, cold restore guest e callback vecchio→nuovo |
+| TM-10 | Logout mentre exchange/session event è in volo | stato torna authenticated | generation, soppressione eventi, coda pulita, mutazioni storage serializzate e logout prevalente | Verificare future tardive e stream fuori ordine |
+| TM-11 | Logout offline o delete locale fallisce | token remoto o sessione locale restano validi | `SignOutScope.local`; delete sessione/verifier indipendenti; tombstone non sensibili ritentati prima del restore | Logout è locale, non globale. Se anche il marker non è scrivibile il device è configurationError; test restart dopo failure selettiva |
+| TM-12 | Access token scaduto o refresh token revocato | UI conserva customer stale oppure il client impedisce un recovery SDK valido | sessioni senza expiry valida o `Session.isExpired` non espongono identity; errore retryable degrada a guest ma preserva il refresh token in storage sicuro; un vero `signedOut` esegue purge | Test restore expired/offline, scadenza durante offline, refresh successivo e revoca |
 | TM-13 | Sessione/verifier finiscono in SharedPreferences | furto da backup/device | adapter unico LocalStorage+GotrueAsyncStorage; FSS; nessun fallback | Verificare source/lock e storage test; device compromesso resta rischio |
 | TM-14 | Android backup ripristina ciphertext senza chiave o su altro device | crash o sessione incoerente | `android:allowBackup=false`; namespace Keystore; this app non migra secret | Ispezionare merged manifest/build |
 | TM-15 | Keychain sopravvive a uninstall iOS | sessione precedente riappare | marker app-container non sensibile; first-install delete delle sole due chiavi | Install/clean smoke richiesto; perdita marker causa logout sicuro |
-| TM-16 | Errore Keychain/Keystore induce fallback debole | token plaintext o login instabile | eccezioni chiuse, nessun fallback, configurationError UI | Verificare read/write/delete/marker failure |
+| TM-16 | Errore Keychain/Keystore induce fallback debole o sessione solo-memory | token plaintext, restore incoerente o UI authenticated non persistita | persistenza esplicita prima di authenticated, stream failure sanitizzato, purge locale, nessun fallback e configurationError UI | Verificare write exchange/refresh, delete indipendenti, marker/tombstone e retry initialization |
 | TM-17 | Metadata contiene HTML, controlli, bidi, stringhe enormi, role/shop falsi | UI spoof, overflow, privilege confusion | normalizzazione/bounds; markup/control reject; ID interno; nessun uso autorizzativo | Unicode confusables leciti restano display-only. Unit/widget test |
 | TM-18 | `avatar_url` forza download/SSRF/tracking | leakage IP, contenuto ostile | repository ignora URL; `avatarBytes:null`; solo fallback locale | Verificare assenza `NetworkImage`/HTTP in Account |
 | TM-19 | Messaggio SDK include callback/code/token/email e viene loggato | credential/PII leakage | `debug:false`; mapper a categorie chiuse; nessun `toString` raw | Scan source/test/log/device; i log OS/browser esterni vanno redatti |
@@ -167,7 +169,7 @@ resi affidabili dal client.
 | TM-25 | Redirect allow-list riceve wildcard o sostituisce valori esistenti | open redirect/drift o outage | write autorizzato solo append dell'URI esatto staging, confronto set before/after | Controllo remoto/evidence ancora da eseguire; produzione vietata |
 | TM-26 | Due handler (`app_links`, Flutter o SDK) consumano lo stesso URI | exchange doppio/leak | Flutter, SDK e auto-handling iOS del plugin disabilitati; App/Scene delegate convergono nello stesso singleton; un source Dart applicativo | Ispezionare manifest/plist/delegate/options e test subscription unica |
 | TM-27 | Coda callback viene riempita con URI malevoli | memoria/availability | massimo quattro pending, bounds payload e 64 fingerprint | DoS locale limitato; nessun rate limit OS possibile |
-| TM-28 | Dispose lascia subscription o future che scrivono stato | crash/use-after-dispose | cancel subscription, `_disposed`, generation e guard state | Test dispose + late exchange/event |
+| TM-28 | Dispose lascia subscription o future che scrivono stato/sessione | crash/use-after-dispose o sessione tardiva | cancel subscription, `_disposed`, generation, guard state e compensazione best-effort dell'exchange posseduto | Test dispose + late exchange/event |
 | TM-29 | Config staging/production viene confusa | traffico o OAuth sull'ambiente errato | `AppConfig` exact matrix; development offline; production Google false; no fallback | File locale ignorato e scan Git; build per ambiente |
 | TM-30 | Evidence/CI include config locale, key, project ref, account o token | esposizione persistente | ignore rules, CI fake-only, scan mirato, evidence sanitizzate | Verificare diff, untracked, bundle/log e output prima del commit |
 
@@ -176,10 +178,10 @@ resi affidabili dal client.
 | Area | Implementazione | Verifica prevista |
 |---|---|---|
 | Config/bootstrap | `app_config.dart`, `supabase_bootstrap.dart` | config e bootstrap unit test |
-| Storage | `secure_supabase_auth_storage.dart` | CRUD, first-install, allow-list, failure unit test; device reinstall |
+| Storage | `secure_supabase_auth_storage.dart` | CRUD, first-install, tombstone/restart, persistenza osservabile, failure e retry unit test; device reinstall |
 | Callback | `auth_callback_source.dart`, `auth_callback_validator.dart` | cold/warm, matrice URI, replay e device open-url |
 | SDK boundary | `supabase_auth_repository.dart` | port fake, exact redirect, exchange/session/logout |
-| Lifecycle | `auth_controller.dart` | single-flight, queue, cancel, expiry, logout, race, dispose |
+| Lifecycle | `auth_controller.dart` | single-flight, queue, cancel/exchange compensato, expiry, logout, race, retry e dispose |
 | UI | `account_screen.dart` | stati, semantics, 48 dp, 200%, no network avatar |
 | Native | Manifest e Info.plist | source test, merged build, adb/simctl |
 | End-to-end fake | `auth_callback_flow_test.dart` | Android/iOS device |

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/backend/secure_supabase_auth_storage.dart';
@@ -31,11 +34,25 @@ final class SupabaseAuthChange {
     required this.kind,
     required this.identity,
     this.signOutKind,
+    this.serializedSession,
+    this.shouldRemovePersistedSession = false,
   });
 
   final SupabaseAuthChangeKind kind;
   final SupabaseIdentitySnapshot? identity;
   final SupabaseSignOutKind? signOutKind;
+  final String? serializedSession;
+  final bool shouldRemovePersistedSession;
+}
+
+final class SupabaseAuthExchange {
+  const SupabaseAuthExchange({
+    required this.identity,
+    required this.serializedSession,
+  });
+
+  final SupabaseIdentitySnapshot? identity;
+  final String serializedSession;
 }
 
 abstract interface class SupabaseAuthPort {
@@ -45,7 +62,7 @@ abstract interface class SupabaseAuthPort {
 
   Future<bool> launchGoogleOAuth(String redirectUri);
 
-  Future<SupabaseIdentitySnapshot?> exchangeCode(String code);
+  Future<SupabaseAuthExchange> exchangeCode(String code);
 
   Future<void> signOutLocal();
 }
@@ -57,12 +74,12 @@ final class PlatformSupabaseAuthPort implements SupabaseAuthPort {
 
   @override
   SupabaseIdentitySnapshot? get currentIdentity {
-    return _identityFromUser(_client.auth.currentSession?.user);
+    return identityFromSession(_client.auth.currentSession);
   }
 
   @override
   Stream<SupabaseAuthChange> get changes {
-    return _client.auth.onAuthStateChange.map(_mapAuthChange);
+    return _client.auth.onAuthStateChange.map(mapSdkAuthChange);
   }
 
   @override
@@ -75,9 +92,12 @@ final class PlatformSupabaseAuthPort implements SupabaseAuthPort {
   }
 
   @override
-  Future<SupabaseIdentitySnapshot?> exchangeCode(String code) async {
+  Future<SupabaseAuthExchange> exchangeCode(String code) async {
     final response = await _client.auth.exchangeCodeForSession(code);
-    return _identityFromUser(response.session.user);
+    return SupabaseAuthExchange(
+      identity: identityFromSession(response.session),
+      serializedSession: jsonEncode(response.session.toJson()),
+    );
   }
 
   @override
@@ -85,8 +105,19 @@ final class PlatformSupabaseAuthPort implements SupabaseAuthPort {
     return _client.auth.signOut(scope: SignOutScope.local);
   }
 
-  static SupabaseAuthChange _mapAuthChange(AuthState sdkState) {
+  static SupabaseAuthChange mapSdkAuthChange(AuthState sdkState) {
     final event = sdkState.event;
+    final session = sdkState.session;
+    if (session != null && !_isUsableSession(session)) {
+      return SupabaseAuthChange(
+        kind: SupabaseAuthChangeKind.signedOut,
+        identity: null,
+        signOutKind: SupabaseSignOutKind.sessionExpired,
+        shouldRemovePersistedSession:
+            event == AuthChangeEvent.signedOut ||
+            !shouldPreserveForSdkRecovery(session),
+      );
+    }
     final kind = switch (event) {
       AuthChangeEvent.initialSession => SupabaseAuthChangeKind.initialSession,
       AuthChangeEvent.signedOut => SupabaseAuthChangeKind.signedOut,
@@ -97,14 +128,33 @@ final class PlatformSupabaseAuthPort implements SupabaseAuthPort {
 
     return SupabaseAuthChange(
       kind: kind,
-      identity: _identityFromUser(sdkState.session?.user),
+      identity: identityFromSession(session),
       signOutKind: switch (sdkState.signOutReason) {
         SignOutReason.userInitiated => SupabaseSignOutKind.userInitiated,
         SignOutReason.sessionExpired ||
         SignOutReason.sessionMissing => SupabaseSignOutKind.sessionExpired,
         null => null,
       },
+      serializedSession: session == null ? null : jsonEncode(session.toJson()),
+      shouldRemovePersistedSession: event == AuthChangeEvent.signedOut,
     );
+  }
+
+  static SupabaseIdentitySnapshot? identityFromSession(Session? session) {
+    if (!_isUsableSession(session)) {
+      return null;
+    }
+    return _identityFromUser(session!.user);
+  }
+
+  static bool _isUsableSession(Session? session) {
+    return session != null && session.expiresAt != null && !session.isExpired;
+  }
+
+  static bool shouldPreserveForSdkRecovery(Session session) {
+    return session.expiresAt != null &&
+        session.isExpired &&
+        (session.refreshToken?.isNotEmpty ?? false);
   }
 
   static SupabaseIdentitySnapshot? _identityFromUser(User? user) {
@@ -147,27 +197,20 @@ final class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Stream<AuthSessionEvent> get sessionChanges {
-    return _authPort.changes.map((change) {
-      return AuthSessionEvent(
-        type: switch (change.kind) {
-          SupabaseAuthChangeKind.initialSession =>
-            AuthSessionEventType.initialSession,
-          SupabaseAuthChangeKind.signedIn => AuthSessionEventType.signedIn,
-          SupabaseAuthChangeKind.signedOut => AuthSessionEventType.signedOut,
-          SupabaseAuthChangeKind.tokenRefreshed =>
-            AuthSessionEventType.tokenRefreshed,
-          SupabaseAuthChangeKind.userUpdated =>
-            AuthSessionEventType.userUpdated,
-        },
-        customer: _customerFromIdentity(change.identity),
-        signOutReason: switch (change.signOutKind) {
-          SupabaseSignOutKind.userInitiated => AuthSignOutReason.userInitiated,
-          SupabaseSignOutKind.sessionExpired =>
-            AuthSignOutReason.sessionExpired,
-          SupabaseSignOutKind.unknown => AuthSignOutReason.unknown,
-          null => null,
-        },
+    final authEvents = _authPort.changes.asyncMap(_mapSessionChange);
+    return Stream<AuthSessionEvent>.multi((controller) {
+      final authSubscription = authEvents.listen(
+        controller.addSync,
+        onError: controller.addErrorSync,
+        onDone: controller.closeSync,
       );
+      final storageSubscription = _secureStorage.failures.listen((failure) {
+        controller.addErrorSync(failure, StackTrace.current);
+      });
+      controller.onCancel = () async {
+        await authSubscription.cancel();
+        await storageSubscription.cancel();
+      };
     });
   }
 
@@ -178,9 +221,24 @@ final class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<AuthenticatedCustomer> exchangeCodeForSession(String code) async {
-    final identity = await _authPort.exchangeCode(code);
-    final customer = _customerFromIdentity(identity);
+    final exchange = await _authPort.exchangeCode(code);
+    try {
+      await _secureStorage.persistSession(exchange.serializedSession);
+    } on Object catch (error, stackTrace) {
+      try {
+        await signOutLocal();
+      } on Object {
+        // L'errore originale di persistenza è il segnale fail-closed prioritario.
+      }
+      Error.throwWithStackTrace(error, stackTrace);
+    }
+    final customer = _customerFromIdentity(exchange.identity);
     if (customer == null) {
+      try {
+        await signOutLocal();
+      } on Object {
+        // Il caller riceve comunque un errore chiuso senza dettagli SDK.
+      }
       throw const AuthRepositoryException('missing_customer_session');
     }
     return customer;
@@ -193,21 +251,54 @@ final class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOutLocal() async {
-    Object? signOutError;
-    StackTrace? signOutStackTrace;
-    try {
-      await _authPort.signOutLocal();
-    } on Object catch (error, stackTrace) {
-      signOutError = error;
-      signOutStackTrace = stackTrace;
+    Object? firstError;
+    StackTrace? firstStackTrace;
+
+    Future<void> capture(Future<void> Function() operation) async {
+      try {
+        await operation();
+      } on Object catch (error, stackTrace) {
+        firstError ??= error;
+        firstStackTrace ??= stackTrace;
+      }
     }
 
-    await _secureStorage.removePersistedSession();
-    await _secureStorage.clearPendingOAuth();
+    await capture(_authPort.signOutLocal);
+    await capture(_secureStorage.removePersistedSession);
+    await capture(_secureStorage.clearPendingOAuth);
 
-    if (signOutError != null) {
-      Error.throwWithStackTrace(signOutError, signOutStackTrace!);
+    if (firstError case final error?) {
+      Error.throwWithStackTrace(error, firstStackTrace!);
     }
+  }
+
+  Future<AuthSessionEvent> _mapSessionChange(SupabaseAuthChange change) async {
+    final serializedSession = change.serializedSession;
+    if (serializedSession != null && change.identity != null) {
+      await _secureStorage.persistSession(serializedSession);
+    } else if (change.kind == SupabaseAuthChangeKind.signedOut &&
+        change.shouldRemovePersistedSession) {
+      await _secureStorage.removePersistedSession();
+    }
+
+    return AuthSessionEvent(
+      type: switch (change.kind) {
+        SupabaseAuthChangeKind.initialSession =>
+          AuthSessionEventType.initialSession,
+        SupabaseAuthChangeKind.signedIn => AuthSessionEventType.signedIn,
+        SupabaseAuthChangeKind.signedOut => AuthSessionEventType.signedOut,
+        SupabaseAuthChangeKind.tokenRefreshed =>
+          AuthSessionEventType.tokenRefreshed,
+        SupabaseAuthChangeKind.userUpdated => AuthSessionEventType.userUpdated,
+      },
+      customer: _customerFromIdentity(change.identity),
+      signOutReason: switch (change.signOutKind) {
+        SupabaseSignOutKind.userInitiated => AuthSignOutReason.userInitiated,
+        SupabaseSignOutKind.sessionExpired => AuthSignOutReason.sessionExpired,
+        SupabaseSignOutKind.unknown => AuthSignOutReason.unknown,
+        null => null,
+      },
+    );
   }
 
   static AuthenticatedCustomer? _customerFromIdentity(

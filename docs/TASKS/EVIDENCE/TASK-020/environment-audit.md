@@ -21,7 +21,7 @@
 | `supabase` | 2.14.0 | transitive |
 | `gotrue` | 2.26.0 | transitive |
 | `app_links` | 7.2.1 | direct |
-| `shared_preferences` | 2.5.5 | transitive; non adatto a token critici |
+| `shared_preferences` | 2.5.5 | direct; già transitiva nella baseline, solo marker booleani non sensibili |
 | `flutter_secure_storage` | 10.3.1 | direct |
 
 Compatibilità verificata: Flutter/Dart correnti, Android API minima Flutter e iOS

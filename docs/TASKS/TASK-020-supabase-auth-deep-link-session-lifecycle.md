@@ -9,7 +9,7 @@
 - **Stato**: ACTIVE
 - **Fase**: FIX
 - **Responsabile**: CODEX_FIXER
-- **Data creazione**: 2026-07-30
+- **Data creazione**: 2026-07-31
 - **Ultimo aggiornamento**: 2026-07-31
 - **Ultimo agente**: CODEX_REVIEWER
 - **Review outcome**: CHANGES_REQUIRED
@@ -213,13 +213,13 @@ può diventare `PASS`.
 | D-01 | Il prompt end-to-end preautorizza l'intero ciclo, ma Planning, applicazione dell'autorizzazione, Execution, Review, Fix e closeout restano transizioni e commit distinti. | Preservare protocollo, provenance e separazione ruoli | ATTIVA |
 | D-02 | Strategia primaria: Supabase OAuth Google, `AuthFlowType.pkce`, browser esterno e callback canonica; nessun `google_sign_in`. | Usare la API installata, centralizzare provider e ridurre superficie nativa | ATTIVA |
 | D-03 | `detectSessionInUri` resta `false`; un solo coordinator `app_links` valida origine e payload prima dell'exchange. | L'handler SDK 2.16.0 non verifica scheme/host/path | ATTIVA |
-| D-04 | `app_links 7.2.1` diventa dipendenza diretta e `flutter_secure_storage 10.3.1` è l'unica nuova dipendenza runtime esterna. | Evitare dipendenze transitive implicite e proteggere token/verifier | ATTIVA |
-| D-05 | Un solo adapter implementa `LocalStorage` e `GotrueAsyncStorage`; usa namespace dedicato, Keychain non sincronizzato/this-device, Keystore e first-install cleanup bounded. | Evitare storage concorrenti, plaintext e sessioni Keychain residue dopo reinstall | ATTIVA |
+| D-04 | `app_links 7.2.1` diventa dipendenza diretta, `flutter_secure_storage 10.3.1` è l'unica nuova dipendenza runtime esterna e `shared_preferences 2.5.5`, già transitiva, è promossa direct soltanto per marker booleani non sensibili. | Evitare dipendenze transitive implicite e proteggere token/verifier | ATTIVA |
+| D-05 | Un solo adapter implementa `LocalStorage` e `GotrueAsyncStorage`; usa namespace dedicato, Keychain non sincronizzato/this-device, Keystore, first-install cleanup e cleanup tombstone bounded. | Evitare storage concorrenti, plaintext e sessioni residue dopo reinstall/logout fallito | ATTIVA |
 | D-06 | Auth vive sotto `lib/features/auth/`; Account consuma soltanto stati e callback dominio. | Rispettare feature-first MVVM/Riverpod e vietare Supabase nei widget | ATTIVA |
-| D-07 | Il controller è eager, single-flight e generation-safe; naviga ad Account solo dopo autenticazione proveniente da callback, non durante cold restore. | Non perdere cold callback e non disturbare l'avvio autenticato | ATTIVA |
+| D-07 | Il controller è eager, single-flight e generation-safe; un exchange cancellato viene compensato prima del retry e la navigazione Account avviene solo dopo callback persistito, non durante cold restore. | Non perdere cold callback, non conservare sessioni cancellate e non disturbare l'avvio autenticato | ATTIVA |
 | D-08 | `AuthenticatedCustomer` conserva ID interno e campi UI bounded; ignora avatar remoto e metadata autorizzativi. | Metadata Google sono input non fidato e TASK-012 vieta provider avatar network-capable | ATTIVA |
 | D-09 | L'unico write remoto ammesso aggiunge l'URI esatto alla allow-list del solo staging preservando l'insieme esistente. | Evitare wildcard, drift, produzione e credenziali condivise | ATTIVA |
-| D-10 | Logout usa esplicitamente `SignOutScope.local`, pulisce subito storage locale e resta guest anche se la revoca remota fallisce offline. | Fail-closed sul device senza promettere logout globale | ATTIVA |
+| D-10 | Logout usa esplicitamente `SignOutScope.local`, tenta indipendentemente delete sessione/verifier e registra tombstone non sensibili da ritentare al bootstrap. | Fail-closed sul device senza promettere logout globale | ATTIVA |
 | D-11 | Development resta guest senza Auth remoto; staging usa kill switch; production continua a rifiutare Google in questo milestone. | Nessun fallback o modifica production | ATTIVA |
 | D-12 | CI usa solo fake deterministici; Google reale e config staging restano smoke locali sanitizzati. | Non introdurre account, secret o flakiness in CI | ATTIVA |
 | D-13 | Codex usa solo account Google di test già autenticato; password, MFA, CAPTCHA o nuovo account diventano blocker esterno esplicito. | Rispettare il limite di credenziali e interazione umana | ATTIVA |
@@ -318,7 +318,7 @@ esporre token o dati e senza estendere il client oltre il dominio Storefront fut
 - **Prossimo ruolo**: CODEX_EXECUTOR
 - **Planning pronto**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
 - **Autorizzazione USER_APPROVER**: concessa e applicata dal prompt end-to-end il
-  2026-07-30
+  2026-07-31
 - **Transizione**: PLANNING -> EXECUTION
 - **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 

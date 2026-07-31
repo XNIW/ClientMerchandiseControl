@@ -30,6 +30,21 @@ void main() {
     );
   }
 
+  Widget buildMatrixApp(Widget child, ThemeMode themeMode) {
+    return ProviderScope(
+      overrides: [appConfigProvider.overrideWithValue(AppConfig.fromValues())],
+      child: MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: appSupportedLocales,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: themeMode,
+        home: Scaffold(body: child),
+      ),
+    );
+  }
+
   Future<AppLocalizations> loadL10n() {
     return AppLocalizations.delegate.load(locale);
   }
@@ -316,4 +331,163 @@ void main() {
     expect(tester, meetsGuideline(iOSTapTargetGuideline));
     semantics.dispose();
   });
+
+  testWidgets(
+    'matrice completa stati Auth rifluisce a 200% con semantica e target',
+    (tester) async {
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final semantics = tester.ensureSemantics();
+      final l10n = await loadL10n();
+      final model = AuthenticatedAccountPresentationModel(
+        displayName: 'Cliente con nombre extenso',
+        email: 'customer@example.test',
+      );
+      final cases =
+          <
+            ({
+              String name,
+              AccountView view,
+              List<ValueKey<String>> actions,
+              bool liveStatus,
+            })
+          >[
+            (
+              name: 'guest',
+              view: AccountView.guest(onContinueWithGoogle: () {}),
+              actions: const [ValueKey('account-google-button')],
+              liveStatus: false,
+            ),
+            (
+              name: 'authenticating',
+              view: AccountView.status(
+                title: l10n.accountSigningInTitle,
+                message: l10n.accountSigningInMessage,
+                isProgress: true,
+                secondaryLabel: l10n.accountCancelSignIn,
+                onSecondary: () {},
+              ),
+              actions: const [ValueKey('account-auth-secondary')],
+              liveStatus: true,
+            ),
+            (
+              name: 'cancelling',
+              view: AccountView.status(
+                title: l10n.accountCancellingTitle,
+                message: l10n.accountCancellingMessage,
+                isProgress: true,
+              ),
+              actions: const [],
+              liveStatus: true,
+            ),
+            (
+              name: 'cancelled',
+              view: AccountView.status(
+                title: l10n.accountCancelledTitle,
+                message: l10n.accountCancelledMessage,
+                primaryLabel: l10n.accountRetry,
+                onPrimary: () {},
+              ),
+              actions: const [ValueKey('account-auth-primary')],
+              liveStatus: true,
+            ),
+            (
+              name: 'authenticated',
+              view: AccountView.authenticated(model: model, onLogout: () {}),
+              actions: const [ValueKey('account-logout-button')],
+              liveStatus: false,
+            ),
+            (
+              name: 'signingOut',
+              view: AccountView.authenticated(
+                model: model,
+                onLogout: null,
+                isSigningOut: true,
+              ),
+              actions: const [ValueKey('account-logout-button')],
+              liveStatus: false,
+            ),
+            (
+              name: 'recoverableError',
+              view: AccountView.status(
+                title: l10n.accountAuthErrorTitle,
+                message: l10n.accountAuthOffline,
+                primaryLabel: l10n.accountRetry,
+                onPrimary: () {},
+              ),
+              actions: const [ValueKey('account-auth-primary')],
+              liveStatus: true,
+            ),
+            (
+              name: 'configurationError',
+              view: AccountView.status(
+                title: l10n.accountConfigurationErrorTitle,
+                message: l10n.accountAuthConfiguration,
+              ),
+              actions: const [],
+              liveStatus: true,
+            ),
+          ];
+      const viewports = [Size(320, 568), Size(568, 320), Size(1024, 768)];
+
+      for (final themeMode in [ThemeMode.light, ThemeMode.dark]) {
+        for (final viewport in viewports) {
+          await tester.binding.setSurfaceSize(viewport);
+          for (final testCase in cases) {
+            await tester.pumpWidget(buildMatrixApp(testCase.view, themeMode));
+            await tester.pump();
+
+            expect(
+              find.byKey(const ValueKey('account-card')),
+              findsOneWidget,
+              reason: '${testCase.name} / $themeMode / $viewport',
+            );
+            expect(
+              find.byWidgetPredicate(
+                (widget) =>
+                    widget is Semantics && widget.properties.header == true,
+              ),
+              findsAtLeastNWidgets(1),
+              reason: 'header ${testCase.name} / $themeMode / $viewport',
+            );
+            if (testCase.liveStatus) {
+              expect(
+                find.byWidgetPredicate(
+                  (widget) =>
+                      widget is Semantics &&
+                      widget.properties.liveRegion == true,
+                ),
+                findsAtLeastNWidgets(1),
+                reason: 'live ${testCase.name} / $themeMode / $viewport',
+              );
+            }
+
+            for (final key in testCase.actions) {
+              final action = find.byKey(key);
+              await tester.ensureVisible(action);
+              await tester.pump();
+              final size = tester.getSize(action);
+              expect(
+                size.width,
+                greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
+                reason: '$key width ${testCase.name} / $viewport',
+              );
+              expect(
+                size.height,
+                greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
+                reason: '$key height ${testCase.name} / $viewport',
+              );
+            }
+            expect(
+              tester.takeException(),
+              isNull,
+              reason: '${testCase.name} / $themeMode / $viewport',
+            );
+          }
+        }
+      }
+      semantics.dispose();
+    },
+  );
 }

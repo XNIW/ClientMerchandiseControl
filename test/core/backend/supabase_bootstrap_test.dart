@@ -169,8 +169,17 @@ final class _NoopSecureStore implements SecureAuthKeyValueStore {
 
 final class _MarkedInstall implements AuthInstallationMarkerStore {
   @override
+  Future<void> clearCleanupPending(AuthCleanupTarget target) async {}
+
+  @override
+  Future<bool> isCleanupPending(AuthCleanupTarget target) async => false;
+
+  @override
   Future<bool> isCurrentInstallMarked() async => true;
 
   @override
   Future<void> markCurrentInstall() async {}
+
+  @override
+  Future<void> markCleanupPending(AuthCleanupTarget target) async {}
 }

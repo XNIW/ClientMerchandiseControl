@@ -192,8 +192,10 @@ distinti.
 `AuthController` è eager e costituisce la sola fonte UI del lifecycle. Un
 `AuthRepository` iniettabile separa dominio e SDK; `SupabaseAuthRepository` usa Google,
 PKCE, browser esterno e callback canonica. Cold link e warm link confluiscono in una
-sola subscription `app_links`, vengono validati e consumati una volta. Risultati
-obsoleti dopo cancellazione, logout o dispose non possono ripristinare authenticated.
+sola subscription `app_links`, vengono validati e consumati una volta. Cancel resta in
+corso finché un exchange posseduto non è terminato e compensato con sign-out/purge;
+un risultato vecchio non elimina il verifier del retry. Risultati obsoleti dopo
+cancellazione, logout o dispose non possono ripristinare authenticated.
 Il restore valido non forza navigazione; soltanto un'autenticazione completata dal
 callback conduce ad Account.
 
@@ -205,13 +207,19 @@ consumer concorrenti; la validazione Dart resta obbligatoria.
 
 Sessione e verifier PKCE condividono `SecureSupabaseAuthStorage`: Android usa
 Keystore/RSA-OAEP/AES-GCM con backup applicativo disabilitato; iOS usa Keychain
-non sincronizzato e vincolato al device. Un marker booleano non sensibile nel container
-applicativo cancella soltanto le due chiavi Auth al primo avvio di una nuova
-installazione. Non esiste fallback SharedPreferences per token.
+non sincronizzato e vincolato al device. Marker booleani non sensibili nel container
+applicativo cancellano le due chiavi Auth al primo avvio e ritentano un cleanup
+sessione/PKCE fallito prima del restore. Le mutazioni sono serializzate; le failure
+post-auth raggiungono il controller e la sessione scaduta/non dotata di expiry valida
+non espone identity. Un refresh retryable degrada la UI a guest senza eliminare il
+refresh token protetto, così l'SDK può recuperare con un successivo
+`tokenRefreshed`; soltanto un vero `signedOut` o il logout rimuove la sessione.
+Non esiste fallback SharedPreferences per token.
 
-Il logout usa `SignOutScope.local`: la sessione in memoria viene rimossa prima della
-chiamata remota SDK e l'adapter elimina esplicitamente sessione e verifier. Un errore
-offline può produrre un avviso customer-safe ma lo stato resta guest.
+Il logout usa `SignOutScope.local`: la sessione in memoria viene rimossa e l'adapter
+tenta sempre, in modo indipendente, delete sessione e verifier. Un tombstone rimasto
+pendente blocca il restore e fa ritentare il purge al bootstrap. Un errore offline può
+produrre un avviso customer-safe ma lo stato resta guest.
 
 Ogni risorsa futura è vincolata a uno `shop_id` UUID validato dal server. Il client può
 trasportare il contesto shop per routing e presentazione, ma non sceglie autonomamente

@@ -904,7 +904,7 @@
 - **Blocker/note**: limite esterno non attribuibile al codice; il lavoro locale
   autorizzato può continuare, TASK-020 richiede comunque una transizione distinta.
 
-## 2026-07-30 — Planning TASK-020
+## 2026-07-31 — Planning TASK-020
 
 - **Agente**: `CODEX_PLANNER`, con cinque shard read-only indipendenti
 - **Task**: TASK-020
@@ -926,7 +926,7 @@
   modificato; l'autorizzazione end-to-end è concessa ma deve essere applicata in una
   transizione e commit distinti.
 
-## 2026-07-30 — Autorizzazione Execution TASK-020
+## 2026-07-31 — Autorizzazione Execution TASK-020
 
 - **Agente**: `USER_APPROVER`
 - **Task**: TASK-020
@@ -938,7 +938,7 @@
 - **Blocker/note**: l'Execution deve restare entro TASK-020; review indipendente,
   gate reali e CI restano obbligatori prima di DONE/merge.
 
-## 2026-07-30 — Execution TASK-020 e handoff a Review
+## 2026-07-31 — Execution TASK-020 e handoff a Review
 
 - **Agente**: `CODEX_EXECUTOR`
 - **Task**: TASK-020

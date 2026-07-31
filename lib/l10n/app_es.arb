@@ -225,6 +225,82 @@
   "@accountLogout": {
     "description": "Acción para cerrar la sesión."
   },
+  "accountSigningInTitle": "Abriendo el acceso seguro",
+  "@accountSigningInTitle": {
+    "description": "Título mientras se inicia el acceso con Google."
+  },
+  "accountSigningInMessage": "Completa el acceso en el navegador y vuelve a la aplicación.",
+  "@accountSigningInMessage": {
+    "description": "Instrucción segura durante el flujo OAuth externo."
+  },
+  "accountCancelSignIn": "Cancelar acceso",
+  "@accountCancelSignIn": {
+    "description": "Acción para cancelar el flujo OAuth pendiente."
+  },
+  "accountCancellingTitle": "Cancelando el acceso",
+  "@accountCancellingTitle": {
+    "description": "Título mientras se limpia un flujo OAuth cancelado."
+  },
+  "accountCancellingMessage": "Estamos cerrando este intento de acceso de forma segura.",
+  "@accountCancellingMessage": {
+    "description": "Mensaje durante la cancelación del flujo OAuth."
+  },
+  "accountCancelledTitle": "Acceso cancelado",
+  "@accountCancelledTitle": {
+    "description": "Título de cancelación no crítica del acceso."
+  },
+  "accountCancelledMessage": "No se hizo ningún cambio en tu cuenta. Puedes intentarlo de nuevo.",
+  "@accountCancelledMessage": {
+    "description": "Mensaje de cancelación recuperable."
+  },
+  "accountRetry": "Intentar de nuevo",
+  "@accountRetry": {
+    "description": "Acción manual para reintentar el acceso."
+  },
+  "accountAuthErrorTitle": "No pudimos iniciar sesión",
+  "@accountAuthErrorTitle": {
+    "description": "Título genérico de error recuperable de autenticación."
+  },
+  "accountConfigurationErrorTitle": "Acceso no disponible",
+  "@accountConfigurationErrorTitle": {
+    "description": "Título de error de configuración o almacenamiento seguro."
+  },
+  "accountSigningOut": "Cerrando sesión…",
+  "@accountSigningOut": {
+    "description": "Estado mientras se elimina la sesión local."
+  },
+  "accountAuthOffline": "Comprueba tu conexión y vuelve a intentarlo.",
+  "@accountAuthOffline": {
+    "description": "Error de autenticación sin conexión."
+  },
+  "accountAuthProviderUnavailable": "Google no está disponible por el momento. Inténtalo más tarde.",
+  "@accountAuthProviderUnavailable": {
+    "description": "Error temporal del proveedor OAuth."
+  },
+  "accountAuthBrowserLaunchFailed": "No pudimos abrir el navegador para continuar.",
+  "@accountAuthBrowserLaunchFailed": {
+    "description": "Error al abrir el navegador externo."
+  },
+  "accountAuthInvalidCallback": "El retorno de acceso no era válido. Inicia un intento nuevo.",
+  "@accountAuthInvalidCallback": {
+    "description": "Error seguro para un callback OAuth rechazado."
+  },
+  "accountAuthSessionExpired": "Tu sesión terminó. Inicia sesión de nuevo cuando quieras.",
+  "@accountAuthSessionExpired": {
+    "description": "Aviso cuando una sesión expira o es revocada."
+  },
+  "accountAuthSecureStorageUnavailable": "Este dispositivo no puede proteger la sesión de forma segura.",
+  "@accountAuthSecureStorageUnavailable": {
+    "description": "Error cerrado de almacenamiento seguro."
+  },
+  "accountAuthConfiguration": "El acceso con Google no está configurado para este entorno.",
+  "@accountAuthConfiguration": {
+    "description": "Error seguro de configuración OAuth."
+  },
+  "accountAuthUnexpected": "Ocurrió un problema inesperado. Puedes intentarlo de nuevo.",
+  "@accountAuthUnexpected": {
+    "description": "Error de autenticación inesperado sin detalles técnicos."
+  },
   "accountAvatarLabel": "Avatar de {name}",
   "@accountAvatarLabel": {
     "description": "Etiqueta accesible del avatar de la cuenta.",

@@ -210,6 +210,74 @@ class AppLocalizationsZh extends AppLocalizations {
   String get accountLogout => 'Cerrar sesión';
 
   @override
+  String get accountSigningInTitle => 'Abriendo el acceso seguro';
+
+  @override
+  String get accountSigningInMessage =>
+      'Completa el acceso en el navegador y vuelve a la aplicación.';
+
+  @override
+  String get accountCancelSignIn => 'Cancelar acceso';
+
+  @override
+  String get accountCancellingTitle => 'Cancelando el acceso';
+
+  @override
+  String get accountCancellingMessage =>
+      'Estamos cerrando este intento de acceso de forma segura.';
+
+  @override
+  String get accountCancelledTitle => 'Acceso cancelado';
+
+  @override
+  String get accountCancelledMessage =>
+      'No se hizo ningún cambio en tu cuenta. Puedes intentarlo de nuevo.';
+
+  @override
+  String get accountRetry => 'Intentar de nuevo';
+
+  @override
+  String get accountAuthErrorTitle => 'No pudimos iniciar sesión';
+
+  @override
+  String get accountConfigurationErrorTitle => 'Acceso no disponible';
+
+  @override
+  String get accountSigningOut => 'Cerrando sesión…';
+
+  @override
+  String get accountAuthOffline =>
+      'Comprueba tu conexión y vuelve a intentarlo.';
+
+  @override
+  String get accountAuthProviderUnavailable =>
+      'Google no está disponible por el momento. Inténtalo más tarde.';
+
+  @override
+  String get accountAuthBrowserLaunchFailed =>
+      'No pudimos abrir el navegador para continuar.';
+
+  @override
+  String get accountAuthInvalidCallback =>
+      'El retorno de acceso no era válido. Inicia un intento nuevo.';
+
+  @override
+  String get accountAuthSessionExpired =>
+      'Tu sesión terminó. Inicia sesión de nuevo cuando quieras.';
+
+  @override
+  String get accountAuthSecureStorageUnavailable =>
+      'Este dispositivo no puede proteger la sesión de forma segura.';
+
+  @override
+  String get accountAuthConfiguration =>
+      'El acceso con Google no está configurado para este entorno.';
+
+  @override
+  String get accountAuthUnexpected =>
+      'Ocurrió un problema inesperado. Puedes intentarlo de nuevo.';
+
+  @override
   String accountAvatarLabel(String name) {
     return 'Avatar de $name';
   }
@@ -401,6 +469,63 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get accountLogout => '退出登录';
+
+  @override
+  String get accountSigningInTitle => '正在打开安全登录';
+
+  @override
+  String get accountSigningInMessage => '请在浏览器中完成登录，然后返回应用。';
+
+  @override
+  String get accountCancelSignIn => '取消登录';
+
+  @override
+  String get accountCancellingTitle => '正在取消登录';
+
+  @override
+  String get accountCancellingMessage => '正在安全地关闭本次登录尝试。';
+
+  @override
+  String get accountCancelledTitle => '登录已取消';
+
+  @override
+  String get accountCancelledMessage => '你的账户没有发生更改，可以重新尝试。';
+
+  @override
+  String get accountRetry => '重试';
+
+  @override
+  String get accountAuthErrorTitle => '无法登录';
+
+  @override
+  String get accountConfigurationErrorTitle => '登录不可用';
+
+  @override
+  String get accountSigningOut => '正在退出…';
+
+  @override
+  String get accountAuthOffline => '请检查网络连接后重试。';
+
+  @override
+  String get accountAuthProviderUnavailable => 'Google 暂时不可用，请稍后重试。';
+
+  @override
+  String get accountAuthBrowserLaunchFailed => '无法打开浏览器以继续。';
+
+  @override
+  String get accountAuthInvalidCallback => '登录返回无效，请重新发起登录。';
+
+  @override
+  String get accountAuthSessionExpired => '你的会话已结束，可以重新登录。';
+
+  @override
+  String get accountAuthSecureStorageUnavailable => '此设备无法安全保护会话。';
+
+  @override
+  String get accountAuthConfiguration => '当前环境尚未配置 Google 登录。';
+
+  @override
+  String get accountAuthUnexpected => '出现意外问题，你可以重试。';
 
   @override
   String accountAvatarLabel(String name) {

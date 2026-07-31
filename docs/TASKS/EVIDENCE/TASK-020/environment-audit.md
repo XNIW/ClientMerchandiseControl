@@ -20,9 +20,9 @@
 | `supabase_flutter` | 2.16.0 | direct |
 | `supabase` | 2.14.0 | transitive |
 | `gotrue` | 2.26.0 | transitive |
-| `app_links` | 7.2.1 | transitive, da rendere direct in Execution |
+| `app_links` | 7.2.1 | direct |
 | `shared_preferences` | 2.5.5 | transitive; non adatto a token critici |
-| `flutter_secure_storage` | 10.3.1 | stabile corrente, da aggiungere in Execution |
+| `flutter_secure_storage` | 10.3.1 | direct |
 
 Compatibilità verificata: Flutter/Dart correnti, Android API minima Flutter e iOS
 deployment target 13 soddisfano i requisiti di `flutter_secure_storage 10.3.1`.
@@ -36,10 +36,11 @@ deployment target 13 soddisfano i requisiti di `flutter_secure_storage 10.3.1`.
 | Regione | PASS | Sud America |
 | Health Auth TASK-011 | PASS | endpoint ufficiale, data-free |
 | Provider Google TASK-011 | PASS | configurato, non modificato |
-| Provider Google corrente | BLOCKED | richiede sessione dashboard autenticata o API Auth config |
+| Provider Google corrente | PASS | settings Auth pubblici: Google attivo; due provider esterni attivi |
+| Authorize Google corrente | PASS | risposta 302 verso il dominio Google; redirect non seguito |
 | Redirect mobile TASK-011 | PASS | risultava assente e riservato a TASK-020 |
-| Redirect mobile corrente | BLOCKED | da riconfermare prima dell'append |
-| Write remoto Planning | NOT_RUN | vietato in questa fase |
+| Redirect mobile corrente | BLOCKED | dashboard fermata da MFA; connector senza Auth config |
+| Write remoto Execution | NOT_RUN | nessun point-update sicuro disponibile; zero modifiche remote |
 | Production | NOT_RUN | fuori scope e non ispezionata/modificata |
 
 Il connector Supabase è stato usato soltanto per discovery read-only e documentazione.
@@ -57,15 +58,17 @@ Controllo deterministico sul file ignorato:
 - `git check-ignore`: `PASS`;
 - assenza da `git ls-files`: `PASS`.
 
-Il flag sarà impostato a `true` soltanto in Execution, dopo la verifica/addizione
-allow-list. Il file resta locale, ignorato e non deve entrare in stage, diff o
-evidence.
+Il flag resta `false`: la verifica/addizione allow-list non è stata possibile. Il file
+resta locale, ignorato e non entra in stage, diff o evidence.
 
 ## Limiti osservati
 
-- La dashboard nel browser in-app richiede autenticazione.
-- La superficie Chrome con sessione utente non è disponibile nel runtime corrente.
-- Non sono state inserite password, MFA, OTP o altre credenziali.
+- La dashboard ha raggiunto il controllo MFA; non sono stati inseriti fattori,
+  password, OTP o altre credenziali.
+- Il connector Supabase espone discovery/database ma non Auth config o redirect
+  allow-list; il CLI non offre un point-update sicuro equivalente.
+- Il simulatore iOS richiede conferma OS per aprire il custom scheme e il Mac locked
+  impedisce l'interazione locale.
 - La CI closeout TASK-012 ha fallito prima del runner per billing/spending GitHub;
   TASK-020 dovrà tentare CI reale e registrare `BLOCKED / CI_EXTERNAL` se il limite
   persiste.

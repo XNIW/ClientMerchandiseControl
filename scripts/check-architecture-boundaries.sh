@@ -16,6 +16,7 @@ cmc_arch_data_boundary="${cmc_arch_repo_root}/docs/ARCHITECTURE/STOREFRONT-DATA-
 cmc_arch_quality="${cmc_arch_repo_root}/docs/QUALITY-GATES.md"
 cmc_arch_system="${cmc_arch_repo_root}/docs/ARCHITECTURE/SYSTEM-CONTEXT.md"
 cmc_arch_mobile="${cmc_arch_repo_root}/docs/ARCHITECTURE/MOBILE-ARCHITECTURE.md"
+cmc_arch_auth="${cmc_arch_repo_root}/docs/ARCHITECTURE/AUTH-BOUNDARY.md"
 cmc_arch_task002="${cmc_arch_repo_root}/docs/TASKS/TASK-002-product-scope-branding-design-system.md"
 cmc_arch_violation_count=0
 
@@ -308,6 +309,18 @@ cmc_arch_forbid_literal \
   "${cmc_arch_system}" \
   "shell cliente data-backed" \
   "TASK-012 non possiede UI commerciali data-backed"
+cmc_arch_require_literal \
+  "${cmc_arch_auth}" \
+  '`detectSessionInUri:false`' \
+  "observer SDK Auth disabilitato"
+cmc_arch_require_literal \
+  "${cmc_arch_auth}" \
+  "SharedPreferences contiene soltanto un marker booleano di installazione." \
+  "token e verifier fuori da SharedPreferences"
+cmc_arch_require_literal \
+  "${cmc_arch_auth}" \
+  "Una sessione valida prova soltanto l'identità Supabase." \
+  "session identity distinta da authorization"
 cmc_arch_forbid_literal \
   "${cmc_arch_mobile}" \
   "TASK-012 per shell cliente data-backed" \
@@ -577,4 +590,4 @@ if [[ "${cmc_arch_violation_count}" -ne 0 ]]; then
   exit 1
 fi
 
-printf 'Boundary architetturali coerenti: ownership, TASK-012 e DAG normativo verificati.\n'
+printf 'Boundary architetturali coerenti: ownership, TASK-012, Auth e DAG normativo verificati.\n'

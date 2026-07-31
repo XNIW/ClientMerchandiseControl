@@ -210,6 +210,74 @@ class AppLocalizationsEs extends AppLocalizations {
   String get accountLogout => 'Cerrar sesión';
 
   @override
+  String get accountSigningInTitle => 'Abriendo el acceso seguro';
+
+  @override
+  String get accountSigningInMessage =>
+      'Completa el acceso en el navegador y vuelve a la aplicación.';
+
+  @override
+  String get accountCancelSignIn => 'Cancelar acceso';
+
+  @override
+  String get accountCancellingTitle => 'Cancelando el acceso';
+
+  @override
+  String get accountCancellingMessage =>
+      'Estamos cerrando este intento de acceso de forma segura.';
+
+  @override
+  String get accountCancelledTitle => 'Acceso cancelado';
+
+  @override
+  String get accountCancelledMessage =>
+      'No se hizo ningún cambio en tu cuenta. Puedes intentarlo de nuevo.';
+
+  @override
+  String get accountRetry => 'Intentar de nuevo';
+
+  @override
+  String get accountAuthErrorTitle => 'No pudimos iniciar sesión';
+
+  @override
+  String get accountConfigurationErrorTitle => 'Acceso no disponible';
+
+  @override
+  String get accountSigningOut => 'Cerrando sesión…';
+
+  @override
+  String get accountAuthOffline =>
+      'Comprueba tu conexión y vuelve a intentarlo.';
+
+  @override
+  String get accountAuthProviderUnavailable =>
+      'Google no está disponible por el momento. Inténtalo más tarde.';
+
+  @override
+  String get accountAuthBrowserLaunchFailed =>
+      'No pudimos abrir el navegador para continuar.';
+
+  @override
+  String get accountAuthInvalidCallback =>
+      'El retorno de acceso no era válido. Inicia un intento nuevo.';
+
+  @override
+  String get accountAuthSessionExpired =>
+      'Tu sesión terminó. Inicia sesión de nuevo cuando quieras.';
+
+  @override
+  String get accountAuthSecureStorageUnavailable =>
+      'Este dispositivo no puede proteger la sesión de forma segura.';
+
+  @override
+  String get accountAuthConfiguration =>
+      'El acceso con Google no está configurado para este entorno.';
+
+  @override
+  String get accountAuthUnexpected =>
+      'Ocurrió un problema inesperado. Puedes intentarlo de nuevo.';
+
+  @override
   String accountAvatarLabel(String name) {
     return 'Avatar de $name';
   }

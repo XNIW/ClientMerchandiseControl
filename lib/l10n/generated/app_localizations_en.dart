@@ -209,6 +209,73 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountLogout => 'Sign out';
 
   @override
+  String get accountSigningInTitle => 'Opening secure sign-in';
+
+  @override
+  String get accountSigningInMessage =>
+      'Complete sign-in in the browser, then return to the app.';
+
+  @override
+  String get accountCancelSignIn => 'Cancel sign-in';
+
+  @override
+  String get accountCancellingTitle => 'Cancelling sign-in';
+
+  @override
+  String get accountCancellingMessage =>
+      'We\'re safely closing this sign-in attempt.';
+
+  @override
+  String get accountCancelledTitle => 'Sign-in cancelled';
+
+  @override
+  String get accountCancelledMessage =>
+      'No changes were made to your account. You can try again.';
+
+  @override
+  String get accountRetry => 'Try again';
+
+  @override
+  String get accountAuthErrorTitle => 'We couldn\'t sign you in';
+
+  @override
+  String get accountConfigurationErrorTitle => 'Sign-in unavailable';
+
+  @override
+  String get accountSigningOut => 'Signing out…';
+
+  @override
+  String get accountAuthOffline => 'Check your connection and try again.';
+
+  @override
+  String get accountAuthProviderUnavailable =>
+      'Google is temporarily unavailable. Try again later.';
+
+  @override
+  String get accountAuthBrowserLaunchFailed =>
+      'We couldn\'t open the browser to continue.';
+
+  @override
+  String get accountAuthInvalidCallback =>
+      'The sign-in return was invalid. Start a new attempt.';
+
+  @override
+  String get accountAuthSessionExpired =>
+      'Your session ended. Sign in again whenever you\'re ready.';
+
+  @override
+  String get accountAuthSecureStorageUnavailable =>
+      'This device can\'t protect the session securely.';
+
+  @override
+  String get accountAuthConfiguration =>
+      'Google sign-in isn\'t configured for this environment.';
+
+  @override
+  String get accountAuthUnexpected =>
+      'Something unexpected happened. You can try again.';
+
+  @override
   String accountAvatarLabel(String name) {
     return 'Avatar for $name';
   }

@@ -64,10 +64,9 @@ lib/core/backend/
 
 lib/features/account/presentation/
   account_screen.dart
-  account_presentation_model.dart
 ```
 
-Non verranno creati layer o file senza responsabilità/consumatore reale.
+Non sono stati creati layer o file senza responsabilità/consumatore reale.
 
 ## Callback boundary
 
@@ -99,7 +98,11 @@ Activity.
 
 iOS disabilita il Flutter deep-link handler e registra un solo
 `CFBundleURLTypes`/scheme. Non aggiunge Universal Links, Associated Domains, reversed
-Google client ID, signing o override Swift. Host/path sono sempre verificati in Dart.
+Google client ID o signing. L'auto-handling `app_links` è disabilitato dopo la
+registrazione del plugin; `AppDelegate` inoltra il custom scheme applicativo e
+`SceneDelegate` inoltra connection options, URL contexts e user activity allo stesso
+singleton, sempre dopo i callback `super`. Host/path sono verificati in Dart prima
+dell'exchange e un solo source Dart consuma gli eventi.
 
 ## Secure persistence
 

@@ -463,6 +463,120 @@ abstract class AppLocalizations {
   /// **'Cerrar sesión'**
   String get accountLogout;
 
+  /// Título mientras se inicia el acceso con Google.
+  ///
+  /// In es, this message translates to:
+  /// **'Abriendo el acceso seguro'**
+  String get accountSigningInTitle;
+
+  /// Instrucción segura durante el flujo OAuth externo.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa el acceso en el navegador y vuelve a la aplicación.'**
+  String get accountSigningInMessage;
+
+  /// Acción para cancelar el flujo OAuth pendiente.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar acceso'**
+  String get accountCancelSignIn;
+
+  /// Título mientras se limpia un flujo OAuth cancelado.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelando el acceso'**
+  String get accountCancellingTitle;
+
+  /// Mensaje durante la cancelación del flujo OAuth.
+  ///
+  /// In es, this message translates to:
+  /// **'Estamos cerrando este intento de acceso de forma segura.'**
+  String get accountCancellingMessage;
+
+  /// Título de cancelación no crítica del acceso.
+  ///
+  /// In es, this message translates to:
+  /// **'Acceso cancelado'**
+  String get accountCancelledTitle;
+
+  /// Mensaje de cancelación recuperable.
+  ///
+  /// In es, this message translates to:
+  /// **'No se hizo ningún cambio en tu cuenta. Puedes intentarlo de nuevo.'**
+  String get accountCancelledMessage;
+
+  /// Acción manual para reintentar el acceso.
+  ///
+  /// In es, this message translates to:
+  /// **'Intentar de nuevo'**
+  String get accountRetry;
+
+  /// Título genérico de error recuperable de autenticación.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos iniciar sesión'**
+  String get accountAuthErrorTitle;
+
+  /// Título de error de configuración o almacenamiento seguro.
+  ///
+  /// In es, this message translates to:
+  /// **'Acceso no disponible'**
+  String get accountConfigurationErrorTitle;
+
+  /// Estado mientras se elimina la sesión local.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrando sesión…'**
+  String get accountSigningOut;
+
+  /// Error de autenticación sin conexión.
+  ///
+  /// In es, this message translates to:
+  /// **'Comprueba tu conexión y vuelve a intentarlo.'**
+  String get accountAuthOffline;
+
+  /// Error temporal del proveedor OAuth.
+  ///
+  /// In es, this message translates to:
+  /// **'Google no está disponible por el momento. Inténtalo más tarde.'**
+  String get accountAuthProviderUnavailable;
+
+  /// Error al abrir el navegador externo.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos abrir el navegador para continuar.'**
+  String get accountAuthBrowserLaunchFailed;
+
+  /// Error seguro para un callback OAuth rechazado.
+  ///
+  /// In es, this message translates to:
+  /// **'El retorno de acceso no era válido. Inicia un intento nuevo.'**
+  String get accountAuthInvalidCallback;
+
+  /// Aviso cuando una sesión expira o es revocada.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu sesión terminó. Inicia sesión de nuevo cuando quieras.'**
+  String get accountAuthSessionExpired;
+
+  /// Error cerrado de almacenamiento seguro.
+  ///
+  /// In es, this message translates to:
+  /// **'Este dispositivo no puede proteger la sesión de forma segura.'**
+  String get accountAuthSecureStorageUnavailable;
+
+  /// Error seguro de configuración OAuth.
+  ///
+  /// In es, this message translates to:
+  /// **'El acceso con Google no está configurado para este entorno.'**
+  String get accountAuthConfiguration;
+
+  /// Error de autenticación inesperado sin detalles técnicos.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocurrió un problema inesperado. Puedes intentarlo de nuevo.'**
+  String get accountAuthUnexpected;
+
   /// Etiqueta accesible del avatar de la cuenta.
   ///
   /// In es, this message translates to:

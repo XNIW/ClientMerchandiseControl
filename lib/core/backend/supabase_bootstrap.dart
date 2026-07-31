@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/app_config.dart';
 import '../config/app_environment.dart';
 import 'backend_readiness_state.dart';
+import 'secure_supabase_auth_storage.dart';
 
 typedef SupabaseInitializer =
     Future<void> Function({
@@ -11,9 +12,12 @@ typedef SupabaseInitializer =
     });
 
 abstract final class SupabaseBootstrap {
+  static Future<void>? _defaultInitialization;
+
   static Future<BackendReadinessState> initialize(
     AppConfig config, {
     SupabaseInitializer? initializer,
+    SecureSupabaseAuthStorage? authStorage,
   }) async {
     if (config.environment == AppEnvironment.development) {
       return BackendReadinessState.unconfigured;
@@ -29,40 +33,57 @@ abstract final class SupabaseBootstrap {
       return BackendReadinessState.misconfigured;
     }
 
-    await (initializer ?? _initializeSupabase)(
-      url: config.supabaseUrl!,
-      publishableKey: config.supabasePublishableKey!,
-    );
+    if (initializer != null) {
+      await initializer(
+        url: config.supabaseUrl!,
+        publishableKey: config.supabasePublishableKey!,
+      );
+    } else {
+      await _initializeDefault(
+        url: config.supabaseUrl!,
+        publishableKey: config.supabasePublishableKey!,
+        authStorage: authStorage ?? SecureSupabaseAuthStorage.standardInstance,
+      );
+    }
     return BackendReadinessState.initializing;
   }
 
-  static Future<void> _initializeSupabase({
-    required String url,
-    required String publishableKey,
-  }) async {
-    await Supabase.initialize(
-      url: url,
-      publishableKey: publishableKey,
-      authOptions: const FlutterAuthClientOptions(
-        autoRefreshToken: false,
-        detectSessionInUri: false,
-        localStorage: EmptyLocalStorage(),
-        pkceAsyncStorage: _DisabledGotrueAsyncStorage(),
-      ),
-      debug: false,
+  static FlutterAuthClientOptions buildAuthOptions(
+    SecureSupabaseAuthStorage authStorage,
+  ) {
+    return FlutterAuthClientOptions(
+      authFlowType: AuthFlowType.pkce,
+      autoRefreshToken: true,
+      detectSessionInUri: false,
+      localStorage: authStorage,
+      pkceAsyncStorage: authStorage,
     );
   }
-}
 
-final class _DisabledGotrueAsyncStorage extends GotrueAsyncStorage {
-  const _DisabledGotrueAsyncStorage();
+  static Future<void> _initializeDefault({
+    required String url,
+    required String publishableKey,
+    required SecureSupabaseAuthStorage authStorage,
+  }) async {
+    final inFlight = _defaultInitialization;
+    if (inFlight != null) {
+      return inFlight;
+    }
 
-  @override
-  Future<String?> getItem({required String key}) async => null;
-
-  @override
-  Future<void> removeItem({required String key}) async {}
-
-  @override
-  Future<void> setItem({required String key, required String value}) async {}
+    late final Future<void> operation;
+    operation =
+        Supabase.initialize(
+          url: url,
+          publishableKey: publishableKey,
+          authOptions: buildAuthOptions(authStorage),
+          debug: false,
+        ).then<void>((_) {}).catchError((Object error, StackTrace stackTrace) {
+          if (identical(_defaultInitialization, operation)) {
+            _defaultInitialization = null;
+          }
+          Error.throwWithStackTrace(error, stackTrace);
+        });
+    _defaultInitialization = operation;
+    return operation;
+  }
 }

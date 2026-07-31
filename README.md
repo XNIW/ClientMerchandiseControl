@@ -2,8 +2,9 @@
 
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
 Merchandise Control. La fondazione corrente offre una shell guest localizzata,
-accessibile e data-safe con Home, Catalogo, Carrello e Account; dati Storefront,
-autenticazione e ordini verranno collegati nei task proprietari futuri.
+accessibile e data-safe con Home, Catalogo, Carrello e Account, più una fondazione
+Google OAuth customer attivabile in staging tramite Supabase Auth dopo la verifica
+remota. Dati Storefront e ordini restano assegnati ai task proprietari futuri.
 
 ## Relazione con Merchandise Control
 
@@ -19,7 +20,8 @@ operativi.
 - Material 3;
 - Riverpod;
 - go_router;
-- Supabase Flutter;
+- Supabase Flutter Auth con PKCE;
+- `app_links` e storage Keychain/Keystore;
 - gen_l10n e intl.
 
 ## Struttura
@@ -72,7 +74,7 @@ production nel repository.
 
 Per preparare staging, copiare l'esempio nel file locale ignorato, valorizzare URL e
 publishable key non-production e mantenere `GOOGLE_AUTH_ENABLED=false` finché la
-callback non è verificata e registrata durante l'Execution di TASK-020:
+callback non è verificata nella redirect allow-list:
 
 ```bash
 cp config/app_config.staging.example.json config/app_config.staging.local.json
@@ -82,13 +84,11 @@ flutter build ios --simulator --debug --dart-define-from-file=config/app_config.
 ```
 
 Il contratto staging richiede la callback
-`com.xniw.clientmerchandisecontrol://auth-callback/`. La configurazione locale corrente
-usa `GOOGLE_AUTH_ENABLED=false` fino all'Execution di TASK-020. TASK-011 inizializza lo SDK senza
-session persistence e verifica l'endpoint Auth health ufficiale, senza interrogare
-tabelle o dati. Il banner resta customer-safe e il retry è soltanto manuale.
-TASK-012 non aggiunge query o dati commerciali: Catalogo rappresenta solo readiness,
-Account resta guest a runtime e il controllo Google rimane disabilitato fino a
-TASK-020.
+`com.xniw.clientmerchandisecontrol://auth-callback/`. Con il flag `true`, TASK-020 usa
+Google OAuth, PKCE e browser esterno; sessione e verifier sono conservati in
+Keychain/Keystore e ogni callback è validato prima dell'exchange. Development e
+production restano fail-closed. TASK-011 continua a verificare il solo endpoint Auth
+health senza tabelle o dati; TASK-012 non aggiunge query o dati commerciali.
 
 ## Test e build
 
@@ -113,6 +113,17 @@ Lo smoke guest di TASK-012 non richiede backend:
 flutter test integration_test/app_guest_flow_test.dart -d emulator-5554
 flutter test integration_test/app_guest_flow_test.dart -d <IOS_SIMULATOR_ID>
 ```
+
+Lo smoke Auth deterministico non usa Google o secret:
+
+```bash
+flutter test integration_test/auth_callback_flow_test.dart -d emulator-5554
+flutter test integration_test/auth_callback_flow_test.dart -d <IOS_SIMULATOR_ID>
+```
+
+Gli smoke OAuth live richiedono staging locale, provider e redirect verificati e un
+account test già autenticato. Non inserire password/MFA tramite automazione e non
+salvare screenshot o log contenenti identità, callback, code o token.
 
 Il gate completo è:
 

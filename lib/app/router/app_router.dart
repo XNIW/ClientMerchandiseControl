@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/account/presentation/account_screen.dart';
+import '../../features/auth/application/auth_controller.dart';
+import '../../features/auth/domain/auth_state.dart';
 import '../../features/cart/presentation/cart_screen.dart';
 import '../../features/catalog/presentation/catalog_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
@@ -59,6 +61,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+
+  ref.listen<AuthState>(authControllerProvider, (previous, next) {
+    final isCallbackAuthentication =
+        next is AuthAuthenticated && next.origin == AuthSessionOrigin.callback;
+    final wasCallbackAuthentication =
+        previous is AuthAuthenticated &&
+        previous.origin == AuthSessionOrigin.callback;
+    if (isCallbackAuthentication && !wasCallbackAuthentication) {
+      router.go(AppRoutes.accountLocation);
+    }
+  });
 
   ref.onDispose(router.dispose);
   return router;

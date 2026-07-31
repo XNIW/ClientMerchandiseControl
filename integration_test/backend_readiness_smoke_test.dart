@@ -57,12 +57,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(CatalogScreen), findsOneWidget);
+    final catalogTitle = tester.widget<Text>(
+      find.byKey(const ValueKey('shell-title-1')),
+    );
     expect(
-      find.descendant(
-        of: find.byType(CatalogScreen),
-        matching: find.text(l10n.catalogTitle),
-      ),
-      findsOneWidget,
+      catalogTitle.data,
+      l10n.catalogTitle,
+      reason: 'Il titolo Catalogo appartiene alla shell persistente.',
     );
     expect(
       find.descendant(

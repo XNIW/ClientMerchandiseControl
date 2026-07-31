@@ -1,0 +1,221 @@
+import 'package:client_merchandise_control/core/backend/secure_supabase_auth_storage.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test(
+    'primo avvio cancella soltanto sessione e PKCE e marca installazione',
+    () async {
+      final secureStore = _MemorySecureStore({
+        SecureSupabaseAuthStorage.sessionStorageKey: 'old-session',
+        SecureSupabaseAuthStorage.pkceStorageKey: 'old-verifier',
+        'unrelated': 'preserve-me',
+      });
+      final marker = _MemoryMarkerStore();
+      final storage = SecureSupabaseAuthStorage(
+        secureStore: secureStore,
+        installationMarkerStore: marker,
+      );
+
+      await storage.initialize();
+      await storage.initialize();
+
+      expect(secureStore.deleted, [
+        SecureSupabaseAuthStorage.sessionStorageKey,
+        SecureSupabaseAuthStorage.pkceStorageKey,
+      ]);
+      expect(secureStore.values['unrelated'], 'preserve-me');
+      expect(marker.marked, isTrue);
+      expect(marker.readCalls, 1);
+      expect(marker.markCalls, 1);
+    },
+  );
+
+  test('installazione già marcata preserva la sessione sicura', () async {
+    final secureStore = _MemorySecureStore({
+      SecureSupabaseAuthStorage.sessionStorageKey: 'persisted-session',
+    });
+    final storage = SecureSupabaseAuthStorage(
+      secureStore: secureStore,
+      installationMarkerStore: _MemoryMarkerStore(marked: true),
+    );
+
+    await storage.initialize();
+
+    expect(await storage.hasAccessToken(), isTrue);
+    expect(await storage.accessToken(), 'persisted-session');
+    expect(secureStore.deleted, isEmpty);
+  });
+
+  test('sessione e verifier usano chiavi distinte con CRUD completo', () async {
+    final secureStore = _MemorySecureStore();
+    final storage = SecureSupabaseAuthStorage(
+      secureStore: secureStore,
+      installationMarkerStore: _MemoryMarkerStore(marked: true),
+    );
+
+    await storage.persistSession('session-json');
+    await storage.setItem(
+      key: SecureSupabaseAuthStorage.sdkPkceStorageKey,
+      value: 'pkce-verifier',
+    );
+
+    expect(await storage.accessToken(), 'session-json');
+    expect(
+      await storage.getItem(key: SecureSupabaseAuthStorage.sdkPkceStorageKey),
+      'pkce-verifier',
+    );
+    expect(
+      secureStore.values[SecureSupabaseAuthStorage.sessionStorageKey],
+      'session-json',
+    );
+    expect(
+      secureStore.values[SecureSupabaseAuthStorage.pkceStorageKey],
+      'pkce-verifier',
+    );
+
+    await storage.removePersistedSession();
+    await storage.clearPendingOAuth();
+    expect(await storage.hasAccessToken(), isFalse);
+    expect(secureStore.values, isEmpty);
+  });
+
+  test('rifiuta chiavi SDK inattese senza leggere o scrivere', () async {
+    final secureStore = _MemorySecureStore();
+    final storage = SecureSupabaseAuthStorage(
+      secureStore: secureStore,
+      installationMarkerStore: _MemoryMarkerStore(marked: true),
+    );
+
+    await expectLater(
+      storage.setItem(key: 'unexpected', value: 'secret'),
+      throwsA(
+        isA<AuthStorageException>().having(
+          (error) => error.code,
+          'code',
+          'unsupported_secure_storage_key',
+        ),
+      ),
+    );
+    expect(secureStore.values, isEmpty);
+  });
+
+  test('errori driver falliscono chiuso senza riportare il valore', () async {
+    const sentinel = 'SENSITIVE_SESSION_SENTINEL';
+    final secureStore = _MemorySecureStore()..writeError = StateError(sentinel);
+    final storage = SecureSupabaseAuthStorage(
+      secureStore: secureStore,
+      installationMarkerStore: _MemoryMarkerStore(marked: true),
+    );
+
+    Object? captured;
+    try {
+      await storage.persistSession(sentinel);
+    } on Object catch (error) {
+      captured = error;
+    }
+
+    expect(captured, isA<AuthStorageException>());
+    expect(captured.toString(), isNot(contains(sentinel)));
+    expect(secureStore.values, isEmpty);
+  });
+
+  test('valori vuoti o eccessivi non raggiungono il driver', () async {
+    final secureStore = _MemorySecureStore();
+    final storage = SecureSupabaseAuthStorage(
+      secureStore: secureStore,
+      installationMarkerStore: _MemoryMarkerStore(marked: true),
+    );
+
+    await expectLater(
+      storage.persistSession(''),
+      throwsA(isA<AuthStorageException>()),
+    );
+    await expectLater(
+      storage.setItem(
+        key: SecureSupabaseAuthStorage.sdkPkceStorageKey,
+        value: List.filled(4097, 'x').join(),
+      ),
+      throwsA(isA<AuthStorageException>()),
+    );
+    expect(secureStore.values, isEmpty);
+  });
+
+  test('errore marker impedisce ogni uso senza fallback plaintext', () async {
+    final storage = SecureSupabaseAuthStorage(
+      secureStore: _MemorySecureStore(),
+      installationMarkerStore: _MemoryMarkerStore(
+        readError: StateError('private marker detail'),
+      ),
+    );
+
+    await expectLater(
+      storage.initialize(),
+      throwsA(
+        isA<AuthStorageException>().having(
+          (error) => error.code,
+          'code',
+          'secure_storage_initialization_failed',
+        ),
+      ),
+    );
+  });
+}
+
+final class _MemorySecureStore implements SecureAuthKeyValueStore {
+  _MemorySecureStore([Map<String, String>? initial]) : values = {...?initial};
+
+  final Map<String, String> values;
+  final List<String> deleted = [];
+  Object? readError;
+  Object? writeError;
+  Object? deleteError;
+
+  @override
+  Future<String?> read(String key) async {
+    if (readError case final error?) {
+      throw error;
+    }
+    return values[key];
+  }
+
+  @override
+  Future<void> write(String key, String value) async {
+    if (writeError case final error?) {
+      throw error;
+    }
+    values[key] = value;
+  }
+
+  @override
+  Future<void> delete(String key) async {
+    if (deleteError case final error?) {
+      throw error;
+    }
+    deleted.add(key);
+    values.remove(key);
+  }
+}
+
+final class _MemoryMarkerStore implements AuthInstallationMarkerStore {
+  _MemoryMarkerStore({this.marked = false, this.readError});
+
+  bool marked;
+  final Object? readError;
+  int readCalls = 0;
+  int markCalls = 0;
+
+  @override
+  Future<bool> isCurrentInstallMarked() async {
+    readCalls++;
+    if (readError case final error?) {
+      throw error;
+    }
+    return marked;
+  }
+
+  @override
+  Future<void> markCurrentInstall() async {
+    markCalls++;
+    marked = true;
+  }
+}

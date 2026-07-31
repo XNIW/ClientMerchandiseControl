@@ -34,3 +34,35 @@ eseguiti. `CODEX_REVIEWER` e `CODEX_RE_REVIEWER` non riusano tali claim come pro
 risolvono la toolchain sul proprio ambiente e rieseguono le verifiche obbligatorie. Un
 tool assente o un processo non terminato è `BLOCKED` o `NOT_RUN` con motivazione, mai un
 `PASS` inferito.
+
+## Runtime Auth mobile
+
+TASK-020 usa le versioni bloccate `supabase_flutter 2.16.0`, `supabase 2.14.0`,
+`gotrue 2.26.0`, `app_links 7.2.1` e `flutter_secure_storage 10.3.1`.
+`shared_preferences 2.5.5`, già transitive dello SDK, è dichiarata direttamente solo
+per il marker booleano non sensibile della nuova installazione; non contiene sessione o
+verifier.
+
+La configurazione development non accetta backend, callback o OAuth e non inizializza
+Supabase. Staging richiede i cinque input del contratto e abilita Google soltanto con
+`GOOGLE_AUTH_ENABLED=true`. Production mantiene obbligatoriamente il flag `false` in
+questo milestone e non eredita valori staging.
+
+Il file locale staging resta ignorato:
+
+```bash
+flutter run --dart-define-from-file=config/app_config.staging.local.json
+flutter test integration_test/auth_callback_flow_test.dart -d <DEVICE>
+```
+
+La callback unica è
+`com.xniw.clientmerchandisecontrol://auth-callback/`. Il flag staging può essere
+attivato localmente soltanto dopo avere verificato che la redirect allow-list del
+progetto non-production contenga esattamente questa voce, senza wildcard. URL,
+publishable key, project ref completo, account di test, code, token e sessioni non
+appartengono a documentazione, Git o evidence.
+
+Android disabilita backup applicativo per impedire il ripristino incoerente del
+materiale cifrato. iOS usa Keychain non sincronizzato e this-device; il marker nel
+container applicativo elimina le sole chiavi Auth note al primo avvio dopo
+reinstallazione. Un errore dello storage è fail-closed.

@@ -6,22 +6,27 @@ import 'dart:typed_data';
 import 'package:client_merchandise_control/app/client_merchandise_control_app.dart';
 import 'package:client_merchandise_control/app/design_system/tokens/app_sizes.dart';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
+import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/presentation/account_presentation_model.dart';
 import 'package:client_merchandise_control/features/account/presentation/account_screen.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   const locale = Locale('es');
 
   Widget buildApp(Widget child) {
-    return MaterialApp(
-      locale: locale,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: appSupportedLocales,
-      theme: AppTheme.light(),
-      home: Scaffold(body: child),
+    return ProviderScope(
+      overrides: [appConfigProvider.overrideWithValue(AppConfig.fromValues())],
+      child: MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: appSupportedLocales,
+        theme: AppTheme.light(),
+        home: Scaffold(body: child),
+      ),
     );
   }
 

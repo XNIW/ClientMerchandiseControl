@@ -209,6 +209,73 @@ class AppLocalizationsIt extends AppLocalizations {
   String get accountLogout => 'Esci';
 
   @override
+  String get accountSigningInTitle => 'Apertura dell\'accesso sicuro';
+
+  @override
+  String get accountSigningInMessage =>
+      'Completa l\'accesso nel browser e torna all\'app.';
+
+  @override
+  String get accountCancelSignIn => 'Annulla accesso';
+
+  @override
+  String get accountCancellingTitle => 'Annullamento dell\'accesso';
+
+  @override
+  String get accountCancellingMessage =>
+      'Stiamo chiudendo in sicurezza questo tentativo di accesso.';
+
+  @override
+  String get accountCancelledTitle => 'Accesso annullato';
+
+  @override
+  String get accountCancelledMessage =>
+      'Il tuo account non è stato modificato. Puoi riprovare.';
+
+  @override
+  String get accountRetry => 'Riprova';
+
+  @override
+  String get accountAuthErrorTitle => 'Accesso non riuscito';
+
+  @override
+  String get accountConfigurationErrorTitle => 'Accesso non disponibile';
+
+  @override
+  String get accountSigningOut => 'Uscita in corso…';
+
+  @override
+  String get accountAuthOffline => 'Controlla la connessione e riprova.';
+
+  @override
+  String get accountAuthProviderUnavailable =>
+      'Google non è disponibile al momento. Riprova più tardi.';
+
+  @override
+  String get accountAuthBrowserLaunchFailed =>
+      'Non è stato possibile aprire il browser.';
+
+  @override
+  String get accountAuthInvalidCallback =>
+      'Il ritorno di accesso non era valido. Avvia un nuovo tentativo.';
+
+  @override
+  String get accountAuthSessionExpired =>
+      'La sessione è terminata. Puoi accedere di nuovo.';
+
+  @override
+  String get accountAuthSecureStorageUnavailable =>
+      'Questo dispositivo non può proteggere la sessione in modo sicuro.';
+
+  @override
+  String get accountAuthConfiguration =>
+      'L\'accesso Google non è configurato per questo ambiente.';
+
+  @override
+  String get accountAuthUnexpected =>
+      'Si è verificato un problema inatteso. Puoi riprovare.';
+
+  @override
   String accountAvatarLabel(String name) {
     return 'Avatar di $name';
   }

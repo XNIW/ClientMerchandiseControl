@@ -1,21 +1,83 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/design_system/theme/storefront_semantic_colors.dart';
 import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../app/design_system/widgets/storefront_page.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/authenticated_customer.dart';
+import '../../auth/domain/auth_failure.dart';
+import '../../auth/domain/auth_state.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import 'account_presentation_model.dart';
 
-class AccountScreen extends StatelessWidget {
+class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const AccountView.guest();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authControllerProvider);
+    final controller = ref.read(authControllerProvider.notifier);
+    final l10n = AppLocalizations.of(context);
+
+    return switch (authState) {
+      AuthGuest(:final canAuthenticate, :final notice) => AccountView.guest(
+        onContinueWithGoogle: canAuthenticate
+            ? controller.startGoogleSignIn
+            : null,
+        notice: notice == null ? null : _failureMessage(l10n, notice),
+      ),
+      AuthAuthenticating() => AccountView.status(
+        title: l10n.accountSigningInTitle,
+        message: l10n.accountSigningInMessage,
+        isProgress: true,
+        secondaryLabel: l10n.accountCancelSignIn,
+        onSecondary: controller.cancelGoogleSignIn,
+      ),
+      AuthCancelling() => AccountView.status(
+        title: l10n.accountCancellingTitle,
+        message: l10n.accountCancellingMessage,
+        isProgress: true,
+      ),
+      AuthCancelled() => AccountView.status(
+        title: l10n.accountCancelledTitle,
+        message: l10n.accountCancelledMessage,
+        primaryLabel: l10n.accountRetry,
+        onPrimary: controller.retry,
+      ),
+      AuthAuthenticated(:final customer) => AccountView.authenticated(
+        model: _presentationModel(customer),
+        onLogout: controller.signOut,
+      ),
+      AuthSigningOut(:final customer) => AccountView.authenticated(
+        model: _presentationModel(customer),
+        onLogout: null,
+        isSigningOut: true,
+      ),
+      AuthRecoverableError(:final failure) => AccountView.status(
+        title: l10n.accountAuthErrorTitle,
+        message: _failureMessage(l10n, failure),
+        primaryLabel: failure.canRetry ? l10n.accountRetry : null,
+        onPrimary: failure.canRetry ? controller.retry : null,
+      ),
+      AuthConfigurationError(:final failure) => AccountView.status(
+        title: l10n.accountConfigurationErrorTitle,
+        message: _failureMessage(l10n, failure),
+      ),
+    };
+  }
+
+  static AuthenticatedAccountPresentationModel _presentationModel(
+    AuthenticatedCustomer customer,
+  ) {
+    return AuthenticatedAccountPresentationModel(
+      displayName: customer.displayName,
+      email: customer.email,
+    );
   }
 }
 
@@ -26,13 +88,26 @@ sealed class AccountView extends StatelessWidget {
     Key? key,
     VoidCallback? onContinueWithGoogle,
     VoidCallback? onBrowseAsGuest,
+    String? notice,
   }) = _GuestAccountView;
 
   const factory AccountView.authenticated({
     Key? key,
     required AuthenticatedAccountPresentationModel model,
-    required VoidCallback onLogout,
+    required VoidCallback? onLogout,
+    bool isSigningOut,
   }) = _AuthenticatedAccountView;
+
+  const factory AccountView.status({
+    Key? key,
+    required String title,
+    required String message,
+    bool isProgress,
+    String? primaryLabel,
+    VoidCallback? onPrimary,
+    String? secondaryLabel,
+    VoidCallback? onSecondary,
+  }) = _AuthStatusAccountView;
 }
 
 final class _GuestAccountView extends AccountView {
@@ -40,10 +115,12 @@ final class _GuestAccountView extends AccountView {
     super.key,
     this.onContinueWithGoogle,
     this.onBrowseAsGuest,
+    this.notice,
   }) : super._();
 
   final VoidCallback? onContinueWithGoogle;
   final VoidCallback? onBrowseAsGuest;
+  final String? notice;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +128,7 @@ final class _GuestAccountView extends AccountView {
       child: _GuestAccountContent(
         onContinueWithGoogle: onContinueWithGoogle,
         onBrowseAsGuest: onBrowseAsGuest,
+        notice: notice,
       ),
     );
   }
@@ -60,16 +138,58 @@ final class _AuthenticatedAccountView extends AccountView {
   const _AuthenticatedAccountView({
     required this.model,
     required this.onLogout,
+    this.isSigningOut = false,
     super.key,
   }) : super._();
 
   final AuthenticatedAccountPresentationModel model;
-  final VoidCallback onLogout;
+  final VoidCallback? onLogout;
+  final bool isSigningOut;
 
   @override
   Widget build(BuildContext context) {
     return _AccountSurface(
-      child: _AuthenticatedAccountContent(model: model, onLogout: onLogout),
+      child: _AuthenticatedAccountContent(
+        model: model,
+        onLogout: onLogout,
+        isSigningOut: isSigningOut,
+      ),
+    );
+  }
+}
+
+final class _AuthStatusAccountView extends AccountView {
+  const _AuthStatusAccountView({
+    required this.title,
+    required this.message,
+    this.isProgress = false,
+    this.primaryLabel,
+    this.onPrimary,
+    this.secondaryLabel,
+    this.onSecondary,
+    super.key,
+  }) : super._();
+
+  final String title;
+  final String message;
+  final bool isProgress;
+  final String? primaryLabel;
+  final VoidCallback? onPrimary;
+  final String? secondaryLabel;
+  final VoidCallback? onSecondary;
+
+  @override
+  Widget build(BuildContext context) {
+    return _AccountSurface(
+      child: _AuthStatusContent(
+        title: title,
+        message: message,
+        isProgress: isProgress,
+        primaryLabel: primaryLabel,
+        onPrimary: onPrimary,
+        secondaryLabel: secondaryLabel,
+        onSecondary: onSecondary,
+      ),
     );
   }
 }
@@ -98,10 +218,12 @@ class _GuestAccountContent extends StatelessWidget {
   const _GuestAccountContent({
     required this.onContinueWithGoogle,
     required this.onBrowseAsGuest,
+    required this.notice,
   });
 
   final VoidCallback? onContinueWithGoogle;
   final VoidCallback? onBrowseAsGuest;
+  final String? notice;
 
   @override
   Widget build(BuildContext context) {
@@ -142,6 +264,24 @@ class _GuestAccountContent extends StatelessWidget {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
+        if (notice != null) ...[
+          const SizedBox(height: AppSpacing.md),
+          Semantics(
+            container: true,
+            liveRegion: true,
+            label: notice,
+            child: ExcludeSemantics(
+              child: Text(
+                notice!,
+                key: const ValueKey('account-auth-notice'),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.xl),
         _AccountButtonSemantics(
           label: l10n.accountContinueWithGoogle,
@@ -218,10 +358,12 @@ class _AuthenticatedAccountContent extends StatelessWidget {
   const _AuthenticatedAccountContent({
     required this.model,
     required this.onLogout,
+    required this.isSigningOut,
   });
 
   final AuthenticatedAccountPresentationModel model;
-  final VoidCallback onLogout;
+  final VoidCallback? onLogout;
+  final bool isSigningOut;
 
   @override
   Widget build(BuildContext context) {
@@ -313,7 +455,7 @@ class _AuthenticatedAccountContent extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xl),
         _AccountButtonSemantics(
-          label: l10n.accountLogout,
+          label: isSigningOut ? l10n.accountSigningOut : l10n.accountLogout,
           onTap: onLogout,
           child: OutlinedButton.icon(
             key: const ValueKey('account-logout-button'),
@@ -328,10 +470,122 @@ class _AuthenticatedAccountContent extends StatelessWidget {
                 vertical: AppSpacing.sm,
               ),
             ),
-            icon: const Icon(Icons.logout),
-            label: Text(l10n.accountLogout, textAlign: TextAlign.center),
+            icon: isSigningOut
+                ? const SizedBox.square(
+                    dimension: AppSizes.iconStandard,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.logout),
+            label: Text(
+              isSigningOut ? l10n.accountSigningOut : l10n.accountLogout,
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _AuthStatusContent extends StatelessWidget {
+  const _AuthStatusContent({
+    required this.title,
+    required this.message,
+    required this.isProgress,
+    required this.primaryLabel,
+    required this.onPrimary,
+    required this.secondaryLabel,
+    required this.onSecondary,
+  });
+
+  final String title;
+  final String message;
+  final bool isProgress;
+  final String? primaryLabel;
+  final VoidCallback? onPrimary;
+  final String? secondaryLabel;
+  final VoidCallback? onSecondary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      key: const ValueKey('account-auth-status'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          container: true,
+          header: true,
+          liveRegion: true,
+          label: '$title. $message',
+          child: ExcludeSemantics(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (isProgress) ...[
+                  const Align(
+                    child: SizedBox.square(
+                      key: ValueKey('account-auth-progress'),
+                      dimension: AppSizes.guestAvatar,
+                      child: Padding(
+                        padding: EdgeInsets.all(AppSpacing.md),
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                ] else ...[
+                  Icon(
+                    Icons.info_outline,
+                    size: AppSizes.iconEmphasis,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
+                Text(
+                  title,
+                  key: const ValueKey('account-auth-status-title'),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  message,
+                  key: const ValueKey('account-auth-status-message'),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (primaryLabel != null) ...[
+          const SizedBox(height: AppSpacing.xl),
+          FilledButton(
+            key: const ValueKey('account-auth-primary'),
+            onPressed: onPrimary,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(
+                AppSizes.minimumTouchTarget,
+                AppSizes.minimumTouchTarget,
+              ),
+            ),
+            child: Text(primaryLabel!, textAlign: TextAlign.center),
+          ),
+        ],
+        if (secondaryLabel != null) ...[
+          const SizedBox(height: AppSpacing.md),
+          OutlinedButton(
+            key: const ValueKey('account-auth-secondary'),
+            onPressed: onSecondary,
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(
+                AppSizes.minimumTouchTarget,
+                AppSizes.minimumTouchTarget,
+              ),
+            ),
+            child: Text(secondaryLabel!, textAlign: TextAlign.center),
+          ),
+        ],
       ],
     );
   }
@@ -421,4 +675,20 @@ class _AccountButtonSemantics extends StatelessWidget {
 String _normalizedOrFallback(String? value, String fallback) {
   final normalized = value?.trim();
   return normalized == null || normalized.isEmpty ? fallback : normalized;
+}
+
+String _failureMessage(AppLocalizations l10n, AuthFailure failure) {
+  return switch (failure.kind) {
+    AuthFailureKind.offline => l10n.accountAuthOffline,
+    AuthFailureKind.cancelled => l10n.accountCancelledMessage,
+    AuthFailureKind.providerUnavailable => l10n.accountAuthProviderUnavailable,
+    AuthFailureKind.browserLaunchFailed => l10n.accountAuthBrowserLaunchFailed,
+    AuthFailureKind.invalidCallback ||
+    AuthFailureKind.callbackAlreadyConsumed => l10n.accountAuthInvalidCallback,
+    AuthFailureKind.sessionExpired => l10n.accountAuthSessionExpired,
+    AuthFailureKind.secureStorageUnavailable =>
+      l10n.accountAuthSecureStorageUnavailable,
+    AuthFailureKind.configuration => l10n.accountAuthConfiguration,
+    AuthFailureKind.unexpected => l10n.accountAuthUnexpected,
+  };
 }

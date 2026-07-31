@@ -7,7 +7,7 @@
 - Material 3 con adattamenti idiomatici iOS;
 - Riverpod per stato e dependency injection;
 - go_router per navigazione dichiarativa;
-- Supabase Flutter come client futuro;
+- Supabase Flutter per readiness e Auth customer;
 - gen_l10n e intl.
 
 ## Struttura
@@ -36,8 +36,8 @@ Development non accetta valori backend/callback né Google attivo e non iniziali
 Supabase. Staging ammette l'inizializzazione SDK soltanto con tuple, callback e flag
 completi; TASK-011 la completa con un health check Auth ufficiale e privo di dati.
 Production non eredita mai staging, non inizializza rete e, finché OAuth production non
-è autorizzato, accetta soltanto il kill switch Google disabilitato. Il flag non
-implementa login, sessione o deep link: queste responsabilità restano TASK-020.
+è autorizzato, accetta soltanto il kill switch Google disabilitato. In staging il flag
+abilita il runtime Auth di TASK-020 soltanto con callback e backend completi.
 
 `ClientMerchandiseControlApp` compone tema, localizzazione e router.
 `StatefulShellRoute.indexedStack` mantiene quattro branch — Home, Catalogo, Carrello e
@@ -80,8 +80,10 @@ auto-retry o recheck su resume in TASK-011.
 La shell viene renderizzata prima del check. Offline ed errori recuperabili mantengono
 il browsing guest disponibile e mostrano copy localizzata customer-safe con retry;
 development mostra il solo banner tecnico debug. Fino a TASK-020 le opzioni Auth SDK
-disabilitano persistence, auto-refresh e deep-link detection, evitando di importare
-prematuramente il session lifecycle.
+usano ora PKCE, auto-refresh e un adapter Keychain/Keystore per sessione e verifier.
+`detectSessionInUri` resta intenzionalmente disabilitato: il callback passa prima dal
+validator applicativo esatto descritto in
+[`AUTH-BOUNDARY.md`](AUTH-BOUNDARY.md).
 
 ## Shell cliente guest
 
@@ -95,13 +97,14 @@ aggiungere dati o networking:
   unavailable e retryable; non esegue query;
 - Carrello presenta uno stato vuoto senza totale, checkout o promessa commerciale e
   conduce al Catalogo;
-- Account usa un modello presentazionale puro per guest/authenticated. Il runtime resta
-  guest; il pulsante Google è fail-closed finché TASK-020 non collega OAuth e lo stato
-  authenticated richiede un callback logout esplicito.
+- Account consuma lo stato dominio Auth: guest, autenticazione/cancellazione, errore
+  recuperabile/configurazione, authenticated e logout. Il pulsante Google resta
+  fail-closed in development, production e staging con kill switch disabilitato.
 
 Nessuna superficie inventa prodotti, prezzi, stock, sconti, immagini o disponibilità.
-L'avatar authenticated accetta soltanto un `ImageProvider` già validato e iniettato: il
-widget non interpreta metadata o URI e non avvia rete autonomamente.
+L'avatar authenticated accetta soltanto bytes locali bounded già validati: TASK-020
+passa sempre `null` e usa il fallback. Il widget non interpreta metadata o URI e non
+avvia rete autonomamente.
 
 ## Design system
 
@@ -186,6 +189,30 @@ capability customer esplicitamente previste; non eredita automaticamente i grant
 e non introduce un ruolo staff. Session identity e authorization sono concetti
 distinti.
 
+`AuthController` è eager e costituisce la sola fonte UI del lifecycle. Un
+`AuthRepository` iniettabile separa dominio e SDK; `SupabaseAuthRepository` usa Google,
+PKCE, browser esterno e callback canonica. Cold link e warm link confluiscono in una
+sola subscription `app_links`, vengono validati e consumati una volta. Risultati
+obsoleti dopo cancellazione, logout o dispose non possono ripristinare authenticated.
+Il restore valido non forza navigazione; soltanto un'autenticazione completata dal
+callback conduce ad Account.
+
+Su iOS l'inoltro nativo a `app_links` è manuale e converge nello stesso singleton:
+`AppDelegate` copre il custom scheme consegnato dal lifecycle applicativo e
+`SceneDelegate` copre connection options, URL contexts e user activity. L'handler
+automatico del plugin e il deep linking Flutter restano disabilitati per evitare
+consumer concorrenti; la validazione Dart resta obbligatoria.
+
+Sessione e verifier PKCE condividono `SecureSupabaseAuthStorage`: Android usa
+Keystore/RSA-OAEP/AES-GCM con backup applicativo disabilitato; iOS usa Keychain
+non sincronizzato e vincolato al device. Un marker booleano non sensibile nel container
+applicativo cancella soltanto le due chiavi Auth al primo avvio di una nuova
+installazione. Non esiste fallback SharedPreferences per token.
+
+Il logout usa `SignOutScope.local`: la sessione in memoria viene rimossa prima della
+chiamata remota SDK e l'adapter elimina esplicitamente sessione e verifier. Un errore
+offline può produrre un avviso customer-safe ma lo stato resta guest.
+
 Ogni risorsa futura è vincolata a uno `shop_id` UUID validato dal server. Il client può
 trasportare il contesto shop per routing e presentazione, ma non sceglie autonomamente
 l'ambito autorizzato. Cache e persistenza locale devono essere separate per ambiente,
@@ -216,12 +243,13 @@ assegnate a:
 - TASK-011 per connessione staging e backend/auth readiness;
 - TASK-012 per shell cliente guest/data-safe, stati readiness e baseline accessibile;
 - TASK-017 per cache catalogo, freshness e invalidazione;
-- TASK-020 per OAuth, deep link e session lifecycle;
+- TASK-020 per OAuth, deep link e session lifecycle, implementati nel confine Auth
+  corrente;
 - TASK-021–TASK-032 per dati cliente e flussi commerciali;
 - TASK-033–TASK-037 per hardening, resilienza, osservabilità, accessibilità e
   performance.
 
 Questo documento preserva le decisioni Flutter, Riverpod, go_router, MVVM e design
-system già adottate. TASK-011 aggiunge soltanto readiness tecnica staging e TASK-012 la
-shell guest data-safe: nessuno dei due aggiunge flussi OAuth, deep link nativi, schema,
-DTO commerciali o dati reali.
+system già adottate. TASK-011 aggiunge readiness tecnica, TASK-012 la shell guest
+data-safe e TASK-020 il solo lifecycle Auth customer; nessuno aggiunge schema,
+DTO commerciali, inventory o dati reali.

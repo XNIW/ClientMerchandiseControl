@@ -8,10 +8,10 @@
 - **Task attivo**: TASK-011
 - **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
-- **Prossima azione autorizzata**: correggere esclusivamente
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Prossima azione autorizzata**: verificare indipendentemente
   `T011-REREV2-PROV-001` e `T011-REREV2-GOV-002`
 
 ## Repository coinvolti
@@ -126,8 +126,7 @@ La re-review integrata del batch TASK-003/TASK-004 è `APPROVED` sullo SHA
 `30596267634` sullo SHA `ee58f29c9402f286a038f7cc79f1043539ea0b25` e il merge
 normale è stato verificato su main.
 
-`TASK-011` è l'unico task `ACTIVE` in `FIX`. La seconda re-review sullo SHA
-`978b25781605e9c20b4702c3aed6dd7b196803cd` ha rilevato due claim residui non
-task-scoped nel worklog e una violazione della proprietà delle sezioni; CI
-`30600817975` 3/3 `PASS`, ma il verdetto resta `CHANGES_REQUIRED`.
+`TASK-011` è l'unico task `ACTIVE` in `REVIEW` dopo il terzo Fix. I due claim residui
+sono ora esplicitamente task-scoped, la registrazione Fix è sotto la sezione corretta e
+l'evidence non auto-chiude il finding. CI precedente `30600817975` 3/3 `PASS`;
 TASK-005–TASK-010 e TASK-012 in avanti restano invariati.

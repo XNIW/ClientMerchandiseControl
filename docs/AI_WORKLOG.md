@@ -590,8 +590,9 @@
 - **Azioni principali**: applicata l'autorizzazione condizionata del prompt end-to-end
   con una transizione distinta, senza cambiare scope, criteri, test o decisioni.
 - **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
-- **Blocker/note**: nessuno; Supabase resta read-only e OAuth/allow-list restano
-  TASK-020.
+- **Blocker/note**: nessuno; client e azioni Codex TASK-011 restano read-only.
+  Il traffico Admin esterno concorrente non è attribuito al task; OAuth/allow-list
+  restano TASK-020.
 
 ## 2026-07-30 — Execution TASK-011
 
@@ -609,7 +610,8 @@
   `success`, tutti gli step `success`, annotation 0/0/0.
 - **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 - **Blocker/note**: `CA-31` e `T-28` attendono Review indipendente; `CA-32` e `T-29`
-  attendono la CI sullo SHA finale. Nessun write Supabase eseguito.
+  attendono la CI sullo SHA finale. Nessun write è stato eseguito dal client o dalle
+  azioni Codex TASK-011; il traffico Admin esterno concorrente non è attribuito al task.
 
 ## 2026-07-30 — Review indipendente TASK-011
 
@@ -692,3 +694,17 @@
   tutti gli step `success`, annotation 0/0/0.
 - **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 - **Blocker/note**: correzione limitata a documentazione; nessun codice o remoto.
+
+## 2026-07-30 — Fix claim e proprietà sezioni TASK-011
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: FIX -> REVIEW
+- **Scope**: esclusivamente `T011-REREV2-PROV-001` e `T011-REREV2-GOV-002`.
+- **Correzione**: i due claim del worklog qualificano ora client/azioni Codex TASK-011
+  e separano il traffico Admin esterno; la registrazione Fix 2 è sotto `## Fix` e
+  l'evidence dichiara di indirizzare, non chiudere, il finding.
+- **Verifiche**: scan claim attivi/storici, proprietà heading, sanitizzazione,
+  `git diff --check` e governance `PASS`.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: terza re-review indipendente obbligatoria; nessun codice o remoto.

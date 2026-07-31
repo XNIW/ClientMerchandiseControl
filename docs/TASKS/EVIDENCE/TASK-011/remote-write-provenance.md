@@ -2,8 +2,9 @@
 
 ## Scopo della correzione
 
-Questa evidence chiude `T011-REREV-SEC-001` senza cambiare `CA-04`. «Zero-write
-durante TASK-011» è verificato sul writer set sotto il controllo del task:
+Questa evidence indirizza `T011-REREV-SEC-001` senza cambiare `CA-04`; la chiusura
+resta riservata alla re-review indipendente. «Zero-write durante TASK-011» è verificato
+sul writer set sotto il controllo del task:
 
 - client Flutter TASK-011;
 - azioni Codex eseguite per TASK-011;
@@ -40,6 +41,13 @@ staging privilegiata con fixture esterna. Tali operazioni:
 - sono fuori dallo scope e non vengono presentate come inattività globale.
 
 Nessun email, IP, UUID, request ID, URL completo o project ref è persistito.
+
+## Correzione del ciclo Fix 3
+
+I due claim residui nel worklog qualificano ora esplicitamente il writer set
+client/azioni Codex TASK-011 e separano il traffico Admin esterno concorrente. Questa
+registrazione appartiene alla sezione Fix del task e non auto-assegna alcun esito di
+review.
 
 ## Interpretazione CA-04
 

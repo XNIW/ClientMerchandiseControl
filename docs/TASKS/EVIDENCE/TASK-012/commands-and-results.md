@@ -63,3 +63,19 @@ Comandi, scenari e failure intermedi sono dettagliati in `runtime-smoke.md` e
 - Annotation: 0/0/0
 
 La CI richiesta da CA-39 resta distinta e sarà eseguita sullo SHA finale revisionato.
+
+## Gate FIX
+
+- SHA tecnico: `3acbc42d9abd5bffe0230d3b9bca27baf345cfea`
+- `dart format --output=none --set-exit-if-changed .`: `PASS`, exit 0, 61 file;
+- `flutter analyze`: `PASS`, exit 0, zero issue;
+- `flutter test --coverage`: `PASS`, exit 0, 141/141;
+- `bash scripts/check.sh`: `PASS`, exit 0, inclusi governance, 5/5 fixture
+  architetturali negative, analyze, 141/141 e build Android/iOS;
+- `flutter build apk --debug`: `PASS`, exit 0;
+- `flutter build ios --simulator --debug`: `PASS`, exit 0;
+- test mirati Account/Catalogo/governance: `PASS`, exit 0, 16/16;
+- `git diff --check`: `PASS`, exit 0.
+
+I gate sono stati rieseguiti dopo il commit sullo SHA esatto. La CI del Fix resta
+`NOT_RUN` fino al push del commit di handoff.

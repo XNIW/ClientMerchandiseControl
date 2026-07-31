@@ -97,3 +97,21 @@ lo splash Flutter: è stato rifiutato e sovrascritto dal runtime normale.
 | CA-29–CA-34 | PASS | Tema, 200%, Semantics, target, orientamento e processo vivo. |
 | CA-36 | PASS | Smoke 1/1 e screenshot su entrambe le piattaforme. |
 | T-26, T-30, T-31 | PASS | Comandi e artifact sopra. |
+
+## Smoke del ciclo FIX
+
+- Commit:
+  `3acbc42d9abd5bffe0230d3b9bca27baf345cfea`
+- Android Emulator 15/API 35:
+  `flutter test integration_test/app_guest_flow_test.dart -d emulator-5554
+  --reporter expanded`; 1/1 `PASS`, exit 0.
+- iPhone 17 Pro Simulator/iOS 26.5:
+  `flutter test integration_test/app_guest_flow_test.dart -d <IOS_SIMULATOR_ID>
+  --reporter expanded`; 1/1 `PASS`, exit 0.
+- Normal app Android: build/install/launch e dump UIAutomator Catalogo `PASS`;
+  ricerca, Filter, Sort e spiegazione hanno quattro nodi e bounds distinti.
+
+Le modifiche FIX non cambiano copy, layout visuale o dati mostrati. Gli screenshot
+Execution restano artifact della revisione tecnica originaria; la regressione impattata
+è coperta sul commit FIX da test Semantics e dump nativo. Entrambi i processi
+integration sono terminati.

@@ -133,12 +133,13 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 - **Task attivo**: TASK-012
 - **File task**: `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione
 `30601758281` 3/3 `PASS`; CI closeout `30602210469` è 3/3 `PASS` sullo SHA esatto.
-TASK-012 è l'unico task `ACTIVE`, in `FIX` per quattro finding P2 approvati dalla
-review indipendente. OAuth, redirect allow-list e deep link restano TASK-020;
-TASK-005–TASK-010 e TASK-013 in avanti non sono attivi.
+TASK-012 è l'unico task `ACTIVE`, in `REVIEW` dopo il Fix dei quattro finding P2 sullo
+SHA tecnico `3acbc42d9abd5bffe0230d3b9bca27baf345cfea`; la re-review indipendente è
+obbligatoria. OAuth, redirect allow-list e deep link restano TASK-020; TASK-005–TASK-010
+e TASK-013 in avanti non sono attivi.

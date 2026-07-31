@@ -834,3 +834,22 @@
 - **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 - **Blocker/note**: correggere esclusivamente i quattro finding approvati e tornare a
   re-review; nessun task successivo attivato.
+
+## 2026-07-30 — Fix TASK-012 e handoff a re-review
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-012
+- **Fase iniziale/finale**: FIX -> REVIEW
+- **Commit tecnico**:
+  `3acbc42d9abd5bffe0230d3b9bca27baf345cfea`
+- **Scope**: esclusivamente `T012-REV-UI-001`, `T012-REV-SEC-001`,
+  `T012-REV-SEC-002` e `T012-REV-GOV-003`.
+- **Correzioni**: Semantics Catalogo isolata; logout authenticated obbligatorio per
+  tipo; avatar solo bytes locali bounded con zero HTTP; matrici 39 CA/34 T singole
+  protette da regressione governance.
+- **Verifiche sullo SHA**: format 61 file, analyze zero issue, 141/141,
+  `scripts/check.sh`, build Android/iOS, smoke dual-platform 1/1, dump Android nativo,
+  security e confinement `PASS`.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: CI Fix `NOT_RUN` fino al push del commit di handoff; re-review
+  indipendente obbligatoria, nessun task successivo attivato.

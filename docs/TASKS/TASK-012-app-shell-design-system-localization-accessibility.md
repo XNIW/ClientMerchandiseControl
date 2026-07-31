@@ -7,18 +7,18 @@
 - **File task**:
   `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
-- **Ultimo agente**: CODEX_REVIEWER
+- **Ultimo agente**: CODEX_FIXER
 - **Review outcome**: CHANGES_REQUIRED
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-011 e TASK-020
 - **User approval**: GRANTED_AND_APPLIED_FROM_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-012/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -347,7 +347,38 @@ Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 
-Non iniziato.
+Completato sul commit tecnico
+`3acbc42d9abd5bffe0230d3b9bca27baf345cfea`, senza ampliare lo scope:
+
+1. `T012-REV-UI-001`: la ricerca Catalogo è un container Semantics autonomo;
+   spiegazione, Filter e Sort sono sibling accessibili e il dump Android mostra bounds
+   distinti;
+2. `T012-REV-SEC-001`: API guest/authenticated separate e logout authenticated
+   obbligatorio per tipo, senza dipendenza da `assert`;
+3. `T012-REV-SEC-002`: avatar limitato a bytes locali copiati 1…512 KiB,
+   `Image.memory`, decode bounded, fallback corrotto e zero client HTTP nei test;
+4. `T012-REV-GOV-003`: matrici Execution espanse a 39/39 CA e 34/34 T, con controllo
+   automatico di presenza e unicità.
+
+Gate sullo SHA esatto:
+
+- format 61 file, analyze zero issue e suite 141/141: `PASS`, exit 0;
+- `scripts/check.sh`: `PASS`, exit 0, incluse 5/5 fixture negative e build
+  Android/iOS;
+- smoke guest Android e iOS: 1/1 per piattaforma, entrambi exit 0;
+- dump Semantics nativo Android, security, confinement e `git diff --check`: `PASS`;
+- CI Fix: `NOT_RUN` fino al push del commit di handoff.
+
+Evidence: `docs/TASKS/EVIDENCE/TASK-012/fix-evidence.md`.
+
+### Handoff a re-review
+
+- **Transizione**: `FIX -> REVIEW`
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`
+- **Prossimo ruolo**: `CODEX_RE_REVIEWER`
+- **Target**: commit tecnico Fix più questo commit di evidence/handoff
+- **Review outcome**: resta `CHANGES_REQUIRED` fino alla re-review indipendente
+- **Merge**: vietato fino a `APPROVED`, closeout e CI finali
 
 ## Chiusura
 

@@ -8,35 +8,38 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('staging avvia un solo check iniziale e pubblica ready', () async {
-    final repository = _FakeReadinessRepository();
-    final container = ProviderContainer(
-      overrides: [
-        backendReadinessRepositoryProvider.overrideWithValue(repository),
-      ],
-    );
-    addTearDown(container.dispose);
+  test(
+    'staging avvia exactly-one check automatico senza retry manuale',
+    () async {
+      final repository = _FakeReadinessRepository();
+      final container = ProviderContainer(
+        overrides: [
+          backendReadinessRepositoryProvider.overrideWithValue(repository),
+        ],
+      );
+      addTearDown(container.dispose);
 
-    expect(
-      container.read(backendReadinessControllerProvider),
-      BackendReadinessState.initializing,
-    );
+      expect(
+        container.read(backendReadinessControllerProvider),
+        BackendReadinessState.initializing,
+      );
 
-    final operation = container
-        .read(backendReadinessControllerProvider.notifier)
-        .retry();
-    await Future<void>.delayed(Duration.zero);
-    expect(repository.calls, 1);
+      await Future<void>.delayed(Duration.zero);
+      expect(repository.calls, 1);
 
-    repository.completeNext(BackendReadinessState.ready);
-    await operation;
+      repository.completeNext(BackendReadinessState.recoverableError);
+      await Future<void>.delayed(Duration.zero);
 
-    expect(
-      container.read(backendReadinessControllerProvider),
-      BackendReadinessState.ready,
-    );
-    expect(repository.calls, 1);
-  });
+      expect(
+        container.read(backendReadinessControllerProvider),
+        BackendReadinessState.recoverableError,
+      );
+
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+      expect(repository.calls, 1);
+    },
+  );
 
   test('retry concorrenti condividono la stessa operazione', () async {
     final repository = _FakeReadinessRepository();

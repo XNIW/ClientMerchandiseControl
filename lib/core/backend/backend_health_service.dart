@@ -38,6 +38,8 @@ abstract interface class BackendHealthService {
 }
 
 final class HttpBackendHealthService implements BackendHealthService {
+  static const int _maxHealthBodyBytes = 8 * 1024;
+
   HttpBackendHealthService({
     http.Client? client,
     Duration timeout = const Duration(seconds: 5),
@@ -84,7 +86,13 @@ final class HttpBackendHealthService implements BackendHealthService {
 
     try {
       final streamedResponse = await _client.send(request);
-      final bodyBytes = await streamedResponse.stream.toBytes();
+      final bodyBytes = await _readBodyWithinLimit(
+        streamedResponse.stream,
+        abortSignal,
+      );
+      if (bodyBytes == null) {
+        return _mapAbort(abortSignal.reason);
+      }
       if (abortSignal.reason case final reason?) {
         return _mapAbort(reason);
       }
@@ -126,6 +134,23 @@ final class HttpBackendHealthService implements BackendHealthService {
     return timeout;
   }
 
+  static Future<List<int>?> _readBodyWithinLimit(
+    Stream<List<int>> body,
+    _ProbeAbortSignal abortSignal,
+  ) async {
+    final bodyBytes = <int>[];
+
+    await for (final chunk in body) {
+      if (chunk.length > _maxHealthBodyBytes - bodyBytes.length) {
+        abortSignal.abort(_ProbeAbortReason.responseTooLarge);
+        return null;
+      }
+      bodyBytes.addAll(chunk);
+    }
+
+    return bodyBytes;
+  }
+
   static BackendHealthResult _mapResponse(int statusCode, List<int> bodyBytes) {
     if (statusCode == 200) {
       final payload = jsonDecode(utf8.decode(bodyBytes));
@@ -154,7 +179,7 @@ final class HttpBackendHealthService implements BackendHealthService {
       return false;
     }
 
-    return _isNonEmptyString(payload['name']) &&
+    return payload['name'] == 'GoTrue' &&
         _isNonEmptyString(payload['version']) &&
         _isNonEmptyString(payload['description']);
   }
@@ -163,27 +188,27 @@ final class HttpBackendHealthService implements BackendHealthService {
       value is String && value.trim().isNotEmpty;
 
   static BackendHealthResult _mapAbort(_ProbeAbortReason? reason) =>
-      reason == _ProbeAbortReason.cancelled
-      ? BackendHealthResult.cancelled
-      : BackendHealthResult.offline;
+      switch (reason) {
+        _ProbeAbortReason.cancelled => BackendHealthResult.cancelled,
+        _ProbeAbortReason.responseTooLarge =>
+          BackendHealthResult.invalidResponse,
+        _ProbeAbortReason.timedOut || null => BackendHealthResult.offline,
+      };
 
   static BackendHealthResult _mapTransportFailure(_ProbeAbortReason? reason) =>
-      reason == _ProbeAbortReason.cancelled
-      ? BackendHealthResult.cancelled
-      : BackendHealthResult.offline;
+      _mapAbort(reason);
 
   static BackendHealthResult _mapUnexpectedFailure(_ProbeAbortReason? reason) {
-    if (reason == _ProbeAbortReason.cancelled) {
-      return BackendHealthResult.cancelled;
-    }
-    if (reason == _ProbeAbortReason.timedOut) {
-      return BackendHealthResult.offline;
-    }
-    return BackendHealthResult.recoverableError;
+    return switch (reason) {
+      _ProbeAbortReason.cancelled => BackendHealthResult.cancelled,
+      _ProbeAbortReason.timedOut => BackendHealthResult.offline,
+      _ProbeAbortReason.responseTooLarge => BackendHealthResult.invalidResponse,
+      null => BackendHealthResult.recoverableError,
+    };
   }
 }
 
-enum _ProbeAbortReason { cancelled, timedOut }
+enum _ProbeAbortReason { cancelled, timedOut, responseTooLarge }
 
 final class _ProbeAbortSignal {
   final Completer<void> _abort = Completer<void>();

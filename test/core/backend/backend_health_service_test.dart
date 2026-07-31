@@ -92,6 +92,53 @@ void main() {
   );
 
   test(
+    'rifiuta un payload health valido appartenente a un altro servizio',
+    () async {
+      for (final serviceName in <String>['PostgREST', 'gotrue', ' GoTrue ']) {
+        final service = HttpBackendHealthService(
+          client: _HandlerClient(
+            (_) async => _jsonResponse(200, <String, String>{
+              ..._validHealthPayload,
+              'name': serviceName,
+            }),
+          ),
+        );
+
+        expect(
+          await service.check(
+            origin: origin,
+            publishableKey: publishableKey,
+            cancellation: BackendProbeCancellation(),
+          ),
+          BackendHealthResult.invalidResponse,
+          reason: 'service name "$serviceName"',
+        );
+        service.close();
+      }
+    },
+  );
+
+  test('interrompe un body oltre 8 KiB senza dichiararlo healthy', () async {
+    final client = _OversizedResponseClient();
+    final service = HttpBackendHealthService(client: client);
+    addTearDown(service.close);
+
+    final result = await service.check(
+      origin: origin,
+      publishableKey: publishableKey,
+      cancellation: BackendProbeCancellation(),
+    );
+
+    expect(result, BackendHealthResult.invalidResponse);
+    await expectLater(
+      client.abortObserved.future,
+      completes,
+    ).timeout(const Duration(seconds: 1));
+    expect(client.streamCancelled, isTrue);
+    expect(client.bytesEmitted, 8 * 1024 + 1);
+  });
+
+  test(
     'mappa gli status HTTP senza interpretare auth health come login',
     () async {
       const cases = <int, BackendHealthResult>{
@@ -308,5 +355,41 @@ final class _AbortAwareClient extends http.BaseClient {
   @override
   void close() {
     closeCalls += 1;
+  }
+}
+
+final class _OversizedResponseClient extends http.BaseClient {
+  final Completer<void> abortObserved = Completer<void>();
+
+  bool streamCancelled = false;
+  int bytesEmitted = 0;
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    final abortableRequest = request as http.AbortableRequest;
+    unawaited(
+      abortableRequest.abortTrigger!.then((_) {
+        if (!abortObserved.isCompleted) {
+          abortObserved.complete();
+        }
+      }),
+    );
+
+    final controller = StreamController<List<int>>();
+    controller
+      ..onListen = () {
+        final allowedChunk = List<int>.filled(8 * 1024, 0x20);
+        final overflowChunk = <int>[0x20];
+        bytesEmitted += allowedChunk.length + overflowChunk.length;
+        controller
+          ..add(allowedChunk)
+          ..add(overflowChunk)
+          ..close();
+      }
+      ..onCancel = () {
+        streamCancelled = true;
+      };
+
+    return http.StreamedResponse(controller.stream, 200);
   }
 }

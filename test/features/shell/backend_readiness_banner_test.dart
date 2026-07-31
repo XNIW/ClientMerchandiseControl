@@ -81,6 +81,57 @@ void main() {
     expect(find.text('Reintentar'), findsNothing);
   });
 
+  testWidgets('recoverableError mantiene la shell e offre retry accessibile', (
+    tester,
+  ) async {
+    final repository = _BannerRepository(
+      initialState: BackendReadinessState.recoverableError,
+    );
+
+    await tester.pumpWidget(buildApp(repository: repository));
+    await tester.pump();
+
+    const message = 'La tienda no está disponible por el momento.';
+    const homeCopy = 'Pronto podrás descubrir aquí las novedades de la tienda.';
+    final retryButton = find.widgetWithText(TextButton, 'Reintentar');
+
+    expect(find.text(message), findsOneWidget);
+    expect(find.text(homeCopy), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is Semantics && widget.properties.label == message,
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            widget.properties.button == true &&
+            widget.properties.label == 'Reintentar',
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('project.example.invalid'), findsNothing);
+    expect(find.textContaining('sb_publishable_'), findsNothing);
+    expect(retryButton, findsOneWidget);
+    expect(tester.getSize(retryButton).height, greaterThanOrEqualTo(48));
+
+    await tester.tap(retryButton);
+    await tester.pump();
+
+    expect(repository.calls, 1);
+    expect(find.text('Comprobando la conexión de la tienda…'), findsOneWidget);
+    expect(find.text(homeCopy), findsOneWidget);
+
+    repository.completeNext(BackendReadinessState.ready);
+    await tester.pumpAndSettle();
+
+    expect(repository.calls, 1);
+    expect(find.text(message), findsNothing);
+    expect(find.text(homeCopy), findsOneWidget);
+  });
+
   testWidgets('misconfigured non espone dettagli o valori', (tester) async {
     final repository = _BannerRepository(
       initialState: BackendReadinessState.misconfigured,

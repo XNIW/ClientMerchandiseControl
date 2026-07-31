@@ -11,8 +11,8 @@
 - **Fase**: non applicabile
 - **Responsabile**: USER_APPROVER
 - **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: correggere i quattro finding P2 della review
-  integrata TASK-003/TASK-004, aggiungere regressioni e riconsegnare a re-review
+- **Prossima azione autorizzata**: aprire la PR batch TASK-003/TASK-004, verificarne
+  la CI sullo SHA esatto ed eseguire il merge normale
 
 ## Repository coinvolti
 
@@ -119,6 +119,7 @@ vincolante un solo task `ACTIVE` alla volta.
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
 `TASK-003` è `DONE` con re-review `APPROVED` e CI finale attestata.
 `TASK-004` è `DONE` con re-review `APPROVED`; nessun task è `ACTIVE`.
-`TASK-011` resta `TODO` fino al merge effettivo della PR batch TASK-003/TASK-004.
-La review integrata del batch è `CHANGES_REQUIRED`: 4 P2 devono essere corretti e
-riesaminati prima di aprire o unire la PR.
+La re-review integrata del batch TASK-003/TASK-004 è `APPROVED` sullo SHA
+`211ad692010d7b54b8541c45cb7f6a38e3f7d5fe`: 0 P0/P1/P2 aperti, CI tecnica
+`30595351101` 3/3 `PASS`. `TASK-011` resta `TODO` fino al merge effettivo della PR
+batch, ancora pendente.

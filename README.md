@@ -117,5 +117,6 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 - **Indicatore**: USER_APPROVED_DONE
 
 `TASK-001`–`TASK-004` sono `DONE`; nessun task è attivo. La PR batch e il merge
-TASK-003/TASK-004 restano pendenti prima dell'attivazione di TASK-011. La review
-integrata richiede il Fix di quattro finding P2 prima dell'apertura della PR.
+TASK-003/TASK-004 restano pendenti prima dell'attivazione di TASK-011. La re-review
+integrata è `APPROVED` con 0 P0/P1/P2 aperti e CI tecnica 3/3 `PASS`; il prossimo
+gate è la CI della Pull Request sul suo SHA esatto, seguita dal merge normale.

@@ -516,3 +516,40 @@
 - **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 - **Blocker/note**: PR/merge vietati; i quattro P2 richiedono Fix con regressioni e
   re-review indipendente. TASK-011 resta `TODO`.
+
+## 2026-07-30 — Fix integrato TASK-003/TASK-004
+
+- **Agente**: `CODEX_FIXER`
+- **Milestone**: TASK-003/TASK-004
+- **Fase**: FIX -> REVIEW
+- **Commit tecnici**: `0151793f009070d4f9a568582f37d59e6774cc2d`,
+  `9595c98944b505c7ea57b69e28f2218317fe5760` e
+  `211ad692010d7b54b8541c45cb7f6a38e3f7d5fe`
+- **Azioni principali**: separati business decision owner, control plane e
+  writer/enforcer; riallineati TASK-012 e DAG; introdotto un validator fail-closed con
+  cinque fixture negative.
+- **Verifiche**: Bash 3.2, governance, action pin, validator, 5/5 fixture,
+  confinement/security manuale e `scripts/check.sh` `PASS`; 72/72 test, analyze
+  pulito, build Android/iOS. `shellcheck` `NOT_RUN`; Codex Security app-backed
+  `BLOCKED` senza conversione in `PASS`.
+- **CI**: run finale tecnico `30595351101` sullo SHA esatto `211ad692…`, 3/3 job,
+  tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: due re-review intermedie hanno correttamente respinto validator
+  ancora incompleti nonostante CI verdi; nessun gate obbligatorio resta aperto.
+
+## 2026-07-30 — Re-review integrata TASK-003/TASK-004 approvata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Milestone**: TASK-003/TASK-004
+- **Revisione**: `211ad692010d7b54b8541c45cb7f6a38e3f7d5fe`
+- **Azioni principali**: tre sessioni read-only indipendenti hanno chiuso
+  `T003-INT-ARCH-001`–`004` e `T003004-REREV-SEC-001`, incluse mutazioni autonome
+  su ownership, marker/edge, decisione `D-04` e scope TASK-012.
+- **Verifiche**: validator baseline e 5/5 fixture `PASS`; DAG 42 task, zero cicli,
+  11/11 righe e 23/23 edge; CI `30595351101` 3/3 `PASS`, step `success`,
+  annotation 0/0/0; worktree pulito sul target revisionato.
+- **Finding finali**: 0 P0, 0 P1, 0 P2; quattro P3 storici non bloccanti.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+- **Blocker/note**: autorizzazione condizionata già concessa; PR batch, CI pull
+  request e merge normale restano i gate successivi. TASK-011 resta `TODO`.

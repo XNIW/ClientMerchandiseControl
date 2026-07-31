@@ -103,3 +103,122 @@ espliciti e testati.
 `CHANGES_REQUIRED`
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Re-review 1 del Fix
+
+### Revision set
+
+- Commit tecnico Fix:
+  `408f14d242e9d35bfcefbebd10858dcb9e38d028`
+- Handoff pubblicato:
+  `0ddd26abd9d6c7a5eaa70aaba2481cfe0b05bfa7`
+- Branch e upstream: allineati allo SHA di handoff; worktree pulito
+- PR #4: `OPEN/DRAFT`, base `main`, head `0ddd26a`, 143 path e zero path
+  TASK-003/004
+- CI: run `30619705565`, tre job senza runner o step e una annotation
+  billing/spending per job; esito `BLOCKED / CI_EXTERNAL`
+
+### Reviewer indipendenti
+
+| Reviewer | Specializzazione | Verifiche autonome | Esito |
+|---|---|---|---|
+| A | intent, CA, governance ed evidence | 23/23 test mirati, Git/PR/scope | CHANGES_REQUIRED |
+| B | lifecycle Auth, race e restore | 45/45 test mirati, analyze | CHANGES_REQUIRED |
+| C | sicurezza, storage e callback | 56/56 test mirati, Android callback fake | CHANGES_REQUIRED |
+| D | UI, native, l10n e accessibilità | 41/41 + 6/6, callback fake duale e warm Android | CHANGES_REQUIRED |
+| E | evidence, Git, PR e CI | matrici 40/38, 12 evidence e run/job/annotation | CHANGES_REQUIRED |
+
+Tutti i reviewer hanno operato read-only sul medesimo revision set.
+
+### Chiusura dei finding originari
+
+| ID | Stato re-review | Evidence |
+|---|---|---|
+| T020-REV-001 | CLOSED | compensazione Cancel/exchange e sessione tardiva; regressione controller |
+| T020-REV-002 | CLOSED | expiry/missing expiry filtrati e recovery SDK retryable testata |
+| T020-REV-003 | OPEN — P2 | restore durante `clearPendingOAuth` può ancora precedere il launch browser |
+| T020-REV-004 | CLOSED | Cancel pre-factory attende initialization e cleanup |
+| T020-REV-005 | CLOSED | errori terminano il flow e Retry rilancia |
+| T020-REV-006 | CLOSED | persistenza esplicita e storage failure fail-closed |
+| T020-REV-007 | OPEN — P2 | doppia failure marker/delete può lasciare una sessione senza tombstone persistente |
+| T020-REV-008 | CLOSED | restore live correttamente distinto e riclassificato `BLOCKED` |
+| T020-REV-009 | CLOSED | callback provider non inferita dal 302; CA-11 `BLOCKED` |
+| T020-REV-010 | CLOSED | zero path TASK-003/004 nel diff locale e remoto |
+| T020-REV-011 | CLOSED | callback fake parte da Home e ritorna ad Account |
+| T020-REV-012 | CLOSED | browsing guest interleaved durante gli stati Auth |
+| T020-REV-013 | CLOSED | matrice Account completa di stato/tema/viewport/a11y |
+| T020-REV-014 | CLOSED | matrici con `Tipo` e parser cardinalità/unicità/stato |
+| T020-REV-015 | OPEN — P2 | scanner aggirabile per secret Google/JWT e path annidati/non NUL-safe |
+| T020-REV-016 | OPEN — P2 | snapshot Git/CI versionato precedente a push e run corrente |
+| T020-REV-017 | CLOSED | `shared_preferences` direct e limitata a marker non sensibili |
+| T020-REV-018 | OPEN — P2 | bundle scan e insieme esatto delle 12 evidence non hanno prova completa |
+| T020-REV-019 | CLOSED | publishable config distinta dai secret privilegiati |
+| T020-REV-020 | CLOSED | initialization azzerata dopo failure e retry testato |
+| T020-REV-021 | CLOSED | data locale e intestazioni operative allineate |
+
+### Finding nuovi consolidati
+
+#### T020-RR-001 — P1 — Logout concorrente con exchange lascia una sessione
+
+- **Stato**: OPEN
+- **Posizione**: `lib/features/auth/application/auth_controller.dart:293`;
+  `test/features/auth/application/auth_controller_test.dart:282`
+- **Evidence**: Logout esegue un solo purge senza attendere `_exchangeOperation`;
+  il test concorrente controlla soltanto la UI e non abilita il side effect sessione.
+- **Impatto**: un exchange tardivo può ripersistire la sessione dopo Logout e un cold
+  restore può riaprire Account authenticated.
+- **Correzione richiesta**: attendere/quarantenare l'exchange e applicare un secondo
+  purge compensativo prima di consentire un nuovo login.
+- **Regressione**: exchange controllato con side effect sessione, Logout concorrente,
+  successo/errore e storage failure; sessione finale assente e restore guest.
+
+#### T020-RR-002 — P2 — Cancellazione provider non termina l'epoca OAuth
+
+- **Stato**: OPEN
+- **Posizione**: `lib/features/auth/application/auth_controller.dart:420`
+- **Evidence**: `access_denied` imposta `AuthCancelled` senza purge né guard; un code
+  canonico successivo può ancora essere scambiato.
+- **Impatto**: la UI mostra cancellazione, ma un callback tardivo può autenticare.
+- **Correzione richiesta**: instradare cancellation/failure provider nella terminazione
+  serializzata e ignorare callback fino a un nuovo login.
+- **Regressione**: `access_denied`, cleanup post-evento, code tardivo, zero exchange e
+  restore guest.
+
+#### T020-RR-003 — P3 — Range task ambiguo nel README
+
+- **Stato**: OPEN
+- **Posizione**: `README.md:159`
+- **Correzione richiesta**: distinguere TASK-013–TASK-019 da TASK-021 in avanti,
+  senza includere implicitamente TASK-020.
+
+#### T020-RR-004 — P3 — Formula temporale ambigua nell'architettura
+
+- **Stato**: OPEN
+- **Posizione**: `docs/ARCHITECTURE/MOBILE-ARCHITECTURE.md:82`
+- **Correzione richiesta**: sostituire “Fino a TASK-020” con una formula che descriva
+  correttamente la funzionalità introdotta da TASK-020.
+
+#### T020-RR-005 — P3 — Descrizione marker storage incompleta
+
+- **Stato**: OPEN
+- **Posizione**: `docs/ARCHITECTURE/AUTH-BOUNDARY.md:277`
+- **Correzione richiesta**: documentare marker installazione e tombstone non sensibili,
+  inclusa la copia sicura ridondante richiesta dal Fix.
+
+### Conteggio re-review
+
+| Severità | Aperti |
+|---|---:|
+| P0 | 0 |
+| P1 | 1 |
+| P2 | 6 |
+| P3 | 3 |
+
+Sedici finding originari sono `CLOSED`; cinque originari e cinque nuovi restano
+`OPEN`.
+
+### Esito re-review 1
+
+`CHANGES_REQUIRED`
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

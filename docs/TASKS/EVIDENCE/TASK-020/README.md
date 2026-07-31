@@ -1,7 +1,7 @@
 # Evidence TASK-020
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Stato
 
@@ -11,9 +11,11 @@ Snapshot di handoff:
 - Review: `CHANGES_REQUIRED` — cinque reviewer, 1 P1, 18 P2 e 2 P3 consolidati
 - Fix: `PASS` sul commit tecnico `408f14d` per i finding implementati; gate locali
   214/214, coverage 80,1%, build e smoke fake dual-platform
-- Re-review: `NOT_RUN` — affidata a cinque reviewer read-only sul nuovo HEAD
+- Re-review 1: `CHANGES_REQUIRED` — 16/21 finding originari chiusi; restano 1 P1,
+  6 P2 e 3 P3
 - CI: `BLOCKED / CI_EXTERNAL`
-- PR/merge: draft PR #4 aperta; push Fix/CI da verificare; merge `BLOCKED`
+- PR/merge: draft PR #4 su `0ddd26a`; run `30619705565` senza runner; merge
+  `BLOCKED`
 - DONE: `NO`
 
 ## Indice
@@ -49,8 +51,8 @@ duplicazioni che potrebbero divergere.
   nessun write remoto è stato eseguito.
 - iOS Simulator: conferma OS del custom scheme pendente; il Mac locked impedisce
   l'accettazione automatica del dialogo.
-- GitHub Actions: due run TASK-020 sullo SHA di handoff sono stati fermati prima del
-  runner dal limite billing/spending.
+- GitHub Actions: la run `30619705565` sullo SHA di re-review ha tre job senza step,
+  fermati prima del runner dal limite billing/spending.
 
 Le evidence finali dovranno contenere esattamente una riga per ciascuno dei 40 CA e
 38 test, con soli esiti `PASS`, `FAIL`, `BLOCKED` o `NOT_RUN`. Non sono ammessi URL,

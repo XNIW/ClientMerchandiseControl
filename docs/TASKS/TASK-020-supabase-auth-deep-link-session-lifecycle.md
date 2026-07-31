@@ -6,15 +6,15 @@
 - **Titolo**: Supabase Auth, deep link e session lifecycle
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Stato**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-07-31
 - **Ultimo aggiornamento**: 2026-07-31
-- **Ultimo agente**: CODEX_FIXER
+- **Ultimo agente**: CODEX_RE_REVIEWER
 - **Review outcome**: CHANGES_REQUIRED
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -381,6 +381,31 @@ che può sopravvivere a Cancel durante un exchange in-flight. I P2 coprono expir
 race restore/cancel/retry, persistenza e cleanup fail-closed, coverage runtime/UI,
 confinement PR, evidence/CI e policy della configurazione pubblicabile. I due P3
 riguardano retry dell'initialization storage e provenance temporale.
+
+Report completo:
+`docs/TASKS/EVIDENCE/TASK-020/review-report.md`.
+
+Esito: `CHANGES_REQUIRED`.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Re-review 1 del Fix
+
+Cinque re-reviewer read-only indipendenti hanno verificato il revision set:
+
+- tecnico `408f14d242e9d35bfcefbebd10858dcb9e38d028`;
+- handoff pubblicato `0ddd26abd9d6c7a5eaa70aaba2481cfe0b05bfa7`.
+
+Sedici dei ventuno finding originari sono chiusi. Restano aperti
+T020-REV-003, T020-REV-007, T020-REV-015, T020-REV-016 e T020-REV-018; la
+re-review ha inoltre consolidato un P1 sul Logout concorrente con exchange, un P2
+sulla cancellazione provider e tre P3 documentali. Totale aperto: 0 P0, 1 P1, 6 P2
+e 3 P3.
+
+Verifiche autonome: suite mirate 45/45, 56/56, 41/41 e 23/23 `PASS`; callback fake
+Android/iOS e callback warm Android `PASS`; branch/upstream e scope PR `PASS`.
+La run CI `30619705565` sullo SHA di handoff ha tre job senza runner né step e una
+annotation billing/spending per job, quindi resta `BLOCKED / CI_EXTERNAL`.
 
 Report completo:
 `docs/TASKS/EVIDENCE/TASK-020/review-report.md`.

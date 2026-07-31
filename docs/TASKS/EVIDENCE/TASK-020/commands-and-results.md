@@ -37,6 +37,8 @@
 | CMD-R01 | Supabase staging, dashboard | aprire Auth URL configuration e provider Google con sessione esistente | BLOCKED | dashboard ferma su MFA; nessun write | prerequisito: intervento umano MFA; vietato a Codex inserirlo |
 | CMD-R02 | Supabase staging, probe read-only | health/settings pubblici e authorize PKCE con redirect non seguito | PASS | exit 0; health HTTP 200, provider Google attivo, authorize HTTP 302 al dominio Google | non prova la callback Supabase configurata lato provider |
 | CMD-CI01 | handoff precedente `2f25f3f` | `gh run view 30614374801` e `gh run view 30614438284` con JSON job/step/annotation | BLOCKED | comando exit 0; ogni run 3/3 job `failure`, zero step, una annotation/job | billing/spending GitHub prima del runner; prerequisito: ripristino Billing & plans |
+| CMD-RR01 | `0ddd26a`, cinque shard read-only A–E | review di intent/CA, lifecycle, security/storage, UI/native ed evidence/Git/CI; suite mirate | FAIL | shard: 23/23, 45/45, 56/56 e 41/41 + 6/6 test `PASS`; 16/21 finding originari chiusi; 1 P1, 6 P2 e 3 P3 aperti | esito consolidato `CHANGES_REQUIRED`; nessun reviewer ha modificato il worktree |
+| CMD-CI02 | handoff `0ddd26a` | `gh run view 30619705565` e API annotation dei job `91121069809`, `91121069668`, `91121069636` | BLOCKED | exit 0; 3/3 job `failure`, `runner_id=0`, zero step e una annotation/job | billing/spending GitHub prima del runner; prerequisito: ripristino Billing & plans |
 
 I `FAIL` diagnostici restano evidence reali e non vengono trasformati in `PASS`: i
 rerun conformi sono identificati separatamente. I comandi con callback usano qui un
@@ -84,9 +86,9 @@ query o code.
 | CA-35 | STATIC/FORMAT/ANALYZE/UNIT/GIT | PASS | CMD-F01/F02/F12 con comando, output ed exit reali |
 | CA-36 | STATIC/SECURITY/GIT | PASS | CMD-F02/F10; dipendenze minime, 336 file puliti e 3/3 fixture respinte |
 | CA-37 | BUILD_ANDROID/BUILD_IOS | PASS | CMD-F01 development e CMD-F03 staging, entrambi i target exit 0 |
-| CA-38 | MANUAL/STATIC/SECURITY | NOT_RUN | fix tecnico `408f14d` pronto; re-review A–E sul nuovo HEAD non ancora eseguita |
-| CA-39 | CI | BLOCKED | CMD-CI01; due run precedenti, 3 job/run senza step; prerequisito billing/spending GitHub |
-| CA-40 | GIT/CI | BLOCKED | PR #4 draft aperta; scope locale corretto CMD-F13, ma re-review/CI/live gate impediscono merge, DONE e sync main |
+| CA-38 | MANUAL/STATIC/SECURITY | FAIL | CMD-RR01; cinque reviewer sullo stesso SHA, 16/21 finding originari chiusi ma 1 P1, 6 P2 e 3 P3 aperti |
+| CA-39 | CI | BLOCKED | CMD-CI02; run esatta sullo SHA di handoff, 3 job senza runner/step; prerequisito billing/spending GitHub |
+| CA-40 | GIT/CI | BLOCKED | CMD-F13/CMD-RR01/CMD-CI02; PR #4 draft e scope remoto corretto, ma finding/CI/live gate impediscono merge, DONE e sync main |
 
 ## Matrice test
 
@@ -126,7 +128,7 @@ query o code.
 | T-32 | ANDROID_EMU/MANUAL/SECURITY | BLOCKED | subset automatico PASS CMD-F04/F05/F06; 17 passi live dipendono da CMD-R01 |
 | T-33 | IOS_SIM/MANUAL/SECURITY | BLOCKED | subset automatico PASS CMD-F07/F08; live dipende da CMD-R01 e CMD-F09 |
 | T-34 | ANDROID_EMU/IOS_SIM/MANUAL | BLOCKED | error fake PASS CMD-F01/F04/F07; matrice live non eseguibile con flag false/MFA |
-| T-35 | MANUAL/STATIC/SECURITY | NOT_RUN | re-review A–E sul nuovo HEAD non ancora eseguita |
-| T-36 | CI | BLOCKED | CMD-CI01; due run handoff precedente fermati prima del runner; nuovi run dopo push |
-| T-37 | GIT | NOT_RUN | commit tecnico PASS e scope locale CMD-F13; tracking/PR remoto da verificare dopo push |
+| T-35 | MANUAL/STATIC/SECURITY | FAIL | CMD-RR01; cinque shard completati, finding tecnici/documentali ancora aperti |
+| T-36 | CI | BLOCKED | CMD-CI02; run `30619705565` sullo SHA esatto fermata prima del runner |
+| T-37 | GIT | PASS | CMD-F13/CMD-RR01; branch/upstream/PR allineati, worktree pulito e zero path TASK-003/004 |
 | T-38 | GIT/CI | BLOCKED | merge/sync/main/IDLE vietati finché re-review, CI e gate live restano non verdi |

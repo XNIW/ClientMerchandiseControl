@@ -4,15 +4,15 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: non applicabile
-- **Stato task**: non applicabile
-- **Fase**: non applicabile
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: attivare TASK-012 in `PLANNING` con una transizione
-  distinta; TASK-012 resta `TODO` fino a tale commit
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-012
+- **File task**: `docs/TASKS/TASK-012-app-shell-design-system-localization-accessibility.md`
+- **Stato task**: ACTIVE
+- **Fase**: PLANNING
+- **Responsabile**: CODEX_PLANNER
+- **Indicatore**: CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION
+- **Prossima azione autorizzata**: applicare in una transizione distinta
+  l'autorizzazione end-to-end già concessa e avviare `EXECUTION` senza cambiare scope
 
 ## Repository coinvolti
 
@@ -59,7 +59,7 @@
 | TASK-009 | Pipeline immagini pubbliche Storefront | TODO | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
 | TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO | TASK-005, TASK-006, TASK-008, TASK-009 | Client, Admin, Supabase | Contratto query catalogo testabile |
 | TASK-011 | Connessione Flutter allo staging e backend health state | DONE | TASK-004 | Client, Supabase | Connessione staging fail-closed |
-| TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | TODO | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
+| TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | ACTIVE | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
 | TASK-013 | Home e prodotti/promozioni in evidenza | TODO | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
 | TASK-014 | Categorie e griglia catalogo con caricamento immagini | TODO | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
 | TASK-015 | Ricerca, filtri e ordinamento | TODO | TASK-010, TASK-014 | Client, Supabase | Discovery catalogo efficiente |
@@ -135,4 +135,5 @@ normale è stato verificato su main.
 re-review `30601320650` e CI approvazione `30601758281` sono 3/3 `PASS`, con tutti
 gli step `success` e annotation 0/0/0. CI closeout `30602210469` è `PASS` sullo SHA
 esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
-Nessun task è `ACTIVE`; TASK-005–TASK-010 e TASK-012 in avanti restano invariati.
+`TASK-012` è l'unico task `ACTIVE`, in `PLANNING`; TASK-005–TASK-010 e TASK-013 in
+avanti restano invariati.

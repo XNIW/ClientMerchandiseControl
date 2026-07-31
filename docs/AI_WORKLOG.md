@@ -753,3 +753,22 @@
   prima dell'attestazione.
 - **Risultato**: `PASS`.
 - **Blocker/note**: nessuno; TASK-012 resta `TODO` fino a transizione distinta.
+
+## 2026-07-30 — Planning TASK-012
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-012
+- **Fase iniziale/finale**: nessuna -> PLANNING
+- **Prerequisiti**: TASK-002 e TASK-011 `DONE`; CI closeout TASK-011
+  `30602210469` 3/3 `PASS`; repository iniziale pulito e allineato a origin.
+- **Analisi**: indexed stack, token Material 3, locale e readiness esistono; le
+  quattro schermate sono ancora placeholder generici. I P3 TASK-002 su scroll/bounds
+  e larghezza cosmetica sono assorbiti nei criteri TASK-012.
+- **Scope**: shell customer-safe Home/Catalogo/Carrello/Account, browsing guest,
+  contratto Account guest/authenticated solo presentazionale, a11y, l10n, responsive
+  e smoke dual-platform.
+- **Confini**: nessun dato o query commerciale, nessuna mutazione remota, nessun
+  OAuth/session/token prima di TASK-020, nessuna nuova dipendenza o asset.
+- **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+- **Blocker/note**: nessuno; autorizzazione condizionata già presente nel prompt
+  end-to-end, da applicare in una transizione distinta.

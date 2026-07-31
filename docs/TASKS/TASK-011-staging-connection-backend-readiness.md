@@ -7,20 +7,20 @@
 - **File task**:
   `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-07-30
 - **Ultimo aggiornamento**: 2026-07-30
 - **Ultimo agente**: CODEX_EXECUTOR
-- **Review outcome**: NOT_RUN
-- **Reviewer**: non ancora assegnato
+- **Review outcome**: CHANGES_REQUIRED
+- **Reviewer**: CODEX_REVIEWER — tre sessioni read-only indipendenti
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **DONE**: NO
 - **Merge**: NO — milestone batch con TASK-012 e TASK-020
 - **User approval**: GRANTED_CONDITIONALLY_BY_END_TO_END_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-011/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -397,27 +397,57 @@ Commit tecnico revisionabile:
 
 ### Problemi critici
 
-`NOT_RUN`
+Nessun finding P0 o P1.
 
 ### Problemi medi
 
-`NOT_RUN`
+- `T011-REV-001` P2: il test del check iniziale invoca `retry()` e non prova
+  l'avvio automatico; una mutation che rimuove la microtask lascia 105/105 verdi.
+- `T011-REV-002` P2: nessun widget test esercita `recoverableError`, il relativo
+  copy/retry può sparire lasciando la suite verde.
+- `T011-REV-003` P2: lo smoke costruisce app/container manualmente e chiama il
+  notifier; non attraversa `bootstrap()` né compie un'interazione UI.
+- `T011-REV-004` P2: l'evidence smoke non contiene comandi/target completi,
+  screenshot sanitizzati e manifest con SHA-256.
+- `T011-REV-005` P2: un JSON 200 di servizio diverso con tre stringhe non vuote è
+  accettato come health Auth; manca il vincolo `name == "GoTrue"`.
 
 ### Miglioramenti opzionali
 
-`NOT_RUN`
+- `T011-REV-006` P3: il body health viene accumulato senza una soglia massima; introdurre
+  un limite piccolo e abortire/mappare fail-closed in caso di superamento.
 
 ### Fix richiesti
 
-`NOT_RUN`
+1. Rendere il test controller sensibile all'auto-check e all'assenza di auto-retry.
+2. Coprire `recoverableError` con shell, copy, Semantics, target e retry.
+3. Rifare lo smoke tramite `bootstrap()`, osservare `initializing` e usare la
+   navigazione reale.
+4. Rieseguire Android/iOS con comandi/target/output completi e produrre screenshot
+   sanitizzati più manifest.
+5. Richiedere identità `GoTrue` e aggiungere la regressione servizio errato.
+6. Chiudere anche il P3 con body limitato e test overflow.
 
 ### Esito
 
-`NOT_RUN`
+`CHANGES_REQUIRED`
+
+Gate indipendenti:
+
+- runtime: 38/38 mirati e 105/105 completi `PASS`, ma due mutation sopravvissute;
+- platform/UI: 44/44 `PASS`; smoke corrente 1/1 Android e 1/1 iOS, ma non attraversa
+  l'entrypoint reale e non soddisfa il gate evidence;
+- security: 62/62 `PASS`; scan query/secret/config/network e OSV `PASS`;
+- CI handoff `30598639082`: SHA esatto
+  `b4b2234f889df91ea422b769153f662c942dadf3`, 3/3 job, tutti gli step `success`,
+  annotation 0/0/0;
+- worktree revisionato pulito e zero write Supabase.
+
+Finding aperti: 0 P0, 0 P1, 5 P2, 1 P3.
 
 ### Handoff
 
-`NOT_RUN`
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`
 
 ## Fix — `CODEX_FIXER`
 

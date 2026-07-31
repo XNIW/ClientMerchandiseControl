@@ -122,11 +122,11 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 - **Task attivo**: TASK-011
 - **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
-TASK-011 è l'unico task attivo e l'Execution ha consegnato connessione/readiness staging
-data-free con smoke reali Android/iOS. La Review indipendente è in corso. OAuth,
-redirect allow-list e deep link restano TASK-020; TASK-005–TASK-010 e TASK-012 in
-avanti non sono attivi.
+TASK-011 è l'unico task attivo. La Review indipendente ha richiesto Fix confinati a
+health identity/size, regression test auto-check/retry e smoke bootstrap con evidence
+dual-platform. OAuth, redirect allow-list e deep link restano TASK-020;
+TASK-005–TASK-010 e TASK-012 in avanti non sono attivi.

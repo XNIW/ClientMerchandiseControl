@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-011
 - **File task**: `docs/TASKS/TASK-011-staging-connection-backend-readiness.md`
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
-- **Prossima azione autorizzata**: revisionare in modo indipendente TASK-011 sullo SHA
-  tecnico consegnato, senza modificare l'implementazione
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Prossima azione autorizzata**: correggere esclusivamente i finding approvati
+  `T011-REV-001`–`006`, rieseguire i gate e riconsegnare a Review
 
 ## Repository coinvolti
 
@@ -126,7 +126,8 @@ La re-review integrata del batch TASK-003/TASK-004 è `APPROVED` sullo SHA
 `30596267634` sullo SHA `ee58f29c9402f286a038f7cc79f1043539ea0b25` e il merge
 normale è stato verificato su main.
 
-`TASK-011` è l'unico task `ACTIVE` in `REVIEW`. L'Execution ha consegnato lo SHA
-`2e646595ad01807be292179adc61013fdd1b2700`: readiness staging data-free, smoke reali
-Android/iOS e CI tecnica `30598076908` 3/3 `PASS`. Review indipendente e CI sullo SHA
-finale restano obbligatorie; TASK-005–TASK-010 e TASK-012 in avanti restano invariati.
+`TASK-011` è l'unico task `ACTIVE` in `FIX`. La review indipendente sullo SHA
+`b4b2234f889df91ea422b769153f662c942dadf3` ha trovato 0 P0, 0 P1, 5 P2 e 1 P3:
+servono regressioni per health/auto-check/retry e uno smoke reale con evidence completa.
+CI handoff `30598639082` 3/3 `PASS`; TASK-005–TASK-010 e TASK-012 in avanti restano
+invariati.

@@ -610,3 +610,20 @@
 - **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 - **Blocker/note**: `CA-31` e `T-28` attendono Review indipendente; `CA-32` e `T-29`
   attendono la CI sullo SHA finale. Nessun write Supabase eseguito.
+
+## 2026-07-30 — Review indipendente TASK-011
+
+- **Agente**: `CODEX_REVIEWER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revisione**: `b4b2234f889df91ea422b769153f662c942dadf3`
+- **Shard**: runtime/architettura, platform/UI/evidence e security/confinement, tutte
+  read-only e distinte dall'Executor.
+- **Finding**: 0 P0, 0 P1, 5 P2, 1 P3. I P2 riguardano identità GoTrue, copertura
+  auto-check/recoverable, smoke via bootstrap e evidence dual-platform; il P3 limita
+  la dimensione del body.
+- **Verifiche autonome**: suite 105/105, shard 38/38, 44/44 e 62/62, analyze,
+  architecture/fixture, scan security e CI `30598639082` sullo SHA esatto 3/3
+  `success`. Due mutation sono sopravvissute e lo smoke non esercita l'entrypoint.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: PR, `DONE` e TASK-012 vietati fino a Fix e re-review.

@@ -8,6 +8,7 @@ source "${cmc_script_dir}/resolve-flutter.sh"
 bash -n "${cmc_script_dir}"/*.sh
 bash "${cmc_script_dir}/check-action-pins.sh"
 bash "${cmc_script_dir}/check-governance-state.sh"
+bash "${cmc_script_dir}/check-architecture-boundaries.sh"
 git diff --check
 git diff --cached --check
 flutter pub get --enforce-lockfile

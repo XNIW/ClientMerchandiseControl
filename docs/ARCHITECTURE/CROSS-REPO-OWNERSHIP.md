@@ -17,15 +17,19 @@ una key o un ruolo database.
 | Ruolo | Significato |
 |---|---|
 | **Domain owner** | Sistema accountable per significato, invarianti e lifecycle del dominio. |
-| **Decision owner** | Ruolo che decide la policy di business; non coincide automaticamente con il database che la persiste. |
+| **Decision owner** | Ruolo business accountable che decide la policy del dominio; non coincide con il control plane che raccoglie il comando né con il writer che la applica. |
+| **Control plane** | Superficie attraverso cui un ruolo autorizzato esprime una decisione; non acquisisce per questo decision authority. |
 | **Writer** | Runtime autorizzato a originare o applicare una mutazione nel proprio confine. |
 | **Projector** | Componente server-side che traduce dati operativi in una proiezione Storefront pubblicabile. |
 | **Consumer** | Sistema che legge un contratto senza acquisirne ownership o capacità di pubblicazione. |
-| **Contract owner** | Repository canonico dell'artifact server-facing versionato e dei relativi test di conformità. |
+| **Contract owner** | Repository accountable per uno specifico layer contrattuale dichiarato; layer logico e artifact server machine-readable possono avere owner distinti soltanto con split e conformance espliciti. |
 | **Change owner** | Repository/ruolo che apre e coordina il task di cambio, compatibilità, rollout e deprecation. |
 
 Supabase è una piattaforma di persistenza ed enforcement. Non è un `decision owner`:
 RLS, grant, trigger o funzioni applicano decisioni definite e versionate altrove.
+Admin Console è il control plane: rende operative decisioni assunte dai ruoli business
+autorizzati, ma non sostituisce il `decision owner` e non coincide necessariamente con
+il writer/enforcer server-side.
 
 ## Ownership per sistema
 
@@ -41,16 +45,16 @@ RLS, grant, trigger o funzioni applicano decisioni definite e versionate altrove
 
 ## Matrice per dominio
 
-| Dominio | Domain owner | Decision owner | Writer autorizzati | Projector | Consumer | Contract owner | Change owner |
+| Dominio | Domain owner | Business decision owner | Writer autorizzati | Projector | Consumer | Contract owner | Change owner |
 |---|---|---|---|---|---|---|---|
 | Esperienza e stato locale cliente | `ClientMerchandiseControl` | Product owner Client | Client Flutter nel solo storage locale e negli intenti ammessi | Nessuno | Cliente | Client | Client |
-| Contratto pubblico Storefront | Admin server boundary | Product owner + control plane Admin | Solo implementazioni server autorizzate | Admin server verso proiezione Supabase | Client guest/customer | Split permanente: Client per il contratto logico; Admin per l'artifact server machine-readable. I due livelli richiedono conformance bidirezionale obbligatoria | Admin per i cambi server-facing e Client per gli invarianti logici, con coordinamento e conformance reciproci obbligatori |
+| Contratto pubblico Storefront | Admin server boundary | Product owner Client per gli invarianti logici; ruoli business Admin autorizzati per la semantica commerciale | Solo implementazioni server autorizzate | Admin server verso proiezione Supabase | Client guest/customer | Split permanente: Client per il contratto logico; Admin per l'artifact server machine-readable. I due livelli richiedono conformance bidirezionale obbligatoria | Admin per i cambi server-facing e Client per gli invarianti logici, con coordinamento e conformance reciproci obbligatori |
 | Catalogo inventory operativo | Dominio Merchandise Control, rappresentato online da Admin/Supabase | Shop owner/manager tramite control plane | Admin server, Android/iOS autorizzati; import POS solo via Admin | Futuro pipeline TASK-006 | Admin, Android, iOS e POS | Admin per il contratto condiviso | Admin con coordinamento mobile/POS |
 | Visibilità e pubblicazione catalogo | Admin Console | Shop owner/manager autorizzato | Admin server | Admin server | Client Storefront | Admin | Admin |
 | Prezzi pubblici e promozioni | Admin Console | Ruolo commerciale autorizzato | Admin server; mai il Client | Admin server, con validazione al momento d'uso | Client come display; checkout come revalidator | Admin | Admin |
-| Disponibilità commerciale | Admin server boundary | Policy commerciale/fulfillment Admin | Eventi inventory/POS come input; solo server produce il valore pubblico | Admin server | Client come indicazione rivalidabile | Admin | Admin con coordinamento POS/inventory |
+| Disponibilità commerciale | Admin server boundary | Ruolo commerciale/fulfillment Admin autorizzato | Eventi inventory/POS come input; solo server produce il valore pubblico | Admin server | Client come indicazione rivalidabile | Admin | Admin con coordinamento POS/inventory |
 | Immagini prodotto pubblicate | Admin image service e record remoto finalizzato | Ruolo Admin autorizzato | Admin server; Android/iOS usano soltanto management flow autenticato | Futuro image publication pipeline TASK-009 | Client tramite riferimento pubblico approvato | Admin | Admin con fixture consumer |
-| Hold e ordine cliente | Futuro dominio ordini server-side | Customer per l'intento; server/Admin per accettazione e policy | Client invia intento; solo server crea stato autoritativo | Server order read model | Client, Admin e futuro handoff POS | Admin | Admin con Client/POS coordinati |
+| Hold e ordine cliente | Futuro dominio ordini server-side | Customer per l'intento; ruolo fulfillment Admin autorizzato per policy e accettazione | Client invia intento; solo server crea stato autoritativo | Server order read model | Client, Admin e futuro handoff POS | Admin | Admin con Client/POS coordinati |
 | Vendita fiscale e movimenti POS | `Win7POS` per l'evento locale; ledger server per l'ack globale | Operatore/manager POS secondo policy | Win7POS local transaction/outbox; Admin server applica l'ack | Nessuna proiezione Storefront diretta | Admin/ledger e futuro handoff ordine | Admin per API POS, Win7POS per consumer implementation | Admin + Win7POS |
 | Schema, migration, RLS, grant, RPC ed eventuali Edge Functions | Repository Admin come implementation authority | Security/architecture owner Admin | Pipeline/reviewer Admin; mai client mobile | N/A | Runtime Supabase e consumer approvati | Admin | Admin tramite task esplicito |
 

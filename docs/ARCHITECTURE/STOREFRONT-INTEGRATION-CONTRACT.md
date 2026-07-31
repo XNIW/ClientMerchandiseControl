@@ -10,7 +10,9 @@
 | Task di origine | TASK-003 |
 | Logical contract owner | repository `ClientMerchandiseControl` |
 | Server contract owner | repository `merchandise-control-admin-web`, quando TASK-010 introdurrà il contratto machine-readable |
-| Business decision owner | Admin Console |
+| Business decision owner | ruoli business autorizzati definiti per dominio |
+| Control plane | Admin Console |
+| Writer/enforcer | Admin server writer; Supabase runtime/enforcement |
 | Consumer | `ClientMerchandiseControl` |
 | Change authority | task esplicito approvato, con i domain owner impattati |
 | Decisione di ownership | [ADR-010](../DECISIONS/ADR-010-storefront-contract-ownership.md) |

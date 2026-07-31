@@ -21,9 +21,9 @@ gestita da Supabase non dipende dal catalogo reale, dai prezzi o dall'Admin Cons
 
 TASK-003 e TASK-004 restano la foundation comune. Da TASK-004 si separano due workstream:
 
-- catalogo: TASK-005 → TASK-006 → TASK-007/TASK-008/TASK-009 → TASK-010, quindi
-  TASK-013–TASK-019;
-- autenticazione: TASK-011 → TASK-012 → TASK-020, quindi TASK-021/TASK-022.
+- catalogo: TASK-005 → TASK-006 → TASK-007 → {TASK-008, TASK-009} → TASK-010,
+  quindi i nodi TASK-013–TASK-019 secondo le rispettive dipendenze;
+- autenticazione: TASK-011 → TASK-012 → TASK-020 → TASK-021 → TASK-022.
 
 La tabella delle dipendenze applica tre modifiche circoscritte:
 
@@ -34,6 +34,31 @@ La tabella delle dipendenze applica tre modifiche circoscritte:
 TASK-011 verifica configurazione, connessione e backend/auth readiness. Non dichiara il
 catalogo pronto e non introduce query verso dati commerciali. TASK-020 possiede OAuth,
 deep link, session lifecycle e logout; profilo e dati cliente custom restano di TASK-021.
+TASK-012 costruisce la shell guest/data-safe, gli stati readiness e la baseline
+accessibile: non introduce catalogo reale, query commerciali o UI Storefront
+data-backed, che restano di TASK-013/TASK-014 dopo TASK-010.
+
+### Edge normativi sincronizzati con il Master Plan
+
+<!-- CMC-WORKSTREAM-DEPENDENCIES:BEGIN -->
+| Task | Dipendenze dirette |
+|---|---|
+| TASK-005 | TASK-003, TASK-004 |
+| TASK-006 | TASK-005 |
+| TASK-007 | TASK-005, TASK-006 |
+| TASK-008 | TASK-005, TASK-006, TASK-007 |
+| TASK-009 | TASK-005, TASK-007 |
+| TASK-010 | TASK-005, TASK-006, TASK-008, TASK-009 |
+| TASK-011 | TASK-004 |
+| TASK-012 | TASK-002, TASK-011 |
+| TASK-020 | TASK-004, TASK-011, TASK-012 |
+| TASK-021 | TASK-020 |
+| TASK-022 | TASK-020, TASK-021 |
+<!-- CMC-WORKSTREAM-DEPENDENCIES:END -->
+
+Questa tabella replica le dipendenze dirette normative del Master Plan per i due
+workstream. Qualunque variazione richiede un emendamento esplicito in entrambe le fonti
+e il validator architetturale deve fallire finché non sono nuovamente identiche.
 
 Il parallelismo riguarda il grafo delle dipendenze. Non autorizza più task `ACTIVE`, più
 writer o execution concorrenti nello stesso repository. TASK-005–TASK-010 restano

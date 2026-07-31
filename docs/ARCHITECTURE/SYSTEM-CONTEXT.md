@@ -55,15 +55,16 @@ componente server autorizzato; TASK-003 non crea né seleziona tale implementazi
 | Sistema | Responsabilità | Non responsabilità |
 |---|---|---|
 | Client Flutter | UI cliente, navigazione, intenti, stato e cache locali, deep link e presentazione degli esiti | commercial truth, autorizzazione, pubblicazione, inventory, funzioni staff o fiscali |
-| Admin Console | control plane, decisioni di pubblicazione e configurazione commerciale, contratti server-side e change ownership | esperienza mobile cliente o fiducia nello stato inviato dal client |
+| Admin Console | control plane che rende operative le decisioni dei ruoli business autorizzati; contratti server-side e change ownership | esperienza mobile cliente, business decision authority autonoma o fiducia nello stato inviato dal client |
 | Supabase | Auth, persistenza, Data API, Storage e runtime server; enforcement tramite grant, RLS e validazione | decidere cosa pubblicare, inventare prezzi o trasformare la publishable key in autorizzazione |
 | Merchandise Control Android/iOS | workflow e dati operativi interni | API runtime o fallback dati per il client pubblico |
 | Win7POS | stock operativo, vendita fiscale e futuro handoff operativo | catalogo pubblico, ordine cliente o accesso diretto dal client |
 
-Admin è il decision owner del control plane e il repository corrente dell'authority
-versionata per migrations, policy e contratti server-side. Supabase esegue e protegge
-quei contratti, ma non diventa per questo il business decision owner. Il POS resta
-authority della vendita fiscale; un ordine cliente Storefront è un'entità distinta.
+I ruoli business autorizzati sono i decision owner dei rispettivi domini e usano Admin
+Console come control plane. Il repository Admin è l'authority versionata per migrations,
+policy e contratti server-side; Supabase li esegue e protegge senza diventare business
+decision owner. Il POS resta authority della vendita fiscale; un ordine cliente
+Storefront è un'entità distinta.
 
 ## Attori e capability
 
@@ -83,7 +84,8 @@ capability.
 
 ## Flussi consentiti
 
-1. Admin decide quali dati operativi possono diventare contenuto pubblico.
+1. I ruoli business autorizzati decidono tramite Admin Console quali dati operativi
+   possono diventare contenuto pubblico.
 2. Un projector server-side produce una proiezione Storefront separata e shop-scoped.
 3. Guest e customer usano soltanto le capability dichiarate per il rispettivo ruolo; il
    customer può leggere i propri dati e inviare gli intenti autorizzati.
@@ -121,7 +123,7 @@ discovery opportunistica dello schema.
 | pubblicazione, prezzi/promozioni e immagini | TASK-007–TASK-009 |
 | contratto query, DTO, pagination e contract test | TASK-010 |
 | connessione staging e backend/auth readiness | TASK-011 |
-| shell cliente data-backed | TASK-012 |
+| shell cliente guest/data-safe, stati readiness e baseline accessibile | TASK-012 |
 | cache catalogo e freshness | TASK-017 |
 | OAuth e session lifecycle customer | TASK-020 |
 | carrello, disponibilità, hold, ordine e handoff POS | TASK-023–TASK-030 |

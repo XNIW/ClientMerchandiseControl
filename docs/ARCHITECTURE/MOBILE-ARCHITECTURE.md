@@ -154,7 +154,7 @@ assegnate a:
 - TASK-005 per schema Storefront, migrations, grant e RLS;
 - TASK-006–TASK-010 per proiezione, control plane, prezzi, immagini e query contract;
 - TASK-011 per connessione staging e backend/auth readiness;
-- TASK-012 per shell cliente data-backed;
+- TASK-012 per shell cliente guest/data-safe, stati readiness e baseline accessibile;
 - TASK-017 per cache catalogo, freshness e invalidazione;
 - TASK-020 per OAuth, deep link e session lifecycle;
 - TASK-021–TASK-032 per dati cliente e flussi commerciali;

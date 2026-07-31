@@ -46,8 +46,10 @@ requisiti di evidence sono definiti in `docs/CODEX-WORKFLOW-PROTOCOL.md`.
 
 ### Ownership e contratto
 
-- la matrice cross-repo assegna per ogni dominio un solo decision owner, writer,
-  projector, consumer, contract owner e change owner, oltre alle non-responsabilità;
+- la matrice cross-repo assegna per ogni dominio un domain owner accountable e un
+  decision owner business non ambigui; elenca separatamente i writer, projector e
+  consumer autorizzati e rende esplicito ogni split per layer di contract/change
+  ownership, oltre alle non-responsabilità;
 - Admin è authority di migration, RLS, grant, RPC, future Edge Functions e contratto
   server machine-readable; Client possiede contratto logico, adapter e test consumer;
 - il contratto Storefront usa termini normativi, contract ID/versione, error policy,
@@ -88,8 +90,9 @@ requisiti di evidence sono definiti in `docs/CODEX-WORKFLOW-PROTOCOL.md`.
   `lib/`, `test/`, `integration_test/`, `config/`, `pubspec*`, target nativi e backend
   devono restare invariati;
 - `git diff --check`, link scan, governance check, scansione secret/URL/config locale,
-  parser DAG e `bash scripts/check.sh` devono avere comando, output pertinente ed exit
-  code registrati.
+  parser DAG, `bash scripts/check-architecture-boundaries.sh` e
+  `bash scripts/check.sh` devono avere comando, output pertinente ed exit code
+  registrati.
 
 ## Gate specifici TASK-004
 

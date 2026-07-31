@@ -28,7 +28,9 @@ L'ownership è separata per responsabilità:
 
 | Superficie | Authority | Responsabilità |
 |---|---|---|
-| Decisioni commerciali e control plane | Admin Console | decide pubblicazione, copy, prezzi pubblici, promozioni, disponibilità commerciale e fulfillment secondo i task owner |
+| Business decision owner | ruoli business autorizzati definiti per dominio | decidono pubblicazione, copy, prezzi pubblici, promozioni, disponibilità commerciale e fulfillment secondo policy e task owner |
+| Control plane | Admin Console | raccoglie e rende operative le decisioni autorizzate; non decide autonomamente |
+| Writer/enforcer | Admin server writer; Supabase runtime/enforcement | applica, persiste e protegge la decisione versionata senza acquisirne business ownership |
 | Migration, RLS, grant, view, trigger e RPC | repository Admin | possiede source, review, test database, provenance e apply controllato |
 | Edge Functions Storefront future | repository Admin | possiede source, deploy contract, secret server-side e test; l'assenza attuale non ne autorizza l'introduzione in TASK-003 |
 | Contratto server machine-readable | repository Admin | possiede versione, schema wire, errori, capability, fixture canoniche, checksum e compatibility metadata |

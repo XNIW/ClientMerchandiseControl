@@ -1084,3 +1084,39 @@
 - **Blocker/note**: il Fix resta limitato ai quattro finding consolidati; MFA,
   dialogo OS iOS e CI esterna restano separati e non autorizzano `APPROVED`, `DONE`
   o merge.
+
+## 2026-07-31 — Fix 3 TASK-020 e handoff bloccato a re-review
+
+- **Agente**: `CODEX_FIXER`, con tre audit candidate read-only storage, scanner e
+  architettura
+- **Task**: TASK-020
+- **Fase iniziale/finale**: FIX -> REVIEW; stato task `BLOCKED`
+- **Revision set**: handoff Re-review 2 -> Fix
+  `7825145f16e0de33725a36470df0ebc20bedfcbe`; tecnico Fix 3
+  `5740c835a116af16ab2e7ca6c55c927d180ece90`.
+- **Finding affrontati**: T020-RR2-001…004 / T020-REV-007/015/016/018; scanner
+  sui propri path e snapshot index/worktree, journal cleanup indipendente,
+  provenance Git/CI e digest/conteggi bundle finali.
+- **Gate**: `scripts/check.sh` `PASS`, exit 0; 221/221 test, coverage 1802/2247
+  (80,2%), analyze zero issue, build development Android/iOS, scanner 336 file,
+  fixture 22/22 + 1/1 e boundary 5/5. Suite mirata storage/bootstrap/repository
+  33/33, build staging sequenziale e smoke fake/readiness Android 3/3 e iOS 3/3:
+  `PASS`.
+- **Artifact**: APK SHA-256
+  `88af2ad662d7f6f13f14cae00c576072c433cb5d9507f5206bbf688ee0f5ff70`;
+  Runner tree SHA-256
+  `4332441962a60da4c0544bef6825fb14dc3b6b7e1a16b4e3794da5730fa1d85c`;
+  scan 548 + 81 = 629 file, digest invariati.
+- **Deviazioni registrate**: analyze concorrente con storage suite `FAIL` per
+  contesa Flutter, rerun isolato `PASS`; primo `adb` senza path SDK `FAIL` exit
+  127, rerun conforme `PASS`. Nessun esito è reinterpretato.
+- **CI/PR**: push tecnico e PR #4 `OPEN/DRAFT` allineati a `5740c83`; run
+  `30626914509` `BLOCKED / CI_EXTERNAL`, 3/3 job con `runner_id=0`, zero step e
+  una annotation billing/spending per job.
+- **Blocker**: callback warm iOS `BLOCKED` (`simctl` exit 0, harness timeout 30 s
+  sul dialogo OS); allow-list/provider callback/OAuth live `BLOCKED` da MFA,
+  kill switch `false`, zero write remoto.
+- **Risultato**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Blocker/note**: re-review A–E obbligatoria sul revision set tecnico/handoff;
+  nessun `APPROVED`, `DONE`, merge o task futuro è autorizzato con gate esterni
+  aperti.

@@ -6,15 +6,15 @@
 - **Titolo**: Supabase Auth, deep link e session lifecycle
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-31
 - **Ultimo aggiornamento**: 2026-07-31
-- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Ultimo agente**: CODEX_FIXER
 - **Review outcome**: CHANGES_REQUIRED
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -542,6 +542,74 @@ Gate sullo SHA tecnico finale:
 
 Il fixer non chiude autonomamente i finding. Con gate obbligatori esterni non
 superati, il revision set torna comunque a Review:
+
+- **Prossima fase**: REVIEW
+- **Stato task**: BLOCKED
+- **Prossimo ruolo**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+
+### Fix 3 dopo la re-review 2
+
+Il terzo Fix è rimasto confinato a T020-RR2-001…004 e ai difetti riproducibili
+emersi dagli audit candidate nello stesso scope.
+
+Revision set:
+
+- handoff Re-review 2 -> Fix 3:
+  `7825145f16e0de33725a36470df0ebc20bedfcbe`;
+- commit tecnico Fix 3:
+  `5740c835a116af16ab2e7ca6c55c927d180ece90`.
+
+Interventi:
+
+- T020-RR2-001 / T020-REV-015: lo scanner non esclude più i propri script, verifica
+  separatamente snapshot Git index e worktree, symlink correnti e staged, fallimenti
+  parziali dell'enumeratore Git e del decoder JWT; le fixture non incorporano
+  direttamente i valori ostili che devono costruire;
+- T020-RR2-002 / T020-REV-007: un journal non sensibile in Application Support,
+  scritto prima dei marker SharedPreferences e secure store, rende ritentabile il
+  cleanup dopo il riavvio anche quando entrambi i marker preesistenti e il delete
+  falliscono; ogni read failure blocca il restore;
+- T020-RR2-003 / T020-REV-016: Git, PR e CI sono correlati allo SHA tecnico corrente
+  e alle run reali, con job, runner, step e annotation;
+- T020-RR2-004 / T020-REV-018: bundle finali ricostruiti dopo gli integration test,
+  conteggio 548 APK + 81 Runner = 629, digest SHA-256 APK
+  `88af2ad662d7f6f13f14cae00c576072c433cb5d9507f5206bbf688ee0f5ff70` e
+  Runner tree
+  `4332441962a60da4c0544bef6825fb14dc3b6b7e1a16b4e3794da5730fa1d85c`,
+  invariati prima/dopo lo scan.
+
+Gate sullo SHA tecnico:
+
+- `scripts/check.sh`: `PASS`, exit 0; 221/221 test, coverage 1802/2247 (80,2%),
+  analyze zero issue, scanner 336 file con 22/22 fixture negative e 1/1 positiva,
+  boundary architetturali 5/5 e build development Android/iOS;
+- suite mirata storage/bootstrap/repository: `PASS`, 33/33; include riavvio reale
+  su directory temporanea dopo failure simultanee, first install, read error
+  fail-closed, separazione target e idempotenza;
+- build staging sequenziale Android/iOS: `PASS`, exit 0; artifact finali correlati
+  dai digest sopra;
+- guest/callback fake e readiness: Android 3/3 e iOS 3/3 `PASS`;
+- callback warm Android: `PASS`, ADB exit 0 `Status: ok`, harness 1/1; il primo
+  tentativo con `adb` non nel `PATH` resta `FAIL` diagnostico e il rerun usa il path
+  SDK esplicito;
+- callback warm iOS: `BLOCKED`, `simctl` exit 0 e harness exit 1 per timeout 30 s;
+  il dialogo OS è stato osservato ma non può essere accettato con Mac locked;
+- audit candidate storage/scanner/architettura: 0 P0, 0 P1 e 0 P2 residui; non
+  sostituiscono la re-review A–E;
+- CI run `30626914509` sullo SHA `5740c83`: `BLOCKED / CI_EXTERNAL`; job iOS
+  `91144201237`, Quality `91144201270` e Android `91144201297` hanno
+  `runner_id=0`, zero step e una annotation billing/spending ciascuno;
+- allow-list, callback provider e OAuth live: `BLOCKED` da MFA; kill switch
+  `false`, zero write remoto.
+
+Il `FAIL` analyze osservato durante l'esecuzione concorrente con una suite storage
+resta registrato come contesa Flutter su `ios/Flutter/ephemeral/Packages/.packages`;
+il rerun isolato sullo stesso SHA è `PASS`. Nessun risultato diagnostico è
+reinterpretato.
+
+Il fixer non chiude autonomamente i finding. Con gate obbligatori esterni non
+superati, il revision set torna a Review:
 
 - **Prossima fase**: REVIEW
 - **Stato task**: BLOCKED

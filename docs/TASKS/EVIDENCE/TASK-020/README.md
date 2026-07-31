@@ -1,7 +1,7 @@
 # Evidence TASK-020
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 ## Stato
 
@@ -18,9 +18,15 @@ Snapshot di handoff:
   gate 218/218, coverage 79,9%, build/smoke fake dual-platform e scanner 629 file
 - Re-review 2: `CHANGES_REQUIRED` — 0 P0, 0 P1, 4 P2 e 0 P3; scanner path,
   tombstone multi-failure e provenance Git/CI/bundle
+- Fix 3: `PASS` sul commit tecnico
+  `5740c835a116af16ab2e7ca6c55c927d180ece90`; i quattro P2 sono stati
+  affrontati, gli audit candidate riportano 0 P0/P1/P2, i gate locali hanno
+  221/221 test e coverage 1802/2247 (80,2%), scanner 336 file con 22/22 fixture
+  negative e 1/1 positiva, build e smoke fake dual-platform
+- Re-review 3: `NOT_RUN` — richiesta sul revision set tecnico/handoff corrente
 - CI: `BLOCKED / CI_EXTERNAL`
-- PR/merge: draft PR #4 su `7b4bf15`; run `30624825908` senza runner; merge
-  `BLOCKED`
+- PR/merge: draft PR #4 sul tecnico `5740c83`; run `30626914509` senza runner;
+  merge `BLOCKED`
 - DONE: `NO`
 
 ## Indice
@@ -56,8 +62,8 @@ duplicazioni che potrebbero divergere.
   nessun write remoto è stato eseguito.
 - iOS Simulator: conferma OS del custom scheme pendente; il Mac locked impedisce
   l'accettazione automatica del dialogo.
-- GitHub Actions: la run `30624825908` sullo SHA handoff Fix 2 ha tre job senza step,
-  fermati prima del runner dal limite billing/spending.
+- GitHub Actions: la run `30626914509` sullo SHA tecnico Fix 3 ha tre job senza
+  step, fermati prima del runner dal limite billing/spending.
 
 Le evidence finali dovranno contenere esattamente una riga per ciascuno dei 40 CA e
 38 test, con soli esiti `PASS`, `FAIL`, `BLOCKED` o `NOT_RUN`. Non sono ammessi URL,

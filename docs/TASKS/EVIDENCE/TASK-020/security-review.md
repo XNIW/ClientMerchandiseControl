@@ -31,11 +31,11 @@
 | Service role/secret applicativo | PASS | nessun valore; sole denylist di rifiuto dove applicabile |
 | Production config/cert/provisioning | PASS | assenti dal diff |
 | `git diff --check` | PASS | exit 0 |
-| Client security scanner | PASS | CMD-S11, 336 file, zero violazioni |
-| Fixture scanner | PASS | CMD-S11, 16/16 negative respinte e 1/1 positiva accettata |
-| Bundle staging ricostruiti | PASS | CMD-B01, 629 file, zero secret privilegiati |
-| Symlink Git e read failure | PASS | CMD-S11, blob mode `120000` e file illeggibile respinti |
-| PEM ed estensioni sensibili | PASS | CMD-S11/CMD-B01, label standard/DSA/encrypted e denylist case-insensitive |
+| Client security scanner | PASS | CMD-X04, 336 file Git, index e worktree correnti, zero violazioni |
+| Fixture scanner | PASS | CMD-X04, 22/22 negative respinte e 1/1 positiva accettata |
+| Bundle staging ricostruiti | PASS | CMD-B01, 548 file APK + 81 file Runner = 629, zero secret privilegiati; digest before/after invariati |
+| Symlink, snapshot Git e failure operative | PASS | CMD-X04, blob/index/worktree `120000`, enumerazione parziale, read e decode failure respinti fail-closed |
+| PEM ed estensioni sensibili | PASS | CMD-X04/CMD-B01, label standard/DSA/encrypted e denylist case-insensitive |
 
 I delimitatori PEM nel `kernel_blob` iOS provengono dal parser della dipendenza
 transitiva: tre coppie begin/end sono adiacenti e il quarto marker non ha payload
@@ -66,6 +66,6 @@ Rischi residui:
 Nessun `PASS` remoto o live è inferito.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-S01/S10/S11/S12/CMD-B01/CMD-R01,
+`commands-and-results.md`, CMD-X01/X03/X04/CMD-B01/CMD-R01,
 CA-03/05/08/21/22/24/33/36
 e T-02/05/15/17/25/26.

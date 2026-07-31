@@ -37,10 +37,10 @@ Future<bool> signInWithOAuth(
 ```
 
 Altre API usate: `currentSession`, `onAuthStateChange`,
-`exchangeCodeForSession`, `signOut(scope: SignOutScope.local)`. PKCE è il default ma
-verrà dichiarato esplicitamente; il client non inventa un secondo parametro `state`.
+`exchangeCodeForSession`, `signOut(scope: SignOutScope.local)`. PKCE è il default ed
+è dichiarato esplicitamente; il client non inventa un secondo parametro `state`.
 
-## Piano file
+## File implementati
 
 ```text
 lib/features/auth/
@@ -176,5 +176,5 @@ Auth. La UI disabilita azioni durante operazioni single-flight, offre cancel/ret
 manuali e non avvia loop.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-F01/F04/F07/F11, CA-03…CA-08, CA-14…CA-26 e
+`commands-and-results.md`, CMD-X01/X03/X06/X09, CA-03…CA-08, CA-14…CA-26 e
 T-02/03/05/08…T-18/23/24.

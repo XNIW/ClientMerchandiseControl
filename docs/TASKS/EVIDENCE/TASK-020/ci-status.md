@@ -11,8 +11,12 @@
   `036dcd1be047d49d6b53738d06e5e58caf608f34`
 - SHA handoff Fix 2:
   `7b4bf152b496f7429b506c053f0e8ec5cf436b83`
-- Workflow sullo SHA handoff Fix 2: run `30624825908`, `BLOCKED / CI_EXTERNAL`
-- Auth fake, build Android/iOS, security/pin scan in CI sul Fix 2: `BLOCKED`; nessuno
+- SHA transizione Re-review 2 -> Fix 3:
+  `7825145f16e0de33725a36470df0ebc20bedfcbe`
+- SHA tecnico Fix 3:
+  `5740c835a116af16ab2e7ca6c55c927d180ece90`
+- Workflow sullo SHA tecnico Fix 3: run `30626914509`, `BLOCKED / CI_EXTERNAL`
+- Auth fake, build Android/iOS, security/pin scan in CI sul Fix 3: `BLOCKED`; nessuno
   step ha acquisito un runner
 
 ## Run reali sullo SHA di review iniziale
@@ -60,6 +64,27 @@ I job `iOS Simulator debug build` (`91137530757`), `Android debug build`
 singola annotation billing/spending. `gh run view` e le query API sono terminate con
 exit 0; nessuna verifica CI è stata eseguita.
 
+## Run reale sulla transizione Re-review 2 -> Fix 3
+
+| Run | Trigger | SHA | Job | Step | Annotation | Esito |
+|---|---|---|---:|---:|---:|---|
+| `30625584995` | `pull_request` | `7825145` | 3/3 `failure` | 0 | 1/job | BLOCKED |
+
+I job `Android debug build` (`91139952621`), `iOS Simulator debug build`
+(`91139952622`) e `Quality` (`91139952766`) hanno `runner_id=0`, `steps: []` e una
+singola annotation billing/spending. Nessun codice repository è stato eseguito.
+
+## Run reale sullo SHA tecnico Fix 3
+
+| Run | Trigger | SHA | Job | Step | Annotation | Esito |
+|---|---|---|---:|---:|---:|---|
+| `30626914509` | `pull_request` | `5740c83` | 3/3 `failure` | 0 | 1/job | BLOCKED |
+
+I job `iOS Simulator debug build` (`91144201237`), `Quality`
+(`91144201270`) e `Android debug build` (`91144201297`) hanno `runner_id=0`,
+`steps: []` e una singola annotation billing/spending. `gh run view` e le query API
+sono terminate con exit 0; la CI non ha eseguito codice del repository.
+
 - **Causa**: `CI_EXTERNAL`, billing/spending GitHub.
 - **Tentativi**: dispatch manuale e trigger PR reali.
 - **Prerequisito**: ripristino Billing & plans/spending limit da parte del titolare.
@@ -68,5 +93,5 @@ exit 0; nessuna verifica CI è stata eseguita.
 Nessun Google OAuth live, file staging locale, secret o account deve entrare in CI.
 
 Matrice CA/T canonica e command evidence: `commands-and-results.md`,
-CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02,
+CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02/CMD-X14/CMD-X15,
 CA-39 e T-36.

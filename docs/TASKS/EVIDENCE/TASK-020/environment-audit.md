@@ -8,7 +8,7 @@
 | Dart | PASS | 3.12.2 |
 | Xcode | PASS | 26.6 |
 | Java | PASS | OpenJDK 21 |
-| Supabase CLI | PASS | 2.110.0, accesso remoto non usato per write in Planning |
+| Supabase CLI | PASS | 2.110.0, accesso remoto solo read-only; zero write |
 | Android application ID | PASS | `com.xniw.clientmerchandisecontrol` |
 | iOS bundle ID | PASS | `com.xniw.clientmerchandisecontrol` |
 | Branch | PASS | `milestone/011-012-020-authenticated-storefront-foundation` |
@@ -42,7 +42,7 @@ deployment target 13 soddisfano i requisiti di `flutter_secure_storage 10.3.1` e
 | Authorize Google corrente | PASS | risposta 302 verso il dominio Google; redirect non seguito |
 | Redirect mobile TASK-011 | PASS | risultava assente e riservato a TASK-020 |
 | Redirect mobile corrente | BLOCKED | dashboard fermata da MFA; connector senza Auth config |
-| Write remoto Execution | NOT_RUN | nessun point-update sicuro disponibile; zero modifiche remote |
+| Write remoto TASK-020 | NOT_RUN | nessun point-update sicuro disponibile; zero modifiche remote |
 | Production | NOT_RUN | fuori scope e non ispezionata/modificata |
 
 Il connector Supabase è stato usato soltanto per discovery read-only e documentazione.
@@ -71,10 +71,10 @@ resta locale, ignorato e non entra in stage, diff o evidence.
   allow-list; il CLI non offre un point-update sicuro equivalente.
 - Il simulatore iOS richiede conferma OS per aprire il custom scheme e il Mac locked
   impedisce l'interazione locale.
-- La CI TASK-020 run `30624421347` sullo SHA tecnico Fix 2 ha tre job senza step,
-  `runner_id=0` e una annotation/job per billing/spending GitHub; resta
-  `BLOCKED / CI_EXTERNAL`.
+- La CI TASK-020 run `30626914509` sullo SHA tecnico Fix 3 `5740c83` ha tre job
+  senza step, `runner_id=0` e una annotation/job per billing/spending GitHub;
+  resta `BLOCKED / CI_EXTERNAL`.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-S01/S02/S03/S11/CMD-R01/CMD-S14,
+`commands-and-results.md`, CMD-X01/X02/X04/X05/CMD-R01/CMD-X14,
 CA-01/03/04/11…CA-13/35…CA-39 e T-01…T-04/26…T-36.

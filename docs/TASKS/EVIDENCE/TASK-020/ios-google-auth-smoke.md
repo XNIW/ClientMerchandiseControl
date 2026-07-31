@@ -2,7 +2,8 @@
 
 ## Target
 
-- iPhone 17 Pro Simulator, iOS 26.5;
+- iPhone 17 Pro Simulator `240F400E-5EFA-486A-9137-FFBBE70F604D`, iOS 26.5;
+- revision set tecnico Fix 3 `5740c835a116af16ab2e7ca6c55c927d180ece90`;
 - bundle ID canonico;
 - staging locale ignorato con kill switch `false`;
 - nessun signing o provisioning production.
@@ -11,21 +12,23 @@
 
 | Verifica | Esito | Risultato |
 |---|---|---|
-| iOS Simulator debug development | PASS | CMD-S01, exit 0 |
-| iOS Simulator debug staging | PASS | CMD-S03, exit 0 |
-| Plist compilato | PASS | CMD-S01; un solo scheme, handler Flutter off, SceneDelegate risolto |
-| Guest flow | PASS | CMD-S07, exit 0 |
-| Callback flow fake | PASS | CMD-S07; login, callback, Account, restore, logout, invalido |
-| Backend readiness staging | PASS | CMD-S08; health Auth data-free |
-| Scheme/host/path validator | PASS | CMD-S01; iOS filtra scheme, Dart rifiuta host/path |
-| LaunchServices canonical | PASS | CMD-S09; `simctl` exit 0 e bundle risolto |
-| Callback warm nativo `app_links` | BLOCKED | CMD-S09; harness timeout 30 s, conferma OS pendente, Mac locked |
-| Crash deterministico | PASS | CMD-S07/S08/S09; nessun crash, processo vivo |
+| iOS Simulator debug development | PASS | CMD-X01, exit 0 |
+| iOS Simulator debug staging | PASS | CMD-X05, exit 0 |
+| Plist compilato | PASS | CMD-X01; un solo scheme, handler Flutter off, SceneDelegate risolto |
+| Guest flow | PASS | CMD-X09, exit 0 |
+| Callback flow fake | PASS | CMD-X09; login, callback, Account, restore, logout, invalido |
+| Backend readiness staging | PASS | CMD-X10; health Auth data-free |
+| Scheme/host/path validator | PASS | CMD-X01; iOS filtra scheme, Dart rifiuta host/path |
+| LaunchServices canonical | PASS | CMD-X11; `simctl` exit 0 e dialogo OS mostrato dal bundle |
+| Callback warm nativo `app_links` | BLOCKED | CMD-X11; harness timeout 30 s, conferma OS pendente, Mac locked |
+| Crash deterministico | PASS | CMD-X09/X10/X11; nessun crash, processo vivo |
 
 La build contiene forwarding manuale convergente a `AppLinks.shared` in
 `AppDelegate` e `SceneDelegate`, con auto-handling plugin disabilitato. Il log di
 sistema mostra che LaunchServices trova il bundle, ma presenta il dialogo locale
-“Vuoi aprire l'elemento…”; il controllo UI non può accettarlo perché il Mac è locked.
+“Vuoi aprire l'elemento in Client Merchandise Control?”; il controllo UI non può
+accettarlo perché il Mac è locked. Lo screenshot diagnostico temporaneo è stato
+eliminato e non è versionato.
 
 ## Smoke Google live in 17 passi
 
@@ -53,5 +56,5 @@ Non sono stati inseriti password, MFA, OTP, CAPTCHA o credenziali e non è stato
 modificato alcun setting remoto.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-S01/S03/S07/S08/S09/CMD-R01, CA-10/27/29/31 e
+`commands-and-results.md`, CMD-X01/X05/X09/X10/X11/CMD-R01, CA-10/27/29/31 e
 T-07/22/23/24/31/33.

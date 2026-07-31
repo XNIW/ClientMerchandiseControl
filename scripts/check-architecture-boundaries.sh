@@ -315,8 +315,8 @@ cmc_arch_require_literal \
   "observer SDK Auth disabilitato"
 cmc_arch_require_literal \
   "${cmc_arch_auth}" \
-  "SharedPreferences contiene soltanto un marker booleano di installazione." \
-  "token e verifier fuori da SharedPreferences"
+  "SharedPreferences contiene soltanto il marker booleano di installazione e due tombstone" \
+  "token e verifier fuori da SharedPreferences, marker non sensibili ammessi"
 cmc_arch_require_literal \
   "${cmc_arch_auth}" \
   "Una sessione valida prova soltanto l'identità Supabase." \

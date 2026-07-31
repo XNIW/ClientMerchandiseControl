@@ -22,6 +22,8 @@ void main() {
       expect(secureStore.deleted, [
         SecureSupabaseAuthStorage.sessionStorageKey,
         SecureSupabaseAuthStorage.pkceStorageKey,
+        SecureSupabaseAuthStorage.sessionCleanupMarkerStorageKey,
+        SecureSupabaseAuthStorage.pkceCleanupMarkerStorageKey,
       ]);
       expect(secureStore.values['unrelated'], 'preserve-me');
       expect(marker.marked, isTrue);
@@ -276,6 +278,53 @@ void main() {
 
       expect(marker.markCleanupCalls[AuthCleanupTarget.session], 2);
       expect(marker.pendingCleanup, contains(AuthCleanupTarget.session));
+    },
+  );
+
+  test(
+    'tombstone sicuro recupera due failure marker e delete al riavvio',
+    () async {
+      final secureStore =
+          _MemorySecureStore({
+              SecureSupabaseAuthStorage.sessionStorageKey: 'stale-session',
+            })
+            ..deleteErrors[SecureSupabaseAuthStorage.sessionStorageKey] =
+                StateError('private driver detail');
+      final marker = _MemoryMarkerStore(
+        marked: true,
+        markCleanupErrorsRemaining: 2,
+      );
+      final first = SecureSupabaseAuthStorage(
+        secureStore: secureStore,
+        installationMarkerStore: marker,
+      );
+
+      await expectLater(
+        first.removePersistedSession(),
+        throwsA(isA<AuthStorageException>()),
+      );
+      expect(marker.pendingCleanup, isEmpty);
+      expect(
+        secureStore.values.containsKey(
+          SecureSupabaseAuthStorage.sessionCleanupMarkerStorageKey,
+        ),
+        isTrue,
+      );
+
+      secureStore.deleteErrors.clear();
+      final restarted = SecureSupabaseAuthStorage(
+        secureStore: secureStore,
+        installationMarkerStore: marker,
+      );
+      await restarted.initialize();
+
+      expect(await restarted.hasAccessToken(), isFalse);
+      expect(
+        secureStore.values.containsKey(
+          SecureSupabaseAuthStorage.sessionCleanupMarkerStorageKey,
+        ),
+        isFalse,
+      );
     },
   );
 

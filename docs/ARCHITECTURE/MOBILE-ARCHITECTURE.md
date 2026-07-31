@@ -79,7 +79,7 @@ auto-retry o recheck su resume in TASK-011.
 
 La shell viene renderizzata prima del check. Offline ed errori recuperabili mantengono
 il browsing guest disponibile e mostrano copy localizzata customer-safe con retry;
-development mostra il solo banner tecnico debug. Fino a TASK-020 le opzioni Auth SDK
+development mostra il solo banner tecnico debug. Per TASK-020 le opzioni Auth SDK
 usano ora PKCE, auto-refresh e un adapter Keychain/Keystore per sessione e verifier.
 `detectSessionInUri` resta intenzionalmente disabilitato: il callback passa prima dal
 validator applicativo esatto descritto in

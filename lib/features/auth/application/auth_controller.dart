@@ -70,6 +70,10 @@ final class AuthController extends Notifier<AuthState> {
     if (termination != null) {
       return termination;
     }
+    final logout = _logoutOperation;
+    if (logout != null || state is AuthSigningOut) {
+      return logout ?? Future<void>.value();
+    }
     final active = _loginOperation;
     if (active != null || _oauthFlowActive) {
       return active ?? Future<void>.value();
@@ -122,6 +126,21 @@ final class AuthController extends Notifier<AuthState> {
       if (!_isCurrent(generation)) {
         return;
       }
+      if (state is AuthAuthenticated) {
+        _oauthFlowActive = false;
+        return;
+      }
+      final restoredAfterCleanup = repository.currentCustomer;
+      if (restoredAfterCleanup != null) {
+        _oauthFlowActive = false;
+        _setState(
+          AuthAuthenticated(
+            customer: restoredAfterCleanup,
+            origin: AuthSessionOrigin.restored,
+          ),
+        );
+        return;
+      }
       final launched = await repository.launchGoogleSignIn();
       if (!_isCurrent(generation)) {
         return;
@@ -156,7 +175,7 @@ final class AuthController extends Notifier<AuthState> {
 
   Future<void> _startFlowTermination({
     required bool cancelled,
-    Object? failure,
+    AuthFailure? failure,
   }) {
     final active = _flowTermination;
     if (active != null) {
@@ -176,7 +195,7 @@ final class AuthController extends Notifier<AuthState> {
 
   Future<void> _runFlowTermination({
     required bool cancelled,
-    Object? failure,
+    AuthFailure? failure,
   }) async {
     ++_generation;
     _oauthFlowActive = true;
@@ -217,7 +236,7 @@ final class AuthController extends Notifier<AuthState> {
       return;
     }
     if (failure != null) {
-      _publishMappedFailure(failure);
+      _publishFailurePreservingAuthenticated(failure);
       return;
     }
     if (cancelled) {
@@ -292,22 +311,39 @@ final class AuthController extends Notifier<AuthState> {
 
   Future<void> _runSignOut(AuthAuthenticated authenticated) async {
     final generation = ++_generation;
+    final exchange = _exchangeOperation;
     _oauthFlowActive = false;
     _ignoreCallbacksUntilNextLogin = true;
     _suppressSessionAuthentication = true;
     _pendingCallbacks.clear();
     _setState(AuthSigningOut(authenticated.customer));
 
-    AuthFailure? notice;
-    try {
-      await _repository?.signOutLocal();
-    } on Object catch (error) {
-      notice = _errorMapper!.map(error);
+    Object? firstCleanupError;
+
+    Future<void> purge() async {
+      try {
+        await _repository?.signOutLocal();
+      } on Object catch (error) {
+        firstCleanupError ??= error;
+      }
+    }
+
+    await purge();
+    if (exchange != null) {
+      try {
+        await exchange;
+      } on Object {
+        // Anche un exchange fallito può avere prodotto side effect parziali.
+      }
+      await purge();
     }
 
     if (!_isCurrent(generation)) {
       return;
     }
+    final notice = firstCleanupError == null
+        ? null
+        : _errorMapper!.map(firstCleanupError!);
     if (notice?.kind == AuthFailureKind.secureStorageUnavailable) {
       _setState(AuthConfigurationError(notice!));
       return;
@@ -376,7 +412,12 @@ final class AuthController extends Notifier<AuthState> {
       return;
     }
     if (_oauthFlowActive || state is AuthAuthenticating) {
-      unawaited(_startFlowTermination(cancelled: false, failure: error));
+      unawaited(
+        _startFlowTermination(
+          cancelled: false,
+          failure: _errorMapper!.map(error),
+        ),
+      );
       return;
     }
     _publishMappedFailure(error);
@@ -418,7 +459,15 @@ final class AuthController extends Notifier<AuthState> {
         _publishFailurePreservingAuthenticated(failure);
         return;
       case AuthCallbackProviderFailure(:final wasCancelled):
-        _oauthFlowActive = false;
+        if (_oauthFlowActive || state is AuthAuthenticating) {
+          await _startFlowTermination(
+            cancelled: wasCancelled,
+            failure: wasCancelled
+                ? null
+                : const AuthFailure(AuthFailureKind.providerUnavailable),
+          );
+          return;
+        }
         if (!_disposed && state is! AuthAuthenticated) {
           _setState(
             wasCancelled
@@ -523,7 +572,12 @@ final class AuthController extends Notifier<AuthState> {
       return;
     }
     if (_oauthFlowActive || state is AuthAuthenticating) {
-      unawaited(_startFlowTermination(cancelled: false, failure: error));
+      unawaited(
+        _startFlowTermination(
+          cancelled: false,
+          failure: _errorMapper!.map(error),
+        ),
+      );
       return;
     }
     _publishMappedFailure(error);

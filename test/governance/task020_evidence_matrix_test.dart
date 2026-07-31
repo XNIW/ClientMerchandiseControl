@@ -3,7 +3,30 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('TASK-020 registra CA e test con tipo, stato e cardinalità esatti', () {
+  test('TASK-020 registra file, comandi, CA e test con cardinalità esatte', () {
+    const expectedEvidenceFiles = {
+      'README.md',
+      'android-google-auth-smoke.md',
+      'auth-architecture.md',
+      'ci-status.md',
+      'commands-and-results.md',
+      'environment-audit.md',
+      'git-state.md',
+      'ios-google-auth-smoke.md',
+      'planning-summary.md',
+      'review-report.md',
+      'security-review.md',
+      'supabase-staging-config.md',
+    };
+    final actualEvidenceFiles = Directory('docs/TASKS/EVIDENCE/TASK-020')
+        .listSync()
+        .whereType<File>()
+        .map((file) {
+          return file.uri.pathSegments.last;
+        })
+        .toSet();
+    expect(actualEvidenceFiles, unorderedEquals(expectedEvidenceFiles));
+
     final taskLines = File(
       'docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md',
     ).readAsLinesSync();
@@ -15,11 +38,19 @@ void main() {
     final expectedTestTypes = _taskTypes(taskLines, 'T-', typeColumn: 2);
     final caRows = _evidenceRows(evidenceLines, 'CA-');
     final testRows = _evidenceRows(evidenceLines, 'T-');
+    final commandIds = evidenceLines
+        .map(_columns)
+        .where(
+          (columns) => columns.length == 6 && columns.first.startsWith('CMD-'),
+        )
+        .map((columns) => columns.first)
+        .toList(growable: false);
 
     expect(expectedCaTypes, hasLength(40));
     expect(expectedTestTypes, hasLength(38));
     expect(caRows, hasLength(40));
     expect(testRows, hasLength(38));
+    expect(commandIds.toSet(), hasLength(commandIds.length));
 
     _expectCompleteMatrix(
       rows: caRows,
@@ -32,6 +63,25 @@ void main() {
       expectedTypes: expectedTestTypes,
       prefix: 'T-',
       count: 38,
+    );
+
+    final declaredCommands = commandIds.toSet();
+    for (final row in [...caRows, ...testRows]) {
+      for (final referencedCommand in _referencedCommands(row[3])) {
+        expect(
+          declaredCommands,
+          contains(referencedCommand),
+          reason: '${row.first} usa $referencedCommand non dichiarato',
+        );
+      }
+    }
+    expect(
+      caRows.singleWhere((row) => row.first == 'CA-22')[3],
+      contains('CMD-B01'),
+    );
+    expect(
+      testRows.singleWhere((row) => row.first == 'T-26')[3],
+      contains('CMD-B01'),
     );
   });
 }
@@ -97,4 +147,17 @@ void _expectCompleteMatrix({
     );
     expect(row[3], isNotEmpty, reason: '$identifier deve avere evidence');
   }
+}
+
+Set<String> _referencedCommands(String evidence) {
+  final result = <String>{};
+  final references = RegExp(
+    r'CMD-([A-Z]+[0-9]+(?:/[A-Z]+[0-9]+)*)',
+  ).allMatches(evidence);
+  for (final reference in references) {
+    for (final shorthand in reference.group(1)!.split('/')) {
+      result.add('CMD-$shorthand');
+    }
+  }
+  return result;
 }

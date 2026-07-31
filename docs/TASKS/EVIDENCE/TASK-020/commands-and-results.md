@@ -29,6 +29,7 @@
 | CMD-F11 | `408f14d`, host | `flutter analyze && flutter test test/core/backend/secure_supabase_auth_storage_test.dart test/features/auth/data/supabase_auth_repository_test.dart test/features/auth/application/auth_controller_test.dart` | PASS | exit 0; zero issue; 45/45 | regressioni finding lifecycle/storage |
 | CMD-F12 | `408f14d`, host | `git diff --check && git diff --cached --check` | PASS | exit 0 | nessun whitespace error |
 | CMD-F13 | `408f14d`, host | `git diff --name-only 40d118eebf78eeabea9e26747adb00053dd875bc` + denylist TASK-003/004 | PASS | exit 0; zero path TASK-003, TASK-004 o `TASK-003-004` nel diff milestone | il confinement remoto diventa verificabile dopo push |
+| CMD-B01 | candidate Fix 2, APK + Runner.app | `bash scripts/check-client-security.sh --artifact build/app/outputs/flutter-apk/app-debug.apk --artifact build/ios/iphonesimulator/Runner.app` | PASS | exit 0; 336 file Git e 627 file artifact verificati, zero secret privilegiati | prima prova dello scanner artifact; da rieseguire sui bundle ricostruiti dal gate finale |
 | CMD-D01 | worktree Fix, Android | `flutter test integration_test/auth_callback_flow_test.dart` | FAIL | exit 1; più device disponibili, nessun test avviato | corretto specificando `-d`; CMD-F04/CMD-F07 passano |
 | CMD-D02 | worktree Fix, Android | primo `flutter test -d emulator-5554 integration_test/auth_callback_flow_test.dart` | FAIL | terminato manualmente dopo 54 s; exit non conservato | `pumpAndSettle` su progress persistente corretto; CMD-F04 passa |
 | CMD-D03 | worktree Fix, Android | tre integration file aggregati senza define staging | FAIL | exit 1; guest/callback 2/2 PASS, readiness rifiuta `development` | errore d'invocazione; CMD-F05 passa con define corretto |
@@ -70,7 +71,7 @@ query o code.
 | CA-19 | UNIT | PASS | CMD-F11; dispose e future/eventi tardivi testati con compensazione |
 | CA-20 | UNIT/WIDGET/ANDROID_EMU/IOS_SIM | PASS | CMD-F01/F04/F07/F11; logout locale, cleanup indipendente, tombstone e nuovo login |
 | CA-21 | UNIT/STATIC/SECURITY | PASS | CMD-F01/F10/F11; adapter unico Keychain/Keystore e nessun fallback plaintext |
-| CA-22 | UNIT/SECURITY | PASS | CMD-F01/F10; error mapper, source, Git, bundle ed evidence sanitizzati |
+| CA-22 | UNIT/SECURITY | PASS | CMD-F01/F10/CMD-B01; error mapper, source, Git, bundle ed evidence sanitizzati |
 | CA-23 | UNIT/WIDGET/SECURITY | PASS | CMD-F01; identity bounded, markup/control/bidi rifiutati e avatar locale |
 | CA-24 | STATIC/SECURITY | PASS | CMD-F01/F10/F13; client non autorizzativo, publishable config soltanto e zero API dati vietate |
 | CA-25 | WIDGET | PASS | CMD-F01; tutti gli stati Account e azioni renderizzati |
@@ -119,7 +120,7 @@ query o code.
 | T-23 | ANDROID_EMU/IOS_SIM | PASS | CMD-F04/F07; callback fake dual-platform e ritorno Account |
 | T-24 | ANDROID_EMU/IOS_SIM | PASS | CMD-F04/F07; invalido/senza sessione, zero crash |
 | T-25 | STATIC/SECURITY | PASS | threat model TM-01…TM-30; CMD-F01/F11 |
-| T-26 | STATIC/SECURITY/GIT | PASS | CMD-F10/F13; scan source/diff/bundle/evidence e scope |
+| T-26 | STATIC/SECURITY/GIT | PASS | CMD-F10/F13/CMD-B01; scan source/diff/bundle/evidence e scope |
 | T-27 | STATIC/GIT | PASS | parser evidence in CMD-F01; 12 file, 40/38, tipi e stati |
 | T-28 | STATIC/GIT | PASS | CMD-F01/F12; doctor, shell, pin, governance, architecture e diff |
 | T-29 | FORMAT/ANALYZE/UNIT | PASS | CMD-F01/F02; pub/l10n/format/analyze/214 test/coverage/check |

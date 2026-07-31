@@ -176,20 +176,26 @@ void main() {
     expect(container.read(authControllerProvider), isA<AuthCancelled>());
   });
 
-  test('errore provider cancellato non effettua exchange', () async {
-    container.read(authControllerProvider);
-    await _settle();
-    await container.read(authControllerProvider.notifier).startGoogleSignIn();
+  test(
+    'errore provider cancellato termina il flow e ignora callback tardivo',
+    () async {
+      container.read(authControllerProvider);
+      await _settle();
+      await container.read(authControllerProvider.notifier).startGoogleSignIn();
 
-    callbackSource.emit(
-      Uri.parse('${AppConfig.allowedAuthRedirectUri}?error=access_denied'),
-    );
-    await _settle();
+      callbackSource.emit(
+        Uri.parse('${AppConfig.allowedAuthRedirectUri}?error=access_denied'),
+      );
+      await _settle();
+      callbackSource.emit(_validCallback('late-after-provider-cancel'));
+      await _settle();
 
-    expect(repository.exchangeCalls, 0);
-    expect(repository.clearPendingCalls, 1);
-    expect(container.read(authControllerProvider), isA<AuthCancelled>());
-  });
+      expect(repository.exchangeCalls, 0);
+      expect(repository.clearPendingCalls, 1);
+      expect(repository.signOutCalls, 1);
+      expect(container.read(authControllerProvider), isA<AuthCancelled>());
+    },
+  );
 
   test(
     'browser non lanciato produce errore recuperabile e consente retry',
@@ -300,10 +306,15 @@ void main() {
       await _settle();
       expect(container.read(authControllerProvider), isA<AuthAuthenticated>());
 
-      await controller.signOut();
+      repository.exchangeCreatesSession = true;
+      final logout = controller.signOut();
+      expect(container.read(authControllerProvider), isA<AuthSigningOut>());
       exchange.complete(_customer('late-exchange'));
+      await logout;
       await _settle();
 
+      expect(repository.signOutCalls, 2);
+      expect(repository.currentCustomer, isNull);
       expect(container.read(authControllerProvider), isA<AuthGuest>());
     },
   );
@@ -475,6 +486,42 @@ void main() {
               'customer',
               restored.subjectId,
             ),
+      );
+    },
+  );
+
+  test(
+    'restore durante cleanup pre-login impedisce il launch browser',
+    () async {
+      final cleanup = Completer<void>();
+      repository.clearPendingCompleter = cleanup;
+      container.read(authControllerProvider);
+      await _settle();
+      final controller = container.read(authControllerProvider.notifier);
+
+      final login = controller.startGoogleSignIn();
+      await Future<void>.delayed(Duration.zero);
+      final restored = _customer('restored-during-cleanup');
+      repository.currentCustomer = restored;
+      repository.emit(
+        AuthSessionEvent(
+          type: AuthSessionEventType.tokenRefreshed,
+          customer: restored,
+        ),
+      );
+      await _settle();
+      cleanup.complete();
+      await login;
+      await _settle();
+
+      expect(repository.launchCalls, 0);
+      expect(
+        container.read(authControllerProvider),
+        isA<AuthAuthenticated>().having(
+          (state) => state.customer.subjectId,
+          'customer',
+          restored.subjectId,
+        ),
       );
     },
   );
@@ -702,6 +749,7 @@ final class _FakeAuthRepository implements AuthRepository {
   bool launchResult = true;
   Completer<bool>? launchCompleter;
   Completer<AuthenticatedCustomer>? exchangeCompleter;
+  Completer<void>? clearPendingCompleter;
   Object? launchError;
   Object? exchangeError;
   Object? clearPendingError;
@@ -758,6 +806,7 @@ final class _FakeAuthRepository implements AuthRepository {
     if (clearPendingError case final error?) {
       throw error;
     }
+    await clearPendingCompleter?.future;
   }
 
   @override

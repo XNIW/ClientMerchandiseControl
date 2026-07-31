@@ -145,6 +145,9 @@ final class SecureSupabaseAuthStorage extends LocalStorage
   static const sessionStorageKey = 'cmc.auth.session.v1';
   static const pkceStorageKey = 'cmc.auth.pkce.v1';
   static const sdkPkceStorageKey = 'supabase.auth.token-code-verifier';
+  static const sessionCleanupMarkerStorageKey =
+      'cmc.auth.cleanup-session.secure.v1';
+  static const pkceCleanupMarkerStorageKey = 'cmc.auth.cleanup-pkce.secure.v1';
 
   static const _maxSessionLength = 128 * 1024;
   static const _maxPkceLength = 4096;
@@ -194,6 +197,8 @@ final class SecureSupabaseAuthStorage extends LocalStorage
       await _runIndependently([
         () => _secureStore.delete(sessionStorageKey),
         () => _secureStore.delete(pkceStorageKey),
+        () => _secureStore.delete(sessionCleanupMarkerStorageKey),
+        () => _secureStore.delete(pkceCleanupMarkerStorageKey),
       ]);
       await _installationMarkerStore.markCurrentInstall();
       await _runIndependently([
@@ -332,12 +337,19 @@ final class SecureSupabaseAuthStorage extends LocalStorage
   }
 
   Future<void> _retryPendingCleanup(AuthCleanupTarget target) async {
-    final isPending = await _installationMarkerStore.isCleanupPending(target);
-    if (!isPending) {
+    final sharedMarkerPending = await _installationMarkerStore.isCleanupPending(
+      target,
+    );
+    final secureMarkerPending =
+        await _read(_secureCleanupMarkerKey(target)) != null;
+    if (!sharedMarkerPending && !secureMarkerPending) {
       return;
     }
-    await _secureStore.delete(_storageKey(target));
-    await _installationMarkerStore.clearCleanupPending(target);
+    await _delete(_storageKey(target));
+    await _runIndependently([
+      () => _installationMarkerStore.clearCleanupPending(target),
+      () => _delete(_secureCleanupMarkerKey(target)),
+    ]);
   }
 
   Future<void> _deleteWithTombstone({
@@ -346,7 +358,8 @@ final class SecureSupabaseAuthStorage extends LocalStorage
   }) async {
     AuthStorageException? firstFailure;
     StackTrace? firstStackTrace;
-    var markerWritten = false;
+    var sharedMarkerWritten = false;
+    var secureMarkerWritten = false;
     var deleteSucceeded = false;
 
     Future<void> capture(
@@ -365,24 +378,38 @@ final class SecureSupabaseAuthStorage extends LocalStorage
 
     await capture(() async {
       await _installationMarkerStore.markCleanupPending(target);
-      markerWritten = true;
+      sharedMarkerWritten = true;
     }, 'cleanup_marker_write_failed');
+    await capture(() async {
+      await _writeSecureCleanupMarker(target);
+      secureMarkerWritten = true;
+    }, 'cleanup_secure_marker_write_failed');
     await capture(() async {
       await _delete(key);
       deleteSucceeded = true;
     }, 'secure_storage_delete_failed');
 
-    if (!deleteSucceeded && !markerWritten) {
+    if (!deleteSucceeded && !sharedMarkerWritten) {
       await capture(() async {
         await _installationMarkerStore.markCleanupPending(target);
-        markerWritten = true;
+        sharedMarkerWritten = true;
       }, 'cleanup_marker_write_failed');
     }
+    if (!deleteSucceeded && !secureMarkerWritten) {
+      await capture(() async {
+        await _writeSecureCleanupMarker(target);
+        secureMarkerWritten = true;
+      }, 'cleanup_secure_marker_write_failed');
+    }
 
-    if (firstFailure == null) {
+    if (deleteSucceeded) {
       await capture(
         () => _installationMarkerStore.clearCleanupPending(target),
         'cleanup_marker_clear_failed',
+      );
+      await capture(
+        () => _delete(_secureCleanupMarkerKey(target)),
+        'cleanup_secure_marker_clear_failed',
       );
     }
 
@@ -429,6 +456,23 @@ final class SecureSupabaseAuthStorage extends LocalStorage
     return switch (target) {
       AuthCleanupTarget.session => sessionStorageKey,
       AuthCleanupTarget.pkce => pkceStorageKey,
+    };
+  }
+
+  Future<void> _writeSecureCleanupMarker(AuthCleanupTarget target) async {
+    try {
+      await _secureStore.write(_secureCleanupMarkerKey(target), 'pending');
+    } on Object {
+      throw _reportFailure(
+        const AuthStorageException('cleanup_secure_marker_write_failed'),
+      );
+    }
+  }
+
+  static String _secureCleanupMarkerKey(AuthCleanupTarget target) {
+    return switch (target) {
+      AuthCleanupTarget.session => sessionCleanupMarkerStorageKey,
+      AuthCleanupTarget.pkce => pkceCleanupMarkerStorageKey,
     };
   }
 }

@@ -1147,3 +1147,36 @@
 - **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 - **Blocker/note**: Fix limitato ai due finding; nessun `APPROVED`, `DONE`, merge
   o task futuro è autorizzato.
+
+## 2026-07-31 — Fix 4 TASK-020 e handoff bloccato a re-review
+
+- **Agente**: `CODEX_FIXER`, con audit candidate scanner read-only
+- **Task**: TASK-020
+- **Fase iniziale/finale**: FIX -> REVIEW; stato task `BLOCKED`
+- **Revision set**: handoff Re-review 3 -> Fix
+  `a621c3c08e1f6968bfe9af9c2e9e1f8c8d1d2d3b`; tecnico Fix 4
+  `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`.
+- **Finding affrontati**: T020-RR3-C-001 / T020-REV-015 e
+  T020-RR3-A-001. Lo scanner consente soltanto il legacy JWT con unico ruolo
+  scalare letterale `anon` e respinge customer/service/ruoli ambigui o invalidi,
+  NUL e failure decoder/parser; CMD-X08 redige il path host SDK.
+- **Gate**: `scripts/check.sh` `PASS`, exit 0; 221/221 test, coverage 1802/2247
+  (80,2%), analyze zero issue, build development Android/iOS, scanner 336 file,
+  fixture 32/32 negative + 2/2 positive e boundary 5/5. Build staging
+  sequenziale Android/iOS `PASS`.
+- **Artifact**: APK SHA-256
+  `164225362dd64e859b3cab2688350e891f944a64cc55ece3f867189d9cc56e18`;
+  Runner tree SHA-256
+  `6295cd692517d40e4b817f3c96fd1b5972062a789aa0a5940196c37aff471a3d`;
+  scan 548 + 81 = 629 file, digest invariati.
+- **Audit candidate**: 0 P0, 0 P1 e 0 P2 residui nello scope scanner; non
+  sostituisce la re-review formale.
+- **CI/PR**: push tecnico e PR #4 `OPEN/DRAFT` allineati a `9dbd535`; run
+  `30630589047` `BLOCKED / CI_EXTERNAL`, 3/3 job con `runner_id=0`, zero step e
+  una annotation billing/spending ciascuno.
+- **Blocker**: callback warm iOS `BLOCKED` dal dialogo OS con Mac locked;
+  allow-list/provider callback/OAuth live `BLOCKED` da MFA, kill switch `false`,
+  zero write remoto; CI `BLOCKED` dal billing/spending.
+- **Risultato**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Blocker/note**: re-review indipendente obbligatoria sul revision set
+  tecnico/handoff; nessun `APPROVED`, `DONE`, merge o task futuro è autorizzato.

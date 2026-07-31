@@ -6,15 +6,15 @@
 - **Titolo**: Supabase Auth, deep link e session lifecycle
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-31
 - **Ultimo aggiornamento**: 2026-07-31
-- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Ultimo agente**: CODEX_FIXER
 - **Review outcome**: CHANGES_REQUIRED
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -658,6 +658,60 @@ reinterpretato.
 
 Il fixer non chiude autonomamente i finding. Con gate obbligatori esterni non
 superati, il revision set torna a Review:
+
+- **Prossima fase**: REVIEW
+- **Stato task**: BLOCKED
+- **Prossimo ruolo**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+
+### Fix 4 dopo la re-review 3
+
+Il quarto Fix è rimasto confinato ai due finding della re-review 3 senza
+dichiararli autonomamente chiusi.
+
+Revision set:
+
+- handoff Re-review 3 -> Fix 4:
+  `a621c3c08e1f6968bfe9af9c2e9e1f8c8d1d2d3b`;
+- commit tecnico Fix 4:
+  `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`.
+
+Interventi:
+
+- T020-RR3-C-001 / T020-REV-015: il decode JWT passa direttamente attraverso
+  base64url, OpenSSL e `JSON::PP` senza command substitution; è consentito soltanto
+  un JSON object con un unico ruolo scalare letterale `anon`. JWT customer,
+  `service_role`, ruolo ignoto o mancante, duplicato o escaped, JSON invalido,
+  payload NUL e failure decoder/parser sono respinti fail-closed;
+- T020-RR3-A-001: CMD-X08 conserva comando, exit e risultato reali ma redige il
+  prefisso host come `<android-sdk>/platform-tools/adb`;
+- i documenti normativi descrivono il confine publishable senza introdurre token
+  completi, secret o fallback permissivi.
+
+Gate sullo SHA tecnico:
+
+- `scripts/check.sh`: `PASS`, exit 0; 221/221 test, coverage 1802/2247 (80,2%),
+  analyze zero issue, scanner 336 file, fixture 32/32 negative e 2/2 positive,
+  boundary 5/5 e build development Android/iOS;
+- build staging sequenziale Android/iOS: `PASS`, exit 0; file locale ignorato e
+  nessun valore raw stampato;
+- bundle finali: APK SHA-256
+  `164225362dd64e859b3cab2688350e891f944a64cc55ece3f867189d9cc56e18`;
+  Runner tree SHA-256
+  `6295cd692517d40e4b817f3c96fd1b5972062a789aa0a5940196c37aff471a3d`;
+  scan 548 + 81 = 629 file e digest invariati prima/dopo;
+- audit candidate scanner read-only: 0 P0, 0 P1 e 0 P2 residui nello scope;
+  non sostituisce la re-review formale;
+- CI run `30630589047` sullo SHA `9dbd535`: `BLOCKED / CI_EXTERNAL`; job iOS
+  `91155745893`, Android `91155745943` e Quality `91155745948` hanno
+  `runner_id=0`, zero step e una annotation billing/spending ciascuno;
+- allow-list, callback provider e OAuth live: `BLOCKED` da MFA; kill switch
+  `false`, zero write remoto;
+- callback warm iOS: `BLOCKED` dal dialogo OS non accettabile con Mac locked; il
+  codice app e le prove native precedenti non sono stati modificati dal Fix 4.
+
+Il fixer non chiude i finding e non approva il proprio lavoro. Con re-review e gate
+obbligatori esterni non superati, il revision set torna a Review:
 
 - **Prossima fase**: REVIEW
 - **Stato task**: BLOCKED

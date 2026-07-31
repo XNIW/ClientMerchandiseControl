@@ -17,8 +17,12 @@
   `5740c835a116af16ab2e7ca6c55c927d180ece90`
 - SHA handoff Fix 3:
   `891f96124f706c8a53168937ec701709301b3855`
-- Workflow sullo SHA handoff Fix 3: run `30628616615`, `BLOCKED / CI_EXTERNAL`
-- Auth fake, build Android/iOS, security/pin scan in CI sul Fix 3: `BLOCKED`; nessuno
+- SHA transizione Re-review 3 -> Fix 4:
+  `a621c3c08e1f6968bfe9af9c2e9e1f8c8d1d2d3b`
+- SHA tecnico Fix 4:
+  `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`
+- Workflow sullo SHA tecnico Fix 4: run `30630589047`, `BLOCKED / CI_EXTERNAL`
+- Auth fake, build Android/iOS, security/pin scan in CI sul Fix 4: `BLOCKED`; nessuno
   step ha acquisito un runner
 
 ## Run reali sullo SHA di review iniziale
@@ -98,6 +102,30 @@ I job `Android debug build` (`91149556012`), `Quality` (`91149556044`) e
 una singola annotation billing/spending. `gh run view` e le query API sono
 terminate con exit 0; la CI non ha eseguito codice del repository.
 
+## Run reale sulla transizione Re-review 3 -> Fix 4
+
+| Run | Trigger | SHA | Job | Step | Annotation | Esito |
+|---|---|---|---:|---:|---:|---|
+| `30629914741` | `pull_request` | `a621c3c` | 3/3 `failure` | 0 | 1/job | BLOCKED |
+
+I job `iOS Simulator debug build` (`91153621678`), `Quality` (`91153621741`) e
+`Android debug build` (`91153621780`) hanno `runner_id=0`, `steps: []` e una
+singola annotation billing/spending ciascuno. `gh run view`, la query job e le
+tre query annotation sono terminate con exit 0; nessun codice repository è stato
+eseguito.
+
+## Run reale sullo SHA tecnico Fix 4
+
+| Run | Trigger | SHA | Job | Step | Annotation | Esito |
+|---|---|---|---:|---:|---:|---|
+| `30630589047` | `pull_request` | `9dbd535` | 3/3 `failure` | 0 | 1/job | BLOCKED |
+
+I job `iOS Simulator debug build` (`91155745893`), `Android debug build`
+(`91155745943`) e `Quality` (`91155745948`) hanno `runner_id=0`, `steps: []` e
+una singola annotation billing/spending ciascuno. `gh run view`, la query job e le
+tre query annotation sono terminate con exit 0; la CI non ha eseguito codice del
+repository.
+
 - **Causa**: `CI_EXTERNAL`, billing/spending GitHub.
 - **Tentativi**: dispatch manuale e trigger PR reali.
 - **Prerequisito**: ripristino Billing & plans/spending limit da parte del titolare.
@@ -106,5 +134,5 @@ terminate con exit 0; la CI non ha eseguito codice del repository.
 Nessun Google OAuth live, file staging locale, secret o account deve entrare in CI.
 
 Matrice CA/T canonica e command evidence: `commands-and-results.md`,
-CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02/CMD-X14/CMD-X15/CMD-Y04,
+CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02/CMD-X14/CMD-X15/CMD-Y04/CMD-Z07/CMD-Z08,
 CA-39 e T-36.

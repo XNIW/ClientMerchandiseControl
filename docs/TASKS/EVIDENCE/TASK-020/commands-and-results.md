@@ -1,13 +1,14 @@
 # Commands and results — TASK-020
 
-## Revision set corrente — Re-review 3
+## Revision set corrente — Fix 4 candidato a Re-review 4
 
-- Commit tecnico verificato:
-  `5740c835a116af16ab2e7ca6c55c927d180ece90`.
-- Handoff Fix 3 -> Re-review 3:
+- Commit tecnico Fix 4 verificato:
+  `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`.
+- Handoff Re-review 3 -> Fix 4:
+  `a621c3c08e1f6968bfe9af9c2e9e1f8c8d1d2d3b`.
+- Revision set precedente Fix 3 -> Re-review 3:
+  `5740c835a116af16ab2e7ca6c55c927d180ece90` ->
   `891f96124f706c8a53168937ec701709301b3855`.
-- Handoff Re-review 2 -> Fix 3:
-  `7825145f16e0de33725a36470df0ebc20bedfcbe`.
 - Base `main` e `origin/main`:
   `40d118eebf78eeabea9e26747adb00053dd875bc`.
 - Target:
@@ -84,6 +85,15 @@
 | CMD-Y03 | `891f961`, Git/PR | `git rev-parse HEAD`; `git rev-parse '@{upstream}'`; `git rev-parse origin/milestone/011-012-020-authenticated-storefront-foundation`; `gh pr view 4 --json state,isDraft,baseRefName,headRefName,headRefOid,mergeable,mergeStateStatus,url`; API paginata file PR | PASS | HEAD/upstream/origin/PR allineati; PR `OPEN/DRAFT`, 143 path, zero TASK-003/004; `main == origin/main == 40d118e` | `mergeStateStatus=UNSTABLE` per check esterni, nessun merge |
 | CMD-Y04 | handoff `891f961`, GitHub Actions | `gh run view 30628616615 --json databaseId,event,headSha,status,conclusion,jobs,url`; API run/jobs e annotation dei check `91149556012`, `91149556044`, `91149556060` | BLOCKED | Android, Quality e iOS con `runner_id=0`, zero step, una annotation billing/spending ciascuno | CI_EXTERNAL prima del runner; nessun codice repository eseguito |
 | CMD-Y05 | `891f961`, evidence | `bash scripts/check-governance-state.sh && flutter test test/governance/task020_evidence_matrix_test.dart && git diff --check` | PASS | governance coerente; parser 1/1; 12 file, 40 CA, 38 T; exit 0 | eseguito in review prima della transizione documentale |
+| CMD-Z01 | `9dbd535`, host + Android/iOS | `bash scripts/check.sh` | PASS | exit 0; pin/shell/security/governance/architecture/pub/l10n/format/analyze; 221/221 test; coverage 1802/2247, 80,2%; build development Android/iOS | scanner 336 file, fixture 32/32 negative e 2/2 positive; boundary 5/5; 10 package latest non risolvibili dai constraint |
+| CMD-Z02 | `9dbd535`, host | `bash -n scripts/check-client-security.sh scripts/test-client-security-scan.sh && bash scripts/check-client-security.sh && bash scripts/test-client-security-scan.sh && bash scripts/check-architecture-boundaries.sh && bash scripts/test-architecture-boundaries.sh && flutter test test/governance/task020_evidence_matrix_test.dart && git diff --check` | PASS | exit 0; scanner 336 file; 32/32 fixture negative respinte, incluse JWT customer/source/index/worktree/artifact, ruoli non pubblicabili, JSON invalido, duplicato, escaped e NUL; 2/2 positive accettate; boundary 5/5; parser 1/1 | soltanto JWT legacy con JSON object e unico ruolo letterale scalare `anon` è consentito; decode/parser failure è fail-closed |
+| CMD-Z03 | diff `a621c3c..9dbd535`, audit candidate scanner read-only | agente `task020_fix4_scanner_design`; confronto T020-RR3-C-001, scanner, fixture e documentazione; rerun della suite scanner | PASS | 0 P0, 0 P1 e 0 P2 residui nello scope; 32/32 negative e 2/2 positive `PASS` | non sostituisce la re-review formale sul revision set di handoff; rischio conservativo di falsi positivi documentato |
+| CMD-Z04 | `9dbd535`, Android+iOS staging | verifica SHA/worktree/config ignorata; `flutter build apk --debug --dart-define-from-file=config/app_config.staging.local.json`; `flutter build ios --simulator --debug --dart-define-from-file=config/app_config.staging.local.json`; ricontrollo SHA/worktree | PASS | entrambi exit 0; APK e Runner.app staging costruiti in sequenza sullo SHA esatto | file locale ignorato; nessun valore raw stampato; codice app invariato rispetto al Fix 3 |
+| CMD-Z05 | `9dbd535`, bundle staging finali da CMD-Z04 | `shasum -a 256 build/app/outputs/flutter-apk/app-debug.apk`; `runner_root=build/ios/iphonesimulator/Runner.app; runner_files=$(mktemp); runner_manifest=$(mktemp); find "$runner_root" -type f -print0 > "$runner_files"; LC_ALL=C sort -z "$runner_files" -o "$runner_files"; while IFS= read -r -d '' runner_file; do runner_rel=${runner_file#"$runner_root"/}; runner_hash_line=$(shasum -a 256 "$runner_file"); runner_hash=${runner_hash_line%% *}; printf '%s\0%s\0' "$runner_rel" "$runner_hash" >> "$runner_manifest"; done < "$runner_files"; shasum -a 256 "$runner_manifest"; rm "$runner_files" "$runner_manifest"`; `bash scripts/check-client-security.sh --artifact build/app/outputs/flutter-apk/app-debug.apk`; `bash scripts/check-client-security.sh --artifact build/ios/iphonesimulator/Runner.app`; stessi digest prima/dopo | PASS | exit 0; APK `164225362dd64e859b3cab2688350e891f944a64cc55ece3f867189d9cc56e18`; Runner tree `6295cd692517d40e4b817f3c96fd1b5972062a789aa0a5940196c37aff471a3d`; 548 + 81 = 629 file; digest invariati | artifact locali non versionati; scanner rifiuta JWT customer/non-publishable e accetta soltanto legacy `role=anon` |
+| CMD-Z06 | `9dbd535`, Git/PR | `git fetch origin`; `git rev-parse HEAD`; `git rev-parse '@{upstream}'`; `git rev-parse origin/milestone/011-012-020-authenticated-storefront-foundation`; `git rev-parse main`; `git rev-parse origin/main`; `git status --short --branch`; `gh pr view 4 --json state,isDraft,baseRefName,headRefName,headRefOid,mergeable,mergeStateStatus,url`; API paginata file PR con conteggio e denylist TASK-003/004 | PASS | HEAD/upstream/origin/PR allineati a `9dbd535`; worktree pulito al controllo; `main == origin/main == 40d118e`; 143 path e zero TASK-003/004 | PR #4 `OPEN/DRAFT`, base `main`, `MERGEABLE`, merge state `UNSTABLE`; nessun merge |
+| CMD-Z07 | transizione Re-review 3 -> Fix 4 `a621c3c`, GitHub Actions | `gh run view 30629914741 --json databaseId,event,headSha,status,conclusion,jobs,url`; API run/jobs e annotation dei check `91153621678`, `91153621741`, `91153621780` | BLOCKED | iOS, Quality e Android con `runner_id=0`, zero step e una annotation billing/spending ciascuno | CI_EXTERNAL prima del runner; nessun codice repository eseguito |
+| CMD-Z08 | tecnico Fix 4 `9dbd535`, GitHub Actions | `gh run view 30630589047 --json databaseId,event,headSha,status,conclusion,jobs,url`; API run/jobs e annotation dei check `91155745893`, `91155745943`, `91155745948` | BLOCKED | iOS, Android e Quality con `runner_id=0`, zero step e una annotation billing/spending ciascuno | CI_EXTERNAL prima del runner; prerequisito: ripristino Billing & plans |
+| CMD-Z09 | worktree evidence Fix 4 | `bash scripts/check-governance-state.sh && flutter test test/governance/task020_evidence_matrix_test.dart && git diff --check` | PASS | exit 0; governance `TASK-020 / BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`; parser 1/1; 12 file, 40 CA, 38 T; zero whitespace error | eseguito dopo l'aggiornamento completo di task, matrici ed evidence |
 
 I `FAIL` diagnostici restano evidence reali e non vengono trasformati in `PASS`: i
 rerun conformi sono identificati separatamente. I comandi con callback usano qui un
@@ -94,8 +104,8 @@ query o code.
 
 | CA | Tipo | Esito | Evidence |
 |---|---|---|---|
-| CA-01 | GIT/STATIC | PASS | CMD-X01/X13; dipendenze DONE, TASK-020 unico task corrente e diff milestone confinato |
-| CA-02 | GIT/STATIC | PASS | CMD-X13; zero path TASK-003/004, catalogo reale, profilo, ordine o pagamento |
+| CA-01 | GIT/STATIC | PASS | CMD-Z01/Z06/Z09; dipendenze DONE, TASK-020 unico task corrente, governance e diff milestone confinati |
+| CA-02 | GIT/STATIC | PASS | CMD-Z06; zero path TASK-003/004, catalogo reale, profilo, ordine o pagamento |
 | CA-03 | STATIC/SECURITY | PASS | CMD-X02; sorgenti/API GoTrue/Supabase installate e lockfile verificati |
 | CA-04 | UNIT/SECURITY | PASS | CMD-X01; matrice config development/staging/production fail-closed |
 | CA-05 | UNIT/STATIC/SECURITY | PASS | CMD-X01/X02; Supabase Google, PKCE, browser esterno e zero `google_sign_in` |
@@ -115,7 +125,7 @@ query o code.
 | CA-19 | UNIT | PASS | CMD-X01; dispose e future/eventi tardivi testati con compensazione |
 | CA-20 | UNIT/WIDGET/ANDROID_EMU/IOS_SIM | PASS | CMD-X01/X03/X06/X09; logout locale, cleanup indipendente, tre marker e nuovo login |
 | CA-21 | UNIT/STATIC/SECURITY | PASS | CMD-X01/X03/X04; adapter unico Keychain/Keystore, journal non sensibile e nessun fallback plaintext |
-| CA-22 | UNIT/SECURITY | FAIL | CMD-B01/Y02; bundle standard puliti, ma JWT customer `role=authenticated` accettato dallo scanner artifact |
+| CA-22 | UNIT/SECURITY | PASS | CMD-B01/Z01/Z02/Z05; bundle storici e correnti puliti, zero token nel Git e ogni JWT diverso dal legacy con unico `role=anon`, incluso `authenticated`, è respinto fail-closed |
 | CA-23 | UNIT/WIDGET/SECURITY | PASS | CMD-X01; identity bounded, markup/control/bidi rifiutati e avatar locale |
 | CA-24 | STATIC/SECURITY | PASS | CMD-X01/X04/X13; client non autorizzativo, publishable config soltanto e zero API dati vietate |
 | CA-25 | WIDGET | PASS | CMD-X01; tutti gli stati Account e azioni renderizzati |
@@ -126,20 +136,20 @@ query o code.
 | CA-30 | ANDROID_EMU/MANUAL/SECURITY | BLOCKED | build/fake/readiness/native PASS in CMD-X05/X06/X07/X08; live 17 passi fermato da allow-list/MFA, flag false |
 | CA-31 | IOS_SIM/MANUAL/SECURITY | BLOCKED | build/fake/readiness PASS in CMD-X05/X09/X10; live fermato da MFA e conferma OS CMD-X11, flag false |
 | CA-32 | ANDROID_EMU/IOS_SIM/MANUAL | BLOCKED | subset fake/error PASS in CMD-X01/X06/X09; matrice live richiede OAuth remoto abilitabile dopo MFA |
-| CA-33 | STATIC/SECURITY | PASS | threat model TM-01…TM-30 aggiornato; CMD-X01/X03/X12 |
-| CA-34 | STATIC/GIT | PASS | CMD-Y05; 12 file esatti e parser valida 40 CA, 38 T, tipo/stato/cardinalità/comando |
-| CA-35 | STATIC/FORMAT/ANALYZE/UNIT/GIT | PASS | CMD-X01/X02/X13 con comando, output ed exit reali |
-| CA-36 | STATIC/SECURITY/GIT | FAIL | CMD-Y02; suite esistente non copre un JWT customer valido accettato con exit 0 |
-| CA-37 | BUILD_ANDROID/BUILD_IOS | PASS | CMD-X01 development e CMD-X05 staging, entrambi i target exit 0 |
-| CA-38 | MANUAL/STATIC/SECURITY | FAIL | CMD-Y01; re-review A–E trova 1 P2 e 1 P3 aperti |
-| CA-39 | CI | BLOCKED | CMD-Y04; run handoff esatta, 3 job senza runner/step; prerequisito billing/spending GitHub |
-| CA-40 | GIT/CI | BLOCKED | CMD-Y01/Y03/Y04; PR #4 draft e scope remoto corretto, ma finding/CI/live gate impediscono merge, DONE e sync main |
+| CA-33 | STATIC/SECURITY | PASS | threat model TM-01…TM-30 aggiornato; CMD-Z01/Z02/Z03 |
+| CA-34 | STATIC/GIT | PASS | CMD-Z09; 12 file esatti e parser valida 40 CA, 38 T, tipo/stato/cardinalità/comando |
+| CA-35 | STATIC/FORMAT/ANALYZE/UNIT/GIT | PASS | CMD-Z01/Z02/Z06/Z09 con comando, output ed exit reali |
+| CA-36 | STATIC/SECURITY/GIT | PASS | CMD-Z01/Z02/Z05; 32/32 fixture negative coprono JWT customer e ruoli non pubblicabili su source/index/worktree/artifact, 2/2 positive |
+| CA-37 | BUILD_ANDROID/BUILD_IOS | PASS | CMD-Z01 development e CMD-Z04 staging, entrambi i target exit 0 |
+| CA-38 | MANUAL/STATIC/SECURITY | NOT_RUN | CMD-Z03 è soltanto audit candidate; re-review formale sul revision set Fix 4 non ancora eseguita |
+| CA-39 | CI | BLOCKED | CMD-Z08; run tecnica esatta, 3 job senza runner/step; prerequisito billing/spending GitHub |
+| CA-40 | GIT/CI | BLOCKED | CMD-Z03/Z06/Z08; PR #4 draft e scope remoto corretto, ma re-review/CI/live gate impediscono merge, DONE e sync main |
 
 ## Matrice test
 
 | Test | Tipo | Esito | Risultato |
 |---|---|---|---|
-| T-01 | GIT/STATIC | PASS | CMD-X01/X13; governance, branch, dipendenze e diff verificati |
+| T-01 | GIT/STATIC | PASS | CMD-Z01/Z06/Z09; governance, branch, dipendenze e diff verificati |
 | T-02 | STATIC/SECURITY | PASS | CMD-X02; API/storage installati auditati |
 | T-03 | UNIT/SECURITY | PASS | CMD-X01; matrice AppConfig/bootstrap completa |
 | T-04 | MANUAL/SECURITY | BLOCKED | CMD-R01; allow-list before/write/after fermata da MFA, nessun write; prerequisito MFA umano |
@@ -155,7 +165,7 @@ query o code.
 | T-14 | UNIT | PASS | CMD-X01/X03; logout, cleanup indipendente, journal e nuovo login |
 | T-15 | UNIT/STATIC/SECURITY | PASS | CMD-X01/X03/X04; storage CRUD, first install, cleanup a tre marker e failure stream |
 | T-16 | UNIT/WIDGET/SECURITY | PASS | CMD-X01; metadata ostili, fallback e avatar locale |
-| T-17 | UNIT/SECURITY | PASS | CMD-X01/X04; mapper/redactor e scanner source/artifact senza sentinella |
+| T-17 | UNIT/SECURITY | PASS | CMD-Z01/Z02; mapper/redactor e scanner source/index/worktree/artifact senza sentinella |
 | T-18 | WIDGET | PASS | CMD-X01; ogni stato Account renderizzato |
 | T-19 | WIDGET | PASS | CMD-X01/X06/X09; browsing guest durante stati Auth |
 | T-20 | UNIT/WIDGET | PASS | CMD-X01; parità ARB e locale supportati |
@@ -163,17 +173,17 @@ query o code.
 | T-22 | ANDROID_EMU/IOS_SIM | PASS | CMD-X06/X09; guest flow dual-platform |
 | T-23 | ANDROID_EMU/IOS_SIM | PASS | CMD-X06/X09; callback fake dual-platform e ritorno Account |
 | T-24 | ANDROID_EMU/IOS_SIM | PASS | CMD-X06/X09; invalido/senza sessione, zero crash |
-| T-25 | STATIC/SECURITY | PASS | threat model TM-01…TM-30; CMD-X01/X03/X12 |
-| T-26 | STATIC/SECURITY/GIT | FAIL | CMD-B01/Y02; bundle standard puliti, ma un JWT customer valido supera lo scan artifact |
-| T-27 | STATIC/GIT | PASS | CMD-Y05; parser evidence, 12 file, 40/38, tipi/stati/comandi |
-| T-28 | STATIC/GIT | PASS | CMD-X01/X13; doctor, shell, pin, governance, architecture e diff |
-| T-29 | FORMAT/ANALYZE/UNIT | PASS | CMD-X01/X02; pub/l10n/format/analyze/221 test/coverage/check |
-| T-30 | BUILD_ANDROID | PASS | CMD-X01/X05; APK development e staging |
-| T-31 | BUILD_IOS | PASS | CMD-X01/X05; iOS Simulator development e staging |
+| T-25 | STATIC/SECURITY | PASS | threat model TM-01…TM-30; CMD-Z01/Z02/Z03 |
+| T-26 | STATIC/SECURITY/GIT | PASS | CMD-B01/Z02/Z05/Z06; source/index/worktree/bundle storici e correnti puliti e JWT customer/non-publishable respinti |
+| T-27 | STATIC/GIT | PASS | CMD-Z09; parser evidence valida 12 file, 40 CA, 38 T, tipi, stati e comandi |
+| T-28 | STATIC/GIT | PASS | CMD-Z01/Z02/Z06/Z09; doctor, shell, pin, governance, architecture e diff |
+| T-29 | FORMAT/ANALYZE/UNIT | PASS | CMD-Z01; pub/l10n/format/analyze/221 test/coverage/check |
+| T-30 | BUILD_ANDROID | PASS | CMD-Z01/Z04; APK development e staging |
+| T-31 | BUILD_IOS | PASS | CMD-Z01/Z04; iOS Simulator development e staging |
 | T-32 | ANDROID_EMU/MANUAL/SECURITY | BLOCKED | subset automatico PASS CMD-X06/X07/X08; 17 passi live dipendono da CMD-R01 |
 | T-33 | IOS_SIM/MANUAL/SECURITY | BLOCKED | subset automatico PASS CMD-X09/X10; live dipende da CMD-R01 e CMD-X11 |
 | T-34 | ANDROID_EMU/IOS_SIM/MANUAL | BLOCKED | error fake PASS CMD-X01/X06/X09; matrice live non eseguibile con flag false/MFA |
-| T-35 | MANUAL/STATIC/SECURITY | FAIL | CMD-Y01; re-review formale trova 1 P2 e 1 P3 aperti |
-| T-36 | CI | BLOCKED | CMD-Y04; run `30628616615` sullo SHA handoff fermata prima del runner |
-| T-37 | GIT | PASS | CMD-Y03; branch/upstream/PR allineati, worktree pulito e zero path TASK-003/004 |
-| T-38 | GIT/CI | NOT_RUN | CMD-Y03/Y04; verifica post-merge non eseguita perché finding, CI e gate live non sono verdi e il merge resta vietato |
+| T-35 | MANUAL/STATIC/SECURITY | NOT_RUN | CMD-Z03 non sostituisce la re-review formale sul revision set tecnico/handoff Fix 4 |
+| T-36 | CI | BLOCKED | CMD-Z08; run `30630589047` sullo SHA tecnico fermata prima del runner |
+| T-37 | GIT | PASS | CMD-Z06; branch/upstream/PR allineati, worktree pulito al controllo e zero path TASK-003/004 |
+| T-38 | GIT/CI | NOT_RUN | CMD-Z06/Z08; verifica post-merge non eseguita perché review, CI e gate live non sono verdi e il merge resta vietato |

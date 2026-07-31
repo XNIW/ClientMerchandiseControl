@@ -31,12 +31,12 @@
 | Service role/secret applicativo | PASS | nessun valore; sole denylist di rifiuto dove applicabile |
 | Production config/cert/provisioning | PASS | assenti dal diff |
 | `git diff --check` | PASS | exit 0 |
-| Client security scanner | PASS | CMD-X04, 336 file Git, index e worktree correnti, zero violazioni |
-| Fixture scanner | PASS | CMD-X04, 22/22 negative respinte e 1/1 positiva accettata |
-| JWT customer semantic probe | FAIL | CMD-Y02, `role=authenticated` sintetico accettato con exit 0; zero JWT nel Git corrente |
-| Bundle staging ricostruiti | PASS | CMD-B01, 548 file APK + 81 file Runner = 629, zero secret privilegiati; digest before/after invariati |
-| Symlink, snapshot Git e failure operative | PASS | CMD-X04, blob/index/worktree `120000`, enumerazione parziale, read e decode failure respinti fail-closed |
-| PEM ed estensioni sensibili | PASS | CMD-X04/CMD-B01, label standard/DSA/encrypted e denylist case-insensitive |
+| Client security scanner | PASS | CMD-Z02, 336 file Git, index e worktree correnti, zero violazioni |
+| Fixture scanner | PASS | CMD-Z01/Z02, 32/32 negative respinte e 2/2 positive accettate |
+| JWT customer semantic probe | PASS | CMD-Z02, `role=authenticated` e ogni ruolo diverso dall'unico letterale scalare `anon` respinti; zero JWT nel Git corrente |
+| Bundle staging ricostruiti | PASS | CMD-Z04/Z05, 548 file APK + 81 file Runner = 629, zero secret privilegiati; digest before/after invariati |
+| Symlink, snapshot Git e failure operative | PASS | CMD-Z02, blob/index/worktree `120000`, enumerazione parziale, read/decode/parser failure respinti fail-closed |
+| PEM ed estensioni sensibili | PASS | CMD-Z02/Z05, label standard/DSA/encrypted e denylist case-insensitive |
 
 I delimitatori PEM nel `kernel_blob` iOS provengono dal parser della dipendenza
 transitiva: tre coppie begin/end sono adiacenti e il quarto marker non ha payload
@@ -59,8 +59,10 @@ Rischi residui:
   file chiude l'interleaving riproducibile in cui falliscono i due marker precedenti;
 - redirect allow-list e live OAuth restano `BLOCKED` da MFA;
 - la conferma OS iOS del custom scheme resta `BLOCKED` mentre il Mac è locked.
-- lo scanner corrente rifiuta `service_role` ma non un JWT customer
-  `role=authenticated`; T020-RR3-C-001 resta aperto in Fix;
+- lo scanner tratta conservativamente come non pubblicabile qualunque JWT che non
+  contenga un JSON object con un solo ruolo scalare letterale `anon`; escape Unicode
+  e campi `role` annidati/duplicati sono respinti anche se innocui, con possibile
+  falso positivo ma senza allargare il confine pubblicabile;
 - Cancel attende un exchange SDK non cancellabile prima di consentire Retry: preserva
   l'invariante di sicurezza contro sessioni tardive, ma un trasporto che non completa
   può mantenere lo stato `cancelling`; un hardening richiede cancellazione reale al
@@ -69,6 +71,6 @@ Rischi residui:
 Nessun `PASS` remoto o live è inferito.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-X01/X03/X04/CMD-Y02/CMD-B01/CMD-R01,
+`commands-and-results.md`, CMD-X01/X03/CMD-Z01/Z02/Z05/CMD-R01,
 CA-03/05/08/21/22/24/33/36
 e T-02/05/15/17/25/26.

@@ -170,3 +170,7 @@ TASK-020 non passa `avatar_url`, `NetworkImage` o URI al widget Account: conserv
 Home, Catalogo e Carrello non hanno route guard e restano disponibili in ogni stato
 Auth. La UI disabilita azioni durante operazioni single-flight, offre cancel/retry
 manuali e non avvia loop.
+
+Matrice CA/T e comandi canonici:
+`commands-and-results.md`, CMD-F01/F04/F07/F11, CA-03…CA-08, CA-14…CA-26 e
+T-02/03/05/08…T-18/23/24.

@@ -31,3 +31,7 @@ gli smoke Google live sono conseguentemente `BLOCKED`.
 
 Questa evidence non contiene URL, key, client ID/secret, token, callback con query,
 account o dati personali.
+
+Matrice CA/T e comandi canonici:
+`commands-and-results.md`, CMD-R01/CMD-R02, CA-11/12/13/30/31/32 e
+T-04/32/33/34.

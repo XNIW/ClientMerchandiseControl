@@ -11,16 +11,16 @@
 
 | Verifica | Esito | Risultato |
 |---|---|---|
-| iOS Simulator debug development | PASS | build reale, exit 0 |
-| iOS Simulator debug staging | PASS | build reale isolata, exit 0 |
-| Plist compilato | PASS | un solo scheme; Flutter handler off; SceneDelegate risolto |
-| Guest flow | PASS | integration test simulator |
-| Callback flow fake | PASS | login, callback, restore, logout, invalido |
-| Backend readiness staging | PASS | health Auth data-free |
-| Scheme/host/path validator | PASS | iOS filtra scheme; Dart rifiuta host/path |
-| LaunchServices canonical | PASS | bundle canonico risolto |
-| Callback warm nativo `app_links` | BLOCKED | conferma OS pendente; Mac locked |
-| Crash deterministico | PASS | nessun crash; processo vivo |
+| iOS Simulator debug development | PASS | CMD-F01, exit 0 |
+| iOS Simulator debug staging | PASS | CMD-F03, exit 0 |
+| Plist compilato | PASS | CMD-F01; un solo scheme, handler Flutter off, SceneDelegate risolto |
+| Guest flow | PASS | CMD-F07, exit 0 |
+| Callback flow fake | PASS | CMD-F07; login, callback, Account, restore, logout, invalido |
+| Backend readiness staging | PASS | CMD-F08; health Auth data-free |
+| Scheme/host/path validator | PASS | CMD-F01; iOS filtra scheme, Dart rifiuta host/path |
+| LaunchServices canonical | PASS | CMD-F09; `simctl` exit 0 e bundle risolto |
+| Callback warm nativo `app_links` | BLOCKED | CMD-F09; harness timeout 30 s, conferma OS pendente, Mac locked |
+| Crash deterministico | PASS | CMD-F07/F08/F09; nessun crash, processo vivo |
 
 La build contiene forwarding manuale convergente a `AppLinks.shared` in
 `AppDelegate` e `SceneDelegate`, con auto-handling plugin disabilitato. Il log di
@@ -51,3 +51,7 @@ sistema mostra che LaunchServices trova il bundle, ma presenta il dialogo locale
 
 Non sono stati inseriti password, MFA, OTP, CAPTCHA o credenziali e non è stato
 modificato alcun setting remoto.
+
+Matrice CA/T e comandi canonici:
+`commands-and-results.md`, CMD-F01/F03/F07/F08/F09/CMD-R01, CA-10/27/29/31 e
+T-07/22/23/24/31/33.

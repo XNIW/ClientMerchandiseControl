@@ -986,3 +986,29 @@
 - **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 - **Blocker/note**: Fix limitato a T020-REV-001…T020-REV-021; MFA, dialogo OS iOS e
   CI esterna restano distinti e non autorizzano `APPROVED`, `DONE` o merge.
+
+## 2026-07-31 — Fix TASK-020 e handoff bloccato a re-review
+
+- **Agente**: `CODEX_FIXER`, con due audit read-only del candidate Fix
+- **Task**: TASK-020
+- **Fase iniziale/finale**: FIX -> REVIEW; stato task `BLOCKED`
+- **Commit tecnico Fix**:
+  `408f14d242e9d35bfcefbebd10858dcb9e38d028`
+- **Finding affrontati**: T020-REV-001…T020-REV-021; compensate race
+  cancel/exchange, expiry/recovery SDK, restore concorrente, persistenza/cleanup
+  fail-closed, tombstone, integration browsing/Account, matrice UI, CI security
+  scan, command evidence, scope PR e date.
+- **Gate**: `scripts/check.sh` `PASS`, exit 0; 214/214 test, coverage
+  1745/2179 (80,1%), analyze zero issue, security/governance/architecture e build
+  development Android/iOS. Build staging duale, guest/callback fake/readiness
+  Android 3/3 e iOS 3/3, callback warm Android: `PASS`.
+- **Deviazioni registrate**: selezione device mancante, primo hang test,
+  invocation readiness senza define, transient offline e vecchio lock iOS sono
+  `FAIL` reali seguiti da rerun `PASS`; nessun risultato è inferito.
+- **Blocker**: callback warm iOS `BLOCKED` (`simctl` exit 0, harness timeout);
+  allow-list/provider callback/OAuth live `BLOCKED` da MFA; CI precedente
+  `BLOCKED / CI_EXTERNAL` per billing/spending.
+- **Risultato**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Blocker/note**: il fixer non chiude i propri finding; re-review A–E obbligatoria
+  sul nuovo HEAD. Nessun `APPROVED`, `DONE`, merge o task futuro è autorizzato con
+  i gate esterni aperti.

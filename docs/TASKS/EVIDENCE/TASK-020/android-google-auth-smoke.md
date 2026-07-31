@@ -11,16 +11,16 @@
 
 | Verifica | Esito | Risultato |
 |---|---|---|
-| APK debug development | PASS | build reale, exit 0 |
-| APK debug staging | PASS | build reale, exit 0 |
-| Manifest merged | PASS | backup off; handler Flutter off; un solo filter esatto |
-| Routing URI canonico | PASS | `MainActivity` risolta; processo vivo |
-| Routing host/path errati | PASS | Activity non risolta |
-| Guest flow | PASS | integration test device |
-| Callback flow fake | PASS | login, callback, restore, logout, invalido |
-| Backend readiness staging | PASS | health Auth data-free |
-| Callback warm nativo `app_links` | PASS | ADB delivery, validazione canonica, zero exchange |
-| Crash/ANR deterministico | PASS | nessun crash; processo vivo |
+| APK debug development | PASS | CMD-F01, exit 0 |
+| APK debug staging | PASS | CMD-F03, exit 0 |
+| Manifest merged | PASS | CMD-F01; backup off, handler Flutter off, un solo filter esatto |
+| Routing URI canonico | PASS | CMD-F06; `MainActivity` risolta, processo vivo |
+| Routing host/path errati | PASS | suite nativa CMD-F01; Activity non risolta |
+| Guest flow | PASS | CMD-F04, exit 0 |
+| Callback flow fake | PASS | CMD-F04; login, callback, Account, restore, logout, invalido |
+| Backend readiness staging | PASS | CMD-F05; health Auth data-free |
+| Callback warm nativo `app_links` | PASS | CMD-F06; ADB/event/validator, zero exchange |
+| Crash/ANR deterministico | PASS | CMD-F04/F05/F06; nessun crash, processo vivo |
 
 ## Smoke Google live in 17 passi
 
@@ -47,3 +47,7 @@
 Il blocco è esterno e preciso: Supabase dashboard richiede MFA per leggere/applicare
 l'allow-list e nessuna API point-update sicura è disponibile. Il flag è rimasto
 `false`; nessuna credenziale è stata inserita e nessun write remoto è stato eseguito.
+
+Matrice CA/T e comandi canonici:
+`commands-and-results.md`, CMD-F01/F03/F04/F05/F06/CMD-R01, CA-09/27/29/30 e
+T-06/22/23/24/30/32.

@@ -1,7 +1,7 @@
 # Evidence TASK-020
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 ## Stato
 
@@ -9,9 +9,11 @@ Snapshot di handoff:
 - Autorizzazione Execution: `PASS` — concessa e applicata dal prompt end-to-end
 - Execution: `PASS` per i gate automatizzabili; dipendenze esterne esplicitate
 - Review: `CHANGES_REQUIRED` — cinque reviewer, 1 P1, 18 P2 e 2 P3 consolidati
-- Fix/re-review: `NOT_RUN`
+- Fix: `PASS` sul commit tecnico `408f14d` per i finding implementati; gate locali
+  214/214, coverage 80,1%, build e smoke fake dual-platform
+- Re-review: `NOT_RUN` — affidata a cinque reviewer read-only sul nuovo HEAD
 - CI: `BLOCKED / CI_EXTERNAL`
-- PR/merge: draft PR #4 aperta; merge `NOT_RUN`
+- PR/merge: draft PR #4 aperta; push Fix/CI da verificare; merge `BLOCKED`
 - DONE: `NO`
 
 ## Indice
@@ -34,6 +36,12 @@ Snapshot di handoff:
 - [review-report.md](review-report.md) — stato review A–E.
 - [ci-status.md](ci-status.md) — stato CI dello SHA TASK-020.
 - [git-state.md](git-state.md) — branch, scope e stato Git sanitizzato.
+
+Le matrici canoniche complete una-riga-per-CA e una-riga-per-test, con `Tipo`,
+stato e command ID, sono in
+[commands-and-results.md](commands-and-results.md). Ogni evidence focalizzata usa
+quella matrice come indice normativo e documenta soltanto il proprio subset, evitando
+duplicazioni che potrebbero divergere.
 
 ## Blocchi esterni aperti
 

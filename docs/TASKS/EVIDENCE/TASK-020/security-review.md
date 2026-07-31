@@ -29,6 +29,8 @@
 | Service role/secret applicativo | PASS | nessun valore; sole denylist di rifiuto dove applicabile |
 | Production config/cert/provisioning | PASS | assenti dal diff |
 | `git diff --check` | PASS | exit 0 |
+| Client security scanner | PASS | CMD-F10, 336 file, zero violazioni |
+| Fixture negative scanner | PASS | CMD-F10, 3/3 respinte |
 
 I delimitatori PEM nel `kernel_blob` iOS provengono dal parser della dipendenza
 transitiva: tre coppie begin/end sono adiacenti e il quarto marker non ha payload
@@ -47,5 +49,13 @@ Rischi residui:
 - logout locale offline non garantisce revoca globale;
 - redirect allow-list e live OAuth restano `BLOCKED` da MFA;
 - la conferma OS iOS del custom scheme resta `BLOCKED` mentre il Mac è locked.
+- Cancel attende un exchange SDK non cancellabile prima di consentire Retry: preserva
+  l'invariante di sicurezza contro sessioni tardive, ma un trasporto che non completa
+  può mantenere lo stato `cancelling`; un hardening richiede cancellazione reale al
+  port HTTP o quarantena persistente, non un semplice `Future.timeout`.
 
 Nessun `PASS` remoto o live è inferito.
+
+Matrice CA/T e comandi canonici:
+`commands-and-results.md`, CMD-F01/F10/F11/F12/CMD-R01, CA-03/05/08/21/22/24/33/36
+e T-02/05/15/17/25/26.

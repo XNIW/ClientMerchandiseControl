@@ -7,13 +7,13 @@
 - **Stato globale**: ACTIVE
 - **Task attivo**: TASK-020
 - **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
-- **Prossima azione autorizzata**: correggere esclusivamente i finding consolidati
-  T020-REV-001…T020-REV-021 e riconsegnare a re-review; nessun `APPROVED`, `DONE` o
-  merge finché finding o gate esterni restano aperti
+- **Stato task**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Prossima azione autorizzata**: re-review indipendente del commit Fix
+  `408f14d`, chiusura puntuale T020-REV-001…T020-REV-021 e verifica dei gate;
+  nessun `APPROVED`, `DONE` o merge finché i gate esterni restano aperti
 
 ## Repository coinvolti
 
@@ -68,7 +68,7 @@
 | TASK-017 | Cache catalogo offline, refresh e invalidazione | TODO | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
 | TASK-018 | Preferiti, condivisione e deep link prodotto | TODO | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
 | TASK-019 | Catalog performance e acceptance su dataset esteso | TODO | TASK-010, TASK-014, TASK-015, TASK-017 | Client, Supabase | Budget prestazioni misurato |
-| TASK-020 | Supabase Auth, deep link e session lifecycle | ACTIVE | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
+| TASK-020 | Supabase Auth, deep link e session lifecycle | BLOCKED | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
 | TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
 | TASK-022 | Registrazione device, consenso notifiche e token lifecycle | TODO | TASK-020, TASK-021 | Client, Supabase | Consenso e token gestiti |
 | TASK-023 | Carrello persistente e price revalidation | TODO | TASK-012, TASK-016, TASK-017 | Client, Supabase | Carrello coerente e rivalidato |
@@ -138,20 +138,22 @@ gli step `success` e annotation 0/0/0. CI closeout `30602210469` è `PASS` sullo
 esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
 `TASK-012` è `DONE` dopo re-review indipendente `APPROVED`; i quattro P2 sono chiusi.
 CI handoff `30606916073` e CI approvazione `30607430241` sono 3/3 `PASS`, tutti gli
-step applicabili `success` e annotation 0/0/0. TASK-020 è l'unico task `ACTIVE` ed è
-in `FIX`; TASK-005–TASK-010 e TASK-013 in avanti restano invariati. La CI
+step applicabili `success` e annotation 0/0/0. TASK-020 resta l'unico task corrente ed
+è `BLOCKED` in `REVIEW`; TASK-005–TASK-010 e TASK-013 in avanti restano invariati. La CI
 closeout `30607868864` è `BLOCKED / CI_EXTERNAL`: due tentativi, zero runner e zero
 step, con billing/spending GitHub come prerequisito esterno.
 
 ## Task attivo — TASK-020
 
 La review A–E sul revision set tecnico `82439dd` / handoff `2f25f3f` ha prodotto
-`CHANGES_REQUIRED`: 0 P0, 1 P1, 18 P2 e 2 P3 consolidati. Il Fix è limitato ai finding
-T020-REV-001…T020-REV-021 e deve tornare a re-review. Redirect allow-list e live OAuth
-restano `BLOCKED` da MFA; callback warm iOS resta `BLOCKED` dal dialogo OS con Mac
-locked; CI run `30614374801` e `30614438284` restano `BLOCKED / CI_EXTERNAL` prima
-dei runner per billing/spending GitHub. D-17 consente Fix/re-review/PR, ma nessun
+`CHANGES_REQUIRED`: 0 P0, 1 P1, 18 P2 e 2 P3 consolidati. Il Fix candidato
+`408f14d` implementa T020-REV-001…T020-REV-021; i gate locali passano con 214/214
+test, coverage 80,1%, build development/staging e smoke fake dual-platform. Deve ora
+tornare a re-review A–E, che sola può chiudere i finding. Redirect allow-list e live
+OAuth restano `BLOCKED` da MFA; callback warm iOS resta `BLOCKED` dal dialogo OS con
+Mac locked; CI run `30614374801` e `30614438284` restano `BLOCKED / CI_EXTERNAL`
+prima dei runner per billing/spending GitHub. D-17 consente re-review/PR, ma nessun
 blocker diventa `PASS` e non sono ammessi `APPROVED`, `DONE` o merge.
 
 Handoff:
-`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

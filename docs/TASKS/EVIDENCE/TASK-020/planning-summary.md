@@ -86,3 +86,7 @@ Planning commit `8eab82b`: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
 
 Autorizzazione end-to-end applicata in transizione distinta:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+La matrice finale CA/T non viene duplicata nello snapshot Planning: il riferimento
+canonico è `commands-and-results.md`, in particolare CA-01…CA-40 e T-01…T-38 con
+command ID della revisione verificata.

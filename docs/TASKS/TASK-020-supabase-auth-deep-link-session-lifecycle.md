@@ -6,15 +6,15 @@
 - **Titolo**: Supabase Auth, deep link e session lifecycle
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-31
 - **Ultimo aggiornamento**: 2026-07-31
-- **Ultimo agente**: CODEX_REVIEWER
+- **Ultimo agente**: CODEX_FIXER
 - **Review outcome**: CHANGES_REQUIRED
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -392,6 +392,48 @@ Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 ## Fix — `CODEX_FIXER`
 
 Autorizzato esclusivamente sui finding T020-REV-001…T020-REV-021 consolidati.
+
+Commit tecnico candidato:
+`408f14d242e9d35bfcefbebd10858dcb9e38d028`.
+
+- T020-REV-001…007 e 020: serializzati cancel/exchange/cleanup, compensazione prima
+  del retry, restore race chiusa, expiry valida distinta da recovery SDK retryable,
+  persistenza esplicita e failure stream, delete sessione/PKCE indipendenti,
+  tombstone ritentati e initialization retryable;
+- T020-REV-008/009: lifecycle reale e callback provider non provati sono
+  riclassificati `BLOCKED`, senza inferire restore/live o configurazione Google;
+- T020-REV-010: rimossi dal diff milestone i tre path TASK-003/004 con commit
+  normale; nessun rebase o force push;
+- T020-REV-011/012: il callback fake parte da Home, seleziona Account e prova il
+  browsing guest durante authenticating, cancelling e offline su Android/iOS;
+- T020-REV-013: matrice Account completa su otto stati, due temi, tre viewport,
+  scala 200%, Semantics/live region, target 48 dp e zero overflow;
+- T020-REV-014/015: matrici con colonna `Tipo`, parser di regressione e scan CI
+  sanitizzato con tre fixture negative;
+- T020-REV-016…019/021: evidence CI/Git, dipendenza marker, command ID, confine
+  publishable config e date locali corretti.
+
+Gate sul commit tecnico:
+
+- `scripts/check.sh`: `PASS`, exit 0; 214/214 test, coverage 1745/2179 (80,1%),
+  analyze zero issue, security/governance/architecture e build development duale;
+- build staging isolate Android/iOS: `PASS`, exit 0;
+- guest, callback fake e readiness staging: Android 3/3 e iOS 3/3 `PASS`;
+- callback warm Android: `PASS`; callback warm iOS: `BLOCKED`, `simctl` exit 0 e
+  harness timeout 30 s per conferma OS non accettabile con Mac locked;
+- allow-list/provider callback e OAuth live: `BLOCKED` da MFA, flag locale ancora
+  `false`, zero write remoto;
+- CI sullo SHA Fix: da richiedere dopo push; i run precedenti restano `BLOCKED /
+  CI_EXTERNAL` per billing/spending.
+
+I finding sono implementati ma non chiusi autonomamente dal fixer: serve re-review
+indipendente A–E. Poiché gate obbligatori restano non superabili, la transizione
+applicabile è:
+
+- **Prossima fase**: REVIEW
+- **Stato task**: BLOCKED
+- **Prossimo ruolo**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 
 ## Chiusura
 

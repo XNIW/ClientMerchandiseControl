@@ -16,6 +16,38 @@ riallineano Master Plan, task attivo e protocollo prima di proseguire.
 Può esistere un solo task `ACTIVE`. Master Plan e task devono concordare su stato, fase,
 responsabile, indicatore e prossima azione.
 
+## Profilo temporaneo `STOREFRONT_V1`
+
+Il prompt utente del 2026-08-01 abilita il profilo definito da
+[`ADR-011`](DECISIONS/ADR-011-storefront-v1-single-integrated-review-release-train.md).
+Il profilo è una deroga temporanea al solo ciclo di handoff, non ai requisiti di qualità,
+sicurezza, evidence o separazione dei ruoli.
+
+La sequenza autorizzata è:
+
+`TODO -> ACTIVE / PLANNING -> ACTIVE / EXECUTION ->`
+`VALIDATED_PENDING_INTEGRATED_REVIEW -> INTEGRATED_REVIEW -> FIX ->`
+`INTEGRATED_REVIEW -> DONE`.
+
+Regole operative:
+
+1. un solo task può essere `ACTIVE / EXECUTION`;
+2. i task tecnicamente completati attendono insieme in
+   `VALIDATED_PENDING_INTEGRATED_REVIEW`;
+3. ogni milestone termina con un checkpoint tecnico verde, non con una review;
+4. nessuna review formale completa viene ripetuta task per task;
+5. al freeze tutti i task pendenti condividono revision manifest e SHA immutabili;
+6. i reviewer integrati sono read-only e distinti dall'unico writer;
+7. finding P0/P1/P2 portano l'intero train a `FIX`, seguito da una sola re-review;
+8. `DONE` e merge normali sono ammessi soltanto con review integrata `APPROVED`, zero
+   P0/P1/P2, gate reali e CI sul revision set finale;
+9. production resta invariata prima dei gate del Milestone 5 e il rollout non supera il
+   5%; spesa, contratti e force push restano vietati.
+
+L'autorizzazione utente è già ricevuta per le transizioni interne e per il closeout
+condizionato. Non è lecito trasformarla in un `PASS` inferito o in un ampliamento di
+scope.
+
 ## Ruoli e proprietà delle sezioni
 
 | Ruolo | Fase | Può aggiornare | Non può fare |
@@ -43,6 +75,11 @@ sessione e non ereditano come fatti i claim dell'autore.
 il tentativo eseguito e il prerequisito di sblocco. Quando il blocco viene rimosso, il
 task riprende nella fase e con il ruolo che erano autorizzati.
 
+Per il solo profilo `STOREFRONT_V1` si aggiungono lo stato task
+`VALIDATED_PENDING_INTEGRATED_REVIEW` e la fase `INTEGRATED_REVIEW`. Il primo significa
+che scope e checkpoint tecnici del task sono verdi ma la review formale non è ancora
+avvenuta; non equivale a `APPROVED` o `DONE`.
+
 ## Transizioni deterministiche
 
 | Da | Condizione | A | Responsabile successivo | Handoff |
@@ -61,6 +98,10 @@ task riprende nella fase e con il ruolo che erano autorizzati.
 La conferma utente per `DONE` non implica automaticamente autorizzazione al merge o
 attivazione del task successivo: le azioni devono essere esplicite. Codex non esegue mai
 merge o auto-merge autonomamente.
+
+Nel profilo `STOREFRONT_V1` l'autorizzazione esplicita al passaggio tra task e al merge
+coordinato finale è già registrata. Resta inefficace finché la review integrata non è
+`APPROVED` e i gate di closeout non sono realmente verdi; l'auto-merge resta vietato.
 
 ## Planning
 
@@ -112,6 +153,19 @@ impatto, correzione richiesta e regression test. Gli esiti significano:
 
 La re-review non verifica soltanto il diff del fix: chiude ogni finding, controlla
 regressioni e riesegue tutti i gate obbligatori che potrebbero essere diventati obsoleti.
+
+### Review integrata Storefront v1
+
+La review formale del train avviene una sola volta dopo il freeze multi-repository. I
+checkpoint precedenti non producono finding formali né outcome. Il revision manifest
+fissa repository, branch, SHA, PR, schema/API e deploy staging. Reviewer read-only
+distinti coprono Product/UX, Supabase/Data Security, Admin, Flutter, Commerce,
+Win7POS, OAuth/Push, CI/Release e il flusso E2E cross-repository. L'unico writer consolida
+i finding nel formato definito dal release train.
+
+Con `CHANGES_REQUIRED`, tutti i task pendenti entrano nel ciclo integrato `FIX`; durante
+il fix si usano test mirati e sul candidato finale si rieseguono i gate completi. La
+re-review verifica finding, regressioni, flow cross-repo, security, manifest, SHA e CI.
 
 ## Fix
 
@@ -187,3 +241,8 @@ L'Execution non passa a Review quando un gate obbligatorio è `FAIL`, `NOT_RUN` 
 gate non superato e il re-reviewer assegna l'esito coerente. Al termine della fase
 autorizzata Codex registra l'handoff e si ferma: non cambia autonomamente scope, non
 attiva il task successivo e non imposta `DONE`.
+
+Nel profilo `STOREFRONT_V1`, un checkpoint verde porta invece il task a
+`VALIDATED_PENDING_INTEGRATED_REVIEW` e attiva il task successivo autorizzato. Il lavoro
+continua fino al freeze, al blocker esterno/pericoloso o al closeout; nessun task diventa
+`DONE` prima della review integrata.

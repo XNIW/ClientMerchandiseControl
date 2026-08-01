@@ -1292,3 +1292,19 @@
   merge commit; worktree pulito; nessun force push/rebase/reset.
 - **Risultato**: CA-40/T-38 `PASS`; TASK-020
   `DONE / REVIEW / USER_APPROVED_DONE`; progetto `IDLE`, nessun task futuro attivo.
+
+## 2026-08-01 — Avvio governance Storefront v1 release train
+
+- **Agente**: `CODEX_PLANNER` -> `CODEX_EXECUTOR`.
+- **Release train**: `STOREFRONT_V1`.
+- **Baseline Client**: `6a50b421057a09d4152653a78512d268a7fa4d69` su worktree
+  dedicato `/Users/minxiang/Projects/_release_train/storefront-v1/ClientMerchandiseControl`.
+- **Governance**: introdotta `ADR-011`, nuovo stato temporaneo
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`, fase `INTEGRATED_REVIEW`, checkpoint tecnici e
+  una sola review formale finale read-only multi-repository.
+- **Autorizzazione**: prompt utente 2026-08-01 registrato come autorizzazione persistente
+  alle transizioni interne e al closeout/merge condizionato ai gate reali.
+- **Tracking**: TASK-005 è l'unico task `ACTIVE / EXECUTION`; task successivi `TODO`.
+- **Artifact**: creati release manifest e checkpoint riprendibile; production invariata.
+- **Prossima azione**: validare la governance, quindi creare worktree Admin pulito e
+  riconfermare migration ownership/ledger/drift prima di qualunque apply staging.

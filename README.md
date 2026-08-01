@@ -137,15 +137,20 @@ Leggere prima [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md), quindi il task attivo 
 dal Master Plan e il [protocollo workflow](docs/CODEX-WORKFLOW-PROTOCOL.md).
 `AGENTS.md` è l'unica istruzione operativa root. Può esistere un solo task attivo;
 Codex assume ruoli logici distinti per planning, execution, review, fix e re-review.
-Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successivo.
+Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successivo. Per
+il release train `STOREFRONT_V1`, l'autorizzazione condizionata è già registrata dal
+prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: nessuno
-- **File task**: non applicabile
-- **Stato task**: non applicabile
-- **Fase**: non applicabile
-- **Indicatore**: USER_APPROVED_DONE
+- **Task attivo**: TASK-005
+- **File task**: docs/TASKS/TASK-005-storefront-schema-rls-migration-ownership.md
+- **Stato task**: ACTIVE
+- **Fase**: EXECUTION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Release train**: STOREFRONT_V1
+- **Stato release train**: EXECUTION
+- **Review integrata**: NOT_RUN
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione
@@ -156,7 +161,7 @@ handoff/approvazione `30606916073` / `30607430241` entrambe 3/3 `PASS`. TASK-020
 `671494f` ha verificato allow-list staging, provider Google, OAuth live Android/iOS,
 callback iOS warm/cold, restore, logout e nuovo login. Finding aperti 0 P0/P1/P2/P3;
 CI finale `30713857455` 3/3 `PASS`, step applicabili `success`, annotation 0/0/0.
-PR #4 è merged normalmente con commit `b2d70b5`; branch remoto eliminato,
-`main == origin/main` e worktree pulito. L'handoff è `USER_APPROVED_DONE` e nessun
-task è attivo. TASK-005–TASK-010,
-TASK-013–TASK-019 e TASK-021 in avanti non sono attivi.
+PR #4 è merged normalmente con commit `b2d70b5`; branch remoto eliminato e il closeout
+su `main` è stato verificato dalla CI `30714350425`. Il release train Storefront v1 è
+ora in `EXECUTION` sul worktree dedicato: TASK-005 è l'unico task attivo; gli altri task
+del train restano `TODO` fino al rispettivo checkpoint.

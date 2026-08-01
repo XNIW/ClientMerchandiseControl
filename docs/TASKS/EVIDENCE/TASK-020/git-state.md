@@ -1,6 +1,6 @@
 # Git state — TASK-020
 
-## Snapshot Re-review 4
+## Snapshot ripresa Prelude — 2026-08-01
 
 - Branch: `milestone/011-012-020-authenticated-storefront-foundation`
 - Base milestone implementation: `9ab32c9`
@@ -32,7 +32,9 @@
   `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`
 - Handoff Fix 4 -> Re-review 4:
   `c0ebd750404207ac417faac4e0ff6c04af5940fd`
-- Tracking Re-review 4: branch locale, upstream e head PR allineati a `c0ebd75`;
+- Closeout Re-review 4 e HEAD della ripresa:
+  `06768266fdba498011a65102472c66d482c2f8b6`
+- Tracking ripresa: branch locale, upstream e head PR allineati a `0676826`;
   `+0/-0`
 - Config staging locale: ignorata, non tracciata e assente dallo status
 - Build/coverage artifact: non tracciati e assenti dallo status
@@ -42,15 +44,16 @@
 - Worktree durante i cinque shard A–E read-only: pulito
 - Worktree al momento di questa evidence: contiene soltanto task/evidence/worklog
   della transizione Review `BLOCKED`, da committare selettivamente
-- PR: #4 `OPEN/DRAFT`, base `main`, head remoto `c0ebd75`, mergeable
+- PR: #4 `OPEN/DRAFT`, base `main`, head remoto `0676826`, mergeable
   `MERGEABLE`, merge state `UNSTABLE`
 - Scope PR remoto: 143 path, confinati a TASK-011/TASK-012/TASK-020 e fondazione
   condivisa; zero path TASK-003/004
 - Commit/push handoff Fix 4: `PASS`
-- CI sullo SHA handoff: run `30631361964`, `BLOCKED / CI_EXTERNAL`, tre job
+- CI sullo SHA corrente: run `30632938353`, `BLOCKED / CI_EXTERNAL`, tre job
   senza runner o step e una annotation billing/spending per job
 - Re-review A–E: 0 P0/P1/P2/P3; esito complessivo `BLOCKED`
-- Merge/main sync: `BLOCKED` da CI, MFA/live OAuth e callback warm iOS
+- Callback warm iOS: `PASS`, CMD-P01, exit 0 e 1/1
+- Merge/main sync: `BLOCKED` da CI e login/MFA Supabase per allow-list/live OAuth
 
-Comandi: `commands-and-results.md`, CMD-W01/W03/W04,
+Comandi: `commands-and-results.md`, CMD-W01/W03/W04/CMD-P01/P02/P03/P04,
 CA-01/02/40 e T-01/37/38.

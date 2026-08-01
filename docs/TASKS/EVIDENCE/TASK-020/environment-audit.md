@@ -65,16 +65,17 @@ resta locale, ignorato e non entra in stage, diff o evidence.
 
 ## Limiti osservati
 
-- La dashboard ha raggiunto il controllo MFA; non sono stati inseriti fattori,
-  password, OTP o altre credenziali.
+- Il Dashboard richiede un nuovo login GitHub/MFA e la Management API restituisce
+  HTTP 401 dal token CLI in Keychain; non sono stati inseriti o stampati fattori,
+  password, OTP, token o altre credenziali.
 - Il connector Supabase espone discovery/database ma non Auth config o redirect
   allow-list; il CLI non offre un point-update sicuro equivalente.
-- Il simulatore iOS richiede conferma OS per aprire il custom scheme e il Mac locked
-  impedisce l'interazione locale.
-- La CI TASK-020 run `30631361964` sullo SHA handoff Fix 4 `c0ebd75` ha tre job
+- Il simulatore iOS ha consegnato il callback warm canonico in CMD-P01: harness
+  1/1 `PASS`, exit 0. OAuth live resta distinto e non è inferito.
+- La CI TASK-020 run `30632938353` sullo SHA `0676826` ha tre job
   senza step, `runner_id=0` e una annotation/job per billing/spending GitHub;
   resta `BLOCKED / CI_EXTERNAL`.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-X01/X02/CMD-Z01/Z02/Z04/CMD-R01/CMD-W04,
+`commands-and-results.md`, CMD-X01/X02/CMD-Z01/Z02/Z04/CMD-R01/CMD-P01/P02/P03,
 CA-01/03/04/11…CA-13/35…CA-39 e T-01…T-04/26…T-36.

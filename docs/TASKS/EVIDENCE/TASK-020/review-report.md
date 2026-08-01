@@ -506,3 +506,20 @@ L'implementazione non presenta finding aperti, ma i gate obbligatori esterni non
 sono stati eseguiti con successo. `APPROVED`, `DONE` e merge non sono autorizzati.
 
 Handoff: `CODEX_REVIEW_BLOCKED`.
+
+## Addendum Re-review 5 — ripresa Prelude 2026-08-01
+
+Revision set: `06768266fdba498011a65102472c66d482c2f8b6`.
+
+- `PASS`: callback warm iOS, CMD-P01, `simctl` exit 0, harness exit 0, 1/1;
+- `BLOCKED`: Supabase allow-list, CMD-P02, Dashboard login richiesto e Management
+  API HTTP 401, zero write;
+- `BLOCKED`: CI run `30632938353`, tre job con `runner_id=0`, zero step e una
+  annotation billing/spending ciascuno;
+- `PASS`: governance, parser 12/40/38, scanner 336 file e `git diff --check`,
+  CMD-P05, exit 0;
+- 0 P0, 0 P1, 0 P2 e 0 P3 aperti.
+
+Esito: `BLOCKED`. Il blocker iOS è chiuso; OAuth live e CI restano obbligatori.
+
+Handoff: `CODEX_REVIEW_BLOCKED`.

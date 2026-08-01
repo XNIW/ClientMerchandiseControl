@@ -32,8 +32,10 @@ Snapshot di handoff:
   artifact finali 548 + 81 = 629 file
 - Re-review 4: `BLOCKED` — cinque shard A–E, 0 P0/P1/P2/P3; entrambi i finding
   RR3 chiusi; scanner 32/32 + 2/2 e 21/21 probe `PASS`
+- Ripresa Prelude 2026-08-01: callback warm iOS `PASS` sullo SHA `0676826`;
+  Supabase Auth config ancora `BLOCKED` dopo Dashboard login richiesto e API 401
 - CI: `BLOCKED / CI_EXTERNAL`
-- PR/merge: draft PR #4 sull'handoff `c0ebd75`; run `30631361964` senza runner;
+- PR/merge: draft PR #4 sullo SHA `0676826`; run `30632938353` senza runner;
   merge `BLOCKED`
 - DONE: `NO`
 
@@ -66,11 +68,9 @@ duplicazioni che potrebbero divergere.
 
 ## Blocchi esterni aperti
 
-- Supabase dashboard: MFA necessario per leggere/modificare la redirect allow-list;
-  nessun write remoto è stato eseguito.
-- iOS Simulator: conferma OS del custom scheme pendente; il Mac locked impedisce
-  l'accettazione automatica del dialogo.
-- GitHub Actions: la run `30631361964` sullo SHA handoff Fix 4 ha tre job senza
+- Supabase dashboard: login e MFA necessari per leggere/modificare la redirect
+  allow-list, oppure rinnovo del token CLI; nessun write remoto è stato eseguito.
+- GitHub Actions: la run `30632938353` sullo SHA corrente ha tre job senza
   step, fermati prima del runner dal limite billing/spending.
 
 Le evidence finali dovranno contenere esattamente una riga per ciascuno dei 40 CA e

@@ -23,7 +23,9 @@
   `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`
 - SHA handoff Fix 4:
   `c0ebd750404207ac417faac4e0ff6c04af5940fd`
-- Workflow sullo SHA handoff Fix 4: run `30631361964`, `BLOCKED / CI_EXTERNAL`
+- SHA closeout Re-review 4 e ripresa Prelude:
+  `06768266fdba498011a65102472c66d482c2f8b6`
+- Workflow sullo SHA corrente: run `30632938353`, `BLOCKED / CI_EXTERNAL`
 - Auth fake, build Android/iOS, security/pin scan in CI sullo handoff: `BLOCKED`; nessuno
   step ha acquisito un runner
 
@@ -140,6 +142,17 @@ singola annotation billing/spending su `.github:1` ciascuno. `gh run view`, la
 query job e le tre query annotation sono terminate con exit 0; la CI non ha
 eseguito codice del repository.
 
+## Run reale sullo SHA closeout Re-review 4
+
+| Run | Trigger | SHA | Job | Step | Annotation | Esito |
+|---|---|---|---:|---:|---:|---|
+| `30632938353` | `pull_request` | `0676826` | 3/3 `failure` | 0 | 1/job | BLOCKED |
+
+I job iOS (`91163413580`), Quality (`91163413595`) e Android
+(`91163413668`) hanno `runner_id=0`, `steps: []` e una singola annotation
+billing/spending ciascuno. `gh run view`, la query job e le tre query annotation
+sono terminate con exit 0; nessun codice repository è stato eseguito.
+
 - **Causa**: `CI_EXTERNAL`, billing/spending GitHub.
 - **Tentativi**: dispatch manuale e trigger PR reali.
 - **Prerequisito**: ripristino Billing & plans/spending limit da parte del titolare.
@@ -148,5 +161,5 @@ eseguito codice del repository.
 Nessun Google OAuth live, file staging locale, secret o account deve entrare in CI.
 
 Matrice CA/T canonica e command evidence: `commands-and-results.md`,
-CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02/CMD-X14/CMD-X15/CMD-Y04/CMD-Z07/CMD-Z08/CMD-W04,
+CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02/CMD-X14/CMD-X15/CMD-Y04/CMD-Z07/CMD-Z08/CMD-W04/CMD-P03,
 CA-39 e T-36.

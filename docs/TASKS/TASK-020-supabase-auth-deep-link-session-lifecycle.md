@@ -10,7 +10,7 @@
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-31
-- **Ultimo aggiornamento**: 2026-07-31
+- **Ultimo aggiornamento**: 2026-08-01
 - **Ultimo agente**: CODEX_RE_REVIEWER
 - **Review outcome**: BLOCKED
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
@@ -524,6 +524,33 @@ Verifiche autonome:
 Restano `BLOCKED` la redirect allow-list/OAuth live per MFA umano, la callback warm
 iOS per il dialogo OS con Mac locked e la CI prima del runner per billing/spending.
 Nessun `PASS` live/remoto è inferito.
+
+Esito: `BLOCKED`.
+
+Handoff: `CODEX_REVIEW_BLOCKED`.
+
+### Ripresa Re-review 5 — Prelude Storefront v1
+
+La ripresa sullo SHA `06768266fdba498011a65102472c66d482c2f8b6` ha rieseguito
+i gate esterni e il preflight autorizzato senza modificare codice applicativo:
+
+- callback warm iOS: `PASS`; Xcode build completata, `simctl` exit 0, harness
+  exit 0 e 1/1, callback canonico consegnato da `app_links`, zero exchange;
+- Supabase staging: `BLOCKED`; unico progetto non-production `ACTIVE_HEALTHY`, ma
+  il Dashboard richiede login GitHub/MFA e la Management API ufficiale risponde
+  HTTP 401 dal token CLI in Keychain; due percorsi distinti, zero write remoto;
+- CI: `BLOCKED / CI_EXTERNAL`; run `30632938353`, job iOS `91163413580`,
+  Quality `91163413595` e Android `91163413668`, tutti `runner_id=0`, zero
+  step e una annotation billing/spending ciascuno;
+- PR #4: `OPEN/DRAFT`, `MERGEABLE/UNSTABLE`, head `0676826`;
+- governance/evidence/security: `PASS`, CMD-P05, exit 0, parser 12/40/38 e
+  scanner 336 file;
+- finding: 0 P0, 0 P1, 0 P2 e 0 P3.
+
+Il callback warm iOS non è più un blocker. Restano esterni e obbligatori il login/MFA
+Supabase o il rinnovo del token CLI per aggiungere e verificare l'allow-list, gli
+smoke OAuth/restore/logout live e il ripristino GitHub Billing & plans. TASK-020,
+PR #4 e i milestone successivi non possono avanzare.
 
 Esito: `BLOCKED`.
 

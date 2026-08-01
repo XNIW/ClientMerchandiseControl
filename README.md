@@ -154,8 +154,9 @@ TASK-012 è `DONE` con re-review indipendente `APPROVED`, quattro P2 chiusi e CI
 handoff/approvazione `30606916073` / `30607430241` entrambe 3/3 `PASS`. TASK-020
 resta l'unico task corrente ed è `BLOCKED` in `REVIEW`: la re-review 4 sul tecnico
 `9dbd535` / handoff `c0ebd75` ha chiuso entrambi i finding RR3, con 0 P0/P1/P2/P3,
-scanner 32/32 negative + 2/2 positive e 21/21 probe. Redirect allow-list/live OAuth
-restano bloccati da MFA; callback warm iOS dal dialogo OS; CI handoff run
-`30631361964` dal billing/spending prima del runner. Nessuno di questi gate è
+scanner 32/32 negative + 2/2 positive e 21/21 probe. La callback warm iOS è ora
+`PASS` sullo SHA `0676826`; redirect allow-list/live OAuth restano bloccati da
+login/MFA Supabase o token CLI da rinnovare, mentre la CI run `30632938353` resta
+ferma per billing/spending prima del runner. Nessuno dei gate ancora aperti è
 dichiarato `PASS`; l'handoff è `CODEX_REVIEW_BLOCKED`. TASK-005–TASK-010,
 TASK-013–TASK-019 e TASK-021 in avanti non sono attivi.

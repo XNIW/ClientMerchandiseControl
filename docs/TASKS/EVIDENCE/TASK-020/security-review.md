@@ -61,8 +61,9 @@ Rischi residui:
   persistenti, un processo successivo non può distinguere l'intento di logout da
   uno stato precedente; il processo corrente resta `configurationError`. Il journal
   file chiude l'interleaving riproducibile in cui falliscono i due marker precedenti;
-- redirect allow-list e live OAuth restano `BLOCKED` da MFA;
-- la conferma OS iOS del custom scheme resta `BLOCKED` mentre il Mac è locked.
+- redirect allow-list e live OAuth restano `BLOCKED` da login/MFA Supabase;
+- la callback warm iOS è stata consegnata e validata in CMD-P01; questa prova non
+  sostituisce OAuth live, restore e logout reali.
 - lo scanner tratta conservativamente come non pubblicabile qualunque JWT che non
   contenga un JSON object con un solo ruolo scalare letterale `anon`; escape Unicode
   e campi `role` annidati/duplicati sono respinti anche se innocui, con possibile
@@ -75,6 +76,6 @@ Rischi residui:
 Nessun `PASS` remoto o live è inferito.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-X01/X03/CMD-Z01/Z02/Z05/CMD-W01/W02/CMD-R01,
+`commands-and-results.md`, CMD-X01/X03/CMD-Z01/Z02/Z05/CMD-W01/W02/CMD-P01/CMD-R01,
 CA-03/05/08/21/22/24/33/36
 e T-02/05/15/17/25/26.

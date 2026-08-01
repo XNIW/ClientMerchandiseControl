@@ -1208,3 +1208,30 @@
 - **Risultato**: `CODEX_REVIEW_BLOCKED`.
 - **Blocker/note**: implementazione senza finding aperti ma gate obbligatori non
   superati; nessun `APPROVED`, `DONE`, merge o task futuro è autorizzato.
+
+## 2026-08-01 — Ripresa Prelude Storefront v1 e Re-review 5 TASK-020
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> REVIEW; stato task `BLOCKED`
+- **Revision set**: `06768266fdba498011a65102472c66d482c2f8b6`.
+- **iOS warm callback**: `PASS`; build Xcode completata, `simctl` exit 0,
+  harness exit 0, 1/1, callback canonico consegnato da `app_links`, zero exchange
+  e processo vivo. Il blocker dialogo/Mac locked è chiuso.
+- **Supabase staging**: `BLOCKED`; discovery conferma un solo progetto
+  non-production `ACTIVE_HEALTHY`. Il Dashboard richiede login GitHub/MFA e la
+  Management API ufficiale restituisce HTTP 401 dal token CLI in Keychain. Due
+  percorsi distinti, zero write e nessuna credenziale stampata.
+- **CI**: run `30632938353` sullo SHA esatto; job iOS `91163413580`, Quality
+  `91163413595` e Android `91163413668`, tutti `runner_id=0`, zero step e una
+  annotation billing/spending ciascuno. Nessun codice repository è stato eseguito.
+- **Preflight repository**: Client e Admin root puliti; checkout Win7POS e
+  MerchandiseControlSplitView dirty non riconosciuti e preservati; checkout
+  iOSMerchandiseControl assente. Nessun repository esterno è stato modificato.
+- **Finding**: 0 P0, 0 P1, 0 P2 e 0 P3.
+- **Validator**: governance, parser 12 file/40 CA/38 T, scanner 336 file e
+  `git diff --check` `PASS`, CMD-P05, exit 0.
+- **Risultato**: `CODEX_REVIEW_BLOCKED`.
+- **Intervento umano preciso**: autenticare Supabase Dashboard e completare MFA
+  oppure rinnovare il token CLI, e ripristinare GitHub Billing & plans/spending
+  limit. Solo allora sono eseguibili allow-list, OAuth live, CI, DONE e merge PR #4.

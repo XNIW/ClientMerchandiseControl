@@ -164,6 +164,51 @@ Per TASK-004 lo smoke usa development senza define su entrambi i simulatori, ver
 avvio e interazione con la shell offline, banner tecnico debug e assenza di
 inizializzazione Supabase. Non effettua login, connessione staging o test live remoti.
 
+## Gate specifici TASK-011
+
+- `BackendReadinessState` contiene i sette stati richiesti e non deriva `ready` dalla
+  sola configurazione o inizializzazione;
+- development e production eseguono zero initialize/probe; staging usa soltanto
+  `GET /auth/v1/health` con `apikey` e redirect disabilitati;
+- timeout completa l'abort trigger reale; dispose e cancel ignorano risultati obsoleti;
+- mapping copre 200/payload, 401/403/404, 408/429/5xx, risposta invalida e trasporto;
+- check iniziale e retry concorrenti sono single-flight; non esistono polling,
+  auto-retry o loop su resume;
+- UI customer-safe localizzata copre initializing/offline/misconfigured/auth-required/
+  recoverable, retry accessibile e browsing guest non bloccato;
+- Android main contiene `INTERNET`; iOS non contiene eccezioni ATS permissive;
+- test mirati:
+  `flutter test test/core/backend test/features/shell/backend_readiness_banner_test.dart`;
+- smoke reale staging Android/iOS tramite
+  `integration_test/backend_readiness_smoke_test.dart` e file locale ignorato;
+- build staging Android/iOS con `--dart-define-from-file`, separati dagli smoke;
+- scan statico conferma zero query/RPC/Storage/inventory, zero valori staging e zero
+  session/token nei log.
+
+## Gate specifici TASK-012
+
+- test unit/widget mirati per Home, Catalogo, Carrello, Account e shell, inclusi tutti
+  gli stati readiness, CTA, tab persistence, back e port presentazionali;
+- parità automatica delle chiavi e dei placeholder ARB per es-CL, it, en e zh-Hans,
+  bundle tecnico `app_zh` sincronizzato e fallback es-CL verificato;
+- rendering delle quattro destinazioni light/dark e al 200% sui viewport 320×568,
+  568×320, 390×844 e 1024×768, con inset SafeArea;
+- ispezione di heading, live region, label, icone decorative e assenza di Semantics
+  duplicate; ogni target interattivo è almeno 48×48 dp;
+- contenuto full-width entro il max-width, scroll-to-end e bounds dimostrano testo e
+  CTA completi, raggiungibili e tappabili;
+- scan data-safe conferma zero prodotti, prezzi, stock, sconti, immagini o urgenza
+  inventati e zero query/RPC/Storage/inventory;
+- Account runtime guest, Google fail-closed senza callback, authenticated soltanto
+  tramite modello iniettato e logout obbligatorio;
+- smoke reale guest Android/iOS tramite `integration_test/app_guest_flow_test.dart`,
+  con quattro tab, CTA, back, tema, testo 200%, orientamenti e screenshot sanitizzati;
+- build debug Android/iOS e gate aggregato restano distinti dagli smoke.
+
+I test mirati principali sono:
+
+`flutter test test/features test/app/design_system/task012_reflow_accessibility_test.dart test/app/client_merchandise_control_app_test.dart test/l10n`
+
 ## Gate security
 
 Nessun secret, configurazione locale, dato cliente, provisioning profile, certificato,
@@ -181,6 +226,17 @@ chiavi moderne/legacy privilegiate, configurazioni production e file
 `config/*.local.json`. La publishable key non è un secret, ma il valore staging reale
 resta fuori da Git, log ed evidence; la scansione deve registrare soltanto esito e classe
 del controllo.
+
+Per TASK-011 la scansione copre inoltre request health, redirect, timeout/cancellation,
+permission Android, opzioni Auth disabilitate, query dati vietate, config locale e
+output smoke. La publishable key è inviata soltanto al gateway staging validato e non
+deve apparire in log, eccezioni, widget o evidence.
+
+Per TASK-012 la scansione copre inoltre stringhe customer-facing fuori dagli ARB,
+colori/metriche funzionali hardcoded, dati commerciali sintetici, query o I/O autonomo,
+sessioni/token, URI avatar interpretati dal widget, callback OAuth, nuove dipendenze,
+config locale e artifact. La UI authenticated di test non costituisce una sessione e
+non può rendere operativo Google prima di TASK-020.
 
 ## Gate CI
 

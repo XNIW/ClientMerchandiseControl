@@ -553,3 +553,726 @@
 - **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 - **Blocker/note**: autorizzazione condizionata già concessa; PR batch, CI pull
   request e merge normale restano i gate successivi. TASK-011 resta `TODO`.
+
+## 2026-07-30 — Merge batch TASK-003/TASK-004
+
+- **Agente**: `USER_APPROVER` / merge registrato da `CODEX_PLANNER`
+- **Milestone**: TASK-003/TASK-004
+- **Azioni principali**: aperta PR #3 con titolo esatto, verificata la CI pull request
+  sullo SHA sorgente revisionato ed eseguito merge normale senza override.
+- **Verifiche**: run `30596267634` sullo SHA
+  `ee58f29c9402f286a038f7cc79f1043539ea0b25`; Quality, Android e iOS `PASS`, tutti
+  gli step `success`, annotation 0/0/0; merge commit
+  `40d118eebf78eeabea9e26747adb00053dd875bc`; main locale e origin allineati.
+- **Risultato**: `PASS`; gate batch chiuso.
+- **Blocker/note**: nessuno; nessun task successivo attivato prima del merge.
+
+## 2026-07-30 — Planning TASK-011
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: PLANNING
+- **Azioni principali**: attivato il solo TASK-011; definiti state model, probe Auth
+  data-free abortibile, mapping errori, retry manuale single-flight, UI sanitizzata,
+  permission Android, test e smoke staging dual-platform.
+- **Verifiche Planning**: unico progetto non-production canonico sano; config staging
+  locale valida/ignorata/non tracciata; health ufficiale HTTP 200 con schema valido;
+  zero write del client/azioni Planning; Android/iOS simulator disponibili.
+- **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+- **Blocker/note**: nessun blocker; l'autorizzazione condizionata è già nel prompt e
+  sarà applicata con transizione esplicita. OAuth e allow-list restano TASK-020.
+
+## 2026-07-30 — Autorizzazione Planning TASK-011
+
+- **Agente**: `USER_APPROVER` / transizione registrata da `CODEX_EXECUTOR`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: PLANNING -> EXECUTION
+- **Azioni principali**: applicata l'autorizzazione condizionata del prompt end-to-end
+  con una transizione distinta, senza cambiare scope, criteri, test o decisioni.
+- **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+- **Blocker/note**: nessuno; client e azioni Codex TASK-011 restano read-only.
+  Il traffico Admin esterno concorrente non è attribuito al task; OAuth/allow-list
+  restano TASK-020.
+
+## 2026-07-30 — Execution TASK-011
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: EXECUTION -> REVIEW
+- **Commit tecnico**: `2e646595ad01807be292179adc61013fdd1b2700`
+- **Azioni principali**: introdotti health service abortibile, mapping repository,
+  controller Riverpod single-flight, shell non bloccante, messaggi localizzati,
+  permission Android e test data-free.
+- **Verifiche**: suite completa 105/105, analyze pulito, `scripts/check.sh`, build
+  staging Android/iOS, probe host sanitizzato e smoke reali 1/1 su Android Emulator e
+  iOS Simulator; scan query/secret/config/artifact/network tutti `PASS`.
+- **CI tecnica**: run `30598076908` sullo SHA esatto, Quality/Android/iOS 3/3
+  `success`, tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+- **Blocker/note**: `CA-31` e `T-28` attendono Review indipendente; `CA-32` e `T-29`
+  attendono la CI sullo SHA finale. Nessun write è stato eseguito dal client o dalle
+  azioni Codex TASK-011; il traffico Admin esterno concorrente non è attribuito al task.
+
+## 2026-07-30 — Review indipendente TASK-011
+
+- **Agente**: `CODEX_REVIEWER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revisione**: `b4b2234f889df91ea422b769153f662c942dadf3`
+- **Shard**: runtime/architettura, platform/UI/evidence e security/confinement, tutte
+  read-only e distinte dall'Executor.
+- **Finding**: 0 P0, 0 P1, 5 P2, 1 P3. I P2 riguardano identità GoTrue, copertura
+  auto-check/recoverable, smoke via bootstrap e evidence dual-platform; il P3 limita
+  la dimensione del body.
+- **Verifiche autonome**: suite 105/105, shard 38/38, 44/44 e 62/62, analyze,
+  architecture/fixture, scan security e CI `30598639082` sullo SHA esatto 3/3
+  `success`. Due mutation sono sopravvissute e lo smoke non esercita l'entrypoint.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: PR, `DONE` e TASK-012 vietati fino a Fix e re-review.
+
+## 2026-07-30 — Fix TASK-011
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: FIX -> REVIEW
+- **Commit tecnico**: `8621606d03d06b70f2a421c985c63b96ee3ef47a`
+- **Fix**: chiusi i cinque P2 e il P3 con identità GoTrue stretta, body 8 KiB,
+  regressioni auto-check/recoverable e smoke via bootstrap con navigazione.
+- **Verifiche**: mutation RED, 108/108, analyze, `scripts/check.sh`, build staging,
+  smoke Android/iOS 1/1, due screenshot sanitizzati e scan log/config/secret.
+- **CI**: run `30599648372` sullo SHA esatto; Quality, Android e iOS 3/3 `success`,
+  tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: nessun gate Fix aperto; re-review indipendente obbligatoria prima
+  dell'approvazione. Client e azioni Codex TASK-011 restano zero-write; nessun claim
+  sull'attività globale concorrente del progetto condiviso.
+
+## 2026-07-30 — Re-review TASK-011, ciclo 1
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revisione**: `3c830b6c2708c491ee26fd8e7c7f3b0bc7e79a8e`
+- **Finding originali**: `T011-REV-001`–`006` tutti `CLOSED`; 0 nuovi finding
+  tecnici P0/P1/P2/P3.
+- **Nuovo finding**: `T011-REREV-SEC-001` P2. I log read-only separano health GET del
+  client da traffico Auth Admin esterno concorrente; i claim zero-write globali nelle
+  evidence sono troppo ampi.
+- **Verifiche**: mutation, 108/108, analyze, smoke dual-platform, screenshot/digest,
+  scan security e CI `30600113945` 3/3 `success`, annotation 0/0/0.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: Fix solo documentale/provenance; nessun codice o remoto da
+  modificare, nessun identificatore sensibile da persistere.
+
+## 2026-07-30 — Fix provenance TASK-011
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: FIX -> REVIEW
+- **Scope**: solo `T011-REREV-SEC-001`; zero modifiche a codice o remoto.
+- **Correzione**: tutte le evidence attive distinguono il writer set client/azioni
+  Codex TASK-011, verificato zero-write, dal traffico Admin staging esterno concorrente
+  osservato e non attribuito al task.
+- **Sanitizzazione**: nessun email, IP, UUID, request ID, URL/ref completa o dato
+  cliente persistito.
+- **Verifiche**: scan claim, `git diff --check`, governance e confinement documentale
+  `PASS`.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: seconda re-review obbligatoria; `CA-04` invariato.
+
+## 2026-07-30 — Re-review TASK-011, ciclo 2
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revisione**: `978b25781605e9c20b4702c3aed6dd7b196803cd`
+- **Finding**: `T011-REREV2-PROV-001` P2 per due claim worklog non task-scoped;
+  `T011-REREV2-GOV-002` P2 per registrazione Fix nella sezione Review e auto-chiusura
+  prematura del finding.
+- **Verifiche**: due sessioni read-only; diff documentale, governance, sanitizzazione,
+  confinement, branch/origin `PASS`; CI `30600817975` sullo SHA esatto 3/3 `success`,
+  tutti gli step `success`, annotation 0/0/0.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: correzione limitata a documentazione; nessun codice o remoto.
+
+## 2026-07-30 — Fix claim e proprietà sezioni TASK-011
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: FIX -> REVIEW
+- **Scope**: esclusivamente `T011-REREV2-PROV-001` e `T011-REREV2-GOV-002`.
+- **Correzione**: i due claim del worklog qualificano ora client/azioni Codex TASK-011
+  e separano il traffico Admin esterno; la registrazione Fix 2 è sotto `## Fix` e
+  l'evidence dichiara di indirizzare, non chiudere, il finding.
+- **Verifiche**: scan claim attivi/storici, proprietà heading, sanitizzazione,
+  `git diff --check` e governance `PASS`.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: terza re-review indipendente obbligatoria; nessun codice o remoto.
+
+## 2026-07-30 — Re-review TASK-011, ciclo 3
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: REVIEW -> REVIEW
+- **Revisione**: `a1a2818479df7b5e432f10f426e80388bc317a65`
+- **Chiusure**: `T011-REREV2-PROV-001`, `T011-REREV-SEC-001` e
+  `T011-REREV2-GOV-002` `CLOSED`; 0 P0/P1/P2 nuovi o aperti.
+- **Verifiche**: due shard read-only; claim task-scoped, traffico esterno separato,
+  proprietà sezioni, sanitizzazione, governance, worktree/origin e confinement `PASS`.
+- **CI finale**: `30601320650` sullo SHA revisionato; Quality/Android/iOS 3/3
+  `success`, tutti gli step `success`, annotation 0/0/0.
+- **Osservazione**: una nota P3 non bloccante su due etichette storiche Fix; nessun
+  impatto su stato, criteri o handoff.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+- **Blocker/note**: nessuno; la conferma condizionata richiede transizione distinta.
+
+## 2026-07-30 — Autorizzazione utente e closeout TASK-011
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-011
+- **Fase iniziale/finale**: REVIEW -> REVIEW; ACTIVE -> DONE
+- **Prerequisiti**: re-review `APPROVED` sullo SHA
+  `a1a2818479df7b5e432f10f426e80388bc317a65`; CI re-review `30601320650`
+  e CI approvazione `30601758281` entrambe 3/3 `PASS`, tutti gli step `success`,
+  annotation 0/0/0.
+- **Autorizzazione**: applicata la conferma condizionata del prompt end-to-end in una
+  transizione distinta; nessuna estensione di scope.
+- **Risultato**: `USER_APPROVED_DONE`.
+- **Blocker/note**: CI sul commit closeout `NOT_RUN`; TASK-012 resta `TODO`; PR,
+  review integrata e merge del milestone restano `NOT_RUN`.
+
+## 2026-07-30 — Attestazione CI closeout TASK-011
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-011
+- **Stato**: DONE
+- **Commit closeout**: `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`
+- **CI**: run `30602210469`; Quality, Android debug e iOS Simulator 3/3 `success`;
+  tutti gli step `success`; annotation 0/0/0.
+- **Verifiche Git**: worktree pulito, branch e origin allineati sullo SHA closeout
+  prima dell'attestazione.
+- **Risultato**: `PASS`.
+- **Blocker/note**: nessuno; TASK-012 resta `TODO` fino a transizione distinta.
+
+## 2026-07-30 — Planning TASK-012
+
+- **Agente**: `CODEX_PLANNER`
+- **Task**: TASK-012
+- **Fase iniziale/finale**: nessuna -> PLANNING
+- **Prerequisiti**: TASK-002 e TASK-011 `DONE`; CI closeout TASK-011
+  `30602210469` 3/3 `PASS`; repository iniziale pulito e allineato a origin.
+- **Analisi**: indexed stack, token Material 3, locale e readiness esistono; le
+  quattro schermate sono ancora placeholder generici. I P3 TASK-002 su scroll/bounds
+  e larghezza cosmetica sono assorbiti nei criteri TASK-012.
+- **Scope**: shell customer-safe Home/Catalogo/Carrello/Account, browsing guest,
+  contratto Account guest/authenticated solo presentazionale, a11y, l10n, responsive
+  e smoke dual-platform.
+- **Confini**: nessun dato o query commerciale, nessuna mutazione remota, nessun
+  OAuth/session/token prima di TASK-020, nessuna nuova dipendenza o asset.
+- **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+- **Blocker/note**: nessuno; autorizzazione condizionata già presente nel prompt
+  end-to-end, da applicare in una transizione distinta.
+
+## 2026-07-30 — Autorizzazione Planning TASK-012
+
+- **Agente**: `USER_APPROVER` / transizione registrata da `CODEX_EXECUTOR`
+- **Task**: TASK-012
+- **Fase iniziale/finale**: PLANNING -> EXECUTION
+- **Azioni principali**: applicata l'autorizzazione condizionata del prompt end-to-end
+  con un commit distinto, senza cambiare scope, criteri, test o decisioni.
+- **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+- **Blocker/note**: nessuno; OAuth, callback, session lifecycle e modifiche Supabase
+  restano TASK-020.
+
+## 2026-07-30 — Emendamento gate Planning TASK-012
+
+- **Agente**: `USER_APPROVER` / registrazione di `CODEX_EXECUTOR`
+- **Task**: TASK-012
+- **Fase**: EXECUTION, prima delle modifiche tecniche
+- **Autorità**: requisiti già presenti nel prompt end-to-end e nei quality gate
+  versionati; nessuna espansione di scope.
+- **Correzioni**: tipi di verifica normalizzati, gate obbligatori e screenshot
+  esplicitati, retry offline riallineato a TASK-011 e provenance baseline resa
+  riproducibile.
+- **Risultato**: Planning riallineato; implementazione tecnica ancora `NOT_RUN`.
+- **Blocker/note**: nessuno.
+
+## 2026-07-30 — Execution TASK-012 e handoff a Review
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-012
+- **Fase iniziale/finale**: EXECUTION -> REVIEW
+- **Commit tecnico**:
+  `14cdc5175b9a596c8a4237e6796fefe3e7beda63`
+- **Azioni principali**: realizzate Home, Catalogo, Carrello e Account guest
+  customer-safe; completati design system, quattro locale, Semantics, reflow e
+  integration guest; nessun dato, query o OAuth anticipato.
+- **Failure osservati**: Semantics Google disabilitato, clamp scroll Home e due difetti
+  harness; tutti risolti con regressioni e registrati in `development-findings.md`.
+- **Verifiche locali**: analyze `PASS`; 139/139; gate aggregato e build Android/iOS
+  `PASS`; smoke reali Android/iOS 1/1; tre screenshot sanitizzati; scan secret,
+  config, artifact, dati e remote write `PASS`.
+- **CI tecnica**: run `30604787251`, Quality/Android/iOS 3/3 `success`, tutti gli step
+  `success`, annotation 0/0/0 sullo SHA tecnico.
+- **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+- **Blocker/note**: nessuno; review indipendente obbligatoria. TASK-020 non è attivo.
+
+## 2026-07-30 — Review indipendente TASK-012 e handoff a Fix
+
+- **Agente**: `CODEX_REVIEWER`, due shard read-only indipendenti
+- **Task**: TASK-012
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revision set**: tecnico `14cdc5175b9a596c8a4237e6796fefe3e7beda63`;
+  handoff `c4dc7af4df2e96a487d4e9c2e07ed4eab5428b23`.
+- **Verifiche**: suite completa 139/139, analyze, smoke Android/iOS, dump UIAutomator,
+  locale/ARB, reflow, governance, diff/security/confinement e CI handoff
+  `30605208014` 3/3 `PASS`.
+- **Finding**: 0 P0, 0 P1, 4 P2, 0 P3 — Semantics Catalogo, logout release, port
+  avatar network-capable e matrici CA/T aggregate.
+- **Limite non bloccante**: uno shard ausiliario CodeRabbit non contato è stato
+  `BLOCKED` da rate limit esterno; i due shard principali hanno completato la review.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: correggere esclusivamente i quattro finding approvati e tornare a
+  re-review; nessun task successivo attivato.
+
+## 2026-07-30 — Fix TASK-012 e handoff a re-review
+
+- **Agente**: `CODEX_FIXER`
+- **Task**: TASK-012
+- **Fase iniziale/finale**: FIX -> REVIEW
+- **Commit tecnico**:
+  `3acbc42d9abd5bffe0230d3b9bca27baf345cfea`
+- **Scope**: esclusivamente `T012-REV-UI-001`, `T012-REV-SEC-001`,
+  `T012-REV-SEC-002` e `T012-REV-GOV-003`.
+- **Correzioni**: Semantics Catalogo isolata; logout authenticated obbligatorio per
+  tipo; avatar solo bytes locali bounded con zero HTTP; matrici 39 CA/34 T singole
+  protette da regressione governance.
+- **Verifiche sullo SHA**: format 61 file, analyze zero issue, 141/141,
+  `scripts/check.sh`, build Android/iOS, smoke dual-platform 1/1, dump Android nativo,
+  security e confinement `PASS`.
+- **Risultato**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Blocker/note**: CI Fix `NOT_RUN` fino al push del commit di handoff; re-review
+  indipendente obbligatoria, nessun task successivo attivato.
+
+## 2026-07-30 — Re-review TASK-012
+
+- **Agente**: `CODEX_RE_REVIEWER`, due shard read-only indipendenti
+- **Task**: TASK-012
+- **Fase iniziale/finale**: REVIEW -> REVIEW
+- **Revision set**: tecnico `3acbc42d9abd5bffe0230d3b9bca27baf345cfea`;
+  handoff `6ea315e2f05e36b73e73252b3937fdfd950aed4c`.
+- **Chiusure**: `T012-REV-UI-001`, `T012-REV-SEC-001`,
+  `T012-REV-SEC-002` e `T012-REV-GOV-003` `CLOSED`; 0 P0/P1/P2/P3 nuovi o aperti.
+- **Verifiche indipendenti**: suite 141/141, analyze, Account/governance 10/10,
+  UI mirati 20/20, build/install, smoke Android 1/1, dump nativo, scan
+  security/confinement e governance `PASS`.
+- **CI**: `30606916073` sullo SHA handoff; Quality/Android/iOS 3/3 `success`, tutti
+  gli step applicabili `success`, annotation 0/0/0.
+- **Limite non bloccante**: traversata manuale TalkBack/VoiceOver `NOT_RUN`; copertura
+  tramite Semantics tree, dump Android e smoke reale.
+- **Risultato**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+- **Blocker/note**: nessuno; `DONE` richiede la transizione distinta USER_APPROVER.
+
+## 2026-07-30 — Autorizzazione utente e closeout TASK-012
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-012
+- **Fase iniziale/finale**: REVIEW -> REVIEW; ACTIVE -> DONE
+- **Prerequisiti**: re-review `APPROVED` sul revision set
+  `3acbc42d9abd5bffe0230d3b9bca27baf345cfea` /
+  `6ea315e2f05e36b73e73252b3937fdfd950aed4c`; CI handoff `30606916073` e CI
+  approvazione `30607430241` entrambe 3/3 `PASS`, annotation 0/0/0.
+- **Autorizzazione**: applicata la conferma condizionata del prompt end-to-end in una
+  transizione distinta, senza estensione di scope.
+- **Risultato**: `USER_APPROVED_DONE`.
+- **Blocker/note**: CI sul commit closeout `NOT_RUN`; TASK-020 resta `TODO`; PR,
+  review integrata e merge del milestone restano `NOT_RUN`.
+
+## 2026-07-30 — CI closeout TASK-012 bloccata esternamente
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-012
+- **Stato**: DONE
+- **Commit closeout**:
+  `8faca03aa4cda7f384fda2aee229468a79c5e8e9`
+- **CI**: run `30607868864`, due tentativi; Quality, Android e iOS hanno ottenuto
+  `failure` prima di acquisire un runner, con zero step eseguiti.
+- **Causa**: `CI_EXTERNAL` — billing/spending GitHub; annotation 1/1/1 identiche.
+- **Prerequisito**: ripristino billing o aumento del limite di spesa GitHub.
+- **Risultato**: `BLOCKED`; la CI approvazione `30607430241` sul commit revisionato
+  resta 3/3 `PASS`.
+- **Blocker/note**: limite esterno non attribuibile al codice; il lavoro locale
+  autorizzato può continuare, TASK-020 richiede comunque una transizione distinta.
+
+## 2026-07-31 — Planning TASK-020
+
+- **Agente**: `CODEX_PLANNER`, con cinque shard read-only indipendenti
+- **Task**: TASK-020
+- **Fase iniziale/finale**: nessun task attivo -> PLANNING
+- **Azioni principali**: attivato soltanto TASK-020; auditate API
+  `supabase_flutter 2.16.0`/GoTrue, PKCE, storage, callback nativi, architettura,
+  threat model e matrice di verifica; definiti 40 CA e 38 test.
+- **Decisioni**: Supabase Google OAuth con PKCE/browser esterno; deep-link SDK
+  disabilitato e callback validato prima dell'exchange; un solo adapter
+  Keystore/Keychain per sessione e verifier; Account consumer del dominio Auth;
+  unico append esatto alla allow-list staging in Execution.
+- **Verifiche**: worktree/origin e config locale sanitizzata `PASS`; progetto staging
+  canonico `ACTIVE_HEALTHY`; analyze zero issue; suite 141/141; scan tracked
+  secret/artifact `PASS`.
+- **Limiti**: dashboard Auth corrente `BLOCKED` per assenza sessione browser; Chrome
+  connector non disponibile; CI esposta al billing/spending GitHub già osservato.
+- **Risultato**: `CODEX_PLAN_READY_AWAITING_USER_AUTHORIZATION`.
+- **Blocker/note**: nessun codice, dipendenza, config locale o write Supabase
+  modificato; l'autorizzazione end-to-end è concessa ma deve essere applicata in una
+  transizione e commit distinti.
+
+## 2026-07-31 — Autorizzazione Execution TASK-020
+
+- **Agente**: `USER_APPROVER`
+- **Task**: TASK-020
+- **Fase iniziale/finale**: PLANNING -> EXECUTION
+- **Planning approvato**: commit `8eab82b`, 40 CA e 38 test.
+- **Autorizzazione**: applicata la concessione condizionata del prompt end-to-end,
+  senza modifica di scope, criteri, priorità o task futuri.
+- **Risultato**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+- **Blocker/note**: l'Execution deve restare entro TASK-020; review indipendente,
+  gate reali e CI restano obbligatori prima di DONE/merge.
+
+## 2026-07-31 — Execution TASK-020 e handoff a Review
+
+- **Agente**: `CODEX_EXECUTOR`
+- **Task**: TASK-020
+- **Fase iniziale/finale**: EXECUTION -> REVIEW
+- **Commit tecnico**:
+  `82439dd3fdbbc2920f27e4606dceadb412f0a6e7`
+- **Azioni principali**: implementati Google OAuth Supabase con PKCE/browser esterno,
+  dominio/repository/controller Auth, callback strict, session lifecycle, storage
+  Keychain/Keystore fail-closed, integrazione Account, localizzazioni, configurazione
+  nativa e threat model TM-01…TM-30.
+- **Verifiche automatizzabili**: `scripts/check.sh` `PASS`; 192/192, coverage 78,0%,
+  analyze zero issue, build development/staging Android/iOS, integration fake 3/3 per
+  target, callback nativo Android, manifest/plist, architecture e security scan
+  `PASS`.
+- **Supabase**: staging canonico `ACTIVE_HEALTHY`, Google attivo e authorize PKCE 302
+  verso Google; allow-list before/write/after `BLOCKED` da MFA, zero write remoto e
+  kill switch locale ancora `false`.
+- **Limite iOS**: LaunchServices risolve il bundle ma la conferma OS del custom scheme
+  resta pendente; Mac locked impedisce l'interazione, quindi callback nativo e smoke
+  live restano `BLOCKED`.
+- **Emendamento USER_APPROVER**: password/MFA come blocker esterno non arrestano
+  review/test/PR automatizzabili; non autorizzano `PASS`, `APPROVED`, `DONE` o merge
+  con gate bloccati.
+- **Risultato**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+- **Blocker/note**: review indipendente A–E obbligatoria; redirect/live OAuth/iOS
+  callback e CI restano aperti, nessun task futuro attivato.
+
+## 2026-07-31 — Review indipendente TASK-020 e handoff a Fix
+
+- **Agente**: `CODEX_REVIEWER`, cinque shard read-only indipendenti
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> FIX
+- **Revision set**: tecnico
+  `82439dd3fdbbc2920f27e4606dceadb412f0a6e7`; handoff
+  `2f25f3f74537856204fa42e9ea5d024f9c848332`.
+- **Verifiche**: lifecycle/race/storage, callback/native, Account/l10n/a11y,
+  governance/evidence/Git/CI e security/threat model; suite mirate e smoke fake
+  Android/iOS rieseguiti in sola lettura.
+- **Finding consolidati**: 0 P0, 1 P1, 18 P2 e 2 P3. Il P1 riguarda Cancel durante
+  exchange con sessione SDK/persistita tardiva; i restanti finding coprono expiry,
+  interleaving, persistenza/cleanup, coverage, confinement ed evidence.
+- **CI/PR**: PR draft #4; run `30614374801` e `30614438284` sullo SHA handoff,
+  entrambi `BLOCKED / CI_EXTERNAL`, tre job senza step e billing/spending come
+  prerequisito.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: Fix limitato a T020-REV-001…T020-REV-021; MFA, dialogo OS iOS e
+  CI esterna restano distinti e non autorizzano `APPROVED`, `DONE` o merge.
+
+## 2026-07-31 — Fix TASK-020 e handoff bloccato a re-review
+
+- **Agente**: `CODEX_FIXER`, con due audit read-only del candidate Fix
+- **Task**: TASK-020
+- **Fase iniziale/finale**: FIX -> REVIEW; stato task `BLOCKED`
+- **Commit tecnico Fix**:
+  `408f14d242e9d35bfcefbebd10858dcb9e38d028`
+- **Finding affrontati**: T020-REV-001…T020-REV-021; compensate race
+  cancel/exchange, expiry/recovery SDK, restore concorrente, persistenza/cleanup
+  fail-closed, tombstone, integration browsing/Account, matrice UI, CI security
+  scan, command evidence, scope PR e date.
+- **Gate**: `scripts/check.sh` `PASS`, exit 0; 214/214 test, coverage
+  1745/2179 (80,1%), analyze zero issue, security/governance/architecture e build
+  development Android/iOS. Build staging duale, guest/callback fake/readiness
+  Android 3/3 e iOS 3/3, callback warm Android: `PASS`.
+- **Deviazioni registrate**: selezione device mancante, primo hang test,
+  invocation readiness senza define, transient offline e vecchio lock iOS sono
+  `FAIL` reali seguiti da rerun `PASS`; nessun risultato è inferito.
+- **Blocker**: callback warm iOS `BLOCKED` (`simctl` exit 0, harness timeout);
+  allow-list/provider callback/OAuth live `BLOCKED` da MFA; CI precedente
+  `BLOCKED / CI_EXTERNAL` per billing/spending.
+- **Risultato**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Blocker/note**: il fixer non chiude i propri finding; re-review A–E obbligatoria
+  sul nuovo HEAD. Nessun `APPROVED`, `DONE`, merge o task futuro è autorizzato con
+  i gate esterni aperti.
+
+## 2026-07-31 — Re-review 1 TASK-020 e ritorno a Fix
+
+- **Agente**: `CODEX_RE_REVIEWER`, cinque shard read-only indipendenti
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> FIX; stato task `ACTIVE`
+- **Revision set**: tecnico
+  `408f14d242e9d35bfcefbebd10858dcb9e38d028`; handoff pubblicato
+  `0ddd26abd9d6c7a5eaa70aaba2481cfe0b05bfa7`.
+- **Verifiche**: intent/CA, lifecycle/race, storage/security, UI/native/a11y,
+  evidence/Git/PR/CI; suite autonome 23/23, 45/45, 56/56 e 41/41 + 6/6
+  `PASS`; scope PR senza path TASK-003/004.
+- **Finding**: 16/21 finding originari chiusi; restano T020-REV-003/007/015/016/018.
+  Aggiunti un P1 Logout/exchange, un P2 cancellation provider e tre P3 documentali.
+  Totale aperto: 0 P0, 1 P1, 6 P2 e 3 P3.
+- **CI/PR**: PR #4 `OPEN/DRAFT`, head `0ddd26a`; run `30619705565` sullo SHA
+  esatto, 3/3 job senza runner o step e una annotation billing/spending per job:
+  `BLOCKED / CI_EXTERNAL`.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: il Fix resta limitato ai dieci finding consolidati; MFA,
+  dialogo OS iOS e CI esterna restano separati e non autorizzano `APPROVED`, `DONE`
+  o merge.
+
+## 2026-07-31 — Fix 2 TASK-020 e handoff bloccato a re-review
+
+- **Agente**: `CODEX_FIXER`, con audit candidate read-only lifecycle, security ed
+  evidence
+- **Task**: TASK-020
+- **Fase iniziale/finale**: FIX -> REVIEW; stato task `BLOCKED`
+- **Commit tecnici**:
+  `51b6949e5438039dc3c08de8f77ab1f078b85479` e
+  `036dcd1be047d49d6b53738d06e5e58caf608f34`.
+- **Finding affrontati**: T020-REV-003/007/015/016/018, T020-RR-001…005 e difetti
+  riproducibili nello stesso scope; restore pre-launch, Logout/exchange, provider
+  cancellation/Retry, tombstone ridondanti, scanner Git/bundle e matrice evidence.
+- **Gate**: `scripts/check.sh` `PASS`, exit 0; 218/218 test, coverage 1770/2214
+  (79,9%), analyze zero issue, build development Android/iOS. Build staging,
+  guest/callback fake/readiness Android 3/3 e iOS 3/3, callback warm Android,
+  scanner 336 file Git + 629 file bundle e fixture 16/16 + 1/1: `PASS`.
+- **Audit candidate**: 0 P0, 0 P1 e 0 P2 residui; non sostituiscono la re-review
+  A–E e non chiudono autonomamente i finding.
+- **CI/PR**: push tecnico e PR #4 `OPEN/DRAFT` allineati a `036dcd1`; run
+  `30624421347` `BLOCKED / CI_EXTERNAL`, 3/3 job con `runner_id=0`, zero step e una
+  annotation billing/spending per job.
+- **Blocker**: callback warm iOS `BLOCKED` (`simctl` exit 0, harness exit 1 per
+  timeout 30 s sulla conferma OS); allow-list/provider callback/OAuth live
+  `BLOCKED` da MFA, kill switch `false`, zero write remoto.
+- **Risultato**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Blocker/note**: re-review A–E obbligatoria sul revision set esatto; nessun
+  `APPROVED`, `DONE`, merge o task futuro è autorizzato con gate esterni aperti.
+
+## 2026-07-31 — Re-review 2 TASK-020 e ritorno a Fix
+
+- **Agente**: `CODEX_RE_REVIEWER`, cinque shard read-only indipendenti
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> FIX; stato task `ACTIVE`
+- **Revision set**: tecnico
+  `036dcd1be047d49d6b53738d06e5e58caf608f34`; handoff pubblicato
+  `7b4bf152b496f7429b506c053f0e8ec5cf436b83`.
+- **Verifiche**: intent/CA/governance, lifecycle/race, storage/security,
+  UI/native/a11y, evidence/Git/PR/CI; suite autonome 39/39, 53/53, 40/40,
+  storage 13/13 e parser 1/1 `PASS`.
+- **Finding**: 0 P0, 0 P1, 4 P2 e 0 P3. Restano aperti T020-REV-007/015/016/018
+  tramite T020-RR2-001…004: due path scanner esclusi, failure simultanea di tutti
+  i marker/delete e due gap di provenance Git/CI/bundle.
+- **CI/PR**: PR #4 `OPEN/DRAFT`, head `7b4bf15`, 143 path e zero TASK-003/004;
+  run `30624825908` sullo SHA handoff, 3/3 job senza runner o step e una annotation
+  billing/spending per job: `BLOCKED / CI_EXTERNAL`.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: il Fix resta limitato ai quattro finding consolidati; MFA,
+  dialogo OS iOS e CI esterna restano separati e non autorizzano `APPROVED`, `DONE`
+  o merge.
+
+## 2026-07-31 — Fix 3 TASK-020 e handoff bloccato a re-review
+
+- **Agente**: `CODEX_FIXER`, con tre audit candidate read-only storage, scanner e
+  architettura
+- **Task**: TASK-020
+- **Fase iniziale/finale**: FIX -> REVIEW; stato task `BLOCKED`
+- **Revision set**: handoff Re-review 2 -> Fix
+  `7825145f16e0de33725a36470df0ebc20bedfcbe`; tecnico Fix 3
+  `5740c835a116af16ab2e7ca6c55c927d180ece90`.
+- **Finding affrontati**: T020-RR2-001…004 / T020-REV-007/015/016/018; scanner
+  sui propri path e snapshot index/worktree, journal cleanup indipendente,
+  provenance Git/CI e digest/conteggi bundle finali.
+- **Gate**: `scripts/check.sh` `PASS`, exit 0; 221/221 test, coverage 1802/2247
+  (80,2%), analyze zero issue, build development Android/iOS, scanner 336 file,
+  fixture 22/22 + 1/1 e boundary 5/5. Suite mirata storage/bootstrap/repository
+  33/33, build staging sequenziale e smoke fake/readiness Android 3/3 e iOS 3/3:
+  `PASS`.
+- **Artifact**: APK SHA-256
+  `88af2ad662d7f6f13f14cae00c576072c433cb5d9507f5206bbf688ee0f5ff70`;
+  Runner tree SHA-256
+  `4332441962a60da4c0544bef6825fb14dc3b6b7e1a16b4e3794da5730fa1d85c`;
+  scan 548 + 81 = 629 file, digest invariati.
+- **Deviazioni registrate**: analyze concorrente con storage suite `FAIL` per
+  contesa Flutter, rerun isolato `PASS`; primo `adb` senza path SDK `FAIL` exit
+  127, rerun conforme `PASS`. Nessun esito è reinterpretato.
+- **CI/PR**: push tecnico e PR #4 `OPEN/DRAFT` allineati a `5740c83`; run
+  `30626914509` `BLOCKED / CI_EXTERNAL`, 3/3 job con `runner_id=0`, zero step e
+  una annotation billing/spending per job.
+- **Blocker**: callback warm iOS `BLOCKED` (`simctl` exit 0, harness timeout 30 s
+  sul dialogo OS); allow-list/provider callback/OAuth live `BLOCKED` da MFA,
+  kill switch `false`, zero write remoto.
+- **Risultato**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Blocker/note**: re-review A–E obbligatoria sul revision set tecnico/handoff;
+  nessun `APPROVED`, `DONE`, merge o task futuro è autorizzato con gate esterni
+  aperti.
+
+## 2026-07-31 — Re-review 3 TASK-020 e ritorno a Fix
+
+- **Agente**: `CODEX_RE_REVIEWER`, cinque shard read-only indipendenti
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> FIX; stato task `ACTIVE`
+- **Revision set**: tecnico
+  `5740c835a116af16ab2e7ca6c55c927d180ece90`; handoff
+  `891f96124f706c8a53168937ec701709301b3855`.
+- **Chiusure**: T020-RR2-001…004 e T020-REV-007/016/018 `CLOSED`; storage
+  33/33, scanner 336, fixture 22/22 + 1/1, boundary 5/5, artifact 548 + 81 e
+  parser 12/40/38 verificati autonomamente.
+- **Finding**: 0 P0, 0 P1, 1 P2 e 1 P3. T020-RR3-C-001 prova che un JWT
+  customer sintetico `role=authenticated` viene accettato dallo scanner; nel Git
+  corrente non esiste alcun JWT. T020-RR3-A-001 richiede la redazione del prefisso
+  host nel path ADB dell'evidence.
+- **Provenance**: PR #4 `OPEN/DRAFT`, head `891f961`, 143 path e zero
+  TASK-003/004. L'assenza di auto-citazione dello SHA nel relativo commit non è un
+  finding circolare; viene registrata dalla review.
+- **CI**: run `30628616615` `BLOCKED / CI_EXTERNAL`; job Android
+  `91149556012`, Quality `91149556044` e iOS `91149556060` con
+  `runner_id=0`, zero step e una annotation billing/spending ciascuno.
+- **Blocker**: allow-list/OAuth live `BLOCKED` da MFA; callback warm iOS
+  `BLOCKED` dal dialogo OS con Mac locked; CI `BLOCKED` dal billing.
+- **Risultato**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Blocker/note**: Fix limitato ai due finding; nessun `APPROVED`, `DONE`, merge
+  o task futuro è autorizzato.
+
+## 2026-07-31 — Fix 4 TASK-020 e handoff bloccato a re-review
+
+- **Agente**: `CODEX_FIXER`, con audit candidate scanner read-only
+- **Task**: TASK-020
+- **Fase iniziale/finale**: FIX -> REVIEW; stato task `BLOCKED`
+- **Revision set**: handoff Re-review 3 -> Fix
+  `a621c3c08e1f6968bfe9af9c2e9e1f8c8d1d2d3b`; tecnico Fix 4
+  `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`.
+- **Finding affrontati**: T020-RR3-C-001 / T020-REV-015 e
+  T020-RR3-A-001. Lo scanner consente soltanto il legacy JWT con unico ruolo
+  scalare letterale `anon` e respinge customer/service/ruoli ambigui o invalidi,
+  NUL e failure decoder/parser; CMD-X08 redige il path host SDK.
+- **Gate**: `scripts/check.sh` `PASS`, exit 0; 221/221 test, coverage 1802/2247
+  (80,2%), analyze zero issue, build development Android/iOS, scanner 336 file,
+  fixture 32/32 negative + 2/2 positive e boundary 5/5. Build staging
+  sequenziale Android/iOS `PASS`.
+- **Artifact**: APK SHA-256
+  `164225362dd64e859b3cab2688350e891f944a64cc55ece3f867189d9cc56e18`;
+  Runner tree SHA-256
+  `6295cd692517d40e4b817f3c96fd1b5972062a789aa0a5940196c37aff471a3d`;
+  scan 548 + 81 = 629 file, digest invariati.
+- **Audit candidate**: 0 P0, 0 P1 e 0 P2 residui nello scope scanner; non
+  sostituisce la re-review formale.
+- **CI/PR**: push tecnico e PR #4 `OPEN/DRAFT` allineati a `9dbd535`; run
+  `30630589047` `BLOCKED / CI_EXTERNAL`, 3/3 job con `runner_id=0`, zero step e
+  una annotation billing/spending ciascuno.
+- **Blocker**: callback warm iOS `BLOCKED` dal dialogo OS con Mac locked;
+  allow-list/provider callback/OAuth live `BLOCKED` da MFA, kill switch `false`,
+  zero write remoto; CI `BLOCKED` dal billing/spending.
+- **Risultato**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Blocker/note**: re-review indipendente obbligatoria sul revision set
+  tecnico/handoff; nessun `APPROVED`, `DONE`, merge o task futuro è autorizzato.
+
+## 2026-07-31 — Re-review 4 TASK-020 bloccata da gate esterni
+
+- **Agente**: `CODEX_RE_REVIEWER`, cinque shard A–E read-only indipendenti
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> REVIEW; stato task `BLOCKED`
+- **Revision set**: tecnico Fix 4
+  `9dbd53532f7a49040d0bf94fcd1a28abf5a0d382`; handoff
+  `c0ebd750404207ac417faac4e0ff6c04af5940fd`; base
+  `40d118eebf78eeabea9e26747adb00053dd875bc`.
+- **Finding**: 0 P0, 0 P1, 0 P2 e 0 P3. T020-RR3-C-001,
+  T020-RR3-A-001 e T020-REV-015 sono `CLOSED`.
+- **Scanner/security**: 336 file, 32/32 fixture negative, 2/2 positive e 21/21
+  probe avversari `PASS`; APK 548 + Runner 81 = 629 file, digest riprodotti e
+  zero JWT letterale.
+- **App/native**: byte-identici al Fix 3; analyze zero issue e suite mirata 94/94
+  `PASS`, più controllo supplementare 117/117 `PASS`. Nessun live `PASS` inferito.
+- **Git/PR**: HEAD/upstream/PR `c0ebd75`, PR #4 `OPEN/DRAFT`, 143 path e zero
+  TASK-003/004; worktree pulito durante tutti gli shard.
+- **CI**: run handoff `30631361964` `BLOCKED / CI_EXTERNAL`; Quality
+  `91158230335`, iOS `91158230405` e Android `91158230451` con
+  `runner_id=0`, zero step e una annotation billing/spending ciascuno.
+- **Blocker**: allow-list/provider callback/OAuth live `BLOCKED` da MFA, flag
+  `false` e zero write remoto; callback warm iOS `BLOCKED` dal dialogo OS con
+  Mac locked; CI `BLOCKED` dal billing/spending.
+- **Risultato**: `CODEX_REVIEW_BLOCKED`.
+- **Blocker/note**: implementazione senza finding aperti ma gate obbligatori non
+  superati; nessun `APPROVED`, `DONE`, merge o task futuro è autorizzato.
+
+## 2026-08-01 — Ripresa Prelude Storefront v1 e Re-review 5 TASK-020
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> REVIEW; stato task `BLOCKED`
+- **Revision set**: `06768266fdba498011a65102472c66d482c2f8b6`.
+- **iOS warm callback**: `PASS`; build Xcode completata, `simctl` exit 0,
+  harness exit 0, 1/1, callback canonico consegnato da `app_links`, zero exchange
+  e processo vivo. Il blocker dialogo/Mac locked è chiuso.
+- **Supabase staging**: `BLOCKED`; discovery conferma un solo progetto
+  non-production `ACTIVE_HEALTHY`. Il Dashboard richiede login GitHub/MFA e la
+  Management API ufficiale restituisce HTTP 401 dal token CLI in Keychain. Due
+  percorsi distinti, zero write e nessuna credenziale stampata.
+- **CI**: run `30632938353` sullo SHA esatto; job iOS `91163413580`, Quality
+  `91163413595` e Android `91163413668`, tutti `runner_id=0`, zero step e una
+  annotation billing/spending ciascuno. Nessun codice repository è stato eseguito.
+- **Preflight repository**: Client e Admin root puliti; checkout Win7POS e
+  MerchandiseControlSplitView dirty non riconosciuti e preservati; checkout
+  iOSMerchandiseControl assente. Nessun repository esterno è stato modificato.
+- **Finding**: 0 P0, 0 P1, 0 P2 e 0 P3.
+- **Validator**: governance, parser 12 file/40 CA/38 T, scanner 336 file e
+  `git diff --check` `PASS`, CMD-P05, exit 0.
+- **Risultato**: `CODEX_REVIEW_BLOCKED`.
+- **Intervento umano preciso**: autenticare Supabase Dashboard e completare MFA
+  oppure rinnovare il token CLI, e ripristinare GitHub Billing & plans/spending
+  limit. Solo allora sono eseguibili allow-list, OAuth live, CI, DONE e merge PR #4.
+
+## 2026-08-01 — CI reale Prelude TASK-020 sbloccata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-020
+- **Revision set CI**: `67adf5dc8a18a3586700c3b626d1630e72b66d60`.
+- **CI**: run pull request `30708934520` `PASS`; Android `91392819779`
+  8m25s, iOS `91392819807` 4m07s e Quality `91392819830` 3m07s, tutti gli
+  step applicabili `success` e zero annotation.
+- **PR #4**: `OPEN/DRAFT`, `MERGEABLE/CLEAN`, head `67adf5d`, tre check verdi.
+- **Finding**: 0 P0, 0 P1, 0 P2 e 0 P3.
+- **Risultato**: `CODEX_REVIEW_BLOCKED`; CI sbloccata, ma allow-list e OAuth
+  Google/session lifecycle live restano obbligatori e dipendono da login/MFA
+  Supabase staging oppure rinnovo del token CLI.
+- **Intervento umano preciso**: autenticare il Dashboard Supabase staging e
+  completare MFA, oppure rinnovare in modo sicuro il token Supabase CLI. Nessun
+  intervento GitHub Billing è più necessario.
+
+## 2026-08-01 — Re-review 6 TASK-020, gate live sbloccati
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> REVIEW; stato task `ACTIVE`
+- **Revision set**: `671494f83aecf423075348d2efa10da835295984`.
+- **Supabase staging**: redirect before 16, append callback canonica, after 17 e
+  reload persistente `PASS`; Site URL e redirect preesistenti invariati; provider
+  `Google Enabled`; production non toccata.
+- **Android live**: clean install, OAuth Google/PKCE, callback, authenticated, cold
+  restore, background/resume, logout, relogin, logout offline e provider cancel
+  `PASS`; zero token/code nei log.
+- **iOS live**: clean install, OAuth Google/PKCE, dialogo OS, callback warm/cold,
+  cold restore, background/resume, logout e nuovo login `PASS`; zero token/code nei
+  log. Il processo è stato terminato prima del callback cold.
+- **Cleanup**: sessioni test chiuse, emulator e Simulator arrestati, flag staging
+  locale riportato a `false`, artifact temporanei spostati nel Cestino.
+- **CI/PR**: run `30709395137` sullo SHA esatto, Quality/iOS/Android 3/3
+  `success`, annotation 0/0/0; PR #4 `OPEN/DRAFT`, `MERGEABLE/CLEAN`.
+- **Finding**: 0 P0, 0 P1, 0 P2 e 0 P3.
+- **Risultato**: `APPROVED`; merge e post-merge sync restano `NOT_RUN` fino al
+  closeout reale. Handoff `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  autorizzazione USER_APPROVER già presente nel prompt Storefront v1.

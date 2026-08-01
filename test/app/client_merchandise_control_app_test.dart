@@ -15,12 +15,14 @@ void main() {
 
   test('espone soltanto es, it, en e cinese semplificato', () {
     expect(appSupportedLocales, const [
-      Locale('en'),
-      Locale('es'),
+      Locale('es', 'CL'),
       Locale('it'),
+      Locale('en'),
       Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
     ]);
+    expect(appFallbackLocale, const Locale('es', 'CL'));
     expect(appSupportedLocales, isNot(contains(const Locale('zh'))));
+    expect(appSupportedLocales, isNot(contains(const Locale('es'))));
   });
 
   test('scorre tutte le preferenze e seleziona la prima supportata', () {
@@ -38,11 +40,15 @@ void main() {
   });
 
   test('usa lo spagnolo per lista nulla o vuota e per es-CL', () {
-    expect(resolveAppLocale(null, appSupportedLocales), const Locale('es'));
-    expect(resolveAppLocale(const [], appSupportedLocales), const Locale('es'));
+    expect(resolveAppLocale(null, appSupportedLocales), appFallbackLocale);
+    expect(resolveAppLocale(const [], appSupportedLocales), appFallbackLocale);
     expect(
       resolveAppLocale(const [Locale('es', 'CL')], appSupportedLocales),
-      const Locale('es'),
+      appFallbackLocale,
+    );
+    expect(
+      resolveAppLocale(const [Locale('es', 'MX')], appSupportedLocales),
+      appFallbackLocale,
     );
   });
 
@@ -70,31 +76,32 @@ void main() {
         resolveAppLocale(const [
           Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
         ], appSupportedLocales),
-        const Locale('es'),
+        appFallbackLocale,
       );
       expect(
         resolveAppLocale(const [Locale('zh')], appSupportedLocales),
-        const Locale('es'),
+        appFallbackLocale,
       );
       for (final region in const ['TW', 'HK', 'MO']) {
         expect(
           resolveAppLocale([
             Locale.fromSubtags(languageCode: 'zh', countryCode: region),
           ], appSupportedLocales),
-          const Locale('es'),
+          appFallbackLocale,
         );
       }
     },
   );
 
   final localizedHomeMessages = <Locale, String>{
-    const Locale('es'):
-        'Pronto podrás descubrir aquí las novedades de la tienda.',
-    const Locale('it'): 'Presto potrai scoprire qui le novità del negozio.',
+    appFallbackLocale:
+        'Recorre las secciones de la tienda mientras preparamos el catálogo.',
+    const Locale('it'):
+        'Scopri le sezioni del negozio mentre prepariamo il catalogo.',
     const Locale('en'):
-        "You will soon be able to discover what's new at the store here.",
+        'Browse the store sections while we prepare the catalog.',
     const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'):
-        '你很快就能在这里发现商店的最新内容。',
+        '我们正在准备商品目录，你可以先浏览商店的各个部分。',
   };
 
   for (final entry in localizedHomeMessages.entries) {
@@ -111,7 +118,7 @@ void main() {
     tester,
   ) async {
     final cases = <Locale, List<String>>{
-      const Locale('es'): const ['Inicio', 'Catálogo', 'Carrito', 'Cuenta'],
+      appFallbackLocale: const ['Inicio', 'Catálogo', 'Carrito', 'Cuenta'],
       const Locale('it'): const ['Home', 'Catalogo', 'Carrello', 'Account'],
       const Locale('en'): const ['Home', 'Catalog', 'Cart', 'Account'],
       const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'): const [
@@ -134,7 +141,7 @@ void main() {
   });
 
   testWidgets('si avvia offline e senza il counter demo', (tester) async {
-    await tester.pumpWidget(buildApp(locale: const Locale('es')));
+    await tester.pumpWidget(buildApp(locale: appFallbackLocale));
     await tester.pumpAndSettle();
 
     expect(
@@ -158,7 +165,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.text('Presto potrai scoprire qui le novità del negozio.'),
+      find.text('Scopri le sezioni del negozio mentre prepariamo il catalogo.'),
       findsOneWidget,
     );
   });
@@ -173,17 +180,23 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text('Pronto podrás descubrir aquí las novedades de la tienda.'),
+        Localizations.localeOf(tester.element(find.byType(Scaffold))),
+        appFallbackLocale,
+      );
+      expect(
+        find.text(
+          'Recorre las secciones de la tienda mientras preparamos el catálogo.',
+        ),
         findsOneWidget,
       );
-      expect(find.text('你很快就能在这里发现商店的最新内容。'), findsNothing);
+      expect(find.text('我们正在准备商品目录，你可以先浏览商店的各个部分。'), findsNothing);
     }
   });
 
   testWidgets('usa il nome brand risolto come titolo applicativo', (
     tester,
   ) async {
-    await tester.pumpWidget(buildApp(locale: const Locale('es')));
+    await tester.pumpWidget(buildApp(locale: appFallbackLocale));
     await tester.pumpAndSettle();
 
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
@@ -197,7 +210,7 @@ void main() {
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
 
-    await tester.pumpWidget(buildApp(locale: const Locale('es')));
+    await tester.pumpWidget(buildApp(locale: appFallbackLocale));
     await tester.pumpAndSettle();
 
     final context = tester.element(find.byType(Scaffold));

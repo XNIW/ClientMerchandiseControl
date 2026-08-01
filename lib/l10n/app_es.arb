@@ -4,6 +4,11 @@
   "@backendNotConfigured": {
     "description": "Diagnóstico visible solo en builds debug de development sin backend configurado."
   },
+  "backendChecking": "Comprobando la conexión de la tienda…",
+  "backendOffline": "Sin conexión. Puedes seguir explorando y volver a intentarlo.",
+  "backendUnavailable": "La tienda no está disponible por el momento.",
+  "backendAuthenticationRequired": "Inicia sesión desde Cuenta para continuar.",
+  "backendRetry": "Reintentar",
   "navigationHome": "Inicio",
   "@navigationHome": {
     "description": "Etiqueta de la navegación hacia Inicio."
@@ -51,5 +56,263 @@
   "accountFoundationMessage": "Podrás acceder a tu cuenta cuando esta función esté disponible.",
   "@accountFoundationMessage": {
     "description": "Estado temporal de la cuenta antes de habilitar el acceso."
+  },
+  "homeWelcomeTitle": "Todo listo para empezar a explorar",
+  "@homeWelcomeTitle": {
+    "description": "Título de bienvenida de Inicio."
+  },
+  "homeWelcomeMessage": "Recorre las secciones de la tienda mientras preparamos el catálogo.",
+  "@homeWelcomeMessage": {
+    "description": "Mensaje de bienvenida honesto mientras el catálogo aún no contiene datos."
+  },
+  "homeSearchLabel": "Buscar en la tienda",
+  "@homeSearchLabel": {
+    "description": "Etiqueta accesible del acceso a búsqueda en Inicio."
+  },
+  "homeSearchHint": "¿Qué estás buscando?",
+  "@homeSearchHint": {
+    "description": "Texto orientativo del acceso a búsqueda en Inicio."
+  },
+  "homeCategoriesTitle": "Explora por categoría",
+  "@homeCategoriesTitle": {
+    "description": "Título de la sección de categorías de Inicio."
+  },
+  "homeCategoriesMessage": "Las categorías aparecerán cuando el catálogo esté disponible.",
+  "@homeCategoriesMessage": {
+    "description": "Estado vacío de categorías sin inventar contenido comercial."
+  },
+  "homeExploreCategories": "Ver categorías",
+  "@homeExploreCategories": {
+    "description": "Acción para abrir la vista de categorías del catálogo."
+  },
+  "homeOffersTitle": "Ofertas",
+  "@homeOffersTitle": {
+    "description": "Título de la futura sección de ofertas."
+  },
+  "homeOffersEmptyTitle": "Ofertas, próximamente",
+  "@homeOffersEmptyTitle": {
+    "description": "Título del estado vacío de ofertas."
+  },
+  "homeOffersEmptyMessage": "Aquí mostraremos ofertas reales cuando estén disponibles.",
+  "@homeOffersEmptyMessage": {
+    "description": "Mensaje del estado vacío de ofertas, sin promociones ficticias."
+  },
+  "homeFeaturedTitle": "Productos destacados",
+  "@homeFeaturedTitle": {
+    "description": "Título de la futura sección de productos destacados."
+  },
+  "homeFeaturedEmptyTitle": "Destacados, próximamente",
+  "@homeFeaturedEmptyTitle": {
+    "description": "Título del estado vacío de productos destacados."
+  },
+  "homeFeaturedEmptyMessage": "Esta sección mostrará productos reales cuando el catálogo esté disponible.",
+  "@homeFeaturedEmptyMessage": {
+    "description": "Mensaje del estado vacío de destacados, sin productos ficticios."
+  },
+  "homeExploreCatalog": "Explorar catálogo",
+  "@homeExploreCatalog": {
+    "description": "Acción principal para abrir el catálogo."
+  },
+  "catalogSearchLabel": "Buscar en el catálogo",
+  "@catalogSearchLabel": {
+    "description": "Etiqueta accesible del control de búsqueda del catálogo."
+  },
+  "catalogSearchHint": "Busca productos o categorías",
+  "@catalogSearchHint": {
+    "description": "Texto orientativo del control de búsqueda del catálogo."
+  },
+  "catalogFilterLabel": "Filtrar",
+  "@catalogFilterLabel": {
+    "description": "Etiqueta del futuro control de filtros."
+  },
+  "catalogSortLabel": "Ordenar",
+  "@catalogSortLabel": {
+    "description": "Etiqueta del futuro control de orden."
+  },
+  "catalogControlsUnavailable": "Los filtros y el orden estarán disponibles con el catálogo.",
+  "@catalogControlsUnavailable": {
+    "description": "Explica por qué los controles futuros aún no están habilitados."
+  },
+  "catalogConnectingTitle": "Preparando el catálogo",
+  "@catalogConnectingTitle": {
+    "description": "Título del estado de conexión del catálogo."
+  },
+  "catalogConnectingMessage": "Estamos comprobando si la tienda está disponible.",
+  "@catalogConnectingMessage": {
+    "description": "Mensaje del estado de conexión del catálogo."
+  },
+  "catalogEmptyTitle": "Catálogo público aún no conectado",
+  "@catalogEmptyTitle": {
+    "description": "Título del catálogo vacío."
+  },
+  "catalogEmptyMessage": "Podrás explorar productos cuando la tienda publique su catálogo.",
+  "@catalogEmptyMessage": {
+    "description": "Mensaje del catálogo vacío."
+  },
+  "catalogOfflineTitle": "Estás sin conexión",
+  "@catalogOfflineTitle": {
+    "description": "Título del estado sin conexión del catálogo."
+  },
+  "catalogOfflineMessage": "Comprueba tu conexión y vuelve a intentarlo. El resto de la app sigue disponible.",
+  "@catalogOfflineMessage": {
+    "description": "Mensaje recuperable del catálogo sin conexión."
+  },
+  "catalogUnavailableTitle": "La tienda no está disponible",
+  "@catalogUnavailableTitle": {
+    "description": "Título del estado de servicio no disponible."
+  },
+  "catalogUnavailableMessage": "No podemos preparar el catálogo público por el momento.",
+  "@catalogUnavailableMessage": {
+    "description": "Mensaje temporal de servicio no disponible."
+  },
+  "catalogRetryTitle": "No pudimos comprobar la tienda",
+  "@catalogRetryTitle": {
+    "description": "Título del estado de error recuperable."
+  },
+  "catalogRetryMessage": "Inténtalo de nuevo. También puedes seguir explorando otras secciones.",
+  "@catalogRetryMessage": {
+    "description": "Mensaje del estado de error recuperable."
+  },
+  "cartEmptyTitle": "Tu carrito está vacío",
+  "@cartEmptyTitle": {
+    "description": "Título del carrito vacío."
+  },
+  "cartEmptyMessage": "Cuando el catálogo esté disponible, podrás agregar productos aquí.",
+  "@cartEmptyMessage": {
+    "description": "Mensaje del carrito vacío sin prometer precios ni disponibilidad."
+  },
+  "cartExploreCatalog": "Explorar catálogo",
+  "@cartExploreCatalog": {
+    "description": "Acción del carrito vacío para abrir el catálogo."
+  },
+  "accountGuestTitle": "Tu cuenta",
+  "@accountGuestTitle": {
+    "description": "Título de Cuenta para una persona invitada."
+  },
+  "accountGuestBenefit": "Inicia sesión para acceder a funciones personales. Puedes seguir explorando sin una cuenta.",
+  "@accountGuestBenefit": {
+    "description": "Explica el beneficio del acceso sin bloquear la navegación invitada."
+  },
+  "accountContinueWithGoogle": "Continuar con Google",
+  "@accountContinueWithGoogle": {
+    "description": "Acción de autenticación con Google."
+  },
+  "accountGoogleComingSoon": "El acceso con Google estará disponible próximamente.",
+  "@accountGoogleComingSoon": {
+    "description": "Aviso honesto cuando la autenticación aún no está habilitada."
+  },
+  "accountBrowseAsGuest": "Seguir explorando como invitado",
+  "@accountBrowseAsGuest": {
+    "description": "Acción para continuar la navegación pública sin iniciar sesión."
+  },
+  "accountAuthenticatedTitle": "Sesión iniciada",
+  "@accountAuthenticatedTitle": {
+    "description": "Título de Cuenta para una sesión autenticada."
+  },
+  "accountNameFallback": "Cliente",
+  "@accountNameFallback": {
+    "description": "Nombre seguro cuando el perfil autenticado no incluye uno."
+  },
+  "accountEmailFallback": "Correo no disponible",
+  "@accountEmailFallback": {
+    "description": "Texto seguro cuando la sesión no incluye correo."
+  },
+  "accountSessionActive": "Tu sesión está activa.",
+  "@accountSessionActive": {
+    "description": "Confirmación breve de sesión autenticada."
+  },
+  "accountLogout": "Cerrar sesión",
+  "@accountLogout": {
+    "description": "Acción para cerrar la sesión."
+  },
+  "accountSigningInTitle": "Abriendo el acceso seguro",
+  "@accountSigningInTitle": {
+    "description": "Título mientras se inicia el acceso con Google."
+  },
+  "accountSigningInMessage": "Completa el acceso en el navegador y vuelve a la aplicación.",
+  "@accountSigningInMessage": {
+    "description": "Instrucción segura durante el flujo OAuth externo."
+  },
+  "accountCancelSignIn": "Cancelar acceso",
+  "@accountCancelSignIn": {
+    "description": "Acción para cancelar el flujo OAuth pendiente."
+  },
+  "accountCancellingTitle": "Cancelando el acceso",
+  "@accountCancellingTitle": {
+    "description": "Título mientras se limpia un flujo OAuth cancelado."
+  },
+  "accountCancellingMessage": "Estamos cerrando este intento de acceso de forma segura.",
+  "@accountCancellingMessage": {
+    "description": "Mensaje durante la cancelación del flujo OAuth."
+  },
+  "accountCancelledTitle": "Acceso cancelado",
+  "@accountCancelledTitle": {
+    "description": "Título de cancelación no crítica del acceso."
+  },
+  "accountCancelledMessage": "No se hizo ningún cambio en tu cuenta. Puedes intentarlo de nuevo.",
+  "@accountCancelledMessage": {
+    "description": "Mensaje de cancelación recuperable."
+  },
+  "accountRetry": "Intentar de nuevo",
+  "@accountRetry": {
+    "description": "Acción manual para reintentar el acceso."
+  },
+  "accountAuthErrorTitle": "No pudimos iniciar sesión",
+  "@accountAuthErrorTitle": {
+    "description": "Título genérico de error recuperable de autenticación."
+  },
+  "accountConfigurationErrorTitle": "Acceso no disponible",
+  "@accountConfigurationErrorTitle": {
+    "description": "Título de error de configuración o almacenamiento seguro."
+  },
+  "accountSigningOut": "Cerrando sesión…",
+  "@accountSigningOut": {
+    "description": "Estado mientras se elimina la sesión local."
+  },
+  "accountAuthOffline": "Comprueba tu conexión y vuelve a intentarlo.",
+  "@accountAuthOffline": {
+    "description": "Error de autenticación sin conexión."
+  },
+  "accountAuthProviderUnavailable": "Google no está disponible por el momento. Inténtalo más tarde.",
+  "@accountAuthProviderUnavailable": {
+    "description": "Error temporal del proveedor OAuth."
+  },
+  "accountAuthBrowserLaunchFailed": "No pudimos abrir el navegador para continuar.",
+  "@accountAuthBrowserLaunchFailed": {
+    "description": "Error al abrir el navegador externo."
+  },
+  "accountAuthInvalidCallback": "El retorno de acceso no era válido. Inicia un intento nuevo.",
+  "@accountAuthInvalidCallback": {
+    "description": "Error seguro para un callback OAuth rechazado."
+  },
+  "accountAuthSessionExpired": "Tu sesión terminó. Inicia sesión de nuevo cuando quieras.",
+  "@accountAuthSessionExpired": {
+    "description": "Aviso cuando una sesión expira o es revocada."
+  },
+  "accountAuthSecureStorageUnavailable": "Este dispositivo no puede proteger la sesión de forma segura.",
+  "@accountAuthSecureStorageUnavailable": {
+    "description": "Error cerrado de almacenamiento seguro."
+  },
+  "accountAuthConfiguration": "El acceso con Google no está configurado para este entorno.",
+  "@accountAuthConfiguration": {
+    "description": "Error seguro de configuración OAuth."
+  },
+  "accountAuthUnexpected": "Ocurrió un problema inesperado. Puedes intentarlo de nuevo.",
+  "@accountAuthUnexpected": {
+    "description": "Error de autenticación inesperado sin detalles técnicos."
+  },
+  "accountAvatarLabel": "Avatar de {name}",
+  "@accountAvatarLabel": {
+    "description": "Etiqueta accesible del avatar de la cuenta.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alex"
+      }
+    }
+  },
+  "storefrontComingSoonLabel": "Próximamente",
+  "@storefrontComingSoonLabel": {
+    "description": "Etiqueta breve para funciones futuras no habilitadas."
   }
 }

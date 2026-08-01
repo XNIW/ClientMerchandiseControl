@@ -1,10 +1,11 @@
-# Auth boundary Storefront
+# Auth boundary Storefront e mobile
 
 ## Scopo e stato
 
-Questo documento definisce il confine logico di autenticazione e autorizzazione del
-futuro Storefront. È un contratto normativo di TASK-003: non crea provider, schema,
-policy, sessioni, deep link o codice runtime.
+Questo documento conserva il contratto normativo Storefront definito da TASK-003 e
+registra l'implementazione mobile customer di TASK-020. Il client usa Supabase Auth
+Google per stabilire un'identità di sessione; non assegna ruoli, non autorizza risorse e
+non interroga inventory, profilo, ordini o tabelle Storefront.
 
 I termini `MUST`, `MUST NOT`, `SHOULD` e `MAY` indicano rispettivamente requisito
 obbligatorio, divieto, raccomandazione e possibilità. Una capability non elencata è
@@ -108,7 +109,7 @@ entrare nel client, negli asset, nei log, negli screenshot o in Git.
 | Usare secret key, `service_role` o connessione database | No | No | No in client/browser | Sì, server-only e least privilege |
 
 `Sì` significa soltanto che il contratto ammette la capability; schema e implementazione
-restano di TASK-005, TASK-010, TASK-011 e TASK-020.
+restano governati dai relativi task.
 
 ## Grant, RLS e funzioni
 
@@ -182,6 +183,133 @@ I task che materializzano questo contratto MUST aggiungere almeno:
 - tentativi cross-user e cross-shop;
 - verifica che `user_metadata`, email e `shop_id` manipolati non elevino privilegi;
 - test di revoca, token scaduto e claim stale;
-- scansione di bundle, log ed evidence per secret e `service_role`;
+- scansione di source, index, worktree, bundle, log ed evidence per secret e JWT:
+  soltanto una legacy publishable key con ruolo `anon` può essere ammessa; sessioni
+  customer, `service_role`, ruoli mancanti o non pubblicabili falliscono chiuso;
 - verifica di view, funzioni, `EXECUTE`, `SECURITY DEFINER` e Storage;
 - test che ogni accesso denylist fallisca senza fallback.
+
+## Implementazione mobile TASK-020
+
+### Componenti e dipendenze
+
+```text
+AccountScreen
+  -> AuthController (Riverpod, eager)
+  -> AuthRepository
+  -> SupabaseAuthRepository
+  -> Supabase Auth Google / PKCE / browser esterno
+
+OS callback
+  -> AppLinksAuthCallbackSource
+  -> AuthCallbackValidator
+  -> AuthController
+  -> exchangeCodeForSession
+  -> onAuthStateChange
+```
+
+I widget dipendono soltanto da `AuthState`, `AuthenticatedCustomer` e azioni del
+controller. Nessun widget importa Supabase. Il repository concreto traduce oggetti SDK
+in valori dominio bounded e non espone sessione, token o `User`.
+
+### Runtime e configurazione
+
+- development: guest, zero inizializzazione/rete Auth;
+- staging con kill switch `false`: guest, zero OAuth;
+- staging completo con flag `true`: Google OAuth attivo;
+- production: Google obbligatoriamente disabilitato nel milestone.
+
+`SupabaseBootstrap` dichiara `AuthFlowType.pkce`, `autoRefreshToken:true`,
+`detectSessionInUri:false`, `debug:false` e lo stesso
+`SecureSupabaseAuthStorage` per sessione e verifier.
+
+### Callback canonico
+
+L'unico URI accettato è:
+
+```text
+com.xniw.clientmerchandisecontrol://auth-callback/
+```
+
+Android filtra scheme, host e path `/`; iOS registra soltanto lo scheme e delega
+host/path a Dart. Flutter deep linking e l'observer Supabase permissivo sono
+disabilitati. Su iOS anche l'handling automatico di `app_links` è disabilitato:
+`AppDelegate` inoltra il custom scheme warm e `SceneDelegate` inoltra cold/warm e
+universal activity allo stesso singleton del plugin, preservando i callback `super`.
+Un solo source Dart `app_links` unifica cold e warm callback e resta l'unico consumer
+applicativo.
+
+Prima di qualunque exchange il validator richiede URI assoluto, scheme/host/path
+canonici, user-info vuoto, nessuna porta o fragment e una query di una delle due forme:
+
+- un solo `code` PKCE non vuoto, visibile e bounded;
+- `error` con soli `error_code`/`error_description` opzionali, tutti bounded.
+
+Token implicit, parametri extra, duplicati, valori corrotti o callback misti
+`code+error` sono rifiutati. Il controller conserva soltanto un fingerprint bounded per
+deduplica; callback, code e valori errore non vengono loggati.
+
+### Lifecycle
+
+`AuthController` apre il listener prima di attendere il repository, accoda al massimo
+quattro callback e serializza l'exchange. Login e logout sono single-flight; un
+generation token impedisce a future tardive di prevalere dopo cancel, logout o dispose.
+
+La sessione corrente e `onAuthStateChange` alimentano una sola state machine:
+
+- restore valido -> authenticated senza navigazione forzata;
+- browser aperto -> authenticating, non successo;
+- callback valido -> exchange e authenticated con navigazione ad Account;
+- cancellazione -> verifier eliminato e callback tardivo ignorato;
+- refresh/user update -> customer rimappato;
+- expiry/revoca -> guest con notice customer-safe;
+- logout -> signingOut, pulizia locale, guest anche con errore remoto.
+
+Home, Catalogo e Carrello non hanno route guard e restano disponibili.
+
+### Persistenza
+
+`SecureSupabaseAuthStorage` implementa sia `LocalStorage` sia
+`GotrueAsyncStorage`. Mappa esclusivamente sessione e verifier su due chiavi:
+
+- Android: namespace dedicato, RSA-OAEP SHA-256, AES-GCM e backup app disabilitato;
+- iOS: Keychain service dedicato, non sincronizzato,
+  `first_unlock_this_device`.
+
+SharedPreferences contiene soltanto il marker booleano di installazione e due tombstone
+booleani non sensibili per i cleanup pendenti. Se il marker di installazione è assente,
+l'adapter elimina le chiavi Auth e i tombstone sicuri noti prima di marcarlo, mitigando
+la persistenza Keychain dopo uninstall. Ogni purge scrive per primo un journal file di
+un byte in Application Support, poi i tombstone ridondanti SharedPreferences e secure
+store, prima del delete. Al bootstrap basta uno qualsiasi dei tre marker per negare il
+restore e ritentare la pulizia; i marker vengono rimossi soltanto dopo il delete
+riuscito. Lettura, scrittura, delete o marker falliti producono un errore sanitizzato e
+nessun fallback plaintext. Se falliscono simultaneamente il delete e tutte le mutazioni
+dei tre canali persistenti, il processo corrente fallisce chiuso ma un nuovo processo
+non può ricostruire un intento mai persistito.
+
+### Identity non fidata
+
+`AuthenticatedCustomer` conserva il subject interno e ricava email solo dal campo SDK
+dedicato. Nome e email sono trim/bounded; controlli, bidi override, markup-like e tipi
+non stringa ricadono nel fallback UI. `avatar_url`, `role`, `shop_id`,
+`app_metadata` e `user_metadata` non autorizzano né avviano rete. TASK-020 passa
+`avatarBytes:null`.
+
+### Authorization
+
+Una sessione valida prova soltanto l'identità Supabase. Route, email, cache, subject,
+metadata e stato Riverpod non sono un confine di autorizzazione. Ogni futura risorsa
+customer richiede grant minimi, RLS e validazione server-side sul dominio Storefront.
+Il client usa soltanto publishable key e non contiene credenziali privilegiate.
+
+### Osservabilità ed evidence
+
+Supabase `debug` è disabilitato. Errori e copy usano categorie chiuse; non includono
+messaggi SDK raw. Origin staging e publishable key sono configurazione pubblica
+compile-time attesa nel bundle mobile, ma i loro valori raw restano vietati in log,
+test output persistente, screenshot, crash report ed evidence. Sono vietati ovunque
+nel client, nel bundle e in Git: secret key, legacy `service_role`, OAuth client
+secret, password, token amministrativi, certificati e credenziali di signing. Callback
+completa, code/state, access/refresh/provider token, session/User, account test e PII
+non devono comparire in alcun output persistente o evidence.

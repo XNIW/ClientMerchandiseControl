@@ -6,10 +6,12 @@ import 'branding/app_brand.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 
+const appFallbackLocale = Locale('es', 'CL');
+
 const appSupportedLocales = <Locale>[
-  Locale('en'),
-  Locale('es'),
+  appFallbackLocale,
   Locale('it'),
+  Locale('en'),
   Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
 ];
 
@@ -74,5 +76,5 @@ Locale resolveAppLocale(
       return candidate;
     }
   }
-  return const Locale('es');
+  return appFallbackLocale;
 }

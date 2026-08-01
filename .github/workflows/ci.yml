@@ -32,6 +32,10 @@ jobs:
         run: bash scripts/check-action-pins.sh
       - name: Validate shell scripts
         run: bash -n scripts/*.sh
+      - name: Validate client security boundary
+        run: |
+          bash scripts/check-client-security.sh
+          bash scripts/test-client-security-scan.sh
       - name: Validate governance state
         run: bash scripts/check-governance-state.sh
       - name: Validate architecture boundaries
@@ -86,6 +90,10 @@ jobs:
         run: flutter pub get --enforce-lockfile
       - name: Build APK
         run: flutter build apk --debug
+      - name: Validate Android bundle security
+        run: >-
+          bash scripts/check-client-security.sh
+          --artifact build/app/outputs/flutter-apk/app-debug.apk
 
   ios-build:
     name: iOS Simulator debug build
@@ -107,3 +115,7 @@ jobs:
         run: flutter pub get --enforce-lockfile
       - name: Build iOS Simulator
         run: flutter build ios --simulator --debug
+      - name: Validate iOS bundle security
+        run: >-
+          bash scripts/check-client-security.sh
+          --artifact build/ios/iphonesimulator/Runner.app

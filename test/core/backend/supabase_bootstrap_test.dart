@@ -1,8 +1,10 @@
-import 'package:client_merchandise_control/core/backend/backend_status.dart';
+import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
+import 'package:client_merchandise_control/core/backend/secure_supabase_auth_storage.dart';
 import 'package:client_merchandise_control/core/backend/supabase_bootstrap.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/core/config/app_environment.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   const callback = AppConfig.allowedAuthRedirectUri;
@@ -17,8 +19,24 @@ void main() {
       },
     );
 
-    expect(status, BackendStatus.notConfigured);
+    expect(status, BackendReadinessState.unconfigured);
     expect(initializationCalls, 0);
+  });
+
+  test('opzioni Auth sono PKCE, auto-refresh e storage sicuro unico', () {
+    final storage = SecureSupabaseAuthStorage(
+      secureStore: _NoopSecureStore(),
+      installationMarkerStore: _MarkedInstall(),
+      cleanupJournalStore: _NoopCleanupJournalStore(),
+    );
+
+    final options = SupabaseBootstrap.buildAuthOptions(storage);
+
+    expect(options.authFlowType, AuthFlowType.pkce);
+    expect(options.autoRefreshToken, isTrue);
+    expect(options.detectSessionInUri, isFalse);
+    expect(options.localStorage, same(storage));
+    expect(options.pkceAsyncStorage, same(storage));
   });
 
   test('rifiuta development configurato prima dell’initializer', () async {
@@ -63,7 +81,7 @@ void main() {
       },
     );
 
-    expect(status, BackendStatus.ready);
+    expect(status, BackendReadinessState.initializing);
     expect(initializationCalls, 1);
     expect(receivedUrl, expectedUrl);
     expect(receivedKey, expectedKey);
@@ -137,4 +155,43 @@ void main() {
       expect(initializationCalls, 1);
     },
   );
+}
+
+final class _NoopSecureStore implements SecureAuthKeyValueStore {
+  @override
+  Future<void> delete(String key) async {}
+
+  @override
+  Future<String?> read(String key) async => null;
+
+  @override
+  Future<void> write(String key, String value) async {}
+}
+
+final class _MarkedInstall implements AuthInstallationMarkerStore {
+  @override
+  Future<void> clearCleanupPending(AuthCleanupTarget target) async {}
+
+  @override
+  Future<bool> isCleanupPending(AuthCleanupTarget target) async => false;
+
+  @override
+  Future<bool> isCurrentInstallMarked() async => true;
+
+  @override
+  Future<void> markCurrentInstall() async {}
+
+  @override
+  Future<void> markCleanupPending(AuthCleanupTarget target) async {}
+}
+
+final class _NoopCleanupJournalStore implements AuthCleanupJournalStore {
+  @override
+  Future<bool> isCleanupPending(AuthCleanupTarget target) async => false;
+
+  @override
+  Future<void> markCleanupPending(AuthCleanupTarget target) async {}
+
+  @override
+  Future<void> clearCleanupPending(AuthCleanupTarget target) async {}
 }

@@ -1,8 +1,10 @@
 # ClientMerchandiseControl
 
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
-Merchandise Control. La fondazione corrente offre una shell localizzata e compilabile;
-catalogo, account, carrello e ordini verranno collegati nei task futuri.
+Merchandise Control. La fondazione corrente offre una shell guest localizzata,
+accessibile e data-safe con Home, Catalogo, Carrello e Account, più una fondazione
+Google OAuth customer attivabile in staging tramite Supabase Auth dopo la verifica
+remota. Dati Storefront e ordini restano assegnati ai task proprietari futuri.
 
 ## Relazione con Merchandise Control
 
@@ -18,7 +20,8 @@ operativi.
 - Material 3;
 - Riverpod;
 - go_router;
-- Supabase Flutter;
+- Supabase Flutter Auth con PKCE;
+- `app_links` e storage Keychain/Keystore;
 - gen_l10n e intl.
 
 ## Struttura
@@ -70,8 +73,8 @@ flutter run --dart-define-from-file=config/app_config.local.json
 production nel repository.
 
 Per preparare staging, copiare l'esempio nel file locale ignorato, valorizzare URL e
-publishable key non-production e impostare `GOOGLE_AUTH_ENABLED=false` finché la
-callback non è registrata dal task OAuth:
+publishable key non-production e mantenere `GOOGLE_AUTH_ENABLED=false` finché la
+callback non è verificata nella redirect allow-list:
 
 ```bash
 cp config/app_config.staging.example.json config/app_config.staging.local.json
@@ -81,9 +84,11 @@ flutter build ios --simulator --debug --dart-define-from-file=config/app_config.
 ```
 
 Il contratto staging richiede la callback
-`com.xniw.clientmerchandisecontrol://auth-callback/`. La configurazione locale corrente
-usa `GOOGLE_AUTH_ENABLED=false` fino a TASK-020. Configuration completeness non equivale
-a backend health: la readiness reale appartiene a TASK-011.
+`com.xniw.clientmerchandisecontrol://auth-callback/`. Con il flag `true`, TASK-020 usa
+Google OAuth, PKCE e browser esterno; sessione e verifier sono conservati in
+Keychain/Keystore e ogni callback è validato prima dell'exchange. Development e
+production restano fail-closed. TASK-011 continua a verificare il solo endpoint Auth
+health senza tabelle o dati; TASK-012 non aggiunge query o dati commerciali.
 
 ## Test e build
 
@@ -94,6 +99,31 @@ flutter test --coverage
 flutter build apk --debug
 flutter build ios --simulator --debug
 ```
+
+Gli smoke staging reali, esclusi dalla CI perché usano il file locale ignorato, sono:
+
+```bash
+flutter test integration_test/backend_readiness_smoke_test.dart -d emulator-5554 --dart-define-from-file=config/app_config.staging.local.json
+flutter test integration_test/backend_readiness_smoke_test.dart -d <IOS_SIMULATOR_ID> --dart-define-from-file=config/app_config.staging.local.json
+```
+
+Lo smoke guest di TASK-012 non richiede backend:
+
+```bash
+flutter test integration_test/app_guest_flow_test.dart -d emulator-5554
+flutter test integration_test/app_guest_flow_test.dart -d <IOS_SIMULATOR_ID>
+```
+
+Lo smoke Auth deterministico non usa Google o secret:
+
+```bash
+flutter test integration_test/auth_callback_flow_test.dart -d emulator-5554
+flutter test integration_test/auth_callback_flow_test.dart -d <IOS_SIMULATOR_ID>
+```
+
+Gli smoke OAuth live richiedono staging locale, provider e redirect verificati e un
+account test già autenticato. Non inserire password/MFA tramite automazione e non
+salvare screenshot o log contenenti identità, callback, code o token.
 
 Il gate completo è:
 
@@ -111,12 +141,22 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 
 ## Stato
 
-- **Task attivo**: nessuno
-- **Stato task**: non applicabile
-- **Fase**: non applicabile
-- **Indicatore**: USER_APPROVED_DONE
+- **Task attivo**: TASK-020
+- **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
+- **Stato task**: ACTIVE
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
-`TASK-001`–`TASK-004` sono `DONE`; nessun task è attivo. La PR batch e il merge
-TASK-003/TASK-004 restano pendenti prima dell'attivazione di TASK-011. La re-review
-integrata è `APPROVED` con 0 P0/P1/P2 aperti e CI tecnica 3/3 `PASS`; il prossimo
-gate è la CI della Pull Request sul suo SHA esatto, seguita dal merge normale.
+`TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
+TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione
+`30601758281` 3/3 `PASS`; CI closeout `30602210469` è 3/3 `PASS` sullo SHA esatto.
+TASK-012 è `DONE` con re-review indipendente `APPROVED`, quattro P2 chiusi e CI
+handoff/approvazione `30606916073` / `30607430241` entrambe 3/3 `PASS`. TASK-020
+resta l'unico task corrente ed è `ACTIVE` in `REVIEW`: la Re-review 6 sullo SHA
+`671494f` ha verificato allow-list staging, provider Google, OAuth live Android/iOS,
+callback iOS warm/cold, restore, logout e nuovo login. Finding aperti 0 P0/P1/P2/P3;
+CI `30709395137` 3/3 `PASS`, step applicabili `success`, annotation 0/0/0; PR #4
+`OPEN/DRAFT`, `MERGEABLE/CLEAN`. L'outcome è `APPROVED`; merge e verifica
+post-merge restano `NOT_RUN` fino al closeout reale. L'handoff è
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. TASK-005–TASK-010,
+TASK-013–TASK-019 e TASK-021 in avanti non sono attivi.

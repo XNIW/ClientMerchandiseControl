@@ -2,7 +2,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config/app_config.dart';
 import '../config/app_environment.dart';
-import 'backend_status.dart';
+import 'backend_readiness_state.dart';
+import 'secure_supabase_auth_storage.dart';
 
 typedef SupabaseInitializer =
     Future<void> Function({
@@ -11,12 +12,15 @@ typedef SupabaseInitializer =
     });
 
 abstract final class SupabaseBootstrap {
-  static Future<BackendStatus> initialize(
+  static Future<void>? _defaultInitialization;
+
+  static Future<BackendReadinessState> initialize(
     AppConfig config, {
     SupabaseInitializer? initializer,
+    SecureSupabaseAuthStorage? authStorage,
   }) async {
     if (config.environment == AppEnvironment.development) {
-      return BackendStatus.notConfigured;
+      return BackendReadinessState.unconfigured;
     }
 
     if (config.environment == AppEnvironment.production) {
@@ -26,20 +30,60 @@ abstract final class SupabaseBootstrap {
     }
 
     if (!config.isBackendConfigured) {
-      return BackendStatus.notConfigured;
+      return BackendReadinessState.misconfigured;
     }
 
-    await (initializer ?? _initializeSupabase)(
-      url: config.supabaseUrl!,
-      publishableKey: config.supabasePublishableKey!,
-    );
-    return BackendStatus.ready;
+    if (initializer != null) {
+      await initializer(
+        url: config.supabaseUrl!,
+        publishableKey: config.supabasePublishableKey!,
+      );
+    } else {
+      await _initializeDefault(
+        url: config.supabaseUrl!,
+        publishableKey: config.supabasePublishableKey!,
+        authStorage: authStorage ?? SecureSupabaseAuthStorage.standardInstance,
+      );
+    }
+    return BackendReadinessState.initializing;
   }
 
-  static Future<void> _initializeSupabase({
+  static FlutterAuthClientOptions buildAuthOptions(
+    SecureSupabaseAuthStorage authStorage,
+  ) {
+    return FlutterAuthClientOptions(
+      authFlowType: AuthFlowType.pkce,
+      autoRefreshToken: true,
+      detectSessionInUri: false,
+      localStorage: authStorage,
+      pkceAsyncStorage: authStorage,
+    );
+  }
+
+  static Future<void> _initializeDefault({
     required String url,
     required String publishableKey,
+    required SecureSupabaseAuthStorage authStorage,
   }) async {
-    await Supabase.initialize(url: url, publishableKey: publishableKey);
+    final inFlight = _defaultInitialization;
+    if (inFlight != null) {
+      return inFlight;
+    }
+
+    late final Future<void> operation;
+    operation =
+        Supabase.initialize(
+          url: url,
+          publishableKey: publishableKey,
+          authOptions: buildAuthOptions(authStorage),
+          debug: false,
+        ).then<void>((_) {}).catchError((Object error, StackTrace stackTrace) {
+          if (identical(_defaultInitialization, operation)) {
+            _defaultInitialization = null;
+          }
+          Error.throwWithStackTrace(error, stackTrace);
+        });
+    _defaultInitialization = operation;
+    return operation;
   }
 }

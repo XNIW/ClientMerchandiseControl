@@ -4,19 +4,20 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: non applicabile
-- **Stato task**: non applicabile
-- **Fase**: non applicabile
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: USER_APPROVED_DONE
-- **Prossima azione autorizzata**: aprire la PR batch TASK-003/TASK-004, verificarne
-  la CI sullo SHA esatto ed eseguire il merge normale
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-020
+- **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
+- **Stato task**: ACTIVE
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Prossima azione autorizzata**: commit del closeout review, CI sullo SHA esatto,
+  rendere PR #4 non draft, merge normale e verifica post-merge; l'autorizzazione
+  `USER_APPROVER` è già contenuta nel prompt Storefront v1
 
 ## Repository coinvolti
 
-- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer di TASK-004.
+- `XNIW/ClientMerchandiseControl` — repository corrente e unico writer del client.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
   authority candidata, auditata in sola lettura.
 - `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
@@ -58,8 +59,8 @@
 | TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | TODO | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Gestione commerciale pubblica |
 | TASK-009 | Pipeline immagini pubbliche Storefront | TODO | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
 | TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO | TASK-005, TASK-006, TASK-008, TASK-009 | Client, Admin, Supabase | Contratto query catalogo testabile |
-| TASK-011 | Connessione Flutter allo staging e backend health state | TODO | TASK-004 | Client, Supabase | Connessione staging fail-closed |
-| TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | TODO | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
+| TASK-011 | Connessione Flutter allo staging e backend health state | DONE | TASK-004 | Client, Supabase | Connessione staging fail-closed |
+| TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | DONE | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
 | TASK-013 | Home e prodotti/promozioni in evidenza | TODO | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
 | TASK-014 | Categorie e griglia catalogo con caricamento immagini | TODO | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
 | TASK-015 | Ricerca, filtri e ordinamento | TODO | TASK-010, TASK-014 | Client, Supabase | Discovery catalogo efficiente |
@@ -67,7 +68,7 @@
 | TASK-017 | Cache catalogo offline, refresh e invalidazione | TODO | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
 | TASK-018 | Preferiti, condivisione e deep link prodotto | TODO | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
 | TASK-019 | Catalog performance e acceptance su dataset esteso | TODO | TASK-010, TASK-014, TASK-015, TASK-017 | Client, Supabase | Budget prestazioni misurato |
-| TASK-020 | Supabase Auth, deep link e session lifecycle | TODO | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
+| TASK-020 | Supabase Auth, deep link e session lifecycle | ACTIVE | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
 | TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
 | TASK-022 | Registrazione device, consenso notifiche e token lifecycle | TODO | TASK-020, TASK-021 | Client, Supabase | Consenso e token gestiti |
 | TASK-023 | Carrello persistente e price revalidation | TODO | TASK-012, TASK-016, TASK-017 | Client, Supabase | Carrello coerente e rivalidato |
@@ -113,13 +114,45 @@ vincolante un solo task `ACTIVE` alla volta.
   `108b4f214a045dfc8157dd85eb87b9ce58c02d6b`.
 - `TASK-004` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
   2026-07-30; 0 P0/P1/P2 aperti, CI closeout run `30592502472` `PASS` sullo SHA
-  `0fc8d8bbd7d8fded9bb93e1e92ac069164ba58a9`; merge batch pendente.
+  `0fc8d8bbd7d8fded9bb93e1e92ac069164ba58a9`; PR batch #3 merged con merge commit
+  `40d118eebf78eeabea9e26747adb00053dd875bc`.
+- `TASK-011` — re-review `APPROVED`, conferma condizionata `USER_APPROVER` applicata il
+  2026-07-30; 0 P0/P1/P2 aperti, CI approvazione `30601758281` `PASS` sullo SHA
+  `6cdfdd9987a278ff00189de72247fe1f689d9c24`; CI closeout `30602210469` `PASS`
+  sullo SHA `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
 `TASK-003` è `DONE` con re-review `APPROVED` e CI finale attestata.
-`TASK-004` è `DONE` con re-review `APPROVED`; nessun task è `ACTIVE`.
+`TASK-004` è `DONE` con re-review `APPROVED`.
 La re-review integrata del batch TASK-003/TASK-004 è `APPROVED` sullo SHA
 `211ad692010d7b54b8541c45cb7f6a38e3f7d5fe`: 0 P0/P1/P2 aperti, CI tecnica
-`30595351101` 3/3 `PASS`. `TASK-011` resta `TODO` fino al merge effettivo della PR
-batch, ancora pendente.
+`30595351101` 3/3 `PASS`. La PR #3 ha completato la CI pull request
+`30596267634` sullo SHA `ee58f29c9402f286a038f7cc79f1043539ea0b25` e il merge
+normale è stato verificato su main.
+
+`TASK-011` è `DONE`: la terza re-review sullo SHA
+`a1a2818479df7b5e432f10f426e80388bc317a65` ha chiuso tutti i finding P0–P2; CI
+re-review `30601320650` e CI approvazione `30601758281` sono 3/3 `PASS`, con tutti
+gli step `success` e annotation 0/0/0. CI closeout `30602210469` è `PASS` sullo SHA
+esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
+`TASK-012` è `DONE` dopo re-review indipendente `APPROVED`; i quattro P2 sono chiusi.
+CI handoff `30606916073` e CI approvazione `30607430241` sono 3/3 `PASS`, tutti gli
+step applicabili `success` e annotation 0/0/0. TASK-020 resta l'unico task corrente ed
+è `BLOCKED` in `REVIEW`; TASK-005–TASK-010 e TASK-013 in avanti restano invariati. La CI
+closeout `30607868864` è `BLOCKED / CI_EXTERNAL`: due tentativi, zero runner e zero
+step, con billing/spending GitHub come prerequisito esterno.
+
+## Task attivo — TASK-020
+
+La Re-review 6 sullo SHA `671494f` ha chiuso tutti i blocker esterni: redirect
+allow-list staging aggiunta e persistente (`16 -> 17`) con provider Google attivo,
+Site URL/redirect precedenti/production invariati; OAuth Google reale Android/iOS,
+restore, logout e nuovo login `PASS`; callback iOS warm e cold `PASS`; log live senza
+token/code. La CI run `30709395137` è 3/3 `PASS`, tutti gli step applicabili
+`success`, annotation 0/0/0. Finding aperti: 0 P0/P1/P2/P3. PR #4 è
+`OPEN/DRAFT`, `MERGEABLE/CLEAN`. Outcome: `APPROVED`; merge e sync post-merge non
+sono ancora attestati e restano l'unico closeout.
+
+Handoff:
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.

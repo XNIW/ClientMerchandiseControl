@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 2 / TASK-007 Admin publications
-- **Task corrente**: TASK-007
+- **Fase corrente**: EXECUTION / Milestone 2 / TASK-008 prezzi e promozioni
+- **Task corrente**: TASK-008
 - **Repository writer corrente**: merchandise-control-admin-web
 - **Branch**: `integration/storefront-v1`
-- **SHA Client checkpoint parent**: `f3f378e`
-- **SHA Admin corrente**: `eca5c6e0351e3eba248dd96c5b04001e0deabea6`
+- **SHA Client checkpoint parent**: `857f098b124c00bbfd072194d048173d44671151`
+- **SHA Admin corrente**: `25f858931bf0ffe09213186a6b8b124df0311c97`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -26,13 +26,16 @@
   CI `30721537778`; Cloudflare `30721537758`; dry-run `30721664685`; staging
   apply/postverify/load `30721691138`; 20k/100/65k, cleanup 0, tutti `PASS` sul budget
   NANO documentato. Target iniziali catalog/search restano `FAIL`, detail `PASS`.
-- **Gate ancora necessari**: implementazione e gate TASK-007; poi TASK-008/TASK-009 e
-  checkpoint Milestone 2
-- **Comando successivo esatto**: `rg -n "shop/(products|categories)|permission|audit|server action" src tests`
+- **Gate TASK-007**: replay 105 migration; pgTAP 22 file/1.449 test; TASK-007 21/21;
+  CI `30723885377`, Cloudflare `30723885380`, staging apply `30723486727`, deploy/smoke
+  `30723988967` e acceptance autenticata `30724135568`, tutti `PASS`; fixture residue 0
+- **Gate ancora necessari**: implementazione e gate TASK-008; poi TASK-009 e checkpoint
+  Milestone 2
+- **Comando successivo esatto**: `rg -n "storefront_promotions|promotion_products|price_source_mode|compare_at" supabase src tests`
 - **Blocker**: nessuno
 - **Processi ancora attivi**: nessuno
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
-  `PASS`; Admin Storefront TASK-007 `NOT_RUN`; production invariata
+  `PASS`; Admin Storefront TASK-007 publish/audit/pause `PASS`; production invariata
 
 ## Vincoli di ripresa
 

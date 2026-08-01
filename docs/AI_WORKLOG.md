@@ -1365,3 +1365,17 @@
 - **Milestone 1**: TASK-005/TASK-006/TASK-010 tutti
   `VALIDATED_PENDING_INTEGRATED_REVIEW`; production invariata.
 - **Transizione**: TASK-007 è l'unico task `ACTIVE / EXECUTION`.
+
+## 2026-08-01 — Checkpoint interno TASK-007 e attivazione TASK-008
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-007**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; route/control plane, otto
+  permessi RBAC, mutazioni shop-scoped, preview pubblica e audit completati.
+- **Revision set Admin**: `25f858931bf0ffe09213186a6b8b124df0311c97`, PR #67 draft.
+- **Gate locali/CI**: replay 105 migration; pgTAP 22 file/1.449 test; E2E locale 1/1;
+  CI `30723885377` e Cloudflare build `30723885380`, tutti `PASS`.
+- **Staging**: migration/postverify `30723486727`, deploy/smoke `30723988967` e
+  acceptance autenticata `30724135568` 1/1 in 1m19s, tutti `PASS`; cleanup eseguito.
+- **Sicurezza**: RPC Admin separate dal namespace pubblico mobile; RBAC negativo e
+  shop scope verificati; nessun secret versionato; production invariata.
+- **Transizione**: TASK-008 è l'unico task `ACTIVE / EXECUTION`.

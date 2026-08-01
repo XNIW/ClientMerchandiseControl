@@ -4,13 +4,13 @@
 
 - **Task ID**: TASK-007
 - **Titolo**: Admin Console: pubblicazione e gestione visibilità prodotti
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-01
 - **Ultimo aggiornamento**: 2026-08-01
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-007/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -89,7 +89,41 @@ release train; production resta fuori scope.
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso nel repository Admin canonico.
+### Modifiche completate
+
+- route `/shop/storefront` con Catalogo, Categorie, Promozioni, Immagini, Anteprima,
+  Impostazioni e Audit;
+- otto permessi RBAC Storefront espliciti, propagati alla matrice canonica staff;
+- read model, server action e RPC amministrative shop-scoped per publish/pause/bulk;
+- editor con revalidation server-side, projection/versioning transazionale e audit
+  before/after;
+- anteprima alimentata dallo stesso contratto pubblico v1;
+- test foundation, pgTAP, Playwright locale e acceptance staging protetta.
+
+### Gate eseguiti
+
+- revision set Admin:
+  `25f858931bf0ffe09213186a6b8b124df0311c97`, PR `#67` draft;
+- replay locale: 105 migration, `PASS`;
+- pgTAP completo: 22 file / 1.449 test, `PASS` in 45 s; TASK-007 21/21;
+- lint, typecheck, security scan, audit dipendenze e build: `PASS`;
+- E2E locale publish -> projection pubblica -> audit -> pause: 1/1 `PASS`;
+- CI Admin `30723885377`: `PASS`; Cloudflare PR build `30723885380`: `PASS`;
+- staging migration apply/postverify `30723486727`: `PASS`, schema
+  `20260802001000`, ledger 105 migration;
+- Cloudflare staging deploy/smoke `30723988967`: `PASS` sullo SHA esatto;
+- acceptance staging autenticata `30724135568`: 1/1 `PASS` in 1m19s, con cleanup;
+- production write: `NOT_RUN`; production invariata.
+
+### Matrici
+
+CA-01..CA-09 e T-01..T-07: `PASS`. Evidence sintetica:
+`docs/TASKS/EVIDENCE/TASK-007/README.md`.
+
+### Handoff
+
+`CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`. Nessuna review formale è stata
+eseguita e TASK-007 non è `DONE`.
 
 ## Review / Fix
 

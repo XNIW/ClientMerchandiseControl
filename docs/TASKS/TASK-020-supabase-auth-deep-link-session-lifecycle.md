@@ -6,15 +6,21 @@
 - **Titolo**: Supabase Auth, deep link e session lifecycle
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-07-31
 - **Ultimo aggiornamento**: 2026-08-01
-- **Ultimo agente**: CODEX_RE_REVIEWER
+- **Ultimo agente**: USER_APPROVER
 - **Review outcome**: APPROVED
+- **Reviewer**: CODEX_RE_REVIEWER
+- **Approver**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
+- **DONE**: YES
+- **Merge**: YES — PR #4, merge commit `b2d70b5c32d9481749f985bb4179c00a02d9f822`
+- **User approval**: GRANTED_AND_APPLIED_FROM_STOREFRONT_V1_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -829,9 +835,25 @@ obbligatori esterni non superati, il revision set torna a Review:
 
 ## Chiusura
 
-- **Conferma utente**: autorizzazione Execution applicata; conferma DONE condizionata
-  a review/CI verdi
-- **Merge autorizzato da USER_APPROVER**: sì, condizionato a review e CI verdi
-- **Follow-up candidate**: nessuno attivabile in questo milestone
-- **Riepilogo finale**: non ancora disponibile
-- **Data completamento**: non applicabile
+L'autorizzazione `USER_APPROVER` del prompt Storefront v1 è stata applicata dopo:
+
+- Re-review 6 `APPROVED`, 0 P0/P1/P2/P3;
+- CI finale PR run `30713857455` sullo SHA
+  `3aaef8cefa8f25255a12b1199ee0907afeafd121`, Quality/iOS/Android 3/3
+  `success`, tutti gli step applicabili `success`, annotation 0/0/0;
+- PR #4 resa non draft e verificata `MERGEABLE/CLEAN`;
+- merge normale completato il 2026-08-01 con merge commit
+  `b2d70b5c32d9481749f985bb4179c00a02d9f822`;
+- branch remoto milestone eliminato, `main == origin/main == b2d70b5`, worktree
+  pulito e flag staging locale ignorato `false`.
+
+CA-40 e T-38 sono quindi `PASS` su fatti post-merge. TASK-020 è
+`DONE / REVIEW / USER_APPROVED_DONE`; nessun task successivo è attivato in questo
+closeout.
+
+- **Conferma utente**: GRANTED_AND_APPLIED_FROM_STOREFRONT_V1_PROMPT
+- **Merge autorizzato da USER_APPROVER**: sì, eseguito normalmente
+- **Follow-up candidate**: governance Release Train Storefront v1, transizione distinta
+- **Riepilogo finale**: fondazione autenticata reale, merged e verificata
+- **Data completamento**: 2026-08-01
+- **Handoff**: USER_APPROVED_DONE

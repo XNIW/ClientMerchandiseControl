@@ -116,6 +116,9 @@
 | CMD-P13 | `671494f`, GitHub Actions | `gh run view 30709395137 --json ...`; `gh pr view 4 --json ...`; API annotation check `91394057230`, `91394057233`, `91394057273` | PASS | Quality 2m56s, iOS 2m56s, Android 8m33s; 3/3 `success`, tutti gli step applicabili `success`, annotation 0/0/0 | PR #4 `OPEN/DRAFT`, `MERGEABLE/CLEAN`, head esatto |
 | CMD-P14 | `671494f`, Re-review 6 gate esterni | confronto CA/T, evidence storica, Dashboard staging, log Auth sanitizzati, smoke Android/iOS, CI/PR e finding Re-review 4 | PASS | 0 P0, 0 P1, 0 P2, 0 P3; tutti i gate esterni precedenti chiusi; revision set invariato nel codice applicativo | esito `APPROVED`; closeout/merge restano eventi successivi da attestare |
 | CMD-P15 | worktree Re-review 6 | `bash scripts/check-governance-state.sh`; evidence parser; client security scan; `git diff --check` | PASS | governance `TASK-020 / ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; parser 1/1, 12 file, 40 CA, 38 T; scanner 336 file; zero whitespace error | primo tentativo governance `FAIL` per README root storico non aggiornato; corretto il mirror, rerun completo exit 0 |
+| CMD-P16 | closeout review `3aaef8c`, GitHub Actions | `gh run watch 30713857455 --exit-status`; `gh run view ...`; API annotation check `91405958260`, `91405958283`, `91405958292` | PASS | Android 8m31s, iOS 4m00s, Quality 3m17s; 3/3 `success`, tutti gli step applicabili `success`, annotation 0/0/0 | run sullo SHA esatto `3aaef8cefa8f25255a12b1199ee0907afeafd121` |
+| CMD-P17 | PR #4 e post-merge | `gh pr ready 4`; `gh pr merge 4 --merge --delete-branch`; `git fetch --prune origin`; confronto HEAD/origin/main/status/branch remoto; `gh pr view 4 --json ...` | PASS | PR non draft, merge normale `b2d70b5`; stato `MERGED`; branch remoto 0; `main == origin/main == b2d70b5`; worktree 0 modifiche | nessun force push/rebase/reset; merge alle `2026-08-01T19:10:50Z` |
+| CMD-P18 | worktree post-merge closeout | governance validator; evidence parser; client security scan; `git diff --check` | PASS | governance `nessuno / non applicabile / non applicabile / USER_APPROVED_DONE`; parser 1/1, 12 file, 40 CA e 38 T tutti `PASS`; scanner 336 file; zero whitespace error | eseguito su main dopo l'attestazione di merge reale |
 
 I `FAIL` diagnostici restano evidence reali e non vengono trasformati in `PASS`: i
 rerun conformi sono identificati separatamente. I comandi con callback usano qui un
@@ -159,13 +162,13 @@ query o code.
 | CA-31 | IOS_SIM/MANUAL/SECURITY | PASS | CMD-P08/P09/P11/P12; 17 passi iOS live, callback warm/cold, restore/logout/relogin e scan log completati |
 | CA-32 | ANDROID_EMU/IOS_SIM/MANUAL | PASS | CMD-X01/X06/X09/P10/P11; device integration più provider cancel, logout offline, background/resume e cold callback reali |
 | CA-33 | STATIC/SECURITY | PASS | threat model TM-01…TM-30 verificato; CMD-Z01/Z02/W01/W02 |
-| CA-34 | STATIC/GIT | PASS | CMD-P15; parser finale valida 12 file, 40 CA, 38 T, tipo/stato/cardinalità/comando |
-| CA-35 | STATIC/FORMAT/ANALYZE/UNIT/GIT | PASS | CMD-Z01/Z02/Z06/Z09/W01/W03/P15 con comando, output ed exit reali |
+| CA-34 | STATIC/GIT | PASS | CMD-P18; parser finale valida 12 file, 40 CA, 38 T, tipo/stato/cardinalità/comando |
+| CA-35 | STATIC/FORMAT/ANALYZE/UNIT/GIT | PASS | CMD-Z01/Z02/Z06/Z09/W01/W03/P18 con comando, output ed exit reali |
 | CA-36 | STATIC/SECURITY/GIT | PASS | CMD-Z01/Z02/Z05/W02; 32/32 fixture e 21/21 probe coprono JWT customer/non-publishable su ogni superficie, 2/2 positive |
 | CA-37 | BUILD_ANDROID/BUILD_IOS | PASS | CMD-Z01 development e CMD-Z04 staging, entrambi i target exit 0 |
 | CA-38 | MANUAL/STATIC/SECURITY | PASS | CMD-W01/W02; cinque shard A–E sul revision set esatto, zero P0/P1/P2/P3 e finding RR3 chiusi |
-| CA-39 | CI | PASS | CMD-P13; run `30709395137` sullo SHA `671494f`, 3/3 job, tutti gli step applicabili `success`, zero annotation |
-| CA-40 | GIT/CI | NOT_RUN | CMD-P13/P14; review `APPROVED`, PR #4 ancora draft e merge/post-merge sync sono il closeout successivo |
+| CA-39 | CI | PASS | CMD-P16; run `30713857455` sullo SHA `3aaef8c`, 3/3 job, tutti gli step applicabili `success`, zero annotation |
+| CA-40 | GIT/CI | PASS | CMD-P17; PR #4 merged normalmente, branch remoto eliminato, `main == origin/main`, worktree pulito e task futuri invariati |
 
 ## Matrice test
 
@@ -197,8 +200,8 @@ query o code.
 | T-24 | ANDROID_EMU/IOS_SIM | PASS | CMD-X06/X09; invalido/senza sessione, zero crash |
 | T-25 | STATIC/SECURITY | PASS | threat model TM-01…TM-30; CMD-Z01/Z02/W01/W02 |
 | T-26 | STATIC/SECURITY/GIT | PASS | CMD-B01/Z02/Z05/Z06/W02; source/index/worktree/bundle puliti e JWT customer/non-publishable respinti |
-| T-27 | STATIC/GIT | PASS | CMD-P15; parser finale valida 12 file, 40 CA, 38 T, tipi, stati e comandi |
-| T-28 | STATIC/GIT | PASS | CMD-Z01/Z02/Z06/Z09/W01/W03/P15; doctor, shell, pin, governance, architecture e diff |
+| T-27 | STATIC/GIT | PASS | CMD-P18; parser finale valida 12 file, 40 CA, 38 T, tipi, stati e comandi |
+| T-28 | STATIC/GIT | PASS | CMD-Z01/Z02/Z06/Z09/W01/W03/P18; doctor, shell, pin, governance, architecture e diff |
 | T-29 | FORMAT/ANALYZE/UNIT | PASS | CMD-Z01; pub/l10n/format/analyze/221 test/coverage/check |
 | T-30 | BUILD_ANDROID | PASS | CMD-Z01/Z04; APK development e staging |
 | T-31 | BUILD_IOS | PASS | CMD-Z01/Z04; iOS Simulator development e staging |
@@ -206,6 +209,6 @@ query o code.
 | T-33 | IOS_SIM/MANUAL/SECURITY | PASS | CMD-P08/P09/P11/P12; smoke iOS reale completo, callback warm/cold e sanitizzazione |
 | T-34 | ANDROID_EMU/IOS_SIM/MANUAL | PASS | CMD-X01/X06/X09/P10/P11; matrice errori device più probe live offline/cancel/background/cold |
 | T-35 | MANUAL/STATIC/SECURITY | PASS | CMD-W01/W02/P14; Re-review 6 chiude i blocker esterni, zero finding e outcome `APPROVED` |
-| T-36 | CI | PASS | CMD-P13; run `30709395137` sullo SHA `671494f`, 3/3 job, step applicabili `success`, zero annotation |
-| T-37 | GIT | PASS | CMD-W03/P04/P13; branch/upstream/PR head allineati, worktree Client pulito prima del closeout e checkout esterni preservati |
-| T-38 | GIT/CI | NOT_RUN | CMD-P13/P14; merge normale, delete branch e verifica post-merge saranno attestati dopo il closeout CI |
+| T-36 | CI | PASS | CMD-P16; run `30713857455` sullo SHA `3aaef8c`, 3/3 job, step applicabili `success`, zero annotation |
+| T-37 | GIT | PASS | CMD-W03/P04/P13/P17; PR/head/merge e main post-merge verificati, checkout esterni preservati |
+| T-38 | GIT/CI | PASS | CMD-P16/P17; merge normale, branch remoto eliminato, main locale/origin uguali e worktree pulito |

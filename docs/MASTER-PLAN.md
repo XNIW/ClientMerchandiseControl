@@ -4,16 +4,15 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-020
-- **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
-- **Prossima azione autorizzata**: commit del closeout review, CI sullo SHA esatto,
-  rendere PR #4 non draft, merge normale e verifica post-merge; l'autorizzazione
-  `USER_APPROVER` è già contenuta nel prompt Storefront v1
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: non applicabile
+- **Stato task**: non applicabile
+- **Fase**: non applicabile
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
+- **Prossima azione autorizzata**: creare la governance dedicata del release train
+  Storefront v1 su branch/worktree puliti; nessun task futuro è ancora attivo
 
 ## Repository coinvolti
 
@@ -68,7 +67,7 @@
 | TASK-017 | Cache catalogo offline, refresh e invalidazione | TODO | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
 | TASK-018 | Preferiti, condivisione e deep link prodotto | TODO | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
 | TASK-019 | Catalog performance e acceptance su dataset esteso | TODO | TASK-010, TASK-014, TASK-015, TASK-017 | Client, Supabase | Budget prestazioni misurato |
-| TASK-020 | Supabase Auth, deep link e session lifecycle | ACTIVE | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
+| TASK-020 | Supabase Auth, deep link e session lifecycle | DONE | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
 | TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
 | TASK-022 | Registrazione device, consenso notifiche e token lifecycle | TODO | TASK-020, TASK-021 | Client, Supabase | Consenso e token gestiti |
 | TASK-023 | Carrello persistente e price revalidation | TODO | TASK-012, TASK-016, TASK-017 | Client, Supabase | Carrello coerente e rivalidato |
@@ -120,6 +119,9 @@ vincolante un solo task `ACTIVE` alla volta.
   2026-07-30; 0 P0/P1/P2 aperti, CI approvazione `30601758281` `PASS` sullo SHA
   `6cdfdd9987a278ff00189de72247fe1f689d9c24`; CI closeout `30602210469` `PASS`
   sullo SHA `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`.
+- `TASK-020` — Re-review 6 `APPROVED`, 0 P0/P1/P2/P3, CI finale
+  `30713857455` 3/3 `PASS`; PR #4 merged normalmente con commit
+  `b2d70b5c32d9481749f985bb4179c00a02d9f822`.
 
 `TASK-002` è stato attivato soltanto dopo il merge effettivo di TASK-001 ed è stato
 chiuso soltanto dopo Fix, re-review `APPROVED`, CI finale e merge effettivo.
@@ -143,7 +145,7 @@ step applicabili `success` e annotation 0/0/0. TASK-020 resta l'unico task corre
 closeout `30607868864` è `BLOCKED / CI_EXTERNAL`: due tentativi, zero runner e zero
 step, con billing/spending GitHub come prerequisito esterno.
 
-## Task attivo — TASK-020
+## Ultimo task completato — TASK-020
 
 La Re-review 6 sullo SHA `671494f` ha chiuso tutti i blocker esterni: redirect
 allow-list staging aggiunta e persistente (`16 -> 17`) con provider Google attivo,
@@ -151,8 +153,9 @@ Site URL/redirect precedenti/production invariati; OAuth Google reale Android/iO
 restore, logout e nuovo login `PASS`; callback iOS warm e cold `PASS`; log live senza
 token/code. La CI run `30709395137` è 3/3 `PASS`, tutti gli step applicabili
 `success`, annotation 0/0/0. Finding aperti: 0 P0/P1/P2/P3. PR #4 è
-`OPEN/DRAFT`, `MERGEABLE/CLEAN`. Outcome: `APPROVED`; merge e sync post-merge non
-sono ancora attestati e restano l'unico closeout.
+è stata resa non draft; la CI closeout `30713857455` sullo SHA `3aaef8c` è 3/3
+`PASS` con annotation 0/0/0. PR #4 è `MERGED` con merge commit `b2d70b5`; branch
+remoto eliminato, main locale/remoto allineate e worktree pulito. TASK-020 è `DONE`.
 
 Handoff:
-`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`USER_APPROVED_DONE`.

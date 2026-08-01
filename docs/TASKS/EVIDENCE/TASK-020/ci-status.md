@@ -186,6 +186,16 @@ Job Quality `91394057230` 2m56s, iOS `91394057233` 2m56s e Android
 verificato head esatto, step tutti `success`, annotation `[]` e PR
 `OPEN/DRAFT / MERGEABLE/CLEAN`.
 
+## Run finale closeout e merge
+
+| Run | Trigger | SHA | Job | Step | Annotation | Esito |
+|---|---|---|---:|---:|---:|---|
+| `30713857455` | `pull_request` | `3aaef8c` | 3/3 `success` | tutti applicabili `success` | 0/job | PASS |
+
+Android `91405958260` 8m31s, iOS `91405958283` 4m00s e Quality
+`91405958292` 3m17s. Dopo il run, PR #4 è stata resa non draft e merged normalmente
+con commit `b2d70b5c32d9481749f985bb4179c00a02d9f822`.
+
 Matrice CA/T canonica e command evidence: `commands-and-results.md`,
-CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02/CMD-X14/CMD-X15/CMD-Y04/CMD-Z07/CMD-Z08/CMD-W04/CMD-P03/P06/P13,
+CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02/CMD-X14/CMD-X15/CMD-Y04/CMD-Z07/CMD-Z08/CMD-W04/CMD-P03/P06/P13/P16/P17,
 CA-39 e T-36.

@@ -56,7 +56,10 @@
   applicabili `success` e annotation 0/0/0
 - Re-review 6: 0 P0/P1/P2/P3; esito complessivo `APPROVED`
 - Callback warm iOS: `PASS`, CMD-P01, exit 0 e 1/1
-- Merge/main sync: `NOT_RUN`; closeout autorizzato successivo
+- CI closeout: run `30713857455` sullo SHA `3aaef8c`, 3/3 `PASS`, annotation 0/0/0
+- PR #4: `MERGED`, merge normale `b2d70b5c32d9481749f985bb4179c00a02d9f822`
+- Branch remoto milestone: eliminato; conteggio ref remoto 0 dopo fetch prune
+- Post-merge: branch `main`; HEAD e `origin/main` entrambi `b2d70b5`; worktree pulito
 
-Comandi: `commands-and-results.md`, CMD-W01/W03/W04/CMD-P01/P02/P03/P04/P06/P08/P13/P14,
+Comandi: `commands-and-results.md`, CMD-W01/W03/W04/CMD-P01/P02/P03/P04/P06/P08/P13/P14/P16/P17,
 CA-01/02/40 e T-01/37/38.

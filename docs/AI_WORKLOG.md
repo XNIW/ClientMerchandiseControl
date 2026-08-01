@@ -1276,3 +1276,19 @@
 - **Risultato**: `APPROVED`; merge e post-merge sync restano `NOT_RUN` fino al
   closeout reale. Handoff `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
   autorizzazione USER_APPROVER già presente nel prompt Storefront v1.
+
+## 2026-08-01 — CI finale, merge PR #4 e closeout TASK-020
+
+- **Agente/approver**: `CODEX_RE_REVIEWER` / `USER_APPROVER` già autorizzato.
+- **Task**: TASK-020.
+- **CI finale**: run `30713857455` sullo SHA
+  `3aaef8cefa8f25255a12b1199ee0907afeafd121`; Android `91405958260`
+  8m31s, iOS `91405958283` 4m00s, Quality `91405958292` 3m17s; tutti
+  `success`, step applicabili `success`, annotation 0/0/0.
+- **PR #4**: resa non draft, verificata `MERGEABLE/CLEAN` e merged normalmente alle
+  `2026-08-01T19:10:50Z`; merge commit
+  `b2d70b5c32d9481749f985bb4179c00a02d9f822`.
+- **Git post-merge**: branch remoto milestone eliminato; `main == origin/main` sul
+  merge commit; worktree pulito; nessun force push/rebase/reset.
+- **Risultato**: CA-40/T-38 `PASS`; TASK-020
+  `DONE / REVIEW / USER_APPROVED_DONE`; progetto `IDLE`, nessun task futuro attivo.

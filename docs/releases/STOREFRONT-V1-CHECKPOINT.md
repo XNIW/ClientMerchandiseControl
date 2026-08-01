@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / TASK-006 projection
-- **Task corrente**: TASK-006
+- **Fase corrente**: EXECUTION / TASK-010 public catalog contract
+- **Task corrente**: TASK-010
 - **Repository writer corrente**: merchandise-control-admin-web (Supabase canonico)
 - **Branch**: `integration/storefront-v1`
-- **SHA Client checkpoint parent**: `8d854b2594c7f5ab727702d800d5bfe08f1a8264`
-- **SHA Admin corrente**: `ef2e94302102745d57aedc5071d3edd4ddee0e91`
+- **SHA Client checkpoint parent**: `b7e2e8e`
+- **SHA Admin corrente**: `a2a45ef84b19e39d21e42673c31e2e8fc90e88f4`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -19,13 +19,16 @@
 - **Gate TASK-005**: replay 100 migration `PASS` 27.75s; pgTAP 19 file/1330 test
   `PASS` 46.80s; Storefront 48/48; CI `30717750929` e Cloudflare
   `30717750934` `PASS`; dry-run `30717871139` e apply `30717903744` `PASS`
-- **Gate ancora necessari**: projection/version/rebuild TASK-006; API/RPC/search/load
-  TASK-010; replay, no-drift e rollback rehearsal compositi del checkpoint Milestone 1
-- **Comando successivo esatto**: `rg -n "storefront_(product_publications|promotions|categories|settings|image_publications)" supabase/migrations/20260801195852_storefront_v1_schema_rls.sql supabase/tests/storefront_v1_schema_rls.sql`
+- **Gate TASK-006**: replay 102 migration `PASS`; pgTAP 20 file/1378 test `PASS`;
+  concurrency due writer `PASS`; CI `30719303538`, Cloudflare `30719303536`, dry-run
+  `30719307636`, apply `30719348489` e smoke staging publish/promo/pause/rollback `PASS`
+- **Gate ancora necessari**: API/RPC/search/load TASK-010; replay, no-drift e rollback
+  rehearsal compositi del checkpoint Milestone 1
+- **Comando successivo esatto**: `rg -n "storefront_catalog_(items|versions)|security definer|keyset|search" supabase/migrations supabase/tests`
 - **Blocker**: nessuno
 - **Processi ancora attivi**: nessuno
-- **Stato staging**: Auth/Google callback `PASS`; Storefront schema/RLS TASK-005
-  `PASS`; projection/API `NOT_RUN`; production invariata
+- **Stato staging**: Auth/Google callback `PASS`; schema/RLS TASK-005 `PASS`;
+  projection/version TASK-006 `PASS`; API TASK-010 `NOT_RUN`; production invariata
 
 ## Vincoli di ripresa
 

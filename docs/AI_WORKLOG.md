@@ -1328,3 +1328,22 @@
 - **Gate compositi ancora aperti**: projection/API/load/no-drift/rollback rehearsal del
   Milestone 1 restano `NOT_RUN`, non inferiti da TASK-005.
 - **Transizione**: TASK-006 è l'unico task `ACTIVE / EXECUTION`; production invariata.
+
+## 2026-08-01 — Checkpoint interno TASK-006 e attivazione TASK-010
+
+- **Agente**: `CODEX_EXECUTOR`.
+- **Release train**: `STOREFRONT_V1`; nessuna review formale intermedia.
+- **TASK-006**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; projection minimizzata,
+  versionata, transazionale, ricostruibile e default-deny applicata soltanto a staging.
+- **Revision set Admin**: `a2a45ef84b19e39d21e42673c31e2e8fc90e88f4`, PR #67 draft.
+- **Verifiche**: replay 102 migration; pgTAP 20 file/1378 test e Storefront 96/96;
+  harness concorrente due writer; lint/typecheck/build/audit; CI `30719303538` e
+  Cloudflare `30719303536`; dry-run `30719307636` e apply `30719348489`, tutti `PASS`.
+- **Staging behavior smoke**: publish, promozione, pause/versione `PASS`; rollback
+  verificato e fixture persistenti 0. Postverify digest
+  `74d323682c7545b45a95c02db5108fd11f8ef7b92c9f07451671aa4d626af796`.
+- **Deviazioni risolte**: deadlock iniziale del harness corretto nel design; ACL cloud
+  `service_role` corretta con migration additiva, senza riscrivere migration applicate.
+- **Gate ancora aperti**: contratto RPC/search/keyset/load TASK-010 e checkpoint
+  composito Milestone 1; production invariata.
+- **Transizione**: TASK-010 è l'unico task `ACTIVE / EXECUTION`.

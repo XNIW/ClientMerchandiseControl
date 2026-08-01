@@ -5,14 +5,14 @@
 - **Task ID**: TASK-006
 - **Titolo**: Storefront catalog projection e aggiornamento operativo
 - **File task**: `docs/TASKS/TASK-006-storefront-catalog-projection.md`
-- **Stato**: ACTIVE
-- **Fase**: EXECUTION
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Fase**: INTEGRATED_REVIEW
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-01
 - **Ultimo aggiornamento**: 2026-08-01
 - **Ultimo agente**: CODEX_EXECUTOR
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-006/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: STOREFRONT_V1_MILESTONE_CHECKPOINT_VALIDATED
 
 ## Dipendenze
 
@@ -138,7 +138,11 @@ Projection, versionamento e aggiornamento transazionale nel repository Admin can
 
 ### File controllati
 
-Da completare durante l'Execution.
+- `merchandise-control-admin-web/supabase/migrations/20260801211500_storefront_v1_catalog_projection.sql`;
+- `merchandise-control-admin-web/supabase/migrations/20260801213500_storefront_v1_catalog_projection_grants.sql`;
+- `merchandise-control-admin-web/supabase/tests/storefront_v1_catalog_projection.sql`;
+- `merchandise-control-admin-web/scripts/testing/storefront-v1-projection-concurrency.sh`;
+- workflow staging, package scripts e gate repository esistenti.
 
 ### Piano minimo
 
@@ -146,23 +150,67 @@ Il planning approvato sopra è vincolante.
 
 ### Modifiche fatte
 
-Non ancora implementate.
+- aggiunte projection `storefront_catalog_items` e version state
+  `storefront_catalog_versions`, entrambe FORCE RLS e senza policy cliente;
+- aggiunti payload minimizzato, fingerprint SHA-256, version bump condizionale,
+  refresh per pubblicazione e rebuild deterministico per shop;
+- aggiunti trigger statement-level con transition table e advisory lock per shop;
+- aggiunti prezzo/promozione CLP integer, immagini pubbliche, fulfillment, disponibilità,
+  sort key, normalizzazione accenti, FTS `simple` e trigram;
+- aggiunto harness concorrente reale a due writer;
+- corretta in migration additiva separata la default ACL cloud che aveva concesso DML
+  a `service_role`; la migration già applicata non è stata riscritta.
 
 ### Check eseguiti
 
-NOT_RUN — inizio Execution.
+- `PASS` — replay completo locale, 102 migration, exit 0;
+- `PASS` — pgTAP completo, 20 file / 1378 test, exit 0, 44.99 s;
+- `PASS` — suite Storefront TASK-005 + TASK-006, 96/96;
+- `PASS` — harness concorrente: due writer sullo stesso shop, zero deadlock,
+  due righe e fingerprint/versione esatti;
+- `PASS` — lint DB mirato, lint/typecheck/build/security/foundation e dependency audit;
+- `PASS` — CI Admin `30719303538` e Cloudflare `30719303536` sullo SHA
+  `a2a45ef84b19e39d21e42673c31e2e8fc90e88f4`;
+- `PASS` — dry-run riparazione ACL `30719307636` e apply staging
+  `30719348489` sullo stesso SHA;
+- `PASS` — postverify staging digest
+  `74d323682c7545b45a95c02db5108fd11f8ef7b92c9f07451671aa4d626af796`;
+- `PASS` — smoke comportamentale remoto: publish, promozione, pause/versione;
+  rollback finale verificato con zero fixture persistenti;
+- `NOT_RUN` — production write, vietata in questa fase.
 
 ### Matrice CA -> evidence
 
-Da completare.
+| CA | Stato | Evidence |
+|---|---|---|
+| CA-01 | PASS | migration projection + pgTAP colonne/grant/RLS |
+| CA-02 | PASS | 48 test TASK-006 + smoke staging publish/pause |
+| CA-03 | PASS | refresh/rebuild idempotenti e harness concorrente |
+| CA-04 | PASS | fingerprint/version testati localmente e su staging |
+| CA-05 | PASS | promo percentuale/fissa, expiry e CLP bigint |
+| CA-06 | PASS | category/image/flags/search assertions |
+| CA-07 | PASS | anon/auth zero table/helper privilege; service role SELECT-only |
+| CA-08 | PASS | cross-shop denial, denylist e due writer reali |
+| CA-09 | PASS | replay, 1378 pgTAP, CI/dry-run/apply/postverify/smoke stesso SHA |
+| CA-10 | PASS | production invariata; artifact raw fuori repository |
 
 ### Matrice T-NN -> risultato
 
-Da completare.
+| Test | Stato | Risultato |
+|---|---|---|
+| T-01 | PASS | projection minimizzata, FORCE RLS e grant confinati |
+| T-02 | PASS | publish/update/pause transazionali |
+| T-03 | PASS | retry invariato senza duplicati/version bump |
+| T-04 | PASS | rebuild deterministico e monotono al solo cambio |
+| T-05 | PASS | prezzo, promozione, expiry, immagine e sort |
+| T-06 | PASS | deny mobile/helper e cross-shop |
+| T-07 | PASS | harness concorrente dopo correzione del deadlock iniziale |
+| T-08 | PASS | replay, CI e staging; production NOT_RUN per policy |
 
 ### Rischi rimasti
 
-Da verificare durante implementazione e staging.
+Lo scheduler di scadenza promozioni e il filtro temporale read-time restano nello scope
+TASK-008/TASK-010. API pubblica e benchmark endpoint non sono inferiti da TASK-006.
 
 ### Handoff a Review
 
@@ -170,7 +218,33 @@ Non applicabile prima del checkpoint integrato.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate TASK-006. Il checkpoint non è una review.
+### Gate pertinenti eseguiti
+
+Replay, 1378 pgTAP, 96 test Storefront mirati, concurrency, lint, build, audit, CI,
+dry-run/apply, postverify e smoke staging sono `PASS` sul revision set Admin
+`a2a45ef84b19e39d21e42673c31e2e8fc90e88f4`.
+
+### Compatibilità e smoke staging
+
+Le migration TASK-005 restano nel ledger; la repair ACL è additiva. Lo smoke remoto ha
+verificato publish -> promo -> pause e `fixture_rows_after_rollback = 0`. Nessuna write
+production.
+
+### Security scan mirato
+
+Campi interni assenti, SQL function `search_path` vuoto, helper non eseguibili dai ruoli
+mobili, tabelle default-deny e `service_role` SELECT-only.
+
+### Stato manifest/checkpoint
+
+Aggiornati al termine della transizione TASK-006 -> TASK-010.
+
+### Handoff al task successivo
+
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Review outcome**: NOT_RUN
+- **Prossimo task**: TASK-010
+- **Handoff**: STOREFRONT_V1_MILESTONE_CHECKPOINT_VALIDATED
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 

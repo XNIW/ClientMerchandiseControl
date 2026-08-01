@@ -12,6 +12,7 @@ cmc_fixture() {
   mkdir -p \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-005" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-006" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-010" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -27,6 +28,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-006/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-006/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-010-storefront-catalog-query-contract.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-010/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-010/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -65,7 +72,7 @@ cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/| TASK-006 | Storefront catalog projection e aggiornamento dal dominio operativo | ACTIVE |/| TASK-006 | Storefront catalog projection e aggiornamento dal dominio operativo | TODO |/; s/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | TODO |/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | ACTIVE |/' \
+  's/| TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | ACTIVE |/| TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO |/; s/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | TODO |/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"

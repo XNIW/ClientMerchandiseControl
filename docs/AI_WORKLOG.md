@@ -1310,3 +1310,21 @@
   validator `PASS`, fixture 8/8 `PASS`, link/diff/security/architecture `PASS`.
 - **Prossima azione**: validare la governance, quindi creare worktree Admin pulito e
   riconfermare migration ownership/ledger/drift prima di qualunque apply staging.
+
+## 2026-08-01 — Checkpoint interno TASK-005 e attivazione TASK-006
+
+- **Agente**: `CODEX_EXECUTOR`.
+- **Release train**: `STOREFRONT_V1`; nessuna review formale intermedia.
+- **TASK-005**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; ownership migration canonica
+  riconfermata nel repository Admin, schema authoring additivo e default-deny applicato
+  soltanto a staging.
+- **Revision set Admin**: `ef2e94302102745d57aedc5071d3edd4ddee0e91`, PR #67 draft.
+- **Verifiche**: replay finale 100 migration `PASS` 27.75s; pgTAP 19 file/1330 test
+  `PASS` 46.80s, Storefront 48/48; lint DB zero finding; CI `30717750929` e build/smoke
+  `30717750934` `PASS`; dry-run `30717871139` e apply `30717903744` `PASS`.
+- **Staging**: ledger esatto, 6/6 tabelle authoring FORCE RLS, 0 policy cliente,
+  anon/auth denied e service role CRUD verificati; digest postcheck
+  `4b6eb490e59265ab63bb6577a3b8b1f046361bcd879864c72e01ba26d843b2df`.
+- **Gate compositi ancora aperti**: projection/API/load/no-drift/rollback rehearsal del
+  Milestone 1 restano `NOT_RUN`, non inferiti da TASK-005.
+- **Transizione**: TASK-006 è l'unico task `ACTIVE / EXECUTION`; production invariata.

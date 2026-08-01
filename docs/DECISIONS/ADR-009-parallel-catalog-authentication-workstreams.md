@@ -21,13 +21,15 @@ gestita da Supabase non dipende dal catalogo reale, dai prezzi o dall'Admin Cons
 
 TASK-003 e TASK-004 restano la foundation comune. Da TASK-004 si separano due workstream:
 
-- catalogo: TASK-005 → TASK-006 → TASK-007 → {TASK-008, TASK-009} → TASK-010,
-  quindi i nodi TASK-013–TASK-019 secondo le rispettive dipendenze;
+- catalogo: TASK-005 → TASK-006 → TASK-010 per il contratto pubblico minimo, quindi
+  TASK-007 → {TASK-008, TASK-009} come control plane che consuma ed estende quel
+  contratto e i nodi TASK-013–TASK-019 secondo le rispettive dipendenze;
 - autenticazione: TASK-011 → TASK-012 → TASK-020 → TASK-021 → TASK-022.
 
 La tabella delle dipendenze applica tre modifiche circoscritte:
 
-- TASK-010 aggiunge TASK-008 e conserva TASK-005, TASK-006 e TASK-009;
+- TASK-010 conserva TASK-005 e TASK-006; i campi promozione e immagine sono opzionali
+  nel contratto base e vengono popolati da TASK-008/TASK-009 senza cambiarne il confine;
 - TASK-011 dipende soltanto da TASK-004;
 - TASK-020 rimuove TASK-005 e conserva TASK-004, TASK-011 e TASK-012.
 
@@ -48,7 +50,7 @@ basate su dati commerciali reali, che restano di TASK-013/TASK-014 dopo TASK-010
 | TASK-007 | TASK-005, TASK-006 |
 | TASK-008 | TASK-005, TASK-006, TASK-007 |
 | TASK-009 | TASK-005, TASK-007 |
-| TASK-010 | TASK-005, TASK-006, TASK-008, TASK-009 |
+| TASK-010 | TASK-005, TASK-006 |
 | TASK-011 | TASK-004 |
 | TASK-012 | TASK-002, TASK-011 |
 | TASK-020 | TASK-004, TASK-011, TASK-012 |
@@ -60,6 +62,15 @@ Questa tabella replica le dipendenze dirette normative del Master Plan per i due
 workstream. Qualunque variazione richiede un emendamento esplicito in entrambe le fonti
 e il validator architetturale deve fallire finché non sono nuovamente identiche.
 
+### Emendamento Storefront v1 — 2026-08-01
+
+Il release train autorizzato ordina esplicitamente TASK-005/TASK-006/TASK-010 nel
+Milestone 1 e TASK-007/TASK-008/TASK-009 nel Milestone 2. L'edge precedente da
+TASK-008/TASK-009 a TASK-010 avrebbe creato una dipendenza contraria all'ordine
+autorizzato. L'emendamento non elimina scope: TASK-010 definisce DTO e query con media e
+promozioni opzionali; il control plane del Milestone 2 le popola usando lo stesso
+contratto e i relativi E2E verificano la composizione.
+
 Il parallelismo riguarda il grafo delle dipendenze. Non autorizza più task `ACTIVE`, più
 writer o execution concorrenti nello stesso repository. TASK-005–TASK-010 restano
 obbligatori per il workstream catalogo e non vengono eliminati, rinumerati, attivati o
@@ -69,7 +80,8 @@ modificati nello scope.
 
 - La foundation auth può avanzare dopo TASK-004 senza attendere catalogo, prezzi,
   immagini o Admin Console.
-- TASK-010 attende anche il contratto di prezzi e promozioni di TASK-008.
+- TASK-010 pubblica il contratto base prima del control plane; TASK-008 e TASK-009
+  devono superare contract/E2E regression senza ridefinirlo.
 - TASK-013 e TASK-014 restano punti di convergenza: richiedono query catalogo,
   connessione e shell prima di introdurre UI data-backed.
 - Le capability commerciali e i relativi confini server-side restano nei task catalogo

@@ -5,14 +5,14 @@
 - **Task ID**: TASK-005
 - **Titolo**: Supabase Storefront schema, RLS, grants e migration ownership
 - **File task**: `docs/TASKS/TASK-005-storefront-schema-rls-migration-ownership.md`
-- **Stato**: ACTIVE
-- **Fase**: EXECUTION
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Fase**: INTEGRATED_REVIEW
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-01
 - **Ultimo aggiornamento**: 2026-08-01
 - **Ultimo agente**: CODEX_EXECUTOR
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-005/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: STOREFRONT_V1_MILESTONE_CHECKPOINT_VALIDATED
 
 ## Dipendenze
 
@@ -89,6 +89,7 @@ Il progetto staging esistente è l'unico target remoto autorizzato durante l'Exe
 | D-02 | Solo migration additive e staging apply | Production e dati operativi restano protetti | ATTIVA |
 | D-03 | Nessuna tabella Storefront nel Client | Preservare ADR-010 e un'unica authority | ATTIVA |
 | D-04 | Il task usa il profilo `STOREFRONT_V1` di ADR-011 | Evitare review duplicate mantenendo checkpoint e review finale | ATTIVA |
+| D-05 | Il checkpoint TASK-005 valida il solo modello autoritativo default-deny; lettura pubblicata, projection, rollback compositivo e no-drift finale sono riconfermati con TASK-006/TASK-010 al checkpoint Milestone 1 | Il task non deve duplicare projection o API assegnate ai task successivi, né trasformare gate non ancora eseguiti in PASS | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 
@@ -138,7 +139,11 @@ Preflight ownership e implementazione additiva sul repository/target canonico.
 
 ### File controllati
 
-Da completare durante l'Execution.
+- Admin `AGENTS.md`, Master Plan completo, protocollo, ADR e documenti architetturali;
+- 100 migration canoniche e 19 file pgTAP sul candidato finale;
+- workflow protetti di migrazione/provenance staging;
+- ledger remoto staging con remap TASK-142 approvato;
+- migration e pgTAP Storefront sul branch `integration/storefront-v1`.
 
 ### Piano minimo
 
@@ -146,23 +151,63 @@ Il planning approvato sopra è vincolante.
 
 ### Modifiche fatte
 
-Governance e worktree Client preparati; backend non ancora modificato.
+- creato il modello autoritativo additivo per settings, categorie, immagini,
+  pubblicazioni prodotto, promozioni e relative associazioni;
+- aggiunti constraint CLP `bigint`, stato, fulfillment, provenance shop-scoped e URL
+  pubblici non firmati/non provenienti dal bucket interno;
+- applicati RLS `ENABLE/FORCE`, zero policy client e grant CRUD soltanto a
+  `service_role` sulle tabelle di authoring;
+- aggiunti helper `SECURITY DEFINER` con `search_path=''` ed EXECUTE revocato ai ruoli
+  mobili;
+- aggiunti 48 test pgTAP e workflow staging con target allow-listed, SHA esatto,
+  dry-run, apply e post-verifica;
+- aggiornate dipendenze Admin vulnerabili con audit finale a zero vulnerabilità.
 
 ### Check eseguiti
 
-NOT_RUN — inizio Execution.
+- replay locale 100 migration: `PASS`, exit 0, 27,75 s sul candidato finale;
+- pgTAP completo: `PASS`, 19 file / 1.330 test, exit 0, 46,80 s;
+- `db lint`: `PASS`, zero finding;
+- Admin install/lint/typecheck/security/foundation/build/audit: `PASS`;
+- CI Admin `30717750929`: `PASS`, Verify e Database/pgTAP sullo SHA `ef2e9430`;
+- Cloudflare CI `30717750934`: `PASS`, build OpenNext e smoke locale;
+- dry-run staging `30717871139`: `PASS`, unico delta `20260801195852`;
+- apply/post-check staging `30717903744`: `PASS`, exit 0, 49 s;
+- production write: `NOT_RUN` per vincolo del release train.
 
 ### Matrice CA -> evidence
 
-Da completare.
+| CA | Esito TASK-005 | Evidence |
+|---|---|---|
+| CA-01 | PASS | Admin authority, 100 migration locali, ledger staging e remap TASK-142 riconciliato |
+| CA-02 | PASS | replay locale, dry-run esatto e ledger post-apply `migrationLedgerExact=true` |
+| CA-03 | PASS | migration `20260801195852_storefront_v1_schema_rls.sql` |
+| CA-04 | PASS | pgTAP CLP e post-check `customerPriceIsBigint=true` |
+| CA-05 | PASS per confine TASK-005; lettura pubblicata compositiva NOT_RUN | authoring anon/auth senza grant; RPC/projection assegnate a TASK-006/TASK-010 |
+| CA-06 | PASS per confine TASK-005; draft/paused API NOT_RUN | inventory/customer negative test e zero accesso authoring |
+| CA-07 | PASS | 6/6 RLS forzate, zero policy authoring, helper privati |
+| CA-08 | PASS apply; rollback compositivo NOT_RUN | run `30717903744`; rehearsal finale assegnato al checkpoint Milestone 1 |
+| CA-09 | PASS | security scan, evidence sanitizzata, production invariata |
+| CA-10 | PASS | task/evidence/manifest/checkpoint aggiornati con SHA e run reali |
 
 ### Matrice T-NN -> risultato
 
-Da completare.
+| Test | Esito | Evidence |
+|---|---|---|
+| T-01 | PASS | delta reconciler: remoto 99, locale 100, pending Storefront unico |
+| T-02 | PASS | replay e 48/48 pgTAP Storefront |
+| T-03 | PASS per default-deny; public read NOT_RUN | anon/auth authoring `42501`; public RPC TASK-010 |
+| T-04 | PASS per inventory/authoring; API stato NOT_RUN | negative pgTAP cross-shop/inventory; API TASK-010 |
+| T-05 | PASS | RLS/grant/helper/post-check staging |
+| T-06 | PASS apply; rehearsal NOT_RUN | apply staging PASS; rehearsal al checkpoint M1 |
+| T-07 | PASS | security scan e audit 0 vulnerabilità |
+| T-08 | PASS | validator governance da rieseguire sul commit di transizione |
 
 ### Rischi rimasti
 
-Authority e drift devono ancora essere riconfermati sullo stato corrente Admin/staging.
+- projection, RPC pubblici e prove published/draft/paused restano a TASK-006/TASK-010;
+- rollback rehearsal e no-drift finale restano obbligatori al checkpoint Milestone 1;
+- warning GitHub Actions Node 20 deprecation è registrato per hardening Milestone 5.
 
 ### Handoff a Review
 
@@ -170,7 +215,32 @@ Non applicabile prima del checkpoint integrato.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate TASK-005. Il checkpoint non è una review.
+### Gate pertinenti eseguiti
+
+Replay, pgTAP, lint SQL, gate Admin, dependency audit, CI e staging apply sono verdi
+sullo SHA Admin `ef2e94302102745d57aedc5071d3edd4ddee0e91`.
+
+### Compatibilità e smoke staging
+
+Il post-check remoto conferma sei tabelle autoritative, sei RLS forzate, zero policy
+client, privilegi server-only, CLP bigint e flag default-OFF. Nessuna superficie
+pubblica è ancora attiva; production è invariata.
+
+### Security scan mirato
+
+`PASS`: security scan repository, 48 pgTAP, cross-shop/source validation, URL privati e
+firmati negati, audit dipendenze a zero vulnerabilità.
+
+### Stato manifest/checkpoint
+
+Aggiornati con PR Admin `#67`, SHA, CI, dry-run/apply staging e prossimo task.
+
+### Handoff al task successivo
+
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Review outcome**: NOT_RUN
+- **Prossimo task**: TASK-006
+- **Handoff**: STOREFRONT_V1_MILESTONE_CHECKPOINT_VALIDATED
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 

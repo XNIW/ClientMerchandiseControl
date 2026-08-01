@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-005
-- **File task**: docs/TASKS/TASK-005-storefront-schema-rls-migration-ownership.md
+- **Task attivo**: TASK-006
+- **File task**: docs/TASKS/TASK-006-storefront-catalog-projection.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,8 +14,8 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: verificare ownership e drift del backend, quindi
-  implementare TASK-005 nel repository canonico Admin senza modificare production
+- **Prossima azione autorizzata**: implementare e validare la projection catalogo
+  TASK-006 nel repository canonico Admin senza modificare production
 
 ## Repository coinvolti
 
@@ -55,12 +55,12 @@
 | TASK-002 | Product scope definitivo, branding, UX principles e design tokens | DONE | TASK-001 | Client | Identità e principi UX approvati |
 | TASK-003 | Cross-repo ownership e Storefront integration contract | DONE | TASK-001, TASK-002 | Client, Admin, Android, iOS, POS | Contratto di ownership senza ambiguità |
 | TASK-004 | Environment strategy development/staging/production e configuration contract | DONE | TASK-001, TASK-003 | Client, Admin | Strategia ambienti e config verificabile |
-| TASK-005 | Supabase Storefront schema, RLS, grants e migration ownership | ACTIVE | TASK-003, TASK-004 | Admin, Supabase, Client | Schema pubblico protetto e ownership migration |
-| TASK-006 | Storefront catalog projection e aggiornamento dal dominio operativo | TODO | TASK-005 | Admin, Supabase, Android, iOS, POS | Proiezione catalogo pubblica affidabile |
+| TASK-005 | Supabase Storefront schema, RLS, grants e migration ownership | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-003, TASK-004 | Admin, Supabase, Client | Schema pubblico protetto e ownership migration |
+| TASK-006 | Storefront catalog projection e aggiornamento dal dominio operativo | ACTIVE | TASK-005 | Admin, Supabase, Android, iOS, POS | Proiezione catalogo pubblica affidabile |
 | TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | TODO | TASK-005, TASK-006 | Admin, Supabase | Controlli di pubblicazione shop-scoped |
 | TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | TODO | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Gestione commerciale pubblica |
 | TASK-009 | Pipeline immagini pubbliche Storefront | TODO | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
-| TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO | TASK-005, TASK-006, TASK-008, TASK-009 | Client, Admin, Supabase | Contratto query catalogo testabile |
+| TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO | TASK-005, TASK-006 | Client, Admin, Supabase | Contratto query catalogo testabile |
 | TASK-011 | Connessione Flutter allo staging e backend health state | DONE | TASK-004 | Client, Supabase | Connessione staging fail-closed |
 | TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | DONE | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
 | TASK-013 | Home e prodotti/promozioni in evidenza | TODO | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
@@ -145,8 +145,11 @@ esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
 CI handoff `30606916073` e CI approvazione `30607430241` sono 3/3 `PASS`, tutti gli
 step applicabili `success` e annotation 0/0/0. La precedente attestazione di TASK-020
 bloccato è storia superata: TASK-020 è `DONE` e PR #4 è merged. Il release train
-`STOREFRONT_V1` ha quindi attivato TASK-005 in `EXECUTION`; i task successivi restano
-`TODO` fino al relativo handoff.
+`STOREFRONT_V1` ha validato internamente TASK-005 e attivato TASK-006 in `EXECUTION`;
+i task successivi restano `TODO` fino al relativo handoff. La dipendenza TASK-010 è
+stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
+promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
+circolari della sua definizione.
 
 ## Ultimo task completato — TASK-020
 

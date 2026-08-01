@@ -1235,3 +1235,20 @@
 - **Intervento umano preciso**: autenticare Supabase Dashboard e completare MFA
   oppure rinnovare il token CLI, e ripristinare GitHub Billing & plans/spending
   limit. Solo allora sono eseguibili allow-list, OAuth live, CI, DONE e merge PR #4.
+
+## 2026-08-01 — CI reale Prelude TASK-020 sbloccata
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-020
+- **Revision set CI**: `67adf5dc8a18a3586700c3b626d1630e72b66d60`.
+- **CI**: run pull request `30708934520` `PASS`; Android `91392819779`
+  8m25s, iOS `91392819807` 4m07s e Quality `91392819830` 3m07s, tutti gli
+  step applicabili `success` e zero annotation.
+- **PR #4**: `OPEN/DRAFT`, `MERGEABLE/CLEAN`, head `67adf5d`, tre check verdi.
+- **Finding**: 0 P0, 0 P1, 0 P2 e 0 P3.
+- **Risultato**: `CODEX_REVIEW_BLOCKED`; CI sbloccata, ma allow-list e OAuth
+  Google/session lifecycle live restano obbligatori e dipendono da login/MFA
+  Supabase staging oppure rinnovo del token CLI.
+- **Intervento umano preciso**: autenticare il Dashboard Supabase staging e
+  completare MFA, oppure rinnovare in modo sicuro il token Supabase CLI. Nessun
+  intervento GitHub Billing è più necessario.

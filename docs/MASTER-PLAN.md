@@ -12,7 +12,8 @@
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Prossima azione autorizzata**: attendere login/MFA Supabase o rinnovo del token
-  CLI e ripristino billing/spending GitHub, quindi rieseguire i gate impattati;
+  CLI, quindi aggiungere e verificare la redirect allow-list ed eseguire gli smoke
+  OAuth live Android/iOS;
   nessun `APPROVED`, `DONE` o merge finché i gate esterni restano aperti
 
 ## Repository coinvolti
@@ -151,8 +152,9 @@ T020-RR3-C-001 e T020-RR3-A-001. Cinque shard A–E hanno riportato 0 P0, 0 P1,
 avversari, artifact 548 + 81 = 629 e suite app/native mirate sono `PASS`. La PR #4
 resta `OPEN/DRAFT`, 143 path e zero TASK-003/004. La ripresa Prelude sullo SHA
 `0676826` ha sbloccato la callback warm iOS (`1/1 PASS`, exit 0). L'esito complessivo
-resta `BLOCKED`: run CI `30632938353` senza runner/step per billing/spending;
-redirect allow-list e live OAuth bloccati da login/MFA Supabase o token CLI da
+resta `BLOCKED`: la CI reale run `30708934520` sullo SHA `67adf5d` è `PASS`,
+3/3 job con tutti gli step applicabili `success` e zero annotation; redirect
+allow-list e live OAuth restano bloccati da login/MFA Supabase o token CLI da
 rinnovare. Nessun `APPROVED`, `DONE` o merge è autorizzato.
 
 Handoff:

@@ -44,16 +44,16 @@
 - Worktree durante i cinque shard A–E read-only: pulito
 - Worktree al momento di questa evidence: contiene soltanto task/evidence/worklog
   della transizione Review `BLOCKED`, da committare selettivamente
-- PR: #4 `OPEN/DRAFT`, base `main`, head remoto `0676826`, mergeable
-  `MERGEABLE`, merge state `UNSTABLE`
+- PR: #4 `OPEN/DRAFT`, base `main`, head remoto `67adf5d`, mergeable
+  `MERGEABLE`, merge state `CLEAN`
 - Scope PR remoto: 143 path, confinati a TASK-011/TASK-012/TASK-020 e fondazione
   condivisa; zero path TASK-003/004
 - Commit/push handoff Fix 4: `PASS`
-- CI sullo SHA corrente: run `30632938353`, `BLOCKED / CI_EXTERNAL`, tre job
-  senza runner o step e una annotation billing/spending per job
+- CI sullo SHA `67adf5d`: run `30708934520`, `PASS`, 3/3 job, tutti gli step
+  applicabili `success` e zero annotation
 - Re-review A–E: 0 P0/P1/P2/P3; esito complessivo `BLOCKED`
 - Callback warm iOS: `PASS`, CMD-P01, exit 0 e 1/1
-- Merge/main sync: `BLOCKED` da CI e login/MFA Supabase per allow-list/live OAuth
+- Merge/main sync: `BLOCKED` da login/MFA Supabase per allow-list/live OAuth
 
-Comandi: `commands-and-results.md`, CMD-W01/W03/W04/CMD-P01/P02/P03/P04,
+Comandi: `commands-and-results.md`, CMD-W01/W03/W04/CMD-P01/P02/P03/P04/P06,
 CA-01/02/40 e T-01/37/38.

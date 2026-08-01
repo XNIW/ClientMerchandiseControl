@@ -72,10 +72,9 @@ resta locale, ignorato e non entra in stage, diff o evidence.
   allow-list; il CLI non offre un point-update sicuro equivalente.
 - Il simulatore iOS ha consegnato il callback warm canonico in CMD-P01: harness
   1/1 `PASS`, exit 0. OAuth live resta distinto e non è inferito.
-- La CI TASK-020 run `30632938353` sullo SHA `0676826` ha tre job
-  senza step, `runner_id=0` e una annotation/job per billing/spending GitHub;
-  resta `BLOCKED / CI_EXTERNAL`.
+- La CI TASK-020 run `30708934520` sullo SHA `67adf5d` è `PASS`: Android,
+  iOS e Quality 3/3, tutti gli step applicabili `success` e zero annotation.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-X01/X02/CMD-Z01/Z02/Z04/CMD-R01/CMD-P01/P02/P03,
+`commands-and-results.md`, CMD-X01/X02/CMD-Z01/Z02/Z04/CMD-R01/CMD-P01/P02/P03/P06,
 CA-01/03/04/11…CA-13/35…CA-39 e T-01…T-04/26…T-36.

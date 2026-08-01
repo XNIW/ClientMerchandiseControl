@@ -25,9 +25,11 @@
   `c0ebd750404207ac417faac4e0ff6c04af5940fd`
 - SHA closeout Re-review 4 e ripresa Prelude:
   `06768266fdba498011a65102472c66d482c2f8b6`
-- Workflow sullo SHA corrente: run `30632938353`, `BLOCKED / CI_EXTERNAL`
-- Auth fake, build Android/iOS, security/pin scan in CI sullo handoff: `BLOCKED`; nessuno
-  step ha acquisito un runner
+- SHA evidence Prelude:
+  `67adf5dc8a18a3586700c3b626d1630e72b66d60`
+- Workflow sullo SHA evidence: run `30708934520`, `PASS`
+- Auth fake, build Android/iOS, security/pin scan in CI: `PASS`; 3/3 job, tutti
+  gli step applicabili `success` e zero annotation
 
 ## Run reali sullo SHA di review iniziale
 
@@ -158,8 +160,19 @@ sono terminate con exit 0; nessun codice repository è stato eseguito.
 - **Prerequisito**: ripristino Billing & plans/spending limit da parte del titolare.
 - **Conclusione**: nessun test/build/scan CI è inferibile; lo stato resta `BLOCKED`.
 
+## Run reale sullo SHA evidence Prelude
+
+| Run | Trigger | SHA | Job | Step | Annotation | Esito |
+|---|---|---|---:|---:|---:|---|
+| `30708934520` | `pull_request` | `67adf5d` | 3/3 `success` | tutti applicabili `success` | 0/job | PASS |
+
+Job Android `91392819779` 8m25s, iOS `91392819807` 4m07s e Quality
+`91392819830` 3m07s. `gh run view` e le query API di job, step e annotation
+hanno verificato lo SHA esatto, conclusion `success` e annotation `[]` per ogni
+job. Il blocker billing/spending è chiuso; non viene esteso ai gate OAuth live.
+
 Nessun Google OAuth live, file staging locale, secret o account deve entrare in CI.
 
 Matrice CA/T canonica e command evidence: `commands-and-results.md`,
-CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02/CMD-X14/CMD-X15/CMD-Y04/CMD-Z07/CMD-Z08/CMD-W04/CMD-P03,
+CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02/CMD-X14/CMD-X15/CMD-Y04/CMD-Z07/CMD-Z08/CMD-W04/CMD-P03/P06,
 CA-39 e T-36.

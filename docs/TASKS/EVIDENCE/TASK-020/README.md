@@ -34,9 +34,9 @@ Snapshot di handoff:
   RR3 chiusi; scanner 32/32 + 2/2 e 21/21 probe `PASS`
 - Ripresa Prelude 2026-08-01: callback warm iOS `PASS` sullo SHA `0676826`;
   Supabase Auth config ancora `BLOCKED` dopo Dashboard login richiesto e API 401
-- CI: `BLOCKED / CI_EXTERNAL`
-- PR/merge: draft PR #4 sullo SHA `0676826`; run `30632938353` senza runner;
-  merge `BLOCKED`
+- CI: `PASS` sullo SHA `67adf5d`; run `30708934520`, 3/3 job e zero annotation
+- PR/merge: draft PR #4 sullo SHA `67adf5d`, `MERGEABLE/CLEAN`; merge `BLOCKED`
+  soltanto dai gate Auth live obbligatori
 - DONE: `NO`
 
 ## Indice
@@ -70,8 +70,8 @@ duplicazioni che potrebbero divergere.
 
 - Supabase dashboard: login e MFA necessari per leggere/modificare la redirect
   allow-list, oppure rinnovo del token CLI; nessun write remoto è stato eseguito.
-- GitHub Actions: la run `30632938353` sullo SHA corrente ha tre job senza
-  step, fermati prima del runner dal limite billing/spending.
+- GitHub Actions: la run `30708934520` sullo SHA `67adf5d` ha concluso 3/3
+  job `PASS`, tutti gli step applicabili `success` e zero annotation.
 
 Le evidence finali dovranno contenere esattamente una riga per ciascuno dei 40 CA e
 38 test, con soli esiti `PASS`, `FAIL`, `BLOCKED` o `NOT_RUN`. Non sono ammessi URL,

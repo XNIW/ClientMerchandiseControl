@@ -556,6 +556,22 @@ Esito: `BLOCKED`.
 
 Handoff: `CODEX_REVIEW_BLOCKED`.
 
+### Addendum Ripresa Re-review 5 — CI reale sbloccata
+
+Sul commit evidence `67adf5dc8a18a3586700c3b626d1630e72b66d60` la run
+pull request `30708934520` ha concluso `PASS`: Android `91392819779`, iOS
+`91392819807` e Quality `91392819830`, 3/3 job con tutti gli step applicabili
+`success` e zero annotation. La CI non è più un blocker.
+
+Restano `BLOCKED` esclusivamente i gate live dipendenti dalla configurazione Auth
+staging: redirect allow-list, OAuth Google Android/iOS, session restore, logout e
+nuovo login. Il Dashboard richiede login/MFA e il token CLI corrente riceve HTTP
+401; nessun write remoto è stato eseguito.
+
+Esito: `BLOCKED`.
+
+Handoff: `CODEX_REVIEW_BLOCKED`.
+
 ## Fix — `CODEX_FIXER`
 
 Autorizzato esclusivamente sui finding T020-REV-001…T020-REV-021 consolidati.

@@ -523,3 +523,14 @@ Revision set: `06768266fdba498011a65102472c66d482c2f8b6`.
 Esito: `BLOCKED`. Il blocker iOS è chiuso; OAuth live e CI restano obbligatori.
 
 Handoff: `CODEX_REVIEW_BLOCKED`.
+
+### Addendum CI reale sul commit evidence
+
+- `PASS`: run pull request `30708934520` sullo SHA `67adf5d`; Android
+  `91392819779`, iOS `91392819807` e Quality `91392819830`, tutti gli step
+  applicabili `success`, zero annotation;
+- la CI non è più un blocker; l'esito resta `BLOCKED` esclusivamente per
+  allow-list e matrice OAuth/session lifecycle live dipendenti dall'accesso
+  autenticato a Supabase staging.
+
+Handoff: `CODEX_REVIEW_BLOCKED`.

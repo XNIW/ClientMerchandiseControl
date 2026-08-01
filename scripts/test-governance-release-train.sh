@@ -12,6 +12,7 @@ cmc_fixture() {
   mkdir -p \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-005" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-006" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-007" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-010" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
@@ -28,6 +29,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-006/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-006/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-007-admin-storefront-publications.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-007/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-007/README.md"
   cp \
     "${cmc_test_repo_root}/docs/TASKS/TASK-010-storefront-catalog-query-contract.md" \
     "${cmc_target}/docs/TASKS/"
@@ -65,21 +72,21 @@ cmc_expect_pass valid "${cmc_case}"
 
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \
-  's/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | TODO |/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | ACTIVE |/' \
+  's/| TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | TODO |/| TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/| TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | ACTIVE |/| TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | TODO |/; s/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | TODO |/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | ACTIVE |/' \
+  's/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | ACTIVE |/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | TODO |/; s/| TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | TODO |/| TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | TODO |/| TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | DONE |/' \
+  's/| TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | TODO |/| TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"

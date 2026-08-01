@@ -1347,3 +1347,21 @@
 - **Gate ancora aperti**: contratto RPC/search/keyset/load TASK-010 e checkpoint
   composito Milestone 1; production invariata.
 - **Transizione**: TASK-010 è l'unico task `ACTIVE / EXECUTION`.
+
+## 2026-08-01 — Checkpoint Milestone 1 e attivazione TASK-007
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-010**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; nove RPC pubblici v1,
+  keyset/search/detail/Home e harness esteso completati nel repository Admin canonico.
+- **Revision set Admin**: `eca5c6e0351e3eba248dd96c5b04001e0deabea6`, PR #67 draft.
+- **Gate**: replay 104 migration; pgTAP 21 file/1.428 test; concurrency/lint/security;
+  CI `30721537778`, Cloudflare `30721537758`, dry-run `30721664685`, apply/postverify/load
+  staging `30721691138`, tutti `PASS`.
+- **Performance staging NANO**: catalogo p50/p95 597,599/604,479 ms; ricerca
+  1.048,437/1.074,024 ms; dettaglio 0,642/2,485 ms. Target iniziali catalog/search
+  `FAIL`, dettaglio `PASS`; budget runner documentato 800/1.200/400 ms `PASS`.
+- **Dataset/cleanup**: 20.000 prodotti, 100 categorie, 65.000 righe equivalenti;
+  keyset/FTS index usati; fixture residue 0; artifact digest `bfe90763…`.
+- **Milestone 1**: TASK-005/TASK-006/TASK-010 tutti
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`; production invariata.
+- **Transizione**: TASK-007 è l'unico task `ACTIVE / EXECUTION`.

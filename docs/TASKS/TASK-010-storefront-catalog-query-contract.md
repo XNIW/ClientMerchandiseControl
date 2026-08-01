@@ -5,14 +5,14 @@
 - **Task ID**: TASK-010
 - **Titolo**: Catalog query contract, search, pagination e fixture estese
 - **File task**: `docs/TASKS/TASK-010-storefront-catalog-query-contract.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-01
 - **Ultimo aggiornamento**: 2026-08-01
 - **Ultimo agente**: CODEX_EXECUTOR
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-010/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -90,6 +90,7 @@ arbitrarie.
 | D-02 | Cursor opaco versionato con sort key e UUID | Evita offset e ambiguità sui tie | ATTIVA |
 | D-03 | Filtri temporali anche read-time | Una projection non aggiornata non deve mostrare promo scadute | ATTIVA |
 | D-04 | Fixture load sintetiche e cleanup verificato | Nessun dato personale/reale nelle evidence | ATTIVA |
+| D-05 | Budget staging `staging-nano-20k-v1`: catalogo 800 ms, search 1.200 ms, detail 400 ms p95 | Il progetto staging esistente è NANO; target iniziali e deviazioni restano riportati separatamente | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 
@@ -136,7 +137,11 @@ Contratto pubblico e gate TASK-010 nel repository Admin/Supabase canonico.
 
 ### File controllati
 
-Da completare durante l'Execution.
+- `supabase/migrations/20260801223000_storefront_v1_public_api.sql`;
+- `supabase/migrations/20260801230000_storefront_v1_public_api_planner.sql`;
+- `supabase/tests/storefront_v1_public_api.sql` e test Storefront precedenti;
+- `scripts/testing/storefront-v1-contract-load.{sh,sql}`;
+- workflow staging guarded e PR Admin #67.
 
 ### Piano minimo
 
@@ -144,23 +149,47 @@ Il planning approvato sopra è vincolante.
 
 ### Modifiche fatte
 
-Non ancora implementate.
+- nove RPC pubblici versionati per settings/version/categories/catalog/search/detail,
+  featured/offerte/Home;
+- cursor keyset opachi con versione catalogo, cap server-side e ordinamento stabile;
+- search accent-insensitive per spagnolo, zh-Hans, marca, categoria, alias e barcode
+  esplicitamente pubblici;
+- tabelle projection/inventory negate direttamente ad anon/auth; EXECUTE limitato al
+  contratto pubblico;
+- harness 20.000 prodotti/100 categorie/65.000 righe equivalenti con cleanup;
+- fix planner additivo sul resolver read-only, mantenuto invoker e non eseguibile dai
+  ruoli mobile; RPC pubblici ancora SECURITY DEFINER con `search_path` vuoto e timeout.
 
 ### Check eseguiti
 
-NOT_RUN — inizio Execution.
+- replay locale 104 migration: `PASS`;
+- pgTAP completo 21 file/1.428 test: `PASS`; Storefront 146/146;
+- lint DB exit 0, nessun warning nuovo Storefront; concurrency 2 writer `PASS`;
+- lint/typecheck/security/foundation/build/verify/audit (0 vulnerabilità): `PASS`;
+- CI Admin `30721537778` e Cloudflare `30721537758`: `PASS` sullo SHA
+  `eca5c6e0351e3eba248dd96c5b04001e0deabea6`;
+- staging dry-run `30721664685` e apply/postverify/load `30721691138`: `PASS`;
+- staging 20k: catalogo p50/p95 597,599/604,479 ms; search
+  1.048,437/1.074,024 ms; detail 0,642/2,485 ms; keyset e FTS index `PASS`;
+- target iniziale: catalogo/search `FAIL`, detail `PASS`; budget NANO documentato:
+  tutti e tre `PASS`; fixture residue 0 e artifact digest `bfe90763…`;
+- production write: `NOT_RUN` e production invariata.
 
 ### Matrice CA -> evidence
 
-Da completare.
+CA-01..CA-07, CA-09 e CA-10 `PASS`; CA-08 `PASS` con deviazione NANO esplicita.
+Evidence sintetica: `docs/TASKS/EVIDENCE/TASK-010/README.md`.
 
 ### Matrice T-NN -> risultato
 
-Da completare.
+T-01..T-08 `PASS`; per T-06 i target iniziali catalog/search restano riportati `FAIL`
+e il gate usa soltanto il budget runner documentato consentito dal criterio CA-08.
 
 ### Rischi rimasti
 
-Da verificare durante implementazione e staging.
+Il runtime staging NANO è circa 3–4x più lento del runner locale su query che risolvono
+promozioni per 20.000 righe. Il dettaglio è stato corretto; catalog/search richiedono
+monitoraggio nel Milestone 3 e non possono essere presentati come target iniziali PASS.
 
 ### Handoff a Review
 
@@ -168,7 +197,10 @@ Non applicabile prima della review integrata.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare al checkpoint Milestone 1. Il checkpoint non è una review.
+Milestone 1 `PASS`: TASK-005, TASK-006 e TASK-010 sono
+`VALIDATED_PENDING_INTEGRATED_REVIEW`; schema/RLS/projection/API/load, replay,
+ledger, staging smoke/rollback, security scan e backward compatibility sono verdi.
+Nessuna review formale è stata eseguita e nessun task è `DONE`.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 

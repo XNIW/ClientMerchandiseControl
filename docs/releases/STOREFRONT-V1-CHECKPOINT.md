@@ -10,8 +10,9 @@
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
   check `PASS`; `git diff --check` `PASS`; security scan 342 file `PASS`; architecture
   boundary e fixture 5/5 `PASS`
-- **Gate ancora necessari**: push/CI governance; poi ownership/ledger/drift TASK-005
-- **Comando successivo esatto**: `git push -u origin integration/storefront-v1`
+- **Git/PR**: branch remota pubblicata; PR Client `#5`, `DRAFT`
+- **Gate ancora necessari**: CI governance; poi ownership/ledger/drift TASK-005
+- **Comando successivo esatto**: `gh run list --branch integration/storefront-v1 --limit 5`
 - **Blocker**: nessuno
 - **Processi ancora attivi**: nessuno
 - **Stato staging**: Auth/Google callback `PASS`; Storefront schema/API `NOT_RUN`;

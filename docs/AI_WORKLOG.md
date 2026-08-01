@@ -1252,3 +1252,27 @@
 - **Intervento umano preciso**: autenticare il Dashboard Supabase staging e
   completare MFA, oppure rinnovare in modo sicuro il token Supabase CLI. Nessun
   intervento GitHub Billing è più necessario.
+
+## 2026-08-01 — Re-review 6 TASK-020, gate live sbloccati
+
+- **Agente**: `CODEX_RE_REVIEWER`
+- **Task**: TASK-020
+- **Fase iniziale/finale**: REVIEW -> REVIEW; stato task `ACTIVE`
+- **Revision set**: `671494f83aecf423075348d2efa10da835295984`.
+- **Supabase staging**: redirect before 16, append callback canonica, after 17 e
+  reload persistente `PASS`; Site URL e redirect preesistenti invariati; provider
+  `Google Enabled`; production non toccata.
+- **Android live**: clean install, OAuth Google/PKCE, callback, authenticated, cold
+  restore, background/resume, logout, relogin, logout offline e provider cancel
+  `PASS`; zero token/code nei log.
+- **iOS live**: clean install, OAuth Google/PKCE, dialogo OS, callback warm/cold,
+  cold restore, background/resume, logout e nuovo login `PASS`; zero token/code nei
+  log. Il processo è stato terminato prima del callback cold.
+- **Cleanup**: sessioni test chiuse, emulator e Simulator arrestati, flag staging
+  locale riportato a `false`, artifact temporanei spostati nel Cestino.
+- **CI/PR**: run `30709395137` sullo SHA esatto, Quality/iOS/Android 3/3
+  `success`, annotation 0/0/0; PR #4 `OPEN/DRAFT`, `MERGEABLE/CLEAN`.
+- **Finding**: 0 P0, 0 P1, 0 P2 e 0 P3.
+- **Risultato**: `APPROVED`; merge e post-merge sync restano `NOT_RUN` fino al
+  closeout reale. Handoff `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  autorizzazione USER_APPROVER già presente nel prompt Storefront v1.

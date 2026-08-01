@@ -6,15 +6,15 @@
 - **Titolo**: Supabase Auth, deep link e session lifecycle
 - **File task**:
   `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato**: BLOCKED
+- **Stato**: ACTIVE
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-07-31
 - **Ultimo aggiornamento**: 2026-08-01
 - **Ultimo agente**: CODEX_RE_REVIEWER
-- **Review outcome**: BLOCKED
+- **Review outcome**: APPROVED
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-020/`
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -571,6 +571,37 @@ nuovo login. Il Dashboard richiede login/MFA e il token CLI corrente riceve HTTP
 Esito: `BLOCKED`.
 
 Handoff: `CODEX_REVIEW_BLOCKED`.
+
+### Re-review 6 — gate esterni sbloccati
+
+Revision set applicativo e CI: `671494f83aecf423075348d2efa10da835295984`.
+
+- Supabase staging: `PASS`; Dashboard autenticato, provider `Google Enabled`,
+  allow-list `16 -> 17`, callback esatta persistente dopo reload, redirect precedenti
+  e Site URL invariati, production non toccata;
+- Android live: `PASS`; clean install, Google OAuth/PKCE, callback, Account
+  authenticated, cold restore, background/resume, logout, relogin, logout offline e
+  provider cancellation senza autenticazione;
+- iOS live: `PASS`; clean install, Google OAuth/PKCE, dialogo OS, callback warm,
+  background/resume, cold restore, logout/relogin e callback cold dopo terminate;
+- log security: `PASS`; zero access token, refresh token, bearer, JWT e callback con
+  code nei log live Android/iOS; artifact grezzi fuori Git e spostati nel Cestino;
+- CI: `PASS`; run `30709395137` sullo SHA esatto, Quality/iOS/Android 3/3
+  `success`, tutti gli step applicabili `success`, annotation 0/0/0;
+- PR #4: `OPEN/DRAFT`, `MERGEABLE/CLEAN`, head esatto;
+- finding: 0 P0, 0 P1, 0 P2 e 0 P3.
+
+Il flag locale staging è stato riportato a `false`; è ignorato e non tracciato. La
+quota FREE è un rischio da monitorare, non un gate fallito e non ha generato upgrade o
+modifiche billing. Tutti i blocker esterni della Re-review 5 sono chiusi.
+
+Esito: `APPROVED`.
+
+L'autorizzazione `USER_APPROVER` al closeout e merge è già contenuta nel prompt
+Storefront v1. Il task resta `ACTIVE` soltanto fino al merge reale e alla verifica
+post-merge di CA-40/T-38; nessun `PASS` post-merge viene anticipato.
+
+Handoff: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Fix — `CODEX_FIXER`
 

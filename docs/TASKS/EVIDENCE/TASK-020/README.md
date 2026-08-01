@@ -1,7 +1,7 @@
 # Evidence TASK-020
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Stato
 
@@ -35,8 +35,11 @@ Snapshot di handoff:
 - Ripresa Prelude 2026-08-01: callback warm iOS `PASS` sullo SHA `0676826`;
   Supabase Auth config ancora `BLOCKED` dopo Dashboard login richiesto e API 401
 - CI: `PASS` sullo SHA `67adf5d`; run `30708934520`, 3/3 job e zero annotation
-- PR/merge: draft PR #4 sullo SHA `67adf5d`, `MERGEABLE/CLEAN`; merge `BLOCKED`
-  soltanto dai gate Auth live obbligatori
+- Re-review 6: `APPROVED` sullo SHA `671494f`; allow-list staging e OAuth/session
+  lifecycle live Android/iOS `PASS`, 0 P0/P1/P2/P3
+- CI corrente: `PASS`; run `30709395137`, 3/3 job, annotation 0/0/0
+- PR/merge: draft PR #4 sullo SHA `671494f`, `MERGEABLE/CLEAN`; merge e sync
+  post-merge ancora `NOT_RUN`
 - DONE: `NO`
 
 ## Indice
@@ -68,10 +71,9 @@ duplicazioni che potrebbero divergere.
 
 ## Blocchi esterni aperti
 
-- Supabase dashboard: login e MFA necessari per leggere/modificare la redirect
-  allow-list, oppure rinnovo del token CLI; nessun write remoto è stato eseguito.
-- GitHub Actions: la run `30708934520` sullo SHA `67adf5d` ha concluso 3/3
-  job `PASS`, tutti gli step applicabili `success` e zero annotation.
+- Nessuno. Il rischio quota FREE staging resta da monitorare senza upgrade/billing.
+- Il merge e la verifica post-merge non sono blocker esterni: sono il closeout
+  autorizzato successivo e restano `NOT_RUN` finché non eseguiti.
 
 Le evidence finali dovranno contenere esattamente una riga per ciascuno dei 40 CA e
 38 test, con soli esiti `PASS`, `FAIL`, `BLOCKED` o `NOT_RUN`. Non sono ammessi URL,

@@ -143,21 +143,20 @@ Soltanto `USER_APPROVER` autorizza `DONE`, merge e attivazione del task successi
 
 - **Task attivo**: TASK-020
 - **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato task**: BLOCKED
+- **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione
 `30601758281` 3/3 `PASS`; CI closeout `30602210469` è 3/3 `PASS` sullo SHA esatto.
 TASK-012 è `DONE` con re-review indipendente `APPROVED`, quattro P2 chiusi e CI
 handoff/approvazione `30606916073` / `30607430241` entrambe 3/3 `PASS`. TASK-020
-resta l'unico task corrente ed è `BLOCKED` in `REVIEW`: la re-review 4 sul tecnico
-`9dbd535` / handoff `c0ebd75` ha chiuso entrambi i finding RR3, con 0 P0/P1/P2/P3,
-scanner 32/32 negative + 2/2 positive e 21/21 probe. La callback warm iOS è ora
-`PASS` sullo SHA `0676826`; redirect allow-list/live OAuth restano bloccati da
-login/MFA Supabase o token CLI da rinnovare. La CI reale run `30708934520` sullo
-SHA `67adf5d` è `PASS`, 3/3 job con tutti gli step applicabili `success` e zero
-annotation. Nessuno dei gate live ancora aperti è dichiarato `PASS`; l'handoff è
-`CODEX_REVIEW_BLOCKED`. TASK-005–TASK-010,
+resta l'unico task corrente ed è `ACTIVE` in `REVIEW`: la Re-review 6 sullo SHA
+`671494f` ha verificato allow-list staging, provider Google, OAuth live Android/iOS,
+callback iOS warm/cold, restore, logout e nuovo login. Finding aperti 0 P0/P1/P2/P3;
+CI `30709395137` 3/3 `PASS`, step applicabili `success`, annotation 0/0/0; PR #4
+`OPEN/DRAFT`, `MERGEABLE/CLEAN`. L'outcome è `APPROVED`; merge e verifica
+post-merge restano `NOT_RUN` fino al closeout reale. L'handoff è
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. TASK-005–TASK-010,
 TASK-013–TASK-019 e TASK-021 in avanti non sono attivi.

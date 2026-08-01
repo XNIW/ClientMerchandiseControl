@@ -534,3 +534,33 @@ Handoff: `CODEX_REVIEW_BLOCKED`.
   autenticato a Supabase staging.
 
 Handoff: `CODEX_REVIEW_BLOCKED`.
+
+## Re-review 6 — sblocco gate live
+
+Revision set: `671494f83aecf423075348d2efa10da835295984`.
+
+| Superficie | Esito | Evidence |
+|---|---|---|
+| Supabase staging | PASS | CMD-P08; append singolo, `16 -> 17`, reload, Site URL e redirect precedenti invariati |
+| Android OAuth/session | PASS | CMD-P09/P10/P12; OAuth reale, restore, logout/relogin, offline e log scan |
+| iOS OAuth/session | PASS | CMD-P09/P11/P12; OAuth reale, warm/cold callback, restore, logout/relogin e log scan |
+| CI/PR | PASS | CMD-P13; run `30709395137`, 3/3, annotation 0/0/0; PR mergeable clean |
+| Security/evidence | PASS | zero secret/PII versionati; config locale ignorata e riportata a `false` |
+
+### Conteggio re-review 6
+
+| Severità | Aperti |
+|---|---:|
+| P0 | 0 |
+| P1 | 0 |
+| P2 | 0 |
+| P3 | 0 |
+
+### Esito re-review 6
+
+`APPROVED`
+
+La re-review verifica soltanto risultati eseguiti sul revision set dichiarato. Merge e
+sync post-merge restano il closeout successivo e non sono marcati `PASS` in anticipo.
+
+Handoff: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.

@@ -27,6 +27,8 @@
   `06768266fdba498011a65102472c66d482c2f8b6`
 - SHA evidence Prelude:
   `67adf5dc8a18a3586700c3b626d1630e72b66d60`
+- SHA revision set live Re-review 6:
+  `671494f83aecf423075348d2efa10da835295984`
 - Workflow sullo SHA evidence: run `30708934520`, `PASS`
 - Auth fake, build Android/iOS, security/pin scan in CI: `PASS`; 3/3 job, tutti
   gli step applicabili `success` e zero annotation
@@ -173,6 +175,17 @@ job. Il blocker billing/spending è chiuso; non viene esteso ai gate OAuth live.
 
 Nessun Google OAuth live, file staging locale, secret o account deve entrare in CI.
 
+## Run reale sul revision set live Re-review 6
+
+| Run | Trigger | SHA | Job | Step | Annotation | Esito |
+|---|---|---|---:|---:|---:|---|
+| `30709395137` | `pull_request` | `671494f` | 3/3 `success` | tutti applicabili `success` | 0/job | PASS |
+
+Job Quality `91394057230` 2m56s, iOS `91394057233` 2m56s e Android
+`91394057273` 8m33s. `gh run view`, PR status e le tre query annotation hanno
+verificato head esatto, step tutti `success`, annotation `[]` e PR
+`OPEN/DRAFT / MERGEABLE/CLEAN`.
+
 Matrice CA/T canonica e command evidence: `commands-and-results.md`,
-CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02/CMD-X14/CMD-X15/CMD-Y04/CMD-Z07/CMD-Z08/CMD-W04/CMD-P03/P06,
+CMD-CI01/CMD-CI02/CMD-S14/CMD-Q02/CMD-X14/CMD-X15/CMD-Y04/CMD-Z07/CMD-Z08/CMD-W04/CMD-P03/P06/P13,
 CA-39 e T-36.

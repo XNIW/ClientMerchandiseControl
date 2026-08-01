@@ -7,14 +7,13 @@
 - **Stato globale**: ACTIVE
 - **Task attivo**: TASK-020
 - **File task**: `docs/TASKS/TASK-020-supabase-auth-deep-link-session-lifecycle.md`
-- **Stato task**: BLOCKED
+- **Stato task**: ACTIVE
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_BLOCKED
-- **Prossima azione autorizzata**: attendere login/MFA Supabase o rinnovo del token
-  CLI, quindi aggiungere e verificare la redirect allow-list ed eseguire gli smoke
-  OAuth live Android/iOS;
-  nessun `APPROVED`, `DONE` o merge finché i gate esterni restano aperti
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Prossima azione autorizzata**: commit del closeout review, CI sullo SHA esatto,
+  rendere PR #4 non draft, merge normale e verifica post-merge; l'autorizzazione
+  `USER_APPROVER` è già contenuta nel prompt Storefront v1
 
 ## Repository coinvolti
 
@@ -69,7 +68,7 @@
 | TASK-017 | Cache catalogo offline, refresh e invalidazione | TODO | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
 | TASK-018 | Preferiti, condivisione e deep link prodotto | TODO | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
 | TASK-019 | Catalog performance e acceptance su dataset esteso | TODO | TASK-010, TASK-014, TASK-015, TASK-017 | Client, Supabase | Budget prestazioni misurato |
-| TASK-020 | Supabase Auth, deep link e session lifecycle | BLOCKED | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
+| TASK-020 | Supabase Auth, deep link e session lifecycle | ACTIVE | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
 | TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
 | TASK-022 | Registrazione device, consenso notifiche e token lifecycle | TODO | TASK-020, TASK-021 | Client, Supabase | Consenso e token gestiti |
 | TASK-023 | Carrello persistente e price revalidation | TODO | TASK-012, TASK-016, TASK-017 | Client, Supabase | Carrello coerente e rivalidato |
@@ -146,16 +145,14 @@ step, con billing/spending GitHub come prerequisito esterno.
 
 ## Task attivo — TASK-020
 
-La re-review 4 sul tecnico `9dbd535` e handoff `c0ebd75` ha chiuso
-T020-RR3-C-001 e T020-RR3-A-001. Cinque shard A–E hanno riportato 0 P0, 0 P1,
-0 P2 e 0 P3; scanner 336 file, fixture 32/32 negative + 2/2 positive, 21/21 probe
-avversari, artifact 548 + 81 = 629 e suite app/native mirate sono `PASS`. La PR #4
-resta `OPEN/DRAFT`, 143 path e zero TASK-003/004. La ripresa Prelude sullo SHA
-`0676826` ha sbloccato la callback warm iOS (`1/1 PASS`, exit 0). L'esito complessivo
-resta `BLOCKED`: la CI reale run `30708934520` sullo SHA `67adf5d` è `PASS`,
-3/3 job con tutti gli step applicabili `success` e zero annotation; redirect
-allow-list e live OAuth restano bloccati da login/MFA Supabase o token CLI da
-rinnovare. Nessun `APPROVED`, `DONE` o merge è autorizzato.
+La Re-review 6 sullo SHA `671494f` ha chiuso tutti i blocker esterni: redirect
+allow-list staging aggiunta e persistente (`16 -> 17`) con provider Google attivo,
+Site URL/redirect precedenti/production invariati; OAuth Google reale Android/iOS,
+restore, logout e nuovo login `PASS`; callback iOS warm e cold `PASS`; log live senza
+token/code. La CI run `30709395137` è 3/3 `PASS`, tutti gli step applicabili
+`success`, annotation 0/0/0. Finding aperti: 0 P0/P1/P2/P3. PR #4 è
+`OPEN/DRAFT`, `MERGEABLE/CLEAN`. Outcome: `APPROVED`; merge e sync post-merge non
+sono ancora attestati e restano l'unico closeout.
 
 Handoff:
-`CODEX_REVIEW_BLOCKED`.
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.

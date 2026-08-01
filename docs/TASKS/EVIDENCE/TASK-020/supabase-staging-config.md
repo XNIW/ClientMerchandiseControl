@@ -1,6 +1,6 @@
 # Supabase staging config — TASK-020
 
-## Verifica read-only
+## Mutazione Auth staging verificata
 
 | Controllo | Esito | Evidence sanitizzata |
 |---|---|---|
@@ -9,31 +9,32 @@
 | Stato | PASS | `ACTIVE_HEALTHY` |
 | Config locale | PASS | cinque chiavi esatte; file ignorato e non tracciato |
 | Callback locale | PASS | URI canonico esatto |
-| Kill switch | PASS | `GOOGLE_AUTH_ENABLED=false` |
-| Auth settings | PASS | endpoint raggiungibile |
-| Provider Google | PASS | attivo |
-| Provider esterni | PASS | due attivi; nessuna configurazione modificata |
-| Authorize probe PKCE | PASS | HTTP 302 verso `accounts.google.com`; redirect non seguito |
-| Redirect allow-list before | BLOCKED | Dashboard richiede login; Management API HTTP 401 |
-| Append callback | NOT_RUN | nessun point-update sicuro disponibile |
-| Redirect allow-list after | BLOCKED | dipende dal write non eseguito |
-| Production | NOT_RUN | fuori scope |
+| Site URL before/after | PASS | invariato; valore reale non persistito |
+| Redirect allow-list before | PASS | 16 URL; callback mobile esatta assente |
+| Append callback | PASS | aggiunta una sola callback canonica dal Dashboard autenticato |
+| Redirect allow-list after | PASS | 17 URL; callback esatta presente e le 16 precedenti preservate |
+| Persistenza dopo reload | PASS | callback ancora presente dopo reload e `networkidle` |
+| Provider Google | PASS | Dashboard corrente: `Google Enabled` |
+| Configurazione production | PASS | zero navigazioni o mutazioni production |
+| Kill switch post-smoke | PASS | riportato a `GOOGLE_AUTH_ENABLED=false` nel file locale ignorato |
 
-## Decisione fail-closed
+## Evidence operativa sanitizzata
 
-Il connector disponibile non espone Auth config/redirect. La ripresa del 2026-08-01 ha
-esaurito due percorsi indipendenti: il Dashboard ha richiesto un nuovo login GitHub e la
-Management API ufficiale ha risposto HTTP 401 usando il token CLI scaduto/non valido
-letto dal Keychain e mai stampato. La push CLI ampia non è stata usata. Codex non
-inserisce password, passkey, fattori o credenziali.
+La sessione Dashboard sbloccata dall'utente è stata usata per un solo write Auth staging.
+Il confronto prima/dopo ha verificato cardinalità `16 -> 17`, presenza dell'URI esatto,
+uguaglianza dell'insieme dei 16 redirect precedenti e Site URL invariato. Il reload ha
+confermato la persistenza. I log Auth mostrano il reload della configurazione alle
+`2026-08-01T18:25:15Z`; nessun payload grezzo è versionato.
 
-Nessun progetto, Site URL, provider, secret, wildcard, redirect preesistente o
-configurazione production è stato creato o modificato. Il kill switch resta `false`;
-gli smoke Google live sono conseguentemente `BLOCKED`.
+Nessun progetto, provider, secret, wildcard, redirect preesistente o configurazione
+production è stato creato o modificato. Il kill switch è stato `true` soltanto nel file
+staging locale ignorato durante gli smoke ed è stato riportato a `false` subito dopo.
+Il piano FREE mostra un rischio quota egress, non un errore corrente; nessun upgrade,
+billing o accordo è stato accettato.
 
 Questa evidence non contiene URL, key, client ID/secret, token, callback con query,
 account o dati personali.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-R01/CMD-R02/CMD-P02, CA-11/12/13/30/31/32 e
+`commands-and-results.md`, CMD-P08/P10/P11/P12, CA-11/12/13/30/31/32 e
 T-04/32/33/34.

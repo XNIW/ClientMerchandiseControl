@@ -108,6 +108,14 @@
 | CMD-P05 | worktree ripresa Prelude | `bash scripts/check-governance-state.sh && flutter test test/governance/task020_evidence_matrix_test.dart && bash scripts/check-client-security.sh && git diff --check` | PASS | exit 0; governance coerente; parser 1/1 con 12 file, 40 CA e 38 T; scanner 336 file; zero whitespace error | eseguito dopo l'aggiornamento di task, Master, worklog ed evidence |
 | CMD-P06 | `67adf5d`, GitHub Actions | `gh run view 30708934520 --json ...`; API run/jobs e annotation dei check `91392819779`, `91392819807`, `91392819830` | PASS | run pull request conclusa `success`; Android, iOS e Quality 3/3; tutti gli step applicabili `success`; zero annotation | SHA esatto verificato; durata job Android 8m25s, iOS 4m07s, Quality 3m07s |
 | CMD-P07 | worktree consolidamento CI Prelude | `bash scripts/check-governance-state.sh && flutter test test/governance/task020_evidence_matrix_test.dart && bash scripts/check-client-security.sh && git diff --check` | PASS | exit 0; governance coerente; parser 1/1 con 12 file, 40 CA e 38 T; scanner 336 file; zero whitespace error | eseguito dopo il consolidamento della run CI reale e delle matrici CA/T |
+| CMD-P08 | staging Auth, Dashboard autenticato | confronto URL Configuration before/after; append callback canonica; Save; reload; verifica provider Google | PASS | transazione browser completata; redirect `16 -> 17`, URI esatto presente, 16 precedenti e Site URL invariati, `Google Enabled` | solo staging `jpgo…yvm`; production, provider, secret e wildcard non modificati; log config reload `2026-08-01T18:25:15Z` |
+| CMD-P09 | `671494f`, build/install puliti live | `flutter pub get --enforce-lockfile`; build APK debug e iOS Simulator debug con file staging ignorato; uninstall/install su entrambi i target | PASS | pub exit 0; Android build 43,5 s e install exit 0; iOS build 24,0 s e install exit 0 | warning framework Xcode non bloccante; nessun signing production |
+| CMD-P10 | `671494f`, Android Emulator API 35 | OAuth Google reale, callback, Account, force-stop/relaunch, background/resume, logout, relogin, logout offline e provider cancel | PASS | token exchange PKCE HTTP 200; authenticated, restore, resume, guest logout e relogin osservati; `airplane_mode=1` logout guest; cancellation resta guest | account e payload non persistiti; rete ripristinata; zero crash/ANR |
+| CMD-P11 | `671494f`, iPhone 17 Pro Simulator iOS 26.5 | OAuth Google reale, dialogo OS, callback warm, Account, terminate/relaunch, background/resume, logout/relogin e callback cold dopo terminate | PASS | token exchange PKCE HTTP 200; authenticated/restore/logout osservati; processo terminato prima di `Apri`, custom scheme rilancia cold e autentica | nessun password/MFA/OTP inserito; zero signing production |
+| CMD-P12 | `671494f`, sanitizzazione e cleanup locale | scan logcat Android e `Runner` iOS per token/bearer/JWT/code; verifica config locale; stop emulator/Simulator; spostamento artifact temporanei nel Cestino | PASS | zero access token, refresh token, bearer, JWT e callback con code su entrambi; flag finale `false`, ignored `true`, tracked `false`; runtime arrestati | log/screenshot grezzi fuori Git e rimossi in modo recuperabile |
+| CMD-P13 | `671494f`, GitHub Actions | `gh run view 30709395137 --json ...`; `gh pr view 4 --json ...`; API annotation check `91394057230`, `91394057233`, `91394057273` | PASS | Quality 2m56s, iOS 2m56s, Android 8m33s; 3/3 `success`, tutti gli step applicabili `success`, annotation 0/0/0 | PR #4 `OPEN/DRAFT`, `MERGEABLE/CLEAN`, head esatto |
+| CMD-P14 | `671494f`, Re-review 6 gate esterni | confronto CA/T, evidence storica, Dashboard staging, log Auth sanitizzati, smoke Android/iOS, CI/PR e finding Re-review 4 | PASS | 0 P0, 0 P1, 0 P2, 0 P3; tutti i gate esterni precedenti chiusi; revision set invariato nel codice applicativo | esito `APPROVED`; closeout/merge restano eventi successivi da attestare |
+| CMD-P15 | worktree Re-review 6 | `bash scripts/check-governance-state.sh`; evidence parser; client security scan; `git diff --check` | PASS | governance `TASK-020 / ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; parser 1/1, 12 file, 40 CA, 38 T; scanner 336 file; zero whitespace error | primo tentativo governance `FAIL` per README root storico non aggiornato; corretto il mirror, rerun completo exit 0 |
 
 I `FAIL` diagnostici restano evidence reali e non vengono trasformati in `PASS`: i
 rerun conformi sono identificati separatamente. I comandi con callback usano qui un
@@ -128,18 +136,18 @@ query o code.
 | CA-08 | UNIT/SECURITY | PASS | CMD-X01; validator strict e matrice URI/payload negativa |
 | CA-09 | STATIC/BUILD_ANDROID/ANDROID_EMU | PASS | CMD-X01/X05/X08; manifest preciso, build e routing warm reali |
 | CA-10 | STATIC/BUILD_IOS/IOS_SIM | PASS | plist/build/validator PASS in CMD-X01/X05; ricezione warm nativa reale PASS in CMD-P01, exit 0 e 1/1 |
-| CA-11 | MANUAL/SECURITY | BLOCKED | CMD-R01/R02/P02; progetto sano e provider storico attivo, ma Auth config corrente non leggibile senza login/MFA o token CLI valido |
-| CA-12 | MANUAL/SECURITY | BLOCKED | CMD-R01/P02; allow-list before/write/after fermata da autenticazione esterna; nessun write |
-| CA-13 | SECURITY/MANUAL | BLOCKED | CMD-P02; before/after non ottenibili, project ref solo mascherato e token mai stampato; prerequisito: accesso Supabase autenticato |
+| CA-11 | MANUAL/SECURITY | PASS | CMD-P08; progetto staging canonico e provider `Google Enabled` verificati dal Dashboard autenticato |
+| CA-12 | MANUAL/SECURITY | PASS | CMD-P08; append esatto, `16 -> 17`, insieme precedente e Site URL invariati, reload persistente |
+| CA-13 | SECURITY/MANUAL | PASS | CMD-P08/P12; project ref mascherato, evidence before/after sanitizzata e zero secret/PII persistiti |
 | CA-14 | UNIT | PASS | CMD-X01/X03; current session e auth/storage stream alimentano un solo controller |
 | CA-15 | UNIT/WIDGET/ANDROID_EMU/IOS_SIM | PASS | CMD-X06/X09; callback fake da Home autentica e seleziona Account su entrambi i target |
 | CA-16 | UNIT | PASS | CMD-X01; single-flight, replay code-only, provider Retry, cancel/exchange, restore race e stale verifier |
 | CA-17 | UNIT/ANDROID_EMU/IOS_SIM/SECURITY | PASS | CMD-X01/X06/X09; callback invalida/corrotta/duplicata non autentica e non crasha |
-| CA-18 | UNIT/ANDROID_EMU/IOS_SIM | BLOCKED | unit restore/expiry/recovery SDK PASS in CMD-X01; terminate/relaunch con sessione reale non eseguibile senza OAuth live/MFA |
+| CA-18 | UNIT/ANDROID_EMU/IOS_SIM | PASS | CMD-X01/P10/P11; restore/expiry unit e terminate/relaunch/background reali su Android/iOS, incluso callback cold iOS |
 | CA-19 | UNIT | PASS | CMD-X01; dispose e future/eventi tardivi testati con compensazione |
-| CA-20 | UNIT/WIDGET/ANDROID_EMU/IOS_SIM | PASS | CMD-X01/X03/X06/X09; logout locale, cleanup indipendente, tre marker e nuovo login |
+| CA-20 | UNIT/WIDGET/ANDROID_EMU/IOS_SIM | PASS | CMD-X01/X03/P10/P11; logout reale guest, logout offline fail-closed e nuovo login su entrambi |
 | CA-21 | UNIT/STATIC/SECURITY | PASS | CMD-X01/X03/X04; adapter unico Keychain/Keystore, journal non sensibile e nessun fallback plaintext |
-| CA-22 | UNIT/SECURITY | PASS | CMD-B01/Z01/Z02/Z05/W02; bundle storici e correnti puliti, zero token e JWT customer/non-publishable respinti fail-closed |
+| CA-22 | UNIT/SECURITY | PASS | CMD-B01/Z01/Z02/Z05/W02/P12; bundle e log live puliti, zero token/code/JWT e artifact temporanei fuori Git |
 | CA-23 | UNIT/WIDGET/SECURITY | PASS | CMD-X01; identity bounded, markup/control/bidi rifiutati e avatar locale |
 | CA-24 | STATIC/SECURITY | PASS | CMD-X01/X04/X13; client non autorizzativo, publishable config soltanto e zero API dati vietate |
 | CA-25 | WIDGET | PASS | CMD-X01; tutti gli stati Account e azioni renderizzati |
@@ -147,17 +155,17 @@ query o code.
 | CA-27 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | CMD-X06/X09; Home/Catalogo/Carrello navigabili durante authenticating/cancelling/offline |
 | CA-28 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | CMD-X01/X06/X09; locale, temi, 200%, semantics, 48 dp, portrait/landscape |
 | CA-29 | WIDGET/ANDROID_EMU/IOS_SIM | PASS | CMD-X06/X09; guest e callback fake non regressivi su entrambi i target |
-| CA-30 | ANDROID_EMU/MANUAL/SECURITY | BLOCKED | build/fake/readiness/native PASS in CMD-X05/X06/X07/X08; live 17 passi fermato da allow-list/MFA, flag false |
-| CA-31 | IOS_SIM/MANUAL/SECURITY | BLOCKED | build/fake/readiness/warm callback PASS in CMD-X05/X09/X10/P01; OAuth live resta fermato da allow-list/auth Supabase CMD-P02, flag false |
-| CA-32 | ANDROID_EMU/IOS_SIM/MANUAL | BLOCKED | subset fake/error PASS in CMD-X01/X06/X09; matrice live richiede OAuth remoto abilitabile dopo MFA |
+| CA-30 | ANDROID_EMU/MANUAL/SECURITY | PASS | CMD-P08/P09/P10/P12; 17 passi Android live, restore/logout/relogin e scan log completati |
+| CA-31 | IOS_SIM/MANUAL/SECURITY | PASS | CMD-P08/P09/P11/P12; 17 passi iOS live, callback warm/cold, restore/logout/relogin e scan log completati |
+| CA-32 | ANDROID_EMU/IOS_SIM/MANUAL | PASS | CMD-X01/X06/X09/P10/P11; device integration più provider cancel, logout offline, background/resume e cold callback reali |
 | CA-33 | STATIC/SECURITY | PASS | threat model TM-01…TM-30 verificato; CMD-Z01/Z02/W01/W02 |
-| CA-34 | STATIC/GIT | PASS | CMD-P07; parser finale valida 12 file, 40 CA, 38 T, tipo/stato/cardinalità/comando |
-| CA-35 | STATIC/FORMAT/ANALYZE/UNIT/GIT | PASS | CMD-Z01/Z02/Z06/Z09/W01/W03/P05 con comando, output ed exit reali |
+| CA-34 | STATIC/GIT | PASS | CMD-P15; parser finale valida 12 file, 40 CA, 38 T, tipo/stato/cardinalità/comando |
+| CA-35 | STATIC/FORMAT/ANALYZE/UNIT/GIT | PASS | CMD-Z01/Z02/Z06/Z09/W01/W03/P15 con comando, output ed exit reali |
 | CA-36 | STATIC/SECURITY/GIT | PASS | CMD-Z01/Z02/Z05/W02; 32/32 fixture e 21/21 probe coprono JWT customer/non-publishable su ogni superficie, 2/2 positive |
 | CA-37 | BUILD_ANDROID/BUILD_IOS | PASS | CMD-Z01 development e CMD-Z04 staging, entrambi i target exit 0 |
 | CA-38 | MANUAL/STATIC/SECURITY | PASS | CMD-W01/W02; cinque shard A–E sul revision set esatto, zero P0/P1/P2/P3 e finding RR3 chiusi |
-| CA-39 | CI | PASS | CMD-P06; run `30708934520` sullo SHA `67adf5d`, 3/3 job, tutti gli step applicabili `success`, zero annotation |
-| CA-40 | GIT/CI | BLOCKED | CMD-W01/W03/P04/P06; PR #4 draft, scope remoto e CI corretti, ma OAuth live impedisce merge, DONE e sync main |
+| CA-39 | CI | PASS | CMD-P13; run `30709395137` sullo SHA `671494f`, 3/3 job, tutti gli step applicabili `success`, zero annotation |
+| CA-40 | GIT/CI | NOT_RUN | CMD-P13/P14; review `APPROVED`, PR #4 ancora draft e merge/post-merge sync sono il closeout successivo |
 
 ## Matrice test
 
@@ -166,7 +174,7 @@ query o code.
 | T-01 | GIT/STATIC | PASS | CMD-W01/W03/W05; governance, branch, dipendenze e diff verificati |
 | T-02 | STATIC/SECURITY | PASS | CMD-X02; API/storage installati auditati |
 | T-03 | UNIT/SECURITY | PASS | CMD-X01; matrice AppConfig/bootstrap completa |
-| T-04 | MANUAL/SECURITY | BLOCKED | CMD-R01/P02; allow-list before/write/after fermata da autenticazione Supabase, nessun write; prerequisito login+MFA o token CLI rinnovato |
+| T-04 | MANUAL/SECURITY | PASS | CMD-P08; allow-list before/append/after/reload e provider Google verificati, production intatta |
 | T-05 | UNIT/SECURITY | PASS | CMD-X01; callback strict, corrotti, extra, duplicati e replay code-only |
 | T-06 | STATIC/ANDROID_EMU | PASS | CMD-X01/X08; manifest e ADB warm canonico reali |
 | T-07 | STATIC/IOS_SIM | PASS | static/plist PASS CMD-X01; CMD-P01 `simctl` exit 0 e harness 1/1 exit 0 |
@@ -175,7 +183,7 @@ query o code.
 | T-10 | UNIT | PASS | CMD-X01; tabella stati Auth e transizioni |
 | T-11 | UNIT | PASS | CMD-X01; restore, stream, expiry recovery e dispose |
 | T-12 | UNIT | PASS | CMD-X01; doppio tap, provider Retry, cancel/exchange, restore race e stale result |
-| T-13 | UNIT | BLOCKED | unit restore/expiry/recovery SDK PASS CMD-X01; terminate/relaunch secure reale richiede OAuth live/MFA |
+| T-13 | UNIT | PASS | CMD-X01/P10/P11; restore/expiry unit e terminate/relaunch reale dual-platform |
 | T-14 | UNIT | PASS | CMD-X01/X03; logout, cleanup indipendente, journal e nuovo login |
 | T-15 | UNIT/STATIC/SECURITY | PASS | CMD-X01/X03/X04; storage CRUD, first install, cleanup a tre marker e failure stream |
 | T-16 | UNIT/WIDGET/SECURITY | PASS | CMD-X01; metadata ostili, fallback e avatar locale |
@@ -189,15 +197,15 @@ query o code.
 | T-24 | ANDROID_EMU/IOS_SIM | PASS | CMD-X06/X09; invalido/senza sessione, zero crash |
 | T-25 | STATIC/SECURITY | PASS | threat model TM-01…TM-30; CMD-Z01/Z02/W01/W02 |
 | T-26 | STATIC/SECURITY/GIT | PASS | CMD-B01/Z02/Z05/Z06/W02; source/index/worktree/bundle puliti e JWT customer/non-publishable respinti |
-| T-27 | STATIC/GIT | PASS | CMD-P07; parser finale valida 12 file, 40 CA, 38 T, tipi, stati e comandi |
-| T-28 | STATIC/GIT | PASS | CMD-Z01/Z02/Z06/Z09/W01/W03/P05; doctor, shell, pin, governance, architecture e diff |
+| T-27 | STATIC/GIT | PASS | CMD-P15; parser finale valida 12 file, 40 CA, 38 T, tipi, stati e comandi |
+| T-28 | STATIC/GIT | PASS | CMD-Z01/Z02/Z06/Z09/W01/W03/P15; doctor, shell, pin, governance, architecture e diff |
 | T-29 | FORMAT/ANALYZE/UNIT | PASS | CMD-Z01; pub/l10n/format/analyze/221 test/coverage/check |
 | T-30 | BUILD_ANDROID | PASS | CMD-Z01/Z04; APK development e staging |
 | T-31 | BUILD_IOS | PASS | CMD-Z01/Z04; iOS Simulator development e staging |
-| T-32 | ANDROID_EMU/MANUAL/SECURITY | BLOCKED | subset automatico PASS CMD-X06/X07/X08; 17 passi live dipendono da CMD-R01 |
-| T-33 | IOS_SIM/MANUAL/SECURITY | BLOCKED | subset automatico e warm callback PASS CMD-X09/X10/P01; live dipende da Auth staging CMD-P02 |
-| T-34 | ANDROID_EMU/IOS_SIM/MANUAL | BLOCKED | error fake PASS CMD-X01/X06/X09; matrice live non eseguibile con flag false/MFA |
-| T-35 | MANUAL/STATIC/SECURITY | PASS | CMD-W01/W02; re-review A–E formale, zero finding e chiusura indipendente dei due RR3 |
-| T-36 | CI | PASS | CMD-P06; run `30708934520` sullo SHA `67adf5d`, 3/3 job, step applicabili `success`, zero annotation |
-| T-37 | GIT | PASS | CMD-W03/P04; branch/upstream/PR Client allineati, worktree Client pulito e checkout esterni dirty preservati |
-| T-38 | GIT/CI | NOT_RUN | CMD-W03/P06; verifica post-merge non eseguita perché i gate OAuth live non sono verdi e il merge resta vietato |
+| T-32 | ANDROID_EMU/MANUAL/SECURITY | PASS | CMD-P08/P09/P10/P12; smoke Android reale completo e sanitizzato |
+| T-33 | IOS_SIM/MANUAL/SECURITY | PASS | CMD-P08/P09/P11/P12; smoke iOS reale completo, callback warm/cold e sanitizzazione |
+| T-34 | ANDROID_EMU/IOS_SIM/MANUAL | PASS | CMD-X01/X06/X09/P10/P11; matrice errori device più probe live offline/cancel/background/cold |
+| T-35 | MANUAL/STATIC/SECURITY | PASS | CMD-W01/W02/P14; Re-review 6 chiude i blocker esterni, zero finding e outcome `APPROVED` |
+| T-36 | CI | PASS | CMD-P13; run `30709395137` sullo SHA `671494f`, 3/3 job, step applicabili `success`, zero annotation |
+| T-37 | GIT | PASS | CMD-W03/P04/P13; branch/upstream/PR head allineati, worktree Client pulito prima del closeout e checkout esterni preservati |
+| T-38 | GIT/CI | NOT_RUN | CMD-P13/P14; merge normale, delete branch e verifica post-merge saranno attestati dopo il closeout CI |

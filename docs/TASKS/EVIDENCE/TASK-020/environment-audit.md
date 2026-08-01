@@ -41,12 +41,15 @@ deployment target 13 soddisfano i requisiti di `flutter_secure_storage 10.3.1` e
 | Provider Google corrente | PASS | settings Auth pubblici: Google attivo; due provider esterni attivi |
 | Authorize Google corrente | PASS | risposta 302 verso il dominio Google; redirect non seguito |
 | Redirect mobile TASK-011 | PASS | risultava assente e riservato a TASK-020 |
-| Redirect mobile corrente | BLOCKED | dashboard fermata da MFA; connector senza Auth config |
-| Write remoto TASK-020 | NOT_RUN | nessun point-update sicuro disponibile; zero modifiche remote |
-| Production | NOT_RUN | fuori scope e non ispezionata/modificata |
+| Redirect mobile before | PASS | 16 redirect; callback esatta assente |
+| Write remoto TASK-020 | PASS | append singolo dal Dashboard autenticato |
+| Redirect mobile after | PASS | 17 redirect; callback esatta presente, precedenti preservati |
+| Provider Google corrente | PASS | `Google Enabled` nel Dashboard Auth |
+| Production | PASS | zero navigazioni o mutazioni production |
 
-Il connector Supabase è stato usato soltanto per discovery read-only e documentazione.
-Nessun project ref, URL, key, token, provider client ID o secret è persistito.
+Il connector Supabase è stato usato per discovery/log read-only; il solo write è stato
+l'append autorizzato dal Dashboard staging. Nessun project ref completo, URL, key,
+token, provider client ID o secret è persistito.
 
 ## Config locale staging
 
@@ -60,21 +63,19 @@ Controllo deterministico sul file ignorato:
 - `git check-ignore`: `PASS`;
 - assenza da `git ls-files`: `PASS`.
 
-Il flag resta `false`: la verifica/addizione allow-list non è stata possibile. Il file
-resta locale, ignorato e non entra in stage, diff o evidence.
+Il flag è stato portato temporaneamente a `true` dopo la persistenza della allow-list,
+usato per build/smoke reali e riportato a `false`. Il file resta locale, ignorato e non
+entra in stage, diff o evidence.
 
 ## Limiti osservati
 
-- Il Dashboard richiede un nuovo login GitHub/MFA e la Management API restituisce
-  HTTP 401 dal token CLI in Keychain; non sono stati inseriti o stampati fattori,
-  password, OTP, token o altre credenziali.
-- Il connector Supabase espone discovery/database ma non Auth config o redirect
-  allow-list; il CLI non offre un point-update sicuro equivalente.
-- Il simulatore iOS ha consegnato il callback warm canonico in CMD-P01: harness
-  1/1 `PASS`, exit 0. OAuth live resta distinto e non è inferito.
-- La CI TASK-020 run `30708934520` sullo SHA `67adf5d` è `PASS`: Android,
+- Il piano FREE mostra grace period concluso ed egress 3,78/5 GB: rischio quota da
+  monitorare, senza upgrade o modifica billing autorizzata.
+- Android Emulator API 35 e iPhone 17 Pro Simulator iOS 26.5 hanno completato OAuth,
+  restore, logout e nuovo login reali; callback iOS warm e cold entrambe `PASS`.
+- La CI TASK-020 run `30709395137` sullo SHA `671494f` è `PASS`: Android,
   iOS e Quality 3/3, tutti gli step applicabili `success` e zero annotation.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-X01/X02/CMD-Z01/Z02/Z04/CMD-R01/CMD-P01/P02/P03/P06,
+`commands-and-results.md`, CMD-X01/X02/CMD-Z01/Z02/Z04/CMD-P01/P08/P09/P10/P11/P12/P13,
 CA-01/03/04/11…CA-13/35…CA-39 e T-01…T-04/26…T-36.

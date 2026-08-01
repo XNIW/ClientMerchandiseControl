@@ -3,9 +3,10 @@
 ## Target
 
 - Android Emulator `emulator-5554`;
-- revision set tecnico Fix 3 `5740c835a116af16ab2e7ca6c55c927d180ece90`;
+- revision set live `671494f83aecf423075348d2efa10da835295984`;
 - application ID canonico;
-- staging locale ignorato con kill switch `false`;
+- staging locale ignorato con kill switch `true` soltanto durante lo smoke e poi
+  riportato a `false`;
 - nessun account, code, token, callback completo o dato personale persistito.
 
 ## Gate eseguiti
@@ -28,31 +29,37 @@
 | # | Passo | Esito |
 |---:|---|---|
 | 1 | Verifica progetto/provider e build staging | PASS |
-| 2 | Verifica allow-list before | BLOCKED |
-| 3 | Append callback esatta | NOT_RUN |
-| 4 | Verifica allow-list after | NOT_RUN |
-| 5 | Abilita kill switch locale | NOT_RUN |
-| 6 | Installazione pulita | NOT_RUN |
-| 7 | Avvio guest | NOT_RUN |
-| 8 | Tap Google una volta | NOT_RUN |
-| 9 | Browser/account test già presente | NOT_RUN |
-| 10 | Ritorno callback reale | NOT_RUN |
-| 11 | Account authenticated | NOT_RUN |
-| 12 | Terminate/relaunch e restore | NOT_RUN |
-| 13 | Logout locale | NOT_RUN |
-| 14 | Verifica guest post-logout | NOT_RUN |
-| 15 | Relogin | NOT_RUN |
-| 16 | Error/offline/background matrix live | NOT_RUN |
-| 17 | Crash/ANR/log sanitizzati live | NOT_RUN |
+| 2 | Verifica allow-list before | PASS |
+| 3 | Append callback esatta | PASS |
+| 4 | Verifica allow-list after e reload | PASS |
+| 5 | Abilita kill switch locale ignorato | PASS |
+| 6 | Installazione pulita | PASS |
+| 7 | Avvio guest | PASS |
+| 8 | Tap Google una volta | PASS |
+| 9 | Browser/account test già presente | PASS |
+| 10 | Ritorno callback reale | PASS |
+| 11 | Account authenticated | PASS |
+| 12 | Terminate/relaunch e restore | PASS |
+| 13 | Logout locale | PASS |
+| 14 | Verifica guest post-logout | PASS |
+| 15 | Relogin | PASS |
+| 16 | Error/offline/background matrix live | PASS |
+| 17 | Crash/ANR/log sanitizzati live | PASS |
 
-Il blocco è esterno e preciso: Supabase dashboard richiede MFA per leggere/applicare
-l'allow-list e nessuna API point-update sicura è disponibile. Il flag è rimasto
-`false`; nessuna credenziale è stata inserita e nessun write remoto è stato eseguito.
-Il primo comando callback con `adb` non presente nel `PATH` è conservato come
-`FAIL` diagnostico CMD-D07; il rerun conforme CMD-X08 usa il path SDK esplicito ed
-è `PASS`.
+APK staging costruito in 43,5 s, installazione pulita exit 0. Supabase ha registrato
+authorize/callback e token exchange PKCE HTTP 200; la UI Account è diventata
+authenticated. Force-stop/relaunch e background/resume hanno preservato la sessione;
+logout ha reso guest e il relogin ha autenticato di nuovo. Il probe logout con
+`airplane_mode=1` è rimasto guest fail-closed e la rete è stata ripristinata; un
+callback provider cancellato non ha autenticato. I casi double tap, config mancante,
+URI invalido e ritorno senza sessione sono completati dalle suite device già eseguite.
+
+La scansione del logcat live rileva zero access token, refresh token, bearer, JWT e
+callback con code. Log e screenshot grezzi sono rimasti fuori dal repository e sono
+stati spostati nel Cestino dopo la verifica. Il primo comando storico con `adb` assente
+dal `PATH` resta `FAIL` diagnostico CMD-D07; il gate conforme usa il path SDK esplicito.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-X01/X05/X06/X07/X08/CMD-D07/CMD-R01,
+`commands-and-results.md`, CMD-X01/X05/X06/X07/X08/CMD-D07/CMD-P08/P09/P10/P12,
 CA-09/27/29/30 e
 T-06/22/23/24/30/32.

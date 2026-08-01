@@ -61,9 +61,10 @@ Rischi residui:
   persistenti, un processo successivo non può distinguere l'intento di logout da
   uno stato precedente; il processo corrente resta `configurationError`. Il journal
   file chiude l'interleaving riproducibile in cui falliscono i due marker precedenti;
-- redirect allow-list e live OAuth restano `BLOCKED` da login/MFA Supabase;
-- la callback warm iOS è stata consegnata e validata in CMD-P01; questa prova non
-  sostituisce OAuth live, restore e logout reali.
+- redirect allow-list e OAuth live sono stati verificati in CMD-P08/P10/P11; Site URL,
+  redirect precedenti e production sono rimasti invariati;
+- callback iOS warm e cold, restore e logout reali sono `PASS`; il custom scheme resta
+  comunque non verificabile a livello di ownership e PKCE resta la mitigazione;
 - lo scanner tratta conservativamente come non pubblicabile qualunque JWT che non
   contenga un JSON object con un solo ruolo scalare letterale `anon`; escape Unicode
   e campi `role` annidati/duplicati sono respinti anche se innocui, con possibile
@@ -73,9 +74,10 @@ Rischi residui:
   può mantenere lo stato `cancelling`; un hardening richiede cancellazione reale al
   port HTTP o quarantena persistente, non un semplice `Future.timeout`.
 
-Nessun `PASS` remoto o live è inferito.
+I `PASS` remoti/live derivano esclusivamente dalle operazioni eseguite; gli artifact
+grezzi con dati runtime sono rimasti fuori Git e sono stati spostati nel Cestino.
 
 Matrice CA/T e comandi canonici:
-`commands-and-results.md`, CMD-X01/X03/CMD-Z01/Z02/Z05/CMD-W01/W02/CMD-P01/CMD-R01,
+`commands-and-results.md`, CMD-X01/X03/CMD-Z01/Z02/Z05/CMD-W01/W02/CMD-P01/P08/P10/P11/P12,
 CA-03/05/08/21/22/24/33/36
 e T-02/05/15/17/25/26.

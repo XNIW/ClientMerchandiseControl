@@ -51,9 +51,12 @@
 - Commit/push handoff Fix 4: `PASS`
 - CI sullo SHA `67adf5d`: run `30708934520`, `PASS`, 3/3 job, tutti gli step
   applicabili `success` e zero annotation
-- Re-review A–E: 0 P0/P1/P2/P3; esito complessivo `BLOCKED`
+- Revision set live e head PR: `671494f83aecf423075348d2efa10da835295984`
+- CI sullo SHA `671494f`: run `30709395137`, `PASS`, 3/3 job, tutti gli step
+  applicabili `success` e annotation 0/0/0
+- Re-review 6: 0 P0/P1/P2/P3; esito complessivo `APPROVED`
 - Callback warm iOS: `PASS`, CMD-P01, exit 0 e 1/1
-- Merge/main sync: `BLOCKED` da login/MFA Supabase per allow-list/live OAuth
+- Merge/main sync: `NOT_RUN`; closeout autorizzato successivo
 
-Comandi: `commands-and-results.md`, CMD-W01/W03/W04/CMD-P01/P02/P03/P04/P06,
+Comandi: `commands-and-results.md`, CMD-W01/W03/W04/CMD-P01/P02/P03/P04/P06/P08/P13/P14,
 CA-01/02/40 e T-01/37/38.

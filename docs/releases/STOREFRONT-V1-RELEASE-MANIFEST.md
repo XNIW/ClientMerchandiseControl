@@ -13,7 +13,7 @@
 
 | Repository | Branch | SHA revisionato | PR | Versione schema | Versione API | Deployment staging | Feature flag | Ultimo gate | Prossimo checkpoint | Rollback |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ClientMerchandiseControl | `integration/storefront-v1` | baseline `6a50b421057a09d4152653a78512d268a7fa4d69`; governance in working tree | `NOT_RUN` | n/a | `CMC-STOREFRONT-LOGICAL 1.0.0` | Auth staging `PASS`; Storefront `NOT_RUN` | production Storefront/orders/push/payment `OFF` | Prelude `PASS` | Governance, poi TASK-005 | revert commit/branch; nessuna write backend |
+| ClientMerchandiseControl | `integration/storefront-v1` | governance `7b7931b03831090241a40602dc999b846a75a9f0` | `NOT_RUN` | n/a | `CMC-STOREFRONT-LOGICAL 1.0.0` | Auth staging `PASS`; Storefront `NOT_RUN` | production Storefront/orders/push/payment `OFF` | Governance `PASS` | TASK-005 | revert commit/branch; nessuna write backend |
 | merchandise-control-admin-web | `integration/storefront-v1` da creare | `NOT_RUN` | `NOT_RUN` | `NOT_RUN` | server contract `NOT_RUN` | `NOT_RUN` | production `OFF` | preflight precedente: root pulita | TASK-005 ownership/drift | migration additive + feature flag OFF |
 | Win7POS | `integration/storefront-v1` da creare quando TASK-030 inizia | `NOT_RUN` | `NOT_RUN` | n/a | POS handoff `NOT_RUN` | harness `NOT_RUN` | handoff `OFF` | checkout root dirty preservato | TASK-030 | disabilitare consumer e replay queue |
 | MerchandiseControlSplitView | non creato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout dirty preservato | nessuno corrente | nessuna modifica prevista |

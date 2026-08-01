@@ -1306,5 +1306,7 @@
   alle transizioni interne e al closeout/merge condizionato ai gate reali.
 - **Tracking**: TASK-005 è l'unico task `ACTIVE / EXECUTION`; task successivi `TODO`.
 - **Artifact**: creati release manifest e checkpoint riprendibile; production invariata.
+- **Revision set governance**: `7b7931b03831090241a40602dc999b846a75a9f0`;
+  validator `PASS`, fixture 8/8 `PASS`, link/diff/security/architecture `PASS`.
 - **Prossima azione**: validare la governance, quindi creare worktree Admin pulito e
   riconfermare migration ownership/ledger/drift prima di qualunque apply staging.

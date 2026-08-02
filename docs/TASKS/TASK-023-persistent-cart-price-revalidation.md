@@ -5,14 +5,14 @@
 - **Task ID**: TASK-023
 - **Titolo**: Carrello persistente e price revalidation
 - **File task**: `docs/TASKS/TASK-023-persistent-cart-price-revalidation.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-023/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -159,13 +159,71 @@ client fonte di prezzo, stock o autorizzazione.
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso. Audit read-only completato: Cart è un placeholder; Product Detail/Favorites
-dispongono di publication pubbliche; Drift/Auth/RLS offrono i boundary riusabili. Il
-prossimo writer è Admin/Supabase per lo schema e i contratti server additivi.
+Execution completata sul revision set Client
+`e8d71d38ea87ab61693ecec80614c11d676e47f5` e Admin/Supabase
+`80556a90bba87712e4f42530b9e500b9d2d485ef`.
+
+- aggiunte le migration additive `20260802210000` e `20260802213000` con cart, item,
+  mutation ledger, FORCE RLS e quattro RPC pubbliche slug-based; il motore UUID resta
+  privato e non eseguibile dai ruoli mobile;
+- implementato guest cart Drift v3 shop-scoped, bounded e persistente, senza PII o ID
+  inventory, preservato da refresh/invalidation catalogo;
+- implementati repository/controller autenticati con merge `max` bounded, cleanup
+  guest solo dopo ack, cart version, idempotency e retry di timeout/conflitto;
+- sostituito il placeholder Cart con righe, thumbnail, quantità, remove/clear,
+  subtotal indicativo, stati adjusted/unavailable, CTA sticky e add da Detail/Favorites;
+- completate localizzazioni es-CL/it/en/zh-Hans, CLP, dark, text scale 200%, viewport
+  compact/landscape/tablet, Semantics e target 48;
+- corretta la regressione iniziale dello shell eliminando lo Scaffold annidato; il test
+  device ha inoltre reso esplicito che le asserzioni del fake vanno verificate fuori
+  dall'adapter, per non essere mappate come failure remota applicativa.
+
+I gate dettagliati e le matrici sono in
+`docs/TASKS/EVIDENCE/TASK-023/README.md`. La CI Client exact-SHA
+`30770239675` è `BLOCKED` esterna: i tre job hanno zero step perché GitHub rifiuta
+l'avvio per billing/spending limit; non è un failure di codice. Production non è stata
+invocata.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate tecnici; nessuna review formale intermedia.
+### Gate pertinenti eseguiti
+
+- Admin/Supabase: replay 28 migration, pgTAP TASK-023 98/98, suite 1.738/1.738,
+  concorrenza/idempotenza, foundation/verify/security, CI `30768157319`, Cloudflare
+  `30768157310` e staging `30768155279`: `PASS`;
+- Client: pub get/l10n/format/analyze, 429 test complessivi, coverage 79,55%, security
+  481 file, governance/architecture, Android debug/release e iOS debug/release compile:
+  `PASS`;
+- flow cart device-native Android 15 e iOS 26.5: 1/1 per piattaforma, con SQLite reale,
+  restart guest, merge login, revalidation e logout isolation: `PASS`;
+- smoke artifact: Android cold launch/accessibility tree e iOS launch/screenshot
+  headless: `PASS`; CI Client hosted: `BLOCKED` esterna.
+
+### Compatibilità e smoke staging
+
+Le RPC staging accettano soltanto slug pubblico, derivano owner da `auth.uid()`,
+ignorano prezzo/totale client e restituiscono quote/linee rivalidate. Le fixture sono
+state ripulite. Android Emulator API 35 e iPhone 17 Pro Simulator iOS 26.5 hanno
+completato il flow senza GUI o interazione manuale.
+
+### Security scan mirato
+
+Source/index/worktree e bundle Android/iOS non contengono secret privilegiati,
+config locali o artifact vietati. Il release APK è stato estratto su volume temporaneo
+APFS case-sensitive per preservare tutte le resource Android con nomi case-colliding.
+
+### Stato manifest/checkpoint
+
+TASK-023 è `VALIDATED_PENDING_INTEGRATED_REVIEW`; PR Client #5 e Admin #67 restano
+draft; production e flag restano invariati/OFF. Nessuna review formale intermedia è
+stata eseguita.
+
+### Handoff al task successivo
+
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Review outcome**: NOT_RUN
+- **Prossimo task**: TASK-024
+- **Handoff**: STOREFRONT_V1_MILESTONE_CHECKPOINT_VALIDATED
 
 ## Review / Fix
 
@@ -175,6 +233,6 @@ Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
 
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: TASK-024 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Follow-up candidate**: TASK-024 attivato dal checkpoint tecnico
+- **Riepilogo finale**: validato tecnicamente, in attesa della review integrata
 - **Data completamento**: non ancora

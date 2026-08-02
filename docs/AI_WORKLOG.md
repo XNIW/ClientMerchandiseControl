@@ -1641,3 +1641,36 @@
 - **Transizione**: TASK-023 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per guest cart persistente, merge owner idempotente, cart version e revalidation
   server-side, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-023 e attivazione TASK-024
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-023**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; cart guest Drift v3, cart
+  account owner-scoped, merge idempotente, cart version, revalidation e UI completati.
+- **Revision set Admin/Supabase**:
+  `80556a90bba87712e4f42530b9e500b9d2d485ef`, PR #67 draft; migration additive
+  `20260802210000` e bridge pubblico slug-based `20260802213000`.
+- **Gate Admin/staging**: replay 28 migration; pgTAP TASK-023 98/98 e suite 1.738/1.738;
+  concurrency/idempotency, foundation 806 pass + 2 skip, verify/security; CI
+  `30768157319`, Cloudflare `30768157310` e staging `30768155279`, tutti `PASS`.
+- **Revision set Client runtime**:
+  `e8d71d38ea87ab61693ecec80614c11d676e47f5`, PR #5 draft; dominio/repository/
+  controller Cart, cache guest persistente, CTA Detail/Favorites, UI e l10n.
+- **Gate Client**: pub get/l10n/format/analyze; 429 test, coverage 7.296/9.172
+  (79,55%); benchmark 1/1; security 481 file; governance/architecture; Android
+  debug/release e iOS debug/release compile `PASS`.
+- **Integration/smoke**: flow SQLite restart/merge/revalidation/logout Android API 35
+  e iOS 26.5 1/1 per piattaforma; Android cold launch 2.303 ms con accessibility tree,
+  iOS PID 62384 e screenshot 1.206x2.622; artifact scan `PASS`.
+- **Tentativi non candidati**: due run Android del nuovo integration test `FAIL` per
+  asserzioni del fake assorbite dal failure mapper, corrette spostando le verifiche
+  fuori dall'adapter; scan APK iniziale `FAIL` su APFS case-insensitive, ripetuto su
+  volume case-sensitive senza perdere resource; release Simulator iOS `NOT_RUN`
+  perché Flutter non la supporta, sostituita da device release no-codesign `PASS`.
+- **CI Client**: run `30770239675` `BLOCKED` esterna: Quality/Android/iOS con zero
+  step e annotazione billing/spending limit; nessun failure di codice dichiarato.
+- **Sicurezza/production**: nessun secret/config/artifact versionato; nessun write o
+  deploy production; flag production OFF.
+- **Transizione**: TASK-024 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per availability commerciale, freshness e replay/out-of-order senza quantità stock
+  pubblica, con writer Admin/Supabase -> Client.

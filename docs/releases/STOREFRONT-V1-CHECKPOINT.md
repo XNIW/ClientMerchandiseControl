@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 4 / TASK-023 carrello persistente
-- **Task corrente**: TASK-023
+- **Fase corrente**: EXECUTION / Milestone 4 / TASK-024 disponibilità pubblica
+- **Task corrente**: TASK-024
 - **Repository writer corrente**: merchandise-control-admin-web / Supabase
 - **Branch**: `integration/storefront-v1`
-- **SHA Client runtime corrente**: `b113f44a1c7b150e9b07e770aa8a7c158a2b8111`
-- **SHA Admin/Supabase corrente**: `c8f4048f5f442726bec1693e808e19fe6dd40fc4`
+- **SHA Client runtime corrente**: `e8d71d38ea87ab61693ecec80614c11d676e47f5`
+- **SHA Admin/Supabase corrente**: `80556a90bba87712e4f42530b9e500b9d2d485ef`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -85,11 +85,18 @@
   integration device Android 1/1 in 23 s e iOS 1/1 in 33 s, artifact smoke e
   accessibility tree `PASS`. CI Client `30766494620` `BLOCKED` esterna: tre job senza
   runner/step per billing. Provider live non configurato, nessun push finto.
-- **Gate ancora necessari**: TASK-023 schema/RLS/RPC cart, guest cache/restart,
-  merge owner idempotente, revalidation server-side, UI, staging e smoke Android/iOS
-- **Comando successivo esatto**: creare nel writer Admin/Supabase la migration additiva
-  TASK-023 per cart/item/mutation ledger, FORCE RLS e RPC read/mutate/merge/revalidate,
-  iniziando dai pgTAP owner/cross-user/version/idempotency/malicious-price
+- **Gate TASK-023**: Admin `80556a90`, migration staging `20260802210000` + bridge
+  pubblico `20260802213000`, tre tabelle FORCE RLS, quattro RPC slug-based, pgTAP
+  98/98 e suite 28 file/1.738 test; CI `30768157319`, Cloudflare `30768157310` e
+  staging `30768155279` `PASS`. Client `e8d71d38`, cache Drift v3, cart guest/account,
+  merge/revalidation, 429 test, coverage 79,55%, build Android debug/release e iOS
+  debug/release compile, integration Android/iOS e smoke artifact `PASS`. CI Client
+  `30770239675` `BLOCKED` esterna per billing prima dei runner.
+- **Gate ancora necessari**: TASK-024 derivazione/freshness disponibilità, sei stati
+  pubblici, replay/out-of-order/cross-shop, integrazione cache/UI/Admin e staging smoke
+- **Comando successivo esatto**: auditare in sola lettura migration, projection sync,
+  publication RPC, fixture e preview Admin della availability corrente; mappare ogni
+  criterio TASK-024 prima di decidere se serve una migration additiva
 - **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
   nessun blocker tecnico corrente per TASK-023
 - **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`; Android Emulator
@@ -100,8 +107,9 @@
   `PASS`; Milestone 2 Admin publish/promozioni/immagini/rollback/cleanup `PASS`;
   fixture pubblica, Home, Catalog, Discovery, Detail, cache offline/reconnect,
   favorite/share/deep link guest Android/iOS, XCTest share iOS, UI hardening,
-  performance extended dataset, TASK-021 profile/address/privacy e TASK-022 device/
-  consent/token lifecycle `PASS`; TASK-023 attivato; production invariata
+  performance extended dataset, TASK-021 profile/address/privacy, TASK-022 device/
+  consent/token lifecycle e TASK-023 cart/revalidation `PASS`; TASK-024 attivato;
+  production invariata
 
 ## Vincoli di ripresa
 

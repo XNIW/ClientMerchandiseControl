@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-023
-- **File task**: docs/TASKS/TASK-023-persistent-cart-price-revalidation.md
+- **Task attivo**: TASK-024
+- **File task**: docs/TASKS/TASK-024-public-availability-stock-projection.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,9 +14,9 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: implementare schema/RLS/RPC additivi per carrello,
-  merge idempotente e revalidation server-side di TASK-023 nel writer Admin/Supabase,
-  poi guest/auth cart e UI Client, mantenendo production invariata
+- **Prossima azione autorizzata**: auditare schema/proiezione/freshness della disponibilità
+  corrente nel writer Admin/Supabase, colmare soltanto le lacune reali di TASK-024 e
+  verificare i sei stati commerciali senza esporre quantità inventory
 
 ## Repository coinvolti
 
@@ -74,8 +74,8 @@
 | TASK-020 | Supabase Auth, deep link e session lifecycle | DONE | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
 | TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
 | TASK-022 | Registrazione device, consenso notifiche e token lifecycle | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-020, TASK-021 | Client, Supabase | Consenso e token gestiti |
-| TASK-023 | Carrello persistente e price revalidation | ACTIVE | TASK-012, TASK-016, TASK-017 | Client, Supabase | Carrello coerente e rivalidato |
-| TASK-024 | Proiezione disponibilità e stock pubblico | TODO | TASK-005, TASK-006, TASK-010 | Admin, Supabase, POS, Client | Disponibilità pubblica controllata |
+| TASK-023 | Carrello persistente e price revalidation | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-012, TASK-016, TASK-017 | Client, Supabase | Carrello coerente e rivalidato |
+| TASK-024 | Proiezione disponibilità e stock pubblico | ACTIVE | TASK-005, TASK-006, TASK-010 | Admin, Supabase, POS, Client | Disponibilità pubblica controllata |
 | TASK-025 | Reservation hold atomico e scadenza | TODO | TASK-023, TASK-024 | Supabase, Admin, Client | Hold concorrente e scadibile |
 | TASK-026 | Checkout con ritiro e consegna | TODO | TASK-021, TASK-023, TASK-025 | Client, Admin, Supabase | Fulfillment validato |
 | TASK-027 | Creazione ordine idempotente e price snapshot | TODO | TASK-005, TASK-020, TASK-023, TASK-025, TASK-026 | Client, Admin, Supabase | Ordine atomico e idempotente |
@@ -161,8 +161,10 @@ UI hardening, dataset esteso e budget performance e sono anch'essi
 `VALIDATED_PENDING_INTEGRATED_REVIEW`; Milestone 3 è `PASS`. TASK-021 ha completato
 profilo/indirizzi/privacy owner-scoped ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`;
 TASK-022 ha completato registro device, consenso/token lifecycle, revoke/logout e
-staging ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-023 è l'unico task
-`ACTIVE / EXECUTION` e i task successivi restano `TODO` fino al relativo handoff. La
+staging ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-023 ha completato cart guest/
+account, merge idempotente e revalidation ed è anch'esso
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-024 è l'unico task `ACTIVE / EXECUTION` e
+i task successivi restano `TODO` fino al relativo handoff. La
 dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
@@ -290,4 +292,21 @@ onestamente non configurato fino a TASK-031; production è invariata. TASK-022 n
 
 Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-023, con writer Admin/Supabase e poi
+Client.
+
+## Ultimo checkpoint interno — TASK-023
+
+Il revision set Admin/Supabase `80556a90bba87712e4f42530b9e500b9d2d485ef`
+ha applicato in staging le migration `20260802210000` e `20260802213000`: tre tabelle
+FORCE RLS, quattro RPC pubbliche slug-based, motore UUID privato, pgTAP 98/98 e suite
+28 file/1.738 test `PASS`; CI `30768157319`, Cloudflare `30768157310` e staging
+`30768155279` sono `PASS`. Il revision set Client
+`e8d71d38ea87ab61693ecec80614c11d676e47f5` ha superato 429 test, coverage 79,55%,
+build Android debug/release e iOS debug/release compile, integration cart Android/iOS
+e smoke artifact headless. La CI Client `30770239675` resta `BLOCKED` esterna per
+billing GitHub: i tre job non hanno runner o step; non è dichiarata `PASS`.
+Production è invariata. TASK-023 non è `DONE`: attende la review integrata finale.
+
+Handoff:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-024, con writer Admin/Supabase e poi
 Client.

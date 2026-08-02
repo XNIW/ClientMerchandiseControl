@@ -161,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-023
-- **File task**: docs/TASKS/TASK-023-persistent-cart-price-revalidation.md
+- **Task attivo**: TASK-024
+- **File task**: docs/TASKS/TASK-024-public-availability-stock-projection.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -186,6 +186,8 @@ TASK-013–TASK-019 sono `VALIDATED_PENDING_INTEGRATED_REVIEW`; il checkpoint Mi
 3 è `PASS`. TASK-021 ha completato profilo, indirizzi, privacy e cancellazione request
 owner-only ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-022 ha completato registro
 device, consenso notifiche e token lifecycle privacy-safe ed è
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-023 è l'unico task attivo e implementa
-guest cart persistente, merge owner idempotente e price revalidation server-side. Gli
-altri task del train restano `TODO` fino al rispettivo checkpoint.
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-023 ha completato guest cart persistente,
+merge owner idempotente e price revalidation server-side ed è anch'esso
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-024 è l'unico task attivo e verifica la
+proiezione di disponibilità commerciale senza quantità inventory pubblica. Gli altri
+task del train restano `TODO` fino al rispettivo checkpoint.

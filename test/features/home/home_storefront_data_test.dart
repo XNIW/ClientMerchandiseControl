@@ -7,6 +7,7 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_state.
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
+import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
@@ -149,6 +150,9 @@ Widget _homeApp({
         const _StaticReadinessRepository(),
       ),
       storefrontRepositoryProvider.overrideWithValue(repository),
+      storefrontCacheRepositoryProvider.overrideWithValue(
+        const DisabledStorefrontCacheRepository(),
+      ),
     ],
     child: MaterialApp(
       locale: locale,

@@ -7,6 +7,7 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_state.
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/product_detail/application/product_detail_controller.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
+import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
@@ -156,6 +157,9 @@ ProviderContainer _container(_DetailRepository repository) => ProviderContainer(
       const _ReadyRepository(),
     ),
     storefrontRepositoryProvider.overrideWithValue(repository),
+    storefrontCacheRepositoryProvider.overrideWithValue(
+      const DisabledStorefrontCacheRepository(),
+    ),
   ],
 );
 

@@ -139,6 +139,24 @@ abstract class AppLocalizations {
   /// **'Reintentar'**
   String get backendRetry;
 
+  /// No description provided for @storefrontCacheFresh.
+  ///
+  /// In es, this message translates to:
+  /// **'Copia guardada actualizada el {date}.'**
+  String storefrontCacheFresh(String date);
+
+  /// No description provided for @storefrontCacheStale.
+  ///
+  /// In es, this message translates to:
+  /// **'Copia guardada del {date}. Los precios y la disponibilidad pueden haber cambiado.'**
+  String storefrontCacheStale(String date);
+
+  /// No description provided for @storefrontCacheRefreshing.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizando en segundo plano…'**
+  String get storefrontCacheRefreshing;
+
   /// Etiqueta de la navegación hacia Inicio.
   ///
   /// In es, this message translates to:

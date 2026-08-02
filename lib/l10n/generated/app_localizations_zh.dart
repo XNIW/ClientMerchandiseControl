@@ -31,6 +31,19 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backendRetry => 'Reintentar';
 
   @override
+  String storefrontCacheFresh(String date) {
+    return 'Copia guardada actualizada el $date.';
+  }
+
+  @override
+  String storefrontCacheStale(String date) {
+    return 'Copia guardada del $date. Los precios y la disponibilidad pueden haber cambiado.';
+  }
+
+  @override
+  String get storefrontCacheRefreshing => 'Actualizando en segundo plano…';
+
+  @override
   String get navigationHome => 'Inicio';
 
   @override
@@ -469,6 +482,19 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get backendRetry => '重试';
+
+  @override
+  String storefrontCacheFresh(String date) {
+    return '已保存的副本更新于 $date。';
+  }
+
+  @override
+  String storefrontCacheStale(String date) {
+    return '这是 $date 保存的副本，价格和库存状态可能已变化。';
+  }
+
+  @override
+  String get storefrontCacheRefreshing => '正在后台更新…';
 
   @override
   String get navigationHome => '首页';

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
+import '../../../app/design_system/widgets/storefront_cache_status.dart';
 import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
@@ -28,6 +29,9 @@ class ProductDetailScreen extends ConsumerWidget {
         child: switch (state.status) {
           ProductDetailLoadStatus.data => _ProductDetailContent(
             product: state.product!,
+            cachedAt: state.isFromCache ? state.cachedAt : null,
+            cacheIsStale: state.isStale,
+            cacheIsRefreshing: state.isRefreshing,
           ),
           ProductDetailLoadStatus.loading => _ProductDetailStatus(
             key: const ValueKey('product-detail-loading'),
@@ -112,9 +116,17 @@ class _ProductDetailStatus extends StatelessWidget {
 }
 
 class _ProductDetailContent extends StatelessWidget {
-  _ProductDetailContent({required this.product});
+  _ProductDetailContent({
+    required this.product,
+    required this.cachedAt,
+    required this.cacheIsStale,
+    required this.cacheIsRefreshing,
+  });
 
   final StorefrontProductSummary product;
+  final DateTime? cachedAt;
+  final bool cacheIsStale;
+  final bool cacheIsRefreshing;
   final ClpCurrencyFormatter _formatter = ClpCurrencyFormatter();
 
   @override
@@ -140,6 +152,14 @@ class _ProductDetailContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (cachedAt case final cachedAt?) ...[
+                  StorefrontCacheStatus(
+                    cachedAt: cachedAt,
+                    isStale: cacheIsStale,
+                    isRefreshing: cacheIsRefreshing,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
                 ClipRRect(
                   borderRadius: BorderRadius.circular(AppRadii.card),
                   child: AspectRatio(

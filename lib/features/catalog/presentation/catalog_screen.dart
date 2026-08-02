@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/design_system/tokens/app_breakpoints.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
+import '../../../app/design_system/widgets/storefront_cache_status.dart';
 import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../home/presentation/storefront_product_card.dart';
@@ -163,6 +164,22 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                   ),
                 ),
               ),
+              if (state.isFromCache && state.cachedAt != null)
+                SliverPadding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    0,
+                    horizontalPadding,
+                    AppSpacing.md,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: StorefrontCacheStatus(
+                      cachedAt: state.cachedAt!,
+                      isStale: state.isStale,
+                      isRefreshing: state.isRefreshing,
+                    ),
+                  ),
+                ),
               if (state.categories.isNotEmpty)
                 SliverPadding(
                   padding: EdgeInsets.fromLTRB(

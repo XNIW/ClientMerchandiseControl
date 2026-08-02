@@ -6,6 +6,7 @@ import '../../../core/backend/backend_readiness_controller.dart';
 import '../../../core/backend/backend_readiness_state.dart';
 import '../../../core/config/app_config.dart';
 import '../../storefront/application/storefront_providers.dart';
+import '../../storefront/cache/storefront_cache_repository.dart';
 import '../../storefront/domain/storefront_failure.dart';
 import '../../storefront/domain/storefront_models.dart';
 import '../../storefront/domain/storefront_repository.dart';
@@ -13,20 +14,57 @@ import '../../storefront/domain/storefront_repository.dart';
 enum HomeLoadStatus { loading, data, empty, offline, unavailable, failure }
 
 class HomeState {
-  const HomeState._(this.status, {this.data, this.failure});
+  const HomeState._(
+    this.status, {
+    this.data,
+    this.failure,
+    this.isFromCache = false,
+    this.isStale = false,
+    this.isRefreshing = false,
+    this.cachedAt,
+  });
 
   const HomeState.loading() : this._(HomeLoadStatus.loading);
-  const HomeState.empty() : this._(HomeLoadStatus.empty);
+  const HomeState.empty({
+    bool isFromCache = false,
+    bool isStale = false,
+    bool isRefreshing = false,
+    DateTime? cachedAt,
+  }) : this._(
+         HomeLoadStatus.empty,
+         isFromCache: isFromCache,
+         isStale: isStale,
+         isRefreshing: isRefreshing,
+         cachedAt: cachedAt,
+       );
   const HomeState.offline() : this._(HomeLoadStatus.offline);
   const HomeState.unavailable() : this._(HomeLoadStatus.unavailable);
   const HomeState.failure(StorefrontFailure failure)
     : this._(HomeLoadStatus.failure, failure: failure);
-  const HomeState.data(StorefrontHomeData data)
-    : this._(HomeLoadStatus.data, data: data);
+  const HomeState.data(
+    StorefrontHomeData data, {
+    StorefrontFailure? failure,
+    bool isFromCache = false,
+    bool isStale = false,
+    bool isRefreshing = false,
+    DateTime? cachedAt,
+  }) : this._(
+         HomeLoadStatus.data,
+         data: data,
+         failure: failure,
+         isFromCache: isFromCache,
+         isStale: isStale,
+         isRefreshing: isRefreshing,
+         cachedAt: cachedAt,
+       );
 
   final HomeLoadStatus status;
   final StorefrontHomeData? data;
   final StorefrontFailure? failure;
+  final bool isFromCache;
+  final bool isStale;
+  final bool isRefreshing;
+  final DateTime? cachedAt;
 }
 
 final homeControllerProvider = NotifierProvider<HomeController, HomeState>(
@@ -50,7 +88,7 @@ class HomeController extends Notifier<HomeState> {
     return switch (readiness) {
       BackendReadinessState.ready => _startAfterBuild(),
       BackendReadinessState.initializing => const HomeState.loading(),
-      BackendReadinessState.offline => const HomeState.offline(),
+      BackendReadinessState.offline => _startCacheAfterBuild(),
       BackendReadinessState.unconfigured => const HomeState.empty(),
       BackendReadinessState.misconfigured ||
       BackendReadinessState.authenticationRequired =>
@@ -68,6 +106,10 @@ class HomeController extends Notifier<HomeState> {
     if (_disposed) return;
     if (readiness == BackendReadinessState.ready) {
       unawaited(_load());
+      return;
+    }
+    if (readiness == BackendReadinessState.offline) {
+      unawaited(_load(cacheOnly: true));
       return;
     }
     _generation += 1;
@@ -98,7 +140,14 @@ class HomeController extends Notifier<HomeState> {
     return const HomeState.loading();
   }
 
-  Future<void> _load() async {
+  HomeState _startCacheAfterBuild() {
+    scheduleMicrotask(() {
+      if (!_disposed) unawaited(_load(cacheOnly: true));
+    });
+    return const HomeState.offline();
+  }
+
+  Future<void> _load({bool cacheOnly = false}) async {
     final config = ref.read(appConfigProvider);
     final shopSlug = config.storefrontShopSlug;
     if (_disposed || shopSlug == null) {
@@ -110,14 +159,68 @@ class HomeController extends Notifier<HomeState> {
     final cancellation = StorefrontRequestCancellation();
     _cancellation = cancellation;
     state = const HomeState.loading();
+    StorefrontCacheSnapshot<StorefrontHomeData>? cached;
+    try {
+      cached = await ref
+          .read(storefrontCacheRepositoryProvider)
+          .readHome(shopSlug: shopSlug);
+    } on Object {
+      cached = null;
+    }
+    if (_isStale(generation, cancellation)) return;
+    if (cached != null) {
+      final fresh = cached.isFreshAt(DateTime.now());
+      state = cached.value.isEmpty
+          ? HomeState.empty(
+              isFromCache: true,
+              isStale: !fresh,
+              isRefreshing: !cacheOnly,
+              cachedAt: cached.refreshedAt,
+            )
+          : HomeState.data(
+              cached.value,
+              isFromCache: true,
+              isStale: !fresh,
+              isRefreshing: !cacheOnly,
+              cachedAt: cached.refreshedAt,
+            );
+    }
+    if (cacheOnly) {
+      if (cached == null) state = const HomeState.offline();
+      return;
+    }
     try {
       final data = await ref
           .read(storefrontRepositoryProvider)
           .fetchHome(shopSlug: shopSlug, cancellation: cancellation);
       if (_isStale(generation, cancellation)) return;
+      await _persistHome(shopSlug, data);
+      if (_isStale(generation, cancellation)) return;
       state = data.isEmpty ? const HomeState.empty() : HomeState.data(data);
     } on StorefrontFailure catch (failure) {
       if (_isStale(generation, cancellation)) return;
+      if (cached != null &&
+          (failure.kind == StorefrontFailureKind.offline ||
+              failure.kind == StorefrontFailureKind.timeout)) {
+        state = cached.value.isEmpty
+            ? HomeState.empty(
+                isFromCache: true,
+                isStale: true,
+                cachedAt: cached.refreshedAt,
+              )
+            : HomeState.data(
+                cached.value,
+                failure: failure,
+                isFromCache: true,
+                isStale: true,
+                cachedAt: cached.refreshedAt,
+              );
+        return;
+      }
+      if (_requiresCacheInvalidation(failure)) {
+        await _invalidateCache(shopSlug);
+        if (_isStale(generation, cancellation)) return;
+      }
       state = switch (failure.kind) {
         StorefrontFailureKind.cancelled => state,
         StorefrontFailureKind.offline ||
@@ -129,6 +232,32 @@ class HomeController extends Notifier<HomeState> {
         StorefrontFailureKind.invalidPayload ||
         StorefrontFailureKind.unknown => HomeState.failure(failure),
       };
+    }
+  }
+
+  Future<void> _persistHome(String shopSlug, StorefrontHomeData data) async {
+    try {
+      final cache = ref.read(storefrontCacheRepositoryProvider);
+      await cache.writeHome(shopSlug: shopSlug, data: data);
+      await cache.cleanup(shopSlug: shopSlug);
+    } on Object {
+      // La cache è ricostruibile: un errore locale non degrada dati live validi.
+    }
+  }
+
+  bool _requiresCacheInvalidation(StorefrontFailure failure) =>
+      failure.kind == StorefrontFailureKind.invalidConfiguration ||
+      failure.kind == StorefrontFailureKind.unauthorized ||
+      failure.kind == StorefrontFailureKind.unavailable ||
+      failure.kind == StorefrontFailureKind.invalidPayload;
+
+  Future<void> _invalidateCache(String shopSlug) async {
+    try {
+      await ref
+          .read(storefrontCacheRepositoryProvider)
+          .clearShop(shopSlug: shopSlug);
+    } on Object {
+      // La UI fallisce chiusa anche quando il file locale non è cancellabile.
     }
   }
 

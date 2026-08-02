@@ -9,6 +9,7 @@ import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/catalog/application/catalog_controller.dart';
 import 'package:client_merchandise_control/features/catalog/presentation/catalog_screen.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
+import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
@@ -440,6 +441,9 @@ Widget _catalogApp({
           const _ReadinessRepository(initialState: BackendReadinessState.ready),
     ),
     storefrontRepositoryProvider.overrideWithValue(storefront),
+    storefrontCacheRepositoryProvider.overrideWithValue(
+      const DisabledStorefrontCacheRepository(),
+    ),
   ],
   child: MaterialApp(
     locale: locale,
@@ -464,6 +468,9 @@ Widget _tabCatalogApp({required StorefrontRepository storefront}) =>
           const _ReadinessRepository(initialState: BackendReadinessState.ready),
         ),
         storefrontRepositoryProvider.overrideWithValue(storefront),
+        storefrontCacheRepositoryProvider.overrideWithValue(
+          const DisabledStorefrontCacheRepository(),
+        ),
       ],
       child: MaterialApp(
         locale: const Locale('es', 'CL'),

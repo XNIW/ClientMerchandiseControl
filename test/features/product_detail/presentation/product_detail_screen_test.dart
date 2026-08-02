@@ -8,6 +8,7 @@ import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/home/presentation/storefront_product_card.dart';
 import 'package:client_merchandise_control/features/product_detail/presentation/product_detail_screen.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
+import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
@@ -282,6 +283,9 @@ List<Override> _overrides(StorefrontRepository repository) => [
     const _ReadyRepository(),
   ),
   storefrontRepositoryProvider.overrideWithValue(repository),
+  storefrontCacheRepositoryProvider.overrideWithValue(
+    const DisabledStorefrontCacheRepository(),
+  ),
 ];
 
 StorefrontProductSummary _detailProduct({

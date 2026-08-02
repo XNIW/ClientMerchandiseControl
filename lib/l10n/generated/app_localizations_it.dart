@@ -30,6 +30,19 @@ class AppLocalizationsIt extends AppLocalizations {
   String get backendRetry => 'Riprova';
 
   @override
+  String storefrontCacheFresh(String date) {
+    return 'Copia salvata aggiornata il $date.';
+  }
+
+  @override
+  String storefrontCacheStale(String date) {
+    return 'Copia salvata del $date. Prezzi e disponibilità potrebbero essere cambiati.';
+  }
+
+  @override
+  String get storefrontCacheRefreshing => 'Aggiornamento in background…';
+
+  @override
   String get navigationHome => 'Home';
 
   @override

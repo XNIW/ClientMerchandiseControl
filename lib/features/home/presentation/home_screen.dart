@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/design_system/tokens/app_spacing.dart';
+import '../../../app/design_system/widgets/storefront_cache_status.dart';
 import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../app/design_system/widgets/storefront_page.dart';
 import '../../../app/design_system/widgets/storefront_search_launcher.dart';
@@ -50,6 +51,14 @@ class HomeScreen extends ConsumerWidget {
     final homeStatus = backendReadiness == BackendReadinessState.ready
         ? _homeStatusFor(context, ref, homeState)
         : null;
+    final cacheStatus = homeState.isFromCache && homeState.cachedAt != null
+        ? StorefrontCacheStatus(
+            cachedAt: homeState.cachedAt!,
+            isStale: homeState.isStale,
+            isRefreshing: homeState.isRefreshing,
+            compact: compactHeight,
+          )
+        : null;
     final showStorefrontSections =
         backendReadiness != BackendReadinessState.ready ||
         homeState.status == HomeLoadStatus.data ||
@@ -83,6 +92,10 @@ class HomeScreen extends ConsumerWidget {
             hint: l10n.homeSearchHint,
             onPressed: openCatalog,
           ),
+          if (cacheStatus != null) ...[
+            const SizedBox(height: AppSpacing.lg),
+            cacheStatus,
+          ],
           if (homeStatus != null) ...[
             const SizedBox(height: AppSpacing.xxl),
             homeStatus,

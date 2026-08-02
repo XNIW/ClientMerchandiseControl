@@ -7,6 +7,7 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_state.
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/home/application/home_controller.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
+import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
@@ -32,6 +33,7 @@ void main() {
     expect(repository.calls, 1);
 
     final retry = container.read(homeControllerProvider.notifier).retry();
+    await Future<void>.delayed(Duration.zero);
     expect(repository.calls, 2);
     first.complete(
       StorefrontHomeData(
@@ -96,6 +98,9 @@ void main() {
             ),
           ),
           storefrontRepositoryProvider.overrideWithValue(repository),
+          storefrontCacheRepositoryProvider.overrideWithValue(
+            const DisabledStorefrontCacheRepository(),
+          ),
         ],
       );
       addTearDown(container.dispose);
@@ -131,6 +136,9 @@ void main() {
             readinessRepository,
           ),
           storefrontRepositoryProvider.overrideWithValue(storefrontRepository),
+          storefrontCacheRepositoryProvider.overrideWithValue(
+            const DisabledStorefrontCacheRepository(),
+          ),
         ],
       );
       addTearDown(container.dispose);
@@ -173,6 +181,9 @@ ProviderContainer _container(StorefrontRepository repository) {
         const _StaticReadinessRepository(BackendReadinessState.ready),
       ),
       storefrontRepositoryProvider.overrideWithValue(repository),
+      storefrontCacheRepositoryProvider.overrideWithValue(
+        const DisabledStorefrontCacheRepository(),
+      ),
     ],
   );
 }

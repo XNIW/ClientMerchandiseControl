@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../cache/drift_storefront_cache_repository.dart';
+import '../cache/storefront_cache_database.dart';
+import '../cache/storefront_cache_repository.dart';
 import '../data/supabase_storefront_repository.dart';
 import '../domain/storefront_repository.dart';
 
@@ -15,3 +18,17 @@ final storefrontRepositoryProvider = Provider<StorefrontRepository>((ref) {
     invoke: ref.watch(storefrontRpcInvokerProvider),
   );
 });
+
+final storefrontCacheDatabaseProvider = Provider<StorefrontCacheDatabase>((
+  ref,
+) {
+  final database = StorefrontCacheDatabase.defaults();
+  ref.onDispose(() => database.close());
+  return database;
+});
+
+final storefrontCacheRepositoryProvider = Provider<StorefrontCacheRepository>(
+  (ref) => DriftStorefrontCacheRepository(
+    ref.watch(storefrontCacheDatabaseProvider),
+  ),
+);

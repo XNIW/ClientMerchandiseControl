@@ -6,6 +6,7 @@ import '../../../core/backend/backend_readiness_controller.dart';
 import '../../../core/backend/backend_readiness_state.dart';
 import '../../../core/config/app_config.dart';
 import '../../storefront/application/storefront_providers.dart';
+import '../../storefront/cache/storefront_cache_repository.dart';
 import '../../storefront/domain/storefront_failure.dart';
 import '../../storefront/domain/storefront_models.dart';
 import '../../storefront/domain/storefront_repository.dart';
@@ -29,6 +30,9 @@ class CatalogState {
     this.isRefreshing = false,
     this.isLoadingMore = false,
     this.loadMoreFailed = false,
+    this.isFromCache = false,
+    this.isStale = false,
+    this.cachedAt,
     this.failure,
   });
 
@@ -45,6 +49,9 @@ class CatalogState {
   final bool isRefreshing;
   final bool isLoadingMore;
   final bool loadMoreFailed;
+  final bool isFromCache;
+  final bool isStale;
+  final DateTime? cachedAt;
   final StorefrontFailure? failure;
 
   bool get isSearchActive => searchQuery != null;
@@ -236,6 +243,9 @@ class CatalogController extends Notifier<CatalogState> {
     if (_disposed || shopSlug == null) return;
 
     final criteria = _criteriaFromState();
+    final fromCache = state.isFromCache;
+    final cacheIsStale = state.isStale;
+    final cachedAt = state.cachedAt;
     final generation = _generation;
     _cancellation?.cancel();
     final cancellation = StorefrontRequestCancellation();
@@ -252,14 +262,29 @@ class CatalogController extends Notifier<CatalogState> {
       catalogVersion: currentVersion,
       nextCursor: cursor,
       isLoadingMore: true,
+      isFromCache: fromCache,
+      isStale: cacheIsStale,
+      cachedAt: cachedAt,
     );
     try {
-      final page = await _fetchPage(
-        shopSlug: shopSlug,
-        criteria: criteria,
-        cursor: cursor,
-        cancellation: cancellation,
-      );
+      final page = fromCache
+          ? await _fetchCachedPage(
+              shopSlug: shopSlug,
+              criteria: criteria,
+              cursor: cursor,
+            )
+          : await _fetchPage(
+              shopSlug: shopSlug,
+              criteria: criteria,
+              cursor: cursor,
+              cancellation: cancellation,
+            );
+      if (page == null) {
+        throw const StorefrontFailure(
+          StorefrontFailureKind.offline,
+          code: 'cache_page_missing',
+        );
+      }
       if (_isStale(generation, cancellation)) return;
       if (page.catalogVersion != currentVersion) {
         throw const StorefrontFailure(
@@ -274,6 +299,10 @@ class CatalogController extends Notifier<CatalogState> {
           code: 'duplicate_page_item',
         );
       }
+      if (!fromCache) {
+        await _persistPage(shopSlug, criteria, page);
+        if (_isStale(generation, cancellation)) return;
+      }
       state = CatalogState(
         status: CatalogLoadStatus.data,
         categories: state.categories,
@@ -285,6 +314,9 @@ class CatalogController extends Notifier<CatalogState> {
         sort: criteria.sort,
         catalogVersion: currentVersion,
         nextCursor: page.nextCursor,
+        isFromCache: fromCache,
+        isStale: cacheIsStale,
+        cachedAt: cachedAt,
       );
     } on StorefrontFailure catch (failure) {
       if (_isStale(generation, cancellation)) return;
@@ -294,6 +326,20 @@ class CatalogController extends Notifier<CatalogState> {
           reloadCategories: true,
           preserveItems: true,
           allowCatalogRetry: false,
+        );
+        return;
+      }
+      if (_requiresCacheInvalidation(failure)) {
+        await _invalidateCache(shopSlug);
+        if (_isStale(generation, cancellation)) return;
+        state = CatalogState(
+          status: _statusForFailure(failure),
+          selectedCategorySlug: criteria.categorySlug,
+          searchQuery: criteria.searchQuery,
+          availabilityFilter: criteria.availability,
+          discountedOnly: criteria.discountedOnly,
+          sort: criteria.sort,
+          failure: failure,
         );
         return;
       }
@@ -309,6 +355,9 @@ class CatalogController extends Notifier<CatalogState> {
         catalogVersion: currentVersion,
         nextCursor: cursor,
         loadMoreFailed: true,
+        isFromCache: fromCache,
+        isStale: cacheIsStale,
+        cachedAt: cachedAt,
         failure: failure,
       );
     }
@@ -316,10 +365,17 @@ class CatalogController extends Notifier<CatalogState> {
 
   CatalogState _initialState(BackendReadinessState readiness) {
     const criteria = _CatalogCriteria();
-    if (readiness == BackendReadinessState.ready) {
+    if (readiness == BackendReadinessState.ready ||
+        readiness == BackendReadinessState.offline) {
       scheduleMicrotask(() {
         if (!_disposed) {
-          unawaited(_loadFirstPage(criteria: criteria, reloadCategories: true));
+          unawaited(
+            _loadFirstPage(
+              criteria: criteria,
+              reloadCategories: true,
+              cacheOnly: readiness == BackendReadinessState.offline,
+            ),
+          );
         }
       });
     }
@@ -331,6 +387,18 @@ class CatalogController extends Notifier<CatalogState> {
     final criteria = _criteriaFromState();
     if (readiness == BackendReadinessState.ready) {
       unawaited(_loadFirstPage(criteria: criteria, reloadCategories: true));
+      return;
+    }
+    if (readiness == BackendReadinessState.offline) {
+      _searchTimer?.cancel();
+      _cancelCurrentRequest();
+      unawaited(
+        _loadFirstPage(
+          criteria: criteria,
+          reloadCategories: true,
+          cacheOnly: true,
+        ),
+      );
       return;
     }
     _searchTimer?.cancel();
@@ -388,6 +456,7 @@ class CatalogController extends Notifier<CatalogState> {
     required bool reloadCategories,
     bool preserveItems = false,
     bool allowCatalogRetry = true,
+    bool cacheOnly = false,
   }) async {
     _searchTimer?.cancel();
     final config = ref.read(appConfigProvider);
@@ -423,12 +492,83 @@ class CatalogController extends Notifier<CatalogState> {
             catalogVersion: previous.catalogVersion,
             nextCursor: previous.nextCursor,
             isRefreshing: true,
+            isFromCache: previous.isFromCache,
+            isStale: previous.isStale,
+            cachedAt: previous.cachedAt,
           )
         : _loadingState(
             criteria,
             categories: previous.categories,
             catalogVersion: previous.catalogVersion,
           );
+    var cachedApplied = false;
+    if (!preserveItems) {
+      try {
+        final cachedResults = await Future.wait<Object?>([
+          ref
+              .read(storefrontCacheRepositoryProvider)
+              .readCategories(shopSlug: shopSlug),
+          _readCachedPage(shopSlug: shopSlug, criteria: criteria, cursor: null),
+        ]);
+        if (_isStale(generation, cancellation)) return;
+        final categoriesSnapshot =
+            cachedResults[0]
+                as StorefrontCacheSnapshot<StorefrontCategoriesPage>?;
+        final pageSnapshot =
+            cachedResults[1] as StorefrontCacheSnapshot<_DiscoveryPage>?;
+        if (categoriesSnapshot != null &&
+            pageSnapshot != null &&
+            categoriesSnapshot.value.catalogVersion ==
+                pageSnapshot.value.catalogVersion &&
+            (criteria.categorySlug == null ||
+                categoriesSnapshot.value.categories.any(
+                  (category) => category.slug == criteria.categorySlug,
+                ))) {
+          final cachedAt =
+              categoriesSnapshot.refreshedAt.isBefore(pageSnapshot.refreshedAt)
+              ? categoriesSnapshot.refreshedAt
+              : pageSnapshot.refreshedAt;
+          final fresh =
+              categoriesSnapshot.isFreshAt(DateTime.now()) &&
+              pageSnapshot.isFreshAt(DateTime.now());
+          final page = pageSnapshot.value;
+          state = CatalogState(
+            status: page.items.isEmpty
+                ? CatalogLoadStatus.empty
+                : CatalogLoadStatus.data,
+            categories: categoriesSnapshot.value.categories,
+            items: page.items,
+            selectedCategorySlug: criteria.categorySlug,
+            searchQuery: criteria.searchQuery,
+            availabilityFilter: criteria.availability,
+            discountedOnly: criteria.discountedOnly,
+            sort: criteria.sort,
+            catalogVersion: page.catalogVersion,
+            nextCursor: page.nextCursor,
+            isRefreshing: !cacheOnly,
+            isFromCache: true,
+            isStale: !fresh,
+            cachedAt: cachedAt,
+          );
+          cachedApplied = true;
+        }
+      } on Object {
+        cachedApplied = false;
+      }
+    }
+    if (cacheOnly) {
+      if (!cachedApplied) {
+        state = CatalogState(
+          status: CatalogLoadStatus.offline,
+          selectedCategorySlug: criteria.categorySlug,
+          searchQuery: criteria.searchQuery,
+          availabilityFilter: criteria.availability,
+          discountedOnly: criteria.discountedOnly,
+          sort: criteria.sort,
+        );
+      }
+      return;
+    }
     try {
       final repository = ref.read(storefrontRepositoryProvider);
       final categoriesOperation = reloadCategories
@@ -480,6 +620,14 @@ class CatalogController extends Notifier<CatalogState> {
         );
         return;
       }
+      await _persistFirstPage(
+        shopSlug: shopSlug,
+        categoriesPage: categoriesPage,
+        page: page,
+        criteria: criteria,
+        writeCategories: reloadCategories,
+      );
+      if (_isStale(generation, cancellation)) return;
       state = CatalogState(
         status: page.items.isEmpty
             ? CatalogLoadStatus.empty
@@ -506,6 +654,34 @@ class CatalogController extends Notifier<CatalogState> {
         );
         return;
       }
+      if ((cachedApplied || (preserveItems && previous.items.isNotEmpty)) &&
+          (failure.kind == StorefrontFailureKind.offline ||
+              failure.kind == StorefrontFailureKind.timeout)) {
+        final visible = cachedApplied ? state : previous;
+        state = CatalogState(
+          status: visible.items.isEmpty
+              ? CatalogLoadStatus.empty
+              : CatalogLoadStatus.data,
+          categories: visible.categories,
+          items: visible.items,
+          selectedCategorySlug: criteria.categorySlug,
+          searchQuery: criteria.searchQuery,
+          availabilityFilter: criteria.availability,
+          discountedOnly: criteria.discountedOnly,
+          sort: criteria.sort,
+          catalogVersion: visible.catalogVersion,
+          nextCursor: visible.nextCursor,
+          isFromCache: visible.isFromCache,
+          isStale: true,
+          cachedAt: visible.cachedAt,
+          failure: failure,
+        );
+        return;
+      }
+      if (_requiresCacheInvalidation(failure)) {
+        await _invalidateCache(shopSlug);
+        if (_isStale(generation, cancellation)) return;
+      }
       state = CatalogState(
         status: _statusForFailure(failure),
         categories: state.categories,
@@ -519,6 +695,143 @@ class CatalogController extends Notifier<CatalogState> {
         nextCursor: preserveItems ? previous.nextCursor : null,
         failure: failure,
       );
+    }
+  }
+
+  Future<StorefrontCacheSnapshot<_DiscoveryPage>?> _readCachedPage({
+    required String shopSlug,
+    required _CatalogCriteria criteria,
+    required String? cursor,
+  }) async {
+    final cache = ref.read(storefrontCacheRepositoryProvider);
+    final query = criteria.searchQuery;
+    if (query != null) {
+      final snapshot = await cache.readSearch(
+        shopSlug: shopSlug,
+        query: query,
+        cursor: cursor,
+        limit: catalogPageSize,
+        categorySlug: criteria.categorySlug,
+      );
+      if (snapshot == null) return null;
+      return StorefrontCacheSnapshot(
+        value: (
+          catalogVersion: snapshot.value.catalogVersion,
+          items: snapshot.value.items,
+          nextCursor: snapshot.value.nextCursor,
+        ),
+        refreshedAt: snapshot.refreshedAt,
+      );
+    }
+    final snapshot = await cache.readCatalog(
+      shopSlug: shopSlug,
+      cursor: cursor,
+      limit: catalogPageSize,
+      categorySlug: criteria.categorySlug,
+      availability: criteria.availability,
+      discounted: criteria.discountedOnly ? true : null,
+      sort: criteria.sort,
+    );
+    if (snapshot == null) return null;
+    return StorefrontCacheSnapshot(
+      value: (
+        catalogVersion: snapshot.value.catalogVersion,
+        items: snapshot.value.items,
+        nextCursor: snapshot.value.nextCursor,
+      ),
+      refreshedAt: snapshot.refreshedAt,
+    );
+  }
+
+  Future<_DiscoveryPage?> _fetchCachedPage({
+    required String shopSlug,
+    required _CatalogCriteria criteria,
+    required String? cursor,
+  }) async => (await _readCachedPage(
+    shopSlug: shopSlug,
+    criteria: criteria,
+    cursor: cursor,
+  ))?.value;
+
+  Future<void> _persistFirstPage({
+    required String shopSlug,
+    required StorefrontCategoriesPage categoriesPage,
+    required _DiscoveryPage page,
+    required _CatalogCriteria criteria,
+    required bool writeCategories,
+  }) async {
+    try {
+      final cache = ref.read(storefrontCacheRepositoryProvider);
+      if (writeCategories) {
+        await cache.writeCategories(shopSlug: shopSlug, page: categoriesPage);
+      }
+      await _writePageToCache(cache, shopSlug, criteria, page);
+      await cache.cleanup(shopSlug: shopSlug);
+    } on Object {
+      // Una cache parziale resta un miss: i dati live validi hanno precedenza.
+    }
+  }
+
+  Future<void> _persistPage(
+    String shopSlug,
+    _CatalogCriteria criteria,
+    _DiscoveryPage page,
+  ) async {
+    try {
+      final cache = ref.read(storefrontCacheRepositoryProvider);
+      await _writePageToCache(cache, shopSlug, criteria, page);
+      await cache.cleanup(shopSlug: shopSlug);
+    } on Object {
+      // La persistenza locale è best-effort e sempre ricostruibile.
+    }
+  }
+
+  Future<void> _writePageToCache(
+    StorefrontCacheRepository cache,
+    String shopSlug,
+    _CatalogCriteria criteria,
+    _DiscoveryPage page,
+  ) {
+    final query = criteria.searchQuery;
+    if (query != null) {
+      return cache.writeSearch(
+        shopSlug: shopSlug,
+        page: StorefrontSearchPage(
+          catalogVersion: page.catalogVersion,
+          query: query,
+          items: page.items,
+          nextCursor: page.nextCursor,
+        ),
+        categorySlug: criteria.categorySlug,
+      );
+    }
+    return cache.writeCatalog(
+      shopSlug: shopSlug,
+      page: StorefrontCatalogPage(
+        catalogVersion: page.catalogVersion,
+        items: page.items,
+        nextCursor: page.nextCursor,
+        sort: criteria.sort,
+      ),
+      categorySlug: criteria.categorySlug,
+      availability: criteria.availability,
+      discounted: criteria.discountedOnly ? true : null,
+    );
+  }
+
+  bool _requiresCacheInvalidation(StorefrontFailure failure) =>
+      failure.kind == StorefrontFailureKind.invalidConfiguration ||
+      failure.kind == StorefrontFailureKind.unauthorized ||
+      failure.kind == StorefrontFailureKind.unavailable ||
+      failure.kind == StorefrontFailureKind.invalidPayload;
+
+  Future<void> _invalidateCache(String shopSlug) async {
+    try {
+      await ref
+          .read(storefrontCacheRepositoryProvider)
+          .clearShop(shopSlug: shopSlug);
+    } on Object {
+      // I dati cached non vengono mostrati dopo un failure autoritativo.
     }
   }
 

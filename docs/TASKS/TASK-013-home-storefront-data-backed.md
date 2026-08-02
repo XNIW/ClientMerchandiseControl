@@ -5,14 +5,14 @@
 - **Task ID**: TASK-013
 - **Titolo**: Home e prodotti/promozioni in evidenza
 - **File task**: `docs/TASKS/TASK-013-home-storefront-data-backed.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-013/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -145,11 +145,65 @@ Flutter rigoroso, riusabile dai task 014–019.
 
 ## Execution — `CODEX_EXECUTOR`
 
-In avvio.
+### Modifiche completate
+
+- configurazione compile-time `STOREFRONT_SHOP_SLUG` validata fail-closed, obbligatoria
+  in staging/production e assente dagli esempi/versionamento reale;
+- domain model, DTO strict allow-list e repository RPC-only per `storefront_home_v1`,
+  con timeout, cancellazione, generation guard e failure taxonomy sanitizzata;
+- Home guest data-backed con categorie, featured, offerte, prezzi CLP, sconto esatto,
+  immagini pubbliche, loading, retry, offline, unavailable ed empty state;
+- localizzazione es-CL/it/en/zh-Hans, dark mode, Semantics e text scale 200%;
+- fixture staging sintetica e idempotente nel repository Admin canonico, con nove
+  varianti WebP pubbliche realmente decodificate e negative check sul confine interno;
+- smoke live guest Android e iOS sul contratto staging reale, senza sessione cliente.
+
+### Difetti corretti durante Execution
+
+- il primo smoke Android restava `loading`: il `Notifier` si auto-invalidava durante
+  `initializing -> ready`; sostituito il rebuild implicito con un listener Riverpod e
+  aggiunto test di regressione dinamico;
+- il payload reale conteneva la categoria valida `te`: separata la regola slug shop
+  (minimo tre caratteri) dalla regola categoria del backend (minimo due), con test
+  positivo e negativo;
+- la suite completa ha rilevato un test shell dipendente dalla rete dopo il nuovo
+  caricamento Home: isolato il test con repository Storefront fake deterministico.
+
+### Gate eseguiti
+
+- revision set Client `2aefa17f901652bf2f1fceafb2649422c6b8fb4f`, PR `#5` draft;
+- `scripts/check.sh`: security/governance/architecture, l10n, format, analyze, 240 test,
+  coverage 2.199/2.709 linee (81,17%), Android debug e iOS Simulator debug: `PASS`;
+- fixture/staging Admin revision `a9036f0bda741d686afbdac13d3d08ef897f059b`:
+  CI `30731757331`, deployment `30731372117` e acceptance `30731760038`: `PASS`;
+- fixture pubblica: API `storefront.v1`, catalog version 2, 3 categorie, 2 featured,
+  1 offerta, 9 immagini pubbliche; anon Home `PASS`, inventory/authoring `DENIED`;
+- readiness Android live: 1/1 `PASS` in 3 s;
+- Home Android Emulator live: 1/1 `PASS` in 16 s sullo SHA esatto;
+- Home iOS Simulator live: 1/1 `PASS` in 2 s sullo SHA esatto;
+- CI Client `30732213362`: Quality 3m05s, iOS 3m39s, Android 8m28s, 3/3 `PASS`;
+- APK staging digest SHA-256
+  `005c29a1e762fc40b3e86f2bccf1ad213030b49eb0f96423776668439a3986a2`;
+- Runner.app staging aggregate SHA-256
+  `fc92cabfd9e6070f20d577b967442322e2bc3abdb68275f62a4da1203d60a727`;
+- production write: `NOT_RUN`; production invariata.
+
+### Matrici
+
+CA-01..CA-09 e T-01..T-07: `PASS`. Evidence sintetica:
+`docs/TASKS/EVIDENCE/TASK-013/README.md`.
+
+### Handoff
+
+`CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`. Nessuna review formale è stata
+eseguita e TASK-013 non è `DONE`.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate TASK-013. Nessuna review formale intermedia.
+TASK-013 è `VALIDATED_PENDING_INTEGRATED_REVIEW`: implementazione, gate Client,
+fixture staging, boundary negativo, CI e smoke live Android/iOS sono verdi sul revision
+set registrato. Production è invariata; nessuna review formale intermedia è stata
+eseguita. Il task successivo autorizzato è TASK-014.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
@@ -163,6 +217,6 @@ Riservato all eventuale ciclo Fix integrato.
 
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato da USER_APPROVER**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: TASK-014
-- **Riepilogo finale**: in esecuzione
+- **Follow-up candidate**: TASK-014 attivato dal checkpoint verde
+- **Riepilogo finale**: validato in attesa della review integrata finale
 - **Data completamento**: non ancora

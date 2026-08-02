@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-013
-- **File task**: docs/TASKS/TASK-013-home-storefront-data-backed.md
+- **Task attivo**: TASK-014
+- **File task**: docs/TASKS/TASK-014-catalog-categories-grid.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,8 +14,9 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: implementare TASK-013 nel Client Flutter usando
-  esclusivamente `storefront_home_v1`, fixture staging pubbliche e production invariata
+- **Prossima azione autorizzata**: implementare TASK-014 nel Client Flutter usando
+  esclusivamente `storefront_categories_v1` e `storefront_catalog_v1`, keyset cursor,
+  immagini pubbliche e production invariata
 
 ## Repository coinvolti
 
@@ -63,8 +64,8 @@
 | TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-006 | Client, Admin, Supabase | Contratto query catalogo testabile |
 | TASK-011 | Connessione Flutter allo staging e backend health state | DONE | TASK-004 | Client, Supabase | Connessione staging fail-closed |
 | TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | DONE | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
-| TASK-013 | Home e prodotti/promozioni in evidenza | ACTIVE | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
-| TASK-014 | Categorie e griglia catalogo con caricamento immagini | TODO | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
+| TASK-013 | Home e prodotti/promozioni in evidenza | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
+| TASK-014 | Categorie e griglia catalogo con caricamento immagini | ACTIVE | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
 | TASK-015 | Ricerca, filtri e ordinamento | TODO | TASK-010, TASK-014 | Client, Supabase | Discovery catalogo efficiente |
 | TASK-016 | Dettaglio prodotto e disponibilità commerciale | TODO | TASK-010, TASK-014 | Client, Supabase | Dettaglio pubblico coerente |
 | TASK-017 | Cache catalogo offline, refresh e invalidazione | TODO | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
@@ -147,8 +148,10 @@ step applicabili `success` e annotation 0/0/0. La precedente attestazione di TAS
 bloccato è storia superata: TASK-020 è `DONE` e PR #4 è merged. Il release train
 `STOREFRONT_V1` ha completato i checkpoint Milestone 1 e Milestone 2 con
 TASK-005/TASK-006/TASK-007/TASK-008/TASK-009/TASK-010 in
-`VALIDATED_PENDING_INTEGRATED_REVIEW` e ha attivato TASK-013 in `EXECUTION`;
-i task successivi restano `TODO` fino al relativo handoff. La dipendenza TASK-010 è
+`VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-013 ha completato Home reale, fixture,
+CI e smoke Android/iOS ed è anch'esso `VALIDATED_PENDING_INTEGRATED_REVIEW`.
+TASK-014 è l'unico task `ACTIVE / EXECUTION`; i task successivi restano `TODO` fino
+al relativo handoff. La dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
 circolari della sua definizione.
@@ -165,5 +168,13 @@ token/code. La CI run `30709395137` è 3/3 `PASS`, tutti gli step applicabili
 `PASS` con annotation 0/0/0. PR #4 è `MERGED` con merge commit `b2d70b5`; branch
 remoto eliminato, main locale/remoto allineate e worktree pulito. TASK-020 è `DONE`.
 
+## Ultimo checkpoint interno — TASK-013
+
+Il revision set Client `2aefa17f901652bf2f1fceafb2649422c6b8fb4f` ha superato
+240 test con coverage 81,17%, gate security/governance/architecture, build Android/iOS,
+smoke Home reale Android/iOS e CI `30732213362` 3/3 `PASS`. La fixture staging Admin
+è attestata dalla run `30731760038` sullo SHA `a9036f0b`; production è invariata.
+TASK-013 non è `DONE`: attende la review integrata finale.
+
 Handoff:
-`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-013.
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-014.

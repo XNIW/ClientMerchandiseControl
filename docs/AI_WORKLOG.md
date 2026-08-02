@@ -1415,3 +1415,25 @@
   `VALIDATED_PENDING_INTEGRATED_REVIEW`; production invariata.
 - **Transizione**: TASK-013 è l unico task `ACTIVE / EXECUTION`; planning autorizzato
   per repository Home/RPC, config shop slug, fixture staging e smoke Android/iOS.
+
+## 2026-08-02 — Checkpoint interno TASK-013 e attivazione TASK-014
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-013**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; configurazione shop,
+  repository/DTO RPC-only, Home guest reale, immagini pubbliche e stati accessibili
+  completati nel Client Flutter.
+- **Revision set Client**: `2aefa17f901652bf2f1fceafb2649422c6b8fb4f`, PR #5 draft.
+- **Gate locali**: security/governance/architecture/l10n/format/analyze, 240 test,
+  coverage 2.199/2.709 (81,17%), Android debug e iOS Simulator debug: `PASS`.
+- **CI Client**: run `30732213362`, Quality 3m05s, iOS 3m39s e Android 8m28s,
+  tutti `PASS` sullo SHA esatto.
+- **Staging**: Admin fixture SHA `a9036f0b`, CI `30731757331`, deploy
+  `30731372117`, acceptance `30731760038`; 3 categorie, 2 featured, 1 offerta,
+  9 immagini pubbliche e negative boundary interne, tutti `PASS`.
+- **Smoke mobile**: Android readiness 1/1 in 3 s, Android Home 1/1 in 16 s e iOS
+  Home 1/1 in 2 s, tutti `PASS` senza sessione cliente.
+- **Difetti corretti**: lifecycle Riverpod su `initializing -> ready`, category slug
+  di due caratteri e isolamento rete del test shell; regressioni e suite completa verdi.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-014 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per categorie, catalogo keyset, griglia adattiva e immagini pubbliche.

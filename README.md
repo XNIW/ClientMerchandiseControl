@@ -2,13 +2,13 @@
 
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
 Merchandise Control. La fondazione corrente offre una shell guest localizzata,
-accessibile e data-safe con Home, Catalogo, Carrello e Account, più una fondazione
-Google OAuth customer attivabile in staging tramite Supabase Auth dopo la verifica
-remota. Dati Storefront e ordini restano assegnati ai task proprietari futuri.
+accessibile e data-safe con Home Storefront reale, Catalogo, Carrello e Account, più
+Google OAuth customer verificato in staging tramite Supabase Auth. Catalogo paginato,
+commerce e ordini restano assegnati ai task proprietari del release train.
 
 ## Relazione con Merchandise Control
 
-Il client consumerà un futuro dominio pubblico Storefront sul Supabase esistente. Non
+Il client consuma il dominio pubblico Storefront sul Supabase esistente. Non
 legge direttamente le tabelle inventory interne. Admin Console governerà pubblicazione,
 prezzi, promozioni e fulfillment; Merchandise Control e Win7POS restano sistemi
 operativi.
@@ -90,7 +90,9 @@ Google OAuth, PKCE e browser esterno; sessione e verifier sono conservati in
 Keychain/Keystore e ogni callback è validato prima dell'exchange. Development e
 production restano fail-closed. TASK-011 continua a verificare il solo endpoint Auth
 health senza tabelle o dati; TASK-012 non aggiunge query o dati commerciali.
-TASK-013 usa lo slug esclusivamente con l'RPC pubblico `storefront_home_v1`.
+TASK-013 usa lo slug esclusivamente con l'RPC pubblico `storefront_home_v1`;
+TASK-014 estende lo stesso boundary con `storefront_categories_v1` e
+`storefront_catalog_v1`.
 
 ## Test e build
 
@@ -152,8 +154,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-013
-- **File task**: docs/TASKS/TASK-013-home-storefront-data-backed.md
+- **Task attivo**: TASK-014
+- **File task**: docs/TASKS/TASK-014-catalog-categories-grid.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -172,6 +174,6 @@ callback iOS warm/cold, restore, logout e nuovo login. Finding aperti 0 P0/P1/P2
 CI finale `30713857455` 3/3 `PASS`, step applicabili `success`, annotation 0/0/0.
 PR #4 è merged normalmente con commit `b2d70b5`; branch remoto eliminato e il closeout
 su `main` è stato verificato dalla CI `30714350425`. Il release train Storefront v1 è
-ora in `EXECUTION` sul worktree dedicato: TASK-005–TASK-010 pertinenti sono
-`VALIDATED_PENDING_INTEGRATED_REVIEW`, TASK-013 è l'unico task attivo e gli altri task
+ora in `EXECUTION` sul worktree dedicato: TASK-005–TASK-010 pertinenti e TASK-013 sono
+`VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-014 è l'unico task attivo e gli altri task
 del train restano `TODO` fino al rispettivo checkpoint.

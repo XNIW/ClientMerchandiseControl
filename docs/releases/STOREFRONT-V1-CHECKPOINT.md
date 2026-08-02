@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 3 / TASK-013 Home reale
-- **Task corrente**: TASK-013
+- **Fase corrente**: EXECUTION / Milestone 3 / TASK-014 catalogo
+- **Task corrente**: TASK-014
 - **Repository writer corrente**: ClientMerchandiseControl
 - **Branch**: `integration/storefront-v1`
-- **SHA Client checkpoint parent**: `ae726fadf8b0ffdc51d3a99da17c726e5381e744`
-- **SHA Admin corrente**: `429c9ca88818c2f3c68a53cd4663843ae172cb8b`
+- **SHA Client TASK-013 candidate**: `2aefa17f901652bf2f1fceafb2649422c6b8fb4f`
+- **SHA Admin corrente**: `a9036f0bda741d686afbdac13d3d08ef897f059b`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -37,14 +37,20 @@
   file/1.504 test e immagini 32/32; CI `30729546565`; build `30729546558`;
   migration `30728431358`; deploy `30729642919`; acceptance E2E + cleanup
   `30729785520`, tutti `PASS`; production invariata
-- **Gate ancora necessari**: planning/execution TASK-013, fixture catalogo staging
-  persistente e smoke Home reale Android/iOS
-- **Comando successivo esatto**: `rg -n "HomeScreen|AppConfig|Supabase.instance|storefront_home_v1" lib test config docs`
+- **Gate TASK-013**: Client SHA `2aefa17f`; 240 test, coverage 81,17%, security,
+  governance, architecture, analyze e build Android/iOS `PASS`; CI `30732213362`
+  3/3 `PASS`; Android readiness 1/1, Home Android 1/1 e Home iOS 1/1 `PASS`;
+  fixture Admin SHA `a9036f0b`, deploy `30731372117`, CI `30731757331` e acceptance
+  `30731760038` `PASS`; production invariata
+- **Gate ancora necessari**: execution TASK-014, test keyset/grid/immagini e smoke
+  catalogo reale Android/iOS
+- **Comando successivo esatto**: `rg -n "CatalogScreen|storefront_categories_v1|storefront_catalog_v1|StorefrontProductCard" lib test docs`
 - **Blocker**: nessuno
 - **Processi ancora attivi**: nessuno
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
   `PASS`; Milestone 2 Admin publish/promozioni/immagini/rollback/cleanup `PASS`;
-  catalogo client persistente TASK-013 ancora `NOT_RUN`; production invariata
+  fixture pubblica TASK-013 e Home guest Android/iOS `PASS`; TASK-014 catalog grid
+  `NOT_RUN`; production invariata
 
 ## Vincoli di ripresa
 

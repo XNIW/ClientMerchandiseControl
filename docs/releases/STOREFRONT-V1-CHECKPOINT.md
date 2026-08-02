@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 4 / TASK-022 device/push consent
-- **Task corrente**: TASK-022
+- **Fase corrente**: EXECUTION / Milestone 4 / TASK-023 carrello persistente
+- **Task corrente**: TASK-023
 - **Repository writer corrente**: merchandise-control-admin-web / Supabase
 - **Branch**: `integration/storefront-v1`
-- **SHA Client runtime corrente**: `4f25b539248c642351e50667a53d6fcb95840c41`
-- **SHA Admin/Supabase corrente**: `27770dbe76da3066cdddb5a821b01c144a9ae607`
+- **SHA Client runtime corrente**: `b113f44a1c7b150e9b07e770aa8a7c158a2b8111`
+- **SHA Admin/Supabase corrente**: `c8f4048f5f442726bec1693e808e19fe6dd40fc4`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -76,20 +76,32 @@
   regression `30761578384` `PASS`. Client `4f25b539`, 371 test, coverage 80,91%, gate
   completo 100,41 s, build Android/iOS e integration Account Android/iOS 1/1 `PASS`.
   CI Client `30763287350` `BLOCKED` esterna: tre job senza runner/step per billing.
-- **Gate ancora necessari**: TASK-022 schema/RLS/RPC device, Client consent/token
-  lifecycle, logout cleanup, staging, smoke Android/iOS, gate e CI applicabili
-- **Comando successivo esatto**: auditare storage/logout Auth, config native push e
-  pattern device/RLS prima del delta additivo TASK-022
+- **Gate TASK-022**: Admin `c8f4048f`, migration staging `20260802194500`, tabella
+  `customer_devices` FORCE RLS e RPC register/revoke/status; pgTAP 58/58, suite 27
+  file/1.640 test, CI `30764931962`, Cloudflare `30764931964` e staging
+  `30764930029` `PASS`; artifact `8838637043`, digest
+  `ec7764abe27e019d95ecbcb7df3378445565bd2c951fd54a47fdf35395771d6f`.
+  Client `b113f44`, 403 test, coverage 80,61%, gate completo 119 s, build Android/iOS,
+  integration device Android 1/1 in 23 s e iOS 1/1 in 33 s, artifact smoke e
+  accessibility tree `PASS`. CI Client `30766494620` `BLOCKED` esterna: tre job senza
+  runner/step per billing. Provider live non configurato, nessun push finto.
+- **Gate ancora necessari**: TASK-023 schema/RLS/RPC cart, guest cache/restart,
+  merge owner idempotente, revalidation server-side, UI, staging e smoke Android/iOS
+- **Comando successivo esatto**: creare nel writer Admin/Supabase la migration additiva
+  TASK-023 per cart/item/mutation ledger, FORCE RLS e RPC read/mutate/merge/revalidate,
+  iniziando dai pgTAP owner/cross-user/version/idempotency/malicious-price
 - **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
-  nessun blocker tecnico corrente per TASK-022
-- **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`, sessione controllata;
-  deve essere terminato al closeout del release train
+  nessun blocker tecnico corrente per TASK-023
+- **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`; Android Emulator
+  `emulator-5554`, API 35, sessione exec `90303`; iOS Simulator iPhone 17 Pro iOS 26.5
+  UUID `240F400E-5EFA-486A-9137-FFBBE70F604D`. Sono controllati e necessari ai gate
+  mobile successivi; `caffeinate` deve essere terminato al closeout del release train
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
   `PASS`; Milestone 2 Admin publish/promozioni/immagini/rollback/cleanup `PASS`;
   fixture pubblica, Home, Catalog, Discovery, Detail, cache offline/reconnect,
   favorite/share/deep link guest Android/iOS, XCTest share iOS, UI hardening,
-  performance extended dataset e TASK-021 profile/address/privacy `PASS`; TASK-022
-  attivato; production invariata
+  performance extended dataset, TASK-021 profile/address/privacy e TASK-022 device/
+  consent/token lifecycle `PASS`; TASK-023 attivato; production invariata
 
 ## Vincoli di ripresa
 

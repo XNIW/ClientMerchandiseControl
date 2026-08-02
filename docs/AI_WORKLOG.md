@@ -1606,3 +1606,38 @@
 - **Transizione**: TASK-022 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per installation ID non invasivo, `customer_devices`, consent/token lifecycle,
   revoke/dedup/logout cleanup e UI Account, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-022 e attivazione TASK-023
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-022**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; installation ID non invasivo,
+  registro device owner-scoped, consent/permission separati, token rotation, revoke,
+  logout cleanup, offline retry e UI Account completati.
+- **Revision set Admin/Supabase**:
+  `c8f4048f5f442726bec1693e808e19fe6dd40fc4`, PR #67 draft; migration additiva
+  `20260802194500_storefront_v1_customer_devices`.
+- **Gate Admin/staging**: replay completo; pgTAP TASK-022 58/58 e suite 27 file/1.640
+  test; dedup/rotation concorrente; verify/foundation/security; CI `30764931962`,
+  Cloudflare `30764931964` e staging `30764930029`, tutti `PASS`; artifact
+  `8838637043`, digest
+  `ec7764abe27e019d95ecbcb7df3378445565bd2c951fd54a47fdf35395771d6f`.
+- **Revision set Client runtime**:
+  `b113f44a1c7b150e9b07e770aa8a7c158a2b8111`, PR #5 draft; storage bounded,
+  provider/repository/controller, signout coordinator, UI e quattro localizzazioni.
+- **Gate Client**: `scripts/check.sh` exit 0 in 119 s; security 465 file, governance
+  8/8, architecture 7/7, analyze/format, 403 test, coverage 6.329/7.851 (80,61%),
+  benchmark 1/1 e build Android/iOS `PASS`; integration Android API 35 1/1 in 23 s e
+  iPhone 17 Pro iOS 26.5 1/1 in 33 s `PASS`.
+- **Smoke mobile**: dopo aver distinto gli artifact test runner da quelli normali,
+  APK/Runner ricostruiti, installati e avviati headlessly; Android cold launch 2.327 ms,
+  accessibility tree/PID/crash scan e screenshot iOS/Android coerenti: `PASS`.
+- **Difetti corretti durante Execution**: porta SharedPreferences iniettabile dopo il
+  failure unit iniziale; logout riportato in viewport dopo una regressione widget;
+  artifact normali ricostruiti dopo che integration test aveva lasciato il runner.
+- **CI Client**: run `30766494620` `BLOCKED` esterna, non `FAIL` tecnico: Quality,
+  Android e iOS hanno zero runner/step e annotazione billing/spending limit.
+- **Sicurezza/production**: token escluso da response/log/storage locale; provider live
+  onestamente non configurato; nessun write/deploy production e flag production OFF.
+- **Transizione**: TASK-023 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per guest cart persistente, merge owner idempotente, cart version e revalidation
+  server-side, con writer Admin/Supabase -> Client.

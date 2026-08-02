@@ -25,6 +25,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-019" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-021" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-022" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-023" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -118,6 +119,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-022/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-022/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-023-persistent-cart-price-revalidation.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-023/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-023/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -149,21 +156,21 @@ cmc_expect_pass valid "${cmc_case}"
 
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \
-  's/| TASK-023 | Carrello persistente e price revalidation | TODO |/| TASK-023 | Carrello persistente e price revalidation | ACTIVE |/' \
+  's/| TASK-024 | Proiezione disponibilità e stock pubblico | TODO |/| TASK-024 | Proiezione disponibilità e stock pubblico | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-022/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-023/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-022 | Registrazione device, consenso notifiche e token lifecycle | ACTIVE |/| TASK-022 | Registrazione device, consenso notifiche e token lifecycle | DONE |/' \
+  's/| TASK-023 | Carrello persistente e price revalidation | ACTIVE |/| TASK-023 | Carrello persistente e price revalidation | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"

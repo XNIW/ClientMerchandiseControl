@@ -5,14 +5,14 @@
 - **Task ID**: TASK-022
 - **Titolo**: Registrazione device, consenso notifiche e token lifecycle
 - **File task**: `docs/TASKS/TASK-022-customer-devices-push-consent.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-022/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -97,6 +97,8 @@
 | D-04 | La UI dipende da un provider astratto; il provider live può restare non configurato senza inventare credenziali | Consente test riproducibili e integrazione successiva TASK-031 | ATTIVA |
 | D-05 | Logout privilegia revoca autenticata e cleanup locale; failure di rete resta retryable e sanitizzata | Logout non deve richiedere GUI né perdere il diritto di revoca | ATTIVA |
 | D-06 | Planning ed Execution sono autorizzati dal prompt USER_APPROVER del 2026-08-02 | Mantiene il release train headless continuo | ATTIVA |
+| D-07 | La CI Client `30766494620` resta `BLOCKED` per billing GitHub prima dell'avvio dei runner; i gate locali sullo SHA esatto non vengono trasformati in CI `PASS` | Mantiene evidence onesta e applica il principio non bloccante del release train | ATTIVA |
+| D-08 | Il provider live resta esplicitamente `notConfigured` finché APNs/FCM non fornisce credenziali/configurazione verificata | TASK-022 definisce lifecycle e boundary senza inventare token o invii reali di TASK-031 | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 
@@ -145,12 +147,65 @@ riusabile dalla pipeline notifiche TASK-031 senza confondere token, device e ide
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso. Primo passo: audit read-only di storage/session logout, configurazioni native
-push e pattern migration/RLS/RPC; nessun risultato è ancora dichiarato.
+### Modifiche completate
+
+- migration additiva Admin/Supabase `20260802194500` con `customer_devices`, UUID
+  opachi, installation UUID app-scoped, token hash/dedup, lifecycle consenso/revoca,
+  expiry, FORCE RLS owner-only, grant minimi e RPC register/revoke/status;
+- contratti server idempotenti che derivano l'owner da `auth.uid()`, validano
+  platform/locale/permission e non restituiscono né loggano il push token;
+- storage Flutter bounded e testabile: persiste installation ID, decisione owner e
+  operazione retry minima, mai il token; UUID v4 generato con `Random.secure`;
+- `PushTokenProvider`, repository strict, controller single-flight e coordinatore
+  logout con revoke autenticata, cleanup locale e retry idempotente offline;
+- UI Account Material 3 per consenso/stato notifiche, permission OS separata,
+  localizzazione es-CL/it/en/zh-Hans, dark, text scale 200%, compact/landscape,
+  Semantics e target di almeno 48 logical pixel;
+- integration flow headless Android/iOS per grant, token registration/rotation,
+  revoke e processo ancora vivo; provider live non configurato espone lo stato reale.
+
+### Gate eseguiti
+
+- Admin/Supabase SHA `c8f4048f5f442726bec1693e808e19fe6dd40fc4`, PR #67
+  draft: migration replay `PASS`; pgTAP TASK-022 58/58 e suite completa 27 file/
+  1.640 test `PASS`; race/dedup token concorrente, foundation, verify e security
+  `PASS`;
+- staging run `30764930029`, job `91541826190`, sullo SHA esatto: dry-run, postverify
+  device contract e cleanup `PASS`; artifact `8838637043`, SHA-256
+  `ec7764abe27e019d95ecbcb7df3378445565bd2c951fd54a47fdf35395771d6f`;
+- Admin CI `30764931962` e Cloudflare build `30764931964`: `PASS`; deploy staging
+  correttamente `SKIPPED` perché il delta TASK-022 è database-only;
+- Client SHA `b113f44a1c7b150e9b07e770aa8a7c158a2b8111`, PR #5 draft:
+  `scripts/check.sh` exit 0 in 119 s; security 465 file, governance 8/8,
+  architecture 7/7, analyze/format, 403 test, coverage 6.329/7.851 (80,61%),
+  benchmark 1/1 e build Android/iOS Simulator `PASS`;
+- integration device lifecycle su Android Emulator API 35: 1/1 `PASS`, exit 0 in
+  23 s; iPhone 17 Pro Simulator iOS 26.5: 1/1 `PASS`, exit 0 in 33 s;
+- smoke degli artifact normali ricostruiti: install/launch Android exit 0, cold launch
+  2.327 ms, screenshot e accessibility tree coerenti, PID vivo e zero crash; install/
+  launch/screenshot iOS exit 0 e Home offline coerente;
+- CI Client `30766494620`: `BLOCKED`, tre job con zero runner/step e annotazione
+  billing/spending limit; nessun failure di codice o retry cieco dichiarato;
+- production non è stata invocata, i flag restano OFF e nessun secret/config/artifact
+  è versionato.
+
+### Matrici
+
+CA-01..CA-10 e CA-12: `PASS`. CA-11: gate tecnici, staging e smoke `PASS`; solo il
+sottogate GitHub-hosted Client CI è `BLOCKED` esterno. T-01..T-09: `PASS`; T-10:
+security/Git/production unchanged `PASS`, Client CI `BLOCKED`. Le evidence
+riproducibili sono in `docs/TASKS/EVIDENCE/TASK-022/README.md`.
+
+### Handoff
+
+`CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`. Nessuna review formale è stata
+eseguita e TASK-022 non è `DONE`.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate tecnici; nessuna review formale intermedia.
+TASK-022 è `VALIDATED_PENDING_INTEGRATED_REVIEW` sul revision set Client/Admin
+registrato. Il blocker CI Client è esclusivamente esterno e resta esplicitamente
+`BLOCKED`; production è invariata. Il task successivo autorizzato è TASK-023.
 
 ## Review / Fix
 
@@ -160,6 +215,6 @@ Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
 
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: TASK-023 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Follow-up candidate**: TASK-023 attivato dal checkpoint tecnico
+- **Riepilogo finale**: validato tecnicamente, in attesa della review integrata
 - **Data completamento**: non ancora

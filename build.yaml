@@ -4,3 +4,6 @@ targets:
       drift_dev:
         options:
           generate_manager: false
+      source_gen:combining_builder:
+        options:
+          preamble: "// coverage:ignore-file"

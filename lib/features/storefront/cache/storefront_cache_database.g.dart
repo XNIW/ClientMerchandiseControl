@@ -1,5 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
+// coverage:ignore-file
+
 part of 'storefront_cache_database.dart';
 
 // ignore_for_file: type=lint

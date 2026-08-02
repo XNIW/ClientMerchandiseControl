@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/router/app_routes.dart';
 import '../../../app/design_system/theme/storefront_semantic_colors.dart';
 import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
@@ -29,6 +31,7 @@ class AccountScreen extends ConsumerWidget {
         onContinueWithGoogle: canAuthenticate
             ? controller.startGoogleSignIn
             : null,
+        onBrowseAsGuest: () => context.go(AppRoutes.homeLocation),
         notice: notice == null ? null : _failureMessage(l10n, notice),
       ),
       AuthAuthenticating() => AccountView.status(

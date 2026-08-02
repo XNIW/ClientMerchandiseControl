@@ -186,6 +186,36 @@ void main() {
     }
   });
 
+  testWidgets('usa NavigationRail su tablet ampio e mantiene la navigazione', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1024, 768);
+    tester.platformDispatcher.textScaleFactorTestValue = 1;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+      tester.platformDispatcher.clearTextScaleFactorTestValue();
+    });
+    await tester.pumpWidget(buildApp());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    final rail = tester.widget<NavigationRail>(find.byType(NavigationRail));
+    expect(rail.selectedIndex, 0);
+
+    rail.onDestinationSelected!(1);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CatalogScreen), findsOneWidget);
+    expect(
+      tester.widget<NavigationRail>(find.byType(NavigationRail)).selectedIndex,
+      1,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('le destinazioni rispettano target e label accessibili', (
     tester,
   ) async {

@@ -41,7 +41,12 @@ void main() {
     );
     expect(find.text('Producto 1'), findsOneWidget);
     expect(find.text(r'$1.500'), findsOneWidget);
-    expect(find.bySemanticsLabel(r'Producto 1, $1.500'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel(
+        r'Producto 1, $1.500, Disponible, Retiro en tienda, Entrega',
+      ),
+      findsOneWidget,
+    );
     expect(
       find.byKey(
         const ValueKey(
@@ -55,6 +60,58 @@ void main() {
     expect(storefront.categoryCalls.single.limit, 100);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'search resta pinned, filtri progressivi e griglia compact è 2x',
+    (tester) async {
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      await tester.pumpWidget(
+        _catalogApp(storefront: _CatalogRepository(paginated: true)),
+      );
+      await tester.pumpAndSettle();
+
+      final header = tester.widget<SliverPersistentHeader>(
+        find.byKey(const ValueKey('catalog-sticky-search-header')),
+      );
+      final grid = tester.widget<SliverGrid>(
+        find.byKey(const ValueKey('catalog-grid')),
+      );
+      final delegate =
+          grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
+
+      expect(header.pinned, isTrue);
+      expect(delegate.crossAxisCount, 2);
+      expect(find.text('24 productos cargados'), findsOneWidget);
+      expect(
+        tester
+            .widget<Offstage>(
+              find.byKey(
+                const ValueKey('catalog-filter-panel'),
+                skipOffstage: false,
+              ),
+            )
+            .offstage,
+        isTrue,
+      );
+
+      await tester.tap(find.byKey(const ValueKey('catalog-toggle-filters')));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester
+            .widget<Offstage>(
+              find.byKey(
+                const ValueKey('catalog-filter-panel'),
+                skipOffstage: false,
+              ),
+            )
+            .offstage,
+        isFalse,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets(
     'ricerca usa debounce, risultati reali e clear ripristina catalogo',
@@ -96,6 +153,8 @@ void main() {
     await tester.pumpWidget(_catalogApp(storefront: storefront));
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byKey(const ValueKey('catalog-toggle-filters')));
+    await tester.pumpAndSettle();
     final available = find.byKey(
       const ValueKey('catalog-availability-available'),
     );
@@ -138,6 +197,8 @@ void main() {
     await tester.pumpWidget(_catalogApp(storefront: storefront));
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byKey(const ValueKey('catalog-toggle-filters')));
+    await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const ValueKey('catalog-search')), 'te');
     await tester.pump(const Duration(milliseconds: 301));
     await tester.pumpAndSettle();
@@ -203,7 +264,7 @@ void main() {
     final provider = resized.imageProvider as NetworkImage;
     expect(provider.url, contains('/storefront-product-images/'));
     expect(provider.url, isNot(contains('inventory')));
-    expect(resized.width, 720);
+    expect(resized.width, 480);
     expect(image.gaplessPlayback, isTrue);
 
     await tester.pumpAndSettle();

@@ -34,7 +34,7 @@ void main() {
             find.byKey(const ValueKey('remove-favorite-$_publicationId')),
           )
           .label,
-      'Quitar de favoritos',
+      contains('Quitar de favoritos'),
     );
 
     await tester.tap(

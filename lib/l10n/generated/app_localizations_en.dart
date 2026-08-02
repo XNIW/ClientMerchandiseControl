@@ -187,6 +187,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogFiltersLabel => 'Catalog filters';
 
   @override
+  String catalogLoadedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count products loaded',
+      one: '1 product loaded',
+      zero: 'No products loaded',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get catalogShowFilters => 'Show filters';
+
+  @override
+  String get catalogHideFilters => 'Hide filters';
+
+  @override
   String get catalogFiltersUnavailableDuringSearch =>
       'While searching, you can filter by category. Clear the search to use availability, discounts, or sorting.';
 
@@ -274,6 +292,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productDetailPriceLabel => 'Price';
+
+  @override
+  String productDetailSavings(String amount) {
+    return 'You save $amount';
+  }
+
+  @override
+  String productDetailImagePosition(int current, int total) {
+    return 'Image $current of $total';
+  }
 
   @override
   String get productDetailAvailabilityLabel => 'Commercial availability';

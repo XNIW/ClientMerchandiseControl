@@ -76,7 +76,7 @@ void main() {
     expect(googleSemantics.flagsCollection.isButton, isTrue);
     expect(googleSemantics.flagsCollection.isEnabled, ui.Tristate.isFalse);
     expect(googleSemantics.hasAction(ui.SemanticsAction.tap), isFalse);
-    expect(find.byKey(const ValueKey('account-browse-button')), findsNothing);
+    expect(find.byKey(const ValueKey('account-browse-button')), findsOneWidget);
   });
 
   testWidgets('guest abilita soltanto le callback esplicitamente iniettate', (

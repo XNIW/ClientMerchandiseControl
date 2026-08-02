@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:client_merchandise_control/app/router/app_router.dart';
+import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/core/backend/backend_health_service.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_controller.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_repository.dart';
@@ -102,6 +103,8 @@ Widget _app(ProviderContainer container, GoRouter router) =>
       container: container,
       child: MaterialApp.router(
         routerConfig: router,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
         locale: const Locale('es', 'CL'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

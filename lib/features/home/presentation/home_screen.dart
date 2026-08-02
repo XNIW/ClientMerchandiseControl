@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/design_system/theme/storefront_semantic_colors.dart';
+import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../app/design_system/widgets/storefront_cache_status.dart';
 import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../app/design_system/widgets/storefront_page.dart';
 import '../../../app/design_system/widgets/storefront_search_launcher.dart';
 import '../../../app/design_system/widgets/storefront_section.dart';
+import '../../../app/design_system/widgets/storefront_skeleton.dart';
 import '../../../app/design_system/widgets/storefront_status_banner.dart';
 import '../../../app/router/app_router.dart';
 import '../../../core/backend/backend_readiness_controller.dart';
@@ -17,6 +20,7 @@ import '../../../core/config/app_config.dart';
 import '../../../core/config/app_environment.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../storefront/domain/storefront_models.dart';
+import '../../storefront/presentation/storefront_product_metadata.dart';
 import '../application/home_controller.dart';
 import 'storefront_product_card.dart';
 
@@ -77,15 +81,19 @@ class HomeScreen extends ConsumerWidget {
             header: true,
             child: Text(
               l10n.homeWelcomeTitle,
-              style: Theme.of(context).textTheme.headlineMedium,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.xs),
           Text(
             l10n.homeWelcomeMessage,
-            style: Theme.of(context).textTheme.bodyLarge,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
           StorefrontSearchLauncher(
             key: const ValueKey('home-search'),
             label: l10n.homeSearchLabel,
@@ -96,14 +104,21 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: AppSpacing.lg),
             cacheStatus,
           ],
+          if (homeState.data?.offers case final offers?)
+            if (offers.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.xl),
+              _PromotionSpotlight(product: offers.first),
+            ],
           if (homeStatus != null) ...[
-            const SizedBox(height: AppSpacing.xxl),
+            const SizedBox(height: AppSpacing.xl),
             homeStatus,
           ],
           if (showStorefrontSections) ...[
             const SizedBox(height: AppSpacing.xxl),
             StorefrontSection(
               title: l10n.homeCategoriesTitle,
+              actionLabel: l10n.homeExploreCategories,
+              onAction: openCatalog,
               child: _categoriesFor(
                 context,
                 homeState.data?.categories ?? const [],
@@ -113,6 +128,8 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: AppSpacing.xxl),
             StorefrontSection(
               title: l10n.homeOffersTitle,
+              actionLabel: l10n.homeExploreCatalog,
+              onAction: openCatalog,
               child: _productsFor(
                 products: homeState.data?.offers ?? const [],
                 emptyIcon: Icons.local_offer_outlined,
@@ -123,6 +140,8 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: AppSpacing.xxl),
             StorefrontSection(
               title: l10n.homeFeaturedTitle,
+              actionLabel: l10n.homeExploreCatalog,
+              onAction: openCatalog,
               child: _productsFor(
                 products: homeState.data?.featured ?? const [],
                 emptyIcon: Icons.auto_awesome_outlined,
@@ -162,10 +181,8 @@ class HomeScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     void retry() => ref.read(homeControllerProvider.notifier).retry();
     return switch (state.status) {
-      HomeLoadStatus.loading => StorefrontEmptyState(
-        icon: Icons.cloud_sync_outlined,
-        title: l10n.homeLoadingTitle,
-        message: l10n.homeLoadingMessage,
+      HomeLoadStatus.loading => StorefrontSkeleton(
+        semanticLabel: '${l10n.homeLoadingTitle}. ${l10n.homeLoadingMessage}',
       ),
       HomeLoadStatus.offline || HomeLoadStatus.failure => StorefrontEmptyState(
         icon: Icons.cloud_off_outlined,
@@ -226,30 +243,23 @@ class HomeScreen extends ConsumerWidget {
         ),
       );
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
-          children: [
-            for (final category in categories)
-              ActionChip(
-                key: ValueKey('home-category-${category.slug}'),
-                avatar: const Icon(Icons.category_outlined),
-                label: Text(category.name),
-                onPressed: openCatalog,
-              ),
+    return SingleChildScrollView(
+      key: const ValueKey('home-category-rail'),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (final category in categories) ...[
+            ActionChip(
+              key: ValueKey('home-category-${category.slug}'),
+              avatar: const Icon(Icons.category_outlined),
+              label: Text(category.name),
+              onPressed: openCatalog,
+            ),
+            if (category != categories.last)
+              const SizedBox(width: AppSpacing.sm),
           ],
-        ),
-        const SizedBox(height: AppSpacing.md),
-        OutlinedButton.icon(
-          key: const ValueKey('home-categories'),
-          onPressed: openCatalog,
-          icon: const Icon(Icons.grid_view_outlined),
-          label: Text(l10n.homeExploreCategories),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -309,5 +319,86 @@ class HomeScreen extends ConsumerWidget {
         compact: compact,
       ),
     };
+  }
+}
+
+class _PromotionSpotlight extends StatelessWidget {
+  const _PromotionSpotlight({required this.product});
+
+  final StorefrontProductSummary product;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final semanticColors = StorefrontSemanticColors.of(context);
+    final promotionName = product.promotion?.name ?? l10n.homeOffersTitle;
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      child: Material(
+        color: semanticColors.promotionContainer,
+        borderRadius: BorderRadius.circular(AppRadii.card),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          key: const ValueKey('home-promotion-spotlight'),
+          onTap: () => context.push(AppRoutes.productLocation(product.id)),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final details = Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      promotionName,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: semanticColors.onPromotionContainer,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      product.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: semanticColors.onPromotionContainer,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    StorefrontPrice(product: product),
+                  ],
+                );
+                final icon = Icon(
+                  Icons.local_offer_outlined,
+                  size: 40,
+                  color: semanticColors.onPromotionContainer,
+                );
+                if (constraints.maxWidth < 520 ||
+                    MediaQuery.textScalerOf(context).scale(1) >= 1.5) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      icon,
+                      const SizedBox(height: AppSpacing.md),
+                      details,
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    icon,
+                    const SizedBox(width: AppSpacing.lg),
+                    Expanded(child: details),
+                    const Icon(Icons.arrow_forward),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

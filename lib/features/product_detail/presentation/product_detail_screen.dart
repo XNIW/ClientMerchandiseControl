@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
+import '../../../app/design_system/theme/storefront_semantic_colors.dart';
+import '../../../app/design_system/tokens/app_breakpoints.dart';
 import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
@@ -13,6 +14,7 @@ import '../../home/presentation/storefront_product_card.dart';
 import '../../favorites/presentation/favorite_button.dart';
 import '../../sharing/application/product_share_service.dart';
 import '../../storefront/domain/storefront_models.dart';
+import '../../storefront/presentation/storefront_product_metadata.dart';
 import '../application/product_detail_controller.dart';
 
 class ProductDetailScreen extends ConsumerWidget {
@@ -127,7 +129,7 @@ class _ProductDetailStatus extends StatelessWidget {
 }
 
 class _ProductDetailContent extends StatelessWidget {
-  _ProductDetailContent({
+  const _ProductDetailContent({
     required this.product,
     required this.cachedAt,
     required this.cacheIsStale,
@@ -138,196 +140,255 @@ class _ProductDetailContent extends StatelessWidget {
   final DateTime? cachedAt;
   final bool cacheIsStale;
   final bool cacheIsRefreshing;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide =
+            constraints.maxWidth >= AppBreakpoints.wide &&
+            MediaQuery.textScalerOf(context).scale(1) < 1.5;
+        final gallery = _ProductGallery(product: product);
+        final details = _ProductInformation(product: product);
+        return ListView(
+          key: const ValueKey('product-detail-content'),
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppSizes.productDetailContentMaxWidth,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (cachedAt case final cachedAt?) ...[
+                      StorefrontCacheStatus(
+                        cachedAt: cachedAt,
+                        isStale: cacheIsStale,
+                        isRefreshing: cacheIsRefreshing,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                    ],
+                    if (wide)
+                      Row(
+                        key: const ValueKey('product-detail-wide-layout'),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(flex: 6, child: gallery),
+                          const SizedBox(width: AppSpacing.xxl),
+                          Expanded(flex: 5, child: details),
+                        ],
+                      )
+                    else
+                      Column(
+                        key: const ValueKey('product-detail-compact-layout'),
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          gallery,
+                          const SizedBox(height: AppSpacing.xl),
+                          details,
+                        ],
+                      ),
+                    const SizedBox(height: AppSpacing.xxl),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ProductGallery extends StatelessWidget {
+  const _ProductGallery({required this.product});
+
+  final StorefrontProductSummary product;
+
+  @override
+  Widget build(BuildContext context) {
+    final position = AppLocalizations.of(
+      context,
+    ).productDetailImagePosition(1, 1);
+    return Semantics(
+      container: true,
+      label: position,
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadii.card),
+            child: AspectRatio(
+              aspectRatio: 4 / 3,
+              child: StorefrontProductImage(
+                productId: product.id,
+                name: product.name,
+                uri: product.images?.detail,
+                cacheWidth: 1440,
+                keyPrefix: 'storefront-detail-image',
+              ),
+            ),
+          ),
+          PositionedDirectional(
+            end: AppSpacing.sm,
+            bottom: AppSpacing.sm,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.surface.withValues(alpha: 0.92),
+                borderRadius: BorderRadius.circular(AppRadii.pill),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
+                child: Text(
+                  position,
+                  key: const ValueKey('product-detail-gallery-position'),
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProductInformation extends StatelessWidget {
+  _ProductInformation({required this.product});
+
+  final StorefrontProductSummary product;
   final ClpCurrencyFormatter _formatter = ClpCurrencyFormatter();
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final price = _formatter.format(product.priceClp);
-    final previousPrice = product.compareAtPriceClp == null
-        ? null
-        : _formatter.format(product.compareAtPriceClp);
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final discount = product.discountBps == null
-        ? null
-        : NumberFormat('#,##0.##', locale).format(product.discountBps! / 100);
-    return ListView(
-      key: const ValueKey('product-detail-content'),
-      padding: const EdgeInsets.all(AppSpacing.lg),
+    final semanticColors = StorefrontSemanticColors.of(context);
+    final savings = product.hasDiscount
+        ? _formatter.format(product.compareAtPriceClp! - product.priceClp)
+        : null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppSizes.contentMaxWidth,
+        Text(
+          product.category.name,
+          key: const ValueKey('product-detail-category'),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          product.name,
+          key: const ValueKey('product-detail-name'),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800),
+        ),
+        if (product.brand case final brand?) ...[
+          const SizedBox(height: AppSpacing.xs),
+          _LabelledValue(
+            label: l10n.productDetailBrandLabel,
+            value: brand,
+            valueKey: const ValueKey('product-detail-brand'),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.lg),
+        StorefrontPrice(product: product, emphasized: true),
+        if (savings case final amount?) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            l10n.productDetailSavings(amount),
+            key: const ValueKey('product-detail-savings'),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: semanticColors.success,
+              fontWeight: FontWeight.w700,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (cachedAt case final cachedAt?) ...[
-                  StorefrontCacheStatus(
-                    cachedAt: cachedAt,
-                    isStale: cacheIsStale,
-                    isRefreshing: cacheIsRefreshing,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppRadii.card),
-                  child: AspectRatio(
-                    aspectRatio: 4 / 3,
-                    child: StorefrontProductImage(
-                      productId: product.id,
-                      name: product.name,
-                      uri: product.images?.detail,
-                      cacheWidth: 1440,
-                      keyPrefix: 'storefront-detail-image',
-                    ),
-                  ),
+          ),
+        ],
+        if (product.promotion case final promotion?) ...[
+          const SizedBox(height: AppSpacing.md),
+          Semantics(
+            container: true,
+            label: '${l10n.productDetailPromotionLabel}: ${promotion.name}',
+            child: ExcludeSemantics(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: semanticColors.promotionContainer,
+                  borderRadius: BorderRadius.circular(AppRadii.surface),
                 ),
-                const SizedBox(height: AppSpacing.xl),
-                Text(
-                  product.category.name,
-                  key: const ValueKey('product-detail-category'),
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  product.name,
-                  key: const ValueKey('product-detail-name'),
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                if (product.brand case final brand?) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  _LabelledValue(
-                    label: l10n.productDetailBrandLabel,
-                    value: brand,
-                    valueKey: const ValueKey('product-detail-brand'),
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.lg),
-                Semantics(
-                  container: true,
-                  label: '${l10n.productDetailPriceLabel}: $price',
-                  child: ExcludeSemantics(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          price,
-                          key: const ValueKey('product-detail-price'),
-                          style: Theme.of(context).textTheme.headlineSmall
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.local_offer_outlined,
+                        color: semanticColors.onPromotionContainer,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          promotion.name,
+                          key: const ValueKey('product-detail-promotion'),
+                          style: Theme.of(context).textTheme.titleSmall
                               ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
+                                color: semanticColors.onPromotionContainer,
                                 fontWeight: FontWeight.w700,
                               ),
                         ),
-                        if (previousPrice case final previous?)
-                          Text(
-                            l10n.homePreviousPrice(previous),
-                            key: const ValueKey(
-                              'product-detail-previous-price',
-                            ),
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  decoration: TextDecoration.lineThrough,
-                                ),
-                          ),
-                        if (discount case final percent?)
-                          Padding(
-                            padding: const EdgeInsets.only(top: AppSpacing.xs),
-                            child: Chip(
-                              key: const ValueKey('product-detail-discount'),
-                              label: Text(l10n.homeDiscountPercent(percent)),
-                            ),
-                          ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                if (product.promotion case final promotion?) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  _LabelledValue(
-                    label: l10n.productDetailPromotionLabel,
-                    value: promotion.name,
-                    valueKey: const ValueKey('product-detail-promotion'),
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.xl),
-                Text(
-                  l10n.productDetailDescriptionLabel,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  product.description ?? l10n.productDetailNoDescription,
-                  key: const ValueKey('product-detail-description'),
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                Text(
-                  l10n.productDetailAvailabilityLabel,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: Chip(
-                    key: const ValueKey('product-detail-availability'),
-                    avatar: const Icon(Icons.inventory_2_outlined),
-                    label: Text(_availabilityLabel(l10n, product.availability)),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Text(
-                  l10n.productDetailFulfillmentLabel,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Wrap(
-                  key: const ValueKey('product-detail-fulfillment'),
-                  spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.sm,
-                  children: [
-                    if (product.fulfillment.pickup)
-                      Chip(
-                        avatar: const Icon(Icons.storefront_outlined),
-                        label: Text(l10n.productDetailPickup),
-                      ),
-                    if (product.fulfillment.delivery)
-                      Chip(
-                        avatar: const Icon(Icons.local_shipping_outlined),
-                        label: Text(l10n.productDetailDelivery),
-                      ),
-                    if (product.fulfillment.reservation)
-                      Chip(
-                        avatar: const Icon(Icons.event_available_outlined),
-                        label: Text(l10n.productDetailReservation),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xxl),
-              ],
+              ),
             ),
           ),
+        ],
+        const SizedBox(height: AppSpacing.xl),
+        Text(
+          l10n.productDetailAvailabilityLabel,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: KeyedSubtree(
+            key: const ValueKey('product-detail-availability'),
+            child: StorefrontAvailabilityBadge(
+              availability: product.availability,
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Text(
+          l10n.productDetailFulfillmentLabel,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        KeyedSubtree(
+          key: const ValueKey('product-detail-fulfillment'),
+          child: StorefrontFulfillmentBadges(fulfillment: product.fulfillment),
+        ),
+        const SizedBox(height: AppSpacing.xl),
+        Text(
+          l10n.productDetailDescriptionLabel,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          product.description ?? l10n.productDetailNoDescription,
+          key: const ValueKey('product-detail-description'),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
       ],
     );
   }
-
-  String _availabilityLabel(
-    AppLocalizations l10n,
-    StorefrontAvailability availability,
-  ) => switch (availability) {
-    StorefrontAvailability.available => l10n.catalogAvailabilityAvailable,
-    StorefrontAvailability.lowStock => l10n.catalogAvailabilityLowStock,
-    StorefrontAvailability.unavailable => l10n.catalogAvailabilityUnavailable,
-    StorefrontAvailability.reservationOnly =>
-      l10n.catalogAvailabilityReservationOnly,
-    StorefrontAvailability.pickupOnly => l10n.catalogAvailabilityPickupOnly,
-    StorefrontAvailability.deliveryOnly => l10n.catalogAvailabilityDeliveryOnly,
-  };
 }
 
 class _LabelledValue extends StatelessWidget {

@@ -190,6 +190,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get catalogFiltersLabel => 'Filtros del catálogo';
 
   @override
+  String catalogLoadedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count productos cargados',
+      one: '1 producto cargado',
+      zero: 'No hay productos cargados',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get catalogShowFilters => 'Mostrar filtros';
+
+  @override
+  String get catalogHideFilters => 'Ocultar filtros';
+
+  @override
   String get catalogFiltersUnavailableDuringSearch =>
       'Durante la búsqueda puedes filtrar por categoría. Borra la búsqueda para usar disponibilidad, descuentos u orden.';
 
@@ -277,6 +295,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get productDetailPriceLabel => 'Precio';
+
+  @override
+  String productDetailSavings(String amount) {
+    return 'Ahorras $amount';
+  }
+
+  @override
+  String productDetailImagePosition(int current, int total) {
+    return 'Imagen $current de $total';
+  }
 
   @override
   String get productDetailAvailabilityLabel => 'Disponibilidad comercial';
@@ -681,6 +709,17 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get catalogFiltersLabel => '商品目录筛选';
 
   @override
+  String catalogLoadedCount(int count) {
+    return '已加载 $count 件商品';
+  }
+
+  @override
+  String get catalogShowFilters => '显示筛选条件';
+
+  @override
+  String get catalogHideFilters => '隐藏筛选条件';
+
+  @override
   String get catalogFiltersUnavailableDuringSearch =>
       '搜索时可以按类别筛选。清除搜索后可使用库存状态、折扣或排序。';
 
@@ -764,6 +803,16 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get productDetailPriceLabel => '价格';
+
+  @override
+  String productDetailSavings(String amount) {
+    return '节省 $amount';
+  }
+
+  @override
+  String productDetailImagePosition(int current, int total) {
+    return '第 $current 张，共 $total 张';
+  }
 
   @override
   String get productDetailAvailabilityLabel => '商业库存状态';

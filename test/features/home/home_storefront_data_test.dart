@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:client_merchandise_control/core/backend/backend_health_service.dart';
+import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_controller.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_repository.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
@@ -29,13 +30,13 @@ void main() {
 
       expect(find.text('Bebidas'), findsOneWidget);
       expect(find.text('Café destacado'), findsOneWidget);
-      expect(find.text('Té en oferta'), findsOneWidget);
+      expect(find.text('Té en oferta'), findsWidgets);
       expect(find.text(r'$1.500'), findsWidgets);
-      expect(find.text(r'$1.200'), findsOneWidget);
-      expect(find.text('20% de descuento'), findsOneWidget);
+      expect(find.text(r'$1.200'), findsWidgets);
+      expect(find.text('20% de descuento'), findsWidgets);
       expect(
         find.bySemanticsLabel(
-          r'Té en oferta, $1.200, Antes $1.500, 20% de descuento',
+          r'Té en oferta, $1.200, Antes $1.500, 20% de descuento, Disponible, Retiro en tienda, Entrega',
         ),
         findsOneWidget,
       );
@@ -54,7 +55,7 @@ void main() {
     await tester.pump();
 
     final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
-    expect(find.text(l10n.homeLoadingTitle), findsOneWidget);
+    expect(find.byKey(const ValueKey('storefront-skeleton')), findsOneWidget);
     expect(find.text(l10n.homeOffersEmptyTitle), findsNothing);
     expect(find.text(l10n.homeFeaturedEmptyTitle), findsNothing);
 
@@ -103,7 +104,7 @@ void main() {
     await tester.drag(find.byType(Scrollable).first, const Offset(0, -1200));
     await tester.pumpAndSettle();
 
-    expect(find.text('Té en oferta'), findsOneWidget);
+    expect(find.text('Té en oferta'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 
@@ -126,6 +127,89 @@ void main() {
       expect(tester.takeException(), isNull, reason: '$locale');
     }
   });
+
+  testWidgets(
+    'visual QA pairwise copre viewport, scala, tema e locale canonici',
+    (tester) async {
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      const viewports = [
+        Size(320, 568),
+        Size(360, 800),
+        Size(390, 844),
+        Size(430, 932),
+        Size(768, 1024),
+        Size(1024, 768),
+      ];
+      const scales = [1.0, 1.3, 2.0];
+      const locales = [
+        Locale('es', 'CL'),
+        Locale('it'),
+        Locale('en'),
+        Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+      ];
+
+      var caseIndex = 0;
+      for (final viewport in viewports) {
+        for (final scale in scales) {
+          final locale = locales[caseIndex % locales.length];
+          final theme = caseIndex.isEven ? ThemeMode.light : ThemeMode.dark;
+          final reason =
+              '${viewport.width}x${viewport.height} scale=$scale '
+              '${locale.toLanguageTag()} ${theme.name}';
+
+          await tester.pumpWidget(const SizedBox());
+          await tester.pump();
+          await tester.binding.setSurfaceSize(viewport);
+          await tester.pumpWidget(
+            _homeApp(
+              repository: _SequenceRepository.success(),
+              locale: locale,
+              themeMode: theme,
+              textScaler: TextScaler.linear(scale),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          expect(
+            find.byKey(const ValueKey('home-search')),
+            findsOneWidget,
+            reason: reason,
+          );
+          expect(
+            find.byKey(const ValueKey('home-product-rail')),
+            findsWidgets,
+            reason: reason,
+          );
+          expect(
+            tester.getSize(find.byKey(const ValueKey('home-search'))).height,
+            greaterThanOrEqualTo(48),
+            reason: reason,
+          );
+          expect(tester.takeException(), isNull, reason: reason);
+          caseIndex++;
+        }
+      }
+    },
+  );
+
+  for (final themeMode in [ThemeMode.light, ThemeMode.dark]) {
+    testWidgets('Home rispetta contrasto testo in tema ${themeMode.name}', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _homeApp(
+          repository: _SequenceRepository.success(),
+          themeMode: themeMode,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester, meetsGuideline(textContrastGuideline));
+      expect(tester.takeException(), isNull);
+      semantics.dispose();
+    });
+  }
 }
 
 Widget _homeApp({
@@ -156,8 +240,8 @@ Widget _homeApp({
     ],
     child: MaterialApp(
       locale: locale,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
       themeMode: themeMode,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

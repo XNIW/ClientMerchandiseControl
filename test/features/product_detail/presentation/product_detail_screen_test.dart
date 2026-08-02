@@ -83,6 +83,30 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('detail usa gallery, risparmio e due colonne su viewport ampio', (
+    tester,
+  ) async {
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.binding.setSurfaceSize(const Size(1024, 768));
+    await tester.pumpWidget(
+      _detailApp(repository: _DetailRepository(product: _detailProduct())),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('product-detail-wide-layout')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('product-detail-compact-layout')),
+      findsNothing,
+    );
+    expect(find.text('Imagen 1 de 1'), findsOneWidget);
+    expect(find.text(r'Ahorras $300'), findsOneWidget);
+    expect(find.text('Oferta vigente'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('route card apre il dettaglio e back torna alla lista', (
     tester,
   ) async {

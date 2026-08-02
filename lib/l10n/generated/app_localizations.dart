@@ -415,6 +415,24 @@ abstract class AppLocalizations {
   /// **'Filtros del catálogo'**
   String get catalogFiltersLabel;
 
+  /// No description provided for @catalogLoadedCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =0{No hay productos cargados} =1{1 producto cargado} other{{count} productos cargados}}'**
+  String catalogLoadedCount(int count);
+
+  /// No description provided for @catalogShowFilters.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrar filtros'**
+  String get catalogShowFilters;
+
+  /// No description provided for @catalogHideFilters.
+  ///
+  /// In es, this message translates to:
+  /// **'Ocultar filtros'**
+  String get catalogHideFilters;
+
   /// No description provided for @catalogFiltersUnavailableDuringSearch.
   ///
   /// In es, this message translates to:
@@ -582,6 +600,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Precio'**
   String get productDetailPriceLabel;
+
+  /// No description provided for @productDetailSavings.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahorras {amount}'**
+  String productDetailSavings(String amount);
+
+  /// No description provided for @productDetailImagePosition.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen {current} de {total}'**
+  String productDetailImagePosition(int current, int total);
 
   /// No description provided for @productDetailAvailabilityLabel.
   ///

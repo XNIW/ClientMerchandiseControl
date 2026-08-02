@@ -156,6 +156,12 @@
     "description": "Explica por qué los controles futuros aún no están habilitados."
   },
   "catalogFiltersLabel": "Filtros del catálogo",
+  "catalogLoadedCount": "{count, plural, =0{No hay productos cargados} =1{1 producto cargado} other{{count} productos cargados}}",
+  "@catalogLoadedCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "catalogShowFilters": "Mostrar filtros",
+  "catalogHideFilters": "Ocultar filtros",
   "catalogFiltersUnavailableDuringSearch": "Durante la búsqueda puedes filtrar por categoría. Borra la búsqueda para usar disponibilidad, descuentos u orden.",
   "catalogAvailabilityLabel": "Disponibilidad",
   "catalogAvailabilityAll": "Toda",
@@ -184,6 +190,17 @@
   "productDetailCategoryLabel": "Categoría",
   "productDetailBrandLabel": "Marca",
   "productDetailPriceLabel": "Precio",
+  "productDetailSavings": "Ahorras {amount}",
+  "@productDetailSavings": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "productDetailImagePosition": "Imagen {current} de {total}",
+  "@productDetailImagePosition": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
   "productDetailAvailabilityLabel": "Disponibilidad comercial",
   "productDetailFulfillmentLabel": "Opciones de compra",
   "productDetailPickup": "Retiro en tienda",

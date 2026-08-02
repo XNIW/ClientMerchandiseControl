@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../app/design_system/widgets/storefront_empty_state.dart';
@@ -9,6 +10,7 @@ import '../../../app/router/app_routes.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../home/presentation/storefront_product_card.dart';
 import '../../storefront/cache/storefront_cache_repository.dart';
+import '../../storefront/presentation/storefront_product_metadata.dart';
 import '../application/favorites_controller.dart';
 
 class FavoritesScreen extends ConsumerWidget {
@@ -82,39 +84,75 @@ class _FavoriteTile extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final product = entry.product;
     return Card(
-      child: ListTile(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
         key: ValueKey('favorite-entry-${entry.publicationId}'),
         onTap: () =>
             context.push(AppRoutes.productLocation(entry.publicationId)),
-        leading: SizedBox.square(
-          dimension: 56,
-          child: product == null
-              ? const Icon(Icons.inventory_2_outlined)
-              : ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: StorefrontProductImage(
-                    productId: product.id,
-                    name: product.name,
-                    uri: product.images?.thumb,
-                    cacheWidth: 168,
-                    keyPrefix: 'favorite-image',
-                    compactPlaceholder: true,
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox.square(
+                dimension: 64,
+                child: product == null
+                    ? const Icon(Icons.inventory_2_outlined)
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(AppRadii.surface),
+                        child: StorefrontProductImage(
+                          productId: product.id,
+                          name: product.name,
+                          uri: product.images?.thumb,
+                          cacheWidth: 192,
+                          keyPrefix: 'favorite-image',
+                          compactPlaceholder: true,
+                        ),
+                      ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product?.name ?? l10n.favoriteUnavailableTitle,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      product?.category.name ?? l10n.favoriteUnavailableMessage,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    if (product != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      StorefrontPrice(product: product, compact: true),
+                      const SizedBox(height: AppSpacing.sm),
+                      StorefrontAvailabilityBadge(
+                        availability: product.availability,
+                        compact: true,
+                      ),
+                    ],
+                  ],
                 ),
-        ),
-        title: Text(product?.name ?? l10n.favoriteUnavailableTitle),
-        subtitle: Text(
-          product?.category.name ?? l10n.favoriteUnavailableMessage,
-        ),
-        trailing: Semantics(
-          button: true,
-          label: l10n.favoriteRemove,
-          excludeSemantics: true,
-          child: IconButton(
-            key: ValueKey('remove-favorite-${entry.publicationId}'),
-            tooltip: l10n.favoriteRemove,
-            onPressed: () => _remove(context, ref),
-            icon: const Icon(Icons.favorite),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Semantics(
+                button: true,
+                label: l10n.favoriteRemove,
+                excludeSemantics: true,
+                child: IconButton(
+                  key: ValueKey('remove-favorite-${entry.publicationId}'),
+                  tooltip: l10n.favoriteRemove,
+                  onPressed: () => _remove(context, ref),
+                  icon: const Icon(Icons.favorite),
+                ),
+              ),
+            ],
           ),
         ),
       ),

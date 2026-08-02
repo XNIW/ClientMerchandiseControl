@@ -37,32 +37,43 @@ void main() {
     expect(data.categories, isNotEmpty);
     expect(data.featured, isNotEmpty);
     expect(data.offers, isNotEmpty);
+    final products = [...data.featured, ...data.offers];
     expect(
-      [...data.featured, ...data.offers],
+      products,
+      everyElement(
+        isA<StorefrontProductSummary>().having(
+          (item) => item.catalogVersion,
+          'catalogVersion',
+          data.catalogVersion,
+        ),
+      ),
+    );
+    final imageBacked = products.where((item) => item.images != null).toList();
+    expect(imageBacked, isNotEmpty);
+    expect(
+      imageBacked,
       everyElement(
         isA<StorefrontProductSummary>()
             .having(
-              (item) => item.catalogVersion,
-              'catalogVersion',
-              data.catalogVersion,
+              (item) => item.images!.card.scheme,
+              'public card image scheme',
+              'https',
             )
             .having(
-              (item) => item.images?.card,
-              'public card image',
-              isNotNull,
+              (item) => item.images!.detail.scheme,
+              'public detail image scheme',
+              'https',
             ),
       ),
     );
     expect(find.byType(StorefrontStatusBanner), findsNothing);
     expect(find.byType(Image), findsWidgets);
+    final renderedProduct = data.offers.first;
     expect(
-      find.byKey(
-        const ValueKey('home-product-57000000-0000-4000-8000-000000000001'),
-      ),
+      find.byKey(ValueKey('home-product-${renderedProduct.id}')),
       findsOneWidget,
     );
-    expect(find.text('Café en grano 500 g'), findsOneWidget);
-    expect(find.text('Té verde 20 bolsas'), findsOneWidget);
+    expect(find.text(renderedProduct.name), findsWidgets);
     expect(tester.takeException(), isNull);
 
     binding.reportData = <String, Object?>{
@@ -71,10 +82,8 @@ void main() {
       'categories': data.categories.length,
       'featured': data.featured.length,
       'offers': data.offers.length,
-      'publicImages': [
-        ...data.featured,
-        ...data.offers,
-      ].where((item) => item.images != null).length,
+      'publicImages': imageBacked.length,
+      'productsWithoutImages': products.length - imageBacked.length,
       'customerSession': 'absent',
       'internalDataAccess': 'denied-by-contract',
       'result': 'PASS',

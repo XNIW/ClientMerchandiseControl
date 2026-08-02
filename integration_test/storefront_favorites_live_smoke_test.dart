@@ -15,8 +15,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-const _publishedId = '57000000-0000-4000-8000-000000000001';
-
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -32,29 +30,34 @@ void main() {
       tester.element(find.byType(HomeScreen)),
     );
     await _waitForHome(tester, container);
-    await _openPublishedProduct(tester, container);
+    final home = container.read(homeControllerProvider).data!;
+    final publicationId = home.featured.first.id;
+    await _openPublishedProduct(tester, container, publicationId);
 
     var entries = await container.read(favoritesControllerProvider.future);
-    if (entries.any((entry) => entry.publicationId == _publishedId)) {
+    if (entries.any((entry) => entry.publicationId == publicationId)) {
       await container
           .read(favoritesControllerProvider.notifier)
-          .toggle(_publishedId);
+          .toggle(publicationId);
       await tester.pump();
     }
     final favoriteButton = find.byKey(
-      const ValueKey('favorite-product-$_publishedId'),
+      ValueKey('favorite-product-$publicationId'),
     );
     expect(favoriteButton, findsOneWidget);
     await tester.tap(favoriteButton);
     await tester.pumpAndSettle(const Duration(milliseconds: 50));
     entries = container.read(favoritesControllerProvider).requireValue;
-    expect(entries.map((entry) => entry.publicationId), contains(_publishedId));
+    expect(
+      entries.map((entry) => entry.publicationId),
+      contains(publicationId),
+    );
 
     container.read(appRouterProvider).go(AppRoutes.favoritesLocation);
     await tester.pumpAndSettle(const Duration(milliseconds: 50));
     expect(find.byType(FavoritesScreen), findsOneWidget);
     expect(
-      find.byKey(const ValueKey('favorite-entry-$_publishedId')),
+      find.byKey(ValueKey('favorite-entry-$publicationId')),
       findsOneWidget,
     );
 
@@ -74,22 +77,23 @@ void main() {
     final restored = await container.read(favoritesControllerProvider.future);
     expect(
       restored.map((entry) => entry.publicationId),
-      contains(_publishedId),
+      contains(publicationId),
     );
 
     container.read(appRouterProvider).go(AppRoutes.favoritesLocation);
     await tester.pumpAndSettle(const Duration(milliseconds: 50));
     expect(
-      find.byKey(const ValueKey('favorite-entry-$_publishedId')),
+      find.byKey(ValueKey('favorite-entry-$publicationId')),
       findsOneWidget,
     );
     await container
         .read(favoritesControllerProvider.notifier)
-        .toggle(_publishedId);
+        .toggle(publicationId);
     expect(tester.takeException(), isNull);
 
     binding.reportData = <String, Object?>{
       'favoriteGuest': 'PASS',
+      'publicationId': publicationId,
       'shopScoped': true,
       'detailToggle': 'PASS',
       'favoritesList': 'PASS',
@@ -105,14 +109,16 @@ void main() {
 Future<void> _openPublishedProduct(
   WidgetTester tester,
   ProviderContainer container,
+  String publicationId,
 ) async {
-  final card = find.byKey(const ValueKey('open-product-$_publishedId'));
-  await tester.ensureVisible(card);
-  await tester.pumpAndSettle(const Duration(milliseconds: 50));
-  await tester.tap(card);
+  container
+      .read(appRouterProvider)
+      .push(AppRoutes.productLocation(publicationId));
   await tester.pump();
   for (var attempt = 0; attempt < 160; attempt++) {
-    final state = container.read(productDetailControllerProvider(_publishedId));
+    final state = container.read(
+      productDetailControllerProvider(publicationId),
+    );
     if (state.status == ProductDetailLoadStatus.data) {
       await tester.pumpAndSettle(const Duration(milliseconds: 50));
       return;

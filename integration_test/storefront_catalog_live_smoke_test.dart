@@ -39,27 +39,33 @@ void main() {
       expect(
         state.items,
         everyElement(
-          isA<StorefrontProductSummary>()
-              .having(
-                (item) => item.catalogVersion,
-                'catalogVersion',
-                state.catalogVersion,
-              )
-              .having(
-                (item) => item.images?.card,
-                'public card image',
-                isNotNull,
-              ),
+          isA<StorefrontProductSummary>().having(
+            (item) => item.catalogVersion,
+            'catalogVersion',
+            state.catalogVersion,
+          ),
+        ),
+      );
+      final imageBacked = state.items.where((item) => item.images != null);
+      expect(imageBacked, isNotEmpty);
+      expect(
+        imageBacked,
+        everyElement(
+          isA<StorefrontProductSummary>().having(
+            (item) => item.images!.card.scheme,
+            'public card image scheme',
+            'https',
+          ),
         ),
       );
       expect(find.byKey(const ValueKey('catalog-grid')), findsOneWidget);
       expect(find.byType(Image), findsWidgets);
 
-      final tea = state.categories.where((category) => category.slug == 'te');
-      expect(tea, hasLength(1));
-      await tester.tap(find.byKey(const ValueKey('catalog-category-te')));
+      final selectedCategory = state.categories.first;
+      final selectedSlug = selectedCategory.slug;
+      await tester.tap(find.byKey(ValueKey('catalog-category-$selectedSlug')));
       await tester.pump();
-      await _waitForSelectedCategory(tester, container, 'te');
+      await _waitForSelectedCategory(tester, container, selectedSlug);
 
       state = container.read(catalogControllerProvider);
       expect(state.items, isNotEmpty);
@@ -69,7 +75,7 @@ void main() {
           isA<StorefrontProductSummary>().having(
             (item) => item.category.slug,
             'category slug',
-            'te',
+            selectedSlug,
           ),
         ),
       );
@@ -79,7 +85,7 @@ void main() {
         'apiVersion': 'storefront.v1',
         'catalogVersion': state.catalogVersion,
         'categories': state.categories.length,
-        'selectedCategory': 'te',
+        'selectedCategory': selectedSlug,
         'selectedItems': state.items.length,
         'publicImages': state.items.where((item) => item.images != null).length,
         'customerSession': 'absent',

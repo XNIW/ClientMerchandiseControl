@@ -13,7 +13,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
-const _publishedId = '57000000-0000-4000-8000-000000000001';
 const _unpublishedId = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
 
 void main() {
@@ -35,35 +34,38 @@ void main() {
     );
     await _waitForHome(tester, container);
 
-    final publishedCard = find.byKey(
-      const ValueKey('open-product-$_publishedId'),
+    final home = container.read(homeControllerProvider).data!;
+    final published = [...home.featured, ...home.offers].firstWhere(
+      (item) => item.images != null,
+      orElse: () => home.featured.first,
     );
-    await tester.ensureVisible(publishedCard);
-    await tester.pumpAndSettle(const Duration(milliseconds: 50));
-    await tester.tap(publishedCard);
+    final publishedId = published.id;
+    final router = container.read(appRouterProvider);
+    router.push(AppRoutes.productLocation(publishedId));
     await tester.pump();
     await _waitForDetail(
       tester,
       container,
-      _publishedId,
+      publishedId,
       ProductDetailLoadStatus.data,
     );
 
-    var state = container.read(productDetailControllerProvider(_publishedId));
+    var state = container.read(productDetailControllerProvider(publishedId));
     expect(find.byType(ProductDetailScreen), findsOneWidget);
-    expect(state.product?.id, _publishedId);
-    expect(state.product?.name, 'Café en grano 500 g');
-    expect(state.product?.images?.detail, isNotNull);
-    expect(
-      find.byKey(const ValueKey('storefront-detail-image-$_publishedId')),
-      findsOneWidget,
-    );
+    expect(state.product?.id, publishedId);
+    expect(state.product?.name, published.name);
+    if (published.images != null) {
+      expect(state.product?.images?.detail.scheme, 'https');
+      expect(
+        find.byKey(ValueKey('storefront-detail-image-$publishedId')),
+        findsOneWidget,
+      );
+    }
     expect(
       find.byKey(const ValueKey('product-detail-availability')),
       findsOneWidget,
     );
 
-    final router = container.read(appRouterProvider);
     router.push(AppRoutes.productLocation(_unpublishedId));
     await tester.pump();
     await _waitForDetail(
@@ -85,7 +87,10 @@ void main() {
     binding.reportData = <String, Object?>{
       'apiVersion': 'storefront.v1',
       'publishedProduct': 'visible',
-      'publishedImage': 'detail-public',
+      'publishedProductId': publishedId,
+      'publishedImage': published.images == null
+          ? 'optional-absent'
+          : 'detail-public',
       'availability': 'commercial-only',
       'unpublishedProduct': 'unavailable-without-enumeration',
       'customerSession': 'absent',

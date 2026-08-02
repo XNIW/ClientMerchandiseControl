@@ -59,7 +59,7 @@
 | TASK-006 | Storefront catalog projection e aggiornamento dal dominio operativo | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005 | Admin, Supabase, Android, iOS, POS | Proiezione catalogo pubblica affidabile |
 | TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-006 | Admin, Supabase | Controlli di pubblicazione shop-scoped |
 | TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Gestione commerciale pubblica |
-| TASK-009 | Pipeline immagini pubbliche Storefront | ACTIVE | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
+| TASK-009 | Pipeline immagini pubbliche Storefront | ACTIVE | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
 | TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-006 | Client, Admin, Supabase | Contratto query catalogo testabile |
 | TASK-011 | Connessione Flutter allo staging e backend health state | DONE | TASK-004 | Client, Supabase | Connessione staging fail-closed |
 | TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | DONE | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |

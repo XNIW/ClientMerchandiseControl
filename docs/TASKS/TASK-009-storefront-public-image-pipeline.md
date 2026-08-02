@@ -14,7 +14,7 @@
 
 ## Dipendenze
 
-- **Dipende da**: TASK-005, TASK-006, TASK-007
+- **Dipende da**: TASK-005, TASK-007
 - **Sblocca**: TASK-013, TASK-014, TASK-016, TASK-037
 
 ## Scope

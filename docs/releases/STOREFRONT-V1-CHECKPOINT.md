@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 2 / TASK-008 prezzi e promozioni
-- **Task corrente**: TASK-008
+- **Fase corrente**: EXECUTION / Milestone 2 / TASK-009 immagini pubbliche
+- **Task corrente**: TASK-009
 - **Repository writer corrente**: merchandise-control-admin-web
 - **Branch**: `integration/storefront-v1`
-- **SHA Client checkpoint parent**: `857f098b124c00bbfd072194d048173d44671151`
-- **SHA Admin corrente**: `25f858931bf0ffe09213186a6b8b124df0311c97`
+- **SHA Client checkpoint parent**: `ae726fadf8b0ffdc51d3a99da17c726e5381e744`
+- **SHA Admin corrente**: `0ec146b4379b8f0da13229fd3c807ac084d2858f`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -29,13 +29,17 @@
 - **Gate TASK-007**: replay 105 migration; pgTAP 22 file/1.449 test; TASK-007 21/21;
   CI `30723885377`, Cloudflare `30723885380`, staging apply `30723486727`, deploy/smoke
   `30723988967` e acceptance autenticata `30724135568`, tutti `PASS`; fixture residue 0
-- **Gate ancora necessari**: implementazione e gate TASK-008; poi TASK-009 e checkpoint
-  Milestone 2
-- **Comando successivo esatto**: `rg -n "storefront_promotions|promotion_products|price_source_mode|compare_at" supabase src tests`
+- **Gate TASK-008**: replay 106 migration; pgTAP 23 file/1.472 test; TASK-008 23/23;
+  CI `30725543266`, Cloudflare PR `30725543260`, dry-run `30725661643`, apply/postverify
+  `30725690931`, deploy/smoke `30725801242` e acceptance autenticata `30725925704`
+  1/1 in 33,1 s, tutti `PASS`; fixture residue 0
+- **Gate ancora necessari**: implementazione e gate TASK-009; poi checkpoint Milestone 2
+- **Comando successivo esatto**: `rg -n "product.image|image_version|storage|bucket|sharp|thumb|card|detail" supabase src tests scripts`
 - **Blocker**: nessuno
 - **Processi ancora attivi**: nessuno
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
-  `PASS`; Admin Storefront TASK-007 publish/audit/pause `PASS`; production invariata
+  `PASS`; Admin Storefront TASK-007 publish/audit/pause e TASK-008 promozioni/prezzi
+  `PASS`; production invariata
 
 ## Vincoli di ripresa
 

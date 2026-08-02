@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-008
-- **File task**: docs/TASKS/TASK-008-admin-storefront-pricing-promotions.md
+- **Task attivo**: TASK-009
+- **File task**: docs/TASKS/TASK-009-storefront-public-image-pipeline.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,8 +14,8 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: implementare TASK-008 nell'Admin Console sul
-  contratto Storefront validato, senza modificare production
+- **Prossima azione autorizzata**: implementare TASK-009 nel repository Admin canonico
+  e chiudere il checkpoint Milestone 2 senza modificare production
 
 ## Repository coinvolti
 
@@ -58,8 +58,8 @@
 | TASK-005 | Supabase Storefront schema, RLS, grants e migration ownership | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-003, TASK-004 | Admin, Supabase, Client | Schema pubblico protetto e ownership migration |
 | TASK-006 | Storefront catalog projection e aggiornamento dal dominio operativo | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005 | Admin, Supabase, Android, iOS, POS | Proiezione catalogo pubblica affidabile |
 | TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-006 | Admin, Supabase | Controlli di pubblicazione shop-scoped |
-| TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | ACTIVE | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Gestione commerciale pubblica |
-| TASK-009 | Pipeline immagini pubbliche Storefront | TODO | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
+| TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Gestione commerciale pubblica |
+| TASK-009 | Pipeline immagini pubbliche Storefront | ACTIVE | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
 | TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-006 | Client, Admin, Supabase | Contratto query catalogo testabile |
 | TASK-011 | Connessione Flutter allo staging e backend health state | DONE | TASK-004 | Client, Supabase | Connessione staging fail-closed |
 | TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | DONE | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
@@ -147,7 +147,7 @@ step applicabili `success` e annotation 0/0/0. La precedente attestazione di TAS
 bloccato è storia superata: TASK-020 è `DONE` e PR #4 è merged. Il release train
 `STOREFRONT_V1` ha completato il checkpoint Milestone 1 con
 TASK-005/TASK-006/TASK-010 in `VALIDATED_PENDING_INTEGRATED_REVIEW` e ha attivato
-TASK-007 in `VALIDATED_PENDING_INTEGRATED_REVIEW` e TASK-008 in `EXECUTION`;
+TASK-007/TASK-008 in `VALIDATED_PENDING_INTEGRATED_REVIEW` e TASK-009 in `EXECUTION`;
 i task successivi restano `TODO` fino al relativo handoff. La dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
@@ -166,4 +166,4 @@ token/code. La CI run `30709395137` è 3/3 `PASS`, tutti gli step applicabili
 remoto eliminato, main locale/remoto allineate e worktree pulito. TASK-020 è `DONE`.
 
 Handoff:
-`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-008.
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-009.

@@ -1379,3 +1379,19 @@
 - **Sicurezza**: RPC Admin separate dal namespace pubblico mobile; RBAC negativo e
   shop scope verificati; nessun secret versionato; production invariata.
 - **Transizione**: TASK-008 è l'unico task `ACTIVE / EXECUTION`.
+
+## 2026-08-01 — Checkpoint interno TASK-008 e attivazione TASK-009
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-008**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; editor/lista promozioni,
+  multi-prodotto ed esclusioni, prezzo fisso/percentuale, timezone, scheduler,
+  tie-break deterministico, RBAC e audit completati.
+- **Revision set Admin**: `0ec146b4379b8f0da13229fd3c807ac084d2858f`, PR #67 draft.
+- **Gate locali/CI**: replay 106 migration; pgTAP 23 file/1.472 test, TASK-008 23/23;
+  E2E locale 1/1; CI `30725543266` e Cloudflare build `30725543260`, tutti `PASS`.
+- **Staging**: dry-run `30725661643`, apply/postverify/benchmark `30725690931`,
+  deploy/smoke `30725801242` e acceptance autenticata `30725925704` 1/1 in 33,1 s,
+  tutti `PASS`; cleanup eseguito.
+- **Sicurezza**: RPC Admin lease-bound, `search_path` fissato, anon denied, lock shop,
+  secret scan senza finding; nessun secret versionato; production invariata.
+- **Transizione**: TASK-009 è l'unico task `ACTIVE / EXECUTION`.

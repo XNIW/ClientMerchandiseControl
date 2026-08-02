@@ -4,13 +4,13 @@
 
 - **Task ID**: TASK-008
 - **Titolo**: Admin Console: prezzi pubblici, sconti e promozioni programmate
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-01
 - **Ultimo aggiornamento**: 2026-08-01
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-008/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -65,7 +65,7 @@
 | # | Decisione | Motivazione | Stato |
 |---|---|---|---|
 | D-01 | CLP solo `bigint`/integer server-side | La valuta non ammette decimali nel dominio v1 | ATTIVA |
-| D-02 | Risoluzione per priorità, poi data creazione e UUID | Ordine stabile anche a parità di finestra | ATTIVA |
+| D-02 | Vince il prezzo effettivo più basso; a parità priorità e UUID | Nessun doppio sconto ambiguo e tie-break stabile | ATTIVA |
 | D-03 | Validità ricalcolata read-time e projection ricostruibile | Evita sconti stale tra job pianificati | ATTIVA |
 | D-04 | Nessun cron esterno se Postgres/job esistente basta | Riduce dipendenze e failure surface | ATTIVA |
 
@@ -94,7 +94,45 @@ release train; production resta fuori scope.
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso nel repository Admin canonico.
+### Modifiche completate
+
+- control plane promozioni shop-scoped con lista, filtri, editor, prodotti multipli ed
+  esclusioni;
+- sconti prezzo fisso CLP e percentuale in basis point, con validazione server-side;
+- fuso orario esplicito `America/Santiago`/`UTC`, intervalli start/end e stato effettivo
+  calcolato sul tempo server;
+- riconciliazione automatica ogni minuto tramite `pg_cron`, read-time safety e
+  projection pubblica ricostruibile;
+- lock transazionale per shop e conflitto deterministico
+  `lowest_effective_price_then_priority_then_uuid`;
+- permesso `storefront.promotions.manage`, lease-bound RPC e audit before/after;
+- test pgTAP, Foundation, Playwright locale e acceptance staging autenticata.
+
+### Gate eseguiti
+
+- revision set Admin:
+  `0ec146b4379b8f0da13229fd3c807ac084d2858f`, PR `#67` draft;
+- replay locale: 106 migration, `PASS` in 27,5 s;
+- pgTAP completo: 23 file / 1.472 test, `PASS` in 43 s; TASK-008 23/23;
+- lint, typecheck, security scan, dependency audit, build e secret scan: `PASS`;
+- E2E locale pubblicazione -> promozione -> prezzo pubblico -> pausa -> audit: 1/1
+  `PASS` in 5,0 s;
+- CI Admin `30725543266`: `PASS`; Cloudflare PR build `30725543260`: `PASS`;
+- staging dry-run `30725661643`: `PASS`; apply/postverify/benchmark
+  `30725690931`: `PASS`, schema `20260802010000`, ledger 106 migration;
+- Cloudflare staging deploy/smoke `30725801242`: `PASS` sullo SHA esatto;
+- acceptance staging autenticata `30725925704`: 1/1 `PASS` in 33,1 s, con cleanup;
+- production write: `NOT_RUN`; production invariata.
+
+### Matrici
+
+CA-01..CA-09 e T-01..T-06: `PASS`. Evidence sintetica:
+`docs/TASKS/EVIDENCE/TASK-008/README.md`.
+
+### Handoff
+
+`CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`. Nessuna review formale è stata
+eseguita e TASK-008 non è `DONE`.
 
 ## Review / Fix
 

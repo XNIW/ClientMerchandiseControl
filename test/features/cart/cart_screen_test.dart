@@ -8,6 +8,7 @@ import 'package:client_merchandise_control/features/cart/domain/cart_models.dart
 import 'package:client_merchandise_control/features/cart/domain/cart_repository.dart';
 import 'package:client_merchandise_control/features/cart/presentation/cart_screen.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
+import 'package:client_merchandise_control/features/storefront/presentation/storefront_product_metadata.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -222,6 +223,32 @@ void main() {
       await tester.pump();
     }
   });
+
+  testWidgets('cart presenta tutti i sei stati commerciali localizzati', (
+    tester,
+  ) async {
+    for (final availability in StorefrontAvailability.values) {
+      await tester.pumpWidget(
+        buildApp(
+          store: _FakeGuestCartStore(
+            snapshot: _cartSnapshot(availability: availability),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final l10n = AppLocalizations.of(tester.element(find.byType(CartScreen)));
+      expect(
+        find.text(storefrontAvailabilityLabel(l10n, availability)),
+        findsOneWidget,
+        reason: availability.name,
+      );
+      expect(find.textContaining('stock:'), findsNothing);
+      expect(tester.takeException(), isNull, reason: availability.name);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+    }
+  });
 }
 
 AppConfig _config() => AppConfig.fromValues(
@@ -233,16 +260,22 @@ AppConfig _config() => AppConfig.fromValues(
   storefrontShopSlug: 'storefront-test',
 );
 
-CustomerCartSnapshot _cartSnapshot({int quantity = 1}) {
+CustomerCartSnapshot _cartSnapshot({
+  int quantity = 1,
+  StorefrontAvailability availability = StorefrontAvailability.available,
+}) {
+  final unavailable = availability == StorefrontAvailability.unavailable;
   final line = CartLine(
     publicationId: _publicationId,
     publicName: 'Café público',
     quantity: quantity,
     priceClp: 1200,
     snapshotPriceClp: 1200,
-    availability: StorefrontAvailability.available,
-    status: CartLineStatus.available,
-    changeType: CartLineChangeType.none,
+    availability: availability,
+    status: unavailable ? CartLineStatus.unavailable : CartLineStatus.available,
+    changeType: unavailable
+        ? CartLineChangeType.unavailable
+        : CartLineChangeType.none,
     isGuest: true,
   );
   return CustomerCartSnapshot(

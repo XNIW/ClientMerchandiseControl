@@ -22,38 +22,42 @@ void main() {
 
   tearDown(() => database.close());
 
-  test('schema v3 crea cache, favorite, cart e indici bounded', () async {
-    final rows = await database
-        .customSelect(
-          "SELECT type, name FROM sqlite_master "
-          "WHERE name LIKE 'storefront_cache_%' "
-          "OR name LIKE 'cached_storefront_%' "
-          "OR name LIKE 'storefront_favorite%' "
-          "OR name LIKE 'storefront_guest_cart%' ORDER BY name",
-        )
-        .get();
-    final names = rows.map((row) => row.read<String>('name')).toSet();
+  test(
+    'schema v4 crea cache, favorite, cart e refresh trigger bounded',
+    () async {
+      final rows = await database
+          .customSelect(
+            "SELECT type, name FROM sqlite_master "
+            "WHERE name LIKE 'storefront_cache_%' "
+            "OR name LIKE 'cached_storefront_%' "
+            "OR name LIKE 'storefront_favorite%' "
+            "OR name LIKE 'storefront_guest_cart%' ORDER BY name",
+          )
+          .get();
+      final names = rows.map((row) => row.read<String>('name')).toSet();
 
-    expect(database.schemaVersion, 3);
-    expect(
-      names,
-      containsAll({
-        'storefront_cache_metadata',
-        'storefront_cache_scopes',
-        'storefront_cache_scope_items',
-        'storefront_favorites',
-        'storefront_guest_cart_items',
-        'cached_storefront_categories',
-        'cached_storefront_products',
-        'cached_storefront_details',
-        'storefront_cache_product_catalog_idx',
-        'storefront_cache_product_access_idx',
-        'storefront_cache_scope_item_order_idx',
-        'storefront_favorite_order_idx',
-        'storefront_guest_cart_order_idx',
-      }),
-    );
-  });
+      expect(database.schemaVersion, 4);
+      expect(
+        names,
+        containsAll({
+          'storefront_cache_metadata',
+          'storefront_cache_scopes',
+          'storefront_cache_scope_items',
+          'storefront_favorites',
+          'storefront_guest_cart_items',
+          'storefront_guest_cart_product_refresh',
+          'cached_storefront_categories',
+          'cached_storefront_products',
+          'cached_storefront_details',
+          'storefront_cache_product_catalog_idx',
+          'storefront_cache_product_access_idx',
+          'storefront_cache_scope_item_order_idx',
+          'storefront_favorite_order_idx',
+          'storefront_guest_cart_order_idx',
+        }),
+      );
+    },
+  );
 
   test('Home round-trip conserva solo dati pubblici e freshness', () async {
     final home = validStorefrontHomeData();

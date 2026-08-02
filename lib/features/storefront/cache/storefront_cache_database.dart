@@ -10,7 +10,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 part 'storefront_cache_database.g.dart';
 
-const storefrontCacheSchemaVersion = 3;
+const storefrontCacheSchemaVersion = 4;
 
 @DataClassName('StorefrontCacheMetadataRow')
 class StorefrontCacheMetadata extends Table {
@@ -218,6 +218,7 @@ class StorefrontCacheDatabase extends _$StorefrontCacheDatabase {
       );
       await _createFavoriteIndex();
       await _createGuestCartIndex();
+      await _createGuestCartProductRefreshTrigger();
     },
     onUpgrade: (migrator, from, to) async {
       if (from < 2) {
@@ -227,6 +228,9 @@ class StorefrontCacheDatabase extends _$StorefrontCacheDatabase {
       if (from < 3) {
         await migrator.createTable(storefrontGuestCartItems);
         await _createGuestCartIndex();
+      }
+      if (from < 4) {
+        await _createGuestCartProductRefreshTrigger();
       }
     },
     beforeOpen: (_) async {
@@ -244,6 +248,22 @@ class StorefrontCacheDatabase extends _$StorefrontCacheDatabase {
     'CREATE INDEX storefront_guest_cart_order_idx '
     'ON storefront_guest_cart_items '
     '(shop_slug, updated_at DESC, publication_id)',
+  );
+
+  Future<void> _createGuestCartProductRefreshTrigger() => customStatement(
+    'CREATE TRIGGER IF NOT EXISTS storefront_guest_cart_product_refresh '
+    'AFTER INSERT ON cached_storefront_products '
+    'FOR EACH ROW BEGIN '
+    'UPDATE storefront_guest_cart_items SET '
+    'public_name = NEW.name, '
+    'price_clp = NEW.price_clp, '
+    'compare_at_price_clp = NEW.compare_at_price_clp, '
+    'image_url = NEW.image_thumb_url, '
+    'availability = NEW.availability, '
+    'updated_at = NEW.cached_at '
+    'WHERE shop_slug = NEW.shop_slug '
+    'AND publication_id = NEW.publication_id; '
+    'END',
   );
 }
 

@@ -8,6 +8,7 @@ import 'package:client_merchandise_control/features/cart/data/drift_guest_cart_s
 import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_repository.dart';
 import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_database.dart';
+import 'package:client_merchandise_control/features/storefront/cache/drift_storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,23 +35,48 @@ void main() {
     (tester) async {
       var database = StorefrontCacheDatabase.defaults();
       var guestStore = DriftGuestCartStore(database);
+      var storefrontCache = DriftStorefrontCacheRepository(database);
       await guestStore.clear(shopSlug: _shopSlug);
+      await storefrontCache.clearShop(shopSlug: _shopSlug);
       await guestStore.setProduct(
         shopSlug: _shopSlug,
         product: _product(),
         quantity: 2,
       );
+      await storefrontCache.writeProductDetail(
+        shopSlug: _shopSlug,
+        product: _product(
+          name: 'Producto público rivalidado',
+          priceClp: 1100,
+          availability: StorefrontAvailability.pickupOnly,
+        ),
+      );
+      final refreshedBeforeRestart = await guestStore.read(shopSlug: _shopSlug);
+      expect(refreshedBeforeRestart.items.single.quantity, 2);
+      expect(refreshedBeforeRestart.items.single.priceClp, 1100);
+      expect(
+        refreshedBeforeRestart.items.single.availability,
+        StorefrontAvailability.pickupOnly,
+      );
       await database.close();
 
       database = StorefrontCacheDatabase.defaults();
       guestStore = DriftGuestCartStore(database);
+      storefrontCache = DriftStorefrontCacheRepository(database);
       addTearDown(() async {
         await guestStore.clear(shopSlug: _shopSlug);
+        await storefrontCache.clearShop(shopSlug: _shopSlug);
         await database.close();
       });
       final restored = await guestStore.read(shopSlug: _shopSlug);
       expect(restored.items.single.publicationId, _publicationId);
       expect(restored.totalQuantity, 2);
+      expect(restored.items.single.publicName, 'Producto público rivalidado');
+      expect(restored.items.single.priceClp, 1100);
+      expect(
+        restored.items.single.availability,
+        StorefrontAvailability.pickupOnly,
+      );
 
       final mergedSnapshot = _snapshot(version: 5, items: [_line(quantity: 2)]);
       final revalidatedSnapshot = _snapshot(
@@ -98,6 +124,11 @@ void main() {
       expect(remote.mergeShopSlug, _shopSlug);
       expect(remote.mergeGuestItems.single.publicationId, _publicationId);
       expect(remote.mergeGuestItems.single.quantity, 2);
+      expect(remote.mergeGuestItems.single.priceClp, 1100);
+      expect(
+        remote.mergeGuestItems.single.availability,
+        StorefrontAvailability.pickupOnly,
+      );
       expect(remote.mergeExpectedVersion, 4);
       expect(remote.mergeIdempotencyKey, _idempotencyKey);
       expect((await guestStore.read(shopSlug: _shopSlug)).items, isEmpty);
@@ -129,6 +160,7 @@ void main() {
 
       binding.reportData = <String, Object?>{
         'guestPersistenceRestart': 'PASS',
+        'availabilityProjectionRefresh': 'PASS',
         'loginMerge': 'PASS',
         'mergeCleanupAfterAck': 'PASS',
         'serverRevalidationAdapter': 'PASS',
@@ -171,7 +203,11 @@ AppConfig _config() => AppConfig.fromValues(
   storefrontShopSlug: _shopSlug,
 );
 
-StorefrontProductSummary _product() => StorefrontProductSummary(
+StorefrontProductSummary _product({
+  String name = 'Producto público de integración',
+  int priceClp = 1200,
+  StorefrontAvailability availability = StorefrontAvailability.available,
+}) => StorefrontProductSummary(
   id: _publicationId,
   category: const StorefrontCategory(
     id: '40000000-0000-4000-8000-000000000023',
@@ -179,11 +215,11 @@ StorefrontProductSummary _product() => StorefrontProductSummary(
     name: 'Integración',
     sortRank: 1,
   ),
-  name: 'Producto público de integración',
-  priceClp: 1200,
+  name: name,
+  priceClp: priceClp,
   featured: false,
   sortRank: 1,
-  availability: StorefrontAvailability.available,
+  availability: availability,
   fulfillment: const StorefrontFulfillment(
     pickup: true,
     delivery: false,

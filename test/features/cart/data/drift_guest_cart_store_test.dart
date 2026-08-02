@@ -94,6 +94,94 @@ void main() {
     );
   });
 
+  test(
+    'refresh prodotto rivalida snapshot cart e favorite senza perdere quantità',
+    () async {
+      final database = StorefrontCacheDatabase(NativeDatabase.memory());
+      addTearDown(database.close);
+      final store = DriftGuestCartStore(database);
+      final cache = DriftStorefrontCacheRepository(database);
+      final initial = _product();
+      await cache.writeProductDetail(
+        shopSlug: 'storefront-test',
+        product: initial,
+      );
+      await cache.toggleFavorite(
+        shopSlug: 'storefront-test',
+        publicationId: initial.id,
+      );
+      await store.setProduct(
+        shopSlug: 'storefront-test',
+        product: initial,
+        quantity: 2,
+      );
+
+      for (final availability in StorefrontAvailability.values) {
+        final refreshed = _product(
+          name: 'Café rivalidado',
+          priceClp: 1800,
+          compareAtPriceClp: 2200,
+          availability: availability,
+        );
+        await cache.writeProductDetail(
+          shopSlug: 'storefront-test',
+          product: refreshed,
+        );
+
+        final cart = await store.read(shopSlug: 'storefront-test');
+        final favorite = await cache.readFavorites(shopSlug: 'storefront-test');
+        expect(cart.items, hasLength(1));
+        expect(cart.items.single.quantity, 2);
+        expect(cart.items.single.publicName, 'Café rivalidado');
+        expect(cart.items.single.priceClp, 1800);
+        expect(cart.items.single.compareAtPriceClp, 2200);
+        expect(cart.items.single.availability, availability);
+        expect(
+          cart.subtotalClp,
+          availability == StorefrontAvailability.unavailable ? 0 : 3600,
+        );
+        expect(favorite.single.publicationId, _publicationId);
+        expect(favorite.single.product?.availability, availability);
+      }
+    },
+  );
+
+  test('refresh prodotto resta isolato per shop e publication', () async {
+    final database = StorefrontCacheDatabase(NativeDatabase.memory());
+    addTearDown(database.close);
+    final store = DriftGuestCartStore(database);
+    final cache = DriftStorefrontCacheRepository(database);
+    await store.setProduct(
+      shopSlug: 'storefront-test',
+      product: _product(),
+      quantity: 2,
+    );
+
+    await cache.writeProductDetail(
+      shopSlug: 'storefront-other',
+      product: _product(
+        name: 'Altro negozio',
+        priceClp: 9900,
+        availability: StorefrontAvailability.unavailable,
+      ),
+    );
+    await cache.writeProductDetail(
+      shopSlug: 'storefront-test',
+      product: _product(
+        id: '50000000-0000-4000-8000-000000000002',
+        name: 'Altro prodotto',
+        priceClp: 8800,
+        availability: StorefrontAvailability.unavailable,
+      ),
+    );
+
+    final cart = await store.read(shopSlug: 'storefront-test');
+    expect(cart.items.single.publicName, 'Café público');
+    expect(cart.items.single.priceClp, 1200);
+    expect(cart.items.single.availability, StorefrontAvailability.available);
+    expect(cart.items.single.quantity, 2);
+  });
+
   test('retainOnly elimina solo gli item confermati dal merge', () async {
     final database = StorefrontCacheDatabase(NativeDatabase.memory());
     addTearDown(database.close);
@@ -186,6 +274,8 @@ void main() {
 StorefrontProductSummary _product({
   String id = _publicationId,
   String name = 'Café público',
+  int priceClp = 1200,
+  int? compareAtPriceClp = 1500,
   StorefrontAvailability availability = StorefrontAvailability.available,
   bool internalImage = false,
 }) {
@@ -201,9 +291,9 @@ StorefrontProductSummary _product({
       sortRank: 1,
     ),
     name: name,
-    priceClp: 1200,
-    compareAtPriceClp: 1500,
-    discountBps: 2000,
+    priceClp: priceClp,
+    compareAtPriceClp: compareAtPriceClp,
+    discountBps: compareAtPriceClp == null ? null : 2000,
     featured: false,
     sortRank: 1,
     availability: availability,

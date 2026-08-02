@@ -16,6 +16,7 @@ import 'package:client_merchandise_control/features/storefront/cache/storefront_
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
+import 'package:client_merchandise_control/features/storefront/presentation/storefront_product_metadata.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -253,6 +254,61 @@ void main() {
         findsNothing,
       );
       expect(tester.takeException(), isNull, reason: availability.name);
+    }
+  });
+
+  testWidgets('product card presenta tutti i sei stati senza stock preciso', (
+    tester,
+  ) async {
+    for (final availability in StorefrontAvailability.values) {
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (context, state) => Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 320,
+                  child: StorefrontProductCard(
+                    product: _detailProduct(availability: availability),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+      await tester.pumpWidget(
+        _routerApp(
+          repository: _DetailRepository(
+            product: _detailProduct(availability: availability),
+          ),
+          router: router,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(StorefrontProductCard)),
+      );
+      expect(
+        find.text(storefrontAvailabilityLabel(l10n, availability)),
+        findsOneWidget,
+        reason: availability.name,
+      );
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Text &&
+              widget.data != null &&
+              RegExp(r'\b\d+\s+unidades\b').hasMatch(widget.data!),
+        ),
+        findsNothing,
+      );
+      expect(tester.takeException(), isNull, reason: availability.name);
+      router.dispose();
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
     }
   });
 

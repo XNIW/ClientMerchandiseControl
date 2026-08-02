@@ -21,7 +21,7 @@ void main() {
     }
   });
 
-  test('schema v3 riapre senza perdere una cache compatibile', () async {
+  test('schema v4 riapre senza perdere una cache compatibile', () async {
     final first = StorefrontCacheDatabase(NativeDatabase(File(databasePath)));
     await first.customStatement(
       "INSERT INTO storefront_cache_metadata "
@@ -47,7 +47,7 @@ void main() {
   });
 
   test(
-    'migration v1 a v3 aggiunge favorite e cart senza perdere cache',
+    'migration v1 a v4 aggiunge favorite, cart e refresh senza perdere cache',
     () async {
       final legacy = StorefrontCacheDatabase(
         NativeDatabase(File(databasePath)),
@@ -60,6 +60,9 @@ void main() {
       );
       await legacy.customStatement('DROP INDEX storefront_favorite_order_idx');
       await legacy.customStatement('DROP TABLE storefront_favorites');
+      await legacy.customStatement(
+        'DROP TRIGGER storefront_guest_cart_product_refresh',
+      );
       await legacy.customStatement(
         'DROP INDEX storefront_guest_cart_order_idx',
       );
@@ -89,14 +92,56 @@ void main() {
             "WHERE name = 'storefront_guest_cart_items'",
           )
           .get();
+      final refreshTrigger = await migrated
+          .customSelect(
+            "SELECT name FROM sqlite_master "
+            "WHERE type = 'trigger' "
+            "AND name = 'storefront_guest_cart_product_refresh'",
+          )
+          .get();
 
       expect(cached.single.read<int>('catalog_version'), 7);
       expect(favoriteTable, hasLength(1));
       expect(cartTable, hasLength(1));
+      expect(refreshTrigger, hasLength(1));
       expect(
         (await migrated.customSelect('PRAGMA user_version').get()).single
             .read<int>('user_version'),
-        3,
+        4,
+      );
+    },
+  );
+
+  test(
+    'migration v3 installa il refresh trigger sul carrello esistente',
+    () async {
+      final legacy = StorefrontCacheDatabase(
+        NativeDatabase(File(databasePath)),
+      );
+      await legacy.customStatement(
+        'DROP TRIGGER storefront_guest_cart_product_refresh',
+      );
+      await legacy.customStatement('PRAGMA user_version = 3');
+      await legacy.close();
+
+      prepareStorefrontCacheFile(databasePath);
+      final migrated = StorefrontCacheDatabase(
+        NativeDatabase(File(databasePath)),
+      );
+      addTearDown(migrated.close);
+
+      final triggers = await migrated
+          .customSelect(
+            "SELECT name FROM sqlite_master "
+            "WHERE type = 'trigger' "
+            "AND name = 'storefront_guest_cart_product_refresh'",
+          )
+          .get();
+      expect(triggers, hasLength(1));
+      expect(
+        (await migrated.customSelect('PRAGMA user_version').get()).single
+            .read<int>('user_version'),
+        4,
       );
     },
   );

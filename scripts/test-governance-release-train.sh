@@ -18,6 +18,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-010" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-013" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-014" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-015" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -69,6 +70,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-014/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-014/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-015-search-filters-sorting.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-015/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-015/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -100,21 +107,21 @@ cmc_expect_pass valid "${cmc_case}"
 
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \
-  's/| TASK-015 | Ricerca, filtri e ordinamento | TODO |/| TASK-015 | Ricerca, filtri e ordinamento | ACTIVE |/' \
+  's/| TASK-016 | Dettaglio prodotto e disponibilità commerciale | TODO |/| TASK-016 | Dettaglio prodotto e disponibilità commerciale | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-014/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-015/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-014 | Categorie e griglia catalogo con caricamento immagini | ACTIVE |/| TASK-014 | Categorie e griglia catalogo con caricamento immagini | DONE |/' \
+  's/| TASK-015 | Ricerca, filtri e ordinamento | ACTIVE |/| TASK-015 | Ricerca, filtri e ordinamento | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"

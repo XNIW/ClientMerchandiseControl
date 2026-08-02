@@ -1437,3 +1437,21 @@
 - **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
 - **Transizione**: TASK-014 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per categorie, catalogo keyset, griglia adattiva e immagini pubbliche.
+
+## 2026-08-02 — Checkpoint interno TASK-014 e attivazione TASK-015
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-014**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; categorie pubbliche, DTO/repo
+  RPC-only, keyset grid, refresh, filtri categoria, immagini e stati accessibili.
+- **Revision set Client**: `61d8781c58b0c4acb41a80c1eab1f32412c037a8`, PR #5 draft.
+- **Gate locali**: security/governance/architecture/l10n/format/analyze, 254 test,
+  coverage 2.531/3.071 (82,42%), Android debug e iOS Simulator debug: `PASS`.
+- **CI Client**: run `30733287396`, Quality 3m18s, iOS 3m48s e Android 8m26s,
+  tutti `PASS` sullo SHA esatto.
+- **Smoke mobile**: Catalog Android 1/1 in 14 s e iOS 1/1 in 2 s, entrambi `PASS`
+  su fixture reale, categoria `te`, immagini pubbliche e sessione guest assente.
+- **Difetti corretti**: retry offline instradato dalla readiness, loop load-more
+  eliminato e matrice reflow legacy adattata al layout Sliver lazy.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-015 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per search debounced, filtri pubblici e ordinamenti keyset.

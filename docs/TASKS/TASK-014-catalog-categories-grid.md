@@ -5,14 +5,14 @@
 - **Task ID**: TASK-014
 - **Titolo**: Categorie e griglia catalogo con caricamento immagini
 - **File task**: `docs/TASKS/TASK-014-catalog-categories-grid.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-014/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -119,11 +119,59 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-In avvio.
+### Modifiche completate
+
+- modelli pagina/cursor/sort, DTO strict e repository RPC-only per categorie e
+  catalogo pubblico;
+- controller Riverpod con keyset pagination, generation/cancellation guard, reset
+  bounded su `catalog_changed`, refresh e stato load-more separato;
+- griglia Sliver lazy adattiva, selezione categoria server-side, posizione tab
+  preservata, prezzi CLP e immagini pubbliche `card` bounded;
+- stati loading/empty/offline/unavailable/failure e retry accessibili/localizzati;
+- smoke live guest Android/iOS sulla fixture staging reale.
+
+### Difetti corretti durante Execution
+
+- retry offline riallineato alla readiness condivisa, evitando query dirette mentre il
+  backend globale è ancora offline;
+- loop automatico dopo errore load-more eliminato: il cursor fallito riparte soltanto
+  tramite retry esplicito e conserva gli item visibili;
+- test reflow TASK-012 aggiornato al layout `CustomScrollView` del catalogo, mantenendo
+  i controlli di larghezza/padding sulle altre tab.
+
+### Gate eseguiti
+
+- revision set Client `61d8781c58b0c4acb41a80c1eab1f32412c037a8`, PR `#5` draft;
+- `scripts/check.sh`: security 372 file, governance 8/8, architecture 7/7, l10n,
+  format, analyze, 254 test, coverage 2.531/3.071 linee (82,42%), Android debug e iOS
+  Simulator debug: `PASS`;
+- CI Client `30733287396`: Quality 3m18s, iOS 3m48s, Android 8m26s, 3/3 `PASS`;
+- Catalog Android Emulator live: 1/1 `PASS` in 14 s;
+- Catalog iOS Simulator live: 1/1 `PASS` in 2 s;
+- staging: API `storefront.v1`, catalog version reale, categoria `te`, immagini
+  pubbliche e sessione guest assente: `PASS`;
+- APK staging SHA-256
+  `6b9d8f8fe073ddc7c0e958c4ea06e822b23e8f7d083ae56d30a94c1e18835f2f`;
+- Runner.app staging aggregate SHA-256
+  `1af6d46d45ef5340746cb48045c549080ed48c745ade4a845b84da34d9d31b0a`;
+- production write: `NOT_RUN`; production invariata.
+
+### Matrici
+
+CA-01..CA-10 e T-01..T-07: `PASS`. Evidence sintetica:
+`docs/TASKS/EVIDENCE/TASK-014/README.md`.
+
+### Handoff
+
+`CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`. Nessuna review formale è stata
+eseguita e TASK-014 non è `DONE`.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate TASK-014. Nessuna review formale intermedia.
+TASK-014 è `VALIDATED_PENDING_INTEGRATED_REVIEW`: implementazione, gate completo, CI e
+smoke staging Android/iOS sono verdi sul revision set registrato. Production è
+invariata; nessuna review formale intermedia è stata eseguita. Il task successivo
+autorizzato è TASK-015.
 
 ## Review / Fix
 

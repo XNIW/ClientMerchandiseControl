@@ -2,9 +2,9 @@
 
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
 Merchandise Control. La fondazione corrente offre una shell guest localizzata,
-accessibile e data-safe con Home Storefront reale, Catalogo, Carrello e Account, più
-Google OAuth customer verificato in staging tramite Supabase Auth. Catalogo paginato,
-commerce e ordini restano assegnati ai task proprietari del release train.
+accessibile e data-safe con Home e Catalogo Storefront reali, Carrello e Account, più
+Google OAuth customer verificato in staging tramite Supabase Auth. Search/discovery,
+commerce e ordini avanzano nei task proprietari del release train.
 
 ## Relazione con Merchandise Control
 
@@ -118,6 +118,13 @@ il proprio controller dati. Il secondo attende esplicitamente il payload reale
 `storefront_home_v1` e verifica fixture pubblica, immagini, prezzi CLP, versione catalogo
 uniforme e assenza di sessione customer.
 
+Lo smoke Catalogo reale di TASK-014 usa lo stesso file staging locale ignorato:
+
+```bash
+flutter test integration_test/storefront_catalog_live_smoke_test.dart -d emulator-5554 --dart-define-from-file=config/app_config.staging.local.json
+flutter test integration_test/storefront_catalog_live_smoke_test.dart -d <IOS_SIMULATOR_ID> --dart-define-from-file=config/app_config.staging.local.json
+```
+
 Lo smoke guest di TASK-012 non richiede backend:
 
 ```bash
@@ -154,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-014
-- **File task**: docs/TASKS/TASK-014-catalog-categories-grid.md
+- **Task attivo**: TASK-015
+- **File task**: docs/TASKS/TASK-015-search-filters-sorting.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -174,6 +181,6 @@ callback iOS warm/cold, restore, logout e nuovo login. Finding aperti 0 P0/P1/P2
 CI finale `30713857455` 3/3 `PASS`, step applicabili `success`, annotation 0/0/0.
 PR #4 è merged normalmente con commit `b2d70b5`; branch remoto eliminato e il closeout
 su `main` è stato verificato dalla CI `30714350425`. Il release train Storefront v1 è
-ora in `EXECUTION` sul worktree dedicato: TASK-005–TASK-010 pertinenti e TASK-013 sono
-`VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-014 è l'unico task attivo e gli altri task
-del train restano `TODO` fino al rispettivo checkpoint.
+ora in `EXECUTION` sul worktree dedicato: TASK-005–TASK-010 pertinenti e TASK-013/014
+sono `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-015 è l'unico task attivo e gli altri
+task del train restano `TODO` fino al rispettivo checkpoint.

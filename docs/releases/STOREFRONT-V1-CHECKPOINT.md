@@ -1,10 +1,10 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 3 / TASK-014 catalogo
-- **Task corrente**: TASK-014
+- **Fase corrente**: EXECUTION / Milestone 3 / TASK-015 discovery
+- **Task corrente**: TASK-015
 - **Repository writer corrente**: ClientMerchandiseControl
 - **Branch**: `integration/storefront-v1`
-- **SHA Client TASK-013 candidate**: `2aefa17f901652bf2f1fceafb2649422c6b8fb4f`
+- **SHA Client TASK-014 candidate**: `61d8781c58b0c4acb41a80c1eab1f32412c037a8`
 - **SHA Admin corrente**: `a9036f0bda741d686afbdac13d3d08ef897f059b`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
@@ -42,14 +42,17 @@
   3/3 `PASS`; Android readiness 1/1, Home Android 1/1 e Home iOS 1/1 `PASS`;
   fixture Admin SHA `a9036f0b`, deploy `30731372117`, CI `30731757331` e acceptance
   `30731760038` `PASS`; production invariata
-- **Gate ancora necessari**: execution TASK-014, test keyset/grid/immagini e smoke
-  catalogo reale Android/iOS
-- **Comando successivo esatto**: `rg -n "CatalogScreen|storefront_categories_v1|storefront_catalog_v1|StorefrontProductCard" lib test docs`
+- **Gate TASK-014**: Client SHA `61d8781c`; 254 test, coverage 82,42%, security,
+  governance, architecture, analyze e build Android/iOS `PASS`; CI `30733287396`
+  3/3 `PASS`; Catalog Android 1/1 in 14 s e iOS 1/1 in 2 s `PASS`; production invariata
+- **Gate ancora necessari**: execution TASK-015, test search/filter/sort e smoke
+  discovery reale Android/iOS
+- **Comando successivo esatto**: `sed -n '891,1110p' ../merchandise-control-admin-web/supabase/migrations/20260801223000_storefront_v1_public_api.sql`
 - **Blocker**: nessuno
 - **Processi ancora attivi**: nessuno
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
   `PASS`; Milestone 2 Admin publish/promozioni/immagini/rollback/cleanup `PASS`;
-  fixture pubblica TASK-013 e Home guest Android/iOS `PASS`; TASK-014 catalog grid
+  fixture pubblica, Home e Catalog guest Android/iOS `PASS`; TASK-015 discovery
   `NOT_RUN`; production invariata
 
 ## Vincoli di ripresa

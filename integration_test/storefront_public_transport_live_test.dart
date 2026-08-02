@@ -1,6 +1,7 @@
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/core/config/app_environment.dart';
 import 'package:client_merchandise_control/features/storefront/data/http_storefront_rpc_invoker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:integration_test/integration_test.dart';
@@ -34,6 +35,9 @@ void main() {
     expect(home['status'], 'ok');
     expect(home['featured'], isNotEmpty);
     expect(home['categories'], isNotEmpty);
+    debugPrint(
+      'STOREFRONT_PUBLIC_TRANSPORT elapsed_ms=${stopwatch.elapsedMilliseconds}',
+    );
 
     binding.reportData = <String, Object?>{
       'transport': 'anonymous-http-postgrest',

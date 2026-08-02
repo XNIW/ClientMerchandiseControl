@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-018
-- **File task**: docs/TASKS/TASK-018-favorites-sharing-product-deep-links.md
+- **Task attivo**: TASK-019
+- **File task**: docs/TASKS/TASK-019-catalog-performance-extended-dataset.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,9 +14,9 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: implementare TASK-018 nel Client Flutter con
-  preferiti guest Drift shop-scoped, share nativo e deep link prodotto/categoria
-  strict sul source `app_links` unico, con OAuth e production invariati
+- **Prossima azione autorizzata**: eseguire il work package
+  `STOREFRONT-V1-UI-HARDENING` su Client e Admin con writer sequenziali, quindi
+  benchmark TASK-019 su dataset staging esteso, con production invariata
 
 ## Repository coinvolti
 
@@ -69,8 +69,8 @@
 | TASK-015 | Ricerca, filtri e ordinamento | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014 | Client, Supabase | Discovery catalogo efficiente |
 | TASK-016 | Dettaglio prodotto e disponibilità commerciale | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014 | Client, Supabase | Dettaglio pubblico coerente |
 | TASK-017 | Cache catalogo offline, refresh e invalidazione | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
-| TASK-018 | Preferiti, condivisione e deep link prodotto | ACTIVE | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
-| TASK-019 | Catalog performance e acceptance su dataset esteso | TODO | TASK-010, TASK-014, TASK-015, TASK-017 | Client, Supabase | Budget prestazioni misurato |
+| TASK-018 | Preferiti, condivisione e deep link prodotto | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
+| TASK-019 | Catalog performance e acceptance su dataset esteso | ACTIVE | TASK-010, TASK-014, TASK-015, TASK-017, TASK-018 | Client, Admin, Supabase | UI hardening e budget prestazioni misurato |
 | TASK-020 | Supabase Auth, deep link e session lifecycle | DONE | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
 | TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
 | TASK-022 | Registrazione device, consenso notifiche e token lifecycle | TODO | TASK-020, TASK-021 | Client, Supabase | Consenso e token gestiti |
@@ -220,3 +220,17 @@ la review integrata finale.
 
 Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-018.
+
+## Ultimo checkpoint interno — TASK-018
+
+Il revision set Client `a0e139a6365dc4639ba66c110c91dcc2720feee5` ha superato
+329 test con coverage 81,73%, gate security/governance/architecture, build Android/iOS,
+chooser Android reale e XCTest iOS con vera `UIActivityViewController` 3/3. La CI
+`30751191932` è 3/3 `PASS`, tutti gli step applicabili `success`, annotation 0/0/0.
+La decisione USER_APPROVER D-08 sostituisce il controllo manuale del foglio con il gate
+nativo riproducibile; production è invariata. TASK-018 non è `DONE`: attende la review
+integrata finale.
+
+Handoff:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-019, iniziando dal work package
+`STOREFRONT-V1-UI-HARDENING` autorizzato.

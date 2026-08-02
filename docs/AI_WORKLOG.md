@@ -1516,3 +1516,29 @@
 - **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
 - **Transizione**: TASK-018 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per preferiti locali shop-scoped, share nativo e deep link prodotto/categoria strict.
+
+## 2026-08-02 — Checkpoint interno TASK-018 e attivazione TASK-019
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **Decisione USER_APPROVER**: D-08 sostituisce il gate manuale Activity Sheet con un
+  XCTest nativo riproducibile che presenta una vera `UIActivityViewController` e
+  verifica payload, presentation context, popover, dismiss e mapping risultato.
+- **TASK-018**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; boundary share/favorite/link,
+  single-flight, payload localizzato, deep link strict, favorite persistenti e stati
+  unpublished/offline completati.
+- **Revision set Client**: `a0e139a6365dc4639ba66c110c91dcc2720feee5`, PR #5 draft.
+- **Gate locali**: `scripts/check.sh` exit 0 in 79,66 s; security 415 file,
+  governance 8/8, architecture 7/7, analyze, 329 test, coverage 4.249/5.199
+  (81,73%), Android debug e iOS Simulator debug `PASS`.
+- **XCTest iOS**: iPad (A16), Simulator 26.5, 3/3 in 13,54 s, exit 0 e xcresult
+  `Passed`; vera presentazione UI, payload pubblico, main thread, popover, cancel,
+  completion, race/doppio foglio e background/resume coperti.
+- **Android headless**: chooser `ACTION_SEND` `text/plain`, payload pubblico, cancel,
+  doppio tap con un solo chooser e PID processo invariato: `PASS`.
+- **CI Client**: run `30751191932`, Quality 4m23s, iOS 3m38s, Android 8m41s,
+  3/3 `PASS`, step applicabili `success`, annotation 0/0/0 sullo SHA esatto.
+- **Difetti corretti**: lifecycle/dismiss e parallelismo del test host iOS, oltre a un
+  lint che aveva fermato il primo gate completo; regressioni e rerun finali `PASS`.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-019 è l'unico task `ACTIVE / EXECUTION`; il primo work package
+  autorizzato è `STOREFRONT-V1-UI-HARDENING`, seguito dai benchmark Milestone 3.

@@ -22,6 +22,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-016" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-017" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-018" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-019" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -97,6 +98,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-018/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-018/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-019-catalog-performance-extended-dataset.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-019/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-019/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -128,21 +135,21 @@ cmc_expect_pass valid "${cmc_case}"
 
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \
-  's/| TASK-019 | Catalog performance e acceptance su dataset esteso | TODO |/| TASK-019 | Catalog performance e acceptance su dataset esteso | ACTIVE |/' \
+  's/| TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO |/| TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-018/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-019/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-018 | Preferiti, condivisione e deep link prodotto | ACTIVE |/| TASK-018 | Preferiti, condivisione e deep link prodotto | DONE |/' \
+  's/| TASK-019 | Catalog performance e acceptance su dataset esteso | ACTIVE |/| TASK-019 | Catalog performance e acceptance su dataset esteso | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"

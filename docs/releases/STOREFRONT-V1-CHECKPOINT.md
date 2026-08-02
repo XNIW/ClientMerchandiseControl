@@ -1,10 +1,10 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 3 / TASK-018 favorite/share/deep link
-- **Task corrente**: TASK-018
+- **Fase corrente**: EXECUTION / Milestone 3 / TASK-019 UI hardening/performance
+- **Task corrente**: TASK-019
 - **Repository writer corrente**: ClientMerchandiseControl
 - **Branch**: `integration/storefront-v1`
-- **SHA Client TASK-018 implementation**: `b02fe45e5342ce3c81c822cc624cc2422ea9d26c`
+- **SHA Client TASK-018 implementation**: `a0e139a6365dc4639ba66c110c91dcc2720feee5`
 - **SHA Admin corrente**: `a9036f0bda741d686afbdac13d3d08ef897f059b`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
@@ -58,21 +58,23 @@
   suite 19/19, 25.000 righe, open 247 ms, write 20k 444 ms, catalog p95 1.195 µs e
   search p95 3.824 µs; CI `30737515662` 3/3 `PASS`, annotation 0/0/0; offline/reconnect
   Android 1/1 in 45,98 s e iOS 1/1 in 27,09 s `PASS`; production invariata
-- **Gate TASK-018 parziali**: schema favorite v2, share service, validator/link
-  coordinator, 322 test, coverage 81,44%, gate locale completo, CI `30739381564`,
-  favorite live Android/iOS, deep link cold/warm Android/iOS, share sheet Android e
-  fail-closed cross-shop Android/iOS: `PASS`; zero match token nei log live
-- **Gate ancora necessari**: aprire e ispezionare il solo Activity Sheet iOS nativo;
-  poi closeout evidence, governance e CI sullo SHA documentale finale
-- **Comando successivo esatto**: Computer Use su `Simulator`, tap dell'azione Share,
-  ispezione Activity Sheet senza invio, dismiss; quindi aggiornare TASK-018/evidence
-- **Blocker**: Mac bloccato; Computer Use richiede sblocco manuale prima del tap Share
-- **Processi ancora attivi**: nessuno
+- **Gate TASK-018**: repository boundary share/favorite/link, 329 test, coverage 81,73%,
+  gate locale exit 0 in 79,66 s, CI `30751191932` 3/3 con annotation 0/0/0,
+  favorite e deep link Android/iOS, chooser Android reale e XCTest
+  `UIActivityViewController` 3/3 su iPad Simulator 26.5: `PASS`; zero match token nei
+  log live; manual Activity Sheet `NOT_RUN` per decisione USER_APPROVER D-08
+- **Gate ancora necessari**: TASK-019 UI hardening Client/Admin, visual QA, verifica
+  dataset esteso, benchmark p50/p95/p99, gate/CI e checkpoint Milestone 3
+- **Comando successivo esatto**: leggere la skill Product Design audit, quindi creare
+  l'inventario read-only bounded per `docs/PRODUCT/STOREFRONT-UI-PATTERN-AUDIT.md`
+- **Blocker**: nessuno per TASK-019
+- **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`, sessione controllata;
+  deve essere terminato al closeout del release train
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
   `PASS`; Milestone 2 Admin publish/promozioni/immagini/rollback/cleanup `PASS`;
-  fixture pubblica, Home, Catalog, Discovery, Detail e cache offline/reconnect guest
-  Android/iOS `PASS`; TASK-018 completo salvo Activity Sheet iOS nativo; production
-  invariata
+  fixture pubblica, Home, Catalog, Discovery, Detail, cache offline/reconnect,
+  favorite/share/deep link guest Android/iOS e XCTest share iOS `PASS`; TASK-019
+  appena attivato; production invariata
 
 ## Vincoli di ripresa
 

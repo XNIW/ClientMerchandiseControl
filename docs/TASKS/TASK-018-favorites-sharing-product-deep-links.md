@@ -5,14 +5,14 @@
 - **Task ID**: TASK-018
 - **Titolo**: Preferiti, condivisione e deep link prodotto
 - **File task**: `docs/TASKS/TASK-018-favorites-sharing-product-deep-links.md`
-- **Stato**: ACTIVE
-- **Fase**: EXECUTION
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Fase**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-018/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -86,6 +86,7 @@
 | D-05 | Categoria usa lo stesso formato con `/category/{slug}` | Copre discovery senza aggiungere API o filtro promozione inesistente | ATTIVA |
 | D-06 | `share_plus 13.2.1` è pin esatto | BSD-3, Android/iOS e API `SharePlus`; evita i downgrade transitive causati da 12.0.2 e non adotta la 13.3 appena pubblicata | ATTIVA |
 | D-07 | Il source nativo `app_links` resta unico e broadcast | Evita callback concorrenti; ogni consumer valida il proprio namespace | ATTIVA |
+| D-08 | USER_APPROVER: «Il gate manuale di osservazione dell’Activity Sheet è sostituito da un gate automatico nativo più forte e riproducibile. La modifica non riduce la copertura: richiede la presentazione reale di `UIActivityViewController` in un processo Simulator e la verifica del payload, del presentation context e del dismiss.» | Emendamento autorizzato dal prompt di ripresa 2026-08-02; elimina la dipendenza GUI senza ridurre il contratto verificato | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 
@@ -142,6 +143,11 @@
   azioni accessibili e stessa route prodotto pubblica;
 - `share_plus 13.2.1` esatto con service iniettabile, anchor iPad bounded e payload
   localizzato composto soltanto da nome pubblico e URI canonico;
+- boundary espliciti `ShareRequest`, `ShareResult`, `ProductShareService`,
+  `PlatformProductShareService`, `ProductPublicLinkBuilder` e
+  `ProductFavoriteRepository`; la UI non invoca direttamente plugin o MethodChannel;
+- pulsante Share stateful con Semantics esplicita, target 48 px e guardia single-flight;
+  adapter platform con mapping `completed/dismissed/unavailable` e failure sanitizzato;
 - codec strict per product/category link, confronto shop e rifiuto di scheme, host,
   userinfo, port, query, fragment, cardinalità o encoding non canonici;
 - source `app_links` singleton broadcast condiviso con Auth, consumer separati,
@@ -151,6 +157,9 @@
 - correzione della race reale Catalog bootstrap/deep-link: il load schedulato usa i
   criteri correnti e non sovrascrive più la categoria consegnata warm/cold;
 - smoke live staging preferiti e matrice nativa deep link/share su Android e iOS.
+- target XCTest Runner non parallelo con vera presentazione di
+  `UIActivityViewController` su `UIWindow`/host attivo, payload ispezionabile,
+  popover iPad, cancel/completion, doppia presentazione e background/resume.
 
 ### Difetti corretti durante Execution
 
@@ -164,39 +173,54 @@
   rilegge i criteri effettivi al momento del load;
 - il primo smoke Android usava lo shop harness `storefront-test` invece dello staging
   reale `storefront-v1-staging`; input corretto e rerun cold/warm `PASS`.
+- i primi XCTest hanno esposto due difetti del test host: reset dello stato prima del
+  dismiss UIKit e clone paralleli in competizione sulla key window; stato/dismiss sono
+  stati sincronizzati con polling deterministico e il target UI è ora non parallelo;
+- il primo gate completo di questa ripresa si è fermato su un lint
+  `unnecessary_string_interpolations` (exit 1 in 34,33 s); il test è stato corretto e
+  il gate completo è stato rieseguito dall’inizio con exit 0.
 
 ### Gate eseguiti
 
 - revision set tecnico Client
-  `b02fe45e5342ce3c81c822cc624cc2422ea9d26c`, PR `#5` draft;
-- suite mirata finale 33/33 `PASS`; gate completo 322 test, coverage 4.195/5.151
-  linee (81,44%), security 415 file, fixture security 32/32 negative e 2/2 positive,
-  governance 8/8, architecture 7/7, analyze e build Android/iOS: `PASS`;
-- CI Client `30739381564`: Quality, iOS Simulator e Android 3/3 `PASS`, annotation
-  0/0/0 sullo SHA esatto;
+  `a0e139a6365dc4639ba66c110c91dcc2720feee5`, PR `#5` draft;
+- suite mirata ripresa 22/22 `PASS`; gate completo `scripts/check.sh` exit 0 in
+  79,66 s con 329 test, coverage 4.249/5.199 linee (81,73%), security 415 file,
+  fixture security 32/32 negative e 2/2 positive, governance 8/8, architecture 7/7,
+  analyze e build Android/iOS `PASS`;
+- XCTest nativo `xcodebuild test` su iPad (A16), iOS Simulator 26.5: 3/3 `PASS`,
+  0 fail/skip, exit 0; `xcresulttool` conferma presentazione reale, payload, popover,
+  cancel/completion, single-flight e background/resume in 13,54 s;
+- Android Emulator `emulator-5554`: deep link prodotto staging, tap Share via
+  accessibility tree, chooser `ACTION_SEND` `text/plain`, payload esatto, cancel e
+  doppio tap 1/1 `PASS`; PID processo invariato `26527` e un solo chooser;
+- CI Client `30751191932`: Quality 4m23s, iOS Simulator 3m38s e Android 8m41s,
+  3/3 `PASS`, tutti gli step applicabili `success` e annotation 0/0/0 sullo SHA esatto;
 - favorite live staging Android 1/1 in 23 s e iOS 1/1 in 6 s: `PASS`;
 - Android native: product cold, category warm, share chooser, payload pubblico e
   cross-shop fail-closed `PASS`; iOS native: product cold, category warm e cross-shop
   fail-closed `PASS`;
 - scan log live Android/iOS: zero match per access/refresh token, bearer o OAuth code;
-- Activity Sheet iOS: `BLOCKED` temporaneo, perché Computer Use ha rilevato il Mac
-  bloccato e richiede sblocco manuale; nessun retry identico o bypass eseguito;
-- artifact staging smoke: APK SHA-256
-  `1d905a4111f2aee9ce2d12340df540976cd4bd455e2264e130de3a527a022210`, Runner
+- Activity Sheet iOS manuale: `NOT_RUN` per decisione D-08; il gate sostitutivo XCTest
+  con vera `UIActivityViewController` è `PASS` e non richiede interazione GUI;
+- artifact candidato: build staging APK exit 0 in 8,15 s, SHA-256
+  `5bd05d1e4a923ee7a62d8533321d6315513c6dd6754559a58e3aa41efa4be54e`; Runner
   Simulator executable SHA-256
-  `b7e090c57d366787fb6c45b7c79017b6548603fb569ea20deab8d5bad2e1916b`;
+  `3f19e6660670e6d1221c313cd9ba247e7f8c0515d3c42c9322aa81e52803d6f0`;
 - production write: `NOT_RUN`; production invariata.
 
 ### Matrici e handoff
 
-- CA-01..CA-09 e T-01..T-07: `PASS`;
-- CA-10/T-08: `BLOCKED` soltanto sul controllo visuale Activity Sheet iOS;
-- handoff a checkpoint non ancora emesso: TASK-018 resta `ACTIVE / EXECUTION`.
+- CA-01..CA-10 e T-01..T-08: `PASS`;
+- handoff: `CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da completare dopo l'Activity Sheet iOS e la CI sullo SHA documentale finale. Nessuna
-review formale intermedia.
+TASK-018 è `VALIDATED_PENDING_INTEGRATED_REVIEW`: Flutter, Android chooser, XCTest
+`UIActivityViewController`, preferiti, deep link, build e CI sono verdi sul revision
+set registrato. Production è invariata; nessuna review formale intermedia è stata
+eseguita. Il task successivo autorizzato è TASK-019, iniziando dal work package
+`STOREFRONT-V1-UI-HARDENING`.
 
 ## Review / Fix
 

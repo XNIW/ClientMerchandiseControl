@@ -191,6 +191,13 @@ void main() {
     final state = resources.container.read(provider);
     expect(state.status, ProductDetailLoadStatus.unavailable);
     expect(state.product, isNull);
+    expect(
+      await resources.cache.readProductDetail(
+        shopSlug: _shop,
+        publicationId: product.id,
+      ),
+      isNull,
+    );
     expect(remote.calls, 1);
   });
 }

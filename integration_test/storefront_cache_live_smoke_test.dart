@@ -42,8 +42,7 @@ void main() {
       final seededCatalog = container.read(catalogControllerProvider);
       final product = seededCatalog.items.first;
       final seededVersion = seededCatalog.catalogVersion;
-      await tester.tap(find.byKey(ValueKey('catalog-product-${product.id}')));
-      await tester.pump();
+      await _openProduct(tester, product.id);
       await _waitForDetail(tester, container, product.id, expectCache: false);
 
       await tester.pumpWidget(const SizedBox.shrink());
@@ -68,9 +67,7 @@ void main() {
       expect(catalog.items.map((item) => item.id), contains(product.id));
       expect(find.byType(StorefrontCacheStatus), findsOneWidget);
 
-      await tester.tap(find.byKey(ValueKey('catalog-product-${product.id}')));
-      await tester.pump();
-      expect(find.byType(ProductDetailScreen), findsOneWidget);
+      await _openProduct(tester, product.id);
       await _waitForDetail(tester, container, product.id, expectCache: true);
       expect(find.byType(StorefrontCacheStatus), findsOneWidget);
 
@@ -100,6 +97,34 @@ void main() {
         'result': 'PASS',
       };
     },
+  );
+}
+
+Future<void> _openProduct(WidgetTester tester, String publicationId) async {
+  final card = find.byKey(ValueKey('catalog-product-$publicationId'));
+  if (card.evaluate().isEmpty) {
+    final catalogScroll = find.descendant(
+      of: find.byKey(const PageStorageKey<String>('catalog-scroll')),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is Scrollable && widget.axisDirection == AxisDirection.down,
+        description: 'vertical catalog Scrollable',
+      ),
+    );
+    expect(catalogScroll, findsOneWidget);
+    await tester.scrollUntilVisible(card, 320, scrollable: catalogScroll);
+  }
+  expect(card, findsOneWidget);
+  await tester.ensureVisible(card);
+  await tester.pumpAndSettle(const Duration(milliseconds: 50));
+  final action = find.byKey(ValueKey('open-product-$publicationId'));
+  expect(action, findsOneWidget);
+  await tester.tap(action);
+  await tester.pump();
+  await _waitFor(
+    tester,
+    () => find.byType(ProductDetailScreen).evaluate().isNotEmpty,
+    'Route detail',
   );
 }
 

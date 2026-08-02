@@ -776,6 +776,77 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get customerFieldInvalid =>
       'Revisa el formato y la longitud de este campo.';
+
+  @override
+  String get customerNotificationsTitle => 'Notificaciones';
+
+  @override
+  String get customerNotificationsDescription =>
+      'Elige si quieres recibir novedades esenciales sobre pedidos y reservas. El permiso del sistema se solicita por separado.';
+
+  @override
+  String get customerNotificationsLoading =>
+      'Cargando la configuración de notificaciones';
+
+  @override
+  String get customerNotificationsProviderUnavailable =>
+      'Las notificaciones push no están configuradas en esta compilación. No se registró ningún token ni se activó un permiso ficticio.';
+
+  @override
+  String get customerNotificationsActive =>
+      'Notificaciones activas y confirmadas por el servidor.';
+
+  @override
+  String get customerNotificationsNotRequested =>
+      'Todavía no elegiste si quieres recibir notificaciones.';
+
+  @override
+  String get customerNotificationsDenied =>
+      'Elegiste no recibir notificaciones. Puedes cambiar esta preferencia cuando quieras.';
+
+  @override
+  String get customerNotificationsRevoked =>
+      'Las notificaciones están revocadas para esta instalación.';
+
+  @override
+  String get customerNotificationsPending =>
+      'El cambio está guardado en este dispositivo, pero aún no fue confirmado por el servidor.';
+
+  @override
+  String get customerNotificationsOffline =>
+      'No pudimos confirmar el cambio porque estás sin conexión. Reintenta cuando recuperes la red.';
+
+  @override
+  String get customerNotificationsTimeout =>
+      'El servidor tardó demasiado. Reintenta: la misma operación idempotente no se duplicará.';
+
+  @override
+  String get customerNotificationsUnauthorized =>
+      'La sesión ya no permite actualizar las notificaciones.';
+
+  @override
+  String get customerNotificationsInvalid =>
+      'La configuración de notificaciones no es válida.';
+
+  @override
+  String get customerNotificationsConflict =>
+      'La operación idempotente no coincide con la solicitud anterior. Actualiza y vuelve a intentar.';
+
+  @override
+  String get customerNotificationsUnavailable =>
+      'No pudimos actualizar las notificaciones. El cambio no se muestra como confirmado.';
+
+  @override
+  String get customerNotificationsEnable => 'Activar';
+
+  @override
+  String get customerNotificationsNotNow => 'Ahora no';
+
+  @override
+  String get customerNotificationsRevoke => 'Revocar';
+
+  @override
+  String get customerNotificationsRetry => 'Reintentar';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -1478,4 +1549,62 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get customerFieldInvalid => '请检查此字段的格式和长度。';
+
+  @override
+  String get customerNotificationsTitle => '通知';
+
+  @override
+  String get customerNotificationsDescription => '选择是否接收订单和预订的重要更新。系统权限将单独请求。';
+
+  @override
+  String get customerNotificationsLoading => '正在加载通知设置';
+
+  @override
+  String get customerNotificationsProviderUnavailable =>
+      '此版本尚未配置推送通知。未注册任何令牌，也未模拟任何权限。';
+
+  @override
+  String get customerNotificationsActive => '通知已启用并由服务器确认。';
+
+  @override
+  String get customerNotificationsNotRequested => '你尚未选择是否接收通知。';
+
+  @override
+  String get customerNotificationsDenied => '你已选择不接收通知，可随时更改此偏好。';
+
+  @override
+  String get customerNotificationsRevoked => '此安装的通知已撤销。';
+
+  @override
+  String get customerNotificationsPending => '更改已保存在此设备上，但尚未由服务器确认。';
+
+  @override
+  String get customerNotificationsOffline => '离线时无法确认更改。网络恢复后请重试。';
+
+  @override
+  String get customerNotificationsTimeout => '服务器响应超时。你可以重试，同一幂等操作不会重复执行。';
+
+  @override
+  String get customerNotificationsUnauthorized => '当前会话已无法更新通知设置。';
+
+  @override
+  String get customerNotificationsInvalid => '通知配置无效。';
+
+  @override
+  String get customerNotificationsConflict => '此幂等操作与之前的请求不一致。请刷新后重试。';
+
+  @override
+  String get customerNotificationsUnavailable => '无法更新通知。此更改不会显示为已确认。';
+
+  @override
+  String get customerNotificationsEnable => '启用';
+
+  @override
+  String get customerNotificationsNotNow => '暂不';
+
+  @override
+  String get customerNotificationsRevoke => '撤销';
+
+  @override
+  String get customerNotificationsRetry => '重试';
 }

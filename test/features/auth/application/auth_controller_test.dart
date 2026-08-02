@@ -346,6 +346,70 @@ void main() {
   });
 
   test(
+    'logout attende cleanup autenticato prima di eliminare la sessione',
+    () async {
+      final cleanup = Completer<void>();
+      final cleanupCustomers = <AuthenticatedCustomer>[];
+      repository.currentCustomer = _customer('logout-cleanup');
+      container.dispose();
+      container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWithValue(_enabledConfig()),
+          authRepositoryFactoryProvider.overrideWithValue(
+            (config) async => repository,
+          ),
+          authCallbackSourceProvider.overrideWithValue(callbackSource),
+          authenticatedSignOutCleanupProvider.overrideWithValue((customer) {
+            cleanupCustomers.add(customer);
+            return cleanup.future;
+          }),
+        ],
+      );
+      container.read(authControllerProvider);
+      await _settle();
+
+      final logout = container.read(authControllerProvider.notifier).signOut();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(container.read(authControllerProvider), isA<AuthSigningOut>());
+      expect(cleanupCustomers.single.subjectId, 'logout-cleanup');
+      expect(repository.signOutCalls, 0);
+
+      cleanup.complete();
+      await logout;
+      expect(repository.signOutCalls, 1);
+      expect(container.read(authControllerProvider), isA<AuthGuest>());
+    },
+  );
+
+  test('failure cleanup feature-specific non trattiene il logout', () async {
+    repository.currentCustomer = _customer('logout-cleanup-failure');
+    container.dispose();
+    container = ProviderContainer(
+      overrides: [
+        appConfigProvider.overrideWithValue(_enabledConfig()),
+        authRepositoryFactoryProvider.overrideWithValue(
+          (config) async => repository,
+        ),
+        authCallbackSourceProvider.overrideWithValue(callbackSource),
+        authenticatedSignOutCleanupProvider.overrideWithValue((customer) {
+          throw StateError('private-device-cleanup-detail');
+        }),
+      ],
+    );
+    container.read(authControllerProvider);
+    await _settle();
+
+    await expectLater(
+      container.read(authControllerProvider.notifier).signOut(),
+      completes,
+    );
+
+    expect(repository.signOutCalls, 1);
+    expect(container.read(authControllerProvider), isA<AuthGuest>());
+  });
+
+  test(
     'logout prevale su exchange tardivo e completamento fuori ordine',
     () async {
       final exchange = Completer<AuthenticatedCustomer>();

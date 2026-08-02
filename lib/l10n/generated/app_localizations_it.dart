@@ -776,4 +776,75 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get customerFieldInvalid => 'Controlla formato e lunghezza del campo.';
+
+  @override
+  String get customerNotificationsTitle => 'Notifiche';
+
+  @override
+  String get customerNotificationsDescription =>
+      'Scegli se ricevere aggiornamenti essenziali su ordini e prenotazioni. Il permesso di sistema viene richiesto separatamente.';
+
+  @override
+  String get customerNotificationsLoading =>
+      'Caricamento delle impostazioni di notifica';
+
+  @override
+  String get customerNotificationsProviderUnavailable =>
+      'Le notifiche push non sono configurate in questa build. Nessun token è stato registrato e nessun permesso è stato simulato.';
+
+  @override
+  String get customerNotificationsActive =>
+      'Notifiche attive e confermate dal server.';
+
+  @override
+  String get customerNotificationsNotRequested =>
+      'Non hai ancora scelto se ricevere notifiche.';
+
+  @override
+  String get customerNotificationsDenied =>
+      'Hai scelto di non ricevere notifiche. Puoi cambiare preferenza in qualsiasi momento.';
+
+  @override
+  String get customerNotificationsRevoked =>
+      'Le notifiche sono revocate per questa installazione.';
+
+  @override
+  String get customerNotificationsPending =>
+      'La modifica è salvata sul dispositivo, ma non è ancora confermata dal server.';
+
+  @override
+  String get customerNotificationsOffline =>
+      'Non possiamo confermare la modifica mentre sei offline. Riprova quando torna la connessione.';
+
+  @override
+  String get customerNotificationsTimeout =>
+      'Il server ha impiegato troppo tempo. Puoi riprovare senza duplicare l’operazione idempotente.';
+
+  @override
+  String get customerNotificationsUnauthorized =>
+      'La sessione non consente più di aggiornare le notifiche.';
+
+  @override
+  String get customerNotificationsInvalid =>
+      'La configurazione delle notifiche non è valida.';
+
+  @override
+  String get customerNotificationsConflict =>
+      'L’operazione idempotente non corrisponde alla richiesta precedente. Aggiorna e riprova.';
+
+  @override
+  String get customerNotificationsUnavailable =>
+      'Non è stato possibile aggiornare le notifiche. La modifica non risulta confermata.';
+
+  @override
+  String get customerNotificationsEnable => 'Attiva';
+
+  @override
+  String get customerNotificationsNotNow => 'Non ora';
+
+  @override
+  String get customerNotificationsRevoke => 'Revoca';
+
+  @override
+  String get customerNotificationsRetry => 'Riprova';
 }

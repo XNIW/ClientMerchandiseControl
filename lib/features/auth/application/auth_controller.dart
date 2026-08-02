@@ -320,6 +320,15 @@ final class AuthController extends Notifier<AuthState> {
 
     Object? firstCleanupError;
 
+    try {
+      await ref.read(authenticatedSignOutCleanupProvider)(
+        authenticated.customer,
+      );
+    } on Object {
+      // I cleanup feature-specific persistono il proprio retry e non possono
+      // trattenere una sessione che l'utente ha chiesto di chiudere.
+    }
+
     Future<void> purge() async {
       try {
         await _repository?.signOutLocal();

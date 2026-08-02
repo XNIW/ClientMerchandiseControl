@@ -14,6 +14,7 @@ import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/authenticated_customer.dart';
 import '../../auth/domain/auth_failure.dart';
 import '../../auth/domain/auth_state.dart';
+import '../../customer_devices/presentation/customer_notification_panel.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import 'account_presentation_model.dart';
 import 'customer_account_panel.dart';
@@ -56,7 +57,13 @@ class AccountScreen extends ConsumerWidget {
       AuthAuthenticated(:final customer) => AccountView.authenticated(
         model: _presentationModel(customer),
         onLogout: controller.signOut,
-        details: CustomerAccountPanel(authDisplayName: customer.displayName),
+        details: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            CustomerAccountPanel(authDisplayName: customer.displayName),
+            const CustomerNotificationPanel(),
+          ],
+        ),
       ),
       AuthSigningOut(:final customer) => AccountView.authenticated(
         model: _presentationModel(customer),
@@ -464,7 +471,6 @@ class _AuthenticatedAccountContent extends StatelessWidget {
             ),
           ),
         ),
-        ?details,
         const SizedBox(height: AppSpacing.xl),
         _AccountButtonSemantics(
           label: isSigningOut ? l10n.accountSigningOut : l10n.accountLogout,
@@ -494,6 +500,7 @@ class _AuthenticatedAccountContent extends StatelessWidget {
             ),
           ),
         ),
+        ?details,
       ],
     );
   }

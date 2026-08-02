@@ -12,9 +12,18 @@ import '../data/auth_callback_validator.dart';
 import '../data/auth_error_mapper.dart';
 import '../data/supabase_auth_repository.dart';
 import '../domain/auth_repository.dart';
+import '../domain/authenticated_customer.dart';
 
 typedef AuthRepositoryFactory =
     Future<AuthRepository> Function(AppConfig config);
+
+typedef AuthenticatedSignOutCleanup =
+    Future<void> Function(AuthenticatedCustomer customer);
+
+final authenticatedSignOutCleanupProvider =
+    Provider<AuthenticatedSignOutCleanup>((ref) {
+      return (_) async {};
+    });
 
 final authSecureStorageProvider = Provider<SecureSupabaseAuthStorage>((ref) {
   return SecureSupabaseAuthStorage.standardInstance;

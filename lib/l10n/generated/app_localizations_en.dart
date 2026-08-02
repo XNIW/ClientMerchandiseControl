@@ -765,4 +765,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerFieldInvalid => 'Review this field\'s format and length.';
+
+  @override
+  String get customerNotificationsTitle => 'Notifications';
+
+  @override
+  String get customerNotificationsDescription =>
+      'Choose whether to receive essential order and reservation updates. System permission is requested separately.';
+
+  @override
+  String get customerNotificationsLoading => 'Loading notification settings';
+
+  @override
+  String get customerNotificationsProviderUnavailable =>
+      'Push notifications are not configured in this build. No token was registered and no permission was simulated.';
+
+  @override
+  String get customerNotificationsActive =>
+      'Notifications are active and confirmed by the server.';
+
+  @override
+  String get customerNotificationsNotRequested =>
+      'You have not chosen whether to receive notifications yet.';
+
+  @override
+  String get customerNotificationsDenied =>
+      'You chose not to receive notifications. You can change this preference at any time.';
+
+  @override
+  String get customerNotificationsRevoked =>
+      'Notifications are revoked for this installation.';
+
+  @override
+  String get customerNotificationsPending =>
+      'The change is saved on this device but has not been confirmed by the server yet.';
+
+  @override
+  String get customerNotificationsOffline =>
+      'We cannot confirm the change while you are offline. Retry when your connection returns.';
+
+  @override
+  String get customerNotificationsTimeout =>
+      'The server took too long. You can retry without duplicating the idempotent operation.';
+
+  @override
+  String get customerNotificationsUnauthorized =>
+      'Your session can no longer update notification settings.';
+
+  @override
+  String get customerNotificationsInvalid =>
+      'The notification configuration is invalid.';
+
+  @override
+  String get customerNotificationsConflict =>
+      'The idempotent operation does not match the earlier request. Refresh and retry.';
+
+  @override
+  String get customerNotificationsUnavailable =>
+      'We could not update notifications. The change is not shown as confirmed.';
+
+  @override
+  String get customerNotificationsEnable => 'Enable';
+
+  @override
+  String get customerNotificationsNotNow => 'Not now';
+
+  @override
+  String get customerNotificationsRevoke => 'Revoke';
+
+  @override
+  String get customerNotificationsRetry => 'Retry';
 }

@@ -1440,6 +1440,120 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Revisa el formato y la longitud de este campo.'**
   String get customerFieldInvalid;
+
+  /// No description provided for @customerNotificationsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones'**
+  String get customerNotificationsTitle;
+
+  /// No description provided for @customerNotificationsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige si quieres recibir novedades esenciales sobre pedidos y reservas. El permiso del sistema se solicita por separado.'**
+  String get customerNotificationsDescription;
+
+  /// No description provided for @customerNotificationsLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando la configuración de notificaciones'**
+  String get customerNotificationsLoading;
+
+  /// No description provided for @customerNotificationsProviderUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Las notificaciones push no están configuradas en esta compilación. No se registró ningún token ni se activó un permiso ficticio.'**
+  String get customerNotificationsProviderUnavailable;
+
+  /// No description provided for @customerNotificationsActive.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones activas y confirmadas por el servidor.'**
+  String get customerNotificationsActive;
+
+  /// No description provided for @customerNotificationsNotRequested.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no elegiste si quieres recibir notificaciones.'**
+  String get customerNotificationsNotRequested;
+
+  /// No description provided for @customerNotificationsDenied.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegiste no recibir notificaciones. Puedes cambiar esta preferencia cuando quieras.'**
+  String get customerNotificationsDenied;
+
+  /// No description provided for @customerNotificationsRevoked.
+  ///
+  /// In es, this message translates to:
+  /// **'Las notificaciones están revocadas para esta instalación.'**
+  String get customerNotificationsRevoked;
+
+  /// No description provided for @customerNotificationsPending.
+  ///
+  /// In es, this message translates to:
+  /// **'El cambio está guardado en este dispositivo, pero aún no fue confirmado por el servidor.'**
+  String get customerNotificationsPending;
+
+  /// No description provided for @customerNotificationsOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos confirmar el cambio porque estás sin conexión. Reintenta cuando recuperes la red.'**
+  String get customerNotificationsOffline;
+
+  /// No description provided for @customerNotificationsTimeout.
+  ///
+  /// In es, this message translates to:
+  /// **'El servidor tardó demasiado. Reintenta: la misma operación idempotente no se duplicará.'**
+  String get customerNotificationsTimeout;
+
+  /// No description provided for @customerNotificationsUnauthorized.
+  ///
+  /// In es, this message translates to:
+  /// **'La sesión ya no permite actualizar las notificaciones.'**
+  String get customerNotificationsUnauthorized;
+
+  /// No description provided for @customerNotificationsInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'La configuración de notificaciones no es válida.'**
+  String get customerNotificationsInvalid;
+
+  /// No description provided for @customerNotificationsConflict.
+  ///
+  /// In es, this message translates to:
+  /// **'La operación idempotente no coincide con la solicitud anterior. Actualiza y vuelve a intentar.'**
+  String get customerNotificationsConflict;
+
+  /// No description provided for @customerNotificationsUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos actualizar las notificaciones. El cambio no se muestra como confirmado.'**
+  String get customerNotificationsUnavailable;
+
+  /// No description provided for @customerNotificationsEnable.
+  ///
+  /// In es, this message translates to:
+  /// **'Activar'**
+  String get customerNotificationsEnable;
+
+  /// No description provided for @customerNotificationsNotNow.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahora no'**
+  String get customerNotificationsNotNow;
+
+  /// No description provided for @customerNotificationsRevoke.
+  ///
+  /// In es, this message translates to:
+  /// **'Revocar'**
+  String get customerNotificationsRevoke;
+
+  /// No description provided for @customerNotificationsRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar'**
+  String get customerNotificationsRetry;
 }
 
 class _AppLocalizationsDelegate

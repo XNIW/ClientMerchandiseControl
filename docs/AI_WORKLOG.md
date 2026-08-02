@@ -1395,3 +1395,23 @@
 - **Sicurezza**: RPC Admin lease-bound, `search_path` fissato, anon denied, lock shop,
   secret scan senza finding; nessun secret versionato; production invariata.
 - **Transizione**: TASK-009 è l'unico task `ACTIVE / EXECUTION`.
+
+## 2026-08-02 — Checkpoint Milestone 2 e attivazione TASK-013
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-009**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; bucket pubblico separato,
+  derivazione WebP sanitized, signed upload exact-origin, verifica server, publish
+  idempotente, replacement, rollback, audit e cleanup bounded completati.
+- **Revision set Admin**: `429c9ca88818c2f3c68a53cd4663843ae172cb8b`, PR #67 draft.
+- **Gate locali/CI**: replay 107; pgTAP 24 file/1.504 test e immagini 32/32;
+  foundation TASK-009 10/10; E2E locale 1/1; CI `30729546565` e Cloudflare
+  `30729546558`, tutti `PASS`.
+- **Staging**: migration `30728431358`, deploy/smoke exact SHA `30729642919` e
+  acceptance Admin + cleanup `30729785520` in 1m46s, tutti `PASS`.
+- **Difetti corretti durante Execution**: origin build-time sostituita da origin runtime
+  server-bound; timeout globale E2E separato dal timeout applicativo 60 s. Regression
+  test e rerun sullo SHA finale verdi.
+- **Milestone 2**: TASK-007/TASK-008/TASK-009 tutti
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`; production invariata.
+- **Transizione**: TASK-013 è l unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per repository Home/RPC, config shop slug, fixture staging e smoke Android/iOS.

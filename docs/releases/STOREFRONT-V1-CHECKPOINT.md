@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 2 / TASK-009 immagini pubbliche
-- **Task corrente**: TASK-009
-- **Repository writer corrente**: merchandise-control-admin-web
+- **Fase corrente**: EXECUTION / Milestone 3 / TASK-013 Home reale
+- **Task corrente**: TASK-013
+- **Repository writer corrente**: ClientMerchandiseControl
 - **Branch**: `integration/storefront-v1`
 - **SHA Client checkpoint parent**: `ae726fadf8b0ffdc51d3a99da17c726e5381e744`
-- **SHA Admin corrente**: `0ec146b4379b8f0da13229fd3c807ac084d2858f`
+- **SHA Admin corrente**: `429c9ca88818c2f3c68a53cd4663843ae172cb8b`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -33,13 +33,18 @@
   CI `30725543266`, Cloudflare PR `30725543260`, dry-run `30725661643`, apply/postverify
   `30725690931`, deploy/smoke `30725801242` e acceptance autenticata `30725925704`
   1/1 in 33,1 s, tutti `PASS`; fixture residue 0
-- **Gate ancora necessari**: implementazione e gate TASK-009; poi checkpoint Milestone 2
-- **Comando successivo esatto**: `rg -n "product.image|image_version|storage|bucket|sharp|thumb|card|detail" supabase src tests scripts`
+- **Gate TASK-009/Milestone 2**: Admin SHA `429c9ca8`; replay 107; pgTAP 24
+  file/1.504 test e immagini 32/32; CI `30729546565`; build `30729546558`;
+  migration `30728431358`; deploy `30729642919`; acceptance E2E + cleanup
+  `30729785520`, tutti `PASS`; production invariata
+- **Gate ancora necessari**: planning/execution TASK-013, fixture catalogo staging
+  persistente e smoke Home reale Android/iOS
+- **Comando successivo esatto**: `rg -n "HomeScreen|AppConfig|Supabase.instance|storefront_home_v1" lib test config docs`
 - **Blocker**: nessuno
 - **Processi ancora attivi**: nessuno
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
-  `PASS`; Admin Storefront TASK-007 publish/audit/pause e TASK-008 promozioni/prezzi
-  `PASS`; production invariata
+  `PASS`; Milestone 2 Admin publish/promozioni/immagini/rollback/cleanup `PASS`;
+  catalogo client persistente TASK-013 ancora `NOT_RUN`; production invariata
 
 ## Vincoli di ripresa
 

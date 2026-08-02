@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-009
-- **File task**: docs/TASKS/TASK-009-storefront-public-image-pipeline.md
+- **Task attivo**: TASK-013
+- **File task**: docs/TASKS/TASK-013-home-storefront-data-backed.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,8 +14,8 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: implementare TASK-009 nel repository Admin canonico
-  e chiudere il checkpoint Milestone 2 senza modificare production
+- **Prossima azione autorizzata**: implementare TASK-013 nel Client Flutter usando
+  esclusivamente `storefront_home_v1`, fixture staging pubbliche e production invariata
 
 ## Repository coinvolti
 
@@ -59,11 +59,11 @@
 | TASK-006 | Storefront catalog projection e aggiornamento dal dominio operativo | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005 | Admin, Supabase, Android, iOS, POS | Proiezione catalogo pubblica affidabile |
 | TASK-007 | Admin Console: pubblicazione e gestione visibilità prodotti | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-006 | Admin, Supabase | Controlli di pubblicazione shop-scoped |
 | TASK-008 | Admin Console: prezzi pubblici, sconti e promozioni programmate | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-006, TASK-007 | Admin, Supabase | Gestione commerciale pubblica |
-| TASK-009 | Pipeline immagini pubbliche Storefront | ACTIVE | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
+| TASK-009 | Pipeline immagini pubbliche Storefront | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-007 | Admin, Supabase | Immagini pubbliche sicure e versionate |
 | TASK-010 | Catalog query contract, search, pagination, fixtures e contract test | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-006 | Client, Admin, Supabase | Contratto query catalogo testabile |
 | TASK-011 | Connessione Flutter allo staging e backend health state | DONE | TASK-004 | Client, Supabase | Connessione staging fail-closed |
 | TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | DONE | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
-| TASK-013 | Home e prodotti/promozioni in evidenza | TODO | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
+| TASK-013 | Home e prodotti/promozioni in evidenza | ACTIVE | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
 | TASK-014 | Categorie e griglia catalogo con caricamento immagini | TODO | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
 | TASK-015 | Ricerca, filtri e ordinamento | TODO | TASK-010, TASK-014 | Client, Supabase | Discovery catalogo efficiente |
 | TASK-016 | Dettaglio prodotto e disponibilità commerciale | TODO | TASK-010, TASK-014 | Client, Supabase | Dettaglio pubblico coerente |
@@ -145,9 +145,9 @@ esatto `2d6eb24df5c43c9f1bad576cc89161ba42111c4c`, 3/3 job e annotation 0/0/0.
 CI handoff `30606916073` e CI approvazione `30607430241` sono 3/3 `PASS`, tutti gli
 step applicabili `success` e annotation 0/0/0. La precedente attestazione di TASK-020
 bloccato è storia superata: TASK-020 è `DONE` e PR #4 è merged. Il release train
-`STOREFRONT_V1` ha completato il checkpoint Milestone 1 con
-TASK-005/TASK-006/TASK-010 in `VALIDATED_PENDING_INTEGRATED_REVIEW` e ha attivato
-TASK-007/TASK-008 in `VALIDATED_PENDING_INTEGRATED_REVIEW` e TASK-009 in `EXECUTION`;
+`STOREFRONT_V1` ha completato i checkpoint Milestone 1 e Milestone 2 con
+TASK-005/TASK-006/TASK-007/TASK-008/TASK-009/TASK-010 in
+`VALIDATED_PENDING_INTEGRATED_REVIEW` e ha attivato TASK-013 in `EXECUTION`;
 i task successivi restano `TODO` fino al relativo handoff. La dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
@@ -166,4 +166,4 @@ token/code. La CI run `30709395137` è 3/3 `PASS`, tutti gli step applicabili
 remoto eliminato, main locale/remoto allineate e worktree pulito. TASK-020 è `DONE`.
 
 Handoff:
-`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-009.
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-013.

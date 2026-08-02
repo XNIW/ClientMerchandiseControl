@@ -15,6 +15,7 @@ void main() {
     supabasePublishableKey: stagingKey,
     authRedirectUri: callback,
     googleAuthEnabled: 'false',
+    storefrontShopSlug: 'storefront-test',
   );
 
   test('espone tutti gli stati di readiness richiesti', () {
@@ -62,6 +63,7 @@ void main() {
         supabasePublishableKey: 'sb_publishable_production',
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
+        storefrontShopSlug: 'storefront-test',
       ),
       healthService: health,
       sdkInitializer: (config) async {

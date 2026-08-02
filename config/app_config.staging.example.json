@@ -3,5 +3,6 @@
   "SUPABASE_URL": "",
   "SUPABASE_PUBLISHABLE_KEY": "",
   "AUTH_REDIRECT_URI": "com.xniw.clientmerchandisecontrol://auth-callback/",
-  "GOOGLE_AUTH_ENABLED": "true"
+  "GOOGLE_AUTH_ENABLED": "true",
+  "STOREFRONT_SHOP_SLUG": ""
 }

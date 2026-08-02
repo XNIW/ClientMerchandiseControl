@@ -43,8 +43,9 @@ TASK-020 usa le versioni bloccate `supabase_flutter 2.16.0`, `supabase 2.14.0`,
 per il marker booleano non sensibile della nuova installazione; non contiene sessione o
 verifier.
 
-La configurazione development non accetta backend, callback o OAuth e non inizializza
-Supabase. Staging richiede i cinque input del contratto e abilita Google soltanto con
+La configurazione development non accetta backend, callback, OAuth o Storefront e non
+inizializza Supabase. Staging richiede i sei input di `CMC-CLIENT-CONFIG 1.1.0`, incluso
+lo slug pubblico `STOREFRONT_SHOP_SLUG`, e abilita Google soltanto con
 `GOOGLE_AUTH_ENABLED=true`. Production mantiene obbligatoriamente il flag `false` in
 questo milestone e non eredita valori staging.
 

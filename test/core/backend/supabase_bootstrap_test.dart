@@ -73,6 +73,7 @@ void main() {
         supabasePublishableKey: expectedKey,
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
+        storefrontShopSlug: 'storefront-test',
       ),
       initializer: ({required url, required publishableKey}) async {
         initializationCalls += 1;
@@ -99,6 +100,7 @@ void main() {
         supabasePublishableKey: productionKey,
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
+        storefrontShopSlug: 'storefront-test',
       ),
       initializer: ({required url, required publishableKey}) async {
         initializationCalls += 1;
@@ -144,6 +146,7 @@ void main() {
           supabasePublishableKey: 'sb_publishable_test_key',
           authRedirectUri: callback,
           googleAuthEnabled: 'false',
+          storefrontShopSlug: 'storefront-test',
         ),
         initializer: ({required url, required publishableKey}) async {
           initializationCalls += 1;

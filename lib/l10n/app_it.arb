@@ -32,6 +32,21 @@
   "homeFeaturedEmptyTitle": "In evidenza, prossimamente",
   "homeFeaturedEmptyMessage": "Questa sezione mostrerà prodotti reali quando il catalogo sarà disponibile.",
   "homeExploreCatalog": "Esplora catalogo",
+  "homeLoadingTitle": "Caricamento del negozio",
+  "homeLoadingMessage": "Stiamo preparando categorie, offerte e prodotti in evidenza.",
+  "homeLoadErrorTitle": "Non è stato possibile caricare il negozio",
+  "homeLoadErrorMessage": "Controlla la connessione e riprova.",
+  "homeUnavailableTitle": "Il negozio non è disponibile",
+  "homeUnavailableMessage": "Il catalogo pubblico non è disponibile in questo momento.",
+  "homeImageUnavailable": "Immagine non disponibile",
+  "homePreviousPrice": "Prima {price}",
+  "@homePreviousPrice": {
+    "placeholders": {"price": {"type": "String"}}
+  },
+  "homeDiscountPercent": "Sconto del {percent}%",
+  "@homeDiscountPercent": {
+    "placeholders": {"percent": {"type": "String"}}
+  },
   "catalogSearchLabel": "Cerca nel catalogo",
   "catalogSearchHint": "Cerca prodotti o categorie",
   "catalogFilterLabel": "Filtra",

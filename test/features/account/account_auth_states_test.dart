@@ -228,6 +228,7 @@ AppConfig _enabledConfig() {
     supabasePublishableKey: 'sb_publishable_test_key',
     authRedirectUri: AppConfig.allowedAuthRedirectUri,
     googleAuthEnabled: 'true',
+    storefrontShopSlug: 'storefront-test',
   );
 }
 

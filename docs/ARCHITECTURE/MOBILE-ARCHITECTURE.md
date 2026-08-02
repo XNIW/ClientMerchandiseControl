@@ -27,9 +27,9 @@ arrivano insieme alle feature data-backed.
 ## App e navigazione
 
 `main.dart` delega a `bootstrap.dart`. `AppConfig` è l'unica authority del contratto
-compile-time [`CMC-CLIENT-CONFIG 1.0.0`](ENVIRONMENT-STRATEGY.md): legge esattamente
+compile-time [`CMC-CLIENT-CONFIG 1.1.0`](ENVIRONMENT-STRATEGY.md): legge esattamente
 `APP_ENV`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `AUTH_REDIRECT_URI` e
-`GOOGLE_AUTH_ENABLED`, valida l'intera matrice prima di qualunque inizializzazione e
+`GOOGLE_AUTH_ENABLED`, più `STOREFRONT_SHOP_SLUG`, valida l'intera matrice prima di qualunque inizializzazione e
 fornisce al bootstrap soltanto lo stato già normalizzato.
 
 Development non accetta valori backend/callback né Google attivo e non inizializza
@@ -170,6 +170,13 @@ Android/iOS Merchandise Control e Win7POS restano fonti e consumer del dominio
 operativo attraverso pipeline server controllate. Non sono repository dati, SDK o
 dipendenze runtime di questa app.
 
+TASK-013 introduce `StorefrontRepository` e la prima implementazione
+`SupabaseStorefrontRepository`: il primo render usa esclusivamente l'RPC
+`storefront_home_v1`, con shop slug esplicito, limiti bounded, timeout, cancellazione e
+mapping DTO allow-listed. Nessun widget accede direttamente a Supabase; payload con
+campi o tipi fuori contratto falliscono chiusi e gli URL immagine devono appartenere al
+bucket pubblico `storefront-product-images`.
+
 ## Commercial truth e mutazioni
 
 Il client presenta l'ultimo stato Storefront ricevuto insieme alla sua freshness, ma non
@@ -255,6 +262,7 @@ assegnate a:
 - TASK-006–TASK-010 per proiezione, control plane, prezzi, immagini e query contract;
 - TASK-011 per connessione staging e backend/auth readiness;
 - TASK-012 per shell cliente guest/data-safe, stati readiness e baseline accessibile;
+- TASK-013 per Home pubblica data-backed e primo repository RPC-only;
 - TASK-017 per cache catalogo, freshness e invalidazione;
 - TASK-020 per OAuth, deep link e session lifecycle, implementati nel confine Auth
   corrente;

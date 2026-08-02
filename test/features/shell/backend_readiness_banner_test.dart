@@ -19,6 +19,7 @@ void main() {
     supabasePublishableKey: 'sb_publishable_test_key',
     authRedirectUri: callback,
     googleAuthEnabled: 'false',
+    storefrontShopSlug: 'storefront-test',
   );
 
   Widget buildApp({

@@ -116,6 +116,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeExploreCatalog => 'Explore catalog';
 
   @override
+  String get homeLoadingTitle => 'Loading the store';
+
+  @override
+  String get homeLoadingMessage =>
+      'We are preparing categories, offers, and featured products.';
+
+  @override
+  String get homeLoadErrorTitle => 'We could not load the store';
+
+  @override
+  String get homeLoadErrorMessage => 'Check your connection and try again.';
+
+  @override
+  String get homeUnavailableTitle => 'The store is unavailable';
+
+  @override
+  String get homeUnavailableMessage =>
+      'The public catalog is not available right now.';
+
+  @override
+  String get homeImageUnavailable => 'Image unavailable';
+
+  @override
+  String homePreviousPrice(String price) {
+    return 'Previously $price';
+  }
+
+  @override
+  String homeDiscountPercent(String percent) {
+    return '$percent% off';
+  }
+
+  @override
   String get catalogSearchLabel => 'Search the catalog';
 
   @override

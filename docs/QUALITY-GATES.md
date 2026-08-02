@@ -209,6 +209,26 @@ I test mirati principali sono:
 
 `flutter test test/features test/app/design_system/task012_reflow_accessibility_test.dart test/app/client_merchandise_control_app_test.dart test/l10n`
 
+## Gate specifici TASK-013
+
+- configurazione compile-time con un solo `STOREFRONT_SHOP_SLUG`, obbligatorio in
+  staging/production, vietato in development e mai riportato nella diagnostica;
+- un solo adapter Supabase autorizzato a invocare `storefront_home_v1`; nessuna query
+  diretta a inventory, authoring, Storage o bucket interno;
+- decoder DTO strict allow-list per API/schema/status, valori CLP integer non negativi,
+  URL HTTPS pubblici versionati e `catalogVersion` uniforme;
+- repository con timeout, cancellation token e failure taxonomy deterministica;
+- controller Riverpod protetto da risultati stale e Home guest con loading, empty,
+  retry, offline/unavailable, categorie, featured, offerte e immagini pubbliche;
+- test unit/widget per payload valido e malevolo, failure/cancellation, retry, dark mode,
+  text scale 200%, viewport e localizzazioni es/it/en/zh-Hans;
+- fixture staging deterministica priva di dati personali, verificata via RPC anonimo e
+  con letture interne negate;
+- smoke reale Android/iOS tramite
+  `integration_test/storefront_home_live_smoke_test.dart`, separato da build e CI;
+- `flutter analyze`, suite completa con coverage, build debug Android/iOS, architecture
+  boundary, secret scan e CI sullo stesso SHA candidato.
+
 ## Gate security
 
 Nessun secret, configurazione locale, dato cliente, provisioning profile, certificato,

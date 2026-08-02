@@ -117,6 +117,40 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeExploreCatalog => 'Explorar catálogo';
 
   @override
+  String get homeLoadingTitle => 'Cargando la tienda';
+
+  @override
+  String get homeLoadingMessage =>
+      'Estamos preparando categorías, ofertas y productos destacados.';
+
+  @override
+  String get homeLoadErrorTitle => 'No pudimos cargar la tienda';
+
+  @override
+  String get homeLoadErrorMessage =>
+      'Comprueba tu conexión y vuelve a intentarlo.';
+
+  @override
+  String get homeUnavailableTitle => 'La tienda no está disponible';
+
+  @override
+  String get homeUnavailableMessage =>
+      'El catálogo público no está disponible por el momento.';
+
+  @override
+  String get homeImageUnavailable => 'Imagen no disponible';
+
+  @override
+  String homePreviousPrice(String price) {
+    return 'Antes $price';
+  }
+
+  @override
+  String homeDiscountPercent(String percent) {
+    return '$percent% de descuento';
+  }
+
+  @override
   String get catalogSearchLabel => 'Buscar en el catálogo';
 
   @override
@@ -385,6 +419,37 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get homeExploreCatalog => '浏览商品目录';
+
+  @override
+  String get homeLoadingTitle => '正在加载商店';
+
+  @override
+  String get homeLoadingMessage => '正在准备类别、优惠和精选商品。';
+
+  @override
+  String get homeLoadErrorTitle => '无法加载商店';
+
+  @override
+  String get homeLoadErrorMessage => '请检查网络连接并重试。';
+
+  @override
+  String get homeUnavailableTitle => '商店暂不可用';
+
+  @override
+  String get homeUnavailableMessage => '公共商品目录目前不可用。';
+
+  @override
+  String get homeImageUnavailable => '图片不可用';
+
+  @override
+  String homePreviousPrice(String price) {
+    return '原价 $price';
+  }
+
+  @override
+  String homeDiscountPercent(String percent) {
+    return '优惠 $percent%';
+  }
 
   @override
   String get catalogSearchLabel => '搜索商品目录';

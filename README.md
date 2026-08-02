@@ -72,9 +72,10 @@ flutter run --dart-define-from-file=config/app_config.local.json
 `config/*.local.json` è ignorato. Non inserire service role, secret key, password o valori
 production nel repository.
 
-Per preparare staging, copiare l'esempio nel file locale ignorato, valorizzare URL e
-publishable key non-production e mantenere `GOOGLE_AUTH_ENABLED=false` finché la
-callback non è verificata nella redirect allow-list:
+Per preparare staging, copiare l'esempio nel file locale ignorato, valorizzare URL,
+publishable key non-production e `STOREFRONT_SHOP_SLUG` con lo slug pubblico assegnato;
+mantenere `GOOGLE_AUTH_ENABLED=false` finché la callback non è verificata nella
+redirect allow-list:
 
 ```bash
 cp config/app_config.staging.example.json config/app_config.staging.local.json
@@ -89,6 +90,7 @@ Google OAuth, PKCE e browser esterno; sessione e verifier sono conservati in
 Keychain/Keystore e ogni callback è validato prima dell'exchange. Development e
 production restano fail-closed. TASK-011 continua a verificare il solo endpoint Auth
 health senza tabelle o dati; TASK-012 non aggiunge query o dati commerciali.
+TASK-013 usa lo slug esclusivamente con l'RPC pubblico `storefront_home_v1`.
 
 ## Test e build
 
@@ -105,7 +107,14 @@ Gli smoke staging reali, esclusi dalla CI perché usano il file locale ignorato,
 ```bash
 flutter test integration_test/backend_readiness_smoke_test.dart -d emulator-5554 --dart-define-from-file=config/app_config.staging.local.json
 flutter test integration_test/backend_readiness_smoke_test.dart -d <IOS_SIMULATOR_ID> --dart-define-from-file=config/app_config.staging.local.json
+flutter test integration_test/storefront_home_live_smoke_test.dart -d emulator-5554 --dart-define-from-file=config/app_config.staging.local.json
+flutter test integration_test/storefront_home_live_smoke_test.dart -d <IOS_SIMULATOR_ID> --dart-define-from-file=config/app_config.staging.local.json
 ```
+
+Il primo smoke conserva il gate storico di readiness; dal TASK-013 la Home avvia anche
+il proprio controller dati. Il secondo attende esplicitamente il payload reale
+`storefront_home_v1` e verifica fixture pubblica, immagini, prezzi CLP, versione catalogo
+uniforme e assenza di sessione customer.
 
 Lo smoke guest di TASK-012 non richiede backend:
 

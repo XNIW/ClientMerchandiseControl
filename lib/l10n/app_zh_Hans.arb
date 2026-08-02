@@ -32,6 +32,21 @@
   "homeFeaturedEmptyTitle": "精选商品即将推出",
   "homeFeaturedEmptyMessage": "商品目录开放后，这里将展示真实商品。",
   "homeExploreCatalog": "浏览商品目录",
+  "homeLoadingTitle": "正在加载商店",
+  "homeLoadingMessage": "正在准备类别、优惠和精选商品。",
+  "homeLoadErrorTitle": "无法加载商店",
+  "homeLoadErrorMessage": "请检查网络连接并重试。",
+  "homeUnavailableTitle": "商店暂不可用",
+  "homeUnavailableMessage": "公共商品目录目前不可用。",
+  "homeImageUnavailable": "图片不可用",
+  "homePreviousPrice": "原价 {price}",
+  "@homePreviousPrice": {
+    "placeholders": {"price": {"type": "String"}}
+  },
+  "homeDiscountPercent": "优惠 {percent}%",
+  "@homeDiscountPercent": {
+    "placeholders": {"percent": {"type": "String"}}
+  },
   "catalogSearchLabel": "搜索商品目录",
   "catalogSearchHint": "搜索商品或类别",
   "catalogFilterLabel": "筛选",

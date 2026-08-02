@@ -295,6 +295,60 @@ abstract class AppLocalizations {
   /// **'Explorar catálogo'**
   String get homeExploreCatalog;
 
+  /// No description provided for @homeLoadingTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando la tienda'**
+  String get homeLoadingTitle;
+
+  /// No description provided for @homeLoadingMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Estamos preparando categorías, ofertas y productos destacados.'**
+  String get homeLoadingMessage;
+
+  /// No description provided for @homeLoadErrorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos cargar la tienda'**
+  String get homeLoadErrorTitle;
+
+  /// No description provided for @homeLoadErrorMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Comprueba tu conexión y vuelve a intentarlo.'**
+  String get homeLoadErrorMessage;
+
+  /// No description provided for @homeUnavailableTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda no está disponible'**
+  String get homeUnavailableTitle;
+
+  /// No description provided for @homeUnavailableMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'El catálogo público no está disponible por el momento.'**
+  String get homeUnavailableMessage;
+
+  /// No description provided for @homeImageUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen no disponible'**
+  String get homeImageUnavailable;
+
+  /// No description provided for @homePreviousPrice.
+  ///
+  /// In es, this message translates to:
+  /// **'Antes {price}'**
+  String homePreviousPrice(String price);
+
+  /// No description provided for @homeDiscountPercent.
+  ///
+  /// In es, this message translates to:
+  /// **'{percent}% de descuento'**
+  String homeDiscountPercent(String percent);
+
   /// Etiqueta accesible del control de búsqueda del catálogo.
   ///
   /// In es, this message translates to:

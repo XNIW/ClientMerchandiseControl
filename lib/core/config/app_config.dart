@@ -14,6 +14,7 @@ class AppConfig {
     required this.supabasePublishableKey,
     required this.authRedirectUri,
     required this.googleAuthEnabled,
+    required this.storefrontShopSlug,
   });
 
   factory AppConfig.fromValues({
@@ -22,12 +23,14 @@ class AppConfig {
     String supabasePublishableKey = '',
     String authRedirectUri = '',
     String googleAuthEnabled = '',
+    String storefrontShopSlug = '',
   }) {
     final environment = AppEnvironment.parse(appEnvironment);
     final normalizedUrl = _normalize(supabaseUrl);
     final normalizedKey = _normalize(supabasePublishableKey);
     final rawRedirectUri = authRedirectUri.isEmpty ? null : authRedirectUri;
     final normalizedGoogleAuthEnabled = _normalize(googleAuthEnabled);
+    final normalizedStorefrontShopSlug = _normalize(storefrontShopSlug);
 
     if ((normalizedUrl == null) != (normalizedKey == null)) {
       throw const AppConfigurationException(
@@ -52,33 +55,39 @@ class AppConfig {
       normalizedGoogleAuthEnabled,
       environment: environment,
     );
+    final canonicalStorefrontShopSlug = normalizedStorefrontShopSlug == null
+        ? null
+        : _canonicalStorefrontShopSlug(normalizedStorefrontShopSlug);
 
     switch (environment) {
       case AppEnvironment.development:
         if (canonicalUrl != null ||
             normalizedKey != null ||
             canonicalRedirectUri != null ||
-            googleAuth) {
+            googleAuth ||
+            canonicalStorefrontShopSlug != null) {
           throw const AppConfigurationException(
-            'La configurazione development non accetta backend, callback o OAuth reale.',
+            'La configurazione development non accetta backend, callback, OAuth o Storefront reale.',
           );
         }
         break;
       case AppEnvironment.staging:
         if (canonicalUrl == null ||
             normalizedKey == null ||
-            canonicalRedirectUri == null) {
+            canonicalRedirectUri == null ||
+            canonicalStorefrontShopSlug == null) {
           throw const AppConfigurationException(
-            'La configurazione staging richiede backend, callback e flag Google completi.',
+            'La configurazione staging richiede backend, callback, flag Google e Storefront completi.',
           );
         }
         break;
       case AppEnvironment.production:
         if (canonicalUrl == null ||
             normalizedKey == null ||
-            canonicalRedirectUri == null) {
+            canonicalRedirectUri == null ||
+            canonicalStorefrontShopSlug == null) {
           throw const AppConfigurationException(
-            'La configurazione production richiede backend, callback e flag Google completi.',
+            'La configurazione production richiede backend, callback, flag Google e Storefront completi.',
           );
         }
         if (googleAuth) {
@@ -95,6 +104,7 @@ class AppConfig {
       supabasePublishableKey: normalizedKey,
       authRedirectUri: canonicalRedirectUri,
       googleAuthEnabled: googleAuth,
+      storefrontShopSlug: canonicalStorefrontShopSlug,
     );
   }
 
@@ -110,6 +120,7 @@ class AppConfig {
       ),
       authRedirectUri: const String.fromEnvironment('AUTH_REDIRECT_URI'),
       googleAuthEnabled: const String.fromEnvironment('GOOGLE_AUTH_ENABLED'),
+      storefrontShopSlug: const String.fromEnvironment('STOREFRONT_SHOP_SLUG'),
     );
   }
 
@@ -118,17 +129,21 @@ class AppConfig {
   final String? supabasePublishableKey;
   final String? authRedirectUri;
   final bool googleAuthEnabled;
+  final String? storefrontShopSlug;
 
   bool get isBackendConfigured =>
       supabaseUrl != null && supabasePublishableKey != null;
 
   bool get isAuthRedirectConfigured => authRedirectUri != null;
 
+  bool get isStorefrontConfigured => storefrontShopSlug != null;
+
   Map<String, Object> get sanitizedDiagnostics => Map.unmodifiable({
     'environment': environment.name,
     'backendConfigured': isBackendConfigured,
     'authRedirectConfigured': isAuthRedirectConfigured,
     'googleAuthEnabled': googleAuthEnabled,
+    'storefrontConfigured': isStorefrontConfigured,
   });
 
   @override
@@ -138,6 +153,7 @@ class AppConfig {
         'backendConfigured: $isBackendConfigured, '
         'authRedirectConfigured: $isAuthRedirectConfigured, '
         'googleAuthEnabled: $googleAuthEnabled'
+        ', storefrontConfigured: $isStorefrontConfigured'
         ')';
   }
 
@@ -225,6 +241,15 @@ class AppConfig {
         'GOOGLE_AUTH_ENABLED deve essere true o false.',
       ),
     };
+  }
+
+  static String _canonicalStorefrontShopSlug(String value) {
+    if (!RegExp(r'^[a-z0-9][a-z0-9-]{2,62}$').hasMatch(value)) {
+      throw const AppConfigurationException(
+        'STOREFRONT_SHOP_SLUG deve essere uno slug pubblico lowercase valido.',
+      );
+    }
+    return value;
   }
 
   static bool _isPublishableKeyAllowed(String value) {

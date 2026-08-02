@@ -44,3 +44,12 @@ restano fuori da file versionati, log ed evidence per separazione degli ambienti
 locali usano il suffisso `.local.json`, sono ignorati e non partecipano alla CI.
 
 Non vengono introdotti `.env`, fallback, letture runtime del filesystem o flag ulteriori.
+
+## Addendum TASK-013 — 2026-08-02
+
+Il contratto passa a
+[`CMC-CLIENT-CONFIG 1.1.0`](../ARCHITECTURE/ENVIRONMENT-STRATEGY.md) aggiungendo
+esclusivamente `STOREFRONT_SHOP_SLUG`. È uno slug pubblico, non uno `shop_id` interno:
+resta assente in development, è obbligatorio in staging/production e non compare nelle
+diagnostiche. La sua presenza seleziona il tenant del contratto RPC pubblico ma non
+concede autorizzazioni, grant o accesso a tabelle.

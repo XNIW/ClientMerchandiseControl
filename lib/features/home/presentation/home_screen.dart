@@ -15,6 +15,9 @@ import '../../../core/backend/backend_readiness_state.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/config/app_environment.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../storefront/domain/storefront_models.dart';
+import '../application/home_controller.dart';
+import 'storefront_product_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -24,6 +27,7 @@ class HomeScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final config = ref.watch(appConfigProvider);
     final backendReadiness = ref.watch(backendReadinessControllerProvider);
+    final homeState = ref.watch(homeControllerProvider);
     final compactHeight =
         MediaQuery.sizeOf(context).height < 480 ||
         MediaQuery.textScalerOf(context).scale(1) > 1.5;
@@ -43,6 +47,13 @@ class HomeScreen extends ConsumerWidget {
                 .retry,
             compact: compactHeight,
           );
+    final homeStatus = backendReadiness == BackendReadinessState.ready
+        ? _homeStatusFor(context, ref, homeState)
+        : null;
+    final showStorefrontSections =
+        backendReadiness != BackendReadinessState.ready ||
+        homeState.status == HomeLoadStatus.data ||
+        homeState.status == HomeLoadStatus.empty;
     void openCatalog() => context.go(AppRoutes.catalogLocation);
 
     return StorefrontPage(
@@ -72,59 +83,41 @@ class HomeScreen extends ConsumerWidget {
             hint: l10n.homeSearchHint,
             onPressed: openCatalog,
           ),
-          const SizedBox(height: AppSpacing.xxl),
-          StorefrontSection(
-            title: l10n.homeCategoriesTitle,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ExcludeSemantics(
-                      child: Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: Icon(
-                          Icons.category_outlined,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(l10n.homeCategoriesMessage),
-                    const SizedBox(height: AppSpacing.md),
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: OutlinedButton.icon(
-                        key: const ValueKey('home-categories'),
-                        onPressed: openCatalog,
-                        icon: const Icon(Icons.grid_view_outlined),
-                        label: Text(l10n.homeExploreCategories),
-                      ),
-                    ),
-                  ],
-                ),
+          if (homeStatus != null) ...[
+            const SizedBox(height: AppSpacing.xxl),
+            homeStatus,
+          ],
+          if (showStorefrontSections) ...[
+            const SizedBox(height: AppSpacing.xxl),
+            StorefrontSection(
+              title: l10n.homeCategoriesTitle,
+              child: _categoriesFor(
+                context,
+                homeState.data?.categories ?? const [],
+                openCatalog,
               ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.xxl),
-          StorefrontSection(
-            title: l10n.homeOffersTitle,
-            child: StorefrontEmptyState(
-              icon: Icons.local_offer_outlined,
-              title: l10n.homeOffersEmptyTitle,
-              message: l10n.homeOffersEmptyMessage,
+            const SizedBox(height: AppSpacing.xxl),
+            StorefrontSection(
+              title: l10n.homeOffersTitle,
+              child: _productsFor(
+                products: homeState.data?.offers ?? const [],
+                emptyIcon: Icons.local_offer_outlined,
+                emptyTitle: l10n.homeOffersEmptyTitle,
+                emptyMessage: l10n.homeOffersEmptyMessage,
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.xxl),
-          StorefrontSection(
-            title: l10n.homeFeaturedTitle,
-            child: StorefrontEmptyState(
-              icon: Icons.auto_awesome_outlined,
-              title: l10n.homeFeaturedEmptyTitle,
-              message: l10n.homeFeaturedEmptyMessage,
+            const SizedBox(height: AppSpacing.xxl),
+            StorefrontSection(
+              title: l10n.homeFeaturedTitle,
+              child: _productsFor(
+                products: homeState.data?.featured ?? const [],
+                emptyIcon: Icons.auto_awesome_outlined,
+                emptyTitle: l10n.homeFeaturedEmptyTitle,
+                emptyMessage: l10n.homeFeaturedEmptyMessage,
+              ),
             ),
-          ),
+          ],
           const SizedBox(height: AppSpacing.xxl),
           Align(
             alignment: AlignmentDirectional.centerStart,
@@ -137,6 +130,117 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget? _homeStatusFor(BuildContext context, WidgetRef ref, HomeState state) {
+    final l10n = AppLocalizations.of(context);
+    void retry() => ref.read(homeControllerProvider.notifier).retry();
+    return switch (state.status) {
+      HomeLoadStatus.loading => StorefrontEmptyState(
+        icon: Icons.cloud_sync_outlined,
+        title: l10n.homeLoadingTitle,
+        message: l10n.homeLoadingMessage,
+      ),
+      HomeLoadStatus.offline || HomeLoadStatus.failure => StorefrontEmptyState(
+        icon: Icons.cloud_off_outlined,
+        title: l10n.homeLoadErrorTitle,
+        message: l10n.homeLoadErrorMessage,
+        actionLabel: l10n.backendRetry,
+        onAction: retry,
+        actionKey: const ValueKey('home-retry'),
+      ),
+      HomeLoadStatus.unavailable => StorefrontEmptyState(
+        icon: Icons.storefront_outlined,
+        title: l10n.homeUnavailableTitle,
+        message: l10n.homeUnavailableMessage,
+        actionLabel: l10n.backendRetry,
+        onAction: retry,
+        actionKey: const ValueKey('home-retry'),
+      ),
+      HomeLoadStatus.data || HomeLoadStatus.empty => null,
+    };
+  }
+
+  Widget _categoriesFor(
+    BuildContext context,
+    List<StorefrontCategory> categories,
+    VoidCallback openCatalog,
+  ) {
+    final l10n = AppLocalizations.of(context);
+    if (categories.isEmpty) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ExcludeSemantics(
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Icon(
+                    Icons.category_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(l10n.homeCategoriesMessage),
+              const SizedBox(height: AppSpacing.md),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: OutlinedButton.icon(
+                  key: const ValueKey('home-categories'),
+                  onPressed: openCatalog,
+                  icon: const Icon(Icons.grid_view_outlined),
+                  label: Text(l10n.homeExploreCategories),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            for (final category in categories)
+              ActionChip(
+                key: ValueKey('home-category-${category.slug}'),
+                avatar: const Icon(Icons.category_outlined),
+                label: Text(category.name),
+                onPressed: openCatalog,
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+        OutlinedButton.icon(
+          key: const ValueKey('home-categories'),
+          onPressed: openCatalog,
+          icon: const Icon(Icons.grid_view_outlined),
+          label: Text(l10n.homeExploreCategories),
+        ),
+      ],
+    );
+  }
+
+  Widget _productsFor({
+    required List<StorefrontProductSummary> products,
+    required IconData emptyIcon,
+    required String emptyTitle,
+    required String emptyMessage,
+  }) {
+    if (products.isNotEmpty) {
+      return StorefrontProductCollection(products: products);
+    }
+    return StorefrontEmptyState(
+      icon: emptyIcon,
+      title: emptyTitle,
+      message: emptyMessage,
     );
   }
 

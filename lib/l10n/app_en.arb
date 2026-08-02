@@ -32,6 +32,21 @@
   "homeFeaturedEmptyTitle": "Featured products, coming soon",
   "homeFeaturedEmptyMessage": "This section will show real products when the catalog is available.",
   "homeExploreCatalog": "Explore catalog",
+  "homeLoadingTitle": "Loading the store",
+  "homeLoadingMessage": "We are preparing categories, offers, and featured products.",
+  "homeLoadErrorTitle": "We could not load the store",
+  "homeLoadErrorMessage": "Check your connection and try again.",
+  "homeUnavailableTitle": "The store is unavailable",
+  "homeUnavailableMessage": "The public catalog is not available right now.",
+  "homeImageUnavailable": "Image unavailable",
+  "homePreviousPrice": "Previously {price}",
+  "@homePreviousPrice": {
+    "placeholders": {"price": {"type": "String"}}
+  },
+  "homeDiscountPercent": "{percent}% off",
+  "@homeDiscountPercent": {
+    "placeholders": {"percent": {"type": "String"}}
+  },
   "catalogSearchLabel": "Search the catalog",
   "catalogSearchHint": "Search products or categories",
   "catalogFilterLabel": "Filter",

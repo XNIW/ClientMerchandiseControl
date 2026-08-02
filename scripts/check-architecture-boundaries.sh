@@ -18,6 +18,11 @@ cmc_arch_system="${cmc_arch_repo_root}/docs/ARCHITECTURE/SYSTEM-CONTEXT.md"
 cmc_arch_mobile="${cmc_arch_repo_root}/docs/ARCHITECTURE/MOBILE-ARCHITECTURE.md"
 cmc_arch_auth="${cmc_arch_repo_root}/docs/ARCHITECTURE/AUTH-BOUNDARY.md"
 cmc_arch_task002="${cmc_arch_repo_root}/docs/TASKS/TASK-002-product-scope-branding-design-system.md"
+cmc_arch_app_config="${cmc_arch_repo_root}/lib/core/config/app_config.dart"
+cmc_arch_storefront_repository="${cmc_arch_repo_root}/lib/features/storefront/data/supabase_storefront_repository.dart"
+cmc_arch_storefront_provider="${cmc_arch_repo_root}/lib/features/storefront/application/storefront_providers.dart"
+cmc_arch_storefront_sources="${cmc_arch_repo_root}/lib/features/storefront"
+cmc_arch_home_sources="${cmc_arch_repo_root}/lib/features/home"
 cmc_arch_violation_count=0
 
 cmc_arch_require_literal() {
@@ -480,6 +485,39 @@ cmc_arch_require_count \
   1 \
   "marker finale DAG"
 
+cmc_arch_require_count \
+  "${cmc_arch_app_config}" \
+  "const String.fromEnvironment('STOREFRONT_SHOP_SLUG')" \
+  1 \
+  "un solo input compile-time Storefront shop slug"
+cmc_arch_require_count \
+  "${cmc_arch_storefront_repository}" \
+  "invoke('storefront_home_v1'" \
+  1 \
+  "un solo RPC Home v1 allowlisted nel repository"
+cmc_arch_require_count \
+  "${cmc_arch_storefront_provider}" \
+  ".rpc(function, params: parameters)" \
+  1 \
+  "un solo adapter Supabase RPC confinato"
+
+if grep -REn --include='*.dart' '\.from[[:space:]]*\(' \
+  "${cmc_arch_storefront_sources}" "${cmc_arch_home_sources}" >/dev/null; then
+  printf 'Boundary Storefront violato: query diretta a tabella/view.\n' >&2
+  cmc_arch_violation_count=$((cmc_arch_violation_count + 1))
+fi
+if grep -REn --include='*.dart' '\.storage([.]|\b)' \
+  "${cmc_arch_storefront_sources}" "${cmc_arch_home_sources}" >/dev/null; then
+  printf 'Boundary Storefront violato: accesso Storage diretto.\n' >&2
+  cmc_arch_violation_count=$((cmc_arch_violation_count + 1))
+fi
+if grep -REn --include='*.dart' '\.rpc[[:space:]]*\(' \
+  "${cmc_arch_storefront_sources}" "${cmc_arch_home_sources}" |
+  grep -Fv -- "${cmc_arch_storefront_provider}:" >/dev/null; then
+  printf 'Boundary Storefront violato: RPC fuori dall adapter allowlisted.\n' >&2
+  cmc_arch_violation_count=$((cmc_arch_violation_count + 1))
+fi
+
 if ! awk -F '|' '
   function trim(value) {
     gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
@@ -598,4 +636,4 @@ if [[ "${cmc_arch_violation_count}" -ne 0 ]]; then
   exit 1
 fi
 
-printf 'Boundary architetturali coerenti: ownership, TASK-012, Auth e DAG normativo verificati.\n'
+printf 'Boundary architetturali coerenti: ownership, TASK-012, Auth, DAG e RPC Storefront verificati.\n'

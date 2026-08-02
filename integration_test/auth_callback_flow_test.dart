@@ -197,6 +197,7 @@ Widget _testApp(
           supabasePublishableKey: 'sb_publishable_test_key',
           authRedirectUri: AppConfig.allowedAuthRedirectUri,
           googleAuthEnabled: 'true',
+          storefrontShopSlug: 'storefront-test',
         ),
       ),
       authRepositoryFactoryProvider.overrideWithValue(

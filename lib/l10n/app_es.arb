@@ -113,6 +113,21 @@
   "@homeExploreCatalog": {
     "description": "Acción principal para abrir el catálogo."
   },
+  "homeLoadingTitle": "Cargando la tienda",
+  "homeLoadingMessage": "Estamos preparando categorías, ofertas y productos destacados.",
+  "homeLoadErrorTitle": "No pudimos cargar la tienda",
+  "homeLoadErrorMessage": "Comprueba tu conexión y vuelve a intentarlo.",
+  "homeUnavailableTitle": "La tienda no está disponible",
+  "homeUnavailableMessage": "El catálogo público no está disponible por el momento.",
+  "homeImageUnavailable": "Imagen no disponible",
+  "homePreviousPrice": "Antes {price}",
+  "@homePreviousPrice": {
+    "placeholders": {"price": {"type": "String"}}
+  },
+  "homeDiscountPercent": "{percent}% de descuento",
+  "@homeDiscountPercent": {
+    "placeholders": {"percent": {"type": "String"}}
+  },
   "catalogSearchLabel": "Buscar en el catálogo",
   "@catalogSearchLabel": {
     "description": "Etiqueta accesible del control de búsqueda del catálogo."

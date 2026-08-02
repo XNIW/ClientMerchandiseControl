@@ -29,7 +29,9 @@ cmc_fixture_prepare() {
   local cmc_fixture_name="$1"
   local cmc_fixture_path="${cmc_fixture_root}/${cmc_fixture_name}"
 
-  mkdir -p "${cmc_fixture_path}/docs/TASKS"
+  mkdir -p "${cmc_fixture_path}/docs/TASKS" \
+    "${cmc_fixture_path}/lib/core" \
+    "${cmc_fixture_path}/lib/features"
   cp -R "${cmc_fixture_repo_root}/docs/ARCHITECTURE" \
     "${cmc_fixture_path}/docs/"
   cp -R "${cmc_fixture_repo_root}/docs/DECISIONS" \
@@ -41,6 +43,12 @@ cmc_fixture_prepare() {
   cp \
     "${cmc_fixture_repo_root}/docs/TASKS/TASK-002-product-scope-branding-design-system.md" \
     "${cmc_fixture_path}/docs/TASKS/TASK-002-product-scope-branding-design-system.md"
+  cp -R "${cmc_fixture_repo_root}/lib/core/config" \
+    "${cmc_fixture_path}/lib/core/"
+  cp -R "${cmc_fixture_repo_root}/lib/features/storefront" \
+    "${cmc_fixture_path}/lib/features/"
+  cp -R "${cmc_fixture_repo_root}/lib/features/home" \
+    "${cmc_fixture_path}/lib/features/"
 
   printf '%s\n' "${cmc_fixture_path}"
 }
@@ -124,6 +132,20 @@ cmc_fixture_replace_literal \
   "decision owner business non ambigui; elenca separatamente i writer, projector e" \
   "un solo decision owner, writer, projector e"
 cmc_fixture_expect_rejection "${cmc_fixture_quality_path}"
+
+cmc_fixture_direct_table_path="$(cmc_fixture_prepare invalid-storefront-direct-table)"
+cmc_fixture_replace_literal \
+  "${cmc_fixture_direct_table_path}/lib/features/storefront/application/storefront_providers.dart" \
+  "Supabase.instance.client.rpc(function, params: parameters)" \
+  "Supabase.instance.client.from('inventory_products').select()"
+cmc_fixture_expect_rejection "${cmc_fixture_direct_table_path}"
+
+cmc_fixture_storage_path="$(cmc_fixture_prepare invalid-storefront-storage-access)"
+cmc_fixture_replace_literal \
+  "${cmc_fixture_storage_path}/lib/features/storefront/application/storefront_providers.dart" \
+  "Supabase.instance.client.rpc(function, params: parameters)" \
+  "Supabase.instance.client.storage.from('product-images').list()"
+cmc_fixture_expect_rejection "${cmc_fixture_storage_path}"
 
 if [[ "${cmc_fixture_rejected}" -ne "${cmc_fixture_total}" ]]; then
   printf 'Fixture negative respinte: %d/%d.\n' \

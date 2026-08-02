@@ -85,7 +85,7 @@ void main() {
       'catalogNavigation': 'PASS',
       'customerSession': 'absent',
       'googleAuth': 'disabled',
-      'dataAccess': 'health-only',
+      'dataAccess': 'readiness-plus-home-controller-not-asserted',
       'processAlive': 'PASS',
     };
   });

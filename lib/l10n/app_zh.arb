@@ -141,5 +141,20 @@
   "accountAuthConfiguration": "El acceso con Google no está configurado para este entorno.",
   "accountAuthUnexpected": "Ocurrió un problema inesperado. Puedes intentarlo de nuevo.",
   "accountAvatarLabel": "Avatar de {name}",
-  "storefrontComingSoonLabel": "Próximamente"
+  "storefrontComingSoonLabel": "Próximamente",
+  "favoritesTitle": "Favoritos",
+  "favoritesOpen": "Ver favoritos",
+  "favoritesEmptyTitle": "Aún no tienes favoritos",
+  "favoritesEmptyMessage": "Guarda productos para encontrarlos rápidamente, incluso sin conexión.",
+  "favoritesErrorTitle": "No pudimos abrir tus favoritos",
+  "favoritesErrorMessage": "Vuelve a intentarlo. Tus selecciones permanecen en este dispositivo.",
+  "favoriteAdd": "Agregar a favoritos",
+  "favoriteRemove": "Quitar de favoritos",
+  "favoriteAdded": "Producto agregado a favoritos.",
+  "favoriteRemoved": "Producto quitado de favoritos.",
+  "favoriteUnavailableTitle": "Producto no disponible",
+  "favoriteUnavailableMessage": "Puedes conservar este favorito o quitarlo de la lista.",
+  "productShare": "Compartir producto",
+  "productShareText": "Mira {name} en Merchandise Control:\n{uri}",
+  "productShareError": "No pudimos abrir las opciones para compartir."
 }

@@ -5,9 +5,9 @@ import 'package:app_links/app_links.dart';
 /// Confine tecnico per i callback OAuth consegnati dal sistema operativo.
 ///
 /// Il source apre una sola subscription verso `app_links`, la apre prima di
-/// chiedere il link iniziale e convoglia callback cold e warm nello stesso
-/// stream. La validazione di origine e payload resta responsabilità del
-/// validator Auth, prima di qualunque exchange Supabase.
+/// chiedere il link iniziale e convoglia link cold e warm nello stesso stream
+/// broadcast. Auth e Storefront condividono questa istanza e validano namespace
+/// disgiunti prima di qualunque exchange o navigazione.
 abstract interface class AuthCallbackSource {
   Stream<Uri> get callbacks;
 

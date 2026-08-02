@@ -236,8 +236,11 @@ host/path a Dart. Flutter deep linking e l'observer Supabase permissivo sono
 disabilitati. Su iOS anche l'handling automatico di `app_links` è disabilitato:
 `AppDelegate` inoltra il custom scheme warm e `SceneDelegate` inoltra cold/warm e
 universal activity allo stesso singleton del plugin, preservando i callback `super`.
-Un solo source Dart `app_links` unifica cold e warm callback e resta l'unico consumer
-applicativo.
+Un solo source Dart `app_links` unifica cold e warm URI e mantiene una sola subscription
+nativa broadcast. Il consumer Auth accetta esclusivamente `auth-callback`; il consumer
+Storefront di TASK-018 accetta esclusivamente host `storefront` e path pubblico strict.
+I due validator non condividono payload né side effect e un URI rifiutato da uno non
+viene reinterpretato nel suo namespace.
 
 Prima di qualunque exchange il validator richiede URI assoluto, scheme/host/path
 canonici, user-info vuoto, nessuna porta o fragment e una query di una delle due forme:

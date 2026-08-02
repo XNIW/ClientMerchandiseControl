@@ -200,8 +200,10 @@ raggiungibile.
   pubblica.
 - Una risorsa non pubblicata, ritirata o fuori validità **MUST NOT** essere recuperata
   dall'inventory o da uno shop alternativo.
-- Una cache guest futura **MAY** contenere soltanto dati pubblici shop-scoped e **MUST**
-  dichiararne la freschezza secondo TASK-017.
+- La cache guest di TASK-017 **MAY** contenere soltanto dati pubblici shop-scoped e
+  **MUST** dichiararne la freschezza. La preferenza favorite di TASK-018 conserva solo
+  shop/publication/timestamp: non rende autoritativo il prodotto cached e un orphan
+  resta unavailable.
 - Ricerca, paginazione, ordinamento, payload ed error code restano di TASK-010.
 
 ## Commercial truth

@@ -10,6 +10,8 @@ import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../home/presentation/storefront_product_card.dart';
+import '../../favorites/presentation/favorite_button.dart';
+import '../../sharing/application/product_share_service.dart';
 import '../../storefront/domain/storefront_models.dart';
 import '../application/product_detail_controller.dart';
 
@@ -23,7 +25,16 @@ class ProductDetailScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(productDetailControllerProvider(publicationId));
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.productDetailTitle)),
+      appBar: AppBar(
+        title: Text(l10n.productDetailTitle),
+        actions: switch (state.product) {
+          final product? => [
+            FavoriteButton(publicationId: product.id),
+            ProductShareButton(product: product),
+          ],
+          null => null,
+        },
+      ),
       body: SafeArea(
         top: false,
         child: switch (state.status) {

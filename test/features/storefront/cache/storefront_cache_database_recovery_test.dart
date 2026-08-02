@@ -21,7 +21,7 @@ void main() {
     }
   });
 
-  test('schema v1 riapre senza perdere una cache compatibile', () async {
+  test('schema v2 riapre senza perdere una cache compatibile', () async {
     final first = StorefrontCacheDatabase(NativeDatabase(File(databasePath)));
     await first.customStatement(
       "INSERT INTO storefront_cache_metadata "
@@ -44,6 +44,45 @@ void main() {
         )
         .get();
     expect(rows.single.read<int>('catalog_version'), 7);
+  });
+
+  test('migration v1 a v2 aggiunge favorite senza perdere la cache', () async {
+    final legacy = StorefrontCacheDatabase(NativeDatabase(File(databasePath)));
+    await legacy.customStatement(
+      "INSERT INTO storefront_cache_metadata "
+      "(shop_slug, catalog_version, refreshed_at, "
+      "last_successful_refresh_at) VALUES "
+      "('storefront-test', 7, 1, 1)",
+    );
+    await legacy.customStatement('DROP INDEX storefront_favorite_order_idx');
+    await legacy.customStatement('DROP TABLE storefront_favorites');
+    await legacy.customStatement('PRAGMA user_version = 1');
+    await legacy.close();
+
+    prepareStorefrontCacheFile(databasePath);
+    final migrated = StorefrontCacheDatabase(
+      NativeDatabase(File(databasePath)),
+    );
+    addTearDown(migrated.close);
+    final cached = await migrated
+        .customSelect(
+          "SELECT catalog_version FROM storefront_cache_metadata "
+          "WHERE shop_slug = 'storefront-test'",
+        )
+        .get();
+    final favoriteTable = await migrated
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE name = 'storefront_favorites'",
+        )
+        .get();
+
+    expect(cached.single.read<int>('catalog_version'), 7);
+    expect(favoriteTable, hasLength(1));
+    expect(
+      (await migrated.customSelect('PRAGMA user_version').get()).single
+          .read<int>('user_version'),
+      2,
+    );
   });
 
   test('file SQLite corrotto viene eliminato e ricreato fail-closed', () async {

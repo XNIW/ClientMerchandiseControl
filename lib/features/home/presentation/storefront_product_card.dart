@@ -161,6 +161,7 @@ class StorefrontProductImage extends StatelessWidget {
     required this.uri,
     this.cacheWidth = 720,
     this.keyPrefix = 'storefront-image',
+    this.compactPlaceholder = false,
     super.key,
   });
 
@@ -169,6 +170,7 @@ class StorefrontProductImage extends StatelessWidget {
   final Uri? uri;
   final int cacheWidth;
   final String keyPrefix;
+  final bool compactPlaceholder;
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +203,17 @@ class StorefrontProductImage extends StatelessWidget {
   }
 
   Widget _placeholder(BuildContext context, AppLocalizations l10n) {
+    if (compactPlaceholder) {
+      return Semantics(
+        image: true,
+        label: l10n.homeImageUnavailable,
+        child: ColoredBox(
+          key: ValueKey('$keyPrefix-placeholder-$productId'),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          child: const Center(child: Icon(Icons.image_not_supported_outlined)),
+        ),
+      );
+    }
     return ColoredBox(
       key: ValueKey('$keyPrefix-placeholder-$productId'),
       color: Theme.of(context).colorScheme.surfaceContainerHighest,

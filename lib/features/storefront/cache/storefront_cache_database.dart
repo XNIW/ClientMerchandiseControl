@@ -10,7 +10,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 part 'storefront_cache_database.g.dart';
 
-const storefrontCacheSchemaVersion = 1;
+const storefrontCacheSchemaVersion = 2;
 
 @DataClassName('StorefrontCacheMetadataRow')
 class StorefrontCacheMetadata extends Table {
@@ -123,6 +123,17 @@ class StorefrontCacheScopeItems extends Table {
   Set<Column<Object>> get primaryKey => {shopSlug, scopeKey, publicationId};
 }
 
+@DataClassName('StorefrontFavoriteRow')
+class StorefrontFavorites extends Table {
+  TextColumn get shopSlug => text().withLength(min: 2, max: 63)();
+  TextColumn get publicationId => text().withLength(min: 36, max: 36)();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {shopSlug, publicationId};
+}
+
 @DriftDatabase(
   tables: [
     StorefrontCacheMetadata,
@@ -131,6 +142,7 @@ class StorefrontCacheScopeItems extends Table {
     CachedStorefrontDetails,
     StorefrontCacheScopes,
     StorefrontCacheScopeItems,
+    StorefrontFavorites,
   ],
 )
 class StorefrontCacheDatabase extends _$StorefrontCacheDatabase {
@@ -184,10 +196,23 @@ class StorefrontCacheDatabase extends _$StorefrontCacheDatabase {
         'ON storefront_cache_scope_items '
         '(shop_slug, scope_key, ordinal, publication_id)',
       );
+      await _createFavoriteIndex();
+    },
+    onUpgrade: (migrator, from, to) async {
+      if (from < 2) {
+        await migrator.createTable(storefrontFavorites);
+        await _createFavoriteIndex();
+      }
     },
     beforeOpen: (_) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
+  );
+
+  Future<void> _createFavoriteIndex() => customStatement(
+    'CREATE INDEX storefront_favorite_order_idx '
+    'ON storefront_favorites '
+    '(shop_slug, updated_at DESC, publication_id)',
   );
 }
 

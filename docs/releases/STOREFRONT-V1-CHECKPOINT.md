@@ -60,7 +60,7 @@
   Android 1/1 in 45,98 s e iOS 1/1 in 27,09 s `PASS`; production invariata
 - **Gate ancora necessari**: execution TASK-018, schema favorite v2, share nativo,
   validator/link coordinator e smoke cold/warm Android/iOS
-- **Comando successivo esatto**: `flutter pub add share_plus:^12.0.2`
+- **Comando successivo esatto**: `dart run build_runner build --delete-conflicting-outputs`
 - **Blocker**: nessuno
 - **Processi ancora attivi**: nessuno
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API

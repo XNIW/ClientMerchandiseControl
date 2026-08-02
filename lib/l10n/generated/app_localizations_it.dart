@@ -459,4 +459,55 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get storefrontComingSoonLabel => 'Prossimamente';
+
+  @override
+  String get favoritesTitle => 'Preferiti';
+
+  @override
+  String get favoritesOpen => 'Vedi preferiti';
+
+  @override
+  String get favoritesEmptyTitle => 'Non hai ancora preferiti';
+
+  @override
+  String get favoritesEmptyMessage =>
+      'Salva i prodotti per ritrovarli rapidamente, anche offline.';
+
+  @override
+  String get favoritesErrorTitle => 'Impossibile aprire i preferiti';
+
+  @override
+  String get favoritesErrorMessage =>
+      'Riprova. Le selezioni restano su questo dispositivo.';
+
+  @override
+  String get favoriteAdd => 'Aggiungi ai preferiti';
+
+  @override
+  String get favoriteRemove => 'Rimuovi dai preferiti';
+
+  @override
+  String get favoriteAdded => 'Prodotto aggiunto ai preferiti.';
+
+  @override
+  String get favoriteRemoved => 'Prodotto rimosso dai preferiti.';
+
+  @override
+  String get favoriteUnavailableTitle => 'Prodotto non disponibile';
+
+  @override
+  String get favoriteUnavailableMessage =>
+      'Puoi conservare questo preferito o rimuoverlo dalla lista.';
+
+  @override
+  String get productShare => 'Condividi prodotto';
+
+  @override
+  String productShareText(String name, String uri) {
+    return 'Guarda $name su Merchandise Control:\n$uri';
+  }
+
+  @override
+  String get productShareError =>
+      'Impossibile aprire le opzioni di condivisione.';
 }

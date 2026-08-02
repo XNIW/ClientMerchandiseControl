@@ -84,7 +84,7 @@
 | D-03 | Nessuna sync account finché manca il contratto server | Login non crea capacità o grant impliciti | ATTIVA |
 | D-04 | URI tecnico: `com.xniw.clientmerchandisecontrol://storefront/{shop}/product/{uuid}` | Include shop, separa host da Auth e non inventa un dominio pubblico | ATTIVA |
 | D-05 | Categoria usa lo stesso formato con `/category/{slug}` | Copre discovery senza aggiungere API o filtro promozione inesistente | ATTIVA |
-| D-06 | `share_plus 12.0.2` è il candidato iniziale | BSD-3, maturo, Android/iOS e API `SharePlus`; evita il major 13 appena pubblicato | ATTIVA |
+| D-06 | `share_plus 13.2.1` è pin esatto | BSD-3, Android/iOS e API `SharePlus`; evita i downgrade transitive causati da 12.0.2 e non adotta la 13.3 appena pubblicata | ATTIVA |
 | D-07 | Il source nativo `app_links` resta unico e broadcast | Evita callback concorrenti; ogni consumer valida il proprio namespace | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
@@ -100,6 +100,9 @@
   delega host/path alla validazione Dart;
 - non esiste dominio pubblico verificato né API customer favorite, quindi entrambi
   restano esplicitamente fuori scope.
+- il tentativo iniziale con `share_plus 12.0.2` risolveva versioni inferiori di
+  `win32` e `flutter_secure_storage_windows`; il pin `13.2.1` conserva le versioni
+  preesistenti ed è compatibile con Flutter 3.44.8, Dart 3.12, iOS 13 e Gradle 9.1.
 
 ### Approccio autorizzato
 

@@ -455,4 +455,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storefrontComingSoonLabel => 'Coming soon';
+
+  @override
+  String get favoritesTitle => 'Favorites';
+
+  @override
+  String get favoritesOpen => 'View favorites';
+
+  @override
+  String get favoritesEmptyTitle => 'No favorites yet';
+
+  @override
+  String get favoritesEmptyMessage =>
+      'Save products to find them quickly, even when offline.';
+
+  @override
+  String get favoritesErrorTitle => 'We couldn\'t open your favorites';
+
+  @override
+  String get favoritesErrorMessage =>
+      'Try again. Your selections stay on this device.';
+
+  @override
+  String get favoriteAdd => 'Add to favorites';
+
+  @override
+  String get favoriteRemove => 'Remove from favorites';
+
+  @override
+  String get favoriteAdded => 'Product added to favorites.';
+
+  @override
+  String get favoriteRemoved => 'Product removed from favorites.';
+
+  @override
+  String get favoriteUnavailableTitle => 'Product unavailable';
+
+  @override
+  String get favoriteUnavailableMessage =>
+      'You can keep this favorite or remove it from the list.';
+
+  @override
+  String get productShare => 'Share product';
+
+  @override
+  String productShareText(String name, String uri) {
+    return 'See $name in Merchandise Control:\n$uri';
+  }
+
+  @override
+  String get productShareError => 'We couldn\'t open the sharing options.';
 }

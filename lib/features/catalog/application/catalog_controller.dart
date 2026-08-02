@@ -124,6 +124,26 @@ class CatalogController extends Notifier<CatalogState> {
     );
   }
 
+  Future<void> openCategoryFromDeepLink(String categorySlug) {
+    if (!RegExp(r'^[a-z0-9][a-z0-9-]{1,62}$').hasMatch(categorySlug)) {
+      return Future<void>.value();
+    }
+    final readiness = ref.read(backendReadinessControllerProvider);
+    final criteria = _CatalogCriteria(categorySlug: categorySlug);
+    if (readiness == BackendReadinessState.ready ||
+        readiness == BackendReadinessState.offline) {
+      return _loadFirstPage(
+        criteria: criteria,
+        reloadCategories: true,
+        cacheOnly: readiness == BackendReadinessState.offline,
+      );
+    }
+    _searchTimer?.cancel();
+    _cancelCurrentRequest();
+    state = _stateForReadiness(readiness, criteria);
+    return Future<void>.value();
+  }
+
   void updateSearchQuery(String rawQuery) {
     final query = _normalizeQuery(rawQuery);
     _searchTimer?.cancel();
@@ -369,9 +389,10 @@ class CatalogController extends Notifier<CatalogState> {
         readiness == BackendReadinessState.offline) {
       scheduleMicrotask(() {
         if (!_disposed) {
+          final effectiveCriteria = _criteriaFromState();
           unawaited(
             _loadFirstPage(
-              criteria: criteria,
+              criteria: effectiveCriteria,
               reloadCategories: true,
               cacheOnly: readiness == BackendReadinessState.offline,
             ),

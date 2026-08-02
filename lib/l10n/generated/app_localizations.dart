@@ -906,6 +906,96 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Próximamente'**
   String get storefrontComingSoonLabel;
+
+  /// No description provided for @favoritesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Favoritos'**
+  String get favoritesTitle;
+
+  /// No description provided for @favoritesOpen.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver favoritos'**
+  String get favoritesOpen;
+
+  /// No description provided for @favoritesEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no tienes favoritos'**
+  String get favoritesEmptyTitle;
+
+  /// No description provided for @favoritesEmptyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Guarda productos para encontrarlos rápidamente, incluso sin conexión.'**
+  String get favoritesEmptyMessage;
+
+  /// No description provided for @favoritesErrorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos abrir tus favoritos'**
+  String get favoritesErrorTitle;
+
+  /// No description provided for @favoritesErrorMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Vuelve a intentarlo. Tus selecciones permanecen en este dispositivo.'**
+  String get favoritesErrorMessage;
+
+  /// No description provided for @favoriteAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar a favoritos'**
+  String get favoriteAdd;
+
+  /// No description provided for @favoriteRemove.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar de favoritos'**
+  String get favoriteRemove;
+
+  /// No description provided for @favoriteAdded.
+  ///
+  /// In es, this message translates to:
+  /// **'Producto agregado a favoritos.'**
+  String get favoriteAdded;
+
+  /// No description provided for @favoriteRemoved.
+  ///
+  /// In es, this message translates to:
+  /// **'Producto quitado de favoritos.'**
+  String get favoriteRemoved;
+
+  /// No description provided for @favoriteUnavailableTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Producto no disponible'**
+  String get favoriteUnavailableTitle;
+
+  /// No description provided for @favoriteUnavailableMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes conservar este favorito o quitarlo de la lista.'**
+  String get favoriteUnavailableMessage;
+
+  /// No description provided for @productShare.
+  ///
+  /// In es, this message translates to:
+  /// **'Compartir producto'**
+  String get productShare;
+
+  /// Texto público enviado al diálogo nativo de compartir.
+  ///
+  /// In es, this message translates to:
+  /// **'Mira {name} en Merchandise Control:\n{uri}'**
+  String productShareText(String name, String uri);
+
+  /// No description provided for @productShareError.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos abrir las opciones para compartir.'**
+  String get productShareError;
 }
 
 class _AppLocalizationsDelegate

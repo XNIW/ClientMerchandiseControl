@@ -3,6 +3,7 @@ abstract final class AppRoutes {
   static const catalogLocation = '/catalog';
   static const cartLocation = '/cart';
   static const accountLocation = '/account';
+  static const favoritesLocation = '/favorites';
   static const productPattern = '/product/:publicationId';
 
   static String productLocation(String publicationId) =>

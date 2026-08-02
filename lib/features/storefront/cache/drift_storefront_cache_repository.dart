@@ -6,6 +6,11 @@ import 'storefront_cache_database.dart';
 import 'storefront_cache_repository.dart';
 
 class DriftStorefrontCacheRepository implements StorefrontCacheRepository {
+  static final _publicationId = RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+  );
+  static final _shopSlug = RegExp(r'^[a-z0-9][a-z0-9-]{2,62}$');
+
   DriftStorefrontCacheRepository(this.database, {DateTime Function()? clock})
     : _clock = clock ?? _utcNow;
 
@@ -338,6 +343,128 @@ class DriftStorefrontCacheRepository implements StorefrontCacheRepository {
             ),
           );
     });
+  }
+
+  @override
+  Future<List<StorefrontFavoriteEntry>> readFavorites({
+    required String shopSlug,
+  }) async {
+    _validateFavoriteKey(shopSlug, null);
+    try {
+      final favoritesQuery = database.select(database.storefrontFavorites)
+        ..where((row) => row.shopSlug.equals(shopSlug))
+        ..orderBy([
+          (row) => OrderingTerm.desc(row.updatedAt),
+          (row) => OrderingTerm.asc(row.publicationId),
+        ])
+        ..limit(storefrontMaximumFavorites);
+      final favorites = await favoritesQuery.get();
+      if (favorites.isEmpty) return const [];
+      final publicationIds = favorites
+          .map((favorite) => favorite.publicationId)
+          .toList(growable: false);
+      final productRows =
+          await (database.select(database.cachedStorefrontProducts)..where(
+                (row) =>
+                    row.shopSlug.equals(shopSlug) &
+                    row.publicationId.isIn(publicationIds),
+              ))
+              .get();
+      final products = {
+        for (final row in productRows) row.publicationId: _productFromRow(row),
+      };
+      return List.unmodifiable(
+        favorites.map(
+          (favorite) => StorefrontFavoriteEntry(
+            publicationId: favorite.publicationId,
+            updatedAt: favorite.updatedAt,
+            product: products[favorite.publicationId],
+          ),
+        ),
+      );
+    } on StorefrontFailure {
+      rethrow;
+    } on Object {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.unavailable,
+        code: 'favorite_cache_read_failed',
+      );
+    }
+  }
+
+  @override
+  Future<bool> toggleFavorite({
+    required String shopSlug,
+    required String publicationId,
+  }) async {
+    _validateFavoriteKey(shopSlug, publicationId);
+    final now = _clock().toUtc();
+    try {
+      return await database.transaction(() async {
+        final existing =
+            await (database.select(database.storefrontFavorites)..where(
+                  (row) =>
+                      row.shopSlug.equals(shopSlug) &
+                      row.publicationId.equals(publicationId),
+                ))
+                .getSingleOrNull();
+        if (existing != null) {
+          await (database.delete(database.storefrontFavorites)..where(
+                (row) =>
+                    row.shopSlug.equals(shopSlug) &
+                    row.publicationId.equals(publicationId),
+              ))
+              .go();
+          return false;
+        }
+
+        final product =
+            await (database.select(database.cachedStorefrontProducts)..where(
+                  (row) =>
+                      row.shopSlug.equals(shopSlug) &
+                      row.publicationId.equals(publicationId),
+                ))
+                .getSingleOrNull();
+        if (product == null) {
+          throw const StorefrontFailure(
+            StorefrontFailureKind.unavailable,
+            code: 'favorite_product_unavailable',
+          );
+        }
+
+        await database
+            .into(database.storefrontFavorites)
+            .insert(
+              StorefrontFavoritesCompanion.insert(
+                shopSlug: shopSlug,
+                publicationId: publicationId,
+                createdAt: now,
+                updatedAt: now,
+              ),
+            );
+        await database.customUpdate(
+          'DELETE FROM storefront_favorites '
+          'WHERE shop_slug = ? AND publication_id IN ('
+          'SELECT publication_id FROM storefront_favorites '
+          'WHERE shop_slug = ? ORDER BY updated_at DESC, publication_id '
+          'LIMIT -1 OFFSET ?)',
+          variables: [
+            Variable.withString(shopSlug),
+            Variable.withString(shopSlug),
+            Variable.withInt(storefrontMaximumFavorites),
+          ],
+          updates: {database.storefrontFavorites},
+        );
+        return true;
+      });
+    } on StorefrontFailure {
+      rethrow;
+    } on Object {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.unavailable,
+        code: 'favorite_cache_write_failed',
+      );
+    }
   }
 
   @override
@@ -836,6 +963,16 @@ class DriftStorefrontCacheRepository implements StorefrontCacheRepository {
       throw const StorefrontFailure(
         StorefrontFailureKind.invalidPayload,
         code: 'cache_shop_mismatch',
+      );
+    }
+  }
+
+  void _validateFavoriteKey(String shopSlug, String? publicationId) {
+    if (!_shopSlug.hasMatch(shopSlug) ||
+        (publicationId != null && !_publicationId.hasMatch(publicationId))) {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.invalidConfiguration,
+        code: 'invalid_favorite_key',
       );
     }
   }

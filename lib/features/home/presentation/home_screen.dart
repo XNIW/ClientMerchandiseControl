@@ -134,11 +134,23 @@ class HomeScreen extends ConsumerWidget {
           const SizedBox(height: AppSpacing.xxl),
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: FilledButton.icon(
-              key: const ValueKey('home-open-catalog'),
-              onPressed: openCatalog,
-              icon: const Icon(Icons.grid_view_outlined),
-              label: Text(l10n.homeExploreCatalog),
+            child: Wrap(
+              spacing: AppSpacing.md,
+              runSpacing: AppSpacing.sm,
+              children: [
+                FilledButton.icon(
+                  key: const ValueKey('home-open-catalog'),
+                  onPressed: openCatalog,
+                  icon: const Icon(Icons.grid_view_outlined),
+                  label: Text(l10n.homeExploreCatalog),
+                ),
+                OutlinedButton.icon(
+                  key: const ValueKey('home-open-favorites'),
+                  onPressed: () => context.push(AppRoutes.favoritesLocation),
+                  icon: const Icon(Icons.favorite_border),
+                  label: Text(l10n.favoritesOpen),
+                ),
+              ],
             ),
           ),
         ],

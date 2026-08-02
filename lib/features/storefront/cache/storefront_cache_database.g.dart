@@ -4266,6 +4266,342 @@ class StorefrontCacheScopeItemsCompanion
   }
 }
 
+class $StorefrontFavoritesTable extends StorefrontFavorites
+    with TableInfo<$StorefrontFavoritesTable, StorefrontFavoriteRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StorefrontFavoritesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _shopSlugMeta = const VerificationMeta(
+    'shopSlug',
+  );
+  @override
+  late final GeneratedColumn<String> shopSlug = GeneratedColumn<String>(
+    'shop_slug',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 2,
+      maxTextLength: 63,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _publicationIdMeta = const VerificationMeta(
+    'publicationId',
+  );
+  @override
+  late final GeneratedColumn<String> publicationId = GeneratedColumn<String>(
+    'publication_id',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 36,
+      maxTextLength: 36,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    shopSlug,
+    publicationId,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'storefront_favorites';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StorefrontFavoriteRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('shop_slug')) {
+      context.handle(
+        _shopSlugMeta,
+        shopSlug.isAcceptableOrUnknown(data['shop_slug']!, _shopSlugMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_shopSlugMeta);
+    }
+    if (data.containsKey('publication_id')) {
+      context.handle(
+        _publicationIdMeta,
+        publicationId.isAcceptableOrUnknown(
+          data['publication_id']!,
+          _publicationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_publicationIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {shopSlug, publicationId};
+  @override
+  StorefrontFavoriteRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StorefrontFavoriteRow(
+      shopSlug: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}shop_slug'],
+      )!,
+      publicationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}publication_id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $StorefrontFavoritesTable createAlias(String alias) {
+    return $StorefrontFavoritesTable(attachedDatabase, alias);
+  }
+}
+
+class StorefrontFavoriteRow extends DataClass
+    implements Insertable<StorefrontFavoriteRow> {
+  final String shopSlug;
+  final String publicationId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const StorefrontFavoriteRow({
+    required this.shopSlug,
+    required this.publicationId,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['shop_slug'] = Variable<String>(shopSlug);
+    map['publication_id'] = Variable<String>(publicationId);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  StorefrontFavoritesCompanion toCompanion(bool nullToAbsent) {
+    return StorefrontFavoritesCompanion(
+      shopSlug: Value(shopSlug),
+      publicationId: Value(publicationId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory StorefrontFavoriteRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StorefrontFavoriteRow(
+      shopSlug: serializer.fromJson<String>(json['shopSlug']),
+      publicationId: serializer.fromJson<String>(json['publicationId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'shopSlug': serializer.toJson<String>(shopSlug),
+      'publicationId': serializer.toJson<String>(publicationId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  StorefrontFavoriteRow copyWith({
+    String? shopSlug,
+    String? publicationId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => StorefrontFavoriteRow(
+    shopSlug: shopSlug ?? this.shopSlug,
+    publicationId: publicationId ?? this.publicationId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  StorefrontFavoriteRow copyWithCompanion(StorefrontFavoritesCompanion data) {
+    return StorefrontFavoriteRow(
+      shopSlug: data.shopSlug.present ? data.shopSlug.value : this.shopSlug,
+      publicationId: data.publicationId.present
+          ? data.publicationId.value
+          : this.publicationId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StorefrontFavoriteRow(')
+          ..write('shopSlug: $shopSlug, ')
+          ..write('publicationId: $publicationId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(shopSlug, publicationId, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StorefrontFavoriteRow &&
+          other.shopSlug == this.shopSlug &&
+          other.publicationId == this.publicationId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class StorefrontFavoritesCompanion
+    extends UpdateCompanion<StorefrontFavoriteRow> {
+  final Value<String> shopSlug;
+  final Value<String> publicationId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const StorefrontFavoritesCompanion({
+    this.shopSlug = const Value.absent(),
+    this.publicationId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StorefrontFavoritesCompanion.insert({
+    required String shopSlug,
+    required String publicationId,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : shopSlug = Value(shopSlug),
+       publicationId = Value(publicationId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<StorefrontFavoriteRow> custom({
+    Expression<String>? shopSlug,
+    Expression<String>? publicationId,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (shopSlug != null) 'shop_slug': shopSlug,
+      if (publicationId != null) 'publication_id': publicationId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StorefrontFavoritesCompanion copyWith({
+    Value<String>? shopSlug,
+    Value<String>? publicationId,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return StorefrontFavoritesCompanion(
+      shopSlug: shopSlug ?? this.shopSlug,
+      publicationId: publicationId ?? this.publicationId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (shopSlug.present) {
+      map['shop_slug'] = Variable<String>(shopSlug.value);
+    }
+    if (publicationId.present) {
+      map['publication_id'] = Variable<String>(publicationId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StorefrontFavoritesCompanion(')
+          ..write('shopSlug: $shopSlug, ')
+          ..write('publicationId: $publicationId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$StorefrontCacheDatabase extends GeneratedDatabase {
   _$StorefrontCacheDatabase(QueryExecutor e) : super(e);
   late final $StorefrontCacheMetadataTable storefrontCacheMetadata =
@@ -4280,6 +4616,8 @@ abstract class _$StorefrontCacheDatabase extends GeneratedDatabase {
       $StorefrontCacheScopesTable(this);
   late final $StorefrontCacheScopeItemsTable storefrontCacheScopeItems =
       $StorefrontCacheScopeItemsTable(this);
+  late final $StorefrontFavoritesTable storefrontFavorites =
+      $StorefrontFavoritesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4291,5 +4629,6 @@ abstract class _$StorefrontCacheDatabase extends GeneratedDatabase {
     cachedStorefrontDetails,
     storefrontCacheScopes,
     storefrontCacheScopeItems,
+    storefrontFavorites,
   ];
 }

@@ -459,6 +459,57 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get storefrontComingSoonLabel => 'Próximamente';
+
+  @override
+  String get favoritesTitle => 'Favoritos';
+
+  @override
+  String get favoritesOpen => 'Ver favoritos';
+
+  @override
+  String get favoritesEmptyTitle => 'Aún no tienes favoritos';
+
+  @override
+  String get favoritesEmptyMessage =>
+      'Guarda productos para encontrarlos rápidamente, incluso sin conexión.';
+
+  @override
+  String get favoritesErrorTitle => 'No pudimos abrir tus favoritos';
+
+  @override
+  String get favoritesErrorMessage =>
+      'Vuelve a intentarlo. Tus selecciones permanecen en este dispositivo.';
+
+  @override
+  String get favoriteAdd => 'Agregar a favoritos';
+
+  @override
+  String get favoriteRemove => 'Quitar de favoritos';
+
+  @override
+  String get favoriteAdded => 'Producto agregado a favoritos.';
+
+  @override
+  String get favoriteRemoved => 'Producto quitado de favoritos.';
+
+  @override
+  String get favoriteUnavailableTitle => 'Producto no disponible';
+
+  @override
+  String get favoriteUnavailableMessage =>
+      'Puedes conservar este favorito o quitarlo de la lista.';
+
+  @override
+  String get productShare => 'Compartir producto';
+
+  @override
+  String productShareText(String name, String uri) {
+    return 'Mira $name en Merchandise Control:\n$uri';
+  }
+
+  @override
+  String get productShareError =>
+      'No pudimos abrir las opciones para compartir.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -877,4 +928,51 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get storefrontComingSoonLabel => '即将推出';
+
+  @override
+  String get favoritesTitle => '收藏';
+
+  @override
+  String get favoritesOpen => '查看收藏';
+
+  @override
+  String get favoritesEmptyTitle => '还没有收藏商品';
+
+  @override
+  String get favoritesEmptyMessage => '收藏商品后，即使离线也能快速找到它们。';
+
+  @override
+  String get favoritesErrorTitle => '无法打开收藏';
+
+  @override
+  String get favoritesErrorMessage => '请重试。你的选择会保留在此设备上。';
+
+  @override
+  String get favoriteAdd => '添加到收藏';
+
+  @override
+  String get favoriteRemove => '从收藏中移除';
+
+  @override
+  String get favoriteAdded => '商品已添加到收藏。';
+
+  @override
+  String get favoriteRemoved => '商品已从收藏中移除。';
+
+  @override
+  String get favoriteUnavailableTitle => '商品暂不可用';
+
+  @override
+  String get favoriteUnavailableMessage => '你可以保留此收藏，也可以将它从列表中移除。';
+
+  @override
+  String get productShare => '分享商品';
+
+  @override
+  String productShareText(String name, String uri) {
+    return '在 Merchandise Control 查看$name：\n$uri';
+  }
+
+  @override
+  String get productShareError => '无法打开分享选项。';
 }

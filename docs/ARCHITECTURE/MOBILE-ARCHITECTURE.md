@@ -225,7 +225,8 @@ distinti.
 `AuthController` è eager e costituisce la sola fonte UI del lifecycle. Un
 `AuthRepository` iniettabile separa dominio e SDK; `SupabaseAuthRepository` usa Google,
 PKCE, browser esterno e callback canonica. Cold link e warm link confluiscono in una
-sola subscription `app_links`, vengono validati e consumati una volta. Cancel resta in
+sola subscription broadcast `app_links`; Auth e Storefront applicano validator
+separati e disgiunti prima di consumare il proprio namespace. Cancel resta in
 corso finché un exchange posseduto non è terminato e compensato con sign-out/purge;
 un risultato vecchio non elimina il verifier del retry. Risultati obsoleti dopo
 cancellazione, logout o dispose non possono ripristinare authenticated.
@@ -259,6 +260,22 @@ tenta sempre, in modo indipendente, delete sessione e verifier. Un marker rimast
 pendente in uno dei tre canali blocca il restore e fa ritentare il purge al bootstrap.
 Un errore offline può produrre un avviso customer-safe ma lo stato resta guest.
 
+I deep link Storefront v1 usano soltanto lo scheme tecnico già registrato, host
+`storefront` e path canonico `/{shop}/product/{uuid}` oppure
+`/{shop}/category/{slug}`. Il decoder rifiuta altro shop, user-info, porta, query,
+fragment, encoding non canonico e segmenti extra. Il coordinator accoda il cold link
+fino alla prima route disponibile, deduplica consegne cold/warm ravvicinate e non
+interpreta mai una route come autorizzazione. Dominio HTTPS, Universal Links/App Links
+verificati e fallback web restano subordinati a brand e dominio reali di release.
+
+I preferiti guest sono una preferenza locale distinta dalla cache commerciale: Drift
+schema v2 conserva soltanto shop slug, publication UUID e timestamp, con limite 1.000.
+Invalidazione o cleanup catalogo possono rendere un record orphan ma non cancellano la
+scelta; la UI in quel caso mostra uno stato unavailable generico e non dati stale. Login,
+restore e logout non riscrivono questa tabella e nessuna sync account viene simulata.
+La condivisione usa il dialogo nativo con anchor iPad e payload localizzato contenente
+solo nome pubblico e URI canonico, mai prezzo autoritativo, token, PII o metadata interni.
+
 Ogni risorsa futura è vincolata a uno `shop_id` UUID validato dal server. Il client può
 trasportare il contesto shop per routing e presentazione, ma non sceglie autonomamente
 l'ambito autorizzato. Cache e persistenza locale devono essere separate per ambiente,
@@ -290,7 +307,10 @@ assegnate a:
 - TASK-012 per shell cliente guest/data-safe, stati readiness e baseline accessibile;
 - TASK-013 per Home pubblica data-backed e primo repository RPC-only;
 - TASK-014 per categorie pubbliche, griglia lazy e keyset pagination;
+- TASK-015 per ricerca, filtri e ordinamento server-side;
+- TASK-016 per dettaglio e disponibilità commerciale;
 - TASK-017 per cache catalogo, freshness e invalidazione;
+- TASK-018 per preferiti guest, share nativo e deep link Storefront strict;
 - TASK-020 per OAuth, deep link e session lifecycle, implementati nel confine Auth
   corrente;
 - TASK-021–TASK-032 per dati cliente e flussi commerciali;
@@ -299,5 +319,6 @@ assegnate a:
 
 Questo documento preserva le decisioni Flutter, Riverpod, go_router, MVVM e design
 system già adottate. TASK-011 aggiunge readiness tecnica, TASK-012 la shell guest
-data-safe e TASK-020 il solo lifecycle Auth customer; nessuno aggiunge schema,
-DTO commerciali, inventory o dati reali.
+data-safe, TASK-013–TASK-018 il consumer Storefront pubblico e TASK-020 il solo
+lifecycle Auth customer; nessuno assegna al client commercial truth, inventory o grant
+staff.

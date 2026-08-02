@@ -1,7 +1,9 @@
 import 'package:client_merchandise_control/features/storefront/cache/drift_storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_database.dart';
+import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
+import 'package:drift/drift.dart' show Variable;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -20,29 +22,32 @@ void main() {
 
   tearDown(() => database.close());
 
-  test('schema v1 crea tabelle e indici bounded richiesti', () async {
+  test('schema v2 crea cache, favorite e indici bounded richiesti', () async {
     final rows = await database
         .customSelect(
           "SELECT type, name FROM sqlite_master "
           "WHERE name LIKE 'storefront_cache_%' "
-          "OR name LIKE 'cached_storefront_%' ORDER BY name",
+          "OR name LIKE 'cached_storefront_%' "
+          "OR name LIKE 'storefront_favorite%' ORDER BY name",
         )
         .get();
     final names = rows.map((row) => row.read<String>('name')).toSet();
 
-    expect(database.schemaVersion, 1);
+    expect(database.schemaVersion, 2);
     expect(
       names,
       containsAll({
         'storefront_cache_metadata',
         'storefront_cache_scopes',
         'storefront_cache_scope_items',
+        'storefront_favorites',
         'cached_storefront_categories',
         'cached_storefront_products',
         'cached_storefront_details',
         'storefront_cache_product_catalog_idx',
         'storefront_cache_product_access_idx',
         'storefront_cache_scope_item_order_idx',
+        'storefront_favorite_order_idx',
       }),
     );
   });
@@ -382,6 +387,153 @@ void main() {
     );
     expect(snapshot!.value.catalogVersion, 7);
     expect(snapshot.value.items.single.name, 'Versione sette');
+  });
+
+  test('favorite guest è idempotente, shop-scoped e rimovibile', () async {
+    final product = _product(1, 'Favorito', price: 1000);
+    await cache.writeProductDetail(
+      shopSlug: 'storefront-test',
+      product: product,
+    );
+
+    expect(
+      await cache.toggleFavorite(
+        shopSlug: 'storefront-test',
+        publicationId: product.id,
+      ),
+      isTrue,
+    );
+    var favorites = await cache.readFavorites(shopSlug: 'storefront-test');
+    expect(favorites.single.publicationId, product.id);
+    expect(favorites.single.product?.name, 'Favorito');
+    expect(await cache.readFavorites(shopSlug: 'other-shop'), isEmpty);
+
+    expect(
+      await cache.toggleFavorite(
+        shopSlug: 'storefront-test',
+        publicationId: product.id,
+      ),
+      isFalse,
+    );
+    favorites = await cache.readFavorites(shopSlug: 'storefront-test');
+    expect(favorites, isEmpty);
+  });
+
+  test(
+    'favorite resta bounded a mille e conserva la mutazione più recente',
+    () async {
+      final oldTimestamp = now.subtract(const Duration(days: 1));
+      await database.batch((batch) {
+        batch.insertAll(
+          database.storefrontFavorites,
+          List.generate(
+            1000,
+            (index) => StorefrontFavoritesCompanion.insert(
+              shopSlug: 'storefront-test',
+              publicationId:
+                  '50000000-0000-4000-8000-'
+                  '${(index + 1).toString().padLeft(12, '0')}',
+              createdAt: oldTimestamp,
+              updatedAt: oldTimestamp,
+            ),
+            growable: false,
+          ),
+        );
+      });
+      final newest = _product(1001, 'Più recente', price: 1000);
+      await cache.writeProductDetail(
+        shopSlug: 'storefront-test',
+        product: newest,
+      );
+
+      expect(
+        await cache.toggleFavorite(
+          shopSlug: 'storefront-test',
+          publicationId: newest.id,
+        ),
+        isTrue,
+      );
+
+      final count = await database
+          .customSelect(
+            'SELECT COUNT(*) AS count FROM storefront_favorites '
+            'WHERE shop_slug = ?',
+            variables: [Variable.withString('storefront-test')],
+          )
+          .getSingle();
+      final favorites = await cache.readFavorites(shopSlug: 'storefront-test');
+      expect(count.read<int>('count'), storefrontMaximumFavorites);
+      expect(favorites, hasLength(storefrontMaximumFavorites));
+      expect(favorites.first.publicationId, newest.id);
+    },
+  );
+
+  test(
+    'catalogVersion invalida il prodotto ma preserva la scelta favorite',
+    () async {
+      final original = _product(1, 'Versione sette', price: 1000);
+      await cache.writeProductDetail(
+        shopSlug: 'storefront-test',
+        product: original,
+      );
+      await cache.toggleFavorite(
+        shopSlug: 'storefront-test',
+        publicationId: original.id,
+      );
+
+      await cache.writeCatalog(
+        shopSlug: 'storefront-test',
+        page: StorefrontCatalogPage(
+          catalogVersion: 8,
+          items: [_product(9, 'Versione otto', price: 2000, version: 8)],
+          nextCursor: null,
+          sort: StorefrontCatalogSort.catalog,
+        ),
+        categorySlug: null,
+        availability: null,
+        discounted: null,
+      );
+      var favorites = await cache.readFavorites(shopSlug: 'storefront-test');
+      expect(favorites.single.publicationId, original.id);
+      expect(favorites.single.product, isNull);
+
+      final refreshed = _product(1, 'Ripubblicato', price: 1200, version: 8);
+      await cache.writeProductDetail(
+        shopSlug: 'storefront-test',
+        product: refreshed,
+      );
+      favorites = await cache.readFavorites(shopSlug: 'storefront-test');
+      expect(favorites.single.product?.name, 'Ripubblicato');
+    },
+  );
+
+  test('favorite rifiuta chiavi malformate e prodotti non cached', () async {
+    await expectLater(
+      cache.toggleFavorite(
+        shopSlug: '../storefront-test',
+        publicationId: _product(1, 'Valido', price: 1000).id,
+      ),
+      throwsA(
+        isA<StorefrontFailure>().having(
+          (failure) => failure.code,
+          'code',
+          'invalid_favorite_key',
+        ),
+      ),
+    );
+    await expectLater(
+      cache.toggleFavorite(
+        shopSlug: 'storefront-test',
+        publicationId: _product(2, 'Assente', price: 1000).id,
+      ),
+      throwsA(
+        isA<StorefrontFailure>().having(
+          (failure) => failure.code,
+          'code',
+          'favorite_product_unavailable',
+        ),
+      ),
+    );
   });
 }
 

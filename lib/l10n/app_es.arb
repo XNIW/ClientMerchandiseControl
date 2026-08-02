@@ -387,5 +387,33 @@
   "storefrontComingSoonLabel": "Próximamente",
   "@storefrontComingSoonLabel": {
     "description": "Etiqueta breve para funciones futuras no habilitadas."
-  }
+  },
+  "favoritesTitle": "Favoritos",
+  "favoritesOpen": "Ver favoritos",
+  "favoritesEmptyTitle": "Aún no tienes favoritos",
+  "favoritesEmptyMessage": "Guarda productos para encontrarlos rápidamente, incluso sin conexión.",
+  "favoritesErrorTitle": "No pudimos abrir tus favoritos",
+  "favoritesErrorMessage": "Vuelve a intentarlo. Tus selecciones permanecen en este dispositivo.",
+  "favoriteAdd": "Agregar a favoritos",
+  "favoriteRemove": "Quitar de favoritos",
+  "favoriteAdded": "Producto agregado a favoritos.",
+  "favoriteRemoved": "Producto quitado de favoritos.",
+  "favoriteUnavailableTitle": "Producto no disponible",
+  "favoriteUnavailableMessage": "Puedes conservar este favorito o quitarlo de la lista.",
+  "productShare": "Compartir producto",
+  "productShareText": "Mira {name} en Merchandise Control:\n{uri}",
+  "@productShareText": {
+    "description": "Texto público enviado al diálogo nativo de compartir.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Café"
+      },
+      "uri": {
+        "type": "String",
+        "example": "com.xniw.clientmerchandisecontrol://storefront/shop/product/id"
+      }
+    }
+  },
+  "productShareError": "No pudimos abrir las opciones para compartir."
 }

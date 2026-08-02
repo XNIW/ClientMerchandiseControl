@@ -141,5 +141,20 @@
   "accountAuthConfiguration": "Google sign-in isn't configured for this environment.",
   "accountAuthUnexpected": "Something unexpected happened. You can try again.",
   "accountAvatarLabel": "Avatar for {name}",
-  "storefrontComingSoonLabel": "Coming soon"
+  "storefrontComingSoonLabel": "Coming soon",
+  "favoritesTitle": "Favorites",
+  "favoritesOpen": "View favorites",
+  "favoritesEmptyTitle": "No favorites yet",
+  "favoritesEmptyMessage": "Save products to find them quickly, even when offline.",
+  "favoritesErrorTitle": "We couldn't open your favorites",
+  "favoritesErrorMessage": "Try again. Your selections stay on this device.",
+  "favoriteAdd": "Add to favorites",
+  "favoriteRemove": "Remove from favorites",
+  "favoriteAdded": "Product added to favorites.",
+  "favoriteRemoved": "Product removed from favorites.",
+  "favoriteUnavailableTitle": "Product unavailable",
+  "favoriteUnavailableMessage": "You can keep this favorite or remove it from the list.",
+  "productShare": "Share product",
+  "productShareText": "See {name} in Merchandise Control:\n{uri}",
+  "productShareError": "We couldn't open the sharing options."
 }

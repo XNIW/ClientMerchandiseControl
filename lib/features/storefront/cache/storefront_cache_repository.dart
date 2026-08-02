@@ -4,6 +4,19 @@ const storefrontCacheFreshTtl = Duration(minutes: 15);
 const storefrontCacheMaximumStale = Duration(days: 30);
 const storefrontCacheMaximumProducts = 25000;
 const storefrontCacheMaximumDetails = 500;
+const storefrontMaximumFavorites = 1000;
+
+class StorefrontFavoriteEntry {
+  const StorefrontFavoriteEntry({
+    required this.publicationId,
+    required this.updatedAt,
+    required this.product,
+  });
+
+  final String publicationId;
+  final DateTime updatedAt;
+  final StorefrontProductSummary? product;
+}
 
 class StorefrontCacheSnapshot<T> {
   const StorefrontCacheSnapshot({
@@ -86,6 +99,15 @@ abstract interface class StorefrontCacheRepository {
     required StorefrontProductSummary product,
   });
 
+  Future<List<StorefrontFavoriteEntry>> readFavorites({
+    required String shopSlug,
+  });
+
+  Future<bool> toggleFavorite({
+    required String shopSlug,
+    required String publicationId,
+  });
+
   Future<void> cleanup({required String shopSlug});
 
   Future<void> clearShop({required String shopSlug});
@@ -100,6 +122,11 @@ final class DisabledStorefrontCacheRepository
 
   @override
   Future<void> clearShop({required String shopSlug}) async {}
+
+  @override
+  Future<List<StorefrontFavoriteEntry>> readFavorites({
+    required String shopSlug,
+  }) async => const [];
 
   @override
   Future<StorefrontCacheSnapshot<StorefrontCatalogPage>?> readCatalog({
@@ -170,4 +197,10 @@ final class DisabledStorefrontCacheRepository
     required StorefrontSearchPage page,
     required String? categorySlug,
   }) async {}
+
+  @override
+  Future<bool> toggleFavorite({
+    required String shopSlug,
+    required String publicationId,
+  }) async => false;
 }

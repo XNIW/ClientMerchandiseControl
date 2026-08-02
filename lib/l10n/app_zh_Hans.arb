@@ -141,5 +141,20 @@
   "accountAuthConfiguration": "当前环境尚未配置 Google 登录。",
   "accountAuthUnexpected": "出现意外问题，你可以重试。",
   "accountAvatarLabel": "{name}的头像",
-  "storefrontComingSoonLabel": "即将推出"
+  "storefrontComingSoonLabel": "即将推出",
+  "favoritesTitle": "收藏",
+  "favoritesOpen": "查看收藏",
+  "favoritesEmptyTitle": "还没有收藏商品",
+  "favoritesEmptyMessage": "收藏商品后，即使离线也能快速找到它们。",
+  "favoritesErrorTitle": "无法打开收藏",
+  "favoritesErrorMessage": "请重试。你的选择会保留在此设备上。",
+  "favoriteAdd": "添加到收藏",
+  "favoriteRemove": "从收藏中移除",
+  "favoriteAdded": "商品已添加到收藏。",
+  "favoriteRemoved": "商品已从收藏中移除。",
+  "favoriteUnavailableTitle": "商品暂不可用",
+  "favoriteUnavailableMessage": "你可以保留此收藏，也可以将它从列表中移除。",
+  "productShare": "分享商品",
+  "productShareText": "在 Merchandise Control 查看{name}：\n{uri}",
+  "productShareError": "无法打开分享选项。"
 }

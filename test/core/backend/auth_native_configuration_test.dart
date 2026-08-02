@@ -5,35 +5,39 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   final repositoryRoot = Directory.current.path;
 
-  test('Android espone un solo VIEW filter callback esatto e backup off', () {
-    final manifest = File(
-      '$repositoryRoot/android/app/src/main/AndroidManifest.xml',
-    ).readAsStringSync();
+  test(
+    'Android separa callback Auth e deep link Storefront con backup off',
+    () {
+      final manifest = File(
+        '$repositoryRoot/android/app/src/main/AndroidManifest.xml',
+      ).readAsStringSync();
 
-    expect(_count(manifest, 'android.intent.action.VIEW'), 1);
-    expect(
-      _count(manifest, 'android:scheme="com.xniw.clientmerchandisecontrol"'),
-      1,
-    );
-    expect(_count(manifest, 'android:host="auth-callback"'), 1);
-    expect(_count(manifest, 'android:path="/"'), 1);
-    expect(manifest, contains('android:allowBackup="false"'));
-    expect(
-      manifest,
-      matches(
-        RegExp(
-          r'android:name="flutter_deeplinking_enabled"\s+'
-          r'android:value="false"',
+      expect(_count(manifest, 'android.intent.action.VIEW'), 2);
+      expect(
+        _count(manifest, 'android:scheme="com.xniw.clientmerchandisecontrol"'),
+        2,
+      );
+      expect(_count(manifest, 'android:host="auth-callback"'), 1);
+      expect(_count(manifest, 'android:host="storefront"'), 1);
+      expect(_count(manifest, 'android:path="/"'), 1);
+      expect(_count(manifest, 'android:pathPrefix="/"'), 1);
+      expect(manifest, contains('android:allowBackup="false"'));
+      expect(
+        manifest,
+        matches(
+          RegExp(
+            r'android:name="flutter_deeplinking_enabled"\s+'
+            r'android:value="false"',
+          ),
         ),
-      ),
-    );
-    expect(manifest, isNot(contains('android:autoVerify')));
-    expect(manifest, isNot(contains('android:pathPrefix')));
-    expect(manifest, isNot(contains('android:pathPattern')));
-    expect(manifest, isNot(contains('android:scheme="http"')));
-    expect(manifest, isNot(contains('android:scheme="https"')));
-    expect(manifest, isNot(contains('*')));
-  });
+      );
+      expect(manifest, isNot(contains('android:autoVerify')));
+      expect(manifest, isNot(contains('android:pathPattern')));
+      expect(manifest, isNot(contains('android:scheme="http"')));
+      expect(manifest, isNot(contains('android:scheme="https"')));
+      expect(manifest, isNot(contains('*')));
+    },
+  );
 
   test('iOS registra un solo custom scheme e disabilita handler Flutter', () {
     final plist = File(

@@ -5,14 +5,14 @@
 - **Task ID**: TASK-015
 - **Titolo**: Ricerca, filtri e ordinamento
 - **File task**: `docs/TASKS/TASK-015-search-filters-sorting.md`
-- **Stato**: ACTIVE
-- **Fase**: EXECUTION
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Fase**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-015/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -116,11 +116,58 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-In avvio.
+### Modifiche completate
+
+- model/DTO/repository strict per `storefront_search_v1`, con query/cursor/versione,
+  relevance bounded e allowlist payload fail-closed;
+- controller discovery unico con debounce 300 ms, cancellation/generation guard,
+  cursor separati, stale response discard, retry e reset atomico;
+- filtri categoria/disponibilità/sconto e quattro sort inoltrati server-side al solo
+  `storefront_catalog_v1`; categoria componibile con Search;
+- SearchBar, clear, disponibilità, sconto e sort accessibili e localizzati; i filtri
+  non supportati dal contratto Search sono disabilitati esplicitamente;
+- smoke staging guest Search/availability/discounted/price sort su Android/iOS.
+
+### Difetti corretti durante Execution
+
+- eliminato l'hang del test dropdown sostituendo l'interazione overlay non bounded con
+  callback widget deterministica;
+- retry Search conserva la catalog version nota, evitando reload categorie spurio e
+  mantenendo il vero recovery `catalog_changed`;
+- controllo raw della query blocca control character prima della normalizzazione;
+- form sort viene ricreato sul valore server-state, così il reset è visibile e coerente.
+
+### Gate eseguiti
+
+- revision set Client `6739bf663cca2dcad4dcd2ef11ee2415b238daeb`, PR `#5` draft;
+- `scripts/check.sh`: security 379 file, governance 8/8, architecture 7/7, l10n,
+  format, analyze, 266 test, coverage 2.878/3.460 linee (83,18%), Android debug e iOS
+  Simulator debug: `PASS`;
+- CI Client `30734363845`: Quality 3m17s, iOS 4m11s, Android 8m23s, 3/3 `PASS`;
+- Discovery Android Emulator live: 1/1 `PASS` in 20 s;
+- Discovery iOS Simulator live: 1/1 `PASS` in 3 s;
+- APK staging SHA-256
+  `dcf56c4ccb89d58f75920cc97df3a4f45a6ce63887f8fdd0bc47fb5064b83d2e`;
+- Runner staging executable SHA-256
+  `6d3b55ad31a66efadad0880b9265d0c68ed8658168a16320838eed284f033d65`;
+- production write: `NOT_RUN`; production invariata.
+
+### Matrici
+
+CA-01..CA-09 e T-01..T-07: `PASS`. Evidence sintetica:
+`docs/TASKS/EVIDENCE/TASK-015/README.md`.
+
+### Handoff
+
+`CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`. Nessuna review formale è stata
+eseguita e TASK-015 non è `DONE`.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate TASK-015. Nessuna review formale intermedia.
+TASK-015 è `VALIDATED_PENDING_INTEGRATED_REVIEW`: implementazione, gate completo, CI e
+smoke staging Android/iOS sono verdi sul revision set registrato. Production è
+invariata; nessuna review formale intermedia è stata eseguita. Il task successivo
+autorizzato è TASK-016.
 
 ## Review / Fix
 

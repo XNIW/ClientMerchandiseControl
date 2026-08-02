@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-015
-- **File task**: docs/TASKS/TASK-015-search-filters-sorting.md
+- **Task attivo**: TASK-016
+- **File task**: docs/TASKS/TASK-016-product-detail-commercial-availability.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,9 +14,9 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: implementare TASK-015 nel Client Flutter usando
-  esclusivamente `storefront_search_v1` e i filtri/sort pubblici di
-  `storefront_catalog_v1`, con production invariata
+- **Prossima azione autorizzata**: implementare TASK-016 nel Client Flutter usando
+  esclusivamente `storefront_product_detail_v1`, route prodotto pubblica e
+  disponibilità commerciale minimizzata, con production invariata
 
 ## Repository coinvolti
 
@@ -66,8 +66,8 @@
 | TASK-012 | App shell, design system, localizzazione, CLP e accessibility baseline | DONE | TASK-002, TASK-011 | Client | Shell prodotto e baseline accessibile |
 | TASK-013 | Home e prodotti/promozioni in evidenza | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
 | TASK-014 | Categorie e griglia catalogo con caricamento immagini | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
-| TASK-015 | Ricerca, filtri e ordinamento | ACTIVE | TASK-010, TASK-014 | Client, Supabase | Discovery catalogo efficiente |
-| TASK-016 | Dettaglio prodotto e disponibilità commerciale | TODO | TASK-010, TASK-014 | Client, Supabase | Dettaglio pubblico coerente |
+| TASK-015 | Ricerca, filtri e ordinamento | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014 | Client, Supabase | Discovery catalogo efficiente |
+| TASK-016 | Dettaglio prodotto e disponibilità commerciale | ACTIVE | TASK-010, TASK-014 | Client, Supabase | Dettaglio pubblico coerente |
 | TASK-017 | Cache catalogo offline, refresh e invalidazione | TODO | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
 | TASK-018 | Preferiti, condivisione e deep link prodotto | TODO | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
 | TASK-019 | Catalog performance e acceptance su dataset esteso | TODO | TASK-010, TASK-014, TASK-015, TASK-017 | Client, Supabase | Budget prestazioni misurato |
@@ -151,7 +151,9 @@ TASK-005/TASK-006/TASK-007/TASK-008/TASK-009/TASK-010 in
 `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-013 ha completato Home reale, fixture,
 CI e smoke Android/iOS ed è anch'esso `VALIDATED_PENDING_INTEGRATED_REVIEW`.
 TASK-014 ha completato categorie, keyset grid, immagini, CI e smoke Android/iOS ed è
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-015 è l'unico task `ACTIVE / EXECUTION`;
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-015 ha completato ricerca, filtri, sort,
+CI e smoke Android/iOS ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-016 è
+l'unico task `ACTIVE / EXECUTION`;
 i task successivi restano `TODO` fino al relativo handoff. La dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
@@ -184,5 +186,12 @@ Il revision set Client `61d8781c58b0c4acb41a80c1eab1f32412c037a8` ha superato
 smoke Catalogo reale Android/iOS e CI `30733287396` 3/3 `PASS`. Production è
 invariata. TASK-014 non è `DONE`: attende la review integrata finale.
 
+## Ultimo checkpoint interno — TASK-015
+
+Il revision set Client `6739bf663cca2dcad4dcd2ef11ee2415b238daeb` ha superato
+266 test con coverage 83,18%, gate security/governance/architecture, build Android/iOS,
+smoke Search/filtri/sort reali Android/iOS e CI `30734363845` 3/3 `PASS`.
+Production è invariata. TASK-015 non è `DONE`: attende la review integrata finale.
+
 Handoff:
-`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-015.
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-016.

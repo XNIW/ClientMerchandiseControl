@@ -161,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-015
-- **File task**: docs/TASKS/TASK-015-search-filters-sorting.md
+- **Task attivo**: TASK-016
+- **File task**: docs/TASKS/TASK-016-product-detail-commercial-availability.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -181,6 +181,6 @@ callback iOS warm/cold, restore, logout e nuovo login. Finding aperti 0 P0/P1/P2
 CI finale `30713857455` 3/3 `PASS`, step applicabili `success`, annotation 0/0/0.
 PR #4 è merged normalmente con commit `b2d70b5`; branch remoto eliminato e il closeout
 su `main` è stato verificato dalla CI `30714350425`. Il release train Storefront v1 è
-ora in `EXECUTION` sul worktree dedicato: TASK-005–TASK-010 pertinenti e TASK-013/014
-sono `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-015 è l'unico task attivo e gli altri
-task del train restano `TODO` fino al rispettivo checkpoint.
+ora in `EXECUTION` sul worktree dedicato: TASK-005–TASK-010 pertinenti e
+TASK-013–TASK-015 sono `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-016 è l'unico task
+attivo e gli altri task del train restano `TODO` fino al rispettivo checkpoint.

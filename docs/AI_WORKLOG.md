@@ -1455,3 +1455,21 @@
 - **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
 - **Transizione**: TASK-015 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per search debounced, filtri pubblici e ordinamenti keyset.
+
+## 2026-08-02 — Checkpoint interno TASK-015 e attivazione TASK-016
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-015**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; Search RPC-only, debounce,
+  cancellation/stale guard, keyset, categoria, availability, discounted e quattro sort.
+- **Revision set Client**: `6739bf663cca2dcad4dcd2ef11ee2415b238daeb`, PR #5 draft.
+- **Gate locali**: security/governance/architecture/l10n/format/analyze, 266 test,
+  coverage 2.878/3.460 (83,18%), Android debug e iOS Simulator debug: `PASS`.
+- **CI Client**: run `30734363845`, Quality 3m17s, iOS 4m11s e Android 8m23s,
+  tutti `PASS` sullo SHA esatto.
+- **Smoke mobile**: Discovery Android 1/1 in 20 s e iOS 1/1 in 3 s, entrambi `PASS`
+  su Search/availability/discounted/price sort reali e sessione guest assente.
+- **Difetti corretti**: hang test dropdown eliminato, retry conserva catalog version,
+  control character raw negati e reset sort visualmente coerente.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-016 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per route e dettaglio prodotto pubblico con availability commerciale.

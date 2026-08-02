@@ -49,6 +49,9 @@ void main() {
       await bootstrap();
       await tester.pump();
       expect(find.byType(HomeScreen), findsOneWidget);
+      expect(find.byKey(const ValueKey('home-search')), findsOneWidget);
+      expect(find.byKey(const ValueKey('nav-catalog')), findsOneWidget);
+      final firstUsableMs = startup.elapsedMilliseconds;
       final container = ProviderScope.containerOf(
         tester.element(find.byType(HomeScreen)),
       );
@@ -58,7 +61,7 @@ void main() {
           final home = container.read(homeControllerProvider);
           return home.status == HomeLoadStatus.data && !home.isRefreshing;
         },
-        'Home first usable',
+        'Home data-backed',
         attempts: 400,
         diagnostics: () {
           final readiness = container.read(backendReadinessControllerProvider);
@@ -68,7 +71,7 @@ void main() {
               'failure=${home.failure?.kind.name}/${home.failure?.code}';
         },
       );
-      final firstUsableMs = startup.elapsedMilliseconds;
+      final homeDataMs = startup.elapsedMilliseconds;
       final home = container.read(homeControllerProvider);
       expect(home.data?.featured, isNotEmpty);
       expect(home.data!.featured.first.images?.card, isNotNull);
@@ -175,6 +178,7 @@ void main() {
       debugPrint(
         'STOREFRONT_DEVICE_PERF '
         'first_usable_ms=$firstUsableMs '
+        'home_data_ms=$homeDataMs '
         'backend_ready_ms=$backendReadyMs '
         'catalog_ms=${catalogWatch.elapsedMilliseconds} '
         'search_ms=${searchWatch.elapsedMilliseconds} '
@@ -192,6 +196,7 @@ void main() {
       binding.reportData = <String, Object?>{
         'datasetProfile': 'staging-task019-20k-v1',
         'firstUsableMs': firstUsableMs,
+        'homeDataMs': homeDataMs,
         'backendReadyMs': backendReadyMs,
         'catalogMs': catalogWatch.elapsedMilliseconds,
         'searchMs': searchWatch.elapsedMilliseconds,

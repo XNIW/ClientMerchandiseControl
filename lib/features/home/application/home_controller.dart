@@ -74,6 +74,8 @@ final homeControllerProvider = NotifierProvider<HomeController, HomeState>(
 class HomeController extends Notifier<HomeState> {
   StorefrontRequestCancellation? _cancellation;
   Future<void> _cachePersistence = Future<void>.value();
+  var _cacheOnlyInFlight = false;
+  var _refreshWhenCacheCompletes = false;
   var _generation = 0;
   var _disposed = false;
 
@@ -81,6 +83,10 @@ class HomeController extends Notifier<HomeState> {
   HomeState build() {
     _disposed = false;
     final readiness = ref.read(backendReadinessControllerProvider);
+    ref.listen(
+      backendReadinessControllerProvider,
+      (_, next) => _handleReadinessChange(next),
+    );
     ref.onDispose(_dispose);
     return switch (readiness) {
       BackendReadinessState.ready => _startAfterBuild(),
@@ -100,6 +106,20 @@ class HomeController extends Notifier<HomeState> {
   }
 
   Future<void> retry() => _load();
+
+  void _handleReadinessChange(BackendReadinessState readiness) {
+    if (_disposed || readiness != BackendReadinessState.ready) return;
+    if (_cacheOnlyInFlight) {
+      _refreshWhenCacheCompletes = true;
+      return;
+    }
+    final shouldRefresh =
+        state.status == HomeLoadStatus.offline ||
+        state.status == HomeLoadStatus.unavailable ||
+        state.status == HomeLoadStatus.failure ||
+        (state.isFromCache && !state.isRefreshing);
+    if (shouldRefresh) unawaited(_load());
+  }
 
   HomeState _startAfterBuild() {
     scheduleMicrotask(() {
@@ -129,10 +149,15 @@ class HomeController extends Notifier<HomeState> {
     state = const HomeState.loading();
     final cacheFuture = _readCachedHome(shopSlug);
     if (cacheOnly) {
+      _cacheOnlyInFlight = true;
       final cached = (await cacheFuture).snapshot;
-      if (_isStale(generation, cancellation)) return;
+      if (_isStale(generation, cancellation)) {
+        _finishCacheOnlyLoad();
+        return;
+      }
       _publishCached(cached, isRefreshing: false);
       if (cached == null) state = const HomeState.offline();
+      _finishCacheOnlyLoad();
       return;
     }
     final remoteFuture = _fetchRemoteHome(shopSlug, cancellation);
@@ -273,6 +298,13 @@ class HomeController extends Notifier<HomeState> {
     );
   }
 
+  void _finishCacheOnlyLoad() {
+    _cacheOnlyInFlight = false;
+    if (!_refreshWhenCacheCompletes || _disposed) return;
+    _refreshWhenCacheCompletes = false;
+    unawaited(_load());
+  }
+
   Future<void> _persistHome(String shopSlug, StorefrontHomeData data) async {
     try {
       final cache = ref.read(storefrontCacheRepositoryProvider);
@@ -304,6 +336,8 @@ class HomeController extends Notifier<HomeState> {
 
   void _dispose() {
     _disposed = true;
+    _cacheOnlyInFlight = false;
+    _refreshWhenCacheCompletes = false;
     _generation += 1;
     _cancellation?.cancel();
   }

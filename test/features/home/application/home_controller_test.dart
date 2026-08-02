@@ -200,6 +200,62 @@ void main() {
     cache.writeResult.complete();
     await Future<void>.delayed(Duration.zero);
   });
+
+  test(
+    'reconnect attende la cache offline e poi avvia un solo fetch live',
+    () async {
+      final repository = _QueuedRepository()
+        ..responses.add(() async => validStorefrontHomeData());
+      final cache = _BlockingHomeCacheRepository();
+      final readinessRepository = _CompletableReadinessRepository(
+        initialState: BackendReadinessState.offline,
+      );
+      final container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWithValue(
+            AppConfig.fromValues(
+              appEnvironment: 'staging',
+              supabaseUrl: 'https://staging.example.invalid',
+              supabasePublishableKey: 'sb_publishable_staging',
+              authRedirectUri: AppConfig.allowedAuthRedirectUri,
+              googleAuthEnabled: 'false',
+              storefrontShopSlug: 'storefront-test',
+            ),
+          ),
+          backendReadinessRepositoryProvider.overrideWithValue(
+            readinessRepository,
+          ),
+          storefrontRepositoryProvider.overrideWithValue(repository),
+          storefrontCacheRepositoryProvider.overrideWithValue(cache),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      container.read(homeControllerProvider);
+      await Future<void>.delayed(Duration.zero);
+      expect(cache.readCalls, 1);
+      expect(repository.calls, 0);
+
+      final reconnect = container
+          .read(backendReadinessControllerProvider.notifier)
+          .retry();
+      readinessRepository.completeNext(BackendReadinessState.ready);
+      await reconnect;
+      expect(repository.calls, 0);
+
+      cache.readResult.complete(null);
+      for (var turn = 0; turn < 5; turn += 1) {
+        await Future<void>.delayed(Duration.zero);
+      }
+
+      expect(repository.calls, 1);
+      expect(
+        container.read(homeControllerProvider).status,
+        HomeLoadStatus.data,
+      );
+      cache.writeResult.complete();
+    },
+  );
 }
 
 ProviderContainer _container(
@@ -292,12 +348,16 @@ final class _StaticReadinessRepository implements BackendReadinessRepository {
 
 final class _CompletableReadinessRepository
     implements BackendReadinessRepository {
+  _CompletableReadinessRepository({
+    this.initialState = BackendReadinessState.initializing,
+  });
+
   final List<Completer<BackendReadinessState>> _results = [];
 
   int get calls => _results.length;
 
   @override
-  BackendReadinessState get initialState => BackendReadinessState.initializing;
+  final BackendReadinessState initialState;
 
   @override
   bool get canCheck => true;

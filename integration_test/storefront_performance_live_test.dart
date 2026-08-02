@@ -172,6 +172,18 @@ void main() {
       final frameP99Us = _percentile(sortedFrames, 0.99);
       final severeFrames = sortedFrames.where((value) => value > 32000).length;
 
+      debugPrint(
+        'STOREFRONT_DEVICE_PERF '
+        'first_usable_ms=$firstUsableMs '
+        'backend_ready_ms=$backendReadyMs '
+        'catalog_ms=${catalogWatch.elapsedMilliseconds} '
+        'search_ms=${searchWatch.elapsedMilliseconds} '
+        'detail_ms=${detailWatch.elapsedMilliseconds} '
+        'favorite_ms=${favoriteWatch.elapsedMilliseconds} '
+        'frames=${sortedFrames.length} '
+        'frame_us=$frameP50Us/$frameP95Us/$frameP99Us '
+        'severe_frames=$severeFrames',
+      );
       expect(firstUsableMs, lessThanOrEqualTo(3000));
       expect(sortedFrames, isNotEmpty);
       expect(frameP99Us, lessThan(200000));

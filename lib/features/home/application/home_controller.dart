@@ -73,6 +73,7 @@ final homeControllerProvider = NotifierProvider<HomeController, HomeState>(
 
 class HomeController extends Notifier<HomeState> {
   StorefrontRequestCancellation? _cancellation;
+  Future<void> _cachePersistence = Future<void>.value();
   var _generation = 0;
   var _disposed = false;
 
@@ -126,80 +127,150 @@ class HomeController extends Notifier<HomeState> {
     final cancellation = StorefrontRequestCancellation();
     _cancellation = cancellation;
     state = const HomeState.loading();
-    StorefrontCacheSnapshot<StorefrontHomeData>? cached;
-    try {
-      cached = await ref
-          .read(storefrontCacheRepositoryProvider)
-          .readHome(shopSlug: shopSlug);
-    } on Object {
-      cached = null;
+    final cacheFuture = _readCachedHome(shopSlug);
+    if (cacheOnly) {
+      final cached = (await cacheFuture).snapshot;
+      if (_isStale(generation, cancellation)) return;
+      _publishCached(cached, isRefreshing: false);
+      if (cached == null) state = const HomeState.offline();
+      return;
     }
+    final remoteFuture = _fetchRemoteHome(shopSlug, cancellation);
+    final first = await Future.any<_HomeLoadCandidate>([
+      cacheFuture,
+      remoteFuture,
+    ]);
     if (_isStale(generation, cancellation)) return;
-    if (cached != null) {
-      final fresh = cached.isFreshAt(DateTime.now());
+
+    StorefrontCacheSnapshot<StorefrontHomeData>? cached;
+    if (first case _HomeCacheCandidate(:final snapshot)) {
+      cached = snapshot;
+      _publishCached(cached, isRefreshing: true);
+    }
+
+    final remote = first is _HomeRemoteCandidate ? first : await remoteFuture;
+    if (_isStale(generation, cancellation)) return;
+    if (remote.data case final data?) {
+      state = data.isEmpty ? const HomeState.empty() : HomeState.data(data);
+      _queuePersistHome(shopSlug, data);
+      return;
+    }
+
+    if (cached == null) {
+      cached = (await cacheFuture).snapshot;
+      if (_isStale(generation, cancellation)) return;
+    }
+    await _publishFailure(
+      shopSlug: shopSlug,
+      failure: remote.failure!,
+      cached: cached,
+      generation: generation,
+      cancellation: cancellation,
+    );
+  }
+
+  Future<_HomeCacheCandidate> _readCachedHome(String shopSlug) async {
+    try {
+      return _HomeCacheCandidate(
+        await ref
+            .read(storefrontCacheRepositoryProvider)
+            .readHome(shopSlug: shopSlug),
+      );
+    } on Object {
+      return const _HomeCacheCandidate(null);
+    }
+  }
+
+  Future<_HomeRemoteCandidate> _fetchRemoteHome(
+    String shopSlug,
+    StorefrontRequestCancellation cancellation,
+  ) async {
+    try {
+      return _HomeRemoteCandidate.data(
+        await ref
+            .read(storefrontRepositoryProvider)
+            .fetchHome(shopSlug: shopSlug, cancellation: cancellation),
+      );
+    } on StorefrontFailure catch (failure) {
+      return _HomeRemoteCandidate.failure(failure);
+    } on Object {
+      return _HomeRemoteCandidate.failure(
+        const StorefrontFailure(
+          StorefrontFailureKind.unknown,
+          code: 'storefront_unknown',
+        ),
+      );
+    }
+  }
+
+  void _publishCached(
+    StorefrontCacheSnapshot<StorefrontHomeData>? cached, {
+    required bool isRefreshing,
+  }) {
+    if (cached == null) return;
+    final fresh = cached.isFreshAt(DateTime.now());
+    state = cached.value.isEmpty
+        ? HomeState.empty(
+            isFromCache: true,
+            isStale: !fresh,
+            isRefreshing: isRefreshing,
+            cachedAt: cached.refreshedAt,
+          )
+        : HomeState.data(
+            cached.value,
+            isFromCache: true,
+            isStale: !fresh,
+            isRefreshing: isRefreshing,
+            cachedAt: cached.refreshedAt,
+          );
+  }
+
+  Future<void> _publishFailure({
+    required String shopSlug,
+    required StorefrontFailure failure,
+    required StorefrontCacheSnapshot<StorefrontHomeData>? cached,
+    required int generation,
+    required StorefrontRequestCancellation cancellation,
+  }) async {
+    if (cached != null &&
+        (failure.kind == StorefrontFailureKind.offline ||
+            failure.kind == StorefrontFailureKind.timeout)) {
       state = cached.value.isEmpty
           ? HomeState.empty(
               isFromCache: true,
-              isStale: !fresh,
-              isRefreshing: !cacheOnly,
+              isStale: true,
               cachedAt: cached.refreshedAt,
             )
           : HomeState.data(
               cached.value,
+              failure: failure,
               isFromCache: true,
-              isStale: !fresh,
-              isRefreshing: !cacheOnly,
+              isStale: true,
               cachedAt: cached.refreshedAt,
             );
-    }
-    if (cacheOnly) {
-      if (cached == null) state = const HomeState.offline();
       return;
     }
-    try {
-      final data = await ref
-          .read(storefrontRepositoryProvider)
-          .fetchHome(shopSlug: shopSlug, cancellation: cancellation);
+    if (_requiresCacheInvalidation(failure)) {
+      await _invalidateCache(shopSlug);
       if (_isStale(generation, cancellation)) return;
-      await _persistHome(shopSlug, data);
-      if (_isStale(generation, cancellation)) return;
-      state = data.isEmpty ? const HomeState.empty() : HomeState.data(data);
-    } on StorefrontFailure catch (failure) {
-      if (_isStale(generation, cancellation)) return;
-      if (cached != null &&
-          (failure.kind == StorefrontFailureKind.offline ||
-              failure.kind == StorefrontFailureKind.timeout)) {
-        state = cached.value.isEmpty
-            ? HomeState.empty(
-                isFromCache: true,
-                isStale: true,
-                cachedAt: cached.refreshedAt,
-              )
-            : HomeState.data(
-                cached.value,
-                failure: failure,
-                isFromCache: true,
-                isStale: true,
-                cachedAt: cached.refreshedAt,
-              );
-        return;
-      }
-      if (_requiresCacheInvalidation(failure)) {
-        await _invalidateCache(shopSlug);
-        if (_isStale(generation, cancellation)) return;
-      }
-      state = switch (failure.kind) {
-        StorefrontFailureKind.cancelled => state,
-        StorefrontFailureKind.offline ||
-        StorefrontFailureKind.timeout => const HomeState.offline(),
-        StorefrontFailureKind.invalidConfiguration ||
-        StorefrontFailureKind.unauthorized ||
-        StorefrontFailureKind.unavailable => const HomeState.unavailable(),
-        StorefrontFailureKind.catalogChanged ||
-        StorefrontFailureKind.invalidPayload ||
-        StorefrontFailureKind.unknown => HomeState.failure(failure),
-      };
     }
+    state = switch (failure.kind) {
+      StorefrontFailureKind.cancelled => state,
+      StorefrontFailureKind.offline ||
+      StorefrontFailureKind.timeout => const HomeState.offline(),
+      StorefrontFailureKind.invalidConfiguration ||
+      StorefrontFailureKind.unauthorized ||
+      StorefrontFailureKind.unavailable => const HomeState.unavailable(),
+      StorefrontFailureKind.catalogChanged ||
+      StorefrontFailureKind.invalidPayload ||
+      StorefrontFailureKind.unknown => HomeState.failure(failure),
+    };
+  }
+
+  void _queuePersistHome(String shopSlug, StorefrontHomeData data) {
+    _cachePersistence = _cachePersistence.then(
+      (_) => _persistHome(shopSlug, data),
+    );
   }
 
   Future<void> _persistHome(String shopSlug, StorefrontHomeData data) async {
@@ -236,4 +307,26 @@ class HomeController extends Notifier<HomeState> {
     _generation += 1;
     _cancellation?.cancel();
   }
+}
+
+sealed class _HomeLoadCandidate {
+  const _HomeLoadCandidate();
+}
+
+final class _HomeCacheCandidate extends _HomeLoadCandidate {
+  const _HomeCacheCandidate(this.snapshot);
+
+  final StorefrontCacheSnapshot<StorefrontHomeData>? snapshot;
+}
+
+final class _HomeRemoteCandidate extends _HomeLoadCandidate {
+  const _HomeRemoteCandidate._({this.data, this.failure});
+
+  const _HomeRemoteCandidate.data(StorefrontHomeData data) : this._(data: data);
+
+  const _HomeRemoteCandidate.failure(StorefrontFailure failure)
+    : this._(failure: failure);
+
+  final StorefrontHomeData? data;
+  final StorefrontFailure? failure;
 }

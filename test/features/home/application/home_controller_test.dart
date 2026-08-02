@@ -173,9 +173,38 @@ void main() {
       );
     },
   );
+
+  test('dati live non attendono lettura o persistenza della cache', () async {
+    final repository = _QueuedRepository()
+      ..responses.add(() async => validStorefrontHomeData());
+    final cache = _BlockingHomeCacheRepository();
+    final container = _container(repository, cache: cache);
+    addTearDown(container.dispose);
+
+    expect(
+      container.read(homeControllerProvider).status,
+      HomeLoadStatus.loading,
+    );
+    for (var turn = 0; turn < 5; turn += 1) {
+      await Future<void>.delayed(Duration.zero);
+    }
+
+    expect(cache.readCalls, 1);
+    expect(cache.writeCalls, 1);
+    expect(cache.readResult.isCompleted, isFalse);
+    expect(cache.writeResult.isCompleted, isFalse);
+    expect(container.read(homeControllerProvider).status, HomeLoadStatus.data);
+
+    cache.readResult.complete(null);
+    cache.writeResult.complete();
+    await Future<void>.delayed(Duration.zero);
+  });
 }
 
-ProviderContainer _container(StorefrontRepository repository) {
+ProviderContainer _container(
+  StorefrontRepository repository, {
+  StorefrontCacheRepository cache = const DisabledStorefrontCacheRepository(),
+}) {
   return ProviderContainer(
     overrides: [
       appConfigProvider.overrideWithValue(
@@ -192,11 +221,42 @@ ProviderContainer _container(StorefrontRepository repository) {
         const _StaticReadinessRepository(BackendReadinessState.ready),
       ),
       storefrontRepositoryProvider.overrideWithValue(repository),
-      storefrontCacheRepositoryProvider.overrideWithValue(
-        const DisabledStorefrontCacheRepository(),
-      ),
+      storefrontCacheRepositoryProvider.overrideWithValue(cache),
     ],
   );
+}
+
+final class _BlockingHomeCacheRepository implements StorefrontCacheRepository {
+  final readResult = Completer<StorefrontCacheSnapshot<StorefrontHomeData>?>();
+  final writeResult = Completer<void>();
+  var readCalls = 0;
+  var writeCalls = 0;
+
+  @override
+  Future<StorefrontCacheSnapshot<StorefrontHomeData>?> readHome({
+    required String shopSlug,
+  }) {
+    readCalls += 1;
+    return readResult.future;
+  }
+
+  @override
+  Future<void> writeHome({
+    required String shopSlug,
+    required StorefrontHomeData data,
+  }) {
+    writeCalls += 1;
+    return writeResult.future;
+  }
+
+  @override
+  Future<void> cleanup({required String shopSlug}) async {}
+
+  @override
+  Future<void> clearShop({required String shopSlug}) async {}
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 final class _QueuedRepository extends HomeOnlyStorefrontRepository {

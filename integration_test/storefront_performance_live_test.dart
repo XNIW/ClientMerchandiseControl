@@ -173,7 +173,9 @@ void main() {
       final frameP50Us = _percentile(sortedFrames, 0.50);
       final frameP95Us = _percentile(sortedFrames, 0.95);
       final frameP99Us = _percentile(sortedFrames, 0.99);
-      final severeFrames = sortedFrames.where((value) => value > 32000).length;
+      final jankyFrames = sortedFrames.where((value) => value > 32000).length;
+      final severeFrames = sortedFrames.where((value) => value > 100000).length;
+      final frozenFrames = sortedFrames.where((value) => value > 700000).length;
 
       debugPrint(
         'STOREFRONT_DEVICE_PERF '
@@ -186,11 +188,13 @@ void main() {
         'favorite_ms=${favoriteWatch.elapsedMilliseconds} '
         'frames=${sortedFrames.length} '
         'frame_us=$frameP50Us/$frameP95Us/$frameP99Us '
-        'severe_frames=$severeFrames',
+        'janky_frames=$jankyFrames '
+        'severe_frames=$severeFrames frozen_frames=$frozenFrames',
       );
       expect(firstUsableMs, lessThanOrEqualTo(3000));
       expect(sortedFrames, isNotEmpty);
-      expect(frameP99Us, lessThan(200000));
+      expect(frameP99Us, lessThan(120000));
+      expect(frozenFrames, 0);
       expect(tester.takeException(), isNull);
 
       binding.reportData = <String, Object?>{
@@ -206,7 +210,9 @@ void main() {
         'frameP50Us': frameP50Us,
         'frameP95Us': frameP95Us,
         'frameP99Us': frameP99Us,
-        'severeFramesOver32Ms': severeFrames,
+        'jankyFramesOver32Ms': jankyFrames,
+        'severeFramesOver100Ms': severeFrames,
+        'frozenFramesOver700Ms': frozenFrames,
         'imageBackedFirstProduct': true,
         'result': 'PASS',
       };

@@ -5,6 +5,10 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_contro
 import 'package:client_merchandise_control/core/backend/backend_readiness_repository.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
+import 'package:client_merchandise_control/features/cart/application/cart_providers.dart';
+import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
+import 'package:client_merchandise_control/features/cart/domain/cart_repository.dart';
 import 'package:client_merchandise_control/features/home/presentation/storefront_product_card.dart';
 import 'package:client_merchandise_control/features/product_detail/presentation/product_detail_screen.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
@@ -52,6 +56,27 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('tap Add to cart invoca lo storage guest con snapshot pubblico', (
+    tester,
+  ) async {
+    final guest = _DetailGuestCartStore();
+    await tester.pumpWidget(
+      _detailApp(
+        repository: _DetailRepository(product: _detailProduct()),
+        guestCartStore: guest,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(ValueKey('add-to-cart-$_publicationId')));
+    await tester.pumpAndSettle();
+
+    expect(guest.setCalls, 1);
+    expect(guest.lastProduct?.id, _publicationId);
+    expect(guest.lastProduct?.name, 'Café público');
+    expect(find.text('Producto agregado al carrito.'), findsOneWidget);
+  });
 
   testWidgets('usa la variante detail pubblica con decode bounded', (
     tester,
@@ -265,12 +290,13 @@ void main() {
 
 Widget _detailApp({
   required StorefrontRepository repository,
+  GuestCartStore? guestCartStore,
   String publicationId = _publicationId,
   Locale locale = const Locale('es', 'CL'),
   ThemeMode themeMode = ThemeMode.light,
   TextScaler textScaler = TextScaler.noScaling,
 }) => ProviderScope(
-  overrides: _overrides(repository),
+  overrides: _overrides(repository, guestCartStore: guestCartStore),
   child: MaterialApp(
     locale: locale,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -300,7 +326,10 @@ Widget _routerApp({
   ),
 );
 
-List<Override> _overrides(StorefrontRepository repository) => [
+List<Override> _overrides(
+  StorefrontRepository repository, {
+  GuestCartStore? guestCartStore,
+}) => [
   appConfigProvider.overrideWithValue(
     AppConfig.fromValues(
       appEnvironment: 'staging',
@@ -317,6 +346,10 @@ List<Override> _overrides(StorefrontRepository repository) => [
   storefrontRepositoryProvider.overrideWithValue(repository),
   storefrontCacheRepositoryProvider.overrideWithValue(
     const DisabledStorefrontCacheRepository(),
+  ),
+  customerAccountIdentityProvider.overrideWithValue(null),
+  guestCartStoreProvider.overrideWithValue(
+    guestCartStore ?? _DetailGuestCartStore(),
   ),
 ];
 
@@ -371,6 +404,74 @@ StorefrontProductSummary _detailProduct({
   publishedAt: DateTime.utc(2026, 8, 1),
   updatedAt: DateTime.utc(2026, 8, 1, 1),
 );
+
+final class _DetailGuestCartStore implements GuestCartStore {
+  CustomerCartSnapshot snapshot = CustomerCartSnapshot.empty(
+    shopSlug: 'storefront-test',
+    source: CartSource.guest,
+  );
+  int setCalls = 0;
+  StorefrontProductSummary? lastProduct;
+
+  @override
+  Future<CustomerCartSnapshot> read({required String shopSlug}) async =>
+      snapshot;
+
+  @override
+  Future<CustomerCartSnapshot> setProduct({
+    required String shopSlug,
+    required StorefrontProductSummary product,
+    required int quantity,
+  }) async {
+    setCalls++;
+    lastProduct = product;
+    final line = CartLine(
+      publicationId: product.id,
+      publicName: product.name,
+      quantity: quantity,
+      priceClp: product.priceClp,
+      snapshotPriceClp: product.priceClp,
+      availability: product.availability,
+      status: CartLineStatus.available,
+      changeType: CartLineChangeType.none,
+      isGuest: true,
+    );
+    snapshot = CustomerCartSnapshot(
+      shopSlug: shopSlug,
+      version: 0,
+      items: [line],
+      source: CartSource.guest,
+      quoteStatus: CartQuoteStatus.indicative,
+      requiresCustomerReview: false,
+      subtotalClp: line.lineSubtotalClp,
+      idempotent: true,
+    );
+    return snapshot;
+  }
+
+  @override
+  Future<CustomerCartSnapshot> setQuantity({
+    required String shopSlug,
+    required String publicationId,
+    required int quantity,
+  }) async => snapshot;
+
+  @override
+  Future<CustomerCartSnapshot> remove({
+    required String shopSlug,
+    required String publicationId,
+  }) async => snapshot;
+
+  @override
+  Future<CustomerCartSnapshot> clear({required String shopSlug}) async =>
+      snapshot;
+
+  @override
+  Future<CustomerCartSnapshot> retainOnly({
+    required String shopSlug,
+    required Set<String> publicationIds,
+  }) async => snapshot;
+}
 
 final class _DetailRepository extends HomeOnlyStorefrontRepository {
   _DetailRepository({required this.product, this.failOnce});

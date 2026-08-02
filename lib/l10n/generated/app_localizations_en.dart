@@ -835,4 +835,138 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerNotificationsRetry => 'Retry';
+
+  @override
+  String get cartAddAction => 'Add to cart';
+
+  @override
+  String get cartAddedNotice => 'Product added to cart.';
+
+  @override
+  String get cartGuestSyncMessage =>
+      'Your cart is saved on this device and works offline.';
+
+  @override
+  String get cartAccountSyncMessage =>
+      'Your cart is linked to your account and validated with the store.';
+
+  @override
+  String cartIndicativeSubtotal(String price) {
+    return 'Estimated subtotal: $price';
+  }
+
+  @override
+  String cartConfirmedSubtotal(String price) {
+    return 'Validated subtotal: $price';
+  }
+
+  @override
+  String get cartRevalidateAction => 'Validate cart';
+
+  @override
+  String get cartEstimatedLabel => 'Estimated';
+
+  @override
+  String get cartValidatedLabel => 'Validated';
+
+  @override
+  String get cartRetryAction => 'Retry';
+
+  @override
+  String get cartClearAction => 'Clear cart';
+
+  @override
+  String get cartClearTitle => 'Clear the cart?';
+
+  @override
+  String get cartClearMessage => 'All products will be removed from this cart.';
+
+  @override
+  String get cartRemoveAction => 'Remove';
+
+  @override
+  String cartQuantityLabel(int quantity) {
+    return 'Quantity: $quantity';
+  }
+
+  @override
+  String get cartDecreaseQuantity => 'Decrease quantity';
+
+  @override
+  String get cartIncreaseQuantity => 'Increase quantity';
+
+  @override
+  String get cartUnavailableLine => 'This product is no longer available.';
+
+  @override
+  String get cartPriceChangedLine =>
+      'The price changed. Review the current amount.';
+
+  @override
+  String get cartPromotionChangedLine =>
+      'The promotion changed. Review the current amount.';
+
+  @override
+  String get cartMergedNotice =>
+      'This device\'s cart was synced with your account.';
+
+  @override
+  String get cartPartialMergeNotice =>
+      'Available products were synced; the others remain for your review.';
+
+  @override
+  String get cartRevalidatedNotice =>
+      'Prices and availability validated by the store.';
+
+  @override
+  String get cartUpdatedNotice => 'Quantity updated.';
+
+  @override
+  String get cartRemovedNotice => 'Product removed from cart.';
+
+  @override
+  String get cartClearedNotice => 'Cart cleared.';
+
+  @override
+  String get cartOfflineError =>
+      'You are offline. Your local cart is still available.';
+
+  @override
+  String get cartTimeoutError =>
+      'The store took too long. Retry without duplicating the operation.';
+
+  @override
+  String get cartUnauthorizedError => 'Sign in again to sync the cart.';
+
+  @override
+  String get cartConflictError =>
+      'The cart changed elsewhere. Refresh and try again.';
+
+  @override
+  String get cartUnavailableError => 'We cannot update the cart right now.';
+
+  @override
+  String get cartInvalidError => 'The cart request is invalid.';
+
+  @override
+  String get cartLimitReached =>
+      'The cart reached its maximum number of distinct products.';
+
+  @override
+  String get cartProductUnavailable => 'This product can no longer be added.';
+
+  @override
+  String get cartSignInAction => 'Sign in';
+
+  @override
+  String get cartPendingRetry => 'A pending operation can be retried safely.';
+
+  @override
+  String get cartPriceDisclaimer =>
+      'Prices and availability will be confirmed again before the order is created.';
+
+  @override
+  String cartLineSemantics(String name, int quantity, String price) {
+    return '$name, quantity $quantity, $price';
+  }
 }

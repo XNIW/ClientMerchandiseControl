@@ -1554,6 +1554,234 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Reintentar'**
   String get customerNotificationsRetry;
+
+  /// No description provided for @cartAddAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar al carrito'**
+  String get cartAddAction;
+
+  /// No description provided for @cartAddedNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Producto agregado al carrito.'**
+  String get cartAddedNotice;
+
+  /// No description provided for @cartGuestSyncMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu carrito se guarda en este dispositivo y funciona sin conexión.'**
+  String get cartGuestSyncMessage;
+
+  /// No description provided for @cartAccountSyncMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu carrito está asociado a tu cuenta y se valida con la tienda.'**
+  String get cartAccountSyncMessage;
+
+  /// No description provided for @cartIndicativeSubtotal.
+  ///
+  /// In es, this message translates to:
+  /// **'Subtotal estimado: {price}'**
+  String cartIndicativeSubtotal(String price);
+
+  /// No description provided for @cartConfirmedSubtotal.
+  ///
+  /// In es, this message translates to:
+  /// **'Subtotal validado: {price}'**
+  String cartConfirmedSubtotal(String price);
+
+  /// No description provided for @cartRevalidateAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Validar carrito'**
+  String get cartRevalidateAction;
+
+  /// No description provided for @cartEstimatedLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Estimado'**
+  String get cartEstimatedLabel;
+
+  /// No description provided for @cartValidatedLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Validado'**
+  String get cartValidatedLabel;
+
+  /// No description provided for @cartRetryAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar'**
+  String get cartRetryAction;
+
+  /// No description provided for @cartClearAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Vaciar carrito'**
+  String get cartClearAction;
+
+  /// No description provided for @cartClearTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Vaciar el carrito?'**
+  String get cartClearTitle;
+
+  /// No description provided for @cartClearMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Se eliminarán todos los productos de este carrito.'**
+  String get cartClearMessage;
+
+  /// No description provided for @cartRemoveAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get cartRemoveAction;
+
+  /// No description provided for @cartQuantityLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad: {quantity}'**
+  String cartQuantityLabel(int quantity);
+
+  /// No description provided for @cartDecreaseQuantity.
+  ///
+  /// In es, this message translates to:
+  /// **'Reducir cantidad'**
+  String get cartDecreaseQuantity;
+
+  /// No description provided for @cartIncreaseQuantity.
+  ///
+  /// In es, this message translates to:
+  /// **'Aumentar cantidad'**
+  String get cartIncreaseQuantity;
+
+  /// No description provided for @cartUnavailableLine.
+  ///
+  /// In es, this message translates to:
+  /// **'Este producto ya no está disponible.'**
+  String get cartUnavailableLine;
+
+  /// No description provided for @cartPriceChangedLine.
+  ///
+  /// In es, this message translates to:
+  /// **'El precio cambió. Revisa el valor actual.'**
+  String get cartPriceChangedLine;
+
+  /// No description provided for @cartPromotionChangedLine.
+  ///
+  /// In es, this message translates to:
+  /// **'La promoción cambió. Revisa el valor actual.'**
+  String get cartPromotionChangedLine;
+
+  /// No description provided for @cartMergedNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'El carrito de este dispositivo se sincronizó con tu cuenta.'**
+  String get cartMergedNotice;
+
+  /// No description provided for @cartPartialMergeNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Sincronizamos los productos disponibles; conserva los demás para que puedas revisarlos.'**
+  String get cartPartialMergeNotice;
+
+  /// No description provided for @cartRevalidatedNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Precios y disponibilidad validados por la tienda.'**
+  String get cartRevalidatedNotice;
+
+  /// No description provided for @cartUpdatedNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad actualizada.'**
+  String get cartUpdatedNotice;
+
+  /// No description provided for @cartRemovedNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Producto eliminado del carrito.'**
+  String get cartRemovedNotice;
+
+  /// No description provided for @cartClearedNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Carrito vaciado.'**
+  String get cartClearedNotice;
+
+  /// No description provided for @cartOfflineError.
+  ///
+  /// In es, this message translates to:
+  /// **'Estás sin conexión. Tu carrito local sigue disponible.'**
+  String get cartOfflineError;
+
+  /// No description provided for @cartTimeoutError.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda tardó demasiado. Reintenta sin duplicar la operación.'**
+  String get cartTimeoutError;
+
+  /// No description provided for @cartUnauthorizedError.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión nuevamente para sincronizar el carrito.'**
+  String get cartUnauthorizedError;
+
+  /// No description provided for @cartConflictError.
+  ///
+  /// In es, this message translates to:
+  /// **'El carrito cambió en otro lugar. Actualiza y vuelve a intentarlo.'**
+  String get cartConflictError;
+
+  /// No description provided for @cartUnavailableError.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos actualizar el carrito por el momento.'**
+  String get cartUnavailableError;
+
+  /// No description provided for @cartInvalidError.
+  ///
+  /// In es, this message translates to:
+  /// **'La solicitud del carrito no es válida.'**
+  String get cartInvalidError;
+
+  /// No description provided for @cartLimitReached.
+  ///
+  /// In es, this message translates to:
+  /// **'El carrito alcanzó el máximo de productos distintos.'**
+  String get cartLimitReached;
+
+  /// No description provided for @cartProductUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'El producto ya no se puede agregar.'**
+  String get cartProductUnavailable;
+
+  /// No description provided for @cartSignInAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
+  String get cartSignInAction;
+
+  /// No description provided for @cartPendingRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Hay una operación pendiente que puede reintentarse de forma segura.'**
+  String get cartPendingRetry;
+
+  /// No description provided for @cartPriceDisclaimer.
+  ///
+  /// In es, this message translates to:
+  /// **'Los precios y la disponibilidad se confirmarán nuevamente antes de crear el pedido.'**
+  String get cartPriceDisclaimer;
+
+  /// No description provided for @cartLineSemantics.
+  ///
+  /// In es, this message translates to:
+  /// **'{name}, cantidad {quantity}, {price}'**
+  String cartLineSemantics(String name, int quantity, String price);
 }
 
 class _AppLocalizationsDelegate

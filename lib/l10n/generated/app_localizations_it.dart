@@ -847,4 +847,143 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get customerNotificationsRetry => 'Riprova';
+
+  @override
+  String get cartAddAction => 'Aggiungi al carrello';
+
+  @override
+  String get cartAddedNotice => 'Prodotto aggiunto al carrello.';
+
+  @override
+  String get cartGuestSyncMessage =>
+      'Il carrello è salvato su questo dispositivo e funziona offline.';
+
+  @override
+  String get cartAccountSyncMessage =>
+      'Il carrello è associato al tuo account e validato con il negozio.';
+
+  @override
+  String cartIndicativeSubtotal(String price) {
+    return 'Subtotale stimato: $price';
+  }
+
+  @override
+  String cartConfirmedSubtotal(String price) {
+    return 'Subtotale validato: $price';
+  }
+
+  @override
+  String get cartRevalidateAction => 'Valida carrello';
+
+  @override
+  String get cartEstimatedLabel => 'Stimato';
+
+  @override
+  String get cartValidatedLabel => 'Validato';
+
+  @override
+  String get cartRetryAction => 'Riprova';
+
+  @override
+  String get cartClearAction => 'Svuota carrello';
+
+  @override
+  String get cartClearTitle => 'Svuotare il carrello?';
+
+  @override
+  String get cartClearMessage =>
+      'Tutti i prodotti verranno rimossi da questo carrello.';
+
+  @override
+  String get cartRemoveAction => 'Rimuovi';
+
+  @override
+  String cartQuantityLabel(int quantity) {
+    return 'Quantità: $quantity';
+  }
+
+  @override
+  String get cartDecreaseQuantity => 'Riduci quantità';
+
+  @override
+  String get cartIncreaseQuantity => 'Aumenta quantità';
+
+  @override
+  String get cartUnavailableLine => 'Questo prodotto non è più disponibile.';
+
+  @override
+  String get cartPriceChangedLine =>
+      'Il prezzo è cambiato. Controlla il valore attuale.';
+
+  @override
+  String get cartPromotionChangedLine =>
+      'La promozione è cambiata. Controlla il valore attuale.';
+
+  @override
+  String get cartMergedNotice =>
+      'Il carrello del dispositivo è stato sincronizzato con l’account.';
+
+  @override
+  String get cartPartialMergeNotice =>
+      'I prodotti disponibili sono stati sincronizzati; gli altri restano visibili per la verifica.';
+
+  @override
+  String get cartRevalidatedNotice =>
+      'Prezzi e disponibilità validati dal negozio.';
+
+  @override
+  String get cartUpdatedNotice => 'Quantità aggiornata.';
+
+  @override
+  String get cartRemovedNotice => 'Prodotto rimosso dal carrello.';
+
+  @override
+  String get cartClearedNotice => 'Carrello svuotato.';
+
+  @override
+  String get cartOfflineError =>
+      'Sei offline. Il carrello locale resta disponibile.';
+
+  @override
+  String get cartTimeoutError =>
+      'Il negozio ha impiegato troppo tempo. Riprova senza duplicare l’operazione.';
+
+  @override
+  String get cartUnauthorizedError =>
+      'Accedi di nuovo per sincronizzare il carrello.';
+
+  @override
+  String get cartConflictError =>
+      'Il carrello è cambiato altrove. Aggiorna e riprova.';
+
+  @override
+  String get cartUnavailableError =>
+      'Non possiamo aggiornare il carrello in questo momento.';
+
+  @override
+  String get cartInvalidError => 'La richiesta del carrello non è valida.';
+
+  @override
+  String get cartLimitReached =>
+      'Il carrello ha raggiunto il numero massimo di prodotti distinti.';
+
+  @override
+  String get cartProductUnavailable =>
+      'Questo prodotto non può più essere aggiunto.';
+
+  @override
+  String get cartSignInAction => 'Accedi';
+
+  @override
+  String get cartPendingRetry =>
+      'Un’operazione in sospeso può essere ripetuta in sicurezza.';
+
+  @override
+  String get cartPriceDisclaimer =>
+      'Prezzi e disponibilità saranno confermati di nuovo prima della creazione dell’ordine.';
+
+  @override
+  String cartLineSemantics(String name, int quantity, String price) {
+    return '$name, quantità $quantity, $price';
+  }
 }

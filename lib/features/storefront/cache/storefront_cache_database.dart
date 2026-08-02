@@ -10,7 +10,7 @@ import 'package:sqlite3/sqlite3.dart';
 
 part 'storefront_cache_database.g.dart';
 
-const storefrontCacheSchemaVersion = 2;
+const storefrontCacheSchemaVersion = 3;
 
 @DataClassName('StorefrontCacheMetadataRow')
 class StorefrontCacheMetadata extends Table {
@@ -134,6 +134,25 @@ class StorefrontFavorites extends Table {
   Set<Column<Object>> get primaryKey => {shopSlug, publicationId};
 }
 
+@DataClassName('StorefrontGuestCartItemRow')
+class StorefrontGuestCartItems extends Table {
+  TextColumn get shopSlug => text().withLength(min: 3, max: 63)();
+  TextColumn get publicationId => text().withLength(min: 36, max: 36)();
+  IntColumn get quantity => integer().customConstraint(
+    'NOT NULL CHECK (quantity BETWEEN 1 AND 99)',
+  )();
+  TextColumn get publicName => text().withLength(min: 1, max: 200)();
+  IntColumn get priceClp =>
+      integer().customConstraint('NOT NULL CHECK (price_clp >= 0)')();
+  IntColumn get compareAtPriceClp => integer().nullable()();
+  TextColumn get imageUrl => text().nullable()();
+  TextColumn get availability => text().withLength(min: 8, max: 32)();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {shopSlug, publicationId};
+}
+
 @DriftDatabase(
   tables: [
     StorefrontCacheMetadata,
@@ -143,6 +162,7 @@ class StorefrontFavorites extends Table {
     StorefrontCacheScopes,
     StorefrontCacheScopeItems,
     StorefrontFavorites,
+    StorefrontGuestCartItems,
   ],
 )
 class StorefrontCacheDatabase extends _$StorefrontCacheDatabase {
@@ -197,11 +217,16 @@ class StorefrontCacheDatabase extends _$StorefrontCacheDatabase {
         '(shop_slug, scope_key, ordinal, publication_id)',
       );
       await _createFavoriteIndex();
+      await _createGuestCartIndex();
     },
     onUpgrade: (migrator, from, to) async {
       if (from < 2) {
         await migrator.createTable(storefrontFavorites);
         await _createFavoriteIndex();
+      }
+      if (from < 3) {
+        await migrator.createTable(storefrontGuestCartItems);
+        await _createGuestCartIndex();
       }
     },
     beforeOpen: (_) async {
@@ -212,6 +237,12 @@ class StorefrontCacheDatabase extends _$StorefrontCacheDatabase {
   Future<void> _createFavoriteIndex() => customStatement(
     'CREATE INDEX storefront_favorite_order_idx '
     'ON storefront_favorites '
+    '(shop_slug, updated_at DESC, publication_id)',
+  );
+
+  Future<void> _createGuestCartIndex() => customStatement(
+    'CREATE INDEX storefront_guest_cart_order_idx '
+    'ON storefront_guest_cart_items '
     '(shop_slug, updated_at DESC, publication_id)',
   );
 }

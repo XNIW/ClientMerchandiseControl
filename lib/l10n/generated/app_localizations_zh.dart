@@ -847,6 +847,144 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get customerNotificationsRetry => 'Reintentar';
+
+  @override
+  String get cartAddAction => 'Agregar al carrito';
+
+  @override
+  String get cartAddedNotice => 'Producto agregado al carrito.';
+
+  @override
+  String get cartGuestSyncMessage =>
+      'Tu carrito se guarda en este dispositivo y funciona sin conexión.';
+
+  @override
+  String get cartAccountSyncMessage =>
+      'Tu carrito está asociado a tu cuenta y se valida con la tienda.';
+
+  @override
+  String cartIndicativeSubtotal(String price) {
+    return 'Subtotal estimado: $price';
+  }
+
+  @override
+  String cartConfirmedSubtotal(String price) {
+    return 'Subtotal validado: $price';
+  }
+
+  @override
+  String get cartRevalidateAction => 'Validar carrito';
+
+  @override
+  String get cartEstimatedLabel => 'Estimado';
+
+  @override
+  String get cartValidatedLabel => 'Validado';
+
+  @override
+  String get cartRetryAction => 'Reintentar';
+
+  @override
+  String get cartClearAction => 'Vaciar carrito';
+
+  @override
+  String get cartClearTitle => '¿Vaciar el carrito?';
+
+  @override
+  String get cartClearMessage =>
+      'Se eliminarán todos los productos de este carrito.';
+
+  @override
+  String get cartRemoveAction => 'Eliminar';
+
+  @override
+  String cartQuantityLabel(int quantity) {
+    return 'Cantidad: $quantity';
+  }
+
+  @override
+  String get cartDecreaseQuantity => 'Reducir cantidad';
+
+  @override
+  String get cartIncreaseQuantity => 'Aumentar cantidad';
+
+  @override
+  String get cartUnavailableLine => 'Este producto ya no está disponible.';
+
+  @override
+  String get cartPriceChangedLine =>
+      'El precio cambió. Revisa el valor actual.';
+
+  @override
+  String get cartPromotionChangedLine =>
+      'La promoción cambió. Revisa el valor actual.';
+
+  @override
+  String get cartMergedNotice =>
+      'El carrito de este dispositivo se sincronizó con tu cuenta.';
+
+  @override
+  String get cartPartialMergeNotice =>
+      'Sincronizamos los productos disponibles; conserva los demás para que puedas revisarlos.';
+
+  @override
+  String get cartRevalidatedNotice =>
+      'Precios y disponibilidad validados por la tienda.';
+
+  @override
+  String get cartUpdatedNotice => 'Cantidad actualizada.';
+
+  @override
+  String get cartRemovedNotice => 'Producto eliminado del carrito.';
+
+  @override
+  String get cartClearedNotice => 'Carrito vaciado.';
+
+  @override
+  String get cartOfflineError =>
+      'Estás sin conexión. Tu carrito local sigue disponible.';
+
+  @override
+  String get cartTimeoutError =>
+      'La tienda tardó demasiado. Reintenta sin duplicar la operación.';
+
+  @override
+  String get cartUnauthorizedError =>
+      'Inicia sesión nuevamente para sincronizar el carrito.';
+
+  @override
+  String get cartConflictError =>
+      'El carrito cambió en otro lugar. Actualiza y vuelve a intentarlo.';
+
+  @override
+  String get cartUnavailableError =>
+      'No pudimos actualizar el carrito por el momento.';
+
+  @override
+  String get cartInvalidError => 'La solicitud del carrito no es válida.';
+
+  @override
+  String get cartLimitReached =>
+      'El carrito alcanzó el máximo de productos distintos.';
+
+  @override
+  String get cartProductUnavailable => 'El producto ya no se puede agregar.';
+
+  @override
+  String get cartSignInAction => 'Iniciar sesión';
+
+  @override
+  String get cartPendingRetry =>
+      'Hay una operación pendiente que puede reintentarse de forma segura.';
+
+  @override
+  String get cartPriceDisclaimer =>
+      'Los precios y la disponibilidad se confirmarán nuevamente antes de crear el pedido.';
+
+  @override
+  String cartLineSemantics(String name, int quantity, String price) {
+    return '$name, cantidad $quantity, $price';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -1607,4 +1745,126 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get customerNotificationsRetry => '重试';
+
+  @override
+  String get cartAddAction => '加入购物车';
+
+  @override
+  String get cartAddedNotice => '商品已加入购物车。';
+
+  @override
+  String get cartGuestSyncMessage => '购物车保存在此设备上，并可离线使用。';
+
+  @override
+  String get cartAccountSyncMessage => '购物车已关联账户，并由商店验证。';
+
+  @override
+  String cartIndicativeSubtotal(String price) {
+    return '预计小计：$price';
+  }
+
+  @override
+  String cartConfirmedSubtotal(String price) {
+    return '已验证小计：$price';
+  }
+
+  @override
+  String get cartRevalidateAction => '验证购物车';
+
+  @override
+  String get cartEstimatedLabel => '预计';
+
+  @override
+  String get cartValidatedLabel => '已验证';
+
+  @override
+  String get cartRetryAction => '重试';
+
+  @override
+  String get cartClearAction => '清空购物车';
+
+  @override
+  String get cartClearTitle => '清空购物车？';
+
+  @override
+  String get cartClearMessage => '此购物车中的所有商品都将被移除。';
+
+  @override
+  String get cartRemoveAction => '移除';
+
+  @override
+  String cartQuantityLabel(int quantity) {
+    return '数量：$quantity';
+  }
+
+  @override
+  String get cartDecreaseQuantity => '减少数量';
+
+  @override
+  String get cartIncreaseQuantity => '增加数量';
+
+  @override
+  String get cartUnavailableLine => '此商品已不可用。';
+
+  @override
+  String get cartPriceChangedLine => '价格已变更，请查看当前金额。';
+
+  @override
+  String get cartPromotionChangedLine => '促销已变更，请查看当前金额。';
+
+  @override
+  String get cartMergedNotice => '此设备的购物车已与账户同步。';
+
+  @override
+  String get cartPartialMergeNotice => '可用商品已同步；其余商品保留以供查看。';
+
+  @override
+  String get cartRevalidatedNotice => '价格和库存已由商店验证。';
+
+  @override
+  String get cartUpdatedNotice => '数量已更新。';
+
+  @override
+  String get cartRemovedNotice => '商品已从购物车移除。';
+
+  @override
+  String get cartClearedNotice => '购物车已清空。';
+
+  @override
+  String get cartOfflineError => '当前离线，本地购物车仍可使用。';
+
+  @override
+  String get cartTimeoutError => '商店响应超时。重试不会重复执行该操作。';
+
+  @override
+  String get cartUnauthorizedError => '请重新登录以同步购物车。';
+
+  @override
+  String get cartConflictError => '购物车已在其他位置更改，请刷新后重试。';
+
+  @override
+  String get cartUnavailableError => '暂时无法更新购物车。';
+
+  @override
+  String get cartInvalidError => '购物车请求无效。';
+
+  @override
+  String get cartLimitReached => '购物车中的不同商品数量已达上限。';
+
+  @override
+  String get cartProductUnavailable => '此商品已无法加入购物车。';
+
+  @override
+  String get cartSignInAction => '登录';
+
+  @override
+  String get cartPendingRetry => '有一项待处理操作可以安全重试。';
+
+  @override
+  String get cartPriceDisclaimer => '创建订单前将再次确认价格和库存。';
+
+  @override
+  String cartLineSemantics(String name, int quantity, String price) {
+    return '$name，数量 $quantity，$price';
+  }
 }

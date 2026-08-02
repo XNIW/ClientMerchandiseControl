@@ -10,8 +10,9 @@ import '../../../app/design_system/widgets/storefront_cache_status.dart';
 import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
-import '../../home/presentation/storefront_product_card.dart';
+import '../../cart/presentation/add_to_cart_button.dart';
 import '../../favorites/presentation/favorite_button.dart';
+import '../../home/presentation/storefront_product_card.dart';
 import '../../sharing/application/product_share_service.dart';
 import '../../storefront/domain/storefront_models.dart';
 import '../../storefront/presentation/storefront_product_metadata.dart';
@@ -81,8 +82,39 @@ class ProductDetailScreen extends ConsumerWidget {
           ),
         },
       ),
+      bottomNavigationBar: switch (state.product) {
+        final product? => _ProductDetailCartBar(product: product),
+        null => null,
+      },
     );
   }
+}
+
+class _ProductDetailCartBar extends StatelessWidget {
+  const _ProductDetailCartBar({required this.product});
+
+  final StorefrontProductSummary product;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    elevation: 8,
+    color: Theme.of(context).colorScheme.surfaceContainer,
+    child: SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Center(
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppSizes.productDetailContentMaxWidth,
+            ),
+            child: AddToCartButton(product: product, expanded: true),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _ProductDetailStatus extends StatelessWidget {

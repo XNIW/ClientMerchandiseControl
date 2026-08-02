@@ -847,4 +847,142 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get customerNotificationsRetry => 'Reintentar';
+
+  @override
+  String get cartAddAction => 'Agregar al carrito';
+
+  @override
+  String get cartAddedNotice => 'Producto agregado al carrito.';
+
+  @override
+  String get cartGuestSyncMessage =>
+      'Tu carrito se guarda en este dispositivo y funciona sin conexión.';
+
+  @override
+  String get cartAccountSyncMessage =>
+      'Tu carrito está asociado a tu cuenta y se valida con la tienda.';
+
+  @override
+  String cartIndicativeSubtotal(String price) {
+    return 'Subtotal estimado: $price';
+  }
+
+  @override
+  String cartConfirmedSubtotal(String price) {
+    return 'Subtotal validado: $price';
+  }
+
+  @override
+  String get cartRevalidateAction => 'Validar carrito';
+
+  @override
+  String get cartEstimatedLabel => 'Estimado';
+
+  @override
+  String get cartValidatedLabel => 'Validado';
+
+  @override
+  String get cartRetryAction => 'Reintentar';
+
+  @override
+  String get cartClearAction => 'Vaciar carrito';
+
+  @override
+  String get cartClearTitle => '¿Vaciar el carrito?';
+
+  @override
+  String get cartClearMessage =>
+      'Se eliminarán todos los productos de este carrito.';
+
+  @override
+  String get cartRemoveAction => 'Eliminar';
+
+  @override
+  String cartQuantityLabel(int quantity) {
+    return 'Cantidad: $quantity';
+  }
+
+  @override
+  String get cartDecreaseQuantity => 'Reducir cantidad';
+
+  @override
+  String get cartIncreaseQuantity => 'Aumentar cantidad';
+
+  @override
+  String get cartUnavailableLine => 'Este producto ya no está disponible.';
+
+  @override
+  String get cartPriceChangedLine =>
+      'El precio cambió. Revisa el valor actual.';
+
+  @override
+  String get cartPromotionChangedLine =>
+      'La promoción cambió. Revisa el valor actual.';
+
+  @override
+  String get cartMergedNotice =>
+      'El carrito de este dispositivo se sincronizó con tu cuenta.';
+
+  @override
+  String get cartPartialMergeNotice =>
+      'Sincronizamos los productos disponibles; conserva los demás para que puedas revisarlos.';
+
+  @override
+  String get cartRevalidatedNotice =>
+      'Precios y disponibilidad validados por la tienda.';
+
+  @override
+  String get cartUpdatedNotice => 'Cantidad actualizada.';
+
+  @override
+  String get cartRemovedNotice => 'Producto eliminado del carrito.';
+
+  @override
+  String get cartClearedNotice => 'Carrito vaciado.';
+
+  @override
+  String get cartOfflineError =>
+      'Estás sin conexión. Tu carrito local sigue disponible.';
+
+  @override
+  String get cartTimeoutError =>
+      'La tienda tardó demasiado. Reintenta sin duplicar la operación.';
+
+  @override
+  String get cartUnauthorizedError =>
+      'Inicia sesión nuevamente para sincronizar el carrito.';
+
+  @override
+  String get cartConflictError =>
+      'El carrito cambió en otro lugar. Actualiza y vuelve a intentarlo.';
+
+  @override
+  String get cartUnavailableError =>
+      'No pudimos actualizar el carrito por el momento.';
+
+  @override
+  String get cartInvalidError => 'La solicitud del carrito no es válida.';
+
+  @override
+  String get cartLimitReached =>
+      'El carrito alcanzó el máximo de productos distintos.';
+
+  @override
+  String get cartProductUnavailable => 'El producto ya no se puede agregar.';
+
+  @override
+  String get cartSignInAction => 'Iniciar sesión';
+
+  @override
+  String get cartPendingRetry =>
+      'Hay una operación pendiente que puede reintentarse de forma segura.';
+
+  @override
+  String get cartPriceDisclaimer =>
+      'Los precios y la disponibilidad se confirmarán nuevamente antes de crear el pedido.';
+
+  @override
+  String cartLineSemantics(String name, int quantity, String price) {
+    return '$name, cantidad $quantity, $price';
+  }
 }

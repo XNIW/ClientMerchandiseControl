@@ -4602,6 +4602,617 @@ class StorefrontFavoritesCompanion
   }
 }
 
+class $StorefrontGuestCartItemsTable extends StorefrontGuestCartItems
+    with TableInfo<$StorefrontGuestCartItemsTable, StorefrontGuestCartItemRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StorefrontGuestCartItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _shopSlugMeta = const VerificationMeta(
+    'shopSlug',
+  );
+  @override
+  late final GeneratedColumn<String> shopSlug = GeneratedColumn<String>(
+    'shop_slug',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 3,
+      maxTextLength: 63,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _publicationIdMeta = const VerificationMeta(
+    'publicationId',
+  );
+  @override
+  late final GeneratedColumn<String> publicationId = GeneratedColumn<String>(
+    'publication_id',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 36,
+      maxTextLength: 36,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _quantityMeta = const VerificationMeta(
+    'quantity',
+  );
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+    'quantity',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL CHECK (quantity BETWEEN 1 AND 99)',
+  );
+  static const VerificationMeta _publicNameMeta = const VerificationMeta(
+    'publicName',
+  );
+  @override
+  late final GeneratedColumn<String> publicName = GeneratedColumn<String>(
+    'public_name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 200,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _priceClpMeta = const VerificationMeta(
+    'priceClp',
+  );
+  @override
+  late final GeneratedColumn<int> priceClp = GeneratedColumn<int>(
+    'price_clp',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL CHECK (price_clp >= 0)',
+  );
+  static const VerificationMeta _compareAtPriceClpMeta = const VerificationMeta(
+    'compareAtPriceClp',
+  );
+  @override
+  late final GeneratedColumn<int> compareAtPriceClp = GeneratedColumn<int>(
+    'compare_at_price_clp',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _availabilityMeta = const VerificationMeta(
+    'availability',
+  );
+  @override
+  late final GeneratedColumn<String> availability = GeneratedColumn<String>(
+    'availability',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 8,
+      maxTextLength: 32,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    shopSlug,
+    publicationId,
+    quantity,
+    publicName,
+    priceClp,
+    compareAtPriceClp,
+    imageUrl,
+    availability,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'storefront_guest_cart_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StorefrontGuestCartItemRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('shop_slug')) {
+      context.handle(
+        _shopSlugMeta,
+        shopSlug.isAcceptableOrUnknown(data['shop_slug']!, _shopSlugMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_shopSlugMeta);
+    }
+    if (data.containsKey('publication_id')) {
+      context.handle(
+        _publicationIdMeta,
+        publicationId.isAcceptableOrUnknown(
+          data['publication_id']!,
+          _publicationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_publicationIdMeta);
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(
+        _quantityMeta,
+        quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_quantityMeta);
+    }
+    if (data.containsKey('public_name')) {
+      context.handle(
+        _publicNameMeta,
+        publicName.isAcceptableOrUnknown(data['public_name']!, _publicNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_publicNameMeta);
+    }
+    if (data.containsKey('price_clp')) {
+      context.handle(
+        _priceClpMeta,
+        priceClp.isAcceptableOrUnknown(data['price_clp']!, _priceClpMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_priceClpMeta);
+    }
+    if (data.containsKey('compare_at_price_clp')) {
+      context.handle(
+        _compareAtPriceClpMeta,
+        compareAtPriceClp.isAcceptableOrUnknown(
+          data['compare_at_price_clp']!,
+          _compareAtPriceClpMeta,
+        ),
+      );
+    }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
+    if (data.containsKey('availability')) {
+      context.handle(
+        _availabilityMeta,
+        availability.isAcceptableOrUnknown(
+          data['availability']!,
+          _availabilityMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_availabilityMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {shopSlug, publicationId};
+  @override
+  StorefrontGuestCartItemRow map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StorefrontGuestCartItemRow(
+      shopSlug: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}shop_slug'],
+      )!,
+      publicationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}publication_id'],
+      )!,
+      quantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}quantity'],
+      )!,
+      publicName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}public_name'],
+      )!,
+      priceClp: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}price_clp'],
+      )!,
+      compareAtPriceClp: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}compare_at_price_clp'],
+      ),
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
+      ),
+      availability: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}availability'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $StorefrontGuestCartItemsTable createAlias(String alias) {
+    return $StorefrontGuestCartItemsTable(attachedDatabase, alias);
+  }
+}
+
+class StorefrontGuestCartItemRow extends DataClass
+    implements Insertable<StorefrontGuestCartItemRow> {
+  final String shopSlug;
+  final String publicationId;
+  final int quantity;
+  final String publicName;
+  final int priceClp;
+  final int? compareAtPriceClp;
+  final String? imageUrl;
+  final String availability;
+  final DateTime updatedAt;
+  const StorefrontGuestCartItemRow({
+    required this.shopSlug,
+    required this.publicationId,
+    required this.quantity,
+    required this.publicName,
+    required this.priceClp,
+    this.compareAtPriceClp,
+    this.imageUrl,
+    required this.availability,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['shop_slug'] = Variable<String>(shopSlug);
+    map['publication_id'] = Variable<String>(publicationId);
+    map['quantity'] = Variable<int>(quantity);
+    map['public_name'] = Variable<String>(publicName);
+    map['price_clp'] = Variable<int>(priceClp);
+    if (!nullToAbsent || compareAtPriceClp != null) {
+      map['compare_at_price_clp'] = Variable<int>(compareAtPriceClp);
+    }
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
+    map['availability'] = Variable<String>(availability);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  StorefrontGuestCartItemsCompanion toCompanion(bool nullToAbsent) {
+    return StorefrontGuestCartItemsCompanion(
+      shopSlug: Value(shopSlug),
+      publicationId: Value(publicationId),
+      quantity: Value(quantity),
+      publicName: Value(publicName),
+      priceClp: Value(priceClp),
+      compareAtPriceClp: compareAtPriceClp == null && nullToAbsent
+          ? const Value.absent()
+          : Value(compareAtPriceClp),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
+      availability: Value(availability),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory StorefrontGuestCartItemRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StorefrontGuestCartItemRow(
+      shopSlug: serializer.fromJson<String>(json['shopSlug']),
+      publicationId: serializer.fromJson<String>(json['publicationId']),
+      quantity: serializer.fromJson<int>(json['quantity']),
+      publicName: serializer.fromJson<String>(json['publicName']),
+      priceClp: serializer.fromJson<int>(json['priceClp']),
+      compareAtPriceClp: serializer.fromJson<int?>(json['compareAtPriceClp']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
+      availability: serializer.fromJson<String>(json['availability']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'shopSlug': serializer.toJson<String>(shopSlug),
+      'publicationId': serializer.toJson<String>(publicationId),
+      'quantity': serializer.toJson<int>(quantity),
+      'publicName': serializer.toJson<String>(publicName),
+      'priceClp': serializer.toJson<int>(priceClp),
+      'compareAtPriceClp': serializer.toJson<int?>(compareAtPriceClp),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
+      'availability': serializer.toJson<String>(availability),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  StorefrontGuestCartItemRow copyWith({
+    String? shopSlug,
+    String? publicationId,
+    int? quantity,
+    String? publicName,
+    int? priceClp,
+    Value<int?> compareAtPriceClp = const Value.absent(),
+    Value<String?> imageUrl = const Value.absent(),
+    String? availability,
+    DateTime? updatedAt,
+  }) => StorefrontGuestCartItemRow(
+    shopSlug: shopSlug ?? this.shopSlug,
+    publicationId: publicationId ?? this.publicationId,
+    quantity: quantity ?? this.quantity,
+    publicName: publicName ?? this.publicName,
+    priceClp: priceClp ?? this.priceClp,
+    compareAtPriceClp: compareAtPriceClp.present
+        ? compareAtPriceClp.value
+        : this.compareAtPriceClp,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
+    availability: availability ?? this.availability,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  StorefrontGuestCartItemRow copyWithCompanion(
+    StorefrontGuestCartItemsCompanion data,
+  ) {
+    return StorefrontGuestCartItemRow(
+      shopSlug: data.shopSlug.present ? data.shopSlug.value : this.shopSlug,
+      publicationId: data.publicationId.present
+          ? data.publicationId.value
+          : this.publicationId,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      publicName: data.publicName.present
+          ? data.publicName.value
+          : this.publicName,
+      priceClp: data.priceClp.present ? data.priceClp.value : this.priceClp,
+      compareAtPriceClp: data.compareAtPriceClp.present
+          ? data.compareAtPriceClp.value
+          : this.compareAtPriceClp,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
+      availability: data.availability.present
+          ? data.availability.value
+          : this.availability,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StorefrontGuestCartItemRow(')
+          ..write('shopSlug: $shopSlug, ')
+          ..write('publicationId: $publicationId, ')
+          ..write('quantity: $quantity, ')
+          ..write('publicName: $publicName, ')
+          ..write('priceClp: $priceClp, ')
+          ..write('compareAtPriceClp: $compareAtPriceClp, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('availability: $availability, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    shopSlug,
+    publicationId,
+    quantity,
+    publicName,
+    priceClp,
+    compareAtPriceClp,
+    imageUrl,
+    availability,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StorefrontGuestCartItemRow &&
+          other.shopSlug == this.shopSlug &&
+          other.publicationId == this.publicationId &&
+          other.quantity == this.quantity &&
+          other.publicName == this.publicName &&
+          other.priceClp == this.priceClp &&
+          other.compareAtPriceClp == this.compareAtPriceClp &&
+          other.imageUrl == this.imageUrl &&
+          other.availability == this.availability &&
+          other.updatedAt == this.updatedAt);
+}
+
+class StorefrontGuestCartItemsCompanion
+    extends UpdateCompanion<StorefrontGuestCartItemRow> {
+  final Value<String> shopSlug;
+  final Value<String> publicationId;
+  final Value<int> quantity;
+  final Value<String> publicName;
+  final Value<int> priceClp;
+  final Value<int?> compareAtPriceClp;
+  final Value<String?> imageUrl;
+  final Value<String> availability;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const StorefrontGuestCartItemsCompanion({
+    this.shopSlug = const Value.absent(),
+    this.publicationId = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.publicName = const Value.absent(),
+    this.priceClp = const Value.absent(),
+    this.compareAtPriceClp = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    this.availability = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StorefrontGuestCartItemsCompanion.insert({
+    required String shopSlug,
+    required String publicationId,
+    required int quantity,
+    required String publicName,
+    required int priceClp,
+    this.compareAtPriceClp = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    required String availability,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : shopSlug = Value(shopSlug),
+       publicationId = Value(publicationId),
+       quantity = Value(quantity),
+       publicName = Value(publicName),
+       priceClp = Value(priceClp),
+       availability = Value(availability),
+       updatedAt = Value(updatedAt);
+  static Insertable<StorefrontGuestCartItemRow> custom({
+    Expression<String>? shopSlug,
+    Expression<String>? publicationId,
+    Expression<int>? quantity,
+    Expression<String>? publicName,
+    Expression<int>? priceClp,
+    Expression<int>? compareAtPriceClp,
+    Expression<String>? imageUrl,
+    Expression<String>? availability,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (shopSlug != null) 'shop_slug': shopSlug,
+      if (publicationId != null) 'publication_id': publicationId,
+      if (quantity != null) 'quantity': quantity,
+      if (publicName != null) 'public_name': publicName,
+      if (priceClp != null) 'price_clp': priceClp,
+      if (compareAtPriceClp != null) 'compare_at_price_clp': compareAtPriceClp,
+      if (imageUrl != null) 'image_url': imageUrl,
+      if (availability != null) 'availability': availability,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StorefrontGuestCartItemsCompanion copyWith({
+    Value<String>? shopSlug,
+    Value<String>? publicationId,
+    Value<int>? quantity,
+    Value<String>? publicName,
+    Value<int>? priceClp,
+    Value<int?>? compareAtPriceClp,
+    Value<String?>? imageUrl,
+    Value<String>? availability,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return StorefrontGuestCartItemsCompanion(
+      shopSlug: shopSlug ?? this.shopSlug,
+      publicationId: publicationId ?? this.publicationId,
+      quantity: quantity ?? this.quantity,
+      publicName: publicName ?? this.publicName,
+      priceClp: priceClp ?? this.priceClp,
+      compareAtPriceClp: compareAtPriceClp ?? this.compareAtPriceClp,
+      imageUrl: imageUrl ?? this.imageUrl,
+      availability: availability ?? this.availability,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (shopSlug.present) {
+      map['shop_slug'] = Variable<String>(shopSlug.value);
+    }
+    if (publicationId.present) {
+      map['publication_id'] = Variable<String>(publicationId.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (publicName.present) {
+      map['public_name'] = Variable<String>(publicName.value);
+    }
+    if (priceClp.present) {
+      map['price_clp'] = Variable<int>(priceClp.value);
+    }
+    if (compareAtPriceClp.present) {
+      map['compare_at_price_clp'] = Variable<int>(compareAtPriceClp.value);
+    }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
+    if (availability.present) {
+      map['availability'] = Variable<String>(availability.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StorefrontGuestCartItemsCompanion(')
+          ..write('shopSlug: $shopSlug, ')
+          ..write('publicationId: $publicationId, ')
+          ..write('quantity: $quantity, ')
+          ..write('publicName: $publicName, ')
+          ..write('priceClp: $priceClp, ')
+          ..write('compareAtPriceClp: $compareAtPriceClp, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('availability: $availability, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$StorefrontCacheDatabase extends GeneratedDatabase {
   _$StorefrontCacheDatabase(QueryExecutor e) : super(e);
   late final $StorefrontCacheMetadataTable storefrontCacheMetadata =
@@ -4618,6 +5229,8 @@ abstract class _$StorefrontCacheDatabase extends GeneratedDatabase {
       $StorefrontCacheScopeItemsTable(this);
   late final $StorefrontFavoritesTable storefrontFavorites =
       $StorefrontFavoritesTable(this);
+  late final $StorefrontGuestCartItemsTable storefrontGuestCartItems =
+      $StorefrontGuestCartItemsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4630,5 +5243,6 @@ abstract class _$StorefrontCacheDatabase extends GeneratedDatabase {
     storefrontCacheScopes,
     storefrontCacheScopeItems,
     storefrontFavorites,
+    storefrontGuestCartItems,
   ];
 }

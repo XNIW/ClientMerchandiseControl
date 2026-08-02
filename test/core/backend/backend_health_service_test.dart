@@ -294,6 +294,22 @@ void main() {
       );
     },
   );
+
+  test('close non chiude un client condiviso posseduto dal provider', () {
+    final client = _HandlerClient(
+      (_) async => _jsonResponse(200, _validHealthPayload),
+    );
+    final service = HttpBackendHealthService(
+      client: client,
+      closeClientOnDispose: false,
+    );
+
+    service
+      ..close()
+      ..close();
+
+    expect(client.closeCalls, 0);
+  });
 }
 
 const _validHealthPayload = <String, String>{

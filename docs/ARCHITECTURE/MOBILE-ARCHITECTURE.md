@@ -209,6 +209,10 @@ risposta a 2 MiB e riduce gli errori remoti a codici sanitizzati. Home avvia il 
 pubblico durante il probe diagnostico e non viene cancellata da un esito Auth health;
 timeout e offline del contratto Storefront governano direttamente cache e retry. Lo SDK
 Supabase resta inizializzato esclusivamente dal boundary Auth quando Google è abilitato.
+Il client HTTP pubblico è condiviso tra Storefront e health per riusare connessioni; il
+probe diagnostico automatico parte due secondi dopo la composizione della shell, così
+non compete con il first usable content, ma retry, timeout e cancellazione restano
+invariati.
 
 ## Commercial truth e mutazioni
 

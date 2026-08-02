@@ -136,6 +136,7 @@ void main() {
           backendReadinessRepositoryProvider.overrideWithValue(
             readinessRepository,
           ),
+          backendAutomaticProbeDelayProvider.overrideWithValue(Duration.zero),
           storefrontRepositoryProvider.overrideWithValue(storefrontRepository),
           storefrontCacheRepositoryProvider.overrideWithValue(
             const DisabledStorefrontCacheRepository(),

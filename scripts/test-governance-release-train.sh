@@ -20,6 +20,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-014" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-015" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-016" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-017" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -83,6 +84,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-016/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-016/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-017-offline-catalog-cache-refresh-invalidation.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-017/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-017/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -114,21 +121,21 @@ cmc_expect_pass valid "${cmc_case}"
 
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \
-  's/| TASK-017 | Cache catalogo offline, refresh e invalidazione | TODO |/| TASK-017 | Cache catalogo offline, refresh e invalidazione | ACTIVE |/' \
+  's/| TASK-018 | Preferiti, condivisione e deep link prodotto | TODO |/| TASK-018 | Preferiti, condivisione e deep link prodotto | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-016/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-017/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-016 | Dettaglio prodotto e disponibilità commerciale | ACTIVE |/| TASK-016 | Dettaglio prodotto e disponibilità commerciale | DONE |/' \
+  's/| TASK-017 | Cache catalogo offline, refresh e invalidazione | ACTIVE |/| TASK-017 | Cache catalogo offline, refresh e invalidazione | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"

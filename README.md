@@ -161,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-016
-- **File task**: docs/TASKS/TASK-016-product-detail-commercial-availability.md
+- **Task attivo**: TASK-017
+- **File task**: docs/TASKS/TASK-017-offline-catalog-cache-refresh-invalidation.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -182,5 +182,5 @@ CI finale `30713857455` 3/3 `PASS`, step applicabili `success`, annotation 0/0/0
 PR #4 è merged normalmente con commit `b2d70b5`; branch remoto eliminato e il closeout
 su `main` è stato verificato dalla CI `30714350425`. Il release train Storefront v1 è
 ora in `EXECUTION` sul worktree dedicato: TASK-005–TASK-010 pertinenti e
-TASK-013–TASK-015 sono `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-016 è l'unico task
+TASK-013–TASK-016 sono `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-017 è l'unico task
 attivo e gli altri task del train restano `TODO` fino al rispettivo checkpoint.

@@ -1473,3 +1473,23 @@
 - **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
 - **Transizione**: TASK-016 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per route e dettaglio prodotto pubblico con availability commerciale.
+
+## 2026-08-02 — Checkpoint interno TASK-016 e attivazione TASK-017
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-016**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; RPC-only detail, route guest,
+  controller auto-dispose, immagine pubblica detail, pricing/promo/availability/fulfillment.
+- **Revision set Client**: `242e631805b569a49a0217c4129b1586e8ad1dbf`, PR #5 draft.
+- **Gate locali**: security/governance/architecture/l10n/format/analyze, 282 test,
+  coverage 3.147/3.814 (82,51%), Android debug e iOS Simulator debug: `PASS`.
+- **CI Client**: run `30735374419`, Quality 3m26s, iOS 3m08s e Android 7m44s,
+  tutti `PASS` sullo SHA esatto.
+- **Smoke mobile**: Product Detail Android 1/1 in 17 s e iOS 1/1 in 3 s, entrambi
+  `PASS` su published/unpublished reale e sessione guest assente.
+- **Difetti corretti**: overflow status a 200% e tap harness fuori viewport; il primo
+  tentativo Android resta registrato `FAIL`, poi regressione e rerun candidato `PASS`.
+- **Dependency audit TASK-017**: Drift 2.34.3 / drift_flutter 0.3.1 MIT, Android/iOS,
+  Dart >=3.10 e manutenzione corrente; compatibile con Dart 3.12.2.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-017 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per Drift, cache pubblica shop-scoped, SWR, invalidazione e ricerca offline.

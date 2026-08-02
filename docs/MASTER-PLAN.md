@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-016
-- **File task**: docs/TASKS/TASK-016-product-detail-commercial-availability.md
+- **Task attivo**: TASK-017
+- **File task**: docs/TASKS/TASK-017-offline-catalog-cache-refresh-invalidation.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,9 +14,9 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: implementare TASK-016 nel Client Flutter usando
-  esclusivamente `storefront_product_detail_v1`, route prodotto pubblica e
-  disponibilità commerciale minimizzata, con production invariata
+- **Prossima azione autorizzata**: implementare TASK-017 nel Client Flutter con
+  Drift/SQLite, cache pubblica shop-scoped, stale-while-revalidate, invalidazione per
+  catalog version e ricerca offline, con production invariata
 
 ## Repository coinvolti
 
@@ -67,8 +67,8 @@
 | TASK-013 | Home e prodotti/promozioni in evidenza | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-011, TASK-012 | Client, Admin, Supabase | Home Storefront data-backed |
 | TASK-014 | Categorie e griglia catalogo con caricamento immagini | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
 | TASK-015 | Ricerca, filtri e ordinamento | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014 | Client, Supabase | Discovery catalogo efficiente |
-| TASK-016 | Dettaglio prodotto e disponibilità commerciale | ACTIVE | TASK-010, TASK-014 | Client, Supabase | Dettaglio pubblico coerente |
-| TASK-017 | Cache catalogo offline, refresh e invalidazione | TODO | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
+| TASK-016 | Dettaglio prodotto e disponibilità commerciale | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014 | Client, Supabase | Dettaglio pubblico coerente |
+| TASK-017 | Cache catalogo offline, refresh e invalidazione | ACTIVE | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
 | TASK-018 | Preferiti, condivisione e deep link prodotto | TODO | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
 | TASK-019 | Catalog performance e acceptance su dataset esteso | TODO | TASK-010, TASK-014, TASK-015, TASK-017 | Client, Supabase | Budget prestazioni misurato |
 | TASK-020 | Supabase Auth, deep link e session lifecycle | DONE | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
@@ -152,8 +152,9 @@ TASK-005/TASK-006/TASK-007/TASK-008/TASK-009/TASK-010 in
 CI e smoke Android/iOS ed è anch'esso `VALIDATED_PENDING_INTEGRATED_REVIEW`.
 TASK-014 ha completato categorie, keyset grid, immagini, CI e smoke Android/iOS ed è
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-015 ha completato ricerca, filtri, sort,
-CI e smoke Android/iOS ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-016 è
-l'unico task `ACTIVE / EXECUTION`;
+CI e smoke Android/iOS ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-016 ha
+completato dettaglio pubblico, CI e smoke Android/iOS ed è
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-017 è l'unico task `ACTIVE / EXECUTION`;
 i task successivi restano `TODO` fino al relativo handoff. La dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
@@ -194,4 +195,14 @@ smoke Search/filtri/sort reali Android/iOS e CI `30734363845` 3/3 `PASS`.
 Production è invariata. TASK-015 non è `DONE`: attende la review integrata finale.
 
 Handoff:
-`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-016.
+## Ultimo checkpoint interno — TASK-016
+
+Il revision set Client `242e631805b569a49a0217c4129b1586e8ad1dbf` ha superato
+282 test con coverage 82,51%, gate security/governance/architecture, build Android/iOS,
+smoke Product Detail published/unpublished reale Android/iOS e CI `30735374419` 3/3
+`PASS`. Il primo tentativo Android ha correttamente registrato `FAIL` per un tap harness
+fuori viewport; la regressione è stata corretta e il candidato finale è verde.
+Production è invariata. TASK-016 non è `DONE`: attende la review integrata finale.
+
+Handoff:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-017.

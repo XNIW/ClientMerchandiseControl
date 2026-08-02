@@ -5,14 +5,14 @@
 - **Task ID**: TASK-016
 - **Titolo**: Dettaglio prodotto e disponibilità commerciale
 - **File task**: `docs/TASKS/TASK-016-product-detail-commercial-availability.md`
-- **Stato**: ACTIVE
-- **Fase**: EXECUTION
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Fase**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-016/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -116,11 +116,59 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-In avvio.
+### Modifiche completate
+
+- DTO/repository strict e unico RPC allowlisted `storefront_product_detail_v1`, con
+  UUID bounded, catalog version e identità response/request fail-closed;
+- controller family auto-dispose con readiness, cancellation, generation guard, retry
+  e unavailable non enumerabile;
+- route guest `/product/:publicationId` raggiungibile dalla card condivisa di
+  Home/Catalog/Search e navigazione back verificata;
+- dettaglio localizzato con dati pubblici, immagine `detail` bounded, prezzi CLP,
+  promozione, sei availability commerciali e capability fulfillment senza quantità;
+- smoke reale published/unpublished guest su Android Emulator e iOS Simulator.
+
+### Difetti corretti durante Execution
+
+- stato verticale reso scrollabile e bounded per evitare overflow a testo 200% in
+  compact landscape;
+- live harness corretto con `ensureVisible` dopo il primo tentativo Android, che aveva
+  individuato la card fixture fuori viewport e non aveva aperto la route;
+- risposta con publication ID differente e route UUID invalida bloccate prima di
+  pubblicare dati o fare rete rispettivamente.
+
+### Gate eseguiti
+
+- revision set Client `242e631805b569a49a0217c4129b1586e8ad1dbf`, PR `#5` draft;
+- `scripts/check.sh`: security 388 file, governance 8/8, architecture 7/7, l10n,
+  format, analyze, 282 test, coverage 3.147/3.814 linee (82,51%), Android debug e iOS
+  Simulator debug: `PASS`;
+- CI Client `30735374419`: Quality 3m26s, iOS 3m08s, Android 7m44s, 3/3 `PASS`;
+- Product Detail Android Emulator live: primo tentativo `FAIL` per tap harness fuori
+  viewport; regressione corretta; candidato finale 1/1 `PASS` in 17 s;
+- Product Detail iOS Simulator live: 1/1 `PASS` in 3 s;
+- APK staging SHA-256
+  `53ade17f1c971277bba087078da2c4ea2ac138f1f3014cabfb322615752bc180`;
+- Runner staging executable SHA-256
+  `940451bc707093f789901c1cf705140b7a50a548ff2f19f8cb0aeb6f9d1e488b`;
+- production write: `NOT_RUN`; production invariata.
+
+### Matrici
+
+CA-01..CA-09 e T-01..T-07: `PASS`. Evidence sintetica:
+`docs/TASKS/EVIDENCE/TASK-016/README.md`.
+
+### Handoff
+
+`CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`. Nessuna review formale è stata
+eseguita e TASK-016 non è `DONE`.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate TASK-016. Nessuna review formale intermedia.
+TASK-016 è `VALIDATED_PENDING_INTEGRATED_REVIEW`: implementazione, gate completo, CI e
+smoke staging Android/iOS sono verdi sul revision set registrato. Production è
+invariata; nessuna review formale intermedia è stata eseguita. Il task successivo
+autorizzato è TASK-017.
 
 ## Review / Fix
 

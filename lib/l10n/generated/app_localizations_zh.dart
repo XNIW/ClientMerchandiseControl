@@ -223,6 +223,67 @@ class AppLocalizationsZh extends AppLocalizations {
   String get catalogResetFilters => 'Restablecer filtros';
 
   @override
+  String get productDetailTitle => 'Detalle del producto';
+
+  @override
+  String get productDetailLoading => 'Cargando el producto';
+
+  @override
+  String get productDetailUnavailableTitle => 'Producto no disponible';
+
+  @override
+  String get productDetailUnavailableMessage =>
+      'Este producto no está publicado o ya no está disponible.';
+
+  @override
+  String get productDetailOfflineTitle => 'Estás sin conexión';
+
+  @override
+  String get productDetailOfflineMessage =>
+      'Conéctate a internet para cargar el detalle actualizado.';
+
+  @override
+  String get productDetailErrorTitle => 'No pudimos cargar el producto';
+
+  @override
+  String get productDetailErrorMessage =>
+      'Inténtalo de nuevo. No se mostraron datos incompletos.';
+
+  @override
+  String get productDetailDescriptionLabel => 'Descripción';
+
+  @override
+  String get productDetailNoDescription =>
+      'No hay una descripción pública disponible.';
+
+  @override
+  String get productDetailCategoryLabel => 'Categoría';
+
+  @override
+  String get productDetailBrandLabel => 'Marca';
+
+  @override
+  String get productDetailPriceLabel => 'Precio';
+
+  @override
+  String get productDetailAvailabilityLabel => 'Disponibilidad comercial';
+
+  @override
+  String get productDetailFulfillmentLabel => 'Opciones de compra';
+
+  @override
+  String get productDetailPickup => 'Retiro en tienda';
+
+  @override
+  String get productDetailDelivery => 'Entrega';
+
+  @override
+  String get productDetailReservation => 'Reserva';
+
+  @override
+  String get productDetailPromotionLabel => 'Promoción activa';
+
+  @override
   String get catalogCategoriesLabel => 'Categorías';
 
   @override
@@ -587,6 +648,63 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get catalogResetFilters => '重置筛选';
+
+  @override
+  String get productDetailTitle => '商品详情';
+
+  @override
+  String get productDetailLoading => '正在加载商品';
+
+  @override
+  String get productDetailUnavailableTitle => '商品不可用';
+
+  @override
+  String get productDetailUnavailableMessage => '该商品未发布或已不可用。';
+
+  @override
+  String get productDetailOfflineTitle => '你当前处于离线状态';
+
+  @override
+  String get productDetailOfflineMessage => '请连接网络以加载最新商品详情。';
+
+  @override
+  String get productDetailErrorTitle => '无法加载商品';
+
+  @override
+  String get productDetailErrorMessage => '请重试。未显示不完整的数据。';
+
+  @override
+  String get productDetailDescriptionLabel => '描述';
+
+  @override
+  String get productDetailNoDescription => '暂无公开描述。';
+
+  @override
+  String get productDetailCategoryLabel => '类别';
+
+  @override
+  String get productDetailBrandLabel => '品牌';
+
+  @override
+  String get productDetailPriceLabel => '价格';
+
+  @override
+  String get productDetailAvailabilityLabel => '商业库存状态';
+
+  @override
+  String get productDetailFulfillmentLabel => '购买方式';
+
+  @override
+  String get productDetailPickup => '到店自提';
+
+  @override
+  String get productDetailDelivery => '配送';
+
+  @override
+  String get productDetailReservation => '预订';
+
+  @override
+  String get productDetailPromotionLabel => '当前促销';
 
   @override
   String get catalogCategoriesLabel => '类别';

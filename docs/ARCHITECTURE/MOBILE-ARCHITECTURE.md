@@ -194,6 +194,15 @@ L'interfaccia disabilita esplicitamente i filtri non supportati durante Search, 
 di simulare una composizione client-side. Ogni cambio criterio annulla la sequenza
 precedente, valida query e versione restituite e riparte dalla prima pagina.
 
+TASK-016 aggiunge `storefront_product_detail_v1` nello stesso adapter allowlisted.
+La route `/product/:publicationId` accetta soltanto il publication UUID pubblico e
+fallisce chiusa prima della rete per valori invalidi. Un controller family auto-dispose
+isola lifecycle, cancellation e retry di ogni dettaglio. Il payload riusa la shape
+pubblica strict, verifica catalog version e identità richiesta/restituita; unavailable
+non distingue shop assente da prodotto non pubblicato. La UI usa soltanto l'immagine
+pubblica `detail`, prezzi CLP, promozione, availability commerciale e capability di
+fulfillment, senza quantità stock, inventory ID o azioni future simulate.
+
 ## Commercial truth e mutazioni
 
 Il client presenta l'ultimo stato Storefront ricevuto insieme alla sua freshness, ma non

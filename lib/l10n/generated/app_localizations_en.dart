@@ -220,6 +220,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogResetFilters => 'Reset filters';
 
   @override
+  String get productDetailTitle => 'Product details';
+
+  @override
+  String get productDetailLoading => 'Loading product';
+
+  @override
+  String get productDetailUnavailableTitle => 'Product unavailable';
+
+  @override
+  String get productDetailUnavailableMessage =>
+      'This product is not published or is no longer available.';
+
+  @override
+  String get productDetailOfflineTitle => 'You\'re offline';
+
+  @override
+  String get productDetailOfflineMessage =>
+      'Connect to the internet to load the latest product details.';
+
+  @override
+  String get productDetailErrorTitle => 'We couldn\'t load the product';
+
+  @override
+  String get productDetailErrorMessage =>
+      'Try again. No incomplete data was shown.';
+
+  @override
+  String get productDetailDescriptionLabel => 'Description';
+
+  @override
+  String get productDetailNoDescription =>
+      'No public description is available.';
+
+  @override
+  String get productDetailCategoryLabel => 'Category';
+
+  @override
+  String get productDetailBrandLabel => 'Brand';
+
+  @override
+  String get productDetailPriceLabel => 'Price';
+
+  @override
+  String get productDetailAvailabilityLabel => 'Commercial availability';
+
+  @override
+  String get productDetailFulfillmentLabel => 'Purchase options';
+
+  @override
+  String get productDetailPickup => 'Store pickup';
+
+  @override
+  String get productDetailDelivery => 'Delivery';
+
+  @override
+  String get productDetailReservation => 'Reservation';
+
+  @override
+  String get productDetailPromotionLabel => 'Active promotion';
+
+  @override
   String get catalogCategoriesLabel => 'Categories';
 
   @override

@@ -34,6 +34,37 @@ void main() {
     expect(search.nextCursor, validStorefrontCursor);
   });
 
+  test('decodifica dettaglio prodotto con catalog version coerente', () {
+    final detail = StorefrontCatalogDto.decodeProductDetail(
+      validStorefrontProductDetailPayload(),
+    );
+
+    expect(detail.id, '50000000-0000-4000-8000-000000000001');
+    expect(detail.name, 'Café destacado');
+    expect(detail.catalogVersion, 7);
+    expect(detail.images?.detail.path, contains('detail-a.webp'));
+  });
+
+  test('dettaglio rifiuta extra, item assente e versione incoerente', () {
+    final extra = validStorefrontProductDetailPayload()..['inventory'] = true;
+    final missing = validStorefrontProductDetailPayload()..remove('item');
+    final mismatch = validStorefrontProductDetailPayload();
+    (mismatch['item'] as Map)['catalogVersion'] = 8;
+
+    for (final payload in [extra, missing, mismatch]) {
+      expect(
+        () => StorefrontCatalogDto.decodeProductDetail(payload),
+        throwsA(
+          isA<StorefrontFailure>().having(
+            (failure) => failure.kind,
+            'kind',
+            StorefrontFailureKind.invalidPayload,
+          ),
+        ),
+      );
+    }
+  });
+
   test('rifiuta shape, query, score e duplicati invalidi nella ricerca', () {
     final extra = validStorefrontSearchPayload()..['inventory'] = true;
     final shortQuery = validStorefrontSearchPayload(query: 'x');

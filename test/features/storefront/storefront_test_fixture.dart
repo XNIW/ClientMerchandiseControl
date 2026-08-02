@@ -211,6 +211,16 @@ Map<String, Object?> validStorefrontSearchPayload({
   };
 }
 
+Map<String, Object?> validStorefrontProductDetailPayload() {
+  final catalog = validStorefrontCatalogPayload(nextCursor: null);
+  return {
+    'status': 'ok',
+    'apiVersion': 'storefront.v1',
+    'catalogVersion': 7,
+    'item': (catalog['items'] as List).first,
+  };
+}
+
 abstract class HomeOnlyStorefrontRepository implements StorefrontRepository {
   const HomeOnlyStorefrontRepository();
 
@@ -243,4 +253,11 @@ abstract class HomeOnlyStorefrontRepository implements StorefrontRepository {
     required String? categorySlug,
     required StorefrontRequestCancellation cancellation,
   }) => throw UnsupportedError('fetchSearch is outside this test');
+
+  @override
+  Future<StorefrontProductSummary> fetchProductDetail({
+    required String shopSlug,
+    required String publicationId,
+    required StorefrontRequestCancellation cancellation,
+  }) => throw UnsupportedError('fetchProductDetail is outside this test');
 }

@@ -538,6 +538,13 @@ final class _CatalogRepository implements StorefrontRepository {
   }) => throw UnsupportedError('fetchHome is outside this test');
 
   @override
+  Future<StorefrontProductSummary> fetchProductDetail({
+    required String shopSlug,
+    required String publicationId,
+    required StorefrontRequestCancellation cancellation,
+  }) => throw UnsupportedError('fetchProductDetail is outside this test');
+
+  @override
   Future<StorefrontSearchPage> fetchSearch({
     required String shopSlug,
     required String query,

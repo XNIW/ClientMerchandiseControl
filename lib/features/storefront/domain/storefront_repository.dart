@@ -50,4 +50,10 @@ abstract interface class StorefrontRepository {
     required String? categorySlug,
     required StorefrontRequestCancellation cancellation,
   });
+
+  Future<StorefrontProductSummary> fetchProductDetail({
+    required String shopSlug,
+    required String publicationId,
+    required StorefrontRequestCancellation cancellation,
+  });
 }

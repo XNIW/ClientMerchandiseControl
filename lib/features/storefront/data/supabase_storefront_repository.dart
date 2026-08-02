@@ -21,6 +21,10 @@ class SupabaseStorefrontRepository implements StorefrontRepository {
 
   final StorefrontRpcInvoker invoke;
   final Duration requestTimeout;
+  static final _publicationId = RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+    caseSensitive: false,
+  );
 
   @override
   Future<StorefrontHomeData> fetchHome({
@@ -126,6 +130,33 @@ class SupabaseStorefrontRepository implements StorefrontRepository {
       cancellation: cancellation,
       decode: StorefrontCatalogDto.decodeSearch,
     );
+  }
+
+  @override
+  Future<StorefrontProductSummary> fetchProductDetail({
+    required String shopSlug,
+    required String publicationId,
+    required StorefrontRequestCancellation cancellation,
+  }) async {
+    if (!_publicationId.hasMatch(publicationId)) {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.invalidConfiguration,
+        code: 'invalid_publication_id',
+      );
+    }
+    final product = await _invokeDecoded(
+      function: 'storefront_product_detail_v1',
+      parameters: {'p_shop_slug': shopSlug, 'p_publication_id': publicationId},
+      cancellation: cancellation,
+      decode: StorefrontCatalogDto.decodeProductDetail,
+    );
+    if (product.id.toLowerCase() != publicationId.toLowerCase()) {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.invalidPayload,
+        code: 'product_detail_id_mismatch',
+      );
+    }
+    return product;
   }
 
   Future<T> _invokeDecoded<T>({

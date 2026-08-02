@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/router/app_routes.dart';
 import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
@@ -67,85 +69,106 @@ class StorefrontProductCard extends StatelessWidget {
     return Semantics(
       container: true,
       excludeSemantics: true,
+      button: true,
       label: semanticLabel,
       child: Card(
         clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AspectRatio(
-              aspectRatio: 4 / 3,
-              child: _ProductImage(
-                productId: product.id,
-                name: product.name,
-                uri: product.images?.card,
+        child: InkWell(
+          key: ValueKey('open-product-${product.id}'),
+          onTap: () => context.push(AppRoutes.productLocation(product.id)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AspectRatio(
+                aspectRatio: 4 / 3,
+                child: StorefrontProductImage(
+                  productId: product.id,
+                  name: product.name,
+                  uri: product.images?.card,
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (discountPercent case final percent?) ...[
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.secondaryContainer,
-                        borderRadius: BorderRadius.circular(AppRadii.control),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.sm,
-                          vertical: AppSpacing.xs,
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (discountPercent case final percent?) ...[
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.secondaryContainer,
+                          borderRadius: BorderRadius.circular(AppRadii.control),
                         ),
-                        child: Text(
-                          l10n.homeDiscountPercent(percent),
-                          style: Theme.of(context).textTheme.labelMedium,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                            vertical: AppSpacing.xs,
+                          ),
+                          child: Text(
+                            l10n.homeDiscountPercent(percent),
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
                         ),
                       ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            product.name,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        const Icon(Icons.arrow_forward_ios, size: 16),
+                      ],
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                  ],
-                  Text(
-                    product.name,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    currentPrice,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  if (previousPrice case final price?)
                     Text(
-                      l10n.homePreviousPrice(price),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        decoration: TextDecoration.lineThrough,
+                      currentPrice,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                ],
+                    if (previousPrice case final price?)
+                      Text(
+                        l10n.homePreviousPrice(price),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _ProductImage extends StatelessWidget {
-  const _ProductImage({
+class StorefrontProductImage extends StatelessWidget {
+  const StorefrontProductImage({
     required this.productId,
     required this.name,
     required this.uri,
+    this.cacheWidth = 720,
+    this.keyPrefix = 'storefront-image',
+    super.key,
   });
 
   final String productId;
   final String name;
   final Uri? uri;
+  final int cacheWidth;
+  final String keyPrefix;
 
   @override
   Widget build(BuildContext context) {
@@ -155,11 +178,11 @@ class _ProductImage extends StatelessWidget {
       image: true,
       label: name,
       child: Image.network(
-        key: ValueKey('storefront-image-$productId'),
+        key: ValueKey('$keyPrefix-$productId'),
         uri.toString(),
         fit: BoxFit.cover,
         filterQuality: FilterQuality.medium,
-        cacheWidth: 720,
+        cacheWidth: cacheWidth,
         gaplessPlayback: true,
         frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
           if (wasSynchronouslyLoaded || frame != null) return child;
@@ -179,7 +202,7 @@ class _ProductImage extends StatelessWidget {
 
   Widget _placeholder(BuildContext context, AppLocalizations l10n) {
     return ColoredBox(
-      key: ValueKey('storefront-image-placeholder-$productId'),
+      key: ValueKey('$keyPrefix-placeholder-$productId'),
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Center(
         child: Column(

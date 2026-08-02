@@ -227,6 +227,75 @@ void main() {
     },
   );
 
+  test('invoca soltanto product detail v1 e verifica publication ID', () async {
+    String? function;
+    Map<String, Object?>? parameters;
+    final repository = SupabaseStorefrontRepository(
+      invoke: (name, values) async {
+        function = name;
+        parameters = values;
+        return validStorefrontProductDetailPayload();
+      },
+    );
+
+    final result = await repository.fetchProductDetail(
+      shopSlug: 'storefront-test',
+      publicationId: '50000000-0000-4000-8000-000000000001',
+      cancellation: StorefrontRequestCancellation(),
+    );
+
+    expect(result.name, 'Café destacado');
+    expect(function, 'storefront_product_detail_v1');
+    expect(parameters, {
+      'p_shop_slug': 'storefront-test',
+      'p_publication_id': '50000000-0000-4000-8000-000000000001',
+    });
+  });
+
+  test('rifiuta publication ID invalido o response ID differente', () async {
+    var calls = 0;
+    final repository = SupabaseStorefrontRepository(
+      invoke: (name, values) async {
+        calls += 1;
+        final payload = validStorefrontProductDetailPayload();
+        (payload['item'] as Map)['id'] = '50000000-0000-4000-8000-000000000002';
+        return payload;
+      },
+    );
+
+    await expectLater(
+      repository.fetchProductDetail(
+        shopSlug: 'storefront-test',
+        publicationId: '../inventory',
+        cancellation: StorefrontRequestCancellation(),
+      ),
+      throwsA(
+        isA<StorefrontFailure>().having(
+          (failure) => failure.kind,
+          'kind',
+          StorefrontFailureKind.invalidConfiguration,
+        ),
+      ),
+    );
+    expect(calls, 0);
+
+    await expectLater(
+      repository.fetchProductDetail(
+        shopSlug: 'storefront-test',
+        publicationId: '50000000-0000-4000-8000-000000000001',
+        cancellation: StorefrontRequestCancellation(),
+      ),
+      throwsA(
+        isA<StorefrontFailure>().having(
+          (failure) => failure.kind,
+          'kind',
+          StorefrontFailureKind.invalidPayload,
+        ),
+      ),
+    );
+    expect(calls, 1);
+  });
+
   test('rifiuta limit e category slug invalidi prima della rete', () async {
     var calls = 0;
     final repository = SupabaseStorefrontRepository(

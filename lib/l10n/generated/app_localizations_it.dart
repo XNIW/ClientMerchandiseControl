@@ -221,6 +221,68 @@ class AppLocalizationsIt extends AppLocalizations {
   String get catalogResetFilters => 'Reimposta filtri';
 
   @override
+  String get productDetailTitle => 'Dettaglio prodotto';
+
+  @override
+  String get productDetailLoading => 'Caricamento prodotto';
+
+  @override
+  String get productDetailUnavailableTitle => 'Prodotto non disponibile';
+
+  @override
+  String get productDetailUnavailableMessage =>
+      'Questo prodotto non è pubblicato o non è più disponibile.';
+
+  @override
+  String get productDetailOfflineTitle => 'Sei offline';
+
+  @override
+  String get productDetailOfflineMessage =>
+      'Connettiti a internet per caricare il dettaglio aggiornato.';
+
+  @override
+  String get productDetailErrorTitle =>
+      'Non è stato possibile caricare il prodotto';
+
+  @override
+  String get productDetailErrorMessage =>
+      'Riprova. Non sono stati mostrati dati incompleti.';
+
+  @override
+  String get productDetailDescriptionLabel => 'Descrizione';
+
+  @override
+  String get productDetailNoDescription =>
+      'Non è disponibile una descrizione pubblica.';
+
+  @override
+  String get productDetailCategoryLabel => 'Categoria';
+
+  @override
+  String get productDetailBrandLabel => 'Marca';
+
+  @override
+  String get productDetailPriceLabel => 'Prezzo';
+
+  @override
+  String get productDetailAvailabilityLabel => 'Disponibilità commerciale';
+
+  @override
+  String get productDetailFulfillmentLabel => 'Opzioni di acquisto';
+
+  @override
+  String get productDetailPickup => 'Ritiro in negozio';
+
+  @override
+  String get productDetailDelivery => 'Consegna';
+
+  @override
+  String get productDetailReservation => 'Prenotazione';
+
+  @override
+  String get productDetailPromotionLabel => 'Promozione attiva';
+
+  @override
   String get catalogCategoriesLabel => 'Categorie';
 
   @override

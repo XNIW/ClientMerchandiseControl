@@ -263,6 +263,20 @@ I test mirati principali sono:
 - widget su tastiera/search action, clear, filtri, locale, dark mode, text scale 200% e
   compact/landscape; smoke reale Android/iOS sul contratto staging.
 
+## Gate specifici TASK-016
+
+- l'unico adapter Supabase allowlista anche `storefront_product_detail_v1`; UUID
+  publication invalido non effettua rete e response ID differente fallisce chiusa;
+- DTO strict su status/API/catalog version/item, senza shape extra o dati parziali;
+- controller route-scoped auto-dispose con cancellation, stale guard, readiness e retry;
+- card Home/Catalog/Search navigano alla stessa route e back ripristina il consumer;
+- detail mostra soltanto dati pubblici, variante immagine `detail` bounded, availability
+  commerciale e fulfillment senza quantità;
+- unit/widget su valid/unavailable/offline/malformed/dispose, sei availability, quattro
+  locale, dark, text scale 200% e compact/landscape;
+- smoke published/unpublished reale Android/iOS, build, secret scan e CI sullo stesso
+  SHA candidato.
+
 ## Gate security
 
 Nessun secret, configurazione locale, dato cliente, provisioning profile, certificato,

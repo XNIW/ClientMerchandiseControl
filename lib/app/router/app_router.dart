@@ -7,14 +7,11 @@ import '../../features/auth/domain/auth_state.dart';
 import '../../features/cart/presentation/cart_screen.dart';
 import '../../features/catalog/presentation/catalog_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/product_detail/presentation/product_detail_screen.dart';
 import '../../features/shell/presentation/app_shell_screen.dart';
+import 'app_routes.dart';
 
-abstract final class AppRoutes {
-  static const homeLocation = '/home';
-  static const catalogLocation = '/catalog';
-  static const cartLocation = '/cart';
-  static const accountLocation = '/account';
-}
+export 'app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -58,6 +55,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.productPattern,
+        builder: (context, state) => ProductDetailScreen(
+          publicationId: state.pathParameters['publicationId'] ?? '',
+        ),
       ),
     ],
   );

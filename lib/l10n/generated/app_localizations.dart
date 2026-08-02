@@ -487,6 +487,120 @@ abstract class AppLocalizations {
   /// **'Restablecer filtros'**
   String get catalogResetFilters;
 
+  /// No description provided for @productDetailTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalle del producto'**
+  String get productDetailTitle;
+
+  /// No description provided for @productDetailLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando el producto'**
+  String get productDetailLoading;
+
+  /// No description provided for @productDetailUnavailableTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Producto no disponible'**
+  String get productDetailUnavailableTitle;
+
+  /// No description provided for @productDetailUnavailableMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Este producto no está publicado o ya no está disponible.'**
+  String get productDetailUnavailableMessage;
+
+  /// No description provided for @productDetailOfflineTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estás sin conexión'**
+  String get productDetailOfflineTitle;
+
+  /// No description provided for @productDetailOfflineMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Conéctate a internet para cargar el detalle actualizado.'**
+  String get productDetailOfflineMessage;
+
+  /// No description provided for @productDetailErrorTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos cargar el producto'**
+  String get productDetailErrorTitle;
+
+  /// No description provided for @productDetailErrorMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Inténtalo de nuevo. No se mostraron datos incompletos.'**
+  String get productDetailErrorMessage;
+
+  /// No description provided for @productDetailDescriptionLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción'**
+  String get productDetailDescriptionLabel;
+
+  /// No description provided for @productDetailNoDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay una descripción pública disponible.'**
+  String get productDetailNoDescription;
+
+  /// No description provided for @productDetailCategoryLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Categoría'**
+  String get productDetailCategoryLabel;
+
+  /// No description provided for @productDetailBrandLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Marca'**
+  String get productDetailBrandLabel;
+
+  /// No description provided for @productDetailPriceLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Precio'**
+  String get productDetailPriceLabel;
+
+  /// No description provided for @productDetailAvailabilityLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponibilidad comercial'**
+  String get productDetailAvailabilityLabel;
+
+  /// No description provided for @productDetailFulfillmentLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Opciones de compra'**
+  String get productDetailFulfillmentLabel;
+
+  /// No description provided for @productDetailPickup.
+  ///
+  /// In es, this message translates to:
+  /// **'Retiro en tienda'**
+  String get productDetailPickup;
+
+  /// No description provided for @productDetailDelivery.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrega'**
+  String get productDetailDelivery;
+
+  /// No description provided for @productDetailReservation.
+  ///
+  /// In es, this message translates to:
+  /// **'Reserva'**
+  String get productDetailReservation;
+
+  /// No description provided for @productDetailPromotionLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Promoción activa'**
+  String get productDetailPromotionLabel;
+
   /// Título accesible del selector de categorías públicas.
   ///
   /// In es, this message translates to:

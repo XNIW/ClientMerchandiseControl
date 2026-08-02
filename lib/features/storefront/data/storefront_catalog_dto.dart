@@ -111,6 +111,21 @@ abstract final class StorefrontCatalogDto {
     );
   }
 
+  static StorefrontProductSummary decodeProductDetail(Object? raw) {
+    final payload = _response(raw, const {
+      'status',
+      'apiVersion',
+      'catalogVersion',
+      'item',
+    });
+    _requireOk(payload, const {'catalogVersion', 'item'});
+    final catalogVersion = _nonNegativeInt(payload, 'catalogVersion');
+    return StorefrontHomeDto.decodeProductSummary(
+      payload['item'],
+      catalogVersion,
+    );
+  }
+
   static Map<String, Object?> _response(Object? raw, Set<String> allowedKeys) {
     if (raw is! Map) _invalid('response_map');
     final payload = raw.map((key, value) {

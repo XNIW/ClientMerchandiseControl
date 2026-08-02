@@ -28,7 +28,9 @@ private enum NativeShareResult: Equatable {
 private final class ProductSharePresentationContract {
   private(set) var activeController: InspectableActivityViewController?
   private(set) var presentationCount = 0
-  private(set) weak var configuredSourceView: UIView?
+  // Snapshot the pre-presentation iPad anchor: UIKit may adapt its own
+  // presentation controller after the activity view controller is presented.
+  private(set) var configuredSourceView: UIView?
   private(set) var configuredSourceRect = CGRect.zero
   private var completion: ((NativeShareResult) -> Void)?
 
@@ -234,6 +236,15 @@ final class RunnerTests: XCTestCase {
         from: host.viewController,
         completion: { results.append($0) }
       )
+    )
+    guard let firstController = presenter.activeController else {
+      return XCTFail("UIActivityViewController was not created")
+    }
+    XCTAssertTrue(
+      drainMainRunLoop(
+        until: { host.viewController.presentedViewController === firstController }
+      ),
+      "UIActivityViewController was not presented before backgrounding"
     )
     presenter.applicationDidEnterBackground()
     presenter.applicationDidBecomeActive()

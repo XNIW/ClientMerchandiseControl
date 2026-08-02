@@ -5,14 +5,14 @@
 - **Task ID**: TASK-017
 - **Titolo**: Cache catalogo offline, refresh e invalidazione
 - **File task**: `docs/TASKS/TASK-017-offline-catalog-cache-refresh-invalidation.md`
-- **Stato**: ACTIVE
-- **Fase**: EXECUTION
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Fase**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-017/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -128,11 +128,68 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-In avvio.
+### Modifiche completate
+
+- database Drift pubblico schema v1 con metadata, categorie, prodotti, detail marker,
+  scope e membership ordinata; apertura nativa in background, WAL e limite 64 MiB;
+- cache shop-scoped Home/Catalog/Search/Detail con TTL 15 minuti, stale massimo 30
+  giorni, cap 25.000 prodotti/500 detail e cleanup LRU/version-aware;
+- stale-while-revalidate nei quattro controller, con copia cache immediata, freshness
+  localizzata, refresh non bloccante e conservazione stale solo per failure di rete;
+- invalidazione transazionale per `catalogVersion`, membership keyset locale separata
+  dai cursor remoti e nessuna query verso tabelle o bucket interni;
+- search offline bounded accent-insensitive per spagnolo e substring per zh-Hans;
+- recovery fail-closed da quick-check fallito o schema futuro, transazioni abort-safe e
+  nessun token, PII, dato customer o blob immagine nel database;
+- smoke staging reale online→app-kill→offline→reconnect su Android e iOS con file
+  SQLite riaperto sul device.
+
+### Difetti corretti durante Execution
+
+- `build_runner 2.16.0` incompatibile con il pin `meta` del Flutter SDK è stato
+  sostituito dal massimo risolvibile `2.15.1`, senza upgrade fuori scope;
+- il file Drift generato è escluso dalla coverage tramite preamble deterministico del
+  builder, evitando una riduzione artificiale dal 81,57% al 69,72%;
+- il live harness ora materializza e rende visibile la card nel `SliverGrid`, tocca
+  l'azione reale e attende la route; i tentativi falliti Android/iOS restano registrati;
+- una regressione verifica che `unavailable` rimuova davvero il detail dalla cache,
+  non soltanto dalla UI.
+
+### Gate eseguiti
+
+- revision set Client `e5f4bd8d14da08e9e8f43284944d8257c0b02693`, PR `#5` draft;
+- `scripts/check.sh`: exit 0 in 74,17 s; security 402 file, governance 8/8,
+  architecture 7/7, l10n, format, analyze, 303 test, coverage 3.872/4.747 linee
+  (81,57%), Android debug e iOS Simulator debug: `PASS`;
+- suite cache: 19/19 `PASS` in 3,00 s; benchmark 25.000 righe: open 247 ms, write
+  20k 444 ms, catalog p50/p95/p99 601/1.195/7.528 µs e search
+  3.166/3.824/6.482 µs;
+- CI Client `30737515662`: Quality 4m02s, iOS 4m15s, Android 8m49s, 3/3 `PASS`,
+  annotation 0/0/0 sullo SHA esatto;
+- cache live Android Emulator: candidato finale 1/1 `PASS` in 45,98 s;
+- cache live iOS Simulator: candidato finale 1/1 `PASS` in 27,09 s;
+- APK debug SHA-256
+  `a5730cc27c049bc670ca465b544fc50da79603ab684662e41714211e08fcf09b`;
+- Runner Simulator executable SHA-256
+  `9b57b6dd92f9405b214ed308e0057510c2538a4378495a7f5a8ebce706d57448`;
+- production write: `NOT_RUN`; production invariata.
+
+### Matrici
+
+CA-01..CA-10 e T-01..T-08: `PASS`. Evidence sintetica:
+`docs/TASKS/EVIDENCE/TASK-017/README.md`.
+
+### Handoff
+
+`CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`. Nessuna review formale è stata
+eseguita e TASK-017 non è `DONE`.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate TASK-017. Nessuna review formale intermedia.
+TASK-017 è `VALIDATED_PENDING_INTEGRATED_REVIEW`: implementazione, benchmark, gate
+completo, CI e smoke staging Android/iOS sono verdi sul revision set registrato.
+Production è invariata; nessuna review formale intermedia è stata eseguita. Il task
+successivo autorizzato è TASK-018.
 
 ## Review / Fix
 

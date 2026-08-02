@@ -1,10 +1,10 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 3 / TASK-017 offline cache
-- **Task corrente**: TASK-017
+- **Fase corrente**: EXECUTION / Milestone 3 / TASK-018 favorite/share/deep link
+- **Task corrente**: TASK-018
 - **Repository writer corrente**: ClientMerchandiseControl
 - **Branch**: `integration/storefront-v1`
-- **SHA Client TASK-016 candidate**: `242e631805b569a49a0217c4129b1586e8ad1dbf`
+- **SHA Client TASK-017 candidate**: `e5f4bd8d14da08e9e8f43284944d8257c0b02693`
 - **SHA Admin corrente**: `a9036f0bda741d686afbdac13d3d08ef897f059b`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
@@ -53,15 +53,20 @@
   file, governance, architecture, analyze e build Android/iOS `PASS`; CI
   `30735374419` 3/3 `PASS`; Detail published/unpublished Android 1/1 in 17 s e iOS
   1/1 in 3 s `PASS`; tentativo Android harness iniziale `FAIL` corretto; production invariata
-- **Gate ancora necessari**: execution TASK-017, migration/cleanup/search offline,
-  benchmark 20k e smoke offline/reconnect Android/iOS
-- **Comando successivo esatto**: `flutter pub add drift:^2.34.3 drift_flutter:^0.3.1 && flutter pub add --dev drift_dev:^2.34.5 build_runner:^2.16.0`
+- **Gate TASK-017**: Client SHA `e5f4bd8`; 303 test, coverage 81,57%, security 402
+  file, governance 8/8, architecture 7/7, analyze e build Android/iOS `PASS`; cache
+  suite 19/19, 25.000 righe, open 247 ms, write 20k 444 ms, catalog p95 1.195 µs e
+  search p95 3.824 µs; CI `30737515662` 3/3 `PASS`, annotation 0/0/0; offline/reconnect
+  Android 1/1 in 45,98 s e iOS 1/1 in 27,09 s `PASS`; production invariata
+- **Gate ancora necessari**: execution TASK-018, schema favorite v2, share nativo,
+  validator/link coordinator e smoke cold/warm Android/iOS
+- **Comando successivo esatto**: `flutter pub add share_plus:^12.0.2`
 - **Blocker**: nessuno
 - **Processi ancora attivi**: nessuno
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
   `PASS`; Milestone 2 Admin publish/promozioni/immagini/rollback/cleanup `PASS`;
-  fixture pubblica, Home, Catalog, Discovery e Detail guest Android/iOS `PASS`;
-  TASK-017 cache offline `NOT_RUN`; production invariata
+  fixture pubblica, Home, Catalog, Discovery, Detail e cache offline/reconnect guest
+  Android/iOS `PASS`; TASK-018 favorite/share/deep link `NOT_RUN`; production invariata
 
 ## Vincoli di ripresa
 

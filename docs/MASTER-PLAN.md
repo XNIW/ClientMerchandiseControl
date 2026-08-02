@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-017
-- **File task**: docs/TASKS/TASK-017-offline-catalog-cache-refresh-invalidation.md
+- **Task attivo**: TASK-018
+- **File task**: docs/TASKS/TASK-018-favorites-sharing-product-deep-links.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,9 +14,9 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: implementare TASK-017 nel Client Flutter con
-  Drift/SQLite, cache pubblica shop-scoped, stale-while-revalidate, invalidazione per
-  catalog version e ricerca offline, con production invariata
+- **Prossima azione autorizzata**: implementare TASK-018 nel Client Flutter con
+  preferiti guest Drift shop-scoped, share nativo e deep link prodotto/categoria
+  strict sul source `app_links` unico, con OAuth e production invariati
 
 ## Repository coinvolti
 
@@ -68,8 +68,8 @@
 | TASK-014 | Categorie e griglia catalogo con caricamento immagini | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-011, TASK-012 | Client, Supabase | Browsing catalogo completo |
 | TASK-015 | Ricerca, filtri e ordinamento | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014 | Client, Supabase | Discovery catalogo efficiente |
 | TASK-016 | Dettaglio prodotto e disponibilità commerciale | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014 | Client, Supabase | Dettaglio pubblico coerente |
-| TASK-017 | Cache catalogo offline, refresh e invalidazione | ACTIVE | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
-| TASK-018 | Preferiti, condivisione e deep link prodotto | TODO | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
+| TASK-017 | Cache catalogo offline, refresh e invalidazione | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
+| TASK-018 | Preferiti, condivisione e deep link prodotto | ACTIVE | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
 | TASK-019 | Catalog performance e acceptance su dataset esteso | TODO | TASK-010, TASK-014, TASK-015, TASK-017 | Client, Supabase | Budget prestazioni misurato |
 | TASK-020 | Supabase Auth, deep link e session lifecycle | DONE | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
 | TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
@@ -154,7 +154,9 @@ TASK-014 ha completato categorie, keyset grid, immagini, CI e smoke Android/iOS 
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-015 ha completato ricerca, filtri, sort,
 CI e smoke Android/iOS ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-016 ha
 completato dettaglio pubblico, CI e smoke Android/iOS ed è
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-017 è l'unico task `ACTIVE / EXECUTION`;
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-017 ha completato cache Drift, SWR,
+invalidazione, benchmark e smoke offline/reconnect Android/iOS ed è
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-018 è l'unico task `ACTIVE / EXECUTION`;
 i task successivi restano `TODO` fino al relativo handoff. La dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
@@ -206,3 +208,15 @@ Production è invariata. TASK-016 non è `DONE`: attende la review integrata fin
 
 Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-017.
+
+## Ultimo checkpoint interno — TASK-017
+
+Il revision set Client `e5f4bd8d14da08e9e8f43284944d8257c0b02693` ha superato
+303 test con coverage 81,57%, gate security/governance/architecture, build Android/iOS,
+benchmark 25.000 righe, smoke cache offline/reconnect Android/iOS e CI `30737515662`
+3/3 `PASS`. I tentativi harness falliti per viewport/route restano registrati e sono
+stati corretti con regressioni. Production è invariata. TASK-017 non è `DONE`: attende
+la review integrata finale.
+
+Handoff:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-018.

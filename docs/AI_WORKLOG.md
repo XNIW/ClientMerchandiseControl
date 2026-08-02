@@ -1493,3 +1493,26 @@
 - **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
 - **Transizione**: TASK-017 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per Drift, cache pubblica shop-scoped, SWR, invalidazione e ricerca offline.
+
+## 2026-08-02 — Checkpoint interno TASK-017 e attivazione TASK-018
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-017**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; Drift/SQLite pubblico,
+  SWR Home/Catalog/Search/Detail, invalidazione transazionale, search offline, recovery
+  e cleanup bounded completati.
+- **Revision set Client**: `e5f4bd8d14da08e9e8f43284944d8257c0b02693`, PR #5 draft.
+- **Gate locali**: `scripts/check.sh` exit 0 in 74,17 s; security 402 file,
+  governance 8/8, architecture 7/7, analyze, 303 test, coverage 3.872/4.747
+  (81,57%), Android debug e iOS Simulator debug `PASS`.
+- **Cache/performance**: 19/19 test; 25.000 righe; open 247 ms, write 20k 444 ms,
+  catalog p50/p95/p99 601/1.195/7.528 µs, search 3.166/3.824/6.482 µs.
+- **CI Client**: run `30737515662`, Quality 4m02s, iOS 4m15s e Android 8m49s,
+  3/3 `PASS`, annotation 0/0/0 sullo SHA esatto.
+- **Smoke mobile**: cache offline/reconnect Android 1/1 in 45,98 s e iOS 1/1 in
+  27,09 s, entrambi `PASS` con staging seed/reconnect reali e file SQLite device.
+- **Difetti corretti**: build_runner compatibile col Flutter SDK, generated coverage
+  esclusa deterministicamente, viewport Sliver e attesa route del live harness,
+  rimozione fisica del detail unavailable verificata.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-018 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per preferiti locali shop-scoped, share nativo e deep link prodotto/categoria strict.

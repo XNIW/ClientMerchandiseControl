@@ -6,7 +6,10 @@ import '../storefront_test_fixture.dart';
 
 void main() {
   test('decodifica soltanto il contratto pubblico Home v1', () {
-    final result = StorefrontHomeDto.decode(validStorefrontHomePayload());
+    final payload = validStorefrontHomePayload();
+    (payload['categories'] as List).single['slug'] = 'te';
+    ((payload['offers'] as List).single as Map)['category']['slug'] = 'te';
+    final result = StorefrontHomeDto.decode(payload);
 
     expect(result.catalogVersion, 7);
     expect(result.settings.shopSlug, 'storefront-test');
@@ -15,7 +18,18 @@ void main() {
     expect(result.offers.single.priceClp, 1200);
     expect(result.offers.single.compareAtPriceClp, 1500);
     expect(result.offers.single.images?.card.scheme, 'https');
+    expect(result.offers.single.category.slug, 'te');
     expect(result.featured.single.category.sortRank, 0);
+  });
+
+  test('rifiuta slug categoria di un solo carattere', () {
+    final payload = validStorefrontHomePayload();
+    (payload['categories'] as List).single['slug'] = 't';
+
+    expect(
+      () => StorefrontHomeDto.decode(payload),
+      throwsA(isA<StorefrontFailure>()),
+    );
   });
 
   test('mappa unavailable e rifiuta versione API/catalog incoerente', () {

@@ -100,13 +100,29 @@ Future<void> _waitForHomeData(
         readiness != BackendReadinessState.ready) {
       fail('Readiness staging terminata in ${readiness.name}.');
     }
-    if (home.status == HomeLoadStatus.failure ||
-        home.status == HomeLoadStatus.unavailable) {
-      fail('Home staging terminata in ${home.status.name}.');
+    if (home.status != HomeLoadStatus.loading) {
+      final failure = home.failure;
+      final failureSummary = failure == null
+          ? 'none'
+          : '${failure.kind.name}/${failure.code}';
+      fail(
+        'Home staging terminata in ${home.status.name}; '
+        'readiness=${readiness.name}; failure=$failureSummary.',
+      );
     }
     final exception = tester.takeException();
     if (exception != null) fail('Eccezione Home staging: $exception');
     await tester.pump(const Duration(milliseconds: 250));
   }
-  fail('Home staging non ha raggiunto data entro 40 secondi.');
+  final readiness = container.read(backendReadinessControllerProvider);
+  final home = container.read(homeControllerProvider);
+  final failure = home.failure;
+  final failureSummary = failure == null
+      ? 'none'
+      : '${failure.kind.name}/${failure.code}';
+  fail(
+    'Home staging non ha raggiunto data entro 40 secondi; '
+    'readiness=${readiness.name}; home=${home.status.name}; '
+    'failure=$failureSummary.',
+  );
 }

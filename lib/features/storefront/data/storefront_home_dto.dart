@@ -7,7 +7,8 @@ abstract final class StorefrontHomeDto {
     r'^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
     caseSensitive: false,
   );
-  static final _slug = RegExp(r'^[a-z0-9][a-z0-9-]{2,62}$');
+  static final _shopSlug = RegExp(r'^[a-z0-9][a-z0-9-]{2,62}$');
+  static final _categorySlug = RegExp(r'^[a-z0-9][a-z0-9-]{1,62}$');
   static final _sha256 = RegExp(r'^[a-f0-9]{64}$');
 
   static StorefrontHomeData decode(Object? raw) {
@@ -62,7 +63,7 @@ abstract final class StorefrontHomeDto {
       'fulfillment',
     });
     final settings = StorefrontSettings(
-      shopSlug: _validSlug(settingsMap, 'shopSlug'),
+      shopSlug: _validShopSlug(settingsMap, 'shopSlug'),
       currency: _exactString(settingsMap, 'currency', 'CLP'),
       locale: _boundedString(settingsMap, 'locale', 2, 24),
       timeZone: _boundedString(settingsMap, 'timeZone', 1, 64),
@@ -102,7 +103,7 @@ abstract final class StorefrontHomeDto {
     if (!_uuid.hasMatch(id)) _invalid('category_id');
     return StorefrontCategory(
       id: id,
-      slug: _validSlug(value, 'slug'),
+      slug: _validCategorySlug(value, 'slug'),
       name: _boundedString(value, 'name', 1, 160),
       sortRank: value['sortRank'] == null
           ? 0
@@ -329,9 +330,15 @@ abstract final class StorefrontHomeDto {
     return result;
   }
 
-  static String _validSlug(Map<String, Object?> value, String key) {
+  static String _validShopSlug(Map<String, Object?> value, String key) {
     final result = _string(value, key);
-    if (!_slug.hasMatch(result)) _invalid('${key}_slug');
+    if (!_shopSlug.hasMatch(result)) _invalid('${key}_slug');
+    return result;
+  }
+
+  static String _validCategorySlug(Map<String, Object?> value, String key) {
+    final result = _string(value, key);
+    if (!_categorySlug.hasMatch(result)) _invalid('${key}_slug');
     return result;
   }
 

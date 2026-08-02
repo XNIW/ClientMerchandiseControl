@@ -108,6 +108,52 @@ void main() {
       expect(repository.calls, 0);
     },
   );
+
+  test(
+    'avvia Home quando readiness transita da initializing a ready',
+    () async {
+      final storefrontRepository = _QueuedRepository()
+        ..responses.add(() async => validStorefrontHomeData());
+      final readinessRepository = _CompletableReadinessRepository();
+      final container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWithValue(
+            AppConfig.fromValues(
+              appEnvironment: 'staging',
+              supabaseUrl: 'https://staging.example.invalid',
+              supabasePublishableKey: 'sb_publishable_staging',
+              authRedirectUri: AppConfig.allowedAuthRedirectUri,
+              googleAuthEnabled: 'false',
+              storefrontShopSlug: 'storefront-test',
+            ),
+          ),
+          backendReadinessRepositoryProvider.overrideWithValue(
+            readinessRepository,
+          ),
+          storefrontRepositoryProvider.overrideWithValue(storefrontRepository),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      expect(
+        container.read(homeControllerProvider).status,
+        HomeLoadStatus.loading,
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(readinessRepository.calls, 1);
+      expect(storefrontRepository.calls, 0);
+
+      readinessRepository.completeNext(BackendReadinessState.ready);
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+
+      expect(storefrontRepository.calls, 1);
+      expect(
+        container.read(homeControllerProvider).status,
+        HomeLoadStatus.data,
+      );
+    },
+  );
 }
 
 ProviderContainer _container(StorefrontRepository repository) {
@@ -159,4 +205,30 @@ final class _StaticReadinessRepository implements BackendReadinessRepository {
   Future<BackendReadinessState> check({
     required BackendProbeCancellation cancellation,
   }) async => initialState;
+}
+
+final class _CompletableReadinessRepository
+    implements BackendReadinessRepository {
+  final List<Completer<BackendReadinessState>> _results = [];
+
+  int get calls => _results.length;
+
+  @override
+  BackendReadinessState get initialState => BackendReadinessState.initializing;
+
+  @override
+  bool get canCheck => true;
+
+  @override
+  Future<BackendReadinessState> check({
+    required BackendProbeCancellation cancellation,
+  }) {
+    final result = Completer<BackendReadinessState>();
+    _results.add(result);
+    return result.future;
+  }
+
+  void completeNext(BackendReadinessState state) {
+    _results.firstWhere((result) => !result.isCompleted).complete(state);
+  }
 }

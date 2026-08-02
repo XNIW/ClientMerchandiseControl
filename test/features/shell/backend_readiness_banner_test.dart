@@ -7,9 +7,14 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_reposi
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
+import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
+import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
+import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../storefront/storefront_test_fixture.dart';
 
 void main() {
   const callback = AppConfig.allowedAuthRedirectUri;
@@ -30,6 +35,9 @@ void main() {
       overrides: [
         appConfigProvider.overrideWithValue(stagingConfig),
         backendReadinessRepositoryProvider.overrideWithValue(repository),
+        storefrontRepositoryProvider.overrideWithValue(
+          const _BannerStorefrontRepository(),
+        ),
       ],
       child: ClientMerchandiseControlApp(locale: locale),
     );
@@ -225,6 +233,19 @@ void main() {
     expect(retrySize.height, greaterThanOrEqualTo(48));
     expect(tester, meetsGuideline(labeledTapTargetGuideline));
   });
+}
+
+final class _BannerStorefrontRepository implements StorefrontRepository {
+  const _BannerStorefrontRepository();
+
+  @override
+  Future<StorefrontHomeData> fetchHome({
+    required String shopSlug,
+    required StorefrontRequestCancellation cancellation,
+  }) async {
+    cancellation.throwIfCancelled();
+    return validStorefrontHomeData();
+  }
 }
 
 final class _BannerRepository implements BackendReadinessRepository {

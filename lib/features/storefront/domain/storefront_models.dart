@@ -7,6 +7,8 @@ enum StorefrontAvailability {
   deliveryOnly,
 }
 
+enum StorefrontCatalogSort { catalog, name, priceAscending, priceDescending }
+
 class StorefrontFulfillment {
   const StorefrontFulfillment({
     required this.pickup,
@@ -144,4 +146,30 @@ class StorefrontHomeData {
   final List<StorefrontProductSummary> offers;
 
   bool get isEmpty => categories.isEmpty && featured.isEmpty && offers.isEmpty;
+}
+
+class StorefrontCategoriesPage {
+  StorefrontCategoriesPage({
+    required this.catalogVersion,
+    required List<StorefrontCategory> categories,
+    required this.nextCursor,
+  }) : categories = List.unmodifiable(categories);
+
+  final int catalogVersion;
+  final List<StorefrontCategory> categories;
+  final String? nextCursor;
+}
+
+class StorefrontCatalogPage {
+  StorefrontCatalogPage({
+    required this.catalogVersion,
+    required List<StorefrontProductSummary> items,
+    required this.nextCursor,
+    required this.sort,
+  }) : items = List.unmodifiable(items);
+
+  final int catalogVersion;
+  final List<StorefrontProductSummary> items;
+  final String? nextCursor;
+  final StorefrontCatalogSort sort;
 }

@@ -1,5 +1,6 @@
 enum StorefrontFailureKind {
   cancelled,
+  catalogChanged,
   invalidConfiguration,
   invalidPayload,
   offline,

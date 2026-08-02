@@ -177,7 +177,7 @@ ProviderContainer _container(StorefrontRepository repository) {
   );
 }
 
-final class _QueuedRepository implements StorefrontRepository {
+final class _QueuedRepository extends HomeOnlyStorefrontRepository {
   final List<Future<StorefrontHomeData> Function()> responses = [];
   final List<StorefrontRequestCancellation> cancellations = [];
   var calls = 0;

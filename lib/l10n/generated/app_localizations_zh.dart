@@ -164,7 +164,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get catalogControlsUnavailable =>
-      'Los filtros y el orden estarán disponibles con el catálogo.';
+      'La búsqueda, los filtros y el orden estarán disponibles en el siguiente paso.';
+
+  @override
+  String get catalogCategoriesLabel => 'Categorías';
+
+  @override
+  String get catalogAllCategories => 'Todos';
+
+  @override
+  String get catalogLoadingMore => 'Cargando más productos';
+
+  @override
+  String get catalogLoadMoreError => 'No pudimos cargar más productos';
 
   @override
   String get catalogConnectingTitle => 'Preparando el catálogo';
@@ -174,11 +186,10 @@ class AppLocalizationsZh extends AppLocalizations {
       'Estamos comprobando si la tienda está disponible.';
 
   @override
-  String get catalogEmptyTitle => 'Catálogo público aún no conectado';
+  String get catalogEmptyTitle => 'No hay productos publicados';
 
   @override
-  String get catalogEmptyMessage =>
-      'Podrás explorar productos cuando la tienda publique su catálogo.';
+  String get catalogEmptyMessage => 'Prueba otra categoría o vuelve más tarde.';
 
   @override
   String get catalogOfflineTitle => 'Estás sin conexión';
@@ -464,7 +475,19 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get catalogSortLabel => '排序';
 
   @override
-  String get catalogControlsUnavailable => '筛选和排序功能将随商品目录一起开放。';
+  String get catalogControlsUnavailable => '搜索、筛选和排序将在下一步开放。';
+
+  @override
+  String get catalogCategoriesLabel => '类别';
+
+  @override
+  String get catalogAllCategories => '全部';
+
+  @override
+  String get catalogLoadingMore => '正在加载更多商品';
+
+  @override
+  String get catalogLoadMoreError => '无法加载更多商品';
 
   @override
   String get catalogConnectingTitle => '正在准备商品目录';
@@ -473,10 +496,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get catalogConnectingMessage => '我们正在检查商店是否可用。';
 
   @override
-  String get catalogEmptyTitle => '公开商品目录尚未连接';
+  String get catalogEmptyTitle => '暂无已发布商品';
 
   @override
-  String get catalogEmptyMessage => '商店发布商品目录后，你就可以浏览商品。';
+  String get catalogEmptyMessage => '请尝试其他类别或稍后再来。';
 
   @override
   String get catalogOfflineTitle => '你当前处于离线状态';

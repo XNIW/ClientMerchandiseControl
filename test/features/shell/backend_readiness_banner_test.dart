@@ -235,7 +235,7 @@ void main() {
   });
 }
 
-final class _BannerStorefrontRepository implements StorefrontRepository {
+final class _BannerStorefrontRepository extends HomeOnlyStorefrontRepository {
   const _BannerStorefrontRepository();
 
   @override

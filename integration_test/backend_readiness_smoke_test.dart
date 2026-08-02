@@ -5,6 +5,7 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_state.
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/core/config/app_environment.dart';
 import 'package:client_merchandise_control/features/catalog/presentation/catalog_screen.dart';
+import 'package:client_merchandise_control/features/catalog/application/catalog_controller.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
 import 'package:client_merchandise_control/features/shell/presentation/app_shell_screen.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
@@ -54,9 +55,10 @@ void main() {
     expect(find.byType(HomeScreen), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('nav-catalog')));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.byType(CatalogScreen), findsOneWidget);
+    await _waitForCatalog(tester, container);
     final catalogTitle = tester.widget<Text>(
       find.byKey(const ValueKey('shell-title-1')),
     );
@@ -65,13 +67,7 @@ void main() {
       l10n.catalogTitle,
       reason: 'Il titolo Catalogo appartiene alla shell persistente.',
     );
-    expect(
-      find.descendant(
-        of: find.byType(CatalogScreen),
-        matching: find.text(l10n.catalogEmptyTitle),
-      ),
-      findsOneWidget,
-    );
+    expect(find.byKey(const ValueKey('catalog-grid')), findsOneWidget);
     expect(
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
       1,
@@ -89,6 +85,21 @@ void main() {
       'processAlive': 'PASS',
     };
   });
+}
+
+Future<void> _waitForCatalog(
+  WidgetTester tester,
+  ProviderContainer container,
+) async {
+  for (var attempt = 0; attempt < 120; attempt += 1) {
+    final state = container.read(catalogControllerProvider);
+    if (state.status == CatalogLoadStatus.data) return;
+    if (state.status != CatalogLoadStatus.loading) {
+      fail('Catalogo staging terminato in ${state.status.name}.');
+    }
+    await tester.pump(const Duration(milliseconds: 250));
+  }
+  fail('Catalogo staging non ha raggiunto data entro 30 secondi.');
 }
 
 Future<void> _waitForReady(

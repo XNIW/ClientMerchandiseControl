@@ -125,6 +125,7 @@ class HomeController extends Notifier<HomeState> {
         StorefrontFailureKind.invalidConfiguration ||
         StorefrontFailureKind.unauthorized ||
         StorefrontFailureKind.unavailable => const HomeState.unavailable(),
+        StorefrontFailureKind.catalogChanged ||
         StorefrontFailureKind.invalidPayload ||
         StorefrontFailureKind.unknown => HomeState.failure(failure),
       };

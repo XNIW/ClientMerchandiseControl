@@ -23,4 +23,20 @@ abstract interface class StorefrontRepository {
     required String shopSlug,
     required StorefrontRequestCancellation cancellation,
   });
+
+  Future<StorefrontCategoriesPage> fetchCategories({
+    required String shopSlug,
+    required String? cursor,
+    required int limit,
+    required StorefrontRequestCancellation cancellation,
+  });
+
+  Future<StorefrontCatalogPage> fetchCatalog({
+    required String shopSlug,
+    required String? cursor,
+    required int limit,
+    required String? categorySlug,
+    required StorefrontCatalogSort sort,
+    required StorefrontRequestCancellation cancellation,
+  });
 }

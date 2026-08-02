@@ -376,8 +376,32 @@ abstract class AppLocalizations {
   /// Explica por qué los controles futuros aún no están habilitados.
   ///
   /// In es, this message translates to:
-  /// **'Los filtros y el orden estarán disponibles con el catálogo.'**
+  /// **'La búsqueda, los filtros y el orden estarán disponibles en el siguiente paso.'**
   String get catalogControlsUnavailable;
+
+  /// Título accesible del selector de categorías públicas.
+  ///
+  /// In es, this message translates to:
+  /// **'Categorías'**
+  String get catalogCategoriesLabel;
+
+  /// Opción del catálogo que elimina el filtro de categoría.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos'**
+  String get catalogAllCategories;
+
+  /// Estado accesible mientras se carga otra página keyset.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando más productos'**
+  String get catalogLoadingMore;
+
+  /// Título del error incremental sin eliminar productos visibles.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos cargar más productos'**
+  String get catalogLoadMoreError;
 
   /// Título del estado de conexión del catálogo.
   ///
@@ -394,13 +418,13 @@ abstract class AppLocalizations {
   /// Título del catálogo vacío.
   ///
   /// In es, this message translates to:
-  /// **'Catálogo público aún no conectado'**
+  /// **'No hay productos publicados'**
   String get catalogEmptyTitle;
 
   /// Mensaje del catálogo vacío.
   ///
   /// In es, this message translates to:
-  /// **'Podrás explorar productos cuando la tienda publique su catálogo.'**
+  /// **'Prueba otra categoría o vuelve más tarde.'**
   String get catalogEmptyMessage;
 
   /// Título del estado sin conexión del catálogo.

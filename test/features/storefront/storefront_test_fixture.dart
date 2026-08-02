@@ -1,4 +1,7 @@
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
+import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
+
+const validStorefrontCursor = 'eyJ2IjoxLCJzb3J0IjoiY2F0YWxvZyJ9';
 
 Map<String, Object?> validStorefrontHomePayload({bool withImages = true}) {
   final image = withImages
@@ -157,4 +160,54 @@ StorefrontHomeData validStorefrontHomeData() {
       ),
     ],
   );
+}
+
+Map<String, Object?> validStorefrontCategoriesPayload({
+  String? nextCursor = validStorefrontCursor,
+}) {
+  final home = validStorefrontHomePayload();
+  return {
+    'status': 'ok',
+    'apiVersion': 'storefront.v1',
+    'catalogVersion': 7,
+    'categories': home['categories'],
+    'nextCursor': nextCursor,
+  };
+}
+
+Map<String, Object?> validStorefrontCatalogPayload({
+  String? nextCursor = validStorefrontCursor,
+  String sort = 'catalog',
+}) {
+  final home = validStorefrontHomePayload();
+  return {
+    'status': 'ok',
+    'apiVersion': 'storefront.v1',
+    'catalogVersion': 7,
+    'items': [...home['featured'] as List, ...home['offers'] as List],
+    'nextCursor': nextCursor,
+    'sort': sort,
+  };
+}
+
+abstract class HomeOnlyStorefrontRepository implements StorefrontRepository {
+  const HomeOnlyStorefrontRepository();
+
+  @override
+  Future<StorefrontCategoriesPage> fetchCategories({
+    required String shopSlug,
+    required String? cursor,
+    required int limit,
+    required StorefrontRequestCancellation cancellation,
+  }) => throw UnsupportedError('fetchCategories is outside this test');
+
+  @override
+  Future<StorefrontCatalogPage> fetchCatalog({
+    required String shopSlug,
+    required String? cursor,
+    required int limit,
+    required String? categorySlug,
+    required StorefrontCatalogSort sort,
+    required StorefrontRequestCancellation cancellation,
+  }) => throw UnsupportedError('fetchCatalog is outside this test');
 }

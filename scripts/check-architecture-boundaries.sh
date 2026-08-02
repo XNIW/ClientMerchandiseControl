@@ -492,9 +492,19 @@ cmc_arch_require_count \
   "un solo input compile-time Storefront shop slug"
 cmc_arch_require_count \
   "${cmc_arch_storefront_repository}" \
-  "invoke('storefront_home_v1'" \
+  "function: 'storefront_home_v1'" \
   1 \
   "un solo RPC Home v1 allowlisted nel repository"
+cmc_arch_require_count \
+  "${cmc_arch_storefront_repository}" \
+  "function: 'storefront_categories_v1'" \
+  1 \
+  "un solo RPC Categories v1 allowlisted nel repository"
+cmc_arch_require_count \
+  "${cmc_arch_storefront_repository}" \
+  "function: 'storefront_catalog_v1'" \
+  1 \
+  "un solo RPC Catalog v1 allowlisted nel repository"
 cmc_arch_require_count \
   "${cmc_arch_storefront_provider}" \
   ".rpc(function, params: parameters)" \
@@ -636,4 +646,4 @@ if [[ "${cmc_arch_violation_count}" -ne 0 ]]; then
   exit 1
 fi
 
-printf 'Boundary architetturali coerenti: ownership, TASK-012, Auth, DAG e RPC Storefront verificati.\n'
+printf 'Boundary architetturali coerenti: ownership, TASK-012, Auth, DAG e RPC Storefront Home/Categories/Catalog verificati.\n'

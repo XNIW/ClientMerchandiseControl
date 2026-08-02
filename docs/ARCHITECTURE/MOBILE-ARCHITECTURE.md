@@ -177,6 +177,15 @@ mapping DTO allow-listed. Nessun widget accede direttamente a Supabase; payload 
 campi o tipi fuori contratto falliscono chiusi e gli URL immagine devono appartenere al
 bucket pubblico `storefront-product-images`.
 
+TASK-014 estende lo stesso adapter con i soli RPC pubblici versionati
+`storefront_categories_v1` e `storefront_catalog_v1`. Il cursor keyset resta opaco,
+ogni pagina conserva `catalogVersion` e sort server, e il controller scarta risposte
+stale o sequenze che mescolano versioni diverse. La griglia è un singolo
+`CustomScrollView` lazy; selezione categoria, refresh e load-more sono separati e un
+errore incrementale conserva gli elementi già visibili fino al retry esplicito. Le
+immagini usano esclusivamente la variante pubblica `card`, con decode width bounded,
+placeholder ed errore sicuro; nessun widget interroga tabelle o Storage direttamente.
+
 ## Commercial truth e mutazioni
 
 Il client presenta l'ultimo stato Storefront ricevuto insieme alla sua freshness, ma non
@@ -263,6 +272,7 @@ assegnate a:
 - TASK-011 per connessione staging e backend/auth readiness;
 - TASK-012 per shell cliente guest/data-safe, stati readiness e baseline accessibile;
 - TASK-013 per Home pubblica data-backed e primo repository RPC-only;
+- TASK-014 per categorie pubbliche, griglia lazy e keyset pagination;
 - TASK-017 per cache catalogo, freshness e invalidazione;
 - TASK-020 per OAuth, deep link e session lifecycle, implementati nel confine Auth
   corrente;

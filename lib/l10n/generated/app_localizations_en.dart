@@ -162,7 +162,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get catalogControlsUnavailable =>
-      'Filters and sorting will be available with the catalog.';
+      'Search, filters, and sorting will be available in the next step.';
+
+  @override
+  String get catalogCategoriesLabel => 'Categories';
+
+  @override
+  String get catalogAllCategories => 'All';
+
+  @override
+  String get catalogLoadingMore => 'Loading more products';
+
+  @override
+  String get catalogLoadMoreError => 'We couldn\'t load more products';
 
   @override
   String get catalogConnectingTitle => 'Preparing the catalog';
@@ -172,11 +184,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'We\'re checking whether the store is available.';
 
   @override
-  String get catalogEmptyTitle => 'Public catalog not connected yet';
+  String get catalogEmptyTitle => 'No published products';
 
   @override
-  String get catalogEmptyMessage =>
-      'You can explore products when the store publishes its catalog.';
+  String get catalogEmptyMessage => 'Try another category or come back later.';
 
   @override
   String get catalogOfflineTitle => 'You\'re offline';

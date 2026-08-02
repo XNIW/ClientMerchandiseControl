@@ -166,7 +166,7 @@ Widget _homeApp({
   );
 }
 
-final class _SequenceRepository implements StorefrontRepository {
+final class _SequenceRepository extends HomeOnlyStorefrontRepository {
   _SequenceRepository(this.responses);
 
   factory _SequenceRepository.success() =>

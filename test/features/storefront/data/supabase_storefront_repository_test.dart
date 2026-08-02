@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:client_merchandise_control/features/storefront/data/supabase_storefront_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
+import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -106,5 +107,84 @@ void main() {
         ),
       ),
     );
+  });
+
+  test(
+    'invoca categorie e catalogo con cursor keyset e filtri bounded',
+    () async {
+      final calls = <(String, Map<String, Object?>)>[];
+      final repository = SupabaseStorefrontRepository(
+        invoke: (name, values) async {
+          calls.add((name, values));
+          return name == 'storefront_categories_v1'
+              ? validStorefrontCategoriesPayload()
+              : validStorefrontCatalogPayload();
+        },
+      );
+      final cancellation = StorefrontRequestCancellation();
+
+      await repository.fetchCategories(
+        shopSlug: 'storefront-test',
+        cursor: null,
+        limit: 100,
+        cancellation: cancellation,
+      );
+      await repository.fetchCatalog(
+        shopSlug: 'storefront-test',
+        cursor: validStorefrontCursor,
+        limit: 24,
+        categorySlug: 'te',
+        sort: StorefrontCatalogSort.catalog,
+        cancellation: cancellation,
+      );
+
+      expect(calls.first.$1, 'storefront_categories_v1');
+      expect(calls.first.$2, {
+        'p_shop_slug': 'storefront-test',
+        'p_cursor': null,
+        'p_limit': 100,
+      });
+      expect(calls.last.$1, 'storefront_catalog_v1');
+      expect(calls.last.$2, {
+        'p_shop_slug': 'storefront-test',
+        'p_cursor': validStorefrontCursor,
+        'p_limit': 24,
+        'p_category_slug': 'te',
+        'p_availability': null,
+        'p_discounted': null,
+        'p_featured': null,
+        'p_sort': 'catalog',
+      });
+    },
+  );
+
+  test('rifiuta limit e category slug invalidi prima della rete', () async {
+    var calls = 0;
+    final repository = SupabaseStorefrontRepository(
+      invoke: (name, values) async {
+        calls += 1;
+        return validStorefrontCatalogPayload();
+      },
+    );
+
+    for (final operation in <Future<Object?> Function()>[
+      () => repository.fetchCategories(
+        shopSlug: 'storefront-test',
+        cursor: null,
+        limit: 101,
+        cancellation: StorefrontRequestCancellation(),
+      ),
+      () => repository.fetchCatalog(
+        shopSlug: 'storefront-test',
+        cursor: null,
+        limit: 24,
+        categorySlug: '../internal',
+        sort: StorefrontCatalogSort.catalog,
+        cancellation: StorefrontRequestCancellation(),
+      ),
+    ]) {
+      await expectLater(operation, throwsA(isA<StorefrontFailure>()));
+    }
+    expect(calls, 0);
   });
 }

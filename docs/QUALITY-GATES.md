@@ -229,6 +229,25 @@ I test mirati principali sono:
 - `flutter analyze`, suite completa con coverage, build debug Android/iOS, architecture
   boundary, secret scan e CI sullo stesso SHA candidato.
 
+## Gate specifici TASK-014
+
+- l'unico adapter Supabase allowlista `storefront_categories_v1` e
+  `storefront_catalog_v1`, oltre al precedente Home, senza query dirette a
+  tabelle/view/Storage;
+- DTO strict per status, API version, catalog version, cursor opaco, sort, categorie e
+  prodotti, con duplicate ID/slug e shape sconosciute rifiutati;
+- limit `1..100`, keyset cursor invariato, cancellation/generation guard, single-flight
+  e reset bounded su `catalog_changed`;
+- griglia Sliver lazy adattiva, categoria server-side, pull-to-refresh, posizione per
+  categoria/tab, stato load-more separato e retry esplicito senza loop automatici;
+- immagini pubbliche `card` con lazy build, decode width bounded, placeholder/error e
+  nessun bucket/path interno;
+- unit/widget su pagination, stale response, duplicate page, refresh, error/retry,
+  es/it/en/zh-Hans, dark mode, text scale 200% e compact/landscape/large;
+- smoke guest reale Android/iOS tramite
+  `integration_test/storefront_catalog_live_smoke_test.dart`, build, secret scan e CI
+  eseguiti sullo stesso SHA candidato.
+
 ## Gate security
 
 Nessun secret, configurazione locale, dato cliente, provisioning profile, certificato,

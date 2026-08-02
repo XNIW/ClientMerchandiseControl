@@ -92,6 +92,13 @@ abstract final class StorefrontHomeDto {
     );
   }
 
+  static StorefrontCategory decodeCategory(Object? raw) => _category(raw);
+
+  static StorefrontProductSummary decodeProductSummary(
+    Object? raw,
+    int responseCatalogVersion,
+  ) => _product(raw, responseCatalogVersion);
+
   static StorefrontCategory _category(Object? raw) {
     final value = _map(
       raw,

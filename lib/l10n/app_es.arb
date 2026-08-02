@@ -144,9 +144,25 @@
   "@catalogSortLabel": {
     "description": "Etiqueta del futuro control de orden."
   },
-  "catalogControlsUnavailable": "Los filtros y el orden estarán disponibles con el catálogo.",
+  "catalogControlsUnavailable": "La búsqueda, los filtros y el orden estarán disponibles en el siguiente paso.",
   "@catalogControlsUnavailable": {
     "description": "Explica por qué los controles futuros aún no están habilitados."
+  },
+  "catalogCategoriesLabel": "Categorías",
+  "@catalogCategoriesLabel": {
+    "description": "Título accesible del selector de categorías públicas."
+  },
+  "catalogAllCategories": "Todos",
+  "@catalogAllCategories": {
+    "description": "Opción del catálogo que elimina el filtro de categoría."
+  },
+  "catalogLoadingMore": "Cargando más productos",
+  "@catalogLoadingMore": {
+    "description": "Estado accesible mientras se carga otra página keyset."
+  },
+  "catalogLoadMoreError": "No pudimos cargar más productos",
+  "@catalogLoadMoreError": {
+    "description": "Título del error incremental sin eliminar productos visibles."
   },
   "catalogConnectingTitle": "Preparando el catálogo",
   "@catalogConnectingTitle": {
@@ -156,11 +172,11 @@
   "@catalogConnectingMessage": {
     "description": "Mensaje del estado de conexión del catálogo."
   },
-  "catalogEmptyTitle": "Catálogo público aún no conectado",
+  "catalogEmptyTitle": "No hay productos publicados",
   "@catalogEmptyTitle": {
     "description": "Título del catálogo vacío."
   },
-  "catalogEmptyMessage": "Podrás explorar productos cuando la tienda publique su catálogo.",
+  "catalogEmptyMessage": "Prueba otra categoría o vuelve más tarde.",
   "@catalogEmptyMessage": {
     "description": "Mensaje del catálogo vacío."
   },

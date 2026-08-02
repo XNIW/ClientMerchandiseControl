@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../domain/storefront_failure.dart';
 import '../domain/storefront_models.dart';
 import '../domain/storefront_repository.dart';
+import 'storefront_catalog_dto.dart';
 import 'storefront_home_dto.dart';
 
 typedef StorefrontRpcInvoker =
@@ -25,17 +26,86 @@ class SupabaseStorefrontRepository implements StorefrontRepository {
   Future<StorefrontHomeData> fetchHome({
     required String shopSlug,
     required StorefrontRequestCancellation cancellation,
+  }) => _invokeDecoded(
+    function: 'storefront_home_v1',
+    parameters: {
+      'p_shop_slug': shopSlug,
+      'p_category_limit': 12,
+      'p_featured_limit': 8,
+      'p_offer_limit': 8,
+    },
+    cancellation: cancellation,
+    decode: StorefrontHomeDto.decode,
+  );
+
+  @override
+  Future<StorefrontCategoriesPage> fetchCategories({
+    required String shopSlug,
+    required String? cursor,
+    required int limit,
+    required StorefrontRequestCancellation cancellation,
+  }) {
+    _validateLimit(limit);
+    return _invokeDecoded(
+      function: 'storefront_categories_v1',
+      parameters: {
+        'p_shop_slug': shopSlug,
+        'p_cursor': cursor,
+        'p_limit': limit,
+      },
+      cancellation: cancellation,
+      decode: StorefrontCatalogDto.decodeCategories,
+    );
+  }
+
+  @override
+  Future<StorefrontCatalogPage> fetchCatalog({
+    required String shopSlug,
+    required String? cursor,
+    required int limit,
+    required String? categorySlug,
+    required StorefrontCatalogSort sort,
+    required StorefrontRequestCancellation cancellation,
+  }) {
+    _validateLimit(limit);
+    if (categorySlug != null &&
+        !RegExp(r'^[a-z0-9][a-z0-9-]{1,62}$').hasMatch(categorySlug)) {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.invalidConfiguration,
+        code: 'invalid_category_slug',
+      );
+    }
+    return _invokeDecoded(
+      function: 'storefront_catalog_v1',
+      parameters: {
+        'p_shop_slug': shopSlug,
+        'p_cursor': cursor,
+        'p_limit': limit,
+        'p_category_slug': categorySlug,
+        'p_availability': null,
+        'p_discounted': null,
+        'p_featured': null,
+        'p_sort': _sortValue(sort),
+      },
+      cancellation: cancellation,
+      decode: StorefrontCatalogDto.decodeCatalog,
+    );
+  }
+
+  Future<T> _invokeDecoded<T>({
+    required String function,
+    required Map<String, Object?> parameters,
+    required StorefrontRequestCancellation cancellation,
+    required T Function(Object?) decode,
   }) async {
     cancellation.throwIfCancelled();
     try {
-      final payload = await invoke('storefront_home_v1', {
-        'p_shop_slug': shopSlug,
-        'p_category_limit': 12,
-        'p_featured_limit': 8,
-        'p_offer_limit': 8,
-      }).timeout(requestTimeout);
+      final payload = await invoke(
+        function,
+        parameters,
+      ).timeout(requestTimeout);
       cancellation.throwIfCancelled();
-      return StorefrontHomeDto.decode(payload);
+      return decode(payload);
     } on StorefrontFailure {
       rethrow;
     } on TimeoutException {
@@ -70,4 +140,20 @@ class SupabaseStorefrontRepository implements StorefrontRepository {
       );
     }
   }
+
+  void _validateLimit(int limit) {
+    if (limit < 1 || limit > 100) {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.invalidConfiguration,
+        code: 'invalid_page_limit',
+      );
+    }
+  }
+
+  String _sortValue(StorefrontCatalogSort sort) => switch (sort) {
+    StorefrontCatalogSort.catalog => 'catalog',
+    StorefrontCatalogSort.name => 'name',
+    StorefrontCatalogSort.priceAscending => 'price_asc',
+    StorefrontCatalogSort.priceDescending => 'price_desc',
+  };
 }

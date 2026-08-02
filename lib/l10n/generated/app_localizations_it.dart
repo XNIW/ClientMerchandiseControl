@@ -162,7 +162,20 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get catalogControlsUnavailable =>
-      'Filtri e ordinamento saranno disponibili con il catalogo.';
+      'Ricerca, filtri e ordinamento saranno disponibili nel prossimo passaggio.';
+
+  @override
+  String get catalogCategoriesLabel => 'Categorie';
+
+  @override
+  String get catalogAllCategories => 'Tutti';
+
+  @override
+  String get catalogLoadingMore => 'Caricamento di altri prodotti';
+
+  @override
+  String get catalogLoadMoreError =>
+      'Non è stato possibile caricare altri prodotti';
 
   @override
   String get catalogConnectingTitle => 'Preparazione del catalogo';
@@ -172,11 +185,11 @@ class AppLocalizationsIt extends AppLocalizations {
       'Stiamo verificando se il negozio è disponibile.';
 
   @override
-  String get catalogEmptyTitle => 'Catalogo pubblico non ancora collegato';
+  String get catalogEmptyTitle => 'Nessun prodotto pubblicato';
 
   @override
   String get catalogEmptyMessage =>
-      'Potrai esplorare i prodotti quando il negozio pubblicherà il catalogo.';
+      'Prova un\'altra categoria o torna più tardi.';
 
   @override
   String get catalogOfflineTitle => 'Sei offline';

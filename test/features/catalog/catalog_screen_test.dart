@@ -1,378 +1,582 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/core/backend/backend_health_service.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_controller.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_repository.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
+import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/features/catalog/application/catalog_controller.dart';
 import 'package:client_merchandise_control/features/catalog/presentation/catalog_screen.dart';
+import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
+import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
+import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
+import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  Widget buildCatalog({
-    required BackendReadinessRepository repository,
-    ThemeMode themeMode = ThemeMode.light,
-  }) {
-    return ProviderScope(
+  testWidgets('mostra categorie, griglia reale, prezzi CLP e search onesta', (
+    tester,
+  ) async {
+    final storefront = _CatalogRepository();
+    await tester.pumpWidget(_catalogApp(storefront: storefront));
+    await tester.pumpAndSettle();
+
+    final strings = _l10n(tester);
+    final search = tester.widget<SearchBar>(
+      find.byKey(const ValueKey('catalog-search')),
+    );
+
+    expect(search.enabled, isFalse);
+    expect(find.text(strings.catalogControlsUnavailable), findsOneWidget);
+    expect(find.byKey(const ValueKey('catalog-grid')), findsOneWidget);
+    expect(find.byKey(const ValueKey('catalog-category-all')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('catalog-category-bebidas')),
+      findsOneWidget,
+    );
+    expect(find.text('Producto 1'), findsOneWidget);
+    expect(find.text(r'$1.500'), findsOneWidget);
+    expect(find.bySemanticsLabel(r'Producto 1, $1.500'), findsOneWidget);
+    expect(
+      find.byKey(
+        const ValueKey(
+          'storefront-image-placeholder-50000000-0000-4000-8000-000000000001',
+        ),
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('50000000-'), findsNothing);
+    expect(storefront.catalogCalls.single.limit, 24);
+    expect(storefront.categoryCalls.single.limit, 100);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('selezione categoria ricarica e filtra senza risultati stale', (
+    tester,
+  ) async {
+    final storefront = _CatalogRepository();
+    await tester.pumpWidget(_catalogApp(storefront: storefront));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('catalog-category-te')));
+    await tester.pumpAndSettle();
+
+    expect(storefront.catalogCalls.last.categorySlug, 'te');
+    expect(find.text('Té filtrado'), findsOneWidget);
+    expect(find.text('Producto 1'), findsNothing);
+    final chip = tester.widget<ChoiceChip>(
+      find.byKey(const ValueKey('catalog-category-te')),
+    );
+    expect(chip.selected, isTrue);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('immagine card usa URL pubblico bounded e fallback sicuro', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _catalogApp(storefront: _CatalogRepository(withImage: true)),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    final image = tester.widget<Image>(
+      find.byKey(
+        const ValueKey('storefront-image-50000000-0000-4000-8000-000000000001'),
+      ),
+    );
+    final resized = image.image as ResizeImage;
+    final provider = resized.imageProvider as NetworkImage;
+    expect(provider.url, contains('/storefront-product-images/'));
+    expect(provider.url, isNot(contains('inventory')));
+    expect(resized.width, 720);
+    expect(image.gaplessPlayback, isTrue);
+
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(
+        const ValueKey(
+          'storefront-image-placeholder-50000000-0000-4000-8000-000000000001',
+        ),
+      ),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('scroll vicino al fondo richiede la pagina keyset successiva', (
+    tester,
+  ) async {
+    final storefront = _CatalogRepository(paginated: true);
+    await tester.pumpWidget(_catalogApp(storefront: storefront));
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -12000));
+    await tester.pumpAndSettle();
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(CatalogScreen)),
+    );
+    expect(storefront.catalogCalls, hasLength(2));
+    expect(storefront.catalogCalls.last.cursor, _cursor);
+    expect(container.read(catalogControllerProvider).items, hasLength(25));
+    expect(container.read(catalogControllerProvider).nextCursor, isNull);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'offline retry è single-flight e attende la readiness condivisa',
+    (tester) async {
+      final readiness = _ReadinessRepository(
+        initialState: BackendReadinessState.offline,
+      );
+      final storefront = _CatalogRepository();
+      await tester.pumpWidget(
+        _catalogApp(readiness: readiness, storefront: storefront),
+      );
+      await tester.pumpAndSettle();
+
+      final retry = find.byKey(const ValueKey('catalog-retry-action'));
+      expect(retry, findsOneWidget);
+      await tester.tap(retry);
+      await tester.tap(retry);
+      await tester.pump();
+
+      expect(readiness.calls, 1);
+      expect(storefront.catalogCalls, isEmpty);
+      expect(find.byKey(const ValueKey('catalog-loading')), findsOneWidget);
+
+      readiness.completeNext(BackendReadinessState.ready);
+      await tester.pumpAndSettle();
+
+      expect(storefront.catalogCalls, hasLength(1));
+      expect(find.byKey(const ValueKey('catalog-grid')), findsOneWidget);
+    },
+  );
+
+  testWidgets('stati backend non mostrano dati commerciali inventati', (
+    tester,
+  ) async {
+    final cases = <(BackendReadinessState, String, bool)>[
+      (BackendReadinessState.unconfigured, 'catalog-empty', false),
+      (BackendReadinessState.initializing, 'catalog-loading', false),
+      (BackendReadinessState.offline, 'catalog-offline', true),
+      (BackendReadinessState.misconfigured, 'catalog-unavailable', false),
+      (
+        BackendReadinessState.authenticationRequired,
+        'catalog-unavailable',
+        false,
+      ),
+      (BackendReadinessState.recoverableError, 'catalog-failure', true),
+    ];
+
+    for (final (state, key, retryable) in cases) {
+      final storefront = _CatalogRepository();
+      await tester.pumpWidget(
+        _catalogApp(
+          readiness: _ReadinessRepository(initialState: state, canCheck: false),
+          storefront: storefront,
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byKey(ValueKey(key)), findsOneWidget, reason: state.name);
+      expect(
+        find.byKey(const ValueKey('catalog-retry-action')),
+        retryable ? findsOneWidget : findsNothing,
+        reason: state.name,
+      );
+      expect(storefront.catalogCalls, isEmpty, reason: state.name);
+      expect(find.byType(Image), findsNothing, reason: state.name);
+      expect(find.textContaining(r'$'), findsNothing, reason: state.name);
+      expect(tester.takeException(), isNull, reason: state.name);
+    }
+  });
+
+  testWidgets('errore pagina incrementale conserva dati e offre retry', (
+    tester,
+  ) async {
+    final storefront = _CatalogRepository(
+      paginated: true,
+      failSecondPageOnce: true,
+    );
+    await tester.pumpWidget(_catalogApp(storefront: storefront));
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -12000));
+    await tester.pumpAndSettle();
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(CatalogScreen)),
+    );
+    expect(container.read(catalogControllerProvider).items, hasLength(24));
+    expect(
+      find.byKey(const ValueKey('catalog-load-more-error')),
+      findsOneWidget,
+    );
+
+    final retry = find.byKey(const ValueKey('catalog-load-more-retry'));
+    await tester.ensureVisible(retry);
+    await tester.pumpAndSettle();
+    await tester.tap(retry);
+    await tester.pumpAndSettle();
+
+    expect(container.read(catalogControllerProvider).items, hasLength(25));
+    expect(storefront.catalogCalls, hasLength(3));
+  });
+
+  testWidgets('reflow a 200% non overflowa in compact e landscape dark', (
+    tester,
+  ) async {
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    for (final size in const [Size(320, 568), Size(568, 320)]) {
+      await tester.binding.setSurfaceSize(size);
+      await tester.pumpWidget(
+        _catalogApp(
+          storefront: _CatalogRepository(),
+          themeMode: size.width > size.height
+              ? ThemeMode.dark
+              : ThemeMode.light,
+          textScaler: const TextScaler.linear(2),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('catalog-grid')), findsOneWidget);
+      expect(tester.takeException(), isNull, reason: '$size');
+    }
+  });
+
+  testWidgets('IndexedStack conserva la posizione del tab Catalogo', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _tabCatalogApp(storefront: _CatalogRepository(paginated: true)),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -3000));
+    await tester.pumpAndSettle();
+    final outerScrollable = find
+        .descendant(
+          of: find.byType(CustomScrollView),
+          matching: find.byType(Scrollable),
+        )
+        .first;
+    final before = tester
+        .state<ScrollableState>(outerScrollable)
+        .position
+        .pixels;
+    expect(before, greaterThan(0));
+
+    await tester.tap(find.byKey(const ValueKey('test-tab-away')));
+    await tester.pumpAndSettle();
+    expect(find.text('Altro tab'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('test-tab-catalog')));
+    await tester.pumpAndSettle();
+
+    final after = tester
+        .state<ScrollableState>(outerScrollable)
+        .position
+        .pixels;
+    expect(after, closeTo(before, 0.1));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('catalogo resta localizzato in es, it, en e zh-Hans', (
+    tester,
+  ) async {
+    for (final locale in const [
+      Locale('es', 'CL'),
+      Locale('it'),
+      Locale('en'),
+      Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+    ]) {
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+      await tester.pumpWidget(
+        _catalogApp(storefront: _CatalogRepository(), locale: locale),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('catalog-grid')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('catalog-controls-explanation')),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull, reason: locale.toLanguageTag());
+    }
+  });
+}
+
+Widget _catalogApp({
+  required StorefrontRepository storefront,
+  BackendReadinessRepository? readiness,
+  Locale locale = const Locale('es', 'CL'),
+  ThemeMode themeMode = ThemeMode.light,
+  TextScaler textScaler = TextScaler.noScaling,
+}) => ProviderScope(
+  overrides: [
+    appConfigProvider.overrideWithValue(_stagingConfig()),
+    backendReadinessRepositoryProvider.overrideWithValue(
+      readiness ??
+          const _ReadinessRepository(initialState: BackendReadinessState.ready),
+    ),
+    storefrontRepositoryProvider.overrideWithValue(storefront),
+  ],
+  child: MaterialApp(
+    locale: locale,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    theme: AppTheme.light(),
+    darkTheme: AppTheme.dark(),
+    themeMode: themeMode,
+    builder: (context, child) => MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+      child: child!,
+    ),
+    home: const Scaffold(body: SafeArea(child: CatalogScreen())),
+  ),
+);
+
+Widget _tabCatalogApp({required StorefrontRepository storefront}) =>
+    ProviderScope(
       overrides: [
-        backendReadinessRepositoryProvider.overrideWithValue(repository),
+        appConfigProvider.overrideWithValue(_stagingConfig()),
+        backendReadinessRepositoryProvider.overrideWithValue(
+          const _ReadinessRepository(initialState: BackendReadinessState.ready),
+        ),
+        storefrontRepositoryProvider.overrideWithValue(storefront),
       ],
       child: MaterialApp(
         locale: const Locale('es', 'CL'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: themeMode,
-        home: const Scaffold(body: SafeArea(child: CatalogScreen())),
-      ),
-    );
-  }
-
-  AppLocalizations l10n(WidgetTester tester) {
-    return AppLocalizations.of(tester.element(find.byType(CatalogScreen)));
-  }
-
-  testWidgets('espone discovery visibile, disabilitata e spiegata', (
-    tester,
-  ) async {
-    final semantics = tester.ensureSemantics();
-
-    await tester.pumpWidget(
-      buildCatalog(
-        repository: _CatalogRepository(
-          initialState: BackendReadinessState.ready,
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    final strings = l10n(tester);
-    final search = tester.widget<SearchBar>(
-      find.byKey(const ValueKey('catalog-search')),
-    );
-    final filter = tester.widget<OutlinedButton>(
-      find.descendant(
-        of: find.byKey(const ValueKey('catalog-filter')),
-        matching: find.byType(OutlinedButton),
-      ),
-    );
-    final sort = tester.widget<OutlinedButton>(
-      find.descendant(
-        of: find.byKey(const ValueKey('catalog-sort')),
-        matching: find.byType(OutlinedButton),
+        home: const _TabHarness(),
       ),
     );
 
-    expect(search.enabled, isFalse);
-    expect(find.text(strings.catalogSearchHint), findsOneWidget);
-    expect(filter.onPressed, isNull);
-    expect(sort.onPressed, isNull);
-    expect(find.text(strings.catalogFilterLabel), findsOneWidget);
-    expect(find.text(strings.catalogSortLabel), findsOneWidget);
-    expect(find.text(strings.catalogControlsUnavailable), findsOneWidget);
-    final searchSemantics = tester.getSemantics(
-      find.bySemanticsLabel(strings.catalogSearchLabel),
-    );
-    final searchData = searchSemantics.getSemanticsData();
-    expect(searchData.label, strings.catalogSearchLabel);
-    expect(searchData.hint, strings.catalogSearchHint);
-    expect(searchData.flagsCollection.isTextField, isTrue);
-    expect(searchData.flagsCollection.isEnabled, ui.Tristate.isFalse);
+class _TabHarness extends StatefulWidget {
+  const _TabHarness();
 
-    final searchDescendantLabels = <String>[];
-    void collectDescendantLabels(SemanticsNode node) {
-      node.visitChildren((child) {
-        searchDescendantLabels.add(child.getSemanticsData().label);
-        collectDescendantLabels(child);
-        return true;
-      });
-    }
-
-    collectDescendantLabels(searchSemantics);
-    expect(
-      searchDescendantLabels,
-      isNot(
-        contains(
-          anyOf(
-            strings.catalogFilterLabel,
-            strings.catalogSortLabel,
-            strings.catalogControlsUnavailable,
-          ),
-        ),
-      ),
-    );
-    expect(
-      find.bySemanticsLabel(strings.catalogControlsUnavailable),
-      findsOneWidget,
-    );
-    expect(find.bySemanticsLabel(strings.catalogFilterLabel), findsOneWidget);
-    expect(find.bySemanticsLabel(strings.catalogSortLabel), findsOneWidget);
-    expect(
-      tester.getSize(find.byKey(const ValueKey('catalog-search'))).height,
-      greaterThanOrEqualTo(48),
-    );
-    expect(
-      tester.getSize(find.byKey(const ValueKey('catalog-filter'))).height,
-      greaterThanOrEqualTo(48),
-    );
-    expect(
-      tester.getSize(find.byKey(const ValueKey('catalog-sort'))).height,
-      greaterThanOrEqualTo(48),
-    );
-    semantics.dispose();
-  });
-
-  testWidgets('distingue tutti gli stati senza dati commerciali finti', (
-    tester,
-  ) async {
-    final cases =
-        <
-          ({
-            BackendReadinessState readiness,
-            String key,
-            String Function(AppLocalizations) title,
-            String Function(AppLocalizations) message,
-            bool progress,
-            bool retry,
-          })
-        >[
-          (
-            readiness: BackendReadinessState.unconfigured,
-            key: 'catalog-empty',
-            title: (strings) => strings.catalogEmptyTitle,
-            message: (strings) => strings.catalogEmptyMessage,
-            progress: false,
-            retry: false,
-          ),
-          (
-            readiness: BackendReadinessState.ready,
-            key: 'catalog-empty',
-            title: (strings) => strings.catalogEmptyTitle,
-            message: (strings) => strings.catalogEmptyMessage,
-            progress: false,
-            retry: false,
-          ),
-          (
-            readiness: BackendReadinessState.initializing,
-            key: 'catalog-connecting',
-            title: (strings) => strings.catalogConnectingTitle,
-            message: (strings) => strings.catalogConnectingMessage,
-            progress: true,
-            retry: false,
-          ),
-          (
-            readiness: BackendReadinessState.offline,
-            key: 'catalog-offline',
-            title: (strings) => strings.catalogOfflineTitle,
-            message: (strings) => strings.catalogOfflineMessage,
-            progress: false,
-            retry: true,
-          ),
-          (
-            readiness: BackendReadinessState.misconfigured,
-            key: 'catalog-unavailable',
-            title: (strings) => strings.catalogUnavailableTitle,
-            message: (strings) => strings.catalogUnavailableMessage,
-            progress: false,
-            retry: false,
-          ),
-          (
-            readiness: BackendReadinessState.authenticationRequired,
-            key: 'catalog-unavailable',
-            title: (strings) => strings.catalogUnavailableTitle,
-            message: (strings) => strings.catalogUnavailableMessage,
-            progress: false,
-            retry: false,
-          ),
-          (
-            readiness: BackendReadinessState.recoverableError,
-            key: 'catalog-retry',
-            title: (strings) => strings.catalogRetryTitle,
-            message: (strings) => strings.catalogRetryMessage,
-            progress: false,
-            retry: true,
-          ),
-        ];
-
-    for (final testCase in cases) {
-      final repository = _CatalogRepository(
-        initialState: testCase.readiness,
-        canCheck: false,
-      );
-      await tester.pumpWidget(buildCatalog(repository: repository));
-      await tester.pump();
-
-      final strings = l10n(tester);
-      expect(repository.calls, 0, reason: testCase.readiness.name);
-      expect(
-        find.byKey(ValueKey(testCase.key)),
-        findsOneWidget,
-        reason: testCase.readiness.name,
-      );
-      expect(
-        find.text(testCase.title(strings)),
-        findsOneWidget,
-        reason: testCase.readiness.name,
-      );
-      expect(
-        find.text(testCase.message(strings)),
-        findsOneWidget,
-        reason: testCase.readiness.name,
-      );
-      expect(
-        find.byKey(const ValueKey('catalog-progress')),
-        testCase.progress ? findsOneWidget : findsNothing,
-      );
-      expect(
-        find.byKey(const ValueKey('catalog-retry-action')),
-        testCase.retry ? findsOneWidget : findsNothing,
-      );
-      expect(find.byType(Image), findsNothing);
-      expect(find.textContaining(r'$'), findsNothing);
-      expect(tester.takeException(), isNull);
-    }
-  });
-
-  testWidgets('offline riusa il retry controller single-flight', (
-    tester,
-  ) async {
-    final repository = _CatalogRepository(
-      initialState: BackendReadinessState.offline,
-    );
-
-    await tester.pumpWidget(buildCatalog(repository: repository));
-    await tester.pumpAndSettle();
-
-    final retry = find.byKey(const ValueKey('catalog-retry-action'));
-    expect(retry, findsOneWidget);
-
-    await tester.tap(retry);
-    await tester.tap(retry);
-
-    expect(repository.calls, 1);
-    await tester.pump();
-    expect(find.byKey(const ValueKey('catalog-connecting')), findsOneWidget);
-    expect(retry, findsNothing);
-
-    repository.completeNext(BackendReadinessState.ready);
-    await tester.pumpAndSettle();
-
-    expect(repository.calls, 1);
-    expect(find.byKey(const ValueKey('catalog-empty')), findsOneWidget);
-    expect(retry, findsNothing);
-  });
-
-  testWidgets('errore recuperabile usa lo stesso retry e torna offline', (
-    tester,
-  ) async {
-    final repository = _CatalogRepository(
-      initialState: BackendReadinessState.recoverableError,
-    );
-
-    await tester.pumpWidget(buildCatalog(repository: repository));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const ValueKey('catalog-retry-action')));
-    await tester.pump();
-    expect(repository.calls, 1);
-    expect(find.byKey(const ValueKey('catalog-connecting')), findsOneWidget);
-
-    repository.completeNext(BackendReadinessState.offline);
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('catalog-offline')), findsOneWidget);
-    expect(find.byKey(const ValueKey('catalog-retry-action')), findsOneWidget);
-  });
-
-  testWidgets('retry e stato hanno Semantics e target accessibili', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      buildCatalog(
-        repository: _CatalogRepository(
-          initialState: BackendReadinessState.offline,
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    final retry = find.byKey(const ValueKey('catalog-retry-action'));
-    final liveRegions = tester
-        .widgetList<Semantics>(find.byType(Semantics))
-        .where((widget) => widget.properties.liveRegion == true);
-    final headings = tester
-        .widgetList<Semantics>(find.byType(Semantics))
-        .where((widget) => widget.properties.header == true);
-
-    expect(liveRegions, hasLength(1));
-    expect(headings, hasLength(1));
-    expect(tester.getSize(retry).height, greaterThanOrEqualTo(48));
-    expect(tester, meetsGuideline(labeledTapTargetGuideline));
-    expect(tester, meetsGuideline(androidTapTargetGuideline));
-    expect(tester, meetsGuideline(iOSTapTargetGuideline));
-  });
-
-  testWidgets('resta raggiungibile a 200% su viewport compact e landscape', (
-    tester,
-  ) async {
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-    tester.platformDispatcher.textScaleFactorTestValue = 2;
-    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-
-    for (final size in const [Size(320, 568), Size(568, 320)]) {
-      await tester.binding.setSurfaceSize(size);
-      await tester.pumpWidget(
-        buildCatalog(
-          repository: _CatalogRepository(
-            initialState: BackendReadinessState.offline,
-          ),
-          themeMode: size.width > size.height
-              ? ThemeMode.dark
-              : ThemeMode.light,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      final retry = find.byKey(const ValueKey('catalog-retry-action'));
-      await tester.ensureVisible(retry);
-      await tester.pumpAndSettle();
-
-      expect(retry, findsOneWidget, reason: '$size');
-      expect(tester.getSize(retry).height, greaterThanOrEqualTo(48));
-      expect(tester.takeException(), isNull, reason: '$size');
-    }
-  });
+  @override
+  State<_TabHarness> createState() => _TabHarnessState();
 }
 
-final class _CatalogRepository implements BackendReadinessRepository {
-  _CatalogRepository({required this.initialState, this.canCheck = true});
+class _TabHarnessState extends State<_TabHarness> {
+  var _index = 0;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: IndexedStack(
+      index: _index,
+      children: const [
+        SafeArea(child: CatalogScreen()),
+        Text('Altro tab'),
+      ],
+    ),
+    bottomNavigationBar: Row(
+      children: [
+        Expanded(
+          child: TextButton(
+            key: const ValueKey('test-tab-catalog'),
+            onPressed: () => setState(() => _index = 0),
+            child: const Text('Catalogo'),
+          ),
+        ),
+        Expanded(
+          child: TextButton(
+            key: const ValueKey('test-tab-away'),
+            onPressed: () => setState(() => _index = 1),
+            child: const Text('Altro'),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+AppLocalizations _l10n(WidgetTester tester) =>
+    AppLocalizations.of(tester.element(find.byType(CatalogScreen)));
+
+AppConfig _stagingConfig() => AppConfig.fromValues(
+  appEnvironment: 'staging',
+  supabaseUrl: 'https://staging.example.invalid',
+  supabasePublishableKey: 'sb_publishable_staging',
+  authRedirectUri: AppConfig.allowedAuthRedirectUri,
+  googleAuthEnabled: 'false',
+  storefrontShopSlug: 'storefront-test',
+);
+
+const _cursor = 'eyJ2IjoxLCJzb3J0IjoiY2F0YWxvZyJ9';
+
+const _categories = [
+  StorefrontCategory(
+    id: '40000000-0000-4000-8000-000000000001',
+    slug: 'bebidas',
+    name: 'Bebidas',
+    sortRank: 1,
+  ),
+  StorefrontCategory(
+    id: '40000000-0000-4000-8000-000000000002',
+    slug: 'te',
+    name: 'Té',
+    sortRank: 2,
+  ),
+];
+
+StorefrontProductSummary _product(
+  int value, {
+  String? name,
+  bool withImage = false,
+}) {
+  final suffix = value.toString().padLeft(12, '0');
+  final category = name == 'Té filtrado' ? _categories[1] : _categories[0];
+  return StorefrontProductSummary(
+    id: '50000000-0000-4000-8000-$suffix',
+    category: category,
+    name: name ?? 'Producto $value',
+    priceClp: 1500,
+    featured: false,
+    sortRank: value,
+    availability: StorefrontAvailability.available,
+    fulfillment: const StorefrontFulfillment(
+      pickup: true,
+      delivery: true,
+      reservation: false,
+    ),
+    images: withImage
+        ? StorefrontImageSet(
+            version: '90000000-0000-4000-8000-000000000001',
+            thumb: Uri.parse(
+              'https://abcdefghijklmnopqrst.supabase.co/storage/v1/object/public/storefront-product-images/shops/test/thumb.webp',
+            ),
+            card: Uri.parse(
+              'https://abcdefghijklmnopqrst.supabase.co/storage/v1/object/public/storefront-product-images/shops/test/card.webp',
+            ),
+            detail: Uri.parse(
+              'https://abcdefghijklmnopqrst.supabase.co/storage/v1/object/public/storefront-product-images/shops/test/detail.webp',
+            ),
+            sha256:
+                'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          )
+        : null,
+    catalogVersion: 7,
+    publishedAt: DateTime.utc(2026, 8, 1),
+    updatedAt: DateTime.utc(2026, 8, 1),
+  );
+}
+
+final class _ReadinessRepository implements BackendReadinessRepository {
+  const _ReadinessRepository({
+    required this.initialState,
+    this.canCheck = true,
+  });
 
   @override
   final BackendReadinessState initialState;
-
   @override
   final bool canCheck;
 
-  final List<Completer<BackendReadinessState>> _results = [];
+  static final Map<_ReadinessRepository, List<Completer<BackendReadinessState>>>
+  _pending = {};
 
-  int get calls => _results.length;
+  int get calls => _pending[this]?.length ?? 0;
 
   @override
   Future<BackendReadinessState> check({
     required BackendProbeCancellation cancellation,
   }) {
-    final result = Completer<BackendReadinessState>();
-    _results.add(result);
-    return result.future;
+    final completer = Completer<BackendReadinessState>();
+    (_pending[this] ??= []).add(completer);
+    return completer.future;
   }
 
-  void completeNext(BackendReadinessState state) {
-    _results.firstWhere((result) => !result.isCompleted).complete(state);
+  void completeNext(BackendReadinessState state) => _pending[this]!
+      .firstWhere((completer) => !completer.isCompleted)
+      .complete(state);
+}
+
+typedef _CatalogCall = ({String? cursor, int limit, String? categorySlug});
+
+final class _CatalogRepository implements StorefrontRepository {
+  _CatalogRepository({
+    this.paginated = false,
+    this.failSecondPageOnce = false,
+    this.withImage = false,
+  });
+
+  final bool paginated;
+  final bool failSecondPageOnce;
+  final bool withImage;
+  var _secondPageFailures = 0;
+  final List<({String? cursor, int limit})> categoryCalls = [];
+  final List<_CatalogCall> catalogCalls = [];
+
+  @override
+  Future<StorefrontCategoriesPage> fetchCategories({
+    required String shopSlug,
+    required String? cursor,
+    required int limit,
+    required StorefrontRequestCancellation cancellation,
+  }) async {
+    categoryCalls.add((cursor: cursor, limit: limit));
+    return StorefrontCategoriesPage(
+      catalogVersion: 7,
+      categories: _categories,
+      nextCursor: null,
+    );
   }
+
+  @override
+  Future<StorefrontCatalogPage> fetchCatalog({
+    required String shopSlug,
+    required String? cursor,
+    required int limit,
+    required String? categorySlug,
+    required StorefrontCatalogSort sort,
+    required StorefrontRequestCancellation cancellation,
+  }) async {
+    catalogCalls.add((
+      cursor: cursor,
+      limit: limit,
+      categorySlug: categorySlug,
+    ));
+    if (cursor == _cursor && failSecondPageOnce && _secondPageFailures++ == 0) {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.timeout,
+        code: 'test_timeout',
+      );
+    }
+    final items = switch ((categorySlug, cursor, paginated)) {
+      ('te', _, _) => [
+        _product(900, name: 'Té filtrado', withImage: withImage),
+      ],
+      (_, _cursor, _) => [_product(25, withImage: withImage)],
+      (_, _, true) => [
+        for (var value = 1; value <= 24; value++)
+          _product(value, withImage: withImage),
+      ],
+      _ => [_product(1, withImage: withImage)],
+    };
+    return StorefrontCatalogPage(
+      catalogVersion: 7,
+      items: items,
+      nextCursor: paginated && cursor == null ? _cursor : null,
+      sort: StorefrontCatalogSort.catalog,
+    );
+  }
+
+  @override
+  Future<StorefrontHomeData> fetchHome({
+    required String shopSlug,
+    required StorefrontRequestCancellation cancellation,
+  }) => throw UnsupportedError('fetchHome is outside this test');
 }

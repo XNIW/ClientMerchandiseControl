@@ -76,6 +76,7 @@ class StorefrontProductCard extends StatelessWidget {
             AspectRatio(
               aspectRatio: 4 / 3,
               child: _ProductImage(
+                productId: product.id,
                 name: product.name,
                 uri: product.images?.card,
               ),
@@ -136,8 +137,13 @@ class StorefrontProductCard extends StatelessWidget {
 }
 
 class _ProductImage extends StatelessWidget {
-  const _ProductImage({required this.name, required this.uri});
+  const _ProductImage({
+    required this.productId,
+    required this.name,
+    required this.uri,
+  });
 
+  final String productId;
   final String name;
   final Uri? uri;
 
@@ -149,9 +155,12 @@ class _ProductImage extends StatelessWidget {
       image: true,
       label: name,
       child: Image.network(
+        key: ValueKey('storefront-image-$productId'),
         uri.toString(),
         fit: BoxFit.cover,
         filterQuality: FilterQuality.medium,
+        cacheWidth: 720,
+        gaplessPlayback: true,
         frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
           if (wasSynchronouslyLoaded || frame != null) return child;
           return Stack(
@@ -170,6 +179,7 @@ class _ProductImage extends StatelessWidget {
 
   Widget _placeholder(BuildContext context, AppLocalizations l10n) {
     return ColoredBox(
+      key: ValueKey('storefront-image-placeholder-$productId'),
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Center(
         child: Column(

@@ -36,7 +36,12 @@ void main() {
     );
     await _waitForHome(tester, container);
 
-    await tester.tap(find.byKey(const ValueKey('open-product-$_publishedId')));
+    final publishedCard = find.byKey(
+      const ValueKey('open-product-$_publishedId'),
+    );
+    await tester.ensureVisible(publishedCard);
+    await tester.pumpAndSettle(const Duration(milliseconds: 50));
+    await tester.tap(publishedCard);
     await tester.pump();
     await _waitForDetail(
       tester,

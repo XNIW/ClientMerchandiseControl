@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/storefront_failure.dart';
 import '../domain/storefront_models.dart';
 import '../domain/storefront_repository.dart';
 import 'storefront_catalog_dto.dart';
 import 'storefront_home_dto.dart';
+import 'http_storefront_rpc_invoker.dart';
 
 typedef StorefrontRpcInvoker =
     Future<Object?> Function(String function, Map<String, Object?> parameters);
@@ -190,16 +190,24 @@ class SupabaseStorefrontRepository implements StorefrontRepository {
         StorefrontFailureKind.offline,
         code: 'network_unreachable',
       );
-    } on AuthException {
+    } on FormatException {
       throw const StorefrontFailure(
-        StorefrontFailureKind.unauthorized,
-        code: 'public_contract_unauthorized',
+        StorefrontFailureKind.invalidPayload,
+        code: 'public_contract_invalid_json',
       );
-    } on PostgrestException catch (error) {
-      final kind = error.code == '42501'
-          ? StorefrontFailureKind.unauthorized
-          : StorefrontFailureKind.unavailable;
-      throw StorefrontFailure(kind, code: 'public_contract_unavailable');
+    } on StorefrontRpcResponseException catch (error) {
+      final unauthorized =
+          error.statusCode == 401 ||
+          error.statusCode == 403 ||
+          error.code == '42501';
+      throw StorefrontFailure(
+        unauthorized
+            ? StorefrontFailureKind.unauthorized
+            : StorefrontFailureKind.unavailable,
+        code: unauthorized
+            ? 'public_contract_unauthorized'
+            : 'public_contract_unavailable',
+      );
     } on Object {
       throw const StorefrontFailure(
         StorefrontFailureKind.unknown,

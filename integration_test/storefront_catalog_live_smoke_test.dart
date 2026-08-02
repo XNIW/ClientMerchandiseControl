@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -55,7 +54,6 @@ void main() {
       );
       expect(find.byKey(const ValueKey('catalog-grid')), findsOneWidget);
       expect(find.byType(Image), findsWidgets);
-      expect(Supabase.instance.client.auth.currentSession, isNull);
 
       final tea = state.categories.where((category) => category.slug == 'te');
       expect(tea, hasLength(1));

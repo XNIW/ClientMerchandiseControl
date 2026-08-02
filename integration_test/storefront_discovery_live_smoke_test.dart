@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -84,7 +83,6 @@ void main() {
     );
     final prices = state.items.map((item) => item.priceClp).toList();
     expect(prices, orderedEquals([...prices]..sort()));
-    expect(Supabase.instance.client.auth.currentSession, isNull);
     expect(tester.takeException(), isNull);
 
     binding.reportData = <String, Object?>{

@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -50,8 +49,6 @@ void main() {
     );
     expect(find.byType(StorefrontStatusBanner), findsNothing);
     expect(find.text(l10n.backendChecking), findsNothing);
-    expect(Supabase.instance.isInitialized, isTrue);
-    expect(Supabase.instance.client.auth.currentSession, isNull);
     expect(find.byType(HomeScreen), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('nav-catalog')));
@@ -72,7 +69,6 @@ void main() {
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
       1,
     );
-    expect(Supabase.instance.client.auth.currentSession, isNull);
     expect(tester.takeException(), isNull);
     binding.reportData = <String, Object?>{
       'bootstrap': 'PASS',
@@ -81,7 +77,7 @@ void main() {
       'catalogNavigation': 'PASS',
       'customerSession': 'absent',
       'googleAuth': 'disabled',
-      'dataAccess': 'readiness-plus-home-controller-not-asserted',
+      'dataAccess': 'anonymous-public-storefront-transport',
       'processAlive': 'PASS',
     };
   });

@@ -115,10 +115,11 @@ void main() {
   );
 
   test(
-    'avvia Home quando readiness transita da initializing a ready',
+    'Home pubblica non attende né viene cancellata dalla readiness Auth',
     () async {
+      final storefrontResponse = Completer<StorefrontHomeData>();
       final storefrontRepository = _QueuedRepository()
-        ..responses.add(() async => validStorefrontHomeData());
+        ..responses.add(() => storefrontResponse.future);
       final readinessRepository = _CompletableReadinessRepository();
       final container = ProviderContainer(
         overrides: [
@@ -149,13 +150,23 @@ void main() {
       );
       await Future<void>.delayed(Duration.zero);
       expect(readinessRepository.calls, 1);
-      expect(storefrontRepository.calls, 0);
+      expect(storefrontRepository.calls, 1);
 
-      readinessRepository.completeNext(BackendReadinessState.ready);
+      readinessRepository.completeNext(BackendReadinessState.offline);
       await Future<void>.delayed(Duration.zero);
       await Future<void>.delayed(Duration.zero);
 
       expect(storefrontRepository.calls, 1);
+      expect(storefrontRepository.cancellations.single.isCancelled, isFalse);
+      expect(
+        container.read(homeControllerProvider).status,
+        HomeLoadStatus.loading,
+      );
+
+      storefrontResponse.complete(validStorefrontHomeData());
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+
       expect(
         container.read(homeControllerProvider).status,
         HomeLoadStatus.data,

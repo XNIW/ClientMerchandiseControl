@@ -80,14 +80,10 @@ class HomeController extends Notifier<HomeState> {
   HomeState build() {
     _disposed = false;
     final readiness = ref.read(backendReadinessControllerProvider);
-    ref.listen(
-      backendReadinessControllerProvider,
-      (_, next) => _handleReadinessChange(next),
-    );
     ref.onDispose(_dispose);
     return switch (readiness) {
       BackendReadinessState.ready => _startAfterBuild(),
-      BackendReadinessState.initializing => const HomeState.loading(),
+      BackendReadinessState.initializing => _startAfterBuild(),
       BackendReadinessState.offline => _startCacheAfterBuild(),
       BackendReadinessState.unconfigured => const HomeState.empty(),
       BackendReadinessState.misconfigured ||
@@ -99,35 +95,6 @@ class HomeController extends Notifier<HomeState> {
           code: 'backend_recoverable',
         ),
       ),
-    };
-  }
-
-  void _handleReadinessChange(BackendReadinessState readiness) {
-    if (_disposed) return;
-    if (readiness == BackendReadinessState.ready) {
-      unawaited(_load());
-      return;
-    }
-    if (readiness == BackendReadinessState.offline) {
-      unawaited(_load(cacheOnly: true));
-      return;
-    }
-    _generation += 1;
-    _cancellation?.cancel();
-    state = switch (readiness) {
-      BackendReadinessState.initializing => const HomeState.loading(),
-      BackendReadinessState.offline => const HomeState.offline(),
-      BackendReadinessState.unconfigured => const HomeState.empty(),
-      BackendReadinessState.misconfigured ||
-      BackendReadinessState.authenticationRequired =>
-        const HomeState.unavailable(),
-      BackendReadinessState.recoverableError => HomeState.failure(
-        const StorefrontFailure(
-          StorefrontFailureKind.unavailable,
-          code: 'backend_recoverable',
-        ),
-      ),
-      BackendReadinessState.ready => throw StateError('unreachable'),
     };
   }
 

@@ -6,7 +6,6 @@ import '../config/app_config.dart';
 import 'backend_health_service.dart';
 import 'backend_readiness_repository.dart';
 import 'backend_readiness_state.dart';
-import 'supabase_bootstrap.dart';
 
 final backendHealthServiceProvider = Provider<BackendHealthService>((ref) {
   final service = HttpBackendHealthService();
@@ -14,16 +13,11 @@ final backendHealthServiceProvider = Provider<BackendHealthService>((ref) {
   return service;
 });
 
-final backendSdkInitializerProvider = Provider<BackendSdkInitializer>(
-  (ref) => SupabaseBootstrap.initialize,
-);
-
 final backendReadinessRepositoryProvider = Provider<BackendReadinessRepository>(
   (ref) {
     return SupabaseBackendReadinessRepository(
       config: ref.watch(appConfigProvider),
       healthService: ref.watch(backendHealthServiceProvider),
-      sdkInitializer: ref.watch(backendSdkInitializerProvider),
     );
   },
 );

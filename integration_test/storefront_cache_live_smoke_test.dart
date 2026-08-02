@@ -4,7 +4,6 @@ import 'package:client_merchandise_control/core/backend/backend_health_service.d
 import 'package:client_merchandise_control/core/backend/backend_readiness_controller.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_repository.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
-import 'package:client_merchandise_control/core/backend/supabase_bootstrap.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/core/config/app_environment.dart';
 import 'package:client_merchandise_control/features/catalog/application/catalog_controller.dart';
@@ -25,8 +24,6 @@ void main() {
       final config = AppConfig.fromEnvironment();
       expect(config.environment, AppEnvironment.staging);
       expect(config.isStorefrontConfigured, isTrue);
-      await SupabaseBootstrap.initialize(config);
-
       final onlineReadiness = _SwitchableReadinessRepository(
         BackendReadinessState.ready,
       );

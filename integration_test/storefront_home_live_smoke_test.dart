@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -64,7 +63,6 @@ void main() {
     );
     expect(find.text('Café en grano 500 g'), findsOneWidget);
     expect(find.text('Té verde 20 bolsas'), findsOneWidget);
-    expect(Supabase.instance.client.auth.currentSession, isNull);
     expect(tester.takeException(), isNull);
 
     binding.reportData = <String, Object?>{

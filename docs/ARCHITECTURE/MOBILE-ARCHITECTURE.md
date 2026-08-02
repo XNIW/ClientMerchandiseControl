@@ -7,7 +7,7 @@
 - Material 3 con adattamenti idiomatici iOS;
 - Riverpod per stato e dependency injection;
 - go_router per navigazione dichiarativa;
-- Supabase Flutter per readiness e Auth customer;
+- HTTP bounded per readiness e Storefront pubblico, Supabase Flutter soltanto per Auth customer;
 - gen_l10n e intl.
 
 ## Struttura
@@ -59,8 +59,8 @@ diagnostica backend estranea al loro stato.
 `BackendReadinessState` separa configurazione, inizializzazione e raggiungibilità:
 
 - `unconfigured`: development offline, senza SDK o rete;
-- `initializing`: SDK staging locale e probe in corso;
-- `ready`: SDK inizializzato e `GET /auth/v1/health` concluso con HTTP 200 e payload
+- `initializing`: probe diagnostico staging in corso;
+- `ready`: `GET /auth/v1/health` concluso con HTTP 200 e payload
   health valido;
 - `offline`: timeout abortito o errore di trasporto;
 - `misconfigured`: ambiente non autorizzato oppure gateway/key/endpoint rifiutati;
@@ -73,9 +73,9 @@ PostgREST, schema Storefront, RLS, grant, dati, OAuth o autorizzazione cliente.
 Il health service costruisce un solo `GET` verso `/auth/v1/health`, usa esclusivamente
 l'header `apikey`, non segue redirect e non registra request, response o eccezioni raw.
 Un `AbortableRequest` applica timeout reale e cancellazione su dispose. Il repository
-inizializza lo SDK e mappa gli esiti; il controller Riverpod avvia un solo check staging,
-riusa l'operazione concorrente e permette soltanto retry manuale. Non esistono polling,
-auto-retry o recheck su resume in TASK-011.
+mappa gli esiti senza inizializzare lo SDK Auth; il controller Riverpod avvia un solo
+check staging, riusa l'operazione concorrente e permette soltanto retry manuale. Non
+esistono polling, auto-retry o recheck su resume in TASK-011.
 
 La shell viene renderizzata prima del check. Offline ed errori recuperabili mantengono
 il browsing guest disponibile e mostrano copy localizzata customer-safe con retry;
@@ -202,6 +202,13 @@ pubblica strict, verifica catalog version e identità richiesta/restituita; unav
 non distingue shop assente da prodotto non pubblicato. La UI usa soltanto l'immagine
 pubblica `detail`, prezzi CLP, promozione, availability commerciale e capability di
 fulfillment, senza quantità stock, inventory ID o azioni future simulate.
+
+TASK-019 separa il browsing guest dal bootstrap Auth: un transport HTTP PostgREST
+confinato invoca soltanto funzioni `storefront_*_v1`, usa la publishable key, limita la
+risposta a 2 MiB e riduce gli errori remoti a codici sanitizzati. Home avvia il fetch
+pubblico durante il probe diagnostico e non viene cancellata da un esito Auth health;
+timeout e offline del contratto Storefront governano direttamente cache e retry. Lo SDK
+Supabase resta inizializzato esclusivamente dal boundary Auth quando Google è abilitato.
 
 ## Commercial truth e mutazioni
 

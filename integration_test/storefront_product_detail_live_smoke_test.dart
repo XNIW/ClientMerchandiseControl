@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 const _publishedId = '57000000-0000-4000-8000-000000000001';
 const _unpublishedId = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
@@ -63,7 +62,6 @@ void main() {
       find.byKey(const ValueKey('product-detail-availability')),
       findsOneWidget,
     );
-    expect(Supabase.instance.client.auth.currentSession, isNull);
 
     final router = container.read(appRouterProvider);
     router.push(AppRoutes.productLocation(_unpublishedId));

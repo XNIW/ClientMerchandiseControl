@@ -135,16 +135,16 @@ cmc_fixture_expect_rejection "${cmc_fixture_quality_path}"
 
 cmc_fixture_direct_table_path="$(cmc_fixture_prepare invalid-storefront-direct-table)"
 cmc_fixture_replace_literal \
-  "${cmc_fixture_direct_table_path}/lib/features/storefront/application/storefront_providers.dart" \
-  "Supabase.instance.client.rpc(function, params: parameters)" \
-  "Supabase.instance.client.from('inventory_products').select()"
+  "${cmc_fixture_direct_table_path}/lib/features/storefront/data/http_storefront_rpc_invoker.dart" \
+  "_origin.resolve('/rest/v1/rpc/\$function')" \
+  "_origin.resolve('/rest/v1/inventory_products')"
 cmc_fixture_expect_rejection "${cmc_fixture_direct_table_path}"
 
 cmc_fixture_storage_path="$(cmc_fixture_prepare invalid-storefront-storage-access)"
 cmc_fixture_replace_literal \
-  "${cmc_fixture_storage_path}/lib/features/storefront/application/storefront_providers.dart" \
-  "Supabase.instance.client.rpc(function, params: parameters)" \
-  "Supabase.instance.client.storage.from('product-images').list()"
+  "${cmc_fixture_storage_path}/lib/features/storefront/data/http_storefront_rpc_invoker.dart" \
+  "_origin.resolve('/rest/v1/rpc/\$function')" \
+  "_origin.resolve('/storage/v1/object/list/product-images')"
 cmc_fixture_expect_rejection "${cmc_fixture_storage_path}"
 
 if [[ "${cmc_fixture_rejected}" -ne "${cmc_fixture_total}" ]]; then

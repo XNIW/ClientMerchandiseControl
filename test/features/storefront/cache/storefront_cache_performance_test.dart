@@ -130,6 +130,7 @@ void main() {
       expect(productCount, storefrontCacheMaximumProducts);
     },
     timeout: const Timeout(Duration(minutes: 2)),
+    tags: const ['performance'],
   );
 }
 

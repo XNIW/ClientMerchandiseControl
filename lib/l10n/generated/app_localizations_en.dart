@@ -533,4 +533,236 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get productShareError => 'We couldn\'t open the sharing options.';
+
+  @override
+  String get customerAccountLoading => 'Loading your account data';
+
+  @override
+  String get customerAccountRetry => 'Try again';
+
+  @override
+  String get customerAccountOffline =>
+      'You\'re offline. We kept the data already loaded; reconnect before saving changes.';
+
+  @override
+  String get customerAccountUnauthorized =>
+      'Your session no longer allows this action. Sign in again.';
+
+  @override
+  String get customerAccountInvalid =>
+      'Review the information you entered before continuing.';
+
+  @override
+  String get customerAccountConflict =>
+      'This data changed elsewhere. Refresh and try again.';
+
+  @override
+  String get customerAccountTimeout =>
+      'The action took too long. You can retry without duplicating it.';
+
+  @override
+  String get customerAccountUnavailable =>
+      'Your account data is temporarily unavailable.';
+
+  @override
+  String get customerAccountUnexpected =>
+      'We couldn\'t complete the action. Your changes are not shown as confirmed.';
+
+  @override
+  String get customerProfileTitle => 'Profile';
+
+  @override
+  String get customerProfileDescription =>
+      'Choose how you appear and the language used by the app.';
+
+  @override
+  String get customerProfileNameLabel => 'Display name';
+
+  @override
+  String get customerProfileNameHint => 'Optional';
+
+  @override
+  String get customerProfileLanguageLabel => 'Language';
+
+  @override
+  String get customerProfileLanguageEsCl => 'Español (Chile)';
+
+  @override
+  String get customerProfileLanguageIt => 'Italiano';
+
+  @override
+  String get customerProfileLanguageEn => 'English';
+
+  @override
+  String get customerProfileLanguageZhHans => '简体中文';
+
+  @override
+  String get customerProfileSave => 'Save profile';
+
+  @override
+  String get customerProfileSaved => 'Profile saved.';
+
+  @override
+  String get customerProfileDeleted => 'Your public profile data was reset.';
+
+  @override
+  String get customerProfileResetTitle => 'Reset profile';
+
+  @override
+  String get customerProfileResetMessage =>
+      'This removes your saved name, language, and profile consent. Your addresses and sign-in stay unchanged.';
+
+  @override
+  String get customerProfileResetAction => 'Reset';
+
+  @override
+  String get customerAddressesTitle => 'Addresses';
+
+  @override
+  String get customerAddressesDescription =>
+      'Save postal details for later. Delivery availability is checked during checkout.';
+
+  @override
+  String get customerAddressesEmptyTitle => 'No addresses yet';
+
+  @override
+  String get customerAddressesEmptyMessage =>
+      'Add an address whenever you want to prepare a delivery.';
+
+  @override
+  String get customerAddressAdd => 'Add address';
+
+  @override
+  String get customerAddressEdit => 'Edit address';
+
+  @override
+  String get customerAddressDeleteTitle => 'Delete address';
+
+  @override
+  String customerAddressDeleteMessage(String label) {
+    return 'Delete the address “$label”?';
+  }
+
+  @override
+  String get customerAddressDeleteAction => 'Delete';
+
+  @override
+  String get customerAddressSaved => 'Address saved.';
+
+  @override
+  String get customerAddressDeleted => 'Address deleted.';
+
+  @override
+  String get customerAddressDefault => 'Default';
+
+  @override
+  String get customerAddressSetDefault => 'Set as default';
+
+  @override
+  String get customerAddressDefaultChanged => 'Default address updated.';
+
+  @override
+  String get customerAddressLabel => 'Label';
+
+  @override
+  String get customerAddressRecipient => 'Recipient name';
+
+  @override
+  String get customerAddressLine1 => 'Address';
+
+  @override
+  String get customerAddressLine2 =>
+      'Apartment, office, or reference (optional)';
+
+  @override
+  String get customerAddressCommune => 'District or commune';
+
+  @override
+  String get customerAddressRegion => 'Region';
+
+  @override
+  String get customerAddressPostalCode => 'Postal code (optional)';
+
+  @override
+  String get customerAddressCountryCode => 'Country code';
+
+  @override
+  String get customerAddressInstructions => 'Delivery instructions (optional)';
+
+  @override
+  String customerAddressSemantics(
+    String label,
+    String address,
+    String commune,
+  ) {
+    return 'Address $label: $address, $commune';
+  }
+
+  @override
+  String get customerPrivacyTitle => 'Privacy and data';
+
+  @override
+  String get customerPrivacyDescription =>
+      'You control consent and can view a copy of the Storefront data linked to your account.';
+
+  @override
+  String get customerPrivacyConsentTitle => 'Privacy consent';
+
+  @override
+  String get customerPrivacyConsentDescription =>
+      'Record or withdraw acceptance of the current version. It is never enabled implicitly.';
+
+  @override
+  String get customerPrivacyConsentUpdated => 'Privacy preference updated.';
+
+  @override
+  String get customerDataExportAction => 'View my data export';
+
+  @override
+  String get customerDataExportTitle => 'Your Storefront data';
+
+  @override
+  String get customerDeletionTitle => 'Account deletion';
+
+  @override
+  String get customerDeletionDescription =>
+      'You can submit a reviewable deletion request. The app does not erase your account immediately.';
+
+  @override
+  String get customerDeletionPending =>
+      'Your request is pending and will be handled under the retention policy.';
+
+  @override
+  String get customerDeletionConfirmTitle => 'Request account deletion';
+
+  @override
+  String get customerDeletionConfirmMessage =>
+      'The request will be recorded for review. Your session will stay open and data will not be erased immediately.';
+
+  @override
+  String get customerDeletionRequestAction => 'Request deletion';
+
+  @override
+  String get customerDeletionCancelAction => 'Cancel request';
+
+  @override
+  String get customerDeletionRequested => 'Deletion request recorded.';
+
+  @override
+  String get customerDeletionCancelled => 'Deletion request cancelled.';
+
+  @override
+  String get customerDialogCancel => 'Cancel';
+
+  @override
+  String get customerDialogSave => 'Save';
+
+  @override
+  String get customerDialogClose => 'Close';
+
+  @override
+  String get customerFieldRequired => 'This field is required.';
+
+  @override
+  String get customerFieldInvalid => 'Review this field\'s format and length.';
 }

@@ -538,4 +538,242 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get productShareError =>
       'No pudimos abrir las opciones para compartir.';
+
+  @override
+  String get customerAccountLoading => 'Cargando tus datos de cuenta';
+
+  @override
+  String get customerAccountRetry => 'Volver a intentar';
+
+  @override
+  String get customerAccountOffline =>
+      'Estás sin conexión. Conservamos los datos ya cargados; vuelve a intentar antes de guardar cambios.';
+
+  @override
+  String get customerAccountUnauthorized =>
+      'Tu sesión ya no permite esta operación. Vuelve a iniciar sesión.';
+
+  @override
+  String get customerAccountInvalid =>
+      'Revisa los datos ingresados antes de continuar.';
+
+  @override
+  String get customerAccountConflict =>
+      'Los datos cambiaron en otro lugar. Actualiza e inténtalo de nuevo.';
+
+  @override
+  String get customerAccountTimeout =>
+      'La operación tardó demasiado. Puedes reintentar sin duplicarla.';
+
+  @override
+  String get customerAccountUnavailable =>
+      'Los datos de tu cuenta no están disponibles por el momento.';
+
+  @override
+  String get customerAccountUnexpected =>
+      'No pudimos completar la operación. Tus cambios no se muestran como confirmados.';
+
+  @override
+  String get customerProfileTitle => 'Perfil';
+
+  @override
+  String get customerProfileDescription =>
+      'Elige cómo quieres aparecer y el idioma de la aplicación.';
+
+  @override
+  String get customerProfileNameLabel => 'Nombre visible';
+
+  @override
+  String get customerProfileNameHint => 'Opcional';
+
+  @override
+  String get customerProfileLanguageLabel => 'Idioma';
+
+  @override
+  String get customerProfileLanguageEsCl => 'Español (Chile)';
+
+  @override
+  String get customerProfileLanguageIt => 'Italiano';
+
+  @override
+  String get customerProfileLanguageEn => 'English';
+
+  @override
+  String get customerProfileLanguageZhHans => '简体中文';
+
+  @override
+  String get customerProfileSave => 'Guardar perfil';
+
+  @override
+  String get customerProfileSaved => 'Perfil guardado.';
+
+  @override
+  String get customerProfileDeleted =>
+      'Los datos públicos del perfil se restablecieron.';
+
+  @override
+  String get customerProfileResetTitle => 'Restablecer perfil';
+
+  @override
+  String get customerProfileResetMessage =>
+      'Se eliminarán el nombre, el idioma guardado y el consentimiento del perfil. Tus direcciones y tu acceso permanecerán sin cambios.';
+
+  @override
+  String get customerProfileResetAction => 'Restablecer';
+
+  @override
+  String get customerAddressesTitle => 'Direcciones';
+
+  @override
+  String get customerAddressesDescription =>
+      'Guarda datos postales para usarlos más adelante. La disponibilidad de entrega se valida en el checkout.';
+
+  @override
+  String get customerAddressesEmptyTitle => 'Aún no tienes direcciones';
+
+  @override
+  String get customerAddressesEmptyMessage =>
+      'Agrega una dirección cuando quieras preparar una entrega.';
+
+  @override
+  String get customerAddressAdd => 'Agregar dirección';
+
+  @override
+  String get customerAddressEdit => 'Editar dirección';
+
+  @override
+  String get customerAddressDeleteTitle => 'Eliminar dirección';
+
+  @override
+  String customerAddressDeleteMessage(String label) {
+    return '¿Eliminar la dirección “$label”?';
+  }
+
+  @override
+  String get customerAddressDeleteAction => 'Eliminar';
+
+  @override
+  String get customerAddressSaved => 'Dirección guardada.';
+
+  @override
+  String get customerAddressDeleted => 'Dirección eliminada.';
+
+  @override
+  String get customerAddressDefault => 'Predeterminada';
+
+  @override
+  String get customerAddressSetDefault => 'Usar como predeterminada';
+
+  @override
+  String get customerAddressDefaultChanged =>
+      'Dirección predeterminada actualizada.';
+
+  @override
+  String get customerAddressLabel => 'Etiqueta';
+
+  @override
+  String get customerAddressRecipient => 'Nombre de quien recibe';
+
+  @override
+  String get customerAddressLine1 => 'Dirección';
+
+  @override
+  String get customerAddressLine2 =>
+      'Depto., oficina u otra referencia (opcional)';
+
+  @override
+  String get customerAddressCommune => 'Comuna';
+
+  @override
+  String get customerAddressRegion => 'Región';
+
+  @override
+  String get customerAddressPostalCode => 'Código postal (opcional)';
+
+  @override
+  String get customerAddressCountryCode => 'Código de país';
+
+  @override
+  String get customerAddressInstructions =>
+      'Indicaciones de entrega (opcional)';
+
+  @override
+  String customerAddressSemantics(
+    String label,
+    String address,
+    String commune,
+  ) {
+    return 'Dirección $label: $address, $commune';
+  }
+
+  @override
+  String get customerPrivacyTitle => 'Privacidad y datos';
+
+  @override
+  String get customerPrivacyDescription =>
+      'Tú decides el consentimiento y puedes consultar una copia de los datos Storefront asociados a tu cuenta.';
+
+  @override
+  String get customerPrivacyConsentTitle => 'Consentimiento de privacidad';
+
+  @override
+  String get customerPrivacyConsentDescription =>
+      'Registra o revoca tu aceptación de la versión vigente. No se activa de forma implícita.';
+
+  @override
+  String get customerPrivacyConsentUpdated =>
+      'Preferencia de privacidad actualizada.';
+
+  @override
+  String get customerDataExportAction => 'Ver mi exportación de datos';
+
+  @override
+  String get customerDataExportTitle => 'Tus datos Storefront';
+
+  @override
+  String get customerDeletionTitle => 'Eliminación de cuenta';
+
+  @override
+  String get customerDeletionDescription =>
+      'Puedes solicitar una eliminación revisable. La app no borra tu cuenta de inmediato.';
+
+  @override
+  String get customerDeletionPending =>
+      'Tu solicitud está pendiente y será procesada según la política de retención.';
+
+  @override
+  String get customerDeletionConfirmTitle => 'Solicitar eliminación de cuenta';
+
+  @override
+  String get customerDeletionConfirmMessage =>
+      'La solicitud se registrará para revisión. No se cerrará tu sesión ni se borrarán datos de inmediato.';
+
+  @override
+  String get customerDeletionRequestAction => 'Solicitar eliminación';
+
+  @override
+  String get customerDeletionCancelAction => 'Cancelar solicitud';
+
+  @override
+  String get customerDeletionRequested =>
+      'Solicitud de eliminación registrada.';
+
+  @override
+  String get customerDeletionCancelled => 'Solicitud de eliminación cancelada.';
+
+  @override
+  String get customerDialogCancel => 'Cancelar';
+
+  @override
+  String get customerDialogSave => 'Guardar';
+
+  @override
+  String get customerDialogClose => 'Cerrar';
+
+  @override
+  String get customerFieldRequired => 'Este campo es obligatorio.';
+
+  @override
+  String get customerFieldInvalid =>
+      'Revisa el formato y la longitud de este campo.';
 }

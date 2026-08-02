@@ -1026,6 +1026,420 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No pudimos abrir las opciones para compartir.'**
   String get productShareError;
+
+  /// No description provided for @customerAccountLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando tus datos de cuenta'**
+  String get customerAccountLoading;
+
+  /// No description provided for @customerAccountRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Volver a intentar'**
+  String get customerAccountRetry;
+
+  /// No description provided for @customerAccountOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'Estás sin conexión. Conservamos los datos ya cargados; vuelve a intentar antes de guardar cambios.'**
+  String get customerAccountOffline;
+
+  /// No description provided for @customerAccountUnauthorized.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu sesión ya no permite esta operación. Vuelve a iniciar sesión.'**
+  String get customerAccountUnauthorized;
+
+  /// No description provided for @customerAccountInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Revisa los datos ingresados antes de continuar.'**
+  String get customerAccountInvalid;
+
+  /// No description provided for @customerAccountConflict.
+  ///
+  /// In es, this message translates to:
+  /// **'Los datos cambiaron en otro lugar. Actualiza e inténtalo de nuevo.'**
+  String get customerAccountConflict;
+
+  /// No description provided for @customerAccountTimeout.
+  ///
+  /// In es, this message translates to:
+  /// **'La operación tardó demasiado. Puedes reintentar sin duplicarla.'**
+  String get customerAccountTimeout;
+
+  /// No description provided for @customerAccountUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Los datos de tu cuenta no están disponibles por el momento.'**
+  String get customerAccountUnavailable;
+
+  /// No description provided for @customerAccountUnexpected.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos completar la operación. Tus cambios no se muestran como confirmados.'**
+  String get customerAccountUnexpected;
+
+  /// No description provided for @customerProfileTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Perfil'**
+  String get customerProfileTitle;
+
+  /// No description provided for @customerProfileDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige cómo quieres aparecer y el idioma de la aplicación.'**
+  String get customerProfileDescription;
+
+  /// No description provided for @customerProfileNameLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre visible'**
+  String get customerProfileNameLabel;
+
+  /// No description provided for @customerProfileNameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Opcional'**
+  String get customerProfileNameHint;
+
+  /// No description provided for @customerProfileLanguageLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Idioma'**
+  String get customerProfileLanguageLabel;
+
+  /// No description provided for @customerProfileLanguageEsCl.
+  ///
+  /// In es, this message translates to:
+  /// **'Español (Chile)'**
+  String get customerProfileLanguageEsCl;
+
+  /// No description provided for @customerProfileLanguageIt.
+  ///
+  /// In es, this message translates to:
+  /// **'Italiano'**
+  String get customerProfileLanguageIt;
+
+  /// No description provided for @customerProfileLanguageEn.
+  ///
+  /// In es, this message translates to:
+  /// **'English'**
+  String get customerProfileLanguageEn;
+
+  /// No description provided for @customerProfileLanguageZhHans.
+  ///
+  /// In es, this message translates to:
+  /// **'简体中文'**
+  String get customerProfileLanguageZhHans;
+
+  /// No description provided for @customerProfileSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar perfil'**
+  String get customerProfileSave;
+
+  /// No description provided for @customerProfileSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'Perfil guardado.'**
+  String get customerProfileSaved;
+
+  /// No description provided for @customerProfileDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Los datos públicos del perfil se restablecieron.'**
+  String get customerProfileDeleted;
+
+  /// No description provided for @customerProfileResetTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Restablecer perfil'**
+  String get customerProfileResetTitle;
+
+  /// No description provided for @customerProfileResetMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Se eliminarán el nombre, el idioma guardado y el consentimiento del perfil. Tus direcciones y tu acceso permanecerán sin cambios.'**
+  String get customerProfileResetMessage;
+
+  /// No description provided for @customerProfileResetAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Restablecer'**
+  String get customerProfileResetAction;
+
+  /// No description provided for @customerAddressesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Direcciones'**
+  String get customerAddressesTitle;
+
+  /// No description provided for @customerAddressesDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Guarda datos postales para usarlos más adelante. La disponibilidad de entrega se valida en el checkout.'**
+  String get customerAddressesDescription;
+
+  /// No description provided for @customerAddressesEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no tienes direcciones'**
+  String get customerAddressesEmptyTitle;
+
+  /// No description provided for @customerAddressesEmptyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Agrega una dirección cuando quieras preparar una entrega.'**
+  String get customerAddressesEmptyMessage;
+
+  /// No description provided for @customerAddressAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar dirección'**
+  String get customerAddressAdd;
+
+  /// No description provided for @customerAddressEdit.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar dirección'**
+  String get customerAddressEdit;
+
+  /// No description provided for @customerAddressDeleteTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar dirección'**
+  String get customerAddressDeleteTitle;
+
+  /// No description provided for @customerAddressDeleteMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar la dirección “{label}”?'**
+  String customerAddressDeleteMessage(String label);
+
+  /// No description provided for @customerAddressDeleteAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar'**
+  String get customerAddressDeleteAction;
+
+  /// No description provided for @customerAddressSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección guardada.'**
+  String get customerAddressSaved;
+
+  /// No description provided for @customerAddressDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección eliminada.'**
+  String get customerAddressDeleted;
+
+  /// No description provided for @customerAddressDefault.
+  ///
+  /// In es, this message translates to:
+  /// **'Predeterminada'**
+  String get customerAddressDefault;
+
+  /// No description provided for @customerAddressSetDefault.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar como predeterminada'**
+  String get customerAddressSetDefault;
+
+  /// No description provided for @customerAddressDefaultChanged.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección predeterminada actualizada.'**
+  String get customerAddressDefaultChanged;
+
+  /// No description provided for @customerAddressLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Etiqueta'**
+  String get customerAddressLabel;
+
+  /// No description provided for @customerAddressRecipient.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre de quien recibe'**
+  String get customerAddressRecipient;
+
+  /// No description provided for @customerAddressLine1.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección'**
+  String get customerAddressLine1;
+
+  /// No description provided for @customerAddressLine2.
+  ///
+  /// In es, this message translates to:
+  /// **'Depto., oficina u otra referencia (opcional)'**
+  String get customerAddressLine2;
+
+  /// No description provided for @customerAddressCommune.
+  ///
+  /// In es, this message translates to:
+  /// **'Comuna'**
+  String get customerAddressCommune;
+
+  /// No description provided for @customerAddressRegion.
+  ///
+  /// In es, this message translates to:
+  /// **'Región'**
+  String get customerAddressRegion;
+
+  /// No description provided for @customerAddressPostalCode.
+  ///
+  /// In es, this message translates to:
+  /// **'Código postal (opcional)'**
+  String get customerAddressPostalCode;
+
+  /// No description provided for @customerAddressCountryCode.
+  ///
+  /// In es, this message translates to:
+  /// **'Código de país'**
+  String get customerAddressCountryCode;
+
+  /// No description provided for @customerAddressInstructions.
+  ///
+  /// In es, this message translates to:
+  /// **'Indicaciones de entrega (opcional)'**
+  String get customerAddressInstructions;
+
+  /// No description provided for @customerAddressSemantics.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección {label}: {address}, {commune}'**
+  String customerAddressSemantics(String label, String address, String commune);
+
+  /// No description provided for @customerPrivacyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Privacidad y datos'**
+  String get customerPrivacyTitle;
+
+  /// No description provided for @customerPrivacyDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Tú decides el consentimiento y puedes consultar una copia de los datos Storefront asociados a tu cuenta.'**
+  String get customerPrivacyDescription;
+
+  /// No description provided for @customerPrivacyConsentTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Consentimiento de privacidad'**
+  String get customerPrivacyConsentTitle;
+
+  /// No description provided for @customerPrivacyConsentDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Registra o revoca tu aceptación de la versión vigente. No se activa de forma implícita.'**
+  String get customerPrivacyConsentDescription;
+
+  /// No description provided for @customerPrivacyConsentUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Preferencia de privacidad actualizada.'**
+  String get customerPrivacyConsentUpdated;
+
+  /// No description provided for @customerDataExportAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver mi exportación de datos'**
+  String get customerDataExportAction;
+
+  /// No description provided for @customerDataExportTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tus datos Storefront'**
+  String get customerDataExportTitle;
+
+  /// No description provided for @customerDeletionTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminación de cuenta'**
+  String get customerDeletionTitle;
+
+  /// No description provided for @customerDeletionDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes solicitar una eliminación revisable. La app no borra tu cuenta de inmediato.'**
+  String get customerDeletionDescription;
+
+  /// No description provided for @customerDeletionPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu solicitud está pendiente y será procesada según la política de retención.'**
+  String get customerDeletionPending;
+
+  /// No description provided for @customerDeletionConfirmTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar eliminación de cuenta'**
+  String get customerDeletionConfirmTitle;
+
+  /// No description provided for @customerDeletionConfirmMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'La solicitud se registrará para revisión. No se cerrará tu sesión ni se borrarán datos de inmediato.'**
+  String get customerDeletionConfirmMessage;
+
+  /// No description provided for @customerDeletionRequestAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar eliminación'**
+  String get customerDeletionRequestAction;
+
+  /// No description provided for @customerDeletionCancelAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar solicitud'**
+  String get customerDeletionCancelAction;
+
+  /// No description provided for @customerDeletionRequested.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud de eliminación registrada.'**
+  String get customerDeletionRequested;
+
+  /// No description provided for @customerDeletionCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud de eliminación cancelada.'**
+  String get customerDeletionCancelled;
+
+  /// No description provided for @customerDialogCancel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar'**
+  String get customerDialogCancel;
+
+  /// No description provided for @customerDialogSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar'**
+  String get customerDialogSave;
+
+  /// No description provided for @customerDialogClose.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar'**
+  String get customerDialogClose;
+
+  /// No description provided for @customerFieldRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Este campo es obligatorio.'**
+  String get customerFieldRequired;
+
+  /// No description provided for @customerFieldInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Revisa el formato y la longitud de este campo.'**
+  String get customerFieldInvalid;
 }
 
 class _AppLocalizationsDelegate

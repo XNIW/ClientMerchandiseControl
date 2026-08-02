@@ -538,6 +538,244 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get productShareError =>
       'No pudimos abrir las opciones para compartir.';
+
+  @override
+  String get customerAccountLoading => 'Cargando tus datos de cuenta';
+
+  @override
+  String get customerAccountRetry => 'Volver a intentar';
+
+  @override
+  String get customerAccountOffline =>
+      'Estás sin conexión. Conservamos los datos ya cargados; vuelve a intentar antes de guardar cambios.';
+
+  @override
+  String get customerAccountUnauthorized =>
+      'Tu sesión ya no permite esta operación. Vuelve a iniciar sesión.';
+
+  @override
+  String get customerAccountInvalid =>
+      'Revisa los datos ingresados antes de continuar.';
+
+  @override
+  String get customerAccountConflict =>
+      'Los datos cambiaron en otro lugar. Actualiza e inténtalo de nuevo.';
+
+  @override
+  String get customerAccountTimeout =>
+      'La operación tardó demasiado. Puedes reintentar sin duplicarla.';
+
+  @override
+  String get customerAccountUnavailable =>
+      'Los datos de tu cuenta no están disponibles por el momento.';
+
+  @override
+  String get customerAccountUnexpected =>
+      'No pudimos completar la operación. Tus cambios no se muestran como confirmados.';
+
+  @override
+  String get customerProfileTitle => 'Perfil';
+
+  @override
+  String get customerProfileDescription =>
+      'Elige cómo quieres aparecer y el idioma de la aplicación.';
+
+  @override
+  String get customerProfileNameLabel => 'Nombre visible';
+
+  @override
+  String get customerProfileNameHint => 'Opcional';
+
+  @override
+  String get customerProfileLanguageLabel => 'Idioma';
+
+  @override
+  String get customerProfileLanguageEsCl => 'Español (Chile)';
+
+  @override
+  String get customerProfileLanguageIt => 'Italiano';
+
+  @override
+  String get customerProfileLanguageEn => 'English';
+
+  @override
+  String get customerProfileLanguageZhHans => '简体中文';
+
+  @override
+  String get customerProfileSave => 'Guardar perfil';
+
+  @override
+  String get customerProfileSaved => 'Perfil guardado.';
+
+  @override
+  String get customerProfileDeleted =>
+      'Los datos públicos del perfil se restablecieron.';
+
+  @override
+  String get customerProfileResetTitle => 'Restablecer perfil';
+
+  @override
+  String get customerProfileResetMessage =>
+      'Se eliminarán el nombre, el idioma guardado y el consentimiento del perfil. Tus direcciones y tu acceso permanecerán sin cambios.';
+
+  @override
+  String get customerProfileResetAction => 'Restablecer';
+
+  @override
+  String get customerAddressesTitle => 'Direcciones';
+
+  @override
+  String get customerAddressesDescription =>
+      'Guarda datos postales para usarlos más adelante. La disponibilidad de entrega se valida en el checkout.';
+
+  @override
+  String get customerAddressesEmptyTitle => 'Aún no tienes direcciones';
+
+  @override
+  String get customerAddressesEmptyMessage =>
+      'Agrega una dirección cuando quieras preparar una entrega.';
+
+  @override
+  String get customerAddressAdd => 'Agregar dirección';
+
+  @override
+  String get customerAddressEdit => 'Editar dirección';
+
+  @override
+  String get customerAddressDeleteTitle => 'Eliminar dirección';
+
+  @override
+  String customerAddressDeleteMessage(String label) {
+    return '¿Eliminar la dirección “$label”?';
+  }
+
+  @override
+  String get customerAddressDeleteAction => 'Eliminar';
+
+  @override
+  String get customerAddressSaved => 'Dirección guardada.';
+
+  @override
+  String get customerAddressDeleted => 'Dirección eliminada.';
+
+  @override
+  String get customerAddressDefault => 'Predeterminada';
+
+  @override
+  String get customerAddressSetDefault => 'Usar como predeterminada';
+
+  @override
+  String get customerAddressDefaultChanged =>
+      'Dirección predeterminada actualizada.';
+
+  @override
+  String get customerAddressLabel => 'Etiqueta';
+
+  @override
+  String get customerAddressRecipient => 'Nombre de quien recibe';
+
+  @override
+  String get customerAddressLine1 => 'Dirección';
+
+  @override
+  String get customerAddressLine2 =>
+      'Depto., oficina u otra referencia (opcional)';
+
+  @override
+  String get customerAddressCommune => 'Comuna';
+
+  @override
+  String get customerAddressRegion => 'Región';
+
+  @override
+  String get customerAddressPostalCode => 'Código postal (opcional)';
+
+  @override
+  String get customerAddressCountryCode => 'Código de país';
+
+  @override
+  String get customerAddressInstructions =>
+      'Indicaciones de entrega (opcional)';
+
+  @override
+  String customerAddressSemantics(
+    String label,
+    String address,
+    String commune,
+  ) {
+    return 'Dirección $label: $address, $commune';
+  }
+
+  @override
+  String get customerPrivacyTitle => 'Privacidad y datos';
+
+  @override
+  String get customerPrivacyDescription =>
+      'Tú decides el consentimiento y puedes consultar una copia de los datos Storefront asociados a tu cuenta.';
+
+  @override
+  String get customerPrivacyConsentTitle => 'Consentimiento de privacidad';
+
+  @override
+  String get customerPrivacyConsentDescription =>
+      'Registra o revoca tu aceptación de la versión vigente. No se activa de forma implícita.';
+
+  @override
+  String get customerPrivacyConsentUpdated =>
+      'Preferencia de privacidad actualizada.';
+
+  @override
+  String get customerDataExportAction => 'Ver mi exportación de datos';
+
+  @override
+  String get customerDataExportTitle => 'Tus datos Storefront';
+
+  @override
+  String get customerDeletionTitle => 'Eliminación de cuenta';
+
+  @override
+  String get customerDeletionDescription =>
+      'Puedes solicitar una eliminación revisable. La app no borra tu cuenta de inmediato.';
+
+  @override
+  String get customerDeletionPending =>
+      'Tu solicitud está pendiente y será procesada según la política de retención.';
+
+  @override
+  String get customerDeletionConfirmTitle => 'Solicitar eliminación de cuenta';
+
+  @override
+  String get customerDeletionConfirmMessage =>
+      'La solicitud se registrará para revisión. No se cerrará tu sesión ni se borrarán datos de inmediato.';
+
+  @override
+  String get customerDeletionRequestAction => 'Solicitar eliminación';
+
+  @override
+  String get customerDeletionCancelAction => 'Cancelar solicitud';
+
+  @override
+  String get customerDeletionRequested =>
+      'Solicitud de eliminación registrada.';
+
+  @override
+  String get customerDeletionCancelled => 'Solicitud de eliminación cancelada.';
+
+  @override
+  String get customerDialogCancel => 'Cancelar';
+
+  @override
+  String get customerDialogSave => 'Guardar';
+
+  @override
+  String get customerDialogClose => 'Cerrar';
+
+  @override
+  String get customerFieldRequired => 'Este campo es obligatorio.';
+
+  @override
+  String get customerFieldInvalid =>
+      'Revisa el formato y la longitud de este campo.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -1024,4 +1262,220 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get productShareError => '无法打开分享选项。';
+
+  @override
+  String get customerAccountLoading => '正在加载账户数据';
+
+  @override
+  String get customerAccountRetry => '重试';
+
+  @override
+  String get customerAccountOffline => '你当前处于离线状态。已加载的数据会保留；请联网后再保存更改。';
+
+  @override
+  String get customerAccountUnauthorized => '当前会话不再允许此操作，请重新登录。';
+
+  @override
+  String get customerAccountInvalid => '请检查填写的信息后再继续。';
+
+  @override
+  String get customerAccountConflict => '这些数据已在其他位置更改，请刷新后重试。';
+
+  @override
+  String get customerAccountTimeout => '操作超时。你可以安全重试，不会重复提交。';
+
+  @override
+  String get customerAccountUnavailable => '账户数据暂时不可用。';
+
+  @override
+  String get customerAccountUnexpected => '无法完成操作。更改不会显示为已确认。';
+
+  @override
+  String get customerProfileTitle => '个人资料';
+
+  @override
+  String get customerProfileDescription => '选择显示名称和应用语言。';
+
+  @override
+  String get customerProfileNameLabel => '显示名称';
+
+  @override
+  String get customerProfileNameHint => '可选';
+
+  @override
+  String get customerProfileLanguageLabel => '语言';
+
+  @override
+  String get customerProfileLanguageEsCl => 'Español (Chile)';
+
+  @override
+  String get customerProfileLanguageIt => 'Italiano';
+
+  @override
+  String get customerProfileLanguageEn => 'English';
+
+  @override
+  String get customerProfileLanguageZhHans => '简体中文';
+
+  @override
+  String get customerProfileSave => '保存个人资料';
+
+  @override
+  String get customerProfileSaved => '个人资料已保存。';
+
+  @override
+  String get customerProfileDeleted => '公开个人资料数据已重置。';
+
+  @override
+  String get customerProfileResetTitle => '重置个人资料';
+
+  @override
+  String get customerProfileResetMessage => '这会移除个人资料中的名称、语言和隐私同意。地址和登录状态保持不变。';
+
+  @override
+  String get customerProfileResetAction => '重置';
+
+  @override
+  String get customerAddressesTitle => '地址';
+
+  @override
+  String get customerAddressesDescription => '保存邮寄信息以便以后使用。配送可用性会在结账时验证。';
+
+  @override
+  String get customerAddressesEmptyTitle => '尚未保存地址';
+
+  @override
+  String get customerAddressesEmptyMessage => '需要准备配送时，可随时添加地址。';
+
+  @override
+  String get customerAddressAdd => '添加地址';
+
+  @override
+  String get customerAddressEdit => '编辑地址';
+
+  @override
+  String get customerAddressDeleteTitle => '删除地址';
+
+  @override
+  String customerAddressDeleteMessage(String label) {
+    return '要删除地址“$label”吗？';
+  }
+
+  @override
+  String get customerAddressDeleteAction => '删除';
+
+  @override
+  String get customerAddressSaved => '地址已保存。';
+
+  @override
+  String get customerAddressDeleted => '地址已删除。';
+
+  @override
+  String get customerAddressDefault => '默认';
+
+  @override
+  String get customerAddressSetDefault => '设为默认地址';
+
+  @override
+  String get customerAddressDefaultChanged => '默认地址已更新。';
+
+  @override
+  String get customerAddressLabel => '标签';
+
+  @override
+  String get customerAddressRecipient => '收件人姓名';
+
+  @override
+  String get customerAddressLine1 => '地址';
+
+  @override
+  String get customerAddressLine2 => '公寓、办公室或其他说明（可选）';
+
+  @override
+  String get customerAddressCommune => '区或市镇';
+
+  @override
+  String get customerAddressRegion => '地区';
+
+  @override
+  String get customerAddressPostalCode => '邮政编码（可选）';
+
+  @override
+  String get customerAddressCountryCode => '国家代码';
+
+  @override
+  String get customerAddressInstructions => '配送说明（可选）';
+
+  @override
+  String customerAddressSemantics(
+    String label,
+    String address,
+    String commune,
+  ) {
+    return '地址 $label：$address，$commune';
+  }
+
+  @override
+  String get customerPrivacyTitle => '隐私与数据';
+
+  @override
+  String get customerPrivacyDescription =>
+      '你可以管理隐私同意，并查看与账户关联的 Storefront 数据副本。';
+
+  @override
+  String get customerPrivacyConsentTitle => '隐私同意';
+
+  @override
+  String get customerPrivacyConsentDescription => '记录或撤回对当前版本的同意。系统不会默认开启。';
+
+  @override
+  String get customerPrivacyConsentUpdated => '隐私偏好已更新。';
+
+  @override
+  String get customerDataExportAction => '查看我的数据导出';
+
+  @override
+  String get customerDataExportTitle => '你的 Storefront 数据';
+
+  @override
+  String get customerDeletionTitle => '删除账户';
+
+  @override
+  String get customerDeletionDescription => '你可以提交可审核的删除请求。应用不会立即删除账户。';
+
+  @override
+  String get customerDeletionPending => '请求正在等待处理，并将按照数据保留政策执行。';
+
+  @override
+  String get customerDeletionConfirmTitle => '请求删除账户';
+
+  @override
+  String get customerDeletionConfirmMessage => '请求会被记录以供审核。会话不会关闭，数据也不会立即删除。';
+
+  @override
+  String get customerDeletionRequestAction => '请求删除';
+
+  @override
+  String get customerDeletionCancelAction => '取消请求';
+
+  @override
+  String get customerDeletionRequested => '删除请求已记录。';
+
+  @override
+  String get customerDeletionCancelled => '删除请求已取消。';
+
+  @override
+  String get customerDialogCancel => '取消';
+
+  @override
+  String get customerDialogSave => '保存';
+
+  @override
+  String get customerDialogClose => '关闭';
+
+  @override
+  String get customerFieldRequired => '此字段为必填项。';
+
+  @override
+  String get customerFieldInvalid => '请检查此字段的格式和长度。';
 }

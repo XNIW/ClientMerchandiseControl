@@ -25,6 +25,18 @@ void main() {
     expect(appSupportedLocales, isNot(contains(const Locale('es'))));
   });
 
+  test('mappa soltanto la preferenza locale owner salvata dal profilo', () {
+    expect(customerLocaleFromTag('es-CL'), appFallbackLocale);
+    expect(customerLocaleFromTag('it'), const Locale('it'));
+    expect(customerLocaleFromTag('en'), const Locale('en'));
+    expect(
+      customerLocaleFromTag('zh-Hans'),
+      const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+    );
+    expect(customerLocaleFromTag('fr'), isNull);
+    expect(customerLocaleFromTag(null), isNull);
+  });
+
   test('scorre tutte le preferenze e seleziona la prima supportata', () {
     expect(
       resolveAppLocale(const [Locale('de'), Locale('it')], appSupportedLocales),

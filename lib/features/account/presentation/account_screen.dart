@@ -16,6 +16,7 @@ import '../../auth/domain/auth_failure.dart';
 import '../../auth/domain/auth_state.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import 'account_presentation_model.dart';
+import 'customer_account_panel.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -55,6 +56,7 @@ class AccountScreen extends ConsumerWidget {
       AuthAuthenticated(:final customer) => AccountView.authenticated(
         model: _presentationModel(customer),
         onLogout: controller.signOut,
+        details: CustomerAccountPanel(authDisplayName: customer.displayName),
       ),
       AuthSigningOut(:final customer) => AccountView.authenticated(
         model: _presentationModel(customer),
@@ -99,6 +101,7 @@ sealed class AccountView extends StatelessWidget {
     required AuthenticatedAccountPresentationModel model,
     required VoidCallback? onLogout,
     bool isSigningOut,
+    Widget? details,
   }) = _AuthenticatedAccountView;
 
   const factory AccountView.status({
@@ -142,12 +145,14 @@ final class _AuthenticatedAccountView extends AccountView {
     required this.model,
     required this.onLogout,
     this.isSigningOut = false,
+    this.details,
     super.key,
   }) : super._();
 
   final AuthenticatedAccountPresentationModel model;
   final VoidCallback? onLogout;
   final bool isSigningOut;
+  final Widget? details;
 
   @override
   Widget build(BuildContext context) {
@@ -156,6 +161,7 @@ final class _AuthenticatedAccountView extends AccountView {
         model: model,
         onLogout: onLogout,
         isSigningOut: isSigningOut,
+        details: details,
       ),
     );
   }
@@ -362,11 +368,13 @@ class _AuthenticatedAccountContent extends StatelessWidget {
     required this.model,
     required this.onLogout,
     required this.isSigningOut,
+    required this.details,
   });
 
   final AuthenticatedAccountPresentationModel model;
   final VoidCallback? onLogout;
   final bool isSigningOut;
+  final Widget? details;
 
   @override
   Widget build(BuildContext context) {
@@ -456,6 +464,7 @@ class _AuthenticatedAccountContent extends StatelessWidget {
             ),
           ),
         ),
+        ?details,
         const SizedBox(height: AppSpacing.xl),
         _AccountButtonSemantics(
           label: isSigningOut ? l10n.accountSigningOut : l10n.accountLogout,

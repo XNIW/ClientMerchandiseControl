@@ -538,4 +538,242 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get productShareError =>
       'Impossibile aprire le opzioni di condivisione.';
+
+  @override
+  String get customerAccountLoading => 'Caricamento dei dati dell\'account';
+
+  @override
+  String get customerAccountRetry => 'Riprova';
+
+  @override
+  String get customerAccountOffline =>
+      'Sei offline. I dati già caricati restano visibili; riconnettiti prima di salvare modifiche.';
+
+  @override
+  String get customerAccountUnauthorized =>
+      'La sessione non consente più questa operazione. Accedi di nuovo.';
+
+  @override
+  String get customerAccountInvalid =>
+      'Controlla i dati inseriti prima di continuare.';
+
+  @override
+  String get customerAccountConflict =>
+      'I dati sono cambiati altrove. Aggiorna e riprova.';
+
+  @override
+  String get customerAccountTimeout =>
+      'L\'operazione ha impiegato troppo tempo. Puoi riprovare senza duplicarla.';
+
+  @override
+  String get customerAccountUnavailable =>
+      'I dati dell\'account non sono disponibili al momento.';
+
+  @override
+  String get customerAccountUnexpected =>
+      'Impossibile completare l\'operazione. Le modifiche non vengono mostrate come confermate.';
+
+  @override
+  String get customerProfileTitle => 'Profilo';
+
+  @override
+  String get customerProfileDescription =>
+      'Scegli come apparire e la lingua usata dall\'app.';
+
+  @override
+  String get customerProfileNameLabel => 'Nome visualizzato';
+
+  @override
+  String get customerProfileNameHint => 'Facoltativo';
+
+  @override
+  String get customerProfileLanguageLabel => 'Lingua';
+
+  @override
+  String get customerProfileLanguageEsCl => 'Español (Chile)';
+
+  @override
+  String get customerProfileLanguageIt => 'Italiano';
+
+  @override
+  String get customerProfileLanguageEn => 'English';
+
+  @override
+  String get customerProfileLanguageZhHans => '简体中文';
+
+  @override
+  String get customerProfileSave => 'Salva profilo';
+
+  @override
+  String get customerProfileSaved => 'Profilo salvato.';
+
+  @override
+  String get customerProfileDeleted =>
+      'I dati pubblici del profilo sono stati reimpostati.';
+
+  @override
+  String get customerProfileResetTitle => 'Reimposta profilo';
+
+  @override
+  String get customerProfileResetMessage =>
+      'Verranno rimossi nome, lingua e consenso salvati nel profilo. Indirizzi e accesso resteranno invariati.';
+
+  @override
+  String get customerProfileResetAction => 'Reimposta';
+
+  @override
+  String get customerAddressesTitle => 'Indirizzi';
+
+  @override
+  String get customerAddressesDescription =>
+      'Salva i dati postali per usarli in seguito. La disponibilità della consegna viene verificata al checkout.';
+
+  @override
+  String get customerAddressesEmptyTitle => 'Nessun indirizzo salvato';
+
+  @override
+  String get customerAddressesEmptyMessage =>
+      'Aggiungi un indirizzo quando vuoi preparare una consegna.';
+
+  @override
+  String get customerAddressAdd => 'Aggiungi indirizzo';
+
+  @override
+  String get customerAddressEdit => 'Modifica indirizzo';
+
+  @override
+  String get customerAddressDeleteTitle => 'Elimina indirizzo';
+
+  @override
+  String customerAddressDeleteMessage(String label) {
+    return 'Eliminare l\'indirizzo “$label”?';
+  }
+
+  @override
+  String get customerAddressDeleteAction => 'Elimina';
+
+  @override
+  String get customerAddressSaved => 'Indirizzo salvato.';
+
+  @override
+  String get customerAddressDeleted => 'Indirizzo eliminato.';
+
+  @override
+  String get customerAddressDefault => 'Predefinito';
+
+  @override
+  String get customerAddressSetDefault => 'Imposta come predefinito';
+
+  @override
+  String get customerAddressDefaultChanged =>
+      'Indirizzo predefinito aggiornato.';
+
+  @override
+  String get customerAddressLabel => 'Etichetta';
+
+  @override
+  String get customerAddressRecipient => 'Nome del destinatario';
+
+  @override
+  String get customerAddressLine1 => 'Indirizzo';
+
+  @override
+  String get customerAddressLine2 =>
+      'Interno, ufficio o riferimento (facoltativo)';
+
+  @override
+  String get customerAddressCommune => 'Comune';
+
+  @override
+  String get customerAddressRegion => 'Regione';
+
+  @override
+  String get customerAddressPostalCode => 'Codice postale (facoltativo)';
+
+  @override
+  String get customerAddressCountryCode => 'Codice paese';
+
+  @override
+  String get customerAddressInstructions =>
+      'Istruzioni di consegna (facoltative)';
+
+  @override
+  String customerAddressSemantics(
+    String label,
+    String address,
+    String commune,
+  ) {
+    return 'Indirizzo $label: $address, $commune';
+  }
+
+  @override
+  String get customerPrivacyTitle => 'Privacy e dati';
+
+  @override
+  String get customerPrivacyDescription =>
+      'Gestisci il consenso e consulta una copia dei dati Storefront associati al tuo account.';
+
+  @override
+  String get customerPrivacyConsentTitle => 'Consenso privacy';
+
+  @override
+  String get customerPrivacyConsentDescription =>
+      'Registra o revoca l\'accettazione della versione attuale. Non viene mai attivato implicitamente.';
+
+  @override
+  String get customerPrivacyConsentUpdated => 'Preferenza privacy aggiornata.';
+
+  @override
+  String get customerDataExportAction =>
+      'Visualizza l\'esportazione dei miei dati';
+
+  @override
+  String get customerDataExportTitle => 'I tuoi dati Storefront';
+
+  @override
+  String get customerDeletionTitle => 'Eliminazione account';
+
+  @override
+  String get customerDeletionDescription =>
+      'Puoi inviare una richiesta di eliminazione verificabile. L\'app non cancella subito l\'account.';
+
+  @override
+  String get customerDeletionPending =>
+      'La richiesta è in attesa e verrà gestita secondo la politica di conservazione.';
+
+  @override
+  String get customerDeletionConfirmTitle => 'Richiedi eliminazione account';
+
+  @override
+  String get customerDeletionConfirmMessage =>
+      'La richiesta verrà registrata per la revisione. La sessione resterà aperta e i dati non saranno eliminati subito.';
+
+  @override
+  String get customerDeletionRequestAction => 'Richiedi eliminazione';
+
+  @override
+  String get customerDeletionCancelAction => 'Annulla richiesta';
+
+  @override
+  String get customerDeletionRequested =>
+      'Richiesta di eliminazione registrata.';
+
+  @override
+  String get customerDeletionCancelled =>
+      'Richiesta di eliminazione annullata.';
+
+  @override
+  String get customerDialogCancel => 'Annulla';
+
+  @override
+  String get customerDialogSave => 'Salva';
+
+  @override
+  String get customerDialogClose => 'Chiudi';
+
+  @override
+  String get customerFieldRequired => 'Campo obbligatorio.';
+
+  @override
+  String get customerFieldInvalid => 'Controlla formato e lunghezza del campo.';
 }

@@ -161,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-019
-- **File task**: docs/TASKS/TASK-019-catalog-performance-extended-dataset.md
+- **Task attivo**: TASK-021
+- **File task**: docs/TASKS/TASK-021-customer-profile-addresses-privacy.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -182,6 +182,7 @@ CI finale `30713857455` 3/3 `PASS`, step applicabili `success`, annotation 0/0/0
 PR #4 è merged normalmente con commit `b2d70b5`; branch remoto eliminato e il closeout
 su `main` è stato verificato dalla CI `30714350425`. Il release train Storefront v1 è
 ora in `EXECUTION` sul worktree dedicato: TASK-005–TASK-010 pertinenti e
-TASK-013–TASK-018 sono `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-019 è l'unico task
-attivo e inizia dal work package `STOREFRONT-V1-UI-HARDENING`. Gli altri task del
-train restano `TODO` fino al rispettivo checkpoint.
+TASK-013–TASK-019 sono `VALIDATED_PENDING_INTEGRATED_REVIEW`; il checkpoint Milestone
+3 è `PASS`. TASK-021 è l'unico task attivo e implementa profilo, indirizzi, privacy e
+cancellazione account con RLS owner-only. Gli altri task del train restano `TODO` fino
+al rispettivo checkpoint.

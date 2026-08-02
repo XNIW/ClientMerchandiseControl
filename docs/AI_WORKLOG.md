@@ -1542,3 +1542,35 @@
 - **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
 - **Transizione**: TASK-019 è l'unico task `ACTIVE / EXECUTION`; il primo work package
   autorizzato è `STOREFRONT-V1-UI-HARDENING`, seguito dai benchmark Milestone 3.
+
+## 2026-08-02 — Checkpoint Milestone 3 e attivazione TASK-021
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-019**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; audit pattern bounded, Material
+  3, Home/Catalog/Card/Detail/Shell responsive, Admin Storefront, browsing guest
+  disaccoppiato da Auth/health, query/cache/pagination e benchmark completati.
+- **Revision set Client runtime**:
+  `8f6c67dd3372ee9a6421f7071e58f4c0808f11b1`, PR #5 draft.
+- **Gate Client**: `scripts/check.sh` exit 0 in 98,32 s; 344 test, coverage
+  4.689/5.667 (82,74%), analyze, security/governance/architecture, Android debug e
+  iOS Simulator debug `PASS`; CI `30759482376` 3/3 `PASS`; live Android 4/4 e
+  XCTest iPad `UIActivityViewController` 3/3 `PASS`.
+- **Profilo Client**: first usable 139 ms; Home 3.257 ms; catalog/search/detail
+  875/1.573/985 ms; frame p50/p95/p99 7.814/44.763/101.114 us, zero frozen/OOM;
+  cold process arm64 p95 4.565 ms e warm p95 519 ms su cinque campioni; PSS 73.661 KB.
+- **Revision set Admin/Supabase**:
+  `1f1ba507bbdde96197276738aacd7e290c20f8fe`, PR #67 draft; migration additiva
+  `20260802043000_storefront_v1_catalog_performance`.
+- **Gate Admin/staging**: Playwright 1/1, CI `30757513891`, Cloudflare build
+  `30757513885` e performance `30757512517` attempt 3 `PASS`; 22.000 prodotti,
+  100 categorie, 69.200 righe equivalenti, immagini/promozioni/mix status e cleanup 0;
+  catalog/search/detail p95 30,114/599,739/4,923 ms su 30 campioni.
+- **Tentativi non candidati**: install profile downgrade, config slug ordinaria,
+  fixture già ripulita, target iPhone non-iPad e APK ABI errata registrati `FAIL`; causa
+  primaria isolata, nessun `PASS` inferito e regressione/target corretti verificati.
+- **Milestone 3**: TASK-013..TASK-019 tutti
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`; checkpoint `PASS`; production invariata e
+  feature flag OFF.
+- **Transizione**: TASK-021 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per `customer_profiles`, `customer_addresses`, consent, export/deletion request,
+  RLS owner-only e UI Client, con writer Admin/Supabase -> Client.

@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-019
-- **File task**: docs/TASKS/TASK-019-catalog-performance-extended-dataset.md
+- **Task attivo**: TASK-021
+- **File task**: docs/TASKS/TASK-021-customer-profile-addresses-privacy.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,9 +14,9 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: eseguire il work package
-  `STOREFRONT-V1-UI-HARDENING` su Client e Admin con writer sequenziali, quindi
-  benchmark TASK-019 su dataset staging esteso, con production invariata
+- **Prossima azione autorizzata**: auditare i pattern Auth/account e migration/RLS,
+  quindi implementare schema, contratti e UI owner-scoped di TASK-021 con writer
+  sequenziali Admin/Supabase -> Client e production invariata
 
 ## Repository coinvolti
 
@@ -70,9 +70,9 @@
 | TASK-016 | Dettaglio prodotto e disponibilità commerciale | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014 | Client, Supabase | Dettaglio pubblico coerente |
 | TASK-017 | Cache catalogo offline, refresh e invalidazione | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014 | Client | Catalogo resiliente offline |
 | TASK-018 | Preferiti, condivisione e deep link prodotto | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-012, TASK-016, TASK-017 | Client | Ritorno e condivisione prodotto |
-| TASK-019 | Catalog performance e acceptance su dataset esteso | ACTIVE | TASK-010, TASK-014, TASK-015, TASK-017, TASK-018 | Client, Admin, Supabase | UI hardening e budget prestazioni misurato |
+| TASK-019 | Catalog performance e acceptance su dataset esteso | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-010, TASK-014, TASK-015, TASK-017, TASK-018 | Client, Admin, Supabase | UI hardening e budget prestazioni misurato |
 | TASK-020 | Supabase Auth, deep link e session lifecycle | DONE | TASK-004, TASK-011, TASK-012 | Client, Supabase | Sessioni cliente sicure |
-| TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
+| TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | ACTIVE | TASK-020 | Client, Supabase, Admin | Profilo privacy-safe |
 | TASK-022 | Registrazione device, consenso notifiche e token lifecycle | TODO | TASK-020, TASK-021 | Client, Supabase | Consenso e token gestiti |
 | TASK-023 | Carrello persistente e price revalidation | TODO | TASK-012, TASK-016, TASK-017 | Client, Supabase | Carrello coerente e rivalidato |
 | TASK-024 | Proiezione disponibilità e stock pubblico | TODO | TASK-005, TASK-006, TASK-010 | Admin, Supabase, POS, Client | Disponibilità pubblica controllata |
@@ -156,8 +156,11 @@ CI e smoke Android/iOS ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-016 ha
 completato dettaglio pubblico, CI e smoke Android/iOS ed è
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-017 ha completato cache Drift, SWR,
 invalidazione, benchmark e smoke offline/reconnect Android/iOS ed è
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-018 è l'unico task `ACTIVE / EXECUTION`;
-i task successivi restano `TODO` fino al relativo handoff. La dipendenza TASK-010 è
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-018 e TASK-019 hanno completato share,
+UI hardening, dataset esteso e budget performance e sono anch'essi
+`VALIDATED_PENDING_INTEGRATED_REVIEW`; Milestone 3 è `PASS`. TASK-021 è l'unico task
+`ACTIVE / EXECUTION`; i task successivi restano `TODO` fino al relativo handoff. La
+dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
 circolari della sua definizione.
@@ -234,3 +237,19 @@ integrata finale.
 Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-019, iniziando dal work package
 `STOREFRONT-V1-UI-HARDENING` autorizzato.
+
+## Ultimo checkpoint interno — TASK-019 / Milestone 3
+
+Il revision set Client `8f6c67dd3372ee9a6421f7071e58f4c0808f11b1` ha superato
+344 test, coverage 82,74%, gate security/governance/architecture, build Android/iOS,
+smoke live e CI `30759482376` 3/3 `PASS`. Il revision set Admin/Supabase
+`1f1ba507bbdde96197276738aacd7e290c20f8fe` ha superato CI `30757513891`, build
+Cloudflare `30757513885`, Playwright e staging performance `30757512517` attempt 3.
+Il dataset sintetico ha 22.000 prodotti, 100 categorie e 69.200 righe equivalenti;
+p95 catalog/search/detail 30,114/599,739/4,923 ms, cleanup 0. First usable Flutter è
+139 ms; i cold process emulator 5x restano una baseline separata p95 4.565 ms per
+TASK-037. Production è invariata. TASK-019 non è `DONE`: attende la review integrata.
+
+Handoff:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-021, con writer Admin/Supabase e poi
+Client.

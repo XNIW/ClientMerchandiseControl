@@ -5,14 +5,14 @@
 - **Task ID**: TASK-019
 - **Titolo**: Catalog performance e acceptance su dataset esteso
 - **File task**: `docs/TASKS/TASK-019-catalog-performance-extended-dataset.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-019/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -157,8 +157,77 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso. Il primo work package è `STOREFRONT-V1-UI-HARDENING`; nessun risultato o
-gate performance è ancora dichiarato.
+### Modifiche completate
+
+- audit competitivo bounded e originale, senza screenshot o asset proprietari;
+- design system Material 3 consolidato e superfici Home, Catalogo, card, Detail,
+  Preferiti, Account e shell rese responsive, accessibili e data-backed;
+- Admin Storefront modernizzato sullo stack esistente con ricerca, filtri persistenti,
+  bulk selection, status chip, editor/preview responsive e navigazione da tastiera;
+- bootstrap guest disaccoppiato da Auth e diagnostica backend, trasporto pubblico
+  allow-listed e Home resa disponibile prima della persistenza cache;
+- reconnect/cache race eliminata e test live resi indipendenti dagli ID effimeri;
+- migration additiva `20260802043000_storefront_v1_catalog_performance.sql` con
+  indici keyset/FTS, hydration bounded e fixture/load test idempotente;
+- dataset staging da 22.000 prodotti, 100 categorie, 22.000 pubblicazioni, 5.000 link
+  promozionali e 69.200 righe equivalenti, con immagini pubbliche e cleanup a zero.
+
+### Gate eseguiti
+
+- Client runtime revision `8f6c67dd3372ee9a6421f7071e58f4c0808f11b1`, PR #5 draft:
+  `scripts/check.sh` exit 0 in 98,32 s, 344 test Flutter, coverage
+  4.689/5.667 (82,74%), analyze/format/security/governance/architecture e build
+  Android debug/iOS Simulator debug `PASS`;
+- CI Client `30759482376`: Quality 4m35s, iOS 3m26s, Android 9m01s, 3/3 `PASS`;
+- smoke live Android sul runtime equivalente `fd5eb94`: Home, Catalogo, Detail e
+  Preferiti 4/4 `PASS` in 2m49s; XCTest esatto `8f6c67d` su iPad (A16) iOS 26.2,
+  vera `UIActivityViewController`, 3/3 `PASS`, exit 0 in 11,835 s;
+- profilo Android staging: first usable 139 ms, Home data 3.257 ms, catalogo 875 ms,
+  search 1.573 ms, detail/deep link 985 ms, favorite 54 ms; 439 frame, p50/p95/p99
+  7.814/44.763/101.114 us, cinque frame >100 ms e zero frame >700 ms;
+- startup processo Android release arm64, cinque campioni: cold p50/p95/p99
+  4.105/4.565/4.565 ms e warm 427/519/519 ms. Il cold process emulator è una
+  metrica distinta e supera 3 s; il criterio first usable misurato dal bootstrap
+  applicativo resta 139 ms e non viene sostituito o nascosto;
+- cache locale 25.000 righe: open 302 ms, write 20k 446 ms, catalog p50/p95/p99
+  636/1.319/8.452 us e search 3.262/4.466/7.653 us;
+- memoria release arm64 dopo Home: PSS 73.661 KB, RSS 189.492 KB, swap 0; budget
+  dichiarato PSS <=200 MB/RSS <=300 MB, zero OOM;
+- Admin revision `1f1ba507bbdde96197276738aacd7e290c20f8fe`, PR #67 draft:
+  lint/typecheck/unit/integration/build/pgTAP e Playwright locale 1/1 `PASS`; CI
+  `30757513891` e Cloudflare build `30757513885` `PASS`;
+- staging run `30757512517`, attempt 3, exact Admin SHA, `PASS` in 18m09s:
+  catalog p50/p95/p99 27,867/30,114/31,228 ms, search
+  594,101/599,739/686,107 ms e detail 1,784/4,923/6,195 ms su 30 campioni;
+  indici FTS/keyset osservati, cleanup fixture 0 e production non toccata.
+
+### Tentativi non candidati e correzioni
+
+- install profile iniziale `FAIL` per downgrade rispetto alla build release generata;
+  package emulator isolato e rimosso senza modifiche al codice;
+- un test profile con slug ordinario `FAIL` per mismatch configurazione; rilanciato
+  esplicitamente sul tenant sintetico `task010-load` senza stampare config sensibile;
+- il campionamento successivo al cleanup remoto `FAIL` con Home `unavailable`, come
+  previsto dal fail-closed della fixture effimera; nessun dato fittizio è stato usato;
+- due target iPhone del test Activity Sheet avevano `FAIL` sul requisito popover iPad;
+  la causa adattiva è stata isolata e il gate obbligatorio è stato eseguito sul target
+  iPad corretto con regressione lifecycle e 3/3 `PASS`.
+
+### Matrici
+
+CA-01..CA-15 e T-01..T-10: `PASS`. Comandi, campioni, percentile, SHA, exit code,
+warning e artifact hash sono in `docs/TASKS/EVIDENCE/TASK-019/README.md`.
+
+### Handoff
+
+`CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`. Nessuna review formale è stata
+eseguita e TASK-019 non è `DONE`.
+
+## Checkpoint release train — `CODEX_EXECUTOR`
+
+TASK-013..TASK-019 sono `VALIDATED_PENDING_INTEGRATED_REVIEW`; il checkpoint
+Milestone 3 è `PASS` sul revision set Client/Admin registrato. Production e relativi
+feature flag restano invariati/OFF. Il task successivo autorizzato è TASK-021.
 
 ## Review / Fix
 

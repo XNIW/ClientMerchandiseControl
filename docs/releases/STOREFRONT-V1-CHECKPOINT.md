@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 3 / TASK-019 UI hardening/performance
-- **Task corrente**: TASK-019
-- **Repository writer corrente**: ClientMerchandiseControl
+- **Fase corrente**: EXECUTION / Milestone 4 / TASK-021 profilo/indirizzi/privacy
+- **Task corrente**: TASK-021
+- **Repository writer corrente**: merchandise-control-admin-web / Supabase
 - **Branch**: `integration/storefront-v1`
-- **SHA Client TASK-018 implementation**: `a0e139a6365dc4639ba66c110c91dcc2720feee5`
-- **SHA Admin corrente**: `a9036f0bda741d686afbdac13d3d08ef897f059b`
+- **SHA Client runtime Milestone 3**: `8f6c67dd3372ee9a6421f7071e58f4c0808f11b1`
+- **SHA Admin/Supabase Milestone 3**: `1f1ba507bbdde96197276738aacd7e290c20f8fe`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -63,18 +63,25 @@
   favorite e deep link Android/iOS, chooser Android reale e XCTest
   `UIActivityViewController` 3/3 su iPad Simulator 26.5: `PASS`; zero match token nei
   log live; manual Activity Sheet `NOT_RUN` per decisione USER_APPROVER D-08
-- **Gate ancora necessari**: TASK-019 UI hardening Client/Admin, visual QA, verifica
-  dataset esteso, benchmark p50/p95/p99, gate/CI e checkpoint Milestone 3
-- **Comando successivo esatto**: leggere la skill Product Design audit, quindi creare
-  l'inventario read-only bounded per `docs/PRODUCT/STOREFRONT-UI-PATTERN-AUDIT.md`
-- **Blocker**: nessuno per TASK-019
+- **Gate TASK-019/Milestone 3**: Client `8f6c67d`, 344 test, coverage 82,74%, gate
+  completo 98,32 s e CI `30759482376` 3/3 `PASS`; XCTest iPad 3/3 `PASS`; smoke live
+  Android 4/4 `PASS`; first usable 139 ms, cache warm e warm process <1 s, zero
+  frozen frame/OOM. Admin `1f1ba507`, CI `30757513891`, Cloudflare build
+  `30757513885`, Playwright 1/1 e staging performance `30757512517` attempt 3 tutti
+  `PASS`. Dataset 22.000 prodotti/100 categorie/69.200 righe equivalenti; p95
+  catalog/search/detail 30,114/599,739/4,923 ms; migration `20260802043000`, cleanup 0
+- **Gate ancora necessari**: TASK-021 schema/RLS/RPC owner-only, Client profile/address,
+  smoke staging autenticato, gate/CI e checkpoint
+- **Comando successivo esatto**: confrontare le migration/RLS customer già esistenti
+  con il boundary Auth/Account e definire il delta additivo di TASK-021
+- **Blocker**: nessuno per TASK-021
 - **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`, sessione controllata;
   deve essere terminato al closeout del release train
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
   `PASS`; Milestone 2 Admin publish/promozioni/immagini/rollback/cleanup `PASS`;
   fixture pubblica, Home, Catalog, Discovery, Detail, cache offline/reconnect,
-  favorite/share/deep link guest Android/iOS e XCTest share iOS `PASS`; TASK-019
-  appena attivato; production invariata
+  favorite/share/deep link guest Android/iOS, XCTest share iOS, UI hardening e
+  performance extended dataset `PASS`; TASK-021 attivato; production invariata
 
 ## Vincoli di ripresa
 

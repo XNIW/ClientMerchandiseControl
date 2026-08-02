@@ -23,6 +23,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-017" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-018" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-019" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-021" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -104,6 +105,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-019/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-019/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-021-customer-profile-addresses-privacy.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-021/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-021/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -135,21 +142,21 @@ cmc_expect_pass valid "${cmc_case}"
 
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \
-  's/| TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | TODO |/| TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | ACTIVE |/' \
+  's/| TASK-022 | Registrazione device, consenso notifiche e token lifecycle | TODO |/| TASK-022 | Registrazione device, consenso notifiche e token lifecycle | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-019/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-021/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-019 | Catalog performance e acceptance su dataset esteso | ACTIVE |/| TASK-019 | Catalog performance e acceptance su dataset esteso | DONE |/' \
+  's/| TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | ACTIVE |/| TASK-021 | Profilo cliente, indirizzi, privacy e cancellazione account | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"

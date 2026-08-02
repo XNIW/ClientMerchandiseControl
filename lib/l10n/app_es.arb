@@ -136,6 +136,8 @@
   "@catalogSearchHint": {
     "description": "Texto orientativo del control de búsqueda del catálogo."
   },
+  "catalogSearchMinimum": "Escribe al menos 2 caracteres para buscar.",
+  "catalogClearSearch": "Borrar búsqueda",
   "catalogFilterLabel": "Filtrar",
   "@catalogFilterLabel": {
     "description": "Etiqueta del futuro control de filtros."
@@ -148,6 +150,22 @@
   "@catalogControlsUnavailable": {
     "description": "Explica por qué los controles futuros aún no están habilitados."
   },
+  "catalogFiltersLabel": "Filtros del catálogo",
+  "catalogFiltersUnavailableDuringSearch": "Durante la búsqueda puedes filtrar por categoría. Borra la búsqueda para usar disponibilidad, descuentos u orden.",
+  "catalogAvailabilityLabel": "Disponibilidad",
+  "catalogAvailabilityAll": "Toda",
+  "catalogAvailabilityAvailable": "Disponible",
+  "catalogAvailabilityLowStock": "Pocas unidades",
+  "catalogAvailabilityUnavailable": "No disponible",
+  "catalogAvailabilityReservationOnly": "Solo reserva",
+  "catalogAvailabilityPickupOnly": "Solo retiro",
+  "catalogAvailabilityDeliveryOnly": "Solo entrega",
+  "catalogDiscountedOnly": "Solo con descuento",
+  "catalogSortCatalog": "Orden del catálogo",
+  "catalogSortName": "Nombre",
+  "catalogSortPriceAscending": "Precio: menor a mayor",
+  "catalogSortPriceDescending": "Precio: mayor a menor",
+  "catalogResetFilters": "Restablecer filtros",
   "catalogCategoriesLabel": "Categorías",
   "@catalogCategoriesLabel": {
     "description": "Título accesible del selector de categorías públicas."

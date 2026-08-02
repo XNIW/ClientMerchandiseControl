@@ -65,16 +65,12 @@ class SupabaseStorefrontRepository implements StorefrontRepository {
     required int limit,
     required String? categorySlug,
     required StorefrontCatalogSort sort,
+    StorefrontAvailability? availability,
+    bool? discounted,
     required StorefrontRequestCancellation cancellation,
   }) {
     _validateLimit(limit);
-    if (categorySlug != null &&
-        !RegExp(r'^[a-z0-9][a-z0-9-]{1,62}$').hasMatch(categorySlug)) {
-      throw const StorefrontFailure(
-        StorefrontFailureKind.invalidConfiguration,
-        code: 'invalid_category_slug',
-      );
-    }
+    _validateCategorySlug(categorySlug);
     return _invokeDecoded(
       function: 'storefront_catalog_v1',
       parameters: {
@@ -82,13 +78,53 @@ class SupabaseStorefrontRepository implements StorefrontRepository {
         'p_cursor': cursor,
         'p_limit': limit,
         'p_category_slug': categorySlug,
-        'p_availability': null,
-        'p_discounted': null,
+        'p_availability': availability == null
+            ? null
+            : _availabilityValue(availability),
+        'p_discounted': discounted,
         'p_featured': null,
         'p_sort': _sortValue(sort),
       },
       cancellation: cancellation,
       decode: StorefrontCatalogDto.decodeCatalog,
+    );
+  }
+
+  @override
+  Future<StorefrontSearchPage> fetchSearch({
+    required String shopSlug,
+    required String query,
+    required String? cursor,
+    required int limit,
+    required String? categorySlug,
+    required StorefrontRequestCancellation cancellation,
+  }) {
+    _validateLimit(limit);
+    if (RegExp(r'[\x00-\x1f\x7f]').hasMatch(query)) {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.invalidConfiguration,
+        code: 'invalid_search_query',
+      );
+    }
+    final normalizedQuery = query.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (normalizedQuery.length < 2 || normalizedQuery.length > 120) {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.invalidConfiguration,
+        code: 'invalid_search_query',
+      );
+    }
+    _validateCategorySlug(categorySlug);
+    return _invokeDecoded(
+      function: 'storefront_search_v1',
+      parameters: {
+        'p_shop_slug': shopSlug,
+        'p_query': normalizedQuery,
+        'p_cursor': cursor,
+        'p_limit': limit,
+        'p_category_slug': categorySlug,
+      },
+      cancellation: cancellation,
+      decode: StorefrontCatalogDto.decodeSearch,
     );
   }
 
@@ -150,10 +186,30 @@ class SupabaseStorefrontRepository implements StorefrontRepository {
     }
   }
 
+  void _validateCategorySlug(String? categorySlug) {
+    if (categorySlug != null &&
+        !RegExp(r'^[a-z0-9][a-z0-9-]{1,62}$').hasMatch(categorySlug)) {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.invalidConfiguration,
+        code: 'invalid_category_slug',
+      );
+    }
+  }
+
   String _sortValue(StorefrontCatalogSort sort) => switch (sort) {
     StorefrontCatalogSort.catalog => 'catalog',
     StorefrontCatalogSort.name => 'name',
     StorefrontCatalogSort.priceAscending => 'price_asc',
     StorefrontCatalogSort.priceDescending => 'price_desc',
   };
+
+  String _availabilityValue(StorefrontAvailability availability) =>
+      switch (availability) {
+        StorefrontAvailability.available => 'available',
+        StorefrontAvailability.lowStock => 'low_stock',
+        StorefrontAvailability.unavailable => 'unavailable',
+        StorefrontAvailability.reservationOnly => 'reservation_only',
+        StorefrontAvailability.pickupOnly => 'pickup_only',
+        StorefrontAvailability.deliveryOnly => 'delivery_only',
+      };
 }

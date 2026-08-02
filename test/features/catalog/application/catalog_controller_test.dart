@@ -183,6 +183,193 @@ void main() {
       expect(repository.catalogCalls.map((call) => call.cursor), [null, null]);
     },
   );
+
+  test(
+    'ricerca applica debounce, normalizza e pagina sul cursor search',
+    () async {
+      final repository = _CatalogRepository(
+        categoryResponses: [() async => _categoriesPage()],
+        catalogResponses: [
+          () async => _catalogPage([_product('1', 'Prima')]),
+        ],
+        searchResponses: [
+          () async => _searchPage(
+            [_product('2', 'Café')],
+            query: 'cafe',
+            nextCursor: 'search-cursor',
+          ),
+          () async =>
+              _searchPage([_product('3', 'Café molido')], query: 'cafe'),
+        ],
+      );
+      final container = _container(repository);
+      addTearDown(container.dispose);
+      container.read(catalogControllerProvider);
+      await _flush();
+
+      container
+          .read(catalogControllerProvider.notifier)
+          .updateSearchQuery('  cafe  ');
+      await Future<void>.delayed(const Duration(milliseconds: 299));
+      expect(repository.searchCalls, isEmpty);
+      await Future<void>.delayed(const Duration(milliseconds: 2));
+      await _flush();
+
+      var state = container.read(catalogControllerProvider);
+      expect(state.searchQuery, 'cafe');
+      expect(state.items.single.name, 'Café');
+      expect(repository.searchCalls.single.query, 'cafe');
+
+      await container.read(catalogControllerProvider.notifier).loadMore();
+      state = container.read(catalogControllerProvider);
+      expect(state.items.map((item) => item.name), ['Café', 'Café molido']);
+      expect(repository.searchCalls.last.cursor, 'search-cursor');
+    },
+  );
+
+  test('filtri e sort sono server-side e reset atomico', () async {
+    final repository = _CatalogRepository(
+      categoryResponses: [() async => _categoriesPage()],
+      catalogResponses: [
+        () async => _catalogPage([_product('1', 'Prima')]),
+        () async => _catalogPage([_product('2', 'Disponibile')]),
+        () async => _catalogPage([_product('3', 'Scontato')]),
+        () async => _catalogPage([
+          _product('4', 'Prezzo'),
+        ], sort: StorefrontCatalogSort.priceAscending),
+        () async => _catalogPage([_product('5', 'Reset')]),
+      ],
+    );
+    final container = _container(repository);
+    addTearDown(container.dispose);
+    container.read(catalogControllerProvider);
+    await _flush();
+
+    final controller = container.read(catalogControllerProvider.notifier);
+    await controller.selectAvailability(StorefrontAvailability.available);
+    await controller.setDiscountedOnly(true);
+    await controller.selectSort(StorefrontCatalogSort.priceAscending);
+
+    var state = container.read(catalogControllerProvider);
+    expect(state.availabilityFilter, StorefrontAvailability.available);
+    expect(state.discountedOnly, isTrue);
+    expect(state.sort, StorefrontCatalogSort.priceAscending);
+    expect(repository.catalogCalls.last, (
+      cursor: null,
+      categorySlug: null,
+      availability: StorefrontAvailability.available,
+      discounted: true,
+      sort: StorefrontCatalogSort.priceAscending,
+    ));
+
+    await controller.resetFilters();
+    state = container.read(catalogControllerProvider);
+    expect(state.hasCatalogFilters, isFalse);
+    expect(state.items.single.name, 'Reset');
+    expect(repository.catalogCalls, hasLength(5));
+  });
+
+  test('ricerca compone categoria e blocca filtri catalog-only', () async {
+    final repository = _CatalogRepository(
+      categoryResponses: [() async => _categoriesPage()],
+      catalogResponses: [
+        () async => _catalogPage([_product('1', 'Prima')]),
+      ],
+      searchResponses: [
+        () async => _searchPage([_product('2', 'Té')], query: 'te'),
+        () async => _searchPage([_product('3', 'Té categoria')], query: 'te'),
+      ],
+    );
+    final container = _container(repository);
+    addTearDown(container.dispose);
+    container.read(catalogControllerProvider);
+    await _flush();
+
+    final controller = container.read(catalogControllerProvider.notifier);
+    await controller.submitSearch('te');
+    await controller.selectAvailability(StorefrontAvailability.available);
+    await controller.setDiscountedOnly(true);
+    await controller.selectSort(StorefrontCatalogSort.name);
+    await controller.selectCategory('te');
+
+    final state = container.read(catalogControllerProvider);
+    expect(state.isSearchActive, isTrue);
+    expect(state.selectedCategorySlug, 'te');
+    expect(state.hasCatalogFilters, isFalse);
+    expect(repository.catalogCalls, hasLength(1));
+    expect(repository.searchCalls, hasLength(2));
+    expect(repository.searchCalls.last.categorySlug, 'te');
+  });
+
+  test('nuova query cancella e scarta una risposta search stale', () async {
+    final stale = Completer<StorefrontSearchPage>();
+    final repository = _CatalogRepository(
+      categoryResponses: [() async => _categoriesPage()],
+      catalogResponses: [
+        () async => _catalogPage([_product('1', 'Prima')]),
+      ],
+      searchResponses: [
+        () => stale.future,
+        () async => _searchPage([_product('3', 'Té')], query: 'te'),
+      ],
+    );
+    final container = _container(repository);
+    addTearDown(container.dispose);
+    container.read(catalogControllerProvider);
+    await _flush();
+
+    final controller = container.read(catalogControllerProvider.notifier);
+    final first = controller.submitSearch('cafe');
+    await Future<void>.delayed(Duration.zero);
+    await controller.submitSearch('te');
+    stale.complete(_searchPage([_product('2', 'Stale')], query: 'cafe'));
+    await first;
+
+    final state = container.read(catalogControllerProvider);
+    expect(state.searchQuery, 'te');
+    expect(state.items.single.name, 'Té');
+    expect(repository.searchCancellations.first.isCancelled, isTrue);
+  });
+
+  test('search empty e timeout usano stati coerenti con retry', () async {
+    final repository = _CatalogRepository(
+      categoryResponses: [() async => _categoriesPage()],
+      catalogResponses: [
+        () async => _catalogPage([_product('1', 'Prima')]),
+      ],
+      searchResponses: [
+        () async => _searchPage([], query: 'zz'),
+        () => Future.error(
+          const StorefrontFailure(
+            StorefrontFailureKind.timeout,
+            code: 'request_timeout',
+          ),
+        ),
+        () async => _searchPage([_product('2', 'Café')], query: 'cafe'),
+      ],
+    );
+    final container = _container(repository);
+    addTearDown(container.dispose);
+    container.read(catalogControllerProvider);
+    await _flush();
+
+    final controller = container.read(catalogControllerProvider.notifier);
+    await controller.submitSearch('zz');
+    expect(
+      container.read(catalogControllerProvider).status,
+      CatalogLoadStatus.empty,
+    );
+
+    await controller.submitSearch('cafe');
+    expect(
+      container.read(catalogControllerProvider).status,
+      CatalogLoadStatus.offline,
+    );
+    await controller.retry();
+    final state = container.read(catalogControllerProvider);
+    expect(state.status, CatalogLoadStatus.data);
+    expect(state.items.single.name, 'Café');
+  });
 }
 
 ProviderContainer _container(StorefrontRepository repository) =>
@@ -235,11 +422,24 @@ StorefrontCatalogPage _catalogPage(
   List<StorefrontProductSummary> items, {
   String? nextCursor,
   int catalogVersion = 7,
+  StorefrontCatalogSort sort = StorefrontCatalogSort.catalog,
 }) => StorefrontCatalogPage(
   catalogVersion: catalogVersion,
   items: items,
   nextCursor: nextCursor,
-  sort: StorefrontCatalogSort.catalog,
+  sort: sort,
+);
+
+StorefrontSearchPage _searchPage(
+  List<StorefrontProductSummary> items, {
+  required String query,
+  String? nextCursor,
+  int catalogVersion = 7,
+}) => StorefrontSearchPage(
+  catalogVersion: catalogVersion,
+  query: query,
+  items: items,
+  nextCursor: nextCursor,
 );
 
 StorefrontProductSummary _product(String suffix, String name) {
@@ -270,24 +470,32 @@ StorefrontProductSummary _product(String suffix, String name) {
 
 typedef _CatalogResponse = Future<StorefrontCatalogPage> Function();
 typedef _CategoryResponse = Future<StorefrontCategoriesPage> Function();
+typedef _SearchResponse = Future<StorefrontSearchPage> Function();
 
-class _CatalogCall {
-  const _CatalogCall({required this.cursor, required this.categorySlug});
+typedef _CatalogCall = ({
+  String? cursor,
+  String? categorySlug,
+  StorefrontAvailability? availability,
+  bool? discounted,
+  StorefrontCatalogSort sort,
+});
 
-  final String? cursor;
-  final String? categorySlug;
-}
+typedef _SearchCall = ({String query, String? cursor, String? categorySlug});
 
 final class _CatalogRepository implements StorefrontRepository {
   _CatalogRepository({
     required this.categoryResponses,
     required this.catalogResponses,
+    this.searchResponses = const [],
   });
 
   final List<_CategoryResponse> categoryResponses;
   final List<_CatalogResponse> catalogResponses;
+  final List<_SearchResponse> searchResponses;
   final List<_CatalogCall> catalogCalls = [];
+  final List<_SearchCall> searchCalls = [];
   final List<StorefrontRequestCancellation> cancellations = [];
+  final List<StorefrontRequestCancellation> searchCancellations = [];
   var categoryCalls = 0;
 
   @override
@@ -308,10 +516,18 @@ final class _CatalogRepository implements StorefrontRepository {
     required int limit,
     required String? categorySlug,
     required StorefrontCatalogSort sort,
+    StorefrontAvailability? availability,
+    bool? discounted,
     required StorefrontRequestCancellation cancellation,
   }) {
     cancellations.add(cancellation);
-    catalogCalls.add(_CatalogCall(cursor: cursor, categorySlug: categorySlug));
+    catalogCalls.add((
+      cursor: cursor,
+      categorySlug: categorySlug,
+      availability: availability,
+      discounted: discounted,
+      sort: sort,
+    ));
     return catalogResponses[catalogCalls.length - 1]();
   }
 
@@ -320,6 +536,21 @@ final class _CatalogRepository implements StorefrontRepository {
     required String shopSlug,
     required StorefrontRequestCancellation cancellation,
   }) => throw UnsupportedError('fetchHome is outside this test');
+
+  @override
+  Future<StorefrontSearchPage> fetchSearch({
+    required String shopSlug,
+    required String query,
+    required String? cursor,
+    required int limit,
+    required String? categorySlug,
+    required StorefrontRequestCancellation cancellation,
+  }) {
+    cancellations.add(cancellation);
+    searchCancellations.add(cancellation);
+    searchCalls.add((query: query, cursor: cursor, categorySlug: categorySlug));
+    return searchResponses[searchCalls.length - 1]();
+  }
 }
 
 final class _ReadyRepository implements BackendReadinessRepository {

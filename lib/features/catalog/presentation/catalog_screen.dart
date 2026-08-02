@@ -23,12 +23,14 @@ class CatalogScreen extends ConsumerStatefulWidget {
 
 class _CatalogScreenState extends ConsumerState<CatalogScreen> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   final Map<String?, double> _categoryOffsets = {};
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_requestNextPageNearEnd);
+    _searchController.addListener(_handleSearchTextChanged);
   }
 
   @override
@@ -36,7 +38,14 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
     _scrollController
       ..removeListener(_requestNextPageNearEnd)
       ..dispose();
+    _searchController
+      ..removeListener(_handleSearchTextChanged)
+      ..dispose();
     super.dispose();
+  }
+
+  void _handleSearchTextChanged() {
+    if (mounted) setState(() {});
   }
 
   void _requestNextPageNearEnd() {
@@ -64,6 +73,11 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
       );
       _scrollController.jumpTo(target);
     });
+  }
+
+  Future<void> _clearSearch() async {
+    _searchController.clear();
+    await ref.read(catalogControllerProvider.notifier).clearSearch();
   }
 
   @override
@@ -112,7 +126,42 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                   horizontalPadding,
                   AppSpacing.md,
                 ),
-                sliver: SliverToBoxAdapter(child: _CatalogControls(l10n: l10n)),
+                sliver: SliverToBoxAdapter(
+                  child: _CatalogControls(
+                    l10n: l10n,
+                    state: state,
+                    searchController: _searchController,
+                    onSearchChanged: ref
+                        .read(catalogControllerProvider.notifier)
+                        .updateSearchQuery,
+                    onSearchSubmitted: (query) => unawaited(
+                      ref
+                          .read(catalogControllerProvider.notifier)
+                          .submitSearch(query),
+                    ),
+                    onClearSearch: () => unawaited(_clearSearch()),
+                    onAvailabilitySelected: (availability) => unawaited(
+                      ref
+                          .read(catalogControllerProvider.notifier)
+                          .selectAvailability(availability),
+                    ),
+                    onDiscountedChanged: (enabled) => unawaited(
+                      ref
+                          .read(catalogControllerProvider.notifier)
+                          .setDiscountedOnly(enabled),
+                    ),
+                    onSortSelected: (sort) => unawaited(
+                      ref
+                          .read(catalogControllerProvider.notifier)
+                          .selectSort(sort),
+                    ),
+                    onResetFilters: () => unawaited(
+                      ref
+                          .read(catalogControllerProvider.notifier)
+                          .resetFilters(),
+                    ),
+                  ),
+                ),
               ),
               if (state.categories.isNotEmpty)
                 SliverPadding(
@@ -262,9 +311,29 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
 }
 
 class _CatalogControls extends StatelessWidget {
-  const _CatalogControls({required this.l10n});
+  const _CatalogControls({
+    required this.l10n,
+    required this.state,
+    required this.searchController,
+    required this.onSearchChanged,
+    required this.onSearchSubmitted,
+    required this.onClearSearch,
+    required this.onAvailabilitySelected,
+    required this.onDiscountedChanged,
+    required this.onSortSelected,
+    required this.onResetFilters,
+  });
 
   final AppLocalizations l10n;
+  final CatalogState state;
+  final TextEditingController searchController;
+  final ValueChanged<String> onSearchChanged;
+  final ValueChanged<String> onSearchSubmitted;
+  final VoidCallback onClearSearch;
+  final ValueChanged<StorefrontAvailability?> onAvailabilitySelected;
+  final ValueChanged<bool> onDiscountedChanged;
+  final ValueChanged<StorefrontCatalogSort> onSortSelected;
+  final VoidCallback onResetFilters;
 
   @override
   Widget build(BuildContext context) {
@@ -274,36 +343,153 @@ class _CatalogControls extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Semantics(
-              textField: true,
-              enabled: false,
-              label: l10n.catalogSearchLabel,
-              hint: l10n.catalogSearchHint,
-              child: ExcludeSemantics(
-                child: SearchBar(
-                  key: const ValueKey('catalog-search'),
-                  enabled: false,
-                  leading: const Icon(Icons.search),
-                  hintText: l10n.catalogSearchHint,
-                  constraints: const BoxConstraints(
-                    minHeight: AppSizes.minimumTouchTarget,
-                  ),
-                ),
+            SearchBar(
+              key: const ValueKey('catalog-search'),
+              controller: searchController,
+              leading: const Icon(Icons.search),
+              hintText: l10n.catalogSearchHint,
+              keyboardType: TextInputType.text,
+              textInputAction: TextInputAction.search,
+              onChanged: onSearchChanged,
+              onSubmitted: onSearchSubmitted,
+              trailing: searchController.text.isNotEmpty
+                  ? [
+                      IconButton(
+                        key: const ValueKey('catalog-search-clear'),
+                        tooltip: l10n.catalogClearSearch,
+                        onPressed: onClearSearch,
+                        icon: const Icon(Icons.clear),
+                      ),
+                    ]
+                  : null,
+              constraints: const BoxConstraints(
+                minHeight: AppSizes.minimumTouchTarget,
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              l10n.catalogControlsUnavailable,
+              searchController.text.isNotEmpty && !state.isSearchActive
+                  ? l10n.catalogSearchMinimum
+                  : state.isSearchActive
+                  ? l10n.catalogFiltersUnavailableDuringSearch
+                  : l10n.catalogFiltersLabel,
               key: const ValueKey('catalog-controls-explanation'),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              l10n.catalogAvailabilityLabel,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  ChoiceChip(
+                    key: const ValueKey('catalog-availability-all'),
+                    label: Text(l10n.catalogAvailabilityAll),
+                    selected: state.availabilityFilter == null,
+                    onSelected: state.isSearchActive
+                        ? null
+                        : (_) => onAvailabilitySelected(null),
+                  ),
+                  for (final availability in StorefrontAvailability.values) ...[
+                    const SizedBox(width: AppSpacing.sm),
+                    ChoiceChip(
+                      key: ValueKey(
+                        'catalog-availability-${availability.name}',
+                      ),
+                      label: Text(_availabilityLabel(l10n, availability)),
+                      selected: state.availabilityFilter == availability,
+                      onSelected: state.isSearchActive
+                          ? null
+                          : (_) => onAvailabilitySelected(availability),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            KeyedSubtree(
+              key: ValueKey('catalog-sort-value-${state.sort.name}'),
+              child: DropdownButtonFormField<StorefrontCatalogSort>(
+                key: const ValueKey('catalog-sort'),
+                initialValue: state.sort,
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: l10n.catalogSortLabel,
+                  border: const OutlineInputBorder(),
+                ),
+                items: StorefrontCatalogSort.values
+                    .map(
+                      (sort) => DropdownMenuItem(
+                        value: sort,
+                        child: Text(_sortLabel(l10n, sort)),
+                      ),
+                    )
+                    .toList(growable: false),
+                onChanged: state.isSearchActive
+                    ? null
+                    : (sort) {
+                        if (sort != null) onSortSelected(sort);
+                      },
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.md,
+              runSpacing: AppSpacing.sm,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                FilterChip(
+                  key: const ValueKey('catalog-discounted-only'),
+                  label: Text(l10n.catalogDiscountedOnly),
+                  selected: state.discountedOnly,
+                  onSelected: state.isSearchActive ? null : onDiscountedChanged,
+                ),
+                TextButton.icon(
+                  key: const ValueKey('catalog-reset-filters'),
+                  onPressed: state.isSearchActive || !state.hasCatalogFilters
+                      ? null
+                      : onResetFilters,
+                  icon: const Icon(Icons.restart_alt),
+                  label: Text(l10n.catalogResetFilters),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
+
+  String _availabilityLabel(
+    AppLocalizations strings,
+    StorefrontAvailability availability,
+  ) => switch (availability) {
+    StorefrontAvailability.available => strings.catalogAvailabilityAvailable,
+    StorefrontAvailability.lowStock => strings.catalogAvailabilityLowStock,
+    StorefrontAvailability.unavailable =>
+      strings.catalogAvailabilityUnavailable,
+    StorefrontAvailability.reservationOnly =>
+      strings.catalogAvailabilityReservationOnly,
+    StorefrontAvailability.pickupOnly => strings.catalogAvailabilityPickupOnly,
+    StorefrontAvailability.deliveryOnly =>
+      strings.catalogAvailabilityDeliveryOnly,
+  };
+
+  String _sortLabel(
+    AppLocalizations strings,
+    StorefrontCatalogSort sort,
+  ) => switch (sort) {
+    StorefrontCatalogSort.catalog => strings.catalogSortCatalog,
+    StorefrontCatalogSort.name => strings.catalogSortName,
+    StorefrontCatalogSort.priceAscending => strings.catalogSortPriceAscending,
+    StorefrontCatalogSort.priceDescending => strings.catalogSortPriceDescending,
+  };
 }
 
 class _CategorySelector extends StatelessWidget {

@@ -248,6 +248,21 @@ I test mirati principali sono:
   `integration_test/storefront_catalog_live_smoke_test.dart`, build, secret scan e CI
   eseguiti sullo stesso SHA candidato.
 
+## Gate specifici TASK-015
+
+- l'unico adapter Supabase allowlista anche `storefront_search_v1`; nessun altro file
+  può invocare RPC, tabelle/view o Storage;
+- Search DTO strict su status/API/catalog version/query/relevance/cursor/item e verifica
+  che la query restituita coincida con quella richiesta;
+- query normalizzata `2..120`, debounce 300 ms, cancellation/generation guard, clear e
+  keyset Search senza mescolare pagine o criteri;
+- categoria componibile con Search; availability/discounted/sort solo Catalog e
+  disabilitati esplicitamente durante Search;
+- availability typed, discounted e quattro sort inoltrati server-side con reset prima
+  pagina atomico;
+- widget su tastiera/search action, clear, filtri, locale, dark mode, text scale 200% e
+  compact/landscape; smoke reale Android/iOS sul contratto staging.
+
 ## Gate security
 
 Nessun secret, configurazione locale, dato cliente, provisioning profile, certificato,

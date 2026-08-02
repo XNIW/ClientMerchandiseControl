@@ -173,3 +173,17 @@ class StorefrontCatalogPage {
   final String? nextCursor;
   final StorefrontCatalogSort sort;
 }
+
+class StorefrontSearchPage {
+  StorefrontSearchPage({
+    required this.catalogVersion,
+    required this.query,
+    required List<StorefrontProductSummary> items,
+    required this.nextCursor,
+  }) : items = List.unmodifiable(items);
+
+  final int catalogVersion;
+  final String query;
+  final List<StorefrontProductSummary> items;
+  final String? nextCursor;
+}

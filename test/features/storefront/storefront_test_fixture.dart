@@ -190,6 +190,27 @@ Map<String, Object?> validStorefrontCatalogPayload({
   };
 }
 
+Map<String, Object?> validStorefrontSearchPayload({
+  String query = 'cafe',
+  String? nextCursor = validStorefrontCursor,
+}) {
+  final catalog = validStorefrontCatalogPayload(nextCursor: null);
+  final items = (catalog['items'] as List)
+      .map(
+        (item) =>
+            Map<String, Object?>.from(item as Map)..['relevanceScore'] = 1000,
+      )
+      .toList(growable: false);
+  return {
+    'status': 'ok',
+    'apiVersion': 'storefront.v1',
+    'catalogVersion': 7,
+    'query': query,
+    'items': items,
+    'nextCursor': nextCursor,
+  };
+}
+
 abstract class HomeOnlyStorefrontRepository implements StorefrontRepository {
   const HomeOnlyStorefrontRepository();
 
@@ -208,6 +229,18 @@ abstract class HomeOnlyStorefrontRepository implements StorefrontRepository {
     required int limit,
     required String? categorySlug,
     required StorefrontCatalogSort sort,
+    StorefrontAvailability? availability,
+    bool? discounted,
     required StorefrontRequestCancellation cancellation,
   }) => throw UnsupportedError('fetchCatalog is outside this test');
+
+  @override
+  Future<StorefrontSearchPage> fetchSearch({
+    required String shopSlug,
+    required String query,
+    required String? cursor,
+    required int limit,
+    required String? categorySlug,
+    required StorefrontRequestCancellation cancellation,
+  }) => throw UnsupportedError('fetchSearch is outside this test');
 }

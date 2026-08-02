@@ -506,6 +506,11 @@ cmc_arch_require_count \
   1 \
   "un solo RPC Catalog v1 allowlisted nel repository"
 cmc_arch_require_count \
+  "${cmc_arch_storefront_repository}" \
+  "function: 'storefront_search_v1'" \
+  1 \
+  "un solo RPC Search v1 allowlisted nel repository"
+cmc_arch_require_count \
   "${cmc_arch_storefront_provider}" \
   ".rpc(function, params: parameters)" \
   1 \
@@ -646,4 +651,4 @@ if [[ "${cmc_arch_violation_count}" -ne 0 ]]; then
   exit 1
 fi
 
-printf 'Boundary architetturali coerenti: ownership, TASK-012, Auth, DAG e RPC Storefront Home/Categories/Catalog verificati.\n'
+printf 'Boundary architetturali coerenti: ownership, TASK-012, Auth, DAG e RPC Storefront Home/Categories/Catalog/Search verificati.\n'

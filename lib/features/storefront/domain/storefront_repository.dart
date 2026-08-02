@@ -37,6 +37,17 @@ abstract interface class StorefrontRepository {
     required int limit,
     required String? categorySlug,
     required StorefrontCatalogSort sort,
+    StorefrontAvailability? availability,
+    bool? discounted,
+    required StorefrontRequestCancellation cancellation,
+  });
+
+  Future<StorefrontSearchPage> fetchSearch({
+    required String shopSlug,
+    required String query,
+    required String? cursor,
+    required int limit,
+    required String? categorySlug,
     required StorefrontRequestCancellation cancellation,
   });
 }

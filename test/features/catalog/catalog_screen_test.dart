@@ -18,7 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('mostra categorie, griglia reale, prezzi CLP e search onesta', (
+  testWidgets('mostra categorie, griglia reale, prezzi CLP e search attiva', (
     tester,
   ) async {
     final storefront = _CatalogRepository();
@@ -30,8 +30,8 @@ void main() {
       find.byKey(const ValueKey('catalog-search')),
     );
 
-    expect(search.enabled, isFalse);
-    expect(find.text(strings.catalogControlsUnavailable), findsOneWidget);
+    expect(search.enabled, isTrue);
+    expect(find.text(strings.catalogFiltersLabel), findsOneWidget);
     expect(find.byKey(const ValueKey('catalog-grid')), findsOneWidget);
     expect(find.byKey(const ValueKey('catalog-category-all')), findsOneWidget);
     expect(
@@ -52,6 +52,115 @@ void main() {
     expect(find.textContaining('50000000-'), findsNothing);
     expect(storefront.catalogCalls.single.limit, 24);
     expect(storefront.categoryCalls.single.limit, 100);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'ricerca usa debounce, risultati reali e clear ripristina catalogo',
+    (tester) async {
+      final storefront = _CatalogRepository();
+      await tester.pumpWidget(_catalogApp(storefront: storefront));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('catalog-search')),
+        'ca',
+      );
+      await tester.pump(const Duration(milliseconds: 299));
+      expect(storefront.searchCalls, isEmpty);
+      await tester.pump(const Duration(milliseconds: 2));
+      await tester.pumpAndSettle();
+
+      expect(storefront.searchCalls.single.query, 'ca');
+      expect(find.text('Café encontrado'), findsOneWidget);
+      expect(find.text('Producto 1'), findsNothing);
+      expect(
+        find.byKey(const ValueKey('catalog-search-clear')),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const ValueKey('catalog-search-clear')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Producto 1'), findsOneWidget);
+      expect(storefront.catalogCalls, hasLength(2));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('filtri e ordinamento sono inoltrati al contratto catalogo', (
+    tester,
+  ) async {
+    final storefront = _CatalogRepository();
+    await tester.pumpWidget(_catalogApp(storefront: storefront));
+    await tester.pumpAndSettle();
+
+    final available = find.byKey(
+      const ValueKey('catalog-availability-available'),
+    );
+    await Scrollable.ensureVisible(
+      tester.element(available),
+      alignment: 0.5,
+      duration: const Duration(milliseconds: 1),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(available);
+    await tester.pumpAndSettle();
+
+    final discounted = find.byKey(const ValueKey('catalog-discounted-only'));
+    await tester.ensureVisible(discounted);
+    await tester.tap(discounted);
+    await tester.pumpAndSettle();
+
+    final dropdown = tester.widget<DropdownButton<StorefrontCatalogSort>>(
+      find.byType(DropdownButton<StorefrontCatalogSort>),
+    );
+    dropdown.onChanged!(StorefrontCatalogSort.priceAscending);
+    await tester.pumpAndSettle();
+
+    expect(
+      storefront.catalogCalls.last.availability,
+      StorefrontAvailability.available,
+    );
+    expect(storefront.catalogCalls.last.discounted, isTrue);
+    expect(
+      storefront.catalogCalls.last.sort,
+      StorefrontCatalogSort.priceAscending,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('ricerca compone categoria e disabilita filtri catalog-only', (
+    tester,
+  ) async {
+    final storefront = _CatalogRepository();
+    await tester.pumpWidget(_catalogApp(storefront: storefront));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const ValueKey('catalog-search')), 'te');
+    await tester.pump(const Duration(milliseconds: 301));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('catalog-category-te')));
+    await tester.pumpAndSettle();
+
+    expect(storefront.searchCalls.last.categorySlug, 'te');
+    expect(
+      tester
+          .widget<ChoiceChip>(
+            find.byKey(const ValueKey('catalog-availability-available')),
+          )
+          .onSelected,
+      isNull,
+    );
+    expect(
+      tester
+          .widget<FilterChip>(
+            find.byKey(const ValueKey('catalog-discounted-only')),
+          )
+          .onSelected,
+      isNull,
+    );
+    expect(find.text('Té encontrado'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -142,6 +251,8 @@ void main() {
 
       final retry = find.byKey(const ValueKey('catalog-retry-action'));
       expect(retry, findsOneWidget);
+      await tester.ensureVisible(retry);
+      await tester.pumpAndSettle();
       await tester.tap(retry);
       await tester.tap(retry);
       await tester.pump();
@@ -504,7 +615,21 @@ final class _ReadinessRepository implements BackendReadinessRepository {
       .complete(state);
 }
 
-typedef _CatalogCall = ({String? cursor, int limit, String? categorySlug});
+typedef _CatalogCall = ({
+  String? cursor,
+  int limit,
+  String? categorySlug,
+  StorefrontAvailability? availability,
+  bool? discounted,
+  StorefrontCatalogSort sort,
+});
+
+typedef _SearchCall = ({
+  String query,
+  String? cursor,
+  int limit,
+  String? categorySlug,
+});
 
 final class _CatalogRepository implements StorefrontRepository {
   _CatalogRepository({
@@ -519,6 +644,7 @@ final class _CatalogRepository implements StorefrontRepository {
   var _secondPageFailures = 0;
   final List<({String? cursor, int limit})> categoryCalls = [];
   final List<_CatalogCall> catalogCalls = [];
+  final List<_SearchCall> searchCalls = [];
 
   @override
   Future<StorefrontCategoriesPage> fetchCategories({
@@ -542,12 +668,17 @@ final class _CatalogRepository implements StorefrontRepository {
     required int limit,
     required String? categorySlug,
     required StorefrontCatalogSort sort,
+    StorefrontAvailability? availability,
+    bool? discounted,
     required StorefrontRequestCancellation cancellation,
   }) async {
     catalogCalls.add((
       cursor: cursor,
       limit: limit,
       categorySlug: categorySlug,
+      availability: availability,
+      discounted: discounted,
+      sort: sort,
     ));
     if (cursor == _cursor && failSecondPageOnce && _secondPageFailures++ == 0) {
       throw const StorefrontFailure(
@@ -570,7 +701,7 @@ final class _CatalogRepository implements StorefrontRepository {
       catalogVersion: 7,
       items: items,
       nextCursor: paginated && cursor == null ? _cursor : null,
-      sort: StorefrontCatalogSort.catalog,
+      sort: sort,
     );
   }
 
@@ -579,4 +710,33 @@ final class _CatalogRepository implements StorefrontRepository {
     required String shopSlug,
     required StorefrontRequestCancellation cancellation,
   }) => throw UnsupportedError('fetchHome is outside this test');
+
+  @override
+  Future<StorefrontSearchPage> fetchSearch({
+    required String shopSlug,
+    required String query,
+    required String? cursor,
+    required int limit,
+    required String? categorySlug,
+    required StorefrontRequestCancellation cancellation,
+  }) async {
+    searchCalls.add((
+      query: query,
+      cursor: cursor,
+      limit: limit,
+      categorySlug: categorySlug,
+    ));
+    return StorefrontSearchPage(
+      catalogVersion: 7,
+      query: query,
+      items: [
+        _product(
+          categorySlug == 'te' ? 902 : 901,
+          name: categorySlug == 'te' ? 'Té encontrado' : 'Café encontrado',
+          withImage: withImage,
+        ),
+      ],
+      nextCursor: null,
+    );
+  }
 }

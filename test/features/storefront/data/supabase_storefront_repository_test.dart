@@ -134,7 +134,9 @@ void main() {
         cursor: validStorefrontCursor,
         limit: 24,
         categorySlug: 'te',
-        sort: StorefrontCatalogSort.catalog,
+        availability: StorefrontAvailability.lowStock,
+        discounted: true,
+        sort: StorefrontCatalogSort.priceAscending,
         cancellation: cancellation,
       );
 
@@ -150,11 +152,78 @@ void main() {
         'p_cursor': validStorefrontCursor,
         'p_limit': 24,
         'p_category_slug': 'te',
-        'p_availability': null,
-        'p_discounted': null,
+        'p_availability': 'low_stock',
+        'p_discounted': true,
         'p_featured': null,
-        'p_sort': 'catalog',
+        'p_sort': 'price_asc',
       });
+    },
+  );
+
+  test(
+    'invoca soltanto search v1 con query normalizzata e categoria',
+    () async {
+      String? function;
+      Map<String, Object?>? parameters;
+      final repository = SupabaseStorefrontRepository(
+        invoke: (name, values) async {
+          function = name;
+          parameters = values;
+          return validStorefrontSearchPayload(query: 'cafe molido');
+        },
+      );
+
+      final result = await repository.fetchSearch(
+        shopSlug: 'storefront-test',
+        query: '  cafe   molido ',
+        cursor: validStorefrontCursor,
+        limit: 24,
+        categorySlug: 'bebidas',
+        cancellation: StorefrontRequestCancellation(),
+      );
+
+      expect(result.query, 'cafe molido');
+      expect(function, 'storefront_search_v1');
+      expect(parameters, {
+        'p_shop_slug': 'storefront-test',
+        'p_query': 'cafe molido',
+        'p_cursor': validStorefrontCursor,
+        'p_limit': 24,
+        'p_category_slug': 'bebidas',
+      });
+    },
+  );
+
+  test(
+    'mappa tutti i sort catalogo sul parametro pubblico contrattuale',
+    () async {
+      const cases = <StorefrontCatalogSort, String>{
+        StorefrontCatalogSort.catalog: 'catalog',
+        StorefrontCatalogSort.name: 'name',
+        StorefrontCatalogSort.priceAscending: 'price_asc',
+        StorefrontCatalogSort.priceDescending: 'price_desc',
+      };
+
+      for (final entry in cases.entries) {
+        Map<String, Object?>? parameters;
+        final repository = SupabaseStorefrontRepository(
+          invoke: (name, values) async {
+            parameters = values;
+            return validStorefrontCatalogPayload(sort: entry.value);
+          },
+        );
+        final page = await repository.fetchCatalog(
+          shopSlug: 'storefront-test',
+          cursor: null,
+          limit: 24,
+          categorySlug: null,
+          sort: entry.key,
+          cancellation: StorefrontRequestCancellation(),
+        );
+
+        expect(parameters!['p_sort'], entry.value);
+        expect(page.sort, entry.key);
+      }
     },
   );
 
@@ -180,6 +249,30 @@ void main() {
         limit: 24,
         categorySlug: '../internal',
         sort: StorefrontCatalogSort.catalog,
+        cancellation: StorefrontRequestCancellation(),
+      ),
+      () => repository.fetchSearch(
+        shopSlug: 'storefront-test',
+        query: 'x',
+        cursor: null,
+        limit: 24,
+        categorySlug: null,
+        cancellation: StorefrontRequestCancellation(),
+      ),
+      () => repository.fetchSearch(
+        shopSlug: 'storefront-test',
+        query: 'cafe\ninternal',
+        cursor: null,
+        limit: 24,
+        categorySlug: null,
+        cancellation: StorefrontRequestCancellation(),
+      ),
+      () => repository.fetchSearch(
+        shopSlug: 'storefront-test',
+        query: 'cafe',
+        cursor: null,
+        limit: 24,
+        categorySlug: '../internal',
         cancellation: StorefrontRequestCancellation(),
       ),
     ]) {

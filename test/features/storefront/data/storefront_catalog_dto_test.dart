@@ -23,6 +23,49 @@ void main() {
     expect(catalog.nextCursor, validStorefrontCursor);
   });
 
+  test('decodifica ricerca versionata senza esporre relevanceScore', () {
+    final search = StorefrontCatalogDto.decodeSearch(
+      validStorefrontSearchPayload(),
+    );
+
+    expect(search.catalogVersion, 7);
+    expect(search.query, 'cafe');
+    expect(search.items, hasLength(2));
+    expect(search.nextCursor, validStorefrontCursor);
+  });
+
+  test('rifiuta shape, query, score e duplicati invalidi nella ricerca', () {
+    final extra = validStorefrontSearchPayload()..['inventory'] = true;
+    final shortQuery = validStorefrontSearchPayload(query: 'x');
+    final missingScore = validStorefrontSearchPayload();
+    ((missingScore['items'] as List).first as Map).remove('relevanceScore');
+    final invalidScore = validStorefrontSearchPayload();
+    ((invalidScore['items'] as List).first as Map)['relevanceScore'] = -1;
+    final duplicate = validStorefrontSearchPayload();
+    final items = List<Object?>.from(duplicate['items'] as List);
+    items.add(Map<String, Object?>.from(items.first as Map));
+    duplicate['items'] = items;
+
+    for (final payload in [
+      extra,
+      shortQuery,
+      missingScore,
+      invalidScore,
+      duplicate,
+    ]) {
+      expect(
+        () => StorefrontCatalogDto.decodeSearch(payload),
+        throwsA(
+          isA<StorefrontFailure>().having(
+            (failure) => failure.kind,
+            'kind',
+            StorefrontFailureKind.invalidPayload,
+          ),
+        ),
+      );
+    }
+  });
+
   test('rifiuta cursor, duplicati, campi extra e versione item incoerente', () {
     final invalidCursor = validStorefrontCatalogPayload()
       ..['nextCursor'] = 'not_base64';

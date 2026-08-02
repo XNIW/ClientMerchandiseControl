@@ -186,6 +186,14 @@ errore incrementale conserva gli elementi già visibili fino al retry esplicito.
 immagini usano esclusivamente la variante pubblica `card`, con decode width bounded,
 placeholder ed errore sicuro; nessun widget interroga tabelle o Storage direttamente.
 
+TASK-015 aggiunge il solo RPC pubblico `storefront_search_v1`: query normalizzata tra
+2 e 120 caratteri, debounce di 300 ms, cancellation/generation guard e cursor keyset
+separato. Categoria e ricerca sono componibili nel contratto Search; disponibilità,
+sconto e i quattro ordinamenti restano parametri server-side del contratto Catalog.
+L'interfaccia disabilita esplicitamente i filtri non supportati durante Search, invece
+di simulare una composizione client-side. Ogni cambio criterio annulla la sequenza
+precedente, valida query e versione restituite e riparte dalla prima pagina.
+
 ## Commercial truth e mutazioni
 
 Il client presenta l'ultimo stato Storefront ricevuto insieme alla sua freshness, ma non

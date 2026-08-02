@@ -361,6 +361,18 @@ abstract class AppLocalizations {
   /// **'Busca productos o categorías'**
   String get catalogSearchHint;
 
+  /// No description provided for @catalogSearchMinimum.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe al menos 2 caracteres para buscar.'**
+  String get catalogSearchMinimum;
+
+  /// No description provided for @catalogClearSearch.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar búsqueda'**
+  String get catalogClearSearch;
+
   /// Etiqueta del futuro control de filtros.
   ///
   /// In es, this message translates to:
@@ -378,6 +390,102 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'La búsqueda, los filtros y el orden estarán disponibles en el siguiente paso.'**
   String get catalogControlsUnavailable;
+
+  /// No description provided for @catalogFiltersLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Filtros del catálogo'**
+  String get catalogFiltersLabel;
+
+  /// No description provided for @catalogFiltersUnavailableDuringSearch.
+  ///
+  /// In es, this message translates to:
+  /// **'Durante la búsqueda puedes filtrar por categoría. Borra la búsqueda para usar disponibilidad, descuentos u orden.'**
+  String get catalogFiltersUnavailableDuringSearch;
+
+  /// No description provided for @catalogAvailabilityLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponibilidad'**
+  String get catalogAvailabilityLabel;
+
+  /// No description provided for @catalogAvailabilityAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Toda'**
+  String get catalogAvailabilityAll;
+
+  /// No description provided for @catalogAvailabilityAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponible'**
+  String get catalogAvailabilityAvailable;
+
+  /// No description provided for @catalogAvailabilityLowStock.
+  ///
+  /// In es, this message translates to:
+  /// **'Pocas unidades'**
+  String get catalogAvailabilityLowStock;
+
+  /// No description provided for @catalogAvailabilityUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No disponible'**
+  String get catalogAvailabilityUnavailable;
+
+  /// No description provided for @catalogAvailabilityReservationOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo reserva'**
+  String get catalogAvailabilityReservationOnly;
+
+  /// No description provided for @catalogAvailabilityPickupOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo retiro'**
+  String get catalogAvailabilityPickupOnly;
+
+  /// No description provided for @catalogAvailabilityDeliveryOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo entrega'**
+  String get catalogAvailabilityDeliveryOnly;
+
+  /// No description provided for @catalogDiscountedOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo con descuento'**
+  String get catalogDiscountedOnly;
+
+  /// No description provided for @catalogSortCatalog.
+  ///
+  /// In es, this message translates to:
+  /// **'Orden del catálogo'**
+  String get catalogSortCatalog;
+
+  /// No description provided for @catalogSortName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre'**
+  String get catalogSortName;
+
+  /// No description provided for @catalogSortPriceAscending.
+  ///
+  /// In es, this message translates to:
+  /// **'Precio: menor a mayor'**
+  String get catalogSortPriceAscending;
+
+  /// No description provided for @catalogSortPriceDescending.
+  ///
+  /// In es, this message translates to:
+  /// **'Precio: mayor a menor'**
+  String get catalogSortPriceDescending;
+
+  /// No description provided for @catalogResetFilters.
+  ///
+  /// In es, this message translates to:
+  /// **'Restablecer filtros'**
+  String get catalogResetFilters;
 
   /// Título accesible del selector de categorías públicas.
   ///

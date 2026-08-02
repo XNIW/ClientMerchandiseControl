@@ -155,6 +155,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogSearchHint => 'Search products or categories';
 
   @override
+  String get catalogSearchMinimum => 'Enter at least 2 characters to search.';
+
+  @override
+  String get catalogClearSearch => 'Clear search';
+
+  @override
   String get catalogFilterLabel => 'Filter';
 
   @override
@@ -163,6 +169,55 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get catalogControlsUnavailable =>
       'Search, filters, and sorting will be available in the next step.';
+
+  @override
+  String get catalogFiltersLabel => 'Catalog filters';
+
+  @override
+  String get catalogFiltersUnavailableDuringSearch =>
+      'While searching, you can filter by category. Clear the search to use availability, discounts, or sorting.';
+
+  @override
+  String get catalogAvailabilityLabel => 'Availability';
+
+  @override
+  String get catalogAvailabilityAll => 'All';
+
+  @override
+  String get catalogAvailabilityAvailable => 'Available';
+
+  @override
+  String get catalogAvailabilityLowStock => 'Low stock';
+
+  @override
+  String get catalogAvailabilityUnavailable => 'Unavailable';
+
+  @override
+  String get catalogAvailabilityReservationOnly => 'Reservation only';
+
+  @override
+  String get catalogAvailabilityPickupOnly => 'Pickup only';
+
+  @override
+  String get catalogAvailabilityDeliveryOnly => 'Delivery only';
+
+  @override
+  String get catalogDiscountedOnly => 'Discounted only';
+
+  @override
+  String get catalogSortCatalog => 'Catalog order';
+
+  @override
+  String get catalogSortName => 'Name';
+
+  @override
+  String get catalogSortPriceAscending => 'Price: low to high';
+
+  @override
+  String get catalogSortPriceDescending => 'Price: high to low';
+
+  @override
+  String get catalogResetFilters => 'Reset filters';
 
   @override
   String get catalogCategoriesLabel => 'Categories';

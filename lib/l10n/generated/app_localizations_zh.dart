@@ -157,6 +157,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get catalogSearchHint => 'Busca productos o categorías';
 
   @override
+  String get catalogSearchMinimum =>
+      'Escribe al menos 2 caracteres para buscar.';
+
+  @override
+  String get catalogClearSearch => 'Borrar búsqueda';
+
+  @override
   String get catalogFilterLabel => 'Filtrar';
 
   @override
@@ -165,6 +172,55 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get catalogControlsUnavailable =>
       'La búsqueda, los filtros y el orden estarán disponibles en el siguiente paso.';
+
+  @override
+  String get catalogFiltersLabel => 'Filtros del catálogo';
+
+  @override
+  String get catalogFiltersUnavailableDuringSearch =>
+      'Durante la búsqueda puedes filtrar por categoría. Borra la búsqueda para usar disponibilidad, descuentos u orden.';
+
+  @override
+  String get catalogAvailabilityLabel => 'Disponibilidad';
+
+  @override
+  String get catalogAvailabilityAll => 'Toda';
+
+  @override
+  String get catalogAvailabilityAvailable => 'Disponible';
+
+  @override
+  String get catalogAvailabilityLowStock => 'Pocas unidades';
+
+  @override
+  String get catalogAvailabilityUnavailable => 'No disponible';
+
+  @override
+  String get catalogAvailabilityReservationOnly => 'Solo reserva';
+
+  @override
+  String get catalogAvailabilityPickupOnly => 'Solo retiro';
+
+  @override
+  String get catalogAvailabilityDeliveryOnly => 'Solo entrega';
+
+  @override
+  String get catalogDiscountedOnly => 'Solo con descuento';
+
+  @override
+  String get catalogSortCatalog => 'Orden del catálogo';
+
+  @override
+  String get catalogSortName => 'Nombre';
+
+  @override
+  String get catalogSortPriceAscending => 'Precio: menor a mayor';
+
+  @override
+  String get catalogSortPriceDescending => 'Precio: mayor a menor';
+
+  @override
+  String get catalogResetFilters => 'Restablecer filtros';
 
   @override
   String get catalogCategoriesLabel => 'Categorías';
@@ -469,6 +525,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get catalogSearchHint => '搜索商品或类别';
 
   @override
+  String get catalogSearchMinimum => '请输入至少 2 个字符进行搜索。';
+
+  @override
+  String get catalogClearSearch => '清除搜索';
+
+  @override
   String get catalogFilterLabel => '筛选';
 
   @override
@@ -476,6 +538,55 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get catalogControlsUnavailable => '搜索、筛选和排序将在下一步开放。';
+
+  @override
+  String get catalogFiltersLabel => '商品目录筛选';
+
+  @override
+  String get catalogFiltersUnavailableDuringSearch =>
+      '搜索时可以按类别筛选。清除搜索后可使用库存状态、折扣或排序。';
+
+  @override
+  String get catalogAvailabilityLabel => '库存状态';
+
+  @override
+  String get catalogAvailabilityAll => '全部';
+
+  @override
+  String get catalogAvailabilityAvailable => '有货';
+
+  @override
+  String get catalogAvailabilityLowStock => '库存不多';
+
+  @override
+  String get catalogAvailabilityUnavailable => '无货';
+
+  @override
+  String get catalogAvailabilityReservationOnly => '仅可预订';
+
+  @override
+  String get catalogAvailabilityPickupOnly => '仅可自提';
+
+  @override
+  String get catalogAvailabilityDeliveryOnly => '仅可配送';
+
+  @override
+  String get catalogDiscountedOnly => '仅显示折扣商品';
+
+  @override
+  String get catalogSortCatalog => '商品目录顺序';
+
+  @override
+  String get catalogSortName => '名称';
+
+  @override
+  String get catalogSortPriceAscending => '价格：从低到高';
+
+  @override
+  String get catalogSortPriceDescending => '价格：从高到低';
+
+  @override
+  String get catalogResetFilters => '重置筛选';
 
   @override
   String get catalogCategoriesLabel => '类别';

@@ -1574,3 +1574,35 @@
 - **Transizione**: TASK-021 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per `customer_profiles`, `customer_addresses`, consent, export/deletion request,
   RLS owner-only e UI Client, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-021 e attivazione TASK-022
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-021**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; profilo, indirizzi, locale,
+  consent, export e deletion request owner-scoped completati con UI Account data-backed.
+- **Revision set Admin/Supabase**:
+  `27770dbe76da3066cdddb5a821b01c144a9ae607`, PR #67 draft; migration additiva
+  `20260802181823_storefront_v1_customer_profiles_addresses`.
+- **Gate Admin/staging**: replay completo; pgTAP TASK-021 64/64 e suite 26 file/1.582
+  test; due default writer concorrenti; verify/foundation/security; CI `30761579498`,
+  Cloudflare `30761579496`, staging `30761578366` e regressione `30761578384`, tutti
+  `PASS`; artifact `8837628074`, digest
+  `93eaae9856fcee4217d272b171135e174bdd5ff173a1520d6f3db9d14fd3f98e`.
+- **Revision set Client**: `4f25b539248c642351e50667a53d6fcb95840c41`,
+  PR #5 draft; repository/controller/UI/localizzazioni e integration flow Account.
+- **Gate Client**: `scripts/check.sh` exit 0 in 100,41 s; security 445 file,
+  governance/architecture/analyze, 371 test, coverage 5.743/7.098 (80,91%), benchmark
+  separato 1/1 e build Android/iOS `PASS`; integration Android API 35 1/1 in 78,31 s
+  e iPhone 17 Pro iOS 26.1 1/1 in 35,21 s `PASS`.
+- **Difetti corretti durante Execution**: controllo raw dei caratteri prima della
+  normalizzazione; UUID validation dentro il failure boundary; overflow compact/200%;
+  export nested strict; retry single-flight; cambio identity durante load con nuova
+  regressione owner isolation.
+- **CI Client**: run `30763287350` `BLOCKED` esterna, non `FAIL` tecnico: Quality,
+  Android e iOS hanno zero runner/step e annotazione billing/spending limit. Il gate
+  non è stato ritentato ciecamente né dichiarato `PASS`.
+- **Sicurezza/production**: token/credential/email-key assenti; errori sanitizzati;
+  nessun write/deploy production invocato e flag production OFF.
+- **Transizione**: TASK-022 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per installation ID non invasivo, `customer_devices`, consent/token lifecycle,
+  revoke/dedup/logout cleanup e UI Account, con writer Admin/Supabase -> Client.

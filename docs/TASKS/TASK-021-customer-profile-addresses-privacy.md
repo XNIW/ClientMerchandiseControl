@@ -5,14 +5,14 @@
 - **Task ID**: TASK-021
 - **Titolo**: Profilo cliente, indirizzi, privacy e cancellazione account
 - **File task**: `docs/TASKS/TASK-021-customer-profile-addresses-privacy.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-021/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -32,7 +32,7 @@
 - garantire un solo indirizzo default per cliente con transazione/constraint sicura;
 - aggiungere contratti server idempotenti per richiesta cancellazione account e
   richiesta/esportazione dati, senza eseguire cancellazioni production in questo task;
-- applicare RLS owner-only e negare lettura/scrittura cross-user, anon e cross-shop;
+- applicare RLS owner-only e negare lettura/scrittura cross-user e anon;
 - aggiungere repository/controller/UI Flutter per profilo, lingua, consenso, lista e
   form indirizzi, export e account deletion request;
 - localizzare es-CL primaria, it, en e zh-Hans con fallback es e stati
@@ -63,7 +63,7 @@
 | CA | Descrizione | Tipo previsto |
 |---|---|---|
 | CA-01 | Profile/address usano `auth.users.id` UUID e mai email come identità primaria | SQL/SECURITY |
-| CA-02 | RLS owner-only nega anon, cross-user e cross-shop per read/write/delete | PGTAP/INTEGRATION |
+| CA-02 | RLS owner-only nega anon e cross-user per read/write/delete | PGTAP/INTEGRATION |
 | CA-03 | Owner può creare, leggere, aggiornare ed eliminare profilo/indirizzi consentiti | PGTAP/INTEGRATION |
 | CA-04 | Esiste al massimo un indirizzo default per user e la transizione è atomica | SQL/CONCURRENCY |
 | CA-05 | Validazione fail-closed rifiuta indirizzi/campi/locale/consent non validi | UNIT/PGTAP |
@@ -80,7 +80,7 @@
 
 | Test | Criteri | Tipo | Procedura attesa |
 |---|---|---|---|
-| T-01 | CA-01, CA-02 | PGTAP | owner success; anon/cross-user/cross-shop denial per ogni operazione |
+| T-01 | CA-01, CA-02 | PGTAP | owner success e anon/cross-user denial per ogni operazione |
 | T-02 | CA-03, CA-04 | PGTAP/CONCURRENCY | CRUD e due richieste concorrenti di default address |
 | T-03 | CA-05 | UNIT/PGTAP | address vuoto/oversize, locale non supportato, consent incoerente, ID malevolo |
 | T-04 | CA-06 | STATIC/SECURITY | scan schema/payload/log per email key, credential/token e campi vietati |
@@ -101,6 +101,8 @@
 | D-04 | Export è generato server-side da un contratto allow-listed versionato | Evita query client arbitrarie e leakage cross-user | ATTIVA |
 | D-05 | Consenso registra versione, timestamp e stato, senza dark pattern o opt-in implicito | Rende il consenso verificabile e revocabile | ATTIVA |
 | D-06 | Planning ed Execution sono autorizzati dal prompt USER_APPROVER del 2026-08-02 | Consente continuità headless del release train | ATTIVA |
+| D-07 | Profilo, indirizzi e privacy sono risorse globali dell'owner e non contengono una dimensione shop | Evita un criterio cross-shop non presente nel contratto approvato; lo shop scope resta nei domini commerciali successivi | ATTIVA |
+| D-08 | La CI Client `30763287350` resta `BLOCKED` per billing GitHub prima dell'avvio dei runner; non viene trasformata in `PASS` e il gate tecnico è attestato localmente sullo SHA esatto | Applica il principio USER_APPROVER non bloccante senza falsificare il risultato esterno | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 
@@ -150,12 +152,64 @@ inventory o provider esterni.
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso. Primo passo: audit read-only dei pattern migration/RLS/RPC e del boundary
-Account/Auth esistente; nessun risultato è ancora dichiarato.
+### Modifiche completate
+
+- migration additiva Admin/Supabase `20260802181823` con `customer_profiles`,
+  `customer_addresses` e `customer_account_deletion_requests`, tutte con FORCE RLS,
+  grant espliciti e policy owner-only;
+- RPC consent, default address atomico, deletion request/cancel idempotenti ed export
+  owner allow-listed; funzioni `SECURITY DEFINER` con `search_path` vuoto e revoke
+  `PUBLIC` dove applicabile;
+- repository Flutter strict con query allow-listed, failure taxonomy sanitizzata,
+  timeout, validazione UUID e contract parser export fail-closed;
+- controller Riverpod session-aware con single-flight, retry idempotente e invalidazione
+  corretta quando l'identità cambia durante un'operazione;
+- UI Account data-backed per profilo, lingua, CRUD/default indirizzi, consenso, export e
+  deletion request/cancel, con stati loading/offline/error/retry;
+- localizzazione es-CL, it, en e zh-Hans, fallback es, dark mode, text scale 200%,
+  Semantics e target touch di almeno 48 logical pixel;
+- integration flow headless installato ed eseguito su Android Emulator e iOS Simulator.
+
+### Gate eseguiti
+
+- Admin/Supabase SHA `27770dbe76da3066cdddb5a821b01c144a9ae607`, PR #67 draft:
+  migration replay `PASS`; pgTAP TASK-021 64/64 e suite completa 26 file/1.582 test
+  `PASS` in 44,84 s; race due default writer `PASS`; `npm run verify` exit 0 in
+  20,74 s; foundation 793 test (791 pass, 2 skip) e security scan `PASS`;
+- staging migration `20260802181823` applicata dalla run `30761578366`, job
+  `91532997593`, `PASS`; postverify 64/64, tre tabelle FORCE RLS, nove policy e nessuna
+  colonna sensibile; artifact `8837628074`, SHA-256
+  `93eaae9856fcee4217d272b171135e174bdd5ff173a1520d6f3db9d14fd3f98e`;
+- Admin CI `30761579498`, Cloudflare `30761579496` e regressione performance
+  `30761578384` sullo SHA esatto: `PASS`;
+- Client SHA `4f25b539248c642351e50667a53d6fcb95840c41`, PR #5 draft:
+  `scripts/check.sh` exit 0 in 100,41 s; analyze/format/security/governance/architecture,
+  371 test, coverage 5.743/7.098 (80,91%), benchmark separato 1/1, Android debug e iOS
+  Simulator debug `PASS`;
+- integrazione Account reale Android Emulator API 35: 1/1 `PASS`, exit 0 in 78,31 s;
+  iPhone 17 Pro Simulator iOS 26.1: 1/1 `PASS`, exit 0 in 35,21 s;
+- CI Client `30763287350`: `BLOCKED`, tre job con zero step/runner e annotazione billing
+  GitHub; nessun failure di codice o retry cieco dichiarato;
+- security scan Client su 445 file tracciati `PASS`; production non è stata invocata,
+  i flag production restano OFF e nessun secret/artifact è versionato.
+
+### Matrici
+
+CA-01..CA-11 e CA-13: `PASS`. CA-12: gate tecnici, staging e smoke `PASS`; solo il
+sottogate GitHub-hosted Client CI è `BLOCKED` esterno. T-01..T-09: `PASS`; T-10:
+security/Git/production unchanged `PASS`, Client CI `BLOCKED`. Le evidence riproducibili
+sono in `docs/TASKS/EVIDENCE/TASK-021/README.md`.
+
+### Handoff
+
+`CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`. Nessuna review formale è stata
+eseguita e TASK-021 non è `DONE`.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate tecnici; nessuna review formale intermedia.
+TASK-021 è `VALIDATED_PENDING_INTEGRATED_REVIEW` sul revision set Client/Admin
+registrato. Il blocker CI Client è esclusivamente esterno e resta esplicitamente
+`BLOCKED`; production è invariata. Il task successivo autorizzato è TASK-022.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
@@ -169,6 +223,6 @@ Riservato all'eventuale ciclo Fix integrato.
 
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato da USER_APPROVER**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: TASK-022 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Follow-up candidate**: TASK-022 attivato dal checkpoint tecnico
+- **Riepilogo finale**: validato tecnicamente, in attesa della review integrata
 - **Data completamento**: non ancora

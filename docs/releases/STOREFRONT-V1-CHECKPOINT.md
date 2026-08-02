@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 4 / TASK-021 profilo/indirizzi/privacy
-- **Task corrente**: TASK-021
+- **Fase corrente**: EXECUTION / Milestone 4 / TASK-022 device/push consent
+- **Task corrente**: TASK-022
 - **Repository writer corrente**: merchandise-control-admin-web / Supabase
 - **Branch**: `integration/storefront-v1`
-- **SHA Client runtime Milestone 3**: `8f6c67dd3372ee9a6421f7071e58f4c0808f11b1`
-- **SHA Admin/Supabase Milestone 3**: `1f1ba507bbdde96197276738aacd7e290c20f8fe`
+- **SHA Client runtime corrente**: `4f25b539248c642351e50667a53d6fcb95840c41`
+- **SHA Admin/Supabase corrente**: `27770dbe76da3066cdddb5a821b01c144a9ae607`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -70,18 +70,26 @@
   `30757513885`, Playwright 1/1 e staging performance `30757512517` attempt 3 tutti
   `PASS`. Dataset 22.000 prodotti/100 categorie/69.200 righe equivalenti; p95
   catalog/search/detail 30,114/599,739/4,923 ms; migration `20260802043000`, cleanup 0
-- **Gate ancora necessari**: TASK-021 schema/RLS/RPC owner-only, Client profile/address,
-  smoke staging autenticato, gate/CI e checkpoint
-- **Comando successivo esatto**: confrontare le migration/RLS customer già esistenti
-  con il boundary Auth/Account e definire il delta additivo di TASK-021
-- **Blocker**: nessuno per TASK-021
+- **Gate TASK-021**: Admin `27770dbe`, migration staging `20260802181823`, tre tabelle
+  FORCE RLS/nove policy/cinque RPC, pgTAP 64/64 e suite 26 file/1.582 test; CI
+  `30761579498`, Cloudflare `30761579496`, staging `30761578366` e performance
+  regression `30761578384` `PASS`. Client `4f25b539`, 371 test, coverage 80,91%, gate
+  completo 100,41 s, build Android/iOS e integration Account Android/iOS 1/1 `PASS`.
+  CI Client `30763287350` `BLOCKED` esterna: tre job senza runner/step per billing.
+- **Gate ancora necessari**: TASK-022 schema/RLS/RPC device, Client consent/token
+  lifecycle, logout cleanup, staging, smoke Android/iOS, gate e CI applicabili
+- **Comando successivo esatto**: auditare storage/logout Auth, config native push e
+  pattern device/RLS prima del delta additivo TASK-022
+- **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
+  nessun blocker tecnico corrente per TASK-022
 - **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`, sessione controllata;
   deve essere terminato al closeout del release train
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
   `PASS`; Milestone 2 Admin publish/promozioni/immagini/rollback/cleanup `PASS`;
   fixture pubblica, Home, Catalog, Discovery, Detail, cache offline/reconnect,
-  favorite/share/deep link guest Android/iOS, XCTest share iOS, UI hardening e
-  performance extended dataset `PASS`; TASK-021 attivato; production invariata
+  favorite/share/deep link guest Android/iOS, XCTest share iOS, UI hardening,
+  performance extended dataset e TASK-021 profile/address/privacy `PASS`; TASK-022
+  attivato; production invariata
 
 ## Vincoli di ripresa
 

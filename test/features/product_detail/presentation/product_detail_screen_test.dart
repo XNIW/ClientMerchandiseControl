@@ -137,6 +137,10 @@ void main() {
       find.byKey(const ValueKey('product-detail-unavailable')),
       findsOneWidget,
     );
+    expect(
+      find.byKey(const ValueKey('share-product-$_publicationId')),
+      findsNothing,
+    );
     expect(repository.calls, isEmpty);
   });
 
@@ -156,6 +160,10 @@ void main() {
     expect(
       find.byKey(const ValueKey('product-detail-offline')),
       findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('share-product-$_publicationId')),
+      findsNothing,
     );
     expect(find.text('Café público'), findsNothing);
 

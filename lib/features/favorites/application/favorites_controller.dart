@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/app_config.dart';
-import '../../storefront/application/storefront_providers.dart';
 import '../../storefront/cache/storefront_cache_repository.dart';
+import '../data/product_favorite_repository.dart';
 
 final favoritesControllerProvider =
     AsyncNotifierProvider<FavoritesController, List<StorefrontFavoriteEntry>>(
@@ -40,12 +40,12 @@ class FavoritesController extends AsyncNotifier<List<StorefrontFavoriteEntry>> {
     final config = ref.read(appConfigProvider);
     final shopSlug = config.storefrontShopSlug;
     if (shopSlug == null) return false;
-    final repository = ref.read(storefrontCacheRepositoryProvider);
-    final isFavorite = await repository.toggleFavorite(
+    final repository = ref.read(productFavoriteRepositoryProvider);
+    final isFavorite = await repository.toggle(
       shopSlug: shopSlug,
       publicationId: publicationId,
     );
-    state = AsyncData(await repository.readFavorites(shopSlug: shopSlug));
+    state = AsyncData(await repository.read(shopSlug: shopSlug));
     return isFavorite;
   }
 
@@ -54,7 +54,7 @@ class FavoritesController extends AsyncNotifier<List<StorefrontFavoriteEntry>> {
     final shopSlug = config.storefrontShopSlug;
     if (shopSlug == null) return const [];
     return ref
-        .watch(storefrontCacheRepositoryProvider)
-        .readFavorites(shopSlug: shopSlug);
+        .watch(productFavoriteRepositoryProvider)
+        .read(shopSlug: shopSlug);
   }
 }

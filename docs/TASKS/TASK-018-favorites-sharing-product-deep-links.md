@@ -134,11 +134,69 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-In avvio.
+### Modifiche completate
+
+- database Drift schema v2 con tabella `storefront_favorites` shop-scoped, migration
+  v1→v2, indice di ordinamento, cap 1.000 record e toggle transazionale idempotente;
+- preferiti guest persistenti durante reopen/login/logout, lista/empty/error/orphan,
+  azioni accessibili e stessa route prodotto pubblica;
+- `share_plus 13.2.1` esatto con service iniettabile, anchor iPad bounded e payload
+  localizzato composto soltanto da nome pubblico e URI canonico;
+- codec strict per product/category link, confronto shop e rifiuto di scheme, host,
+  userinfo, port, query, fragment, cardinalità o encoding non canonici;
+- source `app_links` singleton broadcast condiviso con Auth, consumer separati,
+  queue cold fino al router ready e deduplica cold/warm di due secondi;
+- intent filter Android Storefront separato da quello Auth; iOS continua a delegare la
+  validazione host/path al boundary Dart fail-closed;
+- correzione della race reale Catalog bootstrap/deep-link: il load schedulato usa i
+  criteri correnti e non sovrascrive più la categoria consegnata warm/cold;
+- smoke live staging preferiti e matrice nativa deep link/share su Android e iOS.
+
+### Difetti corretti durante Execution
+
+- il primo test URI uppercase usava per errore un UUID privo di lettere; fixture resa
+  discriminante senza indebolire il validator;
+- placeholder favorite compatto causava overflow e Semantics incompleta a text scale
+  200%; layout e label sono ora regressioni widget;
+- la queue iniziale GoRouter poteva navigare prima dell'inizializzazione; il consumo è
+  post-frame e coperto per cold/warm/deduplica;
+- il bootstrap catalogo sovrascriveva la categoria deep-linked; il controller ora
+  rilegge i criteri effettivi al momento del load;
+- il primo smoke Android usava lo shop harness `storefront-test` invece dello staging
+  reale `storefront-v1-staging`; input corretto e rerun cold/warm `PASS`.
+
+### Gate eseguiti
+
+- revision set tecnico Client
+  `b02fe45e5342ce3c81c822cc624cc2422ea9d26c`, PR `#5` draft;
+- suite mirata finale 33/33 `PASS`; gate completo 322 test, coverage 4.195/5.151
+  linee (81,44%), security 415 file, fixture security 32/32 negative e 2/2 positive,
+  governance 8/8, architecture 7/7, analyze e build Android/iOS: `PASS`;
+- CI Client `30739381564`: Quality, iOS Simulator e Android 3/3 `PASS`, annotation
+  0/0/0 sullo SHA esatto;
+- favorite live staging Android 1/1 in 23 s e iOS 1/1 in 6 s: `PASS`;
+- Android native: product cold, category warm, share chooser, payload pubblico e
+  cross-shop fail-closed `PASS`; iOS native: product cold, category warm e cross-shop
+  fail-closed `PASS`;
+- scan log live Android/iOS: zero match per access/refresh token, bearer o OAuth code;
+- Activity Sheet iOS: `BLOCKED` temporaneo, perché Computer Use ha rilevato il Mac
+  bloccato e richiede sblocco manuale; nessun retry identico o bypass eseguito;
+- artifact staging smoke: APK SHA-256
+  `1d905a4111f2aee9ce2d12340df540976cd4bd455e2264e130de3a527a022210`, Runner
+  Simulator executable SHA-256
+  `b7e090c57d366787fb6c45b7c79017b6548603fb569ea20deab8d5bad2e1916b`;
+- production write: `NOT_RUN`; production invariata.
+
+### Matrici e handoff
+
+- CA-01..CA-09 e T-01..T-07: `PASS`;
+- CA-10/T-08: `BLOCKED` soltanto sul controllo visuale Activity Sheet iOS;
+- handoff a checkpoint non ancora emesso: TASK-018 resta `ACTIVE / EXECUTION`.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate TASK-018. Nessuna review formale intermedia.
+Da completare dopo l'Activity Sheet iOS e la CI sullo SHA documentale finale. Nessuna
+review formale intermedia.
 
 ## Review / Fix
 

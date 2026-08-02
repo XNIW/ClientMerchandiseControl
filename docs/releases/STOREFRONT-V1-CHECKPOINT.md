@@ -4,7 +4,7 @@
 - **Task corrente**: TASK-018
 - **Repository writer corrente**: ClientMerchandiseControl
 - **Branch**: `integration/storefront-v1`
-- **SHA Client TASK-017 candidate**: `e5f4bd8d14da08e9e8f43284944d8257c0b02693`
+- **SHA Client TASK-018 implementation**: `b02fe45e5342ce3c81c822cc624cc2422ea9d26c`
 - **SHA Admin corrente**: `a9036f0bda741d686afbdac13d3d08ef897f059b`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
@@ -58,15 +58,21 @@
   suite 19/19, 25.000 righe, open 247 ms, write 20k 444 ms, catalog p95 1.195 µs e
   search p95 3.824 µs; CI `30737515662` 3/3 `PASS`, annotation 0/0/0; offline/reconnect
   Android 1/1 in 45,98 s e iOS 1/1 in 27,09 s `PASS`; production invariata
-- **Gate ancora necessari**: execution TASK-018, schema favorite v2, share nativo,
-  validator/link coordinator e smoke cold/warm Android/iOS
-- **Comando successivo esatto**: `dart run build_runner build --delete-conflicting-outputs`
-- **Blocker**: nessuno
+- **Gate TASK-018 parziali**: schema favorite v2, share service, validator/link
+  coordinator, 322 test, coverage 81,44%, gate locale completo, CI `30739381564`,
+  favorite live Android/iOS, deep link cold/warm Android/iOS, share sheet Android e
+  fail-closed cross-shop Android/iOS: `PASS`; zero match token nei log live
+- **Gate ancora necessari**: aprire e ispezionare il solo Activity Sheet iOS nativo;
+  poi closeout evidence, governance e CI sullo SHA documentale finale
+- **Comando successivo esatto**: Computer Use su `Simulator`, tap dell'azione Share,
+  ispezione Activity Sheet senza invio, dismiss; quindi aggiornare TASK-018/evidence
+- **Blocker**: Mac bloccato; Computer Use richiede sblocco manuale prima del tap Share
 - **Processi ancora attivi**: nessuno
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
   `PASS`; Milestone 2 Admin publish/promozioni/immagini/rollback/cleanup `PASS`;
   fixture pubblica, Home, Catalog, Discovery, Detail e cache offline/reconnect guest
-  Android/iOS `PASS`; TASK-018 favorite/share/deep link `NOT_RUN`; production invariata
+  Android/iOS `PASS`; TASK-018 completo salvo Activity Sheet iOS nativo; production
+  invariata
 
 ## Vincoli di ripresa
 

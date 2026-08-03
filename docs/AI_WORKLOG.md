@@ -1741,3 +1741,31 @@
 - **Transizione**: TASK-026 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per pickup/reservation/delivery configurabile, quote server-side, address/zone/slot/
   fee, repricing e checkout Client a cinque step, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-026 e attivazione TASK-027
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-026**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; fulfillment shop-scoped,
+  point/zone/slot/fee, quote server-authoritative, Admin config e checkout Client in
+  cinque step completati.
+- **Admin/Supabase**: SHA `86088dc739c59725735533c64133678e96641a9a`;
+  migration `20260803020000` + `20260803021500`; pgTAP 56/56, suite 31 file/1.892
+  test e race ultimo slot; CI `30779607356`, Cloudflare `30779607377` e staging
+  `30779605562` `PASS`; artifact `8843215328`.
+- **Client**: SHA runtime `9406df7d5b5d5a69a0edc033359be38f3bdf656f`;
+  parser allow-list, pending storage, controller e flow cinque step; 489 test, coverage
+  77,10%, benchmark, build Android/iOS, integration checkout 1/1 per piattaforma, live
+  staging adapter e artifact smoke `PASS`.
+- **CI Client**: run `30781669519` `BLOCKED` esterna; i tre job hanno zero runner/step
+  per billing/spending limit. Il gate non è dichiarato `PASS` e il lavoro tecnico
+  indipendente continua come autorizzato.
+- **Difetti corretti durante Execution**: ledger migration staging riconciliato in modo
+  additivo; restore pending stale sanificato; scanner APK reso non interattivo e capace
+  di verificare entry duplicate; screenshot iOS atteso fino al render stabile.
+- **Sicurezza/production**: totale/prezzo/sconto/fee restano server-authoritative,
+  nessun internal ID/credential o artifact locale versionato; nessun write/deploy
+  production e flag OFF.
+- **Transizione**: TASK-027 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per ordine, item snapshot, status event, outbox e consume hold atomici/idempotenti,
+  con writer Admin/Supabase -> Client.

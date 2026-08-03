@@ -5,14 +5,14 @@
 - **Task ID**: TASK-026
 - **Titolo**: Checkout con ritiro e consegna
 - **File task**: `docs/TASKS/TASK-026-checkout-pickup-delivery.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-026/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -146,13 +146,69 @@ consegna configurabile, pronto a essere consumato dall'ordine idempotente TASK-0
 
 ## Execution — `CODEX_EXECUTOR`
 
-Audit read-only da avviare nel writer Admin/Supabase. Nessuna migration viene scelta
-prima di avere mappato configurazione fulfillment, address/cart/hold/pricing RPC,
-pattern RBAC/audit e invarianti di lock/idempotency correnti.
+Execution completata sul revision set Admin/Supabase
+`86088dc739c59725735533c64133678e96641a9a` e Client
+`9406df7d5b5d5a69a0edc033359be38f3bdf656f`.
+
+- l'audit ha confermato che address, cart/version, pricing/promotion e reservation hold
+  esistenti potevano essere composti senza introdurre un secondo dominio economico;
+- le migration additive `20260803020000_storefront_v1_checkout_fulfillment` e
+  `20260803021500_storefront_v1_checkout_admin` introducono configurazione shop-scoped,
+  pickup point, delivery zone, slot/capacity, quote e ledger idempotente privati, FORCE
+  RLS, grant minimi, audit Admin ed expiry cron bounded;
+- quattro RPC customer strict espongono discovery pubblica e quote owner-scoped;
+  ricalcolano cart, publication, prezzo, promozione, availability, hold, address, zona,
+  slot, fee e totale, ignorando ogni totale/sconto/fee client;
+- la race a due customer sull'ultimo slot produce una sola quote attiva, chiude lo slot
+  pubblico e lascia invariato lo stock on-hand; retry e doppio tap riusano la stessa
+  idempotency key;
+- l'Admin aggiunge configurazione fulfillment e anteprima con RBAC, audit, filtri,
+  responsive table e Playwright desktop/tablet senza nuovo framework UI;
+- il Client aggiunge repository/parser fail-closed, draft/pending operation owner-scoped,
+  controller Riverpod e checkout Material 3 in cinque step per pickup, reservation e
+  delivery, con auth gate soltanto al checkout, restore, timeout ambiguo, repricing e
+  CTA SafeArea;
+- quattro localizzazioni, Semantics, dark mode, text scale 200%, golden canonico e flow
+  integration Android/iOS coprono UI e resilienza; il contratto pubblico live staging è
+  stato letto attraverso il vero adapter anonimo;
+- il security scanner artifact è stato irrobustito per estrarre senza prompt e verificare
+  anche entry ZIP duplicate, con regressione negativa/positiva dedicata.
+
+Comandi, conteggi, CI, staging, matrici CA/Test e limiti sono registrati in
+`docs/TASKS/EVIDENCE/TASK-026/README.md`. Production non è stata invocata e tutti i
+flag restano OFF.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate tecnici; nessuna review formale intermedia.
+### Gate pertinenti eseguiti
+
+- Admin/Supabase: replay completo, 56/56 pgTAP TASK-026, suite database 31 file/
+  1.892 test, race multi-session, foundation/lint/typecheck/security/build e Playwright
+  desktop/tablet: `PASS`;
+- CI Admin `30779607356`, Cloudflare `30779607377` e staging exact-SHA
+  `30779605562`, job `91581524589`: `PASS`; artifact `8843215328`, digest
+  `56a17798853cd59c185317230acef2f1910043d6c76a06ff20e77f114efce128`;
+- Client: gate canonico `scripts/check.sh`, 489 test, coverage 9.254/12.002
+  (77,10%), benchmark cache 25.000 righe, build Android/iOS e security: `PASS`;
+- integration checkout Android API 35 e iPhone 17 Pro iOS 26.5: 1/1 per piattaforma;
+  live public staging Android 1/1; smoke CLI, screenshot e artifact scan: `PASS`;
+- CI Client exact-SHA `30781669519`: `BLOCKED` esterna perché Quality/Android/iOS
+  hanno zero runner e zero step per billing/spending limit; non è dichiarata `PASS`.
+
+### Compatibilità e staging
+
+Lo staging ha applicato entrambe le migration additive e ha verificato ledger esatto,
+sei tabelle private, FORCE RLS, owner policy, boundary mobile/service role, quattro RPC
+customer, due RPC Admin, `search_path`, discovery anonima, checkout autenticato e cron
+expiry. La fixture transazionale è stata rimossa; la fixture pubblica persistente
+espone correttamente CLP e tre modalità, ma nessuna destinazione/slot fittizia.
+
+### Handoff al task successivo
+
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Review outcome**: NOT_RUN
+- **Prossimo task**: TASK-027
+- **Handoff**: STOREFRONT_V1_MILESTONE_CHECKPOINT_VALIDATED
 
 ## Review / Fix
 
@@ -162,6 +218,6 @@ Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
 
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: TASK-027 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Follow-up candidate**: TASK-027 attivato dal checkpoint tecnico
+- **Riepilogo finale**: validato tecnicamente, in attesa della review integrata
 - **Data completamento**: non ancora

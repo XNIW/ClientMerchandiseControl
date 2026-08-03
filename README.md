@@ -161,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-026
-- **File task**: docs/TASKS/TASK-026-checkout-pickup-delivery.md
+- **Task attivo**: TASK-027
+- **File task**: docs/TASKS/TASK-027-idempotent-order-price-snapshot.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -192,6 +192,8 @@ merge owner idempotente e price revalidation server-side ed è anch'esso
 privacy-safe, freshness, Admin preview e refresh cache/cart ed è
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-025 ha completato hold atomici,
 idempotenti e scadibili senza quantità inventory pubblica ed è anch'esso
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-026 è l'unico task attivo e realizza il
-checkout server-authoritative per ritiro, prenotazione e consegna configurabile. Gli
-altri task del train restano `TODO` fino al rispettivo checkpoint.
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-026 ha completato checkout
+server-authoritative per ritiro, prenotazione e consegna configurabile ed è anch'esso
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-027 è l'unico task attivo e realizza
+ordine, item snapshot, status event e outbox atomici/idempotenti. Gli altri task del
+train restano `TODO` fino al rispettivo checkpoint.

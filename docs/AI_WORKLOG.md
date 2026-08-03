@@ -1674,3 +1674,40 @@
 - **Transizione**: TASK-024 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per availability commerciale, freshness e replay/out-of-order senza quantità stock
   pubblica, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-024 e attivazione TASK-025
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-024**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; sei stati commerciali,
+  freshness/ingest monotono, fallback fail-closed, Admin preview read-only e cache/cart
+  Client coerenti senza quantità inventory pubblica.
+- **Revision set Admin/Supabase**:
+  `9d457ee4b278864a25e4f612bbfdea138e3df6d6`, PR #67 draft; migration additiva
+  `20260802220000_storefront_v1_public_availability`.
+- **Gate Admin/staging**: replay completo; pgTAP TASK-024 243/243 e suite
+  1.782/1.782; race duplicate/apply; foundation/verify/security; CI `30772550353`,
+  Cloudflare `30772550354` e staging `30772549228`, tutti `PASS`; artifact
+  `8840991592`, postverify e cleanup coerenti.
+- **Revision set Client runtime**:
+  `b34211f0b294703e3124b42f1b008ea32c454ffd`, PR #5 draft; Drift v4 aggiorna lo
+  snapshot pubblico guest cart su product refresh preservando quantità e favorite.
+- **Gate Client**: pub get/l10n/format/analyze; 433 test, coverage 7.333/9.176
+  (79,91%); benchmark cache 25.000 righe; security 483 file; governance 8/8,
+  architecture 7/7; build Android debug/release e iOS debug/release compile `PASS`.
+- **Integration/smoke**: refresh availability/prezzo attraversa restart/merge/logout
+  su Android 15 e iOS 26.5, 1/1 per piattaforma; artifact normali installati e avviati,
+  Android cold launch 2.694 ms, iOS PID 355, accessibility/screenshot/secret scan
+  `PASS`.
+- **Tentativo diagnostico non candidato**: dopo launch e screenshot iOS, il lookup
+  iniziale nel dominio `launchctl system` ha exit 1; il comando corretto
+  `launchctl list` ha verificato PID 355 con exit 0, senza retry cieco.
+- **CI Client**: run `30773126667` `BLOCKED` esterna: Quality/Android/iOS hanno zero
+  step e annotazione billing/spending limit; nessun failure di codice dichiarato.
+- **Performance**: server p95 catalog/search/detail 11,002/178,422/1,019 ms; cache p95
+  catalog/search 1.205/3.920 µs; cleanup fixture a zero.
+- **Sicurezza/production**: zero stock preciso/costo/supplier/owner/ID inventory nelle
+  response o UI; nessun secret/config/artifact versionato, nessun write/deploy
+  production e flag production OFF.
+- **Transizione**: TASK-025 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per autorità stock privata, hold atomico e idempotente, race ultimo pezzo,
+  expiry/release/cleanup e integrazione Client, con writer Admin/Supabase -> Client.

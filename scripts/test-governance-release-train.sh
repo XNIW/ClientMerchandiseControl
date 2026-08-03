@@ -27,6 +27,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-022" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-023" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-024" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-025" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -132,6 +133,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-024/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-024/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-025-reservation-hold-atomic-expiry.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-025/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-025/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -163,21 +170,21 @@ cmc_expect_pass valid "${cmc_case}"
 
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \
-  's/| TASK-025 | Reservation hold atomico e scadenza | TODO |/| TASK-025 | Reservation hold atomico e scadenza | ACTIVE |/' \
+  's/| TASK-026 | Checkout con ritiro e consegna | TODO |/| TASK-026 | Checkout con ritiro e consegna | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-024/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-025/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-024 | Proiezione disponibilità e stock pubblico | ACTIVE |/| TASK-024 | Proiezione disponibilità e stock pubblico | DONE |/' \
+  's/| TASK-025 | Reservation hold atomico e scadenza | ACTIVE |/| TASK-025 | Reservation hold atomico e scadenza | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"

@@ -161,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-024
-- **File task**: docs/TASKS/TASK-024-public-availability-stock-projection.md
+- **Task attivo**: TASK-025
+- **File task**: docs/TASKS/TASK-025-reservation-hold-atomic-expiry.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -188,6 +188,8 @@ owner-only ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-022 ha completato r
 device, consenso notifiche e token lifecycle privacy-safe ed è
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-023 ha completato guest cart persistente,
 merge owner idempotente e price revalidation server-side ed è anch'esso
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-024 è l'unico task attivo e verifica la
-proiezione di disponibilità commerciale senza quantità inventory pubblica. Gli altri
-task del train restano `TODO` fino al rispettivo checkpoint.
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-024 ha completato disponibilità commerciale
+privacy-safe, freshness, Admin preview e refresh cache/cart ed è
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-025 è l'unico task attivo e realizza hold
+atomici, idempotenti e scadibili senza quantità inventory pubblica. Gli altri task del
+train restano `TODO` fino al rispettivo checkpoint.

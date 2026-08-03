@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 4 / TASK-024 disponibilità pubblica
-- **Task corrente**: TASK-024
+- **Fase corrente**: EXECUTION / Milestone 4 / TASK-025 reservation hold
+- **Task corrente**: TASK-025
 - **Repository writer corrente**: merchandise-control-admin-web / Supabase
 - **Branch**: `integration/storefront-v1`
-- **SHA Client runtime corrente**: `e8d71d38ea87ab61693ecec80614c11d676e47f5`
-- **SHA Admin/Supabase corrente**: `80556a90bba87712e4f42530b9e500b9d2d485ef`
+- **SHA Client runtime corrente**: `b34211f0b294703e3124b42f1b008ea32c454ffd`
+- **SHA Admin/Supabase corrente**: `9d457ee4b278864a25e4f612bbfdea138e3df6d6`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -92,13 +92,19 @@
   merge/revalidation, 429 test, coverage 79,55%, build Android debug/release e iOS
   debug/release compile, integration Android/iOS e smoke artifact `PASS`. CI Client
   `30770239675` `BLOCKED` esterna per billing prima dei runner.
-- **Gate ancora necessari**: TASK-024 derivazione/freshness disponibilità, sei stati
-  pubblici, replay/out-of-order/cross-shop, integrazione cache/UI/Admin e staging smoke
-- **Comando successivo esatto**: auditare in sola lettura migration, projection sync,
-  publication RPC, fixture e preview Admin della availability corrente; mappare ogni
-  criterio TASK-024 prima di decidere se serve una migration additiva
+- **Gate TASK-024**: Admin `9d457ee4`, migration staging `20260802220000`, segnale
+  privato/freshness/ingest e sei stati fail-closed; pgTAP 243/243 e suite 1.782/1.782;
+  CI `30772550353`, Cloudflare `30772550354`, staging `30772549228` `PASS`. Client
+  `b34211f0`, cache Drift v4, 433 test, coverage 79,91%, build Android/iOS,
+  integration refresh/restart Android/iOS e smoke artifact `PASS`. CI Client
+  `30773126667` `BLOCKED` esterna per billing prima dei runner.
+- **Gate ancora necessari**: TASK-025 autorità stock privata, hold atomico, RLS,
+  idempotency, expiry/release/cleanup e race di due clienti sull'ultimo pezzo
+- **Comando successivo esatto**: nel writer Admin/Supabase, mappare in sola lettura
+  tabelle/writer inventory, lock TASK-024, cart RPC, ledger idempotency e worker/cron;
+  identificare l'autorità stock privata prima di definire lo schema hold
 - **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
-  nessun blocker tecnico corrente per TASK-023
+  nessun blocker tecnico corrente per TASK-025
 - **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`; Android Emulator
   `emulator-5554`, API 35, sessione exec `90303`; iOS Simulator iPhone 17 Pro iOS 26.5
   UUID `240F400E-5EFA-486A-9137-FFBBE70F604D`. Sono controllati e necessari ai gate
@@ -108,8 +114,8 @@
   fixture pubblica, Home, Catalog, Discovery, Detail, cache offline/reconnect,
   favorite/share/deep link guest Android/iOS, XCTest share iOS, UI hardening,
   performance extended dataset, TASK-021 profile/address/privacy, TASK-022 device/
-  consent/token lifecycle e TASK-023 cart/revalidation `PASS`; TASK-024 attivato;
-  production invariata
+  consent/token lifecycle, TASK-023 cart/revalidation e TASK-024 availability/freshness/
+  cache refresh `PASS`; TASK-025 attivato; production invariata
 
 ## Vincoli di ripresa
 

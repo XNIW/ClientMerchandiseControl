@@ -5,14 +5,14 @@
 - **Task ID**: TASK-024
 - **Titolo**: Proiezione disponibilità e stock pubblico
 - **File task**: `docs/TASKS/TASK-024-public-availability-stock-projection.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-024/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -123,12 +123,64 @@ hold transazionali senza rendere il client o la proiezione fonte dell'inventory.
 
 ## Execution — `CODEX_EXECUTOR`
 
-Audit read-only da avviare nel writer Admin/Supabase; nessuna modifica Client finché il
-contratto canonico e le lacune reali non sono determinati.
+Execution completata sul revision set Client
+`b34211f0b294703e3124b42f1b008ea32c454ffd` e Admin/Supabase
+`9d457ee4b278864a25e4f612bbfdea138e3df6d6`.
+
+- aggiunta la migration additiva `20260802220000` con segnale availability privato,
+  freshness bounded e ingest service-role-only, shop-scoped, monotono e idempotente;
+- serializzati writer inventory ed esterni sul prodotto operativo; replay, eventi fuori
+  ordine e due writer concorrenti convergono senza dichiarare disponibilità falsa;
+- consolidati i sei stati nel resolver pubblico di Home/Catalog/Search/Detail/cart,
+  con precedenza fail-closed per stato assente, stale, future, unpublished o privo di
+  fulfillment e senza quantità/costo/supplier/owner/ID inventory;
+- sostituito nell'Admin il controllo manuale availability con uno stato server-derived
+  read-only, verificato prima e dopo publish tramite Playwright;
+- portata la cache Client a Drift v4: ogni product upsert aggiorna atomicamente nome,
+  prezzo, immagine pubblica e availability dello snapshot guest cart senza perdere
+  quantità o favorite e senza contaminazione cross-shop/publication;
+- aggiunte regressioni unit/widget/integration sui sei stati, migration v1/v3, card,
+  detail, cart e restart SQLite reali Android/iOS.
+
+I gate, i comandi e le matrici complete sono in
+`docs/TASKS/EVIDENCE/TASK-024/README.md`. La CI Client exact-SHA `30773126667` è
+`BLOCKED` esterna: Quality, Android e iOS hanno zero step/runner e annotazione
+billing/spending limit. Admin CI, Cloudflare, staging, gate locali e smoke mobile sono
+verdi. Production non è stata invocata.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate tecnici; nessuna review formale intermedia.
+### Gate pertinenti eseguiti
+
+- Admin/Supabase: replay completo, pgTAP TASK-024 243/243, suite 1.782/1.782,
+  concorrenza, foundation/verify/security, CI `30772550353`, Cloudflare
+  `30772550354` e staging `30772549228`: `PASS`;
+- Client: pub get/l10n/format/analyze, 433 test, coverage 79,91%, benchmark 25.000
+  righe, security 483 file, governance/architecture, Android debug/release e iOS
+  debug/release compile: `PASS`;
+- flow cart/cache Android 15 e iOS 26.5: 1/1 per piattaforma con SQLite reale,
+  refresh availability/prezzo, restart, merge e account isolation: `PASS`;
+- artifact smoke Android/iOS, accessibility tree, screenshot e secret scan: `PASS`;
+  CI Client hosted: `BLOCKED` esterna e non dichiarata `PASS`.
+
+### Compatibilità e staging
+
+La migration esatta `20260802220000` è applicata in staging; postverify, 44 pgTAP
+dedicati e race test sono verdi. Le fixture 22k sono state ripulite. Android Emulator
+API 35 e iPhone 17 Pro Simulator iOS 26.5 hanno avviato l'app normale senza GUI o
+interazione manuale. Production e flag sono rimasti invariati/OFF.
+
+### Stato manifest/checkpoint
+
+TASK-024 è `VALIDATED_PENDING_INTEGRATED_REVIEW`; PR Client #5 e Admin #67 restano
+draft. Non è stata eseguita una review formale intermedia.
+
+### Handoff al task successivo
+
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Review outcome**: NOT_RUN
+- **Prossimo task**: TASK-025
+- **Handoff**: STOREFRONT_V1_MILESTONE_CHECKPOINT_VALIDATED
 
 ## Review / Fix
 
@@ -138,6 +190,6 @@ Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
 
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: TASK-025 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Follow-up candidate**: TASK-025 attivato dal checkpoint tecnico
+- **Riepilogo finale**: validato tecnicamente, in attesa della review integrata
 - **Data completamento**: non ancora

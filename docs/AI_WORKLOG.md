@@ -1823,3 +1823,25 @@
 - **Transizione**: TASK-029 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per queue/detail Admin, RBAC shop-scoped, state machine e transition idempotenti con
   event/audit/outbox atomici, con writer Admin/Supabase.
+
+## 2026-08-03 — Checkpoint interno TASK-029 e attivazione TASK-030
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-029**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; queue/detail shop-scoped,
+  state machine Admin, mutation idempotente/versionata ed event/audit/outbox atomici.
+- **Admin/Supabase**: SHA finale `23bfab60b91ef192dbb726bde454287cea144c8f`;
+  migration `20260803053000`; deploy applicativo `1a50fcd1`; pgTAP 34/34, race due
+  operatori, foundation 856 pass + 2 skip e Playwright locale 2/2 `PASS`.
+- **CI/staging**: CI `30798108711`, Cloudflare build `30798108767`, migration/verify
+  `30791945888`, deploy `30796888108` e acceptance `30798109969` `PASS`; publish 1/1,
+  order 1/1, cleanup 0 e fixture persistente verificata.
+- **Difetti corretti durante Execution**: grant ledger service-role, consistency
+  read-after-write fulfillment, navigation RSC streaming, fixture persistente non
+  distruttiva e attesa target UUID distinto; regressioni dedicate impediscono recidive.
+- **Sicurezza/production**: payload e audit allow-list, outbox POS-neutral,
+  `fiscalStatus=not_created`, zero write `pos_sales`, secret o artifact versionati;
+  nessun deploy production e flag/consumer OFF.
+- **Transizione**: TASK-030 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per protocollo claim/lease/ack, inbox idempotente Win7POS, offline/reconnect e confine
+  vendita fiscale, con writer Admin/Supabase -> Win7POS.

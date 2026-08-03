@@ -32,6 +32,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-027" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-028" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-029" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-030" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -167,6 +168,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-029/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-029/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-030-win7pos-handoff-fiscal-boundary.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-030/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-030/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -198,21 +205,21 @@ cmc_expect_pass valid "${cmc_case}"
 
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \
-  's/| TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | TODO |/| TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | ACTIVE |/' \
+  's/| TASK-031 | Notifiche push e order status events | TODO |/| TASK-031 | Notifiche push e order status events | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-029/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-030/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-029 | Admin Console: gestione e preparazione ordini | ACTIVE |/| TASK-029 | Admin Console: gestione e preparazione ordini | DONE |/' \
+  's/| TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | ACTIVE |/| TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"

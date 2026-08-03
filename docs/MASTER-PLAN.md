@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-029
-- **File task**: docs/TASKS/TASK-029-admin-order-queue-management.md
+- **Task attivo**: TASK-030
+- **File task**: docs/TASKS/TASK-030-win7pos-handoff-fiscal-boundary.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,9 +14,9 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: auditare in sola lettura navigazione/componenti/RBAC
-  Admin e il contract order/event/outbox/audit, quindi fissare role matrix, state
-  machine, payload allow-list, cursor e idempotency/version contract di TASK-029
+- **Prossima azione autorizzata**: auditare in sola lettura contratti online, trusted
+  device/session, sync supervisor, persistence e sale commit Win7POS insieme a outbox e
+  RPC Admin; fissare envelope, lease, deduplica e confine fiscale di TASK-030
 
 ## Repository coinvolti
 
@@ -80,8 +80,8 @@
 | TASK-026 | Checkout con ritiro e consegna | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-021, TASK-023, TASK-025 | Client, Admin, Supabase | Fulfillment validato |
 | TASK-027 | Creazione ordine idempotente e price snapshot | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-020, TASK-023, TASK-025, TASK-026 | Client, Admin, Supabase | Ordine atomico e idempotente |
 | TASK-028 | Storico, dettaglio e stato ordine | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-027 | Client, Admin, Supabase | Tracking ordine cliente |
-| TASK-029 | Admin Console: gestione e preparazione ordini | ACTIVE | TASK-007, TASK-027 | Admin, Supabase | Workflow preparazione ordini |
-| TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | TODO | TASK-006, TASK-024, TASK-027, TASK-029 | POS, Admin, Supabase | Handoff operativo senza fusione eventi |
+| TASK-029 | Admin Console: gestione e preparazione ordini | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-007, TASK-027 | Admin, Supabase | Workflow preparazione ordini |
+| TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | ACTIVE | TASK-006, TASK-024, TASK-027, TASK-029 | POS, Admin, Supabase | Handoff operativo senza fusione eventi |
 | TASK-031 | Notifiche push e order status events | TODO | TASK-022, TASK-027, TASK-028, TASK-029 | Client, Admin, Supabase | Eventi e notifiche affidabili |
 | TASK-032 | Decisione provider e integrazione pagamenti | TODO | TASK-027 | Client, Admin, Supabase | Pagamento selezionato e integrato |
 | TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | TODO | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
@@ -173,9 +173,10 @@ server-authoritative, UI checkout e staging ed è anch'esso
 snapshot/event/outbox atomici, replay, Client receipt e staging ed è anch'esso
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-028 ha completato list/detail/timeline,
 cancel idempotente, cache offline, deep link, Client UI e staging ed è anch'esso
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-029 è l'unico task
-`ACTIVE / EXECUTION` e i task successivi restano `TODO` fino al relativo handoff. La
-dipendenza TASK-010 è
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-029 ha completato queue/detail, state
+machine e transition Admin ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-030 è
+l'unico task `ACTIVE / EXECUTION` e i task successivi restano `TODO` fino al relativo
+handoff. La dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
 circolari della sua definizione.
@@ -409,3 +410,18 @@ TASK-028 non è `DONE`: attende la review integrata finale.
 
 Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-029, con writer Admin/Supabase.
+
+## Ultimo checkpoint interno — TASK-029
+
+Il revision set Admin/Supabase `23bfab60b91ef192dbb726bde454287cea144c8f`
+ha applicato in staging la migration `20260803053000`: permessi orders, queue/detail
+strict, state machine, ledger FORCE RLS e transition idempotente/versionata con event,
+audit e outbox atomici. pgTAP 34/34, race due operatori, foundation 856 pass + 2 skip,
+CI `30798108711`, build Cloudflare `30798108767`, deploy `30796888108` e acceptance
+`30798109969` sono `PASS`. Queue/transizione staging 1/1, predecessor publish 1/1,
+fixture persistente e cleanup sono verdi; nessuna riga `pos_sales` è stata creata.
+Production è invariata. TASK-029 non è `DONE`: attende la review integrata finale.
+
+Handoff:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-030, con writer Admin/Supabase e poi
+Win7POS.

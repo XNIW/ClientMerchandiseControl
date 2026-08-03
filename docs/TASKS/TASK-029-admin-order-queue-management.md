@@ -5,14 +5,14 @@
 - **Task ID**: TASK-029
 - **Titolo**: Admin Console: gestione e preparazione ordini
 - **File task**: `docs/TASKS/TASK-029-admin-order-queue-management.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-03
 - **Ultimo aggiornamento**: 2026-08-03
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-029/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -152,13 +152,108 @@ handoff POS e vendita fiscale.
 
 ## Execution — `CODEX_EXECUTOR`
 
-Audit read-only da avviare su navigazione/componenti/RBAC Admin e sul contract
-order/event/outbox/audit. Nessuna state machine o migration viene fissata prima di
-avere mappato ruoli, archi fulfillment e payload privacy-safe.
+### Audit e implementazione
+
+- l'audit ha confermato `customer_orders`, item snapshot, status event e outbox come
+  authority dell'ordine cliente e `pos_sales` come confine fiscale separato; il browser
+  non legge tabelle private né usa `service_role`;
+- la migration additiva `20260803053000_storefront_v1_admin_orders` aggiunge i permessi
+  `orders.view`/`orders.manage`, un ledger mutation privato `FORCE RLS`, RPC strict per
+  queue/detail e transizione, indici bounded e grant minimi;
+- queue e detail derivano lo shop dall'authorization context, usano keyset
+  `(placed_at,id)`, limite massimo 50 e payload allow-list; la ricerca copre soltanto
+  codice ordine e nome pubblico item;
+- la state machine server-side implementa `accept`, `reject`, `preparing`, `ready`,
+  `out_for_delivery`, `complete` e `cancel`, con archi specifici per pickup,
+  reservation e delivery, `expected_status_version`, lock e idempotency key;
+- ogni commit valido aggiorna ordine, event append-only, audit redatto, outbox
+  POS-neutral e ledger nella stessa transazione; replay identico restituisce lo stesso
+  risultato, payload divergente e secondo operatore stale falliscono chiusi;
+- la route `/shop/orders` riusa shell e design system esistenti: filtri persistenti,
+  ricerca, status chip, queue/detail responsive, timeline, stato handoff e azioni
+  contestuali con conferma, keyboard/focus e messaggi recuperabili;
+- il deploy staging applicativo è sullo SHA `1a50fcd1`; i commit successivi fino a
+  `23bfab60` modificano soltanto fixture/test e sono stati verificati dalla CI e
+  dall'acceptance exact-SHA;
+- la fixture Storefront persistente è stata resa idempotente e non distruttiva: upsert
+  bounded dello shop canonico, nessuna cancellazione di shop/audit/ordini e verifica
+  pubblica finale; le server action streaming sono attese tramite target UUID distinto
+  e navigation `commit`.
+
+### Revision set eseguito
+
+- Admin/Supabase finale: `23bfab60b91ef192dbb726bde454287cea144c8f`, PR #67 draft;
+- SHA applicativo deployato: `1a50fcd1e16107c381bf0cf8ed47991b7c8afd73`;
+- Client runtime invariato: `1855100f34a3563787b1ac71eafb4af60a1b72e6`, PR #5 draft;
+- migration staging: `20260803053000_storefront_v1_admin_orders`;
+- apply/verify staging: run `30791945888`; artifact migration `8847378085`, digest
+  `sha256:0791420eb645f90d3bd3dd58b5472cf332f92351023ce848d885ae6dc32e755b`;
+  artifact TASK-029 `8847396310`, digest
+  `sha256:347f6dd964f64bd9a1572069ce8ac9337f1f525e38ca2db7eb1bd74b0cf61e4f`;
+- deploy staging: run `30796888108`; acceptance finale exact-SHA: run `30798109969`;
+  fixture artifact `8849757536`, digest
+  `sha256:c2b596c2bdbfc827ac3def9889565a1dc53ac0f48bc694e4bb5d8022d6c454e5`;
+- production e feature flag: invariati/OFF; consumer POS e push non attivati.
+
+### Gate
+
+- `supabase db reset`: exit 0, 27,18 s; replay migration completo `PASS`;
+- pgTAP TASK-029: exit 0, 34/34, 1,60 s; race due operatori: exit 0, 1,33 s;
+- suite foundation locale: exit 0, 858 totali, 856 pass + 2 skip, 11,39 s;
+- `npm run verify` con worktree Win7POS release richiesto: exit 0, 21,27 s;
+- Playwright locale queue/detail desktop+tablet: exit 0, 2/2, 8,66 s; regressione
+  pubblicazione finale: exit 0, 1/1, 11,8 s;
+- CI finale `30798108711`: `PASS` sullo SHA esatto; job Verify 2m52s, Database
+  migrations/pgTAP 3m6s, UI smoke 48/48 e build `/shop/orders` inclusa;
+- Cloudflare PR build `30798108767`: `PASS` in 3m34s; deploy production `NOT_RUN`
+  perché correttamente skipped;
+- staging acceptance `30798109969`: pubblicazione/promozioni/fulfillment 1/1 in 55,2 s,
+  queue/transizione ordine 1/1 in 8,8 s, cleanup 0 e fixture persistente `PASS`;
+- contratti dipendenti TASK-024 `30798106257` e TASK-026 `30798106250`: `PASS`;
+- dependency audit: exit 0, 660 package, 0 vulnerabilità; secret/diff/artifact scan e
+  worktree Admin pulito: `PASS`.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate tecnici; nessuna review formale intermedia.
+TASK-029 è tecnicamente validato e consegnato alla futura review integrata come
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. Lo staging ha verificato publish/fulfillment,
+queue/detail, transizione reale, assenza di `pos_sales`, cleanup e fixture persistente.
+Nessuna review formale intermedia o modifica production è stata eseguita.
+
+I tentativi non candidati sono preservati: grant `service_role` del ledger incompleto,
+lettura fulfillment immediata non coerente, navigation RSC fredda, fixture distruttiva
+incompatibile con gli ordini persistenti e predicate URL che poteva soddisfarsi sul
+target precedente. Ogni causa primaria è stata corretta con una regressione; il run
+finale non è un retry cieco.
+
+### Matrice CA -> evidence
+
+| Criterio | Evidence | Stato |
+|---|---|---|
+| CA-01 | RPC queue/detail shop-scoped, keyset, filtri e allow-list pgTAP | PASS |
+| CA-02 | permission matrix personale/POS Admin e denial anon/cross-shop | PASS |
+| CA-03 | state machine esaustiva per pickup/reservation/delivery | PASS |
+| CA-04 | lock/version/ledger, race due operatori ed event/audit/outbox atomici | PASS |
+| CA-05 | contract/outbox `documentKind=customer_order`, zero write `pos_sales` | PASS |
+| CA-06 | Playwright desktop/tablet, axe, focus, queue/detail/timeline/azioni | PASS |
+| CA-07 | loading/error/empty, double submit, stale e timeout recuperabili | PASS |
+| CA-08 | audit metadata allow-list e correlation/request UUID sanitizzati | PASS |
+| CA-09 | gate locali, CI, deploy e staging exact-SHA | PASS |
+| CA-10 | scan secret/artifact, production invariata e flag OFF | PASS |
+
+### Matrice T-NN -> risultato
+
+| Test | Risultato | Stato |
+|---|---|---|
+| T-01 | owner/manager ammessi; insufficient role, anon e cross-shop negati | PASS |
+| T-02 | cursor stabile, filtri combinati, limite 50 e zero field interno | PASS |
+| T-03 | tutti gli archi validi e skip/backward/terminal rifiutati | PASS |
+| T-04 | un commit, un stale loser e replay identico | PASS |
+| T-05 | event/audit/outbox/ledger atomici e rollback senza record parziali | PASS |
+| T-06 | fiscal status `not_created` e zero riga `pos_sales` | PASS |
+| T-07 | UI locale e staging, filtri/detail/confirm/error/keyboard | PASS |
+| T-08 | compact/wide, target, focus, Semantics/ARIA e contrasto | PASS |
+| T-09 | staging exact-SHA, fixture idempotente, cleanup e production unchanged | PASS |
 
 ## Review / Fix
 
@@ -168,6 +263,7 @@ Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
 
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: TASK-030 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Follow-up candidate**: TASK-030 attivato dopo checkpoint verde
+- **Riepilogo finale**: queue e workflow Admin ordini tecnicamente validati; review
+  integrata differita al freeze multi-repository
 - **Data completamento**: non ancora

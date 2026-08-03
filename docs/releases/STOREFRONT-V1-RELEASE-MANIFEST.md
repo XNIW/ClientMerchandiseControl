@@ -13,9 +13,9 @@
 
 | Repository | Branch | SHA revisionato | PR | Versione schema | Versione API | Deployment staging | Feature flag | Ultimo gate | Prossimo checkpoint | Rollback |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ClientMerchandiseControl | `integration/storefront-v1` | `1855100f34a3563787b1ac71eafb4af60a1b72e6` | `#5 DRAFT` | local cache v4 + checkout draft v2 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment v1, customer-order/history v1 | 526 test + benchmark 1/77,31%; history integration 1/1 Android/iOS e artifact smoke `PASS`; CI `30787721420` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-028 Client `PASS` tecnico | TASK-029 nessun Client writer previsto | revert commit/branch; feature flag OFF |
-| merchandise-control-admin-web | `integration/storefront-v1` | `119169375fa477995b41c34b3766deca32fec056` | `#67 DRAFT` | `20260803050000` | `storefront.v1`, `customer.v1`, `customer-cart.v1`, availability ingest v1, reservation hold v1, checkout fulfillment v1, customer-order/history v1 | CI `30787892745`; Cloudflare `30787892757`; staging `30787890770`, tutti `PASS` | production `OFF`; cancellation default OFF | TASK-028 30/30, cancel race/replay | TASK-029 Admin queue/state machine | migration additiva + feature flag OFF |
-| Win7POS | `integration/storefront-v1` | baseline `41cf4b8dddd86ed51a49c0b670c81eabe9700405` | `NOT_RUN` | n/a | POS handoff `NOT_RUN` | harness `NOT_RUN` | handoff `OFF` | release worktree fast-forward e pulito; checkout root dirty preservato | TASK-030 | disabilitare consumer e replay queue |
+| ClientMerchandiseControl | `integration/storefront-v1` | `1855100f34a3563787b1ac71eafb4af60a1b72e6` | `#5 DRAFT` | local cache v4 + checkout draft v2 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment v1, customer-order/history v1 | 526 test + benchmark 1/77,31%; history integration 1/1 Android/iOS e artifact smoke `PASS`; CI `30787721420` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-028 Client `PASS` tecnico | TASK-030 nessun Client writer previsto | revert commit/branch; feature flag OFF |
+| merchandise-control-admin-web | `integration/storefront-v1` | `23bfab60b91ef192dbb726bde454287cea144c8f` | `#67 DRAFT` | `20260803053000` | `storefront.v1`, `customer.v1`, `customer-cart.v1`, availability/hold/checkout v1, customer-order/history/admin-orders v1 | CI `30798108711`; Cloudflare build `30798108767`; deploy `30796888108`; acceptance `30798109969`, tutti `PASS` | production `OFF`; cancellation/POS consumer default OFF | TASK-029 34/34, race e staging queue/transizione | TASK-030 POS claim/ack | migration additiva + consumer flag OFF |
+| Win7POS | `integration/storefront-v1` | baseline `41cf4b8dddd86ed51a49c0b670c81eabe9700405` | `NOT_RUN` | n/a | POS handoff `NOT_RUN` | harness `NOT_RUN` | handoff `OFF` | release worktree fast-forward e pulito; checkout root dirty preservato | TASK-030 ACTIVE | disabilitare consumer e replay queue |
 | MerchandiseControlSplitView | non creato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout dirty preservato | nessuno corrente | nessuna modifica prevista |
 | iOSMerchandiseControl | non clonato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout assente | nessuno corrente | nessuna modifica prevista |
 
@@ -200,3 +200,25 @@ backend production.
 - **Transizione**: TASK-029 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per queue/detail Admin, RBAC, state machine e transition idempotenti con audit/event/
   outbox, con writer Admin/Supabase.
+
+## 2026-08-03 — Checkpoint interno TASK-029 e attivazione TASK-030
+
+- **Agente**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il planning del task
+  successivo già autorizzato; nessuna review formale intermedia.
+- **TASK-029**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; queue/detail Admin, RBAC,
+  state machine e transition idempotenti/versionate con event/audit/outbox atomici.
+- **Admin/Supabase finale**:
+  `23bfab60b91ef192dbb726bde454287cea144c8f`, PR #67 draft; migration additiva
+  `20260803053000_storefront_v1_admin_orders`; SHA applicativo staging `1a50fcd1`.
+- **Gate locali/CI**: replay 27,18 s; pgTAP 34/34; race due operatori; foundation
+  856 pass + 2 skip; Playwright queue/detail 2/2; CI `30798108711` e Cloudflare build
+  `30798108767` `PASS` sullo SHA finale.
+- **Staging**: migration/verify `30791945888`, deploy `30796888108`, acceptance finale
+  `30798109969`; publish 1/1, queue/transizione 1/1, cleanup 0 e fixture persistente
+  `PASS`. Artifact `8847378085`, `8847396310`, `8849757536` con digest sanitizzati.
+- **Sicurezza/production**: response/audit/outbox allow-list, fiscal status
+  `not_created`, zero `pos_sales`, 0 vulnerabilità npm; nessun write/deploy production,
+  flag e consumer OFF.
+- **Transizione**: TASK-030 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per envelope, claim/lease/ack, inbox POS idempotente, offline/reconnect e confine
+  fiscale, con writer Admin/Supabase -> Win7POS.

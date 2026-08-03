@@ -161,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-029
-- **File task**: docs/TASKS/TASK-029-admin-order-queue-management.md
+- **Task attivo**: TASK-030
+- **File task**: docs/TASKS/TASK-030-win7pos-handoff-fiscal-boundary.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION

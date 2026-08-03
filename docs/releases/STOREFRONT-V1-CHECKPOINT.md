@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 4 / TASK-029 Admin ordini
-- **Task corrente**: TASK-029
-- **Repository writer corrente**: merchandise-control-admin-web / Supabase
+- **Fase corrente**: EXECUTION / Milestone 4 / TASK-030 Win7POS handoff
+- **Task corrente**: TASK-030
+- **Repository writer corrente**: merchandise-control-admin-web / Supabase, poi Win7POS
 - **Branch**: `integration/storefront-v1`
 - **SHA Client runtime corrente**: `1855100f34a3563787b1ac71eafb4af60a1b72e6`
-- **SHA Admin/Supabase corrente**: `119169375fa477995b41c34b3766deca32fec056`
+- **SHA Admin/Supabase corrente**: `23bfab60b91ef192dbb726bde454287cea144c8f`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -127,14 +127,20 @@
   order bounded owner/shop, recovery cancel, UI/deep link, 526 test + performance 1,
   coverage 77,31%, build/integration/smoke Android/iOS `PASS`. CI Client
   `30787721420` `BLOCKED` esterna per billing prima dei runner.
-- **Gate ancora necessari**: TASK-029 queue/detail Admin, RBAC shop-scoped, state
-  machine, transition idempotenti/versionate, audit/event/outbox e Playwright staging
-- **Comando successivo esatto**: nel writer Admin/Supabase, auditare in sola lettura
-  route/componenti Storefront Admin, session/RBAC e `customer_orders`, status event,
-  outbox/audit; fissare role matrix, archi fulfillment, payload allow-list e cursor
-  prima della migration additiva TASK-029
+- **Gate TASK-029**: Admin `23bfab60`, migration staging `20260803053000`, queue/detail
+  strict e state machine con ledger FORCE RLS, event/audit/outbox atomici; pgTAP 34/34,
+  race due operatori, foundation 856 pass + 2 skip, CI `30798108711`, Cloudflare build
+  `30798108767`, deploy staging `30796888108` e acceptance `30798109969` `PASS`.
+  Staging predecessor publish 1/1, queue/transizione 1/1, cleanup 0 e fixture persistente
+  `PASS`; artifact `8847378085`, `8847396310`, `8849757536` con digest registrati.
+- **Gate ancora necessari**: TASK-030 envelope/claim/lease/ack, inbox POS durevole,
+  duplicate/offline/reconnect, fiscal boundary, build net48 x86 e staging
+- **Comando successivo esatto**: nel worktree Win7POS, auditare in sola lettura
+  `Win7POS.Core/Online`, trusted device/session, sync supervisor, persistence e sale
+  commit; nel writer Admin auditare outbox/RPC e fissare envelope, lease e dedup key
+  prima della migration additiva TASK-030
 - **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
-  nessun blocker tecnico corrente per TASK-029
+  nessun blocker tecnico corrente per TASK-030; Windows 7 fisico non ancora eseguito
 - **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`; Android Emulator
   `emulator-5554`, API 35; iOS Simulator iPhone 17 Pro iOS 26.5
   UUID `240F400E-5EFA-486A-9137-FFBBE70F604D`. Sono controllati e necessari ai gate
@@ -146,8 +152,8 @@
   performance extended dataset, TASK-021 profile/address/privacy, TASK-022 device/
   consent/token lifecycle, TASK-023 cart/revalidation, TASK-024 availability/freshness/
   cache refresh, TASK-025 hold/idempotency/expiry/cleanup, TASK-026 fulfillment/quote/
-  checkout, TASK-027 order/snapshot/idempotency e TASK-028 history/timeline/cancel
-  `PASS`; TASK-029 attivato; production invariata
+  checkout, TASK-027 order/snapshot/idempotency, TASK-028 history/timeline/cancel e
+  TASK-029 Admin queue/transitions `PASS`; TASK-030 attivato; production invariata
 
 ## Vincoli di ripresa
 

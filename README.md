@@ -161,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-031
-- **File task**: docs/TASKS/TASK-031-order-notifications.md
+- **Task attivo**: TASK-032
+- **File task**: docs/TASKS/TASK-032-payment-provider-integration.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -201,7 +201,8 @@ timeline, cache read-only, deep link e cancellazione controllata ed è anch'esso
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-029 ha completato queue, detail, RBAC e
 workflow operativo ordini nella Admin Console; TASK-030 ha completato l'handoff POS
 idempotente e il confine tra ordine cliente e vendita fiscale. Entrambi sono
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-031 è l'unico task attivo e realizza la
-pipeline idempotente di notifiche per gli eventi ordine e la relativa integrazione
-client privacy-safe.
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-031 ha completato la pipeline idempotente
+di notifiche ordine e l'integrazione Client privacy-safe ed è anch'esso
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 è l'unico task attivo e definisce
+metodi v1, stato/idempotenza pagamento e boundary provider/webhook fail-closed.
 Gli altri task del train restano `TODO` fino al rispettivo checkpoint.

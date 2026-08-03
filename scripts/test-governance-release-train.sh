@@ -34,6 +34,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-029" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-030" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-031" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-032" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -181,6 +182,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-031/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-031/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-032-payment-provider-integration.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-032/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-032/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -212,21 +219,21 @@ cmc_expect_pass valid "${cmc_case}"
 
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \
-  's/| TASK-032 | Decisione provider e integrazione pagamenti | TODO |/| TASK-032 | Decisione provider e integrazione pagamenti | ACTIVE |/' \
+  's/| TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW |/| TASK-031 | Notifiche push e order status events | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-031/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-032/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-031 | Notifiche push e order status events | ACTIVE |/| TASK-031 | Notifiche push e order status events | DONE |/' \
+  's/| TASK-032 | Decisione provider e integrazione pagamenti | ACTIVE |/| TASK-032 | Decisione provider e integrazione pagamenti | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"

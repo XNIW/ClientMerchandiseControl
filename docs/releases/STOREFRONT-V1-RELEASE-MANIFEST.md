@@ -13,8 +13,8 @@
 
 | Repository | Branch | SHA revisionato | PR | Versione schema | Versione API | Deployment staging | Feature flag | Ultimo gate | Prossimo checkpoint | Rollback |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ClientMerchandiseControl | `integration/storefront-v1` | `1855100f34a3563787b1ac71eafb4af60a1b72e6` | `#5 DRAFT` | local cache v4 + checkout draft v2 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment v1, customer-order/history v1 | 526 test + benchmark 1/77,31%; history integration 1/1 Android/iOS e artifact smoke `PASS`; CI `30787721420` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-030 nessun runtime Client modificato | TASK-031 receive/deep-link/pref | revert commit/branch; feature flag OFF |
-| merchandise-control-admin-web | `integration/storefront-v1` | `64ef3170f5830e044ac130b127c94149d25ee1fc` | `#67 DRAFT` | `20260803060000` | Storefront/customer/cart/availability/hold/checkout/order/history/admin-orders + POS handoff v1 | CI `30805402075`; Cloudflare `30805402072`; deploy `30804781883`; E2E `30805397611`, tutti `PASS` | production `OFF`; POS/push consumer OFF | TASK-030 40/40, race e staging claim/ack/fiscal boundary | TASK-031 push outbox/dispatcher | migration additiva + consumer flag OFF |
+| ClientMerchandiseControl | `integration/storefront-v1` | `ed2f8a5c95f70ce057860027408d9f61314d6f4e` | `#5 DRAFT` | local cache v4 + checkout draft v2 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment v1, customer-order/history/notification-route v1 | 538 test/77,45%; notification/deep-link 19/19, Android JVM 1/1, XCTest 4/4 e smoke route Android/iOS `PASS`; CI `30811578997` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-031 receive/deep-link/refresh headless `PASS` | TASK-032 payment method/state UI | revert commit/branch; feature flag OFF |
+| merchandise-control-admin-web | `integration/storefront-v1` | `e9bcbc8c98a7dc1d0fdcfdbd549d7968a2fdbb19` | `#67 DRAFT` | `20260803104431` | Storefront/customer/cart/availability/hold/checkout/order/history/admin-orders/POS handoff + order notifications v1 | CI `30811750153`; Cloudflare `30811750080`; staging `30811747216`, tutti `PASS` | production `OFF`; POS/push/payment consumer OFF | TASK-031 40/40, dispatcher/race e E2E recording provider | TASK-032 payment aggregate/provider boundary | migration additiva + provider/consumer flag OFF |
 | Win7POS | `integration/storefront-v1` | `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474` | `#88 DRAFT` | SQLite `0012-customer-order-inbox` | `pos-customer-order-handoff-v1`, `pos-customer-order-ack-v1` | CI Windows `30804008501` 878/878; Security `30804007997`; staging server E2E `30805397611`, tutti `PASS` | production handoff `OFF` | inbox/lease/replay/fiscal boundary `PASS`; Win7 fisico `BLOCKED` esterno | TASK-031 nessun writer previsto | disabilitare lane, preservare inbox e replay queue |
 | MerchandiseControlSplitView | non creato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout dirty preservato | nessuno corrente | nessuna modifica prevista |
 | iOSMerchandiseControl | non clonato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout assente | nessuno corrente | nessuna modifica prevista |
@@ -245,3 +245,34 @@ backend production.
 - **Transizione**: TASK-031 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per status notification outbox, recipient consent, dispatcher idempotente, payload
   privacy-safe e receive/deep-link Client, con writer Admin/Supabase -> Client.
+
+## 2026-08-03 — Checkpoint interno TASK-031 e attivazione TASK-032
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train; nessuna review formale intermedia.
+- **TASK-031**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; event/delivery/receipt ledger,
+  recipient eligibility, dispatcher idempotente e route Client headless completati.
+- **Admin/Supabase**: SHA finale `e9bcbc8c98a7dc1d0fdcfdbd549d7968a2fdbb19`,
+  PR #67; migration `20260803104431`; pgTAP 40/40, dispatcher 7/7, foundation CI
+  859 pass + 13 skip e zero fail; CI `30811750153` e Cloudflare `30811750080` `PASS`.
+- **Staging**: migration applicata dalla run `30809256239`; dry-run/post-verify e E2E
+  finale `30811747216` `PASS`: payload localizzato/opaco, due messaggi recording,
+  una delivery terminale, flag/revoke/rotation fail-closed, cleanup zero e nessuna
+  credential provider. Artifact E2E `8855111072`, digest
+  `sha256:274d0f305e8797c8975d8184ceab2feb5f06848d9688a2caabb7555447c4e84e`.
+- **Client**: SHA runtime `ed2f8a5c95f70ce057860027408d9f61314d6f4e`,
+  PR #5; repository/controller owner-scoped, parser route strict, Android onCreate/
+  onNewIntent e iOS notification response/cold scene bridge. Gate canonico 538 test,
+  coverage 77,45%, 19/19 mirati, Android JVM 1/1, XCTest 4/4, build e smoke route
+  Android/iOS `PASS`.
+- **CI Client**: run `30811578997` `BLOCKED` esterna: Quality/Android/iOS hanno zero
+  runner/step e annotation billing/spending limit; nessun test CI è dichiarato `PASS`.
+- **Difetto corretto durante Execution**: il primo E2E aveva JSON valido preceduto dal
+  banner npm nel file `tee`; invocazione Node diretta e regressione workflow hanno
+  portato la run finale interamente verde.
+- **Sicurezza/production**: zero secret/PII/internal ID in payload/log/artifact;
+  production invariata e push flag OFF. Delivery APNs/FCM reale `BLOCKED` esterna per
+  assenza di credential, senza fingere una consegna a device.
+- **Transizione**: TASK-032 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per pay-at-pickup, COD opt-in, payment state/idempotency/webhook boundary e online
+  payment fail-closed/OFF, con writer Admin/Supabase -> Client.

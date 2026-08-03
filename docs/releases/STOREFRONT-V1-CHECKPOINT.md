@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 4 / TASK-031 notifiche ordine
-- **Task corrente**: TASK-031
+- **Fase corrente**: EXECUTION / Milestone 4 / TASK-032 pagamenti
+- **Task corrente**: TASK-032
 - **Repository writer corrente**: merchandise-control-admin-web / Supabase, poi Client
 - **Branch**: `integration/storefront-v1`
-- **SHA Client runtime corrente**: `1855100f34a3563787b1ac71eafb4af60a1b72e6`
-- **SHA Admin/Supabase corrente**: `64ef3170f5830e044ac130b127c94149d25ee1fc`
+- **SHA Client runtime corrente**: `ed2f8a5c95f70ce057860027408d9f61314d6f4e`
+- **SHA Admin/Supabase corrente**: `e9bcbc8c98a7dc1d0fdcfdbd549d7968a2fdbb19`
 - **SHA Win7POS corrente**: `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
@@ -142,15 +142,26 @@
   fiscal reference e cleanup 0 `PASS`. Win7POS `6c2eb9c8`, PR #88; CI Windows
   `30804008501` 878/878 e 46/46, WPF x86/smoke `PASS`; security/SBOM/CodeQL
   `30804007997` `PASS`.
-- **Gate ancora necessari**: TASK-031 event/outbox/dispatcher push, recipient consent,
-  payload privacy-safe, Client receive/deep-link e staging; provider reale solo se già
-  configurato non interattivamente
-- **Comando successivo esatto**: nel writer Admin auditare in sola lettura
-  `customer_devices`, order status/outbox e config provider; nel Client auditare config
-  Android/iOS, lifecycle notification e deep-link router prima della migration TASK-031
+- **Gate TASK-031**: Admin `e9bcbc8c`, migration staging `20260803104431`, tre ledger
+  privati `FORCE RLS`, trigger/event/delivery/receipt, claim/ack service-only,
+  generation fence e route owner-scoped; pgTAP 40/40, dispatcher 7/7, CI
+  `30811750153`, Cloudflare `30811750080` e staging `30811747216` `PASS`; artifact
+  E2E `8855111072`, digest
+  `sha256:274d0f305e8797c8975d8184ceab2feb5f06848d9688a2caabb7555447c4e84e`.
+  Client `ed2f8a5`, 538 test, coverage 77,45%, 19/19 notification/deep-link,
+  Android JVM 1/1, XCTest 4/4, build e smoke route Android/iOS `PASS`; CI Client
+  `30811578997` `BLOCKED` esterna per billing prima dei runner. Provider live
+  `BLOCKED` esterno per zero credential APNs/FCM/Firebase/push disponibili.
+- **Gate ancora necessari**: TASK-032 ADR/provider decision, metodi pay-at-pickup/COD,
+  payment state/idempotency/webhook boundary, Client/Admin UI e staging; online
+  provider solo se credential sandbox già configurate non interattivamente
+- **Comando successivo esatto**: nel writer Admin auditare in sola lettura checkout,
+  order/payment fields, feature flag, provider dependency/secret names e fiscal
+  boundary; poi registrare ADR e contract state/idempotency/webhook di TASK-032
 - **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
-  Windows 7 fisico `BLOCKED` esterno; credential provider push non ancora auditate.
-  Nessun blocker tecnico corrente per l'audit/implementazione indipendente TASK-031
+  Windows 7 fisico `BLOCKED` esterno; provider push live `BLOCKED` esterno per assenza
+  di credential. Nessun blocker tecnico corrente per l'audit/implementazione
+  indipendente TASK-032
 - **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`; Android Emulator
   `emulator-5554`, API 35; iOS Simulator iPhone 17 Pro iOS 26.5
   UUID `240F400E-5EFA-486A-9137-FFBBE70F604D`. Sono controllati e necessari ai gate
@@ -163,8 +174,9 @@
   consent/token lifecycle, TASK-023 cart/revalidation, TASK-024 availability/freshness/
   cache refresh, TASK-025 hold/idempotency/expiry/cleanup, TASK-026 fulfillment/quote/
   checkout, TASK-027 order/snapshot/idempotency, TASK-028 history/timeline/cancel e
-  TASK-029 Admin queue/transitions e TASK-030 POS claim/ack/replay/fiscal boundary
-  `PASS`; TASK-031 attivato; production invariata e push flag OFF
+  TASK-029 Admin queue/transitions, TASK-030 POS claim/ack/replay/fiscal boundary e
+  TASK-031 notification outbox/dispatcher/deep-link `PASS`; TASK-032 attivato;
+  production invariata e push/online-payment flag OFF
 
 ## Vincoli di ripresa
 

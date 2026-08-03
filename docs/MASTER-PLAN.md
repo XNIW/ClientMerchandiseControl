@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-031
-- **File task**: docs/TASKS/TASK-031-order-notifications.md
+- **Task attivo**: TASK-032
+- **File task**: docs/TASKS/TASK-032-payment-provider-integration.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,9 +14,10 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: auditare in sola lettura customer devices/consent,
-  order status/outbox, config Android/iOS, deep-link router e provider push esistenti;
-  fissare event allow-list, recipient eligibility, dedup key e retry di TASK-031
+- **Prossima azione autorizzata**: auditare in sola lettura checkout/order/payment
+  fields, feature flag, secret/variable provider, dipendenze, Admin configuration,
+  Client payment UI e confine fiscale Win7POS; fissare ADR, metodi v1, state machine,
+  idempotency e webhook boundary di TASK-032
 
 ## Repository coinvolti
 
@@ -83,8 +84,8 @@
 | TASK-028 | Storico, dettaglio e stato ordine | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-027 | Client, Admin, Supabase | Tracking ordine cliente |
 | TASK-029 | Admin Console: gestione e preparazione ordini | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-007, TASK-027 | Admin, Supabase | Workflow preparazione ordini |
 | TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-006, TASK-024, TASK-027, TASK-029 | POS, Admin, Supabase | Handoff operativo senza fusione eventi |
-| TASK-031 | Notifiche push e order status events | ACTIVE | TASK-022, TASK-027, TASK-028, TASK-029 | Client, Admin, Supabase | Eventi e notifiche affidabili |
-| TASK-032 | Decisione provider e integrazione pagamenti | TODO | TASK-027 | Client, Admin, Supabase | Pagamento selezionato e integrato |
+| TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-022, TASK-027, TASK-028, TASK-029 | Client, Admin, Supabase | Eventi e notifiche affidabili |
+| TASK-032 | Decisione provider e integrazione pagamenti | ACTIVE | TASK-027 | Client, Admin, Supabase | Pagamento selezionato e integrato |
 | TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | TODO | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
 | TASK-034 | Offline/reconnect/concorrenza/idempotenza test matrix | TODO | TASK-017, TASK-023, TASK-025, TASK-027, TASK-030 | Client, Admin, Supabase, POS | Matrice resilienza superata |
 | TASK-035 | Observability, crash reporting e analytics privacy-safe | TODO | TASK-011, TASK-020, TASK-027, TASK-031 | Client, Admin | Telemetria privacy-safe |
@@ -177,7 +178,9 @@ cancel idempotente, cache offline, deep link, Client UI e staging ed è anch'ess
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-029 ha completato queue/detail, state
 machine e transition Admin ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-030 ha
 completato claim/lease/ack, inbox durevole Win7POS, replay/offline e confine fiscale ed
-è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-031 è l'unico task
+è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-031 ha completato event/delivery/receipt,
+dispatcher idempotente, payload privacy-safe e route notifiche Android/iOS ed è
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 è l'unico task
 `ACTIVE / EXECUTION` e i task successivi restano `TODO` fino al relativo handoff. La
 dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
@@ -446,3 +449,23 @@ TASK-030 non è `DONE`: attende la review integrata finale.
 Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-031, con writer Admin/Supabase e poi
 Client.
+
+## Ultimo checkpoint interno — TASK-031
+
+Il revision set Admin/Supabase `e9bcbc8c98a7dc1d0fdcfdbd549d7968a2fdbb19`
+ha applicato in staging la migration `20260803104431`: tre ledger privati `FORCE RLS`,
+claim/ack service-only, recipient generation fence, retry/replay e route owner-scoped.
+pgTAP TASK-031 40/40, dispatcher 7/7, CI `30811750153`, Cloudflare
+`30811750080` e staging `30811747216` sono `PASS`; l'artifact E2E prova payload
+localizzato/opaco, due messaggi recording, una delivery terminale, flag/revoke/rotation
+fail-closed, cleanup zero e nessuna credential provider. Il revision set Client
+`ed2f8a5c95f70ce057860027408d9f61314d6f4e` ha superato 538 test, coverage
+77,45%, build Android/iOS, 19/19 test mirati, Android JVM 1/1, XCTest 4/4 e smoke
+notification route headless Android/iOS. La CI Client `30811578997` resta `BLOCKED`
+esterna per billing, con tre job senza runner/step. Il delivery APNs/FCM reale resta
+`BLOCKED` esterno per assenza di credential; production e push flag sono invariati/OFF.
+TASK-031 non è `DONE`: attende la review integrata finale.
+
+Handoff:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-032, con writer Admin/Supabase e poi
+Client; online payment resta fail-closed/OFF salvo credential sandbox già esistenti.

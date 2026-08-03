@@ -5,14 +5,14 @@
 - **Task ID**: TASK-031
 - **Titolo**: Notifiche push e order status events
 - **File task**: `docs/TASKS/TASK-031-order-notifications.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-03
 - **Ultimo aggiornamento**: 2026-08-03
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-031/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -151,13 +151,111 @@ o dichiarare consegne non realmente osservate.
 
 ## Execution — `CODEX_EXECUTOR`
 
-Audit read-only iniziale su schema device/consent, order status/outbox, configurazione
-mobile e provider disponibili. Nessuna credenziale o dipendenza viene aggiunta prima
-di avere verificato il confine già esistente.
+### Audit e implementazione
+
+- l'audit ha riusato `customer_devices`, consent/revoke/rotation di TASK-022 e gli
+  status event autorevoli di TASK-027/TASK-029; non esistevano credential APNs/FCM o
+  variabili provider nei secret/ambienti GitHub e nessun provider è stato inventato;
+- la migration additiva `20260803104431_storefront_v1_order_notifications` introduce
+  event, delivery per destination generation e receipt ledger privati `FORCE RLS`,
+  senza policy client; trigger e reservation-expiry producer materializzano una sola
+  notifica per event/version/destination eleggibile;
+- claim e ack sono service-only, bounded e idempotenti: lease, retry/backoff,
+  dead-letter, replay ack, generation fence e revoca token sono verificati; il flag
+  `customer_order_push_enabled` è fail-closed e resta `false`;
+- il dispatcher espone una provider interface server-side e un recording provider di
+  test forte. Il payload lock-screen è versionato/localizzato e contiene soltanto
+  status pubblico, codice abbreviato e route opaca; token, owner/order ID, email,
+  indirizzo, item, totale e receipt provider raw non sono persistiti o loggati;
+- il Client aggiunge repository/controller owner-scoped, parser strict della risposta
+  `customer_notification_route_v1`, coalescing duplicate, LRU bounded, generation
+  fence, recovery offline e refresh reale del dettaglio ordine dopo il tap;
+- Android mappa l'extra allow-listed `deepLink` in `Intent.data` sia in `onCreate` sia
+  in `onNewIntent`; iOS configura `UNUserNotificationCenter`, foreground presentation,
+  tap response e cold-start `SceneDelegate` verso `app_links`, usando un mapper nativo
+  canonico senza ID interni;
+- gli smoke headless Android/iOS hanno aperto la route opaca staging fino al gate Auth
+  guest; il contenuto ordine non è stato fidato dal push. Production è invariata e il
+  delivery APNs/FCM reale resta `BLOCKED` esterno per assenza di credenziali.
+
+### Revision set eseguito
+
+- Admin/Supabase finale: `e9bcbc8c98a7dc1d0fdcfdbd549d7968a2fdbb19`, PR #67;
+- Client runtime finale: `ed2f8a5c95f70ce057860027408d9f61314d6f4e`, PR #5;
+- Win7POS invariato: `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`, PR #88;
+- migration staging: `20260803104431_storefront_v1_order_notifications`, applicata
+  dalla run `30809256239` sullo SHA SQL `353ade50`; dry-run/post-verify finale
+  `30811747216` sullo SHA `e9bcbc8c`;
+- CI Admin `30811750153`, Cloudflare `30811750080` e staging notification E2E
+  `30811747216`: `PASS` sullo SHA finale;
+- CI Client `30811578997`: `BLOCKED` esterna per billing/spending limit, tre job senza
+  runner né step; i gate locali sullo SHA runtime finale sono `PASS`.
+
+### Gate
+
+- pgTAP dedicato: 40/40 `PASS`; race locale due dispatcher, lease/reclaim, ack replay,
+  rotation/revoke e flag OFF: `PASS`; dispatcher foundation 7/7 `PASS`;
+- CI Admin finale: foundation 872 test, 859 pass + 13 skip e zero failure; database,
+  lint, typecheck, security, build, Playwright smoke e Cloudflare build `PASS`;
+- E2E staging: recording provider 2 messaggi, 1 delivery terminale, payload localizzato,
+  route opaca owner-scoped, revoked/rotated/flag-OFF non claimati, cleanup zero e
+  `productionWriteRequested=false`; provider credential usata `false`;
+- Client canonico `scripts/check.sh`: exit 0, 538 test, coverage
+  11.280/14.565 (77,45%), benchmark 1/1, analyze/format/security/governance/
+  architecture e build Android/iOS `PASS`;
+- test notification/deep-link mirati: 19/19 in 4,37 s; Android JVM mapper 1/1 in
+  0,013 s; XCTest Runner 4/4 in 9,624 s su iPhone 17 Pro iOS 26.5, incluso mapper
+  notifiche e regressioni Activity Sheet;
+- build staging exact-SHA: Android debug 7,4 s e iOS Simulator debug 11,9 s `PASS`;
+  smoke Android cold/warm e `simctl openurl` iOS sono `PASS` senza Computer Use;
+- scan finale: 559 file tracciati, zero secret/config locale/artifact versionato;
+  production e tutti i flag push restano invariati/OFF.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate tecnici; nessuna review formale intermedia.
+TASK-031 è tecnicamente validato e consegnato alla futura review integrata come
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. Event sourcing, recipient eligibility,
+dispatcher idempotente, payload privacy-safe e route mobile headless hanno evidence
+locale, CI e staging. Nessuna review formale intermedia è stata eseguita.
+
+Il primo run staging `30809256239` ha applicato correttamente la migration e superato
+pgTAP/E2E, ma la sola verifica dell'artifact JSON è fallita perché `npm run` aveva
+inserito il banner npm prima del JSON. Il workflow è stato corretto per invocare Node
+direttamente e una regressione statica impedisce la ricomparsa; la run finale
+`30811747216` è interamente verde. La CI Client non è un failure tecnico: GitHub non ha
+avviato alcuno step per billing, quindi resta dichiarata `BLOCKED` esterna.
+
+### Matrice CA -> evidence
+
+| Criterio | Evidence | Stato |
+|---|---|---|
+| CA-01 | trigger/status version, unique ledger e pgTAP duplicate/replay | PASS |
+| CA-02 | eligibility owner/consent/revoke/expiry e tabelle FORCE RLS | PASS |
+| CA-03 | race due dispatcher, lease/reclaim, retry e ack replay | PASS |
+| CA-04 | payload v1 nelle quattro lingue, allow-list e test negativi PII | PASS |
+| CA-05 | generation fence, rotation, invalid token, revoke/logout boundary | PASS |
+| CA-06 | router cold/warm, Android intent reale, iOS mapper/openurl e detail refresh | PASS |
+| CA-07 | duplicate/out-of-order/latest-wins/offline e timeout senza crash | PASS |
+| CA-08 | preferenze TASK-022 riusate; payload/l10n es-CL/it/en/zh-Hans e Semantics | PASS |
+| CA-09 | Admin CI/staging e gate Client locali verdi; provider live non disponibile | PASS |
+| CA-10 | flag OFF, production invariata e scan 559 file senza secret/artifact | PASS |
+
+### Matrice T-NN -> risultato
+
+| Test | Risultato | Stato |
+|---|---|---|
+| T-01 | una notifica per status/version; older event soppresso | PASS |
+| T-02 | soli device owner consentiti; cross-user/revoked/expired negati | PASS |
+| T-03 | un lease winner, retry/reclaim e ack replay idempotente | PASS |
+| T-04 | quattro locale, payload bounded e nessun dato interno | PASS |
+| T-05 | rotation/revoke/logout invalidano monotonamente la destination | PASS |
+| T-06 | cold/warm/background contract e route opaca con refresh ordine | PASS |
+| T-07 | preferenze esistenti accessibili; fallback es e quattro locale | PASS |
+| T-08 | exact SHA, cleanup, secret scan e production unchanged | PASS |
+
+Gate provider APNs/FCM reale: `BLOCKED` esterno, perché nessuna credenziale non
+interattiva è disponibile. Il recording provider non viene presentato come consegna
+fisica a un device.
 
 ## Review / Fix
 
@@ -167,6 +265,7 @@ Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
 
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: TASK-032 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Follow-up candidate**: TASK-032 attivato dopo checkpoint verde
+- **Riepilogo finale**: notifiche ordine tecnicamente validate; review integrata
+  differita al freeze multi-repository
 - **Data completamento**: non ancora

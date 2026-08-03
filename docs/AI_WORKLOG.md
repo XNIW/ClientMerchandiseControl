@@ -1869,3 +1869,33 @@
 - **Transizione**: TASK-031 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per notification outbox/dispatcher, consent/token eligibility, payload lock-screen
   privacy-safe e receive/deep-link Client, con writer Admin/Supabase -> Client.
+
+## 2026-08-03 — Checkpoint interno TASK-031 e attivazione TASK-032
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-031**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; notification event/delivery/
+  receipt, recipient consent/generation, dispatcher idempotente e route mobile
+  owner-scoped completati.
+- **Admin/Supabase**: SHA `e9bcbc8c98a7dc1d0fdcfdbd549d7968a2fdbb19`, PR #67;
+  migration `20260803104431`; pgTAP 40/40, dispatcher 7/7, foundation CI 859 pass +
+  13 skip, CI `30811750153`, Cloudflare `30811750080` e staging `30811747216`
+  `PASS`.
+- **Staging**: due messaggi recording, una delivery terminale, payload localizzato e
+  route opaca, flag OFF/revoke/rotation esclusi, cleanup zero e
+  `productionWriteRequested=false`; artifact E2E `8855111072`, digest
+  `sha256:274d0f305e8797c8975d8184ceab2feb5f06848d9688a2caabb7555447c4e84e`.
+- **Client**: SHA runtime `ed2f8a5c95f70ce057860027408d9f61314d6f4e`, PR #5;
+  538 test, coverage 77,45%, 19/19 notification/deep-link, Android JVM 1/1,
+  XCTest 4/4, build Android/iOS e smoke route headless per piattaforma `PASS`.
+- **CI Client**: run `30811578997` `BLOCKED` esterna; i tre job hanno zero runner/step
+  e annotation billing/spending limit. Nessun test CI è dichiarato `PASS`.
+- **Difetto corretto durante Execution**: il banner `npm run` contaminava il file JSON
+  E2E pur con esecuzione applicativa verde; invocazione Node diretta e regressione
+  statica hanno portato la run finale interamente verde.
+- **Sicurezza/production**: payload e route allow-list, zero PII/internal ID/secret o
+  artifact versionato; production e push flag invariati/OFF. Delivery APNs/FCM reale
+  `BLOCKED` esterna per assenza di credential non interattive.
+- **Transizione**: TASK-032 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per pay-at-pickup, COD opt-in, state/idempotency/webhook e online payment OFF, con
+  writer Admin/Supabase -> Client.

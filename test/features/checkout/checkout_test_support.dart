@@ -13,6 +13,8 @@ const checkoutTestZone = '52000000-0000-4000-8000-000000000001';
 const checkoutTestPickupSlot = '53000000-0000-4000-8000-000000000001';
 const checkoutTestDeliverySlot = '53000000-0000-4000-8000-000000000002';
 const checkoutTestQuote = '54000000-0000-4000-8000-000000000001';
+const checkoutTestOrder = '57000000-0000-4000-8000-000000000001';
+const checkoutTestOrderCode = 'MC-0123456789ABCDEF0123';
 const checkoutTestAddress = '55000000-0000-4000-8000-000000000001';
 const checkoutTestKey = '56000000-0000-4000-8000-000000000001';
 final checkoutTestNow = DateTime.utc(2026, 8, 3, 3);
@@ -173,6 +175,35 @@ CheckoutRemoteResponse checkoutTestResponse({
   quote: quote,
 );
 
+CheckoutOrder checkoutTestOrderSnapshot({bool idempotent = false}) =>
+    CheckoutOrder(
+      id: checkoutTestOrder,
+      code: checkoutTestOrderCode,
+      status: CheckoutOrderStatus.confirmed,
+      version: 1,
+      shopSlug: 'storefront-test',
+      fulfillmentMode: CheckoutFulfillmentMode.pickup,
+      subtotalClp: 2400,
+      deliveryFeeClp: 0,
+      totalClp: 2400,
+      items: checkoutTestQuoteSnapshot().items,
+      placedAt: checkoutTestNow.add(const Duration(seconds: 30)),
+      serverTime: checkoutTestNow.add(const Duration(seconds: 30)),
+      idempotent: idempotent,
+    );
+
+CheckoutOrderRemoteResponse checkoutTestOrderResponse({
+  CheckoutOrderRemoteStatus status = CheckoutOrderRemoteStatus.ok,
+  CheckoutOrder? order,
+  bool idempotent = false,
+}) => CheckoutOrderRemoteResponse(
+  status: status,
+  idempotent: idempotent,
+  serverTime: checkoutTestNow.add(const Duration(seconds: 30)),
+  order: order,
+  orderId: order?.id,
+);
+
 final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
   CheckoutLocalDraft? draft;
   Object? saveError;
@@ -218,11 +249,29 @@ final class FakeCheckoutRepository implements CheckoutRepository {
   StorefrontFulfillmentOptions options;
   final List<Object> createOutcomes = [];
   final List<Object> confirmOutcomes = [];
+  final List<Object> orderOutcomes = [];
   Object? readOutcome;
+  Object? readOrderOutcome;
   final List<CheckoutQuoteCreateRequest> createRequests = [];
   final List<({String quoteId, int version, String key})> confirmRequests = [];
+  final List<({String quoteId, int version, String key})> orderRequests = [];
   int loadOptionsCalls = 0;
   int readCalls = 0;
+  int readOrderCalls = 0;
+
+  @override
+  Future<CheckoutOrderRemoteResponse> createOrder({
+    required String quoteId,
+    required int expectedQuoteVersion,
+    required String idempotencyKey,
+  }) async {
+    orderRequests.add((
+      quoteId: quoteId,
+      version: expectedQuoteVersion,
+      key: idempotencyKey,
+    ));
+    return _resolveOrder(orderOutcomes);
+  }
 
   @override
   Future<CheckoutRemoteResponse> confirmQuote({
@@ -266,6 +315,22 @@ final class FakeCheckoutRepository implements CheckoutRepository {
     throw outcome;
   }
 
+  @override
+  Future<CheckoutOrderRemoteResponse> readOrder({
+    required String orderId,
+  }) async {
+    readOrderCalls++;
+    final outcome = readOrderOutcome;
+    if (outcome == null) {
+      return checkoutTestOrderResponse(
+        status: CheckoutOrderRemoteStatus.notFound,
+      );
+    }
+    if (outcome is CheckoutOrderRemoteResponse) return outcome;
+    if (outcome is Future<CheckoutOrderRemoteResponse>) return outcome;
+    throw outcome;
+  }
+
   Future<CheckoutRemoteResponse> _resolve(List<Object> outcomes) async {
     if (outcomes.isEmpty) {
       throw StateError('Missing checkout outcome.');
@@ -273,6 +338,18 @@ final class FakeCheckoutRepository implements CheckoutRepository {
     final outcome = outcomes.removeAt(0);
     if (outcome is CheckoutRemoteResponse) return outcome;
     if (outcome is Future<CheckoutRemoteResponse>) return outcome;
+    throw outcome;
+  }
+
+  Future<CheckoutOrderRemoteResponse> _resolveOrder(
+    List<Object> outcomes,
+  ) async {
+    if (outcomes.isEmpty) {
+      throw StateError('Missing order outcome.');
+    }
+    final outcome = outcomes.removeAt(0);
+    if (outcome is CheckoutOrderRemoteResponse) return outcome;
+    if (outcome is Future<CheckoutOrderRemoteResponse>) return outcome;
     throw outcome;
   }
 }

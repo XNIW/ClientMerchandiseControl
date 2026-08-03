@@ -130,7 +130,7 @@ void main() {
     expect(router.state.uri.path, AppRoutes.cartLocation);
   });
 
-  testWidgets('pickup valida totale server e conferma il quinto step', (
+  testWidgets('pickup crea ordine server-side e mostra receipt accessibile', (
     tester,
   ) async {
     final repository = FakeCheckoutRepository()
@@ -144,6 +144,9 @@ void main() {
             status: CheckoutQuoteStatus.confirmed,
           ),
         ),
+      )
+      ..orderOutcomes.add(
+        checkoutTestOrderResponse(order: checkoutTestOrderSnapshot()),
       );
     await tester.pumpWidget(buildApp(repository: repository));
     await tester.pumpAndSettle();
@@ -179,8 +182,37 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('checkout-confirm-quote')));
     await tester.pumpAndSettle();
     expect(find.text('Resumen confirmado por la tienda.'), findsWidgets);
+
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    final createOrder = find.byKey(const ValueKey('checkout-create-order'));
+    await tester.ensureVisible(createOrder);
+    await tester.tap(createOrder);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('checkout-order-receipt')),
+      findsOneWidget,
+    );
+    expect(find.text(checkoutTestOrderCode), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('checkout-order-authoritative-total')),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const ValueKey('checkout-order-receipt')))
+          .label,
+      contains(checkoutTestOrderCode),
+    );
+    expect(
+      tester
+          .getSize(find.byKey(const ValueKey('checkout-order-continue')))
+          .height,
+      greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
+    );
     expect(repository.createRequests, hasLength(1));
     expect(repository.confirmRequests, hasLength(1));
+    expect(repository.orderRequests, hasLength(1));
     expect(tester.takeException(), isNull);
   });
 

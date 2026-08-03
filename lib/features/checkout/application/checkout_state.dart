@@ -7,7 +7,7 @@ const _checkoutUnset = Object();
 
 enum CheckoutViewStatus { authRequired, loading, ready, failure }
 
-enum CheckoutNoticeKind { restored, quoteChanged, confirmed }
+enum CheckoutNoticeKind { restored, quoteChanged, confirmed, orderConfirmed }
 
 final class CheckoutState {
   CheckoutState({
@@ -18,6 +18,7 @@ final class CheckoutState {
     this.cart,
     this.options,
     this.quote,
+    this.order,
     this.pendingOperation,
     this.failureKind,
     this.notice,
@@ -65,6 +66,7 @@ final class CheckoutState {
   final CustomerCartSnapshot? cart;
   final StorefrontFulfillmentOptions? options;
   final CheckoutQuote? quote;
+  final CheckoutOrder? order;
   final CheckoutPendingOperation? pendingOperation;
   final CheckoutFailureKind? failureKind;
   final CheckoutNoticeKind? notice;
@@ -72,6 +74,7 @@ final class CheckoutState {
 
   bool get hasPendingRetry => pendingOperation != null;
   bool get isConfirmed => quote?.isConfirmed ?? false;
+  bool get hasOrder => order != null;
 
   CustomerAddress? get selectedAddress => selection.addressId == null
       ? null
@@ -119,6 +122,7 @@ final class CheckoutState {
     Object? cart = _checkoutUnset,
     Object? options = _checkoutUnset,
     Object? quote = _checkoutUnset,
+    Object? order = _checkoutUnset,
     Object? pendingOperation = _checkoutUnset,
     Object? failureKind = _checkoutUnset,
     Object? notice = _checkoutUnset,
@@ -138,6 +142,9 @@ final class CheckoutState {
       quote: identical(quote, _checkoutUnset)
           ? this.quote
           : quote as CheckoutQuote?,
+      order: identical(order, _checkoutUnset)
+          ? this.order
+          : order as CheckoutOrder?,
       pendingOperation: identical(pendingOperation, _checkoutUnset)
           ? this.pendingOperation
           : pendingOperation as CheckoutPendingOperation?,

@@ -48,7 +48,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
     if (cart == null) {
       return _remember(CheckoutState.loading());
     }
-    if (cart.isEmpty) {
+    if (cart.isEmpty && identity == null) {
       return _remember(
         CheckoutState.failure(
           failureKind: CheckoutFailureKind.cartUnavailable,
@@ -64,6 +64,28 @@ final class CheckoutController extends Notifier<CheckoutState> {
     }
     if (cart.source != CartSource.account) {
       return _remember(CheckoutState.loading(cart: cart));
+    }
+    _ownerSubjectId = identity.subjectId;
+    _shopSlug = shopSlug;
+    if (cart.isEmpty) {
+      final rememberedOrder = _lastState?.order;
+      if (rememberedOrder != null &&
+          rememberedOrder.shopSlug == shopSlug &&
+          (_contextKey?.startsWith('$shopSlug|${identity.subjectId}|') ??
+              false)) {
+        return _lastState!;
+      }
+      final nextContext =
+          '$shopSlug|${identity.subjectId}|receipt|${cart.version}';
+      if (_contextKey == nextContext && _lastState != null) {
+        return _lastState!;
+      }
+      _contextKey = nextContext;
+      final loading = CheckoutState.loading(cart: cart);
+      _lastState = loading;
+      final generation = ++_generation;
+      scheduleMicrotask(() => _loadReceipt(generation, cart: cart));
+      return loading;
     }
     if (cart.unavailableItemCount > 0) {
       return _remember(
@@ -87,8 +109,6 @@ final class CheckoutController extends Notifier<CheckoutState> {
       return _lastState!;
     }
     _contextKey = nextContext;
-    _ownerSubjectId = identity.subjectId;
-    _shopSlug = shopSlug;
     final loading = CheckoutState.loading(
       cart: cart,
     ).copyWith(addresses: addresses);
@@ -109,10 +129,13 @@ final class CheckoutController extends Notifier<CheckoutState> {
     return _serialize(() async {
       final pending = state.pendingOperation;
       if (pending != null) {
-        if (pending.kind == CheckoutPendingOperationKind.create) {
-          await _executeCreate(pending);
-        } else {
-          await _executeConfirm(pending);
+        switch (pending.kind) {
+          case CheckoutPendingOperationKind.create:
+            await _executeCreate(pending);
+          case CheckoutPendingOperationKind.confirm:
+            await _executeConfirm(pending);
+          case CheckoutPendingOperationKind.order:
+            await _executeOrder(pending);
         }
         return;
       }
@@ -218,7 +241,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
   }
 
   Future<void> previousStep() async {
-    if (state.isBusy) return;
+    if (state.isBusy || state.hasOrder) return;
     final previous = switch (state.step) {
       CheckoutStep.mode => null,
       CheckoutStep.destination => CheckoutStep.mode,
@@ -286,6 +309,40 @@ final class CheckoutController extends Notifier<CheckoutState> {
     });
   }
 
+  Future<void> createOrder() {
+    return _serialize(() async {
+      final quote = state.quote;
+      final cart = state.cart;
+      if (quote == null ||
+          cart == null ||
+          !quote.isConfirmed ||
+          state.hasOrder) {
+        return;
+      }
+      final existing = state.pendingOperation;
+      final pending =
+          existing?.kind == CheckoutPendingOperationKind.order &&
+              existing?.quoteId == quote.id &&
+              existing?.expectedQuoteVersion == quote.quoteVersion
+          ? existing!
+          : CheckoutPendingOperation(
+              kind: CheckoutPendingOperationKind.order,
+              idempotencyKey: ref.read(customerIdempotencyKeyFactoryProvider)(),
+              cartVersion: cart.version,
+              quoteId: quote.id,
+              expectedQuoteVersion: quote.quoteVersion,
+            );
+      final pendingState = state.copyWith(
+        pendingOperation: pending,
+        failureKind: null,
+        notice: null,
+      );
+      if (!await _persist(pendingState)) return;
+      _publish(pendingState);
+      await _executeOrder(pending);
+    });
+  }
+
   Future<void> restart() {
     return _serialize(() async {
       final owner = _ownerSubjectId;
@@ -300,6 +357,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
             step: CheckoutStep.mode,
             selection: const CheckoutSelection(),
             quote: null,
+            order: null,
             pendingOperation: null,
             failureKind: null,
             notice: null,
@@ -340,6 +398,28 @@ final class CheckoutController extends Notifier<CheckoutState> {
       if (!_isCurrent(generation)) return;
       final options = results[0]! as StorefrontFulfillmentOptions;
       final draft = results[1] as CheckoutLocalDraft?;
+      if (draft?.orderId != null) {
+        final response = await ref
+            .read(checkoutRepositoryProvider)
+            .readOrder(orderId: draft!.orderId!);
+        if (!_isCurrent(generation)) return;
+        final order = response.order;
+        if (response.status == CheckoutOrderRemoteStatus.ok && order != null) {
+          final receipt = CheckoutState(
+            status: CheckoutViewStatus.ready,
+            step: CheckoutStep.confirmation,
+            selection: draft.selection,
+            addresses: addresses,
+            cart: cart,
+            options: options,
+            order: order,
+            notice: restoreNotice ? CheckoutNoticeKind.restored : null,
+          );
+          _publish(receipt);
+          await _persist(receipt);
+          return;
+        }
+      }
       if (options.status != FulfillmentOptionsStatus.ok ||
           !options.modes.any((mode) => mode.enabled)) {
         _publish(
@@ -403,6 +483,77 @@ final class CheckoutController extends Notifier<CheckoutState> {
       );
       _publish(ready);
       await _persist(ready);
+    } on CheckoutRepositoryException catch (error) {
+      if (_isCurrent(generation)) {
+        _publish(CheckoutState.failure(failureKind: error.kind, cart: cart));
+      }
+    } on Object {
+      if (_isCurrent(generation)) {
+        _publish(
+          CheckoutState.failure(
+            failureKind: CheckoutFailureKind.unexpected,
+            cart: cart,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _loadReceipt(
+    int generation, {
+    required CustomerCartSnapshot cart,
+  }) async {
+    final owner = _ownerSubjectId;
+    final shop = _shopSlug;
+    if (owner == null || shop == null) return;
+    try {
+      final draft = await ref
+          .read(checkoutDraftStoreProvider)
+          .read(ownerSubjectId: owner, shopSlug: shop);
+      if (!_isCurrent(generation)) return;
+      if (draft?.orderId case final String orderId) {
+        final response = await ref
+            .read(checkoutRepositoryProvider)
+            .readOrder(orderId: orderId);
+        if (!_isCurrent(generation)) return;
+        final order = response.order;
+        if (response.status == CheckoutOrderRemoteStatus.ok && order != null) {
+          final receipt = CheckoutState(
+            status: CheckoutViewStatus.ready,
+            step: CheckoutStep.confirmation,
+            selection: draft!.selection,
+            addresses: const [],
+            cart: cart,
+            order: order,
+            notice: CheckoutNoticeKind.restored,
+          );
+          _publish(receipt);
+          await _persist(receipt);
+          return;
+        }
+      }
+      final pending = draft?.pendingOperation;
+      if (pending?.kind == CheckoutPendingOperationKind.order) {
+        final recovery = CheckoutState(
+          status: CheckoutViewStatus.ready,
+          step: CheckoutStep.confirmation,
+          selection: draft!.selection,
+          addresses: const [],
+          cart: cart,
+          pendingOperation: pending,
+          failureKind: CheckoutFailureKind.timeout,
+          notice: CheckoutNoticeKind.restored,
+        );
+        _publish(recovery);
+        await _executeOrder(pending!);
+        return;
+      }
+      _publish(
+        CheckoutState.failure(
+          failureKind: CheckoutFailureKind.cartUnavailable,
+          cart: cart,
+        ),
+      );
     } on CheckoutRepositoryException catch (error) {
       if (_isCurrent(generation)) {
         _publish(CheckoutState.failure(failureKind: error.kind, cart: cart));
@@ -524,6 +675,83 @@ final class CheckoutController extends Notifier<CheckoutState> {
     }
   }
 
+  Future<void> _executeOrder(CheckoutPendingOperation pending) async {
+    final quoteId = pending.quoteId;
+    final expectedVersion = pending.expectedQuoteVersion;
+    if (quoteId == null || expectedVersion == null) return;
+    _publish(state.copyWith(isBusy: true, failureKind: null, notice: null));
+    try {
+      final response = await ref
+          .read(checkoutRepositoryProvider)
+          .createOrder(
+            quoteId: quoteId,
+            expectedQuoteVersion: expectedVersion,
+            idempotencyKey: pending.idempotencyKey,
+          );
+      final order = response.order;
+      if (response.status == CheckoutOrderRemoteStatus.ok && order != null) {
+        final receipt = state.copyWith(
+          status: CheckoutViewStatus.ready,
+          step: CheckoutStep.confirmation,
+          order: order,
+          pendingOperation: null,
+          failureKind: null,
+          notice: CheckoutNoticeKind.orderConfirmed,
+          isBusy: false,
+        );
+        await _persistAndPublish(receipt);
+        await ref.read(checkoutCartRefreshProvider)();
+        return;
+      }
+      if (response.status == CheckoutOrderRemoteStatus.requiresReview) {
+        final quoteResponse = await ref
+            .read(checkoutRepositoryProvider)
+            .readQuote(quoteId: quoteId);
+        final quote = quoteResponse.quote;
+        final changed = state.copyWith(
+          quote: quote,
+          order: null,
+          pendingOperation: null,
+          failureKind: quote == null ? CheckoutFailureKind.staleCart : null,
+          notice: quote == null ? null : CheckoutNoticeKind.quoteChanged,
+          isBusy: false,
+        );
+        await _persistAndPublish(changed);
+        return;
+      }
+      await _publishOrderDeterministicFailure(response);
+    } on CheckoutRepositoryException catch (error) {
+      _publish(
+        state.copyWith(
+          failureKind: error.kind,
+          isBusy: false,
+          pendingOperation:
+              error.kind == CheckoutFailureKind.timeout ||
+                  error.kind == CheckoutFailureKind.offline
+              ? pending
+              : null,
+        ),
+      );
+    }
+  }
+
+  Future<void> _publishOrderDeterministicFailure(
+    CheckoutOrderRemoteResponse response,
+  ) async {
+    final failure = _failureForOrder(response.status);
+    final next = state.copyWith(
+      order: null,
+      pendingOperation: null,
+      failureKind: failure,
+      isBusy: false,
+    );
+    await _persistAndPublish(next);
+    if (failure == CheckoutFailureKind.staleCart ||
+        failure == CheckoutFailureKind.cartUnavailable) {
+      await ref.read(checkoutCartRefreshProvider)();
+    }
+  }
+
   Future<void> _publishDeterministicFailure(
     CheckoutRemoteResponse response, {
     CheckoutQuote? quote,
@@ -563,6 +791,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
               step: value.step,
               selection: value.selection,
               quoteId: value.quote?.id,
+              orderId: value.order?.id,
               pendingOperation: value.pendingOperation,
               updatedAt: ref.read(checkoutClockProvider)(),
             ),
@@ -693,6 +922,12 @@ CheckoutPendingOperation? _sanitizePendingOperation(
             pending.quoteId == quote.id &&
             pending.expectedQuoteVersion == quote.quoteVersion =>
       pending,
+    CheckoutPendingOperationKind.order
+        when quote != null &&
+            quote.isConfirmed &&
+            pending.quoteId == quote.id &&
+            pending.expectedQuoteVersion == quote.quoteVersion =>
+      pending,
     _ => null,
   };
 }
@@ -729,3 +964,34 @@ CheckoutFailureKind _failureFor(
   CheckoutRemoteStatus.unavailable => CheckoutFailureKind.unavailable,
   _ => CheckoutFailureKind.unexpected,
 };
+
+CheckoutFailureKind _failureForOrder(CheckoutOrderRemoteStatus status) =>
+    switch (status) {
+      CheckoutOrderRemoteStatus.quoteVersionConflict ||
+      CheckoutOrderRemoteStatus.cartVersionConflict ||
+      CheckoutOrderRemoteStatus.requiresReview ||
+      CheckoutOrderRemoteStatus.invalidated => CheckoutFailureKind.staleCart,
+      CheckoutOrderRemoteStatus.invalidAddress =>
+        CheckoutFailureKind.invalidAddress,
+      CheckoutOrderRemoteStatus.unsupportedZone =>
+        CheckoutFailureKind.unsupportedZone,
+      CheckoutOrderRemoteStatus.slotUnavailable ||
+      CheckoutOrderRemoteStatus.pickupUnavailable ||
+      CheckoutOrderRemoteStatus.deliveryUnavailable ||
+      CheckoutOrderRemoteStatus.modeUnavailable =>
+        CheckoutFailureKind.slotUnavailable,
+      CheckoutOrderRemoteStatus.cartEmpty ||
+      CheckoutOrderRemoteStatus.cartUnavailable =>
+        CheckoutFailureKind.cartUnavailable,
+      CheckoutOrderRemoteStatus.expired => CheckoutFailureKind.expired,
+      CheckoutOrderRemoteStatus.idempotencyConflict =>
+        CheckoutFailureKind.conflict,
+      CheckoutOrderRemoteStatus.notFound => CheckoutFailureKind.notFound,
+      CheckoutOrderRemoteStatus.invalid ||
+      CheckoutOrderRemoteStatus.invalidSelection ||
+      CheckoutOrderRemoteStatus.quoteNotConfirmed =>
+        CheckoutFailureKind.invalidInput,
+      CheckoutOrderRemoteStatus.unavailable => CheckoutFailureKind.unavailable,
+      CheckoutOrderRemoteStatus.invariantError ||
+      CheckoutOrderRemoteStatus.ok => CheckoutFailureKind.unexpected,
+    };

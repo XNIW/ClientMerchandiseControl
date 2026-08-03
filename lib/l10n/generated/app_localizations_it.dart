@@ -1250,7 +1250,71 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get checkoutOrderDeferredNotice =>
-      'Il riepilogo è confermato. L’ordine verrà creato nel prossimo passaggio sicuro.';
+      'Prima di creare l’ordine, il negozio rivaliderà prezzo, promozione, disponibilità e fascia oraria.';
+
+  @override
+  String get checkoutCreateOrderAction => 'Crea ordine';
+
+  @override
+  String get checkoutOrderReceiptTitle => 'Ordine confermato';
+
+  @override
+  String get checkoutOrderReceiptMessage =>
+      'Abbiamo salvato l’ordine con prezzo e modalità confermati dal negozio.';
+
+  @override
+  String get checkoutOrderCodeLabel => 'Codice ordine';
+
+  @override
+  String checkoutOrderCodeSemantics(String code) {
+    return 'Codice ordine $code';
+  }
+
+  @override
+  String checkoutOrderConfirmedMessage(String code) {
+    return 'Ordine $code confermato.';
+  }
+
+  @override
+  String get checkoutOrderStatusLabel => 'Stato';
+
+  @override
+  String get checkoutOrderPlacedAtLabel => 'Creato';
+
+  @override
+  String get checkoutOrderAuthoritativeNotice =>
+      'Il server ha calcolato e confermato il totale di questa ricevuta. L’ordine cliente non è una vendita fiscale.';
+
+  @override
+  String get checkoutOrderConfirmedNotice =>
+      'Ordine creato e confermato dal negozio.';
+
+  @override
+  String get checkoutContinueShoppingAction => 'Continua gli acquisti';
+
+  @override
+  String get checkoutOrderStatusConfirmed => 'Confermato';
+
+  @override
+  String get checkoutOrderStatusAccepted => 'Accettato';
+
+  @override
+  String get checkoutOrderStatusRejected => 'Rifiutato';
+
+  @override
+  String get checkoutOrderStatusPreparing => 'In preparazione';
+
+  @override
+  String get checkoutOrderStatusReady => 'Pronto';
+
+  @override
+  String get checkoutOrderStatusOutForDelivery => 'In consegna';
+
+  @override
+  String get checkoutOrderStatusCompleted => 'Completato';
+
+  @override
+  String get checkoutOrderStatusCancelled => 'Annullato';
 
   @override
   String get checkoutRestoredNotice =>

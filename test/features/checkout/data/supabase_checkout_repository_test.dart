@@ -12,6 +12,7 @@ const _zoneId = '52000000-0000-4000-8000-000000000001';
 const _pickupSlotId = '53000000-0000-4000-8000-000000000001';
 const _deliverySlotId = '53000000-0000-4000-8000-000000000002';
 const _quoteId = '54000000-0000-4000-8000-000000000001';
+const _orderId = '57000000-0000-4000-8000-000000000001';
 const _addressId = '55000000-0000-4000-8000-000000000001';
 const _idempotencyId = '56000000-0000-4000-8000-000000000001';
 final _now = DateTime.utc(2026, 8, 3, 3);
@@ -138,6 +139,106 @@ void main() {
       'p_expected_quote_version': 2,
       'p_idempotency_key': _idempotencyId,
     });
+  });
+
+  test(
+    'create order invia solo quote, versione e idempotency e valida receipt',
+    () async {
+      port.response = _orderPayload();
+
+      final response = await repository.createOrder(
+        quoteId: _quoteId,
+        expectedQuoteVersion: 2,
+        idempotencyKey: _idempotencyId,
+      );
+
+      expect(response.status, CheckoutOrderRemoteStatus.ok);
+      expect(response.order?.id, _orderId);
+      expect(response.order?.code, 'MC-0123456789ABCDEF0123');
+      expect(response.order?.totalClp, 2400);
+      expect(response.order?.items.single.publicName, 'Café público');
+      expect(port.function, 'customer_order_create_v1');
+      expect(port.parameters, {
+        'p_quote_id': _quoteId,
+        'p_expected_quote_version': 2,
+        'p_idempotency_key': _idempotencyId,
+      });
+      expect(
+        port.parameters!.keys,
+        isNot(
+          contains(
+            anyOf(
+              'totalClp',
+              'subtotalClp',
+              'deliveryFeeClp',
+              'priceClp',
+              'discountClp',
+              'shopId',
+              'userId',
+            ),
+          ),
+        ),
+      );
+    },
+  );
+
+  test('read order usa solo ID owner-scoped e accetta replay', () async {
+    port.response = _orderPayload(idempotent: true);
+
+    final response = await repository.readOrder(orderId: _orderId);
+
+    expect(response.order?.idempotent, isTrue);
+    expect(port.function, 'customer_order_read_v1');
+    expect(port.parameters, {'p_order_id': _orderId});
+  });
+
+  test('order minimale mappa conflitto e requires-review', () async {
+    for (final entry in const {
+      'requires_review': CheckoutOrderRemoteStatus.requiresReview,
+      'quote_version_conflict': CheckoutOrderRemoteStatus.quoteVersionConflict,
+      'idempotency_conflict': CheckoutOrderRemoteStatus.idempotencyConflict,
+      'not_found': CheckoutOrderRemoteStatus.notFound,
+    }.entries) {
+      port.response = {
+        'apiVersion': 'customer-order.v1',
+        'status': entry.key,
+        'idempotent': false,
+        'serverTime': _now.toIso8601String(),
+      };
+      final response = await repository.readOrder(orderId: _orderId);
+      expect(response.status, entry.value, reason: entry.key);
+    }
+  });
+
+  test('order manipolato o con dato interno fallisce chiuso', () async {
+    for (final payload in [
+      {..._orderPayload(), 'totalClp': 1},
+      {..._orderPayload(), 'sourceProductId': _publicationId},
+      _orderPayload(
+        items: [
+          {..._orderItem(), 'sourceProductId': _publicationId},
+        ],
+      ),
+      {
+        ..._orderPayload(),
+        'fulfillment': {
+          ...(_orderPayload()['fulfillment']! as Map<String, Object?>),
+          'shopId': _pointId,
+        },
+      },
+    ]) {
+      port.response = payload;
+      await expectLater(
+        repository.readOrder(orderId: _orderId),
+        throwsA(
+          isA<CheckoutRepositoryException>().having(
+            (error) => error.kind,
+            'kind',
+            CheckoutFailureKind.unexpected,
+          ),
+        ),
+      );
+    }
   });
 
   test('risposta minimale mappa gli errori di dominio', () async {
@@ -355,6 +456,62 @@ Map<String, Object?> _quoteItem() => const {
   'promotionName': null,
   'promotionEndsAt': null,
   'holdId': null,
+};
+
+Map<String, Object?> _orderPayload({
+  bool idempotent = false,
+  List<Map<String, Object?>>? items,
+}) {
+  final orderItems = items ?? [_orderItem()];
+  final subtotal = orderItems.fold<int>(
+    0,
+    (sum, item) => sum + (item['lineTotalClp']! as int),
+  );
+  final placedAt = _now.add(const Duration(seconds: 30));
+  return {
+    'apiVersion': 'customer-order.v1',
+    'status': 'ok',
+    'idempotent': idempotent,
+    'orderId': _orderId,
+    'orderCode': 'MC-0123456789ABCDEF0123',
+    'orderStatus': 'confirmed',
+    'orderVersion': 1,
+    'shopSlug': 'storefront-test',
+    'fulfillmentMode': 'pickup',
+    'fulfillment': {
+      'mode': 'pickup',
+      'pickupPoint': {
+        'id': _pointId,
+        'name': 'Tienda Centro',
+        'addressLine1': 'Avenida Uno 123',
+        'commune': 'Santiago',
+        'region': 'Metropolitana',
+        'instructions': 'Retiro en mesón',
+      },
+      'slot': {
+        'id': _pickupSlotId,
+        'label': 'Hoy 16:00–18:00',
+        'startsAt': _now.add(const Duration(hours: 1)).toIso8601String(),
+        'endsAt': _now.add(const Duration(hours: 3)).toIso8601String(),
+      },
+    },
+    'currencyCode': 'CLP',
+    'subtotalClp': subtotal,
+    'deliveryFeeClp': 0,
+    'totalClp': subtotal,
+    'items': orderItems,
+    'placedAt': placedAt.toIso8601String(),
+    'serverTime': placedAt.toIso8601String(),
+  };
+}
+
+Map<String, Object?> _orderItem() => const {
+  'publicationId': _publicationId,
+  'publicName': 'Café público',
+  'quantity': 2,
+  'unitPriceClp': 1200,
+  'compareAtPriceClp': 1500,
+  'lineTotalClp': 2400,
 };
 
 final class _FakeCheckoutPort implements CheckoutPort {

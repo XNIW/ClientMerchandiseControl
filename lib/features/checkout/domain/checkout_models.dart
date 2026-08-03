@@ -32,6 +32,30 @@ enum CheckoutRemoteStatus {
   notFound,
 }
 
+enum CheckoutOrderRemoteStatus {
+  ok,
+  requiresReview,
+  expired,
+  invalidated,
+  quoteNotConfirmed,
+  quoteVersionConflict,
+  cartVersionConflict,
+  cartEmpty,
+  modeUnavailable,
+  slotUnavailable,
+  invalidSelection,
+  pickupUnavailable,
+  deliveryUnavailable,
+  invalidAddress,
+  unsupportedZone,
+  cartUnavailable,
+  idempotencyConflict,
+  notFound,
+  invariantError,
+  invalid,
+  unavailable,
+}
+
 enum CheckoutQuoteStatus {
   quoted,
   requiresReview,
@@ -41,6 +65,17 @@ enum CheckoutQuoteStatus {
   consumed,
 }
 
+enum CheckoutOrderStatus {
+  confirmed,
+  accepted,
+  rejected,
+  preparing,
+  ready,
+  outForDelivery,
+  completed,
+  cancelled,
+}
+
 enum CheckoutChangeType {
   priceChanged,
   promotionChanged,
@@ -48,7 +83,7 @@ enum CheckoutChangeType {
   holdRequired,
 }
 
-enum CheckoutPendingOperationKind { create, confirm }
+enum CheckoutPendingOperationKind { create, confirm, order }
 
 final class CheckoutModeOption {
   const CheckoutModeOption({required this.mode, required this.enabled});
@@ -315,6 +350,54 @@ final class CheckoutRemoteResponse {
   final List<CheckoutQuoteChange> changes;
 }
 
+final class CheckoutOrder {
+  CheckoutOrder({
+    required this.id,
+    required this.code,
+    required this.status,
+    required this.version,
+    required this.shopSlug,
+    required this.fulfillmentMode,
+    required this.subtotalClp,
+    required this.deliveryFeeClp,
+    required this.totalClp,
+    required List<CheckoutQuoteItem> items,
+    required this.placedAt,
+    required this.serverTime,
+    required this.idempotent,
+  }) : items = List.unmodifiable(items);
+
+  final String id;
+  final String code;
+  final CheckoutOrderStatus status;
+  final int version;
+  final String shopSlug;
+  final CheckoutFulfillmentMode fulfillmentMode;
+  final int subtotalClp;
+  final int deliveryFeeClp;
+  final int totalClp;
+  final List<CheckoutQuoteItem> items;
+  final DateTime placedAt;
+  final DateTime serverTime;
+  final bool idempotent;
+}
+
+final class CheckoutOrderRemoteResponse {
+  const CheckoutOrderRemoteResponse({
+    required this.status,
+    required this.idempotent,
+    required this.serverTime,
+    this.order,
+    this.orderId,
+  });
+
+  final CheckoutOrderRemoteStatus status;
+  final bool idempotent;
+  final DateTime serverTime;
+  final CheckoutOrder? order;
+  final String? orderId;
+}
+
 final class CheckoutQuoteCreateRequest {
   const CheckoutQuoteCreateRequest({
     required this.shopSlug,
@@ -353,6 +436,7 @@ final class CheckoutLocalDraft {
     required this.selection,
     required this.updatedAt,
     this.quoteId,
+    this.orderId,
     this.pendingOperation,
   });
 
@@ -361,6 +445,7 @@ final class CheckoutLocalDraft {
   final CheckoutStep step;
   final CheckoutSelection selection;
   final String? quoteId;
+  final String? orderId;
   final CheckoutPendingOperation? pendingOperation;
   final DateTime updatedAt;
 
@@ -368,9 +453,11 @@ final class CheckoutLocalDraft {
     CheckoutStep? step,
     CheckoutSelection? selection,
     String? quoteId,
+    String? orderId,
     CheckoutPendingOperation? pendingOperation,
     DateTime? updatedAt,
     bool clearQuote = false,
+    bool clearOrder = false,
     bool clearPendingOperation = false,
   }) {
     return CheckoutLocalDraft(
@@ -379,6 +466,7 @@ final class CheckoutLocalDraft {
       step: step ?? this.step,
       selection: selection ?? this.selection,
       quoteId: clearQuote ? null : quoteId ?? this.quoteId,
+      orderId: clearOrder ? null : orderId ?? this.orderId,
       pendingOperation: clearPendingOperation
           ? null
           : pendingOperation ?? this.pendingOperation,

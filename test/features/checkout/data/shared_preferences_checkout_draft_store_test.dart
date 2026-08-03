@@ -6,6 +6,7 @@ const _owner = '10000000-0000-4000-8000-000000000001';
 const _pointId = '51000000-0000-4000-8000-000000000001';
 const _slotId = '53000000-0000-4000-8000-000000000001';
 const _quoteId = '54000000-0000-4000-8000-000000000001';
+const _orderId = '57000000-0000-4000-8000-000000000001';
 const _key = '56000000-0000-4000-8000-000000000001';
 final _now = DateTime.utc(2026, 8, 3, 3);
 
@@ -52,6 +53,66 @@ void main() {
       await store.read(ownerSubjectId: _owner, shopSlug: 'storefront-other'),
       isNull,
     );
+  });
+
+  test(
+    'receipt e retry ordine ambiguo persistono senza dati economici',
+    () async {
+      await store.save(
+        CheckoutLocalDraft(
+          ownerSubjectId: _owner,
+          shopSlug: 'storefront-test',
+          step: CheckoutStep.confirmation,
+          selection: const CheckoutSelection(
+            mode: CheckoutFulfillmentMode.pickup,
+            pickupPointId: _pointId,
+            slotId: _slotId,
+          ),
+          quoteId: _quoteId,
+          orderId: _orderId,
+          pendingOperation: const CheckoutPendingOperation(
+            kind: CheckoutPendingOperationKind.order,
+            idempotencyKey: _key,
+            cartVersion: 7,
+            quoteId: _quoteId,
+            expectedQuoteVersion: 2,
+          ),
+          updatedAt: _now,
+        ),
+      );
+
+      final restored = await store.read(
+        ownerSubjectId: _owner,
+        shopSlug: 'storefront-test',
+      );
+      expect(restored?.orderId, _orderId);
+      expect(
+        restored?.pendingOperation?.kind,
+        CheckoutPendingOperationKind.order,
+      );
+      expect(restored?.pendingOperation?.idempotencyKey, _key);
+      final encoded = preferences.values.values.single;
+      expect(encoded, contains('"version":2'));
+      expect(encoded, isNot(contains('subtotalClp')));
+      expect(encoded, isNot(contains('sourceProductId')));
+    },
+  );
+
+  test('draft v1 resta leggibile e migra senza inventare order ID', () async {
+    preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] =
+        '{"version":1,"ownerSubjectId":"$_owner",'
+        '"shopSlug":"storefront-test","step":"review",'
+        '"selection":{"mode":"pickup","addressId":null,'
+        '"pickupPointId":"$_pointId","slotId":"$_slotId"},'
+        '"quoteId":null,"pendingOperation":null,'
+        '"updatedAt":"${_now.toIso8601String()}"}';
+
+    final restored = await store.read(
+      ownerSubjectId: _owner,
+      shopSlug: 'storefront-test',
+    );
+    expect(restored?.step, CheckoutStep.review);
+    expect(restored?.orderId, isNull);
   });
 
   test('record corrotto viene rimosso e non provoca crash', () async {

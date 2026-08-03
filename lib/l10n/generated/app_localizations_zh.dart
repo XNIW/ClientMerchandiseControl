@@ -1247,7 +1247,71 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get checkoutOrderDeferredNotice =>
-      'El resumen quedó confirmado. El pedido se creará en el siguiente paso seguro.';
+      'Antes de crear el pedido, la tienda volverá a validar precio, promoción, disponibilidad y horario.';
+
+  @override
+  String get checkoutCreateOrderAction => 'Crear pedido';
+
+  @override
+  String get checkoutOrderReceiptTitle => 'Pedido confirmado';
+
+  @override
+  String get checkoutOrderReceiptMessage =>
+      'Guardamos el pedido con el precio y la modalidad confirmados por la tienda.';
+
+  @override
+  String get checkoutOrderCodeLabel => 'Código de pedido';
+
+  @override
+  String checkoutOrderCodeSemantics(String code) {
+    return 'Código de pedido $code';
+  }
+
+  @override
+  String checkoutOrderConfirmedMessage(String code) {
+    return 'Pedido $code confirmado.';
+  }
+
+  @override
+  String get checkoutOrderStatusLabel => 'Estado';
+
+  @override
+  String get checkoutOrderPlacedAtLabel => 'Creado';
+
+  @override
+  String get checkoutOrderAuthoritativeNotice =>
+      'El total de este comprobante fue calculado y confirmado por el servidor. El pedido no es una venta fiscal.';
+
+  @override
+  String get checkoutOrderConfirmedNotice =>
+      'Pedido creado y confirmado por la tienda.';
+
+  @override
+  String get checkoutContinueShoppingAction => 'Seguir comprando';
+
+  @override
+  String get checkoutOrderStatusConfirmed => 'Confirmado';
+
+  @override
+  String get checkoutOrderStatusAccepted => 'Aceptado';
+
+  @override
+  String get checkoutOrderStatusRejected => 'Rechazado';
+
+  @override
+  String get checkoutOrderStatusPreparing => 'En preparación';
+
+  @override
+  String get checkoutOrderStatusReady => 'Listo';
+
+  @override
+  String get checkoutOrderStatusOutForDelivery => 'En reparto';
+
+  @override
+  String get checkoutOrderStatusCompleted => 'Completado';
+
+  @override
+  String get checkoutOrderStatusCancelled => 'Cancelado';
 
   @override
   String get checkoutRestoredNotice => 'Restauramos tu progreso de checkout.';
@@ -2443,7 +2507,68 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get checkoutAcceptChangesAction => '接受变更并确认';
 
   @override
-  String get checkoutOrderDeferredNotice => '摘要已确认。订单将在下一个安全步骤中创建。';
+  String get checkoutOrderDeferredNotice => '创建订单前，商店将重新验证价格、优惠、库存和时间段。';
+
+  @override
+  String get checkoutCreateOrderAction => '创建订单';
+
+  @override
+  String get checkoutOrderReceiptTitle => '订单已确认';
+
+  @override
+  String get checkoutOrderReceiptMessage => '订单已按商店确认的价格和履约方式保存。';
+
+  @override
+  String get checkoutOrderCodeLabel => '订单编号';
+
+  @override
+  String checkoutOrderCodeSemantics(String code) {
+    return '订单编号 $code';
+  }
+
+  @override
+  String checkoutOrderConfirmedMessage(String code) {
+    return '订单 $code 已确认。';
+  }
+
+  @override
+  String get checkoutOrderStatusLabel => '状态';
+
+  @override
+  String get checkoutOrderPlacedAtLabel => '创建时间';
+
+  @override
+  String get checkoutOrderAuthoritativeNotice => '此凭证总额由服务器计算并确认。客户订单不是税务销售。';
+
+  @override
+  String get checkoutOrderConfirmedNotice => '订单已创建并由商店确认。';
+
+  @override
+  String get checkoutContinueShoppingAction => '继续购物';
+
+  @override
+  String get checkoutOrderStatusConfirmed => '已确认';
+
+  @override
+  String get checkoutOrderStatusAccepted => '已接受';
+
+  @override
+  String get checkoutOrderStatusRejected => '已拒绝';
+
+  @override
+  String get checkoutOrderStatusPreparing => '准备中';
+
+  @override
+  String get checkoutOrderStatusReady => '已备妥';
+
+  @override
+  String get checkoutOrderStatusOutForDelivery => '配送中';
+
+  @override
+  String get checkoutOrderStatusCompleted => '已完成';
+
+  @override
+  String get checkoutOrderStatusCancelled => '已取消';
 
   @override
   String get checkoutRestoredNotice => '已恢复您的结账进度。';

@@ -32,6 +32,7 @@ class CheckoutScreen extends ConsumerWidget {
         CheckoutNoticeKind.restored => l10n.checkoutRestoredNotice,
         CheckoutNoticeKind.quoteChanged => l10n.checkoutQuoteChangedNotice,
         CheckoutNoticeKind.confirmed => l10n.checkoutConfirmedNotice,
+        CheckoutNoticeKind.orderConfirmed => l10n.checkoutOrderConfirmedNotice,
       };
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
@@ -180,7 +181,7 @@ class _CheckoutFlow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.read(checkoutControllerProvider.notifier);
     return PopScope<void>(
-      canPop: state.step == CheckoutStep.mode,
+      canPop: state.step == CheckoutStep.mode || state.hasOrder,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop && !state.isBusy) controller.previousStep();
       },
@@ -550,6 +551,10 @@ class _ConfirmationStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final formatter = ClpCurrencyFormatter();
+    final order = state.order;
+    if (order != null) {
+      return _OrderReceipt(order: order);
+    }
     final quote = state.quote;
     if (quote == null) {
       return StorefrontStatusBanner(
@@ -638,6 +643,106 @@ class _ConfirmationStep extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _OrderReceipt extends StatelessWidget {
+  const _OrderReceipt({required this.order});
+
+  final CheckoutOrder order;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final formatter = ClpCurrencyFormatter();
+    final material = MaterialLocalizations.of(context);
+    final placedAt = order.placedAt.toLocal();
+    final placedLabel = [
+      material.formatMediumDate(placedAt),
+      material.formatTimeOfDay(TimeOfDay.fromDateTime(placedAt)),
+    ].join(' · ');
+    return _StepSection(
+      title: l10n.checkoutOrderReceiptTitle,
+      message: l10n.checkoutOrderReceiptMessage,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          StorefrontStatusBanner(
+            key: const ValueKey('checkout-order-status'),
+            message: l10n.checkoutOrderConfirmedMessage(order.code),
+            icon: Icons.task_alt_outlined,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Semantics(
+            key: const ValueKey('checkout-order-receipt'),
+            container: true,
+            label: l10n.checkoutOrderCodeSemantics(order.code),
+            child: Card(
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      l10n.checkoutOrderCodeLabel,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    SelectableText(
+                      order.code,
+                      key: const ValueKey('checkout-order-code'),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      '${l10n.checkoutOrderStatusLabel}: '
+                      '${checkoutOrderStatusTitle(l10n, order.status)}',
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(checkoutModeTitle(l10n, order.fulfillmentMode)),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text('${l10n.checkoutOrderPlacedAtLabel}: $placedLabel'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          for (final item in order.items)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(item.publicName),
+              subtitle: Text(l10n.cartQuantityLabel(item.quantity)),
+              trailing: Text(
+                formatter.format(item.lineTotalClp),
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+          const Divider(),
+          _MoneyRow(
+            label: l10n.checkoutSubtotalLabel,
+            value: formatter.format(order.subtotalClp),
+          ),
+          _MoneyRow(
+            label: l10n.checkoutDeliveryFeeLabel,
+            value: formatter.format(order.deliveryFeeClp),
+          ),
+          _MoneyRow(
+            key: const ValueKey('checkout-order-authoritative-total'),
+            label: l10n.checkoutAuthoritativeTotalLabel,
+            value: formatter.format(order.totalClp),
+            emphasized: true,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            l10n.checkoutOrderAuthoritativeNotice,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         ],
       ),
     );
@@ -788,11 +893,26 @@ class _CheckoutActions extends ConsumerWidget {
         enabled: true,
         action: controller.createQuote,
       ),
-      CheckoutStep.confirmation when quote?.isConfirmed ?? false => (
-        key: 'checkout-back-to-cart',
-        label: l10n.checkoutBackToCart,
+      CheckoutStep.confirmation when state.order != null => (
+        key: 'checkout-order-continue',
+        label: l10n.checkoutContinueShoppingAction,
         enabled: true,
-        action: () async => context.go(AppRoutes.cartLocation),
+        action: () async => context.go(AppRoutes.catalogLocation),
+      ),
+      CheckoutStep.confirmation
+          when state.pendingOperation?.kind ==
+              CheckoutPendingOperationKind.order =>
+        (
+          key: 'checkout-order-retry',
+          label: l10n.checkoutRetryAction,
+          enabled: true,
+          action: controller.retry,
+        ),
+      CheckoutStep.confirmation when quote?.isConfirmed ?? false => (
+        key: 'checkout-create-order',
+        label: l10n.checkoutCreateOrderAction,
+        enabled: true,
+        action: controller.createOrder,
       ),
       CheckoutStep.confirmation when quote?.isExpired ?? true => (
         key: 'checkout-restart',
@@ -843,6 +963,7 @@ class _CheckoutActions extends ConsumerWidget {
                     child: Text(primary.label),
                   ),
                   if (state.step != CheckoutStep.mode &&
+                      !state.hasOrder &&
                       !(quote?.isConfirmed ?? false)) ...[
                     const SizedBox(height: AppSpacing.xs),
                     TextButton(
@@ -885,6 +1006,20 @@ String checkoutModeDescription(
   CheckoutFulfillmentMode.reservation =>
     l10n.checkoutModeReservationDescription,
   CheckoutFulfillmentMode.delivery => l10n.checkoutModeDeliveryDescription,
+};
+
+String checkoutOrderStatusTitle(
+  AppLocalizations l10n,
+  CheckoutOrderStatus status,
+) => switch (status) {
+  CheckoutOrderStatus.confirmed => l10n.checkoutOrderStatusConfirmed,
+  CheckoutOrderStatus.accepted => l10n.checkoutOrderStatusAccepted,
+  CheckoutOrderStatus.rejected => l10n.checkoutOrderStatusRejected,
+  CheckoutOrderStatus.preparing => l10n.checkoutOrderStatusPreparing,
+  CheckoutOrderStatus.ready => l10n.checkoutOrderStatusReady,
+  CheckoutOrderStatus.outForDelivery => l10n.checkoutOrderStatusOutForDelivery,
+  CheckoutOrderStatus.completed => l10n.checkoutOrderStatusCompleted,
+  CheckoutOrderStatus.cancelled => l10n.checkoutOrderStatusCancelled,
 };
 
 IconData checkoutModeIcon(CheckoutFulfillmentMode mode) => switch (mode) {

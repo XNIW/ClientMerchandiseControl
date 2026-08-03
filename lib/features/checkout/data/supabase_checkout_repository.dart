@@ -99,6 +99,36 @@ final class SupabaseCheckoutRepository implements CheckoutRepository {
     });
   }
 
+  @override
+  Future<CheckoutOrderRemoteResponse> createOrder({
+    required String quoteId,
+    required int expectedQuoteVersion,
+    required String idempotencyKey,
+  }) {
+    return _guard(() async {
+      _requireUuid(quoteId);
+      _requireVersion(expectedQuoteVersion);
+      _requireUuid(idempotencyKey);
+      return _parseOrderResponse(
+        await port.invoke('customer_order_create_v1', {
+          'p_quote_id': quoteId,
+          'p_expected_quote_version': expectedQuoteVersion,
+          'p_idempotency_key': idempotencyKey,
+        }),
+      );
+    });
+  }
+
+  @override
+  Future<CheckoutOrderRemoteResponse> readOrder({required String orderId}) {
+    return _guard(() async {
+      _requireUuid(orderId);
+      return _parseOrderResponse(
+        await port.invoke('customer_order_read_v1', {'p_order_id': orderId}),
+      );
+    });
+  }
+
   Future<T> _guard<T>(Future<T> Function() operation) async {
     try {
       return await operation().timeout(requestTimeout);
@@ -545,6 +575,280 @@ CheckoutQuoteItem _parseQuoteItem(Object? raw) {
   );
 }
 
+const _orderRootKeys = <String>{
+  'apiVersion',
+  'status',
+  'idempotent',
+  'orderId',
+  'orderCode',
+  'orderStatus',
+  'orderVersion',
+  'shopSlug',
+  'fulfillmentMode',
+  'fulfillment',
+  'currencyCode',
+  'subtotalClp',
+  'deliveryFeeClp',
+  'totalClp',
+  'items',
+  'placedAt',
+  'serverTime',
+};
+
+CheckoutOrderRemoteResponse _parseOrderResponse(Object? raw) {
+  final payload = _payload(raw, _orderRootKeys, 'checkout_order_response');
+  if (payload['apiVersion'] != 'customer-order.v1') {
+    throw const FormatException('checkout_order_response_version');
+  }
+  final status = _orderRemoteStatus(_requiredString(payload, 'status'));
+  final idempotent = payload['idempotent'];
+  if (idempotent is! bool) {
+    throw const FormatException('checkout_order_response_idempotent');
+  }
+  final serverTime = _requiredDate(payload, 'serverTime');
+  final orderId = _optionalUuid(payload, 'orderId');
+  if (!payload.containsKey('orderVersion')) {
+    const minimalKeys = {
+      'apiVersion',
+      'status',
+      'idempotent',
+      'orderId',
+      'serverTime',
+    };
+    if (status == CheckoutOrderRemoteStatus.ok ||
+        payload.keys.any((key) => !minimalKeys.contains(key))) {
+      throw const FormatException('checkout_order_response_minimal');
+    }
+    return CheckoutOrderRemoteResponse(
+      status: status,
+      idempotent: idempotent,
+      serverTime: serverTime,
+      orderId: orderId,
+    );
+  }
+  if (status != CheckoutOrderRemoteStatus.ok || orderId == null) {
+    throw const FormatException('checkout_order_response_status');
+  }
+  const required = {
+    'apiVersion',
+    'status',
+    'idempotent',
+    'orderId',
+    'orderCode',
+    'orderStatus',
+    'orderVersion',
+    'shopSlug',
+    'fulfillmentMode',
+    'fulfillment',
+    'currencyCode',
+    'subtotalClp',
+    'deliveryFeeClp',
+    'totalClp',
+    'items',
+    'placedAt',
+    'serverTime',
+  };
+  if (!payload.keys.toSet().containsAll(required) ||
+      payload['currencyCode'] != 'CLP') {
+    throw const FormatException('checkout_order_required');
+  }
+  final code = _requiredString(payload, 'orderCode');
+  if (!RegExp(r'^MC-[0-9A-F]{20}$').hasMatch(code)) {
+    throw const FormatException('checkout_order_code');
+  }
+  final version = _requiredInt(payload, 'orderVersion');
+  if (version < 1) throw const FormatException('checkout_order_version');
+  final shopSlug = _requiredString(payload, 'shopSlug');
+  _requirePayloadShopSlug(shopSlug);
+  final mode = _mode(_requiredString(payload, 'fulfillmentMode'));
+  _validateOrderFulfillment(payload['fulfillment'], mode);
+  final subtotal = _amount(payload, 'subtotalClp');
+  final fee = _amount(payload, 'deliveryFeeClp');
+  final total = _amount(payload, 'totalClp');
+  if (total != subtotal + fee ||
+      (mode != CheckoutFulfillmentMode.delivery && fee != 0)) {
+    throw const FormatException('checkout_order_total');
+  }
+  final items = _list(
+    payload,
+    'items',
+    maximum: checkoutMaximumItems,
+  ).map(_parseOrderItem).toList(growable: false);
+  if (items.isEmpty ||
+      items.fold<int>(0, (sum, item) => sum + item.lineTotalClp) != subtotal) {
+    throw const FormatException('checkout_order_items_total');
+  }
+  _requireUnique(
+    items.map((item) => item.publicationId),
+    'checkout_order_items',
+  );
+  final placedAt = _requiredDate(payload, 'placedAt');
+  if (placedAt.isAfter(serverTime.add(const Duration(minutes: 1)))) {
+    throw const FormatException('checkout_order_timing');
+  }
+  final order = CheckoutOrder(
+    id: orderId,
+    code: code,
+    status: _orderStatus(_requiredString(payload, 'orderStatus')),
+    version: version,
+    shopSlug: shopSlug,
+    fulfillmentMode: mode,
+    subtotalClp: subtotal,
+    deliveryFeeClp: fee,
+    totalClp: total,
+    items: items,
+    placedAt: placedAt,
+    serverTime: serverTime,
+    idempotent: idempotent,
+  );
+  return CheckoutOrderRemoteResponse(
+    status: status,
+    idempotent: idempotent,
+    serverTime: serverTime,
+    order: order,
+    orderId: orderId,
+  );
+}
+
+CheckoutQuoteItem _parseOrderItem(Object? raw) {
+  final map = _payload(raw, const {
+    'publicationId',
+    'publicName',
+    'quantity',
+    'unitPriceClp',
+    'compareAtPriceClp',
+    'lineTotalClp',
+    'promotionName',
+    'promotionEndsAt',
+  }, 'checkout_order_item');
+  const required = {
+    'publicationId',
+    'publicName',
+    'quantity',
+    'unitPriceClp',
+    'lineTotalClp',
+  };
+  if (!map.keys.toSet().containsAll(required)) {
+    throw const FormatException('checkout_order_item_required');
+  }
+  final publicationId = _requiredString(map, 'publicationId');
+  _requirePayloadUuid(publicationId);
+  final quantity = _requiredInt(map, 'quantity');
+  final unitPrice = _amount(map, 'unitPriceClp');
+  final lineTotal = _amount(map, 'lineTotalClp');
+  if (quantity < 1 || quantity > 99 || lineTotal != unitPrice * quantity) {
+    throw const FormatException('checkout_order_item_total');
+  }
+  return CheckoutQuoteItem(
+    publicationId: publicationId,
+    publicName: _safeRequiredText(map, 'publicName', 200),
+    quantity: quantity,
+    unitPriceClp: unitPrice,
+    compareAtPriceClp: _optionalAmount(map, 'compareAtPriceClp'),
+    lineTotalClp: lineTotal,
+    promotionName: _safeOptionalText(map, 'promotionName', 160),
+    promotionEndsAt: _optionalDate(map, 'promotionEndsAt'),
+  );
+}
+
+void _validateOrderFulfillment(
+  Object? raw,
+  CheckoutFulfillmentMode expectedMode,
+) {
+  final map = _payload(raw, const {
+    'mode',
+    'address',
+    'pickupPoint',
+    'deliveryZone',
+    'slot',
+  }, 'checkout_order_fulfillment');
+  if (_mode(_requiredString(map, 'mode')) != expectedMode ||
+      !map.containsKey('slot')) {
+    throw const FormatException('checkout_order_fulfillment_mode');
+  }
+  final slot = _payload(map['slot'], const {
+    'id',
+    'label',
+    'startsAt',
+    'endsAt',
+  }, 'checkout_order_slot');
+  if (!slot.keys.toSet().containsAll(const {
+    'id',
+    'label',
+    'startsAt',
+    'endsAt',
+  })) {
+    throw const FormatException('checkout_order_slot_required');
+  }
+  _requirePayloadUuid(_requiredString(slot, 'id'));
+  _safeRequiredText(slot, 'label', 120);
+  final startsAt = _requiredDate(slot, 'startsAt');
+  final endsAt = _requiredDate(slot, 'endsAt');
+  if (!endsAt.isAfter(startsAt)) {
+    throw const FormatException('checkout_order_slot_timing');
+  }
+  if (map['pickupPoint'] case final Object pointRaw) {
+    final point = _payload(pointRaw, const {
+      'id',
+      'name',
+      'addressLine1',
+      'addressLine2',
+      'commune',
+      'region',
+      'instructions',
+    }, 'checkout_order_pickup');
+    _requirePayloadUuid(_requiredString(point, 'id'));
+    _safeRequiredText(point, 'name', 120);
+    _safeRequiredText(point, 'addressLine1', 200);
+    _safeRequiredText(point, 'commune', 100);
+    _safeRequiredText(point, 'region', 100);
+    _safeOptionalText(point, 'addressLine2', 200);
+    _safeOptionalText(point, 'instructions', 500);
+  }
+  if (map['deliveryZone'] case final Object zoneRaw) {
+    final zone = _payload(zoneRaw, const {
+      'id',
+      'name',
+      'region',
+      'feeClp',
+    }, 'checkout_order_zone');
+    _requirePayloadUuid(_requiredString(zone, 'id'));
+    _safeRequiredText(zone, 'name', 120);
+    _safeRequiredText(zone, 'region', 100);
+    _amount(zone, 'feeClp');
+  }
+  if (map['address'] case final Object addressRaw) {
+    final address = _payload(addressRaw, const {
+      'addressId',
+      'recipientName',
+      'addressLine1',
+      'addressLine2',
+      'commune',
+      'region',
+      'postalCode',
+      'countryCode',
+      'deliveryInstructions',
+    }, 'checkout_order_address');
+    _requirePayloadUuid(_requiredString(address, 'addressId'));
+    _safeRequiredText(address, 'recipientName', 160);
+    _safeRequiredText(address, 'addressLine1', 200);
+    _safeRequiredText(address, 'commune', 100);
+    _safeRequiredText(address, 'region', 100);
+    _safeRequiredText(address, 'countryCode', 2);
+    _safeOptionalText(address, 'addressLine2', 200);
+    _safeOptionalText(address, 'postalCode', 32);
+    _safeOptionalText(address, 'deliveryInstructions', 500);
+  }
+  final hasPickup = map.containsKey('pickupPoint');
+  final hasZone = map.containsKey('deliveryZone');
+  final hasAddress = map.containsKey('address');
+  if (expectedMode == CheckoutFulfillmentMode.delivery
+      ? !hasZone || !hasAddress || hasPickup
+      : !hasPickup || hasZone || hasAddress) {
+    throw const FormatException('checkout_order_fulfillment_shape');
+  }
+}
+
 List<CheckoutQuoteChange> _parseChanges(List<Object?> raw) {
   return raw
       .map((value) {
@@ -712,6 +1016,43 @@ CheckoutRemoteStatus _remoteStatus(String value) => switch (value) {
   'idempotency_conflict' => CheckoutRemoteStatus.idempotencyConflict,
   'not_found' => CheckoutRemoteStatus.notFound,
   _ => throw const FormatException('checkout_status'),
+};
+
+CheckoutOrderRemoteStatus _orderRemoteStatus(String value) => switch (value) {
+  'ok' => CheckoutOrderRemoteStatus.ok,
+  'requires_review' => CheckoutOrderRemoteStatus.requiresReview,
+  'expired' => CheckoutOrderRemoteStatus.expired,
+  'invalidated' => CheckoutOrderRemoteStatus.invalidated,
+  'quote_not_confirmed' => CheckoutOrderRemoteStatus.quoteNotConfirmed,
+  'quote_version_conflict' => CheckoutOrderRemoteStatus.quoteVersionConflict,
+  'cart_version_conflict' => CheckoutOrderRemoteStatus.cartVersionConflict,
+  'cart_empty' => CheckoutOrderRemoteStatus.cartEmpty,
+  'mode_unavailable' => CheckoutOrderRemoteStatus.modeUnavailable,
+  'slot_unavailable' => CheckoutOrderRemoteStatus.slotUnavailable,
+  'invalid_selection' => CheckoutOrderRemoteStatus.invalidSelection,
+  'pickup_unavailable' => CheckoutOrderRemoteStatus.pickupUnavailable,
+  'delivery_unavailable' => CheckoutOrderRemoteStatus.deliveryUnavailable,
+  'invalid_address' => CheckoutOrderRemoteStatus.invalidAddress,
+  'unsupported_zone' => CheckoutOrderRemoteStatus.unsupportedZone,
+  'cart_unavailable' => CheckoutOrderRemoteStatus.cartUnavailable,
+  'idempotency_conflict' => CheckoutOrderRemoteStatus.idempotencyConflict,
+  'not_found' => CheckoutOrderRemoteStatus.notFound,
+  'invariant_error' => CheckoutOrderRemoteStatus.invariantError,
+  'invalid' => CheckoutOrderRemoteStatus.invalid,
+  'unavailable' => CheckoutOrderRemoteStatus.unavailable,
+  _ => throw const FormatException('checkout_order_status'),
+};
+
+CheckoutOrderStatus _orderStatus(String value) => switch (value) {
+  'confirmed' => CheckoutOrderStatus.confirmed,
+  'accepted' => CheckoutOrderStatus.accepted,
+  'rejected' => CheckoutOrderStatus.rejected,
+  'preparing' => CheckoutOrderStatus.preparing,
+  'ready' => CheckoutOrderStatus.ready,
+  'out_for_delivery' => CheckoutOrderStatus.outForDelivery,
+  'completed' => CheckoutOrderStatus.completed,
+  'cancelled' => CheckoutOrderStatus.cancelled,
+  _ => throw const FormatException('checkout_order_state'),
 };
 
 CheckoutQuoteStatus _quoteStatus(String value) => switch (value) {

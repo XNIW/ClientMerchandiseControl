@@ -1234,7 +1234,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkoutOrderDeferredNotice =>
-      'The summary is confirmed. The order will be created in the next safe step.';
+      'Before creating the order, the store will revalidate price, promotion, availability, and time slot.';
+
+  @override
+  String get checkoutCreateOrderAction => 'Create order';
+
+  @override
+  String get checkoutOrderReceiptTitle => 'Order confirmed';
+
+  @override
+  String get checkoutOrderReceiptMessage =>
+      'We saved the order with the price and fulfillment method confirmed by the store.';
+
+  @override
+  String get checkoutOrderCodeLabel => 'Order code';
+
+  @override
+  String checkoutOrderCodeSemantics(String code) {
+    return 'Order code $code';
+  }
+
+  @override
+  String checkoutOrderConfirmedMessage(String code) {
+    return 'Order $code confirmed.';
+  }
+
+  @override
+  String get checkoutOrderStatusLabel => 'Status';
+
+  @override
+  String get checkoutOrderPlacedAtLabel => 'Created';
+
+  @override
+  String get checkoutOrderAuthoritativeNotice =>
+      'The server calculated and confirmed this receipt total. The customer order is not a fiscal sale.';
+
+  @override
+  String get checkoutOrderConfirmedNotice =>
+      'Order created and confirmed by the store.';
+
+  @override
+  String get checkoutContinueShoppingAction => 'Continue shopping';
+
+  @override
+  String get checkoutOrderStatusConfirmed => 'Confirmed';
+
+  @override
+  String get checkoutOrderStatusAccepted => 'Accepted';
+
+  @override
+  String get checkoutOrderStatusRejected => 'Rejected';
+
+  @override
+  String get checkoutOrderStatusPreparing => 'Preparing';
+
+  @override
+  String get checkoutOrderStatusReady => 'Ready';
+
+  @override
+  String get checkoutOrderStatusOutForDelivery => 'Out for delivery';
+
+  @override
+  String get checkoutOrderStatusCompleted => 'Completed';
+
+  @override
+  String get checkoutOrderStatusCancelled => 'Cancelled';
 
   @override
   String get checkoutRestoredNotice => 'Your checkout progress was restored.';

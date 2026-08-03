@@ -1247,7 +1247,71 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get checkoutOrderDeferredNotice =>
-      'El resumen quedó confirmado. El pedido se creará en el siguiente paso seguro.';
+      'Antes de crear el pedido, la tienda volverá a validar precio, promoción, disponibilidad y horario.';
+
+  @override
+  String get checkoutCreateOrderAction => 'Crear pedido';
+
+  @override
+  String get checkoutOrderReceiptTitle => 'Pedido confirmado';
+
+  @override
+  String get checkoutOrderReceiptMessage =>
+      'Guardamos el pedido con el precio y la modalidad confirmados por la tienda.';
+
+  @override
+  String get checkoutOrderCodeLabel => 'Código de pedido';
+
+  @override
+  String checkoutOrderCodeSemantics(String code) {
+    return 'Código de pedido $code';
+  }
+
+  @override
+  String checkoutOrderConfirmedMessage(String code) {
+    return 'Pedido $code confirmado.';
+  }
+
+  @override
+  String get checkoutOrderStatusLabel => 'Estado';
+
+  @override
+  String get checkoutOrderPlacedAtLabel => 'Creado';
+
+  @override
+  String get checkoutOrderAuthoritativeNotice =>
+      'El total de este comprobante fue calculado y confirmado por el servidor. El pedido no es una venta fiscal.';
+
+  @override
+  String get checkoutOrderConfirmedNotice =>
+      'Pedido creado y confirmado por la tienda.';
+
+  @override
+  String get checkoutContinueShoppingAction => 'Seguir comprando';
+
+  @override
+  String get checkoutOrderStatusConfirmed => 'Confirmado';
+
+  @override
+  String get checkoutOrderStatusAccepted => 'Aceptado';
+
+  @override
+  String get checkoutOrderStatusRejected => 'Rechazado';
+
+  @override
+  String get checkoutOrderStatusPreparing => 'En preparación';
+
+  @override
+  String get checkoutOrderStatusReady => 'Listo';
+
+  @override
+  String get checkoutOrderStatusOutForDelivery => 'En reparto';
+
+  @override
+  String get checkoutOrderStatusCompleted => 'Completado';
+
+  @override
+  String get checkoutOrderStatusCancelled => 'Cancelado';
 
   @override
   String get checkoutRestoredNotice => 'Restauramos tu progreso de checkout.';

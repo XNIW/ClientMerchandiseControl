@@ -14,6 +14,14 @@ abstract interface class CheckoutRepository {
   });
 
   Future<CheckoutRemoteResponse> readQuote({required String quoteId});
+
+  Future<CheckoutOrderRemoteResponse> createOrder({
+    required String quoteId,
+    required int expectedQuoteVersion,
+    required String idempotencyKey,
+  });
+
+  Future<CheckoutOrderRemoteResponse> readOrder({required String orderId});
 }
 
 abstract interface class CheckoutDraftStore {

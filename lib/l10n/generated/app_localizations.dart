@@ -2236,8 +2236,122 @@ abstract class AppLocalizations {
   /// No description provided for @checkoutOrderDeferredNotice.
   ///
   /// In es, this message translates to:
-  /// **'El resumen quedó confirmado. El pedido se creará en el siguiente paso seguro.'**
+  /// **'Antes de crear el pedido, la tienda volverá a validar precio, promoción, disponibilidad y horario.'**
   String get checkoutOrderDeferredNotice;
+
+  /// No description provided for @checkoutCreateOrderAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear pedido'**
+  String get checkoutCreateOrderAction;
+
+  /// No description provided for @checkoutOrderReceiptTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedido confirmado'**
+  String get checkoutOrderReceiptTitle;
+
+  /// No description provided for @checkoutOrderReceiptMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardamos el pedido con el precio y la modalidad confirmados por la tienda.'**
+  String get checkoutOrderReceiptMessage;
+
+  /// No description provided for @checkoutOrderCodeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Código de pedido'**
+  String get checkoutOrderCodeLabel;
+
+  /// No description provided for @checkoutOrderCodeSemantics.
+  ///
+  /// In es, this message translates to:
+  /// **'Código de pedido {code}'**
+  String checkoutOrderCodeSemantics(String code);
+
+  /// No description provided for @checkoutOrderConfirmedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedido {code} confirmado.'**
+  String checkoutOrderConfirmedMessage(String code);
+
+  /// No description provided for @checkoutOrderStatusLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado'**
+  String get checkoutOrderStatusLabel;
+
+  /// No description provided for @checkoutOrderPlacedAtLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Creado'**
+  String get checkoutOrderPlacedAtLabel;
+
+  /// No description provided for @checkoutOrderAuthoritativeNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'El total de este comprobante fue calculado y confirmado por el servidor. El pedido no es una venta fiscal.'**
+  String get checkoutOrderAuthoritativeNotice;
+
+  /// No description provided for @checkoutOrderConfirmedNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedido creado y confirmado por la tienda.'**
+  String get checkoutOrderConfirmedNotice;
+
+  /// No description provided for @checkoutContinueShoppingAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Seguir comprando'**
+  String get checkoutContinueShoppingAction;
+
+  /// No description provided for @checkoutOrderStatusConfirmed.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmado'**
+  String get checkoutOrderStatusConfirmed;
+
+  /// No description provided for @checkoutOrderStatusAccepted.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptado'**
+  String get checkoutOrderStatusAccepted;
+
+  /// No description provided for @checkoutOrderStatusRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazado'**
+  String get checkoutOrderStatusRejected;
+
+  /// No description provided for @checkoutOrderStatusPreparing.
+  ///
+  /// In es, this message translates to:
+  /// **'En preparación'**
+  String get checkoutOrderStatusPreparing;
+
+  /// No description provided for @checkoutOrderStatusReady.
+  ///
+  /// In es, this message translates to:
+  /// **'Listo'**
+  String get checkoutOrderStatusReady;
+
+  /// No description provided for @checkoutOrderStatusOutForDelivery.
+  ///
+  /// In es, this message translates to:
+  /// **'En reparto'**
+  String get checkoutOrderStatusOutForDelivery;
+
+  /// No description provided for @checkoutOrderStatusCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Completado'**
+  String get checkoutOrderStatusCompleted;
+
+  /// No description provided for @checkoutOrderStatusCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelado'**
+  String get checkoutOrderStatusCancelled;
 
   /// No description provided for @checkoutRestoredNotice.
   ///

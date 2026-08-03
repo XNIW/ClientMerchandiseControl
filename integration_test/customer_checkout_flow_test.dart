@@ -49,7 +49,14 @@ void main() {
               status: CheckoutQuoteStatus.confirmed,
             ),
           ),
-        );
+        )
+        ..orderOutcomes.addAll([
+          const CheckoutRepositoryException(CheckoutFailureKind.timeout),
+          checkoutTestOrderResponse(
+            order: checkoutTestOrderSnapshot(idempotent: true),
+            idempotent: true,
+          ),
+        ]);
       final store = MemoryCheckoutDraftStore();
 
       await tester.pumpWidget(_buildApp(repository, store));
@@ -101,6 +108,27 @@ void main() {
       expect(find.text('Resumen confirmado por la tienda.'), findsWidgets);
       expect(find.textContaining('source_product_id'), findsNothing);
       expect(find.textContaining(checkoutTestPublication), findsNothing);
+
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      await _tap(tester, const ValueKey('checkout-create-order'));
+      expect(
+        store.draft?.pendingOperation?.kind,
+        CheckoutPendingOperationKind.order,
+      );
+      expect(store.draft?.pendingOperation?.idempotencyKey, checkoutTestKey);
+      await _tap(tester, const ValueKey('storefront-status-action'));
+
+      expect(
+        find.byKey(const ValueKey('checkout-order-receipt')),
+        findsOneWidget,
+      );
+      expect(find.text(checkoutTestOrderCode), findsOneWidget);
+      expect(repository.orderRequests, hasLength(2));
+      expect(repository.orderRequests.map((request) => request.key).toSet(), {
+        checkoutTestKey,
+      });
+      expect(store.draft?.orderId, checkoutTestOrder);
       expect(tester.takeException(), isNull);
 
       await tester.pumpWidget(const SizedBox.shrink());
@@ -111,6 +139,9 @@ void main() {
         'ambiguousTimeoutRetry': 'PASS',
         'sameIdempotencyKey': 'PASS',
         'explicitPriceChangeAcceptance': 'PASS',
+        'atomicOrderReceipt': 'PASS',
+        'ambiguousOrderRetry': 'PASS',
+        'sameOrderIdempotencyKey': 'PASS',
         'internalIdentifiers': 'absent',
         'processAlive': 'PASS',
       };

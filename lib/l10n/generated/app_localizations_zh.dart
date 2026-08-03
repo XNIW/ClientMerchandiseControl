@@ -1195,6 +1195,79 @@ class AppLocalizationsZh extends AppLocalizations {
       'Este total todavía es estimado. La tienda volverá a leer el carrito, las promociones y la disponibilidad.';
 
   @override
+  String get checkoutPaymentTitle => 'Método de pago';
+
+  @override
+  String get checkoutPaymentMessage =>
+      'Elige un método habilitado para esta modalidad. La tienda lo validará nuevamente al crear el pedido.';
+
+  @override
+  String get checkoutPaymentPayAtPickup => 'Pagar al retirar';
+
+  @override
+  String get checkoutPaymentPayAtPickupDescription =>
+      'Paga en la tienda cuando retires o confirmes la reserva.';
+
+  @override
+  String get checkoutPaymentCashOnDelivery => 'Pago contra entrega';
+
+  @override
+  String get checkoutPaymentCashOnDeliveryDescription =>
+      'Paga al recibir el pedido, solo en zonas habilitadas.';
+
+  @override
+  String get checkoutPaymentOnline => 'Pago en línea';
+
+  @override
+  String get checkoutPaymentOnlineUnavailable =>
+      'No configurado para Storefront v1.';
+
+  @override
+  String get checkoutPaymentRequired =>
+      'Selecciona un método de pago disponible para crear el pedido.';
+
+  @override
+  String get checkoutPaymentUnavailable =>
+      'No hay un método de pago disponible para esta modalidad.';
+
+  @override
+  String get checkoutPaymentMethodLabel => 'Método de pago';
+
+  @override
+  String get checkoutPaymentStatusLabel => 'Estado del pago';
+
+  @override
+  String get checkoutPaymentStatusDueAtFulfillment =>
+      'Pendiente al momento de la entrega o retiro';
+
+  @override
+  String get checkoutPaymentStatusPendingProvider => 'Pendiente del proveedor';
+
+  @override
+  String get checkoutPaymentStatusProcessing => 'Procesando';
+
+  @override
+  String get checkoutPaymentStatusAuthorized => 'Autorizado';
+
+  @override
+  String get checkoutPaymentStatusCollected => 'Cobrado';
+
+  @override
+  String get checkoutPaymentStatusFailed => 'Fallido';
+
+  @override
+  String get checkoutPaymentStatusCancelled => 'Cancelado';
+
+  @override
+  String get checkoutPaymentStatusRefundPending => 'Reembolso pendiente';
+
+  @override
+  String get checkoutPaymentStatusRefundFailed => 'Error de reembolso';
+
+  @override
+  String get checkoutPaymentStatusRefunded => 'Reembolsado';
+
+  @override
   String get checkoutServerValidationNotice =>
       'El servidor calculará precios, descuentos, tarifa y total. La app no envía un total autorizado.';
 
@@ -1374,6 +1447,10 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get checkoutSlotUnavailableError =>
       'El horario o la modalidad ya no están disponibles.';
+
+  @override
+  String get checkoutPaymentUnavailableError =>
+      'El método de pago ya no está disponible. Elige una opción habilitada y vuelve a intentarlo.';
 
   @override
   String get checkoutCartUnavailableError =>
@@ -2587,6 +2664,73 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get checkoutReviewMessage => '此总额仍为预估值。商店将重新读取购物车、促销和库存。';
 
   @override
+  String get checkoutPaymentTitle => '付款方式';
+
+  @override
+  String get checkoutPaymentMessage => '请选择此履约方式支持的付款方式。创建订单时，商店会再次验证。';
+
+  @override
+  String get checkoutPaymentPayAtPickup => '取货时付款';
+
+  @override
+  String get checkoutPaymentPayAtPickupDescription => '取货或确认预订时在门店付款。';
+
+  @override
+  String get checkoutPaymentCashOnDelivery => '货到付款';
+
+  @override
+  String get checkoutPaymentCashOnDeliveryDescription =>
+      '订单送达时付款，仅适用于已启用的配送区域。';
+
+  @override
+  String get checkoutPaymentOnline => '在线支付';
+
+  @override
+  String get checkoutPaymentOnlineUnavailable => 'Storefront v1 尚未配置。';
+
+  @override
+  String get checkoutPaymentRequired => '请选择可用的付款方式以创建订单。';
+
+  @override
+  String get checkoutPaymentUnavailable => '此履约方式暂无可用付款方式。';
+
+  @override
+  String get checkoutPaymentMethodLabel => '付款方式';
+
+  @override
+  String get checkoutPaymentStatusLabel => '付款状态';
+
+  @override
+  String get checkoutPaymentStatusDueAtFulfillment => '配送或取货时待付款';
+
+  @override
+  String get checkoutPaymentStatusPendingProvider => '等待支付服务商';
+
+  @override
+  String get checkoutPaymentStatusProcessing => '处理中';
+
+  @override
+  String get checkoutPaymentStatusAuthorized => '已授权';
+
+  @override
+  String get checkoutPaymentStatusCollected => '已收款';
+
+  @override
+  String get checkoutPaymentStatusFailed => '失败';
+
+  @override
+  String get checkoutPaymentStatusCancelled => '已取消';
+
+  @override
+  String get checkoutPaymentStatusRefundPending => '退款处理中';
+
+  @override
+  String get checkoutPaymentStatusRefundFailed => '退款失败';
+
+  @override
+  String get checkoutPaymentStatusRefunded => '已退款';
+
+  @override
   String get checkoutServerValidationNotice => '价格、折扣、费用和总额均由服务器计算。应用不会发送权威总额。';
 
   @override
@@ -2747,6 +2891,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get checkoutSlotUnavailableError => '所选时段或方式已不可用。';
+
+  @override
+  String get checkoutPaymentUnavailableError => '付款方式已不可用。请选择已启用的选项后重试。';
 
   @override
   String get checkoutCartUnavailableError => '请检查购物车：购物车为空或包含不可用商品。';

@@ -133,6 +133,7 @@ void main() {
   testWidgets('pickup crea ordine server-side e mostra receipt accessibile', (
     tester,
   ) async {
+    final semantics = tester.ensureSemantics();
     final repository = FakeCheckoutRepository()
       ..createOutcomes.add(
         checkoutTestResponse(quote: checkoutTestQuoteSnapshot()),
@@ -168,6 +169,29 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('checkout-next-slot')));
     await tester.pumpAndSettle();
 
+    expect(
+      find.byKey(const ValueKey('checkout-payment-payAtPickup')),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .getSemantics(find.byKey(const ValueKey('checkout-payment-selector')))
+          .label,
+      contains('Método de pago'),
+    );
+    expect(
+      tester
+          .getSize(find.byKey(const ValueKey('checkout-payment-payAtPickup')))
+          .height,
+      greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
+    );
+    final paymentMethod = find.byKey(
+      const ValueKey('checkout-payment-payAtPickup'),
+    );
+    await tester.ensureVisible(paymentMethod);
+    await tester.tap(paymentMethod);
+    await tester.pumpAndSettle();
+
     expect(find.text('Total estimado'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('checkout-create-quote')));
     await tester.pumpAndSettle();
@@ -198,6 +222,11 @@ void main() {
       find.byKey(const ValueKey('checkout-order-authoritative-total')),
       findsOneWidget,
     );
+    expect(find.textContaining('Pagar al retirar'), findsOneWidget);
+    expect(
+      find.textContaining('Pendiente al momento de la entrega o retiro'),
+      findsOneWidget,
+    );
     expect(
       tester
           .getSemantics(find.byKey(const ValueKey('checkout-order-receipt')))
@@ -213,6 +242,7 @@ void main() {
     expect(repository.createRequests, hasLength(1));
     expect(repository.confirmRequests, hasLength(1));
     expect(repository.orderRequests, hasLength(1));
+    semantics.dispose();
     expect(tester.takeException(), isNull);
   });
 
@@ -276,6 +306,12 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('checkout-next-slot')));
     await tester.pumpAndSettle();
+    final paymentMethod = find.byKey(
+      const ValueKey('checkout-payment-payAtPickup'),
+    );
+    await tester.ensureVisible(paymentMethod);
+    await tester.tap(paymentMethod);
+    await tester.pumpAndSettle();
 
     await expectLater(
       find.byType(CheckoutScreen),
@@ -297,7 +333,32 @@ void main() {
         buildApp(repository: FakeCheckoutRepository(), locale: locale),
       );
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('checkout-next-mode')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('checkout-mode-pickup')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('checkout-next-mode')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('checkout-pickup-$checkoutTestPoint')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('checkout-next-destination')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('checkout-slot-$checkoutTestPickupSlot')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('checkout-next-slot')));
+      await tester.pumpAndSettle();
+
+      final selector = find.byKey(const ValueKey('checkout-payment-selector'));
+      final l10n = AppLocalizations.of(tester.element(selector));
+      expect(selector, findsOneWidget);
+      expect(find.text(l10n.checkoutPaymentTitle), findsOneWidget);
+      expect(find.text(l10n.checkoutPaymentPayAtPickup), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('checkout-payment-online-disabled')),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull, reason: locale.toLanguageTag());
       await tester.pumpWidget(const SizedBox());
       await tester.pump();

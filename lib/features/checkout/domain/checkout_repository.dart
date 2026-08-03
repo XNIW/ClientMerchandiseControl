@@ -3,6 +3,10 @@ import 'checkout_models.dart';
 abstract interface class CheckoutRepository {
   Future<StorefrontFulfillmentOptions> loadOptions({required String shopSlug});
 
+  Future<StorefrontPaymentOptions> loadPaymentOptions({
+    required String shopSlug,
+  });
+
   Future<CheckoutRemoteResponse> createQuote(
     CheckoutQuoteCreateRequest request,
   );
@@ -18,6 +22,7 @@ abstract interface class CheckoutRepository {
   Future<CheckoutOrderRemoteResponse> createOrder({
     required String quoteId,
     required int expectedQuoteVersion,
+    required CheckoutPaymentMethod paymentMethod,
     required String idempotencyKey,
   });
 

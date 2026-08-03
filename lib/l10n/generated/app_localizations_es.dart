@@ -1195,6 +1195,79 @@ class AppLocalizationsEs extends AppLocalizations {
       'Este total todavía es estimado. La tienda volverá a leer el carrito, las promociones y la disponibilidad.';
 
   @override
+  String get checkoutPaymentTitle => 'Método de pago';
+
+  @override
+  String get checkoutPaymentMessage =>
+      'Elige un método habilitado para esta modalidad. La tienda lo validará nuevamente al crear el pedido.';
+
+  @override
+  String get checkoutPaymentPayAtPickup => 'Pagar al retirar';
+
+  @override
+  String get checkoutPaymentPayAtPickupDescription =>
+      'Paga en la tienda cuando retires o confirmes la reserva.';
+
+  @override
+  String get checkoutPaymentCashOnDelivery => 'Pago contra entrega';
+
+  @override
+  String get checkoutPaymentCashOnDeliveryDescription =>
+      'Paga al recibir el pedido, solo en zonas habilitadas.';
+
+  @override
+  String get checkoutPaymentOnline => 'Pago en línea';
+
+  @override
+  String get checkoutPaymentOnlineUnavailable =>
+      'No configurado para Storefront v1.';
+
+  @override
+  String get checkoutPaymentRequired =>
+      'Selecciona un método de pago disponible para crear el pedido.';
+
+  @override
+  String get checkoutPaymentUnavailable =>
+      'No hay un método de pago disponible para esta modalidad.';
+
+  @override
+  String get checkoutPaymentMethodLabel => 'Método de pago';
+
+  @override
+  String get checkoutPaymentStatusLabel => 'Estado del pago';
+
+  @override
+  String get checkoutPaymentStatusDueAtFulfillment =>
+      'Pendiente al momento de la entrega o retiro';
+
+  @override
+  String get checkoutPaymentStatusPendingProvider => 'Pendiente del proveedor';
+
+  @override
+  String get checkoutPaymentStatusProcessing => 'Procesando';
+
+  @override
+  String get checkoutPaymentStatusAuthorized => 'Autorizado';
+
+  @override
+  String get checkoutPaymentStatusCollected => 'Cobrado';
+
+  @override
+  String get checkoutPaymentStatusFailed => 'Fallido';
+
+  @override
+  String get checkoutPaymentStatusCancelled => 'Cancelado';
+
+  @override
+  String get checkoutPaymentStatusRefundPending => 'Reembolso pendiente';
+
+  @override
+  String get checkoutPaymentStatusRefundFailed => 'Error de reembolso';
+
+  @override
+  String get checkoutPaymentStatusRefunded => 'Reembolsado';
+
+  @override
   String get checkoutServerValidationNotice =>
       'El servidor calculará precios, descuentos, tarifa y total. La app no envía un total autorizado.';
 
@@ -1374,6 +1447,10 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get checkoutSlotUnavailableError =>
       'El horario o la modalidad ya no están disponibles.';
+
+  @override
+  String get checkoutPaymentUnavailableError =>
+      'El método de pago ya no está disponible. Elige una opción habilitada y vuelve a intentarlo.';
 
   @override
   String get checkoutCartUnavailableError =>

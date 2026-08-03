@@ -38,6 +38,65 @@ void main() {
     expect(options.slots, hasLength(2));
   });
 
+  test('payment options sono mode-scoped e online resta fail-closed', () async {
+    port.response = _paymentOptionsPayload();
+
+    final options = await repository.loadPaymentOptions(
+      shopSlug: 'storefront-test',
+    );
+
+    expect(port.function, 'storefront_payment_options_v1');
+    expect(port.parameters, {'p_shop_slug': 'storefront-test'});
+    expect(
+      options.isEnabled(
+        CheckoutPaymentMethod.payAtPickup,
+        CheckoutFulfillmentMode.pickup,
+      ),
+      isTrue,
+    );
+    expect(
+      options.isEnabled(
+        CheckoutPaymentMethod.cashOnDelivery,
+        CheckoutFulfillmentMode.pickup,
+      ),
+      isFalse,
+    );
+    expect(options.option(CheckoutPaymentMethod.onlinePayment)?.enabled, false);
+  });
+
+  test(
+    'payment options manipolate o con metadata interno falliscono chiuso',
+    () async {
+      final base = _paymentOptionsPayload();
+      final methods = (base['methods']! as List<Object?>)
+          .map((value) => Map<String, Object?>.from(value! as Map))
+          .toList();
+      for (final payload in [
+        {
+          ...base,
+          'methods': [
+            methods[0],
+            methods[1],
+            {...methods[2], 'enabled': true},
+          ],
+        },
+        {...base, 'providerKey': 'internal-provider'},
+      ]) {
+        port.response = payload;
+        await expectLater(
+          repository.loadPaymentOptions(shopSlug: 'storefront-test'),
+          throwsA(
+            isA<CheckoutRepositoryException>().having(
+              (error) => error.kind,
+              'kind',
+              CheckoutFailureKind.unexpected,
+            ),
+          ),
+        );
+      }
+    },
+  );
+
   test(
     'create invia selezione e idempotency senza prezzo o totale client',
     () async {
@@ -149,6 +208,7 @@ void main() {
       final response = await repository.createOrder(
         quoteId: _quoteId,
         expectedQuoteVersion: 2,
+        paymentMethod: CheckoutPaymentMethod.payAtPickup,
         idempotencyKey: _idempotencyId,
       );
 
@@ -157,10 +217,16 @@ void main() {
       expect(response.order?.code, 'MC-0123456789ABCDEF0123');
       expect(response.order?.totalClp, 2400);
       expect(response.order?.items.single.publicName, 'Café público');
-      expect(port.function, 'customer_order_create_v1');
+      expect(response.order?.payment.method, CheckoutPaymentMethod.payAtPickup);
+      expect(
+        response.order?.payment.status,
+        CheckoutPaymentStatus.dueAtFulfillment,
+      );
+      expect(port.function, 'customer_order_create_v2');
       expect(port.parameters, {
         'p_quote_id': _quoteId,
         'p_expected_quote_version': 2,
+        'p_payment_method': 'pay_at_pickup',
         'p_idempotency_key': _idempotencyId,
       });
       expect(
@@ -188,7 +254,7 @@ void main() {
     final response = await repository.readOrder(orderId: _orderId);
 
     expect(response.order?.idempotent, isTrue);
-    expect(port.function, 'customer_order_read_v1');
+    expect(port.function, 'customer_order_read_v2');
     expect(port.parameters, {'p_order_id': _orderId});
   });
 
@@ -197,10 +263,16 @@ void main() {
       'requires_review': CheckoutOrderRemoteStatus.requiresReview,
       'quote_version_conflict': CheckoutOrderRemoteStatus.quoteVersionConflict,
       'idempotency_conflict': CheckoutOrderRemoteStatus.idempotencyConflict,
+      'payment_method_unavailable':
+          CheckoutOrderRemoteStatus.paymentMethodUnavailable,
+      'payment_method_conflict':
+          CheckoutOrderRemoteStatus.paymentMethodConflict,
+      'online_payment_unavailable':
+          CheckoutOrderRemoteStatus.onlinePaymentUnavailable,
       'not_found': CheckoutOrderRemoteStatus.notFound,
     }.entries) {
       port.response = {
-        'apiVersion': 'customer-order.v1',
+        'apiVersion': 'customer-order.v2',
         'status': entry.key,
         'idempotent': false,
         'serverTime': _now.toIso8601String(),
@@ -224,6 +296,20 @@ void main() {
         'fulfillment': {
           ...(_orderPayload()['fulfillment']! as Map<String, Object?>),
           'shopId': _pointId,
+        },
+      },
+      {
+        ..._orderPayload(),
+        'payment': {
+          ...(_orderPayload()['payment']! as Map<String, Object?>),
+          'amountClp': 1,
+        },
+      },
+      {
+        ..._orderPayload(),
+        'payment': {
+          ...(_orderPayload()['payment']! as Map<String, Object?>),
+          'providerReference': 'secret-provider-reference',
         },
       },
     ]) {
@@ -399,6 +485,32 @@ Map<String, Object?> _optionsPayload() => {
   'serverTime': _now.toIso8601String(),
 };
 
+Map<String, Object?> _paymentOptionsPayload() => {
+  'apiVersion': 'storefront-payment-options.v1',
+  'status': 'ok',
+  'shopSlug': 'storefront-test',
+  'currencyCode': 'CLP',
+  'methods': const [
+    {
+      'method': 'pay_at_pickup',
+      'enabled': true,
+      'fulfillmentModes': ['pickup', 'reservation'],
+    },
+    {
+      'method': 'cash_on_delivery',
+      'enabled': true,
+      'fulfillmentModes': ['delivery'],
+    },
+    {
+      'method': 'online_payment',
+      'enabled': false,
+      'fulfillmentModes': <String>[],
+    },
+  ],
+  'onlineConfiguration': 'not_configured',
+  'serverTime': _now.toIso8601String(),
+};
+
 Map<String, Object?> _quotePayload({
   String status = 'quoted',
   String quoteStatus = 'quoted',
@@ -469,7 +581,7 @@ Map<String, Object?> _orderPayload({
   );
   final placedAt = _now.add(const Duration(seconds: 30));
   return {
-    'apiVersion': 'customer-order.v1',
+    'apiVersion': 'customer-order.v2',
     'status': 'ok',
     'idempotent': idempotent,
     'orderId': _orderId,
@@ -500,6 +612,15 @@ Map<String, Object?> _orderPayload({
     'deliveryFeeClp': 0,
     'totalClp': subtotal,
     'items': orderItems,
+    'payment': {
+      'method': 'pay_at_pickup',
+      'status': 'due_at_fulfillment',
+      'amountClp': subtotal,
+      'currencyCode': 'CLP',
+      'version': 1,
+      'createdAt': placedAt.toIso8601String(),
+      'updatedAt': placedAt.toIso8601String(),
+    },
     'placedAt': placedAt.toIso8601String(),
     'serverTime': placedAt.toIso8601String(),
   };

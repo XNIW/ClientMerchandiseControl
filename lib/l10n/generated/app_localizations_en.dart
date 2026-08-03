@@ -1182,6 +1182,79 @@ class AppLocalizationsEn extends AppLocalizations {
       'This total is still an estimate. The store will reread the cart, promotions, and availability.';
 
   @override
+  String get checkoutPaymentTitle => 'Payment method';
+
+  @override
+  String get checkoutPaymentMessage =>
+      'Choose a method enabled for this fulfilment option. The store will validate it again when the order is created.';
+
+  @override
+  String get checkoutPaymentPayAtPickup => 'Pay at pickup';
+
+  @override
+  String get checkoutPaymentPayAtPickupDescription =>
+      'Pay in store when you collect or confirm the reservation.';
+
+  @override
+  String get checkoutPaymentCashOnDelivery => 'Cash on delivery';
+
+  @override
+  String get checkoutPaymentCashOnDeliveryDescription =>
+      'Pay when the order arrives, only in enabled delivery zones.';
+
+  @override
+  String get checkoutPaymentOnline => 'Online payment';
+
+  @override
+  String get checkoutPaymentOnlineUnavailable =>
+      'Not configured for Storefront v1.';
+
+  @override
+  String get checkoutPaymentRequired =>
+      'Select an available payment method to create the order.';
+
+  @override
+  String get checkoutPaymentUnavailable =>
+      'No payment method is available for this fulfilment option.';
+
+  @override
+  String get checkoutPaymentMethodLabel => 'Payment method';
+
+  @override
+  String get checkoutPaymentStatusLabel => 'Payment status';
+
+  @override
+  String get checkoutPaymentStatusDueAtFulfillment =>
+      'Due at delivery or pickup';
+
+  @override
+  String get checkoutPaymentStatusPendingProvider => 'Waiting for provider';
+
+  @override
+  String get checkoutPaymentStatusProcessing => 'Processing';
+
+  @override
+  String get checkoutPaymentStatusAuthorized => 'Authorized';
+
+  @override
+  String get checkoutPaymentStatusCollected => 'Collected';
+
+  @override
+  String get checkoutPaymentStatusFailed => 'Failed';
+
+  @override
+  String get checkoutPaymentStatusCancelled => 'Cancelled';
+
+  @override
+  String get checkoutPaymentStatusRefundPending => 'Refund pending';
+
+  @override
+  String get checkoutPaymentStatusRefundFailed => 'Refund failed';
+
+  @override
+  String get checkoutPaymentStatusRefunded => 'Refunded';
+
+  @override
   String get checkoutServerValidationNotice =>
       'The server calculates prices, discounts, fees, and the total. The app does not send an authoritative total.';
 
@@ -1361,6 +1434,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get checkoutSlotUnavailableError =>
       'The time slot or method is no longer available.';
+
+  @override
+  String get checkoutPaymentUnavailableError =>
+      'The payment method is no longer available. Choose an enabled option and try again.';
 
   @override
   String get checkoutCartUnavailableError =>

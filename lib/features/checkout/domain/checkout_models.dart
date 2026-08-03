@@ -9,6 +9,25 @@ enum CheckoutFulfillmentMode { pickup, reservation, delivery }
 
 enum FulfillmentOptionsStatus { ok, unavailable, invalid }
 
+enum PaymentOptionsStatus { ok, unavailable, invalid }
+
+enum CheckoutPaymentMethod { payAtPickup, cashOnDelivery, onlinePayment }
+
+enum CheckoutPaymentStatus {
+  dueAtFulfillment,
+  pendingProvider,
+  processing,
+  authorized,
+  collected,
+  failed,
+  cancelled,
+  refundPending,
+  refundFailed,
+  refunded,
+}
+
+enum OnlinePaymentConfiguration { notConfigured }
+
 enum CheckoutRemoteStatus {
   ok,
   quoted,
@@ -50,6 +69,9 @@ enum CheckoutOrderRemoteStatus {
   unsupportedZone,
   cartUnavailable,
   idempotencyConflict,
+  paymentMethodUnavailable,
+  paymentMethodConflict,
+  onlinePaymentUnavailable,
   notFound,
   invariantError,
   invalid,
@@ -210,28 +232,83 @@ final class StorefrontFulfillmentOptions {
       id == null ? null : slots.where((slot) => slot.id == id).firstOrNull;
 }
 
+final class CheckoutPaymentOption {
+  CheckoutPaymentOption({
+    required this.method,
+    required this.enabled,
+    required List<CheckoutFulfillmentMode> fulfillmentModes,
+  }) : fulfillmentModes = List.unmodifiable(fulfillmentModes);
+
+  final CheckoutPaymentMethod method;
+  final bool enabled;
+  final List<CheckoutFulfillmentMode> fulfillmentModes;
+
+  bool supports(CheckoutFulfillmentMode mode) =>
+      enabled && fulfillmentModes.contains(mode);
+}
+
+final class StorefrontPaymentOptions {
+  StorefrontPaymentOptions({
+    required this.status,
+    required this.shopSlug,
+    required this.currencyCode,
+    required List<CheckoutPaymentOption> methods,
+    required this.onlineConfiguration,
+    required this.serverTime,
+  }) : methods = List.unmodifiable(methods);
+
+  factory StorefrontPaymentOptions.unavailable({
+    required PaymentOptionsStatus status,
+    required DateTime serverTime,
+  }) => StorefrontPaymentOptions(
+    status: status,
+    shopSlug: null,
+    currencyCode: null,
+    methods: const [],
+    onlineConfiguration: null,
+    serverTime: serverTime,
+  );
+
+  final PaymentOptionsStatus status;
+  final String? shopSlug;
+  final String? currencyCode;
+  final List<CheckoutPaymentOption> methods;
+  final OnlinePaymentConfiguration? onlineConfiguration;
+  final DateTime serverTime;
+
+  CheckoutPaymentOption? option(CheckoutPaymentMethod method) =>
+      methods.where((option) => option.method == method).firstOrNull;
+
+  bool isEnabled(CheckoutPaymentMethod method, CheckoutFulfillmentMode mode) =>
+      option(method)?.supports(mode) ?? false;
+}
+
 final class CheckoutSelection {
   const CheckoutSelection({
     this.mode,
     this.addressId,
     this.pickupPointId,
     this.slotId,
+    this.paymentMethod,
   });
 
   final CheckoutFulfillmentMode? mode;
   final String? addressId;
   final String? pickupPointId;
   final String? slotId;
+  final CheckoutPaymentMethod? paymentMethod;
 
   CheckoutSelection copyWith({
     CheckoutFulfillmentMode? mode,
     String? addressId,
     String? pickupPointId,
     String? slotId,
+    CheckoutPaymentMethod? paymentMethod,
     bool clearMode = false,
     bool clearAddress = false,
     bool clearPickupPoint = false,
     bool clearSlot = false,
+    bool clearPaymentMethod = false,
   }) {
     return CheckoutSelection(
       mode: clearMode ? null : mode ?? this.mode,
@@ -240,8 +317,33 @@ final class CheckoutSelection {
           ? null
           : pickupPointId ?? this.pickupPointId,
       slotId: clearSlot ? null : slotId ?? this.slotId,
+      paymentMethod: clearPaymentMethod
+          ? null
+          : paymentMethod ?? this.paymentMethod,
     );
   }
+}
+
+final class CheckoutPayment {
+  const CheckoutPayment({
+    required this.method,
+    required this.status,
+    required this.amountClp,
+    required this.currencyCode,
+    required this.version,
+    required this.failureCode,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  final CheckoutPaymentMethod method;
+  final CheckoutPaymentStatus status;
+  final int amountClp;
+  final String currencyCode;
+  final int version;
+  final String? failureCode;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 }
 
 final class CheckoutQuoteItem {
@@ -362,6 +464,7 @@ final class CheckoutOrder {
     required this.deliveryFeeClp,
     required this.totalClp,
     required List<CheckoutQuoteItem> items,
+    required this.payment,
     required this.placedAt,
     required this.serverTime,
     required this.idempotent,
@@ -377,6 +480,7 @@ final class CheckoutOrder {
   final int deliveryFeeClp;
   final int totalClp;
   final List<CheckoutQuoteItem> items;
+  final CheckoutPayment payment;
   final DateTime placedAt;
   final DateTime serverTime;
   final bool idempotent;
@@ -419,6 +523,7 @@ final class CheckoutPendingOperation {
     required this.cartVersion,
     this.quoteId,
     this.expectedQuoteVersion,
+    this.paymentMethod,
   });
 
   final CheckoutPendingOperationKind kind;
@@ -426,6 +531,7 @@ final class CheckoutPendingOperation {
   final int cartVersion;
   final String? quoteId;
   final int? expectedQuoteVersion;
+  final CheckoutPaymentMethod? paymentMethod;
 }
 
 final class CheckoutLocalDraft {

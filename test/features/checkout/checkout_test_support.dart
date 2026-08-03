@@ -121,6 +121,37 @@ StorefrontFulfillmentOptions checkoutTestOptions() =>
       serverTime: checkoutTestNow,
     );
 
+StorefrontPaymentOptions checkoutTestPaymentOptions({
+  bool payAtPickupEnabled = true,
+  bool cashOnDeliveryEnabled = true,
+}) => StorefrontPaymentOptions(
+  status: PaymentOptionsStatus.ok,
+  shopSlug: 'storefront-test',
+  currencyCode: 'CLP',
+  methods: [
+    CheckoutPaymentOption(
+      method: CheckoutPaymentMethod.payAtPickup,
+      enabled: payAtPickupEnabled,
+      fulfillmentModes: const [
+        CheckoutFulfillmentMode.pickup,
+        CheckoutFulfillmentMode.reservation,
+      ],
+    ),
+    CheckoutPaymentOption(
+      method: CheckoutPaymentMethod.cashOnDelivery,
+      enabled: cashOnDeliveryEnabled,
+      fulfillmentModes: const [CheckoutFulfillmentMode.delivery],
+    ),
+    CheckoutPaymentOption(
+      method: CheckoutPaymentMethod.onlinePayment,
+      enabled: false,
+      fulfillmentModes: const [],
+    ),
+  ],
+  onlineConfiguration: OnlinePaymentConfiguration.notConfigured,
+  serverTime: checkoutTestNow,
+);
+
 CheckoutQuote checkoutTestQuoteSnapshot({
   CheckoutQuoteStatus status = CheckoutQuoteStatus.quoted,
   bool requiresReview = false,
@@ -187,6 +218,16 @@ CheckoutOrder checkoutTestOrderSnapshot({bool idempotent = false}) =>
       deliveryFeeClp: 0,
       totalClp: 2400,
       items: checkoutTestQuoteSnapshot().items,
+      payment: CheckoutPayment(
+        method: CheckoutPaymentMethod.payAtPickup,
+        status: CheckoutPaymentStatus.dueAtFulfillment,
+        amountClp: 2400,
+        currencyCode: 'CLP',
+        version: 1,
+        failureCode: null,
+        createdAt: checkoutTestNow.add(const Duration(seconds: 30)),
+        updatedAt: checkoutTestNow.add(const Duration(seconds: 30)),
+      ),
       placedAt: checkoutTestNow.add(const Duration(seconds: 30)),
       serverTime: checkoutTestNow.add(const Duration(seconds: 30)),
       idempotent: idempotent,
@@ -243,10 +284,14 @@ final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
 }
 
 final class FakeCheckoutRepository implements CheckoutRepository {
-  FakeCheckoutRepository({StorefrontFulfillmentOptions? options})
-    : options = options ?? checkoutTestOptions();
+  FakeCheckoutRepository({
+    StorefrontFulfillmentOptions? options,
+    StorefrontPaymentOptions? paymentOptions,
+  }) : options = options ?? checkoutTestOptions(),
+       paymentOptions = paymentOptions ?? checkoutTestPaymentOptions();
 
   StorefrontFulfillmentOptions options;
+  StorefrontPaymentOptions paymentOptions;
   final List<Object> createOutcomes = [];
   final List<Object> confirmOutcomes = [];
   final List<Object> orderOutcomes = [];
@@ -254,8 +299,17 @@ final class FakeCheckoutRepository implements CheckoutRepository {
   Object? readOrderOutcome;
   final List<CheckoutQuoteCreateRequest> createRequests = [];
   final List<({String quoteId, int version, String key})> confirmRequests = [];
-  final List<({String quoteId, int version, String key})> orderRequests = [];
+  final List<
+    ({
+      String quoteId,
+      int version,
+      CheckoutPaymentMethod paymentMethod,
+      String key,
+    })
+  >
+  orderRequests = [];
   int loadOptionsCalls = 0;
+  int loadPaymentOptionsCalls = 0;
   int readCalls = 0;
   int readOrderCalls = 0;
 
@@ -263,11 +317,13 @@ final class FakeCheckoutRepository implements CheckoutRepository {
   Future<CheckoutOrderRemoteResponse> createOrder({
     required String quoteId,
     required int expectedQuoteVersion,
+    required CheckoutPaymentMethod paymentMethod,
     required String idempotencyKey,
   }) async {
     orderRequests.add((
       quoteId: quoteId,
       version: expectedQuoteVersion,
+      paymentMethod: paymentMethod,
       key: idempotencyKey,
     ));
     return _resolveOrder(orderOutcomes);
@@ -301,6 +357,14 @@ final class FakeCheckoutRepository implements CheckoutRepository {
   }) async {
     loadOptionsCalls++;
     return options;
+  }
+
+  @override
+  Future<StorefrontPaymentOptions> loadPaymentOptions({
+    required String shopSlug,
+  }) async {
+    loadPaymentOptionsCalls++;
+    return paymentOptions;
   }
 
   @override

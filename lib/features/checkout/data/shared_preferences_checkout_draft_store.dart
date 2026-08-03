@@ -103,7 +103,7 @@ final class SharedPreferencesCheckoutDraftStore implements CheckoutDraftStore {
 String _encode(CheckoutLocalDraft draft) {
   _validateDraft(draft);
   return jsonEncode({
-    'version': 2,
+    'version': 3,
     'ownerSubjectId': draft.ownerSubjectId,
     'shopSlug': draft.shopSlug,
     'step': draft.step.name,
@@ -112,6 +112,7 @@ String _encode(CheckoutLocalDraft draft) {
       'addressId': draft.selection.addressId,
       'pickupPointId': draft.selection.pickupPointId,
       'slotId': draft.selection.slotId,
+      'paymentMethod': draft.selection.paymentMethod?.name,
     },
     'quoteId': draft.quoteId,
     'orderId': draft.orderId,
@@ -124,6 +125,7 @@ String _encode(CheckoutLocalDraft draft) {
             'quoteId': draft.pendingOperation!.quoteId,
             'expectedQuoteVersion':
                 draft.pendingOperation!.expectedQuoteVersion,
+            'paymentMethod': draft.pendingOperation!.paymentMethod?.name,
           },
     'updatedAt': draft.updatedAt.toUtc().toIso8601String(),
   });
@@ -159,15 +161,21 @@ CheckoutLocalDraft _decode(String encoded) {
             'updatedAt',
           },
   );
-  if (version != 1 && version != 2) {
+  if (version != 1 && version != 2 && version != 3) {
     throw const FormatException('checkout_draft_version');
   }
-  final selectionMap = _strictMap(root['selection'], const {
-    'mode',
-    'addressId',
-    'pickupPointId',
-    'slotId',
-  });
+  final selectionMap = _strictMap(
+    root['selection'],
+    version == 3
+        ? const {
+            'mode',
+            'addressId',
+            'pickupPointId',
+            'slotId',
+            'paymentMethod',
+          }
+        : const {'mode', 'addressId', 'pickupPointId', 'slotId'},
+  );
   final mode = switch (selectionMap['mode']) {
     null => null,
     'pickup' => CheckoutFulfillmentMode.pickup,
@@ -178,13 +186,25 @@ CheckoutLocalDraft _decode(String encoded) {
   final pendingRaw = root['pendingOperation'];
   CheckoutPendingOperation? pending;
   if (pendingRaw != null) {
-    final map = _strictMap(pendingRaw, const {
-      'kind',
-      'idempotencyKey',
-      'cartVersion',
-      'quoteId',
-      'expectedQuoteVersion',
-    });
+    final map = _strictMap(
+      pendingRaw,
+      version == 3
+          ? const {
+              'kind',
+              'idempotencyKey',
+              'cartVersion',
+              'quoteId',
+              'expectedQuoteVersion',
+              'paymentMethod',
+            }
+          : const {
+              'kind',
+              'idempotencyKey',
+              'cartVersion',
+              'quoteId',
+              'expectedQuoteVersion',
+            },
+    );
     pending = CheckoutPendingOperation(
       kind: switch (map['kind']) {
         'create' => CheckoutPendingOperationKind.create,
@@ -196,6 +216,7 @@ CheckoutLocalDraft _decode(String encoded) {
       cartVersion: _integer(map, 'cartVersion'),
       quoteId: _optionalString(map, 'quoteId'),
       expectedQuoteVersion: _optionalInteger(map, 'expectedQuoteVersion'),
+      paymentMethod: version == 3 ? _paymentMethod(map['paymentMethod']) : null,
     );
   }
   final draft = CheckoutLocalDraft(
@@ -214,9 +235,12 @@ CheckoutLocalDraft _decode(String encoded) {
       addressId: _optionalString(selectionMap, 'addressId'),
       pickupPointId: _optionalString(selectionMap, 'pickupPointId'),
       slotId: _optionalString(selectionMap, 'slotId'),
+      paymentMethod: version == 3
+          ? _paymentMethod(selectionMap['paymentMethod'])
+          : null,
     ),
     quoteId: _optionalString(root, 'quoteId'),
-    orderId: version == 2 ? _optionalString(root, 'orderId') : null,
+    orderId: version >= 2 ? _optionalString(root, 'orderId') : null,
     pendingOperation: pending,
     updatedAt: _date(root, 'updatedAt'),
   );
@@ -281,15 +305,19 @@ void _validateDraft(CheckoutLocalDraft draft) {
     if (pending.cartVersion < 0 ||
         (pending.kind == CheckoutPendingOperationKind.create &&
             (pending.quoteId != null ||
-                pending.expectedQuoteVersion != null)) ||
+                pending.expectedQuoteVersion != null ||
+                pending.paymentMethod != null)) ||
         (pending.kind == CheckoutPendingOperationKind.confirm &&
             (pending.quoteId == null ||
                 pending.expectedQuoteVersion == null ||
-                pending.expectedQuoteVersion! < 1)) ||
+                pending.expectedQuoteVersion! < 1 ||
+                pending.paymentMethod != null)) ||
         (pending.kind == CheckoutPendingOperationKind.order &&
             (pending.quoteId == null ||
                 pending.expectedQuoteVersion == null ||
-                pending.expectedQuoteVersion! < 1))) {
+                pending.expectedQuoteVersion! < 1 ||
+                pending.paymentMethod == null ||
+                pending.paymentMethod != selection.paymentMethod))) {
       throw const FormatException('checkout_draft_pending');
     }
     if (pending.quoteId != null) _requireUuid(pending.quoteId!);
@@ -298,10 +326,19 @@ void _validateDraft(CheckoutLocalDraft draft) {
           selection.pickupPointId != null) ||
       (selection.mode != null &&
           selection.mode != CheckoutFulfillmentMode.delivery &&
-          selection.addressId != null)) {
+          selection.addressId != null) ||
+      (selection.paymentMethod != null && selection.mode == null)) {
     throw const FormatException('checkout_draft_selection');
   }
 }
+
+CheckoutPaymentMethod? _paymentMethod(Object? value) => switch (value) {
+  null => null,
+  'payAtPickup' => CheckoutPaymentMethod.payAtPickup,
+  'cashOnDelivery' => CheckoutPaymentMethod.cashOnDelivery,
+  'onlinePayment' => CheckoutPaymentMethod.onlinePayment,
+  _ => throw const FormatException('checkout_draft_payment_method'),
+};
 
 void _validateContext(String ownerSubjectId, String shopSlug) {
   if (ownerSubjectId.isEmpty ||

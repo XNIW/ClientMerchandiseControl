@@ -224,6 +224,25 @@ final class CheckoutController extends Notifier<CheckoutState> {
     );
   }
 
+  Future<void> selectPaymentMethod(CheckoutPaymentMethod method) async {
+    final mode = state.selection.mode;
+    if (state.isBusy ||
+        state.pendingOperation != null ||
+        mode == null ||
+        !(state.paymentOptions?.isEnabled(method, mode) ?? false)) {
+      return;
+    }
+    await _replaceDraftState(
+      state.copyWith(
+        selection: state.selection.copyWith(paymentMethod: method),
+        quote: null,
+        order: null,
+        failureKind: null,
+        notice: null,
+      ),
+    );
+  }
+
   Future<void> nextStep() async {
     if (state.isBusy) return;
     final next = switch (state.step) {
@@ -316,6 +335,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
       if (quote == null ||
           cart == null ||
           !quote.isConfirmed ||
+          !state.hasValidPaymentSelection ||
           state.hasOrder) {
         return;
       }
@@ -323,7 +343,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
       final pending =
           existing?.kind == CheckoutPendingOperationKind.order &&
               existing?.quoteId == quote.id &&
-              existing?.expectedQuoteVersion == quote.quoteVersion
+              existing?.expectedQuoteVersion == quote.quoteVersion &&
+              existing?.paymentMethod == state.selection.paymentMethod
           ? existing!
           : CheckoutPendingOperation(
               kind: CheckoutPendingOperationKind.order,
@@ -331,6 +352,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
               cartVersion: cart.version,
               quoteId: quote.id,
               expectedQuoteVersion: quote.quoteVersion,
+              paymentMethod: state.selection.paymentMethod,
             );
       final pendingState = state.copyWith(
         pendingOperation: pending,
@@ -391,13 +413,15 @@ final class CheckoutController extends Notifier<CheckoutState> {
     try {
       final results = await Future.wait<Object?>([
         ref.read(checkoutRepositoryProvider).loadOptions(shopSlug: shop),
+        ref.read(checkoutRepositoryProvider).loadPaymentOptions(shopSlug: shop),
         ref
             .read(checkoutDraftStoreProvider)
             .read(ownerSubjectId: owner, shopSlug: shop),
       ]);
       if (!_isCurrent(generation)) return;
       final options = results[0]! as StorefrontFulfillmentOptions;
-      final draft = results[1] as CheckoutLocalDraft?;
+      final paymentOptions = results[1]! as StorefrontPaymentOptions;
+      final draft = results[2] as CheckoutLocalDraft?;
       if (draft?.orderId != null) {
         final response = await ref
             .read(checkoutRepositoryProvider)
@@ -412,6 +436,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
             addresses: addresses,
             cart: cart,
             options: options,
+            paymentOptions: paymentOptions,
             order: order,
             notice: restoreNotice ? CheckoutNoticeKind.restored : null,
           );
@@ -421,7 +446,9 @@ final class CheckoutController extends Notifier<CheckoutState> {
         }
       }
       if (options.status != FulfillmentOptionsStatus.ok ||
-          !options.modes.any((mode) => mode.enabled)) {
+          !options.modes.any((mode) => mode.enabled) ||
+          paymentOptions.status != PaymentOptionsStatus.ok ||
+          !paymentOptions.methods.any((method) => method.enabled)) {
         _publish(
           CheckoutState.failure(
             failureKind: CheckoutFailureKind.unavailable,
@@ -433,6 +460,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
       final selection = _sanitizeSelection(
         draft?.selection ?? const CheckoutSelection(),
         options,
+        paymentOptions,
         addresses,
       );
       CheckoutQuote? quote;
@@ -474,6 +502,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
         addresses: addresses,
         cart: cart,
         options: options,
+        paymentOptions: paymentOptions,
         quote: quote,
         pendingOperation: pendingOperation,
         failureKind: restoreFailure,
@@ -533,7 +562,9 @@ final class CheckoutController extends Notifier<CheckoutState> {
         }
       }
       final pending = draft?.pendingOperation;
-      if (pending?.kind == CheckoutPendingOperationKind.order) {
+      if (pending?.kind == CheckoutPendingOperationKind.order &&
+          pending?.paymentMethod != null &&
+          pending?.paymentMethod == draft?.selection.paymentMethod) {
         final recovery = CheckoutState(
           status: CheckoutViewStatus.ready,
           step: CheckoutStep.confirmation,
@@ -678,7 +709,17 @@ final class CheckoutController extends Notifier<CheckoutState> {
   Future<void> _executeOrder(CheckoutPendingOperation pending) async {
     final quoteId = pending.quoteId;
     final expectedVersion = pending.expectedQuoteVersion;
-    if (quoteId == null || expectedVersion == null) return;
+    final paymentMethod = pending.paymentMethod;
+    if (quoteId == null || expectedVersion == null || paymentMethod == null) {
+      _publish(
+        state.copyWith(
+          pendingOperation: null,
+          failureKind: CheckoutFailureKind.paymentUnavailable,
+          isBusy: false,
+        ),
+      );
+      return;
+    }
     _publish(state.copyWith(isBusy: true, failureKind: null, notice: null));
     try {
       final response = await ref
@@ -686,6 +727,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
           .createOrder(
             quoteId: quoteId,
             expectedQuoteVersion: expectedVersion,
+            paymentMethod: paymentMethod,
             idempotencyKey: pending.idempotencyKey,
           );
       final order = response.order;
@@ -837,6 +879,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
 CheckoutSelection _sanitizeSelection(
   CheckoutSelection selection,
   StorefrontFulfillmentOptions options,
+  StorefrontPaymentOptions paymentOptions,
   List<CustomerAddress> addresses,
 ) {
   final mode = selection.mode;
@@ -853,6 +896,11 @@ CheckoutSelection _sanitizeSelection(
         .map((zone) => zone.id)
         .toSet();
     final slot = options.slot(selection.slotId);
+    final paymentMethod = _sanitizedPaymentMethod(
+      selection.paymentMethod,
+      mode,
+      paymentOptions,
+    );
     return CheckoutSelection(
       mode: mode,
       addressId: address.id,
@@ -860,19 +908,32 @@ CheckoutSelection _sanitizeSelection(
           slot?.mode == mode && supportedZones.contains(slot?.deliveryZoneId)
           ? slot?.id
           : null,
+      paymentMethod: paymentMethod,
     );
   }
   final point = options.pickupPoint(selection.pickupPointId);
   if (point == null) return CheckoutSelection(mode: mode);
   final slot = options.slot(selection.slotId);
+  final paymentMethod = _sanitizedPaymentMethod(
+    selection.paymentMethod,
+    mode,
+    paymentOptions,
+  );
   return CheckoutSelection(
     mode: mode,
     pickupPointId: point.id,
     slotId: slot?.mode == mode && slot?.pickupPointId == point.id
         ? slot?.id
         : null,
+    paymentMethod: paymentMethod,
   );
 }
+
+CheckoutPaymentMethod? _sanitizedPaymentMethod(
+  CheckoutPaymentMethod? method,
+  CheckoutFulfillmentMode mode,
+  StorefrontPaymentOptions options,
+) => method != null && options.isEnabled(method, mode) ? method : null;
 
 CheckoutStep _sanitizeStep(
   CheckoutStep requested,
@@ -925,6 +986,8 @@ CheckoutPendingOperation? _sanitizePendingOperation(
     CheckoutPendingOperationKind.order
         when quote != null &&
             quote.isConfirmed &&
+            pending.paymentMethod != null &&
+            pending.paymentMethod == selection.paymentMethod &&
             pending.quoteId == quote.id &&
             pending.expectedQuoteVersion == quote.quoteVersion =>
       pending,
@@ -941,7 +1004,8 @@ bool _hasDestination(CheckoutState state) =>
 bool _selectionComplete(CheckoutState state) =>
     _hasDestination(state) &&
     state.selection.slotId != null &&
-    state.selectableSlots.any((slot) => slot.id == state.selection.slotId);
+    state.selectableSlots.any((slot) => slot.id == state.selection.slotId) &&
+    state.hasValidPaymentSelection;
 
 CheckoutFailureKind _failureFor(
   CheckoutRemoteStatus status,
@@ -986,6 +1050,10 @@ CheckoutFailureKind _failureForOrder(CheckoutOrderRemoteStatus status) =>
       CheckoutOrderRemoteStatus.expired => CheckoutFailureKind.expired,
       CheckoutOrderRemoteStatus.idempotencyConflict =>
         CheckoutFailureKind.conflict,
+      CheckoutOrderRemoteStatus.paymentMethodUnavailable ||
+      CheckoutOrderRemoteStatus.paymentMethodConflict ||
+      CheckoutOrderRemoteStatus.onlinePaymentUnavailable =>
+        CheckoutFailureKind.paymentUnavailable,
       CheckoutOrderRemoteStatus.notFound => CheckoutFailureKind.notFound,
       CheckoutOrderRemoteStatus.invalid ||
       CheckoutOrderRemoteStatus.invalidSelection ||

@@ -2143,6 +2143,138 @@ abstract class AppLocalizations {
   /// **'Este total todavía es estimado. La tienda volverá a leer el carrito, las promociones y la disponibilidad.'**
   String get checkoutReviewMessage;
 
+  /// No description provided for @checkoutPaymentTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Método de pago'**
+  String get checkoutPaymentTitle;
+
+  /// No description provided for @checkoutPaymentMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige un método habilitado para esta modalidad. La tienda lo validará nuevamente al crear el pedido.'**
+  String get checkoutPaymentMessage;
+
+  /// No description provided for @checkoutPaymentPayAtPickup.
+  ///
+  /// In es, this message translates to:
+  /// **'Pagar al retirar'**
+  String get checkoutPaymentPayAtPickup;
+
+  /// No description provided for @checkoutPaymentPayAtPickupDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Paga en la tienda cuando retires o confirmes la reserva.'**
+  String get checkoutPaymentPayAtPickupDescription;
+
+  /// No description provided for @checkoutPaymentCashOnDelivery.
+  ///
+  /// In es, this message translates to:
+  /// **'Pago contra entrega'**
+  String get checkoutPaymentCashOnDelivery;
+
+  /// No description provided for @checkoutPaymentCashOnDeliveryDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Paga al recibir el pedido, solo en zonas habilitadas.'**
+  String get checkoutPaymentCashOnDeliveryDescription;
+
+  /// No description provided for @checkoutPaymentOnline.
+  ///
+  /// In es, this message translates to:
+  /// **'Pago en línea'**
+  String get checkoutPaymentOnline;
+
+  /// No description provided for @checkoutPaymentOnlineUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No configurado para Storefront v1.'**
+  String get checkoutPaymentOnlineUnavailable;
+
+  /// No description provided for @checkoutPaymentRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un método de pago disponible para crear el pedido.'**
+  String get checkoutPaymentRequired;
+
+  /// No description provided for @checkoutPaymentUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay un método de pago disponible para esta modalidad.'**
+  String get checkoutPaymentUnavailable;
+
+  /// No description provided for @checkoutPaymentMethodLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Método de pago'**
+  String get checkoutPaymentMethodLabel;
+
+  /// No description provided for @checkoutPaymentStatusLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado del pago'**
+  String get checkoutPaymentStatusLabel;
+
+  /// No description provided for @checkoutPaymentStatusDueAtFulfillment.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendiente al momento de la entrega o retiro'**
+  String get checkoutPaymentStatusDueAtFulfillment;
+
+  /// No description provided for @checkoutPaymentStatusPendingProvider.
+  ///
+  /// In es, this message translates to:
+  /// **'Pendiente del proveedor'**
+  String get checkoutPaymentStatusPendingProvider;
+
+  /// No description provided for @checkoutPaymentStatusProcessing.
+  ///
+  /// In es, this message translates to:
+  /// **'Procesando'**
+  String get checkoutPaymentStatusProcessing;
+
+  /// No description provided for @checkoutPaymentStatusAuthorized.
+  ///
+  /// In es, this message translates to:
+  /// **'Autorizado'**
+  String get checkoutPaymentStatusAuthorized;
+
+  /// No description provided for @checkoutPaymentStatusCollected.
+  ///
+  /// In es, this message translates to:
+  /// **'Cobrado'**
+  String get checkoutPaymentStatusCollected;
+
+  /// No description provided for @checkoutPaymentStatusFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'Fallido'**
+  String get checkoutPaymentStatusFailed;
+
+  /// No description provided for @checkoutPaymentStatusCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelado'**
+  String get checkoutPaymentStatusCancelled;
+
+  /// No description provided for @checkoutPaymentStatusRefundPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Reembolso pendiente'**
+  String get checkoutPaymentStatusRefundPending;
+
+  /// No description provided for @checkoutPaymentStatusRefundFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'Error de reembolso'**
+  String get checkoutPaymentStatusRefundFailed;
+
+  /// No description provided for @checkoutPaymentStatusRefunded.
+  ///
+  /// In es, this message translates to:
+  /// **'Reembolsado'**
+  String get checkoutPaymentStatusRefunded;
+
   /// No description provided for @checkoutServerValidationNotice.
   ///
   /// In es, this message translates to:
@@ -2454,6 +2586,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'El horario o la modalidad ya no están disponibles.'**
   String get checkoutSlotUnavailableError;
+
+  /// No description provided for @checkoutPaymentUnavailableError.
+  ///
+  /// In es, this message translates to:
+  /// **'El método de pago ya no está disponible. Elige una opción habilitada y vuelve a intentarlo.'**
+  String get checkoutPaymentUnavailableError;
 
   /// No description provided for @checkoutCartUnavailableError.
   ///

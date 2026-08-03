@@ -70,6 +70,7 @@ void main() {
         const ValueKey('checkout-slot-$checkoutTestPickupSlot'),
       );
       await _tap(tester, const ValueKey('checkout-next-slot'));
+      await _tap(tester, const ValueKey('checkout-payment-payAtPickup'));
       await _tap(tester, const ValueKey('checkout-create-quote'));
 
       expect(
@@ -128,6 +129,12 @@ void main() {
       expect(repository.orderRequests.map((request) => request.key).toSet(), {
         checkoutTestKey,
       });
+      expect(
+        repository.orderRequests
+            .map((request) => request.paymentMethod)
+            .toSet(),
+        {CheckoutPaymentMethod.payAtPickup},
+      );
       expect(store.draft?.orderId, checkoutTestOrder);
       expect(tester.takeException(), isNull);
 

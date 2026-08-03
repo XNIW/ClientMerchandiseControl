@@ -30,6 +30,10 @@ void main() {
     expect(restored?.step, CheckoutStep.confirmation);
     expect(restored?.selection.mode, CheckoutFulfillmentMode.pickup);
     expect(restored?.selection.pickupPointId, _pointId);
+    expect(
+      restored?.selection.paymentMethod,
+      CheckoutPaymentMethod.payAtPickup,
+    );
     expect(restored?.quoteId, _quoteId);
     expect(restored?.pendingOperation?.idempotencyKey, _key);
     final encoded = preferences.values.values.single;
@@ -67,6 +71,7 @@ void main() {
             mode: CheckoutFulfillmentMode.pickup,
             pickupPointId: _pointId,
             slotId: _slotId,
+            paymentMethod: CheckoutPaymentMethod.payAtPickup,
           ),
           quoteId: _quoteId,
           orderId: _orderId,
@@ -76,6 +81,7 @@ void main() {
             cartVersion: 7,
             quoteId: _quoteId,
             expectedQuoteVersion: 2,
+            paymentMethod: CheckoutPaymentMethod.payAtPickup,
           ),
           updatedAt: _now,
         ),
@@ -92,7 +98,7 @@ void main() {
       );
       expect(restored?.pendingOperation?.idempotencyKey, _key);
       final encoded = preferences.values.values.single;
-      expect(encoded, contains('"version":2'));
+      expect(encoded, contains('"version":3'));
       expect(encoded, isNot(contains('subtotalClp')));
       expect(encoded, isNot(contains('sourceProductId')));
     },
@@ -113,6 +119,24 @@ void main() {
     );
     expect(restored?.step, CheckoutStep.review);
     expect(restored?.orderId, isNull);
+    expect(restored?.selection.paymentMethod, isNull);
+  });
+
+  test('draft v2 resta leggibile con pagamento nullo fail-closed', () async {
+    preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] =
+        '{"version":2,"ownerSubjectId":"$_owner",'
+        '"shopSlug":"storefront-test","step":"review",'
+        '"selection":{"mode":"pickup","addressId":null,'
+        '"pickupPointId":"$_pointId","slotId":"$_slotId"},'
+        '"quoteId":null,"orderId":null,"pendingOperation":null,'
+        '"updatedAt":"${_now.toIso8601String()}"}';
+
+    final restored = await store.read(
+      ownerSubjectId: _owner,
+      shopSlug: 'storefront-test',
+    );
+    expect(restored?.step, CheckoutStep.review);
+    expect(restored?.selection.paymentMethod, isNull);
   });
 
   test('record corrotto viene rimosso e non provoca crash', () async {
@@ -165,6 +189,7 @@ CheckoutLocalDraft _draft() => CheckoutLocalDraft(
     mode: CheckoutFulfillmentMode.pickup,
     pickupPointId: _pointId,
     slotId: _slotId,
+    paymentMethod: CheckoutPaymentMethod.payAtPickup,
   ),
   quoteId: _quoteId,
   pendingOperation: const CheckoutPendingOperation(

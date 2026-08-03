@@ -45,6 +45,21 @@ final class SupabaseCheckoutRepository implements CheckoutRepository {
   }
 
   @override
+  Future<StorefrontPaymentOptions> loadPaymentOptions({
+    required String shopSlug,
+  }) {
+    return _guard(() async {
+      _requireShopSlug(shopSlug);
+      return _parsePaymentOptions(
+        await port.invoke('storefront_payment_options_v1', {
+          'p_shop_slug': shopSlug,
+        }),
+        expectedShopSlug: shopSlug,
+      );
+    });
+  }
+
+  @override
   Future<CheckoutRemoteResponse> createQuote(
     CheckoutQuoteCreateRequest request,
   ) {
@@ -103,6 +118,7 @@ final class SupabaseCheckoutRepository implements CheckoutRepository {
   Future<CheckoutOrderRemoteResponse> createOrder({
     required String quoteId,
     required int expectedQuoteVersion,
+    required CheckoutPaymentMethod paymentMethod,
     required String idempotencyKey,
   }) {
     return _guard(() async {
@@ -110,9 +126,10 @@ final class SupabaseCheckoutRepository implements CheckoutRepository {
       _requireVersion(expectedQuoteVersion);
       _requireUuid(idempotencyKey);
       return _parseOrderResponse(
-        await port.invoke('customer_order_create_v1', {
+        await port.invoke('customer_order_create_v2', {
           'p_quote_id': quoteId,
           'p_expected_quote_version': expectedQuoteVersion,
+          'p_payment_method': _paymentMethodName(paymentMethod),
           'p_idempotency_key': idempotencyKey,
         }),
       );
@@ -124,7 +141,7 @@ final class SupabaseCheckoutRepository implements CheckoutRepository {
     return _guard(() async {
       _requireUuid(orderId);
       return _parseOrderResponse(
-        await port.invoke('customer_order_read_v1', {'p_order_id': orderId}),
+        await port.invoke('customer_order_read_v2', {'p_order_id': orderId}),
       );
     });
   }
@@ -341,6 +358,110 @@ CheckoutFulfillmentSlot _parseSlot(Object? raw) {
     label: _safeRequiredText(map, 'label', 160),
     startsAt: startsAt,
     endsAt: endsAt,
+  );
+}
+
+const _paymentOptionsRootKeys = <String>{
+  'apiVersion',
+  'status',
+  'shopSlug',
+  'currencyCode',
+  'methods',
+  'onlineConfiguration',
+  'serverTime',
+};
+
+StorefrontPaymentOptions _parsePaymentOptions(
+  Object? raw, {
+  required String expectedShopSlug,
+}) {
+  final payload = _payload(raw, _paymentOptionsRootKeys, 'payment_options');
+  if (payload['apiVersion'] != 'storefront-payment-options.v1') {
+    throw const FormatException('payment_options_version');
+  }
+  final status = switch (_requiredString(payload, 'status')) {
+    'ok' => PaymentOptionsStatus.ok,
+    'unavailable' => PaymentOptionsStatus.unavailable,
+    'invalid' => PaymentOptionsStatus.invalid,
+    _ => throw const FormatException('payment_options_status'),
+  };
+  final serverTime = _requiredDate(payload, 'serverTime');
+  if (status != PaymentOptionsStatus.ok) {
+    if (payload.keys.any(
+      (key) => key != 'apiVersion' && key != 'status' && key != 'serverTime',
+    )) {
+      throw const FormatException('payment_options_minimal');
+    }
+    return StorefrontPaymentOptions.unavailable(
+      status: status,
+      serverTime: serverTime,
+    );
+  }
+  if (!payload.keys.toSet().containsAll(_paymentOptionsRootKeys) ||
+      _requiredString(payload, 'shopSlug') != expectedShopSlug ||
+      payload['currencyCode'] != 'CLP' ||
+      payload['onlineConfiguration'] != 'not_configured') {
+    throw const FormatException('payment_options_identity');
+  }
+  final methods = _list(
+    payload,
+    'methods',
+    maximum: 3,
+  ).map(_parsePaymentOption).toList(growable: false);
+  if (methods.length != 3 ||
+      methods.map((option) => option.method).toSet().length != 3) {
+    throw const FormatException('payment_options_methods');
+  }
+  for (final option in methods) {
+    final actual = option.fulfillmentModes.toSet();
+    final expected = switch (option.method) {
+      CheckoutPaymentMethod.payAtPickup => const {
+        CheckoutFulfillmentMode.pickup,
+        CheckoutFulfillmentMode.reservation,
+      },
+      CheckoutPaymentMethod.cashOnDelivery => const {
+        CheckoutFulfillmentMode.delivery,
+      },
+      CheckoutPaymentMethod.onlinePayment => const <CheckoutFulfillmentMode>{},
+    };
+    if (actual.length != option.fulfillmentModes.length ||
+        actual.length != expected.length ||
+        !actual.containsAll(expected) ||
+        (option.method == CheckoutPaymentMethod.onlinePayment &&
+            option.enabled)) {
+      throw const FormatException('payment_options_compatibility');
+    }
+  }
+  return StorefrontPaymentOptions(
+    status: status,
+    shopSlug: expectedShopSlug,
+    currencyCode: 'CLP',
+    methods: methods,
+    onlineConfiguration: OnlinePaymentConfiguration.notConfigured,
+    serverTime: serverTime,
+  );
+}
+
+CheckoutPaymentOption _parsePaymentOption(Object? raw) {
+  final map = _strictMap(raw, const {
+    'method',
+    'enabled',
+    'fulfillmentModes',
+  }, 'payment_option');
+  final enabled = map['enabled'];
+  if (enabled is! bool) throw const FormatException('payment_option_enabled');
+  final modes = _list(map, 'fulfillmentModes', maximum: 3)
+      .map((value) {
+        if (value is! String) {
+          throw const FormatException('payment_option_mode');
+        }
+        return _mode(value);
+      })
+      .toList(growable: false);
+  return CheckoutPaymentOption(
+    method: _paymentMethod(_requiredString(map, 'method')),
+    enabled: enabled,
+    fulfillmentModes: modes,
   );
 }
 
@@ -591,13 +712,14 @@ const _orderRootKeys = <String>{
   'deliveryFeeClp',
   'totalClp',
   'items',
+  'payment',
   'placedAt',
   'serverTime',
 };
 
 CheckoutOrderRemoteResponse _parseOrderResponse(Object? raw) {
   final payload = _payload(raw, _orderRootKeys, 'checkout_order_response');
-  if (payload['apiVersion'] != 'customer-order.v1') {
+  if (payload['apiVersion'] != 'customer-order.v2') {
     throw const FormatException('checkout_order_response_version');
   }
   final status = _orderRemoteStatus(_requiredString(payload, 'status'));
@@ -645,6 +767,7 @@ CheckoutOrderRemoteResponse _parseOrderResponse(Object? raw) {
     'deliveryFeeClp',
     'totalClp',
     'items',
+    'payment',
     'placedAt',
     'serverTime',
   };
@@ -682,6 +805,10 @@ CheckoutOrderRemoteResponse _parseOrderResponse(Object? raw) {
     items.map((item) => item.publicationId),
     'checkout_order_items',
   );
+  final payment = _parsePayment(payload['payment']);
+  if (payment.amountClp != total || payment.currencyCode != 'CLP') {
+    throw const FormatException('checkout_order_payment_total');
+  }
   final placedAt = _requiredDate(payload, 'placedAt');
   if (placedAt.isAfter(serverTime.add(const Duration(minutes: 1)))) {
     throw const FormatException('checkout_order_timing');
@@ -697,6 +824,7 @@ CheckoutOrderRemoteResponse _parseOrderResponse(Object? raw) {
     deliveryFeeClp: fee,
     totalClp: total,
     items: items,
+    payment: payment,
     placedAt: placedAt,
     serverTime: serverTime,
     idempotent: idempotent,
@@ -707,6 +835,52 @@ CheckoutOrderRemoteResponse _parseOrderResponse(Object? raw) {
     serverTime: serverTime,
     order: order,
     orderId: orderId,
+  );
+}
+
+CheckoutPayment _parsePayment(Object? raw) {
+  final map = _payload(raw, const {
+    'method',
+    'status',
+    'amountClp',
+    'currencyCode',
+    'version',
+    'failureCode',
+    'createdAt',
+    'updatedAt',
+  }, 'checkout_payment');
+  const required = {
+    'method',
+    'status',
+    'amountClp',
+    'currencyCode',
+    'version',
+    'createdAt',
+    'updatedAt',
+  };
+  if (!map.keys.toSet().containsAll(required) || map['currencyCode'] != 'CLP') {
+    throw const FormatException('checkout_payment_required');
+  }
+  final version = _requiredInt(map, 'version');
+  if (version < 1) throw const FormatException('checkout_payment_version');
+  final failureCode = _safeOptionalText(map, 'failureCode', 80);
+  if (failureCode != null && !RegExp(r'^[a-z0-9_]+$').hasMatch(failureCode)) {
+    throw const FormatException('checkout_payment_failure');
+  }
+  final createdAt = _requiredDate(map, 'createdAt');
+  final updatedAt = _requiredDate(map, 'updatedAt');
+  if (updatedAt.isBefore(createdAt)) {
+    throw const FormatException('checkout_payment_timing');
+  }
+  return CheckoutPayment(
+    method: _paymentMethod(_requiredString(map, 'method')),
+    status: _paymentStatus(_requiredString(map, 'status')),
+    amountClp: _amount(map, 'amountClp'),
+    currencyCode: 'CLP',
+    version: version,
+    failureCode: failureCode,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
   );
 }
 
@@ -994,6 +1168,33 @@ CheckoutFulfillmentMode _mode(String value) => switch (value) {
   _ => throw const FormatException('checkout_mode'),
 };
 
+CheckoutPaymentMethod _paymentMethod(String value) => switch (value) {
+  'pay_at_pickup' => CheckoutPaymentMethod.payAtPickup,
+  'cash_on_delivery' => CheckoutPaymentMethod.cashOnDelivery,
+  'online_payment' => CheckoutPaymentMethod.onlinePayment,
+  _ => throw const FormatException('checkout_payment_method'),
+};
+
+String _paymentMethodName(CheckoutPaymentMethod method) => switch (method) {
+  CheckoutPaymentMethod.payAtPickup => 'pay_at_pickup',
+  CheckoutPaymentMethod.cashOnDelivery => 'cash_on_delivery',
+  CheckoutPaymentMethod.onlinePayment => 'online_payment',
+};
+
+CheckoutPaymentStatus _paymentStatus(String value) => switch (value) {
+  'due_at_fulfillment' => CheckoutPaymentStatus.dueAtFulfillment,
+  'pending_provider' => CheckoutPaymentStatus.pendingProvider,
+  'processing' => CheckoutPaymentStatus.processing,
+  'authorized' => CheckoutPaymentStatus.authorized,
+  'collected' => CheckoutPaymentStatus.collected,
+  'failed' => CheckoutPaymentStatus.failed,
+  'cancelled' => CheckoutPaymentStatus.cancelled,
+  'refund_pending' => CheckoutPaymentStatus.refundPending,
+  'refund_failed' => CheckoutPaymentStatus.refundFailed,
+  'refunded' => CheckoutPaymentStatus.refunded,
+  _ => throw const FormatException('checkout_payment_status'),
+};
+
 CheckoutRemoteStatus _remoteStatus(String value) => switch (value) {
   'ok' => CheckoutRemoteStatus.ok,
   'quoted' => CheckoutRemoteStatus.quoted,
@@ -1036,6 +1237,11 @@ CheckoutOrderRemoteStatus _orderRemoteStatus(String value) => switch (value) {
   'unsupported_zone' => CheckoutOrderRemoteStatus.unsupportedZone,
   'cart_unavailable' => CheckoutOrderRemoteStatus.cartUnavailable,
   'idempotency_conflict' => CheckoutOrderRemoteStatus.idempotencyConflict,
+  'payment_method_unavailable' =>
+    CheckoutOrderRemoteStatus.paymentMethodUnavailable,
+  'payment_method_conflict' => CheckoutOrderRemoteStatus.paymentMethodConflict,
+  'online_payment_unavailable' =>
+    CheckoutOrderRemoteStatus.onlinePaymentUnavailable,
   'not_found' => CheckoutOrderRemoteStatus.notFound,
   'invariant_error' => CheckoutOrderRemoteStatus.invariantError,
   'invalid' => CheckoutOrderRemoteStatus.invalid,

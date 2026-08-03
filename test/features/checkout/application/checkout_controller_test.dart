@@ -37,6 +37,7 @@ void main() {
       expect(state.selection.mode, CheckoutFulfillmentMode.pickup);
       expect(state.selection.pickupPointId, checkoutTestPoint);
       expect(state.selection.slotId, checkoutTestPickupSlot);
+      expect(state.selection.paymentMethod, CheckoutPaymentMethod.payAtPickup);
       expect(store.draft?.step, CheckoutStep.review);
     },
   );
@@ -202,6 +203,10 @@ void main() {
       expect(refreshCalls, 1);
       expect(repository.orderRequests.single.quoteId, checkoutTestQuote);
       expect(repository.orderRequests.single.version, 2);
+      expect(
+        repository.orderRequests.single.paymentMethod,
+        CheckoutPaymentMethod.payAtPickup,
+      );
       expect(repository.orderRequests.single.key, checkoutTestKey);
     },
   );
@@ -257,6 +262,12 @@ void main() {
       expect(repository.orderRequests.map((request) => request.key).toSet(), {
         checkoutTestKey,
       });
+      expect(
+        repository.orderRequests
+            .map((request) => request.paymentMethod)
+            .toSet(),
+        {CheckoutPaymentMethod.payAtPickup},
+      );
     },
   );
 
@@ -272,6 +283,7 @@ void main() {
             mode: CheckoutFulfillmentMode.pickup,
             pickupPointId: checkoutTestPoint,
             slotId: checkoutTestPickupSlot,
+            paymentMethod: CheckoutPaymentMethod.payAtPickup,
           ),
           quoteId: checkoutTestQuote,
           orderId: checkoutTestOrder,
@@ -311,6 +323,7 @@ void main() {
             mode: CheckoutFulfillmentMode.pickup,
             pickupPointId: checkoutTestPoint,
             slotId: checkoutTestPickupSlot,
+            paymentMethod: CheckoutPaymentMethod.payAtPickup,
           ),
           pendingOperation: const CheckoutPendingOperation(
             kind: CheckoutPendingOperationKind.create,
@@ -355,6 +368,7 @@ void main() {
             mode: CheckoutFulfillmentMode.pickup,
             pickupPointId: checkoutTestPoint,
             slotId: checkoutTestPickupSlot,
+            paymentMethod: CheckoutPaymentMethod.payAtPickup,
           ),
           quoteId: checkoutTestQuote,
           pendingOperation: const CheckoutPendingOperation(
@@ -411,6 +425,78 @@ void main() {
       expect(state.failureKind, CheckoutFailureKind.staleCart);
       expect(state.pendingOperation, isNull);
       expect(refreshCalls, 1);
+    },
+  );
+
+  test(
+    'metodo pagamento è vincolato alla modalità e online resta disabilitato',
+    () async {
+      final repository = FakeCheckoutRepository();
+      final container = _container(repository: repository);
+      addTearDown(container.dispose);
+      await _waitFor(
+        container,
+        (state) => state.status == CheckoutViewStatus.ready,
+      );
+      final controller = container.read(checkoutControllerProvider.notifier);
+      await controller.selectMode(CheckoutFulfillmentMode.delivery);
+      await controller.nextStep();
+      await controller.selectAddress(checkoutTestAddress);
+      await controller.nextStep();
+      await controller.selectSlot(checkoutTestDeliverySlot);
+      await controller.nextStep();
+
+      await controller.selectPaymentMethod(CheckoutPaymentMethod.payAtPickup);
+      await controller.selectPaymentMethod(CheckoutPaymentMethod.onlinePayment);
+      expect(
+        container.read(checkoutControllerProvider).selection.paymentMethod,
+        isNull,
+      );
+
+      await controller.selectPaymentMethod(
+        CheckoutPaymentMethod.cashOnDelivery,
+      );
+      expect(
+        container.read(checkoutControllerProvider).selection.paymentMethod,
+        CheckoutPaymentMethod.cashOnDelivery,
+      );
+    },
+  );
+
+  test(
+    'errore server metodo pagamento libera intent senza creare ordine',
+    () async {
+      final repository = FakeCheckoutRepository()
+        ..createOutcomes.add(
+          checkoutTestResponse(quote: checkoutTestQuoteSnapshot()),
+        )
+        ..confirmOutcomes.add(
+          checkoutTestResponse(
+            status: CheckoutRemoteStatus.confirmed,
+            quote: checkoutTestQuoteSnapshot(
+              status: CheckoutQuoteStatus.confirmed,
+            ),
+          ),
+        )
+        ..orderOutcomes.add(
+          checkoutTestOrderResponse(
+            status: CheckoutOrderRemoteStatus.paymentMethodUnavailable,
+          ),
+        );
+      final container = _container(repository: repository);
+      addTearDown(container.dispose);
+      await _waitFor(
+        container,
+        (state) => state.status == CheckoutViewStatus.ready,
+      );
+      await _reachConfirmedQuote(container);
+
+      await container.read(checkoutControllerProvider.notifier).createOrder();
+
+      final state = container.read(checkoutControllerProvider);
+      expect(state.failureKind, CheckoutFailureKind.paymentUnavailable);
+      expect(state.pendingOperation, isNull);
+      expect(state.order, isNull);
     },
   );
 
@@ -490,6 +576,7 @@ Future<void> _reachReview(ProviderContainer container) async {
   await controller.nextStep();
   await controller.selectSlot(checkoutTestPickupSlot);
   await controller.nextStep();
+  await controller.selectPaymentMethod(CheckoutPaymentMethod.payAtPickup);
 }
 
 Future<void> _reachConfirmedQuote(ProviderContainer container) async {

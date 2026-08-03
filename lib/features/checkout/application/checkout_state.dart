@@ -17,6 +17,7 @@ final class CheckoutState {
     required List<CustomerAddress> addresses,
     this.cart,
     this.options,
+    this.paymentOptions,
     this.quote,
     this.order,
     this.pendingOperation,
@@ -65,6 +66,7 @@ final class CheckoutState {
   final List<CustomerAddress> addresses;
   final CustomerCartSnapshot? cart;
   final StorefrontFulfillmentOptions? options;
+  final StorefrontPaymentOptions? paymentOptions;
   final CheckoutQuote? quote;
   final CheckoutOrder? order;
   final CheckoutPendingOperation? pendingOperation;
@@ -86,6 +88,28 @@ final class CheckoutState {
       options?.pickupPoint(selection.pickupPointId);
 
   CheckoutFulfillmentSlot? get selectedSlot => options?.slot(selection.slotId);
+
+  CheckoutPaymentOption? get selectedPaymentOption {
+    final method = selection.paymentMethod;
+    return method == null ? null : paymentOptions?.option(method);
+  }
+
+  List<CheckoutPaymentOption> get compatiblePaymentOptions {
+    final mode = selection.mode;
+    final current = paymentOptions;
+    if (mode == null || current == null) return const [];
+    return current.methods
+        .where((option) => option.supports(mode))
+        .toList(growable: false);
+  }
+
+  bool get hasValidPaymentSelection {
+    final mode = selection.mode;
+    final method = selection.paymentMethod;
+    return mode != null &&
+        method != null &&
+        (paymentOptions?.isEnabled(method, mode) ?? false);
+  }
 
   List<CheckoutDeliveryZone> get supportedDeliveryZones {
     final address = selectedAddress;
@@ -121,6 +145,7 @@ final class CheckoutState {
     List<CustomerAddress>? addresses,
     Object? cart = _checkoutUnset,
     Object? options = _checkoutUnset,
+    Object? paymentOptions = _checkoutUnset,
     Object? quote = _checkoutUnset,
     Object? order = _checkoutUnset,
     Object? pendingOperation = _checkoutUnset,
@@ -139,6 +164,9 @@ final class CheckoutState {
       options: identical(options, _checkoutUnset)
           ? this.options
           : options as StorefrontFulfillmentOptions?,
+      paymentOptions: identical(paymentOptions, _checkoutUnset)
+          ? this.paymentOptions
+          : paymentOptions as StorefrontPaymentOptions?,
       quote: identical(quote, _checkoutUnset)
           ? this.quote
           : quote as CheckoutQuote?,

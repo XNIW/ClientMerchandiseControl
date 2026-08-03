@@ -9,6 +9,7 @@ enum CheckoutFailureKind {
   invalidAddress,
   unsupportedZone,
   slotUnavailable,
+  paymentUnavailable,
   cartUnavailable,
   expired,
   notFound,

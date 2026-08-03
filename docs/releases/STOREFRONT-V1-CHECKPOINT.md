@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 4 / TASK-027 ordine idempotente
-- **Task corrente**: TASK-027
+- **Fase corrente**: EXECUTION / Milestone 4 / TASK-028 storico e stato ordine
+- **Task corrente**: TASK-028
 - **Repository writer corrente**: merchandise-control-admin-web / Supabase
 - **Branch**: `integration/storefront-v1`
-- **SHA Client runtime corrente**: `9406df7d5b5d5a69a0edc033359be38f3bdf656f`
-- **SHA Admin/Supabase corrente**: `86088dc739c59725735533c64133678e96641a9a`
+- **SHA Client runtime corrente**: `64c8f711547f8d5c5dc18650a03a9d5345bb71b7`
+- **SHA Admin/Supabase corrente**: `599511c03cb502b9b76561ff320cfdbb4073b1ee`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -112,13 +112,22 @@
   `9406df7d`, checkout cinque step, restore/idempotency/repricing, 489 test, coverage
   77,10%, build Android/iOS, integration checkout Android/iOS 1/1, live staging e smoke
   artifact `PASS`. CI Client `30781669519` `BLOCKED` esterna per billing.
-- **Gate ancora necessari**: TASK-027 ordine, item snapshot, status event, outbox,
-  consume hold atomico, idempotency, malicious total e concurrency duplicate
-- **Comando successivo esatto**: nel writer Admin/Supabase, mappare in sola lettura
-  schema order/sale/event/outbox, quote/cart/hold, writer inventory, convenzioni ID/RLS/
-  audit, lock/idempotency e boundary POS prima di scegliere schema e transaction order
+- **Gate TASK-027**: Admin `599511c0`, migration staging `20260803033000` + capacity
+  `20260803034500`, cinque tabelle FORCE RLS, due RPC strict, snapshot/event/outbox
+  immutabili, aggregate atomico e POS-neutral; pgTAP 35/35, duplicate/replay race,
+  CI `30783886282`, Cloudflare `30783886269` e staging `30783882947` attempt 2
+  `PASS`; artifact `8844663559`, digest `ea8ae759e6af6fc1a194f8a0f9b168164fd0e19003bfaf046298c3f092e5ece3`.
+  Client `64c8f711`, draft v2/recovery/receipt, 497 test, coverage 76,39%, performance
+  1/1, build e integration/smoke Android/iOS `PASS`. CI Client `30784085502`
+  `BLOCKED` esterna per billing prima dei runner.
+- **Gate ancora necessari**: TASK-028 list/detail/timeline, cache read-only offline,
+  deep link owner-scoped, cancellazione idempotente e stato ordine
+- **Comando successivo esatto**: nel writer Admin/Supabase, auditare in sola lettura
+  `customer_orders`, `customer_order_status_events`, RLS/RPC e policy di transizione;
+  nel Client mappare router, cache owner-scoped, logout e UI Account/Orders prima di
+  fissare cursor, allow-list e migration TASK-028
 - **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
-  nessun blocker tecnico corrente per TASK-027
+  nessun blocker tecnico corrente per TASK-028
 - **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`; Android Emulator
   `emulator-5554`, API 35, sessione exec `90303`; iOS Simulator iPhone 17 Pro iOS 26.5
   UUID `240F400E-5EFA-486A-9137-FFBBE70F604D`. Sono controllati e necessari ai gate
@@ -129,8 +138,9 @@
   favorite/share/deep link guest Android/iOS, XCTest share iOS, UI hardening,
   performance extended dataset, TASK-021 profile/address/privacy, TASK-022 device/
   consent/token lifecycle, TASK-023 cart/revalidation, TASK-024 availability/freshness/
-  cache refresh, TASK-025 hold/idempotency/expiry/cleanup e TASK-026 fulfillment/quote/
-  checkout `PASS`; TASK-027 attivato; production invariata
+  cache refresh, TASK-025 hold/idempotency/expiry/cleanup, TASK-026 fulfillment/quote/
+  checkout e TASK-027 order/snapshot/idempotency `PASS`; TASK-028 attivato; production
+  invariata
 
 ## Vincoli di ripresa
 

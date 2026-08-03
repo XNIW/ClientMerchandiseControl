@@ -13,8 +13,8 @@
 
 | Repository | Branch | SHA revisionato | PR | Versione schema | Versione API | Deployment staging | Feature flag | Ultimo gate | Prossimo checkpoint | Rollback |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ClientMerchandiseControl | `integration/storefront-v1` | `9406df7d5b5d5a69a0edc033359be38f3bdf656f` | `#5 DRAFT` | local cache v4 + hold/checkout pending v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment v1 | 489 test/77,10%; checkout integration 1/1 Android/iOS, live staging e artifact smoke `PASS`; CI `30781669519` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-026 Client `PASS` tecnico | TASK-027 ordine Client | revert commit/branch; feature flag OFF |
-| merchandise-control-admin-web | `integration/storefront-v1` | `86088dc739c59725735533c64133678e96641a9a` | `#67 DRAFT` | `20260803021500` | `storefront.v1`, `customer.v1`, `customer-cart.v1`, availability ingest v1, reservation hold v1, checkout fulfillment v1 | CI `30779607356`; Cloudflare `30779607377`; staging `30779605562`, tutti `PASS` | production `OFF` | TASK-026 56/56, race ultimo slot | TASK-027 order/event/outbox audit | migration additiva + feature flag OFF |
+| ClientMerchandiseControl | `integration/storefront-v1` | `64c8f711547f8d5c5dc18650a03a9d5345bb71b7` | `#5 DRAFT` | local cache v4 + checkout draft v2 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment v1, customer-order v1 | 497 test/76,39%; order integration 1/1 Android/iOS e artifact smoke `PASS`; CI `30784085502` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-027 Client `PASS` tecnico | TASK-028 history/timeline Client | revert commit/branch; feature flag OFF |
+| merchandise-control-admin-web | `integration/storefront-v1` | `599511c03cb502b9b76561ff320cfdbb4073b1ee` | `#67 DRAFT` | `20260803034500` | `storefront.v1`, `customer.v1`, `customer-cart.v1`, availability ingest v1, reservation hold v1, checkout fulfillment v1, customer-order v1 | CI `30783886282`; Cloudflare `30783886269`; staging `30783882947` attempt 2, tutti `PASS` | production `OFF` | TASK-027 35/35, duplicate/replay race | TASK-028 list/detail/timeline/cancel audit | migration additiva + feature flag OFF |
 | Win7POS | `integration/storefront-v1` | baseline `41cf4b8dddd86ed51a49c0b670c81eabe9700405` | `NOT_RUN` | n/a | POS handoff `NOT_RUN` | harness `NOT_RUN` | handoff `OFF` | release worktree fast-forward e pulito; checkout root dirty preservato | TASK-030 | disabilitare consumer e replay queue |
 | MerchandiseControlSplitView | non creato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout dirty preservato | nessuno corrente | nessuna modifica prevista |
 | iOSMerchandiseControl | non clonato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout assente | nessuno corrente | nessuna modifica prevista |
@@ -135,3 +135,35 @@ backend production.
 - **Transizione**: TASK-027 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per order, item snapshot, status event, outbox e consume hold atomici/idempotenti,
   con writer Admin/Supabase -> Client.
+
+## 2026-08-03 — Checkpoint interno TASK-027 e attivazione TASK-028
+
+- **Agente**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il planning del task
+  successivo già autorizzato; nessuna review formale intermedia.
+- **TASK-027**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; order aggregate, item snapshot,
+  first status event, outbox, consume quote/hold/cart e idempotency atomici completati.
+- **Revision set Admin/Supabase**:
+  `599511c03cb502b9b76561ff320cfdbb4073b1ee`, PR #67 draft; migration additive
+  `20260803033000_storefront_v1_customer_orders` e
+  `20260803034500_storefront_v1_customer_order_capacity`.
+- **Gate Admin/staging**: replay completo; pgTAP 35/35, duplicate/replay concurrency,
+  foundation 845 pass + 2 skip, lint/typecheck/build/security; CI `30783886282`,
+  Cloudflare `30783886269` e staging `30783882947` attempt 2, tutti `PASS`; artifact
+  `8844663559`, digest
+  `ea8ae759e6af6fc1a194f8a0f9b168164fd0e19003bfaf046298c3f092e5ece3`.
+- **Revision set Client runtime**:
+  `64c8f711547f8d5c5dc18650a03a9d5345bb71b7`, PR #5 draft; parser strict,
+  pending/order persistence v2, recovery timeout/restart e receipt localizzata.
+- **Gate Client**: gate canonico exit 0; 497 test, coverage 9.531/12.477 (76,39%),
+  benchmark 1/1, security/governance/architecture, build Android/iOS, integration order
+  Android/iOS 1/1 e artifact smoke headless `PASS`.
+- **CI Client**: run `30784085502` `BLOCKED` esterna: Quality/Android/iOS hanno zero
+  runner/step e annotazione billing/spending limit; nessun failure codice dichiarato.
+- **Tentativi diagnostici non candidati**: staging attempt 1 cancellato senza step per
+  concurrency queue; smoke Android iniziale senza `adb` nel PATH. Attempt 2 e path SDK
+  esplicito sono `PASS`, senza retry cieco.
+- **Sicurezza/production**: snapshot/response allow-list, zero internal ID economici,
+  secret o artifact versionati; nessun write/deploy production, flag OFF.
+- **Transizione**: TASK-028 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per order list/detail/timeline, cache read-only offline, deep link e cancellazione
+  server-authoritative, con writer Admin/Supabase -> Client.

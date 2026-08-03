@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-027
-- **File task**: docs/TASKS/TASK-027-idempotent-order-price-snapshot.md
+- **Task attivo**: TASK-028
+- **File task**: docs/TASKS/TASK-028-order-history-status-tracking.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,9 +14,9 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: auditare nel writer Admin/Supabase schema order/sale/
-  event/outbox, quote/cart/hold, writer inventory, convenzioni di lock/idempotency e
-  boundary POS prima di definire l'eventuale migration additiva TASK-027
+- **Prossima azione autorizzata**: auditare in sola lettura order/event/RLS e i pattern
+  Client router/cache/logout/Account, quindi fissare allow-list, cursor, policy di
+  cancellazione e lifecycle cache prima della migration additiva TASK-028
 
 ## Repository coinvolti
 
@@ -78,8 +78,8 @@
 | TASK-024 | Proiezione disponibilità e stock pubblico | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-006, TASK-010 | Admin, Supabase, POS, Client | Disponibilità pubblica controllata |
 | TASK-025 | Reservation hold atomico e scadenza | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-023, TASK-024 | Supabase, Admin, Client | Hold concorrente e scadibile |
 | TASK-026 | Checkout con ritiro e consegna | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-021, TASK-023, TASK-025 | Client, Admin, Supabase | Fulfillment validato |
-| TASK-027 | Creazione ordine idempotente e price snapshot | ACTIVE | TASK-005, TASK-020, TASK-023, TASK-025, TASK-026 | Client, Admin, Supabase | Ordine atomico e idempotente |
-| TASK-028 | Storico, dettaglio e stato ordine | TODO | TASK-027 | Client, Admin, Supabase | Tracking ordine cliente |
+| TASK-027 | Creazione ordine idempotente e price snapshot | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-020, TASK-023, TASK-025, TASK-026 | Client, Admin, Supabase | Ordine atomico e idempotente |
+| TASK-028 | Storico, dettaglio e stato ordine | ACTIVE | TASK-027 | Client, Admin, Supabase | Tracking ordine cliente |
 | TASK-029 | Admin Console: gestione e preparazione ordini | TODO | TASK-007, TASK-027 | Admin, Supabase | Workflow preparazione ordini |
 | TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | TODO | TASK-006, TASK-024, TASK-027, TASK-029 | POS, Admin, Supabase | Handoff operativo senza fusione eventi |
 | TASK-031 | Notifiche push e order status events | TODO | TASK-022, TASK-027, TASK-028, TASK-029 | Client, Admin, Supabase | Eventi e notifiche affidabili |
@@ -169,8 +169,10 @@ freshness/ingest, Admin preview e cache/cart Client ed è
 idempotency, expiry/cleanup, race ultimo pezzo e integrazione Client ed è
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-026 ha completato fulfillment, quote
 server-authoritative, UI checkout e staging ed è anch'esso
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-027 è l'unico task `ACTIVE / EXECUTION` e
-i task successivi restano `TODO` fino al relativo handoff. La
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-027 ha completato order aggregate,
+snapshot/event/outbox atomici, replay, Client receipt e staging ed è anch'esso
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-028 è l'unico task
+`ACTIVE / EXECUTION` e i task successivi restano `TODO` fino al relativo handoff. La
 dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
@@ -369,4 +371,22 @@ non è `DONE`: attende la review integrata finale.
 
 Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-027, con writer Admin/Supabase e poi
+Client.
+
+## Ultimo checkpoint interno — TASK-027
+
+Il revision set Admin/Supabase `599511c03cb502b9b76561ff320cfdbb4073b1ee`
+ha applicato in staging le migration `20260803033000` e `20260803034500`: cinque
+tabelle customer-order FORCE RLS, create/read RPC strict, snapshot/event/outbox
+immutabili e aggregate atomico distinto da `pos_sales`. pgTAP TASK-027 35/35 e race
+duplicate/replay sono `PASS`; CI `30783886282`, Cloudflare `30783886269` e staging
+`30783882947` attempt 2 sono `PASS`. Il revision set Client
+`64c8f711547f8d5c5dc18650a03a9d5345bb71b7` ha superato 497 test, coverage 76,39%,
+benchmark 1/1, build Android/iOS, integration ordine Android/iOS 1/1 e smoke artifact
+headless. La CI Client `30784085502` resta `BLOCKED` esterna per billing: tre job
+senza runner o step, non dichiarati `PASS`. Production è invariata. TASK-027 non è
+`DONE`: attende la review integrata finale.
+
+Handoff:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-028, con writer Admin/Supabase e poi
 Client.

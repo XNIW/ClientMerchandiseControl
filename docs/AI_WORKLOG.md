@@ -1769,3 +1769,30 @@
 - **Transizione**: TASK-027 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per ordine, item snapshot, status event, outbox e consume hold atomici/idempotenti,
   con writer Admin/Supabase -> Client.
+
+## 2026-08-03 — Checkpoint interno TASK-027 e attivazione TASK-028
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-027**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; aggregate ordine, item snapshot,
+  first event, outbox e consumo quote/hold/cart atomici, idempotenti e POS-neutral.
+- **Admin/Supabase**: SHA `599511c03cb502b9b76561ff320cfdbb4073b1ee`;
+  migration `20260803033000` + `20260803034500`; pgTAP 35/35, duplicate/replay race,
+  foundation 845 pass + 2 skip; CI `30783886282`, Cloudflare `30783886269` e staging
+  `30783882947` attempt 2 `PASS`; artifact `8844663559`, digest
+  `ea8ae759e6af6fc1a194f8a0f9b168164fd0e19003bfaf046298c3f092e5ece3`.
+- **Client**: SHA runtime `64c8f711547f8d5c5dc18650a03a9d5345bb71b7`;
+  parser allow-list, draft v2, replay timeout/restart e receipt; 497 test, coverage
+  76,39%, performance 1/1, build Android/iOS, integration order 1/1 per piattaforma e
+  artifact smoke `PASS`.
+- **CI Client**: run `30784085502` `BLOCKED` esterna; Quality/Android/iOS hanno zero
+  runner/step e annotation billing/spending limit. Nessun test CI è dichiarato `PASS`.
+- **Difetti corretti durante Execution**: trigger immutabilità snapshot/event/outbox;
+  expected pgTAP CI riallineato 31 -> 35; foundation puntata al worktree POS reale;
+  staging attempt 1 cancellato dalla queue e smoke Android con path SDK esplicito.
+- **Sicurezza/production**: response e snapshot allow-list, nessun write `pos_sales`,
+  secret/config/artifact o dato production versionato; nessun deploy production e
+  feature flag OFF.
+- **Transizione**: TASK-028 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per lista/dettaglio/timeline, cache read-only offline, deep link owner-scoped e
+  cancellazione server-authoritative, con writer Admin/Supabase -> Client.

@@ -5,14 +5,14 @@
 - **Task ID**: TASK-027
 - **Titolo**: Creazione ordine idempotente e price snapshot
 - **File task**: `docs/TASKS/TASK-027-idempotent-order-price-snapshot.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
-- **Ultimo aggiornamento**: 2026-08-02
+- **Ultimo aggiornamento**: 2026-08-03
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-027/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -149,13 +149,64 @@ per tracking, Admin e handoff POS senza confondere ordine cliente e vendita fisc
 
 ## Execution — `CODEX_EXECUTOR`
 
-Audit read-only da avviare nel writer Admin/Supabase. Nessuna migration viene scelta
-prima di avere mappato ordini/vendite/event/outbox esistenti, quote/cart/hold, writer
-inventory, convenzioni di lock/idempotency e boundary POS.
+### Audit e implementazione
+
+- l'audit read-only ha confermato che `pos_sales` rappresenta la vendita fiscale e non
+  poteva essere riusata come ordine cliente; prima del task non esistevano aggregate
+  order/event/outbox customer, mentre cart, quote, hold e helper ATP/capacità erano i
+  boundary corretti da estendere;
+- Admin/Supabase introduce `customer_orders`, `customer_order_items`,
+  `customer_order_status_events`, `customer_order_outbox` e
+  `customer_order_mutations`, tutte private e FORCE RLS, con create/read RPC strict;
+- `customer_order_create_v1` autentica il customer, deriva lo shop dalla quote, usa
+  advisory lock e row lock, rivalida cart/catalogo/prezzo/promo/availability/hold,
+  crea aggregate/event/outbox, consuma quote/hold e svuota il cart in una transazione;
+- l'outbox usa `documentKind=customer_order` e `fiscalStatus=not_created`; nessun write
+  viene effettuato su `pos_sales` e il consumo POS resta TASK-030;
+- snapshot economico, fulfillment, item, status event e envelope outbox hanno trigger
+  espliciti di immutabilità/append-only, con cancellazioni referenziali controllate;
+- il Client usa un adapter RPC allow-list, persiste pending operation e order ID per
+  account/shop, replaya la stessa key dopo timeout/offline, aggiorna il cart soltanto
+  dopo receipt autorevole e mostra una receipt accessibile/localizzata;
+- Android e iOS hanno attraversato con tap reali quote, conferma, timeout ambiguo,
+  replay e receipt; gli artifact normali sono stati installati e avviati headlessly.
+
+### Revision set eseguito
+
+- Admin/Supabase: `599511c03cb502b9b76561ff320cfdbb4073b1ee`, PR #67 draft;
+- Client runtime: `64c8f711547f8d5c5dc18650a03a9d5345bb71b7`, PR #5 draft;
+- migration: `20260803033000_storefront_v1_customer_orders` e
+  `20260803034500_storefront_v1_customer_order_capacity`;
+- staging: run `30783882947`, attempt 2, artifact `8844663559`, digest
+  `ea8ae759e6af6fc1a194f8a0f9b168164fd0e19003bfaf046298c3f092e5ece3`;
+- production e feature flag: invariati/OFF.
+
+### Gate
+
+- replay completo migration, pgTAP 35/35 e concorrenza duplicate/replay: `PASS`;
+- Admin lint/typecheck/build/security e foundation 845 pass + 2 skip: `PASS`;
+- Admin CI `30783886282`, Cloudflare `30783886269` e staging exact-SHA
+  `30783882947`: `PASS`;
+- Client gate canonico: 497/497 test, performance 1/1, coverage
+  9.531/12.477 (76,39%), analyze/format/security/governance/architecture e build
+  Android/iOS: `PASS`;
+- integration checkout/order Android API 35 e iPhone 17 Pro iOS 26.5: 1/1 per
+  piattaforma, `PASS`; smoke artifact Android/iOS: `PASS`;
+- CI Client `30784085502`: `BLOCKED` esterno, tre job con zero runner/step e
+  annotazione billing/spending limit; nessun test CI viene dichiarato eseguito.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate tecnici; nessuna review formale intermedia.
+TASK-027 è tecnicamente validato e consegnato alla futura review integrata con stato
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. La fixture staging è stata ripulita dai test;
+la migration ledger e i post-check sono persistenti. Non è stata eseguita review
+formale intermedia, non sono stati modificati production o POS e nessun task è `DONE`.
+
+Il primo run staging `30783882947` fu cancellato senza step dalla coda concurrency
+condivisa, perché più workflow storiche si erano attivate sulla modifica della reusable
+workflow. Dopo la conclusione degli apply già in coda, l'attempt 2 sullo stesso SHA è
+passato integralmente. Il primo smoke Android non trovava `adb` nel `PATH`; il comando
+corretto ha usato il path SDK assoluto ed è passato, senza un terzo retry cieco.
 
 ## Review / Fix
 
@@ -166,5 +217,6 @@ Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
 - **Follow-up candidate**: TASK-028 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Riepilogo finale**: ordine atomico/idempotente, receipt e staging validati; review
+  integrata differita al freeze multi-repository
 - **Data completamento**: non ancora

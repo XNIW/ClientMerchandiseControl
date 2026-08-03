@@ -12,6 +12,8 @@ import '../../features/cart/presentation/cart_screen.dart';
 import '../../features/checkout/presentation/checkout_screen.dart';
 import '../../features/catalog/application/catalog_controller.dart';
 import '../../features/catalog/presentation/catalog_screen.dart';
+import '../../features/customer_notifications/application/customer_notification_route_controller.dart';
+import '../../features/customer_notifications/domain/customer_notification_models.dart';
 import '../../features/deep_links/application/storefront_deep_link.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
@@ -108,15 +110,52 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   Uri? lastAcceptedUri;
   DateTime? lastAcceptedAt;
   String? pendingProtectedOrderId;
+  String? pendingProtectedNotificationToken;
+  var notificationDispatchGeneration = 0;
   var pendingFrame = false;
   var disposed = false;
+
+  Future<void> dispatchNotification(String routeToken) async {
+    final shopSlug = config.storefrontShopSlug;
+    if (disposed || shopSlug == null) return;
+    if (ref.read(authControllerProvider) is! AuthAuthenticated) {
+      pendingProtectedOrderId = null;
+      pendingProtectedNotificationToken = routeToken;
+      notificationDispatchGeneration++;
+      router.go(AppRoutes.accountLocation);
+      return;
+    }
+    pendingProtectedNotificationToken = null;
+    final generation = ++notificationDispatchGeneration;
+    final destination = await ref
+        .read(customerNotificationRouteControllerProvider.notifier)
+        .resolve(shopSlug: shopSlug, routeToken: routeToken);
+    if (disposed ||
+        generation != notificationDispatchGeneration ||
+        ref.read(authControllerProvider) is! AuthAuthenticated ||
+        destination == null) {
+      return;
+    }
+    switch (destination) {
+      case CustomerNotificationOrderDestination(:final orderId):
+        router.go(AppRoutes.orderLocation(orderId));
+      case CustomerNotificationCartDestination():
+        router.go(AppRoutes.cartLocation);
+    }
+  }
 
   void dispatch(StorefrontDeepLinkIntent intent) {
     if (disposed) return;
     switch (intent) {
       case StorefrontProductDeepLink(:final publicationId):
+        notificationDispatchGeneration++;
+        pendingProtectedOrderId = null;
+        pendingProtectedNotificationToken = null;
         router.go(AppRoutes.productLocation(publicationId));
       case StorefrontCategoryDeepLink(:final categorySlug):
+        notificationDispatchGeneration++;
+        pendingProtectedOrderId = null;
+        pendingProtectedNotificationToken = null;
         router.go(AppRoutes.catalogLocation);
         unawaited(
           ref
@@ -124,6 +163,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               .openCategoryFromDeepLink(categorySlug),
         );
       case StorefrontOrderDeepLink(:final orderId):
+        notificationDispatchGeneration++;
+        pendingProtectedNotificationToken = null;
         if (ref.read(authControllerProvider) is AuthAuthenticated) {
           pendingProtectedOrderId = null;
           router.go(AppRoutes.orderLocation(orderId));
@@ -131,6 +172,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           pendingProtectedOrderId = orderId;
           router.go(AppRoutes.accountLocation);
         }
+      case StorefrontNotificationDeepLink(:final routeToken):
+        pendingProtectedOrderId = null;
+        unawaited(dispatchNotification(routeToken));
     }
   }
 
@@ -168,11 +212,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   }, onError: (Object _, StackTrace _) {});
 
   ref.listen<AuthState>(authControllerProvider, (previous, next) {
+    if (next is AuthAuthenticated &&
+        pendingProtectedNotificationToken != null) {
+      final routeToken = pendingProtectedNotificationToken!;
+      pendingProtectedNotificationToken = null;
+      unawaited(dispatchNotification(routeToken));
+      return;
+    }
     if (next is AuthAuthenticated && pendingProtectedOrderId != null) {
       final orderId = pendingProtectedOrderId!;
       pendingProtectedOrderId = null;
       router.go(AppRoutes.orderLocation(orderId));
       return;
+    }
+    if (previous is AuthAuthenticated && next is! AuthAuthenticated) {
+      notificationDispatchGeneration++;
+      pendingProtectedNotificationToken = null;
     }
     final isCallbackAuthentication =
         next is AuthAuthenticated && next.origin == AuthSessionOrigin.callback;
@@ -190,6 +245,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     disposed = true;
     pendingIntent = null;
     pendingProtectedOrderId = null;
+    pendingProtectedNotificationToken = null;
+    notificationDispatchGeneration++;
     unawaited(linkSubscription.cancel());
     router.dispose();
   });

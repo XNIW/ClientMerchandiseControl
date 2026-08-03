@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import UserNotifications
 import app_links
 
 @main
@@ -8,6 +9,7 @@ import app_links
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    UNUserNotificationCenter.current().delegate = self
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
@@ -24,5 +26,38 @@ import app_links
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     AppLinks.shared.enabled = false
+  }
+
+  override func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    willPresent notification: UNNotification,
+    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+  ) {
+    if #available(iOS 14.0, *) {
+      completionHandler([.banner, .list, .sound])
+    } else {
+      completionHandler([.alert, .sound])
+    }
+  }
+
+  override func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse,
+    withCompletionHandler completionHandler: @escaping () -> Void
+  ) {
+    guard response.actionIdentifier == UNNotificationDefaultActionIdentifier,
+      let url = CustomerNotificationDeepLinkMapper.map(
+        userInfo: response.notification.request.content.userInfo
+      )
+    else {
+      super.userNotificationCenter(
+        center,
+        didReceive: response,
+        withCompletionHandler: completionHandler
+      )
+      return
+    }
+    AppLinks.shared.handleLink(url: url)
+    completionHandler()
   }
 }

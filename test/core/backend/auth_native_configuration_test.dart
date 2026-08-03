@@ -36,6 +36,28 @@ void main() {
       expect(manifest, isNot(contains('android:scheme="http"')));
       expect(manifest, isNot(contains('android:scheme="https"')));
       expect(manifest, isNot(contains('*')));
+
+      final mainActivity = File(
+        '$repositoryRoot/android/app/src/main/kotlin/'
+        'com/xniw/clientmerchandisecontrol/MainActivity.kt',
+      ).readAsStringSync();
+      final notificationMapper = File(
+        '$repositoryRoot/android/app/src/main/kotlin/'
+        'com/xniw/clientmerchandisecontrol/'
+        'CustomerNotificationDeepLinkMapper.kt',
+      ).readAsStringSync();
+      expect(mainActivity, contains('mapNotificationDeepLink(intent)'));
+      expect(_count(mainActivity, 'mapNotificationDeepLink(intent)'), 2);
+      expect(
+        mainActivity,
+        contains('override fun onNewIntent(intent: Intent)'),
+      );
+      expect(mainActivity, contains('intent.data = Uri.parse(canonical)'));
+      expect(mainActivity, contains('intent.removeExtra("deepLink")'));
+      expect(notificationMapper, contains('uri.rawAuthority != HOST'));
+      expect(notificationMapper, contains('uri.rawQuery != null'));
+      expect(notificationMapper, contains('uri.rawFragment != null'));
+      expect(notificationMapper, isNot(contains('orderId')));
     },
   );
 
@@ -63,17 +85,29 @@ void main() {
     expect(plist, isNot(contains('applinks:')));
     expect(plist, isNot(contains('REVERSED_CLIENT_ID')));
     expect(appDelegate, contains('AppLinks.shared.enabled = false'));
-    expect(_count(appDelegate, 'AppLinks.shared.handleLink(url:'), 1);
+    expect(_count(appDelegate, 'AppLinks.shared.handleLink(url:'), 2);
     expect(
       appDelegate,
       contains('options: [UIApplication.OpenURLOptionsKey: Any] = [:]'),
     );
-    expect(_count(sceneDelegate, 'AppLinks.shared.handleLink(url:'), 4);
+    expect(_count(sceneDelegate, 'AppLinks.shared.handleLink(url:'), 5);
     expect(
       sceneDelegate,
       contains('openURLContexts URLContexts: Set<UIOpenURLContext>'),
     );
     expect(sceneDelegate, contains('willConnectTo session: UISceneSession'));
+    expect(
+      appDelegate,
+      contains('UNUserNotificationCenter.current().delegate = self'),
+    );
+    expect(
+      appDelegate,
+      contains(
+        'response.actionIdentifier == UNNotificationDefaultActionIdentifier',
+      ),
+    );
+    expect(sceneDelegate, contains('connectionOptions.notificationResponse'));
+    expect(sceneDelegate, contains('CustomerNotificationDeepLinkMapper.map('));
   });
 }
 

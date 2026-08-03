@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 const _shop = 'storefront-test';
 const _publicationId = '50000000-0000-4000-8000-000000000001';
 const _orderId = '88000000-0000-4000-8000-000000028101';
+const _routeToken = 'f1000000-0000-4000-8000-000000031001';
 
 void main() {
   const codec = StorefrontDeepLinkCodec();
@@ -62,6 +63,45 @@ void main() {
         _orderId,
       ),
     );
+  });
+
+  test('decodifica soltanto la route notifica opaca canonica', () {
+    final notification = codec.notificationUri(
+      shopSlug: _shop,
+      routeToken: _routeToken,
+    );
+
+    expect(
+      notification.toString(),
+      'com.xniw.clientmerchandisecontrol://storefront/'
+      'storefront-test/notification/$_routeToken',
+    );
+    expect(
+      codec.decode(notification, shopSlug: _shop),
+      isA<StorefrontNotificationDeepLink>().having(
+        (intent) => intent.routeToken,
+        'routeToken',
+        _routeToken,
+      ),
+    );
+    for (final uri in [
+      Uri.parse('$notification?orderId=$_orderId'),
+      Uri.parse('$notification#ready'),
+      Uri.parse(
+        'com.xniw.clientmerchandisecontrol://storefront/'
+        'other-shop/notification/$_routeToken',
+      ),
+      Uri.parse(
+        'com.xniw.clientmerchandisecontrol://storefront/'
+        '$_shop/notification/F1000000-0000-4000-8000-000000031001',
+      ),
+      Uri.parse(
+        'com.xniw.clientmerchandisecontrol://storefront/'
+        '$_shop/notification/$_orderId/extra',
+      ),
+    ]) {
+      expect(codec.decode(uri, shopSlug: _shop), isNull, reason: '$uri');
+    }
   });
 
   test('rifiuta input non canonici nei builder', () {

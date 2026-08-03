@@ -7,12 +7,19 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_contro
 import 'package:client_merchandise_control/core/backend/backend_readiness_repository.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/features/auth/application/auth_controller.dart';
 import 'package:client_merchandise_control/features/auth/application/auth_providers.dart';
 import 'package:client_merchandise_control/features/auth/data/auth_callback_source.dart';
 import 'package:client_merchandise_control/features/auth/domain/auth_repository.dart';
+import 'package:client_merchandise_control/features/auth/domain/auth_state.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:client_merchandise_control/features/catalog/application/catalog_controller.dart';
+import 'package:client_merchandise_control/features/customer_notifications/application/customer_notification_providers.dart';
+import 'package:client_merchandise_control/features/customer_notifications/domain/customer_notification_failure.dart';
+import 'package:client_merchandise_control/features/customer_notifications/domain/customer_notification_models.dart';
+import 'package:client_merchandise_control/features/customer_notifications/domain/customer_notification_repository.dart';
 import 'package:client_merchandise_control/features/orders/application/customer_order_providers.dart';
+import 'package:client_merchandise_control/features/orders/domain/customer_order_repository.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
 import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
@@ -34,9 +41,18 @@ const _categoryLink =
     'com.xniw.clientmerchandisecontrol://storefront/'
     'storefront-test/category/bebidas';
 const _orderId = '88000000-0000-4000-8000-000000028101';
+const _orderIdB = '88000000-0000-4000-8000-000000028102';
 const _orderLink =
     'com.xniw.clientmerchandisecontrol://storefront/'
     'storefront-test/order/$_orderId';
+const _notificationRouteA = 'f1000000-0000-4000-8000-000000031001';
+const _notificationRouteB = 'f1000000-0000-4000-8000-000000031002';
+const _notificationLinkA =
+    'com.xniw.clientmerchandisecontrol://storefront/'
+    'storefront-test/notification/$_notificationRouteA';
+const _notificationLinkB =
+    'com.xniw.clientmerchandisecontrol://storefront/'
+    'storefront-test/notification/$_notificationRouteB';
 
 void main() {
   testWidgets(
@@ -152,6 +168,182 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets(
+    'notifica cold guest risolve la route opaca solo dopo autenticazione',
+    (tester) async {
+      final gateway = _FakeAppLinksGateway(
+        initial: Uri.parse(_notificationLinkA),
+      );
+      final source = AppLinksAuthCallbackSource(gateway: gateway);
+      final authRepository = _RouterAuthRepository();
+      final notificationRepository = _NotificationRepository()
+        ..outcomes[_notificationRouteA] = Future.value(
+          const CustomerNotificationOrderDestination(
+            orderId: _orderId,
+            event: CustomerNotificationEvent.ready,
+            eventVersion: 4,
+          ),
+        );
+      final orderRepository = FakeCustomerOrderRepository();
+      final container = _container(
+        source,
+        googleAuthEnabled: true,
+        authRepository: authRepository,
+        notificationRepository: notificationRepository,
+        customerOrderRepository: orderRepository,
+      );
+      addTearDown(() async {
+        container.dispose();
+        await source.dispose();
+        await gateway.dispose();
+        await authRepository.dispose();
+      });
+
+      final router = container.read(appRouterProvider);
+      await tester.pumpWidget(_app(container, router));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, AppRoutes.accountLocation);
+      expect(notificationRepository.calls, isEmpty);
+
+      gateway.emit(
+        Uri.parse('${AppConfig.allowedAuthRedirectUri}?code=notification-code'),
+      );
+      for (
+        var attempt = 0;
+        attempt < 100 &&
+            router.state.uri.path != AppRoutes.orderLocation(_orderId);
+        attempt++
+      ) {
+        await tester.pump(const Duration(milliseconds: 10));
+      }
+
+      expect(notificationRepository.calls, [_notificationRouteA]);
+      expect(router.state.uri.path, AppRoutes.orderLocation(_orderId));
+      expect(
+        orderRepository.detailRequests,
+        contains((shopSlug: orderTestShop, orderId: _orderId)),
+      );
+      expect(router.state.uri.toString(), isNot(contains(_notificationRouteA)));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'notifiche warm duplicate e fuori ordine navigano una volta alla più recente',
+    (tester) async {
+      final gateway = _FakeAppLinksGateway();
+      final source = AppLinksAuthCallbackSource(gateway: gateway);
+      final authRepository = _RouterAuthRepository(authenticated: true);
+      final first = Completer<CustomerNotificationDestination>();
+      final second = Completer<CustomerNotificationDestination>();
+      final notificationRepository = _NotificationRepository()
+        ..outcomes[_notificationRouteA] = first.future
+        ..outcomes[_notificationRouteB] = second.future;
+      final container = _container(
+        source,
+        googleAuthEnabled: true,
+        authRepository: authRepository,
+        notificationRepository: notificationRepository,
+      );
+      addTearDown(() async {
+        container.dispose();
+        await source.dispose();
+        await gateway.dispose();
+        await authRepository.dispose();
+      });
+
+      final router = container.read(appRouterProvider);
+      await tester.pumpWidget(_app(container, router));
+      for (
+        var attempt = 0;
+        attempt < 100 &&
+            container.read(authControllerProvider) is! AuthAuthenticated;
+        attempt++
+      ) {
+        await tester.pump(const Duration(milliseconds: 10));
+      }
+      expect(container.read(authControllerProvider), isA<AuthAuthenticated>());
+
+      gateway.emit(Uri.parse(_notificationLinkA));
+      gateway.emit(Uri.parse(_notificationLinkA));
+      await tester.pump();
+      gateway.emit(Uri.parse(_notificationLinkB));
+      await tester.pump();
+      expect(notificationRepository.calls, [
+        _notificationRouteA,
+        _notificationRouteB,
+      ]);
+
+      second.complete(
+        const CustomerNotificationOrderDestination(
+          orderId: _orderIdB,
+          event: CustomerNotificationEvent.completed,
+          eventVersion: 2,
+        ),
+      );
+      for (
+        var attempt = 0;
+        attempt < 100 &&
+            router.state.uri.path != AppRoutes.orderLocation(_orderIdB);
+        attempt++
+      ) {
+        await tester.pump(const Duration(milliseconds: 10));
+      }
+      expect(router.state.uri.path, AppRoutes.orderLocation(_orderIdB));
+
+      first.complete(
+        const CustomerNotificationOrderDestination(
+          orderId: _orderId,
+          event: CustomerNotificationEvent.preparing,
+          eventVersion: 2,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(router.state.uri.path, AppRoutes.orderLocation(_orderIdB));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('notifica offline non naviga e non causa crash', (tester) async {
+    final gateway = _FakeAppLinksGateway();
+    final source = AppLinksAuthCallbackSource(gateway: gateway);
+    final authRepository = _RouterAuthRepository(authenticated: true);
+    final notificationRepository = _NotificationRepository()
+      ..errors[_notificationRouteA] =
+          const CustomerNotificationRepositoryException(
+            CustomerNotificationFailureKind.offline,
+          );
+    final container = _container(
+      source,
+      googleAuthEnabled: true,
+      authRepository: authRepository,
+      notificationRepository: notificationRepository,
+    );
+    addTearDown(() async {
+      container.dispose();
+      await source.dispose();
+      await gateway.dispose();
+      await authRepository.dispose();
+    });
+
+    final router = container.read(appRouterProvider);
+    await tester.pumpWidget(_app(container, router));
+    for (
+      var attempt = 0;
+      attempt < 100 &&
+          container.read(authControllerProvider) is! AuthAuthenticated;
+      attempt++
+    ) {
+      await tester.pump(const Duration(milliseconds: 10));
+    }
+    gateway.emit(Uri.parse(_notificationLinkA));
+    await tester.pumpAndSettle();
+
+    expect(router.state.uri.path, AppRoutes.homeLocation);
+    expect(notificationRepository.calls, [_notificationRouteA]);
+    expect(tester.takeException(), isNull);
+  });
 }
 
 Widget _app(ProviderContainer container, GoRouter router) =>
@@ -172,6 +364,8 @@ ProviderContainer _container(
   _DeepLinkStorefrontRepository? repository,
   bool googleAuthEnabled = false,
   AuthRepository? authRepository,
+  CustomerNotificationRepository? notificationRepository,
+  CustomerOrderRepository? customerOrderRepository,
 }) => ProviderContainer(
   overrides: [
     appConfigProvider.overrideWithValue(
@@ -199,16 +393,30 @@ ProviderContainer _container(
       const DisabledStorefrontCacheRepository(),
     ),
     customerOrderRepositoryProvider.overrideWithValue(
-      FakeCustomerOrderRepository(),
+      customerOrderRepository ?? FakeCustomerOrderRepository(),
     ),
     customerOrderCacheStoreProvider.overrideWithValue(
       MemoryCustomerOrderCacheStore(),
     ),
     customerOrderClockProvider.overrideWithValue(() => orderTestNow),
+    if (notificationRepository != null)
+      customerNotificationRepositoryProvider.overrideWithValue(
+        notificationRepository,
+      ),
   ],
 );
 
 final class _RouterAuthRepository implements AuthRepository {
+  _RouterAuthRepository({bool authenticated = false}) {
+    if (authenticated) {
+      currentCustomer = AuthenticatedCustomer.fromUntrustedIdentity(
+        subjectId: orderTestOwner,
+        email: 'customer@example.invalid',
+        metadata: const {'name': 'Order Customer'},
+      );
+    }
+  }
+
   final StreamController<AuthSessionEvent> _events =
       StreamController<AuthSessionEvent>.broadcast();
 
@@ -242,6 +450,28 @@ final class _RouterAuthRepository implements AuthRepository {
   }
 
   Future<void> dispose() => _events.close();
+}
+
+final class _NotificationRepository implements CustomerNotificationRepository {
+  final Map<String, Future<CustomerNotificationDestination>> outcomes = {};
+  final Map<String, CustomerNotificationRepositoryException> errors = {};
+  final List<String> calls = [];
+
+  @override
+  Future<CustomerNotificationDestination> resolveRoute({
+    required String shopSlug,
+    required String routeToken,
+  }) {
+    calls.add(routeToken);
+    final error = errors[routeToken];
+    if (error != null) return Future.error(error);
+    return outcomes[routeToken] ??
+        Future.error(
+          const CustomerNotificationRepositoryException(
+            CustomerNotificationFailureKind.notFound,
+          ),
+        );
+  }
 }
 
 final class _FakeAppLinksGateway implements AppLinksGateway {

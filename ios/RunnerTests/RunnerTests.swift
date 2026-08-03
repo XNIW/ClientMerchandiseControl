@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import XCTest
+@testable import Runner
 
 @MainActor
 private final class InspectableActivityViewController: UIActivityViewController {
@@ -32,6 +33,7 @@ private final class ProductSharePresentationContract {
   // presentation controller after the activity view controller is presented.
   private(set) var configuredSourceView: UIView?
   private(set) var configuredSourceRect = CGRect.zero
+  private(set) var popoverAcceptedSourceView = false
   private var completion: ((NativeShareResult) -> Void)?
 
   @discardableResult
@@ -49,11 +51,17 @@ private final class ProductSharePresentationContract {
     precondition(text.contains(publicURL.absoluteString))
 
     let controller = InspectableActivityViewController(items: [text])
-    controller.popoverPresentationController?.sourceView = host.view
-    controller.popoverPresentationController?.sourceRect = sourceRect
-    controller.popoverPresentationController?.permittedArrowDirections = .any
-    configuredSourceView = controller.popoverPresentationController?.sourceView
-    configuredSourceRect = controller.popoverPresentationController?.sourceRect ?? .zero
+    // iOS può adattare o ricreare il presentation controller in compact width:
+    // conserviamo l'anchor richiesto e verifichiamo separatamente che UIKit ne
+    // esponga uno non nullo, senza imporre l'identità del wrapper adattivo.
+    if let popover = controller.popoverPresentationController {
+      configuredSourceView = host.view
+      popover.sourceView = configuredSourceView
+      popover.sourceRect = sourceRect
+      popover.permittedArrowDirections = .any
+      popoverAcceptedSourceView = popover.sourceView != nil
+      configuredSourceRect = popover.sourceRect
+    }
     controller.completionWithItemsHandler = { [weak self, weak host, weak controller]
       activityType, completed, _, _ in
       guard let self, self.activeController === controller else { return }
@@ -133,6 +141,41 @@ final class RunnerTests: XCTestCase {
     "storefront-test/product/50000000-0000-4000-8000-000000000001"
   private let sourceRect = CGRect(x: 16, y: 16, width: 48, height: 48)
 
+  func testMapsOnlyCanonicalOpaqueNotificationDeepLinks() {
+    let route =
+      "com.xniw.clientmerchandisecontrol://storefront/" +
+      "storefront-test/notification/f1000000-0000-4000-8000-000000031001"
+
+    XCTAssertEqual(
+      CustomerNotificationDeepLinkMapper.map(userInfo: ["deepLink": route])?.absoluteString,
+      route
+    )
+    XCTAssertEqual(
+      CustomerNotificationDeepLinkMapper.map(
+        userInfo: ["data": ["deepLink": route]]
+      )?.absoluteString,
+      route
+    )
+
+    for invalid in [
+      route + "?orderId=88000000-0000-4000-8000-000000028101",
+      route + "#fragment",
+      route.replacingOccurrences(of: "f1000000", with: "F1000000"),
+      route.replacingOccurrences(of: "/notification/", with: "/order/"),
+      route.replacingOccurrences(of: "storefront-test", with: "../inventory"),
+      route.replacingOccurrences(of: "//storefront/", with: "//owner@storefront/"),
+      "https://example.invalid/storefront-test/notification/" +
+        "f1000000-0000-4000-8000-000000031001",
+    ] {
+      XCTAssertNil(
+        CustomerNotificationDeepLinkMapper.map(userInfo: ["deepLink": invalid]),
+        "must reject \(invalid)"
+      )
+    }
+    XCTAssertNil(CustomerNotificationDeepLinkMapper.map(userInfo: [:]))
+    XCTAssertNil(CustomerNotificationDeepLinkMapper.map(userInfo: ["deepLink": 31]))
+  }
+
   func testPresentsRealActivityControllerWithExactPublicPayloadAndPopover() {
     let host = makeHost()
     defer { host.close() }
@@ -158,23 +201,38 @@ final class RunnerTests: XCTestCase {
       ),
       "UIActivityViewController was not presented by the active host"
     )
-    XCTAssertTrue(Thread.isMainThread)
-    XCTAssertTrue(controller.createdOnMainThread)
+    XCTAssertTrue(Thread.isMainThread, "test must execute on the main thread")
+    XCTAssertTrue(controller.createdOnMainThread, "controller must be created on main")
     XCTAssertTrue(
       host.viewController.presentedViewController as? UIActivityViewController === controller
     )
-    XCTAssertTrue(controller.presentingViewController === host.viewController)
+    XCTAssertTrue(
+      controller.presentingViewController === host.viewController,
+      "activity controller must retain the active host as presentation context"
+    )
     XCTAssertEqual(controller.capturedItems.count, 1)
     XCTAssertTrue(controller.capturedItems[0] is String)
     XCTAssertEqual(controller.capturedItems[0] as? String, localizedText)
-    XCTAssertTrue(localizedText.contains(publicURL.absoluteString))
+    XCTAssertTrue(
+      localizedText.contains(publicURL.absoluteString),
+      "localized payload must contain the exact public URL"
+    )
     for forbidden in [
       "source_product_id", "owner_user_id", "supplier", "cost", "token",
       "storage/", "shop_secret", "sync_metadata",
     ] {
       XCTAssertFalse(localizedText.localizedCaseInsensitiveContains(forbidden))
     }
-    XCTAssertTrue(presenter.configuredSourceView === host.viewController.view)
+    XCTAssertTrue(
+      presenter.configuredSourceView === host.viewController.view,
+      "requested popover anchor must be the host view"
+    )
+    if UIDevice.current.userInterfaceIdiom == .pad {
+      XCTAssertTrue(
+        presenter.popoverAcceptedSourceView,
+        "UIKit must expose a non-null popover source view on iPad"
+      )
+    }
     XCTAssertEqual(presenter.configuredSourceRect, sourceRect)
     XCTAssertFalse(presenter.configuredSourceRect.isEmpty)
 

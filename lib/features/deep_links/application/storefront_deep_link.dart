@@ -22,6 +22,12 @@ final class StorefrontOrderDeepLink extends StorefrontDeepLinkIntent {
   final String orderId;
 }
 
+final class StorefrontNotificationDeepLink extends StorefrontDeepLinkIntent {
+  const StorefrontNotificationDeepLink(this.routeToken);
+
+  final String routeToken;
+}
+
 final storefrontDeepLinkCodecProvider = Provider<StorefrontDeepLinkCodec>(
   (_) => const StorefrontDeepLinkCodec(),
 );
@@ -33,13 +39,13 @@ class StorefrontDeepLinkCodec {
   static const host = 'storefront';
   static final _shopSlug = RegExp(r'^[a-z0-9][a-z0-9-]{2,62}$');
   static final _categorySlug = RegExp(r'^[a-z0-9][a-z0-9-]{1,62}$');
-  static final _publicationId = RegExp(
+  static final _uuid = RegExp(
     r'^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
   );
 
   Uri productUri({required String shopSlug, required String publicationId}) {
     _require(_shopSlug.hasMatch(shopSlug));
-    _require(_publicationId.hasMatch(publicationId));
+    _require(_uuid.hasMatch(publicationId));
     return Uri(
       scheme: scheme,
       host: host,
@@ -59,11 +65,21 @@ class StorefrontDeepLinkCodec {
 
   Uri orderUri({required String shopSlug, required String orderId}) {
     _require(_shopSlug.hasMatch(shopSlug));
-    _require(_publicationId.hasMatch(orderId));
+    _require(_uuid.hasMatch(orderId));
     return Uri(
       scheme: scheme,
       host: host,
       pathSegments: [shopSlug, 'order', orderId],
+    );
+  }
+
+  Uri notificationUri({required String shopSlug, required String routeToken}) {
+    _require(_shopSlug.hasMatch(shopSlug));
+    _require(_uuid.hasMatch(routeToken));
+    return Uri(
+      scheme: scheme,
+      host: host,
+      pathSegments: [shopSlug, 'notification', routeToken],
     );
   }
 
@@ -81,7 +97,7 @@ class StorefrontDeepLinkCodec {
     }
     final kind = uri.pathSegments[1];
     final value = uri.pathSegments[2];
-    if (kind == 'product' && _publicationId.hasMatch(value)) {
+    if (kind == 'product' && _uuid.hasMatch(value)) {
       final canonical = productUri(shopSlug: shopSlug, publicationId: value);
       return uri.toString() == canonical.toString()
           ? StorefrontProductDeepLink(value)
@@ -93,10 +109,16 @@ class StorefrontDeepLinkCodec {
           ? StorefrontCategoryDeepLink(value)
           : null;
     }
-    if (kind == 'order' && _publicationId.hasMatch(value)) {
+    if (kind == 'order' && _uuid.hasMatch(value)) {
       final canonical = orderUri(shopSlug: shopSlug, orderId: value);
       return uri.toString() == canonical.toString()
           ? StorefrontOrderDeepLink(value)
+          : null;
+    }
+    if (kind == 'notification' && _uuid.hasMatch(value)) {
+      final canonical = notificationUri(shopSlug: shopSlug, routeToken: value);
+      return uri.toString() == canonical.toString()
+          ? StorefrontNotificationDeepLink(value)
           : null;
     }
     return null;

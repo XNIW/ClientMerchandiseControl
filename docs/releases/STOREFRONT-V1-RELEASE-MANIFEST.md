@@ -13,8 +13,8 @@
 
 | Repository | Branch | SHA revisionato | PR | Versione schema | Versione API | Deployment staging | Feature flag | Ultimo gate | Prossimo checkpoint | Rollback |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ClientMerchandiseControl | `integration/storefront-v1` | `b34211f0b294703e3124b42f1b008ea32c454ffd` | `#5 DRAFT` | local cache v4 | `storefront.v1`, `customer.v1`, `customer-cart.v1` | 433 test/79,91%; availability/cart integration e artifact smoke Android/iOS `PASS`; CI `30773126667` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-024 Client `PASS` tecnico | TASK-025 hold Client | revert commit/branch; feature flag OFF |
-| merchandise-control-admin-web | `integration/storefront-v1` | `9d457ee4b278864a25e4f612bbfdea138e3df6d6` | `#67 DRAFT` | `20260802220000` | `storefront.v1`, `customer.v1`, `customer-cart.v1`, availability ingest v1 | CI `30772550353`; Cloudflare `30772550354`; staging `30772549228`, tutti `PASS` | production `OFF` | TASK-024 243/243, suite 1.782 test | TASK-025 hold audit/contract | migration additiva + feature flag OFF |
+| ClientMerchandiseControl | `integration/storefront-v1` | `fe85ce910313843c00c83760b67563f7ea6ef2e7` | `#5 DRAFT` | local cache v4 + hold state v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1 | 461 test/79,03%; reservation integration 2/2 Android/iOS e artifact smoke `PASS`; CI `30776491402` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-025 Client `PASS` tecnico | TASK-026 checkout Client | revert commit/branch; feature flag OFF |
+| merchandise-control-admin-web | `integration/storefront-v1` | `448a778cc57ed1a441b87a71bb93be4315374d08` | `#67 DRAFT` | `20260803003855` | `storefront.v1`, `customer.v1`, `customer-cart.v1`, availability ingest v1, reservation hold v1 | CI `30776746985`; Cloudflare `30776746979`; staging `30776745250`, tutti `PASS` | production `OFF` | TASK-025 54/54, race/load 1.200 hold | TASK-026 fulfillment/quote audit | migration additiva + feature flag OFF |
 | Win7POS | `integration/storefront-v1` | baseline `41cf4b8dddd86ed51a49c0b670c81eabe9700405` | `NOT_RUN` | n/a | POS handoff `NOT_RUN` | harness `NOT_RUN` | handoff `OFF` | release worktree fast-forward e pulito; checkout root dirty preservato | TASK-030 | disabilitare consumer e replay queue |
 | MerchandiseControlSplitView | non creato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout dirty preservato | nessuno corrente | nessuna modifica prevista |
 | iOSMerchandiseControl | non clonato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout assente | nessuno corrente | nessuna modifica prevista |
@@ -72,4 +72,34 @@ backend production.
   nessun write/deploy production, flag production OFF.
 - **Transizione**: TASK-025 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per hold atomico, ultimo pezzo concorrente, idempotency, expiry/release e cleanup,
+  con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-025 e attivazione TASK-026
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-025**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; hold atomico/idempotente,
+  expiry/release/consume monotoni, cleanup bounded e UI Client resiliente completati.
+- **Revision set Admin/Supabase**:
+  `448a778cc57ed1a441b87a71bb93be4315374d08`, PR #67 draft; migration additive
+  `20260803000951_storefront_v1_reservation_holds` e
+  `20260803003855_storefront_v1_reservation_hold_eligibility`.
+- **Gate Admin/staging**: 54/54 pgTAP dedicati, 196 assertion isolate, race due
+  sessioni, foundation 826 test, security/typecheck/lint; CI `30776746985`, Cloudflare
+  `30776746979` e staging `30776745250`, tutti `PASS`; artifact `8842295233`.
+- **Load staging**: 1.200 hold rollback-only; 1.000 expired processati in tre batch,
+  max 400, p50/p95/p99 498,463/502,698/503,075 ms; residui 0 e stock invariato.
+- **Revision set Client runtime**:
+  `fe85ce910313843c00c83760b67563f7ea6ef2e7`, PR #5 draft; repository/storage/
+  coordinator/controller/UI reservation, cart/logout/account/reconnect integrati.
+- **Gate Client**: pub get/l10n/format/analyze; 461 test, coverage 8.063/10.202
+  (79,03%); benchmark 25.000 righe; security/artifact scan; Android debug/release e
+  iOS debug/release compile `PASS`.
+- **Integration/smoke**: create/read/release/retry/expiry Android API 35 e iOS 26.5,
+  2/2 per piattaforma; artifact installati/avviati e screenshot/a11y/secret scan `PASS`.
+- **CI Client**: run `30776491402` `BLOCKED` esterna: Quality/Android/iOS hanno zero
+  runner/step per billing/spending limit; nessun failure di codice dichiarato.
+- **Sicurezza/production**: nessun dato inventory preciso/internal ID/credential nelle
+  response, UI o artifact; nessun write/deploy production, flag production OFF.
+- **Transizione**: TASK-026 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per fulfillment, zone/slot/fee, quote server-authoritative e checkout progressivo,
   con writer Admin/Supabase -> Client.

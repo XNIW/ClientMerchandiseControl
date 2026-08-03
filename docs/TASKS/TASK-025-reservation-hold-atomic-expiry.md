@@ -5,14 +5,14 @@
 - **Task ID**: TASK-025
 - **Titolo**: Reservation hold atomico e scadenza
 - **File task**: `docs/TASKS/TASK-025-reservation-hold-atomic-expiry.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-02
 - **Ultimo aggiornamento**: 2026-08-02
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-025/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -144,12 +144,64 @@ dal checkout successivo senza esporre l'inventory operativo al client.
 
 ## Execution — `CODEX_EXECUTOR`
 
-Audit read-only da avviare nel writer Admin/Supabase. Nessuna migration viene scelta
-prima di avere individuato l'autorità stock privata e le invarianti dei writer correnti.
+Execution completata sul revision set Client runtime
+`fe85ce910313843c00c83760b67563f7ea6ef2e7` e Admin/Supabase
+`448a778cc57ed1a441b87a71bb93be4315374d08`.
+
+- l'audit ha confermato `inventory_products.stock_quantity` come autorità privata
+  on-hand e ha mantenuto la proiezione TASK-024 esclusivamente informativa;
+- le migration additive `20260803000951_storefront_v1_reservation_holds` e
+  `20260803003855_storefront_v1_reservation_hold_eligibility` introducono hold e
+  ledger idempotency privati, FORCE RLS, grant minimi, TTL server-side di 15 minuti,
+  limite di 25 hold attivi per customer/shop e cleanup cron bounded;
+- create/read/release sono RPC strict, owner-scoped e shop/publication-scoped: owner,
+  clock e disponibilità derivano lato server, mentre le response espongono soltanto
+  riferimenti pubblici e stato commerciale;
+- la creazione serializza il prodotto operativo, sottrae gli hold attivi da ATP e
+  impedisce oversell senza decrementare lo stock on-hand; due sessioni reali sull'ultimo
+  pezzo producono un solo hold attivo;
+- expiry, release e consumo sono transizioni monotone; replay identico restituisce lo
+  stesso esito, key riutilizzata con payload diverso confligge e il cleanup usa batch
+  massimi di 400 righe;
+- il Client aggiunge repository, storage locale versionato, coordinator, controller e
+  panel Product Detail/Cart; pending create/release sopravvivono a timeout, offline,
+  restart e cambio account, e il countdown è derivato dal tempo server;
+- la UI espone active/expiring/expired/released/consumed/error in quattro lingue, con
+  Semantics, target minimi, dark mode e text scale 200%, senza creare una falsa CTA di
+  prenotazione nel carrello.
+
+Comandi, conteggi, benchmark, digest, tentativi falliti corretti e matrici CA/Test sono
+registrati in `docs/TASKS/EVIDENCE/TASK-025/README.md`. Production non è stata
+invocata e tutti i flag restano OFF.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate tecnici; nessuna review formale intermedia.
+### Gate pertinenti eseguiti
+
+- Admin/Supabase: replay, 54/54 pgTAP dedicati, 196 assertion isolate, concurrency
+  multi-session, 1.200 hold load/cleanup, foundation 826 test, security/typecheck/lint,
+  CI `30776746985`, Cloudflare `30776746979` e staging `30776745250`: `PASS`;
+- Client: pub get/l10n/format/analyze, 461 test, coverage 8.063/10.202 (79,03%),
+  benchmark 25.000 righe, security scan, Android debug/release e iOS simulator/
+  release no-codesign: `PASS`;
+- integration reservation create/read/release/retry/expiry su Android API 35 e iPhone
+  17 Pro iOS 26.5: 2/2 per piattaforma; artifact smoke e scan: `PASS`;
+- CI Client exact-SHA `30776491402`: `BLOCKED` esterna perché i tre job non hanno
+  avviato runner o step per billing/spending limit; non è dichiarata `PASS`.
+
+### Staging e performance cleanup
+
+La migration staging più recente è `20260803003855`. Il load rollback-only ha creato
+1.200 hold sintetici, di cui 1.000 expired e 200 futuri attivi; tre cleanup bounded
+hanno processato 1.000/1.000 righe con p50/p95/p99
+498,463/502,698/503,075 ms, nessun residuo expired e stock on-hand invariato.
+
+### Handoff al task successivo
+
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Review outcome**: NOT_RUN
+- **Prossimo task**: TASK-026
+- **Handoff**: STOREFRONT_V1_MILESTONE_CHECKPOINT_VALIDATED
 
 ## Review / Fix
 
@@ -159,6 +211,6 @@ Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
 
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: TASK-026 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Follow-up candidate**: TASK-026 attivato dal checkpoint tecnico
+- **Riepilogo finale**: validato tecnicamente, in attesa della review integrata
 - **Data completamento**: non ancora

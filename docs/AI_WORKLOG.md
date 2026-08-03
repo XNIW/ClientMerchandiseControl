@@ -1711,3 +1711,33 @@
 - **Transizione**: TASK-025 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per autorità stock privata, hold atomico e idempotente, race ultimo pezzo,
   expiry/release/cleanup e integrazione Client, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-025 e attivazione TASK-026
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-025**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; hold atomico/idempotente,
+  owner/shop/publication scoped, expiry/release/consume monotoni e cleanup bounded.
+- **Admin/Supabase**: SHA `448a778cc57ed1a441b87a71bb93be4315374d08`;
+  migration `20260803000951` + `20260803003855`; pgTAP 54/54, 196 assertion isolate,
+  race ultimo pezzo, load 1.200 hold; CI `30776746985`, Cloudflare `30776746979` e
+  staging `30776745250` `PASS`.
+- **Staging load**: 1.000 expired e 200 future active, tre batch max 400,
+  p50/p95/p99 498,463/502,698/503,075 ms, residui 0 e stock on-hand invariato;
+  artifact `8842295233`.
+- **Client**: SHA runtime `fe85ce910313843c00c83760b67563f7ea6ef2e7`;
+  pending storage, repository/coordinator/controller, Product Detail/Cart e quattro
+  localizzazioni; 461/461 test, coverage 79,03%, benchmark 1/1, build Android/iOS,
+  integration reservation 2/2 per piattaforma e artifact smoke `PASS`.
+- **CI Client**: run `30776491402` `BLOCKED` esterna; i tre job hanno zero runner/step
+  per billing/spending limit. Il gate non è dichiarato `PASS` e il lavoro tecnico
+  indipendente continua come autorizzato.
+- **Difetti corretti durante Execution**: eligibility richiede shop e publication;
+  load gate reso portable nell'immagine PostgreSQL senza Node; lista locale resa
+  growable con regressione; `adb` risolto dal path SDK e screenshot iOS atteso fino
+  allo stato stabile.
+- **Sicurezza/production**: response allow-list, nessun dato inventory preciso o
+  credential; nessun write/deploy production e flag OFF.
+- **Transizione**: TASK-026 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per pickup/reservation/delivery configurabile, quote server-side, address/zone/slot/
+  fee, repricing e checkout Client a cinque step, con writer Admin/Supabase -> Client.

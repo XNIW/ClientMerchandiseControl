@@ -10,9 +10,11 @@ import '../../../app/design_system/widgets/storefront_cache_status.dart';
 import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../cart/application/cart_controller.dart';
 import '../../cart/presentation/add_to_cart_button.dart';
 import '../../favorites/presentation/favorite_button.dart';
 import '../../home/presentation/storefront_product_card.dart';
+import '../../reservations/presentation/reservation_hold_panel.dart';
 import '../../sharing/application/product_share_service.dart';
 import '../../storefront/domain/storefront_models.dart';
 import '../../storefront/presentation/storefront_product_metadata.dart';
@@ -90,31 +92,57 @@ class ProductDetailScreen extends ConsumerWidget {
   }
 }
 
-class _ProductDetailCartBar extends StatelessWidget {
+class _ProductDetailCartBar extends ConsumerWidget {
   const _ProductDetailCartBar({required this.product});
 
   final StorefrontProductSummary product;
 
   @override
-  Widget build(BuildContext context) => Material(
-    elevation: 8,
-    color: Theme.of(context).colorScheme.surfaceContainer,
-    child: SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Center(
-          heightFactor: 1,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: AppSizes.productDetailContentMaxWidth,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cart = ref.watch(cartControllerProvider);
+    final quantity =
+        cart.snapshot?.items
+            .where((line) => line.publicationId == product.id)
+            .firstOrNull
+            ?.quantity ??
+        1;
+    final canReserve =
+        product.fulfillment.reservation &&
+        product.availability != StorefrontAvailability.unavailable;
+    return Material(
+      elevation: 8,
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Center(
+            heightFactor: 1,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: AppSizes.productDetailContentMaxWidth,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AddToCartButton(product: product, expanded: true),
+                  if (canReserve) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    ReservationHoldPanel(
+                      publicationId: product.id,
+                      quantity: quantity,
+                      canCreate: true,
+                    ),
+                  ],
+                ],
+              ),
             ),
-            child: AddToCartButton(product: product, expanded: true),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class _ProductDetailStatus extends StatelessWidget {

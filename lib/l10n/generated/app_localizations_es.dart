@@ -849,6 +849,87 @@ class AppLocalizationsEs extends AppLocalizations {
   String get customerNotificationsRetry => 'Reintentar';
 
   @override
+  String reservationHoldCreateAction(int quantity) {
+    return 'Reservar $quantity por 15 min';
+  }
+
+  @override
+  String get reservationHoldSignInAction => 'Inicia sesión para reservar';
+
+  @override
+  String get reservationHoldLoading => 'Confirmando la reserva con la tienda';
+
+  @override
+  String get reservationHoldActive => 'Reserva activa';
+
+  @override
+  String get reservationHoldExpiring => 'La reserva vence pronto';
+
+  @override
+  String reservationHoldRemaining(String time) {
+    return 'Quedan $time';
+  }
+
+  @override
+  String get reservationHoldExpired =>
+      'La reserva venció y la capacidad volvió a la tienda.';
+
+  @override
+  String get reservationHoldReleased => 'Reserva liberada.';
+
+  @override
+  String get reservationHoldConsumed => 'La reserva ya fue utilizada.';
+
+  @override
+  String get reservationHoldReleaseAction => 'Liberar reserva';
+
+  @override
+  String get reservationHoldRetryAction => 'Reintentar de forma segura';
+
+  @override
+  String get reservationHoldDismissAction => 'Cerrar estado';
+
+  @override
+  String get reservationHoldPendingRetry =>
+      'La operación pendiente conserva la misma clave idempotente.';
+
+  @override
+  String get reservationHoldOfflineError =>
+      'Estás sin conexión. No mostramos una reserva nueva como confirmada.';
+
+  @override
+  String get reservationHoldTimeoutError =>
+      'La respuesta fue ambigua. Reintenta de forma segura para conocer el estado real.';
+
+  @override
+  String get reservationHoldUnauthorizedError =>
+      'Inicia sesión nuevamente para administrar la reserva.';
+
+  @override
+  String get reservationHoldInvalidError =>
+      'La solicitud de reserva no es válida.';
+
+  @override
+  String get reservationHoldConflictError =>
+      'La clave idempotente pertenece a otra solicitud. Vuelve a crear la reserva.';
+
+  @override
+  String get reservationHoldUnavailableError =>
+      'La tienda ya no puede reservar esta cantidad.';
+
+  @override
+  String get reservationHoldLimitError =>
+      'Alcanzaste el límite de reservas activas.';
+
+  @override
+  String get reservationHoldNotFoundError =>
+      'La reserva ya no existe o no pertenece a esta cuenta.';
+
+  @override
+  String get reservationHoldUnexpectedError =>
+      'No pudimos verificar la reserva. Inténtalo nuevamente.';
+
+  @override
   String get cartAddAction => 'Agregar al carrito';
 
   @override

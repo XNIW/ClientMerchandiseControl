@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/app_config.dart';
 import '../../account/application/customer_account_providers.dart';
+import '../../reservations/application/reservation_hold_controller.dart';
+import '../../reservations/application/reservation_hold_providers.dart';
 import '../../storefront/domain/storefront_models.dart';
 import '../domain/cart_failure.dart';
 import '../domain/cart_models.dart';
@@ -106,6 +108,7 @@ final class CartController extends Notifier<CartState> {
         _setReady(updated, notice: CartNoticeKind.added);
         return;
       }
+      await _prepareReservationMutation(product.id);
       await _runMutation(
         operation: CartMutationOperation.set,
         publicationId: product.id,
@@ -131,6 +134,7 @@ final class CartController extends Notifier<CartState> {
         _setReady(updated, notice: CartNoticeKind.updated);
         return;
       }
+      await _prepareReservationMutation(publicationId);
       await _runMutation(
         operation: CartMutationOperation.set,
         publicationId: publicationId,
@@ -149,6 +153,7 @@ final class CartController extends Notifier<CartState> {
         _setReady(updated, notice: CartNoticeKind.removed);
         return;
       }
+      await _prepareReservationMutation(publicationId);
       await _runMutation(
         operation: CartMutationOperation.remove,
         publicationId: publicationId,
@@ -166,6 +171,7 @@ final class CartController extends Notifier<CartState> {
         _setReady(updated, notice: CartNoticeKind.cleared);
         return;
       }
+      await _prepareReservationMutation();
       await _runMutation(
         operation: CartMutationOperation.clear,
         notice: CartNoticeKind.cleared,
@@ -444,6 +450,24 @@ final class CartController extends Notifier<CartState> {
     );
     await _executeRevalidation(pending, allowConflictRetry: true);
     if (!_isCurrent(generation)) return;
+  }
+
+  Future<void> _prepareReservationMutation([String? publicationId]) async {
+    final identity = ref.read(customerAccountIdentityProvider);
+    if (identity == null) return;
+    final affected = publicationId == null
+        ? _requireSnapshot().items.map((line) => line.publicationId).toSet()
+        : {publicationId};
+    await ref
+        .read(reservationHoldCoordinatorProvider)
+        .prepareForCartMutation(
+          ownerSubjectId: identity.subjectId,
+          shopSlug: _requireShopSlug(),
+          publicationId: publicationId,
+        );
+    for (final id in affected) {
+      ref.invalidate(reservationHoldControllerProvider(id));
+    }
   }
 
   Future<void> _withPublicationBusy(

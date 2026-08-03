@@ -849,6 +849,87 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customerNotificationsRetry => 'Reintentar';
 
   @override
+  String reservationHoldCreateAction(int quantity) {
+    return 'Reservar $quantity por 15 min';
+  }
+
+  @override
+  String get reservationHoldSignInAction => 'Inicia sesión para reservar';
+
+  @override
+  String get reservationHoldLoading => 'Confirmando la reserva con la tienda';
+
+  @override
+  String get reservationHoldActive => 'Reserva activa';
+
+  @override
+  String get reservationHoldExpiring => 'La reserva vence pronto';
+
+  @override
+  String reservationHoldRemaining(String time) {
+    return 'Quedan $time';
+  }
+
+  @override
+  String get reservationHoldExpired =>
+      'La reserva venció y la capacidad volvió a la tienda.';
+
+  @override
+  String get reservationHoldReleased => 'Reserva liberada.';
+
+  @override
+  String get reservationHoldConsumed => 'La reserva ya fue utilizada.';
+
+  @override
+  String get reservationHoldReleaseAction => 'Liberar reserva';
+
+  @override
+  String get reservationHoldRetryAction => 'Reintentar de forma segura';
+
+  @override
+  String get reservationHoldDismissAction => 'Cerrar estado';
+
+  @override
+  String get reservationHoldPendingRetry =>
+      'La operación pendiente conserva la misma clave idempotente.';
+
+  @override
+  String get reservationHoldOfflineError =>
+      'Estás sin conexión. No mostramos una reserva nueva como confirmada.';
+
+  @override
+  String get reservationHoldTimeoutError =>
+      'La respuesta fue ambigua. Reintenta de forma segura para conocer el estado real.';
+
+  @override
+  String get reservationHoldUnauthorizedError =>
+      'Inicia sesión nuevamente para administrar la reserva.';
+
+  @override
+  String get reservationHoldInvalidError =>
+      'La solicitud de reserva no es válida.';
+
+  @override
+  String get reservationHoldConflictError =>
+      'La clave idempotente pertenece a otra solicitud. Vuelve a crear la reserva.';
+
+  @override
+  String get reservationHoldUnavailableError =>
+      'La tienda ya no puede reservar esta cantidad.';
+
+  @override
+  String get reservationHoldLimitError =>
+      'Alcanzaste el límite de reservas activas.';
+
+  @override
+  String get reservationHoldNotFoundError =>
+      'La reserva ya no existe o no pertenece a esta cuenta.';
+
+  @override
+  String get reservationHoldUnexpectedError =>
+      'No pudimos verificar la reserva. Inténtalo nuevamente.';
+
+  @override
   String get cartAddAction => 'Agregar al carrito';
 
   @override
@@ -1745,6 +1826,76 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get customerNotificationsRetry => '重试';
+
+  @override
+  String reservationHoldCreateAction(int quantity) {
+    return '保留 $quantity 件商品 15 分钟';
+  }
+
+  @override
+  String get reservationHoldSignInAction => '登录后保留商品';
+
+  @override
+  String get reservationHoldLoading => '正在向商店确认保留状态';
+
+  @override
+  String get reservationHoldActive => '商品保留中';
+
+  @override
+  String get reservationHoldExpiring => '保留即将到期';
+
+  @override
+  String reservationHoldRemaining(String time) {
+    return '剩余 $time';
+  }
+
+  @override
+  String get reservationHoldExpired => '保留已到期，库存名额已返还商店。';
+
+  @override
+  String get reservationHoldReleased => '保留已释放。';
+
+  @override
+  String get reservationHoldConsumed => '此保留已使用。';
+
+  @override
+  String get reservationHoldReleaseAction => '释放保留';
+
+  @override
+  String get reservationHoldRetryAction => '安全重试';
+
+  @override
+  String get reservationHoldDismissAction => '关闭状态';
+
+  @override
+  String get reservationHoldPendingRetry => '待处理操作将继续使用同一幂等键。';
+
+  @override
+  String get reservationHoldOfflineError => '当前离线。新的保留不会显示为已确认。';
+
+  @override
+  String get reservationHoldTimeoutError => '结果尚不明确。请安全重试以获取服务器状态。';
+
+  @override
+  String get reservationHoldUnauthorizedError => '请重新登录以管理保留。';
+
+  @override
+  String get reservationHoldInvalidError => '保留请求无效。';
+
+  @override
+  String get reservationHoldConflictError => '幂等键属于其他请求。请重新创建保留。';
+
+  @override
+  String get reservationHoldUnavailableError => '商店已无法保留此数量。';
+
+  @override
+  String get reservationHoldLimitError => '已达到有效保留数量上限。';
+
+  @override
+  String get reservationHoldNotFoundError => '保留已不存在或不属于此账户。';
+
+  @override
+  String get reservationHoldUnexpectedError => '无法验证保留，请重试。';
 
   @override
   String get cartAddAction => '加入购物车';

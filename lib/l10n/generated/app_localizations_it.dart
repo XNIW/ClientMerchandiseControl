@@ -849,6 +849,89 @@ class AppLocalizationsIt extends AppLocalizations {
   String get customerNotificationsRetry => 'Riprova';
 
   @override
+  String reservationHoldCreateAction(int quantity) {
+    return 'Prenota $quantity per 15 min';
+  }
+
+  @override
+  String get reservationHoldSignInAction => 'Accedi per prenotare';
+
+  @override
+  String get reservationHoldLoading =>
+      'Conferma della prenotazione con il negozio';
+
+  @override
+  String get reservationHoldActive => 'Prenotazione attiva';
+
+  @override
+  String get reservationHoldExpiring => 'La prenotazione scade a breve';
+
+  @override
+  String reservationHoldRemaining(String time) {
+    return 'Restano $time';
+  }
+
+  @override
+  String get reservationHoldExpired =>
+      'La prenotazione è scaduta e la disponibilità è tornata al negozio.';
+
+  @override
+  String get reservationHoldReleased => 'Prenotazione rilasciata.';
+
+  @override
+  String get reservationHoldConsumed =>
+      'La prenotazione è già stata utilizzata.';
+
+  @override
+  String get reservationHoldReleaseAction => 'Rilascia prenotazione';
+
+  @override
+  String get reservationHoldRetryAction => 'Riprova in sicurezza';
+
+  @override
+  String get reservationHoldDismissAction => 'Chiudi stato';
+
+  @override
+  String get reservationHoldPendingRetry =>
+      'L’operazione pendente conserva la stessa chiave idempotente.';
+
+  @override
+  String get reservationHoldOfflineError =>
+      'Sei offline. Una nuova prenotazione non viene mostrata come confermata.';
+
+  @override
+  String get reservationHoldTimeoutError =>
+      'L’esito è ambiguo. Riprova in sicurezza per conoscere lo stato autorevole.';
+
+  @override
+  String get reservationHoldUnauthorizedError =>
+      'Accedi di nuovo per gestire la prenotazione.';
+
+  @override
+  String get reservationHoldInvalidError =>
+      'La richiesta di prenotazione non è valida.';
+
+  @override
+  String get reservationHoldConflictError =>
+      'La chiave idempotente appartiene a un’altra richiesta. Crea nuovamente la prenotazione.';
+
+  @override
+  String get reservationHoldUnavailableError =>
+      'Il negozio non può più prenotare questa quantità.';
+
+  @override
+  String get reservationHoldLimitError =>
+      'Hai raggiunto il limite di prenotazioni attive.';
+
+  @override
+  String get reservationHoldNotFoundError =>
+      'La prenotazione non esiste più o non appartiene a questo account.';
+
+  @override
+  String get reservationHoldUnexpectedError =>
+      'Non è stato possibile verificare la prenotazione. Riprova.';
+
+  @override
   String get cartAddAction => 'Aggiungi al carrello';
 
   @override

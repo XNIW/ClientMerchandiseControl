@@ -7,9 +7,13 @@ import 'package:client_merchandise_control/features/cart/application/cart_state.
 import 'package:client_merchandise_control/features/cart/domain/cart_failure.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_repository.dart';
+import 'package:client_merchandise_control/features/reservations/application/reservation_hold_providers.dart';
+import 'package:client_merchandise_control/features/reservations/domain/reservation_hold_models.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../reservations/reservation_hold_test_support.dart';
 
 const _publicationId = '50000000-0000-4000-8000-000000000001';
 const _rejectedId = '50000000-0000-4000-8000-000000000002';
@@ -298,6 +302,78 @@ void main() {
       expect(guest.setProductCalls, 0);
     },
   );
+
+  test('mutation account rilascia la reservation hold correlata', () async {
+    final guest = _FakeGuestStore();
+    final remote = _FakeRemoteRepository(
+      readResponse: CartRemoteResponse(
+        status: CartRemoteStatus.ok,
+        snapshot: _snapshot(
+          source: CartSource.account,
+          version: 4,
+          items: [_line(_publicationId)],
+        ),
+      ),
+      mutationOutcomes: [
+        CartRemoteResponse(
+          status: CartRemoteStatus.ok,
+          snapshot: _snapshot(
+            source: CartSource.account,
+            version: 5,
+            items: [
+              CartLine(
+                publicationId: _publicationId,
+                publicName: 'Café público',
+                quantity: 2,
+                priceClp: 1200,
+                snapshotPriceClp: 1200,
+                availability: StorefrontAvailability.available,
+                status: CartLineStatus.available,
+                changeType: CartLineChangeType.none,
+                isGuest: false,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+    final reservationStore = MemoryReservationHoldStore();
+    await reservationStore.saveEntry(
+      reservationEntry(hold: reservationSnapshot(quantity: 1)),
+    );
+    final reservationRepository = FakeReservationHoldRepository();
+    reservationRepository.releaseOutcomes.add(
+      reservationResponse(
+        status: ReservationHoldRemoteStatus.terminal,
+        hold: reservationSnapshot(
+          quantity: 1,
+          status: ReservationHoldServerStatus.released,
+        ),
+      ),
+    );
+    final container = _container(
+      guest: guest,
+      remote: remote,
+      identity: _identity(),
+      reservationStore: reservationStore,
+      reservationRepository: reservationRepository,
+    );
+    addTearDown(container.dispose);
+    await _waitFor(container, (state) => state.status == CartViewStatus.ready);
+
+    await container
+        .read(cartControllerProvider.notifier)
+        .setQuantity(_publicationId, 2);
+
+    expect(reservationRepository.releaseCalls, hasLength(1));
+    expect(remote.mutationRequests.single.quantity, 2);
+    final released = await reservationStore.readEntry(
+      ownerSubjectId: reservationTestOwner,
+      shopSlug: reservationTestShop,
+      publicationId: reservationTestPublication,
+    );
+    expect(released?.hold?.status, ReservationHoldServerStatus.released);
+  });
 }
 
 ProviderContainer _container({
@@ -305,6 +381,8 @@ ProviderContainer _container({
   _FakeRemoteRepository? remote,
   AuthenticatedCustomer? identity,
   String Function()? keyFactory,
+  MemoryReservationHoldStore? reservationStore,
+  FakeReservationHoldRepository? reservationRepository,
 }) {
   final container = ProviderContainer(
     overrides: [
@@ -324,6 +402,12 @@ ProviderContainer _container({
       ),
       customerIdempotencyKeyFactoryProvider.overrideWithValue(
         keyFactory ?? () => '60000000-0000-4000-8000-000000000001',
+      ),
+      reservationHoldLocalStoreProvider.overrideWithValue(
+        reservationStore ?? MemoryReservationHoldStore(),
+      ),
+      reservationHoldRepositoryProvider.overrideWithValue(
+        reservationRepository ?? FakeReservationHoldRepository(),
       ),
     ],
   );

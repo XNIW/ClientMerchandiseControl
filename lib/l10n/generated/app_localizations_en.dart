@@ -837,6 +837,89 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customerNotificationsRetry => 'Retry';
 
   @override
+  String reservationHoldCreateAction(int quantity) {
+    return 'Reserve $quantity for 15 min';
+  }
+
+  @override
+  String get reservationHoldSignInAction => 'Sign in to reserve';
+
+  @override
+  String get reservationHoldLoading =>
+      'Confirming the reservation with the store';
+
+  @override
+  String get reservationHoldActive => 'Reservation active';
+
+  @override
+  String get reservationHoldExpiring => 'Reservation expiring soon';
+
+  @override
+  String reservationHoldRemaining(String time) {
+    return '$time remaining';
+  }
+
+  @override
+  String get reservationHoldExpired =>
+      'The reservation expired and capacity returned to the store.';
+
+  @override
+  String get reservationHoldReleased => 'Reservation released.';
+
+  @override
+  String get reservationHoldConsumed =>
+      'The reservation has already been used.';
+
+  @override
+  String get reservationHoldReleaseAction => 'Release reservation';
+
+  @override
+  String get reservationHoldRetryAction => 'Retry safely';
+
+  @override
+  String get reservationHoldDismissAction => 'Dismiss status';
+
+  @override
+  String get reservationHoldPendingRetry =>
+      'The pending operation keeps the same idempotency key.';
+
+  @override
+  String get reservationHoldOfflineError =>
+      'You are offline. A new reservation is not shown as confirmed.';
+
+  @override
+  String get reservationHoldTimeoutError =>
+      'The result is ambiguous. Retry safely to learn the authoritative state.';
+
+  @override
+  String get reservationHoldUnauthorizedError =>
+      'Sign in again to manage the reservation.';
+
+  @override
+  String get reservationHoldInvalidError =>
+      'The reservation request is invalid.';
+
+  @override
+  String get reservationHoldConflictError =>
+      'The idempotency key belongs to another request. Create the reservation again.';
+
+  @override
+  String get reservationHoldUnavailableError =>
+      'The store can no longer reserve this quantity.';
+
+  @override
+  String get reservationHoldLimitError =>
+      'You reached the active reservation limit.';
+
+  @override
+  String get reservationHoldNotFoundError =>
+      'The reservation no longer exists or does not belong to this account.';
+
+  @override
+  String get reservationHoldUnexpectedError =>
+      'We could not verify the reservation. Try again.';
+
+  @override
   String get cartAddAction => 'Add to cart';
 
   @override

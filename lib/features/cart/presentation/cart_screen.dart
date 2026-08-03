@@ -13,6 +13,7 @@ import '../../../app/router/app_routes.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../home/presentation/storefront_product_card.dart';
+import '../../reservations/presentation/reservation_hold_panel.dart';
 import '../../storefront/presentation/storefront_product_metadata.dart';
 import '../application/cart_controller.dart';
 import '../application/cart_state.dart';
@@ -310,6 +311,13 @@ class _CartLineCard extends ConsumerWidget {
                         ),
                       ),
                     ],
+                    ReservationHoldPanel(
+                      key: ValueKey('cart-reservation-${line.publicationId}'),
+                      publicationId: line.publicationId,
+                      quantity: line.quantity,
+                      canCreate: false,
+                      compact: true,
+                    ),
                     const SizedBox(height: AppSpacing.sm),
                     Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,

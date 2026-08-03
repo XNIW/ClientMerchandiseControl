@@ -1555,6 +1555,138 @@ abstract class AppLocalizations {
   /// **'Reintentar'**
   String get customerNotificationsRetry;
 
+  /// No description provided for @reservationHoldCreateAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Reservar {quantity} por 15 min'**
+  String reservationHoldCreateAction(int quantity);
+
+  /// No description provided for @reservationHoldSignInAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión para reservar'**
+  String get reservationHoldSignInAction;
+
+  /// No description provided for @reservationHoldLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmando la reserva con la tienda'**
+  String get reservationHoldLoading;
+
+  /// No description provided for @reservationHoldActive.
+  ///
+  /// In es, this message translates to:
+  /// **'Reserva activa'**
+  String get reservationHoldActive;
+
+  /// No description provided for @reservationHoldExpiring.
+  ///
+  /// In es, this message translates to:
+  /// **'La reserva vence pronto'**
+  String get reservationHoldExpiring;
+
+  /// No description provided for @reservationHoldRemaining.
+  ///
+  /// In es, this message translates to:
+  /// **'Quedan {time}'**
+  String reservationHoldRemaining(String time);
+
+  /// No description provided for @reservationHoldExpired.
+  ///
+  /// In es, this message translates to:
+  /// **'La reserva venció y la capacidad volvió a la tienda.'**
+  String get reservationHoldExpired;
+
+  /// No description provided for @reservationHoldReleased.
+  ///
+  /// In es, this message translates to:
+  /// **'Reserva liberada.'**
+  String get reservationHoldReleased;
+
+  /// No description provided for @reservationHoldConsumed.
+  ///
+  /// In es, this message translates to:
+  /// **'La reserva ya fue utilizada.'**
+  String get reservationHoldConsumed;
+
+  /// No description provided for @reservationHoldReleaseAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Liberar reserva'**
+  String get reservationHoldReleaseAction;
+
+  /// No description provided for @reservationHoldRetryAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar de forma segura'**
+  String get reservationHoldRetryAction;
+
+  /// No description provided for @reservationHoldDismissAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar estado'**
+  String get reservationHoldDismissAction;
+
+  /// No description provided for @reservationHoldPendingRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'La operación pendiente conserva la misma clave idempotente.'**
+  String get reservationHoldPendingRetry;
+
+  /// No description provided for @reservationHoldOfflineError.
+  ///
+  /// In es, this message translates to:
+  /// **'Estás sin conexión. No mostramos una reserva nueva como confirmada.'**
+  String get reservationHoldOfflineError;
+
+  /// No description provided for @reservationHoldTimeoutError.
+  ///
+  /// In es, this message translates to:
+  /// **'La respuesta fue ambigua. Reintenta de forma segura para conocer el estado real.'**
+  String get reservationHoldTimeoutError;
+
+  /// No description provided for @reservationHoldUnauthorizedError.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión nuevamente para administrar la reserva.'**
+  String get reservationHoldUnauthorizedError;
+
+  /// No description provided for @reservationHoldInvalidError.
+  ///
+  /// In es, this message translates to:
+  /// **'La solicitud de reserva no es válida.'**
+  String get reservationHoldInvalidError;
+
+  /// No description provided for @reservationHoldConflictError.
+  ///
+  /// In es, this message translates to:
+  /// **'La clave idempotente pertenece a otra solicitud. Vuelve a crear la reserva.'**
+  String get reservationHoldConflictError;
+
+  /// No description provided for @reservationHoldUnavailableError.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda ya no puede reservar esta cantidad.'**
+  String get reservationHoldUnavailableError;
+
+  /// No description provided for @reservationHoldLimitError.
+  ///
+  /// In es, this message translates to:
+  /// **'Alcanzaste el límite de reservas activas.'**
+  String get reservationHoldLimitError;
+
+  /// No description provided for @reservationHoldNotFoundError.
+  ///
+  /// In es, this message translates to:
+  /// **'La reserva ya no existe o no pertenece a esta cuenta.'**
+  String get reservationHoldNotFoundError;
+
+  /// No description provided for @reservationHoldUnexpectedError.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos verificar la reserva. Inténtalo nuevamente.'**
+  String get reservationHoldUnexpectedError;
+
   /// No description provided for @cartAddAction.
   ///
   /// In es, this message translates to:

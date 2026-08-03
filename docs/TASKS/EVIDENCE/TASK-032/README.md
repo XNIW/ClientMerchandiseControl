@@ -1,20 +1,23 @@
 # Evidence TASK-032
 
 Snapshot di handoff:
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`VALIDATED_PENDING_INTEGRATED_REVIEW / EXECUTION / CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW`.
 
-L'implementazione TASK-032 è tecnicamente verde; lo snapshot resta `ACTIVE` solo fino
-al checkpoint aggregato Milestone 4, prima dell'attivazione TASK-033.
+L'implementazione TASK-032 e il checkpoint aggregato Milestone 4 sono tecnicamente
+verdi; TASK-032 attende la review integrata finale.
 
 ## Revision set
 
 - Admin/Supabase funzionale: `a1fa997c44d6a5804c636363ff75cbb3409a14f2`;
-- Admin/Supabase finale con lock staging: `cddb3f295d735ff3e16eaf705676807cb85efaab`,
-  PR #67 draft;
+- Admin/Supabase payment con lock staging:
+  `cddb3f295d735ff3e16eaf705676807cb85efaab`;
+- Admin/Supabase Milestone 4 finale:
+  `e0406834af09173902e2f64948dd5834f4a9fac5`, PR #67 draft;
 - Client runtime: `72f98eea574300f77d42e96e09557f0dd55ac2d5`, PR #5 draft;
 - Win7POS invariato: `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`,
   PR #88 draft;
-- migration: `20260803122644_storefront_v1_customer_payments`;
+- migration payment: `20260803122644_storefront_v1_customer_payments`;
+- migration finale: `20260803143000_storefront_v1_default_address_transition`;
 - production e online payment: invariati/OFF.
 
 ## Risultati riproducibili
@@ -41,7 +44,10 @@ al checkpoint aggregato Milestone 4, prima dell'attivazione TASK-033.
 | Artifact/secret scan | `check-client-security.sh --artifact ...` | 0 / 18,31 s / 65 file | PASS |
 | Client CI | run `30818475635`, SHA `72f98eea` | zero runner/step; billing | BLOCKED |
 | Provider online reale | audit credential/variable | zero credential approvata | BLOCKED |
-| Milestone 4 E2E aggregato | work package successivo | non ancora eseguito | NOT_RUN |
+| Milestone 4 E2E aggregato | run `30822286720`, SHA `e0406834` | 0 / 5m32s / 629 su 629 | PASS |
+| TASK-027 staging finale | run `30822288899`, attempt 2 | 0 / 1m15s / 35 su 35 | PASS |
+| TASK-028 staging finale | run `30822288363`, attempt 2 | 0 / 8m59s / 30 su 30 | PASS |
+| TASK-029 staging finale | run `30822288362`, attempt 2 | 0 / 1m40s / 34 su 34 | PASS |
 | Review integrata | freeze Milestone 5 non ancora raggiunto | non eseguita | NOT_RUN |
 | Production write/payment | vietato prima della review integrata | non eseguito; flag OFF | NOT_RUN |
 
@@ -65,6 +71,15 @@ Artifact:
 - migration `8857472744`,
   `sha256:255800b1ad905e439eb7ee2552cf82df813cf38c2c69a6a2834d8d2d9f35b98b`.
 
+Checkpoint Milestone 4:
+
+- acceptance `8859500219`, 23.855 byte,
+  `sha256:b2fad3f10af44a11c0cdd62b43fa2a10e5433740248db5c5666a6605c454819a`;
+- migration `8859345458`,
+  `sha256:3f75147e37cb9118ff18a23ca6457707804b39768fc6d40f5bed66e1dc949a4b`;
+- post-verifica: migration esatta, commerce table `FORCE RLS`, online defaults OFF,
+  fixture integrata rollback e `productionWriteRequested=false`.
+
 Release artifact locali sul Client runtime:
 
 - AAB:
@@ -82,5 +97,9 @@ Release artifact locali sul Client runtime:
   billing/spending limit; è `BLOCKED` esterna, non un failure del codice;
 - provider online: nessuna credential sandbox non-interattiva approvata. Il disabled
   adapter non viene presentato come pagamento online reale.
+- i primi run aggregati hanno rilevato una violazione transitoria dell'unico indirizzo
+  default e assert globali sensibili a fixture concorrenti. Migration additiva,
+  isolamento shop/order e mutex condiviso sono le correzioni; la run finale 629/629 e
+  i tre workflow legacy sul medesimo SHA ne costituiscono le regressioni.
 
 Nessun finding tecnico P0/P1/P2 è stato prodotto prima della review integrata.

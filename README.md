@@ -161,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-032
-- **File task**: docs/TASKS/TASK-032-payment-provider-integration.md
+- **Task attivo**: TASK-033
+- **File task**: docs/TASKS/TASK-033-security-hardening.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -203,6 +203,8 @@ workflow operativo ordini nella Admin Console; TASK-030 ha completato l'handoff 
 idempotente e il confine tra ordine cliente e vendita fiscale. Entrambi sono
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-031 ha completato la pipeline idempotente
 di notifiche ordine e l'integrazione Client privacy-safe ed è anch'esso
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 è l'unico task attivo e definisce
-metodi v1, stato/idempotenza pagamento e boundary provider/webhook fail-closed.
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 ha completato metodi v1,
+stato/idempotenza pagamento, boundary provider/webhook fail-closed e checkpoint
+Milestone 4 629/629; è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è l'unico task
+attivo e verifica threat model, RLS abuse, rate limit e security hardening.
 Gli altri task del train restano `TODO` fino al rispettivo checkpoint.

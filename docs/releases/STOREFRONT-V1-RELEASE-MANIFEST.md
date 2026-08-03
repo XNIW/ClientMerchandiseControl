@@ -13,9 +13,9 @@
 
 | Repository | Branch | SHA revisionato | PR | Versione schema | Versione API | Deployment staging | Feature flag | Ultimo gate | Prossimo checkpoint | Rollback |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ClientMerchandiseControl | `integration/storefront-v1` | `72f98eea574300f77d42e96e09557f0dd55ac2d5` | `#5 DRAFT` | local cache v4 + checkout draft v3 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment/payment v2, customer-order/history/notification-route v1 | 543 test/77,67%; payment/checkout 45/45, integration Android/iOS 1/1 e build debug/release `PASS`; CI `30818475635` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-032 payment selection/state server-authoritative `PASS` | Milestone 4 E2E aggregato | revert commit/branch; feature flag OFF |
-| merchandise-control-admin-web | `integration/storefront-v1` | `cddb3f295d735ff3e16eaf705676807cb85efaab` | `#67 DRAFT` | `20260803122644` | Storefront/customer/cart/availability/hold/checkout/order/history/admin-orders/POS/notifications/payment v1-v2 | CI `30817700671`; Cloudflare `30817700396`; staging payment `30817695207` e POS `30817693665`, tutti `PASS` | production `OFF`; POS/push/online-payment consumer OFF | TASK-032 36/36, race, provider 10/10 e E2E pickup/COD | Milestone 4 E2E aggregato | migration additiva + provider/consumer flag OFF |
-| Win7POS | `integration/storefront-v1` | `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474` | `#88 DRAFT` | SQLite `0012-customer-order-inbox` | `pos-customer-order-handoff-v1`, `pos-customer-order-ack-v1` | CI Windows `30804008501` 878/878; Security `30804007997`; staging server E2E `30805397611`, tutti `PASS` | production handoff `OFF` | inbox/lease/replay/fiscal boundary `PASS`; Win7 fisico `BLOCKED` esterno | TASK-031 nessun writer previsto | disabilitare lane, preservare inbox e replay queue |
+| ClientMerchandiseControl | `integration/storefront-v1` | `72f98eea574300f77d42e96e09557f0dd55ac2d5` | `#5 DRAFT` | local cache v4 + checkout draft v3 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment/payment v2, customer-order/history/notification-route v1 | 543 test/77,67%; payment/checkout 45/45, integration Android/iOS 1/1 e build debug/release `PASS`; CI `30818475635` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-032 e Milestone 4 `PASS` | TASK-033 deep security | revert commit/branch; feature flag OFF |
+| merchandise-control-admin-web | `integration/storefront-v1` | `e0406834af09173902e2f64948dd5834f4a9fac5` | `#67 DRAFT` | `20260803143000` | Storefront/customer/cart/availability/hold/checkout/order/history/admin-orders/POS/notifications/payment v1-v2 | CI `30822290788`; Cloudflare `30822292394`; Milestone 4 `30822286720` 629/629, tutti `PASS` | production `OFF`; POS/push/online-payment consumer OFF | TASK-032 e Milestone 4 same-order E2E `PASS` | TASK-033 deep security | migration additiva + provider/consumer flag OFF |
+| Win7POS | `integration/storefront-v1` | `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474` | `#88 DRAFT` | SQLite `0012-customer-order-inbox` | `pos-customer-order-handoff-v1`, `pos-customer-order-ack-v1` | CI Windows `30804008501` 878/878; Security `30804007997`; staging server E2E `30805397611`, tutti `PASS` | production handoff `OFF` | inbox/lease/replay/fiscal boundary `PASS`; Win7 fisico `BLOCKED` esterno | TASK-033 read-only | disabilitare lane, preservare inbox e replay queue |
 | MerchandiseControlSplitView | non creato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout dirty preservato | nessuno corrente | nessuna modifica prevista |
 | iOSMerchandiseControl | non clonato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout assente | nessuno corrente | nessuna modifica prevista |
 
@@ -300,3 +300,31 @@ backend production.
   concurrency group condiviso e test statico impediscono la recidiva.
 - **Prossimo checkpoint**: workflow headless aggregato Milestone 4 sullo stesso ordine,
   poi TASK-032 `VALIDATED_PENDING_INTEGRATED_REVIEW` e attivazione TASK-033.
+
+## 2026-08-03 — Checkpoint Milestone 4 e attivazione TASK-033
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il planning TASK-033 già
+  autorizzato; nessuna review formale intermedia.
+- **TASK-032**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; payment offline/state machine,
+  provider/webhook dormant, Admin config e Client payment UI verdi.
+- **Revision set**: Client runtime
+  `72f98eea574300f77d42e96e09557f0dd55ac2d5`; Admin/Supabase
+  `e0406834af09173902e2f64948dd5834f4a9fac5`; Win7POS
+  `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`.
+- **Database**: migration finale additiva `20260803143000`; promozione dell'indirizzo
+  default serializzata e fixture order/history/Admin/POS/notification isolate per
+  shop/order.
+- **Milestone 4 staging**: run `30822286720` `PASS`, 13 suite/629 su 629 e 40/40
+  assertion integrated same-order; apply/post-verifica e rollback fixture verdi.
+  Artifact `8859500219`, digest
+  `sha256:b2fad3f10af44a11c0cdd62b43fa2a10e5433740248db5c5666a6605c454819a`.
+- **Regressioni staging**: TASK-027 `30822288899`, TASK-028 `30822288363` e TASK-029
+  `30822288362` attempt 2 `PASS` sullo SHA esatto; CI `30822290788` e Cloudflare
+  `30822292394` `PASS`.
+- **Post-verifica**: latest migration esatta, commerce table `FORCE RLS`, online
+  defaults OFF, integrated fixture rollback, `productionWriteRequested=false`.
+- **Sicurezza/production**: nessun write production; Storefront/orders/POS/push/
+  online-payment flag restano OFF.
+- **Transizione**: TASK-033 è l'unico task `ACTIVE / EXECUTION`; capability preflight
+  Deep Security Scan `PASS`, con discovery/validation/attack-path read-only come
+  prossimo gate.

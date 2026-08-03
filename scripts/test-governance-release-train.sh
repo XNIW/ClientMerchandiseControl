@@ -35,6 +35,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-030" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-031" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-032" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-033" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -188,6 +189,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-032/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-032/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-033-security-hardening.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-033/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-033/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -226,14 +233,14 @@ cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-032/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-033/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-032 | Decisione provider e integrazione pagamenti | ACTIVE |/| TASK-032 | Decisione provider e integrazione pagamenti | DONE |/' \
+  's/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | ACTIVE |/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"

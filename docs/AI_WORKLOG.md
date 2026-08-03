@@ -1923,3 +1923,33 @@
   la causa. I run finali POS/payment sullo stesso SHA sono verdi.
 - **Stato**: TASK-032 resta temporaneamente l'unico `ACTIVE / EXECUTION` fino al
   checkpoint E2E aggregato Milestone 4; production invariata, online payment OFF.
+
+## 2026-08-03 — Checkpoint Milestone 4 e attivazione TASK-033
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il planning del task
+  successivo già autorizzato; nessuna review formale intermedia.
+- **TASK-032**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; i gate payment e il checkpoint
+  aggregato Milestone 4 sono verdi.
+- **Admin/Supabase**: SHA finale
+  `e0406834af09173902e2f64948dd5834f4a9fac5`, migration additiva
+  `20260803143000`; il fix serializza la transizione dell'indirizzo default e i test
+  commerce sono isolati per fixture/shop/order.
+- **Milestone 4 staging**: run `30822286720` exit 0, 5m32s, 13 suite/629 assertion su
+  629, incluse 40/40 sullo stesso order flow; latest migration, `FORCE RLS`, online
+  OFF, rollback fixture e `productionWriteRequested=false` `PASS`.
+- **Artifact**: acceptance `8859500219`, digest
+  `sha256:b2fad3f10af44a11c0cdd62b43fa2a10e5433740248db5c5666a6605c454819a`;
+  migration `8859345458`, digest
+  `sha256:3f75147e37cb9118ff18a23ca6457707804b39768fc6d40f5bed66e1dc949a4b`.
+- **Regressioni remote**: TASK-027 `30822288899`, TASK-028 `30822288363` e TASK-029
+  `30822288362` attempt 2, CI Admin `30822290788` e Cloudflare `30822292394` tutti
+  `PASS` sullo SHA finale.
+- **Failure corretti**: violazione transitoria del default address e assert globali
+  order/history/Admin/POS/notification non isolati; migration additiva, fixture scope
+  e mutex staging condiviso impediscono la recidiva. Nessun retry cieco è stato usato.
+- **Production**: invariata; Storefront/orders/POS/push/online-payment flag OFF.
+- **TASK-033**: unico task `ACTIVE / EXECUTION`; task e planning creati, autorizzazione
+  USER_APPROVER consumata. Il preflight `deep_security_scan` ha exit 0 e stato
+  `ready`: cinque phase skill disponibili, runtime native v2 e goal tools `PASS`.
+- **Prossima azione**: discovery profonda read-only sul root multi-repository, quindi
+  validation/attack-path/report canonico e solo dopo eventuale hardening P0/P1/P2.

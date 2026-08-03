@@ -1,11 +1,12 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 4 / TASK-032 pagamenti
-- **Task corrente**: TASK-032
-- **Repository writer corrente**: merchandise-control-admin-web / Supabase, poi Client
+- **Fase corrente**: EXECUTION / Milestone 5 / TASK-033 security hardening
+- **Task corrente**: TASK-033
+- **Repository writer corrente**: nessuno durante la Deep Security Scan read-only;
+  successivamente un solo writer per repository per finding confermati
 - **Branch**: `integration/storefront-v1`
 - **SHA Client runtime corrente**: `72f98eea574300f77d42e96e09557f0dd55ac2d5`
-- **SHA Admin/Supabase corrente**: `cddb3f295d735ff3e16eaf705676807cb85efaab`
+- **SHA Admin/Supabase corrente**: `e0406834af09173902e2f64948dd5834f4a9fac5`
 - **SHA Win7POS corrente**: `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
@@ -162,17 +163,22 @@
   Client `72f98eea`, checkout payment strict/server-authoritative, 543 test, coverage
   77,67%, 45/45 mirati, integration Android/iOS 1/1, build debug/release e artifact
   scan `PASS`; CI `30818475635` `BLOCKED` esterna per billing prima dei runner.
-- **Gate ancora necessari**: checkpoint aggregato Milestone 4 sullo stesso ordine,
-  inclusi publish, catalog visibility, auth owner, favorite/cart, quote/repricing,
-  hold/order/payment, Admin transition, POS claim/ack, notification/timeline e casi
-  negativi; poi transizione TASK-032 e attivazione TASK-033
-- **Comando successivo esatto**: implementare ed eseguire il workflow headless
-  `storefront-v1-milestone-4-staging-e2e` serializzato sul database staging, con fixture
-  bounded, evidence sanitizzata e cleanup fail-closed
+- **Gate Milestone 4**: Admin/Supabase `e0406834`, migration finale
+  `20260803143000`; run aggregata `30822286720` `PASS` con apply/post-verifica e 13
+  suite/629 assertion su 629, incluse 40 sullo stesso ordine; CI `30822290788`,
+  Cloudflare `30822292394`, TASK-027 `30822288899`, TASK-028 `30822288363` e
+  TASK-029 `30822288362` attempt 2 tutti `PASS`. Artifact `8859500219`, digest
+  `sha256:b2fad3f10af44a11c0cdd62b43fa2a10e5433740248db5c5666a6605c454819a`;
+  migration/RLS/online OFF/rollback/production read-only postcheck `PASS`.
+- **Gate TASK-033 corrente**: capability preflight Deep Security Scan `PASS`; scan,
+  validation, attack-path, eventuale hardening e regressioni `NOT_RUN`.
+- **Comando successivo esatto**: avviare `start_codex_security_deep_scan` sul target
+  `/Users/minxiang/Projects/_release_train/storefront-v1`, scope `.`, poi completare
+  validation, attack-path e report canonico prima di qualunque modifica
 - **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
   Windows 7 fisico `BLOCKED` esterno; provider push live `BLOCKED` esterno per assenza
   di credential; provider payment online `BLOCKED` esterno per assenza di credential
-  sandbox approvate. Nessun blocker tecnico corrente per il checkpoint Milestone 4
+  sandbox approvate. Nessun blocker tecnico corrente per TASK-033
 - **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`; Android Emulator
   `emulator-5554`, API 35; iOS Simulator iPhone 17 Pro iOS 26.5
   UUID `240F400E-5EFA-486A-9137-FFBBE70F604D`. Sono controllati e necessari ai gate
@@ -187,8 +193,8 @@
   checkout, TASK-027 order/snapshot/idempotency, TASK-028 history/timeline/cancel e
   TASK-029 Admin queue/transitions, TASK-030 POS claim/ack/replay/fiscal boundary e
   TASK-031 notification outbox/dispatcher/deep-link e TASK-032 payment offline/state/
-  webhook dormant `PASS`; Milestone 4 E2E aggregato è il gate successivo; production
-  invariata e push/online-payment flag OFF
+  webhook dormant `PASS`; Milestone 4 E2E aggregato 629/629 `PASS`; production
+  invariata e Storefront/orders/POS/push/online-payment flag OFF
 
 ## Vincoli di ripresa
 

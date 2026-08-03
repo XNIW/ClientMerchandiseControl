@@ -1,0 +1,163 @@
+# TASK-033 — Threat model, RLS abuse testing, rate limit e security hardening
+
+## Informazioni generali
+
+- **Task ID**: TASK-033
+- **Titolo**: Threat model, RLS abuse testing, rate limit e security hardening
+- **File task**: `docs/TASKS/TASK-033-security-hardening.md`
+- **Stato**: ACTIVE
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Data creazione**: 2026-08-03
+- **Ultimo aggiornamento**: 2026-08-03
+- **Ultimo agente**: Codex
+- **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-033/`
+- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+
+## Dipendenze
+
+- **Dipende da**: TASK-005, TASK-020, TASK-025, TASK-027, TASK-032
+- **Checkpoint consumati**: schema/RLS Storefront, OAuth PKCE/session lifecycle,
+  reservation hold, order idempotente, payment boundary e Milestone 4 E2E 629/629
+- **Sblocca**: TASK-038, TASK-039, TASK-040 e freeze integrato
+- **Repository writer**: nessuno durante la scansione profonda read-only; dopo il
+  report canonico, un solo writer per volta sul repository proprietario di eventuali
+  hardening e regressioni approvati dallo scope
+
+## Scope
+
+- produrre un threat model multi-repository con attacker, asset, trust boundary,
+  ingressi, sink privilegiati e dipendenze esterne;
+- eseguire una Deep Security Scan ripetuta e read-only su Client Flutter,
+  Admin/Supabase e Win7POS del worktree release train, seguita da validazione
+  centralizzata e attack-path analysis;
+- verificare RLS/grant/FORCE RLS, cross-tenant/cross-user/cross-shop, auth/PKCE,
+  callback/deep link/share payload, storage pubblico e upload immagini;
+- verificare Edge Function/RPC, `search_path`, SQL dinamico, privilegi, secret,
+  configurazione fail-closed, log e PII;
+- verificare rate limit e abuse control per catalogo, auth, hold exhaustion, order
+  spam, replay/idempotenza, webhook, notification e POS inbox/outbox;
+- verificare Admin RBAC, audit, supply chain, CI, artifact e mobile platform boundary;
+- correggere soltanto finding tecnici confermati P0/P1/P2 dentro lo scope, con
+  regressioni e gate impattati; registrare P3/follow-up senza scope creep;
+- mantenere production invariata e tutte le capability sensibili OFF.
+
+## Non incluso
+
+- penetration test distruttivi, denial of service non bounded o accesso a dati reali;
+- modifica production, rotazione credential, acquisto di scanner o servizi;
+- pubblicazione di raw scan, token, URL sensibili, PII o exploit riutilizzabili contro
+  sistemi esterni;
+- accettazione di contratti, attivazione provider payment/push o bypass di MFA;
+- refactor opportunistici non necessari a chiudere un finding confermato.
+
+## File coinvolti
+
+- artifact canonici della Codex Security Deep Scan nel workspace gestito dalla skill,
+  non versionati nel repository;
+- codice/test Client, Admin/Supabase o Win7POS soltanto dopo la scansione e soltanto per
+  hardening confermati;
+- task/evidence sanitizzata, Master Plan, checkpoint, release manifest e worklog.
+
+## Criteri di accettazione
+
+| CA | Descrizione | Tipo previsto |
+|---|---|---|
+| CA-01 | threat model e inventory coprono i tre repository e i confini remoti | SECURITY/STATIC |
+| CA-02 | RLS/grant/cross-tenant/cross-user/cross-shop sono verificati con test negativi | PGTAP/SECURITY |
+| CA-03 | auth PKCE, callback, deep link e share payload non espongono authority o dati interni | SECURITY/UNIT |
+| CA-04 | storage, RPC/Function e SQL `search_path` falliscono chiuso | SECURITY/PGTAP |
+| CA-05 | hold/order/payment/webhook/POS/push resistono a spam, replay e race bounded | SECURITY/CONCURRENCY |
+| CA-06 | Admin RBAC/audit e log/PII/secret rispettano least privilege e minimizzazione | SECURITY/INTEGRATION |
+| CA-07 | dipendenze, CI e artifact non introducono secret o finding P0/P1/P2 aperti | SECURITY/CI |
+| CA-08 | ogni finding confermato ha prova, posizione, severità, fix e regressione | SECURITY/DOCUMENTATION |
+| CA-09 | production resta invariata e i flag sensibili restano OFF | CONFIG/GIT |
+
+## Test case
+
+| Test | Criteri | Tipo | Procedura attesa |
+|---|---|---|---|
+| T-01 | CA-01, CA-08 | SECURITY | Deep Scan completa discovery, validation, attack path e report canonico |
+| T-02 | CA-02 | PGTAP | owner e tenant corretti ammessi; cross-user/shop/tenant negati |
+| T-03 | CA-03 | UNIT/INTEGRATION | callback/link/share malformati o malevoli falliscono chiuso |
+| T-04 | CA-04 | STATIC/PGTAP | grants, search_path, storage e service-only boundary verificati |
+| T-05 | CA-05 | CONCURRENCY | hold exhaustion, duplicate order, webhook/POS/push replay e timeout |
+| T-06 | CA-06 | INTEGRATION | RBAC Admin, audit allow-list e log sanitizer su flussi privilegiati |
+| T-07 | CA-07 | SECURITY/CI | secret e dependency scan dei revision set finali e artifact applicabili |
+| T-08 | CA-09 | GIT/STAGING | post-verifica staging e prova read-only di production/flag OFF |
+
+## Decisioni
+
+| # | Decisione | Motivazione | Stato |
+|---|---|---|---|
+| D-01 | La Deep Security Scan è read-only e non condivide writer con discovery/validation | Preserva l'indipendenza della verifica | ATTIVA |
+| D-02 | Gli artifact raw restano nel workspace gestito; Git riceve solo evidence sanitizzata | Evita secret, PII e repository bloat | ATTIVA |
+| D-03 | Finding P0/P1/P2 confermati vengono corretti nello scope con regressione | Il release train non può congelare difetti tecnici aperti | ATTIVA |
+| D-04 | P3 è ammesso solo se realmente opzionale e fuori dai criteri | Mantiene la soglia richiesta senza scope creep | ATTIVA |
+| D-05 | Test abuse/load restano bounded e usano fixture rollback-safe | Nessun impatto distruttivo o su dati reali | ATTIVA |
+| D-06 | Planning ed Execution sono autorizzati dal prompt USER_APPROVER del 2026-08-02 | Mantiene il train headless continuo | ATTIVA |
+
+## Planning — `CODEX_PLANNER`
+
+### Obiettivo
+
+Ridurre il rischio residuo Storefront v1 con una verifica profonda, ripetuta e
+riproducibile dei confini di fiducia e con hardening mirato dei soli finding tecnici
+confermati, senza modificare production.
+
+### Analisi
+
+- il revision set attraversa client pubblico, control plane, database/RPC, code
+  asincrone, POS e provider dormant: una scansione per singolo repository perderebbe
+  attack path cross-repository;
+- i checkpoint funzionali provano happy/negative path ma non sostituiscono discovery
+  indipendente, validazione e analisi di exploit chain;
+- RLS, idempotenza e flag OFF sono controlli centrali che vanno provati sia staticamente
+  sia con principal ostili e concorrenza bounded;
+- i raw log di scan non sono evidence versionabile: il task conserva soltanto risultati
+  canonici, conteggi, finding sanitizzati e comandi riproducibili.
+
+### Approccio autorizzato
+
+1. capability preflight della skill `codex-security:deep-security-scan` sul root dei
+   worktree release train;
+2. discovery ripetuta read-only sui tre repository e accettazione del manifest
+   terminale;
+3. threat model canonico, validation, attack-path analysis e report sigillato;
+4. triage dei finding rispetto a scope, exploitability e controlli compensativi;
+5. hardening P0/P1/P2 con writer seriale e regressioni dedicate;
+6. RLS/abuse/concurrency/secret/dependency/staging gate sul candidato finale;
+7. evidence/checkpoint e attivazione TASK-034 soltanto con zero P0/P1/P2 aperti.
+
+### Rischi e mitigazioni
+
+- falsi positivi: validazione centralizzata e prova di reachability prima del fix;
+- scan incompleta: preflight capability e manifest terminale obbligatori;
+- collisione writer: nessuna modifica durante scan, poi un repository writer alla volta;
+- test abusivi: fixture isolate, rollback, limiti e mutex staging;
+- leakage evidence: artifact raw non versionati e sanitizer prima dell'handoff;
+- deriva revision set: SHA e worktree puliti registrati prima e dopo ogni fase.
+
+### Handoff a Execution
+
+- **Prossima fase**: EXECUTION
+- **Prossimo ruolo**: CODEX_EXECUTOR
+- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Autorizzazione USER_APPROVER**: prompt headless Storefront v1 2026-08-02
+
+## Execution — `CODEX_EXECUTOR`
+
+In corso. Il preflight Deep Security Scan è `PASS`; discovery, validazione,
+attack-path, eventuale hardening e gate restano da registrare con evidence reale.
+
+## Review / Fix
+
+Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
+
+## Chiusura
+
+- **Conferma utente**: ricevuta in forma condizionata dal release train
+- **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
+- **Follow-up candidate**: TASK-034 dopo checkpoint verde
+- **Riepilogo finale**: in esecuzione
+- **Data completamento**: non ancora

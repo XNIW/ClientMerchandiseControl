@@ -5,14 +5,14 @@
 - **Task ID**: TASK-032
 - **Titolo**: Decisione provider e integrazione pagamenti
 - **File task**: `docs/TASKS/TASK-032-payment-provider-integration.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-03
 - **Ultimo aggiornamento**: 2026-08-03
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-032/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -186,7 +186,9 @@ pagamento online che non sia stato eseguito da un provider verificato.
 
 ### Revision set eseguito
 
-- Admin/Supabase finale: `cddb3f295d735ff3e16eaf705676807cb85efaab`, PR #67;
+- Admin/Supabase payment: `cddb3f295d735ff3e16eaf705676807cb85efaab`, PR #67;
+- Admin/Supabase Milestone 4 finale:
+  `e0406834af09173902e2f64948dd5834f4a9fac5`, PR #67;
 - commit funzionale Admin/Supabase: `a1fa997c44d6a5804c636363ff75cbb3409a14f2`;
 - Client runtime finale: `72f98eea574300f77d42e96e09557f0dd55ac2d5`, PR #5;
 - Win7POS invariato: `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`, PR #88;
@@ -217,17 +219,32 @@ pagamento online che non sia stato eseguito da un provider verificato.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-L'implementazione e i gate specifici di TASK-032 sono verdi. La transizione formale a
-`VALIDATED_PENDING_INTEGRATED_REVIEW` resta intenzionalmente differita al completamento
-del checkpoint E2E aggregato Milestone 4, così il Master Plan conserva un solo task
-`ACTIVE` durante il work package non numerato. Nessuna review formale intermedia è
-stata eseguita.
+L'implementazione, i gate specifici di TASK-032 e il checkpoint E2E aggregato
+Milestone 4 sono verdi. TASK-032 passa a
+`VALIDATED_PENDING_INTEGRATED_REVIEW`; nessuna review formale intermedia è stata
+eseguita.
 
 Il primo E2E POS concorrente `30815887397` ha osservato `db_failure` mentre la migration
 payment veniva applicata in parallelo. Il retry dopo l'applicazione è passato e la causa
 primaria è stata rimossa condividendo il concurrency group
 `storefront-v1-staging-order-payment`; una regressione statica verifica il lock. Sullo
 SHA finale, POS `30817693665` e payment `30817695207` sono entrambi verdi.
+
+Il checkpoint aggregato finale è la run `30822286720` sullo SHA Admin/Supabase
+`e0406834af09173902e2f64948dd5834f4a9fac5`: migration dry-run/post-verifica e
+acceptance sono `PASS`, 13 suite/629 assertion su 629, incluse 40 assertion sullo
+stesso ordine. Il flusso copre publish, visibilità catalogo, owner, cart, quote,
+repricing, hold, order/payment, transizioni Admin, POS claim/ack, notification e
+timeline, oltre ai casi malevoli e di replay. I run specifici TASK-027
+`30822288899`, TASK-028 `30822288363` e TASK-029 `30822288362` attempt 2 sono
+anch'essi `PASS` sullo stesso SHA.
+
+Durante l'acceptance sono stati corretti, con regressioni, la promozione atomica
+dell'indirizzo default e gli assert globali non isolati di order/history/Admin/POS/
+notification. La migration additiva finale è
+`20260803143000_storefront_v1_default_address_transition`; production e feature flag
+restano invariati/OFF. L'artifact sanitizzato Milestone 4 è `8859500219`, digest
+`sha256:b2fad3f10af44a11c0cdd62b43fa2a10e5433740248db5c5666a6605c454819a`.
 
 ### Matrice CA -> evidence
 
@@ -241,7 +258,7 @@ SHA finale, POS `30817693665` e payment `30817695207` sono entrambi verdi.
 | CA-06 | RPC v2 senza importi/stati autorevoli e UI allow-list | PASS |
 | CA-07 | failure/cancel/refund espliciti, zero vendita fiscale | PASS |
 | CA-08 | widget/golden/Semantics e quattro locale | PASS |
-| CA-09 | Admin/Client/staging verdi; production invariata | PASS |
+| CA-09 | Admin/Client/staging e Milestone 4 629/629 verdi; production invariata | PASS |
 
 ### Matrice T-NN -> risultato
 
@@ -253,7 +270,7 @@ SHA finale, POS `30817693665` e payment `30817695207` sono entrambi verdi.
 | T-04 | firma assente/errata e provider disabled non persistono receipt | PASS |
 | T-05 | 45/45 Client payment/checkout, quattro locale e Semantics | PASS |
 | T-06 | collection/refund senza `pos_sales` o fiscal reference | PASS |
-| T-07 | staging pickup/COD exact-SHA e cleanup | PASS |
+| T-07 | staging pickup/COD e Milestone 4 exact-SHA 629/629 con rollback | PASS |
 | T-08 | scan repository/artifact e production unchanged | PASS |
 
 Provider online reale: `BLOCKED` esterno, perché non esistono credential sandbox
@@ -267,6 +284,6 @@ Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
 
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: TASK-033 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Follow-up candidate**: TASK-033 attivato dopo checkpoint verde
+- **Riepilogo finale**: validato, attende la review integrata finale
 - **Data completamento**: non ancora

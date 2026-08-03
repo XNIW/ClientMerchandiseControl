@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-032
-- **File task**: docs/TASKS/TASK-032-payment-provider-integration.md
+- **Task attivo**: TASK-033
+- **File task**: docs/TASKS/TASK-033-security-hardening.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,10 +14,9 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: auditare in sola lettura checkout/order/payment
-  fields, feature flag, secret/variable provider, dipendenze, Admin configuration,
-  Client payment UI e confine fiscale Win7POS; fissare ADR, metodi v1, state machine,
-  idempotency e webhook boundary di TASK-032
+- **Prossima azione autorizzata**: completare la Deep Security Scan read-only sul root
+  multi-repository, validare i finding e gli attack path, poi applicare serialmente
+  soltanto l'hardening P0/P1/P2 confermato con regressioni bounded e production OFF
 
 ## Repository coinvolti
 
@@ -85,8 +84,8 @@
 | TASK-029 | Admin Console: gestione e preparazione ordini | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-007, TASK-027 | Admin, Supabase | Workflow preparazione ordini |
 | TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-006, TASK-024, TASK-027, TASK-029 | POS, Admin, Supabase | Handoff operativo senza fusione eventi |
 | TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-022, TASK-027, TASK-028, TASK-029 | Client, Admin, Supabase | Eventi e notifiche affidabili |
-| TASK-032 | Decisione provider e integrazione pagamenti | ACTIVE | TASK-027 | Client, Admin, Supabase | Pagamento selezionato e integrato |
-| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | TODO | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
+| TASK-032 | Decisione provider e integrazione pagamenti | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-027 | Client, Admin, Supabase | Pagamento selezionato e integrato |
+| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | ACTIVE | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
 | TASK-034 | Offline/reconnect/concorrenza/idempotenza test matrix | TODO | TASK-017, TASK-023, TASK-025, TASK-027, TASK-030 | Client, Admin, Supabase, POS | Matrice resilienza superata |
 | TASK-035 | Observability, crash reporting e analytics privacy-safe | TODO | TASK-011, TASK-020, TASK-027, TASK-031 | Client, Admin | Telemetria privacy-safe |
 | TASK-036 | Accessibility, localizzazione e device matrix | TODO | TASK-012, TASK-018, TASK-021, TASK-026, TASK-028, TASK-031 | Client | Acceptance accessibilità e lingue |
@@ -180,7 +179,9 @@ machine e transition Admin ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-030
 completato claim/lease/ack, inbox durevole Win7POS, replay/offline e confine fiscale ed
 è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-031 ha completato event/delivery/receipt,
 dispatcher idempotente, payload privacy-safe e route notifiche Android/iOS ed è
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 è l'unico task
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 ha completato payment offline,
+provider/webhook dormant e il checkpoint Milestone 4 629/629 ed è
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è l'unico task
 `ACTIVE / EXECUTION` e i task successivi restano `TODO` fino al relativo handoff. La
 dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
@@ -469,3 +470,23 @@ TASK-031 non è `DONE`: attende la review integrata finale.
 Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-032, con writer Admin/Supabase e poi
 Client; online payment resta fail-closed/OFF salvo credential sandbox già esistenti.
+
+## Ultimo checkpoint interno — TASK-032 / Milestone 4
+
+Il revision set Admin/Supabase
+`e0406834af09173902e2f64948dd5834f4a9fac5` include la migration additiva finale
+`20260803143000`, il workflow staging serializzato e fixture isolate. La run aggregata
+`30822286720` ha superato 13 suite/629 assertion su 629, incluse 40 assertion sullo
+stesso ordine da publish a complete con Admin, POS, notification, history e payment;
+post-verifica migration/RLS/flag/rollback/production è interamente verde. CI Admin
+`30822290788`, Cloudflare `30822292394` e i run specifici TASK-027 `30822288899`,
+TASK-028 `30822288363`, TASK-029 `30822288362` attempt 2 sono `PASS` sullo SHA esatto.
+Client runtime resta `72f98eea574300f77d42e96e09557f0dd55ac2d5` con i gate TASK-032
+già verdi; Win7POS resta `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`. Production è
+invariata e i flag Storefront/orders/POS/push/online-payment restano OFF. TASK-032 non
+è `DONE`: attende la review integrata finale.
+
+Handoff:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-033, iniziando dalla Deep Security
+Scan read-only multi-repository e proseguendo con hardening mirato dei soli finding
+tecnici confermati.

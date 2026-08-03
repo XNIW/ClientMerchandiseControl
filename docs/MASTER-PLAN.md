@@ -25,7 +25,8 @@
   authority canonica verificata; branch integration e PR draft coordinata.
 - `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
 - `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura.
-- `XNIW/Win7POS` — POS e stock operativo, sola lettura.
+- `XNIW/Win7POS` — POS e stock operativo; writer autorizzato esclusivamente per
+  TASK-030 nel worktree release train, checkout originale dirty preservato.
 - Supabase staging esistente — Auth e Milestone 1 TASK-005/TASK-006/TASK-010
   applicati e verificati; production non modificata.
 - Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.

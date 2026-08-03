@@ -161,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-028
-- **File task**: docs/TASKS/TASK-028-order-history-status-tracking.md
+- **Task attivo**: TASK-029
+- **File task**: docs/TASKS/TASK-029-admin-order-queue-management.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -196,6 +196,8 @@ idempotenti e scadibili senza quantità inventory pubblica ed è anch'esso
 server-authoritative per ritiro, prenotazione e consegna configurabile ed è anch'esso
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-027 ha completato ordine, item snapshot,
 status event, outbox e receipt atomici/idempotenti ed è anch'esso
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-028 è l'unico task attivo e realizza
-storico, dettaglio, timeline, cache read-only, deep link e cancellazione controllata.
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-028 ha completato storico, dettaglio,
+timeline, cache read-only, deep link e cancellazione controllata ed è anch'esso
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-029 è l'unico task attivo e realizza queue,
+detail, RBAC e workflow operativo ordini nella Admin Console.
 Gli altri task del train restano `TODO` fino al rispettivo checkpoint.

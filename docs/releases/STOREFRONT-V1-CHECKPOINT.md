@@ -1,11 +1,11 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 4 / TASK-028 storico e stato ordine
-- **Task corrente**: TASK-028
+- **Fase corrente**: EXECUTION / Milestone 4 / TASK-029 Admin ordini
+- **Task corrente**: TASK-029
 - **Repository writer corrente**: merchandise-control-admin-web / Supabase
 - **Branch**: `integration/storefront-v1`
-- **SHA Client runtime corrente**: `64c8f711547f8d5c5dc18650a03a9d5345bb71b7`
-- **SHA Admin/Supabase corrente**: `599511c03cb502b9b76561ff320cfdbb4073b1ee`
+- **SHA Client runtime corrente**: `1855100f34a3563787b1ac71eafb4af60a1b72e6`
+- **SHA Admin/Supabase corrente**: `119169375fa477995b41c34b3766deca32fec056`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
@@ -120,16 +120,23 @@
   Client `64c8f711`, draft v2/recovery/receipt, 497 test, coverage 76,39%, performance
   1/1, build e integration/smoke Android/iOS `PASS`. CI Client `30784085502`
   `BLOCKED` esterna per billing prima dei runner.
-- **Gate ancora necessari**: TASK-028 list/detail/timeline, cache read-only offline,
-  deep link owner-scoped, cancellazione idempotente e stato ordine
+- **Gate TASK-028**: Admin `11916937`, migration staging `20260803050000`, tre RPC
+  strict list/detail/cancel, keyset stabile e cancellation fail-closed; pgTAP 30/30,
+  cancel race due sessioni, CI `30787892745`, Cloudflare `30787892757` e staging
+  `30787890770` `PASS`; artifact `8845914762`/`8845928446`. Client `1855100f`, cache
+  order bounded owner/shop, recovery cancel, UI/deep link, 526 test + performance 1,
+  coverage 77,31%, build/integration/smoke Android/iOS `PASS`. CI Client
+  `30787721420` `BLOCKED` esterna per billing prima dei runner.
+- **Gate ancora necessari**: TASK-029 queue/detail Admin, RBAC shop-scoped, state
+  machine, transition idempotenti/versionate, audit/event/outbox e Playwright staging
 - **Comando successivo esatto**: nel writer Admin/Supabase, auditare in sola lettura
-  `customer_orders`, `customer_order_status_events`, RLS/RPC e policy di transizione;
-  nel Client mappare router, cache owner-scoped, logout e UI Account/Orders prima di
-  fissare cursor, allow-list e migration TASK-028
+  route/componenti Storefront Admin, session/RBAC e `customer_orders`, status event,
+  outbox/audit; fissare role matrix, archi fulfillment, payload allow-list e cursor
+  prima della migration additiva TASK-029
 - **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
-  nessun blocker tecnico corrente per TASK-028
+  nessun blocker tecnico corrente per TASK-029
 - **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`; Android Emulator
-  `emulator-5554`, API 35, sessione exec `90303`; iOS Simulator iPhone 17 Pro iOS 26.5
+  `emulator-5554`, API 35; iOS Simulator iPhone 17 Pro iOS 26.5
   UUID `240F400E-5EFA-486A-9137-FFBBE70F604D`. Sono controllati e necessari ai gate
   mobile successivi; `caffeinate` deve essere terminato al closeout del release train
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
@@ -139,8 +146,8 @@
   performance extended dataset, TASK-021 profile/address/privacy, TASK-022 device/
   consent/token lifecycle, TASK-023 cart/revalidation, TASK-024 availability/freshness/
   cache refresh, TASK-025 hold/idempotency/expiry/cleanup, TASK-026 fulfillment/quote/
-  checkout e TASK-027 order/snapshot/idempotency `PASS`; TASK-028 attivato; production
-  invariata
+  checkout, TASK-027 order/snapshot/idempotency e TASK-028 history/timeline/cancel
+  `PASS`; TASK-029 attivato; production invariata
 
 ## Vincoli di ripresa
 

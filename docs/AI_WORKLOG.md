@@ -1796,3 +1796,30 @@
 - **Transizione**: TASK-028 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per lista/dettaglio/timeline, cache read-only offline, deep link owner-scoped e
   cancellazione server-authoritative, con writer Admin/Supabase -> Client.
+
+## 2026-08-03 — Checkpoint interno TASK-028 e attivazione TASK-029
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-028**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; list/detail/timeline owner-
+  scoped, cancellation idempotente, cache offline read-only, UI e deep link completati.
+- **Admin/Supabase**: SHA `119169375fa477995b41c34b3766deca32fec056`;
+  migration `20260803050000`; pgTAP 30/30, cancel race due sessioni, foundation 845
+  pass + 2 skip; CI `30787892745`, Cloudflare `30787892757` e staging `30787890770`
+  `PASS`; artifact `8845914762` e `8845928446` con digest registrati nel manifest.
+- **Client**: SHA runtime `1855100f34a3563787b1ac71eafb4af60a1b72e6`;
+  repository/cache/controller, Orders/Detail/timeline, pending cancel, logout purge e
+  deep link; 526 test + performance 1, coverage 77,31%, build Android/iOS, integration
+  history 1/1 per piattaforma e artifact smoke `PASS`.
+- **CI Client**: run `30787721420` `BLOCKED` esterna; Quality/Android/iOS hanno zero
+  runner/step e annotazione billing/spending limit. Nessun test CI è dichiarato `PASS`.
+- **Difetti corretti durante Execution**: validazione completa di cache line/timeline/
+  cancellation; refresh dopo errori deterministici; race bootstrap deep link;
+  messaggio offline; reflow card al 200%; staging delta corretto dopo aver provato il
+  predecessor già applicato. Regressioni dedicate impediscono recidive.
+- **Sicurezza/production**: response/cache allow-list, cancellation fail-closed,
+  nessuna vendita fiscale, secret/config/artifact o dato production versionato; nessun
+  deploy production e flag OFF.
+- **Transizione**: TASK-029 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per queue/detail Admin, RBAC shop-scoped, state machine e transition idempotenti con
+  event/audit/outbox atomici, con writer Admin/Supabase.

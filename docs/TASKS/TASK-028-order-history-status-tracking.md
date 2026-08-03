@@ -5,14 +5,14 @@
 - **Task ID**: TASK-028
 - **Titolo**: Storico, dettaglio e stato ordine
 - **File task**: `docs/TASKS/TASK-028-order-history-status-tracking.md`
-- **Stato**: ACTIVE
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-03
 - **Ultimo aggiornamento**: 2026-08-03
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-028/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_VALIDATED_PENDING_INTEGRATED_REVIEW
 
 ## Dipendenze
 
@@ -134,13 +134,92 @@ con timeline affidabile, cancellazione controllata e navigazione profonda sicura
 
 ## Execution — `CODEX_EXECUTOR`
 
-Audit read-only da avviare sul contract order/event/RLS e sui pattern Client per
-router, cache owner-scoped, logout e UI Account/Orders. Nessuna migration viene scelta
-prima di avere fissato allow-list, cursor, policy cancellazione e lifecycle cache.
+### Audit e implementazione
+
+- l'audit ha confermato `customer_orders`, item snapshot, status event, outbox e
+  mutation ledger come authority privata; nessuna lettura diretta mobile, coupling a
+  inventory operativo o scrittura `pos_sales` è stata introdotta;
+- la migration additiva `20260803050000_storefront_v1_customer_order_history` aggiunge
+  tre RPC strict owner/shop-scoped per list, detail e cancel, keyset `(placed_at,id)`,
+  policy cancellazione fail-closed, lock deterministici e replay idempotente;
+- la timeline espone soltanto status/version/timestamp pubblici e deriva dagli event
+  append-only; detail e card usano gli snapshot immutabili TASK-027 e omettono tenant,
+  owner, stock preciso, costo, token, metadata POS e identificatori operativi;
+- cancel valida policy, stato, versione e deadline server-side; transizione, event,
+  outbox POS-neutral, ledger e rilascio ATP/capacità avvengono nella stessa transazione;
+- il Client introduce adapter RPC allow-list, cache bounded owner/shop-scoped e
+  read-only, pending cancel persistita con stessa idempotency key, lista/dettaglio/
+  timeline, refresh/error/empty/offline e deep link ordine sospeso fino all'auth;
+- logout e identity switch eliminano la cache ordine; race bootstrap deep link,
+  payload cache corrotto, errore cancel deterministico e reflow 320x568 al 200% hanno
+  regressioni dedicate;
+- Android API 35 e iPhone 17 Pro iOS 26.5 hanno eseguito il flow history/detail/
+  refresh/cancel con tap reali e gli artifact debug sono stati installati e avviati.
+
+### Revision set eseguito
+
+- Admin/Supabase: `119169375fa477995b41c34b3766deca32fec056`, PR #67 draft;
+- Client runtime: `1855100f34a3563787b1ac71eafb4af60a1b72e6`, PR #5 draft;
+- migration: `20260803050000_storefront_v1_customer_order_history`;
+- staging: run `30787890770`, artifact migration `8845914762`, digest
+  `4d6abb98931d6d431e1fb7bdd9478e53402104ca30065165b4f9d3699c11b29f`, artifact
+  TASK-028 `8845928446`, digest
+  `ce89e37b17a078468db259158e9c00f7b950146bc20ee78aa75378ea20edf748`;
+- production e feature flag: invariati/OFF; cancellazione staging resta OFF di default.
+
+### Gate
+
+- replay migration, pgTAP TASK-028 30/30, lint SQL e race due sessioni: `PASS`;
+- Admin foundation 845 pass + 2 skip, security/lint/typecheck/build/Playwright: `PASS`;
+- Admin CI `30787892745`, Cloudflare `30787892757` e staging exact-SHA
+  `30787890770`: `PASS`;
+- Client gate canonico exit 0: 526/526 test funzionali, performance 1/1, coverage
+  11.123/14.388 (77,31%), analyze/format/security/governance/architecture e build
+  Android/iOS: `PASS`;
+- integration order history Android e iOS: 1/1 per piattaforma; install/launch e
+  screenshot CLI degli artifact debug: `PASS`;
+- CI Client `30787721420`: `BLOCKED` esterno, tre job con zero runner/step e
+  annotazione billing/spending limit; non viene dichiarata eseguita.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate tecnici; nessuna review formale intermedia.
+TASK-028 è tecnicamente validato e consegnato alla futura review integrata come
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. Staging ha mantenuto la cancellazione fail-closed
+per ogni shop esistente e le fixture pgTAP/race sono state ripulite. Nessuna review
+formale intermedia, modifica production, transizione Admin o consumo POS è stata
+eseguita.
+
+Il primo run staging fu cancellato con zero step dalla coda GitHub condivisa. Il
+secondo rilevò correttamente che la migration predecessore era già applicata: il
+workflow TASK-028 è stato corretto per provare il solo delta realmente pending e il
+run finale è passato. Non sono stati usati retry ciechi, GUI o dati production.
+
+### Matrice CA -> evidence
+
+| Criterio | Evidence | Stato |
+|---|---|---|
+| CA-01 | RPC owner/shop, keyset e response allow-list pgTAP | PASS |
+| CA-02 | event append-only, version monotona e timeline ordinata | PASS |
+| CA-03 | cache bounded, identity purge, offline/restart/reconnect | PASS |
+| CA-04 | parser/deep link strict, auth queue e cross-owner fail-closed | PASS |
+| CA-05 | policy, stale version, replay/conflict e race due sessioni | PASS |
+| CA-06 | widget e integration lista/detail/timeline/refresh/cancel | PASS |
+| CA-07 | quattro locale, CLP, dark, 200%, compact/tablet e Semantics | PASS |
+| CA-08 | gate locali, CI Admin, staging e smoke mobile headless | PASS |
+| CA-09 | scan 542 file; production invariata e flag OFF | PASS |
+
+### Matrice T-NN -> risultato
+
+| Test | Risultato | Stato |
+|---|---|---|
+| T-01 | owner ammesso; anon/cross-user/cross-shop negati | PASS |
+| T-02 | keyset deterministico, limite 50 e zero field interno | PASS |
+| T-03 | online seed, offline read, restart e reconnect refresh | PASS |
+| T-04 | deep link valido/invalido, auth, logout e identity switch | PASS |
+| T-05 | cancel disabled/allowed, stale, replay, conflict e race | PASS |
+| T-06 | matrix widget/a11y/l10n senza overflow | PASS |
+| T-07 | Android/iOS flow con tap, build, install e launch | PASS |
+| T-08 | staging exact-SHA, cleanup, CI e production unchanged | PASS |
 
 ## Review / Fix
 
@@ -151,5 +230,6 @@ Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
 - **Follow-up candidate**: TASK-029 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Riepilogo finale**: storico/timeline/cancellazione e Client offline/deep link
+  validati; review integrata differita al freeze multi-repository
 - **Data completamento**: non ancora

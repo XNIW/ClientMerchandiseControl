@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-028
-- **File task**: docs/TASKS/TASK-028-order-history-status-tracking.md
+- **Task attivo**: TASK-029
+- **File task**: docs/TASKS/TASK-029-admin-order-queue-management.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
@@ -14,9 +14,9 @@
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: auditare in sola lettura order/event/RLS e i pattern
-  Client router/cache/logout/Account, quindi fissare allow-list, cursor, policy di
-  cancellazione e lifecycle cache prima della migration additiva TASK-028
+- **Prossima azione autorizzata**: auditare in sola lettura navigazione/componenti/RBAC
+  Admin e il contract order/event/outbox/audit, quindi fissare role matrix, state
+  machine, payload allow-list, cursor e idempotency/version contract di TASK-029
 
 ## Repository coinvolti
 
@@ -79,8 +79,8 @@
 | TASK-025 | Reservation hold atomico e scadenza | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-023, TASK-024 | Supabase, Admin, Client | Hold concorrente e scadibile |
 | TASK-026 | Checkout con ritiro e consegna | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-021, TASK-023, TASK-025 | Client, Admin, Supabase | Fulfillment validato |
 | TASK-027 | Creazione ordine idempotente e price snapshot | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-005, TASK-020, TASK-023, TASK-025, TASK-026 | Client, Admin, Supabase | Ordine atomico e idempotente |
-| TASK-028 | Storico, dettaglio e stato ordine | ACTIVE | TASK-027 | Client, Admin, Supabase | Tracking ordine cliente |
-| TASK-029 | Admin Console: gestione e preparazione ordini | TODO | TASK-007, TASK-027 | Admin, Supabase | Workflow preparazione ordini |
+| TASK-028 | Storico, dettaglio e stato ordine | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-027 | Client, Admin, Supabase | Tracking ordine cliente |
+| TASK-029 | Admin Console: gestione e preparazione ordini | ACTIVE | TASK-007, TASK-027 | Admin, Supabase | Workflow preparazione ordini |
 | TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | TODO | TASK-006, TASK-024, TASK-027, TASK-029 | POS, Admin, Supabase | Handoff operativo senza fusione eventi |
 | TASK-031 | Notifiche push e order status events | TODO | TASK-022, TASK-027, TASK-028, TASK-029 | Client, Admin, Supabase | Eventi e notifiche affidabili |
 | TASK-032 | Decisione provider e integrazione pagamenti | TODO | TASK-027 | Client, Admin, Supabase | Pagamento selezionato e integrato |
@@ -171,7 +171,9 @@ idempotency, expiry/cleanup, race ultimo pezzo e integrazione Client ed è
 server-authoritative, UI checkout e staging ed è anch'esso
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-027 ha completato order aggregate,
 snapshot/event/outbox atomici, replay, Client receipt e staging ed è anch'esso
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-028 è l'unico task
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-028 ha completato list/detail/timeline,
+cancel idempotente, cache offline, deep link, Client UI e staging ed è anch'esso
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-029 è l'unico task
 `ACTIVE / EXECUTION` e i task successivi restano `TODO` fino al relativo handoff. La
 dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
@@ -390,3 +392,20 @@ senza runner o step, non dichiarati `PASS`. Production è invariata. TASK-027 no
 Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-028, con writer Admin/Supabase e poi
 Client.
+
+## Ultimo checkpoint interno — TASK-028
+
+Il revision set Admin/Supabase `119169375fa477995b41c34b3766deca32fec056`
+ha applicato in staging la migration `20260803050000`: list/detail/timeline RPC strict,
+keyset stabile e cancel server-authoritative/idempotente con event/outbox/ledger e
+rilascio ATP/capacità atomici. pgTAP TASK-028 30/30 e race cancel due sessioni sono
+`PASS`; CI `30787892745`, Cloudflare `30787892757` e staging `30787890770` sono
+`PASS`. Il revision set Client `1855100f34a3563787b1ac71eafb4af60a1b72e6` ha
+superato 526 test funzionali, benchmark 1/1, coverage 77,31%, build Android/iOS,
+integration history Android/iOS 1/1 e smoke artifact headless. La CI Client
+`30787721420` resta `BLOCKED` esterna per billing GitHub: tre job senza runner o step,
+non dichiarati `PASS`. Production è invariata e cancellation resta fail-closed/OFF.
+TASK-028 non è `DONE`: attende la review integrata finale.
+
+Handoff:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-029, con writer Admin/Supabase.

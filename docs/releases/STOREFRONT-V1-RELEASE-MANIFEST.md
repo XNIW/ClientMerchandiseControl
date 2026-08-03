@@ -13,8 +13,8 @@
 
 | Repository | Branch | SHA revisionato | PR | Versione schema | Versione API | Deployment staging | Feature flag | Ultimo gate | Prossimo checkpoint | Rollback |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ClientMerchandiseControl | `integration/storefront-v1` | `ed2f8a5c95f70ce057860027408d9f61314d6f4e` | `#5 DRAFT` | local cache v4 + checkout draft v2 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment v1, customer-order/history/notification-route v1 | 538 test/77,45%; notification/deep-link 19/19, Android JVM 1/1, XCTest 4/4 e smoke route Android/iOS `PASS`; CI `30811578997` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-031 receive/deep-link/refresh headless `PASS` | TASK-032 payment method/state UI | revert commit/branch; feature flag OFF |
-| merchandise-control-admin-web | `integration/storefront-v1` | `e9bcbc8c98a7dc1d0fdcfdbd549d7968a2fdbb19` | `#67 DRAFT` | `20260803104431` | Storefront/customer/cart/availability/hold/checkout/order/history/admin-orders/POS handoff + order notifications v1 | CI `30811750153`; Cloudflare `30811750080`; staging `30811747216`, tutti `PASS` | production `OFF`; POS/push/payment consumer OFF | TASK-031 40/40, dispatcher/race e E2E recording provider | TASK-032 payment aggregate/provider boundary | migration additiva + provider/consumer flag OFF |
+| ClientMerchandiseControl | `integration/storefront-v1` | `72f98eea574300f77d42e96e09557f0dd55ac2d5` | `#5 DRAFT` | local cache v4 + checkout draft v3 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment/payment v2, customer-order/history/notification-route v1 | 543 test/77,67%; payment/checkout 45/45, integration Android/iOS 1/1 e build debug/release `PASS`; CI `30818475635` `BLOCKED` billing prima dei runner | production Storefront/orders/reservations/delivery/push/payment `OFF` | TASK-032 payment selection/state server-authoritative `PASS` | Milestone 4 E2E aggregato | revert commit/branch; feature flag OFF |
+| merchandise-control-admin-web | `integration/storefront-v1` | `cddb3f295d735ff3e16eaf705676807cb85efaab` | `#67 DRAFT` | `20260803122644` | Storefront/customer/cart/availability/hold/checkout/order/history/admin-orders/POS/notifications/payment v1-v2 | CI `30817700671`; Cloudflare `30817700396`; staging payment `30817695207` e POS `30817693665`, tutti `PASS` | production `OFF`; POS/push/online-payment consumer OFF | TASK-032 36/36, race, provider 10/10 e E2E pickup/COD | Milestone 4 E2E aggregato | migration additiva + provider/consumer flag OFF |
 | Win7POS | `integration/storefront-v1` | `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474` | `#88 DRAFT` | SQLite `0012-customer-order-inbox` | `pos-customer-order-handoff-v1`, `pos-customer-order-ack-v1` | CI Windows `30804008501` 878/878; Security `30804007997`; staging server E2E `30805397611`, tutti `PASS` | production handoff `OFF` | inbox/lease/replay/fiscal boundary `PASS`; Win7 fisico `BLOCKED` esterno | TASK-031 nessun writer previsto | disabilitare lane, preservare inbox e replay queue |
 | MerchandiseControlSplitView | non creato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout dirty preservato | nessuno corrente | nessuna modifica prevista |
 | iOSMerchandiseControl | non clonato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout assente | nessuno corrente | nessuna modifica prevista |
@@ -276,3 +276,27 @@ backend production.
 - **Transizione**: TASK-032 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per pay-at-pickup, COD opt-in, payment state/idempotency/webhook boundary e online
   payment fail-closed/OFF, con writer Admin/Supabase -> Client.
+
+## 2026-08-03 — Checkpoint tecnico TASK-032 prima del Milestone 4 E2E
+
+- **Ruolo**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-032 implementation**: payment settings, aggregate/state machine, idempotenza,
+  provider/webhook dormant, Admin config e Client payment UI tecnicamente verdi; la
+  transizione formale resta dopo il checkpoint E2E aggregato Milestone 4.
+- **Admin/Supabase**: SHA finale
+  `cddb3f295d735ff3e16eaf705676807cb85efaab`, PR #67; migration
+  `20260803122644`; pgTAP 36/36, provider 10/10, race due writer, CI `30817700671`,
+  Cloudflare `30817700396`, payment staging `30817695207` e POS regression
+  `30817693665` tutti `PASS`.
+- **Client**: SHA runtime `72f98eea574300f77d42e96e09557f0dd55ac2d5`,
+  PR #5; 543 test, coverage 77,67%, 45/45 mirati, integration Android/iOS, build
+  debug/release e artifact scan `PASS`.
+- **CI Client**: run `30818475635` `BLOCKED` esterna; Android/iOS/Quality hanno zero
+  step e annotation billing/spending limit.
+- **Sicurezza/production**: zero secret nei 562 file tracciati e 65 file artifact;
+  online provider/flag e production invariati/OFF; payment/ordine/vendita fiscale
+  separati.
+- **Difetto corretto durante Execution**: race tra migration payment e POS E2E;
+  concurrency group condiviso e test statico impediscono la recidiva.
+- **Prossimo checkpoint**: workflow headless aggregato Milestone 4 sullo stesso ordine,
+  poi TASK-032 `VALIDATED_PENDING_INTEGRATED_REVIEW` e attivazione TASK-033.

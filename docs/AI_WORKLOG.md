@@ -1899,3 +1899,27 @@
 - **Transizione**: TASK-032 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per pay-at-pickup, COD opt-in, state/idempotency/webhook e online payment OFF, con
   writer Admin/Supabase -> Client.
+
+## 2026-08-03 — Checkpoint tecnico TASK-032 prima del Milestone 4 E2E
+
+- **Ruolo**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **Revision set**: Client runtime
+  `72f98eea574300f77d42e96e09557f0dd55ac2d5`; Admin/Supabase finale
+  `cddb3f295d735ff3e16eaf705676807cb85efaab`; Win7POS invariato
+  `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`.
+- **Backend/Admin**: migration `20260803122644`; payment settings revisionati,
+  aggregate/attempt/event/mutation/webhook receipt `FORCE RLS`, RPC strict,
+  pay-at-pickup e COD opt-in, provider online dormant/OFF. pgTAP 36/36, provider 10/10,
+  race e foundation 882 (869 pass + 13 skip) `PASS`.
+- **Remote**: Admin CI `30817700671`, Cloudflare `30817700396`, payment staging
+  `30817695207` e POS regression `30817693665` `PASS`; artifact payment `8857518647`,
+  digest `sha256:41e10729fccfee6c2c6384a45e8f54cc46978d07db9a86373cc2a8c124901f2c`.
+- **Client**: gate canonico exit 0 in circa 120 s, 543 test + benchmark 1, coverage
+  11.600/14.935 (77,67%), payment/checkout 45/45, integration Android/iOS 1/1,
+  AAB release 13,58 s e iOS release compile 32,93 s; scan artifact 65 file `PASS`.
+- **CI Client**: `30818475635` `BLOCKED` esterna per billing, con tre job senza step.
+- **Correzione**: il failure POS `30815887397` era una race con l'applicazione della
+  migration payment; il lock staging condiviso e una regressione statica hanno rimosso
+  la causa. I run finali POS/payment sullo stesso SHA sono verdi.
+- **Stato**: TASK-032 resta temporaneamente l'unico `ACTIVE / EXECUTION` fino al
+  checkpoint E2E aggregato Milestone 4; production invariata, online payment OFF.

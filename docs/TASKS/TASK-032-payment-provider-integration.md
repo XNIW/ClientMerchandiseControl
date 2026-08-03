@@ -158,13 +158,106 @@ pagamento online che non sia stato eseguito da un provider verificato.
 
 ## Execution — `CODEX_EXECUTOR`
 
-Audit read-only iniziale su schema checkout/order, feature flag, provider/credential,
-Admin configuration, Client payment UI e confine fiscale Win7POS. Nessun provider o
-dipendenza viene scelto prima dell'audit.
+### Audit e implementazione
+
+- l'audit read-only ha confermato che non esistono credential o configurazioni
+  non-interattive di un provider online approvato: nessun provider, merchant account o
+  pagamento sandbox è stato inventato e `online_payment` resta fail-closed/OFF;
+- la migration additiva
+  `20260803122644_storefront_v1_customer_payments` introduce settings revisionati,
+  payment/attempt/event/mutation/webhook receipt privati `FORCE RLS`, RPC customer e
+  service separate, `search_path` vuoto e grant espliciti;
+- `pay_at_pickup` è il metodo v1 disponibile per pickup configurato; COD compare solo
+  con shop, delivery zone e slot abilitati. Importo, sconto, stock, shop, owner e stato
+  non sono accettati come input autorevole dal client;
+- order create/read v2 materializzano payment snapshot e initial attempt nello stesso
+  confine atomico dell'ordine. Retry ambiguo e due richieste simultanee con la stessa
+  idempotency key producono un solo order/payment/attempt/event/mutation;
+- `PaymentProvider` e webhook boundary sono server-side e dormant: firma/raw-body,
+  dedup e transizioni out-of-order falliscono chiuso quando il provider è `none`;
+- Admin espone configurazione pagamenti Storefront revision-bound con audit redatto;
+  il Client usa modelli/repository/controller strict, persiste il metodo nel retry e
+  mostra soltanto metodo/stato pubblico nella review e nella ricevuta;
+- la UI Material 3 riusa design system, gerarchia e componenti checkout esistenti;
+  selezione offline, tile online disabilitata, Semantics, target 48 px, text scale e
+  localizzazioni es-CL/it/en/zh-Hans sono coperti da widget e golden test;
+- pagamento, ordine e vendita fiscale POS restano distinti: nessuna transizione
+  pagamento crea `pos_sales` o un riferimento fiscale. Production è invariata.
+
+### Revision set eseguito
+
+- Admin/Supabase finale: `cddb3f295d735ff3e16eaf705676807cb85efaab`, PR #67;
+- commit funzionale Admin/Supabase: `a1fa997c44d6a5804c636363ff75cbb3409a14f2`;
+- Client runtime finale: `72f98eea574300f77d42e96e09557f0dd55ac2d5`, PR #5;
+- Win7POS invariato: `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`, PR #88;
+- migration staging: `20260803122644_storefront_v1_customer_payments`;
+- Admin CI `30817700671`, Cloudflare `30817700396`, staging payment
+  `30817695207` e POS regression `30817693665`: `PASS` sullo SHA finale;
+- CI Client `30818475635`: `BLOCKED` esterna per billing/spending limit, con tre job
+  senza runner né step; i gate locali sullo SHA runtime sono `PASS`.
+
+### Gate tecnici TASK-032
+
+- pgTAP payment 36/36, provider contract 10/10 e race due writer con un solo aggregate:
+  `PASS`; staging pickup/COD, refund workflow, webhook dormant, cleanup e production
+  unchanged: `PASS`;
+- Admin CI finale: foundation 882 test, 869 pass + 13 skip, zero fail; lint, typecheck,
+  build, database e Playwright Chromium 48/48 `PASS`;
+- Client canonico `scripts/check.sh`: exit 0 in circa 120 s; 543 test funzionali e
+  benchmark 20k 1/1, analyze/format/security/governance/architecture e build debug
+  Android/iOS `PASS`;
+- coverage finale: 11.600/14.935 linee, 77,67%; test payment/checkout mirati 45/45;
+- integration checkout reale: Android Emulator API 35 1/1 e iOS Simulator 26.5 1/1;
+- build release sullo SHA runtime: Android AAB 65.463.366 byte in 13,58 s e iOS
+  release compile senza firma in 32,93 s; scan artifact 65 file, zero secret;
+- digest AAB:
+  `sha256:0f92c5b0c1a0e2ff4035a41be18c3d7dd8950d7a7ea5f0404289fc47319da7f7`;
+  digest executable iOS:
+  `sha256:093e60f99faba0ac69caa02001bc406508602cafc8004ac41c570d789bd5fa74`.
 
 ## Checkpoint release train — `CODEX_EXECUTOR`
 
-Da compilare dopo i gate tecnici; nessuna review formale intermedia.
+L'implementazione e i gate specifici di TASK-032 sono verdi. La transizione formale a
+`VALIDATED_PENDING_INTEGRATED_REVIEW` resta intenzionalmente differita al completamento
+del checkpoint E2E aggregato Milestone 4, così il Master Plan conserva un solo task
+`ACTIVE` durante il work package non numerato. Nessuna review formale intermedia è
+stata eseguita.
+
+Il primo E2E POS concorrente `30815887397` ha osservato `db_failure` mentre la migration
+payment veniva applicata in parallelo. Il retry dopo l'applicazione è passato e la causa
+primaria è stata rimossa condividendo il concurrency group
+`storefront-v1-staging-order-payment`; una regressione statica verifica il lock. Sullo
+SHA finale, POS `30817693665` e payment `30817695207` sono entrambi verdi.
+
+### Matrice CA -> evidence
+
+| Criterio | Evidence | Stato |
+|---|---|---|
+| CA-01 | settings/fulfillment shop-scoped, pgTAP pickup | PASS |
+| CA-02 | COD opt-in su shop+zone+slot e parser Client strict | PASS |
+| CA-03 | provider `none`, online defaults/flag OFF e request negata | PASS |
+| CA-04 | ledger monotono, retry ambiguo e race due writer | PASS |
+| CA-05 | provider interface 10/10, firma/dedup/raw-body dormant | PASS |
+| CA-06 | RPC v2 senza importi/stati autorevoli e UI allow-list | PASS |
+| CA-07 | failure/cancel/refund espliciti, zero vendita fiscale | PASS |
+| CA-08 | widget/golden/Semantics e quattro locale | PASS |
+| CA-09 | Admin/Client/staging verdi; production invariata | PASS |
+
+### Matrice T-NN -> risultato
+
+| Test | Risultato | Stato |
+|---|---|---|
+| T-01 | pickup ammesso; COD/cross-shop/disabled negati | PASS |
+| T-02 | online OFF senza credential e request fail-closed | PASS |
+| T-03 | un aggregate per due request e replay identico | PASS |
+| T-04 | firma assente/errata e provider disabled non persistono receipt | PASS |
+| T-05 | 45/45 Client payment/checkout, quattro locale e Semantics | PASS |
+| T-06 | collection/refund senza `pos_sales` o fiscal reference | PASS |
+| T-07 | staging pickup/COD exact-SHA e cleanup | PASS |
+| T-08 | scan repository/artifact e production unchanged | PASS |
+
+Provider online reale: `BLOCKED` esterno, perché non esistono credential sandbox
+non-interattive approvate. Non limita i metodi offline v1 né il checkpoint Milestone 4.
 
 ## Review / Fix
 

@@ -4,8 +4,8 @@
 - **Task corrente**: TASK-032
 - **Repository writer corrente**: merchandise-control-admin-web / Supabase, poi Client
 - **Branch**: `integration/storefront-v1`
-- **SHA Client runtime corrente**: `ed2f8a5c95f70ce057860027408d9f61314d6f4e`
-- **SHA Admin/Supabase corrente**: `e9bcbc8c98a7dc1d0fdcfdbd549d7968a2fdbb19`
+- **SHA Client runtime corrente**: `72f98eea574300f77d42e96e09557f0dd55ac2d5`
+- **SHA Admin/Supabase corrente**: `cddb3f295d735ff3e16eaf705676807cb85efaab`
 - **SHA Win7POS corrente**: `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
@@ -152,16 +152,27 @@
   Android JVM 1/1, XCTest 4/4, build e smoke route Android/iOS `PASS`; CI Client
   `30811578997` `BLOCKED` esterna per billing prima dei runner. Provider live
   `BLOCKED` esterno per zero credential APNs/FCM/Firebase/push disponibili.
-- **Gate ancora necessari**: TASK-032 ADR/provider decision, metodi pay-at-pickup/COD,
-  payment state/idempotency/webhook boundary, Client/Admin UI e staging; online
-  provider solo se credential sandbox già configurate non interattivamente
-- **Comando successivo esatto**: nel writer Admin auditare in sola lettura checkout,
-  order/payment fields, feature flag, provider dependency/secret names e fiscal
-  boundary; poi registrare ADR e contract state/idempotency/webhook di TASK-032
+- **Gate TASK-032**: Admin `cddb3f29`, migration staging `20260803122644`, sei ledger
+  privati `FORCE RLS`, payment settings revisionati, RPC customer/service separate,
+  pickup e COD opt-in, online/provider OFF; pgTAP 36/36, provider contract 10/10 e
+  race due writer `PASS`. CI `30817700671`, Cloudflare `30817700396`, payment staging
+  `30817695207` e POS regression `30817693665` sono `PASS`; artifact payment
+  `8857518647`, digest
+  `sha256:41e10729fccfee6c2c6384a45e8f54cc46978d07db9a86373cc2a8c124901f2c`.
+  Client `72f98eea`, checkout payment strict/server-authoritative, 543 test, coverage
+  77,67%, 45/45 mirati, integration Android/iOS 1/1, build debug/release e artifact
+  scan `PASS`; CI `30818475635` `BLOCKED` esterna per billing prima dei runner.
+- **Gate ancora necessari**: checkpoint aggregato Milestone 4 sullo stesso ordine,
+  inclusi publish, catalog visibility, auth owner, favorite/cart, quote/repricing,
+  hold/order/payment, Admin transition, POS claim/ack, notification/timeline e casi
+  negativi; poi transizione TASK-032 e attivazione TASK-033
+- **Comando successivo esatto**: implementare ed eseguire il workflow headless
+  `storefront-v1-milestone-4-staging-e2e` serializzato sul database staging, con fixture
+  bounded, evidence sanitizzata e cleanup fail-closed
 - **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
   Windows 7 fisico `BLOCKED` esterno; provider push live `BLOCKED` esterno per assenza
-  di credential. Nessun blocker tecnico corrente per l'audit/implementazione
-  indipendente TASK-032
+  di credential; provider payment online `BLOCKED` esterno per assenza di credential
+  sandbox approvate. Nessun blocker tecnico corrente per il checkpoint Milestone 4
 - **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`; Android Emulator
   `emulator-5554`, API 35; iOS Simulator iPhone 17 Pro iOS 26.5
   UUID `240F400E-5EFA-486A-9137-FFBBE70F604D`. Sono controllati e necessari ai gate
@@ -175,8 +186,9 @@
   cache refresh, TASK-025 hold/idempotency/expiry/cleanup, TASK-026 fulfillment/quote/
   checkout, TASK-027 order/snapshot/idempotency, TASK-028 history/timeline/cancel e
   TASK-029 Admin queue/transitions, TASK-030 POS claim/ack/replay/fiscal boundary e
-  TASK-031 notification outbox/dispatcher/deep-link `PASS`; TASK-032 attivato;
-  production invariata e push/online-payment flag OFF
+  TASK-031 notification outbox/dispatcher/deep-link e TASK-032 payment offline/state/
+  webhook dormant `PASS`; Milestone 4 E2E aggregato è il gate successivo; production
+  invariata e push/online-payment flag OFF
 
 ## Vincoli di ripresa
 

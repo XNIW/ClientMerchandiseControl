@@ -9,7 +9,10 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_state.
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/auth/application/auth_providers.dart';
 import 'package:client_merchandise_control/features/auth/data/auth_callback_source.dart';
+import 'package:client_merchandise_control/features/auth/domain/auth_repository.dart';
+import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:client_merchandise_control/features/catalog/application/catalog_controller.dart';
+import 'package:client_merchandise_control/features/orders/application/customer_order_providers.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
 import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
@@ -21,6 +24,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/storefront/storefront_test_fixture.dart';
+import '../../features/orders/customer_order_test_support.dart';
 
 const _publicationId = '50000000-0000-4000-8000-000000000001';
 const _productLink =
@@ -29,6 +33,10 @@ const _productLink =
 const _categoryLink =
     'com.xniw.clientmerchandisecontrol://storefront/'
     'storefront-test/category/bebidas';
+const _orderId = '88000000-0000-4000-8000-000000028101';
+const _orderLink =
+    'com.xniw.clientmerchandisecontrol://storefront/'
+    'storefront-test/order/$_orderId';
 
 void main() {
   testWidgets(
@@ -96,6 +104,54 @@ void main() {
       expect(gateway.warmListeners, 1);
     },
   );
+
+  testWidgets(
+    'ordine guest attende Auth e riprende il dettaglio dopo callback Google',
+    (tester) async {
+      final gateway = _FakeAppLinksGateway(initial: Uri.parse(_orderLink));
+      final source = AppLinksAuthCallbackSource(gateway: gateway);
+      final authRepository = _RouterAuthRepository();
+      final container = _container(
+        source,
+        googleAuthEnabled: true,
+        authRepository: authRepository,
+      );
+      addTearDown(() async {
+        container.dispose();
+        await source.dispose();
+        await gateway.dispose();
+        await authRepository.dispose();
+      });
+
+      final router = container.read(appRouterProvider);
+      await tester.pumpWidget(_app(container, router));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, AppRoutes.accountLocation);
+
+      gateway.emit(
+        Uri.parse('${AppConfig.allowedAuthRedirectUri}?code=order-code'),
+      );
+      for (
+        var attempt = 0;
+        attempt < 50 && authRepository.exchangeCalls == 0;
+        attempt++
+      ) {
+        await tester.pump(const Duration(milliseconds: 10));
+      }
+      for (
+        var attempt = 0;
+        attempt < 100 &&
+            router.state.uri.path != AppRoutes.orderLocation(_orderId);
+        attempt++
+      ) {
+        await tester.pump(const Duration(milliseconds: 10));
+      }
+
+      expect(authRepository.exchangeCalls, 1);
+      expect(router.state.uri.path, AppRoutes.orderLocation(_orderId));
+      expect(tester.takeException(), isNull);
+    },
+  );
 }
 
 Widget _app(ProviderContainer container, GoRouter router) =>
@@ -114,6 +170,8 @@ Widget _app(ProviderContainer container, GoRouter router) =>
 ProviderContainer _container(
   AuthCallbackSource source, {
   _DeepLinkStorefrontRepository? repository,
+  bool googleAuthEnabled = false,
+  AuthRepository? authRepository,
 }) => ProviderContainer(
   overrides: [
     appConfigProvider.overrideWithValue(
@@ -122,11 +180,15 @@ ProviderContainer _container(
         supabaseUrl: 'https://staging.example.invalid',
         supabasePublishableKey: 'sb_publishable_staging',
         authRedirectUri: AppConfig.allowedAuthRedirectUri,
-        googleAuthEnabled: 'false',
+        googleAuthEnabled: '$googleAuthEnabled',
         storefrontShopSlug: 'storefront-test',
       ),
     ),
     authCallbackSourceProvider.overrideWithValue(source),
+    if (authRepository != null)
+      authRepositoryFactoryProvider.overrideWithValue(
+        (config) async => authRepository,
+      ),
     backendReadinessRepositoryProvider.overrideWithValue(
       const _ReadyRepository(),
     ),
@@ -136,8 +198,51 @@ ProviderContainer _container(
     storefrontCacheRepositoryProvider.overrideWithValue(
       const DisabledStorefrontCacheRepository(),
     ),
+    customerOrderRepositoryProvider.overrideWithValue(
+      FakeCustomerOrderRepository(),
+    ),
+    customerOrderCacheStoreProvider.overrideWithValue(
+      MemoryCustomerOrderCacheStore(),
+    ),
+    customerOrderClockProvider.overrideWithValue(() => orderTestNow),
   ],
 );
+
+final class _RouterAuthRepository implements AuthRepository {
+  final StreamController<AuthSessionEvent> _events =
+      StreamController<AuthSessionEvent>.broadcast();
+
+  @override
+  AuthenticatedCustomer? currentCustomer;
+  int exchangeCalls = 0;
+
+  @override
+  Stream<AuthSessionEvent> get sessionChanges => _events.stream;
+
+  @override
+  Future<void> clearPendingOAuth() async {}
+
+  @override
+  Future<AuthenticatedCustomer> exchangeCodeForSession(String code) async {
+    exchangeCalls++;
+    currentCustomer = AuthenticatedCustomer.fromUntrustedIdentity(
+      subjectId: orderTestOwner,
+      email: 'customer@example.invalid',
+      metadata: const {'name': 'Order Customer'},
+    );
+    return currentCustomer!;
+  }
+
+  @override
+  Future<bool> launchGoogleSignIn() async => true;
+
+  @override
+  Future<void> signOutLocal() async {
+    currentCustomer = null;
+  }
+
+  Future<void> dispose() => _events.close();
+}
 
 final class _FakeAppLinksGateway implements AppLinksGateway {
   _FakeAppLinksGateway({this.initial}) {

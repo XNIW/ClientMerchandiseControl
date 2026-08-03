@@ -15,6 +15,8 @@ import '../../features/catalog/presentation/catalog_screen.dart';
 import '../../features/deep_links/application/storefront_deep_link.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/orders/presentation/order_detail_screen.dart';
+import '../../features/orders/presentation/orders_screen.dart';
 import '../../features/product_detail/presentation/product_detail_screen.dart';
 import '../../features/shell/presentation/app_shell_screen.dart';
 import '../../core/config/app_config.dart';
@@ -23,6 +25,12 @@ import 'app_routes.dart';
 export 'app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  String? protectedOrderRedirect(BuildContext _, GoRouterState _) {
+    return ref.read(authControllerProvider) is AuthAuthenticated
+        ? null
+        : AppRoutes.accountLocation;
+  }
+
   final router = GoRouter(
     initialLocation: AppRoutes.homeLocation,
     routes: [
@@ -79,6 +87,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.favoritesLocation,
         builder: (context, state) => const FavoritesScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.ordersLocation,
+        redirect: protectedOrderRedirect,
+        builder: (context, state) => const OrdersScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.orderPattern,
+        redirect: protectedOrderRedirect,
+        builder: (context, state) =>
+            OrderDetailScreen(orderId: state.pathParameters['orderId'] ?? ''),
+      ),
     ],
   );
 
@@ -88,6 +107,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   StorefrontDeepLinkIntent? pendingIntent;
   Uri? lastAcceptedUri;
   DateTime? lastAcceptedAt;
+  String? pendingProtectedOrderId;
   var pendingFrame = false;
   var disposed = false;
 
@@ -103,6 +123,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               .read(catalogControllerProvider.notifier)
               .openCategoryFromDeepLink(categorySlug),
         );
+      case StorefrontOrderDeepLink(:final orderId):
+        if (ref.read(authControllerProvider) is AuthAuthenticated) {
+          pendingProtectedOrderId = null;
+          router.go(AppRoutes.orderLocation(orderId));
+        } else {
+          pendingProtectedOrderId = orderId;
+          router.go(AppRoutes.accountLocation);
+        }
     }
   }
 
@@ -140,6 +168,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   }, onError: (Object _, StackTrace _) {});
 
   ref.listen<AuthState>(authControllerProvider, (previous, next) {
+    if (next is AuthAuthenticated && pendingProtectedOrderId != null) {
+      final orderId = pendingProtectedOrderId!;
+      pendingProtectedOrderId = null;
+      router.go(AppRoutes.orderLocation(orderId));
+      return;
+    }
     final isCallbackAuthentication =
         next is AuthAuthenticated && next.origin == AuthSessionOrigin.callback;
     final wasCallbackAuthentication =
@@ -155,6 +189,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(() {
     disposed = true;
     pendingIntent = null;
+    pendingProtectedOrderId = null;
     unawaited(linkSubscription.cancel());
     router.dispose();
   });

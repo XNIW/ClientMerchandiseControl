@@ -1377,4 +1377,130 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get checkoutUnexpectedError =>
       'We could not verify checkout. No inferred prices or confirmations are shown.';
+
+  @override
+  String get ordersAccountTitle => 'My orders';
+
+  @override
+  String get ordersAccountDescription =>
+      'View status, details, pickup or delivery for your orders.';
+
+  @override
+  String get ordersAccountAction => 'View orders';
+
+  @override
+  String get ordersTitle => 'My orders';
+
+  @override
+  String get ordersRefreshTooltip => 'Refresh orders';
+
+  @override
+  String get ordersLoading => 'Loading your orders…';
+
+  @override
+  String get ordersOffline =>
+      'You are offline. This is a read-only copy saved on this device.';
+
+  @override
+  String get ordersEmptyTitle => 'No orders yet';
+
+  @override
+  String get ordersEmptyMessage =>
+      'After confirming a purchase, you can track it here.';
+
+  @override
+  String get ordersError => 'We could not load your orders.';
+
+  @override
+  String get ordersRetry => 'Try again';
+
+  @override
+  String get ordersLoadMore => 'Load more';
+
+  @override
+  String ordersItemCount(int count) {
+    return '$count products';
+  }
+
+  @override
+  String ordersCardSemantics(String code, String status, String total) {
+    return 'Order $code, status $status, total $total.';
+  }
+
+  @override
+  String ordersPlacedAt(String date) {
+    return 'Created $date';
+  }
+
+  @override
+  String ordersUpdatedAt(String date) {
+    return 'Updated $date';
+  }
+
+  @override
+  String ordersCachedAt(String date) {
+    return 'Saved copy $date';
+  }
+
+  @override
+  String get ordersTotalLabel => 'Total';
+
+  @override
+  String get ordersDetailTitle => 'Order details';
+
+  @override
+  String get ordersProductsTitle => 'Products';
+
+  @override
+  String get ordersFulfillmentTitle => 'Fulfillment and time';
+
+  @override
+  String get ordersTimelineTitle => 'Order status';
+
+  @override
+  String get ordersCancelAction => 'Cancel order';
+
+  @override
+  String get ordersCancelConfirmTitle => 'Cancel this order?';
+
+  @override
+  String get ordersCancelConfirmMessage =>
+      'The store will recheck status and deadline before cancelling. This action does not create or void a fiscal sale.';
+
+  @override
+  String get ordersCancelSuccess =>
+      'Order cancelled. Reserved availability was released.';
+
+  @override
+  String get ordersCancelNotAllowed => 'This order can no longer be cancelled.';
+
+  @override
+  String get ordersCancelVersionConflict =>
+      'The status changed. Refresh the order before trying again.';
+
+  @override
+  String get ordersCancelAmbiguous =>
+      'The response was ambiguous. We kept the same attempt so it can be checked safely when you retry.';
+
+  @override
+  String get ordersUnauthorized => 'Sign in again to view your orders.';
+
+  @override
+  String get ordersNotFound =>
+      'This order does not exist in this store or does not belong to this account.';
+
+  @override
+  String get ordersUnexpected =>
+      'We could not verify this order. The saved copy remains read-only.';
+
+  @override
+  String ordersCancellationDeadline(String date) {
+    return 'You can cancel until $date';
+  }
+
+  @override
+  String get ordersDetailRefresh => 'Refresh details';
+
+  @override
+  String get ordersBackToOrders => 'Back to my orders';
 }

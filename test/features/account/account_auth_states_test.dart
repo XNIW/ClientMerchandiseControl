@@ -96,6 +96,10 @@ void main() {
   testWidgets('callback fake mostra customer bounded e logout', (tester) async {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('customer-orders-account-entry')),
+      findsNothing,
+    );
 
     await tester.tap(find.byKey(const ValueKey('account-google-button')));
     await tester.pump();
@@ -115,6 +119,11 @@ void main() {
       findsOneWidget,
     );
     expect(find.byType(Image), findsNothing);
+    final ordersEntry = find.byKey(
+      const ValueKey('customer-orders-account-entry'),
+    );
+    expect(ordersEntry, findsOneWidget);
+    expect(tester.getSize(ordersEntry).height, greaterThanOrEqualTo(48));
 
     await tester.tap(find.byKey(const ValueKey('account-logout-button')));
     await tester.pumpAndSettle();

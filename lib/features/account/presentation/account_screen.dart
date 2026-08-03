@@ -15,6 +15,7 @@ import '../../auth/domain/authenticated_customer.dart';
 import '../../auth/domain/auth_failure.dart';
 import '../../auth/domain/auth_state.dart';
 import '../../customer_devices/presentation/customer_notification_panel.dart';
+import '../../orders/presentation/customer_orders_account_entry.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import 'account_presentation_model.dart';
 import 'customer_account_panel.dart';
@@ -60,6 +61,7 @@ class AccountScreen extends ConsumerWidget {
         details: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const CustomerOrdersAccountEntry(),
             CustomerAccountPanel(authDisplayName: customer.displayName),
             const CustomerNotificationPanel(),
           ],

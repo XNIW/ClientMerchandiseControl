@@ -1390,6 +1390,133 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get checkoutUnexpectedError =>
       'No pudimos verificar el checkout. No mostramos precios ni confirmaciones inferidas.';
+
+  @override
+  String get ordersAccountTitle => 'Mis pedidos';
+
+  @override
+  String get ordersAccountDescription =>
+      'Consulta estados, detalles y retiros o entregas de tus pedidos.';
+
+  @override
+  String get ordersAccountAction => 'Ver pedidos';
+
+  @override
+  String get ordersTitle => 'Mis pedidos';
+
+  @override
+  String get ordersRefreshTooltip => 'Actualizar pedidos';
+
+  @override
+  String get ordersLoading => 'Cargando tus pedidos…';
+
+  @override
+  String get ordersOffline =>
+      'Sin conexión. Mostramos una copia de solo lectura guardada en este dispositivo.';
+
+  @override
+  String get ordersEmptyTitle => 'Aún no tienes pedidos';
+
+  @override
+  String get ordersEmptyMessage =>
+      'Cuando confirmes una compra, podrás seguirla desde aquí.';
+
+  @override
+  String get ordersError => 'No pudimos cargar los pedidos.';
+
+  @override
+  String get ordersRetry => 'Reintentar';
+
+  @override
+  String get ordersLoadMore => 'Cargar más';
+
+  @override
+  String ordersItemCount(int count) {
+    return '$count productos';
+  }
+
+  @override
+  String ordersCardSemantics(String code, String status, String total) {
+    return 'Pedido $code, estado $status, total $total.';
+  }
+
+  @override
+  String ordersPlacedAt(String date) {
+    return 'Creado $date';
+  }
+
+  @override
+  String ordersUpdatedAt(String date) {
+    return 'Actualizado $date';
+  }
+
+  @override
+  String ordersCachedAt(String date) {
+    return 'Copia guardada $date';
+  }
+
+  @override
+  String get ordersTotalLabel => 'Total';
+
+  @override
+  String get ordersDetailTitle => 'Detalle del pedido';
+
+  @override
+  String get ordersProductsTitle => 'Productos';
+
+  @override
+  String get ordersFulfillmentTitle => 'Modalidad y horario';
+
+  @override
+  String get ordersTimelineTitle => 'Estado del pedido';
+
+  @override
+  String get ordersCancelAction => 'Cancelar pedido';
+
+  @override
+  String get ordersCancelConfirmTitle => '¿Cancelar este pedido?';
+
+  @override
+  String get ordersCancelConfirmMessage =>
+      'La tienda validará nuevamente el estado y el plazo antes de cancelar. Esta acción no crea ni anula una venta fiscal.';
+
+  @override
+  String get ordersCancelSuccess =>
+      'Pedido cancelado. Liberamos la disponibilidad reservada.';
+
+  @override
+  String get ordersCancelNotAllowed => 'Este pedido ya no admite cancelación.';
+
+  @override
+  String get ordersCancelVersionConflict =>
+      'El estado cambió. Actualiza el pedido antes de volver a intentarlo.';
+
+  @override
+  String get ordersCancelAmbiguous =>
+      'La respuesta fue ambigua. Conservamos el mismo intento para consultarlo de forma segura al reintentar.';
+
+  @override
+  String get ordersUnauthorized =>
+      'Inicia sesión nuevamente para consultar tus pedidos.';
+
+  @override
+  String get ordersNotFound =>
+      'El pedido no existe en esta tienda o no pertenece a esta cuenta.';
+
+  @override
+  String get ordersUnexpected =>
+      'No pudimos verificar el pedido. La copia guardada permanece en modo de solo lectura.';
+
+  @override
+  String ordersCancellationDeadline(String date) {
+    return 'Puedes cancelar hasta $date';
+  }
+
+  @override
+  String get ordersDetailRefresh => 'Actualizar detalle';
+
+  @override
+  String get ordersBackToOrders => 'Volver a mis pedidos';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -2632,4 +2759,122 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get checkoutUnexpectedError => '无法验证结账。不会显示推断的价格或确认状态。';
+
+  @override
+  String get ordersAccountTitle => '我的订单';
+
+  @override
+  String get ordersAccountDescription => '查看订单状态、详情以及自提或配送信息。';
+
+  @override
+  String get ordersAccountAction => '查看订单';
+
+  @override
+  String get ordersTitle => '我的订单';
+
+  @override
+  String get ordersRefreshTooltip => '刷新订单';
+
+  @override
+  String get ordersLoading => '正在加载订单…';
+
+  @override
+  String get ordersOffline => '当前离线。这里显示的是保存在此设备上的只读副本。';
+
+  @override
+  String get ordersEmptyTitle => '暂无订单';
+
+  @override
+  String get ordersEmptyMessage => '确认购买后，你可以在这里跟踪订单。';
+
+  @override
+  String get ordersError => '无法加载订单。';
+
+  @override
+  String get ordersRetry => '重试';
+
+  @override
+  String get ordersLoadMore => '加载更多';
+
+  @override
+  String ordersItemCount(int count) {
+    return '$count 件商品';
+  }
+
+  @override
+  String ordersCardSemantics(String code, String status, String total) {
+    return '订单 $code，状态 $status，总计 $total。';
+  }
+
+  @override
+  String ordersPlacedAt(String date) {
+    return '创建于 $date';
+  }
+
+  @override
+  String ordersUpdatedAt(String date) {
+    return '更新于 $date';
+  }
+
+  @override
+  String ordersCachedAt(String date) {
+    return '保存的副本 $date';
+  }
+
+  @override
+  String get ordersTotalLabel => '总计';
+
+  @override
+  String get ordersDetailTitle => '订单详情';
+
+  @override
+  String get ordersProductsTitle => '商品';
+
+  @override
+  String get ordersFulfillmentTitle => '履约方式和时间';
+
+  @override
+  String get ordersTimelineTitle => '订单状态';
+
+  @override
+  String get ordersCancelAction => '取消订单';
+
+  @override
+  String get ordersCancelConfirmTitle => '取消此订单？';
+
+  @override
+  String get ordersCancelConfirmMessage =>
+      '取消前，商店会重新检查状态和截止时间。此操作不会创建或撤销税务销售记录。';
+
+  @override
+  String get ordersCancelSuccess => '订单已取消，预留的可用量已释放。';
+
+  @override
+  String get ordersCancelNotAllowed => '此订单已不能取消。';
+
+  @override
+  String get ordersCancelVersionConflict => '订单状态已变化。请刷新后再试。';
+
+  @override
+  String get ordersCancelAmbiguous => '响应结果不明确。我们保留了同一次请求，以便重试时安全确认结果。';
+
+  @override
+  String get ordersUnauthorized => '请重新登录后查看订单。';
+
+  @override
+  String get ordersNotFound => '此订单不属于当前商店或当前账户。';
+
+  @override
+  String get ordersUnexpected => '无法验证此订单。保存的副本将保持只读。';
+
+  @override
+  String ordersCancellationDeadline(String date) {
+    return '可在 $date 前取消';
+  }
+
+  @override
+  String get ordersDetailRefresh => '刷新详情';
+
+  @override
+  String get ordersBackToOrders => '返回我的订单';
 }

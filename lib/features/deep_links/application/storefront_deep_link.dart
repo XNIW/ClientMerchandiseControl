@@ -16,6 +16,12 @@ final class StorefrontCategoryDeepLink extends StorefrontDeepLinkIntent {
   final String categorySlug;
 }
 
+final class StorefrontOrderDeepLink extends StorefrontDeepLinkIntent {
+  const StorefrontOrderDeepLink(this.orderId);
+
+  final String orderId;
+}
+
 final storefrontDeepLinkCodecProvider = Provider<StorefrontDeepLinkCodec>(
   (_) => const StorefrontDeepLinkCodec(),
 );
@@ -51,6 +57,16 @@ class StorefrontDeepLinkCodec {
     );
   }
 
+  Uri orderUri({required String shopSlug, required String orderId}) {
+    _require(_shopSlug.hasMatch(shopSlug));
+    _require(_publicationId.hasMatch(orderId));
+    return Uri(
+      scheme: scheme,
+      host: host,
+      pathSegments: [shopSlug, 'order', orderId],
+    );
+  }
+
   StorefrontDeepLinkIntent? decode(Uri uri, {required String shopSlug}) {
     if (!_shopSlug.hasMatch(shopSlug) ||
         uri.scheme != scheme ||
@@ -75,6 +91,12 @@ class StorefrontDeepLinkCodec {
       final canonical = categoryUri(shopSlug: shopSlug, categorySlug: value);
       return uri.toString() == canonical.toString()
           ? StorefrontCategoryDeepLink(value)
+          : null;
+    }
+    if (kind == 'order' && _publicationId.hasMatch(value)) {
+      final canonical = orderUri(shopSlug: shopSlug, orderId: value);
+      return uri.toString() == canonical.toString()
+          ? StorefrontOrderDeepLink(value)
           : null;
     }
     return null;

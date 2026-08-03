@@ -2478,6 +2478,216 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No pudimos verificar el checkout. No mostramos precios ni confirmaciones inferidas.'**
   String get checkoutUnexpectedError;
+
+  /// No description provided for @ordersAccountTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis pedidos'**
+  String get ordersAccountTitle;
+
+  /// No description provided for @ordersAccountDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Consulta estados, detalles y retiros o entregas de tus pedidos.'**
+  String get ordersAccountDescription;
+
+  /// No description provided for @ordersAccountAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver pedidos'**
+  String get ordersAccountAction;
+
+  /// No description provided for @ordersTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis pedidos'**
+  String get ordersTitle;
+
+  /// No description provided for @ordersRefreshTooltip.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizar pedidos'**
+  String get ordersRefreshTooltip;
+
+  /// No description provided for @ordersLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando tus pedidos…'**
+  String get ordersLoading;
+
+  /// No description provided for @ordersOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conexión. Mostramos una copia de solo lectura guardada en este dispositivo.'**
+  String get ordersOffline;
+
+  /// No description provided for @ordersEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no tienes pedidos'**
+  String get ordersEmptyTitle;
+
+  /// No description provided for @ordersEmptyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuando confirmes una compra, podrás seguirla desde aquí.'**
+  String get ordersEmptyMessage;
+
+  /// No description provided for @ordersError.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos cargar los pedidos.'**
+  String get ordersError;
+
+  /// No description provided for @ordersRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar'**
+  String get ordersRetry;
+
+  /// No description provided for @ordersLoadMore.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargar más'**
+  String get ordersLoadMore;
+
+  /// No description provided for @ordersItemCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} productos'**
+  String ordersItemCount(int count);
+
+  /// No description provided for @ordersCardSemantics.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedido {code}, estado {status}, total {total}.'**
+  String ordersCardSemantics(String code, String status, String total);
+
+  /// No description provided for @ordersPlacedAt.
+  ///
+  /// In es, this message translates to:
+  /// **'Creado {date}'**
+  String ordersPlacedAt(String date);
+
+  /// No description provided for @ordersUpdatedAt.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizado {date}'**
+  String ordersUpdatedAt(String date);
+
+  /// No description provided for @ordersCachedAt.
+  ///
+  /// In es, this message translates to:
+  /// **'Copia guardada {date}'**
+  String ordersCachedAt(String date);
+
+  /// No description provided for @ordersTotalLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Total'**
+  String get ordersTotalLabel;
+
+  /// No description provided for @ordersDetailTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalle del pedido'**
+  String get ordersDetailTitle;
+
+  /// No description provided for @ordersProductsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Productos'**
+  String get ordersProductsTitle;
+
+  /// No description provided for @ordersFulfillmentTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Modalidad y horario'**
+  String get ordersFulfillmentTitle;
+
+  /// No description provided for @ordersTimelineTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Estado del pedido'**
+  String get ordersTimelineTitle;
+
+  /// No description provided for @ordersCancelAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar pedido'**
+  String get ordersCancelAction;
+
+  /// No description provided for @ordersCancelConfirmTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cancelar este pedido?'**
+  String get ordersCancelConfirmTitle;
+
+  /// No description provided for @ordersCancelConfirmMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda validará nuevamente el estado y el plazo antes de cancelar. Esta acción no crea ni anula una venta fiscal.'**
+  String get ordersCancelConfirmMessage;
+
+  /// No description provided for @ordersCancelSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedido cancelado. Liberamos la disponibilidad reservada.'**
+  String get ordersCancelSuccess;
+
+  /// No description provided for @ordersCancelNotAllowed.
+  ///
+  /// In es, this message translates to:
+  /// **'Este pedido ya no admite cancelación.'**
+  String get ordersCancelNotAllowed;
+
+  /// No description provided for @ordersCancelVersionConflict.
+  ///
+  /// In es, this message translates to:
+  /// **'El estado cambió. Actualiza el pedido antes de volver a intentarlo.'**
+  String get ordersCancelVersionConflict;
+
+  /// No description provided for @ordersCancelAmbiguous.
+  ///
+  /// In es, this message translates to:
+  /// **'La respuesta fue ambigua. Conservamos el mismo intento para consultarlo de forma segura al reintentar.'**
+  String get ordersCancelAmbiguous;
+
+  /// No description provided for @ordersUnauthorized.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión nuevamente para consultar tus pedidos.'**
+  String get ordersUnauthorized;
+
+  /// No description provided for @ordersNotFound.
+  ///
+  /// In es, this message translates to:
+  /// **'El pedido no existe en esta tienda o no pertenece a esta cuenta.'**
+  String get ordersNotFound;
+
+  /// No description provided for @ordersUnexpected.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos verificar el pedido. La copia guardada permanece en modo de solo lectura.'**
+  String get ordersUnexpected;
+
+  /// No description provided for @ordersCancellationDeadline.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes cancelar hasta {date}'**
+  String ordersCancellationDeadline(String date);
+
+  /// No description provided for @ordersDetailRefresh.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizar detalle'**
+  String get ordersDetailRefresh;
+
+  /// No description provided for @ordersBackToOrders.
+  ///
+  /// In es, this message translates to:
+  /// **'Volver a mis pedidos'**
+  String get ordersBackToOrders;
 }
 
 class _AppLocalizationsDelegate

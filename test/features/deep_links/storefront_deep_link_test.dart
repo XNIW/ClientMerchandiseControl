@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _shop = 'storefront-test';
 const _publicationId = '50000000-0000-4000-8000-000000000001';
+const _orderId = '88000000-0000-4000-8000-000000028101';
 
 void main() {
   const codec = StorefrontDeepLinkCodec();
@@ -41,6 +42,24 @@ void main() {
         (intent) => intent.categorySlug,
         'categorySlug',
         'cafe-molido',
+      ),
+    );
+  });
+
+  test('costruisce e decodifica il link ordine canonico owner-protected', () {
+    final order = codec.orderUri(shopSlug: _shop, orderId: _orderId);
+
+    expect(
+      order.toString(),
+      'com.xniw.clientmerchandisecontrol://storefront/'
+      'storefront-test/order/$_orderId',
+    );
+    expect(
+      codec.decode(order, shopSlug: _shop),
+      isA<StorefrontOrderDeepLink>().having(
+        (intent) => intent.orderId,
+        'orderId',
+        _orderId,
       ),
     );
   });
@@ -126,5 +145,21 @@ void main() {
     }
     expect(codec.decode(valid, shopSlug: 'other-shop'), isNull);
     expect(codec.decode(valid, shopSlug: 'a'), isNull);
+
+    final order = codec.orderUri(shopSlug: _shop, orderId: _orderId);
+    for (final uri in [
+      Uri.parse('$order?token=private'),
+      Uri.parse('$order#fragment'),
+      Uri.parse(
+        'com.xniw.clientmerchandisecontrol://storefront/'
+        'other-shop/order/$_orderId',
+      ),
+      Uri.parse(
+        'com.xniw.clientmerchandisecontrol://storefront/'
+        '$_shop/order/88000000-0000-0000-0000-000000028101',
+      ),
+    ]) {
+      expect(codec.decode(uri, shopSlug: _shop), isNull, reason: '$uri');
+    }
   });
 }

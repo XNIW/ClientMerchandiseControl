@@ -1395,4 +1395,132 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get checkoutUnexpectedError =>
       'Non è stato possibile verificare il checkout. Non mostriamo prezzi o conferme dedotte.';
+
+  @override
+  String get ordersAccountTitle => 'I miei ordini';
+
+  @override
+  String get ordersAccountDescription =>
+      'Consulta stati, dettagli e ritiri o consegne dei tuoi ordini.';
+
+  @override
+  String get ordersAccountAction => 'Vedi ordini';
+
+  @override
+  String get ordersTitle => 'I miei ordini';
+
+  @override
+  String get ordersRefreshTooltip => 'Aggiorna ordini';
+
+  @override
+  String get ordersLoading => 'Caricamento ordini…';
+
+  @override
+  String get ordersOffline =>
+      'Sei offline. Mostriamo una copia in sola lettura salvata su questo dispositivo.';
+
+  @override
+  String get ordersEmptyTitle => 'Non hai ancora ordini';
+
+  @override
+  String get ordersEmptyMessage =>
+      'Dopo aver confermato un acquisto potrai seguirlo da qui.';
+
+  @override
+  String get ordersError => 'Non è stato possibile caricare gli ordini.';
+
+  @override
+  String get ordersRetry => 'Riprova';
+
+  @override
+  String get ordersLoadMore => 'Carica altro';
+
+  @override
+  String ordersItemCount(int count) {
+    return '$count prodotti';
+  }
+
+  @override
+  String ordersCardSemantics(String code, String status, String total) {
+    return 'Ordine $code, stato $status, totale $total.';
+  }
+
+  @override
+  String ordersPlacedAt(String date) {
+    return 'Creato $date';
+  }
+
+  @override
+  String ordersUpdatedAt(String date) {
+    return 'Aggiornato $date';
+  }
+
+  @override
+  String ordersCachedAt(String date) {
+    return 'Copia salvata $date';
+  }
+
+  @override
+  String get ordersTotalLabel => 'Totale';
+
+  @override
+  String get ordersDetailTitle => 'Dettaglio ordine';
+
+  @override
+  String get ordersProductsTitle => 'Prodotti';
+
+  @override
+  String get ordersFulfillmentTitle => 'Modalità e fascia';
+
+  @override
+  String get ordersTimelineTitle => 'Stato dell’ordine';
+
+  @override
+  String get ordersCancelAction => 'Annulla ordine';
+
+  @override
+  String get ordersCancelConfirmTitle => 'Annullare questo ordine?';
+
+  @override
+  String get ordersCancelConfirmMessage =>
+      'Il negozio verificherà nuovamente stato e termine prima di annullare. Questa azione non crea né annulla una vendita fiscale.';
+
+  @override
+  String get ordersCancelSuccess =>
+      'Ordine annullato. La disponibilità riservata è stata liberata.';
+
+  @override
+  String get ordersCancelNotAllowed =>
+      'Questo ordine non può più essere annullato.';
+
+  @override
+  String get ordersCancelVersionConflict =>
+      'Lo stato è cambiato. Aggiorna l’ordine prima di riprovare.';
+
+  @override
+  String get ordersCancelAmbiguous =>
+      'La risposta è ambigua. Conserviamo lo stesso tentativo per verificarlo in sicurezza al prossimo retry.';
+
+  @override
+  String get ordersUnauthorized =>
+      'Accedi di nuovo per consultare i tuoi ordini.';
+
+  @override
+  String get ordersNotFound =>
+      'L’ordine non esiste in questo negozio o non appartiene a questo account.';
+
+  @override
+  String get ordersUnexpected =>
+      'Non è stato possibile verificare l’ordine. La copia salvata resta in sola lettura.';
+
+  @override
+  String ordersCancellationDeadline(String date) {
+    return 'Puoi annullare entro $date';
+  }
+
+  @override
+  String get ordersDetailRefresh => 'Aggiorna dettaglio';
+
+  @override
+  String get ordersBackToOrders => 'Torna ai miei ordini';
 }

@@ -1,18 +1,20 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 4 / TASK-030 Win7POS handoff
-- **Task corrente**: TASK-030
-- **Repository writer corrente**: merchandise-control-admin-web / Supabase, poi Win7POS
+- **Fase corrente**: EXECUTION / Milestone 4 / TASK-031 notifiche ordine
+- **Task corrente**: TASK-031
+- **Repository writer corrente**: merchandise-control-admin-web / Supabase, poi Client
 - **Branch**: `integration/storefront-v1`
 - **SHA Client runtime corrente**: `1855100f34a3563787b1ac71eafb4af60a1b72e6`
-- **SHA Admin/Supabase corrente**: `23bfab60b91ef192dbb726bde454287cea144c8f`
+- **SHA Admin/Supabase corrente**: `64ef3170f5830e044ac130b127c94149d25ee1fc`
+- **SHA Win7POS corrente**: `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
   `30714350425` `PASS`; repository preflight `PASS`
 - **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
   check `PASS`; `git diff --check` `PASS`; security scan 342 file `PASS`; architecture
   boundary e fixture 5/5 `PASS`; CI `30715196235` sullo SHA esatto `PASS`, job
   Quality/iOS/Android 3/3 e annotazioni 0/0/0
-- **Git/PR**: branch remota pubblicata; PR Client `#5`, `DRAFT`
+- **Git/PR**: branch remote pubblicate; PR Client `#5`, Admin `#67` e Win7POS `#88`,
+  tutte `DRAFT`, con head SHA allineati ai worktree release train
 - **Admin canonico**: schema/RLS TASK-005 applicato a staging con run
   `30717903744`; ledger/postcheck esatti, 6 tabelle authoring FORCE RLS, zero policy
   cliente e default flag OFF; production invariata
@@ -133,14 +135,22 @@
   `30798108767`, deploy staging `30796888108` e acceptance `30798109969` `PASS`.
   Staging predecessor publish 1/1, queue/transizione 1/1, cleanup 0 e fixture persistente
   `PASS`; artifact `8847378085`, `8847396310`, `8849757536` con digest registrati.
-- **Gate ancora necessari**: TASK-030 envelope/claim/lease/ack, inbox POS durevole,
-  duplicate/offline/reconnect, fiscal boundary, build net48 x86 e staging
-- **Comando successivo esatto**: nel worktree Win7POS, auditare in sola lettura
-  `Win7POS.Core/Online`, trusted device/session, sync supervisor, persistence e sale
-  commit; nel writer Admin auditare outbox/RPC e fissare envelope, lease e dedup key
-  prima della migration additiva TASK-030
+- **Gate TASK-030**: Admin `64ef3170`, migration staging `20260803060000`, RPC
+  claim/lease/ack service-only, receipt ledger `FORCE RLS`; pgTAP 40/40 e race due
+  consumer `PASS`. Deploy Admin `30804781883`; E2E `30805397611` con order completed
+  v5, receipt accepted/prepared/completed, outbox delivered, zero `pos_sales`, zero
+  fiscal reference e cleanup 0 `PASS`. Win7POS `6c2eb9c8`, PR #88; CI Windows
+  `30804008501` 878/878 e 46/46, WPF x86/smoke `PASS`; security/SBOM/CodeQL
+  `30804007997` `PASS`.
+- **Gate ancora necessari**: TASK-031 event/outbox/dispatcher push, recipient consent,
+  payload privacy-safe, Client receive/deep-link e staging; provider reale solo se già
+  configurato non interattivamente
+- **Comando successivo esatto**: nel writer Admin auditare in sola lettura
+  `customer_devices`, order status/outbox e config provider; nel Client auditare config
+  Android/iOS, lifecycle notification e deep-link router prima della migration TASK-031
 - **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
-  nessun blocker tecnico corrente per TASK-030; Windows 7 fisico non ancora eseguito
+  Windows 7 fisico `BLOCKED` esterno; credential provider push non ancora auditate.
+  Nessun blocker tecnico corrente per l'audit/implementazione indipendente TASK-031
 - **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`; Android Emulator
   `emulator-5554`, API 35; iOS Simulator iPhone 17 Pro iOS 26.5
   UUID `240F400E-5EFA-486A-9137-FFBBE70F604D`. Sono controllati e necessari ai gate
@@ -153,7 +163,8 @@
   consent/token lifecycle, TASK-023 cart/revalidation, TASK-024 availability/freshness/
   cache refresh, TASK-025 hold/idempotency/expiry/cleanup, TASK-026 fulfillment/quote/
   checkout, TASK-027 order/snapshot/idempotency, TASK-028 history/timeline/cancel e
-  TASK-029 Admin queue/transitions `PASS`; TASK-030 attivato; production invariata
+  TASK-029 Admin queue/transitions e TASK-030 POS claim/ack/replay/fiscal boundary
+  `PASS`; TASK-031 attivato; production invariata e push flag OFF
 
 ## Vincoli di ripresa
 

@@ -1845,3 +1845,27 @@
 - **Transizione**: TASK-030 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
   per protocollo claim/lease/ack, inbox idempotente Win7POS, offline/reconnect e confine
   vendita fiscale, con writer Admin/Supabase -> Win7POS.
+
+## 2026-08-03 — Checkpoint interno TASK-030 e attivazione TASK-031
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-030**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; envelope/claim/lease/ack,
+  receipt server, inbox Win7POS durevole, retry/replay e confine fiscale completati.
+- **Admin/Supabase**: SHA `64ef3170f5830e044ac130b127c94149d25ee1fc`, PR #67;
+  migration `20260803060000`; pgTAP 40/40, race due consumer, foundation 863 pass +
+  2 skip, CI `30805402075` e Cloudflare `30805402072` `PASS`.
+- **Win7POS**: SHA `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`, PR #88;
+  test mirati 66/66, gate 46/46, CI Windows `30804008501` 878/878 e Security/SBOM/
+  CodeQL `30804007997`, tutti `PASS`; Win7 fisico `BLOCKED` esterno.
+- **Staging**: apply `30801335746`, verify `30801747388`, deploy `30804781883` ed E2E
+  `30805397611` `PASS`; order completed v5, receipt accepted/prepared/completed,
+  outbox delivered, zero `pos_sales`/fiscal reference e cleanup 0.
+- **Difetti corretti durante Execution**: assertion ledger post-apply, dispatch del
+  workflow nuovo da branch, fixture publication vincolata e PK cleanup proof; ogni
+  causa ha una regressione e il run finale non è un retry cieco.
+- **Sicurezza/production**: payload/inbox allow-list, secret scan e supply chain
+  `PASS`; production invariata e consumer/flag OFF.
+- **Transizione**: TASK-031 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per notification outbox/dispatcher, consent/token eligibility, payload lock-screen
+  privacy-safe e receive/deep-link Client, con writer Admin/Supabase -> Client.

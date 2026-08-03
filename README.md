@@ -161,8 +161,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-030
-- **File task**: docs/TASKS/TASK-030-win7pos-handoff-fiscal-boundary.md
+- **Task attivo**: TASK-031
+- **File task**: docs/TASKS/TASK-031-order-notifications.md
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -198,6 +198,10 @@ server-authoritative per ritiro, prenotazione e consegna configurabile ed è anc
 status event, outbox e receipt atomici/idempotenti ed è anch'esso
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-028 ha completato storico, dettaglio,
 timeline, cache read-only, deep link e cancellazione controllata ed è anch'esso
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-029 è l'unico task attivo e realizza queue,
-detail, RBAC e workflow operativo ordini nella Admin Console.
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-029 ha completato queue, detail, RBAC e
+workflow operativo ordini nella Admin Console; TASK-030 ha completato l'handoff POS
+idempotente e il confine tra ordine cliente e vendita fiscale. Entrambi sono
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-031 è l'unico task attivo e realizza la
+pipeline idempotente di notifiche per gli eventi ordine e la relativa integrazione
+client privacy-safe.
 Gli altri task del train restano `TODO` fino al rispettivo checkpoint.

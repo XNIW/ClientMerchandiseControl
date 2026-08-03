@@ -33,6 +33,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-028" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-029" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-030" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-031" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -174,6 +175,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-030/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-030/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-031-order-notifications.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-031/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-031/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -205,21 +212,21 @@ cmc_expect_pass valid "${cmc_case}"
 
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \
-  's/| TASK-031 | Notifiche push e order status events | TODO |/| TASK-031 | Notifiche push e order status events | ACTIVE |/' \
+  's/| TASK-032 | Decisione provider e integrazione pagamenti | TODO |/| TASK-032 | Decisione provider e integrazione pagamenti | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-030/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-031/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | ACTIVE |/| TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | DONE |/' \
+  's/| TASK-031 | Notifiche push e order status events | ACTIVE |/| TASK-031 | Notifiche push e order status events | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"

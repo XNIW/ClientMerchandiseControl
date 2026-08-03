@@ -377,13 +377,23 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
     fi
     cmc_security_artifact_index=$((cmc_security_artifact_index + 1))
     cmc_security_scan_root="${cmc_security_artifact}"
+    cmc_security_archive_payload=''
     case "${cmc_security_artifact}" in
       *.apk | *.zip)
         cmc_security_scan_root="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}"
+        cmc_security_archive_payload="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.payload"
         mkdir -p "${cmc_security_scan_root}"
-        if ! unzip -qq "${cmc_security_artifact}" \
+        if ! unzip -oq "${cmc_security_artifact}" \
           -d "${cmc_security_scan_root}"; then
           printf 'Security scan artifact: archivio non leggibile.\n' >&2
+          exit 1
+        fi
+        # Lo stream aggregato conserva anche entry ZIP duplicate che
+        # l'estrazione sovrascrive, evitando che un valore vietato venga
+        # nascosto dietro una seconda entry omonima.
+        if ! unzip -p "${cmc_security_artifact}" \
+          >"${cmc_security_archive_payload}"; then
+          printf 'Security scan artifact: payload archivio non leggibile.\n' >&2
           exit 1
         fi
         ;;
@@ -403,6 +413,9 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
       while IFS= read -r -d '' cmc_security_artifact_file; do
         cmc_security_artifact_files+=("${cmc_security_artifact_file}")
       done <"${cmc_security_artifact_list}"
+      if [[ -n "${cmc_security_archive_payload}" ]]; then
+        cmc_security_artifact_files+=("${cmc_security_archive_payload}")
+      fi
     fi
 
     for cmc_security_artifact_file in \
@@ -412,7 +425,10 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
         printf 'Security scan artifact: symlink non verificabile.\n' >&2
         exit 1
       fi
-      if [[ -f "${cmc_security_scan_root}" ]]; then
+      if [[ -n "${cmc_security_archive_payload}" && \
+        "${cmc_security_artifact_file}" == "${cmc_security_archive_payload}" ]]; then
+        cmc_security_artifact_relative='__archive_payload__'
+      elif [[ -f "${cmc_security_scan_root}" ]]; then
         cmc_security_artifact_relative="${cmc_security_scan_root##*/}"
       else
         cmc_security_artifact_relative="${cmc_security_artifact_file#"${cmc_security_scan_root}/"}"

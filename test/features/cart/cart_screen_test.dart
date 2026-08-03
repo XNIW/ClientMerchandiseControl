@@ -44,6 +44,11 @@ void main() {
           builder: (context, state) =>
               const Scaffold(body: Text('account-destination')),
         ),
+        GoRoute(
+          path: AppRoutes.checkoutLocation,
+          builder: (context, state) =>
+              const Scaffold(body: Text('checkout-destination')),
+        ),
       ],
     );
     addTearDown(router.dispose);
@@ -137,20 +142,21 @@ void main() {
     expect(find.text('Tu carrito está vacío'), findsOneWidget);
   });
 
-  testWidgets('CTA guest porta all’account senza bloccare il browsing', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      buildApp(store: _FakeGuestCartStore(snapshot: _cartSnapshot())),
-    );
-    await tester.pumpAndSettle();
+  testWidgets(
+    'CTA guest apre checkout, che governa il gate di autenticazione',
+    (tester) async {
+      await tester.pumpWidget(
+        buildApp(store: _FakeGuestCartStore(snapshot: _cartSnapshot())),
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const ValueKey('cart-sign-in')));
-    await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('cart-checkout')));
+      await tester.pumpAndSettle();
 
-    expect(find.text('account-destination'), findsOneWidget);
-    expect(router.state.uri.path, AppRoutes.accountLocation);
-  });
+      expect(find.text('checkout-destination'), findsOneWidget);
+      expect(router.state.uri.path, AppRoutes.checkoutLocation);
+    },
+  );
 
   testWidgets('semantics e target quantità rispettano 48 logical pixel', (
     tester,
@@ -197,7 +203,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('cart-sign-in')), findsOneWidget);
+    expect(find.byKey(const ValueKey('cart-checkout')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

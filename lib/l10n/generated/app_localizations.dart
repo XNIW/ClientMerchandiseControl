@@ -1914,6 +1914,456 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{name}, cantidad {quantity}, {price}'**
   String cartLineSemantics(String name, int quantity, String price);
+
+  /// No description provided for @cartCheckoutAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Ir al checkout'**
+  String get cartCheckoutAction;
+
+  /// No description provided for @cartSignInCheckoutAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión y continúa'**
+  String get cartSignInCheckoutAction;
+
+  /// No description provided for @checkoutTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Checkout'**
+  String get checkoutTitle;
+
+  /// No description provided for @checkoutStepMode.
+  ///
+  /// In es, this message translates to:
+  /// **'Modalidad'**
+  String get checkoutStepMode;
+
+  /// No description provided for @checkoutStepDestination.
+  ///
+  /// In es, this message translates to:
+  /// **'Destino'**
+  String get checkoutStepDestination;
+
+  /// No description provided for @checkoutStepSlot.
+  ///
+  /// In es, this message translates to:
+  /// **'Horario'**
+  String get checkoutStepSlot;
+
+  /// No description provided for @checkoutStepReview.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen'**
+  String get checkoutStepReview;
+
+  /// No description provided for @checkoutStepConfirmation.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmación'**
+  String get checkoutStepConfirmation;
+
+  /// No description provided for @checkoutStepProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Paso {current} de {total}: {title}'**
+  String checkoutStepProgress(int current, int total, String title);
+
+  /// No description provided for @checkoutAuthTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión para confirmar'**
+  String get checkoutAuthTitle;
+
+  /// No description provided for @checkoutAuthMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes explorar y conservar el carrito sin una cuenta. Para validar dirección, precios y disponibilidad necesitamos tu sesión de cliente.'**
+  String get checkoutAuthMessage;
+
+  /// No description provided for @checkoutContinueBrowsing.
+  ///
+  /// In es, this message translates to:
+  /// **'Volver al carrito'**
+  String get checkoutContinueBrowsing;
+
+  /// No description provided for @checkoutUnavailableTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Checkout no disponible'**
+  String get checkoutUnavailableTitle;
+
+  /// No description provided for @checkoutRetryAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar de forma segura'**
+  String get checkoutRetryAction;
+
+  /// No description provided for @checkoutContinueAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get checkoutContinueAction;
+
+  /// No description provided for @checkoutBackAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Atrás'**
+  String get checkoutBackAction;
+
+  /// No description provided for @checkoutBackToCart.
+  ///
+  /// In es, this message translates to:
+  /// **'Volver al carrito'**
+  String get checkoutBackToCart;
+
+  /// No description provided for @checkoutRestartAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Comenzar de nuevo'**
+  String get checkoutRestartAction;
+
+  /// No description provided for @checkoutModeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cómo quieres recibir tu compra?'**
+  String get checkoutModeTitle;
+
+  /// No description provided for @checkoutModeMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo mostramos modalidades configuradas y disponibles en la tienda.'**
+  String get checkoutModeMessage;
+
+  /// No description provided for @checkoutModePickup.
+  ///
+  /// In es, this message translates to:
+  /// **'Retiro'**
+  String get checkoutModePickup;
+
+  /// No description provided for @checkoutModePickupDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Retira tu compra en un punto habilitado.'**
+  String get checkoutModePickupDescription;
+
+  /// No description provided for @checkoutModeReservation.
+  ///
+  /// In es, this message translates to:
+  /// **'Reserva'**
+  String get checkoutModeReservation;
+
+  /// No description provided for @checkoutModeReservationDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirma una reserva vigente y retírala en tienda.'**
+  String get checkoutModeReservationDescription;
+
+  /// No description provided for @checkoutModeDelivery.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrega'**
+  String get checkoutModeDelivery;
+
+  /// No description provided for @checkoutModeDeliveryDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Recibe la compra en una dirección dentro de la zona activa.'**
+  String get checkoutModeDeliveryDescription;
+
+  /// No description provided for @checkoutDeliveryAddressTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección de entrega'**
+  String get checkoutDeliveryAddressTitle;
+
+  /// No description provided for @checkoutDeliveryAddressMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda validará la dirección, la zona y la tarifa en el servidor.'**
+  String get checkoutDeliveryAddressMessage;
+
+  /// No description provided for @checkoutNoAddresses.
+  ///
+  /// In es, this message translates to:
+  /// **'Agrega una dirección a tu cuenta antes de elegir entrega.'**
+  String get checkoutNoAddresses;
+
+  /// No description provided for @checkoutManageAddresses.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar direcciones'**
+  String get checkoutManageAddresses;
+
+  /// No description provided for @checkoutUnsupportedAddress.
+  ///
+  /// In es, this message translates to:
+  /// **'Fuera de las zonas disponibles'**
+  String get checkoutUnsupportedAddress;
+
+  /// No description provided for @checkoutPickupPointTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Punto de retiro'**
+  String get checkoutPickupPointTitle;
+
+  /// No description provided for @checkoutPickupPointMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige una sede pública disponible para esta modalidad.'**
+  String get checkoutPickupPointMessage;
+
+  /// No description provided for @checkoutSlotTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Horario disponible'**
+  String get checkoutSlotTitle;
+
+  /// No description provided for @checkoutSlotMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'La capacidad se confirma nuevamente al validar el checkout.'**
+  String get checkoutSlotMessage;
+
+  /// No description provided for @checkoutNoSlots.
+  ///
+  /// In es, this message translates to:
+  /// **'Ya no hay horarios disponibles para esta selección.'**
+  String get checkoutNoSlots;
+
+  /// No description provided for @checkoutReviewTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Revisa tu selección'**
+  String get checkoutReviewTitle;
+
+  /// No description provided for @checkoutReviewMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Este total todavía es estimado. La tienda volverá a leer el carrito, las promociones y la disponibilidad.'**
+  String get checkoutReviewMessage;
+
+  /// No description provided for @checkoutServerValidationNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'El servidor calculará precios, descuentos, tarifa y total. La app no envía un total autorizado.'**
+  String get checkoutServerValidationNotice;
+
+  /// No description provided for @checkoutSubtotalLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Subtotal'**
+  String get checkoutSubtotalLabel;
+
+  /// No description provided for @checkoutDeliveryFeeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tarifa de entrega'**
+  String get checkoutDeliveryFeeLabel;
+
+  /// No description provided for @checkoutEstimatedTotalLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Total estimado'**
+  String get checkoutEstimatedTotalLabel;
+
+  /// No description provided for @checkoutAuthoritativeTotalLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Total validado'**
+  String get checkoutAuthoritativeTotalLabel;
+
+  /// No description provided for @checkoutValidateAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Validar precios y disponibilidad'**
+  String get checkoutValidateAction;
+
+  /// No description provided for @checkoutConfirmationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmación del checkout'**
+  String get checkoutConfirmationTitle;
+
+  /// No description provided for @checkoutQuoteReadyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda validó este resumen. Confírmalo antes de que venza.'**
+  String get checkoutQuoteReadyMessage;
+
+  /// No description provided for @checkoutReviewChangesMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Detectamos cambios. Revísalos y acéptalos explícitamente para continuar.'**
+  String get checkoutReviewChangesMessage;
+
+  /// No description provided for @checkoutConfirmedMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen confirmado por la tienda.'**
+  String get checkoutConfirmedMessage;
+
+  /// No description provided for @checkoutExpiredMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Este resumen venció. Vuelve a validar antes de continuar.'**
+  String get checkoutExpiredMessage;
+
+  /// No description provided for @checkoutQuoteRemaining.
+  ///
+  /// In es, this message translates to:
+  /// **'Este resumen vence en {time}'**
+  String checkoutQuoteRemaining(String time);
+
+  /// No description provided for @checkoutChangesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambios que debes revisar'**
+  String get checkoutChangesTitle;
+
+  /// No description provided for @checkoutConfirmAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar resumen'**
+  String get checkoutConfirmAction;
+
+  /// No description provided for @checkoutAcceptChangesAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Aceptar cambios y confirmar'**
+  String get checkoutAcceptChangesAction;
+
+  /// No description provided for @checkoutOrderDeferredNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'El resumen quedó confirmado. El pedido se creará en el siguiente paso seguro.'**
+  String get checkoutOrderDeferredNotice;
+
+  /// No description provided for @checkoutRestoredNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Restauramos tu progreso de checkout.'**
+  String get checkoutRestoredNotice;
+
+  /// No description provided for @checkoutQuoteChangedNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda actualizó el resumen. Revisa los cambios.'**
+  String get checkoutQuoteChangedNotice;
+
+  /// No description provided for @checkoutConfirmedNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Checkout confirmado.'**
+  String get checkoutConfirmedNotice;
+
+  /// No description provided for @checkoutPriceChanged.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambió el precio de un producto.'**
+  String get checkoutPriceChanged;
+
+  /// No description provided for @checkoutPromotionChanged.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambió o terminó una promoción.'**
+  String get checkoutPromotionChanged;
+
+  /// No description provided for @checkoutProductUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Un producto ya no está disponible.'**
+  String get checkoutProductUnavailable;
+
+  /// No description provided for @checkoutHoldRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta reserva necesita una retención vigente.'**
+  String get checkoutHoldRequired;
+
+  /// No description provided for @checkoutOfflineError.
+  ///
+  /// In es, this message translates to:
+  /// **'Estás sin conexión. Conservamos tu carrito y tu progreso, pero no confirmamos un checkout nuevo.'**
+  String get checkoutOfflineError;
+
+  /// No description provided for @checkoutTimeoutError.
+  ///
+  /// In es, this message translates to:
+  /// **'La respuesta fue ambigua. Reintenta con la misma operación para conocer el resultado real.'**
+  String get checkoutTimeoutError;
+
+  /// No description provided for @checkoutUnauthorizedError.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu sesión ya no permite confirmar el checkout. Inicia sesión nuevamente.'**
+  String get checkoutUnauthorizedError;
+
+  /// No description provided for @checkoutInvalidError.
+  ///
+  /// In es, this message translates to:
+  /// **'La selección del checkout no es válida.'**
+  String get checkoutInvalidError;
+
+  /// No description provided for @checkoutUnavailableError.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda no puede ofrecer checkout por el momento.'**
+  String get checkoutUnavailableError;
+
+  /// No description provided for @checkoutConflictError.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta operación no coincide con el intento anterior. Inicia una validación nueva.'**
+  String get checkoutConflictError;
+
+  /// No description provided for @checkoutStaleCartError.
+  ///
+  /// In es, this message translates to:
+  /// **'El carrito cambió. Lo estamos actualizando antes de volver a validar.'**
+  String get checkoutStaleCartError;
+
+  /// No description provided for @checkoutInvalidAddressError.
+  ///
+  /// In es, this message translates to:
+  /// **'La dirección no existe o no pertenece a esta cuenta.'**
+  String get checkoutInvalidAddressError;
+
+  /// No description provided for @checkoutUnsupportedZoneError.
+  ///
+  /// In es, this message translates to:
+  /// **'La dirección quedó fuera de la zona de entrega seleccionada.'**
+  String get checkoutUnsupportedZoneError;
+
+  /// No description provided for @checkoutSlotUnavailableError.
+  ///
+  /// In es, this message translates to:
+  /// **'El horario o la modalidad ya no están disponibles.'**
+  String get checkoutSlotUnavailableError;
+
+  /// No description provided for @checkoutCartUnavailableError.
+  ///
+  /// In es, this message translates to:
+  /// **'Revisa el carrito: está vacío o contiene productos no disponibles.'**
+  String get checkoutCartUnavailableError;
+
+  /// No description provided for @checkoutExpiredError.
+  ///
+  /// In es, this message translates to:
+  /// **'El resumen venció y debe validarse nuevamente.'**
+  String get checkoutExpiredError;
+
+  /// No description provided for @checkoutNotFoundError.
+  ///
+  /// In es, this message translates to:
+  /// **'El resumen ya no existe o no pertenece a esta cuenta.'**
+  String get checkoutNotFoundError;
+
+  /// No description provided for @checkoutUnexpectedError.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos verificar el checkout. No mostramos precios ni confirmaciones inferidas.'**
+  String get checkoutUnexpectedError;
 }
 
 class _AppLocalizationsDelegate

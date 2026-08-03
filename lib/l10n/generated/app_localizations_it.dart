@@ -1069,4 +1069,266 @@ class AppLocalizationsIt extends AppLocalizations {
   String cartLineSemantics(String name, int quantity, String price) {
     return '$name, quantità $quantity, $price';
   }
+
+  @override
+  String get cartCheckoutAction => 'Vai al checkout';
+
+  @override
+  String get cartSignInCheckoutAction => 'Accedi e continua';
+
+  @override
+  String get checkoutTitle => 'Checkout';
+
+  @override
+  String get checkoutStepMode => 'Modalità';
+
+  @override
+  String get checkoutStepDestination => 'Destinazione';
+
+  @override
+  String get checkoutStepSlot => 'Fascia oraria';
+
+  @override
+  String get checkoutStepReview => 'Riepilogo';
+
+  @override
+  String get checkoutStepConfirmation => 'Conferma';
+
+  @override
+  String checkoutStepProgress(int current, int total, String title) {
+    return 'Passaggio $current di $total: $title';
+  }
+
+  @override
+  String get checkoutAuthTitle => 'Accedi per confermare';
+
+  @override
+  String get checkoutAuthMessage =>
+      'Puoi esplorare e conservare il carrello senza un account. Per validare indirizzo, prezzi e disponibilità serve la tua sessione cliente.';
+
+  @override
+  String get checkoutContinueBrowsing => 'Torna al carrello';
+
+  @override
+  String get checkoutUnavailableTitle => 'Checkout non disponibile';
+
+  @override
+  String get checkoutRetryAction => 'Riprova in sicurezza';
+
+  @override
+  String get checkoutContinueAction => 'Continua';
+
+  @override
+  String get checkoutBackAction => 'Indietro';
+
+  @override
+  String get checkoutBackToCart => 'Torna al carrello';
+
+  @override
+  String get checkoutRestartAction => 'Ricomincia';
+
+  @override
+  String get checkoutModeTitle => 'Come vuoi ricevere il tuo acquisto?';
+
+  @override
+  String get checkoutModeMessage =>
+      'Mostriamo solo le modalità configurate e disponibili per questo negozio.';
+
+  @override
+  String get checkoutModePickup => 'Ritiro';
+
+  @override
+  String get checkoutModePickupDescription =>
+      'Ritira l’acquisto presso un punto disponibile.';
+
+  @override
+  String get checkoutModeReservation => 'Prenotazione';
+
+  @override
+  String get checkoutModeReservationDescription =>
+      'Conferma una prenotazione attiva e ritirala in negozio.';
+
+  @override
+  String get checkoutModeDelivery => 'Consegna';
+
+  @override
+  String get checkoutModeDeliveryDescription =>
+      'Ricevi l’acquisto a un indirizzo in una zona di consegna attiva.';
+
+  @override
+  String get checkoutDeliveryAddressTitle => 'Indirizzo di consegna';
+
+  @override
+  String get checkoutDeliveryAddressMessage =>
+      'Il negozio valida sul server indirizzo, zona e tariffa.';
+
+  @override
+  String get checkoutNoAddresses =>
+      'Aggiungi un indirizzo al tuo account prima di scegliere la consegna.';
+
+  @override
+  String get checkoutManageAddresses => 'Gestisci indirizzi';
+
+  @override
+  String get checkoutUnsupportedAddress => 'Fuori dalle zone disponibili';
+
+  @override
+  String get checkoutPickupPointTitle => 'Punto di ritiro';
+
+  @override
+  String get checkoutPickupPointMessage =>
+      'Scegli una sede pubblica disponibile per questa modalità.';
+
+  @override
+  String get checkoutSlotTitle => 'Fascia oraria disponibile';
+
+  @override
+  String get checkoutSlotMessage =>
+      'La capacità viene verificata di nuovo durante la validazione del checkout.';
+
+  @override
+  String get checkoutNoSlots =>
+      'Non ci sono più fasce disponibili per questa selezione.';
+
+  @override
+  String get checkoutReviewTitle => 'Controlla la selezione';
+
+  @override
+  String get checkoutReviewMessage =>
+      'Questo totale è ancora stimato. Il negozio rileggerà carrello, promozioni e disponibilità.';
+
+  @override
+  String get checkoutServerValidationNotice =>
+      'Il server calcola prezzi, sconti, tariffa e totale. L’app non invia un totale autorevole.';
+
+  @override
+  String get checkoutSubtotalLabel => 'Subtotale';
+
+  @override
+  String get checkoutDeliveryFeeLabel => 'Tariffa di consegna';
+
+  @override
+  String get checkoutEstimatedTotalLabel => 'Totale stimato';
+
+  @override
+  String get checkoutAuthoritativeTotalLabel => 'Totale validato';
+
+  @override
+  String get checkoutValidateAction => 'Valida prezzi e disponibilità';
+
+  @override
+  String get checkoutConfirmationTitle => 'Conferma checkout';
+
+  @override
+  String get checkoutQuoteReadyMessage =>
+      'Il negozio ha validato questo riepilogo. Confermalo prima della scadenza.';
+
+  @override
+  String get checkoutReviewChangesMessage =>
+      'Sono state rilevate modifiche. Controllale e accettale esplicitamente per continuare.';
+
+  @override
+  String get checkoutConfirmedMessage => 'Riepilogo confermato dal negozio.';
+
+  @override
+  String get checkoutExpiredMessage =>
+      'Questo riepilogo è scaduto. Validalo di nuovo prima di continuare.';
+
+  @override
+  String checkoutQuoteRemaining(String time) {
+    return 'Questo riepilogo scade tra $time';
+  }
+
+  @override
+  String get checkoutChangesTitle => 'Modifiche da controllare';
+
+  @override
+  String get checkoutConfirmAction => 'Conferma riepilogo';
+
+  @override
+  String get checkoutAcceptChangesAction => 'Accetta le modifiche e conferma';
+
+  @override
+  String get checkoutOrderDeferredNotice =>
+      'Il riepilogo è confermato. L’ordine verrà creato nel prossimo passaggio sicuro.';
+
+  @override
+  String get checkoutRestoredNotice =>
+      'Il tuo avanzamento nel checkout è stato ripristinato.';
+
+  @override
+  String get checkoutQuoteChangedNotice =>
+      'Il negozio ha aggiornato il riepilogo. Controlla le modifiche.';
+
+  @override
+  String get checkoutConfirmedNotice => 'Checkout confermato.';
+
+  @override
+  String get checkoutPriceChanged => 'Il prezzo di un prodotto è cambiato.';
+
+  @override
+  String get checkoutPromotionChanged =>
+      'Una promozione è cambiata o terminata.';
+
+  @override
+  String get checkoutProductUnavailable => 'Un prodotto non è più disponibile.';
+
+  @override
+  String get checkoutHoldRequired =>
+      'Questa prenotazione richiede una disponibilità riservata attiva.';
+
+  @override
+  String get checkoutOfflineError =>
+      'Sei offline. Conserviamo carrello e avanzamento, ma non confermiamo un nuovo checkout.';
+
+  @override
+  String get checkoutTimeoutError =>
+      'La risposta è ambigua. Riprova con la stessa operazione per recuperare il risultato effettivo.';
+
+  @override
+  String get checkoutUnauthorizedError =>
+      'La sessione non consente più di confermare il checkout. Accedi di nuovo.';
+
+  @override
+  String get checkoutInvalidError => 'La selezione del checkout non è valida.';
+
+  @override
+  String get checkoutUnavailableError =>
+      'Il negozio non può offrire il checkout in questo momento.';
+
+  @override
+  String get checkoutConflictError =>
+      'Questa operazione non corrisponde al tentativo precedente. Avvia una nuova validazione.';
+
+  @override
+  String get checkoutStaleCartError =>
+      'Il carrello è cambiato. Lo aggiorniamo prima di validare di nuovo.';
+
+  @override
+  String get checkoutInvalidAddressError =>
+      'L’indirizzo non esiste o non appartiene a questo account.';
+
+  @override
+  String get checkoutUnsupportedZoneError =>
+      'L’indirizzo è fuori dalla zona di consegna selezionata.';
+
+  @override
+  String get checkoutSlotUnavailableError =>
+      'La fascia oraria o la modalità non sono più disponibili.';
+
+  @override
+  String get checkoutCartUnavailableError =>
+      'Controlla il carrello: è vuoto o contiene prodotti non disponibili.';
+
+  @override
+  String get checkoutExpiredError =>
+      'Il riepilogo è scaduto e deve essere validato di nuovo.';
+
+  @override
+  String get checkoutNotFoundError =>
+      'Il riepilogo non esiste più o non appartiene a questo account.';
+
+  @override
+  String get checkoutUnexpectedError =>
+      'Non è stato possibile verificare il checkout. Non mostriamo prezzi o conferme dedotte.';
 }

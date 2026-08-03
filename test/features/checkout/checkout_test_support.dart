@@ -1,0 +1,278 @@
+import 'dart:async';
+
+import 'package:client_merchandise_control/features/account/domain/customer_account_models.dart';
+import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
+import 'package:client_merchandise_control/features/checkout/domain/checkout_models.dart';
+import 'package:client_merchandise_control/features/checkout/domain/checkout_repository.dart';
+import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
+
+const checkoutTestOwner = '10000000-0000-4000-8000-000000000001';
+const checkoutTestPublication = '50000000-0000-4000-8000-000000000001';
+const checkoutTestPoint = '51000000-0000-4000-8000-000000000001';
+const checkoutTestZone = '52000000-0000-4000-8000-000000000001';
+const checkoutTestPickupSlot = '53000000-0000-4000-8000-000000000001';
+const checkoutTestDeliverySlot = '53000000-0000-4000-8000-000000000002';
+const checkoutTestQuote = '54000000-0000-4000-8000-000000000001';
+const checkoutTestAddress = '55000000-0000-4000-8000-000000000001';
+const checkoutTestKey = '56000000-0000-4000-8000-000000000001';
+final checkoutTestNow = DateTime.utc(2026, 8, 3, 3);
+
+CustomerCartSnapshot checkoutTestCart({int version = 7}) {
+  const line = CartLine(
+    publicationId: checkoutTestPublication,
+    publicName: 'Café público',
+    quantity: 2,
+    priceClp: 1200,
+    snapshotPriceClp: 1200,
+    compareAtPriceClp: 1500,
+    availability: StorefrontAvailability.available,
+    status: CartLineStatus.available,
+    changeType: CartLineChangeType.none,
+    isGuest: false,
+  );
+  return CustomerCartSnapshot(
+    shopSlug: 'storefront-test',
+    version: version,
+    items: const [line],
+    source: CartSource.account,
+    quoteStatus: CartQuoteStatus.indicative,
+    requiresCustomerReview: false,
+    subtotalClp: 2400,
+    idempotent: true,
+  );
+}
+
+CustomerAddress checkoutTestCustomerAddress({
+  String id = checkoutTestAddress,
+  String commune = 'Santiago',
+}) => CustomerAddress(
+  id: id,
+  label: 'Casa',
+  recipientName: 'Cliente Uno',
+  addressLine1: 'Avenida Uno 123',
+  addressLine2: null,
+  commune: commune,
+  region: 'Metropolitana',
+  postalCode: '8320000',
+  countryCode: 'CL',
+  deliveryInstructions: null,
+  isDefault: true,
+  updatedAt: checkoutTestNow,
+);
+
+StorefrontFulfillmentOptions checkoutTestOptions() =>
+    StorefrontFulfillmentOptions(
+      status: FulfillmentOptionsStatus.ok,
+      shopSlug: 'storefront-test',
+      currencyCode: 'CLP',
+      modes: const [
+        CheckoutModeOption(mode: CheckoutFulfillmentMode.pickup, enabled: true),
+        CheckoutModeOption(
+          mode: CheckoutFulfillmentMode.reservation,
+          enabled: true,
+        ),
+        CheckoutModeOption(
+          mode: CheckoutFulfillmentMode.delivery,
+          enabled: true,
+        ),
+      ],
+      pickupPoints: const [
+        CheckoutPickupPoint(
+          id: checkoutTestPoint,
+          name: 'Tienda Centro',
+          addressLine1: 'Avenida Uno 123',
+          addressLine2: null,
+          commune: 'Santiago',
+          region: 'Metropolitana',
+          instructions: 'Retiro en mesón',
+        ),
+      ],
+      deliveryZones: [
+        CheckoutDeliveryZone(
+          id: checkoutTestZone,
+          name: 'Santiago centro',
+          region: 'Metropolitana',
+          communes: const ['Santiago'],
+          feeClp: 2500,
+        ),
+      ],
+      slots: [
+        CheckoutFulfillmentSlot(
+          id: checkoutTestPickupSlot,
+          mode: CheckoutFulfillmentMode.pickup,
+          pickupPointId: checkoutTestPoint,
+          deliveryZoneId: null,
+          label: 'Hoy 16:00–18:00',
+          startsAt: checkoutTestNow.add(const Duration(hours: 1)),
+          endsAt: checkoutTestNow.add(const Duration(hours: 3)),
+        ),
+        CheckoutFulfillmentSlot(
+          id: checkoutTestDeliverySlot,
+          mode: CheckoutFulfillmentMode.delivery,
+          pickupPointId: null,
+          deliveryZoneId: checkoutTestZone,
+          label: 'Mañana 10:00–12:00',
+          startsAt: checkoutTestNow.add(const Duration(days: 1)),
+          endsAt: checkoutTestNow.add(const Duration(days: 1, hours: 2)),
+        ),
+      ],
+      serverTime: checkoutTestNow,
+    );
+
+CheckoutQuote checkoutTestQuoteSnapshot({
+  CheckoutQuoteStatus status = CheckoutQuoteStatus.quoted,
+  bool requiresReview = false,
+  int quoteVersion = 2,
+  int cartVersion = 7,
+  List<CheckoutQuoteChange> changes = const [],
+}) => CheckoutQuote(
+  id: checkoutTestQuote,
+  shopSlug: 'storefront-test',
+  cartVersion: cartVersion,
+  quoteVersion: quoteVersion,
+  status: status,
+  fulfillmentMode: CheckoutFulfillmentMode.pickup,
+  addressId: null,
+  pickupPointId: checkoutTestPoint,
+  deliveryZoneId: null,
+  slotId: checkoutTestPickupSlot,
+  subtotalClp: 2400,
+  deliveryFeeClp: 0,
+  totalClp: 2400,
+  items: const [
+    CheckoutQuoteItem(
+      publicationId: checkoutTestPublication,
+      publicName: 'Café público',
+      quantity: 2,
+      unitPriceClp: 1200,
+      compareAtPriceClp: 1500,
+      lineTotalClp: 2400,
+      promotionName: null,
+      promotionEndsAt: null,
+    ),
+  ],
+  changes: changes,
+  requiresCustomerReview: requiresReview,
+  quotedAt: checkoutTestNow,
+  expiresAt: checkoutTestNow.add(const Duration(minutes: 5)),
+  confirmedAt: status == CheckoutQuoteStatus.confirmed
+      ? checkoutTestNow.add(const Duration(seconds: 20))
+      : null,
+  serverTime: checkoutTestNow.add(const Duration(seconds: 10)),
+  remainingSeconds: 290,
+  idempotent: false,
+);
+
+CheckoutRemoteResponse checkoutTestResponse({
+  CheckoutRemoteStatus status = CheckoutRemoteStatus.quoted,
+  CheckoutQuote? quote,
+}) => CheckoutRemoteResponse(
+  status: status,
+  idempotent: false,
+  serverTime: checkoutTestNow.add(const Duration(seconds: 10)),
+  quote: quote,
+);
+
+final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
+  CheckoutLocalDraft? draft;
+  Object? saveError;
+  int saveCalls = 0;
+  int clearCalls = 0;
+
+  @override
+  Future<void> clear({
+    required String ownerSubjectId,
+    required String shopSlug,
+  }) async {
+    clearCalls++;
+    if (draft?.ownerSubjectId == ownerSubjectId &&
+        draft?.shopSlug == shopSlug) {
+      draft = null;
+    }
+  }
+
+  @override
+  Future<CheckoutLocalDraft?> read({
+    required String ownerSubjectId,
+    required String shopSlug,
+  }) async {
+    if (draft?.ownerSubjectId != ownerSubjectId ||
+        draft?.shopSlug != shopSlug) {
+      return null;
+    }
+    return draft;
+  }
+
+  @override
+  Future<void> save(CheckoutLocalDraft draft) async {
+    saveCalls++;
+    if (saveError case final error?) throw error;
+    this.draft = draft;
+  }
+}
+
+final class FakeCheckoutRepository implements CheckoutRepository {
+  FakeCheckoutRepository({StorefrontFulfillmentOptions? options})
+    : options = options ?? checkoutTestOptions();
+
+  StorefrontFulfillmentOptions options;
+  final List<Object> createOutcomes = [];
+  final List<Object> confirmOutcomes = [];
+  Object? readOutcome;
+  final List<CheckoutQuoteCreateRequest> createRequests = [];
+  final List<({String quoteId, int version, String key})> confirmRequests = [];
+  int loadOptionsCalls = 0;
+  int readCalls = 0;
+
+  @override
+  Future<CheckoutRemoteResponse> confirmQuote({
+    required String quoteId,
+    required int expectedQuoteVersion,
+    required String idempotencyKey,
+  }) async {
+    confirmRequests.add((
+      quoteId: quoteId,
+      version: expectedQuoteVersion,
+      key: idempotencyKey,
+    ));
+    return _resolve(confirmOutcomes);
+  }
+
+  @override
+  Future<CheckoutRemoteResponse> createQuote(
+    CheckoutQuoteCreateRequest request,
+  ) async {
+    createRequests.add(request);
+    return _resolve(createOutcomes);
+  }
+
+  @override
+  Future<StorefrontFulfillmentOptions> loadOptions({
+    required String shopSlug,
+  }) async {
+    loadOptionsCalls++;
+    return options;
+  }
+
+  @override
+  Future<CheckoutRemoteResponse> readQuote({required String quoteId}) async {
+    readCalls++;
+    final outcome = readOutcome;
+    if (outcome == null) {
+      return checkoutTestResponse(status: CheckoutRemoteStatus.notFound);
+    }
+    if (outcome is CheckoutRemoteResponse) return outcome;
+    if (outcome is Future<CheckoutRemoteResponse>) return outcome;
+    throw outcome;
+  }
+
+  Future<CheckoutRemoteResponse> _resolve(List<Object> outcomes) async {
+    if (outcomes.isEmpty) {
+      throw StateError('Missing checkout outcome.');
+    }
+    final outcome = outcomes.removeAt(0);
+    if (outcome is CheckoutRemoteResponse) return outcome;
+    if (outcome is Future<CheckoutRemoteResponse>) return outcome;
+    throw outcome;
+  }
+}

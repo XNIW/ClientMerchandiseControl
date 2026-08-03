@@ -1052,4 +1052,265 @@ class AppLocalizationsEn extends AppLocalizations {
   String cartLineSemantics(String name, int quantity, String price) {
     return '$name, quantity $quantity, $price';
   }
+
+  @override
+  String get cartCheckoutAction => 'Go to checkout';
+
+  @override
+  String get cartSignInCheckoutAction => 'Sign in and continue';
+
+  @override
+  String get checkoutTitle => 'Checkout';
+
+  @override
+  String get checkoutStepMode => 'Method';
+
+  @override
+  String get checkoutStepDestination => 'Destination';
+
+  @override
+  String get checkoutStepSlot => 'Time slot';
+
+  @override
+  String get checkoutStepReview => 'Review';
+
+  @override
+  String get checkoutStepConfirmation => 'Confirmation';
+
+  @override
+  String checkoutStepProgress(int current, int total, String title) {
+    return 'Step $current of $total: $title';
+  }
+
+  @override
+  String get checkoutAuthTitle => 'Sign in to confirm';
+
+  @override
+  String get checkoutAuthMessage =>
+      'You can browse and keep your cart without an account. We need your customer session to validate the address, prices, and availability.';
+
+  @override
+  String get checkoutContinueBrowsing => 'Back to cart';
+
+  @override
+  String get checkoutUnavailableTitle => 'Checkout unavailable';
+
+  @override
+  String get checkoutRetryAction => 'Retry safely';
+
+  @override
+  String get checkoutContinueAction => 'Continue';
+
+  @override
+  String get checkoutBackAction => 'Back';
+
+  @override
+  String get checkoutBackToCart => 'Back to cart';
+
+  @override
+  String get checkoutRestartAction => 'Start again';
+
+  @override
+  String get checkoutModeTitle =>
+      'How would you like to receive your purchase?';
+
+  @override
+  String get checkoutModeMessage =>
+      'Only methods configured and available for this store are shown.';
+
+  @override
+  String get checkoutModePickup => 'Pickup';
+
+  @override
+  String get checkoutModePickupDescription =>
+      'Collect your purchase from an available pickup point.';
+
+  @override
+  String get checkoutModeReservation => 'Reservation';
+
+  @override
+  String get checkoutModeReservationDescription =>
+      'Confirm an active reservation and collect it in store.';
+
+  @override
+  String get checkoutModeDelivery => 'Delivery';
+
+  @override
+  String get checkoutModeDeliveryDescription =>
+      'Receive your purchase at an address within an active delivery zone.';
+
+  @override
+  String get checkoutDeliveryAddressTitle => 'Delivery address';
+
+  @override
+  String get checkoutDeliveryAddressMessage =>
+      'The store validates the address, zone, and fee on the server.';
+
+  @override
+  String get checkoutNoAddresses =>
+      'Add an address to your account before choosing delivery.';
+
+  @override
+  String get checkoutManageAddresses => 'Manage addresses';
+
+  @override
+  String get checkoutUnsupportedAddress => 'Outside available zones';
+
+  @override
+  String get checkoutPickupPointTitle => 'Pickup point';
+
+  @override
+  String get checkoutPickupPointMessage =>
+      'Choose a public location available for this method.';
+
+  @override
+  String get checkoutSlotTitle => 'Available time slot';
+
+  @override
+  String get checkoutSlotMessage =>
+      'Capacity is checked again when checkout is validated.';
+
+  @override
+  String get checkoutNoSlots =>
+      'No time slots are available for this selection.';
+
+  @override
+  String get checkoutReviewTitle => 'Review your selection';
+
+  @override
+  String get checkoutReviewMessage =>
+      'This total is still an estimate. The store will reread the cart, promotions, and availability.';
+
+  @override
+  String get checkoutServerValidationNotice =>
+      'The server calculates prices, discounts, fees, and the total. The app does not send an authoritative total.';
+
+  @override
+  String get checkoutSubtotalLabel => 'Subtotal';
+
+  @override
+  String get checkoutDeliveryFeeLabel => 'Delivery fee';
+
+  @override
+  String get checkoutEstimatedTotalLabel => 'Estimated total';
+
+  @override
+  String get checkoutAuthoritativeTotalLabel => 'Validated total';
+
+  @override
+  String get checkoutValidateAction => 'Validate prices and availability';
+
+  @override
+  String get checkoutConfirmationTitle => 'Checkout confirmation';
+
+  @override
+  String get checkoutQuoteReadyMessage =>
+      'The store validated this summary. Confirm it before it expires.';
+
+  @override
+  String get checkoutReviewChangesMessage =>
+      'We detected changes. Review and explicitly accept them to continue.';
+
+  @override
+  String get checkoutConfirmedMessage => 'Summary confirmed by the store.';
+
+  @override
+  String get checkoutExpiredMessage =>
+      'This summary expired. Validate it again before continuing.';
+
+  @override
+  String checkoutQuoteRemaining(String time) {
+    return 'This summary expires in $time';
+  }
+
+  @override
+  String get checkoutChangesTitle => 'Changes to review';
+
+  @override
+  String get checkoutConfirmAction => 'Confirm summary';
+
+  @override
+  String get checkoutAcceptChangesAction => 'Accept changes and confirm';
+
+  @override
+  String get checkoutOrderDeferredNotice =>
+      'The summary is confirmed. The order will be created in the next safe step.';
+
+  @override
+  String get checkoutRestoredNotice => 'Your checkout progress was restored.';
+
+  @override
+  String get checkoutQuoteChangedNotice =>
+      'The store updated the summary. Review the changes.';
+
+  @override
+  String get checkoutConfirmedNotice => 'Checkout confirmed.';
+
+  @override
+  String get checkoutPriceChanged => 'A product price changed.';
+
+  @override
+  String get checkoutPromotionChanged => 'A promotion changed or ended.';
+
+  @override
+  String get checkoutProductUnavailable => 'A product is no longer available.';
+
+  @override
+  String get checkoutHoldRequired =>
+      'This reservation requires an active hold.';
+
+  @override
+  String get checkoutOfflineError =>
+      'You are offline. We keep your cart and progress, but cannot confirm a new checkout.';
+
+  @override
+  String get checkoutTimeoutError =>
+      'The response was ambiguous. Retry with the same operation to retrieve the actual result.';
+
+  @override
+  String get checkoutUnauthorizedError =>
+      'Your session can no longer confirm checkout. Sign in again.';
+
+  @override
+  String get checkoutInvalidError => 'The checkout selection is invalid.';
+
+  @override
+  String get checkoutUnavailableError =>
+      'The store cannot offer checkout right now.';
+
+  @override
+  String get checkoutConflictError =>
+      'This operation does not match the previous attempt. Start a new validation.';
+
+  @override
+  String get checkoutStaleCartError =>
+      'The cart changed. We are refreshing it before validating again.';
+
+  @override
+  String get checkoutInvalidAddressError =>
+      'The address does not exist or does not belong to this account.';
+
+  @override
+  String get checkoutUnsupportedZoneError =>
+      'The address is outside the selected delivery zone.';
+
+  @override
+  String get checkoutSlotUnavailableError =>
+      'The time slot or method is no longer available.';
+
+  @override
+  String get checkoutCartUnavailableError =>
+      'Review the cart: it is empty or contains unavailable products.';
+
+  @override
+  String get checkoutExpiredError =>
+      'The summary expired and must be validated again.';
+
+  @override
+  String get checkoutNotFoundError =>
+      'The summary no longer exists or does not belong to this account.';
+
+  @override
+  String get checkoutUnexpectedError =>
+      'We could not verify checkout. No inferred prices or confirmations are shown.';
 }

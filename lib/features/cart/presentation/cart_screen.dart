@@ -492,30 +492,20 @@ class _CartSummary extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   FilledButton.icon(
-                    key: ValueKey(
-                      state.isAuthenticated
-                          ? 'cart-revalidate'
-                          : 'cart-sign-in',
-                    ),
+                    key: const ValueKey('cart-checkout'),
                     onPressed: state.isBusy
                         ? null
-                        : state.isAuthenticated
-                        ? ref.read(cartControllerProvider.notifier).revalidate
-                        : () => context.go(AppRoutes.accountLocation),
+                        : () => context.push(AppRoutes.checkoutLocation),
                     icon: state.isGlobalBusy
                         ? const SizedBox.square(
                             dimension: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Icon(
-                            state.isAuthenticated
-                                ? Icons.verified_outlined
-                                : Icons.login,
-                          ),
+                        : const Icon(Icons.shopping_bag_outlined),
                     label: Text(
                       state.isAuthenticated
-                          ? l10n.cartRevalidateAction
-                          : l10n.cartSignInAction,
+                          ? l10n.cartCheckoutAction
+                          : l10n.cartSignInCheckoutAction,
                     ),
                     style: FilledButton.styleFrom(
                       minimumSize: const Size.fromHeight(
@@ -523,6 +513,24 @@ class _CartSummary extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  if (state.isAuthenticated) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    OutlinedButton.icon(
+                      key: const ValueKey('cart-revalidate'),
+                      onPressed: state.isBusy
+                          ? null
+                          : ref
+                                .read(cartControllerProvider.notifier)
+                                .revalidate,
+                      icon: const Icon(Icons.verified_outlined),
+                      label: Text(l10n.cartRevalidateAction),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(
+                          AppSizes.minimumTouchTarget,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

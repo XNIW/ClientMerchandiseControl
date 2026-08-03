@@ -9,6 +9,7 @@ import '../../features/auth/application/auth_controller.dart';
 import '../../features/auth/application/auth_providers.dart';
 import '../../features/auth/domain/auth_state.dart';
 import '../../features/cart/presentation/cart_screen.dart';
+import '../../features/checkout/presentation/checkout_screen.dart';
 import '../../features/catalog/application/catalog_controller.dart';
 import '../../features/catalog/presentation/catalog_screen.dart';
 import '../../features/deep_links/application/storefront_deep_link.dart';
@@ -63,6 +64,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.checkoutLocation,
+        builder: (context, state) => const CheckoutScreen(),
       ),
       GoRoute(
         path: AppRoutes.productPattern,
@@ -141,7 +146,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         previous is AuthAuthenticated &&
         previous.origin == AuthSessionOrigin.callback;
     if (isCallbackAuthentication && !wasCallbackAuthentication) {
-      router.go(AppRoutes.accountLocation);
+      if (router.state.uri.path != AppRoutes.checkoutLocation) {
+        router.go(AppRoutes.accountLocation);
+      }
     }
   });
 

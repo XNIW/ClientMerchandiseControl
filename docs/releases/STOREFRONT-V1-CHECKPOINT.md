@@ -1,11 +1,12 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: EXECUTION / Milestone 5 / TASK-033 security hardening
+- **Fase corrente**: BLOCKED / EXECUTION / Milestone 5 / TASK-033 security hardening
 - **Task corrente**: TASK-033
 - **Repository writer corrente**: nessuno durante la Deep Security Scan read-only;
   successivamente un solo writer per repository per finding confermati
 - **Branch**: `integration/storefront-v1`
 - **SHA Client runtime corrente**: `72f98eea574300f77d42e96e09557f0dd55ac2d5`
+- **SHA Client target Deep Security Scan**: `ec74166ea20786b8deaa9965cac103984c927820`
 - **SHA Admin/Supabase corrente**: `e0406834af09173902e2f64948dd5834f4a9fac5`
 - **SHA Win7POS corrente**: `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
@@ -170,19 +171,26 @@
   TASK-029 `30822288362` attempt 2 tutti `PASS`. Artifact `8859500219`, digest
   `sha256:b2fad3f10af44a11c0cdd62b43fa2a10e5433740248db5c5666a6605c454819a`;
   migration/RLS/online OFF/rollback/production read-only postcheck `PASS`.
-- **Gate TASK-033 corrente**: capability preflight Deep Security Scan `PASS`; scan,
-  validation, attack-path, eventuale hardening e regressioni `NOT_RUN`.
-- **Comando successivo esatto**: avviare `start_codex_security_deep_scan` sul target
-  `/Users/minxiang/Projects/_release_train/storefront-v1`, scope `.`, poi completare
-  validation, attack-path e report canonico prima di qualunque modifica
-- **Blocker**: GitHub-hosted CI Client `BLOCKED` esterna per billing/spending limit;
+- **Gate TASK-033 corrente**: nuovo preflight `PASS` (`ready`, exit 0); singola chiamata
+  Deep Scan `BLOCKED` prima di discovery perché il parent host non fornisce un managed
+  filesystem permission profile al worker read-only. Nessun nuovo manifest, `scanId`,
+  completion o `report.md`; validation/attack-path/review integrata `NOT_RUN`.
+- **Comando successivo esatto**: in una nuova sessione con managed filesystem
+  permission profile, rieseguire il preflight e avviare una sola nuova
+  `start_codex_security_deep_scan` sul Client SHA `ec74166e`, scope `.`, senza
+  riutilizzare i due tentativi terminali precedenti
+- **Blocker**: Codex Security Deep Scan `BLOCKED_EXTERNAL / BLOCKED_ENVIRONMENT` per
+  managed filesystem permission profile assente; GitHub-hosted CI Client `BLOCKED`
+  esterna per billing/spending limit anche nel singolo rerun `30824651949` attempt 2
+  sullo SHA `ec74166e` (tre job, zero step);
   Windows 7 fisico `BLOCKED` esterno; provider push live `BLOCKED` esterno per assenza
   di credential; provider payment online `BLOCKED` esterno per assenza di credential
-  sandbox approvate. Nessun blocker tecnico corrente per TASK-033
-- **Processi ancora attivi**: `caffeinate -dimsu`, PID `57046`; Android Emulator
-  `emulator-5554`, API 35; iOS Simulator iPhone 17 Pro iOS 26.5
-  UUID `240F400E-5EFA-486A-9137-FFBBE70F604D`. Sono controllati e necessari ai gate
-  mobile successivi; `caffeinate` deve essere terminato al closeout del release train
+  sandbox approvate
+- **Processi verificati nel residual audit**: il precedente `caffeinate` PID `57046`
+  e Android Emulator `emulator-5554` non sono più attivi; resta booted il solo iOS
+  Simulator iPhone 17 Pro iOS 26.5 UUID
+  `240F400E-5EFA-486A-9137-FFBBE70F604D`. Nessun processo di verifica è rimasto
+  irrisolto in questa esecuzione
 - **Stato staging**: Auth/Google callback `PASS`; Milestone 1 schema/RLS/projection/API
   `PASS`; Milestone 2 Admin publish/promozioni/immagini/rollback/cleanup `PASS`;
   fixture pubblica, Home, Catalog, Discovery, Detail, cache offline/reconnect,

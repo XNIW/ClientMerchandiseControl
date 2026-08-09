@@ -163,11 +163,11 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-033
 - **File task**: docs/TASKS/TASK-033-security-hardening.md
-- **Stato task**: ACTIVE
+- **Stato task**: BLOCKED
 - **Fase**: EXECUTION
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Indicatore**: BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE
 - **Release train**: STOREFRONT_V1
-- **Stato release train**: EXECUTION
+- **Stato release train**: BLOCKED
 - **Review integrata**: NOT_RUN
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
@@ -181,7 +181,8 @@ callback iOS warm/cold, restore, logout e nuovo login. Finding aperti 0 P0/P1/P2
 CI finale `30713857455` 3/3 `PASS`, step applicabili `success`, annotation 0/0/0.
 PR #4 è merged normalmente con commit `b2d70b5`; branch remoto eliminato e il closeout
 su `main` è stato verificato dalla CI `30714350425`. Il release train Storefront v1 è
-ora in `EXECUTION` sul worktree dedicato: TASK-005–TASK-010 pertinenti e
+ora `BLOCKED` sul worktree dedicato per una limitazione esterna dell'ambiente della
+Deep Security Scan: TASK-005–TASK-010 pertinenti e
 TASK-013–TASK-019 sono `VALIDATED_PENDING_INTEGRATED_REVIEW`; il checkpoint Milestone
 3 è `PASS`. TASK-021 ha completato profilo, indirizzi, privacy e cancellazione request
 owner-only ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-022 ha completato registro
@@ -205,6 +206,7 @@ idempotente e il confine tra ordine cliente e vendita fiscale. Entrambi sono
 di notifiche ordine e l'integrazione Client privacy-safe ed è anch'esso
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 ha completato metodi v1,
 stato/idempotenza pagamento, boundary provider/webhook fail-closed e checkpoint
-Milestone 4 629/629; è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è l'unico task
-attivo e verifica threat model, RLS abuse, rate limit e security hardening.
+Milestone 4 629/629; è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è il task
+corrente, `BLOCKED / EXECUTION`, in attesa di una sessione con managed filesystem
+permission profile per threat model, RLS abuse, rate limit e security hardening.
 Gli altri task del train restano `TODO` fino al rispettivo checkpoint.

@@ -144,13 +144,19 @@ if [[ "${cmc_active_task_normalized}" == "nessuno" ]]; then
       "${cmc_table_active_count}" >&2
     cmc_violation_count=$((cmc_violation_count + 1))
   fi
-elif [[ "${cmc_table_active_count}" -ne 1 ]]; then
-  printf 'La roadmap deve contenere esattamente un task ACTIVE: ricevuti=%s.\n' \
-    "${cmc_table_active_count}" >&2
-  cmc_violation_count=$((cmc_violation_count + 1))
-elif [[ "${cmc_table_active_task}" != "${cmc_active_task}" ]]; then
-  printf 'Task ACTIVE in roadmap incoerente: header=%q, roadmap=%q.\n' \
-    "${cmc_active_task}" "${cmc_table_active_task}" >&2
+elif [[ "${cmc_task_status}" == "ACTIVE" ]]; then
+  if [[ "${cmc_table_active_count}" -ne 1 ]]; then
+    printf 'Un task corrente ACTIVE richiede esattamente una riga ACTIVE: ricevute=%s.\n' \
+      "${cmc_table_active_count}" >&2
+    cmc_violation_count=$((cmc_violation_count + 1))
+  elif [[ "${cmc_table_active_task}" != "${cmc_active_task}" ]]; then
+    printf 'Task ACTIVE in roadmap incoerente: header=%q, roadmap=%q.\n' \
+      "${cmc_active_task}" "${cmc_table_active_task}" >&2
+    cmc_violation_count=$((cmc_violation_count + 1))
+  fi
+elif [[ "${cmc_table_active_count}" -ne 0 ]]; then
+  printf 'Un task corrente %s non può lasciare righe ACTIVE: ricevute=%s.\n' \
+    "${cmc_task_status}" "${cmc_table_active_count}" >&2
   cmc_violation_count=$((cmc_violation_count + 1))
 fi
 

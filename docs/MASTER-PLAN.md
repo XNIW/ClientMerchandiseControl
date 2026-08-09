@@ -7,16 +7,17 @@
 - **Stato globale**: ACTIVE
 - **Task attivo**: TASK-033
 - **File task**: docs/TASKS/TASK-033-security-hardening.md
-- **Stato task**: ACTIVE
+- **Stato task**: BLOCKED
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Indicatore**: BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE
 - **Release train**: STOREFRONT_V1
-- **Stato release train**: EXECUTION
+- **Stato release train**: BLOCKED
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: completare la Deep Security Scan read-only sul root
-  multi-repository, validare i finding e gli attack path, poi applicare serialmente
-  soltanto l'hardening P0/P1/P2 confermato con regressioni bounded e production OFF
+- **Prossima azione autorizzata**: riprendere TASK-033 in una nuova esecuzione il cui
+  host esponga al plugin un managed filesystem permission profile; rieseguire il
+  preflight e avviare una sola nuova Deep Security Scan sul Client SHA
+  `ec74166ea20786b8deaa9965cac103984c927820`, senza riutilizzare i tentativi falliti
 
 ## Repository coinvolti
 
@@ -85,7 +86,7 @@
 | TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-006, TASK-024, TASK-027, TASK-029 | POS, Admin, Supabase | Handoff operativo senza fusione eventi |
 | TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-022, TASK-027, TASK-028, TASK-029 | Client, Admin, Supabase | Eventi e notifiche affidabili |
 | TASK-032 | Decisione provider e integrazione pagamenti | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-027 | Client, Admin, Supabase | Pagamento selezionato e integrato |
-| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | ACTIVE | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
+| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | BLOCKED | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
 | TASK-034 | Offline/reconnect/concorrenza/idempotenza test matrix | TODO | TASK-017, TASK-023, TASK-025, TASK-027, TASK-030 | Client, Admin, Supabase, POS | Matrice resilienza superata |
 | TASK-035 | Observability, crash reporting e analytics privacy-safe | TODO | TASK-011, TASK-020, TASK-027, TASK-031 | Client, Admin | Telemetria privacy-safe |
 | TASK-036 | Accessibility, localizzazione e device matrix | TODO | TASK-012, TASK-018, TASK-021, TASK-026, TASK-028, TASK-031 | Client | Acceptance accessibilità e lingue |
@@ -182,7 +183,8 @@ dispatcher idempotente, payload privacy-safe e route notifiche Android/iOS ed è
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 ha completato payment offline,
 provider/webhook dormant e il checkpoint Milestone 4 629/629 ed è
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è l'unico task
-`ACTIVE / EXECUTION` e i task successivi restano `TODO` fino al relativo handoff. La
+`BLOCKED / EXECUTION` per causa esterna d'ambiente e i task successivi restano `TODO`
+fino al relativo handoff. La
 dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
@@ -490,3 +492,19 @@ Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-033, iniziando dalla Deep Security
 Scan read-only multi-repository e proseguendo con hardening mirato dei soli finding
 tecnici confermati.
+
+## Blocco TASK-033 — nuova Deep Security Scan non avviata
+
+Il 2026-08-08 il Client è stato isolato in un worktree detached pulito allo SHA
+`ec74166ea20786b8deaa9965cac103984c927820`; lo SHA Admin/Supabase
+`e0406834af09173902e2f64948dd5834f4a9fac5` è stato verificato senza modifiche. Il
+preflight fresco `deep_security_scan` ha restituito `ready` con exit code 0. La singola
+chiamata successiva a `start_codex_security_deep_scan`, tuttavia, non ha avviato né
+riagganciato discovery perché il parent non espone un managed filesystem permission
+profile al worker read-only. Nessun `scanId`, discovery manifest o nuovo
+failure-manifest è stato prodotto; validation, attack-path, completion, report e review
+integrata non sono stati eseguiti. Il precedente manifest fallito per usage limit resta
+soltanto evidenza storica e non è stato riutilizzato.
+
+Handoff:
+`BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE`.

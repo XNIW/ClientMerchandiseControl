@@ -240,23 +240,42 @@ cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | ACTIVE |/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | DONE |/' \
+  's/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | BLOCKED |/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"
 
 cmc_case="$(cmc_fixture invalid-train-state)"
-sed -i.bak 's/- \*\*Stato release train\*\*: EXECUTION/- **Stato release train**: UNKNOWN/' \
+sed -i.bak 's/- \*\*Stato release train\*\*: BLOCKED/- **Stato release train**: UNKNOWN/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail invalid-train-state "${cmc_case}"
 
 cmc_case="$(cmc_fixture active-during-review)"
 sed -i.bak \
-  's/- \*\*Stato release train\*\*: EXECUTION/- **Stato release train**: INTEGRATED_REVIEW/' \
+  's/- \*\*Stato release train\*\*: BLOCKED/- **Stato release train**: INTEGRATED_REVIEW/' \
+  "${cmc_case}/docs/MASTER-PLAN.md"
+sed -i.bak \
+  's/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | BLOCKED |/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-during-review "${cmc_case}"
+
+cmc_case="$(cmc_fixture active-header-without-active-row)"
+sed -i.bak 's/- \*\*Stato task\*\*: BLOCKED/- **Stato task**: ACTIVE/' \
+  "${cmc_case}/docs/MASTER-PLAN.md"
+rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
+sed -i.bak 's/- \*\*Stato task\*\*: BLOCKED/- **Stato task**: ACTIVE/' \
+  "${cmc_case}/README.md"
+rm "${cmc_case}/README.md.bak"
+sed -i.bak 's/- \*\*Stato\*\*: BLOCKED/- **Stato**: ACTIVE/' \
+  "${cmc_case}/docs/TASKS/TASK-033-security-hardening.md"
+rm "${cmc_case}/docs/TASKS/TASK-033-security-hardening.md.bak"
+sed -i.bak \
+  's/`BLOCKED \/ EXECUTION \/ BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE`\./`ACTIVE \/ EXECUTION \/ BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE`./' \
+  "${cmc_case}/docs/TASKS/EVIDENCE/TASK-033/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-033/README.md.bak"
+cmc_expect_fail active-header-without-active-row "${cmc_case}"
 
 cmc_case="$(cmc_fixture validated-pending)"
 cmc_expect_pass validated-pending "${cmc_case}"
@@ -267,4 +286,4 @@ mv \
   "${cmc_case}/TASK-005-missing.md"
 cmc_expect_fail validated-file-missing "${cmc_case}"
 
-printf 'Governance release train: 8/8 fixture PASS.\n'
+printf 'Governance release train: 9/9 fixture PASS.\n'

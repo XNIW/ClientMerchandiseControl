@@ -4,7 +4,7 @@
 
 - Release train: `STOREFRONT_V1`
 - Governance: `ADR-011`
-- Stato: `EXECUTION`
+- Stato: `BLOCKED`
 - Baseline Client: `6a50b421057a09d4152653a78512d268a7fa4d69`
 - Review integrata: `NOT_RUN`
 - Production modificata: `no`
@@ -328,3 +328,45 @@ backend production.
 - **Transizione**: TASK-033 è l'unico task `ACTIVE / EXECUTION`; capability preflight
   Deep Security Scan `PASS`, con discovery/validation/attack-path read-only come
   prossimo gate.
+
+## 2026-08-08 — TASK-033 bloccato prima della discovery
+
+- **Target Client**: worktree detached sterile allo SHA
+  `ec74166ea20786b8deaa9965cac103984c927820`; branch e PR #5 hanno lo stesso head.
+- **Admin read-only**: `e0406834af09173902e2f64948dd5834f4a9fac5`, invariato;
+  l'evidenza Milestone 4 629/629 resta valida ma non è stata ancora consumata da una
+  review integrata.
+- **Preflight fresco**: `ready`, exit 0; goal tools/goals disponibili e skill richieste
+  presenti.
+- **Discovery**: una sola chiamata non ha avviato né riagganciato la scan perché il
+  parent non fornisce un managed filesystem permission profile al worker read-only.
+  Nessun `scanId`, manifest o nuovo failure-manifest è stato prodotto.
+- **Tentativo storico**: il coordinator manifest fallito per usage limit è stato letto
+  soltanto per timestamp e causa e non è stato riutilizzato.
+- **Fasi dipendenti**: manifest acceptance, pagination, threat model canonico,
+  validation, attack-path, draft, completion, `report.md`, review integrata, CI di
+  closeout e merge `NOT_RUN`.
+- **Production**: invariata; nessun deploy, migration remota, modifica Supabase/Storage
+  o feature flag.
+- **Stato**: release train e TASK-033 `BLOCKED`; TASK-032 resta
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`.
+
+## 2026-08-08 — Residual audit remoto e CI exact-SHA
+
+- **Audit**: repository/ref/PR/worktree e lavoro non pubblicato verificati senza
+  modificare codice runtime o target; nessuna Deep Security Scan o review integrata
+  eseguita.
+- **Preservazione**: Client `ec74166ea20786b8deaa9965cac103984c927820`
+  resta head di `integration/storefront-v1`, del remote omonimo e della PR #5; il
+  worktree detached di scansione resta pulito.
+- **CI Client**: run `30824651949`, attempt 2 sullo SHA esatto, `BLOCKED_EXTERNAL`;
+  Quality/Android/iOS hanno zero step e annotazione billing/spending limit. Nessun
+  secondo rerun.
+- **Stati invariati**: TASK-032 `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-033
+  `BLOCKED / EXECUTION`, classificazione `BLOCKED_EXTERNAL / BLOCKED_ENVIRONMENT`.
+- **Governance locale**: README e checker riallineati al task corrente bloccato;
+  `bash -n`, stato corrente, fixture `9/9` e `git diff --check` `PASS`. Le modifiche
+  restano fuori dal ref target e non sono candidate alla scan corrente.
+- **Production**: non modificata; nessun merge, deploy, migration o modifica a
+  Supabase/Storage/secrets. Il batch documentazione/governance è isolato su un branch
+  post-target e non modifica il ref congelato.

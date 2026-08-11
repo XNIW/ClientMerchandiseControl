@@ -1,12 +1,14 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: BLOCKED / EXECUTION / Milestone 5 / TASK-033 security hardening
+- **Fase corrente**: ACTIVE / EXECUTION / final multi-repository closeout / TASK-033
 - **Task corrente**: TASK-033
 - **Repository writer corrente**: nessuno durante la Deep Security Scan read-only;
   successivamente un solo writer per repository per finding confermati
 - **Branch**: `integration/storefront-v1`
 - **SHA Client runtime corrente**: `72f98eea574300f77d42e96e09557f0dd55ac2d5`
-- **SHA Client target Deep Security Scan**: `ec74166ea20786b8deaa9965cac103984c927820`
+- **SHA Client target Deep Security Scan**: candidato finale da fissare dopo la
+  convergenza; il precedente `ec74166ea20786b8deaa9965cac103984c927820` è preservato
+  come baseline e non è più il target vincolante
 - **SHA Admin/Supabase corrente**: `e0406834af09173902e2f64948dd5834f4a9fac5`
 - **SHA Win7POS corrente**: `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`
 - **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
@@ -175,10 +177,10 @@
   Deep Scan `BLOCKED` prima di discovery perché il parent host non fornisce un managed
   filesystem permission profile al worker read-only. Nessun nuovo manifest, `scanId`,
   completion o `report.md`; validation/attack-path/review integrata `NOT_RUN`.
-- **Comando successivo esatto**: in una nuova sessione con managed filesystem
-  permission profile, rieseguire il preflight e avviare una sola nuova
-  `start_codex_security_deep_scan` sul Client SHA `ec74166e`, scope `.`, senza
-  riutilizzare i due tentativi terminali precedenti
+- **Comando successivo esatto**: completare/revisionare le lane Admin #67 e Win7POS
+  #88, chiudere i ledger Android/iOS e integrare i batch reliability; fissare quindi
+  SHA finali e avviare una sola nuova `start_codex_security_deep_scan` sul Client
+  candidato finale, scope `.`, senza riutilizzare i tentativi terminali precedenti
 - **Blocker**: Codex Security Deep Scan `BLOCKED_EXTERNAL / BLOCKED_ENVIRONMENT` per
   managed filesystem permission profile assente; GitHub-hosted CI Client `BLOCKED`
   esterna per billing/spending limit anche nel singolo rerun `30824651949` attempt 2

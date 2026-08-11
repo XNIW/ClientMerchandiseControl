@@ -163,11 +163,11 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-033
 - **File task**: docs/TASKS/TASK-033-security-hardening.md
-- **Stato task**: BLOCKED
+- **Stato task**: ACTIVE
 - **Fase**: EXECUTION
-- **Indicatore**: BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE
+- **Indicatore**: TASK_033_RESUMED_MULTI_REPO_CLOSEOUT_BASELINE
 - **Release train**: STOREFRONT_V1
-- **Stato release train**: BLOCKED
+- **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.

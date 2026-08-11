@@ -1,10 +1,28 @@
 # Evidence TASK-033
 
 Snapshot di handoff:
-`BLOCKED / EXECUTION / BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE`.
+`ACTIVE / EXECUTION / TASK_033_RESUMED_MULTI_REPO_CLOSEOUT_BASELINE`.
 
-Classificazione del blocco: `BLOCKED_EXTERNAL / BLOCKED_ENVIRONMENT`; non è un
-finding del repository.
+Il precedente snapshot
+`BLOCKED / EXECUTION / BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE` resta storia
+verificabile. Il mandato `USER_APPROVER` del 2026-08-11 ha superato quel freeze e ha
+spostato l'unica nuova Deep Security Scan sul candidato Client finale stabilizzato.
+
+Classificazione storica del blocco: `BLOCKED_EXTERNAL / BLOCKED_ENVIRONMENT`; non era
+un finding del repository ed è ora risolta dal profilo filesystem della sessione.
+
+## Baseline di ripresa 2026-08-11
+
+- backup Client: branch locale sul target `ec74166e`, bundle completo verificato e
+  patch binaria applicabile contro `origin/main`;
+- backup batch: Android/Admin/Win7POS preservati con patch, untracked bounded, ref e
+  bundle verificati; dirty state utente separato e invariato;
+- PR iniziali: Client #5/#6, Admin #67 e Win7POS #88 aperte; i loro check storici non
+  vengono ereditati dopo la convergenza sui `main` correnti;
+- iOS `main` pulito su `c55e3a93`; TASK-141 già integrato da PR #4 ma governance stale;
+- staging: unico progetto non-production `ACTIVE_HEALTHY`, Postgres 17, migration head
+  remoto `20260803143000`;
+- production: nessun accesso o write effettuato.
 
 ## Target e precheck
 

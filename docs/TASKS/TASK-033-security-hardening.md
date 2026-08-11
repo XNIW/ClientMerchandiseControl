@@ -5,14 +5,14 @@
 - **Task ID**: TASK-033
 - **Titolo**: Threat model, RLS abuse testing, rate limit e security hardening
 - **File task**: `docs/TASKS/TASK-033-security-hardening.md`
-- **Stato**: BLOCKED
+- **Stato**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-03
-- **Ultimo aggiornamento**: 2026-08-08
+- **Ultimo aggiornamento**: 2026-08-11
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-033/`
-- **Handoff**: BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE
+- **Handoff**: TASK_033_RESUMED_MULTI_REPO_CLOSEOUT_BASELINE
 
 ## Dipendenze
 
@@ -96,7 +96,8 @@
 | D-04 | P3 è ammesso solo se realmente opzionale e fuori dai criteri | Mantiene la soglia richiesta senza scope creep | ATTIVA |
 | D-05 | Test abuse/load restano bounded e usano fixture rollback-safe | Nessun impatto distruttivo o su dati reali | ATTIVA |
 | D-06 | Planning ed Execution sono autorizzati dal prompt USER_APPROVER del 2026-08-02 | Mantiene il train headless continuo | ATTIVA |
-| D-07 | L'emendamento USER_APPROVER del 2026-08-08 richiede una nuova Deep Security Scan repository-wide del solo Client allo SHA `ec74166ea20786b8deaa9965cac103984c927820`; il precedente manifest fallito non è accettabile e la review TASK-032/TASK-033 segue solo dopo completion reale | Rende immutabili target e condizione di avanzamento della ripresa | ATTIVA |
+| D-07 | L'emendamento USER_APPROVER del 2026-08-08 richiedeva una nuova Deep Security Scan repository-wide del solo Client allo SHA `ec74166ea20786b8deaa9965cac103984c927820`; il precedente manifest fallito non è accettabile e la review TASK-032/TASK-033 segue solo dopo completion reale | Provenance del precedente freeze; sostituita dal mandato finale del 2026-08-11 | SUPERATA DA D-08 |
+| D-08 | Il mandato USER_APPROVER del 2026-08-11 supera il freeze sullo SHA `ec74166e`, autorizza convergenza/merge normali delle lane, staging e test fisici, e richiede una sola Deep Security Scan sul candidato Client finale integrato e stabilizzato | Evita una scan intermedia obsoleta mantenendo obbligatori completion reale, zero P0/P1/P2 e production invariata | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 
@@ -147,6 +148,29 @@ confermati, senza modificare production.
 - **Autorizzazione USER_APPROVER**: prompt headless Storefront v1 2026-08-02
 
 ## Execution — `CODEX_EXECUTOR`
+
+### Ripresa finale 2026-08-11
+
+- il `USER_APPROVER` ha autorizzato esplicitamente il closeout multi-repository, il
+  riallineamento governance, i merge normali condizionati ai gate e il clone iOS
+  mancante; nessuna autorizzazione production è stata concessa;
+- fetch correnti completati per Client, Android, Admin e Win7POS; iOS clonato da
+  `XNIW/iOSMerchandiseControl` su `c55e3a93449c4f432bf28f4d7b1f5ac1e5f9b502`;
+- prima di modificare il target Client sono stati creati il branch locale
+  `backup/client-storefront-v1-pre-closeout-20260811`, un bundle completo verificato e
+  una patch binaria `origin/main..ec74166e` verificata con `git apply --check`;
+- i batch dirty Android/Admin/Win7POS e le modifiche utente Android/Win7POS sono stati
+  preservati separatamente con patch, archivi untracked bounded, branch di sicurezza
+  e bundle verificati; nessun reset, stash applicato o cleanup è stato eseguito;
+- stato remoto iniziale: Client PR #5 `OPEN/DRAFT/UNSTABLE` sul vecchio head e PR #6
+  `OPEN/CLEAN`; Admin PR #67 e Win7POS PR #88 `OPEN/DRAFT/CLEAN` ma dietro ai rispettivi
+  `main`; iOS TASK-141 è già in `main`; Android PR #1 è conflittuale e richiede
+  decisione supersession documentata;
+- Supabase non-production `merchandisecontrol-dev` è `ACTIVE_HEALTHY`, Postgres 17;
+  head remoto attestato `20260803143000_storefront_v1_default_address_transition`.
+
+La scansione profonda non viene avviata in questa sottofase: D-08 la vincola al
+candidato Client finale dopo la convergenza delle lane e dei contratti condivisi.
 
 ### Ripresa 2026-08-08
 

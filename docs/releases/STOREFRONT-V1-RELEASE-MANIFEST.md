@@ -4,7 +4,7 @@
 
 - Release train: `STOREFRONT_V1`
 - Governance: `ADR-011`
-- Stato: `BLOCKED`
+- Stato: `EXECUTION`
 - Baseline Client: `6a50b421057a09d4152653a78512d268a7fa4d69`
 - Review integrata: `NOT_RUN`
 - Production modificata: `no`

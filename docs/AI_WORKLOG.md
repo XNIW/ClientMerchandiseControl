@@ -2012,3 +2012,21 @@
 - **Sicurezza operativa**: zero modifiche runtime prodotto, merge, deploy, migration,
   Storage, secret o production. Il batch ledger/README e checker/test di governance è
   isolato su un branch post-target dedicato e non è integrato nel ref congelato.
+
+## 2026-08-11 — Ripresa autorizzata del closeout multi-repository
+
+- **Ruolo**: `CODEX_EXECUTOR`; mandato finale e successiva conferma esplicita del
+  `USER_APPROVER` ricevuti.
+- **Override registrato**: superati freeze Client/permission profile e vecchio target
+  `ec74166e`; la sola Deep Security Scan nuova resta obbligatoria sul candidato finale
+  stabilizzato, mai su una revisione intermedia.
+- **Safety**: fetch correnti; backup Client con ref/bundle/patch verificati; batch
+  Android/Admin/Win7POS e dirty state utente preservati separatamente con patch,
+  archivi bounded, ref e bundle verificati. Nessun reset o cleanup.
+- **Baseline remota**: Client #5/#6, Admin #67 e Win7POS #88 ancora aperte; iOS
+  TASK-141 già merged; Android PR #1 conflittuale. Review indipendenti avviate sui tre
+  batch e sulle due release lane.
+- **Staging**: progetto non-production `ACTIVE_HEALTHY`, Postgres 17, migration head
+  `20260803143000`; nessuna migration nuova e nessun accesso production.
+- **Stato**: TASK-033 riprende `ACTIVE / EXECUTION`; prima convergenza delle lane e
+  dei contratti, poi freeze finale, Deep Scan unica, review integrata e gate completi.

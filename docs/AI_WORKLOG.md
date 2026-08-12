@@ -1953,3 +1953,80 @@
   `ready`: cinque phase skill disponibili, runtime native v2 e goal tools `PASS`.
 - **Prossima azione**: discovery profonda read-only sul root multi-repository, quindi
   validation/attack-path/report canonico e solo dopo eventuale hardening P0/P1/P2.
+
+## 2026-08-08 — TASK-033 Deep Security Scan bloccata prima di discovery
+
+- **Ruolo**: `CODEX_EXECUTOR`; nessuna review integrata avviata.
+- **Precheck Client**: repository/remote/PR #5 verificati; creato un worktree detached
+  sterile allo SHA esatto `ec74166ea20786b8deaa9965cac103984c927820`, con 564 file
+  tracciati e zero file modificati, untracked o ignored.
+- **Precheck Admin**: SHA
+  `e0406834af09173902e2f64948dd5834f4a9fac5` disponibile e allineato al branch remoto
+  e alla PR #67; nessuna modifica Admin.
+- **Tentativo precedente**: il manifest temporaneo del 2026-08-03 è ancora presente,
+  stato `failed`, causa usage limit; conservato solo come storia e mai accettato come
+  discovery o usato per finding/no-finding.
+- **Preflight fresco**: helper `deep_security_scan` exit 0, `ready`; goal tools e goals
+  `PASS`, nessuna modifica persistente di configurazione.
+- **Deep Scan**: una sola chiamata sul Client, scope `.`, non ha avviato né riagganciato
+  discovery. Errore: `Deep Scan cannot safely start a read-only worker: the parent must provide a managed filesystem permission profile.` Nessun `scanId`, manifest o nuovo
+  failure-manifest restituito.
+- **Stop condition**: nessun secondo tentativo; validation, attack-path, draft,
+  completion, `report.md`, integrated review, test di closeout, commit/push/merge e
+  riallineamento main `NOT_RUN`.
+- **Stato**: TASK-032 resta `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-033 e release
+  train passano a `BLOCKED / EXECUTION` con indicatore
+  `BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE`.
+- **Sicurezza**: nessuna modifica a production, Supabase, Storage, secret o
+  infrastruttura; nessun force-push.
+- **Sblocco**: nuova sessione con managed filesystem permission profile, nuovo
+  preflight e una sola nuova scan sul medesimo SHA, senza riutilizzare i tentativi
+  terminali.
+- **Audit remediation**: il preflight `ready` non contiene patch host applicabili; la
+  tool surface non offre un setter per il permission profile e il parent corrente lo
+  dichiara `disabled`. Nessuna modifica a config Codex è stata tentata o inferita.
+
+## 2026-08-08 — Residual audit remoto indipendente da TASK-033
+
+- **Scope**: reconnaissance read-only di Client, Admin, Win7POS e Android; nessuna
+  integrated review e nessuna nuova security scan.
+- **Target preservato**: `ec74166ea20786b8deaa9965cac103984c927820` resta head del
+  branch locale/remoto `integration/storefront-v1`, della PR Client #5 e del worktree
+  detached pulito; nessun commit successivo sul ref coordinato.
+- **Batch selezionato**: un solo rerun della CI Client `30824651949` sullo SHA esatto,
+  perché il primo tentativo non aveva eseguito alcuno step e il workflow contiene solo
+  quality/test/build, senza deploy.
+- **Risultato**: attempt 2 `FAIL/BLOCKED_EXTERNAL`; `Quality`, `Android debug build` e
+  `iOS Simulator debug build` hanno nuovamente zero step e annotazione GitHub
+  billing/spending limit. Nessun secondo rerun.
+- **Residual classification**: task release successivi bloccati dal gate TASK-033;
+  hardware/credential/signing e CI billing restano esterni; branch/PR storici già
+  assorbiti sono documentazione storica, non nuovo lavoro automatico.
+- **Root cause governance**: dopo la transizione legittima a `BLOCKED`, il README
+  conservava `ACTIVE` e il checker richiedeva sempre una riga roadmap `ACTIVE` quando
+  esisteva un task corrente. Allineato il README e reso il checker status-aware: un
+  task corrente `ACTIVE` richiede una sola riga `ACTIVE`; ogni altro stato ne richiede
+  zero. Aggiunta la fixture regressiva `active-header-without-active-row`.
+- **Gate tooling/docs**: `bash -n` `PASS`; governance corrente `PASS`; regressioni
+  governance `9/9 PASS`; `git diff --check` `PASS`.
+- **Sicurezza operativa**: zero modifiche runtime prodotto, merge, deploy, migration,
+  Storage, secret o production. Il batch ledger/README e checker/test di governance è
+  isolato su un branch post-target dedicato e non è integrato nel ref congelato.
+
+## 2026-08-11 — Ripresa autorizzata del closeout multi-repository
+
+- **Ruolo**: `CODEX_EXECUTOR`; mandato finale e successiva conferma esplicita del
+  `USER_APPROVER` ricevuti.
+- **Override registrato**: superati freeze Client/permission profile e vecchio target
+  `ec74166e`; la sola Deep Security Scan nuova resta obbligatoria sul candidato finale
+  stabilizzato, mai su una revisione intermedia.
+- **Safety**: fetch correnti; backup Client con ref/bundle/patch verificati; batch
+  Android/Admin/Win7POS e dirty state utente preservati separatamente con patch,
+  archivi bounded, ref e bundle verificati. Nessun reset o cleanup.
+- **Baseline remota**: Client #5/#6, Admin #67 e Win7POS #88 ancora aperte; iOS
+  TASK-141 già merged; Android PR #1 conflittuale. Review indipendenti avviate sui tre
+  batch e sulle due release lane.
+- **Staging**: progetto non-production `ACTIVE_HEALTHY`, Postgres 17, migration head
+  `20260803143000`; nessuna migration nuova e nessun accesso production.
+- **Stato**: TASK-033 riprende `ACTIVE / EXECUTION`; prima convergenza delle lane e
+  dei contratti, poi freeze finale, Deep Scan unica, review integrata e gate completi.

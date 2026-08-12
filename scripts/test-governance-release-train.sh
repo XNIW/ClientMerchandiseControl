@@ -258,6 +258,13 @@ sed -i.bak \
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-during-review "${cmc_case}"
 
+cmc_case="$(cmc_fixture active-header-without-active-row)"
+sed -i.bak \
+  's/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | ACTIVE |/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | BLOCKED |/' \
+  "${cmc_case}/docs/MASTER-PLAN.md"
+rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
+cmc_expect_fail active-header-without-active-row "${cmc_case}"
+
 cmc_case="$(cmc_fixture validated-pending)"
 cmc_expect_pass validated-pending "${cmc_case}"
 
@@ -267,4 +274,4 @@ mv \
   "${cmc_case}/TASK-005-missing.md"
 cmc_expect_fail validated-file-missing "${cmc_case}"
 
-printf 'Governance release train: 8/8 fixture PASS.\n'
+printf 'Governance release train: 9/9 fixture PASS.\n'

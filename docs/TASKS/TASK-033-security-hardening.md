@@ -9,10 +9,10 @@
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-03
-- **Ultimo aggiornamento**: 2026-08-03
+- **Ultimo aggiornamento**: 2026-08-11
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-033/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: TASK_033_RESUMED_MULTI_REPO_CLOSEOUT_BASELINE
 
 ## Dipendenze
 
@@ -96,6 +96,8 @@
 | D-04 | P3 è ammesso solo se realmente opzionale e fuori dai criteri | Mantiene la soglia richiesta senza scope creep | ATTIVA |
 | D-05 | Test abuse/load restano bounded e usano fixture rollback-safe | Nessun impatto distruttivo o su dati reali | ATTIVA |
 | D-06 | Planning ed Execution sono autorizzati dal prompt USER_APPROVER del 2026-08-02 | Mantiene il train headless continuo | ATTIVA |
+| D-07 | L'emendamento USER_APPROVER del 2026-08-08 richiedeva una nuova Deep Security Scan repository-wide del solo Client allo SHA `ec74166ea20786b8deaa9965cac103984c927820`; il precedente manifest fallito non è accettabile e la review TASK-032/TASK-033 segue solo dopo completion reale | Provenance del precedente freeze; sostituita dal mandato finale del 2026-08-11 | SUPERATA DA D-08 |
+| D-08 | Il mandato USER_APPROVER del 2026-08-11 supera il freeze sullo SHA `ec74166e`, autorizza convergenza/merge normali delle lane, staging e test fisici, e richiede una sola Deep Security Scan sul candidato Client finale integrato e stabilizzato | Evita una scan intermedia obsoleta mantenendo obbligatori completion reale, zero P0/P1/P2 e production invariata | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 
@@ -147,8 +149,81 @@ confermati, senza modificare production.
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso. Il preflight Deep Security Scan è `PASS`; discovery, validazione,
-attack-path, eventuale hardening e gate restano da registrare con evidence reale.
+### Ripresa finale 2026-08-11
+
+- il `USER_APPROVER` ha autorizzato esplicitamente il closeout multi-repository, il
+  riallineamento governance, i merge normali condizionati ai gate e il clone iOS
+  mancante; nessuna autorizzazione production è stata concessa;
+- fetch correnti completati per Client, Android, Admin e Win7POS; iOS clonato da
+  `XNIW/iOSMerchandiseControl` su `c55e3a93449c4f432bf28f4d7b1f5ac1e5f9b502`;
+- prima di modificare il target Client sono stati creati il branch locale
+  `backup/client-storefront-v1-pre-closeout-20260811`, un bundle completo verificato e
+  una patch binaria `origin/main..ec74166e` verificata con `git apply --check`;
+- i batch dirty Android/Admin/Win7POS e le modifiche utente Android/Win7POS sono stati
+  preservati separatamente con patch, archivi untracked bounded, branch di sicurezza
+  e bundle verificati; nessun reset, stash applicato o cleanup è stato eseguito;
+- stato remoto iniziale: Client PR #5 `OPEN/DRAFT/UNSTABLE` sul vecchio head e PR #6
+  `OPEN/CLEAN`; Admin PR #67 e Win7POS PR #88 `OPEN/DRAFT/CLEAN` ma dietro ai rispettivi
+  `main`; iOS TASK-141 è già in `main`; Android PR #1 è conflittuale e richiede
+  decisione supersession documentata;
+- Supabase non-production `merchandisecontrol-dev` è `ACTIVE_HEALTHY`, Postgres 17;
+  head remoto attestato `20260803143000_storefront_v1_default_address_transition`.
+
+La scansione profonda non viene avviata in questa sottofase: D-08 la vincola al
+candidato Client finale dopo la convergenza delle lane e dei contratti condivisi.
+
+### Ripresa 2026-08-08
+
+- repository Client, remote, branch, PR #5 e SHA sono stati verificati; il worktree di
+  integrazione era tracked-clean ma conteneva output ignorati, quindi è stato creato un
+  worktree detached sterile con HEAD esatto
+  `ec74166ea20786b8deaa9965cac103984c927820`, 564 file tracciati e nessun file
+  untracked/ignored;
+- il repository Admin è stato verificato in sola lettura sullo SHA
+  `e0406834af09173902e2f64948dd5834f4a9fac5`, coincidente con branch remoto e PR #67;
+- il precedente `coordinator-manifest.json` esiste ancora, ha timestamp
+  `2026-08-03T13:57:58-0400`, stato `failed` e causa `usage limit`; non è stato copiato,
+  accettato o usato per candidate/findings;
+- il nuovo preflight helper `deep_security_scan` ha exit code 0 e stato `ready`;
+  goal tools e `features.goals` risultano disponibili e non è stata applicata alcuna
+  modifica persistente di configurazione;
+- una sola chiamata a `start_codex_security_deep_scan`, target Client isolato e scope
+  `.`, non ha avviato né riagganciato discovery. Errore terminale esatto:
+  `Deep Scan cannot safely start a read-only worker: the parent must provide a managed filesystem permission profile.`;
+- il tool non ha restituito `scanId`, discovery manifest o failure-manifest. Come
+  prescritto, non è stato eseguito un secondo tentativo e non sono iniziati validation,
+  attack-path, draft, completion, integrated review, fix o merge;
+- production, Supabase, Storage, secret e infrastruttura pubblica sono rimasti
+  invariati.
+
+### Esito gate
+
+| Gate | Risultato | Stato |
+|---|---|---|
+| Git/SHA/isolation Client | worktree detached pulito su `ec74166e` | PASS |
+| SHA Admin read-only | `e0406834`, branch/remote allineati | PASS |
+| Vecchio failure-manifest | acquisito solo come storia; non riutilizzato | PASS |
+| Capability/config preflight fresco | helper exit 0, `ready` | PASS |
+| Nuova Deep discovery | worker read-only privo di managed permission profile | BLOCKED |
+| Manifest/candidate pages/threat model | discovery non avviata | NOT_RUN |
+| Validation/attack-path/draft/completion/report | dipendenti dalla discovery | NOT_RUN |
+| Review integrata/closeout/merge | vietati dalla stop condition | NOT_RUN |
+
+Il task resta `BLOCKED / EXECUTION`; non esiste una scan parziale da rappresentare come
+validata.
+
+### Residual audit remoto 2026-08-08
+
+- il ref Client congelato, la PR #5 e il worktree detached restano sullo SHA esatto;
+- un solo rerun CI exact-SHA (`30824651949`, attempt 2) è rimasto
+  `BLOCKED_EXTERNAL` per billing, con tre job e zero step;
+- il drift di governance introdotto dal passaggio `ACTIVE -> BLOCKED` è stato risolto
+  nel solo worktree documentale rendendo il checker status-aware e aggiungendo una
+  fixture negativa; governance corrente `PASS`, regressioni `9/9 PASS`, shell syntax e
+  `git diff --check` `PASS`;
+- nessun codice runtime, merge, deploy o sistema production è stato modificato. Il
+  batch documentazione/governance è isolato su un branch post-target dedicato, non è
+  integrato e non fa parte del target da scansionare.
 
 ## Review / Fix
 
@@ -158,6 +233,7 @@ Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
 
 - **Conferma utente**: ricevuta in forma condizionata dal release train
 - **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: TASK-034 dopo checkpoint verde
-- **Riepilogo finale**: in esecuzione
+- **Follow-up candidate**: nessuno finché TASK-033 resta bloccato
+- **Riepilogo finale**: Deep Security Scan non avviata per managed filesystem
+  permission profile assente nel parent host
 - **Data completamento**: non ancora

@@ -10,13 +10,14 @@
 - **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Indicatore**: TASK_033_RESUMED_MULTI_REPO_CLOSEOUT_BASELINE
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: completare la Deep Security Scan read-only sul root
-  multi-repository, validare i finding e gli attack path, poi applicare serialmente
-  soltanto l'hardening P0/P1/P2 confermato con regressioni bounded e production OFF
+- **Prossima azione autorizzata**: convergere le release lane esistenti e i batch
+  reliability Android/Admin/Win7POS, stabilizzare il revision set multi-repository e
+  soltanto allora eseguire una sola Deep Security Scan sul candidato Client finale;
+  seguono review integrata, gate staging/fisici/CI e merge normali autorizzati
 
 ## Repository coinvolti
 
@@ -182,7 +183,8 @@ dispatcher idempotente, payload privacy-safe e route notifiche Android/iOS ed è
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 ha completato payment offline,
 provider/webhook dormant e il checkpoint Milestone 4 629/629 ed è
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è l'unico task
-`ACTIVE / EXECUTION` e i task successivi restano `TODO` fino al relativo handoff. La
+`BLOCKED / EXECUTION` per causa esterna d'ambiente e i task successivi restano `TODO`
+fino al relativo handoff. La
 dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
@@ -490,3 +492,19 @@ Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-033, iniziando dalla Deep Security
 Scan read-only multi-repository e proseguendo con hardening mirato dei soli finding
 tecnici confermati.
+
+## Blocco TASK-033 — nuova Deep Security Scan non avviata
+
+Il 2026-08-08 il Client è stato isolato in un worktree detached pulito allo SHA
+`ec74166ea20786b8deaa9965cac103984c927820`; lo SHA Admin/Supabase
+`e0406834af09173902e2f64948dd5834f4a9fac5` è stato verificato senza modifiche. Il
+preflight fresco `deep_security_scan` ha restituito `ready` con exit code 0. La singola
+chiamata successiva a `start_codex_security_deep_scan`, tuttavia, non ha avviato né
+riagganciato discovery perché il parent non espone un managed filesystem permission
+profile al worker read-only. Nessun `scanId`, discovery manifest o nuovo
+failure-manifest è stato prodotto; validation, attack-path, completion, report e review
+integrata non sono stati eseguiti. Il precedente manifest fallito per usage limit resta
+soltanto evidenza storica e non è stato riutilizzato.
+
+Handoff:
+`BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE`.

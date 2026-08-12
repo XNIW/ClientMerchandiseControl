@@ -5,21 +5,21 @@
 - **Task ID**: TASK-033
 - **Titolo**: Threat model, RLS abuse testing, rate limit e security hardening
 - **File task**: `docs/TASKS/TASK-033-security-hardening.md`
-- **Stato**: BLOCKED
+- **Stato**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-03
 - **Ultimo aggiornamento**: 2026-08-12
 - **Ultimo agente**: Codex
-- **Review outcome**: BLOCKED
+- **Review outcome**: APPROVED
 - **Reviewer**: CODEX_RE_REVIEWER
 - **Approver**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_BLOCKED
-- **DONE**: NO
-- **Merge**: NO — PR #7, CI esterna bloccata prima dei runner
-- **User approval**: GRANTED_PENDING_EXTERNAL_CI
+- **Indicatore**: USER_APPROVED_DONE
+- **DONE**: YES
+- **Merge**: AUTHORIZED_PENDING_PR_FINAL_CI
+- **User approval**: GRANTED_AND_APPLIED_FROM_2026-08-12_PROMPTS
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-033/`
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -106,6 +106,7 @@
 | D-07 | L'emendamento USER_APPROVER del 2026-08-08 richiedeva una nuova Deep Security Scan repository-wide del solo Client allo SHA `ec74166ea20786b8deaa9965cac103984c927820`; il precedente manifest fallito non è accettabile e la review TASK-032/TASK-033 segue solo dopo completion reale | Provenance del precedente freeze; sostituita dal mandato finale del 2026-08-11 | SUPERATA DA D-08 |
 | D-08 | Il mandato USER_APPROVER del 2026-08-11 supera il freeze sullo SHA `ec74166e`, autorizza convergenza/merge normali delle lane, staging e test fisici, e richiede una sola Deep Security Scan sul candidato Client finale integrato e stabilizzato | Evita una scan intermedia obsoleta mantenendo obbligatori completion reale, zero P0/P1/P2 e production invariata | ATTIVA |
 | D-09 | Il mandato USER_APPROVER del 2026-08-12 autorizza la remediation mirata di tutti i 18 finding del report sigillato sullo SHA `0668ea7a`, inclusi i 16 P3, la review/validazione post-fix, `DONE`, una PR unica e merge normale; vieta una nuova scan repository-wide | Sostituisce D-04 per questo closeout, consuma l'autorizzazione finale senza ampliare il backlog e preserva la scan canonica | ATTIVA |
+| D-10 | Il mandato USER_APPROVER del 2026-08-12 autorizza a rendere `PUBLIC` esclusivamente `XNIW/ClientMerchandiseControl`, lasciarlo pubblico, eseguire CI su runner pubblici, correggere failure reali, chiudere governance, fondere normalmente PR #7 e verificare `main`; vieta nuova Deep Scan, production, force push, admin override e bypass dei check | Sblocca il gate esterno in modo esplicito, conserva i controlli CI reali e limita la mutazione al solo repository Client | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 
@@ -282,10 +283,12 @@ incondizionato durante un bootstrap senza revoche. Esito:
 - **Esito**: `APPROVED`;
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
-La validazione security è approvata, ma la conferma D-09 non può essere applicata a
-`DONE`: la run GitHub `31623337521` sul candidato finale ha tre job `failure`, zero
-step e identica annotazione billing/spending limit. Il merge resta vietato dalla stop
-condition. Nessun task successivo è attivato.
+Il blocco billing storico è stato superato rendendo pubblico il solo repository, come
+autorizzato in D-10. Il rerun `31623828999` attempt 2 ha eseguito runner reali e ha
+esposto un failure golden Linux; il baseline separato del runner mantiene il confronto
+pixel-exact. La run pubblica `31646041242` sul commit `be6c8ff` ha quindi concluso
+`Quality`, Android e iOS con `SUCCESS`. Le conferme D-09 e D-10 sono applicate a
+`DONE / REVIEW / USER_APPROVED_DONE`; nessun task successivo è attivato.
 
 ## Fix — `CODEX_FIXER`
 
@@ -301,7 +304,8 @@ condition. Nessun task successivo è attivato.
 - **Conferma utente**: esplicita in D-09 per review, `DONE` e merge normale
 - **Merge autorizzato**: sì, soltanto dopo review post-fix `APPROVED` e gate verdi
 - **Follow-up candidate**: nessuno; non attivare autonomamente TASK-034
-- **Riepilogo finale**: remediation e validazione 18/18 approvate; closeout bloccato
-  esternamente perché GitHub non avvia alcuno step CI per billing/spending limit
-- **Data completamento**: non ancora
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Riepilogo finale**: remediation e validazione 18/18 approvate; CI pubblica reale
+  `31646041242` 3/3 `SUCCESS`; merge normale subordinato alla CI exact-SHA del commit
+  governance
+- **Data completamento**: 2026-08-12
+- **Handoff**: USER_APPROVED_DONE

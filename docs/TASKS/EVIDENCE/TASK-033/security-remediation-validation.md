@@ -49,10 +49,12 @@ ancora collegabili al sink vulnerabile descritto dal report. Conteggi finali:
 
 ## Decisione
 
-La validazione security mirata è `APPROVED`, ma il closeout complessivo è `BLOCKED`:
-la CI GitHub exact-SHA `31623337521` ha terminato tutti e tre i job con zero step e
-annotazione billing/spending limit. Il candidato non può essere fuso finché i check
-remoti non eseguono e passano.
+`APPROVED`.
 
-Handoff: `CODEX_REVIEW_BLOCKED`. La conferma D-09 per `DONE` e merge resta concessa ma
-non applicabile prima dello sblocco esterno; nessun task successivo viene attivato.
+La run pubblica `31646041242` sul commit `be6c8ff` ha eseguito tutti gli step previsti:
+`Quality`, Android debug build e iOS Simulator debug build sono `SUCCESS`. Il failure
+golden Linux emerso nel primo rerun pubblico è stato corretto con baseline pixel-exact
+specifica per host, senza tolleranze, `continue-on-error` o rimozione di job.
+
+Handoff: `USER_APPROVED_DONE`. Le conferme D-09/D-10 per `DONE` e merge normale sono
+applicate senza attivare task successivi.

@@ -1,24 +1,23 @@
 # Storefront v1 — Checkpoint riprendibile
 
-- **Fase corrente**: ACTIVE / EXECUTION / final multi-repository closeout / TASK-033
-- **Task corrente**: TASK-033
-- **Repository writer corrente**: nessuno durante la Deep Security Scan read-only;
-  successivamente un solo writer per repository per finding confermati
-- **Branch**: `integration/storefront-v1`
-- **SHA Client runtime corrente**: `72f98eea574300f77d42e96e09557f0dd55ac2d5`
-- **SHA Client target Deep Security Scan**: candidato finale da fissare dopo la
-  convergenza; il precedente `ec74166ea20786b8deaa9965cac103984c927820` è preservato
-  come baseline e non è più il target vincolante
+- **Fase corrente**: IDLE / CLOSEOUT / TASK-033 DONE
+- **Task corrente**: nessuno
+- **Repository writer corrente**: nessuno dopo il closeout governance
+- **Branch**: `codex/client-security-findings-final-closeout-20260812`
+- **SHA Client runtime corrente**: `ee0fcf7129a16f226c5b6da4e786d87108413765`
+- **SHA Client scan canonica**: `0668ea7adb0a0b55946024b73506ebd28cd1b53a`;
+  scan `da548633-6547-4157-a55f-8e8ab1b11f0d`, coverage 61/61
 - **SHA Admin/Supabase corrente**: `e0406834af09173902e2f64948dd5834f4a9fac5`
 - **SHA Win7POS corrente**: `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`
-- **Gate eseguiti**: Prelude OAuth Android/iOS `PASS`; PR #4 merge `PASS`; main CI
-  `30714350425` `PASS`; repository preflight `PASS`
-- **Gate governance**: validator `PASS`; fixture negative/positive 8/8 `PASS`; link
-  check `PASS`; `git diff --check` `PASS`; security scan 342 file `PASS`; architecture
-  boundary e fixture 5/5 `PASS`; CI `30715196235` sullo SHA esatto `PASS`, job
-  Quality/iOS/Android 3/3 e annotazioni 0/0/0
-- **Git/PR**: branch remote pubblicate; PR Client `#5`, Admin `#67` e Win7POS `#88`,
-  tutte `DRAFT`, con head SHA allineati ai worktree release train
+- **Gate eseguiti**: remediation TASK-033 18/18 `FIXED_VALIDATED`; 566 test, native,
+  build e smoke Android/iOS `PASS`; re-review `APPROVED`; CI pubblica `31646041242`
+  `Quality`/Android/iOS 3/3 `SUCCESS`
+- **Gate governance**: validator `PASS`; fixture release train 9/9 `PASS`;
+  `git diff --check` `PASS`; security scan 569 file `PASS`; architecture boundary e
+  fixture 7/7 `PASS`
+- **Git/PR**: PR Client #7 `OPEN`, non draft e mergeable verso `main`; branch runtime
+  e governance pubblicata senza force push. PR Admin #67 e Win7POS #88 restano
+  checkpoint coordinati storici e non sono writer di questo closeout
 - **Admin canonico**: schema/RLS TASK-005 applicato a staging con run
   `30717903744`; ledger/postcheck esatti, 6 tabelle authoring FORCE RLS, zero policy
   cliente e default flag OFF; production invariata
@@ -173,22 +172,16 @@
   TASK-029 `30822288362` attempt 2 tutti `PASS`. Artifact `8859500219`, digest
   `sha256:b2fad3f10af44a11c0cdd62b43fa2a10e5433740248db5c5666a6605c454819a`;
   migration/RLS/online OFF/rollback/production read-only postcheck `PASS`.
-- **Gate TASK-033 corrente**: nuovo preflight `PASS` (`ready`, exit 0); singola chiamata
-  Deep Scan `BLOCKED` prima di discovery perché il parent host non fornisce un managed
-  filesystem permission profile al worker read-only. Nessun nuovo manifest, `scanId`,
-  completion o `report.md`; validation/attack-path/review integrata `NOT_RUN`.
-- **Comando successivo esatto**: completare/revisionare le lane Admin #67 e Win7POS
-  #88, chiudere i ledger Android/iOS e integrare i batch reliability; fissare quindi
-  SHA finali e avviare una sola nuova `start_codex_security_deep_scan` sul Client
-  candidato finale, scope `.`, senza riutilizzare i tentativi terminali precedenti
-- **Blocker**: Codex Security Deep Scan `BLOCKED_EXTERNAL / BLOCKED_ENVIRONMENT` per
-  managed filesystem permission profile assente; GitHub-hosted CI Client `BLOCKED`
-  esterna per billing/spending limit anche nel singolo rerun `30824651949` attempt 2
-  sullo SHA `ec74166e` (tre job, zero step);
-  Windows 7 fisico `BLOCKED` esterno; provider push live `BLOCKED` esterno per assenza
-  di credential; provider payment online `BLOCKED` esterno per assenza di credential
-  sandbox approvate
-- **Processi verificati nel residual audit**: il precedente `caffeinate` PID `57046`
+- **Gate TASK-033 corrente**: remediation 18/18 `FIXED_VALIDATED`; re-review
+  `APPROVED`; gate locale aggregato `PASS`; CI pubblica `31646041242` con `Quality`,
+  Android e iOS 3/3 `SUCCESS`. Repository `PUBLIC`, secret scanning e push protection
+  abilitate; nessuna nuova Deep Security Scan eseguita.
+- **Comando successivo esatto**: attendere la CI exact-SHA del commit governance,
+  fondere normalmente PR #7 e verificare la CI `main` post-merge; non attivare
+  TASK-034.
+- **Blocker TASK-033**: nessuno. Windows 7 fisico e provider push/payment live restano
+  limiti esterni di task futuri, con capability/flag production invariati `OFF`.
+- **Processi verificati nel residual audit storico**: il precedente `caffeinate` PID `57046`
   e Android Emulator `emulator-5554` non sono più attivi; resta booted il solo iOS
   Simulator iPhone 17 Pro iOS 26.5 UUID
   `240F400E-5EFA-486A-9137-FFBBE70F604D`. Nessun processo di verifica è rimasto

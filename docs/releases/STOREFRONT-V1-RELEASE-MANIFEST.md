@@ -4,16 +4,16 @@
 
 - Release train: `STOREFRONT_V1`
 - Governance: `ADR-011`
-- Stato: `BLOCKED`
+- Stato: `CLOSEOUT`
 - Baseline Client: `6a50b421057a09d4152653a78512d268a7fa4d69`
-- Review integrata: `BLOCKED`
+- Review integrata: `APPROVED`
 - Production modificata: `no`
 
 ## Revisioni coordinate
 
 | Repository | Branch | SHA revisionato | PR | Versione schema | Versione API | Deployment staging | Feature flag | Ultimo gate | Prossimo checkpoint | Rollback |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ClientMerchandiseControl | `codex/client-security-findings-final-closeout-20260812` | `ee0fcf7129a16f226c5b6da4e786d87108413765` | `#7 OPEN` | local cache v4 + checkout draft v3 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment/payment v2, customer-order/history/notification-route v1 | remediation 18/18; 566 test/77,70%; 200 test review; native Android/iOS, build e smoke dual-platform `PASS`; CI `31623337521` tre job/zero step `BLOCKED` billing | production Storefront/orders/reservations/delivery/push/payment `OFF`; Google OAuth fail-closed `OFF` | security validation `APPROVED`; closeout `BLOCKED` | sbloccare billing e rieseguire CI exact-SHA | branch/PR preservate; nessun merge |
+| ClientMerchandiseControl | `codex/client-security-findings-final-closeout-20260812` | `be6c8fffb0ff3e42b04f8ba39a6f6a3fa057f38c` (runtime security `ee0fcf7`) | `#7 OPEN` | local cache v4 + checkout draft v3 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment/payment v2, customer-order/history/notification-route v1 | remediation 18/18; 566 test/77,70%; 200 test review; native Android/iOS, build e smoke dual-platform `PASS`; CI pubblica `31646041242` 3/3 `SUCCESS` | production Storefront/orders/reservations/delivery/push/payment `OFF`; Google OAuth fail-closed `OFF` | TASK-033 `APPROVED / DONE` | CI exact-SHA governance e merge normale #7 | revert merge commit; feature flag OFF |
 | merchandise-control-admin-web | `integration/storefront-v1` | `e0406834af09173902e2f64948dd5834f4a9fac5` | `#67 DRAFT` | `20260803143000` | Storefront/customer/cart/availability/hold/checkout/order/history/admin-orders/POS/notifications/payment v1-v2 | CI `30822290788`; Cloudflare `30822292394`; Milestone 4 `30822286720` 629/629, tutti `PASS` | production `OFF`; POS/push/online-payment consumer OFF | TASK-032 e Milestone 4 same-order E2E `PASS` | TASK-033 deep security | migration additiva + provider/consumer flag OFF |
 | Win7POS | `integration/storefront-v1` | `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474` | `#88 DRAFT` | SQLite `0012-customer-order-inbox` | `pos-customer-order-handoff-v1`, `pos-customer-order-ack-v1` | CI Windows `30804008501` 878/878; Security `30804007997`; staging server E2E `30805397611`, tutti `PASS` | production handoff `OFF` | inbox/lease/replay/fiscal boundary `PASS`; Win7 fisico `BLOCKED` esterno | TASK-033 read-only | disabilitare lane, preservare inbox e replay queue |
 | MerchandiseControlSplitView | non creato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout dirty preservato | nessuno corrente | nessuna modifica prevista |
@@ -370,3 +370,25 @@ backend production.
 - **Production**: non modificata; nessun merge, deploy, migration o modifica a
   Supabase/Storage/secrets. Il batch documentazione/governance è isolato su un branch
   post-target e non modifica il ref congelato.
+
+## 2026-08-12 — TASK-033 public CI e closeout autorizzato
+
+- **Autorizzazione**: D-10 consente di rendere `PUBLIC` soltanto il repository Client,
+  lasciarlo pubblico, usare runner pubblici e completare CI/PR/merge senza admin
+  override, force push o nuova Deep Security Scan.
+- **Pre-public**: scanner client/action pin/shell/diff `PASS`; `gitleaks` full-history
+  senza secret reali; secret/variable repository zero. Secret scanning e push
+  protection risultano abilitate dopo la pubblicazione.
+- **Billing storico**: `31623828999` attempt 1 aveva zero runner/step. L'attempt 2
+  pubblico ha eseguito realmente i job e ha isolato un failure del solo golden Linux;
+  Android e iOS erano `SUCCESS`.
+- **Fix CI**: baseline Linux separato ricavato dal run diagnostico `31645292044`,
+  digest `2cb2fab9a20a473d191e56aa7a9c1b6253ef2a138361be132f5b1782ebbd1e29`;
+  confronto pixel-exact invariato e upload diagnostico temporaneo rimosso.
+- **Gate pubblico**: run `31646041242` sul commit `be6c8ff` con `Quality`, Android
+  debug build e iOS Simulator debug build tutti `SUCCESS`; gate locale aggregato
+  `bash scripts/check.sh` exit 0.
+- **Security review**: 18/18 `FIXED_VALIDATED`, finding aperti 0 P0/P1/P2/P3,
+  deferred 0 e regressioni introdotte 0. TASK-033 passa a
+  `DONE / REVIEW / USER_APPROVED_DONE` e TASK-034 resta `TODO`.
+- **Production**: non acceduta e invariata; Google OAuth resta fail-closed `OFF`.

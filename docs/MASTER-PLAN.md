@@ -4,19 +4,19 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-033
-- **File task**: docs/TASKS/TASK-033-security-hardening.md
-- **Stato task**: BLOCKED
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
 - **Release train**: STOREFRONT_V1
-- **Stato release train**: BLOCKED
-- **Review integrata**: BLOCKED
-- **Prossima azione autorizzata**: ripristinare billing/spending GitHub Actions,
-  rieseguire i tre job exact-SHA di PR #7 e, soltanto se tutti verdi, completare il
-  merge normale già autorizzato; non attivare TASK-034
+- **Stato release train**: CLOSEOUT
+- **Review integrata**: APPROVED
+- **Prossima azione autorizzata**: completare la CI exact-SHA del commit governance,
+  fondere normalmente la PR #7 e verificare la CI `main` post-merge; poi restare
+  `IDLE` senza attivare TASK-034
 
 ## Repository coinvolti
 
@@ -85,7 +85,7 @@
 | TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-006, TASK-024, TASK-027, TASK-029 | POS, Admin, Supabase | Handoff operativo senza fusione eventi |
 | TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-022, TASK-027, TASK-028, TASK-029 | Client, Admin, Supabase | Eventi e notifiche affidabili |
 | TASK-032 | Decisione provider e integrazione pagamenti | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-027 | Client, Admin, Supabase | Pagamento selezionato e integrato |
-| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | BLOCKED | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
+| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | DONE | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
 | TASK-034 | Offline/reconnect/concorrenza/idempotenza test matrix | TODO | TASK-017, TASK-023, TASK-025, TASK-027, TASK-030 | Client, Admin, Supabase, POS | Matrice resilienza superata |
 | TASK-035 | Observability, crash reporting e analytics privacy-safe | TODO | TASK-011, TASK-020, TASK-027, TASK-031 | Client, Admin | Telemetria privacy-safe |
 | TASK-036 | Accessibility, localizzazione e device matrix | TODO | TASK-012, TASK-018, TASK-021, TASK-026, TASK-028, TASK-031 | Client | Acceptance accessibilità e lingue |
@@ -181,9 +181,9 @@ completato claim/lease/ack, inbox durevole Win7POS, replay/offline e confine fis
 dispatcher idempotente, payload privacy-safe e route notifiche Android/iOS ed è
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 ha completato payment offline,
 provider/webhook dormant e il checkpoint Milestone 4 629/629 ed è
-`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è l'unico task
-`BLOCKED / EXECUTION` per causa esterna d'ambiente e i task successivi restano `TODO`
-fino al relativo handoff. La
+`VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è `DONE / REVIEW /
+USER_APPROVED_DONE` dopo remediation 18/18, re-review `APPROVED` e CI pubblica
+`31646041242` 3/3 `SUCCESS`; i task successivi restano `TODO` e nessuno è attivo. La
 dipendenza TASK-010 è
 stata riallineata all'ordine esplicitamente autorizzato del Milestone 1: pubblicazione,
 promozioni e immagini Admin restano consumer successivi del contratto, non prerequisiti
@@ -507,3 +507,20 @@ soltanto evidenza storica e non è stato riutilizzato.
 
 Handoff:
 `BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE`.
+
+## Ultimo task completato — TASK-033
+
+Il report canonico `da548633-6547-4157-a55f-8e8ab1b11f0d` sul candidato `0668ea7a`
+ha prodotto 18 finding, tutti `FIXED_VALIDATED` sul runtime `ee0fcf7`: 0 P0, 0 P1,
+0 P2, 0 P3 aperti, deferred 0 e finding nuovi 0. La validazione indipendente ha
+confermato 20 file / 200 test mirati, test nativi Android/iOS e i sink corretti.
+
+Il repository è stato reso `PUBLIC` con autorizzazione esplicita dopo un controllo
+pre-public full-history privo di secret reali. Il rerun `31623828999` attempt 2 ha
+avviato runner reali e isolato una differenza di rasterizzazione golden Linux; il fix
+pixel-exact, senza tolleranze o rimozione di job, è validato dal gate locale completo
+e dalla CI `31646041242`, con `Quality`, Android e iOS `SUCCESS`. Production non è
+stata acceduta, Google OAuth resta fail-closed `OFF` e TASK-034 resta `TODO`.
+
+Handoff:
+`USER_APPROVED_DONE`.

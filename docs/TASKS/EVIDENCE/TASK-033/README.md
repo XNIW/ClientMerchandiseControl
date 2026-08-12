@@ -1,12 +1,13 @@
 # Evidence TASK-033
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 Il candidato remediation del 2026-08-12 chiude in codice e regressione tutti i 18
-finding del report canonico esistente. Gate aggregato e validazione security sono
-`PASS` / `APPROVED`, ma la CI GitHub `31623337521` ha zero step per billing/spending
-limit: il task resta `BLOCKED`, senza merge e senza attivare task successivi.
+finding del report canonico esistente. Gate aggregato e re-review sono `PASS` /
+`APPROVED`; la CI pubblica `31646041242` ha eseguito realmente `Quality`, Android e
+iOS con esito `SUCCESS`. L'autorizzazione D-09/D-10 è applicata a `DONE`; nessun task
+successivo è stato attivato.
 
 Il precedente snapshot
 `BLOCKED / EXECUTION / BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE` resta storia
@@ -114,14 +115,14 @@ modifica al repository o a `config.toml` inventata dall'agente.
   documentazione/governance è isolato su un branch post-target e resta fuori dal ref
   da scansionare.
 
-## Handoff deterministico per la sessione locale
+## Handoff deterministico storico per la sessione locale
 
 1. Target: `XNIW/ClientMerchandiseControl` allo SHA
    `ec74166ea20786b8deaa9965cac103984c927820`.
 2. Usare il worktree detached pulito già presente, oppure crearne uno nuovo dallo
    stesso SHA; aspettativa: HEAD esatto e working tree senza tracked/untracked/ignored.
-3. TASK-032 resta `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-033 resta
-   `BLOCKED / EXECUTION` fino alla completion reale.
+3. In quello snapshot TASK-032 restava `VALIDATED_PENDING_INTEGRATED_REVIEW` e
+   TASK-033 `BLOCKED / EXECUTION`; il blocco è oggi storia superata.
 4. In una sessione con managed filesystem permission profile, eseguire il preflight
    ufficiale e avviare una sola nuova Deep Security Scan repository-wide, scope `.`.
 5. Non riutilizzare i due tentativi terminali precedenti e non includere eventuali

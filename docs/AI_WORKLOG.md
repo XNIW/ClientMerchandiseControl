@@ -2078,3 +2078,42 @@
 - **Stop condition**: nessun merge/admin override/rerun cieco; PR e branch restano
   aperte. TASK-033 torna `BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`; D-09 resta
   concessa ma `DONE` non è applicato. TASK-034 resta `TODO`.
+
+## 2026-08-12 — TASK-033 public CI verde e governance chiusa
+
+- **Autorizzazione**: il nuovo mandato `USER_APPROVER`, registrato in D-10, autorizza
+  a rendere `PUBLIC` esclusivamente `XNIW/ClientMerchandiseControl`, lasciarlo
+  pubblico, usare runner pubblici, correggere failure CI reali e completare PR #7 con
+  merge normale. Nuova Deep Security Scan, production, admin override, bypass e force
+  push restano vietati.
+- **Pre-public**: `check-client-security`, action pin, shell syntax e diff whitespace
+  `PASS`; `gitleaks 8.30.1` full-history ha analizzato 159 commit e circa 4,87 MiB,
+  classificando soltanto fixture negative e valori client-public. Secret e variable
+  repository: zero; workflow senza `pull_request_target`, permessi `contents: read` e
+  action fissate a SHA.
+- **Repository**: visibilità verificata da `gh repo view` e REST come `PUBLIC` /
+  `private: false`, default branch `main`; secret scanning e push protection abilitati.
+  Nessun altro repository ha cambiato visibilità.
+- **CI billing**: la run `31623828999` attempt 1 era il blocco storico con zero step.
+  L'unico rerun attempt 2, dopo la pubblicazione, ha assegnato runner reali: Android e
+  iOS `SUCCESS`, `Quality` failure reale sul golden checkout Linux (4,18%, 13.763 px).
+- **Diagnosi/fix CI**: macOS locale risultava pixel-identico; il run diagnostico
+  `31645292044` ha acquisito una sola volta il test image Linux. È stato aggiunto un
+  baseline Linux separato con digest
+  `2cb2fab9a20a473d191e56aa7a9c1b6253ef2a138361be132f5b1782ebbd1e29`, mantenendo
+  il confronto pixel-exact; il passo upload temporaneo è stato rimosso. Nessun job,
+  aspettativa, sicurezza o failure è stato nascosto.
+- **Gate**: golden mirato `PASS`; `bash scripts/check.sh` exit 0 con scanner,
+  governance, architettura, format, analyze, 566 test, performance e build Android/iOS
+  `PASS`. La run PR pubblica `31646041242` sul commit `be6c8ff` ha concluso
+  `Quality`, Android e iOS 3/3 `SUCCESS` con step reali.
+- **Scope PR**: 74 commit e 319 file rispetto a `origin/main`, interamente riconducibili
+  al release train Storefront V1 e TASK-033; nessun file personale, temporaneo, build
+  output, database, credential, patch o bundle accidentale.
+- **Transizione**: finding 18/18 `FIXED_VALIDATED`, 0 P0/P1/P2/P3 aperti, deferred 0,
+  related security bugs 2 e regressioni introdotte 0. TASK-033 passa a
+  `DONE / REVIEW / USER_APPROVED_DONE`; progetto `IDLE`, release train `CLOSEOUT`,
+  review integrata `APPROVED`; TASK-034 resta `TODO`.
+- **Sicurezza operativa**: production, dati reali, ordini, pagamenti e checkout reali
+  non acceduti; Google OAuth resta fail-closed `OFF` fino a un dominio HTTPS posseduto
+  e verificato.

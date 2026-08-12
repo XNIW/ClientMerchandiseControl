@@ -80,6 +80,25 @@ distribuibili: staging e production rifiutano `GOOGLE_AUTH_ENABLED=true`; il red
 `.invalid` è un sentinel non instradabile. La riattivazione richiede una decisione
 futura con App Links/Universal Links verificati su entrambi gli OS.
 
+## CI pubblica e compatibilità runner
+
+- Pre-public: scanner client, pin delle action, shell syntax e diff whitespace `PASS`;
+  `gitleaks` full-history ha classificato soltanto fixture negative e valori
+  client-public, senza secret reali. Repository secret e variable: zero.
+- Visibilità finale autorizzata: `PUBLIC`; secret scanning e push protection GitHub
+  abilitate. Nessun altro repository ha cambiato visibilità.
+- La run `31623828999` attempt 1 era bloccata prima dei runner dal billing; l'attempt 2
+  pubblico ha eseguito step reali e isolato un failure del solo golden checkout sul
+  rasterizzatore Linux, mentre Android e iOS erano `SUCCESS`.
+- L'immagine effettiva del runner Linux è stata acquisita una sola volta dal run
+  diagnostico `31645292044`, verificata visivamente e promossa come baseline separato
+  con SHA-256 `2cb2fab9a20a473d191e56aa7a9c1b6253ef2a138361be132f5b1782ebbd1e29`.
+- Il confronto resta pixel-exact e il passo diagnostico temporaneo è stato rimosso. Il
+  gate locale completo `bash scripts/check.sh` è `PASS` (exit 0) e la run pubblica
+  `31646041242` sul commit `be6c8ff` è 3/3 `SUCCESS` per `Quality`, Android e iOS.
+- Production, dati reali, ordini, pagamenti, checkout reali e credenziali privilegiate
+  non sono stati acceduti; Google OAuth resta fail-closed `OFF`.
+
 ## Validazione indipendente
 
 La validazione post-fix deve essere eseguita sul diff candidato e sullo SHA pubblicato,

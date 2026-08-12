@@ -162,14 +162,14 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-033
-- **File task**: docs/TASKS/TASK-033-security-hardening.md
-- **Stato task**: BLOCKED
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: DONE
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Indicatore**: USER_APPROVED_DONE
 - **Release train**: STOREFRONT_V1
-- **Stato release train**: BLOCKED
-- **Review integrata**: BLOCKED
+- **Stato release train**: CLOSEOUT
+- **Review integrata**: APPROVED
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione
@@ -181,9 +181,10 @@ handoff/approvazione `30606916073` / `30607430241` entrambe 3/3 `PASS`. TASK-020
 callback iOS warm/cold, restore, logout e nuovo login. Finding aperti 0 P0/P1/P2/P3;
 CI finale `30713857455` 3/3 `PASS`, step applicabili `success`, annotation 0/0/0.
 PR #4 è merged normalmente con commit `b2d70b5`; branch remoto eliminato e il closeout
-su `main` è stato verificato dalla CI `30714350425`. Il release train Storefront v1 è
-ora `BLOCKED` sul worktree dedicato per una limitazione esterna dell'ambiente della
-Deep Security Scan: TASK-005–TASK-010 pertinenti e
+su `main` è stato verificato dalla CI `30714350425`. Il release train Storefront v1 ha
+attraversato un blocco storico sul worktree dedicato per una limitazione esterna
+dell'ambiente della Deep Security Scan. Dopo il mandato finale, TASK-005–TASK-010
+pertinenti e
 TASK-013–TASK-019 sono `VALIDATED_PENDING_INTEGRATED_REVIEW`; il checkpoint Milestone
 3 è `PASS`. TASK-021 ha completato profilo, indirizzi, privacy e cancellazione request
 owner-only ed è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-022 ha completato registro
@@ -207,9 +208,9 @@ idempotente e il confine tra ordine cliente e vendita fiscale. Entrambi sono
 di notifiche ordine e l'integrazione Client privacy-safe ed è anch'esso
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 ha completato metodi v1,
 stato/idempotenza pagamento, boundary provider/webhook fail-closed e checkpoint
-Milestone 4 629/629; è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è il task
-corrente è `BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`: i 18 finding del report
-canonico sono corretti e la validazione security è `APPROVED`, ma GitHub Actions non
-avvia gli step per billing/spending limit. PR #7 resta aperta e non fusa; nessun task
-successivo è attivo.
+Milestone 4 629/629; è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è concluso
+`DONE / REVIEW / USER_APPROVED_DONE`: i 18 finding del report canonico sono corretti
+e validati, il gate locale aggregato è `PASS` e la CI pubblica `31646041242` ha
+eseguito realmente `Quality`, Android e iOS con esito `SUCCESS`. Google OAuth resta
+fail-closed `OFF`; nessun task successivo è attivo.
 Gli altri task del train restano `TODO` fino al rispettivo checkpoint.

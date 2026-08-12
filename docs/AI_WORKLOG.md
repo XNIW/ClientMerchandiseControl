@@ -2051,7 +2051,7 @@
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; production,
   dati reali e credenziali privilegiate non acceduti; nessun task successivo attivato.
 
-## 2026-08-12 — TASK-033 re-review APPROVED e conferma DONE applicata
+## 2026-08-12 — TASK-033 re-review security APPROVED, closeout in attesa CI
 
 - **Target**: commit `ee0fcf7129a16f226c5b6da4e786d87108413765` confrontato con
   la base scan `0668ea7a` e con tutti i source/control/sink del report.
@@ -2060,5 +2060,21 @@
   nativo OAuth privato residuo.
 - **Esito**: `APPROVED`, zero P0/P1/P2/P3 e zero finding nuovi. Limite dichiarato:
   separazione reviewer/executor logica nella stessa sessione.
-- **Conferma**: D-09 applicata a `DONE / REVIEW / USER_APPROVED_DONE`; merge normale
-  autorizzato dopo CI exact-SHA. Il progetto resta `IDLE` e TASK-034 resta `TODO`.
+- **Conferma**: D-09 autorizza `DONE` e merge normale soltanto dopo CI exact-SHA
+  verde. La validazione security è approvata, ma la transizione non è ancora applicata;
+  TASK-033 resta il task corrente e TASK-034 resta `TODO`.
+
+## 2026-08-12 — TASK-033 closeout bloccato dalla CI esterna
+
+- **PR**: #7 verso `main`, head `343492a3e3d990ad02af9675abb28271ca0c2c29`,
+  mergeable ma `UNSTABLE`.
+- **CI**: run `31623337521` exact-SHA `failure`; Quality, Android debug build e iOS
+  Simulator debug build hanno ciascuno zero step e annotazione GitHub identica:
+  recent account payments failed o spending limit da aumentare.
+- **Classificazione**: `BLOCKED_EXTERNAL / CI_BILLING`; nessun failure del diff è
+  diagnosticabile perché nessun runner è partito. La branch protection API restituisce
+  403 (feature non disponibile sul piano repository), ma i check rossi restano un gate
+  esplicito del mandato e non vengono bypassati.
+- **Stop condition**: nessun merge/admin override/rerun cieco; PR e branch restano
+  aperte. TASK-033 torna `BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`; D-09 resta
+  concessa ma `DONE` non è applicato. TASK-034 resta `TODO`.

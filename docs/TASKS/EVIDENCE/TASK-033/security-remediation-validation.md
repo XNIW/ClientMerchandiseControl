@@ -49,8 +49,10 @@ ancora collegabili al sink vulnerabile descritto dal report. Conteggi finali:
 
 ## Decisione
 
-`APPROVED`.
+La validazione security mirata è `APPROVED`, ma il closeout complessivo è `BLOCKED`:
+la CI GitHub exact-SHA `31623337521` ha terminato tutti e tre i job con zero step e
+annotazione billing/spending limit. Il candidato non può essere fuso finché i check
+remoti non eseguono e passano.
 
-Handoff: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. La conferma esplicita
-necessaria per `DONE` e merge normale è già registrata in D-09 e viene consumata senza
-attivare task successivi.
+Handoff: `CODEX_REVIEW_BLOCKED`. La conferma D-09 per `DONE` e merge resta concessa ma
+non applicabile prima dello sblocco esterno; nessun task successivo viene attivato.

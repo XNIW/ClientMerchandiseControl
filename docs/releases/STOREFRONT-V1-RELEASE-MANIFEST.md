@@ -4,16 +4,16 @@
 
 - Release train: `STOREFRONT_V1`
 - Governance: `ADR-011`
-- Stato: `CLOSEOUT`
+- Stato: `BLOCKED`
 - Baseline Client: `6a50b421057a09d4152653a78512d268a7fa4d69`
-- Review integrata: `APPROVED`
+- Review integrata: `BLOCKED`
 - Production modificata: `no`
 
 ## Revisioni coordinate
 
 | Repository | Branch | SHA revisionato | PR | Versione schema | Versione API | Deployment staging | Feature flag | Ultimo gate | Prossimo checkpoint | Rollback |
 |---|---|---|---|---|---|---|---|---|---|---|
-| ClientMerchandiseControl | `codex/client-security-findings-final-closeout-20260812` | `ee0fcf7129a16f226c5b6da4e786d87108413765` | closeout PR unica in pubblicazione | local cache v4 + checkout draft v3 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment/payment v2, customer-order/history/notification-route v1 | remediation 18/18; 566 test/77,70%; 200 test review; native Android/iOS, build e smoke dual-platform `PASS` | production Storefront/orders/reservations/delivery/push/payment `OFF`; Google OAuth fail-closed `OFF` | TASK-033 `APPROVED / DONE` | CI exact-SHA e merge normale | revert merge commit; feature flag OFF |
+| ClientMerchandiseControl | `codex/client-security-findings-final-closeout-20260812` | `ee0fcf7129a16f226c5b6da4e786d87108413765` | `#7 OPEN` | local cache v4 + checkout draft v3 + order cache v1 | `storefront.v1`, `customer.v1`, `customer-cart.v1`, reservation hold v1, checkout fulfillment/payment v2, customer-order/history/notification-route v1 | remediation 18/18; 566 test/77,70%; 200 test review; native Android/iOS, build e smoke dual-platform `PASS`; CI `31623337521` tre job/zero step `BLOCKED` billing | production Storefront/orders/reservations/delivery/push/payment `OFF`; Google OAuth fail-closed `OFF` | security validation `APPROVED`; closeout `BLOCKED` | sbloccare billing e rieseguire CI exact-SHA | branch/PR preservate; nessun merge |
 | merchandise-control-admin-web | `integration/storefront-v1` | `e0406834af09173902e2f64948dd5834f4a9fac5` | `#67 DRAFT` | `20260803143000` | Storefront/customer/cart/availability/hold/checkout/order/history/admin-orders/POS/notifications/payment v1-v2 | CI `30822290788`; Cloudflare `30822292394`; Milestone 4 `30822286720` 629/629, tutti `PASS` | production `OFF`; POS/push/online-payment consumer OFF | TASK-032 e Milestone 4 same-order E2E `PASS` | TASK-033 deep security | migration additiva + provider/consumer flag OFF |
 | Win7POS | `integration/storefront-v1` | `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474` | `#88 DRAFT` | SQLite `0012-customer-order-inbox` | `pos-customer-order-handoff-v1`, `pos-customer-order-ack-v1` | CI Windows `30804008501` 878/878; Security `30804007997`; staging server E2E `30805397611`, tutti `PASS` | production handoff `OFF` | inbox/lease/replay/fiscal boundary `PASS`; Win7 fisico `BLOCKED` esterno | TASK-033 read-only | disabilitare lane, preservare inbox e replay queue |
 | MerchandiseControlSplitView | non creato; solo se modificato | `NOT_RUN` | `NOT_RUN` | n/a | n/a | n/a | n/a | checkout dirty preservato | nessuno corrente | nessuna modifica prevista |

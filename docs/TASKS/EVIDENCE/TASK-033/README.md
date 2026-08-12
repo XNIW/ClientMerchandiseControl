@@ -1,12 +1,12 @@
 # Evidence TASK-033
 
 Snapshot di handoff:
-`DONE / REVIEW / USER_APPROVED_DONE`.
+`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
 
 Il candidato remediation del 2026-08-12 chiude in codice e regressione tutti i 18
-finding del report canonico esistente. Gate aggregato e re-review sono `PASS` /
-`APPROVED`; l'autorizzazione D-09 è stata applicata a `DONE`. Non è stata avviata una
-nuova scan e nessun task successivo è stato attivato.
+finding del report canonico esistente. Gate aggregato e validazione security sono
+`PASS` / `APPROVED`, ma la CI GitHub `31623337521` ha zero step per billing/spending
+limit: il task resta `BLOCKED`, senza merge e senza attivare task successivi.
 
 Il precedente snapshot
 `BLOCKED / EXECUTION / BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE` resta storia

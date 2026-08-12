@@ -5,21 +5,21 @@
 - **Task ID**: TASK-033
 - **Titolo**: Threat model, RLS abuse testing, rate limit e security hardening
 - **File task**: `docs/TASKS/TASK-033-security-hardening.md`
-- **Stato**: DONE
+- **Stato**: BLOCKED
 - **Fase**: REVIEW
-- **Responsabile**: USER_APPROVER
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-08-03
 - **Ultimo aggiornamento**: 2026-08-12
 - **Ultimo agente**: Codex
-- **Review outcome**: APPROVED
+- **Review outcome**: BLOCKED
 - **Reviewer**: CODEX_RE_REVIEWER
 - **Approver**: USER_APPROVER
-- **Indicatore**: USER_APPROVED_DONE
-- **DONE**: YES
-- **Merge**: AUTHORIZED_PENDING_PR
-- **User approval**: GRANTED_AND_APPLIED_FROM_2026-08-12_PROMPT
+- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **DONE**: NO
+- **Merge**: NO — PR #7, CI esterna bloccata prima dei runner
+- **User approval**: GRANTED_PENDING_EXTERNAL_CI
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-033/`
-- **Handoff**: USER_APPROVED_DONE
+- **Handoff**: CODEX_REVIEW_BLOCKED
 
 ## Dipendenze
 
@@ -282,8 +282,10 @@ incondizionato durante un bootstrap senza revoche. Esito:
 - **Esito**: `APPROVED`;
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
-La conferma D-09 già esplicita viene applicata dopo l'esito: task
-`DONE / REVIEW / USER_APPROVED_DONE`. Nessun task successivo è attivato.
+La validazione security è approvata, ma la conferma D-09 non può essere applicata a
+`DONE`: la run GitHub `31623337521` sul candidato finale ha tre job `failure`, zero
+step e identica annotazione billing/spending limit. Il merge resta vietato dalla stop
+condition. Nessun task successivo è attivato.
 
 ## Fix — `CODEX_FIXER`
 
@@ -299,7 +301,7 @@ La conferma D-09 già esplicita viene applicata dopo l'esito: task
 - **Conferma utente**: esplicita in D-09 per review, `DONE` e merge normale
 - **Merge autorizzato**: sì, soltanto dopo review post-fix `APPROVED` e gate verdi
 - **Follow-up candidate**: nessuno; non attivare autonomamente TASK-034
-- **Riepilogo finale**: remediation e validazione 18/18 approvate; attesa soltanto
-  pubblicazione CI/PR e merge normale già autorizzati
-- **Data completamento**: 2026-08-12
-- **Handoff**: USER_APPROVED_DONE
+- **Riepilogo finale**: remediation e validazione 18/18 approvate; closeout bloccato
+  esternamente perché GitHub non avvia alcuno step CI per billing/spending limit
+- **Data completamento**: non ancora
+- **Handoff**: CODEX_REVIEW_BLOCKED

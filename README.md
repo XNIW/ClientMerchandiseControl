@@ -162,14 +162,14 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: DONE
+- **Task attivo**: TASK-033
+- **File task**: docs/TASKS/TASK-033-security-hardening.md
+- **Stato task**: BLOCKED
 - **Fase**: REVIEW
-- **Indicatore**: USER_APPROVED_DONE
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: STOREFRONT_V1
-- **Stato release train**: CLOSEOUT
-- **Review integrata**: APPROVED
+- **Stato release train**: BLOCKED
+- **Review integrata**: BLOCKED
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione
@@ -208,7 +208,8 @@ di notifiche ordine e l'integrazione Client privacy-safe ed è anch'esso
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 ha completato metodi v1,
 stato/idempotenza pagamento, boundary provider/webhook fail-closed e checkpoint
 Milestone 4 629/629; è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è il task
-corrente è concluso `DONE / REVIEW / USER_APPROVED_DONE`: i 18 finding del report
-canonico sono corretti e validati, con gate aggregato `PASS` e re-review `APPROVED`.
-Nessuna nuova scan è stata eseguita e nessun task successivo è attivo.
+corrente è `BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`: i 18 finding del report
+canonico sono corretti e la validazione security è `APPROVED`, ma GitHub Actions non
+avvia gli step per billing/spending limit. PR #7 resta aperta e non fusa; nessun task
+successivo è attivo.
 Gli altri task del train restano `TODO` fino al rispettivo checkpoint.

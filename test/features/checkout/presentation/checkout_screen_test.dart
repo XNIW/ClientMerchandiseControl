@@ -285,40 +285,44 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('golden checkout review 390x844 es-CL light', (tester) async {
-    addTearDown(() => tester.binding.setSurfaceSize(null));
-    await tester.binding.setSurfaceSize(const Size(390, 844));
-    await tester.pumpWidget(buildApp(repository: FakeCheckoutRepository()));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('checkout-mode-pickup')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('checkout-next-mode')));
-    await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(const ValueKey('checkout-pickup-$checkoutTestPoint')),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('checkout-next-destination')));
-    await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(const ValueKey('checkout-slot-$checkoutTestPickupSlot')),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('checkout-next-slot')));
-    await tester.pumpAndSettle();
-    final paymentMethod = find.byKey(
-      const ValueKey('checkout-payment-payAtPickup'),
-    );
-    await tester.ensureVisible(paymentMethod);
-    await tester.tap(paymentMethod);
-    await tester.pumpAndSettle();
+  testWidgets(
+    'golden checkout review 390x844 es-CL light',
+    (tester) async {
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      await tester.pumpWidget(buildApp(repository: FakeCheckoutRepository()));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('checkout-mode-pickup')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('checkout-next-mode')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('checkout-pickup-$checkoutTestPoint')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('checkout-next-destination')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(const ValueKey('checkout-slot-$checkoutTestPickupSlot')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('checkout-next-slot')));
+      await tester.pumpAndSettle();
+      final paymentMethod = find.byKey(
+        const ValueKey('checkout-payment-payAtPickup'),
+      );
+      await tester.ensureVisible(paymentMethod);
+      await tester.tap(paymentMethod);
+      await tester.pumpAndSettle();
 
-    await expectLater(
-      find.byType(CheckoutScreen),
-      matchesGoldenFile('goldens/checkout_review_es_cl.png'),
-    );
-    expect(tester.takeException(), isNull);
-  });
+      await expectLater(
+        find.byType(CheckoutScreen),
+        matchesGoldenFile('goldens/checkout_review_es_cl.png'),
+      );
+      expect(tester.takeException(), isNull);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.android),
+  );
 
   testWidgets('es-CL, it, en e zh-Hans renderizzano senza fallback rotto', (
     tester,

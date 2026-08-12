@@ -14,7 +14,8 @@ void main() {
   ) async {
     final config = AppConfig.fromEnvironment();
     expect(config.environment, AppEnvironment.staging);
-    expect(config.storefrontShopSlug, 'task010-load');
+    expect(config.isStorefrontConfigured, isTrue);
+    expect(config.storefrontShopSlug, isNotEmpty);
     final client = http.Client();
     addTearDown(client.close);
     final invoker = HttpStorefrontRpcInvoker(

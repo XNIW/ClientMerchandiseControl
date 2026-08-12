@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:client_merchandise_control/app/design_system/tokens/app_sizes.dart';
 import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
@@ -317,7 +319,11 @@ void main() {
 
       await expectLater(
         find.byType(CheckoutScreen),
-        matchesGoldenFile('goldens/checkout_review_es_cl.png'),
+        matchesGoldenFile(
+          Platform.isLinux
+              ? 'goldens/checkout_review_es_cl_linux.png'
+              : 'goldens/checkout_review_es_cl.png',
+        ),
       );
       expect(tester.takeException(), isNull);
     },

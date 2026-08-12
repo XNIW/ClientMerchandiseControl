@@ -4,19 +4,19 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-033
-- **File task**: docs/TASKS/TASK-033-security-hardening.md
-- **Stato task**: ACTIVE
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
 - **Release train**: STOREFRONT_V1
-- **Stato release train**: EXECUTION
-- **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review mirata del candidato Client che corregge
-  i 18 finding del report sigillato esistente, quindi CI exact-SHA, PR unica e merge
-  normale autorizzato; nessuna nuova scan repository-wide e nessun task successivo
+- **Stato release train**: CLOSEOUT
+- **Review integrata**: APPROVED
+- **Prossima azione autorizzata**: pubblicare la PR unica di remediation TASK-033,
+  attendere CI exact-SHA e completare il merge normale già autorizzato; poi restare
+  `IDLE` senza attivare TASK-034
 
 ## Repository coinvolti
 
@@ -85,7 +85,7 @@
 | TASK-030 | Win7POS handoff, stock reservation release e confine vendita fiscale | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-006, TASK-024, TASK-027, TASK-029 | POS, Admin, Supabase | Handoff operativo senza fusione eventi |
 | TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-022, TASK-027, TASK-028, TASK-029 | Client, Admin, Supabase | Eventi e notifiche affidabili |
 | TASK-032 | Decisione provider e integrazione pagamenti | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-027 | Client, Admin, Supabase | Pagamento selezionato e integrato |
-| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | ACTIVE | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
+| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | DONE | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
 | TASK-034 | Offline/reconnect/concorrenza/idempotenza test matrix | TODO | TASK-017, TASK-023, TASK-025, TASK-027, TASK-030 | Client, Admin, Supabase, POS | Matrice resilienza superata |
 | TASK-035 | Observability, crash reporting e analytics privacy-safe | TODO | TASK-011, TASK-020, TASK-027, TASK-031 | Client, Admin | Telemetria privacy-safe |
 | TASK-036 | Accessibility, localizzazione e device matrix | TODO | TASK-012, TASK-018, TASK-021, TASK-026, TASK-028, TASK-031 | Client | Acceptance accessibilità e lingue |

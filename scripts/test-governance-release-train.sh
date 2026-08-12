@@ -233,34 +233,38 @@ cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-033/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: nessuno/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | ACTIVE |/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | DONE |/' \
+  's/- \*\*Review integrata\*\*: APPROVED/- **Review integrata**: NOT_RUN/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"
 
 cmc_case="$(cmc_fixture invalid-train-state)"
-sed -i.bak 's/- \*\*Stato release train\*\*: EXECUTION/- **Stato release train**: UNKNOWN/' \
+sed -i.bak 's/- \*\*Stato release train\*\*: CLOSEOUT/- **Stato release train**: UNKNOWN/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail invalid-train-state "${cmc_case}"
 
 cmc_case="$(cmc_fixture active-during-review)"
 sed -i.bak \
-  's/- \*\*Stato release train\*\*: EXECUTION/- **Stato release train**: INTEGRATED_REVIEW/' \
+  's/- \*\*Stato release train\*\*: CLOSEOUT/- **Stato release train**: INTEGRATED_REVIEW/' \
+  "${cmc_case}/docs/MASTER-PLAN.md"
+rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
+sed -i.bak \
+  's/| TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW |/| TASK-031 | Notifiche push e order status events | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-during-review "${cmc_case}"
 
 cmc_case="$(cmc_fixture active-header-without-active-row)"
 sed -i.bak \
-  's/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | ACTIVE |/| TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | BLOCKED |/' \
+  's/- \*\*Task attivo\*\*: nessuno/- **Task attivo**: TASK-033/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-header-without-active-row "${cmc_case}"

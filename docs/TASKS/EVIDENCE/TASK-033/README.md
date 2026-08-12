@@ -1,11 +1,12 @@
 # Evidence TASK-033
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 Il candidato remediation del 2026-08-12 chiude in codice e regressione tutti i 18
-finding del report canonico esistente. Il gate aggregato locale è `PASS`; la fase
-corrente è re-review sul commit candidato e non è stata avviata una nuova scan.
+finding del report canonico esistente. Gate aggregato e re-review sono `PASS` /
+`APPROVED`; l'autorizzazione D-09 è stata applicata a `DONE`. Non è stata avviata una
+nuova scan e nessun task successivo è stato attivato.
 
 Il precedente snapshot
 `BLOCKED / EXECUTION / BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE` resta storia

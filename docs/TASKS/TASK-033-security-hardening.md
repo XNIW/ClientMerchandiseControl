@@ -5,14 +5,21 @@
 - **Task ID**: TASK-033
 - **Titolo**: Threat model, RLS abuse testing, rate limit e security hardening
 - **File task**: `docs/TASKS/TASK-033-security-hardening.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-03
 - **Ultimo aggiornamento**: 2026-08-12
 - **Ultimo agente**: Codex
+- **Review outcome**: APPROVED
+- **Reviewer**: CODEX_RE_REVIEWER
+- **Approver**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
+- **DONE**: YES
+- **Merge**: AUTHORIZED_PENDING_PR
+- **User approval**: GRANTED_AND_APPLIED_FROM_2026-08-12_PROMPT
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-033/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -264,6 +271,20 @@ originali: buffer mutabile condiviso nella cache immagini verificata e purge aut
 incondizionato durante un bootstrap senza revoche. Esito:
 `CHANGES_REQUIRED`; handoff `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
+### Re-review — `CODEX_RE_REVIEWER`
+
+- target verificato: `ee0fcf7129a16f226c5b6da4e786d87108413765`;
+- ledger 18/18, ID mancanti 0; diff e sink confrontati con il report sigillato;
+- suite mirata post-commit: 20 file / 200 test `PASS`;
+- Android `:app:testDebugUnitTest` `BUILD SUCCESSFUL`; iOS 4/4 `TEST SUCCEEDED`;
+- finding aperti P0/P1/P2/P3: 0/0/0/0; finding nuovi: 0;
+- limite: reviewer logicamente distinto ma nella stessa sessione dell'executor;
+- **Esito**: `APPROVED`;
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+
+La conferma D-09 già esplicita viene applicata dopo l'esito: task
+`DONE / REVIEW / USER_APPROVED_DONE`. Nessun task successivo è attivato.
+
 ## Fix — `CODEX_FIXER`
 
 - cache immagine resa content-addressed anche rispetto alla mutabilità, restituendo
@@ -278,5 +299,7 @@ incondizionato durante un bootstrap senza revoche. Esito:
 - **Conferma utente**: esplicita in D-09 per review, `DONE` e merge normale
 - **Merge autorizzato**: sì, soltanto dopo review post-fix `APPROVED` e gate verdi
 - **Follow-up candidate**: nessuno; non attivare autonomamente TASK-034
-- **Riepilogo finale**: in attesa dell'esito re-review sul candidato remediation 18/18
-- **Data completamento**: non ancora
+- **Riepilogo finale**: remediation e validazione 18/18 approvate; attesa soltanto
+  pubblicazione CI/PR e merge normale già autorizzati
+- **Data completamento**: 2026-08-12
+- **Handoff**: USER_APPROVED_DONE

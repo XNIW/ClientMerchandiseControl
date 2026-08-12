@@ -2050,3 +2050,15 @@
   performance, build Android/iOS e smoke reali Android/iOS 1/1: tutti `PASS`.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; production,
   dati reali e credenziali privilegiate non acceduti; nessun task successivo attivato.
+
+## 2026-08-12 — TASK-033 re-review APPROVED e conferma DONE applicata
+
+- **Target**: commit `ee0fcf7129a16f226c5b6da4e786d87108413765` confrontato con
+  la base scan `0668ea7a` e con tutti i source/control/sink del report.
+- **Verifica autonoma**: ledger 18/18, mancanti 0; 20 file / 200 test mirati, Android
+  app unit test e iOS XCTest 4/4 `PASS`; nessun sink network-image legacy o handler
+  nativo OAuth privato residuo.
+- **Esito**: `APPROVED`, zero P0/P1/P2/P3 e zero finding nuovi. Limite dichiarato:
+  separazione reviewer/executor logica nella stessa sessione.
+- **Conferma**: D-09 applicata a `DONE / REVIEW / USER_APPROVED_DONE`; merge normale
+  autorizzato dopo CI exact-SHA. Il progetto resta `IDLE` e TASK-034 resta `TODO`.

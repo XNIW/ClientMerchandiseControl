@@ -88,7 +88,7 @@ final class CartController extends Notifier<CartState> {
     StorefrontProductSummary product, {
     int quantity = 1,
   }) {
-    return _withPublicationBusy(product.id, () async {
+    return _withPublicationBusy(product.id, (context) async {
       final snapshot = _requireSnapshot();
       final current = snapshot.items
           .where((item) => item.publicationId == product.id)
@@ -101,15 +101,18 @@ final class CartController extends Notifier<CartState> {
         final updated = await ref
             .read(guestCartStoreProvider)
             .setProduct(
-              shopSlug: _requireShopSlug(),
+              shopSlug: context.shopSlug,
               product: product,
               quantity: target,
             );
+        if (!_isCurrentContext(context)) return;
         _setReady(updated, notice: CartNoticeKind.added);
         return;
       }
-      await _prepareReservationMutation(product.id);
+      await _prepareReservationMutation(context, product.id);
+      if (!_isCurrentContext(context)) return;
       await _runMutation(
+        context: context,
         operation: CartMutationOperation.set,
         publicationId: product.id,
         quantity: target,
@@ -119,7 +122,7 @@ final class CartController extends Notifier<CartState> {
   }
 
   Future<void> setQuantity(String publicationId, int quantity) {
-    return _withPublicationBusy(publicationId, () async {
+    return _withPublicationBusy(publicationId, (context) async {
       if (quantity < 1 || quantity > customerCartMaximumQuantity) {
         throw const CartRepositoryException(CartFailureKind.invalidInput);
       }
@@ -127,15 +130,18 @@ final class CartController extends Notifier<CartState> {
         final updated = await ref
             .read(guestCartStoreProvider)
             .setQuantity(
-              shopSlug: _requireShopSlug(),
+              shopSlug: context.shopSlug,
               publicationId: publicationId,
               quantity: quantity,
             );
+        if (!_isCurrentContext(context)) return;
         _setReady(updated, notice: CartNoticeKind.updated);
         return;
       }
-      await _prepareReservationMutation(publicationId);
+      await _prepareReservationMutation(context, publicationId);
+      if (!_isCurrentContext(context)) return;
       await _runMutation(
+        context: context,
         operation: CartMutationOperation.set,
         publicationId: publicationId,
         quantity: quantity,
@@ -145,16 +151,19 @@ final class CartController extends Notifier<CartState> {
   }
 
   Future<void> remove(String publicationId) {
-    return _withPublicationBusy(publicationId, () async {
+    return _withPublicationBusy(publicationId, (context) async {
       if (!state.isAuthenticated) {
         final updated = await ref
             .read(guestCartStoreProvider)
-            .remove(shopSlug: _requireShopSlug(), publicationId: publicationId);
+            .remove(shopSlug: context.shopSlug, publicationId: publicationId);
+        if (!_isCurrentContext(context)) return;
         _setReady(updated, notice: CartNoticeKind.removed);
         return;
       }
-      await _prepareReservationMutation(publicationId);
+      await _prepareReservationMutation(context, publicationId);
+      if (!_isCurrentContext(context)) return;
       await _runMutation(
+        context: context,
         operation: CartMutationOperation.remove,
         publicationId: publicationId,
         notice: CartNoticeKind.removed,
@@ -163,16 +172,19 @@ final class CartController extends Notifier<CartState> {
   }
 
   Future<void> clear() {
-    return _withGlobalBusy(() async {
+    return _withGlobalBusy((context) async {
       if (!state.isAuthenticated) {
         final updated = await ref
             .read(guestCartStoreProvider)
-            .clear(shopSlug: _requireShopSlug());
+            .clear(shopSlug: context.shopSlug);
+        if (!_isCurrentContext(context)) return;
         _setReady(updated, notice: CartNoticeKind.cleared);
         return;
       }
-      await _prepareReservationMutation();
+      await _prepareReservationMutation(context);
+      if (!_isCurrentContext(context)) return;
       await _runMutation(
+        context: context,
         operation: CartMutationOperation.clear,
         notice: CartNoticeKind.cleared,
       );
@@ -180,7 +192,7 @@ final class CartController extends Notifier<CartState> {
   }
 
   Future<void> revalidate() {
-    return _withGlobalBusy(() async {
+    return _withGlobalBusy((context) async {
       if (!state.isAuthenticated) return;
       final snapshot = _requireSnapshot();
       final pending = _PendingRevalidation(
@@ -188,7 +200,11 @@ final class CartController extends Notifier<CartState> {
         idempotencyKey: ref.read(customerIdempotencyKeyFactoryProvider)(),
       );
       _pendingRevalidation = pending;
-      await _executeRevalidation(pending, allowConflictRetry: true);
+      await _executeRevalidation(
+        pending,
+        context: context,
+        allowConflictRetry: true,
+      );
     });
   }
 
@@ -318,6 +334,7 @@ final class CartController extends Notifier<CartState> {
   }
 
   Future<void> _runMutation({
+    required _CartInvocationContext context,
     required CartMutationOperation operation,
     String? publicationId,
     int? quantity,
@@ -326,7 +343,7 @@ final class CartController extends Notifier<CartState> {
     final snapshot = _requireSnapshot();
     final pending = _PendingMutation(
       request: CartMutationRequest(
-        shopSlug: _requireShopSlug(),
+        shopSlug: context.shopSlug,
         operation: operation,
         publicationId: publicationId,
         quantity: quantity,
@@ -336,19 +353,21 @@ final class CartController extends Notifier<CartState> {
       notice: notice,
     );
     _pendingMutation = pending;
-    await _executeMutation(pending, allowConflictRetry: true);
+    await _executeMutation(pending, context: context, allowConflictRetry: true);
   }
 
   Future<void> _executeMutation(
     _PendingMutation pending, {
+    required _CartInvocationContext context,
     required bool allowConflictRetry,
   }) async {
-    final generation = _generation;
+    if (!_isCurrentContext(context)) return;
+    final generation = context.generation;
     try {
       final response = await ref
           .read(customerCartRepositoryProvider)
           .mutate(pending.request);
-      if (!_isCurrent(generation)) return;
+      if (!_isCurrentContext(context)) return;
       final snapshot = response.snapshot;
       if (snapshot == null) {
         throw const FormatException('cart_mutation_snapshot');
@@ -369,7 +388,11 @@ final class CartController extends Notifier<CartState> {
           notice: pending.notice,
         );
         _pendingMutation = retry;
-        await _executeMutation(retry, allowConflictRetry: false);
+        await _executeMutation(
+          retry,
+          context: context,
+          allowConflictRetry: false,
+        );
         return;
       }
       _pendingMutation = null;
@@ -381,6 +404,7 @@ final class CartController extends Notifier<CartState> {
         _setReady(snapshot, notice: pending.notice);
       }
     } on CartRepositoryException catch (error) {
+      if (!_isCurrentContext(context)) return;
       _setFailure(
         error.kind,
         generation: generation,
@@ -396,24 +420,28 @@ final class CartController extends Notifier<CartState> {
     _publish(
       CartState.loading(isAuthenticated: true, previous: state.snapshot),
     );
-    await _executeMutation(pending, allowConflictRetry: true);
+    final context = _captureContext(generation: generation);
+    if (context == null) return;
+    await _executeMutation(pending, context: context, allowConflictRetry: true);
     if (!_isCurrent(generation)) return;
   }
 
   Future<void> _executeRevalidation(
     _PendingRevalidation pending, {
+    required _CartInvocationContext context,
     required bool allowConflictRetry,
   }) async {
-    final generation = _generation;
+    if (!_isCurrentContext(context)) return;
+    final generation = context.generation;
     try {
       final response = await ref
           .read(customerCartRepositoryProvider)
           .revalidate(
-            shopSlug: _requireShopSlug(),
+            shopSlug: context.shopSlug,
             expectedVersion: pending.expectedVersion,
             idempotencyKey: pending.idempotencyKey,
           );
-      if (!_isCurrent(generation)) return;
+      if (!_isCurrentContext(context)) return;
       final snapshot = response.snapshot;
       if (snapshot == null) {
         throw const FormatException('cart_revalidation_snapshot');
@@ -427,12 +455,17 @@ final class CartController extends Notifier<CartState> {
           idempotencyKey: ref.read(customerIdempotencyKeyFactoryProvider)(),
         );
         _pendingRevalidation = retry;
-        await _executeRevalidation(retry, allowConflictRetry: false);
+        await _executeRevalidation(
+          retry,
+          context: context,
+          allowConflictRetry: false,
+        );
         return;
       }
       _pendingRevalidation = null;
       _setReady(snapshot, notice: CartNoticeKind.revalidated);
     } on CartRepositoryException catch (error) {
+      if (!_isCurrentContext(context)) return;
       _setFailure(
         error.kind,
         generation: generation,
@@ -448,23 +481,33 @@ final class CartController extends Notifier<CartState> {
     _publish(
       CartState.loading(isAuthenticated: true, previous: state.snapshot),
     );
-    await _executeRevalidation(pending, allowConflictRetry: true);
+    final context = _captureContext(generation: generation);
+    if (context == null) return;
+    await _executeRevalidation(
+      pending,
+      context: context,
+      allowConflictRetry: true,
+    );
     if (!_isCurrent(generation)) return;
   }
 
-  Future<void> _prepareReservationMutation([String? publicationId]) async {
-    final identity = ref.read(customerAccountIdentityProvider);
-    if (identity == null) return;
+  Future<void> _prepareReservationMutation(
+    _CartInvocationContext context, [
+    String? publicationId,
+  ]) async {
+    final subjectId = context.subjectId;
+    if (subjectId == null || !_isCurrentContext(context)) return;
     final affected = publicationId == null
         ? _requireSnapshot().items.map((line) => line.publicationId).toSet()
         : {publicationId};
     await ref
         .read(reservationHoldCoordinatorProvider)
         .prepareForCartMutation(
-          ownerSubjectId: identity.subjectId,
-          shopSlug: _requireShopSlug(),
+          ownerSubjectId: subjectId,
+          shopSlug: context.shopSlug,
           publicationId: publicationId,
         );
+    if (!_isCurrentContext(context)) return;
     for (final id in affected) {
       ref.invalidate(reservationHoldControllerProvider(id));
     }
@@ -472,12 +515,15 @@ final class CartController extends Notifier<CartState> {
 
   Future<void> _withPublicationBusy(
     String publicationId,
-    Future<void> Function() action,
+    Future<void> Function(_CartInvocationContext context) action,
   ) {
     if (state.busyPublicationIds.contains(publicationId)) {
       return Future<void>.value();
     }
+    final context = _captureContext();
+    if (context == null) return Future<void>.value();
     return _serialize(() async {
+      if (!_isCurrentContext(context)) return;
       _publish(
         state.copyWith(
           busyPublicationIds: {...state.busyPublicationIds, publicationId},
@@ -486,12 +532,13 @@ final class CartController extends Notifier<CartState> {
         ),
       );
       try {
-        await action();
+        await action(context);
       } on CartRepositoryException catch (error) {
+        if (!_isCurrentContext(context)) return;
         _setFailure(error.kind, previous: state.snapshot);
         rethrow;
       } finally {
-        if (!_disposed) {
+        if (_isCurrentContext(context)) {
           final busy = {...state.busyPublicationIds}..remove(publicationId);
           _publish(state.copyWith(busyPublicationIds: busy));
         }
@@ -499,8 +546,13 @@ final class CartController extends Notifier<CartState> {
     });
   }
 
-  Future<void> _withGlobalBusy(Future<void> Function() action) {
+  Future<void> _withGlobalBusy(
+    Future<void> Function(_CartInvocationContext context) action,
+  ) {
+    final context = _captureContext();
+    if (context == null) return Future<void>.value();
     return _serialize(() async {
+      if (!_isCurrentContext(context)) return;
       _publish(
         state.copyWith(
           isGlobalBusy: true,
@@ -509,12 +561,15 @@ final class CartController extends Notifier<CartState> {
         ),
       );
       try {
-        await action();
+        await action(context);
       } on CartRepositoryException catch (error) {
+        if (!_isCurrentContext(context)) return;
         _setFailure(error.kind, previous: state.snapshot);
         rethrow;
       } finally {
-        if (!_disposed) _publish(state.copyWith(isGlobalBusy: false));
+        if (_isCurrentContext(context)) {
+          _publish(state.copyWith(isGlobalBusy: false));
+        }
       }
     });
   }
@@ -595,6 +650,39 @@ final class CartController extends Notifier<CartState> {
   }
 
   bool _isCurrent(int generation) => !_disposed && generation == _generation;
+
+  _CartInvocationContext? _captureContext({int? generation}) {
+    final shop = _shopSlug;
+    if (shop == null) return null;
+    return _CartInvocationContext(
+      generation: generation ?? _generation,
+      contextKey: _contextKey,
+      shopSlug: shop,
+      subjectId: ref.read(customerAccountIdentityProvider)?.subjectId,
+    );
+  }
+
+  bool _isCurrentContext(_CartInvocationContext context) {
+    return _isCurrent(context.generation) &&
+        _contextKey == context.contextKey &&
+        _shopSlug == context.shopSlug &&
+        ref.read(customerAccountIdentityProvider)?.subjectId ==
+            context.subjectId;
+  }
+}
+
+final class _CartInvocationContext {
+  const _CartInvocationContext({
+    required this.generation,
+    required this.contextKey,
+    required this.shopSlug,
+    required this.subjectId,
+  });
+
+  final int generation;
+  final String? contextKey;
+  final String shopSlug;
+  final String? subjectId;
 }
 
 final class _PendingMerge {

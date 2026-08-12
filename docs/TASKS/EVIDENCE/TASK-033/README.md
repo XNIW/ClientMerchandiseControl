@@ -1,7 +1,11 @@
 # Evidence TASK-033
 
 Snapshot di handoff:
-`ACTIVE / EXECUTION / TASK_033_RESUMED_MULTI_REPO_CLOSEOUT_BASELINE`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+Il candidato remediation del 2026-08-12 chiude in codice e regressione tutti i 18
+finding del report canonico esistente. Il gate aggregato locale è `PASS`; la fase
+corrente è re-review sul commit candidato e non è stata avviata una nuova scan.
 
 Il precedente snapshot
 `BLOCKED / EXECUTION / BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE` resta storia

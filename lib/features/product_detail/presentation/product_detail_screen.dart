@@ -285,6 +285,7 @@ class _ProductGallery extends StatelessWidget {
                 productId: product.id,
                 name: product.name,
                 uri: product.images?.detail,
+                sha256Digest: product.images?.sha256,
                 cacheWidth: 1440,
                 keyPrefix: 'storefront-detail-image',
               ),

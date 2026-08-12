@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
@@ -239,6 +241,49 @@ void main() {
       expect(repository.readCalls, hasLength(2));
     },
   );
+
+  test('create iniziata da A non viene salvata o mostrata sotto B', () async {
+    final response = Completer<ReservationHoldRemoteResponse>();
+    final repository = FakeReservationHoldRepository()
+      ..createOutcomes.add(response.future);
+    final store = MemoryReservationHoldStore();
+    final container = _container(repository: repository, store: store);
+    addTearDown(container.dispose);
+    final subscription = _keepAlive(container);
+    addTearDown(subscription.close);
+    await _waitFor(container, ReservationHoldViewStatus.idle);
+
+    final operation = container
+        .read(
+          reservationHoldControllerProvider(
+            reservationTestPublication,
+          ).notifier,
+        )
+        .reserve(quantity: 2);
+    while (repository.createCalls.isEmpty) {
+      await Future<void>.delayed(const Duration(milliseconds: 1));
+    }
+    container.read(_identityProvider.notifier).state = reservationIdentity(
+      reservationSecondOwner,
+    );
+    await _waitFor(container, ReservationHoldViewStatus.idle);
+
+    response.complete(reservationResponse(hold: reservationSnapshot()));
+    await operation;
+
+    final state = container.read(
+      reservationHoldControllerProvider(reservationTestPublication),
+    );
+    expect(state.hold, isNull);
+    expect(
+      await store.readEntry(
+        ownerSubjectId: reservationSecondOwner,
+        shopSlug: reservationTestShop,
+        publicationId: reservationTestPublication,
+      ),
+      isNull,
+    );
+  });
 }
 
 ProviderContainer _container({

@@ -126,16 +126,19 @@ final class CheckoutController extends Notifier<CheckoutState> {
   }
 
   Future<void> retry() {
+    final context = _captureContext();
+    if (context == null) return Future<void>.value();
     return _serialize(() async {
+      if (!_isCurrentContext(context)) return;
       final pending = state.pendingOperation;
       if (pending != null) {
         switch (pending.kind) {
           case CheckoutPendingOperationKind.create:
-            await _executeCreate(pending);
+            await _executeCreate(pending, context);
           case CheckoutPendingOperationKind.confirm:
-            await _executeConfirm(pending);
+            await _executeConfirm(pending, context);
           case CheckoutPendingOperationKind.order:
-            await _executeOrder(pending);
+            await _executeOrder(pending, context);
         }
         return;
       }
@@ -275,7 +278,10 @@ final class CheckoutController extends Notifier<CheckoutState> {
   }
 
   Future<void> createQuote() {
+    final context = _captureContext();
+    if (context == null) return Future<void>.value();
     return _serialize(() async {
+      if (!_isCurrentContext(context)) return;
       final cart = state.cart;
       if (cart == null || !_selectionComplete(state)) return;
       final existing = state.pendingOperation;
@@ -293,14 +299,17 @@ final class CheckoutController extends Notifier<CheckoutState> {
         failureKind: null,
         notice: null,
       );
-      if (!await _persist(pendingState)) return;
+      if (!await _persist(pendingState, context: context)) return;
       _publish(pendingState);
-      await _executeCreate(pending);
+      await _executeCreate(pending, context);
     });
   }
 
   Future<void> confirmQuote() {
+    final context = _captureContext();
+    if (context == null) return Future<void>.value();
     return _serialize(() async {
+      if (!_isCurrentContext(context)) return;
       final quote = state.quote;
       final cart = state.cart;
       if (quote == null || cart == null || quote.isExpired) return;
@@ -322,14 +331,17 @@ final class CheckoutController extends Notifier<CheckoutState> {
         failureKind: null,
         notice: null,
       );
-      if (!await _persist(pendingState)) return;
+      if (!await _persist(pendingState, context: context)) return;
       _publish(pendingState);
-      await _executeConfirm(pending);
+      await _executeConfirm(pending, context);
     });
   }
 
   Future<void> createOrder() {
+    final context = _captureContext();
+    if (context == null) return Future<void>.value();
     return _serialize(() async {
+      if (!_isCurrentContext(context)) return;
       final quote = state.quote;
       final cart = state.cart;
       if (quote == null ||
@@ -359,21 +371,25 @@ final class CheckoutController extends Notifier<CheckoutState> {
         failureKind: null,
         notice: null,
       );
-      if (!await _persist(pendingState)) return;
+      if (!await _persist(pendingState, context: context)) return;
       _publish(pendingState);
-      await _executeOrder(pending);
+      await _executeOrder(pending, context);
     });
   }
 
   Future<void> restart() {
+    final context = _captureContext();
+    if (context == null) return Future<void>.value();
     return _serialize(() async {
-      final owner = _ownerSubjectId;
-      final shop = _shopSlug;
-      if (owner == null || shop == null) return;
+      if (!_isCurrentContext(context)) return;
       try {
         await ref
             .read(checkoutDraftStoreProvider)
-            .clear(ownerSubjectId: owner, shopSlug: shop);
+            .clear(
+              ownerSubjectId: context.ownerSubjectId,
+              shopSlug: context.shopSlug,
+            );
+        if (!_isCurrentContext(context)) return;
         _publish(
           state.copyWith(
             step: CheckoutStep.mode,
@@ -386,6 +402,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
           ),
         );
       } on Object {
+        if (!_isCurrentContext(context)) return;
         _publish(
           state.copyWith(
             failureKind: CheckoutFailureKind.unexpected,
@@ -409,6 +426,11 @@ final class CheckoutController extends Notifier<CheckoutState> {
     final owner = _ownerSubjectId;
     final shop = _shopSlug;
     if (owner == null || shop == null) return;
+    final context = _CheckoutContext(
+      ownerSubjectId: owner,
+      shopSlug: shop,
+      generation: generation,
+    );
     _publish(CheckoutState.loading(cart: cart).copyWith(addresses: addresses));
     try {
       final results = await Future.wait<Object?>([
@@ -418,15 +440,15 @@ final class CheckoutController extends Notifier<CheckoutState> {
             .read(checkoutDraftStoreProvider)
             .read(ownerSubjectId: owner, shopSlug: shop),
       ]);
-      if (!_isCurrent(generation)) return;
+      if (!_isCurrentContext(context)) return;
       final options = results[0]! as StorefrontFulfillmentOptions;
       final paymentOptions = results[1]! as StorefrontPaymentOptions;
       final draft = results[2] as CheckoutLocalDraft?;
       if (draft?.orderId != null) {
         final response = await ref
             .read(checkoutRepositoryProvider)
-            .readOrder(orderId: draft!.orderId!);
-        if (!_isCurrent(generation)) return;
+            .readOrder(shopSlug: shop, orderId: draft!.orderId!);
+        if (!_isCurrentContext(context)) return;
         final order = response.order;
         if (response.status == CheckoutOrderRemoteStatus.ok && order != null) {
           final receipt = CheckoutState(
@@ -440,8 +462,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
             order: order,
             notice: restoreNotice ? CheckoutNoticeKind.restored : null,
           );
+          if (!await _persist(receipt, context: context)) return;
           _publish(receipt);
-          await _persist(receipt);
           return;
         }
       }
@@ -469,8 +491,12 @@ final class CheckoutController extends Notifier<CheckoutState> {
         try {
           final response = await ref
               .read(checkoutRepositoryProvider)
-              .readQuote(quoteId: draft!.quoteId!);
-          if (!_isCurrent(generation)) return;
+              .readQuote(
+                shopSlug: shop,
+                cartVersion: cart.version,
+                quoteId: draft!.quoteId!,
+              );
+          if (!_isCurrentContext(context)) return;
           quote = response.quote;
           if (quote == null) {
             restoreFailure = _failureFor(response.status);
@@ -510,14 +536,14 @@ final class CheckoutController extends Notifier<CheckoutState> {
             ? CheckoutNoticeKind.restored
             : null,
       );
+      if (!await _persist(ready, context: context)) return;
       _publish(ready);
-      await _persist(ready);
     } on CheckoutRepositoryException catch (error) {
-      if (_isCurrent(generation)) {
+      if (_isCurrentContext(context)) {
         _publish(CheckoutState.failure(failureKind: error.kind, cart: cart));
       }
     } on Object {
-      if (_isCurrent(generation)) {
+      if (_isCurrentContext(context)) {
         _publish(
           CheckoutState.failure(
             failureKind: CheckoutFailureKind.unexpected,
@@ -535,16 +561,21 @@ final class CheckoutController extends Notifier<CheckoutState> {
     final owner = _ownerSubjectId;
     final shop = _shopSlug;
     if (owner == null || shop == null) return;
+    final context = _CheckoutContext(
+      ownerSubjectId: owner,
+      shopSlug: shop,
+      generation: generation,
+    );
     try {
       final draft = await ref
           .read(checkoutDraftStoreProvider)
           .read(ownerSubjectId: owner, shopSlug: shop);
-      if (!_isCurrent(generation)) return;
+      if (!_isCurrentContext(context)) return;
       if (draft?.orderId case final String orderId) {
         final response = await ref
             .read(checkoutRepositoryProvider)
-            .readOrder(orderId: orderId);
-        if (!_isCurrent(generation)) return;
+            .readOrder(shopSlug: shop, orderId: orderId);
+        if (!_isCurrentContext(context)) return;
         final order = response.order;
         if (response.status == CheckoutOrderRemoteStatus.ok && order != null) {
           final receipt = CheckoutState(
@@ -556,8 +587,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
             order: order,
             notice: CheckoutNoticeKind.restored,
           );
+          if (!await _persist(receipt, context: context)) return;
           _publish(receipt);
-          await _persist(receipt);
           return;
         }
       }
@@ -576,7 +607,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
           notice: CheckoutNoticeKind.restored,
         );
         _publish(recovery);
-        await _executeOrder(pending!);
+        await _executeOrder(pending!, context);
         return;
       }
       _publish(
@@ -586,11 +617,11 @@ final class CheckoutController extends Notifier<CheckoutState> {
         ),
       );
     } on CheckoutRepositoryException catch (error) {
-      if (_isCurrent(generation)) {
+      if (_isCurrentContext(context)) {
         _publish(CheckoutState.failure(failureKind: error.kind, cart: cart));
       }
     } on Object {
-      if (_isCurrent(generation)) {
+      if (_isCurrentContext(context)) {
         _publish(
           CheckoutState.failure(
             failureKind: CheckoutFailureKind.unexpected,
@@ -601,9 +632,12 @@ final class CheckoutController extends Notifier<CheckoutState> {
     }
   }
 
-  Future<void> _executeCreate(CheckoutPendingOperation pending) async {
-    final shop = _shopSlug;
-    if (shop == null) return;
+  Future<void> _executeCreate(
+    CheckoutPendingOperation pending,
+    _CheckoutContext context,
+  ) async {
+    if (!_isCurrentContext(context)) return;
+    final shop = context.shopSlug;
     _publish(state.copyWith(isBusy: true, failureKind: null, notice: null));
     try {
       final response = await ref
@@ -616,6 +650,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
               idempotencyKey: pending.idempotencyKey,
             ),
           );
+      if (!_isCurrentContext(context)) return;
       final quote = response.quote;
       if (quote != null &&
           const {
@@ -634,11 +669,16 @@ final class CheckoutController extends Notifier<CheckoutState> {
               : null,
           isBusy: false,
         );
-        await _persistAndPublish(ready);
+        await _persistAndPublish(ready, context);
         return;
       }
-      await _publishDeterministicFailure(response, quote: quote);
+      await _publishDeterministicFailure(
+        response,
+        context: context,
+        quote: quote,
+      );
     } on CheckoutRepositoryException catch (error) {
+      if (!_isCurrentContext(context)) return;
       _publish(
         state.copyWith(
           failureKind: error.kind,
@@ -653,7 +693,11 @@ final class CheckoutController extends Notifier<CheckoutState> {
     }
   }
 
-  Future<void> _executeConfirm(CheckoutPendingOperation pending) async {
+  Future<void> _executeConfirm(
+    CheckoutPendingOperation pending,
+    _CheckoutContext context,
+  ) async {
+    if (!_isCurrentContext(context)) return;
     final quoteId = pending.quoteId;
     final expectedVersion = pending.expectedQuoteVersion;
     if (quoteId == null || expectedVersion == null) return;
@@ -662,10 +706,13 @@ final class CheckoutController extends Notifier<CheckoutState> {
       final response = await ref
           .read(checkoutRepositoryProvider)
           .confirmQuote(
+            shopSlug: context.shopSlug,
+            cartVersion: pending.cartVersion,
             quoteId: quoteId,
             expectedQuoteVersion: expectedVersion,
             idempotencyKey: pending.idempotencyKey,
           );
+      if (!_isCurrentContext(context)) return;
       final quote = response.quote;
       if (response.status == CheckoutRemoteStatus.confirmed && quote != null) {
         final confirmed = state.copyWith(
@@ -675,7 +722,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
           notice: CheckoutNoticeKind.confirmed,
           isBusy: false,
         );
-        await _persistAndPublish(confirmed);
+        await _persistAndPublish(confirmed, context);
         return;
       }
       if (response.status == CheckoutRemoteStatus.requiresReview &&
@@ -687,11 +734,16 @@ final class CheckoutController extends Notifier<CheckoutState> {
           notice: CheckoutNoticeKind.quoteChanged,
           isBusy: false,
         );
-        await _persistAndPublish(changed);
+        await _persistAndPublish(changed, context);
         return;
       }
-      await _publishDeterministicFailure(response, quote: quote);
+      await _publishDeterministicFailure(
+        response,
+        context: context,
+        quote: quote,
+      );
     } on CheckoutRepositoryException catch (error) {
+      if (!_isCurrentContext(context)) return;
       _publish(
         state.copyWith(
           failureKind: error.kind,
@@ -706,7 +758,11 @@ final class CheckoutController extends Notifier<CheckoutState> {
     }
   }
 
-  Future<void> _executeOrder(CheckoutPendingOperation pending) async {
+  Future<void> _executeOrder(
+    CheckoutPendingOperation pending,
+    _CheckoutContext context,
+  ) async {
+    if (!_isCurrentContext(context)) return;
     final quoteId = pending.quoteId;
     final expectedVersion = pending.expectedQuoteVersion;
     final paymentMethod = pending.paymentMethod;
@@ -725,11 +781,14 @@ final class CheckoutController extends Notifier<CheckoutState> {
       final response = await ref
           .read(checkoutRepositoryProvider)
           .createOrder(
+            shopSlug: context.shopSlug,
+            cartVersion: pending.cartVersion,
             quoteId: quoteId,
             expectedQuoteVersion: expectedVersion,
             paymentMethod: paymentMethod,
             idempotencyKey: pending.idempotencyKey,
           );
+      if (!_isCurrentContext(context)) return;
       final order = response.order;
       if (response.status == CheckoutOrderRemoteStatus.ok && order != null) {
         final receipt = state.copyWith(
@@ -741,14 +800,20 @@ final class CheckoutController extends Notifier<CheckoutState> {
           notice: CheckoutNoticeKind.orderConfirmed,
           isBusy: false,
         );
-        await _persistAndPublish(receipt);
+        await _persistAndPublish(receipt, context);
+        if (!_isCurrentContext(context)) return;
         await ref.read(checkoutCartRefreshProvider)();
         return;
       }
       if (response.status == CheckoutOrderRemoteStatus.requiresReview) {
         final quoteResponse = await ref
             .read(checkoutRepositoryProvider)
-            .readQuote(quoteId: quoteId);
+            .readQuote(
+              shopSlug: context.shopSlug,
+              cartVersion: pending.cartVersion,
+              quoteId: quoteId,
+            );
+        if (!_isCurrentContext(context)) return;
         final quote = quoteResponse.quote;
         final changed = state.copyWith(
           quote: quote,
@@ -758,11 +823,12 @@ final class CheckoutController extends Notifier<CheckoutState> {
           notice: quote == null ? null : CheckoutNoticeKind.quoteChanged,
           isBusy: false,
         );
-        await _persistAndPublish(changed);
+        await _persistAndPublish(changed, context);
         return;
       }
-      await _publishOrderDeterministicFailure(response);
+      await _publishOrderDeterministicFailure(response, context);
     } on CheckoutRepositoryException catch (error) {
+      if (!_isCurrentContext(context)) return;
       _publish(
         state.copyWith(
           failureKind: error.kind,
@@ -779,7 +845,9 @@ final class CheckoutController extends Notifier<CheckoutState> {
 
   Future<void> _publishOrderDeterministicFailure(
     CheckoutOrderRemoteResponse response,
+    _CheckoutContext context,
   ) async {
+    if (!_isCurrentContext(context)) return;
     final failure = _failureForOrder(response.status);
     final next = state.copyWith(
       order: null,
@@ -787,7 +855,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
       failureKind: failure,
       isBusy: false,
     );
-    await _persistAndPublish(next);
+    await _persistAndPublish(next, context);
+    if (!_isCurrentContext(context)) return;
     if (failure == CheckoutFailureKind.staleCart ||
         failure == CheckoutFailureKind.cartUnavailable) {
       await ref.read(checkoutCartRefreshProvider)();
@@ -796,8 +865,10 @@ final class CheckoutController extends Notifier<CheckoutState> {
 
   Future<void> _publishDeterministicFailure(
     CheckoutRemoteResponse response, {
+    required _CheckoutContext context,
     CheckoutQuote? quote,
   }) async {
+    if (!_isCurrentContext(context)) return;
     final failure = _failureFor(response.status);
     final next = state.copyWith(
       quote: quote,
@@ -805,31 +876,39 @@ final class CheckoutController extends Notifier<CheckoutState> {
       failureKind: failure,
       isBusy: false,
     );
-    await _persistAndPublish(next);
+    await _persistAndPublish(next, context);
+    if (!_isCurrentContext(context)) return;
     if (failure == CheckoutFailureKind.staleCart) {
       await ref.read(checkoutCartRefreshProvider)();
     }
   }
 
   Future<void> _replaceDraftState(CheckoutState next) async {
-    if (await _persist(next)) _publish(next);
+    final context = _captureContext();
+    if (context != null && await _persist(next, context: context)) {
+      _publish(next);
+    }
   }
 
-  Future<void> _persistAndPublish(CheckoutState next) async {
-    if (await _persist(next)) _publish(next);
+  Future<void> _persistAndPublish(
+    CheckoutState next,
+    _CheckoutContext context,
+  ) async {
+    if (await _persist(next, context: context)) _publish(next);
   }
 
-  Future<bool> _persist(CheckoutState value) async {
-    final owner = _ownerSubjectId;
-    final shop = _shopSlug;
-    if (owner == null || shop == null) return false;
+  Future<bool> _persist(
+    CheckoutState value, {
+    required _CheckoutContext context,
+  }) async {
+    if (!_isCurrentContext(context)) return false;
     try {
       await ref
           .read(checkoutDraftStoreProvider)
           .save(
             CheckoutLocalDraft(
-              ownerSubjectId: owner,
-              shopSlug: shop,
+              ownerSubjectId: context.ownerSubjectId,
+              shopSlug: context.shopSlug,
               step: value.step,
               selection: value.selection,
               quoteId: value.quote?.id,
@@ -838,8 +917,9 @@ final class CheckoutController extends Notifier<CheckoutState> {
               updatedAt: ref.read(checkoutClockProvider)(),
             ),
           );
-      return true;
+      return _isCurrentContext(context);
     } on Object {
+      if (!_isCurrentContext(context)) return false;
       _publish(
         value.copyWith(
           pendingOperation: null,
@@ -874,6 +954,35 @@ final class CheckoutController extends Notifier<CheckoutState> {
   }
 
   bool _isCurrent(int generation) => !_disposed && generation == _generation;
+
+  _CheckoutContext? _captureContext() {
+    final owner = _ownerSubjectId;
+    final shop = _shopSlug;
+    if (owner == null || shop == null) return null;
+    return _CheckoutContext(
+      ownerSubjectId: owner,
+      shopSlug: shop,
+      generation: _generation,
+    );
+  }
+
+  bool _isCurrentContext(_CheckoutContext context) {
+    return _isCurrent(context.generation) &&
+        _ownerSubjectId == context.ownerSubjectId &&
+        _shopSlug == context.shopSlug;
+  }
+}
+
+final class _CheckoutContext {
+  const _CheckoutContext({
+    required this.ownerSubjectId,
+    required this.shopSlug,
+    required this.generation,
+  });
+
+  final String ownerSubjectId;
+  final String shopSlug;
+  final int generation;
 }
 
 CheckoutSelection _sanitizeSelection(

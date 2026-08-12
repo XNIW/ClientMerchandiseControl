@@ -127,17 +127,25 @@ final class CustomerDevicePendingOperation {
 }
 
 final class CustomerDeviceLocalRecord {
-  const CustomerDeviceLocalRecord({
+  CustomerDeviceLocalRecord({
     required this.installationId,
     required this.decisionOwnerSubjectId,
     required this.consentStatus,
-    required this.pendingOperation,
-  });
+    CustomerDevicePendingOperation? pendingOperation,
+    List<CustomerDevicePendingOperation> pendingOperations = const [],
+  }) : pendingOperations = List.unmodifiable(
+         pendingOperation == null
+             ? pendingOperations
+             : <CustomerDevicePendingOperation>[pendingOperation],
+       );
 
   final String installationId;
   final String? decisionOwnerSubjectId;
   final CustomerDeviceConsentStatus consentStatus;
-  final CustomerDevicePendingOperation? pendingOperation;
+  final List<CustomerDevicePendingOperation> pendingOperations;
+
+  CustomerDevicePendingOperation? get pendingOperation =>
+      pendingOperations.firstOrNull;
 
   CustomerDeviceConsentStatus consentFor(String ownerSubjectId) {
     return decisionOwnerSubjectId == ownerSubjectId
@@ -149,6 +157,7 @@ final class CustomerDeviceLocalRecord {
     String? decisionOwnerSubjectId,
     CustomerDeviceConsentStatus? consentStatus,
     CustomerDevicePendingOperation? pendingOperation,
+    List<CustomerDevicePendingOperation>? pendingOperations,
     bool clearPendingOperation = false,
   }) {
     return CustomerDeviceLocalRecord(
@@ -156,9 +165,49 @@ final class CustomerDeviceLocalRecord {
       decisionOwnerSubjectId:
           decisionOwnerSubjectId ?? this.decisionOwnerSubjectId,
       consentStatus: consentStatus ?? this.consentStatus,
-      pendingOperation: clearPendingOperation
-          ? null
-          : pendingOperation ?? this.pendingOperation,
+      pendingOperations: clearPendingOperation
+          ? const []
+          : pendingOperations ??
+                (pendingOperation == null
+                    ? this.pendingOperations
+                    : [pendingOperation]),
+    );
+  }
+
+  CustomerDeviceLocalRecord queueRevocation(
+    CustomerDevicePendingOperation operation,
+  ) {
+    final retained = pendingOperations
+        .where(
+          (pending) =>
+              pending.kind == CustomerDevicePendingOperationKind.revoke &&
+              !(pending.ownerSubjectId == operation.ownerSubjectId &&
+                  pending.idempotencyKey == operation.idempotencyKey),
+        )
+        .toList(growable: true);
+    retained.add(operation);
+    if (retained.length > 4) {
+      throw const FormatException('Too many pending device revocations.');
+    }
+    return copyWith(pendingOperations: retained);
+  }
+
+  CustomerDeviceLocalRecord withPendingRegistration(
+    CustomerDevicePendingOperation operation,
+  ) {
+    if (pendingOperations.any(
+      (pending) => pending.kind == CustomerDevicePendingOperationKind.revoke,
+    )) {
+      throw const FormatException('A device revocation is still pending.');
+    }
+    return copyWith(pendingOperations: [operation]);
+  }
+
+  CustomerDeviceLocalRecord completePending(String idempotencyKey) {
+    return copyWith(
+      pendingOperations: pendingOperations
+          .where((pending) => pending.idempotencyKey != idempotencyKey)
+          .toList(growable: false),
     );
   }
 }

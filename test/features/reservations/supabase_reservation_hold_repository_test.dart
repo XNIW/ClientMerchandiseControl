@@ -145,6 +145,36 @@ void main() {
     );
     expect(port.calls, isEmpty);
   });
+
+  test('rifiuta hold, quantità e stato non legati alla richiesta', () async {
+    final wrongQuantity = _activePayload()..['quantity'] = 3;
+    await expectLater(
+      SupabaseReservationHoldRepository(_FakePort(wrongQuantity)).create(
+        shopSlug: reservationTestShop,
+        publicationId: reservationTestPublication,
+        quantity: 2,
+        idempotencyKey: reservationTestKey,
+      ),
+      throwsA(isA<ReservationHoldRepositoryException>()),
+    );
+
+    final wrongHold = _activePayload()
+      ..['holdId'] = '70000000-0000-4000-8000-000000000002';
+    await expectLater(
+      SupabaseReservationHoldRepository(
+        _FakePort(wrongHold),
+      ).read(holdId: reservationTestHold),
+      throwsA(isA<ReservationHoldRepositoryException>()),
+    );
+
+    await expectLater(
+      SupabaseReservationHoldRepository(_FakePort(_activePayload())).release(
+        holdId: reservationTestHold,
+        idempotencyKey: reservationSecondKey,
+      ),
+      throwsA(isA<ReservationHoldRepositoryException>()),
+    );
+  });
 }
 
 Map<String, Object?> _activePayload() => <String, Object?>{

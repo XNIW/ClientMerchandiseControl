@@ -47,57 +47,28 @@ void main() {
     );
   });
 
-  test('costruisce e decodifica il link ordine canonico owner-protected', () {
-    final order = codec.orderUri(shopSlug: _shop, orderId: _orderId);
-
+  test('route sensibili falliscono chiuso senza canale HTTPS verificato', () {
     expect(
-      order.toString(),
-      'com.xniw.clientmerchandisecontrol://storefront/'
-      'storefront-test/order/$_orderId',
+      () => codec.orderUri(shopSlug: _shop, orderId: _orderId),
+      throwsUnsupportedError,
     );
     expect(
-      codec.decode(order, shopSlug: _shop),
-      isA<StorefrontOrderDeepLink>().having(
-        (intent) => intent.orderId,
-        'orderId',
-        _orderId,
-      ),
-    );
-  });
-
-  test('decodifica soltanto la route notifica opaca canonica', () {
-    final notification = codec.notificationUri(
-      shopSlug: _shop,
-      routeToken: _routeToken,
+      () => codec.notificationUri(shopSlug: _shop, routeToken: _routeToken),
+      throwsUnsupportedError,
     );
 
-    expect(
-      notification.toString(),
-      'com.xniw.clientmerchandisecontrol://storefront/'
-      'storefront-test/notification/$_routeToken',
-    );
-    expect(
-      codec.decode(notification, shopSlug: _shop),
-      isA<StorefrontNotificationDeepLink>().having(
-        (intent) => intent.routeToken,
-        'routeToken',
-        _routeToken,
-      ),
-    );
     for (final uri in [
-      Uri.parse('$notification?orderId=$_orderId'),
-      Uri.parse('$notification#ready'),
       Uri.parse(
         'com.xniw.clientmerchandisecontrol://storefront/'
-        'other-shop/notification/$_routeToken',
+        '$_shop/order/$_orderId',
       ),
       Uri.parse(
         'com.xniw.clientmerchandisecontrol://storefront/'
-        '$_shop/notification/F1000000-0000-4000-8000-000000031001',
+        '$_shop/notification/$_routeToken',
       ),
       Uri.parse(
-        'com.xniw.clientmerchandisecontrol://storefront/'
-        '$_shop/notification/$_orderId/extra',
+        'https://clientmerchandisecontrol.invalid/'
+        '$_shop/notification/$_routeToken',
       ),
     ]) {
       expect(codec.decode(uri, shopSlug: _shop), isNull, reason: '$uri');
@@ -186,7 +157,10 @@ void main() {
     expect(codec.decode(valid, shopSlug: 'other-shop'), isNull);
     expect(codec.decode(valid, shopSlug: 'a'), isNull);
 
-    final order = codec.orderUri(shopSlug: _shop, orderId: _orderId);
+    final order = Uri.parse(
+      'com.xniw.clientmerchandisecontrol://storefront/'
+      '$_shop/order/$_orderId',
+    );
     for (final uri in [
       Uri.parse('$order?token=private'),
       Uri.parse('$order#fragment'),

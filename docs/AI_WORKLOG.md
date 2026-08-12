@@ -2030,3 +2030,23 @@
   `20260803143000`; nessuna migration nuova e nessun accesso production.
 - **Stato**: TASK-033 riprende `ACTIVE / EXECUTION`; prima convergenza delle lane e
   dei contratti, poi freeze finale, Deep Scan unica, review integrata e gate completi.
+
+## 2026-08-12 — TASK-033 remediation mirata 18/18 a re-review
+
+- **Ruoli**: `CODEX_EXECUTOR`, poi `CODEX_REVIEWER` e `CODEX_FIXER` logicamente
+  separati nella stessa sessione; autorizzazione finale `USER_APPROVER` registrata in
+  D-09.
+- **Provenance**: report sigillato scan
+  `da548633-6547-4157-a55f-8e8ab1b11f0d`, SHA analizzato `0668ea7a`, digest report
+  verificato; 2 medium + 16 low, coverage 61/61, deferred 0. Nessuna nuova scan.
+- **Remediation**: logout durevole/revoca retry; fencing owner/shop/generation per
+  checkout, cart, order, hold e device; purge unauthorized; dialog auth-bound;
+  response binding; loader immagini exact-origin/bounded/SHA-256; callback OAuth
+  privata rimossa e route customer-sensitive fail-closed.
+- **Review/Fix**: corretti buffer cache immagine mutabile e purge auth bootstrap
+  incondizionato; nuovo OAuth resta negato finché la revoca pending non è drenata.
+- **Gate**: security 564 file, fixture 32/32 negative e 2/2 positive, governance 9/9,
+  architecture 7/7, format/analyze, 566 test, coverage 12.076/15.541 (77,70%),
+  performance, build Android/iOS e smoke reali Android/iOS 1/1: tutti `PASS`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; production,
+  dati reali e credenziali privilegiate non acceduti; nessun task successivo attivato.

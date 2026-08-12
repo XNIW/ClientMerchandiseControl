@@ -30,17 +30,26 @@ class SupabaseStorefrontRepository implements StorefrontRepository {
   Future<StorefrontHomeData> fetchHome({
     required String shopSlug,
     required StorefrontRequestCancellation cancellation,
-  }) => _invokeDecoded(
-    function: 'storefront_home_v1',
-    parameters: {
-      'p_shop_slug': shopSlug,
-      'p_category_limit': 12,
-      'p_featured_limit': 8,
-      'p_offer_limit': 8,
-    },
-    cancellation: cancellation,
-    decode: StorefrontHomeDto.decode,
-  );
+  }) async {
+    final home = await _invokeDecoded(
+      function: 'storefront_home_v1',
+      parameters: {
+        'p_shop_slug': shopSlug,
+        'p_category_limit': 12,
+        'p_featured_limit': 8,
+        'p_offer_limit': 8,
+      },
+      cancellation: cancellation,
+      decode: StorefrontHomeDto.decode,
+    );
+    if (home.settings.shopSlug != shopSlug) {
+      throw const StorefrontFailure(
+        StorefrontFailureKind.invalidPayload,
+        code: 'home_shop_mismatch',
+      );
+    }
+    return home;
+  }
 
   @override
   Future<StorefrontCategoriesPage> fetchCategories({

@@ -66,21 +66,13 @@ class StorefrontDeepLinkCodec {
   Uri orderUri({required String shopSlug, required String orderId}) {
     _require(_shopSlug.hasMatch(shopSlug));
     _require(_uuid.hasMatch(orderId));
-    return Uri(
-      scheme: scheme,
-      host: host,
-      pathSegments: [shopSlug, 'order', orderId],
-    );
+    throw UnsupportedError('verified_sensitive_callback_channel_unavailable');
   }
 
   Uri notificationUri({required String shopSlug, required String routeToken}) {
     _require(_shopSlug.hasMatch(shopSlug));
     _require(_uuid.hasMatch(routeToken));
-    return Uri(
-      scheme: scheme,
-      host: host,
-      pathSegments: [shopSlug, 'notification', routeToken],
-    );
+    throw UnsupportedError('verified_sensitive_callback_channel_unavailable');
   }
 
   StorefrontDeepLinkIntent? decode(Uri uri, {required String shopSlug}) {
@@ -107,18 +99,6 @@ class StorefrontDeepLinkCodec {
       final canonical = categoryUri(shopSlug: shopSlug, categorySlug: value);
       return uri.toString() == canonical.toString()
           ? StorefrontCategoryDeepLink(value)
-          : null;
-    }
-    if (kind == 'order' && _uuid.hasMatch(value)) {
-      final canonical = orderUri(shopSlug: shopSlug, orderId: value);
-      return uri.toString() == canonical.toString()
-          ? StorefrontOrderDeepLink(value)
-          : null;
-    }
-    if (kind == 'notification' && _uuid.hasMatch(value)) {
-      final canonical = notificationUri(shopSlug: shopSlug, routeToken: value);
-      return uri.toString() == canonical.toString()
-          ? StorefrontNotificationDeepLink(value)
           : null;
     }
     return null;

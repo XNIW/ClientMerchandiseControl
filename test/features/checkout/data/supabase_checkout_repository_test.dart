@@ -186,6 +186,8 @@ void main() {
     );
 
     final response = await repository.confirmQuote(
+      shopSlug: 'storefront-test',
+      cartVersion: 7,
       quoteId: _quoteId,
       expectedQuoteVersion: 2,
       idempotencyKey: _idempotencyId,
@@ -206,6 +208,8 @@ void main() {
       port.response = _orderPayload();
 
       final response = await repository.createOrder(
+        shopSlug: 'storefront-test',
+        cartVersion: 7,
         quoteId: _quoteId,
         expectedQuoteVersion: 2,
         paymentMethod: CheckoutPaymentMethod.payAtPickup,
@@ -251,7 +255,10 @@ void main() {
   test('read order usa solo ID owner-scoped e accetta replay', () async {
     port.response = _orderPayload(idempotent: true);
 
-    final response = await repository.readOrder(orderId: _orderId);
+    final response = await repository.readOrder(
+      shopSlug: 'storefront-test',
+      orderId: _orderId,
+    );
 
     expect(response.order?.idempotent, isTrue);
     expect(port.function, 'customer_order_read_v2');
@@ -277,7 +284,10 @@ void main() {
         'idempotent': false,
         'serverTime': _now.toIso8601String(),
       };
-      final response = await repository.readOrder(orderId: _orderId);
+      final response = await repository.readOrder(
+        shopSlug: 'storefront-test',
+        orderId: _orderId,
+      );
       expect(response.status, entry.value, reason: entry.key);
     }
   });
@@ -315,7 +325,7 @@ void main() {
     ]) {
       port.response = payload;
       await expectLater(
-        repository.readOrder(orderId: _orderId),
+        repository.readOrder(shopSlug: 'storefront-test', orderId: _orderId),
         throwsA(
           isA<CheckoutRepositoryException>().having(
             (error) => error.kind,
@@ -341,7 +351,11 @@ void main() {
         'idempotent': false,
         'serverTime': _now.toIso8601String(),
       };
-      final response = await repository.readQuote(quoteId: _quoteId);
+      final response = await repository.readQuote(
+        shopSlug: 'storefront-test',
+        cartVersion: 7,
+        quoteId: _quoteId,
+      );
       expect(response.status, entry.value, reason: entry.key);
     }
   });
@@ -360,7 +374,11 @@ void main() {
       ]) {
         port.response = payload;
         await expectLater(
-          repository.readQuote(quoteId: _quoteId),
+          repository.readQuote(
+            shopSlug: 'storefront-test',
+            cartVersion: 7,
+            quoteId: _quoteId,
+          ),
           throwsA(
             isA<CheckoutRepositoryException>().having(
               (error) => error.kind,

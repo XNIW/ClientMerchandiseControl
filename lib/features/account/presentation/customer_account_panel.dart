@@ -8,6 +8,7 @@ import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../application/customer_account_controller.dart';
+import '../application/customer_account_providers.dart';
 import '../domain/customer_account_failure.dart';
 import '../domain/customer_account_models.dart';
 
@@ -750,9 +751,16 @@ Future<CustomerAddressDraft?> _showAddressEditor(
   BuildContext context, {
   CustomerAddress? address,
 }) {
+  final expectedSubjectId = ProviderScope.containerOf(
+    context,
+  ).read(customerAccountIdentityProvider)?.subjectId;
+  if (expectedSubjectId == null) return Future.value();
   return showDialog<CustomerAddressDraft>(
     context: context,
-    builder: (_) => _AddressEditorDialog(address: address),
+    builder: (_) => _AuthBoundDialog(
+      expectedSubjectId: expectedSubjectId,
+      child: _AddressEditorDialog(address: address),
+    ),
   );
 }
 
@@ -952,49 +960,83 @@ Future<bool> _confirm(
   required String message,
   required String action,
 }) async {
+  final expectedSubjectId = ProviderScope.containerOf(
+    context,
+  ).read(customerAccountIdentityProvider)?.subjectId;
+  if (expectedSubjectId == null) return false;
   return await showDialog<bool>(
         context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(AppLocalizations.of(context).customerDialogCancel),
-            ),
-            FilledButton(
-              key: const ValueKey('customer-confirm-action'),
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(action),
-            ),
-          ],
+        builder: (dialogContext) => _AuthBoundDialog(
+          expectedSubjectId: expectedSubjectId,
+          child: AlertDialog(
+            title: Text(title),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: Text(AppLocalizations.of(context).customerDialogCancel),
+              ),
+              FilledButton(
+                key: const ValueKey('customer-confirm-action'),
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: Text(action),
+              ),
+            ],
+          ),
         ),
       ) ??
       false;
 }
 
 Future<void> _showExport(BuildContext context, CustomerDataExport export) {
+  final expectedSubjectId = ProviderScope.containerOf(
+    context,
+  ).read(customerAccountIdentityProvider)?.subjectId;
+  if (expectedSubjectId == null) return Future.value();
   final formatted = const JsonEncoder.withIndent(
     '  ',
   ).convert(jsonDecode(export.json));
   final l10n = AppLocalizations.of(context);
   return showDialog<void>(
     context: context,
-    builder: (dialogContext) => AlertDialog(
-      key: const ValueKey('customer-export-dialog'),
-      title: Text(l10n.customerDataExportTitle),
-      content: SizedBox(
-        width: 560,
-        child: SingleChildScrollView(child: SelectableText(formatted)),
-      ),
-      actions: [
-        FilledButton(
-          onPressed: () => Navigator.of(dialogContext).pop(),
-          child: Text(l10n.customerDialogClose),
+    builder: (dialogContext) => _AuthBoundDialog(
+      expectedSubjectId: expectedSubjectId,
+      child: AlertDialog(
+        key: const ValueKey('customer-export-dialog'),
+        title: Text(l10n.customerDataExportTitle),
+        content: SizedBox(
+          width: 560,
+          child: SingleChildScrollView(child: SelectableText(formatted)),
         ),
-      ],
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.customerDialogClose),
+          ),
+        ],
+      ),
     ),
   );
+}
+
+class _AuthBoundDialog extends ConsumerWidget {
+  const _AuthBoundDialog({
+    required this.expectedSubjectId,
+    required this.child,
+  });
+
+  final String expectedSubjectId;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(customerAccountIdentityProvider, (previous, next) {
+      if (next?.subjectId != expectedSubjectId && context.mounted) {
+        Navigator.of(context).maybePop();
+      }
+    });
+    return child;
+  }
 }
 
 String? _requiredFieldValidator(

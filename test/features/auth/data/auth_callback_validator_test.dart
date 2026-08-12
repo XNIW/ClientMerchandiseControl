@@ -63,11 +63,12 @@ void main() {
     ).join();
     final invalidCallbacks = <String>[
       'other.scheme://auth-callback/?code=valid-code',
-      'com.xniw.clientmerchandisecontrol://other-host/?code=valid-code',
-      'com.xniw.clientmerchandisecontrol://auth-callback/other?code=valid-code',
-      'com.xniw.clientmerchandisecontrol://auth-callback?code=valid-code',
-      'com.xniw.clientmerchandisecontrol://user@auth-callback/?code=valid-code',
-      'com.xniw.clientmerchandisecontrol://auth-callback:8443/?code=valid-code',
+      'http://clientmerchandisecontrol.invalid/auth-callback/?code=valid-code',
+      'https://other.invalid/auth-callback/?code=valid-code',
+      'https://clientmerchandisecontrol.invalid/other/?code=valid-code',
+      'https://clientmerchandisecontrol.invalid/auth-callback?code=valid-code',
+      'https://user@clientmerchandisecontrol.invalid/auth-callback/?code=valid-code',
+      'https://clientmerchandisecontrol.invalid:8443/auth-callback/?code=valid-code',
       '${AppConfig.allowedAuthRedirectUri}?code=valid-code#fragment',
       AppConfig.allowedAuthRedirectUri,
       '${AppConfig.allowedAuthRedirectUri}?code=',

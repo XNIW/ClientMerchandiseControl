@@ -76,6 +76,40 @@ void main() {
       testDeviceKey,
     );
   });
+
+  test('roundtrip preserva revoche pending distinte senza overwrite', () async {
+    final preferences = _MemoryPreferences();
+    final store = SharedPreferencesCustomerDeviceStore(
+      uuidFactory: () => testInstallationId,
+      preferences: preferences,
+    );
+    final record = CustomerDeviceLocalRecord(
+      installationId: testInstallationId,
+      decisionOwnerSubjectId: testSecondDeviceOwner,
+      consentStatus: CustomerDeviceConsentStatus.revoked,
+      pendingOperations: const [
+        CustomerDevicePendingOperation(
+          kind: CustomerDevicePendingOperationKind.revoke,
+          ownerSubjectId: testDeviceOwner,
+          idempotencyKey: testDeviceKey,
+        ),
+        CustomerDevicePendingOperation(
+          kind: CustomerDevicePendingOperationKind.revoke,
+          ownerSubjectId: testSecondDeviceOwner,
+          idempotencyKey: testSecondDeviceKey,
+        ),
+      ],
+    );
+
+    await store.save(record);
+    final restored = await store.loadOrCreate();
+
+    expect(restored.pendingOperations, hasLength(2));
+    expect(
+      restored.pendingOperations.map((operation) => operation.idempotencyKey),
+      [testDeviceKey, testSecondDeviceKey],
+    );
+  });
 }
 
 final class _MemoryPreferences implements CustomerDevicePreferences {

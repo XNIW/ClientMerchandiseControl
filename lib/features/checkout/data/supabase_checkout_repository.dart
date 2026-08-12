@@ -78,17 +78,24 @@ final class SupabaseCheckoutRepository implements CheckoutRepository {
           'p_slot_id': request.selection.slotId,
           'p_idempotency_key': request.idempotencyKey,
         }),
+        expectedShopSlug: request.shopSlug,
+        expectedCartVersion: request.cartVersion,
+        expectedSelection: request.selection,
       );
     });
   }
 
   @override
   Future<CheckoutRemoteResponse> confirmQuote({
+    required String shopSlug,
+    required int cartVersion,
     required String quoteId,
     required int expectedQuoteVersion,
     required String idempotencyKey,
   }) {
     return _guard(() async {
+      _requireShopSlug(shopSlug);
+      _requireVersion(cartVersion, allowZero: true);
       _requireUuid(quoteId);
       _requireVersion(expectedQuoteVersion);
       _requireUuid(idempotencyKey);
@@ -98,30 +105,47 @@ final class SupabaseCheckoutRepository implements CheckoutRepository {
           'p_expected_quote_version': expectedQuoteVersion,
           'p_idempotency_key': idempotencyKey,
         }),
+        expectedQuoteId: quoteId,
+        expectedShopSlug: shopSlug,
+        expectedCartVersion: cartVersion,
+        minimumQuoteVersion: expectedQuoteVersion,
       );
     });
   }
 
   @override
-  Future<CheckoutRemoteResponse> readQuote({required String quoteId}) {
+  Future<CheckoutRemoteResponse> readQuote({
+    required String shopSlug,
+    required int cartVersion,
+    required String quoteId,
+  }) {
     return _guard(() async {
+      _requireShopSlug(shopSlug);
+      _requireVersion(cartVersion, allowZero: true);
       _requireUuid(quoteId);
       return _parseCheckoutResponse(
         await port.invoke('customer_checkout_quote_read_v1', {
           'p_quote_id': quoteId,
         }),
+        expectedQuoteId: quoteId,
+        expectedShopSlug: shopSlug,
+        expectedCartVersion: cartVersion,
       );
     });
   }
 
   @override
   Future<CheckoutOrderRemoteResponse> createOrder({
+    required String shopSlug,
+    required int cartVersion,
     required String quoteId,
     required int expectedQuoteVersion,
     required CheckoutPaymentMethod paymentMethod,
     required String idempotencyKey,
   }) {
     return _guard(() async {
+      _requireShopSlug(shopSlug);
+      _requireVersion(cartVersion, allowZero: true);
       _requireUuid(quoteId);
       _requireVersion(expectedQuoteVersion);
       _requireUuid(idempotencyKey);
@@ -132,16 +156,24 @@ final class SupabaseCheckoutRepository implements CheckoutRepository {
           'p_payment_method': _paymentMethodName(paymentMethod),
           'p_idempotency_key': idempotencyKey,
         }),
+        expectedShopSlug: shopSlug,
+        expectedPaymentMethod: paymentMethod,
       );
     });
   }
 
   @override
-  Future<CheckoutOrderRemoteResponse> readOrder({required String orderId}) {
+  Future<CheckoutOrderRemoteResponse> readOrder({
+    required String shopSlug,
+    required String orderId,
+  }) {
     return _guard(() async {
+      _requireShopSlug(shopSlug);
       _requireUuid(orderId);
       return _parseOrderResponse(
         await port.invoke('customer_order_read_v2', {'p_order_id': orderId}),
+        expectedOrderId: orderId,
+        expectedShopSlug: shopSlug,
       );
     });
   }
@@ -493,7 +525,14 @@ const _checkoutRootKeys = <String>{
   'remainingSeconds',
 };
 
-CheckoutRemoteResponse _parseCheckoutResponse(Object? raw) {
+CheckoutRemoteResponse _parseCheckoutResponse(
+  Object? raw, {
+  required String expectedShopSlug,
+  required int expectedCartVersion,
+  String? expectedQuoteId,
+  CheckoutSelection? expectedSelection,
+  int? minimumQuoteVersion,
+}) {
   final payload = _payload(raw, _checkoutRootKeys, 'checkout_response');
   if (payload['apiVersion'] != 'customer-checkout.v1') {
     throw const FormatException('checkout_response_version');
@@ -521,6 +560,9 @@ CheckoutRemoteResponse _parseCheckoutResponse(Object? raw) {
     }
     if (payload['quoteId'] case final String quoteId) {
       _requirePayloadUuid(quoteId);
+      if (expectedQuoteId != null && quoteId != expectedQuoteId) {
+        throw const FormatException('checkout_response_quote_mismatch');
+      }
     } else if (payload['quoteId'] != null) {
       throw const FormatException('checkout_response_quote_id');
     }
@@ -532,7 +574,14 @@ CheckoutRemoteResponse _parseCheckoutResponse(Object? raw) {
     );
   }
   final quote = _parseQuote(payload, idempotent: idempotent);
-  if (quote.serverTime != serverTime) {
+  if (quote.serverTime != serverTime ||
+      quote.shopSlug != expectedShopSlug ||
+      quote.cartVersion != expectedCartVersion ||
+      (expectedQuoteId != null && quote.id != expectedQuoteId) ||
+      (minimumQuoteVersion != null &&
+          quote.quoteVersion < minimumQuoteVersion) ||
+      (expectedSelection != null &&
+          !_quoteMatchesSelection(quote, expectedSelection))) {
     throw const FormatException('checkout_response_server_time');
   }
   return CheckoutRemoteResponse(
@@ -542,6 +591,13 @@ CheckoutRemoteResponse _parseCheckoutResponse(Object? raw) {
     quote: quote,
     changes: quote.changes,
   );
+}
+
+bool _quoteMatchesSelection(CheckoutQuote quote, CheckoutSelection selection) {
+  return quote.fulfillmentMode == selection.mode &&
+      quote.addressId == selection.addressId &&
+      quote.pickupPointId == selection.pickupPointId &&
+      quote.slotId == selection.slotId;
 }
 
 CheckoutQuote _parseQuote(
@@ -717,7 +773,12 @@ const _orderRootKeys = <String>{
   'serverTime',
 };
 
-CheckoutOrderRemoteResponse _parseOrderResponse(Object? raw) {
+CheckoutOrderRemoteResponse _parseOrderResponse(
+  Object? raw, {
+  required String expectedShopSlug,
+  String? expectedOrderId,
+  CheckoutPaymentMethod? expectedPaymentMethod,
+}) {
   final payload = _payload(raw, _orderRootKeys, 'checkout_order_response');
   if (payload['apiVersion'] != 'customer-order.v2') {
     throw const FormatException('checkout_order_response_version');
@@ -729,6 +790,11 @@ CheckoutOrderRemoteResponse _parseOrderResponse(Object? raw) {
   }
   final serverTime = _requiredDate(payload, 'serverTime');
   final orderId = _optionalUuid(payload, 'orderId');
+  if (expectedOrderId != null &&
+      orderId != null &&
+      orderId != expectedOrderId) {
+    throw const FormatException('checkout_order_id_mismatch');
+  }
   if (!payload.containsKey('orderVersion')) {
     const minimalKeys = {
       'apiVersion',
@@ -750,6 +816,9 @@ CheckoutOrderRemoteResponse _parseOrderResponse(Object? raw) {
   }
   if (status != CheckoutOrderRemoteStatus.ok || orderId == null) {
     throw const FormatException('checkout_order_response_status');
+  }
+  if (expectedOrderId != null && orderId != expectedOrderId) {
+    throw const FormatException('checkout_order_id_mismatch');
   }
   const required = {
     'apiVersion',
@@ -783,6 +852,9 @@ CheckoutOrderRemoteResponse _parseOrderResponse(Object? raw) {
   if (version < 1) throw const FormatException('checkout_order_version');
   final shopSlug = _requiredString(payload, 'shopSlug');
   _requirePayloadShopSlug(shopSlug);
+  if (shopSlug != expectedShopSlug) {
+    throw const FormatException('checkout_order_shop_mismatch');
+  }
   final mode = _mode(_requiredString(payload, 'fulfillmentMode'));
   _validateOrderFulfillment(payload['fulfillment'], mode);
   final subtotal = _amount(payload, 'subtotalClp');
@@ -806,7 +878,10 @@ CheckoutOrderRemoteResponse _parseOrderResponse(Object? raw) {
     'checkout_order_items',
   );
   final payment = _parsePayment(payload['payment']);
-  if (payment.amountClp != total || payment.currencyCode != 'CLP') {
+  if (payment.amountClp != total ||
+      payment.currencyCode != 'CLP' ||
+      (expectedPaymentMethod != null &&
+          payment.method != expectedPaymentMethod)) {
     throw const FormatException('checkout_order_payment_total');
   }
   final placedAt = _requiredDate(payload, 'placedAt');

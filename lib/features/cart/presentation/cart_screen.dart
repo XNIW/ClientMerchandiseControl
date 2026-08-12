@@ -267,6 +267,7 @@ class _CartLineCard extends ConsumerWidget {
                       productId: line.publicationId,
                       name: line.publicName,
                       uri: line.imageUrl,
+                      sha256Digest: null,
                       cacheWidth: 264,
                       keyPrefix: 'cart-image',
                       compactPlaceholder: true,

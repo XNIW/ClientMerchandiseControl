@@ -248,6 +248,7 @@ CheckoutOrderRemoteResponse checkoutTestOrderResponse({
 final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
   CheckoutLocalDraft? draft;
   Object? saveError;
+  Completer<void>? saveBarrier;
   int saveCalls = 0;
   int clearCalls = 0;
 
@@ -279,6 +280,7 @@ final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
   Future<void> save(CheckoutLocalDraft draft) async {
     saveCalls++;
     if (saveError case final error?) throw error;
+    await saveBarrier?.future;
     this.draft = draft;
   }
 }
@@ -315,6 +317,8 @@ final class FakeCheckoutRepository implements CheckoutRepository {
 
   @override
   Future<CheckoutOrderRemoteResponse> createOrder({
+    required String shopSlug,
+    required int cartVersion,
     required String quoteId,
     required int expectedQuoteVersion,
     required CheckoutPaymentMethod paymentMethod,
@@ -331,6 +335,8 @@ final class FakeCheckoutRepository implements CheckoutRepository {
 
   @override
   Future<CheckoutRemoteResponse> confirmQuote({
+    required String shopSlug,
+    required int cartVersion,
     required String quoteId,
     required int expectedQuoteVersion,
     required String idempotencyKey,
@@ -368,7 +374,11 @@ final class FakeCheckoutRepository implements CheckoutRepository {
   }
 
   @override
-  Future<CheckoutRemoteResponse> readQuote({required String quoteId}) async {
+  Future<CheckoutRemoteResponse> readQuote({
+    required String shopSlug,
+    required int cartVersion,
+    required String quoteId,
+  }) async {
     readCalls++;
     final outcome = readOutcome;
     if (outcome == null) {
@@ -381,6 +391,7 @@ final class FakeCheckoutRepository implements CheckoutRepository {
 
   @override
   Future<CheckoutOrderRemoteResponse> readOrder({
+    required String shopSlug,
     required String orderId,
   }) async {
     readOrderCalls++;

@@ -179,16 +179,63 @@ void main() {
     }
     semantics.dispose();
   });
+
+  testWidgets('logout e cambio account chiudono dialog con dati customer', (
+    tester,
+  ) async {
+    final identity = StateProvider<AuthenticatedCustomer?>(
+      (ref) => _identity(),
+    );
+    await tester.pumpWidget(
+      _buildApp(FakeCustomerAccountRepository(), identityProvider: identity),
+    );
+    await tester.pumpAndSettle();
+
+    final addAddress = find.byKey(const ValueKey('customer-address-add'));
+    await tester.ensureVisible(addAddress);
+    await tester.tap(addAddress);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('customer-address-dialog')),
+      findsOneWidget,
+    );
+
+    final context = ProviderScope.containerOf(tester.element(addAddress));
+    context.read(identity.notifier).state = null;
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('customer-address-dialog')), findsNothing);
+
+    context.read(identity.notifier).state = _identity();
+    await tester.pumpAndSettle();
+    final export = find.byKey(const ValueKey('customer-data-export'));
+    await tester.ensureVisible(export);
+    await tester.tap(export);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('customer-export-dialog')),
+      findsOneWidget,
+    );
+
+    context.read(identity.notifier).state = _identity(
+      subjectId: '10000000-0000-4000-8000-000000000999',
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('customer-export-dialog')), findsNothing);
+  });
 }
 
 Widget _buildApp(
   FakeCustomerAccountRepository repository, {
   Locale locale = const Locale('es', 'CL'),
   ThemeMode themeMode = ThemeMode.light,
+  StateProvider<AuthenticatedCustomer?>? identityProvider,
 }) {
   return ProviderScope(
     overrides: [
-      customerAccountIdentityProvider.overrideWithValue(_identity()),
+      customerAccountIdentityProvider.overrideWith((ref) {
+        final provider = identityProvider;
+        return provider == null ? _identity() : ref.watch(provider);
+      }),
       customerAccountRepositoryProvider.overrideWithValue(repository),
       customerIdempotencyKeyFactoryProvider.overrideWithValue(
         () => '21000000-0000-4000-8000-000000000777',
@@ -211,9 +258,9 @@ Widget _buildApp(
   );
 }
 
-AuthenticatedCustomer _identity() {
+AuthenticatedCustomer _identity({String subjectId = testCustomerSubject}) {
   return AuthenticatedCustomer.fromUntrustedIdentity(
-    subjectId: testCustomerSubject,
+    subjectId: subjectId,
     email: 'customer@example.invalid',
     metadata: const {'name': 'Cliente Uno'},
   );

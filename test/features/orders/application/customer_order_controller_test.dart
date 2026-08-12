@@ -237,14 +237,95 @@ void main() {
     expect(state.notice, CustomerOrdersNotice.cancellationFailed);
     expect(repository.cancelRequests, isEmpty);
   });
+
+  test(
+    'unauthorized remoto elimina lista, dettaglio e cache privata',
+    () async {
+      final repository = FakeCustomerOrderRepository()
+        ..listOutcomes.add(
+          const CustomerOrderRepositoryException(
+            CustomerOrderFailureKind.unauthorized,
+          ),
+        );
+      final store = MemoryCustomerOrderCacheStore()
+        ..snapshot = orderTestCache();
+      final container = _container(repository: repository, store: store);
+      addTearDown(container.dispose);
+
+      final state = await _waitFor(
+        container,
+        (state) => state.failure == CustomerOrderFailureKind.unauthorized,
+      );
+
+      expect(state.orders, isEmpty);
+      expect(state.selectedOrder, isNull);
+      expect(store.snapshot, isNull);
+      expect(store.clearCalls, 1);
+    },
+  );
+
+  test(
+    'cambio account durante save non pubblica né fonde cache di A',
+    () async {
+      final identity = StateProvider<AuthenticatedCustomer?>(
+        (ref) => _identity(),
+      );
+      final store = MemoryCustomerOrderCacheStore()
+        ..saveBarrier = Completer<void>();
+      final repository = FakeCustomerOrderRepository()
+        ..listOutcomes.add(
+          orderTestPage(
+            orders: [
+              orderTestCard(
+                id: orderTestOlderOrder,
+                code: 'MC-1123456789ABCDEF0123',
+              ),
+            ],
+          ),
+        );
+      final container = _container(
+        repository: repository,
+        store: store,
+        identityProvider: identity,
+      );
+      addTearDown(container.dispose);
+      container.read(customerOrderControllerProvider);
+      while (store.saveCalls == 0) {
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+      }
+
+      container.read(identity.notifier).state = _identity(
+        subjectId: '10000000-0000-4000-8000-000000028002',
+      );
+      store.saveBarrier!.complete();
+      store.saveBarrier = null;
+
+      final state = await _waitFor(
+        container,
+        (state) =>
+            state.status == CustomerOrdersStatus.ready &&
+            repository.listRequests.length == 2,
+      );
+      expect(state.orders.map((order) => order.id), [orderTestOrder]);
+      expect(
+        store.snapshot?.ownerSubjectId,
+        '10000000-0000-4000-8000-000000028002',
+      );
+      expect(store.snapshot?.orders.map((order) => order.id), [orderTestOrder]);
+    },
+  );
 }
 
 ProviderContainer _container({
   required FakeCustomerOrderRepository repository,
   MemoryCustomerOrderCacheStore? store,
+  StateProvider<AuthenticatedCustomer?>? identityProvider,
 }) => ProviderContainer(
   overrides: [
-    customerOrderIdentityProvider.overrideWithValue(_identity()),
+    customerOrderIdentityProvider.overrideWith((ref) {
+      final provider = identityProvider;
+      return provider == null ? _identity() : ref.watch(provider);
+    }),
     customerOrderShopSlugProvider.overrideWithValue(orderTestShop),
     customerOrderRepositoryProvider.overrideWithValue(repository),
     customerOrderCacheStoreProvider.overrideWithValue(
@@ -282,9 +363,9 @@ Future<CustomerOrdersState> _waitFor(
   );
 }
 
-AuthenticatedCustomer _identity() =>
+AuthenticatedCustomer _identity({String subjectId = orderTestOwner}) =>
     AuthenticatedCustomer.fromUntrustedIdentity(
-      subjectId: orderTestOwner,
+      subjectId: subjectId,
       email: 'customer@example.invalid',
       metadata: const {'name': 'Cliente Uno'},
     );

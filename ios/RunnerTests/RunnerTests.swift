@@ -141,20 +141,16 @@ final class RunnerTests: XCTestCase {
     "storefront-test/product/50000000-0000-4000-8000-000000000001"
   private let sourceRect = CGRect(x: 16, y: 16, width: 48, height: 48)
 
-  func testMapsOnlyCanonicalOpaqueNotificationDeepLinks() {
+  func testRejectsPrivateSchemeSensitiveRoutesWithoutVerifiedUniversalLink() {
     let route =
       "com.xniw.clientmerchandisecontrol://storefront/" +
       "storefront-test/notification/f1000000-0000-4000-8000-000000031001"
 
-    XCTAssertEqual(
-      CustomerNotificationDeepLinkMapper.map(userInfo: ["deepLink": route])?.absoluteString,
-      route
-    )
-    XCTAssertEqual(
+    XCTAssertNil(CustomerNotificationDeepLinkMapper.map(userInfo: ["deepLink": route]))
+    XCTAssertNil(
       CustomerNotificationDeepLinkMapper.map(
         userInfo: ["data": ["deepLink": route]]
-      )?.absoluteString,
-      route
+      )
     )
 
     for invalid in [

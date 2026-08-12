@@ -231,14 +231,7 @@ void main() {
 }
 
 AppConfig _enabledConfig() {
-  return AppConfig.fromValues(
-    appEnvironment: 'staging',
-    supabaseUrl: 'https://project.example.invalid',
-    supabasePublishableKey: 'sb_publishable_test_key',
-    authRedirectUri: AppConfig.allowedAuthRedirectUri,
-    googleAuthEnabled: 'true',
-    storefrontShopSlug: 'storefront-test',
-  );
+  return AppConfig.authFlowTest();
 }
 
 AuthenticatedCustomer _customer() {
@@ -266,6 +259,15 @@ final class _WidgetCallbackSource implements AuthCallbackSource {
 }
 
 final class _WidgetAuthRepository implements AuthRepository {
+  @override
+  Future<void> beginSignOut() async {}
+
+  @override
+  Future<void> completeSignOut() => signOutLocal();
+
+  @override
+  Future<void> retryPendingRemoteRevocations() async {}
+
   final StreamController<AuthSessionEvent> _events =
       StreamController<AuthSessionEvent>.broadcast();
 

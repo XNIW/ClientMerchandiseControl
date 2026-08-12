@@ -256,15 +256,14 @@ void main() {
       container.read(identity.notifier).state = _identity(
         testSecondDeviceOwner,
       );
-      await _waitForConsent(
-        container,
-        CustomerDeviceConsentStatus.notRequested,
-      );
+      await _waitForStatus(container, CustomerDeviceStatus.ready);
 
       final state = container.read(customerDeviceControllerProvider);
+      expect(state.consentStatus, CustomerDeviceConsentStatus.notRequested);
       expect(state.serverConfirmed, isTrue);
       expect(repository.registerCalls, 0);
-      expect(store.record.pendingOperation?.ownerSubjectId, testDeviceOwner);
+      expect(store.record.decisionOwnerSubjectId, testSecondDeviceOwner);
+      expect(store.record.pendingOperation, isNull);
     },
   );
 
@@ -286,6 +285,82 @@ void main() {
       expect(state.serverConfirmed, isFalse);
     },
   );
+
+  test(
+    'revoca A pending viene completata prima della registrazione B',
+    () async {
+      container.dispose();
+      final events = <String>[];
+      store = MemoryCustomerDeviceStore(
+        CustomerDeviceLocalRecord(
+          installationId: testInstallationId,
+          decisionOwnerSubjectId: testSecondDeviceOwner,
+          consentStatus: CustomerDeviceConsentStatus.notRequested,
+          pendingOperations: const [
+            CustomerDevicePendingOperation(
+              kind: CustomerDevicePendingOperationKind.revoke,
+              ownerSubjectId: testDeviceOwner,
+              idempotencyKey: testDeviceKey,
+            ),
+          ],
+        ),
+      );
+      repository = FakeCustomerDeviceRepository(events: events);
+      container = _container(
+        identity: _identity(testSecondDeviceOwner),
+        store: store,
+        repository: repository,
+        pushProvider: pushProvider,
+        keyFactory: () => testSecondDeviceKey,
+      );
+      container.read(customerDeviceControllerProvider);
+      await _waitForStatus(container, CustomerDeviceStatus.ready);
+
+      await container
+          .read(customerDeviceControllerProvider.notifier)
+          .enable('it');
+
+      expect(events, ['server-revoke', 'server-register']);
+      expect(store.record.pendingOperations, isEmpty);
+      expect(repository.revokeKeys, [testDeviceKey]);
+    },
+  );
+
+  test('register A tardivo non ripristina consenso o stato sotto B', () async {
+    container.dispose();
+    final identity = StateProvider<AuthenticatedCustomer?>(
+      (ref) => _identity(testDeviceOwner),
+    );
+    repository.registerBarrier = Completer<void>();
+    container = ProviderContainer(
+      overrides: [
+        customerDeviceIdentityProvider.overrideWith(
+          (ref) => ref.watch(identity),
+        ),
+        customerDeviceLocalStoreProvider.overrideWithValue(store),
+        customerDeviceRepositoryProvider.overrideWithValue(repository),
+        customerPushTokenProvider.overrideWithValue(pushProvider),
+        customerDeviceUuidFactoryProvider.overrideWithValue(
+          () => testDeviceKey,
+        ),
+      ],
+    );
+    container.read(customerDeviceControllerProvider);
+    await _waitForStatus(container, CustomerDeviceStatus.ready);
+
+    final operation = container
+        .read(customerDeviceControllerProvider.notifier)
+        .enable('es-CL');
+    await _waitForRegisterCount(repository, 1);
+    container.read(identity.notifier).state = _identity(testSecondDeviceOwner);
+    repository.registerBarrier!.complete();
+    await operation;
+    await _waitForConsent(container, CustomerDeviceConsentStatus.notRequested);
+
+    final state = container.read(customerDeviceControllerProvider);
+    expect(state.notificationsActive, isFalse);
+    expect(store.record.decisionOwnerSubjectId, testSecondDeviceOwner);
+  });
 }
 
 ProviderContainer _container({

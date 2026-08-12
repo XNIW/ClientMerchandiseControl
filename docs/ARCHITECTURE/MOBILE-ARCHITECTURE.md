@@ -27,7 +27,7 @@ arrivano insieme alle feature data-backed.
 ## App e navigazione
 
 `main.dart` delega a `bootstrap.dart`. `AppConfig` è l'unica authority del contratto
-compile-time [`CMC-CLIENT-CONFIG 1.1.0`](ENVIRONMENT-STRATEGY.md): legge esattamente
+compile-time [`CMC-CLIENT-CONFIG 1.2.0`](ENVIRONMENT-STRATEGY.md): legge esattamente
 `APP_ENV`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `AUTH_REDIRECT_URI` e
 `GOOGLE_AUTH_ENABLED`, più `STOREFRONT_SHOP_SLUG`, valida l'intera matrice prima di qualunque inizializzazione e
 fornisce al bootstrap soltanto lo stato già normalizzato.
@@ -35,9 +35,10 @@ fornisce al bootstrap soltanto lo stato già normalizzato.
 Development non accetta valori backend/callback né Google attivo e non inizializza
 Supabase. Staging ammette l'inizializzazione SDK soltanto con tuple, callback e flag
 completi; TASK-011 la completa con un health check Auth ufficiale e privo di dati.
-Production non eredita mai staging, non inizializza rete e, finché OAuth production non
-è autorizzato, accetta soltanto il kill switch Google disabilitato. In staging il flag
-abilita il runtime Auth di TASK-020 soltanto con callback e backend completi.
+Production non eredita mai staging e accetta soltanto il kill switch Google
+disabilitato. Anche staging rifiuta `GOOGLE_AUTH_ENABLED=true`: il sentinel HTTPS
+`.invalid` non è instradabile e non è registrato nativamente. OAuth può essere
+riattivato soltanto con dominio posseduto e App Links/Universal Links verificati.
 
 `ClientMerchandiseControlApp` compone tema, localizzazione e router.
 `StatefulShellRoute.indexedStack` mantiene quattro branch — Home, Catalogo, Carrello e
@@ -234,21 +235,17 @@ e non introduce un ruolo staff. Session identity e authorization sono concetti
 distinti.
 
 `AuthController` è eager e costituisce la sola fonte UI del lifecycle. Un
-`AuthRepository` iniettabile separa dominio e SDK; `SupabaseAuthRepository` usa Google,
-PKCE, browser esterno e callback canonica. Cold link e warm link confluiscono in una
-sola subscription broadcast `app_links`; Auth e Storefront applicano validator
-separati e disgiunti prima di consumare il proprio namespace. Cancel resta in
-corso finché un exchange posseduto non è terminato e compensato con sign-out/purge;
-un risultato vecchio non elimina il verifier del retry. Risultati obsoleti dopo
-cancellazione, logout o dispose non possono ripristinare authenticated.
-Il restore valido non forza navigazione; soltanto un'autenticazione completata dal
-callback conduce ad Account.
+`AuthRepository` iniettabile separa dominio e SDK. Il lifecycle Google/PKCE resta
+verificabile soltanto tramite harness isolati: il runtime distribuibile non apre il
+browser e non registra callback OAuth. Cancel resta in corso finché un exchange
+posseduto non è terminato e compensato con sign-out/purge; risultati obsoleti dopo
+cancellazione, logout o dispose non possono ripristinare authenticated. Il restore
+valido non forza navigazione.
 
-Su iOS l'inoltro nativo a `app_links` è manuale e converge nello stesso singleton:
-`AppDelegate` copre il custom scheme consegnato dal lifecycle applicativo e
-`SceneDelegate` copre connection options, URL contexts e user activity. L'handler
-automatico del plugin e il deep linking Flutter restano disabilitati per evitare
-consumer concorrenti; la validazione Dart resta obbligatoria.
+`app_links` continua a servire i deep link Storefront pubblici. Android non espone più
+l'intent filter Auth; iOS mantiene il solo scheme Storefront e inoltra i lifecycle allo
+stesso singleton. Prodotto e categoria sono ammessi; ordine e notifica falliscono
+chiuso finché non esiste un Universal/App Link HTTPS verificato.
 
 Sessione e verifier PKCE condividono `SecureSupabaseAuthStorage`: Android usa
 Keystore/RSA-OAEP/AES-GCM con backup applicativo disabilitato; iOS usa Keychain
@@ -266,10 +263,11 @@ token. Se tutti e tre i canali persistenti e il delete falliscono insieme, il pr
 corrente fallisce chiuso; dopo process death un intento mai persistito non è
 ricostruibile.
 
-Il logout usa `SignOutScope.local`: la sessione in memoria viene rimossa e l'adapter
-tenta sempre, in modo indipendente, delete sessione e verifier. Un marker rimasto
-pendente in uno dei tre canali blocca il restore e fa ritentare il purge al bootstrap.
-Un errore offline può produrre un avviso customer-safe ma lo stato resta guest.
+Il logout registra l'intento durevole prima di operazioni fallibili, rimuove lo stato
+locale e tenta `SignOutScope.global`. Una revoca remota fallita viene conservata in una
+coda bounded e ritentata al bootstrap; un marker pending blocca sempre il restore.
+L'intento viene rimosso soltanto dopo un nuovo login esplicito persistito. Un errore
+offline può produrre un avviso customer-safe ma lo stato resta guest.
 
 I deep link Storefront v1 usano soltanto lo scheme tecnico già registrato, host
 `storefront` e path canonico `/{shop}/product/{uuid}` oppure
@@ -322,8 +320,8 @@ assegnate a:
 - TASK-016 per dettaglio e disponibilità commerciale;
 - TASK-017 per cache catalogo, freshness e invalidazione;
 - TASK-018 per preferiti guest, share nativo e deep link Storefront strict;
-- TASK-020 per OAuth, deep link e session lifecycle, implementati nel confine Auth
-  corrente;
+- TASK-020 per il lifecycle Auth storico; TASK-033 disabilita OAuth distribuibile e
+  mantiene il confine fail-closed fino a link HTTPS verificati;
 - TASK-021–TASK-032 per dati cliente e flussi commerciali;
 - TASK-033–TASK-037 per hardening, resilienza, osservabilità, accessibilità e
   performance.

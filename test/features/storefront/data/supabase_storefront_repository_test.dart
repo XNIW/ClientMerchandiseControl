@@ -36,6 +36,34 @@ void main() {
     });
   });
 
+  test(
+    'rifiuta Home appartenente a uno shop diverso dalla richiesta',
+    () async {
+      final repository = SupabaseStorefrontRepository(
+        invoke: (name, values) async {
+          final payload = validStorefrontHomePayload();
+          (payload['settings'] as Map<String, Object?>)['shopSlug'] =
+              'storefront-other';
+          return payload;
+        },
+      );
+
+      await expectLater(
+        repository.fetchHome(
+          shopSlug: 'storefront-test',
+          cancellation: StorefrontRequestCancellation(),
+        ),
+        throwsA(
+          isA<StorefrontFailure>().having(
+            (failure) => failure.kind,
+            'kind',
+            StorefrontFailureKind.invalidPayload,
+          ),
+        ),
+      );
+    },
+  );
+
   test('mappa timeout e rete senza propagare dettagli', () async {
     final timeoutRepository = SupabaseStorefrontRepository(
       requestTimeout: const Duration(milliseconds: 1),

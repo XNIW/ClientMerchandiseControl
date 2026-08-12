@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:client_merchandise_control/features/orders/data/supabase_customer_order_repository.dart';
 import 'package:client_merchandise_control/features/orders/domain/customer_order_failure.dart';
 import 'package:client_merchandise_control/features/orders/domain/customer_order_models.dart';
@@ -362,6 +364,7 @@ final class MemoryCustomerOrderCacheStore implements CustomerOrderCacheStore {
   CustomerOrderCacheSnapshot? snapshot;
   Object? readError;
   Object? saveError;
+  Completer<void>? saveBarrier;
   int readCalls = 0;
   int saveCalls = 0;
   int clearCalls = 0;
@@ -384,6 +387,7 @@ final class MemoryCustomerOrderCacheStore implements CustomerOrderCacheStore {
   Future<void> save(CustomerOrderCacheSnapshot snapshot) async {
     saveCalls++;
     if (saveError case final Object value) throw value;
+    await saveBarrier?.future;
     this.snapshot = snapshot;
   }
 

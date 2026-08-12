@@ -100,13 +100,9 @@ Widget _app(ProviderContainer container, GoRouter router) =>
       ),
     );
 
-AppConfig _config() => AppConfig.fromValues(
-  appEnvironment: 'staging',
+AppConfig _config() => AppConfig.authFlowTest(
   supabaseUrl: 'https://staging.example.invalid',
   supabasePublishableKey: 'sb_publishable_staging',
-  authRedirectUri: AppConfig.allowedAuthRedirectUri,
-  googleAuthEnabled: 'true',
-  storefrontShopSlug: 'storefront-test',
 );
 
 final class _RouterCallbackSource implements AuthCallbackSource {
@@ -122,6 +118,15 @@ final class _RouterCallbackSource implements AuthCallbackSource {
 }
 
 final class _RouterAuthRepository implements AuthRepository {
+  @override
+  Future<void> beginSignOut() async {}
+
+  @override
+  Future<void> completeSignOut() => signOutLocal();
+
+  @override
+  Future<void> retryPendingRemoteRevocations() async {}
+
   final StreamController<AuthSessionEvent> _events =
       StreamController<AuthSessionEvent>.broadcast();
 

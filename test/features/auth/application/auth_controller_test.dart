@@ -107,7 +107,7 @@ void main() {
     },
   );
 
-  test('cold callback resta queued finché il repository è pronto', () async {
+  test('callback cold fuori da un flow attivo viene ignorato', () async {
     final repositoryReady = Completer<AuthRepository>();
     container.dispose();
     container = ProviderContainer(
@@ -129,37 +129,26 @@ void main() {
     repositoryReady.complete(repository);
     await _settle();
 
-    expect(repository.exchangedCodes, ['cold-code']);
-    expect(
-      container.read(authControllerProvider),
-      isA<AuthAuthenticated>().having(
-        (state) => state.origin,
-        'origin',
-        AuthSessionOrigin.callback,
-      ),
-    );
+    expect(repository.exchangedCodes, isEmpty);
+    expect(container.read(authControllerProvider), isA<AuthGuest>());
   });
 
-  test('callback invalido non invoca repository e non causa crash', () async {
-    container.read(authControllerProvider);
-    await _settle();
+  test(
+    'callback invalido fuori flow non invoca repository né altera stato',
+    () async {
+      container.read(authControllerProvider);
+      await _settle();
 
-    callbackSource.emit(
-      Uri.parse('evil.scheme://auth-callback/?code=should-not-be-exchanged'),
-    );
-    await _settle();
+      callbackSource.emit(
+        Uri.parse('evil.scheme://auth-callback/?code=should-not-be-exchanged'),
+      );
+      await _settle();
 
-    expect(repository.exchangeCalls, 0);
-    expect(repository.clearPendingCalls, 0);
-    expect(
-      container.read(authControllerProvider),
-      isA<AuthRecoverableError>().having(
-        (state) => state.failure.kind,
-        'failure',
-        AuthFailureKind.invalidCallback,
-      ),
-    );
-  });
+      expect(repository.exchangeCalls, 0);
+      expect(repository.clearPendingCalls, 0);
+      expect(container.read(authControllerProvider), isA<AuthGuest>());
+    },
+  );
 
   test('cancellazione pulisce verifier e ignora callback tardivo', () async {
     container.read(authControllerProvider);
@@ -284,9 +273,25 @@ void main() {
   );
 
   test(
-    'session expiry rimuove authenticated e offre recovery sicura',
+    'session expiry esegue cleanup autenticato prima di tornare guest',
     () async {
+      final cleanup = Completer<void>();
+      final cleanedCustomers = <AuthenticatedCustomer>[];
       repository.currentCustomer = _customer('session');
+      container.dispose();
+      container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWithValue(_enabledConfig()),
+          authRepositoryFactoryProvider.overrideWithValue(
+            (config) async => repository,
+          ),
+          authCallbackSourceProvider.overrideWithValue(callbackSource),
+          authenticatedSignOutCleanupProvider.overrideWithValue((customer) {
+            cleanedCustomers.add(customer);
+            return cleanup.future;
+          }),
+        ],
+      );
       container.read(authControllerProvider);
       await _settle();
 
@@ -297,6 +302,13 @@ void main() {
           signOutReason: AuthSignOutReason.sessionExpired,
         ),
       );
+      await Future<void>.delayed(Duration.zero);
+
+      expect(container.read(authControllerProvider), isA<AuthSigningOut>());
+      expect(cleanedCustomers.single.subjectId, 'session');
+      expect(repository.signOutCalls, 0);
+
+      cleanup.complete();
       await _settle();
 
       expect(
@@ -699,7 +711,7 @@ void main() {
   );
 
   test(
-    'refresh retryable scaduto degrada a guest e consente recovery SDK',
+    'refresh scaduto esegue logout completo e ignora recovery SDK tardivo',
     () async {
       repository.currentCustomer = _customer('expires-offline');
       container.read(authControllerProvider);
@@ -717,7 +729,7 @@ void main() {
           AuthFailureKind.sessionExpired,
         ),
       );
-      expect(repository.signOutCalls, 0);
+      expect(repository.signOutCalls, 1);
 
       final refreshed = _customer('refreshed-after-offline');
       repository.currentCustomer = refreshed;
@@ -729,14 +741,7 @@ void main() {
       );
       await _settle();
 
-      expect(
-        container.read(authControllerProvider),
-        isA<AuthAuthenticated>().having(
-          (state) => state.customer.subjectId,
-          'customer',
-          refreshed.subjectId,
-        ),
-      );
+      expect(container.read(authControllerProvider), isA<AuthGuest>());
     },
   );
 
@@ -804,14 +809,7 @@ ProviderContainer _container(
 }
 
 AppConfig _enabledConfig() {
-  return AppConfig.fromValues(
-    appEnvironment: 'staging',
-    supabaseUrl: 'https://project.example.invalid',
-    supabasePublishableKey: 'sb_publishable_test_key',
-    authRedirectUri: AppConfig.allowedAuthRedirectUri,
-    googleAuthEnabled: 'true',
-    storefrontShopSlug: 'storefront-test',
-  );
+  return AppConfig.authFlowTest();
 }
 
 AuthenticatedCustomer _customer(String subject) {
@@ -853,6 +851,15 @@ final class _FakeCallbackSource implements AuthCallbackSource {
 }
 
 final class _FakeAuthRepository implements AuthRepository {
+  @override
+  Future<void> beginSignOut() async {}
+
+  @override
+  Future<void> completeSignOut() => signOutLocal();
+
+  @override
+  Future<void> retryPendingRemoteRevocations() async {}
+
   final StreamController<AuthSessionEvent> _events =
       StreamController<AuthSessionEvent>.broadcast();
 

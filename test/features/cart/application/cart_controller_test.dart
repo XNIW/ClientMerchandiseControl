@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
@@ -374,6 +376,61 @@ void main() {
     );
     expect(released?.hold?.status, ReservationHoldServerStatus.released);
   });
+
+  test(
+    'mutation A completata dopo login B non modifica il carrello B',
+    () async {
+      final barrier = Completer<CartRemoteResponse>();
+      final remote = _FakeRemoteRepository(
+        readResponse: CartRemoteResponse(
+          status: CartRemoteStatus.ok,
+          snapshot: _snapshot(source: CartSource.account, version: 4),
+        ),
+        mutationOutcomes: [barrier.future],
+      );
+      final container = _container(
+        guest: _FakeGuestStore(),
+        remote: remote,
+        identity: _identity(),
+      );
+      addTearDown(container.dispose);
+      await _waitFor(
+        container,
+        (state) => state.status == CartViewStatus.ready,
+      );
+
+      final operation = container
+          .read(cartControllerProvider.notifier)
+          .addProduct(_product());
+      while (remote.mutationRequests.isEmpty) {
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+      }
+      container.read(_identityProvider.notifier).state = _identity(
+        subjectId: '10000000-0000-4000-8000-000000000002',
+      );
+      await _waitFor(
+        container,
+        (state) => state.isAuthenticated && state.snapshot?.version == 4,
+      );
+
+      barrier.complete(
+        CartRemoteResponse(
+          status: CartRemoteStatus.ok,
+          snapshot: _snapshot(
+            source: CartSource.account,
+            version: 5,
+            items: [_line(_publicationId)],
+          ),
+        ),
+      );
+      await operation;
+
+      final state = container.read(cartControllerProvider);
+      expect(state.snapshot?.version, 4);
+      expect(state.snapshot?.items, isEmpty);
+      expect(remote.mutationRequests, hasLength(1));
+    },
+  );
 }
 
 ProviderContainer _container({
@@ -440,12 +497,13 @@ AppConfig _config() => AppConfig.fromValues(
   storefrontShopSlug: 'storefront-test',
 );
 
-AuthenticatedCustomer _identity() =>
-    AuthenticatedCustomer.fromUntrustedIdentity(
-      subjectId: '10000000-0000-4000-8000-000000000001',
-      email: 'customer@example.invalid',
-      metadata: const {'name': 'Cliente'},
-    );
+AuthenticatedCustomer _identity({
+  String subjectId = '10000000-0000-4000-8000-000000000001',
+}) => AuthenticatedCustomer.fromUntrustedIdentity(
+  subjectId: subjectId,
+  email: 'customer@example.invalid',
+  metadata: const {'name': 'Cliente'},
+);
 
 CustomerCartSnapshot _snapshot({
   required CartSource source,
@@ -645,10 +703,11 @@ final class _FakeRemoteRepository implements CustomerCartRepository {
     return _outcome(revalidationOutcomes);
   }
 
-  CartRemoteResponse _outcome(List<Object> outcomes) {
+  Future<CartRemoteResponse> _outcome(List<Object> outcomes) async {
     if (outcomes.isEmpty) throw StateError('missing fake outcome');
     final outcome = outcomes.removeAt(0);
     if (outcome is CartRepositoryException) throw outcome;
+    if (outcome is Future<CartRemoteResponse>) return outcome;
     return outcome as CartRemoteResponse;
   }
 }

@@ -39,11 +39,13 @@ final authRepositoryFactoryProvider = Provider<AuthRepositoryFactory>((ref) {
     if (bootstrapState != BackendReadinessState.initializing) {
       throw const AuthRepositoryException('supabase_auth_not_initialized');
     }
-    return SupabaseAuthRepository(
+    final repository = SupabaseAuthRepository(
       authPort: PlatformSupabaseAuthPort(Supabase.instance.client),
       secureStorage: storage,
       redirectUri: config.authRedirectUri!,
     );
+    await repository.retryPendingRemoteRevocations();
+    return repository;
   };
 });
 

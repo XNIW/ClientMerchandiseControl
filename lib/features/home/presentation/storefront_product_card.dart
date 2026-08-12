@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -10,6 +13,7 @@ import '../../../l10n/generated/app_localizations.dart';
 import '../../favorites/presentation/favorite_button.dart';
 import '../../storefront/domain/storefront_models.dart';
 import '../../storefront/presentation/storefront_product_metadata.dart';
+import '../../storefront/presentation/storefront_verified_image_loader.dart';
 
 class StorefrontProductCollection extends StatelessWidget {
   const StorefrontProductCollection({required this.products, super.key});
@@ -121,6 +125,7 @@ class StorefrontProductCard extends StatelessWidget {
                           productId: product.id,
                           name: product.name,
                           uri: product.images?.card,
+                          sha256Digest: product.images?.sha256,
                           cacheWidth: compact ? 480 : 720,
                         ),
                       ),
@@ -178,11 +183,12 @@ class StorefrontProductCard extends StatelessWidget {
 
 double mathMin(double first, double second) => first < second ? first : second;
 
-class StorefrontProductImage extends StatelessWidget {
+class StorefrontProductImage extends ConsumerStatefulWidget {
   const StorefrontProductImage({
     required this.productId,
     required this.name,
     required this.uri,
+    required this.sha256Digest,
     this.cacheWidth = 720,
     this.keyPrefix = 'storefront-image',
     this.compactPlaceholder = false,
@@ -192,54 +198,95 @@ class StorefrontProductImage extends StatelessWidget {
   final String productId;
   final String name;
   final Uri? uri;
+  final String? sha256Digest;
   final int cacheWidth;
   final String keyPrefix;
   final bool compactPlaceholder;
 
   @override
+  ConsumerState<StorefrontProductImage> createState() =>
+      _StorefrontProductImageState();
+}
+
+class _StorefrontProductImageState
+    extends ConsumerState<StorefrontProductImage> {
+  Future<Uint8List>? _load;
+
+  @override
+  void initState() {
+    super.initState();
+    _load = _loadImage();
+  }
+
+  @override
+  void didUpdateWidget(StorefrontProductImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.uri != widget.uri ||
+        oldWidget.sha256Digest != widget.sha256Digest) {
+      _load = _loadImage();
+    }
+  }
+
+  Future<Uint8List>? _loadImage() {
+    final uri = widget.uri;
+    final digest = widget.sha256Digest;
+    if (uri == null || digest == null) return null;
+    return ref
+        .read(storefrontVerifiedImageLoaderProvider)
+        .load(uri: uri, sha256Digest: digest);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    if (uri == null) return _placeholder(context, l10n);
+    final load = _load;
+    if (load == null) return _placeholder(context, l10n);
     return Semantics(
       image: true,
-      label: name,
-      child: Image.network(
-        key: ValueKey('$keyPrefix-$productId'),
-        uri.toString(),
-        fit: BoxFit.cover,
-        filterQuality: FilterQuality.medium,
-        cacheWidth: cacheWidth,
-        gaplessPlayback: true,
-        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-          if (wasSynchronouslyLoaded || frame != null) return child;
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              _placeholder(context, l10n),
-              const Center(child: CircularProgressIndicator.adaptive()),
-            ],
+      label: widget.name,
+      child: FutureBuilder<Uint8List>(
+        future: load,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) return _placeholder(context, l10n);
+          final bytes = snapshot.data;
+          if (bytes == null) {
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                _placeholder(context, l10n),
+                const Center(child: CircularProgressIndicator.adaptive()),
+              ],
+            );
+          }
+          return Image.memory(
+            bytes,
+            key: ValueKey('${widget.keyPrefix}-${widget.productId}'),
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.medium,
+            cacheWidth: widget.cacheWidth,
+            gaplessPlayback: true,
+            errorBuilder: (context, error, stackTrace) =>
+                _placeholder(context, l10n),
           );
         },
-        errorBuilder: (context, error, stackTrace) =>
-            _placeholder(context, l10n),
       ),
     );
   }
 
   Widget _placeholder(BuildContext context, AppLocalizations l10n) {
-    if (compactPlaceholder) {
+    if (widget.compactPlaceholder) {
       return Semantics(
         image: true,
         label: l10n.homeImageUnavailable,
         child: ColoredBox(
-          key: ValueKey('$keyPrefix-placeholder-$productId'),
+          key: ValueKey('${widget.keyPrefix}-placeholder-${widget.productId}'),
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
           child: const Center(child: Icon(Icons.image_not_supported_outlined)),
         ),
       );
     }
     return ColoredBox(
-      key: ValueKey('$keyPrefix-placeholder-$productId'),
+      key: ValueKey('${widget.keyPrefix}-placeholder-${widget.productId}'),
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Center(
         child: Column(

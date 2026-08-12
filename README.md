@@ -74,8 +74,8 @@ production nel repository.
 
 Per preparare staging, copiare l'esempio nel file locale ignorato, valorizzare URL,
 publishable key non-production e `STOREFRONT_SHOP_SLUG` con lo slug pubblico assegnato;
-mantenere `GOOGLE_AUTH_ENABLED=false` finché la callback non è verificata nella
-redirect allow-list:
+mantenere `GOOGLE_AUTH_ENABLED=false`: il runtime distribuibile non abilita OAuth
+finché non esiste un dominio HTTPS posseduto e verificato:
 
 ```bash
 cp config/app_config.staging.example.json config/app_config.staging.local.json
@@ -84,11 +84,12 @@ flutter build apk --debug --dart-define-from-file=config/app_config.staging.loca
 flutter build ios --simulator --debug --dart-define-from-file=config/app_config.staging.local.json
 ```
 
-Il contratto staging richiede la callback
-`com.xniw.clientmerchandisecontrol://auth-callback/`. Con il flag `true`, TASK-020 usa
-Google OAuth, PKCE e browser esterno; sessione e verifier sono conservati in
-Keychain/Keystore e ogni callback è validato prima dell'exchange. Development e
-production restano fail-closed. TASK-011 continua a verificare il solo endpoint Auth
+Il contratto staging richiede il sentinel non instradabile
+`https://clientmerchandisecontrol.invalid/auth-callback/` e rifiuta il flag `true`.
+Il sentinel non è registrato come callback nativa e non dichiara ownership. Una futura
+riattivazione richiede App Links/Universal Links verificati e un task autorizzato.
+Sessione e verifier restano protetti in Keychain/Keystore. Development, staging OAuth
+e production restano fail-closed. TASK-011 continua a verificare il solo endpoint Auth
 health senza tabelle o dati; TASK-012 non aggiunge query o dati commerciali.
 TASK-013 usa lo slug esclusivamente con l'RPC pubblico `storefront_home_v1`;
 TASK-014 estende lo stesso boundary con `storefront_categories_v1` e
@@ -164,8 +165,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-033
 - **File task**: docs/TASKS/TASK-033-security-hardening.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Indicatore**: TASK_033_RESUMED_MULTI_REPO_CLOSEOUT_BASELINE
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -207,6 +208,6 @@ di notifiche ordine e l'integrazione Client privacy-safe ed è anch'esso
 `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-032 ha completato metodi v1,
 stato/idempotenza pagamento, boundary provider/webhook fail-closed e checkpoint
 Milestone 4 629/629; è `VALIDATED_PENDING_INTEGRATED_REVIEW`. TASK-033 è il task
-corrente, `BLOCKED / EXECUTION`, in attesa di una sessione con managed filesystem
-permission profile per threat model, RLS abuse, rate limit e security hardening.
+corrente, `ACTIVE / REVIEW`: il report canonico già completato ha 18 finding e la
+remediation 18/18 è in re-review sul candidato; nessuna nuova scan è autorizzata.
 Gli altri task del train restano `TODO` fino al rispettivo checkpoint.

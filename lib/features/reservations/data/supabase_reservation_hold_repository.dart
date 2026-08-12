@@ -51,6 +51,11 @@ final class SupabaseReservationHoldRepository
           'p_quantity': quantity,
           'p_idempotency_key': idempotencyKey,
         }),
+        expectation: _ReservationResponseExpectation.create(
+          shopSlug: shopSlug,
+          publicationId: publicationId,
+          quantity: quantity,
+        ),
       );
     });
   }
@@ -63,6 +68,7 @@ final class SupabaseReservationHoldRepository
         await _port.invoke('customer_reservation_hold_read_v1', {
           'p_hold_id': holdId,
         }),
+        expectation: _ReservationResponseExpectation.read(holdId: holdId),
       );
     });
   }
@@ -80,6 +86,7 @@ final class SupabaseReservationHoldRepository
           'p_hold_id': holdId,
           'p_idempotency_key': idempotencyKey,
         }),
+        expectation: _ReservationResponseExpectation.release(holdId: holdId),
       );
     });
   }
@@ -130,7 +137,10 @@ const _responseKeys = <String>{
   'remainingSeconds',
 };
 
-ReservationHoldRemoteResponse _parseResponse(Object? raw) {
+ReservationHoldRemoteResponse _parseResponse(
+  Object? raw, {
+  required _ReservationResponseExpectation expectation,
+}) {
   final payload = _payload(raw);
   if (payload['apiVersion'] != 'customer-reservation-hold.v1' ||
       payload.keys.any((key) => !_responseKeys.contains(key))) {
@@ -147,6 +157,9 @@ ReservationHoldRemoteResponse _parseResponse(Object? raw) {
     'not_found' => ReservationHoldRemoteStatus.notFound,
     _ => throw const FormatException('reservation_hold_status'),
   };
+  if (!expectation.accepts(status)) {
+    throw const FormatException('reservation_hold_operation_mismatch');
+  }
   final idempotent = payload['idempotent'];
   if (idempotent is! bool) {
     throw const FormatException('reservation_hold_idempotent');
@@ -231,12 +244,90 @@ ReservationHoldRemoteResponse _parseResponse(Object? raw) {
     remainingSeconds: remainingSeconds,
     idempotent: idempotent,
   );
+  if (!expectation.matches(hold)) {
+    throw const FormatException('reservation_hold_identity_mismatch');
+  }
   return ReservationHoldRemoteResponse(
     status: status,
     idempotent: idempotent,
     serverTime: serverTime,
     hold: hold,
   );
+}
+
+enum _ReservationOperation { create, read, release }
+
+final class _ReservationResponseExpectation {
+  const _ReservationResponseExpectation._({
+    required this.operation,
+    this.holdId,
+    this.shopSlug,
+    this.publicationId,
+    this.quantity,
+  });
+
+  const _ReservationResponseExpectation.create({
+    required String shopSlug,
+    required String publicationId,
+    required int quantity,
+  }) : this._(
+         operation: _ReservationOperation.create,
+         shopSlug: shopSlug,
+         publicationId: publicationId,
+         quantity: quantity,
+       );
+
+  const _ReservationResponseExpectation.read({required String holdId})
+    : this._(operation: _ReservationOperation.read, holdId: holdId);
+
+  const _ReservationResponseExpectation.release({required String holdId})
+    : this._(operation: _ReservationOperation.release, holdId: holdId);
+
+  final _ReservationOperation operation;
+  final String? holdId;
+  final String? shopSlug;
+  final String? publicationId;
+  final int? quantity;
+
+  bool accepts(ReservationHoldRemoteStatus status) => switch (operation) {
+    _ReservationOperation.create => const {
+      ReservationHoldRemoteStatus.ok,
+      ReservationHoldRemoteStatus.activeHoldExists,
+      ReservationHoldRemoteStatus.unavailable,
+      ReservationHoldRemoteStatus.holdLimitReached,
+      ReservationHoldRemoteStatus.idempotencyConflict,
+      ReservationHoldRemoteStatus.invalid,
+    }.contains(status),
+    _ReservationOperation.read => const {
+      ReservationHoldRemoteStatus.ok,
+      ReservationHoldRemoteStatus.terminal,
+      ReservationHoldRemoteStatus.notFound,
+      ReservationHoldRemoteStatus.unavailable,
+      ReservationHoldRemoteStatus.invalid,
+    }.contains(status),
+    _ReservationOperation.release => const {
+      ReservationHoldRemoteStatus.ok,
+      ReservationHoldRemoteStatus.terminal,
+      ReservationHoldRemoteStatus.notFound,
+      ReservationHoldRemoteStatus.unavailable,
+      ReservationHoldRemoteStatus.idempotencyConflict,
+      ReservationHoldRemoteStatus.invalid,
+    }.contains(status),
+  };
+
+  bool matches(ReservationHoldSnapshot hold) {
+    if (holdId != null && hold.holdId != holdId) return false;
+    if (shopSlug != null && hold.shopSlug != shopSlug) return false;
+    if (publicationId != null && hold.publicationId != publicationId) {
+      return false;
+    }
+    if (quantity != null && hold.quantity != quantity) return false;
+    if (operation == _ReservationOperation.release &&
+        hold.status == ReservationHoldServerStatus.active) {
+      return false;
+    }
+    return true;
+  }
 }
 
 Map<String, Object?> _payload(Object? raw) {

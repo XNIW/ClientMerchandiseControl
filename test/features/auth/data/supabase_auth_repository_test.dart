@@ -277,6 +277,70 @@ void main() {
     },
   );
 
+  test('logout remoto fallito resta cifrato e viene ritentato', () async {
+    port.serializedSession = '{"session":"remote-retry"}';
+    port.signOutError = StateError('offline');
+
+    await repository.beginSignOut();
+    await repository.completeSignOut();
+
+    expect(repository.currentCustomer, isNull);
+    expect(await storage.pendingRemoteRevocations(), hasLength(1));
+
+    port.signOutError = null;
+    port.serializedSession = null;
+    await repository.retryPendingRemoteRevocations();
+
+    expect(port.revokedSessions, ['{"session":"remote-retry"}']);
+    expect(await storage.pendingRemoteRevocations(), isEmpty);
+  });
+
+  test('bootstrap completa una revoca interrotta dopo logout intent', () async {
+    await storage.beginLogoutIntent('{"session":"interrupted"}');
+
+    await repository.retryPendingRemoteRevocations();
+
+    expect(port.revokedSessions, ['{"session":"interrupted"}']);
+    expect(storage.logoutRequested, isTrue);
+    expect(await storage.pendingLogoutSession(), isNull);
+  });
+
+  test('bootstrap normale preserva una sessione persistita valida', () async {
+    await storage.persistSession('{"session":"valid-restore"}');
+
+    await repository.retryPendingRemoteRevocations();
+
+    expect(await storage.accessToken(), '{"session":"valid-restore"}');
+    expect(port.signOutCalls, 0);
+  });
+
+  test(
+    'nuovo OAuth resta bloccato finché la revoca pending non è drenata',
+    () async {
+      await storage.beginLogoutIntent('{"session":"must-revoke"}');
+      await storage.finishLogout(remoteRevoked: false);
+      port.revokeError = StateError('offline');
+
+      await expectLater(
+        repository.launchGoogleSignIn(),
+        throwsA(
+          isA<AuthRepositoryException>().having(
+            (error) => error.code,
+            'code',
+            'pending_remote_revocation',
+          ),
+        ),
+      );
+      expect(port.launchCalls, 0);
+
+      port.revokeError = null;
+      port.launchResult = true;
+      expect(await repository.launchGoogleSignIn(), isTrue);
+      expect(port.launchCalls, 1);
+      expect(await storage.pendingRemoteRevocations(), isEmpty);
+    },
+  );
+
   test('sessioni scadute o senza expiry non espongono identità', () {
     final expired = _session(expiresAt: 1, refreshToken: 'refreshable');
     final valid = _session(
@@ -376,6 +440,11 @@ final class _FakeSupabaseAuthPort implements SupabaseAuthPort {
 
   @override
   SupabaseIdentitySnapshot? currentIdentity;
+
+  String? serializedSession;
+
+  @override
+  String? get serializedCurrentSession => serializedSession;
   SupabaseAuthExchange exchangeResult = const SupabaseAuthExchange(
     identity: null,
     serializedSession: '{"session":"fake"}',
@@ -384,10 +453,12 @@ final class _FakeSupabaseAuthPort implements SupabaseAuthPort {
   Object? launchError;
   Object? exchangeError;
   Object? signOutError;
+  Object? revokeError;
   int launchCalls = 0;
   int signOutCalls = 0;
   final List<String> redirects = [];
   final List<String> exchangedCodes = [];
+  final List<String> revokedSessions = [];
 
   @override
   Stream<SupabaseAuthChange> get changes => _changes.stream;
@@ -417,6 +488,18 @@ final class _FakeSupabaseAuthPort implements SupabaseAuthPort {
     if (signOutError case final error?) {
       throw error;
     }
+  }
+
+  @override
+  Future<void> signOutGlobal() => signOutLocal();
+
+  @override
+  Future<void> revokeSerializedSession(String serializedSession) async {
+    revokedSessions.add(serializedSession);
+    if (revokeError case final error?) {
+      throw error;
+    }
+    await signOutLocal();
   }
 
   void emit(SupabaseAuthChange change) => _changes.add(change);

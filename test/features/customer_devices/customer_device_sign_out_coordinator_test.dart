@@ -90,4 +90,42 @@ void main() {
     expect(repository.revokeCalls, 1);
     expect(provider.revokeCalls, 1);
   });
+
+  test('revoche offline di owner diversi restano entrambe pending', () async {
+    final store = MemoryCustomerDeviceStore(
+      testLocalDeviceRecord(
+        ownerSubjectId: testDeviceOwner,
+        consent: CustomerDeviceConsentStatus.granted,
+      ),
+    );
+    final repository = FakeCustomerDeviceRepository()
+      ..revokeError = const CustomerDeviceRepositoryException(
+        CustomerDeviceFailureKind.offline,
+      );
+    final provider = FakePushTokenProvider();
+    var key = testDeviceKey;
+    final coordinator = CustomerDeviceSignOutCoordinator(
+      repository: repository,
+      localStore: store,
+      pushTokenProvider: provider,
+      uuidFactory: () => key,
+    );
+    addTearDown(provider.dispose);
+
+    await coordinator.prepareForSignOut(testDeviceOwner);
+    store.record = store.record.copyWith(
+      decisionOwnerSubjectId: testSecondDeviceOwner,
+      consentStatus: CustomerDeviceConsentStatus.granted,
+    );
+    key = testSecondDeviceKey;
+    await coordinator.prepareForSignOut(testSecondDeviceOwner);
+
+    expect(store.record.pendingOperations, hasLength(2));
+    expect(
+      store.record.pendingOperations.map(
+        (operation) => operation.ownerSubjectId,
+      ),
+      [testDeviceOwner, testSecondDeviceOwner],
+    );
+  });
 }

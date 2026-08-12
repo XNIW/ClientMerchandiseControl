@@ -98,22 +98,22 @@ final class ReservationHoldController
   }
 
   Future<void> reserve({required int quantity}) {
-    return _runExclusive(() async {
+    return _runExclusive((context) async {
       if (quantity < 1 || quantity > reservationHoldMaximumQuantity) {
         _setFailure(ReservationHoldFailureKind.invalidInput);
         return;
       }
-      final context = _requireContext();
       final store = ref.read(reservationHoldLocalStoreProvider);
       final existing = await store.readEntry(
         ownerSubjectId: context.ownerSubjectId,
         shopSlug: context.shopSlug,
         publicationId: arg,
       );
+      if (!_isCurrentContext(context)) return;
       if (existing?.hold?.isActive == true &&
           existing!.quantity == quantity &&
           existing.pendingOperation == null) {
-        await _syncHold(existing);
+        await _syncHold(existing, context);
         return;
       }
       if (existing != null) {
@@ -124,6 +124,7 @@ final class ReservationHoldController
               shopSlug: context.shopSlug,
               publicationId: arg,
             );
+        if (!_isCurrentContext(context)) return;
       }
       final pending = ReservationHoldLocalEntry(
         ownerSubjectId: context.ownerSubjectId,
@@ -137,13 +138,13 @@ final class ReservationHoldController
         updatedAt: _clock(),
       );
       await store.saveEntry(pending);
-      await _executeCreate(pending);
+      if (!_isCurrentContext(context)) return;
+      await _executeCreate(pending, context);
     });
   }
 
   Future<void> retry() {
-    return _runExclusive(() async {
-      final context = _requireContext();
+    return _runExclusive((context) async {
       final entry = await ref
           .read(reservationHoldLocalStoreProvider)
           .readEntry(
@@ -151,17 +152,18 @@ final class ReservationHoldController
             shopSlug: context.shopSlug,
             publicationId: arg,
           );
+      if (!_isCurrentContext(context)) return;
       if (entry == null) {
         _setIdle();
         return;
       }
       final pending = entry.pendingOperation;
       if (pending?.kind == ReservationHoldPendingOperationKind.create) {
-        await _executeCreate(entry);
+        await _executeCreate(entry, context);
       } else if (pending?.kind == ReservationHoldPendingOperationKind.release) {
-        await _executeRelease(entry);
+        await _executeRelease(entry, context);
       } else if (entry.hold != null) {
-        await _syncHold(entry);
+        await _syncHold(entry, context);
       } else {
         await _removeEntry(entry);
         _setIdle();
@@ -170,17 +172,17 @@ final class ReservationHoldController
   }
 
   Future<void> release() {
-    return _runExclusive(() async {
-      final context = _requireContext();
+    return _runExclusive((context) async {
       final store = ref.read(reservationHoldLocalStoreProvider);
       final entry = await store.readEntry(
         ownerSubjectId: context.ownerSubjectId,
         shopSlug: context.shopSlug,
         publicationId: arg,
       );
+      if (!_isCurrentContext(context)) return;
       final hold = entry?.hold;
       if (entry == null || hold == null || hold.isTerminal) {
-        if (hold != null) _applyHold(hold);
+        if (hold != null) _applyHold(hold, context);
         return;
       }
       final pending = entry.copyWith(
@@ -191,13 +193,13 @@ final class ReservationHoldController
         updatedAt: _clock(),
       );
       await store.saveEntry(pending);
-      await _executeRelease(pending);
+      if (!_isCurrentContext(context)) return;
+      await _executeRelease(pending, context);
     });
   }
 
   Future<void> dismissTerminal() {
-    return _runExclusive(() async {
-      final context = _requireContext();
+    return _runExclusive((context) async {
       await ref
           .read(reservationHoldLocalStoreProvider)
           .removeEntry(
@@ -205,13 +207,15 @@ final class ReservationHoldController
             shopSlug: context.shopSlug,
             publicationId: arg,
           );
+      if (!_isCurrentContext(context)) return;
       _setIdle();
     });
   }
 
   Future<void> _load(int generation) async {
+    final context = _requireContextOrNull();
+    if (context == null || context.generation != generation) return;
     try {
-      final context = _requireContext();
       final entry = await ref
           .read(reservationHoldLocalStoreProvider)
           .readEntry(
@@ -219,30 +223,37 @@ final class ReservationHoldController
             shopSlug: context.shopSlug,
             publicationId: arg,
           );
-      if (!_isCurrent(generation)) return;
+      if (!_isCurrentContext(context)) return;
       if (entry == null) {
         _setIdle();
         return;
       }
       final pending = entry.pendingOperation;
       if (pending?.kind == ReservationHoldPendingOperationKind.create) {
-        await _executeCreate(entry);
+        await _executeCreate(entry, context);
       } else if (pending?.kind == ReservationHoldPendingOperationKind.release) {
-        await _executeRelease(entry);
+        await _executeRelease(entry, context);
       } else if (entry.hold != null) {
-        await _syncHold(entry);
+        await _syncHold(entry, context);
       } else {
         await _removeEntry(entry);
+        if (!_isCurrentContext(context)) return;
         _setIdle();
       }
     } on ReservationHoldRepositoryException catch (error) {
+      if (!_isCurrentContext(context)) return;
       _setFailure(error.kind, hasPendingRetry: true);
     } on Object {
+      if (!_isCurrentContext(context)) return;
       _setFailure(ReservationHoldFailureKind.unexpected, hasPendingRetry: true);
     }
   }
 
-  Future<void> _executeCreate(ReservationHoldLocalEntry entry) async {
+  Future<void> _executeCreate(
+    ReservationHoldLocalEntry entry,
+    _ReservationContext context,
+  ) async {
+    if (!_isCurrentContext(context)) return;
     final pending = entry.pendingOperation;
     if (pending?.kind != ReservationHoldPendingOperationKind.create) {
       _setFailure(ReservationHoldFailureKind.unexpected);
@@ -258,18 +269,23 @@ final class ReservationHoldController
             quantity: entry.quantity,
             idempotencyKey: pending!.idempotencyKey,
           );
+      if (!_isCurrentContext(context)) return;
       final hold = response.hold;
       if (hold == null) {
         await _removeEntry(entry);
+        if (!_isCurrentContext(context)) return;
         _setFailure(_failureForStatus(response.status));
         return;
       }
-      final resolved = _entryForHold(entry, hold);
+      final resolved = _entryForHold(entry, hold, context);
       await ref.read(reservationHoldLocalStoreProvider).saveEntry(resolved);
-      await _syncHold(resolved);
+      if (!_isCurrentContext(context)) return;
+      await _syncHold(resolved, context);
     } on ReservationHoldRepositoryException catch (error) {
+      if (!_isCurrentContext(context)) return;
       _setFailure(error.kind, hold: entry.hold, hasPendingRetry: true);
     } on Object {
+      if (!_isCurrentContext(context)) return;
       _setFailure(
         ReservationHoldFailureKind.unexpected,
         hold: entry.hold,
@@ -278,7 +294,11 @@ final class ReservationHoldController
     }
   }
 
-  Future<void> _syncHold(ReservationHoldLocalEntry entry) async {
+  Future<void> _syncHold(
+    ReservationHoldLocalEntry entry,
+    _ReservationContext context,
+  ) async {
+    if (!_isCurrentContext(context)) return;
     final hold = entry.hold;
     if (hold == null) {
       _setFailure(ReservationHoldFailureKind.unexpected);
@@ -289,20 +309,25 @@ final class ReservationHoldController
       final response = await ref
           .read(reservationHoldRepositoryProvider)
           .read(holdId: hold.holdId);
+      if (!_isCurrentContext(context)) return;
       final refreshed = response.hold;
       if (refreshed == null) {
         if (response.status == ReservationHoldRemoteStatus.notFound) {
           await _removeEntry(entry);
         }
+        if (!_isCurrentContext(context)) return;
         _setFailure(_failureForStatus(response.status));
         return;
       }
-      final resolved = _entryForHold(entry, refreshed);
+      final resolved = _entryForHold(entry, refreshed, context);
       await ref.read(reservationHoldLocalStoreProvider).saveEntry(resolved);
-      _applyHold(refreshed);
+      if (!_isCurrentContext(context)) return;
+      _applyHold(refreshed, context);
     } on ReservationHoldRepositoryException catch (error) {
+      if (!_isCurrentContext(context)) return;
       _setFailure(error.kind, hold: hold, hasPendingRetry: true);
     } on Object {
+      if (!_isCurrentContext(context)) return;
       _setFailure(
         ReservationHoldFailureKind.unexpected,
         hold: hold,
@@ -311,7 +336,11 @@ final class ReservationHoldController
     }
   }
 
-  Future<void> _executeRelease(ReservationHoldLocalEntry entry) async {
+  Future<void> _executeRelease(
+    ReservationHoldLocalEntry entry,
+    _ReservationContext context,
+  ) async {
+    if (!_isCurrentContext(context)) return;
     final hold = entry.hold;
     final pending = entry.pendingOperation;
     if (hold == null ||
@@ -327,6 +356,7 @@ final class ReservationHoldController
             holdId: hold.holdId,
             idempotencyKey: pending!.idempotencyKey,
           );
+      if (!_isCurrentContext(context)) return;
       final resolvedHold = response.hold;
       if (resolvedHold == null) {
         if (response.status == ReservationHoldRemoteStatus.notFound) {
@@ -341,15 +371,19 @@ final class ReservationHoldController
                 ),
               );
         }
+        if (!_isCurrentContext(context)) return;
         _setFailure(_failureForStatus(response.status), hold: hold);
         return;
       }
-      final resolved = _entryForHold(entry, resolvedHold);
+      final resolved = _entryForHold(entry, resolvedHold, context);
       await ref.read(reservationHoldLocalStoreProvider).saveEntry(resolved);
-      _applyHold(resolvedHold);
+      if (!_isCurrentContext(context)) return;
+      _applyHold(resolvedHold, context);
     } on ReservationHoldRepositoryException catch (error) {
+      if (!_isCurrentContext(context)) return;
       _setFailure(error.kind, hold: hold, hasPendingRetry: true);
     } on Object {
+      if (!_isCurrentContext(context)) return;
       _setFailure(
         ReservationHoldFailureKind.unexpected,
         hold: hold,
@@ -361,9 +395,14 @@ final class ReservationHoldController
   ReservationHoldLocalEntry _entryForHold(
     ReservationHoldLocalEntry source,
     ReservationHoldSnapshot hold,
+    _ReservationContext context,
   ) {
-    final context = _requireContext();
-    if (hold.shopSlug != context.shopSlug || hold.publicationId != arg) {
+    if (!_isCurrentContext(context) ||
+        source.ownerSubjectId != context.ownerSubjectId ||
+        source.shopSlug != context.shopSlug ||
+        source.publicationId != arg ||
+        hold.shopSlug != context.shopSlug ||
+        hold.publicationId != arg) {
       throw const ReservationHoldRepositoryException(
         ReservationHoldFailureKind.unexpected,
       );
@@ -378,8 +417,8 @@ final class ReservationHoldController
     );
   }
 
-  void _applyHold(ReservationHoldSnapshot hold) {
-    if (_disposed) return;
+  void _applyHold(ReservationHoldSnapshot hold, _ReservationContext context) {
+    if (!_isCurrentContext(context)) return;
     _timer?.cancel();
     _serverElapsed?.stop();
     if (hold.status == ReservationHoldServerStatus.active) {
@@ -387,7 +426,7 @@ final class ReservationHoldController
       _serverElapsed = Stopwatch()..start();
       _publishCountdown(hold);
       _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-        if (_disposed) return;
+        if (!_isCurrentContext(context)) return;
         _publishCountdown(hold);
       });
       return;
@@ -441,9 +480,7 @@ final class ReservationHoldController
       await active;
     }
     if (_disposed) return;
-    await _runExclusive(() async {
-      final context = _requireContextOrNull();
-      if (context == null) return;
+    await _runExclusive((context) async {
       final entry = await ref
           .read(reservationHoldLocalStoreProvider)
           .readEntry(
@@ -451,8 +488,9 @@ final class ReservationHoldController
             shopSlug: context.shopSlug,
             publicationId: arg,
           );
+      if (!_isCurrentContext(context)) return;
       if (entry?.hold?.holdId == hold.holdId) {
-        await _syncHold(entry!);
+        await _syncHold(entry!, context);
       }
     });
   }
@@ -482,18 +520,24 @@ final class ReservationHoldController
     _ => ReservationHoldFailureKind.unexpected,
   };
 
-  Future<void> _runExclusive(Future<void> Function() action) {
+  Future<void> _runExclusive(
+    Future<void> Function(_ReservationContext context) action,
+  ) {
     final active = _operation;
     if (active != null) return active;
+    final context = _requireContextOrNull();
+    if (context == null) return Future<void>.value();
     late final Future<void> operation;
     operation =
         (() async {
           try {
-            await action();
+            if (_isCurrentContext(context)) await action(context);
           } on ReservationHoldRepositoryException catch (error) {
-            _setFailure(error.kind);
+            if (_isCurrentContext(context)) _setFailure(error.kind);
           } on Object {
-            _setFailure(ReservationHoldFailureKind.unexpected);
+            if (_isCurrentContext(context)) {
+              _setFailure(ReservationHoldFailureKind.unexpected);
+            }
           }
         })().whenComplete(() {
           if (identical(_operation, operation)) _operation = null;
@@ -534,26 +578,26 @@ final class ReservationHoldController
     state = ReservationHoldState.idle(isAuthenticated: _ownerSubjectId != null);
   }
 
-  _ReservationContext _requireContext() {
-    final context = _requireContextOrNull();
-    if (context == null) {
-      throw const ReservationHoldRepositoryException(
-        ReservationHoldFailureKind.unauthorized,
-      );
-    }
-    return context;
-  }
-
   _ReservationContext? _requireContextOrNull() {
     final owner = _ownerSubjectId;
     final shop = _shopSlug;
     if (owner == null || shop == null) return null;
-    return _ReservationContext(ownerSubjectId: owner, shopSlug: shop);
+    return _ReservationContext(
+      ownerSubjectId: owner,
+      shopSlug: shop,
+      generation: _generation,
+    );
   }
 
   DateTime _clock() => ref.read(reservationHoldClockProvider)().toUtc();
 
   bool _isCurrent(int generation) => !_disposed && generation == _generation;
+
+  bool _isCurrentContext(_ReservationContext context) {
+    return _isCurrent(context.generation) &&
+        _ownerSubjectId == context.ownerSubjectId &&
+        _shopSlug == context.shopSlug;
+  }
 
   void _dispose() {
     _disposed = true;
@@ -567,8 +611,10 @@ final class _ReservationContext {
   const _ReservationContext({
     required this.ownerSubjectId,
     required this.shopSlug,
+    required this.generation,
   });
 
   final String ownerSubjectId;
   final String shopSlug;
+  final int generation;
 }

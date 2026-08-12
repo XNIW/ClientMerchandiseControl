@@ -154,9 +154,10 @@ final class CustomerDeviceController extends Notifier<CustomerDeviceState> {
       if (subjectId == null) {
         return;
       }
+      final context = _DeviceContext(subjectId, _generation);
       final provider = ref.read(customerPushTokenProvider);
       final capability = await provider.requestAuthorization();
-      if (!_isCurrent(subjectId)) {
+      if (!_isCurrentContext(context)) {
         return;
       }
       if (capability.availability ==
@@ -199,9 +200,11 @@ final class CustomerDeviceController extends Notifier<CustomerDeviceState> {
       if (subjectId == null) {
         return;
       }
+      final context = _DeviceContext(subjectId, _generation);
       final capability = await ref
           .read(customerPushTokenProvider)
           .currentCapability();
+      if (!_isCurrentContext(context)) return;
       await _register(
         subjectId: subjectId,
         locale: locale,
@@ -219,30 +222,42 @@ final class CustomerDeviceController extends Notifier<CustomerDeviceState> {
       if (subjectId == null) {
         return;
       }
+      final context = _DeviceContext(subjectId, _generation);
       try {
         await ref.read(customerPushTokenProvider).revokeLocalToken();
       } on Object {
         // La revoca server resta necessaria anche se il provider locale fallisce.
       }
+      if (!_isCurrentContext(context)) return;
       final store = ref.read(customerDeviceLocalStoreProvider);
-      final record = await store.loadOrCreate();
-      final key =
-          _matchingPendingKey(
-            record,
-            subjectId,
-            CustomerDevicePendingOperationKind.revoke,
-          ) ??
-          ref.read(customerDeviceUuidFactoryProvider)();
-      final pending = record.copyWith(
-        decisionOwnerSubjectId: subjectId,
-        consentStatus: CustomerDeviceConsentStatus.revoked,
-        pendingOperation: CustomerDevicePendingOperation(
-          kind: CustomerDevicePendingOperationKind.revoke,
-          ownerSubjectId: subjectId,
-          idempotencyKey: key,
-        ),
+      final generatedKey = ref.read(customerDeviceUuidFactoryProvider)();
+      final pending = await store.update((record) {
+        final key =
+            _matchingPendingKey(
+              record,
+              subjectId,
+              CustomerDevicePendingOperationKind.revoke,
+            ) ??
+            generatedKey;
+        return record
+            .queueRevocation(
+              CustomerDevicePendingOperation(
+                kind: CustomerDevicePendingOperationKind.revoke,
+                ownerSubjectId: subjectId,
+                idempotencyKey: key,
+              ),
+            )
+            .copyWith(
+              decisionOwnerSubjectId: subjectId,
+              consentStatus: CustomerDeviceConsentStatus.revoked,
+            );
+      });
+      if (!_isCurrentContext(context)) return;
+      final operation = pending.pendingOperations.firstWhere(
+        (candidate) =>
+            candidate.kind == CustomerDevicePendingOperationKind.revoke &&
+            candidate.ownerSubjectId == subjectId,
       );
-      await store.save(pending);
       _publishPending(
         consent: CustomerDeviceConsentStatus.revoked,
         permission:
@@ -252,11 +267,17 @@ final class CustomerDeviceController extends Notifier<CustomerDeviceState> {
       try {
         final snapshot = await ref
             .read(customerDeviceRepositoryProvider)
-            .revoke(installationId: record.installationId, idempotencyKey: key);
-        if (!_isCurrent(subjectId)) {
+            .revoke(
+              installationId: pending.installationId,
+              idempotencyKey: operation.idempotencyKey,
+            );
+        if (!_isCurrentContext(context)) {
           return;
         }
-        await store.save(pending.copyWith(clearPendingOperation: true));
+        await store.update(
+          (current) => current.completePending(operation.idempotencyKey),
+        );
+        if (!_isCurrentContext(context)) return;
         _publish(
           CustomerDeviceState(
             status: CustomerDeviceStatus.ready,
@@ -373,33 +394,81 @@ final class CustomerDeviceController extends Notifier<CustomerDeviceState> {
         return;
       }
       _listenForTokenChanges(provider);
-      final pending = record.pendingOperation;
+      for (final revocation in record.pendingOperations.where(
+        (pending) => pending.kind == CustomerDevicePendingOperationKind.revoke,
+      )) {
+        try {
+          await ref
+              .read(customerDeviceRepositoryProvider)
+              .revoke(
+                installationId: record.installationId,
+                idempotencyKey: revocation.idempotencyKey,
+              );
+          if (!_isCurrent(subjectId) || generation != _generation) return;
+          await ref
+              .read(customerDeviceLocalStoreProvider)
+              .update(
+                (current) => current.completePending(revocation.idempotencyKey),
+              );
+          if (!_isCurrent(subjectId) || generation != _generation) return;
+        } on Object catch (error) {
+          if (!_isCurrent(subjectId) || generation != _generation) return;
+          _publishOperationFailure(error, subjectId);
+          return;
+        }
+      }
+      var refreshedRecord = await ref
+          .read(customerDeviceLocalStoreProvider)
+          .loadOrCreate();
+      if (!_isCurrent(subjectId) || generation != _generation) return;
+      if (refreshedRecord.decisionOwnerSubjectId != subjectId) {
+        refreshedRecord = await ref
+            .read(customerDeviceLocalStoreProvider)
+            .update((current) {
+              if (!_isCurrent(subjectId) || generation != _generation) {
+                return current;
+              }
+              return current.copyWith(
+                decisionOwnerSubjectId: subjectId,
+                consentStatus: CustomerDeviceConsentStatus.notRequested,
+                pendingOperations: current.pendingOperations
+                    .where(
+                      (pending) =>
+                          pending.kind ==
+                          CustomerDevicePendingOperationKind.revoke,
+                    )
+                    .toList(growable: false),
+              );
+            });
+        if (!_isCurrent(subjectId) || generation != _generation) return;
+      }
+      final pending = refreshedRecord.pendingOperation;
       final ownedPending = pending?.ownerSubjectId == subjectId
           ? pending
           : null;
       if (ownedPending != null &&
           ownedPending.kind == CustomerDevicePendingOperationKind.revoke) {
-        await _retryRevoke(subjectId, record, ownedPending);
+        await _retryRevoke(subjectId, refreshedRecord, ownedPending);
         return;
       }
       final snapshot = await ref
           .read(customerDeviceRepositoryProvider)
-          .status(record.installationId);
+          .status(refreshedRecord.installationId);
       if (!_isCurrent(subjectId) || generation != _generation) {
         return;
       }
-      final localConsent = record.consentFor(subjectId);
+      final localConsent = refreshedRecord.consentFor(subjectId);
       final consent = snapshot?.consentStatus ?? localConsent;
       if (snapshot != null && ownedPending == null) {
         await ref
             .read(customerDeviceLocalStoreProvider)
-            .save(
-              record.copyWith(
+            .update(
+              (current) => current.copyWith(
                 decisionOwnerSubjectId: subjectId,
                 consentStatus: snapshot.consentStatus,
-                clearPendingOperation: true,
               ),
             );
+        if (!_isCurrent(subjectId) || generation != _generation) return;
       }
       _publish(
         CustomerDeviceState(
@@ -462,16 +531,19 @@ final class CustomerDeviceController extends Notifier<CustomerDeviceState> {
     required CustomerDeviceNoticeKind notice,
   }) async {
     final store = ref.read(customerDeviceLocalStoreProvider);
-    final pending = record.copyWith(
-      decisionOwnerSubjectId: subjectId,
-      consentStatus: consent,
-      pendingOperation: CustomerDevicePendingOperation(
-        kind: CustomerDevicePendingOperationKind.register,
-        ownerSubjectId: subjectId,
-        idempotencyKey: key,
-      ),
+    if (!_isCurrent(subjectId)) return;
+    final pending = await store.update(
+      (current) => current
+          .withPendingRegistration(
+            CustomerDevicePendingOperation(
+              kind: CustomerDevicePendingOperationKind.register,
+              ownerSubjectId: subjectId,
+              idempotencyKey: key,
+            ),
+          )
+          .copyWith(decisionOwnerSubjectId: subjectId, consentStatus: consent),
     );
-    await store.save(pending);
+    if (!_isCurrent(subjectId)) return;
     _publishPending(consent: consent, permission: permission);
     if (consent == CustomerDeviceConsentStatus.granted && token == null) {
       _publishOperationFailure(
@@ -487,7 +559,7 @@ final class CustomerDeviceController extends Notifier<CustomerDeviceState> {
           .read(customerDeviceRepositoryProvider)
           .register(
             CustomerDeviceRegistrationRequest(
-              installationId: record.installationId,
+              installationId: pending.installationId,
               platform: ref.read(customerPushTokenProvider).platform,
               locale: locale,
               consentStatus: consent,
@@ -499,7 +571,8 @@ final class CustomerDeviceController extends Notifier<CustomerDeviceState> {
       if (!_isCurrent(subjectId)) {
         return;
       }
-      await store.save(pending.copyWith(clearPendingOperation: true));
+      await store.update((current) => current.completePending(key));
+      if (!_isCurrent(subjectId)) return;
       _publish(
         CustomerDeviceState(
           status: CustomerDeviceStatus.ready,
@@ -541,13 +614,15 @@ final class CustomerDeviceController extends Notifier<CustomerDeviceState> {
       }
       await ref
           .read(customerDeviceLocalStoreProvider)
-          .save(
-            record.copyWith(
-              decisionOwnerSubjectId: subjectId,
-              consentStatus: CustomerDeviceConsentStatus.revoked,
-              clearPendingOperation: true,
-            ),
+          .update(
+            (current) => current
+                .completePending(pending.idempotencyKey)
+                .copyWith(
+                  decisionOwnerSubjectId: subjectId,
+                  consentStatus: CustomerDeviceConsentStatus.revoked,
+                ),
           );
+      if (!_isCurrent(subjectId)) return;
       _publish(
         CustomerDeviceState(
           status: CustomerDeviceStatus.ready,
@@ -681,6 +756,10 @@ final class CustomerDeviceController extends Notifier<CustomerDeviceState> {
     return !_disposed && _subjectId == subjectId;
   }
 
+  bool _isCurrentContext(_DeviceContext context) {
+    return _isCurrent(context.subjectId) && _generation == context.generation;
+  }
+
   void _publish(CustomerDeviceState next) {
     if (_disposed) {
       return;
@@ -688,6 +767,13 @@ final class CustomerDeviceController extends Notifier<CustomerDeviceState> {
     _lastState = next;
     state = next;
   }
+}
+
+final class _DeviceContext {
+  const _DeviceContext(this.subjectId, this.generation);
+
+  final String subjectId;
+  final int generation;
 }
 
 String? _matchingPendingKey(

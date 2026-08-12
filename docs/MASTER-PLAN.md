@@ -8,16 +8,15 @@
 - **Task attivo**: TASK-033
 - **File task**: docs/TASKS/TASK-033-security-hardening.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: TASK_033_RESUMED_MULTI_REPO_CLOSEOUT_BASELINE
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: STOREFRONT_V1
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: convergere le release lane esistenti e i batch
-  reliability Android/Admin/Win7POS, stabilizzare il revision set multi-repository e
-  soltanto allora eseguire una sola Deep Security Scan sul candidato Client finale;
-  seguono review integrata, gate staging/fisici/CI e merge normali autorizzati
+- **Prossima azione autorizzata**: re-review mirata del candidato Client che corregge
+  i 18 finding del report sigillato esistente, quindi CI exact-SHA, PR unica e merge
+  normale autorizzato; nessuna nuova scan repository-wide e nessun task successivo
 
 ## Repository coinvolti
 

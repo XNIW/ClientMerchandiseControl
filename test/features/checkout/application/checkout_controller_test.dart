@@ -521,6 +521,150 @@ void main() {
     );
     expect(repository.createRequests, isEmpty);
   });
+
+  test(
+    'logout durante create scarta risposta e non persiste la quote',
+    () async {
+      final identity = StateProvider<AuthenticatedCustomer?>(
+        (ref) => _identity(),
+      );
+      final response = Completer<CheckoutRemoteResponse>();
+      final repository = FakeCheckoutRepository()
+        ..createOutcomes.add(response.future);
+      final store = MemoryCheckoutDraftStore();
+      final container = _container(
+        repository: repository,
+        store: store,
+        identityProvider: identity,
+      );
+      addTearDown(container.dispose);
+      await _waitFor(
+        container,
+        (state) => state.status == CheckoutViewStatus.ready,
+      );
+      await _reachReview(container);
+
+      final operation = container
+          .read(checkoutControllerProvider.notifier)
+          .createQuote();
+      await _waitFor(container, (_) => repository.createRequests.isNotEmpty);
+      container.read(identity.notifier).state = null;
+      await Future<void>.delayed(Duration.zero);
+      final savesBeforeCompletion = store.saveCalls;
+
+      response.complete(
+        checkoutTestResponse(quote: checkoutTestQuoteSnapshot()),
+      );
+      await operation;
+
+      expect(container.read(checkoutControllerProvider).quote, isNull);
+      expect(store.saveCalls, savesBeforeCompletion);
+      expect(store.draft?.quoteId, isNull);
+    },
+  );
+
+  test('login B durante create non riceve stato o draft di A', () async {
+    final identity = StateProvider<AuthenticatedCustomer?>(
+      (ref) => _identity(),
+    );
+    final response = Completer<CheckoutRemoteResponse>();
+    final repository = FakeCheckoutRepository()
+      ..createOutcomes.add(response.future);
+    final store = MemoryCheckoutDraftStore();
+    final container = _container(
+      repository: repository,
+      store: store,
+      identityProvider: identity,
+    );
+    addTearDown(container.dispose);
+    await _waitFor(
+      container,
+      (state) => state.status == CheckoutViewStatus.ready,
+    );
+    await _reachReview(container);
+
+    final operation = container
+        .read(checkoutControllerProvider.notifier)
+        .createQuote();
+    await _waitFor(container, (_) => repository.createRequests.isNotEmpty);
+    container.read(identity.notifier).state = _identity(
+      subjectId: '10000000-0000-4000-8000-000000000002',
+    );
+    await _waitFor(
+      container,
+      (state) => state.status == CheckoutViewStatus.ready,
+    );
+    final savesBeforeCompletion = store.saveCalls;
+
+    response.complete(checkoutTestResponse(quote: checkoutTestQuoteSnapshot()));
+    await operation;
+
+    expect(container.read(checkoutControllerProvider).quote, isNull);
+    expect(store.saveCalls, savesBeforeCompletion);
+    expect(store.draft?.ownerSubjectId, '10000000-0000-4000-8000-000000000002');
+    expect(store.draft?.quoteId, isNull);
+  });
+
+  test('cambio account durante save blocca RPC e publish stale', () async {
+    final identity = StateProvider<AuthenticatedCustomer?>(
+      (ref) => _identity(),
+    );
+    final repository = FakeCheckoutRepository();
+    final store = MemoryCheckoutDraftStore();
+    final container = _container(
+      repository: repository,
+      store: store,
+      identityProvider: identity,
+    );
+    addTearDown(container.dispose);
+    await _waitFor(
+      container,
+      (state) => state.status == CheckoutViewStatus.ready,
+    );
+    await _reachReview(container);
+    store.saveBarrier = Completer<void>();
+
+    final operation = container
+        .read(checkoutControllerProvider.notifier)
+        .createQuote();
+    await Future<void>.delayed(Duration.zero);
+    container.read(identity.notifier).state = null;
+    await Future<void>.delayed(Duration.zero);
+    store.saveBarrier!.complete();
+    await operation;
+
+    expect(repository.createRequests, isEmpty);
+    expect(container.read(checkoutControllerProvider).quote, isNull);
+  });
+
+  test(
+    'dispose durante create impedisce completion e side effect tardivi',
+    () async {
+      final response = Completer<CheckoutRemoteResponse>();
+      final repository = FakeCheckoutRepository()
+        ..createOutcomes.add(response.future);
+      final store = MemoryCheckoutDraftStore();
+      final container = _container(repository: repository, store: store);
+      await _waitFor(
+        container,
+        (state) => state.status == CheckoutViewStatus.ready,
+      );
+      await _reachReview(container);
+
+      final operation = container
+          .read(checkoutControllerProvider.notifier)
+          .createQuote();
+      await _waitFor(container, (_) => repository.createRequests.isNotEmpty);
+      final savesBeforeCompletion = store.saveCalls;
+      container.dispose();
+      response.complete(
+        checkoutTestResponse(quote: checkoutTestQuoteSnapshot()),
+      );
+      await operation;
+
+      expect(store.saveCalls, savesBeforeCompletion);
+    },
+  );
 }
 
 ProviderContainer _container({
@@ -528,13 +672,17 @@ ProviderContainer _container({
   MemoryCheckoutDraftStore? store,
   Future<void> Function()? onCartRefresh,
   CustomerCartSnapshot? cart,
+  StateProvider<AuthenticatedCustomer?>? identityProvider,
 }) {
   final currentCart = cart ?? checkoutTestCart();
   final address = checkoutTestCustomerAddress();
   return ProviderContainer(
     overrides: [
       appConfigProvider.overrideWithValue(_config()),
-      customerAccountIdentityProvider.overrideWithValue(_identity()),
+      customerAccountIdentityProvider.overrideWith((ref) {
+        final provider = identityProvider;
+        return provider == null ? _identity() : ref.watch(provider);
+      }),
       checkoutCartStateProvider.overrideWithValue(
         CartState(
           status: CartViewStatus.ready,
@@ -621,9 +769,9 @@ AppConfig _config() => AppConfig.fromValues(
   storefrontShopSlug: 'storefront-test',
 );
 
-AuthenticatedCustomer _identity() =>
+AuthenticatedCustomer _identity({String subjectId = checkoutTestOwner}) =>
     AuthenticatedCustomer.fromUntrustedIdentity(
-      subjectId: checkoutTestOwner,
+      subjectId: subjectId,
       email: 'customer@example.invalid',
       metadata: const {'name': 'Cliente Uno'},
     );

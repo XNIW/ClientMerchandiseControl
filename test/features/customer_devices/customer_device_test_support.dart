@@ -84,6 +84,16 @@ final class MemoryCustomerDeviceStore implements CustomerDeviceLocalStore {
     }
     record = next;
   }
+
+  @override
+  Future<CustomerDeviceLocalRecord> update(
+    CustomerDeviceLocalRecord Function(CustomerDeviceLocalRecord current)
+    transform,
+  ) async {
+    final next = transform(await loadOrCreate());
+    await save(next);
+    return next;
+  }
 }
 
 final class FakeCustomerDeviceRepository implements CustomerDeviceRepository {

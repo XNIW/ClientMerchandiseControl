@@ -17,6 +17,11 @@ abstract interface class CustomerDeviceLocalStore {
   Future<CustomerDeviceLocalRecord> loadOrCreate();
 
   Future<void> save(CustomerDeviceLocalRecord record);
+
+  Future<CustomerDeviceLocalRecord> update(
+    CustomerDeviceLocalRecord Function(CustomerDeviceLocalRecord current)
+    transform,
+  );
 }
 
 abstract interface class CustomerPushTokenProvider {

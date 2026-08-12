@@ -190,16 +190,7 @@ Widget _testApp(
 ) {
   return ProviderScope(
     overrides: [
-      appConfigProvider.overrideWithValue(
-        AppConfig.fromValues(
-          appEnvironment: 'staging',
-          supabaseUrl: 'https://project.example.invalid',
-          supabasePublishableKey: 'sb_publishable_test_key',
-          authRedirectUri: AppConfig.allowedAuthRedirectUri,
-          googleAuthEnabled: 'true',
-          storefrontShopSlug: 'storefront-test',
-        ),
-      ),
+      appConfigProvider.overrideWithValue(AppConfig.authFlowTest()),
       authRepositoryFactoryProvider.overrideWithValue(
         (config) async => repository,
       ),
@@ -234,6 +225,15 @@ final class _IntegrationCallbackSource implements AuthCallbackSource {
 }
 
 final class _IntegrationAuthRepository implements AuthRepository {
+  @override
+  Future<void> beginSignOut() async {}
+
+  @override
+  Future<void> completeSignOut() => signOutLocal();
+
+  @override
+  Future<void> retryPendingRemoteRevocations() async {}
+
   final StreamController<AuthSessionEvent> _events =
       StreamController<AuthSessionEvent>.broadcast();
 

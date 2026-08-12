@@ -55,28 +55,40 @@ final class CustomerDeviceSignOutCoordinator {
       if (!isCustomerDeviceUuid(ownerSubjectId)) {
         return;
       }
-      final record = await _localStore.loadOrCreate();
-      final existing = record.pendingOperation;
-      final key =
-          existing?.kind == CustomerDevicePendingOperationKind.revoke &&
-              existing?.ownerSubjectId == ownerSubjectId
-          ? existing!.idempotencyKey
-          : _uuidFactory();
-      final pending = record.copyWith(
-        decisionOwnerSubjectId: ownerSubjectId,
-        consentStatus: CustomerDeviceConsentStatus.revoked,
-        pendingOperation: CustomerDevicePendingOperation(
-          kind: CustomerDevicePendingOperationKind.revoke,
-          ownerSubjectId: ownerSubjectId,
-          idempotencyKey: key,
-        ),
+      final generatedKey = _uuidFactory();
+      final pending = await _localStore.update((record) {
+        final existing = record.pendingOperations
+            .where(
+              (operation) =>
+                  operation.kind == CustomerDevicePendingOperationKind.revoke &&
+                  operation.ownerSubjectId == ownerSubjectId,
+            )
+            .firstOrNull;
+        return record
+            .queueRevocation(
+              CustomerDevicePendingOperation(
+                kind: CustomerDevicePendingOperationKind.revoke,
+                ownerSubjectId: ownerSubjectId,
+                idempotencyKey: existing?.idempotencyKey ?? generatedKey,
+              ),
+            )
+            .copyWith(
+              decisionOwnerSubjectId: ownerSubjectId,
+              consentStatus: CustomerDeviceConsentStatus.revoked,
+            );
+      });
+      final operation = pending.pendingOperations.firstWhere(
+        (candidate) =>
+            candidate.kind == CustomerDevicePendingOperationKind.revoke &&
+            candidate.ownerSubjectId == ownerSubjectId,
       );
-      await _localStore.save(pending);
       await _repository.revoke(
-        installationId: record.installationId,
-        idempotencyKey: key,
+        installationId: pending.installationId,
+        idempotencyKey: operation.idempotencyKey,
       );
-      await _localStore.save(pending.copyWith(clearPendingOperation: true));
+      await _localStore.update(
+        (current) => current.completePending(operation.idempotencyKey),
+      );
     } on Object {
       // Il record pending consente un retry al prossimo accesso dello stesso owner.
     }

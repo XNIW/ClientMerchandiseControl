@@ -189,7 +189,13 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
           clearNextCursor: cachedCursor == null,
           cachedAt: ref.read(customerOrderClockProvider)(),
         );
-        await _saveCache(required: false);
+        if (!await _saveCache(
+          subjectId: subjectId,
+          shopSlug: shopSlug,
+          required: false,
+        )) {
+          return;
+        }
         _publish(
           _lastState!.copyWith(
             status: CustomerOrdersStatus.ready,
@@ -202,6 +208,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         );
       } on Object catch (error) {
         if (!_isCurrent(subjectId, shopSlug)) return;
+        if (await _purgeIfUnauthorized(error, subjectId, shopSlug)) return;
         _publishLoadFailure(error, isLoadingMore: true);
       }
     });
@@ -233,7 +240,13 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
           return;
         }
         _rememberDetail(detail, subjectId: subjectId, shopSlug: shopSlug);
-        await _saveCache(required: false);
+        if (!await _saveCache(
+          subjectId: subjectId,
+          shopSlug: shopSlug,
+          required: false,
+        )) {
+          return;
+        }
         _publish(
           _lastState!.copyWith(
             status: CustomerOrdersStatus.ready,
@@ -248,6 +261,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
             _lastState?.selectedOrderId != orderId) {
           return;
         }
+        if (await _purgeIfUnauthorized(error, subjectId, shopSlug)) return;
         final failure = _failure(error);
         _publish(
           _lastState!.copyWith(
@@ -294,7 +308,13 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
           shopSlug,
         ).copyWith(pendingCancellation: pending);
         try {
-          await _saveCache(required: true);
+          if (!await _saveCache(
+            subjectId: subjectId,
+            shopSlug: shopSlug,
+            required: true,
+          )) {
+            return;
+          }
         } on Object {
           _publishCancellationFailure(CustomerOrderFailureKind.unexpected);
           return;
@@ -318,7 +338,13 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         }
         _rememberDetail(updated, subjectId: subjectId, shopSlug: shopSlug);
         _cache = _cache!.copyWith(clearPendingCancellation: true);
-        await _saveCache(required: false);
+        if (!await _saveCache(
+          subjectId: subjectId,
+          shopSlug: shopSlug,
+          required: false,
+        )) {
+          return;
+        }
         _publish(
           _lastState!.copyWith(
             status: CustomerOrdersStatus.ready,
@@ -333,13 +359,20 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         );
       } on Object catch (error) {
         if (!_isCurrent(subjectId, shopSlug)) return;
+        if (await _purgeIfUnauthorized(error, subjectId, shopSlug)) return;
         final failure = _failure(error);
         final isAmbiguous =
             failure == CustomerOrderFailureKind.offline ||
             failure == CustomerOrderFailureKind.timeout;
         if (!isAmbiguous) {
           _cache = _cache?.copyWith(clearPendingCancellation: true);
-          await _saveCache(required: false);
+          if (!await _saveCache(
+            subjectId: subjectId,
+            shopSlug: shopSlug,
+            required: false,
+          )) {
+            return;
+          }
           try {
             final latest = await ref
                 .read(customerOrderRepositoryProvider)
@@ -347,7 +380,13 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
             if (_isCurrent(subjectId, shopSlug) &&
                 _lastState?.selectedOrderId == detail.id) {
               _rememberDetail(latest, subjectId: subjectId, shopSlug: shopSlug);
-              await _saveCache(required: false);
+              if (!await _saveCache(
+                subjectId: subjectId,
+                shopSlug: shopSlug,
+                required: false,
+              )) {
+                return;
+              }
               _publish(
                 _lastState!.copyWith(
                   selectedOrder: latest,
@@ -464,7 +503,13 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         pendingCancellation: previous.pendingCancellation,
         cachedAt: ref.read(customerOrderClockProvider)(),
       );
-      await _saveCache(required: false);
+      if (!await _saveCache(
+        subjectId: subjectId,
+        shopSlug: shopSlug,
+        required: false,
+      )) {
+        return;
+      }
       final selectedId = _lastState?.selectedOrderId;
       _publish(
         (_lastState ?? const CustomerOrdersState.loading()).copyWith(
@@ -483,6 +528,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
       if (!_isCurrent(subjectId, shopSlug) || generation != _generation) {
         return;
       }
+      if (await _purgeIfUnauthorized(error, subjectId, shopSlug)) return;
       _publishLoadFailure(error);
     }
   }
@@ -569,14 +615,49 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         );
   }
 
-  Future<void> _saveCache({required bool required}) async {
+  Future<bool> _saveCache({
+    required String subjectId,
+    required String shopSlug,
+    required bool required,
+  }) async {
+    if (!_isCurrent(subjectId, shopSlug)) return false;
     final cache = _cache;
-    if (cache == null) return;
+    if (cache == null ||
+        cache.ownerSubjectId != subjectId ||
+        cache.shopSlug != shopSlug) {
+      return false;
+    }
     try {
       await ref.read(customerOrderCacheStoreProvider).save(cache);
+      return _isCurrent(subjectId, shopSlug);
     } on Object {
       if (required) rethrow;
+      return _isCurrent(subjectId, shopSlug);
     }
+  }
+
+  Future<bool> _purgeIfUnauthorized(
+    Object error,
+    String subjectId,
+    String shopSlug,
+  ) async {
+    if (_failure(error) != CustomerOrderFailureKind.unauthorized) return false;
+    try {
+      await ref
+          .read(customerOrderCacheStoreProvider)
+          .clear(ownerSubjectId: subjectId, shopSlug: shopSlug);
+    } on Object {
+      // La UI viene comunque azzerata; il cleanup Auth ritenterà la rimozione.
+    }
+    if (!_isCurrent(subjectId, shopSlug)) return true;
+    _cache = null;
+    _publish(
+      const CustomerOrdersState(
+        status: CustomerOrdersStatus.failure,
+        failure: CustomerOrderFailureKind.unauthorized,
+      ),
+    );
+    return true;
   }
 
   CustomerOrderFailureKind _failure(Object error) {

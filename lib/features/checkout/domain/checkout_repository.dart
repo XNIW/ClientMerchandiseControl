@@ -12,21 +12,32 @@ abstract interface class CheckoutRepository {
   );
 
   Future<CheckoutRemoteResponse> confirmQuote({
+    required String shopSlug,
+    required int cartVersion,
     required String quoteId,
     required int expectedQuoteVersion,
     required String idempotencyKey,
   });
 
-  Future<CheckoutRemoteResponse> readQuote({required String quoteId});
+  Future<CheckoutRemoteResponse> readQuote({
+    required String shopSlug,
+    required int cartVersion,
+    required String quoteId,
+  });
 
   Future<CheckoutOrderRemoteResponse> createOrder({
+    required String shopSlug,
+    required int cartVersion,
     required String quoteId,
     required int expectedQuoteVersion,
     required CheckoutPaymentMethod paymentMethod,
     required String idempotencyKey,
   });
 
-  Future<CheckoutOrderRemoteResponse> readOrder({required String orderId});
+  Future<CheckoutOrderRemoteResponse> readOrder({
+    required String shopSlug,
+    required String orderId,
+  });
 }
 
 abstract interface class CheckoutDraftStore {

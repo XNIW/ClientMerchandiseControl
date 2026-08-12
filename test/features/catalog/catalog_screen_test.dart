@@ -8,6 +8,7 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_state.
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/catalog/application/catalog_controller.dart';
 import 'package:client_merchandise_control/features/catalog/presentation/catalog_screen.dart';
+import 'package:client_merchandise_control/features/home/presentation/storefront_product_card.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
 import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
@@ -255,17 +256,13 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    final image = tester.widget<Image>(
-      find.byKey(
-        const ValueKey('storefront-image-50000000-0000-4000-8000-000000000001'),
-      ),
+    final image = tester.widget<StorefrontProductImage>(
+      find.byType(StorefrontProductImage).first,
     );
-    final resized = image.image as ResizeImage;
-    final provider = resized.imageProvider as NetworkImage;
-    expect(provider.url, contains('/storefront-product-images/'));
-    expect(provider.url, isNot(contains('inventory')));
-    expect(resized.width, 480);
-    expect(image.gaplessPlayback, isTrue);
+    expect(image.uri.toString(), contains('/storefront-product-images/'));
+    expect(image.uri.toString(), isNot(contains('inventory')));
+    expect(image.cacheWidth, 480);
+    expect(image.sha256Digest, hasLength(64));
 
     await tester.pumpAndSettle();
     expect(

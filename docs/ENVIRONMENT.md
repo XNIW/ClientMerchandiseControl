@@ -44,10 +44,11 @@ per il marker booleano non sensibile della nuova installazione; non contiene ses
 verifier.
 
 La configurazione development non accetta backend, callback, OAuth o Storefront e non
-inizializza Supabase. Staging richiede i sei input di `CMC-CLIENT-CONFIG 1.1.0`, incluso
-lo slug pubblico `STOREFRONT_SHOP_SLUG`, e abilita Google soltanto con
-`GOOGLE_AUTH_ENABLED=true`. Production mantiene obbligatoriamente il flag `false` in
-questo milestone e non eredita valori staging.
+inizializza Supabase. Staging richiede i sei input di `CMC-CLIENT-CONFIG 1.2.0`, incluso
+lo slug pubblico `STOREFRONT_SHOP_SLUG`, il sentinel HTTPS `.invalid` e
+`GOOGLE_AUTH_ENABLED=false`. Anche production mantiene obbligatoriamente il flag
+`false` e non eredita valori staging. Il runtime distribuibile rifiuta Google OAuth
+finché non esiste un dominio HTTPS posseduto e verificato.
 
 Il file locale staging resta ignorato:
 
@@ -56,12 +57,13 @@ flutter run --dart-define-from-file=config/app_config.staging.local.json
 flutter test integration_test/auth_callback_flow_test.dart -d <DEVICE>
 ```
 
-La callback unica è
-`com.xniw.clientmerchandisecontrol://auth-callback/`. Il flag staging può essere
-attivato localmente soltanto dopo avere verificato che la redirect allow-list del
-progetto non-production contenga esattamente questa voce, senza wildcard. URL,
-publishable key, project ref completo, account di test, code, token e sessioni non
-appartengono a documentazione, Git o evidence.
+`AUTH_REDIRECT_URI` usa esclusivamente
+`https://clientmerchandisecontrol.invalid/auth-callback/`: è un sentinel non
+instradabile, non un dominio posseduto né una callback registrata. Nessun profilo
+staging/production può attivare Google. Una futura riattivazione richiede App
+Links/Universal Links verificati e una nuova decisione autorizzata. URL, publishable
+key, project ref completo, account di test, code, token e sessioni non appartengono a
+documentazione, Git o evidence.
 
 Android disabilita backup applicativo per impedire il ripristino incoerente del
 materiale cifrato. iOS usa Keychain non sincronizzato e this-device; il marker nel

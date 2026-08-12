@@ -105,15 +105,15 @@ requisiti di evidence sono definiti in `docs/CODEX-WORKFLOW-PROTOCOL.md`.
   development, ma non introduce fallback tra ambienti;
 - development vuoto è valido e non chiama l'inizializzatore Supabase; URL, key,
   callback o Google attivo devono fallire prima del bootstrap remoto;
-- staging richiede tuple URL/key, callback canonica e flag Google esplicito; `false`
-  resta un kill switch valido;
+- staging richiede tuple URL/key, sentinel callback canonico e flag Google esplicito
+  `false`; `true` fallisce chiuso finché manca un dominio HTTPS verificato;
 - production richiede gli stessi input completi, accetta soltanto Google `false` in
   questo milestone e non usa valori staging;
 - URL/key sono atomici, l'URL è una origin HTTPS e soltanto publishable key moderne o
   legacy `anon` sono accettate;
-- la sola callback valida è
-  `com.xniw.clientmerchandisecontrol://auth-callback/`, inclusi scheme, host, path e
-  slash finale esatti, senza wildcard, user info, porta, query o fragment;
+- il solo valore redirect valido è il sentinel non instradabile
+  `https://clientmerchandisecontrol.invalid/auth-callback/`, incluso scheme, host,
+  path e slash finale esatti, senza wildcard, user info, porta, query o fragment;
 - il parser Google accetta soltanto i literal lowercase `true` e `false`; l'assenza è
   ammessa soltanto in development e vale `false`;
 - diagnostica, `toString` ed errori espongono soltanto ambiente e booleani, mai URL, key,
@@ -127,8 +127,8 @@ Il gate unitario mirato è:
 
 - i due example JSON contengono esattamente le cinque chiavi contrattuali, sono JSON
   validi e non contengono URL/key reali;
-- l'esempio development è offline; l'esempio staging usa la callback canonica e
-  placeholder non operativi;
+- l'esempio development è offline; l'esempio staging usa il sentinel `.invalid`,
+  Google disabilitato e placeholder non operativi;
 - `config/app_config.staging.local.json` esiste localmente, è coperto da
   `/config/*.local.json` e non compare in `git ls-files`, diff o evidence;
 - README contiene i comandi run, APK debug e iOS Simulator con

@@ -41,7 +41,6 @@ const _categoryLink =
     'com.xniw.clientmerchandisecontrol://storefront/'
     'storefront-test/category/bebidas';
 const _orderId = '88000000-0000-4000-8000-000000028101';
-const _orderIdB = '88000000-0000-4000-8000-000000028102';
 const _orderLink =
     'com.xniw.clientmerchandisecontrol://storefront/'
     'storefront-test/order/$_orderId';
@@ -121,189 +120,101 @@ void main() {
     },
   );
 
-  testWidgets(
-    'ordine guest attende Auth e riprende il dettaglio dopo callback Google',
-    (tester) async {
-      final gateway = _FakeAppLinksGateway(initial: Uri.parse(_orderLink));
-      final source = AppLinksAuthCallbackSource(gateway: gateway);
-      final authRepository = _RouterAuthRepository();
-      final container = _container(
-        source,
-        googleAuthEnabled: true,
-        authRepository: authRepository,
-      );
-      addTearDown(() async {
-        container.dispose();
-        await source.dispose();
-        await gateway.dispose();
-        await authRepository.dispose();
-      });
+  testWidgets('ordine su schema privato è ignorato senza App Link verificato', (
+    tester,
+  ) async {
+    final gateway = _FakeAppLinksGateway(initial: Uri.parse(_orderLink));
+    final source = AppLinksAuthCallbackSource(gateway: gateway);
+    final container = _container(source, googleAuthEnabled: true);
+    addTearDown(() async {
+      container.dispose();
+      await source.dispose();
+      await gateway.dispose();
+    });
 
-      final router = container.read(appRouterProvider);
-      await tester.pumpWidget(_app(container, router));
-      await tester.pumpAndSettle();
-      expect(router.state.uri.path, AppRoutes.accountLocation);
+    final router = container.read(appRouterProvider);
+    await tester.pumpWidget(_app(container, router));
+    await tester.pumpAndSettle();
 
-      gateway.emit(
-        Uri.parse('${AppConfig.allowedAuthRedirectUri}?code=order-code'),
-      );
-      for (
-        var attempt = 0;
-        attempt < 50 && authRepository.exchangeCalls == 0;
-        attempt++
-      ) {
-        await tester.pump(const Duration(milliseconds: 10));
-      }
-      for (
-        var attempt = 0;
-        attempt < 100 &&
-            router.state.uri.path != AppRoutes.orderLocation(_orderId);
-        attempt++
-      ) {
-        await tester.pump(const Duration(milliseconds: 10));
-      }
+    expect(router.state.uri.path, AppRoutes.homeLocation);
+    expect(tester.takeException(), isNull);
+  });
 
-      expect(authRepository.exchangeCalls, 1);
-      expect(router.state.uri.path, AppRoutes.orderLocation(_orderId));
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets(
-    'notifica cold guest risolve la route opaca solo dopo autenticazione',
-    (tester) async {
-      final gateway = _FakeAppLinksGateway(
-        initial: Uri.parse(_notificationLinkA),
-      );
-      final source = AppLinksAuthCallbackSource(gateway: gateway);
-      final authRepository = _RouterAuthRepository();
-      final notificationRepository = _NotificationRepository()
-        ..outcomes[_notificationRouteA] = Future.value(
-          const CustomerNotificationOrderDestination(
-            orderId: _orderId,
-            event: CustomerNotificationEvent.ready,
-            eventVersion: 4,
-          ),
-        );
-      final orderRepository = FakeCustomerOrderRepository();
-      final container = _container(
-        source,
-        googleAuthEnabled: true,
-        authRepository: authRepository,
-        notificationRepository: notificationRepository,
-        customerOrderRepository: orderRepository,
-      );
-      addTearDown(() async {
-        container.dispose();
-        await source.dispose();
-        await gateway.dispose();
-        await authRepository.dispose();
-      });
-
-      final router = container.read(appRouterProvider);
-      await tester.pumpWidget(_app(container, router));
-      await tester.pumpAndSettle();
-      expect(router.state.uri.path, AppRoutes.accountLocation);
-      expect(notificationRepository.calls, isEmpty);
-
-      gateway.emit(
-        Uri.parse('${AppConfig.allowedAuthRedirectUri}?code=notification-code'),
-      );
-      for (
-        var attempt = 0;
-        attempt < 100 &&
-            router.state.uri.path != AppRoutes.orderLocation(_orderId);
-        attempt++
-      ) {
-        await tester.pump(const Duration(milliseconds: 10));
-      }
-
-      expect(notificationRepository.calls, [_notificationRouteA]);
-      expect(router.state.uri.path, AppRoutes.orderLocation(_orderId));
-      expect(
-        orderRepository.detailRequests,
-        contains((shopSlug: orderTestShop, orderId: _orderId)),
-      );
-      expect(router.state.uri.toString(), isNot(contains(_notificationRouteA)));
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets(
-    'notifiche warm duplicate e fuori ordine navigano una volta alla più recente',
-    (tester) async {
-      final gateway = _FakeAppLinksGateway();
-      final source = AppLinksAuthCallbackSource(gateway: gateway);
-      final authRepository = _RouterAuthRepository(authenticated: true);
-      final first = Completer<CustomerNotificationDestination>();
-      final second = Completer<CustomerNotificationDestination>();
-      final notificationRepository = _NotificationRepository()
-        ..outcomes[_notificationRouteA] = first.future
-        ..outcomes[_notificationRouteB] = second.future;
-      final container = _container(
-        source,
-        googleAuthEnabled: true,
-        authRepository: authRepository,
-        notificationRepository: notificationRepository,
-      );
-      addTearDown(() async {
-        container.dispose();
-        await source.dispose();
-        await gateway.dispose();
-        await authRepository.dispose();
-      });
-
-      final router = container.read(appRouterProvider);
-      await tester.pumpWidget(_app(container, router));
-      for (
-        var attempt = 0;
-        attempt < 100 &&
-            container.read(authControllerProvider) is! AuthAuthenticated;
-        attempt++
-      ) {
-        await tester.pump(const Duration(milliseconds: 10));
-      }
-      expect(container.read(authControllerProvider), isA<AuthAuthenticated>());
-
-      gateway.emit(Uri.parse(_notificationLinkA));
-      gateway.emit(Uri.parse(_notificationLinkA));
-      await tester.pump();
-      gateway.emit(Uri.parse(_notificationLinkB));
-      await tester.pump();
-      expect(notificationRepository.calls, [
-        _notificationRouteA,
-        _notificationRouteB,
-      ]);
-
-      second.complete(
-        const CustomerNotificationOrderDestination(
-          orderId: _orderIdB,
-          event: CustomerNotificationEvent.completed,
-          eventVersion: 2,
-        ),
-      );
-      for (
-        var attempt = 0;
-        attempt < 100 &&
-            router.state.uri.path != AppRoutes.orderLocation(_orderIdB);
-        attempt++
-      ) {
-        await tester.pump(const Duration(milliseconds: 10));
-      }
-      expect(router.state.uri.path, AppRoutes.orderLocation(_orderIdB));
-
-      first.complete(
+  testWidgets('notifica cold su schema privato non raggiunge il resolver', (
+    tester,
+  ) async {
+    final gateway = _FakeAppLinksGateway(
+      initial: Uri.parse(_notificationLinkA),
+    );
+    final source = AppLinksAuthCallbackSource(gateway: gateway);
+    final notificationRepository = _NotificationRepository()
+      ..outcomes[_notificationRouteA] = Future.value(
         const CustomerNotificationOrderDestination(
           orderId: _orderId,
-          event: CustomerNotificationEvent.preparing,
-          eventVersion: 2,
+          event: CustomerNotificationEvent.ready,
+          eventVersion: 4,
         ),
       );
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(router.state.uri.path, AppRoutes.orderLocation(_orderIdB));
-      expect(tester.takeException(), isNull);
-    },
-  );
+    final orderRepository = FakeCustomerOrderRepository();
+    final container = _container(
+      source,
+      googleAuthEnabled: true,
+      notificationRepository: notificationRepository,
+      customerOrderRepository: orderRepository,
+    );
+    addTearDown(() async {
+      container.dispose();
+      await source.dispose();
+      await gateway.dispose();
+    });
+
+    final router = container.read(appRouterProvider);
+    await tester.pumpWidget(_app(container, router));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, AppRoutes.homeLocation);
+    expect(notificationRepository.calls, isEmpty);
+    expect(orderRepository.detailRequests, isEmpty);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('notifiche warm su schema privato sono ignorate', (tester) async {
+    final gateway = _FakeAppLinksGateway();
+    final source = AppLinksAuthCallbackSource(gateway: gateway);
+    final authRepository = _RouterAuthRepository(authenticated: true);
+    final notificationRepository = _NotificationRepository();
+    final container = _container(
+      source,
+      googleAuthEnabled: true,
+      authRepository: authRepository,
+      notificationRepository: notificationRepository,
+    );
+    addTearDown(() async {
+      container.dispose();
+      await source.dispose();
+      await gateway.dispose();
+      await authRepository.dispose();
+    });
+
+    final router = container.read(appRouterProvider);
+    await tester.pumpWidget(_app(container, router));
+    for (
+      var attempt = 0;
+      attempt < 100 &&
+          container.read(authControllerProvider) is! AuthAuthenticated;
+      attempt++
+    ) {
+      await tester.pump(const Duration(milliseconds: 10));
+    }
+    expect(container.read(authControllerProvider), isA<AuthAuthenticated>());
+
+    gateway.emit(Uri.parse(_notificationLinkA));
+    gateway.emit(Uri.parse(_notificationLinkA));
+    gateway.emit(Uri.parse(_notificationLinkB));
+    await tester.pumpAndSettle();
+    expect(notificationRepository.calls, isEmpty);
+    expect(router.state.uri.path, AppRoutes.homeLocation);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('notifica offline non naviga e non causa crash', (tester) async {
     final gateway = _FakeAppLinksGateway();
@@ -341,7 +252,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(router.state.uri.path, AppRoutes.homeLocation);
-    expect(notificationRepository.calls, [_notificationRouteA]);
+    expect(notificationRepository.calls, isEmpty);
     expect(tester.takeException(), isNull);
   });
 }
@@ -369,14 +280,19 @@ ProviderContainer _container(
 }) => ProviderContainer(
   overrides: [
     appConfigProvider.overrideWithValue(
-      AppConfig.fromValues(
-        appEnvironment: 'staging',
-        supabaseUrl: 'https://staging.example.invalid',
-        supabasePublishableKey: 'sb_publishable_staging',
-        authRedirectUri: AppConfig.allowedAuthRedirectUri,
-        googleAuthEnabled: '$googleAuthEnabled',
-        storefrontShopSlug: 'storefront-test',
-      ),
+      googleAuthEnabled
+          ? AppConfig.authFlowTest(
+              supabaseUrl: 'https://staging.example.invalid',
+              supabasePublishableKey: 'sb_publishable_staging',
+            )
+          : AppConfig.fromValues(
+              appEnvironment: 'staging',
+              supabaseUrl: 'https://staging.example.invalid',
+              supabasePublishableKey: 'sb_publishable_staging',
+              authRedirectUri: AppConfig.allowedAuthRedirectUri,
+              googleAuthEnabled: 'false',
+              storefrontShopSlug: 'storefront-test',
+            ),
     ),
     authCallbackSourceProvider.overrideWithValue(source),
     if (authRepository != null)
@@ -407,6 +323,15 @@ ProviderContainer _container(
 );
 
 final class _RouterAuthRepository implements AuthRepository {
+  @override
+  Future<void> beginSignOut() async {}
+
+  @override
+  Future<void> completeSignOut() => signOutLocal();
+
+  @override
+  Future<void> retryPendingRemoteRevocations() async {}
+
   _RouterAuthRepository({bool authenticated = false}) {
     if (authenticated) {
       currentCustomer = AuthenticatedCustomer.fromUntrustedIdentity(

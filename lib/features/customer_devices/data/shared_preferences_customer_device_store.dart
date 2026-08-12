@@ -74,6 +74,21 @@ final class SharedPreferencesCustomerDeviceStore
     });
   }
 
+  @override
+  Future<CustomerDeviceLocalRecord> update(
+    CustomerDeviceLocalRecord Function(CustomerDeviceLocalRecord current)
+    transform,
+  ) {
+    return _serialized(() async {
+      final encoded = await _preferences.getString(storageKey);
+      final current = encoded == null ? _freshRecord() : _decode(encoded);
+      final next = transform(current);
+      _validateRecord(next);
+      await _preferences.setString(storageKey, _encode(next));
+      return next;
+    });
+  }
+
   Future<T> _serialized<T>(Future<T> Function() action) {
     final completer = _tail.then((_) => action());
     _tail = completer.then<void>((_) {}, onError: (_, _) {});
@@ -96,19 +111,20 @@ final class SharedPreferencesCustomerDeviceStore
 
 String _encode(CustomerDeviceLocalRecord record) {
   _validateRecord(record);
-  final pending = record.pendingOperation;
   return jsonEncode(<String, Object?>{
-    'version': 1,
+    'version': 2,
     'installationId': record.installationId,
     'decisionOwnerSubjectId': record.decisionOwnerSubjectId,
     'consentStatus': record.consentStatus.wireValue,
-    'pendingOperation': pending == null
-        ? null
-        : <String, Object?>{
+    'pendingOperations': record.pendingOperations
+        .map(
+          (pending) => <String, Object?>{
             'kind': pending.kind.name,
             'ownerSubjectId': pending.ownerSubjectId,
             'idempotencyKey': pending.idempotencyKey,
           },
+        )
+        .toList(growable: false),
   });
 }
 
@@ -118,14 +134,23 @@ CustomerDeviceLocalRecord _decode(String encoded) {
     throw const FormatException('Invalid customer device local record.');
   }
   final map = decoded.map((key, value) => MapEntry(key.toString(), value));
-  const keys = {
+  const version1Keys = {
     'version',
     'installationId',
     'decisionOwnerSubjectId',
     'consentStatus',
     'pendingOperation',
   };
-  if (map['version'] != 1 ||
+  const version2Keys = {
+    'version',
+    'installationId',
+    'decisionOwnerSubjectId',
+    'consentStatus',
+    'pendingOperations',
+  };
+  final version = map['version'];
+  final keys = version == 1 ? version1Keys : version2Keys;
+  if ((version != 1 && version != 2) ||
       map.keys.length != keys.length ||
       map.keys.any((key) => !keys.contains(key)) ||
       map['installationId'] is! String ||
@@ -134,17 +159,29 @@ CustomerDeviceLocalRecord _decode(String encoded) {
       map['consentStatus'] is! String) {
     throw const FormatException('Invalid customer device local record.');
   }
-  final pending = _decodePending(map['pendingOperation']);
+  final pendingOperations = version == 1
+      ? [?_decodePending(map['pendingOperation'])]
+      : _decodePendingList(map['pendingOperations']);
   final record = CustomerDeviceLocalRecord(
     installationId: map['installationId']! as String,
     decisionOwnerSubjectId: map['decisionOwnerSubjectId'] as String?,
     consentStatus: customerDeviceConsentFromWire(
       map['consentStatus']! as String,
     ),
-    pendingOperation: pending,
+    pendingOperations: pendingOperations,
   );
   _validateRecord(record);
   return record;
+}
+
+List<CustomerDevicePendingOperation> _decodePendingList(Object? value) {
+  if (value is! List || value.length > 4) {
+    throw const FormatException('Invalid pending device operation list.');
+  }
+  return value
+      .map(_decodePending)
+      .whereType<CustomerDevicePendingOperation>()
+      .toList(growable: false);
 }
 
 CustomerDevicePendingOperation? _decodePending(Object? value) {
@@ -175,12 +212,14 @@ CustomerDevicePendingOperation? _decodePending(Object? value) {
 
 void _validateRecord(CustomerDeviceLocalRecord record) {
   final owner = record.decisionOwnerSubjectId;
-  final pending = record.pendingOperation;
   if (!isCustomerDeviceUuid(record.installationId) ||
       (owner != null && !isCustomerDeviceUuid(owner)) ||
-      (pending != null &&
-          (!isCustomerDeviceUuid(pending.ownerSubjectId) ||
-              !isCustomerDeviceUuid(pending.idempotencyKey)))) {
+      record.pendingOperations.length > 4 ||
+      record.pendingOperations.any(
+        (candidate) =>
+            !isCustomerDeviceUuid(candidate.ownerSubjectId) ||
+            !isCustomerDeviceUuid(candidate.idempotencyKey),
+      )) {
     throw const FormatException('Invalid local customer device UUID.');
   }
 }

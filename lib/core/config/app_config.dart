@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_environment.dart';
 
 class AppConfig {
   static const allowedAuthRedirectUri =
-      'com.xniw.clientmerchandisecontrol://auth-callback/';
+      'https://clientmerchandisecontrol.invalid/auth-callback/';
 
   const AppConfig._({
     required this.environment,
@@ -16,6 +17,32 @@ class AppConfig {
     required this.googleAuthEnabled,
     required this.storefrontShopSlug,
   });
+
+  /// Configurazione esclusiva degli harness che verificano il lifecycle OAuth
+  /// senza registrare callback native o contattare provider reali.
+  @visibleForTesting
+  factory AppConfig.authFlowTest({
+    String supabaseUrl = 'https://project.example.invalid',
+    String supabasePublishableKey = 'sb_publishable_test_key',
+    String storefrontShopSlug = 'storefront-test',
+  }) {
+    final safeBase = AppConfig.fromValues(
+      appEnvironment: 'staging',
+      supabaseUrl: supabaseUrl,
+      supabasePublishableKey: supabasePublishableKey,
+      authRedirectUri: allowedAuthRedirectUri,
+      googleAuthEnabled: 'false',
+      storefrontShopSlug: storefrontShopSlug,
+    );
+    return AppConfig._(
+      environment: safeBase.environment,
+      supabaseUrl: safeBase.supabaseUrl,
+      supabasePublishableKey: safeBase.supabasePublishableKey,
+      authRedirectUri: safeBase.authRedirectUri,
+      googleAuthEnabled: true,
+      storefrontShopSlug: safeBase.storefrontShopSlug,
+    );
+  }
 
   factory AppConfig.fromValues({
     String appEnvironment = 'development',
@@ -78,6 +105,11 @@ class AppConfig {
             canonicalStorefrontShopSlug == null) {
           throw const AppConfigurationException(
             'La configurazione staging richiede backend, callback, flag Google e Storefront completi.',
+          );
+        }
+        if (googleAuth) {
+          throw const AppConfigurationException(
+            'Google OAuth resta disabilitato finché non è configurato un dominio HTTPS posseduto e verificato.',
           );
         }
         break;
@@ -198,11 +230,11 @@ class AppConfig {
       final uri = Uri.parse(value);
       final isStructurallyAllowed =
           uri.isAbsolute &&
-          uri.scheme == 'com.xniw.clientmerchandisecontrol' &&
-          uri.host == 'auth-callback' &&
+          uri.scheme == 'https' &&
+          uri.host == 'clientmerchandisecontrol.invalid' &&
           uri.userInfo.isEmpty &&
           !uri.hasPort &&
-          uri.path == '/' &&
+          uri.path == '/auth-callback/' &&
           !uri.hasQuery &&
           !uri.hasFragment &&
           !value.contains('*');

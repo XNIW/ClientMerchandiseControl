@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:client_merchandise_control/features/reservations/domain/reservation_hold_models.dart';
@@ -169,10 +171,11 @@ final class FakeReservationHoldRepository implements ReservationHoldRepository {
     return _next(releaseOutcomes);
   }
 
-  ReservationHoldRemoteResponse _next(List<Object> outcomes) {
+  Future<ReservationHoldRemoteResponse> _next(List<Object> outcomes) async {
     if (outcomes.isEmpty) throw StateError('missing reservation fake outcome');
     final outcome = outcomes.removeAt(0);
     if (outcome is Exception) throw outcome;
+    if (outcome is Future<ReservationHoldRemoteResponse>) return outcome;
     return outcome as ReservationHoldRemoteResponse;
   }
 }

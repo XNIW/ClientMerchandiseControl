@@ -6,20 +6,20 @@ void main() {
   final repositoryRoot = Directory.current.path;
 
   test(
-    'Android separa callback Auth e deep link Storefront con backup off',
+    'Android non espone callback Auth privata e mantiene Storefront isolato',
     () {
       final manifest = File(
         '$repositoryRoot/android/app/src/main/AndroidManifest.xml',
       ).readAsStringSync();
 
-      expect(_count(manifest, 'android.intent.action.VIEW'), 2);
+      expect(_count(manifest, 'android.intent.action.VIEW'), 1);
       expect(
         _count(manifest, 'android:scheme="com.xniw.clientmerchandisecontrol"'),
-        2,
+        1,
       );
-      expect(_count(manifest, 'android:host="auth-callback"'), 1);
+      expect(_count(manifest, 'android:host="auth-callback"'), 0);
       expect(_count(manifest, 'android:host="storefront"'), 1);
-      expect(_count(manifest, 'android:path="/"'), 1);
+      expect(_count(manifest, 'android:path="/"'), 0);
       expect(_count(manifest, 'android:pathPrefix="/"'), 1);
       expect(manifest, contains('android:allowBackup="false"'));
       expect(
@@ -54,14 +54,17 @@ void main() {
       );
       expect(mainActivity, contains('intent.data = Uri.parse(canonical)'));
       expect(mainActivity, contains('intent.removeExtra("deepLink")'));
-      expect(notificationMapper, contains('uri.rawAuthority != HOST'));
-      expect(notificationMapper, contains('uri.rawQuery != null'));
-      expect(notificationMapper, contains('uri.rawFragment != null'));
+      expect(
+        notificationMapper,
+        contains('fun canonicalDeepLink(raw: String?): String? = null'),
+      );
+      expect(notificationMapper, isNot(contains('java.net.URI')));
+      expect(notificationMapper, isNot(contains('/notification/')));
       expect(notificationMapper, isNot(contains('orderId')));
     },
   );
 
-  test('iOS registra un solo custom scheme e disabilita handler Flutter', () {
+  test('iOS registra il custom scheme solo per Storefront', () {
     final plist = File(
       '$repositoryRoot/ios/Runner/Info.plist',
     ).readAsStringSync();
@@ -71,12 +74,17 @@ void main() {
     final sceneDelegate = File(
       '$repositoryRoot/ios/Runner/SceneDelegate.swift',
     ).readAsStringSync();
+    final notificationMapper = File(
+      '$repositoryRoot/ios/Runner/CustomerNotificationDeepLinkMapper.swift',
+    ).readAsStringSync();
 
     expect(_count(plist, '<key>CFBundleURLTypes</key>'), 1);
     expect(
       _count(plist, '<string>com.xniw.clientmerchandisecontrol</string>'),
       1,
     );
+    expect(plist, contains('com.xniw.clientmerchandisecontrol.storefront'));
+    expect(plist, isNot(contains('com.xniw.clientmerchandisecontrol.auth')));
     expect(
       plist,
       matches(RegExp(r'<key>FlutterDeepLinkingEnabled</key>\s*<false/>')),
@@ -84,6 +92,13 @@ void main() {
     expect(plist, isNot(contains('com.apple.developer.associated-domains')));
     expect(plist, isNot(contains('applinks:')));
     expect(plist, isNot(contains('REVERSED_CLIENT_ID')));
+    expect(
+      notificationMapper,
+      contains(
+        'static func map(userInfo _: [AnyHashable: Any]) -> URL? { nil }',
+      ),
+    );
+    expect(notificationMapper, isNot(contains('/notification/')));
     expect(appDelegate, contains('AppLinks.shared.enabled = false'));
     expect(_count(appDelegate, 'AppLinks.shared.handleLink(url:'), 2);
     expect(

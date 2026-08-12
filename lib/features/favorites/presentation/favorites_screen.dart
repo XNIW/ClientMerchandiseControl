@@ -110,6 +110,7 @@ class _FavoriteTile extends ConsumerWidget {
                               productId: product.id,
                               name: product.name,
                               uri: product.images?.thumb,
+                              sha256Digest: product.images?.sha256,
                               cacheWidth: 192,
                               keyPrefix: 'favorite-image',
                               compactPlaceholder: true,

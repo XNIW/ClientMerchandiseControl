@@ -1,6 +1,5 @@
 package com.xniw.clientmerchandisecontrol
 
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
@@ -10,11 +9,10 @@ class CustomerNotificationDeepLinkMapperTest {
             "storefront-test/notification/f1000000-0000-4000-8000-000000031001"
 
     @Test
-    fun acceptsOnlyCanonicalOpaqueNotificationRoute() {
-        assertEquals(route, CustomerNotificationDeepLinkMapper.canonicalDeepLink(route))
-
+    fun rejectsPrivateSchemeSensitiveRoutesWithoutVerifiedAppLink() {
         listOf(
             null,
+            route,
             " $route",
             "$route?orderId=88000000-0000-4000-8000-000000028101",
             "$route#fragment",

@@ -6,13 +6,13 @@
 - **Titolo**: Threat model, RLS abuse testing, rate limit e security hardening
 - **File task**: `docs/TASKS/TASK-033-security-hardening.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-03
-- **Ultimo aggiornamento**: 2026-08-11
+- **Ultimo aggiornamento**: 2026-08-12
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-033/`
-- **Handoff**: TASK_033_RESUMED_MULTI_REPO_CLOSEOUT_BASELINE
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -98,6 +98,7 @@
 | D-06 | Planning ed Execution sono autorizzati dal prompt USER_APPROVER del 2026-08-02 | Mantiene il train headless continuo | ATTIVA |
 | D-07 | L'emendamento USER_APPROVER del 2026-08-08 richiedeva una nuova Deep Security Scan repository-wide del solo Client allo SHA `ec74166ea20786b8deaa9965cac103984c927820`; il precedente manifest fallito non è accettabile e la review TASK-032/TASK-033 segue solo dopo completion reale | Provenance del precedente freeze; sostituita dal mandato finale del 2026-08-11 | SUPERATA DA D-08 |
 | D-08 | Il mandato USER_APPROVER del 2026-08-11 supera il freeze sullo SHA `ec74166e`, autorizza convergenza/merge normali delle lane, staging e test fisici, e richiede una sola Deep Security Scan sul candidato Client finale integrato e stabilizzato | Evita una scan intermedia obsoleta mantenendo obbligatori completion reale, zero P0/P1/P2 e production invariata | ATTIVA |
+| D-09 | Il mandato USER_APPROVER del 2026-08-12 autorizza la remediation mirata di tutti i 18 finding del report sigillato sullo SHA `0668ea7a`, inclusi i 16 P3, la review/validazione post-fix, `DONE`, una PR unica e merge normale; vieta una nuova scan repository-wide | Sostituisce D-04 per questo closeout, consuma l'autorizzazione finale senza ampliare il backlog e preserva la scan canonica | ATTIVA |
 
 ## Planning — `CODEX_PLANNER`
 
@@ -225,15 +226,57 @@ validata.
   batch documentazione/governance è isolato su un branch post-target dedicato, non è
   integrato e non fa parte del target da scansionare.
 
-## Review / Fix
+### Remediation mirata 2026-08-12
 
-Riservati alla review integrata finale e all'eventuale ciclo Fix coordinato.
+- report canonico `da548633-6547-4157-a55f-8e8ab1b11f0d` letto integralmente e
+  verificato tramite digest; coverage `complete`, 61/61, deferred 0 e ledger 18/18;
+- branch isolato creato dalla `origin/main` più recente, con il commit scansionato
+  `0668ea7a` verificato come discendente della baseline remota iniziale;
+- corretti i 2 finding medium e i 16 low senza accepted risk, defer, soppressione o
+  modifica production;
+- logout ora registra intento durevole prima dei side effect, nega restore, tenta
+  revoca globale e conserva retry bounded; cleanup automatico ed esplicito condividono
+  lo stesso confine;
+- checkout, order cache, cart, hold e device lifecycle applicano identity/shop/
+  generation fencing fino a ogni sink e verificano le response remote complete;
+- immagini Storefront accettate soltanto dalla exact origin/bucket, con redirect OFF,
+  timeout, MIME, limite 5 MiB e digest SHA-256 prima di render/cache;
+- il callback OAuth a scheme privato è stato rimosso. Senza un dominio HTTPS posseduto
+  e verificato, staging/production rifiutano Google e le route customer-sensitive
+  falliscono chiuso sullo scheme Storefront;
+- aggiunte regressioni deterministiche per ogni ID e aggiornate le evidence 18/18 in
+  `docs/TASKS/EVIDENCE/TASK-033/security-remediation-closeout.md`.
+
+### Handoff da Execution
+
+- **Prossima fase**: REVIEW
+- **Prossimo ruolo**: CODEX_REVIEWER
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+
+## Review — `CODEX_REVIEWER`
+
+La review post-fix è riservata alla verifica indipendente del diff candidato, delle
+regressioni e dei gate. L'executor non assume come prova i propri claim; il limite di
+separazione è che il ruolo logico distinto opera nella stessa sessione autorizzata.
+
+La prima review statica ha trovato due difetti direttamente collegati ai finding
+originali: buffer mutabile condiviso nella cache immagini verificata e purge auth
+incondizionato durante un bootstrap senza revoche. Esito:
+`CHANGES_REQUIRED`; handoff `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Fix — `CODEX_FIXER`
+
+- cache immagine resa content-addressed anche rispetto alla mutabilità, restituendo
+  copie difensive; aggiunta regressione di cache poisoning;
+- drain revoche reso no-op sul contesto Auth quando non esiste lavoro pending e nuovo
+  OAuth negato finché una revoca precedente non è drenata; aggiunte due regressioni;
+- test mirati 18/18, analyze e gate aggregato `bash scripts/check.sh` exit 0 `PASS`;
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 
-- **Conferma utente**: ricevuta in forma condizionata dal release train
-- **Merge autorizzato**: sì, soltanto dopo review integrata APPROVED
-- **Follow-up candidate**: nessuno finché TASK-033 resta bloccato
-- **Riepilogo finale**: Deep Security Scan non avviata per managed filesystem
-  permission profile assente nel parent host
+- **Conferma utente**: esplicita in D-09 per review, `DONE` e merge normale
+- **Merge autorizzato**: sì, soltanto dopo review post-fix `APPROVED` e gate verdi
+- **Follow-up candidate**: nessuno; non attivare autonomamente TASK-034
+- **Riepilogo finale**: in attesa dell'esito re-review sul candidato remediation 18/18
 - **Data completamento**: non ancora

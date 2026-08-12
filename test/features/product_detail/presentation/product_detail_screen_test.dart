@@ -89,15 +89,14 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    final image = tester.widget<Image>(
-      find.byKey(ValueKey('storefront-detail-image-$_publicationId')),
+    final image = tester.widget<StorefrontProductImage>(
+      find.byType(StorefrontProductImage),
     );
-    final resized = image.image as ResizeImage;
-    final network = resized.imageProvider as NetworkImage;
-    expect(network.url, contains('/storefront-product-images/'));
-    expect(network.url, endsWith('/detail.webp'));
-    expect(resized.width, 1440);
-    expect(network.url, isNot(contains('inventory')));
+    expect(image.uri.toString(), contains('/storefront-product-images/'));
+    expect(image.uri.toString(), endsWith('/detail.webp'));
+    expect(image.cacheWidth, 1440);
+    expect(image.sha256Digest, hasLength(64));
+    expect(image.uri.toString(), isNot(contains('inventory')));
 
     await tester.pumpAndSettle();
     expect(

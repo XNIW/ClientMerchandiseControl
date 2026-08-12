@@ -12,9 +12,18 @@ import '../data/auth_callback_validator.dart';
 import '../data/auth_error_mapper.dart';
 import '../data/supabase_auth_repository.dart';
 import '../domain/auth_repository.dart';
+import '../domain/authenticated_customer.dart';
 
 typedef AuthRepositoryFactory =
     Future<AuthRepository> Function(AppConfig config);
+
+typedef AuthenticatedSignOutCleanup =
+    Future<void> Function(AuthenticatedCustomer customer);
+
+final authenticatedSignOutCleanupProvider =
+    Provider<AuthenticatedSignOutCleanup>((ref) {
+      return (_) async {};
+    });
 
 final authSecureStorageProvider = Provider<SecureSupabaseAuthStorage>((ref) {
   return SecureSupabaseAuthStorage.standardInstance;
@@ -30,11 +39,13 @@ final authRepositoryFactoryProvider = Provider<AuthRepositoryFactory>((ref) {
     if (bootstrapState != BackendReadinessState.initializing) {
       throw const AuthRepositoryException('supabase_auth_not_initialized');
     }
-    return SupabaseAuthRepository(
+    final repository = SupabaseAuthRepository(
       authPort: PlatformSupabaseAuthPort(Supabase.instance.client),
       secureStorage: storage,
       redirectUri: config.authRedirectUri!,
     );
+    await repository.retryPendingRemoteRevocations();
+    return repository;
   };
 });
 

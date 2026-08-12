@@ -58,6 +58,8 @@ final class SupabaseAuthExchange {
 abstract interface class SupabaseAuthPort {
   SupabaseIdentitySnapshot? get currentIdentity;
 
+  String? get serializedCurrentSession;
+
   Stream<SupabaseAuthChange> get changes;
 
   Future<bool> launchGoogleOAuth(String redirectUri);
@@ -65,6 +67,10 @@ abstract interface class SupabaseAuthPort {
   Future<SupabaseAuthExchange> exchangeCode(String code);
 
   Future<void> signOutLocal();
+
+  Future<void> signOutGlobal();
+
+  Future<void> revokeSerializedSession(String serializedSession);
 }
 
 final class PlatformSupabaseAuthPort implements SupabaseAuthPort {
@@ -75,6 +81,12 @@ final class PlatformSupabaseAuthPort implements SupabaseAuthPort {
   @override
   SupabaseIdentitySnapshot? get currentIdentity {
     return identityFromSession(_client.auth.currentSession);
+  }
+
+  @override
+  String? get serializedCurrentSession {
+    final session = _client.auth.currentSession;
+    return session == null ? null : jsonEncode(session.toJson());
   }
 
   @override
@@ -103,6 +115,21 @@ final class PlatformSupabaseAuthPort implements SupabaseAuthPort {
   @override
   Future<void> signOutLocal() {
     return _client.auth.signOut(scope: SignOutScope.local);
+  }
+
+  @override
+  Future<void> signOutGlobal() {
+    return _client.auth.signOut(scope: SignOutScope.global);
+  }
+
+  @override
+  Future<void> revokeSerializedSession(String serializedSession) async {
+    try {
+      await _client.auth.recoverSession(serializedSession);
+      await _client.auth.signOut(scope: SignOutScope.global);
+    } finally {
+      await _client.auth.signOut(scope: SignOutScope.local);
+    }
   }
 
   static SupabaseAuthChange mapSdkAuthChange(AuthState sdkState) {
@@ -192,6 +219,7 @@ final class SupabaseAuthRepository implements AuthRepository {
 
   @override
   AuthenticatedCustomer? get currentCustomer {
+    if (_secureStorage.logoutRequested) return null;
     return _customerFromIdentity(_authPort.currentIdentity);
   }
 
@@ -215,7 +243,12 @@ final class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<bool> launchGoogleSignIn() {
+  Future<bool> launchGoogleSignIn() async {
+    await retryPendingRemoteRevocations();
+    if ((await _secureStorage.pendingRemoteRevocations()).isNotEmpty ||
+        await _secureStorage.pendingLogoutSession() != null) {
+      throw const AuthRepositoryException('pending_remote_revocation');
+    }
     return _authPort.launchGoogleOAuth(_redirectUri);
   }
 
@@ -223,7 +256,9 @@ final class SupabaseAuthRepository implements AuthRepository {
   Future<AuthenticatedCustomer> exchangeCodeForSession(String code) async {
     final exchange = await _authPort.exchangeCode(code);
     try {
-      await _secureStorage.persistSession(exchange.serializedSession);
+      await _secureStorage.persistExplicitLoginSession(
+        exchange.serializedSession,
+      );
     } on Object catch (error, stackTrace) {
       try {
         await signOutLocal();
@@ -250,6 +285,75 @@ final class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> beginSignOut() {
+    return _secureStorage.beginLogoutIntent(_authPort.serializedCurrentSession);
+  }
+
+  @override
+  Future<void> completeSignOut() async {
+    var remoteRevoked = _authPort.serializedCurrentSession == null;
+    try {
+      await _authPort.signOutGlobal().timeout(const Duration(seconds: 12));
+      remoteRevoked = true;
+    } on Object {
+      // finishLogout trasferisce la sessione nel retry cifrato e bounded.
+    }
+    try {
+      await _authPort.signOutLocal();
+    } on Object {
+      // La rimozione autorevole dal client è eseguita comunque dallo storage.
+    }
+    await _secureStorage.finishLogout(remoteRevoked: remoteRevoked);
+  }
+
+  @override
+  Future<void> retryPendingRemoteRevocations() async {
+    var authContextTouched = false;
+    final interruptedLogout = await _secureStorage.pendingLogoutSession();
+    if (_secureStorage.logoutRequested) {
+      var remoteRevoked = interruptedLogout == null;
+      if (interruptedLogout != null) {
+        authContextTouched = true;
+        try {
+          await _authPort
+              .revokeSerializedSession(interruptedLogout)
+              .timeout(const Duration(seconds: 12));
+          remoteRevoked = true;
+        } on Object {
+          // finishLogout accoda la sessione cifrata per il retry successivo.
+        }
+      }
+      try {
+        await _authPort.signOutLocal();
+      } on Object {
+        // Il marker di logout continua a impedire il restore locale.
+      }
+      await _secureStorage.finishLogout(remoteRevoked: remoteRevoked);
+    }
+
+    final pending = await _secureStorage.pendingRemoteRevocations();
+    for (final revocation in pending) {
+      authContextTouched = true;
+      try {
+        await _authPort
+            .revokeSerializedSession(revocation.session)
+            .timeout(const Duration(seconds: 12));
+        await _secureStorage.clearPendingRemoteRevocation(revocation.slot);
+      } on Object {
+        // Il record cifrato resta intatto per un successivo tentativo bounded.
+      }
+    }
+    if (authContextTouched || _secureStorage.logoutRequested) {
+      try {
+        await _authPort.signOutLocal();
+      } on Object {
+        // Lo storage locale resta il confine fail-closed del restore.
+      }
+      await _secureStorage.removePersistedSession();
+    }
+  }
+
+  @override
   Future<void> signOutLocal() async {
     Object? firstError;
     StackTrace? firstStackTrace;
@@ -273,6 +377,21 @@ final class SupabaseAuthRepository implements AuthRepository {
   }
 
   Future<AuthSessionEvent> _mapSessionChange(SupabaseAuthChange change) async {
+    if (_secureStorage.logoutRequested) {
+      if (change.kind == SupabaseAuthChangeKind.signedOut &&
+          change.shouldRemovePersistedSession) {
+        await _secureStorage.removePersistedSession();
+      }
+      return AuthSessionEvent(
+        type: change.kind == SupabaseAuthChangeKind.signedOut
+            ? AuthSessionEventType.signedOut
+            : AuthSessionEventType.initialSession,
+        customer: null,
+        signOutReason: change.signOutKind == SupabaseSignOutKind.sessionExpired
+            ? AuthSignOutReason.sessionExpired
+            : AuthSignOutReason.userInitiated,
+      );
+    }
     final serializedSession = change.serializedSession;
     if (serializedSession != null && change.identity != null) {
       await _secureStorage.persistSession(serializedSession);

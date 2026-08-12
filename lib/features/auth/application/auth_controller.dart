@@ -20,6 +20,9 @@ final authControllerProvider = NotifierProvider<AuthController, AuthState>(
 final class AuthController extends Notifier<AuthState> {
   static const _maxPendingCallbacks = 4;
   static const _maxConsumedFingerprints = 64;
+  static const _oauthFlowLifetime = Duration(minutes: 5);
+  static const _oauthExchangeTimeout = Duration(seconds: 15);
+  static const _exchangeCleanupTimeout = Duration(seconds: 15);
 
   AppConfig? _config;
   AuthRepository? _repository;
@@ -42,6 +45,8 @@ final class AuthController extends Notifier<AuthState> {
   var _generation = 0;
   var _disposed = false;
   var _oauthFlowActive = false;
+  var _oauthLaunchConfirmed = false;
+  DateTime? _oauthFlowDeadline;
   var _ignoreCallbacksUntilNextLogin = false;
   var _suppressSessionAuthentication = false;
 
@@ -97,21 +102,28 @@ final class AuthController extends Notifier<AuthState> {
     _ignoreCallbacksUntilNextLogin = false;
     _suppressSessionAuthentication = false;
     _oauthFlowActive = true;
+    _oauthLaunchConfirmed = false;
+    _oauthFlowDeadline = DateTime.now().toUtc().add(_oauthFlowLifetime);
     _setState(const AuthAuthenticating());
 
     await (_initialization ??= _initialize(_config!));
     final repository = _repository;
     if (!_isCurrent(generation) || repository == null) {
       _oauthFlowActive = false;
+      _oauthLaunchConfirmed = false;
       return;
     }
     if (state is AuthAuthenticated) {
       _oauthFlowActive = false;
+      _oauthLaunchConfirmed = false;
+      _oauthFlowDeadline = null;
       return;
     }
     final restoredCustomer = repository.currentCustomer;
     if (restoredCustomer != null) {
       _oauthFlowActive = false;
+      _oauthLaunchConfirmed = false;
+      _oauthFlowDeadline = null;
       _setState(
         AuthAuthenticated(
           customer: restoredCustomer,
@@ -128,11 +140,15 @@ final class AuthController extends Notifier<AuthState> {
       }
       if (state is AuthAuthenticated) {
         _oauthFlowActive = false;
+        _oauthLaunchConfirmed = false;
+        _oauthFlowDeadline = null;
         return;
       }
       final restoredAfterCleanup = repository.currentCustomer;
       if (restoredAfterCleanup != null) {
         _oauthFlowActive = false;
+        _oauthLaunchConfirmed = false;
+        _oauthFlowDeadline = null;
         _setState(
           AuthAuthenticated(
             customer: restoredAfterCleanup,
@@ -147,15 +163,21 @@ final class AuthController extends Notifier<AuthState> {
       }
       if (!launched) {
         _oauthFlowActive = false;
+        _oauthLaunchConfirmed = false;
+        _oauthFlowDeadline = null;
         _setState(
           const AuthRecoverableError(
             AuthFailure(AuthFailureKind.browserLaunchFailed),
           ),
         );
+      } else {
+        _oauthLaunchConfirmed = true;
       }
     } on Object catch (error) {
       if (_isCurrent(generation)) {
         _oauthFlowActive = false;
+        _oauthLaunchConfirmed = false;
+        _oauthFlowDeadline = null;
         _publishMappedFailure(error);
       }
     }
@@ -199,6 +221,8 @@ final class AuthController extends Notifier<AuthState> {
   }) async {
     ++_generation;
     _oauthFlowActive = true;
+    _oauthLaunchConfirmed = false;
+    _oauthFlowDeadline = null;
     _ignoreCallbacksUntilNextLogin = true;
     _suppressSessionAuthentication = true;
     _pendingCallbacks.clear();
@@ -214,9 +238,12 @@ final class AuthController extends Notifier<AuthState> {
       final exchange = _exchangeOperation;
       if (exchange != null) {
         try {
-          await exchange;
+          await exchange.timeout(_exchangeCleanupTimeout);
         } on Object {
           // La compensazione è identica per successo o errore dell'exchange.
+          if (_repository case final repository?) {
+            unawaited(_compensateTimedOutExchange(exchange, repository));
+          }
         }
       }
       await _repository?.signOutLocal();
@@ -225,6 +252,8 @@ final class AuthController extends Notifier<AuthState> {
     }
 
     _oauthFlowActive = false;
+    _oauthLaunchConfirmed = false;
+    _oauthFlowDeadline = null;
     if (_disposed) {
       return;
     }
@@ -254,6 +283,8 @@ final class AuthController extends Notifier<AuthState> {
     }
     ++_generation;
     _oauthFlowActive = false;
+    _oauthLaunchConfirmed = false;
+    _oauthFlowDeadline = null;
     _ignoreCallbacksUntilNextLogin = true;
     _suppressSessionAuthentication = true;
     _pendingCallbacks.clear();
@@ -274,17 +305,15 @@ final class AuthController extends Notifier<AuthState> {
     if (_disposed) {
       return;
     }
-    ++_generation;
-    _oauthFlowActive = false;
-    _ignoreCallbacksUntilNextLogin = true;
-    _suppressSessionAuthentication = false;
-    _pendingCallbacks.clear();
-    _setState(
-      AuthGuest(
-        canAuthenticate: _config?.googleAuthEnabled ?? false,
-        notice: const AuthFailure(AuthFailureKind.sessionExpired),
-      ),
-    );
+    final current = state;
+    if (current is AuthAuthenticated) {
+      unawaited(
+        _startAuthenticatedTermination(
+          current,
+          notice: const AuthFailure(AuthFailureKind.sessionExpired),
+        ),
+      );
+    }
   }
 
   Future<void> retry() => startGoogleSignIn();
@@ -300,7 +329,7 @@ final class AuthController extends Notifier<AuthState> {
     }
 
     late final Future<void> operation;
-    operation = _runSignOut(currentState).whenComplete(() {
+    operation = _runAuthenticatedTermination(currentState).whenComplete(() {
       if (identical(_logoutOperation, operation)) {
         _logoutOperation = null;
       }
@@ -309,10 +338,32 @@ final class AuthController extends Notifier<AuthState> {
     return operation;
   }
 
-  Future<void> _runSignOut(AuthAuthenticated authenticated) async {
+  Future<void> _startAuthenticatedTermination(
+    AuthAuthenticated authenticated, {
+    AuthFailure? notice,
+  }) {
+    final active = _logoutOperation;
+    if (active != null) return active;
+    late final Future<void> operation;
+    operation = _runAuthenticatedTermination(authenticated, notice: notice)
+        .whenComplete(() {
+          if (identical(_logoutOperation, operation)) {
+            _logoutOperation = null;
+          }
+        });
+    _logoutOperation = operation;
+    return operation;
+  }
+
+  Future<void> _runAuthenticatedTermination(
+    AuthAuthenticated authenticated, {
+    AuthFailure? notice,
+  }) async {
     final generation = ++_generation;
     final exchange = _exchangeOperation;
     _oauthFlowActive = false;
+    _oauthLaunchConfirmed = false;
+    _oauthFlowDeadline = null;
     _ignoreCallbacksUntilNextLogin = true;
     _suppressSessionAuthentication = true;
     _pendingCallbacks.clear();
@@ -320,9 +371,24 @@ final class AuthController extends Notifier<AuthState> {
 
     Object? firstCleanupError;
 
+    try {
+      await _repository?.beginSignOut();
+    } on Object catch (error) {
+      firstCleanupError ??= error;
+    }
+
+    try {
+      await ref.read(authenticatedSignOutCleanupProvider)(
+        authenticated.customer,
+      );
+    } on Object {
+      // I cleanup feature-specific persistono il proprio retry e non possono
+      // trattenere una sessione che l'utente ha chiesto di chiudere.
+    }
+
     Future<void> purge() async {
       try {
-        await _repository?.signOutLocal();
+        await _repository?.completeSignOut();
       } on Object catch (error) {
         firstCleanupError ??= error;
       }
@@ -331,7 +397,7 @@ final class AuthController extends Notifier<AuthState> {
     await purge();
     if (exchange != null) {
       try {
-        await exchange;
+        await exchange.timeout(_exchangeCleanupTimeout);
       } on Object {
         // Anche un exchange fallito può avere prodotto side effect parziali.
       }
@@ -341,14 +407,19 @@ final class AuthController extends Notifier<AuthState> {
     if (!_isCurrent(generation)) {
       return;
     }
-    final notice = firstCleanupError == null
-        ? null
+    final cleanupNotice = firstCleanupError == null
+        ? notice
         : _errorMapper!.map(firstCleanupError!);
-    if (notice?.kind == AuthFailureKind.secureStorageUnavailable) {
-      _setState(AuthConfigurationError(notice!));
+    if (cleanupNotice?.kind == AuthFailureKind.secureStorageUnavailable) {
+      _setState(AuthConfigurationError(cleanupNotice!));
       return;
     }
-    _setState(AuthGuest(canAuthenticate: true, notice: notice));
+    _setState(
+      AuthGuest(
+        canAuthenticate: _config?.googleAuthEnabled ?? false,
+        notice: cleanupNotice,
+      ),
+    );
   }
 
   Future<void> _initialize(AppConfig config) async {
@@ -394,7 +465,13 @@ final class AuthController extends Notifier<AuthState> {
   }
 
   void _receiveCallback(Uri callback) {
-    if (_disposed || _ignoreCallbacksUntilNextLogin) {
+    final deadline = _oauthFlowDeadline;
+    if (_disposed ||
+        _ignoreCallbacksUntilNextLogin ||
+        !_oauthFlowActive ||
+        !_oauthLaunchConfirmed ||
+        deadline == null ||
+        !DateTime.now().toUtc().isBefore(deadline)) {
       return;
     }
     if (_pendingCallbacks.length >= _maxPendingCallbacks) {
@@ -451,6 +528,8 @@ final class AuthController extends Notifier<AuthState> {
     switch (validation) {
       case AuthCallbackRejected(:final failure):
         _oauthFlowActive = false;
+        _oauthLaunchConfirmed = false;
+        _oauthFlowDeadline = null;
         _publishFailurePreservingAuthenticated(failure);
         return;
       case AuthCallbackProviderFailure(:final wasCancelled):
@@ -474,6 +553,17 @@ final class AuthController extends Notifier<AuthState> {
         }
         return;
       case AuthCallbackAccepted(:final code):
+        final deadline = _oauthFlowDeadline;
+        if (!_oauthFlowActive ||
+            !_oauthLaunchConfirmed ||
+            deadline == null ||
+            !DateTime.now().toUtc().isBefore(deadline) ||
+            state is AuthAuthenticated ||
+            state is AuthSigningOut ||
+            state is AuthCancelling ||
+            state is AuthConfigurationError) {
+          return;
+        }
         final fingerprint = _fingerprint(callback);
         if (!_rememberFingerprint(fingerprint)) {
           return;
@@ -485,15 +575,30 @@ final class AuthController extends Notifier<AuthState> {
         }
         final generation = ++_generation;
         _setState(const AuthAuthenticating());
-        late final Future<AuthenticatedCustomer> exchange;
-        exchange = _repository!.exchangeCodeForSession(code);
+        final exchange = _repository!.exchangeCodeForSession(code);
         _exchangeOperation = exchange;
+        unawaited(
+          exchange.then<void>(
+            (_) {
+              if (identical(_exchangeOperation, exchange)) {
+                _exchangeOperation = null;
+              }
+            },
+            onError: (Object _, StackTrace _) {
+              if (identical(_exchangeOperation, exchange)) {
+                _exchangeOperation = null;
+              }
+            },
+          ),
+        );
         try {
-          final customer = await exchange;
+          final customer = await exchange.timeout(_oauthExchangeTimeout);
           if (_isCurrent(generation) &&
               !_ignoreCallbacksUntilNextLogin &&
               !_suppressSessionAuthentication) {
             _oauthFlowActive = false;
+            _oauthLaunchConfirmed = false;
+            _oauthFlowDeadline = null;
             _setState(
               AuthAuthenticated(
                 customer: customer,
@@ -505,15 +610,19 @@ final class AuthController extends Notifier<AuthState> {
           if (!_isCurrent(generation)) {
             return;
           }
-          _oauthFlowActive = false;
+          if (error is TimeoutException) {
+            _oauthFlowActive = false;
+            _oauthLaunchConfirmed = false;
+            _oauthFlowDeadline = null;
+            unawaited(_compensateTimedOutExchange(exchange, _repository!));
+          }
           if (error is AuthStorageException) {
+            _oauthFlowActive = false;
+            _oauthLaunchConfirmed = false;
+            _oauthFlowDeadline = null;
             await _failClosedStorage(error);
           } else {
             _publishMappedFailure(error);
-          }
-        } finally {
-          if (identical(_exchangeOperation, exchange)) {
-            _exchangeOperation = null;
           }
         }
     }
@@ -537,6 +646,8 @@ final class AuthController extends Notifier<AuthState> {
 
     if (event.type == AuthSessionEventType.signedOut) {
       _oauthFlowActive = false;
+      _oauthLaunchConfirmed = false;
+      _oauthFlowDeadline = null;
       if (state is AuthSigningOut ||
           state is AuthCancelling ||
           _suppressSessionAuthentication ||
@@ -546,12 +657,17 @@ final class AuthController extends Notifier<AuthState> {
       final notice = event.signOutReason == AuthSignOutReason.sessionExpired
           ? const AuthFailure(AuthFailureKind.sessionExpired)
           : null;
-      _setState(
-        AuthGuest(
-          canAuthenticate: _config?.googleAuthEnabled ?? false,
-          notice: notice,
-        ),
-      );
+      final current = state;
+      if (current is AuthAuthenticated) {
+        unawaited(_startAuthenticatedTermination(current, notice: notice));
+      } else {
+        _setState(
+          AuthGuest(
+            canAuthenticate: _config?.googleAuthEnabled ?? false,
+            notice: notice,
+          ),
+        );
+      }
     }
   }
 
@@ -632,6 +748,8 @@ final class AuthController extends Notifier<AuthState> {
     _disposed = true;
     ++_generation;
     _oauthFlowActive = false;
+    _oauthLaunchConfirmed = false;
+    _oauthFlowDeadline = null;
     _pendingCallbacks.clear();
     final exchange = _exchangeOperation;
     final repository = _repository;
@@ -655,6 +773,22 @@ final class AuthController extends Notifier<AuthState> {
       await repository.signOutLocal();
     } on Object {
       // Nessun errore o dettaglio sensibile deve uscire dal dispose.
+    }
+  }
+
+  static Future<void> _compensateTimedOutExchange(
+    Future<AuthenticatedCustomer> exchange,
+    AuthRepository repository,
+  ) async {
+    try {
+      await exchange;
+    } on Object {
+      // Il timeout UI è già stato pubblicato; la compensazione resta identica.
+    }
+    try {
+      await repository.signOutLocal();
+    } on Object {
+      // Il logout intent impedisce comunque il restore di una sessione tardiva.
     }
   }
 }

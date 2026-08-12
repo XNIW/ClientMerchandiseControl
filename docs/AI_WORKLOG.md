@@ -1292,3 +1292,828 @@
   merge commit; worktree pulito; nessun force push/rebase/reset.
 - **Risultato**: CA-40/T-38 `PASS`; TASK-020
   `DONE / REVIEW / USER_APPROVED_DONE`; progetto `IDLE`, nessun task futuro attivo.
+
+## 2026-08-01 — Avvio governance Storefront v1 release train
+
+- **Agente**: `CODEX_PLANNER` -> `CODEX_EXECUTOR`.
+- **Release train**: `STOREFRONT_V1`.
+- **Baseline Client**: `6a50b421057a09d4152653a78512d268a7fa4d69` su worktree
+  dedicato `/Users/minxiang/Projects/_release_train/storefront-v1/ClientMerchandiseControl`.
+- **Governance**: introdotta `ADR-011`, nuovo stato temporaneo
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`, fase `INTEGRATED_REVIEW`, checkpoint tecnici e
+  una sola review formale finale read-only multi-repository.
+- **Autorizzazione**: prompt utente 2026-08-01 registrato come autorizzazione persistente
+  alle transizioni interne e al closeout/merge condizionato ai gate reali.
+- **Tracking**: TASK-005 è l'unico task `ACTIVE / EXECUTION`; task successivi `TODO`.
+- **Artifact**: creati release manifest e checkpoint riprendibile; production invariata.
+- **Revision set governance**: `7b7931b03831090241a40602dc999b846a75a9f0`;
+  validator `PASS`, fixture 8/8 `PASS`, link/diff/security/architecture `PASS`.
+- **Prossima azione**: validare la governance, quindi creare worktree Admin pulito e
+  riconfermare migration ownership/ledger/drift prima di qualunque apply staging.
+
+## 2026-08-01 — Checkpoint interno TASK-005 e attivazione TASK-006
+
+- **Agente**: `CODEX_EXECUTOR`.
+- **Release train**: `STOREFRONT_V1`; nessuna review formale intermedia.
+- **TASK-005**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; ownership migration canonica
+  riconfermata nel repository Admin, schema authoring additivo e default-deny applicato
+  soltanto a staging.
+- **Revision set Admin**: `ef2e94302102745d57aedc5071d3edd4ddee0e91`, PR #67 draft.
+- **Verifiche**: replay finale 100 migration `PASS` 27.75s; pgTAP 19 file/1330 test
+  `PASS` 46.80s, Storefront 48/48; lint DB zero finding; CI `30717750929` e build/smoke
+  `30717750934` `PASS`; dry-run `30717871139` e apply `30717903744` `PASS`.
+- **Staging**: ledger esatto, 6/6 tabelle authoring FORCE RLS, 0 policy cliente,
+  anon/auth denied e service role CRUD verificati; digest postcheck
+  `4b6eb490e59265ab63bb6577a3b8b1f046361bcd879864c72e01ba26d843b2df`.
+- **Gate compositi ancora aperti**: projection/API/load/no-drift/rollback rehearsal del
+  Milestone 1 restano `NOT_RUN`, non inferiti da TASK-005.
+- **Transizione**: TASK-006 è l'unico task `ACTIVE / EXECUTION`; production invariata.
+
+## 2026-08-01 — Checkpoint interno TASK-006 e attivazione TASK-010
+
+- **Agente**: `CODEX_EXECUTOR`.
+- **Release train**: `STOREFRONT_V1`; nessuna review formale intermedia.
+- **TASK-006**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; projection minimizzata,
+  versionata, transazionale, ricostruibile e default-deny applicata soltanto a staging.
+- **Revision set Admin**: `a2a45ef84b19e39d21e42673c31e2e8fc90e88f4`, PR #67 draft.
+- **Verifiche**: replay 102 migration; pgTAP 20 file/1378 test e Storefront 96/96;
+  harness concorrente due writer; lint/typecheck/build/audit; CI `30719303538` e
+  Cloudflare `30719303536`; dry-run `30719307636` e apply `30719348489`, tutti `PASS`.
+- **Staging behavior smoke**: publish, promozione, pause/versione `PASS`; rollback
+  verificato e fixture persistenti 0. Postverify digest
+  `74d323682c7545b45a95c02db5108fd11f8ef7b92c9f07451671aa4d626af796`.
+- **Deviazioni risolte**: deadlock iniziale del harness corretto nel design; ACL cloud
+  `service_role` corretta con migration additiva, senza riscrivere migration applicate.
+- **Gate ancora aperti**: contratto RPC/search/keyset/load TASK-010 e checkpoint
+  composito Milestone 1; production invariata.
+- **Transizione**: TASK-010 è l'unico task `ACTIVE / EXECUTION`.
+
+## 2026-08-01 — Checkpoint Milestone 1 e attivazione TASK-007
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-010**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; nove RPC pubblici v1,
+  keyset/search/detail/Home e harness esteso completati nel repository Admin canonico.
+- **Revision set Admin**: `eca5c6e0351e3eba248dd96c5b04001e0deabea6`, PR #67 draft.
+- **Gate**: replay 104 migration; pgTAP 21 file/1.428 test; concurrency/lint/security;
+  CI `30721537778`, Cloudflare `30721537758`, dry-run `30721664685`, apply/postverify/load
+  staging `30721691138`, tutti `PASS`.
+- **Performance staging NANO**: catalogo p50/p95 597,599/604,479 ms; ricerca
+  1.048,437/1.074,024 ms; dettaglio 0,642/2,485 ms. Target iniziali catalog/search
+  `FAIL`, dettaglio `PASS`; budget runner documentato 800/1.200/400 ms `PASS`.
+- **Dataset/cleanup**: 20.000 prodotti, 100 categorie, 65.000 righe equivalenti;
+  keyset/FTS index usati; fixture residue 0; artifact digest `bfe90763…`.
+- **Milestone 1**: TASK-005/TASK-006/TASK-010 tutti
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`; production invariata.
+- **Transizione**: TASK-007 è l'unico task `ACTIVE / EXECUTION`.
+
+## 2026-08-01 — Checkpoint interno TASK-007 e attivazione TASK-008
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-007**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; route/control plane, otto
+  permessi RBAC, mutazioni shop-scoped, preview pubblica e audit completati.
+- **Revision set Admin**: `25f858931bf0ffe09213186a6b8b124df0311c97`, PR #67 draft.
+- **Gate locali/CI**: replay 105 migration; pgTAP 22 file/1.449 test; E2E locale 1/1;
+  CI `30723885377` e Cloudflare build `30723885380`, tutti `PASS`.
+- **Staging**: migration/postverify `30723486727`, deploy/smoke `30723988967` e
+  acceptance autenticata `30724135568` 1/1 in 1m19s, tutti `PASS`; cleanup eseguito.
+- **Sicurezza**: RPC Admin separate dal namespace pubblico mobile; RBAC negativo e
+  shop scope verificati; nessun secret versionato; production invariata.
+- **Transizione**: TASK-008 è l'unico task `ACTIVE / EXECUTION`.
+
+## 2026-08-01 — Checkpoint interno TASK-008 e attivazione TASK-009
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-008**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; editor/lista promozioni,
+  multi-prodotto ed esclusioni, prezzo fisso/percentuale, timezone, scheduler,
+  tie-break deterministico, RBAC e audit completati.
+- **Revision set Admin**: `0ec146b4379b8f0da13229fd3c807ac084d2858f`, PR #67 draft.
+- **Gate locali/CI**: replay 106 migration; pgTAP 23 file/1.472 test, TASK-008 23/23;
+  E2E locale 1/1; CI `30725543266` e Cloudflare build `30725543260`, tutti `PASS`.
+- **Staging**: dry-run `30725661643`, apply/postverify/benchmark `30725690931`,
+  deploy/smoke `30725801242` e acceptance autenticata `30725925704` 1/1 in 33,1 s,
+  tutti `PASS`; cleanup eseguito.
+- **Sicurezza**: RPC Admin lease-bound, `search_path` fissato, anon denied, lock shop,
+  secret scan senza finding; nessun secret versionato; production invariata.
+- **Transizione**: TASK-009 è l'unico task `ACTIVE / EXECUTION`.
+
+## 2026-08-02 — Checkpoint Milestone 2 e attivazione TASK-013
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-009**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; bucket pubblico separato,
+  derivazione WebP sanitized, signed upload exact-origin, verifica server, publish
+  idempotente, replacement, rollback, audit e cleanup bounded completati.
+- **Revision set Admin**: `429c9ca88818c2f3c68a53cd4663843ae172cb8b`, PR #67 draft.
+- **Gate locali/CI**: replay 107; pgTAP 24 file/1.504 test e immagini 32/32;
+  foundation TASK-009 10/10; E2E locale 1/1; CI `30729546565` e Cloudflare
+  `30729546558`, tutti `PASS`.
+- **Staging**: migration `30728431358`, deploy/smoke exact SHA `30729642919` e
+  acceptance Admin + cleanup `30729785520` in 1m46s, tutti `PASS`.
+- **Difetti corretti durante Execution**: origin build-time sostituita da origin runtime
+  server-bound; timeout globale E2E separato dal timeout applicativo 60 s. Regression
+  test e rerun sullo SHA finale verdi.
+- **Milestone 2**: TASK-007/TASK-008/TASK-009 tutti
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`; production invariata.
+- **Transizione**: TASK-013 è l unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per repository Home/RPC, config shop slug, fixture staging e smoke Android/iOS.
+
+## 2026-08-02 — Checkpoint interno TASK-013 e attivazione TASK-014
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-013**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; configurazione shop,
+  repository/DTO RPC-only, Home guest reale, immagini pubbliche e stati accessibili
+  completati nel Client Flutter.
+- **Revision set Client**: `2aefa17f901652bf2f1fceafb2649422c6b8fb4f`, PR #5 draft.
+- **Gate locali**: security/governance/architecture/l10n/format/analyze, 240 test,
+  coverage 2.199/2.709 (81,17%), Android debug e iOS Simulator debug: `PASS`.
+- **CI Client**: run `30732213362`, Quality 3m05s, iOS 3m39s e Android 8m28s,
+  tutti `PASS` sullo SHA esatto.
+- **Staging**: Admin fixture SHA `a9036f0b`, CI `30731757331`, deploy
+  `30731372117`, acceptance `30731760038`; 3 categorie, 2 featured, 1 offerta,
+  9 immagini pubbliche e negative boundary interne, tutti `PASS`.
+- **Smoke mobile**: Android readiness 1/1 in 3 s, Android Home 1/1 in 16 s e iOS
+  Home 1/1 in 2 s, tutti `PASS` senza sessione cliente.
+- **Difetti corretti**: lifecycle Riverpod su `initializing -> ready`, category slug
+  di due caratteri e isolamento rete del test shell; regressioni e suite completa verdi.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-014 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per categorie, catalogo keyset, griglia adattiva e immagini pubbliche.
+
+## 2026-08-02 — Checkpoint interno TASK-014 e attivazione TASK-015
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-014**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; categorie pubbliche, DTO/repo
+  RPC-only, keyset grid, refresh, filtri categoria, immagini e stati accessibili.
+- **Revision set Client**: `61d8781c58b0c4acb41a80c1eab1f32412c037a8`, PR #5 draft.
+- **Gate locali**: security/governance/architecture/l10n/format/analyze, 254 test,
+  coverage 2.531/3.071 (82,42%), Android debug e iOS Simulator debug: `PASS`.
+- **CI Client**: run `30733287396`, Quality 3m18s, iOS 3m48s e Android 8m26s,
+  tutti `PASS` sullo SHA esatto.
+- **Smoke mobile**: Catalog Android 1/1 in 14 s e iOS 1/1 in 2 s, entrambi `PASS`
+  su fixture reale, categoria `te`, immagini pubbliche e sessione guest assente.
+- **Difetti corretti**: retry offline instradato dalla readiness, loop load-more
+  eliminato e matrice reflow legacy adattata al layout Sliver lazy.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-015 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per search debounced, filtri pubblici e ordinamenti keyset.
+
+## 2026-08-02 — Checkpoint interno TASK-015 e attivazione TASK-016
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-015**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; Search RPC-only, debounce,
+  cancellation/stale guard, keyset, categoria, availability, discounted e quattro sort.
+- **Revision set Client**: `6739bf663cca2dcad4dcd2ef11ee2415b238daeb`, PR #5 draft.
+- **Gate locali**: security/governance/architecture/l10n/format/analyze, 266 test,
+  coverage 2.878/3.460 (83,18%), Android debug e iOS Simulator debug: `PASS`.
+- **CI Client**: run `30734363845`, Quality 3m17s, iOS 4m11s e Android 8m23s,
+  tutti `PASS` sullo SHA esatto.
+- **Smoke mobile**: Discovery Android 1/1 in 20 s e iOS 1/1 in 3 s, entrambi `PASS`
+  su Search/availability/discounted/price sort reali e sessione guest assente.
+- **Difetti corretti**: hang test dropdown eliminato, retry conserva catalog version,
+  control character raw negati e reset sort visualmente coerente.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-016 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per route e dettaglio prodotto pubblico con availability commerciale.
+
+## 2026-08-02 — Checkpoint interno TASK-016 e attivazione TASK-017
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-016**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; RPC-only detail, route guest,
+  controller auto-dispose, immagine pubblica detail, pricing/promo/availability/fulfillment.
+- **Revision set Client**: `242e631805b569a49a0217c4129b1586e8ad1dbf`, PR #5 draft.
+- **Gate locali**: security/governance/architecture/l10n/format/analyze, 282 test,
+  coverage 3.147/3.814 (82,51%), Android debug e iOS Simulator debug: `PASS`.
+- **CI Client**: run `30735374419`, Quality 3m26s, iOS 3m08s e Android 7m44s,
+  tutti `PASS` sullo SHA esatto.
+- **Smoke mobile**: Product Detail Android 1/1 in 17 s e iOS 1/1 in 3 s, entrambi
+  `PASS` su published/unpublished reale e sessione guest assente.
+- **Difetti corretti**: overflow status a 200% e tap harness fuori viewport; il primo
+  tentativo Android resta registrato `FAIL`, poi regressione e rerun candidato `PASS`.
+- **Dependency audit TASK-017**: Drift 2.34.3 / drift_flutter 0.3.1 MIT, Android/iOS,
+  Dart >=3.10 e manutenzione corrente; compatibile con Dart 3.12.2.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-017 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per Drift, cache pubblica shop-scoped, SWR, invalidazione e ricerca offline.
+
+## 2026-08-02 — Checkpoint interno TASK-017 e attivazione TASK-018
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-017**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; Drift/SQLite pubblico,
+  SWR Home/Catalog/Search/Detail, invalidazione transazionale, search offline, recovery
+  e cleanup bounded completati.
+- **Revision set Client**: `e5f4bd8d14da08e9e8f43284944d8257c0b02693`, PR #5 draft.
+- **Gate locali**: `scripts/check.sh` exit 0 in 74,17 s; security 402 file,
+  governance 8/8, architecture 7/7, analyze, 303 test, coverage 3.872/4.747
+  (81,57%), Android debug e iOS Simulator debug `PASS`.
+- **Cache/performance**: 19/19 test; 25.000 righe; open 247 ms, write 20k 444 ms,
+  catalog p50/p95/p99 601/1.195/7.528 µs, search 3.166/3.824/6.482 µs.
+- **CI Client**: run `30737515662`, Quality 4m02s, iOS 4m15s e Android 8m49s,
+  3/3 `PASS`, annotation 0/0/0 sullo SHA esatto.
+- **Smoke mobile**: cache offline/reconnect Android 1/1 in 45,98 s e iOS 1/1 in
+  27,09 s, entrambi `PASS` con staging seed/reconnect reali e file SQLite device.
+- **Difetti corretti**: build_runner compatibile col Flutter SDK, generated coverage
+  esclusa deterministicamente, viewport Sliver e attesa route del live harness,
+  rimozione fisica del detail unavailable verificata.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-018 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per preferiti locali shop-scoped, share nativo e deep link prodotto/categoria strict.
+
+## 2026-08-02 — Checkpoint interno TASK-018 e attivazione TASK-019
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **Decisione USER_APPROVER**: D-08 sostituisce il gate manuale Activity Sheet con un
+  XCTest nativo riproducibile che presenta una vera `UIActivityViewController` e
+  verifica payload, presentation context, popover, dismiss e mapping risultato.
+- **TASK-018**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; boundary share/favorite/link,
+  single-flight, payload localizzato, deep link strict, favorite persistenti e stati
+  unpublished/offline completati.
+- **Revision set Client**: `a0e139a6365dc4639ba66c110c91dcc2720feee5`, PR #5 draft.
+- **Gate locali**: `scripts/check.sh` exit 0 in 79,66 s; security 415 file,
+  governance 8/8, architecture 7/7, analyze, 329 test, coverage 4.249/5.199
+  (81,73%), Android debug e iOS Simulator debug `PASS`.
+- **XCTest iOS**: iPad (A16), Simulator 26.5, 3/3 in 13,54 s, exit 0 e xcresult
+  `Passed`; vera presentazione UI, payload pubblico, main thread, popover, cancel,
+  completion, race/doppio foglio e background/resume coperti.
+- **Android headless**: chooser `ACTION_SEND` `text/plain`, payload pubblico, cancel,
+  doppio tap con un solo chooser e PID processo invariato: `PASS`.
+- **CI Client**: run `30751191932`, Quality 4m23s, iOS 3m38s, Android 8m41s,
+  3/3 `PASS`, step applicabili `success`, annotation 0/0/0 sullo SHA esatto.
+- **Difetti corretti**: lifecycle/dismiss e parallelismo del test host iOS, oltre a un
+  lint che aveva fermato il primo gate completo; regressioni e rerun finali `PASS`.
+- **Production**: invariata; nessun secret, URL/key reale o artifact binario versionato.
+- **Transizione**: TASK-019 è l'unico task `ACTIVE / EXECUTION`; il primo work package
+  autorizzato è `STOREFRONT-V1-UI-HARDENING`, seguito dai benchmark Milestone 3.
+
+## 2026-08-02 — Checkpoint Milestone 3 e attivazione TASK-021
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-019**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; audit pattern bounded, Material
+  3, Home/Catalog/Card/Detail/Shell responsive, Admin Storefront, browsing guest
+  disaccoppiato da Auth/health, query/cache/pagination e benchmark completati.
+- **Revision set Client runtime**:
+  `8f6c67dd3372ee9a6421f7071e58f4c0808f11b1`, PR #5 draft.
+- **Gate Client**: `scripts/check.sh` exit 0 in 98,32 s; 344 test, coverage
+  4.689/5.667 (82,74%), analyze, security/governance/architecture, Android debug e
+  iOS Simulator debug `PASS`; CI `30759482376` 3/3 `PASS`; live Android 4/4 e
+  XCTest iPad `UIActivityViewController` 3/3 `PASS`.
+- **Profilo Client**: first usable 139 ms; Home 3.257 ms; catalog/search/detail
+  875/1.573/985 ms; frame p50/p95/p99 7.814/44.763/101.114 us, zero frozen/OOM;
+  cold process arm64 p95 4.565 ms e warm p95 519 ms su cinque campioni; PSS 73.661 KB.
+- **Revision set Admin/Supabase**:
+  `1f1ba507bbdde96197276738aacd7e290c20f8fe`, PR #67 draft; migration additiva
+  `20260802043000_storefront_v1_catalog_performance`.
+- **Gate Admin/staging**: Playwright 1/1, CI `30757513891`, Cloudflare build
+  `30757513885` e performance `30757512517` attempt 3 `PASS`; 22.000 prodotti,
+  100 categorie, 69.200 righe equivalenti, immagini/promozioni/mix status e cleanup 0;
+  catalog/search/detail p95 30,114/599,739/4,923 ms su 30 campioni.
+- **Tentativi non candidati**: install profile downgrade, config slug ordinaria,
+  fixture già ripulita, target iPhone non-iPad e APK ABI errata registrati `FAIL`; causa
+  primaria isolata, nessun `PASS` inferito e regressione/target corretti verificati.
+- **Milestone 3**: TASK-013..TASK-019 tutti
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`; checkpoint `PASS`; production invariata e
+  feature flag OFF.
+- **Transizione**: TASK-021 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per `customer_profiles`, `customer_addresses`, consent, export/deletion request,
+  RLS owner-only e UI Client, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-021 e attivazione TASK-022
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-021**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; profilo, indirizzi, locale,
+  consent, export e deletion request owner-scoped completati con UI Account data-backed.
+- **Revision set Admin/Supabase**:
+  `27770dbe76da3066cdddb5a821b01c144a9ae607`, PR #67 draft; migration additiva
+  `20260802181823_storefront_v1_customer_profiles_addresses`.
+- **Gate Admin/staging**: replay completo; pgTAP TASK-021 64/64 e suite 26 file/1.582
+  test; due default writer concorrenti; verify/foundation/security; CI `30761579498`,
+  Cloudflare `30761579496`, staging `30761578366` e regressione `30761578384`, tutti
+  `PASS`; artifact `8837628074`, digest
+  `93eaae9856fcee4217d272b171135e174bdd5ff173a1520d6f3db9d14fd3f98e`.
+- **Revision set Client**: `4f25b539248c642351e50667a53d6fcb95840c41`,
+  PR #5 draft; repository/controller/UI/localizzazioni e integration flow Account.
+- **Gate Client**: `scripts/check.sh` exit 0 in 100,41 s; security 445 file,
+  governance/architecture/analyze, 371 test, coverage 5.743/7.098 (80,91%), benchmark
+  separato 1/1 e build Android/iOS `PASS`; integration Android API 35 1/1 in 78,31 s
+  e iPhone 17 Pro iOS 26.1 1/1 in 35,21 s `PASS`.
+- **Difetti corretti durante Execution**: controllo raw dei caratteri prima della
+  normalizzazione; UUID validation dentro il failure boundary; overflow compact/200%;
+  export nested strict; retry single-flight; cambio identity durante load con nuova
+  regressione owner isolation.
+- **CI Client**: run `30763287350` `BLOCKED` esterna, non `FAIL` tecnico: Quality,
+  Android e iOS hanno zero runner/step e annotazione billing/spending limit. Il gate
+  non è stato ritentato ciecamente né dichiarato `PASS`.
+- **Sicurezza/production**: token/credential/email-key assenti; errori sanitizzati;
+  nessun write/deploy production invocato e flag production OFF.
+- **Transizione**: TASK-022 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per installation ID non invasivo, `customer_devices`, consent/token lifecycle,
+  revoke/dedup/logout cleanup e UI Account, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-022 e attivazione TASK-023
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-022**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; installation ID non invasivo,
+  registro device owner-scoped, consent/permission separati, token rotation, revoke,
+  logout cleanup, offline retry e UI Account completati.
+- **Revision set Admin/Supabase**:
+  `c8f4048f5f442726bec1693e808e19fe6dd40fc4`, PR #67 draft; migration additiva
+  `20260802194500_storefront_v1_customer_devices`.
+- **Gate Admin/staging**: replay completo; pgTAP TASK-022 58/58 e suite 27 file/1.640
+  test; dedup/rotation concorrente; verify/foundation/security; CI `30764931962`,
+  Cloudflare `30764931964` e staging `30764930029`, tutti `PASS`; artifact
+  `8838637043`, digest
+  `ec7764abe27e019d95ecbcb7df3378445565bd2c951fd54a47fdf35395771d6f`.
+- **Revision set Client runtime**:
+  `b113f44a1c7b150e9b07e770aa8a7c158a2b8111`, PR #5 draft; storage bounded,
+  provider/repository/controller, signout coordinator, UI e quattro localizzazioni.
+- **Gate Client**: `scripts/check.sh` exit 0 in 119 s; security 465 file, governance
+  8/8, architecture 7/7, analyze/format, 403 test, coverage 6.329/7.851 (80,61%),
+  benchmark 1/1 e build Android/iOS `PASS`; integration Android API 35 1/1 in 23 s e
+  iPhone 17 Pro iOS 26.5 1/1 in 33 s `PASS`.
+- **Smoke mobile**: dopo aver distinto gli artifact test runner da quelli normali,
+  APK/Runner ricostruiti, installati e avviati headlessly; Android cold launch 2.327 ms,
+  accessibility tree/PID/crash scan e screenshot iOS/Android coerenti: `PASS`.
+- **Difetti corretti durante Execution**: porta SharedPreferences iniettabile dopo il
+  failure unit iniziale; logout riportato in viewport dopo una regressione widget;
+  artifact normali ricostruiti dopo che integration test aveva lasciato il runner.
+- **CI Client**: run `30766494620` `BLOCKED` esterna, non `FAIL` tecnico: Quality,
+  Android e iOS hanno zero runner/step e annotazione billing/spending limit.
+- **Sicurezza/production**: token escluso da response/log/storage locale; provider live
+  onestamente non configurato; nessun write/deploy production e flag production OFF.
+- **Transizione**: TASK-023 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per guest cart persistente, merge owner idempotente, cart version e revalidation
+  server-side, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-023 e attivazione TASK-024
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-023**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; cart guest Drift v3, cart
+  account owner-scoped, merge idempotente, cart version, revalidation e UI completati.
+- **Revision set Admin/Supabase**:
+  `80556a90bba87712e4f42530b9e500b9d2d485ef`, PR #67 draft; migration additive
+  `20260802210000` e bridge pubblico slug-based `20260802213000`.
+- **Gate Admin/staging**: replay 28 migration; pgTAP TASK-023 98/98 e suite 1.738/1.738;
+  concurrency/idempotency, foundation 806 pass + 2 skip, verify/security; CI
+  `30768157319`, Cloudflare `30768157310` e staging `30768155279`, tutti `PASS`.
+- **Revision set Client runtime**:
+  `e8d71d38ea87ab61693ecec80614c11d676e47f5`, PR #5 draft; dominio/repository/
+  controller Cart, cache guest persistente, CTA Detail/Favorites, UI e l10n.
+- **Gate Client**: pub get/l10n/format/analyze; 429 test, coverage 7.296/9.172
+  (79,55%); benchmark 1/1; security 481 file; governance/architecture; Android
+  debug/release e iOS debug/release compile `PASS`.
+- **Integration/smoke**: flow SQLite restart/merge/revalidation/logout Android API 35
+  e iOS 26.5 1/1 per piattaforma; Android cold launch 2.303 ms con accessibility tree,
+  iOS PID 62384 e screenshot 1.206x2.622; artifact scan `PASS`.
+- **Tentativi non candidati**: due run Android del nuovo integration test `FAIL` per
+  asserzioni del fake assorbite dal failure mapper, corrette spostando le verifiche
+  fuori dall'adapter; scan APK iniziale `FAIL` su APFS case-insensitive, ripetuto su
+  volume case-sensitive senza perdere resource; release Simulator iOS `NOT_RUN`
+  perché Flutter non la supporta, sostituita da device release no-codesign `PASS`.
+- **CI Client**: run `30770239675` `BLOCKED` esterna: Quality/Android/iOS con zero
+  step e annotazione billing/spending limit; nessun failure di codice dichiarato.
+- **Sicurezza/production**: nessun secret/config/artifact versionato; nessun write o
+  deploy production; flag production OFF.
+- **Transizione**: TASK-024 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per availability commerciale, freshness e replay/out-of-order senza quantità stock
+  pubblica, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-024 e attivazione TASK-025
+
+- **Agente**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **TASK-024**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; sei stati commerciali,
+  freshness/ingest monotono, fallback fail-closed, Admin preview read-only e cache/cart
+  Client coerenti senza quantità inventory pubblica.
+- **Revision set Admin/Supabase**:
+  `9d457ee4b278864a25e4f612bbfdea138e3df6d6`, PR #67 draft; migration additiva
+  `20260802220000_storefront_v1_public_availability`.
+- **Gate Admin/staging**: replay completo; pgTAP TASK-024 243/243 e suite
+  1.782/1.782; race duplicate/apply; foundation/verify/security; CI `30772550353`,
+  Cloudflare `30772550354` e staging `30772549228`, tutti `PASS`; artifact
+  `8840991592`, postverify e cleanup coerenti.
+- **Revision set Client runtime**:
+  `b34211f0b294703e3124b42f1b008ea32c454ffd`, PR #5 draft; Drift v4 aggiorna lo
+  snapshot pubblico guest cart su product refresh preservando quantità e favorite.
+- **Gate Client**: pub get/l10n/format/analyze; 433 test, coverage 7.333/9.176
+  (79,91%); benchmark cache 25.000 righe; security 483 file; governance 8/8,
+  architecture 7/7; build Android debug/release e iOS debug/release compile `PASS`.
+- **Integration/smoke**: refresh availability/prezzo attraversa restart/merge/logout
+  su Android 15 e iOS 26.5, 1/1 per piattaforma; artifact normali installati e avviati,
+  Android cold launch 2.694 ms, iOS PID 355, accessibility/screenshot/secret scan
+  `PASS`.
+- **Tentativo diagnostico non candidato**: dopo launch e screenshot iOS, il lookup
+  iniziale nel dominio `launchctl system` ha exit 1; il comando corretto
+  `launchctl list` ha verificato PID 355 con exit 0, senza retry cieco.
+- **CI Client**: run `30773126667` `BLOCKED` esterna: Quality/Android/iOS hanno zero
+  step e annotazione billing/spending limit; nessun failure di codice dichiarato.
+- **Performance**: server p95 catalog/search/detail 11,002/178,422/1,019 ms; cache p95
+  catalog/search 1.205/3.920 µs; cleanup fixture a zero.
+- **Sicurezza/production**: zero stock preciso/costo/supplier/owner/ID inventory nelle
+  response o UI; nessun secret/config/artifact versionato, nessun write/deploy
+  production e flag production OFF.
+- **Transizione**: TASK-025 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per autorità stock privata, hold atomico e idempotente, race ultimo pezzo,
+  expiry/release/cleanup e integrazione Client, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-025 e attivazione TASK-026
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-025**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; hold atomico/idempotente,
+  owner/shop/publication scoped, expiry/release/consume monotoni e cleanup bounded.
+- **Admin/Supabase**: SHA `448a778cc57ed1a441b87a71bb93be4315374d08`;
+  migration `20260803000951` + `20260803003855`; pgTAP 54/54, 196 assertion isolate,
+  race ultimo pezzo, load 1.200 hold; CI `30776746985`, Cloudflare `30776746979` e
+  staging `30776745250` `PASS`.
+- **Staging load**: 1.000 expired e 200 future active, tre batch max 400,
+  p50/p95/p99 498,463/502,698/503,075 ms, residui 0 e stock on-hand invariato;
+  artifact `8842295233`.
+- **Client**: SHA runtime `fe85ce910313843c00c83760b67563f7ea6ef2e7`;
+  pending storage, repository/coordinator/controller, Product Detail/Cart e quattro
+  localizzazioni; 461/461 test, coverage 79,03%, benchmark 1/1, build Android/iOS,
+  integration reservation 2/2 per piattaforma e artifact smoke `PASS`.
+- **CI Client**: run `30776491402` `BLOCKED` esterna; i tre job hanno zero runner/step
+  per billing/spending limit. Il gate non è dichiarato `PASS` e il lavoro tecnico
+  indipendente continua come autorizzato.
+- **Difetti corretti durante Execution**: eligibility richiede shop e publication;
+  load gate reso portable nell'immagine PostgreSQL senza Node; lista locale resa
+  growable con regressione; `adb` risolto dal path SDK e screenshot iOS atteso fino
+  allo stato stabile.
+- **Sicurezza/production**: response allow-list, nessun dato inventory preciso o
+  credential; nessun write/deploy production e flag OFF.
+- **Transizione**: TASK-026 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per pickup/reservation/delivery configurabile, quote server-side, address/zone/slot/
+  fee, repricing e checkout Client a cinque step, con writer Admin/Supabase -> Client.
+
+## 2026-08-02 — Checkpoint interno TASK-026 e attivazione TASK-027
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-026**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; fulfillment shop-scoped,
+  point/zone/slot/fee, quote server-authoritative, Admin config e checkout Client in
+  cinque step completati.
+- **Admin/Supabase**: SHA `86088dc739c59725735533c64133678e96641a9a`;
+  migration `20260803020000` + `20260803021500`; pgTAP 56/56, suite 31 file/1.892
+  test e race ultimo slot; CI `30779607356`, Cloudflare `30779607377` e staging
+  `30779605562` `PASS`; artifact `8843215328`.
+- **Client**: SHA runtime `9406df7d5b5d5a69a0edc033359be38f3bdf656f`;
+  parser allow-list, pending storage, controller e flow cinque step; 489 test, coverage
+  77,10%, benchmark, build Android/iOS, integration checkout 1/1 per piattaforma, live
+  staging adapter e artifact smoke `PASS`.
+- **CI Client**: run `30781669519` `BLOCKED` esterna; i tre job hanno zero runner/step
+  per billing/spending limit. Il gate non è dichiarato `PASS` e il lavoro tecnico
+  indipendente continua come autorizzato.
+- **Difetti corretti durante Execution**: ledger migration staging riconciliato in modo
+  additivo; restore pending stale sanificato; scanner APK reso non interattivo e capace
+  di verificare entry duplicate; screenshot iOS atteso fino al render stabile.
+- **Sicurezza/production**: totale/prezzo/sconto/fee restano server-authoritative,
+  nessun internal ID/credential o artifact locale versionato; nessun write/deploy
+  production e flag OFF.
+- **Transizione**: TASK-027 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per ordine, item snapshot, status event, outbox e consume hold atomici/idempotenti,
+  con writer Admin/Supabase -> Client.
+
+## 2026-08-03 — Checkpoint interno TASK-027 e attivazione TASK-028
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-027**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; aggregate ordine, item snapshot,
+  first event, outbox e consumo quote/hold/cart atomici, idempotenti e POS-neutral.
+- **Admin/Supabase**: SHA `599511c03cb502b9b76561ff320cfdbb4073b1ee`;
+  migration `20260803033000` + `20260803034500`; pgTAP 35/35, duplicate/replay race,
+  foundation 845 pass + 2 skip; CI `30783886282`, Cloudflare `30783886269` e staging
+  `30783882947` attempt 2 `PASS`; artifact `8844663559`, digest
+  `ea8ae759e6af6fc1a194f8a0f9b168164fd0e19003bfaf046298c3f092e5ece3`.
+- **Client**: SHA runtime `64c8f711547f8d5c5dc18650a03a9d5345bb71b7`;
+  parser allow-list, draft v2, replay timeout/restart e receipt; 497 test, coverage
+  76,39%, performance 1/1, build Android/iOS, integration order 1/1 per piattaforma e
+  artifact smoke `PASS`.
+- **CI Client**: run `30784085502` `BLOCKED` esterna; Quality/Android/iOS hanno zero
+  runner/step e annotation billing/spending limit. Nessun test CI è dichiarato `PASS`.
+- **Difetti corretti durante Execution**: trigger immutabilità snapshot/event/outbox;
+  expected pgTAP CI riallineato 31 -> 35; foundation puntata al worktree POS reale;
+  staging attempt 1 cancellato dalla queue e smoke Android con path SDK esplicito.
+- **Sicurezza/production**: response e snapshot allow-list, nessun write `pos_sales`,
+  secret/config/artifact o dato production versionato; nessun deploy production e
+  feature flag OFF.
+- **Transizione**: TASK-028 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per lista/dettaglio/timeline, cache read-only offline, deep link owner-scoped e
+  cancellazione server-authoritative, con writer Admin/Supabase -> Client.
+
+## 2026-08-03 — Checkpoint interno TASK-028 e attivazione TASK-029
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-028**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; list/detail/timeline owner-
+  scoped, cancellation idempotente, cache offline read-only, UI e deep link completati.
+- **Admin/Supabase**: SHA `119169375fa477995b41c34b3766deca32fec056`;
+  migration `20260803050000`; pgTAP 30/30, cancel race due sessioni, foundation 845
+  pass + 2 skip; CI `30787892745`, Cloudflare `30787892757` e staging `30787890770`
+  `PASS`; artifact `8845914762` e `8845928446` con digest registrati nel manifest.
+- **Client**: SHA runtime `1855100f34a3563787b1ac71eafb4af60a1b72e6`;
+  repository/cache/controller, Orders/Detail/timeline, pending cancel, logout purge e
+  deep link; 526 test + performance 1, coverage 77,31%, build Android/iOS, integration
+  history 1/1 per piattaforma e artifact smoke `PASS`.
+- **CI Client**: run `30787721420` `BLOCKED` esterna; Quality/Android/iOS hanno zero
+  runner/step e annotazione billing/spending limit. Nessun test CI è dichiarato `PASS`.
+- **Difetti corretti durante Execution**: validazione completa di cache line/timeline/
+  cancellation; refresh dopo errori deterministici; race bootstrap deep link;
+  messaggio offline; reflow card al 200%; staging delta corretto dopo aver provato il
+  predecessor già applicato. Regressioni dedicate impediscono recidive.
+- **Sicurezza/production**: response/cache allow-list, cancellation fail-closed,
+  nessuna vendita fiscale, secret/config/artifact o dato production versionato; nessun
+  deploy production e flag OFF.
+- **Transizione**: TASK-029 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per queue/detail Admin, RBAC shop-scoped, state machine e transition idempotenti con
+  event/audit/outbox atomici, con writer Admin/Supabase.
+
+## 2026-08-03 — Checkpoint interno TASK-029 e attivazione TASK-030
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-029**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; queue/detail shop-scoped,
+  state machine Admin, mutation idempotente/versionata ed event/audit/outbox atomici.
+- **Admin/Supabase**: SHA finale `23bfab60b91ef192dbb726bde454287cea144c8f`;
+  migration `20260803053000`; deploy applicativo `1a50fcd1`; pgTAP 34/34, race due
+  operatori, foundation 856 pass + 2 skip e Playwright locale 2/2 `PASS`.
+- **CI/staging**: CI `30798108711`, Cloudflare build `30798108767`, migration/verify
+  `30791945888`, deploy `30796888108` e acceptance `30798109969` `PASS`; publish 1/1,
+  order 1/1, cleanup 0 e fixture persistente verificata.
+- **Difetti corretti durante Execution**: grant ledger service-role, consistency
+  read-after-write fulfillment, navigation RSC streaming, fixture persistente non
+  distruttiva e attesa target UUID distinto; regressioni dedicate impediscono recidive.
+- **Sicurezza/production**: payload e audit allow-list, outbox POS-neutral,
+  `fiscalStatus=not_created`, zero write `pos_sales`, secret o artifact versionati;
+  nessun deploy production e flag/consumer OFF.
+- **Transizione**: TASK-030 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per protocollo claim/lease/ack, inbox idempotente Win7POS, offline/reconnect e confine
+  vendita fiscale, con writer Admin/Supabase -> Win7POS.
+
+## 2026-08-03 — Checkpoint interno TASK-030 e attivazione TASK-031
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-030**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; envelope/claim/lease/ack,
+  receipt server, inbox Win7POS durevole, retry/replay e confine fiscale completati.
+- **Admin/Supabase**: SHA `64ef3170f5830e044ac130b127c94149d25ee1fc`, PR #67;
+  migration `20260803060000`; pgTAP 40/40, race due consumer, foundation 863 pass +
+  2 skip, CI `30805402075` e Cloudflare `30805402072` `PASS`.
+- **Win7POS**: SHA `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`, PR #88;
+  test mirati 66/66, gate 46/46, CI Windows `30804008501` 878/878 e Security/SBOM/
+  CodeQL `30804007997`, tutti `PASS`; Win7 fisico `BLOCKED` esterno.
+- **Staging**: apply `30801335746`, verify `30801747388`, deploy `30804781883` ed E2E
+  `30805397611` `PASS`; order completed v5, receipt accepted/prepared/completed,
+  outbox delivered, zero `pos_sales`/fiscal reference e cleanup 0.
+- **Difetti corretti durante Execution**: assertion ledger post-apply, dispatch del
+  workflow nuovo da branch, fixture publication vincolata e PK cleanup proof; ogni
+  causa ha una regressione e il run finale non è un retry cieco.
+- **Sicurezza/production**: payload/inbox allow-list, secret scan e supply chain
+  `PASS`; production invariata e consumer/flag OFF.
+- **Transizione**: TASK-031 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per notification outbox/dispatcher, consent/token eligibility, payload lock-screen
+  privacy-safe e receive/deep-link Client, con writer Admin/Supabase -> Client.
+
+## 2026-08-03 — Checkpoint interno TASK-031 e attivazione TASK-032
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il solo planning del
+  task successivo già autorizzato dal release train.
+- **TASK-031**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; notification event/delivery/
+  receipt, recipient consent/generation, dispatcher idempotente e route mobile
+  owner-scoped completati.
+- **Admin/Supabase**: SHA `e9bcbc8c98a7dc1d0fdcfdbd549d7968a2fdbb19`, PR #67;
+  migration `20260803104431`; pgTAP 40/40, dispatcher 7/7, foundation CI 859 pass +
+  13 skip, CI `30811750153`, Cloudflare `30811750080` e staging `30811747216`
+  `PASS`.
+- **Staging**: due messaggi recording, una delivery terminale, payload localizzato e
+  route opaca, flag OFF/revoke/rotation esclusi, cleanup zero e
+  `productionWriteRequested=false`; artifact E2E `8855111072`, digest
+  `sha256:274d0f305e8797c8975d8184ceab2feb5f06848d9688a2caabb7555447c4e84e`.
+- **Client**: SHA runtime `ed2f8a5c95f70ce057860027408d9f61314d6f4e`, PR #5;
+  538 test, coverage 77,45%, 19/19 notification/deep-link, Android JVM 1/1,
+  XCTest 4/4, build Android/iOS e smoke route headless per piattaforma `PASS`.
+- **CI Client**: run `30811578997` `BLOCKED` esterna; i tre job hanno zero runner/step
+  e annotation billing/spending limit. Nessun test CI è dichiarato `PASS`.
+- **Difetto corretto durante Execution**: il banner `npm run` contaminava il file JSON
+  E2E pur con esecuzione applicativa verde; invocazione Node diretta e regressione
+  statica hanno portato la run finale interamente verde.
+- **Sicurezza/production**: payload e route allow-list, zero PII/internal ID/secret o
+  artifact versionato; production e push flag invariati/OFF. Delivery APNs/FCM reale
+  `BLOCKED` esterna per assenza di credential non interattive.
+- **Transizione**: TASK-032 è l'unico task `ACTIVE / EXECUTION`; planning autorizzato
+  per pay-at-pickup, COD opt-in, state/idempotency/webhook e online payment OFF, con
+  writer Admin/Supabase -> Client.
+
+## 2026-08-03 — Checkpoint tecnico TASK-032 prima del Milestone 4 E2E
+
+- **Ruolo**: `CODEX_EXECUTOR`; nessuna review formale intermedia.
+- **Revision set**: Client runtime
+  `72f98eea574300f77d42e96e09557f0dd55ac2d5`; Admin/Supabase finale
+  `cddb3f295d735ff3e16eaf705676807cb85efaab`; Win7POS invariato
+  `6c2eb9c8a0b6666f5dd59a2a132e616f5a8d5474`.
+- **Backend/Admin**: migration `20260803122644`; payment settings revisionati,
+  aggregate/attempt/event/mutation/webhook receipt `FORCE RLS`, RPC strict,
+  pay-at-pickup e COD opt-in, provider online dormant/OFF. pgTAP 36/36, provider 10/10,
+  race e foundation 882 (869 pass + 13 skip) `PASS`.
+- **Remote**: Admin CI `30817700671`, Cloudflare `30817700396`, payment staging
+  `30817695207` e POS regression `30817693665` `PASS`; artifact payment `8857518647`,
+  digest `sha256:41e10729fccfee6c2c6384a45e8f54cc46978d07db9a86373cc2a8c124901f2c`.
+- **Client**: gate canonico exit 0 in circa 120 s, 543 test + benchmark 1, coverage
+  11.600/14.935 (77,67%), payment/checkout 45/45, integration Android/iOS 1/1,
+  AAB release 13,58 s e iOS release compile 32,93 s; scan artifact 65 file `PASS`.
+- **CI Client**: `30818475635` `BLOCKED` esterna per billing, con tre job senza step.
+- **Correzione**: il failure POS `30815887397` era una race con l'applicazione della
+  migration payment; il lock staging condiviso e una regressione statica hanno rimosso
+  la causa. I run finali POS/payment sullo stesso SHA sono verdi.
+- **Stato**: TASK-032 resta temporaneamente l'unico `ACTIVE / EXECUTION` fino al
+  checkpoint E2E aggregato Milestone 4; production invariata, online payment OFF.
+
+## 2026-08-03 — Checkpoint Milestone 4 e attivazione TASK-033
+
+- **Ruolo**: `CODEX_EXECUTOR`, seguito da `CODEX_PLANNER` per il planning del task
+  successivo già autorizzato; nessuna review formale intermedia.
+- **TASK-032**: `VALIDATED_PENDING_INTEGRATED_REVIEW`; i gate payment e il checkpoint
+  aggregato Milestone 4 sono verdi.
+- **Admin/Supabase**: SHA finale
+  `e0406834af09173902e2f64948dd5834f4a9fac5`, migration additiva
+  `20260803143000`; il fix serializza la transizione dell'indirizzo default e i test
+  commerce sono isolati per fixture/shop/order.
+- **Milestone 4 staging**: run `30822286720` exit 0, 5m32s, 13 suite/629 assertion su
+  629, incluse 40/40 sullo stesso order flow; latest migration, `FORCE RLS`, online
+  OFF, rollback fixture e `productionWriteRequested=false` `PASS`.
+- **Artifact**: acceptance `8859500219`, digest
+  `sha256:b2fad3f10af44a11c0cdd62b43fa2a10e5433740248db5c5666a6605c454819a`;
+  migration `8859345458`, digest
+  `sha256:3f75147e37cb9118ff18a23ca6457707804b39768fc6d40f5bed66e1dc949a4b`.
+- **Regressioni remote**: TASK-027 `30822288899`, TASK-028 `30822288363` e TASK-029
+  `30822288362` attempt 2, CI Admin `30822290788` e Cloudflare `30822292394` tutti
+  `PASS` sullo SHA finale.
+- **Failure corretti**: violazione transitoria del default address e assert globali
+  order/history/Admin/POS/notification non isolati; migration additiva, fixture scope
+  e mutex staging condiviso impediscono la recidiva. Nessun retry cieco è stato usato.
+- **Production**: invariata; Storefront/orders/POS/push/online-payment flag OFF.
+- **TASK-033**: unico task `ACTIVE / EXECUTION`; task e planning creati, autorizzazione
+  USER_APPROVER consumata. Il preflight `deep_security_scan` ha exit 0 e stato
+  `ready`: cinque phase skill disponibili, runtime native v2 e goal tools `PASS`.
+- **Prossima azione**: discovery profonda read-only sul root multi-repository, quindi
+  validation/attack-path/report canonico e solo dopo eventuale hardening P0/P1/P2.
+
+## 2026-08-08 — TASK-033 Deep Security Scan bloccata prima di discovery
+
+- **Ruolo**: `CODEX_EXECUTOR`; nessuna review integrata avviata.
+- **Precheck Client**: repository/remote/PR #5 verificati; creato un worktree detached
+  sterile allo SHA esatto `ec74166ea20786b8deaa9965cac103984c927820`, con 564 file
+  tracciati e zero file modificati, untracked o ignored.
+- **Precheck Admin**: SHA
+  `e0406834af09173902e2f64948dd5834f4a9fac5` disponibile e allineato al branch remoto
+  e alla PR #67; nessuna modifica Admin.
+- **Tentativo precedente**: il manifest temporaneo del 2026-08-03 è ancora presente,
+  stato `failed`, causa usage limit; conservato solo come storia e mai accettato come
+  discovery o usato per finding/no-finding.
+- **Preflight fresco**: helper `deep_security_scan` exit 0, `ready`; goal tools e goals
+  `PASS`, nessuna modifica persistente di configurazione.
+- **Deep Scan**: una sola chiamata sul Client, scope `.`, non ha avviato né riagganciato
+  discovery. Errore: `Deep Scan cannot safely start a read-only worker: the parent must provide a managed filesystem permission profile.` Nessun `scanId`, manifest o nuovo
+  failure-manifest restituito.
+- **Stop condition**: nessun secondo tentativo; validation, attack-path, draft,
+  completion, `report.md`, integrated review, test di closeout, commit/push/merge e
+  riallineamento main `NOT_RUN`.
+- **Stato**: TASK-032 resta `VALIDATED_PENDING_INTEGRATED_REVIEW`; TASK-033 e release
+  train passano a `BLOCKED / EXECUTION` con indicatore
+  `BLOCKED_SECURITY_SCAN_TOOL_PERMISSION_PROFILE`.
+- **Sicurezza**: nessuna modifica a production, Supabase, Storage, secret o
+  infrastruttura; nessun force-push.
+- **Sblocco**: nuova sessione con managed filesystem permission profile, nuovo
+  preflight e una sola nuova scan sul medesimo SHA, senza riutilizzare i tentativi
+  terminali.
+- **Audit remediation**: il preflight `ready` non contiene patch host applicabili; la
+  tool surface non offre un setter per il permission profile e il parent corrente lo
+  dichiara `disabled`. Nessuna modifica a config Codex è stata tentata o inferita.
+
+## 2026-08-08 — Residual audit remoto indipendente da TASK-033
+
+- **Scope**: reconnaissance read-only di Client, Admin, Win7POS e Android; nessuna
+  integrated review e nessuna nuova security scan.
+- **Target preservato**: `ec74166ea20786b8deaa9965cac103984c927820` resta head del
+  branch locale/remoto `integration/storefront-v1`, della PR Client #5 e del worktree
+  detached pulito; nessun commit successivo sul ref coordinato.
+- **Batch selezionato**: un solo rerun della CI Client `30824651949` sullo SHA esatto,
+  perché il primo tentativo non aveva eseguito alcuno step e il workflow contiene solo
+  quality/test/build, senza deploy.
+- **Risultato**: attempt 2 `FAIL/BLOCKED_EXTERNAL`; `Quality`, `Android debug build` e
+  `iOS Simulator debug build` hanno nuovamente zero step e annotazione GitHub
+  billing/spending limit. Nessun secondo rerun.
+- **Residual classification**: task release successivi bloccati dal gate TASK-033;
+  hardware/credential/signing e CI billing restano esterni; branch/PR storici già
+  assorbiti sono documentazione storica, non nuovo lavoro automatico.
+- **Root cause governance**: dopo la transizione legittima a `BLOCKED`, il README
+  conservava `ACTIVE` e il checker richiedeva sempre una riga roadmap `ACTIVE` quando
+  esisteva un task corrente. Allineato il README e reso il checker status-aware: un
+  task corrente `ACTIVE` richiede una sola riga `ACTIVE`; ogni altro stato ne richiede
+  zero. Aggiunta la fixture regressiva `active-header-without-active-row`.
+- **Gate tooling/docs**: `bash -n` `PASS`; governance corrente `PASS`; regressioni
+  governance `9/9 PASS`; `git diff --check` `PASS`.
+- **Sicurezza operativa**: zero modifiche runtime prodotto, merge, deploy, migration,
+  Storage, secret o production. Il batch ledger/README e checker/test di governance è
+  isolato su un branch post-target dedicato e non è integrato nel ref congelato.
+
+## 2026-08-11 — Ripresa autorizzata del closeout multi-repository
+
+- **Ruolo**: `CODEX_EXECUTOR`; mandato finale e successiva conferma esplicita del
+  `USER_APPROVER` ricevuti.
+- **Override registrato**: superati freeze Client/permission profile e vecchio target
+  `ec74166e`; la sola Deep Security Scan nuova resta obbligatoria sul candidato finale
+  stabilizzato, mai su una revisione intermedia.
+- **Safety**: fetch correnti; backup Client con ref/bundle/patch verificati; batch
+  Android/Admin/Win7POS e dirty state utente preservati separatamente con patch,
+  archivi bounded, ref e bundle verificati. Nessun reset o cleanup.
+- **Baseline remota**: Client #5/#6, Admin #67 e Win7POS #88 ancora aperte; iOS
+  TASK-141 già merged; Android PR #1 conflittuale. Review indipendenti avviate sui tre
+  batch e sulle due release lane.
+- **Staging**: progetto non-production `ACTIVE_HEALTHY`, Postgres 17, migration head
+  `20260803143000`; nessuna migration nuova e nessun accesso production.
+- **Stato**: TASK-033 riprende `ACTIVE / EXECUTION`; prima convergenza delle lane e
+  dei contratti, poi freeze finale, Deep Scan unica, review integrata e gate completi.
+
+## 2026-08-12 — TASK-033 remediation mirata 18/18 a re-review
+
+- **Ruoli**: `CODEX_EXECUTOR`, poi `CODEX_REVIEWER` e `CODEX_FIXER` logicamente
+  separati nella stessa sessione; autorizzazione finale `USER_APPROVER` registrata in
+  D-09.
+- **Provenance**: report sigillato scan
+  `da548633-6547-4157-a55f-8e8ab1b11f0d`, SHA analizzato `0668ea7a`, digest report
+  verificato; 2 medium + 16 low, coverage 61/61, deferred 0. Nessuna nuova scan.
+- **Remediation**: logout durevole/revoca retry; fencing owner/shop/generation per
+  checkout, cart, order, hold e device; purge unauthorized; dialog auth-bound;
+  response binding; loader immagini exact-origin/bounded/SHA-256; callback OAuth
+  privata rimossa e route customer-sensitive fail-closed.
+- **Review/Fix**: corretti buffer cache immagine mutabile e purge auth bootstrap
+  incondizionato; nuovo OAuth resta negato finché la revoca pending non è drenata.
+- **Gate**: security 564 file, fixture 32/32 negative e 2/2 positive, governance 9/9,
+  architecture 7/7, format/analyze, 566 test, coverage 12.076/15.541 (77,70%),
+  performance, build Android/iOS e smoke reali Android/iOS 1/1: tutti `PASS`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; production,
+  dati reali e credenziali privilegiate non acceduti; nessun task successivo attivato.
+
+## 2026-08-12 — TASK-033 re-review security APPROVED, closeout in attesa CI
+
+- **Target**: commit `ee0fcf7129a16f226c5b6da4e786d87108413765` confrontato con
+  la base scan `0668ea7a` e con tutti i source/control/sink del report.
+- **Verifica autonoma**: ledger 18/18, mancanti 0; 20 file / 200 test mirati, Android
+  app unit test e iOS XCTest 4/4 `PASS`; nessun sink network-image legacy o handler
+  nativo OAuth privato residuo.
+- **Esito**: `APPROVED`, zero P0/P1/P2/P3 e zero finding nuovi. Limite dichiarato:
+  separazione reviewer/executor logica nella stessa sessione.
+- **Conferma**: D-09 autorizza `DONE` e merge normale soltanto dopo CI exact-SHA
+  verde. La validazione security è approvata, ma la transizione non è ancora applicata;
+  TASK-033 resta il task corrente e TASK-034 resta `TODO`.
+
+## 2026-08-12 — TASK-033 closeout bloccato dalla CI esterna
+
+- **PR**: #7 verso `main`, head `343492a3e3d990ad02af9675abb28271ca0c2c29`,
+  mergeable ma `UNSTABLE`.
+- **CI**: run `31623337521` exact-SHA `failure`; Quality, Android debug build e iOS
+  Simulator debug build hanno ciascuno zero step e annotazione GitHub identica:
+  recent account payments failed o spending limit da aumentare.
+- **Classificazione**: `BLOCKED_EXTERNAL / CI_BILLING`; nessun failure del diff è
+  diagnosticabile perché nessun runner è partito. La branch protection API restituisce
+  403 (feature non disponibile sul piano repository), ma i check rossi restano un gate
+  esplicito del mandato e non vengono bypassati.
+- **Stop condition**: nessun merge/admin override/rerun cieco; PR e branch restano
+  aperte. TASK-033 torna `BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`; D-09 resta
+  concessa ma `DONE` non è applicato. TASK-034 resta `TODO`.
+
+## 2026-08-12 — TASK-033 public CI verde e governance chiusa
+
+- **Autorizzazione**: il nuovo mandato `USER_APPROVER`, registrato in D-10, autorizza
+  a rendere `PUBLIC` esclusivamente `XNIW/ClientMerchandiseControl`, lasciarlo
+  pubblico, usare runner pubblici, correggere failure CI reali e completare PR #7 con
+  merge normale. Nuova Deep Security Scan, production, admin override, bypass e force
+  push restano vietati.
+- **Pre-public**: `check-client-security`, action pin, shell syntax e diff whitespace
+  `PASS`; `gitleaks 8.30.1` full-history ha analizzato 159 commit e circa 4,87 MiB,
+  classificando soltanto fixture negative e valori client-public. Secret e variable
+  repository: zero; workflow senza `pull_request_target`, permessi `contents: read` e
+  action fissate a SHA.
+- **Repository**: visibilità verificata da `gh repo view` e REST come `PUBLIC` /
+  `private: false`, default branch `main`; secret scanning e push protection abilitati.
+  Nessun altro repository ha cambiato visibilità.
+- **CI billing**: la run `31623828999` attempt 1 era il blocco storico con zero step.
+  L'unico rerun attempt 2, dopo la pubblicazione, ha assegnato runner reali: Android e
+  iOS `SUCCESS`, `Quality` failure reale sul golden checkout Linux (4,18%, 13.763 px).
+- **Diagnosi/fix CI**: macOS locale risultava pixel-identico; il run diagnostico
+  `31645292044` ha acquisito una sola volta il test image Linux. È stato aggiunto un
+  baseline Linux separato con digest
+  `2cb2fab9a20a473d191e56aa7a9c1b6253ef2a138361be132f5b1782ebbd1e29`, mantenendo
+  il confronto pixel-exact; il passo upload temporaneo è stato rimosso. Nessun job,
+  aspettativa, sicurezza o failure è stato nascosto.
+- **Gate**: golden mirato `PASS`; `bash scripts/check.sh` exit 0 con scanner,
+  governance, architettura, format, analyze, 566 test, performance e build Android/iOS
+  `PASS`. La run PR pubblica `31646041242` sul commit `be6c8ff` ha concluso
+  `Quality`, Android e iOS 3/3 `SUCCESS` con step reali.
+- **Scope PR**: 74 commit e 319 file rispetto a `origin/main`, interamente riconducibili
+  al release train Storefront V1 e TASK-033; nessun file personale, temporaneo, build
+  output, database, credential, patch o bundle accidentale.
+- **Transizione**: finding 18/18 `FIXED_VALIDATED`, 0 P0/P1/P2/P3 aperti, deferred 0,
+  related security bugs 2 e regressioni introdotte 0. TASK-033 passa a
+  `DONE / REVIEW / USER_APPROVED_DONE`; progetto `IDLE`, release train `CLOSEOUT`,
+  review integrata `APPROVED`; TASK-034 resta `TODO`.
+- **Sicurezza operativa**: production, dati reali, ordini, pagamenti e checkout reali
+  non acceduti; Google OAuth resta fail-closed `OFF` fino a un dominio HTTPS posseduto
+  e verificato.

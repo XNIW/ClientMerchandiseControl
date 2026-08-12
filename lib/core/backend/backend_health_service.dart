@@ -43,11 +43,13 @@ final class HttpBackendHealthService implements BackendHealthService {
   HttpBackendHealthService({
     http.Client? client,
     Duration timeout = const Duration(seconds: 5),
+    this.closeClientOnDispose = true,
   }) : _timeout = _validateTimeout(timeout),
        _client = client ?? http.Client();
 
   final Duration _timeout;
   final http.Client _client;
+  final bool closeClientOnDispose;
   final Set<_ProbeAbortSignal> _activeAborts = <_ProbeAbortSignal>{};
 
   bool _isClosed = false;
@@ -124,7 +126,9 @@ final class HttpBackendHealthService implements BackendHealthService {
     for (final abortSignal in _activeAborts.toList(growable: false)) {
       abortSignal.abort(_ProbeAbortReason.cancelled);
     }
-    _client.close();
+    if (closeClientOnDispose) {
+      _client.close();
+    }
   }
 
   static Duration _validateTimeout(Duration timeout) {

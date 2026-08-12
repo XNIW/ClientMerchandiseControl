@@ -34,6 +34,16 @@ abstract interface class AuthRepository {
 
   Future<void> clearPendingOAuth();
 
+  /// Persiste l'intento e rende la sessione non ripristinabile prima di altri
+  /// cleanup asincroni.
+  Future<void> beginSignOut();
+
+  /// Tenta la revoca globale, conserva un retry cifrato se necessario e
+  /// completa sempre il logout locale.
+  Future<void> completeSignOut();
+
+  Future<void> retryPendingRemoteRevocations();
+
   /// Pulisce subito la sessione locale. Un errore remoto può essere rilanciato
   /// dopo la pulizia e non autorizza il ripristino dello stato authenticated.
   Future<void> signOutLocal();

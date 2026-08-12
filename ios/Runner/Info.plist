@@ -14,7 +14,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.xniw.clientmerchandisecontrol.auth</string>
+			<string>com.xniw.clientmerchandisecontrol.storefront</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.xniw.clientmerchandisecontrol</string>

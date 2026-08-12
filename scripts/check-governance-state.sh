@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cmc_repo_root="$(git rev-parse --show-toplevel)"
+cmc_repo_root="${CMC_GOVERNANCE_REPO_ROOT:-$(git rev-parse --show-toplevel)}"
 cmc_master_plan="${cmc_repo_root}/docs/MASTER-PLAN.md"
 cmc_readme="${cmc_repo_root}/README.md"
 cmc_violation_count=0
@@ -33,6 +33,9 @@ cmc_active_task="$(cmc_field "${cmc_master_plan}" "Task attivo")"
 cmc_task_status="$(cmc_field "${cmc_master_plan}" "Stato task")"
 cmc_phase="$(cmc_field "${cmc_master_plan}" "Fase")"
 cmc_indicator="$(cmc_field "${cmc_master_plan}" "Indicatore")"
+cmc_release_train="$(cmc_field "${cmc_master_plan}" "Release train")"
+cmc_release_train_state="$(cmc_field "${cmc_master_plan}" "Stato release train")"
+cmc_integrated_review="$(cmc_field "${cmc_master_plan}" "Review integrata")"
 
 cmc_compare \
   "Task attivo" \
@@ -107,6 +110,133 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         cmc_violation_count=$((cmc_violation_count + 1))
       fi
     fi
+  fi
+fi
+
+cmc_table_active_count="$(
+  awk -F'|' '
+    /^\| TASK-[0-9][0-9][0-9] / {
+      status=$4
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", status)
+      if (status == "ACTIVE") count++
+    }
+    END { print count + 0 }
+  ' "${cmc_master_plan}"
+)"
+cmc_table_active_task="$(
+  awk -F'|' '
+    /^\| TASK-[0-9][0-9][0-9] / {
+      task=$2
+      status=$4
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", task)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", status)
+      if (status == "ACTIVE") {
+        print task
+        exit
+      }
+    }
+  ' "${cmc_master_plan}"
+)"
+
+if [[ "${cmc_active_task_normalized}" == "nessuno" ]]; then
+  if [[ "${cmc_table_active_count}" -ne 0 ]]; then
+    printf 'Master dichiara nessun task attivo ma la roadmap contiene %s ACTIVE.\n' \
+      "${cmc_table_active_count}" >&2
+    cmc_violation_count=$((cmc_violation_count + 1))
+  fi
+elif [[ "${cmc_task_status}" == "ACTIVE" ]]; then
+  if [[ "${cmc_table_active_count}" -ne 1 ]]; then
+    printf 'Un task corrente ACTIVE richiede esattamente una riga ACTIVE: ricevute=%s.\n' \
+      "${cmc_table_active_count}" >&2
+    cmc_violation_count=$((cmc_violation_count + 1))
+  elif [[ "${cmc_table_active_task}" != "${cmc_active_task}" ]]; then
+    printf 'Task ACTIVE in roadmap incoerente: header=%q, roadmap=%q.\n' \
+      "${cmc_active_task}" "${cmc_table_active_task}" >&2
+    cmc_violation_count=$((cmc_violation_count + 1))
+  fi
+elif [[ "${cmc_table_active_count}" -ne 0 ]]; then
+  printf 'Un task corrente %s non può lasciare righe ACTIVE: ricevute=%s.\n' \
+    "${cmc_task_status}" "${cmc_table_active_count}" >&2
+  cmc_violation_count=$((cmc_violation_count + 1))
+fi
+
+if [[ "${cmc_release_train}" == "STOREFRONT_V1" ]]; then
+  case "${cmc_release_train_state}" in
+    PLANNING|EXECUTION|INTEGRATED_REVIEW|FIX|CLOSEOUT|COMPLETE|BLOCKED) ;;
+    *)
+      printf 'Stato release train non valido: %q.\n' "${cmc_release_train_state}" >&2
+      cmc_violation_count=$((cmc_violation_count + 1))
+      ;;
+  esac
+
+  case "${cmc_integrated_review}" in
+    NOT_RUN|APPROVED|CHANGES_REQUIRED|BLOCKED|REJECTED) ;;
+    *)
+      printf 'Esito review integrata non valido: %q.\n' "${cmc_integrated_review}" >&2
+      cmc_violation_count=$((cmc_violation_count + 1))
+      ;;
+  esac
+
+  cmc_release_scope=(
+    005 006 007 008 009 010
+    013 014 015 016 017 018 019
+    021 022 023 024 025 026 027 028 029 030 031 032
+    033 034 035 036 037 038 039 040 041 042
+  )
+
+  for cmc_task_number in "${cmc_release_scope[@]}"; do
+    cmc_row_status="$(
+      awk -F'|' -v task="TASK-${cmc_task_number}" '
+        $2 ~ "^[[:space:]]*" task "[[:space:]]*$" {
+          status=$4
+          gsub(/^[[:space:]]+|[[:space:]]+$/, "", status)
+          print status
+          exit
+        }
+      ' "${cmc_master_plan}"
+    )"
+
+    case "${cmc_row_status}" in
+      TODO|ACTIVE|BLOCKED|VALIDATED_PENDING_INTEGRATED_REVIEW|DONE) ;;
+      *)
+        printf 'Stato roadmap non valido per TASK-%s: %q.\n' \
+          "${cmc_task_number}" "${cmc_row_status}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+        ;;
+    esac
+
+    if [[ "${cmc_row_status}" == "DONE" && "${cmc_integrated_review}" != "APPROVED" ]]; then
+      printf 'TASK-%s non può essere DONE prima della review integrata APPROVED.\n' \
+        "${cmc_task_number}" >&2
+      cmc_violation_count=$((cmc_violation_count + 1))
+    fi
+
+    if [[ "${cmc_row_status}" == "VALIDATED_PENDING_INTEGRATED_REVIEW" ]]; then
+      cmc_validated_files="$(
+        find "${cmc_repo_root}/docs/TASKS" -maxdepth 1 -type f \
+          -name "TASK-${cmc_task_number}-*.md"
+      )"
+      cmc_validated_file_count="$(printf '%s\n' "${cmc_validated_files}" | \
+        awk 'NF { count++ } END { print count + 0 }')"
+      if [[ "${cmc_validated_file_count}" -ne 1 ]]; then
+        printf 'TASK-%s validato richiede esattamente un file task: ricevuti=%s.\n' \
+          "${cmc_task_number}" "${cmc_validated_file_count}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      else
+        cmc_validated_status="$(cmc_field "${cmc_validated_files}" "Stato")"
+        if [[ "${cmc_validated_status}" != "VALIDATED_PENDING_INTEGRATED_REVIEW" ]]; then
+          printf 'TASK-%s validato incoerente nel file task: %q.\n' \
+            "${cmc_task_number}" "${cmc_validated_status}" >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
+        fi
+      fi
+    fi
+  done
+
+  if [[ "${cmc_release_train_state}" == "INTEGRATED_REVIEW" && \
+    "${cmc_table_active_count}" -ne 0 ]]; then
+    printf 'Durante INTEGRATED_REVIEW nessun task può restare ACTIVE.\n' >&2
+    cmc_violation_count=$((cmc_violation_count + 1))
   fi
 fi
 

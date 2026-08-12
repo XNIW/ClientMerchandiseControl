@@ -22,6 +22,8 @@ class StorefrontPage extends StatelessWidget {
       builder: (context, constraints) {
         final horizontalPadding = constraints.maxWidth >= AppBreakpoints.wide
             ? AppSpacing.xxl
+            : constraints.maxWidth <= AppBreakpoints.narrow
+            ? AppSpacing.md
             : AppSpacing.lg;
 
         return SingleChildScrollView(

@@ -16,6 +16,16 @@ final class AuthStorageException implements Exception {
   String toString() => 'AuthStorageException($code)';
 }
 
+final class AuthPendingRemoteRevocation {
+  const AuthPendingRemoteRevocation({
+    required this.slot,
+    required this.session,
+  });
+
+  final int slot;
+  final String session;
+}
+
 abstract interface class SecureAuthKeyValueStore {
   Future<String?> read(String key);
 
@@ -44,7 +54,7 @@ abstract interface class AuthCleanupJournalStore {
   Future<void> clearCleanupPending(AuthCleanupTarget target);
 }
 
-enum AuthCleanupTarget { session, pkce }
+enum AuthCleanupTarget { session, pkce, logout }
 
 final class FlutterSecureAuthKeyValueStore implements SecureAuthKeyValueStore {
   FlutterSecureAuthKeyValueStore({FlutterSecureStorage? storage})
@@ -90,6 +100,7 @@ final class SharedPreferencesAuthInstallationMarkerStore
   static const _markerKey = 'cmc.auth.installation-marker.v1';
   static const _sessionCleanupKey = 'cmc.auth.cleanup-session.v1';
   static const _pkceCleanupKey = 'cmc.auth.cleanup-pkce.v1';
+  static const _logoutIntentKey = 'cmc.auth.logout-intent.v1';
 
   final SharedPreferencesAsync _preferences;
 
@@ -122,6 +133,7 @@ final class SharedPreferencesAuthInstallationMarkerStore
     return switch (target) {
       AuthCleanupTarget.session => _sessionCleanupKey,
       AuthCleanupTarget.pkce => _pkceCleanupKey,
+      AuthCleanupTarget.logout => _logoutIntentKey,
     };
   }
 }
@@ -225,9 +237,13 @@ final class SecureSupabaseAuthStorage extends LocalStorage
   static const sessionCleanupMarkerStorageKey =
       'cmc.auth.cleanup-session.secure.v1';
   static const pkceCleanupMarkerStorageKey = 'cmc.auth.cleanup-pkce.secure.v1';
+  static const logoutIntentStorageKey = 'cmc.auth.logout-intent.secure.v1';
+  static const remoteRevocationStorageKeyPrefix =
+      'cmc.auth.remote-revocation.secure.v1';
 
   static const _maxSessionLength = 128 * 1024;
   static const _maxPkceLength = 4096;
+  static const _maximumPendingRemoteRevocations = 4;
 
   final SecureAuthKeyValueStore _secureStore;
   final AuthInstallationMarkerStore _installationMarkerStore;
@@ -237,8 +253,11 @@ final class SecureSupabaseAuthStorage extends LocalStorage
 
   Future<void>? _initialization;
   Future<void> _mutationTail = Future<void>.value();
+  var _logoutRequested = false;
 
   Stream<AuthStorageException> get failures => _failures.stream;
+
+  bool get logoutRequested => _logoutRequested;
 
   @override
   Future<void> initialize() {
@@ -265,6 +284,13 @@ final class SecureSupabaseAuthStorage extends LocalStorage
     try {
       final isMarked = await _installationMarkerStore.isCurrentInstallMarked();
       if (isMarked) {
+        _logoutRequested = await _isLogoutIntentPending();
+        if (_logoutRequested) {
+          await _runIndependently([
+            () => _delete(sessionStorageKey),
+            () => _delete(pkceStorageKey),
+          ]);
+        }
         await _runIndependently([
           () => _retryPendingCleanup(AuthCleanupTarget.session),
           () => _retryPendingCleanup(AuthCleanupTarget.pkce),
@@ -277,6 +303,9 @@ final class SecureSupabaseAuthStorage extends LocalStorage
         () => _secureStore.delete(pkceStorageKey),
         () => _secureStore.delete(sessionCleanupMarkerStorageKey),
         () => _secureStore.delete(pkceCleanupMarkerStorageKey),
+        () => _secureStore.delete(logoutIntentStorageKey),
+        for (var slot = 0; slot < _maximumPendingRemoteRevocations; slot++)
+          () => _secureStore.delete(_remoteRevocationStorageKey(slot)),
       ]);
       await _installationMarkerStore.markCurrentInstall();
       await _runIndependently([
@@ -286,9 +315,14 @@ final class SecureSupabaseAuthStorage extends LocalStorage
         () => _installationMarkerStore.clearCleanupPending(
           AuthCleanupTarget.pkce,
         ),
+        () => _installationMarkerStore.clearCleanupPending(
+          AuthCleanupTarget.logout,
+        ),
         () =>
             _cleanupJournalStore.clearCleanupPending(AuthCleanupTarget.session),
         () => _cleanupJournalStore.clearCleanupPending(AuthCleanupTarget.pkce),
+        () =>
+            _cleanupJournalStore.clearCleanupPending(AuthCleanupTarget.logout),
       ]);
     } on Object {
       throw _reportFailure(
@@ -302,18 +336,21 @@ final class SecureSupabaseAuthStorage extends LocalStorage
   @override
   Future<bool> hasAccessToken() async {
     await _ensureInitialized();
+    if (_logoutRequested) return false;
     return await _read(sessionStorageKey) != null;
   }
 
   @override
   Future<String?> accessToken() async {
     await _ensureInitialized();
+    if (_logoutRequested) return null;
     return _read(sessionStorageKey);
   }
 
   @override
   Future<void> persistSession(String persistSessionString) async {
     await _ensureInitialized();
+    if (_logoutRequested) return;
     await _enqueueMutation(
       () => _writeBounded(
         key: sessionStorageKey,
@@ -321,6 +358,168 @@ final class SecureSupabaseAuthStorage extends LocalStorage
         maxLength: _maxSessionLength,
       ),
     );
+  }
+
+  /// Rende persistente l'intento prima di qualsiasi cleanup feature-specific.
+  /// Il record sicuro include la sessione corrente esclusivamente per consentire
+  /// una revoca server-side ritentabile; i due marker non sensibili non la copiano.
+  Future<void> beginLogoutIntent(String? serializedSession) async {
+    await _ensureInitialized();
+    await _enqueueMutation(() async {
+      // Il processo corrente deve diventare fail-closed anche quando nessuno
+      // dei tre backend riesce a rendere durevole il marker.
+      _logoutRequested = true;
+      AuthStorageException? firstFailure;
+      StackTrace? firstStackTrace;
+      var markerWritten = false;
+
+      Future<void> capture(
+        Future<void> Function() operation,
+        String failureCode,
+      ) async {
+        try {
+          await operation();
+          markerWritten = true;
+        } on Object catch (error, stackTrace) {
+          firstFailure ??= error is AuthStorageException
+              ? error
+              : _reportFailure(AuthStorageException(failureCode));
+          firstStackTrace ??= stackTrace;
+        }
+      }
+
+      await capture(
+        () => _writeBounded(
+          key: logoutIntentStorageKey,
+          value: serializedSession ?? 'pending',
+          maxLength: _maxSessionLength,
+        ),
+        'logout_intent_secure_write_failed',
+      );
+      await capture(
+        () => _cleanupJournalStore.markCleanupPending(AuthCleanupTarget.logout),
+        'logout_intent_journal_write_failed',
+      );
+      await capture(
+        () => _installationMarkerStore.markCleanupPending(
+          AuthCleanupTarget.logout,
+        ),
+        'logout_intent_marker_write_failed',
+      );
+      try {
+        await _deleteWithTombstone(
+          key: sessionStorageKey,
+          target: AuthCleanupTarget.session,
+        );
+      } on Object catch (error, stackTrace) {
+        firstFailure ??= error is AuthStorageException
+            ? error
+            : _reportFailure(
+                const AuthStorageException('logout_session_purge_failed'),
+              );
+        firstStackTrace ??= stackTrace;
+      }
+      try {
+        await _deleteWithTombstone(
+          key: pkceStorageKey,
+          target: AuthCleanupTarget.pkce,
+        );
+      } on Object catch (error, stackTrace) {
+        firstFailure ??= error is AuthStorageException
+            ? error
+            : _reportFailure(
+                const AuthStorageException('logout_pkce_purge_failed'),
+              );
+        firstStackTrace ??= stackTrace;
+      }
+      if (!markerWritten) {
+        firstFailure = _reportFailure(
+          const AuthStorageException('logout_intent_not_durable'),
+        );
+        firstStackTrace = StackTrace.current;
+      }
+      if (firstFailure case final failure?) {
+        Error.throwWithStackTrace(failure, firstStackTrace!);
+      }
+    });
+  }
+
+  Future<void> finishLogout({required bool remoteRevoked}) async {
+    await _ensureInitialized();
+    await _enqueueMutation(() async {
+      if (!remoteRevoked) {
+        final serializedSession = await _read(logoutIntentStorageKey);
+        if (serializedSession != null && serializedSession != 'pending') {
+          await _enqueueRemoteRevocation(serializedSession);
+        }
+      }
+      _logoutRequested = true;
+      await _runIndependently([
+        () => _delete(sessionStorageKey),
+        () => _delete(pkceStorageKey),
+        // Il marker resta intenzionalmente attivo fino al prossimo login
+        // esplicito riuscito. Dopo avere trasferito l'eventuale sessione nella
+        // coda di revoca, il payload viene ridotto a un valore non sensibile.
+        () => _writeBounded(
+          key: logoutIntentStorageKey,
+          value: 'pending',
+          maxLength: _maxSessionLength,
+        ),
+      ]);
+    });
+  }
+
+  Future<void> persistExplicitLoginSession(String serializedSession) async {
+    await _ensureInitialized();
+    await _enqueueMutation(() async {
+      await _writeBounded(
+        key: sessionStorageKey,
+        value: serializedSession,
+        maxLength: _maxSessionLength,
+      );
+      await _runIndependently([
+        () => _installationMarkerStore.clearCleanupPending(
+          AuthCleanupTarget.logout,
+        ),
+        () =>
+            _cleanupJournalStore.clearCleanupPending(AuthCleanupTarget.logout),
+        () => _delete(logoutIntentStorageKey),
+      ]);
+      _logoutRequested = false;
+    });
+  }
+
+  Future<List<AuthPendingRemoteRevocation>> pendingRemoteRevocations() async {
+    await _ensureInitialized();
+    final pending = <AuthPendingRemoteRevocation>[];
+    for (var slot = 0; slot < _maximumPendingRemoteRevocations; slot++) {
+      final session = await _read(_remoteRevocationStorageKey(slot));
+      if (session != null) {
+        pending.add(AuthPendingRemoteRevocation(slot: slot, session: session));
+      }
+    }
+    return pending;
+  }
+
+  /// Restituisce la sessione cifrata di un logout interrotto, senza renderla
+  /// nuovamente disponibile al restore locale.
+  Future<String?> pendingLogoutSession() async {
+    await _ensureInitialized();
+    if (!_logoutRequested) return null;
+    final serializedSession = await _read(logoutIntentStorageKey);
+    return serializedSession == null || serializedSession == 'pending'
+        ? null
+        : serializedSession;
+  }
+
+  Future<void> clearPendingRemoteRevocation(int slot) async {
+    if (slot < 0 || slot >= _maximumPendingRemoteRevocations) {
+      throw _reportFailure(
+        const AuthStorageException('remote_revocation_slot_invalid'),
+      );
+    }
+    await _ensureInitialized();
+    await _enqueueMutation(() => _delete(_remoteRevocationStorageKey(slot)));
   }
 
   @override
@@ -435,6 +634,34 @@ final class SecureSupabaseAuthStorage extends LocalStorage
       () => _delete(_secureCleanupMarkerKey(target)),
       () => _cleanupJournalStore.clearCleanupPending(target),
     ]);
+  }
+
+  Future<bool> _isLogoutIntentPending() async {
+    final secure = await _read(logoutIntentStorageKey) != null;
+    final shared = await _installationMarkerStore.isCleanupPending(
+      AuthCleanupTarget.logout,
+    );
+    final journal = await _cleanupJournalStore.isCleanupPending(
+      AuthCleanupTarget.logout,
+    );
+    return secure || shared || journal;
+  }
+
+  Future<void> _enqueueRemoteRevocation(String serializedSession) async {
+    for (var slot = 0; slot < _maximumPendingRemoteRevocations; slot++) {
+      final key = _remoteRevocationStorageKey(slot);
+      if (await _read(key) == null) {
+        await _writeBounded(
+          key: key,
+          value: serializedSession,
+          maxLength: _maxSessionLength,
+        );
+        return;
+      }
+    }
+    throw _reportFailure(
+      const AuthStorageException('remote_revocation_queue_full'),
+    );
   }
 
   Future<void> _deleteWithTombstone({
@@ -556,6 +783,7 @@ final class SecureSupabaseAuthStorage extends LocalStorage
     return switch (target) {
       AuthCleanupTarget.session => sessionStorageKey,
       AuthCleanupTarget.pkce => pkceStorageKey,
+      AuthCleanupTarget.logout => sessionStorageKey,
     };
   }
 
@@ -573,6 +801,11 @@ final class SecureSupabaseAuthStorage extends LocalStorage
     return switch (target) {
       AuthCleanupTarget.session => sessionCleanupMarkerStorageKey,
       AuthCleanupTarget.pkce => pkceCleanupMarkerStorageKey,
+      AuthCleanupTarget.logout => logoutIntentStorageKey,
     };
+  }
+
+  static String _remoteRevocationStorageKey(int slot) {
+    return '$remoteRevocationStorageKeyPrefix.$slot';
   }
 }

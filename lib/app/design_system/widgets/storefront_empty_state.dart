@@ -12,6 +12,7 @@ class StorefrontEmptyState extends StatelessWidget {
     this.actionLabel,
     this.onAction,
     this.actionKey,
+    this.progress = false,
   }) : assert((actionLabel == null) == (onAction == null));
 
   final IconData icon;
@@ -20,6 +21,7 @@ class StorefrontEmptyState extends StatelessWidget {
   final String? actionLabel;
   final VoidCallback? onAction;
   final Key? actionKey;
+  final bool progress;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,14 @@ class StorefrontEmptyState extends StatelessWidget {
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: ExcludeSemantics(
-                  child: Icon(icon, size: AppSizes.iconEmphasis),
+                  child: progress
+                      ? const SizedBox.square(
+                          dimension: AppSizes.iconEmphasis,
+                          child: CircularProgressIndicator(
+                            strokeWidth: AppSizes.progressIndicatorStroke,
+                          ),
+                        )
+                      : Icon(icon, size: AppSizes.iconEmphasis),
                 ),
               ),
               const SizedBox(height: AppSpacing.md),

@@ -7,9 +7,15 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_reposi
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
+import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
+import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
+import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
+import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../storefront/storefront_test_fixture.dart';
 
 void main() {
   const callback = AppConfig.allowedAuthRedirectUri;
@@ -19,6 +25,7 @@ void main() {
     supabasePublishableKey: 'sb_publishable_test_key',
     authRedirectUri: callback,
     googleAuthEnabled: 'false',
+    storefrontShopSlug: 'storefront-test',
   );
 
   Widget buildApp({
@@ -29,6 +36,12 @@ void main() {
       overrides: [
         appConfigProvider.overrideWithValue(stagingConfig),
         backendReadinessRepositoryProvider.overrideWithValue(repository),
+        storefrontRepositoryProvider.overrideWithValue(
+          const _BannerStorefrontRepository(),
+        ),
+        storefrontCacheRepositoryProvider.overrideWithValue(
+          const DisabledStorefrontCacheRepository(),
+        ),
       ],
       child: ClientMerchandiseControlApp(locale: locale),
     );
@@ -224,6 +237,19 @@ void main() {
     expect(retrySize.height, greaterThanOrEqualTo(48));
     expect(tester, meetsGuideline(labeledTapTargetGuideline));
   });
+}
+
+final class _BannerStorefrontRepository extends HomeOnlyStorefrontRepository {
+  const _BannerStorefrontRepository();
+
+  @override
+  Future<StorefrontHomeData> fetchHome({
+    required String shopSlug,
+    required StorefrontRequestCancellation cancellation,
+  }) async {
+    cancellation.throwIfCancelled();
+    return validStorefrontHomeData();
+  }
 }
 
 final class _BannerRepository implements BackendReadinessRepository {

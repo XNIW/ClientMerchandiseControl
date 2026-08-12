@@ -14,7 +14,10 @@ void main() {
       });
       final marker = _MemoryMarkerStore();
       final journal = _MemoryCleanupJournalStore()
-        ..pendingCleanup.addAll(AuthCleanupTarget.values);
+        ..pendingCleanup.addAll(const {
+          AuthCleanupTarget.session,
+          AuthCleanupTarget.pkce,
+        });
       final storage = SecureSupabaseAuthStorage(
         secureStore: secureStore,
         installationMarkerStore: marker,
@@ -29,6 +32,11 @@ void main() {
         SecureSupabaseAuthStorage.pkceStorageKey,
         SecureSupabaseAuthStorage.sessionCleanupMarkerStorageKey,
         SecureSupabaseAuthStorage.pkceCleanupMarkerStorageKey,
+        SecureSupabaseAuthStorage.logoutIntentStorageKey,
+        '${SecureSupabaseAuthStorage.remoteRevocationStorageKeyPrefix}.0',
+        '${SecureSupabaseAuthStorage.remoteRevocationStorageKeyPrefix}.1',
+        '${SecureSupabaseAuthStorage.remoteRevocationStorageKeyPrefix}.2',
+        '${SecureSupabaseAuthStorage.remoteRevocationStorageKeyPrefix}.3',
       ]);
       expect(secureStore.values['unrelated'], 'preserve-me');
       expect(marker.marked, isTrue);
@@ -54,6 +62,95 @@ void main() {
     expect(await storage.accessToken(), 'persisted-session');
     expect(secureStore.deleted, isEmpty);
   });
+
+  test(
+    'logout resta fail-closed dopo restart fino a un nuovo login esplicito',
+    () async {
+      final secureStore = _MemorySecureStore();
+      final marker = _MemoryMarkerStore(marked: true);
+      final journal = _MemoryCleanupJournalStore();
+      final first = SecureSupabaseAuthStorage(
+        secureStore: secureStore,
+        installationMarkerStore: marker,
+        cleanupJournalStore: journal,
+      );
+
+      await first.persistSession('session-before-logout');
+      await first.setItem(
+        key: SecureSupabaseAuthStorage.sdkPkceStorageKey,
+        value: 'verifier-before-logout',
+      );
+      await first.beginLogoutIntent('serialized-session');
+      await first.finishLogout(remoteRevoked: true);
+
+      expect(first.logoutRequested, isTrue);
+      expect(await first.accessToken(), isNull);
+      expect(
+        secureStore.values[SecureSupabaseAuthStorage.logoutIntentStorageKey],
+        'pending',
+      );
+
+      final restarted = SecureSupabaseAuthStorage(
+        secureStore: secureStore,
+        installationMarkerStore: marker,
+        cleanupJournalStore: journal,
+      );
+      await restarted.initialize();
+
+      expect(restarted.logoutRequested, isTrue);
+      expect(await restarted.hasAccessToken(), isFalse);
+      await restarted.persistSession('late-sdk-session');
+      expect(await restarted.accessToken(), isNull);
+
+      await restarted.persistExplicitLoginSession('new-explicit-session');
+
+      expect(restarted.logoutRequested, isFalse);
+      expect(await restarted.accessToken(), 'new-explicit-session');
+      expect(marker.pendingCleanup, isNot(contains(AuthCleanupTarget.logout)));
+      expect(journal.pendingCleanup, isNot(contains(AuthCleanupTarget.logout)));
+    },
+  );
+
+  test(
+    'logout fallisce chiuso in memoria se marker e delete sessione falliscono',
+    () async {
+      final secureStore = _MemorySecureStore();
+      final marker = _MemoryMarkerStore(
+        marked: true,
+        markCleanupErrorsRemaining: 8,
+      );
+      final journal = _MemoryCleanupJournalStore();
+      final storage = SecureSupabaseAuthStorage(
+        secureStore: secureStore,
+        installationMarkerStore: marker,
+        cleanupJournalStore: journal,
+      );
+      await storage.persistSession('session-that-must-not-be-restored');
+      secureStore
+        ..writeError = StateError('private secure write failure')
+        ..deleteErrors[SecureSupabaseAuthStorage.sessionStorageKey] =
+            StateError('private secure delete failure');
+      journal.markError = StateError('private journal write failure');
+
+      await expectLater(
+        storage.beginLogoutIntent('serialized-session'),
+        throwsA(
+          isA<AuthStorageException>().having(
+            (failure) => failure.code,
+            'code',
+            'logout_intent_not_durable',
+          ),
+        ),
+      );
+
+      expect(storage.logoutRequested, isTrue);
+      expect(await storage.accessToken(), isNull);
+      expect(
+        secureStore.values[SecureSupabaseAuthStorage.sessionStorageKey],
+        'session-that-must-not-be-restored',
+      );
+    },
+  );
 
   test('sessione e verifier usano chiavi distinte con CRUD completo', () async {
     final secureStore = _MemorySecureStore();
@@ -216,7 +313,10 @@ void main() {
       SecureSupabaseAuthStorage.pkceStorageKey: 'stale-verifier',
     });
     final marker = _MemoryMarkerStore(marked: true)
-      ..pendingCleanup.addAll(AuthCleanupTarget.values);
+      ..pendingCleanup.addAll(const {
+        AuthCleanupTarget.session,
+        AuthCleanupTarget.pkce,
+      });
     final storage = SecureSupabaseAuthStorage(
       secureStore: secureStore,
       installationMarkerStore: marker,
@@ -241,7 +341,10 @@ void main() {
             ..deleteErrors[SecureSupabaseAuthStorage.sessionStorageKey] =
                 StateError('private session delete detail');
       final marker = _MemoryMarkerStore(marked: true)
-        ..pendingCleanup.addAll(AuthCleanupTarget.values);
+        ..pendingCleanup.addAll(const {
+          AuthCleanupTarget.session,
+          AuthCleanupTarget.pkce,
+        });
       final storage = SecureSupabaseAuthStorage(
         secureStore: secureStore,
         installationMarkerStore: marker,
@@ -599,6 +702,7 @@ final class _MemoryCleanupJournalStore implements AuthCleanupJournalStore {
   _MemoryCleanupJournalStore({this.readError});
 
   Object? readError;
+  Object? markError;
   final Set<AuthCleanupTarget> pendingCleanup = {};
 
   @override
@@ -611,6 +715,9 @@ final class _MemoryCleanupJournalStore implements AuthCleanupJournalStore {
 
   @override
   Future<void> markCleanupPending(AuthCleanupTarget target) async {
+    if (markError case final error?) {
+      throw error;
+    }
     pendingCleanup.add(target);
   }
 

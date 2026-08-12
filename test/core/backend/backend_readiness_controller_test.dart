@@ -15,6 +15,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           backendReadinessRepositoryProvider.overrideWithValue(repository),
+          backendAutomaticProbeDelayProvider.overrideWithValue(Duration.zero),
         ],
       );
       addTearDown(container.dispose);

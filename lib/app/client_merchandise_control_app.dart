@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n/generated/app_localizations.dart';
+import '../features/account/application/customer_account_controller.dart';
 import 'branding/app_brand.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
@@ -23,6 +24,11 @@ class ClientMerchandiseControlApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final customerLocaleTag = ref.watch(
+      customerAccountControllerProvider.select(
+        (state) => state.snapshot?.profile?.locale,
+      ),
+    );
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
@@ -30,13 +36,27 @@ class ClientMerchandiseControlApp extends ConsumerWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
-      locale: locale,
+      locale: locale ?? customerLocaleFromTag(customerLocaleTag),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: appSupportedLocales,
       localeListResolutionCallback: resolveAppLocale,
       routerConfig: router,
     );
   }
+}
+
+@visibleForTesting
+Locale? customerLocaleFromTag(String? localeTag) {
+  return switch (localeTag) {
+    'es-CL' => appFallbackLocale,
+    'it' => const Locale('it'),
+    'en' => const Locale('en'),
+    'zh-Hans' => const Locale.fromSubtags(
+      languageCode: 'zh',
+      scriptCode: 'Hans',
+    ),
+    _ => null,
+  };
 }
 
 @visibleForTesting

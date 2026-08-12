@@ -5,21 +5,23 @@
 - **Target**: `ClientMerchandiseControl`, TASK-020
 - **Piattaforme**: Android e iOS
 - **Flusso**: Supabase Auth Google, OAuth Authorization Code + PKCE
-- **Callback**:
-  `com.xniw.clientmerchandisecontrol://auth-callback/`
+- **Redirect configurato**:
+  `https://clientmerchandisecontrol.invalid/auth-callback/` (sentinel non instradabile)
 - **Ambiente remoto in scope**: solo staging non-production canonico
-- **Stato del documento**: modello executor; controlli e test devono essere verificati
-  su uno SHA di handoff e riesaminati indipendentemente
+- **Stato del documento**: modello storico TASK-020 aggiornato dal closeout TASK-033;
+  OAuth distribuibile è disabilitato finché manca un dominio HTTPS verificato
 
 Questo modello non assegna `PASS`. Distingue controlli implementati nel worktree,
 verifiche da eseguire e dipendenze esterne ancora da provare.
 
 ## Valutazione sintetica
 
-Il rischio dominante è il custom scheme non verificabile: un'altra app potrebbe
-registrarlo e intercettare o impedire il ritorno. PKCE impedisce normalmente
-l'utilizzo del code senza verifier, mentre manifest/plist minimi e validazione Dart
-riducono spoofing e injection. Non eliminano collisione o denial of service.
+Il rischio dominante del custom scheme non verificabile è stato rimosso dalla superficie
+OAuth distribuibile: Android non registra più il callback Auth, iOS non espone uno
+scheme Auth e staging/production rifiutano `GOOGLE_AUTH_ENABLED=true`. Il valore
+`.invalid` è un sentinel non instradabile, non una pretesa di ownership. OAuth potrà
+tornare operativo soltanto con dominio HTTPS posseduto e App Links/Universal Links
+verificati su entrambe le piattaforme.
 
 La seconda area critica è la persistenza. Lo SDK bloccato usa SharedPreferences per
 sessione e verifier se non configurato diversamente. TASK-020 sostituisce entrambi con
@@ -50,32 +52,22 @@ Fuori scope:
 - implementazione interna di Google/Supabase;
 - RLS/schema/dati customer futuri;
 - password, OTP, magic link, MFA, Apple o altri provider;
-- Universal/App Links verificati e produzione.
+- provisioning di dominio, Universal/App Links verificati e produzione.
 
 ## Architettura e data flow
 
 ```text
-[Persona / browser esterno]
+[Config staging/production]
         |
-        | 1. Supabase authorize + Google + PKCE challenge
+        | GOOGLE_AUTH_ENABLED=true
         v
-[Google] <-> [Supabase Auth staging]
-        |
-        | 2. custom-scheme callback con authorization code
-        v
-[Android intent-filter / iOS URL scheme]
-        |
-        | 3. AppLinksAuthCallbackSource (cold + warm)
-        v
-[AuthCallbackValidator]
-        |
-        | 4. solo code PKCE validato
-        v
-[AuthController] -> [SupabaseAuthRepository] -> exchange
-        |                                      |
-        | 5. stato dominio                     | 6. sessione/verifier
-        v                                      v
-[Account UI]                         [Keychain / Keystore]
+[AppConfig] -- deny --> [errore fail-closed prima del bootstrap]
+
+[Harness test-only] -> [AuthCallbackValidator/AuthController]
+        |                         |
+        | nessun provider         | lifecycle, timeout, replay
+        | nessun handler nativo   v
+        +----------------> [fake repository + secure-storage tests]
 ```
 
 Il bool di `signInWithOAuth` prova soltanto l'apertura del browser. L'autenticazione
@@ -100,8 +92,10 @@ deriva da sessione SDK valida dopo exchange o restore.
 1. **Persona ↔ browser/Google**: UI e account selection sono esterni all'app.
 2. **Google ↔ Supabase Auth**: provider, state/CSRF upstream e credenziali OAuth sono
    gestiti dai servizi.
-3. **Supabase ↔ custom scheme OS**: il callback attraversa un canale non verificato.
-4. **OS ↔ Dart**: iOS filtra solo lo scheme; Dart deve validare host/path/payload.
+3. **Supabase ↔ OS**: nessun callback OAuth è registrato nel runtime corrente; una
+   futura integrazione richiede HTTPS verificato.
+4. **OS ↔ Dart**: lo scheme Storefront privato ammette soltanto route pubbliche bounded;
+   route customer-sensitive falliscono chiuso.
 5. **Dart ↔ SDK**: nessun input URI raggiunge l'exchange prima del validator.
 6. **SDK ↔ secure storage**: token e verifier entrano in storage privilegiato.
 7. **Auth domain ↔ UI**: soltanto customer normalizzato; nessun oggetto SDK/sessione.
@@ -126,7 +120,7 @@ resi affidabili dal client.
 ## Invarianti
 
 - `detectSessionInUri` e Flutter deep linking restano disabilitati.
-- Un solo listener applicativo riceve cold e warm callback.
+- Nessun listener nativo OAuth è registrato nel runtime distribuibile.
 - Solo scheme, host, path `/` e query allowlisted raggiungono l'exchange.
 - Fragment e token implicit non sono mai accettati.
 - Un callback è consumato al massimo una volta nel processo.
@@ -144,8 +138,8 @@ resi affidabili dal client.
 
 | ID | Scenario e catena | Impatto | Controlli implementati | Rischio residuo / verifica |
 |---|---|---|---|---|
-| TM-01 | App malevola registra il custom scheme e intercetta il code | DoS; tentativo di furto sessione | PKCE; verifier solo nello storage dell'app; callback esatto; code one-time | Collisione non eliminabile senza link verificati. Provare callback su entrambi gli OS e documentare residuo |
-| TM-02 | URI con scheme/host/path falso raggiunge l'app | Login spoof/injection | filtro Android esatto; validator Dart; iOS host/path verificati in Dart | iOS avvia l'app per lo scheme ma zero exchange. Test matrice source/unit/simctl |
+| TM-01 | App malevola registra il vecchio custom scheme e intercetta il code | DoS; tentativo di furto sessione | callback OAuth nativo rimosso; Google sempre OFF; sentinel `.invalid` non instradabile | Riaprire solo con App/Universal Links verificati |
+| TM-02 | URI OAuth con scheme/host/path falso raggiunge l'app | Login spoof/injection | nessun handler OAuth nativo; validator mantenuto solo negli harness test-only | Test source/native/config provano assenza handler e fail-closed |
 | TM-03 | Fragment con access/refresh/provider token tenta implicit flow | Token injection/leak | `AuthFlowType.pkce`; fragment sempre rifiutato; `detectSessionInUri:false` | Verificare zero chiamate repository e nessun token in output |
 | TM-04 | Query include code duplicato, vuoto, enorme, controlli o campi extra | parser ambiguity, DoS, bypass | `queryParametersAll`, cardinalità uno, allow-list, bounds e caratteri visibili | Bounds sono client-side; testare duplicati/oversize su device |
 | TM-05 | Callback contiene contemporaneamente code ed errore | confusion attack | forme query mutuamente esclusive | Unit test e invalid smoke |
@@ -154,7 +148,7 @@ resi affidabili dal client.
 | TM-08 | Due tap aprono due browser e sovrascrivono verifier | account confusion/exchange failure | login single-flight e `_oauthFlowActive` | Browser/OS esterno resta non controllabile. Test doppio tap |
 | TM-09 | Cancel/provider failure seguito da callback/exchange tardivo | riautenticazione indesiderata o verifier nuovo eliminato | termination single-flight, suppress/ignore, attesa exchange, sign-out/purge compensativo prima di Retry; failure vecchia non elimina PKCE corrente | Process kill durante rete resta boundary OS; test successo/errore tardivo, provider cancellation, cold restore guest e callback vecchio→nuovo |
 | TM-10 | Logout mentre exchange/session event è in volo | stato torna authenticated | generation, soppressione eventi, coda pulita, attesa exchange e secondo purge compensativo prima di Guest/nuovo login | Verificare side effect sessione, future tardive e stream fuori ordine |
-| TM-11 | Logout offline o delete locale fallisce | token remoto o sessione locale restano validi | `SignOutScope.local`; delete sessione/verifier indipendenti; journal Application Support scritto per primo più tombstone SharedPreferences e secure store, tutti ritentati prima del restore | Logout è locale, non globale. Failure dei due marker precedenti e del delete è coperta dal journal/restart test. Se falliscono simultaneamente tutte le mutazioni dei tre canali persistenti, il processo corrente resta `configurationError`, ma dopo process death l'intento non è ricostruibile |
+| TM-11 | Logout offline o delete locale fallisce | token remoto o sessione locale restano validi | intento durevole scritto prima della pulizia; restore negato; revoca globale tentata e accodata in modo bounded per retry; delete sessione/verifier indipendenti | Se nessun canale persistente può scrivere, il processo corrente resta fail-closed; regressioni coprono restart, retry e login esplicito |
 | TM-12 | Access token scaduto o refresh token revocato | UI conserva customer stale oppure il client impedisce un recovery SDK valido | sessioni senza expiry valida o `Session.isExpired` non espongono identity; errore retryable degrada a guest ma preserva il refresh token in storage sicuro; un vero `signedOut` esegue purge | Test restore expired/offline, scadenza durante offline, refresh successivo e revoca |
 | TM-13 | Sessione/verifier finiscono in SharedPreferences | furto da backup/device | adapter unico LocalStorage+GotrueAsyncStorage; FSS; nessun fallback | Verificare source/lock e storage test; device compromesso resta rischio |
 | TM-14 | Android backup ripristina ciphertext senza chiave o su altro device | crash o sessione incoerente | `android:allowBackup=false`; namespace Keystore; this app non migra secret | Ispezionare merged manifest/build |
@@ -187,29 +181,24 @@ resi affidabili dal client.
 | UI | `account_screen.dart` | stati, semantics, 48 dp, 200%, no network avatar |
 | Native | Manifest e Info.plist | source test, merged build, adb/simctl |
 | End-to-end fake | `auth_callback_flow_test.dart` | Android/iOS device |
-| Runtime live | staging + account test esistente | OAuth, restore, logout, relogin, log redatti |
+| Runtime live | non applicabile finché manca un dominio verificato | il runtime deve negare OAuth senza handler nativi |
 | Security | source/diff/bundle/log scan | review indipendente A–E |
 
 ## Rischi residui e condizioni di blocco
 
-- Il custom scheme non offre ownership crittografica; Universal/App Links sono fuori
-  scope. Residuo: intercettazione/DoS con PKCE come mitigazione del furto code.
+- OAuth resta intenzionalmente indisponibile finché non esistono dominio e link HTTPS
+  verificati. Questa è una limitazione funzionale fail-closed, non rischio accettato.
 - Un device rooted/jailbroken o un browser compromesso può osservare runtime/PII. Il
   server non deve fidarsi del client.
-- `SignOutScope.local` non promette logout globale; offline può impedire la revoca
-  remota pur lasciando il device guest e senza token locale.
+- La revoca globale può fallire offline; il device resta guest, il restore è negato e
+  la revoca pending viene ritentata senza rappresentare il logout come già remoto.
 - Se il filesystem, SharedPreferences e Keychain/Keystore rifiutano simultaneamente
   ogni mutazione, incluso il journal, un nuovo processo non può ricostruire un intento
   di logout mai persistito. Il runtime corrente fallisce chiuso; il journal
   addizionale copre il caso riproducibile in cui falliscono i due marker precedenti e
   il delete della sessione.
-- La redirect allow-list staging e il provider devono avere evidence before/after
-  sanitizzata. Fino a tale verifica, live OAuth è dipendenza esterna non provata.
-- Lo smoke live può fermarsi a password, MFA, CAPTCHA, consent o account test assente;
-  Codex non inserisce credenziali e non crea account.
-- Il simulatore può richiedere conferma esplicita prima di aprire il custom scheme:
-  finché il dialogo OS non è accettabile lo smoke callback resta `BLOCKED`, anche se
-  LaunchServices ha risolto correttamente il bundle.
+- Redirect allow-list/provider live non sono usati né attestati dal closeout: una
+  futura riattivazione richiede un nuovo ciclo autorizzato e prove sanitizzate.
 - Screenshot, log OS/browser e account selector richiedono redazione manuale prima di
   diventare evidence.
 

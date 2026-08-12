@@ -1,135 +1,371 @@
 import 'package:client_merchandise_control/app/design_system/tokens/app_sizes.dart';
-import 'package:client_merchandise_control/app/router/app_router.dart';
+import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
+import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
+import 'package:client_merchandise_control/features/cart/application/cart_providers.dart';
+import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
+import 'package:client_merchandise_control/features/cart/domain/cart_repository.dart';
 import 'package:client_merchandise_control/features/cart/presentation/cart_screen.dart';
+import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
+import 'package:client_merchandise_control/features/storefront/presentation/storefront_product_metadata.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/semantics.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+
+const _publicationId = '50000000-0000-4000-8000-000000000001';
 
 void main() {
   late GoRouter router;
 
-  Widget buildApp({Locale locale = const Locale('es')}) {
+  Widget buildApp({
+    required _FakeGuestCartStore store,
+    Locale locale = const Locale('es', 'CL'),
+    ThemeMode themeMode = ThemeMode.light,
+    TextScaler textScaler = TextScaler.noScaling,
+  }) {
     router = GoRouter(
       initialLocation: AppRoutes.cartLocation,
       routes: [
         GoRoute(
           path: AppRoutes.cartLocation,
-          builder: (context, state) =>
-              const Scaffold(body: SafeArea(child: CartScreen())),
+          builder: (context, state) => const Scaffold(body: CartScreen()),
         ),
         GoRoute(
           path: AppRoutes.catalogLocation,
           builder: (context, state) =>
               const Scaffold(body: Text('catalog-destination')),
         ),
+        GoRoute(
+          path: AppRoutes.accountLocation,
+          builder: (context, state) =>
+              const Scaffold(body: Text('account-destination')),
+        ),
+        GoRoute(
+          path: AppRoutes.checkoutLocation,
+          builder: (context, state) =>
+              const Scaffold(body: Text('checkout-destination')),
+        ),
       ],
     );
     addTearDown(router.dispose);
 
-    return MaterialApp.router(
-      theme: AppTheme.light(),
-      locale: locale,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
+    return ProviderScope(
+      overrides: [
+        appConfigProvider.overrideWithValue(_config()),
+        customerAccountIdentityProvider.overrideWithValue(null),
+        guestCartStoreProvider.overrideWithValue(store),
       ],
-      supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: router,
+      child: MaterialApp.router(
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: themeMode,
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+          child: child!,
+        ),
+        routerConfig: router,
+      ),
     );
   }
 
-  testWidgets('presenta uno stato vuoto onesto e raggiunge il catalogo', (
-    tester,
-  ) async {
-    await tester.pumpWidget(buildApp());
+  testWidgets('stato vuoto onesto raggiunge il catalogo', (tester) async {
+    await tester.pumpWidget(buildApp(store: _FakeGuestCartStore()));
     await tester.pumpAndSettle();
 
     final context = tester.element(find.byType(CartScreen));
     final l10n = AppLocalizations.of(context);
-
     expect(find.text(l10n.cartEmptyTitle), findsOneWidget);
     expect(find.text(l10n.cartEmptyMessage), findsOneWidget);
     expect(find.text(l10n.cartExploreCatalog), findsOneWidget);
-    expect(find.byType(Card), findsOneWidget);
-    expect(find.byType(SingleChildScrollView), findsOneWidget);
-
-    final visibleTexts = tester
-        .widgetList<Text>(find.byType(Text))
-        .map((text) => text.data)
-        .whereType<String>()
-        .toSet();
-    expect(visibleTexts, {
-      l10n.cartEmptyTitle,
-      l10n.cartEmptyMessage,
-      l10n.cartExploreCatalog,
-    });
 
     await tester.tap(find.byKey(const ValueKey('cart-explore-catalog')));
     await tester.pumpAndSettle();
 
     expect(find.text('catalog-destination'), findsOneWidget);
-    expect(router.routeInformationProvider.value.uri.path, '/catalog');
+    expect(router.state.uri.path, AppRoutes.catalogLocation);
   });
 
-  testWidgets('espone titolo, icona decorativa e CTA accessibile da 48 px', (
+  testWidgets('renderizza snapshot pubblico, subtotal indicativo e controlli', (
+    tester,
+  ) async {
+    final store = _FakeGuestCartStore(snapshot: _cartSnapshot(quantity: 2));
+    await tester.pumpWidget(buildApp(store: store));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Café público'), findsOneWidget);
+    expect(find.text(r'$1.200'), findsOneWidget);
+    expect(find.text(r'$2.400'), findsOneWidget);
+    expect(find.text('Estimado'), findsOneWidget);
+    expect(
+      find.byKey(ValueKey('cart-decrease-$_publicationId')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(ValueKey('cart-increase-$_publicationId')),
+      findsOneWidget,
+    );
+    expect(find.byKey(ValueKey('cart-remove-$_publicationId')), findsOneWidget);
+    expect(find.textContaining(_publicationId), findsNothing);
+    expect(find.textContaining('source_product_id'), findsNothing);
+    expect(find.textContaining('supplier'), findsNothing);
+  });
+
+  testWidgets('incremento e remove aggiornano lo storage locale', (
+    tester,
+  ) async {
+    final store = _FakeGuestCartStore(snapshot: _cartSnapshot());
+    await tester.pumpWidget(buildApp(store: store));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(ValueKey('cart-increase-$_publicationId')));
+    await tester.pumpAndSettle();
+    expect(store.quantityCalls, [2]);
+    expect(find.text('Cantidad: 2'), findsOneWidget);
+
+    ScaffoldMessenger.of(
+      tester.element(find.byType(CartScreen)),
+    ).hideCurrentSnackBar();
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(
+      find.byKey(ValueKey('cart-remove-$_publicationId')),
+    );
+    await tester.tap(find.byKey(ValueKey('cart-remove-$_publicationId')));
+    await tester.pumpAndSettle();
+    expect(store.removeCalls, 1);
+    expect(find.text('Tu carrito está vacío'), findsOneWidget);
+  });
+
+  testWidgets(
+    'CTA guest apre checkout, che governa il gate di autenticazione',
+    (tester) async {
+      await tester.pumpWidget(
+        buildApp(store: _FakeGuestCartStore(snapshot: _cartSnapshot())),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const ValueKey('cart-checkout')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('checkout-destination'), findsOneWidget);
+      expect(router.state.uri.path, AppRoutes.checkoutLocation);
+    },
+  );
+
+  testWidgets('semantics e target quantità rispettano 48 logical pixel', (
     tester,
   ) async {
     final semantics = tester.ensureSemantics();
     try {
-      await tester.pumpWidget(buildApp());
+      await tester.pumpWidget(
+        buildApp(store: _FakeGuestCartStore(snapshot: _cartSnapshot())),
+      );
       await tester.pumpAndSettle();
 
-      final context = tester.element(find.byType(CartScreen));
-      final l10n = AppLocalizations.of(context);
-      final decorativeIcon = find.descendant(
-        of: find.byType(ExcludeSemantics),
-        matching: find.byIcon(Icons.shopping_cart_outlined),
-      );
-      final header = tester
-          .widgetList<Semantics>(find.byType(Semantics))
-          .where((widget) => widget.properties.header == true);
-      final buttonFinder = find.byKey(const ValueKey('cart-explore-catalog'));
-      final buttonSemantics = tester
-          .getSemantics(buttonFinder)
+      for (final key in [
+        ValueKey('cart-decrease-$_publicationId'),
+        ValueKey('cart-increase-$_publicationId'),
+        ValueKey('cart-remove-$_publicationId'),
+      ]) {
+        final finder = find.byKey(key);
+        expect(
+          tester.getSize(finder).height,
+          greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
+        );
+      }
+      final increase = tester
+          .getSemantics(find.byKey(ValueKey('cart-increase-$_publicationId')))
           .getSemanticsData();
-
-      expect(decorativeIcon, findsOneWidget);
-      expect(tester.widget<Icon>(decorativeIcon).semanticLabel, isNull);
-      expect(header, hasLength(1));
-      expect(buttonSemantics.label, l10n.cartExploreCatalog);
-      expect(buttonSemantics.hasAction(SemanticsAction.tap), isTrue);
-      expect(
-        tester.getSize(buttonFinder).height,
-        greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
-      );
+      expect(increase.label, contains('Aumentar cantidad'));
+      expect(increase.hasAction(SemanticsAction.tap), isTrue);
     } finally {
       semantics.dispose();
     }
   });
 
-  testWidgets('resta fruibile su viewport compatta con testo al 200%', (
+  testWidgets('viewport 320x568, dark e testo 200% non fanno overflow', (
     tester,
   ) async {
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    tester.platformDispatcher.textScaleFactorTestValue = 2;
-    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await tester.binding.setSurfaceSize(const Size(320, 568));
-
-    await tester.pumpWidget(buildApp());
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(
-      find.byKey(const ValueKey('cart-explore-catalog')),
+    await tester.pumpWidget(
+      buildApp(
+        store: _FakeGuestCartStore(snapshot: _cartSnapshot()),
+        themeMode: ThemeMode.dark,
+        textScaler: const TextScaler.linear(2),
+      ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('cart-explore-catalog')), findsOneWidget);
+    expect(find.byKey(const ValueKey('cart-checkout')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('quattro locale renderizzano cart senza eccezioni', (
+    tester,
+  ) async {
+    for (final locale in const [
+      Locale('es', 'CL'),
+      Locale('it'),
+      Locale('en'),
+      Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+    ]) {
+      await tester.pumpWidget(
+        buildApp(
+          store: _FakeGuestCartStore(snapshot: _cartSnapshot()),
+          locale: locale,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('cart-subtotal')), findsOneWidget);
+      expect(tester.takeException(), isNull, reason: locale.toLanguageTag());
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+    }
+  });
+
+  testWidgets('cart presenta tutti i sei stati commerciali localizzati', (
+    tester,
+  ) async {
+    for (final availability in StorefrontAvailability.values) {
+      await tester.pumpWidget(
+        buildApp(
+          store: _FakeGuestCartStore(
+            snapshot: _cartSnapshot(availability: availability),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final l10n = AppLocalizations.of(tester.element(find.byType(CartScreen)));
+      expect(
+        find.text(storefrontAvailabilityLabel(l10n, availability)),
+        findsOneWidget,
+        reason: availability.name,
+      );
+      expect(find.textContaining('stock:'), findsNothing);
+      expect(tester.takeException(), isNull, reason: availability.name);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+    }
+  });
+}
+
+AppConfig _config() => AppConfig.fromValues(
+  appEnvironment: 'staging',
+  supabaseUrl: 'https://staging.example.invalid',
+  supabasePublishableKey: 'sb_publishable_staging',
+  authRedirectUri: AppConfig.allowedAuthRedirectUri,
+  googleAuthEnabled: 'false',
+  storefrontShopSlug: 'storefront-test',
+);
+
+CustomerCartSnapshot _cartSnapshot({
+  int quantity = 1,
+  StorefrontAvailability availability = StorefrontAvailability.available,
+}) {
+  final unavailable = availability == StorefrontAvailability.unavailable;
+  final line = CartLine(
+    publicationId: _publicationId,
+    publicName: 'Café público',
+    quantity: quantity,
+    priceClp: 1200,
+    snapshotPriceClp: 1200,
+    availability: availability,
+    status: unavailable ? CartLineStatus.unavailable : CartLineStatus.available,
+    changeType: unavailable
+        ? CartLineChangeType.unavailable
+        : CartLineChangeType.none,
+    isGuest: true,
+  );
+  return CustomerCartSnapshot(
+    shopSlug: 'storefront-test',
+    version: 0,
+    items: [line],
+    source: CartSource.guest,
+    quoteStatus: CartQuoteStatus.indicative,
+    requiresCustomerReview: false,
+    subtotalClp: line.lineSubtotalClp,
+    idempotent: true,
+  );
+}
+
+final class _FakeGuestCartStore implements GuestCartStore {
+  _FakeGuestCartStore({CustomerCartSnapshot? snapshot})
+    : snapshot =
+          snapshot ??
+          CustomerCartSnapshot.empty(
+            shopSlug: 'storefront-test',
+            source: CartSource.guest,
+          );
+
+  CustomerCartSnapshot snapshot;
+  final List<int> quantityCalls = [];
+  int removeCalls = 0;
+
+  @override
+  Future<CustomerCartSnapshot> read({required String shopSlug}) async =>
+      snapshot;
+
+  @override
+  Future<CustomerCartSnapshot> setQuantity({
+    required String shopSlug,
+    required String publicationId,
+    required int quantity,
+  }) async {
+    quantityCalls.add(quantity);
+    final line = snapshot.items.single.copyWith(quantity: quantity);
+    snapshot = CustomerCartSnapshot(
+      shopSlug: shopSlug,
+      version: 0,
+      items: [line],
+      source: CartSource.guest,
+      quoteStatus: CartQuoteStatus.indicative,
+      requiresCustomerReview: false,
+      subtotalClp: line.lineSubtotalClp,
+      idempotent: true,
+    );
+    return snapshot;
+  }
+
+  @override
+  Future<CustomerCartSnapshot> remove({
+    required String shopSlug,
+    required String publicationId,
+  }) async {
+    removeCalls++;
+    snapshot = CustomerCartSnapshot.empty(
+      shopSlug: shopSlug,
+      source: CartSource.guest,
+    );
+    return snapshot;
+  }
+
+  @override
+  Future<CustomerCartSnapshot> clear({required String shopSlug}) async {
+    snapshot = CustomerCartSnapshot.empty(
+      shopSlug: shopSlug,
+      source: CartSource.guest,
+    );
+    return snapshot;
+  }
+
+  @override
+  Future<CustomerCartSnapshot> retainOnly({
+    required String shopSlug,
+    required Set<String> publicationIds,
+  }) async => snapshot;
+
+  @override
+  Future<CustomerCartSnapshot> setProduct({
+    required String shopSlug,
+    required StorefrontProductSummary product,
+    required int quantity,
+  }) async => snapshot;
 }

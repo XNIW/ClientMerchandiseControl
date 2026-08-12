@@ -7,6 +7,11 @@ abstract final class AppSizes {
   static const accountAvatar = 96.0;
   static const accountContentMaxWidth = 640.0;
   static const contentMaxWidth = 960.0;
+  static const catalogContentMaxWidth = 1200.0;
+  static const productDetailContentMaxWidth = 1120.0;
+  static const productCardCompactWidth = 280.0;
+  static const productRailCardWidth = 236.0;
+  static const productRailAccessibleCardWidth = 480.0;
   static const appBarBaseHeight = 64.0;
   static const controlHeight = 56.0;
   static const navigationBarHeight = 80.0;

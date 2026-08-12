@@ -10,6 +10,7 @@ bash "${cmc_script_dir}/check-action-pins.sh"
 bash "${cmc_script_dir}/check-client-security.sh"
 bash "${cmc_script_dir}/test-client-security-scan.sh"
 bash "${cmc_script_dir}/check-governance-state.sh"
+bash "${cmc_script_dir}/test-governance-release-train.sh"
 bash "${cmc_script_dir}/check-architecture-boundaries.sh"
 bash "${cmc_script_dir}/test-architecture-boundaries.sh"
 git diff --check
@@ -18,7 +19,8 @@ flutter pub get --enforce-lockfile
 flutter gen-l10n
 dart format --output=none --set-exit-if-changed .
 flutter analyze
-flutter test --coverage
+flutter test --coverage --exclude-tags performance
+flutter test --tags performance --concurrency=1
 flutter build apk --debug
 flutter build ios --simulator --debug
 git diff --check

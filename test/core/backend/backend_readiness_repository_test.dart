@@ -15,6 +15,7 @@ void main() {
     supabasePublishableKey: stagingKey,
     authRedirectUri: callback,
     googleAuthEnabled: 'false',
+    storefrontShopSlug: 'storefront-test',
   );
 
   test('espone tutti gli stati di readiness richiesti', () {
@@ -29,16 +30,11 @@ void main() {
     ]);
   });
 
-  test('development resta unconfigured senza SDK o health', () async {
+  test('development resta unconfigured senza health remoto', () async {
     final health = _FakeHealthService();
-    var initializationCalls = 0;
     final repository = SupabaseBackendReadinessRepository(
       config: AppConfig.fromValues(),
       healthService: health,
-      sdkInitializer: (config) async {
-        initializationCalls += 1;
-        return BackendReadinessState.initializing;
-      },
     );
 
     final state = await repository.check(
@@ -48,13 +44,11 @@ void main() {
     expect(repository.initialState, BackendReadinessState.unconfigured);
     expect(repository.canCheck, isFalse);
     expect(state, BackendReadinessState.unconfigured);
-    expect(initializationCalls, 0);
     expect(health.calls, 0);
   });
 
-  test('production resta misconfigured senza SDK o health', () async {
+  test('production resta misconfigured senza health remoto', () async {
     final health = _FakeHealthService();
-    var initializationCalls = 0;
     final repository = SupabaseBackendReadinessRepository(
       config: AppConfig.fromValues(
         appEnvironment: 'production',
@@ -62,12 +56,9 @@ void main() {
         supabasePublishableKey: 'sb_publishable_production',
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
+        storefrontShopSlug: 'storefront-test',
       ),
       healthService: health,
-      sdkInitializer: (config) async {
-        initializationCalls += 1;
-        return BackendReadinessState.initializing;
-      },
     );
 
     final state = await repository.check(
@@ -77,7 +68,6 @@ void main() {
     expect(repository.initialState, BackendReadinessState.misconfigured);
     expect(repository.canCheck, isFalse);
     expect(state, BackendReadinessState.misconfigured);
-    expect(initializationCalls, 0);
     expect(health.calls, 0);
   });
 
@@ -115,14 +105,9 @@ void main() {
       'mappa ${testCase.health.name} in ${testCase.readiness.name}',
       () async {
         final health = _FakeHealthService(result: testCase.health);
-        var initializationCalls = 0;
         final repository = SupabaseBackendReadinessRepository(
           config: stagingConfig(),
           healthService: health,
-          sdkInitializer: (config) async {
-            initializationCalls += 1;
-            return BackendReadinessState.initializing;
-          },
         );
 
         final state = await repository.check(
@@ -130,7 +115,6 @@ void main() {
         );
 
         expect(state, testCase.readiness);
-        expect(initializationCalls, 1);
         expect(health.calls, 1);
         expect(health.receivedOrigin, Uri.parse(stagingUrl));
         expect(health.receivedPublishableKey, stagingKey);
@@ -138,62 +122,30 @@ void main() {
     );
   }
 
-  test('inizializza SDK una sola volta tra retry sequenziali', () async {
+  test('ogni retry ripete il probe pubblico senza stato auth', () async {
     final health = _FakeHealthService();
-    var initializationCalls = 0;
     final repository = SupabaseBackendReadinessRepository(
       config: stagingConfig(),
       healthService: health,
-      sdkInitializer: (config) async {
-        initializationCalls += 1;
-        return BackendReadinessState.initializing;
-      },
     );
 
     await repository.check(cancellation: BackendProbeCancellation());
     await repository.check(cancellation: BackendProbeCancellation());
 
-    expect(initializationCalls, 1);
     expect(health.calls, 2);
   });
 
-  test('errore SDK è recuperabile, sanitizzato e non chiama health', () async {
+  test('cancellazione prima del check non chiama health', () async {
     final health = _FakeHealthService();
     final repository = SupabaseBackendReadinessRepository(
       config: stagingConfig(),
       healthService: health,
-      sdkInitializer: (config) async {
-        throw StateError('$stagingUrl $stagingKey');
-      },
-    );
-
-    final state = await repository.check(
-      cancellation: BackendProbeCancellation(),
-    );
-
-    expect(state, BackendReadinessState.recoverableError);
-    expect(state.toString(), isNot(contains(stagingUrl)));
-    expect(state.toString(), isNot(contains(stagingKey)));
-    expect(health.calls, 0);
-  });
-
-  test('cancellazione prima del check non inizializza SDK o health', () async {
-    final health = _FakeHealthService();
-    var initializationCalls = 0;
-    final repository = SupabaseBackendReadinessRepository(
-      config: stagingConfig(),
-      healthService: health,
-      sdkInitializer: (config) async {
-        initializationCalls += 1;
-        return BackendReadinessState.initializing;
-      },
     );
     final cancellation = BackendProbeCancellation()..cancel();
 
     final state = await repository.check(cancellation: cancellation);
 
     expect(state, BackendReadinessState.recoverableError);
-    expect(initializationCalls, 0);
     expect(health.calls, 0);
   });
 }

@@ -30,6 +30,30 @@ proseguire. Può esistere un solo task `ACTIVE`; Codex non attiva autonomamente 
 successivo e non modifica task futuri, priorità o backlog senza autorizzazione
 dell'utente.
 
+## Deroga autorizzata — Storefront v1 release train
+
+Per il solo release train `STOREFRONT_V1`, l'istruzione utente del 2026-08-01 è
+un'autorizzazione esplicita e persistente a pianificare ed eseguire in continuità i task
+elencati nel relativo manifest, senza una nuova conferma fra task o milestone. La deroga
+è governata da `ADR-011` e termina con il closeout del release train.
+
+- resta consentito un solo task `ACTIVE / EXECUTION` alla volta;
+- più task completati tecnicamente possono essere
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`;
+- il checkpoint di milestone esegue gate tecnici, ma non è una review e non assegna
+  `APPROVED`;
+- nessun task del train diventa `DONE` prima della review integrata finale;
+- le Pull Request coordinate restano draft e non merged durante l'Execution;
+- la review integrata e l'eventuale re-review sono svolte da reviewer read-only distinti
+  dall'unico writer;
+- l'autorizzazione utente già ricevuta copre il passaggio finale a `DONE` e i merge
+  normali soltanto dopo review integrata `APPROVED`, CI e gate reali verdi;
+- blocker esterni e gate non eseguiti restano `BLOCKED` o `NOT_RUN`, mai `PASS`.
+
+Questa deroga non autorizza force push, modifiche production anticipate, rollout oltre
+il 5%, spesa, accordi legali, dati reali nelle evidence o qualunque azione fuori dallo
+scope Storefront v1.
+
 ## Ruoli logici
 
 I ruoli sono svolti dallo stesso prodotto Codex, ma hanno responsabilità separate e,
@@ -79,6 +103,8 @@ per review e re-review, preferibilmente sessioni distinte.
 
 Soltanto l'utente può autorizzare una modifica sostanziale dello scope, il passaggio
 finale a `DONE`, il merge della Pull Request e l'attivazione del task successivo.
+Per `STOREFRONT_V1` tale autorizzazione è già registrata dal prompt del 2026-08-01 ed è
+condizionata ai gate reali e alla review integrata `APPROVED` descritti in `ADR-011`.
 
 La separazione tra autore e reviewer è almeno logica: chi ha operato come executor o
 fixer non può approvare nello stesso ruolo il proprio lavoro. Se non è possibile ottenere
@@ -88,8 +114,11 @@ verifiche indipendenti, mai sui claim precedenti.
 ## Stati, transizioni e handoff
 
 - Stato progetto: `IDLE` o `ACTIVE`.
-- Stato task: `TODO`, `ACTIVE`, `BLOCKED` o `DONE`.
-- Fase del task attivo: `PLANNING`, `EXECUTION`, `REVIEW` o `FIX`.
+- Stato task ordinario: `TODO`, `ACTIVE`, `BLOCKED` o `DONE`.
+- Stato task aggiuntivo, soltanto per `STOREFRONT_V1`:
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`.
+- Fase ordinaria: `PLANNING`, `EXECUTION`, `REVIEW` o `FIX`.
+- Fase aggiuntiva, soltanto per `STOREFRONT_V1`: `INTEGRATED_REVIEW`.
 
 Transizioni valide:
 
@@ -112,6 +141,8 @@ Gli handoff operativi sono:
 - review approvata: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 `APPROVED` non equivale a `DONE`. Nessun ruolo Codex effettua merge o auto-merge.
+Per `STOREFRONT_V1` l'unico merge ammesso è quello normale del closeout coordinato dopo
+review integrata `APPROVED`, secondo l'autorizzazione utente già registrata.
 
 ## Regole per fase
 
@@ -175,6 +206,8 @@ del codice verificata. Log completi e artifact locali non vanno versionati.
 - Prima dell'handoff verificare diff, tracking, assenza di modifiche fuori scope e
   worktree pulito; se non lo è, documentare il blocco senza cancellare lavoro altrui.
 - La Pull Request deve restare aperta finché `USER_APPROVER` non autorizza il merge.
+- Le PR di `STOREFRONT_V1` restano draft durante l'Execution e diventano mergeabili
+  soltanto nel closeout integrato approvato.
 - Verificare job, step, annotation e commit associato alla CI; un colore verde non
   sostituisce l'ispezione e un limite esterno va riportato come `BLOCKED`.
 
@@ -184,3 +217,7 @@ Codex si ferma al termine della fase autorizzata dopo avere aggiornato task, Mas
 `docs/AI_WORKLOG.md`, evidence e handoff. Non oltrepassa l'handoff, non attiva il task
 successivo, non dichiara `DONE` e non esegue merge senza istruzione esplicita
 di `USER_APPROVER`.
+
+Nel solo `STOREFRONT_V1`, l'istruzione esplicita è già presente: Codex continua tra task
+e milestone dopo ogni checkpoint verde. Si ferma soltanto a fine train o davanti a un
+blocker esterno/pericoloso, preservando branch, PR, manifest, checkpoint ed evidence.

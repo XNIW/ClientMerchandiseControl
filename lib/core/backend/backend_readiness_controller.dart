@@ -6,24 +6,26 @@ import '../config/app_config.dart';
 import 'backend_health_service.dart';
 import 'backend_readiness_repository.dart';
 import 'backend_readiness_state.dart';
-import 'supabase_bootstrap.dart';
+import 'public_backend_http_client.dart';
+
+final backendAutomaticProbeDelayProvider = Provider<Duration>(
+  (_) => const Duration(seconds: 2),
+);
 
 final backendHealthServiceProvider = Provider<BackendHealthService>((ref) {
-  final service = HttpBackendHealthService();
+  final service = HttpBackendHealthService(
+    client: ref.watch(publicBackendHttpClientProvider),
+    closeClientOnDispose: false,
+  );
   ref.onDispose(service.close);
   return service;
 });
-
-final backendSdkInitializerProvider = Provider<BackendSdkInitializer>(
-  (ref) => SupabaseBootstrap.initialize,
-);
 
 final backendReadinessRepositoryProvider = Provider<BackendReadinessRepository>(
   (ref) {
     return SupabaseBackendReadinessRepository(
       config: ref.watch(appConfigProvider),
       healthService: ref.watch(backendHealthServiceProvider),
-      sdkInitializer: ref.watch(backendSdkInitializerProvider),
     );
   },
 );
@@ -37,6 +39,7 @@ class BackendReadinessController extends Notifier<BackendReadinessState> {
   BackendReadinessRepository? _repository;
   BackendProbeCancellation? _activeCancellation;
   Future<void>? _activeCheck;
+  Timer? _automaticProbeTimer;
   var _generation = 0;
   var _disposed = false;
 
@@ -48,16 +51,22 @@ class BackendReadinessController extends Notifier<BackendReadinessState> {
 
     final initialState = repository.initialState;
     if (initialState == BackendReadinessState.initializing) {
-      scheduleMicrotask(() {
-        if (!_disposed) {
-          unawaited(retry());
-        }
-      });
+      _automaticProbeTimer = Timer(
+        ref.watch(backendAutomaticProbeDelayProvider),
+        () {
+          _automaticProbeTimer = null;
+          if (!_disposed) {
+            unawaited(retry());
+          }
+        },
+      );
     }
     return initialState;
   }
 
   Future<void> retry() {
+    _automaticProbeTimer?.cancel();
+    _automaticProbeTimer = null;
     final activeCheck = _activeCheck;
     if (activeCheck != null) {
       return activeCheck;
@@ -108,6 +117,8 @@ class BackendReadinessController extends Notifier<BackendReadinessState> {
 
   void _dispose() {
     _disposed = true;
+    _automaticProbeTimer?.cancel();
+    _automaticProbeTimer = null;
     cancelCurrentCheck();
   }
 }

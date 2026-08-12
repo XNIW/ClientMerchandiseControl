@@ -2,6 +2,7 @@
   "APP_ENV": "staging",
   "SUPABASE_URL": "",
   "SUPABASE_PUBLISHABLE_KEY": "",
-  "AUTH_REDIRECT_URI": "com.xniw.clientmerchandisecontrol://auth-callback/",
-  "GOOGLE_AUTH_ENABLED": "true"
+  "AUTH_REDIRECT_URI": "https://clientmerchandisecontrol.invalid/auth-callback/",
+  "GOOGLE_AUTH_ENABLED": "false",
+  "STOREFRONT_SHOP_SLUG": ""
 }

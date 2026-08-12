@@ -5,9 +5,9 @@
 | Voce | Valore |
 |---|---|
 | Contract ID | `CMC-CLIENT-CONFIG` |
-| Versione | `1.0.0` |
+| Versione | `1.2.0` |
 | Stato | baseline normativa di configurazione client |
-| Task di origine | TASK-004 |
+| Task di origine | TASK-004; estensioni autorizzate TASK-013 e TASK-033 |
 | Contract owner | repository `ClientMerchandiseControl` |
 | Consumer | bootstrap Flutter Android/iOS |
 
@@ -21,17 +21,20 @@ ammesso fallisce in modo chiuso.
 
 ## Input contrattuali
 
-`CMC-CLIENT-CONFIG 1.0.0` contiene esattamente cinque input:
+`CMC-CLIENT-CONFIG 1.2.0` contiene esattamente sei input. Rispetto alla baseline
+`1.0.0`, TASK-013 aggiunge il contesto tenant pubblico e TASK-033 rende OAuth
+fail-closed finché il prodotto non possiede un dominio HTTPS verificato:
 
 | Input | Forma | Regola |
 |---|---|---|
 | `APP_ENV` | stringa compile-time | se omesso seleziona `development`; se presente accetta, dopo trim e normalizzazione del case, soltanto `development`, `staging` o `production` |
 | `SUPABASE_URL` | stringa compile-time | origin HTTPS assoluta, senza credenziali, path applicativo, query o fragment |
 | `SUPABASE_PUBLISHABLE_KEY` | stringa compile-time | publishable key moderna; una legacy key con ruolo `anon` è ammessa soltanto per compatibilità |
-| `AUTH_REDIRECT_URI` | stringa compile-time | callback mobile canonica e allowlisted dal contratto |
+| `AUTH_REDIRECT_URI` | stringa compile-time | sentinel HTTPS canonico e non instradabile; non abilita callback native |
 | `GOOGLE_AUTH_ENABLED` | stringa compile-time booleana | dopo trim accetta soltanto i literal lowercase `true` o `false`; un valore assente è ammesso soltanto in development e vale `false` |
+| `STOREFRONT_SHOP_SLUG` | stringa compile-time | slug pubblico lowercase di 3–63 caratteri (`a-z`, `0-9`, `-`), assente in development e obbligatorio in staging/production |
 
-Non fanno parte del contratto project ref, `shop_id`, Google client ID/secret, account di
+Non fanno parte del contratto project ref, `shop_id` UUID, Google client ID/secret, account di
 test, timeout, log level, endpoint health o altri flag. L'aggiunta di un input richiede
 una nuova versione del contratto e un task autorizzato.
 
@@ -45,10 +48,11 @@ remoti e fallback tra ambienti sono vietati.
 |---|---|---|---|
 | Selezione | default quando `APP_ENV` è omesso, oppure valore esplicito | `APP_ENV=staging` esplicito | `APP_ENV=production` esplicito |
 | URL e publishable key | assenti; qualunque valore è errore | entrambi obbligatori e validi | entrambi obbligatori e validi |
-| Callback | assente; qualunque valore è errore | callback canonica obbligatoria | callback canonica obbligatoria |
-| Google flag | assente o `false`; `true` è errore | `true` o `false` esplicito | soltanto `false` esplicito |
+| Callback | assente; qualunque valore è errore | sentinel HTTPS canonico obbligatorio | sentinel HTTPS canonico obbligatorio |
+| Google flag | assente o `false`; `true` è errore | soltanto `false` esplicito | soltanto `false` esplicito |
+| Storefront shop slug | assente; qualunque valore è errore | obbligatorio, pubblico e validato | obbligatorio, senza derivazione da staging |
 | Backend | nessuna inizializzazione Supabase e nessuna richiesta | SDK più health Auth data-free TASK-011 | nessun uso autorizzato in questo milestone |
-| OAuth | vietato | il flag dichiara soltanto capability/kill switch; flusso reale resta TASK-020 | vietato in questo milestone |
+| OAuth | vietato | vietato finché non esiste un dominio HTTPS posseduto e verificato | vietato in questo milestone |
 | Dati | nessun dato commerciale | soltanto dati non-production, quando introdotti dai task proprietari | nessun dato o valore production versionato |
 | Diagnostica | banner tecnico soltanto in debug e soli indicatori sanitizzati | soli indicatori sanitizzati | errore fail-closed senza dettagli sensibili |
 | Fallback | nessuno | nessuno | nessun fallback a staging |
@@ -59,9 +63,10 @@ remotamente o che l'utente sia autorizzato.
 
 ### Development
 
-Development MUST restare offline per costruzione. URL, key e callback vuoti, insieme a
-Google assente o `false`, producono una configurazione valida senza inizializzare
-Supabase. La presenza di un URL, una key, una callback o `GOOGLE_AUTH_ENABLED=true`
+Development MUST restare offline per costruzione. URL, key, callback e shop slug vuoti,
+insieme a Google assente o `false`, producono una configurazione valida senza
+inizializzare Supabase. La presenza di un URL, una key, una callback, uno shop slug o
+`GOOGLE_AUTH_ENABLED=true`
 MUST fallire prima del bootstrap remoto.
 
 Il banner tecnico MAY rendere visibile lo stato development soltanto in build debug.
@@ -69,15 +74,16 @@ Non autorizza backend, OAuth, dati fittizi o comportamento diverso in release.
 
 ### Staging
 
-Staging MUST avere la tuple URL/key completa, la callback canonica e il flag Google
-esplicito. `GOOGLE_AUTH_ENABLED=false` è un kill switch valido e fail-closed: non rende
-opzionali gli altri input, non seleziona un altro ambiente e non concede un fallback
-guest.
+Staging MUST avere la tuple URL/key completa, il sentinel callback canonico, il flag
+Google esplicito `false` e lo shop slug pubblico. `GOOGLE_AUTH_ENABLED=false` è un kill
+switch fail-closed: non rende opzionali gli altri input, non seleziona un altro ambiente
+e non concede un fallback tenant. `true` è sempre un errore di configurazione nel
+runtime distribuibile corrente.
 
-Il profilo target può usare `true` soltanto quando TASK-020 avrà configurato e verificato
-allow-list remota, deep link nativi e flusso OAuth. In TASK-004 il file locale mantiene
-il kill switch su `false`; TASK-011 inizializza lo SDK con session persistence,
-auto-refresh e deep-link detection disabilitati, quindi verifica soltanto Auth health.
+Una futura riattivazione richiede un dominio HTTPS posseduto, App Links/Universal Links
+verificati su entrambe le piattaforme, allow-list remota esatta e un task esplicito che
+aggiorni questo contratto. Il sentinel `.invalid` non dichiara ownership e non è una
+callback utilizzabile. TASK-011 verifica soltanto Auth health.
 
 ### Readiness staging
 
@@ -97,8 +103,8 @@ Storefront. 401/403 del health indicano configurazione respinta, non login clien
 
 ### Production
 
-Production MUST avere tuple URL/key, callback e flag esplicito, senza derivare alcun
-valore da staging. In questa baseline il solo valore ammesso per
+Production MUST avere tuple URL/key, callback, flag e shop slug espliciti, senza
+derivare alcun valore da staging. In questa baseline il solo valore ammesso per
 `GOOGLE_AUTH_ENABLED` è `false`; `true` MUST fallire.
 
 Nessuna configurazione production viene creata o versionata da TASK-004. L'assenza di
@@ -126,22 +132,22 @@ separati.
 
 ### Callback
 
-L'unica callback accettata è:
+L'unico valore accettato è il sentinel non instradabile:
 
-`com.xniw.clientmerchandisecontrol://auth-callback/`
+`https://clientmerchandisecontrol.invalid/auth-callback/`
 
 La URI MUST essere assoluta e coincidere esattamente, incluso lo slash finale. La sua
 struttura è:
 
-- scheme `com.xniw.clientmerchandisecontrol`;
-- host `auth-callback`;
-- path `/`;
+- scheme `https`;
+- host riservato `clientmerchandisecontrol.invalid`;
+- path `/auth-callback/`;
 - nessuna user info, porta, query o fragment.
 
-HTTP/HTTPS, wildcard, scheme o host alternativi, path aggiuntivi e redirect arbitrari
-MUST essere rifiutati. Questa validazione locale non registra URL scheme Android/iOS,
-non gestisce il callback e non modifica la redirect allow-list Supabase: tutte queste
-operazioni appartengono a TASK-020.
+Wildcard, scheme o host alternativi, path aggiuntivi e redirect arbitrari MUST essere
+rifiutati. Android e iOS non registrano questo host come App/Universal Link; il valore
+è deliberatamente non operativo e, insieme al flag obbligatoriamente `false`, impedisce
+di distribuire il precedente callback OAuth intercettabile.
 
 ## Diagnostica e trattamento degli errori
 
@@ -152,17 +158,18 @@ ripetere l'input ricevuto. La diagnostica MAY esporre soltanto:
 - backend configurato: sì/no;
 - callback configurata: sì/no;
 - Google Auth abilitata: sì/no.
+- Storefront configurato: sì/no.
 
-URL, publishable key e callback raw MUST NOT comparire in `toString`, eccezioni, log,
-test failure, screenshot o evidence. Nessun logger di valori viene introdotto da questo
-contratto.
+URL, publishable key, callback raw e shop slug MUST NOT comparire in `toString`,
+eccezioni, log, test failure, screenshot o evidence. Nessun logger di valori viene
+introdotto da questo contratto.
 
 ## File di configurazione
 
 - `config/app_config.example.json` è l'esempio development versionato, contiene
-  esattamente i cinque input e resta offline.
+  esattamente i sei input e resta offline.
 - `config/app_config.staging.example.json` descrive lo shape staging con placeholder
-  non operativi e la callback canonica.
+  non operativi, sentinel `.invalid` e Google disabilitato.
 - `config/app_config.staging.local.json` contiene gli eventuali valori staging locali,
   usa il kill switch `false`, è coperto da `/config/*.local.json` e MUST restare
   ignorato e non tracciato.
@@ -174,8 +181,9 @@ appartengono ai task proprietari.
 ## Confini con i task successivi
 
 - TASK-011 identifica e verifica la connessione staging e definisce la readiness reale.
-- TASK-020 configura la redirect allow-list, registra i deep link nativi, implementa
-  Google OAuth e governa il lifecycle di sessione.
+- TASK-020 conserva il lifecycle Auth storico; TASK-033 disabilita il callback OAuth
+  distribuibile finché non esiste un dominio HTTPS posseduto e verificato.
+- TASK-013 introduce lo shop slug pubblico e il primo consumer RPC Storefront.
 - TASK-005 e successivi possiedono schema, grant, RLS, dati e interfacce Storefront.
 
 TASK-004 non effettua probe, query, login, scritture remote o modifiche a Supabase.

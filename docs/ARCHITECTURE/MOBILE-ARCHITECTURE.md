@@ -7,7 +7,7 @@
 - Material 3 con adattamenti idiomatici iOS;
 - Riverpod per stato e dependency injection;
 - go_router per navigazione dichiarativa;
-- Supabase Flutter per readiness e Auth customer;
+- HTTP bounded per readiness e Storefront pubblico, Supabase Flutter soltanto per Auth customer;
 - gen_l10n e intl.
 
 ## Struttura
@@ -27,17 +27,18 @@ arrivano insieme alle feature data-backed.
 ## App e navigazione
 
 `main.dart` delega a `bootstrap.dart`. `AppConfig` è l'unica authority del contratto
-compile-time [`CMC-CLIENT-CONFIG 1.0.0`](ENVIRONMENT-STRATEGY.md): legge esattamente
+compile-time [`CMC-CLIENT-CONFIG 1.2.0`](ENVIRONMENT-STRATEGY.md): legge esattamente
 `APP_ENV`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `AUTH_REDIRECT_URI` e
-`GOOGLE_AUTH_ENABLED`, valida l'intera matrice prima di qualunque inizializzazione e
+`GOOGLE_AUTH_ENABLED`, più `STOREFRONT_SHOP_SLUG`, valida l'intera matrice prima di qualunque inizializzazione e
 fornisce al bootstrap soltanto lo stato già normalizzato.
 
 Development non accetta valori backend/callback né Google attivo e non inizializza
 Supabase. Staging ammette l'inizializzazione SDK soltanto con tuple, callback e flag
 completi; TASK-011 la completa con un health check Auth ufficiale e privo di dati.
-Production non eredita mai staging, non inizializza rete e, finché OAuth production non
-è autorizzato, accetta soltanto il kill switch Google disabilitato. In staging il flag
-abilita il runtime Auth di TASK-020 soltanto con callback e backend completi.
+Production non eredita mai staging e accetta soltanto il kill switch Google
+disabilitato. Anche staging rifiuta `GOOGLE_AUTH_ENABLED=true`: il sentinel HTTPS
+`.invalid` non è instradabile e non è registrato nativamente. OAuth può essere
+riattivato soltanto con dominio posseduto e App Links/Universal Links verificati.
 
 `ClientMerchandiseControlApp` compone tema, localizzazione e router.
 `StatefulShellRoute.indexedStack` mantiene quattro branch — Home, Catalogo, Carrello e
@@ -59,8 +60,8 @@ diagnostica backend estranea al loro stato.
 `BackendReadinessState` separa configurazione, inizializzazione e raggiungibilità:
 
 - `unconfigured`: development offline, senza SDK o rete;
-- `initializing`: SDK staging locale e probe in corso;
-- `ready`: SDK inizializzato e `GET /auth/v1/health` concluso con HTTP 200 e payload
+- `initializing`: probe diagnostico staging in corso;
+- `ready`: `GET /auth/v1/health` concluso con HTTP 200 e payload
   health valido;
 - `offline`: timeout abortito o errore di trasporto;
 - `misconfigured`: ambiente non autorizzato oppure gateway/key/endpoint rifiutati;
@@ -73,9 +74,9 @@ PostgREST, schema Storefront, RLS, grant, dati, OAuth o autorizzazione cliente.
 Il health service costruisce un solo `GET` verso `/auth/v1/health`, usa esclusivamente
 l'header `apikey`, non segue redirect e non registra request, response o eccezioni raw.
 Un `AbortableRequest` applica timeout reale e cancellazione su dispose. Il repository
-inizializza lo SDK e mappa gli esiti; il controller Riverpod avvia un solo check staging,
-riusa l'operazione concorrente e permette soltanto retry manuale. Non esistono polling,
-auto-retry o recheck su resume in TASK-011.
+mappa gli esiti senza inizializzare lo SDK Auth; il controller Riverpod avvia un solo
+check staging, riusa l'operazione concorrente e permette soltanto retry manuale. Non
+esistono polling, auto-retry o recheck su resume in TASK-011.
 
 La shell viene renderizzata prima del check. Offline ed errori recuperabili mantengono
 il browsing guest disponibile e mostrano copy localizzata customer-safe con retry;
@@ -170,6 +171,50 @@ Android/iOS Merchandise Control e Win7POS restano fonti e consumer del dominio
 operativo attraverso pipeline server controllate. Non sono repository dati, SDK o
 dipendenze runtime di questa app.
 
+TASK-013 introduce `StorefrontRepository` e la prima implementazione
+`SupabaseStorefrontRepository`: il primo render usa esclusivamente l'RPC
+`storefront_home_v1`, con shop slug esplicito, limiti bounded, timeout, cancellazione e
+mapping DTO allow-listed. Nessun widget accede direttamente a Supabase; payload con
+campi o tipi fuori contratto falliscono chiusi e gli URL immagine devono appartenere al
+bucket pubblico `storefront-product-images`.
+
+TASK-014 estende lo stesso adapter con i soli RPC pubblici versionati
+`storefront_categories_v1` e `storefront_catalog_v1`. Il cursor keyset resta opaco,
+ogni pagina conserva `catalogVersion` e sort server, e il controller scarta risposte
+stale o sequenze che mescolano versioni diverse. La griglia è un singolo
+`CustomScrollView` lazy; selezione categoria, refresh e load-more sono separati e un
+errore incrementale conserva gli elementi già visibili fino al retry esplicito. Le
+immagini usano esclusivamente la variante pubblica `card`, con decode width bounded,
+placeholder ed errore sicuro; nessun widget interroga tabelle o Storage direttamente.
+
+TASK-015 aggiunge il solo RPC pubblico `storefront_search_v1`: query normalizzata tra
+2 e 120 caratteri, debounce di 300 ms, cancellation/generation guard e cursor keyset
+separato. Categoria e ricerca sono componibili nel contratto Search; disponibilità,
+sconto e i quattro ordinamenti restano parametri server-side del contratto Catalog.
+L'interfaccia disabilita esplicitamente i filtri non supportati durante Search, invece
+di simulare una composizione client-side. Ogni cambio criterio annulla la sequenza
+precedente, valida query e versione restituite e riparte dalla prima pagina.
+
+TASK-016 aggiunge `storefront_product_detail_v1` nello stesso adapter allowlisted.
+La route `/product/:publicationId` accetta soltanto il publication UUID pubblico e
+fallisce chiusa prima della rete per valori invalidi. Un controller family auto-dispose
+isola lifecycle, cancellation e retry di ogni dettaglio. Il payload riusa la shape
+pubblica strict, verifica catalog version e identità richiesta/restituita; unavailable
+non distingue shop assente da prodotto non pubblicato. La UI usa soltanto l'immagine
+pubblica `detail`, prezzi CLP, promozione, availability commerciale e capability di
+fulfillment, senza quantità stock, inventory ID o azioni future simulate.
+
+TASK-019 separa il browsing guest dal bootstrap Auth: un transport HTTP PostgREST
+confinato invoca soltanto funzioni `storefront_*_v1`, usa la publishable key, limita la
+risposta a 2 MiB e riduce gli errori remoti a codici sanitizzati. Home avvia il fetch
+pubblico durante il probe diagnostico e non viene cancellata da un esito Auth health;
+timeout e offline del contratto Storefront governano direttamente cache e retry. Lo SDK
+Supabase resta inizializzato esclusivamente dal boundary Auth quando Google è abilitato.
+Il client HTTP pubblico è condiviso tra Storefront e health per riusare connessioni; il
+probe diagnostico automatico parte due secondi dopo la composizione della shell, così
+non compete con il first usable content, ma retry, timeout e cancellazione restano
+invariati.
+
 ## Commercial truth e mutazioni
 
 Il client presenta l'ultimo stato Storefront ricevuto insieme alla sua freshness, ma non
@@ -190,20 +235,17 @@ e non introduce un ruolo staff. Session identity e authorization sono concetti
 distinti.
 
 `AuthController` è eager e costituisce la sola fonte UI del lifecycle. Un
-`AuthRepository` iniettabile separa dominio e SDK; `SupabaseAuthRepository` usa Google,
-PKCE, browser esterno e callback canonica. Cold link e warm link confluiscono in una
-sola subscription `app_links`, vengono validati e consumati una volta. Cancel resta in
-corso finché un exchange posseduto non è terminato e compensato con sign-out/purge;
-un risultato vecchio non elimina il verifier del retry. Risultati obsoleti dopo
-cancellazione, logout o dispose non possono ripristinare authenticated.
-Il restore valido non forza navigazione; soltanto un'autenticazione completata dal
-callback conduce ad Account.
+`AuthRepository` iniettabile separa dominio e SDK. Il lifecycle Google/PKCE resta
+verificabile soltanto tramite harness isolati: il runtime distribuibile non apre il
+browser e non registra callback OAuth. Cancel resta in corso finché un exchange
+posseduto non è terminato e compensato con sign-out/purge; risultati obsoleti dopo
+cancellazione, logout o dispose non possono ripristinare authenticated. Il restore
+valido non forza navigazione.
 
-Su iOS l'inoltro nativo a `app_links` è manuale e converge nello stesso singleton:
-`AppDelegate` copre il custom scheme consegnato dal lifecycle applicativo e
-`SceneDelegate` copre connection options, URL contexts e user activity. L'handler
-automatico del plugin e il deep linking Flutter restano disabilitati per evitare
-consumer concorrenti; la validazione Dart resta obbligatoria.
+`app_links` continua a servire i deep link Storefront pubblici. Android non espone più
+l'intent filter Auth; iOS mantiene il solo scheme Storefront e inoltra i lifecycle allo
+stesso singleton. Prodotto e categoria sono ammessi; ordine e notifica falliscono
+chiuso finché non esiste un Universal/App Link HTTPS verificato.
 
 Sessione e verifier PKCE condividono `SecureSupabaseAuthStorage`: Android usa
 Keystore/RSA-OAEP/AES-GCM con backup applicativo disabilitato; iOS usa Keychain
@@ -221,10 +263,27 @@ token. Se tutti e tre i canali persistenti e il delete falliscono insieme, il pr
 corrente fallisce chiuso; dopo process death un intento mai persistito non è
 ricostruibile.
 
-Il logout usa `SignOutScope.local`: la sessione in memoria viene rimossa e l'adapter
-tenta sempre, in modo indipendente, delete sessione e verifier. Un marker rimasto
-pendente in uno dei tre canali blocca il restore e fa ritentare il purge al bootstrap.
-Un errore offline può produrre un avviso customer-safe ma lo stato resta guest.
+Il logout registra l'intento durevole prima di operazioni fallibili, rimuove lo stato
+locale e tenta `SignOutScope.global`. Una revoca remota fallita viene conservata in una
+coda bounded e ritentata al bootstrap; un marker pending blocca sempre il restore.
+L'intento viene rimosso soltanto dopo un nuovo login esplicito persistito. Un errore
+offline può produrre un avviso customer-safe ma lo stato resta guest.
+
+I deep link Storefront v1 usano soltanto lo scheme tecnico già registrato, host
+`storefront` e path canonico `/{shop}/product/{uuid}` oppure
+`/{shop}/category/{slug}`. Il decoder rifiuta altro shop, user-info, porta, query,
+fragment, encoding non canonico e segmenti extra. Il coordinator accoda il cold link
+fino alla prima route disponibile, deduplica consegne cold/warm ravvicinate e non
+interpreta mai una route come autorizzazione. Dominio HTTPS, Universal Links/App Links
+verificati e fallback web restano subordinati a brand e dominio reali di release.
+
+I preferiti guest sono una preferenza locale distinta dalla cache commerciale: Drift
+schema v2 conserva soltanto shop slug, publication UUID e timestamp, con limite 1.000.
+Invalidazione o cleanup catalogo possono rendere un record orphan ma non cancellano la
+scelta; la UI in quel caso mostra uno stato unavailable generico e non dati stale. Login,
+restore e logout non riscrivono questa tabella e nessuna sync account viene simulata.
+La condivisione usa il dialogo nativo con anchor iPad e payload localizzato contenente
+solo nome pubblico e URI canonico, mai prezzo autoritativo, token, PII o metadata interni.
 
 Ogni risorsa futura è vincolata a uno `shop_id` UUID validato dal server. Il client può
 trasportare il contesto shop per routing e presentazione, ma non sceglie autonomamente
@@ -255,14 +314,20 @@ assegnate a:
 - TASK-006–TASK-010 per proiezione, control plane, prezzi, immagini e query contract;
 - TASK-011 per connessione staging e backend/auth readiness;
 - TASK-012 per shell cliente guest/data-safe, stati readiness e baseline accessibile;
+- TASK-013 per Home pubblica data-backed e primo repository RPC-only;
+- TASK-014 per categorie pubbliche, griglia lazy e keyset pagination;
+- TASK-015 per ricerca, filtri e ordinamento server-side;
+- TASK-016 per dettaglio e disponibilità commerciale;
 - TASK-017 per cache catalogo, freshness e invalidazione;
-- TASK-020 per OAuth, deep link e session lifecycle, implementati nel confine Auth
-  corrente;
+- TASK-018 per preferiti guest, share nativo e deep link Storefront strict;
+- TASK-020 per il lifecycle Auth storico; TASK-033 disabilita OAuth distribuibile e
+  mantiene il confine fail-closed fino a link HTTPS verificati;
 - TASK-021–TASK-032 per dati cliente e flussi commerciali;
 - TASK-033–TASK-037 per hardening, resilienza, osservabilità, accessibilità e
   performance.
 
 Questo documento preserva le decisioni Flutter, Riverpod, go_router, MVVM e design
 system già adottate. TASK-011 aggiunge readiness tecnica, TASK-012 la shell guest
-data-safe e TASK-020 il solo lifecycle Auth customer; nessuno aggiunge schema,
-DTO commerciali, inventory o dati reali.
+data-safe, TASK-013–TASK-018 il consumer Storefront pubblico e TASK-020 il solo
+lifecycle Auth customer; nessuno assegna al client commercial truth, inventory o grant
+staff.

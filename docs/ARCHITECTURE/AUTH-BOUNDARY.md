@@ -216,31 +216,38 @@ in valori dominio bounded e non espone sessione, token o `User`.
 
 - development: guest, zero inizializzazione/rete Auth;
 - staging con kill switch `false`: guest, zero OAuth;
-- staging completo con flag `true`: Google OAuth attivo;
+- staging con flag `true`: errore di configurazione fail-closed;
 - production: Google obbligatoriamente disabilitato nel milestone.
+
+TASK-033 revoca il precedente callback OAuth a scheme privato. Il runtime distribuibile
+non può riattivare Google finché non viene introdotto, con decisione separata, un
+dominio HTTPS posseduto e verificato tramite App Links/Universal Links.
 
 `SupabaseBootstrap` dichiara `AuthFlowType.pkce`, `autoRefreshToken:true`,
 `detectSessionInUri:false`, `debug:false` e lo stesso
 `SecureSupabaseAuthStorage` per sessione e verifier.
 
-### Callback canonico
+### Redirect OAuth disabilitato
 
-L'unico URI accettato è:
+La configurazione accetta esclusivamente il sentinel:
 
 ```text
-com.xniw.clientmerchandisecontrol://auth-callback/
+https://clientmerchandisecontrol.invalid/auth-callback/
 ```
 
-Android filtra scheme, host e path `/`; iOS registra soltanto lo scheme e delega
-host/path a Dart. Flutter deep linking e l'observer Supabase permissivo sono
-disabilitati. Su iOS anche l'handling automatico di `app_links` è disabilitato:
-`AppDelegate` inoltra il custom scheme warm e `SceneDelegate` inoltra cold/warm e
-universal activity allo stesso singleton del plugin, preservando i callback `super`.
-Un solo source Dart `app_links` unifica cold e warm callback e resta l'unico consumer
-applicativo.
+Il TLD `.invalid` è deliberatamente non instradabile e non dichiara ownership. Android
+non registra più l'intent filter Auth e iOS non registra un URL scheme Auth; quindi il
+sentinel non può raggiungere l'app. `GOOGLE_AUTH_ENABLED=true` viene inoltre rifiutato
+in staging e production prima del bootstrap. Il consumer Storefront conserva lo scheme
+privato soltanto per link pubblici bounded `product` e `category`; route customer-
+sensitive `order` e `notification` sono negate finché non esiste un link HTTPS
+verificato.
 
-Prima di qualunque exchange il validator richiede URI assoluto, scheme/host/path
-canonici, user-info vuoto, nessuna porta o fragment e una query di una delle due forme:
+Il validator OAuth e il relativo lifecycle restano coperti da harness isolati, che non
+registrano callback native né contattano provider. Se una futura decisione introducesse
+un dominio verificato, prima di qualunque exchange il validator dovrà continuare a
+richiedere URI assoluto, scheme/host/path canonici, user-info vuoto, nessuna porta o
+fragment e una query di una delle due forme:
 
 - un solo `code` PKCE non vuoto, visibile e bounded;
 - `error` con soli `error_code`/`error_description` opzionali, tutti bounded.
@@ -255,7 +262,9 @@ deduplica; callback, code e valori errore non vengono loggati.
 quattro callback e serializza l'exchange. Login e logout sono single-flight; un
 generation token impedisce a future tardive di prevalere dopo cancel, logout o dispose.
 
-La sessione corrente e `onAuthStateChange` alimentano una sola state machine:
+La sessione corrente e `onAuthStateChange` alimentano una sola state machine. Nel
+runtime corrente il browser OAuth non è avviabile; gli stati callback sotto descrivono
+il contratto test-only e la futura riattivazione verificata:
 
 - restore valido -> authenticated senza navigazione forzata;
 - browser aperto -> authenticating, non successo;

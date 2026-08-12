@@ -125,6 +125,7 @@ discovery opportunistica dello schema.
 | connessione staging e backend/auth readiness | TASK-011 |
 | shell cliente guest/data-safe, stati readiness e baseline accessibile | TASK-012 |
 | cache catalogo e freshness | TASK-017 |
+| preferiti guest, share e deep link Storefront | TASK-018 |
 | OAuth e session lifecycle customer | TASK-020 |
 | carrello, disponibilità, hold, ordine e handoff POS | TASK-023–TASK-030 |
 

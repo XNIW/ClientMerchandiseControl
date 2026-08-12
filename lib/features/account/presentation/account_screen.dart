@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/router/app_routes.dart';
 import '../../../app/design_system/theme/storefront_semantic_colors.dart';
 import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
@@ -12,8 +14,11 @@ import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/authenticated_customer.dart';
 import '../../auth/domain/auth_failure.dart';
 import '../../auth/domain/auth_state.dart';
+import '../../customer_devices/presentation/customer_notification_panel.dart';
+import '../../orders/presentation/customer_orders_account_entry.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import 'account_presentation_model.dart';
+import 'customer_account_panel.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -29,6 +34,7 @@ class AccountScreen extends ConsumerWidget {
         onContinueWithGoogle: canAuthenticate
             ? controller.startGoogleSignIn
             : null,
+        onBrowseAsGuest: () => context.go(AppRoutes.homeLocation),
         notice: notice == null ? null : _failureMessage(l10n, notice),
       ),
       AuthAuthenticating() => AccountView.status(
@@ -52,6 +58,14 @@ class AccountScreen extends ConsumerWidget {
       AuthAuthenticated(:final customer) => AccountView.authenticated(
         model: _presentationModel(customer),
         onLogout: controller.signOut,
+        details: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const CustomerOrdersAccountEntry(),
+            CustomerAccountPanel(authDisplayName: customer.displayName),
+            const CustomerNotificationPanel(),
+          ],
+        ),
       ),
       AuthSigningOut(:final customer) => AccountView.authenticated(
         model: _presentationModel(customer),
@@ -96,6 +110,7 @@ sealed class AccountView extends StatelessWidget {
     required AuthenticatedAccountPresentationModel model,
     required VoidCallback? onLogout,
     bool isSigningOut,
+    Widget? details,
   }) = _AuthenticatedAccountView;
 
   const factory AccountView.status({
@@ -139,12 +154,14 @@ final class _AuthenticatedAccountView extends AccountView {
     required this.model,
     required this.onLogout,
     this.isSigningOut = false,
+    this.details,
     super.key,
   }) : super._();
 
   final AuthenticatedAccountPresentationModel model;
   final VoidCallback? onLogout;
   final bool isSigningOut;
+  final Widget? details;
 
   @override
   Widget build(BuildContext context) {
@@ -153,6 +170,7 @@ final class _AuthenticatedAccountView extends AccountView {
         model: model,
         onLogout: onLogout,
         isSigningOut: isSigningOut,
+        details: details,
       ),
     );
   }
@@ -359,11 +377,13 @@ class _AuthenticatedAccountContent extends StatelessWidget {
     required this.model,
     required this.onLogout,
     required this.isSigningOut,
+    required this.details,
   });
 
   final AuthenticatedAccountPresentationModel model;
   final VoidCallback? onLogout;
   final bool isSigningOut;
+  final Widget? details;
 
   @override
   Widget build(BuildContext context) {
@@ -482,6 +502,7 @@ class _AuthenticatedAccountContent extends StatelessWidget {
             ),
           ),
         ),
+        ?details,
       ],
     );
   }

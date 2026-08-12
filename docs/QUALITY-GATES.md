@@ -105,15 +105,15 @@ requisiti di evidence sono definiti in `docs/CODEX-WORKFLOW-PROTOCOL.md`.
   development, ma non introduce fallback tra ambienti;
 - development vuoto è valido e non chiama l'inizializzatore Supabase; URL, key,
   callback o Google attivo devono fallire prima del bootstrap remoto;
-- staging richiede tuple URL/key, callback canonica e flag Google esplicito; `false`
-  resta un kill switch valido;
+- staging richiede tuple URL/key, sentinel callback canonico e flag Google esplicito
+  `false`; `true` fallisce chiuso finché manca un dominio HTTPS verificato;
 - production richiede gli stessi input completi, accetta soltanto Google `false` in
   questo milestone e non usa valori staging;
 - URL/key sono atomici, l'URL è una origin HTTPS e soltanto publishable key moderne o
   legacy `anon` sono accettate;
-- la sola callback valida è
-  `com.xniw.clientmerchandisecontrol://auth-callback/`, inclusi scheme, host, path e
-  slash finale esatti, senza wildcard, user info, porta, query o fragment;
+- il solo valore redirect valido è il sentinel non instradabile
+  `https://clientmerchandisecontrol.invalid/auth-callback/`, incluso scheme, host,
+  path e slash finale esatti, senza wildcard, user info, porta, query o fragment;
 - il parser Google accetta soltanto i literal lowercase `true` e `false`; l'assenza è
   ammessa soltanto in development e vale `false`;
 - diagnostica, `toString` ed errori espongono soltanto ambiente e booleani, mai URL, key,
@@ -127,8 +127,8 @@ Il gate unitario mirato è:
 
 - i due example JSON contengono esattamente le cinque chiavi contrattuali, sono JSON
   validi e non contengono URL/key reali;
-- l'esempio development è offline; l'esempio staging usa la callback canonica e
-  placeholder non operativi;
+- l'esempio development è offline; l'esempio staging usa il sentinel `.invalid`,
+  Google disabilitato e placeholder non operativi;
 - `config/app_config.staging.local.json` esiste localmente, è coperto da
   `/config/*.local.json` e non compare in `git ls-files`, diff o evidence;
 - README contiene i comandi run, APK debug e iOS Simulator con
@@ -208,6 +208,74 @@ inizializzazione Supabase. Non effettua login, connessione staging o test live r
 I test mirati principali sono:
 
 `flutter test test/features test/app/design_system/task012_reflow_accessibility_test.dart test/app/client_merchandise_control_app_test.dart test/l10n`
+
+## Gate specifici TASK-013
+
+- configurazione compile-time con un solo `STOREFRONT_SHOP_SLUG`, obbligatorio in
+  staging/production, vietato in development e mai riportato nella diagnostica;
+- un solo adapter Supabase autorizzato a invocare `storefront_home_v1`; nessuna query
+  diretta a inventory, authoring, Storage o bucket interno;
+- decoder DTO strict allow-list per API/schema/status, valori CLP integer non negativi,
+  URL HTTPS pubblici versionati e `catalogVersion` uniforme;
+- repository con timeout, cancellation token e failure taxonomy deterministica;
+- controller Riverpod protetto da risultati stale e Home guest con loading, empty,
+  retry, offline/unavailable, categorie, featured, offerte e immagini pubbliche;
+- test unit/widget per payload valido e malevolo, failure/cancellation, retry, dark mode,
+  text scale 200%, viewport e localizzazioni es/it/en/zh-Hans;
+- fixture staging deterministica priva di dati personali, verificata via RPC anonimo e
+  con letture interne negate;
+- smoke reale Android/iOS tramite
+  `integration_test/storefront_home_live_smoke_test.dart`, separato da build e CI;
+- `flutter analyze`, suite completa con coverage, build debug Android/iOS, architecture
+  boundary, secret scan e CI sullo stesso SHA candidato.
+
+## Gate specifici TASK-014
+
+- l'unico adapter Supabase allowlista `storefront_categories_v1` e
+  `storefront_catalog_v1`, oltre al precedente Home, senza query dirette a
+  tabelle/view/Storage;
+- DTO strict per status, API version, catalog version, cursor opaco, sort, categorie e
+  prodotti, con duplicate ID/slug e shape sconosciute rifiutati;
+- limit `1..100`, keyset cursor invariato, cancellation/generation guard, single-flight
+  e reset bounded su `catalog_changed`;
+- griglia Sliver lazy adattiva, categoria server-side, pull-to-refresh, posizione per
+  categoria/tab, stato load-more separato e retry esplicito senza loop automatici;
+- immagini pubbliche `card` con lazy build, decode width bounded, placeholder/error e
+  nessun bucket/path interno;
+- unit/widget su pagination, stale response, duplicate page, refresh, error/retry,
+  es/it/en/zh-Hans, dark mode, text scale 200% e compact/landscape/large;
+- smoke guest reale Android/iOS tramite
+  `integration_test/storefront_catalog_live_smoke_test.dart`, build, secret scan e CI
+  eseguiti sullo stesso SHA candidato.
+
+## Gate specifici TASK-015
+
+- l'unico adapter Supabase allowlista anche `storefront_search_v1`; nessun altro file
+  può invocare RPC, tabelle/view o Storage;
+- Search DTO strict su status/API/catalog version/query/relevance/cursor/item e verifica
+  che la query restituita coincida con quella richiesta;
+- query normalizzata `2..120`, debounce 300 ms, cancellation/generation guard, clear e
+  keyset Search senza mescolare pagine o criteri;
+- categoria componibile con Search; availability/discounted/sort solo Catalog e
+  disabilitati esplicitamente durante Search;
+- availability typed, discounted e quattro sort inoltrati server-side con reset prima
+  pagina atomico;
+- widget su tastiera/search action, clear, filtri, locale, dark mode, text scale 200% e
+  compact/landscape; smoke reale Android/iOS sul contratto staging.
+
+## Gate specifici TASK-016
+
+- l'unico adapter Supabase allowlista anche `storefront_product_detail_v1`; UUID
+  publication invalido non effettua rete e response ID differente fallisce chiusa;
+- DTO strict su status/API/catalog version/item, senza shape extra o dati parziali;
+- controller route-scoped auto-dispose con cancellation, stale guard, readiness e retry;
+- card Home/Catalog/Search navigano alla stessa route e back ripristina il consumer;
+- detail mostra soltanto dati pubblici, variante immagine `detail` bounded, availability
+  commerciale e fulfillment senza quantità;
+- unit/widget su valid/unavailable/offline/malformed/dispose, sei availability, quattro
+  locale, dark, text scale 200% e compact/landscape;
+- smoke published/unpublished reale Android/iOS, build, secret scan e CI sullo stesso
+  SHA candidato.
 
 ## Gate security
 

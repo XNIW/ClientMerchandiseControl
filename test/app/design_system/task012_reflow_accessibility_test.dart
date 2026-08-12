@@ -23,9 +23,12 @@ void main() {
   const safeAreaInsets = FakeViewPadding(top: 24, bottom: 16);
   const viewportCases = <Size>[
     Size(320, 568),
-    Size(568, 320),
+    Size(360, 800),
     Size(390, 844),
+    Size(430, 932),
+    Size(768, 1024),
     Size(1024, 768),
+    Size(568, 320),
   ];
 
   Widget buildApp() {
@@ -207,6 +210,38 @@ final class _UnexpectedBackendHealthService implements BackendHealthService {
 }
 
 void _expectCurrentPageUsesAvailableWidth(WidgetTester tester) {
+  final catalog = find.byType(CatalogScreen);
+  if (catalog.evaluate().isNotEmpty) {
+    expect(catalog, findsOneWidget);
+    final scrollView = find.descendant(
+      of: catalog,
+      matching: find.byType(CustomScrollView),
+    );
+    expect(scrollView, findsOneWidget);
+
+    final pageWidth = tester.getSize(catalog).width;
+    expect(tester.getSize(scrollView).width, closeTo(pageWidth, 0.01));
+    final basePadding = pageWidth >= AppBreakpoints.wide
+        ? AppSpacing.xxl
+        : pageWidth <= AppBreakpoints.narrow
+        ? AppSpacing.md
+        : AppSpacing.lg;
+    final expectedPadding =
+        basePadding +
+        math.max(0, (pageWidth - AppSizes.catalogContentMaxWidth) / 2);
+    final firstPadding = tester.widget<SliverPadding>(
+      find.descendant(of: catalog, matching: find.byType(SliverPadding)).first,
+    );
+    final resolved = firstPadding.padding.resolve(TextDirection.ltr);
+    expect(resolved.left, closeTo(expectedPadding, 0.01));
+    expect(resolved.right, closeTo(expectedPadding, 0.01));
+    expect(
+      pageWidth - resolved.horizontal,
+      lessThanOrEqualTo(AppSizes.catalogContentMaxWidth),
+    );
+    return;
+  }
+
   final pageFinder = find.byType(StorefrontPage);
   expect(pageFinder, findsOneWidget);
 
@@ -214,6 +249,8 @@ void _expectCurrentPageUsesAvailableWidth(WidgetTester tester) {
   final pageWidth = tester.getSize(pageFinder).width;
   final horizontalPadding = pageWidth >= AppBreakpoints.wide
       ? AppSpacing.xxl
+      : pageWidth <= AppBreakpoints.narrow
+      ? AppSpacing.md
       : AppSpacing.lg;
   final expectedContentWidth = math.min(
     page.maxWidth,

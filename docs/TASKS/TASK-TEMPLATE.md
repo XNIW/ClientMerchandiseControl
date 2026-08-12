@@ -5,8 +5,10 @@
 - **Task ID**: TASK-XXX
 - **Titolo**:
 - **File task**: `docs/TASKS/TASK-XXX-slug.md`
-- **Stato**: TODO | ACTIVE | BLOCKED | DONE
-- **Fase**: PLANNING | EXECUTION | REVIEW | FIX
+- **Stato**: TODO | ACTIVE | BLOCKED | DONE |
+  VALIDATED_PENDING_INTEGRATED_REVIEW (solo `STOREFRONT_V1`)
+- **Fase**: PLANNING | EXECUTION | REVIEW | FIX |
+  INTEGRATED_REVIEW (solo `STOREFRONT_V1`)
 - **Responsabile**: uno tra `CODEX_PLANNER`, `CODEX_EXECUTOR`, `CODEX_REVIEWER`,
   `CODEX_FIXER`, `CODEX_RE_REVIEWER`, `USER_APPROVER`
 - **Data creazione**: YYYY-MM-DD
@@ -89,7 +91,30 @@ Le decisioni superate restano visibili con stato `OBSOLETA`.
 - **Prossimo ruolo**: CODEX_REVIEWER
 - **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
+## Checkpoint release train — `CODEX_EXECUTOR`
+
+Compilare soltanto per un task incluso in `STOREFRONT_V1`. Il checkpoint non è una
+review e non assegna un outcome.
+
+### Gate pertinenti eseguiti
+
+### Compatibilità e smoke staging
+
+### Security scan mirato
+
+### Stato manifest/checkpoint
+
+### Handoff al task successivo
+
+- **Stato**: VALIDATED_PENDING_INTEGRATED_REVIEW
+- **Review outcome**: NOT_RUN
+- **Prossimo task**:
+- **Handoff**: STOREFRONT_V1_MILESTONE_CHECKPOINT_VALIDATED
+
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
+
+Per `STOREFRONT_V1` questa sezione resta vuota fino alla review integrata finale e
+registra il revision manifest condiviso, non una review intermedia del singolo task.
 
 ### Problemi critici
 

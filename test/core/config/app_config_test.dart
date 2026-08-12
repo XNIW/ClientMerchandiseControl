@@ -9,6 +9,7 @@ void main() {
   const callback = AppConfig.allowedAuthRedirectUri;
   const stagingUrl = 'https://staging.example.invalid';
   const stagingKey = 'sb_publishable_staging';
+  const shopSlug = 'storefront-test';
 
   group('AppConfig', () {
     test('usa development non configurato come default', () {
@@ -47,7 +48,8 @@ void main() {
           supabaseUrl: stagingUrl,
           supabasePublishableKey: stagingKey,
           authRedirectUri: callback,
-          googleAuthEnabled: 'true',
+          googleAuthEnabled: 'false',
+          storefrontShopSlug: shopSlug,
         ).environment,
         AppEnvironment.staging,
       );
@@ -58,6 +60,7 @@ void main() {
           supabasePublishableKey: 'sb_publishable_production',
           authRedirectUri: callback,
           googleAuthEnabled: 'false',
+          storefrontShopSlug: shopSlug,
         ).environment,
         AppEnvironment.production,
       );
@@ -70,6 +73,7 @@ void main() {
         supabasePublishableKey: 'sb_publishable_local',
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
+        storefrontShopSlug: shopSlug,
       );
 
       expect(config.isBackendConfigured, isTrue);
@@ -120,19 +124,29 @@ void main() {
       );
     });
 
-    test('staging accetta auth abilitata o disabilitata', () {
-      for (final flag in ['true', 'false']) {
-        final config = AppConfig.fromValues(
+    test('staging accetta solo auth disabilitata senza dominio verificato', () {
+      final config = AppConfig.fromValues(
+        appEnvironment: 'staging',
+        supabaseUrl: stagingUrl,
+        supabasePublishableKey: stagingKey,
+        authRedirectUri: callback,
+        googleAuthEnabled: 'false',
+        storefrontShopSlug: shopSlug,
+      );
+
+      expect(config.googleAuthEnabled, isFalse);
+      expect(config.authRedirectUri, callback);
+      expect(
+        () => AppConfig.fromValues(
           appEnvironment: 'staging',
           supabaseUrl: stagingUrl,
           supabasePublishableKey: stagingKey,
           authRedirectUri: callback,
-          googleAuthEnabled: flag,
-        );
-
-        expect(config.googleAuthEnabled, flag == 'true');
-        expect(config.authRedirectUri, callback);
-      }
+          googleAuthEnabled: 'true',
+          storefrontShopSlug: shopSlug,
+        ),
+        throwsA(isA<AppConfigurationException>()),
+      );
     });
 
     test('staging rifiuta ogni campo obbligatorio mancante', () {
@@ -175,6 +189,7 @@ void main() {
         supabasePublishableKey: 'sb_publishable_production',
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
+        storefrontShopSlug: shopSlug,
       );
 
       expect(valid.environment, AppEnvironment.production);
@@ -187,6 +202,7 @@ void main() {
           supabasePublishableKey: 'sb_publishable_production',
           authRedirectUri: callback,
           googleAuthEnabled: 'true',
+          storefrontShopSlug: shopSlug,
         ),
         throwsA(isA<AppConfigurationException>()),
       );
@@ -206,6 +222,7 @@ void main() {
         supabasePublishableKey: 'sb_publishable_example',
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
+        storefrontShopSlug: shopSlug,
       );
 
       expect(config.supabaseUrl, 'https://example.invalid');
@@ -247,6 +264,7 @@ void main() {
         supabasePublishableKey: 'sb_publishable_Abc-123_xyz',
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
+        storefrontShopSlug: shopSlug,
       );
 
       expect(config.supabasePublishableKey, 'sb_publishable_Abc-123_xyz');
@@ -260,6 +278,7 @@ void main() {
         supabasePublishableKey: key,
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
+        storefrontShopSlug: shopSlug,
       );
 
       expect(config.supabasePublishableKey, key);
@@ -319,7 +338,8 @@ void main() {
         supabaseUrl: stagingUrl,
         supabasePublishableKey: stagingKey,
         authRedirectUri: callback,
-        googleAuthEnabled: 'true',
+        googleAuthEnabled: 'false',
+        storefrontShopSlug: shopSlug,
       );
       expect(valid.authRedirectUri, callback);
 
@@ -346,7 +366,8 @@ void main() {
             supabaseUrl: stagingUrl,
             supabasePublishableKey: stagingKey,
             authRedirectUri: redirectUri,
-            googleAuthEnabled: 'true',
+            googleAuthEnabled: 'false',
+            storefrontShopSlug: shopSlug,
           ),
           throwsA(isA<AppConfigurationException>()),
           reason: redirectUri,
@@ -403,14 +424,16 @@ void main() {
         supabaseUrl: rawUrl,
         supabasePublishableKey: rawKey,
         authRedirectUri: callback,
-        googleAuthEnabled: 'true',
+        googleAuthEnabled: 'false',
+        storefrontShopSlug: shopSlug,
       );
 
       expect(config.sanitizedDiagnostics, {
         'environment': 'staging',
         'backendConfigured': true,
         'authRedirectConfigured': true,
-        'googleAuthEnabled': true,
+        'googleAuthEnabled': false,
+        'storefrontConfigured': true,
       });
       expect(config.sanitizedDiagnostics, isNot(containsValue(rawUrl)));
       expect(config.sanitizedDiagnostics, isNot(containsValue(rawKey)));
@@ -480,13 +503,51 @@ void main() {
       );
     });
 
-    test('gli esempi hanno esattamente i cinque input contrattuali', () {
+    test('valida lo slug Storefront e non lo espone in diagnostica', () {
+      final config = AppConfig.fromValues(
+        appEnvironment: 'staging',
+        supabaseUrl: stagingUrl,
+        supabasePublishableKey: stagingKey,
+        authRedirectUri: callback,
+        googleAuthEnabled: 'false',
+        storefrontShopSlug: shopSlug,
+      );
+
+      expect(config.storefrontShopSlug, shopSlug);
+      expect(config.sanitizedDiagnostics, isNot(containsValue(shopSlug)));
+      expect(config.toString(), isNot(contains(shopSlug)));
+      for (final invalid in [
+        '',
+        'ABCD',
+        'ab',
+        '-storefront',
+        'storefront/shop',
+        'storefront?shop',
+        'storefront_*',
+      ]) {
+        expect(
+          () => AppConfig.fromValues(
+            appEnvironment: 'staging',
+            supabaseUrl: stagingUrl,
+            supabasePublishableKey: stagingKey,
+            authRedirectUri: callback,
+            googleAuthEnabled: 'false',
+            storefrontShopSlug: invalid,
+          ),
+          throwsA(isA<AppConfigurationException>()),
+          reason: invalid,
+        );
+      }
+    });
+
+    test('gli esempi hanno esattamente i sei input contrattuali', () {
       const expectedKeys = {
         'APP_ENV',
         'SUPABASE_URL',
         'SUPABASE_PUBLISHABLE_KEY',
         'AUTH_REDIRECT_URI',
         'GOOGLE_AUTH_ENABLED',
+        'STOREFRONT_SHOP_SLUG',
       };
       final development = _readJsonObject('config/app_config.example.json');
       final staging = _readJsonObject('config/app_config.staging.example.json');
@@ -497,13 +558,15 @@ void main() {
       expect(development['SUPABASE_PUBLISHABLE_KEY'], isEmpty);
       expect(development['AUTH_REDIRECT_URI'], isEmpty);
       expect(development['GOOGLE_AUTH_ENABLED'], 'false');
+      expect(development['STOREFRONT_SHOP_SLUG'], isEmpty);
 
       expect(staging.keys.toSet(), expectedKeys);
       expect(staging['APP_ENV'], 'staging');
       expect(staging['SUPABASE_URL'], isEmpty);
       expect(staging['SUPABASE_PUBLISHABLE_KEY'], isEmpty);
       expect(staging['AUTH_REDIRECT_URI'], callback);
-      expect(staging['GOOGLE_AUTH_ENABLED'], 'true');
+      expect(staging['GOOGLE_AUTH_ENABLED'], 'false');
+      expect(staging['STOREFRONT_SHOP_SLUG'], isEmpty);
     });
   });
 }

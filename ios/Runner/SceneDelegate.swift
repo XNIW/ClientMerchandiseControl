@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import UserNotifications
 import app_links
 
 class SceneDelegate: FlutterSceneDelegate {
@@ -17,6 +18,14 @@ class SceneDelegate: FlutterSceneDelegate {
       if let url = userActivity.webpageURL {
         AppLinks.shared.handleLink(url: url)
       }
+    }
+    if let response = connectionOptions.notificationResponse,
+      response.actionIdentifier == UNNotificationDefaultActionIdentifier,
+      let url = CustomerNotificationDeepLinkMapper.map(
+        userInfo: response.notification.request.content.userInfo
+      )
+    {
+      AppLinks.shared.handleLink(url: url)
     }
   }
 

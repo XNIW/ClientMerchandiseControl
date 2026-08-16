@@ -5,12 +5,12 @@
 - **Task ID**: TASK-044
 - **Titolo**: Delivery tracking contract, privacy boundary and operational writer
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-044/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -110,15 +110,69 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso sul piano approvato. Nessun gate è dichiarato prima dell'esecuzione reale.
+### Implementazione consegnata
+
+- Admin/Supabase: migration additiva con sessioni, assignment, latest location,
+  lifecycle senza coordinate, idempotenza, cleanup, feed Realtime owner-scoped e RPC
+  dedicate customer/admin/courier;
+- Courier Mode: writer web mobile-first con consenso esplicito, start/stop e
+  geolocalizzazione foreground throttled; nessuna promessa di background;
+- Client: modello/versioning dei tre tracking mode, parser stretto, RPC owner-scoped,
+  Realtime filtrato per ordine, polling bounded, cache cifrata e card testuale nel
+  dettaglio ordine;
+- privacy: terminal redaction, nessuna history di coordinate, nessuna coordinata in
+  log/analytics/push e feed pubblico senza `shop_id` interno;
+- provider: decision record Google Maps nativo, configurazione production fail-closed
+  e nessuna chiave versionata.
+
+### Evidence e gate pre-review
+
+- revision set Client: `e9bd0306b07b105f3fb46da783ab2fd24ef44246..aa24851a380099d7878bbbfa590e2e856f9d3d6e`;
+- revision set Admin: `5cf73e4f6de4cfcc36e56514ec77c0cc9cb970e3..c94e4711b06244704ff577eedd9fca69bccc837d`;
+- `supabase db reset`: `PASS`; pgTAP tracking: `55/55 PASS`; foundation mirato:
+  `7/7 PASS`; suite foundation: `978 PASS`, `2 SKIP`, `0 FAIL`;
+- `npm run verify`: `PASS`, build incluso;
+- `flutter analyze`: `PASS`; tracking/orders mirati: `20 PASS`;
+- `bash scripts/check.sh`: `PASS`, scanner 587 file, 586 test più performance,
+  APK debug e iOS Simulator debug verdi.
+
+### Handoff a Review
+
+`CODEX_EXECUTION_COMPLETE_TO_REVIEW` sui revision set sopra. L'ADR provider non
+committato è stato escluso esplicitamente dalla review security del codice.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
-Non avviata.
+### Review indipendente read-only
+
+La review mirata security/privacy ha letto integralmente i file assegnati e ha
+validato staticamente e dinamicamente i confini Client, Courier Mode, server/RPC e
+database. Esito: `CHANGES_REQUIRED`, con sei finding P2 e due finding P3; nessun P0/P1.
+
+| Finding | Priorità | Evidenza | Correzione richiesta |
+|---|---:|---|---|
+| T044-REV-CLIENT-001 | P2 | race compare/cache/publish riprodotta: terminale v6 può essere sovrascritto da live v5 | serializzare l'accettazione monotona e aggiungere regressione concorrente |
+| T044-REV-CLIENT-002 | P2 | RPC `unauthorized` cancella il disco ma conserva snapshot preciso in memoria e avvia runtime | stop fail-closed, azzeramento snapshot e nessuna subscribe |
+| T044-REV-COURIER-001 | P2 | Start asincrono seguito da unmount può creare un watch GPS orfano | generation/mounted token e cleanup post-await con regressione |
+| T044-REV-DB-001 | P2 | cleanup elimina latest row ma il feed Realtime conserva coordinate scadute | redigere atomicamente il feed degli ordini eliminati |
+| T044-REV-DB-002 | P2 | un salto dichiarato grande aggira `min_interval` configurato | rendere l'intervallo un floor assoluto server-side |
+| T044-REV-DB-003 | P2 | RPC DB accetta hostname IPv4 numerico, poi normalizzato a loopback dal Client | validazione canonica/fail-closed anche al boundary SQL |
+| T044-REV-CLIENT-003 | P3 | IndexedStack conserva Realtime/polling quando il branch Orders è offstage | integrare visibilità branch nel lifecycle runtime |
+| T044-REV-CLIENT-004 | P3 | dettaglio ordine terminale può mostrare snapshot live cached se RPC è offline | stato ordine autorevole prevalente e rimozione cache precisa |
+
+Hardening di prodotto inclusi nel Fix: guard route-wide per courier-only, ruolo UI
+`Courier` invece di `Shop manager`, niente polling sync non autorizzato e stop del GPS
+quando il documento diventa hidden. I controlli IDOR, cross-shop, assignment/lease,
+service-role server-only, RLS customer A/B e terminal redaction ordinaria non hanno
+prodotto altri finding.
+
+### Handoff a Fix
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 
-Non avviato.
+In corso, limitato ai finding e ai gap già compresi nei criteri TASK-044.
 
 ## Chiusura
 

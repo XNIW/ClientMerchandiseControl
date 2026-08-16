@@ -2209,3 +2209,27 @@
   Realtime userà pubblicazione, grant e RLS espliciti.
 - **Autorizzazione**: USER_APPROVER già registrata; passaggio immediato da Planning a
   Execution senza una nuova richiesta.
+
+## 2026-08-16 — TASK-044 Execution consegnata a Review
+
+- **Admin/Supabase**: schema latest-only, assignment/session lifecycle, RPC customer,
+  admin e courier, feed Realtime owner-scoped, cleanup/idempotenza e Courier Mode
+  foreground realmente utilizzabile.
+- **Client**: contratto dei tre tracking mode, parser/cache cifrata, Realtime per ordine,
+  polling bounded, deduplica/freshness e dettaglio ordine testuale localizzato.
+- **Gate**: Client `scripts/check.sh` exit 0 con 586 test e build Android/iOS; Admin
+  `npm run verify` exit 0, foundation 978 pass/2 skip; reset Supabase e pgTAP 55/55.
+- **Revision set**: Client `e9bd0306..aa24851a`; Admin `5cf73e4f..c94e4711`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+
+## 2026-08-16 — TASK-044 Review `CHANGES_REQUIRED`
+
+- **Review**: otto shard read-only distinti sui confini Client, UI, Courier Mode,
+  auth/server, shell/types e migration/RLS; PoC locali sanitizzati, nessun dato reale.
+- **Finding P2**: race monotona Client, mancato fail-closed su `unauthorized`, watch GPS
+  orfano post-unmount, feed preciso dopo cleanup, bypass del min interval e URL carrier
+  IPv4 numerico.
+- **Finding P3**: runtime attivo nel branch Orders offstage e snapshot cached live su
+  ordine autorevolmente terminale.
+- **Esito**: 0 P0, 0 P1, 6 P2, 2 P3; transizione
+  `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

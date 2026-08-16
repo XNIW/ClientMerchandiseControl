@@ -5,14 +5,14 @@
 - **Task ID**: TASK-034
 - **Titolo**: Offline, reconnect, concorrenza e idempotenza
 - **File task**: `docs/TASKS/TASK-034-resilience-concurrency-idempotency.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-034/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -332,5 +332,7 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 - **Conferma utente**: ricevuta e condizionata a review/gate reali
 - **Merge autorizzato da USER_APPROVER**: sì, dopo review `APPROVED` e CI exact-SHA verde
 - **Follow-up candidate**: TASK-035, soltanto dopo closeout TASK-034
-- **Riepilogo finale**: non ancora
-- **Data completamento**: non ancora
+- **Riepilogo finale**: PR Client #12 merged normalmente come `08221a6`; CI PR
+  `31972218226` e CI `main` `31972595581` 3/3 verdi sullo SHA esatto, zero annotation;
+  branch remoto e locale eliminati. TASK-034 chiuso con zero P0/P1/P2/P3.
+- **Data completamento**: 2026-08-16

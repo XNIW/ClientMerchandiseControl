@@ -5,18 +5,17 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-034
-- **File task**: docs/TASKS/TASK-034-resilience-concurrency-idempotency.md
+- **Task attivo**: TASK-035
+- **File task**: docs/TASKS/TASK-035-observability-crash-analytics.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: eseguire CI exact-SHA TASK-034, merge normale e
-  verifica `main`; poi chiudere TASK-034 e attivare TASK-035
-  secondo ADR-015
+- **Prossima azione autorizzata**: eseguire TASK-035, review indipendente, CI
+  exact-SHA, merge normale e verifica `main`; poi attivare TASK-036 secondo ADR-015
 
 ## Repository coinvolti
 
@@ -88,8 +87,8 @@
 | TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-022, TASK-027, TASK-028, TASK-029 | Client, Admin, Supabase | Eventi e notifiche affidabili |
 | TASK-032 | Decisione provider e integrazione pagamenti | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-027 | Client, Admin, Supabase | Pagamento selezionato e integrato |
 | TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | DONE | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
-| TASK-034 | Offline/reconnect/concorrenza/idempotenza test matrix | ACTIVE | TASK-017, TASK-023, TASK-025, TASK-027, TASK-030 | Client, Admin, Supabase, POS | Matrice resilienza superata |
-| TASK-035 | Observability, crash reporting e analytics privacy-safe | TODO | TASK-011, TASK-020, TASK-027, TASK-031 | Client, Admin | Telemetria privacy-safe |
+| TASK-034 | Offline/reconnect/concorrenza/idempotenza test matrix | DONE | TASK-017, TASK-023, TASK-025, TASK-027, TASK-030 | Client, Admin, Supabase, POS | Matrice resilienza superata |
+| TASK-035 | Observability, crash reporting e analytics privacy-safe | ACTIVE | TASK-011, TASK-020, TASK-027, TASK-031 | Client, Admin | Telemetria privacy-safe |
 | TASK-036 | Accessibility, localizzazione e device matrix | TODO | TASK-012, TASK-018, TASK-021, TASK-026, TASK-028, TASK-031 | Client | Acceptance accessibilità e lingue |
 | TASK-037 | Performance, immagini, cache e load testing | TODO | TASK-009, TASK-017, TASK-019, TASK-027 | Client, Admin, Supabase | Budget performance end-to-end |
 | TASK-038 | Store assets, privacy policy, legal e release metadata | TODO | TASK-002, TASK-021, TASK-032, TASK-033, TASK-036 | Client, Admin | Materiale release conforme |

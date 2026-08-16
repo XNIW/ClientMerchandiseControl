@@ -1,7 +1,7 @@
 # Evidence TASK-034
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance iniziale
 
@@ -134,3 +134,16 @@ reconciliation e un comando realmente eseguito.
   repeat `140/140`, analyze, governance `9/9`, architecture negative `7/7` e diff
   check tutti `PASS`, exit `0`;
 - CI/merge Client: `NOT_RUN`, prossima fase.
+
+## Integrazione Client
+
+- PR #12, head `0807c374e35e12fe224119b3bcc1d4987db46213`, review indipendente
+  `APPROVED`, zero P0/P1/P2/P3;
+- CI PR `31972218226`: `Quality`, `Android debug build` e
+  `iOS Simulator debug build` tutti `SUCCESS`; ogni step applicabile `success`, zero
+  annotation;
+- merge normale `08221a6897e893ae9adb462d1cc32f0bf32bbb2e`; ancestry del PR head
+  verificata in `origin/main`;
+- CI `main` `31972595581` sul merge SHA: 3/3 job `SUCCESS`, tutti gli step
+  applicabili `success`, zero annotation;
+- branch remoto e locale TASK-034 eliminati; produzione e checkout primario invariati.

@@ -2526,3 +2526,16 @@
   paralleli, save/purge serializzati e nessun `ref.read` post-dispose.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
   l'autorizzazione persistente del train consente PR, CI exact-SHA e merge normale.
+
+## 2026-08-16 — TASK-034 closeout e attivazione TASK-035
+
+- **CI PR**: PR #12 head `0807c37`, run `31972218226`; `Quality`, Android debug e
+  iOS Simulator debug 3/3 `SUCCESS`, tutti gli step applicabili verdi, zero annotation.
+- **Merge**: normale `08221a6897e893ae9adb462d1cc32f0bf32bbb2e`; ancestry del PR
+  head verificata in `origin/main`, branch remoto e locale eliminati.
+- **CI main**: run `31972595581` sul merge SHA, 3/3 `SUCCESS`, step applicabili
+  `success`, zero annotation.
+- **Transizione**: TASK-034 `ACTIVE -> DONE`, handoff `USER_APPROVED_DONE`; TASK-035
+  è l'unico `ACTIVE / EXECUTION`, autorizzato da ADR-015.
+- **Planning TASK-035**: creati task ed evidence mancanti dalla baseline usando scope,
+  dipendenze e ordine già canonici nel Master Plan e nel mandato USER_APPROVER.

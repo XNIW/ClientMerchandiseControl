@@ -170,6 +170,24 @@ void main() {
     }
   });
 
+  testWidgets('resta usabile su tutte le tab a testo 130%', (tester) async {
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+
+    await tester.pumpWidget(buildApp());
+    await tester.pumpAndSettle();
+    for (var index = 0; index < destinations.length; index++) {
+      if (index != 0) {
+        await tester.tap(find.byKey(ValueKey(destinations[index].key)));
+        await tester.pumpAndSettle();
+      }
+      expect(find.byType(destinations[index].screen), findsOneWidget);
+      expect(tester.takeException(), isNull, reason: 'tab $index');
+    }
+  });
+
   testWidgets('adatta il padding alle larghezze compatta ed estesa', (
     tester,
   ) async {

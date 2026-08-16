@@ -1,7 +1,7 @@
 # Evidence TASK-045
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance
 
@@ -26,7 +26,11 @@ Snapshot di handoff:
 - review iniziale: `CHANGES_REQUIRED`, tre finding P2 distinti;
 - fix ciclo 1: `f188a3230e4608a27c031d4b2e58e690a53eb8c6`;
 - fix ciclo 2: `3c8564b62e255136bf9579df82d91bf678bad6f8`;
-- re-review finale: in corso sul delta esatto `f188a32..3c8564b`.
+- candidato secondo ciclo: `f403a92657885b3895874e48a2505931c4c83b0d`;
+- fix ciclo 3 e candidato finale:
+  `5e0f1c66594ca3748d7d66a4df04249eea382420`;
+- re-review finale: `APPROVED` sul delta esatto `f403a92..5e0f1c6`, con due
+  verifiche indipendenti e zero finding P0/P1/P2/P3 aperti.
 
 ### Matrice CA
 
@@ -40,7 +44,7 @@ Snapshot di handoff:
 | CA-11 | marker subtree, commit monotono, route/account dispose, polling fallback | PASS |
 | CA-12 | es-CL/it/en/zh-Hans via gen_l10n e formati esistenti | PASS |
 | CA-13 | integration Android contract → live → stale → terminal redaction | PASS |
-| CA-14 | re-review, gate canonici finali, CI PR/main e merge | NOT_RUN |
+| CA-14 | re-review approvata; gate canonici finali, CI PR/main e merge | NOT_RUN |
 
 ### Comandi già eseguiti sul fix
 
@@ -71,4 +75,5 @@ non vengono riclassificate come PASS.
 - coordinate presenti esclusivamente in fixture sintetiche e nel subtree runtime;
 - nessuna posizione in log, analytics, push o card Home/Orders;
 - scan security completo su `fd044d4..9d8d0eb`: zero finding reportable; entrambi i
-  delta fix restano soggetti a re-review mirata prima dell'approvazione.
+  delta fix e il fix finale sono stati verificati con re-review mirate; zero finding
+  P0/P1/P2/P3 restano aperti.

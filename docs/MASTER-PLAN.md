@@ -10,12 +10,12 @@
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
-- **Stato release train**: RE_REVIEW
-- **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: concludere re-review TASK-045, eseguire gate
-  canonici sul candidato approvato, CI exact-SHA, merge normale e verifica `main`;
+- **Stato release train**: APPROVED_PENDING_CI
+- **Review integrata**: APPROVED
+- **Prossima azione autorizzata**: eseguire gate canonici sul candidato approvato,
+  CI exact-SHA, merge normale e verifica `main`;
   chiudere poi il train in `IDLE` con TASK-034 prossimo ma non attivo
 
 ## Repository coinvolti

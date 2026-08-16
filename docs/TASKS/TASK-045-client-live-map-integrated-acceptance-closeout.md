@@ -10,7 +10,7 @@
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-045/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -156,8 +156,24 @@ initial fit, ma ha restituito `CHANGES_REQUIRED` per:
 - **T045-RR-A11Y-006 / P3**: Home annunciava due volte la CTA perché la label aggregata
   manteneva anche le semantics figlie.
 
-La seconda re-review è in corso sul delta `f188a32..3c8564b`; l'esito non è inferito
-dai test del fixer.
+La seconda re-review ha chiuso i tre finding precedenti sul candidato `f403a92`, ma
+ha restituito `CHANGES_REQUIRED` per **T045-RR-STATE-007 / P2**: una risposta RPC
+online con snapshot invariato lasciava il view state `offline` pur avendo ristabilito
+il contatto server.
+
+La re-review finale read-only sullo SHA
+`5e0f1c66594ca3748d7d66a4df04249eea382420` è `APPROVED`:
+
+- `T045-RR-STATE-007` è chiuso: il ramo monotono ripristina `ready`, azzera il
+  failure, non riscrive cache/snapshot e riattiva la deadline freshness;
+- due reviewer indipendenti hanno verificato controller, runtime/privacy, stato
+  terminale redatto, polling/realtime e coordinate stale;
+- gate autonomi: controller 16/16, Orders/detail 10/10, analyze/format/diff-check
+  `PASS`;
+- finding aperti: **P0 0, P1 0, P2 0, P3 0**.
+
+- **Esito Re-review**: `APPROVED`.
+- **Handoff Review**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Fix — `CODEX_FIXER`
 
@@ -190,6 +206,19 @@ dai test del fixer.
 - Gate mirati: analyze `PASS`; controller/map/Home 30/30 e adapter teardown 6/6
   `PASS`; `git diff --check` `PASS`.
 - **Handoff Fix ciclo 2**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Fix ciclo 3
+
+- **SHA fix**: `5e0f1c66594ca3748d7d66a4df04249eea382420`.
+- `T045-RR-STATE-007`: una RPC riuscita con snapshot duplicate/non-newer ripristina
+  `DeliveryTrackingStatus.ready` senza sostituire lo snapshot monotono o riscrivere
+  la cache; failure, fallback e freshness restano coerenti con il runtime reale.
+- La regressione cache-first verifica `ready`, failure nullo, polling spento, una sola
+  RPC, nessun cache rewrite e successiva scadenza locale a `stale` senza coordinate
+  considerate fresche.
+- Gate mirati del fixer: controller 16/16, integration Android 1/1, analyze e
+  diff-check `PASS`.
+- **Handoff Fix ciclo 3**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

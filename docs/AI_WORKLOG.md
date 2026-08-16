@@ -2338,3 +2338,21 @@
   corretto senza riclassificazione retroattiva.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; seconda
   re-review exact-delta obbligatoria prima dei gate finali.
+
+## 2026-08-16 — TASK-045 Re-review 2, Fix 3 e approvazione finale
+
+- **Re-review 2**: sul candidato `f403a92` i finding teardown, freshness e semantics
+  risultano chiusi; rilevato `T045-RR-STATE-007 / P2`, stato `offline` residuo dopo
+  una RPC online invariata su cache.
+- **Fix 3**: `5e0f1c66594ca3748d7d66a4df04249eea382420` ripristina `ready` nel ramo
+  duplicate/non-newer senza arretrare o riscrivere snapshot/cache e aggiunge la
+  regressione cache-first con deadline freshness.
+- **Re-review finale**: due reviewer read-only distinti hanno verificato il delta
+  `f403a92..5e0f1c6`; controller 16/16, Orders/detail 10/10, analyze, format e
+  diff-check `PASS`.
+- **Security/privacy**: monotonicità, terminal redaction, stale coordinates,
+  fallback, cache e auth boundary invariati; 0 P0/P1/P2/P3 aperti.
+- **Acceptance Android**: integration owner → live → stale → terminale redatto 1/1
+  `PASS` sul candidato.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  l'autorizzazione USER_APPROVER è già registrata, restano gate canonici e CI/merge.

@@ -192,10 +192,10 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **File task**: `docs/TASKS/TASK-045-client-live-map-integrated-acceptance-closeout.md`
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
-- **Stato release train**: EXECUTION
-- **Review integrata**: NOT_RUN
+- **Stato release train**: APPROVED_PENDING_CI
+- **Review integrata**: APPROVED
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione

@@ -2554,5 +2554,6 @@
 - **Gate canonico**: `scripts/check.sh` exit `0`; 652 test coverage, repeat
   `5 x 14 = 70`, benchmark cache 25k, security `611` file e fixture `41/41 + 4/4`,
   APK debug e iOS Simulator debug verdi.
-- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review
-  indipendente e security diff review obbligatorie, PR/CI/merge non ancora eseguiti.
+- **Transizione**: commit implementation `bd5e392`,
+  `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review indipendente e
+  security diff review obbligatorie, PR/CI/merge non ancora eseguiti.

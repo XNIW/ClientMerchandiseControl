@@ -25,6 +25,7 @@ Planning autorizzato tramite ADR-015; Execution attiva come unico task corrente.
 
 - baseline Client: `08221a6897e893ae9adb462d1cc32f0bf32bbb2e`;
 - transition/planning: `e66f405bbd55c792c7044cc3f49bd31d0a706a48`;
+- implementation ed handoff Review: `bd5e392`;
 - implementation: `lib/core/observability/`, bootstrap, router e integrazioni bounded
   Auth/Catalog/Cart/Checkout/Orders/Tracking;
 - verification: test core, collector feature, scanner telemetry e runbook;

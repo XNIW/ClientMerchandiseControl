@@ -120,5 +120,8 @@ reconciliation e un comando realmente eseguito.
 - Fix 3 invalida sincronicamente lo stato pubblico e avvia stop e purge in parallelo;
   A→null, A→B, close e unauthorized provano snapshot nullo e purge completato prima
   di rilasciare l'unsubscribe;
-- tracking `23/23 PASS`, repeat `10 x 13 = 130 PASS`; conteggio T-02–T-07 riallineato;
+- il primo gate Fix 3 ha riprodotto `close` sincrono durante widget dispose; il close
+  viene ora differito a microtask senza avviare stop/purge prima dello stato fail-closed;
+- tracking `23/23 PASS`, router regression `PASS`, repeat `10 x 14 = 140 PASS`;
+  conteggio T-02–T-07 riallineato;
 - nuova re-review e CI/merge Client: `NOT_RUN`, prossima fase.

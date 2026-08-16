@@ -2502,7 +2502,10 @@
 - **Fix 3**: identity, close e unauthorized azzerano subito lo snapshot; stop runtime
   e purge owner-scoped partono in parallelo. Le regressioni asseriscono stato/cache
   prima dello sblocco e includono A→B asincrono.
-- **Gate mirati**: analyze, tracking `23/23` e repeat `10 x 13 = 130` `PASS`; matrice
-  corretta.
+- **Gate Fix 3, primo tentativo**: 633 test eseguiti, un failure router ha riprodotto
+  la mutazione provider sincrona da `OrderDetailScreen.dispose`; `close` è stato
+  differito a microtask, senza timer pendenti e senza invertire stato/stop/purge.
+- **Gate mirati**: analyze, tracking `23/23`, router regression e repeat
+  `10 x 14 = 140` `PASS`; matrice corretta.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; ulteriore
   re-review indipendente obbligatoria.

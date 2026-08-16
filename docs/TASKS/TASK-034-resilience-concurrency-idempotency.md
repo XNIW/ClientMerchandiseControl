@@ -190,9 +190,9 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 | CA | Evidence | Esito |
 |---|---|---|
 | CA-01 | `docs/quality/TASK-034-RESILIENCE-MATRIX.md` | PASS |
-| CA-02–CA-07 | `CLIENT-314`, regressioni scheduler; Fix 3 tracking `23/23`, `REPEAT-130` | PASS |
+| CA-02–CA-07 | `CLIENT-314`, regressioni scheduler; Fix 3 tracking `23/23`, `REPEAT-140` | PASS |
 | CA-04–CA-08 | `DB-483`, `DB-RACE-11` | PASS |
-| CA-09 | scheduler manuale + repeat Fix 3 `10 x 13` | PASS |
+| CA-09 | scheduler manuale + repeat Fix 3 `10 x 14` | PASS |
 | CA-10 | gate completi, Admin PR #90/#91/#92, staging run `31969351269` | PASS |
 
 ### Matrice T-NN -> risultato
@@ -200,7 +200,7 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 | Test | Risultato |
 |---|---|
 | T-01 | PASS — tutte le celle classificate, nessun critical `UNTESTED` |
-| T-02–T-07 | PASS — suite Client 314; Fix 3 tracking 23 e repeat 130 |
+| T-02–T-07 | PASS — suite Client 314; Fix 3 tracking 23 e repeat 140 |
 | T-08 | PASS — DB 483 e 11 harness concorrenti |
 | T-09 | PASS — nessuna nuova race usa sleep/wall-clock |
 | T-10 | PASS — gate locali, staging guarded e cleanup reali; CI Client resta alla fase Review/PR |
@@ -303,7 +303,10 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 - le regressioni A→null, A→B, close e unauthorized verificano stato fail-closed e
   cache owner purgata prima di rilasciare il `Completer` dell'unsubscribe; il test
   A→B asincrono è aggiunto direttamente;
-- `flutter analyze`, tracking `23/23` e repeat `10 x 13 = 130` sono `PASS`; conteggio
+- il primo gate Fix 3 ha riprodotto una mutazione provider durante widget dispose;
+  `close` differisce quindi a un microtask (non timer), mantenendo l'ordine fail-closed
+  prima dello stop; la regressione router è inclusa nel repeat;
+- `flutter analyze`, tracking `23/23` e repeat `10 x 14 = 140` sono `PASS`; conteggio
   T-02–T-07 corretto; gate canonico e SHA Fix 3 seguono nelle evidence;
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 

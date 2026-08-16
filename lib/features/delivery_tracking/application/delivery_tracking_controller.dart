@@ -202,6 +202,7 @@ final class DeliveryTrackingController
         : null;
     _generation++;
     _orderId = null;
+    await Future<void>.microtask(() {});
     if (!_disposed) {
       state = _subjectId == null
           ? const DeliveryTrackingViewState.signedOut()

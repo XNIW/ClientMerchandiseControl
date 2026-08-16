@@ -2368,3 +2368,22 @@
 - **Acceptance tracking**: Android 1/1 `PASS` sul codice finale `5e0f1c6`.
 - **Stato**: gate locali chiusi; CI PR exact-SHA, merge normale e main CI restano da
   eseguire prima di `DONE`.
+
+## 2026-08-16 — TASK-045 remediation CI artifact scanner
+
+- **Prima CI PR**: run `31947744128` sullo SHA `26aaa04`; Quality e Android
+  `SUCCESS`, iOS build riuscita ma artifact scan `FAIL` per un identificatore pubblico
+  interno del Google Maps iOS SDK. La chiave app è rimasta `NOT_CONFIGURED`.
+- **Review security**: la prima allowlist è stata respinta per match sovrapposti e PEM
+  OpenSSL-valid non rilevati; un fix intermedio troppo ampio ha correttamente fallito
+  sugli artifact normali per costanti PEM del kernel Flutter.
+- **Fix finale**: `9034627f0c747dedb76af63e4b64c271d9cb2619`; fingerprint/contesto Maps esatti,
+  overlapping scan e parser PEM bounded con normalizzazione whitespace ASCII.
+- **Regressioni**: 41/41 negative e 4/4 positive; APK 544 e Runner.app 232 file
+  `PASS`; fuzz read-only 50 varianti, 37 OpenSSL-valid tutte rifiutate.
+- **Re-review**: `APPROVED`; `T045-CI-SCAN-001/002/003` `CLOSED`, zero P0/P1/P2/P3
+  aperti.
+- **Gate canonico finale**: `scripts/check.sh` exact `9034627` exit 0, 624/624 test
+  con coverage, benchmark, APK debug e iOS Simulator debug `PASS`.
+- **Stato**: il primo tentativo CI resta storicamente `FAIL`; segue push del nuovo
+  head ed esecuzione CI exact-SHA, senza bypass.

@@ -14,8 +14,8 @@
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
 - **Stato release train**: APPROVED_PENDING_CI
 - **Review integrata**: APPROVED
-- **Prossima azione autorizzata**: eseguire gate canonici sul candidato approvato,
-  CI exact-SHA, merge normale e verifica `main`;
+- **Prossima azione autorizzata**: pubblicare il candidato approvato dopo remediation
+  dello scanner, eseguire CI exact-SHA, merge normale e verifica `main`;
   chiudere poi il train in `IDLE` con TASK-034 prossimo ma non attivo
 
 ## Repository coinvolti

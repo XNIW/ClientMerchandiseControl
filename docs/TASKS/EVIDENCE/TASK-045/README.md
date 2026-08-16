@@ -29,6 +29,9 @@ Snapshot di handoff:
 - candidato secondo ciclo: `f403a92657885b3895874e48a2505931c4c83b0d`;
 - fix ciclo 3 e candidato finale:
   `5e0f1c66594ca3748d7d66a4df04249eea382420`;
+- candidato PR iniziale: `26aaa04ea600d40d3867f99a94cb99718a80703f`;
+- remediation scanner artifact finale:
+  `9034627f0c747dedb76af63e4b64c271d9cb2619`;
 - re-review finale: `APPROVED` sul delta esatto `f403a92..5e0f1c6`, con due
   verifiche indipendenti e zero finding P0/P1/P2/P3 aperti.
 
@@ -58,13 +61,14 @@ Snapshot di handoff:
 | `flutter build ios --simulator --debug` | PASS, exit 0; warning SPM plugin noto |
 | `git diff --check` | PASS, exit 0 |
 
-Sul commit di approvazione `62e0bd0957c5b65f6b18e5a1e87048b91fb9f17f`
-`bash scripts/check.sh` ha completato con exit `0`: security/config scan su 601 file,
-32/32 fixture security negative, 2/2 positive, governance 9/9, boundary 7/7,
-format 271 file invariati, analyze zero issue, `flutter test --coverage` 624/624,
-benchmark cache 25.000 righe, secondo loading scan, APK debug e iOS Simulator debug
-tutti `PASS`. Restano soltanto i warning già noti del drag Product Detail e del
-supporto Swift Package Manager del plugin Google Maps iOS; nessuno è un failure.
+Sul commit finale di codice/security
+`9034627f0c747dedb76af63e4b64c271d9cb2619`, `bash scripts/check.sh` ha completato
+con exit `0`: security/config scan su 601 file, 41/41 fixture security negative, 4/4
+positive, governance 9/9, boundary 7/7, format 271 file invariati, analyze zero issue,
+`flutter test --coverage` 624/624, benchmark cache 25.000 righe, secondo loading scan,
+APK debug e iOS Simulator debug tutti `PASS`. Gli scan artifact separati hanno
+verificato 544 file APK e 232 file Runner.app. Resta soltanto il warning noto sul
+supporto Swift Package Manager del plugin Google Maps iOS; non è un failure.
 
 L'acceptance Android `customer_delivery_tracking_flow_test.dart` è inoltre `PASS`
 1/1 sul codice finale `5e0f1c6`, includendo owner contract, update live, stale e
@@ -89,3 +93,20 @@ non vengono riclassificate come PASS.
 - scan security completo su `fd044d4..9d8d0eb`: zero finding reportable; entrambi i
   delta fix e il fix finale sono stati verificati con re-review mirate; zero finding
   P0/P1/P2/P3 restano aperti.
+
+### CI PR e remediation artifact
+
+- PR Client #10: `https://github.com/XNIW/ClientMerchandiseControl/pull/10`;
+- prima run `31947744128`, SHA `26aaa04`: Quality `SUCCESS`, Android debug
+  `SUCCESS`, iOS Simulator build completata ma step artifact security `FAIL`;
+- root cause: identificatore pubblico interno del Google Maps iOS SDK, presente due
+  volte nel dylib vendor con contesto stabile; `GoogleMapsAPIKey` app ancora
+  `NOT_CONFIGURED`, nessuna chiave Merchandise Control nel bundle;
+- `T045-CI-SCAN-001 / P2`: match sovrapposti — `CLOSED` con scansione zero-width;
+- `T045-CI-SCAN-002 / P2`: PEM OpenSSL-valid con whitespace/rewrap — `CLOSED` con
+  normalizzazione ASCII e validazione Base64 aggregata;
+- `T045-CI-SCAN-003 / P2`: falso positivo sulle costanti kernel — `CLOSED` con parser
+  bounded e fixture positiva;
+- re-review finale `c11f64a..9034627`: `APPROVED`, fuzz 50 varianti, 37 parseable e
+  37/37 rifiutate; zero finding P0/P1/P2/P3 aperti;
+- CI PR sul nuovo SHA: `NOT_RUN` fino al push dell'evidence finale.

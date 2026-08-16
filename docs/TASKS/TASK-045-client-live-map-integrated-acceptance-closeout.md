@@ -175,8 +175,28 @@ La re-review finale read-only sullo SHA
 - **Esito Re-review**: `APPROVED`.
 - **Handoff Review**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 - **Gate canonico candidato approvato**: `scripts/check.sh` `PASS`, exit 0 sul commit
-  `62e0bd0957c5b65f6b18e5a1e87048b91fb9f17f`; 624 test con coverage, security e
-  governance, performance, APK debug e iOS Simulator debug verdi.
+  finale di codice/security `9034627f0c747dedb76af63e4b64c271d9cb2619`;
+  624 test con coverage, security e governance, performance, APK debug e iOS
+  Simulator debug verdi.
+
+### Re-review remediation CI
+
+- La prima run PR `31947744128` sullo SHA `26aaa04` ha completato Quality e Android,
+  ma ha fallito soltanto `Validate iOS bundle security`: il Google Maps iOS SDK
+  include un identificatore pubblico interno con forma `AIza`, mentre la chiave app
+  restava il sentinel `NOT_CONFIGURED`.
+- L'allowlist iniziale è stata rifiutata in re-review per due bypass P2: secret
+  sovrapposto dentro il token allowlisted e PEM privato con formattazione OpenSSL
+  valida non riconosciuta. I fix intermedi hanno inoltre esposto e chiuso un falso
+  positivo sui fence costanti del kernel Flutter.
+- Sul delta finale `c11f64a..9034627`, la re-review read-only è `APPROVED`:
+  fingerprint e contesto Maps sono esatti, la scansione trova match sovrapposti e il
+  parser PEM normalizza il whitespace ASCII accettato da OpenSSL senza classificare
+  come chiave le costanti del kernel.
+- Fuzz autonomo: 50 varianti, 37 parsabili da OpenSSL e 37/37 rifiutate; fixture
+  repository 41/41 negative e 4/4 positive; scan APK 544 file e Runner.app 232 file
+  `PASS`. `T045-CI-SCAN-001`, `T045-CI-SCAN-002` e `T045-CI-SCAN-003` sono `CLOSED`;
+  zero P0/P1/P2/P3 aperti.
 
 ## Fix — `CODEX_FIXER`
 
@@ -222,6 +242,24 @@ La re-review finale read-only sullo SHA
 - Gate mirati del fixer: controller 16/16, integration Android 1/1, analyze e
   diff-check `PASS`.
 - **Handoff Fix ciclo 3**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Fix ciclo 4 — scanner artifact CI
+
+- **SHA finale**: `9034627f0c747dedb76af63e4b64c271d9cb2619`.
+- L'eccezione Google Maps iOS richiede lunghezza, contesto NUL-delimited e fingerprint
+  SHA-256 esatti; la scansione overlapping impedisce di nascondere un secondo secret
+  dentro il valore pubblico del vendor.
+- Il parser artifact PEM accetta solo fence accoppiati con payload Base64 aggregato
+  valido, normalizza HT/VT/FF/CR/SP/LF e conserva header legacy bounded; una coppia di
+  costanti `BEGIN/END` priva di payload non è un finding.
+- Le regressioni generano soltanto in directory temporanea chiavi sintetiche con
+  OpenSSL e coprono tail corta, whitespace boundary/payload, CRCRLF e righe da un
+  carattere, oltre alle tre costanti kernel non-PEM.
+- Gate finali: `scripts/check.sh` exit 0, 624/624 test con coverage, 41/41 fixture
+  negative, 4/4 positive, benchmark, APK debug e iOS Simulator debug `PASS`; scan
+  artifact separato 544/232 file `PASS`.
+- **Handoff Fix ciclo 4**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`, seguito da re-review
+  `APPROVED` e ritorno a `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Chiusura
 

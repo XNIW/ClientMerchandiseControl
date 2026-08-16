@@ -2614,7 +2614,7 @@
 
 - **Fix tecnico**: `741834b`; classificazione exact/suffix di credenziali generiche,
   scanner con fixture inline di 13 alias e due regressioni negative JSON/text.
-- **Gate mirati**: serializer `17/17`, repeat `20 x 17 = 340/340`, scanner, analyze,
+- **Gate mirati**: serializer `16/16`, repeat `20 x 16 = 320/320`, scanner, analyze,
   format e diff `PASS`.
 - **Gate canonico**: fermato dal governance check prima della suite perché lo snapshot
   evidence era ancora `REVIEW`; evidence riallineata a `FIX`, nessun gate successivo
@@ -2624,8 +2624,18 @@
 
 - **Fix**: tecnico `741834b`, evidence di gate `5486561`; match exact/suffix per
   credenziali generiche, fixture scanner 13 alias e regressioni JSON/text.
-- **Gate mirati**: `17/17`, repeat `20 x 17 = 340/340`, scanner e analyze verdi.
+- **Gate mirati**: `16/16`, repeat `20 x 16 = 320/320`, scanner e analyze verdi.
 - **Gate canonico**: `scripts/check.sh` sullo SHA `5486561` `PASS`; 661 test coverage,
   repeat TASK-034 `70/70`, cache 25k, APK debug e iOS Simulator debug.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; nuova
   re-review read-only distinta obbligatoria.
+
+## 2026-08-16 — TASK-035 Re-review Fix 2 `CHANGES_REQUIRED`
+
+- **Esito tecnico**: `F-035-R01`–`R05` chiusi, zero P0/P1/P2, zero finding security;
+  redazione credenziali e scanner alias approvati dai probe indipendenti.
+- **Finding**: `F-035-R06` P3, evidence indicava 17/340 invece del conteggio reale
+  16/320; nessun test omesso, solo claim numerico errato.
+- **Gate autonomi**: 16/16, repeat 320/320, scanner, analyze, governance 9/9,
+  architecture 7/7, format e diff verdi.
+- **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

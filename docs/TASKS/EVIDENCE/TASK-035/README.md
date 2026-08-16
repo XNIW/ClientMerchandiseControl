@@ -1,7 +1,7 @@
 # Evidence TASK-035
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -108,7 +108,7 @@ plugin Maps iOS. Nessun warning è introdotto come nuova dipendenza dal task.
   generiche non coperte;
 - Fix 2 tecnico: `741834bf09178cbb0cc2b31595fc56eeb3db6339`; classificatore
   exact/suffix, scanner con fixture inline di 13 alias e due regressioni negative;
-- test Fix 2: serializer `17/17`, repeat `20 x 17 = 340/340`, scanner, analyze,
+- test Fix 2: serializer `16/16`, repeat `20 x 16 = 320/320`, scanner, analyze,
   format e diff `PASS`;
 - primo `scripts/check.sh` Fix 2: `FAIL` prima della suite perché lo snapshot evidence
   era ancora in Review; snapshot riallineato, nessun gate successivo inferito;
@@ -116,7 +116,8 @@ plugin Maps iOS. Nessun warning è introdotto come nuova dipendenza dal task.
   security `41/41 + 4/4`, governance `9/9`, architecture `7/7`, format/analyze,
   suite coverage `661/661`, repeat TASK-034 `70/70`, cache 25k, Android debug e
   iOS Simulator debug tutti verdi;
-- re-review Fix 2: `NOT_RUN`, handoff corrente;
+- re-review Fix 2 sullo SHA `0197ffd`: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 1 P3;
+  tutti i finding tecnici chiusi, `F-035-R06` limitato ai conteggi evidence;
 - PR exact-SHA CI: `NOT_RUN`;
 - main post-merge CI: `NOT_RUN`;
 - produzione e provider esterni: non modificati.

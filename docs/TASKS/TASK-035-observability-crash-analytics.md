@@ -6,13 +6,13 @@
 - **Titolo**: Observability, crash reporting e analytics privacy-safe
 - **File task**: `docs/TASKS/TASK-035-observability-crash-analytics.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-035/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -327,8 +327,8 @@ Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 | Gate | Esito |
 |---|---|
-| serializer/redactor | `17/17 PASS` |
-| repeat serializer/redactor | `20 x 17 = 340/340 PASS` |
+| serializer/redactor | `16/16 PASS` |
+| repeat serializer/redactor | `20 x 16 = 320/320 PASS` |
 | scanner alias inline / telemetry | `13/13`, 12 eventi, `PASS` |
 | `scripts/check.sh` sullo SHA `5486561` | `PASS`, exit `0` |
 | suite non-performance coverage | `661/661 PASS` |
@@ -337,6 +337,17 @@ Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 | Android debug / iOS Simulator debug | `PASS / PASS` |
 
 Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Esito re-review Fix 2
+
+- `F-035-R01`–`R05` chiusi; `F-035-R04` verificato con probe alias/JSON/scanner;
+- zero finding P0/P1/P2 e nessun finding security reportabile o deferred;
+- `F-035-R06` P3: evidence Fix 2 riportava 17 test e 340 repeat, mentre il
+  conteggio reale è 16 test e `20 x 16 = 320`;
+- gate autonomi: 16/16, repeat 320/320, scanner, analyze, governance 9/9,
+  architecture 7/7, format e diff tutti verdi.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-035
 - **File task**: docs/TASKS/TASK-035-observability-crash-analytics.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review indipendente del Fix 2 TASK-035;
-  dopo `APPROVED`, CI exact-SHA, merge normale e verifica `main`, poi TASK-036
+- **Prossima azione autorizzata**: correggere `F-035-R06` nei conteggi evidence,
+  rieseguire governance e consegnare a re-review documentale indipendente
 
 ## Repository coinvolti
 

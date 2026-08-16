@@ -2946,6 +2946,108 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Volver a mis pedidos'**
   String get ordersBackToOrders;
+
+  /// No description provided for @deliveryTrackingTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Seguimiento de la entrega'**
+  String get deliveryTrackingTitle;
+
+  /// No description provided for @deliveryTrackingLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando novedades de la entrega…'**
+  String get deliveryTrackingLoading;
+
+  /// No description provided for @deliveryTrackingUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'El seguimiento de la entrega no está disponible en este momento. La cronología del pedido sigue vigente.'**
+  String get deliveryTrackingUnavailable;
+
+  /// No description provided for @deliveryTrackingRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizar estado de entrega'**
+  String get deliveryTrackingRetry;
+
+  /// No description provided for @deliveryTrackingModeStatusOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizaciones de estado'**
+  String get deliveryTrackingModeStatusOnly;
+
+  /// No description provided for @deliveryTrackingModeExternalCarrier.
+  ///
+  /// In es, this message translates to:
+  /// **'Empresa de transporte externa'**
+  String get deliveryTrackingModeExternalCarrier;
+
+  /// No description provided for @deliveryTrackingModeLiveCourier.
+  ///
+  /// In es, this message translates to:
+  /// **'Repartidor en vivo'**
+  String get deliveryTrackingModeLiveCourier;
+
+  /// No description provided for @deliveryTrackingWindow.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrega prevista entre {start} y {end}'**
+  String deliveryTrackingWindow(String start, String end);
+
+  /// No description provided for @deliveryTrackingLastUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Última actualización de ubicación: {date}'**
+  String deliveryTrackingLastUpdated(String date);
+
+  /// No description provided for @deliveryTrackingLiveWaiting.
+  ///
+  /// In es, this message translates to:
+  /// **'La ubicación en vivo aparecerá cuando el repartidor inicie la entrega.'**
+  String get deliveryTrackingLiveWaiting;
+
+  /// No description provided for @deliveryTrackingFresh.
+  ///
+  /// In es, this message translates to:
+  /// **'La ubicación se está actualizando'**
+  String get deliveryTrackingFresh;
+
+  /// No description provided for @deliveryTrackingStale.
+  ///
+  /// In es, this message translates to:
+  /// **'La ubicación no se está actualizando'**
+  String get deliveryTrackingStale;
+
+  /// No description provided for @deliveryTrackingEnded.
+  ///
+  /// In es, this message translates to:
+  /// **'La ubicación dejó de compartirse'**
+  String get deliveryTrackingEnded;
+
+  /// No description provided for @deliveryTrackingCourierLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Repartidor: {label}'**
+  String deliveryTrackingCourierLabel(String label);
+
+  /// No description provided for @deliveryTrackingExternalCode.
+  ///
+  /// In es, this message translates to:
+  /// **'Referencia {code}'**
+  String deliveryTrackingExternalCode(String code);
+
+  /// No description provided for @deliveryTrackingPollingFallback.
+  ///
+  /// In es, this message translates to:
+  /// **'Las actualizaciones en vivo se están reconectando. Revisamos periódicamente el estado de la entrega.'**
+  String get deliveryTrackingPollingFallback;
+
+  /// No description provided for @deliveryTrackingOfflineCached.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostramos la última copia cifrada guardada en este dispositivo.'**
+  String get deliveryTrackingOfflineCached;
 }
 
 class _AppLocalizationsDelegate

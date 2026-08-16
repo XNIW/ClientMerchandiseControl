@@ -1665,4 +1665,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ordersBackToOrders => 'Back to my orders';
+
+  @override
+  String get deliveryTrackingTitle => 'Delivery tracking';
+
+  @override
+  String get deliveryTrackingLoading => 'Loading delivery updates…';
+
+  @override
+  String get deliveryTrackingUnavailable =>
+      'Delivery tracking is not available right now. The order timeline remains current.';
+
+  @override
+  String get deliveryTrackingRetry => 'Refresh delivery status';
+
+  @override
+  String get deliveryTrackingModeStatusOnly => 'Status updates';
+
+  @override
+  String get deliveryTrackingModeExternalCarrier => 'External carrier';
+
+  @override
+  String get deliveryTrackingModeLiveCourier => 'Live courier';
+
+  @override
+  String deliveryTrackingWindow(String start, String end) {
+    return 'Expected between $start and $end';
+  }
+
+  @override
+  String deliveryTrackingLastUpdated(String date) {
+    return 'Last location update $date';
+  }
+
+  @override
+  String get deliveryTrackingLiveWaiting =>
+      'Live location will appear after the courier starts the delivery.';
+
+  @override
+  String get deliveryTrackingFresh => 'Location is updating';
+
+  @override
+  String get deliveryTrackingStale => 'Location is not updating';
+
+  @override
+  String get deliveryTrackingEnded => 'Location sharing has ended';
+
+  @override
+  String deliveryTrackingCourierLabel(String label) {
+    return 'Courier: $label';
+  }
+
+  @override
+  String deliveryTrackingExternalCode(String code) {
+    return 'Reference $code';
+  }
+
+  @override
+  String get deliveryTrackingPollingFallback =>
+      'Live updates are reconnecting. Delivery status is being checked periodically.';
+
+  @override
+  String get deliveryTrackingOfflineCached =>
+      'Showing the latest encrypted copy saved on this device.';
 }

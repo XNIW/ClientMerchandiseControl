@@ -50,6 +50,8 @@ CustomerOrderDetail orderTestDetail({
   bool cancellationAllowed = true,
   bool idempotent = false,
   DateTime? serverTime,
+  CustomerOrderFulfillmentMode fulfillmentMode =
+      CustomerOrderFulfillmentMode.pickup,
 }) {
   final server = serverTime ?? orderTestNow;
   final placed = orderTestNow.subtract(const Duration(minutes: 2));
@@ -75,7 +77,7 @@ CustomerOrderDetail orderTestDetail({
     version: version,
     shopSlug: orderTestShop,
     fulfillment: CustomerOrderFulfillment(
-      mode: CustomerOrderFulfillmentMode.pickup,
+      mode: fulfillmentMode,
       destinationTitle: 'Tienda Centro',
       destinationLines: const ['Calle Pública 123', 'Santiago, RM'],
       slotLabel: 'Hoy 10:00–12:00',

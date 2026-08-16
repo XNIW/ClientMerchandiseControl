@@ -481,5 +481,22 @@
   "ordersUnexpected": "No pudimos verificar el pedido. La copia guardada permanece en modo de solo lectura.",
   "ordersCancellationDeadline": "Puedes cancelar hasta {date}",
   "ordersDetailRefresh": "Actualizar detalle",
-  "ordersBackToOrders": "Volver a mis pedidos"
+  "ordersBackToOrders": "Volver a mis pedidos",
+  "deliveryTrackingTitle": "Seguimiento de la entrega",
+  "deliveryTrackingLoading": "Cargando novedades de la entrega…",
+  "deliveryTrackingUnavailable": "El seguimiento de la entrega no está disponible en este momento. La cronología del pedido sigue vigente.",
+  "deliveryTrackingRetry": "Actualizar estado de entrega",
+  "deliveryTrackingModeStatusOnly": "Actualizaciones de estado",
+  "deliveryTrackingModeExternalCarrier": "Empresa de transporte externa",
+  "deliveryTrackingModeLiveCourier": "Repartidor en vivo",
+  "deliveryTrackingWindow": "Entrega prevista entre {start} y {end}",
+  "deliveryTrackingLastUpdated": "Última actualización de ubicación: {date}",
+  "deliveryTrackingLiveWaiting": "La ubicación en vivo aparecerá cuando el repartidor inicie la entrega.",
+  "deliveryTrackingFresh": "La ubicación se está actualizando",
+  "deliveryTrackingStale": "La ubicación no se está actualizando",
+  "deliveryTrackingEnded": "La ubicación dejó de compartirse",
+  "deliveryTrackingCourierLabel": "Repartidor: {label}",
+  "deliveryTrackingExternalCode": "Referencia {code}",
+  "deliveryTrackingPollingFallback": "Las actualizaciones en vivo se están reconectando. Revisamos periódicamente el estado de la entrega.",
+  "deliveryTrackingOfflineCached": "Mostramos la última copia cifrada guardada en este dispositivo."
 }

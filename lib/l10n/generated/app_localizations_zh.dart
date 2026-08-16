@@ -1680,6 +1680,70 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get ordersBackToOrders => 'Volver a mis pedidos';
+
+  @override
+  String get deliveryTrackingTitle => 'Seguimiento de la entrega';
+
+  @override
+  String get deliveryTrackingLoading => 'Cargando novedades de la entrega…';
+
+  @override
+  String get deliveryTrackingUnavailable =>
+      'El seguimiento de la entrega no está disponible en este momento. La cronología del pedido sigue vigente.';
+
+  @override
+  String get deliveryTrackingRetry => 'Actualizar estado de entrega';
+
+  @override
+  String get deliveryTrackingModeStatusOnly => 'Actualizaciones de estado';
+
+  @override
+  String get deliveryTrackingModeExternalCarrier =>
+      'Empresa de transporte externa';
+
+  @override
+  String get deliveryTrackingModeLiveCourier => 'Repartidor en vivo';
+
+  @override
+  String deliveryTrackingWindow(String start, String end) {
+    return 'Entrega prevista entre $start y $end';
+  }
+
+  @override
+  String deliveryTrackingLastUpdated(String date) {
+    return 'Última actualización de ubicación: $date';
+  }
+
+  @override
+  String get deliveryTrackingLiveWaiting =>
+      'La ubicación en vivo aparecerá cuando el repartidor inicie la entrega.';
+
+  @override
+  String get deliveryTrackingFresh => 'La ubicación se está actualizando';
+
+  @override
+  String get deliveryTrackingStale => 'La ubicación no se está actualizando';
+
+  @override
+  String get deliveryTrackingEnded => 'La ubicación dejó de compartirse';
+
+  @override
+  String deliveryTrackingCourierLabel(String label) {
+    return 'Repartidor: $label';
+  }
+
+  @override
+  String deliveryTrackingExternalCode(String code) {
+    return 'Referencia $code';
+  }
+
+  @override
+  String get deliveryTrackingPollingFallback =>
+      'Las actualizaciones en vivo se están reconectando. Revisamos periódicamente el estado de la entrega.';
+
+  @override
+  String get deliveryTrackingOfflineCached =>
+      'Mostramos la última copia cifrada guardada en este dispositivo.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3190,4 +3254,63 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get ordersBackToOrders => '返回我的订单';
+
+  @override
+  String get deliveryTrackingTitle => '配送跟踪';
+
+  @override
+  String get deliveryTrackingLoading => '正在加载配送动态…';
+
+  @override
+  String get deliveryTrackingUnavailable => '配送跟踪目前不可用。订单时间线仍可查看。';
+
+  @override
+  String get deliveryTrackingRetry => '刷新配送状态';
+
+  @override
+  String get deliveryTrackingModeStatusOnly => '状态更新';
+
+  @override
+  String get deliveryTrackingModeExternalCarrier => '外部承运商';
+
+  @override
+  String get deliveryTrackingModeLiveCourier => '配送员实时位置';
+
+  @override
+  String deliveryTrackingWindow(String start, String end) {
+    return '预计在 $start 至 $end 之间送达';
+  }
+
+  @override
+  String deliveryTrackingLastUpdated(String date) {
+    return '上次位置更新时间：$date';
+  }
+
+  @override
+  String get deliveryTrackingLiveWaiting => '配送员开始配送后将显示实时位置。';
+
+  @override
+  String get deliveryTrackingFresh => '位置正在更新';
+
+  @override
+  String get deliveryTrackingStale => '位置暂未更新';
+
+  @override
+  String get deliveryTrackingEnded => '位置共享已结束';
+
+  @override
+  String deliveryTrackingCourierLabel(String label) {
+    return '配送员：$label';
+  }
+
+  @override
+  String deliveryTrackingExternalCode(String code) {
+    return '参考编号 $code';
+  }
+
+  @override
+  String get deliveryTrackingPollingFallback => '实时更新正在重新连接。系统会定期检查配送状态。';
+
+  @override
+  String get deliveryTrackingOfflineCached => '当前显示此设备上保存的最新加密副本。';
 }

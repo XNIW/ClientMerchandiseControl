@@ -2,8 +2,10 @@ import 'package:client_merchandise_control/app/design_system/tokens/app_sizes.da
 import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
+import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_providers.dart';
 import 'package:client_merchandise_control/features/orders/application/customer_order_controller.dart';
 import 'package:client_merchandise_control/features/orders/application/customer_order_providers.dart';
+import 'package:client_merchandise_control/features/orders/domain/customer_order_models.dart';
 import 'package:client_merchandise_control/features/orders/presentation/order_detail_screen.dart';
 import 'package:client_merchandise_control/features/orders/presentation/orders_screen.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
@@ -13,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import '../customer_order_test_support.dart';
+import '../../delivery_tracking/delivery_tracking_test_support.dart';
 
 void main() {
   testWidgets('lista accessibile apre il dettaglio owner-scoped', (
@@ -116,6 +119,50 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets(
+    'dettaglio delivery mostra stato testuale live e stale senza coordinate',
+    (tester) async {
+      final orderRepository = FakeCustomerOrderRepository()
+        ..detailOutcomes.add(
+          orderTestDetail(
+            status: CustomerOrderStatus.outForDelivery,
+            version: 2,
+            fulfillmentMode: CustomerOrderFulfillmentMode.delivery,
+          ),
+        );
+      final trackingRepository = FakeDeliveryTrackingRepository()
+        ..snapshot = trackingLiveSnapshot(orderId: orderTestOrder);
+      final harness = _Harness(
+        repository: orderRepository,
+        trackingRepository: trackingRepository,
+        initialLocation: AppRoutes.orderLocation(orderTestOrder),
+      );
+      addTearDown(harness.dispose);
+      addTearDown(trackingRepository.stream.close);
+
+      await tester.pumpWidget(harness.app());
+      await _pumpUntil(tester, find.text('La ubicación se está actualizando'));
+      expect(find.text('Seguimiento de la entrega'), findsOneWidget);
+      expect(find.text('La ubicación se está actualizando'), findsOneWidget);
+      expect(find.textContaining('-33.446'), findsNothing);
+      expect(find.textContaining('-70.655'), findsNothing);
+
+      trackingRepository.stream.add(
+        trackingLiveSnapshot(
+          orderId: orderTestOrder,
+          version: 5,
+          freshness: 'stale',
+        ),
+      );
+      await _pumpUntil(
+        tester,
+        find.text('La ubicación no se está actualizando'),
+      );
+      expect(find.byIcon(Icons.location_off_outlined), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('320x568 dark e testo 200% non causano overflow', (tester) async {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.binding.setSurfaceSize(const Size(320, 568));
@@ -166,6 +213,7 @@ final class _Harness {
   _Harness({
     required FakeCustomerOrderRepository repository,
     MemoryCustomerOrderCacheStore? cache,
+    FakeDeliveryTrackingRepository? trackingRepository,
     String initialLocation = AppRoutes.ordersLocation,
   }) : container = ProviderContainer(
          overrides: [
@@ -178,6 +226,18 @@ final class _Harness {
            customerOrderClockProvider.overrideWithValue(() => orderTestNow),
            customerOrderIdempotencyKeyFactoryProvider.overrideWithValue(
              () => orderTestKey,
+           ),
+           deliveryTrackingRepositoryProvider.overrideWithValue(
+             trackingRepository ?? FakeDeliveryTrackingRepository(),
+           ),
+           deliveryTrackingCacheProvider.overrideWithValue(
+             MemoryDeliveryTrackingCache(),
+           ),
+           deliveryTrackingClockProvider.overrideWithValue(
+             () => trackingTestNow,
+           ),
+           deliveryTrackingPollIntervalProvider.overrideWithValue(
+             const Duration(hours: 1),
            ),
          ],
        ),

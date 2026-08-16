@@ -1685,4 +1685,69 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get ordersBackToOrders => 'Torna ai miei ordini';
+
+  @override
+  String get deliveryTrackingTitle => 'Monitoraggio della consegna';
+
+  @override
+  String get deliveryTrackingLoading =>
+      'Caricamento degli aggiornamenti sulla consegna…';
+
+  @override
+  String get deliveryTrackingUnavailable =>
+      'Il monitoraggio della consegna non è disponibile in questo momento. La cronologia dell’ordine resta aggiornata.';
+
+  @override
+  String get deliveryTrackingRetry => 'Aggiorna lo stato della consegna';
+
+  @override
+  String get deliveryTrackingModeStatusOnly => 'Aggiornamenti di stato';
+
+  @override
+  String get deliveryTrackingModeExternalCarrier => 'Vettore esterno';
+
+  @override
+  String get deliveryTrackingModeLiveCourier => 'Corriere in tempo reale';
+
+  @override
+  String deliveryTrackingWindow(String start, String end) {
+    return 'Consegna prevista tra $start e $end';
+  }
+
+  @override
+  String deliveryTrackingLastUpdated(String date) {
+    return 'Ultimo aggiornamento della posizione: $date';
+  }
+
+  @override
+  String get deliveryTrackingLiveWaiting =>
+      'La posizione in tempo reale apparirà quando il corriere avvierà la consegna.';
+
+  @override
+  String get deliveryTrackingFresh => 'La posizione si sta aggiornando';
+
+  @override
+  String get deliveryTrackingStale => 'La posizione non si sta aggiornando';
+
+  @override
+  String get deliveryTrackingEnded =>
+      'La condivisione della posizione è terminata';
+
+  @override
+  String deliveryTrackingCourierLabel(String label) {
+    return 'Corriere: $label';
+  }
+
+  @override
+  String deliveryTrackingExternalCode(String code) {
+    return 'Riferimento $code';
+  }
+
+  @override
+  String get deliveryTrackingPollingFallback =>
+      'Gli aggiornamenti in tempo reale si stanno riconnettendo. Lo stato della consegna viene verificato periodicamente.';
+
+  @override
+  String get deliveryTrackingOfflineCached =>
+      'È mostrata l’ultima copia cifrata salvata su questo dispositivo.';
 }

@@ -26,3 +26,32 @@ final class CollectingObservabilityPort implements ObservabilityPort {
     errors.add(category);
   }
 }
+
+final class ThrowingObservabilityPort implements ObservabilityPort {
+  ThrowingObservabilityPort({this.onlyFor});
+
+  final ObservabilityEventName? onlyFor;
+
+  @override
+  SafeCorrelationId createCorrelationId() =>
+      SafeCorrelationId.fromSafeValue('0123456789abcdef');
+
+  @override
+  Future<void> flush() async => throw StateError('telemetry unavailable');
+
+  @override
+  void record(ObservabilityEvent event) {
+    if (onlyFor == null || event.name == onlyFor) {
+      throw StateError('telemetry unavailable');
+    }
+  }
+
+  @override
+  void recordError(
+    Object error,
+    StackTrace? stackTrace, {
+    required ObservabilityComponent component,
+    required BackendFailureCategory category,
+    SafeCorrelationId? correlationId,
+  }) => throw StateError('telemetry unavailable');
+}

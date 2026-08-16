@@ -1,7 +1,7 @@
 # Evidence TASK-035
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -76,7 +76,7 @@ esplicitamente privilegiati già esistenti.
 |---|---|
 | test observability + 5 controller | `87/87 PASS` |
 | format / analyze / diff | `PASS`, zero issue |
-| scanner tracked source | `611` file, zero secret/config/artifact |
+| scanner tracked source | `621` file, zero secret/config/artifact |
 | fixture scanner | `41/41` negative respinte; `4/4` positive accettate |
 | governance / architecture | `9/9` e `7/7 PASS` |
 | test non-performance coverage | `652/652 PASS` |
@@ -92,7 +92,10 @@ plugin Maps iOS. Nessun warning è introdotto come nuova dipendenza dal task.
 
 ## Review e CI
 
-- review indipendente: `NOT_RUN`;
+- review indipendente sullo SHA `8201acd6c8c4779d5bbaa086eec87a2c13d9c809`:
+  `CHANGES_REQUIRED`, 0 P0, 2 P1, 2 P2, 1 P3;
+- Fix: `IN_PROGRESS` per isolamento best-effort, crash fallback, pipeline bounded e
+  redazione/serialization strutturale;
 - security diff review: `NOT_RUN`;
 - PR exact-SHA CI: `NOT_RUN`;
 - main post-merge CI: `NOT_RUN`;

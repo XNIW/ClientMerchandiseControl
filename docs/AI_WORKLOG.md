@@ -2552,8 +2552,23 @@
   export; scanner statico confinante aggiunto al gate canonico.
 - **Gate mirati**: Client `87/87`, Admin foundation `14/14`, analyze e diff `PASS`.
 - **Gate canonico**: `scripts/check.sh` exit `0`; 652 test coverage, repeat
-  `5 x 14 = 70`, benchmark cache 25k, security `611` file e fixture `41/41 + 4/4`,
+  `5 x 14 = 70`, benchmark cache 25k, security `621` file e fixture `41/41 + 4/4`,
   APK debug e iOS Simulator debug verdi.
 - **Transizione**: commit implementation `bd5e392`,
   `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review indipendente e
   security diff review obbligatorie, PR/CI/merge non ancora eseguiti.
+
+## 2026-08-16 — TASK-035 Review `CHANGES_REQUIRED`
+
+- **Revision set**: baseline `08221a6`, implementation `bd5e392`, evidence/head
+  `8201acd`; reviewer read-only distinto dal writer.
+- **Esito**: 0 P0, 2 P1, 2 P2, 1 P3. Emissioni telemetry potevano alterare checkout
+  già committato o leggere Riverpod dopo dispose; il crash boundary sopprimeva il
+  fallback senza previous handler.
+- **Bounding/privacy**: limiter e coda condivisi potevano bloccare i crash, config e
+  admission non avevano cap superiori; secret key JSON quotate restavano visibili e
+  la truncation post-encoding produceva JSON invalido.
+- **Gate autonomi**: test mirati 87/87, repeat core 260/260 e feature 100/100, Admin
+  14/14, analyze, format, governance, architecture e scanner verdi. I probe
+  adversarial hanno riprodotto ogni finding.
+- **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

@@ -168,16 +168,15 @@ final class CartController extends Notifier<CartState> {
     required ObservabilityOutcome outcome,
     BackendFailureCategory? failure,
   }) {
-    ref
-        .read(observabilityProvider)
-        .record(
-          ObservabilityEvent.addToCartOutcome(
-            occurredAt: occurredAt,
-            outcome: outcome,
-            quantity: quantityBucket(quantity),
-            failure: failure,
-          ),
-        );
+    recordObservabilityFromRefBestEffort(
+      ref,
+      () => ObservabilityEvent.addToCartOutcome(
+        occurredAt: occurredAt,
+        outcome: outcome,
+        quantity: quantityBucket(quantity),
+        failure: failure,
+      ),
+    );
   }
 
   Future<void> setQuantity(String publicationId, int quantity) {

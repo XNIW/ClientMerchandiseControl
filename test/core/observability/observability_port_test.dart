@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:client_merchandise_control/core/observability/observability_event.dart';
 import 'package:client_merchandise_control/core/observability/observability_port.dart';
 import 'package:client_merchandise_control/core/observability/telemetry_redactor.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../support/manual_app_scheduler.dart';
 
 void main() {
   final instant = DateTime.utc(2026, 8, 16, 12);
@@ -47,8 +50,39 @@ void main() {
         'unsupported': Object(),
       });
 
-      expect(output.length, lessThanOrEqualTo(267));
+      expect(output.length, lessThanOrEqualTo(256));
       expect(output, contains('[TRUNCATED]'));
+      expect(() => jsonDecode(output), returnsNormally);
+    });
+
+    test('serialization redige secret strutturati prima di jsonEncode', () {
+      const forbidden = {
+        'access_token': 'access-secret',
+        'refresh_token': 'refresh-secret',
+        'id_token': 'id-secret',
+        'client_secret': 'client-secret',
+        'oauth_code': 'oauth-secret',
+        'payment_secret': 'payment-secret',
+        'push_token': 'push-secret',
+        'api_key': 'api-secret',
+        'service_role': 'service-secret',
+        'latitude': -33.4489,
+        'longitude': -70.6693,
+      };
+      const serializer = CrashSafeTelemetrySerializer();
+      final output = serializer.serialize(forbidden);
+      final decoded = jsonDecode(output) as Map<String, Object?>;
+
+      for (final value in forbidden.values) {
+        expect(output, isNot(contains('$value')));
+      }
+      expect(decoded.values, everyElement('[REDACTED_SECRET]'));
+      expect(
+        const TelemetryRedactor().redact(
+          '{"access_token":"raw-secret","id_token":"jwt-secret"}',
+        ),
+        isNot(anyOf(contains('raw-secret'), contains('jwt-secret'))),
+      );
     });
   });
 
@@ -232,6 +266,48 @@ void main() {
         ),
         throwsFormatException,
       );
+      for (final config in [
+        const ProductionObservabilityConfig(
+          environment: 'production',
+          consent: TelemetryConsent.none,
+          analyticsEnabled: false,
+          crashReportingEnabled: false,
+          maximumEventsPerMinute: 6001,
+        ),
+        const ProductionObservabilityConfig(
+          environment: 'production',
+          consent: TelemetryConsent.none,
+          analyticsEnabled: false,
+          crashReportingEnabled: false,
+          maximumBreadcrumbs: 101,
+        ),
+        const ProductionObservabilityConfig(
+          environment: 'production',
+          consent: TelemetryConsent.none,
+          analyticsEnabled: false,
+          crashReportingEnabled: false,
+          maximumBufferedBytes: 1024 * 1024 + 1,
+        ),
+        const ProductionObservabilityConfig(
+          environment: 'production',
+          consent: TelemetryConsent.none,
+          analyticsEnabled: false,
+          crashReportingEnabled: false,
+          maximumPendingAnalyticsExports: 1001,
+        ),
+        const ProductionObservabilityConfig(
+          environment: 'production',
+          consent: TelemetryConsent.none,
+          analyticsEnabled: false,
+          crashReportingEnabled: false,
+          exportTimeout: Duration(seconds: 31),
+        ),
+      ]) {
+        expect(
+          () => ConfigurableProductionObservabilityPort(config: config),
+          throwsFormatException,
+        );
+      }
       expect(
         () => ConfigurableProductionObservabilityPort(
           config: const ProductionObservabilityConfig(
@@ -365,6 +441,97 @@ void main() {
       },
     );
 
+    test('analytics non consuma il rate budget riservato ai crash', () async {
+      final exporter = _Exporter();
+      final reporter = _Reporter();
+      final port = ConfigurableProductionObservabilityPort(
+        config: const ProductionObservabilityConfig(
+          environment: 'production',
+          consent: TelemetryConsent.analytics,
+          analyticsEnabled: true,
+          crashReportingEnabled: true,
+          maximumEventsPerMinute: 2,
+          maximumCrashReportsPerMinute: 1,
+        ),
+        analyticsExporter: exporter,
+        crashReporter: reporter,
+        clock: () => instant,
+      );
+
+      for (var index = 0; index < 3; index++) {
+        port.record(
+          ObservabilityEvent.screenView(
+            occurredAt: instant,
+            screen: AppScreen.home,
+          ),
+        );
+      }
+      port.recordError(
+        StateError('private'),
+        StackTrace.current,
+        component: ObservabilityComponent.bootstrap,
+        category: BackendFailureCategory.unexpected,
+      );
+      await port.flush();
+
+      expect(exporter.payloads, hasLength(2));
+      expect(reporter.payloads, hasLength(1));
+    });
+
+    test(
+      'exporter analytics sospeso non blocca crash e admission resta bounded',
+      () async {
+        final scheduler = ManualAppScheduler(start: instant);
+        final exporter = _HangingExporter();
+        final reporter = _Reporter();
+        final port = ConfigurableProductionObservabilityPort(
+          config: const ProductionObservabilityConfig(
+            environment: 'production',
+            consent: TelemetryConsent.analytics,
+            analyticsEnabled: true,
+            crashReportingEnabled: true,
+            maximumEventsPerMinute: 20,
+            maximumPendingAnalyticsExports: 2,
+            maximumBufferedEvents: 2,
+            exportTimeout: Duration(seconds: 5),
+          ),
+          analyticsExporter: exporter,
+          crashReporter: reporter,
+          clock: scheduler.now,
+          scheduler: scheduler,
+        );
+
+        for (var index = 0; index < 8; index++) {
+          port.record(
+            ObservabilityEvent.screenView(
+              occurredAt: instant,
+              screen: AppScreen.home,
+            ),
+          );
+        }
+        port.recordError(
+          StateError('private'),
+          StackTrace.current,
+          component: ObservabilityComponent.bootstrap,
+          category: BackendFailureCategory.unexpected,
+        );
+        await pumpEventQueue();
+
+        expect(port.pendingAnalyticsExportCount, 2);
+        expect(port.pendingCrashExportCount, 0);
+        expect(reporter.payloads, hasLength(1));
+
+        scheduler.advance(const Duration(seconds: 5));
+        await pumpEventQueue();
+        scheduler.advance(const Duration(seconds: 5));
+        await pumpEventQueue();
+
+        expect(port.pendingAnalyticsExportCount, 0);
+        expect(port.bufferedEventCount, 2);
+        expect(scheduler.activeTaskCount, 0);
+      },
+    );
+
     test(
       'failure exporter usa buffer bounded e flush riprova senza crash',
       () async {
@@ -440,4 +607,9 @@ final class _Reporter implements CrashReporter {
   Future<void> reportCrash(String serializedCrash) async {
     payloads.add(serializedCrash);
   }
+}
+
+final class _HangingExporter implements AnalyticsExporter {
+  @override
+  Future<void> exportEvent(String serializedEvent) => Completer<void>().future;
 }

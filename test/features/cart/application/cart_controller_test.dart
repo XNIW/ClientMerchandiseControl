@@ -52,6 +52,37 @@ void main() {
     expect(payload, isNot(contains(_product().name)));
   });
 
+  test(
+    'dispose durante add non espone ref né propaga errori telemetry',
+    () async {
+      final barrier = Completer<CustomerCartSnapshot>();
+      final guest = _FakeGuestStore(setProductBarrier: barrier);
+      final container = _container(
+        guest: guest,
+        observability: ThrowingObservabilityPort(),
+      );
+      await _waitFor(
+        container,
+        (state) => state.status == CartViewStatus.ready,
+      );
+
+      final operation = container
+          .read(cartControllerProvider.notifier)
+          .addProduct(_product());
+      await Future<void>.delayed(Duration.zero);
+      expect(guest.setProductCalls, 1);
+      container.dispose();
+      barrier.complete(
+        _snapshot(
+          source: CartSource.guest,
+          items: [_line(_publicationId, isGuest: true)],
+        ),
+      );
+
+      await expectLater(operation, completes);
+    },
+  );
+
   test('guest add persiste localmente e sopravvive al lifecycle', () async {
     final guest = _FakeGuestStore();
     var container = _container(guest: guest);
@@ -635,10 +666,11 @@ StorefrontProductSummary _product() => StorefrontProductSummary(
 );
 
 final class _FakeGuestStore implements GuestCartStore {
-  _FakeGuestStore({CustomerCartSnapshot? snapshot})
+  _FakeGuestStore({CustomerCartSnapshot? snapshot, this.setProductBarrier})
     : snapshot = snapshot ?? _snapshot(source: CartSource.guest);
 
   CustomerCartSnapshot snapshot;
+  final Completer<CustomerCartSnapshot>? setProductBarrier;
   int setProductCalls = 0;
   Set<String>? retainedIds;
 
@@ -653,6 +685,8 @@ final class _FakeGuestStore implements GuestCartStore {
     required int quantity,
   }) async {
     setProductCalls++;
+    final barrier = setProductBarrier;
+    if (barrier != null) return barrier.future;
     final existing = snapshot.items.where(
       (item) => item.publicationId != product.id,
     );

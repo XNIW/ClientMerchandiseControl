@@ -246,6 +246,56 @@ void main() {
   );
 
   test(
+    'throw telemetry dopo ordine non altera receipt o refresh carrello',
+    () async {
+      var refreshCalls = 0;
+      final repository = FakeCheckoutRepository()
+        ..createOutcomes.add(
+          checkoutTestResponse(quote: checkoutTestQuoteSnapshot()),
+        )
+        ..confirmOutcomes.add(
+          checkoutTestResponse(
+            status: CheckoutRemoteStatus.confirmed,
+            quote: checkoutTestQuoteSnapshot(
+              status: CheckoutQuoteStatus.confirmed,
+            ),
+          ),
+        )
+        ..orderOutcomes.add(
+          checkoutTestOrderResponse(order: checkoutTestOrderSnapshot()),
+        );
+      final store = MemoryCheckoutDraftStore();
+      final container = _container(
+        repository: repository,
+        store: store,
+        onCartRefresh: () async => refreshCalls++,
+        observability: ThrowingObservabilityPort(
+          onlyFor: ObservabilityEventName.orderCreated,
+        ),
+      );
+      addTearDown(container.dispose);
+      await _waitFor(
+        container,
+        (state) => state.status == CheckoutViewStatus.ready,
+      );
+      await _reachConfirmedQuote(container);
+
+      await expectLater(
+        container.read(checkoutControllerProvider.notifier).createOrder(),
+        completes,
+      );
+
+      expect(
+        container.read(checkoutControllerProvider).order?.id,
+        checkoutTestOrder,
+      );
+      expect(store.draft?.orderId, checkoutTestOrder);
+      expect(refreshCalls, 1);
+      expect(repository.orderRequests, hasLength(1));
+    },
+  );
+
+  test(
     'timeout ordine conserva intent e retrya stessa key senza svuotare prima',
     () async {
       var refreshCalls = 0;

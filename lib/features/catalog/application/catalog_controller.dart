@@ -740,44 +740,42 @@ class CatalogController extends Notifier<CatalogState> {
     final failure = state.failure == null
         ? null
         : _storefrontFailureCategory(state.failure!.kind);
-    ref
-        .read(observabilityProvider)
-        .record(
-          ObservabilityEvent.catalogQueryResult(
-            occurredAt: now,
-            kind: kind,
-            outcome: failure == null
-                ? ObservabilityOutcome.success
-                : ObservabilityOutcome.failure,
-            resultCount: resultCountBucket(state.items.length),
-            cache: state.status == CatalogLoadStatus.offline
-                ? CacheDisposition.offline
-                : state.isStale
-                ? CacheDisposition.stale
-                : state.isFromCache
-                ? CacheDisposition.fresh
-                : CacheDisposition.none,
-            duration: durationBucket(elapsed),
-            failure: failure,
-          ),
-        );
+    recordObservabilityFromRefBestEffort(
+      ref,
+      () => ObservabilityEvent.catalogQueryResult(
+        occurredAt: now,
+        kind: kind,
+        outcome: failure == null
+            ? ObservabilityOutcome.success
+            : ObservabilityOutcome.failure,
+        resultCount: resultCountBucket(state.items.length),
+        cache: state.status == CatalogLoadStatus.offline
+            ? CacheDisposition.offline
+            : state.isStale
+            ? CacheDisposition.stale
+            : state.isFromCache
+            ? CacheDisposition.fresh
+            : CacheDisposition.none,
+        duration: durationBucket(elapsed),
+        failure: failure,
+      ),
+    );
     if (elapsed >= const Duration(seconds: 1)) {
-      ref
-          .read(observabilityProvider)
-          .record(
-            ObservabilityEvent.performanceBudgetViolation(
-              occurredAt: now,
-              operation: kind == CatalogQueryKind.search
-                  ? PerformanceOperation.catalogSearch
-                  : kind == CatalogQueryKind.filter
-                  ? PerformanceOperation.catalogFilter
-                  : kind == CatalogQueryKind.pageAppend
-                  ? PerformanceOperation.catalogPageAppend
-                  : PerformanceOperation.storefrontContent,
-              budget: DurationBucket.under1s,
-              observed: durationBucket(elapsed),
-            ),
-          );
+      recordObservabilityFromRefBestEffort(
+        ref,
+        () => ObservabilityEvent.performanceBudgetViolation(
+          occurredAt: now,
+          operation: kind == CatalogQueryKind.search
+              ? PerformanceOperation.catalogSearch
+              : kind == CatalogQueryKind.filter
+              ? PerformanceOperation.catalogFilter
+              : kind == CatalogQueryKind.pageAppend
+              ? PerformanceOperation.catalogPageAppend
+              : PerformanceOperation.storefrontContent,
+          budget: DurationBucket.under1s,
+          observed: durationBucket(elapsed),
+        ),
+      );
     }
   }
 

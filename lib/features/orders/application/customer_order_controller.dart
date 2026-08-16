@@ -682,36 +682,37 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
     final previous = _lastState;
     _lastState = next;
     state = next;
-    final observability = ref.read(observabilityProvider);
-    final occurredAt = ref.read(customerOrderClockProvider)();
-    final previousStatus = previous?.selectedOrder?.status;
-    final nextStatus = next.selectedOrder?.status;
-    if (nextStatus != null && nextStatus != previousStatus) {
-      observability.record(
-        ObservabilityEvent.orderStatus(
-          occurredAt: occurredAt,
-          status: _orderStatusGroup(nextStatus),
-          source: previousStatus == null
-              ? OrderStatusSource.initialLoad
-              : OrderStatusSource.refresh,
-        ),
-      );
-    }
-    if (next.failure != null && next.failure != previous?.failure) {
-      final failure = _orderFailureCategory(next.failure!);
-      observability.record(
-        ObservabilityEvent.backendFailure(
-          occurredAt: occurredAt,
-          component: ObservabilityComponent.orders,
-          category: failure,
-          retryable: const {
-            BackendFailureCategory.offline,
-            BackendFailureCategory.timeout,
-            BackendFailureCategory.unavailable,
-          }.contains(failure),
-        ),
-      );
-    }
+    withObservabilityFromRefBestEffort(ref, (observability) {
+      final occurredAt = ref.read(customerOrderClockProvider)();
+      final previousStatus = previous?.selectedOrder?.status;
+      final nextStatus = next.selectedOrder?.status;
+      if (nextStatus != null && nextStatus != previousStatus) {
+        observability.record(
+          ObservabilityEvent.orderStatus(
+            occurredAt: occurredAt,
+            status: _orderStatusGroup(nextStatus),
+            source: previousStatus == null
+                ? OrderStatusSource.initialLoad
+                : OrderStatusSource.refresh,
+          ),
+        );
+      }
+      if (next.failure != null && next.failure != previous?.failure) {
+        final failure = _orderFailureCategory(next.failure!);
+        observability.record(
+          ObservabilityEvent.backendFailure(
+            occurredAt: occurredAt,
+            component: ObservabilityComponent.orders,
+            category: failure,
+            retryable: const {
+              BackendFailureCategory.offline,
+              BackendFailureCategory.timeout,
+              BackendFailureCategory.unavailable,
+            }.contains(failure),
+          ),
+        );
+      }
+    });
   }
 }
 

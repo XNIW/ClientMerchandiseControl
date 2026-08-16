@@ -13,6 +13,58 @@ final observabilityProvider = Provider<ObservabilityPort>((ref) {
   return const NoopObservabilityPort();
 });
 
+void recordObservabilityBestEffort(
+  ObservabilityPort observability,
+  ObservabilityEvent event,
+) {
+  try {
+    observability.record(event);
+  } on Object {
+    // Observability must never alter the domain outcome it describes.
+  }
+}
+
+void recordObservabilityFromRefBestEffort(
+  Ref ref,
+  ObservabilityEvent Function() event,
+) {
+  try {
+    recordObservabilityBestEffort(ref.read(observabilityProvider), event());
+  } on Object {
+    // A provider may already be disposed when an in-flight operation completes.
+  }
+}
+
+void withObservabilityFromRefBestEffort(
+  Ref ref,
+  void Function(ObservabilityPort observability) emit,
+) {
+  try {
+    emit(ref.read(observabilityProvider));
+  } on Object {
+    // Observability is isolated from lifecycle and domain failures.
+  }
+}
+
+void recordObservabilityErrorBestEffort(
+  ObservabilityPort observability,
+  Object error,
+  StackTrace? stackTrace, {
+  required ObservabilityComponent component,
+  required BackendFailureCategory category,
+}) {
+  try {
+    observability.recordError(
+      error,
+      stackTrace,
+      component: component,
+      category: category,
+    );
+  } on Object {
+    // Preserve the platform/domain error path if telemetry itself fails.
+  }
+}
+
 ObservabilityPort defaultObservability({
   required AppEnvironment environment,
   required AppClock clock,
@@ -33,7 +85,8 @@ final class ObservabilityCrashBoundary {
     final previousPlatformError = PlatformDispatcher.instance.onError;
 
     FlutterError.onError = (details) {
-      observability.recordError(
+      recordObservabilityErrorBestEffort(
+        observability,
         details.exception,
         details.stack,
         component: ObservabilityComponent.bootstrap,
@@ -46,13 +99,14 @@ final class ObservabilityCrashBoundary {
       }
     };
     PlatformDispatcher.instance.onError = (error, stackTrace) {
-      observability.recordError(
+      recordObservabilityErrorBestEffort(
+        observability,
         error,
         stackTrace,
         component: ObservabilityComponent.bootstrap,
         category: BackendFailureCategory.unexpected,
       );
-      return previousPlatformError?.call(error, stackTrace) ?? true;
+      return previousPlatformError?.call(error, stackTrace) ?? false;
     };
 
     return () {
@@ -99,7 +153,8 @@ final class _ObservabilityLifecycleState extends State<ObservabilityLifecycle>
     if (state == AppLifecycleState.resumed &&
         _lastState != null &&
         _lastState != AppLifecycleState.resumed) {
-      widget.observability.record(
+      recordObservabilityBestEffort(
+        widget.observability,
         ObservabilityEvent.appStart(
           occurredAt: widget.clock(),
           kind: AppStartKind.warm,

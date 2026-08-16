@@ -22,7 +22,8 @@ Future<void> bootstrap() async {
     clock: clock,
   );
   ObservabilityCrashBoundary.install(observability);
-  observability.record(
+  recordObservabilityBestEffort(
+    observability,
     ObservabilityEvent.appStart(occurredAt: clock(), kind: AppStartKind.cold),
   );
 

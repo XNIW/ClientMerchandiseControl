@@ -128,7 +128,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     );
     if (screen == lastObservedScreen) return;
     lastObservedScreen = screen;
-    observability.record(
+    recordObservabilityBestEffort(
+      observability,
       ObservabilityEvent.screenView(occurredAt: clock(), screen: screen),
     );
   }
@@ -169,7 +170,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return;
     }
     if (destination == null) {
-      observability.record(
+      recordObservabilityBestEffort(
+        observability,
         ObservabilityEvent.notificationRouting(
           occurredAt: clock(),
           destination: NotificationDestination.unsupported,
@@ -181,7 +183,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     }
     switch (destination) {
       case CustomerNotificationOrderDestination(:final orderId):
-        observability.record(
+        recordObservabilityBestEffort(
+          observability,
           ObservabilityEvent.notificationRouting(
             occurredAt: clock(),
             destination: NotificationDestination.order,
@@ -190,7 +193,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         );
         router.go(AppRoutes.orderLocation(orderId));
       case CustomerNotificationCartDestination():
-        observability.record(
+        recordObservabilityBestEffort(
+          observability,
           ObservabilityEvent.notificationRouting(
             occurredAt: clock(),
             destination: NotificationDestination.cart,

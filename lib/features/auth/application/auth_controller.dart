@@ -772,16 +772,15 @@ final class AuthController extends Notifier<AuthState> {
           failure.kind != AuthFailureKind.cancelled &&
           failure.kind != AuthFailureKind.callbackAlreadyConsumed) {
         final category = _authFailureCategory(failure.kind);
-        ref
-            .read(observabilityProvider)
-            .record(
-              ObservabilityEvent.backendFailure(
-                occurredAt: ref.read(appClockProvider)(),
-                component: ObservabilityComponent.auth,
-                category: category,
-                retryable: failure.canRetry,
-              ),
-            );
+        recordObservabilityFromRefBestEffort(
+          ref,
+          () => ObservabilityEvent.backendFailure(
+            occurredAt: ref.read(appClockProvider)(),
+            component: ObservabilityComponent.auth,
+            category: category,
+            retryable: failure.canRetry,
+          ),
+        );
       }
     }
   }

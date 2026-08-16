@@ -6,13 +6,13 @@
 - **Titolo**: Observability, crash reporting e analytics privacy-safe
 - **File task**: `docs/TASKS/TASK-035-observability-crash-analytics.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-035/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -192,7 +192,7 @@ documentazione, gate canonici e consegna a reviewer distinto.
 | repeat race TASK-034 preservato | `5 x 14 = 70/70 PASS` |
 | benchmark cache 25k | `PASS`, 1 test performance |
 | analyze / format / diff | `PASS`, zero issue |
-| security scanner | `611` file, `41/41` negative e `4/4` positive |
+| security scanner | `621` file, `41/41` negative e `4/4` positive |
 | build Android debug | `PASS`, APK generato |
 | build iOS Simulator debug | `PASS`, `Runner.app` generata |
 
@@ -246,11 +246,26 @@ package è stato aggiunto o aggiornato in TASK-035.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
-Non ancora eseguita.
+### Esito review indipendente
+
+- revision set `08221a6..8201acd`, worktree pulito e nessuna dipendenza nuova;
+- esito `CHANGES_REQUIRED`: 0 P0, 2 P1, 2 P2 e 1 P3;
+- `F-035-R01` P1: emissioni observability sincrone possono interrompere un checkout
+  dopo la creazione ordine o leggere Riverpod dopo dispose;
+- `F-035-R02` P1: il crash boundary restituisce `true` senza previous handler e
+  sopprime il fallback root-isolate, anche con port no-op;
+- `F-035-R03` P2: rate limiter e coda condivisi fanno starvation/blocco del crash,
+  l'admission non è bounded e la config non ha cap superiori;
+- `F-035-R04` P2: secret key JSON quotate non sono redatte e la truncation finale può
+  produrre JSON invalido;
+- `F-035-R05` P3: scanner rieseguito sul revision set conta 621 file, non 611;
+- gate autonomi esistenti verdi, ma CA-01/03/04/05/07/10 restano `FAIL` fino al Fix.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 
-Non applicabile finché non esiste un finding approvato.
+In corso sui soli finding `F-035-R01`…`F-035-R05` approvati.
 
 ## Chiusura
 

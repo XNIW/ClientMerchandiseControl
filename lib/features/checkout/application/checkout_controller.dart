@@ -970,43 +970,38 @@ final class CheckoutController extends Notifier<CheckoutState> {
     );
     if (previousSignature != nextSignature) {
       final clock = ref.read(appClockProvider);
-      ref
-          .read(observabilityProvider)
-          .record(
-            ObservabilityEvent.checkoutStep(
-              occurredAt: clock(),
-              step: _checkoutTelemetryStep(value),
-              outcome: failure != null
-                  ? ObservabilityOutcome.failure
-                  : value.isBusy
-                  ? ObservabilityOutcome.pending
-                  : ObservabilityOutcome.success,
-              failure: failure == null
-                  ? null
-                  : _checkoutFailureCategory(failure),
-            ),
-          );
+      recordObservabilityFromRefBestEffort(
+        ref,
+        () => ObservabilityEvent.checkoutStep(
+          occurredAt: clock(),
+          step: _checkoutTelemetryStep(value),
+          outcome: failure != null
+              ? ObservabilityOutcome.failure
+              : value.isBusy
+              ? ObservabilityOutcome.pending
+              : ObservabilityOutcome.success,
+          failure: failure == null ? null : _checkoutFailureCategory(failure),
+        ),
+      );
       if (previous?.order == null && value.order != null) {
-        ref
-            .read(observabilityProvider)
-            .record(
-              ObservabilityEvent.orderCreated(
-                occurredAt: clock(),
-                outcome: ObservabilityOutcome.success,
-              ),
-            );
+        recordObservabilityFromRefBestEffort(
+          ref,
+          () => ObservabilityEvent.orderCreated(
+            occurredAt: clock(),
+            outcome: ObservabilityOutcome.success,
+          ),
+        );
       } else if (failure != null &&
           previous?.pendingOperation?.kind ==
               CheckoutPendingOperationKind.order) {
-        ref
-            .read(observabilityProvider)
-            .record(
-              ObservabilityEvent.orderCreated(
-                occurredAt: clock(),
-                outcome: ObservabilityOutcome.failure,
-                failure: _checkoutFailureCategory(failure),
-              ),
-            );
+        recordObservabilityFromRefBestEffort(
+          ref,
+          () => ObservabilityEvent.orderCreated(
+            occurredAt: clock(),
+            outcome: ObservabilityOutcome.failure,
+            failure: _checkoutFailureCategory(failure),
+          ),
+        );
       }
     }
   }

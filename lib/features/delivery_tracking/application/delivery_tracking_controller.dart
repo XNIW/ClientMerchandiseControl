@@ -567,77 +567,77 @@ final class DeliveryTrackingController
     if (_disposed) return;
     final previous = state;
     state = next;
-    final observability = ref.read(observabilityProvider);
-    final occurredAt = ref.read(deliveryTrackingClockProvider)();
-    if (!previous.isPollingFallback && next.isPollingFallback) {
-      observability.record(
-        ObservabilityEvent.trackingSignal(
-          occurredAt: occurredAt,
-          signal: TrackingSignalTelemetry.disconnected,
-          outcome: ObservabilityOutcome.pending,
-        ),
-      );
-    } else if (previous.isPollingFallback && !next.isPollingFallback) {
-      observability.record(
-        ObservabilityEvent.trackingSignal(
-          occurredAt: occurredAt,
-          signal: TrackingSignalTelemetry.reconnected,
-          outcome: ObservabilityOutcome.success,
-        ),
-      );
-    }
-    final previousSnapshot = previous.snapshot;
-    final nextSnapshot = next.snapshot;
-    if (next.failure != previous.failure ||
-        nextSnapshot?.trackingMode != previousSnapshot?.trackingMode ||
-        nextSnapshot?.freshness != previousSnapshot?.freshness) {
-      observability.record(
-        ObservabilityEvent.trackingAvailability(
-          occurredAt: occurredAt,
-          mode: _trackingMode(nextSnapshot?.trackingMode),
-          availability: next.failure != null
-              ? TrackingAvailabilityTelemetry.failed
-              : nextSnapshot?.freshness == DeliveryTrackingFreshness.stale
-              ? TrackingAvailabilityTelemetry.stale
-              : nextSnapshot == null ||
-                    nextSnapshot.freshness ==
-                        DeliveryTrackingFreshness.unavailable
-              ? TrackingAvailabilityTelemetry.disabled
-              : TrackingAvailabilityTelemetry.available,
-        ),
-      );
-    }
-    if (next.failure != null && next.failure != previous.failure) {
-      final failure = _trackingFailureCategory(next.failure!);
-      observability.record(
-        ObservabilityEvent.backendFailure(
-          occurredAt: occurredAt,
-          component: ObservabilityComponent.tracking,
-          category: failure,
-          retryable: const {
-            BackendFailureCategory.offline,
-            BackendFailureCategory.timeout,
-            BackendFailureCategory.unavailable,
-          }.contains(failure),
-        ),
-      );
-    }
+    withObservabilityFromRefBestEffort(ref, (observability) {
+      final occurredAt = ref.read(deliveryTrackingClockProvider)();
+      if (!previous.isPollingFallback && next.isPollingFallback) {
+        observability.record(
+          ObservabilityEvent.trackingSignal(
+            occurredAt: occurredAt,
+            signal: TrackingSignalTelemetry.disconnected,
+            outcome: ObservabilityOutcome.pending,
+          ),
+        );
+      } else if (previous.isPollingFallback && !next.isPollingFallback) {
+        observability.record(
+          ObservabilityEvent.trackingSignal(
+            occurredAt: occurredAt,
+            signal: TrackingSignalTelemetry.reconnected,
+            outcome: ObservabilityOutcome.success,
+          ),
+        );
+      }
+      final previousSnapshot = previous.snapshot;
+      final nextSnapshot = next.snapshot;
+      if (next.failure != previous.failure ||
+          nextSnapshot?.trackingMode != previousSnapshot?.trackingMode ||
+          nextSnapshot?.freshness != previousSnapshot?.freshness) {
+        observability.record(
+          ObservabilityEvent.trackingAvailability(
+            occurredAt: occurredAt,
+            mode: _trackingMode(nextSnapshot?.trackingMode),
+            availability: next.failure != null
+                ? TrackingAvailabilityTelemetry.failed
+                : nextSnapshot?.freshness == DeliveryTrackingFreshness.stale
+                ? TrackingAvailabilityTelemetry.stale
+                : nextSnapshot == null ||
+                      nextSnapshot.freshness ==
+                          DeliveryTrackingFreshness.unavailable
+                ? TrackingAvailabilityTelemetry.disabled
+                : TrackingAvailabilityTelemetry.available,
+          ),
+        );
+      }
+      if (next.failure != null && next.failure != previous.failure) {
+        final failure = _trackingFailureCategory(next.failure!);
+        observability.record(
+          ObservabilityEvent.backendFailure(
+            occurredAt: occurredAt,
+            component: ObservabilityComponent.tracking,
+            category: failure,
+            retryable: const {
+              BackendFailureCategory.offline,
+              BackendFailureCategory.timeout,
+              BackendFailureCategory.unavailable,
+            }.contains(failure),
+          ),
+        );
+      }
+    });
   }
 
   void _recordTrackingSignal(TrackingSignalTelemetry signal) {
-    ref
-        .read(observabilityProvider)
-        .record(
-          ObservabilityEvent.trackingSignal(
-            occurredAt: ref.read(deliveryTrackingClockProvider)(),
-            signal: signal,
-            outcome:
-                signal == TrackingSignalTelemetry.duplicate ||
-                    signal == TrackingSignalTelemetry.outOfOrder
-                ? ObservabilityOutcome.ignored
-                : ObservabilityOutcome.pending,
-          ),
-        );
+    recordObservabilityFromRefBestEffort(
+      ref,
+      () => ObservabilityEvent.trackingSignal(
+        occurredAt: ref.read(deliveryTrackingClockProvider)(),
+        signal: signal,
+        outcome:
+            signal == TrackingSignalTelemetry.duplicate ||
+                signal == TrackingSignalTelemetry.outOfOrder
+            ? ObservabilityOutcome.ignored
+            : ObservabilityOutcome.pending,
+      ),
+    );
   }
 
   bool _isCurrent(int generation, String orderId) =>

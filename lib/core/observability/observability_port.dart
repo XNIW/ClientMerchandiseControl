@@ -119,6 +119,14 @@ final class StructuredLocalObservabilityPort implements ObservabilityPort {
 
 @immutable
 final class ProductionObservabilityConfig {
+  static const maximumAllowedEventsPerMinute = 6000;
+  static const maximumAllowedCrashReportsPerMinute = 600;
+  static const maximumAllowedBreadcrumbs = 100;
+  static const maximumAllowedBufferedEvents = 1000;
+  static const maximumAllowedBufferedBytes = 1024 * 1024;
+  static const maximumAllowedPendingExports = 1000;
+  static const maximumAllowedExportTimeout = Duration(seconds: 30);
+
   const ProductionObservabilityConfig({
     required this.environment,
     required this.consent,
@@ -126,9 +134,13 @@ final class ProductionObservabilityConfig {
     required this.crashReportingEnabled,
     this.samplePermille = 1000,
     this.maximumEventsPerMinute = 120,
+    this.maximumCrashReportsPerMinute = 30,
     this.maximumBreadcrumbs = 20,
     this.maximumBufferedEvents = 100,
     this.maximumBufferedBytes = 64 * 1024,
+    this.maximumPendingAnalyticsExports = 100,
+    this.maximumPendingCrashExports = 20,
+    this.exportTimeout = const Duration(seconds: 5),
   });
 
   final String environment;
@@ -137,9 +149,13 @@ final class ProductionObservabilityConfig {
   final bool crashReportingEnabled;
   final int samplePermille;
   final int maximumEventsPerMinute;
+  final int maximumCrashReportsPerMinute;
   final int maximumBreadcrumbs;
   final int maximumBufferedEvents;
   final int maximumBufferedBytes;
+  final int maximumPendingAnalyticsExports;
+  final int maximumPendingCrashExports;
+  final Duration exportTimeout;
 
   void validate({
     required AnalyticsExporter? analyticsExporter,
@@ -149,9 +165,21 @@ final class ProductionObservabilityConfig {
         samplePermille < 0 ||
         samplePermille > 1000 ||
         maximumEventsPerMinute < 1 ||
+        maximumEventsPerMinute > maximumAllowedEventsPerMinute ||
+        maximumCrashReportsPerMinute < 1 ||
+        maximumCrashReportsPerMinute > maximumAllowedCrashReportsPerMinute ||
         maximumBreadcrumbs < 1 ||
+        maximumBreadcrumbs > maximumAllowedBreadcrumbs ||
         maximumBufferedEvents < 1 ||
+        maximumBufferedEvents > maximumAllowedBufferedEvents ||
         maximumBufferedBytes < 256 ||
+        maximumBufferedBytes > maximumAllowedBufferedBytes ||
+        maximumPendingAnalyticsExports < 1 ||
+        maximumPendingAnalyticsExports > maximumAllowedPendingExports ||
+        maximumPendingCrashExports < 1 ||
+        maximumPendingCrashExports > maximumAllowedPendingExports ||
+        exportTimeout <= Duration.zero ||
+        exportTimeout > maximumAllowedExportTimeout ||
         (analyticsEnabled && analyticsExporter == null) ||
         (crashReportingEnabled && crashReporter == null)) {
       throw const FormatException('Invalid production observability config.');
@@ -166,13 +194,19 @@ final class ConfigurableProductionObservabilityPort
     AnalyticsExporter? analyticsExporter,
     CrashReporter? crashReporter,
     AppClock? clock,
+    AppScheduler? scheduler,
     this._serializer = const CrashSafeTelemetrySerializer(),
   }) : _config = config,
        _analyticsExporter = analyticsExporter,
        _crashReporter = crashReporter,
        _clock = clock ?? _utcNow,
-       _rateLimiter = _FixedWindowRateLimiter(
+       _scheduler = scheduler ?? const TimerAppScheduler(),
+       _analyticsRateLimiter = _FixedWindowRateLimiter(
          maximum: config.maximumEventsPerMinute,
+         clock: clock ?? _utcNow,
+       ),
+       _crashRateLimiter = _FixedWindowRateLimiter(
+         maximum: config.maximumCrashReportsPerMinute,
          clock: clock ?? _utcNow,
        ),
        _breadcrumbs = _BoundedBreadcrumbs(config.maximumBreadcrumbs),
@@ -183,6 +217,12 @@ final class ConfigurableProductionObservabilityPort
        _crashBuffer = _BoundedPayloadBuffer(
          maximumCount: config.maximumBufferedEvents,
          maximumBytes: config.maximumBufferedBytes,
+       ),
+       _analyticsQueue = _BoundedSerialQueue(
+         maximumPending: config.maximumPendingAnalyticsExports,
+       ),
+       _crashQueue = _BoundedSerialQueue(
+         maximumPending: config.maximumPendingCrashExports,
        ) {
     config.validate(
       analyticsExporter: analyticsExporter,
@@ -194,12 +234,15 @@ final class ConfigurableProductionObservabilityPort
   final AnalyticsExporter? _analyticsExporter;
   final CrashReporter? _crashReporter;
   final AppClock _clock;
+  final AppScheduler _scheduler;
   final CrashSafeTelemetrySerializer _serializer;
-  final _FixedWindowRateLimiter _rateLimiter;
+  final _FixedWindowRateLimiter _analyticsRateLimiter;
+  final _FixedWindowRateLimiter _crashRateLimiter;
   final _BoundedBreadcrumbs _breadcrumbs;
   final _BoundedPayloadBuffer _eventBuffer;
   final _BoundedPayloadBuffer _crashBuffer;
-  Future<void> _tail = Future<void>.value();
+  final _BoundedSerialQueue _analyticsQueue;
+  final _BoundedSerialQueue _crashQueue;
   var _sampleCursor = 0;
 
   @visibleForTesting
@@ -208,6 +251,12 @@ final class ConfigurableProductionObservabilityPort
   @visibleForTesting
   int get bufferedCrashCount => _crashBuffer.length;
 
+  @visibleForTesting
+  int get pendingAnalyticsExportCount => _analyticsQueue.pendingCount;
+
+  @visibleForTesting
+  int get pendingCrashExportCount => _crashQueue.pendingCount;
+
   @override
   SafeCorrelationId createCorrelationId() => _newCorrelationId();
 
@@ -215,11 +264,11 @@ final class ConfigurableProductionObservabilityPort
   void record(ObservabilityEvent event) {
     _breadcrumbs.add(event.name, event.occurredAt);
     if (!_config.analyticsEnabled || !_allows(event.channel)) return;
-    if (!_sampled() || !_rateLimiter.take()) return;
+    if (!_sampled() || !_analyticsRateLimiter.take()) return;
     final payload = _serializer.serialize(
       event.toSafeMap(environment: _config.environment),
     );
-    _enqueue(() => _sendEvent(payload));
+    _analyticsQueue.tryEnqueue(() => _sendEvent(payload));
   }
 
   @override
@@ -232,7 +281,7 @@ final class ConfigurableProductionObservabilityPort
   }) {
     if (!_config.crashReportingEnabled ||
         _config.consent == TelemetryConsent.none ||
-        !_rateLimiter.take()) {
+        !_crashRateLimiter.take()) {
       return;
     }
     final payload = _serializer.serialize(
@@ -247,17 +296,26 @@ final class ConfigurableProductionObservabilityPort
         breadcrumbs: _breadcrumbs.values,
       ),
     );
-    _enqueue(() => _sendCrash(payload));
+    _crashQueue.tryEnqueue(() => _sendCrash(payload));
   }
 
   @override
   Future<void> flush() async {
-    await _tail;
+    await Future.wait([
+      _analyticsQueue.waitForIdle(),
+      _crashQueue.waitForIdle(),
+    ]);
+    await Future.wait([_flushEvents(), _flushCrashes()]);
+  }
+
+  Future<void> _flushEvents() async {
     if (_analyticsExporter != null) {
       final pending = _eventBuffer.takeAll();
       for (var index = 0; index < pending.length; index++) {
         try {
-          await _analyticsExporter.exportEvent(pending[index]);
+          await _exportWithTimeout(
+            _analyticsExporter.exportEvent(pending[index]),
+          );
         } on Object {
           for (final payload in pending.skip(index)) {
             _eventBuffer.add(payload);
@@ -266,11 +324,14 @@ final class ConfigurableProductionObservabilityPort
         }
       }
     }
+  }
+
+  Future<void> _flushCrashes() async {
     if (_crashReporter != null) {
       final pending = _crashBuffer.takeAll();
       for (var index = 0; index < pending.length; index++) {
         try {
-          await _crashReporter.reportCrash(pending[index]);
+          await _exportWithTimeout(_crashReporter.reportCrash(pending[index]));
         } on Object {
           for (final payload in pending.skip(index)) {
             _crashBuffer.add(payload);
@@ -297,13 +358,9 @@ final class ConfigurableProductionObservabilityPort
     return sampled;
   }
 
-  void _enqueue(Future<void> Function() action) {
-    _tail = _tail.then((_) => action()).catchError((Object _) {});
-  }
-
   Future<void> _sendEvent(String payload) async {
     try {
-      await _analyticsExporter!.exportEvent(payload);
+      await _exportWithTimeout(_analyticsExporter!.exportEvent(payload));
     } on Object {
       _eventBuffer.add(payload);
     }
@@ -311,10 +368,32 @@ final class ConfigurableProductionObservabilityPort
 
   Future<void> _sendCrash(String payload) async {
     try {
-      await _crashReporter!.reportCrash(payload);
+      await _exportWithTimeout(_crashReporter!.reportCrash(payload));
     } on Object {
       _crashBuffer.add(payload);
     }
+  }
+
+  Future<void> _exportWithTimeout(Future<void> operation) {
+    final completer = Completer<void>();
+    final timeoutTask = _scheduler.schedule(_config.exportTimeout, () {
+      if (!completer.isCompleted) {
+        completer.completeError(
+          TimeoutException('Observability exporter timed out.'),
+        );
+      }
+    });
+    operation.then(
+      (_) {
+        if (!completer.isCompleted) completer.complete();
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        if (!completer.isCompleted) {
+          completer.completeError(error, stackTrace);
+        }
+      },
+    );
+    return completer.future.whenComplete(timeoutTask.cancel);
   }
 }
 
@@ -422,4 +501,26 @@ final class _BoundedPayloadBuffer {
     _bytes = 0;
     return values;
   }
+}
+
+final class _BoundedSerialQueue {
+  _BoundedSerialQueue({required this.maximumPending});
+
+  final int maximumPending;
+  Future<void> _tail = Future<void>.value();
+  var _pendingCount = 0;
+
+  int get pendingCount => _pendingCount;
+
+  bool tryEnqueue(Future<void> Function() action) {
+    if (_pendingCount >= maximumPending) return false;
+    _pendingCount++;
+    _tail = _tail
+        .then((_) => action())
+        .catchError((Object _) {})
+        .whenComplete(() => _pendingCount--);
+    return true;
+  }
+
+  Future<void> waitForIdle() => _tail;
 }

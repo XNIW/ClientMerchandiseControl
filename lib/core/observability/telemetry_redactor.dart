@@ -1,7 +1,8 @@
 import 'dart:convert';
 
 final class TelemetryRedactor {
-  const TelemetryRedactor({this.maximumLength = 4096});
+  const TelemetryRedactor({this.maximumLength = 4096})
+    : assert(maximumLength >= 2);
 
   final int maximumLength;
 
@@ -19,7 +20,7 @@ final class TelemetryRedactor {
     ),
     (
       RegExp(
-        r'\b(?:access[_-]?token|refresh[_-]?token|auth[_-]?token|oauth[_-]?code|payment[_-]?(?:secret|token)|push[_-]?token|api[_-]?key|service[_-]?role)\b\s*[:=]\s*[^\s,;}]+',
+        r'\b(?:access[_-]?token|refresh[_-]?token|id[_-]?token|auth[_-]?token|oauth[_-]?code|client[_-]?secret|payment[_-]?(?:secret|token)|push[_-]?token|api[_-]?key|service[_-]?role)\b["\x27]?\s*[:=]\s*["\x27]?[^"\x27\s,;}]+',
         caseSensitive: false,
       ),
       '[REDACTED_SECRET]',
@@ -43,6 +44,41 @@ final class TelemetryRedactor {
     ),
   ];
 
+  static const _sensitiveKeys = {
+    'name',
+    'email',
+    'phone',
+    'address',
+    'latitude',
+    'longitude',
+    'lat',
+    'lng',
+    'coordinates',
+    'trackingurl',
+    'query',
+    'querytext',
+    'rawquery',
+    'cart',
+    'cartitems',
+    'accesstoken',
+    'refreshtoken',
+    'idtoken',
+    'authtoken',
+    'oauthcode',
+    'clientsecret',
+    'paymentsecret',
+    'paymenttoken',
+    'pushtoken',
+    'apikey',
+    'servicerole',
+  };
+
+  bool isSensitiveKey(Object? key) {
+    if (key is! String) return true;
+    final normalized = key.toLowerCase().replaceAll(RegExp('[^a-z0-9]'), '');
+    return _sensitiveKeys.contains(normalized);
+  }
+
   String redact(String value) {
     var sanitized = value.replaceAll(
       RegExp(r'[\u0000-\u0008\u000B\u000C\u000E-\u001F]'),
@@ -65,7 +101,10 @@ final class CrashSafeTelemetrySerializer {
 
   String serialize(Map<String, Object?> payload) {
     try {
-      return redactor.redact(jsonEncode(_safeValue(payload, depth: 0)));
+      final encoded = jsonEncode(_safeValue(payload, depth: 0));
+      if (encoded.length <= redactor.maximumLength) return encoded;
+      const truncated = '{"schema":1,"name":"[TRUNCATED]"}';
+      return redactor.maximumLength >= truncated.length ? truncated : '{}';
     } on Object {
       return '{"schema":1,"name":"serializationFailure"}';
     }
@@ -79,12 +118,45 @@ final class CrashSafeTelemetrySerializer {
       List<Object?>() => [
         for (final item in value.take(32)) _safeValue(item, depth: depth + 1),
       ],
-      Map<Object?, Object?>() => {
-        for (final entry in value.entries.take(32))
-          _safeKey(entry.key): _safeValue(entry.value, depth: depth + 1),
-      },
+      Map<Object?, Object?>() => _safeMap(value, depth: depth),
       _ => '[UNSUPPORTED_${value.runtimeType}]',
     };
+  }
+
+  Map<String, Object?> _safeMap(
+    Map<Object?, Object?> value, {
+    required int depth,
+  }) {
+    final result = <String, Object?>{};
+    for (final entry in value.entries.take(32)) {
+      final key = _safeKey(entry.key);
+      result[key] =
+          redactor.isSensitiveKey(entry.key) &&
+              !_isSafeRootEventName(entry.key, entry.value, depth)
+          ? '[REDACTED_SECRET]'
+          : _safeValue(entry.value, depth: depth + 1);
+    }
+    return result;
+  }
+
+  bool _isSafeRootEventName(Object? key, Object? value, int depth) {
+    if (depth != 0 || key != 'name' || value is! String) return false;
+    return const {
+      'appStart',
+      'screenView',
+      'catalogQueryResult',
+      'addToCartOutcome',
+      'checkoutStep',
+      'orderCreated',
+      'orderStatus',
+      'notificationRouting',
+      'trackingAvailability',
+      'trackingSignal',
+      'backendFailure',
+      'performanceBudgetViolation',
+      'crash',
+      'serializationFailure',
+    }.contains(value);
   }
 
   String _safeKey(Object? key) {

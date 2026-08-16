@@ -14,11 +14,18 @@ if [[ ! -f "${cmc_telemetry_event_file}" || ! -f "${cmc_telemetry_port_file}" ]]
 fi
 
 # Nessun attributo di dominio sensibile può entrare nello schema tipizzato.
-cmc_telemetry_forbidden_attribute="['\"](?:email|phone|address|latitude|longitude|coordinates|trackingUrl|trackingURL|token|oauthCode|paymentSecret|query|uuid|publicationId|orderId|cart|pushToken)['\"]"
-if rg --quiet --pcre2 "${cmc_telemetry_forbidden_attribute}" \
-  "${cmc_telemetry_event_file}"; then
+cmc_telemetry_forbidden_attribute="['\"](?:email|phone|address|lat|lng|latitude|longitude|coordinates|tracking[_-]?[uU][rR][lL]|trackingSessionId|sessionId|access[_-]?token|refresh[_-]?token|id[_-]?token|auth[_-]?token|oauth[_-]?[cC]ode|client[_-]?secret|payment[_-]?(?:secret|token)|api[_-]?key|service[_-]?role|query|queryText|rawQuery|uuid|publicationId|orderId|cart|cartItems|push[_-]?[tT]oken)['\"]"
+set +e
+rg --quiet --pcre2 "${cmc_telemetry_forbidden_attribute}" \
+  "${cmc_telemetry_event_file}"
+cmc_telemetry_attribute_status=$?
+set -e
+if [[ ${cmc_telemetry_attribute_status} -eq 0 ]]; then
   printf '%s\n' 'Telemetry privacy scan: attributo sensibile nello schema eventi.' >&2
   exit 1
+elif [[ ${cmc_telemetry_attribute_status} -ne 1 ]]; then
+  printf '%s\n' 'Telemetry privacy scan: scanner attributi non eseguito.' >&2
+  exit "${cmc_telemetry_attribute_status}"
 fi
 
 # Logger ed exporter restano confinati nel port centrale; le feature emettono solo
@@ -40,6 +47,11 @@ if rg --quiet \
   'toSafeMap\(|CrashSafeTelemetrySerializer|AnalyticsExporter|CrashReporter' \
   lib/features lib/app; then
   printf '%s\n' 'Telemetry privacy scan: serializzazione/export fuori dal boundary.' >&2
+  exit 1
+fi
+
+if rg --quiet 'read\(observabilityProvider\)' lib/features; then
+  printf '%s\n' 'Telemetry privacy scan: emissione feature non isolata dal lifecycle.' >&2
   exit 1
 fi
 

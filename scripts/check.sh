@@ -20,6 +20,7 @@ flutter gen-l10n
 dart format --output=none --set-exit-if-changed .
 flutter analyze
 flutter test --coverage --exclude-tags performance
+CMC_TASK034_REPEAT_COUNT=5 bash "${cmc_script_dir}/test-task034-resilience-repeat.sh"
 flutter test --tags performance --concurrency=1
 flutter build apk --debug
 flutter build ios --simulator --debug

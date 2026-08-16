@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/time/app_scheduler.dart';
 import '../data/supabase_delivery_tracking_repository.dart';
 import '../domain/delivery_tracking_failure.dart';
 import '../domain/delivery_tracking_models.dart';
+import '../domain/delivery_tracking_repository.dart';
 import 'delivery_tracking_providers.dart';
 
 const _deliveryTrackingUnset = Object();
@@ -78,9 +80,9 @@ final deliveryTrackingControllerProvider =
 final class DeliveryTrackingController
     extends Notifier<DeliveryTrackingViewState> {
   StreamSubscription<DeliveryTrackingSnapshot>? _subscription;
-  Timer? _pollTimer;
-  Timer? _reconnectTimer;
-  Timer? _freshnessTimer;
+  AppScheduledTask? _pollTimer;
+  AppScheduledTask? _reconnectTimer;
+  AppScheduledTask? _freshnessTimer;
   String? _subjectId;
   String? _shopSlug;
   String? _orderId;
@@ -99,43 +101,51 @@ final class DeliveryTrackingController
       _generation++;
       unawaited(_stopRuntime());
     });
-    final identity = ref.watch(deliveryTrackingIdentityProvider);
-    final shopSlug = ref.watch(deliveryTrackingShopSlugProvider);
-    if (identity == null || shopSlug == null) {
-      final previousSubject = _subjectId;
-      _subjectId = null;
-      _shopSlug = null;
-      _orderId = null;
-      final generation = ++_generation;
-      scheduleMicrotask(() async {
-        await _stopRuntime();
-        if (previousSubject != null) {
-          await _clearCacheAfterSnapshots(previousSubject);
-        }
-        if (!_disposed && generation == _generation) {
-          state = const DeliveryTrackingViewState.signedOut();
-        }
-      });
-      return const DeliveryTrackingViewState.signedOut();
-    }
-    if (_subjectId != identity.subjectId || _shopSlug != shopSlug) {
-      final previousSubject = _subjectId;
-      _subjectId = identity.subjectId;
-      _shopSlug = shopSlug;
-      _orderId = null;
-      final generation = ++_generation;
-      scheduleMicrotask(() async {
-        await _stopRuntime();
-        if (previousSubject != null && previousSubject != identity.subjectId) {
-          await _clearCacheAfterSnapshots(previousSubject);
-        }
-        if (!_disposed && generation == _generation) {
-          state = const DeliveryTrackingViewState.idle();
-        }
-      });
-      return const DeliveryTrackingViewState.idle();
-    }
-    return stateOrNull ?? const DeliveryTrackingViewState.idle();
+    ref.listen(deliveryTrackingIdentityProvider, (_, identity) {
+      unawaited(
+        _transitionIdentity(
+          identity?.subjectId,
+          ref.read(deliveryTrackingShopSlugProvider),
+        ),
+      );
+    });
+    ref.listen(deliveryTrackingShopSlugProvider, (_, shopSlug) {
+      unawaited(
+        _transitionIdentity(
+          ref.read(deliveryTrackingIdentityProvider)?.subjectId,
+          shopSlug,
+        ),
+      );
+    });
+    final subjectId = ref.read(deliveryTrackingIdentityProvider)?.subjectId;
+    final shopSlug = ref.read(deliveryTrackingShopSlugProvider);
+    _subjectId = subjectId;
+    _shopSlug = subjectId == null ? null : shopSlug;
+    return subjectId == null || shopSlug == null
+        ? const DeliveryTrackingViewState.signedOut()
+        : const DeliveryTrackingViewState.idle();
+  }
+
+  Future<void> _transitionIdentity(String? subjectId, String? shopSlug) async {
+    if (_disposed) return;
+    final effectiveShopSlug = subjectId == null ? null : shopSlug;
+    if (_subjectId == subjectId && _shopSlug == effectiveShopSlug) return;
+    final previousSubject = _subjectId;
+    final cache = previousSubject != null && previousSubject != subjectId
+        ? ref.read(deliveryTrackingCacheProvider)
+        : null;
+    _subjectId = subjectId;
+    _shopSlug = effectiveShopSlug;
+    _orderId = null;
+    _generation++;
+    state = subjectId == null || effectiveShopSlug == null
+        ? const DeliveryTrackingViewState.signedOut()
+        : const DeliveryTrackingViewState.idle();
+    final stopRuntime = _stopRuntime();
+    final purgeCache = previousSubject != null && cache != null
+        ? _clearCacheAfterSnapshots(previousSubject, cache)
+        : Future<void>.value();
+    await Future.wait([stopRuntime, purgeCache]);
   }
 
   Future<void> open(String orderId, {bool forceRefresh = false}) async {
@@ -187,17 +197,22 @@ final class DeliveryTrackingController
 
   Future<void> close({bool clearCache = false}) async {
     final subjectId = _subjectId;
+    final cache = clearCache && subjectId != null
+        ? ref.read(deliveryTrackingCacheProvider)
+        : null;
     _generation++;
     _orderId = null;
-    await _stopRuntime();
-    if (clearCache && subjectId != null) {
-      await _clearCacheAfterSnapshots(subjectId);
-    }
+    await Future<void>.microtask(() {});
     if (!_disposed) {
       state = _subjectId == null
           ? const DeliveryTrackingViewState.signedOut()
           : const DeliveryTrackingViewState.idle();
     }
+    final stopRuntime = _stopRuntime();
+    final purgeCache = subjectId != null && cache != null
+        ? _clearCacheAfterSnapshots(subjectId, cache)
+        : Future<void>.value();
+    await Future.wait([stopRuntime, purgeCache]);
   }
 
   Future<void> setForeground(bool foreground) async {
@@ -241,6 +256,7 @@ final class DeliveryTrackingController
     final subjectId = _subjectId;
     final shopSlug = _shopSlug;
     if (subjectId == null || shopSlug == null) return;
+    final cache = ref.read(deliveryTrackingCacheProvider);
     try {
       final snapshot = await ref
           .read(deliveryTrackingRepositoryProvider)
@@ -264,8 +280,6 @@ final class DeliveryTrackingController
       if (failure == DeliveryTrackingFailureKind.unauthorized) {
         _generation++;
         _orderId = null;
-        await _stopRuntime();
-        await _clearCacheAfterSnapshots(subjectId);
         if (!_disposed && _subjectId == subjectId && _shopSlug == shopSlug) {
           state = DeliveryTrackingViewState(
             status: DeliveryTrackingStatus.failure,
@@ -273,6 +287,9 @@ final class DeliveryTrackingController
             isForeground: _foreground,
           );
         }
+        final stopRuntime = _stopRuntime();
+        final purgeCache = _clearCacheAfterSnapshots(subjectId, cache);
+        await Future.wait([stopRuntime, purgeCache]);
         return;
       }
       final hasSnapshot = state.snapshot != null;
@@ -342,10 +359,12 @@ final class DeliveryTrackingController
     }
     if (_pollTimer != null) return;
     unawaited(_load(generation, orderId));
-    _pollTimer = Timer.periodic(
-      ref.read(deliveryTrackingPollIntervalProvider),
-      (_) => unawaited(_load(generation, orderId)),
-    );
+    _pollTimer = ref
+        .read(appSchedulerProvider)
+        .periodic(
+          ref.read(deliveryTrackingPollIntervalProvider),
+          () => unawaited(_load(generation, orderId)),
+        );
   }
 
   void _markRealtimeHealthy() {
@@ -366,11 +385,14 @@ final class DeliveryTrackingController
     final factor = 1 << exponent;
     _reconnectAttempt++;
     final milliseconds = (base.inMilliseconds * factor).clamp(1, 30000);
-    _reconnectTimer = Timer(Duration(milliseconds: milliseconds), () {
-      if (_isCurrent(generation, orderId) && _runtimeAllowed) {
-        _subscribe(generation, orderId);
-      }
-    });
+    _reconnectTimer = ref.read(appSchedulerProvider).schedule(
+      Duration(milliseconds: milliseconds),
+      () {
+        if (_isCurrent(generation, orderId) && _runtimeAllowed) {
+          _subscribe(generation, orderId);
+        }
+      },
+    );
   }
 
   Future<void> _accept(
@@ -436,15 +458,16 @@ final class DeliveryTrackingController
     }
   }
 
-  Future<void> _clearCacheAfterSnapshots(String subjectId) async {
+  Future<void> _clearCacheAfterSnapshots(
+    String subjectId,
+    DeliveryTrackingCacheStore cache,
+  ) async {
     final previous = _snapshotCommitTail;
     final turn = Completer<void>();
     _snapshotCommitTail = turn.future;
     await previous;
     try {
-      await ref
-          .read(deliveryTrackingCacheProvider)
-          .clear(ownerSubjectId: subjectId);
+      await cache.clear(ownerSubjectId: subjectId);
     } finally {
       turn.complete();
     }
@@ -456,7 +479,7 @@ final class DeliveryTrackingController
     final receivedAt = snapshot.receivedAt;
     if (snapshot.freshness == DeliveryTrackingFreshness.fresh &&
         receivedAt != null &&
-        ref.read(deliveryTrackingClockProvider)().difference(receivedAt) >
+        ref.read(deliveryTrackingClockProvider)().difference(receivedAt) >=
             ref.read(deliveryTrackingFreshnessThresholdProvider)) {
       return snapshot.copyWith(freshness: DeliveryTrackingFreshness.stale);
     }
@@ -494,7 +517,7 @@ final class DeliveryTrackingController
       _expireCurrentFreshness();
       return;
     }
-    _freshnessTimer = Timer(delay, () {
+    _freshnessTimer = ref.read(appSchedulerProvider).schedule(delay, () {
       if (!_isCurrent(generation, orderId)) return;
       _expireCurrentFreshness();
     });

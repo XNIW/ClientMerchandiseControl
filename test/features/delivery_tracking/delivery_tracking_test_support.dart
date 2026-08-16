@@ -131,7 +131,13 @@ final class FakeDeliveryTrackingRepository
     implements DeliveryTrackingRepository {
   FakeDeliveryTrackingRepository() {
     stream = StreamController<DeliveryTrackingSnapshot>.broadcast(
-      onCancel: () => watchCancelCalls++,
+      onCancel: () async {
+        watchCancelCalls++;
+        final started = watchCancelStarted;
+        if (started != null && !started.isCompleted) started.complete();
+        final release = watchCancelRelease;
+        if (release != null) await release.future;
+      },
     );
   }
 
@@ -140,6 +146,8 @@ final class FakeDeliveryTrackingRepository
   var loadCalls = 0;
   var watchCalls = 0;
   var watchCancelCalls = 0;
+  Completer<void>? watchCancelStarted;
+  Completer<void>? watchCancelRelease;
   late final StreamController<DeliveryTrackingSnapshot> stream;
 
   @override

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:client_merchandise_control/core/backend/secure_supabase_auth_storage.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/core/time/app_scheduler.dart';
 import 'package:client_merchandise_control/features/auth/application/auth_controller.dart';
 import 'package:client_merchandise_control/features/auth/application/auth_providers.dart';
 import 'package:client_merchandise_control/features/auth/data/auth_callback_source.dart';
@@ -12,6 +13,8 @@ import 'package:client_merchandise_control/features/auth/domain/auth_state.dart'
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../../support/manual_app_scheduler.dart';
 
 void main() {
   late _FakeAuthRepository repository;
@@ -791,12 +794,53 @@ void main() {
     expect(repository.clearPendingCalls, 2);
     expect(container.read(authControllerProvider), isA<AuthAuthenticated>());
   });
+
+  test(
+    'OAuth senza callback scade con scheduler controllato e consente retry',
+    () async {
+      final scheduler = ManualAppScheduler(start: DateTime.utc(2026, 8, 16));
+      container.dispose();
+      container = _container(
+        repository,
+        callbackSource,
+        clock: scheduler.now,
+        scheduler: scheduler,
+      );
+      container.read(authControllerProvider);
+      await _settle();
+      final controller = container.read(authControllerProvider.notifier);
+
+      await controller.startGoogleSignIn();
+      expect(container.read(authControllerProvider), isA<AuthAuthenticating>());
+      scheduler.advance(const Duration(minutes: 5));
+      await _settle();
+
+      expect(
+        container.read(authControllerProvider),
+        isA<AuthRecoverableError>().having(
+          (state) => state.failure.kind,
+          'failure',
+          AuthFailureKind.unexpected,
+        ),
+      );
+      expect(repository.signOutCalls, 1);
+      callbackSource.emit(_validCallback('expired-code'));
+      await _settle();
+      expect(repository.exchangeCalls, 0);
+
+      await controller.retry();
+      expect(repository.launchCalls, 2);
+      expect(container.read(authControllerProvider), isA<AuthAuthenticating>());
+    },
+  );
 }
 
 ProviderContainer _container(
   _FakeAuthRepository repository,
-  _FakeCallbackSource source,
-) {
+  _FakeCallbackSource source, {
+  DateTime Function()? clock,
+  AppScheduler? scheduler,
+}) {
   return ProviderContainer(
     overrides: [
       appConfigProvider.overrideWithValue(_enabledConfig()),
@@ -804,6 +848,8 @@ ProviderContainer _container(
         (config) async => repository,
       ),
       authCallbackSourceProvider.overrideWithValue(source),
+      if (clock != null) appClockProvider.overrideWithValue(clock),
+      if (scheduler != null) appSchedulerProvider.overrideWithValue(scheduler),
     ],
   );
 }

@@ -145,6 +145,54 @@ void main() {
   );
 
   test(
+    'refresh concorrenti persistono in ordine e pubblicano solo dopo storage',
+    () async {
+      const identity = SupabaseIdentitySnapshot(
+        subjectId: 'subject',
+        email: null,
+        metadata: {},
+      );
+      final firstWrite = Completer<void>();
+      secureStore.nextWriteBarrier = firstWrite;
+      final events = <AuthSessionEvent>[];
+      final subscription = repository.sessionChanges.listen(events.add);
+
+      port.emit(
+        const SupabaseAuthChange(
+          kind: SupabaseAuthChangeKind.tokenRefreshed,
+          identity: identity,
+          serializedSession: '{"session":"refresh-1"}',
+        ),
+      );
+      port.emit(
+        const SupabaseAuthChange(
+          kind: SupabaseAuthChangeKind.tokenRefreshed,
+          identity: identity,
+          serializedSession: '{"session":"refresh-2"}',
+        ),
+      );
+      await _flushUntil(() => secureStore.writtenValues.isNotEmpty);
+
+      expect(secureStore.writtenValues, ['{"session":"refresh-1"}']);
+      expect(events, isEmpty);
+
+      firstWrite.complete();
+      await _flushUntil(() => events.length == 2);
+
+      expect(secureStore.writtenValues, [
+        '{"session":"refresh-1"}',
+        '{"session":"refresh-2"}',
+      ]);
+      expect(
+        events.map((event) => event.type),
+        everyElement(AuthSessionEventType.tokenRefreshed),
+      );
+      expect(await storage.accessToken(), '{"session":"refresh-2"}');
+      await subscription.cancel();
+    },
+  );
+
+  test(
     'logout pulisce sessione e verifier anche se il remoto fallisce',
     () async {
       const sentinel = 'REMOTE_ERROR_WITH_SECRET_SENTINEL';
@@ -512,6 +560,8 @@ final class _MemorySecureStore implements SecureAuthKeyValueStore {
   final List<String> deleted = [];
   final Map<String, Object> deleteErrors = {};
   Object? writeError;
+  Completer<void>? nextWriteBarrier;
+  final List<String> writtenValues = [];
 
   @override
   Future<void> delete(String key) async {
@@ -530,8 +580,24 @@ final class _MemorySecureStore implements SecureAuthKeyValueStore {
     if (writeError case final error?) {
       throw error;
     }
+    if (key == SecureSupabaseAuthStorage.sessionStorageKey) {
+      writtenValues.add(value);
+    }
+    final barrier = nextWriteBarrier;
+    if (barrier != null) {
+      nextWriteBarrier = null;
+      await barrier.future;
+    }
     values[key] = value;
   }
+}
+
+Future<void> _flushUntil(bool Function() predicate) async {
+  for (var attempt = 0; attempt < 200; attempt++) {
+    if (predicate()) return;
+    await Future<void>.delayed(Duration.zero);
+  }
+  throw TestFailure('Condizione async non raggiunta');
 }
 
 final class _MarkedInstall implements AuthInstallationMarkerStore {

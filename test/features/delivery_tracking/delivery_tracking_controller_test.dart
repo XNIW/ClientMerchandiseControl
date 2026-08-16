@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
+import 'package:client_merchandise_control/core/time/app_scheduler.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_controller.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_providers.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/data/supabase_delivery_tracking_repository.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'delivery_tracking_test_support.dart';
+import '../../support/manual_app_scheduler.dart';
 
 void main() {
   test('cache-first remains readable when initial RPC is offline', () async {
@@ -39,7 +41,7 @@ void main() {
   test(
     'RPC online invariata ripristina ready e riattiva freshness dalla cache',
     () async {
-      final wallClock = Stopwatch()..start();
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
       final repository = FakeDeliveryTrackingRepository();
       final cache = MemoryDeliveryTrackingCache()
         ..snapshot = trackingLiveSnapshot();
@@ -48,7 +50,8 @@ void main() {
         cache: cache,
         pollInterval: const Duration(milliseconds: 10),
         freshnessThreshold: const Duration(milliseconds: 1050),
-        clock: () => trackingTestNow.add(wallClock.elapsed),
+        clock: scheduler.now,
+        scheduler: scheduler,
       );
       addTearDown(() async {
         container.dispose();
@@ -67,11 +70,9 @@ void main() {
       expect(repository.loadCalls, 1);
       expect(cache.saveCalls, 0);
 
-      state = await _waitFor(
-        container,
-        (candidate) =>
-            candidate.snapshot?.freshness == DeliveryTrackingFreshness.stale,
-      );
+      scheduler.advance(const Duration(milliseconds: 1050));
+      await _flush();
+      state = container.read(deliveryTrackingControllerProvider);
       expect(state.snapshot?.freshness, DeliveryTrackingFreshness.stale);
       expect(state.snapshot?.hasFreshLiveLocation, isFalse);
       expect(repository.loadCalls, 1);
@@ -119,11 +120,13 @@ void main() {
     'Realtime failure enables bounded polling fallback and reconnect',
     () async {
       final repository = FakeDeliveryTrackingRepository();
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
       final container = _container(
         repository: repository,
         cache: MemoryDeliveryTrackingCache(),
         pollInterval: const Duration(milliseconds: 15),
         reconnectBase: const Duration(milliseconds: 5),
+        scheduler: scheduler,
       );
       addTearDown(() async {
         container.dispose();
@@ -135,22 +138,25 @@ void main() {
           .read(deliveryTrackingControllerProvider.notifier)
           .open(trackingTestOrder);
       repository.stream.addError(const DeliveryTrackingRealtimeException());
+      await _flush();
+      scheduler.advance(const Duration(milliseconds: 5));
+      await _flush();
 
-      final state = await _waitFor(
-        container,
-        (state) => state.isPollingFallback && repository.loadCalls >= 2,
-      );
+      final state = container.read(deliveryTrackingControllerProvider);
       expect(state.snapshot, isNotNull);
       expect(repository.loadCalls, greaterThanOrEqualTo(2));
+      expect(repository.watchCalls, greaterThanOrEqualTo(2));
     },
   );
 
   test('Realtime sano non esegue polling periodico', () async {
     final repository = FakeDeliveryTrackingRepository();
+    final scheduler = ManualAppScheduler(start: trackingTestNow);
     final container = _container(
       repository: repository,
       cache: MemoryDeliveryTrackingCache(),
       pollInterval: const Duration(milliseconds: 10),
+      scheduler: scheduler,
     );
     addTearDown(() async {
       container.dispose();
@@ -161,7 +167,8 @@ void main() {
     await container
         .read(deliveryTrackingControllerProvider.notifier)
         .open(trackingTestOrder);
-    await Future<void>.delayed(const Duration(milliseconds: 45));
+    scheduler.advance(const Duration(milliseconds: 45));
+    await _flush();
 
     expect(repository.loadCalls, 1);
     expect(
@@ -172,11 +179,13 @@ void main() {
 
   test('evento Realtime valido arresta il polling fallback', () async {
     final repository = FakeDeliveryTrackingRepository();
+    final scheduler = ManualAppScheduler(start: trackingTestNow);
     final container = _container(
       repository: repository,
       cache: MemoryDeliveryTrackingCache(),
       pollInterval: const Duration(milliseconds: 10),
       reconnectBase: const Duration(milliseconds: 5),
+      scheduler: scheduler,
     );
     addTearDown(() async {
       container.dispose();
@@ -188,19 +197,20 @@ void main() {
         .read(deliveryTrackingControllerProvider.notifier)
         .open(trackingTestOrder);
     repository.stream.addError(const DeliveryTrackingRealtimeException());
-    await _waitFor(
-      container,
-      (state) => state.isPollingFallback && repository.loadCalls >= 2,
-    );
-    await _waitFor(container, (_) => repository.watchCalls >= 2);
+    await _flush();
+    scheduler.advance(const Duration(milliseconds: 5));
+    await _flush();
+    expect(repository.watchCalls, greaterThanOrEqualTo(2));
 
     repository.stream.add(trackingLiveSnapshot(version: 5));
-    await _waitFor(
-      container,
-      (state) => state.snapshot?.version == 5 && !state.isPollingFallback,
+    await _flush();
+    expect(
+      container.read(deliveryTrackingControllerProvider).isPollingFallback,
+      isFalse,
     );
     final callsAfterRecovery = repository.loadCalls;
-    await Future<void>.delayed(const Duration(milliseconds: 35));
+    scheduler.advance(const Duration(milliseconds: 35));
+    await _flush();
 
     expect(repository.loadCalls, callsAfterRecovery);
   });
@@ -369,10 +379,12 @@ void main() {
           ..['storeLongitude'] = null;
     final repository = FakeDeliveryTrackingRepository()
       ..snapshot = parseDeliveryTrackingSnapshot(terminalPayload);
+    final scheduler = ManualAppScheduler(start: trackingTestNow);
     final container = _container(
       repository: repository,
       cache: MemoryDeliveryTrackingCache(),
       pollInterval: const Duration(milliseconds: 10),
+      scheduler: scheduler,
     );
     addTearDown(() async {
       container.dispose();
@@ -383,7 +395,8 @@ void main() {
     await container
         .read(deliveryTrackingControllerProvider.notifier)
         .open(trackingTestOrder);
-    await Future<void>.delayed(const Duration(milliseconds: 30));
+    scheduler.advance(const Duration(milliseconds: 30));
+    await _flush();
 
     expect(repository.watchCalls, 0);
     expect(repository.loadCalls, 1);
@@ -523,13 +536,14 @@ void main() {
     'freshness scade localmente senza eseguire una RPC di polling',
     () async {
       final repository = FakeDeliveryTrackingRepository();
-      final wallClock = Stopwatch()..start();
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
       final container = _container(
         repository: repository,
         cache: MemoryDeliveryTrackingCache(),
         pollInterval: const Duration(milliseconds: 10),
         freshnessThreshold: const Duration(milliseconds: 1050),
-        clock: () => trackingTestNow.add(wallClock.elapsed),
+        clock: scheduler.now,
+        scheduler: scheduler,
       );
       addTearDown(() async {
         container.dispose();
@@ -540,13 +554,326 @@ void main() {
       await container
           .read(deliveryTrackingControllerProvider.notifier)
           .open(trackingTestOrder);
-      final snapshot = (await _waitFor(
-        container,
-        (candidate) =>
-            candidate.snapshot?.freshness == DeliveryTrackingFreshness.stale,
-      )).snapshot;
+      scheduler.advance(const Duration(milliseconds: 1050));
+      await _flush();
+      final snapshot = container
+          .read(deliveryTrackingControllerProvider)
+          .snapshot;
       expect(snapshot?.freshness, DeliveryTrackingFreshness.stale);
       expect(repository.loadCalls, 1);
+    },
+  );
+
+  test(
+    'logout durante fallback cancella runtime e ignora eventi account precedente',
+    () async {
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final repository = FakeDeliveryTrackingRepository();
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final identity = StateProvider<AuthenticatedCustomer?>((ref) {
+        return _customer(trackingTestOwner);
+      });
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        pollInterval: const Duration(milliseconds: 15),
+        reconnectBase: const Duration(milliseconds: 5),
+        scheduler: scheduler,
+        identityState: identity,
+      );
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      repository.stream.addError(const DeliveryTrackingRealtimeException());
+      await _flush();
+      expect(scheduler.activeTaskCount, greaterThanOrEqualTo(2));
+
+      container.read(identity.notifier).state = null;
+      await _flush();
+      final callsAfterLogout = repository.loadCalls;
+      final savesAfterLogout = cache.saveOwners.length;
+
+      scheduler.advance(const Duration(minutes: 10));
+      repository.stream.add(trackingLiveSnapshot(version: 99));
+      await _flush();
+
+      final state = container.read(deliveryTrackingControllerProvider);
+      expect(state.status, DeliveryTrackingStatus.signedOut);
+      expect(state.snapshot, isNull);
+      expect(repository.watchCancelCalls, 1);
+      expect(repository.loadCalls, callsAfterLogout);
+      expect(cache.saveOwners.length, savesAfterLogout);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(scheduler.activeTaskCount, 0);
+    },
+  );
+
+  test(
+    'cambio account durante fallback non pubblica o conserva dati precedenti',
+    () async {
+      const nextOwner = '10000000-0000-4000-8000-000000044002';
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final repository = FakeDeliveryTrackingRepository();
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final identity = StateProvider<AuthenticatedCustomer?>((ref) {
+        return _customer(trackingTestOwner);
+      });
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        pollInterval: const Duration(milliseconds: 15),
+        reconnectBase: const Duration(milliseconds: 5),
+        scheduler: scheduler,
+        identityState: identity,
+      );
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      repository.stream.addError(const DeliveryTrackingRealtimeException());
+      await _flush();
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNotNull);
+      expect(scheduler.activeTaskCount, greaterThanOrEqualTo(2));
+
+      container.read(identity.notifier).state = _customer(nextOwner);
+      await _flush();
+      final callsAfterSwitch = repository.loadCalls;
+      final savesAfterSwitch = cache.saveOwners.length;
+
+      scheduler.advance(const Duration(minutes: 10));
+      repository.stream.add(trackingLiveSnapshot(version: 99));
+      await _flush();
+
+      final state = container.read(deliveryTrackingControllerProvider);
+      expect(state.status, DeliveryTrackingStatus.idle);
+      expect(state.snapshot, isNull);
+      expect(repository.watchCancelCalls, 1);
+      expect(repository.loadCalls, callsAfterSwitch);
+      expect(cache.saveOwners.length, savesAfterSwitch);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+      expect(cache.snapshotsByOwner[nextOwner], isNull);
+      expect(scheduler.activeTaskCount, 0);
+    },
+  );
+
+  test(
+    'dispose durante fallback cancella subscription e tutti i timer',
+    () async {
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final repository = FakeDeliveryTrackingRepository();
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        pollInterval: const Duration(milliseconds: 15),
+        reconnectBase: const Duration(milliseconds: 5),
+        scheduler: scheduler,
+      );
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      repository.stream.addError(const DeliveryTrackingRealtimeException());
+      await _flush();
+      expect(scheduler.activeTaskCount, greaterThanOrEqualTo(2));
+
+      container.dispose();
+      await _flush();
+      final callsAfterDispose = repository.loadCalls;
+      final savesAfterDispose = cache.saveOwners.length;
+      scheduler.advance(const Duration(minutes: 10));
+      repository.stream.add(trackingLiveSnapshot(version: 99));
+      await _flush();
+
+      expect(repository.watchCancelCalls, 1);
+      expect(repository.loadCalls, callsAfterDispose);
+      expect(cache.saveOwners.length, savesAfterDispose);
+      expect(scheduler.activeTaskCount, 0);
+      await repository.stream.close();
+    },
+  );
+
+  test(
+    'dispose durante logout con unsubscribe asincrono completa il purge owner',
+    () async {
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final cancelStarted = Completer<void>();
+      final cancelRelease = Completer<void>();
+      final repository = FakeDeliveryTrackingRepository()
+        ..watchCancelStarted = cancelStarted
+        ..watchCancelRelease = cancelRelease;
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final identity = StateProvider<AuthenticatedCustomer?>((ref) {
+        return _customer(trackingTestOwner);
+      });
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        pollInterval: const Duration(milliseconds: 15),
+        reconnectBase: const Duration(milliseconds: 5),
+        scheduler: scheduler,
+        identityState: identity,
+      );
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      repository.stream.addError(const DeliveryTrackingRealtimeException());
+      await _flush();
+
+      container.read(identity.notifier).state = null;
+      await cancelStarted.future;
+      await _flush();
+
+      final signedOut = container.read(deliveryTrackingControllerProvider);
+      expect(signedOut.status, DeliveryTrackingStatus.signedOut);
+      expect(signedOut.snapshot, isNull);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+      expect(scheduler.activeTaskCount, 0);
+
+      container.dispose();
+      cancelRelease.complete();
+      await _flush();
+
+      expect(repository.watchCancelCalls, 1);
+      expect(scheduler.activeTaskCount, 0);
+      await repository.stream.close();
+    },
+  );
+
+  test(
+    'cambio account con unsubscribe asincrono invalida stato e cache subito',
+    () async {
+      const nextOwner = '10000000-0000-4000-8000-000000044002';
+      final cancelStarted = Completer<void>();
+      final cancelRelease = Completer<void>();
+      final repository = FakeDeliveryTrackingRepository()
+        ..watchCancelStarted = cancelStarted
+        ..watchCancelRelease = cancelRelease;
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final identity = StateProvider<AuthenticatedCustomer?>((ref) {
+        return _customer(trackingTestOwner);
+      });
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        identityState: identity,
+      );
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+
+      container.read(identity.notifier).state = _customer(nextOwner);
+      await cancelStarted.future;
+      await _flush();
+
+      final switched = container.read(deliveryTrackingControllerProvider);
+      expect(switched.status, DeliveryTrackingStatus.idle);
+      expect(switched.snapshot, isNull);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+      expect(cache.snapshotsByOwner[nextOwner], isNull);
+
+      container.dispose();
+      cancelRelease.complete();
+      await _flush();
+      expect(repository.watchCancelCalls, 1);
+      await repository.stream.close();
+    },
+  );
+
+  test(
+    'dispose durante close con unsubscribe asincrono completa il purge owner',
+    () async {
+      final cancelStarted = Completer<void>();
+      final cancelRelease = Completer<void>();
+      final repository = FakeDeliveryTrackingRepository()
+        ..watchCancelStarted = cancelStarted
+        ..watchCancelRelease = cancelRelease;
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final container = _container(repository: repository, cache: cache);
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+
+      final close = container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .close(clearCache: true);
+      await cancelStarted.future;
+      await _flush();
+
+      final closed = container.read(deliveryTrackingControllerProvider);
+      expect(closed.status, DeliveryTrackingStatus.idle);
+      expect(closed.snapshot, isNull);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+
+      container.dispose();
+      cancelRelease.complete();
+      await close;
+
+      expect(repository.watchCancelCalls, 1);
+      await repository.stream.close();
+    },
+  );
+
+  test(
+    'dispose durante unauthorized asincrono completa il purge owner',
+    () async {
+      final cancelStarted = Completer<void>();
+      final cancelRelease = Completer<void>();
+      final repository = FakeDeliveryTrackingRepository()
+        ..watchCancelStarted = cancelStarted
+        ..watchCancelRelease = cancelRelease;
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final container = _container(repository: repository, cache: cache);
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      repository.loadError = const DeliveryTrackingRepositoryException(
+        DeliveryTrackingFailureKind.unauthorized,
+      );
+
+      final refresh = container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .refresh();
+      await cancelStarted.future;
+      await _flush();
+
+      final unauthorized = container.read(deliveryTrackingControllerProvider);
+      expect(unauthorized.status, DeliveryTrackingStatus.failure);
+      expect(unauthorized.failure, DeliveryTrackingFailureKind.unauthorized);
+      expect(unauthorized.snapshot, isNull);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+
+      container.dispose();
+      cancelRelease.complete();
+      await refresh;
+
+      expect(repository.watchCancelCalls, 1);
+      await repository.stream.close();
     },
   );
 }
@@ -604,6 +931,47 @@ final class _BlockingDeliveryTrackingCache extends MemoryDeliveryTrackingCache {
   }
 }
 
+final class _OwnerAwareDeliveryTrackingCache
+    extends MemoryDeliveryTrackingCache {
+  final Map<String, DeliveryTrackingSnapshot> snapshotsByOwner = {};
+  final List<String> saveOwners = [];
+  final List<String> clearOwners = [];
+
+  @override
+  Future<void> clear({required String ownerSubjectId}) async {
+    clearOwners.add(ownerSubjectId);
+    snapshotsByOwner.remove(ownerSubjectId);
+  }
+
+  @override
+  Future<DeliveryTrackingSnapshot?> read({
+    required String ownerSubjectId,
+    required String shopSlug,
+    required String orderId,
+  }) async {
+    final snapshot = snapshotsByOwner[ownerSubjectId];
+    return snapshot?.orderId == orderId ? snapshot : null;
+  }
+
+  @override
+  Future<void> save({
+    required String ownerSubjectId,
+    required String shopSlug,
+    required DeliveryTrackingSnapshot snapshot,
+  }) async {
+    saveOwners.add(ownerSubjectId);
+    snapshotsByOwner[ownerSubjectId] = snapshot;
+  }
+}
+
+AuthenticatedCustomer _customer(String subjectId) {
+  return AuthenticatedCustomer.fromUntrustedIdentity(
+    subjectId: subjectId,
+    email: 'customer@example.invalid',
+    metadata: const {'name': 'Customer Test'},
+  );
+}
+
 ProviderContainer _container({
   required FakeDeliveryTrackingRepository repository,
   required MemoryDeliveryTrackingCache cache,
@@ -611,15 +979,18 @@ ProviderContainer _container({
   Duration reconnectBase = const Duration(seconds: 1),
   Duration freshnessThreshold = const Duration(seconds: 120),
   DateTime Function()? clock,
+  AppScheduler? scheduler,
+  StateProvider<AuthenticatedCustomer?>? identityState,
 }) {
-  final customer = AuthenticatedCustomer.fromUntrustedIdentity(
-    subjectId: trackingTestOwner,
-    email: 'customer@example.invalid',
-    metadata: const {'name': 'Customer Test'},
-  );
+  final customer = _customer(trackingTestOwner);
   return ProviderContainer(
     overrides: [
-      deliveryTrackingIdentityProvider.overrideWithValue(customer),
+      if (identityState == null)
+        deliveryTrackingIdentityProvider.overrideWithValue(customer)
+      else
+        deliveryTrackingIdentityProvider.overrideWith(
+          (ref) => ref.watch(identityState),
+        ),
       deliveryTrackingShopSlugProvider.overrideWithValue(trackingTestShop),
       deliveryTrackingRepositoryProvider.overrideWithValue(repository),
       deliveryTrackingCacheProvider.overrideWithValue(cache),
@@ -631,6 +1002,7 @@ ProviderContainer _container({
       deliveryTrackingClockProvider.overrideWithValue(
         clock ?? (() => trackingTestNow),
       ),
+      if (scheduler != null) appSchedulerProvider.overrideWithValue(scheduler),
     ],
   );
 }
@@ -642,7 +1014,13 @@ Future<DeliveryTrackingViewState> _waitFor(
   for (var attempt = 0; attempt < 200; attempt++) {
     final state = container.read(deliveryTrackingControllerProvider);
     if (predicate(state)) return state;
-    await Future<void>.delayed(const Duration(milliseconds: 5));
+    await Future<void>.delayed(Duration.zero);
   }
   throw StateError('delivery tracking state timeout');
+}
+
+Future<void> _flush() async {
+  for (var iteration = 0; iteration < 12; iteration++) {
+    await Future<void>.delayed(Duration.zero);
+  }
 }

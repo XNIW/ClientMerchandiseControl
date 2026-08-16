@@ -2421,3 +2421,108 @@
   senza assumere lo scheduling del runner.
 - **Stato**: il run fallito resta evidence storica; il merge richiede un nuovo run CI
   interamente verde sul nuovo SHA.
+
+## 2026-08-16 — Baseline e attivazione TASK-034
+
+- **Baseline remota**: Client `e5a1384e7526e288f7657c32bff42f1ab957633e`,
+  Admin `2e8ec07e1609b7bfa7b1a5210f232fc60bbf5412`; zero PR aperte nei sei repository
+  auditati e CI `main` Client/Admin verdi sugli SHA iniziali.
+- **Worktree**: writer linked e puliti da `origin/main`; checkout primari preservati,
+  inclusi i dirty state preesistenti SplitView e Win7POS.
+- **Ambiente**: Supabase staging healthy ma privo della migration delivery tracking
+  `20260816072836`; produzione non identificata e non modificata. Simulatori/emulatori
+  disponibili; device fisici assenti/offline.
+- **Decisione**: ADR-015 registra il train `CLIENT_FINAL_PRODUCT_COMPLETION` e il
+  lifecycle per-task autorizzato dal `USER_APPROVER` per TASK-034–TASK-042.
+- **Transizione**: TASK-034 è l'unico task `ACTIVE / EXECUTION`, handoff
+  `CODEX_PLANNING_APPROVED_TO_EXECUTION`; matrice iniziale creata senza inferire `PASS`.
+
+## 2026-08-16 — TASK-034 Execution completa verso Review
+
+- **Client**: scheduler/clock iniettati su OAuth, debounce catalogo e tracking;
+  corretti expiry OAuth senza callback e freshness esatta `>=`; aggiunte regressioni
+  Auth/Cart/Catalogo/tracking e repeat runner.
+- **Gate Client**: suite mirata 314/314, suite canonica 627/627, repeat 60/60 e `scripts/check.sh` completi
+  `PASS`; benchmark cache 25k, APK debug e iOS Simulator debug inclusi.
+- **Database locale**: reset `PASS`, dieci pgTAP 483/483 e undici harness di
+  concorrenza commerce/Admin/POS tutti `PASS`.
+- **Staging**: migration delivery tracking applicata con dry-run/apply
+  `31967227338`/`31967270575`; smoke finale `31969351269` sullo SHA Admin
+  `6fea61bb` è `PASS` con pgTAP 60/60, sanitizer, ledger e cleanup verdi.
+- **Fix workflow reali**: i run falliti `31966422454` e `31968559199` hanno
+  intercettato rispettivamente il default predecessor obsoleto e i difetti
+  summary/stdin cleanup; fix reviewati e merged via Admin PR #90/#91/#92.
+- **Sicurezza**: production intatta, dati solo sintetici, zero advisor `ERROR`;
+  warning/info schema-wide non convertiti in PASS né trattati come nuove regressioni.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review
+  Client indipendente e CI/merge exact-SHA restano obbligatori.
+
+## 2026-08-16 — TASK-034 Review `CHANGES_REQUIRED` e Fix
+
+- **Review indipendente**: revision set `e5a1384..d59883f`; 79 test mirati, repeat
+  `10 x 6`, analyze, governance, architecture e diff verdi; staging run
+  `31969351269` verificato sullo SHA Admin `6fea61bb`.
+- **Finding**: `TASK034-R-001` P2, nessuna prova diretta di A→logout/A→B e dispose
+  mentre fallback tracking e timer erano attivi; la cella critical risultava quindi
+  attestata oltre l'evidence. Esito 0 P0/P1, 1 P2, 0 P3 e handoff a Fix.
+- **Fix**: lifecycle identity gestito senza ricostruire il notifier; stop runtime,
+  generation e purge owner-scoped sono serializzati. Il cache store viene catturato
+  prima delle attese async, evitando accessi al container dopo dispose.
+- **Regressioni**: tracking `19/19` e repeat `10 x 9 = 90` `PASS`; i test avanzano lo
+  scheduler e il vecchio stream e verificano zero nuovi load/save, nessuno stato o
+  cache cross-account, subscription cancellata e `activeTaskCount == 0`.
+- **Gate canonico Fix**: `scripts/check.sh` sul commit `0dccca8` `PASS`; scan e
+  governance verdi, 630 test non-performance con coverage, repeat `45/45`, benchmark
+  cache 25k, APK debug e iOS Simulator debug.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
+  indipendente obbligatoria, nessuna auto-approvazione del Fix.
+
+## 2026-08-16 — TASK-034 Re-review 1 `CHANGES_REQUIRED` e Fix 2
+
+- **Re-review**: Fix `0dccca8`, evidence `68f1f6a`; tracking 19/19, repeat 90/90,
+  analyze, governance e architecture verdi. Esito 0 P0/P1, 1 P2, 0 P3.
+- **Finding residuo**: identity, close con purge e unauthorized attendevano
+  l'unsubscribe prima di leggere il cache provider; un dispose durante il
+  `removeChannel()` asincrono poteva produrre `StateError` e saltare il purge.
+- **Fix 2**: cache store catturato prima di qualsiasi `await` e passato al cleanup;
+  fake unsubscribe controllato da `Completer` e tre regressioni sui call site.
+- **Gate mirati**: analyze, tracking `22/22` e repeat `10 x 12 = 120` `PASS`.
+- **Gate canonico Fix 2**: `scripts/check.sh` sullo SHA `c514f38` `PASS`; scan,
+  governance e architecture verdi, 633 test non-performance con coverage, repeat
+  `60/60`, benchmark cache 25k, APK debug e iOS Simulator debug.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; nuova
+  re-review distinta obbligatoria.
+
+## 2026-08-16 — TASK-034 Re-review 2 `CHANGES_REQUIRED` e Fix 3
+
+- **Re-review**: Fix 2 `c514f38`, evidence `8c8ccb9`; gate autonomi verdi, ma 1 P2
+  e 1 P3 residui.
+- **Finding**: con unsubscribe bloccato, stato e coordinate A restavano pubblici e il
+  purge attendeva; la matrice T-02–T-07 riportava ancora il conteggio Fix precedente.
+- **Fix 3**: identity, close e unauthorized azzerano subito lo snapshot; stop runtime
+  e purge owner-scoped partono in parallelo. Le regressioni asseriscono stato/cache
+  prima dello sblocco e includono A→B asincrono.
+- **Gate Fix 3, primo tentativo**: 633 test eseguiti, un failure router ha riprodotto
+  la mutazione provider sincrona da `OrderDetailScreen.dispose`; `close` è stato
+  differito a microtask, senza timer pendenti e senza invertire stato/stop/purge.
+- **Gate mirati**: analyze, tracking `23/23`, router regression e repeat
+  `10 x 14 = 140` `PASS`; matrice corretta.
+- **Gate canonico Fix 3**: `scripts/check.sh` sullo SHA `042d8d8` `PASS`; scan,
+  governance e architecture verdi, 634 test non-performance con coverage, repeat
+  `70/70`, benchmark cache 25k, APK debug e iOS Simulator debug.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; ulteriore
+  re-review indipendente obbligatoria.
+
+## 2026-08-16 — TASK-034 Re-review 3 `APPROVED`
+
+- **Revision set**: Fix 3 `48a1ba0`, correzione widget-dispose `042d8d8` ed evidence
+  `f9ffec4`; reviewer read-only distinto dal writer.
+- **Finding**: `TASK034-R-001`, il P2 stato/purge subordinati all'unsubscribe, il P3
+  conteggi e la regressione widget-dispose sono tutti `CLOSED`; zero nuovi finding
+  P0/P1/P2/P3.
+- **Gate autonomi**: tracking e router `25/25`, repeat `10 x 14 = 140/140`, analyze,
+  governance `9/9`, architecture negative `7/7` e diff check tutti `PASS`, exit `0`.
+- **Verifica statica**: stato pubblico fail-closed prima del teardown, stop/purge
+  paralleli, save/purge serializzati e nessun `ref.read` post-dispose.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  l'autorizzazione persistente del train consente PR, CI exact-SHA e merge normale.

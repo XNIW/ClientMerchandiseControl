@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/backend/backend_readiness_controller.dart';
 import '../../../core/backend/backend_readiness_state.dart';
 import '../../../core/config/app_config.dart';
+import '../../../core/time/app_scheduler.dart';
 import '../../storefront/application/storefront_providers.dart';
 import '../../storefront/cache/storefront_cache_repository.dart';
 import '../../storefront/domain/storefront_failure.dart';
@@ -76,7 +77,7 @@ class CatalogController extends Notifier<CatalogState> {
   static const searchDebounce = Duration(milliseconds: 300);
 
   StorefrontRequestCancellation? _cancellation;
-  Timer? _searchTimer;
+  AppScheduledTask? _searchTimer;
   var _generation = 0;
   var _disposed = false;
 
@@ -166,7 +167,7 @@ class CatalogController extends Notifier<CatalogState> {
       categories: state.categories,
       catalogVersion: state.catalogVersion,
     );
-    _searchTimer = Timer(searchDebounce, () {
+    _searchTimer = ref.read(appSchedulerProvider).schedule(searchDebounce, () {
       if (!_disposed) {
         unawaited(_loadFirstPage(criteria: criteria, reloadCategories: false));
       }

@@ -267,6 +267,45 @@ void main() {
     },
   );
 
+  test('doppio tap account produce una sola mutation autorevole', () async {
+    final barrier = Completer<CartRemoteResponse>();
+    final remote = _FakeRemoteRepository(
+      readResponse: CartRemoteResponse(
+        status: CartRemoteStatus.ok,
+        snapshot: _snapshot(source: CartSource.account, version: 4),
+      ),
+      mutationOutcomes: [barrier.future],
+    );
+    final container = _container(
+      guest: _FakeGuestStore(),
+      remote: remote,
+      identity: _identity(),
+    );
+    addTearDown(container.dispose);
+    await _waitFor(container, (state) => state.status == CartViewStatus.ready);
+    final controller = container.read(cartControllerProvider.notifier);
+
+    final first = controller.addProduct(_product());
+    final duplicate = controller.addProduct(_product());
+    await _flushUntil(() => remote.mutationRequests.isNotEmpty);
+
+    expect(remote.mutationRequests, hasLength(1));
+    barrier.complete(
+      CartRemoteResponse(
+        status: CartRemoteStatus.ok,
+        snapshot: _snapshot(
+          source: CartSource.account,
+          version: 5,
+          items: [_line(_publicationId)],
+        ),
+      ),
+    );
+    await Future.wait([first, duplicate]);
+
+    expect(remote.mutationRequests, hasLength(1));
+    expect(container.read(cartControllerProvider).snapshot?.version, 5);
+  });
+
   test(
     'account switch ricostruisce lo stato senza copiare account in guest',
     () async {
@@ -486,6 +525,14 @@ Future<CartState> _waitFor(
   throw TestFailure(
     'Cart state non raggiunto: ${container.read(cartControllerProvider).status}',
   );
+}
+
+Future<void> _flushUntil(bool Function() predicate) async {
+  for (var attempt = 0; attempt < 200; attempt++) {
+    if (predicate()) return;
+    await Future<void>.delayed(Duration.zero);
+  }
+  throw TestFailure('Condizione async non raggiunta');
 }
 
 AppConfig _config() => AppConfig.fromValues(

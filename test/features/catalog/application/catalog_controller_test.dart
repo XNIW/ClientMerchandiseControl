@@ -5,6 +5,7 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_contro
 import 'package:client_merchandise_control/core/backend/backend_readiness_repository.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/core/time/app_scheduler.dart';
 import 'package:client_merchandise_control/features/catalog/application/catalog_controller.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
 import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
@@ -13,6 +14,8 @@ import 'package:client_merchandise_control/features/storefront/domain/storefront
 import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../../support/manual_app_scheduler.dart';
 
 void main() {
   test('carica prima pagina e concatena una sola pagina keyset', () async {
@@ -129,7 +132,8 @@ void main() {
           () async => _catalogPage([_product('2', 'Té')]),
         ],
       );
-      final container = _container(repository);
+      final scheduler = ManualAppScheduler();
+      final container = _container(repository, scheduler: scheduler);
       addTearDown(container.dispose);
       container.read(catalogControllerProvider);
       await _flush();
@@ -188,6 +192,7 @@ void main() {
   test(
     'ricerca applica debounce, normalizza e pagina sul cursor search',
     () async {
+      final scheduler = ManualAppScheduler();
       final repository = _CatalogRepository(
         categoryResponses: [() async => _categoriesPage()],
         catalogResponses: [
@@ -203,7 +208,7 @@ void main() {
               _searchPage([_product('3', 'Café molido')], query: 'cafe'),
         ],
       );
-      final container = _container(repository);
+      final container = _container(repository, scheduler: scheduler);
       addTearDown(container.dispose);
       container.read(catalogControllerProvider);
       await _flush();
@@ -211,9 +216,10 @@ void main() {
       container
           .read(catalogControllerProvider.notifier)
           .updateSearchQuery('  cafe  ');
-      await Future<void>.delayed(const Duration(milliseconds: 299));
+      scheduler.advance(const Duration(milliseconds: 299));
+      await _flush();
       expect(repository.searchCalls, isEmpty);
-      await Future<void>.delayed(const Duration(milliseconds: 2));
+      scheduler.advance(const Duration(milliseconds: 1));
       await _flush();
 
       var state = container.read(catalogControllerProvider);
@@ -373,28 +379,31 @@ void main() {
   });
 }
 
-ProviderContainer _container(StorefrontRepository repository) =>
-    ProviderContainer(
-      overrides: [
-        appConfigProvider.overrideWithValue(
-          AppConfig.fromValues(
-            appEnvironment: 'staging',
-            supabaseUrl: 'https://staging.example.invalid',
-            supabasePublishableKey: 'sb_publishable_staging',
-            authRedirectUri: AppConfig.allowedAuthRedirectUri,
-            googleAuthEnabled: 'false',
-            storefrontShopSlug: 'storefront-test',
-          ),
-        ),
-        backendReadinessRepositoryProvider.overrideWithValue(
-          const _ReadyRepository(),
-        ),
-        storefrontRepositoryProvider.overrideWithValue(repository),
-        storefrontCacheRepositoryProvider.overrideWithValue(
-          const DisabledStorefrontCacheRepository(),
-        ),
-      ],
-    );
+ProviderContainer _container(
+  StorefrontRepository repository, {
+  AppScheduler? scheduler,
+}) => ProviderContainer(
+  overrides: [
+    appConfigProvider.overrideWithValue(
+      AppConfig.fromValues(
+        appEnvironment: 'staging',
+        supabaseUrl: 'https://staging.example.invalid',
+        supabasePublishableKey: 'sb_publishable_staging',
+        authRedirectUri: AppConfig.allowedAuthRedirectUri,
+        googleAuthEnabled: 'false',
+        storefrontShopSlug: 'storefront-test',
+      ),
+    ),
+    backendReadinessRepositoryProvider.overrideWithValue(
+      const _ReadyRepository(),
+    ),
+    storefrontRepositoryProvider.overrideWithValue(repository),
+    if (scheduler != null) appSchedulerProvider.overrideWithValue(scheduler),
+    storefrontCacheRepositoryProvider.overrideWithValue(
+      const DisabledStorefrontCacheRepository(),
+    ),
+  ],
+);
 
 Future<void> _flush() async {
   for (var index = 0; index < 5; index += 1) {

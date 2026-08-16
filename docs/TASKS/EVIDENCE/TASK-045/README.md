@@ -1,7 +1,7 @@
 # Evidence TASK-045
 
 Snapshot di handoff:
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -20,4 +20,49 @@ Snapshot di handoff:
 
 ## Execution
 
-Da aggiornare con CA/T-NN, comandi, exit code e artifact sanitizzati.
+### Revisioni
+
+- implementazione: `9d8d0ebc86c03f194276ed5c3d26214a4e7df7bb`;
+- review iniziale: `CHANGES_REQUIRED`, tre finding P2 distinti;
+- fix candidato: `f188a3230e4608a27c031d4b2e58e690a53eb8c6`;
+- re-review: in corso sul delta esatto `9d8d0eb..f188a32`.
+
+### Matrice CA
+
+| CA | Evidence corrente | Esito |
+|---|---|---|
+| CA-01/02/03 | eligibility pura, widget detail, stale e terminal redaction | PASS |
+| CA-04/05/06 | tre marker, fallback testuale, cache/stale, mode non-live | PASS |
+| CA-07 | CTA Home/Orders senza coordinate, semantics aggregate | PASS |
+| CA-08/09 | handshake nativo, sentinel, runtime failure/timeout, scan no key raw | PASS |
+| CA-10 | 48 dp, screen-reader labels, reduced motion, matrix viewport/theme/scale | PASS |
+| CA-11 | marker subtree, commit monotono, route/account dispose, polling fallback | PASS |
+| CA-12 | es-CL/it/en/zh-Hans via gen_l10n e formati esistenti | PASS |
+| CA-13 | integration Android contract → live → stale → terminal redaction | PASS |
+| CA-14 | re-review, gate canonici finali, CI PR/main e merge | NOT_RUN |
+
+### Comandi già eseguiti sul fix
+
+| Comando | Risultato |
+|---|---|
+| `flutter analyze` mirato ai file tracking/Home/Orders e test | PASS, exit 0 |
+| test adapter/native/live/controller/Orders/Home | PASS, 47 test, exit 0 |
+| test Home data + Orders | PASS, 19 test, exit 0 |
+| `flutter test integration_test/customer_delivery_tracking_flow_test.dart` | PASS Android, 1/1, exit 0 |
+| `flutter build apk --debug` | PASS, exit 0 |
+| `flutter build ios --simulator --debug` | PASS, exit 0; warning SPM plugin noto |
+| `git diff --check` | PASS, exit 0 |
+
+Due invocazioni di test ad hoc sono fallite prima di eseguire prodotto: la prima
+mescolava unit e integration test nello stesso comando; la seconda indicava un path
+Home inesistente. Entrambe sono state corrette con invocazioni separate/canoniche e
+non vengono riclassificate come PASS.
+
+### Privacy/security
+
+- nessuna chiave, service role, UUID operativo o dato production è stato aggiunto;
+- il method channel restituisce soltanto un booleano di readiness;
+- coordinate presenti esclusivamente in fixture sintetiche e nel subtree runtime;
+- nessuna posizione in log, analytics, push o card Home/Orders;
+- scan security completo su `fd044d4..9d8d0eb`: zero finding reportable; il delta fix
+  resta soggetto a re-review mirata prima dell'approvazione.

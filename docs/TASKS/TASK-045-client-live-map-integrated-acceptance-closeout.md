@@ -5,12 +5,12 @@
 - **Task ID**: TASK-045
 - **Titolo**: Client live map, integrated acceptance and closeout
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-045/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -117,15 +117,54 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-Da compilare con implementazione ed evidence reali.
+- **Revision set**: `fd044d4b9b7a7bd4c4d3ccf71b977a01bc39563f` →
+  `9d8d0ebc86c03f194276ed5c3d26214a4e7df7bb`.
+- Aggiunti adapter Google Maps e fake, eligibility owner/live/fresh, tre marker bounded,
+  recenter accessibile e subtree isolato; nessuna route o ETA calcolata nel Client.
+- Integrati dettaglio ordine, fallback testuale, CTA Home/Orders, localizzazioni,
+  configurazioni native fail-closed e golden deterministico 390×844 es-CL.
+- La suite completa iniziale ha superato 611 test con coverage; `flutter analyze`, APK
+  debug e iOS Simulator debug erano verdi. L'acceptance fake ha provato owner, live,
+  stale e redazione terminale senza rete provider.
+- **Handoff Execution**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
-Da compilare da reviewer read-only sul revision set candidato.
+### Review iniziale
+
+- **Esito**: `CHANGES_REQUIRED` sullo SHA `9d8d0eb`.
+- **T045-REV-RT-001 / P2**: polling RPC permanente anche con Realtime sano.
+- **T045-REV-NATIVE-002 / P2**: il flag Dart poteva attestare una chiave mentre il
+  bundle nativo conteneva ancora `NOT_CONFIGURED`.
+- **T045-REV-PROVIDER-003 / P2**: errori asincroni di controller/initial camera fit
+  restavano fuori dal boundary fail-closed.
+- La security diff review sul range completo non ha rilevato finding reportable;
+  owner/auth/cache/terminal redaction e assenza di coordinate in Home/Orders sono
+  risultate integre. Evidence governance incompleta è stata rilevata e viene colmata
+  da questo handoff.
+- **Handoff Review**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Re-review
+
+In corso in sola lettura sul delta esatto `9d8d0eb..f188a32`; l'esito non è inferito
+dai test del fixer.
 
 ## Fix — `CODEX_FIXER`
 
-Da compilare soltanto in presenza di finding approvati.
+- **SHA fix**: `f188a3230e4608a27c031d4b2e58e690a53eb8c6`.
+- `T045-REV-RT-001`: polling attivato soltanto su failure/chiusura Realtime e fermato
+  al primo evento valido; freshness separata in un timer locale senza RPC.
+- `T045-REV-NATIVE-002`: handshake Android/iOS verifica la chiave effettiva prima del
+  factory senza restituire segreti; missing channel/sentinel falliscono chiusi.
+- `T045-REV-PROVIDER-003`: runtime state `ready/failed`, camera port iniettabile,
+  initial fit catturato, timeout bounded, teardown idempotente e superficie coperta/non
+  interattiva fino al ready.
+- Hardening accessibilità nello stesso scope: le semantics aggregate di Home e Orders
+  annunciano esplicitamente indicatore e CTA della consegna.
+- Gate fix eseguiti: analyze mirato `PASS`; 47 test runtime/UI `PASS`; 19 test
+  Home/Orders `PASS`; integration Android 1/1 `PASS`; APK debug e iOS Simulator debug
+  `PASS`. I gate canonici completi verranno registrati sul candidato di re-review.
+- **Handoff Fix**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

@@ -2289,3 +2289,36 @@
   production o promessa background; Courier Mode resta foreground.
 - **Autorizzazione**: USER_APPROVER già registrata; transizione immediata
   `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+## 2026-08-16 — TASK-045 Execution consegnata a Review
+
+- **Revision set**: `fd044d4..9d8d0eb`; Google Maps dietro adapter/fake, eligibility
+  live owner-scoped, tre marker, recenter, fallback testuale e CTA Home/Orders.
+- **Configurazione**: Android/iOS separati, sentinel e feature flag fail-closed;
+  production, billing e chiavi non attivati.
+- **Gate iniziali**: analyze, 611 test con coverage, APK debug, iOS Simulator debug e
+  acceptance sintetica Android verdi; golden 390×844 es-CL deterministico.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+
+## 2026-08-16 — TASK-045 Review `CHANGES_REQUIRED`
+
+- **Review indipendente**: shard read-only runtime e domain/provider sullo SHA
+  `9d8d0eb`; security diff completa senza finding reportable.
+- **Finding P2**: polling permanente con Realtime sano, attestazione chiave soltanto
+  Dart e failure asincrona del controller nativo fuori dal boundary fail-closed.
+- **Esito**: 0 P0, 0 P1, 3 P2 distinti; transizione
+  `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-045 Fix consegnato a re-review
+
+- **SHA**: `f188a3230e4608a27c031d4b2e58e690a53eb8c6`.
+- **Runtime**: polling soltanto come fallback, freshness timer locale e recovery su
+  evento Realtime valido.
+- **Map boundary**: handshake booleano nativo Android/iOS, runtime ready/failed,
+  timeout dieci secondi, errori initial fit catturati e dispose idempotente.
+- **Accessibilità**: semantics aggregate Home/Orders includono indicatore e CTA
+  consegna; fallback testuale resta sempre fuori dalla canvas.
+- **Gate fix**: analyze mirato, 47+19 test, integration Android 1/1 e build Android/iOS
+  `PASS`; due errori di invocazione harness sono registrati senza essere mascherati.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
+  exact-delta e gate canonici restano da concludere.

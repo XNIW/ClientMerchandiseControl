@@ -85,7 +85,11 @@ L'activation usa due canali nativi separati e non versionati:
 
 Il valore di default nativo è `NOT_CONFIGURED`. Anche con una chiave locale, Dart
 richiede entrambi `DELIVERY_MAPS_ENABLED=true` e
-`DELIVERY_MAPS_NATIVE_CONFIGURED=true`; altrimenti l'adapter non viene creato. Le
+`DELIVERY_MAPS_NATIVE_CONFIGURED=true`; altrimenti l'adapter non viene creato. Prima
+del factory, un method channel nativo verifica inoltre che il valore incorporato sia
+non vuoto e diverso dal sentinel, restituendo soltanto un booleano e mai la chiave.
+Una risposta assente/errata, un controller che fallisce o un provider che non diventa
+ready entro dieci secondi smonta la superficie e mantiene il fallback testuale. Le
 chiavi staging/production devono essere diverse, ristrette a package+firma Android o
 bundle iOS e al solo Maps SDK. Production rimane disattivata fino a una decisione di
 activation separata con billing, quote, restrizioni e prova device attestati.

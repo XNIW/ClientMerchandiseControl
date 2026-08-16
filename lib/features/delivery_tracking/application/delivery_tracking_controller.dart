@@ -100,43 +100,48 @@ final class DeliveryTrackingController
       _generation++;
       unawaited(_stopRuntime());
     });
-    final identity = ref.watch(deliveryTrackingIdentityProvider);
-    final shopSlug = ref.watch(deliveryTrackingShopSlugProvider);
-    if (identity == null || shopSlug == null) {
-      final previousSubject = _subjectId;
-      _subjectId = null;
-      _shopSlug = null;
-      _orderId = null;
-      final generation = ++_generation;
-      scheduleMicrotask(() async {
-        await _stopRuntime();
-        if (previousSubject != null) {
-          await _clearCacheAfterSnapshots(previousSubject);
-        }
-        if (!_disposed && generation == _generation) {
-          state = const DeliveryTrackingViewState.signedOut();
-        }
-      });
-      return const DeliveryTrackingViewState.signedOut();
+    ref.listen(deliveryTrackingIdentityProvider, (_, identity) {
+      unawaited(
+        _transitionIdentity(
+          identity?.subjectId,
+          ref.read(deliveryTrackingShopSlugProvider),
+        ),
+      );
+    });
+    ref.listen(deliveryTrackingShopSlugProvider, (_, shopSlug) {
+      unawaited(
+        _transitionIdentity(
+          ref.read(deliveryTrackingIdentityProvider)?.subjectId,
+          shopSlug,
+        ),
+      );
+    });
+    final subjectId = ref.read(deliveryTrackingIdentityProvider)?.subjectId;
+    final shopSlug = ref.read(deliveryTrackingShopSlugProvider);
+    _subjectId = subjectId;
+    _shopSlug = subjectId == null ? null : shopSlug;
+    return subjectId == null || shopSlug == null
+        ? const DeliveryTrackingViewState.signedOut()
+        : const DeliveryTrackingViewState.idle();
+  }
+
+  Future<void> _transitionIdentity(String? subjectId, String? shopSlug) async {
+    if (_disposed) return;
+    final effectiveShopSlug = subjectId == null ? null : shopSlug;
+    if (_subjectId == subjectId && _shopSlug == effectiveShopSlug) return;
+    final previousSubject = _subjectId;
+    _subjectId = subjectId;
+    _shopSlug = effectiveShopSlug;
+    _orderId = null;
+    final generation = ++_generation;
+    await _stopRuntime();
+    if (previousSubject != null && previousSubject != subjectId) {
+      await _clearCacheAfterSnapshots(previousSubject);
     }
-    if (_subjectId != identity.subjectId || _shopSlug != shopSlug) {
-      final previousSubject = _subjectId;
-      _subjectId = identity.subjectId;
-      _shopSlug = shopSlug;
-      _orderId = null;
-      final generation = ++_generation;
-      scheduleMicrotask(() async {
-        await _stopRuntime();
-        if (previousSubject != null && previousSubject != identity.subjectId) {
-          await _clearCacheAfterSnapshots(previousSubject);
-        }
-        if (!_disposed && generation == _generation) {
-          state = const DeliveryTrackingViewState.idle();
-        }
-      });
-      return const DeliveryTrackingViewState.idle();
-    }
-    return stateOrNull ?? const DeliveryTrackingViewState.idle();
+    if (_disposed || generation != _generation) return;
+    state = subjectId == null || effectiveShopSlug == null
+        ? const DeliveryTrackingViewState.signedOut()
+        : const DeliveryTrackingViewState.idle();
   }
 
   Future<void> open(String orderId, {bool forceRefresh = false}) async {
@@ -443,14 +448,13 @@ final class DeliveryTrackingController
   }
 
   Future<void> _clearCacheAfterSnapshots(String subjectId) async {
+    final cache = ref.read(deliveryTrackingCacheProvider);
     final previous = _snapshotCommitTail;
     final turn = Completer<void>();
     _snapshotCommitTail = turn.future;
     await previous;
     try {
-      await ref
-          .read(deliveryTrackingCacheProvider)
-          .clear(ownerSubjectId: subjectId);
+      await cache.clear(ownerSubjectId: subjectId);
     } finally {
       turn.complete();
     }

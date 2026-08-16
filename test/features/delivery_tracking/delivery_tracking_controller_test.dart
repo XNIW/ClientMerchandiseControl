@@ -563,6 +563,148 @@ void main() {
       expect(repository.loadCalls, 1);
     },
   );
+
+  test(
+    'logout durante fallback cancella runtime e ignora eventi account precedente',
+    () async {
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final repository = FakeDeliveryTrackingRepository();
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final identity = StateProvider<AuthenticatedCustomer?>((ref) {
+        return _customer(trackingTestOwner);
+      });
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        pollInterval: const Duration(milliseconds: 15),
+        reconnectBase: const Duration(milliseconds: 5),
+        scheduler: scheduler,
+        identityState: identity,
+      );
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      repository.stream.addError(const DeliveryTrackingRealtimeException());
+      await _flush();
+      expect(scheduler.activeTaskCount, greaterThanOrEqualTo(2));
+
+      container.read(identity.notifier).state = null;
+      await _flush();
+      final callsAfterLogout = repository.loadCalls;
+      final savesAfterLogout = cache.saveOwners.length;
+
+      scheduler.advance(const Duration(minutes: 10));
+      repository.stream.add(trackingLiveSnapshot(version: 99));
+      await _flush();
+
+      final state = container.read(deliveryTrackingControllerProvider);
+      expect(state.status, DeliveryTrackingStatus.signedOut);
+      expect(state.snapshot, isNull);
+      expect(repository.watchCancelCalls, 1);
+      expect(repository.loadCalls, callsAfterLogout);
+      expect(cache.saveOwners.length, savesAfterLogout);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(scheduler.activeTaskCount, 0);
+    },
+  );
+
+  test(
+    'cambio account durante fallback non pubblica o conserva dati precedenti',
+    () async {
+      const nextOwner = '10000000-0000-4000-8000-000000044002';
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final repository = FakeDeliveryTrackingRepository();
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final identity = StateProvider<AuthenticatedCustomer?>((ref) {
+        return _customer(trackingTestOwner);
+      });
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        pollInterval: const Duration(milliseconds: 15),
+        reconnectBase: const Duration(milliseconds: 5),
+        scheduler: scheduler,
+        identityState: identity,
+      );
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      repository.stream.addError(const DeliveryTrackingRealtimeException());
+      await _flush();
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNotNull);
+      expect(scheduler.activeTaskCount, greaterThanOrEqualTo(2));
+
+      container.read(identity.notifier).state = _customer(nextOwner);
+      await _flush();
+      final callsAfterSwitch = repository.loadCalls;
+      final savesAfterSwitch = cache.saveOwners.length;
+
+      scheduler.advance(const Duration(minutes: 10));
+      repository.stream.add(trackingLiveSnapshot(version: 99));
+      await _flush();
+
+      final state = container.read(deliveryTrackingControllerProvider);
+      expect(state.status, DeliveryTrackingStatus.idle);
+      expect(state.snapshot, isNull);
+      expect(repository.watchCancelCalls, 1);
+      expect(repository.loadCalls, callsAfterSwitch);
+      expect(cache.saveOwners.length, savesAfterSwitch);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+      expect(cache.snapshotsByOwner[nextOwner], isNull);
+      expect(scheduler.activeTaskCount, 0);
+    },
+  );
+
+  test(
+    'dispose durante fallback cancella subscription e tutti i timer',
+    () async {
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final repository = FakeDeliveryTrackingRepository();
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        pollInterval: const Duration(milliseconds: 15),
+        reconnectBase: const Duration(milliseconds: 5),
+        scheduler: scheduler,
+      );
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      repository.stream.addError(const DeliveryTrackingRealtimeException());
+      await _flush();
+      expect(scheduler.activeTaskCount, greaterThanOrEqualTo(2));
+
+      container.dispose();
+      await _flush();
+      final callsAfterDispose = repository.loadCalls;
+      final savesAfterDispose = cache.saveOwners.length;
+      scheduler.advance(const Duration(minutes: 10));
+      repository.stream.add(trackingLiveSnapshot(version: 99));
+      await _flush();
+
+      expect(repository.watchCancelCalls, 1);
+      expect(repository.loadCalls, callsAfterDispose);
+      expect(cache.saveOwners.length, savesAfterDispose);
+      expect(scheduler.activeTaskCount, 0);
+      await repository.stream.close();
+    },
+  );
 }
 
 DeliveryTrackingSnapshot _terminalSnapshot({required int version}) {
@@ -618,6 +760,47 @@ final class _BlockingDeliveryTrackingCache extends MemoryDeliveryTrackingCache {
   }
 }
 
+final class _OwnerAwareDeliveryTrackingCache
+    extends MemoryDeliveryTrackingCache {
+  final Map<String, DeliveryTrackingSnapshot> snapshotsByOwner = {};
+  final List<String> saveOwners = [];
+  final List<String> clearOwners = [];
+
+  @override
+  Future<void> clear({required String ownerSubjectId}) async {
+    clearOwners.add(ownerSubjectId);
+    snapshotsByOwner.remove(ownerSubjectId);
+  }
+
+  @override
+  Future<DeliveryTrackingSnapshot?> read({
+    required String ownerSubjectId,
+    required String shopSlug,
+    required String orderId,
+  }) async {
+    final snapshot = snapshotsByOwner[ownerSubjectId];
+    return snapshot?.orderId == orderId ? snapshot : null;
+  }
+
+  @override
+  Future<void> save({
+    required String ownerSubjectId,
+    required String shopSlug,
+    required DeliveryTrackingSnapshot snapshot,
+  }) async {
+    saveOwners.add(ownerSubjectId);
+    snapshotsByOwner[ownerSubjectId] = snapshot;
+  }
+}
+
+AuthenticatedCustomer _customer(String subjectId) {
+  return AuthenticatedCustomer.fromUntrustedIdentity(
+    subjectId: subjectId,
+    email: 'customer@example.invalid',
+    metadata: const {'name': 'Customer Test'},
+  );
+}
+
 ProviderContainer _container({
   required FakeDeliveryTrackingRepository repository,
   required MemoryDeliveryTrackingCache cache,
@@ -626,15 +809,17 @@ ProviderContainer _container({
   Duration freshnessThreshold = const Duration(seconds: 120),
   DateTime Function()? clock,
   AppScheduler? scheduler,
+  StateProvider<AuthenticatedCustomer?>? identityState,
 }) {
-  final customer = AuthenticatedCustomer.fromUntrustedIdentity(
-    subjectId: trackingTestOwner,
-    email: 'customer@example.invalid',
-    metadata: const {'name': 'Customer Test'},
-  );
+  final customer = _customer(trackingTestOwner);
   return ProviderContainer(
     overrides: [
-      deliveryTrackingIdentityProvider.overrideWithValue(customer),
+      if (identityState == null)
+        deliveryTrackingIdentityProvider.overrideWithValue(customer)
+      else
+        deliveryTrackingIdentityProvider.overrideWith(
+          (ref) => ref.watch(identityState),
+        ),
       deliveryTrackingShopSlugProvider.overrideWithValue(trackingTestShop),
       deliveryTrackingRepositoryProvider.overrideWithValue(repository),
       deliveryTrackingCacheProvider.overrideWithValue(cache),

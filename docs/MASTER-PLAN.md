@@ -9,13 +9,13 @@
 - **File task**: docs/TASKS/TASK-034-resilience-concurrency-idempotency.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: eseguire review indipendente TASK-034, eventuale
-  Fix/re-review, CI exact-SHA, merge normale e verifica `main`; poi attivare TASK-035
+- **Prossima azione autorizzata**: eseguire re-review indipendente TASK-034, CI
+  exact-SHA, merge normale e verifica `main`; poi attivare TASK-035
   secondo ADR-015
 
 ## Repository coinvolti

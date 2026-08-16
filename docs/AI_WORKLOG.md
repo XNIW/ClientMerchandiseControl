@@ -2456,3 +2456,20 @@
   warning/info schema-wide non convertiti in PASS né trattati come nuove regressioni.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review
   Client indipendente e CI/merge exact-SHA restano obbligatori.
+
+## 2026-08-16 — TASK-034 Review `CHANGES_REQUIRED` e Fix
+
+- **Review indipendente**: revision set `e5a1384..d59883f`; 79 test mirati, repeat
+  `10 x 6`, analyze, governance, architecture e diff verdi; staging run
+  `31969351269` verificato sullo SHA Admin `6fea61bb`.
+- **Finding**: `TASK034-R-001` P2, nessuna prova diretta di A→logout/A→B e dispose
+  mentre fallback tracking e timer erano attivi; la cella critical risultava quindi
+  attestata oltre l'evidence. Esito 0 P0/P1, 1 P2, 0 P3 e handoff a Fix.
+- **Fix**: lifecycle identity gestito senza ricostruire il notifier; stop runtime,
+  generation e purge owner-scoped sono serializzati. Il cache store viene catturato
+  prima delle attese async, evitando accessi al container dopo dispose.
+- **Regressioni**: tracking `19/19` e repeat `10 x 9 = 90` `PASS`; i test avanzano lo
+  scheduler e il vecchio stream e verificano zero nuovi load/save, nessuno stato o
+  cache cross-account, subscription cancellata e `activeTaskCount == 0`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
+  indipendente obbligatoria, nessuna auto-approvazione del Fix.

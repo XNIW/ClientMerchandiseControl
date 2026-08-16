@@ -1,7 +1,7 @@
 # Evidence TASK-034
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance iniziale
 
@@ -76,7 +76,15 @@ reconciliation e un comando realmente eseguito.
   piano pgTAP; dopo il primo run reale sono stati corretti summary parser e stdin
   Docker del cleanup. Ogni fix ha regressione e re-review distinta.
 
-## Review, CI e merge
+## Review iniziale e Fix Client
 
-Review Client indipendente e CI/merge Client: `NOT_RUN`, prossima fase. Le review
-Admin dei fix staging sono concluse con `APPROVED` e zero P0/P1/P2/P3 residui.
+- review indipendente su `d59883f`: `CHANGES_REQUIRED`, 0 P0/P1, 1 P2, 0 P3;
+- `TASK034-R-001`: mancava una regressione diretta del cambio identità/logout con
+  fallback tracking attivo e del teardown completo di timer/subscription;
+- il Fix mantiene il notifier durante le transizioni di identity, serializza stop e
+  purge owner-scoped, cattura il cache store prima di attese async e impedisce letture
+  del provider dopo dispose;
+- regressioni Fix: tracking `19/19 PASS`; repeat `10 x 9 = 90 PASS`, con A→null,
+  A→B e dispose dopo Realtime failure, vecchio stream avanzato e scheduler a zero;
+- re-review Client indipendente e CI/merge Client: `NOT_RUN`, prossima fase. Le review
+  Admin dei fix staging sono concluse con `APPROVED` e zero P0/P1/P2/P3 residui.

@@ -192,7 +192,7 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **File task**: docs/TASKS/TASK-034-resilience-concurrency-idempotency.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN

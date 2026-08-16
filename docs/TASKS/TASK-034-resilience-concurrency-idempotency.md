@@ -7,12 +7,12 @@
 - **File task**: `docs/TASKS/TASK-034-resilience-concurrency-idempotency.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-034/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -171,7 +171,7 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 
 - `flutter analyze`: `PASS`, exit `0`;
 - suite mirata Client: `314/314 PASS`, exit `0`;
-- repeat critiche: `10 x 6 = 60 PASS`, exit `0`;
+- repeat critiche Execution: `10 x 6 = 60 PASS`, exit `0`;
 - `bash scripts/check.sh`: `PASS`, inclusi security/config scan, governance, format,
   analyze, suite completa `627/627` con coverage, repeat, benchmark 25k, APK debug e iOS
   Simulator debug;
@@ -190,9 +190,9 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 | CA | Evidence | Esito |
 |---|---|---|
 | CA-01 | `docs/quality/TASK-034-RESILIENCE-MATRIX.md` | PASS |
-| CA-02–CA-07 | `CLIENT-314`, `REPEAT-60`, regressioni scheduler | PASS |
+| CA-02–CA-07 | `CLIENT-314`, regressioni scheduler; Fix tracking `19/19`, `REPEAT-90` | PASS |
 | CA-04–CA-08 | `DB-483`, `DB-RACE-11` | PASS |
-| CA-09 | scheduler manuale + repeat `10 x 6` | PASS |
+| CA-09 | scheduler manuale + repeat Fix `10 x 9` | PASS |
 | CA-10 | gate completi, Admin PR #90/#91/#92, staging run `31969351269` | PASS |
 
 ### Matrice T-NN -> risultato
@@ -200,7 +200,7 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 | Test | Risultato |
 |---|---|
 | T-01 | PASS — tutte le celle classificate, nessun critical `UNTESTED` |
-| T-02–T-07 | PASS — suite Client 314 e repeat 60 |
+| T-02–T-07 | PASS — suite Client 314; Fix tracking 19 e repeat 90 |
 | T-08 | PASS — DB 483 e 11 harness concorrenti |
 | T-09 | PASS — nessuna nuova race usa sleep/wall-clock |
 | T-10 | PASS — gate locali, staging guarded e cleanup reali; CI Client resta alla fase Review/PR |
@@ -223,11 +223,33 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
-Non ancora eseguita.
+### Review iniziale indipendente
+
+- **Revision set**: `e5a1384e7526e288f7657c32bff42f1ab957633e..d59883f460632e42aca9eee1ea1714708344b599`;
+- **Esito**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 1 P2, 0 P3;
+- **Finding `TASK034-R-001` (P2)**: la cella critical tracking logout/account
+  switch/lifecycle era attestata senza cambiare realmente identità mentre
+  polling/reconnect/freshness erano attivi e senza asserire il teardown dei task dello
+  scheduler;
+- **Verifiche reviewer**: 79 test mirati, repeat `10 x 6 = 60`, analyze, governance,
+  architecture e diff check `PASS`; staging run `31969351269` verificato sullo SHA
+  Admin esatto `6fea61bb`;
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 
-Non ancora necessario.
+- sostituita la dipendenza ricostruttiva dall'identità con listener lifecycle espliciti:
+  A→logout e A→B ora incrementano generation, arrestano runtime, serializzano il purge
+  della cache owner-scoped e pubblicano soltanto lo stato della nuova identità;
+- il cache store viene catturato prima dell'attesa della coda snapshot, evitando letture
+  Riverpod dopo un eventuale dispose;
+- aggiunte tre regressioni con `StateProvider` mutabile e `ManualAppScheduler`: logout
+  durante fallback, cambio account durante fallback e dispose con subscription/timer
+  attivi; avanzamento di dieci minuti ed evento dal vecchio stream non producono load,
+  save o stato cross-account; `activeTaskCount == 0`;
+- `flutter analyze`, test tracking `19/19` e repeat Fix `10 x 9 = 90` sono `PASS`, exit
+  `0`; gate canonico finale registrato nelle evidence dopo il rerun;
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; il Fix non si auto-approva.
 
 ## Chiusura
 

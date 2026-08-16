@@ -2656,3 +2656,14 @@
 - **Gate**: governance state e release train `9/9`, diff check e worktree `PASS`.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
   l'autorizzazione persistente consente PR, CI exact-SHA e merge normale.
+
+## 2026-08-16 — TASK-035 closeout e attivazione TASK-036
+
+- **CI PR**: PR #13 head `2d81f6f`, run `31978060753`; Quality, Android debug e
+  iOS Simulator debug 3/3 `SUCCESS`, step applicabili verdi, annotation 0/0/0.
+- **Merge**: normale `ddb8cc8fad8156c032b1aa6e2011d0cc589d480b`; ancestry del
+  PR head verificata, branch remoto e locale eliminati.
+- **CI main**: run `31978389972` sul merge SHA, 3/3 `SUCCESS`, step applicabili
+  `success`, annotation 0/0/0.
+- **Transizione**: TASK-035 `DONE / USER_APPROVED_DONE`; TASK-036 è l'unico
+  `ACTIVE / EXECUTION`, autorizzato da ADR-015.

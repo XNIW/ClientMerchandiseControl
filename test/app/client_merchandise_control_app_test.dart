@@ -106,14 +106,10 @@ void main() {
   );
 
   final localizedHomeMessages = <Locale, String>{
-    appFallbackLocale:
-        'Recorre las secciones de la tienda mientras preparamos el catálogo.',
-    const Locale('it'):
-        'Scopri le sezioni del negozio mentre prepariamo il catalogo.',
-    const Locale('en'):
-        'Browse the store sections while we prepare the catalog.',
-    const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'):
-        '我们正在准备商品目录，你可以先浏览商店的各个部分。',
+    appFallbackLocale: 'Tienda seleccionada',
+    const Locale('it'): 'Negozio selezionato',
+    const Locale('en'): 'Selected store',
+    const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'): '已选门店',
   };
 
   for (final entry in localizedHomeMessages.entries) {
@@ -130,12 +126,31 @@ void main() {
     tester,
   ) async {
     final cases = <Locale, List<String>>{
-      appFallbackLocale: const ['Inicio', 'Catálogo', 'Carrito', 'Cuenta'],
-      const Locale('it'): const ['Home', 'Catalogo', 'Carrello', 'Account'],
-      const Locale('en'): const ['Home', 'Catalog', 'Cart', 'Account'],
+      appFallbackLocale: const [
+        'Inicio',
+        'Catálogo',
+        'Pedidos',
+        'Carrito',
+        'Cuenta',
+      ],
+      const Locale('it'): const [
+        'Home',
+        'Catalogo',
+        'Ordini',
+        'Carrello',
+        'Account',
+      ],
+      const Locale('en'): const [
+        'Home',
+        'Catalog',
+        'Orders',
+        'Cart',
+        'Account',
+      ],
       const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'): const [
         '首页',
         '商品目录',
+        '订单',
         '购物车',
         '账户',
       ],
@@ -176,10 +191,7 @@ void main() {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Scopri le sezioni del negozio mentre prepariamo il catalogo.'),
-      findsOneWidget,
-    );
+    expect(find.text('Negozio selezionato'), findsOneWidget);
   });
 
   testWidgets('usa lo spagnolo per de, zh-Hant e zh generico', (tester) async {
@@ -195,13 +207,8 @@ void main() {
         Localizations.localeOf(tester.element(find.byType(Scaffold))),
         appFallbackLocale,
       );
-      expect(
-        find.text(
-          'Recorre las secciones de la tienda mientras preparamos el catálogo.',
-        ),
-        findsOneWidget,
-      );
-      expect(find.text('我们正在准备商品目录，你可以先浏览商店的各个部分。'), findsNothing);
+      expect(find.text('Tienda seleccionada'), findsOneWidget);
+      expect(find.text('已选门店'), findsNothing);
     }
   });
 

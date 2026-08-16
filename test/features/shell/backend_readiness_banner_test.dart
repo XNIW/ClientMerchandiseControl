@@ -7,6 +7,9 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_reposi
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
+import 'package:client_merchandise_control/features/cart/application/cart_providers.dart';
+import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
+import 'package:client_merchandise_control/features/cart/domain/cart_repository.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
 import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
@@ -42,6 +45,7 @@ void main() {
         storefrontCacheRepositoryProvider.overrideWithValue(
           const DisabledStorefrontCacheRepository(),
         ),
+        guestCartStoreProvider.overrideWithValue(const _EmptyGuestCartStore()),
       ],
       child: ClientMerchandiseControlApp(locale: locale),
     );
@@ -237,6 +241,55 @@ void main() {
     expect(retrySize.height, greaterThanOrEqualTo(48));
     expect(tester, meetsGuideline(labeledTapTargetGuideline));
   });
+}
+
+final class _EmptyGuestCartStore implements GuestCartStore {
+  const _EmptyGuestCartStore();
+
+  CustomerCartSnapshot _empty(String shopSlug) => CustomerCartSnapshot(
+    shopSlug: shopSlug,
+    version: 0,
+    items: const [],
+    source: CartSource.guest,
+    quoteStatus: CartQuoteStatus.indicative,
+    requiresCustomerReview: false,
+    subtotalClp: 0,
+    idempotent: true,
+  );
+
+  @override
+  Future<CustomerCartSnapshot> read({required String shopSlug}) async =>
+      _empty(shopSlug);
+
+  @override
+  Future<CustomerCartSnapshot> setProduct({
+    required String shopSlug,
+    required StorefrontProductSummary product,
+    required int quantity,
+  }) async => _empty(shopSlug);
+
+  @override
+  Future<CustomerCartSnapshot> setQuantity({
+    required String shopSlug,
+    required String publicationId,
+    required int quantity,
+  }) async => _empty(shopSlug);
+
+  @override
+  Future<CustomerCartSnapshot> remove({
+    required String shopSlug,
+    required String publicationId,
+  }) async => _empty(shopSlug);
+
+  @override
+  Future<CustomerCartSnapshot> clear({required String shopSlug}) async =>
+      _empty(shopSlug);
+
+  @override
+  Future<CustomerCartSnapshot> retainOnly({
+    required String shopSlug,
+    required Set<String> publicationIds,
+  }) async => _empty(shopSlug);
 }
 
 final class _BannerStorefrontRepository extends HomeOnlyStorefrontRepository {

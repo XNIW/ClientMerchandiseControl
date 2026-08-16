@@ -9,6 +9,7 @@ import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../app/design_system/widgets/storefront_cache_status.dart';
 import '../../../app/design_system/widgets/storefront_empty_state.dart';
+import '../../../app/design_system/widgets/storefront_skeleton.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../home/presentation/storefront_product_card.dart';
 import '../../storefront/domain/storefront_failure.dart';
@@ -82,6 +83,52 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
     await ref.read(catalogControllerProvider.notifier).clearSearch();
   }
 
+  Future<void> _showMobileFilters() {
+    final l10n = AppLocalizations.of(context);
+    final controller = ref.read(catalogControllerProvider.notifier);
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.72,
+          minChildSize: 0.42,
+          maxChildSize: 0.92,
+          builder: (context, scrollController) => Consumer(
+            builder: (context, ref, _) {
+              final state = ref.watch(catalogControllerProvider);
+              return SingleChildScrollView(
+                key: const ValueKey('catalog-mobile-filter-sheet'),
+                controller: scrollController,
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  0,
+                  AppSpacing.md,
+                  AppSpacing.xl,
+                ),
+                child: _CatalogControls(
+                  l10n: l10n,
+                  state: state,
+                  expanded: true,
+                  onExpandedChanged: () => Navigator.of(sheetContext).pop(),
+                  onAvailabilitySelected: (availability) =>
+                      unawaited(controller.selectAvailability(availability)),
+                  onDiscountedChanged: (enabled) =>
+                      unawaited(controller.setDiscountedOnly(enabled)),
+                  onSortSelected: (sort) =>
+                      unawaited(controller.selectSort(sort)),
+                  onResetFilters: () => unawaited(controller.resetFilters()),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(catalogControllerProvider);
@@ -104,6 +151,7 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
           constraints.maxWidth - horizontalPadding * 2,
         );
         final textScale = MediaQuery.textScalerOf(context).scale(1);
+        final useMobileFilterSheet = constraints.maxWidth < AppBreakpoints.wide;
         final columns = textScale >= 1.7
             ? 1
             : contentWidth >= 1000
@@ -191,9 +239,12 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                   child: _CatalogControls(
                     l10n: l10n,
                     state: state,
-                    expanded: _filtersExpanded,
-                    onExpandedChanged: () =>
-                        setState(() => _filtersExpanded = !_filtersExpanded),
+                    expanded: useMobileFilterSheet ? false : _filtersExpanded,
+                    onExpandedChanged: useMobileFilterSheet
+                        ? () => unawaited(_showMobileFilters())
+                        : () => setState(
+                            () => _filtersExpanded = !_filtersExpanded,
+                          ),
                     onAvailabilitySelected: (availability) => unawaited(
                       ref
                           .read(catalogControllerProvider.notifier)
@@ -323,6 +374,24 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
       ),
       CatalogLoadStatus.data => throw StateError('catalog data without items'),
     };
+    if (presentation.loading) {
+      return [
+        SliverPadding(
+          padding: EdgeInsets.fromLTRB(
+            horizontalPadding,
+            0,
+            horizontalPadding,
+            AppSpacing.lg,
+          ),
+          sliver: SliverToBoxAdapter(
+            child: StorefrontSkeleton(
+              key: const ValueKey('catalog-loading'),
+              semanticLabel: '${presentation.title}. ${presentation.message}',
+            ),
+          ),
+        ),
+      ];
+    }
     return [
       SliverPadding(
         padding: EdgeInsets.fromLTRB(

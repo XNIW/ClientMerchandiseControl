@@ -13,4 +13,11 @@ abstract final class AppRoutes {
       '/product/$publicationId';
 
   static String orderLocation(String orderId) => '/orders/$orderId';
+
+  static String ordersLocationForFilter(String filter) {
+    return Uri(
+      path: ordersLocation,
+      queryParameters: {'filter': filter},
+    ).toString();
+  }
 }

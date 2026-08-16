@@ -19,6 +19,7 @@ import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/orders/presentation/order_detail_screen.dart';
 import '../../features/orders/presentation/orders_screen.dart';
+import '../../features/orders/domain/customer_order_selectors.dart';
 import '../../features/product_detail/presentation/product_detail_screen.dart';
 import '../../features/shell/presentation/app_shell_screen.dart';
 import '../../core/config/app_config.dart';
@@ -27,10 +28,12 @@ import 'app_routes.dart';
 export 'app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  String? protectedOrderRedirect(BuildContext _, GoRouterState _) {
-    return ref.read(authControllerProvider) is AuthAuthenticated
-        ? null
-        : AppRoutes.accountLocation;
+  String? pendingProtectedOrdersLocation;
+
+  String? protectedOrderRedirect(BuildContext _, GoRouterState state) {
+    if (ref.read(authControllerProvider) is AuthAuthenticated) return null;
+    pendingProtectedOrdersLocation = state.uri.toString();
+    return AppRoutes.accountLocation;
   }
 
   final router = GoRouter(
@@ -54,6 +57,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoutes.catalogLocation,
                 builder: (context, state) => const CatalogScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.ordersLocation,
+                redirect: protectedOrderRedirect,
+                builder: (context, state) => OrdersScreen(
+                  initialFilter: customerOrderListFilterFromName(
+                    state.uri.queryParameters['filter'],
+                  ),
+                ),
+                routes: [
+                  GoRoute(
+                    path: ':orderId',
+                    builder: (context, state) => OrderDetailScreen(
+                      orderId: state.pathParameters['orderId'] ?? '',
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -88,17 +112,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.favoritesLocation,
         builder: (context, state) => const FavoritesScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.ordersLocation,
-        redirect: protectedOrderRedirect,
-        builder: (context, state) => const OrdersScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.orderPattern,
-        redirect: protectedOrderRedirect,
-        builder: (context, state) =>
-            OrderDetailScreen(orderId: state.pathParameters['orderId'] ?? ''),
       ),
     ],
   );
@@ -149,11 +162,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     switch (intent) {
       case StorefrontProductDeepLink(:final publicationId):
         notificationDispatchGeneration++;
+        pendingProtectedOrdersLocation = null;
         pendingProtectedOrderId = null;
         pendingProtectedNotificationToken = null;
         router.go(AppRoutes.productLocation(publicationId));
       case StorefrontCategoryDeepLink(:final categorySlug):
         notificationDispatchGeneration++;
+        pendingProtectedOrdersLocation = null;
         pendingProtectedOrderId = null;
         pendingProtectedNotificationToken = null;
         router.go(AppRoutes.catalogLocation);
@@ -164,6 +179,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         );
       case StorefrontOrderDeepLink(:final orderId):
         notificationDispatchGeneration++;
+        pendingProtectedOrdersLocation = null;
         pendingProtectedNotificationToken = null;
         if (ref.read(authControllerProvider) is AuthAuthenticated) {
           pendingProtectedOrderId = null;
@@ -173,6 +189,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           router.go(AppRoutes.accountLocation);
         }
       case StorefrontNotificationDeepLink(:final routeToken):
+        pendingProtectedOrdersLocation = null;
         pendingProtectedOrderId = null;
         unawaited(dispatchNotification(routeToken));
     }
@@ -225,8 +242,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       router.go(AppRoutes.orderLocation(orderId));
       return;
     }
+    if (next is AuthAuthenticated && pendingProtectedOrdersLocation != null) {
+      final destination = pendingProtectedOrdersLocation!;
+      pendingProtectedOrdersLocation = null;
+      router.go(destination);
+      return;
+    }
     if (previous is AuthAuthenticated && next is! AuthAuthenticated) {
       notificationDispatchGeneration++;
+      pendingProtectedOrdersLocation = null;
       pendingProtectedNotificationToken = null;
     }
     final isCallbackAuthentication =
@@ -245,6 +269,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     disposed = true;
     pendingIntent = null;
     pendingProtectedOrderId = null;
+    pendingProtectedOrdersLocation = null;
     pendingProtectedNotificationToken = null;
     notificationDispatchGeneration++;
     unawaited(linkSubscription.cancel());

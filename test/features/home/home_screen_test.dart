@@ -26,7 +26,9 @@ void main() {
     final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
 
     expect(find.text(AppBrand.effectiveDisplayName), findsOneWidget);
-    expect(find.text(l10n.homeWelcomeTitle), findsOneWidget);
+    expect(find.text(l10n.homeWelcomeTitle), findsNothing);
+    expect(find.text(l10n.homeSelectedStore), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-search')), findsOneWidget);
     expect(find.text(l10n.homeCategoriesTitle), findsOneWidget);
     expect(find.text(l10n.homeOffersEmptyTitle), findsOneWidget);
     expect(find.text(l10n.homeFeaturedEmptyTitle), findsOneWidget);
@@ -52,7 +54,6 @@ void main() {
     for (final key in const [
       ValueKey('home-search'),
       ValueKey('home-categories'),
-      ValueKey('home-open-catalog'),
     ]) {
       await tester.pumpWidget(const SizedBox());
       await tester.pump();
@@ -77,7 +78,6 @@ void main() {
     for (final key in const [
       ValueKey('home-search'),
       ValueKey('home-categories'),
-      ValueKey('home-open-catalog'),
     ]) {
       final finder = find.byKey(key);
       await tester.ensureVisible(finder);

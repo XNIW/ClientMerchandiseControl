@@ -2117,3 +2117,71 @@
 - **Sicurezza operativa**: production, dati reali, ordini, pagamenti e checkout reali
   non acceduti; Google OAuth resta fail-closed `OFF` fino a un dominio HTTPS posseduto
   e verificato.
+
+## 2026-08-16 — Change train commerce UX e delivery tracking attivato
+
+- **Ruoli**: `CODEX_PLANNER` concluso, handoff autorizzato a `CODEX_EXECUTOR`.
+- **Autorizzazione**: il prompt USER_APPROVER del 2026-08-16 riapre il progetto da
+  `IDLE` e autorizza Planning, Execution, Review, Fix/re-review, CI exact-SHA e merge
+  normale per TASK-043–TASK-045, senza conferme intermedie.
+- **Riconciliazione**: PR Client #7 verificata `MERGED` nel commit `8423c868…` con CI
+  reale verde; la prossima azione storica del Master Plan è stata superata senza
+  riscrivere evidence TASK-001–TASK-033.
+- **Preflight**: fetch/prune sui sei repository; SHA origin/main registrati; zero PR
+  aperte; dirty state Android/Win7POS preservati; worktree Client/Admin puliti e linked
+  creati da origin/main, senza scrivere nei checkout primari.
+- **Audit runtime**: baseline Android nativa su sei stati reali. Ordini è esterno alla
+  shell, Home ha un primo viewport troppo esteso, Account è monolitico e Cart/Product
+  Detail hanno densità migliorabile.
+- **Transizione**: TASK-043 è l'unico `ACTIVE / EXECUTION` con indicatore
+  `CODEX_PLANNING_APPROVED_TO_EXECUTION`; TASK-044/TASK-045 sono `TODO`; TASK-034 resta
+  `TODO` e tornerà prossimo soltanto dopo il closeout.
+- **Sicurezza**: nessun dato production, secret, write remoto, migration o repository
+  read-only modificato; tracking e mappa restano fuori da TASK-043.
+
+## 2026-08-16 — TASK-043 Execution consegnata a Review
+
+- **Implementazione**: shell a cinque branch con Orders primaria, resume auth, rail,
+  badge reali; Home compatta; Catalog filtri mobile; Product/Cart più densi; Account
+  a hub e Orders filtrabile, mantenendo controller, cache e contratti correnti.
+- **Gate**: format/analyze, 571 test con coverage + performance 1/1, APK debug, iOS
+  Simulator debug e `scripts/check.sh` exit 0; smoke Android shell/guest 2/2, auth 1/1
+  e order history 1/1. Scanner 574 file, fixture 32/32 + 2/2, boundary 7/7.
+- **Visual QA**: sette viewport automatizzati, quattro locale, light/dark e text scale
+  1.0/1.3/2.0; runtime compact light e tablet dark/rail sanitizzato fuori Git.
+- **Limite reale**: smoke staging post-change `BLOCKED_CONFIGURATION`; il file locale
+  storico non soddisfa più callback/shop slug. Nessun secret è stato stampato e il
+  fail-closed è corretto; development e test deterministici restano verdi.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; CI PR,
+  merge e main CI non ancora eseguiti.
+
+## 2026-08-16 — TASK-043 Review `CHANGES_REQUIRED`
+
+- **Review**: read-only e logicamente separata sul revision set `72f80ba`; sessione
+  distinta non disponibile, limite esplicito.
+- **Finding**: `T043-REV-NAV-001` P2 sul back del dettaglio Orders annidato e
+  `T043-REV-DATA-002` P2 sui conteggi Orders parziali quando esiste `nextCursor`.
+- **Esito**: 0 P0, 0 P1, 2 P2, 0 P3; transizione
+  `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-043 Fix consegnato a re-review
+
+- **Fix**: `T043-REV-NAV-001` chiuso preservando il pop della route detail Orders;
+  `T043-REV-DATA-002` chiuso nascondendo i conteggi finché la lista paginata non è
+  completa.
+- **Regressioni**: aggiunti test router e selettore; shell, Account e semantics restano
+  coperti.
+- **Gate mirati**: `flutter analyze` e 25 test router/shell/account/selectors `PASS`,
+  exit 0.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW` sul commit
+  `ec3cb4d`; re-review e CI restano da eseguire.
+
+## 2026-08-16 — TASK-043 re-review `APPROVED`
+
+- **Revision set**: `f0e761d..e2a6475`, esaminato read-only con separazione logica
+  dalla fase Fix.
+- **Finding**: i due P2 sono `CLOSED`; nessun P0/P1/P2/P3 resta aperto.
+- **Gate canonico**: `scripts/check.sh` `PASS`, exit 0; 574 file scanner, governance
+  9/9, boundary 7/7, 571+1 test, APK debug e iOS Simulator debug verdi.
+- **Esito**: `APPROVED / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  l'autorizzazione è già nel prompt del 2026-08-16, quindi seguono PR e CI exact-SHA.

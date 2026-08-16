@@ -19,6 +19,15 @@ import '../../../core/backend/backend_readiness_state.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/config/app_environment.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../account/application/customer_account_controller.dart';
+import '../../account/domain/customer_account_models.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_state.dart';
+import '../../catalog/application/catalog_controller.dart';
+import '../../orders/application/customer_order_controller.dart';
+import '../../orders/domain/customer_order_models.dart';
+import '../../orders/domain/customer_order_selectors.dart';
+import '../../orders/presentation/customer_order_presentation.dart';
 import '../../storefront/domain/storefront_models.dart';
 import '../../storefront/presentation/storefront_product_metadata.dart';
 import '../application/home_controller.dart';
@@ -33,6 +42,14 @@ class HomeScreen extends ConsumerWidget {
     final config = ref.watch(appConfigProvider);
     final backendReadiness = ref.watch(backendReadinessControllerProvider);
     final homeState = ref.watch(homeControllerProvider);
+    final accountState = ref.watch(customerAccountControllerProvider);
+    final orderState = ref.watch(customerOrderControllerProvider);
+    final authenticated =
+        ref.watch(authControllerProvider) is AuthAuthenticated;
+    final primaryActiveOrder = selectPrimaryActiveOrder(orderState.orders);
+    final defaultAddress = accountState.snapshot?.addresses
+        .where((address) => address.isDefault)
+        .firstOrNull;
     final compactHeight =
         MediaQuery.sizeOf(context).height < 480 ||
         MediaQuery.textScalerOf(context).scale(1) > 1.5;
@@ -68,6 +85,10 @@ class HomeScreen extends ConsumerWidget {
         homeState.status == HomeLoadStatus.data ||
         homeState.status == HomeLoadStatus.empty;
     void openCatalog() => context.go(AppRoutes.catalogLocation);
+    void openCategory(String categorySlug) {
+      ref.read(catalogControllerProvider.notifier).selectCategory(categorySlug);
+      context.go(AppRoutes.catalogLocation);
+    }
 
     return StorefrontPage(
       child: Column(
@@ -77,21 +98,10 @@ class HomeScreen extends ConsumerWidget {
             banner,
             const SizedBox(height: AppSpacing.xl),
           ],
-          Semantics(
-            header: true,
-            child: Text(
-              l10n.homeWelcomeTitle,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            l10n.homeWelcomeMessage,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+          _StoreContextCard(
+            address: defaultAddress,
+            authenticated: authenticated,
+            fulfillment: homeState.data?.settings.fulfillment,
           ),
           const SizedBox(height: AppSpacing.md),
           StorefrontSearchLauncher(
@@ -101,20 +111,24 @@ class HomeScreen extends ConsumerWidget {
             onPressed: openCatalog,
           ),
           if (cacheStatus != null) ...[
-            const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.sm),
             cacheStatus,
+          ],
+          if (primaryActiveOrder != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            _ActiveOrderCard(order: primaryActiveOrder),
           ],
           if (homeState.data?.offers case final offers?)
             if (offers.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.xl),
+              const SizedBox(height: AppSpacing.md),
               _PromotionSpotlight(product: offers.first),
             ],
           if (homeStatus != null) ...[
-            const SizedBox(height: AppSpacing.xl),
+            const SizedBox(height: AppSpacing.md),
             homeStatus,
           ],
           if (showStorefrontSections) ...[
-            const SizedBox(height: AppSpacing.xxl),
+            const SizedBox(height: AppSpacing.xl),
             StorefrontSection(
               title: l10n.homeCategoriesTitle,
               actionLabel: l10n.homeExploreCategories,
@@ -122,10 +136,10 @@ class HomeScreen extends ConsumerWidget {
               child: _categoriesFor(
                 context,
                 homeState.data?.categories ?? const [],
-                openCatalog,
+                openCategory,
               ),
             ),
-            const SizedBox(height: AppSpacing.xxl),
+            const SizedBox(height: AppSpacing.xl),
             StorefrontSection(
               title: l10n.homeOffersTitle,
               actionLabel: l10n.homeExploreCatalog,
@@ -137,7 +151,7 @@ class HomeScreen extends ConsumerWidget {
                 emptyMessage: l10n.homeOffersEmptyMessage,
               ),
             ),
-            const SizedBox(height: AppSpacing.xxl),
+            const SizedBox(height: AppSpacing.xl),
             StorefrontSection(
               title: l10n.homeFeaturedTitle,
               actionLabel: l10n.homeExploreCatalog,
@@ -150,28 +164,7 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
           ],
-          const SizedBox(height: AppSpacing.xxl),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: Wrap(
-              spacing: AppSpacing.md,
-              runSpacing: AppSpacing.sm,
-              children: [
-                FilledButton.icon(
-                  key: const ValueKey('home-open-catalog'),
-                  onPressed: openCatalog,
-                  icon: const Icon(Icons.grid_view_outlined),
-                  label: Text(l10n.homeExploreCatalog),
-                ),
-                OutlinedButton.icon(
-                  key: const ValueKey('home-open-favorites'),
-                  onPressed: () => context.push(AppRoutes.favoritesLocation),
-                  icon: const Icon(Icons.favorite_border),
-                  label: Text(l10n.favoritesOpen),
-                ),
-              ],
-            ),
-          ),
+          const SizedBox(height: AppSpacing.xl),
         ],
       ),
     );
@@ -207,7 +200,7 @@ class HomeScreen extends ConsumerWidget {
   Widget _categoriesFor(
     BuildContext context,
     List<StorefrontCategory> categories,
-    VoidCallback openCatalog,
+    ValueChanged<String> openCategory,
   ) {
     final l10n = AppLocalizations.of(context);
     if (categories.isEmpty) {
@@ -233,7 +226,7 @@ class HomeScreen extends ConsumerWidget {
                 alignment: AlignmentDirectional.centerStart,
                 child: OutlinedButton.icon(
                   key: const ValueKey('home-categories'),
-                  onPressed: openCatalog,
+                  onPressed: () => context.go(AppRoutes.catalogLocation),
                   icon: const Icon(Icons.grid_view_outlined),
                   label: Text(l10n.homeExploreCategories),
                 ),
@@ -243,23 +236,68 @@ class HomeScreen extends ConsumerWidget {
         ),
       );
     }
-    return SingleChildScrollView(
-      key: const ValueKey('home-category-rail'),
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (final category in categories) ...[
-            ActionChip(
-              key: ValueKey('home-category-${category.slug}'),
-              avatar: const Icon(Icons.category_outlined),
-              label: Text(category.name),
-              onPressed: openCatalog,
-            ),
-            if (category != categories.last)
-              const SizedBox(width: AppSpacing.sm),
-          ],
-        ],
-      ),
+    final visible = categories.take(6).toList(growable: false);
+    return LayoutBuilder(
+      key: const ValueKey('home-category-grid'),
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 760
+            ? 6
+            : constraints.maxWidth >= 480
+            ? 4
+            : 3;
+        final textScale = MediaQuery.textScalerOf(context).scale(1);
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            crossAxisSpacing: AppSpacing.sm,
+            mainAxisSpacing: AppSpacing.sm,
+            mainAxisExtent: textScale >= 1.5 ? 96 : 76,
+          ),
+          itemCount: visible.length,
+          itemBuilder: (context, index) {
+            final category = visible[index];
+            return Semantics(
+              button: true,
+              label: category.name,
+              child: Card(
+                margin: EdgeInsets.zero,
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  key: ValueKey('home-category-${category.slug}'),
+                  onTap: () => openCategory(category.slug),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xs,
+                      vertical: AppSpacing.sm,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.category_outlined,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Flexible(
+                          child: Text(
+                            category.name,
+                            maxLines: textScale >= 1.5 ? 2 : 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -319,6 +357,156 @@ class HomeScreen extends ConsumerWidget {
         compact: compact,
       ),
     };
+  }
+}
+
+class _StoreContextCard extends StatelessWidget {
+  const _StoreContextCard({
+    required this.address,
+    required this.authenticated,
+    required this.fulfillment,
+  });
+
+  final CustomerAddress? address;
+  final bool authenticated;
+  final StorefrontFulfillment? fulfillment;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final modes = <String>[
+      if (fulfillment?.pickup == true) l10n.checkoutModePickup,
+      if (fulfillment?.delivery == true) l10n.checkoutModeDelivery,
+    ];
+    final title = address == null
+        ? l10n.homeSelectedStore
+        : l10n.homeDeliveryDestination;
+    final subtitle = address == null
+        ? (modes.isEmpty ? l10n.homeStoreContextFallback : modes.join(' · '))
+        : '${address!.label} · ${address!.commune}';
+    final card = Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              address == null
+                  ? Icons.storefront_outlined
+                  : Icons.location_on_outlined,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (authenticated) const Icon(Icons.chevron_right),
+          ],
+        ),
+      ),
+    );
+    if (!authenticated) return card;
+    return Semantics(
+      button: true,
+      label: '$title, $subtitle',
+      child: InkWell(
+        key: const ValueKey('home-store-context'),
+        borderRadius: BorderRadius.circular(AppRadii.card),
+        onTap: () => context.go(AppRoutes.accountLocation),
+        child: ExcludeSemantics(child: card),
+      ),
+    );
+  }
+}
+
+class _ActiveOrderCard extends StatelessWidget {
+  const _ActiveOrderCard({required this.order});
+
+  final CustomerOrderCard order;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final status = customerOrderStatusLabel(l10n, order.status);
+    return Semantics(
+      button: true,
+      label: l10n.homeActiveOrderSemantics(order.code, status),
+      child: Card(
+        key: const ValueKey('home-active-order'),
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => context.push(AppRoutes.orderLocation(order.id)),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
+                  foregroundColor: Theme.of(
+                    context,
+                  ).colorScheme.onPrimaryContainer,
+                  child: Icon(customerOrderModeIcon(order.fulfillmentMode)),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.homeActiveOrderTitle,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Text(
+                        '${order.code} · $status',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      Text(
+                        order.primaryItemName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                const Icon(Icons.chevron_right),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 

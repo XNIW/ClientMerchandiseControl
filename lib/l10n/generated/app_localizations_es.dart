@@ -50,6 +50,33 @@ class AppLocalizationsEs extends AppLocalizations {
   String get navigationCatalog => 'Catálogo';
 
   @override
+  String get navigationOrders => 'Pedidos';
+
+  @override
+  String navigationCartBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Carrito, $count productos',
+      one: 'Carrito, 1 producto',
+      zero: 'Carrito, sin productos',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String navigationOrdersBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pedidos, $count pedidos activos',
+      one: 'Pedidos, 1 pedido activo',
+      zero: 'Pedidos, sin pedidos activos',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get navigationCart => 'Carrito';
 
   @override
@@ -95,6 +122,24 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get homeSearchHint => '¿Qué estás buscando?';
+
+  @override
+  String get homeSelectedStore => 'Tienda seleccionada';
+
+  @override
+  String get homeDeliveryDestination => 'Destino de entrega';
+
+  @override
+  String get homeStoreContextFallback =>
+      'Disponibilidad confirmada por la tienda';
+
+  @override
+  String get homeActiveOrderTitle => 'Pedido activo';
+
+  @override
+  String homeActiveOrderSemantics(String code, String status) {
+    return 'Pedido activo $code, estado $status';
+  }
 
   @override
   String get homeCategoriesTitle => 'Explora por categoría';
@@ -411,6 +456,17 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get accountLogout => 'Cerrar sesión';
+
+  @override
+  String get accountPersonalSettingsTitle => 'Perfil, direcciones y privacidad';
+
+  @override
+  String get accountPersonalSettingsDescription =>
+      'Gestiona tu identidad, idioma, direcciones y datos Storefront.';
+
+  @override
+  String get accountNotificationsDescription =>
+      'Elige cómo recibir novedades reales de tus pedidos.';
 
   @override
   String get accountSigningInTitle => 'Abriendo el acceso seguro';
@@ -931,6 +987,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cartAddAction => 'Agregar al carrito';
+
+  @override
+  String cartAddQuantityAction(int quantity) {
+    return 'Agregar $quantity al carrito';
+  }
 
   @override
   String get cartAddedNotice => 'Producto agregado al carrito.';
@@ -1480,6 +1541,31 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get ordersTitle => 'Mis pedidos';
+
+  @override
+  String get ordersFiltersLabel => 'Filtrar pedidos';
+
+  @override
+  String get ordersFilterAll => 'Todos';
+
+  @override
+  String get ordersFilterActive => 'Activos';
+
+  @override
+  String get ordersFilterCompleted => 'Completados';
+
+  @override
+  String get ordersFilterCancelled => 'Cancelados';
+
+  @override
+  String get ordersFilterEmptyTitle => 'No hay pedidos en este estado';
+
+  @override
+  String get ordersFilterEmptyMessage =>
+      'Elige otro filtro o actualiza para comprobar cambios.';
+
+  @override
+  String get ordersActiveOrder => 'Pedido activo';
 
   @override
   String get ordersRefreshTooltip => 'Actualizar pedidos';

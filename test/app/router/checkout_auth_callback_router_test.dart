@@ -11,6 +11,7 @@ import 'package:client_merchandise_control/features/auth/domain/authenticated_cu
 import 'package:client_merchandise_control/features/cart/application/cart_state.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
 import 'package:client_merchandise_control/features/checkout/application/checkout_providers.dart';
+import 'package:client_merchandise_control/features/orders/application/customer_order_providers.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/checkout/checkout_test_support.dart';
+import '../../features/orders/customer_order_test_support.dart';
 
 void main() {
   testWidgets('callback Google conserva la route checkout', (tester) async {
@@ -83,6 +85,70 @@ void main() {
 
     expect(repository.exchangeCalls, 1);
     expect(router.state.uri.path, AppRoutes.checkoutLocation);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('login riprende la destinazione Ordini con il filtro originale', (
+    tester,
+  ) async {
+    final repository = _RouterAuthRepository();
+    final source = _RouterCallbackSource();
+    final orderRepository = FakeCustomerOrderRepository();
+    final container = ProviderContainer(
+      overrides: [
+        appConfigProvider.overrideWithValue(_config()),
+        authRepositoryFactoryProvider.overrideWithValue(
+          (config) async => repository,
+        ),
+        authCallbackSourceProvider.overrideWithValue(source),
+        customerOrderRepositoryProvider.overrideWithValue(orderRepository),
+        customerOrderCacheStoreProvider.overrideWithValue(
+          MemoryCustomerOrderCacheStore(),
+        ),
+        customerOrderClockProvider.overrideWithValue(() => orderTestNow),
+      ],
+    );
+    addTearDown(() async {
+      container.dispose();
+      await source.dispose();
+      await repository.dispose();
+    });
+    final router = container.read(appRouterProvider);
+    router.go(AppRoutes.ordersLocationForFilter('active'));
+
+    await tester.pumpWidget(_app(container, router));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, AppRoutes.accountLocation);
+
+    await tester.tap(find.byKey(const ValueKey('account-google-button')));
+    await tester.pump();
+    source.emit(Uri.parse('${AppConfig.allowedAuthRedirectUri}?code=orders'));
+    for (
+      var attempt = 0;
+      attempt < 100 && router.state.uri.path != AppRoutes.ordersLocation;
+      attempt++
+    ) {
+      await tester.pump(const Duration(milliseconds: 10));
+    }
+    await tester.pumpAndSettle();
+
+    expect(repository.exchangeCalls, 1);
+    expect(router.state.uri.path, AppRoutes.ordersLocation);
+    expect(router.state.uri.queryParameters['filter'], 'active');
+    expect(orderRepository.listRequests, hasLength(1));
+    expect(find.text('Activos'), findsWidgets);
+
+    router.go(AppRoutes.orderLocation(orderTestOrder));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, AppRoutes.orderLocation(orderTestOrder));
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(
+      router.state.uri.path,
+      AppRoutes.ordersLocation,
+      reason: 'back dal dettaglio deve tornare alla branch Ordini',
+    );
     expect(tester.takeException(), isNull);
   });
 }

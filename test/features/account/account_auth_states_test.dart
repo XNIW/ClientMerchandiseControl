@@ -125,7 +125,10 @@ void main() {
     expect(ordersEntry, findsOneWidget);
     expect(tester.getSize(ordersEntry).height, greaterThanOrEqualTo(48));
 
-    await tester.tap(find.byKey(const ValueKey('account-logout-button')));
+    final logoutFinder = find.byKey(const ValueKey('account-logout-button'));
+    await tester.ensureVisible(logoutFinder);
+    await tester.pump();
+    await tester.tap(logoutFinder);
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('account-google-button')), findsOneWidget);
     expect(repository.signOutCalls, 1);
@@ -139,7 +142,10 @@ void main() {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const ValueKey('account-logout-button')));
+    final logoutFinder = find.byKey(const ValueKey('account-logout-button'));
+    await tester.ensureVisible(logoutFinder);
+    await tester.pump();
+    await tester.tap(logoutFinder);
     await tester.pump();
 
     final logout = tester.widget<OutlinedButton>(

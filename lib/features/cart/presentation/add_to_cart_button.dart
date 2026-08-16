@@ -12,11 +12,13 @@ class AddToCartButton extends ConsumerWidget {
   const AddToCartButton({
     required this.product,
     this.expanded = false,
+    this.quantity = 1,
     super.key,
-  });
+  }) : assert(quantity > 0);
 
   final StorefrontProductSummary product;
   final bool expanded;
+  final int quantity;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,16 +27,28 @@ class AddToCartButton extends ConsumerWidget {
     final busy = cart.busyPublicationIds.contains(product.id);
     final unavailable =
         product.availability == StorefrontAvailability.unavailable;
+    final currentQuantity =
+        cart.snapshot?.items
+            .where((line) => line.publicationId == product.id)
+            .firstOrNull
+            ?.quantity ??
+        0;
+    final exceedsLimit = currentQuantity + quantity > 99;
+    final actionLabel = quantity == 1
+        ? l10n.cartAddAction
+        : l10n.cartAddQuantityAction(quantity);
     final button = FilledButton.icon(
       key: ValueKey('add-to-cart-${product.id}'),
-      onPressed: unavailable || busy ? null : () => _add(context, ref, l10n),
+      onPressed: unavailable || busy || exceedsLimit
+          ? null
+          : () => _add(context, ref, l10n),
       icon: busy
           ? const SizedBox.square(
               dimension: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
           : const Icon(Icons.add_shopping_cart_outlined),
-      label: Text(l10n.cartAddAction),
+      label: Text(actionLabel),
       style: FilledButton.styleFrom(
         minimumSize: Size(
           expanded ? double.infinity : AppSizes.minimumTouchTarget,
@@ -44,9 +58,11 @@ class AddToCartButton extends ConsumerWidget {
     );
     return Semantics(
       button: true,
-      enabled: !unavailable && !busy,
-      label: '${l10n.cartAddAction}: ${product.name}',
-      onTap: unavailable || busy ? null : () => _add(context, ref, l10n),
+      enabled: !unavailable && !busy && !exceedsLimit,
+      label: '$actionLabel: ${product.name}',
+      onTap: unavailable || busy || exceedsLimit
+          ? null
+          : () => _add(context, ref, l10n),
       excludeSemantics: true,
       child: expanded
           ? SizedBox(width: double.infinity, child: button)
@@ -60,7 +76,9 @@ class AddToCartButton extends ConsumerWidget {
     AppLocalizations l10n,
   ) async {
     try {
-      await ref.read(cartControllerProvider.notifier).addProduct(product);
+      await ref
+          .read(cartControllerProvider.notifier)
+          .addProduct(product, quantity: quantity);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()

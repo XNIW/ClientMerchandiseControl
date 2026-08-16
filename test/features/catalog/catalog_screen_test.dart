@@ -63,7 +63,7 @@ void main() {
   });
 
   testWidgets(
-    'search resta pinned, filtri progressivi e griglia compact è 2x',
+    'search resta pinned, filtri mobile in sheet e griglia compact è 2x',
     (tester) async {
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.binding.setSurfaceSize(const Size(390, 844));
@@ -99,12 +99,17 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('catalog-toggle-filters')));
       await tester.pumpAndSettle();
 
+      final sheet = find.byKey(const ValueKey('catalog-mobile-filter-sheet'));
+      expect(sheet, findsOneWidget);
       expect(
         tester
             .widget<Offstage>(
-              find.byKey(
-                const ValueKey('catalog-filter-panel'),
-                skipOffstage: false,
+              find.descendant(
+                of: sheet,
+                matching: find.byKey(
+                  const ValueKey('catalog-filter-panel'),
+                  skipOffstage: false,
+                ),
               ),
             )
             .offstage,

@@ -6,9 +6,12 @@ import 'package:client_merchandise_control/features/account/presentation/account
 import 'package:client_merchandise_control/features/cart/presentation/cart_screen.dart';
 import 'package:client_merchandise_control/features/catalog/presentation/catalog_screen.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
+import 'package:client_merchandise_control/features/shell/presentation/app_shell_screen.dart';
+import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 void main() {
   Widget buildApp() {
@@ -268,6 +271,82 @@ void main() {
     expect(tester, meetsGuideline(androidTapTargetGuideline));
     expect(tester, meetsGuideline(iOSTapTargetGuideline));
   });
+
+  testWidgets(
+    'navigazione programmatica sospende e riprende il tracking Orders',
+    (tester) async {
+      final visibilityChanges = <bool>[];
+      final overrides = [
+        shellTrackingVisibilityHandlerProvider.overrideWithValue(
+          (visible) async => visibilityChanges.add(visible),
+        ),
+        shellCartCountProvider.overrideWithValue(0),
+        shellActiveOrderCountProvider.overrideWithValue(null),
+      ];
+      final router = GoRouter(
+        initialLocation: '/orders/detail',
+        routes: [
+          StatefulShellRoute.indexedStack(
+            builder: (context, state, navigationShell) =>
+                AppShellScreen(navigationShell: navigationShell),
+            branches: [
+              _testShellBranch('/home', 'home'),
+              _testShellBranch('/catalog', 'catalog'),
+              StatefulShellBranch(
+                routes: [
+                  GoRoute(
+                    path: '/orders',
+                    builder: (context, state) => const Text('orders'),
+                    routes: [
+                      GoRoute(
+                        path: 'detail',
+                        builder: (context, state) => const Text('detail'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              _testShellBranch('/cart', 'cart'),
+              _testShellBranch('/account', 'account'),
+            ],
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: overrides,
+          child: MaterialApp.router(
+            routerConfig: router,
+            locale: const Locale('es', 'CL'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(visibilityChanges, [true]);
+
+      router.go('/catalog');
+      await tester.pumpAndSettle();
+      expect(visibilityChanges, [true, false]);
+
+      router.go('/orders/detail');
+      await tester.pumpAndSettle();
+      expect(visibilityChanges, [true, false, true]);
+
+      router.go('/orders/detail');
+      await tester.pumpAndSettle();
+      expect(visibilityChanges, [true, false, true]);
+    },
+  );
+}
+
+StatefulShellBranch _testShellBranch(String path, String label) {
+  return StatefulShellBranch(
+    routes: [GoRoute(path: path, builder: (context, state) => Text(label))],
+  );
 }
 
 int _selectedDestinationIndex(WidgetTester tester) {

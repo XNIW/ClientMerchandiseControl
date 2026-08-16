@@ -37,6 +37,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-032" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-033" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-043" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-044" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -202,6 +203,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-043/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-043/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-044-delivery-tracking-contract-privacy-writer.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-044/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-044/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -240,14 +247,14 @@ cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-043/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-044/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-043 | Storefront commerce information architecture and UX refresh | ACTIVE |/| TASK-043 | Storefront commerce information architecture and UX refresh | DONE |/' \
+  's/| TASK-044 | Delivery tracking contract, privacy boundary and operational writer | ACTIVE |/| TASK-044 | Delivery tracking contract, privacy boundary and operational writer | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"
@@ -274,7 +281,7 @@ cmc_expect_fail active-during-review "${cmc_case}"
 
 cmc_case="$(cmc_fixture active-header-without-active-row)"
 sed -i.bak \
-  's/| TASK-043 | Storefront commerce information architecture and UX refresh | ACTIVE |/| TASK-043 | Storefront commerce information architecture and UX refresh | TODO |/' \
+  's/| TASK-044 | Delivery tracking contract, privacy boundary and operational writer | ACTIVE |/| TASK-044 | Delivery tracking contract, privacy boundary and operational writer | TODO |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-header-without-active-row "${cmc_case}"

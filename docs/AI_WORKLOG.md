@@ -2185,3 +2185,81 @@
   9/9, boundary 7/7, 571+1 test, APK debug e iOS Simulator debug verdi.
 - **Esito**: `APPROVED / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
   l'autorizzazione è già nel prompt del 2026-08-16, quindi seguono PR e CI exact-SHA.
+
+## 2026-08-16 — TASK-043 merge e main CI verificati
+
+- **PR**: #8, head `af358a8f864cf85624629dd3f94305405fd96146`; run PR
+  `31933134837` con Quality, Android e iOS 3/3 `SUCCESS`.
+- **Merge**: normale, commit `e9bd0306b07b105f3fb46da783ab2fd24ef44246`;
+  nessun bypass o squash distruttivo.
+- **Main CI**: run `31933418566` sul merge SHA, 3/3 `SUCCESS` con step reali.
+- **Cleanup**: branch remoto TASK-043 eliminato; checkout primario preservato.
+- **Transizione**: TASK-043 `DONE / USER_APPROVED_DONE`; TASK-044 diventa l'unico
+  `ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+## 2026-08-16 — TASK-044 Planning autorizzato
+
+- **Audit iniziale**: Client parte dalla main verificata `e9bd0306`; Admin dal
+  `5cf73e4f` in worktree separato. Il task WeChat Admin `TASK-151` resta intatto in
+  review esterna; branch/evidence non vengono sovrascritti.
+- **Piano**: schema additivo owner-scoped, RPC read/write dedicate, RLS/abuse matrix,
+  writer Courier Mode foreground, Client consumer Realtime con polling bounded e cache.
+- **Supabase**: changelog e docs correnti verificati prima dell'implementazione; le
+  nuove tabelle non saranno affidate all'esposizione Data API implicita e il confine
+  Realtime userà pubblicazione, grant e RLS espliciti.
+- **Autorizzazione**: USER_APPROVER già registrata; passaggio immediato da Planning a
+  Execution senza una nuova richiesta.
+
+## 2026-08-16 — TASK-044 Execution consegnata a Review
+
+- **Admin/Supabase**: schema latest-only, assignment/session lifecycle, RPC customer,
+  admin e courier, feed Realtime owner-scoped, cleanup/idempotenza e Courier Mode
+  foreground realmente utilizzabile.
+- **Client**: contratto dei tre tracking mode, parser/cache cifrata, Realtime per ordine,
+  polling bounded, deduplica/freshness e dettaglio ordine testuale localizzato.
+- **Gate**: Client `scripts/check.sh` exit 0 con 586 test e build Android/iOS; Admin
+  `npm run verify` exit 0, foundation 978 pass/2 skip; reset Supabase e pgTAP 55/55.
+- **Revision set**: Client `e9bd0306..aa24851a`; Admin `5cf73e4f..c94e4711`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+
+## 2026-08-16 — TASK-044 Review `CHANGES_REQUIRED`
+
+- **Review**: otto shard read-only distinti sui confini Client, UI, Courier Mode,
+  auth/server, shell/types e migration/RLS; PoC locali sanitizzati, nessun dato reale.
+- **Finding P2**: race monotona Client, mancato fail-closed su `unauthorized`, watch GPS
+  orfano post-unmount, feed preciso dopo cleanup, bypass del min interval e URL carrier
+  IPv4 numerico.
+- **Finding P3**: runtime attivo nel branch Orders offstage e snapshot cached live su
+  ordine autorevolmente terminale.
+- **Esito**: 0 P0, 0 P1, 6 P2, 2 P3; transizione
+  `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-044 Fix consegnato alla re-review finale
+
+- **Fix Client**: commit `61cd16bee70a925c1110645c708551de58ac3427` dopo due
+  cicli bounded; chiude race monotona, unauthorized, terminal cache, runtime offstage
+  anche su deep link, freshness temporale e dispose concorrente del presenter mappa.
+- **Fix Admin**: commit `663a292a626adc25230bad7c1917f930f94f5dca`; chiude
+  watch GPS orfano, retention nel feed, bypass rate limit e hostname numerico, oltre
+  agli hardening courier-only/hidden già nel perimetro.
+- **Gate mirati**: Client analyze e 48 test `PASS`; Admin reset, pgTAP `60/60`,
+  foundation `9/9`, typecheck/lint `PASS`.
+- **Re-review parziale**: runtime Client, Courier Mode e database già `CLOSED`; i due
+  gap Client del secondo ciclo sono stati riconsegnati a reviewer read-only distinti.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-16 — TASK-044 re-review `APPROVED`
+
+- **Revision set**: Client fino a `1801347c68b3edf0f73b9300056fa08dfb4d2884`;
+  Admin fino a `663a292a626adc25230bad7c1917f930f94f5dca`.
+- **Esito finding**: sei P2 e due P3 iniziali `CLOSED`; i due finding aggiuntivi
+  CA-11 su freshness e dispose concorrente `CLOSED`; zero P0/P1/P2/P3 aperti.
+- **Review indipendente**: shard read-only distinti hanno verificato runtime Client,
+  UI/router, map boundary, Courier Mode, auth/server e migration/RLS con receipt
+  full-file e test mirati.
+- **Gate candidate PR**: Client `scripts/check.sh` completa 598 test con coverage,
+  performance, APK e iOS Simulator; Admin `npm run verify` e foundation completano
+  980 pass, 2 skip; reset e pgTAP 60/60 verdi.
+- **Transizione**: `ACTIVE / REVIEW /
+  CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; il prompt USER_APPROVER copre
+  già PR, CI exact-SHA e merge normale.

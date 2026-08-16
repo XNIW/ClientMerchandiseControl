@@ -1680,4 +1680,68 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get ordersBackToOrders => 'Volver a mis pedidos';
+
+  @override
+  String get deliveryTrackingTitle => 'Seguimiento de la entrega';
+
+  @override
+  String get deliveryTrackingLoading => 'Cargando novedades de la entrega…';
+
+  @override
+  String get deliveryTrackingUnavailable =>
+      'El seguimiento de la entrega no está disponible en este momento. La cronología del pedido sigue vigente.';
+
+  @override
+  String get deliveryTrackingRetry => 'Actualizar estado de entrega';
+
+  @override
+  String get deliveryTrackingModeStatusOnly => 'Actualizaciones de estado';
+
+  @override
+  String get deliveryTrackingModeExternalCarrier =>
+      'Empresa de transporte externa';
+
+  @override
+  String get deliveryTrackingModeLiveCourier => 'Repartidor en vivo';
+
+  @override
+  String deliveryTrackingWindow(String start, String end) {
+    return 'Entrega prevista entre $start y $end';
+  }
+
+  @override
+  String deliveryTrackingLastUpdated(String date) {
+    return 'Última actualización de ubicación: $date';
+  }
+
+  @override
+  String get deliveryTrackingLiveWaiting =>
+      'La ubicación en vivo aparecerá cuando el repartidor inicie la entrega.';
+
+  @override
+  String get deliveryTrackingFresh => 'La ubicación se está actualizando';
+
+  @override
+  String get deliveryTrackingStale => 'La ubicación no se está actualizando';
+
+  @override
+  String get deliveryTrackingEnded => 'La ubicación dejó de compartirse';
+
+  @override
+  String deliveryTrackingCourierLabel(String label) {
+    return 'Repartidor: $label';
+  }
+
+  @override
+  String deliveryTrackingExternalCode(String code) {
+    return 'Referencia $code';
+  }
+
+  @override
+  String get deliveryTrackingPollingFallback =>
+      'Las actualizaciones en vivo se están reconectando. Revisamos periódicamente el estado de la entrega.';
+
+  @override
+  String get deliveryTrackingOfflineCached =>
+      'Mostramos la última copia cifrada guardada en este dispositivo.';
 }

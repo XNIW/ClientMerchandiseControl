@@ -5,14 +5,14 @@
 - **Task ID**: TASK-043
 - **Titolo**: Storefront commerce information architecture and UX refresh
 - **File task**: `docs/TASKS/TASK-043-storefront-commerce-information-architecture-ux-refresh.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-043/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -203,7 +203,7 @@ Completato secondo Planning senza nuovi RPC, schema o capability speculative.
 | CA-12 | filtri Orders, stati, load-more e cache controller testati | PASS |
 | CA-13 | parità ARB/placeholder e quattro locale | PASS |
 | CA-14 | sette viewport, light/dark, scale 1.0/1.3/2.0 e runtime tablet | PASS |
-| CA-15 | gate locali e smoke verdi; CI/merge/main restano `NOT_RUN` fino alla PR | PARTIAL |
+| CA-15 | gate locali, PR #8 exact-SHA e main post-merge run `31933418566` verdi | PASS |
 
 ### Matrice T-NN -> risultato
 
@@ -221,14 +221,15 @@ Completato secondo Planning senza nuovi RPC, schema o capability speculative.
 | T-10 | PASS | orders unit/widget/integration |
 | T-11 | PASS | gen_l10n + contract test |
 | T-12 | PASS | matrice reflow + visual runtime bounded |
-| T-13 | PARTIAL | locali PASS; CI PR/main `NOT_RUN` |
+| T-13 | PASS | locali, PR run `31933134837` e main run `31933418566` 3/3 verdi |
 
 ### Rischi rimasti
 
 - il file staging locale storico deve essere rigenerato fuori Git prima di uno smoke
   data-backed; il Client resta correttamente fail-closed;
 - la review è logicamente separata nella stessa sessione, non una sessione distinta;
-- CI exact-SHA, merge e main CI non sono ancora stati eseguiti.
+- lo smoke staging data-backed resta `BLOCKED_CONFIGURATION` per configurazione locale
+  storica, senza impatto sul codice o sui gate PR/main verificati.
 
 ### Handoff a Review
 
@@ -286,6 +287,9 @@ Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW` sul commit `ec3cb4d`.
 
 - **Conferma utente**: ricevuta in anticipo nel prompt del 2026-08-16, condizionata a review e CI reali verdi
 - **Merge autorizzato da USER_APPROVER**: sì, normale e senza bypass dopo `APPROVED`
-- **Follow-up candidate**: TASK-044
-- **Riepilogo finale**: in corso
-- **Data completamento**:
+- **Follow-up candidate**: TASK-044, attivato separatamente dopo main CI verde
+- **Riepilogo finale**: PR #8 fusa normalmente in `main` con merge commit
+  `e9bd0306b07b105f3fb46da783ab2fd24ef44246`; PR CI `31933134837` e main CI
+  `31933418566` hanno concluso Quality, Android e iOS 3/3 `SUCCESS`; branch remoto
+  integrato eliminato.
+- **Data completamento**: 2026-08-16

@@ -12,6 +12,8 @@ import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../delivery_tracking/application/delivery_tracking_controller.dart';
+import '../../delivery_tracking/domain/delivery_tracking_models.dart';
 import '../application/customer_order_controller.dart';
 import '../domain/customer_order_failure.dart';
 import '../domain/customer_order_models.dart';
@@ -27,33 +29,52 @@ class OrderDetailScreen extends ConsumerStatefulWidget {
   ConsumerState<OrderDetailScreen> createState() => _OrderDetailScreenState();
 }
 
-class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
+class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen>
+    with WidgetsBindingObserver {
+  String? _trackingOpenOrderId;
+  late final CustomerOrderController _orderController;
+  late final DeliveryTrackingController _trackingController;
+
   @override
   void initState() {
     super.initState();
-    scheduleMicrotask(
-      () => ref
-          .read(customerOrderControllerProvider.notifier)
-          .openOrder(widget.orderId),
-    );
+    _orderController = ref.read(customerOrderControllerProvider.notifier);
+    _trackingController = ref.read(deliveryTrackingControllerProvider.notifier);
+    WidgetsBinding.instance.addObserver(this);
+    scheduleMicrotask(() => _orderController.openOrder(widget.orderId));
   }
 
   @override
   void didUpdateWidget(covariant OrderDetailScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.orderId != widget.orderId) {
-      scheduleMicrotask(
-        () => ref
-            .read(customerOrderControllerProvider.notifier)
-            .openOrder(widget.orderId),
-      );
+      _trackingOpenOrderId = null;
+      scheduleMicrotask(() async {
+        await _trackingController.close();
+        if (mounted) await _orderController.openOrder(widget.orderId);
+      });
     }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    unawaited(
+      _trackingController.setForeground(state == AppLifecycleState.resumed),
+    );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(_trackingController.close());
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(customerOrderControllerProvider);
+    final trackingState = ref.watch(deliveryTrackingControllerProvider);
     final controller = ref.read(customerOrderControllerProvider.notifier);
     ref.listen<CustomerOrdersState>(customerOrderControllerProvider, (
       previous,
@@ -81,6 +102,21 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     });
     final selectedMatches = state.selectedOrderId == widget.orderId;
     final detail = selectedMatches ? state.selectedOrder : null;
+    if (detail?.fulfillment.mode == CustomerOrderFulfillmentMode.delivery) {
+      final terminal = _isTerminalCustomerOrderStatus(detail!.status);
+      final trackingKey = terminal ? 'terminal:${detail.id}' : detail.id;
+      if (_trackingOpenOrderId != trackingKey) {
+        _trackingOpenOrderId = trackingKey;
+        scheduleMicrotask(() {
+          if (!mounted) return;
+          unawaited(
+            terminal
+                ? _trackingController.close(clearCache: true)
+                : _trackingController.open(detail.id),
+          );
+        });
+      }
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.ordersDetailTitle),
@@ -97,8 +133,14 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             tooltip: l10n.ordersDetailRefresh,
             onPressed: state.isDetailLoading || state.isCancelling
                 ? null
-                : () =>
+                : () => unawaited(
+                    Future.wait([
                       controller.openOrder(widget.orderId, forceRefresh: true),
+                      ref
+                          .read(deliveryTrackingControllerProvider.notifier)
+                          .refresh(),
+                    ]),
+                  ),
             icon: const Icon(Icons.refresh),
           ),
         ],
@@ -112,7 +154,11 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                 onRetry: () =>
                     controller.openOrder(widget.orderId, forceRefresh: true),
               )
-            : _OrderDetailBody(detail: detail, state: state),
+            : _OrderDetailBody(
+                detail: detail,
+                state: state,
+                trackingState: trackingState,
+              ),
       ),
     );
   }
@@ -157,17 +203,25 @@ class _OrderDetailUnavailable extends StatelessWidget {
 }
 
 class _OrderDetailBody extends ConsumerWidget {
-  const _OrderDetailBody({required this.detail, required this.state});
+  const _OrderDetailBody({
+    required this.detail,
+    required this.state,
+    required this.trackingState,
+  });
 
   final CustomerOrderDetail detail;
   final CustomerOrdersState state;
+  final DeliveryTrackingViewState trackingState;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final controller = ref.read(customerOrderControllerProvider.notifier);
     return RefreshIndicator.adaptive(
-      onRefresh: () => controller.openOrder(detail.id, forceRefresh: true),
+      onRefresh: () => Future.wait([
+        controller.openOrder(detail.id, forceRefresh: true),
+        ref.read(deliveryTrackingControllerProvider.notifier).refresh(),
+      ]),
       child: ListView(
         key: const ValueKey('order-detail-scroll'),
         physics: const AlwaysScrollableScrollPhysics(),
@@ -206,6 +260,18 @@ class _OrderDetailBody extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.md),
                   _OrderItems(detail: detail),
                   const SizedBox(height: AppSpacing.md),
+                  if (detail.fulfillment.mode ==
+                          CustomerOrderFulfillmentMode.delivery &&
+                      !_isTerminalCustomerOrderStatus(detail.status)) ...[
+                    _DeliveryTrackingCard(
+                      detail: detail,
+                      state: trackingState,
+                      onRetry: () => ref
+                          .read(deliveryTrackingControllerProvider.notifier)
+                          .refresh(),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                  ],
                   _FulfillmentCard(detail: detail),
                   const SizedBox(height: AppSpacing.md),
                   _TimelineCard(detail: detail),
@@ -239,6 +305,11 @@ class _OrderDetailBody extends ConsumerWidget {
     );
   }
 }
+
+bool _isTerminalCustomerOrderStatus(CustomerOrderStatus status) =>
+    status == CustomerOrderStatus.completed ||
+    status == CustomerOrderStatus.cancelled ||
+    status == CustomerOrderStatus.rejected;
 
 class _OrderHeader extends StatelessWidget {
   const _OrderHeader({required this.detail});
@@ -453,6 +524,214 @@ class _MoneyRow extends StatelessWidget {
         Expanded(child: Text(label, style: style)),
         Text(amount, style: style),
       ],
+    );
+  }
+}
+
+class _DeliveryTrackingCard extends StatelessWidget {
+  const _DeliveryTrackingCard({
+    required this.detail,
+    required this.state,
+    required this.onRetry,
+  });
+
+  final CustomerOrderDetail detail;
+  final DeliveryTrackingViewState state;
+  final Future<void> Function() onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final snapshot = state.orderId == detail.id ? state.snapshot : null;
+    if (snapshot == null) {
+      return Card(
+        key: const ValueKey('delivery-tracking-card'),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 152),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child:
+                state.status == DeliveryTrackingStatus.loading ||
+                    state.orderId != detail.id
+                ? Semantics(
+                    liveRegion: true,
+                    label: l10n.deliveryTrackingLoading,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _SectionTitle(
+                          icon: Icons.local_shipping_outlined,
+                          title: l10n.deliveryTrackingTitle,
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        const LinearProgressIndicator(
+                          key: ValueKey('delivery-tracking-loading'),
+                        ),
+                      ],
+                    ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _SectionTitle(
+                        icon: Icons.local_shipping_outlined,
+                        title: l10n.deliveryTrackingTitle,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(l10n.deliveryTrackingUnavailable),
+                      const SizedBox(height: AppSpacing.sm),
+                      TextButton.icon(
+                        key: const ValueKey('delivery-tracking-retry'),
+                        onPressed: () => unawaited(onRetry()),
+                        icon: const Icon(Icons.refresh),
+                        label: Text(l10n.deliveryTrackingRetry),
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size.fromHeight(
+                            AppSizes.minimumTouchTarget,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      );
+    }
+
+    final modeLabel = switch (snapshot.trackingMode) {
+      DeliveryTrackingMode.statusOnly => l10n.deliveryTrackingModeStatusOnly,
+      DeliveryTrackingMode.externalCarrier =>
+        l10n.deliveryTrackingModeExternalCarrier,
+      DeliveryTrackingMode.liveCourier => l10n.deliveryTrackingModeLiveCourier,
+    };
+    final freshnessLabel = switch (snapshot.freshness) {
+      DeliveryTrackingFreshness.fresh => l10n.deliveryTrackingFresh,
+      DeliveryTrackingFreshness.stale => l10n.deliveryTrackingStale,
+      DeliveryTrackingFreshness.ended => l10n.deliveryTrackingEnded,
+      DeliveryTrackingFreshness.unavailable
+          when snapshot.trackingMode == DeliveryTrackingMode.liveCourier =>
+        l10n.deliveryTrackingLiveWaiting,
+      DeliveryTrackingFreshness.unavailable =>
+        l10n.deliveryTrackingModeStatusOnly,
+    };
+    final semanticLabel = [
+      l10n.deliveryTrackingTitle,
+      modeLabel,
+      customerOrderStatusLabel(l10n, detail.status),
+      freshnessLabel,
+    ].join('. ');
+
+    return Semantics(
+      key: const ValueKey('delivery-tracking-card'),
+      container: true,
+      label: semanticLabel,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _SectionTitle(
+                icon: snapshot.isTerminal
+                    ? Icons.task_alt_outlined
+                    : Icons.local_shipping_outlined,
+                title: l10n.deliveryTrackingTitle,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    snapshot.freshness == DeliveryTrackingFreshness.stale
+                        ? Icons.location_off_outlined
+                        : Icons.location_on_outlined,
+                    color: snapshot.freshness == DeliveryTrackingFreshness.stale
+                        ? Theme.of(context).colorScheme.error
+                        : Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          modeLabel,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(freshnessLabel),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (snapshot.etaStartsAt != null &&
+                  snapshot.etaEndsAt != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  l10n.deliveryTrackingWindow(
+                    customerOrderDate(context, snapshot.etaStartsAt!),
+                    customerOrderDate(context, snapshot.etaEndsAt!),
+                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ],
+              if (snapshot.courierPublicLabel != null &&
+                  !snapshot.isTerminal) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  l10n.deliveryTrackingCourierLabel(
+                    snapshot.courierPublicLabel!,
+                  ),
+                ),
+              ],
+              if (snapshot.trackingMode ==
+                      DeliveryTrackingMode.externalCarrier &&
+                  snapshot.externalCarrier != null &&
+                  !snapshot.isTerminal) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  snapshot.externalCarrier!,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                if (snapshot.externalTrackingCodeMasked != null)
+                  Text(
+                    l10n.deliveryTrackingExternalCode(
+                      snapshot.externalTrackingCodeMasked!,
+                    ),
+                  ),
+              ],
+              if (snapshot.observedAt != null && !snapshot.isTerminal) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  l10n.deliveryTrackingLastUpdated(
+                    customerOrderDate(context, snapshot.observedAt!),
+                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+              if (state.isPollingFallback) ...[
+                const SizedBox(height: AppSpacing.md),
+                _DetailBanner(
+                  icon: Icons.sync_problem_outlined,
+                  message: l10n.deliveryTrackingPollingFallback,
+                ),
+              ] else if (state.status == DeliveryTrackingStatus.offline) ...[
+                const SizedBox(height: AppSpacing.md),
+                _DetailBanner(
+                  icon: Icons.lock_outline,
+                  message: l10n.deliveryTrackingOfflineCached,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

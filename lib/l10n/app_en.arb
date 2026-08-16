@@ -481,5 +481,22 @@
   "ordersUnexpected": "We could not verify this order. The saved copy remains read-only.",
   "ordersCancellationDeadline": "You can cancel until {date}",
   "ordersDetailRefresh": "Refresh details",
-  "ordersBackToOrders": "Back to my orders"
+  "ordersBackToOrders": "Back to my orders",
+  "deliveryTrackingTitle": "Delivery tracking",
+  "deliveryTrackingLoading": "Loading delivery updates…",
+  "deliveryTrackingUnavailable": "Delivery tracking is not available right now. The order timeline remains current.",
+  "deliveryTrackingRetry": "Refresh delivery status",
+  "deliveryTrackingModeStatusOnly": "Status updates",
+  "deliveryTrackingModeExternalCarrier": "External carrier",
+  "deliveryTrackingModeLiveCourier": "Live courier",
+  "deliveryTrackingWindow": "Expected between {start} and {end}",
+  "deliveryTrackingLastUpdated": "Last location update {date}",
+  "deliveryTrackingLiveWaiting": "Live location will appear after the courier starts the delivery.",
+  "deliveryTrackingFresh": "Location is updating",
+  "deliveryTrackingStale": "Location is not updating",
+  "deliveryTrackingEnded": "Location sharing has ended",
+  "deliveryTrackingCourierLabel": "Courier: {label}",
+  "deliveryTrackingExternalCode": "Reference {code}",
+  "deliveryTrackingPollingFallback": "Live updates are reconnecting. Delivery status is being checked periodically.",
+  "deliveryTrackingOfflineCached": "Showing the latest encrypted copy saved on this device."
 }

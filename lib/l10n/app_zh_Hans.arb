@@ -481,5 +481,22 @@
   "ordersUnexpected": "无法验证此订单。保存的副本将保持只读。",
   "ordersCancellationDeadline": "可在 {date} 前取消",
   "ordersDetailRefresh": "刷新详情",
-  "ordersBackToOrders": "返回我的订单"
+  "ordersBackToOrders": "返回我的订单",
+  "deliveryTrackingTitle": "配送跟踪",
+  "deliveryTrackingLoading": "正在加载配送动态…",
+  "deliveryTrackingUnavailable": "配送跟踪目前不可用。订单时间线仍可查看。",
+  "deliveryTrackingRetry": "刷新配送状态",
+  "deliveryTrackingModeStatusOnly": "状态更新",
+  "deliveryTrackingModeExternalCarrier": "外部承运商",
+  "deliveryTrackingModeLiveCourier": "配送员实时位置",
+  "deliveryTrackingWindow": "预计在 {start} 至 {end} 之间送达",
+  "deliveryTrackingLastUpdated": "上次位置更新时间：{date}",
+  "deliveryTrackingLiveWaiting": "配送员开始配送后将显示实时位置。",
+  "deliveryTrackingFresh": "位置正在更新",
+  "deliveryTrackingStale": "位置暂未更新",
+  "deliveryTrackingEnded": "位置共享已结束",
+  "deliveryTrackingCourierLabel": "配送员：{label}",
+  "deliveryTrackingExternalCode": "参考编号 {code}",
+  "deliveryTrackingPollingFallback": "实时更新正在重新连接。系统会定期检查配送状态。",
+  "deliveryTrackingOfflineCached": "当前显示此设备上保存的最新加密副本。"
 }

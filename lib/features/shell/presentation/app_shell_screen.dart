@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,29 +11,56 @@ import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../cart/application/cart_controller.dart';
+import '../../delivery_tracking/application/delivery_tracking_controller.dart';
 import '../../orders/application/customer_order_controller.dart';
 import '../../orders/domain/customer_order_selectors.dart';
 
-class AppShellScreen extends ConsumerWidget {
+final shellCartCountProvider = Provider<int>((ref) {
+  return ref.watch(
+    cartControllerProvider.select(
+      (state) => state.snapshot?.totalQuantity ?? 0,
+    ),
+  );
+});
+
+final shellActiveOrderCountProvider = Provider<int?>((ref) {
+  return ref.watch(
+    customerOrderControllerProvider.select(
+      (state) => completeActiveCustomerOrderCount(
+        state.orders,
+        hasMore: state.hasMore,
+      ),
+    ),
+  );
+});
+
+typedef ShellTrackingVisibilityHandler = Future<void> Function(bool visible);
+
+final shellTrackingVisibilityHandlerProvider =
+    Provider<ShellTrackingVisibilityHandler>((ref) {
+      final controller = ref.read(deliveryTrackingControllerProvider.notifier);
+      return controller.setRouteVisible;
+    });
+
+class AppShellScreen extends ConsumerStatefulWidget {
   const AppShellScreen({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppShellScreen> createState() => _AppShellScreenState();
+}
+
+class _AppShellScreenState extends ConsumerState<AppShellScreen> {
+  int? _observedNavigationIndex;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final cartCount = ref.watch(
-      cartControllerProvider.select(
-        (state) => state.snapshot?.totalQuantity ?? 0,
-      ),
-    );
-    final activeOrderCount = ref.watch(
-      customerOrderControllerProvider.select(
-        (state) => completeActiveCustomerOrderCount(
-          state.orders,
-          hasMore: state.hasMore,
-        ),
-      ),
+    final cartCount = ref.watch(shellCartCountProvider);
+    final activeOrderCount = ref.watch(shellActiveOrderCountProvider);
+    final setTrackingRouteVisible = ref.read(
+      shellTrackingVisibilityHandlerProvider,
     );
     final titles = [
       AppBrand.effectiveDisplayName,
@@ -40,10 +69,21 @@ class AppShellScreen extends ConsumerWidget {
       l10n.cartTitle,
       l10n.accountTitle,
     ];
-    final currentIndex = navigationShell.currentIndex;
+    final currentIndex = widget.navigationShell.currentIndex;
+    if (_observedNavigationIndex != currentIndex) {
+      _observedNavigationIndex = currentIndex;
+      scheduleMicrotask(() {
+        if (!mounted || _observedNavigationIndex != currentIndex) return;
+        unawaited(setTrackingRouteVisible(currentIndex == 2));
+      });
+    }
     final canPopCurrentRoute = GoRouter.of(context).canPop();
     void selectDestination(int index) {
-      navigationShell.goBranch(index, initialLocation: index == currentIndex);
+      unawaited(setTrackingRouteVisible(index == 2));
+      widget.navigationShell.goBranch(
+        index,
+        initialLocation: index == currentIndex,
+      );
     }
 
     return LayoutBuilder(
@@ -55,7 +95,7 @@ class AppShellScreen extends ConsumerWidget {
           canPop: currentIndex == 0 || canPopCurrentRoute,
           onPopInvokedWithResult: (didPop, _) {
             if (!didPop && currentIndex != 0 && !canPopCurrentRoute) {
-              navigationShell.goBranch(0);
+              widget.navigationShell.goBranch(0);
             }
           },
           child: Scaffold(
@@ -176,12 +216,16 @@ class AppShellScreen extends ConsumerWidget {
                         child: SafeArea(
                           top: false,
                           bottom: false,
-                          child: navigationShell,
+                          child: widget.navigationShell,
                         ),
                       ),
                     ],
                   )
-                : SafeArea(top: false, bottom: false, child: navigationShell),
+                : SafeArea(
+                    top: false,
+                    bottom: false,
+                    child: widget.navigationShell,
+                  ),
             bottomNavigationBar: useNavigationRail
                 ? null
                 : NavigationBar(

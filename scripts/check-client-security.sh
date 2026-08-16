@@ -140,7 +140,7 @@ cmc_security_contains_private_key_pem() {
     my $label = qr/(?:RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY/;
     while (
       $content =~
-        /-----BEGIN ($label)-----\r?\n.*?-----END \1-----/sg
+        /-----BEGIN ($label)-----[^\r\n]*\r?\n.*?-----END \1-----/sg
     ) {
       exit 0;
     }

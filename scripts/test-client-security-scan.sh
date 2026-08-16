@@ -424,7 +424,9 @@ openssl genpkey \
   -out "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
   >/dev/null 2>&1
 perl -pe \
-  'if (!/-----/) { s/^/ \t/; s/$/\t /; }' \
+  'if (/-----BEGIN/) { s/$/ \t/; }
+   elsif (/-----END/) { s/$/\t /; }
+   else { s/^/ \t/; s/$/\t /; }' \
   "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
   >"${cmc_fixture_spaced_pem}/artifact/bundle.bin"
 openssl pkey \

@@ -3,12 +3,20 @@ import 'package:client_merchandise_control/app/design_system/tokens/app_sizes.da
 import 'package:client_merchandise_control/app/design_system/tokens/app_spacing.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/presentation/account_screen.dart';
+import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:client_merchandise_control/features/cart/presentation/cart_screen.dart';
 import 'package:client_merchandise_control/features/catalog/presentation/catalog_screen.dart';
+import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_controller.dart';
+import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_providers.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
+import 'package:client_merchandise_control/features/shell/presentation/app_shell_screen.dart';
+import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+
+import '../delivery_tracking/delivery_tracking_test_support.dart';
 
 void main() {
   Widget buildApp() {
@@ -268,6 +276,103 @@ void main() {
     expect(tester, meetsGuideline(androidTapTargetGuideline));
     expect(tester, meetsGuideline(iOSTapTargetGuideline));
   });
+
+  testWidgets(
+    'navigazione programmatica sospende e riprende il tracking Orders',
+    (tester) async {
+      final repository = FakeDeliveryTrackingRepository();
+      final customer = AuthenticatedCustomer.fromUntrustedIdentity(
+        subjectId: trackingTestOwner,
+        email: 'customer@example.invalid',
+        metadata: const {'name': 'Customer Test'},
+      );
+      final container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWithValue(AppConfig.fromValues()),
+          deliveryTrackingIdentityProvider.overrideWithValue(customer),
+          deliveryTrackingShopSlugProvider.overrideWithValue(trackingTestShop),
+          deliveryTrackingRepositoryProvider.overrideWithValue(repository),
+          deliveryTrackingCacheProvider.overrideWithValue(
+            MemoryDeliveryTrackingCache(),
+          ),
+          deliveryTrackingClockProvider.overrideWithValue(
+            () => trackingTestNow,
+          ),
+          deliveryTrackingPollIntervalProvider.overrideWithValue(
+            const Duration(hours: 1),
+          ),
+        ],
+      );
+      final router = GoRouter(
+        initialLocation: '/orders/detail',
+        routes: [
+          StatefulShellRoute.indexedStack(
+            builder: (context, state, navigationShell) =>
+                AppShellScreen(navigationShell: navigationShell),
+            branches: [
+              _testShellBranch('/home', 'home'),
+              _testShellBranch('/catalog', 'catalog'),
+              StatefulShellBranch(
+                routes: [
+                  GoRoute(
+                    path: '/orders',
+                    builder: (context, state) => const Text('orders'),
+                    routes: [
+                      GoRoute(
+                        path: 'detail',
+                        builder: (context, state) => const Text('detail'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              _testShellBranch('/cart', 'cart'),
+              _testShellBranch('/account', 'account'),
+            ],
+          ),
+        ],
+      );
+      addTearDown(() async {
+        router.dispose();
+        container.dispose();
+        await repository.stream.close();
+      });
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp.router(
+            routerConfig: router,
+            locale: const Locale('es', 'CL'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final controller = container.read(
+        deliveryTrackingControllerProvider.notifier,
+      );
+      await controller.open(trackingTestOrder);
+      expect(repository.watchCalls, 1);
+
+      router.go('/catalog');
+      await tester.pumpAndSettle();
+      expect(repository.watchCancelCalls, 1);
+
+      router.go('/orders/detail');
+      await tester.pumpAndSettle();
+      expect(repository.watchCalls, 2);
+
+      await controller.close();
+    },
+  );
+}
+
+StatefulShellBranch _testShellBranch(String path, String label) {
+  return StatefulShellBranch(
+    routes: [GoRoute(path: path, builder: (context, state) => Text(label))],
+  );
 }
 
 int _selectedDestinationIndex(WidgetTester tester) {

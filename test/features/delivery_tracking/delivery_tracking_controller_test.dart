@@ -328,6 +328,46 @@ void main() {
     await controller.setRouteVisible(true);
     expect(repository.watchCalls, 2);
   });
+
+  test(
+    'freshness expires on polling without a newer snapshot version',
+    () async {
+      var clock = trackingTestNow;
+      final repository = FakeDeliveryTrackingRepository();
+      final container = _container(
+        repository: repository,
+        cache: MemoryDeliveryTrackingCache(),
+        clock: () => clock,
+      );
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+
+      container.read(deliveryTrackingControllerProvider);
+      final controller = container.read(
+        deliveryTrackingControllerProvider.notifier,
+      );
+      await controller.open(trackingTestOrder);
+      expect(
+        container
+            .read(deliveryTrackingControllerProvider)
+            .snapshot
+            ?.hasFreshLiveLocation,
+        isTrue,
+      );
+
+      clock = trackingTestNow.add(const Duration(minutes: 3));
+      await controller.refresh();
+
+      final snapshot = container
+          .read(deliveryTrackingControllerProvider)
+          .snapshot;
+      expect(snapshot?.version, 4);
+      expect(snapshot?.freshness, DeliveryTrackingFreshness.stale);
+      expect(snapshot?.hasFreshLiveLocation, isFalse);
+    },
+  );
 }
 
 DeliveryTrackingSnapshot _terminalSnapshot({required int version}) {

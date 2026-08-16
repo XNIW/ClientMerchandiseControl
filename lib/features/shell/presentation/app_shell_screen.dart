@@ -15,13 +15,20 @@ import '../../delivery_tracking/application/delivery_tracking_controller.dart';
 import '../../orders/application/customer_order_controller.dart';
 import '../../orders/domain/customer_order_selectors.dart';
 
-class AppShellScreen extends ConsumerWidget {
+class AppShellScreen extends ConsumerStatefulWidget {
   const AppShellScreen({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AppShellScreen> createState() => _AppShellScreenState();
+}
+
+class _AppShellScreenState extends ConsumerState<AppShellScreen> {
+  int? _observedNavigationIndex;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final cartCount = ref.watch(
       cartControllerProvider.select(
@@ -43,7 +50,18 @@ class AppShellScreen extends ConsumerWidget {
       l10n.cartTitle,
       l10n.accountTitle,
     ];
-    final currentIndex = navigationShell.currentIndex;
+    final currentIndex = widget.navigationShell.currentIndex;
+    if (_observedNavigationIndex != currentIndex) {
+      _observedNavigationIndex = currentIndex;
+      scheduleMicrotask(() {
+        if (!mounted || _observedNavigationIndex != currentIndex) return;
+        unawaited(
+          ref
+              .read(deliveryTrackingControllerProvider.notifier)
+              .setRouteVisible(currentIndex == 2),
+        );
+      });
+    }
     final canPopCurrentRoute = GoRouter.of(context).canPop();
     void selectDestination(int index) {
       unawaited(
@@ -51,7 +69,10 @@ class AppShellScreen extends ConsumerWidget {
             .read(deliveryTrackingControllerProvider.notifier)
             .setRouteVisible(index == 2),
       );
-      navigationShell.goBranch(index, initialLocation: index == currentIndex);
+      widget.navigationShell.goBranch(
+        index,
+        initialLocation: index == currentIndex,
+      );
     }
 
     return LayoutBuilder(
@@ -63,7 +84,7 @@ class AppShellScreen extends ConsumerWidget {
           canPop: currentIndex == 0 || canPopCurrentRoute,
           onPopInvokedWithResult: (didPop, _) {
             if (!didPop && currentIndex != 0 && !canPopCurrentRoute) {
-              navigationShell.goBranch(0);
+              widget.navigationShell.goBranch(0);
             }
           },
           child: Scaffold(
@@ -184,12 +205,16 @@ class AppShellScreen extends ConsumerWidget {
                         child: SafeArea(
                           top: false,
                           bottom: false,
-                          child: navigationShell,
+                          child: widget.navigationShell,
                         ),
                       ),
                     ],
                   )
-                : SafeArea(top: false, bottom: false, child: navigationShell),
+                : SafeArea(
+                    top: false,
+                    bottom: false,
+                    child: widget.navigationShell,
+                  ),
             bottomNavigationBar: useNavigationRail
                 ? null
                 : NavigationBar(

@@ -240,6 +240,7 @@ final class DeliveryTrackingController
     String orderId, {
     required bool initial,
   }) async {
+    _expireCurrentFreshness();
     final subjectId = _subjectId;
     final shopSlug = _shopSlug;
     if (subjectId == null || shopSlug == null) return;
@@ -423,6 +424,15 @@ final class DeliveryTrackingController
       return snapshot.copyWith(freshness: DeliveryTrackingFreshness.stale);
     }
     return snapshot;
+  }
+
+  void _expireCurrentFreshness() {
+    final current = state.snapshot;
+    if (current == null) return;
+    final adjusted = _freshnessAdjusted(current);
+    if (adjusted.freshness != current.freshness) {
+      state = state.copyWith(snapshot: adjusted);
+    }
   }
 
   Future<void> _stopRuntime() async {

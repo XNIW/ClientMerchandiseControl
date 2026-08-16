@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_map_adapter.dart';
+import 'package:client_merchandise_control/features/delivery_tracking/domain/delivery_tracking_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'delivery_tracking_test_support.dart';
@@ -108,4 +111,107 @@ void main() {
       );
     },
   );
+
+  test(
+    'statusOnly, externalCarrier and terminal snapshots never render',
+    () async {
+      final adapter = FakeDeliveryMapAdapter();
+      final presenter = FailClosedDeliveryMapPresenter(
+        configuration: const DeliveryMapConfiguration(
+          enabled: true,
+          nativeConfigurationPresent: true,
+        ),
+        adapter: adapter,
+      );
+      final live = trackingLiveSnapshot();
+
+      for (final snapshot in [
+        _copySnapshot(live, trackingMode: DeliveryTrackingMode.statusOnly),
+        _copySnapshot(live, trackingMode: DeliveryTrackingMode.externalCarrier),
+        _copySnapshot(live, orderStatus: 'completed'),
+      ]) {
+        final result = await presenter.present(snapshot);
+        expect(
+          (result as DeliveryMapUnavailable).reason,
+          DeliveryMapUnavailableReason.trackingUnavailable,
+        );
+      }
+      expect(adapter.scenes, isEmpty);
+    },
+  );
+
+  test('dispose during provider render cannot publish a ready map', () async {
+    final adapter = _BlockingDeliveryMapAdapter();
+    final presenter = FailClosedDeliveryMapPresenter(
+      configuration: const DeliveryMapConfiguration(
+        enabled: true,
+        nativeConfigurationPresent: true,
+      ),
+      adapter: adapter,
+    );
+
+    final pending = presenter.present(trackingLiveSnapshot());
+    await adapter.renderStarted.future;
+    await presenter.dispose();
+    adapter.releaseRender.complete();
+
+    final result = await pending;
+    expect(
+      (result as DeliveryMapUnavailable).reason,
+      DeliveryMapUnavailableReason.disposed,
+    );
+    expect(adapter.disposeCalls, 1);
+  });
+}
+
+DeliveryTrackingSnapshot _copySnapshot(
+  DeliveryTrackingSnapshot source, {
+  DeliveryTrackingMode? trackingMode,
+  String? orderStatus,
+}) {
+  return DeliveryTrackingSnapshot(
+    orderId: source.orderId,
+    orderStatus: orderStatus ?? source.orderStatus,
+    orderStatusVersion: source.orderStatusVersion,
+    fulfillmentMode: source.fulfillmentMode,
+    trackingMode: trackingMode ?? source.trackingMode,
+    trackingState: source.trackingState,
+    freshness: source.freshness,
+    contactCapability: source.contactCapability,
+    serverTime: source.serverTime,
+    version: source.version,
+    trackingSessionId: source.trackingSessionId,
+    courierPublicLabel: source.courierPublicLabel,
+    vehicleKind: source.vehicleKind,
+    courierCoordinate: source.courierCoordinate,
+    horizontalAccuracyMeters: source.horizontalAccuracyMeters,
+    bearingDegrees: source.bearingDegrees,
+    speedMetersPerSecond: source.speedMetersPerSecond,
+    observedAt: source.observedAt,
+    receivedAt: source.receivedAt,
+    etaStartsAt: source.etaStartsAt,
+    etaEndsAt: source.etaEndsAt,
+    destinationCoordinate: source.destinationCoordinate,
+    storeCoordinate: source.storeCoordinate,
+    externalCarrier: source.externalCarrier,
+    externalTrackingCodeMasked: source.externalTrackingCodeMasked,
+    externalTrackingUrl: source.externalTrackingUrl,
+  );
+}
+
+final class _BlockingDeliveryMapAdapter implements DeliveryMapAdapter {
+  final renderStarted = Completer<void>();
+  final releaseRender = Completer<void>();
+  var disposeCalls = 0;
+
+  @override
+  Future<void> render(DeliveryMapScene scene) async {
+    renderStarted.complete();
+    await releaseRender.future;
+  }
+
+  @override
+  Future<void> dispose() async {
+    disposeCalls++;
+  }
 }

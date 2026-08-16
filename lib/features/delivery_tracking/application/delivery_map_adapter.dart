@@ -86,6 +86,7 @@ final class FailClosedDeliveryMapPresenter {
   final DeliveryMapConfiguration configuration;
   final DeliveryMapAdapter adapter;
   var _disposed = false;
+  var _generation = 0;
 
   Future<DeliveryMapPresentation> present(
     DeliveryTrackingSnapshot snapshot,
@@ -95,6 +96,7 @@ final class FailClosedDeliveryMapPresenter {
         DeliveryMapUnavailableReason.disposed,
       );
     }
+    final generation = _generation;
     if (!configuration.enabled) {
       return const DeliveryMapUnavailable(
         DeliveryMapUnavailableReason.featureFlagOff,
@@ -119,12 +121,18 @@ final class FailClosedDeliveryMapPresenter {
         DeliveryMapUnavailableReason.providerException,
       );
     }
+    if (_disposed || generation != _generation) {
+      return const DeliveryMapUnavailable(
+        DeliveryMapUnavailableReason.disposed,
+      );
+    }
     return DeliveryMapReady(scene);
   }
 
   Future<void> dispose() async {
     if (_disposed) return;
     _disposed = true;
+    _generation++;
     try {
       await adapter.dispose();
     } on Object {

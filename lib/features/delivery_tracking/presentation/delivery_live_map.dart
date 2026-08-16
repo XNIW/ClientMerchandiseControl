@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
 import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
@@ -11,6 +12,7 @@ import '../domain/delivery_tracking_models.dart';
 import 'google_delivery_map_adapter.dart';
 
 typedef DeliveryMapAdapterFactory = DeliveryMapAdapter Function();
+typedef DeliveryMapNativeConfigurationProbe = Future<bool> Function();
 typedef DeliveryMapSurfaceBuilder =
     Widget Function({
       required DeliveryMapAdapter adapter,
@@ -25,6 +27,28 @@ final deliveryMapConfigurationProvider = Provider<DeliveryMapConfiguration>(
 
 final deliveryMapAdapterFactoryProvider = Provider<DeliveryMapAdapterFactory>(
   (ref) => GoogleDeliveryMapAdapter.new,
+);
+
+const _nativeConfigurationChannel = MethodChannel(
+  'com.xniw.clientmerchandisecontrol/delivery_map_configuration',
+);
+
+final deliveryMapNativeConfigurationProbeProvider =
+    Provider<DeliveryMapNativeConfigurationProbe>((ref) {
+      return () async {
+        try {
+          return await _nativeConfigurationChannel.invokeMethod<bool>(
+                'isConfigured',
+              ) ==
+              true;
+        } on Object {
+          return false;
+        }
+      };
+    });
+
+final deliveryMapProviderReadyTimeoutProvider = Provider<Duration>(
+  (ref) => const Duration(seconds: 10),
 );
 
 final deliveryMapSurfaceBuilderProvider = Provider<DeliveryMapSurfaceBuilder>((
@@ -71,9 +95,15 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
   DeliveryMapAdapter? _adapter;
   FailClosedDeliveryMapPresenter? _presenter;
   DeliveryMapPresentation? _presentation;
+  StreamSubscription<DeliveryMapRuntimeState>? _runtimeSubscription;
+  Timer? _providerReadyTimer;
+  DeliveryMapAdapter? _runtimeBoundAdapter;
+  bool? _nativeConfigurationReady;
+  var _providerRuntimeReady = false;
   var _generation = 0;
+  var _providerGeneration = 0;
 
-  bool get _eligible {
+  bool get _potentiallyEligible {
     final configuration = ref.read(deliveryMapConfigurationProvider);
     return configuration.enabled &&
         configuration.nativeConfigurationPresent &&
@@ -99,7 +129,7 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
   Future<void> _present() async {
     final generation = ++_generation;
     final configuration = ref.read(deliveryMapConfigurationProvider);
-    if (!_eligible) {
+    if (!_potentiallyEligible) {
       await _releaseProvider();
       if (!mounted || generation != _generation) return;
       setState(() {
@@ -112,6 +142,24 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
         );
       });
       return;
+    }
+
+    if (_nativeConfigurationReady != true) {
+      final nativeConfigurationReady =
+          _nativeConfigurationReady ??
+          await ref.read(deliveryMapNativeConfigurationProbeProvider)();
+      if (!mounted || generation != _generation) return;
+      _nativeConfigurationReady = nativeConfigurationReady;
+      if (!nativeConfigurationReady) {
+        await _releaseProvider();
+        if (!mounted || generation != _generation) return;
+        setState(
+          () => _presentation = const DeliveryMapUnavailable(
+            DeliveryMapUnavailableReason.missingNativeConfiguration,
+          ),
+        );
+        return;
+      }
     }
 
     late final DeliveryMapPresentation result;
@@ -142,11 +190,74 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
     if (result is DeliveryMapUnavailable) {
       await _releaseProvider();
       if (!mounted || generation != _generation) return;
+    } else if (result is DeliveryMapReady) {
+      _bindProviderRuntime(_adapter!);
     }
     setState(() => _presentation = result);
   }
 
+  void _bindProviderRuntime(DeliveryMapAdapter adapter) {
+    if (identical(_runtimeBoundAdapter, adapter)) return;
+    final providerGeneration = ++_providerGeneration;
+    _runtimeBoundAdapter = adapter;
+    _providerReadyTimer?.cancel();
+    unawaited(_runtimeSubscription?.cancel());
+    final runtimeSource = adapter is DeliveryMapRuntimeStateSource
+        ? adapter as DeliveryMapRuntimeStateSource
+        : null;
+    if (runtimeSource == null) {
+      _providerRuntimeReady = true;
+      return;
+    }
+    _providerRuntimeReady = false;
+    _runtimeSubscription = runtimeSource.runtimeStates.listen(
+      (runtimeState) {
+        if (!mounted || providerGeneration != _providerGeneration) return;
+        switch (runtimeState) {
+          case DeliveryMapRuntimeState.ready:
+            _providerReadyTimer?.cancel();
+            if (_providerRuntimeReady) return;
+            setState(() => _providerRuntimeReady = true);
+            break;
+          case DeliveryMapRuntimeState.failed:
+            unawaited(_failProvider(providerGeneration));
+            break;
+        }
+      },
+      onError: (_) => unawaited(_failProvider(providerGeneration)),
+      onDone: () {
+        if (!_providerRuntimeReady) {
+          unawaited(_failProvider(providerGeneration));
+        }
+      },
+    );
+    _providerReadyTimer = Timer(
+      ref.read(deliveryMapProviderReadyTimeoutProvider),
+      () => unawaited(_failProvider(providerGeneration)),
+    );
+  }
+
+  Future<void> _failProvider(int providerGeneration) async {
+    if (!mounted || providerGeneration != _providerGeneration) return;
+    final generation = ++_generation;
+    await _releaseProvider();
+    if (!mounted || generation != _generation) return;
+    setState(
+      () => _presentation = const DeliveryMapUnavailable(
+        DeliveryMapUnavailableReason.providerException,
+      ),
+    );
+  }
+
   Future<void> _releaseProvider() async {
+    _providerGeneration++;
+    _providerReadyTimer?.cancel();
+    _providerReadyTimer = null;
+    final runtimeSubscription = _runtimeSubscription;
+    _runtimeSubscription = null;
+    _runtimeBoundAdapter = null;
+    _providerRuntimeReady = false;
+    unawaited(runtimeSubscription?.cancel());
     final presenter = _presenter;
     final adapter = _adapter;
     _presenter = null;
@@ -186,7 +297,7 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_eligible) return const SizedBox.shrink();
+    if (!_potentiallyEligible) return const SizedBox.shrink();
     final presentation = _presentation;
     if (presentation is DeliveryMapUnavailable) {
       return const SizedBox.shrink(key: ValueKey('delivery-map-unavailable'));
@@ -235,12 +346,18 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
       });
       return const SizedBox.shrink(key: ValueKey('delivery-map-unavailable'));
     }
+    final providerRuntimeReady = _providerRuntimeReady;
     return Padding(
       padding: const EdgeInsets.only(top: AppSpacing.md),
       child: Semantics(
-        key: const ValueKey('delivery-live-map'),
+        key: ValueKey(
+          providerRuntimeReady ? 'delivery-live-map' : 'delivery-map-loading',
+        ),
         container: true,
-        label: widget.semanticsLabel,
+        liveRegion: !providerRuntimeReady,
+        label: providerRuntimeReady
+            ? widget.semanticsLabel
+            : widget.loadingLabel,
         child: AspectRatio(
           aspectRatio: 16 / 9,
           child: ClipRRect(
@@ -248,26 +365,37 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                ExcludeSemantics(child: surface),
-                PositionedDirectional(
-                  end: 8,
-                  bottom: 8,
-                  child: Material(
-                    color: Theme.of(context).colorScheme.surface,
-                    elevation: 2,
-                    shape: const CircleBorder(),
-                    child: IconButton(
-                      key: const ValueKey('delivery-map-recenter'),
-                      tooltip: widget.recenterLabel,
-                      constraints: const BoxConstraints.tightFor(
-                        width: AppSizes.minimumTouchTarget,
-                        height: AppSizes.minimumTouchTarget,
+                IgnorePointer(
+                  ignoring: !providerRuntimeReady,
+                  child: ExcludeSemantics(child: surface),
+                ),
+                if (!providerRuntimeReady)
+                  ColoredBox(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
+                    child: const Center(child: CircularProgressIndicator()),
+                  )
+                else
+                  PositionedDirectional(
+                    end: 8,
+                    bottom: 8,
+                    child: Material(
+                      color: Theme.of(context).colorScheme.surface,
+                      elevation: 2,
+                      shape: const CircleBorder(),
+                      child: IconButton(
+                        key: const ValueKey('delivery-map-recenter'),
+                        tooltip: widget.recenterLabel,
+                        constraints: const BoxConstraints.tightFor(
+                          width: AppSizes.minimumTouchTarget,
+                          height: AppSizes.minimumTouchTarget,
+                        ),
+                        onPressed: _recenter,
+                        icon: const Icon(Icons.center_focus_strong_outlined),
                       ),
-                      onPressed: _recenter,
-                      icon: const Icon(Icons.center_focus_strong_outlined),
                     ),
                   ),
-                ),
               ],
             ),
           ),

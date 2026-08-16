@@ -64,6 +64,7 @@ void main() {
   testWidgets(
     'Orders indica la consegna e apre il dettaglio senza coordinate',
     (tester) async {
+      final semantics = tester.ensureSemantics();
       final repository = FakeCustomerOrderRepository()
         ..listOutcomes.add(
           orderTestPage(
@@ -85,10 +86,17 @@ void main() {
         find.byKey(const ValueKey('order-follow-delivery-$orderTestOrder')),
         findsOneWidget,
       );
+      final deliveryCard = find.byKey(
+        const ValueKey('order-card-$orderTestOrder'),
+      );
+      final deliverySemantics = tester.getSemantics(deliveryCard).label;
+      expect(deliverySemantics, contains('En reparto'));
+      expect(deliverySemantics, contains('Seguir entrega'));
       expect(find.text('Entrega en curso'), findsOneWidget);
       expect(find.text('Seguir entrega'), findsOneWidget);
       expect(find.textContaining('-33.'), findsNothing);
       expect(find.textContaining('-70.'), findsNothing);
+      semantics.dispose();
 
       await tester.tap(
         find.byKey(const ValueKey('order-card-$orderTestOrder')),
@@ -524,6 +532,10 @@ final class _Harness {
            if (mapConfiguration != null)
              deliveryMapConfigurationProvider.overrideWithValue(
                mapConfiguration,
+             ),
+           if (mapConfiguration != null)
+             deliveryMapNativeConfigurationProbeProvider.overrideWithValue(
+               () async => mapConfiguration.nativeConfigurationPresent,
              ),
            if (mapAdapterFactory != null)
              deliveryMapAdapterFactoryProvider.overrideWithValue(

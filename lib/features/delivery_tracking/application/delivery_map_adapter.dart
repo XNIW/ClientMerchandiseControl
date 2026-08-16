@@ -93,6 +93,15 @@ abstract interface class RecenterableDeliveryMapAdapter
   Future<void> recenter({required bool animated});
 }
 
+enum DeliveryMapRuntimeState { ready, failed }
+
+/// Segnala quando una superficie nativa e il suo controller sono realmente
+/// utilizzabili. Gli adapter deterministici che non espongono questo contratto
+/// sono considerati pronti dopo [DeliveryMapAdapter.render].
+abstract interface class DeliveryMapRuntimeStateSource {
+  Stream<DeliveryMapRuntimeState> get runtimeStates;
+}
+
 final class FailClosedDeliveryMapPresenter {
   FailClosedDeliveryMapPresenter({
     required this.configuration,

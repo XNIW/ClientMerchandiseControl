@@ -80,6 +80,7 @@ final class DeliveryTrackingController
   StreamSubscription<DeliveryTrackingSnapshot>? _subscription;
   Timer? _pollTimer;
   Timer? _reconnectTimer;
+  Timer? _freshnessTimer;
   String? _subjectId;
   String? _shopSlug;
   String? _orderId;
@@ -169,7 +170,7 @@ final class DeliveryTrackingController
         );
       }
     }
-    await _load(generation, orderId, initial: true);
+    await _load(generation, orderId);
     if (_isCurrent(generation, orderId) &&
         _runtimeAllowed &&
         state.snapshot?.isTerminal != true) {
@@ -181,7 +182,7 @@ final class DeliveryTrackingController
     final orderId = _orderId;
     if (orderId == null) return;
     state = state.copyWith(isRefreshing: true, failure: null);
-    await _load(_generation, orderId, initial: false);
+    await _load(_generation, orderId);
   }
 
   Future<void> close({bool clearCache = false}) async {
@@ -209,7 +210,7 @@ final class DeliveryTrackingController
       return;
     }
     final generation = _generation;
-    await _load(generation, orderId, initial: false);
+    await _load(generation, orderId);
     if (_isCurrent(generation, orderId) &&
         _runtimeAllowed &&
         state.snapshot?.isTerminal != true) {
@@ -227,7 +228,7 @@ final class DeliveryTrackingController
     }
     if (!_foreground) return;
     final generation = _generation;
-    await _load(generation, orderId, initial: false);
+    await _load(generation, orderId);
     if (_isCurrent(generation, orderId) &&
         _runtimeAllowed &&
         state.snapshot?.isTerminal != true) {
@@ -235,11 +236,7 @@ final class DeliveryTrackingController
     }
   }
 
-  Future<void> _load(
-    int generation,
-    String orderId, {
-    required bool initial,
-  }) async {
+  Future<void> _load(int generation, String orderId) async {
     _expireCurrentFreshness();
     final subjectId = _subjectId;
     final shopSlug = _shopSlug;
@@ -288,7 +285,7 @@ final class DeliveryTrackingController
             : DeliveryTrackingStatus.failure,
         failure: failure,
         isRefreshing: false,
-        isPollingFallback: !initial || state.isPollingFallback,
+        isPollingFallback: state.isPollingFallback,
       );
     }
   }
@@ -296,11 +293,11 @@ final class DeliveryTrackingController
   void _startRuntime(int generation, String orderId) {
     if (!_isCurrent(generation, orderId) || !_runtimeAllowed) return;
     _subscribe(generation, orderId);
-    _pollTimer?.cancel();
-    _pollTimer = Timer.periodic(
-      ref.read(deliveryTrackingPollIntervalProvider),
-      (_) => unawaited(_load(generation, orderId, initial: false)),
-    );
+    if (state.failure == DeliveryTrackingFailureKind.offline ||
+        state.failure == DeliveryTrackingFailureKind.timeout ||
+        state.failure == DeliveryTrackingFailureKind.unavailable) {
+      _startPollingFallback(generation, orderId);
+    }
   }
 
   void _subscribe(int generation, String orderId) {
@@ -312,7 +309,7 @@ final class DeliveryTrackingController
           (snapshot) async {
             if (!_isCurrent(generation, orderId)) return;
             if (snapshot.orderId != orderId) return;
-            _reconnectAttempt = 0;
+            _markRealtimeHealthy();
             final subjectId = _subjectId;
             final shopSlug = _shopSlug;
             if (subjectId == null || shopSlug == null) return;
@@ -322,14 +319,44 @@ final class DeliveryTrackingController
               snapshot,
               subjectId: subjectId,
               shopSlug: shopSlug,
+              realtimeHealthy: true,
             );
           },
           onError: (Object _) {
             if (!_isCurrent(generation, orderId)) return;
-            state = state.copyWith(isPollingFallback: true);
+            _startPollingFallback(generation, orderId);
+            _scheduleReconnect(generation, orderId);
+          },
+          onDone: () {
+            if (!_isCurrent(generation, orderId)) return;
+            _startPollingFallback(generation, orderId);
             _scheduleReconnect(generation, orderId);
           },
         );
+  }
+
+  void _startPollingFallback(int generation, String orderId) {
+    if (!_isCurrent(generation, orderId) || !_runtimeAllowed) return;
+    if (!state.isPollingFallback) {
+      state = state.copyWith(isPollingFallback: true);
+    }
+    if (_pollTimer != null) return;
+    unawaited(_load(generation, orderId));
+    _pollTimer = Timer.periodic(
+      ref.read(deliveryTrackingPollIntervalProvider),
+      (_) => unawaited(_load(generation, orderId)),
+    );
+  }
+
+  void _markRealtimeHealthy() {
+    _reconnectAttempt = 0;
+    _reconnectTimer?.cancel();
+    _reconnectTimer = null;
+    _pollTimer?.cancel();
+    _pollTimer = null;
+    if (state.isPollingFallback) {
+      state = state.copyWith(isPollingFallback: false);
+    }
   }
 
   void _scheduleReconnect(int generation, String orderId) {
@@ -370,6 +397,7 @@ final class DeliveryTrackingController
     DeliveryTrackingSnapshot snapshot, {
     required String subjectId,
     required String shopSlug,
+    bool realtimeHealthy = false,
   }) async {
     final previous = _snapshotCommitTail;
     final turn = Completer<void>();
@@ -380,7 +408,11 @@ final class DeliveryTrackingController
       final current = state.snapshot;
       if (current != null &&
           !isNewerDeliveryTrackingSnapshot(current, snapshot)) {
-        state = state.copyWith(isRefreshing: false, failure: null);
+        state = state.copyWith(
+          isRefreshing: false,
+          failure: null,
+          isPollingFallback: realtimeHealthy ? false : state.isPollingFallback,
+        );
         return false;
       }
       await _accept(snapshot, subjectId: subjectId, shopSlug: shopSlug);
@@ -390,8 +422,9 @@ final class DeliveryTrackingController
         snapshot: _freshnessAdjusted(snapshot),
         failure: null,
         isRefreshing: false,
-        isPollingFallback: false,
+        isPollingFallback: realtimeHealthy ? false : state.isPollingFallback,
       );
+      _scheduleFreshnessExpiry(generation, orderId, state.snapshot!);
       if (snapshot.isTerminal) await _stopRuntime();
       return true;
     } finally {
@@ -435,11 +468,41 @@ final class DeliveryTrackingController
     }
   }
 
+  void _scheduleFreshnessExpiry(
+    int generation,
+    String orderId,
+    DeliveryTrackingSnapshot snapshot,
+  ) {
+    _freshnessTimer?.cancel();
+    _freshnessTimer = null;
+    final receivedAt = snapshot.receivedAt;
+    if (snapshot.freshness != DeliveryTrackingFreshness.fresh ||
+        receivedAt == null) {
+      return;
+    }
+    final deadline = receivedAt.add(
+      ref.read(deliveryTrackingFreshnessThresholdProvider),
+    );
+    final delay = deadline.difference(
+      ref.read(deliveryTrackingClockProvider)(),
+    );
+    if (delay <= Duration.zero) {
+      _expireCurrentFreshness();
+      return;
+    }
+    _freshnessTimer = Timer(delay, () {
+      if (!_isCurrent(generation, orderId)) return;
+      _expireCurrentFreshness();
+    });
+  }
+
   Future<void> _stopRuntime() async {
     _pollTimer?.cancel();
     _pollTimer = null;
     _reconnectTimer?.cancel();
     _reconnectTimer = null;
+    _freshnessTimer?.cancel();
+    _freshnessTimer = null;
     final subscription = _subscription;
     _subscription = null;
     if (subscription != null) await subscription.cancel();

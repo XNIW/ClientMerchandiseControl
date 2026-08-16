@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -17,10 +18,25 @@ final class DeliveryMapMarkerLabels {
   final String courier;
 }
 
-final class GoogleDeliveryMapAdapter implements RecenterableDeliveryMapAdapter {
+abstract interface class DeliveryMapCameraController {
+  Future<void> moveCamera(CameraUpdate update);
+
+  Future<void> animateCamera(CameraUpdate update);
+
+  Future<void> dispose();
+}
+
+final class GoogleDeliveryMapAdapter
+    implements RecenterableDeliveryMapAdapter, DeliveryMapRuntimeStateSource {
   final ValueNotifier<DeliveryMapScene?> _scene = ValueNotifier(null);
-  GoogleMapController? _controller;
+  final StreamController<DeliveryMapRuntimeState> _runtimeStates =
+      StreamController<DeliveryMapRuntimeState>.broadcast();
+  DeliveryMapCameraController? _controller;
   var _disposed = false;
+  var _controllerGeneration = 0;
+
+  @override
+  Stream<DeliveryMapRuntimeState> get runtimeStates => _runtimeStates.stream;
 
   @override
   Future<void> render(DeliveryMapScene scene) async {
@@ -66,28 +82,47 @@ final class GoogleDeliveryMapAdapter implements RecenterableDeliveryMapAdapter {
   Future<void> dispose() async {
     if (_disposed) return;
     _disposed = true;
+    _controllerGeneration++;
     final controller = _controller;
     _controller = null;
-    controller?.dispose();
+    await controller?.dispose();
     _scene.dispose();
+    await _runtimeStates.close();
   }
 
-  Future<void> _didCreateController(GoogleMapController controller) async {
+  Future<void> attachController(DeliveryMapCameraController controller) async {
     if (_disposed) {
-      controller.dispose();
+      await controller.dispose();
       return;
     }
+    final generation = ++_controllerGeneration;
     final previous = _controller;
     _controller = controller;
-    previous?.dispose();
-    final scene = _scene.value;
-    if (scene != null) {
-      await _fitScene(controller, scene, animated: false);
+    await previous?.dispose();
+    try {
+      final scene = _scene.value;
+      if (scene != null) {
+        await _fitScene(controller, scene, animated: false);
+      }
+      if (_disposed || generation != _controllerGeneration) return;
+      _runtimeStates.add(DeliveryMapRuntimeState.ready);
+    } on Object {
+      if (!_disposed && generation == _controllerGeneration) {
+        _controller = null;
+        try {
+          await controller.dispose();
+        } on Object {
+          // Il teardown resta fail-closed anche quando il provider fallisce.
+        }
+        if (!_disposed && generation == _controllerGeneration) {
+          _runtimeStates.add(DeliveryMapRuntimeState.failed);
+        }
+      }
     }
   }
 
   static Future<void> _fitScene(
-    GoogleMapController controller,
+    DeliveryMapCameraController controller,
     DeliveryMapScene scene, {
     required bool animated,
   }) async {
@@ -176,7 +211,9 @@ class _GoogleDeliveryMapSurface extends StatelessWidget {
             ),
           },
           mapType: MapType.normal,
-          onMapCreated: adapter._didCreateController,
+          onMapCreated: (controller) => unawaited(
+            adapter.attachController(_GoogleMapCameraController(controller)),
+          ),
           compassEnabled: false,
           indoorViewEnabled: false,
           mapToolbarEnabled: false,
@@ -191,6 +228,22 @@ class _GoogleDeliveryMapSurface extends StatelessWidget {
       },
     );
   }
+}
+
+final class _GoogleMapCameraController implements DeliveryMapCameraController {
+  const _GoogleMapCameraController(this._delegate);
+
+  final GoogleMapController _delegate;
+
+  @override
+  Future<void> animateCamera(CameraUpdate update) =>
+      _delegate.animateCamera(update);
+
+  @override
+  Future<void> dispose() async => _delegate.dispose();
+
+  @override
+  Future<void> moveCamera(CameraUpdate update) => _delegate.moveCamera(update);
 }
 
 bool _sameScene(DeliveryMapScene? left, DeliveryMapScene right) {

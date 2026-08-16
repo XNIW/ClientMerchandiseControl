@@ -8,6 +8,9 @@ void main() {
     final manifest = File(
       'android/app/src/main/AndroidManifest.xml',
     ).readAsStringSync();
+    final activity = File(
+      'android/app/src/main/kotlin/com/xniw/clientmerchandisecontrol/MainActivity.kt',
+    ).readAsStringSync();
 
     expect(gradle, contains('ANDROID_GOOGLE_MAPS_API_KEY'));
     expect(gradle, contains('localProperties.getProperty("MAPS_API_KEY")'));
@@ -15,7 +18,10 @@ void main() {
     expect(gradle, contains('"NOT_CONFIGURED"'));
     expect(manifest, contains('com.google.android.geo.API_KEY'));
     expect(manifest, contains(r'${MAPS_API_KEY}'));
-    expect(_containsGoogleApiKey('$gradle\n$manifest'), isFalse);
+    expect(activity, contains('DELIVERY_MAP_CONFIGURATION_CHANNEL'));
+    expect(activity, contains('call.method == "isConfigured"'));
+    expect(activity, contains('apiKey != "NOT_CONFIGURED"'));
+    expect(_containsGoogleApiKey('$gradle\n$manifest\n$activity'), isFalse);
   });
 
   test('iOS usa chiave locale ignorata, guard fail-closed e target 14', () {
@@ -36,6 +42,9 @@ void main() {
     expect(plist, contains(r'$(IOS_GOOGLE_MAPS_API_KEY)'));
     expect(delegate, contains('mapsApiKey != "NOT_CONFIGURED"'));
     expect(delegate, contains('GMSServices.provideAPIKey(mapsApiKey)'));
+    expect(delegate, contains('deliveryMapConfigured = true'));
+    expect(delegate, contains('call.method == "isConfigured"'));
+    expect(delegate, contains('engineBridge.applicationRegistrar.messenger()'));
     expect(project, isNot(contains('IPHONEOS_DEPLOYMENT_TARGET = 13.0')));
     expect(project, contains('IPHONEOS_DEPLOYMENT_TARGET = 14.0'));
     expect(podfile, contains("platform :ios, '14.0'"));

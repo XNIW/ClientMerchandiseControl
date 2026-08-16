@@ -452,9 +452,13 @@ class _ActiveOrderCard extends StatelessWidget {
     final canFollowDelivery =
         order.fulfillmentMode == CustomerOrderFulfillmentMode.delivery &&
         order.status == CustomerOrderStatus.outForDelivery;
+    final semanticsLabel = [
+      l10n.homeActiveOrderSemantics(order.code, status),
+      if (canFollowDelivery) l10n.deliveryTrackingFollowAction,
+    ].join('. ');
     return Semantics(
       button: true,
-      label: l10n.homeActiveOrderSemantics(order.code, status),
+      label: semanticsLabel,
       child: Card(
         key: const ValueKey('home-active-order'),
         margin: EdgeInsets.zero,

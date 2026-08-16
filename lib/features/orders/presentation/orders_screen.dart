@@ -361,6 +361,11 @@ class _OrderCard extends StatelessWidget {
     final canFollowDelivery =
         order.fulfillmentMode == CustomerOrderFulfillmentMode.delivery &&
         order.status == CustomerOrderStatus.outForDelivery;
+    final semanticsLabel = [
+      l10n.ordersCardSemantics(order.code, status, total),
+      if (canFollowDelivery) l10n.deliveryTrackingInDeliveryIndicator,
+      if (canFollowDelivery) l10n.deliveryTrackingFollowAction,
+    ].join('. ');
     final code = Text(
       order.code,
       maxLines: stacked ? 2 : 1,
@@ -373,7 +378,7 @@ class _OrderCard extends StatelessWidget {
     final statusChip = _StatusChip(status: order.status);
     return Semantics(
       button: true,
-      label: l10n.ordersCardSemantics(order.code, status, total),
+      label: semanticsLabel,
       excludeSemantics: true,
       child: Card(
         key: ValueKey('order-card-${order.id}'),

@@ -136,6 +136,7 @@ void main() {
   testWidgets('ordine delivery attivo mostra CTA reale senza coordinate', (
     tester,
   ) async {
+    final semantics = tester.ensureSemantics();
     final orders = FakeCustomerOrderRepository()
       ..listOutcomes.add(
         orderTestPage(
@@ -158,8 +159,15 @@ void main() {
     expect(find.byKey(const ValueKey('home-active-order')), findsOneWidget);
     expect(find.byKey(const ValueKey('home-follow-delivery')), findsOneWidget);
     expect(find.text('Seguir entrega'), findsOneWidget);
+    expect(
+      tester
+          .getSemantics(find.byKey(const ValueKey('home-active-order')))
+          .label,
+      contains('Seguir entrega'),
+    );
     expect(find.textContaining('-33.'), findsNothing);
     expect(find.textContaining('-70.'), findsNothing);
+    semantics.dispose();
   });
 
   testWidgets(

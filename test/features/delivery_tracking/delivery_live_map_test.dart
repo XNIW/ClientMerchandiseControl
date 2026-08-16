@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_map_adapter.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/domain/delivery_tracking_models.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/presentation/delivery_live_map.dart';
@@ -111,6 +113,23 @@ void main() {
         await tester.pumpAndSettle();
       }
 
+      await tester.pumpWidget(
+        _mapApp(
+          snapshot: trackingLiveSnapshot(),
+          configuration: enabledConfiguration,
+          nativeConfigurationProbe: () async => false,
+          adapterFactory: () {
+            factoryCalls++;
+            return FakeDeliveryMapAdapter();
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('delivery-map-unavailable')),
+        findsOneWidget,
+      );
+
       for (final input in [
         (snapshot: trackingLiveSnapshot(), owner: false, compatible: true),
         (snapshot: trackingLiveSnapshot(), owner: true, compatible: false),
@@ -211,6 +230,77 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('provider nativo diventa visibile solo dopo runtime ready', (
+    tester,
+  ) async {
+    final adapter = _RuntimeDeliveryMapAdapter();
+    await tester.pumpWidget(
+      _mapApp(
+        snapshot: trackingLiveSnapshot(),
+        configuration: enabledConfiguration,
+        adapterFactory: () => adapter,
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('delivery-map-loading')), findsOneWidget);
+    expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
+
+    adapter.emit(DeliveryMapRuntimeState.ready);
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('delivery-live-map')), findsOneWidget);
+    expect(find.byKey(const ValueKey('delivery-map-recenter')), findsOneWidget);
+  });
+
+  testWidgets('errore runtime del provider degrada e dispone senza eccezioni', (
+    tester,
+  ) async {
+    final adapter = _RuntimeDeliveryMapAdapter();
+    await tester.pumpWidget(
+      _mapApp(
+        snapshot: trackingLiveSnapshot(),
+        configuration: enabledConfiguration,
+        adapterFactory: () => adapter,
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    adapter.emit(DeliveryMapRuntimeState.failed);
+    await tester.pump();
+    await tester.pump();
+
+    expect(adapter.disposeCalls, 1);
+    expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
+    expect(
+      find.byKey(const ValueKey('delivery-map-unavailable')),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('provider che non diventa ready scade in modo fail-closed', (
+    tester,
+  ) async {
+    final adapter = _RuntimeDeliveryMapAdapter();
+    await tester.pumpWidget(
+      _mapApp(
+        snapshot: trackingLiveSnapshot(),
+        configuration: enabledConfiguration,
+        adapterFactory: () => adapter,
+        providerReadyTimeout: const Duration(milliseconds: 10),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 20));
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
+    expect(adapter.disposeCalls, 1);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('matrice bounded rifluisce, localizza e mantiene target 48 dp', (
     tester,
   ) async {
@@ -291,7 +381,9 @@ Widget _mapApp({
   required DeliveryTrackingSnapshot snapshot,
   required DeliveryMapConfiguration configuration,
   required DeliveryMapAdapterFactory adapterFactory,
+  DeliveryMapNativeConfigurationProbe? nativeConfigurationProbe,
   DeliveryMapSurfaceBuilder? surfaceBuilder,
+  Duration providerReadyTimeout = const Duration(seconds: 10),
   bool ownerAuthenticated = true,
   bool orderStatusCompatible = true,
   bool disableAnimations = false,
@@ -302,6 +394,13 @@ Widget _mapApp({
   return ProviderScope(
     overrides: [
       deliveryMapConfigurationProvider.overrideWithValue(configuration),
+      deliveryMapNativeConfigurationProbeProvider.overrideWithValue(
+        nativeConfigurationProbe ??
+            () async => configuration.nativeConfigurationPresent,
+      ),
+      deliveryMapProviderReadyTimeoutProvider.overrideWithValue(
+        providerReadyTimeout,
+      ),
       deliveryMapAdapterFactoryProvider.overrideWithValue(adapterFactory),
       deliveryMapSurfaceBuilderProvider.overrideWithValue(
         surfaceBuilder ??
@@ -339,6 +438,31 @@ Widget _mapApp({
       ),
     ),
   );
+}
+
+final class _RuntimeDeliveryMapAdapter
+    implements RecenterableDeliveryMapAdapter, DeliveryMapRuntimeStateSource {
+  final StreamController<DeliveryMapRuntimeState> _states =
+      StreamController<DeliveryMapRuntimeState>.broadcast();
+  final List<DeliveryMapScene> scenes = [];
+  var disposeCalls = 0;
+
+  @override
+  Stream<DeliveryMapRuntimeState> get runtimeStates => _states.stream;
+
+  void emit(DeliveryMapRuntimeState state) => _states.add(state);
+
+  @override
+  Future<void> dispose() async {
+    disposeCalls++;
+    await _states.close();
+  }
+
+  @override
+  Future<void> recenter({required bool animated}) async {}
+
+  @override
+  Future<void> render(DeliveryMapScene scene) async => scenes.add(scene);
 }
 
 class _LocalizedDeliveryMap extends StatelessWidget {

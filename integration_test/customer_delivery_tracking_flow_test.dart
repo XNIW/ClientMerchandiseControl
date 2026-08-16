@@ -30,6 +30,9 @@ void main() {
                 nativeConfigurationPresent: true,
               ),
             ),
+            deliveryMapNativeConfigurationProbeProvider.overrideWithValue(
+              () async => true,
+            ),
             deliveryMapAdapterFactoryProvider.overrideWithValue(() {
               factoryCalls++;
               return adapter;
@@ -79,22 +82,36 @@ void main() {
       expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
 
       ownerAuthenticated.value = true;
-      await tester.pumpAndSettle();
+      await _pumpUntil(
+        tester,
+        () => find
+            .byKey(const ValueKey('acceptance-map-surface'))
+            .evaluate()
+            .isNotEmpty,
+      );
       expect(factoryCalls, 1);
+      expect(
+        find.byKey(const ValueKey('acceptance-map-surface')),
+        findsOneWidget,
+      );
       expect(find.byKey(const ValueKey('delivery-live-map')), findsOneWidget);
       expect(adapter.scenes.single.snapshotVersion, 1);
 
       snapshot.value = parseDeliveryTrackingSnapshot(
         _payload(version: 2, latitude: -33.4455),
       );
-      await tester.pumpAndSettle();
+      await _pumpUntil(tester, () => adapter.scenes.last.snapshotVersion == 2);
       expect(adapter.scenes.last.snapshotVersion, 2);
       expect(adapter.scenes.last.courier.latitude, -33.4455);
 
       snapshot.value = parseDeliveryTrackingSnapshot(
         _payload(version: 3, freshness: 'stale'),
       );
-      await tester.pumpAndSettle();
+      await _pumpUntil(
+        tester,
+        () =>
+            find.byKey(const ValueKey('delivery-live-map')).evaluate().isEmpty,
+      );
       expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
       expect(adapter.disposeCalls, 1);
 
@@ -108,7 +125,7 @@ void main() {
         ),
       );
       snapshot.value = terminal;
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 50));
       expect(terminal.isTerminal, isTrue);
       expect(terminal.courierCoordinate, isNull);
       expect(terminal.destinationCoordinate, isNull);
@@ -117,6 +134,14 @@ void main() {
       expect(factoryCalls, 1);
     },
   );
+}
+
+Future<void> _pumpUntil(WidgetTester tester, bool Function() condition) async {
+  for (var attempt = 0; attempt < 20; attempt++) {
+    await tester.pump(const Duration(milliseconds: 50));
+    if (condition()) return;
+  }
+  fail('La condizione asincrona non si è verificata entro il limite bounded.');
 }
 
 Map<String, Object?> _payload({

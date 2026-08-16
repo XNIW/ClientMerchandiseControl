@@ -438,6 +438,40 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_spaced_pem}" \
   --artifact "${cmc_fixture_spaced_pem}/artifact/bundle.bin"
 
+cmc_fixture_single_column_pem="$(
+  cmc_fixture_prepare bundle-private-key-single-column
+)"
+mkdir -p "${cmc_fixture_single_column_pem}/artifact"
+openssl genpkey \
+  -algorithm RSA \
+  -pkeyopt rsa_keygen_bits:1024 \
+  -out "${cmc_fixture_single_column_pem}/artifact/canonical.pem" \
+  >/dev/null 2>&1
+perl -0777 -e '
+  use strict;
+  use warnings;
+  my ($begin, $end, $path) = @ARGV;
+  open my $handle, "<", $path or exit 2;
+  local $/;
+  my $content = <$handle>;
+  close $handle or exit 2;
+  $content =~ /\Q$begin\E\r?\n(.*?)\Q$end\E/s or exit 2;
+  my $payload = $1;
+  $payload =~ s/\s//g;
+  print "$begin\n", join("\n", split //, $payload), "\n$end\n";
+' -- \
+  "${cmc_fixture_pem_fence}BEGIN ${cmc_fixture_private_key_label}${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_pem_fence}END ${cmc_fixture_private_key_label}${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_single_column_pem}/artifact/canonical.pem" \
+  >"${cmc_fixture_single_column_pem}/artifact/bundle.bin"
+openssl pkey \
+  -in "${cmc_fixture_single_column_pem}/artifact/bundle.bin" \
+  -noout \
+  >/dev/null 2>&1
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_single_column_pem}" \
+  --artifact "${cmc_fixture_single_column_pem}/artifact/bundle.bin"
+
 cmc_fixture_encrypted_pem="$(cmc_fixture_prepare bundle-encrypted-private-key)"
 mkdir -p "${cmc_fixture_encrypted_pem}/artifact"
 printf '%s\n' \

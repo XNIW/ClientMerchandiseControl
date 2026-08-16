@@ -153,7 +153,7 @@ cmc_security_contains_private_key_pem() {
         next if !$payload_started && $line =~ /\A[A-Za-z0-9-]+:[^\r\n]*\z/;
         $payload_started = 1;
         $line =~ s/[ \t]//g;
-        if ($line !~ /\A[A-Za-z0-9+\/=]{4,}\z/) {
+        if ($line !~ /\A[A-Za-z0-9+\/=]+\z/) {
           $valid = 0;
           last;
         }

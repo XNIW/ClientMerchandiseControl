@@ -2387,3 +2387,37 @@
   con coverage, benchmark, APK debug e iOS Simulator debug `PASS`.
 - **Stato**: il primo tentativo CI resta storicamente `FAIL`; segue push del nuovo
   head ed esecuzione CI exact-SHA, senza bypass.
+
+## 2026-08-16 — TASK-045 merge, main CI e closeout
+
+- **PR CI**: #10, head `3cab680b4ca42e4cd65e71302b335ac7975256a5`, run
+  `31950880035`; Quality, Android debug e iOS Simulator 3/3 `SUCCESS`, inclusi gli
+  artifact scan, annotation 0/0/0.
+- **Merge**: normale `c013539bec35c938f376be70567492ac3304844a`; ancestry del
+  PR head verificata in `origin/main`, nessun bypass o squash distruttivo.
+- **Main CI**: run `31951215868` sul merge SHA, 3/3 `SUCCESS`, step applicabili verdi,
+  annotation 0/0/0.
+- **Cleanup**: branch remoto di implementazione eliminato; closeout svolto su linked
+  worktree pulito da `origin/main`, checkout primario preservato.
+- **Transizione**: TASK-045 `ACTIVE -> DONE`; progetto `ACTIVE -> IDLE`; release train
+  `APPROVED_PENDING_CI -> COMPLETE`; handoff `USER_APPROVED_DONE`.
+- **Prossimo**: TASK-034 resta `TODO` e non viene attivato automaticamente.
+
+## 2026-08-16 — TASK-045 closeout CI retry
+
+- **Primo run closeout**: PR #11, head `e990f30de7b44492a0bf339c778b522bcd78fa2c`,
+  run `31951946752`; Android e iOS `SUCCESS`, Quality `FAIL` con 624 test passati e
+  un solo test freshness fallito sul runner Linux.
+- **Causa**: il test di resume confrontava una soglia di 200 ms usando `Stopwatch` e
+  un'attesa reale di 250 ms; il comportamento dipendeva quindi dallo scheduling del
+  runner, mentre il contratto da verificare è la rivalutazione con clock avanzato.
+- **Fix**: il test usa ora un clock controllato, verifica lo stato fresh iniziale,
+  avanza deterministicamente oltre la soglia durante foreground/route resume e
+  verifica lo stato stale senza attese wall-clock.
+- **Secondo run**: head `a87c1da4b4abddbfa0715e184ddd2ee024177091`, run
+  `31952449152`; il test di resume corretto è `PASS`, Android e iOS `SUCCESS`, ma
+  Quality espone altri due test preesistenti che attendevano il timer con un delay
+  fisso di 80 ms. Il fix finale attende in modo bounded lo stato stale osservabile,
+  senza assumere lo scheduling del runner.
+- **Stato**: il run fallito resta evidence storica; il merge richiede un nuovo run CI
+  interamente verde sul nuovo SHA.

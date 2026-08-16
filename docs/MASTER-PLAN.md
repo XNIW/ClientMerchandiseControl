@@ -4,19 +4,18 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-045
-- **File task**: docs/TASKS/TASK-045-client-live-map-integrated-acceptance-closeout.md
-- **Stato task**: ACTIVE
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
-- **Stato release train**: APPROVED_PENDING_CI
+- **Stato release train**: COMPLETE
 - **Review integrata**: APPROVED
-- **Prossima azione autorizzata**: pubblicare il candidato approvato dopo remediation
-  dello scanner, eseguire CI exact-SHA, merge normale e verifica `main`;
-  chiudere poi il train in `IDLE` con TASK-034 prossimo ma non attivo
+- **Prossima azione autorizzata**: restare `IDLE`; TASK-034 è il prossimo task del
+  release hardening ma resta `TODO` e non viene attivato automaticamente
 
 ## Repository coinvolti
 
@@ -99,7 +98,7 @@
 | TASK-042 | Post-launch monitoring, supporto e manutenzione | TODO | TASK-041 | Tutti | Operatività post-lancio |
 | TASK-043 | Storefront commerce information architecture and UX refresh | DONE | TASK-033 | Client | Shell a cinque destinazioni e superfici commerce moderne, data-backed e accessibili |
 | TASK-044 | Delivery tracking contract, privacy boundary and operational writer | DONE | TASK-043 | Client, Admin, Supabase | Contratto tracking owner-scoped e writer courier foreground reale |
-| TASK-045 | Client live map, integrated acceptance and closeout | ACTIVE | TASK-044 | Client, Admin, Supabase | Mappa fail-closed, acceptance integrata e closeout del train |
+| TASK-045 | Client live map, integrated acceptance and closeout | DONE | TASK-044 | Client, Admin, Supabase | Mappa fail-closed, acceptance integrata e closeout del train |
 
 ## Dipendenze e blocchi
 
@@ -546,3 +545,19 @@ la suite completa a 2.522/2.522. Branch remoti e worktree TASK-044 sono eliminat
 
 Handoff:
 `CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-045.
+
+## Ultimo task completato — TASK-045
+
+La PR Client #10 ha superato la CI exact-SHA `31950880035` sul commit
+`3cab680b4ca42e4cd65e71302b335ac7975256a5` con Quality, Android e iOS 3/3
+`SUCCESS`, tutti gli step applicabili verdi e annotation 0/0/0. Il merge normale
+`c013539bec35c938f376be70567492ac3304844a` è contenuto in `main`; la CI post-merge
+`31951215868` ha nuovamente concluso 3/3 `SUCCESS`, annotation 0/0/0.
+
+Il release train `CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING` è `COMPLETE`: TASK-043,
+TASK-044 e TASK-045 sono `DONE`, review integrata `APPROVED`, finding P0/P1/P2/P3
+aperti zero. Production, billing, store publishing e chiavi Maps non sono stati
+attivati. Il progetto torna `IDLE`; TASK-034 resta il prossimo task `TODO`, non attivo.
+
+Handoff:
+`USER_APPROVED_DONE`.

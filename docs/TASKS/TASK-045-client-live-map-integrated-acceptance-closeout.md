@@ -4,13 +4,13 @@
 
 - **Task ID**: TASK-045
 - **Titolo**: Client live map, integrated acceptance and closeout
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-045/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -263,6 +263,16 @@ La re-review finale read-only sullo SHA
 
 ## Chiusura
 
-- **Conferma utente**: pre-autorizzata e condizionata a review/CI reali verdi
-- **Merge**: normale, senza bypass
-- **Data completamento**:
+- **Conferma utente**: pre-autorizzata nel prompt del 2026-08-16 e applicata soltanto
+  dopo review `APPROVED`, gate locali e CI exact-SHA verdi
+- **PR Client**: #10, head `3cab680b4ca42e4cd65e71302b335ac7975256a5`,
+  CI `31950880035` 3/3 `SUCCESS`, annotation 0/0/0
+- **Merge**: normale `c013539bec35c938f376be70567492ac3304844a`, senza
+  squash distruttivo, force push, auto-merge cieco o bypass
+- **Main CI**: `31951215868` sul merge SHA, Quality/Android/iOS 3/3 `SUCCESS`,
+  annotation 0/0/0
+- **Cleanup**: branch remoto di implementazione eliminato dopo verifica ancestry;
+  closeout documentale eseguito da worktree linked pulito
+- **Esito**: `DONE / REVIEW / USER_APPROVED_DONE`; progetto `IDLE`, TASK-034 prossimo
+  ma ancora `TODO`
+- **Data completamento**: 2026-08-16

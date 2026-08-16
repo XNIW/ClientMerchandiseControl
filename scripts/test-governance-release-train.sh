@@ -254,14 +254,14 @@ cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-045/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: nessuno/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-045 | Client live map, integrated acceptance and closeout | ACTIVE |/| TASK-045 | Client live map, integrated acceptance and closeout | DONE |/' \
+  's/| TASK-045 | Client live map, integrated acceptance and closeout | DONE |/| TASK-045 | Client live map, integrated acceptance and closeout | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"
@@ -270,7 +270,7 @@ cmc_case="$(cmc_fixture invalid-train-state)"
 sed -i.bak 's/- \*\*Release train\*\*: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING/- **Release train**: STOREFRONT_V1/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
-sed -i.bak 's/- \*\*Stato release train\*\*: EXECUTION/- **Stato release train**: UNKNOWN/' \
+sed -i.bak 's/- \*\*Stato release train\*\*: COMPLETE/- **Stato release train**: UNKNOWN/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail invalid-train-state "${cmc_case}"
@@ -281,14 +281,18 @@ sed -i.bak \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 sed -i.bak \
-  's/- \*\*Stato release train\*\*: EXECUTION/- **Stato release train**: INTEGRATED_REVIEW/' \
+  's/- \*\*Stato release train\*\*: COMPLETE/- **Stato release train**: INTEGRATED_REVIEW/' \
+  "${cmc_case}/docs/MASTER-PLAN.md"
+rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
+sed -i.bak \
+  's/| TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW |/| TASK-031 | Notifiche push e order status events | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-during-review "${cmc_case}"
 
 cmc_case="$(cmc_fixture active-header-without-active-row)"
 sed -i.bak \
-  's/| TASK-045 | Client live map, integrated acceptance and closeout | ACTIVE |/| TASK-045 | Client live map, integrated acceptance and closeout | TODO |/' \
+  's/- \*\*Task attivo\*\*: nessuno/- **Task attivo**: TASK-045/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-header-without-active-row "${cmc_case}"

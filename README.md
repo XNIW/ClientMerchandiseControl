@@ -188,14 +188,18 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-045
-- **File task**: `docs/TASKS/TASK-045-client-live-map-integrated-acceptance-closeout.md`
-- **Stato task**: ACTIVE
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: DONE
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Indicatore**: USER_APPROVED_DONE
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
-- **Stato release train**: APPROVED_PENDING_CI
+- **Stato release train**: COMPLETE
 - **Review integrata**: APPROVED
+
+TASK-043, TASK-044 e TASK-045 sono `DONE`: tutte le PR coordinate sono state fuse
+normalmente e le CI PR/main exact-SHA sono verdi. Il progetto resta `IDLE`; TASK-034
+è il prossimo task del release hardening, ma non è attivo.
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione

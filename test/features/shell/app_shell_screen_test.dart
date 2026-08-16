@@ -3,11 +3,8 @@ import 'package:client_merchandise_control/app/design_system/tokens/app_sizes.da
 import 'package:client_merchandise_control/app/design_system/tokens/app_spacing.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/presentation/account_screen.dart';
-import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:client_merchandise_control/features/cart/presentation/cart_screen.dart';
 import 'package:client_merchandise_control/features/catalog/presentation/catalog_screen.dart';
-import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_controller.dart';
-import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_providers.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
 import 'package:client_merchandise_control/features/shell/presentation/app_shell_screen.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
@@ -15,8 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-
-import '../delivery_tracking/delivery_tracking_test_support.dart';
 
 void main() {
   Widget buildApp() {
@@ -280,29 +275,14 @@ void main() {
   testWidgets(
     'navigazione programmatica sospende e riprende il tracking Orders',
     (tester) async {
-      final repository = FakeDeliveryTrackingRepository();
-      final customer = AuthenticatedCustomer.fromUntrustedIdentity(
-        subjectId: trackingTestOwner,
-        email: 'customer@example.invalid',
-        metadata: const {'name': 'Customer Test'},
-      );
-      final container = ProviderContainer(
-        overrides: [
-          appConfigProvider.overrideWithValue(AppConfig.fromValues()),
-          deliveryTrackingIdentityProvider.overrideWithValue(customer),
-          deliveryTrackingShopSlugProvider.overrideWithValue(trackingTestShop),
-          deliveryTrackingRepositoryProvider.overrideWithValue(repository),
-          deliveryTrackingCacheProvider.overrideWithValue(
-            MemoryDeliveryTrackingCache(),
-          ),
-          deliveryTrackingClockProvider.overrideWithValue(
-            () => trackingTestNow,
-          ),
-          deliveryTrackingPollIntervalProvider.overrideWithValue(
-            const Duration(hours: 1),
-          ),
-        ],
-      );
+      final visibilityChanges = <bool>[];
+      final overrides = [
+        shellTrackingVisibilityHandlerProvider.overrideWithValue(
+          (visible) async => visibilityChanges.add(visible),
+        ),
+        shellCartCountProvider.overrideWithValue(0),
+        shellActiveOrderCountProvider.overrideWithValue(null),
+      ];
       final router = GoRouter(
         initialLocation: '/orders/detail',
         routes: [
@@ -332,15 +312,11 @@ void main() {
           ),
         ],
       );
-      addTearDown(() async {
-        router.dispose();
-        container.dispose();
-        await repository.stream.close();
-      });
+      addTearDown(router.dispose);
 
       await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
+        ProviderScope(
+          overrides: overrides,
           child: MaterialApp.router(
             routerConfig: router,
             locale: const Locale('es', 'CL'),
@@ -350,21 +326,19 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      final controller = container.read(
-        deliveryTrackingControllerProvider.notifier,
-      );
-      await controller.open(trackingTestOrder);
-      expect(repository.watchCalls, 1);
+      expect(visibilityChanges, [true]);
 
       router.go('/catalog');
       await tester.pumpAndSettle();
-      expect(repository.watchCancelCalls, 1);
+      expect(visibilityChanges, [true, false]);
 
       router.go('/orders/detail');
       await tester.pumpAndSettle();
-      expect(repository.watchCalls, 2);
+      expect(visibilityChanges, [true, false, true]);
 
-      await controller.close();
+      router.go('/orders/detail');
+      await tester.pumpAndSettle();
+      expect(visibilityChanges, [true, false, true]);
     },
   );
 }

@@ -15,6 +15,33 @@ import '../../delivery_tracking/application/delivery_tracking_controller.dart';
 import '../../orders/application/customer_order_controller.dart';
 import '../../orders/domain/customer_order_selectors.dart';
 
+final shellCartCountProvider = Provider<int>((ref) {
+  return ref.watch(
+    cartControllerProvider.select(
+      (state) => state.snapshot?.totalQuantity ?? 0,
+    ),
+  );
+});
+
+final shellActiveOrderCountProvider = Provider<int?>((ref) {
+  return ref.watch(
+    customerOrderControllerProvider.select(
+      (state) => completeActiveCustomerOrderCount(
+        state.orders,
+        hasMore: state.hasMore,
+      ),
+    ),
+  );
+});
+
+typedef ShellTrackingVisibilityHandler = Future<void> Function(bool visible);
+
+final shellTrackingVisibilityHandlerProvider =
+    Provider<ShellTrackingVisibilityHandler>((ref) {
+      final controller = ref.read(deliveryTrackingControllerProvider.notifier);
+      return controller.setRouteVisible;
+    });
+
 class AppShellScreen extends ConsumerStatefulWidget {
   const AppShellScreen({required this.navigationShell, super.key});
 
@@ -30,18 +57,10 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final cartCount = ref.watch(
-      cartControllerProvider.select(
-        (state) => state.snapshot?.totalQuantity ?? 0,
-      ),
-    );
-    final activeOrderCount = ref.watch(
-      customerOrderControllerProvider.select(
-        (state) => completeActiveCustomerOrderCount(
-          state.orders,
-          hasMore: state.hasMore,
-        ),
-      ),
+    final cartCount = ref.watch(shellCartCountProvider);
+    final activeOrderCount = ref.watch(shellActiveOrderCountProvider);
+    final setTrackingRouteVisible = ref.read(
+      shellTrackingVisibilityHandlerProvider,
     );
     final titles = [
       AppBrand.effectiveDisplayName,
@@ -55,20 +74,12 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
       _observedNavigationIndex = currentIndex;
       scheduleMicrotask(() {
         if (!mounted || _observedNavigationIndex != currentIndex) return;
-        unawaited(
-          ref
-              .read(deliveryTrackingControllerProvider.notifier)
-              .setRouteVisible(currentIndex == 2),
-        );
+        unawaited(setTrackingRouteVisible(currentIndex == 2));
       });
     }
     final canPopCurrentRoute = GoRouter.of(context).canPop();
     void selectDestination(int index) {
-      unawaited(
-        ref
-            .read(deliveryTrackingControllerProvider.notifier)
-            .setRouteVisible(index == 2),
-      );
+      unawaited(setTrackingRouteVisible(index == 2));
       widget.navigationShell.goBranch(
         index,
         initialLocation: index == currentIndex,

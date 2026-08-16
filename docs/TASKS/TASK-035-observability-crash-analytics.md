@@ -263,14 +263,6 @@ package è stato aggiunto o aggiornato in TASK-035.
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
-### Fix 3 — `F-035-R06`
-
-- corretti esclusivamente i quattro claim Fix 2 da 17/340 a 16/320;
-- nessun codice, test, scanner o boundary runtime modificato;
-- governance `9/9` e diff check verdi sul Fix documentale.
-
-Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
-
 ### Esito re-review Fix 1
 
 - revision set `08221a6..46e1a87`, worktree pulito;
@@ -356,6 +348,14 @@ Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
   architecture 7/7, format e diff tutti verdi.
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 3 — `F-035-R06`
+
+- corretti esclusivamente i quattro claim Fix 2 da 17/340 a 16/320;
+- nessun codice, test, scanner o boundary runtime modificato;
+- governance `9/9` e diff check verdi sul Fix documentale.
+
+Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

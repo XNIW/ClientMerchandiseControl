@@ -2138,3 +2138,19 @@
   `TODO` e tornerà prossimo soltanto dopo il closeout.
 - **Sicurezza**: nessun dato production, secret, write remoto, migration o repository
   read-only modificato; tracking e mappa restano fuori da TASK-043.
+
+## 2026-08-16 — TASK-043 Execution consegnata a Review
+
+- **Implementazione**: shell a cinque branch con Orders primaria, resume auth, rail,
+  badge reali; Home compatta; Catalog filtri mobile; Product/Cart più densi; Account
+  a hub e Orders filtrabile, mantenendo controller, cache e contratti correnti.
+- **Gate**: format/analyze, 571 test con coverage + performance 1/1, APK debug, iOS
+  Simulator debug e `scripts/check.sh` exit 0; smoke Android shell/guest 2/2, auth 1/1
+  e order history 1/1. Scanner 574 file, fixture 32/32 + 2/2, boundary 7/7.
+- **Visual QA**: sette viewport automatizzati, quattro locale, light/dark e text scale
+  1.0/1.3/2.0; runtime compact light e tablet dark/rail sanitizzato fuori Git.
+- **Limite reale**: smoke staging post-change `BLOCKED_CONFIGURATION`; il file locale
+  storico non soddisfa più callback/shop slug. Nessun secret è stato stampato e il
+  fail-closed è corretto; development e test deterministici restano verdi.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; CI PR,
+  merge e main CI non ancora eseguiti.

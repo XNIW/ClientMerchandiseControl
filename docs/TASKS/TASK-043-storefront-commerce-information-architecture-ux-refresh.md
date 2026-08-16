@@ -6,13 +6,13 @@
 - **Titolo**: Storefront commerce information architecture and UX refresh
 - **File task**: `docs/TASKS/TASK-043-storefront-commerce-information-architecture-ux-refresh.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-043/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -151,37 +151,90 @@ Implementare esclusivamente CA-01–CA-15 sui contratti reali correnti.
 
 ### File controllati
 
-In corso.
+- router e shell: `lib/app/router/`, `lib/features/shell/`;
+- superfici commerce: Home, Catalogo, Product Detail, Cart, Account e Orders;
+- ARB e output `gen_l10n` per es-CL, it, en e zh-Hans;
+- unit/widget/integration test toccati dal nuovo indice di navigazione;
+- governance checker e fixture release-train.
 
 ### Piano minimo
 
-In corso secondo Planning.
+Completato secondo Planning senza nuovi RPC, schema o capability speculative.
 
 ### Modifiche fatte
 
-In corso.
+- introdotto il quinto branch Orders con route detail annidata, resume auth della URI
+  originale e rail adattiva;
+- aggiunti selettori puri per filtro, conteggio e priorità ordine attivo;
+- ricomposte Home, Catalogo, Product Detail, Cart e Account sui controller/cache reali;
+- resa Orders una lista primaria filtrabile con stati resilienti e pagination;
+- aggiornati l10n, test widget/integration e fixture di governance per il nuovo train.
 
 ### Check eseguiti
 
-In corso; nessun gate è dichiarato PASS prima dell'esecuzione reale.
+- `dart format --output=none --set-exit-if-changed .`: `PASS`, exit 0;
+- `flutter analyze`: `PASS`, exit 0;
+- `flutter test --coverage --exclude-tags performance`: `PASS`, 571 test;
+- performance cache 20k: `PASS`, 1 test dedicato; totale 572 test;
+- `flutter build apk --debug`: `PASS`, exit 0;
+- `flutter build ios --simulator --debug`: `PASS`, exit 0;
+- `bash scripts/check.sh`: `PASS`, exit 0, scanner/boundary/governance/test/build verdi;
+- smoke Android development `app_shell_smoke_test` + `app_guest_flow_test`: `PASS`,
+  2/2; `auth_callback_flow_test`: `PASS`, 1/1; order history: `PASS`, 1/1;
+- staging post-change con il file locale storico: `BLOCKED`, perché il file non contiene
+  `STOREFRONT_SHOP_SLUG` e ha una callback non più valida; l'avvio fail-closed è stato
+  osservato e nessun valore è stato stampato. Non è stato dichiarato uno smoke staging.
 
 ### Matrice CA -> evidence
 
-In corso.
+| CA | Evidence | Esito |
+|---|---|---|
+| CA-01 | shell/widget e smoke Android, cinque branch e subtree preservato | PASS |
+| CA-02 | router callback con `/orders?filter=active`, test deep link/notifiche esistenti | PASS |
+| CA-03 | rail 1024×768, back e portrait/landscape integration | PASS |
+| CA-04 | conteggi derivati da cart/order controller e semantics plurali localizzate | PASS |
+| CA-05 | Home compatta e screenshot Android bounded | PASS |
+| CA-06 | `customer_order_selectors_test.dart` e card Home tappabile | PASS |
+| CA-07 | controller/cache/offline esistenti e zero dati commerciali inventati | PASS |
+| CA-08 | bottom sheet mobile, grid, search/pagination/cache testati | PASS |
+| CA-09 | gallery 16:10, quantity e CTA SafeArea testati | PASS |
+| CA-10 | contesto fulfillment, righe compatte e summary sticky testati | PASS |
+| CA-11 | hub autenticato/guest, shortcut reali e capability vietate assenti | PASS |
+| CA-12 | filtri Orders, stati, load-more e cache controller testati | PASS |
+| CA-13 | parità ARB/placeholder e quattro locale | PASS |
+| CA-14 | sette viewport, light/dark, scale 1.0/1.3/2.0 e runtime tablet | PASS |
+| CA-15 | gate locali e smoke verdi; CI/merge/main restano `NOT_RUN` fino alla PR | PARTIAL |
 
 ### Matrice T-NN -> risultato
 
-In corso.
+| Test | Risultato | Evidence |
+|---|---|---|
+| T-01 | PASS | shell widget/integration |
+| T-02 | PASS | router callback/deep link |
+| T-03 | PASS | selettori conteggio + semantics shell |
+| T-04 | PASS | Home widget + screenshot locali sanitizzati |
+| T-05 | PASS | selector unit test |
+| T-06 | PASS | catalog widget/controller |
+| T-07 | PASS | product detail widget/controller |
+| T-08 | PASS | cart widget/controller |
+| T-09 | PASS | account widget/auth integration |
+| T-10 | PASS | orders unit/widget/integration |
+| T-11 | PASS | gen_l10n + contract test |
+| T-12 | PASS | matrice reflow + visual runtime bounded |
+| T-13 | PARTIAL | locali PASS; CI PR/main `NOT_RUN` |
 
 ### Rischi rimasti
 
-In corso.
+- il file staging locale storico deve essere rigenerato fuori Git prima di uno smoke
+  data-backed; il Client resta correttamente fail-closed;
+- la review è logicamente separata nella stessa sessione, non una sessione distinta;
+- CI exact-SHA, merge e main CI non sono ancora stati eseguiti.
 
 ### Handoff a Review
 
 - **Prossima fase**: REVIEW
 - **Prossimo ruolo**: CODEX_REVIEWER
-- **Handoff**: non ancora emesso
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 

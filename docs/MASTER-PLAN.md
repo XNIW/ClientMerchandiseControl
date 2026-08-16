@@ -8,9 +8,9 @@
 - **Task attivo**: TASK-043
 - **File task**: docs/TASKS/TASK-043-storefront-commerce-information-architecture-ux-refresh.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN

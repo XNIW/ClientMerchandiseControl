@@ -1,7 +1,7 @@
 # Evidence TASK-043
 
 Snapshot di handoff:
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Provenance iniziale
 
@@ -18,6 +18,20 @@ Audit Android nativo su staging non-production con dati pubblici reali: Home, Ca
 Carrello vuoto/pieno, Account guest e Product Detail. Gli artifact completi sono locali,
 sanitizzati e non versionati; nessun dato cliente o credenziale è stato acquisito.
 
-## Esiti correnti
+## Execution verificata
 
-Planning autorizzato; Execution in corso. Gate, review, CI e merge: `NOT_RUN`.
+- candidato tecnico: `b9c963b`; implementazione principale `1329075`;
+- gate aggregato finale: `PASS`, exit 0; analyze, 571 test non-performance,
+  performance 1/1, APK debug e iOS Simulator debug verdi sullo stesso working tree;
+- totale 572 test `PASS`; test shell incluso 11/11 `PASS`;
+- smoke Android development: shell/guest 2/2 e auth callback 1/1 `PASS`;
+- visual runtime locale: 1080×2400 compact light e 1600×1200 tablet dark con rail;
+  artifact sanitizzati conservati fuori Git;
+- matrice automatizzata: 320×568, 360×800, 390×844, 430×932, 768×1024,
+  1024×768 e 568×320; light/dark; scale 1.0/1.3/2.0; quattro locale;
+- scanner client: 574 file, zero secret/config/artifact vietati; fixture negative
+  32/32 e positive 2/2; boundary 7/7; governance 9/9;
+- post-change staging data-backed: `BLOCKED_CONFIGURATION`, non `PASS`; il file locale
+  storico manca del nuovo shop slug e usa callback non valida. Fail-closed osservato.
+
+Review, CI PR, merge e main CI restano `NOT_RUN`.

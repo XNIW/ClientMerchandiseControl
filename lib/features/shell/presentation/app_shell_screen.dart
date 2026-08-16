@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +11,7 @@ import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../cart/application/cart_controller.dart';
+import '../../delivery_tracking/application/delivery_tracking_controller.dart';
 import '../../orders/application/customer_order_controller.dart';
 import '../../orders/domain/customer_order_selectors.dart';
 
@@ -43,6 +46,11 @@ class AppShellScreen extends ConsumerWidget {
     final currentIndex = navigationShell.currentIndex;
     final canPopCurrentRoute = GoRouter.of(context).canPop();
     void selectDestination(int index) {
+      unawaited(
+        ref
+            .read(deliveryTrackingControllerProvider.notifier)
+            .setRouteVisible(index == 2),
+      );
       navigationShell.goBranch(index, initialLocation: index == currentIndex);
     }
 

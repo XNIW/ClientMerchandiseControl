@@ -87,6 +87,8 @@ final class DeliveryTrackingController
   var _reconnectAttempt = 0;
   var _disposed = false;
   var _foreground = true;
+  var _routeVisible = true;
+  Future<void> _snapshotCommitTail = Future<void>.value();
 
   @override
   DeliveryTrackingViewState build() {
@@ -107,9 +109,7 @@ final class DeliveryTrackingController
       scheduleMicrotask(() async {
         await _stopRuntime();
         if (previousSubject != null) {
-          await ref
-              .read(deliveryTrackingCacheProvider)
-              .clear(ownerSubjectId: previousSubject);
+          await _clearCacheAfterSnapshots(previousSubject);
         }
         if (!_disposed && generation == _generation) {
           state = const DeliveryTrackingViewState.signedOut();
@@ -126,9 +126,7 @@ final class DeliveryTrackingController
       scheduleMicrotask(() async {
         await _stopRuntime();
         if (previousSubject != null && previousSubject != identity.subjectId) {
-          await ref
-              .read(deliveryTrackingCacheProvider)
-              .clear(ownerSubjectId: previousSubject);
+          await _clearCacheAfterSnapshots(previousSubject);
         }
         if (!_disposed && generation == _generation) {
           state = const DeliveryTrackingViewState.idle();
@@ -173,7 +171,7 @@ final class DeliveryTrackingController
     }
     await _load(generation, orderId, initial: true);
     if (_isCurrent(generation, orderId) &&
-        _foreground &&
+        _runtimeAllowed &&
         state.snapshot?.isTerminal != true) {
       _startRuntime(generation, orderId);
     }
@@ -186,10 +184,14 @@ final class DeliveryTrackingController
     await _load(_generation, orderId, initial: false);
   }
 
-  Future<void> close() async {
+  Future<void> close({bool clearCache = false}) async {
+    final subjectId = _subjectId;
     _generation++;
     _orderId = null;
     await _stopRuntime();
+    if (clearCache && subjectId != null) {
+      await _clearCacheAfterSnapshots(subjectId);
+    }
     if (!_disposed) {
       state = _subjectId == null
           ? const DeliveryTrackingViewState.signedOut()
@@ -208,7 +210,27 @@ final class DeliveryTrackingController
     }
     final generation = _generation;
     await _load(generation, orderId, initial: false);
-    if (_isCurrent(generation, orderId) && state.snapshot?.isTerminal != true) {
+    if (_isCurrent(generation, orderId) &&
+        _runtimeAllowed &&
+        state.snapshot?.isTerminal != true) {
+      _startRuntime(generation, orderId);
+    }
+  }
+
+  Future<void> setRouteVisible(bool visible) async {
+    if (_routeVisible == visible) return;
+    _routeVisible = visible;
+    final orderId = _orderId;
+    if (!visible || orderId == null) {
+      await _stopRuntime();
+      return;
+    }
+    if (!_foreground) return;
+    final generation = _generation;
+    await _load(generation, orderId, initial: false);
+    if (_isCurrent(generation, orderId) &&
+        _runtimeAllowed &&
+        state.snapshot?.isTerminal != true) {
       _startRuntime(generation, orderId);
     }
   }
@@ -231,28 +253,29 @@ final class DeliveryTrackingController
           DeliveryTrackingFailureKind.invalid,
         );
       }
-      final current = state.snapshot;
-      if (current != null &&
-          !isNewerDeliveryTrackingSnapshot(current, snapshot)) {
-        state = state.copyWith(isRefreshing: false, failure: null);
-        return;
-      }
-      await _accept(snapshot, subjectId: subjectId, shopSlug: shopSlug);
-      if (!_isCurrent(generation, orderId)) return;
-      state = state.copyWith(
-        status: DeliveryTrackingStatus.ready,
-        snapshot: _freshnessAdjusted(snapshot),
-        failure: null,
-        isRefreshing: false,
+      await _commitSnapshot(
+        generation,
+        orderId,
+        snapshot,
+        subjectId: subjectId,
+        shopSlug: shopSlug,
       );
-      if (snapshot.isTerminal) await _stopRuntime();
     } on Object catch (error) {
       if (!_isCurrent(generation, orderId)) return;
       final failure = _failure(error);
       if (failure == DeliveryTrackingFailureKind.unauthorized) {
-        await ref
-            .read(deliveryTrackingCacheProvider)
-            .clear(ownerSubjectId: subjectId);
+        _generation++;
+        _orderId = null;
+        await _stopRuntime();
+        await _clearCacheAfterSnapshots(subjectId);
+        if (!_disposed && _subjectId == subjectId && _shopSlug == shopSlug) {
+          state = DeliveryTrackingViewState(
+            status: DeliveryTrackingStatus.failure,
+            failure: DeliveryTrackingFailureKind.unauthorized,
+            isForeground: _foreground,
+          );
+        }
+        return;
       }
       final hasSnapshot = state.snapshot != null;
       state = state.copyWith(
@@ -270,7 +293,7 @@ final class DeliveryTrackingController
   }
 
   void _startRuntime(int generation, String orderId) {
-    if (!_isCurrent(generation, orderId) || !_foreground) return;
+    if (!_isCurrent(generation, orderId) || !_runtimeAllowed) return;
     _subscribe(generation, orderId);
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(
@@ -289,23 +312,16 @@ final class DeliveryTrackingController
             if (!_isCurrent(generation, orderId)) return;
             if (snapshot.orderId != orderId) return;
             _reconnectAttempt = 0;
-            final current = state.snapshot;
-            if (current != null &&
-                !isNewerDeliveryTrackingSnapshot(current, snapshot)) {
-              return;
-            }
             final subjectId = _subjectId;
             final shopSlug = _shopSlug;
             if (subjectId == null || shopSlug == null) return;
-            await _accept(snapshot, subjectId: subjectId, shopSlug: shopSlug);
-            if (!_isCurrent(generation, orderId)) return;
-            state = state.copyWith(
-              status: DeliveryTrackingStatus.ready,
-              snapshot: _freshnessAdjusted(snapshot),
-              failure: null,
-              isPollingFallback: false,
+            await _commitSnapshot(
+              generation,
+              orderId,
+              snapshot,
+              subjectId: subjectId,
+              shopSlug: shopSlug,
             );
-            if (snapshot.isTerminal) await _stopRuntime();
           },
           onError: (Object _) {
             if (!_isCurrent(generation, orderId)) return;
@@ -323,7 +339,7 @@ final class DeliveryTrackingController
     _reconnectAttempt++;
     final milliseconds = (base.inMilliseconds * factor).clamp(1, 30000);
     _reconnectTimer = Timer(Duration(milliseconds: milliseconds), () {
-      if (_isCurrent(generation, orderId) && _foreground) {
+      if (_isCurrent(generation, orderId) && _runtimeAllowed) {
         _subscribe(generation, orderId);
       }
     });
@@ -344,6 +360,55 @@ final class DeliveryTrackingController
           );
     } on Object {
       // Il cache failure non deve interrompere lo snapshot server-authoritative.
+    }
+  }
+
+  Future<bool> _commitSnapshot(
+    int generation,
+    String orderId,
+    DeliveryTrackingSnapshot snapshot, {
+    required String subjectId,
+    required String shopSlug,
+  }) async {
+    final previous = _snapshotCommitTail;
+    final turn = Completer<void>();
+    _snapshotCommitTail = turn.future;
+    await previous;
+    try {
+      if (!_isCurrent(generation, orderId)) return false;
+      final current = state.snapshot;
+      if (current != null &&
+          !isNewerDeliveryTrackingSnapshot(current, snapshot)) {
+        state = state.copyWith(isRefreshing: false, failure: null);
+        return false;
+      }
+      await _accept(snapshot, subjectId: subjectId, shopSlug: shopSlug);
+      if (!_isCurrent(generation, orderId)) return false;
+      state = state.copyWith(
+        status: DeliveryTrackingStatus.ready,
+        snapshot: _freshnessAdjusted(snapshot),
+        failure: null,
+        isRefreshing: false,
+        isPollingFallback: false,
+      );
+      if (snapshot.isTerminal) await _stopRuntime();
+      return true;
+    } finally {
+      turn.complete();
+    }
+  }
+
+  Future<void> _clearCacheAfterSnapshots(String subjectId) async {
+    final previous = _snapshotCommitTail;
+    final turn = Completer<void>();
+    _snapshotCommitTail = turn.future;
+    await previous;
+    try {
+      await ref
+          .read(deliveryTrackingCacheProvider)
+          .clear(ownerSubjectId: subjectId);
+    } finally {
+      turn.complete();
     }
   }
 
@@ -376,6 +441,8 @@ final class DeliveryTrackingController
       orderId == _orderId &&
       _subjectId != null &&
       _shopSlug != null;
+
+  bool get _runtimeAllowed => _foreground && _routeVisible;
 
   DeliveryTrackingFailureKind _failure(Object error) => switch (error) {
     DeliveryTrackingRepositoryException(:final kind) => kind,

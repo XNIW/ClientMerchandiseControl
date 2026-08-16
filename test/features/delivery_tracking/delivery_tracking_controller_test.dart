@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_controller.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_providers.dart';
@@ -240,6 +242,145 @@ void main() {
       isTrue,
     );
   });
+
+  test(
+    'terminal snapshot cannot be overwritten by an older concurrent live save',
+    () async {
+      final repository = FakeDeliveryTrackingRepository();
+      final cache = _BlockingDeliveryTrackingCache();
+      final container = _container(repository: repository, cache: cache);
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      final terminal = _terminalSnapshot(version: 6);
+      repository.stream.add(terminal);
+      await cache.terminalSaveStarted.future;
+      repository.stream.add(trackingLiveSnapshot(version: 5));
+      await Future<void>.delayed(Duration.zero);
+
+      cache.releaseTerminalSave.complete();
+      await _waitFor(container, (state) => state.snapshot?.version == 6);
+      cache.releaseOlderLiveSave.complete();
+      await Future<void>.delayed(Duration.zero);
+
+      final state = container.read(deliveryTrackingControllerProvider);
+      expect(state.snapshot?.version, 6);
+      expect(state.snapshot?.isTerminal, isTrue);
+      expect(state.snapshot?.courierCoordinate, isNull);
+      expect(cache.snapshot?.version, 6);
+    },
+  );
+
+  test('unauthorized clears memory, cache and never starts runtime', () async {
+    final repository = FakeDeliveryTrackingRepository()
+      ..loadError = const DeliveryTrackingRepositoryException(
+        DeliveryTrackingFailureKind.unauthorized,
+      );
+    final cache = MemoryDeliveryTrackingCache()
+      ..snapshot = trackingLiveSnapshot();
+    final container = _container(repository: repository, cache: cache);
+    addTearDown(() async {
+      container.dispose();
+      await repository.stream.close();
+    });
+
+    container.read(deliveryTrackingControllerProvider);
+    await container
+        .read(deliveryTrackingControllerProvider.notifier)
+        .open(trackingTestOrder);
+
+    final state = container.read(deliveryTrackingControllerProvider);
+    expect(state.status, DeliveryTrackingStatus.failure);
+    expect(state.failure, DeliveryTrackingFailureKind.unauthorized);
+    expect(state.snapshot, isNull);
+    expect(cache.snapshot, isNull);
+    expect(cache.clearCalls, 1);
+    expect(repository.watchCalls, 0);
+  });
+
+  test('route visibility stops and resumes one order-scoped runtime', () async {
+    final repository = FakeDeliveryTrackingRepository();
+    final container = _container(
+      repository: repository,
+      cache: MemoryDeliveryTrackingCache(),
+    );
+    addTearDown(() async {
+      container.dispose();
+      await repository.stream.close();
+    });
+
+    container.read(deliveryTrackingControllerProvider);
+    final controller = container.read(
+      deliveryTrackingControllerProvider.notifier,
+    );
+    await controller.open(trackingTestOrder);
+    expect(repository.watchCalls, 1);
+
+    await controller.setRouteVisible(false);
+    expect(repository.watchCancelCalls, 1);
+
+    await controller.setRouteVisible(true);
+    expect(repository.watchCalls, 2);
+  });
+}
+
+DeliveryTrackingSnapshot _terminalSnapshot({required int version}) {
+  final payload = trackingLivePayload(
+    version: version,
+    orderStatusVersion: version,
+    orderStatus: 'completed',
+    trackingState: 'completed',
+    freshness: 'ended',
+  );
+  for (final key in const [
+    'trackingSessionId',
+    'courierPublicLabel',
+    'latitude',
+    'longitude',
+    'horizontalAccuracyMeters',
+    'bearingDegrees',
+    'speedMetersPerSecond',
+    'observedAt',
+    'receivedAt',
+    'destinationLatitude',
+    'destinationLongitude',
+    'storeLatitude',
+    'storeLongitude',
+  ]) {
+    payload[key] = null;
+  }
+  return parseDeliveryTrackingSnapshot(payload);
+}
+
+final class _BlockingDeliveryTrackingCache extends MemoryDeliveryTrackingCache {
+  final terminalSaveStarted = Completer<void>();
+  final releaseTerminalSave = Completer<void>();
+  final releaseOlderLiveSave = Completer<void>();
+
+  @override
+  Future<void> save({
+    required String ownerSubjectId,
+    required String shopSlug,
+    required DeliveryTrackingSnapshot snapshot,
+  }) async {
+    if (snapshot.version == 6) {
+      terminalSaveStarted.complete();
+      await releaseTerminalSave.future;
+    } else if (snapshot.version == 5) {
+      await releaseOlderLiveSave.future;
+    }
+    await super.save(
+      ownerSubjectId: ownerSubjectId,
+      shopSlug: shopSlug,
+      snapshot: snapshot,
+    );
+  }
 }
 
 ProviderContainer _container({

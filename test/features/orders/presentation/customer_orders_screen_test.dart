@@ -3,6 +3,7 @@ import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_providers.dart';
+import 'package:client_merchandise_control/features/delivery_tracking/domain/delivery_tracking_failure.dart';
 import 'package:client_merchandise_control/features/orders/application/customer_order_controller.dart';
 import 'package:client_merchandise_control/features/orders/application/customer_order_providers.dart';
 import 'package:client_merchandise_control/features/orders/domain/customer_order_models.dart';
@@ -163,6 +164,49 @@ void main() {
     },
   );
 
+  testWidgets(
+    'ordine terminale prevale sulla cache live e rimuove il tracking preciso',
+    (tester) async {
+      final orderRepository = FakeCustomerOrderRepository()
+        ..detailOutcomes.add(
+          orderTestDetail(
+            status: CustomerOrderStatus.completed,
+            version: 7,
+            fulfillmentMode: CustomerOrderFulfillmentMode.delivery,
+          ),
+        );
+      final trackingRepository = FakeDeliveryTrackingRepository()
+        ..loadError = const DeliveryTrackingRepositoryException(
+          DeliveryTrackingFailureKind.offline,
+        );
+      final trackingCache = MemoryDeliveryTrackingCache()
+        ..snapshot = trackingLiveSnapshot(orderId: orderTestOrder);
+      final harness = _Harness(
+        repository: orderRepository,
+        trackingRepository: trackingRepository,
+        trackingCache: trackingCache,
+        initialLocation: AppRoutes.orderLocation(orderTestOrder),
+      );
+      addTearDown(harness.dispose);
+      addTearDown(trackingRepository.stream.close);
+
+      await tester.pumpWidget(harness.app());
+      await _pumpUntil(
+        tester,
+        find.byKey(const ValueKey('order-detail-header')),
+      );
+      await tester.pump();
+
+      expect(
+        find.byKey(const ValueKey('delivery-tracking-card')),
+        findsNothing,
+      );
+      expect(find.textContaining('Repartidor MC'), findsNothing);
+      expect(trackingRepository.watchCalls, 0);
+      expect(trackingCache.snapshot, isNull);
+    },
+  );
+
   testWidgets('320x568 dark e testo 200% non causano overflow', (tester) async {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.binding.setSurfaceSize(const Size(320, 568));
@@ -214,6 +258,7 @@ final class _Harness {
     required FakeCustomerOrderRepository repository,
     MemoryCustomerOrderCacheStore? cache,
     FakeDeliveryTrackingRepository? trackingRepository,
+    MemoryDeliveryTrackingCache? trackingCache,
     String initialLocation = AppRoutes.ordersLocation,
   }) : container = ProviderContainer(
          overrides: [
@@ -231,7 +276,7 @@ final class _Harness {
              trackingRepository ?? FakeDeliveryTrackingRepository(),
            ),
            deliveryTrackingCacheProvider.overrideWithValue(
-             MemoryDeliveryTrackingCache(),
+             trackingCache ?? MemoryDeliveryTrackingCache(),
            ),
            deliveryTrackingClockProvider.overrideWithValue(
              () => trackingTestNow,

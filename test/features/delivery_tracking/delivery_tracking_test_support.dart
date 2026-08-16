@@ -127,11 +127,18 @@ final class FakeDeliveryTrackingPort implements DeliveryTrackingPort {
 
 final class FakeDeliveryTrackingRepository
     implements DeliveryTrackingRepository {
+  FakeDeliveryTrackingRepository() {
+    stream = StreamController<DeliveryTrackingSnapshot>.broadcast(
+      onCancel: () => watchCancelCalls++,
+    );
+  }
+
   DeliveryTrackingSnapshot snapshot = trackingLiveSnapshot();
   Object? loadError;
   var loadCalls = 0;
   var watchCalls = 0;
-  final stream = StreamController<DeliveryTrackingSnapshot>.broadcast();
+  var watchCancelCalls = 0;
+  late final StreamController<DeliveryTrackingSnapshot> stream;
 
   @override
   Future<DeliveryTrackingSnapshot> load({
@@ -150,7 +157,7 @@ final class FakeDeliveryTrackingRepository
   }
 }
 
-final class MemoryDeliveryTrackingCache implements DeliveryTrackingCacheStore {
+class MemoryDeliveryTrackingCache implements DeliveryTrackingCacheStore {
   DeliveryTrackingSnapshot? snapshot;
   var clearCalls = 0;
   var saveCalls = 0;

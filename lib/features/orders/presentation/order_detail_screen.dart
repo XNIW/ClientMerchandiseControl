@@ -102,12 +102,20 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen>
     });
     final selectedMatches = state.selectedOrderId == widget.orderId;
     final detail = selectedMatches ? state.selectedOrder : null;
-    if (detail?.fulfillment.mode == CustomerOrderFulfillmentMode.delivery &&
-        _trackingOpenOrderId != detail?.id) {
-      _trackingOpenOrderId = detail?.id;
-      scheduleMicrotask(() {
-        if (mounted) unawaited(_trackingController.open(detail!.id));
-      });
+    if (detail?.fulfillment.mode == CustomerOrderFulfillmentMode.delivery) {
+      final terminal = _isTerminalCustomerOrderStatus(detail!.status);
+      final trackingKey = terminal ? 'terminal:${detail.id}' : detail.id;
+      if (_trackingOpenOrderId != trackingKey) {
+        _trackingOpenOrderId = trackingKey;
+        scheduleMicrotask(() {
+          if (!mounted) return;
+          unawaited(
+            terminal
+                ? _trackingController.close(clearCache: true)
+                : _trackingController.open(detail.id),
+          );
+        });
+      }
     }
     return Scaffold(
       appBar: AppBar(
@@ -253,7 +261,8 @@ class _OrderDetailBody extends ConsumerWidget {
                   _OrderItems(detail: detail),
                   const SizedBox(height: AppSpacing.md),
                   if (detail.fulfillment.mode ==
-                      CustomerOrderFulfillmentMode.delivery) ...[
+                          CustomerOrderFulfillmentMode.delivery &&
+                      !_isTerminalCustomerOrderStatus(detail.status)) ...[
                     _DeliveryTrackingCard(
                       detail: detail,
                       state: trackingState,
@@ -296,6 +305,11 @@ class _OrderDetailBody extends ConsumerWidget {
     );
   }
 }
+
+bool _isTerminalCustomerOrderStatus(CustomerOrderStatus status) =>
+    status == CustomerOrderStatus.completed ||
+    status == CustomerOrderStatus.cancelled ||
+    status == CustomerOrderStatus.rejected;
 
 class _OrderHeader extends StatelessWidget {
   const _OrderHeader({required this.detail});

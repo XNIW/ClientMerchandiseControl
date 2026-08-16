@@ -2117,3 +2117,24 @@
 - **Sicurezza operativa**: production, dati reali, ordini, pagamenti e checkout reali
   non acceduti; Google OAuth resta fail-closed `OFF` fino a un dominio HTTPS posseduto
   e verificato.
+
+## 2026-08-16 — Change train commerce UX e delivery tracking attivato
+
+- **Ruoli**: `CODEX_PLANNER` concluso, handoff autorizzato a `CODEX_EXECUTOR`.
+- **Autorizzazione**: il prompt USER_APPROVER del 2026-08-16 riapre il progetto da
+  `IDLE` e autorizza Planning, Execution, Review, Fix/re-review, CI exact-SHA e merge
+  normale per TASK-043–TASK-045, senza conferme intermedie.
+- **Riconciliazione**: PR Client #7 verificata `MERGED` nel commit `8423c868…` con CI
+  reale verde; la prossima azione storica del Master Plan è stata superata senza
+  riscrivere evidence TASK-001–TASK-033.
+- **Preflight**: fetch/prune sui sei repository; SHA origin/main registrati; zero PR
+  aperte; dirty state Android/Win7POS preservati; worktree Client/Admin puliti e linked
+  creati da origin/main, senza scrivere nei checkout primari.
+- **Audit runtime**: baseline Android nativa su sei stati reali. Ordini è esterno alla
+  shell, Home ha un primo viewport troppo esteso, Account è monolitico e Cart/Product
+  Detail hanno densità migliorabile.
+- **Transizione**: TASK-043 è l'unico `ACTIVE / EXECUTION` con indicatore
+  `CODEX_PLANNING_APPROVED_TO_EXECUTION`; TASK-044/TASK-045 sono `TODO`; TASK-034 resta
+  `TODO` e tornerà prossimo soltanto dopo il closeout.
+- **Sicurezza**: nessun dato production, secret, write remoto, migration o repository
+  read-only modificato; tracking e mappa restano fuori da TASK-043.

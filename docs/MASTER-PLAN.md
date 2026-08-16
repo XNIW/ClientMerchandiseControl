@@ -4,19 +4,19 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: DONE
-- **Fase**: REVIEW
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: USER_APPROVED_DONE
-- **Release train**: STOREFRONT_V1
-- **Stato release train**: CLOSEOUT
-- **Review integrata**: APPROVED
-- **Prossima azione autorizzata**: completare la CI exact-SHA del commit governance,
-  fondere normalmente la PR #7 e verificare la CI `main` post-merge; poi restare
-  `IDLE` senza attivare TASK-034
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-043
+- **File task**: docs/TASKS/TASK-043-storefront-commerce-information-architecture-ux-refresh.md
+- **Stato task**: ACTIVE
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
+- **Stato release train**: EXECUTION
+- **Review integrata**: NOT_RUN
+- **Prossima azione autorizzata**: eseguire TASK-043 fino a review, fix, re-review,
+  CI exact-SHA, merge normale e verifica `main`; proseguire poi in sequenza con
+  TASK-044 e TASK-045 secondo l'autorizzazione USER_APPROVER del 2026-08-16
 
 ## Repository coinvolti
 
@@ -48,6 +48,8 @@
 3. Cliente e profilo (`TASK-020`–`TASK-022`).
 4. Carrello, prenotazioni e ordini (`TASK-023`–`TASK-032`).
 5. Hardening e rilascio (`TASK-033`–`TASK-042`).
+6. Commerce UX e delivery tracking (`TASK-043`–`TASK-045`), variazione di prodotto
+   esplicitamente autorizzata il 2026-08-16 e sequenziale rispetto al backlog storico.
 
 ## Backlog completo
 
@@ -95,6 +97,9 @@
 | TASK-040 | iOS TestFlight release | TODO | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build iOS TestFlight |
 | TASK-041 | Production launch, rollback e runbook | TODO | TASK-039, TASK-040 | Client, Admin, Supabase, POS | Lancio controllato e reversibile |
 | TASK-042 | Post-launch monitoring, supporto e manutenzione | TODO | TASK-041 | Tutti | Operatività post-lancio |
+| TASK-043 | Storefront commerce information architecture and UX refresh | ACTIVE | TASK-033 | Client | Shell a cinque destinazioni e superfici commerce moderne, data-backed e accessibili |
+| TASK-044 | Delivery tracking contract, privacy boundary and operational writer | TODO | TASK-043 | Client, Admin, Supabase | Contratto tracking owner-scoped e writer courier foreground reale |
+| TASK-045 | Client live map, integrated acceptance and closeout | TODO | TASK-044 | Client, Admin, Supabase | Mappa fail-closed, acceptance integrata e closeout del train |
 
 ## Dipendenze e blocchi
 

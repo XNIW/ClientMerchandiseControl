@@ -35,7 +35,7 @@ fi
 if ! command -v openssl >/dev/null 2>&1 || \
   ! command -v perl >/dev/null 2>&1 || \
   ! command -v tr >/dev/null 2>&1 || \
-  ! perl -MJSON::PP -e 1 >/dev/null 2>&1; then
+  ! perl -MJSON::PP -MDigest::SHA -e 1 >/dev/null 2>&1; then
   printf 'Security scan non eseguibile: dipendenza di decode assente.\n' >&2
   exit 1
 fi
@@ -138,14 +138,29 @@ cmc_security_contains_private_key_pem() {
     my $content = <$handle>;
     close $handle or exit 2;
     my $label = qr/(?:RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY/;
-    my $headers = qr/(?:[A-Za-z0-9-]+:[^\r\n]*\r?\n)*/;
-    my $payload = qr/(?:[A-Za-z0-9+\/=]{16,}\r?\n)+/;
-    exit(
+    while (
       $content =~
-        /-----BEGIN ($label)-----\r?\n$headers\r?\n?$payload-----END \1-----/
-        ? 0
-        : 1
-    );
+        /-----BEGIN ($label)-----\r?\n(.*?)-----END \1-----/sg
+    ) {
+      my $body = $2;
+      my $payload = "";
+      my $payload_started = 0;
+      my $valid = 1;
+      for my $line (split /\r?\n/, $body) {
+        next if !$payload_started && $line eq "";
+        next if !$payload_started && $line =~ /\A[A-Za-z0-9-]+:[^\r\n]*\z/;
+        $payload_started = 1;
+        if ($line !~ /\A[A-Za-z0-9+\/=]{4,}\z/) {
+          $valid = 0;
+          last;
+        }
+        $payload .= $line;
+      }
+      next if !$valid || length($payload) < 16 || length($payload) % 4 != 0;
+      next if $payload !~ /\A[A-Za-z0-9+\/]+={0,2}\z/;
+      exit 0;
+    }
+    exit 1;
   ' "${cmc_security_file}" 2>/dev/null; then
     return 0
   else
@@ -211,6 +226,7 @@ cmc_security_file_has_prohibited_artifact_value() {
   if perl -0777 -e '
     use strict;
     use warnings;
+    use Digest::SHA qw(sha256_hex);
     my $path = shift;
     open my $handle, "<", $path or exit 2;
     binmode $handle;
@@ -230,13 +246,22 @@ cmc_security_file_has_prohibited_artifact_value() {
     my $maps_prefix = "X-Ios-Bundle-Identifier\0DeductQuota\0";
     my $maps_suffix =
       "\0unknown_ios\0mapsmobilesdks-pa.googleapis.com\0places.googleapis.com";
-    while ($content =~ /($secret)/g) {
+    my %maps_identifier_sha256 = map { $_ => 1 } (
+      # Google Maps iOS 10.8.0; solo fingerprint, mai il valore.
+      "13a99f83ec8ee2c628dfdfbfc8d9d0c9600c7fa6cdf4b1f8d558ea7f85006da3",
+      # Sentinel sintetico usato esclusivamente dalla fixture positiva.
+      "b62246d9aec15541f0d79cbfbfac795626ae348908d2c86f1ab31b5ee4a707b2",
+      # Outer token sintetico: la fixture deve comunque rilevare il secret annidato.
+      "b40f43848d3536c7f9b72557312b1134ba6aec3872b6e17b3ae895d7b39bce82",
+    );
+    while ($content =~ /(?=($secret))/g) {
       my $value = $1;
       my $start = $-[1];
       my $end = $+[1];
       my $prefix_start = $start - length($maps_prefix);
       my $is_maps_sdk_identifier =
         $value =~ /\AAIza[0-9A-Za-z_-]{35}\z/
+        && $maps_identifier_sha256{sha256_hex($value)}
         && $prefix_start >= 0
         && substr($content, $prefix_start, length($maps_prefix)) eq $maps_prefix
         && substr($content, $end, length($maps_suffix)) eq $maps_suffix;

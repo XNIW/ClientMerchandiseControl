@@ -34,6 +34,8 @@ cmc_fixture_google_prefix='GOC'
 cmc_fixture_google_value="${cmc_fixture_google_prefix}SPX-${cmc_fixture_token_body}"
 cmc_fixture_maps_prefix='AI'
 cmc_fixture_maps_value="${cmc_fixture_maps_prefix}za${cmc_fixture_token_body}AAA"
+cmc_fixture_overlap_prefix='gh'
+cmc_fixture_overlap_value="${cmc_fixture_maps_prefix}za${cmc_fixture_overlap_prefix}p_${cmc_fixture_token_body%?}"
 cmc_fixture_maps_sdk_prefix='X-Ios-Bundle-Identifier'
 cmc_fixture_maps_sdk_quota='DeductQuota'
 cmc_fixture_maps_sdk_platform='unknown_ios'
@@ -60,6 +62,7 @@ cmc_fixture_anon_jwt_payload='eyJyb2xlIjoiYW5vbiJ9'
 cmc_fixture_anon_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_anon_jwt_payload}.${cmc_fixture_token_body}"
 cmc_fixture_pem_fence='-----'
 cmc_fixture_private_key_label='PRIVATE KEY'
+cmc_fixture_rsa_key_label='RSA PRIVATE KEY'
 cmc_fixture_encrypted_key_label='ENCRYPTED PRIVATE KEY'
 cmc_fixture_dsa_key_label='DSA PRIVATE KEY'
 
@@ -374,6 +377,20 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_maps_mixed}" \
   --artifact "${cmc_fixture_maps_mixed}/artifact"
 
+cmc_fixture_maps_overlap="$(cmc_fixture_prepare bundle-maps-sdk-overlap-secret)"
+mkdir -p "${cmc_fixture_maps_overlap}/artifact"
+printf '%s\0%s\0%s\0%s\0%s\0%s\n' \
+  "${cmc_fixture_maps_sdk_prefix}" \
+  "${cmc_fixture_maps_sdk_quota}" \
+  "${cmc_fixture_overlap_value}" \
+  "${cmc_fixture_maps_sdk_platform}" \
+  "${cmc_fixture_maps_sdk_service}" \
+  "${cmc_fixture_maps_sdk_places}" \
+  >"${cmc_fixture_maps_overlap}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_maps_overlap}" \
+  --artifact "${cmc_fixture_maps_overlap}/artifact"
+
 cmc_fixture_pem_bundle="$(cmc_fixture_prepare bundle-private-key)"
 mkdir -p "${cmc_fixture_pem_bundle}/artifact"
 printf '%s\n' \
@@ -384,6 +401,18 @@ printf '%s\n' \
 cmc_fixture_expect_rejection \
   "${cmc_fixture_pem_bundle}" \
   --artifact "${cmc_fixture_pem_bundle}/artifact"
+
+cmc_fixture_short_pem_tail="$(cmc_fixture_prepare bundle-private-key-short-tail)"
+mkdir -p "${cmc_fixture_short_pem_tail}/artifact"
+printf '%s\n' \
+  "${cmc_fixture_pem_fence}BEGIN ${cmc_fixture_rsa_key_label}${cmc_fixture_pem_fence}" \
+  'QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB' \
+  'QUFBQUFBQUFB' \
+  "${cmc_fixture_pem_fence}END ${cmc_fixture_rsa_key_label}${cmc_fixture_pem_fence}" \
+  >"${cmc_fixture_short_pem_tail}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_short_pem_tail}" \
+  --artifact "${cmc_fixture_short_pem_tail}/artifact"
 
 cmc_fixture_encrypted_pem="$(cmc_fixture_prepare bundle-encrypted-private-key)"
 mkdir -p "${cmc_fixture_encrypted_pem}/artifact"

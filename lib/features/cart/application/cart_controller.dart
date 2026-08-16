@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/app_config.dart';
+import '../../../core/observability/observability_event.dart';
+import '../../../core/observability/observability_providers.dart';
+import '../../../core/time/app_scheduler.dart';
 import '../../account/application/customer_account_providers.dart';
 import '../../reservations/application/reservation_hold_controller.dart';
 import '../../reservations/application/reservation_hold_providers.dart';
@@ -87,38 +90,93 @@ final class CartController extends Notifier<CartState> {
   Future<void> addProduct(
     StorefrontProductSummary product, {
     int quantity = 1,
-  }) {
-    return _withPublicationBusy(product.id, (context) async {
-      final snapshot = _requireSnapshot();
-      final current = snapshot.items
-          .where((item) => item.publicationId == product.id)
-          .firstOrNull;
-      final target = (current?.quantity ?? 0) + quantity;
-      if (quantity < 1 || target > customerCartMaximumQuantity) {
-        throw const CartRepositoryException(CartFailureKind.invalidInput);
-      }
-      if (!state.isAuthenticated) {
-        final updated = await ref
-            .read(guestCartStoreProvider)
-            .setProduct(
-              shopSlug: context.shopSlug,
-              product: product,
-              quantity: target,
-            );
-        if (!_isCurrentContext(context)) return;
-        _setReady(updated, notice: CartNoticeKind.added);
-        return;
-      }
-      await _prepareReservationMutation(context, product.id);
-      if (!_isCurrentContext(context)) return;
-      await _runMutation(
-        context: context,
-        operation: CartMutationOperation.set,
-        publicationId: product.id,
-        quantity: target,
-        notice: CartNoticeKind.added,
+  }) async {
+    final clock = ref.read(appClockProvider);
+    if (state.busyPublicationIds.contains(product.id)) {
+      _recordAddOutcome(
+        occurredAt: clock(),
+        quantity: quantity,
+        outcome: ObservabilityOutcome.ignored,
       );
-    });
+      return;
+    }
+    try {
+      await _withPublicationBusy(product.id, (context) async {
+        final snapshot = _requireSnapshot();
+        final current = snapshot.items
+            .where((item) => item.publicationId == product.id)
+            .firstOrNull;
+        final target = (current?.quantity ?? 0) + quantity;
+        if (quantity < 1 || target > customerCartMaximumQuantity) {
+          throw const CartRepositoryException(CartFailureKind.invalidInput);
+        }
+        if (!state.isAuthenticated) {
+          final updated = await ref
+              .read(guestCartStoreProvider)
+              .setProduct(
+                shopSlug: context.shopSlug,
+                product: product,
+                quantity: target,
+              );
+          if (!_isCurrentContext(context)) return;
+          _setReady(updated, notice: CartNoticeKind.added);
+          return;
+        }
+        await _prepareReservationMutation(context, product.id);
+        if (!_isCurrentContext(context)) return;
+        await _runMutation(
+          context: context,
+          operation: CartMutationOperation.set,
+          publicationId: product.id,
+          quantity: target,
+          notice: CartNoticeKind.added,
+        );
+      });
+      final failure = state.failureKind;
+      _recordAddOutcome(
+        occurredAt: clock(),
+        quantity: quantity,
+        outcome: state.notice == CartNoticeKind.added
+            ? ObservabilityOutcome.success
+            : failure != null
+            ? ObservabilityOutcome.failure
+            : ObservabilityOutcome.ignored,
+        failure: failure == null ? null : _cartFailureCategory(failure),
+      );
+    } on CartRepositoryException catch (error) {
+      _recordAddOutcome(
+        occurredAt: clock(),
+        quantity: quantity,
+        outcome: ObservabilityOutcome.failure,
+        failure: _cartFailureCategory(error.kind),
+      );
+      rethrow;
+    } on Object {
+      _recordAddOutcome(
+        occurredAt: clock(),
+        quantity: quantity,
+        outcome: ObservabilityOutcome.failure,
+        failure: BackendFailureCategory.unexpected,
+      );
+      rethrow;
+    }
+  }
+
+  void _recordAddOutcome({
+    required DateTime occurredAt,
+    required int quantity,
+    required ObservabilityOutcome outcome,
+    BackendFailureCategory? failure,
+  }) {
+    recordObservabilityFromRefBestEffort(
+      ref,
+      () => ObservabilityEvent.addToCartOutcome(
+        occurredAt: occurredAt,
+        outcome: outcome,
+        quantity: quantityBucket(quantity),
+        failure: failure,
+      ),
+    );
   }
 
   Future<void> setQuantity(String publicationId, int quantity) {
@@ -713,3 +771,15 @@ final class _PendingRevalidation {
   final int expectedVersion;
   final String idempotencyKey;
 }
+
+BackendFailureCategory _cartFailureCategory(CartFailureKind kind) =>
+    switch (kind) {
+      CartFailureKind.offline => BackendFailureCategory.offline,
+      CartFailureKind.timeout => BackendFailureCategory.timeout,
+      CartFailureKind.unauthorized => BackendFailureCategory.unauthorized,
+      CartFailureKind.invalidInput ||
+      CartFailureKind.limitReached => BackendFailureCategory.invalidInput,
+      CartFailureKind.conflict => BackendFailureCategory.conflict,
+      CartFailureKind.unavailable => BackendFailureCategory.unavailable,
+      CartFailureKind.unexpected => BackendFailureCategory.unexpected,
+    };

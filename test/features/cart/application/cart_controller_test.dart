@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/core/observability/observability_event.dart';
+import 'package:client_merchandise_control/core/observability/observability_port.dart';
+import 'package:client_merchandise_control/core/observability/observability_providers.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:client_merchandise_control/features/cart/application/cart_controller.dart';
@@ -16,6 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../reservations/reservation_hold_test_support.dart';
+import '../../../support/collecting_observability.dart';
 
 const _publicationId = '50000000-0000-4000-8000-000000000001';
 const _rejectedId = '50000000-0000-4000-8000-000000000002';
@@ -23,6 +27,62 @@ const _rejectedId = '50000000-0000-4000-8000-000000000002';
 final _identityProvider = StateProvider<AuthenticatedCustomer?>((ref) => null);
 
 void main() {
+  test('telemetry add-to-cart non espone prodotto o publication id', () async {
+    final observability = CollectingObservabilityPort();
+    final container = _container(
+      guest: _FakeGuestStore(),
+      observability: observability,
+    );
+    addTearDown(container.dispose);
+    await _waitFor(container, (state) => state.status == CartViewStatus.ready);
+
+    await container
+        .read(cartControllerProvider.notifier)
+        .addProduct(_product());
+
+    final event = observability.events.singleWhere(
+      (candidate) => candidate.name == ObservabilityEventName.addToCartOutcome,
+    );
+    expect(event.attributes, {
+      'outcome': ObservabilityOutcome.success.name,
+      'quantity': QuantityBucket.one.name,
+    });
+    final payload = event.toSafeMap(environment: 'staging').toString();
+    expect(payload, isNot(contains(_publicationId)));
+    expect(payload, isNot(contains(_product().name)));
+  });
+
+  test(
+    'dispose durante add non espone ref né propaga errori telemetry',
+    () async {
+      final barrier = Completer<CustomerCartSnapshot>();
+      final guest = _FakeGuestStore(setProductBarrier: barrier);
+      final container = _container(
+        guest: guest,
+        observability: ThrowingObservabilityPort(),
+      );
+      await _waitFor(
+        container,
+        (state) => state.status == CartViewStatus.ready,
+      );
+
+      final operation = container
+          .read(cartControllerProvider.notifier)
+          .addProduct(_product());
+      await Future<void>.delayed(Duration.zero);
+      expect(guest.setProductCalls, 1);
+      container.dispose();
+      barrier.complete(
+        _snapshot(
+          source: CartSource.guest,
+          items: [_line(_publicationId, isGuest: true)],
+        ),
+      );
+
+      await expectLater(operation, completes);
+    },
+  );
+
   test('guest add persiste localmente e sopravvive al lifecycle', () async {
     final guest = _FakeGuestStore();
     var container = _container(guest: guest);
@@ -479,6 +539,7 @@ ProviderContainer _container({
   String Function()? keyFactory,
   MemoryReservationHoldStore? reservationStore,
   FakeReservationHoldRepository? reservationRepository,
+  ObservabilityPort? observability,
 }) {
   final container = ProviderContainer(
     overrides: [
@@ -505,6 +566,8 @@ ProviderContainer _container({
       reservationHoldRepositoryProvider.overrideWithValue(
         reservationRepository ?? FakeReservationHoldRepository(),
       ),
+      if (observability != null)
+        observabilityProvider.overrideWithValue(observability),
     ],
   );
   if (identity != null) {
@@ -603,10 +666,11 @@ StorefrontProductSummary _product() => StorefrontProductSummary(
 );
 
 final class _FakeGuestStore implements GuestCartStore {
-  _FakeGuestStore({CustomerCartSnapshot? snapshot})
+  _FakeGuestStore({CustomerCartSnapshot? snapshot, this.setProductBarrier})
     : snapshot = snapshot ?? _snapshot(source: CartSource.guest);
 
   CustomerCartSnapshot snapshot;
+  final Completer<CustomerCartSnapshot>? setProductBarrier;
   int setProductCalls = 0;
   Set<String>? retainedIds;
 
@@ -621,6 +685,8 @@ final class _FakeGuestStore implements GuestCartStore {
     required int quantity,
   }) async {
     setProductCalls++;
+    final barrier = setProductBarrier;
+    if (barrier != null) return barrier.future;
     final existing = snapshot.items.where(
       (item) => item.publicationId != product.id,
     );

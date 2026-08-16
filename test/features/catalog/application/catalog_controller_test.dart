@@ -5,6 +5,9 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_contro
 import 'package:client_merchandise_control/core/backend/backend_readiness_repository.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/core/observability/observability_event.dart';
+import 'package:client_merchandise_control/core/observability/observability_port.dart';
+import 'package:client_merchandise_control/core/observability/observability_providers.dart';
 import 'package:client_merchandise_control/core/time/app_scheduler.dart';
 import 'package:client_merchandise_control/features/catalog/application/catalog_controller.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
@@ -16,8 +19,48 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/manual_app_scheduler.dart';
+import '../../../support/collecting_observability.dart';
 
 void main() {
+  test(
+    'telemetry catalogo usa solo bucket e mai query o publication id',
+    () async {
+      final observability = CollectingObservabilityPort();
+      final repository = _CatalogRepository(
+        categoryResponses: [() async => _categoriesPage()],
+        catalogResponses: [
+          () async => _catalogPage([_product('1', 'Café Privato')]),
+        ],
+        searchResponses: [
+          () async => _searchPage([
+            _product('2', 'Risultato Privato'),
+          ], query: 'ricerca sensibile cliente@example.invalid'),
+        ],
+      );
+      final container = _container(repository, observability: observability);
+      addTearDown(container.dispose);
+
+      container.read(catalogControllerProvider);
+      await _flush();
+      await container
+          .read(catalogControllerProvider.notifier)
+          .submitSearch('ricerca sensibile cliente@example.invalid');
+
+      final events = observability.events
+          .where(
+            (event) => event.name == ObservabilityEventName.catalogQueryResult,
+          )
+          .toList();
+      expect(events, hasLength(2));
+      expect(events.last.attributes['kind'], CatalogQueryKind.search.name);
+      final payload = events.last.toSafeMap(environment: 'staging').toString();
+      expect(payload, isNot(contains('ricerca sensibile')));
+      expect(payload, isNot(contains('cliente@example.invalid')));
+      expect(payload, isNot(contains('Café Privato')));
+      expect(payload, isNot(contains('50000000-0000-4000-8000-000000000001')));
+    },
+  );
+
   test('carica prima pagina e concatena una sola pagina keyset', () async {
     final repository = _CatalogRepository(
       categoryResponses: [() async => _categoriesPage()],
@@ -382,6 +425,7 @@ void main() {
 ProviderContainer _container(
   StorefrontRepository repository, {
   AppScheduler? scheduler,
+  ObservabilityPort? observability,
 }) => ProviderContainer(
   overrides: [
     appConfigProvider.overrideWithValue(
@@ -398,6 +442,8 @@ ProviderContainer _container(
       const _ReadyRepository(),
     ),
     storefrontRepositoryProvider.overrideWithValue(repository),
+    if (observability != null)
+      observabilityProvider.overrideWithValue(observability),
     if (scheduler != null) appSchedulerProvider.overrideWithValue(scheduler),
     storefrontCacheRepositoryProvider.overrideWithValue(
       const DisabledStorefrontCacheRepository(),

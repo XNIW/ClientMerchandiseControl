@@ -23,11 +23,16 @@ import '../../features/orders/domain/customer_order_selectors.dart';
 import '../../features/product_detail/presentation/product_detail_screen.dart';
 import '../../features/shell/presentation/app_shell_screen.dart';
 import '../../core/config/app_config.dart';
+import '../../core/observability/observability_event.dart';
+import '../../core/observability/observability_providers.dart';
+import '../../core/time/app_scheduler.dart';
 import 'app_routes.dart';
 
 export 'app_routes.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final observability = ref.read(observabilityProvider);
+  final clock = ref.read(appClockProvider);
   String? pendingProtectedOrdersLocation;
 
   String? protectedOrderRedirect(BuildContext _, GoRouterState state) {
@@ -116,6 +121,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 
+  AppScreen? lastObservedScreen;
+  void recordScreen() {
+    final screen = appScreenForPath(
+      router.routeInformationProvider.value.uri.path,
+    );
+    if (screen == lastObservedScreen) return;
+    lastObservedScreen = screen;
+    recordObservabilityBestEffort(
+      observability,
+      ObservabilityEvent.screenView(occurredAt: clock(), screen: screen),
+    );
+  }
+
+  router.routeInformationProvider.addListener(recordScreen);
+  scheduleMicrotask(recordScreen);
+
   final config = ref.watch(appConfigProvider);
   final codec = ref.watch(storefrontDeepLinkCodecProvider);
   final linkSource = ref.read(authCallbackSourceProvider);
@@ -145,14 +166,41 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         .resolve(shopSlug: shopSlug, routeToken: routeToken);
     if (disposed ||
         generation != notificationDispatchGeneration ||
-        ref.read(authControllerProvider) is! AuthAuthenticated ||
-        destination == null) {
+        ref.read(authControllerProvider) is! AuthAuthenticated) {
+      return;
+    }
+    if (destination == null) {
+      recordObservabilityBestEffort(
+        observability,
+        ObservabilityEvent.notificationRouting(
+          occurredAt: clock(),
+          destination: NotificationDestination.unsupported,
+          outcome: ObservabilityOutcome.failure,
+          failure: BackendFailureCategory.invalidPayload,
+        ),
+      );
       return;
     }
     switch (destination) {
       case CustomerNotificationOrderDestination(:final orderId):
+        recordObservabilityBestEffort(
+          observability,
+          ObservabilityEvent.notificationRouting(
+            occurredAt: clock(),
+            destination: NotificationDestination.order,
+            outcome: ObservabilityOutcome.success,
+          ),
+        );
         router.go(AppRoutes.orderLocation(orderId));
       case CustomerNotificationCartDestination():
+        recordObservabilityBestEffort(
+          observability,
+          ObservabilityEvent.notificationRouting(
+            occurredAt: clock(),
+            destination: NotificationDestination.cart,
+            outcome: ObservabilityOutcome.success,
+          ),
+        );
         router.go(AppRoutes.cartLocation);
     }
   }
@@ -272,8 +320,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     pendingProtectedOrdersLocation = null;
     pendingProtectedNotificationToken = null;
     notificationDispatchGeneration++;
+    router.routeInformationProvider.removeListener(recordScreen);
     unawaited(linkSubscription.cancel());
     router.dispose();
   });
   return router;
 });
+
+@visibleForTesting
+AppScreen appScreenForPath(String path) {
+  if (path == AppRoutes.homeLocation) return AppScreen.home;
+  if (path == AppRoutes.catalogLocation) return AppScreen.catalog;
+  if (path == AppRoutes.ordersLocation) return AppScreen.orders;
+  if (path.startsWith('${AppRoutes.ordersLocation}/')) {
+    return AppScreen.orderDetail;
+  }
+  if (path == AppRoutes.cartLocation) return AppScreen.cart;
+  if (path == AppRoutes.accountLocation) return AppScreen.account;
+  if (path == AppRoutes.checkoutLocation) return AppScreen.checkout;
+  if (path == AppRoutes.favoritesLocation) return AppScreen.favorites;
+  if (path.startsWith('/product/')) return AppScreen.productDetail;
+  return AppScreen.unknown;
+}

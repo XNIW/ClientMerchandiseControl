@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
+import 'package:client_merchandise_control/core/observability/observability_event.dart';
+import 'package:client_merchandise_control/core/observability/observability_port.dart';
+import 'package:client_merchandise_control/core/observability/observability_providers.dart';
 import 'package:client_merchandise_control/features/orders/application/customer_order_controller.dart';
 import 'package:client_merchandise_control/features/orders/application/customer_order_providers.dart';
 import 'package:client_merchandise_control/features/orders/domain/customer_order_failure.dart';
@@ -9,8 +12,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../customer_order_test_support.dart';
+import '../../../support/collecting_observability.dart';
 
 void main() {
+  test('telemetry stato ordine usa gruppo e non order id o codice', () async {
+    final observability = CollectingObservabilityPort();
+    final container = _container(
+      repository: FakeCustomerOrderRepository(),
+      observability: observability,
+    );
+    addTearDown(container.dispose);
+
+    await _readyAndOpen(container);
+
+    final event = observability.events.singleWhere(
+      (candidate) => candidate.name == ObservabilityEventName.orderStatus,
+    );
+    expect(event.attributes.keys, {'status', 'source'});
+    final payload = event.toSafeMap(environment: 'staging').toString();
+    expect(payload, isNot(contains(orderTestOrder)));
+    expect(payload, isNot(contains('MC-')));
+  });
+
   test(
     'deep link cold conserva la selezione durante il bootstrap cache/lista',
     () async {
@@ -320,6 +343,7 @@ ProviderContainer _container({
   required FakeCustomerOrderRepository repository,
   MemoryCustomerOrderCacheStore? store,
   StateProvider<AuthenticatedCustomer?>? identityProvider,
+  ObservabilityPort? observability,
 }) => ProviderContainer(
   overrides: [
     customerOrderIdentityProvider.overrideWith((ref) {
@@ -335,6 +359,8 @@ ProviderContainer _container({
     customerOrderIdempotencyKeyFactoryProvider.overrideWithValue(
       () => orderTestKey,
     ),
+    if (observability != null)
+      observabilityProvider.overrideWithValue(observability),
   ],
 );
 

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/observability/observability_event.dart';
+import '../../../core/observability/observability_providers.dart';
 import '../domain/customer_order_failure.dart';
 import '../domain/customer_order_models.dart';
 import 'customer_order_providers.dart';
@@ -677,7 +679,68 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
 
   void _publish(CustomerOrdersState next) {
     if (_disposed) return;
+    final previous = _lastState;
     _lastState = next;
     state = next;
+    withObservabilityFromRefBestEffort(ref, (observability) {
+      final occurredAt = ref.read(customerOrderClockProvider)();
+      final previousStatus = previous?.selectedOrder?.status;
+      final nextStatus = next.selectedOrder?.status;
+      if (nextStatus != null && nextStatus != previousStatus) {
+        observability.record(
+          ObservabilityEvent.orderStatus(
+            occurredAt: occurredAt,
+            status: _orderStatusGroup(nextStatus),
+            source: previousStatus == null
+                ? OrderStatusSource.initialLoad
+                : OrderStatusSource.refresh,
+          ),
+        );
+      }
+      if (next.failure != null && next.failure != previous?.failure) {
+        final failure = _orderFailureCategory(next.failure!);
+        observability.record(
+          ObservabilityEvent.backendFailure(
+            occurredAt: occurredAt,
+            component: ObservabilityComponent.orders,
+            category: failure,
+            retryable: const {
+              BackendFailureCategory.offline,
+              BackendFailureCategory.timeout,
+              BackendFailureCategory.unavailable,
+            }.contains(failure),
+          ),
+        );
+      }
+    });
   }
 }
+
+OrderStatusGroup _orderStatusGroup(CustomerOrderStatus status) =>
+    switch (status) {
+      CustomerOrderStatus.confirmed => OrderStatusGroup.open,
+      CustomerOrderStatus.accepted ||
+      CustomerOrderStatus.preparing ||
+      CustomerOrderStatus.ready ||
+      CustomerOrderStatus.outForDelivery => OrderStatusGroup.processing,
+      CustomerOrderStatus.completed => OrderStatusGroup.fulfilled,
+      CustomerOrderStatus.rejected ||
+      CustomerOrderStatus.cancelled => OrderStatusGroup.cancelled,
+    };
+
+BackendFailureCategory _orderFailureCategory(
+  CustomerOrderFailureKind kind,
+) => switch (kind) {
+  CustomerOrderFailureKind.offline => BackendFailureCategory.offline,
+  CustomerOrderFailureKind.timeout => BackendFailureCategory.timeout,
+  CustomerOrderFailureKind.unauthorized => BackendFailureCategory.unauthorized,
+  CustomerOrderFailureKind.invalid ||
+  CustomerOrderFailureKind.notFound ||
+  CustomerOrderFailureKind.notCancellable =>
+    BackendFailureCategory.invalidInput,
+  CustomerOrderFailureKind.versionConflict ||
+  CustomerOrderFailureKind.idempotencyConflict =>
+    BackendFailureCategory.conflict,
+  CustomerOrderFailureKind.unavailable => BackendFailureCategory.unavailable,
+  CustomerOrderFailureKind.unexpected => BackendFailureCategory.unexpected,
+};

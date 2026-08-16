@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app/client_merchandise_control_app.dart';
 import 'core/config/app_config.dart';
+import 'core/observability/observability_event.dart';
+import 'core/observability/observability_providers.dart';
+import 'core/time/app_scheduler.dart';
 import 'features/auth/application/auth_providers.dart';
 import 'features/customer_devices/application/customer_device_providers.dart';
 import 'features/orders/application/customer_order_providers.dart';
@@ -13,11 +16,23 @@ Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final config = AppConfig.fromEnvironment();
+  DateTime clock() => DateTime.now().toUtc();
+  final observability = defaultObservability(
+    environment: config.environment,
+    clock: clock,
+  );
+  ObservabilityCrashBoundary.install(observability);
+  recordObservabilityBestEffort(
+    observability,
+    ObservabilityEvent.appStart(occurredAt: clock(), kind: AppStartKind.cold),
+  );
 
   runApp(
     ProviderScope(
       overrides: [
         appConfigProvider.overrideWithValue(config),
+        appClockProvider.overrideWithValue(clock),
+        observabilityProvider.overrideWithValue(observability),
         authenticatedSignOutCleanupProvider.overrideWith((ref) {
           return (customer) async {
             Object? firstError;
@@ -63,7 +78,11 @@ Future<void> bootstrap() async {
           };
         }),
       ],
-      child: const ClientMerchandiseControlApp(),
+      child: ObservabilityLifecycle(
+        observability: observability,
+        clock: clock,
+        child: const ClientMerchandiseControlApp(),
+      ),
     ),
   );
 }

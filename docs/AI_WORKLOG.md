@@ -2526,3 +2526,133 @@
   paralleli, save/purge serializzati e nessun `ref.read` post-dispose.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
   l'autorizzazione persistente del train consente PR, CI exact-SHA e merge normale.
+
+## 2026-08-16 — TASK-034 closeout e attivazione TASK-035
+
+- **CI PR**: PR #12 head `0807c37`, run `31972218226`; `Quality`, Android debug e
+  iOS Simulator debug 3/3 `SUCCESS`, tutti gli step applicabili verdi, zero annotation.
+- **Merge**: normale `08221a6897e893ae9adb462d1cc32f0bf32bbb2e`; ancestry del PR
+  head verificata in `origin/main`, branch remoto e locale eliminati.
+- **CI main**: run `31972595581` sul merge SHA, 3/3 `SUCCESS`, step applicabili
+  `success`, zero annotation.
+- **Transizione**: TASK-034 `ACTIVE -> DONE`, handoff `USER_APPROVED_DONE`; TASK-035
+  è l'unico `ACTIVE / EXECUTION`, autorizzato da ADR-015.
+- **Planning TASK-035**: creati task ed evidence mancanti dalla baseline usando scope,
+  dipendenze e ordine già canonici nel Master Plan e nel mandato USER_APPROVER.
+
+## 2026-08-16 — TASK-035 Execution completa
+
+- **Inventario**: nessun provider telemetry/crash SaaS presente nel Client; Admin già
+  dotato di request ID safe, correlation hashata, error response strutturati e audit
+  operativo separato. Nessun package o secret aggiunto.
+- **Implementazione**: port no-op/local/production configurabile, 12 eventi typed,
+  redactor centrale, consent, sampling, rate limit, breadcrumb e buffer bounded,
+  crash fingerprint safe, lifecycle e integrazione commerce/tracking.
+- **Privacy evidence**: test negativi cercano PII, token, URL, UUID e coordinate negli
+  export; scanner statico confinante aggiunto al gate canonico.
+- **Gate mirati**: Client `87/87`, Admin foundation `14/14`, analyze e diff `PASS`.
+- **Gate canonico**: `scripts/check.sh` exit `0`; 652 test coverage, repeat
+  `5 x 14 = 70`, benchmark cache 25k, security `621` file e fixture `41/41 + 4/4`,
+  APK debug e iOS Simulator debug verdi.
+- **Transizione**: commit implementation `bd5e392`,
+  `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review indipendente e
+  security diff review obbligatorie, PR/CI/merge non ancora eseguiti.
+
+## 2026-08-16 — TASK-035 Review `CHANGES_REQUIRED`
+
+- **Revision set**: baseline `08221a6`, implementation `bd5e392`, evidence/head
+  `8201acd`; reviewer read-only distinto dal writer.
+- **Esito**: 0 P0, 2 P1, 2 P2, 1 P3. Emissioni telemetry potevano alterare checkout
+  già committato o leggere Riverpod dopo dispose; il crash boundary sopprimeva il
+  fallback senza previous handler.
+- **Bounding/privacy**: limiter e coda condivisi potevano bloccare i crash, config e
+  admission non avevano cap superiori; secret key JSON quotate restavano visibili e
+  la truncation post-encoding produceva JSON invalido.
+- **Gate autonomi**: test mirati 87/87, repeat core 260/260 e feature 100/100, Admin
+  14/14, analyze, format, governance, architecture e scanner verdi. I probe
+  adversarial hanno riprodotto ogni finding.
+- **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-035 Fix, gate canonico tentativo 1
+
+- **Fix tecnico**: commit `78bc06e`; isolation best-effort, crash fallback, pipeline
+  analytics/crash separate e bounded, redazione key-aware e JSON valido.
+- **Gate mirati**: 122/122 test instrumented, repeat core `20 x 17 = 340` e commerce
+  `20 x 2 = 40`, analyze, format e scanner telemetry `PASS`.
+- **Gate canonico**: fermato correttamente dal governance check prima della suite:
+  README ancora `REVIEW` mentre Master Plan e task erano `FIX`. Nessun gate successivo
+  inferito; README riallineato e nuovo exact-SHA richiesto.
+
+## 2026-08-16 — TASK-035 Fix completo a Re-review
+
+- **Fix**: commit tecnico `78bc06e`, governance `00455df`. I cinque finding sono
+  coperti da helper no-throw/lifecycle-safe, fallback crash corretto, pipeline
+  analytics/crash indipendenti e bounded, redazione key-aware e JSON strutturale.
+- **Regressioni**: test instrumented `122/122`; repeat core `20 x 17 = 340/340` e
+  commerce `20 x 2 = 40/40`; scanner telemetry e source 12 eventi/621 file.
+- **Security diff**: report canonico finalizzato sul pre-fix `8201acd`, 15/15 file,
+  copertura completa, zero finding reportabili e zero deferred. I candidati di
+  reliability senza attack path sono stati ugualmente risolti dal Fix.
+- **Gate canonico tentativo 2**: `scripts/check.sh` sullo SHA `00455df` `PASS`; 659
+  test non-performance con coverage, repeat TASK-034 70/70, performance cache 25k,
+  Android debug e iOS Simulator debug verdi.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
+  distinta obbligatoria prima di PR/CI/merge.
+
+## 2026-08-16 — TASK-035 Re-review Fix 1 `CHANGES_REQUIRED`
+
+- **Revision set**: head `46e1a87`, worktree pulito; reviewer read-only distinto.
+- **Finding chiusi**: `F-035-R01`, `R02`, `R03` e `R05`; i fix best-effort,
+  lifecycle, crash fallback, code separate/bounded e conteggio source sono confermati.
+- **Finding residuo**: `F-035-R04` P2; redactor centrale e scanner non coprono
+  password/passphrase, authorization, cookie, private key, DSN, secret e credential.
+- **Gate autonomi**: `122/122`, repeat core `340/340`, repeat commerce `40/40`,
+  analyze, format, security, governance e architecture tutti verdi.
+- **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-035 Fix 2, gate canonico tentativo 1
+
+- **Fix tecnico**: `741834b`; classificazione exact/suffix di credenziali generiche,
+  scanner con fixture inline di 13 alias e due regressioni negative JSON/text.
+- **Gate mirati**: serializer `16/16`, repeat `20 x 16 = 320/320`, scanner, analyze,
+  format e diff `PASS`.
+- **Gate canonico**: fermato dal governance check prima della suite perché lo snapshot
+  evidence era ancora `REVIEW`; evidence riallineata a `FIX`, nessun gate successivo
+  inferito e nuovo exact-SHA richiesto.
+
+## 2026-08-16 — TASK-035 Fix 2 completo a Re-review
+
+- **Fix**: tecnico `741834b`, evidence di gate `5486561`; match exact/suffix per
+  credenziali generiche, fixture scanner 13 alias e regressioni JSON/text.
+- **Gate mirati**: `16/16`, repeat `20 x 16 = 320/320`, scanner e analyze verdi.
+- **Gate canonico**: `scripts/check.sh` sullo SHA `5486561` `PASS`; 661 test coverage,
+  repeat TASK-034 `70/70`, cache 25k, APK debug e iOS Simulator debug.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; nuova
+  re-review read-only distinta obbligatoria.
+
+## 2026-08-16 — TASK-035 Re-review Fix 2 `CHANGES_REQUIRED`
+
+- **Esito tecnico**: `F-035-R01`–`R05` chiusi, zero P0/P1/P2, zero finding security;
+  redazione credenziali e scanner alias approvati dai probe indipendenti.
+- **Finding**: `F-035-R06` P3, evidence indicava 17/340 invece del conteggio reale
+  16/320; nessun test omesso, solo claim numerico errato.
+- **Gate autonomi**: 16/16, repeat 320/320, scanner, analyze, governance 9/9,
+  architecture 7/7, format e diff verdi.
+- **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-035 Fix 3 documentale a Re-review
+
+- **Fix**: corretti i quattro claim `F-035-R06` da 17/340 a 16/320; nessuna
+  modifica a codice, test, scanner o runtime.
+- **Gate**: governance `9/9` e diff check `PASS`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
+  documentale distinta obbligatoria.
+
+## 2026-08-16 — TASK-035 Re-review Fix 3 `APPROVED`
+
+- **Revision set**: `0197ffd..02968ce`, esclusivamente documentazione.
+- **Finding**: `F-035-R06` chiuso; Fix 2 16/320 e Fix 1 17/340 correttamente
+  distinti. `F-035-R01`–`R06` tutti chiusi, zero P0/P1/P2/P3.
+- **Gate**: governance state e release train `9/9`, diff check e worktree `PASS`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  l'autorizzazione persistente consente PR, CI exact-SHA e merge normale.

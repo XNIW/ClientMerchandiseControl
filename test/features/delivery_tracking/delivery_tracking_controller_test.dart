@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
+import 'package:client_merchandise_control/core/observability/observability_event.dart';
+import 'package:client_merchandise_control/core/observability/observability_port.dart';
+import 'package:client_merchandise_control/core/observability/observability_providers.dart';
 import 'package:client_merchandise_control/core/time/app_scheduler.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_controller.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_providers.dart';
@@ -12,8 +15,44 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'delivery_tracking_test_support.dart';
 import '../../support/manual_app_scheduler.dart';
+import '../../support/collecting_observability.dart';
 
 void main() {
+  test(
+    'telemetry tracking non espone ordine, coordinate o tracking URL',
+    () async {
+      final observability = CollectingObservabilityPort();
+      final repository = FakeDeliveryTrackingRepository();
+      final container = _container(
+        repository: repository,
+        cache: MemoryDeliveryTrackingCache(),
+        observability: observability,
+      );
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+
+      final events = observability.events.where(
+        (event) => event.name == ObservabilityEventName.trackingAvailability,
+      );
+      expect(events, isNotEmpty);
+      final payload = observability.events
+          .map((event) => event.toSafeMap(environment: 'staging'))
+          .toList()
+          .toString();
+      expect(payload, isNot(contains(trackingTestOrder)));
+      expect(payload, isNot(contains('-33.')));
+      expect(payload, isNot(contains('-70.')));
+      expect(payload, isNot(contains('http')));
+    },
+  );
+
   test('cache-first remains readable when initial RPC is offline', () async {
     final repository = FakeDeliveryTrackingRepository()
       ..loadError = const DeliveryTrackingRepositoryException(
@@ -981,6 +1020,7 @@ ProviderContainer _container({
   DateTime Function()? clock,
   AppScheduler? scheduler,
   StateProvider<AuthenticatedCustomer?>? identityState,
+  ObservabilityPort? observability,
 }) {
   final customer = _customer(trackingTestOwner);
   return ProviderContainer(
@@ -1003,6 +1043,8 @@ ProviderContainer _container({
         clock ?? (() => trackingTestNow),
       ),
       if (scheduler != null) appSchedulerProvider.overrideWithValue(scheduler),
+      if (observability != null)
+        observabilityProvider.overrideWithValue(observability),
     ],
   );
 }

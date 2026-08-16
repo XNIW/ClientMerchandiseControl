@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-035
 - **File task**: docs/TASKS/TASK-035-observability-crash-analytics.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review indipendente TASK-035 sul Fix, CI
-  exact-SHA, merge normale e verifica `main`; poi attivare TASK-036
-  secondo ADR-015
+- **Prossima azione autorizzata**: correggere `F-035-R04` sulla redazione delle
+  credenziali generiche, rieseguire i gate e consegnare a una nuova re-review
+  indipendente; poi CI exact-SHA, merge normale e verifica `main`
 
 ## Repository coinvolti
 

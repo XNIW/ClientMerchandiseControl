@@ -2598,3 +2598,14 @@
   Android debug e iOS Simulator debug verdi.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
   distinta obbligatoria prima di PR/CI/merge.
+
+## 2026-08-16 — TASK-035 Re-review Fix 1 `CHANGES_REQUIRED`
+
+- **Revision set**: head `46e1a87`, worktree pulito; reviewer read-only distinto.
+- **Finding chiusi**: `F-035-R01`, `R02`, `R03` e `R05`; i fix best-effort,
+  lifecycle, crash fallback, code separate/bounded e conteggio source sono confermati.
+- **Finding residuo**: `F-035-R04` P2; redactor centrale e scanner non coprono
+  password/passphrase, authorization, cookie, private key, DSN, secret e credential.
+- **Gate autonomi**: `122/122`, repeat core `340/340`, repeat commerce `40/40`,
+  analyze, format, security, governance e architecture tutti verdi.
+- **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

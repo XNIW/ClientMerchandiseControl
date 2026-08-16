@@ -6,13 +6,13 @@
 - **Titolo**: Observability, crash reporting e analytics privacy-safe
 - **File task**: `docs/TASKS/TASK-035-observability-crash-analytics.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-035/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -260,6 +260,18 @@ package è stato aggiunto o aggiornato in TASK-035.
   produrre JSON invalido;
 - `F-035-R05` P3: scanner rieseguito sul revision set conta 621 file, non 611;
 - gate autonomi esistenti verdi, ma CA-01/03/04/05/07/10 restano `FAIL` fino al Fix.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Esito re-review Fix 1
+
+- revision set `08221a6..46e1a87`, worktree pulito;
+- `F-035-R01`, `R02`, `R03` e `R05` chiusi;
+- `F-035-R04` riaperto P2: redactor e scanner non coprono password/passphrase,
+  authorization, cookie, private key, DSN, secret e credential;
+- gate autonomi: test mirati `122/122`, repeat core `340/340`, repeat commerce
+  `40/40`, analyze, format, security, governance e architecture verdi;
+- severità residua: 0 P0, 0 P1, 1 P2, 0 P3.
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 

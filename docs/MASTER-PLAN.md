@@ -10,10 +10,10 @@
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
 - **Stato release train**: REVIEW
-- **Review integrata**: NOT_RUN
+- **Review integrata**: APPROVED
 - **Prossima azione autorizzata**: eseguire TASK-044 fino a review, fix, re-review,
   CI exact-SHA, merge normale e verifica `main`; proseguire poi con TASK-045 secondo
   l'autorizzazione USER_APPROVER del 2026-08-16

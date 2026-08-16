@@ -10,7 +10,7 @@
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-044/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -209,6 +209,25 @@ prodotto altri finding.
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`. I reviewer read-only hanno già chiuso i finding
 Client runtime, Courier Mode e DB; la re-review finale dei due gap Client del secondo
 ciclo resta vincolante prima dei gate canonici, PR e CI.
+
+### Re-review finale read-only
+
+- `T044-REV-CLIENT-001/002`: `CLOSED`, commit Client `d466a08`;
+- `T044-REV-COURIER-001`: `CLOSED`, commit Admin `663a292`;
+- `T044-REV-DB-001/002/003`: `CLOSED`, reset e pgTAP 60/60 sul commit Admin;
+- `T044-REV-CLIENT-004`: `CLOSED`, stato ordine terminale e cache precisa;
+- `T044-REV-CLIENT-003`: `CLOSED` sul commit `1801347`, con test separati del
+  boundary router (`true -> false -> true`, nessun duplicato) e del controller
+  (`watch -> cancel -> watch`);
+- finding aggiuntivi CA-11: freshness temporale e `present/dispose` concorrente
+  `CLOSED` sul commit `61cd16b` con 17/17 test mirati;
+- nessun finding P0/P1/P2/P3 resta aperto.
+
+Gate canonici candidate PR: Client `scripts/check.sh` completa format, analyze,
+598 test con coverage, performance 1/1, APK debug e iOS Simulator debug; Admin
+`npm run verify` e suite foundation completano 980 pass, 2 skip, 0 fail. Esito:
+`APPROVED / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; il prompt
+USER_APPROVER autorizza già push, PR, CI exact-SHA e merge normale senza bypass.
 
 ## Chiusura
 

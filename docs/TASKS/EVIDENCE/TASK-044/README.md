@@ -1,7 +1,7 @@
 # Evidence TASK-044
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance
 
@@ -39,3 +39,15 @@ Snapshot di handoff:
 - Admin mirati: reset `PASS`, pgTAP `60/60`, foundation `9/9`, typecheck/lint `PASS`;
 - re-review parziale: finding runtime Client, Courier Mode e database `CLOSED`; i due
   reviewer Client finali verificano il secondo ciclo in sola lettura.
+
+## Re-review finale e gate candidate PR
+
+- tutti i sei P2 e due P3 iniziali: `CLOSED`; freshness temporale e race
+  presenter/dispose aggiuntive: `CLOSED`;
+- Client finali: `61cd16b` per controller/map e `1801347` per route boundary;
+- Client `scripts/check.sh`: `PASS`; 598 test con coverage, performance 1/1, APK
+  debug e iOS Simulator debug;
+- Admin `npm run verify`: `PASS`; foundation 980 pass, 2 skip, 0 fail;
+- Admin DB: reset `PASS`, pgTAP tracking 60/60 `PASS`;
+- esito: `APPROVED`, zero P0/P1/P2/P3 aperti; PR e CI exact-SHA restano da
+  registrare prima del merge autorizzato.

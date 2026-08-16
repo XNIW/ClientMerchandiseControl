@@ -2247,3 +2247,19 @@
 - **Re-review parziale**: runtime Client, Courier Mode e database già `CLOSED`; i due
   gap Client del secondo ciclo sono stati riconsegnati a reviewer read-only distinti.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-16 — TASK-044 re-review `APPROVED`
+
+- **Revision set**: Client fino a `1801347c68b3edf0f73b9300056fa08dfb4d2884`;
+  Admin fino a `663a292a626adc25230bad7c1917f930f94f5dca`.
+- **Esito finding**: sei P2 e due P3 iniziali `CLOSED`; i due finding aggiuntivi
+  CA-11 su freshness e dispose concorrente `CLOSED`; zero P0/P1/P2/P3 aperti.
+- **Review indipendente**: shard read-only distinti hanno verificato runtime Client,
+  UI/router, map boundary, Courier Mode, auth/server e migration/RLS con receipt
+  full-file e test mirati.
+- **Gate candidate PR**: Client `scripts/check.sh` completa 598 test con coverage,
+  performance, APK e iOS Simulator; Admin `npm run verify` e foundation completano
+  980 pass, 2 skip; reset e pgTAP 60/60 verdi.
+- **Transizione**: `ACTIVE / REVIEW /
+  CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; il prompt USER_APPROVER copre
+  già PR, CI exact-SHA e merge normale.

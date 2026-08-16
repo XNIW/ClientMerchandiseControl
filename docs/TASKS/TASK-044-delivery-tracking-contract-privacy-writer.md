@@ -4,13 +4,13 @@
 
 - **Task ID**: TASK-044
 - **Titolo**: Delivery tracking contract, privacy boundary and operational writer
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-044/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -232,5 +232,18 @@ USER_APPROVER autorizza già push, PR, CI exact-SHA e merge normale senza bypass
 ## Chiusura
 
 - **Conferma utente**: pre-autorizzata, condizionata a review e CI reali verdi
-- **Merge**: autorizzato soltanto normale e senza bypass
-- **Data completamento**:
+- **Client**: PR #9, head `0e84801e3e362d489b00d43f6074b804de8fe713`,
+  PR CI `31939920494` 3/3 `SUCCESS`, merge normale
+  `fd044d4b9b7a7bd4c4d3ccf71b977a01bc39563f`, main CI `31940810780` 3/3
+  `SUCCESS`, annotation 0/0/0;
+- **Admin/Supabase**: PR #89, head
+  `0ce56bf5bd3c6914b89b4defc90c8f74f26cdc16`, PR CI `31940278489` e
+  Cloudflare `31940278463` `SUCCESS`, merge normale
+  `2e8ec07e1609b7bfa7b1a5210f232fc60bbf5412`, main CI `31940653715` e
+  `31940653742` `SUCCESS`;
+- **Fix CI registrato**: il run Admin `31939911807` ha rilevato la regressione
+  lockout/permission count; fix exact-SHA re-reviewato `APPROVED`, pgTAP locale e CI
+  2.522/2.522 `PASS`;
+- **Cleanup**: branch remoti e worktree integrati eliminati; checkout primari
+  preservati;
+- **Data completamento**: 2026-08-16

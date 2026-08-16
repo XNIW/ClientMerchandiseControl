@@ -1,7 +1,7 @@
 # Evidence TASK-044
 
-Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+Snapshot finale:
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance
 
@@ -51,3 +51,20 @@ Snapshot di handoff:
 - Admin DB: reset `PASS`, pgTAP tracking 60/60 `PASS`;
 - esito: `APPROVED`, zero P0/P1/P2/P3 aperti; PR e CI exact-SHA restano da
   registrare prima del merge autorizzato.
+
+## CI, merge e main
+
+- Client PR #9, head `0e84801e3e362d489b00d43f6074b804de8fe713`, run
+  `31939920494`: Quality, Android e iOS 3/3 `SUCCESS`, annotation 0/0/0;
+- Client merge normale `fd044d4b9b7a7bd4c4d3ccf71b977a01bc39563f`; main run
+  `31940810780` 3/3 `SUCCESS`, annotation 0/0/0;
+- Admin PR #89: il primo run `31939911807` ha fallito correttamente pgTAP per una
+  regressione lockout e test 43/45; il fix `0ce56bf5` è stato re-reviewato
+  `APPROVED`, reset locale e 2.522/2.522 pgTAP `PASS`;
+- Admin run `31940278489` e Cloudflare `31940278463`: `SUCCESS`; merge normale
+  `2e8ec07e1609b7bfa7b1a5210f232fc60bbf5412`; main run `31940653715` e
+  `31940653742`: `SUCCESS`;
+- le sole annotation Admin sono warning infrastrutturali GitHub Actions Node 20 ->
+  Node 24, non failure del prodotto; deploy staging/production sono rimasti skipped;
+- branch remoti e worktree TASK-044 eliminati dopo verifica di ancestry; checkout
+  primari non modificati dal batch.

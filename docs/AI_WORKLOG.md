@@ -2263,3 +2263,29 @@
 - **Transizione**: `ACTIVE / REVIEW /
   CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; il prompt USER_APPROVER copre
   già PR, CI exact-SHA e merge normale.
+
+## 2026-08-16 — TASK-044 merge e main CI verificati
+
+- **Client**: PR #9 head `0e84801`, PR CI `31939920494` 3/3 `SUCCESS`, merge
+  normale `fd044d4`; main CI `31940810780` 3/3 `SUCCESS`, annotation 0/0/0.
+- **Admin**: il primo pgTAP PR run `31939911807` ha rilevato una regressione reale
+  TASK-139 e aspettative 43/45. Il fix `0ce56bf5` ha superato re-review read-only,
+  reset e 2.522/2.522 pgTAP; CI `31940278489` e Cloudflare `31940278463` verdi.
+- **Merge Admin**: normale `2e8ec07`; main CI `31940653715` e Cloudflare
+  `31940653742` verdi. Staging/production deploy rimasti skipped.
+- **Cleanup**: branch remoti e worktree TASK-043/TASK-044 eliminati dopo verifica
+  ancestry; checkout primari e dirty state preesistenti preservati.
+- **Transizione**: TASK-044 `DONE / USER_APPROVED_DONE`; TASK-045 è l'unico task
+  `ACTIVE`.
+
+## 2026-08-16 — TASK-045 Planning autorizzato
+
+- **Base**: Client `fd044d4b9b7a7bd4c4d3ccf71b977a01bc39563f`, main CI
+  `31940810780` verde; worktree linked pulito e branch dedicato.
+- **Piano**: integrare `google_maps_flutter` dietro l'adapter ADR-014, configurazione
+  nativa fuori Git/fail-closed, card mappa nel dettaglio ordine, alternative testuali,
+  CTA Home/Orders, stale/offline/provider fallback e QA accessibile deterministica.
+- **Limiti**: nessun ETA/route Client, nessun marker simulato, nessuna attivazione
+  production o promessa background; Courier Mode resta foreground.
+- **Autorizzazione**: USER_APPROVER già registrata; transizione immediata
+  `CODEX_PLANNING_APPROVED_TO_EXECUTION`.

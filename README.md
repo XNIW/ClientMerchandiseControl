@@ -165,10 +165,10 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-044
 - **File task**: `docs/TASKS/TASK-044-delivery-tracking-contract-privacy-writer.md`
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
-- **Stato release train**: EXECUTION
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.

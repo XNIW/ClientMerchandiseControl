@@ -2582,3 +2582,19 @@
 - **Gate canonico**: fermato correttamente dal governance check prima della suite:
   README ancora `REVIEW` mentre Master Plan e task erano `FIX`. Nessun gate successivo
   inferito; README riallineato e nuovo exact-SHA richiesto.
+
+## 2026-08-16 — TASK-035 Fix completo a Re-review
+
+- **Fix**: commit tecnico `78bc06e`, governance `00455df`. I cinque finding sono
+  coperti da helper no-throw/lifecycle-safe, fallback crash corretto, pipeline
+  analytics/crash indipendenti e bounded, redazione key-aware e JSON strutturale.
+- **Regressioni**: test instrumented `122/122`; repeat core `20 x 17 = 340/340` e
+  commerce `20 x 2 = 40/40`; scanner telemetry e source 12 eventi/621 file.
+- **Security diff**: report canonico finalizzato sul pre-fix `8201acd`, 15/15 file,
+  copertura completa, zero finding reportabili e zero deferred. I candidati di
+  reliability senza attack path sono stati ugualmente risolti dal Fix.
+- **Gate canonico tentativo 2**: `scripts/check.sh` sullo SHA `00455df` `PASS`; 659
+  test non-performance con coverage, repeat TASK-034 70/70, performance cache 25k,
+  Android debug e iOS Simulator debug verdi.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
+  distinta obbligatoria prima di PR/CI/merge.

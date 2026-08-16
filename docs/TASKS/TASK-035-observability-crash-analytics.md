@@ -6,13 +6,13 @@
 - **Titolo**: Observability, crash reporting e analytics privacy-safe
 - **File task**: `docs/TASKS/TASK-035-observability-crash-analytics.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-035/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -265,7 +265,41 @@ Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 
-In corso sui soli finding `F-035-R01`…`F-035-R05` approvati.
+### Correzioni
+
+- `F-035-R01`: tutte le emissioni usano helper best-effort/no-throw; il helper da
+  Riverpod assorbe anche il `Ref` già disposed. Regressioni provano ordine già creato
+  con port throwing e add-to-cart completato dopo dispose;
+- `F-035-R02`: il crash boundary isola il reporter, delega il previous handler e
+  restituisce `false` quando il fallback embedder deve ancora gestire l'errore;
+- `F-035-R03`: limiter, coda e timeout analytics/crash sono separati; admission,
+  buffer, breadcrumb, rate e timeout hanno cap massimi fail-closed. Exporter sospeso
+  usa scheduler controllato e non blocca il crash reporter;
+- `F-035-R04`: redazione ricorsiva key-aware copre token, OAuth/client/payment secret,
+  push/API/service role e coordinate; la truncation è strutturale e sempre JSON valido;
+- `F-035-R05`: evidence scanner corretta a 621 file. Il denylist statico copre alias
+  snake/camel e fallisce esplicitamente su errore `rg`.
+
+### Verifica Fix
+
+| Gate | Esito |
+|---|---|
+| test core + controller instrumentati | `122/122 PASS` |
+| repeat core observability | `20 x 17 = 340/340 PASS` |
+| repeat regressioni commerce | `20 x 2 = 40/40 PASS` |
+| scanner telemetry / tracked source | `PASS`, 12 eventi / 621 file |
+| security diff pre-fix | 15/15 file, zero finding security reportabili/deferred |
+| primo gate canonico | `FAIL` governance prima della suite; README riallineato |
+| `scripts/check.sh` sullo SHA `00455df` | `PASS`, exit `0` |
+| suite non-performance coverage | `659/659 PASS` |
+| repeat TASK-034 | `5 x 14 = 70/70 PASS` |
+| benchmark cache 25k | `PASS`, 1 test performance |
+| Android debug / iOS Simulator debug | `PASS / PASS` |
+
+Warning invariati: 34 package hanno versioni più recenti incompatibili; Maps iOS
+segnala futura adozione SPM. Nessuna dipendenza aggiunta.
+
+Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

@@ -1,7 +1,7 @@
 # Evidence TASK-035
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -94,9 +94,14 @@ plugin Maps iOS. Nessun warning è introdotto come nuova dipendenza dal task.
 
 - review indipendente sullo SHA `8201acd6c8c4779d5bbaa086eec87a2c13d9c809`:
   `CHANGES_REQUIRED`, 0 P0, 2 P1, 2 P2, 1 P3;
-- Fix: `IN_PROGRESS` per isolamento best-effort, crash fallback, pipeline bounded e
-  redazione/serialization strutturale;
-- security diff review: `NOT_RUN`;
+- Fix tecnico: `78bc06e40d6fc81c5962f67fb80bf20f5e38aadf`; governance
+  riallineata sullo SHA `00455df75538df19e7d1542d872d378302762177`;
+- regressioni: core/controller `122/122`, repeat `340/340 + 40/40`, tutti `PASS`;
+- security diff review pre-fix: `PASS`, 15/15 file, zero finding reportabili o
+  deferred; i gap di acceptance non-security sono stati comunque corretti;
+- `scripts/check.sh` sullo SHA `00455df`: `PASS`, 659 test non-performance con
+  coverage, repeat TASK-034 70/70, cache 25k, APK debug e iOS Simulator debug;
+- re-review indipendente: `NOT_RUN`;
 - PR exact-SHA CI: `NOT_RUN`;
 - main post-merge CI: `NOT_RUN`;
 - produzione e provider esterni: non modificati.

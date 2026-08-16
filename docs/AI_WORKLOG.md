@@ -2609,3 +2609,13 @@
 - **Gate autonomi**: `122/122`, repeat core `340/340`, repeat commerce `40/40`,
   analyze, format, security, governance e architecture tutti verdi.
 - **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-035 Fix 2, gate canonico tentativo 1
+
+- **Fix tecnico**: `741834b`; classificazione exact/suffix di credenziali generiche,
+  scanner con fixture inline di 13 alias e due regressioni negative JSON/text.
+- **Gate mirati**: serializer `17/17`, repeat `20 x 17 = 340/340`, scanner, analyze,
+  format e diff `PASS`.
+- **Gate canonico**: fermato dal governance check prima della suite perché lo snapshot
+  evidence era ancora `REVIEW`; evidence riallineata a `FIX`, nessun gate successivo
+  inferito e nuovo exact-SHA richiesto.

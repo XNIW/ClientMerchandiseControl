@@ -1,7 +1,7 @@
 # Evidence TASK-035
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -41,13 +41,15 @@ Planning autorizzato tramite ADR-015; Execution attiva come unico task corrente.
 - crash: categoria/component/fingerprint SHA-256 troncato e breadcrumb bounded; exception
   message e stack non sono serializzati;
 - correlation: 24 caratteri hex random, senza UUID di dominio;
-- redazione centrale: email, auth, OAuth/payment/push/service secret, URL, UUID,
+- redazione centrale: email, auth, OAuth/payment/push/service secret, credenziali
+  generiche, password/passphrase, authorization/cookie, private key, DSN, URL, UUID,
   coordinate e telefono; serializer limita profondità, elementi e lunghezza.
 
 ### Test privacy negativi
 
 Il test core inietta nome, indirizzo, email, telefono, coordinate, tracking URL, bearer,
-OAuth code, payment secret, push token, service role e UUID e cerca esplicitamente gli
+OAuth code, payment secret, push token, service role, password/passphrase,
+authorization/cookie, private key, DSN, credential e UUID e cerca esplicitamente gli
 stessi valori negli export. I test feature raccolgono gli eventi reali e verificano
 assenza di query, publication/order/address/slot ID, nome prodotto/cliente, indirizzo,
 coordinate e URL.
@@ -101,7 +103,16 @@ plugin Maps iOS. Nessun warning è introdotto come nuova dipendenza dal task.
   deferred; i gap di acceptance non-security sono stati comunque corretti;
 - `scripts/check.sh` sullo SHA `00455df`: `PASS`, 659 test non-performance con
   coverage, repeat TASK-034 70/70, cache 25k, APK debug e iOS Simulator debug;
-- re-review indipendente: `NOT_RUN`;
+- re-review Fix 1 sullo SHA `46e1a87`: `CHANGES_REQUIRED`, 0 P0, 0 P1, 1 P2,
+  0 P3; `F-035-R01/R02/R03/R05` chiusi, `F-035-R04` riaperto per credenziali
+  generiche non coperte;
+- Fix 2 tecnico: `741834bf09178cbb0cc2b31595fc56eeb3db6339`; classificatore
+  exact/suffix, scanner con fixture inline di 13 alias e due regressioni negative;
+- test Fix 2: serializer `17/17`, repeat `20 x 17 = 340/340`, scanner, analyze,
+  format e diff `PASS`;
+- primo `scripts/check.sh` Fix 2: `FAIL` prima della suite perché lo snapshot evidence
+  era ancora in Review; snapshot riallineato, nessun gate successivo inferito;
+- re-review Fix 2: `NOT_RUN`;
 - PR exact-SHA CI: `NOT_RUN`;
 - main post-merge CI: `NOT_RUN`;
 - produzione e provider esterni: non modificati.

@@ -2356,3 +2356,15 @@
   `PASS` sul candidato.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
   l'autorizzazione USER_APPROVER è già registrata, restano gate canonici e CI/merge.
+
+## 2026-08-16 — TASK-045 gate locale sul candidato approvato
+
+- **Commit verificato**: `62e0bd0957c5b65f6b18e5a1e87048b91fb9f17f`.
+- **Gate canonico**: `bash scripts/check.sh` exit `0`; security/config 601 file,
+  fixture security 32 negative + 2 positive, governance 9/9, boundary 7/7, format
+  271 file, analyze zero issue, coverage 624/624 e benchmark cache `PASS`.
+- **Build**: APK debug e iOS Simulator debug `PASS`; unico warning non bloccante è
+  l'assenza corrente di supporto SPM nel plugin Google Maps iOS.
+- **Acceptance tracking**: Android 1/1 `PASS` sul codice finale `5e0f1c6`.
+- **Stato**: gate locali chiusi; CI PR exact-SHA, merge normale e main CI restano da
+  eseguire prima di `DONE`.

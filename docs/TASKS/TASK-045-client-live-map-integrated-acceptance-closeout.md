@@ -174,6 +174,9 @@ La re-review finale read-only sullo SHA
 
 - **Esito Re-review**: `APPROVED`.
 - **Handoff Review**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+- **Gate canonico candidato approvato**: `scripts/check.sh` `PASS`, exit 0 sul commit
+  `62e0bd0957c5b65f6b18e5a1e87048b91fb9f17f`; 624 test con coverage, security e
+  governance, performance, APK debug e iOS Simulator debug verdi.
 
 ## Fix — `CODEX_FIXER`
 

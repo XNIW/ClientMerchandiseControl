@@ -6,13 +6,13 @@
 - **Titolo**: Observability, crash reporting e analytics privacy-safe
 - **File task**: `docs/TASKS/TASK-035-observability-crash-analytics.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-035/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -310,6 +310,31 @@ Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 Warning invariati: 34 package hanno versioni più recenti incompatibili; Maps iOS
 segnala futura adozione SPM. Nessuna dipendenza aggiunta.
+
+Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Fix 2 — `F-035-R04`
+
+- classificatore key-aware esteso con match exact/suffix bounded per password,
+  passphrase, authorization, cookie, private key, DSN, secret e credential;
+- regex testuale coerente per assegnazioni raw e scanner statico esteso agli alias
+  snake/camel;
+- fixture inline dello scanner prova 13 alias a ogni esecuzione senza scrivere secret;
+- due regressioni negative decodificano il JSON, cercano ogni valore originario e
+  provano anche il redactor testuale.
+
+### Verifica Fix 2
+
+| Gate | Esito |
+|---|---|
+| serializer/redactor | `17/17 PASS` |
+| repeat serializer/redactor | `20 x 17 = 340/340 PASS` |
+| scanner alias inline / telemetry | `13/13`, 12 eventi, `PASS` |
+| `scripts/check.sh` sullo SHA `5486561` | `PASS`, exit `0` |
+| suite non-performance coverage | `661/661 PASS` |
+| repeat TASK-034 | `5 x 14 = 70/70 PASS` |
+| benchmark cache 25k | `PASS`, open 469 ms, write 479 ms |
+| Android debug / iOS Simulator debug | `PASS / PASS` |
 
 Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 

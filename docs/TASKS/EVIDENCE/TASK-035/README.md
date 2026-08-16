@@ -1,7 +1,7 @@
 # Evidence TASK-035
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -112,7 +112,11 @@ plugin Maps iOS. Nessun warning è introdotto come nuova dipendenza dal task.
   format e diff `PASS`;
 - primo `scripts/check.sh` Fix 2: `FAIL` prima della suite perché lo snapshot evidence
   era ancora in Review; snapshot riallineato, nessun gate successivo inferito;
-- re-review Fix 2: `NOT_RUN`;
+- `scripts/check.sh` Fix 2 sullo SHA `5486561`: `PASS`; scan 621 file, fixture
+  security `41/41 + 4/4`, governance `9/9`, architecture `7/7`, format/analyze,
+  suite coverage `661/661`, repeat TASK-034 `70/70`, cache 25k, Android debug e
+  iOS Simulator debug tutti verdi;
+- re-review Fix 2: `NOT_RUN`, handoff corrente;
 - PR exact-SHA CI: `NOT_RUN`;
 - main post-merge CI: `NOT_RUN`;
 - produzione e provider esterni: non modificati.

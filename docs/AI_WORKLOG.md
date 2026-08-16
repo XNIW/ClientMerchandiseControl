@@ -2619,3 +2619,13 @@
 - **Gate canonico**: fermato dal governance check prima della suite perché lo snapshot
   evidence era ancora `REVIEW`; evidence riallineata a `FIX`, nessun gate successivo
   inferito e nuovo exact-SHA richiesto.
+
+## 2026-08-16 — TASK-035 Fix 2 completo a Re-review
+
+- **Fix**: tecnico `741834b`, evidence di gate `5486561`; match exact/suffix per
+  credenziali generiche, fixture scanner 13 alias e regressioni JSON/text.
+- **Gate mirati**: `17/17`, repeat `20 x 17 = 340/340`, scanner e analyze verdi.
+- **Gate canonico**: `scripts/check.sh` sullo SHA `5486561` `PASS`; 661 test coverage,
+  repeat TASK-034 `70/70`, cache 25k, APK debug e iOS Simulator debug.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; nuova
+  re-review read-only distinta obbligatoria.

@@ -191,8 +191,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-035
 - **File task**: docs/TASKS/TASK-035-observability-crash-analytics.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -200,9 +200,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
 normalmente e le CI PR/main exact-SHA sono verdi. Il train
 `CLIENT_FINAL_PRODUCT_COMPLETION` ha chiuso TASK-034 su `main` con review e CI
-exact-SHA verdi; TASK-035 è in Fix dopo che la re-review ha chiuso i finding
-originali e riaperto `F-035-R04` P2 sulle credenziali generiche. Production resta
-invariata.
+exact-SHA verdi; TASK-035 è in re-review indipendente dopo il Fix 2 della redazione
+credenziali e il gate canonico completo verde. Production resta invariata.
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione

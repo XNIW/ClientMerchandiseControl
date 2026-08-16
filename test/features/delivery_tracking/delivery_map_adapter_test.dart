@@ -17,7 +17,7 @@ void main() {
       adapter: adapter,
     );
 
-    final result = await presenter.present(trackingLiveSnapshot());
+    final result = await _present(presenter, trackingLiveSnapshot());
 
     expect(result, isA<DeliveryMapUnavailable>());
     expect(
@@ -37,7 +37,7 @@ void main() {
       adapter: adapter,
     );
 
-    final result = await presenter.present(trackingLiveSnapshot());
+    final result = await _present(presenter, trackingLiveSnapshot());
 
     expect(
       (result as DeliveryMapUnavailable).reason,
@@ -56,7 +56,7 @@ void main() {
       adapter: adapter,
     );
 
-    final result = await presenter.present(trackingLiveSnapshot());
+    final result = await _present(presenter, trackingLiveSnapshot());
 
     expect(result, isA<DeliveryMapReady>());
     expect(adapter.scenes, hasLength(1));
@@ -77,7 +77,8 @@ void main() {
         ),
         adapter: staleAdapter,
       );
-      final stale = await stalePresenter.present(
+      final stale = await _present(
+        stalePresenter,
         trackingLiveSnapshot(freshness: 'stale'),
       );
       expect(
@@ -95,7 +96,7 @@ void main() {
         ),
         adapter: failingAdapter,
       );
-      final failure = await failingPresenter.present(trackingLiveSnapshot());
+      final failure = await _present(failingPresenter, trackingLiveSnapshot());
       expect(
         (failure as DeliveryMapUnavailable).reason,
         DeliveryMapUnavailableReason.providerException,
@@ -104,7 +105,7 @@ void main() {
       await failingPresenter.dispose();
       await failingPresenter.dispose();
       expect(failingAdapter.disposeCalls, 1);
-      final disposed = await failingPresenter.present(trackingLiveSnapshot());
+      final disposed = await _present(failingPresenter, trackingLiveSnapshot());
       expect(
         (disposed as DeliveryMapUnavailable).reason,
         DeliveryMapUnavailableReason.disposed,
@@ -130,7 +131,48 @@ void main() {
         _copySnapshot(live, trackingMode: DeliveryTrackingMode.externalCarrier),
         _copySnapshot(live, orderStatus: 'completed'),
       ]) {
-        final result = await presenter.present(snapshot);
+        final result = await _present(presenter, snapshot);
+        expect(
+          (result as DeliveryMapUnavailable).reason,
+          DeliveryMapUnavailableReason.trackingUnavailable,
+        );
+      }
+      expect(adapter.scenes, isEmpty);
+    },
+  );
+
+  test(
+    'owner, detail status, session and delivery state gate the map',
+    () async {
+      final adapter = FakeDeliveryMapAdapter();
+      final presenter = FailClosedDeliveryMapPresenter(
+        configuration: const DeliveryMapConfiguration(
+          enabled: true,
+          nativeConfigurationPresent: true,
+        ),
+        adapter: adapter,
+      );
+      final live = trackingLiveSnapshot();
+
+      final results = [
+        await _present(presenter, live, ownerAuthenticated: false),
+        await _present(presenter, live, orderStatusCompatible: false),
+        await _present(presenter, _copySnapshot(live, orderStatus: 'ready')),
+        await _present(
+          presenter,
+          _copySnapshot(live, clearTrackingSession: true),
+        ),
+        await _present(
+          presenter,
+          _copySnapshot(live, trackingState: DeliveryTrackingState.paused),
+        ),
+        await _present(
+          presenter,
+          _copySnapshot(live, fulfillmentMode: 'pickup'),
+        ),
+      ];
+
+      for (final result in results) {
         expect(
           (result as DeliveryMapUnavailable).reason,
           DeliveryMapUnavailableReason.trackingUnavailable,
@@ -150,7 +192,7 @@ void main() {
       adapter: adapter,
     );
 
-    final pending = presenter.present(trackingLiveSnapshot());
+    final pending = _present(presenter, trackingLiveSnapshot());
     await adapter.renderStarted.future;
     await presenter.dispose();
     adapter.releaseRender.complete();
@@ -164,23 +206,37 @@ void main() {
   });
 }
 
+Future<DeliveryMapPresentation> _present(
+  FailClosedDeliveryMapPresenter presenter,
+  DeliveryTrackingSnapshot snapshot, {
+  bool ownerAuthenticated = true,
+  bool orderStatusCompatible = true,
+}) => presenter.present(
+  snapshot,
+  ownerAuthenticated: ownerAuthenticated,
+  orderStatusCompatible: orderStatusCompatible,
+);
+
 DeliveryTrackingSnapshot _copySnapshot(
   DeliveryTrackingSnapshot source, {
   DeliveryTrackingMode? trackingMode,
   String? orderStatus,
+  bool clearTrackingSession = false,
+  DeliveryTrackingState? trackingState,
+  String? fulfillmentMode,
 }) {
   return DeliveryTrackingSnapshot(
     orderId: source.orderId,
     orderStatus: orderStatus ?? source.orderStatus,
     orderStatusVersion: source.orderStatusVersion,
-    fulfillmentMode: source.fulfillmentMode,
+    fulfillmentMode: fulfillmentMode ?? source.fulfillmentMode,
     trackingMode: trackingMode ?? source.trackingMode,
-    trackingState: source.trackingState,
+    trackingState: trackingState ?? source.trackingState,
     freshness: source.freshness,
     contactCapability: source.contactCapability,
     serverTime: source.serverTime,
     version: source.version,
-    trackingSessionId: source.trackingSessionId,
+    trackingSessionId: clearTrackingSession ? null : source.trackingSessionId,
     courierPublicLabel: source.courierPublicLabel,
     vehicleKind: source.vehicleKind,
     courierCoordinate: source.courierCoordinate,

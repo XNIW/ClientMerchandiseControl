@@ -13,7 +13,10 @@ import '../../../app/router/app_routes.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../delivery_tracking/application/delivery_tracking_controller.dart';
+import '../../delivery_tracking/application/delivery_tracking_providers.dart';
 import '../../delivery_tracking/domain/delivery_tracking_models.dart';
+import '../../delivery_tracking/presentation/delivery_live_map.dart';
+import '../../delivery_tracking/presentation/google_delivery_map_adapter.dart';
 import '../application/customer_order_controller.dart';
 import '../domain/customer_order_failure.dart';
 import '../domain/customer_order_models.dart';
@@ -74,7 +77,6 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(customerOrderControllerProvider);
-    final trackingState = ref.watch(deliveryTrackingControllerProvider);
     final controller = ref.read(customerOrderControllerProvider.notifier);
     ref.listen<CustomerOrdersState>(customerOrderControllerProvider, (
       previous,
@@ -154,11 +156,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen>
                 onRetry: () =>
                     controller.openOrder(widget.orderId, forceRefresh: true),
               )
-            : _OrderDetailBody(
-                detail: detail,
-                state: state,
-                trackingState: trackingState,
-              ),
+            : _OrderDetailBody(detail: detail, state: state),
       ),
     );
   }
@@ -203,15 +201,10 @@ class _OrderDetailUnavailable extends StatelessWidget {
 }
 
 class _OrderDetailBody extends ConsumerWidget {
-  const _OrderDetailBody({
-    required this.detail,
-    required this.state,
-    required this.trackingState,
-  });
+  const _OrderDetailBody({required this.detail, required this.state});
 
   final CustomerOrderDetail detail;
   final CustomerOrdersState state;
-  final DeliveryTrackingViewState trackingState;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -263,13 +256,7 @@ class _OrderDetailBody extends ConsumerWidget {
                   if (detail.fulfillment.mode ==
                           CustomerOrderFulfillmentMode.delivery &&
                       !_isTerminalCustomerOrderStatus(detail.status)) ...[
-                    _DeliveryTrackingCard(
-                      detail: detail,
-                      state: trackingState,
-                      onRetry: () => ref
-                          .read(deliveryTrackingControllerProvider.notifier)
-                          .refresh(),
-                    ),
+                    _DeliveryTrackingSection(detail: detail),
                     const SizedBox(height: AppSpacing.md),
                   ],
                   _FulfillmentCard(detail: detail),
@@ -306,10 +293,36 @@ class _OrderDetailBody extends ConsumerWidget {
   }
 }
 
+class _DeliveryTrackingSection extends ConsumerWidget {
+  const _DeliveryTrackingSection({required this.detail});
+
+  final CustomerOrderDetail detail;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(deliveryTrackingControllerProvider);
+    final ownerAuthenticated =
+        ref.watch(deliveryTrackingIdentityProvider) != null;
+    return _DeliveryTrackingCard(
+      detail: detail,
+      state: state,
+      ownerAuthenticated: ownerAuthenticated,
+      onRetry: () =>
+          ref.read(deliveryTrackingControllerProvider.notifier).refresh(),
+    );
+  }
+}
+
 bool _isTerminalCustomerOrderStatus(CustomerOrderStatus status) =>
     status == CustomerOrderStatus.completed ||
     status == CustomerOrderStatus.cancelled ||
     status == CustomerOrderStatus.rejected;
+
+bool _isPreDeliveryCustomerOrderStatus(CustomerOrderStatus status) =>
+    status == CustomerOrderStatus.confirmed ||
+    status == CustomerOrderStatus.accepted ||
+    status == CustomerOrderStatus.preparing ||
+    status == CustomerOrderStatus.ready;
 
 class _OrderHeader extends StatelessWidget {
   const _OrderHeader({required this.detail});
@@ -532,11 +545,13 @@ class _DeliveryTrackingCard extends StatelessWidget {
   const _DeliveryTrackingCard({
     required this.detail,
     required this.state,
+    required this.ownerAuthenticated,
     required this.onRetry,
   });
 
   final CustomerOrderDetail detail;
   final DeliveryTrackingViewState state;
+  final bool ownerAuthenticated;
   final Future<void> Function() onRetry;
 
   @override
@@ -604,22 +619,32 @@ class _DeliveryTrackingCard extends StatelessWidget {
         l10n.deliveryTrackingModeExternalCarrier,
       DeliveryTrackingMode.liveCourier => l10n.deliveryTrackingModeLiveCourier,
     };
-    final freshnessLabel = switch (snapshot.freshness) {
-      DeliveryTrackingFreshness.fresh => l10n.deliveryTrackingFresh,
-      DeliveryTrackingFreshness.stale => l10n.deliveryTrackingStale,
-      DeliveryTrackingFreshness.ended => l10n.deliveryTrackingEnded,
-      DeliveryTrackingFreshness.unavailable
-          when snapshot.trackingMode == DeliveryTrackingMode.liveCourier =>
-        l10n.deliveryTrackingLiveWaiting,
-      DeliveryTrackingFreshness.unavailable =>
-        l10n.deliveryTrackingModeStatusOnly,
-    };
+    final freshnessLabel =
+        _isPreDeliveryCustomerOrderStatus(detail.status) &&
+            snapshot.trackingMode == DeliveryTrackingMode.liveCourier
+        ? l10n.deliveryTrackingLiveWaiting
+        : switch (snapshot.freshness) {
+            DeliveryTrackingFreshness.fresh => l10n.deliveryTrackingFresh,
+            DeliveryTrackingFreshness.stale => l10n.deliveryTrackingStale,
+            DeliveryTrackingFreshness.ended => l10n.deliveryTrackingEnded,
+            DeliveryTrackingFreshness.unavailable
+                when snapshot.trackingMode ==
+                    DeliveryTrackingMode.liveCourier =>
+              l10n.deliveryTrackingLiveWaiting,
+            DeliveryTrackingFreshness.unavailable =>
+              l10n.deliveryTrackingModeStatusOnly,
+          };
     final semanticLabel = [
       l10n.deliveryTrackingTitle,
       modeLabel,
       customerOrderStatusLabel(l10n, detail.status),
       freshnessLabel,
     ].join('. ');
+    final lastUpdatedLabel = snapshot.observedAt == null
+        ? freshnessLabel
+        : l10n.deliveryTrackingLastUpdated(
+            customerOrderDate(context, snapshot.observedAt!),
+          );
 
     return Semantics(
       key: const ValueKey('delivery-tracking-card'),
@@ -679,6 +704,23 @@ class _DeliveryTrackingCard extends StatelessWidget {
                   ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ],
+              DeliveryLiveMap(
+                snapshot: snapshot,
+                ownerAuthenticated: ownerAuthenticated,
+                orderStatusCompatible:
+                    detail.status == CustomerOrderStatus.outForDelivery,
+                semanticsLabel: l10n.deliveryTrackingMapSemantics(
+                  customerOrderStatusLabel(l10n, detail.status),
+                  lastUpdatedLabel,
+                ),
+                recenterLabel: l10n.deliveryTrackingMapRecenter,
+                loadingLabel: l10n.deliveryTrackingMapLoading,
+                markerLabels: DeliveryMapMarkerLabels(
+                  store: l10n.deliveryTrackingMapStoreMarker,
+                  destination: l10n.deliveryTrackingMapDestinationMarker,
+                  courier: l10n.deliveryTrackingMapCourierMarker,
+                ),
+              ),
               if (snapshot.courierPublicLabel != null &&
                   !snapshot.isTerminal) ...[
                 const SizedBox(height: AppSpacing.sm),

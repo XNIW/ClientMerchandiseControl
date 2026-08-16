@@ -358,6 +358,9 @@ class _OrderCard extends StatelessWidget {
     final status = customerOrderStatusLabel(l10n, order.status);
     final total = formatter.format(order.totalClp);
     final stacked = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    final canFollowDelivery =
+        order.fulfillmentMode == CustomerOrderFulfillmentMode.delivery &&
+        order.status == CustomerOrderStatus.outForDelivery;
     final code = Text(
       order.code,
       maxLines: stacked ? 2 : 1,
@@ -458,6 +461,34 @@ class _OrderCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (canFollowDelivery) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    key: ValueKey('order-follow-delivery-${order.id}'),
+                    children: [
+                      Icon(
+                        Icons.near_me_outlined,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      Expanded(
+                        child: Text(
+                          l10n.deliveryTrackingInDeliveryIndicator,
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w800,
+                              ),
+                        ),
+                      ),
+                      Text(
+                        l10n.deliveryTrackingFollowAction,
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.md),
                 if (stacked) ...[
                   Text(

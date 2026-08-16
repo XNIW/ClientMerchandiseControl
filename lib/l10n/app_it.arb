@@ -498,5 +498,13 @@
   "deliveryTrackingCourierLabel": "Corriere: {label}",
   "deliveryTrackingExternalCode": "Riferimento {code}",
   "deliveryTrackingPollingFallback": "Gli aggiornamenti in tempo reale si stanno riconnettendo. Lo stato della consegna viene verificato periodicamente.",
-  "deliveryTrackingOfflineCached": "È mostrata l’ultima copia cifrata salvata su questo dispositivo."
+  "deliveryTrackingOfflineCached": "È mostrata l’ultima copia cifrata salvata su questo dispositivo.",
+  "deliveryTrackingMapSemantics": "Mappa della consegna. {status}. {updated}",
+  "deliveryTrackingMapRecenter": "Ricentra la mappa della consegna",
+  "deliveryTrackingMapLoading": "Caricamento della mappa della consegna",
+  "deliveryTrackingMapStoreMarker": "Negozio",
+  "deliveryTrackingMapDestinationMarker": "Destinazione della consegna",
+  "deliveryTrackingMapCourierMarker": "Corriere",
+  "deliveryTrackingFollowAction": "Segui consegna",
+  "deliveryTrackingInDeliveryIndicator": "Consegna in corso"
 }

@@ -13,8 +13,8 @@ Il mandato non autorizza l'attivazione di un servizio a pagamento.
 
 Le fonti ufficiali consultate il 2026-08-16 attestano che:
 
-- `google_maps_flutter` integra gli SDK mobili nativi Android/iOS e richiede almeno
-  Android 21 e iOS 14;
+- `google_maps_flutter` 2.18 integra gli SDK mobili nativi Android/iOS e richiede
+  Android 24 e iOS 14;
 - la matrice Google Maps Platform riporta copertura cartografica in Cile;
 - lo SKU mobile `Maps SDK` è riportato con uso senza costo nella tariffa corrente, ma
   configurazione, billing account e API key restano prerequisiti del provider;

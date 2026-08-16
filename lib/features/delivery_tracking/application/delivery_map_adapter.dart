@@ -55,6 +55,17 @@ final class DeliveryMapScene {
   final int snapshotVersion;
 }
 
+bool isDeliveryLiveMapEligible(
+  DeliveryTrackingSnapshot snapshot, {
+  required bool ownerAuthenticated,
+  required bool orderStatusCompatible,
+}) =>
+    ownerAuthenticated &&
+    orderStatusCompatible &&
+    snapshot.hasFreshLiveLocation &&
+    snapshot.storeCoordinate != null &&
+    snapshot.destinationCoordinate != null;
+
 sealed class DeliveryMapPresentation {
   const DeliveryMapPresentation();
 }
@@ -77,6 +88,11 @@ abstract interface class DeliveryMapAdapter {
   Future<void> dispose();
 }
 
+abstract interface class RecenterableDeliveryMapAdapter
+    implements DeliveryMapAdapter {
+  Future<void> recenter({required bool animated});
+}
+
 final class FailClosedDeliveryMapPresenter {
   FailClosedDeliveryMapPresenter({
     required this.configuration,
@@ -89,8 +105,10 @@ final class FailClosedDeliveryMapPresenter {
   var _generation = 0;
 
   Future<DeliveryMapPresentation> present(
-    DeliveryTrackingSnapshot snapshot,
-  ) async {
+    DeliveryTrackingSnapshot snapshot, {
+    required bool ownerAuthenticated,
+    required bool orderStatusCompatible,
+  }) async {
     if (_disposed) {
       return const DeliveryMapUnavailable(
         DeliveryMapUnavailableReason.disposed,
@@ -105,6 +123,15 @@ final class FailClosedDeliveryMapPresenter {
     if (!configuration.nativeConfigurationPresent) {
       return const DeliveryMapUnavailable(
         DeliveryMapUnavailableReason.missingNativeConfiguration,
+      );
+    }
+    if (!isDeliveryLiveMapEligible(
+      snapshot,
+      ownerAuthenticated: ownerAuthenticated,
+      orderStatusCompatible: orderStatusCompatible,
+    )) {
+      return const DeliveryMapUnavailable(
+        DeliveryMapUnavailableReason.trackingUnavailable,
       );
     }
 
@@ -141,12 +168,14 @@ final class FailClosedDeliveryMapPresenter {
   }
 }
 
-final class FakeDeliveryMapAdapter implements DeliveryMapAdapter {
+final class FakeDeliveryMapAdapter implements RecenterableDeliveryMapAdapter {
   FakeDeliveryMapAdapter({this.renderException});
 
   final Object? renderException;
   final List<DeliveryMapScene> scenes = [];
   var disposeCalls = 0;
+  var recenterCalls = 0;
+  bool? lastRecenterAnimated;
 
   @override
   Future<void> render(DeliveryMapScene scene) async {
@@ -157,5 +186,11 @@ final class FakeDeliveryMapAdapter implements DeliveryMapAdapter {
   @override
   Future<void> dispose() async {
     disposeCalls++;
+  }
+
+  @override
+  Future<void> recenter({required bool animated}) async {
+    recenterCalls++;
+    lastRecenterAnimated = animated;
   }
 }

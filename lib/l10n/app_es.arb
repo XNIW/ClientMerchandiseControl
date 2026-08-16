@@ -825,5 +825,14 @@
   "deliveryTrackingExternalCode": "Referencia {code}",
   "@deliveryTrackingExternalCode": {"placeholders": {"code": {"type": "String"}}},
   "deliveryTrackingPollingFallback": "Las actualizaciones en vivo se están reconectando. Revisamos periódicamente el estado de la entrega.",
-  "deliveryTrackingOfflineCached": "Mostramos la última copia cifrada guardada en este dispositivo."
+  "deliveryTrackingOfflineCached": "Mostramos la última copia cifrada guardada en este dispositivo.",
+  "deliveryTrackingMapSemantics": "Mapa de la entrega. {status}. {updated}",
+  "@deliveryTrackingMapSemantics": {"placeholders": {"status": {"type": "String"}, "updated": {"type": "String"}}},
+  "deliveryTrackingMapRecenter": "Volver a centrar el mapa de la entrega",
+  "deliveryTrackingMapLoading": "Cargando el mapa de la entrega",
+  "deliveryTrackingMapStoreMarker": "Tienda",
+  "deliveryTrackingMapDestinationMarker": "Destino de entrega",
+  "deliveryTrackingMapCourierMarker": "Repartidor",
+  "deliveryTrackingFollowAction": "Seguir entrega",
+  "deliveryTrackingInDeliveryIndicator": "Entrega en curso"
 }

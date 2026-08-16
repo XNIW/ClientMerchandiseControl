@@ -3048,6 +3048,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Mostramos la última copia cifrada guardada en este dispositivo.'**
   String get deliveryTrackingOfflineCached;
+
+  /// No description provided for @deliveryTrackingMapSemantics.
+  ///
+  /// In es, this message translates to:
+  /// **'Mapa de la entrega. {status}. {updated}'**
+  String deliveryTrackingMapSemantics(String status, String updated);
+
+  /// No description provided for @deliveryTrackingMapRecenter.
+  ///
+  /// In es, this message translates to:
+  /// **'Volver a centrar el mapa de la entrega'**
+  String get deliveryTrackingMapRecenter;
+
+  /// No description provided for @deliveryTrackingMapLoading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando el mapa de la entrega'**
+  String get deliveryTrackingMapLoading;
+
+  /// No description provided for @deliveryTrackingMapStoreMarker.
+  ///
+  /// In es, this message translates to:
+  /// **'Tienda'**
+  String get deliveryTrackingMapStoreMarker;
+
+  /// No description provided for @deliveryTrackingMapDestinationMarker.
+  ///
+  /// In es, this message translates to:
+  /// **'Destino de entrega'**
+  String get deliveryTrackingMapDestinationMarker;
+
+  /// No description provided for @deliveryTrackingMapCourierMarker.
+  ///
+  /// In es, this message translates to:
+  /// **'Repartidor'**
+  String get deliveryTrackingMapCourierMarker;
+
+  /// No description provided for @deliveryTrackingFollowAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Seguir entrega'**
+  String get deliveryTrackingFollowAction;
+
+  /// No description provided for @deliveryTrackingInDeliveryIndicator.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrega en curso'**
+  String get deliveryTrackingInDeliveryIndicator;
 }
 
 class _AppLocalizationsDelegate

@@ -498,5 +498,13 @@
   "deliveryTrackingCourierLabel": "配送员：{label}",
   "deliveryTrackingExternalCode": "参考编号 {code}",
   "deliveryTrackingPollingFallback": "实时更新正在重新连接。系统会定期检查配送状态。",
-  "deliveryTrackingOfflineCached": "当前显示此设备上保存的最新加密副本。"
+  "deliveryTrackingOfflineCached": "当前显示此设备上保存的最新加密副本。",
+  "deliveryTrackingMapSemantics": "配送地图。{status}。{updated}",
+  "deliveryTrackingMapRecenter": "重新居中配送地图",
+  "deliveryTrackingMapLoading": "正在加载配送地图",
+  "deliveryTrackingMapStoreMarker": "商店",
+  "deliveryTrackingMapDestinationMarker": "配送目的地",
+  "deliveryTrackingMapCourierMarker": "配送员",
+  "deliveryTrackingFollowAction": "跟踪配送",
+  "deliveryTrackingInDeliveryIndicator": "配送中"
 }

@@ -24,6 +24,8 @@ CustomerOrderCard orderTestCard({
   int totalClp = 2400,
   bool cancellationAllowed = true,
   DateTime? placedAt,
+  CustomerOrderFulfillmentMode fulfillmentMode =
+      CustomerOrderFulfillmentMode.pickup,
 }) {
   final placed = placedAt ?? orderTestNow.subtract(const Duration(minutes: 2));
   return CustomerOrderCard(
@@ -31,7 +33,7 @@ CustomerOrderCard orderTestCard({
     code: code,
     status: status,
     version: version,
-    fulfillmentMode: CustomerOrderFulfillmentMode.pickup,
+    fulfillmentMode: fulfillmentMode,
     totalClp: totalClp,
     itemCount: 1,
     primaryItemName: 'Café público',

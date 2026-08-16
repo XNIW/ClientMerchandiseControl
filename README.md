@@ -95,6 +95,32 @@ TASK-013 usa lo slug esclusivamente con l'RPC pubblico `storefront_home_v1`;
 TASK-014 estende lo stesso boundary con `storefront_categories_v1` e
 `storefront_catalog_v1`.
 
+### Mappa delivery opzionale
+
+La mappa usa `google_maps_flutter` ed è disattivata per default. Timeline, finestra di
+consegna e fallback testuale restano disponibili senza provider. Per uno staging già
+autorizzato e configurato servono due chiavi distinte e ristrette al solo Maps SDK:
+
+- Android: `ANDROID_GOOGLE_MAPS_API_KEY` nell'ambiente della build, oppure
+  `MAPS_API_KEY` in `android/local.properties` locale;
+- iOS: `IOS_GOOGLE_MAPS_API_KEY=<valore>` in
+  `ios/Flutter/Maps.local.xcconfig`, file ignorato da Git.
+
+Solo dopo aver verificato package/bundle, firme, quote e billing dello staging, avviare
+con entrambi i gate compile-time:
+
+```bash
+flutter run \
+  --dart-define=DELIVERY_MAPS_ENABLED=true \
+  --dart-define=DELIVERY_MAPS_NATIVE_CONFIGURED=true \
+  --dart-define-from-file=config/app_config.staging.local.json
+```
+
+Senza uno dei due gate il widget Google non viene istanziato. La produzione resta
+`OFF` finché un activation record separato non attesta chiavi ristrette e prova su
+device. Il Client non chiede posizione, non calcola ETA o percorsi e non invia order ID,
+customer ID, alias del corriere o coordinate a log, analytics e push.
+
 ## Test e build
 
 ```bash

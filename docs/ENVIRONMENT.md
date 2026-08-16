@@ -69,3 +69,29 @@ Android disabilita backup applicativo per impedire il ripristino incoerente del
 materiale cifrato. iOS usa Keychain non sincronizzato e this-device; il marker nel
 container applicativo elimina le sole chiavi Auth note al primo avvio dopo
 reinstallazione. Un errore dello storage è fail-closed.
+
+## Provider mappa delivery
+
+TASK-045 blocca `google_maps_flutter 2.18.0` con Android minimo 24 e iOS minimo 14.
+Google Maps iOS non supporta ancora Swift Package Manager nella versione bloccata:
+Flutter conserva i plugin compatibili sul percorso SPM esistente e usa il `Podfile`
+versionato per questo plugin. La CI non richiede rete del provider né una chiave.
+
+L'activation usa due canali nativi separati e non versionati:
+
+- `ANDROID_GOOGLE_MAPS_API_KEY` o `MAPS_API_KEY` nel solo
+  `android/local.properties` locale;
+- `IOS_GOOGLE_MAPS_API_KEY` nel solo `ios/Flutter/Maps.local.xcconfig` ignorato.
+
+Il valore di default nativo è `NOT_CONFIGURED`. Anche con una chiave locale, Dart
+richiede entrambi `DELIVERY_MAPS_ENABLED=true` e
+`DELIVERY_MAPS_NATIVE_CONFIGURED=true`; altrimenti l'adapter non viene creato. Le
+chiavi staging/production devono essere diverse, ristrette a package+firma Android o
+bundle iOS e al solo Maps SDK. Production rimane disattivata fino a una decisione di
+activation separata con billing, quote, restrizioni e prova device attestati.
+
+Il provider riceve soltanto il normale viewport cartografico necessario agli SDK
+nativi. Il Client non aggiunge order/customer ID, alias, indirizzi, URL di tracking o
+altri dati applicativi alle richieste del provider e non registra coordinate in log,
+analytics, crash report o push. I tre marker restano in memoria UI; la cache cifrata e
+la redazione terminale seguono il contratto e la retention bounded di TASK-044.

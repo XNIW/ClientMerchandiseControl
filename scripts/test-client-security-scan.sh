@@ -32,6 +32,13 @@ cmc_fixture_supabase_prefix='sb_'
 cmc_fixture_supabase_value="${cmc_fixture_supabase_prefix}secret_${cmc_fixture_token_body}"
 cmc_fixture_google_prefix='GOC'
 cmc_fixture_google_value="${cmc_fixture_google_prefix}SPX-${cmc_fixture_token_body}"
+cmc_fixture_maps_prefix='AI'
+cmc_fixture_maps_value="${cmc_fixture_maps_prefix}za${cmc_fixture_token_body}AAA"
+cmc_fixture_maps_sdk_prefix='X-Ios-Bundle-Identifier'
+cmc_fixture_maps_sdk_quota='DeductQuota'
+cmc_fixture_maps_sdk_platform='unknown_ios'
+cmc_fixture_maps_sdk_service='mapsmobilesdks-pa.googleapis.com'
+cmc_fixture_maps_sdk_places='places.googleapis.com'
 cmc_fixture_jwt_header='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
 cmc_fixture_jwt_payload='eyJyb2xlIjoic2VydmljZV9yb2xlIn0'
 cmc_fixture_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_jwt_payload}.${cmc_fixture_token_body}"
@@ -337,6 +344,36 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_bundle}" \
   --artifact "${cmc_fixture_bundle}/artifact"
 
+cmc_fixture_maps_near_miss="$(
+  cmc_fixture_prepare bundle-maps-sdk-near-miss
+)"
+mkdir -p "${cmc_fixture_maps_near_miss}/artifact"
+printf '%s\0%s\0%s\0%s\0%s\n' \
+  "${cmc_fixture_maps_sdk_prefix}" \
+  "${cmc_fixture_maps_sdk_quota}" \
+  "${cmc_fixture_maps_value}" \
+  "${cmc_fixture_maps_sdk_platform}" \
+  'example.invalid' \
+  >"${cmc_fixture_maps_near_miss}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_maps_near_miss}" \
+  --artifact "${cmc_fixture_maps_near_miss}/artifact"
+
+cmc_fixture_maps_mixed="$(cmc_fixture_prepare bundle-maps-sdk-mixed-secret)"
+mkdir -p "${cmc_fixture_maps_mixed}/artifact"
+printf '%s\0%s\0%s\0%s\0%s\0%s\n%s\n' \
+  "${cmc_fixture_maps_sdk_prefix}" \
+  "${cmc_fixture_maps_sdk_quota}" \
+  "${cmc_fixture_maps_value}" \
+  "${cmc_fixture_maps_sdk_platform}" \
+  "${cmc_fixture_maps_sdk_service}" \
+  "${cmc_fixture_maps_sdk_places}" \
+  "${cmc_fixture_google_value}" \
+  >"${cmc_fixture_maps_mixed}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_maps_mixed}" \
+  --artifact "${cmc_fixture_maps_mixed}/artifact"
+
 cmc_fixture_pem_bundle="$(cmc_fixture_prepare bundle-private-key)"
 mkdir -p "${cmc_fixture_pem_bundle}/artifact"
 printf '%s\n' \
@@ -411,6 +448,20 @@ printf '%s\n' \
 cmc_fixture_expect_acceptance \
   "${cmc_fixture_publishable}" \
   --artifact "${cmc_fixture_publishable}/artifact"
+
+cmc_fixture_maps_sdk="$(cmc_fixture_prepare maps-sdk-public-identifier)"
+mkdir -p "${cmc_fixture_maps_sdk}/artifact"
+printf '%s\0%s\0%s\0%s\0%s\0%s\n' \
+  "${cmc_fixture_maps_sdk_prefix}" \
+  "${cmc_fixture_maps_sdk_quota}" \
+  "${cmc_fixture_maps_value}" \
+  "${cmc_fixture_maps_sdk_platform}" \
+  "${cmc_fixture_maps_sdk_service}" \
+  "${cmc_fixture_maps_sdk_places}" \
+  >"${cmc_fixture_maps_sdk}/artifact/bundle.bin"
+cmc_fixture_expect_acceptance \
+  "${cmc_fixture_maps_sdk}" \
+  --artifact "${cmc_fixture_maps_sdk}/artifact"
 
 cmc_fixture_anon_jwt="$(cmc_fixture_prepare legacy-anon-jwt)"
 mkdir -p "${cmc_fixture_anon_jwt}/artifact"

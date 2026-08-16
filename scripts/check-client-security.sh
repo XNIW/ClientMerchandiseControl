@@ -196,6 +196,81 @@ cmc_security_file_has_prohibited_value() {
   return 1
 }
 
+cmc_security_file_has_prohibited_artifact_value() {
+  local cmc_security_file="$1"
+  local cmc_security_scan_status
+
+  if [[ ! -f "${cmc_security_file}" || ! -r "${cmc_security_file}" ]]; then
+    return 2
+  fi
+
+  # Google Maps iOS incorpora nel proprio binario un identificatore client pubblico
+  # con forma AIza. Non è la chiave configurata dall'app: è delimitato da due
+  # costanti interne stabili dell'SDK. L'eccezione resta quindi vincolata al contesto
+  # binario esatto; qualunque altro token, anche nello stesso file, fallisce chiuso.
+  if perl -0777 -e '
+    use strict;
+    use warnings;
+    my $path = shift;
+    open my $handle, "<", $path or exit 2;
+    binmode $handle;
+    local $/;
+    my $content = <$handle>;
+    close $handle or exit 2;
+    my $secret = qr/(?:
+      AKIA[0-9A-Z]{16}
+      |github_pat_[0-9A-Za-z_]{20,}
+      |gh[pousr]_[0-9A-Za-z]{30,}
+      |sk-(?:proj|live|prod)-[0-9A-Za-z_-]{20,}
+      |sk_(?:live|prod)_[0-9A-Za-z]{20,}
+      |sb_secret_[0-9A-Za-z]{24,}
+      |AIza[0-9A-Za-z_-]{30,}
+      |GOCSPX-[0-9A-Za-z_-]{20,}
+    )/x;
+    my $maps_prefix = "X-Ios-Bundle-Identifier\0DeductQuota\0";
+    my $maps_suffix =
+      "\0unknown_ios\0mapsmobilesdks-pa.googleapis.com\0places.googleapis.com";
+    while ($content =~ /($secret)/g) {
+      my $value = $1;
+      my $start = $-[1];
+      my $end = $+[1];
+      my $prefix_start = $start - length($maps_prefix);
+      my $is_maps_sdk_identifier =
+        $value =~ /\AAIza[0-9A-Za-z_-]{35}\z/
+        && $prefix_start >= 0
+        && substr($content, $prefix_start, length($maps_prefix)) eq $maps_prefix
+        && substr($content, $end, length($maps_suffix)) eq $maps_suffix;
+      next if $is_maps_sdk_identifier;
+      exit 0;
+    }
+    exit 1;
+  ' "${cmc_security_file}" 2>/dev/null; then
+    return 0
+  else
+    cmc_security_scan_status="$?"
+  fi
+  if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
+    return 2
+  fi
+  if cmc_security_contains_non_publishable_jwt "${cmc_security_file}"; then
+    return 0
+  else
+    cmc_security_scan_status="$?"
+  fi
+  if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
+    return 2
+  fi
+  if cmc_security_contains_private_key_pem "${cmc_security_file}"; then
+    return 0
+  else
+    cmc_security_scan_status="$?"
+  fi
+  if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
+    return 2
+  fi
+  return 1
+}
+
 cmc_security_path_match_begin() {
   if shopt -q nocasematch; then
     cmc_security_restore_nocasematch=false
@@ -439,10 +514,8 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
           >&2
         cmc_security_violation_count=$((cmc_security_violation_count + 1))
       fi
-      if cmc_security_file_has_prohibited_value \
-        "${cmc_security_artifact_file}" \
-        "${cmc_security_secret_value_pattern}" \
-        true; then
+      if cmc_security_file_has_prohibited_artifact_value \
+        "${cmc_security_artifact_file}"; then
         printf 'Artifact client: valore secret-shaped rilevato; contenuto non stampato.\n' \
           >&2
         cmc_security_violation_count=$((cmc_security_violation_count + 1))

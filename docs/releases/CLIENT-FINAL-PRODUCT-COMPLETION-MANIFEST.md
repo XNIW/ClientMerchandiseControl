@@ -40,7 +40,7 @@ Admin sono verdi sui rispettivi SHA iniziali. I linked worktree del train parton
 
 | Task | Stato | Client revision | Admin revision | PR/merge | Gate |
 |---|---|---|---|---|---|
-| TASK-034 | ACTIVE / EXECUTION | in lavorazione | baseline/readiness staging | NOT_RUN | NOT_RUN |
+| TASK-034 | ACTIVE / REVIEW | candidate locale | `6fea61bb`, staging verificato | Admin #90/#91/#92 merged; Client NOT_RUN | gate locali/staging PASS; review Client NOT_RUN |
 | TASK-035 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 | TASK-036 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 | TASK-037 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |

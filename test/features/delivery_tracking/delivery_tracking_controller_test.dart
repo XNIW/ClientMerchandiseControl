@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
+import 'package:client_merchandise_control/core/time/app_scheduler.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_controller.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_providers.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/data/supabase_delivery_tracking_repository.dart';
@@ -10,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'delivery_tracking_test_support.dart';
+import '../../support/manual_app_scheduler.dart';
 
 void main() {
   test('cache-first remains readable when initial RPC is offline', () async {
@@ -39,7 +41,7 @@ void main() {
   test(
     'RPC online invariata ripristina ready e riattiva freshness dalla cache',
     () async {
-      final wallClock = Stopwatch()..start();
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
       final repository = FakeDeliveryTrackingRepository();
       final cache = MemoryDeliveryTrackingCache()
         ..snapshot = trackingLiveSnapshot();
@@ -48,7 +50,8 @@ void main() {
         cache: cache,
         pollInterval: const Duration(milliseconds: 10),
         freshnessThreshold: const Duration(milliseconds: 1050),
-        clock: () => trackingTestNow.add(wallClock.elapsed),
+        clock: scheduler.now,
+        scheduler: scheduler,
       );
       addTearDown(() async {
         container.dispose();
@@ -67,11 +70,9 @@ void main() {
       expect(repository.loadCalls, 1);
       expect(cache.saveCalls, 0);
 
-      state = await _waitFor(
-        container,
-        (candidate) =>
-            candidate.snapshot?.freshness == DeliveryTrackingFreshness.stale,
-      );
+      scheduler.advance(const Duration(milliseconds: 1050));
+      await _flush();
+      state = container.read(deliveryTrackingControllerProvider);
       expect(state.snapshot?.freshness, DeliveryTrackingFreshness.stale);
       expect(state.snapshot?.hasFreshLiveLocation, isFalse);
       expect(repository.loadCalls, 1);
@@ -119,11 +120,13 @@ void main() {
     'Realtime failure enables bounded polling fallback and reconnect',
     () async {
       final repository = FakeDeliveryTrackingRepository();
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
       final container = _container(
         repository: repository,
         cache: MemoryDeliveryTrackingCache(),
         pollInterval: const Duration(milliseconds: 15),
         reconnectBase: const Duration(milliseconds: 5),
+        scheduler: scheduler,
       );
       addTearDown(() async {
         container.dispose();
@@ -135,22 +138,25 @@ void main() {
           .read(deliveryTrackingControllerProvider.notifier)
           .open(trackingTestOrder);
       repository.stream.addError(const DeliveryTrackingRealtimeException());
+      await _flush();
+      scheduler.advance(const Duration(milliseconds: 5));
+      await _flush();
 
-      final state = await _waitFor(
-        container,
-        (state) => state.isPollingFallback && repository.loadCalls >= 2,
-      );
+      final state = container.read(deliveryTrackingControllerProvider);
       expect(state.snapshot, isNotNull);
       expect(repository.loadCalls, greaterThanOrEqualTo(2));
+      expect(repository.watchCalls, greaterThanOrEqualTo(2));
     },
   );
 
   test('Realtime sano non esegue polling periodico', () async {
     final repository = FakeDeliveryTrackingRepository();
+    final scheduler = ManualAppScheduler(start: trackingTestNow);
     final container = _container(
       repository: repository,
       cache: MemoryDeliveryTrackingCache(),
       pollInterval: const Duration(milliseconds: 10),
+      scheduler: scheduler,
     );
     addTearDown(() async {
       container.dispose();
@@ -161,7 +167,8 @@ void main() {
     await container
         .read(deliveryTrackingControllerProvider.notifier)
         .open(trackingTestOrder);
-    await Future<void>.delayed(const Duration(milliseconds: 45));
+    scheduler.advance(const Duration(milliseconds: 45));
+    await _flush();
 
     expect(repository.loadCalls, 1);
     expect(
@@ -172,11 +179,13 @@ void main() {
 
   test('evento Realtime valido arresta il polling fallback', () async {
     final repository = FakeDeliveryTrackingRepository();
+    final scheduler = ManualAppScheduler(start: trackingTestNow);
     final container = _container(
       repository: repository,
       cache: MemoryDeliveryTrackingCache(),
       pollInterval: const Duration(milliseconds: 10),
       reconnectBase: const Duration(milliseconds: 5),
+      scheduler: scheduler,
     );
     addTearDown(() async {
       container.dispose();
@@ -188,19 +197,20 @@ void main() {
         .read(deliveryTrackingControllerProvider.notifier)
         .open(trackingTestOrder);
     repository.stream.addError(const DeliveryTrackingRealtimeException());
-    await _waitFor(
-      container,
-      (state) => state.isPollingFallback && repository.loadCalls >= 2,
-    );
-    await _waitFor(container, (_) => repository.watchCalls >= 2);
+    await _flush();
+    scheduler.advance(const Duration(milliseconds: 5));
+    await _flush();
+    expect(repository.watchCalls, greaterThanOrEqualTo(2));
 
     repository.stream.add(trackingLiveSnapshot(version: 5));
-    await _waitFor(
-      container,
-      (state) => state.snapshot?.version == 5 && !state.isPollingFallback,
+    await _flush();
+    expect(
+      container.read(deliveryTrackingControllerProvider).isPollingFallback,
+      isFalse,
     );
     final callsAfterRecovery = repository.loadCalls;
-    await Future<void>.delayed(const Duration(milliseconds: 35));
+    scheduler.advance(const Duration(milliseconds: 35));
+    await _flush();
 
     expect(repository.loadCalls, callsAfterRecovery);
   });
@@ -369,10 +379,12 @@ void main() {
           ..['storeLongitude'] = null;
     final repository = FakeDeliveryTrackingRepository()
       ..snapshot = parseDeliveryTrackingSnapshot(terminalPayload);
+    final scheduler = ManualAppScheduler(start: trackingTestNow);
     final container = _container(
       repository: repository,
       cache: MemoryDeliveryTrackingCache(),
       pollInterval: const Duration(milliseconds: 10),
+      scheduler: scheduler,
     );
     addTearDown(() async {
       container.dispose();
@@ -383,7 +395,8 @@ void main() {
     await container
         .read(deliveryTrackingControllerProvider.notifier)
         .open(trackingTestOrder);
-    await Future<void>.delayed(const Duration(milliseconds: 30));
+    scheduler.advance(const Duration(milliseconds: 30));
+    await _flush();
 
     expect(repository.watchCalls, 0);
     expect(repository.loadCalls, 1);
@@ -523,13 +536,14 @@ void main() {
     'freshness scade localmente senza eseguire una RPC di polling',
     () async {
       final repository = FakeDeliveryTrackingRepository();
-      final wallClock = Stopwatch()..start();
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
       final container = _container(
         repository: repository,
         cache: MemoryDeliveryTrackingCache(),
         pollInterval: const Duration(milliseconds: 10),
         freshnessThreshold: const Duration(milliseconds: 1050),
-        clock: () => trackingTestNow.add(wallClock.elapsed),
+        clock: scheduler.now,
+        scheduler: scheduler,
       );
       addTearDown(() async {
         container.dispose();
@@ -540,11 +554,11 @@ void main() {
       await container
           .read(deliveryTrackingControllerProvider.notifier)
           .open(trackingTestOrder);
-      final snapshot = (await _waitFor(
-        container,
-        (candidate) =>
-            candidate.snapshot?.freshness == DeliveryTrackingFreshness.stale,
-      )).snapshot;
+      scheduler.advance(const Duration(milliseconds: 1050));
+      await _flush();
+      final snapshot = container
+          .read(deliveryTrackingControllerProvider)
+          .snapshot;
       expect(snapshot?.freshness, DeliveryTrackingFreshness.stale);
       expect(repository.loadCalls, 1);
     },
@@ -611,6 +625,7 @@ ProviderContainer _container({
   Duration reconnectBase = const Duration(seconds: 1),
   Duration freshnessThreshold = const Duration(seconds: 120),
   DateTime Function()? clock,
+  AppScheduler? scheduler,
 }) {
   final customer = AuthenticatedCustomer.fromUntrustedIdentity(
     subjectId: trackingTestOwner,
@@ -631,6 +646,7 @@ ProviderContainer _container({
       deliveryTrackingClockProvider.overrideWithValue(
         clock ?? (() => trackingTestNow),
       ),
+      if (scheduler != null) appSchedulerProvider.overrideWithValue(scheduler),
     ],
   );
 }
@@ -642,7 +658,13 @@ Future<DeliveryTrackingViewState> _waitFor(
   for (var attempt = 0; attempt < 200; attempt++) {
     final state = container.read(deliveryTrackingControllerProvider);
     if (predicate(state)) return state;
-    await Future<void>.delayed(const Duration(milliseconds: 5));
+    await Future<void>.delayed(Duration.zero);
   }
   throw StateError('delivery tracking state timeout');
+}
+
+Future<void> _flush() async {
+  for (var iteration = 0; iteration < 12; iteration++) {
+    await Future<void>.delayed(Duration.zero);
+  }
 }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/backend/secure_supabase_auth_storage.dart';
 import '../../../core/config/app_config.dart';
+import '../../../core/time/app_scheduler.dart';
 import '../data/auth_callback_validator.dart';
 import '../data/auth_error_mapper.dart';
 import '../domain/auth_failure.dart';
@@ -37,6 +38,7 @@ final class AuthController extends Notifier<AuthState> {
   Future<void>? _logoutOperation;
   Future<AuthenticatedCustomer>? _exchangeOperation;
   Future<void>? _flowTermination;
+  AppScheduledTask? _oauthExpiryTask;
 
   final ListQueue<Uri> _pendingCallbacks = ListQueue();
   final Set<int> _consumedFingerprints = <int>{};
@@ -103,7 +105,21 @@ final class AuthController extends Notifier<AuthState> {
     _suppressSessionAuthentication = false;
     _oauthFlowActive = true;
     _oauthLaunchConfirmed = false;
-    _oauthFlowDeadline = DateTime.now().toUtc().add(_oauthFlowLifetime);
+    _oauthFlowDeadline = ref.read(appClockProvider)().add(_oauthFlowLifetime);
+    _oauthExpiryTask?.cancel();
+    _oauthExpiryTask = ref.read(appSchedulerProvider).schedule(
+      _oauthFlowLifetime,
+      () {
+        if (_isCurrent(generation) && _oauthFlowActive) {
+          unawaited(
+            _startFlowTermination(
+              cancelled: false,
+              failure: const AuthFailure(AuthFailureKind.unexpected),
+            ),
+          );
+        }
+      },
+    );
     _setState(const AuthAuthenticating());
 
     await (_initialization ??= _initialize(_config!));
@@ -116,14 +132,14 @@ final class AuthController extends Notifier<AuthState> {
     if (state is AuthAuthenticated) {
       _oauthFlowActive = false;
       _oauthLaunchConfirmed = false;
-      _oauthFlowDeadline = null;
+      _clearOAuthDeadline();
       return;
     }
     final restoredCustomer = repository.currentCustomer;
     if (restoredCustomer != null) {
       _oauthFlowActive = false;
       _oauthLaunchConfirmed = false;
-      _oauthFlowDeadline = null;
+      _clearOAuthDeadline();
       _setState(
         AuthAuthenticated(
           customer: restoredCustomer,
@@ -141,14 +157,14 @@ final class AuthController extends Notifier<AuthState> {
       if (state is AuthAuthenticated) {
         _oauthFlowActive = false;
         _oauthLaunchConfirmed = false;
-        _oauthFlowDeadline = null;
+        _clearOAuthDeadline();
         return;
       }
       final restoredAfterCleanup = repository.currentCustomer;
       if (restoredAfterCleanup != null) {
         _oauthFlowActive = false;
         _oauthLaunchConfirmed = false;
-        _oauthFlowDeadline = null;
+        _clearOAuthDeadline();
         _setState(
           AuthAuthenticated(
             customer: restoredAfterCleanup,
@@ -164,7 +180,7 @@ final class AuthController extends Notifier<AuthState> {
       if (!launched) {
         _oauthFlowActive = false;
         _oauthLaunchConfirmed = false;
-        _oauthFlowDeadline = null;
+        _clearOAuthDeadline();
         _setState(
           const AuthRecoverableError(
             AuthFailure(AuthFailureKind.browserLaunchFailed),
@@ -177,7 +193,7 @@ final class AuthController extends Notifier<AuthState> {
       if (_isCurrent(generation)) {
         _oauthFlowActive = false;
         _oauthLaunchConfirmed = false;
-        _oauthFlowDeadline = null;
+        _clearOAuthDeadline();
         _publishMappedFailure(error);
       }
     }
@@ -222,7 +238,7 @@ final class AuthController extends Notifier<AuthState> {
     ++_generation;
     _oauthFlowActive = true;
     _oauthLaunchConfirmed = false;
-    _oauthFlowDeadline = null;
+    _clearOAuthDeadline();
     _ignoreCallbacksUntilNextLogin = true;
     _suppressSessionAuthentication = true;
     _pendingCallbacks.clear();
@@ -253,7 +269,7 @@ final class AuthController extends Notifier<AuthState> {
 
     _oauthFlowActive = false;
     _oauthLaunchConfirmed = false;
-    _oauthFlowDeadline = null;
+    _clearOAuthDeadline();
     if (_disposed) {
       return;
     }
@@ -284,7 +300,7 @@ final class AuthController extends Notifier<AuthState> {
     ++_generation;
     _oauthFlowActive = false;
     _oauthLaunchConfirmed = false;
-    _oauthFlowDeadline = null;
+    _clearOAuthDeadline();
     _ignoreCallbacksUntilNextLogin = true;
     _suppressSessionAuthentication = true;
     _pendingCallbacks.clear();
@@ -363,7 +379,7 @@ final class AuthController extends Notifier<AuthState> {
     final exchange = _exchangeOperation;
     _oauthFlowActive = false;
     _oauthLaunchConfirmed = false;
-    _oauthFlowDeadline = null;
+    _clearOAuthDeadline();
     _ignoreCallbacksUntilNextLogin = true;
     _suppressSessionAuthentication = true;
     _pendingCallbacks.clear();
@@ -471,7 +487,7 @@ final class AuthController extends Notifier<AuthState> {
         !_oauthFlowActive ||
         !_oauthLaunchConfirmed ||
         deadline == null ||
-        !DateTime.now().toUtc().isBefore(deadline)) {
+        !ref.read(appClockProvider)().isBefore(deadline)) {
       return;
     }
     if (_pendingCallbacks.length >= _maxPendingCallbacks) {
@@ -529,7 +545,7 @@ final class AuthController extends Notifier<AuthState> {
       case AuthCallbackRejected(:final failure):
         _oauthFlowActive = false;
         _oauthLaunchConfirmed = false;
-        _oauthFlowDeadline = null;
+        _clearOAuthDeadline();
         _publishFailurePreservingAuthenticated(failure);
         return;
       case AuthCallbackProviderFailure(:final wasCancelled):
@@ -557,7 +573,7 @@ final class AuthController extends Notifier<AuthState> {
         if (!_oauthFlowActive ||
             !_oauthLaunchConfirmed ||
             deadline == null ||
-            !DateTime.now().toUtc().isBefore(deadline) ||
+            !ref.read(appClockProvider)().isBefore(deadline) ||
             state is AuthAuthenticated ||
             state is AuthSigningOut ||
             state is AuthCancelling ||
@@ -598,7 +614,7 @@ final class AuthController extends Notifier<AuthState> {
               !_suppressSessionAuthentication) {
             _oauthFlowActive = false;
             _oauthLaunchConfirmed = false;
-            _oauthFlowDeadline = null;
+            _clearOAuthDeadline();
             _setState(
               AuthAuthenticated(
                 customer: customer,
@@ -613,13 +629,13 @@ final class AuthController extends Notifier<AuthState> {
           if (error is TimeoutException) {
             _oauthFlowActive = false;
             _oauthLaunchConfirmed = false;
-            _oauthFlowDeadline = null;
+            _clearOAuthDeadline();
             unawaited(_compensateTimedOutExchange(exchange, _repository!));
           }
           if (error is AuthStorageException) {
             _oauthFlowActive = false;
             _oauthLaunchConfirmed = false;
-            _oauthFlowDeadline = null;
+            _clearOAuthDeadline();
             await _failClosedStorage(error);
           } else {
             _publishMappedFailure(error);
@@ -647,7 +663,7 @@ final class AuthController extends Notifier<AuthState> {
     if (event.type == AuthSessionEventType.signedOut) {
       _oauthFlowActive = false;
       _oauthLaunchConfirmed = false;
-      _oauthFlowDeadline = null;
+      _clearOAuthDeadline();
       if (state is AuthSigningOut ||
           state is AuthCancelling ||
           _suppressSessionAuthentication ||
@@ -722,6 +738,12 @@ final class AuthController extends Notifier<AuthState> {
     return !_disposed && generation == _generation;
   }
 
+  void _clearOAuthDeadline() {
+    _oauthFlowDeadline = null;
+    _oauthExpiryTask?.cancel();
+    _oauthExpiryTask = null;
+  }
+
   void _publishMappedFailure(Object error) {
     final failure = _errorMapper!.map(error);
     if (failure.kind == AuthFailureKind.configuration ||
@@ -749,7 +771,7 @@ final class AuthController extends Notifier<AuthState> {
     ++_generation;
     _oauthFlowActive = false;
     _oauthLaunchConfirmed = false;
-    _oauthFlowDeadline = null;
+    _clearOAuthDeadline();
     _pendingCallbacks.clear();
     final exchange = _exchangeOperation;
     final repository = _repository;

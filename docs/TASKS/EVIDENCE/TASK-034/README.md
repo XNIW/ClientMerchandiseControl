@@ -1,7 +1,7 @@
 # Evidence TASK-034
 
 Snapshot di handoff:
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Provenance iniziale
 
@@ -20,14 +20,63 @@ Snapshot di handoff:
 
 ## Matrice canonica
 
-In compilazione in `docs/quality/TASK-034-RESILIENCE-MATRIX.md`. Nessuna cella è
-classificata `PASS` prima di una evidence specifica.
+Completata in `docs/quality/TASK-034-RESILIENCE-MATRIX.md`: 36 celle classificate,
+zero critical `UNTESTED`. Ogni `PASS` collega authority, idempotency/version, retry,
+reconciliation e un comando realmente eseguito.
 
 ## Execution
 
-Attiva. Risultati, comandi, exit code, repeat count, staging smoke e cleanup verranno
-registrati su questa revisione.
+### Client
+
+- `flutter analyze`: `PASS`, exit `0`;
+- suite mirata Auth/Storefront cache e immagini/Catalogo/Carrello/Hold/Checkout/
+  Ordini/notification routing/deep link/tracking: `314/314 PASS`, exit `0`;
+- `bash scripts/test-task034-resilience-repeat.sh 10`: sei race per dieci iterazioni,
+  `60/60 PASS`, exit `0`;
+- `bash scripts/check.sh`: `PASS`, exit `0`; format 273 file, analyze zero issue,
+  suite non-performance `627/627` con coverage, repeat 30/30, benchmark Drift/cache 25k,
+  APK debug e iOS Simulator debug;
+- benchmark 25k: `open_ms=476`, `write_20k_ms=474`, catalog p50/p95/max
+  `599/1217/8440 µs`, search `3163/3817/6788 µs`, 25.000 righe.
+
+### Database/Admin/POS locale
+
+- `npx supabase db reset`: `PASS`, exit `0`, migration fino a
+  `20260816072836_storefront_delivery_tracking_v1`;
+- dieci file pgTAP commerce/tracking: `483/483 PASS`;
+- undici harness concorrenti: projection, availability, cart, holds, slot, customer
+  order, cancel, admin order, POS handoff, notification e payment tutti `PASS`;
+- Admin Foundation finale: `982 PASS`, `2 SKIP`, `0 FAIL`; `npm run verify`: `PASS`.
+
+### Staging canonico
+
+- primo workflow migration `31966422454`: `FAIL` sicuro prima dell'apply; il default
+  manuale predecessor obsoleto è stato corretto e reviewato;
+- Admin PR #90, head `4b48150d`, merge `9aaeb0c1`; PR/main CI e Cloudflare verdi;
+- dry-run `31967227338`: sola migration `20260816072836` pending;
+- apply `31967270575`: `PASS`, migration applicata esclusivamente a staging;
+- Admin PR #91, head `27443680`, merge `69791e6f`: workflow smoke guarded integrato;
+- run `31968559199`: `FAIL` workflow, ma pgTAP remoto `60/60 PASS`; il gate ha
+  rilevato correttamente parser summary e cleanup JSON difettosi, poi corretti;
+- Admin PR #92, head `1b9636e5`, merge `6fea61bb`; review finale `APPROVED`, CI PR e
+  main exact-SHA verdi;
+- run finale `31969351269` sullo SHA `6fea61bb`: `PASS`; `Files=1, Tests=60`,
+  `Result: PASS`, sanitizer `true`, migration ledger `true`, fixture cleanup `true`;
+- il test transazionale usa dati sintetici e `ROLLBACK`: admin start, courier start,
+  location, owner read, cross-customer deny, terminal redaction e cleanup;
+- production non identificata e mai modificata; nessun dato reale usato.
+
+### Finding corretti
+
+- OAuth in-flight senza callback poteva lasciare `authenticating` indefinitamente;
+- freshness tracking a uguaglianza della deadline restava `fresh` per il confronto
+  stretto `>`;
+- workflow staging aveva default manuale non single-migration-safe;
+- primo smoke workflow poteva caricare output raw sul failure path e non fissava il
+  piano pgTAP; dopo il primo run reale sono stati corretti summary parser e stdin
+  Docker del cleanup. Ogni fix ha regressione e re-review distinta.
 
 ## Review, CI e merge
 
-`NOT_RUN`.
+Review Client indipendente e CI/merge Client: `NOT_RUN`, prossima fase. Le review
+Admin dei fix staging sono concluse con `APPROVED` e zero P0/P1/P2/P3 residui.

@@ -6,13 +6,13 @@
 - **Titolo**: Offline, reconnect, concorrenza e idempotenza
 - **File task**: `docs/TASKS/TASK-034-resilience-concurrency-idempotency.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-034/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -142,31 +142,78 @@ Completare CA-01–CA-10 senza modificare scope o attivare production.
 
 ### File controllati
 
-In corso.
+- scheduler/clock condivisi, controller Auth, Catalogo e Delivery Tracking;
+- regressioni Auth repository, Cart, Catalogo e tracking e repeat runner bounded;
+- matrice resilienza, gate Client, contratti DB Admin/POS e staging delivery tracking;
+- governance, manifest, worklog ed evidence TASK-034.
 
 ### Piano minimo
 
-In corso secondo il Planning approvato.
+Completato secondo il Planning approvato: inventario, gap riproducibili, fix minimi,
+test deterministici/repeat, database locale, staging guarded e gate canonici.
 
 ### Modifiche fatte
 
-In corso.
+- introdotti `AppClock`/`AppScheduler` iniettati e un scheduler manuale per eliminare
+  wall-clock dai deadline OAuth, debounce catalogo e polling/freshness tracking;
+- OAuth in-flight ora scade deterministicamente dopo cinque minuti, cancella il task
+  schedulato e ignora callback tardive senza lasciare la UI bloccata;
+- corretto il boundary freshness tracking da `>` a `>=`, così lo snapshot diventa
+  stale esattamente alla deadline; polling/reconnect e dispose sono controllabili;
+- aggiunte regressioni su refresh Auth concorrente, query/category stale, doppio tap
+  Cart autenticato e race tracking; repeat runner eseguibile integrato in `check.sh`;
+- completata la matrice canonica con authority, idempotency, version, retry,
+  reconciliation ed evidence per ogni cella richiesta;
+- Admin: corretti i default manuali del workflow migration staging, aggiunto smoke
+  exact-SHA/allowlisted con pgTAP transazionale, sanitizzazione e cleanup verificato.
 
 ### Check eseguiti
 
-In corso; nessun `PASS` viene registrato prima del comando reale.
+- `flutter analyze`: `PASS`, exit `0`;
+- suite mirata Client: `314/314 PASS`, exit `0`;
+- repeat critiche: `10 x 6 = 60 PASS`, exit `0`;
+- `bash scripts/check.sh`: `PASS`, inclusi security/config scan, governance, format,
+  analyze, suite completa `627/627` con coverage, repeat, benchmark 25k, APK debug e iOS
+  Simulator debug;
+- Admin `supabase db reset`: `PASS`; 10 file pgTAP commerce/tracking,
+  `483/483 PASS`; 11 harness concorrenza Admin/POS: `PASS`;
+- Admin `npm run verify`: `PASS`; Foundation `982 PASS`, `2 SKIP` giustificati;
+- staging migration dry-run `31967227338` e apply `31967270575`: `PASS`, sola
+  `20260816072836` applicata; production non toccata;
+- staging smoke `31969351269` sullo SHA Admin `6fea61bb`: `60/60 PASS`, evidence
+  sanitizzata, migration ledger presente e fixture cleanup `true`;
+- advisor post-DDL: zero `ERROR`; warning/info schema-wide osservati e distinti dai
+  gate RLS/RPC tracking passati.
 
 ### Matrice CA -> evidence
 
-In corso.
+| CA | Evidence | Esito |
+|---|---|---|
+| CA-01 | `docs/quality/TASK-034-RESILIENCE-MATRIX.md` | PASS |
+| CA-02–CA-07 | `CLIENT-314`, `REPEAT-60`, regressioni scheduler | PASS |
+| CA-04–CA-08 | `DB-483`, `DB-RACE-11` | PASS |
+| CA-09 | scheduler manuale + repeat `10 x 6` | PASS |
+| CA-10 | gate completi, Admin PR #90/#91/#92, staging run `31969351269` | PASS |
 
 ### Matrice T-NN -> risultato
 
-In corso.
+| Test | Risultato |
+|---|---|
+| T-01 | PASS — tutte le celle classificate, nessun critical `UNTESTED` |
+| T-02–T-07 | PASS — suite Client 314 e repeat 60 |
+| T-08 | PASS — DB 483 e 11 harness concorrenti |
+| T-09 | PASS — nessuna nuova race usa sleep/wall-clock |
+| T-10 | PASS — gate locali, staging guarded e cleanup reali; CI Client resta alla fase Review/PR |
 
 ### Rischi rimasti
 
-In corso.
+- lo smoke staging prova realmente DB/RPC/RLS con identità sintetiche, ma non viene
+  presentato come smoke UI su device fisico; la physical validation resta classificata
+  separatamente nei task di acceptance/release;
+- gli advisor Supabase segnalano warning schema-wide preesistenti e RPC
+  `SECURITY DEFINER` intenzionalmente callable da `authenticated`, auto-autorizzanti
+  DB-side; zero error e nessun bypass rilevato dai 60 test tracking;
+- annotation GitHub Actions Node 20 -> 24 sono warning infrastrutturali non bloccanti.
 
 ### Handoff a Review
 

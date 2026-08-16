@@ -2436,3 +2436,23 @@
   lifecycle per-task autorizzato dal `USER_APPROVER` per TASK-034–TASK-042.
 - **Transizione**: TASK-034 è l'unico task `ACTIVE / EXECUTION`, handoff
   `CODEX_PLANNING_APPROVED_TO_EXECUTION`; matrice iniziale creata senza inferire `PASS`.
+
+## 2026-08-16 — TASK-034 Execution completa verso Review
+
+- **Client**: scheduler/clock iniettati su OAuth, debounce catalogo e tracking;
+  corretti expiry OAuth senza callback e freshness esatta `>=`; aggiunte regressioni
+  Auth/Cart/Catalogo/tracking e repeat runner.
+- **Gate Client**: suite mirata 314/314, suite canonica 627/627, repeat 60/60 e `scripts/check.sh` completi
+  `PASS`; benchmark cache 25k, APK debug e iOS Simulator debug inclusi.
+- **Database locale**: reset `PASS`, dieci pgTAP 483/483 e undici harness di
+  concorrenza commerce/Admin/POS tutti `PASS`.
+- **Staging**: migration delivery tracking applicata con dry-run/apply
+  `31967227338`/`31967270575`; smoke finale `31969351269` sullo SHA Admin
+  `6fea61bb` è `PASS` con pgTAP 60/60, sanitizer, ledger e cleanup verdi.
+- **Fix workflow reali**: i run falliti `31966422454` e `31968559199` hanno
+  intercettato rispettivamente il default predecessor obsoleto e i difetti
+  summary/stdin cleanup; fix reviewati e merged via Admin PR #90/#91/#92.
+- **Sicurezza**: production intatta, dati solo sintetici, zero advisor `ERROR`;
+  warning/info schema-wide non convertiti in PASS né trattati come nuove regressioni.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review
+  Client indipendente e CI/merge exact-SHA restano obbligatori.

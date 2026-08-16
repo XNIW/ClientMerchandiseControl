@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/time/app_scheduler.dart';
 import '../data/supabase_delivery_tracking_repository.dart';
 import '../domain/delivery_tracking_failure.dart';
 import '../domain/delivery_tracking_models.dart';
@@ -78,9 +79,9 @@ final deliveryTrackingControllerProvider =
 final class DeliveryTrackingController
     extends Notifier<DeliveryTrackingViewState> {
   StreamSubscription<DeliveryTrackingSnapshot>? _subscription;
-  Timer? _pollTimer;
-  Timer? _reconnectTimer;
-  Timer? _freshnessTimer;
+  AppScheduledTask? _pollTimer;
+  AppScheduledTask? _reconnectTimer;
+  AppScheduledTask? _freshnessTimer;
   String? _subjectId;
   String? _shopSlug;
   String? _orderId;
@@ -342,10 +343,12 @@ final class DeliveryTrackingController
     }
     if (_pollTimer != null) return;
     unawaited(_load(generation, orderId));
-    _pollTimer = Timer.periodic(
-      ref.read(deliveryTrackingPollIntervalProvider),
-      (_) => unawaited(_load(generation, orderId)),
-    );
+    _pollTimer = ref
+        .read(appSchedulerProvider)
+        .periodic(
+          ref.read(deliveryTrackingPollIntervalProvider),
+          () => unawaited(_load(generation, orderId)),
+        );
   }
 
   void _markRealtimeHealthy() {
@@ -366,11 +369,14 @@ final class DeliveryTrackingController
     final factor = 1 << exponent;
     _reconnectAttempt++;
     final milliseconds = (base.inMilliseconds * factor).clamp(1, 30000);
-    _reconnectTimer = Timer(Duration(milliseconds: milliseconds), () {
-      if (_isCurrent(generation, orderId) && _runtimeAllowed) {
-        _subscribe(generation, orderId);
-      }
-    });
+    _reconnectTimer = ref.read(appSchedulerProvider).schedule(
+      Duration(milliseconds: milliseconds),
+      () {
+        if (_isCurrent(generation, orderId) && _runtimeAllowed) {
+          _subscribe(generation, orderId);
+        }
+      },
+    );
   }
 
   Future<void> _accept(
@@ -456,7 +462,7 @@ final class DeliveryTrackingController
     final receivedAt = snapshot.receivedAt;
     if (snapshot.freshness == DeliveryTrackingFreshness.fresh &&
         receivedAt != null &&
-        ref.read(deliveryTrackingClockProvider)().difference(receivedAt) >
+        ref.read(deliveryTrackingClockProvider)().difference(receivedAt) >=
             ref.read(deliveryTrackingFreshnessThresholdProvider)) {
       return snapshot.copyWith(freshness: DeliveryTrackingFreshness.stale);
     }
@@ -494,7 +500,7 @@ final class DeliveryTrackingController
       _expireCurrentFreshness();
       return;
     }
-    _freshnessTimer = Timer(delay, () {
+    _freshnessTimer = ref.read(appSchedulerProvider).schedule(delay, () {
       if (!_isCurrent(generation, orderId)) return;
       _expireCurrentFreshness();
     });

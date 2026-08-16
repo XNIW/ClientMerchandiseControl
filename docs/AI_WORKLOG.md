@@ -2414,5 +2414,10 @@
 - **Fix**: il test usa ora un clock controllato, verifica lo stato fresh iniziale,
   avanza deterministicamente oltre la soglia durante foreground/route resume e
   verifica lo stato stale senza attese wall-clock.
+- **Secondo run**: head `a87c1da4b4abddbfa0715e184ddd2ee024177091`, run
+  `31952449152`; il test di resume corretto è `PASS`, Android e iOS `SUCCESS`, ma
+  Quality espone altri due test preesistenti che attendevano il timer con un delay
+  fisso di 80 ms. Il fix finale attende in modo bounded lo stato stale osservabile,
+  senza assumere lo scheduling del runner.
 - **Stato**: il run fallito resta evidence storica; il merge richiede un nuovo run CI
   interamente verde sul nuovo SHA.

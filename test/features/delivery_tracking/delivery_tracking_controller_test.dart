@@ -67,8 +67,11 @@ void main() {
       expect(repository.loadCalls, 1);
       expect(cache.saveCalls, 0);
 
-      await Future<void>.delayed(const Duration(milliseconds: 80));
-      state = container.read(deliveryTrackingControllerProvider);
+      state = await _waitFor(
+        container,
+        (candidate) =>
+            candidate.snapshot?.freshness == DeliveryTrackingFreshness.stale,
+      );
       expect(state.snapshot?.freshness, DeliveryTrackingFreshness.stale);
       expect(state.snapshot?.hasFreshLiveLocation, isFalse);
       expect(repository.loadCalls, 1);
@@ -537,11 +540,11 @@ void main() {
       await container
           .read(deliveryTrackingControllerProvider.notifier)
           .open(trackingTestOrder);
-      await Future<void>.delayed(const Duration(milliseconds: 80));
-
-      final snapshot = container
-          .read(deliveryTrackingControllerProvider)
-          .snapshot;
+      final snapshot = (await _waitFor(
+        container,
+        (candidate) =>
+            candidate.snapshot?.freshness == DeliveryTrackingFreshness.stale,
+      )).snapshot;
       expect(snapshot?.freshness, DeliveryTrackingFreshness.stale);
       expect(repository.loadCalls, 1);
     },

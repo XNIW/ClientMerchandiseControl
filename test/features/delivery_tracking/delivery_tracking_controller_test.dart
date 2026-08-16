@@ -239,31 +239,37 @@ void main() {
 
   test('resume riattiva freshness anche con snapshot RPC invariato', () async {
     for (final lifecycle in ['foreground', 'route']) {
-      final wallClock = Stopwatch()..start();
+      var clock = trackingTestNow;
       final repository = FakeDeliveryTrackingRepository();
       final container = _container(
         repository: repository,
         cache: MemoryDeliveryTrackingCache(),
         freshnessThreshold: const Duration(milliseconds: 1200),
-        clock: () => trackingTestNow.add(wallClock.elapsed),
+        clock: () => clock,
       );
       container.read(deliveryTrackingControllerProvider);
       final controller = container.read(
         deliveryTrackingControllerProvider.notifier,
       );
       await controller.open(trackingTestOrder);
+      expect(
+        container.read(deliveryTrackingControllerProvider).snapshot?.freshness,
+        DeliveryTrackingFreshness.fresh,
+        reason: lifecycle,
+      );
 
       if (lifecycle == 'foreground') {
         await controller.setForeground(false);
+        clock = trackingTestNow.add(const Duration(seconds: 3));
         await controller.setForeground(true);
       } else {
         await controller.setRouteVisible(false);
+        clock = trackingTestNow.add(const Duration(seconds: 3));
         await controller.setRouteVisible(true);
       }
 
       expect(repository.watchCalls, 2, reason: lifecycle);
       expect(repository.watchCancelCalls, 1, reason: lifecycle);
-      await Future<void>.delayed(const Duration(milliseconds: 250));
       final snapshot = container
           .read(deliveryTrackingControllerProvider)
           .snapshot;

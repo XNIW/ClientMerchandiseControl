@@ -2402,3 +2402,17 @@
 - **Transizione**: TASK-045 `ACTIVE -> DONE`; progetto `ACTIVE -> IDLE`; release train
   `APPROVED_PENDING_CI -> COMPLETE`; handoff `USER_APPROVED_DONE`.
 - **Prossimo**: TASK-034 resta `TODO` e non viene attivato automaticamente.
+
+## 2026-08-16 — TASK-045 closeout CI retry
+
+- **Primo run closeout**: PR #11, head `e990f30de7b44492a0bf339c778b522bcd78fa2c`,
+  run `31951946752`; Android e iOS `SUCCESS`, Quality `FAIL` con 624 test passati e
+  un solo test freshness fallito sul runner Linux.
+- **Causa**: il test di resume confrontava una soglia di 200 ms usando `Stopwatch` e
+  un'attesa reale di 250 ms; il comportamento dipendeva quindi dallo scheduling del
+  runner, mentre il contratto da verificare è la rivalutazione con clock avanzato.
+- **Fix**: il test usa ora un clock controllato, verifica lo stato fresh iniziale,
+  avanza deterministicamente oltre la soglia durante foreground/route resume e
+  verifica lo stato stale senza attese wall-clock.
+- **Stato**: il run fallito resta evidence storica; il merge richiede un nuovo run CI
+  interamente verde sul nuovo SHA.

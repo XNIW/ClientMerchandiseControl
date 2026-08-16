@@ -6,13 +6,13 @@
 - **Titolo**: Storefront commerce information architecture and UX refresh
 - **File task**: `docs/TASKS/TASK-043-storefront-commerce-information-architecture-ux-refresh.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-043/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -238,11 +238,25 @@ Completato secondo Planning senza nuovi RPC, schema o capability speculative.
 
 ## Review — `CODEX_REVIEWER` / `CODEX_RE_REVIEWER`
 
-Non ancora eseguita.
+Review logica read-only sul revision set `72f80ba`, separata dal writer per ruolo ma
+nella stessa sessione.
+
+Finding:
+
+1. `T043-REV-NAV-001` — **P2**: `PopScope.canPop` dipende soltanto dall'indice branch;
+   sul dettaglio `/orders/:orderId` può bloccare il pop annidato e inviare Home invece
+   di tornare alla lista Orders. Impatto: back Android/iOS incoerente con CA-03.
+2. `T043-REV-DATA-002` — **P2**: badge shell e shortcut Account contano `state.orders`
+   anche quando `nextCursor != null`; un conteggio di pagina parziale viene quindi
+   presentato come totale reale, contro CA-04/CA-11.
+
+Conteggio: 0 P0, 0 P1, 2 P2, 0 P3. Esito: `CHANGES_REQUIRED`.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 
-Non ancora eseguito.
+In corso sui soli finding approvati `T043-REV-NAV-001` e `T043-REV-DATA-002`.
 
 ## Chiusura
 

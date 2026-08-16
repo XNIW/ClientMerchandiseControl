@@ -1,7 +1,7 @@
 # Evidence TASK-043
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance iniziale
 
@@ -34,4 +34,12 @@ sanitizzati e non versionati; nessun dato cliente o credenziale è stato acquisi
 - post-change staging data-backed: `BLOCKED_CONFIGURATION`, non `PASS`; il file locale
   storico manca del nuovo shop slug e usa callback non valida. Fail-closed osservato.
 
-Review, CI PR, merge e main CI restano `NOT_RUN`.
+## Review
+
+- revision set: `72f80ba`;
+- esito: `CHANGES_REQUIRED`;
+- finding: `T043-REV-NAV-001` P2 (back detail Orders) e
+  `T043-REV-DATA-002` P2 (conteggio parziale presentato come totale);
+- separazione reviewer/writer: logica nella stessa sessione.
+
+CI PR, merge e main CI restano `NOT_RUN`.

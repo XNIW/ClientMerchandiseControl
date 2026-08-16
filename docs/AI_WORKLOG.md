@@ -2154,3 +2154,12 @@
   fail-closed è corretto; development e test deterministici restano verdi.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; CI PR,
   merge e main CI non ancora eseguiti.
+
+## 2026-08-16 — TASK-043 Review `CHANGES_REQUIRED`
+
+- **Review**: read-only e logicamente separata sul revision set `72f80ba`; sessione
+  distinta non disponibile, limite esplicito.
+- **Finding**: `T043-REV-NAV-001` P2 sul back del dettaglio Orders annidato e
+  `T043-REV-DATA-002` P2 sui conteggi Orders parziali quando esiste `nextCursor`.
+- **Esito**: 0 P0, 0 P1, 2 P2, 0 P3; transizione
+  `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

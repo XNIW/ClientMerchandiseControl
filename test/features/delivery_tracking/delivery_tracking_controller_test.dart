@@ -37,6 +37,45 @@ void main() {
   });
 
   test(
+    'RPC online invariata ripristina ready e riattiva freshness dalla cache',
+    () async {
+      final wallClock = Stopwatch()..start();
+      final repository = FakeDeliveryTrackingRepository();
+      final cache = MemoryDeliveryTrackingCache()
+        ..snapshot = trackingLiveSnapshot();
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        pollInterval: const Duration(milliseconds: 10),
+        freshnessThreshold: const Duration(milliseconds: 1050),
+        clock: () => trackingTestNow.add(wallClock.elapsed),
+      );
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+
+      var state = container.read(deliveryTrackingControllerProvider);
+      expect(state.status, DeliveryTrackingStatus.ready);
+      expect(state.failure, isNull);
+      expect(state.isPollingFallback, isFalse);
+      expect(repository.loadCalls, 1);
+      expect(cache.saveCalls, 0);
+
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      state = container.read(deliveryTrackingControllerProvider);
+      expect(state.snapshot?.freshness, DeliveryTrackingFreshness.stale);
+      expect(state.snapshot?.hasFreshLiveLocation, isFalse);
+      expect(repository.loadCalls, 1);
+    },
+  );
+
+  test(
     'Realtime deduplicates older versions and accepts a newer snapshot',
     () async {
       final repository = FakeDeliveryTrackingRepository();

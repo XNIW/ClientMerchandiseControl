@@ -410,6 +410,7 @@ final class DeliveryTrackingController
           !isNewerDeliveryTrackingSnapshot(current, snapshot)) {
         final adjustedCurrent = _freshnessAdjusted(current);
         state = state.copyWith(
+          status: DeliveryTrackingStatus.ready,
           snapshot: adjustedCurrent,
           isRefreshing: false,
           failure: null,

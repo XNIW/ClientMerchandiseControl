@@ -275,7 +275,9 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
   tre regressioni dispongono il container mentre l'unsubscribe è bloccato e poi
   verificano purge deterministico per identity/logout, close e unauthorized;
 - `flutter analyze`, tracking `22/22` e repeat `10 x 12 = 120` sono `PASS`, exit `0`;
-  gate canonico finale e SHA Fix 2 sono registrati nelle evidence dopo il rerun;
+  `scripts/check.sh` sullo SHA Fix 2 `c514f38` è `PASS`: 633 test non-performance
+  con coverage, repeat predefinito `60/60`, benchmark 25k, APK debug e iOS Simulator
+  debug;
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; è richiesta una nuova re-review
   indipendente.
 

@@ -105,4 +105,10 @@ reconciliation e un comando realmente eseguito.
 - regressioni con unsubscribe bloccato da `Completer`: tracking `22/22 PASS`; identity,
   close e unauthorized completano il purge anche se il container viene disposed
   durante la cancellazione; repeat `10 x 12 = 120 PASS`;
+- gate canonico sullo SHA Fix 2 `c514f388607fe93cc25e17a0622e705b6be1dd58`:
+  `scripts/check.sh` `PASS`, scan 609 file, negative security 41/41, positive 4/4,
+  governance 9/9, architecture negative 7/7, format 273, analyze zero issue, 633 test
+  non-performance con coverage, repeat `5 x 12 = 60`, benchmark 25k
+  (`open_ms=454`, `write_20k_ms=487`, catalog `620/1260/7898 µs`, search
+  `3366/4771/6720 µs`), APK debug e iOS Simulator debug;
 - nuova re-review e CI/merge Client: `NOT_RUN`, prossima fase.

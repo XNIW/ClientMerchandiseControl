@@ -2487,5 +2487,8 @@
 - **Fix 2**: cache store catturato prima di qualsiasi `await` e passato al cleanup;
   fake unsubscribe controllato da `Completer` e tre regressioni sui call site.
 - **Gate mirati**: analyze, tracking `22/22` e repeat `10 x 12 = 120` `PASS`.
+- **Gate canonico Fix 2**: `scripts/check.sh` sullo SHA `c514f38` `PASS`; scan,
+  governance e architecture verdi, 633 test non-performance con coverage, repeat
+  `60/60`, benchmark cache 25k, APK debug e iOS Simulator debug.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; nuova
   re-review distinta obbligatoria.

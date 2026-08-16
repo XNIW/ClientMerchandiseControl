@@ -2572,3 +2572,13 @@
   14/14, analyze, format, governance, architecture e scanner verdi. I probe
   adversarial hanno riprodotto ogni finding.
 - **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-035 Fix, gate canonico tentativo 1
+
+- **Fix tecnico**: commit `78bc06e`; isolation best-effort, crash fallback, pipeline
+  analytics/crash separate e bounded, redazione key-aware e JSON valido.
+- **Gate mirati**: 122/122 test instrumented, repeat core `20 x 17 = 340` e commerce
+  `20 x 2 = 40`, analyze, format e scanner telemetry `PASS`.
+- **Gate canonico**: fermato correttamente dal governance check prima della suite:
+  README ancora `REVIEW` mentre Master Plan e task erano `FIX`. Nessun gate successivo
+  inferito; README riallineato e nuovo exact-SHA richiesto.

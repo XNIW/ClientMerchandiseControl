@@ -1,7 +1,7 @@
 # Evidence TASK-043
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance iniziale
 
@@ -51,5 +51,15 @@ sanitizzati e non versionati; nessun dato cliente o credenziale è stato acquisi
   pagina parziale; selettore regressione dedicato;
 - `flutter analyze`: `PASS`, exit 0;
 - test mirati router/shell/account/selectors: `PASS`, 25/25, exit 0.
+
+## Re-review
+
+- revision set: `f0e761d..e2a6475`;
+- entrambi i finding P2: `CLOSED`;
+- `bash scripts/check.sh`: `PASS`, exit 0; scanner 574 file, governance 9/9,
+  boundary 7/7, format/analyze, 571 test non-performance, performance 1/1,
+  Android debug e iOS Simulator debug;
+- esito: `APPROVED`, 0 finding P0/P1/P2/P3 aperti;
+- limite: separazione logica read-only nella stessa sessione, dichiarata.
 
 CI PR, merge e main CI restano `NOT_RUN`.

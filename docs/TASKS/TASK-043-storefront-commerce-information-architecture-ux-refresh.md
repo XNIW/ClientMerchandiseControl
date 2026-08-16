@@ -12,7 +12,7 @@
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-043/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -253,6 +253,21 @@ Finding:
 Conteggio: 0 P0, 0 P1, 2 P2, 0 P3. Esito: `CHANGES_REQUIRED`.
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+Re-review read-only sul revision set `f0e761d..e2a6475`:
+
+- `T043-REV-NAV-001`: **CLOSED**, regressione router verifica il back dal dettaglio
+  alla branch Orders e il comportamento root-branch resta coperto;
+- `T043-REV-DATA-002`: **CLOSED**, conteggio nullable su paginazione incompleta e
+  shortcut Account non numerici finché `hasMore`/`isLoadingMore` sono veri;
+- gate canonico `bash scripts/check.sh`: `PASS`, exit 0; scanner 574 file, governance
+  9/9, boundary 7/7, format, analyze, 571 test non-performance, performance 1/1,
+  APK debug e iOS Simulator debug verdi;
+- finding aperti: 0 P0, 0 P1, 0 P2, 0 P3.
+
+Esito re-review: `APPROVED`. Handoff:
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; l'autorizzazione USER_APPROVER è
+già registrata, quindi il passo successivo è PR e CI exact-SHA senza bypass.
 
 ## Fix — `CODEX_FIXER`
 

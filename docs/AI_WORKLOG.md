@@ -2175,3 +2175,13 @@
   exit 0.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW` sul commit
   `ec3cb4d`; re-review e CI restano da eseguire.
+
+## 2026-08-16 — TASK-043 re-review `APPROVED`
+
+- **Revision set**: `f0e761d..e2a6475`, esaminato read-only con separazione logica
+  dalla fase Fix.
+- **Finding**: i due P2 sono `CLOSED`; nessun P0/P1/P2/P3 resta aperto.
+- **Gate canonico**: `scripts/check.sh` `PASS`, exit 0; 574 file scanner, governance
+  9/9, boundary 7/7, 571+1 test, APK debug e iOS Simulator debug verdi.
+- **Esito**: `APPROVED / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  l'autorizzazione è già nel prompt del 2026-08-16, quindi seguono PR e CI exact-SHA.

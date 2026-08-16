@@ -198,6 +198,48 @@ void main() {
     },
   );
 
+  test('resume riattiva freshness anche con snapshot RPC invariato', () async {
+    for (final lifecycle in ['foreground', 'route']) {
+      final wallClock = Stopwatch()..start();
+      final repository = FakeDeliveryTrackingRepository();
+      final container = _container(
+        repository: repository,
+        cache: MemoryDeliveryTrackingCache(),
+        freshnessThreshold: const Duration(milliseconds: 1200),
+        clock: () => trackingTestNow.add(wallClock.elapsed),
+      );
+      container.read(deliveryTrackingControllerProvider);
+      final controller = container.read(
+        deliveryTrackingControllerProvider.notifier,
+      );
+      await controller.open(trackingTestOrder);
+
+      if (lifecycle == 'foreground') {
+        await controller.setForeground(false);
+        await controller.setForeground(true);
+      } else {
+        await controller.setRouteVisible(false);
+        await controller.setRouteVisible(true);
+      }
+
+      expect(repository.watchCalls, 2, reason: lifecycle);
+      expect(repository.watchCancelCalls, 1, reason: lifecycle);
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      final snapshot = container
+          .read(deliveryTrackingControllerProvider)
+          .snapshot;
+      expect(
+        snapshot?.freshness,
+        DeliveryTrackingFreshness.stale,
+        reason: lifecycle,
+      );
+      expect(snapshot?.hasFreshLiveLocation, isFalse, reason: lifecycle);
+
+      container.dispose();
+      await repository.stream.close();
+    }
+  });
+
   test(
     'fresh cached coordinate becomes explicitly stale by local clock',
     () async {

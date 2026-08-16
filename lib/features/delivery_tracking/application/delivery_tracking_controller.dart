@@ -408,11 +408,14 @@ final class DeliveryTrackingController
       final current = state.snapshot;
       if (current != null &&
           !isNewerDeliveryTrackingSnapshot(current, snapshot)) {
+        final adjustedCurrent = _freshnessAdjusted(current);
         state = state.copyWith(
+          snapshot: adjustedCurrent,
           isRefreshing: false,
           failure: null,
           isPollingFallback: realtimeHealthy ? false : state.isPollingFallback,
         );
+        _scheduleFreshnessExpiry(generation, orderId, adjustedCurrent);
         return false;
       }
       await _accept(snapshot, subjectId: subjectId, shopSlug: shopSlug);

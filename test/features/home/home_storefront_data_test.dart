@@ -159,12 +159,11 @@ void main() {
     expect(find.byKey(const ValueKey('home-active-order')), findsOneWidget);
     expect(find.byKey(const ValueKey('home-follow-delivery')), findsOneWidget);
     expect(find.text('Seguir entrega'), findsOneWidget);
-    expect(
-      tester
-          .getSemantics(find.byKey(const ValueKey('home-active-order')))
-          .label,
-      contains('Seguir entrega'),
-    );
+    final semanticsLabel = tester
+        .getSemantics(find.byKey(const ValueKey('home-active-order')))
+        .label;
+    expect(semanticsLabel, contains('Café público'));
+    expect('Seguir entrega'.allMatches(semanticsLabel), hasLength(1));
     expect(find.textContaining('-33.'), findsNothing);
     expect(find.textContaining('-70.'), findsNothing);
     semantics.dispose();

@@ -85,21 +85,24 @@ final class GoogleDeliveryMapAdapter
     _controllerGeneration++;
     final controller = _controller;
     _controller = null;
-    await controller?.dispose();
-    _scene.dispose();
-    await _runtimeStates.close();
+    try {
+      await _disposeController(controller);
+    } finally {
+      _scene.dispose();
+      await _runtimeStates.close();
+    }
   }
 
   Future<void> attachController(DeliveryMapCameraController controller) async {
     if (_disposed) {
-      await controller.dispose();
+      await _disposeController(controller);
       return;
     }
     final generation = ++_controllerGeneration;
     final previous = _controller;
     _controller = controller;
-    await previous?.dispose();
     try {
+      await previous?.dispose();
       final scene = _scene.value;
       if (scene != null) {
         await _fitScene(controller, scene, animated: false);
@@ -109,15 +112,21 @@ final class GoogleDeliveryMapAdapter
     } on Object {
       if (!_disposed && generation == _controllerGeneration) {
         _controller = null;
-        try {
-          await controller.dispose();
-        } on Object {
-          // Il teardown resta fail-closed anche quando il provider fallisce.
-        }
+        await _disposeController(controller);
         if (!_disposed && generation == _controllerGeneration) {
           _runtimeStates.add(DeliveryMapRuntimeState.failed);
         }
       }
+    }
+  }
+
+  static Future<void> _disposeController(
+    DeliveryMapCameraController? controller,
+  ) async {
+    try {
+      await controller?.dispose();
+    } on Object {
+      // Il teardown nativo resta fail-closed e non raggiunge la Flutter zone.
     }
   }
 

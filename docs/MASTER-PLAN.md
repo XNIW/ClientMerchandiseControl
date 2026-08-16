@@ -8,11 +8,11 @@
 - **Task attivo**: TASK-044
 - **File task**: docs/TASKS/TASK-044-delivery-tracking-contract-privacy-writer.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
-- **Stato release train**: FIX
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
 - **Prossima azione autorizzata**: eseguire TASK-044 fino a review, fix, re-review,
   CI exact-SHA, merge normale e verifica `main`; proseguire poi con TASK-045 secondo

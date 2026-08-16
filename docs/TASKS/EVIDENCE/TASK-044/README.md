@@ -1,7 +1,7 @@
 # Evidence TASK-044
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -27,3 +27,15 @@ Snapshot di handoff:
 - ambiti: monotonicità/cache/runtime Client, lifecycle foreground courier,
   retention feed, rate limit server-side, URL esterno e branch visibility;
 - i fix devono essere seguiti da regression test e re-review read-only sui nuovi SHA.
+
+## Fix candidate
+
+- Client `61cd16bee70a925c1110645c708551de58ac3427`: monotonicità/cache,
+  unauthorized fail-closed, terminal redaction, visibilità route programmatica,
+  freshness temporale e dispose mappa concorrente;
+- Admin `663a292a626adc25230bad7c1917f930f94f5dca`: lifecycle Courier Mode,
+  cleanup/feed redaction, rate limit assoluto, validazione hostname e shell courier;
+- Client mirati: `flutter analyze` e 48 test `PASS`;
+- Admin mirati: reset `PASS`, pgTAP `60/60`, foundation `9/9`, typecheck/lint `PASS`;
+- re-review parziale: finding runtime Client, Courier Mode e database `CLOSED`; i due
+  reviewer Client finali verificano il secondo ciclo in sola lettura.

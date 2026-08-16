@@ -5,12 +5,12 @@
 - **Task ID**: TASK-044
 - **Titolo**: Delivery tracking contract, privacy boundary and operational writer
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-044/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -172,7 +172,43 @@ prodotto altri finding.
 
 ## Fix — `CODEX_FIXER`
 
-In corso, limitato ai finding e ai gap già compresi nei criteri TASK-044.
+### Primo ciclo
+
+- serializzato compare/cache/publish del Client e reso `unauthorized` fail-closed con
+  stop runtime, azzeramento in-memory e clear cache ordinato;
+- stato ordine terminale reso autorevole sul tracking cached e runtime legato alla
+  visibilità della branch Orders;
+- lifecycle Courier Mode protetto con generation token, compensazione pause e stop
+  foreground su unmount/hidden; shell courier-only bounded;
+- cleanup DB ora redige feed e latest coordinate nella stessa transazione, intervallo
+  minimo assoluto e hostname esterno DNS-style fail-closed;
+- regression test aggiunti per i sei P2 e due P3. Re-review: sette finding chiusi;
+  `CLIENT-T044-UI-01` restava aperto sui cambi branch programmatici.
+
+### Secondo ciclo
+
+- `StatefulNavigationShell.currentIndex` sincronizza il lifecycle tracking anche per
+  deep link e `router.go`, con regressione Orders -> Catalog -> Orders e nessun doppio
+  runtime sullo stesso indice;
+- freshness corrente rivalutata a ogni polling prima del dedup del payload, così una
+  posizione non resta `fresh` oltre soglia senza un nuovo snapshot;
+- presenter mappa protetto da generation post-render contro `dispose` concorrente;
+  aggiunte regressioni esplicite `statusOnly`, `externalCarrier`, terminale e race.
+
+### Gate candidate Fix
+
+- Client commit: `61cd16bee70a925c1110645c708551de58ac3427`;
+- `flutter analyze`: `PASS`, exit 0;
+- tracking + shell + Orders + deep-link mirati: `48 PASS`, exit 0;
+- Admin commit: `663a292a626adc25230bad7c1917f930f94f5dca`;
+- `supabase db reset`: `PASS`; pgTAP tracking: `60/60 PASS`; foundation mirato:
+  `9/9 PASS`; typecheck/lint: `PASS`.
+
+### Handoff a re-review
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`. I reviewer read-only hanno già chiuso i finding
+Client runtime, Courier Mode e DB; la re-review finale dei due gap Client del secondo
+ciclo resta vincolante prima dei gate canonici, PR e CI.
 
 ## Chiusura
 

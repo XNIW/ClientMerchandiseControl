@@ -2233,3 +2233,17 @@
   ordine autorevolmente terminale.
 - **Esito**: 0 P0, 0 P1, 6 P2, 2 P3; transizione
   `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-044 Fix consegnato alla re-review finale
+
+- **Fix Client**: commit `61cd16bee70a925c1110645c708551de58ac3427` dopo due
+  cicli bounded; chiude race monotona, unauthorized, terminal cache, runtime offstage
+  anche su deep link, freshness temporale e dispose concorrente del presenter mappa.
+- **Fix Admin**: commit `663a292a626adc25230bad7c1917f930f94f5dca`; chiude
+  watch GPS orfano, retention nel feed, bypass rate limit e hostname numerico, oltre
+  agli hardening courier-only/hidden già nel perimetro.
+- **Gate mirati**: Client analyze e 48 test `PASS`; Admin reset, pgTAP `60/60`,
+  foundation `9/9`, typecheck/lint `PASS`.
+- **Re-review parziale**: runtime Client, Courier Mode e database già `CLOSED`; i due
+  gap Client del secondo ciclo sono stati riconsegnati a reviewer read-only distinti.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

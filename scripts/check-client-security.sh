@@ -140,19 +140,19 @@ cmc_security_contains_private_key_pem() {
     my $label = qr/(?:RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY/;
     while (
       $content =~
-        /-----BEGIN ($label)-----[ \t]*\r?\n(.*?)-----END \1-----/sg
+        /-----BEGIN ($label)-----[ \t\f\x0b\r]*\n(.*?)-----END \1-----/sg
     ) {
       my $body = $2;
       my $payload = "";
       my $payload_started = 0;
       my $valid = 1;
-      for my $line (split /\r?\n/, $body) {
-        $line =~ s/\A[ \t]+//;
-        $line =~ s/[ \t]+\z//;
+      for my $line (split /\n/, $body) {
+        $line =~ s/\A[ \t\f\x0b\r]+//;
+        $line =~ s/[ \t\f\x0b\r]+\z//;
         next if !$payload_started && $line eq "";
         next if !$payload_started && $line =~ /\A[A-Za-z0-9-]+:[^\r\n]*\z/;
         $payload_started = 1;
-        $line =~ s/[ \t]//g;
+        $line =~ s/[ \t\f\x0b\r]//g;
         if ($line !~ /\A[A-Za-z0-9+\/=]+\z/) {
           $valid = 0;
           last;

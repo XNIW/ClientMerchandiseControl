@@ -438,6 +438,56 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_spaced_pem}" \
   --artifact "${cmc_fixture_spaced_pem}/artifact/bundle.bin"
 
+cmc_fixture_form_feed_pem="$(
+  cmc_fixture_prepare bundle-private-key-form-feed-boundary
+)"
+mkdir -p "${cmc_fixture_form_feed_pem}/artifact"
+perl -pe \
+  'if (/-----BEGIN/) { s/$/\f/; }' \
+  "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
+  >"${cmc_fixture_form_feed_pem}/artifact/bundle.bin"
+openssl pkey \
+  -in "${cmc_fixture_form_feed_pem}/artifact/bundle.bin" \
+  -noout \
+  >/dev/null 2>&1
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_form_feed_pem}" \
+  --artifact "${cmc_fixture_form_feed_pem}/artifact/bundle.bin"
+
+cmc_fixture_vertical_tab_pem="$(
+  cmc_fixture_prepare bundle-private-key-vertical-tab-boundary
+)"
+mkdir -p "${cmc_fixture_vertical_tab_pem}/artifact"
+perl -pe \
+  'if (/-----BEGIN/) { s/$/\x0b/; }' \
+  "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
+  >"${cmc_fixture_vertical_tab_pem}/artifact/bundle.bin"
+openssl pkey \
+  -in "${cmc_fixture_vertical_tab_pem}/artifact/bundle.bin" \
+  -noout \
+  >/dev/null 2>&1
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_vertical_tab_pem}" \
+  --artifact "${cmc_fixture_vertical_tab_pem}/artifact/bundle.bin"
+
+cmc_fixture_ascii_whitespace_pem="$(
+  cmc_fixture_prepare bundle-private-key-ascii-whitespace
+)"
+mkdir -p "${cmc_fixture_ascii_whitespace_pem}/artifact"
+perl -pe \
+  'if (/-----BEGIN/) { s/$/ \t\f\x0b\r\r/; }
+   elsif (/-----END/) { s/$/\r\r/; }
+   else { s/^/ \t/; s/$/\f\x0b\r\r/; }' \
+  "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
+  >"${cmc_fixture_ascii_whitespace_pem}/artifact/bundle.bin"
+openssl pkey \
+  -in "${cmc_fixture_ascii_whitespace_pem}/artifact/bundle.bin" \
+  -noout \
+  >/dev/null 2>&1
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_ascii_whitespace_pem}" \
+  --artifact "${cmc_fixture_ascii_whitespace_pem}/artifact/bundle.bin"
+
 cmc_fixture_single_column_pem="$(
   cmc_fixture_prepare bundle-private-key-single-column
 )"

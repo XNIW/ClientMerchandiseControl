@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/backend/storefront_time_zone_contract.dart';
 import '../domain/checkout_failure.dart';
 import '../domain/checkout_models.dart';
 import '../domain/checkout_repository.dart';
@@ -23,24 +24,46 @@ final class PlatformCheckoutPort implements CheckoutPort {
 }
 
 final class SupabaseCheckoutRepository implements CheckoutRepository {
-  const SupabaseCheckoutRepository({
+  SupabaseCheckoutRepository({
     required this.port,
     this.requestTimeout = const Duration(seconds: 12),
   });
 
   final CheckoutPort port;
   final Duration requestTimeout;
+  final Map<String, String> _timeZones = {};
+  final Map<String, Future<String>> _timeZoneLoads = {};
 
   @override
   Future<StorefrontFulfillmentOptions> loadOptions({required String shopSlug}) {
     return _guard(() async {
       _requireShopSlug(shopSlug);
-      return _parseOptions(
-        await port.invoke('storefront_fulfillment_options_v1', {
-          'p_shop_slug': shopSlug,
-        }),
-        expectedShopSlug: shopSlug,
-      );
+      final raw = await port.invoke('storefront_fulfillment_options_v1', {
+        'p_shop_slug': shopSlug,
+      });
+      final timeZone = raw is Map && raw['status'] == 'ok'
+          ? await _loadTimeZone(shopSlug)
+          : null;
+      return _parseOptions(raw, expectedShopSlug: shopSlug, timeZone: timeZone);
+    });
+  }
+
+  Future<String> _loadTimeZone(String shopSlug) {
+    final cached = _timeZones[shopSlug];
+    if (cached != null) return Future.value(cached);
+    return _timeZoneLoads.putIfAbsent(shopSlug, () async {
+      try {
+        final value = parseStorefrontTimeZone(
+          await port.invoke('storefront_time_zone_v1', {
+            'p_shop_slug': shopSlug,
+          }),
+          expectedShopSlug: shopSlug,
+        );
+        _timeZones[shopSlug] = value;
+        return value;
+      } finally {
+        _timeZoneLoads.remove(shopSlug);
+      }
     });
   }
 
@@ -214,6 +237,7 @@ const _optionsRootKeys = <String>{
 StorefrontFulfillmentOptions _parseOptions(
   Object? raw, {
   required String expectedShopSlug,
+  required String? timeZone,
 }) {
   final payload = _payload(raw, _optionsRootKeys, 'checkout_options');
   if (payload['apiVersion'] != 'storefront-fulfillment.v1') {
@@ -249,6 +273,7 @@ StorefrontFulfillmentOptions _parseOptions(
     'serverTime',
   };
   if (!payload.keys.toSet().containsAll(required) ||
+      timeZone == null ||
       _requiredString(payload, 'shopSlug') != expectedShopSlug ||
       payload['currencyCode'] != 'CLP') {
     throw const FormatException('checkout_options_identity');
@@ -297,6 +322,7 @@ StorefrontFulfillmentOptions _parseOptions(
     status: status,
     shopSlug: expectedShopSlug,
     currencyCode: 'CLP',
+    timeZone: timeZone,
     modes: modes,
     pickupPoints: points,
     deliveryZones: zones,

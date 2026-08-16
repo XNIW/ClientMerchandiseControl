@@ -10,6 +10,7 @@ import '../../../app/design_system/widgets/storefront_page.dart';
 import '../../../app/design_system/widgets/storefront_status_banner.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
+import '../../../core/formatting/shop_date_time_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../account/domain/customer_account_models.dart';
 import '../../auth/application/auth_controller.dart';
@@ -477,7 +478,13 @@ class _SlotStep extends ConsumerWidget {
                         value: slot.id,
                         secondary: const Icon(Icons.schedule_outlined),
                         title: Text(slot.label),
-                        subtitle: Text(slotWindow(context, slot)),
+                        subtitle: Text(
+                          slotWindow(
+                            context,
+                            slot,
+                            timeZone: state.options!.timeZone!,
+                          ),
+                        ),
                       ),
                     ),
                 ],
@@ -555,7 +562,7 @@ class _ConfirmationStep extends StatelessWidget {
     final formatter = ClpCurrencyFormatter();
     final order = state.order;
     if (order != null) {
-      return _OrderReceipt(order: order);
+      return _OrderReceipt(order: order, timeZone: state.options!.timeZone!);
     }
     final quote = state.quote;
     if (quote == null) {
@@ -660,20 +667,20 @@ class _ConfirmationStep extends StatelessWidget {
 }
 
 class _OrderReceipt extends StatelessWidget {
-  const _OrderReceipt({required this.order});
+  const _OrderReceipt({required this.order, required this.timeZone});
 
   final CheckoutOrder order;
+  final String timeZone;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final formatter = ClpCurrencyFormatter();
-    final material = MaterialLocalizations.of(context);
-    final placedAt = order.placedAt.toLocal();
-    final placedLabel = [
-      material.formatMediumDate(placedAt),
-      material.formatTimeOfDay(TimeOfDay.fromDateTime(placedAt)),
-    ].join(' · ');
+    final placedLabel = ShopDateTimeFormatter.format(
+      context,
+      order.placedAt,
+      timeZone: timeZone,
+    );
     return _StepSection(
       title: l10n.checkoutOrderReceiptTitle,
       message: l10n.checkoutOrderReceiptMessage,
@@ -1229,16 +1236,23 @@ String checkoutChangeMessage(
   CheckoutChangeType.holdRequired => l10n.checkoutHoldRequired,
 };
 
-String slotWindow(BuildContext context, CheckoutFulfillmentSlot slot) {
+String slotWindow(
+  BuildContext context,
+  CheckoutFulfillmentSlot slot, {
+  required String timeZone,
+}) {
   final localizations = MaterialLocalizations.of(context);
-  final start = slot.startsAt.toLocal();
-  final end = slot.endsAt.toLocal();
+  final start = ShopDateTimeFormatter.inTimeZone(
+    slot.startsAt,
+    timeZone: timeZone,
+  );
+  final end = ShopDateTimeFormatter.inTimeZone(slot.endsAt, timeZone: timeZone);
   final date = localizations.formatMediumDate(start);
   final startTime = localizations.formatTimeOfDay(
     TimeOfDay.fromDateTime(start),
   );
   final endTime = localizations.formatTimeOfDay(TimeOfDay.fromDateTime(end));
-  return '$date · $startTime–$endTime';
+  return '$date · $startTime–$endTime · $timeZone';
 }
 
 String _durationLabel(int seconds) {

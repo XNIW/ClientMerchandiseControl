@@ -141,6 +141,7 @@ void main() {
       updatedAt: valid.updatedAt,
       serverTime: valid.serverTime,
       idempotent: false,
+      timeZone: valid.timeZone,
     );
 
     await expectLater(

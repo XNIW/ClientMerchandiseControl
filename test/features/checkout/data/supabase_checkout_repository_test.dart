@@ -29,13 +29,64 @@ void main() {
   test('options usa solo slug pubblico e valida riferimenti slot', () async {
     final options = await repository.loadOptions(shopSlug: 'storefront-test');
 
-    expect(port.function, 'storefront_fulfillment_options_v1');
-    expect(port.parameters, {'p_shop_slug': 'storefront-test'});
+    expect(port.calls.map((call) => call.$1), [
+      'storefront_fulfillment_options_v1',
+      'storefront_time_zone_v1',
+    ]);
+    expect(port.calls[0].$2, {'p_shop_slug': 'storefront-test'});
+    expect(port.calls[1].$2, {'p_shop_slug': 'storefront-test'});
     expect(options.currencyCode, 'CLP');
+    expect(options.timeZone, 'America/Santiago');
     expect(options.modes, hasLength(3));
     expect(options.pickupPoint(_pointId)?.name, 'Tienda Centro');
     expect(options.deliveryZone(_zoneId)?.feeClp, 2500);
     expect(options.slots, hasLength(2));
+  });
+
+  test(
+    'timezone viene validata e memorizzata una sola volta per shop',
+    () async {
+      await repository.loadOptions(shopSlug: 'storefront-test');
+      port.response = _optionsPayload();
+      await repository.loadOptions(shopSlug: 'storefront-test');
+
+      expect(port.timeZoneCalls, 1);
+
+      final invalidPort = _FakeCheckoutPort()
+        ..response = _optionsPayload()
+        ..timeZoneResponse = {
+          ..._timeZonePayload(),
+          'timeZone': 'Mars/Olympus',
+        };
+      await expectLater(
+        SupabaseCheckoutRepository(
+          port: invalidPort,
+        ).loadOptions(shopSlug: 'storefront-test'),
+        throwsA(
+          isA<CheckoutRepositoryException>().having(
+            (error) => error.kind,
+            'kind',
+            CheckoutFailureKind.unexpected,
+          ),
+        ),
+      );
+    },
+  );
+
+  test('load concorrenti condividono una sola richiesta timezone', () async {
+    port.barrier = Completer<void>();
+
+    final first = repository.loadOptions(shopSlug: 'storefront-test');
+    final second = repository.loadOptions(shopSlug: 'storefront-test');
+    await Future<void>.delayed(Duration.zero);
+    port.barrier!.complete();
+
+    final options = await Future.wait([first, second]);
+    expect(options.map((value) => value.timeZone), [
+      'America/Santiago',
+      'America/Santiago',
+    ]);
+    expect(port.timeZoneCalls, 1);
   });
 
   test('payment options sono mode-scoped e online resta fail-closed', () async {
@@ -503,6 +554,14 @@ Map<String, Object?> _optionsPayload() => {
   'serverTime': _now.toIso8601String(),
 };
 
+Map<String, Object?> _timeZonePayload() => {
+  'apiVersion': 'storefront-time-zone.v1',
+  'status': 'ok',
+  'shopSlug': 'storefront-test',
+  'timeZone': 'America/Santiago',
+  'serverTime': _now.toIso8601String(),
+};
+
 Map<String, Object?> _paymentOptionsPayload() => {
   'apiVersion': 'storefront-payment-options.v1',
   'status': 'ok',
@@ -655,10 +714,13 @@ Map<String, Object?> _orderItem() => const {
 
 final class _FakeCheckoutPort implements CheckoutPort {
   Object? response;
+  Object? timeZoneResponse = _timeZonePayload();
   Object? error;
   Completer<void>? barrier;
   String? function;
   Map<String, Object?>? parameters;
+  final calls = <(String, Map<String, Object?>)>[];
+  int timeZoneCalls = 0;
 
   @override
   Future<Object?> invoke(
@@ -667,8 +729,13 @@ final class _FakeCheckoutPort implements CheckoutPort {
   ) async {
     this.function = function;
     this.parameters = parameters;
+    calls.add((function, parameters));
     await barrier?.future;
     if (error case final failure?) throw failure;
+    if (function == 'storefront_time_zone_v1') {
+      timeZoneCalls++;
+      return timeZoneResponse;
+    }
     return response;
   }
 }

@@ -301,7 +301,13 @@ class _OrdersStatus extends StatelessWidget {
     }
     if (state.cachedAt != null) {
       return Text(
-        l10n.ordersCachedAt(customerOrderDate(context, state.cachedAt!)),
+        l10n.ordersCachedAt(
+          customerOrderDate(
+            context,
+            state.cachedAt!,
+            timeZone: state.orders.first.timeZone,
+          ),
+        ),
         key: const ValueKey('orders-cached-at'),
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -498,7 +504,11 @@ class _OrderCard extends StatelessWidget {
                 if (stacked) ...[
                   Text(
                     l10n.ordersPlacedAt(
-                      customerOrderDate(context, order.placedAt),
+                      customerOrderDate(
+                        context,
+                        order.placedAt,
+                        timeZone: order.timeZone,
+                      ),
                     ),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -534,7 +544,11 @@ class _OrderCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           l10n.ordersPlacedAt(
-                            customerOrderDate(context, order.placedAt),
+                            customerOrderDate(
+                              context,
+                              order.placedAt,
+                              timeZone: order.timeZone,
+                            ),
                           ),
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(

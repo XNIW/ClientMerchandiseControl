@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/formatting/shop_date_time_formatter.dart';
 import '../domain/customer_order_models.dart';
 import '../domain/customer_order_repository.dart';
 
@@ -119,7 +120,7 @@ final class SharedPreferencesCustomerOrderCache
 String _encode(CustomerOrderCacheSnapshot snapshot) {
   _validateSnapshot(snapshot);
   return jsonEncode({
-    'version': 1,
+    'version': 2,
     'ownerSubjectId': snapshot.ownerSubjectId,
     'shopSlug': snapshot.shopSlug,
     'orders': snapshot.orders.map(_encodeCard).toList(growable: false),
@@ -157,6 +158,7 @@ Map<String, Object?> _encodeCard(CustomerOrderCard card) => {
   'cancellationAllowed': card.cancellationAllowed,
   'placedAt': _date(card.placedAt),
   'updatedAt': _date(card.updatedAt),
+  'timeZone': card.timeZone,
 };
 
 Map<String, Object?> _encodeDetail(CustomerOrderDetail detail) => {
@@ -211,6 +213,7 @@ Map<String, Object?> _encodeDetail(CustomerOrderDetail detail) => {
   'updatedAt': _date(detail.updatedAt),
   'serverTime': _date(detail.serverTime),
   'idempotent': detail.idempotent,
+  'timeZone': detail.timeZone,
 };
 
 CustomerOrderCacheSnapshot _decode(String encoded) {
@@ -224,7 +227,7 @@ CustomerOrderCacheSnapshot _decode(String encoded) {
     'pendingCancellation',
     'cachedAt',
   }, 'root');
-  if (root['version'] != 1) {
+  if (root['version'] != 2) {
     throw const FormatException('customer_order_cache_version');
   }
   final ownerSubjectId = _string(root, 'ownerSubjectId', maximumRunes: 256);
@@ -303,6 +306,7 @@ CustomerOrderCard _decodeCard(Object? raw) {
     'cancellationAllowed',
     'placedAt',
     'updatedAt',
+    'timeZone',
   }, 'card');
   final cancellationAllowed = map['cancellationAllowed'];
   if (cancellationAllowed is! bool) {
@@ -325,6 +329,7 @@ CustomerOrderCard _decodeCard(Object? raw) {
     cancellationAllowed: cancellationAllowed,
     placedAt: _readDate(map, 'placedAt'),
     updatedAt: _readDate(map, 'updatedAt'),
+    timeZone: _timeZone(map, 'timeZone'),
   );
 }
 
@@ -346,6 +351,7 @@ CustomerOrderDetail _decodeDetail(Object? raw) {
     'updatedAt',
     'serverTime',
     'idempotent',
+    'timeZone',
   }, 'detail');
   final fulfillmentMap = _strictMap(map['fulfillment'], const {
     'mode',
@@ -417,7 +423,16 @@ CustomerOrderDetail _decodeDetail(Object? raw) {
     updatedAt: _readDate(map, 'updatedAt'),
     serverTime: _readDate(map, 'serverTime'),
     idempotent: idempotent,
+    timeZone: _timeZone(map, 'timeZone'),
   );
+}
+
+String _timeZone(Map<String, Object?> map, String key) {
+  final value = _string(map, key, maximumRunes: 64);
+  if (!ShopDateTimeFormatter.supports(value)) {
+    throw const FormatException('customer_order_cache_time_zone');
+  }
+  return value;
 }
 
 CustomerOrderLine _decodeLine(Object? raw) {
@@ -504,7 +519,8 @@ void _validateCard(CustomerOrderCard card) {
   _validateText(card.primaryItemName, maximumRunes: 200);
   _validateDate(card.placedAt);
   _validateDate(card.updatedAt);
-  if (card.version < 1 ||
+  if (!ShopDateTimeFormatter.supports(card.timeZone) ||
+      card.version < 1 ||
       card.itemCount < 1 ||
       card.itemCount > customerOrderMaximumLines ||
       card.updatedAt.isBefore(card.placedAt)) {
@@ -516,7 +532,8 @@ void _validateDetail(CustomerOrderDetail detail) {
   _validateUuid(detail.id);
   _validateCode(detail.code);
   _validateContext('owner-placeholder', detail.shopSlug);
-  if (detail.version < 1 ||
+  if (!ShopDateTimeFormatter.supports(detail.timeZone) ||
+      detail.version < 1 ||
       detail.items.isEmpty ||
       detail.items.length > customerOrderMaximumLines ||
       detail.timeline.length != detail.version ||

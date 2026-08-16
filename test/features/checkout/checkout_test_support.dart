@@ -67,6 +67,7 @@ StorefrontFulfillmentOptions checkoutTestOptions() =>
       status: FulfillmentOptionsStatus.ok,
       shopSlug: 'storefront-test',
       currencyCode: 'CLP',
+      timeZone: 'America/Santiago',
       modes: const [
         CheckoutModeOption(mode: CheckoutFulfillmentMode.pickup, enabled: true),
         CheckoutModeOption(

@@ -364,7 +364,11 @@ class _OrderHeader extends StatelessWidget {
                 Expanded(
                   child: Text(
                     l10n.ordersPlacedAt(
-                      customerOrderDate(context, detail.placedAt),
+                      customerOrderDate(
+                        context,
+                        detail.placedAt,
+                        timeZone: detail.timeZone,
+                      ),
                     ),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -643,7 +647,11 @@ class _DeliveryTrackingCard extends StatelessWidget {
     final lastUpdatedLabel = snapshot.observedAt == null
         ? freshnessLabel
         : l10n.deliveryTrackingLastUpdated(
-            customerOrderDate(context, snapshot.observedAt!),
+            customerOrderDate(
+              context,
+              snapshot.observedAt!,
+              timeZone: detail.timeZone,
+            ),
           );
 
     return Semantics(
@@ -696,8 +704,16 @@ class _DeliveryTrackingCard extends StatelessWidget {
                 const SizedBox(height: AppSpacing.md),
                 Text(
                   l10n.deliveryTrackingWindow(
-                    customerOrderDate(context, snapshot.etaStartsAt!),
-                    customerOrderDate(context, snapshot.etaEndsAt!),
+                    customerOrderDate(
+                      context,
+                      snapshot.etaStartsAt!,
+                      timeZone: detail.timeZone,
+                    ),
+                    customerOrderDate(
+                      context,
+                      snapshot.etaEndsAt!,
+                      timeZone: detail.timeZone,
+                    ),
                   ),
                   style: Theme.of(
                     context,
@@ -750,7 +766,11 @@ class _DeliveryTrackingCard extends StatelessWidget {
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   l10n.deliveryTrackingLastUpdated(
-                    customerOrderDate(context, snapshot.observedAt!),
+                    customerOrderDate(
+                      context,
+                      snapshot.observedAt!,
+                      timeZone: detail.timeZone,
+                    ),
                   ),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -841,6 +861,7 @@ class _FulfillmentCard extends StatelessWidget {
                             customerOrderDate(
                               context,
                               fulfillment.slotStartsAt,
+                              timeZone: detail.timeZone,
                             ),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
@@ -882,6 +903,7 @@ class _TimelineCard extends StatelessWidget {
               _TimelineEventRow(
                 event: detail.timeline[index],
                 isLast: index == detail.timeline.length - 1,
+                timeZone: detail.timeZone,
               ),
           ],
         ),
@@ -891,10 +913,15 @@ class _TimelineCard extends StatelessWidget {
 }
 
 class _TimelineEventRow extends StatelessWidget {
-  const _TimelineEventRow({required this.event, required this.isLast});
+  const _TimelineEventRow({
+    required this.event,
+    required this.isLast,
+    required this.timeZone,
+  });
 
   final CustomerOrderTimelineEvent event;
   final bool isLast;
+  final String timeZone;
 
   @override
   Widget build(BuildContext context) {
@@ -904,7 +931,9 @@ class _TimelineEventRow extends StatelessWidget {
     );
     final color = customerOrderStatusColor(context, event.status);
     return Semantics(
-      label: '$label. ${customerOrderDate(context, event.createdAt)}',
+      label:
+          '$label. '
+          '${customerOrderDate(context, event.createdAt, timeZone: timeZone)}',
       excludeSemantics: true,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -946,7 +975,11 @@ class _TimelineEventRow extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    customerOrderDate(context, event.createdAt),
+                    customerOrderDate(
+                      context,
+                      event.createdAt,
+                      timeZone: timeZone,
+                    ),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -979,7 +1012,11 @@ class _CancellationCard extends ConsumerWidget {
           children: [
             Text(
               l10n.ordersCancellationDeadline(
-                customerOrderDate(context, detail.cancellation.deadline),
+                customerOrderDate(
+                  context,
+                  detail.cancellation.deadline,
+                  timeZone: detail.timeZone,
+                ),
               ),
               style: Theme.of(context).textTheme.bodyMedium,
             ),

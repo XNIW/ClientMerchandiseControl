@@ -31,6 +31,7 @@ void main() {
 
     expect(page.orders.single.id, orderTestOrder);
     expect(page.orders.single.primaryItemName, 'Café público');
+    expect(page.orders.single.timeZone, 'America/Santiago');
     expect(port.function, 'customer_order_list_v1');
     expect(port.parameters, {
       'p_shop_slug': orderTestShop,
@@ -42,6 +43,49 @@ void main() {
       port.parameters!.keys,
       isNot(contains(anyOf('shopId', 'ownerUserId', 'email', 'totalClp'))),
     );
+  });
+
+  test('timezone è validata e memorizzata tra lista e dettaglio', () async {
+    await repository.listOrders(shopSlug: orderTestShop);
+    port.response = orderTestDetailPayload();
+    final detail = await repository.loadOrder(
+      shopSlug: orderTestShop,
+      orderId: orderTestOrder,
+    );
+
+    expect(detail.timeZone, 'America/Santiago');
+    expect(port.timeZoneCalls, 1);
+
+    final invalidPort = FakeCustomerOrderPort()
+      ..response = orderTestListPayload()
+      ..timeZoneResponse = {
+        ...orderTestTimeZonePayload(),
+        'databaseUrl': 'postgres://internal.invalid',
+      };
+    await expectLater(
+      SupabaseCustomerOrderRepository(
+        port: invalidPort,
+      ).listOrders(shopSlug: orderTestShop),
+      throwsA(_failure(CustomerOrderFailureKind.unexpected)),
+    );
+  });
+
+  test('letture concorrenti condividono una sola richiesta timezone', () async {
+    port.timeZoneBarrier = Completer<void>();
+
+    final first = repository.listOrders(shopSlug: orderTestShop);
+    final second = repository.listOrders(shopSlug: orderTestShop);
+    await Future<void>.delayed(Duration.zero);
+    expect(port.calls, 3);
+    expect(port.timeZoneCalls, 1);
+    port.timeZoneBarrier!.complete();
+
+    final pages = await Future.wait([first, second]);
+    expect(
+      pages.every((page) => page.orders.single.timeZone == 'America/Santiago'),
+      isTrue,
+    );
+    expect(port.timeZoneCalls, 1);
   });
 
   test(

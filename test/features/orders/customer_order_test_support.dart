@@ -40,6 +40,7 @@ CustomerOrderCard orderTestCard({
     cancellationAllowed: cancellationAllowed,
     placedAt: placed,
     updatedAt: placed.add(Duration(seconds: version - 1)),
+    timeZone: 'America/Santiago',
   );
 }
 
@@ -111,6 +112,7 @@ CustomerOrderDetail orderTestDetail({
     updatedAt: placed.add(Duration(seconds: version - 1)),
     serverTime: server,
     idempotent: idempotent,
+    timeZone: 'America/Santiago',
   );
 }
 
@@ -281,12 +283,23 @@ Map<String, Object?> orderTestDetailPayload({
   };
 }
 
+Map<String, Object?> orderTestTimeZonePayload() => {
+  'apiVersion': 'storefront-time-zone.v1',
+  'status': 'ok',
+  'shopSlug': orderTestShop,
+  'timeZone': 'America/Santiago',
+  'serverTime': orderTestNow.toIso8601String(),
+};
+
 final class FakeCustomerOrderPort implements CustomerOrderPort {
   Object? response;
+  Object? timeZoneResponse = orderTestTimeZonePayload();
   Object? error;
   String? function;
   Map<String, Object?>? parameters;
   int calls = 0;
+  int timeZoneCalls = 0;
+  Completer<void>? timeZoneBarrier;
 
   @override
   Future<Object?> invoke(
@@ -294,6 +307,11 @@ final class FakeCustomerOrderPort implements CustomerOrderPort {
     Map<String, Object?> parameters,
   ) async {
     calls++;
+    if (function == 'storefront_time_zone_v1') {
+      timeZoneCalls++;
+      await timeZoneBarrier?.future;
+      return timeZoneResponse;
+    }
     this.function = function;
     this.parameters = parameters;
     if (error case final Object value) throw value;

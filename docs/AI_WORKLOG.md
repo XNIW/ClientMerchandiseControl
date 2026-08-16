@@ -2476,3 +2476,16 @@
   cache 25k, APK debug e iOS Simulator debug.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
   indipendente obbligatoria, nessuna auto-approvazione del Fix.
+
+## 2026-08-16 — TASK-034 Re-review 1 `CHANGES_REQUIRED` e Fix 2
+
+- **Re-review**: Fix `0dccca8`, evidence `68f1f6a`; tracking 19/19, repeat 90/90,
+  analyze, governance e architecture verdi. Esito 0 P0/P1, 1 P2, 0 P3.
+- **Finding residuo**: identity, close con purge e unauthorized attendevano
+  l'unsubscribe prima di leggere il cache provider; un dispose durante il
+  `removeChannel()` asincrono poteva produrre `StateError` e saltare il purge.
+- **Fix 2**: cache store catturato prima di qualsiasi `await` e passato al cleanup;
+  fake unsubscribe controllato da `Completer` e tre regressioni sui call site.
+- **Gate mirati**: analyze, tracking `22/22` e repeat `10 x 12 = 120` `PASS`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; nuova
+  re-review distinta obbligatoria.

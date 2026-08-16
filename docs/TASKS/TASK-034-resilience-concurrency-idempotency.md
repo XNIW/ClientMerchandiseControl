@@ -190,9 +190,9 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 | CA | Evidence | Esito |
 |---|---|---|
 | CA-01 | `docs/quality/TASK-034-RESILIENCE-MATRIX.md` | PASS |
-| CA-02–CA-07 | `CLIENT-314`, regressioni scheduler; Fix tracking `19/19`, `REPEAT-90` | PASS |
+| CA-02–CA-07 | `CLIENT-314`, regressioni scheduler; Fix 2 tracking `22/22`, `REPEAT-120` | PASS |
 | CA-04–CA-08 | `DB-483`, `DB-RACE-11` | PASS |
-| CA-09 | scheduler manuale + repeat Fix `10 x 9` | PASS |
+| CA-09 | scheduler manuale + repeat Fix 2 `10 x 12` | PASS |
 | CA-10 | gate completi, Admin PR #90/#91/#92, staging run `31969351269` | PASS |
 
 ### Matrice T-NN -> risultato
@@ -236,6 +236,19 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
   Admin esatto `6fea61bb`;
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
+### Re-review 1 indipendente
+
+- **Revision set**: Fix `0dccca810e309c849c290a857bd1975bb4fd797b`, evidence
+  `68f1f6a59ed2089504b9447740a8ca60cb3cf04b`;
+- **Esito**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 1 P2, 0 P3;
+- **Finding `TASK034-R-001` (P2 residuo)**: identity, `close(clearCache: true)` e
+  unauthorized catturavano il cache store soltanto dopo l'attesa dell'unsubscribe;
+  un dispose durante `removeChannel()` poteva quindi causare un `ref.read` post-dispose
+  e interrompere il purge owner-scoped;
+- **Gate reviewer**: tracking `19/19`, repeat `90/90`, analyze, governance 9/9,
+  architecture negative 7/7 e diff check `PASS`;
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
 ## Fix — `CODEX_FIXER`
 
 - sostituita la dipendenza ricostruttiva dall'identità con listener lifecycle espliciti:
@@ -252,6 +265,19 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
   non-performance con coverage, repeat predefinito `45/45`, benchmark 25k, APK debug
   e iOS Simulator debug;
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; il Fix non si auto-approva.
+
+### Fix 2
+
+- il `DeliveryTrackingCacheStore` viene ora catturato prima di ogni boundary asincrono
+  nei tre percorsi identity, close con purge e unauthorized, e passato esplicitamente
+  alla coda di cleanup; dopo l'unsubscribe nessun accesso Riverpod è necessario;
+- il fake espone una cancellazione subscription controllata da due `Completer`;
+  tre regressioni dispongono il container mentre l'unsubscribe è bloccato e poi
+  verificano purge deterministico per identity/logout, close e unauthorized;
+- `flutter analyze`, tracking `22/22` e repeat `10 x 12 = 120` sono `PASS`, exit `0`;
+  gate canonico finale e SHA Fix 2 sono registrati nelle evidence dopo il rerun;
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; è richiesta una nuova re-review
+  indipendente.
 
 ## Chiusura
 

@@ -705,6 +705,114 @@ void main() {
       await repository.stream.close();
     },
   );
+
+  test(
+    'dispose durante logout con unsubscribe asincrono completa il purge owner',
+    () async {
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final cancelStarted = Completer<void>();
+      final cancelRelease = Completer<void>();
+      final repository = FakeDeliveryTrackingRepository()
+        ..watchCancelStarted = cancelStarted
+        ..watchCancelRelease = cancelRelease;
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final identity = StateProvider<AuthenticatedCustomer?>((ref) {
+        return _customer(trackingTestOwner);
+      });
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        pollInterval: const Duration(milliseconds: 15),
+        reconnectBase: const Duration(milliseconds: 5),
+        scheduler: scheduler,
+        identityState: identity,
+      );
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      repository.stream.addError(const DeliveryTrackingRealtimeException());
+      await _flush();
+
+      container.read(identity.notifier).state = null;
+      await cancelStarted.future;
+      container.dispose();
+      cancelRelease.complete();
+      await _flush();
+
+      expect(repository.watchCancelCalls, 1);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+      expect(scheduler.activeTaskCount, 0);
+      await repository.stream.close();
+    },
+  );
+
+  test(
+    'dispose durante close con unsubscribe asincrono completa il purge owner',
+    () async {
+      final cancelStarted = Completer<void>();
+      final cancelRelease = Completer<void>();
+      final repository = FakeDeliveryTrackingRepository()
+        ..watchCancelStarted = cancelStarted
+        ..watchCancelRelease = cancelRelease;
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final container = _container(repository: repository, cache: cache);
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+
+      final close = container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .close(clearCache: true);
+      await cancelStarted.future;
+      container.dispose();
+      cancelRelease.complete();
+      await close;
+
+      expect(repository.watchCancelCalls, 1);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+      await repository.stream.close();
+    },
+  );
+
+  test(
+    'dispose durante unauthorized asincrono completa il purge owner',
+    () async {
+      final cancelStarted = Completer<void>();
+      final cancelRelease = Completer<void>();
+      final repository = FakeDeliveryTrackingRepository()
+        ..watchCancelStarted = cancelStarted
+        ..watchCancelRelease = cancelRelease;
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final container = _container(repository: repository, cache: cache);
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      repository.loadError = const DeliveryTrackingRepositoryException(
+        DeliveryTrackingFailureKind.unauthorized,
+      );
+
+      final refresh = container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .refresh();
+      await cancelStarted.future;
+      container.dispose();
+      cancelRelease.complete();
+      await refresh;
+
+      expect(repository.watchCancelCalls, 1);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+      await repository.stream.close();
+    },
+  );
 }
 
 DeliveryTrackingSnapshot _terminalSnapshot({required int version}) {

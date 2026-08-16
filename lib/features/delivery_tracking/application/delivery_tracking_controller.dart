@@ -6,6 +6,7 @@ import '../../../core/time/app_scheduler.dart';
 import '../data/supabase_delivery_tracking_repository.dart';
 import '../domain/delivery_tracking_failure.dart';
 import '../domain/delivery_tracking_models.dart';
+import '../domain/delivery_tracking_repository.dart';
 import 'delivery_tracking_providers.dart';
 
 const _deliveryTrackingUnset = Object();
@@ -130,13 +131,16 @@ final class DeliveryTrackingController
     final effectiveShopSlug = subjectId == null ? null : shopSlug;
     if (_subjectId == subjectId && _shopSlug == effectiveShopSlug) return;
     final previousSubject = _subjectId;
+    final cache = previousSubject != null && previousSubject != subjectId
+        ? ref.read(deliveryTrackingCacheProvider)
+        : null;
     _subjectId = subjectId;
     _shopSlug = effectiveShopSlug;
     _orderId = null;
     final generation = ++_generation;
     await _stopRuntime();
-    if (previousSubject != null && previousSubject != subjectId) {
-      await _clearCacheAfterSnapshots(previousSubject);
+    if (previousSubject != null && cache != null) {
+      await _clearCacheAfterSnapshots(previousSubject, cache);
     }
     if (_disposed || generation != _generation) return;
     state = subjectId == null || effectiveShopSlug == null
@@ -193,11 +197,14 @@ final class DeliveryTrackingController
 
   Future<void> close({bool clearCache = false}) async {
     final subjectId = _subjectId;
+    final cache = clearCache && subjectId != null
+        ? ref.read(deliveryTrackingCacheProvider)
+        : null;
     _generation++;
     _orderId = null;
     await _stopRuntime();
-    if (clearCache && subjectId != null) {
-      await _clearCacheAfterSnapshots(subjectId);
+    if (subjectId != null && cache != null) {
+      await _clearCacheAfterSnapshots(subjectId, cache);
     }
     if (!_disposed) {
       state = _subjectId == null
@@ -247,6 +254,7 @@ final class DeliveryTrackingController
     final subjectId = _subjectId;
     final shopSlug = _shopSlug;
     if (subjectId == null || shopSlug == null) return;
+    final cache = ref.read(deliveryTrackingCacheProvider);
     try {
       final snapshot = await ref
           .read(deliveryTrackingRepositoryProvider)
@@ -271,7 +279,7 @@ final class DeliveryTrackingController
         _generation++;
         _orderId = null;
         await _stopRuntime();
-        await _clearCacheAfterSnapshots(subjectId);
+        await _clearCacheAfterSnapshots(subjectId, cache);
         if (!_disposed && _subjectId == subjectId && _shopSlug == shopSlug) {
           state = DeliveryTrackingViewState(
             status: DeliveryTrackingStatus.failure,
@@ -447,8 +455,10 @@ final class DeliveryTrackingController
     }
   }
 
-  Future<void> _clearCacheAfterSnapshots(String subjectId) async {
-    final cache = ref.read(deliveryTrackingCacheProvider);
+  Future<void> _clearCacheAfterSnapshots(
+    String subjectId,
+    DeliveryTrackingCacheStore cache,
+  ) async {
     final previous = _snapshotCommitTail;
     final turn = Completer<void>();
     _snapshotCommitTail = turn.future;

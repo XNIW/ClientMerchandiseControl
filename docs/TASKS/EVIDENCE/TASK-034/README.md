@@ -94,3 +94,15 @@ reconciliation e un comando realmente eseguito.
   `3175/3748/6597 µs`), APK debug e iOS Simulator debug;
 - re-review Client indipendente e CI/merge Client: `NOT_RUN`, prossima fase. Le review
   Admin dei fix staging sono concluse con `APPROVED` e zero P0/P1/P2/P3 residui.
+
+### Re-review 1 e Fix 2
+
+- re-review su Fix `0dccca8` ed evidence `68f1f6a`: `CHANGES_REQUIRED`, 0 P0/P1,
+  1 P2, 0 P3; l'unsubscribe production può attendere `removeChannel()`, lasciando un
+  interleaving dispose prima del successivo `ref.read` del cache store;
+- Fix 2: i tre call site identity, close con purge e unauthorized catturano il cache
+  store prima del primo `await` e lo passano al cleanup serializzato;
+- regressioni con unsubscribe bloccato da `Completer`: tracking `22/22 PASS`; identity,
+  close e unauthorized completano il purge anche se il container viene disposed
+  durante la cancellazione; repeat `10 x 12 = 120 PASS`;
+- nuova re-review e CI/merge Client: `NOT_RUN`, prossima fase.

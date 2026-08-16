@@ -7,12 +7,12 @@
 - **File task**: `docs/TASKS/TASK-034-resilience-concurrency-idempotency.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-034/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -261,6 +261,21 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 - **Gate reviewer**: tracking `22/22`, repeat `120/120`, analyze, governance 9/9,
   architecture negative 7/7 e diff check `PASS`;
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Re-review 3 indipendente
+
+- **Revision set**: Fix 3 `48a1ba0e9b16eff25a639d169e3570b3416f60b2`,
+  correzione widget-dispose `042d8d80fad8152ce22287002c26ea97e6a79b71`, evidence
+  `f9ffec4b0b92e75d3366e9e6f48aa16744c78910`;
+- **Esito**: `APPROVED`, 0 P0, 0 P1, 0 P2, 0 P3;
+- **Finding chiusi**: `TASK034-R-001`, stato/purge subordinati all'unsubscribe,
+  conteggi obsoleti e regressione `OrderDetailScreen.dispose` sono `CLOSED`;
+- **Verifiche reviewer**: tracking e router `25/25`, repeat `10 x 14 = 140/140`,
+  analyze zero issue, governance `9/9`, architecture negative `7/7`, branch diff e
+  worktree pulito, tutti `PASS` exit `0`;
+- **Verifica statica**: stato fail-closed prima del teardown, stop e purge paralleli,
+  save/purge serializzati e nessun `ref.read` nelle continuation post-dispose;
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Fix — `CODEX_FIXER`
 

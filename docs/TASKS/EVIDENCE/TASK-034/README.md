@@ -1,7 +1,7 @@
 # Evidence TASK-034
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance iniziale
 
@@ -130,4 +130,7 @@ reconciliation e un comando realmente eseguito.
   non-performance con coverage, repeat `5 x 14 = 70`, benchmark 25k
   (`open_ms=475`, `write_20k_ms=483`, catalog `616/1172/7368 µs`, search
   `3146/3793/7442 µs`), APK debug e iOS Simulator debug;
-- nuova re-review e CI/merge Client: `NOT_RUN`, prossima fase.
+- re-review 3 indipendente: `APPROVED`, 0 P0/P1/P2/P3; tracking e router `25/25`,
+  repeat `140/140`, analyze, governance `9/9`, architecture negative `7/7` e diff
+  check tutti `PASS`, exit `0`;
+- CI/merge Client: `NOT_RUN`, prossima fase.

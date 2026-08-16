@@ -2512,3 +2512,17 @@
   `70/70`, benchmark cache 25k, APK debug e iOS Simulator debug.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; ulteriore
   re-review indipendente obbligatoria.
+
+## 2026-08-16 — TASK-034 Re-review 3 `APPROVED`
+
+- **Revision set**: Fix 3 `48a1ba0`, correzione widget-dispose `042d8d8` ed evidence
+  `f9ffec4`; reviewer read-only distinto dal writer.
+- **Finding**: `TASK034-R-001`, il P2 stato/purge subordinati all'unsubscribe, il P3
+  conteggi e la regressione widget-dispose sono tutti `CLOSED`; zero nuovi finding
+  P0/P1/P2/P3.
+- **Gate autonomi**: tracking e router `25/25`, repeat `10 x 14 = 140/140`, analyze,
+  governance `9/9`, architecture negative `7/7` e diff check tutti `PASS`, exit `0`.
+- **Verifica statica**: stato pubblico fail-closed prima del teardown, stop/purge
+  paralleli, save/purge serializzati e nessun `ref.read` post-dispose.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  l'autorizzazione persistente del train consente PR, CI exact-SHA e merge normale.

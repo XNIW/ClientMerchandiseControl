@@ -414,6 +414,27 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_short_pem_tail}" \
   --artifact "${cmc_fixture_short_pem_tail}/artifact"
 
+cmc_fixture_spaced_pem="$(
+  cmc_fixture_prepare bundle-private-key-whitespace
+)"
+mkdir -p "${cmc_fixture_spaced_pem}/artifact"
+openssl genpkey \
+  -algorithm RSA \
+  -pkeyopt rsa_keygen_bits:1024 \
+  -out "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
+  >/dev/null 2>&1
+perl -pe \
+  'if (!/-----/) { s/^/ \t/; s/$/\t /; }' \
+  "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
+  >"${cmc_fixture_spaced_pem}/artifact/bundle.bin"
+openssl pkey \
+  -in "${cmc_fixture_spaced_pem}/artifact/bundle.bin" \
+  -noout \
+  >/dev/null 2>&1
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_spaced_pem}" \
+  --artifact "${cmc_fixture_spaced_pem}/artifact/bundle.bin"
+
 cmc_fixture_encrypted_pem="$(cmc_fixture_prepare bundle-encrypted-private-key)"
 mkdir -p "${cmc_fixture_encrypted_pem}/artifact"
 printf '%s\n' \

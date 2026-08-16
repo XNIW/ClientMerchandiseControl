@@ -1,7 +1,7 @@
 # Evidence TASK-045
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance
 
@@ -47,7 +47,7 @@ Snapshot di handoff:
 | CA-11 | marker subtree, commit monotono, route/account dispose, polling fallback | PASS |
 | CA-12 | es-CL/it/en/zh-Hans via gen_l10n e formati esistenti | PASS |
 | CA-13 | integration Android contract → live → stale → terminal redaction | PASS |
-| CA-14 | re-review approvata; gate canonici finali, CI PR/main e merge | NOT_RUN |
+| CA-14 | PR CI `31950880035`, merge `c013539`, main CI `31951215868` | PASS |
 
 ### Comandi già eseguiti sul fix
 
@@ -109,4 +109,19 @@ non vengono riclassificate come PASS.
   bounded e fixture positiva;
 - re-review finale `c11f64a..9034627`: `APPROVED`, fuzz 50 varianti, 37 parseable e
   37/37 rifiutate; zero finding P0/P1/P2/P3 aperti;
-- CI PR sul nuovo SHA: `NOT_RUN` fino al push dell'evidence finale.
+- CI PR sul nuovo SHA `3cab680b4ca42e4cd65e71302b335ac7975256a5`:
+  run `31950880035`, Quality/Android/iOS 3/3 `SUCCESS`, step applicabili verdi,
+  annotation 0/0/0;
+- merge normale: `c013539bec35c938f376be70567492ac3304844a`;
+- main CI exact merge-SHA: run `31951215868`, 3/3 `SUCCESS`, annotation 0/0/0;
+- branch remoto `codex/task-045-client-live-map-20260816` eliminato dopo verifica
+  ancestry; production e activation Maps rimaste `OFF`.
+
+## Closeout
+
+- TASK-043, TASK-044 e TASK-045: `DONE`;
+- progetto: `IDLE`, nessun task attivo;
+- release train: `COMPLETE`, review integrata `APPROVED`;
+- prossimo task: TASK-034 `TODO`, non attivato;
+- finding aperti: P0 0, P1 0, P2 0, P3 0;
+- il checkout primario non è stato usato come writer e conserva lo SHA/stato iniziale.

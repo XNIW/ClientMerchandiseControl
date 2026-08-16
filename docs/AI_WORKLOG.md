@@ -2387,3 +2387,18 @@
   con coverage, benchmark, APK debug e iOS Simulator debug `PASS`.
 - **Stato**: il primo tentativo CI resta storicamente `FAIL`; segue push del nuovo
   head ed esecuzione CI exact-SHA, senza bypass.
+
+## 2026-08-16 — TASK-045 merge, main CI e closeout
+
+- **PR CI**: #10, head `3cab680b4ca42e4cd65e71302b335ac7975256a5`, run
+  `31950880035`; Quality, Android debug e iOS Simulator 3/3 `SUCCESS`, inclusi gli
+  artifact scan, annotation 0/0/0.
+- **Merge**: normale `c013539bec35c938f376be70567492ac3304844a`; ancestry del
+  PR head verificata in `origin/main`, nessun bypass o squash distruttivo.
+- **Main CI**: run `31951215868` sul merge SHA, 3/3 `SUCCESS`, step applicabili verdi,
+  annotation 0/0/0.
+- **Cleanup**: branch remoto di implementazione eliminato; closeout svolto su linked
+  worktree pulito da `origin/main`, checkout primario preservato.
+- **Transizione**: TASK-045 `ACTIVE -> DONE`; progetto `ACTIVE -> IDLE`; release train
+  `APPROVED_PENDING_CI -> COMPLETE`; handoff `USER_APPROVED_DONE`.
+- **Prossimo**: TASK-034 resta `TODO` e non viene attivato automaticamente.

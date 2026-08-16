@@ -1,7 +1,7 @@
 # Evidence TASK-043
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance iniziale
 
@@ -41,5 +41,15 @@ sanitizzati e non versionati; nessun dato cliente o credenziale è stato acquisi
 - finding: `T043-REV-NAV-001` P2 (back detail Orders) e
   `T043-REV-DATA-002` P2 (conteggio parziale presentato come totale);
 - separazione reviewer/writer: logica nella stessa sessione.
+
+## Fix verificato
+
+- commit: `ec3cb4d`;
+- `T043-REV-NAV-001`: back annidato Orders usa la capacità reale di pop e ha una
+  regressione router dedicata;
+- `T043-REV-DATA-002`: i conteggi non sono esposti quando `nextCursor` indica una
+  pagina parziale; selettore regressione dedicato;
+- `flutter analyze`: `PASS`, exit 0;
+- test mirati router/shell/account/selectors: `PASS`, 25/25, exit 0.
 
 CI PR, merge e main CI restano `NOT_RUN`.

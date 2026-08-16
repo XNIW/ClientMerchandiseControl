@@ -2163,3 +2163,15 @@
   `T043-REV-DATA-002` P2 sui conteggi Orders parziali quando esiste `nextCursor`.
 - **Esito**: 0 P0, 0 P1, 2 P2, 0 P3; transizione
   `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-043 Fix consegnato a re-review
+
+- **Fix**: `T043-REV-NAV-001` chiuso preservando il pop della route detail Orders;
+  `T043-REV-DATA-002` chiuso nascondendo i conteggi finché la lista paginata non è
+  completa.
+- **Regressioni**: aggiunti test router e selettore; shell, Account e semantics restano
+  coperti.
+- **Gate mirati**: `flutter analyze` e 25 test router/shell/account/selectors `PASS`,
+  exit 0.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW` sul commit
+  `ec3cb4d`; re-review e CI restano da eseguire.

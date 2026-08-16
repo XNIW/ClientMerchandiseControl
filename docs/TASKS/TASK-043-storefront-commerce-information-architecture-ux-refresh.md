@@ -6,13 +6,13 @@
 - **Titolo**: Storefront commerce information architecture and UX refresh
 - **File task**: `docs/TASKS/TASK-043-storefront-commerce-information-architecture-ux-refresh.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-043/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -256,7 +256,16 @@ Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 
-In corso sui soli finding approvati `T043-REV-NAV-001` e `T043-REV-DATA-002`.
+- `T043-REV-NAV-001`: chiuso facendo dipendere `PopScope` anche dalla reale capacità
+  di pop della route annidata; il back da `/orders/:orderId` torna alla lista Orders,
+  mentre il back dalla root di una branch secondaria continua a tornare alla Home.
+- `T043-REV-DATA-002`: chiuso rendendo nullo il conteggio attivo quando `hasMore` è
+  vero; shell e Account non mostrano badge/shortcut numerici finché la paginazione non
+  è completa.
+- regressioni aggiunte al router auth/orders e ai selettori; format, `flutter analyze`
+  e 25 test mirati shell/router/account/selectors: `PASS`, exit 0.
+
+Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW` sul commit `ec3cb4d`.
 
 ## Chiusura
 

@@ -7,12 +7,12 @@
 - **File task**: `docs/TASKS/TASK-035-observability-crash-analytics.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-035/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -356,6 +356,17 @@ Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 - governance `9/9` e diff check verdi sul Fix documentale.
 
 Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 3 indipendente
+
+- revision set `0197ffd..02968ce`, delta esclusivamente documentale;
+- `F-035-R06` chiuso: Fix 2 `16/16` e `20 x 16 = 320/320`, conteggi Fix 1
+  `17/17` e `20 x 17 = 340/340` preservati;
+- governance state e release train `9/9`, diff check e worktree pulito `PASS`;
+- `F-035-R01`–`R06` chiusi, zero finding P0/P1/P2/P3;
+- esito `APPROVED`.
+
+Handoff: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Chiusura
 

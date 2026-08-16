@@ -9,13 +9,13 @@
 - **File task**: docs/TASKS/TASK-035-observability-crash-analytics.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review documentale indipendente di
-  `F-035-R06`; dopo `APPROVED`, CI exact-SHA, merge normale e verifica `main`
+- **Prossima azione autorizzata**: CI exact-SHA TASK-035, merge normale e verifica
+  `main`; poi chiudere TASK-035 e attivare TASK-036
 
 ## Repository coinvolti
 

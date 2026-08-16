@@ -2647,3 +2647,12 @@
 - **Gate**: governance `9/9` e diff check `PASS`.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
   documentale distinta obbligatoria.
+
+## 2026-08-16 — TASK-035 Re-review Fix 3 `APPROVED`
+
+- **Revision set**: `0197ffd..02968ce`, esclusivamente documentazione.
+- **Finding**: `F-035-R06` chiuso; Fix 2 16/320 e Fix 1 17/340 correttamente
+  distinti. `F-035-R01`–`R06` tutti chiusi, zero P0/P1/P2/P3.
+- **Gate**: governance state e release train `9/9`, diff check e worktree `PASS`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  l'autorizzazione persistente consente PR, CI exact-SHA e merge normale.

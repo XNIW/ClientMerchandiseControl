@@ -1,7 +1,7 @@
 # Evidence TASK-035
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance
 
@@ -120,7 +120,8 @@ plugin Maps iOS. Nessun warning è introdotto come nuova dipendenza dal task.
   tutti i finding tecnici chiusi, `F-035-R06` limitato ai conteggi evidence;
 - Fix 3 documentale: quattro claim corretti a `16/16` e `20 x 16 = 320/320`;
   governance `9/9` e diff check `PASS`;
-- re-review Fix 3: `NOT_RUN`, handoff corrente;
+- re-review Fix 3 sullo SHA `02968ce`: `APPROVED`, 0 P0/P1/P2/P3; delta solo docs,
+  conteggi Fix 1 preservati, governance `9/9` e diff check `PASS`;
 - PR exact-SHA CI: `NOT_RUN`;
 - main post-merge CI: `NOT_RUN`;
 - produzione e provider esterni: non modificati.

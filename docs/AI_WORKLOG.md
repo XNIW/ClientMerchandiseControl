@@ -2421,3 +2421,18 @@
   senza assumere lo scheduling del runner.
 - **Stato**: il run fallito resta evidence storica; il merge richiede un nuovo run CI
   interamente verde sul nuovo SHA.
+
+## 2026-08-16 — Baseline e attivazione TASK-034
+
+- **Baseline remota**: Client `e5a1384e7526e288f7657c32bff42f1ab957633e`,
+  Admin `2e8ec07e1609b7bfa7b1a5210f232fc60bbf5412`; zero PR aperte nei sei repository
+  auditati e CI `main` Client/Admin verdi sugli SHA iniziali.
+- **Worktree**: writer linked e puliti da `origin/main`; checkout primari preservati,
+  inclusi i dirty state preesistenti SplitView e Win7POS.
+- **Ambiente**: Supabase staging healthy ma privo della migration delivery tracking
+  `20260816072836`; produzione non identificata e non modificata. Simulatori/emulatori
+  disponibili; device fisici assenti/offline.
+- **Decisione**: ADR-015 registra il train `CLIENT_FINAL_PRODUCT_COMPLETION` e il
+  lifecycle per-task autorizzato dal `USER_APPROVER` per TASK-034–TASK-042.
+- **Transizione**: TASK-034 è l'unico task `ACTIVE / EXECUTION`, handoff
+  `CODEX_PLANNING_APPROVED_TO_EXECUTION`; matrice iniziale creata senza inferire `PASS`.

@@ -4,18 +4,19 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: DONE
-- **Fase**: REVIEW
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: USER_APPROVED_DONE
-- **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
-- **Stato release train**: COMPLETE
-- **Review integrata**: APPROVED
-- **Prossima azione autorizzata**: restare `IDLE`; TASK-034 è il prossimo task del
-  release hardening ma resta `TODO` e non viene attivato automaticamente
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-034
+- **File task**: docs/TASKS/TASK-034-resilience-concurrency-idempotency.md
+- **Stato task**: ACTIVE
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
+- **Stato release train**: EXECUTION
+- **Review integrata**: NOT_RUN
+- **Prossima azione autorizzata**: completare TASK-034, sottoporlo a review
+  indipendente, CI exact-SHA, merge normale e verifica `main`; poi attivare TASK-035
+  secondo ADR-015
 
 ## Repository coinvolti
 
@@ -87,7 +88,7 @@
 | TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-022, TASK-027, TASK-028, TASK-029 | Client, Admin, Supabase | Eventi e notifiche affidabili |
 | TASK-032 | Decisione provider e integrazione pagamenti | VALIDATED_PENDING_INTEGRATED_REVIEW | TASK-027 | Client, Admin, Supabase | Pagamento selezionato e integrato |
 | TASK-033 | Threat model, RLS abuse testing, rate limit e security hardening | DONE | TASK-005, TASK-020, TASK-025, TASK-027, TASK-032 | Client, Admin, Supabase | Confini attaccabili testati |
-| TASK-034 | Offline/reconnect/concorrenza/idempotenza test matrix | TODO | TASK-017, TASK-023, TASK-025, TASK-027, TASK-030 | Client, Admin, Supabase, POS | Matrice resilienza superata |
+| TASK-034 | Offline/reconnect/concorrenza/idempotenza test matrix | ACTIVE | TASK-017, TASK-023, TASK-025, TASK-027, TASK-030 | Client, Admin, Supabase, POS | Matrice resilienza superata |
 | TASK-035 | Observability, crash reporting e analytics privacy-safe | TODO | TASK-011, TASK-020, TASK-027, TASK-031 | Client, Admin | Telemetria privacy-safe |
 | TASK-036 | Accessibility, localizzazione e device matrix | TODO | TASK-012, TASK-018, TASK-021, TASK-026, TASK-028, TASK-031 | Client | Acceptance accessibilità e lingue |
 | TASK-037 | Performance, immagini, cache e load testing | TODO | TASK-009, TASK-017, TASK-019, TASK-027 | Client, Admin, Supabase | Budget performance end-to-end |

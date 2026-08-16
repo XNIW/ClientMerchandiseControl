@@ -24,8 +24,9 @@ Snapshot di handoff:
 
 - implementazione: `9d8d0ebc86c03f194276ed5c3d26214a4e7df7bb`;
 - review iniziale: `CHANGES_REQUIRED`, tre finding P2 distinti;
-- fix candidato: `f188a3230e4608a27c031d4b2e58e690a53eb8c6`;
-- re-review: in corso sul delta esatto `9d8d0eb..f188a32`.
+- fix ciclo 1: `f188a3230e4608a27c031d4b2e58e690a53eb8c6`;
+- fix ciclo 2: `3c8564b62e255136bf9579df82d91bf678bad6f8`;
+- re-review finale: in corso sul delta esatto `f188a32..3c8564b`.
 
 ### Matrice CA
 
@@ -53,6 +54,11 @@ Snapshot di handoff:
 | `flutter build ios --simulator --debug` | PASS, exit 0; warning SPM plugin noto |
 | `git diff --check` | PASS, exit 0 |
 
+Il primo `scripts/check.sh` sul commit di evidence `d2113a3` ha correttamente fallito
+al gate governance prima dei test: il root `README.md` riportava ancora fase/indicatore
+di Execution. Il metadata viene riallineato nel candidato corrente e il gate completo
+deve essere rieseguito; quel tentativo resta `FAIL`, non `PASS`.
+
 Due invocazioni di test ad hoc sono fallite prima di eseguire prodotto: la prima
 mescolava unit e integration test nello stesso comando; la seconda indicava un path
 Home inesistente. Entrambe sono state corrette con invocazioni separate/canoniche e
@@ -64,5 +70,5 @@ non vengono riclassificate come PASS.
 - il method channel restituisce soltanto un booleano di readiness;
 - coordinate presenti esclusivamente in fixture sintetiche e nel subtree runtime;
 - nessuna posizione in log, analytics, push o card Home/Orders;
-- scan security completo su `fd044d4..9d8d0eb`: zero finding reportable; il delta fix
-  resta soggetto a re-review mirata prima dell'approvazione.
+- scan security completo su `fd044d4..9d8d0eb`: zero finding reportable; entrambi i
+  delta fix restano soggetti a re-review mirata prima dell'approvazione.

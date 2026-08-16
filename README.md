@@ -191,8 +191,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-045
 - **File task**: `docs/TASKS/TASK-045-client-live-map-integrated-acceptance-closeout.md`
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN

@@ -146,7 +146,17 @@
 
 ### Re-review
 
-In corso in sola lettura sul delta esatto `9d8d0eb..f188a32`; l'esito non è inferito
+Il primo ciclo sul delta `9d8d0eb..f188a32` ha chiuso polling, handshake nativo e
+initial fit, ma ha restituito `CHANGES_REQUIRED` per:
+
+- **T045-RR-TEARDOWN-004 / P2**: `dispose` fallibile durante replace/late callback
+  poteva ancora propagare un errore asincrono e saltare la chiusura degli stream;
+- **T045-RR-FRESHNESS-005 / P2**: resume foreground/route con snapshot RPC duplicato
+  non riarmava il timer freshness cancellato durante la pausa;
+- **T045-RR-A11Y-006 / P3**: Home annunciava due volte la CTA perché la label aggregata
+  manteneva anche le semantics figlie.
+
+La seconda re-review è in corso sul delta `f188a32..3c8564b`; l'esito non è inferito
 dai test del fixer.
 
 ## Fix — `CODEX_FIXER`
@@ -165,6 +175,21 @@ dai test del fixer.
   Home/Orders `PASS`; integration Android 1/1 `PASS`; APK debug e iOS Simulator debug
   `PASS`. I gate canonici completi verranno registrati sul candidato di re-review.
 - **Handoff Fix**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Fix ciclo 2
+
+- **SHA fix**: `3c8564b62e255136bf9579df82d91bf678bad6f8`.
+- `T045-RR-TEARDOWN-004`: attach/replace/dispose/late callback sono tutti racchiusi
+  nel boundary non-throwing; stream e notifier chiudono in `finally` e il nuovo
+  controller viene disposto anche quando fallisce il precedente.
+- `T045-RR-FRESHNESS-005`: il ramo duplicate/non-newer riapplica la freshness locale e
+  riarmata la deadline dopo resume; test foreground e route provano lo stale senza
+  polling.
+- `T045-RR-A11Y-006`: Home usa una sola semantics aggregata, include prodotto e CTA e
+  verifica una sola occorrenza localizzata.
+- Gate mirati: analyze `PASS`; controller/map/Home 30/30 e adapter teardown 6/6
+  `PASS`; `git diff --check` `PASS`.
+- **Handoff Fix ciclo 2**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

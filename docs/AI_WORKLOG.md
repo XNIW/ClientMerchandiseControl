@@ -2322,3 +2322,19 @@
   `PASS`; due errori di invocazione harness sono registrati senza essere mascherati.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
   exact-delta e gate canonici restano da concludere.
+
+## 2026-08-16 — TASK-045 Re-review 1 `CHANGES_REQUIRED` e Fix 2
+
+- **Chiusure**: polling fallback, handshake nativo e initial camera fit sono stati
+  validati sul delta `9d8d0eb..f188a32`.
+- **Finding residui/nuovi**: teardown fallibile del controller P2, freshness non
+  riarmata dopo resume con snapshot duplicato P2 e CTA Home duplicata in semantics P3.
+- **Fix 2**: `3c8564b` rende ogni teardown non-throwing con chiusura in `finally`,
+  riarmata freshness sul ramo duplicate e usa una sola semantics Home completa.
+- **Regressioni**: controller/map/Home 30/30 e adapter teardown 6/6 `PASS`; analyze
+  mirato e diff check verdi.
+- **Gate canonico**: un tentativo precedente è `FAIL` perché il root README non era
+  ancora allineato al Master Plan; il controllo si è fermato prima dei test e viene
+  corretto senza riclassificazione retroattiva.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; seconda
+  re-review exact-delta obbligatoria prima dei gate finali.

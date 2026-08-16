@@ -63,6 +63,7 @@ cmc_fixture_anon_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_anon_jwt_pay
 cmc_fixture_pem_fence='-----'
 cmc_fixture_private_key_label='PRIVATE KEY'
 cmc_fixture_rsa_key_label='RSA PRIVATE KEY'
+cmc_fixture_ec_key_label='EC PRIVATE KEY'
 cmc_fixture_encrypted_key_label='ENCRYPTED PRIVATE KEY'
 cmc_fixture_dsa_key_label='DSA PRIVATE KEY'
 
@@ -514,6 +515,36 @@ printf '%s\0%s\0%s\0%s\0%s\0%s\n' \
 cmc_fixture_expect_acceptance \
   "${cmc_fixture_maps_sdk}" \
   --artifact "${cmc_fixture_maps_sdk}/artifact"
+
+cmc_fixture_kernel_fences="$(cmc_fixture_prepare kernel-key-parser-constants)"
+mkdir -p "${cmc_fixture_kernel_fences}/artifact"
+printf "static const begin = '%sBEGIN %s%s'; static const end = '%sEND %s%s';\n" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_private_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_private_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  >"${cmc_fixture_kernel_fences}/artifact/bundle.bin"
+printf "static const beginEc = '%sBEGIN %s%s'; static const endEc = '%sEND %s%s';\n" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_ec_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_ec_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  >>"${cmc_fixture_kernel_fences}/artifact/bundle.bin"
+printf "static const beginRsa = '%sBEGIN %s%s'; static const endRsa = '%sEND %s%s';\n" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_rsa_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_rsa_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  >>"${cmc_fixture_kernel_fences}/artifact/bundle.bin"
+cmc_fixture_expect_acceptance \
+  "${cmc_fixture_kernel_fences}" \
+  --artifact "${cmc_fixture_kernel_fences}/artifact/bundle.bin"
 
 cmc_fixture_anon_jwt="$(cmc_fixture_prepare legacy-anon-jwt)"
 mkdir -p "${cmc_fixture_anon_jwt}/artifact"

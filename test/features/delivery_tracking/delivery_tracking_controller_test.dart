@@ -737,14 +737,64 @@ void main() {
 
       container.read(identity.notifier).state = null;
       await cancelStarted.future;
+      await _flush();
+
+      final signedOut = container.read(deliveryTrackingControllerProvider);
+      expect(signedOut.status, DeliveryTrackingStatus.signedOut);
+      expect(signedOut.snapshot, isNull);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+      expect(scheduler.activeTaskCount, 0);
+
       container.dispose();
       cancelRelease.complete();
       await _flush();
 
       expect(repository.watchCancelCalls, 1);
+      expect(scheduler.activeTaskCount, 0);
+      await repository.stream.close();
+    },
+  );
+
+  test(
+    'cambio account con unsubscribe asincrono invalida stato e cache subito',
+    () async {
+      const nextOwner = '10000000-0000-4000-8000-000000044002';
+      final cancelStarted = Completer<void>();
+      final cancelRelease = Completer<void>();
+      final repository = FakeDeliveryTrackingRepository()
+        ..watchCancelStarted = cancelStarted
+        ..watchCancelRelease = cancelRelease;
+      final cache = _OwnerAwareDeliveryTrackingCache();
+      final identity = StateProvider<AuthenticatedCustomer?>((ref) {
+        return _customer(trackingTestOwner);
+      });
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        identityState: identity,
+      );
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+
+      container.read(identity.notifier).state = _customer(nextOwner);
+      await cancelStarted.future;
+      await _flush();
+
+      final switched = container.read(deliveryTrackingControllerProvider);
+      expect(switched.status, DeliveryTrackingStatus.idle);
+      expect(switched.snapshot, isNull);
       expect(cache.clearOwners, [trackingTestOwner]);
       expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
-      expect(scheduler.activeTaskCount, 0);
+      expect(cache.snapshotsByOwner[nextOwner], isNull);
+
+      container.dispose();
+      cancelRelease.complete();
+      await _flush();
+      expect(repository.watchCancelCalls, 1);
       await repository.stream.close();
     },
   );
@@ -769,13 +819,19 @@ void main() {
           .read(deliveryTrackingControllerProvider.notifier)
           .close(clearCache: true);
       await cancelStarted.future;
+      await _flush();
+
+      final closed = container.read(deliveryTrackingControllerProvider);
+      expect(closed.status, DeliveryTrackingStatus.idle);
+      expect(closed.snapshot, isNull);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+
       container.dispose();
       cancelRelease.complete();
       await close;
 
       expect(repository.watchCancelCalls, 1);
-      expect(cache.clearOwners, [trackingTestOwner]);
-      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
       await repository.stream.close();
     },
   );
@@ -803,13 +859,20 @@ void main() {
           .read(deliveryTrackingControllerProvider.notifier)
           .refresh();
       await cancelStarted.future;
+      await _flush();
+
+      final unauthorized = container.read(deliveryTrackingControllerProvider);
+      expect(unauthorized.status, DeliveryTrackingStatus.failure);
+      expect(unauthorized.failure, DeliveryTrackingFailureKind.unauthorized);
+      expect(unauthorized.snapshot, isNull);
+      expect(cache.clearOwners, [trackingTestOwner]);
+      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
+
       container.dispose();
       cancelRelease.complete();
       await refresh;
 
       expect(repository.watchCancelCalls, 1);
-      expect(cache.clearOwners, [trackingTestOwner]);
-      expect(cache.snapshotsByOwner[trackingTestOwner], isNull);
       await repository.stream.close();
     },
   );

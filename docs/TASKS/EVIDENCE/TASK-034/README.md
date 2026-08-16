@@ -112,3 +112,13 @@ reconciliation e un comando realmente eseguito.
   (`open_ms=454`, `write_20k_ms=487`, catalog `620/1260/7898 µs`, search
   `3366/4771/6720 µs`), APK debug e iOS Simulator debug;
 - nuova re-review e CI/merge Client: `NOT_RUN`, prossima fase.
+
+### Re-review 2 e Fix 3
+
+- re-review su Fix 2 `c514f38`, evidence `8c8ccb9`: `CHANGES_REQUIRED`, 0 P0/P1,
+  1 P2 e 1 P3; stato/snapshot A e purge restavano subordinati all'unsubscribe pendente;
+- Fix 3 invalida sincronicamente lo stato pubblico e avvia stop e purge in parallelo;
+  A→null, A→B, close e unauthorized provano snapshot nullo e purge completato prima
+  di rilasciare l'unsubscribe;
+- tracking `23/23 PASS`, repeat `10 x 13 = 130 PASS`; conteggio T-02–T-07 riallineato;
+- nuova re-review e CI/merge Client: `NOT_RUN`, prossima fase.

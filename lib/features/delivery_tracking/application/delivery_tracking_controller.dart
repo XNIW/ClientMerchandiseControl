@@ -137,15 +137,15 @@ final class DeliveryTrackingController
     _subjectId = subjectId;
     _shopSlug = effectiveShopSlug;
     _orderId = null;
-    final generation = ++_generation;
-    await _stopRuntime();
-    if (previousSubject != null && cache != null) {
-      await _clearCacheAfterSnapshots(previousSubject, cache);
-    }
-    if (_disposed || generation != _generation) return;
+    _generation++;
     state = subjectId == null || effectiveShopSlug == null
         ? const DeliveryTrackingViewState.signedOut()
         : const DeliveryTrackingViewState.idle();
+    final stopRuntime = _stopRuntime();
+    final purgeCache = previousSubject != null && cache != null
+        ? _clearCacheAfterSnapshots(previousSubject, cache)
+        : Future<void>.value();
+    await Future.wait([stopRuntime, purgeCache]);
   }
 
   Future<void> open(String orderId, {bool forceRefresh = false}) async {
@@ -202,15 +202,16 @@ final class DeliveryTrackingController
         : null;
     _generation++;
     _orderId = null;
-    await _stopRuntime();
-    if (subjectId != null && cache != null) {
-      await _clearCacheAfterSnapshots(subjectId, cache);
-    }
     if (!_disposed) {
       state = _subjectId == null
           ? const DeliveryTrackingViewState.signedOut()
           : const DeliveryTrackingViewState.idle();
     }
+    final stopRuntime = _stopRuntime();
+    final purgeCache = subjectId != null && cache != null
+        ? _clearCacheAfterSnapshots(subjectId, cache)
+        : Future<void>.value();
+    await Future.wait([stopRuntime, purgeCache]);
   }
 
   Future<void> setForeground(bool foreground) async {
@@ -278,8 +279,6 @@ final class DeliveryTrackingController
       if (failure == DeliveryTrackingFailureKind.unauthorized) {
         _generation++;
         _orderId = null;
-        await _stopRuntime();
-        await _clearCacheAfterSnapshots(subjectId, cache);
         if (!_disposed && _subjectId == subjectId && _shopSlug == shopSlug) {
           state = DeliveryTrackingViewState(
             status: DeliveryTrackingStatus.failure,
@@ -287,6 +286,9 @@ final class DeliveryTrackingController
             isForeground: _foreground,
           );
         }
+        final stopRuntime = _stopRuntime();
+        final purgeCache = _clearCacheAfterSnapshots(subjectId, cache);
+        await Future.wait([stopRuntime, purgeCache]);
         return;
       }
       final hasSnapshot = state.snapshot != null;

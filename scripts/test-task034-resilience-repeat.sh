@@ -13,7 +13,7 @@ if [[ ! "${cmc_repeat_count}" =~ ^[0-9]+$ ]] ||
   exit 2
 fi
 
-cmc_name_pattern='doppio tap condivide un solo launch|cambio categoria cancella e ignora|doppio tap account produce una sola mutation|doppio tap con richiesta attiva|doppio tap serializzato crea una sola cancellazione|terminal snapshot cannot be overwritten|logout durante fallback|cambio account durante fallback|dispose durante fallback|dispose durante logout con unsubscribe asincrono|dispose durante close con unsubscribe asincrono|dispose durante unauthorized asincrono'
+cmc_name_pattern='doppio tap condivide un solo launch|cambio categoria cancella e ignora|doppio tap account produce una sola mutation|doppio tap con richiesta attiva|doppio tap serializzato crea una sola cancellazione|terminal snapshot cannot be overwritten|logout durante fallback|cambio account durante fallback|dispose durante fallback|dispose durante logout con unsubscribe asincrono|cambio account con unsubscribe asincrono|dispose durante close con unsubscribe asincrono|dispose durante unauthorized asincrono'
 
 cd -- "${cmc_repo_root}"
 for ((cmc_iteration = 1; cmc_iteration <= cmc_repeat_count; cmc_iteration++)); do
@@ -29,5 +29,5 @@ for ((cmc_iteration = 1; cmc_iteration <= cmc_repeat_count; cmc_iteration++)); d
     test/features/delivery_tracking/delivery_tracking_controller_test.dart
 done
 
-printf 'TASK-034 resilience repeat: %s iterazioni, 12 race per iterazione, PASS.\n' \
+printf 'TASK-034 resilience repeat: %s iterazioni, 13 race per iterazione, PASS.\n' \
   "${cmc_repeat_count}"

@@ -2492,3 +2492,17 @@
   `60/60`, benchmark cache 25k, APK debug e iOS Simulator debug.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; nuova
   re-review distinta obbligatoria.
+
+## 2026-08-16 — TASK-034 Re-review 2 `CHANGES_REQUIRED` e Fix 3
+
+- **Re-review**: Fix 2 `c514f38`, evidence `8c8ccb9`; gate autonomi verdi, ma 1 P2
+  e 1 P3 residui.
+- **Finding**: con unsubscribe bloccato, stato e coordinate A restavano pubblici e il
+  purge attendeva; la matrice T-02–T-07 riportava ancora il conteggio Fix precedente.
+- **Fix 3**: identity, close e unauthorized azzerano subito lo snapshot; stop runtime
+  e purge owner-scoped partono in parallelo. Le regressioni asseriscono stato/cache
+  prima dello sblocco e includono A→B asincrono.
+- **Gate mirati**: analyze, tracking `23/23` e repeat `10 x 13 = 130` `PASS`; matrice
+  corretta.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; ulteriore
+  re-review indipendente obbligatoria.

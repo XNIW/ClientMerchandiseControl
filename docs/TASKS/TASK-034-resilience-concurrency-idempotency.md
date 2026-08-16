@@ -190,9 +190,9 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 | CA | Evidence | Esito |
 |---|---|---|
 | CA-01 | `docs/quality/TASK-034-RESILIENCE-MATRIX.md` | PASS |
-| CA-02–CA-07 | `CLIENT-314`, regressioni scheduler; Fix 2 tracking `22/22`, `REPEAT-120` | PASS |
+| CA-02–CA-07 | `CLIENT-314`, regressioni scheduler; Fix 3 tracking `23/23`, `REPEAT-130` | PASS |
 | CA-04–CA-08 | `DB-483`, `DB-RACE-11` | PASS |
-| CA-09 | scheduler manuale + repeat Fix 2 `10 x 12` | PASS |
+| CA-09 | scheduler manuale + repeat Fix 3 `10 x 13` | PASS |
 | CA-10 | gate completi, Admin PR #90/#91/#92, staging run `31969351269` | PASS |
 
 ### Matrice T-NN -> risultato
@@ -200,7 +200,7 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
 | Test | Risultato |
 |---|---|
 | T-01 | PASS — tutte le celle classificate, nessun critical `UNTESTED` |
-| T-02–T-07 | PASS — suite Client 314; Fix tracking 19 e repeat 90 |
+| T-02–T-07 | PASS — suite Client 314; Fix 3 tracking 23 e repeat 130 |
 | T-08 | PASS — DB 483 e 11 harness concorrenti |
 | T-09 | PASS — nessuna nuova race usa sleep/wall-clock |
 | T-10 | PASS — gate locali, staging guarded e cleanup reali; CI Client resta alla fase Review/PR |
@@ -249,6 +249,19 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
   architecture negative 7/7 e diff check `PASS`;
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
+### Re-review 2 indipendente
+
+- **Revision set**: Fix 2 `c514f388607fe93cc25e17a0622e705b6be1dd58`, evidence
+  `8c8ccb9f2031f6fcb3667d08e3b05cabb216c059`;
+- **Esito**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 1 P2, 1 P3;
+- **Finding P2 residuo**: mentre l'unsubscribe restava pendente, stato e coordinate
+  dell'account A rimanevano pubblici e il purge non iniziava; i test verificavano solo
+  dopo avere rilasciato il `Completer`;
+- **P3**: la matrice T-02–T-07 conservava il conteggio Fix precedente;
+- **Gate reviewer**: tracking `22/22`, repeat `120/120`, analyze, governance 9/9,
+  architecture negative 7/7 e diff check `PASS`;
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
 ## Fix — `CODEX_FIXER`
 
 - sostituita la dipendenza ricostruttiva dall'identità con listener lifecycle espliciti:
@@ -280,6 +293,19 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
   debug;
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; è richiesta una nuova re-review
   indipendente.
+
+### Fix 3
+
+- le transizioni identity pubblicano sincronicamente `signedOut`/`idle` senza snapshot;
+  close pubblica subito `idle` e unauthorized subito il failure senza snapshot;
+- stop runtime e purge serializzato vengono avviati in parallelo, così il purge non è
+  subordinato a un `removeChannel()` potenzialmente pendente;
+- le regressioni A→null, A→B, close e unauthorized verificano stato fail-closed e
+  cache owner purgata prima di rilasciare il `Completer` dell'unsubscribe; il test
+  A→B asincrono è aggiunto direttamente;
+- `flutter analyze`, tracking `23/23` e repeat `10 x 13 = 130` sono `PASS`; conteggio
+  T-02–T-07 corretto; gate canonico e SHA Fix 3 seguono nelle evidence;
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

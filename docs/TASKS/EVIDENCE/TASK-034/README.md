@@ -124,4 +124,10 @@ reconciliation e un comando realmente eseguito.
   viene ora differito a microtask senza avviare stop/purge prima dello stato fail-closed;
 - tracking `23/23 PASS`, router regression `PASS`, repeat `10 x 14 = 140 PASS`;
   conteggio T-02–T-07 riallineato;
+- gate canonico sullo SHA Fix 3 `042d8d80fad8152ce22287002c26ea97e6a79b71`:
+  `scripts/check.sh` `PASS`, scan 609 file, negative security 41/41, positive 4/4,
+  governance 9/9, architecture negative 7/7, format 273, analyze zero issue, 634 test
+  non-performance con coverage, repeat `5 x 14 = 70`, benchmark 25k
+  (`open_ms=475`, `write_20k_ms=483`, catalog `616/1172/7368 µs`, search
+  `3146/3793/7442 µs`), APK debug e iOS Simulator debug;
 - nuova re-review e CI/merge Client: `NOT_RUN`, prossima fase.

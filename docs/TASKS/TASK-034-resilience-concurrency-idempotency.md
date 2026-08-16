@@ -307,7 +307,9 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
   `close` differisce quindi a un microtask (non timer), mantenendo l'ordine fail-closed
   prima dello stop; la regressione router è inclusa nel repeat;
 - `flutter analyze`, tracking `23/23` e repeat `10 x 14 = 140` sono `PASS`; conteggio
-  T-02–T-07 corretto; gate canonico e SHA Fix 3 seguono nelle evidence;
+  T-02–T-07 corretto; `scripts/check.sh` sullo SHA Fix 3 `042d8d8` è `PASS`: 634
+  test non-performance con coverage, repeat predefinito `70/70`, benchmark 25k, APK
+  debug e iOS Simulator debug;
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura

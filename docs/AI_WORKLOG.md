@@ -2507,5 +2507,8 @@
   differito a microtask, senza timer pendenti e senza invertire stato/stop/purge.
 - **Gate mirati**: analyze, tracking `23/23`, router regression e repeat
   `10 x 14 = 140` `PASS`; matrice corretta.
+- **Gate canonico Fix 3**: `scripts/check.sh` sullo SHA `042d8d8` `PASS`; scan,
+  governance e architecture verdi, 634 test non-performance con coverage, repeat
+  `70/70`, benchmark cache 25k, APK debug e iOS Simulator debug.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; ulteriore
   re-review indipendente obbligatoria.

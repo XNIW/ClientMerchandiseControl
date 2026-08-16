@@ -5,18 +5,18 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-044
-- **File task**: docs/TASKS/TASK-044-delivery-tracking-contract-privacy-writer.md
+- **Task attivo**: TASK-045
+- **File task**: docs/TASKS/TASK-045-client-live-map-integrated-acceptance-closeout.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
-- **Stato release train**: REVIEW
+- **Stato release train**: APPROVED_PENDING_CI
 - **Review integrata**: APPROVED
-- **Prossima azione autorizzata**: eseguire TASK-044 fino a review, fix, re-review,
-  CI exact-SHA, merge normale e verifica `main`; proseguire poi con TASK-045 secondo
-  l'autorizzazione USER_APPROVER del 2026-08-16
+- **Prossima azione autorizzata**: pubblicare il candidato approvato dopo remediation
+  dello scanner, eseguire CI exact-SHA, merge normale e verifica `main`;
+  chiudere poi il train in `IDLE` con TASK-034 prossimo ma non attivo
 
 ## Repository coinvolti
 
@@ -98,8 +98,8 @@
 | TASK-041 | Production launch, rollback e runbook | TODO | TASK-039, TASK-040 | Client, Admin, Supabase, POS | Lancio controllato e reversibile |
 | TASK-042 | Post-launch monitoring, supporto e manutenzione | TODO | TASK-041 | Tutti | Operatività post-lancio |
 | TASK-043 | Storefront commerce information architecture and UX refresh | DONE | TASK-033 | Client | Shell a cinque destinazioni e superfici commerce moderne, data-backed e accessibili |
-| TASK-044 | Delivery tracking contract, privacy boundary and operational writer | ACTIVE | TASK-043 | Client, Admin, Supabase | Contratto tracking owner-scoped e writer courier foreground reale |
-| TASK-045 | Client live map, integrated acceptance and closeout | TODO | TASK-044 | Client, Admin, Supabase | Mappa fail-closed, acceptance integrata e closeout del train |
+| TASK-044 | Delivery tracking contract, privacy boundary and operational writer | DONE | TASK-043 | Client, Admin, Supabase | Contratto tracking owner-scoped e writer courier foreground reale |
+| TASK-045 | Client live map, integrated acceptance and closeout | ACTIVE | TASK-044 | Client, Admin, Supabase | Mappa fail-closed, acceptance integrata e closeout del train |
 
 ## Dipendenze e blocchi
 
@@ -529,3 +529,20 @@ stata acceduta, Google OAuth resta fail-closed `OFF` e TASK-034 resta `TODO`.
 
 Handoff:
 `USER_APPROVED_DONE`.
+
+## Ultimo task completato — TASK-044
+
+Il Client è stato integrato dalla PR #9 con head
+`0e84801e3e362d489b00d43f6074b804de8fe713` e merge commit
+`fd044d4b9b7a7bd4c4d3ccf71b977a01bc39563f`; PR CI `31939920494` e main CI
+`31940810780` hanno concluso Quality, Android e iOS 3/3 `SUCCESS`, annotation 0/0/0.
+L'authority Admin/Supabase è stata integrata dalla PR #89 con head
+`0ce56bf5bd3c6914b89b4defc90c8f74f26cdc16` e merge commit
+`2e8ec07e1609b7bfa7b1a5210f232fc60bbf5412`; PR CI `31940278489` e Cloudflare
+`31940278463`, oltre alle main CI `31940653715` e `31940653742`, sono `SUCCESS`.
+Il primo pgTAP PR run `31939911807` aveva rilevato una regressione reale nel lockout
+staff e aspettative obsolete 43/45; il fix è stato re-reviewato `APPROVED` e ha portato
+la suite completa a 2.522/2.522. Branch remoti e worktree TASK-044 sono eliminati.
+
+Handoff:
+`CODEX_PLANNING_APPROVED_TO_EXECUTION` per TASK-045.

@@ -1728,4 +1728,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deliveryTrackingOfflineCached =>
       'Showing the latest encrypted copy saved on this device.';
+
+  @override
+  String deliveryTrackingMapSemantics(String status, String updated) {
+    return 'Delivery map. $status. $updated';
+  }
+
+  @override
+  String get deliveryTrackingMapRecenter => 'Recenter the delivery map';
+
+  @override
+  String get deliveryTrackingMapLoading => 'Loading the delivery map';
+
+  @override
+  String get deliveryTrackingMapStoreMarker => 'Store';
+
+  @override
+  String get deliveryTrackingMapDestinationMarker => 'Delivery destination';
+
+  @override
+  String get deliveryTrackingMapCourierMarker => 'Courier';
+
+  @override
+  String get deliveryTrackingFollowAction => 'Track delivery';
+
+  @override
+  String get deliveryTrackingInDeliveryIndicator => 'Delivery in progress';
 }

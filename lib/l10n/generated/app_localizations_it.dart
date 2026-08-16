@@ -1750,4 +1750,32 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get deliveryTrackingOfflineCached =>
       'È mostrata l’ultima copia cifrata salvata su questo dispositivo.';
+
+  @override
+  String deliveryTrackingMapSemantics(String status, String updated) {
+    return 'Mappa della consegna. $status. $updated';
+  }
+
+  @override
+  String get deliveryTrackingMapRecenter => 'Ricentra la mappa della consegna';
+
+  @override
+  String get deliveryTrackingMapLoading =>
+      'Caricamento della mappa della consegna';
+
+  @override
+  String get deliveryTrackingMapStoreMarker => 'Negozio';
+
+  @override
+  String get deliveryTrackingMapDestinationMarker =>
+      'Destinazione della consegna';
+
+  @override
+  String get deliveryTrackingMapCourierMarker => 'Corriere';
+
+  @override
+  String get deliveryTrackingFollowAction => 'Segui consegna';
+
+  @override
+  String get deliveryTrackingInDeliveryIndicator => 'Consegna in corso';
 }

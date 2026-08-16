@@ -37,6 +37,45 @@ void main() {
   });
 
   test(
+    'RPC online invariata ripristina ready e riattiva freshness dalla cache',
+    () async {
+      final wallClock = Stopwatch()..start();
+      final repository = FakeDeliveryTrackingRepository();
+      final cache = MemoryDeliveryTrackingCache()
+        ..snapshot = trackingLiveSnapshot();
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        pollInterval: const Duration(milliseconds: 10),
+        freshnessThreshold: const Duration(milliseconds: 1050),
+        clock: () => trackingTestNow.add(wallClock.elapsed),
+      );
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+
+      var state = container.read(deliveryTrackingControllerProvider);
+      expect(state.status, DeliveryTrackingStatus.ready);
+      expect(state.failure, isNull);
+      expect(state.isPollingFallback, isFalse);
+      expect(repository.loadCalls, 1);
+      expect(cache.saveCalls, 0);
+
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      state = container.read(deliveryTrackingControllerProvider);
+      expect(state.snapshot?.freshness, DeliveryTrackingFreshness.stale);
+      expect(state.snapshot?.hasFreshLiveLocation, isFalse);
+      expect(repository.loadCalls, 1);
+    },
+  );
+
+  test(
     'Realtime deduplicates older versions and accepts a newer snapshot',
     () async {
       final repository = FakeDeliveryTrackingRepository();
@@ -103,6 +142,66 @@ void main() {
     },
   );
 
+  test('Realtime sano non esegue polling periodico', () async {
+    final repository = FakeDeliveryTrackingRepository();
+    final container = _container(
+      repository: repository,
+      cache: MemoryDeliveryTrackingCache(),
+      pollInterval: const Duration(milliseconds: 10),
+    );
+    addTearDown(() async {
+      container.dispose();
+      await repository.stream.close();
+    });
+
+    container.read(deliveryTrackingControllerProvider);
+    await container
+        .read(deliveryTrackingControllerProvider.notifier)
+        .open(trackingTestOrder);
+    await Future<void>.delayed(const Duration(milliseconds: 45));
+
+    expect(repository.loadCalls, 1);
+    expect(
+      container.read(deliveryTrackingControllerProvider).isPollingFallback,
+      isFalse,
+    );
+  });
+
+  test('evento Realtime valido arresta il polling fallback', () async {
+    final repository = FakeDeliveryTrackingRepository();
+    final container = _container(
+      repository: repository,
+      cache: MemoryDeliveryTrackingCache(),
+      pollInterval: const Duration(milliseconds: 10),
+      reconnectBase: const Duration(milliseconds: 5),
+    );
+    addTearDown(() async {
+      container.dispose();
+      await repository.stream.close();
+    });
+
+    container.read(deliveryTrackingControllerProvider);
+    await container
+        .read(deliveryTrackingControllerProvider.notifier)
+        .open(trackingTestOrder);
+    repository.stream.addError(const DeliveryTrackingRealtimeException());
+    await _waitFor(
+      container,
+      (state) => state.isPollingFallback && repository.loadCalls >= 2,
+    );
+    await _waitFor(container, (_) => repository.watchCalls >= 2);
+
+    repository.stream.add(trackingLiveSnapshot(version: 5));
+    await _waitFor(
+      container,
+      (state) => state.snapshot?.version == 5 && !state.isPollingFallback,
+    );
+    final callsAfterRecovery = repository.loadCalls;
+    await Future<void>.delayed(const Duration(milliseconds: 35));
+
+    expect(repository.loadCalls, callsAfterRecovery);
+  });
+
   test(
     'background closes active runtime and foreground refreshes safely',
     () async {
@@ -137,6 +236,48 @@ void main() {
       );
     },
   );
+
+  test('resume riattiva freshness anche con snapshot RPC invariato', () async {
+    for (final lifecycle in ['foreground', 'route']) {
+      final wallClock = Stopwatch()..start();
+      final repository = FakeDeliveryTrackingRepository();
+      final container = _container(
+        repository: repository,
+        cache: MemoryDeliveryTrackingCache(),
+        freshnessThreshold: const Duration(milliseconds: 1200),
+        clock: () => trackingTestNow.add(wallClock.elapsed),
+      );
+      container.read(deliveryTrackingControllerProvider);
+      final controller = container.read(
+        deliveryTrackingControllerProvider.notifier,
+      );
+      await controller.open(trackingTestOrder);
+
+      if (lifecycle == 'foreground') {
+        await controller.setForeground(false);
+        await controller.setForeground(true);
+      } else {
+        await controller.setRouteVisible(false);
+        await controller.setRouteVisible(true);
+      }
+
+      expect(repository.watchCalls, 2, reason: lifecycle);
+      expect(repository.watchCancelCalls, 1, reason: lifecycle);
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      final snapshot = container
+          .read(deliveryTrackingControllerProvider)
+          .snapshot;
+      expect(
+        snapshot?.freshness,
+        DeliveryTrackingFreshness.stale,
+        reason: lifecycle,
+      );
+      expect(snapshot?.hasFreshLiveLocation, isFalse, reason: lifecycle);
+
+      container.dispose();
+      await repository.stream.close();
+    }
+  });
 
   test(
     'fresh cached coordinate becomes explicitly stale by local clock',
@@ -368,6 +509,37 @@ void main() {
       expect(snapshot?.hasFreshLiveLocation, isFalse);
     },
   );
+
+  test(
+    'freshness scade localmente senza eseguire una RPC di polling',
+    () async {
+      final repository = FakeDeliveryTrackingRepository();
+      final wallClock = Stopwatch()..start();
+      final container = _container(
+        repository: repository,
+        cache: MemoryDeliveryTrackingCache(),
+        pollInterval: const Duration(milliseconds: 10),
+        freshnessThreshold: const Duration(milliseconds: 1050),
+        clock: () => trackingTestNow.add(wallClock.elapsed),
+      );
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+
+      final snapshot = container
+          .read(deliveryTrackingControllerProvider)
+          .snapshot;
+      expect(snapshot?.freshness, DeliveryTrackingFreshness.stale);
+      expect(repository.loadCalls, 1);
+    },
+  );
 }
 
 DeliveryTrackingSnapshot _terminalSnapshot({required int version}) {
@@ -428,6 +600,7 @@ ProviderContainer _container({
   required MemoryDeliveryTrackingCache cache,
   Duration pollInterval = const Duration(hours: 1),
   Duration reconnectBase = const Duration(seconds: 1),
+  Duration freshnessThreshold = const Duration(seconds: 120),
   DateTime Function()? clock,
 }) {
   final customer = AuthenticatedCustomer.fromUntrustedIdentity(
@@ -443,6 +616,9 @@ ProviderContainer _container({
       deliveryTrackingCacheProvider.overrideWithValue(cache),
       deliveryTrackingPollIntervalProvider.overrideWithValue(pollInterval),
       deliveryTrackingReconnectBaseProvider.overrideWithValue(reconnectBase),
+      deliveryTrackingFreshnessThresholdProvider.overrideWithValue(
+        freshnessThreshold,
+      ),
       deliveryTrackingClockProvider.overrideWithValue(
         clock ?? (() => trackingTestNow),
       ),

@@ -1,15 +1,25 @@
 import Flutter
+import GoogleMaps
 import UIKit
 import UserNotifications
 import app_links
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+  private var deliveryMapConfigured = false
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     UNUserNotificationCenter.current().delegate = self
+    if let mapsApiKey = Bundle.main.object(forInfoDictionaryKey: "GoogleMapsAPIKey") as? String,
+      !mapsApiKey.isEmpty,
+      mapsApiKey != "NOT_CONFIGURED"
+    {
+      GMSServices.provideAPIKey(mapsApiKey)
+      deliveryMapConfigured = true
+    }
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
@@ -26,6 +36,17 @@ import app_links
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     AppLinks.shared.enabled = false
+    let channel = FlutterMethodChannel(
+      name: "com.xniw.clientmerchandisecontrol/delivery_map_configuration",
+      binaryMessenger: engineBridge.applicationRegistrar.messenger()
+    )
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard call.method == "isConfigured" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      result(self?.deliveryMapConfigured == true)
+    }
   }
 
   override func userNotificationCenter(

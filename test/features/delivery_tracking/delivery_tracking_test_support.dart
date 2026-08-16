@@ -61,12 +61,14 @@ DeliveryTrackingSnapshot trackingLiveSnapshot({
   int version = 4,
   int orderStatusVersion = 5,
   String freshness = 'fresh',
+  String orderStatus = 'out_for_delivery',
 }) => parseDeliveryTrackingSnapshot(
   trackingLivePayload(
     orderId: orderId,
     version: version,
     orderStatusVersion: orderStatusVersion,
     freshness: freshness,
+    orderStatus: orderStatus,
   ),
 );
 

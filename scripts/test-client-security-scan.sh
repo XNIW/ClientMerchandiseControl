@@ -32,6 +32,15 @@ cmc_fixture_supabase_prefix='sb_'
 cmc_fixture_supabase_value="${cmc_fixture_supabase_prefix}secret_${cmc_fixture_token_body}"
 cmc_fixture_google_prefix='GOC'
 cmc_fixture_google_value="${cmc_fixture_google_prefix}SPX-${cmc_fixture_token_body}"
+cmc_fixture_maps_prefix='AI'
+cmc_fixture_maps_value="${cmc_fixture_maps_prefix}za${cmc_fixture_token_body}AAA"
+cmc_fixture_overlap_prefix='gh'
+cmc_fixture_overlap_value="${cmc_fixture_maps_prefix}za${cmc_fixture_overlap_prefix}p_${cmc_fixture_token_body%?}"
+cmc_fixture_maps_sdk_prefix='X-Ios-Bundle-Identifier'
+cmc_fixture_maps_sdk_quota='DeductQuota'
+cmc_fixture_maps_sdk_platform='unknown_ios'
+cmc_fixture_maps_sdk_service='mapsmobilesdks-pa.googleapis.com'
+cmc_fixture_maps_sdk_places='places.googleapis.com'
 cmc_fixture_jwt_header='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
 cmc_fixture_jwt_payload='eyJyb2xlIjoic2VydmljZV9yb2xlIn0'
 cmc_fixture_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_jwt_payload}.${cmc_fixture_token_body}"
@@ -53,6 +62,8 @@ cmc_fixture_anon_jwt_payload='eyJyb2xlIjoiYW5vbiJ9'
 cmc_fixture_anon_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_anon_jwt_payload}.${cmc_fixture_token_body}"
 cmc_fixture_pem_fence='-----'
 cmc_fixture_private_key_label='PRIVATE KEY'
+cmc_fixture_rsa_key_label='RSA PRIVATE KEY'
+cmc_fixture_ec_key_label='EC PRIVATE KEY'
 cmc_fixture_encrypted_key_label='ENCRYPTED PRIVATE KEY'
 cmc_fixture_dsa_key_label='DSA PRIVATE KEY'
 
@@ -337,6 +348,50 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_bundle}" \
   --artifact "${cmc_fixture_bundle}/artifact"
 
+cmc_fixture_maps_near_miss="$(
+  cmc_fixture_prepare bundle-maps-sdk-near-miss
+)"
+mkdir -p "${cmc_fixture_maps_near_miss}/artifact"
+printf '%s\0%s\0%s\0%s\0%s\n' \
+  "${cmc_fixture_maps_sdk_prefix}" \
+  "${cmc_fixture_maps_sdk_quota}" \
+  "${cmc_fixture_maps_value}" \
+  "${cmc_fixture_maps_sdk_platform}" \
+  'example.invalid' \
+  >"${cmc_fixture_maps_near_miss}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_maps_near_miss}" \
+  --artifact "${cmc_fixture_maps_near_miss}/artifact"
+
+cmc_fixture_maps_mixed="$(cmc_fixture_prepare bundle-maps-sdk-mixed-secret)"
+mkdir -p "${cmc_fixture_maps_mixed}/artifact"
+printf '%s\0%s\0%s\0%s\0%s\0%s\n%s\n' \
+  "${cmc_fixture_maps_sdk_prefix}" \
+  "${cmc_fixture_maps_sdk_quota}" \
+  "${cmc_fixture_maps_value}" \
+  "${cmc_fixture_maps_sdk_platform}" \
+  "${cmc_fixture_maps_sdk_service}" \
+  "${cmc_fixture_maps_sdk_places}" \
+  "${cmc_fixture_google_value}" \
+  >"${cmc_fixture_maps_mixed}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_maps_mixed}" \
+  --artifact "${cmc_fixture_maps_mixed}/artifact"
+
+cmc_fixture_maps_overlap="$(cmc_fixture_prepare bundle-maps-sdk-overlap-secret)"
+mkdir -p "${cmc_fixture_maps_overlap}/artifact"
+printf '%s\0%s\0%s\0%s\0%s\0%s\n' \
+  "${cmc_fixture_maps_sdk_prefix}" \
+  "${cmc_fixture_maps_sdk_quota}" \
+  "${cmc_fixture_overlap_value}" \
+  "${cmc_fixture_maps_sdk_platform}" \
+  "${cmc_fixture_maps_sdk_service}" \
+  "${cmc_fixture_maps_sdk_places}" \
+  >"${cmc_fixture_maps_overlap}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_maps_overlap}" \
+  --artifact "${cmc_fixture_maps_overlap}/artifact"
+
 cmc_fixture_pem_bundle="$(cmc_fixture_prepare bundle-private-key)"
 mkdir -p "${cmc_fixture_pem_bundle}/artifact"
 printf '%s\n' \
@@ -347,6 +402,125 @@ printf '%s\n' \
 cmc_fixture_expect_rejection \
   "${cmc_fixture_pem_bundle}" \
   --artifact "${cmc_fixture_pem_bundle}/artifact"
+
+cmc_fixture_short_pem_tail="$(cmc_fixture_prepare bundle-private-key-short-tail)"
+mkdir -p "${cmc_fixture_short_pem_tail}/artifact"
+printf '%s\n' \
+  "${cmc_fixture_pem_fence}BEGIN ${cmc_fixture_rsa_key_label}${cmc_fixture_pem_fence}" \
+  'QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB' \
+  'QUFBQUFBQUFB' \
+  "${cmc_fixture_pem_fence}END ${cmc_fixture_rsa_key_label}${cmc_fixture_pem_fence}" \
+  >"${cmc_fixture_short_pem_tail}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_short_pem_tail}" \
+  --artifact "${cmc_fixture_short_pem_tail}/artifact"
+
+cmc_fixture_spaced_pem="$(
+  cmc_fixture_prepare bundle-private-key-whitespace
+)"
+mkdir -p "${cmc_fixture_spaced_pem}/artifact"
+openssl genpkey \
+  -algorithm RSA \
+  -pkeyopt rsa_keygen_bits:1024 \
+  -out "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
+  >/dev/null 2>&1
+perl -pe \
+  'if (/-----BEGIN/) { s/$/ \t/; }
+   elsif (/-----END/) { s/$/\t /; }
+   else { s/^/ \t/; s/$/\t /; }' \
+  "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
+  >"${cmc_fixture_spaced_pem}/artifact/bundle.bin"
+openssl pkey \
+  -in "${cmc_fixture_spaced_pem}/artifact/bundle.bin" \
+  -noout \
+  >/dev/null 2>&1
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_spaced_pem}" \
+  --artifact "${cmc_fixture_spaced_pem}/artifact/bundle.bin"
+
+cmc_fixture_form_feed_pem="$(
+  cmc_fixture_prepare bundle-private-key-form-feed-boundary
+)"
+mkdir -p "${cmc_fixture_form_feed_pem}/artifact"
+perl -pe \
+  'if (/-----BEGIN/) { s/$/\f/; }' \
+  "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
+  >"${cmc_fixture_form_feed_pem}/artifact/bundle.bin"
+openssl pkey \
+  -in "${cmc_fixture_form_feed_pem}/artifact/bundle.bin" \
+  -noout \
+  >/dev/null 2>&1
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_form_feed_pem}" \
+  --artifact "${cmc_fixture_form_feed_pem}/artifact/bundle.bin"
+
+cmc_fixture_vertical_tab_pem="$(
+  cmc_fixture_prepare bundle-private-key-vertical-tab-boundary
+)"
+mkdir -p "${cmc_fixture_vertical_tab_pem}/artifact"
+perl -pe \
+  'if (/-----BEGIN/) { s/$/\x0b/; }' \
+  "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
+  >"${cmc_fixture_vertical_tab_pem}/artifact/bundle.bin"
+openssl pkey \
+  -in "${cmc_fixture_vertical_tab_pem}/artifact/bundle.bin" \
+  -noout \
+  >/dev/null 2>&1
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_vertical_tab_pem}" \
+  --artifact "${cmc_fixture_vertical_tab_pem}/artifact/bundle.bin"
+
+cmc_fixture_ascii_whitespace_pem="$(
+  cmc_fixture_prepare bundle-private-key-ascii-whitespace
+)"
+mkdir -p "${cmc_fixture_ascii_whitespace_pem}/artifact"
+perl -pe \
+  'if (/-----BEGIN/) { s/$/ \t\f\x0b\r\r/; }
+   elsif (/-----END/) { s/$/\r\r/; }
+   else { s/^/ \t/; s/$/\f\x0b\r\r/; }' \
+  "${cmc_fixture_spaced_pem}/artifact/canonical.pem" \
+  >"${cmc_fixture_ascii_whitespace_pem}/artifact/bundle.bin"
+openssl pkey \
+  -in "${cmc_fixture_ascii_whitespace_pem}/artifact/bundle.bin" \
+  -noout \
+  >/dev/null 2>&1
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_ascii_whitespace_pem}" \
+  --artifact "${cmc_fixture_ascii_whitespace_pem}/artifact/bundle.bin"
+
+cmc_fixture_single_column_pem="$(
+  cmc_fixture_prepare bundle-private-key-single-column
+)"
+mkdir -p "${cmc_fixture_single_column_pem}/artifact"
+openssl genpkey \
+  -algorithm RSA \
+  -pkeyopt rsa_keygen_bits:1024 \
+  -out "${cmc_fixture_single_column_pem}/artifact/canonical.pem" \
+  >/dev/null 2>&1
+perl -0777 -e '
+  use strict;
+  use warnings;
+  my ($begin, $end, $path) = @ARGV;
+  open my $handle, "<", $path or exit 2;
+  local $/;
+  my $content = <$handle>;
+  close $handle or exit 2;
+  $content =~ /\Q$begin\E\r?\n(.*?)\Q$end\E/s or exit 2;
+  my $payload = $1;
+  $payload =~ s/\s//g;
+  print "$begin\n", join("\n", split //, $payload), "\n$end\n";
+' -- \
+  "${cmc_fixture_pem_fence}BEGIN ${cmc_fixture_private_key_label}${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_pem_fence}END ${cmc_fixture_private_key_label}${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_single_column_pem}/artifact/canonical.pem" \
+  >"${cmc_fixture_single_column_pem}/artifact/bundle.bin"
+openssl pkey \
+  -in "${cmc_fixture_single_column_pem}/artifact/bundle.bin" \
+  -noout \
+  >/dev/null 2>&1
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_single_column_pem}" \
+  --artifact "${cmc_fixture_single_column_pem}/artifact/bundle.bin"
 
 cmc_fixture_encrypted_pem="$(cmc_fixture_prepare bundle-encrypted-private-key)"
 mkdir -p "${cmc_fixture_encrypted_pem}/artifact"
@@ -411,6 +585,50 @@ printf '%s\n' \
 cmc_fixture_expect_acceptance \
   "${cmc_fixture_publishable}" \
   --artifact "${cmc_fixture_publishable}/artifact"
+
+cmc_fixture_maps_sdk="$(cmc_fixture_prepare maps-sdk-public-identifier)"
+mkdir -p "${cmc_fixture_maps_sdk}/artifact"
+printf '%s\0%s\0%s\0%s\0%s\0%s\n' \
+  "${cmc_fixture_maps_sdk_prefix}" \
+  "${cmc_fixture_maps_sdk_quota}" \
+  "${cmc_fixture_maps_value}" \
+  "${cmc_fixture_maps_sdk_platform}" \
+  "${cmc_fixture_maps_sdk_service}" \
+  "${cmc_fixture_maps_sdk_places}" \
+  >"${cmc_fixture_maps_sdk}/artifact/bundle.bin"
+cmc_fixture_expect_acceptance \
+  "${cmc_fixture_maps_sdk}" \
+  --artifact "${cmc_fixture_maps_sdk}/artifact"
+
+cmc_fixture_kernel_fences="$(cmc_fixture_prepare kernel-key-parser-constants)"
+mkdir -p "${cmc_fixture_kernel_fences}/artifact"
+printf "static const begin = '%sBEGIN %s%s'; static const end = '%sEND %s%s';\n" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_private_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_private_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  >"${cmc_fixture_kernel_fences}/artifact/bundle.bin"
+printf "static const beginEc = '%sBEGIN %s%s'; static const endEc = '%sEND %s%s';\n" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_ec_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_ec_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  >>"${cmc_fixture_kernel_fences}/artifact/bundle.bin"
+printf "static const beginRsa = '%sBEGIN %s%s'; static const endRsa = '%sEND %s%s';\n" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_rsa_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_pem_fence}" \
+  "${cmc_fixture_rsa_key_label}" \
+  "${cmc_fixture_pem_fence}" \
+  >>"${cmc_fixture_kernel_fences}/artifact/bundle.bin"
+cmc_fixture_expect_acceptance \
+  "${cmc_fixture_kernel_fences}" \
+  --artifact "${cmc_fixture_kernel_fences}/artifact/bundle.bin"
 
 cmc_fixture_anon_jwt="$(cmc_fixture_prepare legacy-anon-jwt)"
 mkdir -p "${cmc_fixture_anon_jwt}/artifact"

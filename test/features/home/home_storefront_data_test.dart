@@ -7,6 +7,10 @@ import 'package:client_merchandise_control/core/backend/backend_readiness_reposi
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
+import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
+import 'package:client_merchandise_control/features/orders/application/customer_order_providers.dart';
+import 'package:client_merchandise_control/features/orders/domain/customer_order_models.dart';
+import 'package:client_merchandise_control/features/orders/domain/customer_order_repository.dart';
 import 'package:client_merchandise_control/features/storefront/application/storefront_providers.dart';
 import 'package:client_merchandise_control/features/storefront/cache/storefront_cache_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
@@ -18,6 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../storefront/storefront_test_fixture.dart';
+import '../orders/customer_order_test_support.dart';
 
 void main() {
   testWidgets(
@@ -128,6 +133,42 @@ void main() {
     }
   });
 
+  testWidgets('ordine delivery attivo mostra CTA reale senza coordinate', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    final orders = FakeCustomerOrderRepository()
+      ..listOutcomes.add(
+        orderTestPage(
+          orders: [
+            orderTestCard(
+              status: CustomerOrderStatus.outForDelivery,
+              fulfillmentMode: CustomerOrderFulfillmentMode.delivery,
+            ),
+          ],
+        ),
+      );
+    await tester.pumpWidget(
+      _homeApp(
+        repository: _SequenceRepository.success(),
+        orderRepository: orders,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('home-active-order')), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-follow-delivery')), findsOneWidget);
+    expect(find.text('Seguir entrega'), findsOneWidget);
+    final semanticsLabel = tester
+        .getSemantics(find.byKey(const ValueKey('home-active-order')))
+        .label;
+    expect(semanticsLabel, contains('Café público'));
+    expect('Seguir entrega'.allMatches(semanticsLabel), hasLength(1));
+    expect(find.textContaining('-33.'), findsNothing);
+    expect(find.textContaining('-70.'), findsNothing);
+    semantics.dispose();
+  });
+
   testWidgets(
     'visual QA pairwise copre viewport, scala, tema e locale canonici',
     (tester) async {
@@ -214,6 +255,7 @@ void main() {
 
 Widget _homeApp({
   required StorefrontRepository repository,
+  CustomerOrderRepository? orderRepository,
   Locale locale = const Locale('es', 'CL'),
   ThemeMode themeMode = ThemeMode.light,
   TextScaler textScaler = TextScaler.noScaling,
@@ -237,6 +279,15 @@ Widget _homeApp({
       storefrontCacheRepositoryProvider.overrideWithValue(
         const DisabledStorefrontCacheRepository(),
       ),
+      if (orderRepository != null) ...[
+        customerOrderIdentityProvider.overrideWithValue(_orderIdentity()),
+        customerOrderShopSlugProvider.overrideWithValue(orderTestShop),
+        customerOrderRepositoryProvider.overrideWithValue(orderRepository),
+        customerOrderCacheStoreProvider.overrideWithValue(
+          MemoryCustomerOrderCacheStore(),
+        ),
+        customerOrderClockProvider.overrideWithValue(() => orderTestNow),
+      ],
     ],
     child: MaterialApp(
       locale: locale,
@@ -253,6 +304,13 @@ Widget _homeApp({
     ),
   );
 }
+
+AuthenticatedCustomer _orderIdentity() =>
+    AuthenticatedCustomer.fromUntrustedIdentity(
+      subjectId: orderTestOwner,
+      email: 'customer@example.invalid',
+      metadata: const {'name': 'Cliente'},
+    );
 
 final class _SequenceRepository extends HomeOnlyStorefrontRepository {
   _SequenceRepository(this.responses);

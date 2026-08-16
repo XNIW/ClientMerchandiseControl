@@ -1744,6 +1744,33 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deliveryTrackingOfflineCached =>
       'Mostramos la última copia cifrada guardada en este dispositivo.';
+
+  @override
+  String deliveryTrackingMapSemantics(String status, String updated) {
+    return 'Mapa de la entrega. $status. $updated';
+  }
+
+  @override
+  String get deliveryTrackingMapRecenter =>
+      'Volver a centrar el mapa de la entrega';
+
+  @override
+  String get deliveryTrackingMapLoading => 'Cargando el mapa de la entrega';
+
+  @override
+  String get deliveryTrackingMapStoreMarker => 'Tienda';
+
+  @override
+  String get deliveryTrackingMapDestinationMarker => 'Destino de entrega';
+
+  @override
+  String get deliveryTrackingMapCourierMarker => 'Repartidor';
+
+  @override
+  String get deliveryTrackingFollowAction => 'Seguir entrega';
+
+  @override
+  String get deliveryTrackingInDeliveryIndicator => 'Entrega en curso';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3313,4 +3340,30 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get deliveryTrackingOfflineCached => '当前显示此设备上保存的最新加密副本。';
+
+  @override
+  String deliveryTrackingMapSemantics(String status, String updated) {
+    return '配送地图。$status。$updated';
+  }
+
+  @override
+  String get deliveryTrackingMapRecenter => '重新居中配送地图';
+
+  @override
+  String get deliveryTrackingMapLoading => '正在加载配送地图';
+
+  @override
+  String get deliveryTrackingMapStoreMarker => '商店';
+
+  @override
+  String get deliveryTrackingMapDestinationMarker => '配送目的地';
+
+  @override
+  String get deliveryTrackingMapCourierMarker => '配送员';
+
+  @override
+  String get deliveryTrackingFollowAction => '跟踪配送';
+
+  @override
+  String get deliveryTrackingInDeliveryIndicator => '配送中';
 }

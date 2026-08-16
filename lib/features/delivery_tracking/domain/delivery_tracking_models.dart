@@ -89,7 +89,9 @@ final class DeliveryTrackingSnapshot {
   bool get hasFreshLiveLocation =>
       !isTerminal &&
       fulfillmentMode == 'delivery' &&
+      orderStatus == 'out_for_delivery' &&
       trackingMode == DeliveryTrackingMode.liveCourier &&
+      trackingSessionId?.trim().isNotEmpty == true &&
       trackingState == DeliveryTrackingState.active &&
       freshness == DeliveryTrackingFreshness.fresh &&
       courierCoordinate != null &&

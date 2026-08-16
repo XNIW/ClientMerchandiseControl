@@ -2263,3 +2263,127 @@
 - **Transizione**: `ACTIVE / REVIEW /
   CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; il prompt USER_APPROVER copre
   già PR, CI exact-SHA e merge normale.
+
+## 2026-08-16 — TASK-044 merge e main CI verificati
+
+- **Client**: PR #9 head `0e84801`, PR CI `31939920494` 3/3 `SUCCESS`, merge
+  normale `fd044d4`; main CI `31940810780` 3/3 `SUCCESS`, annotation 0/0/0.
+- **Admin**: il primo pgTAP PR run `31939911807` ha rilevato una regressione reale
+  TASK-139 e aspettative 43/45. Il fix `0ce56bf5` ha superato re-review read-only,
+  reset e 2.522/2.522 pgTAP; CI `31940278489` e Cloudflare `31940278463` verdi.
+- **Merge Admin**: normale `2e8ec07`; main CI `31940653715` e Cloudflare
+  `31940653742` verdi. Staging/production deploy rimasti skipped.
+- **Cleanup**: branch remoti e worktree TASK-043/TASK-044 eliminati dopo verifica
+  ancestry; checkout primari e dirty state preesistenti preservati.
+- **Transizione**: TASK-044 `DONE / USER_APPROVED_DONE`; TASK-045 è l'unico task
+  `ACTIVE`.
+
+## 2026-08-16 — TASK-045 Planning autorizzato
+
+- **Base**: Client `fd044d4b9b7a7bd4c4d3ccf71b977a01bc39563f`, main CI
+  `31940810780` verde; worktree linked pulito e branch dedicato.
+- **Piano**: integrare `google_maps_flutter` dietro l'adapter ADR-014, configurazione
+  nativa fuori Git/fail-closed, card mappa nel dettaglio ordine, alternative testuali,
+  CTA Home/Orders, stale/offline/provider fallback e QA accessibile deterministica.
+- **Limiti**: nessun ETA/route Client, nessun marker simulato, nessuna attivazione
+  production o promessa background; Courier Mode resta foreground.
+- **Autorizzazione**: USER_APPROVER già registrata; transizione immediata
+  `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+## 2026-08-16 — TASK-045 Execution consegnata a Review
+
+- **Revision set**: `fd044d4..9d8d0eb`; Google Maps dietro adapter/fake, eligibility
+  live owner-scoped, tre marker, recenter, fallback testuale e CTA Home/Orders.
+- **Configurazione**: Android/iOS separati, sentinel e feature flag fail-closed;
+  production, billing e chiavi non attivati.
+- **Gate iniziali**: analyze, 611 test con coverage, APK debug, iOS Simulator debug e
+  acceptance sintetica Android verdi; golden 390×844 es-CL deterministico.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+
+## 2026-08-16 — TASK-045 Review `CHANGES_REQUIRED`
+
+- **Review indipendente**: shard read-only runtime e domain/provider sullo SHA
+  `9d8d0eb`; security diff completa senza finding reportable.
+- **Finding P2**: polling permanente con Realtime sano, attestazione chiave soltanto
+  Dart e failure asincrona del controller nativo fuori dal boundary fail-closed.
+- **Esito**: 0 P0, 0 P1, 3 P2 distinti; transizione
+  `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-045 Fix consegnato a re-review
+
+- **SHA**: `f188a3230e4608a27c031d4b2e58e690a53eb8c6`.
+- **Runtime**: polling soltanto come fallback, freshness timer locale e recovery su
+  evento Realtime valido.
+- **Map boundary**: handshake booleano nativo Android/iOS, runtime ready/failed,
+  timeout dieci secondi, errori initial fit catturati e dispose idempotente.
+- **Accessibilità**: semantics aggregate Home/Orders includono indicatore e CTA
+  consegna; fallback testuale resta sempre fuori dalla canvas.
+- **Gate fix**: analyze mirato, 47+19 test, integration Android 1/1 e build Android/iOS
+  `PASS`; due errori di invocazione harness sono registrati senza essere mascherati.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
+  exact-delta e gate canonici restano da concludere.
+
+## 2026-08-16 — TASK-045 Re-review 1 `CHANGES_REQUIRED` e Fix 2
+
+- **Chiusure**: polling fallback, handshake nativo e initial camera fit sono stati
+  validati sul delta `9d8d0eb..f188a32`.
+- **Finding residui/nuovi**: teardown fallibile del controller P2, freshness non
+  riarmata dopo resume con snapshot duplicato P2 e CTA Home duplicata in semantics P3.
+- **Fix 2**: `3c8564b` rende ogni teardown non-throwing con chiusura in `finally`,
+  riarmata freshness sul ramo duplicate e usa una sola semantics Home completa.
+- **Regressioni**: controller/map/Home 30/30 e adapter teardown 6/6 `PASS`; analyze
+  mirato e diff check verdi.
+- **Gate canonico**: un tentativo precedente è `FAIL` perché il root README non era
+  ancora allineato al Master Plan; il controllo si è fermato prima dei test e viene
+  corretto senza riclassificazione retroattiva.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; seconda
+  re-review exact-delta obbligatoria prima dei gate finali.
+
+## 2026-08-16 — TASK-045 Re-review 2, Fix 3 e approvazione finale
+
+- **Re-review 2**: sul candidato `f403a92` i finding teardown, freshness e semantics
+  risultano chiusi; rilevato `T045-RR-STATE-007 / P2`, stato `offline` residuo dopo
+  una RPC online invariata su cache.
+- **Fix 3**: `5e0f1c66594ca3748d7d66a4df04249eea382420` ripristina `ready` nel ramo
+  duplicate/non-newer senza arretrare o riscrivere snapshot/cache e aggiunge la
+  regressione cache-first con deadline freshness.
+- **Re-review finale**: due reviewer read-only distinti hanno verificato il delta
+  `f403a92..5e0f1c6`; controller 16/16, Orders/detail 10/10, analyze, format e
+  diff-check `PASS`.
+- **Security/privacy**: monotonicità, terminal redaction, stale coordinates,
+  fallback, cache e auth boundary invariati; 0 P0/P1/P2/P3 aperti.
+- **Acceptance Android**: integration owner → live → stale → terminale redatto 1/1
+  `PASS` sul candidato.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  l'autorizzazione USER_APPROVER è già registrata, restano gate canonici e CI/merge.
+
+## 2026-08-16 — TASK-045 gate locale sul candidato approvato
+
+- **Commit verificato**: `62e0bd0957c5b65f6b18e5a1e87048b91fb9f17f`.
+- **Gate canonico**: `bash scripts/check.sh` exit `0`; security/config 601 file,
+  fixture security 32 negative + 2 positive, governance 9/9, boundary 7/7, format
+  271 file, analyze zero issue, coverage 624/624 e benchmark cache `PASS`.
+- **Build**: APK debug e iOS Simulator debug `PASS`; unico warning non bloccante è
+  l'assenza corrente di supporto SPM nel plugin Google Maps iOS.
+- **Acceptance tracking**: Android 1/1 `PASS` sul codice finale `5e0f1c6`.
+- **Stato**: gate locali chiusi; CI PR exact-SHA, merge normale e main CI restano da
+  eseguire prima di `DONE`.
+
+## 2026-08-16 — TASK-045 remediation CI artifact scanner
+
+- **Prima CI PR**: run `31947744128` sullo SHA `26aaa04`; Quality e Android
+  `SUCCESS`, iOS build riuscita ma artifact scan `FAIL` per un identificatore pubblico
+  interno del Google Maps iOS SDK. La chiave app è rimasta `NOT_CONFIGURED`.
+- **Review security**: la prima allowlist è stata respinta per match sovrapposti e PEM
+  OpenSSL-valid non rilevati; un fix intermedio troppo ampio ha correttamente fallito
+  sugli artifact normali per costanti PEM del kernel Flutter.
+- **Fix finale**: `9034627f0c747dedb76af63e4b64c271d9cb2619`; fingerprint/contesto Maps esatti,
+  overlapping scan e parser PEM bounded con normalizzazione whitespace ASCII.
+- **Regressioni**: 41/41 negative e 4/4 positive; APK 544 e Runner.app 232 file
+  `PASS`; fuzz read-only 50 varianti, 37 OpenSSL-valid tutte rifiutate.
+- **Re-review**: `APPROVED`; `T045-CI-SCAN-001/002/003` `CLOSED`, zero P0/P1/P2/P3
+  aperti.
+- **Gate canonico finale**: `scripts/check.sh` exact `9034627` exit 0, 624/624 test
+  con coverage, benchmark, APK debug e iOS Simulator debug `PASS`.
+- **Stato**: il primo tentativo CI resta storicamente `FAIL`; segue push del nuovo
+  head ed esecuzione CI exact-SHA, senza bypass.

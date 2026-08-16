@@ -498,5 +498,13 @@
   "deliveryTrackingCourierLabel": "Courier: {label}",
   "deliveryTrackingExternalCode": "Reference {code}",
   "deliveryTrackingPollingFallback": "Live updates are reconnecting. Delivery status is being checked periodically.",
-  "deliveryTrackingOfflineCached": "Showing the latest encrypted copy saved on this device."
+  "deliveryTrackingOfflineCached": "Showing the latest encrypted copy saved on this device.",
+  "deliveryTrackingMapSemantics": "Delivery map. {status}. {updated}",
+  "deliveryTrackingMapRecenter": "Recenter the delivery map",
+  "deliveryTrackingMapLoading": "Loading the delivery map",
+  "deliveryTrackingMapStoreMarker": "Store",
+  "deliveryTrackingMapDestinationMarker": "Delivery destination",
+  "deliveryTrackingMapCourierMarker": "Courier",
+  "deliveryTrackingFollowAction": "Track delivery",
+  "deliveryTrackingInDeliveryIndicator": "Delivery in progress"
 }

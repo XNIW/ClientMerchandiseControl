@@ -38,6 +38,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-033" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-043" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-044" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-045" \
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
@@ -209,6 +210,12 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-044/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-044/README.md"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-045-client-live-map-integrated-acceptance-closeout.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-045/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-045/README.md"
 
   printf '%s\n' "${cmc_target}"
 }
@@ -247,14 +254,14 @@ cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-044/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-045/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
-  's/| TASK-044 | Delivery tracking contract, privacy boundary and operational writer | ACTIVE |/| TASK-044 | Delivery tracking contract, privacy boundary and operational writer | DONE |/' \
+  's/| TASK-045 | Client live map, integrated acceptance and closeout | ACTIVE |/| TASK-045 | Client live map, integrated acceptance and closeout | DONE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}"
@@ -281,7 +288,7 @@ cmc_expect_fail active-during-review "${cmc_case}"
 
 cmc_case="$(cmc_fixture active-header-without-active-row)"
 sed -i.bak \
-  's/| TASK-044 | Delivery tracking contract, privacy boundary and operational writer | ACTIVE |/| TASK-044 | Delivery tracking contract, privacy boundary and operational writer | TODO |/' \
+  's/| TASK-045 | Client live map, integrated acceptance and closeout | ACTIVE |/| TASK-045 | Client live map, integrated acceptance and closeout | TODO |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-header-without-active-row "${cmc_case}"

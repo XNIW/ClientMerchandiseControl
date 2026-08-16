@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:client_merchandise_control/app/design_system/tokens/app_sizes.dart';
 import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_tracking_providers.dart';
+import 'package:client_merchandise_control/features/delivery_tracking/application/delivery_map_adapter.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/domain/delivery_tracking_failure.dart';
+import 'package:client_merchandise_control/features/delivery_tracking/domain/delivery_tracking_models.dart';
+import 'package:client_merchandise_control/features/delivery_tracking/presentation/delivery_live_map.dart';
 import 'package:client_merchandise_control/features/orders/application/customer_order_controller.dart';
 import 'package:client_merchandise_control/features/orders/application/customer_order_providers.dart';
 import 'package:client_merchandise_control/features/orders/domain/customer_order_models.dart';
@@ -55,6 +60,54 @@ void main() {
     expect(repository.detailRequests.single.orderId, orderTestOrder);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'Orders indica la consegna e apre il dettaglio senza coordinate',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      final repository = FakeCustomerOrderRepository()
+        ..listOutcomes.add(
+          orderTestPage(
+            orders: [
+              orderTestCard(
+                status: CustomerOrderStatus.outForDelivery,
+                fulfillmentMode: CustomerOrderFulfillmentMode.delivery,
+              ),
+            ],
+          ),
+        );
+      final harness = _Harness(repository: repository);
+      addTearDown(harness.dispose);
+
+      await tester.pumpWidget(harness.app());
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const ValueKey('order-follow-delivery-$orderTestOrder')),
+        findsOneWidget,
+      );
+      final deliveryCard = find.byKey(
+        const ValueKey('order-card-$orderTestOrder'),
+      );
+      final deliverySemantics = tester.getSemantics(deliveryCard).label;
+      expect(deliverySemantics, contains('En reparto'));
+      expect(deliverySemantics, contains('Seguir entrega'));
+      expect(find.text('Entrega en curso'), findsOneWidget);
+      expect(find.text('Seguir entrega'), findsOneWidget);
+      expect(find.textContaining('-33.'), findsNothing);
+      expect(find.textContaining('-70.'), findsNothing);
+      semantics.dispose();
+
+      await tester.tap(
+        find.byKey(const ValueKey('order-card-$orderTestOrder')),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        harness.router.state.uri.path,
+        AppRoutes.orderLocation(orderTestOrder),
+      );
+    },
+  );
 
   testWidgets('cancellazione richiede conferma e aggiorna timeline una volta', (
     tester,
@@ -133,9 +186,25 @@ void main() {
         );
       final trackingRepository = FakeDeliveryTrackingRepository()
         ..snapshot = trackingLiveSnapshot(orderId: orderTestOrder);
+      final mapAdapter = FakeDeliveryMapAdapter();
       final harness = _Harness(
         repository: orderRepository,
         trackingRepository: trackingRepository,
+        mapConfiguration: const DeliveryMapConfiguration(
+          enabled: true,
+          nativeConfigurationPresent: true,
+        ),
+        mapAdapterFactory: () => mapAdapter,
+        mapSurfaceBuilder:
+            ({
+              required adapter,
+              required scene,
+              required labels,
+              required brightness,
+            }) => const ColoredBox(
+              key: ValueKey('order-detail-fake-map'),
+              color: Colors.transparent,
+            ),
         initialLocation: AppRoutes.orderLocation(orderTestOrder),
       );
       addTearDown(harness.dispose);
@@ -143,8 +212,15 @@ void main() {
 
       await tester.pumpWidget(harness.app());
       await _pumpUntil(tester, find.text('La ubicación se está actualizando'));
+      await _pumpUntil(tester, find.byKey(const ValueKey('delivery-live-map')));
       expect(find.text('Seguimiento de la entrega'), findsOneWidget);
       expect(find.text('La ubicación se está actualizando'), findsOneWidget);
+      expect(find.byKey(const ValueKey('delivery-live-map')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('order-detail-fake-map')),
+        findsOneWidget,
+      );
+      expect(mapAdapter.scenes, hasLength(1));
       expect(find.textContaining('-33.446'), findsNothing);
       expect(find.textContaining('-70.655'), findsNothing);
 
@@ -160,7 +236,89 @@ void main() {
         find.text('La ubicación no se está actualizando'),
       );
       expect(find.byIcon(Icons.location_off_outlined), findsOneWidget);
+      expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
+      expect(
+        find.byKey(const ValueKey('order-detail-timeline')),
+        findsOneWidget,
+      );
+      expect(mapAdapter.disposeCalls, 1);
       expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'statusOnly, externalCarrier e stato pre-delivery non creano la mappa',
+    (tester) async {
+      final cases = <({DeliveryTrackingSnapshot snapshot, String label})>[
+        (
+          snapshot: _trackingWithoutLiveMap(
+            mode: DeliveryTrackingMode.statusOnly,
+          ),
+          label: 'Actualizaciones de estado',
+        ),
+        (
+          snapshot: _trackingWithoutLiveMap(
+            mode: DeliveryTrackingMode.externalCarrier,
+          ),
+          label: 'Empresa de transporte externa',
+        ),
+        (
+          snapshot: trackingLiveSnapshot(
+            orderId: orderTestOrder,
+            orderStatus: 'ready',
+          ),
+          label: 'Repartidor en vivo',
+        ),
+      ];
+
+      for (final testCase in cases) {
+        var mapFactoryCalls = 0;
+        final orderRepository = FakeCustomerOrderRepository()
+          ..detailOutcomes.add(
+            orderTestDetail(
+              status: CustomerOrderStatus.ready,
+              version: 2,
+              fulfillmentMode: CustomerOrderFulfillmentMode.delivery,
+            ),
+          );
+        final trackingRepository = FakeDeliveryTrackingRepository()
+          ..snapshot = testCase.snapshot;
+        final harness = _Harness(
+          repository: orderRepository,
+          trackingRepository: trackingRepository,
+          mapConfiguration: const DeliveryMapConfiguration(
+            enabled: true,
+            nativeConfigurationPresent: true,
+          ),
+          mapAdapterFactory: () {
+            mapFactoryCalls++;
+            return FakeDeliveryMapAdapter();
+          },
+          initialLocation: AppRoutes.orderLocation(orderTestOrder),
+        );
+
+        await tester.pumpWidget(harness.app());
+        await _pumpUntil(tester, find.text(testCase.label));
+        expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
+        expect(
+          find.byKey(const ValueKey('order-detail-timeline')),
+          findsOneWidget,
+        );
+        if (testCase.snapshot.trackingMode ==
+            DeliveryTrackingMode.liveCourier) {
+          expect(
+            find.text(
+              'La ubicación en vivo aparecerá cuando el repartidor inicie la entrega.',
+            ),
+            findsOneWidget,
+          );
+        }
+        expect(mapFactoryCalls, 0);
+        harness.dispose();
+        await trackingRepository.stream.close();
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump();
+      }
     },
   );
 
@@ -230,6 +388,57 @@ void main() {
   });
 
   testWidgets(
+    'golden dettaglio consegna live 390x844 es-CL light',
+    (tester) async {
+      if (Platform.isLinux) return;
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.binding.setSurfaceSize(const Size(390, 844));
+      final orderRepository = FakeCustomerOrderRepository()
+        ..detailOutcomes.add(
+          orderTestDetail(
+            status: CustomerOrderStatus.outForDelivery,
+            version: 2,
+            fulfillmentMode: CustomerOrderFulfillmentMode.delivery,
+          ),
+        );
+      final trackingRepository = FakeDeliveryTrackingRepository()
+        ..snapshot = trackingLiveSnapshot(orderId: orderTestOrder);
+      final harness = _Harness(
+        repository: orderRepository,
+        trackingRepository: trackingRepository,
+        mapConfiguration: const DeliveryMapConfiguration(
+          enabled: true,
+          nativeConfigurationPresent: true,
+        ),
+        mapAdapterFactory: FakeDeliveryMapAdapter.new,
+        mapSurfaceBuilder:
+            ({
+              required adapter,
+              required scene,
+              required labels,
+              required brightness,
+            }) => const _GoldenMapSurface(),
+        initialLocation: AppRoutes.orderLocation(orderTestOrder),
+      );
+      addTearDown(harness.dispose);
+      addTearDown(trackingRepository.stream.close);
+
+      await tester.pumpWidget(harness.app());
+      final map = find.byKey(const ValueKey('delivery-live-map'));
+      await _pumpUntil(tester, map);
+      await tester.ensureVisible(map);
+      await tester.pumpAndSettle();
+
+      await expectLater(
+        find.byType(OrderDetailScreen),
+        matchesGoldenFile('goldens/order_delivery_live_es_cl.png'),
+      );
+      expect(tester.takeException(), isNull);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.android),
+  );
+
+  testWidgets(
     'locale es-CL, it, en e zh-Hans rendono lista senza fallback rotto',
     (tester) async {
       for (final locale in const [
@@ -253,12 +462,48 @@ void main() {
   );
 }
 
+class _GoldenMapSurface extends StatelessWidget {
+  const _GoldenMapSurface();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return ColoredBox(
+      color: colors.surfaceContainerLow,
+      child: ExcludeSemantics(
+        child: Stack(
+          children: [
+            Align(
+              alignment: const Alignment(-0.72, -0.46),
+              child: Icon(Icons.storefront_outlined, color: colors.primary),
+            ),
+            Align(
+              alignment: const Alignment(0.62, 0.48),
+              child: Icon(Icons.home_outlined, color: colors.tertiary),
+            ),
+            Align(
+              alignment: const Alignment(-0.08, 0.02),
+              child: Icon(
+                Icons.delivery_dining_outlined,
+                color: colors.secondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 final class _Harness {
   _Harness({
     required FakeCustomerOrderRepository repository,
     MemoryCustomerOrderCacheStore? cache,
     FakeDeliveryTrackingRepository? trackingRepository,
     MemoryDeliveryTrackingCache? trackingCache,
+    DeliveryMapConfiguration? mapConfiguration,
+    DeliveryMapAdapterFactory? mapAdapterFactory,
+    DeliveryMapSurfaceBuilder? mapSurfaceBuilder,
     String initialLocation = AppRoutes.ordersLocation,
   }) : container = ProviderContainer(
          overrides: [
@@ -284,6 +529,22 @@ final class _Harness {
            deliveryTrackingPollIntervalProvider.overrideWithValue(
              const Duration(hours: 1),
            ),
+           if (mapConfiguration != null)
+             deliveryMapConfigurationProvider.overrideWithValue(
+               mapConfiguration,
+             ),
+           if (mapConfiguration != null)
+             deliveryMapNativeConfigurationProbeProvider.overrideWithValue(
+               () async => mapConfiguration.nativeConfigurationPresent,
+             ),
+           if (mapAdapterFactory != null)
+             deliveryMapAdapterFactoryProvider.overrideWithValue(
+               mapAdapterFactory,
+             ),
+           if (mapSurfaceBuilder != null)
+             deliveryMapSurfaceBuilderProvider.overrideWithValue(
+               mapSurfaceBuilder,
+             ),
          ],
        ),
        router = GoRouter(
@@ -335,6 +596,32 @@ final class _Harness {
     container.dispose();
   }
 }
+
+DeliveryTrackingSnapshot _trackingWithoutLiveMap({
+  required DeliveryTrackingMode mode,
+}) => DeliveryTrackingSnapshot(
+  orderId: orderTestOrder,
+  orderStatus: 'ready',
+  orderStatusVersion: 2,
+  fulfillmentMode: 'delivery',
+  trackingMode: mode,
+  trackingState: DeliveryTrackingState.awaitingAssignment,
+  freshness: DeliveryTrackingFreshness.unavailable,
+  contactCapability: DeliveryContactCapability.none,
+  serverTime: trackingTestNow,
+  version: 1,
+  etaStartsAt: trackingTestNow.add(const Duration(minutes: 30)),
+  etaEndsAt: trackingTestNow.add(const Duration(minutes: 60)),
+  externalCarrier: mode == DeliveryTrackingMode.externalCarrier
+      ? 'Transportes Chile'
+      : null,
+  externalTrackingCodeMasked: mode == DeliveryTrackingMode.externalCarrier
+      ? '****1234'
+      : null,
+  externalTrackingUrl: mode == DeliveryTrackingMode.externalCarrier
+      ? Uri.https('carrier.example', '/track/1234')
+      : null,
+);
 
 AuthenticatedCustomer _identity() =>
     AuthenticatedCustomer.fromUntrustedIdentity(

@@ -449,9 +449,18 @@ class _ActiveOrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final status = customerOrderStatusLabel(l10n, order.status);
+    final canFollowDelivery =
+        order.fulfillmentMode == CustomerOrderFulfillmentMode.delivery &&
+        order.status == CustomerOrderStatus.outForDelivery;
+    final semanticsLabel = [
+      l10n.homeActiveOrderSemantics(order.code, status),
+      order.primaryItemName,
+      if (canFollowDelivery) l10n.deliveryTrackingFollowAction,
+    ].join('. ');
     return Semantics(
       button: true,
-      label: l10n.homeActiveOrderSemantics(order.code, status),
+      label: semanticsLabel,
+      excludeSemantics: true,
       child: Card(
         key: const ValueKey('home-active-order'),
         margin: EdgeInsets.zero,
@@ -496,6 +505,18 @@ class _ActiveOrderCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
+                      if (canFollowDelivery) ...[
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          l10n.deliveryTrackingFollowAction,
+                          key: const ValueKey('home-follow-delivery'),
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w800,
+                              ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

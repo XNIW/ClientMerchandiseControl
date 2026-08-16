@@ -518,7 +518,10 @@ class _AccountHub extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final orderState = ref.watch(customerOrderControllerProvider);
-    final countsAvailable = orderState.status != CustomerOrdersStatus.loading;
+    final countsAvailable =
+        orderState.status != CustomerOrdersStatus.loading &&
+        !orderState.hasMore &&
+        !orderState.isLoadingMore;
     int countWhere(bool Function(CustomerOrderCard order) predicate) {
       return orderState.orders.where(predicate).length;
     }

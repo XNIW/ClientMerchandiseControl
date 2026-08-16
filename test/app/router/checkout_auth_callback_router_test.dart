@@ -137,6 +137,18 @@ void main() {
     expect(router.state.uri.queryParameters['filter'], 'active');
     expect(orderRepository.listRequests, hasLength(1));
     expect(find.text('Activos'), findsWidgets);
+
+    router.go(AppRoutes.orderLocation(orderTestOrder));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, AppRoutes.orderLocation(orderTestOrder));
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(
+      router.state.uri.path,
+      AppRoutes.ordersLocation,
+      reason: 'back dal dettaglio deve tornare alla branch Ordini',
+    );
     expect(tester.takeException(), isNull);
   });
 }

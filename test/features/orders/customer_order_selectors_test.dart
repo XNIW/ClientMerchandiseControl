@@ -17,6 +17,12 @@ void main() {
 
     expect(selectPrimaryActiveOrder(orders)?.id, 'delivery-new');
     expect(activeCustomerOrderCount(orders), 5);
+    expect(completeActiveCustomerOrderCount(orders, hasMore: false), 5);
+    expect(
+      completeActiveCustomerOrderCount(orders, hasMore: true),
+      isNull,
+      reason: 'un conteggio parziale non deve essere presentato come totale',
+    );
   });
 
   test('filtri usano soltanto stati supportati dal contratto', () {

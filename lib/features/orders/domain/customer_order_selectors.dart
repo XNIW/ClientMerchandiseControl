@@ -66,3 +66,11 @@ int activeCustomerOrderCount(Iterable<CustomerOrderCard> orders) {
       .where((order) => isActiveCustomerOrderStatus(order.status))
       .length;
 }
+
+int? completeActiveCustomerOrderCount(
+  Iterable<CustomerOrderCard> orders, {
+  required bool hasMore,
+}) {
+  if (hasMore) return null;
+  return activeCustomerOrderCount(orders);
+}

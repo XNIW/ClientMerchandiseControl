@@ -27,7 +27,10 @@ class AppShellScreen extends ConsumerWidget {
     );
     final activeOrderCount = ref.watch(
       customerOrderControllerProvider.select(
-        (state) => activeCustomerOrderCount(state.orders),
+        (state) => completeActiveCustomerOrderCount(
+          state.orders,
+          hasMore: state.hasMore,
+        ),
       ),
     );
     final titles = [
@@ -38,6 +41,7 @@ class AppShellScreen extends ConsumerWidget {
       l10n.accountTitle,
     ];
     final currentIndex = navigationShell.currentIndex;
+    final canPopCurrentRoute = GoRouter.of(context).canPop();
     void selectDestination(int index) {
       navigationShell.goBranch(index, initialLocation: index == currentIndex);
     }
@@ -48,9 +52,9 @@ class AppShellScreen extends ConsumerWidget {
             constraints.maxWidth >= AppBreakpoints.wide &&
             constraints.maxHeight >= 480;
         return PopScope<void>(
-          canPop: currentIndex == 0,
+          canPop: currentIndex == 0 || canPopCurrentRoute,
           onPopInvokedWithResult: (didPop, _) {
-            if (!didPop && currentIndex != 0) {
+            if (!didPop && currentIndex != 0 && !canPopCurrentRoute) {
               navigationShell.goBranch(0);
             }
           },
@@ -115,17 +119,21 @@ class AppShellScreen extends ConsumerWidget {
                               key: const ValueKey('nav-orders'),
                               icon: Icons.receipt_long_outlined,
                               count: activeOrderCount,
-                              semanticsLabel: l10n.navigationOrdersBadge(
-                                activeOrderCount,
-                              ),
+                              semanticsLabel: activeOrderCount == null
+                                  ? l10n.navigationOrders
+                                  : l10n.navigationOrdersBadge(
+                                      activeOrderCount,
+                                    ),
                             ),
                             selectedIcon: _NavigationIcon(
                               key: const ValueKey('nav-orders'),
                               icon: Icons.receipt_long,
                               count: activeOrderCount,
-                              semanticsLabel: l10n.navigationOrdersBadge(
-                                activeOrderCount,
-                              ),
+                              semanticsLabel: activeOrderCount == null
+                                  ? l10n.navigationOrders
+                                  : l10n.navigationOrdersBadge(
+                                      activeOrderCount,
+                                    ),
                             ),
                             label: Text(l10n.navigationOrders),
                           ),
@@ -206,16 +214,16 @@ class AppShellScreen extends ConsumerWidget {
                         icon: _NavigationIcon(
                           icon: Icons.receipt_long_outlined,
                           count: activeOrderCount,
-                          semanticsLabel: l10n.navigationOrdersBadge(
-                            activeOrderCount,
-                          ),
+                          semanticsLabel: activeOrderCount == null
+                              ? l10n.navigationOrders
+                              : l10n.navigationOrdersBadge(activeOrderCount),
                         ),
                         selectedIcon: _NavigationIcon(
                           icon: Icons.receipt_long,
                           count: activeOrderCount,
-                          semanticsLabel: l10n.navigationOrdersBadge(
-                            activeOrderCount,
-                          ),
+                          semanticsLabel: activeOrderCount == null
+                              ? l10n.navigationOrders
+                              : l10n.navigationOrdersBadge(activeOrderCount),
                         ),
                         label: l10n.navigationOrders,
                       ),
@@ -257,12 +265,12 @@ class _NavigationIcon extends StatelessWidget {
   });
 
   final IconData icon;
-  final int count;
+  final int? count;
   final String semanticsLabel;
 
   @override
   Widget build(BuildContext context) {
-    final boundedCount = count.clamp(0, 99);
+    final boundedCount = (count ?? 0).clamp(0, 99);
     return Semantics(
       label: semanticsLabel,
       excludeSemantics: true,
@@ -270,7 +278,7 @@ class _NavigationIcon extends StatelessWidget {
         dimension: AppSizes.minimumTouchTarget,
         child: Center(
           child: Badge.count(
-            isLabelVisible: count > 0,
+            isLabelVisible: count != null && count! > 0,
             count: boundedCount,
             child: Icon(icon),
           ),

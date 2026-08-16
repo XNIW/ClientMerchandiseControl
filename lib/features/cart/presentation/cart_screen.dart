@@ -8,12 +8,15 @@ import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../app/design_system/widgets/storefront_page.dart';
+import '../../../app/design_system/widgets/storefront_section.dart';
 import '../../../app/design_system/widgets/storefront_status_banner.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../home/presentation/storefront_product_card.dart';
+import '../../home/application/home_controller.dart';
 import '../../reservations/presentation/reservation_hold_panel.dart';
+import '../../storefront/domain/storefront_models.dart';
 import '../../storefront/presentation/storefront_product_metadata.dart';
 import '../application/cart_controller.dart';
 import '../application/cart_state.dart';
@@ -131,15 +134,8 @@ class _CartBody extends ConsumerWidget {
       );
     }
     if (snapshot.items.isEmpty) {
-      return StorefrontPage(
-        child: StorefrontEmptyState(
-          icon: Icons.shopping_cart_outlined,
-          title: l10n.cartEmptyTitle,
-          message: l10n.cartEmptyMessage,
-          actionLabel: l10n.cartExploreCatalog,
-          actionKey: const ValueKey('cart-explore-catalog'),
-          onAction: () => context.go(AppRoutes.catalogLocation),
-        ),
+      return _EmptyCartContent(
+        featured: ref.watch(homeControllerProvider).data?.featured ?? const [],
       );
     }
     return RefreshIndicator.adaptive(
@@ -162,20 +158,15 @@ class _CartBody extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: Semantics(
-                      button: true,
-                      label: l10n.cartClearAction,
-                      excludeSemantics: true,
-                      child: IconButton(
-                        key: const ValueKey('cart-clear'),
-                        tooltip: l10n.cartClearAction,
-                        onPressed: onClear,
-                        icon: const Icon(Icons.delete_sweep_outlined),
-                      ),
-                    ),
+                  _CartContextHeader(
+                    fulfillment: ref
+                        .watch(homeControllerProvider)
+                        .data
+                        ?.settings
+                        .fulfillment,
+                    onClear: onClear,
                   ),
+                  const SizedBox(height: AppSpacing.sm),
                   StorefrontStatusBanner(
                     message: state.isAuthenticated
                         ? l10n.cartAccountSyncMessage
@@ -203,7 +194,7 @@ class _CartBody extends ConsumerWidget {
                       onAction: ref.read(cartControllerProvider.notifier).retry,
                     ),
                   ],
-                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: AppSpacing.md),
                   for (
                     var index = 0;
                     index < snapshot.items.length;
@@ -218,6 +209,81 @@ class _CartBody extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _EmptyCartContent extends StatelessWidget {
+  const _EmptyCartContent({required this.featured});
+
+  final List<StorefrontProductSummary> featured;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return StorefrontPage(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          StorefrontEmptyState(
+            icon: Icons.shopping_cart_outlined,
+            title: l10n.cartEmptyTitle,
+            message: l10n.cartEmptyMessage,
+            actionLabel: l10n.cartExploreCatalog,
+            actionKey: const ValueKey('cart-explore-catalog'),
+            onAction: () => context.go(AppRoutes.catalogLocation),
+          ),
+          if (featured.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.xl),
+            StorefrontSection(
+              title: l10n.homeFeaturedTitle,
+              actionLabel: l10n.homeExploreCatalog,
+              onAction: () => context.go(AppRoutes.catalogLocation),
+              child: StorefrontProductCollection(
+                products: featured.take(6).toList(growable: false),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _CartContextHeader extends StatelessWidget {
+  const _CartContextHeader({required this.fulfillment, required this.onClear});
+
+  final StorefrontFulfillment? fulfillment;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final modes = <String>[
+      if (fulfillment?.pickup == true) l10n.checkoutModePickup,
+      if (fulfillment?.delivery == true) l10n.checkoutModeDelivery,
+    ];
+    return Card.outlined(
+      key: const ValueKey('cart-store-context'),
+      margin: EdgeInsets.zero,
+      child: ListTile(
+        leading: const Icon(Icons.storefront_outlined),
+        title: Text(l10n.homeSelectedStore),
+        subtitle: Text(
+          modes.isEmpty ? l10n.homeStoreContextFallback : modes.join(' · '),
+        ),
+        trailing: Semantics(
+          button: true,
+          label: l10n.cartClearAction,
+          excludeSemantics: true,
+          child: IconButton(
+            key: const ValueKey('cart-clear'),
+            tooltip: l10n.cartClearAction,
+            onPressed: onClear,
+            icon: const Icon(Icons.delete_sweep_outlined),
+          ),
+        ),
       ),
     );
   }
@@ -260,7 +326,7 @@ class _CartLineCard extends ConsumerWidget {
             children: [
               ExcludeSemantics(
                 child: SizedBox.square(
-                  dimension: 88,
+                  dimension: 72,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(AppRadii.surface),
                     child: StorefrontProductImage(
@@ -282,7 +348,7 @@ class _CartLineCard extends ConsumerWidget {
                   children: [
                     Text(
                       line.publicName,
-                      maxLines: 3,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
@@ -292,7 +358,7 @@ class _CartLineCard extends ConsumerWidget {
                     Text(
                       price,
                       key: ValueKey('cart-price-${line.publicationId}'),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: StorefrontSemanticColors.of(context).price,
                         fontWeight: FontWeight.w800,
                       ),
@@ -488,6 +554,17 @@ class _CartSummary extends ConsumerWidget {
                           ),
                           label: Text(statusLabel),
                         ),
+                        if (state.isAuthenticated)
+                          TextButton.icon(
+                            key: const ValueKey('cart-revalidate'),
+                            onPressed: state.isBusy
+                                ? null
+                                : ref
+                                      .read(cartControllerProvider.notifier)
+                                      .revalidate,
+                            icon: const Icon(Icons.verified_outlined),
+                            label: Text(l10n.cartRevalidateAction),
+                          ),
                       ],
                     ),
                   ),
@@ -514,24 +591,6 @@ class _CartSummary extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  if (state.isAuthenticated) ...[
-                    const SizedBox(height: AppSpacing.xs),
-                    OutlinedButton.icon(
-                      key: const ValueKey('cart-revalidate'),
-                      onPressed: state.isBusy
-                          ? null
-                          : ref
-                                .read(cartControllerProvider.notifier)
-                                .revalidate,
-                      icon: const Icon(Icons.verified_outlined),
-                      label: Text(l10n.cartRevalidateAction),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(
-                          AppSizes.minimumTouchTarget,
-                        ),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),

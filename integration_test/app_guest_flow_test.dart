@@ -51,13 +51,12 @@ void main() {
 
     final homeContext = tester.element(find.byType(HomeScreen));
     final l10n = AppLocalizations.of(homeContext);
-    expect(find.text(l10n.homeWelcomeTitle), findsOneWidget);
-    expect(find.text(l10n.homeWelcomeMessage), findsOneWidget);
+    expect(find.text(l10n.homeSelectedStore), findsOneWidget);
     expect(find.text(l10n.homeCategoriesTitle), findsOneWidget);
     expect(find.text(l10n.homeOffersTitle), findsOneWidget);
     expect(find.text(l10n.homeFeaturedTitle), findsOneWidget);
     expect(find.byKey(const ValueKey('home-search')), findsOneWidget);
-    expect(find.byKey(const ValueKey('home-open-catalog')), findsOneWidget);
+    expect(find.byKey(const ValueKey('home-categories')), findsOneWidget);
     _expectNoFakeCommercialData(tester);
     _expectNoFrameworkException(tester, 'cold launch Home');
 
@@ -74,7 +73,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.element(homeFinder), same(homeElement));
 
-    final homeCatalogAction = find.byKey(const ValueKey('home-open-catalog'));
+    final homeCatalogAction = find.byKey(const ValueKey('home-categories'));
     await tester.ensureVisible(homeCatalogAction);
     await tester.pumpAndSettle();
     final homeScrollState = Scrollable.of(tester.element(homeCatalogAction));
@@ -86,7 +85,7 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('nav-cart')));
     await tester.pumpAndSettle();
-    _expectSelectedDestination<CartScreen>(tester, 2);
+    _expectSelectedDestination<CartScreen>(tester, 3);
     expect(find.text(l10n.cartEmptyTitle), findsOneWidget);
     expect(find.text(l10n.cartEmptyMessage), findsOneWidget);
     final cartCatalogAction = find.byKey(
@@ -104,10 +103,10 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('nav-cart')));
     await tester.pumpAndSettle();
-    _expectSelectedDestination<CartScreen>(tester, 2);
+    _expectSelectedDestination<CartScreen>(tester, 3);
     await tester.tap(find.byKey(const ValueKey('nav-account')));
     await tester.pumpAndSettle();
-    _expectSelectedDestination<AccountScreen>(tester, 3);
+    _expectSelectedDestination<AccountScreen>(tester, 4);
 
     expect(find.text(l10n.accountGuestTitle), findsOneWidget);
     expect(find.text(l10n.accountGuestBenefit), findsOneWidget);
@@ -117,7 +116,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(l10n.accountContinueWithGoogle), findsOneWidget);
     expect(tester.widget<FilledButton>(googleAction).onPressed, isNull);
-    expect(find.byKey(const ValueKey('account-browse-button')), findsNothing);
+    expect(find.byKey(const ValueKey('account-browse-button')), findsOneWidget);
     expect(find.byType(Form), findsNothing);
     _expectNoFakeCommercialData(tester);
     _expectNoFrameworkException(tester, 'Account guest fail-closed');
@@ -207,6 +206,7 @@ Future<void> _verifyPrimarySemanticsAndTargets(
   final destinations = <({String key, String label})>[
     (key: 'nav-home', label: l10n.navigationHome),
     (key: 'nav-catalog', label: l10n.navigationCatalog),
+    (key: 'nav-orders', label: l10n.navigationOrders),
     (key: 'nav-cart', label: l10n.navigationCart),
     (key: 'nav-account', label: l10n.navigationAccount),
   ];
@@ -227,7 +227,7 @@ Future<void> _verifyPrimarySemanticsAndTargets(
   expect(homeSearchData.label, l10n.homeSearchLabel);
   expect(homeSearchData.hasAction(ui.SemanticsAction.tap), isTrue);
 
-  final homeCatalog = find.byKey(const ValueKey('home-open-catalog'));
+  final homeCatalog = find.byKey(const ValueKey('home-categories'));
   await tester.ensureVisible(homeCatalog);
   await tester.pumpAndSettle();
   _expectMinimumTouchTarget(tester, homeCatalog, 'home-open-catalog');
@@ -270,33 +270,45 @@ Future<void> _visitAllDestinations(
   final destinations = <({String key, Type screen})>[
     (key: 'nav-home', screen: HomeScreen),
     (key: 'nav-catalog', screen: CatalogScreen),
+    (key: 'nav-orders', screen: AccountScreen),
     (key: 'nav-cart', screen: CartScreen),
     (key: 'nav-account', screen: AccountScreen),
   ];
 
-  for (var index = 0; index < destinations.length; index++) {
-    final destination = destinations[index];
+  const expectedIndexes = <String, int>{
+    'nav-home': 0,
+    'nav-catalog': 1,
+    'nav-orders': 4,
+    'nav-cart': 3,
+    'nav-account': 4,
+  };
+
+  for (final destination in destinations) {
     await tester.tap(find.byKey(ValueKey(destination.key)));
     await tester.pumpAndSettle();
-    _expectSelectedDestination(tester, index, destination.screen);
+    _expectSelectedDestination(
+      tester,
+      expectedIndexes[destination.key]!,
+      destination.screen,
+    );
 
-    switch (index) {
-      case 0:
+    switch (destination.key) {
+      case 'nav-home':
         await tester.ensureVisible(
-          find.byKey(const ValueKey('home-open-catalog')),
+          find.byKey(const ValueKey('home-categories')),
         );
         break;
-      case 1:
+      case 'nav-catalog':
         await tester.ensureVisible(
           find.byKey(const ValueKey('catalog-search')),
         );
         break;
-      case 2:
+      case 'nav-cart':
         await tester.ensureVisible(
           find.byKey(const ValueKey('cart-explore-catalog')),
         );
         break;
-      case 3:
+      case 'nav-orders' || 'nav-account':
         await tester.ensureVisible(
           find.byKey(const ValueKey('account-google-button')),
         );

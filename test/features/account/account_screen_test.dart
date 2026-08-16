@@ -439,7 +439,7 @@ void main() {
             await tester.pump();
 
             expect(
-              find.byKey(const ValueKey('account-card')),
+              find.byKey(const ValueKey('account-hub')),
               findsOneWidget,
               reason: '${testCase.name} / $themeMode / $viewport',
             );

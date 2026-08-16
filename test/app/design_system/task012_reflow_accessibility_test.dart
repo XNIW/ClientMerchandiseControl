@@ -76,7 +76,7 @@ void main() {
       _expectCurrentPageUsesAvailableWidth(tester);
       await _expectActionIsFullyReachable(
         tester,
-        key: const ValueKey('home-open-catalog'),
+        key: const ValueKey('home-search'),
       );
       expect(find.byType(CatalogScreen), findsOneWidget);
       _expectCurrentPageUsesAvailableWidth(tester);
@@ -128,6 +128,7 @@ void main() {
       for (final key in const [
         ValueKey('nav-home'),
         ValueKey('nav-catalog'),
+        ValueKey('nav-orders'),
         ValueKey('nav-cart'),
         ValueKey('nav-account'),
       ]) {
@@ -273,7 +274,7 @@ Future<void> _expectActionIsFullyReachable(
   required ValueKey<String> key,
 }) async {
   final action = find.byKey(key);
-  await _scrollToEnd(tester, action);
+  await _scrollFullyIntoView(tester, action);
 
   final scrollView = _currentPageScrollView();
   _expectRectInside(tester.getRect(action), tester.getRect(scrollView));
@@ -296,13 +297,6 @@ Future<void> _scrollFullyIntoView(WidgetTester tester, Finder target) async {
     alignment: 0.5,
     duration: Duration.zero,
   );
-  await tester.pumpAndSettle();
-}
-
-Future<void> _scrollToEnd(WidgetTester tester, Finder target) async {
-  expect(target, findsOneWidget);
-  final position = Scrollable.of(tester.element(target)).position;
-  position.jumpTo(position.maxScrollExtent);
   await tester.pumpAndSettle();
 }
 

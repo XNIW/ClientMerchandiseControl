@@ -15,7 +15,9 @@ import '../../auth/domain/authenticated_customer.dart';
 import '../../auth/domain/auth_failure.dart';
 import '../../auth/domain/auth_state.dart';
 import '../../customer_devices/presentation/customer_notification_panel.dart';
-import '../../orders/presentation/customer_orders_account_entry.dart';
+import '../../orders/application/customer_order_controller.dart';
+import '../../orders/domain/customer_order_models.dart';
+import '../../orders/domain/customer_order_selectors.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import 'account_presentation_model.dart';
 import 'customer_account_panel.dart';
@@ -58,14 +60,7 @@ class AccountScreen extends ConsumerWidget {
       AuthAuthenticated(:final customer) => AccountView.authenticated(
         model: _presentationModel(customer),
         onLogout: controller.signOut,
-        details: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const CustomerOrdersAccountEntry(),
-            CustomerAccountPanel(authDisplayName: customer.displayName),
-            const CustomerNotificationPanel(),
-          ],
-        ),
+        details: _AccountHub(authDisplayName: customer.displayName),
       ),
       AuthSigningOut(:final customer) => AccountView.authenticated(
         model: _presentationModel(customer),
@@ -221,13 +216,7 @@ class _AccountSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     return StorefrontPage(
       maxWidth: AppSizes.accountContentMaxWidth,
-      child: Card(
-        key: const ValueKey('account-card'),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: child,
-        ),
-      ),
+      child: KeyedSubtree(key: const ValueKey('account-hub'), child: child),
     );
   }
 }
@@ -398,82 +387,95 @@ class _AuthenticatedAccountContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Semantics(
-          header: true,
-          child: Text(
-            l10n.accountAuthenticatedTitle,
-            key: const ValueKey('account-title'),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xl),
-        Align(
-          child: _AccountAvatar(
-            bytes: model.avatarBytes,
-            semanticLabel: l10n.accountAvatarLabel(displayName),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Text(
-          displayName,
-          key: const ValueKey('account-display-name'),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          email,
-          key: const ValueKey('account-email'),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xl),
-        Semantics(
-          container: true,
-          label: l10n.accountSessionActive,
-          child: ExcludeSemantics(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: semanticColors.successContainer,
-                borderRadius: BorderRadius.circular(AppRadii.surface),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.sm,
+        Card(
+          key: const ValueKey('account-profile-header'),
+          margin: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _AccountAvatar(
+                  bytes: model.avatarBytes,
+                  semanticLabel: l10n.accountAvatarLabel(displayName),
                 ),
-                child: Row(
-                  key: const ValueKey('account-session-status'),
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.verified_user_outlined,
-                      color: semanticColors.onSuccessContainer,
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Flexible(
-                      child: Text(
-                        l10n.accountSessionActive,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: semanticColors.onSuccessContainer,
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.accountAuthenticatedTitle,
+                        key: const ValueKey('account-title'),
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          displayName,
+                          key: const ValueKey('account-display-name'),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        email,
+                        key: const ValueKey('account-email'),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Semantics(
+                        container: true,
+                        label: l10n.accountSessionActive,
+                        child: ExcludeSemantics(
+                          child: Row(
+                            key: const ValueKey('account-session-status'),
+                            children: [
+                              Icon(
+                                Icons.verified_user_outlined,
+                                size: 18,
+                                color: semanticColors.success,
+                              ),
+                              const SizedBox(width: AppSpacing.xs),
+                              Expanded(
+                                child: Text(
+                                  l10n.accountSessionActive,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: semanticColors.success,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.xl),
+        if (details != null) ...[
+          const SizedBox(height: AppSpacing.lg),
+          details!,
+        ],
+        const SizedBox(height: AppSpacing.lg),
         _AccountButtonSemantics(
           label: isSigningOut ? l10n.accountSigningOut : l10n.accountLogout,
           onTap: onLogout,
@@ -502,8 +504,247 @@ class _AuthenticatedAccountContent extends StatelessWidget {
             ),
           ),
         ),
-        ?details,
       ],
+    );
+  }
+}
+
+class _AccountHub extends ConsumerWidget {
+  const _AccountHub({required this.authDisplayName});
+
+  final String? authDisplayName;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final orderState = ref.watch(customerOrderControllerProvider);
+    final countsAvailable = orderState.status != CustomerOrdersStatus.loading;
+    int countWhere(bool Function(CustomerOrderCard order) predicate) {
+      return orderState.orders.where(predicate).length;
+    }
+
+    final shortcuts =
+        <
+          ({
+            CustomerOrderListFilter filter,
+            String label,
+            int count,
+            IconData icon,
+          })
+        >[
+          (
+            filter: CustomerOrderListFilter.active,
+            label: l10n.ordersFilterActive,
+            count: activeCustomerOrderCount(orderState.orders),
+            icon: Icons.pending_actions_outlined,
+          ),
+          (
+            filter: CustomerOrderListFilter.active,
+            label: l10n.checkoutOrderStatusReady,
+            count: countWhere(
+              (order) => order.status == CustomerOrderStatus.ready,
+            ),
+            icon: Icons.inventory_2_outlined,
+          ),
+          (
+            filter: CustomerOrderListFilter.active,
+            label: l10n.checkoutOrderStatusOutForDelivery,
+            count: countWhere(
+              (order) => order.status == CustomerOrderStatus.outForDelivery,
+            ),
+            icon: Icons.local_shipping_outlined,
+          ),
+          (
+            filter: CustomerOrderListFilter.completed,
+            label: l10n.ordersFilterCompleted,
+            count: countWhere(
+              (order) => order.status == CustomerOrderStatus.completed,
+            ),
+            icon: Icons.check_circle_outline,
+          ),
+          (
+            filter: CustomerOrderListFilter.cancelled,
+            label: l10n.ordersFilterCancelled,
+            count: countWhere(
+              (order) =>
+                  order.status == CustomerOrderStatus.cancelled ||
+                  order.status == CustomerOrderStatus.rejected,
+            ),
+            icon: Icons.cancel_outlined,
+          ),
+        ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Card.outlined(
+          key: const ValueKey('account-orders-hub'),
+          margin: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ListTile(
+                  key: const ValueKey('customer-orders-account-entry'),
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.receipt_long_outlined),
+                  title: Text(
+                    l10n.ordersAccountTitle,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  subtitle: Text(l10n.ordersAccountDescription),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.go(AppRoutes.ordersLocation),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final width = constraints.maxWidth >= 520
+                        ? (constraints.maxWidth - AppSpacing.sm * 4) / 5
+                        : (constraints.maxWidth - AppSpacing.sm) / 2;
+                    return Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
+                      children: [
+                        for (final shortcut in shortcuts)
+                          SizedBox(
+                            width: width,
+                            child: _OrderShortcut(
+                              label: shortcut.label,
+                              count: countsAvailable ? shortcut.count : null,
+                              icon: shortcut.icon,
+                              onTap: () => context.go(
+                                AppRoutes.ordersLocationForFilter(
+                                  shortcut.filter.name,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Card.outlined(
+          margin: EdgeInsets.zero,
+          child: ListTile(
+            key: const ValueKey('account-favorites-shortcut'),
+            leading: const Icon(Icons.favorite_border),
+            title: Text(l10n.favoritesTitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.favoritesLocation),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Card.outlined(
+          margin: EdgeInsets.zero,
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
+            key: const ValueKey('account-personal-settings-section'),
+            leading: const Icon(Icons.manage_accounts_outlined),
+            title: Text(l10n.accountPersonalSettingsTitle),
+            subtitle: Text(l10n.accountPersonalSettingsDescription),
+            childrenPadding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              0,
+              AppSpacing.lg,
+              AppSpacing.lg,
+            ),
+            children: [CustomerAccountPanel(authDisplayName: authDisplayName)],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Card.outlined(
+          margin: EdgeInsets.zero,
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
+            key: const ValueKey('account-notifications-section'),
+            leading: const Icon(Icons.notifications_outlined),
+            title: Text(l10n.customerNotificationsTitle),
+            subtitle: Text(l10n.accountNotificationsDescription),
+            childrenPadding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              0,
+              AppSpacing.lg,
+              AppSpacing.lg,
+            ),
+            children: const [CustomerNotificationPanel()],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OrderShortcut extends StatelessWidget {
+  const _OrderShortcut({
+    required this.label,
+    required this.count,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String label;
+  final int? count;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: count == null ? label : '$label, $count',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadii.surface),
+        onTap: onTap,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(AppRadii.surface),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: AppSizes.minimumTouchTarget * 1.5,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon),
+                  const SizedBox(height: AppSpacing.xs),
+                  if (count == null)
+                    const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  else
+                    Text(
+                      count.toString(),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  Text(
+                    label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

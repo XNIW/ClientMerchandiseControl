@@ -49,6 +49,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navigationCatalog => 'Catalog';
 
   @override
+  String get navigationOrders => 'Orders';
+
+  @override
+  String navigationCartBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Cart, $count products',
+      one: 'Cart, 1 product',
+      zero: 'Cart, no products',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String navigationOrdersBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Orders, $count active orders',
+      one: 'Orders, 1 active order',
+      zero: 'Orders, no active orders',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get navigationCart => 'Cart';
 
   @override
@@ -94,6 +121,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSearchHint => 'What are you looking for?';
+
+  @override
+  String get homeSelectedStore => 'Selected store';
+
+  @override
+  String get homeDeliveryDestination => 'Delivery destination';
+
+  @override
+  String get homeStoreContextFallback => 'Availability confirmed by the store';
+
+  @override
+  String get homeActiveOrderTitle => 'Active order';
+
+  @override
+  String homeActiveOrderSemantics(String code, String status) {
+    return 'Active order $code, status $status';
+  }
 
   @override
   String get homeCategoriesTitle => 'Explore by category';
@@ -408,6 +452,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountLogout => 'Sign out';
+
+  @override
+  String get accountPersonalSettingsTitle => 'Profile, addresses, and privacy';
+
+  @override
+  String get accountPersonalSettingsDescription =>
+      'Manage your identity, language, addresses, and Storefront data.';
+
+  @override
+  String get accountNotificationsDescription =>
+      'Choose how to receive real updates about your orders.';
 
   @override
   String get accountSigningInTitle => 'Opening secure sign-in';
@@ -921,6 +976,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cartAddAction => 'Add to cart';
+
+  @override
+  String cartAddQuantityAction(int quantity) {
+    return 'Add $quantity to cart';
+  }
 
   @override
   String get cartAddedNotice => 'Product added to cart.';
@@ -1467,6 +1527,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ordersTitle => 'My orders';
+
+  @override
+  String get ordersFiltersLabel => 'Filter orders';
+
+  @override
+  String get ordersFilterAll => 'All';
+
+  @override
+  String get ordersFilterActive => 'Active';
+
+  @override
+  String get ordersFilterCompleted => 'Completed';
+
+  @override
+  String get ordersFilterCancelled => 'Cancelled';
+
+  @override
+  String get ordersFilterEmptyTitle => 'No orders in this status';
+
+  @override
+  String get ordersFilterEmptyMessage =>
+      'Choose another filter or refresh to check for changes.';
+
+  @override
+  String get ordersActiveOrder => 'Active order';
 
   @override
   String get ordersRefreshTooltip => 'Refresh orders';

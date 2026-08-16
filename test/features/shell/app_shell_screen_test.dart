@@ -18,19 +18,20 @@ void main() {
     );
   }
 
-  const destinations = <({String key, Type screen})>[
-    (key: 'nav-home', screen: HomeScreen),
-    (key: 'nav-catalog', screen: CatalogScreen),
-    (key: 'nav-cart', screen: CartScreen),
-    (key: 'nav-account', screen: AccountScreen),
+  const destinations = <({String key, Type screen, int index})>[
+    (key: 'nav-home', screen: HomeScreen, index: 0),
+    (key: 'nav-catalog', screen: CatalogScreen, index: 1),
+    (key: 'nav-cart', screen: CartScreen, index: 3),
+    (key: 'nav-account', screen: AccountScreen, index: 4),
   ];
 
-  testWidgets('presenta le quattro destinazioni localizzate', (tester) async {
+  testWidgets('presenta le cinque destinazioni localizzate', (tester) async {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
     expect(find.text('Inicio'), findsWidgets);
     expect(find.text('Catálogo'), findsOneWidget);
+    expect(find.text('Pedidos'), findsOneWidget);
     expect(find.text('Carrito'), findsOneWidget);
     expect(find.text('Cuenta'), findsOneWidget);
   });
@@ -49,10 +50,7 @@ void main() {
       }
 
       expect(find.byType(destination.screen), findsOneWidget);
-      expect(
-        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-        index,
-      );
+      expect(_selectedDestinationIndex(tester), destination.index);
       for (final other in destinations.where(
         (candidate) => candidate != destination,
       )) {
@@ -60,7 +58,24 @@ void main() {
       }
     }
 
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(
+      find.byType(NavigationBar).evaluate().length +
+          find.byType(NavigationRail).evaluate().length,
+      1,
+    );
+  });
+
+  testWidgets('Ordini guest devia ad Account senza perdere il browsing', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('nav-orders')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AccountScreen), findsOneWidget);
+    expect(_selectedDestinationIndex(tester), 4);
   });
 
   testWidgets('il back da una tab secondaria torna alla Home', (tester) async {
@@ -84,10 +99,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(destinations[0].screen), findsOneWidget);
-    expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      0,
-    );
+    expect(_selectedDestinationIndex(tester), 0);
     expect(
       tester.widget<PopScope<void>>(find.byType(PopScope<void>)).canPop,
       isTrue,
@@ -162,11 +174,8 @@ void main() {
     tester,
   ) async {
     addTearDown(() => tester.binding.setSurfaceSize(null));
-    for (final testCase in [
-      (size: const Size(390, 844), horizontalPadding: AppSpacing.lg),
-      (size: const Size(1024, 768), horizontalPadding: AppSpacing.xxl),
-    ]) {
-      await tester.binding.setSurfaceSize(testCase.size);
+    for (final size in const [Size(390, 844), Size(1024, 768)]) {
+      await tester.binding.setSurfaceSize(size);
       await tester.pumpWidget(buildApp());
       await tester.pumpAndSettle();
 
@@ -176,10 +185,16 @@ void main() {
           matching: find.byType(SingleChildScrollView),
         ),
       );
+      final pageWidth = tester.getSize(find.byType(HomeScreen)).width;
+      final horizontalPadding = pageWidth >= 720
+          ? AppSpacing.xxl
+          : pageWidth <= 360
+          ? AppSpacing.md
+          : AppSpacing.lg;
       expect(
         scrollView.padding,
         EdgeInsets.symmetric(
-          horizontal: testCase.horizontalPadding,
+          horizontal: horizontalPadding,
           vertical: AppSpacing.xl,
         ),
       );
@@ -222,7 +237,10 @@ void main() {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
-    for (final destination in destinations) {
+    for (final destination in [
+      ...destinations,
+      (key: 'nav-orders', screen: AccountScreen, index: 2),
+    ]) {
       final size = tester.getSize(find.byKey(ValueKey(destination.key)));
       expect(size.width, greaterThanOrEqualTo(AppSizes.minimumTouchTarget));
       expect(size.height, greaterThanOrEqualTo(AppSizes.minimumTouchTarget));
@@ -232,4 +250,15 @@ void main() {
     expect(tester, meetsGuideline(androidTapTargetGuideline));
     expect(tester, meetsGuideline(iOSTapTargetGuideline));
   });
+}
+
+int _selectedDestinationIndex(WidgetTester tester) {
+  final navigationBar = find.byType(NavigationBar);
+  if (navigationBar.evaluate().isNotEmpty) {
+    return tester.widget<NavigationBar>(navigationBar).selectedIndex;
+  }
+  return tester
+          .widget<NavigationRail>(find.byType(NavigationRail))
+          .selectedIndex ??
+      -1;
 }

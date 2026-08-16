@@ -57,6 +57,7 @@ void main() {
         screen: CatalogScreen,
         label: l10n.navigationCatalog,
       ),
+      (key: 'nav-orders', screen: AccountScreen, label: l10n.navigationOrders),
       (key: 'nav-cart', screen: CartScreen, label: l10n.navigationCart),
       (
         key: 'nav-account',
@@ -162,15 +163,21 @@ Future<void> _visitAllDestinations(
   WidgetTester tester,
   List<({String key, Type screen, String label})> destinations,
 ) async {
-  for (var index = 0; index < destinations.length; index++) {
-    final destination = destinations[index];
+  const expectedIndexes = <String, int>{
+    'nav-home': 0,
+    'nav-catalog': 1,
+    'nav-orders': 4,
+    'nav-cart': 3,
+    'nav-account': 4,
+  };
+  for (final destination in destinations) {
     await tester.tap(find.byKey(ValueKey(destination.key)));
     await tester.pumpAndSettle();
 
     expect(find.byType(destination.screen), findsOneWidget);
     expect(
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      index,
+      expectedIndexes[destination.key],
     );
     _expectNoFakeCommercialData(tester);
     expect(tester.takeException(), isNull, reason: destination.key);

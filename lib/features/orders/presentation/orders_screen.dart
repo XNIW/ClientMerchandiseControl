@@ -11,26 +11,47 @@ import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../application/customer_order_controller.dart';
 import '../domain/customer_order_models.dart';
+import '../domain/customer_order_selectors.dart';
 import 'customer_order_presentation.dart';
 
-class OrdersScreen extends ConsumerWidget {
-  const OrdersScreen({super.key});
+class OrdersScreen extends ConsumerStatefulWidget {
+  const OrdersScreen({
+    this.initialFilter = CustomerOrderListFilter.all,
+    super.key,
+  });
+
+  final CustomerOrderListFilter initialFilter;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OrdersScreen> createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends ConsumerState<OrdersScreen> {
+  late CustomerOrderListFilter _filter;
+
+  @override
+  void initState() {
+    super.initState();
+    _filter = widget.initialFilter;
+  }
+
+  @override
+  void didUpdateWidget(covariant OrdersScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialFilter != widget.initialFilter) {
+      _filter = widget.initialFilter;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(customerOrderControllerProvider);
     final controller = ref.read(customerOrderControllerProvider.notifier);
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.ordersTitle),
-        leading: IconButton(
-          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-          onPressed: () => context.canPop()
-              ? context.pop()
-              : context.go(AppRoutes.accountLocation),
-          icon: const Icon(Icons.arrow_back),
-        ),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             key: const ValueKey('orders-refresh'),
@@ -40,15 +61,28 @@ class OrdersScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: SafeArea(top: false, child: _OrdersBody(state: state)),
+      body: SafeArea(
+        top: false,
+        child: _OrdersBody(
+          state: state,
+          filter: _filter,
+          onFilterChanged: (filter) => setState(() => _filter = filter),
+        ),
+      ),
     );
   }
 }
 
 class _OrdersBody extends ConsumerWidget {
-  const _OrdersBody({required this.state});
+  const _OrdersBody({
+    required this.state,
+    required this.filter,
+    required this.onFilterChanged,
+  });
 
   final CustomerOrdersState state;
+  final CustomerOrderListFilter filter;
+  final ValueChanged<CustomerOrderListFilter> onFilterChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -94,6 +128,14 @@ class _OrdersBody extends ConsumerWidget {
         ),
       );
     }
+    final filtered = filterCustomerOrders(state.orders, filter).toList();
+    final primaryActive = selectPrimaryActiveOrder(filtered);
+    if (primaryActive != null) {
+      filtered
+        ..removeWhere((order) => order.id == primaryActive.id)
+        ..insert(0, primaryActive);
+    }
+    final displayCount = filtered.isEmpty ? 1 : filtered.length;
     return RefreshIndicator.adaptive(
       onRefresh: controller.refresh,
       child: ListView.separated(
@@ -105,10 +147,23 @@ class _OrdersBody extends ConsumerWidget {
           AppSpacing.lg,
           AppSpacing.xxl,
         ),
-        itemCount: state.orders.length + 2,
+        itemCount: displayCount + 3,
         separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
         itemBuilder: (context, index) {
           if (index == 0) {
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppSizes.contentMaxWidth,
+                ),
+                child: _OrdersFilterBar(
+                  filter: filter,
+                  onChanged: onFilterChanged,
+                ),
+              ),
+            );
+          }
+          if (index == 1) {
             return Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
@@ -118,7 +173,7 @@ class _OrdersBody extends ConsumerWidget {
               ),
             );
           }
-          if (index == state.orders.length + 1) {
+          if (index == displayCount + 2) {
             return Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
@@ -149,16 +204,74 @@ class _OrdersBody extends ConsumerWidget {
               ),
             );
           }
-          final order = state.orders[index - 1];
+          if (filtered.isEmpty) {
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppSizes.contentMaxWidth,
+                ),
+                child: StorefrontEmptyState(
+                  icon: Icons.filter_alt_off_outlined,
+                  title: l10n.ordersFilterEmptyTitle,
+                  message: l10n.ordersFilterEmptyMessage,
+                ),
+              ),
+            );
+          }
+          final order = filtered[index - 2];
           return Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(
                 maxWidth: AppSizes.contentMaxWidth,
               ),
-              child: _OrderCard(order: order),
+              child: _OrderCard(
+                order: order,
+                highlighted: order.id == primaryActive?.id,
+              ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _OrdersFilterBar extends StatelessWidget {
+  const _OrdersFilterBar({required this.filter, required this.onChanged});
+
+  final CustomerOrderListFilter filter;
+  final ValueChanged<CustomerOrderListFilter> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final labels = <CustomerOrderListFilter, String>{
+      CustomerOrderListFilter.all: l10n.ordersFilterAll,
+      CustomerOrderListFilter.active: l10n.ordersFilterActive,
+      CustomerOrderListFilter.completed: l10n.ordersFilterCompleted,
+      CustomerOrderListFilter.cancelled: l10n.ordersFilterCancelled,
+    };
+    return Semantics(
+      container: true,
+      label: l10n.ordersFiltersLabel,
+      child: SingleChildScrollView(
+        key: const ValueKey('orders-filters'),
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+        child: Row(
+          children: [
+            for (final entry in labels.entries) ...[
+              FilterChip(
+                key: ValueKey('orders-filter-${entry.key.name}'),
+                label: Text(entry.value),
+                selected: filter == entry.key,
+                onSelected: (_) => onChanged(entry.key),
+              ),
+              if (entry.key != CustomerOrderListFilter.cancelled)
+                const SizedBox(width: AppSpacing.sm),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -233,9 +346,10 @@ class _StatusBanner extends StatelessWidget {
 }
 
 class _OrderCard extends StatelessWidget {
-  const _OrderCard({required this.order});
+  const _OrderCard({required this.order, required this.highlighted});
 
   final CustomerOrderCard order;
+  final bool highlighted;
 
   @override
   Widget build(BuildContext context) {
@@ -261,6 +375,15 @@ class _OrderCard extends StatelessWidget {
       child: Card(
         key: ValueKey('order-card-${order.id}'),
         clipBehavior: Clip.antiAlias,
+        shape: highlighted
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadii.surface),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 2,
+                ),
+              )
+            : null,
         child: InkWell(
           onTap: () => context.push(AppRoutes.orderLocation(order.id)),
           child: Padding(
@@ -268,6 +391,29 @@ class _OrderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (highlighted) ...[
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.local_shipping_outlined,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: AppSpacing.xs),
+                      Expanded(
+                        child: Text(
+                          l10n.ordersActiveOrder,
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w800,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
                 if (stacked)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

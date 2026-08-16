@@ -22,6 +22,18 @@
   "@navigationCatalog": {
     "description": "Etiqueta de la navegación hacia el catálogo."
   },
+  "navigationOrders": "Pedidos",
+  "@navigationOrders": {
+    "description": "Etiqueta de la navegación hacia los pedidos del cliente."
+  },
+  "navigationCartBadge": "{count, plural, =0{Carrito, sin productos} =1{Carrito, 1 producto} other{Carrito, {count} productos}}",
+  "@navigationCartBadge": {
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "navigationOrdersBadge": "{count, plural, =0{Pedidos, sin pedidos activos} =1{Pedidos, 1 pedido activo} other{Pedidos, {count} pedidos activos}}",
+  "@navigationOrdersBadge": {
+    "placeholders": {"count": {"type": "int"}}
+  },
   "navigationCart": "Carrito",
   "@navigationCart": {
     "description": "Etiqueta de la navegación hacia el carrito."
@@ -75,6 +87,17 @@
     "description": "Etiqueta accesible del acceso a búsqueda en Inicio."
   },
   "homeSearchHint": "¿Qué estás buscando?",
+  "homeSelectedStore": "Tienda seleccionada",
+  "homeDeliveryDestination": "Destino de entrega",
+  "homeStoreContextFallback": "Disponibilidad confirmada por la tienda",
+  "homeActiveOrderTitle": "Pedido activo",
+  "homeActiveOrderSemantics": "Pedido activo {code}, estado {status}",
+  "@homeActiveOrderSemantics": {
+    "placeholders": {
+      "code": {"type": "String"},
+      "status": {"type": "String"}
+    }
+  },
   "@homeSearchHint": {
     "description": "Texto orientativo del acceso a búsqueda en Inicio."
   },
@@ -312,6 +335,9 @@
     "description": "Confirmación breve de sesión autenticada."
   },
   "accountLogout": "Cerrar sesión",
+  "accountPersonalSettingsTitle": "Perfil, direcciones y privacidad",
+  "accountPersonalSettingsDescription": "Gestiona tu identidad, idioma, direcciones y datos Storefront.",
+  "accountNotificationsDescription": "Elige cómo recibir novedades reales de tus pedidos.",
   "@accountLogout": {
     "description": "Acción para cerrar la sesión."
   },
@@ -566,6 +592,8 @@
   "reservationHoldNotFoundError": "La reserva ya no existe o no pertenece a esta cuenta.",
   "reservationHoldUnexpectedError": "No pudimos verificar la reserva. Inténtalo nuevamente.",
   "cartAddAction": "Agregar al carrito",
+  "cartAddQuantityAction": "Agregar {quantity} al carrito",
+  "@cartAddQuantityAction": {"placeholders": {"quantity": {"type": "int"}}},
   "cartAddedNotice": "Producto agregado al carrito.",
   "cartGuestSyncMessage": "Tu carrito se guarda en este dispositivo y funciona sin conexión.",
   "cartAccountSyncMessage": "Tu carrito está asociado a tu cuenta y se valida con la tienda.",
@@ -732,6 +760,14 @@
   "ordersAccountDescription": "Consulta estados, detalles y retiros o entregas de tus pedidos.",
   "ordersAccountAction": "Ver pedidos",
   "ordersTitle": "Mis pedidos",
+  "ordersFiltersLabel": "Filtrar pedidos",
+  "ordersFilterAll": "Todos",
+  "ordersFilterActive": "Activos",
+  "ordersFilterCompleted": "Completados",
+  "ordersFilterCancelled": "Cancelados",
+  "ordersFilterEmptyTitle": "No hay pedidos en este estado",
+  "ordersFilterEmptyMessage": "Elige otro filtro o actualiza para comprobar cambios.",
+  "ordersActiveOrder": "Pedido activo",
   "ordersRefreshTooltip": "Actualizar pedidos",
   "ordersLoading": "Cargando tus pedidos…",
   "ordersOffline": "Sin conexión. Mostramos una copia de solo lectura guardada en este dispositivo.",

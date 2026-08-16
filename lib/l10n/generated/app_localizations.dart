@@ -169,6 +169,24 @@ abstract class AppLocalizations {
   /// **'Catálogo'**
   String get navigationCatalog;
 
+  /// Etiqueta de la navegación hacia los pedidos del cliente.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedidos'**
+  String get navigationOrders;
+
+  /// No description provided for @navigationCartBadge.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =0{Carrito, sin productos} =1{Carrito, 1 producto} other{Carrito, {count} productos}}'**
+  String navigationCartBadge(int count);
+
+  /// No description provided for @navigationOrdersBadge.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =0{Pedidos, sin pedidos activos} =1{Pedidos, 1 pedido activo} other{Pedidos, {count} pedidos activos}}'**
+  String navigationOrdersBadge(int count);
+
   /// Etiqueta de la navegación hacia el carrito.
   ///
   /// In es, this message translates to:
@@ -252,6 +270,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'¿Qué estás buscando?'**
   String get homeSearchHint;
+
+  /// No description provided for @homeSelectedStore.
+  ///
+  /// In es, this message translates to:
+  /// **'Tienda seleccionada'**
+  String get homeSelectedStore;
+
+  /// No description provided for @homeDeliveryDestination.
+  ///
+  /// In es, this message translates to:
+  /// **'Destino de entrega'**
+  String get homeDeliveryDestination;
+
+  /// No description provided for @homeStoreContextFallback.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponibilidad confirmada por la tienda'**
+  String get homeStoreContextFallback;
+
+  /// No description provided for @homeActiveOrderTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedido activo'**
+  String get homeActiveOrderTitle;
+
+  /// No description provided for @homeActiveOrderSemantics.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedido activo {code}, estado {status}'**
+  String homeActiveOrderSemantics(String code, String status);
 
   /// Título de la sección de categorías de Inicio.
   ///
@@ -810,6 +858,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Cerrar sesión'**
   String get accountLogout;
+
+  /// No description provided for @accountPersonalSettingsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Perfil, direcciones y privacidad'**
+  String get accountPersonalSettingsTitle;
+
+  /// No description provided for @accountPersonalSettingsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestiona tu identidad, idioma, direcciones y datos Storefront.'**
+  String get accountPersonalSettingsDescription;
+
+  /// No description provided for @accountNotificationsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige cómo recibir novedades reales de tus pedidos.'**
+  String get accountNotificationsDescription;
 
   /// Título mientras se inicia el acceso con Google.
   ///
@@ -1692,6 +1758,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Agregar al carrito'**
   String get cartAddAction;
+
+  /// No description provided for @cartAddQuantityAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar {quantity} al carrito'**
+  String cartAddQuantityAction(int quantity);
 
   /// No description provided for @cartAddedNotice.
   ///
@@ -2640,6 +2712,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Mis pedidos'**
   String get ordersTitle;
+
+  /// No description provided for @ordersFiltersLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Filtrar pedidos'**
+  String get ordersFiltersLabel;
+
+  /// No description provided for @ordersFilterAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Todos'**
+  String get ordersFilterAll;
+
+  /// No description provided for @ordersFilterActive.
+  ///
+  /// In es, this message translates to:
+  /// **'Activos'**
+  String get ordersFilterActive;
+
+  /// No description provided for @ordersFilterCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Completados'**
+  String get ordersFilterCompleted;
+
+  /// No description provided for @ordersFilterCancelled.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelados'**
+  String get ordersFilterCancelled;
+
+  /// No description provided for @ordersFilterEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay pedidos en este estado'**
+  String get ordersFilterEmptyTitle;
+
+  /// No description provided for @ordersFilterEmptyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige otro filtro o actualiza para comprobar cambios.'**
+  String get ordersFilterEmptyMessage;
+
+  /// No description provided for @ordersActiveOrder.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedido activo'**
+  String get ordersActiveOrder;
 
   /// No description provided for @ordersRefreshTooltip.
   ///

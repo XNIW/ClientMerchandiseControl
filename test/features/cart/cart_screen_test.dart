@@ -124,7 +124,10 @@ void main() {
     await tester.pumpWidget(buildApp(store: store));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(ValueKey('cart-increase-$_publicationId')));
+    final increase = find.byKey(ValueKey('cart-increase-$_publicationId'));
+    await tester.ensureVisible(increase);
+    await tester.pump();
+    await tester.tap(increase);
     await tester.pumpAndSettle();
     expect(store.quantityCalls, [2]);
     expect(find.text('Cantidad: 2'), findsOneWidget);

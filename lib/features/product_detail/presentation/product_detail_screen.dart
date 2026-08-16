@@ -11,6 +11,7 @@ import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../cart/application/cart_controller.dart';
+import '../../cart/domain/cart_models.dart';
 import '../../cart/presentation/add_to_cart_button.dart';
 import '../../favorites/presentation/favorite_button.dart';
 import '../../home/presentation/storefront_product_card.dart';
@@ -92,20 +93,32 @@ class ProductDetailScreen extends ConsumerWidget {
   }
 }
 
-class _ProductDetailCartBar extends ConsumerWidget {
+class _ProductDetailCartBar extends ConsumerStatefulWidget {
   const _ProductDetailCartBar({required this.product});
 
   final StorefrontProductSummary product;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ProductDetailCartBar> createState() =>
+      _ProductDetailCartBarState();
+}
+
+class _ProductDetailCartBarState extends ConsumerState<_ProductDetailCartBar> {
+  var _quantity = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    final product = widget.product;
+    final l10n = AppLocalizations.of(context);
     final cart = ref.watch(cartControllerProvider);
-    final quantity =
+    final currentQuantity =
         cart.snapshot?.items
             .where((line) => line.publicationId == product.id)
             .firstOrNull
             ?.quantity ??
-        1;
+        0;
+    final maximumAddition = customerCartMaximumQuantity - currentQuantity;
+    final quantity = _quantity.clamp(1, maximumAddition.clamp(1, 99));
     final canReserve =
         product.fulfillment.reservation &&
         product.availability != StorefrontAvailability.unavailable;
@@ -126,7 +139,39 @@ class _ProductDetailCartBar extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AddToCartButton(product: product, expanded: true),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l10n.cartQuantityLabel(quantity),
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                      ),
+                      IconButton.outlined(
+                        key: const ValueKey('product-quantity-decrease'),
+                        tooltip: l10n.cartDecreaseQuantity,
+                        onPressed: quantity <= 1
+                            ? null
+                            : () => setState(() => _quantity = quantity - 1),
+                        icon: const Icon(Icons.remove),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      IconButton.outlined(
+                        key: const ValueKey('product-quantity-increase'),
+                        tooltip: l10n.cartIncreaseQuantity,
+                        onPressed: quantity >= maximumAddition
+                            ? null
+                            : () => setState(() => _quantity = quantity + 1),
+                        icon: const Icon(Icons.add),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  AddToCartButton(
+                    product: product,
+                    quantity: quantity,
+                    expanded: true,
+                  ),
                   if (canReserve) ...[
                     const SizedBox(height: AppSpacing.sm),
                     ReservationHoldPanel(
@@ -280,7 +325,7 @@ class _ProductGallery extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(AppRadii.card),
             child: AspectRatio(
-              aspectRatio: 4 / 3,
+              aspectRatio: 16 / 10,
               child: StorefrontProductImage(
                 productId: product.id,
                 name: product.name,

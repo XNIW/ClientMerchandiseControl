@@ -50,6 +50,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get navigationCatalog => 'Catálogo';
 
   @override
+  String get navigationOrders => 'Pedidos';
+
+  @override
+  String navigationCartBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Carrito, $count productos',
+      one: 'Carrito, 1 producto',
+      zero: 'Carrito, sin productos',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String navigationOrdersBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pedidos, $count pedidos activos',
+      one: 'Pedidos, 1 pedido activo',
+      zero: 'Pedidos, sin pedidos activos',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get navigationCart => 'Carrito';
 
   @override
@@ -95,6 +122,24 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get homeSearchHint => '¿Qué estás buscando?';
+
+  @override
+  String get homeSelectedStore => 'Tienda seleccionada';
+
+  @override
+  String get homeDeliveryDestination => 'Destino de entrega';
+
+  @override
+  String get homeStoreContextFallback =>
+      'Disponibilidad confirmada por la tienda';
+
+  @override
+  String get homeActiveOrderTitle => 'Pedido activo';
+
+  @override
+  String homeActiveOrderSemantics(String code, String status) {
+    return 'Pedido activo $code, estado $status';
+  }
 
   @override
   String get homeCategoriesTitle => 'Explora por categoría';
@@ -411,6 +456,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get accountLogout => 'Cerrar sesión';
+
+  @override
+  String get accountPersonalSettingsTitle => 'Perfil, direcciones y privacidad';
+
+  @override
+  String get accountPersonalSettingsDescription =>
+      'Gestiona tu identidad, idioma, direcciones y datos Storefront.';
+
+  @override
+  String get accountNotificationsDescription =>
+      'Elige cómo recibir novedades reales de tus pedidos.';
 
   @override
   String get accountSigningInTitle => 'Abriendo el acceso seguro';
@@ -931,6 +987,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cartAddAction => 'Agregar al carrito';
+
+  @override
+  String cartAddQuantityAction(int quantity) {
+    return 'Agregar $quantity al carrito';
+  }
 
   @override
   String get cartAddedNotice => 'Producto agregado al carrito.';
@@ -1482,6 +1543,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String get ordersTitle => 'Mis pedidos';
 
   @override
+  String get ordersFiltersLabel => 'Filtrar pedidos';
+
+  @override
+  String get ordersFilterAll => 'Todos';
+
+  @override
+  String get ordersFilterActive => 'Activos';
+
+  @override
+  String get ordersFilterCompleted => 'Completados';
+
+  @override
+  String get ordersFilterCancelled => 'Cancelados';
+
+  @override
+  String get ordersFilterEmptyTitle => 'No hay pedidos en este estado';
+
+  @override
+  String get ordersFilterEmptyMessage =>
+      'Elige otro filtro o actualiza para comprobar cambios.';
+
+  @override
+  String get ordersActiveOrder => 'Pedido activo';
+
+  @override
   String get ordersRefreshTooltip => 'Actualizar pedidos';
 
   @override
@@ -1638,6 +1724,31 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get navigationCatalog => '商品目录';
 
   @override
+  String get navigationOrders => '订单';
+
+  @override
+  String navigationCartBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '购物车，$count 件商品',
+      zero: '购物车，无商品',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String navigationOrdersBadge(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '订单，$count 个进行中订单',
+      zero: '订单，无进行中订单',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get navigationCart => '购物车';
 
   @override
@@ -1678,6 +1789,23 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get homeSearchHint => '你想找什么？';
+
+  @override
+  String get homeSelectedStore => '已选门店';
+
+  @override
+  String get homeDeliveryDestination => '配送目的地';
+
+  @override
+  String get homeStoreContextFallback => '供应情况由门店确认';
+
+  @override
+  String get homeActiveOrderTitle => '进行中的订单';
+
+  @override
+  String homeActiveOrderSemantics(String code, String status) {
+    return '进行中的订单 $code，状态 $status';
+  }
 
   @override
   String get homeCategoriesTitle => '按类别探索';
@@ -1968,6 +2096,15 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get accountLogout => '退出登录';
+
+  @override
+  String get accountPersonalSettingsTitle => '个人资料、地址与隐私';
+
+  @override
+  String get accountPersonalSettingsDescription => '管理身份、语言、地址和 Storefront 数据。';
+
+  @override
+  String get accountNotificationsDescription => '选择如何接收真实的订单更新。';
 
   @override
   String get accountSigningInTitle => '正在打开安全登录';
@@ -2427,6 +2564,11 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get cartAddAction => '加入购物车';
+
+  @override
+  String cartAddQuantityAction(int quantity) {
+    return '将 $quantity 件加入购物车';
+  }
 
   @override
   String get cartAddedNotice => '商品已加入购物车。';
@@ -2918,6 +3060,30 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get ordersTitle => '我的订单';
+
+  @override
+  String get ordersFiltersLabel => '筛选订单';
+
+  @override
+  String get ordersFilterAll => '全部';
+
+  @override
+  String get ordersFilterActive => '进行中';
+
+  @override
+  String get ordersFilterCompleted => '已完成';
+
+  @override
+  String get ordersFilterCancelled => '已取消';
+
+  @override
+  String get ordersFilterEmptyTitle => '此状态下没有订单';
+
+  @override
+  String get ordersFilterEmptyMessage => '请选择其他筛选条件，或刷新查看变化。';
+
+  @override
+  String get ordersActiveOrder => '进行中的订单';
 
   @override
   String get ordersRefreshTooltip => '刷新订单';

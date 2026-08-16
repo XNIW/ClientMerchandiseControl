@@ -91,7 +91,7 @@ void main() {
       expect(find.byType(AccountScreen), findsOneWidget);
       expect(
         tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-        3,
+        4,
       );
       expect(find.text('Integration Customer'), findsOneWidget);
       expect(
@@ -116,7 +116,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Integration Customer'), findsOneWidget);
 
-      await tester.tap(find.byKey(const ValueKey('account-logout-button')));
+      final logoutButton = find.byKey(const ValueKey('account-logout-button'));
+      await tester.ensureVisible(logoutButton);
+      await tester.pump();
+      await tester.tap(logoutButton);
       await tester.pumpAndSettle();
       expect(
         find.byKey(const ValueKey('account-google-button')),

@@ -20,7 +20,7 @@ final class TelemetryRedactor {
     ),
     (
       RegExp(
-        r'\b(?:access[_-]?token|refresh[_-]?token|id[_-]?token|auth[_-]?token|oauth[_-]?code|client[_-]?secret|payment[_-]?(?:secret|token)|push[_-]?token|api[_-]?key|service[_-]?role)\b["\x27]?\s*[:=]\s*["\x27]?[^"\x27\s,;}]+',
+        r'\b(?:access[_-]?token|refresh[_-]?token|id[_-]?token|auth[_-]?token|oauth[_-]?code|client[_-]?secret|payment[_-]?(?:secret|token)|push[_-]?token|api[_-]?key|service[_-]?role|password|passphrase|authorization|cookie|private[_-]?key|dsn|secret|credentials?)\b["\x27]?\s*[:=]\s*["\x27]?[^"\x27\s,;}]+',
         caseSensitive: false,
       ),
       '[REDACTED_SECRET]',
@@ -71,12 +71,35 @@ final class TelemetryRedactor {
     'pushtoken',
     'apikey',
     'servicerole',
+    'password',
+    'passphrase',
+    'authorization',
+    'cookie',
+    'cookiejar',
+    'privatekey',
+    'dsn',
+    'secret',
+    'credential',
+    'credentials',
+  };
+
+  static const _sensitiveKeySuffixes = {
+    'password',
+    'passphrase',
+    'authorization',
+    'cookie',
+    'privatekey',
+    'dsn',
+    'secret',
+    'credential',
+    'credentials',
   };
 
   bool isSensitiveKey(Object? key) {
     if (key is! String) return true;
     final normalized = key.toLowerCase().replaceAll(RegExp('[^a-z0-9]'), '');
-    return _sensitiveKeys.contains(normalized);
+    return _sensitiveKeys.contains(normalized) ||
+        _sensitiveKeySuffixes.any(normalized.endsWith);
   }
 
   String redact(String value) {

@@ -84,6 +84,54 @@ void main() {
         isNot(anyOf(contains('raw-secret'), contains('jwt-secret'))),
       );
     });
+
+    test('serialization redige credenziali generiche e relativi alias', () {
+      const forbidden = {
+        'password': 'plain-password-value',
+        'databasePassword': 'database-password-value',
+        'passphrase': 'signing-passphrase-value',
+        'authorization': 'custom-authorization-value',
+        'sessionCookie': 'session-cookie-value',
+        'private_key': 'private-key-value',
+        'signingPrivateKey': 'signing-private-key-value',
+        'dsn': 'provider-dsn-value',
+        'monitoringDsn': 'monitoring-dsn-value',
+        'secret': 'generic-secret-value',
+        'webhookSecret': 'webhook-secret-value',
+        'credential': 'generic-credential-value',
+        'databaseCredentials': 'database-credentials-value',
+      };
+      const serializer = CrashSafeTelemetrySerializer();
+      final output = serializer.serialize(forbidden);
+      final decoded = jsonDecode(output) as Map<String, Object?>;
+
+      for (final value in forbidden.values) {
+        expect(output, isNot(contains(value)));
+      }
+      expect(decoded.keys, unorderedEquals(forbidden.keys));
+      expect(decoded.values, everyElement('[REDACTED_SECRET]'));
+    });
+
+    test('redactor testuale copre assegnazioni di credenziali generiche', () {
+      const forbidden = [
+        'password=plain-password-value',
+        'authorization:custom-authorization-value',
+        'cookie=session-cookie-value',
+        'private_key=private-key-value',
+        'dsn=provider-dsn-value',
+        'secret=generic-secret-value',
+        'credential=generic-credential-value',
+      ];
+      final output = const TelemetryRedactor().redact(forbidden.join(' | '));
+
+      for (final value in forbidden) {
+        expect(output, isNot(contains(value)));
+      }
+      expect(
+        '[REDACTED_SECRET]'.allMatches(output),
+        hasLength(forbidden.length),
+      );
+    });
   });
 
   group('event catalog bounded', () {

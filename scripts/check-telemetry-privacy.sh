@@ -14,7 +14,22 @@ if [[ ! -f "${cmc_telemetry_event_file}" || ! -f "${cmc_telemetry_port_file}" ]]
 fi
 
 # Nessun attributo di dominio sensibile può entrare nello schema tipizzato.
-cmc_telemetry_forbidden_attribute="['\"](?:email|phone|address|lat|lng|latitude|longitude|coordinates|tracking[_-]?[uU][rR][lL]|trackingSessionId|sessionId|access[_-]?token|refresh[_-]?token|id[_-]?token|auth[_-]?token|oauth[_-]?[cC]ode|client[_-]?secret|payment[_-]?(?:secret|token)|api[_-]?key|service[_-]?role|query|queryText|rawQuery|uuid|publicationId|orderId|cart|cartItems|push[_-]?[tT]oken)['\"]"
+cmc_telemetry_forbidden_attribute="['\"](?:email|phone|address|lat|lng|latitude|longitude|coordinates|tracking[_-]?[uU][rR][lL]|trackingSessionId|sessionId|access[_-]?token|refresh[_-]?token|id[_-]?token|auth[_-]?token|oauth[_-]?[cC]ode|client[_-]?secret|payment[_-]?(?:secret|token)|api[_-]?key|service[_-]?role|query|queryText|rawQuery|uuid|publicationId|orderId|cart|cartItems|push[_-]?[tT]oken|[A-Za-z0-9_]*(?:[pP]assword|[pP]assphrase|[aA]uthorization|[cC]ookie|[pP]rivate[_-]?[kK]ey|[dD][sS][nN]|[sS]ecret|[cC]redentials?))['\"]"
+
+# La fixture inline rende verificabile il contratto dello scanner stesso senza
+# scrivere payload o credenziali su disco.
+for cmc_telemetry_sensitive_alias in \
+  password databasePassword passphrase authorization sessionCookie \
+  private_key signingPrivateKey dsn monitoringDsn secret webhookSecret \
+  credential databaseCredentials; do
+  if ! printf '"%s"\n' "${cmc_telemetry_sensitive_alias}" |
+    rg --quiet --pcre2 "${cmc_telemetry_forbidden_attribute}"; then
+    printf '%s\n' \
+      "Telemetry privacy scan: alias non coperto: ${cmc_telemetry_sensitive_alias}." >&2
+    exit 1
+  fi
+done
+
 set +e
 rg --quiet --pcre2 "${cmc_telemetry_forbidden_attribute}" \
   "${cmc_telemetry_event_file}"

@@ -86,5 +86,11 @@ reconciliation e un comando realmente eseguito.
   del provider dopo dispose;
 - regressioni Fix: tracking `19/19 PASS`; repeat `10 x 9 = 90 PASS`, con A→null,
   A→B e dispose dopo Realtime failure, vecchio stream avanzato e scheduler a zero;
+- gate canonico Fix sul commit `0dccca810e309c849c290a857bd1975bb4fd797b`:
+  `scripts/check.sh` `PASS`, 609 file security scan, 41/41 negative e 4/4 positive,
+  governance 9/9, architecture negative 7/7, format 273, analyze zero issue, 630 test
+  non-performance con coverage, repeat `5 x 9 = 45`, benchmark 25k
+  (`open_ms=460`, `write_20k_ms=466`, catalog `594/1252/7618 µs`, search
+  `3175/3748/6597 µs`), APK debug e iOS Simulator debug;
 - re-review Client indipendente e CI/merge Client: `NOT_RUN`, prossima fase. Le review
   Admin dei fix staging sono concluse con `APPROVED` e zero P0/P1/P2/P3 residui.

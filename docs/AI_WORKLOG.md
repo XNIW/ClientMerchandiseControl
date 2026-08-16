@@ -2471,5 +2471,8 @@
 - **Regressioni**: tracking `19/19` e repeat `10 x 9 = 90` `PASS`; i test avanzano lo
   scheduler e il vecchio stream e verificano zero nuovi load/save, nessuno stato o
   cache cross-account, subscription cancellata e `activeTaskCount == 0`.
+- **Gate canonico Fix**: `scripts/check.sh` sul commit `0dccca8` `PASS`; scan e
+  governance verdi, 630 test non-performance con coverage, repeat `45/45`, benchmark
+  cache 25k, APK debug e iOS Simulator debug.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
   indipendente obbligatoria, nessuna auto-approvazione del Fix.

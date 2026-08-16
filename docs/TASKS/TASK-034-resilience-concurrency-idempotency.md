@@ -248,7 +248,9 @@ test deterministici/repeat, database locale, staging guarded e gate canonici.
   attivi; avanzamento di dieci minuti ed evento dal vecchio stream non producono load,
   save o stato cross-account; `activeTaskCount == 0`;
 - `flutter analyze`, test tracking `19/19` e repeat Fix `10 x 9 = 90` sono `PASS`, exit
-  `0`; gate canonico finale registrato nelle evidence dopo il rerun;
+  `0`; `scripts/check.sh` sul commit Fix `0dccca8` è `PASS`: 630 test
+  non-performance con coverage, repeat predefinito `45/45`, benchmark 25k, APK debug
+  e iOS Simulator debug;
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; il Fix non si auto-approva.
 
 ## Chiusura

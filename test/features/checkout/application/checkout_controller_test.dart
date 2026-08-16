@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/core/observability/observability_event.dart';
+import 'package:client_merchandise_control/core/observability/observability_port.dart';
+import 'package:client_merchandise_control/core/observability/observability_providers.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_controller.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
 import 'package:client_merchandise_control/features/account/domain/customer_account_models.dart';
@@ -16,8 +19,39 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../checkout_test_support.dart';
+import '../../../support/collecting_observability.dart';
 
 void main() {
+  test('telemetry checkout espone solo step e outcome enumerati', () async {
+    final observability = CollectingObservabilityPort();
+    final container = _container(
+      repository: FakeCheckoutRepository(),
+      observability: observability,
+    );
+    addTearDown(container.dispose);
+    await _waitFor(
+      container,
+      (state) => state.status == CheckoutViewStatus.ready,
+    );
+
+    await _reachReview(container);
+
+    final events = observability.events
+        .where((event) => event.name == ObservabilityEventName.checkoutStep)
+        .toList();
+    expect(events, isNotEmpty);
+    expect(events.last.attributes['step'], CheckoutTelemetryStep.review.name);
+    final payload = events
+        .map((event) => event.toSafeMap(environment: 'staging'))
+        .toList()
+        .toString();
+    expect(payload, isNot(contains('Cliente Uno')));
+    expect(payload, isNot(contains('Avenida Uno 123')));
+    expect(payload, isNot(contains(checkoutTestPoint)));
+    expect(payload, isNot(contains(checkoutTestPickupSlot)));
+    expect(payload, isNot(contains(checkoutTestPublication)));
+  });
+
   test(
     'percorre i cinque step e conserva una selezione server-validabile',
     () async {
@@ -673,6 +707,7 @@ ProviderContainer _container({
   Future<void> Function()? onCartRefresh,
   CustomerCartSnapshot? cart,
   StateProvider<AuthenticatedCustomer?>? identityProvider,
+  ObservabilityPort? observability,
 }) {
   final currentCart = cart ?? checkoutTestCart();
   final address = checkoutTestCustomerAddress();
@@ -712,6 +747,8 @@ ProviderContainer _container({
       customerIdempotencyKeyFactoryProvider.overrideWithValue(
         () => checkoutTestKey,
       ),
+      if (observability != null)
+        observabilityProvider.overrideWithValue(observability),
     ],
   );
 }

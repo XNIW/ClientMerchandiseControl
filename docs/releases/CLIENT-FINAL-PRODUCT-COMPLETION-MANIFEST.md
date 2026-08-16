@@ -41,7 +41,7 @@ Admin sono verdi sui rispettivi SHA iniziali. I linked worktree del train parton
 | Task | Stato | Client revision | Admin revision | PR/merge | Gate |
 |---|---|---|---|---|---|
 | TASK-034 | DONE | `08221a6` | `6fea61bb`, staging verificato | Admin #90/#91/#92; Client #12 merged | review APPROVED; PR/main CI 3/3 PASS |
-| TASK-035 | ACTIVE / EXECUTION | baseline `08221a6` | audit pending | NOT_RUN | planning autorizzato |
+| TASK-035 | ACTIVE / REVIEW | implementation pending commit | `6fea61bb`, audit read-only 14/14 | NOT_RUN | execution gate PASS; review NOT_RUN |
 | TASK-036 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 | TASK-037 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 | TASK-038 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |

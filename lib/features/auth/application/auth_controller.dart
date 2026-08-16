@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/backend/secure_supabase_auth_storage.dart';
 import '../../../core/config/app_config.dart';
+import '../../../core/observability/observability_event.dart';
+import '../../../core/observability/observability_providers.dart';
 import '../../../core/time/app_scheduler.dart';
 import '../data/auth_callback_validator.dart';
 import '../data/auth_error_mapper.dart';
@@ -762,7 +764,25 @@ final class AuthController extends Notifier<AuthState> {
 
   void _setState(AuthState nextState) {
     if (!_disposed) {
+      final previousFailure = _authStateFailure(state);
       state = nextState;
+      final failure = _authStateFailure(nextState);
+      if (failure != null &&
+          failure != previousFailure &&
+          failure.kind != AuthFailureKind.cancelled &&
+          failure.kind != AuthFailureKind.callbackAlreadyConsumed) {
+        final category = _authFailureCategory(failure.kind);
+        ref
+            .read(observabilityProvider)
+            .record(
+              ObservabilityEvent.backendFailure(
+                occurredAt: ref.read(appClockProvider)(),
+                component: ObservabilityComponent.auth,
+                category: category,
+                retryable: failure.canRetry,
+              ),
+            );
+      }
     }
   }
 
@@ -814,3 +834,25 @@ final class AuthController extends Notifier<AuthState> {
     }
   }
 }
+
+AuthFailure? _authStateFailure(AuthState state) => switch (state) {
+  AuthGuest(:final notice) => notice,
+  AuthRecoverableError(:final failure) => failure,
+  AuthConfigurationError(:final failure) => failure,
+  _ => null,
+};
+
+BackendFailureCategory _authFailureCategory(AuthFailureKind kind) =>
+    switch (kind) {
+      AuthFailureKind.offline => BackendFailureCategory.offline,
+      AuthFailureKind.invalidCallback ||
+      AuthFailureKind.callbackAlreadyConsumed ||
+      AuthFailureKind.configuration => BackendFailureCategory.invalidInput,
+      AuthFailureKind.sessionExpired => BackendFailureCategory.unauthorized,
+      AuthFailureKind.providerUnavailable ||
+      AuthFailureKind.browserLaunchFailed ||
+      AuthFailureKind.secureStorageUnavailable =>
+        BackendFailureCategory.unavailable,
+      AuthFailureKind.cancelled ||
+      AuthFailureKind.unexpected => BackendFailureCategory.unexpected,
+    };

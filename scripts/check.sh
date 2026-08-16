@@ -9,6 +9,7 @@ bash -n "${cmc_script_dir}"/*.sh
 bash "${cmc_script_dir}/check-action-pins.sh"
 bash "${cmc_script_dir}/check-client-security.sh"
 bash "${cmc_script_dir}/test-client-security-scan.sh"
+bash "${cmc_script_dir}/check-telemetry-privacy.sh"
 bash "${cmc_script_dir}/check-governance-state.sh"
 bash "${cmc_script_dir}/test-governance-release-train.sh"
 bash "${cmc_script_dir}/check-architecture-boundaries.sh"

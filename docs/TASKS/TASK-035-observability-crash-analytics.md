@@ -6,13 +6,13 @@
 - **Titolo**: Observability, crash reporting e analytics privacy-safe
 - **File task**: `docs/TASKS/TASK-035-observability-crash-analytics.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-035/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -145,36 +145,98 @@ minime e provate sugli outcome, mai sui payload di dominio completi.
 
 ### Obiettivo compreso
 
-In corso.
+Introdurre un boundary unico, typed e fail-closed per diagnostica, analytics e crash,
+senza provider SaaS o secret e senza consentire ai caller di allegare payload di
+dominio arbitrari.
 
 ### File controllati
 
-In corso.
+- Client: bootstrap, router, Auth, Catalog, Cart, Checkout, Orders e Delivery Tracking;
+- `lib/core/observability/`: schema eventi, port/adapters, redactor e provider;
+- test core e controller, scanner statico privacy e gate canonico;
+- Admin: boundary POS correlation/error e audit esistenti, verificati read-only;
+- runbook diagnostico ed evidence TASK-035.
 
 ### Piano minimo
 
 Inventario, implementazione bounded, test privacy negativi, integrazione mirata,
-documentazione e gate canonici.
+documentazione, gate canonici e consegna a reviewer distinto.
 
 ### Modifiche fatte
 
-Non ancora.
+- aggiunto `ObservabilityPort` con no-op, logger locale strutturato e adapter production
+  configurabile con exporter analytics/crash distinti;
+- aggiunti consent `none/diagnostics/analytics`, sampling deterministico, rate limit a
+  clock controllato, breadcrumb e buffer in-memory bounded, flush retry e
+  serialization crash-safe;
+- definito un catalogo di 12 factory tipizzate con soli enum, booleani e bucket;
+- centralizzata la redazione di PII, URL, coordinate, UUID, token e secret; crash ed
+  errori non esportano messaggio o stack raw ma un fingerprint one-way bounded;
+- integrati cold/warm start, screen mapping senza path/ID, notification routing senza
+  route token e outcome bounded di Auth/Catalog/Cart/Checkout/Orders/Tracking;
+- aggiunto `scripts/check-telemetry-privacy.sh` al gate canonico: logger/exporter
+  confinati, nessun `print/debugPrint`, schema senza attributi sensibili;
+- documentati provider, ambiente, consenso, tassonomia e runbook “utente segnala X”;
+- verificato read-only l'Admin: `serverRequestId`, client ID validato, edge correlation
+  hashata, error response strutturati e audit separato; nessuna modifica necessaria.
 
 ### Check eseguiti
 
-Non ancora.
+| Gate | Risultato reale |
+|---|---|
+| scanner telemetry | `PASS`, 12 eventi allowlisted, zero attributi sensibili |
+| test mirati core + commerce | `87/87 PASS` |
+| Admin correlation/audit foundation | `14/14 PASS` sul revision set già integrato |
+| `scripts/check.sh` | `PASS`, exit `0` |
+| suite non-performance con coverage | `652/652 PASS` |
+| repeat race TASK-034 preservato | `5 x 14 = 70/70 PASS` |
+| benchmark cache 25k | `PASS`, 1 test performance |
+| analyze / format / diff | `PASS`, zero issue |
+| security scanner | `611` file, `41/41` negative e `4/4` positive |
+| build Android debug | `PASS`, APK generato |
+| build iOS Simulator debug | `PASS`, `Runner.app` generata |
+
+Warning non bloccanti già noti: 34 package hanno versioni più recenti incompatibili
+con i constraint correnti; il plugin Maps iOS segnala futura adozione SPM. Nessun
+package è stato aggiunto o aggiornato in TASK-035.
 
 ### Matrice CA -> evidence
 
-Non ancora.
+| CA | Evidence | Esito |
+|---|---|---|
+| CA-01 | port/adapters + config negative tests | PASS |
+| CA-02 | 12 factory tipizzate enumerate dal test e dallo scanner | PASS |
+| CA-03 | redactor + payload crash/feature con PII, secret, URL, UUID e coordinate | PASS |
+| CA-04 | clock controllato, correlation safe, sampling/rate/breadcrumb bounded | PASS |
+| CA-05 | serializer non-crashing e buffer FIFO count/byte bounded con retry | PASS |
+| CA-06 | consent none/diagnostics/analytics, lifecycle e default staging/prod no-op | PASS |
+| CA-07 | test controller commerce/tracking nel gate 652/652 | PASS |
+| CA-08 | Admin source audit + 14 foundation test | PASS |
+| CA-09 | `docs/operations/OBSERVABILITY-RUNBOOK.md` | PASS |
+| CA-10 | gate tecnici verdi; review e CI exact-SHA | NOT_RUN |
 
 ### Matrice T-NN -> risultato
 
-Non ancora.
+| Test | Risultato |
+|---|---|
+| T-01 | PASS |
+| T-02 | PASS |
+| T-03 | PASS |
+| T-04 | PASS |
+| T-05 | PASS |
+| T-06 | PASS |
+| T-07 | PASS |
+| T-08 | PASS |
+| T-09 | PASS |
+| T-10 | NOT_RUN: richiede review indipendente e CI PR/main |
 
 ### Rischi rimasti
 
-Non ancora classificati.
+- nessun provider remoto è configurato: staging e production restano correttamente
+  no-op e fail-closed, non costituisce bug né claim di monitoraggio live;
+- consent dinamico e lifecycle di un futuro SaaS saranno responsabilità del composition
+  root che inietterà l'adapter; non esiste buffer persistente da drenare o eliminare;
+- nessun finding tecnico P0/P1/P2 noto all'handoff; reviewer indipendente obbligatorio.
 
 ### Handoff a Review
 

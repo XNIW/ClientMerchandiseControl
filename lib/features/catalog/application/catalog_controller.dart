@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/backend/backend_readiness_controller.dart';
 import '../../../core/backend/backend_readiness_state.dart';
 import '../../../core/config/app_config.dart';
+import '../../../core/observability/observability_event.dart';
+import '../../../core/observability/observability_providers.dart';
 import '../../../core/time/app_scheduler.dart';
 import '../../storefront/application/storefront_providers.dart';
 import '../../storefront/cache/storefront_cache_repository.dart';
@@ -268,6 +270,7 @@ class CatalogController extends Notifier<CatalogState> {
     final cacheIsStale = state.isStale;
     final cachedAt = state.cachedAt;
     final generation = _generation;
+    final startedAt = ref.read(appClockProvider)();
     _cancellation?.cancel();
     final cancellation = StorefrontRequestCancellation();
     _cancellation = cancellation;
@@ -381,6 +384,10 @@ class CatalogController extends Notifier<CatalogState> {
         cachedAt: cachedAt,
         failure: failure,
       );
+    } finally {
+      if (!_isStale(generation, cancellation)) {
+        _recordCatalogResult(CatalogQueryKind.pageAppend, startedAt);
+      }
     }
   }
 
@@ -498,6 +505,7 @@ class CatalogController extends Notifier<CatalogState> {
     }
     final previous = state;
     final generation = ++_generation;
+    final startedAt = ref.read(appClockProvider)();
     _cancellation?.cancel();
     final cancellation = StorefrontRequestCancellation();
     _cancellation = cancellation;
@@ -589,6 +597,7 @@ class CatalogController extends Notifier<CatalogState> {
           sort: criteria.sort,
         );
       }
+      _recordCatalogResult(_queryKind(criteria, preserveItems), startedAt);
       return;
     }
     try {
@@ -717,6 +726,58 @@ class CatalogController extends Notifier<CatalogState> {
         nextCursor: preserveItems ? previous.nextCursor : null,
         failure: failure,
       );
+    } finally {
+      if (!_isStale(generation, cancellation)) {
+        _recordCatalogResult(_queryKind(criteria, preserveItems), startedAt);
+      }
+    }
+  }
+
+  void _recordCatalogResult(CatalogQueryKind kind, DateTime startedAt) {
+    if (_disposed) return;
+    final now = ref.read(appClockProvider)();
+    final elapsed = now.difference(startedAt);
+    final failure = state.failure == null
+        ? null
+        : _storefrontFailureCategory(state.failure!.kind);
+    ref
+        .read(observabilityProvider)
+        .record(
+          ObservabilityEvent.catalogQueryResult(
+            occurredAt: now,
+            kind: kind,
+            outcome: failure == null
+                ? ObservabilityOutcome.success
+                : ObservabilityOutcome.failure,
+            resultCount: resultCountBucket(state.items.length),
+            cache: state.status == CatalogLoadStatus.offline
+                ? CacheDisposition.offline
+                : state.isStale
+                ? CacheDisposition.stale
+                : state.isFromCache
+                ? CacheDisposition.fresh
+                : CacheDisposition.none,
+            duration: durationBucket(elapsed),
+            failure: failure,
+          ),
+        );
+    if (elapsed >= const Duration(seconds: 1)) {
+      ref
+          .read(observabilityProvider)
+          .record(
+            ObservabilityEvent.performanceBudgetViolation(
+              occurredAt: now,
+              operation: kind == CatalogQueryKind.search
+                  ? PerformanceOperation.catalogSearch
+                  : kind == CatalogQueryKind.filter
+                  ? PerformanceOperation.catalogFilter
+                  : kind == CatalogQueryKind.pageAppend
+                  ? PerformanceOperation.catalogPageAppend
+                  : PerformanceOperation.storefrontContent,
+              budget: DurationBucket.under1s,
+              observed: durationBucket(elapsed),
+            ),
+          );
     }
   }
 
@@ -1001,3 +1062,29 @@ class _CatalogCriteria {
     sort: sort,
   );
 }
+
+CatalogQueryKind _queryKind(_CatalogCriteria criteria, bool preserveItems) {
+  if (criteria.searchQuery != null) return CatalogQueryKind.search;
+  if (criteria.availability != null ||
+      criteria.discountedOnly ||
+      criteria.sort != StorefrontCatalogSort.catalog) {
+    return CatalogQueryKind.filter;
+  }
+  if (preserveItems) return CatalogQueryKind.refresh;
+  return CatalogQueryKind.browse;
+}
+
+BackendFailureCategory _storefrontFailureCategory(StorefrontFailureKind kind) =>
+    switch (kind) {
+      StorefrontFailureKind.offline => BackendFailureCategory.offline,
+      StorefrontFailureKind.timeout => BackendFailureCategory.timeout,
+      StorefrontFailureKind.unauthorized => BackendFailureCategory.unauthorized,
+      StorefrontFailureKind.invalidConfiguration =>
+        BackendFailureCategory.invalidInput,
+      StorefrontFailureKind.catalogChanged => BackendFailureCategory.conflict,
+      StorefrontFailureKind.invalidPayload =>
+        BackendFailureCategory.invalidPayload,
+      StorefrontFailureKind.unavailable => BackendFailureCategory.unavailable,
+      StorefrontFailureKind.cancelled ||
+      StorefrontFailureKind.unknown => BackendFailureCategory.unexpected,
+    };

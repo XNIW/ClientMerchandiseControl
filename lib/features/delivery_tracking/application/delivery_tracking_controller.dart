@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/observability/observability_event.dart';
+import '../../../core/observability/observability_providers.dart';
 import '../../../core/time/app_scheduler.dart';
 import '../data/supabase_delivery_tracking_repository.dart';
 import '../domain/delivery_tracking_failure.dart';
@@ -138,9 +140,11 @@ final class DeliveryTrackingController
     _shopSlug = effectiveShopSlug;
     _orderId = null;
     _generation++;
-    state = subjectId == null || effectiveShopSlug == null
-        ? const DeliveryTrackingViewState.signedOut()
-        : const DeliveryTrackingViewState.idle();
+    _publish(
+      subjectId == null || effectiveShopSlug == null
+          ? const DeliveryTrackingViewState.signedOut()
+          : const DeliveryTrackingViewState.idle(),
+    );
     final stopRuntime = _stopRuntime();
     final purgeCache = previousSubject != null && cache != null
         ? _clearCacheAfterSnapshots(previousSubject, cache)
@@ -156,11 +160,13 @@ final class DeliveryTrackingController
     _orderId = orderId;
     await _stopRuntime();
     if (!_isCurrent(generation, orderId)) return;
-    state = DeliveryTrackingViewState(
-      status: DeliveryTrackingStatus.loading,
-      orderId: orderId,
-      isRefreshing: true,
-      isForeground: _foreground,
+    _publish(
+      DeliveryTrackingViewState(
+        status: DeliveryTrackingStatus.loading,
+        orderId: orderId,
+        isRefreshing: true,
+        isForeground: _foreground,
+      ),
     );
 
     if (!forceRefresh) {
@@ -173,10 +179,12 @@ final class DeliveryTrackingController
           );
       if (!_isCurrent(generation, orderId)) return;
       if (cached != null) {
-        state = state.copyWith(
-          status: DeliveryTrackingStatus.offline,
-          snapshot: _freshnessAdjusted(cached),
-          isRefreshing: true,
+        _publish(
+          state.copyWith(
+            status: DeliveryTrackingStatus.offline,
+            snapshot: _freshnessAdjusted(cached),
+            isRefreshing: true,
+          ),
         );
       }
     }
@@ -191,7 +199,7 @@ final class DeliveryTrackingController
   Future<void> refresh() async {
     final orderId = _orderId;
     if (orderId == null) return;
-    state = state.copyWith(isRefreshing: true, failure: null);
+    _publish(state.copyWith(isRefreshing: true, failure: null));
     await _load(_generation, orderId);
   }
 
@@ -204,9 +212,11 @@ final class DeliveryTrackingController
     _orderId = null;
     await Future<void>.microtask(() {});
     if (!_disposed) {
-      state = _subjectId == null
-          ? const DeliveryTrackingViewState.signedOut()
-          : const DeliveryTrackingViewState.idle();
+      _publish(
+        _subjectId == null
+            ? const DeliveryTrackingViewState.signedOut()
+            : const DeliveryTrackingViewState.idle(),
+      );
     }
     final stopRuntime = _stopRuntime();
     final purgeCache = subjectId != null && cache != null
@@ -218,7 +228,7 @@ final class DeliveryTrackingController
   Future<void> setForeground(bool foreground) async {
     if (_foreground == foreground) return;
     _foreground = foreground;
-    if (!_disposed) state = state.copyWith(isForeground: foreground);
+    if (!_disposed) _publish(state.copyWith(isForeground: foreground));
     final orderId = _orderId;
     if (!foreground || orderId == null) {
       await _stopRuntime();
@@ -281,10 +291,12 @@ final class DeliveryTrackingController
         _generation++;
         _orderId = null;
         if (!_disposed && _subjectId == subjectId && _shopSlug == shopSlug) {
-          state = DeliveryTrackingViewState(
-            status: DeliveryTrackingStatus.failure,
-            failure: DeliveryTrackingFailureKind.unauthorized,
-            isForeground: _foreground,
+          _publish(
+            DeliveryTrackingViewState(
+              status: DeliveryTrackingStatus.failure,
+              failure: DeliveryTrackingFailureKind.unauthorized,
+              isForeground: _foreground,
+            ),
           );
         }
         final stopRuntime = _stopRuntime();
@@ -293,16 +305,18 @@ final class DeliveryTrackingController
         return;
       }
       final hasSnapshot = state.snapshot != null;
-      state = state.copyWith(
-        status:
-            hasSnapshot &&
-                (failure == DeliveryTrackingFailureKind.offline ||
-                    failure == DeliveryTrackingFailureKind.timeout)
-            ? DeliveryTrackingStatus.offline
-            : DeliveryTrackingStatus.failure,
-        failure: failure,
-        isRefreshing: false,
-        isPollingFallback: state.isPollingFallback,
+      _publish(
+        state.copyWith(
+          status:
+              hasSnapshot &&
+                  (failure == DeliveryTrackingFailureKind.offline ||
+                      failure == DeliveryTrackingFailureKind.timeout)
+              ? DeliveryTrackingStatus.offline
+              : DeliveryTrackingStatus.failure,
+          failure: failure,
+          isRefreshing: false,
+          isPollingFallback: state.isPollingFallback,
+        ),
       );
     }
   }
@@ -355,7 +369,7 @@ final class DeliveryTrackingController
   void _startPollingFallback(int generation, String orderId) {
     if (!_isCurrent(generation, orderId) || !_runtimeAllowed) return;
     if (!state.isPollingFallback) {
-      state = state.copyWith(isPollingFallback: true);
+      _publish(state.copyWith(isPollingFallback: true));
     }
     if (_pollTimer != null) return;
     unawaited(_load(generation, orderId));
@@ -374,12 +388,13 @@ final class DeliveryTrackingController
     _pollTimer?.cancel();
     _pollTimer = null;
     if (state.isPollingFallback) {
-      state = state.copyWith(isPollingFallback: false);
+      _publish(state.copyWith(isPollingFallback: false));
     }
   }
 
   void _scheduleReconnect(int generation, String orderId) {
     _reconnectTimer?.cancel();
+    _recordTrackingSignal(TrackingSignalTelemetry.reconnecting);
     final base = ref.read(deliveryTrackingReconnectBaseProvider);
     final exponent = _reconnectAttempt.clamp(0, 4);
     final factor = 1 << exponent;
@@ -431,24 +446,37 @@ final class DeliveryTrackingController
       if (current != null &&
           !isNewerDeliveryTrackingSnapshot(current, snapshot)) {
         final adjustedCurrent = _freshnessAdjusted(current);
-        state = state.copyWith(
-          status: DeliveryTrackingStatus.ready,
-          snapshot: adjustedCurrent,
-          isRefreshing: false,
-          failure: null,
-          isPollingFallback: realtimeHealthy ? false : state.isPollingFallback,
+        _publish(
+          state.copyWith(
+            status: DeliveryTrackingStatus.ready,
+            snapshot: adjustedCurrent,
+            isRefreshing: false,
+            failure: null,
+            isPollingFallback: realtimeHealthy
+                ? false
+                : state.isPollingFallback,
+          ),
+        );
+        _recordTrackingSignal(
+          current.version == snapshot.version &&
+                  current.orderStatusVersion == snapshot.orderStatusVersion &&
+                  current.trackingSessionId == snapshot.trackingSessionId
+              ? TrackingSignalTelemetry.duplicate
+              : TrackingSignalTelemetry.outOfOrder,
         );
         _scheduleFreshnessExpiry(generation, orderId, adjustedCurrent);
         return false;
       }
       await _accept(snapshot, subjectId: subjectId, shopSlug: shopSlug);
       if (!_isCurrent(generation, orderId)) return false;
-      state = state.copyWith(
-        status: DeliveryTrackingStatus.ready,
-        snapshot: _freshnessAdjusted(snapshot),
-        failure: null,
-        isRefreshing: false,
-        isPollingFallback: realtimeHealthy ? false : state.isPollingFallback,
+      _publish(
+        state.copyWith(
+          status: DeliveryTrackingStatus.ready,
+          snapshot: _freshnessAdjusted(snapshot),
+          failure: null,
+          isRefreshing: false,
+          isPollingFallback: realtimeHealthy ? false : state.isPollingFallback,
+        ),
       );
       _scheduleFreshnessExpiry(generation, orderId, state.snapshot!);
       if (snapshot.isTerminal) await _stopRuntime();
@@ -491,7 +519,7 @@ final class DeliveryTrackingController
     if (current == null) return;
     final adjusted = _freshnessAdjusted(current);
     if (adjusted.freshness != current.freshness) {
-      state = state.copyWith(snapshot: adjusted);
+      _publish(state.copyWith(snapshot: adjusted));
     }
   }
 
@@ -535,6 +563,83 @@ final class DeliveryTrackingController
     if (subscription != null) await subscription.cancel();
   }
 
+  void _publish(DeliveryTrackingViewState next) {
+    if (_disposed) return;
+    final previous = state;
+    state = next;
+    final observability = ref.read(observabilityProvider);
+    final occurredAt = ref.read(deliveryTrackingClockProvider)();
+    if (!previous.isPollingFallback && next.isPollingFallback) {
+      observability.record(
+        ObservabilityEvent.trackingSignal(
+          occurredAt: occurredAt,
+          signal: TrackingSignalTelemetry.disconnected,
+          outcome: ObservabilityOutcome.pending,
+        ),
+      );
+    } else if (previous.isPollingFallback && !next.isPollingFallback) {
+      observability.record(
+        ObservabilityEvent.trackingSignal(
+          occurredAt: occurredAt,
+          signal: TrackingSignalTelemetry.reconnected,
+          outcome: ObservabilityOutcome.success,
+        ),
+      );
+    }
+    final previousSnapshot = previous.snapshot;
+    final nextSnapshot = next.snapshot;
+    if (next.failure != previous.failure ||
+        nextSnapshot?.trackingMode != previousSnapshot?.trackingMode ||
+        nextSnapshot?.freshness != previousSnapshot?.freshness) {
+      observability.record(
+        ObservabilityEvent.trackingAvailability(
+          occurredAt: occurredAt,
+          mode: _trackingMode(nextSnapshot?.trackingMode),
+          availability: next.failure != null
+              ? TrackingAvailabilityTelemetry.failed
+              : nextSnapshot?.freshness == DeliveryTrackingFreshness.stale
+              ? TrackingAvailabilityTelemetry.stale
+              : nextSnapshot == null ||
+                    nextSnapshot.freshness ==
+                        DeliveryTrackingFreshness.unavailable
+              ? TrackingAvailabilityTelemetry.disabled
+              : TrackingAvailabilityTelemetry.available,
+        ),
+      );
+    }
+    if (next.failure != null && next.failure != previous.failure) {
+      final failure = _trackingFailureCategory(next.failure!);
+      observability.record(
+        ObservabilityEvent.backendFailure(
+          occurredAt: occurredAt,
+          component: ObservabilityComponent.tracking,
+          category: failure,
+          retryable: const {
+            BackendFailureCategory.offline,
+            BackendFailureCategory.timeout,
+            BackendFailureCategory.unavailable,
+          }.contains(failure),
+        ),
+      );
+    }
+  }
+
+  void _recordTrackingSignal(TrackingSignalTelemetry signal) {
+    ref
+        .read(observabilityProvider)
+        .record(
+          ObservabilityEvent.trackingSignal(
+            occurredAt: ref.read(deliveryTrackingClockProvider)(),
+            signal: signal,
+            outcome:
+                signal == TrackingSignalTelemetry.duplicate ||
+                    signal == TrackingSignalTelemetry.outOfOrder
+                ? ObservabilityOutcome.ignored
+                : ObservabilityOutcome.pending,
+          ),
+        );
+  }
+
   bool _isCurrent(int generation, String orderId) =>
       !_disposed &&
       generation == _generation &&
@@ -551,3 +656,25 @@ final class DeliveryTrackingController
     _ => DeliveryTrackingFailureKind.unexpected,
   };
 }
+
+TrackingModeTelemetry _trackingMode(DeliveryTrackingMode? mode) =>
+    switch (mode) {
+      DeliveryTrackingMode.statusOnly => TrackingModeTelemetry.statusOnly,
+      DeliveryTrackingMode.externalCarrier =>
+        TrackingModeTelemetry.externalCarrier,
+      DeliveryTrackingMode.liveCourier => TrackingModeTelemetry.liveCourier,
+      null => TrackingModeTelemetry.unavailable,
+    };
+
+BackendFailureCategory _trackingFailureCategory(
+  DeliveryTrackingFailureKind kind,
+) => switch (kind) {
+  DeliveryTrackingFailureKind.offline => BackendFailureCategory.offline,
+  DeliveryTrackingFailureKind.timeout => BackendFailureCategory.timeout,
+  DeliveryTrackingFailureKind.unauthorized =>
+    BackendFailureCategory.unauthorized,
+  DeliveryTrackingFailureKind.invalid ||
+  DeliveryTrackingFailureKind.notFound => BackendFailureCategory.invalidInput,
+  DeliveryTrackingFailureKind.unavailable => BackendFailureCategory.unavailable,
+  DeliveryTrackingFailureKind.unexpected => BackendFailureCategory.unexpected,
+};

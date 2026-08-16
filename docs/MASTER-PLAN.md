@@ -8,14 +8,15 @@
 - **Task attivo**: TASK-035
 - **File task**: docs/TASKS/TASK-035-observability-crash-analytics.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: eseguire TASK-035, review indipendente, CI
-  exact-SHA, merge normale e verifica `main`; poi attivare TASK-036 secondo ADR-015
+- **Prossima azione autorizzata**: review indipendente TASK-035, eventuale Fix e
+  re-review, CI exact-SHA, merge normale e verifica `main`; poi attivare TASK-036
+  secondo ADR-015
 
 ## Repository coinvolti
 

@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/app_config.dart';
+import '../../../core/observability/observability_event.dart';
+import '../../../core/observability/observability_providers.dart';
+import '../../../core/time/app_scheduler.dart';
 import '../../account/application/customer_account_providers.dart';
 import '../../account/domain/customer_account_models.dart';
 import '../../cart/domain/cart_models.dart';
@@ -949,8 +952,63 @@ final class CheckoutController extends Notifier<CheckoutState> {
 
   void _publish(CheckoutState value) {
     if (_disposed) return;
+    final previous = _lastState;
     _lastState = value;
     state = value;
+    final failure = value.failureKind;
+    final previousSignature = (
+      previous?.step,
+      previous?.isBusy,
+      previous?.failureKind,
+      previous?.order != null,
+    );
+    final nextSignature = (
+      value.step,
+      value.isBusy,
+      value.failureKind,
+      value.order != null,
+    );
+    if (previousSignature != nextSignature) {
+      final clock = ref.read(appClockProvider);
+      ref
+          .read(observabilityProvider)
+          .record(
+            ObservabilityEvent.checkoutStep(
+              occurredAt: clock(),
+              step: _checkoutTelemetryStep(value),
+              outcome: failure != null
+                  ? ObservabilityOutcome.failure
+                  : value.isBusy
+                  ? ObservabilityOutcome.pending
+                  : ObservabilityOutcome.success,
+              failure: failure == null
+                  ? null
+                  : _checkoutFailureCategory(failure),
+            ),
+          );
+      if (previous?.order == null && value.order != null) {
+        ref
+            .read(observabilityProvider)
+            .record(
+              ObservabilityEvent.orderCreated(
+                occurredAt: clock(),
+                outcome: ObservabilityOutcome.success,
+              ),
+            );
+      } else if (failure != null &&
+          previous?.pendingOperation?.kind ==
+              CheckoutPendingOperationKind.order) {
+        ref
+            .read(observabilityProvider)
+            .record(
+              ObservabilityEvent.orderCreated(
+                occurredAt: clock(),
+                outcome: ObservabilityOutcome.failure,
+                failure: _checkoutFailureCategory(failure),
+              ),
+            );
+      }
+    }
   }
 
   bool _isCurrent(int generation) => !_disposed && generation == _generation;
@@ -984,6 +1042,38 @@ final class _CheckoutContext {
   final String shopSlug;
   final int generation;
 }
+
+CheckoutTelemetryStep _checkoutTelemetryStep(CheckoutState state) =>
+    switch (state.step) {
+      CheckoutStep.mode => CheckoutTelemetryStep.mode,
+      CheckoutStep.destination => CheckoutTelemetryStep.destination,
+      CheckoutStep.slot => CheckoutTelemetryStep.slot,
+      CheckoutStep.review => CheckoutTelemetryStep.review,
+      CheckoutStep.confirmation =>
+        state.order == null
+            ? CheckoutTelemetryStep.payment
+            : CheckoutTelemetryStep.order,
+    };
+
+BackendFailureCategory _checkoutFailureCategory(CheckoutFailureKind kind) =>
+    switch (kind) {
+      CheckoutFailureKind.offline => BackendFailureCategory.offline,
+      CheckoutFailureKind.timeout => BackendFailureCategory.timeout,
+      CheckoutFailureKind.unauthorized => BackendFailureCategory.unauthorized,
+      CheckoutFailureKind.conflict ||
+      CheckoutFailureKind.staleCart ||
+      CheckoutFailureKind.slotUnavailable ||
+      CheckoutFailureKind.expired => BackendFailureCategory.conflict,
+      CheckoutFailureKind.invalidInput ||
+      CheckoutFailureKind.invalidAddress ||
+      CheckoutFailureKind.unsupportedZone ||
+      CheckoutFailureKind.cartUnavailable =>
+        BackendFailureCategory.invalidInput,
+      CheckoutFailureKind.unavailable ||
+      CheckoutFailureKind.paymentUnavailable ||
+      CheckoutFailureKind.notFound => BackendFailureCategory.unavailable,
+      CheckoutFailureKind.unexpected => BackendFailureCategory.unexpected,
+    };
 
 CheckoutSelection _sanitizeSelection(
   CheckoutSelection selection,

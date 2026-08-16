@@ -2539,3 +2539,20 @@
   è l'unico `ACTIVE / EXECUTION`, autorizzato da ADR-015.
 - **Planning TASK-035**: creati task ed evidence mancanti dalla baseline usando scope,
   dipendenze e ordine già canonici nel Master Plan e nel mandato USER_APPROVER.
+
+## 2026-08-16 — TASK-035 Execution completa
+
+- **Inventario**: nessun provider telemetry/crash SaaS presente nel Client; Admin già
+  dotato di request ID safe, correlation hashata, error response strutturati e audit
+  operativo separato. Nessun package o secret aggiunto.
+- **Implementazione**: port no-op/local/production configurabile, 12 eventi typed,
+  redactor centrale, consent, sampling, rate limit, breadcrumb e buffer bounded,
+  crash fingerprint safe, lifecycle e integrazione commerce/tracking.
+- **Privacy evidence**: test negativi cercano PII, token, URL, UUID e coordinate negli
+  export; scanner statico confinante aggiunto al gate canonico.
+- **Gate mirati**: Client `87/87`, Admin foundation `14/14`, analyze e diff `PASS`.
+- **Gate canonico**: `scripts/check.sh` exit `0`; 652 test coverage, repeat
+  `5 x 14 = 70`, benchmark cache 25k, security `611` file e fixture `41/41 + 4/4`,
+  APK debug e iOS Simulator debug verdi.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review
+  indipendente e security diff review obbligatorie, PR/CI/merge non ancora eseguiti.

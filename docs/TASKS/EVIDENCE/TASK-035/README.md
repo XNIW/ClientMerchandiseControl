@@ -1,7 +1,7 @@
 # Evidence TASK-035
 
 Snapshot di handoff:
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Provenance
 
@@ -21,4 +21,78 @@ Planning autorizzato tramite ADR-015; Execution attiva come unico task corrente.
 
 ## Execution
 
-Inventario provider/tooling e boundary privacy: `NOT_RUN`.
+### Revision set e file
+
+- baseline Client: `08221a6897e893ae9adb462d1cc32f0bf32bbb2e`;
+- transition/planning: `e66f405bbd55c792c7044cc3f49bd31d0a706a48`;
+- implementation: `lib/core/observability/`, bootstrap, router e integrazioni bounded
+  Auth/Catalog/Cart/Checkout/Orders/Tracking;
+- verification: test core, collector feature, scanner telemetry e runbook;
+- dipendenze: nessuna aggiunta o update; nessun provider SaaS configurato.
+
+### Provider e privacy boundary
+
+- `NoopObservabilityPort`: default test e staging/production non configurati;
+- `StructuredLocalObservabilityPort`: diagnostica development su `dart:developer`;
+- `ConfigurableProductionObservabilityPort`: exporter analytics/crash distinti,
+  abilitazione esplicita, consent, sampling, rate limit e buffer bounded;
+- eventi: 12 factory tipizzate, nessuna mappa arbitraria dai caller;
+- crash: categoria/component/fingerprint SHA-256 troncato e breadcrumb bounded; exception
+  message e stack non sono serializzati;
+- correlation: 24 caratteri hex random, senza UUID di dominio;
+- redazione centrale: email, auth, OAuth/payment/push/service secret, URL, UUID,
+  coordinate e telefono; serializer limita profondità, elementi e lunghezza.
+
+### Test privacy negativi
+
+Il test core inietta nome, indirizzo, email, telefono, coordinate, tracking URL, bearer,
+OAuth code, payment secret, push token, service role e UUID e cerca esplicitamente gli
+stessi valori negli export. I test feature raccolgono gli eventi reali e verificano
+assenza di query, publication/order/address/slot ID, nome prodotto/cliente, indirizzo,
+coordinate e URL.
+
+`scripts/check-telemetry-privacy.sh` è incluso in `scripts/check.sh` e ha riportato:
+`12 eventi allowlisted, logger/export confinati, zero attributi sensibili`.
+
+### Admin read-only audit
+
+Revision set osservato: head tecnico `1b9636e5`, contenuto già integrato in
+`origin/main` `6fea61bb`. `src/app/api/pos/_shared/pos-route-security.ts`:
+
+- valida e limita client request ID, scartando forme token/credential;
+- genera `serverRequestId` e restituisce errori JSON strutturati;
+- conserva solo hash SHA-256 bounded dell'edge correlation;
+- emette rejection audit strutturato, separato da analytics.
+
+Comando autonomo Admin:
+`node --test` sui foundation TASK-026/TASK-029/TASK-068: `14/14 PASS`, exit `0`.
+Nessuna modifica Admin necessaria; service role resta confinata al server e ai test
+esplicitamente privilegiati già esistenti.
+
+### Gate Client
+
+| Verifica | Esito |
+|---|---|
+| test observability + 5 controller | `87/87 PASS` |
+| format / analyze / diff | `PASS`, zero issue |
+| scanner tracked source | `611` file, zero secret/config/artifact |
+| fixture scanner | `41/41` negative respinte; `4/4` positive accettate |
+| governance / architecture | `9/9` e `7/7 PASS` |
+| test non-performance coverage | `652/652 PASS` |
+| repeat resilience | `5 x 14 = 70/70 PASS` |
+| test performance cache 25k | `1/1 PASS` |
+| Android debug | `app-debug.apk` costruito |
+| iOS Simulator debug | `Runner.app` costruita |
+| `scripts/check.sh` | `PASS`, exit `0` |
+
+Warning osservati e non promossi a PASS: versioni package incompatibili più recenti,
+warning drift multi-database già presente nei test router e futura adozione SPM del
+plugin Maps iOS. Nessun warning è introdotto come nuova dipendenza dal task.
+
+## Review e CI
+
+- review indipendente: `NOT_RUN`;
+- security diff review: `NOT_RUN`;
+- PR exact-SHA CI: `NOT_RUN`;
+- main post-merge CI: `NOT_RUN`;
+- produzione e provider esterni: non modificati.

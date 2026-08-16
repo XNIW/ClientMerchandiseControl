@@ -1,7 +1,7 @@
 # Evidence TASK-043
 
-Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+Snapshot finale:
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance iniziale
 
@@ -62,4 +62,11 @@ sanitizzati e non versionati; nessun dato cliente o credenziale è stato acquisi
 - esito: `APPROVED`, 0 finding P0/P1/P2/P3 aperti;
 - limite: separazione logica read-only nella stessa sessione, dichiarata.
 
-CI PR, merge e main CI restano `NOT_RUN`.
+## CI e integrazione
+
+- PR [#8](https://github.com/XNIW/ClientMerchandiseControl/pull/8), head exact-SHA
+  `af358a8f864cf85624629dd3f94305405fd96146`;
+- PR CI run `31933134837`: Quality, Android debug e iOS Simulator 3/3 `SUCCESS`;
+- merge normale `e9bd0306b07b105f3fb46da783ab2fd24ef44246` in `main`;
+- main CI run `31933418566` sul merge SHA: 3/3 `SUCCESS`;
+- branch remoto `codex/task-043-commerce-ux-refresh-20260816`: eliminato.

@@ -2185,3 +2185,27 @@
   9/9, boundary 7/7, 571+1 test, APK debug e iOS Simulator debug verdi.
 - **Esito**: `APPROVED / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
   l'autorizzazione è già nel prompt del 2026-08-16, quindi seguono PR e CI exact-SHA.
+
+## 2026-08-16 — TASK-043 merge e main CI verificati
+
+- **PR**: #8, head `af358a8f864cf85624629dd3f94305405fd96146`; run PR
+  `31933134837` con Quality, Android e iOS 3/3 `SUCCESS`.
+- **Merge**: normale, commit `e9bd0306b07b105f3fb46da783ab2fd24ef44246`;
+  nessun bypass o squash distruttivo.
+- **Main CI**: run `31933418566` sul merge SHA, 3/3 `SUCCESS` con step reali.
+- **Cleanup**: branch remoto TASK-043 eliminato; checkout primario preservato.
+- **Transizione**: TASK-043 `DONE / USER_APPROVED_DONE`; TASK-044 diventa l'unico
+  `ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+## 2026-08-16 — TASK-044 Planning autorizzato
+
+- **Audit iniziale**: Client parte dalla main verificata `e9bd0306`; Admin dal
+  `5cf73e4f` in worktree separato. Il task WeChat Admin `TASK-151` resta intatto in
+  review esterna; branch/evidence non vengono sovrascritti.
+- **Piano**: schema additivo owner-scoped, RPC read/write dedicate, RLS/abuse matrix,
+  writer Courier Mode foreground, Client consumer Realtime con polling bounded e cache.
+- **Supabase**: changelog e docs correnti verificati prima dell'implementazione; le
+  nuove tabelle non saranno affidate all'esposizione Data API implicita e il confine
+  Realtime userà pubblicazione, grant e RLS espliciti.
+- **Autorizzazione**: USER_APPROVER già registrata; passaggio immediato da Planning a
+  Execution senza una nuova richiesta.

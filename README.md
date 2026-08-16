@@ -162,11 +162,11 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-043
-- **File task**: `docs/TASKS/TASK-043-storefront-commerce-information-architecture-ux-refresh.md`
+- **Task attivo**: TASK-044
+- **File task**: `docs/TASKS/TASK-044-delivery-tracking-contract-privacy-writer.md`
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Fase**: EXECUTION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_STOREFRONT_UX_AND_DELIVERY_TRACKING
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN

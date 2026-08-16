@@ -6,13 +6,13 @@
 - **Titolo**: Observability, crash reporting e analytics privacy-safe
 - **File task**: `docs/TASKS/TASK-035-observability-crash-analytics.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-035/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -262,6 +262,14 @@ package è stato aggiunto o aggiornato in TASK-035.
 - gate autonomi esistenti verdi, ma CA-01/03/04/05/07/10 restano `FAIL` fino al Fix.
 
 Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 3 — `F-035-R06`
+
+- corretti esclusivamente i quattro claim Fix 2 da 17/340 a 16/320;
+- nessun codice, test, scanner o boundary runtime modificato;
+- governance `9/9` e diff check verdi sul Fix documentale.
+
+Handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ### Esito re-review Fix 1
 

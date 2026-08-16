@@ -2639,3 +2639,11 @@
 - **Gate autonomi**: 16/16, repeat 320/320, scanner, analyze, governance 9/9,
   architecture 7/7, format e diff verdi.
 - **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-16 — TASK-035 Fix 3 documentale a Re-review
+
+- **Fix**: corretti i quattro claim `F-035-R06` da 17/340 a 16/320; nessuna
+  modifica a codice, test, scanner o runtime.
+- **Gate**: governance `9/9` e diff check `PASS`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
+  documentale distinta obbligatoria.

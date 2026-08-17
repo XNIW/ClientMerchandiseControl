@@ -99,6 +99,38 @@ jobs:
           bash scripts/check-client-security.sh
           --artifact build/app/outputs/flutter-apk/app-debug.apk
 
+  android-release:
+    name: Android release candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Build production-like unsigned AAB
+        run: >-
+          flutter build appbundle --release
+          --dart-define-from-file=config/app_config.production.release.json
+      - name: Build production-like unsigned inspection APK
+        run: >-
+          flutter build apk --release
+          --dart-define-from-file=config/app_config.production.release.json
+      - name: Validate Android release candidate
+        run: >-
+          bash scripts/check-android-release.sh
+          --aab build/app/outputs/bundle/release/app-release.aab
+          --apk build/app/outputs/flutter-apk/app-release.apk
+
   ios-build:
     name: iOS Simulator debug build
     runs-on: macos-latest

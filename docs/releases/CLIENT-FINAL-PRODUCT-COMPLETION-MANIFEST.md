@@ -5,7 +5,7 @@
 - Release train: `CLIENT_FINAL_PRODUCT_COMPLETION`
 - Governance: `ADR-015`
 - Stato: `EXECUTION`
-- Task corrente: `TASK-036`
+- Task corrente: `TASK-038`
 - Review integrata finale: `NOT_RUN`
 - Production modificata: `no`
 
@@ -42,9 +42,9 @@ Admin sono verdi sui rispettivi SHA iniziali. I linked worktree del train parton
 |---|---|---|---|---|---|
 | TASK-034 | DONE | `08221a6` | `6fea61bb`, staging verificato | Admin #90/#91/#92; Client #12 merged | review APPROVED; PR/main CI 3/3 PASS |
 | TASK-035 | DONE | `ddb8cc8` | `6fea61bb`, audit read-only 14/14 | Client #13 merged | review APPROVED; PR/main CI 3/3 PASS |
-| TASK-036 | ACTIVE / EXECUTION | `ddb8cc8` baseline | n/a | NOT_RUN | planning autorizzato |
-| TASK-037 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
-| TASK-038 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
+| TASK-036 | DONE | `96a9359` | `59668348`, staging verificato | Admin #93; Client #14 merged | review APPROVED; PR/main CI PASS |
+| TASK-037 | DONE | `c4ec680` | `59668348`, read-only | Client #15/#16 merged | review APPROVED; PR/main CI PASS |
+| TASK-038 | ACTIVE / EXECUTION | `c4ec680` baseline | `59668348` baseline read-only | NOT_RUN | planning autorizzato |
 | TASK-039 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 | TASK-040 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 | TASK-041 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |

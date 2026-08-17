@@ -1,7 +1,6 @@
 # Evidence TASK-037
 
-Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+Snapshot finale: `DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance
 
@@ -277,3 +276,10 @@ Re-review Fix 2 exact `f473598b21b5a5b2b339b85cb7d14ab4f4ed241b`:
 direttamente la run fallita, tutti i 10 tag, il lane seriale, budget invariato,
 repeat 50/50, regressione 1/1, analyze/governance/action pin/format/diff e
 worktree clean. PR e nuova main CI restano il gate successivo.
+
+### Closeout
+
+PR #16 head `fc9f9ea`: CI `31990064543` 3/3 job e tutti gli step `PASS`, inclusi
+coverage e performance seriale separati. Merge normale `c4ec680`; main CI
+`31990472448` exact merge 3/3 e tutti gli step `PASS`. Branch remota eliminata,
+ancestry verificata, production invariata e zero finding P0/P1/P2/P3.

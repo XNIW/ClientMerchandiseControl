@@ -40,6 +40,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-035" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-036" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-037" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-038" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-043" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-044" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-045" \
@@ -227,6 +228,12 @@ cmc_fixture() {
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-037/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-037/README.md"
   cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-038/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-038/README.md"
+  cp \
     "${cmc_test_repo_root}/docs/TASKS/TASK-043-storefront-commerce-information-architecture-ux-refresh.md" \
     "${cmc_target}/docs/TASKS/"
   cp \
@@ -282,7 +289,7 @@ cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-037/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-038/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
@@ -320,7 +327,7 @@ cmc_expect_fail active-during-review "${cmc_case}"
 
 cmc_case="$(cmc_fixture active-header-without-active-row)"
 sed -i.bak \
-  's/| TASK-037 | Performance, immagini, cache e load testing | ACTIVE |/| TASK-037 | Performance, immagini, cache e load testing | TODO |/' \
+  's/| TASK-038 | Store assets, privacy policy, legal e release metadata | ACTIVE |/| TASK-038 | Store assets, privacy policy, legal e release metadata | TODO |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-header-without-active-row "${cmc_case}"

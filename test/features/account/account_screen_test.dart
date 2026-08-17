@@ -77,6 +77,26 @@ void main() {
     expect(googleSemantics.flagsCollection.isEnabled, ui.Tristate.isFalse);
     expect(googleSemantics.hasAction(ui.SemanticsAction.tap), isFalse);
     expect(find.byKey(const ValueKey('account-browse-button')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('account-open-source-licenses')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('licenze open source sono accessibili senza autenticazione', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildApp(const AccountView.guest()));
+    await tester.pumpAndSettle();
+    final licenseAction = find.byKey(
+      const ValueKey('account-open-source-licenses'),
+    );
+    await tester.ensureVisible(licenseAction);
+    await tester.tap(licenseAction);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(LicensePage), findsOneWidget);
+    expect(find.text('Client Merchandise Control'), findsWidgets);
   });
 
   testWidgets('guest abilita soltanto le callback esplicitamente iniettate', (

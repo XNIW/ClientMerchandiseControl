@@ -137,6 +137,8 @@
   "accountPersonalSettingsTitle": "Perfil, direcciones y privacidad",
   "accountPersonalSettingsDescription": "Gestiona tu identidad, idioma, direcciones y datos Storefront.",
   "accountNotificationsDescription": "Elige cómo recibir novedades reales de tus pedidos.",
+  "accountOpenSourceLicenses": "Licencias de código abierto",
+  "accountOpenSourceLicensesDescription": "Consulta las licencias del software incluido en esta aplicación.",
   "accountSigningInTitle": "Abriendo el acceso seguro",
   "accountSigningInMessage": "Completa el acceso en el navegador y vuelve a la aplicación.",
   "accountCancelSignIn": "Cancelar acceso",

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router/app_routes.dart';
+import '../../../app/branding/app_brand.dart';
 import '../../../app/design_system/theme/storefront_semantic_colors.dart';
 import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
@@ -214,9 +215,30 @@ class _AccountSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return StorefrontPage(
       maxWidth: AppSizes.accountContentMaxWidth,
-      child: KeyedSubtree(key: const ValueKey('account-hub'), child: child),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          KeyedSubtree(key: const ValueKey('account-hub'), child: child),
+          const SizedBox(height: AppSpacing.lg),
+          Card.outlined(
+            margin: EdgeInsets.zero,
+            child: ListTile(
+              key: const ValueKey('account-open-source-licenses'),
+              leading: const Icon(Icons.description_outlined),
+              title: Text(l10n.accountOpenSourceLicenses),
+              subtitle: Text(l10n.accountOpenSourceLicensesDescription),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => showLicensePage(
+                context: context,
+                applicationName: AppBrand.effectiveDisplayName,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

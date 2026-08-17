@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "environments": ["development", "staging", "production"],
+  "capabilities": [
+    {
+      "name": "supabaseUrlPublicKey",
+      "development": {
+        "policy": "forbidden",
+        "fallback": "Local fixtures and offline cache only.",
+        "validation": "Both values are empty; no remote backend initializes."
+      },
+      "staging": {
+        "policy": "required",
+        "fallback": "Application startup fails closed.",
+        "validation": "HTTPS origin plus publishable/anon key; never service_role; both values supplied together."
+      },
+      "production": {
+        "policy": "required",
+        "fallback": "Application startup fails closed.",
+        "validation": "Production HTTPS origin plus scoped publishable/anon key from the release secret store; never committed."
+      }
+    },
+    {
+      "name": "oauth",
+      "development": {
+        "policy": "forbidden",
+        "fallback": "Guest storefront remains available.",
+        "validation": "GOOGLE_AUTH_ENABLED is false and no provider is contacted."
+      },
+      "staging": {
+        "policy": "forbidden",
+        "fallback": "Guest storefront remains available.",
+        "validation": "Current application boundary rejects an enabled flag until an owned HTTPS domain is verified."
+      },
+      "production": {
+        "policy": "forbidden",
+        "fallback": "Guest storefront remains available.",
+        "validation": "Current release boundary rejects an enabled flag; activation requires a separately reviewed owned-domain configuration."
+      }
+    },
+    {
+      "name": "callback",
+      "development": {
+        "policy": "forbidden",
+        "fallback": "Authentication callback routing is inactive.",
+        "validation": "AUTH_REDIRECT_URI is empty."
+      },
+      "staging": {
+        "policy": "required",
+        "fallback": "Application startup fails closed.",
+        "validation": "Exact allowlisted HTTPS callback; no wildcard, query, fragment, user info or alternate port."
+      },
+      "production": {
+        "policy": "required",
+        "fallback": "Application startup fails closed.",
+        "validation": "Exact reviewed HTTPS callback and matching provider/app-link configuration before OAuth activation."
+      }
+    },
+    {
+      "name": "maps",
+      "development": {
+        "policy": "optional",
+        "fallback": "Status-only tracking UI.",
+        "validation": "Map flags are false unless an explicit local test adapter is used."
+      },
+      "staging": {
+        "policy": "optional",
+        "fallback": "Status-only tracking UI; native adapter remains disabled.",
+        "validation": "Enabled and native-configured flags must both be true; key remains outside Git and is restricted to the staging app."
+      },
+      "production": {
+        "policy": "optional",
+        "fallback": "Status-only tracking UI; no provider invocation.",
+        "validation": "Billing, quota, app-restricted native key and shop enable flag are all required before both map flags may be true."
+      }
+    },
+    {
+      "name": "payment",
+      "development": {
+        "policy": "optional",
+        "fallback": "Only non-online methods exposed by fixtures are selectable.",
+        "validation": "Online payment configuration remains notConfigured; no real purchase."
+      },
+      "staging": {
+        "policy": "optional",
+        "fallback": "Online payment is disabled server-authoritatively.",
+        "validation": "Sandbox provider, webhook signature, reconciliation and idempotency must pass before server publication."
+      },
+      "production": {
+        "policy": "optional",
+        "fallback": "Online payment is disabled server-authoritatively.",
+        "validation": "Production provider approval, secret store, signed webhook, refund/cancel and reconciliation gates are all required."
+      }
+    },
+    {
+      "name": "notifications",
+      "development": {
+        "policy": "optional",
+        "fallback": "Unconfigured provider returns no token and requests no permission.",
+        "validation": "No APNs/FCM credential or production token is present."
+      },
+      "staging": {
+        "policy": "optional",
+        "fallback": "Unconfigured provider returns no token and requests no permission.",
+        "validation": "Environment-scoped APNs/FCM configuration and package/bundle match before activation."
+      },
+      "production": {
+        "policy": "optional",
+        "fallback": "Unconfigured provider returns no token and requests no permission.",
+        "validation": "Production APNs/FCM keys, entitlement and backend sender configuration are all present before activation."
+      }
+    },
+    {
+      "name": "analytics",
+      "development": {
+        "policy": "optional",
+        "fallback": "Structured local privacy-safe logger.",
+        "validation": "Bounded typed events only; central redaction and no remote exporter."
+      },
+      "staging": {
+        "policy": "optional",
+        "fallback": "No-op adapter.",
+        "validation": "A reviewed exporter, environment separation, consent, sampling and privacy negative tests are required before injection."
+      },
+      "production": {
+        "policy": "optional",
+        "fallback": "No-op adapter.",
+        "validation": "Explicit owner/privacy approval and a reviewed production exporter are required; payload remains typed, sampled, redacted and bounded."
+      }
+    },
+    {
+      "name": "crashReporting",
+      "development": {
+        "policy": "optional",
+        "fallback": "Structured local fingerprint only.",
+        "validation": "No raw error, stack secret, token or personal data is exported."
+      },
+      "staging": {
+        "policy": "optional",
+        "fallback": "No-op adapter.",
+        "validation": "Separate bounded reporter, timeout and redaction tests pass before injection."
+      },
+      "production": {
+        "policy": "optional",
+        "fallback": "No-op adapter.",
+        "validation": "Explicit owner/privacy approval, environment-scoped DSN/configuration and central redaction are required."
+      }
+    },
+    {
+      "name": "tracking",
+      "development": {
+        "policy": "optional",
+        "fallback": "Status-only or synthetic test feed.",
+        "validation": "No real customer, courier or production coordinate data."
+      },
+      "staging": {
+        "policy": "optional",
+        "fallback": "Status-only order tracking.",
+        "validation": "Owner-scoped RLS, bounded realtime/polling, retention and shop mode are verified before live-courier activation."
+      },
+      "production": {
+        "policy": "optional",
+        "fallback": "Status-only order tracking.",
+        "validation": "Production migration, RLS, retention, provider gates and shop activation switch must all be ready."
+      }
+    },
+    {
+      "name": "shopSlug",
+      "development": {
+        "policy": "forbidden",
+        "fallback": "Local fixtures use no remote shop.",
+        "validation": "STOREFRONT_SHOP_SLUG is empty."
+      },
+      "staging": {
+        "policy": "required",
+        "fallback": "Application startup fails closed.",
+        "validation": "Public lowercase slug matches the canonical staging shop and the bounded slug grammar."
+      },
+      "production": {
+        "policy": "required",
+        "fallback": "Application startup fails closed.",
+        "validation": "Public lowercase slug is owner-approved and resolves only to the intended production shop."
+      }
+    },
+    {
+      "name": "externalCarrier",
+      "development": {
+        "policy": "optional",
+        "fallback": "Carrier CTA is absent.",
+        "validation": "Only fixed test origins and sanitized synthetic identifiers are accepted."
+      },
+      "staging": {
+        "policy": "optional",
+        "fallback": "Carrier CTA is absent.",
+        "validation": "Server-issued HTTPS URL satisfies the allowlist and failure falls back to order status."
+      },
+      "production": {
+        "policy": "optional",
+        "fallback": "Carrier CTA is absent.",
+        "validation": "Approved HTTPS carrier origins, privacy review and shop switch are required."
+      }
+    },
+    {
+      "name": "loggingLevel",
+      "development": {
+        "policy": "required",
+        "fallback": "Bounded structured local logger.",
+        "validation": "Development environment selects local structured output with redaction."
+      },
+      "staging": {
+        "policy": "required",
+        "fallback": "No-op remote telemetry.",
+        "validation": "Staging environment never emits raw requests, secrets, identifiers or coordinates."
+      },
+      "production": {
+        "policy": "required",
+        "fallback": "No-op remote telemetry.",
+        "validation": "Production environment excludes debug logging and permits only reviewed bounded adapters."
+      }
+    }
+  ]
+}

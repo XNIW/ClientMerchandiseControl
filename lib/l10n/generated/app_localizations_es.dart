@@ -469,6 +469,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Elige cómo recibir novedades reales de tus pedidos.';
 
   @override
+  String get accountOpenSourceLicenses => 'Licencias de código abierto';
+
+  @override
+  String get accountOpenSourceLicensesDescription =>
+      'Consulta las licencias del software incluido en esta aplicación.';
+
+  @override
   String get accountSigningInTitle => 'Abriendo el acceso seguro';
 
   @override

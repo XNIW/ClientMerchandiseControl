@@ -2881,3 +2881,65 @@
   action pin, format 289/0, diff e worktree clean tutti `PASS`.
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; PR Fix 2 e
   nuova main CI sono il gate successivo autorizzato.
+
+## 2026-08-17 — TASK-037 closeout e TASK-038 activation
+
+- **PR #16**: head `fc9f9eac878d15e1541fdec29682381f1bffb92d`, CI
+  `31990064543` con Quality/Android/iOS 3/3 e tutti gli step `PASS`.
+- **Merge/main**: merge normale `c4ec680ddc0dd1b0537e7c6013f0f5c49e2db894`;
+  main CI `31990472448` exact merge 3/3, coverage e performance separati verdi.
+- **Hygiene**: ancestry verificata, branch remota eliminata, production invariata.
+- **Transizione**: TASK-037 `DONE`; TASK-038 unico `ACTIVE / EXECUTION` per
+  autorizzazione persistente del mandato 2026-08-16.
+
+## 2026-08-17 — TASK-038 Execution e handoff Review
+
+- **Candidate tecnico**: `fe8c5824921508086d68fa43f5d658c72b80e2b4`;
+  asset store originali, identity/versioning, native privacy, metadata Android/iOS,
+  matrice release 12×3, licenze/debt audit e template owner completati.
+- **Fix pre-handoff**: chiusi la fixture secret-shaped che bloccava CI, il manifest
+  app-owned iOS vuoto e la provenance workstation; validator privacy negativo 2/2.
+- **Gate**: `scripts/check.sh` exit 0, 768/768 funzionali, repeat 70/70,
+  performance 10/10, analyze, APK e iOS Simulator build; artifact scan 549/233.
+- **Smoke**: Android Emulator e iOS Simulator install/launch verdi; device iOS
+  fisici offline e nessun Android fisico, quindi physical validation resta distinta.
+- **Security**: diff scan `e8233586-d75a-4e1d-9bb7-cb356d544f77` completata con
+  zero finding reportable; TASK-033 riusato, production invariata.
+- **Transizione**: `ACTIVE / EXECUTION -> REVIEW`;
+  `CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review e CI non inferite come PASS.
+
+## 2026-08-17 — TASK-038 Review indipendente
+
+- **Exact SHA**: `c7af4ca37ec05e5caabee73906e1844793e430b4`;
+  reviewer read-only distinto, worktree pulito.
+- **Esito**: `CHANGES_REQUIRED`; 0 P0, 0 P1, 1 P2, 0 P3.
+- **F-038-R01**: checkout invia `p_payment_method` e raccoglie quindi la forma di
+  pagamento, ma manifest, validator ed evidence omettono Payment Info; il validator
+  4/4 produce un falso PASS sulla lista incompleta.
+- **Gate reviewer**: account 11/11, checkout probe 1/1, analyze, format,
+  governance/architecture/localization/telemetry/action pins, security 657 file e
+  bundle inspection tutti verdi; production invariata.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`;
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`, fix limitato a `F-038-R01`.
+
+## 2026-08-17 — TASK-038 Fix Payment Info
+
+- **Exact SHA tecnico**: `b22d860046f03e98a5dc9ef00ad26ce41d173f5c`.
+- **Fix**: Payment Info è l'ottavo tipo app-owned, linked/non-tracking/App
+  Functionality; evidence distingue forma di pagamento da carta/CVV/secret non
+  raccolti; validator e regressione impediscono omissione o duplicazione.
+- **Gate impattati**: validator 5/5 e checkout insieme 21/21, analyze, metadata,
+  security 657, plist/diff, iOS Simulator build e bundle manifest tutti `PASS`;
+  artifact scan 233 file verde.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`;
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; prossimo ruolo re-reviewer read-only distinto.
+
+## 2026-08-17 — TASK-038 Re-review indipendente
+
+- **Exact HEAD**: `33aea1d1b5239e109d0f27051e560d2973f476bc`.
+- **Esito**: `APPROVED`; `F-038-R01 CLOSED`; zero P0/P1/P2/P3.
+- **Verifica autonoma**: checkout+validator 21/21, metadata 5/5, iOS Simulator
+  build e manifest source/bundle byte-identici con otto tipi, artifact 233,
+  analyze, format 291/0, governance 9/9, security 657+41/41+4/4 e diff verdi.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; autorizzazione
+  persistente abilita PR exact-SHA, merge normale e main CI prima del closeout.

@@ -877,6 +877,18 @@ abstract class AppLocalizations {
   /// **'Elige cómo recibir novedades reales de tus pedidos.'**
   String get accountNotificationsDescription;
 
+  /// No description provided for @accountOpenSourceLicenses.
+  ///
+  /// In es, this message translates to:
+  /// **'Licencias de código abierto'**
+  String get accountOpenSourceLicenses;
+
+  /// No description provided for @accountOpenSourceLicensesDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Consulta las licencias del software incluido en esta aplicación.'**
+  String get accountOpenSourceLicensesDescription;
+
   /// Título mientras se inicia el acceso con Google.
   ///
   /// In es, this message translates to:

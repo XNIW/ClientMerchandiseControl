@@ -19,6 +19,15 @@ const expectedCapabilities = <String>{
 
 const _environments = <String>{'development', 'staging', 'production'};
 const _policies = <String>{'required', 'optional', 'forbidden'};
+const expectedIosCollectedDataTypes = <String>{
+  'NSPrivacyCollectedDataTypeName',
+  'NSPrivacyCollectedDataTypeEmailAddress',
+  'NSPrivacyCollectedDataTypePhysicalAddress',
+  'NSPrivacyCollectedDataTypeUserID',
+  'NSPrivacyCollectedDataTypePurchaseHistory',
+  'NSPrivacyCollectedDataTypeSearchHistory',
+  'NSPrivacyCollectedDataTypeOtherUserContent',
+};
 
 bool _sameStrings(Set<Object?> actual, Set<String> expected) =>
     actual.length == expected.length && actual.containsAll(expected);
@@ -154,6 +163,49 @@ void validateConfigurationMatrix(Object? value, List<String> errors) {
   }
 }
 
+void validatePrivacyManifest(String content, List<String> errors) {
+  final section = RegExp(
+    r'<key>NSPrivacyCollectedDataTypes</key>\s*<array>([\s\S]*?)</array>\s*<key>NSPrivacyTracking</key>',
+  ).firstMatch(content);
+  if (section == null) {
+    errors.add('iOS privacy manifest collected-data array is missing');
+    return;
+  }
+
+  final dictionaries = RegExp(
+    r'<dict>([\s\S]*?)</dict>',
+  ).allMatches(section.group(1)!).map((match) => match.group(1)!).toList();
+  final declared = <String>{};
+  for (final dictionary in dictionaries) {
+    final type = RegExp(
+      r'<key>NSPrivacyCollectedDataType</key>\s*<string>([^<]+)</string>',
+    ).firstMatch(dictionary)?.group(1);
+    if (type == null || !declared.add(type)) {
+      errors.add('iOS privacy manifest has an invalid or duplicate data type');
+      continue;
+    }
+    if (!RegExp(
+      r'<key>NSPrivacyCollectedDataTypeLinked</key>\s*<true\s*/>',
+    ).hasMatch(dictionary)) {
+      errors.add('$type must be linked to the user');
+    }
+    if (!RegExp(
+      r'<key>NSPrivacyCollectedDataTypeTracking</key>\s*<false\s*/>',
+    ).hasMatch(dictionary)) {
+      errors.add('$type must fail closed for tracking');
+    }
+    if (!RegExp(
+      r'<key>NSPrivacyCollectedDataTypePurposes</key>\s*<array>\s*<string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string>\s*</array>',
+    ).hasMatch(dictionary)) {
+      errors.add('$type must declare only App Functionality');
+    }
+  }
+
+  if (!_sameStrings(declared.cast<Object?>(), expectedIosCollectedDataTypes)) {
+    errors.add('iOS privacy manifest collected-data types are incomplete');
+  }
+}
+
 Future<List<String>> validateRepository(Directory root) async {
   final errors = <String>[];
   File file(String relativePath) => File('${root.path}/$relativePath');
@@ -282,12 +334,19 @@ Future<List<String>> validateRepository(Directory root) async {
     'ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchMark.svg',
     const ['width="168"', 'height="168"', '#FFFDF8', '#BFD9D3'],
   );
-  requireText('ios/Runner/PrivacyInfo.xcprivacy', const [
-    'NSPrivacyAccessedAPITypes',
-    'NSPrivacyCollectedDataTypes',
-    'NSPrivacyTracking',
-    '<false/>',
-  ]);
+  final privacyManifest = file('ios/Runner/PrivacyInfo.xcprivacy');
+  if (!privacyManifest.existsSync()) {
+    errors.add('ios/Runner/PrivacyInfo.xcprivacy is missing');
+  } else {
+    final content = privacyManifest.readAsStringSync();
+    requireText('ios/Runner/PrivacyInfo.xcprivacy', const [
+      'NSPrivacyAccessedAPITypes',
+      'NSPrivacyCollectedDataTypes',
+      'NSPrivacyTracking',
+      '<false/>',
+    ]);
+    validatePrivacyManifest(content, errors);
+  }
   requireText('ios/Runner.xcodeproj/project.pbxproj', const [
     'PrivacyInfo.xcprivacy',
     'PrivacyInfo.xcprivacy in Resources',

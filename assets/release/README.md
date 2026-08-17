@@ -6,9 +6,7 @@
 - size: 1024×1024, opaque PNG;
 - SHA-256 at creation:
   `726cd88e7b94c51ffdc2cd9e4bdef25e74b13868aef365bd3326cfbdaa96be48`;
-- status: neutral release-candidate artwork, pending public-brand owner approval;
-- generated source retained outside Git by Codex at
-  `/Users/minxiang/.codex/generated_images/01a00bdd-eef6-7743-99b5-c056996febbf/exec-0df037cb-72c6-4218-92d6-924ba4366a18.png`.
+- status: neutral release-candidate artwork, pending public-brand owner approval.
 
 Prompt:
 

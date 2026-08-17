@@ -9,7 +9,7 @@ attivati. Owner privacy/legal deve approvare le risposte prima della submission.
 | Data/capability | Raccolta/uso tecnico | Link/tracking | Stato disclosure |
 |---|---|---|---|
 | email, nome profilo, subject/account ID | autenticazione, profilo e ownership server-side | linked; no advertising tracking | disclose Account management / App functionality |
-| indirizzo, destinatario, telefono e istruzioni consegna | fulfillment scelto dall'utente | linked; no advertising tracking | disclose App functionality |
+| indirizzo, destinatario e istruzioni consegna | fulfillment scelto dall'utente | linked; no advertising tracking | disclose App functionality |
 | contenuto carrello e selezioni checkout | carrello, revalidation e creazione ordine | linked quando autenticato | disclose App functionality |
 | storico acquisti/ordini, importi, metodo e stato pagamento | ricevuta, supporto e reconciliation | linked | disclose Purchases / App functionality |
 | dettagli carta, CVV, payment secret | il client non li raccoglie né li conserva | not collected by this binary | riesaminare se un SDK/provider payment viene aggiunto |
@@ -38,10 +38,12 @@ attivati. Owner privacy/legal deve approvare le risposte prima della submission.
 
 ## iOS privacy manifest e SDK
 
-`ios/Runner/PrivacyInfo.xcprivacy` dichiara correttamente che il target app non usa
-direttamente Required Reason API, non dichiara tracking e non incorpora tracking
-domains. Le risposte App Privacy devono tuttavia includere la raccolta dell'app e dei
-third-party partners.
+`ios/Runner/PrivacyInfo.xcprivacy` dichiara i tipi raccolti direttamente dal target app:
+nome, email, indirizzo fisico, user ID, storico acquisti, storico ricerche e altro
+contenuto utente (istruzioni di consegna). Sono tutti linked, usati per App
+Functionality e non usati per tracking. Il target app non dichiara direttamente
+Required Reason API né tracking domains. Le risposte App Privacy devono comunque
+riconciliare questa baseline con i provider e i third-party partners realmente attivi.
 
 Il manifest del plugin Google Maps incluso nella dependency graph dichiara Required
 Reason API per Disk Space, File Timestamp, System Boot Time e User Defaults, oltre a

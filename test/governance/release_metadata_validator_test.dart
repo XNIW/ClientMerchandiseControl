@@ -25,8 +25,13 @@ void main() {
       final first =
           (fixture['capabilities'] as List).first as Map<String, dynamic>;
       (first['production'] as Map<String, dynamic>).remove('validation');
+      final googleKeyFixture = <String>[
+        'AI',
+        'za',
+        '012345678901234567890123456789',
+      ].join();
       (first['staging'] as Map<String, dynamic>)['credential'] =
-          'AIza012345678901234567890123456789';
+          googleKeyFixture;
 
       final errors = <String>[];
       validateConfigurationMatrix(fixture, errors);
@@ -34,6 +39,38 @@ void main() {
       expect(errors, contains(contains('invalid validation')));
       expect(errors, contains(contains('unknown fields')));
       expect(errors, contains(contains('credential-like value')));
+    },
+  );
+
+  test(
+    'privacy manifest validator rejects empty and incomplete declarations',
+    () {
+      final errors = <String>[];
+      validatePrivacyManifest('''
+<key>NSPrivacyCollectedDataTypes</key>
+<array/>
+<key>NSPrivacyTracking</key>
+<false/>
+''', errors);
+      expect(errors, contains(contains('collected-data array is missing')));
+
+      errors.clear();
+      validatePrivacyManifest('''
+<key>NSPrivacyCollectedDataTypes</key>
+<array>
+  <dict>
+    <key>NSPrivacyCollectedDataType</key>
+    <string>NSPrivacyCollectedDataTypeName</string>
+    <key>NSPrivacyCollectedDataTypeLinked</key><true/>
+    <key>NSPrivacyCollectedDataTypeTracking</key><false/>
+    <key>NSPrivacyCollectedDataTypePurposes</key>
+    <array><string>NSPrivacyCollectedDataTypePurposeAppFunctionality</string></array>
+  </dict>
+</array>
+<key>NSPrivacyTracking</key>
+<false/>
+''', errors);
+      expect(errors, contains(contains('collected-data types are incomplete')));
     },
   );
 

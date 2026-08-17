@@ -3265,3 +3265,19 @@
   `21115fc2692b7361a29123422edee14fc4bd752d1429a94e1c641b50ee352f32`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; nessun upload o sistema esterno mutato.
+
+## 2026-08-17 — TASK-040 Fix 1 handoff
+
+- **Fix**: binding canonico app/archive, signature invalid fail-closed, entitlement
+  Xcode 26, profilo App Store scoped/CMS, runtime-config SHA-256 artifact-bound,
+  scanner UTF-16 e bounded, privacy path esatti e governance CI strutturale.
+- **Regressioni**: iOS release 8/8, runtime config 3/3, mirati Flutter 53/53,
+  security 56/56 negative + 7/7 positive; `scripts/check.sh` exit 0.
+- **Artifact exact SHA**: `9065d9c7a3d9bf34dd8c183c9adbccc896f124d9`;
+  archive unsigned 201.328 KiB, executable SHA-256
+  `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`,
+  Runner/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`.
+- **Activation boundary**: 0 Distribution, 0 provisioning profile; upload readiness
+  respinta con `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna IPA/upload.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; worktree pulito e production invariata.

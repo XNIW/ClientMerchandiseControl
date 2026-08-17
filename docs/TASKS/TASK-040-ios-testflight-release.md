@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -164,8 +164,26 @@ deboli ed evidence device non canonica. Security report sealed:
 
 ## Fix
 
-In corso: regressioni per ogni finding, nessuna firma/upload o configurazione
-production reale.
+- binding app/archive ristretto all'app canonica interna e URL scheme/eseguibile
+  validati come set esatti; firma presente ma invalida non viene più riclassificata
+  `UNSIGNED`;
+- estrazione entitlement compatibile con Xcode 26, allowlist top-level fail-closed e
+  profilo embedded ammesso soltanto al root app dopo decode CMS/App Store checks;
+- runtime production completo attestato da SHA-256 nel Mach-O prima di upload-ready;
+  il template canonico incompleto resta deliberatamente non uploadabile;
+- scanner artifact esteso a UTF-16LE/BE, file/stream bounded e profilo scoped;
+  privacy manifest SDK verificati con path esatti;
+- fixture iOS avversariali 8/8, security 56/56 negative + 7/7 positive, runtime
+  config 3/3, gate mirati 53/53 e `scripts/check.sh` exit 0;
+- clean release/archive sullo SHA tecnico `9065d9c7a3d9bf34dd8c183c9adbccc896f124d9`:
+  candidate unsigned valido, executable SHA-256
+  `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`,
+  Runner/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
+- `--require-upload-ready` resta correttamente bloccato con
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna firma, IPA, upload o
+  configurazione production reale è stata creata.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

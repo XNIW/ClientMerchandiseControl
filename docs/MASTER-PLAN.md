@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: correggere i finding TASK-040 su binding
-  app/archive, signing/entitlement, profilo scoped, runtime attestation, scanner e
-  gate CI/governance; upload resta `NOT_RUN` perché le credenziali sono assenti
+- **Prossima azione autorizzata**: re-review indipendente dei fix TASK-040 sullo
+  SHA esatto, quindi PR/CI soltanto con esito `APPROVED`; upload resta `NOT_RUN`
+  perché Distribution, provisioning e credenziali App Store Connect sono assenti
 
 ## Repository coinvolti
 

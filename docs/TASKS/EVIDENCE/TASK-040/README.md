@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -23,21 +23,21 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | review indipendente e PR/main CI da eseguire | NOT_RUN |
+| CA-10 | re-review indipendente e PR/main CI da eseguire | NOT_RUN |
 
 ## Matrice T -> risultato
 
 | Test | Esito | Evidence |
 |---|---|---|
-| T-01 | PASS | source gate + 6 governance test + config/signing boundary |
-| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `4c4db2a` |
-| T-03 | PASS | plist/privacy/entitlement/framework/dSYM artifact validator |
-| T-04 | PASS | scanner 676/207 e fixture 52/52 + 6/6 |
+| T-01 | PASS | source gate, runtime config 3/3 e config/signing boundary |
+| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `9065d9c7` |
+| T-03 | PASS | plist/privacy/entitlement/framework/dSYM + fixture iOS 8/8 |
+| T-04 | PASS | scanner 679/207 e fixture 56/56 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS assente; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | review, PR/main CI e hygiene non iniziate |
+| T-07 | NOT_RUN | fix handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -49,17 +49,17 @@ Snapshot di handoff:
 
 ## Artifact evidence
 
-- source exact SHA: `4c4db2a82ddb276066763fcdb24227bbf2937a4f`;
+- source exact SHA: `9065d9c7a3d9bf34dd8c183c9adbccc896f124d9`;
 - archive: `build/ios/archive/Runner.xcarchive`, 201.328 KiB, non versionato;
 - app: 36.708 KiB, 207 file, bundle `com.xniw.clientmerchandisecontrol`,
   `0.1.0 (1)`, `iphoneos`, arm64, unsigned;
 - executable SHA-256:
-  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`;
+  `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`;
 - Info.plist SHA-256:
   `8888ca9f64b9c8f60b6a4a18079131c0db551f0630a6b539ee93b6b9980b3fb8`;
 - app PrivacyInfo SHA-256:
   `5dd288d8eda8adac284ea005bb82585023eb82ae5302e26ffc27979a41ba40cd`;
-- Runner Mach-O/dSYM UUID `BECE880B-91F5-36D2-AD95-F366FB669F41`;
+- Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
 ## Gate executor
@@ -74,3 +74,17 @@ Snapshot di handoff:
   debug production-like install/launch PASS con provider fail-closed;
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
+
+## Gate Fix 1
+
+- finding prodotto/security riprodotti e corretti con regressioni dedicate;
+- gate mirati Flutter 53/53, runtime config 3/3, iOS release fixture 8/8;
+- security fixture 56/56 negative + 7/7 positive, source 679 e artifact 207;
+- `scripts/check.sh` exit 0: suite completa, performance 10/10, resilience repeat
+  5x14, analyze, Android debug e iOS Simulator debug `PASS`;
+- format 299 file/0 cambi, governance 9/9, diff check e source validator `PASS`;
+- clean build/archive exact `9065d9c7`, validator candidate `PASS`, signing
+  `UNSIGNED`, upload readiness exit 1 per Distribution assente;
+- artifact 201.328 KiB, app 36.708 KiB/207 file, 8 privacy manifest, 7 dSYM,
+  arm64 e Runner/dSYM UUID corrispondente;
+- worktree pulito; nessun secret, profilo, IPA, upload o mutazione production.

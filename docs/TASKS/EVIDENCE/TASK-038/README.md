@@ -1,7 +1,7 @@
 # Evidence TASK-038
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance
 
@@ -145,3 +145,13 @@ Sul candidate tecnico `fe8c582`:
 
 `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; PR e CI non sono ancora
 inferite come PASS.
+
+### PR, merge e main
+
+- PR #17, exact head `9ca6689beba3a4f79eca247fa3a736ade989c670`;
+- PR CI `31994735720`: Quality, Android e iOS, tutti i job/step `PASS`;
+- merge normale `ce2ab1343d183cb7d64345711902714b1db69ca1`;
+- main CI `31995128511` exact merge SHA: tre job e tutti gli step `PASS`;
+- branch remota eliminata, worktree TASK-038 rimosso, production invariata.
+
+`USER_APPROVED_DONE`; TASK-039 attivato sequenzialmente in un nuovo linked worktree.

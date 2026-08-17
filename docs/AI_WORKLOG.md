@@ -2943,3 +2943,14 @@
   analyze, format 291/0, governance 9/9, security 657+41/41+4/4 e diff verdi.
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; autorizzazione
   persistente abilita PR exact-SHA, merge normale e main CI prima del closeout.
+
+## 2026-08-17 — TASK-038 closeout e TASK-039 activation
+
+- **PR #17**: head `9ca6689beba3a4f79eca247fa3a736ade989c670`, CI
+  `31994735720` con Quality/Android/iOS e tutti gli step `PASS`.
+- **Merge/main**: merge normale `ce2ab1343d183cb7d64345711902714b1db69ca1`;
+  main CI `31995128511` exact merge SHA 3/3 e step tutti verdi.
+- **Hygiene**: branch remota eliminata, worktree TASK-038 rimosso, checkout primario
+  pulito preservato, production invariata.
+- **Transizione**: TASK-038 `DONE / USER_APPROVED_DONE`; TASK-039 unico
+  `ACTIVE / EXECUTION` per autorizzazione persistente del mandato 2026-08-16.

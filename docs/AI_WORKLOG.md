@@ -2933,3 +2933,13 @@
   artifact scan 233 file verde.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`;
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; prossimo ruolo re-reviewer read-only distinto.
+
+## 2026-08-17 — TASK-038 Re-review indipendente
+
+- **Exact HEAD**: `33aea1d1b5239e109d0f27051e560d2973f476bc`.
+- **Esito**: `APPROVED`; `F-038-R01 CLOSED`; zero P0/P1/P2/P3.
+- **Verifica autonoma**: checkout+validator 21/21, metadata 5/5, iOS Simulator
+  build e manifest source/bundle byte-identici con otto tipi, artifact 233,
+  analyze, format 291/0, governance 9/9, security 657+41/41+4/4 e diff verdi.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; autorizzazione
+  persistente abilita PR exact-SHA, merge normale e main CI prima del closeout.

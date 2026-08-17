@@ -7,12 +7,12 @@
 - **File task**: `docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-038/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -154,6 +154,20 @@ Completato su `b22d860046f03e98a5dc9ef00ad26ce41d173f5c`, limitato a
   artifact scan 233 file `PASS`, production invariata.
 
 **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review indipendente
+
+`APPROVED` su `33aea1d1b5239e109d0f27051e560d2973f476bc`:
+
+- `F-038-R01 CLOSED`; zero P0/P1/P2/P3 aperti;
+- checkout+validator 21/21, validator 5/5, build iOS Simulator, manifest source e
+  bundle byte-identici, otto tipi distinti, artifact scan 233 file `PASS`;
+- analyze, format 291/0, governance 9/9, security 657 + fixture 41/41 e 4/4,
+  plist e diff check `PASS`;
+- i tre gap pre-handoff restano chiusi; worktree pulito, production invariata.
+
+**Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. La conferma
+persistente del train autorizza PR exact-SHA e merge normale solo dopo CI verde.
 
 ## Chiusura
 

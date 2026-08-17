@@ -192,9 +192,9 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **File task**: docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: EXECUTION
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
 
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
@@ -205,9 +205,9 @@ TASK-036 è `DONE`: re-review indipendente `APPROVED`, zero finding P0/P1/P2/P3,
 PR Admin #93 e Client #14 integrate, CI PR/main verdi e staging verificato.
 TASK-037 è `DONE`: `F-037-R01`–`F-037-R04` chiusi, PR #16 e main CI exact-SHA
 verdi, budget invariato e production non modificata. TASK-038 è l'unico task
-`ACTIVE / REVIEW`: il fix `b22d860` aggiunge Payment Info a manifest, validator ed
-evidence con bundle iOS rigenerato e gate impattati verdi; `F-038-R01` attende
-re-review distinta e i valori owner restano `NEEDS_OWNER_VALUE`.
+`ACTIVE / REVIEW`: re-review distinta `APPROVED` su `33aea1d`, `F-038-R01`
+chiuso e zero P0/P1/P2/P3; PR exact-SHA, merge normale e main CI restano i gate
+prima del closeout, mentre i valori owner restano `NEEDS_OWNER_VALUE`.
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione

@@ -1,7 +1,7 @@
 # Evidence TASK-038
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance
 
@@ -132,3 +132,16 @@ Sul candidate tecnico `fe8c582`:
 - production, SQL, provider e credenziali invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; prossimo ruolo `CODEX_RE_REVIEWER` distinto.
+
+### Re-review indipendente
+
+- exact HEAD `33aea1d1b5239e109d0f27051e560d2973f476bc`;
+- `APPROVED`, `F-038-R01 CLOSED`, 0 P0/P1/P2/P3 aperti;
+- checkout+validator 21/21, metadata 5/5, iOS Simulator build, manifest
+  source/bundle byte-identici, otto tipi e artifact 233 file PASS;
+- analyze, format 291/0, governance 9/9, security 657 + 41/41 + 4/4,
+  plist/diff e worktree clean PASS;
+- tre gap pre-handoff chiusi, production invariata.
+
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; PR e CI non sono ancora
+inferite come PASS.

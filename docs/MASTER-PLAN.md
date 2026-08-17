@@ -9,14 +9,13 @@
 - **File task**: docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: EXECUTION
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review indipendente distinta di
-  `F-038-R01` e dei gate impattati; non attivare TASK-039 prima di `APPROVED`,
-  CI e merge normali
+- **Prossima azione autorizzata**: PR TASK-038 exact-SHA, verifica job/step, merge
+  normale e main CI; poi closeout TASK-038 e attivazione sequenziale TASK-039
 
 ## Repository coinvolti
 

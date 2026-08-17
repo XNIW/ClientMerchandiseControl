@@ -2727,3 +2727,19 @@
 - **Esito**: zero P0/P1/P2/P3, `APPROVED`.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
   autorizzazione persistente valida per PR, CI exact-SHA e merge normale.
+
+## 2026-08-17 — TASK-036 closeout, staging e attivazione TASK-037
+
+- **Admin**: PR #93 head `c8dd7080`, CI PR `31982974675` e Cloudflare
+  `31982974682` verdi; merge normale `59668348`; CI main `31983374103` e
+  Cloudflare build `31983374123` verdi. Nessun deploy Cloudflare staging/production.
+- **Client**: PR #14 head `662e7bb`, CI PR `31982980870` 3/3; merge normale
+  `96a9359`; CI main `31983526499` 3/3 con bundle security Android/iOS.
+- **Staging**: migration timezone dry-run `31983931437`, apply `31983967203` e
+  delivery tracking remoto `31984019280` 60/60 con ledger/RLS/lifecycle/cleanup,
+  tutti `PASS`; production invariata.
+- **Hygiene remoto**: branch TASK-036 Client/Admin eliminate; finding aperti zero
+  P0/P1/P2/P3.
+- **Transizione**: TASK-036 `DONE / USER_APPROVED_DONE`; TASK-037 è l'unico task
+  `ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`, con budget congelati
+  prima di nuove ottimizzazioni.

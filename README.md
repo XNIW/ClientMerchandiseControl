@@ -188,11 +188,11 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-036
-- **File task**: docs/TASKS/TASK-036-accessibility-localization-device-matrix.md
+- **Task attivo**: TASK-037
+- **File task**: docs/TASKS/TASK-037-performance-images-cache-load.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Fase**: EXECUTION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -201,8 +201,9 @@ TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state 
 normalmente e le CI PR/main exact-SHA sono verdi. Il train
 `CLIENT_FINAL_PRODUCT_COMPLETION` ha chiuso TASK-034 su `main` con review e CI
 exact-SHA verdi; TASK-035 è `DONE` con PR #13, CI PR/main 3/3 e zero finding.
-TASK-036 è l'unico task `ACTIVE / REVIEW`: re-review indipendente `APPROVED`, zero
-finding P0/P1/P2/P3; segue CI/merge autorizzato. Production è invariata.
+TASK-036 è `DONE`: re-review indipendente `APPROVED`, zero finding P0/P1/P2/P3,
+PR Admin #93 e Client #14 integrate, CI PR/main verdi e staging verificato.
+TASK-037 è l'unico task `ACTIVE / EXECUTION`. Production è invariata.
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione

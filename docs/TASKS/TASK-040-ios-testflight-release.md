@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -536,6 +536,27 @@ report prodotto sealed SHA-256
   IPA, upload o mutazione production.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 9
+
+`CHANGES_REQUIRED` su exact HEAD
+`b5b9ac64299f0dc79f8b43970ca98937cd71c670`.
+
+- security: 0 P0, 0 P1, 1 P2 e 2 P3; report canonico sealed SHA-256
+  `8d346f407851cd9312518984b8a807d0973754fd80a5324226bf87a40d51a5a3`;
+- `F-040-RR9-IOS-01` P2: il digest section-only omette header, load command e
+  `__LINKEDIT`; clear `MH_PIE`, set `MH_ALLOW_STACK_EXECUTION` e modifica
+  `LC_LOAD_DYLIB` raggiungono candidate-valid anche dopo firma ad hoc;
+- `F-040-RR9-GOV-01/02` P3: manifest e matrice T restano Fix 8 e il tail task
+  operativo termina ancora con Fix 8; il gate governance non correla tali fonti;
+- review prodotto: 0 P0/P1/P2 e 2 P3 sul medesimo root Mach-O e su una frase che
+  sovradichiara byte identity dell'archive completo;
+- CONFIG/CONTROL/library identity, inventory extensionless, bundle content e
+  cronologia `AI_WORKLOG` sono confermati chiusi;
+- gate indipendenti verdi ma insufficienti: architecture 17/17, iOS 26/26,
+  config/governance 44/44, governance 10/10, analyze e candidate/upload boundary.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

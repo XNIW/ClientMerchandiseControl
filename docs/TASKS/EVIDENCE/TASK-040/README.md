@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -394,3 +394,18 @@ Snapshot di handoff:
 - upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; 0 Distribution,
   0 provisioning e 0/3 input ASC; device fisici offline, nessuna IPA, firma,
   TestFlight o mutazione production.
+
+## Re-review Fix 9
+
+- exact HEAD `b5b9ac64299f0dc79f8b43970ca98937cd71c670`, worktree pulito;
+- esito security `CHANGES_REQUIRED`: 0 P0/P1, 1 P2 e 2 P3; report sealed
+  SHA-256 `8d346f407851cd9312518984b8a807d0973754fd80a5324226bf87a40d51a5a3`;
+- `F-040-RR9-IOS-01`: digest section-only non copre header/load command/
+  `__LINKEDIT`; flag PIE/stack-exec e dipendenza dylib alterati passano il gate;
+- `F-040-RR9-GOV-01/02`: manifest/matrice T e tail task non sono allineati a Fix 9;
+- review prodotto conferma il root Mach-O e corregge la claim: wrapper/digest sono
+  ripetibili, non l'archive plist timestamped byte-per-byte;
+- CONFIG/CONTROL/library identity, inventory Mach-O/bundle e worklog chronology
+  restano chiusi; architecture 17/17, iOS 26/26, config 44/44 e governance 10/10
+  verdi ma insufficienti rispetto ai nuovi probe;
+- nessun upload, signing esterno, profilo, credenziale o mutazione production.

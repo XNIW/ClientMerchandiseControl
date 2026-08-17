@@ -3558,3 +3558,18 @@
   firma, upload o mutazione production.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 9 re-review
+
+- **Exact HEAD**: `b5b9ac64299f0dc79f8b43970ca98937cd71c670`, worktree
+  pulito e reviewer prodotto/security read-only distinti.
+- **Esito security**: `CHANGES_REQUIRED`, 0 P0/P1, 1 P2 e 2 P3; report canonico
+  sealed SHA-256
+  `8d346f407851cd9312518984b8a807d0973754fd80a5324226bf87a40d51a5a3`.
+- **Finding**: digest Mach-O section-only aggirabile via header/load command;
+  manifest/matrice T e tail task non allineati a Fix 9. La review prodotto conta
+  2 P3 sul root Mach-O e sulla claim archive byte-identico.
+- **Chiusure**: config/control/library identity, inventory extensionless, content
+  bundle e chronology worklog confermati chiusi.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.

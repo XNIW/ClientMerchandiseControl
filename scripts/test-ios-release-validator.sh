@@ -236,6 +236,16 @@ cmc_ios_test_expect_failure privacy-sdk-content-mismatch \
 cp "${cmc_ios_test_tmp_root}/google-maps.valid.xcprivacy" \
   "${cmc_ios_test_maps_privacy}"
 
+cmc_ios_test_extra_framework="${cmc_ios_test_fixture_app}/Frameworks/Extra.framework"
+cp -R "${cmc_ios_test_fixture_app}/Frameworks/App.framework" \
+  "${cmc_ios_test_extra_framework}"
+cmc_ios_test_expect_failure privacy-extra-framework-without-manifest \
+  EMBEDDED_FRAMEWORK_SET_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+rm -rf -- "${cmc_ios_test_extra_framework}"
+
 cmc_ios_test_entitlements="${cmc_ios_test_tmp_root}/entitlements.plist"
 cp "${cmc_ios_test_root}/ios/Runner/PrivacyInfo.xcprivacy" \
   "${cmc_ios_test_entitlements}"

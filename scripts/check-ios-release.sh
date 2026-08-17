@@ -362,6 +362,47 @@ cmc_ios_release_privacy_sha256=(
   '333d51ec3d7daca74fe6a61bfb18074708bed233b4d5d0f3a1ad161e96d85b1c'
   '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
 )
+cmc_ios_release_expected_frameworks=(
+  'App.framework'
+  'Flutter.framework'
+  'objective_c.framework'
+  'sqlite3.framework'
+)
+cmc_ios_release_expected_bundles=(
+  'GoogleMapsResources.bundle'
+  'app_links_app_links.bundle'
+  'flutter_secure_storage_darwin_flutter_secure_storage_darwin.bundle'
+  'google_maps_flutter_ios_privacy.bundle'
+  'share_plus_share_plus.bundle'
+  'shared_preferences_foundation_shared_preferences_foundation.bundle'
+  'url_launcher_ios_url_launcher_ios.bundle'
+)
+
+cmc_ios_release_require_exact_component_set() {
+  local cmc_ios_release_component_root="$1"
+  local cmc_ios_release_component_pattern="$2"
+  local cmc_ios_release_component_error="$3"
+  shift 3
+  local cmc_ios_release_expected_components=("$@")
+  local cmc_ios_release_component
+  local cmc_ios_release_component_count=0
+
+  while IFS= read -r -d '' cmc_ios_release_component; do
+    cmc_ios_release_component_count=$((cmc_ios_release_component_count + 1))
+  done < <(find "${cmc_ios_release_component_root}" \
+    -mindepth 1 -maxdepth 1 -name "${cmc_ios_release_component_pattern}" \
+    -print0)
+  [[ "${cmc_ios_release_component_count}" -eq \
+    "${#cmc_ios_release_expected_components[@]}" ]] || \
+    cmc_ios_release_fail "${cmc_ios_release_component_error}"
+  for cmc_ios_release_component in \
+    "${cmc_ios_release_expected_components[@]}"; do
+    [[ -d "${cmc_ios_release_component_root}/${cmc_ios_release_component}" && \
+      ! -L "${cmc_ios_release_component_root}/${cmc_ios_release_component}" ]] || \
+      cmc_ios_release_fail "${cmc_ios_release_component_error}"
+  done
+}
+
 for cmc_ios_release_privacy_index in \
   "${!cmc_ios_release_privacy_paths[@]}"; do
   cmc_ios_release_privacy_relative="${cmc_ios_release_privacy_paths[cmc_ios_release_privacy_index]}"
@@ -395,9 +436,18 @@ done
   wc -l | tr -d '[:space:]')" -eq "${#cmc_ios_release_privacy_paths[@]}" ]] || \
   cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_SET_INVALID'
 
-cmc_ios_release_framework_count=0
-while IFS= read -r -d '' cmc_ios_release_framework; do
-  cmc_ios_release_framework_count=$((cmc_ios_release_framework_count + 1))
+cmc_ios_release_require_exact_component_set \
+  "${cmc_ios_release_app}/Frameworks" '*.framework' \
+  'EMBEDDED_FRAMEWORK_SET_INVALID' \
+  "${cmc_ios_release_expected_frameworks[@]}"
+cmc_ios_release_require_exact_component_set \
+  "${cmc_ios_release_app}" '*.bundle' \
+  'EMBEDDED_BUNDLE_SET_INVALID' \
+  "${cmc_ios_release_expected_bundles[@]}"
+
+for cmc_ios_release_framework_name in \
+  "${cmc_ios_release_expected_frameworks[@]}"; do
+  cmc_ios_release_framework="${cmc_ios_release_app}/Frameworks/${cmc_ios_release_framework_name}"
   cmc_ios_release_framework_info="${cmc_ios_release_framework}/Info.plist"
   [[ -r "${cmc_ios_release_framework_info}" ]] || \
     cmc_ios_release_fail 'FRAMEWORK_INFO_MISSING'
@@ -419,10 +469,7 @@ while IFS= read -r -d '' cmc_ios_release_framework; do
   lipo -archs "${cmc_ios_release_framework_executable}" | \
     tr ' ' '\n' | grep -Fxq arm64 || \
     cmc_ios_release_fail 'FRAMEWORK_ARM64_MISSING'
-done < <(find "${cmc_ios_release_app}/Frameworks" \
-  -mindepth 1 -maxdepth 1 -type d -name '*.framework' -print0)
-[[ "${cmc_ios_release_framework_count}" -ge 3 ]] || \
-  cmc_ios_release_fail 'EMBEDDED_FRAMEWORK_SET_INCOMPLETE'
+done
 cmc_ios_release_runtime_executable="${cmc_ios_release_app}/Frameworks/App.framework/App"
 [[ -f "${cmc_ios_release_runtime_executable}" && \
   ! -L "${cmc_ios_release_runtime_executable}" ]] || \

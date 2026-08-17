@@ -227,6 +227,20 @@ mv "${cmc_fixture_shop_slug_class_file}.tmp" \
   "${cmc_fixture_shop_slug_class_file}"
 cmc_fixture_expect_rejection "${cmc_fixture_shop_slug_class_path}"
 
+cmc_fixture_shop_slug_shadow_path="$(
+  cmc_fixture_prepare invalid-storefront-shop-slug-parameter-shadow
+)"
+cmc_fixture_shop_slug_shadow_file="${cmc_fixture_shop_slug_shadow_path}/lib/core/config/app_config.dart"
+perl -0pi -e '
+  s{factory AppConfig\.fromEnvironment\(\) \{}{factory AppConfig.fromEnvironment([\n    String _compiledStorefrontShopSlug = const String.fromEnvironment(\n      \x27ATTACKER_SHOP_SLUG\x27,\n    ),\n  ]) \{}
+' "${cmc_fixture_shop_slug_shadow_file}"
+if ! grep -Fq -- "'ATTACKER_SHOP_SLUG'," \
+  "${cmc_fixture_shop_slug_shadow_file}"; then
+  printf 'Fixture parameter shadow non preparabile: mutation assente.\n' >&2
+  exit 1
+fi
+cmc_fixture_expect_rejection "${cmc_fixture_shop_slug_shadow_path}"
+
 if [[ "${cmc_fixture_rejected}" -ne "${cmc_fixture_total}" ]]; then
   printf 'Fixture negative respinte: %d/%d.\n' \
     "${cmc_fixture_rejected}" "${cmc_fixture_total}" >&2

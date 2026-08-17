@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -380,9 +380,13 @@ del train autorizza PR exact-SHA e merge normale solo dopo CI verde.
   il certificato già verificato, il validator impone un solo certificato APK e
   calcola il digest SHA-256 con lo stesso `keytool` usato per l'AAB. La fixture
   locale completa attraversa v2-only, signer AAB/APK, negative parziale/
-  multi-signer/mixed-case e input Play coerenti.
+  multi-signer/mixed-case e input Play coerenti;
+- CI PR exact-head `32016169548` su `7a25585c145304fc992cc2ce2f032af3f32a4b14`:
+  Quality, Android debug, iOS Simulator e Android release candidate `PASS`;
+  tutti gli step release, inclusa la fixture completa v2-only, sono `PASS`.
 
-`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino alla chiusura del token CI reale.
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`; `F-039-CI01` è candidate `CLOSED` e deve
+essere confermato da reviewer read-only distinto.
 
 ## Chiusura
 

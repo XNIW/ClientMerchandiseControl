@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-039
 - **File task**: docs/TASKS/TASK-039-android-internal-testing-release.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: chiudere `F-039-CI01`, la failure
-  deterministica della fixture firma su PR #18, riconsegnare a re-review e
-  rieseguire CI exact-SHA; nessun upload senza signing e credenziali Play reali
+- **Prossima azione autorizzata**: re-review indipendente di `F-039-CI01` sul
+  revision set exact-SHA `7a25585c` dopo CI PR `32016169548` completamente
+  verde; nessun upload senza signing e credenziali Play reali
 
 ## Repository coinvolti
 

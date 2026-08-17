@@ -3180,3 +3180,18 @@
   fixture completa v2-only/negative/input Play tutti `PASS`.
 - **Stato**: resta `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino a
   CI exact-SHA e re-review indipendente verdi; nessun upload o production.
+
+## 2026-08-17 — TASK-039 PR CI Fix 2 handoff
+
+- **Exact SHA/run**: `7a25585c145304fc992cc2ce2f032af3f32a4b14` /
+  `32016169548`.
+- **CI**: Quality, Android debug, iOS Simulator e Android release candidate
+  `success`; tutti i job e gli step effettivi verificati, inclusi security,
+  release metadata, suite+coverage, performance, clean AAB/APK, release
+  validator e fixture v2-only completa.
+- **Evidence fixture**: v1 false, v2 true, fingerprint, `/dev/null`, account e
+  progetto errati, AAB parziale, multi-signer e mixed-case, signer coerente e
+  input Play validi tutti attraversati con gli outcome attesi.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; `F-039-CI01` candidate `CLOSED` in attesa
+  di re-review read-only distinta. Nessun upload Play o production.

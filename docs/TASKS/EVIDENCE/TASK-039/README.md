@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -153,6 +153,8 @@ il case e usa errori AAB/APK distinti. Il run exact-head `32014928249` su
 fixture, ma restituisce ancora `APK_SIGNING_FINGERPRINT_UNREADABLE`; il parser
 dipendeva quindi da un formato testuale non portabile di `apksigner`. Il Fix 2
 usa `--print-certs-pem`, richiede un solo certificato APK e calcola il digest
-con `keytool`, come per l'AAB. La fixture locale completa è `PASS`; handoff corrente
-`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino al nuovo esito CI. Play/Internal e
+con `keytool`, come per l'AAB. La fixture locale completa è `PASS`. La CI PR
+exact-head `32016169548` su `7a25585c145304fc992cc2ce2f032af3f32a4b14`
+chiude tutti i quattro job e ogni step con `success`, inclusa la fixture firma
+v2-only completa; handoff `CODEX_FIX_COMPLETE_TO_RE_REVIEW`. Play/Internal e
 production restano invariati.

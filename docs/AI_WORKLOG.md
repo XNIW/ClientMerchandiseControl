@@ -3468,3 +3468,25 @@
   `3765b04359849bed1fd2d6bb0a95376d2d7974db2fd6fb3d79ec85044b573baa`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 7 e handoff
+
+- **Technical SHA**: `d94b071b3c916a914c9db87cd588621feee4e75d`;
+  i consumer AST sono legati all'element identity del field `AppConfig` e
+  framework/bundle embedded sono inventory exact con policy privacy esplicita.
+- **Regressioni**: formal-parameter shadow respinto; `Extra.framework` senza
+  manifest respinto; architecture 12/12 e fixture iOS 18/18 `PASS`.
+- **Gate completo**: `scripts/check.sh` exit 0; 801/801 non-performance,
+  10/10 performance, repeat resilience 70/70, security 681 + 61/61 + 7/7,
+  format 301/0, analyze e build debug Android/iOS `PASS`.
+- **Artifact exact-SHA**: clean archive unsigned 201.344 KiB, app 36.724 KiB/
+  207 file, 8 privacy manifest, 7 dSYM; runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; device iOS fisici offline,
+  nessuna firma, provisioning, input ASC, IPA, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.

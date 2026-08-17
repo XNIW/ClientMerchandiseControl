@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -418,6 +418,33 @@ e report security canonico sealed SHA-256
 `3765b04359849bed1fd2d6bb0a95376d2d7974db2fd6fb3d79ec85044b573baa`.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 7
+
+- il validator usa un resolved unit analyzer e confronta l'identità semantica del
+  `PropertyAccessorElement.variable` dei due consumer con il `VariableElement` del
+  field static const dichiarato direttamente in `AppConfig`; il parametro omonimo
+  basato su `ATTACKER_SHOP_SLUG` è respinto;
+- framework e bundle embedded sono ora inventory exact: quattro framework e sette
+  bundle canonici, directory reali non symlink, con gli otto manifest privacy e
+  relativi digest già legati agli SDK applicabili; `Extra.framework` senza manifest
+  è respinto da `EMBEDDED_FRAMEWORK_SET_INVALID`;
+- gate mirati `PASS`: architecture 12/12, iOS release 18/18, runtime/CI 18/18,
+  security 61/61 negative + 7/7 positive, source/artifact 681/207 e analyze;
+- `scripts/check.sh` exit 0: 801/801 non-performance, 10/10 performance,
+  resilience repeat 5x14=70/70, format 301/0, Android debug e iOS Simulator debug;
+- clean release/archive sullo SHA tecnico
+  `d94b071b3c916a914c9db87cd588621feee4e75d`: archive 201.344 KiB,
+  app 36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`;
+- upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; device fisici
+  iOS presenti solo offline, nessuna firma, IPA, provisioning, input App Store
+  Connect, upload o mutazione production.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

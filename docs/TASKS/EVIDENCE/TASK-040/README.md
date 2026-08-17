@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -18,7 +18,7 @@ Snapshot di handoff:
 | CA-02 | Xcode settings e archive plist: bundle/version/build/iOS 14 | PASS |
 | CA-03 | release app/archive, 4 digest, 7 dSYM e Runner UUID | PASS |
 | CA-04 | custom scheme bounded; entitlement/Universal Links/push assenti e bloccati | PASS |
-| CA-05 | manifest app byte-identico e 8 privacy manifest app/SDK; exact component inventory da correggere | FAIL |
+| CA-05 | manifest app byte-identico, 8 privacy manifest e inventory exact 4 framework/7 bundle | PASS |
 | CA-06 | security source 681 e app artifact 207; config esterna assente | PASS |
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
@@ -31,13 +31,13 @@ Snapshot di handoff:
 |---|---|---|
 | T-01 | PASS | source gate, runtime/CI 18/18 e config/signing boundary |
 | T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `2523385` |
-| T-03 | FAIL | fixture nominale 17/17, ma `Extra.framework` senza manifest è accettato |
+| T-03 | PASS | plist/privacy/inventory framework+bundle/dSYM + fixture iOS 18/18 |
 | T-04 | PASS | scanner 681/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | FAIL | re-review Fix 6 `CHANGES_REQUIRED`; PR/main CI non eseguite |
+| T-07 | NOT_RUN | Fix 7 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -288,3 +288,25 @@ Snapshot di handoff:
   e report security canonico sealed SHA-256
   `3765b04359849bed1fd2d6bb0a95376d2d7974db2fd6fb3d79ec85044b573baa`;
 - nessuna firma, IPA, upload, credenziale o mutazione production.
+
+## Gate Fix 7
+
+- exact technical SHA `d94b071b3c916a914c9db87cd588621feee4e75d`;
+  consumer AST semanticamente legati al field `AppConfig` e inventory exact di
+  quattro framework/sette bundle hanno regressioni sui due PoC reali;
+- mirati `PASS`: architecture 12/12, iOS release fixture 18/18, runtime/CI
+  18/18, source/artifact validator 681/207 e analyze senza issue;
+- `scripts/check.sh` exit 0: 801/801 non-performance, 10/10 performance,
+  resilience repeat 5x14=70/70, format 301/0, Android debug e iOS Simulator
+  debug build `PASS`;
+- clean release no-codesign e archive exact-SHA `PASS`: 201.344 KiB,
+  app 36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`,
+  Info.plist `8888ca9f64b9c8f60b6a4a18079131c0db551f0630a6b539ee93b6b9980b3fb8`,
+  privacy `5dd288d8eda8adac284ea005bb82585023eb82ae5302e26ffc27979a41ba40cd`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`;
+- upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; zero
+  Distribution/profili/input App Store Connect, physical iOS offline, nessuna
+  IPA/upload/production.

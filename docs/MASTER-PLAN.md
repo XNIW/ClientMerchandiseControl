@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: correggere i finding Fix 8 su binding/control
-  flow/content provenance, poi nuova re-review; upload resta `NOT_RUN`
+- **Prossima azione autorizzata**: re-review indipendente Fix 9 sul binding completo,
+  control flow e content provenance; upload resta `NOT_RUN`
 
 ## Repository coinvolti
 

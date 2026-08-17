@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 8 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 9 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -47,31 +47,31 @@ Snapshot di handoff:
 - production App Store: vietata;
 - physical iOS: `BLOCKED`, zero device collegati; separato dal Simulator.
 
-## Artifact evidence corrente — Fix 8
+## Artifact evidence corrente — Fix 9
 
-- source exact SHA: `41f5cbab7c60ee872a1e2f5ef591e16c18e89b6e`;
+- source exact SHA: `34d342b38b41d73cfe590b2cfe5defd5aab6be40`;
 - archive: `build/ios/archive/Runner.xcarchive`, 201.344 KiB, non versionato;
 - app: 36.724 KiB, 207 file, bundle `com.xniw.clientmerchandisecontrol`,
   `0.1.0 (1)`, `iphoneos`, arm64, unsigned;
 - runtime Dart `App.framework/App` SHA-256:
   `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`;
 - native wrapper `Runner` SHA-256:
-  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`;
+  `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`;
 - Info.plist SHA-256:
   `8888ca9f64b9c8f60b6a4a18079131c0db551f0630a6b539ee93b6b9980b3fb8`;
 - app PrivacyInfo SHA-256:
   `5dd288d8eda8adac284ea005bb82585023eb82ae5302e26ffc27979a41ba40cd`;
-- Runner Mach-O/dSYM UUID `BECE880B-91F5-36D2-AD95-F366FB669F41`;
+- Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 8
+## Gate executor corrente — Fix 9
 
 - `scripts/check.sh`: exit 0;
 - non-performance 801/801; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
-- governance 9/9; architecture negative 14/14; localization/telemetry/action pin PASS;
+- governance 10/10; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 681; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 23/23, runtime/CI 18/18;
+- validator iOS avversariale 26/26, config/governance mirati 44/44;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
@@ -369,3 +369,28 @@ Snapshot di handoff:
   report prodotto sealed SHA-256
   `877c30e186d5bd38da82639a023021a3da117defeb63d93d2c6167bc715b92ca`;
 - upload/TestFlight/production invariati.
+
+## Gate Fix 9
+
+- exact technical SHA `34d342b38b41d73cfe590b2cfe5defd5aab6be40`;
+  i nove field compile-time, sette consumer, otto input attestation e il control flow
+  production sono legati agli elementi canonici dal resolved AST;
+- exact content provenance su cinque Mach-O e nove bundle; build Flutter e archive
+  hanno due wrapper digest deterministici allowlisted, un secondo archive è
+  byte-identico al primo e ogni tamper resta fail-closed;
+- mirati `PASS`: config/governance 44/44, architecture 17/17, iOS release fixture
+  26/26, source/artifact validator 681/207, security 61/61 negative + 7/7 positive;
+- `scripts/check.sh` exit 0 sullo SHA corrente: 801/801 non-performance,
+  performance 10/10, repeat 5x14=70/70, governance 10/10, format 301/0,
+  analyze e build debug Android/iOS;
+- clean release/archive no-codesign: 201.344 KiB, app 36.724 KiB/207 file,
+  8 privacy manifest, 7 dSYM, runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`,
+  Info.plist `8888ca9f64b9c8f60b6a4a18079131c0db551f0630a6b539ee93b6b9980b3fb8`,
+  privacy `5dd288d8eda8adac284ea005bb82585023eb82ae5302e26ffc27979a41ba40cd`
+  e UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
+- upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; 0 Distribution,
+  0 provisioning e 0/3 input ASC; device fisici offline, nessuna IPA, firma,
+  TestFlight o mutazione production.

@@ -3537,3 +3537,24 @@
   `877c30e186d5bd38da82639a023021a3da117defeb63d93d2c6167bc715b92ca`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 9 e handoff
+
+- **Technical SHA**: `34d342b38b41d73cfe590b2cfe5defd5aab6be40`; binding
+  completo dei nove field compile-time, sette consumer e otto input attestation,
+  control flow production e library identity sono verificati sul resolved AST.
+- **Content provenance**: exact set dei cinque Mach-O con digest loadable e dei nove
+  bundle con tree digest; layout wrapper Flutter/archive distinti ma deterministici,
+  archive ripetuto byte-identico e regressioni tamper/extensionless incluse.
+- **Gate**: `scripts/check.sh` exit 0 sullo SHA corrente con 801/801,
+  performance 10/10, repeat 70/70, security 681 + 61/61 + 7/7, governance
+  10/10, architecture 17/17, iOS fixture 26/26, format/analyze/build debug verdi.
+- **Artifact**: archive unsigned 201.344 KiB, app 36.724 KiB/207 file,
+  runtime SHA-256 `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256 `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`,
+  UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`.
+- **Boundary**: upload exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`;
+  0 Distribution, 0 profili e 0/3 input ASC, device fisici offline, nessuna IPA,
+  firma, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.

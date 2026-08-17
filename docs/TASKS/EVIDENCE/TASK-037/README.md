@@ -1,7 +1,7 @@
 # Evidence TASK-037
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -253,3 +253,15 @@ repeat `280/280`, analyze, governance 9/9, architecture 7/7, security 635 file e
 fixture 41/41+4/4, format/diff e controllo worktree: tutti `PASS`. Il solo budget
 order backend staging resta `NOT_RUN` per assenza di fixture customer autenticata
 sicura; nessun risultato viene inferito.
+
+### Main CI post-merge e Fix 2
+
+- PR #15 CI `31988449054`, exact `e1fd5c9`: 3/3 job e ogni step `PASS`;
+- merge normale: `8b20bca954a8fb589321d8b6ef9a3ace280b3f40`;
+- main CI `31988842715`, exact merge: Android/iOS bundle `PASS`; Quality `FAIL`,
+  771 test passati e un solo failure;
+- failure riprodotta dal log: cache search extreme 25k p95 15.335 us contro
+  `<15.000`, mentre il test tagged girava insieme alla suite coverage concorrente;
+- `F-037-R04` P2: CI non isolava il gate performance come `scripts/check.sh`;
+- fix candidate: coverage `--exclude-tags performance`, performance separata
+  `--tags performance --concurrency=1`, budget invariato e regressione statica.

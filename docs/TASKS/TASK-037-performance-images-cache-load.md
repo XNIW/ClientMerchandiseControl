@@ -6,13 +6,13 @@
 - **Titolo**: Performance, immagini, cache e load testing
 - **File task**: `docs/TASKS/TASK-037-performance-images-cache-load.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: USER_APPROVER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-037/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -306,6 +306,25 @@ finding tecnico e non viene promosso a PASS.
 - **Esito**: APPROVED
 - **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Gate successivo**: PR exact-SHA, merge normale e main post-merge CI
+
+### Main post-merge CI — finding `F-037-R04`
+
+PR #15 è stata integrata normalmente con merge `8b20bca` dopo CI PR
+`31988449054` 3/3 `PASS`. La main CI exact-SHA `31988842715` ha invece
+terminato `FAIL`: i build Android/iOS e le rispettive scansioni bundle sono
+`PASS`, ma Quality ha 771 test `PASS` e un benchmark `FAIL`.
+
+`F-037-R04` P2: `.github/workflows/ci.yml` eseguiva tutti i benchmark tagged
+`performance` dentro `flutter test --coverage`, in parallelo con l'intera suite.
+Sul runner main il p95 search 25k era 15,335 ms contro il budget 15 ms, mentre il
+gate canonico locale isola già correttamente i benchmark con
+`--tags performance --concurrency=1`. Il risultato dipende quindi dalla contesa
+del runner e non misura il budget congelato in modo ripetibile.
+
+Fix candidato: allineare CI al gate canonico con coverage che esclude il tag
+performance e uno step performance seriale separato; aggiungere una regressione
+governance che impedisca di riunire nuovamente i due carichi. Il budget resta
+15 ms e non viene allentato.
 
 ## Chiusura
 

@@ -2844,3 +2844,18 @@
 - **Esito**: `APPROVED`;
   `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. L'autorizzazione
   persistente del train consente PR, CI e merge normale dopo exact-SHA verde.
+
+## 2026-08-17 — TASK-037 PR #15 e main CI Fix 2
+
+- **PR CI**: run `31988449054` exact `e1fd5c9`, Quality/Android/iOS 3/3 e
+  relativi step tutti `PASS`.
+- **Merge normale**: PR #15 -> `8b20bca954a8fb589321d8b6ef9a3ace280b3f40`.
+- **Main CI**: run `31988842715`; Android/iOS e scansioni bundle `PASS`, Quality
+  `FAIL` con 771 test verdi e un failure search 25k p95 15,335 ms su budget
+  15 ms.
+- **Root cause**: workflow eseguiva i benchmark tagged dentro coverage
+  concorrente; `scripts/check.sh` li isola già correttamente in concurrency 1.
+- **Finding**: `F-037-R04` P2; budget invariato. Fix candidate separa coverage e
+  performance e aggiunge una regressione governance.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`;
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`. Production invariata.

@@ -425,7 +425,9 @@ cmc_ios_release_expected_macho_digests=(
   'bb5f3882b8acb52a66cb2ae7d4641c76bfeb1747ae3cca70d0ae444b73a5989d c6a848062c199f068dcc259b56aa24430563fc4aea14848f45197ce9067b8e6c'
   '847be0c00445269c63b4c1b3c475da7164a2257dad6bb0ffb99888af7c61dde7'
   'd1756c1031e3a0661f80dee4f6341b7c678021e571bf7026e1e1a1d61dac6868'
-  'd158535baa2a90f5f22bf5bb50d81583d36553515619edea20acbef3842cfdb4'
+  # objective_c conserva due output exact-content osservati prima/dopo clean;
+  # entrambi includono header, load command, sezioni e __LINKEDIT completi.
+  'd158535baa2a90f5f22bf5bb50d81583d36553515619edea20acbef3842cfdb4 ab8a425cfec93d6884e1fa2e393977303d878200e5b2c782fddfc4d66a11adb5'
   'e4f81ee4a9dc0cbdbc7ce78b8a7f0a76b4412ef6d53b6750656f0a123bdfb52b'
 )
 cmc_ios_release_expected_bundles=(

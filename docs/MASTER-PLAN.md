@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-039
 - **File task**: docs/TASKS/TASK-039-android-internal-testing-release.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review indipendente exact-SHA della
-  Security Fix 4 e chiusura `F-039-SR06`; nessun upload senza signing e
-  credenziali Play reali
+- **Prossima azione autorizzata**: chiudere il ratio residuo di
+  `F-039-SR06` usando la dimensione fisica del container, rieseguire i gate e
+  riconsegnare a re-review; nessun upload senza signing e credenziali Play reali
 
 ## Repository coinvolti
 

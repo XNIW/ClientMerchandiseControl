@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -126,8 +126,9 @@ Snapshot di handoff:
 
 ## Handoff
 
-La Security Fix 4 sullo SHA tecnico
-`e7cb2d970cb987267a2cce9f23a187e2bc712f25` chiude il PoC di
-`F-039-SR06` con un bound sui byte effettivamente emessi e regressione
-forged-header. Handoff corrente `CODEX_FIX_COMPLETE_TO_RE_REVIEW`;
-Play/Internal e production restano invariati.
+La re-review Fix 4 sullo SHA
+`7ddd6f720c23964866cf741bd1351645b6fa9c62` conferma cap e confronto
+uncompressed, ma riapre `F-039-SR06` P3 perché la compressed size dichiarata
+può essere gonfiata e falsificare il ratio. Handoff corrente
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; Play/Internal e production restano
+invariati.

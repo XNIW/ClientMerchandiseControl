@@ -3101,3 +3101,18 @@
   format 296/0, analyze e build Android/iOS `PASS`.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 4 re-review
+
+- **Exact SHA**: `7ddd6f720c23964866cf741bd1351645b6fa9c62`; reviewer prodotto e
+  security read-only distinti.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 0 P2 e 1 P3.
+- **Finding**: `F-039-SR06` resta aperto; il cap effettivo e il confronto
+  uncompressed funzionano, ma una compressed size local/central gonfiata
+  abbassa il ratio dichiarato e il full scanner termina exit 0.
+- **Security workflow**: validation e attack-path completi; il finalizer unico
+  termina exit 2 per `scan-manifest.json` preparatorio assente e non viene
+  ritentato né dichiarato sealed.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; Play/Internal e production
+  invariati.

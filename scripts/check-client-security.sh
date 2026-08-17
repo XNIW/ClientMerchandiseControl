@@ -529,15 +529,23 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
         awk '/ files?, / { value = $6 } END { print value }' \
           <<<"${cmc_security_archive_summary}"
       )"
+      cmc_security_archive_container_bytes="$(
+        wc -c <"${cmc_security_artifact}" | tr -d '[:space:]'
+      )"
       if [[ ! "${cmc_security_archive_entry_count}" =~ ^[0-9]+$ || \
         ! "${cmc_security_archive_uncompressed_bytes}" =~ ^[0-9]+$ || \
-        ! "${cmc_security_archive_compressed_bytes}" =~ ^[0-9]+$ ]]; then
+        ! "${cmc_security_archive_compressed_bytes}" =~ ^[0-9]+$ || \
+        ! "${cmc_security_archive_container_bytes}" =~ ^[0-9]+$ ]]; then
         printf 'Security scan artifact: sommario archivio invalido.\n' >&2
         exit 1
       fi
       if [[ "${cmc_security_archive_entry_count}" -gt 2048 || \
         "${cmc_security_archive_uncompressed_bytes}" -gt 536870912 || \
-        "${cmc_security_archive_compressed_bytes}" -gt 536870912 ]] || \
+        "${cmc_security_archive_compressed_bytes}" -gt 536870912 || \
+        "${cmc_security_archive_container_bytes}" -eq 0 || \
+        "${cmc_security_archive_container_bytes}" -gt 536870912 || \
+        "${cmc_security_archive_compressed_bytes}" -gt \
+          "${cmc_security_archive_container_bytes}" ]] || \
         { [[ "${cmc_security_archive_compressed_bytes}" -eq 0 ]] && \
           [[ "${cmc_security_archive_uncompressed_bytes}" -ne 0 ]]; } || \
         { [[ "${cmc_security_archive_compressed_bytes}" -gt 0 ]] && \
@@ -565,11 +573,8 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
         "${cmc_security_archive_actual_bytes}" -gt 536870912 || \
         "${cmc_security_archive_actual_bytes}" -ne \
           "${cmc_security_archive_uncompressed_bytes}" ]] || \
-        { [[ "${cmc_security_archive_compressed_bytes}" -eq 0 ]] && \
-          [[ "${cmc_security_archive_actual_bytes}" -ne 0 ]]; } || \
-        { [[ "${cmc_security_archive_compressed_bytes}" -gt 0 ]] && \
-          [[ "${cmc_security_archive_actual_bytes}" -gt \
-            $((cmc_security_archive_compressed_bytes * 200)) ]]; }; then
+        [[ "${cmc_security_archive_actual_bytes}" -gt \
+          $((cmc_security_archive_container_bytes * 200)) ]]; then
         printf 'Security scan artifact: payload archivio incoerente.\n' >&2
         exit 1
       fi

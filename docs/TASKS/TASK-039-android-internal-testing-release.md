@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -297,6 +297,24 @@ validator release e fixture firma avversariale `PASS`. Artifact unsigned e
 SHA-256 invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## Security Fix 4 re-review — `CODEX_RE_REVIEWER`
+
+- exact SHA `7ddd6f720c23964866cf741bd1351645b6fa9c62`, reviewer prodotto e
+  security read-only distinti, worktree pulito;
+- esito `CHANGES_REQUIRED`: 0 P0, 0 P1, 0 P2 e 1 P3;
+- `F-039-SR06`: cap 512 MiB, actual==declared uncompressed e ordine
+  pre-extraction chiudono il PoC precedente, ma il rapporto usa ancora la
+  compressed size dichiarata;
+- PoC: archive fisico 16.453 byte, compressed size local/central gonfiata,
+  output reale 16.777.216 byte; `unzip -p/-tqq` e full scanner exit 0;
+- fix richiesto: dimensione fisica container come denominatore autorevole,
+  rifiuto `declared compressed > physical container` e regressione dedicata;
+- finalizer security invocato una volta ma exit 2 per manifest preparatorio
+  assente; validation/attack-path evidence preservate, nessun report sealed
+  dichiarato né retry improprio.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-037
 - **File task**: docs/TASKS/TASK-037-performance-images-cache-load.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: EXECUTION
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: misurare la baseline TASK-037 su dataset
-  small/medium/25k, correggere soltanto regressioni provate e validare i budget
+- **Prossima azione autorizzata**: review indipendente TASK-037 sul revision set
+  `96a9359..dc56102`, evidence, budget e gate exact-SHA
 
 ## Repository coinvolti
 

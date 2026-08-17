@@ -2765,3 +2765,19 @@
 - **Gate pre-lock**: `scripts/check.sh` PASS, 760 test non-performance, repeat
   70/70, 4 performance, scansioni/analyze/build Android+iOS verdi. Gate exact-SHA
   finale e handoff Review attendono journey staging e cleanup.
+
+## 2026-08-17 — TASK-037 execution complete e handoff Review
+
+- **Ruolo**: `CODEX_EXECUTOR`; review affidata a un `CODEX_REVIEWER` read-only
+  distinto.
+- **Revision set**: `96a9359..dc56102`; worktree tecnico pulito prima della sola
+  transizione documentale.
+- **Gate exact-SHA**: `scripts/check.sh` exit 0 su `dc56102`: 760 test
+  non-performance, repeat resilience `70/70`, 4 performance, security 634 file,
+  localization, governance 9/9, architecture 7/7, format/analyze, APK debug e
+  iOS Simulator debug tutti `PASS`.
+- **Staging/device**: cinque journey profile validi e cleanup/residue zero;
+  Android profile entro budget. iPhone offline e screen reader manuale restano
+  dichiarati `NOT_RUN`, senza PASS inferito.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`;
+  production invariata e finding executor aperti zero P0/P1/P2/P3.

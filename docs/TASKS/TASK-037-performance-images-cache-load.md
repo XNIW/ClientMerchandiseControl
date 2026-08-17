@@ -6,13 +6,13 @@
 - **Titolo**: Performance, immagini, cache e load testing
 - **File task**: `docs/TASKS/TASK-037-performance-images-cache-load.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-037/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -190,17 +190,23 @@
   (`SUPABASE_ANON_KEY` e `ENABLE_GOOGLE_AUTH` non sono i nomi contrattuali) e un
   tentativo durante la transazione non committed è `FAIL` con Home unavailable;
   nessuno è contato come evidence positiva;
-- il gate canonico prima dell'upgrade lock è `PASS`: 760 test non-performance,
-  70/70 repeat TASK-034, 4 performance, security/localization/governance/
-  architecture, analyze/format e build Android/iOS Simulator;
+- il gate canonico finale sull'exact SHA `dc56102` è `PASS`: 760 test
+  non-performance, 70/70 repeat TASK-034, 4 performance, security su 634 file,
+  localization/governance/architecture, analyze/format e build Android/iOS
+  Simulator;
 - production, limiti server, DDL e dati reali non sono stati modificati.
 
-Il gate finale sull'exact SHA è in corso; l'handoff a Review verrà registrato
-soltanto dopo la sua conclusione.
+### Handoff a Review
+
+- **Revision set**: `96a9359..dc56102`
+- **Prossima fase**: REVIEW
+- **Prossimo ruolo**: CODEX_REVIEWER read-only distinto
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Finding executor aperti**: 0 P0/P1/P2/P3
 
 ## Review — `CODEX_REVIEWER`
 
-Non ancora eseguita.
+In attesa di verifica indipendente del revision set e delle evidence.
 
 ## Fix — `CODEX_FIXER`
 

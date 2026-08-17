@@ -1,7 +1,7 @@
 # Evidence TASK-037
 
 Snapshot di handoff:
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Provenance
 
@@ -153,8 +153,8 @@ connection material rimosso e artifact non-secret caricato.
 
 ### Gate corrente
 
-`scripts/check.sh` prima del lock update: exit 0, 760 test non-performance con
-coverage, repeat TASK-034 `5 x 14 = 70/70`, 4 performance, 631 file security,
+`scripts/check.sh` finale sullo SHA `dc56102`: exit 0, 760 test non-performance
+con coverage, repeat TASK-034 `5 x 14 = 70/70`, 4 performance, 634 file security,
 fixture 41/41+4/4, telemetry/localization/governance/architecture, format/analyze,
-APK debug e iOS Simulator debug. Il gate finale sarà rieseguito sull'exact SHA dopo
-staging e documentazione; nessun esito intermedio viene promosso a CI finale.
+APK debug e iOS Simulator debug. Il revision set `96a9359..dc56102` è consegnato
+alla review indipendente; nessun esito intermedio è promosso a CI finale.

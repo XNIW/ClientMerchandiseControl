@@ -4,6 +4,7 @@ set -euo pipefail
 cmc_repo_root="${CMC_GOVERNANCE_REPO_ROOT:-$(git rev-parse --show-toplevel)}"
 cmc_master_plan="${cmc_repo_root}/docs/MASTER-PLAN.md"
 cmc_readme="${cmc_repo_root}/README.md"
+cmc_worklog="${cmc_repo_root}/docs/AI_WORKLOG.md"
 cmc_violation_count=0
 
 cmc_field() {
@@ -108,6 +109,34 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         printf 'Snapshot evidence incoerente: atteso=%q, ricevuto=%q\n' \
           "${cmc_expected_snapshot}" "${cmc_snapshot}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
+      fi
+    fi
+
+    if [[ ! -f "${cmc_worklog}" ]]; then
+      printf 'Worklog governance assente: %s\n' "${cmc_worklog}" >&2
+      cmc_violation_count=$((cmc_violation_count + 1))
+    else
+      cmc_last_worklog_line="$(
+        grep -nE "^## .*— ${cmc_active_task}([[:space:]]|$)" \
+          "${cmc_worklog}" | tail -n 1 | cut -d: -f1 || true
+      )"
+      if [[ ! "${cmc_last_worklog_line}" =~ ^[0-9]+$ ]]; then
+        printf 'Worklog corrente assente per %s.\n' "${cmc_active_task}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      else
+        cmc_last_worklog_block="$(
+          awk -v start="${cmc_last_worklog_line}" '
+            NR < start { next }
+            NR > start && /^## / { exit }
+            { print }
+          ' "${cmc_worklog}"
+        )"
+        if ! grep -Fq -- "\`${cmc_indicator}\`" \
+          <<<"${cmc_last_worklog_block}"; then
+          printf 'Worklog corrente incoerente con handoff %s per %s.\n' \
+            "${cmc_indicator}" "${cmc_active_task}" >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
+        fi
       fi
     fi
   fi

@@ -30,8 +30,13 @@ cmc_fixture_prepare() {
   local cmc_fixture_path="${cmc_fixture_root}/${cmc_fixture_name}"
 
   mkdir -p "${cmc_fixture_path}/docs/TASKS" \
+    "${cmc_fixture_path}/.dart_tool" \
     "${cmc_fixture_path}/lib/core" \
     "${cmc_fixture_path}/lib/features"
+  cp "${cmc_fixture_repo_root}/.dart_tool/package_config.json" \
+    "${cmc_fixture_path}/.dart_tool/package_config.json"
+  cp "${cmc_fixture_repo_root}/pubspec.yaml" \
+    "${cmc_fixture_path}/pubspec.yaml"
   cp -R "${cmc_fixture_repo_root}/docs/ARCHITECTURE" \
     "${cmc_fixture_path}/docs/"
   cp -R "${cmc_fixture_repo_root}/docs/DECISIONS" \
@@ -107,6 +112,18 @@ cmc_fixture_expect_rejection_code() {
     return
   fi
   cmc_fixture_rejected=$((cmc_fixture_rejected + 1))
+}
+
+cmc_fixture_require_analyzer_clean() {
+  local cmc_fixture_path="$1"
+  shift
+
+  dart format "$@" >/dev/null
+  dart format --output=none --set-exit-if-changed "$@" >/dev/null
+  (
+    cd "${cmc_fixture_path}"
+    dart analyze --fatal-infos --fatal-warnings "$@"
+  )
 }
 
 bash "${cmc_fixture_validator}"
@@ -270,39 +287,110 @@ cmc_fixture_shop_slug_constructor_path="$(
 cmc_fixture_shop_slug_constructor_file="${cmc_fixture_shop_slug_constructor_path}/lib/core/config/app_config.dart"
 cmc_fixture_shop_slug_decoy_file="${cmc_fixture_shop_slug_constructor_path}/lib/core/config/storefront_string_decoy.dart"
 {
-  printf '%s\n' "import 'storefront_string_decoy.dart';"
+  printf '%s\n' "import 'storefront_string_decoy.dart' as decoy;"
   cat "${cmc_fixture_shop_slug_constructor_file}"
 } >"${cmc_fixture_shop_slug_constructor_file}.tmp"
 mv "${cmc_fixture_shop_slug_constructor_file}.tmp" \
   "${cmc_fixture_shop_slug_constructor_file}"
+perl -0pi -e '
+  s{  static const _compiledStorefrontShopSlug = String\.fromEnvironment\(\n    \x27STOREFRONT_SHOP_SLUG\x27,\n  \);}{  static const _compiledStorefrontShopSlug = decoy.String.fromEnvironment(\n    \x27STOREFRONT_SHOP_SLUG\x27,\n  );}
+' "${cmc_fixture_shop_slug_constructor_file}"
 printf '%s\n' \
-  'extension type const String(dart.core.String value)' \
-  '    implements dart.core.String {' \
+  "import 'dart:core' as core;" \
+  '' \
+  'extension type const String(core.String value)' \
+  '    implements core.String {' \
   '  const String.fromEnvironment(' \
-  '    dart.core.String _,' \
-  '  ) : this(const dart.core.String.fromEnvironment(' \
+  '    core.String _,' \
+  '  ) : this(const core.String.fromEnvironment(' \
   "          'ATTACKER_SHOP_SLUG'," \
   '        ));' \
   '}' >"${cmc_fixture_shop_slug_decoy_file}"
+cmc_fixture_require_analyzer_clean \
+  "${cmc_fixture_shop_slug_constructor_path}" \
+  "${cmc_fixture_shop_slug_constructor_file}" \
+  "${cmc_fixture_shop_slug_decoy_file}"
 cmc_fixture_expect_rejection_code \
   "${cmc_fixture_shop_slug_constructor_path}" \
-  STOREFRONT_BINDING_STRUCTURE_INVALID
+  COMPILED_BINDING_STRUCTURE_INVALID
 
 cmc_fixture_shop_slug_consumer_path="$(
   cmc_fixture_prepare invalid-storefront-shop-slug-consumer-decoy
 )"
 cmc_fixture_shop_slug_consumer_file="${cmc_fixture_shop_slug_consumer_path}/lib/core/config/app_config.dart"
 perl -0pi -e '
-  s{  factory AppConfig\.fromEnvironment\(\) \{.*?\n  \}\n\n  final AppEnvironment environment;}{  factory AppConfig.fromEnvironment() {\n    void canonicalConsumerDecoy() {\n      AppConfig.fromValues(\n        appEnvironment: _compiledAppEnvironment,\n        supabaseUrl: _compiledSupabaseUrl,\n        supabasePublishableKey: _compiledSupabasePublishableKey,\n        authRedirectUri: _compiledAuthRedirectUri,\n        googleAuthEnabled: _compiledGoogleAuthEnabled,\n        storefrontShopSlug: _compiledStorefrontShopSlug,\n        releaseConfigSha256: _compiledReleaseConfigSha256,\n      );\n      ReleaseConfigAttestation.fromValues({\n        \x27APP_ENV\x27: _compiledAppEnvironment,\n        \x27SUPABASE_URL\x27: _compiledSupabaseUrl,\n        \x27SUPABASE_PUBLISHABLE_KEY\x27: _compiledSupabasePublishableKey,\n        \x27AUTH_REDIRECT_URI\x27: _compiledAuthRedirectUri,\n        \x27GOOGLE_AUTH_ENABLED\x27: _compiledGoogleAuthEnabled,\n        \x27STOREFRONT_SHOP_SLUG\x27: _compiledStorefrontShopSlug,\n        \x27DELIVERY_MAPS_ENABLED\x27: _compiledDeliveryMapsEnabled,\n        \x27DELIVERY_MAPS_NATIVE_CONFIGURED\x27:\n            _compiledDeliveryMapsNativeConfigured,\n      });\n    }\n    const attackerShopSlug = String.fromEnvironment(\x27ATTACKER_SHOP_SLUG\x27);\n    final config = Function.apply(AppConfig.fromValues, const [], {\n      #appEnvironment: _compiledAppEnvironment,\n      #supabaseUrl: _compiledSupabaseUrl,\n      #supabasePublishableKey: _compiledSupabasePublishableKey,\n      #authRedirectUri: _compiledAuthRedirectUri,\n      #googleAuthEnabled: _compiledGoogleAuthEnabled,\n      #storefrontShopSlug: attackerShopSlug,\n      #releaseConfigSha256: _compiledReleaseConfigSha256,\n    }) as AppConfig;\n    if (config.environment != AppEnvironment.production) {\n      return config;\n    }\n    try {\n      final values = <String, String>{\n        \x27APP_ENV\x27: _compiledAppEnvironment,\n        \x27SUPABASE_URL\x27: _compiledSupabaseUrl,\n        \x27SUPABASE_PUBLISHABLE_KEY\x27: _compiledSupabasePublishableKey,\n        \x27AUTH_REDIRECT_URI\x27: _compiledAuthRedirectUri,\n        \x27GOOGLE_AUTH_ENABLED\x27: _compiledGoogleAuthEnabled,\n        \x27DELIVERY_MAPS_ENABLED\x27: _compiledDeliveryMapsEnabled,\n        \x27DELIVERY_MAPS_NATIVE_CONFIGURED\x27:\n            _compiledDeliveryMapsNativeConfigured,\n      };\n      values[\x27STOREFRONT_SHOP_SLUG\x27] = attackerShopSlug;\n      final attestation = ReleaseConfigAttestation.fromValues(values);\n      if (config.releaseConfigSha256 != attestation.sha256 ||\n          _compiledReleaseAttestationMarker != attestation.marker) {\n        throw const AppConfigurationException(\n          \x27RELEASE_CONFIG_SHA256 non corrisponde alla configurazione production compilata.\x27,\n        );\n      }\n    } on ReleaseConfigValidationException {\n      throw const AppConfigurationException(\n        \x27La configurazione production compilata non supera l’attestazione semantica.\x27,\n      );\n    }\n    return config;\n  }\n\n  final AppEnvironment environment;}s
+  s{    final config = AppConfig\.fromValues\(.*?\n    \);\n    if \(config\.environment}{    final config = Function.apply(\n      AppConfig.fromValues,\n      const [],\n      {\n        #appEnvironment: _compiledAppEnvironment,\n        #supabaseUrl: _compiledSupabaseUrl,\n        #supabasePublishableKey: _compiledSupabasePublishableKey,\n        #authRedirectUri: _compiledAuthRedirectUri,\n        #googleAuthEnabled: _compiledGoogleAuthEnabled,\n        #storefrontShopSlug:\n            const String.fromEnvironment(\x27ATTACKER_SHOP_SLUG\x27),\n        #releaseConfigSha256: _compiledReleaseConfigSha256,\n      },\n    ) as AppConfig;\n    if (config.environment}s
 ' "${cmc_fixture_shop_slug_consumer_file}"
 if ! grep -Fq -- "'ATTACKER_SHOP_SLUG'" \
   "${cmc_fixture_shop_slug_consumer_file}"; then
   printf 'Fixture consumer decoy non preparabile: mutation assente.\n' >&2
   exit 1
 fi
+cmc_fixture_require_analyzer_clean \
+  "${cmc_fixture_shop_slug_consumer_path}" \
+  "${cmc_fixture_shop_slug_consumer_file}"
 cmc_fixture_expect_rejection_code \
   "${cmc_fixture_shop_slug_consumer_path}" \
-  STOREFRONT_BINDING_CONSUMER_INVALID
+  COMPILED_BINDING_CONSUMER_INVALID
+
+cmc_fixture_config_binding_path="$(
+  cmc_fixture_prepare invalid-full-config-binding
+)"
+cmc_fixture_config_binding_file="${cmc_fixture_config_binding_path}/lib/core/config/app_config.dart"
+perl -0pi -e '
+  s{  static const _compiledSupabaseUrl = String\.fromEnvironment\(\x27SUPABASE_URL\x27\);}{  static const _compiledSupabaseUrl = String.fromEnvironment(\x27SUPABASE_URL\x27);\n  static const _compiledAttackerSupabaseUrl =\n      String.fromEnvironment(\x27ATTACKER_SUPABASE_URL\x27);};
+  s{supabaseUrl: _compiledSupabaseUrl,}{supabaseUrl: _compiledAttackerSupabaseUrl,};
+' "${cmc_fixture_config_binding_file}"
+if ! grep -Fq -- "'ATTACKER_SUPABASE_URL'" \
+  "${cmc_fixture_config_binding_file}"; then
+  printf 'Fixture full config binding non preparabile: mutation assente.\n' >&2
+  exit 1
+fi
+cmc_fixture_require_analyzer_clean \
+  "${cmc_fixture_config_binding_path}" \
+  "${cmc_fixture_config_binding_file}"
+cmc_fixture_expect_rejection_code \
+  "${cmc_fixture_config_binding_path}" \
+  COMPILED_BINDING_CONSUMER_INVALID
+
+cmc_fixture_control_flow_path="$(
+  cmc_fixture_prepare invalid-production-control-flow
+)"
+cmc_fixture_control_flow_file="${cmc_fixture_control_flow_path}/lib/core/config/app_config.dart"
+perl -0pi -e '
+  s{    if \(config\.environment != AppEnvironment\.production\) \{\n      return config;\n    \}}{    if (config.environment == AppEnvironment.production ||\n        config.environment != AppEnvironment.production) {\n      return config;\n    }}
+' "${cmc_fixture_control_flow_file}"
+if ! grep -Fq -- 'config.environment == AppEnvironment.production ||' \
+  "${cmc_fixture_control_flow_file}"; then
+  printf 'Fixture control flow non preparabile: mutation assente.\n' >&2
+  exit 1
+fi
+cmc_fixture_require_analyzer_clean \
+  "${cmc_fixture_control_flow_path}" \
+  "${cmc_fixture_control_flow_file}"
+cmc_fixture_expect_rejection_code \
+  "${cmc_fixture_control_flow_path}" \
+  COMPILED_BINDING_CONSUMER_INVALID
+
+cmc_fixture_attestation_library_path="$(
+  cmc_fixture_prepare invalid-attestation-library-identity
+)"
+cmc_fixture_attestation_library_file="${cmc_fixture_attestation_library_path}/lib/core/config/app_config.dart"
+cmc_fixture_attestation_decoy_dir="${cmc_fixture_attestation_library_path}/lib/evil/core/config"
+mkdir -p "${cmc_fixture_attestation_decoy_dir}"
+cp "${cmc_fixture_attestation_library_path}/lib/core/config/release_config_attestation.dart" \
+  "${cmc_fixture_attestation_decoy_dir}/release_config_attestation.dart"
+cmc_fixture_replace_literal \
+  "${cmc_fixture_attestation_library_file}" \
+  "import 'release_config_attestation.dart';" \
+  "import '../../evil/core/config/release_config_attestation.dart';"
+cmc_fixture_require_analyzer_clean \
+  "${cmc_fixture_attestation_library_path}" \
+  "${cmc_fixture_attestation_library_file}" \
+  "${cmc_fixture_attestation_decoy_dir}/release_config_attestation.dart"
+cmc_fixture_expect_rejection_code \
+  "${cmc_fixture_attestation_library_path}" \
+  COMPILED_BINDING_STRUCTURE_INVALID
 
 if [[ "${cmc_fixture_rejected}" -ne "${cmc_fixture_total}" ]]; then
   printf 'Fixture negative respinte: %d/%d.\n' \

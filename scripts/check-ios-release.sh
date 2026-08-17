@@ -69,10 +69,12 @@ for cmc_ios_release_file in \
 done
 
 for cmc_ios_release_command in \
-  codesign dart dwarfdump file find lipo openssl otool perl plutil python3 shasum; do
+  codesign dart dwarfdump file find lipo openssl otool perl plutil python3 shasum xcrun; do
   command -v "${cmc_ios_release_command}" >/dev/null 2>&1 || \
     cmc_ios_release_fail 'ARTIFACT_TOOLING_MISSING'
 done
+xcrun --find llvm-objdump >/dev/null 2>&1 || \
+  cmc_ios_release_fail 'ARTIFACT_TOOLING_MISSING'
 [[ -x /usr/libexec/PlistBuddy ]] || \
   cmc_ios_release_fail 'PLIST_TOOLING_MISSING'
 
@@ -392,6 +394,22 @@ cmc_ios_release_expected_framework_symbols=(
   '_DOBJC_initializeApi'
   '_sqlite3_open'
 )
+cmc_ios_release_expected_macho_paths=(
+  'Runner'
+  'Frameworks/App.framework/App'
+  'Frameworks/Flutter.framework/Flutter'
+  'Frameworks/objective_c.framework/objective_c'
+  'Frameworks/sqlite3.framework/sqlite3'
+)
+# Digest delle sezioni Mach-O loadable: resta stabile dopo codesign perché non
+# include il blob LC_CODE_SIGNATURE, ma lega codice e dati alla revisione build.
+cmc_ios_release_expected_macho_digests=(
+  'd316247c6b085cdfa9e6b714a34b6e945294ae402cc5bf625076c21f90ab42d5'
+  '573f86ac62009795e3294f39acb72be1608825c589204ba3f101909c485d1236'
+  '6a98d86dab0f1d3e6043fc9f21b19b131e01847376126852c5f931585e0156b9'
+  '4a3f30b61151475837e405e67e67988923d880adb6a49d6eb99ed71b86824a52'
+  '3ef36e21a036bc830ec42a4f80390554320213e371384a58d3c4554f51bd329d'
+)
 cmc_ios_release_expected_bundles=(
   'GoogleMapsResources.bundle'
   'GoogleMapsResources.bundle/GoogleMaps.bundle'
@@ -413,6 +431,17 @@ cmc_ios_release_expected_bundle_identifiers=(
   'share-plus-13.2.1.share-plus.resources'
   'shared-preferences-foundation-2.5.6.shared-preferences-foundation.resources'
   'url-launcher-ios-6.4.1.url-launcher-ios.resources'
+)
+cmc_ios_release_expected_bundle_digests=(
+  'cf5e655d293c352c225d14f51a428bde5e1141071ff6f0c1136334d101652e27'
+  '846bf4037e058aac73aa2242c61b713f3cae5e5c72fe1c979ea36c90065b23a1'
+  '22e275860cba82d16fcf2267e7570c2a4da09d254bd0e28f05866024462f6d81'
+  'cee79469df2b9800524d3d7047c327b53f3ad6610db21eb4418b3977435406c5'
+  '71b2917169d0f3fde08d9b2f7b376998ec8bea432af316b07d061277eb0c9bbe'
+  '7182418d713f2adf44e6b262dce3e857279dea77e9a5e9dd9e31f9c45948a9bb'
+  'a67b2483ac8abc3891f46e662732d39afb394a549ca470d2ffe2040bf7f0add8'
+  '39dea2befe6c024d9646875c290b39c5e8afca0f9a510bcc5293c61d33dbf250'
+  '965db1b4d36fa9d30c6ee7d025eb7ff1993163672845440ac081637226c35fd7'
 )
 
 cmc_ios_release_require_exact_component_set() {
@@ -438,6 +467,36 @@ cmc_ios_release_require_exact_component_set() {
       ! -L "${cmc_ios_release_component_root}/${cmc_ios_release_component}" ]] || \
       cmc_ios_release_fail "${cmc_ios_release_component_error}"
   done
+}
+
+cmc_ios_release_macho_sections_digest() {
+  local cmc_ios_release_macho="$1"
+
+  xcrun llvm-objdump --full-contents "${cmc_ios_release_macho}" 2>/dev/null | \
+    awk '
+      /file format mach-o/ || /^[[:space:]]*$/ { next }
+      /^Contents of section / {
+        skip = ($0 ~ /,__(bss|common|thread_bss):$/)
+        if (!skip) print
+        next
+      }
+      !skip { print }
+    ' | shasum -a 256 | awk '{print $1}'
+}
+
+cmc_ios_release_bundle_tree_digest() {
+  local cmc_ios_release_tree_root="$1"
+  local cmc_ios_release_tree_file
+  local cmc_ios_release_tree_relative
+
+  find "${cmc_ios_release_tree_root}" -type f \
+    ! -path '*/_CodeSignature/*' -print0 | LC_ALL=C sort -z | \
+    while IFS= read -r -d '' cmc_ios_release_tree_file; do
+      cmc_ios_release_tree_relative="${cmc_ios_release_tree_file#"${cmc_ios_release_tree_root}"/}"
+      printf '%s\0' "${cmc_ios_release_tree_relative}"
+      shasum -a 256 "${cmc_ios_release_tree_file}" | \
+        awk '{printf "%s%c", $1, 0}'
+    done | shasum -a 256 | awk '{print $1}'
 }
 
 for cmc_ios_release_privacy_index in \
@@ -488,6 +547,44 @@ cmc_ios_release_require_exact_component_set \
   -print | wc -l | tr -d '[:space:]')" -eq \
   "${#cmc_ios_release_expected_frameworks[@]}" ]] || \
   cmc_ios_release_fail 'EMBEDDED_FRAMEWORK_SET_INVALID'
+if find "${cmc_ios_release_app}" -type l -print -quit | grep -q .; then
+  cmc_ios_release_fail 'ARTIFACT_SYMLINK_SET_INVALID'
+fi
+
+cmc_ios_release_macho_count=0
+while IFS= read -r -d '' cmc_ios_release_candidate; do
+  if file "${cmc_ios_release_candidate}" | grep -Fq 'Mach-O'; then
+    cmc_ios_release_candidate_relative="${cmc_ios_release_candidate#"${cmc_ios_release_app}"/}"
+    cmc_ios_release_macho_expected=false
+    for cmc_ios_release_expected_macho in \
+      "${cmc_ios_release_expected_macho_paths[@]}"; do
+      if [[ "${cmc_ios_release_candidate_relative}" == \
+        "${cmc_ios_release_expected_macho}" ]]; then
+        cmc_ios_release_macho_expected=true
+        break
+      fi
+    done
+    [[ "${cmc_ios_release_macho_expected}" == true ]] || \
+      cmc_ios_release_fail 'EMBEDDED_MACHO_SET_INVALID'
+    cmc_ios_release_macho_count=$((cmc_ios_release_macho_count + 1))
+  fi
+done < <(find "${cmc_ios_release_app}" -type f -print0)
+[[ "${cmc_ios_release_macho_count}" -eq \
+  "${#cmc_ios_release_expected_macho_paths[@]}" ]] || \
+  cmc_ios_release_fail 'EMBEDDED_MACHO_SET_INVALID'
+for cmc_ios_release_macho_index in \
+  "${!cmc_ios_release_expected_macho_paths[@]}"; do
+  cmc_ios_release_macho_file="${cmc_ios_release_app}/${cmc_ios_release_expected_macho_paths[cmc_ios_release_macho_index]}"
+  [[ -f "${cmc_ios_release_macho_file}" && \
+    ! -L "${cmc_ios_release_macho_file}" ]] || \
+    cmc_ios_release_fail 'EMBEDDED_MACHO_SET_INVALID'
+  cmc_ios_release_macho_digest="$(
+    cmc_ios_release_macho_sections_digest "${cmc_ios_release_macho_file}"
+  )" || cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_UNREADABLE'
+  [[ "${cmc_ios_release_macho_digest}" == \
+    "${cmc_ios_release_expected_macho_digests[cmc_ios_release_macho_index]}" ]] || \
+    cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
+done
 
 for cmc_ios_release_framework_index in \
   "${!cmc_ios_release_expected_frameworks[@]}"; do
@@ -543,6 +640,12 @@ for cmc_ios_release_bundle_index in \
   [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundlePackageType' \
     "${cmc_ios_release_bundle_info}" 2>/dev/null || true)" == 'BNDL' ]] || \
     cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
+  cmc_ios_release_bundle_digest="$(
+    cmc_ios_release_bundle_tree_digest "${cmc_ios_release_bundle}"
+  )" || cmc_ios_release_fail 'EMBEDDED_BUNDLE_DIGEST_UNREADABLE'
+  [[ "${cmc_ios_release_bundle_digest}" == \
+    "${cmc_ios_release_expected_bundle_digests[cmc_ios_release_bundle_index]}" ]] || \
+    cmc_ios_release_fail 'EMBEDDED_BUNDLE_DIGEST_MISMATCH'
 done
 cmc_ios_release_runtime_executable="${cmc_ios_release_app}/Frameworks/App.framework/App"
 [[ -f "${cmc_ios_release_runtime_executable}" && \

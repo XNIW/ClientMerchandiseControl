@@ -3311,53 +3311,6 @@
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
 
-## 2026-08-17 — TASK-040 Fix 8 re-review
-
-- **Exact HEAD**: `e88f8762aab52ad7b176cbc0e0bd80b23d2aaf43`, worktree
-  pulito e reviewer prodotto/security read-only distinti.
-- **Esito**: `CHANGES_REQUIRED`: 2 P2 sul binding completo della config e sul
-  control flow; P3 su library identity, Mach-O/content provenance, fixture
-  constructor e cronologia worklog.
-- **Review evidence**: report security canonico sealed SHA-256
-  `169a5154053c28503744c0de8a8d2a9c923520062e339e28d93b038a83df8f84`;
-  report prodotto sealed SHA-256
-  `877c30e186d5bd38da82639a023021a3da117defeb63d93d2c6167bc715b92ca`.
-- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
-  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
-
-## 2026-08-17 — TASK-040 Fix 7 re-review
-
-- **Exact HEAD**: `189c5e74fb3f32d76a6e8bffb87ca6a95e791fed`, worktree
-  pulito e reviewer prodotto/security read-only distinti.
-- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 4 P3: constructor identity non
-  `dart:core`, consumer canonici non legati al percorso reale, inventory iOS
-  shallow/nominale ed evidence corrente con provenance Fix 6.
-- **Review evidence**: report security sealed SHA-256
-  `fbd804ea9d7057f6c300f4ea91a59439e7327871c287bec4e9f950b27cb99bf2`;
-  report prodotto sealed SHA-256
-  `a1a49bdd9744478abd024fe71d4976f731ad1d7d5fa4cf80d452d65c208d743d`.
-- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
-  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
-
-## 2026-08-17 — TASK-040 Fix 8 e handoff
-
-- **Technical SHA**: `41f5cbab7c60ee872a1e2f5ef591e16c18e89b6e`;
-  constructor/consumer AST sono legati agli elementi e al percorso canonico, mentre
-  framework/bundle/dylib sono coperti da inventory recursive identity-bound.
-- **Regressioni**: constructor omonimo, consumer decoy, framework casing/nesting,
-  dylib e sostituzioni framework/bundle respinti; architecture 14/14 e iOS 23/23.
-- **Gate completo**: `scripts/check.sh` exit 0; 801/801 non-performance,
-  10/10 performance, repeat resilience 70/70, security 681 + 61/61 + 7/7,
-  format 301/0, analyze e build debug Android/iOS `PASS`.
-- **Artifact exact-SHA**: clean archive unsigned 201.344 KiB, app 36.724 KiB/
-  207 file, 8 privacy manifest, 7 dSYM; runtime/wrapper/Info/privacy digest invariati
-  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
-- **Boundary**: upload gate exit 1
-  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; 0 Distribution, profili e input ASC,
-  iPhone fisico offline, nessuna IPA, upload o mutazione production.
-- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
-  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
-
 ## 2026-08-17 — TASK-040 Fix 2 re-review
 
 - **Exact HEAD**: `2b7c1480aa7c1e18dfce58abb076cf388b2ed9d2`, worktree pulito.
@@ -3537,3 +3490,50 @@
   nessuna firma, provisioning, input ASC, IPA, upload o mutazione production.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 7 re-review
+
+- **Exact HEAD**: `189c5e74fb3f32d76a6e8bffb87ca6a95e791fed`, worktree
+  pulito e reviewer prodotto/security read-only distinti.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 4 P3: constructor identity non
+  `dart:core`, consumer canonici non legati al percorso reale, inventory iOS
+  shallow/nominale ed evidence corrente con provenance Fix 6.
+- **Review evidence**: report security sealed SHA-256
+  `fbd804ea9d7057f6c300f4ea91a59439e7327871c287bec4e9f950b27cb99bf2`;
+  report prodotto sealed SHA-256
+  `a1a49bdd9744478abd024fe71d4976f731ad1d7d5fa4cf80d452d65c208d743d`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 8 e handoff
+
+- **Technical SHA**: `41f5cbab7c60ee872a1e2f5ef591e16c18e89b6e`;
+  constructor/consumer AST sono legati agli elementi e al percorso canonico, mentre
+  framework/bundle/dylib sono coperti da inventory recursive identity-bound.
+- **Regressioni**: constructor omonimo, consumer decoy, framework casing/nesting,
+  dylib e sostituzioni framework/bundle respinti; architecture 14/14 e iOS 23/23.
+- **Gate completo**: `scripts/check.sh` exit 0; 801/801 non-performance,
+  10/10 performance, repeat resilience 70/70, security 681 + 61/61 + 7/7,
+  format 301/0, analyze e build debug Android/iOS `PASS`.
+- **Artifact exact-SHA**: clean archive unsigned 201.344 KiB, app 36.724 KiB/
+  207 file, 8 privacy manifest, 7 dSYM; runtime/wrapper/Info/privacy digest invariati
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; 0 Distribution, profili e input ASC,
+  iPhone fisico offline, nessuna IPA, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 8 re-review
+
+- **Exact HEAD**: `e88f8762aab52ad7b176cbc0e0bd80b23d2aaf43`, worktree
+  pulito e reviewer prodotto/security read-only distinti.
+- **Esito**: `CHANGES_REQUIRED`: 2 P2 sul binding completo della config e sul
+  control flow; P3 su library identity, Mach-O/content provenance, fixture
+  constructor e cronologia worklog.
+- **Review evidence**: report security canonico sealed SHA-256
+  `169a5154053c28503744c0de8a8d2a9c923520062e339e28d93b038a83df8f84`;
+  report prodotto sealed SHA-256
+  `877c30e186d5bd38da82639a023021a3da117defeb63d93d2c6167bc715b92ca`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.

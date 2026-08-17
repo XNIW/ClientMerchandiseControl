@@ -274,11 +274,64 @@ cmc_ios_test_expect_failure privacy-extra-dylib EMBEDDED_DYLIB_SET_INVALID \
   --archive "${cmc_ios_test_fixture_archive}"
 rm "${cmc_ios_test_fixture_app}/Frameworks/Extra.dylib"
 
+cp "${cmc_ios_test_fixture_app}/Frameworks/App.framework/App" \
+  "${cmc_ios_test_fixture_app}/Frameworks/App.framework/EmbeddedPayload"
+cmc_ios_test_expect_failure extensionless-macho EMBEDDED_MACHO_SET_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+rm "${cmc_ios_test_fixture_app}/Frameworks/App.framework/EmbeddedPayload"
+
+cmc_ios_test_objective_binary="${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework/objective_c"
+cmc_ios_test_objective_text_offset="$(
+  otool -l "${cmc_ios_test_objective_binary}" | awk '
+    $1 == "sectname" && $2 == "__text" { in_text = 1; next }
+    in_text && $1 == "offset" { print $2; exit }
+  '
+)"
+cmc_ios_test_objective_slice_offset="$(
+  lipo -detailed_info "${cmc_ios_test_objective_binary}" | awk '
+    $1 == "architecture" && $2 == "arm64" { in_arm64 = 1; next }
+    in_arm64 && $1 == "offset" { print $2; exit }
+  '
+)"
+cmc_ios_test_objective_slice_offset="${cmc_ios_test_objective_slice_offset:-0}"
+[[ "${cmc_ios_test_objective_text_offset}" =~ ^[0-9]+$ ]] || {
+  printf 'Fixture iOS: offset __text non leggibile.\n' >&2
+  exit 1
+}
+[[ "${cmc_ios_test_objective_slice_offset}" =~ ^[0-9]+$ ]] || {
+  printf 'Fixture iOS: offset slice arm64 non leggibile.\n' >&2
+  exit 1
+}
+cmc_ios_test_objective_text_offset=$((
+  cmc_ios_test_objective_slice_offset + cmc_ios_test_objective_text_offset
+))
+perl -e '
+  use strict;
+  use warnings;
+  my ($path, $offset) = @ARGV;
+  open my $handle, "+<", $path or die "open\n";
+  binmode $handle;
+  seek $handle, $offset + 16, 0 or die "seek\n";
+  read($handle, my $byte, 1) == 1 or die "read\n";
+  seek $handle, $offset + 16, 0 or die "seek\n";
+  print {$handle} chr(ord($byte) ^ 0x01) or die "write\n";
+  close $handle or die "close\n";
+' "${cmc_ios_test_objective_binary}" "${cmc_ios_test_objective_text_offset}"
+cmc_ios_test_expect_failure macho-content-digest \
+  EMBEDDED_COMPONENT_DIGEST_MISMATCH \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_source_app}/Frameworks/objective_c.framework/objective_c" \
+  "${cmc_ios_test_objective_binary}"
+
 rm -rf -- "${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework"
 cp -R "${cmc_ios_test_fixture_app}/Frameworks/sqlite3.framework" \
   "${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework"
 cmc_ios_test_expect_failure framework-content-replacement \
-  FRAMEWORK_IDENTITY_INVALID \
+  EMBEDDED_MACHO_SET_INVALID \
   bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
@@ -299,6 +352,15 @@ cmc_ios_test_expect_failure bundle-content-replacement \
 rm -rf -- "${cmc_ios_test_fixture_app}/GoogleMapsResources.bundle"
 mv "${cmc_ios_test_tmp_root}/GoogleMapsResources.bundle.original" \
   "${cmc_ios_test_fixture_app}/GoogleMapsResources.bundle"
+
+cmc_ios_test_bundle_tamper="${cmc_ios_test_fixture_app}/app_links_app_links.bundle/cmc-unexpected-resource.txt"
+printf 'unexpected release resource\n' >"${cmc_ios_test_bundle_tamper}"
+cmc_ios_test_expect_failure bundle-content-digest \
+  EMBEDDED_BUNDLE_DIGEST_MISMATCH \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+rm "${cmc_ios_test_bundle_tamper}"
 
 cmc_ios_test_entitlements="${cmc_ios_test_tmp_root}/entitlements.plist"
 cp "${cmc_ios_test_root}/ios/Runner/PrivacyInfo.xcprivacy" \

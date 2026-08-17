@@ -49,6 +49,8 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
+  cp "${cmc_test_repo_root}/docs/AI_WORKLOG.md" \
+    "${cmc_target}/docs/AI_WORKLOG.md"
   cp \
     "${cmc_test_repo_root}/docs/TASKS/TASK-005-storefront-schema-rls-migration-ownership.md" \
     "${cmc_target}/docs/TASKS/"
@@ -375,4 +377,14 @@ mv \
 cmc_expect_fail validated-file-missing "${cmc_case}" \
   'TASK-005 validato richiede esattamente un file task'
 
-printf 'Governance release train: 9/9 fixture PASS.\n'
+cmc_case="$(cmc_fixture stale-worklog-tail)"
+printf '%s\n' \
+  '' \
+  '## 2026-08-17 — TASK-040 stale synthetic tail' \
+  '' \
+  '- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.' \
+  >>"${cmc_case}/docs/AI_WORKLOG.md"
+cmc_expect_fail stale-worklog-tail "${cmc_case}" \
+  'Worklog corrente incoerente con handoff'
+
+printf 'Governance release train: 10/10 fixture PASS.\n'

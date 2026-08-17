@@ -2844,3 +2844,40 @@
 - **Esito**: `APPROVED`;
   `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. L'autorizzazione
   persistente del train consente PR, CI e merge normale dopo exact-SHA verde.
+
+## 2026-08-17 — TASK-037 PR #15 e main CI Fix 2
+
+- **PR CI**: run `31988449054` exact `e1fd5c9`, Quality/Android/iOS 3/3 e
+  relativi step tutti `PASS`.
+- **Merge normale**: PR #15 -> `8b20bca954a8fb589321d8b6ef9a3ace280b3f40`.
+- **Main CI**: run `31988842715`; Android/iOS e scansioni bundle `PASS`, Quality
+  `FAIL` con 771 test verdi e un failure search 25k p95 15,335 ms su budget
+  15 ms.
+- **Root cause**: workflow eseguiva i benchmark tagged dentro coverage
+  concorrente; `scripts/check.sh` li isola già correttamente in concurrency 1.
+- **Finding**: `F-037-R04` P2; budget invariato. Fix candidate separa coverage e
+  performance e aggiunge una regressione governance.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`;
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`. Production invariata.
+
+## 2026-08-17 — TASK-037 Fix 2 gate e handoff
+
+- **Exact SHA tecnico**: `e59441b824f84559cedadc9c2dfd24bbea669bde`.
+- **Fix**: coverage esclude performance; step seriale separato conserva il
+  budget 15 ms; regressione governance impedisce la ricaduta.
+- **Repeat**: cinque run seriali, `5 x 10 = 50/50 PASS`.
+- **Gate exact-SHA**: action pin, governance 9/9, format 289/0, analyze, suite
+  coverage non-performance 763/763, performance 10/10, diff e worktree clean
+  tutti `PASS`.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`;
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; prossimo ruolo reviewer read-only distinto.
+
+## 2026-08-17 — TASK-037 Re-review Fix 2
+
+- **Exact HEAD**: `f473598b21b5a5b2b339b85cb7d14ab4f4ed241b`.
+- **Esito**: `APPROVED`; `F-037-R04 CLOSED`; zero P0/P1/P2/P3.
+- **Verifica autonoma**: run fallita e root cause, 10/10 tag/lane seriale,
+  repeat 50/50, budget invariato, regressione 1/1, analyze, governance 9/9,
+  action pin, format 289/0, diff e worktree clean tutti `PASS`.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; PR Fix 2 e
+  nuova main CI sono il gate successivo autorizzato.

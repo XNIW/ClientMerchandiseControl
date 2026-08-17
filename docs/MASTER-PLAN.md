@@ -14,8 +14,8 @@
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: PR exact-SHA, CI, merge normale, main CI e
-  closeout TASK-037 secondo l'autorizzazione persistente del train
+- **Prossima azione autorizzata**: PR Fix 2 exact-SHA, merge normale, nuova main
+  CI verde e closeout TASK-037
 
 ## Repository coinvolti
 

@@ -253,3 +253,27 @@ repeat `280/280`, analyze, governance 9/9, architecture 7/7, security 635 file e
 fixture 41/41+4/4, format/diff e controllo worktree: tutti `PASS`. Il solo budget
 order backend staging resta `NOT_RUN` per assenza di fixture customer autenticata
 sicura; nessun risultato viene inferito.
+
+### Main CI post-merge e Fix 2
+
+- PR #15 CI `31988449054`, exact `e1fd5c9`: 3/3 job e ogni step `PASS`;
+- merge normale: `8b20bca954a8fb589321d8b6ef9a3ace280b3f40`;
+- main CI `31988842715`, exact merge: Android/iOS bundle `PASS`; Quality `FAIL`,
+  771 test passati e un solo failure;
+- failure riprodotta dal log: cache search extreme 25k p95 15.335 us contro
+  `<15.000`, mentre il test tagged girava insieme alla suite coverage concorrente;
+- `F-037-R04` P2: CI non isolava il gate performance come `scripts/check.sh`;
+- fix candidate: coverage `--exclude-tags performance`, performance separata
+  `--tags performance --concurrency=1`, budget invariato e regressione statica.
+
+Fix tecnico exact `e59441b824f84559cedadc9c2dfd24bbea669bde`: regressione
+workflow 1/1 e performance repeat `5 x 10 = 50/50 PASS`. Gate exact-SHA:
+action pin, governance 9/9, format 289/0, analyze, coverage non-performance
+763/763, performance seriale 10/10, diff e worktree clean tutti `PASS`.
+`F-037-R04` è candidato chiuso e viene consegnato alla re-review distinta.
+
+Re-review Fix 2 exact `f473598b21b5a5b2b339b85cb7d14ab4f4ed241b`:
+`APPROVED`, `F-037-R04 CLOSED`, zero P0/P1/P2/P3. Il reviewer ha verificato
+direttamente la run fallita, tutti i 10 tag, il lane seriale, budget invariato,
+repeat 50/50, regressione 1/1, analyze/governance/action pin/format/diff e
+worktree clean. PR e nuova main CI restano il gate successivo.

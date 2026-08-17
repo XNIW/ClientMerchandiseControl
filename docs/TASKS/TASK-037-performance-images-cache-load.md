@@ -307,6 +307,52 @@ finding tecnico e non viene promosso a PASS.
 - **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Gate successivo**: PR exact-SHA, merge normale e main post-merge CI
 
+### Main post-merge CI — finding `F-037-R04`
+
+PR #15 è stata integrata normalmente con merge `8b20bca` dopo CI PR
+`31988449054` 3/3 `PASS`. La main CI exact-SHA `31988842715` ha invece
+terminato `FAIL`: i build Android/iOS e le rispettive scansioni bundle sono
+`PASS`, ma Quality ha 771 test `PASS` e un benchmark `FAIL`.
+
+`F-037-R04` P2: `.github/workflows/ci.yml` eseguiva tutti i benchmark tagged
+`performance` dentro `flutter test --coverage`, in parallelo con l'intera suite.
+Sul runner main il p95 search 25k era 15,335 ms contro il budget 15 ms, mentre il
+gate canonico locale isola già correttamente i benchmark con
+`--tags performance --concurrency=1`. Il risultato dipende quindi dalla contesa
+del runner e non misura il budget congelato in modo ripetibile.
+
+Fix candidato: allineare CI al gate canonico con coverage che esclude il tag
+performance e uno step performance seriale separato; aggiungere una regressione
+governance che impedisca di riunire nuovamente i due carichi. Il budget resta
+15 ms e non viene allentato.
+
+### Fix 2 e handoff Re-review
+
+- exact SHA tecnico `e59441b824f84559cedadc9c2dfd24bbea669bde`;
+- workflow separa coverage `--exclude-tags performance` e performance
+  `--tags performance --concurrency=1`;
+- regressione governance 1/1 `PASS` e action pin/workflow check `PASS`;
+- performance seriale ripetuta 5 volte: `5 x 10 = 50/50 PASS`, budget 15 ms
+  invariato;
+- gate exact-SHA: format 289 file, analyze, governance 9/9, suite coverage senza
+  benchmark 763/763 e performance 10/10 tutti `PASS`; worktree pulito;
+- **Prossima fase**: REVIEW;
+- **Prossimo ruolo**: CODEX_RE_REVIEWER read-only distinto;
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW.
+
+### Re-review Fix 2 sullo SHA `f473598`
+
+`APPROVED`, zero P0/P1/P2/P3. `F-037-R04` è `CLOSED`: run main fallita,
+separazione dei lane, tag dei 10 benchmark e budget invariato sono stati
+verificati direttamente. Repeat autonomo `5 x 10 = 50/50 PASS`; search 25k p95
+nei cinque run 3,987/4,562/5,270/4,662/4,491 ms. Regressione governance 1/1,
+analyze, governance 9/9, action pin, format 289/0, diff e worktree clean sono
+`PASS`. Il delta `e59441b..f473598` è soltanto documentale.
+
+- **Esito**: APPROVED
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Gate successivo**: PR exact-SHA, merge normale e nuova main CI verde
+
 ## Chiusura
 
 - **Conferma utente**: ricevuta e condizionata a review/gate reali

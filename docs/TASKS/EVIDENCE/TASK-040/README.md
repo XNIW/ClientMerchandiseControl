@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -159,3 +159,17 @@ Snapshot di handoff:
   `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; Distribution 0, profili 0,
   App Store Connect input 0/3. Device iOS fisici offline, quindi physical smoke
   `BLOCKED`; nessuna IPA, firma, config reale, upload o production mutation.
+
+## Re-review Fix 3
+
+- exact HEAD `ed0dc628dff7f904d47d214218662d2c2ff587ed`, worktree pulito;
+- prodotto `CHANGES_REQUIRED`: 2 P3 su privacy nested e execution controls YAML;
+- security `CHANGES_REQUIRED`: 4 P3 su YAML, comment decoy, privacy nested e FIFO;
+  governance separata 1 P3 su evidence storica non qualificata; totale unificato
+  0 P0/P1/P2 e 5 P3;
+- report security sealed SHA-256
+  `5ba397a40bbfb3ce7d9690deb6a147541f611f2e7f626ef4afaffa7d72167786`;
+- `.app` symlink, JWT streaming, preventive entry cap e runtime hash confermati
+  chiusi; gate 61/61 + 7/7, 15/15 iOS, 15/15 config/CI, 8/8 architecture e
+  9/9 governance verdi ma insufficienti per i probe residui;
+- nessun upload, firma reale, profilo, config reale o mutation production.

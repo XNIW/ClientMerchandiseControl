@@ -3340,3 +3340,15 @@
   physical iOS offline; nessuna IPA, firma, TestFlight o production mutation.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 3 re-review
+
+- **Exact HEAD**: `ed0dc628dff7f904d47d214218662d2c2ff587ed`, worktree pulito.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 5 P3 unificati su execution controls
+  YAML, comment decoy architecture, privacy nested schema, FIFO bloccante ed evidence.
+- **Chiusure preservate**: `.app` symlink, JWT streaming, preventive entry cap e
+  hash primario `App.framework/App` confermati dai probe indipendenti.
+- **Security**: report sealed SHA-256
+  `5ba397a40bbfb3ce7d9690deb6a147541f611f2e7f626ef4afaffa7d72167786`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.

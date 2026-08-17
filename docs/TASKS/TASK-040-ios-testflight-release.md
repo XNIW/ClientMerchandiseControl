@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -273,6 +273,18 @@ Security report sealed SHA-256
   0 profili e 0 input App Store Connect. Device fisici iOS presenti solo offline.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 3
+
+`CHANGES_REQUIRED` su `ed0dc628dff7f904d47d214218662d2c2ff587ed`:
+0 P0/P1/P2 e 5 P3 complessivi. Restano aperti execution controls YAML non
+allowlisted (`if:false`), decoy comment nel binding architetturale, schema privacy
+nested incompleto, FIFO canonico bloccante e matrice evidence corrente non riallineata.
+Il P2 `.app` symlink e i P3 JWT/file cap della re-review precedente sono confermati
+chiusi. Security report sealed SHA-256
+`5ba397a40bbfb3ce7d9690deb6a147541f611f2e7f626ef4afaffa7d72167786`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

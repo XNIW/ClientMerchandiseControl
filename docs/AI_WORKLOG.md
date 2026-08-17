@@ -2828,3 +2828,19 @@
 - **Transizione**: `ACTIVE / FIX -> REVIEW`;
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; prossimo ruolo `CODEX_RE_REVIEWER`
   read-only distinto. Re-review e CI non sono inferite come PASS.
+
+## 2026-08-17 — TASK-037 Re-review indipendente
+
+- **Ruolo**: `CODEX_RE_REVIEWER`, read-only e distinto dal fixer.
+- **Exact HEAD**: `6a212855e737814f02291d9cbf6150c820cda151`.
+- **Finding**: `F-037-R01`, `F-037-R02` e `F-037-R03` `CLOSED`; zero
+  P0/P1/P2/P3 aperti.
+- **Gate autonomi**: loader/order 21/21, deadline 1/1, rebuild 1/1,
+  performance 10/10, repeat `20 x 14 = 280/280`, analyze, governance 9/9,
+  architecture 7/7, security 635 file + fixture 41/41 e 4/4, format/diff e
+  worktree clean tutti `PASS`.
+- **Classificazione onesta**: order backend staging resta `NOT_RUN` per assenza
+  di fixture autenticata sicura; nessun finding tecnico e nessun falso PASS.
+- **Esito**: `APPROVED`;
+  `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. L'autorizzazione
+  persistente del train consente PR, CI e merge normale dopo exact-SHA verde.

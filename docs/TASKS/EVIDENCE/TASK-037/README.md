@@ -1,7 +1,7 @@
 # Evidence TASK-037
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance
 
@@ -243,3 +243,13 @@ architecture 7/7, format/analyze, suite non-performance con coverage, repeat
 TASK-034 `5 x 14 = 70/70`, performance `10/10`, APK debug e iOS Simulator debug.
 La re-review e la CI PR/main restano correttamente il prossimo gate, non PASS
 inferiti.
+
+### Re-review indipendente
+
+Exact HEAD `6a212855e737814f02291d9cbf6150c820cda151`: `APPROVED`, zero
+P0/P1/P2/P3. `F-037-R01`–`F-037-R03` sono `CLOSED`. Il reviewer read-only ha
+rieseguito loader/order 21/21, deadline 1/1, rebuild 1/1, performance 10/10,
+repeat `280/280`, analyze, governance 9/9, architecture 7/7, security 635 file e
+fixture 41/41+4/4, format/diff e controllo worktree: tutti `PASS`. Il solo budget
+order backend staging resta `NOT_RUN` per assenza di fixture customer autenticata
+sicura; nessun risultato viene inferito.

@@ -7,12 +7,12 @@
 - **File task**: `docs/TASKS/TASK-037-performance-images-cache-load.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-037/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -284,6 +284,28 @@ finale exact-SHA.
 - **Prossimo ruolo**: CODEX_RE_REVIEWER read-only distinto
 - **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Finding fixer aperti**: 0 P0/P1/P2/P3; `F-037-R01`–`F-037-R03` candidati chiusi
+
+### Re-review indipendente sullo SHA `6a21285`
+
+`APPROVED`, con `0 P0 / 0 P1 / 0 P2 / 0 P3`:
+
+- `F-037-R01` `CLOSED`: deadline assoluta condivisa, cache entro deadline,
+  cleanup single-flight e retry deterministico verificati;
+- `F-037-R02` `CLOSED`: matrici CA/T complete e 10 benchmark con warm-up,
+  campioni, p50/p95/p99 e request count bounded;
+- `F-037-R03` `CLOSED`: oracle MRU/FIFO, cap byte separato e tracking con
+  State/Element osservabili verificati.
+
+Gate autonomi reviewer: loader/order 21/21, deadline 1/1, rebuild 1/1,
+performance 10/10, repeat lifecycle/race `20 x 14 = 280/280`, analyze,
+governance 9/9, architecture 7/7, security 635 file + fixture 41/41 e 4/4,
+format/diff e worktree clean tutti `PASS`. Il delta `6934539..6a21285` è soltanto
+documentale. Order backend staging resta correttamente `NOT_RUN`, non è un
+finding tecnico e non viene promosso a PASS.
+
+- **Esito**: APPROVED
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Gate successivo**: PR exact-SHA, merge normale e main post-merge CI
 
 ## Chiusura
 

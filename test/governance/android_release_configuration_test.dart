@@ -60,4 +60,30 @@ void main() {
       expect(values, isNot(contains('STOREFRONT_SHOP_SLUG')));
     },
   );
+
+  test('validator separa firme AAB/APK e verifica identita bundle', () {
+    final validator = File(
+      '${repositoryRoot.path}/scripts/check-android-release.sh',
+    ).readAsStringSync();
+
+    expect(validator, contains('jarsigner -J-Duser.language=en'));
+    expect(validator, contains('verify --print-certs'));
+    expect(validator, contains('check_android_bundle_manifest.dart'));
+    expect(validator, contains('AAB_APK_PAYLOAD_MISMATCH'));
+    expect(validator, contains('AAB_APK_SIGNER_MISMATCH'));
+    expect(validator, isNot(contains('/Users/')));
+  });
+
+  test('upload preflight richiede signer e service account approvati', () {
+    final validator = File(
+      '${repositoryRoot.path}/scripts/check-android-release.sh',
+    ).readAsStringSync();
+
+    expect(validator, contains('ANDROID_SIGNING_CERT_SHA256'));
+    expect(validator, contains('PLAY_SERVICE_ACCOUNT_EXPECTED_EMAIL'));
+    expect(validator, contains('PLAY_SERVICE_ACCOUNT_EXPECTED_PROJECT_ID'));
+    expect(validator, contains('PLAY_SERVICE_ACCOUNT_INVALID'));
+    expect(validator, contains('ANDROID_INTERNAL_UPLOAD_INPUTS_VALIDATED'));
+    expect(validator, isNot(contains('ANDROID_INTERNAL_UPLOAD_READY')));
+  });
 }

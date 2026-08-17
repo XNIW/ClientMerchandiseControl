@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -64,6 +64,7 @@ Snapshot di handoff:
 
 ## Handoff
 
-`CODEX_EXECUTION_COMPLETE_TO_REVIEW`; reviewer distinto deve validare diff,
-artifact e classificazione
-`TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED` prima di PR/merge.
+La review indipendente sullo SHA `2f1987ea02fe67b3f537a2de6527c705771516df`
+ha richiesto fix per tre P2 e un P3 nel validator Android, oltre al P2 tecnico
+che lasciava il contenuto compresso AAB fuori dallo scanner artifact. Nessun
+P0/P1; fase corrente `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

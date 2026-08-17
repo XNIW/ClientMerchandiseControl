@@ -47,6 +47,12 @@ forma parziale:
 | `ANDROID_KEY_ALIAS` | `keyAlias` | alias approvato |
 | `ANDROID_KEY_PASSWORD` | `keyPassword` | secret store only |
 
+La readiness di upload richiede inoltre
+`ANDROID_SIGNING_CERT_SHA256`, valorizzato dal release owner con il fingerprint
+SHA-256 pubblico del certificato di upload approvato. Il validator confronta lo
+stesso signer sull'AAB (`jarsigner`/`keytool`) e sull'APK (`apksigner`, incluse
+le firme v2-only); il valore non viene stampato.
+
 `android/key.properties`, keystore e credenziali sono ignorati da Git. Una
 configurazione parziale o un keystore assente interrompono Gradle prima della
 build. Il release build non usa mai il debug signing.
@@ -56,7 +62,9 @@ build. Il release build non usa mai il debug signing.
 Il validator controlla R8/obfuscation/optimization, resource shrinking, mapping,
 ABI, package/version, `debuggable=false`, cleartext disabilitato, policy CA di
 sistema, Maps `NOT_CONFIGURED` con flag Dart spenti, deep link canonico, guard sul
-receiver esportato, signature state, SHA-256 e secret scan degli artifact.
+receiver esportato, signature state, SHA-256 e secret scan degli artifact. Legge
+direttamente il manifest protobuf dell'AAB, confronta i `libapp.so` AAB/APK per
+ogni ABI ed estrae sia `.aab` sia `.apk` durante la scansione security.
 
 ```sh
 bash scripts/check-android-release.sh --source-only
@@ -67,14 +75,21 @@ Per richiedere esplicitamente la readiness di upload:
 ```sh
 PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
 PLAY_SERVICE_ACCOUNT_JSON_PATH=/path/owned/service-account.json \
+PLAY_SERVICE_ACCOUNT_EXPECTED_EMAIL=release-owner@owned-project.iam.gserviceaccount.com \
+PLAY_SERVICE_ACCOUNT_EXPECTED_PROJECT_ID=owned-project \
+ANDROID_SIGNING_CERT_SHA256=<approved-public-sha256> \
 bash scripts/check-android-release.sh \
   --aab build/app/outputs/bundle/release/app-release.aab \
   --apk build/app/outputs/flutter-apk/app-release.apk \
   --require-upload-ready
 ```
 
-Il comando non esegue l'upload. Non stampa password, chiavi, alias, path di
-credential o contenuti del service account.
+Il comando non esegue l'upload. `ANDROID_INTERNAL_UPLOAD_INPUTS_VALIDATED`
+significa soltanto che artifact, signer e forma/identità attesa della credenziale
+sono coerenti; accesso reale a package e track resta da verificare con Play e non
+è inferito dal file locale. Il comando non stampa password, chiavi, alias, path
+di credential o contenuti del service account. `/dev/null`, JSON malformato,
+account/progetto diversi e fingerprint non corrispondente falliscono chiusi.
 
 ## Internal testing activation checklist
 
@@ -88,8 +103,10 @@ Owner: release/store owner.
 5. fornire autorizzazione esplicita al solo track Internal e credenziale scoped,
    oppure caricare manualmente l'AAB firmato;
 6. rieseguire il validator con `--require-upload-ready`;
-7. eseguire smoke Internal senza acquisti reali e registrare release ID/versione;
-8. non promuovere alcun track oltre Internal in questo release train.
+7. verificare read-only che service account, package e track Internal siano
+   effettivamente accessibili, quindi eseguire l'upload soltanto se autorizzato;
+8. eseguire smoke Internal senza acquisti reali e registrare release ID/versione;
+9. non promuovere alcun track oltre Internal in questo release train.
 
 ## Capability esterne ancora chiuse
 

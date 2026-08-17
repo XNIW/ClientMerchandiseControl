@@ -2976,3 +2976,18 @@
   invariata.
 - **Transizione**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`; prossimo ruolo reviewer
   read-only distinto.
+
+## 2026-08-17 — TASK-039 review indipendente
+
+- **Exact SHA**: `2f1987ea02fe67b3f537a2de6527c705771516df`;
+  worktree pulito, reviewer read-only distinto.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 3 P2, 1 P3.
+- **Finding**: firma APK v2-only verificata impropriamente con `jarsigner`;
+  upload readiness senza fingerprint approvato né service-account JSON/identity
+  verificati; identità e manifest AAB non letti direttamente; resolver SDK con
+  path workstation hardcoded.
+- **Security gate**: un ulteriore P2 tecnico dimostra che `.aab` era scansionato
+  come blob compresso invece che come archive; una fixture deflated vietata
+  produceva exit 0. L'AAB corrente estratto manualmente è risultato pulito.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; production e Play invariati.

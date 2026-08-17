@@ -130,6 +130,11 @@ jobs:
           bash scripts/check-android-release.sh
           --aab build/app/outputs/bundle/release/app-release.aab
           --apk build/app/outputs/flutter-apk/app-release.apk
+      - name: Validate Android v2-only signature boundary
+        run: >-
+          bash scripts/test-android-release-signature.sh
+          --aab build/app/outputs/bundle/release/app-release.aab
+          --apk build/app/outputs/flutter-apk/app-release.apk
 
   ios-build:
     name: iOS Simulator debug build

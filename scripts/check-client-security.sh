@@ -482,7 +482,7 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
     cmc_security_scan_root="${cmc_security_artifact}"
     cmc_security_archive_payload=''
     case "${cmc_security_artifact}" in
-      *.apk | *.zip)
+      *.aab | *.apk | *.zip)
         cmc_security_scan_root="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}"
         cmc_security_archive_payload="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.payload"
         mkdir -p "${cmc_security_scan_root}"

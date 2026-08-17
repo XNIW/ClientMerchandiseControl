@@ -8,14 +8,15 @@
 - **Task attivo**: TASK-039
 - **File task**: docs/TASKS/TASK-039-android-internal-testing-release.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: review indipendente TASK-039 sul release
-  candidate Android unsigned; nessun upload senza signing e credenziali Play reali
+- **Prossima azione autorizzata**: fix TASK-039 dei finding release validator,
+  poi re-review indipendente exact-SHA; nessun upload senza signing e credenziali
+  Play reali
 
 ## Repository coinvolti
 

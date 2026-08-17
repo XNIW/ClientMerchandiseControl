@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -131,7 +131,27 @@ Gate executor:
 
 ## Review — `CODEX_REVIEWER`
 
-`NOT_RUN`.
+- exact SHA `2f1987ea02fe67b3f537a2de6527c705771516df`, reviewer
+  read-only distinto, worktree pulito;
+- esito `CHANGES_REQUIRED`: 0 P0, 0 P1, 3 P2, 1 P3;
+- `F-039-R01` P2: `jarsigner` applicato all'APK rifiuta un APK valido
+  firmato v2-only;
+- `F-039-R02` P2: la readiness accetta un signer non confrontato con un
+  fingerprint approvato e un path credenziale non-file/non-JSON;
+- `F-039-R03` P2: package/version/manifest sono verificati soltanto sull'APK,
+  non direttamente sull'AAB destinato a Play;
+- `F-039-R04` P3: il resolver `apkanalyzer` contiene un path workstation
+  hardcoded e non usa i boundary SDK portabili;
+- review security diff-scoped: l'AAB è passato allo scanner artifact ma non
+  decompresso, quindi una fixture secret-shaped compressa produce un falso
+  negativo; classificato P2 tecnico sul gate release.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Fix — `CODEX_FIXER`
+
+In corso, limitato ai finding `F-039-R01`…`F-039-R04` e al falso negativo
+security dell'archive `.aab`.
 
 ## Chiusura
 

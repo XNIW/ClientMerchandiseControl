@@ -348,6 +348,34 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_bundle}" \
   --artifact "${cmc_fixture_bundle}/artifact"
 
+cmc_fixture_aab_secret="$(cmc_fixture_prepare aab-deflated-secret)"
+mkdir -p \
+  "${cmc_fixture_aab_secret}/artifact/input/base/assets/flutter_assets"
+printf '%s\n' \
+  "${cmc_fixture_google_value}" \
+  >"${cmc_fixture_aab_secret}/artifact/input/base/assets/flutter_assets/config.bin"
+(
+  cd "${cmc_fixture_aab_secret}/artifact/input"
+  zip -q -9 -r ../candidate.aab .
+)
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_aab_secret}" \
+  --artifact "${cmc_fixture_aab_secret}/artifact/candidate.aab"
+
+cmc_fixture_aab_public="$(cmc_fixture_prepare aab-deflated-public)"
+mkdir -p \
+  "${cmc_fixture_aab_public}/artifact/input/base/assets/flutter_assets"
+printf '%s\n' \
+  'release fixture without privileged configuration' \
+  >"${cmc_fixture_aab_public}/artifact/input/base/assets/flutter_assets/config.bin"
+(
+  cd "${cmc_fixture_aab_public}/artifact/input"
+  zip -q -9 -r ../candidate.aab .
+)
+cmc_fixture_expect_acceptance \
+  "${cmc_fixture_aab_public}" \
+  --artifact "${cmc_fixture_aab_public}/artifact/candidate.aab"
+
 cmc_fixture_maps_near_miss="$(
   cmc_fixture_prepare bundle-maps-sdk-near-miss
 )"

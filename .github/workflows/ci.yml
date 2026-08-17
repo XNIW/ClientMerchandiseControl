@@ -160,3 +160,44 @@ jobs:
         run: >-
           bash scripts/check-client-security.sh
           --artifact build/ios/iphonesimulator/Runner.app
+
+  ios-release:
+    name: iOS release candidate
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Validate iOS release source
+        run: bash scripts/check-ios-release.sh --source-only
+      - name: Build production-like unsigned iOS app
+        run: >-
+          flutter build ios --release --no-codesign
+          --dart-define-from-file=config/app_config.production.release.json
+      - name: Archive production-like unsigned iOS app
+        run: >-
+          xcodebuild archive
+          -workspace ios/Runner.xcworkspace
+          -scheme Runner
+          -configuration Release
+          -destination 'generic/platform=iOS'
+          -archivePath build/ios/archive/Runner.xcarchive
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_REQUIRED=NO
+          COMPILER_INDEX_STORE_ENABLE=NO
+      - name: Validate iOS release candidate
+        run: >-
+          bash scripts/check-ios-release.sh
+          --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
+          --archive build/ios/archive/Runner.xcarchive

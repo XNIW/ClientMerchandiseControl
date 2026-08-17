@@ -41,6 +41,7 @@ cmc_fixture_maps_sdk_quota='DeductQuota'
 cmc_fixture_maps_sdk_platform='unknown_ios'
 cmc_fixture_maps_sdk_service='mapsmobilesdks-pa.googleapis.com'
 cmc_fixture_maps_sdk_places='places.googleapis.com'
+cmc_fixture_maps_sdk_linker_suffix='google.internal.maps'
 cmc_fixture_jwt_header='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
 cmc_fixture_jwt_payload='eyJyb2xlIjoic2VydmljZV9yb2xlIn0'
 cmc_fixture_jwt_value="${cmc_fixture_jwt_header}.${cmc_fixture_jwt_payload}.${cmc_fixture_token_body}"
@@ -769,6 +770,22 @@ printf '%s\0%s\0%s\0%s\0%s\0%s\n' \
 cmc_fixture_expect_acceptance \
   "${cmc_fixture_maps_sdk}" \
   --artifact "${cmc_fixture_maps_sdk}/artifact"
+
+cmc_fixture_maps_sdk_linker="$(
+  cmc_fixture_prepare maps-sdk-public-identifier-linker-variant
+)"
+mkdir -p "${cmc_fixture_maps_sdk_linker}/artifact"
+printf '%s\0%s\0%s\0%s\0%s\0%s\n' \
+  "${cmc_fixture_maps_sdk_prefix}" \
+  "${cmc_fixture_maps_sdk_quota}" \
+  "${cmc_fixture_maps_value}" \
+  "${cmc_fixture_maps_sdk_platform}" \
+  "${cmc_fixture_maps_sdk_service}" \
+  "${cmc_fixture_maps_sdk_linker_suffix}" \
+  >"${cmc_fixture_maps_sdk_linker}/artifact/bundle.bin"
+cmc_fixture_expect_acceptance \
+  "${cmc_fixture_maps_sdk_linker}" \
+  --artifact "${cmc_fixture_maps_sdk_linker}/artifact"
 
 cmc_fixture_kernel_fences="$(cmc_fixture_prepare kernel-key-parser-constants)"
 mkdir -p "${cmc_fixture_kernel_fences}/artifact"

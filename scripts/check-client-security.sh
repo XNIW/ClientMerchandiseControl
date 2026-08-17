@@ -247,10 +247,13 @@ cmc_security_file_has_prohibited_artifact_value() {
       |GOCSPX-[0-9A-Za-z_-]{20,}
     )/x;
     my $maps_prefix = "X-Ios-Bundle-Identifier\0DeductQuota\0";
+    # Il linker può collocare dopo endpoint Maps una costante Places oppure
+    # un simbolo `google.internal.*`. Il confine stabile termina al NUL di Maps;
+    # fingerprint e prefisso restano entrambi obbligatori.
     my $maps_suffix =
-      "\0unknown_ios\0mapsmobilesdks-pa.googleapis.com\0places.googleapis.com";
+      "\0unknown_ios\0mapsmobilesdks-pa.googleapis.com\0";
     my %maps_identifier_sha256 = map { $_ => 1 } (
-      # Google Maps iOS 10.8.0; solo fingerprint, mai il valore.
+      # Identificatore pubblico del Google Maps iOS SDK locked; solo fingerprint.
       "13a99f83ec8ee2c628dfdfbfc8d9d0c9600c7fa6cdf4b1f8d558ea7f85006da3",
       # Sentinel sintetico usato esclusivamente dalla fixture positiva.
       "b62246d9aec15541f0d79cbfbfac795626ae348908d2c86f1ab31b5ee4a707b2",

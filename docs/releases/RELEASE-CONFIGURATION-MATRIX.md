@@ -39,7 +39,8 @@ Le define runtime correnti sono `APP_ENV`, `SUPABASE_URL`,
 `SUPABASE_PUBLISHABLE_KEY`, `AUTH_REDIRECT_URI`, `GOOGLE_AUTH_ENABLED`,
 `STOREFRONT_SHOP_SLUG`, `DELIVERY_MAPS_ENABLED` e
 `DELIVERY_MAPS_NATIVE_CONFIGURED`; production richiede inoltre
-`RELEASE_CONFIG_SHA256`, digest non secret del file esterno fornito allo stesso build.
+`RELEASE_CONFIG_SHA256`, digest non secret della configurazione semantica canonica
+fornita allo stesso build e attestata nel runtime Dart dell'artifact.
 Android riceve la key Maps esclusivamente da
 `ANDROID_GOOGLE_MAPS_API_KEY`/`local.properties`; iOS da una xcconfig non versionata che
 sovrascrive il valore fail-closed `NOT_CONFIGURED`.

@@ -33,7 +33,7 @@ fail-closed e TASK-040 lega la configurazione production al release artifact:
 | `AUTH_REDIRECT_URI` | stringa compile-time | sentinel HTTPS canonico e non instradabile; non abilita callback native |
 | `GOOGLE_AUTH_ENABLED` | stringa compile-time booleana | dopo trim accetta soltanto i literal lowercase `true` o `false`; un valore assente è ammesso soltanto in development e vale `false` |
 | `STOREFRONT_SHOP_SLUG` | stringa compile-time | slug pubblico lowercase di 3–63 caratteri (`a-z`, `0-9`, `-`), assente in development e obbligatorio in staging/production |
-| `RELEASE_CONFIG_SHA256` | SHA-256 lowercase compile-time | obbligatorio soltanto in production; digest del file JSON esterno completo usato dallo stesso build, verificato anche nel release artifact |
+| `RELEASE_CONFIG_SHA256` | SHA-256 lowercase compile-time | obbligatorio soltanto in production; digest della configurazione semantica canonica usata dallo stesso build, verificato con marker univoco nel runtime Dart dell'artifact |
 
 Non fanno parte del contratto project ref, `shop_id` UUID, Google client ID/secret, account di
 test, timeout, log level, endpoint health o altri flag. L'aggiunta di un input richiede

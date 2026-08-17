@@ -3293,3 +3293,18 @@
   `e76c6beab23628a979cf20284253e85d7c6afbd1dd5280f629976a4e06ba6d88`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; repository e sistemi esterni invariati.
+
+## 2026-08-17 — TASK-040 Fix 2
+
+- **Technical SHA**: runtime `d4a9edc`, governance gate `ae1e3c7`;
+  firma/archive, attestation semantica condivisa, scanner CMS/wide/chunk/aggregate,
+  privacy e CI governance corretti con regressioni.
+- **Gate mirati**: config/governance 39/39, fixture iOS 13/13, security 60/60
+  negative + 7/7 positive, source 680, artifact 207, analyze e governance 9/9.
+- **Attestazione reale**: build production sintetico esterno senza credenziali reali
+  `PASS`, con un solo marker completo in `Frameworks/App.framework/App`; temp rimosso.
+- **Artifact**: clean release/archive canonico 201.344 KiB, app 36.724 KiB,
+  App.framework SHA-256 `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  Runner/dSYM UUID `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: signing `UNSIGNED`; upload gate respinto su Distribution assente;
+  nessuna IPA, credential, config production reale, TestFlight o production mutati.

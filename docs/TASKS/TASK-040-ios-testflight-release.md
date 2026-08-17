@@ -197,6 +197,32 @@ Security report sealed SHA-256
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
+### Fix 2
+
+- firma Mach-O presente ma illeggibile/invalida è sempre un errore; l'archive accetta
+  soltanto `ApplicationPath=Applications/Runner.app` e una sola app canonica;
+- `ReleaseConfigAttestation` è ora l'unica implementazione di parser JSON flat,
+  validazione key/JWT/URL/callback/flag e digest semantico condivisa da tool e app;
+  production verifica digest e marker compilato prima del bootstrap;
+- upload readiness cerca esattamente un marker completo nel runtime Dart
+  `Frameworks/App.framework/App`, non nel wrapper nativo né come digest raw;
+- CMS decoded, JWT/PEM ASCII e UTF-16, boundary di chunk, massimo 4.096 file e 512 MiB
+  aggregati sono fail-closed; ogni privacy manifest previsto viene anche validato;
+- la CI governance isola il job artifact reale e le fixture coprono job assente/
+  duplicato, archive alterato, signature SuperBlob corrotta, profilo decoded, manifest
+  invalido e divergenze runtime;
+- regressioni: config/governance 39/39, fixture iOS 13/13, security 60/60 negative
+  e 7/7 positive, analyze e governance release train 9/9 `PASS`;
+- build production sintetico senza credenziali reali `PASS` con un solo marker nel
+  runtime Dart; clean build/archive canonico sullo SHA tecnico `d4a9edc` `PASS`;
+- candidate finale unsigned: archive 201.344 KiB, app 36.724 KiB/207 file,
+  8 privacy manifest, 7 dSYM, App.framework SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  Runner/dSYM UUID `BECE880B-91F5-36D2-AD95-F366FB669F41`;
+- upload gate ancora correttamente respinto da
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna firma reale, IPA, credenziale,
+  configurazione production o upload è stata creata.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

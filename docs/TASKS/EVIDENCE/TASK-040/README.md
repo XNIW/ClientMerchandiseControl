@@ -100,3 +100,23 @@ Snapshot di handoff:
 - firma corrotta, archive `ApplicationPath`, digest-esca/parità runtime,
   cut/CMS/UTF-16 JWT+PEM, gate CI/privacy e bound aggregate/JWT da correggere;
 - nessun upload, firma reale, profilo reale o mutazione production.
+
+## Gate Fix 2
+
+- runtime fix SHA `d4a9edc`, gate governance fix SHA `ae1e3c7`; parser/attestation semantica condivisa fra tool e
+  `AppConfig`, firma invalida fail-closed, archive app-set esatto e marker verificato
+  nel Mach-O Dart `Frameworks/App.framework/App`;
+- test config/governance 39/39, fixture iOS 13/13, scanner fixture 60/60 negative
+  + 7/7 positive, source 680, artifact 207, analyze e governance 9/9 `PASS`;
+- build production sintetico esterno `PASS`: file canonico bounded, nessun valore reale,
+  un solo marker completo nel runtime Dart; file temporaneo rimosso e non versionato;
+- clean release/archive canonico dallo SHA tecnico `d4a9edc`: candidate unsigned
+  `PASS`, archive 201.344 KiB, app 36.724 KiB/207 file, 8 privacy manifest e 7 dSYM;
+- Runner SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`;
+  App.framework SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`;
+  Info.plist `8888ca9f64b9c8f60b6a4a18079131c0db551f0630a6b539ee93b6b9980b3fb8`,
+  privacy `5dd288d8eda8adac284ea005bb82585023eb82ae5302e26ffc27979a41ba40cd`;
+- Runner/dSYM UUID `BECE880B-91F5-36D2-AD95-F366FB669F41`; signing `UNSIGNED`,
+  upload readiness `BLOCKED_DISTRIBUTION_SIGNATURE`; nessuna IPA/upload/production.

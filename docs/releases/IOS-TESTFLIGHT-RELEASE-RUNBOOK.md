@@ -66,8 +66,9 @@ APP_STORE_CONNECT_ISSUER_ID
 APP_STORE_CONNECT_API_KEY_PATH
 ```
 
-Il build firmato deve usare lo stesso file runtime che verrà attestato. Calcolare il
-fingerprint senza stampare i valori e passarlo insieme allo stesso file:
+Il build firmato deve usare lo stesso file runtime che verrà attestato. Il path deve
+essere canonico, un file regolare non-symlink di massimo 64 KiB. Calcolare il digest
+semantico senza stampare i valori e passarlo insieme allo stesso file:
 
 ```bash
 export IOS_RELEASE_RUNTIME_CONFIG_PATH=/path/esterno/production.json
@@ -78,10 +79,13 @@ flutter build ios --release \
   --dart-define="RELEASE_CONFIG_SHA256=${IOS_RELEASE_CONFIG_SHA256}"
 ```
 
-`AppConfig` rifiuta production senza fingerprint SHA-256. Il validator ricalcola il
-digest del file esterno e richiede che lo stesso valore sia presente nel Mach-O;
-un file diverso, incompleto o una shell compilata con il template fail-closed non
-può raggiungere upload-ready.
+`AppConfig` e il validator condividono parser, set esatto di otto chiavi e regole di
+canonicalizzazione. Il digest SHA-256 è calcolato sulla rappresentazione semantica
+canonica, non sui byte o sull'ordine del JSON. `AppConfig` rifiuta production se il
+digest non corrisponde ai valori realmente compilati. Il validator richiede esattamente
+un marker completo `CMC_RELEASE_CONFIG_ATTESTATION_V1:<digest>` nel Mach-O Dart
+`Frameworks/App.framework/App`; un digest-esca, un file diverso/incompleto o la shell
+compilata con il template fail-closed non può raggiungere upload-ready.
 
 Dopo un archive firmato, eseguire prima:
 

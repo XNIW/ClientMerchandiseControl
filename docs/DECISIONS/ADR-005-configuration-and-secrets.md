@@ -75,6 +75,7 @@ categoria; route customer-sensitive come ordine e notifica falliscono chiuso.
 Il contratto passa a
 [`CMC-CLIENT-CONFIG 1.3.0`](../ARCHITECTURE/ENVIRONMENT-STRATEGY.md) aggiungendo
 `RELEASE_CONFIG_SHA256`, obbligatorio soltanto in production. È il digest non secret
-del file esterno completo fornito allo stesso build; l'app lo valida e il gate iOS
-richiede il digest nel Mach-O prima di dichiarare upload-ready. Il template versionato
-resta intenzionalmente incompleto e non può produrre una app production avviabile.
+della configurazione semantica canonica fornita allo stesso build: tool e app condividono
+parser, set esatto di chiavi e validatori. Il gate iOS richiede un marker completo e
+univoco nel Mach-O Dart prima di dichiarare upload-ready. Il template versionato resta
+intenzionalmente incompleto e non può produrre una app production avviabile.

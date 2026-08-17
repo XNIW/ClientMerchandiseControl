@@ -950,8 +950,17 @@ cmc_expect_fail readme-raw-html-state "${cmc_case}" \
   'README contiene commenti, fence o heading indentati non ammessi, oppure HTML'
 
 cmc_case="$(cmc_fixture readme-summary-mismatch)"
-perl -0pi.bak -e '
-  s/^(TASK-040 .*`ACTIVE \/ )FIX(`:)/${1}REVIEW$2/m
+cmc_summary_phase="$(
+  sed -nE 's/^TASK-040 .*`ACTIVE \/ (FIX|REVIEW)`:.*$/\1/p' \
+    "${cmc_case}/README.md"
+)"
+[[ "${cmc_summary_phase}" == 'FIX' ]] && \
+  cmc_wrong_summary_phase='REVIEW' || cmc_wrong_summary_phase='FIX'
+CMC_SUMMARY_PHASE="${cmc_summary_phase}" \
+  CMC_WRONG_SUMMARY_PHASE="${cmc_wrong_summary_phase}" \
+  perl -0pi.bak -e '
+  my $source = quotemeta $ENV{CMC_SUMMARY_PHASE};
+  s/^(TASK-040 .*`ACTIVE \/ )$source(`:)/${1}$ENV{CMC_WRONG_SUMMARY_PHASE}$2/m
     or die "README summary missing\n";
 ' "${cmc_case}/README.md"
 rm "${cmc_case}/README.md.bak"

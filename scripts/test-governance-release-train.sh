@@ -378,11 +378,23 @@ cmc_expect_fail validated-file-missing "${cmc_case}" \
   'TASK-005 validato richiede esattamente un file task'
 
 cmc_case="$(cmc_fixture stale-worklog-tail)"
+cmc_current_indicator="$(
+  sed -n 's/^- \*\*Indicatore\*\*: //p' \
+    "${cmc_case}/docs/MASTER-PLAN.md" | head -n 1
+)"
+case "${cmc_current_indicator}" in
+  CODEX_FIX_COMPLETE_TO_RE_REVIEW)
+    cmc_stale_indicator='CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX'
+    ;;
+  *)
+    cmc_stale_indicator='CODEX_FIX_COMPLETE_TO_RE_REVIEW'
+    ;;
+esac
 printf '%s\n' \
   '' \
   '## 2026-08-17 — TASK-040 stale synthetic tail' \
   '' \
-  '- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.' \
+  "- **Handoff**: \`${cmc_stale_indicator}\`." \
   >>"${cmc_case}/docs/AI_WORKLOG.md"
 cmc_expect_fail stale-worklog-tail "${cmc_case}" \
   'Worklog corrente incoerente con handoff'

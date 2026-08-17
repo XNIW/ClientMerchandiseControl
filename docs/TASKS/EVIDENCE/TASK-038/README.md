@@ -1,6 +1,6 @@
 # Evidence TASK-038
 
-Snapshot corrente:
+Snapshot di handoff:
 `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance

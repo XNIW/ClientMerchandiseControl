@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
+- **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -639,6 +639,25 @@ report prodotto sealed SHA-256
 - TestFlight, signing, credenziali e production invariati.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 12
+
+- exact technical SHA: `60e3125ad1055df71c6e04dfb783728f7ad80085`;
+- `F-040-RR11-GOV-MARKDOWN-01` chiuso: manifest/matrici richiedono righe
+  Markdown/colonne/indentazione esatte, i documenti rifiutano comment/fence e
+  il rapporto iOS deve essere completo e nonzero;
+- `F-040-RR11-GOV-HISTORY-01` chiuso: ciclo task ancorato alla history Git e
+  correlato a gate corrente, T-07 e ultimo heading globale del worklog;
+- `F-040-RR11-GOV-SHA-01` chiuso: SHA task/manifest/artifact esistono, sono
+  ancestor e in REVIEW il task coincide con l'ultimo commit tecnico;
+- worklog richiede esattamente uno SHA e un handoff strutturati e correlati;
+- fixture governance 44/44 coprono i PoC originali e sibling compositivi;
+- `scripts/check.sh` exact-SHA exit 0: 801/801, performance 10/10, repeat
+  70/70, security 681 + 61/61 + 7/7, architecture 17/17, format 301/0,
+  analyze e build debug Android/iOS `PASS`;
+- nessun delta runtime/archive/signing; TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

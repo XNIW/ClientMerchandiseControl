@@ -3634,3 +3634,18 @@
 - **Boundary**: gate completi verdi, ma insufficienti ai probe; TestFlight,
   signing, credenziali e production invariati.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 12 e handoff
+
+- **Technical SHA**: `60e3125ad1055df71c6e04dfb783728f7ad80085`.
+- **Fix**: semantica Markdown/colonne/indentazione bounded, zero comment/fence,
+  conteggi completi, ciclo Fix ancorato a Git e worklog globale strutturato.
+- **Lineage**: SHA task/manifest/artifact risolti, ancestor e ultimo commit
+  tecnico in REVIEW; gate/T-07/worklog correlati allo stesso ciclo.
+- **Regressioni**: governance 44/44 sui PoC originali e sibling compositivi.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security
+  681 + 61/61 + 7/7, architecture 17/17, format 301/0, analyze e build debug
+  Android/iOS `PASS`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

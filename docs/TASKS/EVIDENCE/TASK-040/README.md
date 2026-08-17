@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 11 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 12 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,12 +64,12 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 11
+## Gate executor corrente — Fix 12
 
 - `scripts/check.sh`: exit 0;
 - non-performance 801/801; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
-- governance 26/26; architecture negative 17/17; localization/telemetry/action pin PASS;
+- governance 44/44; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 681; artifact 207; fixture negative 61/61, positive 7/7;
 - validator iOS avversariale 29/29, config/governance mirati 44/44;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
@@ -474,3 +474,20 @@ Snapshot di handoff:
 - report security sealed SHA-256
   `45cd14b5ad3a76bb10e1741331ea6ae7675b749f6248821e4c5f77662cc2c3b5`;
 - TestFlight, signing, credenziali e production invariati.
+
+## Gate Fix 12
+
+- exact technical SHA `60e3125ad1055df71c6e04dfb783728f7ad80085`;
+- parser Markdown bounded: forma tabellare/colonne/indentazione esatte, zero
+  comment/fence/heading indentati e rapporti fixture completi `passed == total > 0`;
+- chronology ancorata al ciclo Fix derivato dalla history Git; task, manifest,
+  gate corrente, T-07 e ultimo worklog condividono ciclo e SHA;
+- SHA task/manifest/artifact risolti univocamente, ancestor e ultimo commit
+  tecnico in REVIEW; worklog globale terminale con SHA/handoff strutturati;
+- fixture governance 44/44 includono prose/blockquote, code block, extra column,
+  comment/fence, conteggio parziale, tail globale, SHA assente/stale/inesistente
+  e rollback del ciclo;
+- `scripts/check.sh` exact-SHA: 801/801, performance 10/10, repeat 70/70,
+  security 681 + 61/61 + 7/7, architecture 17/17, format 301/0, analyze e
+  build debug Android/iOS `PASS`;
+- artifact iOS e boundary esterni invariati; upload TestFlight `NOT_RUN`.

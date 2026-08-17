@@ -45,48 +45,56 @@ void main() {
     );
   });
 
-  test('timezone è validata e memorizzata tra lista e dettaglio', () async {
-    await repository.listOrders(shopSlug: orderTestShop);
-    port.response = orderTestDetailPayload();
-    final detail = await repository.loadOrder(
-      shopSlug: orderTestShop,
-      orderId: orderTestOrder,
-    );
+  test(
+    'timezone atomica è validata e aggiornata tra lista e dettaglio',
+    () async {
+      final page = await repository.listOrders(shopSlug: orderTestShop);
+      port.response = {...orderTestDetailPayload(), 'timeZone': 'UTC'};
+      final detail = await repository.loadOrder(
+        shopSlug: orderTestShop,
+        orderId: orderTestOrder,
+      );
 
-    expect(detail.timeZone, 'America/Santiago');
-    expect(port.timeZoneCalls, 1);
+      expect(page.orders.single.timeZone, 'America/Santiago');
+      expect(detail.timeZone, 'UTC');
+      expect(port.calls, 2);
 
-    final invalidPort = FakeCustomerOrderPort()
-      ..response = orderTestListPayload()
-      ..timeZoneResponse = {
-        ...orderTestTimeZonePayload(),
-        'databaseUrl': 'postgres://internal.invalid',
-      };
-    await expectLater(
-      SupabaseCustomerOrderRepository(
-        port: invalidPort,
-      ).listOrders(shopSlug: orderTestShop),
-      throwsA(_failure(CustomerOrderFailureKind.unexpected)),
-    );
-  });
+      final invalidPort = FakeCustomerOrderPort()
+        ..response = {...orderTestListPayload(), 'timeZone': 'Mars/Olympus'};
+      await expectLater(
+        SupabaseCustomerOrderRepository(
+          port: invalidPort,
+        ).listOrders(shopSlug: orderTestShop),
+        throwsA(_failure(CustomerOrderFailureKind.unexpected)),
+      );
+    },
+  );
 
-  test('letture concorrenti condividono una sola richiesta timezone', () async {
-    port.timeZoneBarrier = Completer<void>();
+  test(
+    'letture concorrenti mantengono timezone del proprio snapshot',
+    () async {
+      final firstResponse = Completer<Object?>();
+      final secondResponse = Completer<Object?>();
+      port.responseSequence.addAll([
+        firstResponse.future,
+        secondResponse.future,
+      ]);
 
-    final first = repository.listOrders(shopSlug: orderTestShop);
-    final second = repository.listOrders(shopSlug: orderTestShop);
-    await Future<void>.delayed(Duration.zero);
-    expect(port.calls, 3);
-    expect(port.timeZoneCalls, 1);
-    port.timeZoneBarrier!.complete();
+      final first = repository.listOrders(shopSlug: orderTestShop);
+      final second = repository.listOrders(shopSlug: orderTestShop);
+      await Future<void>.delayed(Duration.zero);
+      expect(port.calls, 2);
+      secondResponse.complete({...orderTestListPayload(), 'timeZone': 'UTC'});
+      firstResponse.complete(orderTestListPayload());
 
-    final pages = await Future.wait([first, second]);
-    expect(
-      pages.every((page) => page.orders.single.timeZone == 'America/Santiago'),
-      isTrue,
-    );
-    expect(port.timeZoneCalls, 1);
-  });
+      final pages = await Future.wait([first, second]);
+      expect(pages.map((page) => page.orders.single.timeZone), [
+        'America/Santiago',
+        'UTC',
+      ]);
+      expect(port.calls, 2);
+    },
+  );
 
   test(
     'paginazione verifica ordine deterministico e identità cursor',

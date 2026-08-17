@@ -1,7 +1,7 @@
 # Evidence TASK-036
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -96,3 +96,24 @@ un cliente con device fuori dal fuso del negozio vedeva orari business errati. I
 - staging migration/smoke: intenzionalmente `NOT_RUN` prima di review, CI e merge;
 - P0/P1/P2 noti all'handoff Execution: zero;
 - prossima fase: review indipendente read-only Client/Admin.
+
+## Review indipendente
+
+- revision set: Client `cfa9194`, Admin `7ca6d32`, entrambi puliti;
+- esito: `CHANGES_REQUIRED`, zero P0/P1, un P2, zero P3;
+- `F-036-R01`: la RPC timezone separata e la cache process-lifetime rendevano
+  possibile associare un fuso stale o non atomico agli snapshot checkout/order;
+- reviewer gate: Client 853/853 e mirati 151/151; Android/iOS smoke 1/1 ciascuno;
+  Admin 47 file/2532, task 10/10, lint e privilege probe verdi.
+
+## Fix F-036-R01
+
+- timezone integrato negli stessi payload pubblici
+  `storefront_fulfillment_options_v1`, `customer_order_list_v1`,
+  `customer_order_detail_v1` e `customer_order_cancel_v1`;
+- implementazioni delegate spostate in `app_private`, grant API rimossi e wrapper
+  con firme/timeout/volatility/least-authority preservati;
+- rimosse seconda RPC e cache client; validazione IANA bounded sul campo atomico;
+- regressioni cambio timezone e completion concorrente fuori ordine;
+- reset locale 139 migration `PASS`; pgTAP mirati 3 file/99 assertion `PASS`;
+  lint DB zero; Client mirato 150/150 `PASS`.

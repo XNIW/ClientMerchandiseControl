@@ -2688,3 +2688,18 @@
   corretto il path ambientale al checkout Win7POS read-only canonico.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review
   indipendente distinta obbligatoria prima di PR/CI/merge.
+
+## 2026-08-16 — TASK-036 Review `CHANGES_REQUIRED` e Fix F-036-R01
+
+- **Review**: revision set Client `cfa9194` / Admin `7ca6d32`; zero P0/P1, un P2,
+  zero P3. `F-036-R01` ha riprodotto timezone stale/non atomico per RPC separata e
+  cache process-lifetime.
+- **Fix**: le quattro RPC commerce canoniche includono ora timezone nello stesso
+  snapshot; implementazioni delegate in `app_private` senza grant API, firme e
+  policy pubbliche preservate. Il client non usa più seconda RPC o cache timezone.
+- **Regressioni**: cambio Santiago→UTC e richieste concorrenti completate fuori
+  ordine restano correlate al proprio payload.
+- **Gate iniziali**: reset 139 migration, pgTAP mirati 3 file/99 assertion, lint DB
+  zero e Client checkout/order/tracking 150/150, tutti `PASS`.
+- **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; gate
+  completi ed exact-SHA richiesti prima della re-review.

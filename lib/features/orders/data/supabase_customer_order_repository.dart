@@ -31,8 +31,6 @@ final class SupabaseCustomerOrderRepository implements CustomerOrderRepository {
 
   final CustomerOrderPort port;
   final Duration requestTimeout;
-  final Map<String, String> _timeZones = {};
-  final Map<String, Future<String>> _timeZoneLoads = {};
 
   @override
   Future<CustomerOrderPage> listOrders({
@@ -51,20 +49,17 @@ final class SupabaseCustomerOrderRepository implements CustomerOrderRepository {
         _requireInputUuid(cursor.beforeOrderId);
         _requireInputDate(cursor.beforePlacedAt);
       }
-      final raw = await port.invoke('customer_order_list_v1', {
-        'p_shop_slug': shopSlug,
-        'p_limit': limit,
-        'p_before_placed_at': cursor?.beforePlacedAt.toUtc().toIso8601String(),
-        'p_before_order_id': cursor?.beforeOrderId,
-      });
-      final timeZone = raw is Map && raw['status'] == 'ok'
-          ? await _loadTimeZone(shopSlug)
-          : null;
       return _parseList(
-        raw,
+        await port.invoke('customer_order_list_v1', {
+          'p_shop_slug': shopSlug,
+          'p_limit': limit,
+          'p_before_placed_at': cursor?.beforePlacedAt
+              .toUtc()
+              .toIso8601String(),
+          'p_before_order_id': cursor?.beforeOrderId,
+        }),
         expectedShopSlug: shopSlug,
         maximum: limit,
-        timeZone: timeZone,
       );
     });
   }
@@ -77,18 +72,13 @@ final class SupabaseCustomerOrderRepository implements CustomerOrderRepository {
     return _guard(() async {
       _requireInputShopSlug(shopSlug);
       _requireInputUuid(orderId);
-      final raw = await port.invoke('customer_order_detail_v1', {
-        'p_shop_slug': shopSlug,
-        'p_order_id': orderId,
-      });
-      final timeZone = raw is Map && raw['status'] == 'ok'
-          ? await _loadTimeZone(shopSlug)
-          : null;
       return _parseDetail(
-        raw,
+        await port.invoke('customer_order_detail_v1', {
+          'p_shop_slug': shopSlug,
+          'p_order_id': orderId,
+        }),
         expectedOrderId: orderId,
         expectedShopSlug: shopSlug,
-        timeZone: timeZone,
       );
     });
   }
@@ -109,40 +99,16 @@ final class SupabaseCustomerOrderRepository implements CustomerOrderRepository {
           CustomerOrderFailureKind.invalid,
         );
       }
-      final raw = await port.invoke('customer_order_cancel_v1', {
-        'p_shop_slug': shopSlug,
-        'p_order_id': orderId,
-        'p_expected_status_version': expectedStatusVersion,
-        'p_idempotency_key': idempotencyKey,
-      });
-      final timeZone = raw is Map && raw['status'] == 'ok'
-          ? await _loadTimeZone(shopSlug)
-          : null;
       return _parseDetail(
-        raw,
+        await port.invoke('customer_order_cancel_v1', {
+          'p_shop_slug': shopSlug,
+          'p_order_id': orderId,
+          'p_expected_status_version': expectedStatusVersion,
+          'p_idempotency_key': idempotencyKey,
+        }),
         expectedOrderId: orderId,
         expectedShopSlug: shopSlug,
-        timeZone: timeZone,
       );
-    });
-  }
-
-  Future<String> _loadTimeZone(String shopSlug) {
-    final cached = _timeZones[shopSlug];
-    if (cached != null) return Future.value(cached);
-    return _timeZoneLoads.putIfAbsent(shopSlug, () async {
-      try {
-        final value = parseStorefrontTimeZone(
-          await port.invoke('storefront_time_zone_v1', {
-            'p_shop_slug': shopSlug,
-          }),
-          expectedShopSlug: shopSlug,
-        );
-        _timeZones[shopSlug] = value;
-        return value;
-      } finally {
-        _timeZoneLoads.remove(shopSlug);
-      }
     });
   }
 
@@ -184,6 +150,7 @@ const _listRootKeys = <String>{
   'orders',
   'hasMore',
   'nextCursor',
+  'timeZone',
   'serverTime',
 };
 
@@ -191,7 +158,6 @@ CustomerOrderPage _parseList(
   Object? raw, {
   required String expectedShopSlug,
   required int maximum,
-  required String? timeZone,
 }) {
   final payload = _payload(raw, _listRootKeys, 'customer_order_list');
   if (payload['apiVersion'] != 'customer-order-list.v1') {
@@ -220,14 +186,15 @@ CustomerOrderPage _parseList(
     'shopSlug',
     'orders',
     'hasMore',
+    'timeZone',
     'serverTime',
   };
   if (!payload.keys.toSet().containsAll(required) ||
-      timeZone == null ||
       _requiredString(payload, 'shopSlug') != expectedShopSlug ||
       payload['hasMore'] is! bool) {
     throw const FormatException('customer_order_list_identity');
   }
+  final timeZone = parseStorefrontTimeZoneValue(payload['timeZone']);
   final orders = _list(payload, 'orders', maximum: maximum)
       .map(
         (value) =>
@@ -345,6 +312,7 @@ const _detailRootKeys = <String>{
   'cancellation',
   'placedAt',
   'updatedAt',
+  'timeZone',
   'serverTime',
 };
 
@@ -352,7 +320,6 @@ CustomerOrderDetail _parseDetail(
   Object? raw, {
   required String expectedOrderId,
   required String expectedShopSlug,
-  required String? timeZone,
 }) {
   final payload = _payload(raw, _detailRootKeys, 'customer_order_detail');
   if (payload['apiVersion'] != 'customer-order-detail.v1') {
@@ -401,15 +368,16 @@ CustomerOrderDetail _parseDetail(
     'cancellation',
     'placedAt',
     'updatedAt',
+    'timeZone',
     'serverTime',
   };
   if (!payload.keys.toSet().containsAll(required) ||
-      timeZone == null ||
       payload['currencyCode'] != 'CLP' ||
       _requiredUuid(payload, 'orderId') != expectedOrderId ||
       _requiredShopSlug(payload, 'shopSlug') != expectedShopSlug) {
     throw const FormatException('customer_order_detail_identity');
   }
+  final timeZone = parseStorefrontTimeZoneValue(payload['timeZone']);
   final orderStatus = _orderStatus(_requiredString(payload, 'orderStatus'));
   final version = _requiredInt(payload, 'orderVersion');
   final mode = _mode(_requiredString(payload, 'fulfillmentMode'));

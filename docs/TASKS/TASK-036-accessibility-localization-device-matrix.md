@@ -6,13 +6,13 @@
 - **Titolo**: Accessibility, localizzazione e device matrix
 - **File task**: `docs/TASKS/TASK-036-accessibility-localization-device-matrix.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-036/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -165,7 +165,45 @@ modificato.
 
 ## Review — `CODEX_REVIEWER`
 
-`NOT_RUN`: richiesta review indipendente read-only sul revision set Client/Admin.
+### Esito
+
+`CHANGES_REQUIRED` sul revision set Client `cfa9194` / Admin `7ca6d32`:
+zero P0, zero P1, un P2, zero P3.
+
+- `F-036-R01` (`P2`, CA-02/CA-08, T-01): checkout e ordini associavano al
+  payload commerce il risultato di una seconda RPC e conservavano il timezone per
+  tutta la vita del repository. Una modifica `catalog_time_zone` o un interleaving
+  fra le due RPC poteva quindi produrre uno snapshot stale/non atomico.
+- Gate autonomi reviewer: Client `853/853`, mirati `151/151`, analyze, Android
+  Emulator e iOS Simulator verdi; Admin 47 file/2532 assertion, TASK-036 10/10,
+  lint zero e grant verificati; worktree puliti.
+
+**Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Fix — `CODEX_FIXER`
+
+### F-036-R01
+
+- le RPC pubbliche fulfillment/list/detail/cancel includono ora `timeZone` nello
+  stesso payload server-authoritative;
+- le implementazioni precedenti sono delegate in `app_private` e non sono
+  eseguibili da `anon`, `authenticated` o `service_role`; i wrapper pubblici
+  conservano firma, volatility, timeout e grant minimi;
+- le letture `STABLE` condividono lo snapshot della chiamata; la cancellazione
+  `VOLATILE` blocca in share la riga setting durante la mutazione;
+- il client elimina RPC separata, cache process-lifetime e deduplica correlata,
+  validando il valore IANA bounded direttamente nel payload;
+- regressioni coprono cambio America/Santiago→UTC e richieste concorrenti completate
+  fuori ordine, mantenendo il timezone del rispettivo snapshot.
+
+### Gate Fix iniziali
+
+- reset locale da zero 139 migration: `PASS`;
+- pgTAP mirati timezone/checkout/order: 3 file, 99 assertion, `PASS`;
+- DB lint `public` error-level: zero result;
+- Client formatter/checkout/order/tracking: 150/150, `PASS`.
+
+Il gate canonico completo e l'exact-SHA verranno registrati prima della re-review.
 
 ## Chiusura
 

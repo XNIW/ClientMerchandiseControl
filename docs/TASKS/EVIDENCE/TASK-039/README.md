@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -18,7 +18,7 @@ Snapshot di handoff:
 | CA-02 | clean AAB exact-SHA, manifest protobuf diretto, package/version e SHA-256 | PASS |
 | CA-03 | R8 JSON: obfuscation/optimization/shrinking true, debug false; 3 ABI | PASS |
 | CA-04 | manifest compilato, cleartext false, exported/permission guard; HTTPS App Link owner-dependent separato | PASS |
-| CA-05 | source/artifact scanner 671/281 e config production-like pubblica | PASS |
+| CA-05 | source/artifact scanner 671/283, metadata ZIP inclusi e config production-like pubblica | PASS |
 | CA-06 | Maps/OAuth/notification/telemetry fail-closed; config e test mirati | PASS |
 | CA-07 | probe credenziali vuoto e upload readiness blocked su signed AAB richiesto | PASS |
 | CA-08 | review iniziale distinta conclusa; re-review e PR/main exact-SHA | NOT_RUN |
@@ -27,15 +27,15 @@ Snapshot di handoff:
 
 | Test | Risultato | Evidence |
 |---|---|---|
-| T-01 | PASS | validator; partial signing, `/dev/null`, JSON/account/signer errati exit 1 redatti |
+| T-01 | PASS | validator; entry post-sign, multi-signer, `/dev/null`, JSON/account/progetto/signer errati exit 1 redatti |
 | T-02 | PASS | clean appbundle/APK, manifest AAB protobuf, payload ABI e firma APK v2-only |
-| T-03 | PASS | manifest AAB+APK, debuggable false, network policy e archive scan 281 file |
+| T-03 | PASS | manifest AAB+APK con allowlist esatta, network policy e archive scan payload/metadata 283 file |
 | T-04 | PASS | no credential file/env/GitHub secret/var; Internal upload `NOT_RUN` corretto |
 | T-05 | NOT_RUN | review indipendente, PR/main CI e hygiene sono fase successiva |
 
 ## Artifact evidence exact-SHA
 
-- SHA sorgente tecnico: `6b4a79d76ea48649add220f7889ce9121b3e1b49`;
+- SHA sorgente tecnico: `35a60a0bcbc2649c960cc9674cb93725eaa1a210`;
 - AAB: `build/app/outputs/bundle/release/app-release.aab`, non versionato,
   SHA-256 `6c321e2fcafcf4cd3a7044f366ebaa5c1c2d0e41e2a84c425e931a1b76a84718`;
 - APK inspection: `build/app/outputs/flutter-apk/app-release.apk`, non
@@ -77,9 +77,25 @@ Snapshot di handoff:
 - firma reale, identità Play e upload Internal restano `NOT_RUN`: credenziali
   esterne assenti, production invariata.
 
+## Security Fix 2 evidence
+
+- clean AAB/APK release sullo SHA `35a60a0…a1a210`, SHA-256 e dimensioni
+  byte-identici: `6c321e2f…a84718` / 67.773.321 byte e
+  `82ee832f…b91ce` / 70.137.338 byte;
+- `jarsigner -strict` per-entry e singolo signer: fixture post-sign e
+  multi-signer respinte; AAB JAR-signed più APK v2-only coerente accettato;
+- scanner content-based: `.bundle`, `.AAB`, extensionless, entry name e commento
+  secret-shaped respinti; 47/47 negative e 5/5 positive;
+- allowlist AAB: tre permission canoniche, permission custom `signature` e due
+  exported approvati; fixture `READ_SMS` e service esportato respinte;
+- validator reale: source 671, artifact 283, package/version/ABI/firma/SHA
+  coerenti, `ANDROID_RELEASE_CANDIDATE_READY_UNSIGNED`;
+- `scripts/check.sh`: 781/781 non-performance, 10/10 performance, repeat
+  5×14=70/70, format 296/0, analyze e build debug Android/iOS `PASS`.
+
 ## Handoff
 
-La re-review prodotto ha chiuso i finding iniziali, ma la security re-review
-exact-SHA ha aperto `F-039-SR01`–`F-039-SR05`. Handoff corrente
-`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; il fix resta limitato a firma AAB,
-archive/metadata scan, allowlist manifest e integrità delle evidence.
+Il fix security sullo SHA tecnico `35a60a0bcbc2649c960cc9674cb93725eaa1a210`
+copre `F-039-SR01`–`F-039-SR05` con regressioni reali e gate canonico verde.
+Handoff corrente `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; un re-reviewer read-only
+distinto deve chiudere i finding prima di PR/merge.

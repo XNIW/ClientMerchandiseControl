@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -147,6 +147,31 @@ Gate executor:
   negativo; classificato P2 tecnico sul gate release.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Security Fix 2 — `CODEX_FIXER`
+
+- `F-039-SR01`: AAB verificato con `jarsigner -strict`; entry non firmate,
+  severe warning diverse dalla chain self-signed e più signature block/certificati
+  falliscono chiusi. Le regressioni reali coprono post-sign e multi-signer;
+- `F-039-SR02`: il release validator impone `.aab`/`.apk`, mentre lo scanner
+  riconosce ZIP dal magic content anche per `.bundle`, `.AAB` e file senza
+  estensione;
+- `F-039-SR03`: entry names e commento ZIP partecipano allo scanner tramite un
+  metadata stream redatto con limite 4 MiB;
+- `F-039-SR04`: il manifest AAB richiede esattamente tre `uses-permission`, la
+  permission dinamica signature-scoped e i soli exported `MainActivity` e
+  `ProfileInstallReceiver` protetto da `DUMP`;
+- `F-039-SR05`: conteggio iniziale corretto a quattro P2 più un P3,
+  `F-039-R05` e tutte le closure hanno ID stabile.
+
+Gate fixer sullo SHA tecnico
+`35a60a0bcbc2649c960cc9674cb93725eaa1a210`: clean release AAB/APK,
+validator reale unsigned e fixture firma avversariale `PASS`; scanner source
+671 e artifact 283; fixture security 47/47 negative e 5/5 positive; validator
+mirati 12/12; `scripts/check.sh` con 781 test non-performance, 10 performance,
+repeat 70/70, analyze, format 296/0 e build debug Android/iOS tutti `PASS`.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Fix — `CODEX_FIXER`
 

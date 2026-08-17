@@ -3022,3 +3022,19 @@
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; artifact corrente pulito e unsigned,
   Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 2
+
+- **Exact SHA tecnico**: `35a60a0bcbc2649c960cc9674cb93725eaa1a210`.
+- **Fix**: strict per-entry e singolo signer AAB; archive detection content-based
+  più estensioni release canoniche; metadata ZIP bounded scansionati; allowlist
+  esatta permission/exported; conteggio e ID evidence corretti.
+- **Regressioni**: entry post-sign e multi-signer respinti; `.bundle`, `.AAB` e
+  extensionless DEFLATED respinti; secret in entry name/comment respinto;
+  `READ_SMS` e service exported aggiuntivo respinti.
+- **Gate**: clean AAB/APK release byte-identici; validator reale source/artifact
+  671/283; fixture security 47/47 + 5/5; validator 12/12; signature fixture;
+  `scripts/check.sh` 781/781 non-performance, 10/10 performance, repeat 70/70,
+  analyze, format 296/0 e build debug Android/iOS tutti `PASS`.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.

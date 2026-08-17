@@ -111,8 +111,34 @@ Run `31985297932`, exact Admin main
 - migration timezone già applicata: apply step correttamente skipped, dry-run e
   boundary pubblici verdi; production non toccata.
 
-Il run `31985724356` usa lo stesso SHA e aggiunge una finestra committed di 180 s
-per il profile Client; risultato e cleanup saranno registrati prima dell'handoff.
+Il run `31985724356` usa lo stesso SHA e una finestra committed di 180 s. Cinque
+journey Android profile sul Client SHA `398bd05` sono `PASS`:
+
+| Metrica end-to-end | 5 campioni | p50 | p95/max |
+|---|---:|---:|---:|
+| first usable | 22/28/24/23/23 ms | 23 ms | 28 ms |
+| Home data-backed | 1.842/1.568/1.465/1.583/2.660 ms | 1.583 ms | 2.660 ms |
+| backend ready | 2.575/2.300/2.316/2.198/2.693 ms | 2.316 ms | 2.693 ms |
+| catalog | 1.232/1.100/749/1.633/882 ms | 1.100 ms | 1.633 ms |
+| search | 888/967/697/716/694 ms | 716 ms | 967 ms |
+| detail | 1.360/501/499/617/502 ms | 502 ms | 1.360 ms |
+| favorite roundtrip | 1/6/2/1/2 ms | 2 ms | 6 ms |
+
+- 2.657 frame complessivi; frame p95 per run 21,636–25,157 ms e p99
+  33,457–49,255 ms;
+- 39 frame >32 ms, 1 >100 ms e 0 >700 ms; ogni run rispetta p95 <=32 ms;
+- immagini reali staging presenti nel primo prodotto; download/digest/cache e
+  decode `cacheWidth` sono esercitati nel journey;
+- reinstallazione dello stesso artifact profile/config: PSS 170.239 KB, RSS
+  291.160 KB, swap 0. Il margine RSS rispetto ai 300 MiB è ridotto e resta
+  osservabile, ma il budget non è superato.
+
+I primi due tentativi hanno fallito chiusi prima della rete per nomi define non
+canonici; un terzo, avviato prima del commit fixture, ha visto Home unavailable.
+Sono failure di harness documentate e non entrano nei cinque campioni candidati.
+Il run è terminato `SUCCESS`: backend catalog/search/detail p95
+49,787/700,498/5,308 ms, keyset/FTS true, cleanup true, fixture residue 0,
+connection material rimosso e artifact non-secret caricato.
 
 ### Dipendenze e debt
 

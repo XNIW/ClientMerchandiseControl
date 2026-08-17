@@ -180,6 +180,12 @@
 - run Admin `31985297932`, exact SHA `59668348`, dataset 91.200 righe equivalenti:
   catalog p95 50,608 ms, search p95 718,325 ms, detail p95 6,069 ms,
   keyset/FTS osservati e cleanup zero;
+- run Admin `31985724356` con fixture committed: cinque journey Android profile
+  sul Client SHA `398bd05`, tutti `PASS`; first meaningful Home p95 2.660 ms,
+  2.657 frame complessivi, frame p95 per run 21,636–25,157 ms, p99
+  33,457–49,255 ms e zero frame >700 ms; cleanup e residue zero confermati;
+- reinstallazione dello stesso artifact/config dopo il journey: PSS 170.239 KB e
+  RSS 291.160 KB, entro budget ma con margine RSS esplicitamente registrato;
 - due tentativi client profile iniziali sono `FAIL` di harness prima della rete
   (`SUPABASE_ANON_KEY` e `ENABLE_GOOGLE_AUTH` non sono i nomi contrattuali) e un
   tentativo durante la transazione non committed è `FAIL` con Home unavailable;
@@ -189,8 +195,8 @@
   architecture, analyze/format e build Android/iOS Simulator;
 - production, limiti server, DDL e dati reali non sono stati modificati.
 
-Il run staging con finestra fixture committed e il gate finale sull'exact SHA sono
-in corso; l'handoff a Review verrà registrato soltanto dopo la loro conclusione.
+Il gate finale sull'exact SHA è in corso; l'handoff a Review verrà registrato
+soltanto dopo la sua conclusione.
 
 ## Review — `CODEX_REVIEWER`
 

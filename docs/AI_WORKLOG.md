@@ -2756,7 +2756,10 @@
   131.292 KB e RSS max 252.244 KB; iOS fisico offline, nessun PASS inferito.
 - **Staging**: run `31985297932` exact Admin main, 91.200 righe equivalenti,
   catalog/search/detail p95 50,608/718,325/6,069 ms, keyset/FTS e cleanup zero.
-  Un secondo run con hold committed è in corso per il journey Flutter profile.
+  Sul run committed `31985724356`, cinque journey Flutter profile exact Client
+  `398bd05` sono verdi: 2.657 frame, p95 21,636–25,157 ms, zero frozen, Home p95
+  2.660 ms; PSS/RSS dopo reinstallazione 170.239/291.160 KB. Run concluso
+  `SUCCESS`, cleanup true e residue 0.
 - **Dependency audit**: unica anomalia concreta `build_daemon 4.1.3` ritirata;
   upgrade isolato a `4.1.5`, major e aggiornamenti non necessari congelati.
 - **Gate pre-lock**: `scripts/check.sh` PASS, 760 test non-performance, repeat

@@ -3609,11 +3609,12 @@
 
 ## 2026-08-17 — TASK-040 Fix 11 e handoff
 
-- **Technical SHA**: `b870d938df0944e84077c80ebeca95bb34dbce77`.
+- **Technical SHA**: `32017f34bc840e384fdd4e5023727027cb9ec0cf`.
 - **Governance**: cardinalità esatta per manifest/T-02/T-03, stato `PASS` e
   token Fix strutturati; chronology task obbligatoria, comment-free e sequenziale.
-- **Regressioni**: fixture 24/24 coprono duplicati, stati `FAIL`, `Fix 100`,
-  heading assenti, comment-decoy e ordine storico errato.
+- **Regressioni**: fixture 26/26 coprono duplicati/righe non canoniche, stati
+  `FAIL`, `Fix 100`, revisioni non-prefix, heading assenti/fuori sezione,
+  comment-decoy e ordine storico errato.
 - **Gate completo**: 801/801, performance 10/10, repeat 70/70, security
   681 + 61/61 + 7/7, architecture 17/17, format 301/0, analyze e build debug
   Android/iOS `PASS`.

@@ -606,17 +606,18 @@ report prodotto sealed SHA-256
 
 ### Fix 11
 
-- exact technical SHA: `b870d938df0944e84077c80ebeca95bb34dbce77`;
+- exact technical SHA: `32017f34bc840e384fdd4e5023727027cb9ec0cf`;
 - manifest TASK-040, T-02 e T-03 richiedono cardinalità esatta uno, colonne
   strutturate e stato `PASS`; il gate `Fix N` usa un token completo;
 - la chronology task è obbligatoria, priva di commenti HTML, sequenziale da
   Re-review Fix 1 a Fix 11 e lega SHA/handoff a linee etichettate e terminali;
 - i blocchi storici Fix 1–10 sono riordinati nella successione canonica;
-- fixture governance 24/24 includono duplicati, `FAIL`, `Fix 100`, heading
-  assenti, comment-decoy e ordine errato;
+- fixture governance 26/26 includono duplicati e righe Markdown non canoniche,
+  `FAIL`, `Fix 100`, revisioni non-prefix, heading assenti/fuori sezione,
+  comment-decoy e ordine errato;
 - `scripts/check.sh` sullo SHA tecnico: 801/801 non-performance, performance
   10/10, repeat 5x14=70/70, security source 681 + 61/61 negative + 7/7
-  positive, governance 24/24, architecture 17/17, format 301/0, analyze e
+  positive, governance 26/26, architecture 17/17, format 301/0, analyze e
   build debug Android/iOS `PASS`;
 - archive e TestFlight boundary non sono cambiati: candidate unsigned già
   validato; firma Distribution, provisioning e credenziali ASC restano assenti.

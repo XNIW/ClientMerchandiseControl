@@ -69,7 +69,7 @@ Snapshot di handoff:
 - `scripts/check.sh`: exit 0;
 - non-performance 801/801; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
-- governance 24/24; architecture negative 17/17; localization/telemetry/action pin PASS;
+- governance 26/26; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 681; artifact 207; fixture negative 61/61, positive 7/7;
 - validator iOS avversariale 29/29, config/governance mirati 44/44;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
@@ -447,12 +447,13 @@ Snapshot di handoff:
 
 ## Gate Fix 11
 
-- technical SHA `b870d938df0944e84077c80ebeca95bb34dbce77`;
+- technical SHA `32017f34bc840e384fdd4e5023727027cb9ec0cf`;
 - cardinalità manifest/T-02/T-03, colonne e stato `PASS`, token Fix completo,
   chronology obbligatoria/sequenziale e comment-free;
 - blocchi task Fix 1–10 riordinati nella successione canonica;
-- governance fixture 24/24: duplicate manifest/T, `FAIL`, `Fix 100`, chronology
-  assente/fuori ordine e comment-decoy sono respinti;
+- governance fixture 26/26: duplicate/righe non canoniche, `FAIL`, `Fix 100`,
+  revisioni non-prefix, chronology assente/fuori sezione/fuori ordine e
+  comment-decoy sono respinti;
 - `scripts/check.sh` exact-SHA exit 0: 801/801, performance 10/10, repeat 70/70,
   security 681 + 61/61 + 7/7, architecture 17/17, format 301/0, analyze e
   build debug Android/iOS `PASS`;

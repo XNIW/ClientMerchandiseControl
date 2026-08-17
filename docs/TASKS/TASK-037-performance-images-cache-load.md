@@ -5,14 +5,14 @@
 - **Task ID**: TASK-037
 - **Titolo**: Performance, immagini, cache e load testing
 - **File task**: `docs/TASKS/TASK-037-performance-images-cache-load.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-037/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -353,9 +353,19 @@ analyze, governance 9/9, action pin, format 289/0, diff e worktree clean sono
 - **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Gate successivo**: PR exact-SHA, merge normale e nuova main CI verde
 
+### Closeout exact-SHA
+
+- PR #16: head `fc9f9eac878d15e1541fdec29682381f1bffb92d`, CI
+  `31990064543`, Quality/Android/iOS 3/3 e ogni step applicabile `PASS`;
+- merge normale: `c4ec680ddc0dd1b0537e7c6013f0f5c49e2db894`;
+- main CI: `31990472448`, exact merge, Quality/Android/iOS 3/3 `PASS`;
+  `Test with coverage` e `Performance gate` risultano entrambi eseguiti e verdi;
+- ancestry verificata, branch remota eliminata, production invariata e finding
+  aperti zero P0/P1/P2/P3.
+
 ## Chiusura
 
 - **Conferma utente**: ricevuta e condizionata a review/gate reali
 - **Merge autorizzato**: dopo review `APPROVED` e CI exact-SHA verde
 - **Follow-up candidate**: TASK-038
-- **Data completamento**: non ancora
+- **Data completamento**: 2026-08-17

@@ -2881,3 +2881,13 @@
   action pin, format 289/0, diff e worktree clean tutti `PASS`.
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; PR Fix 2 e
   nuova main CI sono il gate successivo autorizzato.
+
+## 2026-08-17 — TASK-037 closeout e TASK-038 activation
+
+- **PR #16**: head `fc9f9eac878d15e1541fdec29682381f1bffb92d`, CI
+  `31990064543` con Quality/Android/iOS 3/3 e tutti gli step `PASS`.
+- **Merge/main**: merge normale `c4ec680ddc0dd1b0537e7c6013f0f5c49e2db894`;
+  main CI `31990472448` exact merge 3/3, coverage e performance separati verdi.
+- **Hygiene**: ancestry verificata, branch remota eliminata, production invariata.
+- **Transizione**: TASK-037 `DONE`; TASK-038 unico `ACTIVE / EXECUTION` per
+  autorizzazione persistente del mandato 2026-08-16.

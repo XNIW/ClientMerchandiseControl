@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -401,6 +401,23 @@ tre PoC. Security report sealed SHA-256
   production.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 6
+
+`CHANGES_REQUIRED` su `74f65036f7cd295e09fb457e21c804f26e49d70b`:
+0 P0/P1/P2 e 2 P3. Il validator AST lega ancora i consumer al solo lexema,
+quindi un parametro omonimo di `AppConfig.fromEnvironment` può ombreggiare il
+field canonico e instradare i due consumer verso `ATTACKER_SHOP_SLUG`. Inoltre
+l'exact set degli otto privacy manifest non è legato all'exact inventory dei
+framework/bundle: una copia Mach-O `Extra.framework` senza manifest è stata
+accettata come candidate valido. Ancestor-symlink TOCTOU e sostituzione del
+manifest Google Maps risultano chiusi. Gate completi nominali verdi ma insufficienti
+rispetto ai due PoC; report prodotto sealed SHA-256
+`32b79e76daec872db0be080ebe06bf1bb58153518a8356a1f40bdb8fb3a12fe9`
+e report security canonico sealed SHA-256
+`3765b04359849bed1fd2d6bb0a95376d2d7974db2fd6fb3d79ec85044b573baa`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

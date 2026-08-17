@@ -3448,3 +3448,23 @@
   IPA, upload o mutazione production.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 6 re-review
+
+- **Exact HEAD**: `74f65036f7cd295e09fb457e21c804f26e49d70b`, worktree
+  pulito e reviewer prodotto/security read-only distinti.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 2 P3: consumer AST legati al
+  lexema anziché all'elemento dichiarato e inventory framework/bundle non exact
+  rispetto agli otto privacy manifest canonici.
+- **PoC**: parametro factory omonimo instrada entrambi i consumer verso
+  `ATTACKER_SHOP_SLUG`; `Extra.framework` Mach-O senza manifest privacy raggiunge
+  `IOS_RELEASE_CANDIDATE_VALID`.
+- **Chiusure preservate**: ancestor-symlink TOCTOU 60/60 senza alternate/hang e
+  Google Maps empty-manifest respinto; `scripts/check.sh` resta nominalmente verde
+  con 801/801, 10/10, repeat 70/70 e artifact 681/207.
+- **Review evidence**: report prodotto sealed SHA-256
+  `32b79e76daec872db0be080ebe06bf1bb58153518a8356a1f40bdb8fb3a12fe9`
+  e report security canonico sealed SHA-256
+  `3765b04359849bed1fd2d6bb0a95376d2d7974db2fd6fb3d79ec85044b573baa`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.

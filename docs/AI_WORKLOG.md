@@ -3375,3 +3375,18 @@
   IPA, upload o mutazione production.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 4 re-review
+
+- **Exact HEAD**: `6139063623ea6395ec0beca808990739b2fa3792`, worktree
+  pulito e review prodotto/security read-only distinte.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 5 P3 su workflow-level
+  `defaults.run`/`BASH_ENV`, decoy Dart string/comment, enum privacy Apple
+  inesistenti, race regular→FIFO e digest wrapper evidence errato.
+- **Chiusure preservate**: privacy nested `{}`, modifier locali job/step, FIFO
+  statica, app-set/signature e binding runtime; gate nominali 17/17, 9/9, 15/15,
+  680/207 e analyze verdi ma insufficienti rispetto ai PoC.
+- **Security**: report sealed SHA-256
+  `0e98a5c4dd7faf79571002b7edad4b4bb5624449dbb7eb3961e941de024762df`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.

@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -315,6 +315,19 @@ chiusi. Security report sealed SHA-256
   configurazione reale, upload o mutazione production.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 4
+
+`CHANGES_REQUIRED` su `6139063623ea6395ec0beca808990739b2fa3792`:
+0 P0/P1/P2 e 5 P3. Restano riproducibili override workflow-level
+`defaults.run`/`BASH_ENV`, decoy Dart in stringhe/commenti annidati, enum privacy
+Apple inesistenti ma regex-conformi, race regular→FIFO prima di `openSync` e digest
+wrapper errato nelle evidence. Le chiusure nested `{}`, modifier job/step locali,
+FIFO statica, app-set/signature e runtime binding restano valide. Security report
+sealed SHA-256
+`0e98a5c4dd7faf79571002b7edad4b4bb5624449dbb7eb3961e941de024762df`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -198,3 +198,16 @@ Snapshot di handoff:
   Distribution, profili o input App Store Connect, nessuna IPA/upload/production;
 - la sezione Artifact evidence e il gate corrente sono riallineati al Fix 4;
   blocchi Fix 1–3 restano esplicitamente storici.
+
+## Re-review Fix 4
+
+- exact HEAD `6139063623ea6395ec0beca808990739b2fa3792`, worktree pulito;
+- prodotto/security `CHANGES_REQUIRED`: 0 P0/P1/P2 e 5 P3 unificati su
+  workflow-level override, lexer Dart, allowlist Apple, race regular→FIFO e digest
+  evidence wrapper;
+- report security sealed SHA-256
+  `0e98a5c4dd7faf79571002b7edad4b4bb5624449dbb7eb3961e941de024762df`;
+- closure `{}` privacy, job/step modifier locali, FIFO statica, app-set/signature e
+  runtime binding preservate; gate nominali 17/17, 9/9, 15/15 e 680/207 verdi ma
+  insufficienti rispetto ai nuovi PoC;
+- nessun upload, firma, profilo, config reale o mutation production.

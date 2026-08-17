@@ -29,14 +29,70 @@ void main() {
   test('options usa solo slug pubblico e valida riferimenti slot', () async {
     final options = await repository.loadOptions(shopSlug: 'storefront-test');
 
-    expect(port.function, 'storefront_fulfillment_options_v1');
-    expect(port.parameters, {'p_shop_slug': 'storefront-test'});
+    expect(port.calls.map((call) => call.$1), [
+      'storefront_fulfillment_options_v1',
+    ]);
+    expect(port.calls[0].$2, {'p_shop_slug': 'storefront-test'});
     expect(options.currencyCode, 'CLP');
+    expect(options.timeZone, 'America/Santiago');
     expect(options.modes, hasLength(3));
     expect(options.pickupPoint(_pointId)?.name, 'Tienda Centro');
     expect(options.deliveryZone(_zoneId)?.feeClp, 2500);
     expect(options.slots, hasLength(2));
   });
+
+  test(
+    'timezone atomica viene validata e aggiornata con ogni payload',
+    () async {
+      final first = await repository.loadOptions(shopSlug: 'storefront-test');
+      port.response = {..._optionsPayload(), 'timeZone': 'UTC'};
+      final second = await repository.loadOptions(shopSlug: 'storefront-test');
+
+      expect(first.timeZone, 'America/Santiago');
+      expect(second.timeZone, 'UTC');
+      expect(port.calls, hasLength(2));
+
+      final invalidPort = _FakeCheckoutPort()
+        ..response = {..._optionsPayload(), 'timeZone': 'Mars/Olympus'};
+      await expectLater(
+        SupabaseCheckoutRepository(
+          port: invalidPort,
+        ).loadOptions(shopSlug: 'storefront-test'),
+        throwsA(
+          isA<CheckoutRepositoryException>().having(
+            (error) => error.kind,
+            'kind',
+            CheckoutFailureKind.unexpected,
+          ),
+        ),
+      );
+    },
+  );
+
+  test(
+    'load concorrenti mantengono timezone associata al proprio payload',
+    () async {
+      final firstResponse = Completer<Object?>();
+      final secondResponse = Completer<Object?>();
+      port.responseSequence.addAll([
+        firstResponse.future,
+        secondResponse.future,
+      ]);
+
+      final first = repository.loadOptions(shopSlug: 'storefront-test');
+      final second = repository.loadOptions(shopSlug: 'storefront-test');
+      await Future<void>.delayed(Duration.zero);
+      secondResponse.complete({..._optionsPayload(), 'timeZone': 'UTC'});
+      firstResponse.complete(_optionsPayload());
+
+      final options = await Future.wait([first, second]);
+      expect(options.map((value) => value.timeZone), [
+        'America/Santiago',
+        'UTC',
+      ]);
+      expect(port.calls, hasLength(2));
+    },
+  );
 
   test('payment options sono mode-scoped e online resta fail-closed', () async {
     port.response = _paymentOptionsPayload();
@@ -500,6 +556,7 @@ Map<String, Object?> _optionsPayload() => {
       'status': 'available',
     },
   ],
+  'timeZone': 'America/Santiago',
   'serverTime': _now.toIso8601String(),
 };
 
@@ -659,6 +716,8 @@ final class _FakeCheckoutPort implements CheckoutPort {
   Completer<void>? barrier;
   String? function;
   Map<String, Object?>? parameters;
+  final calls = <(String, Map<String, Object?>)>[];
+  final responseSequence = <Future<Object?>>[];
 
   @override
   Future<Object?> invoke(
@@ -667,6 +726,10 @@ final class _FakeCheckoutPort implements CheckoutPort {
   ) async {
     this.function = function;
     this.parameters = parameters;
+    calls.add((function, parameters));
+    if (responseSequence.isNotEmpty) {
+      return responseSequence.removeAt(0);
+    }
     await barrier?.future;
     if (error case final failure?) throw failure;
     return response;

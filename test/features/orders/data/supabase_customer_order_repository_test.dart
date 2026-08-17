@@ -31,6 +31,7 @@ void main() {
 
     expect(page.orders.single.id, orderTestOrder);
     expect(page.orders.single.primaryItemName, 'Café público');
+    expect(page.orders.single.timeZone, 'America/Santiago');
     expect(port.function, 'customer_order_list_v1');
     expect(port.parameters, {
       'p_shop_slug': orderTestShop,
@@ -43,6 +44,57 @@ void main() {
       isNot(contains(anyOf('shopId', 'ownerUserId', 'email', 'totalClp'))),
     );
   });
+
+  test(
+    'timezone atomica è validata e aggiornata tra lista e dettaglio',
+    () async {
+      final page = await repository.listOrders(shopSlug: orderTestShop);
+      port.response = {...orderTestDetailPayload(), 'timeZone': 'UTC'};
+      final detail = await repository.loadOrder(
+        shopSlug: orderTestShop,
+        orderId: orderTestOrder,
+      );
+
+      expect(page.orders.single.timeZone, 'America/Santiago');
+      expect(detail.timeZone, 'UTC');
+      expect(port.calls, 2);
+
+      final invalidPort = FakeCustomerOrderPort()
+        ..response = {...orderTestListPayload(), 'timeZone': 'Mars/Olympus'};
+      await expectLater(
+        SupabaseCustomerOrderRepository(
+          port: invalidPort,
+        ).listOrders(shopSlug: orderTestShop),
+        throwsA(_failure(CustomerOrderFailureKind.unexpected)),
+      );
+    },
+  );
+
+  test(
+    'letture concorrenti mantengono timezone del proprio snapshot',
+    () async {
+      final firstResponse = Completer<Object?>();
+      final secondResponse = Completer<Object?>();
+      port.responseSequence.addAll([
+        firstResponse.future,
+        secondResponse.future,
+      ]);
+
+      final first = repository.listOrders(shopSlug: orderTestShop);
+      final second = repository.listOrders(shopSlug: orderTestShop);
+      await Future<void>.delayed(Duration.zero);
+      expect(port.calls, 2);
+      secondResponse.complete({...orderTestListPayload(), 'timeZone': 'UTC'});
+      firstResponse.complete(orderTestListPayload());
+
+      final pages = await Future.wait([first, second]);
+      expect(pages.map((page) => page.orders.single.timeZone), [
+        'America/Santiago',
+        'UTC',
+      ]);
+      expect(port.calls, 2);
+    },
+  );
 
   test(
     'paginazione verifica ordine deterministico e identità cursor',

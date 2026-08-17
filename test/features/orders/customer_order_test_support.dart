@@ -40,6 +40,7 @@ CustomerOrderCard orderTestCard({
     cancellationAllowed: cancellationAllowed,
     placedAt: placed,
     updatedAt: placed.add(Duration(seconds: version - 1)),
+    timeZone: 'America/Santiago',
   );
 }
 
@@ -111,6 +112,7 @@ CustomerOrderDetail orderTestDetail({
     updatedAt: placed.add(Duration(seconds: version - 1)),
     serverTime: server,
     idempotent: idempotent,
+    timeZone: 'America/Santiago',
   );
 }
 
@@ -167,6 +169,7 @@ Map<String, Object?> orderTestListPayload({
         'beforePlacedAt': values.last['placedAt'],
         'beforeOrderId': values.last['orderId'],
       },
+    'timeZone': 'America/Santiago',
     'serverTime': orderTestNow.toIso8601String(),
   };
 }
@@ -275,6 +278,7 @@ Map<String, Object?> orderTestDetailPayload({
     },
     'placedAt': placed.toIso8601String(),
     'updatedAt': placed.add(Duration(seconds: version - 1)).toIso8601String(),
+    'timeZone': 'America/Santiago',
     'serverTime': orderTestNow
         .add(Duration(seconds: version - 1))
         .toIso8601String(),
@@ -287,6 +291,7 @@ final class FakeCustomerOrderPort implements CustomerOrderPort {
   String? function;
   Map<String, Object?>? parameters;
   int calls = 0;
+  final responseSequence = <Future<Object?>>[];
 
   @override
   Future<Object?> invoke(
@@ -296,6 +301,9 @@ final class FakeCustomerOrderPort implements CustomerOrderPort {
     calls++;
     this.function = function;
     this.parameters = parameters;
+    if (responseSequence.isNotEmpty) {
+      return responseSequence.removeAt(0);
+    }
     if (error case final Object value) throw value;
     return response;
   }

@@ -2,6 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
+import 'package:client_merchandise_control/l10n/generated/app_localizations_en.dart';
+import 'package:client_merchandise_control/l10n/generated/app_localizations_es.dart';
+import 'package:client_merchandise_control/l10n/generated/app_localizations_it.dart';
+import 'package:client_merchandise_control/l10n/generated/app_localizations_zh.dart';
 
 void main() {
   const bundlePaths = <String>[
@@ -93,6 +98,52 @@ void main() {
           .keys
           .toSet();
       expect(documented, placeholders);
+    }
+  });
+
+  test('plurali zero, uno e molti sono risolti nei quattro locale', () {
+    final localizations = <AppLocalizations>[
+      AppLocalizationsEs('es_CL'),
+      AppLocalizationsIt('it'),
+      AppLocalizationsEn('en'),
+      AppLocalizationsZhHans(),
+    ];
+
+    for (final l10n in localizations) {
+      for (final message in [
+        l10n.navigationCartBadge,
+        l10n.navigationOrdersBadge,
+        l10n.catalogLoadedCount,
+      ]) {
+        final forms = {message(0), message(1), message(2)};
+        expect(forms, hasLength(3), reason: l10n.localeName);
+        expect(
+          forms.every((value) => !value.contains(RegExp(r'[{}]'))),
+          isTrue,
+          reason: l10n.localeName,
+        );
+      }
+    }
+  });
+
+  test('copy critico commerce, tracking, notifiche e privacy è completo', () {
+    const prefixes = <String>[
+      'cart',
+      'checkout',
+      'orders',
+      'deliveryTracking',
+      'customerNotifications',
+      'customerPrivacy',
+    ];
+    for (final entry in bundles.entries) {
+      final keys = _messageKeys(entry.value);
+      for (final prefix in prefixes) {
+        expect(
+          keys.where((key) => key.startsWith(prefix)),
+          isNotEmpty,
+          reason: '${entry.key}: manca il dominio $prefix',
+        );
+      }
     }
   });
 }

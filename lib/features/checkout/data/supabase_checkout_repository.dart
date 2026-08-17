@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/backend/storefront_time_zone_contract.dart';
 import '../domain/checkout_failure.dart';
 import '../domain/checkout_models.dart';
 import '../domain/checkout_repository.dart';
@@ -23,7 +24,7 @@ final class PlatformCheckoutPort implements CheckoutPort {
 }
 
 final class SupabaseCheckoutRepository implements CheckoutRepository {
-  const SupabaseCheckoutRepository({
+  SupabaseCheckoutRepository({
     required this.port,
     this.requestTimeout = const Duration(seconds: 12),
   });
@@ -208,6 +209,7 @@ const _optionsRootKeys = <String>{
   'pickupPoints',
   'deliveryZones',
   'slots',
+  'timeZone',
   'serverTime',
 };
 
@@ -246,6 +248,7 @@ StorefrontFulfillmentOptions _parseOptions(
     'pickupPoints',
     'deliveryZones',
     'slots',
+    'timeZone',
     'serverTime',
   };
   if (!payload.keys.toSet().containsAll(required) ||
@@ -297,6 +300,7 @@ StorefrontFulfillmentOptions _parseOptions(
     status: status,
     shopSlug: expectedShopSlug,
     currencyCode: 'CLP',
+    timeZone: parseStorefrontTimeZoneValue(payload['timeZone']),
     modes: modes,
     pickupPoints: points,
     deliveryZones: zones,

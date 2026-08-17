@@ -2656,3 +2656,74 @@
 - **Gate**: governance state e release train `9/9`, diff check e worktree `PASS`.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
   l'autorizzazione persistente consente PR, CI exact-SHA e merge normale.
+
+## 2026-08-16 — TASK-035 closeout e attivazione TASK-036
+
+- **CI PR**: PR #13 head `2d81f6f`, run `31978060753`; Quality, Android debug e
+  iOS Simulator debug 3/3 `SUCCESS`, step applicabili verdi, annotation 0/0/0.
+- **Merge**: normale `ddb8cc8fad8156c032b1aa6e2011d0cc589d480b`; ancestry del
+  PR head verificata, branch remoto e locale eliminati.
+- **CI main**: run `31978389972` sul merge SHA, 3/3 `SUCCESS`, step applicabili
+  `success`, annotation 0/0/0.
+- **Transizione**: TASK-035 `DONE / USER_APPROVED_DONE`; TASK-036 è l'unico
+  `ACTIVE / EXECUTION`, autorizzato da ADR-015.
+
+## 2026-08-16 — TASK-036 Execution completa a Review
+
+- **Finding corretto**: slot checkout, ordini, timeline e tracking usavano il fuso
+  device invece del fuso canonico del negozio. Client `a2bb8b2` introduce formatter
+  IANA/DST, cache concorrente deduplicata e propagazione/caching fail-closed.
+- **Admin writer motivato**: `7ca6d32f` aggiunge soltanto il contratto pubblico
+  minimale `storefront_time_zone_v1` e 10 assertion pgTAP; nessun altro repository
+  read-only è stato modificato.
+- **Acceptance**: ARB 499 chiavi x 5 bundle, scan hardcoded e fixture verdi; matrice
+  84/84 Android/iOS, 2/2 tema/contrasto, 2/2 keyboard/focus.
+- **Device**: integration smoke reale PASS su Android Emulator API 35 e iPhone 17
+  Simulator iOS 26.2. Physical iOS è offline, physical Android assente e manual
+  TalkBack/VoiceOver non eseguito, senza inferire PASS.
+- **Client gate**: `scripts/check.sh` PASS, 853/853 test, repeat 70/70, 629 file
+  security, APK e iOS Simulator build verdi.
+- **Admin/DB gate**: reset 139 migration, 47 file/2532 assertion e lint DB verdi;
+  `npm run verify` PASS; foundation finale 982 pass, 2 skip, 0 fail dopo avere
+  corretto il path ambientale al checkout Win7POS read-only canonico.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review
+  indipendente distinta obbligatoria prima di PR/CI/merge.
+
+## 2026-08-16 — TASK-036 Review `CHANGES_REQUIRED` e Fix F-036-R01
+
+- **Review**: revision set Client `cfa9194` / Admin `7ca6d32`; zero P0/P1, un P2,
+  zero P3. `F-036-R01` ha riprodotto timezone stale/non atomico per RPC separata e
+  cache process-lifetime.
+- **Fix**: le quattro RPC commerce canoniche includono ora timezone nello stesso
+  snapshot; implementazioni delegate in `app_private` senza grant API, firme e
+  policy pubbliche preservate. Il client non usa più seconda RPC o cache timezone.
+- **Regressioni**: cambio Santiago→UTC e richieste concorrenti completate fuori
+  ordine restano correlate al proprio payload.
+- **Gate iniziali**: reset 139 migration, pgTAP mirati 3 file/99 assertion, lint DB
+  zero e Client checkout/order/tracking 150/150, tutti `PASS`.
+- **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; gate
+  completi ed exact-SHA richiesti prima della re-review.
+
+## 2026-08-16 — TASK-036 Fix completo a Re-review
+
+- **Revisioni tecniche**: Client `e5a2f2b`, Admin `c8dd7080`.
+- **Client**: mirati 150/150 e suite completa 755/755; `scripts/check.sh` `PASS`
+  con 754 test non-performance/coverage, repeat 70/70, performance cache 25k,
+  APK debug e iOS Simulator debug.
+- **Admin/DB**: reset 139 migration, TASK-036 13/13, mirati 3 file/100 e suite
+  completa 47 file/2536; lint zero, verify verde e foundation 982 pass/2 skip.
+- **Finding**: `F-036-R01` implementato con payload timezone atomico e nessuna
+  seconda RPC/cache process-lifetime; zero P0/P1/P2 noti al fixer.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; nuova
+  re-review read-only distinta obbligatoria prima di PR/CI/merge.
+
+## 2026-08-16 — TASK-036 Re-review Fix `APPROVED`
+
+- **Revision set**: Client `4cfe809`, Admin `c8dd7080`, worktree puliti.
+- **F-036-R01**: chiuso; timezone nello stesso payload, nessuna cache/RPC separata,
+  snapshot e lock SQL, errori fail-closed e grant app_private confermati.
+- **Gate autonomi**: Client 40/40 mirati, 755/755 completi e analyze; Admin 3
+  file/100, catalog/privilege probe, diff e secret scan tutti `PASS`.
+- **Esito**: zero P0/P1/P2/P3, `APPROVED`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  autorizzazione persistente valida per PR, CI exact-SHA e merge normale.

@@ -188,8 +188,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-035
-- **File task**: docs/TASKS/TASK-035-observability-crash-analytics.md
+- **Task attivo**: TASK-036
+- **File task**: docs/TASKS/TASK-036-accessibility-localization-device-matrix.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
 - **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
@@ -200,8 +200,9 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
 normalmente e le CI PR/main exact-SHA sono verdi. Il train
 `CLIENT_FINAL_PRODUCT_COMPLETION` ha chiuso TASK-034 su `main` con review e CI
-exact-SHA verdi; TASK-035 è `APPROVED` con `F-035-R01`–`R06` chiusi e zero
-P0/P1/P2/P3. CI exact-SHA e merge restano il prossimo gate. Production è invariata.
+exact-SHA verdi; TASK-035 è `DONE` con PR #13, CI PR/main 3/3 e zero finding.
+TASK-036 è l'unico task `ACTIVE / REVIEW`: re-review indipendente `APPROVED`, zero
+finding P0/P1/P2/P3; segue CI/merge autorizzato. Production è invariata.
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione

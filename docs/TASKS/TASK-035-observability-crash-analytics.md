@@ -5,14 +5,14 @@
 - **Task ID**: TASK-035
 - **Titolo**: Observability, crash reporting e analytics privacy-safe
 - **File task**: `docs/TASKS/TASK-035-observability-crash-analytics.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-035/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -373,5 +373,8 @@ Handoff: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 - **Conferma utente**: ricevuta e condizionata a review/gate reali
 - **Merge autorizzato da USER_APPROVER**: sì, dopo review `APPROVED` e CI exact-SHA verde
 - **Follow-up candidate**: TASK-036, soltanto dopo closeout TASK-035
-- **Riepilogo finale**: non ancora
-- **Data completamento**: non ancora
+- **Riepilogo finale**: PR #13 merged normalmente come `ddb8cc8`; CI PR
+  `31978060753` e CI `main` `31978389972` 3/3 verdi sui rispettivi exact SHA,
+  tutti gli step applicabili `success`, zero annotation; branch remoto e locale
+  eliminati. `F-035-R01`–`R06` chiusi, zero P0/P1/P2/P3.
+- **Data completamento**: 2026-08-16

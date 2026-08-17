@@ -42,6 +42,7 @@ final class CustomerOrderCard {
     required this.cancellationAllowed,
     required this.placedAt,
     required this.updatedAt,
+    required this.timeZone,
   });
 
   factory CustomerOrderCard.fromDetail(CustomerOrderDetail detail) {
@@ -57,6 +58,7 @@ final class CustomerOrderCard {
       cancellationAllowed: detail.cancellation.allowed,
       placedAt: detail.placedAt,
       updatedAt: detail.updatedAt,
+      timeZone: detail.timeZone,
     );
   }
 
@@ -71,6 +73,7 @@ final class CustomerOrderCard {
   final bool cancellationAllowed;
   final DateTime placedAt;
   final DateTime updatedAt;
+  final String timeZone;
 }
 
 final class CustomerOrderPage {
@@ -173,6 +176,7 @@ final class CustomerOrderDetail {
     required this.updatedAt,
     required this.serverTime,
     required this.idempotent,
+    required this.timeZone,
   }) : items = List.unmodifiable(items),
        timeline = List.unmodifiable(timeline);
 
@@ -192,6 +196,7 @@ final class CustomerOrderDetail {
   final DateTime updatedAt;
   final DateTime serverTime;
   final bool idempotent;
+  final String timeZone;
 }
 
 final class CustomerOrderPendingCancellation {

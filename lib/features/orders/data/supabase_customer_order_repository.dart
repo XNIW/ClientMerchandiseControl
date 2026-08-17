@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/backend/storefront_time_zone_contract.dart';
 import '../domain/customer_order_failure.dart';
 import '../domain/customer_order_models.dart';
 import '../domain/customer_order_repository.dart';
@@ -23,7 +24,7 @@ final class PlatformCustomerOrderPort implements CustomerOrderPort {
 }
 
 final class SupabaseCustomerOrderRepository implements CustomerOrderRepository {
-  const SupabaseCustomerOrderRepository({
+  SupabaseCustomerOrderRepository({
     required this.port,
     this.requestTimeout = const Duration(seconds: 12),
   });
@@ -149,6 +150,7 @@ const _listRootKeys = <String>{
   'orders',
   'hasMore',
   'nextCursor',
+  'timeZone',
   'serverTime',
 };
 
@@ -184,6 +186,7 @@ CustomerOrderPage _parseList(
     'shopSlug',
     'orders',
     'hasMore',
+    'timeZone',
     'serverTime',
   };
   if (!payload.keys.toSet().containsAll(required) ||
@@ -191,8 +194,12 @@ CustomerOrderPage _parseList(
       payload['hasMore'] is! bool) {
     throw const FormatException('customer_order_list_identity');
   }
+  final timeZone = parseStorefrontTimeZoneValue(payload['timeZone']);
   final orders = _list(payload, 'orders', maximum: maximum)
-      .map((value) => _parseCard(value, serverTime: serverTime))
+      .map(
+        (value) =>
+            _parseCard(value, serverTime: serverTime, timeZone: timeZone),
+      )
       .toList(growable: false);
   _requireUnique(orders.map((order) => order.id), 'customer_order_list_ids');
   for (var index = 1; index < orders.length; index++) {
@@ -234,7 +241,11 @@ CustomerOrderPage _parseList(
   );
 }
 
-CustomerOrderCard _parseCard(Object? raw, {required DateTime serverTime}) {
+CustomerOrderCard _parseCard(
+  Object? raw, {
+  required DateTime serverTime,
+  required String timeZone,
+}) {
   final map = _strictMap(raw, const {
     'orderId',
     'orderCode',
@@ -277,6 +288,7 @@ CustomerOrderCard _parseCard(Object? raw, {required DateTime serverTime}) {
     cancellationAllowed: cancellationAllowed,
     placedAt: placedAt,
     updatedAt: updatedAt,
+    timeZone: timeZone,
   );
 }
 
@@ -300,6 +312,7 @@ const _detailRootKeys = <String>{
   'cancellation',
   'placedAt',
   'updatedAt',
+  'timeZone',
   'serverTime',
 };
 
@@ -355,6 +368,7 @@ CustomerOrderDetail _parseDetail(
     'cancellation',
     'placedAt',
     'updatedAt',
+    'timeZone',
     'serverTime',
   };
   if (!payload.keys.toSet().containsAll(required) ||
@@ -363,6 +377,7 @@ CustomerOrderDetail _parseDetail(
       _requiredShopSlug(payload, 'shopSlug') != expectedShopSlug) {
     throw const FormatException('customer_order_detail_identity');
   }
+  final timeZone = parseStorefrontTimeZoneValue(payload['timeZone']);
   final orderStatus = _orderStatus(_requiredString(payload, 'orderStatus'));
   final version = _requiredInt(payload, 'orderVersion');
   final mode = _mode(_requiredString(payload, 'fulfillmentMode'));
@@ -439,6 +454,7 @@ CustomerOrderDetail _parseDetail(
     updatedAt: updatedAt,
     serverTime: serverTime,
     idempotent: idempotent,
+    timeZone: timeZone,
   );
 }
 

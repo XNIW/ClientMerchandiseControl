@@ -182,6 +182,7 @@ final class StorefrontFulfillmentOptions {
     required this.status,
     required this.shopSlug,
     required this.currencyCode,
+    required this.timeZone,
     required List<CheckoutModeOption> modes,
     required List<CheckoutPickupPoint> pickupPoints,
     required List<CheckoutDeliveryZone> deliveryZones,
@@ -200,6 +201,7 @@ final class StorefrontFulfillmentOptions {
       status: status,
       shopSlug: null,
       currencyCode: null,
+      timeZone: null,
       modes: const [],
       pickupPoints: const [],
       deliveryZones: const [],
@@ -211,6 +213,7 @@ final class StorefrontFulfillmentOptions {
   final FulfillmentOptionsStatus status;
   final String? shopSlug;
   final String? currencyCode;
+  final String? timeZone;
   final List<CheckoutModeOption> modes;
   final List<CheckoutPickupPoint> pickupPoints;
   final List<CheckoutDeliveryZone> deliveryZones;

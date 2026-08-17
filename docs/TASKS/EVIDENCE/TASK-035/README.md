@@ -1,7 +1,7 @@
 # Evidence TASK-035
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance
 
@@ -122,6 +122,10 @@ plugin Maps iOS. Nessun warning è introdotto come nuova dipendenza dal task.
   governance `9/9` e diff check `PASS`;
 - re-review Fix 3 sullo SHA `02968ce`: `APPROVED`, 0 P0/P1/P2/P3; delta solo docs,
   conteggi Fix 1 preservati, governance `9/9` e diff check `PASS`;
-- PR exact-SHA CI: `NOT_RUN`;
-- main post-merge CI: `NOT_RUN`;
+- PR #13 exact-SHA `2d81f6f`: CI `31978060753`, Quality/Android/iOS 3/3
+  `SUCCESS`, tutti gli step applicabili `success`, annotation `0/0/0`;
+- merge normale `ddb8cc8fad8156c032b1aa6e2011d0cc589d480b`, contenente il PR head;
+- main exact-SHA `ddb8cc8`: CI `31978389972`, Quality/Android/iOS 3/3
+  `SUCCESS`, tutti gli step applicabili `success`, annotation `0/0/0`;
+- branch remoto e locale eliminati; PR chiusa `MERGED`;
 - produzione e provider esterni: non modificati.

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../app/design_system/theme/storefront_semantic_colors.dart';
+import '../../../core/formatting/shop_date_time_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../domain/customer_order_failure.dart';
 import '../domain/customer_order_models.dart';
@@ -54,10 +54,11 @@ Color customerOrderStatusColor(
   };
 }
 
-String customerOrderDate(BuildContext context, DateTime date) {
-  final locale = Localizations.localeOf(context).toLanguageTag();
-  return DateFormat.yMMMd(locale).add_Hm().format(date.toLocal());
-}
+String customerOrderDate(
+  BuildContext context,
+  DateTime date, {
+  required String timeZone,
+}) => ShopDateTimeFormatter.format(context, date, timeZone: timeZone);
 
 String customerOrderFailureMessage(
   AppLocalizations l10n,

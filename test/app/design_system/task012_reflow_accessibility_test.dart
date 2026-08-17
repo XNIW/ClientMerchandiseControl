@@ -11,11 +11,14 @@ import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/presentation/account_screen.dart';
 import 'package:client_merchandise_control/features/cart/presentation/cart_screen.dart';
 import 'package:client_merchandise_control/features/catalog/presentation/catalog_screen.dart';
+import 'package:client_merchandise_control/features/auth/application/auth_providers.dart';
+import 'package:client_merchandise_control/features/auth/data/auth_callback_source.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
 import 'package:client_merchandise_control/features/shell/presentation/app_shell_screen.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,6 +33,7 @@ void main() {
     Size(1024, 768),
     Size(568, 320),
   ];
+  const textScaleCases = <double>[1, 1.3, 2];
 
   Widget buildApp() {
     return ProviderScope(
@@ -38,115 +42,145 @@ void main() {
         backendHealthServiceProvider.overrideWithValue(
           const _UnexpectedBackendHealthService(),
         ),
+        authCallbackSourceProvider.overrideWithValue(
+          const _NoopAuthCallbackSource(),
+        ),
       ],
       child: const ClientMerchandiseControlApp(locale: Locale('es', 'CL')),
     );
   }
 
-  Future<void> configureViewport(WidgetTester tester, Size size) async {
+  Future<void> configureViewport(
+    WidgetTester tester,
+    Size size, {
+    required double textScale,
+    required Brightness brightness,
+  }) async {
     tester.view.devicePixelRatio = 1;
     await tester.binding.setSurfaceSize(size);
     tester.view.viewPadding = safeAreaInsets;
-    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    tester.platformDispatcher.textScaleFactorTestValue = textScale;
+    tester.platformDispatcher.platformBrightnessTestValue = brightness;
   }
 
   void restoreViewport(WidgetTester tester) {
     tester.view.resetViewPadding();
     tester.view.resetDevicePixelRatio();
     tester.platformDispatcher.clearTextScaleFactorTestValue();
+    tester.platformDispatcher.clearPlatformBrightnessTestValue();
     tester.binding.setSurfaceSize(null);
   }
 
   for (final viewport in viewportCases) {
-    testWidgets('shell completa rifluisce a testo 200% su '
-        '${viewport.width}x${viewport.height} con SafeArea', (tester) async {
-      final semantics = tester.ensureSemantics();
-      addTearDown(() => restoreViewport(tester));
-      await configureViewport(tester, viewport);
+    for (final textScale in textScaleCases) {
+      for (final brightness in Brightness.values) {
+        testWidgets(
+          'shell completa rifluisce su '
+          '${viewport.width}x${viewport.height}, '
+          'testo ${textScale}x, tema ${brightness.name} e SafeArea',
+          (tester) async {
+            final semantics = tester.ensureSemantics();
+            addTearDown(() => restoreViewport(tester));
+            await configureViewport(
+              tester,
+              viewport,
+              textScale: textScale,
+              brightness: brightness,
+            );
 
-      await tester.pumpWidget(buildApp());
-      await tester.pumpAndSettle();
+            await tester.pumpWidget(buildApp());
+            await tester.pumpAndSettle();
 
-      final shellContext = tester.element(find.byType(AppShellScreen));
-      final mediaQuery = MediaQuery.of(shellContext);
-      expect(mediaQuery.viewPadding.top, safeAreaInsets.top);
-      expect(mediaQuery.viewPadding.bottom, safeAreaInsets.bottom);
-      expect(mediaQuery.textScaler.scale(1), 2);
+            final shellContext = tester.element(find.byType(AppShellScreen));
+            final mediaQuery = MediaQuery.of(shellContext);
+            expect(mediaQuery.viewPadding.top, safeAreaInsets.top);
+            expect(mediaQuery.viewPadding.bottom, safeAreaInsets.bottom);
+            expect(mediaQuery.textScaler.scale(1), textScale);
+            expect(Theme.of(shellContext).brightness, brightness);
 
-      _expectCurrentPageUsesAvailableWidth(tester);
-      await _expectActionIsFullyReachable(
-        tester,
-        key: const ValueKey('home-search'),
-      );
-      expect(find.byType(CatalogScreen), findsOneWidget);
-      _expectCurrentPageUsesAvailableWidth(tester);
-      expect(tester.takeException(), isNull);
+            _expectCurrentPageUsesAvailableWidth(tester);
+            await _expectActionIsFullyReachable(
+              tester,
+              key: const ValueKey('home-search'),
+            );
+            expect(find.byType(CatalogScreen), findsOneWidget);
+            _expectCurrentPageUsesAvailableWidth(tester);
+            expect(tester.takeException(), isNull);
 
-      await tester.tap(find.byKey(const ValueKey('nav-cart')));
-      await tester.pumpAndSettle();
-      expect(find.byType(CartScreen), findsOneWidget);
-      _expectCurrentPageUsesAvailableWidth(tester);
-      await _expectActionIsFullyReachable(
-        tester,
-        key: const ValueKey('cart-explore-catalog'),
-      );
-      expect(find.byType(CatalogScreen), findsOneWidget);
-      _expectCurrentPageUsesAvailableWidth(tester);
-      expect(tester.takeException(), isNull);
+            await tester.tap(find.byKey(const ValueKey('nav-cart')));
+            await tester.pumpAndSettle();
+            expect(find.byType(CartScreen), findsOneWidget);
+            _expectCurrentPageUsesAvailableWidth(tester);
+            await _expectActionIsFullyReachable(
+              tester,
+              key: const ValueKey('cart-explore-catalog'),
+            );
+            expect(find.byType(CatalogScreen), findsOneWidget);
+            _expectCurrentPageUsesAvailableWidth(tester);
+            expect(tester.takeException(), isNull);
 
-      await tester.tap(find.byKey(const ValueKey('nav-account')));
-      await tester.pumpAndSettle();
-      expect(find.byType(AccountScreen), findsOneWidget);
-      _expectCurrentPageUsesAvailableWidth(tester);
-      await _scrollFullyIntoView(
-        tester,
-        find.byKey(const ValueKey('account-google-button')),
-      );
-      final googleButton = find.byKey(const ValueKey('account-google-button'));
-      _expectRectInside(
-        tester.getRect(googleButton),
-        tester.getRect(_currentPageScrollView()),
-      );
-      expect(
-        tester.getSize(googleButton).height,
-        greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
-      );
-      expect(
-        tester
-            .getSemantics(googleButton)
-            .getSemanticsData()
-            .hasAction(SemanticsAction.tap),
-        isFalse,
-      );
-      expect(tester.takeException(), isNull);
+            await tester.tap(find.byKey(const ValueKey('nav-account')));
+            await tester.pumpAndSettle();
+            expect(find.byType(AccountScreen), findsOneWidget);
+            _expectCurrentPageUsesAvailableWidth(tester);
+            await _scrollFullyIntoView(
+              tester,
+              find.byKey(const ValueKey('account-google-button')),
+            );
+            final googleButton = find.byKey(
+              const ValueKey('account-google-button'),
+            );
+            _expectRectInside(
+              tester.getRect(googleButton),
+              tester.getRect(_currentPageScrollView()),
+            );
+            expect(
+              tester.getSize(googleButton).height,
+              greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
+            );
+            expect(
+              tester
+                  .getSemantics(googleButton)
+                  .getSemanticsData()
+                  .hasAction(SemanticsAction.tap),
+              isFalse,
+            );
+            expect(tester.takeException(), isNull);
 
-      await tester.tap(find.byKey(const ValueKey('nav-home')));
-      await tester.pumpAndSettle();
-      expect(find.byType(HomeScreen), findsOneWidget);
-      _expectCurrentPageUsesAvailableWidth(tester);
+            await tester.tap(find.byKey(const ValueKey('nav-home')));
+            await tester.pumpAndSettle();
+            expect(find.byType(HomeScreen), findsOneWidget);
+            _expectCurrentPageUsesAvailableWidth(tester);
 
-      for (final key in const [
-        ValueKey('nav-home'),
-        ValueKey('nav-catalog'),
-        ValueKey('nav-orders'),
-        ValueKey('nav-cart'),
-        ValueKey('nav-account'),
-      ]) {
-        final destination = find.byKey(key);
-        final targetSize = tester.getSize(destination);
-        expect(
-          targetSize.width,
-          greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
-        );
-        expect(
-          targetSize.height,
-          greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
+            for (final key in const [
+              ValueKey('nav-home'),
+              ValueKey('nav-catalog'),
+              ValueKey('nav-orders'),
+              ValueKey('nav-cart'),
+              ValueKey('nav-account'),
+            ]) {
+              final destination = find.byKey(key);
+              final targetSize = tester.getSize(destination);
+              expect(
+                targetSize.width,
+                greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
+              );
+              expect(
+                targetSize.height,
+                greaterThanOrEqualTo(AppSizes.minimumTouchTarget),
+              );
+            }
+
+            expect(tester.takeException(), isNull);
+            semantics.dispose();
+          },
+          variant: const TargetPlatformVariant(<TargetPlatform>{
+            TargetPlatform.android,
+            TargetPlatform.iOS,
+          }),
         );
       }
-
-      expect(tester.takeException(), isNull);
-      semantics.dispose();
-    });
+    }
   }
 
   for (final brightness in Brightness.values) {
@@ -155,9 +189,12 @@ void main() {
       (tester) async {
         final semantics = tester.ensureSemantics();
         addTearDown(() => restoreViewport(tester));
-        await configureViewport(tester, const Size(390, 844));
-        tester.platformDispatcher.platformBrightnessTestValue = brightness;
-        addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+        await configureViewport(
+          tester,
+          const Size(390, 844),
+          textScale: 2,
+          brightness: brightness,
+        );
 
         await tester.pumpWidget(buildApp());
         await tester.pumpAndSettle();
@@ -187,11 +224,86 @@ void main() {
         expect(tester, meetsGuideline(labeledTapTargetGuideline));
         expect(tester, meetsGuideline(androidTapTargetGuideline));
         expect(tester, meetsGuideline(iOSTapTargetGuideline));
+        expect(tester, meetsGuideline(textContrastGuideline));
         expect(tester.takeException(), isNull);
         semantics.dispose();
       },
     );
   }
+
+  testWidgets(
+    'focus tastiera attraversa le destinazioni in ordine e le attiva',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      addTearDown(() => restoreViewport(tester));
+      await configureViewport(
+        tester,
+        const Size(390, 844),
+        textScale: 1.3,
+        brightness: Brightness.light,
+      );
+      await tester.pumpWidget(buildApp());
+      await tester.pumpAndSettle();
+
+      const expectedKeys = <ValueKey<String>>[
+        ValueKey('nav-home'),
+        ValueKey('nav-catalog'),
+        ValueKey('nav-orders'),
+        ValueKey('nav-cart'),
+        ValueKey('nav-account'),
+      ];
+      final observedKeys = <Key>[];
+      for (var attempt = 0; attempt < 20; attempt++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        final key = _focusedAncestorKey();
+        if (expectedKeys.contains(key) && !observedKeys.contains(key)) {
+          observedKeys.add(key!);
+        }
+        if (observedKeys.length == expectedKeys.length) break;
+      }
+      expect(observedKeys, expectedKeys);
+
+      for (var attempt = 0; attempt < 20; attempt++) {
+        if (_focusedAncestorKey() == const ValueKey('nav-catalog')) break;
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+      }
+      expect(_focusedAncestorKey(), const ValueKey('nav-catalog'));
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CatalogScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      semantics.dispose();
+    },
+    variant: const TargetPlatformVariant(<TargetPlatform>{
+      TargetPlatform.android,
+      TargetPlatform.iOS,
+    }),
+  );
+}
+
+Key? _focusedAncestorKey() {
+  Key? key;
+  FocusManager.instance.primaryFocus?.context?.visitAncestorElements((element) {
+    final candidate = element.widget.key;
+    if (candidate is ValueKey<String> && candidate.value.startsWith('nav-')) {
+      key = candidate;
+    }
+    return key == null;
+  });
+  return key;
+}
+
+final class _NoopAuthCallbackSource implements AuthCallbackSource {
+  const _NoopAuthCallbackSource();
+
+  @override
+  Stream<Uri> get callbacks => const Stream.empty();
+
+  @override
+  Future<void> dispose() async {}
 }
 
 final class _UnexpectedBackendHealthService implements BackendHealthService {

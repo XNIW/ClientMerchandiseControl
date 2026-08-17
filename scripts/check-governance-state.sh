@@ -2,11 +2,34 @@
 set -euo pipefail
 
 cmc_repo_root="${CMC_GOVERNANCE_REPO_ROOT:-$(git rev-parse --show-toplevel)}"
+cmc_authority_repo_root="$({ cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P; })"
 cmc_master_plan="${cmc_repo_root}/docs/MASTER-PLAN.md"
 cmc_readme="${cmc_repo_root}/README.md"
 cmc_worklog="${cmc_repo_root}/docs/AI_WORKLOG.md"
 cmc_release_manifest="${cmc_repo_root}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
 cmc_violation_count=0
+
+cmc_reject_ambiguous_markdown() {
+  local cmc_file="$1"
+  local cmc_label="$2"
+
+  if grep -Eq '<!--|-->|^[[:space:]]*(```|~~~)|^[[:space:]]+#{2,3}[[:space:]]' \
+    "${cmc_file}"; then
+    printf '%s contiene commenti, fence o heading indentati non ammessi: %s.\n' \
+      "${cmc_label}" "${cmc_file}" >&2
+    cmc_violation_count=$((cmc_violation_count + 1))
+  fi
+}
+
+cmc_git_commit_is_valid() {
+  local cmc_revision="$1"
+
+  [[ -n "${cmc_revision}" ]] &&
+    git -C "${cmc_authority_repo_root}" cat-file -e \
+      "${cmc_revision}^{commit}" 2>/dev/null &&
+    git -C "${cmc_authority_repo_root}" merge-base --is-ancestor \
+      "${cmc_revision}" HEAD
+}
 
 cmc_field() {
   local cmc_file="$1"
@@ -113,17 +136,33 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
       fi
     fi
 
+    cmc_last_fix_revision=''
+    cmc_last_fix_number=''
     if [[ "${cmc_release_train}" == "CLIENT_FINAL_PRODUCT_COMPLETION" ]]; then
       if [[ ! -f "${cmc_release_manifest}" ]]; then
         printf 'Release manifest assente: %s\n' "${cmc_release_manifest}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       else
+        cmc_reject_ambiguous_markdown \
+          "${cmc_release_manifest}" "Release manifest"
         cmc_manifest_row_count="$(
-          awk -F'|' -v task="${cmc_active_task}" '
-            {
-              value=$2
+          awk -v task="${cmc_active_task}" '
+            function trim(value) {
               gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-              if (value == task) count++
+              return value
+            }
+            function table_row(line, columns, leading) {
+              leading=0
+              while (substr(line, 1, 1) == " " && leading < 4) {
+                line=substr(line, 2)
+                leading++
+              }
+              if (leading > 3 || substr(line, 1, 1) != "|" ||
+                  substr(line, length(line), 1) != "|") return 0
+              return split(line, cmc_fields, "|") == columns + 2
+            }
+            {
+              if (table_row($0, 6) && trim(cmc_fields[2]) == task) count++
             }
             END { print count + 0 }
           ' "${cmc_release_manifest}"
@@ -141,13 +180,24 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
             cmc_manifest_status \
             cmc_manifest_revision_field \
             cmc_manifest_gate < <(
-              awk -F'|' -v task="${cmc_active_task}" '
+              awk -v task="${cmc_active_task}" '
                 function trim(value) {
                   gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
                   return value
                 }
-                trim($2) == task {
-                  printf "%s\t%s\t%s\n", trim($3), trim($4), trim($7)
+                function table_row(line, columns, leading) {
+                  leading=0
+                  while (substr(line, 1, 1) == " " && leading < 4) {
+                    line=substr(line, 2)
+                    leading++
+                  }
+                  if (leading > 3 || substr(line, 1, 1) != "|" ||
+                      substr(line, length(line), 1) != "|") return 0
+                  return split(line, cmc_fields, "|") == columns + 2
+                }
+                table_row($0, 6) && trim(cmc_fields[2]) == task {
+                  printf "%s\t%s\t%s\n", trim(cmc_fields[3]),
+                    trim(cmc_fields[4]), trim(cmc_fields[7])
                 }
               ' "${cmc_release_manifest}"
             )
@@ -170,14 +220,9 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           cmc_violation_count=$((cmc_violation_count + 1))
         fi
 
-        cmc_task_semantic="$(
-          perl -0pe 's/<!--.*?-->//gs' "${cmc_task_file}"
-        )"
-        if grep -Eq '<!--|-->' "${cmc_task_file}"; then
-          printf 'Task chronology non può contenere commenti HTML: %s.\n' \
-            "${cmc_active_task}" >&2
-          cmc_violation_count=$((cmc_violation_count + 1))
-        fi
+        if [[ "${cmc_active_task}" == 'TASK-040' ]]; then
+          cmc_reject_ambiguous_markdown "${cmc_task_file}" "Task chronology"
+          cmc_task_semantic="$(<"${cmc_task_file}")"
 
         cmc_fix_section_count="$(
           grep -Ec '^## Fix$' <<<"${cmc_task_semantic}" || true
@@ -267,6 +312,7 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
             head -n 1 <<<"${cmc_last_fix_block}" | \
               sed -E 's/^### (Re-review )?(Fix [0-9]+)$/\2/'
           )"
+          cmc_last_fix_number="${cmc_last_fix_label#Fix }"
           cmc_last_fix_revision_count="$(
             sed -nE \
               's/^- exact (technical|review) SHA: `([0-9a-f]{40})`;$/\2/p' \
@@ -304,6 +350,24 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
               "${cmc_manifest_revision}" >&2
             cmc_violation_count=$((cmc_violation_count + 1))
           fi
+          if ! cmc_git_commit_is_valid "${cmc_last_fix_revision}"; then
+            printf 'Tail task revision inesistente o fuori lineage per %s: %q.\n' \
+              "${cmc_active_task}" "${cmc_last_fix_revision}" >&2
+            cmc_violation_count=$((cmc_violation_count + 1))
+          fi
+          cmc_manifest_resolved_revision=''
+          if [[ -n "${cmc_manifest_revision}" ]]; then
+            cmc_manifest_resolved_revision="$(
+              git -C "${cmc_authority_repo_root}" rev-parse --verify \
+                "${cmc_manifest_revision}^{commit}" 2>/dev/null || true
+            )"
+          fi
+          if [[ -z "${cmc_manifest_resolved_revision}" || \
+            "${cmc_manifest_resolved_revision}" != "${cmc_last_fix_revision}" ]]; then
+            printf 'Release manifest revision non risolve univocamente lo SHA task per %s.\n' \
+              "${cmc_active_task}" >&2
+            cmc_violation_count=$((cmc_violation_count + 1))
+          fi
           if [[ -z "${cmc_last_fix_label}" || \
             ("${cmc_manifest_gate}" != "${cmc_last_fix_label}" && \
               "${cmc_manifest_gate}" != "${cmc_last_fix_label} "*) ]]; then
@@ -312,12 +376,69 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
               "${cmc_manifest_gate}" >&2
             cmc_violation_count=$((cmc_violation_count + 1))
           fi
+
+          cmc_latest_review_fix_subject="$(
+            git -C "${cmc_authority_repo_root}" log -1 --format='%s' \
+              --extended-regexp \
+              --grep='^docs\(task-040\): record fix [0-9]+ review findings$' || true
+          )"
+          cmc_latest_review_fix_number="$(
+            sed -nE \
+              's/^docs\(task-040\): record fix ([0-9]+) review findings$/\1/p' \
+              <<<"${cmc_latest_review_fix_subject}"
+          )"
+          cmc_expected_current_fix_number=''
+          if [[ "${cmc_latest_review_fix_number}" =~ ^[0-9]+$ ]]; then
+            if [[ "${cmc_phase}" == 'FIX' ]]; then
+              cmc_expected_current_fix_number="${cmc_latest_review_fix_number}"
+            elif [[ "${cmc_phase}" == 'REVIEW' ]]; then
+              cmc_expected_current_fix_number=$((cmc_latest_review_fix_number + 1))
+            fi
+          fi
+          if [[ -z "${cmc_expected_current_fix_number}" || \
+            "${cmc_last_fix_number}" != "${cmc_expected_current_fix_number}" ]]; then
+            printf 'Ciclo Fix corrente non ancorato alla chronology Git: atteso=%q, ricevuto=%q.\n' \
+              "${cmc_expected_current_fix_number}" "${cmc_last_fix_number}" >&2
+            cmc_violation_count=$((cmc_violation_count + 1))
+          fi
+
+          if [[ "${cmc_phase}" == 'REVIEW' ]]; then
+            cmc_latest_technical_revision="$(
+              git -C "${cmc_authority_repo_root}" log -1 --format='%H' -- \
+                .github android config integration_test ios lib pubspec.lock \
+                pubspec.yaml scripts test tool
+            )"
+            if [[ "${cmc_last_fix_revision}" != \
+              "${cmc_latest_technical_revision}" ]]; then
+              printf 'Tail task non punta all ultimo commit tecnico: task=%q, git=%q.\n' \
+                "${cmc_last_fix_revision}" "${cmc_latest_technical_revision}" >&2
+              cmc_violation_count=$((cmc_violation_count + 1))
+            fi
+          fi
+        fi
         fi
       fi
     fi
 
     if [[ "${cmc_active_task}" == "TASK-040" && \
       -f "${cmc_evidence_readme}" ]]; then
+      cmc_reject_ambiguous_markdown \
+        "${cmc_evidence_readme}" "Evidence TASK-040"
+      cmc_current_gate_heading_count="$(
+        grep -Ec '^## Gate executor corrente — Fix [0-9]+$' \
+          "${cmc_evidence_readme}" || true
+      )"
+      cmc_current_gate_fix_number="$(
+        sed -nE \
+          's/^## Gate executor corrente — Fix ([0-9]+)$/\1/p' \
+          "${cmc_evidence_readme}"
+      )"
+      if [[ "${cmc_current_gate_heading_count}" -ne 1 || \
+        "${cmc_current_gate_fix_number}" != "${cmc_last_fix_number}" ]]; then
+        printf 'Gate executor corrente non allineato al ciclo Fix task: task=%q, evidence=%q.\n' \
+          "${cmc_last_fix_number}" "${cmc_current_gate_fix_number}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
       cmc_current_artifact_block="$(
         awk '
           /^## Artifact evidence corrente/ { capture=1; next }
@@ -361,21 +482,45 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         cmc_violation_count=$((cmc_violation_count + 1))
       fi
       cmc_t02_row_count="$(
-        awk -F'|' '
-          {
-            value=$2
+        awk '
+          function trim(value) {
             gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-            if (value == "T-02") count++
+            return value
+          }
+          function table_row(line, columns, leading) {
+            leading=0
+            while (substr(line, 1, 1) == " " && leading < 4) {
+              line=substr(line, 2)
+              leading++
+            }
+            if (leading > 3 || substr(line, 1, 1) != "|" ||
+                substr(line, length(line), 1) != "|") return 0
+            return split(line, cmc_fields, "|") == columns + 2
+          }
+          {
+            if (table_row($0, 3) && trim(cmc_fields[2]) == "T-02") count++
           }
           END { print count + 0 }
         ' "${cmc_evidence_readme}"
       )"
       cmc_t03_row_count="$(
-        awk -F'|' '
-          {
-            value=$2
+        awk '
+          function trim(value) {
             gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-            if (value == "T-03") count++
+            return value
+          }
+          function table_row(line, columns, leading) {
+            leading=0
+            while (substr(line, 1, 1) == " " && leading < 4) {
+              line=substr(line, 2)
+              leading++
+            }
+            if (leading > 3 || substr(line, 1, 1) != "|" ||
+                substr(line, length(line), 1) != "|") return 0
+            return split(line, cmc_fields, "|") == columns + 2
+          }
+          {
+            if (table_row($0, 3) && trim(cmc_fields[2]) == "T-03") count++
           }
           END { print count + 0 }
         ' "${cmc_evidence_readme}"
@@ -384,18 +529,33 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
       cmc_t02_evidence=''
       cmc_t03_status=''
       cmc_t03_evidence=''
+      cmc_t07_row_count=''
+      cmc_t07_status=''
+      cmc_t07_evidence=''
       if [[ "${cmc_t02_row_count}" -ne 1 ]]; then
         printf 'Matrice TASK-040 richiede esattamente una riga T-02: ricevute=%s.\n' \
           "${cmc_t02_row_count}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       else
         IFS=$'\t' read -r cmc_t02_status cmc_t02_evidence < <(
-          awk -F'|' '
+          awk '
             function trim(value) {
               gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
               return value
             }
-            trim($2) == "T-02" { printf "%s\t%s\n", trim($3), trim($4) }
+            function table_row(line, columns, leading) {
+              leading=0
+              while (substr(line, 1, 1) == " " && leading < 4) {
+                line=substr(line, 2)
+                leading++
+              }
+              if (leading > 3 || substr(line, 1, 1) != "|" ||
+                  substr(line, length(line), 1) != "|") return 0
+              return split(line, cmc_fields, "|") == columns + 2
+            }
+            table_row($0, 3) && trim(cmc_fields[2]) == "T-02" {
+              printf "%s\t%s\n", trim(cmc_fields[3]), trim(cmc_fields[4])
+            }
           ' "${cmc_evidence_readme}"
         )
       fi
@@ -405,12 +565,71 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         cmc_violation_count=$((cmc_violation_count + 1))
       else
         IFS=$'\t' read -r cmc_t03_status cmc_t03_evidence < <(
-          awk -F'|' '
+          awk '
             function trim(value) {
               gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
               return value
             }
-            trim($2) == "T-03" { printf "%s\t%s\n", trim($3), trim($4) }
+            function table_row(line, columns, leading) {
+              leading=0
+              while (substr(line, 1, 1) == " " && leading < 4) {
+                line=substr(line, 2)
+                leading++
+              }
+              if (leading > 3 || substr(line, 1, 1) != "|" ||
+                  substr(line, length(line), 1) != "|") return 0
+              return split(line, cmc_fields, "|") == columns + 2
+            }
+            table_row($0, 3) && trim(cmc_fields[2]) == "T-03" {
+              printf "%s\t%s\n", trim(cmc_fields[3]), trim(cmc_fields[4])
+            }
+          ' "${cmc_evidence_readme}"
+        )
+      fi
+      cmc_t07_row_count="$(
+        awk '
+          function trim(value) {
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            return value
+          }
+          function table_row(line, columns, leading) {
+            leading=0
+            while (substr(line, 1, 1) == " " && leading < 4) {
+              line=substr(line, 2)
+              leading++
+            }
+            if (leading > 3 || substr(line, 1, 1) != "|" ||
+                substr(line, length(line), 1) != "|") return 0
+            return split(line, cmc_fields, "|") == columns + 2
+          }
+          table_row($0, 3) && trim(cmc_fields[2]) == "T-07" { count++ }
+          END { print count + 0 }
+        ' "${cmc_evidence_readme}"
+      )"
+      if [[ "${cmc_t07_row_count}" -ne 1 ]]; then
+        printf 'Matrice TASK-040 richiede esattamente una riga T-07: ricevute=%s.\n' \
+          "${cmc_t07_row_count}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      else
+        IFS=$'\t' read -r cmc_t07_status cmc_t07_evidence < <(
+          awk '
+            function trim(value) {
+              gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+              return value
+            }
+            function table_row(line, columns, leading) {
+              leading=0
+              while (substr(line, 1, 1) == " " && leading < 4) {
+                line=substr(line, 2)
+                leading++
+              }
+              if (leading > 3 || substr(line, 1, 1) != "|" ||
+                  substr(line, length(line), 1) != "|") return 0
+              return split(line, cmc_fields, "|") == columns + 2
+            }
+            table_row($0, 3) && trim(cmc_fields[2]) == "T-07" {
+              printf "%s\t%s\n", trim(cmc_fields[3]), trim(cmc_fields[4])
+            }
           ' "${cmc_evidence_readme}"
         )
       fi
@@ -424,6 +643,10 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           's/^.*fixture iOS ([0-9]+\/[0-9]+)$/\1/p' \
           <<<"${cmc_t03_evidence}"
       )"
+      cmc_ios_fixture_passed="${cmc_ios_fixture_count%%/*}"
+      cmc_ios_fixture_total="${cmc_ios_fixture_count##*/}"
+      cmc_t03_fixture_passed="${cmc_t03_fixture_count%%/*}"
+      cmc_t03_fixture_total="${cmc_t03_fixture_count##*/}"
       if [[ "${cmc_t02_status}" != 'PASS' || \
         -z "${cmc_artifact_revision}" || -z "${cmc_t02_revision}" || \
         "${cmc_t02_revision}" != "${cmc_artifact_revision:0:${#cmc_t02_revision}}" ]]; then
@@ -433,9 +656,28 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
       fi
       if [[ "${cmc_t03_status}" != 'PASS' || \
         -z "${cmc_ios_fixture_count}" || -z "${cmc_t03_fixture_count}" || \
-        "${cmc_t03_fixture_count}" != "${cmc_ios_fixture_count}" ]]; then
+        "${cmc_t03_fixture_count}" != "${cmc_ios_fixture_count}" || \
+        ! "${cmc_ios_fixture_passed}" =~ ^[0-9]+$ || \
+        ! "${cmc_ios_fixture_total}" =~ ^[0-9]+$ || \
+        ! "${cmc_t03_fixture_passed}" =~ ^[0-9]+$ || \
+        ! "${cmc_t03_fixture_total}" =~ ^[0-9]+$ || \
+        "${cmc_ios_fixture_passed}" -eq 0 || \
+        "${cmc_ios_fixture_passed}" -ne "${cmc_ios_fixture_total}" || \
+        "${cmc_t03_fixture_passed}" -ne "${cmc_t03_fixture_total}" ]]; then
         printf 'Matrice T-03 incoerente con gate iOS corrente: gate=%q.\n' \
           "${cmc_ios_fixture_count}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
+      if [[ "${cmc_t07_status}" != 'NOT_RUN' || \
+        "${cmc_t07_evidence}" != \
+          "Fix ${cmc_last_fix_number} handoff pronto; re-review, PR/main CI e hygiene da eseguire" ]]; then
+        printf 'Matrice T-07 incoerente con il ciclo Fix corrente: task=%q, evidence=%q.\n' \
+          "${cmc_last_fix_number}" "${cmc_t07_evidence}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
+      if ! cmc_git_commit_is_valid "${cmc_artifact_revision}"; then
+        printf 'Artifact source SHA inesistente o fuori lineage: %q.\n' \
+          "${cmc_artifact_revision}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       fi
     fi
@@ -444,6 +686,7 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
       printf 'Worklog governance assente: %s\n' "${cmc_worklog}" >&2
       cmc_violation_count=$((cmc_violation_count + 1))
     else
+      cmc_reject_ambiguous_markdown "${cmc_worklog}" "Worklog"
       cmc_last_worklog_line="$(
         grep -nE "^## .*— ${cmc_active_task}([[:space:]]|$)" \
           "${cmc_worklog}" | tail -n 1 | cut -d: -f1 || true
@@ -452,6 +695,10 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         printf 'Worklog corrente assente per %s.\n' "${cmc_active_task}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       else
+        cmc_last_global_worklog_line="$(
+          grep -nE '^## ' "${cmc_worklog}" | tail -n 1 | \
+            cut -d: -f1 || true
+        )"
         cmc_last_worklog_block="$(
           awk -v start="${cmc_last_worklog_line}" '
             NR < start { next }
@@ -459,11 +706,51 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
             { print }
           ' "${cmc_worklog}"
         )"
-        if ! grep -Fq -- "\`${cmc_indicator}\`" \
-          <<<"${cmc_last_worklog_block}"; then
+        cmc_worklog_fix_number="$(
+          head -n 1 <<<"${cmc_last_worklog_block}" | \
+            sed -nE \
+              "s/^## [0-9-]+ — ${cmc_active_task} Fix ([0-9]+) (e handoff|re-review)$/\\1/p"
+        )"
+        cmc_worklog_revision_count="$(
+          sed -nE \
+            's/^- \*\*(Technical SHA|Exact HEAD)\*\*: `([0-9a-f]{40})`\.$/\2/p' \
+            <<<"${cmc_last_worklog_block}" | \
+            awk 'NF { count++ } END { print count + 0 }'
+        )"
+        cmc_worklog_revision="$(
+          sed -nE \
+            's/^- \*\*(Technical SHA|Exact HEAD)\*\*: `([0-9a-f]{40})`\.$/\2/p' \
+            <<<"${cmc_last_worklog_block}"
+        )"
+        cmc_worklog_handoff_count="$(
+          grep -Ec "^- \*\*Handoff\*\*: \`${cmc_indicator}\`\\.$" \
+            <<<"${cmc_last_worklog_block}" || true
+        )"
+        if [[ "${cmc_last_global_worklog_line}" != \
+          "${cmc_last_worklog_line}" ]]; then
+          printf 'Worklog corrente non è l ultimo heading globale per %s.\n' \
+            "${cmc_active_task}" >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
+        fi
+        if [[ "${cmc_worklog_handoff_count}" -ne 1 ]]; then
           printf 'Worklog corrente incoerente con handoff %s per %s.\n' \
             "${cmc_indicator}" "${cmc_active_task}" >&2
           cmc_violation_count=$((cmc_violation_count + 1))
+        fi
+        if [[ "${cmc_active_task}" == 'TASK-040' ]]; then
+          if [[ "${cmc_worklog_revision_count}" -ne 1 || \
+            "${cmc_worklog_revision}" != "${cmc_last_fix_revision}" ]]; then
+            printf 'Worklog corrente non correlato allo SHA task per %s: worklog=%q, task=%q.\n' \
+              "${cmc_active_task}" "${cmc_worklog_revision}" \
+              "${cmc_last_fix_revision}" >&2
+            cmc_violation_count=$((cmc_violation_count + 1))
+          fi
+          if [[ "${cmc_worklog_fix_number}" != \
+            "${cmc_last_fix_number}" ]]; then
+            printf 'Worklog corrente non correlato al ciclo Fix task: worklog=%q, task=%q.\n' \
+              "${cmc_worklog_fix_number}" "${cmc_last_fix_number}" >&2
+            cmc_violation_count=$((cmc_violation_count + 1))
+          fi
         fi
       fi
     fi

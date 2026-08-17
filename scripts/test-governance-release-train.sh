@@ -526,7 +526,7 @@ perl -0pi.bak -e '
 ' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
 rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
 cmc_expect_fail html-comment-tail-decoy "${cmc_case}" \
-  'Task chronology non può contenere commenti HTML'
+  'Task chronology contiene commenti, fence o heading indentati non ammessi'
 
 cmc_case="$(cmc_fixture out-of-order-fix-chronology)"
 perl -0pi.bak -e '
@@ -546,12 +546,228 @@ cmc_expect_fail manifest-revision-not-prefix "${cmc_case}" \
   'Release manifest revision incoerente'
 
 cmc_case="$(cmc_fixture stale-current-task-handoff)"
-perl -0pi.bak -e '
-  s/`CODEX_FIX_COMPLETE_TO_RE_REVIEW`\.\n\n## Chiusura/`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.\n\n## Chiusura/
-    or die "current task handoff missing\n";
-' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+cmc_current_indicator="$(
+  sed -n 's/^- \*\*Indicatore\*\*: //p' \
+    "${cmc_case}/docs/MASTER-PLAN.md" | head -n 1
+)"
+case "${cmc_current_indicator}" in
+  CODEX_FIX_COMPLETE_TO_RE_REVIEW)
+    cmc_stale_indicator='CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX'
+    ;;
+  *)
+    cmc_stale_indicator='CODEX_FIX_COMPLETE_TO_RE_REVIEW'
+    ;;
+esac
+CMC_CURRENT_INDICATOR="${cmc_current_indicator}" \
+  CMC_STALE_INDICATOR="${cmc_stale_indicator}" \
+  perl -0pi.bak -e '
+    my $current = quotemeta $ENV{CMC_CURRENT_INDICATOR};
+    my $stale = $ENV{CMC_STALE_INDICATOR};
+    s/`$current`\.\n\n## Chiusura/`$stale`.\n\n## Chiusura/
+      or die "current task handoff missing\n";
+  ' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
 rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
 cmc_expect_fail stale-current-task-handoff "${cmc_case}" \
   'Tail task incoerente con handoff'
 
-printf 'Governance release train: 26/26 fixture PASS.\n'
+cmc_case="$(cmc_fixture manifest-prose-row)"
+perl -0pi.bak -e '
+  s/^\| TASK-040 \|/prose | TASK-040 |/m
+    or die "TASK-040 manifest row missing\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail manifest-prose-row "${cmc_case}" \
+  'Release manifest richiede esattamente una riga'
+
+cmc_case="$(cmc_fixture manifest-blockquote-row)"
+perl -0pi.bak -e '
+  s/^\| TASK-040 \|/> | TASK-040 |/m
+    or die "TASK-040 manifest row missing\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail manifest-blockquote-row "${cmc_case}" \
+  'Release manifest richiede esattamente una riga'
+
+cmc_case="$(cmc_fixture manifest-code-block-row)"
+perl -0pi.bak -e '
+  s/^\| TASK-040 \|/    | TASK-040 |/m
+    or die "TASK-040 manifest row missing\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail manifest-code-block-row "${cmc_case}" \
+  'Release manifest richiede esattamente una riga'
+
+cmc_case="$(cmc_fixture manifest-extra-column)"
+perl -0pi.bak -e '
+  s/^(\| TASK-040 \|[^\n]*) \|$/$1 | EXTRA |/m
+    or die "TASK-040 manifest row missing\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail manifest-extra-column "${cmc_case}" \
+  'Release manifest richiede esattamente una riga'
+
+cmc_case="$(cmc_fixture evidence-prose-t02)"
+perl -0pi.bak -e '
+  s/^\| T-02 \|/prose | T-02 |/m or die "T-02 row missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-prose-t02 "${cmc_case}" \
+  'richiede esattamente una riga T-02'
+
+cmc_case="$(cmc_fixture evidence-blockquote-t03)"
+perl -0pi.bak -e '
+  s/^\| T-03 \|/> | T-03 |/m or die "T-03 row missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-blockquote-t03 "${cmc_case}" \
+  'richiede esattamente una riga T-03'
+
+cmc_case="$(cmc_fixture evidence-code-block-t02)"
+perl -0pi.bak -e '
+  s/^\| T-02 \|/    | T-02 |/m or die "T-02 row missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-code-block-t02 "${cmc_case}" \
+  'richiede esattamente una riga T-02'
+
+cmc_case="$(cmc_fixture evidence-extra-column-t02)"
+perl -0pi.bak -e '
+  s/^(\| T-02 \|[^\n]*) \|$/$1 | EXTRA |/m or die "T-02 row missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-extra-column-t02 "${cmc_case}" \
+  'richiede esattamente una riga T-02'
+
+cmc_case="$(cmc_fixture evidence-comment-decoy)"
+printf '%s\n' '<!-- hidden evidence row decoy -->' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-comment-decoy "${cmc_case}" \
+  'Evidence TASK-040 contiene commenti, fence o heading indentati non ammessi'
+
+cmc_case="$(cmc_fixture evidence-partial-ios-coordinated)"
+perl -0pi.bak -e '
+  s/(validator iOS avversariale )29\/29/${1}1\/29/
+    or die "current iOS gate count missing\n";
+  s/(^\| T-03 \|[^\n]*fixture iOS )29\/29/${1}1\/29/m
+    or die "T-03 count missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-partial-ios-coordinated "${cmc_case}" \
+  'Matrice T-03 incoerente'
+
+cmc_case="$(cmc_fixture task-code-fence)"
+perl -0pi.bak -e '
+  s/^## Fix$/## Fix\n```/m or die "Fix section missing\n";
+  s/^## Chiusura$/```\n## Chiusura/m or die "Chiusura missing\n";
+' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
+cmc_expect_fail task-code-fence "${cmc_case}" \
+  'Task chronology contiene commenti, fence o heading indentati non ammessi'
+
+cmc_case="$(cmc_fixture task-indented-heading)"
+perl -0pi.bak -e '
+  s/^(### (?:Re-review )?Fix [0-9]+)$/   $1/m
+    or die "Fix heading missing\n";
+' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
+cmc_expect_fail task-indented-heading "${cmc_case}" \
+  'Task chronology contiene commenti, fence o heading indentati non ammessi'
+
+cmc_case="$(cmc_fixture worklog-comment-decoy)"
+printf '%s\n' '<!-- hidden worklog handoff decoy -->' \
+  >>"${cmc_case}/docs/AI_WORKLOG.md"
+cmc_expect_fail worklog-comment-decoy "${cmc_case}" \
+  'Worklog contiene commenti, fence o heading indentati non ammessi'
+
+cmc_case="$(cmc_fixture worklog-global-tail)"
+printf '%s\n' '' '## 2026-08-17 — TASK-041 synthetic premature tail' \
+  >>"${cmc_case}/docs/AI_WORKLOG.md"
+cmc_expect_fail worklog-global-tail "${cmc_case}" \
+  'Worklog corrente non è l ultimo heading globale'
+
+cmc_case="$(cmc_fixture missing-worklog-sha)"
+perl -0pi.bak -e '
+  s/(.*^## [^\n]+ — TASK-040 Fix [^\n]+\n)(.*?)(^- \*\*(?:Technical SHA|Exact HEAD)\*\*: `[0-9a-f]{40}`\.\n)/$1$2/ms
+    or die "current worklog SHA missing\n";
+' "${cmc_case}/docs/AI_WORKLOG.md"
+rm "${cmc_case}/docs/AI_WORKLOG.md.bak"
+cmc_expect_fail missing-worklog-sha "${cmc_case}" \
+  'Worklog corrente non correlato allo SHA task'
+
+cmc_case="$(cmc_fixture mismatched-worklog-sha)"
+perl -0pi.bak -e '
+  s/(.*^## [^\n]+ — TASK-040 Fix [^\n]+\n.*?^- \*\*(?:Technical SHA|Exact HEAD)\*\*: `)[0-9a-f]{40}(`\.)/${1}a85d60774212f212d3ee8dd274db99af011925c8$2/ms
+    or die "current worklog SHA missing\n";
+' "${cmc_case}/docs/AI_WORKLOG.md"
+rm "${cmc_case}/docs/AI_WORKLOG.md.bak"
+cmc_expect_fail mismatched-worklog-sha "${cmc_case}" \
+  'Worklog corrente non correlato allo SHA task'
+
+cmc_case="$(cmc_fixture nonexistent-coordinated-sha)"
+cmc_current_revision="$(
+  sed -nE 's/^- exact (technical|review) SHA: `([0-9a-f]{40})`;$/\2/p' \
+    "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md" | tail -n 1
+)"
+CMC_SOURCE_REVISION="${cmc_current_revision}" perl -0pi.bak -e '
+  my $source = quotemeta $ENV{CMC_SOURCE_REVISION};
+  s/$source/1111111111111111111111111111111111111111/g;
+' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md" \
+  "${cmc_case}/docs/AI_WORKLOG.md"
+rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak" \
+  "${cmc_case}/docs/AI_WORKLOG.md.bak"
+perl -0pi.bak -e '
+  s/(\| TASK-040 \|[^\n]*\| `)[0-9a-f]{7,40}(` [^|]*\|)/${1}1111111${2}/
+    or die "manifest revision missing\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail nonexistent-coordinated-sha "${cmc_case}" \
+  'Tail task revision inesistente o fuori lineage'
+
+cmc_case="$(cmc_fixture rollback-current-fix-cycle)"
+cmc_current_fix_number="$(
+  sed -nE 's/^### (Re-review )?Fix ([0-9]+)$/\2/p' \
+    "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md" | tail -n 1
+)"
+cmc_previous_fix_number=$((cmc_current_fix_number - 1))
+CMC_CURRENT_FIX="${cmc_current_fix_number}" \
+  CMC_PREVIOUS_FIX="${cmc_previous_fix_number}" \
+  perl -0pi.bak -e '
+    my $current = $ENV{CMC_CURRENT_FIX};
+    my $previous = $ENV{CMC_PREVIOUS_FIX};
+    s/(.*^### (?:Re-review )?Fix )$current$/${1}$previous/ms
+      or die "last task Fix heading missing\n";
+  ' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
+CMC_CURRENT_FIX="${cmc_current_fix_number}" \
+  CMC_PREVIOUS_FIX="${cmc_previous_fix_number}" \
+  perl -0pi.bak -e '
+    my $current = $ENV{CMC_CURRENT_FIX};
+    my $previous = $ENV{CMC_PREVIOUS_FIX};
+    s/(\| TASK-040 \|[^\n]*\| Fix )$current([ :])/${1}$previous$2/
+      or die "manifest Fix missing\n";
+  ' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+CMC_CURRENT_FIX="${cmc_current_fix_number}" \
+  CMC_PREVIOUS_FIX="${cmc_previous_fix_number}" \
+  perl -0pi.bak -e '
+  my $current = $ENV{CMC_CURRENT_FIX};
+  my $previous = $ENV{CMC_PREVIOUS_FIX};
+  s/(^## Gate executor corrente — Fix )$current$/${1}$previous/m
+    or die "current evidence Fix heading missing\n";
+  s/(^\| T-07 \| NOT_RUN \| Fix )$current( handoff)/${1}$previous$2/m
+    or die "T-07 current Fix missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+CMC_CURRENT_FIX="${cmc_current_fix_number}" \
+  CMC_PREVIOUS_FIX="${cmc_previous_fix_number}" \
+  perl -0pi.bak -e '
+    my $current = $ENV{CMC_CURRENT_FIX};
+    my $previous = $ENV{CMC_PREVIOUS_FIX};
+    s/(.*^## [^\n]+ — TASK-040 Fix )$current( (?:e handoff|re-review))$/${1}$previous$2/ms
+      or die "current worklog Fix heading missing\n";
+  ' "${cmc_case}/docs/AI_WORKLOG.md"
+rm "${cmc_case}/docs/AI_WORKLOG.md.bak"
+cmc_expect_fail rollback-current-fix-cycle "${cmc_case}" \
+  'Ciclo Fix corrente non ancorato alla chronology Git'
+
+printf 'Governance release train: 44/44 fixture PASS.\n'

@@ -14,13 +14,6 @@ void main(List<String> arguments) {
 
   try {
     final file = File(arguments[1]).absolute;
-    if (FileSystemEntity.isLinkSync(file.path)) {
-      fail('FILE_NOT_REGULAR');
-    }
-    final resolved = file.resolveSymbolicLinksSync();
-    if (resolved != file.path) {
-      fail('FILE_PATH_NOT_CANONICAL');
-    }
     final bytes = _readRegularFile(file.path);
     final attestation = ReleaseConfigAttestation.fromBytes(bytes);
     stdout.writeln(attestation.sha256);
@@ -52,6 +45,8 @@ List<int> _readRegularFile(String path) {
       fail('FILE_SIZE_INVALID');
     case 43:
       fail('FILE_CHANGED_DURING_READ');
+    case 45:
+      fail('FILE_PATH_NOT_CANONICAL');
     default:
       fail('FILE_UNREADABLE');
   }
@@ -59,17 +54,53 @@ List<int> _readRegularFile(String path) {
 
 const _boundedReadScript = r'''
 import os
+import errno
 import stat
 import sys
 
 path = sys.argv[1]
-flags = os.O_RDONLY | os.O_NONBLOCK | getattr(os, "O_NOFOLLOW", 0)
-try:
-    descriptor = os.open(path, flags)
-except OSError:
-    sys.exit(44)
+if (
+    not os.path.isabs(path)
+    or os.path.normpath(path) != path
+    or not hasattr(os, "O_DIRECTORY")
+    or not hasattr(os, "O_NOFOLLOW")
+):
+    sys.exit(45)
 
+components = path.split(os.sep)[1:]
+if not components or any(component in ("", ".", "..") for component in components):
+    sys.exit(45)
+
+directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+file_flags = os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW
+directory_descriptor = None
+descriptor = None
 try:
+    directory_descriptor = os.open(os.sep, directory_flags)
+    for component in components[:-1]:
+        try:
+            next_descriptor = os.open(
+                component,
+                directory_flags,
+                dir_fd=directory_descriptor,
+            )
+        except OSError as error:
+            if error.errno in (errno.ELOOP, errno.ENOTDIR):
+                sys.exit(45)
+            sys.exit(44)
+        os.close(directory_descriptor)
+        directory_descriptor = next_descriptor
+    try:
+        descriptor = os.open(
+            components[-1],
+            file_flags,
+            dir_fd=directory_descriptor,
+        )
+    except OSError as error:
+        if error.errno == errno.ELOOP:
+            sys.exit(41)
+        sys.exit(44)
+
     before = os.fstat(descriptor)
     if not stat.S_ISREG(before.st_mode):
         sys.exit(41)
@@ -94,5 +125,8 @@ try:
         sys.exit(43)
     sys.stdout.buffer.write(payload)
 finally:
-    os.close(descriptor)
+    if descriptor is not None:
+        os.close(descriptor)
+    if directory_descriptor is not None:
+        os.close(directory_descriptor)
 ''';

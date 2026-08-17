@@ -179,6 +179,80 @@ void main() {
       );
     },
   );
+
+  test(
+    'race ancestor directory symlink non legge mai il config alternativo',
+    () async {
+      final root = await Directory.systemTemp.createTemp(
+        'cmc-ios-runtime-ancestor-race-',
+      );
+      addTearDown(() => root.deleteSync(recursive: true));
+      final canonicalRoot = Directory(root.resolveSymbolicLinksSync());
+      final live = Directory('${canonicalRoot.path}/live')..createSync();
+      final holding = Directory('${canonicalRoot.path}/holding');
+      final alternate = Directory('${canonicalRoot.path}/alternate')
+        ..createSync();
+      final original = await _runtimeFixtureIn(live, 'storefront-original');
+      final alternateFile = await _runtimeFixtureIn(
+        alternate,
+        'storefront-alternate',
+      );
+      final originalSha = ReleaseConfigAttestation.fromBytes(
+        original.readAsBytesSync(),
+      ).sha256;
+      final alternateSha = ReleaseConfigAttestation.fromBytes(
+        alternateFile.readAsBytesSync(),
+      ).sha256;
+      var stop = false;
+      final swapper = () async {
+        while (!stop) {
+          try {
+            live.renameSync(holding.path);
+            Link(live.path).createSync(alternate.path);
+            await Future<void>.delayed(const Duration(milliseconds: 1));
+            Link(live.path).deleteSync();
+            holding.renameSync(live.path);
+          } on FileSystemException {
+            // La lettura concorrente può osservare solo l'originale o un rifiuto.
+          }
+          await Future<void>.delayed(Duration.zero);
+        }
+      }();
+      addTearDown(() async {
+        stop = true;
+        await swapper;
+        final liveType = FileSystemEntity.typeSync(
+          live.path,
+          followLinks: false,
+        );
+        if (liveType == FileSystemEntityType.link) {
+          Link(live.path).deleteSync();
+        }
+        if (holding.existsSync() && !live.existsSync()) {
+          holding.renameSync(live.path);
+        }
+      });
+
+      for (var attempt = 0; attempt < 30; attempt += 1) {
+        final result = await _runValidatorBounded(
+          repositoryRoot,
+          '${live.path}/production.json',
+        );
+        expect((result.stdout as String).trim(), isNot(alternateSha));
+        if (result.exitCode == 0) {
+          expect((result.stdout as String).trim(), originalSha);
+        } else {
+          expect(
+            result.stderr,
+            anyOf(
+              contains('FILE_PATH_NOT_CANONICAL'),
+              contains('FILE_UNREADABLE'),
+            ),
+          );
+        }
+      }
+    },
+  );
 }
 
 Future<ProcessResult> _runValidator(String repositoryRoot, String path) {
@@ -224,6 +298,10 @@ Future<File> _runtimeFixture() async {
   final directory = await Directory.systemTemp.createTemp(
     'cmc-ios-runtime-config-',
   );
+  return _runtimeFixtureIn(directory, 'storefront-synthetic');
+}
+
+Future<File> _runtimeFixtureIn(Directory directory, String shopSlug) async {
   final file = File('${directory.path}/production.json')
     ..writeAsStringSync(
       jsonEncode({
@@ -233,7 +311,7 @@ Future<File> _runtimeFixture() async {
         'AUTH_REDIRECT_URI':
             'https://clientmerchandisecontrol.invalid/auth-callback/',
         'GOOGLE_AUTH_ENABLED': 'false',
-        'STOREFRONT_SHOP_SLUG': 'storefront-synthetic',
+        'STOREFRONT_SHOP_SLUG': shopSlug,
         'DELIVERY_MAPS_ENABLED': 'false',
         'DELIVERY_MAPS_NATIVE_CONFIGURED': 'false',
       }),

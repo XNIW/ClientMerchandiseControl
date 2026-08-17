@@ -201,6 +201,32 @@ mv "${cmc_fixture_shop_slug_string_file}.tmp" \
   "${cmc_fixture_shop_slug_string_file}"
 cmc_fixture_expect_rejection "${cmc_fixture_shop_slug_string_path}"
 
+cmc_fixture_shop_slug_class_path="$(
+  cmc_fixture_prepare invalid-storefront-shop-slug-class-decoy
+)"
+cmc_fixture_shop_slug_class_file="${cmc_fixture_shop_slug_class_path}/lib/core/config/app_config.dart"
+perl -0pi -e '
+  s{  static const _compiledStorefrontShopSlug = String\.fromEnvironment\(\n    .STOREFRONT_SHOP_SLUG.,\n  \);}{  static const _compiledStorefrontShopSlugRuntime = String.fromEnvironment(\n    \x27ATTACKER_SHOP_SLUG\x27,\n  );\n  static String get _compiledStorefrontShopSlug =>\n      _compiledStorefrontShopSlugRuntime;}
+' "${cmc_fixture_shop_slug_class_file}"
+if ! grep -Fq -- "'ATTACKER_SHOP_SLUG'," \
+  "${cmc_fixture_shop_slug_class_file}"; then
+  printf 'Fixture class decoy non preparabile: mutation assente.\n' >&2
+  exit 1
+fi
+{
+  printf '%s\n' \
+    'class StorefrontBindingDecoy {' \
+    '  static const _compiledStorefrontShopSlug =' \
+    "      String.fromEnvironment('STOREFRONT_SHOP_SLUG');" \
+    '  static String get value => _compiledStorefrontShopSlug;' \
+    '}' \
+    ''
+  cat "${cmc_fixture_shop_slug_class_file}"
+} >"${cmc_fixture_shop_slug_class_file}.tmp"
+mv "${cmc_fixture_shop_slug_class_file}.tmp" \
+  "${cmc_fixture_shop_slug_class_file}"
+cmc_fixture_expect_rejection "${cmc_fixture_shop_slug_class_path}"
+
 if [[ "${cmc_fixture_rejected}" -ne "${cmc_fixture_total}" ]]; then
   printf 'Fixture negative respinte: %d/%d.\n' \
     "${cmc_fixture_rejected}" "${cmc_fixture_total}" >&2

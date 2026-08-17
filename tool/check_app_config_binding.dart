@@ -24,7 +24,11 @@ void main(List<String> arguments) {
     }
     final visitor = _StorefrontBindingVisitor();
     parsed.unit.accept(visitor);
-    if (visitor.declarations != 1 || visitor.validBindings != 1) {
+    if (visitor.appConfigClasses != 1 ||
+        visitor.declarations != 1 ||
+        visitor.validBindings != 1 ||
+        visitor.fromEnvironmentFactories != 1 ||
+        visitor.validFactoryConsumers != 1) {
       _fail('STOREFRONT_BINDING_INVALID');
     }
     stdout.writeln('APP_CONFIG_BINDING_VALID');
@@ -34,8 +38,32 @@ void main(List<String> arguments) {
 }
 
 final class _StorefrontBindingVisitor extends RecursiveAstVisitor<void> {
+  var appConfigClasses = 0;
   var declarations = 0;
   var validBindings = 0;
+  var fromEnvironmentFactories = 0;
+  var validFactoryConsumers = 0;
+
+  @override
+  void visitClassDeclaration(ClassDeclaration node) {
+    if (node.namePart.typeName.lexeme == 'AppConfig') {
+      appConfigClasses += 1;
+      for (final member in node.body.members) {
+        if (member is ConstructorDeclaration &&
+            member.name?.lexeme == 'fromEnvironment') {
+          fromEnvironmentFactories += 1;
+          if (member.factoryKeyword != null) {
+            final consumer = _FromEnvironmentConsumerVisitor();
+            member.body.accept(consumer);
+            if (consumer.isValid) {
+              validFactoryConsumers += 1;
+            }
+          }
+        }
+      }
+    }
+    super.visitClassDeclaration(node);
+  }
 
   @override
   void visitVariableDeclaration(VariableDeclaration node) {
@@ -44,8 +72,11 @@ final class _StorefrontBindingVisitor extends RecursiveAstVisitor<void> {
     }
     declarations += 1;
     final field = node.parent?.parent;
+    final enclosingClass = field?.parent?.parent;
     final initializer = node.initializer;
     if (field is! FieldDeclaration ||
+        enclosingClass is! ClassDeclaration ||
+        enclosingClass.namePart.typeName.lexeme != 'AppConfig' ||
         !field.isStatic ||
         !node.isConst ||
         initializer is! MethodInvocation ||
@@ -62,5 +93,45 @@ final class _StorefrontBindingVisitor extends RecursiveAstVisitor<void> {
     if (key.value == 'STOREFRONT_SHOP_SLUG') {
       validBindings += 1;
     }
+  }
+}
+
+final class _FromEnvironmentConsumerVisitor extends RecursiveAstVisitor<void> {
+  var storefrontArguments = 0;
+  var validStorefrontArguments = 0;
+  var attestationEntries = 0;
+  var validAttestationEntries = 0;
+
+  bool get isValid =>
+      storefrontArguments == 1 &&
+      validStorefrontArguments == 1 &&
+      attestationEntries == 1 &&
+      validAttestationEntries == 1;
+
+  @override
+  void visitNamedArgument(NamedArgument node) {
+    if (node.name.lexeme == 'storefrontShopSlug') {
+      storefrontArguments += 1;
+      final expression = node.argumentExpression;
+      if (expression is SimpleIdentifier &&
+          expression.name == '_compiledStorefrontShopSlug') {
+        validStorefrontArguments += 1;
+      }
+    }
+    super.visitNamedArgument(node);
+  }
+
+  @override
+  void visitMapLiteralEntry(MapLiteralEntry node) {
+    final key = node.key;
+    if (key is SimpleStringLiteral && key.value == 'STOREFRONT_SHOP_SLUG') {
+      attestationEntries += 1;
+      final value = node.value;
+      if (value is SimpleIdentifier &&
+          value.name == '_compiledStorefrontShopSlug') {
+        validAttestationEntries += 1;
+      }
+    }
+    super.visitMapLiteralEntry(node);
   }
 }

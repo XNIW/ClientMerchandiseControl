@@ -352,17 +352,44 @@ cmc_ios_release_privacy_paths=(
   'shared_preferences_foundation_shared_preferences_foundation.bundle/PrivacyInfo.xcprivacy'
   'url_launcher_ios_url_launcher_ios.bundle/PrivacyInfo.xcprivacy'
 )
-for cmc_ios_release_privacy_relative in \
-  "${cmc_ios_release_privacy_paths[@]}"; do
+cmc_ios_release_privacy_sha256=(
+  '3528adeddf0b68a86a885a1f361b1e8e4c4c2002f03b1490bba3fa0c6b0ae7c2'
+  '30e7356e5a4601a790ff13801eb5c16a361a7efed258ba0b7912976a072ba0c6'
+  '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
+  '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
+  '53f5cef36626b46c5490cdb9af8ab42c3c67778b21267e899ca6d494118ffb18'
+  '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
+  '333d51ec3d7daca74fe6a61bfb18074708bed233b4d5d0f3a1ad161e96d85b1c'
+  '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
+)
+for cmc_ios_release_privacy_index in \
+  "${!cmc_ios_release_privacy_paths[@]}"; do
+  cmc_ios_release_privacy_relative="${cmc_ios_release_privacy_paths[cmc_ios_release_privacy_index]}"
+  cmc_ios_release_privacy_file="${cmc_ios_release_app}/${cmc_ios_release_privacy_relative}"
   [[ -f "${cmc_ios_release_app}/${cmc_ios_release_privacy_relative}" ]] || \
     cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_MISSING'
   plutil -lint \
-    "${cmc_ios_release_app}/${cmc_ios_release_privacy_relative}" \
+    "${cmc_ios_release_privacy_file}" \
     >/dev/null 2>&1 || \
     cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_INVALID'
   cmc_ios_release_validate_privacy_manifest \
-    "${cmc_ios_release_app}/${cmc_ios_release_privacy_relative}" || \
+    "${cmc_ios_release_privacy_file}" || \
     cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_INVALID'
+  cmc_ios_release_privacy_digest="$(
+    plutil -convert json -o - "${cmc_ios_release_privacy_file}" 2>/dev/null | \
+      perl -MJSON::PP -e '
+        use strict;
+        use warnings;
+        local $/;
+        my $decoded = eval { JSON::PP->new->utf8->decode(<STDIN>) };
+        exit 1 if $@;
+        print JSON::PP->new->canonical->encode($decoded);
+      ' | shasum -a 256
+  )" || cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_INVALID'
+  cmc_ios_release_privacy_digest="${cmc_ios_release_privacy_digest%% *}"
+  [[ "${cmc_ios_release_privacy_digest}" == \
+    "${cmc_ios_release_privacy_sha256[cmc_ios_release_privacy_index]}" ]] || \
+    cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_CONTENT_MISMATCH'
 done
 [[ "$(find "${cmc_ios_release_app}" -name PrivacyInfo.xcprivacy -type f | \
   wc -l | tr -d '[:space:]')" -eq "${#cmc_ios_release_privacy_paths[@]}" ]] || \

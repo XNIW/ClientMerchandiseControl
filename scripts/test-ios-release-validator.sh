@@ -224,6 +224,18 @@ cmc_ios_test_expect_failure privacy-reason-category-mismatch \
 cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
   "${cmc_ios_test_required_privacy}"
 
+cmc_ios_test_maps_privacy="${cmc_ios_test_fixture_app}/google_maps_flutter_ios_privacy.bundle/PrivacyInfo.xcprivacy"
+cp "${cmc_ios_test_maps_privacy}" \
+  "${cmc_ios_test_tmp_root}/google-maps.valid.xcprivacy"
+cp "${cmc_ios_test_required_privacy}" "${cmc_ios_test_maps_privacy}"
+cmc_ios_test_expect_failure privacy-sdk-content-mismatch \
+  DEPENDENCY_PRIVACY_MANIFEST_CONTENT_MISMATCH \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_tmp_root}/google-maps.valid.xcprivacy" \
+  "${cmc_ios_test_maps_privacy}"
+
 cmc_ios_test_entitlements="${cmc_ios_test_tmp_root}/entitlements.plist"
 cp "${cmc_ios_test_root}/ios/Runner/PrivacyInfo.xcprivacy" \
   "${cmc_ios_test_entitlements}"

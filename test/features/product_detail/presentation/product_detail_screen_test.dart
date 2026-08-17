@@ -173,6 +173,72 @@ void main() {
     expect(find.byType(StorefrontProductCard), findsOneWidget);
   });
 
+  testWidgets(
+    'navigazione e render product detail rispettano budget e una RPC logica',
+    (tester) async {
+      final repository = _DetailRepository(product: _detailProduct());
+      final router = GoRouter(
+        initialLocation: '/list',
+        routes: [
+          GoRoute(
+            path: '/list',
+            builder: (context, state) => Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 320,
+                  child: StorefrontProductCard(product: _detailProduct()),
+                ),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: AppRoutes.productPattern,
+            builder: (context, state) => ProductDetailScreen(
+              publicationId: state.pathParameters['publicationId'] ?? '',
+            ),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        _routerApp(repository: repository, router: router),
+      );
+      await tester.pumpAndSettle();
+
+      Future<int> openAndReturn() async {
+        final callsBefore = repository.calls.length;
+        final stopwatch = Stopwatch()..start();
+        await tester.tap(find.byKey(ValueKey('open-product-$_publicationId')));
+        await tester.pumpAndSettle();
+        stopwatch.stop();
+        expect(find.byType(ProductDetailScreen), findsOneWidget);
+        expect(repository.calls, hasLength(callsBefore + 1));
+        router.go('/list');
+        await tester.pumpAndSettle();
+        return stopwatch.elapsedMicroseconds;
+      }
+
+      for (var warmup = 0; warmup < 5; warmup++) {
+        await openAndReturn();
+      }
+      final samples = <int>[];
+      for (var sample = 0; sample < 30; sample++) {
+        samples.add(await openAndReturn());
+      }
+      final p50 = _percentileMicros(samples, 0.50);
+      final p95 = _percentileMicros(samples, 0.95);
+      final p99 = _percentileMicros(samples, 0.99);
+      debugPrint(
+        'PRODUCT_DETAIL_RENDER_PERF environment=flutter_test_host '
+        'warmup=5 samples=30 p50_us=$p50 p95_us=$p95 p99_us=$p99 '
+        'rpc_per_navigation=1',
+      );
+      expect(p95, lessThan(250000));
+      expect(tester.takeException(), isNull);
+    },
+    tags: const ['performance'],
+  );
+
   testWidgets('ID route invalido è unavailable e non effettua RPC', (
     tester,
   ) async {
@@ -341,6 +407,11 @@ void main() {
       expect(tester.takeException(), isNull, reason: locale.toLanguageTag());
     }
   });
+}
+
+int _percentileMicros(List<int> values, double percentile) {
+  final sorted = [...values]..sort();
+  return sorted[((sorted.length - 1) * percentile).ceil()];
 }
 
 Widget _detailApp({

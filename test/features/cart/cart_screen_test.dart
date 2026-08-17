@@ -161,6 +161,51 @@ void main() {
     },
   );
 
+  testWidgets(
+    'navigazione cart checkout rispetta budget e non duplica letture',
+    (tester) async {
+      final store = _FakeGuestCartStore(snapshot: _cartSnapshot());
+      await tester.pumpWidget(buildApp(store: store));
+      await tester.pumpAndSettle();
+
+      Future<int> navigateAndReturn() async {
+        final readsBeforeCheckout = store.readCalls;
+        final stopwatch = Stopwatch()..start();
+        await tester.tap(find.byKey(const ValueKey('cart-checkout')));
+        await tester.pumpAndSettle();
+        stopwatch.stop();
+        expect(router.state.uri.path, AppRoutes.checkoutLocation);
+        expect(
+          store.readCalls,
+          readsBeforeCheckout,
+          reason: 'la singola navigazione non legge nuovamente il carrello',
+        );
+        router.go(AppRoutes.cartLocation);
+        await tester.pumpAndSettle();
+        return stopwatch.elapsedMicroseconds;
+      }
+
+      for (var warmup = 0; warmup < 5; warmup++) {
+        await navigateAndReturn();
+      }
+      final samples = <int>[];
+      for (var sample = 0; sample < 30; sample++) {
+        samples.add(await navigateAndReturn());
+      }
+      final p50 = _percentileMicros(samples, 0.50);
+      final p95 = _percentileMicros(samples, 0.95);
+      final p99 = _percentileMicros(samples, 0.99);
+      debugPrint(
+        'CHECKOUT_NAVIGATION_PERF environment=flutter_test_host '
+        'warmup=5 samples=30 p50_us=$p50 p95_us=$p95 p99_us=$p99 '
+        'extra_reads_per_navigation=0',
+      );
+      expect(p95, lessThan(400000));
+      expect(tester.takeException(), isNull);
+    },
+    tags: const ['performance'],
+  );
+
   testWidgets('semantics e target quantità rispettano 48 logical pixel', (
     tester,
   ) async {
@@ -311,10 +356,13 @@ final class _FakeGuestCartStore implements GuestCartStore {
   CustomerCartSnapshot snapshot;
   final List<int> quantityCalls = [];
   int removeCalls = 0;
+  int readCalls = 0;
 
   @override
-  Future<CustomerCartSnapshot> read({required String shopSlug}) async =>
-      snapshot;
+  Future<CustomerCartSnapshot> read({required String shopSlug}) async {
+    readCalls++;
+    return snapshot;
+  }
 
   @override
   Future<CustomerCartSnapshot> setQuantity({
@@ -371,4 +419,9 @@ final class _FakeGuestCartStore implements GuestCartStore {
     required StorefrontProductSummary product,
     required int quantity,
   }) async => snapshot;
+}
+
+int _percentileMicros(List<int> values, double percentile) {
+  final sorted = [...values]..sort();
+  return sorted[((sorted.length - 1) * percentile).ceil()];
 }

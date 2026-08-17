@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -7,6 +8,7 @@ import 'package:http/http.dart' as http;
 
 import '../../../core/backend/public_backend_http_client.dart';
 import '../../../core/config/app_config.dart';
+import '../../../core/time/app_scheduler.dart';
 
 final storefrontVerifiedImageLoaderProvider =
     Provider<StorefrontVerifiedImageLoader>((ref) {
@@ -14,6 +16,7 @@ final storefrontVerifiedImageLoaderProvider =
       return StorefrontVerifiedImageLoader(
         client: ref.watch(publicBackendHttpClientProvider),
         publicOrigin: origin == null ? null : Uri.parse(origin),
+        scheduler: ref.watch(appSchedulerProvider),
       );
     });
 
@@ -25,8 +28,18 @@ final class StorefrontVerifiedImageLoader {
     required this.client,
     required this.publicOrigin,
     this.maximumBytes = 5 * 1024 * 1024,
+    this.maximumCacheBytes = 24 * 1024 * 1024,
+    this.maximumCacheEntries = 64,
     this.downloadTimeout = const Duration(seconds: 8),
-  });
+    this.scheduler = const TimerAppScheduler(),
+  }) {
+    if (maximumBytes < 1 ||
+        maximumCacheBytes < 1 ||
+        maximumCacheEntries < 1 ||
+        downloadTimeout <= Duration.zero) {
+      throw ArgumentError('image_loader_limits');
+    }
+  }
 
   static const _publicImagePathPrefix =
       '/storage/v1/object/public/storefront-product-images/';
@@ -34,8 +47,14 @@ final class StorefrontVerifiedImageLoader {
   final http.Client client;
   final Uri? publicOrigin;
   final int maximumBytes;
+  final int maximumCacheBytes;
+  final int maximumCacheEntries;
   final Duration downloadTimeout;
-  final Map<String, Uint8List> _contentAddressedCache = {};
+  final AppScheduler scheduler;
+  final LinkedHashMap<String, Uint8List> _contentAddressedCache =
+      LinkedHashMap<String, Uint8List>();
+  final Map<String, Future<Uint8List>> _inFlight = {};
+  int _cachedBytes = 0;
 
   Future<Uint8List> load({required Uri uri, required String sha256Digest}) {
     final normalizedDigest = sha256Digest.toLowerCase();
@@ -45,11 +64,26 @@ final class StorefrontVerifiedImageLoader {
         const StorefrontImageVerificationException('image_identity_rejected'),
       );
     }
-    final cached = _contentAddressedCache[normalizedDigest];
+    final cached = _contentAddressedCache.remove(normalizedDigest);
     if (cached != null) {
+      _contentAddressedCache[normalizedDigest] = cached;
       return Future<Uint8List>.value(Uint8List.fromList(cached));
     }
-    return _download(uri, normalizedDigest).timeout(downloadTimeout);
+    final active = _inFlight[normalizedDigest];
+    if (active != null) return active.then(Uint8List.fromList);
+
+    final download = _withDeadline(_download(uri, normalizedDigest)).then((
+      value,
+    ) {
+      _store(normalizedDigest, value);
+      return value;
+    });
+    _inFlight[normalizedDigest] = download;
+    return download.then(Uint8List.fromList).whenComplete(() {
+      if (identical(_inFlight[normalizedDigest], download)) {
+        _inFlight.remove(normalizedDigest);
+      }
+    });
   }
 
   Future<Uint8List> _download(Uri uri, String expectedDigest) async {
@@ -84,8 +118,42 @@ final class StorefrontVerifiedImageLoader {
     if (value.isEmpty || sha256.convert(value).toString() != expectedDigest) {
       throw const StorefrontImageVerificationException('image_digest_mismatch');
     }
-    _contentAddressedCache[expectedDigest] = Uint8List.fromList(value);
-    return Uint8List.fromList(value);
+    return value;
+  }
+
+  Future<T> _withDeadline<T>(Future<T> operation) {
+    final result = Completer<T>();
+    final deadline = scheduler.schedule(downloadTimeout, () {
+      if (!result.isCompleted) {
+        result.completeError(
+          TimeoutException('storefront_image_download', downloadTimeout),
+        );
+      }
+    });
+    operation.then(
+      (value) {
+        if (!result.isCompleted) result.complete(value);
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        if (!result.isCompleted) result.completeError(error, stackTrace);
+      },
+    );
+    return result.future.whenComplete(deadline.cancel);
+  }
+
+  void _store(String digest, Uint8List value) {
+    if (value.lengthInBytes > maximumCacheBytes) return;
+    final previous = _contentAddressedCache.remove(digest);
+    if (previous != null) _cachedBytes -= previous.lengthInBytes;
+    final retained = Uint8List.fromList(value);
+    _contentAddressedCache[digest] = retained;
+    _cachedBytes += retained.lengthInBytes;
+    while (_contentAddressedCache.length > maximumCacheEntries ||
+        _cachedBytes > maximumCacheBytes) {
+      final oldestDigest = _contentAddressedCache.keys.first;
+      final removed = _contentAddressedCache.remove(oldestDigest);
+      if (removed != null) _cachedBytes -= removed.lengthInBytes;
+    }
   }
 
   bool _isAllowedUri(Uri uri) {

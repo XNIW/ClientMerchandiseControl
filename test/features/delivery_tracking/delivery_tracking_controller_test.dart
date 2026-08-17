@@ -10,6 +10,7 @@ import 'package:client_merchandise_control/features/delivery_tracking/applicatio
 import 'package:client_merchandise_control/features/delivery_tracking/data/supabase_delivery_tracking_repository.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/domain/delivery_tracking_failure.dart';
 import 'package:client_merchandise_control/features/delivery_tracking/domain/delivery_tracking_models.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -915,6 +916,57 @@ void main() {
       await repository.stream.close();
     },
   );
+
+  test(
+    'pubblicazione realtime tracking rispetta budget e non avvia request extra',
+    () async {
+      final repository = FakeDeliveryTrackingRepository();
+      final container = _container(
+        repository: repository,
+        cache: MemoryDeliveryTrackingCache(),
+      );
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+
+      for (var version = 5; version < 10; version++) {
+        repository.stream.add(trackingLiveSnapshot(version: version));
+        await _waitFor(
+          container,
+          (state) => state.snapshot?.version == version,
+        );
+      }
+      final samples = <int>[];
+      for (var version = 10; version < 40; version++) {
+        final stopwatch = Stopwatch()..start();
+        repository.stream.add(trackingLiveSnapshot(version: version));
+        await _waitFor(
+          container,
+          (state) => state.snapshot?.version == version,
+        );
+        stopwatch.stop();
+        samples.add(stopwatch.elapsedMicroseconds);
+      }
+
+      final p50 = _percentileMicros(samples, 0.50);
+      final p95 = _percentileMicros(samples, 0.95);
+      final p99 = _percentileMicros(samples, 0.99);
+      debugPrint(
+        'TRACKING_PUBLICATION_PERF environment=flutter_test_host '
+        'warmup=5 samples=30 p50_us=$p50 p95_us=$p95 p99_us=$p99 '
+        'rpc_loads=${repository.loadCalls} realtime_subscriptions=${repository.watchCalls}',
+      );
+      expect(p95, lessThan(100000));
+      expect(repository.loadCalls, 1);
+      expect(repository.watchCalls, 1);
+    },
+    tags: const ['performance'],
+  );
 }
 
 DeliveryTrackingSnapshot _terminalSnapshot({required int version}) {
@@ -1065,4 +1117,9 @@ Future<void> _flush() async {
   for (var iteration = 0; iteration < 12; iteration++) {
     await Future<void>.delayed(Duration.zero);
   }
+}
+
+int _percentileMicros(List<int> values, double percentile) {
+  final sorted = [...values]..sort();
+  return sorted[((sorted.length - 1) * percentile).ceil()];
 }

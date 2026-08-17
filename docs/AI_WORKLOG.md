@@ -2727,3 +2727,120 @@
 - **Esito**: zero P0/P1/P2/P3, `APPROVED`.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
   autorizzazione persistente valida per PR, CI exact-SHA e merge normale.
+
+## 2026-08-17 — TASK-036 closeout, staging e attivazione TASK-037
+
+- **Admin**: PR #93 head `c8dd7080`, CI PR `31982974675` e Cloudflare
+  `31982974682` verdi; merge normale `59668348`; CI main `31983374103` e
+  Cloudflare build `31983374123` verdi. Nessun deploy Cloudflare staging/production.
+- **Client**: PR #14 head `662e7bb`, CI PR `31982980870` 3/3; merge normale
+  `96a9359`; CI main `31983526499` 3/3 con bundle security Android/iOS.
+- **Staging**: migration timezone dry-run `31983931437`, apply `31983967203` e
+  delivery tracking remoto `31984019280` 60/60 con ledger/RLS/lifecycle/cleanup,
+  tutti `PASS`; production invariata.
+- **Hygiene remoto**: branch TASK-036 Client/Admin eliminate; finding aperti zero
+  P0/P1/P2/P3.
+- **Transizione**: TASK-036 `DONE / USER_APPROVED_DONE`; TASK-037 è l'unico task
+  `ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`, con budget congelati
+  prima di nuove ottimizzazioni.
+
+## 2026-08-17 — TASK-037 baseline, fix e gate pre-handoff
+
+- **Finding**: la cache raw delle immagini verificate era process-lifetime e senza
+  cap; introdotti LRU 64 entry/24 MiB, single-flight, copie consumer isolate ed
+  eviction/retry deterministici.
+- **Load locale**: small/medium/25k con 250 categorie, cart 100 linee, order cache
+  50 card e selector 500 ordini; cinque repeat tutti verdi. Stress immagini e
+  rebuild tracking `10 x 2 = 20/20`.
+- **Device**: Android API 35 profile cold p95 1.359 ms, warm p95 411 ms, PSS max
+  131.292 KB e RSS max 252.244 KB; iOS fisico offline, nessun PASS inferito.
+- **Staging**: run `31985297932` exact Admin main, 91.200 righe equivalenti,
+  catalog/search/detail p95 50,608/718,325/6,069 ms, keyset/FTS e cleanup zero.
+  Sul run committed `31985724356`, cinque journey Flutter profile exact Client
+  `398bd05` sono verdi: 2.657 frame, p95 21,636–25,157 ms, zero frozen, Home p95
+  2.660 ms; PSS/RSS dopo reinstallazione 170.239/291.160 KB. Run concluso
+  `SUCCESS`, cleanup true e residue 0.
+- **Dependency audit**: unica anomalia concreta `build_daemon 4.1.3` ritirata;
+  upgrade isolato a `4.1.5`, major e aggiornamenti non necessari congelati.
+- **Gate pre-lock**: `scripts/check.sh` PASS, 760 test non-performance, repeat
+  70/70, 4 performance, scansioni/analyze/build Android+iOS verdi. Gate exact-SHA
+  finale e handoff Review attendono journey staging e cleanup.
+
+## 2026-08-17 — TASK-037 execution complete e handoff Review
+
+- **Ruolo**: `CODEX_EXECUTOR`; review affidata a un `CODEX_REVIEWER` read-only
+  distinto.
+- **Revision set**: `96a9359..dc56102`; worktree tecnico pulito prima della sola
+  transizione documentale.
+- **Gate exact-SHA**: `scripts/check.sh` exit 0 su `dc56102`: 760 test
+  non-performance, repeat resilience `70/70`, 4 performance, security 634 file,
+  localization, governance 9/9, architecture 7/7, format/analyze, APK debug e
+  iOS Simulator debug tutti `PASS`.
+- **Staging/device**: cinque journey profile validi e cleanup/residue zero;
+  Android profile entro budget. iPhone offline e screen reader manuale restano
+  dichiarati `NOT_RUN`, senza PASS inferito.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`;
+  production invariata e finding executor aperti zero P0/P1/P2/P3.
+
+## 2026-08-17 — TASK-037 review indipendente
+
+- **Ruolo**: `CODEX_REVIEWER` read-only distinto; worktree lasciato pulito.
+- **Esito**: `CHANGES_REQUIRED`, `0 P0 / 0 P1 / 2 P2 / 1 P3`.
+- **Finding**: `F-037-R01` deadline immagini non più assoluta; `F-037-R02`
+  matrici e misure performance incomplete; `F-037-R03` oracle LRU/rebuild non
+  sufficientemente discriminanti.
+- **Gate autonomi**: analyze, 19/19 mirati, repeat 20/20, performance 12/12,
+  governance, security, architecture, format/diff e run staging `PASS`.
+- **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`;
+  fix limitato ai tre finding, production invariata.
+
+## 2026-08-17 — TASK-037 Fix candidate
+
+- **Ruolo**: `CODEX_FIXER`, limitato a `F-037-R01`–`F-037-R03`.
+- **Runtime**: deadline assoluta immagini con `AppScheduler`, cleanup/retry
+  single-flight e cache soltanto dopo successo entro deadline.
+- **Oracle**: MRU distinto da FIFO, byte cap distinto da entry cap; State/Element
+  order detail osservabili restano identici durante update tracking.
+- **Performance candidate `35fb338`**: 10/10 benchmark con nuovi Home warm,
+  append, product render, checkout navigation, tracking publication e decode;
+  tutti riportano warm-up, 30 campioni e p50/p95/p99. Order backend staging è
+  classificato onestamente `NOT_RUN` per assenza di fixture customer autenticata,
+  senza usare dati reali.
+- **Stress**: `20 x 14 = 280/280 PASS` sullo SHA `6974afb`; le modifiche successive
+  sono soli harness performance. Analyze, suite modificata 64/64 e diff `PASS`.
+- **Failure harness escluse**: un conteggio MockClient letto prima del microtask e
+  un decode fuori `tester.runAsync`; entrambi corretti, processi terminati e
+  nessun esito falso promosso.
+- **Stato**: resta `ACTIVE / FIX`; gate canonico final candidate e handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW` non ancora dichiarati.
+
+## 2026-08-17 — TASK-037 Fix gate e handoff Re-review
+
+- **Ruolo**: `CODEX_FIXER`; chiusura candidate `F-037-R01`–`F-037-R03`.
+- **Exact SHA gate**: `69345390118bba1df7555b90e2d1afbdca7d03af`.
+- **Gate canonico**: `scripts/check.sh` exit 0; security 635 file e fixture
+  41/41+4/4, telemetry/localization/governance 9/9, architecture 7/7,
+  format/analyze, suite non-performance con coverage, repeat TASK-034
+  `5 x 14 = 70/70`, performance `10/10`, APK debug e iOS Simulator debug.
+- **Evidence**: matrici CA/T complete; order backend staging resta onestamente
+  `NOT_RUN` perché manca una fixture customer autenticata sicura, senza dato reale
+  o impatto sulla completezza tecnica del codice.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`;
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; prossimo ruolo `CODEX_RE_REVIEWER`
+  read-only distinto. Re-review e CI non sono inferite come PASS.
+
+## 2026-08-17 — TASK-037 Re-review indipendente
+
+- **Ruolo**: `CODEX_RE_REVIEWER`, read-only e distinto dal fixer.
+- **Exact HEAD**: `6a212855e737814f02291d9cbf6150c820cda151`.
+- **Finding**: `F-037-R01`, `F-037-R02` e `F-037-R03` `CLOSED`; zero
+  P0/P1/P2/P3 aperti.
+- **Gate autonomi**: loader/order 21/21, deadline 1/1, rebuild 1/1,
+  performance 10/10, repeat `20 x 14 = 280/280`, analyze, governance 9/9,
+  architecture 7/7, security 635 file + fixture 41/41 e 4/4, format/diff e
+  worktree clean tutti `PASS`.
+- **Classificazione onesta**: order backend staging resta `NOT_RUN` per assenza
+  di fixture autenticata sicura; nessun finding tecnico e nessun falso PASS.
+- **Esito**: `APPROVED`;
+  `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. L'autorizzazione
+  persistente del train consente PR, CI e merge normale dopo exact-SHA verde.

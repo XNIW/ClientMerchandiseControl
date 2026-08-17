@@ -5,14 +5,14 @@
 - **Task ID**: TASK-036
 - **Titolo**: Accessibility, localizzazione e device matrix
 - **File task**: `docs/TASKS/TASK-036-accessibility-localization-device-matrix.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-036/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -228,6 +228,17 @@ zero P0, zero P1, un P2, zero P3.
 ## Chiusura
 
 - **Conferma utente**: ricevuta e condizionata a review/gate reali
-- **Merge autorizzato**: dopo review `APPROVED` e CI exact-SHA verde
+- **Merge autorizzato**: sì, mandato USER_APPROVER 2026-08-16
+- **PR Admin**: #93, head `c8dd708016b56b24b4d1402fe782028feb8e1487`,
+  merge normale `59668348e4c728b44b998c80f1aded61e6114a3f`
+- **PR Client**: #14, head `662e7bb0f71b5527b0922807b88e2f0badc20e25`,
+  merge normale `96a9359c052a98fb0df7fd8562e648b9a485a2f0`
+- **CI PR**: Admin `31982974675`/`31982974682` e Client `31982980870`,
+  tutti gli step applicabili `success`
+- **CI main**: Admin `31983374103`/`31983374123` e Client `31983526499`,
+  exact merge SHA e tutti gli step applicabili `success`
+- **Staging**: preflight/dry-run `31983931437`, apply timezone
+  `31983967203` e delivery tracking 60/60 con cleanup `31984019280`, `PASS`
+- **Finding aperti**: zero P0/P1/P2/P3
 - **Follow-up candidate**: TASK-037
-- **Data completamento**: non ancora
+- **Data completamento**: 2026-08-17

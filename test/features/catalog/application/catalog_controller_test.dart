@@ -15,6 +15,7 @@ import 'package:client_merchandise_control/features/storefront/cache/storefront_
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -91,6 +92,62 @@ void main() {
     await container.read(catalogControllerProvider.notifier).loadMore();
     expect(repository.catalogCalls, hasLength(2));
   });
+
+  test(
+    'page append al limite canonico rispetta budget e una request per pagina',
+    () async {
+      const pageCount = 36;
+      const pageSize = 24;
+      final repository = _CatalogRepository(
+        categoryResponses: [() async => _categoriesPage()],
+        catalogResponses: List.generate(pageCount, (pageIndex) {
+          return () async => _catalogPage(
+            List.generate(
+              pageSize,
+              (itemIndex) =>
+                  _performanceProduct(pageIndex * pageSize + itemIndex),
+              growable: false,
+            ),
+            nextCursor: pageIndex == pageCount - 1
+                ? null
+                : 'cursor-${pageIndex + 1}',
+          );
+        }, growable: false),
+      );
+      final container = _container(repository);
+      addTearDown(container.dispose);
+      container.read(catalogControllerProvider);
+      await _flush();
+      final controller = container.read(catalogControllerProvider.notifier);
+
+      for (var warmup = 0; warmup < 5; warmup++) {
+        await controller.loadMore();
+      }
+      final samples = <int>[];
+      for (var sample = 0; sample < 30; sample++) {
+        final stopwatch = Stopwatch()..start();
+        await controller.loadMore();
+        stopwatch.stop();
+        samples.add(stopwatch.elapsedMicroseconds);
+      }
+
+      final p50 = _percentileMicros(samples, 0.50);
+      final p95 = _percentileMicros(samples, 0.95);
+      final p99 = _percentileMicros(samples, 0.99);
+      debugPrint(
+        'CATALOG_APPEND_PERF environment=flutter_test_host '
+        'warmup=5 samples=30 page_size=$pageSize '
+        'p50_us=$p50 p95_us=$p95 p99_us=$p99 requests=${repository.catalogCalls.length}',
+      );
+      expect(p95, lessThan(500000));
+      expect(repository.catalogCalls, hasLength(pageCount));
+      expect(
+        container.read(catalogControllerProvider).items,
+        hasLength(pageCount * pageSize),
+      );
+    },
+    tags: const ['performance'],
+  );
 
   test('cambio categoria cancella e ignora la risposta precedente', () async {
     final stale = Completer<StorefrontCatalogPage>();
@@ -525,6 +582,35 @@ StorefrontProductSummary _product(String suffix, String name) {
     publishedAt: DateTime.utc(2026, 8, 1),
     updatedAt: DateTime.utc(2026, 8, 1),
   );
+}
+
+StorefrontProductSummary _performanceProduct(int index) =>
+    StorefrontProductSummary(
+      id: '50000000-0000-4000-8000-${index.toString().padLeft(12, '0')}',
+      category: const StorefrontCategory(
+        id: '40000000-0000-4000-8000-000000000001',
+        slug: 'bebidas',
+        name: 'Bebidas',
+        sortRank: 1,
+      ),
+      name: 'Producto $index',
+      priceClp: 1500 + index,
+      featured: false,
+      sortRank: index,
+      availability: StorefrontAvailability.available,
+      fulfillment: const StorefrontFulfillment(
+        pickup: true,
+        delivery: true,
+        reservation: false,
+      ),
+      catalogVersion: 7,
+      publishedAt: DateTime.utc(2026, 8, 1),
+      updatedAt: DateTime.utc(2026, 8, 1),
+    );
+
+int _percentileMicros(List<int> values, double percentile) {
+  final sorted = [...values]..sort();
+  return sorted[((sorted.length - 1) * percentile).ceil()];
 }
 
 typedef _CatalogResponse = Future<StorefrontCatalogPage> Function();

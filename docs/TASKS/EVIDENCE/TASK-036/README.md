@@ -1,7 +1,7 @@
 # Evidence TASK-036
 
-Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+Snapshot finale:
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance
 
@@ -135,3 +135,23 @@ un cliente con device fuori dal fuso del negozio vedeva orari business errati. I
   mirati e catalog probe `PASS`;
 - zero finding P0/P1/P2/P3; worktree puliti; `APPROVED`.
 - handoff: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+
+## Closeout remoto e staging
+
+- PR Admin #93: head esatto `c8dd708016b56b24b4d1402fe782028feb8e1487`;
+  CI PR `31982974675` e Cloudflare `31982974682` verdi; merge normale
+  `59668348e4c728b44b998c80f1aded61e6114a3f`;
+- Admin main: CI `31983374103` (Verify + database migrations/pgTAP) e
+  Cloudflare build `31983374123` verdi sul merge SHA; deploy staging/production
+  Cloudflare correttamente non eseguiti;
+- PR Client #14: head esatto `662e7bb0f71b5527b0922807b88e2f0badc20e25`;
+  CI PR `31982980870` 3/3 verde; merge normale
+  `96a9359c052a98fb0df7fd8562e648b9a485a2f0`;
+- Client main: CI `31983526499` 3/3 verde sul merge SHA, inclusi test, APK
+  debug, iOS Simulator debug e scanner dei bundle;
+- staging timezone: guard/delta/dry-run `31983931437` e apply
+  `31983967203` sullo SHA Admin main, entrambi `PASS`;
+- staging delivery tracking dopo l'apply: run `31984019280`, pgTAP 60/60,
+  RLS/lifecycle sintetico, ledger, sanitizzazione e cleanup `PASS`;
+- branch remote TASK-036 eliminate; production invariata; finding aperti zero
+  P0/P1/P2/P3.

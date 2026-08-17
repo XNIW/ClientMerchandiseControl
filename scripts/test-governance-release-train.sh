@@ -878,8 +878,16 @@ cmc_expect_fail evidence-raw-html-block "${cmc_case}" \
   'Evidence TASK-040 contiene commenti, fence o heading indentati non ammessi, oppure HTML'
 
 cmc_case="$(cmc_fixture task-role-mismatch)"
-perl -0pi.bak -e '
-  s/(.*^- exact )review( SHA: `[0-9a-f]{40}`;\n)/${1}technical$2/ms
+cmc_source_role="$(
+  sed -nE 's/^- exact (technical|review) SHA: `[0-9a-f]{40}`;$/\1/p' \
+    "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md" | tail -n 1
+)"
+[[ "${cmc_source_role}" == 'technical' ]] && cmc_wrong_role='review' || \
+  cmc_wrong_role='technical'
+CMC_SOURCE_ROLE="${cmc_source_role}" CMC_WRONG_ROLE="${cmc_wrong_role}" \
+  perl -0pi.bak -e '
+  my $source = quotemeta $ENV{CMC_SOURCE_ROLE};
+  s/(.*^- exact )$source( SHA: `[0-9a-f]{40}`;\n)/${1}$ENV{CMC_WRONG_ROLE}$2/ms
     or die "current task role missing\n";
 ' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
 rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
@@ -887,8 +895,10 @@ cmc_expect_fail task-role-mismatch "${cmc_case}" \
   'Ruolo revision task/manifest incoerente'
 
 cmc_case="$(cmc_fixture manifest-role-mismatch)"
-perl -0pi.bak -e '
-  s/(\| TASK-040 \|[^\n]*\| `[0-9a-f]{7,40}` )review( \|)/${1}technical$2/
+CMC_SOURCE_ROLE="${cmc_source_role}" CMC_WRONG_ROLE="${cmc_wrong_role}" \
+  perl -0pi.bak -e '
+  my $source = quotemeta $ENV{CMC_SOURCE_ROLE};
+  s/(\| TASK-040 \|[^\n]*\| `[0-9a-f]{7,40}` )$source( \|)/${1}$ENV{CMC_WRONG_ROLE}$2/
     or die "current manifest role missing\n";
 ' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
 rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
@@ -896,8 +906,16 @@ cmc_expect_fail manifest-role-mismatch "${cmc_case}" \
   'Ruolo revision task/manifest incoerente'
 
 cmc_case="$(cmc_fixture worklog-label-mismatch)"
-perl -0pi.bak -e '
-  s/(.*^## [^\n]+ — TASK-040 Fix [^\n]+\n.*?^- \*\*)Exact HEAD(\*\*: `[0-9a-f]{40}`\.)/${1}Technical SHA$2/ms
+cmc_source_label="$(
+  sed -nE 's/^- \*\*(Technical SHA|Exact HEAD)\*\*: `[0-9a-f]{40}`\.$/\1/p' \
+    "${cmc_case}/docs/AI_WORKLOG.md" | tail -n 1
+)"
+[[ "${cmc_source_label}" == 'Technical SHA' ]] && \
+  cmc_wrong_label='Exact HEAD' || cmc_wrong_label='Technical SHA'
+CMC_SOURCE_LABEL="${cmc_source_label}" CMC_WRONG_LABEL="${cmc_wrong_label}" \
+  perl -0pi.bak -e '
+  my $source = quotemeta $ENV{CMC_SOURCE_LABEL};
+  s/(.*^## [^\n]+ — TASK-040 Fix [^\n]+\n.*?^- \*\*)$source(\*\*: `[0-9a-f]{40}`\.)/${1}$ENV{CMC_WRONG_LABEL}$2/ms
     or die "current worklog revision label missing\n";
 ' "${cmc_case}/docs/AI_WORKLOG.md"
 rm "${cmc_case}/docs/AI_WORKLOG.md.bak"
@@ -905,8 +923,16 @@ cmc_expect_fail worklog-label-mismatch "${cmc_case}" \
   'Ruolo worklog incoerente'
 
 cmc_case="$(cmc_fixture worklog-heading-role-mismatch)"
-perl -0pi.bak -e '
-  s/(.*^## [0-9-]+ — TASK-040 Fix [0-9]+ )re-review$/${1}e handoff/ms
+cmc_source_suffix="$(
+  sed -nE 's/^## [0-9-]+ — TASK-040 Fix [0-9]+ (e handoff|re-review)$/\1/p' \
+    "${cmc_case}/docs/AI_WORKLOG.md" | tail -n 1
+)"
+[[ "${cmc_source_suffix}" == 'e handoff' ]] && \
+  cmc_wrong_suffix='re-review' || cmc_wrong_suffix='e handoff'
+CMC_SOURCE_SUFFIX="${cmc_source_suffix}" CMC_WRONG_SUFFIX="${cmc_wrong_suffix}" \
+  perl -0pi.bak -e '
+  my $source = quotemeta $ENV{CMC_SOURCE_SUFFIX};
+  s/(.*^## [0-9-]+ — TASK-040 Fix [0-9]+ )$source$/${1}$ENV{CMC_WRONG_SUFFIX}/ms
     or die "current worklog heading role missing\n";
 ' "${cmc_case}/docs/AI_WORKLOG.md"
 rm "${cmc_case}/docs/AI_WORKLOG.md.bak"

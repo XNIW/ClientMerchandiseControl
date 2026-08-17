@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -373,6 +373,34 @@ tre PoC. Security report sealed SHA-256
 `47444ae52e31ad64aa40ac1ffb3828bd56897c93d00f6178cab739cfdf35e346`.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 6
+
+- il parser AST richiede l'unica declaration direttamente in `AppConfig` e lega
+  entrambi i consumer reali di `AppConfig.fromEnvironment`; getter, classi, `part`
+  o field inutilizzati non soddisfano il gate;
+- la lettura runtime config percorre ogni componente con directory descriptor e
+  `openat(O_DIRECTORY|O_NOFOLLOW)`, poi apre il basename nonblocking sullo stesso
+  parent fd; 30 tentativi ancestor-symlink non leggono mai il config alternativo;
+- gli otto privacy manifest attesi sono legati a digest semantici canonici per
+  app/SDK e lockfile corrente; il manifest Google Maps sostituito con quello vuoto
+  è respinto;
+- gate mirati `PASS`: runtime/CI 18/18, iOS release 17/17, architecture 11/11,
+  security 61/61 negative + 7/7 positive, source/artifact 681/207 e analyze;
+- `scripts/check.sh` exit 0: 801/801 non-performance, 10/10 performance,
+  resilience repeat 5x14=70/70, format 301/0, Android debug e iOS Simulator debug;
+- clean release/archive sullo SHA tecnico
+  `2523385d65dba7dac4dbdf075173c69260111796`: archive 201.344 KiB,
+  app 36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`;
+- upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna IPA,
+  firma Distribution, provisioning, input App Store Connect, upload o mutazione
+  production.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

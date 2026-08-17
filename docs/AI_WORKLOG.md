@@ -3311,19 +3311,6 @@
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
 
-## 2026-08-17 — TASK-040 Fix 5 re-review
-
-- **Exact HEAD**: `354fd2442190cf172e41adf1070e94cb8d31cd5b`, worktree pulito.
-- **Esito prodotto/security**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 3 P3 unificati
-  su ownership AST, ancestor-symlink TOCTOU e privacy manifest non legato al
-  singolo SDK.
-- **Chiusure preservate**: i cinque finding Fix 4; gate nominali 681/207,
-  61/61 + 7/7, architecture 10/10, runtime/CI 17/17 e iOS 16/16.
-- **Security**: report sealed SHA-256
-  `47444ae52e31ad64aa40ac1ffb3828bd56897c93d00f6178cab739cfdf35e346`.
-- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
-  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
-
 ## 2026-08-17 — TASK-040 Fix 2 re-review
 
 - **Exact HEAD**: `2b7c1480aa7c1e18dfce58abb076cf388b2ed9d2`, worktree pulito.
@@ -3412,6 +3399,42 @@
 - **Gate mirati**: runtime/CI 17/17, iOS release 16/16, architecture 10/10,
   source/artifact 681/207, scanner 61/61 negative + 7/7 positive e analyze `PASS`.
 - **Gate completo**: `scripts/check.sh` exit 0; 800/800 non-performance,
+  10/10 performance, repeat resilience 70/70, format 301/0, Android debug e
+  iOS Simulator debug build `PASS`.
+- **Artifact exact-SHA**: archive unsigned 201.344 KiB, app 36.724 KiB/207 file,
+  8 privacy manifest, 7 dSYM; runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna firma, profilo, input ASC,
+  IPA, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 5 re-review
+
+- **Exact HEAD**: `354fd2442190cf172e41adf1070e94cb8d31cd5b`, worktree pulito.
+- **Esito prodotto/security**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 3 P3 unificati
+  su ownership AST, ancestor-symlink TOCTOU e privacy manifest non legato al
+  singolo SDK.
+- **Chiusure preservate**: i cinque finding Fix 4; gate nominali 681/207,
+  61/61 + 7/7, architecture 10/10, runtime/CI 17/17 e iOS 16/16.
+- **Security**: report sealed SHA-256
+  `47444ae52e31ad64aa40ac1ffb3828bd56897c93d00f6178cab739cfdf35e346`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 6 e handoff
+
+- **Technical SHA**: `2523385d65dba7dac4dbdf075173c69260111796`;
+  declaration e consumer AST vincolati a `AppConfig`, path runtime percorso con
+  directory fd/openat e privacy manifest legati semanticamente al singolo SDK.
+- **Gate mirati**: runtime/CI 18/18 con 30 tentativi race, iOS release 17/17,
+  architecture 11/11, source/artifact 681/207, scanner 61/61 negative + 7/7
+  positive e analyze `PASS`.
+- **Gate completo**: `scripts/check.sh` exit 0; 801/801 non-performance,
   10/10 performance, repeat resilience 70/70, format 301/0, Android debug e
   iOS Simulator debug build `PASS`.
 - **Artifact exact-SHA**: archive unsigned 201.344 KiB, app 36.724 KiB/207 file,

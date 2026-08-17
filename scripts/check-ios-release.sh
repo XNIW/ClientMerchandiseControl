@@ -69,7 +69,7 @@ for cmc_ios_release_file in \
 done
 
 for cmc_ios_release_command in \
-  codesign dart dwarfdump file find lipo openssl otool perl plutil shasum; do
+  codesign dart dwarfdump file find lipo openssl otool perl plutil python3 shasum; do
   command -v "${cmc_ios_release_command}" >/dev/null 2>&1 || \
     cmc_ios_release_fail 'ARTIFACT_TOOLING_MISSING'
 done

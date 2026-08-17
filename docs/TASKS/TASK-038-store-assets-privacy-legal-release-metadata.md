@@ -6,13 +6,13 @@
 - **Titolo**: Store assets, privacy, legal e release metadata
 - **File task**: `docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-038/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -125,7 +125,22 @@ privacy manifest app-owned vuoto e percorso workstation nella provenance asset.
 
 ## Review — `CODEX_REVIEWER`
 
-`NOT_RUN`: prossimo ruolo `CODEX_REVIEWER` read-only distinto.
+Review indipendente read-only su
+`c7af4ca37ec05e5caabee73906e1844793e430b4`: `CHANGES_REQUIRED`.
+
+- `F-038-R01` — P2: checkout invia `p_payment_method` al backend, ma manifest,
+  validator ed evidence omettono `NSPrivacyCollectedDataTypePaymentInfo`;
+- impatto: CA-02, CA-04 e T-02 non soddisfatti; la scelta del metodo
+  `pay_at_pickup` è una forma di pagamento raccolta in-app;
+- riproduzione reviewer: checkout probe 1/1 prova il payload, `plutil` prova
+  l'assenza del tipo e validator 4/4 prova il falso PASS;
+- altri finding: zero P0/P1/P3; i tre gap pre-handoff sono chiusi.
+
+**Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Fix — `CODEX_FIXER`
+
+In corso, limitato a `F-038-R01`.
 
 ## Chiusura
 

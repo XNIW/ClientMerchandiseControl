@@ -1,7 +1,7 @@
 # Evidence TASK-038
 
-Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+Snapshot corrente:
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -106,5 +106,14 @@ Sul candidate tecnico `fe8c582`:
 
 ## Handoff
 
-`CODEX_EXECUTION_COMPLETE_TO_REVIEW`; prossimo ruolo `CODEX_REVIEWER` read-only
-distinto. Nessun `DONE`, merge o attivazione TASK-039 è inferito.
+### Review indipendente
+
+- exact SHA `c7af4ca37ec05e5caabee73906e1844793e430b4`;
+- esito `CHANGES_REQUIRED`: 0 P0, 0 P1, 1 P2, 0 P3;
+- `F-038-R01`: `p_payment_method` prova la raccolta della forma di pagamento, ma
+  manifest, validator ed evidence omettono `NSPrivacyCollectedDataTypePaymentInfo`;
+- probe checkout 1/1, `plutil`, validator 4/4 e tutti gli altri gate autonomi
+  riprodotti dal reviewer; worktree finale pulito e production invariata.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; fix limitato a `F-038-R01`. Nessun
+`DONE`, merge o attivazione TASK-039 è inferito.

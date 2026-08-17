@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-038
 - **File task**: docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: review indipendente read-only di TASK-038 sul
-  candidate exact-SHA; correggere ogni finding e non attivare TASK-039 prima di
-  `APPROVED`, CI e merge normali
+- **Prossima azione autorizzata**: correggere esclusivamente `F-038-R01` sulla
+  dichiarazione Payment Info, rieseguire gate impattati e consegnare a re-review
+  distinta; non attivare TASK-039 prima di `APPROVED`, CI e merge normali
 
 ## Repository coinvolti
 

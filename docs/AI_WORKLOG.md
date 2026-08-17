@@ -2907,3 +2907,17 @@
   zero finding reportable; TASK-033 riusato, production invariata.
 - **Transizione**: `ACTIVE / EXECUTION -> REVIEW`;
   `CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review e CI non inferite come PASS.
+
+## 2026-08-17 — TASK-038 Review indipendente
+
+- **Exact SHA**: `c7af4ca37ec05e5caabee73906e1844793e430b4`;
+  reviewer read-only distinto, worktree pulito.
+- **Esito**: `CHANGES_REQUIRED`; 0 P0, 0 P1, 1 P2, 0 P3.
+- **F-038-R01**: checkout invia `p_payment_method` e raccoglie quindi la forma di
+  pagamento, ma manifest, validator ed evidence omettono Payment Info; il validator
+  4/4 produce un falso PASS sulla lista incompleta.
+- **Gate reviewer**: account 11/11, checkout probe 1/1, analyze, format,
+  governance/architecture/localization/telemetry/action pins, security 657 file e
+  bundle inspection tutti verdi; production invariata.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`;
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`, fix limitato a `F-038-R01`.

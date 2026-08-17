@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -360,6 +360,19 @@ sealed SHA-256
   production.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 5
+
+`CHANGES_REQUIRED` su `354fd2442190cf172e41adf1070e94cb8d31cd5b`:
+0 P0/P1/P2 e 3 P3. Il gate AST accetta il campo canonico fuori da `AppConfig`;
+la lettura runtime-config non impedisce il cambio atomico di un ancestor in symlink;
+il validator privacy non lega ancora il contenuto minimo al singolo SDK atteso.
+I cinque finding Fix 4 sono confermati chiusi. Gate nominali 681/207, 61/61 + 7/7,
+10/10 architecture, 17/17 runtime/CI e 16/16 iOS restano verdi ma non coprono i
+tre PoC. Security report sealed SHA-256
+`47444ae52e31ad64aa40ac1ffb3828bd56897c93d00f6178cab739cfdf35e346`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

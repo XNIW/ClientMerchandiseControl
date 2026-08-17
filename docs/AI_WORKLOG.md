@@ -3311,6 +3311,19 @@
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
 
+## 2026-08-17 — TASK-040 Fix 5 re-review
+
+- **Exact HEAD**: `354fd2442190cf172e41adf1070e94cb8d31cd5b`, worktree pulito.
+- **Esito prodotto/security**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 3 P3 unificati
+  su ownership AST, ancestor-symlink TOCTOU e privacy manifest non legato al
+  singolo SDK.
+- **Chiusure preservate**: i cinque finding Fix 4; gate nominali 681/207,
+  61/61 + 7/7, architecture 10/10, runtime/CI 17/17 e iOS 16/16.
+- **Security**: report sealed SHA-256
+  `47444ae52e31ad64aa40ac1ffb3828bd56897c93d00f6178cab739cfdf35e346`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
 ## 2026-08-17 — TASK-040 Fix 2 re-review
 
 - **Exact HEAD**: `2b7c1480aa7c1e18dfce58abb076cf388b2ed9d2`, worktree pulito.

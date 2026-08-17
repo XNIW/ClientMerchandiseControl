@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -235,3 +235,17 @@ Snapshot di handoff:
   Distribution, profili o input App Store Connect, nessuna IPA/upload/production;
 - il digest wrapper Fix 4 è stato corretto al valore fisico verificato; gli altri
   blocchi Fix 1-4 restano esplicitamente storici.
+
+## Re-review Fix 5
+
+- exact HEAD `354fd2442190cf172e41adf1070e94cb8d31cd5b`, worktree pulito;
+- prodotto `CHANGES_REQUIRED`: un P3 sul field AST non vincolato alla classe
+  `AppConfig`;
+- security `CHANGES_REQUIRED`: tre P3 complessivi su ownership AST,
+  ancestor-symlink TOCTOU e manifest privacy Google Maps sostituibile con un plist
+  legittimo ma vuoto; 0 P0/P1/P2;
+- report security sealed SHA-256
+  `47444ae52e31ad64aa40ac1ffb3828bd56897c93d00f6178cab739cfdf35e346`;
+- i cinque finding Fix 4 sono chiusi; gate 681/207, 61/61 + 7/7, 10/10,
+  17/17 e 16/16 verdi ma insufficienti rispetto ai tre PoC aggiuntivi;
+- nessun upload, firma, profilo, config reale o mutation production.

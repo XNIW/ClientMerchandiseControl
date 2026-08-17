@@ -7,12 +7,12 @@
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -387,6 +387,25 @@ del train autorizza PR exact-SHA e merge normale solo dopo CI verde.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; `F-039-CI01` è candidate `CLOSED` e deve
 essere confermato da reviewer read-only distinto.
+
+## CI Fix 2 re-review — `CODEX_RE_REVIEWER`
+
+- exact final SHA `ba950b755399d8294af5d8ebbe2c07a9dc7484c2`, technical
+  fix `7a25585c145304fc992cc2ce2f032af3f32a4b14`, worktree pulito;
+- reviewer prodotto e security read-only distinti: `APPROVED`, 0 P0, 0 P1,
+  0 P2 e 0 P3; `F-039-CI01 CLOSED`;
+- parser APK: PEM verificato da `apksigner`, cardinalità signer pari a uno,
+  certificato e SHA-256 derivati con `keytool`, confronto AAB/APK fail-closed;
+- probe indipendenti single/multi-signer e digest multipli, fixture completa,
+  governance 9/9, validator/scanner 671/285 e no-leakage tutti `PASS`;
+- security finalizer exit 0, report-format `PASS`, report SHA-256
+  `aa1a6aaa283be5794712fd2f2743911f89cf52c17c087e902d8907aad8110e5c`;
+- CI PR exact-head `32017859910` su `ba950b75`: quattro job e ogni step
+  `success`, inclusa la fixture firma v2-only; nessun artifact pubblicato.
+
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. La conferma persistente
+del train autorizza il merge normale dopo CI exact-SHA del presente commit;
+non autorizza upload Play o production.
 
 ## Chiusura
 

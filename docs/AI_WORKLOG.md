@@ -3195,3 +3195,21 @@
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; `F-039-CI01` candidate `CLOSED` in attesa
   di re-review read-only distinta. Nessun upload Play o production.
+
+## 2026-08-17 — TASK-039 PR CI Fix 2 re-review
+
+- **Exact SHA**: `ba950b755399d8294af5d8ebbe2c07a9dc7484c2`; technical fix
+  `7a25585c145304fc992cc2ce2f032af3f32a4b14`.
+- **Esito**: reviewer prodotto e security read-only distinti `APPROVED`;
+  `F-039-CI01 CLOSED`, 0 P0/P1/P2/P3.
+- **Gate**: single/multi-signer e digest multipli, fixture canonica completa,
+  governance 9/9, validator/scanner 671/285, no-leakage e worktree clean
+  verificati indipendentemente.
+- **Security**: finalizer exit 0, report-format `PASS`, report SHA-256
+  `aa1a6aaa283be5794712fd2f2743911f89cf52c17c087e902d8907aad8110e5c`.
+- **CI PR final candidate**: `32017859910`, exact `ba950b75`, quattro job e
+  ogni step `success`, incluso release candidate e fixture firma v2-only;
+  nessun artifact pubblicato.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; la conferma
+  persistente autorizza CI approval-commit e merge normale, non upload Play o
+  production.

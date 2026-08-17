@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance
 
@@ -156,5 +156,10 @@ usa `--print-certs-pem`, richiede un solo certificato APK e calcola il digest
 con `keytool`, come per l'AAB. La fixture locale completa è `PASS`. La CI PR
 exact-head `32016169548` su `7a25585c145304fc992cc2ce2f032af3f32a4b14`
 chiude tutti i quattro job e ogni step con `success`, inclusa la fixture firma
-v2-only completa; handoff `CODEX_FIX_COMPLETE_TO_RE_REVIEW`. Play/Internal e
+v2-only completa. Le re-review prodotto e security sul final candidate
+`ba950b755399d8294af5d8ebbe2c07a9dc7484c2` sono `APPROVED`, zero P0/P1/P2/P3;
+la CI exact-head `32017859910` è 4/4 job e tutti gli step `success`. Security
+finalizer/report-format `PASS`, report SHA-256
+`aa1a6aaa283be5794712fd2f2743911f89cf52c17c087e902d8907aad8110e5c`.
+Handoff `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; Play/Internal e
 production restano invariati.

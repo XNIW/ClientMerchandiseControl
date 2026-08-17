@@ -9,14 +9,15 @@
 - **File task**: docs/TASKS/TASK-039-android-internal-testing-release.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: EXECUTION
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review indipendente di `F-039-CI01` sul
-  revision set exact-SHA `7a25585c` dopo CI PR `32016169548` completamente
-  verde; nessun upload senza signing e credenziali Play reali
+- **Prossima azione autorizzata**: CI exact-SHA sul commit documentale di
+  approvazione, merge normale PR #18 e main post-merge CI; poi closeout
+  TASK-039 e attivazione sequenziale TASK-040. Nessun upload senza signing e
+  credenziali Play reali
 
 ## Repository coinvolti
 

@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -525,3 +525,18 @@ Snapshot di handoff:
   security source 682 + 61/61 + 7/7, architecture 17/17, format 301/0,
   analyze e build debug Android/iOS `PASS`;
 - nessun delta runtime/archive/signing; TestFlight e production invariati.
+
+## Re-review Fix 13
+
+- exact HEAD `0c94618bb2aa187ef9dc7c3e3204894f2437b7ff`, worktree pulito;
+- prodotto/security `CHANGES_REQUIRED`: 0 P0/P1/P2 e 4 P3 governance;
+- `F-040-RR13-GOV-MARKDOWN-01`: PI, CDATA, tag multilinea e README non
+  validato consentono contenuto non semantico con gate verde;
+- `F-040-RR13-GOV-SUMMARY-01`: campi README REVIEW ma riepilogo `ACTIVE / FIX`;
+- `F-040-RR13-GOV-COUNT-01`: CA-06/T-04 restano 681 contro source reale 682;
+- `F-040-RR13-GOV-PATH-01`: rename detection perde il source path e l'errore
+  `git diff` nella process substitution non viene propagato;
+- closure exact-section/table, phase/role e direct post-SHA confermate;
+- report security sealed SHA-256
+  `3c90a6276c2e0ac41408355a1021fd450f35bd68d23408d018bd79638a1f9cdc`;
+- TestFlight, signing, credenziali e production invariati.

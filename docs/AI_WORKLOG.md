@@ -3676,3 +3676,15 @@
 - **Boundary**: runtime/archive/signing invariati; TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 Fix 13 re-review
+
+- **Exact HEAD**: `0c94618bb2aa187ef9dc7c3e3204894f2437b7ff`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, 0 P0/P1/P2 e 4 P3.
+- **Finding**: raw CommonMark/README, riepilogo fase contraddittorio, CA/T count
+  stale e inventario post-SHA lossy su rename/errore Git.
+- **Security report**: sealed SHA-256
+  `3c90a6276c2e0ac41408355a1021fd450f35bd68d23408d018bd79638a1f9cdc`.
+- **Boundary**: closure Fix 12 dirette confermate; TestFlight, signing,
+  credenziali e production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

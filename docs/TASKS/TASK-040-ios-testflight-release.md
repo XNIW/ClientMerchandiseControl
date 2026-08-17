@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
+- **Fase**: FIX
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -695,6 +695,23 @@ report prodotto sealed SHA-256
 - nessun delta runtime/archive/signing; TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 13
+
+- exact review SHA: `0c94618bb2aa187ef9dc7c3e3204894f2437b7ff`;
+- prodotto/security `CHANGES_REQUIRED`: 0 P0/P1/P2 e 4 P3;
+- `F-040-RR13-GOV-MARKDOWN-01`: raw CommonMark PI/CDATA/tag multilinea e
+  README fuori dal rejector passano;
+- `F-040-RR13-GOV-SUMMARY-01`: riepilogo README contraddice la fase corrente;
+- `F-040-RR13-GOV-COUNT-01`: CA-06/T-04 non sono correlati al source count;
+- `F-040-RR13-GOV-PATH-01`: rename implicito e rc Git ignorato rendono lossy
+  l'inventario post-SHA;
+- closure Fix 12 dirette confermate; gate nominali verdi ma insufficienti;
+- report security sealed SHA-256
+  `3c90a6276c2e0ac41408355a1021fd450f35bd68d23408d018bd79638a1f9cdc`;
+- TestFlight, signing, credenziali e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

@@ -488,7 +488,7 @@ cmc_arch_require_count \
 
 cmc_arch_require_count \
   "${cmc_arch_app_config}" \
-  "const String.fromEnvironment('STOREFRONT_SHOP_SLUG')" \
+  "_compiledStorefrontShopSlug = String.fromEnvironment(" \
   1 \
   "un solo input compile-time Storefront shop slug"
 cmc_arch_require_count \

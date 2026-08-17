@@ -323,6 +323,51 @@ void main() {
   );
 
   testWidgets(
+    'location update ricostruisce solo la sezione tracking, non order detail',
+    (tester) async {
+      final orderRepository = FakeCustomerOrderRepository()
+        ..detailOutcomes.add(
+          orderTestDetail(
+            status: CustomerOrderStatus.outForDelivery,
+            version: 2,
+            fulfillmentMode: CustomerOrderFulfillmentMode.delivery,
+          ),
+        );
+      final trackingRepository = FakeDeliveryTrackingRepository()
+        ..snapshot = trackingLiveSnapshot(orderId: orderTestOrder);
+      final harness = _Harness(
+        repository: orderRepository,
+        trackingRepository: trackingRepository,
+        initialLocation: AppRoutes.orderLocation(orderTestOrder),
+      );
+      addTearDown(harness.dispose);
+      addTearDown(trackingRepository.stream.close);
+
+      await tester.pumpWidget(harness.app());
+      await _pumpUntil(tester, find.text('La ubicación se está actualizando'));
+      final rebuiltTypes = <String>[];
+      final previousRebuildCallback = debugOnRebuildDirtyWidget;
+      debugOnRebuildDirtyWidget = (element, _) {
+        rebuiltTypes.add(element.widget.runtimeType.toString());
+      };
+      addTearDown(() => debugOnRebuildDirtyWidget = previousRebuildCallback);
+
+      trackingRepository.stream.add(
+        trackingLiveSnapshot(orderId: orderTestOrder, version: 5),
+      );
+      await tester.pump();
+
+      expect(rebuiltTypes, contains('_DeliveryTrackingSection'));
+      expect(rebuiltTypes, isNot(contains('_OrderDetailScreenState')));
+      expect(rebuiltTypes, isNot(contains('_OrderDetailBody')));
+      expect(rebuiltTypes, isNot(contains('_OrderHeader')));
+      expect(rebuiltTypes, isNot(contains('_OrderItems')));
+      expect(rebuiltTypes, isNot(contains('_TimelineCard')));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
     'ordine terminale prevale sulla cache live e rimuove il tracking preciso',
     (tester) async {
       final orderRepository = FakeCustomerOrderRepository()

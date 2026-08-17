@@ -2743,3 +2743,22 @@
 - **Transizione**: TASK-036 `DONE / USER_APPROVED_DONE`; TASK-037 è l'unico task
   `ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`, con budget congelati
   prima di nuove ottimizzazioni.
+
+## 2026-08-17 — TASK-037 baseline, fix e gate pre-handoff
+
+- **Finding**: la cache raw delle immagini verificate era process-lifetime e senza
+  cap; introdotti LRU 64 entry/24 MiB, single-flight, copie consumer isolate ed
+  eviction/retry deterministici.
+- **Load locale**: small/medium/25k con 250 categorie, cart 100 linee, order cache
+  50 card e selector 500 ordini; cinque repeat tutti verdi. Stress immagini e
+  rebuild tracking `10 x 2 = 20/20`.
+- **Device**: Android API 35 profile cold p95 1.359 ms, warm p95 411 ms, PSS max
+  131.292 KB e RSS max 252.244 KB; iOS fisico offline, nessun PASS inferito.
+- **Staging**: run `31985297932` exact Admin main, 91.200 righe equivalenti,
+  catalog/search/detail p95 50,608/718,325/6,069 ms, keyset/FTS e cleanup zero.
+  Un secondo run con hold committed è in corso per il journey Flutter profile.
+- **Dependency audit**: unica anomalia concreta `build_daemon 4.1.3` ritirata;
+  upgrade isolato a `4.1.5`, major e aggiornamenti non necessari congelati.
+- **Gate pre-lock**: `scripts/check.sh` PASS, 760 test non-performance, repeat
+  70/70, 4 performance, scansioni/analyze/build Android+iOS verdi. Gate exact-SHA
+  finale e handoff Review attendono journey staging e cleanup.

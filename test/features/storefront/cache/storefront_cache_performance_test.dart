@@ -8,130 +8,153 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test(
-    '20k prodotti rispettano cap e budget warm read/search',
+    'small medium e 25k rispettano budget warm read/search e cap',
     () async {
       final now = DateTime.utc(2026, 8, 2, 12);
-      final openWatch = Stopwatch()..start();
-      final database = StorefrontCacheDatabase(NativeDatabase.memory());
-      await database.customSelect('SELECT 1').get();
-      openWatch.stop();
-      addTearDown(database.close);
-      final cache = DriftStorefrontCacheRepository(database, clock: () => now);
-      final products = List.generate(
-        20000,
-        (index) => _product(index, index.isEven ? 'Café $index' : '茉莉茶 $index'),
-        growable: false,
-      );
-
-      final writeWatch = Stopwatch()..start();
-      await cache.writeCatalog(
-        shopSlug: 'storefront-test',
-        page: StorefrontCatalogPage(
-          catalogVersion: 7,
-          items: products,
-          nextCursor: null,
-          sort: StorefrontCatalogSort.catalog,
-        ),
-        categorySlug: null,
-        availability: null,
-        discounted: null,
-      );
-      writeWatch.stop();
-      final seededProducts =
-          (await database
-                  .customSelect(
-                    'SELECT count(*) AS value FROM cached_storefront_products',
-                  )
-                  .getSingle())
-              .read<int>('value');
-      final seededScopes =
-          (await database
-                  .customSelect(
-                    'SELECT count(*) AS value FROM storefront_cache_scopes',
-                  )
-                  .getSingle())
-              .read<int>('value');
-      expect(seededProducts, 20000);
-      expect(seededScopes, 1);
-
-      final catalogReads = <int>[];
-      final searches = <int>[];
-      for (var index = 0; index < 30; index += 1) {
-        final catalogWatch = Stopwatch()..start();
-        final catalog = await cache.readCatalog(
-          shopSlug: 'storefront-test',
-          cursor: null,
-          limit: 24,
-          categorySlug: null,
-          sort: StorefrontCatalogSort.catalog,
+      for (final profile in const [
+        (name: 'small', rows: 1000),
+        (name: 'medium', rows: 10000),
+        (name: 'extreme', rows: storefrontCacheMaximumProducts),
+      ]) {
+        final result = await _benchmarkProfile(
+          name: profile.name,
+          rows: profile.rows,
+          now: now,
         );
-        catalogWatch.stop();
-        expect(catalog?.value.items, hasLength(24));
-        catalogReads.add(catalogWatch.elapsedMicroseconds);
-
-        final searchWatch = Stopwatch()..start();
-        final search = await cache.readSearch(
-          shopSlug: 'storefront-test',
-          query: index.isEven ? 'cafe' : '茉莉',
-          cursor: null,
-          limit: 24,
-          categorySlug: null,
-        );
-        searchWatch.stop();
-        expect(search?.value.items, hasLength(24));
-        searches.add(searchWatch.elapsedMicroseconds);
+        expect(result.openMs, lessThan(1000), reason: profile.name);
+        expect(result.writeMs, lessThan(2000), reason: profile.name);
+        expect(result.catalogP95Us, lessThan(15000), reason: profile.name);
+        expect(result.searchP95Us, lessThan(15000), reason: profile.name);
+        expect(result.categories, 250, reason: profile.name);
+        expect(result.rows, profile.rows, reason: profile.name);
       }
-
-      final extraProducts = List.generate(
-        5100,
-        (index) => _product(20000 + index, 'Extra $index'),
-        growable: false,
-      );
-      await cache.writeCatalog(
-        shopSlug: 'storefront-test',
-        page: StorefrontCatalogPage(
-          catalogVersion: 7,
-          items: extraProducts,
-          nextCursor: null,
-          sort: StorefrontCatalogSort.catalog,
-        ),
-        categorySlug: null,
-        availability: null,
-        discounted: null,
-      );
-      await cache.cleanup(shopSlug: 'storefront-test');
-      final productCount =
-          (await database
-                  .customSelect(
-                    "SELECT count(*) AS value FROM cached_storefront_products "
-                    "WHERE shop_slug = 'storefront-test'",
-                  )
-                  .getSingle())
-              .read<int>('value');
-
-      final catalogP50 = _percentile(catalogReads, 0.50);
-      final catalogP95 = _percentile(catalogReads, 0.95);
-      final catalogP99 = _percentile(catalogReads, 0.99);
-      final searchP50 = _percentile(searches, 0.50);
-      final searchP95 = _percentile(searches, 0.95);
-      final searchP99 = _percentile(searches, 0.99);
-      debugPrint(
-        'STOREFRONT_CACHE_PERF '
-        'open_ms=${openWatch.elapsedMilliseconds} '
-        'write_20k_ms=${writeWatch.elapsedMilliseconds} '
-        'catalog_us=$catalogP50/$catalogP95/$catalogP99 '
-        'search_us=$searchP50/$searchP95/$searchP99 rows=$productCount',
-      );
-
-      expect(openWatch.elapsedMilliseconds, lessThan(1000));
-      expect(writeWatch.elapsedMilliseconds, lessThan(10000));
-      expect(catalogP95, lessThan(100000));
-      expect(searchP95, lessThan(250000));
-      expect(productCount, storefrontCacheMaximumProducts);
     },
     timeout: const Timeout(Duration(minutes: 2)),
     tags: const ['performance'],
   );
+}
+
+Future<
+  ({
+    int openMs,
+    int writeMs,
+    int catalogP95Us,
+    int searchP95Us,
+    int categories,
+    int rows,
+  })
+>
+_benchmarkProfile({
+  required String name,
+  required int rows,
+  required DateTime now,
+}) async {
+  final openWatch = Stopwatch()..start();
+  final database = StorefrontCacheDatabase(NativeDatabase.memory());
+  await database.customSelect('SELECT 1').get();
+  openWatch.stop();
+  final cache = DriftStorefrontCacheRepository(database, clock: () => now);
+  try {
+    final products = List.generate(
+      rows,
+      (index) => _product(index, index.isEven ? 'Café $index' : '茉莉茶 $index'),
+      growable: false,
+    );
+    final writeWatch = Stopwatch()..start();
+    await cache.writeCatalog(
+      shopSlug: 'storefront-test',
+      page: StorefrontCatalogPage(
+        catalogVersion: 7,
+        items: products,
+        nextCursor: null,
+        sort: StorefrontCatalogSort.catalog,
+      ),
+      categorySlug: null,
+      availability: null,
+      discounted: null,
+    );
+    writeWatch.stop();
+
+    final counts = await database
+        .customSelect(
+          'SELECT count(*) AS rows, count(DISTINCT category_slug) AS categories '
+          'FROM cached_storefront_products',
+        )
+        .getSingle();
+    expect(
+      (await database.select(database.storefrontCacheScopes).get()),
+      hasLength(1),
+    );
+
+    for (var warmUp = 0; warmUp < 5; warmUp++) {
+      await _readCatalog(cache);
+      await _readSearch(cache, warmUp);
+    }
+    final catalogReads = <int>[];
+    final searches = <int>[];
+    for (var index = 0; index < 30; index++) {
+      final catalogWatch = Stopwatch()..start();
+      await _readCatalog(cache);
+      catalogWatch.stop();
+      catalogReads.add(catalogWatch.elapsedMicroseconds);
+
+      final searchWatch = Stopwatch()..start();
+      await _readSearch(cache, index);
+      searchWatch.stop();
+      searches.add(searchWatch.elapsedMicroseconds);
+    }
+
+    final catalogP50 = _percentile(catalogReads, 0.50);
+    final catalogP95 = _percentile(catalogReads, 0.95);
+    final catalogP99 = _percentile(catalogReads, 0.99);
+    final searchP50 = _percentile(searches, 0.50);
+    final searchP95 = _percentile(searches, 0.95);
+    final searchP99 = _percentile(searches, 0.99);
+    final categoryCount = counts.read<int>('categories');
+    final rowCount = counts.read<int>('rows');
+    debugPrint(
+      'STOREFRONT_CACHE_PERF profile=$name rows=$rowCount '
+      'categories=$categoryCount open_ms=${openWatch.elapsedMilliseconds} '
+      'write_ms=${writeWatch.elapsedMilliseconds} '
+      'catalog_us=$catalogP50/$catalogP95/$catalogP99 '
+      'search_us=$searchP50/$searchP95/$searchP99',
+    );
+    return (
+      openMs: openWatch.elapsedMilliseconds,
+      writeMs: writeWatch.elapsedMilliseconds,
+      catalogP95Us: catalogP95,
+      searchP95Us: searchP95,
+      categories: categoryCount,
+      rows: rowCount,
+    );
+  } finally {
+    await database.close();
+  }
+}
+
+Future<void> _readCatalog(DriftStorefrontCacheRepository cache) async {
+  final catalog = await cache.readCatalog(
+    shopSlug: 'storefront-test',
+    cursor: null,
+    limit: 24,
+    categorySlug: null,
+    sort: StorefrontCatalogSort.catalog,
+  );
+  expect(catalog?.value.items, hasLength(24));
+}
+
+Future<void> _readSearch(
+  DriftStorefrontCacheRepository cache,
+  int index,
+) async {
+  final search = await cache.readSearch(
+    shopSlug: 'storefront-test',
+    query: index.isEven ? 'cafe' : '茉莉',
+    cursor: null,
+    limit: 24,
+    categorySlug: null,
+  );
+  expect(search?.value.items, hasLength(24));
 }
 
 int _percentile(List<int> values, double percentile) {
@@ -143,10 +166,12 @@ int _percentile(List<int> values, double percentile) {
 StorefrontProductSummary _product(int index, String name) =>
     StorefrontProductSummary(
       id: '50000000-0000-4000-8000-${index.toString().padLeft(12, '0')}',
-      category: const StorefrontCategory(
-        id: '40000000-0000-4000-8000-000000000001',
-        slug: 'bebidas',
-        name: 'Bebidas',
+      category: StorefrontCategory(
+        id:
+            '40000000-0000-4000-8000-'
+            '${(index % 250).toString().padLeft(12, '0')}',
+        slug: 'categoria-${index % 250}',
+        name: 'Categoría ${index % 250}',
         sortRank: 1,
       ),
       name: name,

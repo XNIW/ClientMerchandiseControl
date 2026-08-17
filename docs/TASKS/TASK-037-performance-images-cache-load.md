@@ -130,7 +130,67 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso.
+### Baseline e finding
+
+- la baseline locale è stata congelata prima della modifica con cinque run sul
+  dataset 25k: open 296–479 ms, write 480–510 ms, catalog p95 1.226–1.290 us e
+  search p95 3.836–4.592 us;
+- `StorefrontVerifiedImageLoader` conservava ogni payload verificato in una
+  `Map` process-lifetime senza cap per entry o byte e non deduplicava download
+  concorrenti dello stesso digest (`F-037-E01`, P2 performance/reliability);
+- l'audit delle altre collection residenti ha confermato cap o teardown già
+  presenti per auth callback, notification routes, favorites, probe backend,
+  realtime/polling e cache ordini; nessun altro fix speculativo è stato applicato;
+- la baseline TASK-019 resta la provenance del journey staging storico; TASK-037
+  ha rieseguito backend staging sullo schema corrente e ha preparato un nuovo
+  journey profile Android durante una fixture sintetica con cleanup automatico.
+
+### Implementazione
+
+- cache immagini content-addressed trasformata in LRU con doppio limite
+  `64 entry / 24 MiB`, copie isolate per consumer, eviction deterministica e
+  validazione fail-closed dei limiti;
+- single-flight per digest: una sola request concorrente, rimozione dell'in-flight
+  su successo o failure e retry successivo consentito;
+- regressione widget che prova che uno snapshot location ricostruisce soltanto
+  `_DeliveryTrackingSection` e non body/header/items/timeline dell'ordine;
+- benchmark ripetibili small/medium/extreme, carrello al cap canonico di 100 righe,
+  cache ordini al cap 50 e selector/filter su 500 ordini;
+- `build_daemon` aggiornato isolatamente da `4.1.3` ritirata a `4.1.5`; nessun'altra
+  dipendenza o constraint è cambiato.
+
+### Risultati deterministici e device
+
+- cinque repeat finali dei quattro benchmark: tutti `PASS`; sul profilo 25k
+  open 1 ms, write 513–545 ms, catalog p95 559–714 us e search p95
+  4.124–4.603 us;
+- cart 100 righe: read p95 0,522–0,682 ms, mutation p95 0,804–0,962 ms;
+- order cache 50 righe/17.105 byte: write p95 0,833–1,133 ms e read p95
+  1,539–1,647 ms; selector 500 ordini p95 0,154–0,167 ms;
+- stress immagini 256 payload e rebuild tracking: repeat valido `10 x 2 = 20/20`;
+- Android 15 API 35 profile: cold 5 campioni p50/p95/p99
+  1.146/1.359/1.359 ms, warm 100/411/411 ms; PSS 124.473 KB al launch e
+  131.292 KB dopo soak gesture, RSS 239.952/252.244 KB;
+- iOS Simulator resta coperto dal build/smoke automatico; profile AOT e memoria
+  fisica iOS sono `PHYSICAL_VALIDATION_PENDING_DEVICE` perché l'iPhone rilevato è
+  offline. Nessun PASS manuale o fisico è inferito.
+
+### Staging, gate e deviazioni
+
+- run Admin `31985297932`, exact SHA `59668348`, dataset 91.200 righe equivalenti:
+  catalog p95 50,608 ms, search p95 718,325 ms, detail p95 6,069 ms,
+  keyset/FTS osservati e cleanup zero;
+- due tentativi client profile iniziali sono `FAIL` di harness prima della rete
+  (`SUPABASE_ANON_KEY` e `ENABLE_GOOGLE_AUTH` non sono i nomi contrattuali) e un
+  tentativo durante la transazione non committed è `FAIL` con Home unavailable;
+  nessuno è contato come evidence positiva;
+- il gate canonico prima dell'upgrade lock è `PASS`: 760 test non-performance,
+  70/70 repeat TASK-034, 4 performance, security/localization/governance/
+  architecture, analyze/format e build Android/iOS Simulator;
+- production, limiti server, DDL e dati reali non sono stati modificati.
+
+Il run staging con finestra fixture committed e il gate finale sull'exact SHA sono
+in corso; l'handoff a Review verrà registrato soltanto dopo la loro conclusione.
 
 ## Review — `CODEX_REVIEWER`
 

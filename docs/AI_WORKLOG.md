@@ -3352,3 +3352,26 @@
   `5ba397a40bbfb3ce7d9690deb6a147541f611f2e7f626ef4afaffa7d72167786`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 4 e handoff
+
+- **Technical SHA**: `16f29012e89170a0de2c9b348ec134c4d495b33d`;
+  YAML execution controls, comment decoy architecture, privacy nested schema e FIFO
+  sono chiusi al boundary reale con regressioni dedicate; evidence corrente
+  riallineata a quattro digest e ai conteggi Fix 4.
+- **Gate mirati**: runtime/CI 17/17, iOS release 15/15, architecture 9/9,
+  source/artifact 680/207, analyze e diff check `PASS`.
+- **Gate completo**: `scripts/check.sh` exit 0; 800/800 non-performance,
+  10/10 performance, resilience repeat 70/70, format 300/0, Android debug e
+  iOS Simulator debug build `PASS`.
+- **Artifact exact-SHA**: clean archive unsigned 201.344 KiB, app 36.724 KiB/
+  207 file, 8 privacy manifest, 7 dSYM; runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95d54da27bf4022ced821f142c`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna firma, profilo, input ASC,
+  IPA, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.

@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -285,6 +285,36 @@ chiusi. Security report sealed SHA-256
 `5ba397a40bbfb3ce7d9690deb6a147541f611f2e7f626ef4afaffa7d72167786`.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 4
+
+- il parser YAML rifiuta ora job o step release con chiavi di esecuzione aggiuntive,
+  inclusi `if`, `continue-on-error` e `shell`; quattro mutazioni reali del workflow
+  sono regressioni negative;
+- il binding `STOREFRONT_SHOP_SLUG` viene verificato dopo la rimozione dei commenti,
+  quindi un decoy commentato non sostituisce più il compile-time binding reale;
+- ogni privacy manifest valida chiavi e tipi nested esatti, reason/purpose non vuoti,
+  booleani e set unici; la forma `[{}]` è respinta sul candidate reale;
+- il runtime-config tool rifiuta FIFO e ogni entity non regular prima di `openSync`,
+  con test bounded che dimostra l'assenza del blocco;
+- evidence corrente riallineata a quattro digest, source 680 e artifact/gate Fix 4;
+- regressioni `PASS`: runtime/CI 17/17, iOS 15/15, architecture 9/9,
+  validator source/artifact 680/207 e `flutter analyze` senza issue;
+- `scripts/check.sh` exit 0: 800/800 non-performance, 10/10 performance,
+  resilience repeat 5×14=70/70, format 300/0, Android debug e iOS Simulator
+  debug build `PASS`;
+- clean build/archive dallo SHA tecnico
+  `16f29012e89170a0de2c9b348ec134c4d495b33d`: archive 201.344 KiB,
+  app 36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95d54da27bf4022ced821f142c`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`;
+- upload gate ancora correttamente bloccato da
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna IPA, firma, credenziale,
+  configurazione reale, upload o mutazione production.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

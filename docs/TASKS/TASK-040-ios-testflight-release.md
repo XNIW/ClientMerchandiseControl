@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -308,7 +308,7 @@ chiusi. Security report sealed SHA-256
   app 36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime SHA-256
   `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
   wrapper SHA-256
-  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95d54da27bf4022ced821f142c`
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
   e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`;
 - upload gate ancora correttamente bloccato da
   `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna IPA, firma, credenziale,
@@ -328,6 +328,38 @@ sealed SHA-256
 `0e98a5c4dd7faf79571002b7edad4b4bb5624449dbb7eb3961e941de024762df`.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 5
+
+- il gate CI è ora un contratto YAML completo: root, trigger, permission, concurrency,
+  environment, job e nove step ordinati sono allowlisted; `defaults.run`, `BASH_ENV`,
+  step aggiuntivi e override di esecuzione falliscono chiusi;
+- il binding `STOREFRONT_SHOP_SLUG` è verificato sul vero AST Dart tramite `analyzer`
+  già compatibile col lockfile; stringhe, raw string e commenti annidati non possono
+  più fungere da decoy;
+- privacy manifest accetta soltanto categorie, tipi, purpose e required-reason Apple
+  realmente usati dall'app e dagli SDK, con pairing esatto e regressioni negative;
+- runtime config usa `python3` dichiarato nel preflight e un singolo descriptor
+  `O_NONBLOCK|O_NOFOLLOW`, con `fstat` prima/dopo e verifica identity/size/mtime;
+  la race regular-to-FIFO è respinta senza bloccare;
+- evidence wrapper Fix 4 corretta al digest fisico verificato
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`;
+- gate mirati `PASS`: runtime/CI 17/17, iOS release 16/16, architecture 10/10,
+  security 61/61 negative + 7/7 positive, source/artifact 681/207 e analyze;
+- `scripts/check.sh` exit 0: 800/800 non-performance, 10/10 performance,
+  resilience repeat 5x14=70/70, format 301/0, Android debug e iOS Simulator debug;
+- clean release/archive sullo SHA tecnico
+  `ae452c6b10a9b69c9535476c02b01d8ed3ec74b5`: archive 201.344 KiB,
+  app 36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`;
+- upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna IPA,
+  firma Distribution, provisioning, input App Store Connect, upload o mutazione
+  production.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

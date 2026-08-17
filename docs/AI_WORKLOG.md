@@ -3368,7 +3368,7 @@
   207 file, 8 privacy manifest, 7 dSYM; runtime SHA-256
   `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
   wrapper SHA-256
-  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95d54da27bf4022ced821f142c`
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
   e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
 - **Boundary**: upload gate exit 1
   `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna firma, profilo, input ASC,
@@ -3390,3 +3390,25 @@
   `0e98a5c4dd7faf79571002b7edad4b4bb5624449dbb7eb3961e941de024762df`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 5 e handoff
+
+- **Technical SHA**: `ae452c6b10a9b69c9535476c02b01d8ed3ec74b5`;
+  workflow CI allowlisted integralmente, binding verificato sul vero AST Dart,
+  privacy allowlist Apple esatta e runtime config single-descriptor nonblocking.
+- **Gate mirati**: runtime/CI 17/17, iOS release 16/16, architecture 10/10,
+  source/artifact 681/207, scanner 61/61 negative + 7/7 positive e analyze `PASS`.
+- **Gate completo**: `scripts/check.sh` exit 0; 800/800 non-performance,
+  10/10 performance, repeat resilience 70/70, format 301/0, Android debug e
+  iOS Simulator debug build `PASS`.
+- **Artifact exact-SHA**: archive unsigned 201.344 KiB, app 36.724 KiB/207 file,
+  8 privacy manifest, 7 dSYM; runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna firma, profilo, input ASC,
+  IPA, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.

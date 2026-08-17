@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: correggere i cinque P3 della re-review Fix 4,
-  rieseguire i gate e consegnare a re-review distinta; upload resta `NOT_RUN`
+- **Prossima azione autorizzata**: re-review indipendente Fix 5 sullo SHA esatto,
+  poi PR/CI/merge soltanto con `APPROVED`; upload resta `NOT_RUN`
 
 ## Repository coinvolti
 

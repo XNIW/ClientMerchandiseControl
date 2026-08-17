@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -19,7 +19,7 @@ Snapshot di handoff:
 | CA-03 | release app/archive, 4 digest, 7 dSYM e Runner UUID | PASS |
 | CA-04 | custom scheme bounded; entitlement/Universal Links/push assenti e bloccati | PASS |
 | CA-05 | manifest app byte-identico e 8 privacy manifest app/SDK | PASS |
-| CA-06 | security source 680 e app artifact 207; config esterna assente | PASS |
+| CA-06 | security source 681 e app artifact 207; config esterna assente | PASS |
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
@@ -30,14 +30,14 @@ Snapshot di handoff:
 | Test | Esito | Evidence |
 |---|---|---|
 | T-01 | PASS | source gate, runtime/CI 17/17 e config/signing boundary |
-| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `16f2901` |
-| T-03 | PASS | plist/privacy nested/entitlement/framework/dSYM + fixture iOS 15/15 |
-| T-04 | PASS | scanner 680/207 e fixture 61/61 + 7/7 |
+| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `ae452c6` |
+| T-03 | PASS | plist/privacy allowlist/entitlement/framework/dSYM + fixture iOS 16/16 |
+| T-04 | PASS | scanner 681/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | fix handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 5 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -47,16 +47,16 @@ Snapshot di handoff:
 - production App Store: vietata;
 - physical iOS: `BLOCKED`, zero device collegati; separato dal Simulator.
 
-## Artifact evidence corrente — Fix 4
+## Artifact evidence corrente — Fix 5
 
-- source exact SHA: `16f29012e89170a0de2c9b348ec134c4d495b33d`;
+- source exact SHA: `ae452c6b10a9b69c9535476c02b01d8ed3ec74b5`;
 - archive: `build/ios/archive/Runner.xcarchive`, 201.344 KiB, non versionato;
 - app: 36.724 KiB, 207 file, bundle `com.xniw.clientmerchandisecontrol`,
   `0.1.0 (1)`, `iphoneos`, arm64, unsigned;
 - runtime Dart `App.framework/App` SHA-256:
   `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`;
 - native wrapper `Runner` SHA-256:
-  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95d54da27bf4022ced821f142c`;
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`;
 - Info.plist SHA-256:
   `8888ca9f64b9c8f60b6a4a18079131c0db551f0630a6b539ee93b6b9980b3fb8`;
 - app PrivacyInfo SHA-256:
@@ -64,14 +64,14 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `BECE880B-91F5-36D2-AD95-F366FB669F41`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 4
+## Gate executor corrente — Fix 5
 
 - `scripts/check.sh`: exit 0;
 - non-performance 800/800; performance 10/10; resilience repeat 70/70;
-- format 300 file/0 cambi; analyze 0 issue;
-- governance 9/9; architecture negative 9/9; localization/telemetry/action pin PASS;
-- security source 680; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 15/15, runtime/CI 17/17;
+- format 301 file/0 cambi; analyze 0 issue;
+- governance 9/9; architecture negative 10/10; localization/telemetry/action pin PASS;
+- security source 681; artifact 207; fixture negative 61/61, positive 7/7;
+- validator iOS avversariale 16/16, runtime/CI 17/17;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
@@ -192,7 +192,7 @@ Snapshot di handoff:
   app 36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime SHA-256
   `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
   wrapper SHA-256
-  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95d54da27bf4022ced821f142c`
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
   e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`;
 - upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; zero
   Distribution, profili o input App Store Connect, nessuna IPA/upload/production;
@@ -211,3 +211,27 @@ Snapshot di handoff:
   runtime binding preservate; gate nominali 17/17, 9/9, 15/15 e 680/207 verdi ma
   insufficienti rispetto ai nuovi PoC;
 - nessun upload, firma, profilo, config reale o mutation production.
+
+## Gate Fix 5
+
+- exact technical SHA `ae452c6b10a9b69c9535476c02b01d8ed3ec74b5`;
+  root/job/step CI allowlisted, AST Dart reale, allowlist Apple esatta,
+  single-descriptor nonblocking runtime config e prerequisito `python3` hanno
+  regressioni sul boundary reale;
+- mirati `PASS`: runtime/CI 17/17, iOS release fixture 16/16, architecture 10/10,
+  source/artifact validator 681/207 e `flutter analyze` senza issue;
+- `scripts/check.sh` exit 0: 800/800 non-performance, 10/10 performance,
+  resilience repeat 5x14=70/70, format 301/0, Android debug e iOS Simulator
+  debug build `PASS`;
+- clean release no-codesign e archive exact-SHA `PASS`: 201.344 KiB,
+  app 36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`,
+  Info.plist `8888ca9f64b9c8f60b6a4a18079131c0db551f0630a6b539ee93b6b9980b3fb8`,
+  privacy `5dd288d8eda8adac284ea005bb82585023eb82ae5302e26ffc27979a41ba40cd`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`;
+- upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; zero
+  Distribution, profili o input App Store Connect, nessuna IPA/upload/production;
+- il digest wrapper Fix 4 è stato corretto al valore fisico verificato; gli altri
+  blocchi Fix 1-4 restano esplicitamente storici.

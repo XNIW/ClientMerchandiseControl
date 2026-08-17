@@ -6,17 +6,18 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
-- **Dipende da**: TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038
+- **Dipende da**: TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038,
+  TASK-039
 - **Sblocca**: TASK-041
 - **Writer**: Client; Admin e repository operativi read-only
 
@@ -111,11 +112,48 @@ Connect credential e autorizzazione di upload risultano realmente presenti.
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso.
+- aggiunto `scripts/check-ios-release.sh`: source/app/archive, identity,
+  version/build, platform/architecture, privacy app+SDK, framework, dSYM, signature,
+  provisioning e App Store Connect falliscono chiusi con output bounded;
+- release config canonica production mantiene OAuth/Maps disabilitati e nessun
+  backend/callback/shop esterno; Maps native resta `NOT_CONFIGURED`;
+- `flutter build ios --release --no-codesign` e `xcodebuild archive` sono `PASS`
+  sullo SHA tecnico `4c4db2a82ddb276066763fcdb24227bbf2937a4f`;
+- archive `Runner.xcarchive` 201.328 KiB, app 36.708 KiB, bundle
+  `com.xniw.clientmerchandisecontrol`, versione `0.1.0 (1)`, iOS 14, arm64;
+- executable SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`;
+  Runner/dSYM UUID corrispondente, 7 dSYM, 8 privacy manifest e 207 file app;
+- signing `UNSIGNED`: una identity Apple Development, zero Apple Distribution,
+  zero provisioning profile e zero App Store Connect API key; upload TestFlight
+  `NOT_RUN`, `--require-upload-ready` respinto con
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`;
+- Universal Links, push/APNs e Maps restano activation gate esterni; nessun
+  entitlement/dominio/key/billing è stato inventato o attivato;
+- scanner artifact aggiornato per la variante linker reale del public identifier
+  Google Maps, ancora vincolata a fingerprint+prefisso+endpoint esatti; fixture
+  security 52/52 negative e 6/6 positive;
+- CI aggiunge un job macOS release no-codesign+archive+validator; runbook TestFlight
+  documenta export/upload senza eseguirli;
+- Simulator: smoke integration debug 1/1 `PASS`; debug production-like install/launch
+  `PASS` e resta fail-closed alla launch screen; Release Simulator `NOT_APPLICABLE`
+  perché Flutter lo rifiuta esplicitamente; physical iOS
+  `PHYSICAL_VALIDATION_PENDING_DEVICE` (zero device fisici collegati).
+
+Gate executor:
+
+- `scripts/check.sh` exit 0; 788/788 non-performance, repeat 5×14=70/70,
+  performance 10/10, format 297/0, analyze zero issue;
+- security source 676, artifact app 207, fixture 52/52 negative + 6/6 positive;
+- governance 9/9, architecture 7/7, release metadata 12×3 e action pins `PASS`;
+- Android debug e iOS Simulator debug build `PASS`; production e App Store Connect
+  invariati.
+
+`CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Review
 
-`NOT_RUN`.
+In attesa di reviewer read-only distinto sul revision set TASK-040.
 
 ## Chiusura
 

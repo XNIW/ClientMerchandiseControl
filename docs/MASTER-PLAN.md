@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: eseguire TASK-040 su build/archive iOS
-  production-like, signing/entitlement/artifact validator e TestFlight boundary;
-  upload soltanto se signing e credenziali App Store Connect reali sono presenti
+- **Prossima azione autorizzata**: review indipendente TASK-040 su release
+  app/archive, signing/TestFlight gate, security diff e CI macOS; upload resta
+  `NOT_RUN` perché Distribution/profile/App Store Connect key sono assenti
 
 ## Repository coinvolti
 

@@ -3228,3 +3228,29 @@
   `ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`, autorizzazione
   persistente del mandato 2026-08-16. Nessun upload TestFlight o production
   senza signing e credenziali reali.
+
+## 2026-08-17 — TASK-040 iOS release candidate execution
+
+- **Exact SHA tecnico**: `4c4db2a82ddb276066763fcdb24227bbf2937a4f`;
+  worktree pulito durante build/archive e artifact inspection.
+- **Artifact**: `flutter build ios --release --no-codesign` e `xcodebuild archive`
+  `PASS`; archive 201.328 KiB, app 36.708 KiB, 207 file, arm64,
+  `com.xniw.clientmerchandisecontrol` `0.1.0 (1)`, 7 dSYM e 8 privacy manifest.
+- **Digest**: executable
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`;
+  Runner binary/dSYM UUID corrispondente.
+- **Signing/TestFlight**: unsigned; 1 identity Development, 0 Distribution,
+  0 profile, 0 App Store Connect API key/env. Upload `NOT_RUN`; readiness respinta
+  con enum bounded `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`.
+- **Security**: source 676, app 207, fixture 52/52 negative + 6/6 positive;
+  public identifier Google Maps ammesso solo con fingerprint, prefisso ed endpoint
+  esatti anche nella variante linker Release.
+- **Gate**: `scripts/check.sh` exit 0; 788/788 non-performance, 10/10
+  performance, repeat 70/70, format 297/0, analyze, governance 9/9,
+  architecture 7/7 e build debug Android/iOS `PASS`.
+- **Device**: Simulator debug integration 1/1 `PASS`; debug production-like
+  install/launch `PASS` fail-closed; Release Simulator non supportato da Flutter;
+  physical iOS `PHYSICAL_VALIDATION_PENDING_DEVICE`.
+- **Transizione**: `ACTIVE / EXECUTION -> REVIEW`, handoff
+  `CODEX_EXECUTION_COMPLETE_TO_REVIEW`; push/Universal Links/Maps/TestFlight e
+  production invariati.

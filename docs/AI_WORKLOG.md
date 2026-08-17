@@ -2793,3 +2793,23 @@
   governance, security, architecture, format/diff e run staging `PASS`.
 - **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`;
   fix limitato ai tre finding, production invariata.
+
+## 2026-08-17 — TASK-037 Fix candidate
+
+- **Ruolo**: `CODEX_FIXER`, limitato a `F-037-R01`–`F-037-R03`.
+- **Runtime**: deadline assoluta immagini con `AppScheduler`, cleanup/retry
+  single-flight e cache soltanto dopo successo entro deadline.
+- **Oracle**: MRU distinto da FIFO, byte cap distinto da entry cap; State/Element
+  order detail osservabili restano identici durante update tracking.
+- **Performance candidate `35fb338`**: 10/10 benchmark con nuovi Home warm,
+  append, product render, checkout navigation, tracking publication e decode;
+  tutti riportano warm-up, 30 campioni e p50/p95/p99. Order backend staging è
+  classificato onestamente `NOT_RUN` per assenza di fixture customer autenticata,
+  senza usare dati reali.
+- **Stress**: `20 x 14 = 280/280 PASS` sullo SHA `6974afb`; le modifiche successive
+  sono soli harness performance. Analyze, suite modificata 64/64 e diff `PASS`.
+- **Failure harness escluse**: un conteggio MockClient letto prima del microtask e
+  un decode fuori `tester.runAsync`; entrambi corretti, processi terminati e
+  nessun esito falso promosso.
+- **Stato**: resta `ACTIVE / FIX`; gate canonico final candidate e handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW` non ancora dichiarati.

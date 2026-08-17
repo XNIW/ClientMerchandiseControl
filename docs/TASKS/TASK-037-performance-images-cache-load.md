@@ -226,7 +226,51 @@ format/diff, staging exact-SHA e cleanup tutti `PASS`. Production invariata.
 
 ## Fix — `CODEX_FIXER`
 
-In corso, limitato ai finding `F-037-R01`–`F-037-R03`.
+### Correzioni candidate
+
+- `F-037-R01`: il Future condiviso usa ora una deadline assoluta via
+  `AppScheduler`; timeout, cleanup `_inFlight` e retry sono provati senza sleep.
+  Soltanto un download concluso entro deadline può popolare la cache;
+- `F-037-R02`: aggiunti benchmark con 5 warm-up e 30 campioni per Home cache
+  warm, page append, product-detail render, checkout navigation, tracking
+  publication e decode 1024→480; ogni harness riporta p50/p95/p99 e request
+  count. Aggiunte le matrici CA/T e la classificazione esplicita di ogni budget;
+- `F-037-R03`: test distinti provano promozione MRU vs FIFO e limite byte vs
+  limite entry; il rebuild test usa State/Element osservabili e tipi Widget, non
+  un nome State impossibile nel callback.
+
+Sul candidate tecnico `35fb338`, i 10 benchmark sono `10/10 PASS`; deadline/LRU
+`10/10`, suite mirata modificata `64/64`, analyze e diff `PASS`. Il soak
+resilience/lifecycle sullo SHA `6974afb` è `20 x 14 = 280/280 PASS`; le sole
+modifiche successive aggiungono harness performance e saranno incluse nel gate
+finale exact-SHA.
+
+### Matrice CA -> evidence candidate
+
+| CA | Evidence verificata | Stato |
+|---|---|---|
+| CA-01 | tabella budget completa in evidence, SHA/ambiente/warm-up/campioni/p50/p95/p99 | PASS |
+| CA-02 | small 1k, medium 10k, extreme 25k/250 categorie, cart 100, ordini 50/500, staging 91.200 equivalenti | PASS |
+| CA-03 | cache 25k, append 36x24, LRU entry/byte, single-flight e 256 immagini | PASS |
+| CA-04 | `storefront_verified_image_loader_test.dart`, decode 1024→480 e `cacheWidth` 480/1440 | PASS |
+| CA-05 | Home warm, product render, checkout navigation e 2.657 frame staging | PASS |
+| CA-06 | State/Element order detail stabili; tracking p95 0,353 ms | PASS |
+| CA-07 | Manual scheduler lifecycle + repeat 20x14, timer/subscription a zero | PASS |
+| CA-08 | baseline pre-fix, fix LRU/deadline e regressioni sullo stesso harness | PASS |
+| CA-09 | gate candidate exact-SHA e re-review | NOT_RUN — dopo commit evidence |
+| CA-10 | diff senza DDL/config production; staging cleanup/residue 0 | PASS |
+
+### Matrice T -> risultato candidate
+
+| Test | Comando/evidence | Stato |
+|---|---|---|
+| T-01 | `flutter test --tags performance --concurrency=1`; 10 benchmark/dataset | PASS |
+| T-02 | catalog controller/cache e race TASK-034 exact-SHA | PASS |
+| T-03 | loader 10/10, decode target-sized, LRU stress 256 | PASS |
+| T-04 | journey staging + rebuild order detail + tracking publication | PASS |
+| T-05 | `CMC_TASK034_REPEAT_COUNT=20 ...`; 280/280 con scheduler manuale | PASS |
+| T-06 | baseline/finale documentati; nessuna ottimizzazione senza finding | PASS |
+| T-07 | check canonico, security diff, re-review, PR/main CI | NOT_RUN — dopo commit evidence |
 
 ## Chiusura
 

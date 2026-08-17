@@ -7,12 +7,12 @@
 - **File task**: `docs/TASKS/TASK-036-accessibility-localization-device-matrix.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-036/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -212,6 +212,18 @@ zero P0, zero P1, un P2, zero P3.
   performance 25k e build Android/iOS Simulator.
 
 **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review indipendente
+
+- revision set Client `4cfe809040834768b29f3c7e648207bbf606a60c` / Admin
+  `c8dd708016b56b24b4d1402fe782028feb8e1487`;
+- `F-036-R01` `CLOSED`: payload atomici, snapshot `STABLE`, lock cancellation,
+  grant `app_private`, errori minimali e race regressions verificati;
+- Client mirati 40/40, suite reale 755/755, skipped/failure zero e analyze verde;
+- Admin mirati 3 file/100, catalog/privilege probe, diff e secret scan verdi;
+- finding aperti: zero P0/P1/P2/P3; esito `APPROVED`.
+
+**Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Chiusura
 

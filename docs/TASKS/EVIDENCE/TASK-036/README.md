@@ -1,7 +1,7 @@
 # Evidence TASK-036
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance
 
@@ -124,3 +124,14 @@ un cliente con device fuori dal fuso del negozio vedeva orari business errati. I
 - `scripts/check.sh` sul technical SHA: 754 test non-performance con coverage,
   repeat 70/70, benchmark cache 25k, APK debug e iOS Simulator debug `PASS`;
 - handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## Re-review Fix
+
+- exact revision: Client `4cfe809040834768b29f3c7e648207bbf606a60c`, Admin
+  `c8dd708016b56b24b4d1402fe782028feb8e1487`;
+- `F-036-R01` chiuso; nessuna seconda RPC/cache, correlazione payload/timezone,
+  snapshot/lock SQL e privilege app_private verificati;
+- Client 40/40 mirati e 755/755 completi, skipped/failure zero; Admin 3 file/100
+  mirati e catalog probe `PASS`;
+- zero finding P0/P1/P2/P3; worktree puliti; `APPROVED`.
+- handoff: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.

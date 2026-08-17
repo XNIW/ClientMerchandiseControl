@@ -2716,3 +2716,14 @@
   seconda RPC/cache process-lifetime; zero P0/P1/P2 noti al fixer.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; nuova
   re-review read-only distinta obbligatoria prima di PR/CI/merge.
+
+## 2026-08-16 — TASK-036 Re-review Fix `APPROVED`
+
+- **Revision set**: Client `4cfe809`, Admin `c8dd7080`, worktree puliti.
+- **F-036-R01**: chiuso; timezone nello stesso payload, nessuna cache/RPC separata,
+  snapshot e lock SQL, errori fail-closed e grant app_private confermati.
+- **Gate autonomi**: Client 40/40 mirati, 755/755 completi e analyze; Admin 3
+  file/100, catalog/privilege probe, diff e secret scan tutti `PASS`.
+- **Esito**: zero P0/P1/P2/P3, `APPROVED`.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`;
+  autorizzazione persistente valida per PR, CI exact-SHA e merge normale.

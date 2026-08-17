@@ -252,6 +252,43 @@ fi
 grep -Fq 'AAB_SIGNER_SET_INVALID' \
   "${cmc_signature_tmp_root}/multiple-signers.log"
 
+cmc_signature_mixed_case_aab="${cmc_signature_tmp_root}/mixed-case-signers.aab"
+cmc_signature_mixed_case_root="${cmc_signature_tmp_root}/mixed-case-block"
+cp "${cmc_signature_multiple_aab}" "${cmc_signature_mixed_case_aab}"
+cmc_signature_second_block="$(
+  unzip -Z1 "${cmc_signature_mixed_case_aab}" | \
+    LC_ALL=C grep -E '^META-INF/[A-Za-z0-9_-]+\.(RSA|DSA|EC)$' | \
+    LC_ALL=C sort | tail -n 1
+)"
+[[ -n "${cmc_signature_second_block}" ]]
+cmc_signature_mixed_case_block="${cmc_signature_second_block%.*}.rSa"
+mkdir -p "${cmc_signature_mixed_case_root}/META-INF"
+unzip -p "${cmc_signature_mixed_case_aab}" \
+  "${cmc_signature_second_block}" \
+  >"${cmc_signature_mixed_case_root}/${cmc_signature_mixed_case_block}"
+zip -q -d "${cmc_signature_mixed_case_aab}" \
+  "${cmc_signature_second_block}"
+(
+  cd "${cmc_signature_mixed_case_root}"
+  zip -q "${cmc_signature_mixed_case_aab}" \
+    "${cmc_signature_mixed_case_block}"
+)
+if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
+  PLAY_SERVICE_ACCOUNT_JSON_PATH="${cmc_signature_credential}" \
+  PLAY_SERVICE_ACCOUNT_EXPECTED_EMAIL="${cmc_signature_email}" \
+  PLAY_SERVICE_ACCOUNT_EXPECTED_PROJECT_ID="${cmc_signature_project}" \
+  ANDROID_SIGNING_CERT_SHA256="${cmc_signature_fingerprint}" \
+  bash "${cmc_signature_script_dir}/check-android-release.sh" \
+    --aab "${cmc_signature_mixed_case_aab}" \
+    --apk "${cmc_signature_candidate_apk}" \
+    --require-upload-ready \
+    >"${cmc_signature_tmp_root}/mixed-case-signers.log" 2>&1; then
+  printf 'Android signature fixture: signature block mixed-case accettato.\n' >&2
+  exit 1
+fi
+grep -Fq 'AAB_SIGNER_SET_INVALID' \
+  "${cmc_signature_tmp_root}/mixed-case-signers.log"
+
 cmc_signature_validator_output="$(
   PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
   PLAY_SERVICE_ACCOUNT_JSON_PATH="${cmc_signature_credential}" \

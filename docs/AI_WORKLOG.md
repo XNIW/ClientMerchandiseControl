@@ -3038,3 +3038,18 @@
   analyze, format 296/0 e build debug Android/iOS tutti `PASS`.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 2 re-review
+
+- **Exact SHA**: `8edcfa063a4d46762e45c22ed3acb30687b5eb97`; due reviewer
+  read-only distinti, report security finalizzato e worktree pulito.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 3 P2 e 1 P3.
+- **Finding aperti**: `F-039-SR01` signature block mixed-case non contato;
+  `F-039-SR03` commento ZIP per-entry non scansionato; `F-039-SR04` alias
+  `uses-permission-sdk-*` ignorato; `F-039-SR06` limiti ZIP applicati soltanto
+  dopo materializzazione.
+- **Finding chiusi**: `F-039-SR02` detection archive content-based e
+  `F-039-SR05` coerenza evidence.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; artifact unsigned, Play/Internal e
+  production invariati.

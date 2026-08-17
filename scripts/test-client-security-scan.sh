@@ -417,6 +417,49 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_aab_secret_comment}" \
   --artifact "${cmc_fixture_aab_secret_comment}/artifact/candidate.aab"
 
+cmc_fixture_aab_entry_comment="$(cmc_fixture_prepare aab-secret-entry-comment)"
+mkdir -p \
+  "${cmc_fixture_aab_entry_comment}/artifact/input/base/assets/flutter_assets"
+printf '%s\n' \
+  'public fixture payload' \
+  >"${cmc_fixture_aab_entry_comment}/artifact/input/base/assets/flutter_assets/config.bin"
+(
+  cd "${cmc_fixture_aab_entry_comment}/artifact/input"
+  printf '%s\n' "${cmc_fixture_google_value}" | \
+    zip -q -9 -c ../candidate.aab \
+      base/assets/flutter_assets/config.bin
+)
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_aab_entry_comment}" \
+  --artifact "${cmc_fixture_aab_entry_comment}/artifact/candidate.aab"
+
+cmc_fixture_aab_expansion="$(cmc_fixture_prepare aab-expansion-bound)"
+mkdir -p \
+  "${cmc_fixture_aab_expansion}/artifact/input/base/assets/flutter_assets"
+dd if=/dev/zero \
+  of="${cmc_fixture_aab_expansion}/artifact/input/base/assets/flutter_assets/zeros.bin" \
+  bs=1048576 count=2 2>/dev/null
+(
+  cd "${cmc_fixture_aab_expansion}/artifact/input"
+  zip -q -9 -r ../candidate.aab .
+)
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_aab_expansion}" \
+  --artifact "${cmc_fixture_aab_expansion}/artifact/candidate.aab"
+
+cmc_fixture_aab_entry_bound="$(cmc_fixture_prepare aab-entry-count-bound)"
+mkdir -p "${cmc_fixture_aab_entry_bound}/artifact/input/entries"
+for ((cmc_fixture_entry_index = 0; cmc_fixture_entry_index < 2049; cmc_fixture_entry_index++)); do
+  : >"${cmc_fixture_aab_entry_bound}/artifact/input/entries/entry-${cmc_fixture_entry_index}"
+done
+(
+  cd "${cmc_fixture_aab_entry_bound}/artifact/input"
+  zip -q -9 -r ../candidate.aab .
+)
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_aab_entry_bound}" \
+  --artifact "${cmc_fixture_aab_entry_bound}/artifact/candidate.aab"
+
 cmc_fixture_aab_public="$(cmc_fixture_prepare aab-deflated-public)"
 mkdir -p \
   "${cmc_fixture_aab_public}/artifact/input/base/assets/flutter_assets"

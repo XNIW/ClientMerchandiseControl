@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -95,7 +95,8 @@ Snapshot di handoff:
 
 ## Handoff
 
-Il fix security sullo SHA tecnico `35a60a0bcbc2649c960cc9674cb93725eaa1a210`
-copre `F-039-SR01`–`F-039-SR05` con regressioni reali e gate canonico verde.
-Handoff corrente `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; un re-reviewer read-only
-distinto deve chiudere i finding prima di PR/merge.
+La re-review Fix 2 sullo SHA `8edcfa063a4d46762e45c22ed3acb30687b5eb97`
+ha chiuso `F-039-SR02` e `F-039-SR05`, ma ha riprodotto tre P2
+(`F-039-SR01`, `F-039-SR03`, `F-039-SR04`) e un P3 (`F-039-SR06`). Handoff
+corrente `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; Play/Internal e production
+restano invariati.

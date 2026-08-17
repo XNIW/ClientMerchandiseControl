@@ -41,8 +41,15 @@ void main(List<String> arguments) {
     _requireAttribute(usesSdk, _androidNamespace, 'minSdkVersion', '24');
     _requireAttribute(usesSdk, _androidNamespace, 'targetSdkVersion', '36');
 
-    final usesPermissions = manifest.children
-        .where((element) => element.name == 'uses-permission')
+    final permissionElements = manifest.children
+        .where((element) => element.name.startsWith('uses-permission'))
+        .toList(growable: false);
+    if (permissionElements.any(
+      (element) => element.name != 'uses-permission',
+    )) {
+      _fail('USES_PERMISSION_ELEMENT_INVALID');
+    }
+    final usesPermissions = permissionElements
         .map((element) => element.attribute(_androidNamespace, 'name'))
         .toList(growable: false);
     if (usesPermissions.length != _expectedUsesPermissions.length ||
@@ -130,7 +137,10 @@ void main(List<String> arguments) {
       (element) => componentNames.contains(element.name),
     )) {
       final exported = component.attribute(_androidNamespace, 'exported');
-      if (exported != null && exported != 'true' && exported != 'false') {
+      if (exported == null) {
+        _fail('EXPORTED_VALUE_MISSING');
+      }
+      if (exported != 'true' && exported != 'false') {
         _fail('EXPORTED_VALUE_INVALID');
       }
       if (exported == 'true') {

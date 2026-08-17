@@ -442,7 +442,7 @@ cmc_android_release_apk_fingerprint=''
 if [[ "${cmc_android_release_signature_state}" == SIGNED ]]; then
   cmc_android_release_aab_signature_entries="$(
     printf '%s\n' "${cmc_android_release_aab_entries}" | \
-      LC_ALL=C grep -E '^META-INF/[A-Za-z0-9_-]+\.(RSA|DSA|EC)$' || true
+      LC_ALL=C grep -Ei '^META-INF/[A-Za-z0-9_-]+\.(RSA|DSA|EC)$' || true
   )"
   cmc_android_release_aab_signature_entry_count="$(
     awk 'NF { count += 1 } END { print count + 0 }' \

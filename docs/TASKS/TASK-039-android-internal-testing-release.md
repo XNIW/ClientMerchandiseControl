@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -213,6 +213,26 @@ build Android debug e iOS Simulator debug tutti `PASS`.
   aggiuntivo `exported=true` non protetto;
 - `F-039-SR05` P3: review e worklog iniziali contavano tre P2 pur
   documentandone quattro e il finding scanner non aveva un ID stabile.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Security Fix 2 re-review — `CODEX_RE_REVIEWER`
+
+- exact SHA `8edcfa063a4d46762e45c22ed3acb30687b5eb97`, reviewer security e
+  reviewer prodotto read-only distinti, worktree pulito;
+- esito combinato `CHANGES_REQUIRED`: 0 P0, 0 P1, 3 P2 e 1 P3;
+- `F-039-SR01` P2: il conteggio dei signature block AAB era case-sensitive,
+  mentre `jarsigner` accetta anche estensioni `.rsa`/mixed-case, consentendo a
+  un secondo signer di non partecipare al confronto;
+- `F-039-SR03` P2: lo scanner includeva entry names e solo il commento globale,
+  non i commenti ZIP per-entry;
+- `F-039-SR04` P2: il parser raccoglieva soltanto `uses-permission`, ignorando
+  `uses-permission-sdk-23` e `uses-permission-sdk-m`;
+- `F-039-SR06` P3: conteggio e dimensione ZIP erano verificati dopo
+  materializzazione, senza limiti preventivi su numero entry, espansione e
+  rapporto di compressione;
+- `F-039-SR02` e `F-039-SR05` restano chiusi; report security finalizzato in
+  `/private/tmp` e nessun artifact o dato sensibile versionato.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 

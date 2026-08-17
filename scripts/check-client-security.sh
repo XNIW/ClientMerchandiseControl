@@ -472,6 +472,12 @@ if [[ "${cmc_security_tracked_count}" -eq 0 ]]; then
 fi
 
 if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
+  for cmc_security_archive_command in awk head unzip wc; do
+    if ! command -v "${cmc_security_archive_command}" >/dev/null 2>&1; then
+      printf 'Security scan artifact: tooling archive assente.\n' >&2
+      exit 1
+    fi
+  done
   cmc_security_artifact_index=0
   for cmc_security_artifact in "${cmc_security_artifacts[@]}"; do
     if [[ ! -e "${cmc_security_artifact}" ]]; then
@@ -505,6 +511,41 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
       fi
     fi
     if [[ "${cmc_security_artifact_is_archive}" == true ]]; then
+      if ! cmc_security_archive_summary="$(
+        LC_ALL=C unzip -Z -t "${cmc_security_artifact}" 2>/dev/null
+      )"; then
+        printf 'Security scan artifact: sommario archivio non verificabile.\n' >&2
+        exit 1
+      fi
+      cmc_security_archive_entry_count="$(
+        awk '/ files?, / { value = $1 } END { print value }' \
+          <<<"${cmc_security_archive_summary}"
+      )"
+      cmc_security_archive_uncompressed_bytes="$(
+        awk '/ files?, / { value = $3 } END { print value }' \
+          <<<"${cmc_security_archive_summary}"
+      )"
+      cmc_security_archive_compressed_bytes="$(
+        awk '/ files?, / { value = $6 } END { print value }' \
+          <<<"${cmc_security_archive_summary}"
+      )"
+      if [[ ! "${cmc_security_archive_entry_count}" =~ ^[0-9]+$ || \
+        ! "${cmc_security_archive_uncompressed_bytes}" =~ ^[0-9]+$ || \
+        ! "${cmc_security_archive_compressed_bytes}" =~ ^[0-9]+$ ]]; then
+        printf 'Security scan artifact: sommario archivio invalido.\n' >&2
+        exit 1
+      fi
+      if [[ "${cmc_security_archive_entry_count}" -gt 2048 || \
+        "${cmc_security_archive_uncompressed_bytes}" -gt 536870912 || \
+        "${cmc_security_archive_compressed_bytes}" -gt 536870912 ]] || \
+        { [[ "${cmc_security_archive_compressed_bytes}" -eq 0 ]] && \
+          [[ "${cmc_security_archive_uncompressed_bytes}" -ne 0 ]]; } || \
+        { [[ "${cmc_security_archive_compressed_bytes}" -gt 0 ]] && \
+          [[ "${cmc_security_archive_uncompressed_bytes}" -gt \
+            $((cmc_security_archive_compressed_bytes * 200)) ]]; }; then
+        printf 'Security scan artifact: limiti archive superati.\n' >&2
+        exit 1
+      fi
       cmc_security_scan_root="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}"
       cmc_security_archive_payload="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.payload"
       cmc_security_archive_metadata="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.metadata"
@@ -523,12 +564,11 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
         printf 'Security scan artifact: payload archivio non leggibile.\n' >&2
         exit 1
       fi
-      # Nomi entry e commento sono distribuiti insieme al payload, quindi
-      # partecipano allo stesso controllo secret-shaped senza essere stampati.
-      if ! {
-        unzip -Z1 "${cmc_security_artifact}"
-        unzip -z "${cmc_security_artifact}"
-      } >"${cmc_security_archive_metadata}"; then
+      # Il central directory verbose comprende nomi, archive comment, commenti
+      # per-entry ed extra field. `head` rende il bound preventivo: il pipefail
+      # rifiuta lo stream se `unzip` viene interrotto oltre 4 MiB.
+      if ! LC_ALL=C unzip -Z -v "${cmc_security_artifact}" | \
+        head -c 4194305 >"${cmc_security_archive_metadata}"; then
         printf 'Security scan artifact: metadata archivio non leggibili.\n' >&2
         exit 1
       fi
@@ -569,6 +609,11 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
       if [[ -n "${cmc_security_archive_metadata}" ]]; then
         cmc_security_artifact_files+=("${cmc_security_archive_metadata}")
       fi
+      if [[ -n "${cmc_security_archive_payload}" ]]; then
+        # Anche il container raw è bounded dal preflight e copre byte metadata
+        # non normalizzati dal formatter Info-ZIP.
+        cmc_security_artifact_files+=("${cmc_security_artifact}")
+      fi
     fi
 
     for cmc_security_artifact_file in \
@@ -584,6 +629,9 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
       elif [[ -n "${cmc_security_archive_metadata}" && \
         "${cmc_security_artifact_file}" == "${cmc_security_archive_metadata}" ]]; then
         cmc_security_artifact_relative='__archive_metadata__'
+      elif [[ -n "${cmc_security_archive_payload}" && \
+        "${cmc_security_artifact_file}" == "${cmc_security_artifact}" ]]; then
+        cmc_security_artifact_relative='__archive_container__'
       elif [[ -f "${cmc_security_scan_root}" ]]; then
         cmc_security_artifact_relative="${cmc_security_scan_root##*/}"
       else

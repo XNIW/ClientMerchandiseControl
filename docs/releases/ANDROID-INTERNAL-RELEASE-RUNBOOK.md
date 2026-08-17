@@ -67,10 +67,13 @@ sistema, Maps `NOT_CONFIGURED` con flag Dart spenti, deep link canonico,
 allowlist esatta di permission e componenti esportati, signature state, SHA-256
 e secret scan degli artifact. Legge
 direttamente il manifest protobuf dell'AAB, confronta i `libapp.so` AAB/APK per
-ogni ABI e riconosce gli archivi dal contenuto. La scansione security include
-payload, entry duplicate, nomi entry e commento ZIP bounded anche se il file è
-rinominato; il release validator accetta soltanto estensioni canoniche `.aab` e
-`.apk`.
+ogni ABI e riconosce gli archivi dal contenuto. Prima dell'estrazione la
+scansione security impone al massimo 2.048 entry, 512 MiB compressi e non
+compressi e rapporto di espansione massimo 200×. Include payload, entry
+duplicate, central directory bounded a 4 MiB (nomi, commento globale,
+commenti per-entry ed extra field) e container raw, anche se il file è
+rinominato; il release validator accetta soltanto estensioni canoniche `.aab`
+e `.apk`.
 
 ```sh
 bash scripts/check-android-release.sh --source-only

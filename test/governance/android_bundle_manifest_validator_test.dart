@@ -68,6 +68,38 @@ void main() {
     expect(result.stderr, isNot(contains(unexpectedPermission)));
   });
 
+  test('rifiuta alias uses-permission Android fuori allowlist', () {
+    const unexpectedPermission = 'android.permission.READ_SMS';
+    for (final alias in <String>[
+      'uses-permission-sdk-23',
+      'uses-permission-sdk-m',
+    ]) {
+      final fixture = _writeManifestFixture(
+        packageName: _packageName,
+        additionalManifestChildren: <List<int>>[
+          _element(
+            alias,
+            attributes: <List<int>>[
+              _attribute('name', unexpectedPermission, android: true),
+            ],
+          ),
+        ],
+      );
+      addTearDown(() => fixture.parent.deleteSync(recursive: true));
+
+      final result = Process.runSync('dart', <String>[
+        '--disable-dart-dev',
+        'tool/check_android_bundle_manifest.dart',
+        '--manifest',
+        fixture.path,
+      ], workingDirectory: repositoryRoot.path);
+
+      expect(result.exitCode, 1, reason: alias);
+      expect(result.stderr, contains('USES_PERMISSION_ELEMENT_INVALID'));
+      expect(result.stderr, isNot(contains(unexpectedPermission)));
+    }
+  });
+
   test('rifiuta component Android esportato fuori allowlist', () {
     const unexpectedComponent = 'com.example.UnsafeService';
     final fixture = _writeManifestFixture(

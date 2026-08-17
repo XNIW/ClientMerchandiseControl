@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -120,3 +120,15 @@ Snapshot di handoff:
   privacy `5dd288d8eda8adac284ea005bb82585023eb82ae5302e26ffc27979a41ba40cd`;
 - Runner/dSYM UUID `BECE880B-91F5-36D2-AD95-F366FB669F41`; signing `UNSIGNED`,
   upload readiness `BLOCKED_DISTRIBUTION_SIGNATURE`; nessuna IPA/upload/production.
+
+## Re-review Fix 2
+
+- exact HEAD `2b7c1480aa7c1e18dfce58abb076cf388b2ed9d2`, worktree pulito;
+- prodotto `CHANGES_REQUIRED`: 1 P2, app-set archive aggirabile con `.app` symlink;
+- security `CHANGES_REQUIRED`: 3 P3 su JWT source non bounded, file cap tardivo e
+  test CI artifact soddisfacibile da step no-op; 0 P0/P1/P2 security;
+- report sealed SHA-256
+  `083337065a0ad22367124162a36766391f9dabd180f3d6f00b9512835b4f9e28`;
+- gate indipendenti 39/39, 13/13, 60/60 + 7/7, governance 9/9 e architecture
+  7/7 verdi; insufficienti rispetto ai quattro probe residui;
+- nessun upload, firma reale, profilo reale o mutazione production.

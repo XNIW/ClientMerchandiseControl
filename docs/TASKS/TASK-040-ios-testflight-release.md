@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -184,6 +184,18 @@ deboli ed evidence device non canonica. Security report sealed:
   configurazione production reale è stata creata.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 2
+
+`CHANGES_REQUIRED` sul revision set `be978225..2b7c148`: prodotto 1 P2, security
+0 P0/P1/P2 e 3 P3. Il P2 consente una `.app` symlink extra non inventariata;
+i P3 riguardano materializzazione JWT source, lista directory prima del cap e gate CI
+basato su substring. Report security sealed SHA-256
+`083337065a0ad22367124162a36766391f9dabd180f3d6f00b9512835b4f9e28`.
+Firma, attestation/parità, CMS, UTF-16/chunk, manifest malformati, aggregate bound e
+runtime Dart risultano chiusi e non vengono riaperti.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ### Re-review Fix 1
 

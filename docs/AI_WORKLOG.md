@@ -3310,3 +3310,13 @@
   nessuna IPA, credential, config production reale, TestFlight o production mutati.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 2 re-review
+
+- **Exact HEAD**: `2b7c1480aa7c1e18dfce58abb076cf388b2ed9d2`, worktree pulito.
+- **Esito prodotto**: `CHANGES_REQUIRED`, 1 P2 su `.app` symlink extra non contata.
+- **Esito security**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 3 P3 su JWT source,
+  file-cap tardivo e CI substring; report sealed SHA-256
+  `083337065a0ad22367124162a36766391f9dabd180f3d6f00b9512835b4f9e28`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; production/TestFlight invariati.

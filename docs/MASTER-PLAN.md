@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-037
 - **File task**: docs/TASKS/TASK-037-performance-images-cache-load.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: FIX
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: correggere `F-037-R01`–`F-037-R03`, aggiungere
-  regressioni/matrici e riconsegnare TASK-037 alla re-review indipendente
+- **Prossima azione autorizzata**: re-review indipendente read-only di
+  `F-037-R01`–`F-037-R03`, matrici performance ed exact-SHA gate candidate
 
 ## Repository coinvolti
 

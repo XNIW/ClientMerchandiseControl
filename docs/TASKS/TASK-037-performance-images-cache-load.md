@@ -6,13 +6,13 @@
 - **Titolo**: Performance, immagini, cache e load testing
 - **File task**: `docs/TASKS/TASK-037-performance-images-cache-load.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-037/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -257,7 +257,7 @@ finale exact-SHA.
 | CA-06 | State/Element order detail stabili; tracking p95 0,353 ms | PASS |
 | CA-07 | Manual scheduler lifecycle + repeat 20x14, timer/subscription a zero | PASS |
 | CA-08 | baseline pre-fix, fix LRU/deadline e regressioni sullo stesso harness | PASS |
-| CA-09 | gate candidate exact-SHA e re-review | NOT_RUN — dopo commit evidence |
+| CA-09 | `scripts/check.sh` su `6934539` exit 0; re-review distinta da eseguire | PASS — gate locale; review pending |
 | CA-10 | diff senza DDL/config production; staging cleanup/residue 0 | PASS |
 
 ### Matrice T -> risultato candidate
@@ -270,7 +270,20 @@ finale exact-SHA.
 | T-04 | journey staging + rebuild order detail + tracking publication | PASS |
 | T-05 | `CMC_TASK034_REPEAT_COUNT=20 ...`; 280/280 con scheduler manuale | PASS |
 | T-06 | baseline/finale documentati; nessuna ottimizzazione senza finding | PASS |
-| T-07 | check canonico, security diff, re-review, PR/main CI | NOT_RUN — dopo commit evidence |
+| T-07 | check canonico `6934539` PASS; security diff/re-review/PR/main CI | NOT_RUN — re-review e CI sono il prossimo gate |
+
+### Handoff a Re-review
+
+- **Revision set review**: `5866465..6934539` più il commit documentale di handoff
+- **Gate canonico candidate**: `scripts/check.sh` su
+  `69345390118bba1df7555b90e2d1afbdca7d03af`, exit 0; security 635 file,
+  suite non-performance con coverage, repeat TASK-034 `5 x 14 = 70/70`,
+  performance `10/10`, analyze/format/governance/architecture e build Android/iOS
+  Simulator verdi
+- **Prossima fase**: REVIEW
+- **Prossimo ruolo**: CODEX_RE_REVIEWER read-only distinto
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Finding fixer aperti**: 0 P0/P1/P2/P3; `F-037-R01`–`F-037-R03` candidati chiusi
 
 ## Chiusura
 

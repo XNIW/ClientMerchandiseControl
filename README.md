@@ -191,10 +191,10 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-037
 - **File task**: docs/TASKS/TASK-037-performance-images-cache-load.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: FIX
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
 
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
@@ -203,8 +203,9 @@ normalmente e le CI PR/main exact-SHA sono verdi. Il train
 exact-SHA verdi; TASK-035 è `DONE` con PR #13, CI PR/main 3/3 e zero finding.
 TASK-036 è `DONE`: re-review indipendente `APPROVED`, zero finding P0/P1/P2/P3,
 PR Admin #93 e Client #14 integrate, CI PR/main verdi e staging verificato.
-TASK-037 è l'unico task `ACTIVE / FIX`; i finding indipendenti P2/P3 sono in
-correzione. Production è invariata.
+TASK-037 è l'unico task `ACTIVE / REVIEW`; i finding indipendenti P2/P3 hanno
+fix candidati e gate canonico exact-SHA verde, in attesa di re-review distinta.
+Production è invariata.
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione

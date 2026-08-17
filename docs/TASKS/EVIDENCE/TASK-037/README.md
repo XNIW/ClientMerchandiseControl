@@ -1,7 +1,7 @@
 # Evidence TASK-037
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -118,7 +118,7 @@ restano coperti; la misura remota è un activation check staging, non un bug cod
 | CA-06 | order State/Element identity + `_DeliveryTrackingSection`; tracking p95 0,353 ms | PASS |
 | CA-07 | `CMC_TASK034_REPEAT_COUNT=20 bash scripts/test-task034-resilience-repeat.sh` su `6974afb`: 280/280 | PASS |
 | CA-08 | baseline 25k pre-fix, LRU/deadline fix, stessi benchmark finali | PASS |
-| CA-09 | check/re-review/PR/main exact-SHA | NOT_RUN — gate dopo evidence |
+| CA-09 | `scripts/check.sh` exact `6934539` exit 0; re-review distinta pending | PASS — gate locale |
 | CA-10 | diff Client soltanto; DDL/config production assenti; staging residue 0 | PASS |
 
 ### Matrice T -> risultato
@@ -131,7 +131,7 @@ restano coperti; la misura remota è un activation check staging, non un bug cod
 | T-04 | rebuild identity, publication p95 e journey frame staging | PASS |
 | T-05 | 20x14 con scheduler manuale, logout/switch/fallback/dispose | PASS |
 | T-06 | baseline e finale comparabili, un solo finding runtime ottimizzato | PASS |
-| T-07 | gate/security/re-review/CI/hygiene | NOT_RUN — dopo commit evidence |
+| T-07 | gate locale `6934539` PASS; security diff/re-review/CI/hygiene | NOT_RUN — prossimo gate |
 
 ### Dataset e metriche finali locali
 
@@ -228,7 +228,7 @@ connection material rimosso e artifact non-secret caricato.
 
 ### Gate corrente
 
-`scripts/check.sh` finale sullo SHA `dc56102`: exit 0, 760 test non-performance
+`scripts/check.sh` finale Execution sullo SHA `dc56102`: exit 0, 760 test non-performance
 con coverage, repeat TASK-034 `5 x 14 = 70/70`, 4 performance, 634 file security,
 fixture 41/41+4/4, telemetry/localization/governance/architecture, format/analyze,
 APK debug e iOS Simulator debug. Il revision set `96a9359..dc56102` è consegnato
@@ -236,5 +236,10 @@ alla review indipendente; nessun esito intermedio è promosso a CI finale.
 
 Dopo la review: candidate tecnico `35fb338`, performance `10/10 PASS`, analyze
 `PASS`, suite modificata non-performance `64/64 PASS`; soak `280/280 PASS` sullo
-SHA `6974afb`. Il gate canonico final candidate resta `NOT_RUN` fino al commit di
-questa evidence e non viene inferito.
+SHA `6974afb`. Il gate canonico final candidate `scripts/check.sh` è stato
+eseguito sull'exact SHA `69345390118bba1df7555b90e2d1afbdca7d03af` con exit 0:
+security 635 file e fixture 41/41+4/4, telemetry/localization/governance 9/9,
+architecture 7/7, format/analyze, suite non-performance con coverage, repeat
+TASK-034 `5 x 14 = 70/70`, performance `10/10`, APK debug e iOS Simulator debug.
+La re-review e la CI PR/main restano correttamente il prossimo gate, non PASS
+inferiti.

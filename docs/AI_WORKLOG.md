@@ -2813,3 +2813,18 @@
   nessun esito falso promosso.
 - **Stato**: resta `ACTIVE / FIX`; gate canonico final candidate e handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW` non ancora dichiarati.
+
+## 2026-08-17 — TASK-037 Fix gate e handoff Re-review
+
+- **Ruolo**: `CODEX_FIXER`; chiusura candidate `F-037-R01`–`F-037-R03`.
+- **Exact SHA gate**: `69345390118bba1df7555b90e2d1afbdca7d03af`.
+- **Gate canonico**: `scripts/check.sh` exit 0; security 635 file e fixture
+  41/41+4/4, telemetry/localization/governance 9/9, architecture 7/7,
+  format/analyze, suite non-performance con coverage, repeat TASK-034
+  `5 x 14 = 70/70`, performance `10/10`, APK debug e iOS Simulator debug.
+- **Evidence**: matrici CA/T complete; order backend staging resta onestamente
+  `NOT_RUN` perché manca una fixture customer autenticata sicura, senza dato reale
+  o impatto sulla completezza tecnica del codice.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`;
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; prossimo ruolo `CODEX_RE_REVIEWER`
+  read-only distinto. Re-review e CI non sono inferite come PASS.

@@ -10,13 +10,13 @@
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review indipendente exact-SHA della
-  Security Fix 5 e chiusura finale `F-039-SR06`; nessun upload senza signing e
-  credenziali Play reali
+- **Prossima azione autorizzata**: pubblicare PR, verificare CI exact-SHA,
+  eseguire merge normale e main CI; nessun upload senza signing e credenziali
+  Play reali
 
 ## Repository coinvolti
 

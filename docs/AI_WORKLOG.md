@@ -3130,3 +3130,17 @@
   format 296/0, analyze e build Android/iOS `PASS`.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 5 re-review
+
+- **Exact SHA**: `15e3c4bd78a6cee6ca85cbde75b5fec7068f8596`.
+- **Esito**: reviewer prodotto e security read-only `APPROVED`; 0 P0, 0 P1,
+  0 P2 e 0 P3; `F-039-SR06` chiuso.
+- **Probe**: forged-uncompressed, forged-compressed e stream effettivo 513 MiB
+  respinti; 52/52 negative + 5/5 positive, artifact reali 671/285, signature
+  fixture e governance 9/9 `PASS`.
+- **Security**: finalizer canonico exit 0 alla prima invocazione, formato report
+  `PASS`, SHA-256 report
+  `014aef5a14c15e059b77e64c47269ce7e82c21cddeb5e5b028b55eaf01ef85de`.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; la conferma
+  persistente autorizza PR/CI/merge, non upload Play o production.

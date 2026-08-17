@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance
 
@@ -139,8 +139,12 @@ Snapshot di handoff:
 
 ## Handoff
 
-La Security Fix 5 sullo SHA tecnico
-`0ec1184f5e1413567c32c10cdcc2e0717594234b` usa il container fisico per il
-ratio e chiude il PoC compressed-size di `F-039-SR06`. Handoff corrente
-`CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production restano
-invariati.
+Le re-review prodotto e security sullo SHA
+`15e3c4bd78a6cee6ca85cbde75b5fec7068f8596` sono `APPROVED` con zero
+P0/P1/P2/P3. `F-039-SR06` è chiuso: forged-uncompressed,
+forged-compressed e stream effettivo oltre 512 MiB vengono respinti; artifact
+reali 671/285 e fixture firma restano `PASS`. Il finalizer security è terminato
+exit 0 al primo tentativo e il report-format validator è `PASS`; report locale
+SHA-256 `014aef5a14c15e059b77e64c47269ce7e82c21cddeb5e5b028b55eaf01ef85de`.
+Handoff `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; Play/Internal e
+production restano invariati.

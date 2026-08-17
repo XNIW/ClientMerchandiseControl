@@ -12,7 +12,7 @@
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -335,6 +335,25 @@ repeat 70/70, format 296/0, analyze e build Android/iOS `PASS`; validator
 release e fixture firma avversariale `PASS`. Artifact unsigned e SHA invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## Security Fix 5 re-review — `CODEX_RE_REVIEWER`
+
+- exact SHA `15e3c4bd78a6cee6ca85cbde75b5fec7068f8596`, reviewer prodotto e
+  security read-only distinti, worktree pulito;
+- esito combinato `APPROVED`: 0 P0, 0 P1, 0 P2 e 0 P3;
+- `F-039-SR06` chiuso: container fisico bounded, declared compressed non
+  superiore al fisico, actual uguale al declared uncompressed e rapporto
+  autorevole actual/physical entro 200×;
+- PoC forged-uncompressed, forged-compressed e stream effettivo 513 MiB tutti
+  respinti prima dell'estrazione; fixture 52/52 negative e 5/5 positive;
+- artifact reali 671/285, signature fixture, manifest 5/5, release validator
+  unsigned, governance 9/9, bash syntax e diff check `PASS`;
+- finalizer security exit 0 alla prima invocazione e report-format validator
+  `PASS`, report locale SHA-256
+  `014aef5a14c15e059b77e64c47269ce7e82c21cddeb5e5b028b55eaf01ef85de`.
+
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. La conferma persistente
+del train autorizza PR exact-SHA e merge normale solo dopo CI verde.
 
 ## Chiusura
 

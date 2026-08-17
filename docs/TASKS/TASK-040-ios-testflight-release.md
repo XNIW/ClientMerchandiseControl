@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
+- **Fase**: FIX
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -658,6 +658,23 @@ report prodotto sealed SHA-256
 - nessun delta runtime/archive/signing; TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 12
+
+- exact review SHA: `8f32012dd1514bab74bbf96e13dee0f5100c94b1`;
+- prodotto/security `CHANGES_REQUIRED`: 0 P0/P1/P2 e 3 P3;
+- `F-040-RR12-GOV-MARKDOWN-01`: relocation fuori dalla tabella/sezione e raw
+  HTML block passano il parser lessicale;
+- `F-040-RR12-GOV-ROLE-01`: label technical/review e handoff/re-review non sono
+  correlate alla fase;
+- `F-040-RR12-GOV-SHA-02`: path tecnici omessi dalla pathspec consentono un
+  commit post-SHA non attestato;
+- closure Fix 11 confermata; gate verdi ma insufficienti ai sibling;
+- report security sealed SHA-256
+  `79fbaa3cd39b8ffc0e1ec47f1b67fd8354f1c5f9155716f4fc5028eee4a6a95d`;
+- TestFlight, signing, credenziali e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

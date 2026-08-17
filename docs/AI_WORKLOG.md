@@ -3649,3 +3649,15 @@
 - **Boundary**: runtime/archive/signing invariati; TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 Fix 12 re-review
+
+- **Exact HEAD**: `8f32012dd1514bab74bbf96e13dee0f5100c94b1`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, 0 P0/P1/P2 e 3 P3.
+- **Finding**: exact-section/table ownership e raw HTML, label phase-bound e
+  delta post-SHA non-documentale non verificato fail-closed.
+- **Security report**: sealed SHA-256
+  `79fbaa3cd39b8ffc0e1ec47f1b67fd8354f1c5f9155716f4fc5028eee4a6a95d`.
+- **Boundary**: closure Fix 11 confermata; TestFlight, signing, credenziali e
+  production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

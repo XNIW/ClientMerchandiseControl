@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -491,3 +491,18 @@ Snapshot di handoff:
   security 681 + 61/61 + 7/7, architecture 17/17, format 301/0, analyze e
   build debug Android/iOS `PASS`;
 - artifact iOS e boundary esterni invariati; upload TestFlight `NOT_RUN`.
+
+## Re-review Fix 12
+
+- exact HEAD `8f32012dd1514bab74bbf96e13dee0f5100c94b1`, worktree pulito;
+- prodotto/security `CHANGES_REQUIRED`: 0 P0/P1/P2 e 3 P3 governance;
+- `F-040-RR12-GOV-MARKDOWN-01`: righe/heading non sono legati alla
+  sezione/tabella canonica e raw HTML block conserva token non semantici;
+- `F-040-RR12-GOV-ROLE-01`: label task/manifest/worklog non sono phase-bound;
+- `F-040-RR12-GOV-SHA-02`: la pathspec latest-technical omette asset,
+  `test_driver` e configurazioni root, consentendo evidence stale;
+- closure diretta Fix 11 confermata; governance 44/44 e full gate exact-technical
+  verdi ma insufficienti rispetto ai nuovi sibling;
+- report security sealed SHA-256
+  `79fbaa3cd39b8ffc0e1ec47f1b67fd8354f1c5f9155716f4fc5028eee4a6a95d`;
+- TestFlight, signing, credenziali e production invariati.

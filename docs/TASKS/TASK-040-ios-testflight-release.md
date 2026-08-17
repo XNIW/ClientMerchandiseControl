@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -557,6 +557,36 @@ report prodotto sealed SHA-256
   config/governance 44/44, governance 10/10, analyze e candidate/upload boundary.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 10
+
+- exact technical SHA
+  `da83b266bf6298c5a869b74cd271782782c7b4ef`; il digest canonicalizza la sola
+  firma su copia isolata e attesta tutti i byte Mach-O residui, inclusi header,
+  load command, sezioni e `__LINKEDIT`;
+- regressioni `macho-header-pie-disabled`, `macho-header-stack-executable` e
+  `macho-load-command-digest` chiudono `F-040-RR9-IOS-01`; la suite iOS è
+  `29/29 PASS`, inclusi app unsigned, firma ad hoc, firma corrotta, privacy e
+  inventory completa;
+- `check-governance-state.sh` correla status/revision/gate del release manifest,
+  tail Fix/handoff e matrici T-02/T-03 con artifact/gate correnti; fixture
+  governance `15/15 PASS` chiudono `F-040-RR9-GOV-01/02`;
+- clean release/archive no-codesign realmente rigenerati sul source SHA
+  `01dd140852733c14ae53d067e7454458cababe19`: archive 201.344 KiB, app
+  36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`
+  e UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
+- candidate reale `PASS`, signing `UNSIGNED`; upload gate exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`, quindi IPA/TestFlight/production
+  restano `NOT_RUN` senza credenziali esterne;
+- `scripts/check.sh` sullo SHA tecnico finale: 801/801 non-performance,
+  performance 10/10, repeat 5x14=70/70, security source 681 + 61/61 negative +
+  7/7 positive, governance 15/15, architecture 17/17, format 301/0, analyze e
+  build debug Android/iOS `PASS`; worktree pulito.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

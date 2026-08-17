@@ -3573,3 +3573,21 @@
   bundle e chronology worklog confermati chiusi.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 10 e handoff
+
+- **Technical SHA**: `da83b266bf6298c5a869b74cd271782782c7b4ef`; il
+  validator canonicalizza la sola firma su copia isolata e attesta l'intero Mach-O.
+- **Regressioni**: clear `MH_PIE`, set `MH_ALLOW_STACK_EXECUTION` e modifica
+  `LC_LOAD_DYLIB` sono respinti; iOS fixture 29/29 e governance 15/15 `PASS`.
+- **Provenance**: clean release/archive sul source SHA
+  `01dd140852733c14ae53d067e7454458cababe19`; archive 201.344 KiB, app
+  36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime/wrapper digest invariati
+  e UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`.
+- **Gate**: `scripts/check.sh` sullo SHA finale: 801/801, performance 10/10,
+  repeat 70/70, security 681 + 61/61 + 7/7, architecture 17/17,
+  format/analyze/build debug verdi; candidate unsigned `PASS`.
+- **Boundary**: upload exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`;
+  nessuna IPA, credenziale, firma Distribution, TestFlight o production modificata.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.

@@ -3311,6 +3311,20 @@
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
 
+## 2026-08-17 — TASK-040 Fix 8 re-review
+
+- **Exact HEAD**: `e88f8762aab52ad7b176cbc0e0bd80b23d2aaf43`, worktree
+  pulito e reviewer prodotto/security read-only distinti.
+- **Esito**: `CHANGES_REQUIRED`: 2 P2 sul binding completo della config e sul
+  control flow; P3 su library identity, Mach-O/content provenance, fixture
+  constructor e cronologia worklog.
+- **Review evidence**: report security canonico sealed SHA-256
+  `169a5154053c28503744c0de8a8d2a9c923520062e339e28d93b038a83df8f84`;
+  report prodotto sealed SHA-256
+  `877c30e186d5bd38da82639a023021a3da117defeb63d93d2c6167bc715b92ca`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
 ## 2026-08-17 — TASK-040 Fix 7 re-review
 
 - **Exact HEAD**: `189c5e74fb3f32d76a6e8bffb87ca6a95e791fed`, worktree

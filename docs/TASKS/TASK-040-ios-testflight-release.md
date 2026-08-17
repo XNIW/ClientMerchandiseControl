@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -184,6 +184,21 @@ deboli ed evidence device non canonica. Security report sealed:
   configurazione production reale è stata creata.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 8
+
+`CHANGES_REQUIRED` su `e88f8762aab52ad7b176cbc0e0bd80b23d2aaf43`.
+La security re-review classifica 2 P2 e 2 P3: la matrice AST lega soltanto lo
+slug, il control flow può ritornare un config alternativo prima dell'attestation,
+i contenuti framework/bundle non hanno digest revision-bound e il worklog non è
+cronologico. La review prodotto aggiunge i sibling P3: library URI collidibile per
+suffisso, Mach-O extensionless non inventariato e fixture constructor non
+analyzer-clean. Report security canonico sealed SHA-256
+`169a5154053c28503744c0de8a8d2a9c923520062e339e28d93b038a83df8f84`;
+report prodotto sealed SHA-256
+`877c30e186d5bd38da82639a023021a3da117defeb63d93d2c6167bc715b92ca`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ### Re-review Fix 2
 

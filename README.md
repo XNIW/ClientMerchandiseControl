@@ -191,8 +191,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -208,9 +208,9 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: il Fix 8 lega constructor e consumer AST
-al percorso canonico, rende recursive/identity-bound l'inventory iOS e riallinea la
-provenance corrente; il candidate clean è consegnato a re-review distinta.
+TASK-040 è l'unico task `ACTIVE / FIX`: la re-review Fix 8 ha richiesto binding di
+tutta la matrice runtime e del control flow, digest revision-bound dei componenti e
+provenance/fixture più strette; TestFlight e production restano invariati.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

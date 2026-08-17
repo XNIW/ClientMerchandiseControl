@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -350,3 +350,22 @@ Snapshot di handoff:
   app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`;
 - upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`: 0 Distribution,
   0 profili, 0 input ASC; iPhone fisico offline, nessun upload/production.
+
+## Re-review Fix 8
+
+- exact HEAD `e88f8762aab52ad7b176cbc0e0bd80b23d2aaf43`, worktree pulito;
+- esito security `CHANGES_REQUIRED`: 0 P0/P1, 2 P2 e 2 P3;
+- `F-040-RR8-ARCH-CONFIG-01` P2: i sette input config e gli otto input
+  attestation non sono tutti legati agli stessi field compile-time;
+- `F-040-RR8-ARCH-CONTROL-01` P2: guard/try shape-only consente un return
+  alternativo prima dell'attestation;
+- `F-040-RR8-ARCH-02` P3: l'identità library usa un suffisso collidibile;
+- `F-040-RR8-PRIV-01/02` P3: Mach-O extensionless e contenuto framework/bundle
+  mutato mantengono metadata validi e raggiungono candidate-valid;
+- `F-040-RR8-GOV-01` P3: fixture constructor non analyzer-clean e worklog tail
+  non cronologico;
+- report security canonico sealed SHA-256
+  `169a5154053c28503744c0de8a8d2a9c923520062e339e28d93b038a83df8f84`;
+  report prodotto sealed SHA-256
+  `877c30e186d5bd38da82639a023021a3da117defeb63d93d2c6167bc715b92ca`;
+- upload/TestFlight/production invariati.

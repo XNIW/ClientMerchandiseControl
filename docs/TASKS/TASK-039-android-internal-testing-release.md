@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -235,6 +235,30 @@ build Android debug e iOS Simulator debug tutti `PASS`.
   `/private/tmp` e nessun artifact o dato sensibile versionato.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Security Fix 3 — `CODEX_FIXER`
+
+- `F-039-SR01`: signature block AAB conteggiati case-insensitive; la fixture
+  rinomina il secondo block `.RSA` in `.rSa` e il gate lo respinge come set
+  multi-signer;
+- `F-039-SR03`: central directory verbose bounded comprende commenti per-entry
+  ed extra field; il container ZIP raw partecipa inoltre allo scanner;
+- `F-039-SR04`: ogni elemento manifest con prefisso `uses-permission` diverso
+  dall'elemento canonico fallisce chiuso; regressioni coprono gli alias
+  `uses-permission-sdk-23` e `uses-permission-sdk-m`;
+- `F-039-SR06`: preflight prima dell'estrazione impone al massimo 2.048 entry,
+  512 MiB compressi/non compressi e rapporto di espansione 200×; fixture
+  entry-count e compression bomb vengono respinte.
+
+Gate fixer sullo SHA tecnico
+`4f2e6867649374f4b93b581475560c2a6ae5de50`: clean AAB/APK release e
+validator reale `PASS`, scanner source/artifact 671/285, fixture security 50/50
+negative e 5/5 positive, fixture firma avversariale `PASS`; `scripts/check.sh`
+exit 0 con 782/782 test non-performance, 10/10 performance, repeat 70/70,
+format 296/0, analyze e build debug Android/iOS `PASS`. Artifact unsigned e
+SHA-256 byte-identici al candidato precedente.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

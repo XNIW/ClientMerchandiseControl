@@ -3053,3 +3053,21 @@
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; artifact unsigned, Play/Internal e
   production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 3
+
+- **Exact SHA tecnico**: `4f2e6867649374f4b93b581475560c2a6ae5de50`.
+- **Fix**: conteggio signature block case-insensitive; metadata ZIP per-entry e
+  container raw scansionati; alias `uses-permission-sdk-*` fail-closed;
+  preflight archive preventivo con limiti entry/dimensioni/espansione.
+- **Regressioni**: secondo signer `.rSa`, commento per-entry, alias permission,
+  2.049 entry e compression expansion vengono respinti; fixture security
+  50/50 negative + 5/5 positive e fixture firma completa `PASS`.
+- **Artifact**: clean AAB/APK byte-identici, SHA-256 `6c321e2f…a84718` e
+  `82ee832f…b91ce`; validator reale source/artifact 671/285,
+  `ANDROID_RELEASE_CANDIDATE_READY_UNSIGNED`.
+- **Gate**: `scripts/check.sh` exit 0; 782/782 non-performance, 10/10
+  performance, repeat 70/70, format 296/0, analyze, Android debug e iOS
+  Simulator debug `PASS`.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.

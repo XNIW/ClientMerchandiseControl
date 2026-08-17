@@ -5,8 +5,8 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-038
-- **File task**: docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md
+- **Task attivo**: TASK-039
+- **File task**: docs/TASKS/TASK-039-android-internal-testing-release.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
@@ -14,8 +14,10 @@
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: PR TASK-038 exact-SHA, verifica job/step, merge
-  normale e main CI; poi closeout TASK-038 e attivazione sequenziale TASK-039
+- **Prossima azione autorizzata**: CI exact-SHA sul commit documentale di
+  approvazione, merge normale PR #18 e main post-merge CI; poi closeout
+  TASK-039 e attivazione sequenziale TASK-040. Nessun upload senza signing e
+  credenziali Play reali
 
 ## Repository coinvolti
 
@@ -91,8 +93,8 @@
 | TASK-035 | Observability, crash reporting e analytics privacy-safe | DONE | TASK-011, TASK-020, TASK-027, TASK-031 | Client, Admin | Telemetria privacy-safe |
 | TASK-036 | Accessibility, localizzazione e device matrix | DONE | TASK-012, TASK-018, TASK-021, TASK-026, TASK-028, TASK-031 | Client | Acceptance accessibilità e lingue |
 | TASK-037 | Performance, immagini, cache e load testing | DONE | TASK-009, TASK-017, TASK-019, TASK-027 | Client, Admin, Supabase | Budget performance end-to-end |
-| TASK-038 | Store assets, privacy policy, legal e release metadata | ACTIVE | TASK-002, TASK-021, TASK-032, TASK-033, TASK-036 | Client, Admin | Materiale release conforme |
-| TASK-039 | Android internal testing release | TODO | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build Android internal test |
+| TASK-038 | Store assets, privacy policy, legal e release metadata | DONE | TASK-002, TASK-021, TASK-032, TASK-033, TASK-036 | Client, Admin | Materiale release conforme |
+| TASK-039 | Android internal testing release | ACTIVE | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build Android internal test |
 | TASK-040 | iOS TestFlight release | TODO | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build iOS TestFlight |
 | TASK-041 | Production launch, rollback e runbook | TODO | TASK-039, TASK-040 | Client, Admin, Supabase, POS | Lancio controllato e reversibile |
 | TASK-042 | Post-launch monitoring, supporto e manutenzione | TODO | TASK-041 | Tutti | Operatività post-lancio |

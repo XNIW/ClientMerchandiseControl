@@ -2943,3 +2943,273 @@
   analyze, format 291/0, governance 9/9, security 657+41/41+4/4 e diff verdi.
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; autorizzazione
   persistente abilita PR exact-SHA, merge normale e main CI prima del closeout.
+
+## 2026-08-17 — TASK-038 closeout e TASK-039 activation
+
+- **PR #17**: head `9ca6689beba3a4f79eca247fa3a736ade989c670`, CI
+  `31994735720` con Quality/Android/iOS e tutti gli step `PASS`.
+- **Merge/main**: merge normale `ce2ab1343d183cb7d64345711902714b1db69ca1`;
+  main CI `31995128511` exact merge SHA 3/3 e step tutti verdi.
+- **Hygiene**: branch remota eliminata, worktree TASK-038 rimosso, checkout primario
+  pulito preservato, production invariata.
+- **Transizione**: TASK-038 `DONE / USER_APPROVED_DONE`; TASK-039 unico
+  `ACTIVE / EXECUTION` per autorizzazione persistente del mandato 2026-08-16.
+
+## 2026-08-17 — TASK-039 Execution Android release candidate
+
+- **Fase iniziale/finale**: EXECUTION → REVIEW.
+- **Exact SHA tecnico**: `6b878f35aebfe0e98fa305c624747711fd81f1b0`.
+- **Implementazione**: signing release all-or-none senza debug fallback,
+  R8/minify/resource shrinking, cleartext policy release, production-like config
+  fail-closed, validator source/artifact, runbook e CI Android release gate.
+- **Artifact**: AAB unsigned 67.773.321 byte SHA-256 `6c321e2f…a84718`;
+  APK inspection 70.137.338 byte SHA-256 `82ee832f…b91ce`; package
+  `com.xniw.clientmerchandisecontrol`, versione `0.1.0+1`, ABI arm64-v8a,
+  armeabi-v7a e x86_64, R8 debug false/shrinking true.
+- **Gate**: `scripts/check.sh` PASS; 772/772 non-performance, 10/10
+  performance, repeat 70/70, analyze e build debug Android/iOS verdi;
+  security source/artifact 666/132 senza valori vietati; release build e
+  validator PASS.
+- **External boundary**: nessun signing/Play credential o GitHub secret/var;
+  upload readiness fallisce chiusa su signed AAB richiesto. Install release
+  emulator respinta con `NO_CERTIFICATES`; Internal upload `NOT_RUN`, production
+  invariata.
+- **Transizione**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`; prossimo ruolo reviewer
+  read-only distinto.
+
+## 2026-08-17 — TASK-039 review indipendente
+
+- **Exact SHA**: `2f1987ea02fe67b3f537a2de6527c705771516df`;
+  worktree pulito, reviewer read-only distinto.
+- **Esito combinato**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 4 P2, 1 P3.
+- **Finding**: firma APK v2-only verificata impropriamente con `jarsigner`;
+  upload readiness senza fingerprint approvato né service-account JSON/identity
+  verificati; identità e manifest AAB non letti direttamente; resolver SDK con
+  path workstation hardcoded.
+- **Security gate `F-039-R05`**: un ulteriore P2 tecnico dimostra che `.aab` era scansionato
+  come blob compresso invece che come archive; una fixture deflated vietata
+  produceva exit 0. L'AAB corrente estratto manualmente è risultato pulito.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; production e Play invariati.
+
+## 2026-08-17 — TASK-039 Fix release validator
+
+- **Exact SHA tecnico**: `6b4a79d76ea48649add220f7889ce9121b3e1b49`.
+- **Fix**: `apksigner` per APK v2-only; signer AAB/APK e fingerprint approvato;
+  validator JSON/identity Play; parser protobuf diretto del manifest AAB e
+  confronto payload per ABI; resolver SDK portabile; estrazione `.aab` nello
+  scanner security.
+- **Regressioni**: 10/10 validator mirati; fixture AAB DEFLATED 42/42 negative e
+  5/5 positive; AAB JAR-signed più APK v1=false/v2=true accettato; `/dev/null`,
+  account diverso e signer diverso respinti.
+- **Artifact exact-SHA**: AAB `6c321e2f…a84718`, APK `82ee832f…b91ce`, unsigned,
+  281 file artifact estratti e puliti, package/version `0.1.0+1`.
+- **Gate canonico**: `scripts/check.sh` exit 0; 779/779 non-performance, 10/10
+  performance, repeat 70/70, format 296/0, analyze e build debug Android/iOS
+  verdi.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 security re-review
+
+- **Exact SHA**: `7951945ed5bd1c928913785ee6461c614cc8d4d8`; report
+  security finalizzato sul range `2f1987e…7951945` da reviewer read-only.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 4 P2 e 1 P3 governance.
+- **Finding**: `F-039-SR01` copertura firma parziale/multi-signer;
+  `F-039-SR02` archive detection dipendente dal suffisso; `F-039-SR03`
+  metadata ZIP non scansionati; `F-039-SR04` permission/exported manifest
+  senza allowlist esatta; `F-039-SR05` conteggio/ID evidence incoerente.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; artifact corrente pulito e unsigned,
+  Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 2
+
+- **Exact SHA tecnico**: `35a60a0bcbc2649c960cc9674cb93725eaa1a210`.
+- **Fix**: strict per-entry e singolo signer AAB; archive detection content-based
+  più estensioni release canoniche; metadata ZIP bounded scansionati; allowlist
+  esatta permission/exported; conteggio e ID evidence corretti.
+- **Regressioni**: entry post-sign e multi-signer respinti; `.bundle`, `.AAB` e
+  extensionless DEFLATED respinti; secret in entry name/comment respinto;
+  `READ_SMS` e service exported aggiuntivo respinti.
+- **Gate**: clean AAB/APK release byte-identici; validator reale source/artifact
+  671/283; fixture security 47/47 + 5/5; validator 12/12; signature fixture;
+  `scripts/check.sh` 781/781 non-performance, 10/10 performance, repeat 70/70,
+  analyze, format 296/0 e build debug Android/iOS tutti `PASS`.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 2 re-review
+
+- **Exact SHA**: `8edcfa063a4d46762e45c22ed3acb30687b5eb97`; due reviewer
+  read-only distinti, report security finalizzato e worktree pulito.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 3 P2 e 1 P3.
+- **Finding aperti**: `F-039-SR01` signature block mixed-case non contato;
+  `F-039-SR03` commento ZIP per-entry non scansionato; `F-039-SR04` alias
+  `uses-permission-sdk-*` ignorato; `F-039-SR06` limiti ZIP applicati soltanto
+  dopo materializzazione.
+- **Finding chiusi**: `F-039-SR02` detection archive content-based e
+  `F-039-SR05` coerenza evidence.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; artifact unsigned, Play/Internal e
+  production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 3
+
+- **Exact SHA tecnico**: `4f2e6867649374f4b93b581475560c2a6ae5de50`.
+- **Fix**: conteggio signature block case-insensitive; metadata ZIP per-entry e
+  container raw scansionati; alias `uses-permission-sdk-*` fail-closed;
+  preflight archive preventivo con limiti entry/dimensioni/espansione.
+- **Regressioni**: secondo signer `.rSa`, commento per-entry, alias permission,
+  2.049 entry e compression expansion vengono respinti; fixture security
+  50/50 negative + 5/5 positive e fixture firma completa `PASS`.
+- **Artifact**: clean AAB/APK byte-identici, SHA-256 `6c321e2f…a84718` e
+  `82ee832f…b91ce`; validator reale source/artifact 671/285,
+  `ANDROID_RELEASE_CANDIDATE_READY_UNSIGNED`.
+- **Gate**: `scripts/check.sh` exit 0; 782/782 non-performance, 10/10
+  performance, repeat 70/70, format 296/0, analyze, Android debug e iOS
+  Simulator debug `PASS`.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 3 re-review
+
+- **Exact SHA**: `09d2207c7d7409cf933b3783e75d7765e99e1e9c`; review prodotto e
+  security read-only distinte, worktree pulito.
+- **Esito**: prodotto `APPROVED`; security `CHANGES_REQUIRED`, 0 P0, 0 P1,
+  0 P2 e 1 P3 tecnico.
+- **Chiusure**: `F-039-SR01`, `F-039-SR03`, `F-039-SR04`; SR02/SR05
+  restano chiusi.
+- **Finding**: `F-039-SR06` riaperto perché metadata ZIP falsificati possono
+  dichiarare 2 MiB/123× ma decomprimere realmente 16 MiB e superare il
+  preflight attuale.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; Play/Internal e production
+  invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 4
+
+- **Exact SHA tecnico**: `e7cb2d970cb987267a2cce9f23a187e2bc712f25`.
+- **Fix**: streaming bounded prima dell'estrazione; conteggio dei byte
+  effettivamente emessi, confronto con metadata e rapporto 200×; lo stream
+  viene riusato per il secret scan.
+- **Regressione**: archive da 16 MiB reali con local/central size falsificate a
+  2 MiB respinto prima della materializzazione; fixture 51/51 negative + 5/5
+  positive.
+- **Gate**: artifact reale 671/285 e fixture firma `PASS`; `scripts/check.sh`
+  exit 0 con 782/782 non-performance, 10/10 performance, repeat 70/70,
+  format 296/0, analyze e build Android/iOS `PASS`.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 4 re-review
+
+- **Exact SHA**: `7ddd6f720c23964866cf741bd1351645b6fa9c62`; reviewer prodotto e
+  security read-only distinti.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 0 P2 e 1 P3.
+- **Finding**: `F-039-SR06` resta aperto; il cap effettivo e il confronto
+  uncompressed funzionano, ma una compressed size local/central gonfiata
+  abbassa il ratio dichiarato e il full scanner termina exit 0.
+- **Security workflow**: validation e attack-path completi; il finalizer unico
+  termina exit 2 per `scan-manifest.json` preparatorio assente e non viene
+  ritentato né dichiarato sealed.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; Play/Internal e production
+  invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 5
+
+- **Exact SHA tecnico**: `0ec1184f5e1413567c32c10cdcc2e0717594234b`.
+- **Fix**: size fisica container bounded, compressed dichiarato non può
+  superarla e il rapporto autorevole usa actual uncompressed / physical bytes.
+- **Regressione**: compressed size local/central gonfiata a 100.000 su file
+  fisico da 16.457 byte con output 16 MiB viene respinta; fixture 52/52
+  negative + 5/5 positive.
+- **Gate**: artifact reale 671/285 e fixture firma `PASS`; `scripts/check.sh`
+  exit 0 con 782/782 non-performance, 10/10 performance, repeat 70/70,
+  format 296/0, analyze e build Android/iOS `PASS`.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 5 re-review
+
+- **Exact SHA**: `15e3c4bd78a6cee6ca85cbde75b5fec7068f8596`.
+- **Esito**: reviewer prodotto e security read-only `APPROVED`; 0 P0, 0 P1,
+  0 P2 e 0 P3; `F-039-SR06` chiuso.
+- **Probe**: forged-uncompressed, forged-compressed e stream effettivo 513 MiB
+  respinti; 52/52 negative + 5/5 positive, artifact reali 671/285, signature
+  fixture e governance 9/9 `PASS`.
+- **Security**: finalizer canonico exit 0 alla prima invocazione, formato report
+  `PASS`, SHA-256 report
+  `014aef5a14c15e059b77e64c47269ce7e82c21cddeb5e5b028b55eaf01ef85de`.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; la conferma
+  persistente autorizza PR/CI/merge, non upload Play o production.
+
+## 2026-08-17 — TASK-039 PR CI Fix 1
+
+- **PR/head**: #18 / `9bf4e85765812527cb7c212f2e67b5fcdf64099e`.
+- **Run**: `32009738614`, attempt 1 e rerun attempt 2; Quality, Android debug e
+  iOS Simulator `PASS`; clean release build e validator `PASS`.
+- **Finding**: `F-039-CI01` P2, fixture firma exit 1 deterministica senza
+  diagnostica perché gli oracle `grep` erano silenziosi sotto `set -e`.
+- **Riproduzioni**: macOS e Linux ARM/x64 con Java 17/21 passano integralmente;
+  nessuna regressione artifact o release validator rilevata.
+- **Fix diagnostico**: stage espliciti e token enum bounded per ogni oracle,
+  senza stampare log, path credenziali, fingerprint o payload.
+- **Root cause**: run `32013833404` osserva
+  `SIGNING_FINGERPRINT_UNREADABLE`; il digest APK del runner non era
+  normalizzato per whitespace, separatori e case come il digest AAB.
+- **Fix tecnico**: normalizzatore condiviso e codici fail-closed distinti per
+  AAB/APK, con regressione source e fixture end-to-end CI.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; nessun merge/upload/production.
+
+## 2026-08-17 — TASK-039 PR CI Fix 2
+
+- **PR/head/run**: #18 / `f787312881fbdadc913ecd51b8b024e75b710c0a` /
+  `32014928249`.
+- **Esito isolato**: Quality, Android debug e iOS Simulator `PASS`; AAB/APK
+  production-like e release validator `PASS`; sola fixture firma `FAIL` con
+  enum bounded `APK_SIGNING_FINGERPRINT_UNREADABLE`.
+- **Root residua**: la normalizzazione non rende portabile il label testuale
+  del digest emesso dalle diverse versioni/ambienti `apksigner`.
+- **Fix tecnico**: `apksigner --print-certs-pem`, cardinalità signer APK pari a
+  uno, certificato parseable con `keytool` e digest SHA-256 normalizzato dal
+  certificato; confronto AAB/APK e tutti gli altri fail-closed restano invariati.
+- **Gate locale**: governance 5/5, source validator, bash syntax, diff check e
+  fixture completa v2-only/negative/input Play tutti `PASS`.
+- **Stato**: resta `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino a
+  CI exact-SHA e re-review indipendente verdi; nessun upload o production.
+
+## 2026-08-17 — TASK-039 PR CI Fix 2 handoff
+
+- **Exact SHA/run**: `7a25585c145304fc992cc2ce2f032af3f32a4b14` /
+  `32016169548`.
+- **CI**: Quality, Android debug, iOS Simulator e Android release candidate
+  `success`; tutti i job e gli step effettivi verificati, inclusi security,
+  release metadata, suite+coverage, performance, clean AAB/APK, release
+  validator e fixture v2-only completa.
+- **Evidence fixture**: v1 false, v2 true, fingerprint, `/dev/null`, account e
+  progetto errati, AAB parziale, multi-signer e mixed-case, signer coerente e
+  input Play validi tutti attraversati con gli outcome attesi.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; `F-039-CI01` candidate `CLOSED` in attesa
+  di re-review read-only distinta. Nessun upload Play o production.
+
+## 2026-08-17 — TASK-039 PR CI Fix 2 re-review
+
+- **Exact SHA**: `ba950b755399d8294af5d8ebbe2c07a9dc7484c2`; technical fix
+  `7a25585c145304fc992cc2ce2f032af3f32a4b14`.
+- **Esito**: reviewer prodotto e security read-only distinti `APPROVED`;
+  `F-039-CI01 CLOSED`, 0 P0/P1/P2/P3.
+- **Gate**: single/multi-signer e digest multipli, fixture canonica completa,
+  governance 9/9, validator/scanner 671/285, no-leakage e worktree clean
+  verificati indipendentemente.
+- **Security**: finalizer exit 0, report-format `PASS`, report SHA-256
+  `aa1a6aaa283be5794712fd2f2743911f89cf52c17c087e902d8907aad8110e5c`.
+- **CI PR final candidate**: `32017859910`, exact `ba950b75`, quattro job e
+  ogni step `success`, incluso release candidate e fixture firma v2-only;
+  nessun artifact pubblicato.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; la conferma
+  persistente autorizza CI approval-commit e merge normale, non upload Play o
+  production.

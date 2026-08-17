@@ -5,14 +5,14 @@
 - **Task ID**: TASK-038
 - **Titolo**: Store assets, privacy, legal e release metadata
 - **File task**: `docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-038/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -171,7 +171,10 @@ persistente del train autorizza PR exact-SHA e merge normale solo dopo CI verde.
 
 ## Chiusura
 
-- **Conferma utente**: ricevuta e condizionata a review/gate reali
-- **Merge autorizzato**: dopo review `APPROVED` e CI exact-SHA verde
+- **Conferma utente**: ricevuta nel mandato 2026-08-16 e applicata dopo review/gate reali
+- **PR**: #17, head `9ca6689beba3a4f79eca247fa3a736ade989c670`, CI
+  `31994735720` Quality/Android/iOS e relativi step `PASS`
+- **Merge**: normale, `ce2ab1343d183cb7d64345711902714b1db69ca1`
+- **Main CI**: `31995128511`, exact merge SHA, tre job e tutti gli step `PASS`
 - **Follow-up candidate**: TASK-039
-- **Data completamento**: non ancora
+- **Data completamento**: 2026-08-17

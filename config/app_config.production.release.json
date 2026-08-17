@@ -1,0 +1,6 @@
+{
+  "APP_ENV": "production",
+  "GOOGLE_AUTH_ENABLED": "false",
+  "DELIVERY_MAPS_ENABLED": "false",
+  "DELIVERY_MAPS_NATIVE_CONFIGURED": "false"
+}

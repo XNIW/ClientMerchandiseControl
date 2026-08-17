@@ -6,13 +6,13 @@
 - **Titolo**: Store assets, privacy, legal e release metadata
 - **File task**: `docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-038/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -140,7 +140,20 @@ Review indipendente read-only su
 
 ## Fix — `CODEX_FIXER`
 
-In corso, limitato a `F-038-R01`.
+Completato su `b22d860046f03e98a5dc9ef00ad26ce41d173f5c`, limitato a
+`F-038-R01`:
+
+- aggiunto `NSPrivacyCollectedDataTypePaymentInfo`, linked, non-tracking e
+  App Functionality, senza dichiarare dettagli carta/CVV/payment secret non raccolti;
+- validator aggiornato a otto tipi app-owned e regressione che muta Payment Info in
+  un duplicato, provando sia duplicate rejection sia incomplete-set rejection;
+- evidence App Privacy/Data Safety separa Purchase History dalla forma di pagamento;
+- targeted exact-SHA 21/21, validator 5/5, analyze, metadata/security source scan,
+  plist lint e diff check `PASS`;
+- iOS Simulator bundle rigenerato: manifest incorporato contiene Payment Info;
+  artifact scan 233 file `PASS`, production invariata.
+
+**Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

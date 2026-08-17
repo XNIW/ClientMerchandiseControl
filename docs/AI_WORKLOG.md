@@ -2921,3 +2921,15 @@
   bundle inspection tutti verdi; production invariata.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`;
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`, fix limitato a `F-038-R01`.
+
+## 2026-08-17 — TASK-038 Fix Payment Info
+
+- **Exact SHA tecnico**: `b22d860046f03e98a5dc9ef00ad26ce41d173f5c`.
+- **Fix**: Payment Info è l'ottavo tipo app-owned, linked/non-tracking/App
+  Functionality; evidence distingue forma di pagamento da carta/CVV/secret non
+  raccolti; validator e regressione impediscono omissione o duplicazione.
+- **Gate impattati**: validator 5/5 e checkout insieme 21/21, analyze, metadata,
+  security 657, plist/diff, iOS Simulator build e bundle manifest tutti `PASS`;
+  artifact scan 233 file verde.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`;
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; prossimo ruolo re-reviewer read-only distinto.

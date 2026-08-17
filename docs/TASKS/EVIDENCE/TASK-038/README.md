@@ -1,7 +1,7 @@
 # Evidence TASK-038
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -98,7 +98,7 @@ Sul candidate tecnico `fe8c582`:
 | Test | Risultato | Evidence |
 |---|---|---|
 | T-01 | PASS | manifest/plist/project, asset dimension/alpha, build Android/iOS |
-| T-02 | PASS | 4/4 validator, mapping privacy, owner template |
+| T-02 | PASS | 5/5 validator, mapping privacy, owner template |
 | T-03 | PASS | 163 package inventory, license/Maps attribution |
 | T-04 | PASS | 12×3 matrix, security fixture 41/41+4/4 |
 | T-05 | PASS | outdated e debt scan bounded, nessun helper/secret in release path |
@@ -117,3 +117,18 @@ Sul candidate tecnico `fe8c582`:
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; fix limitato a `F-038-R01`. Nessun
 `DONE`, merge o attivazione TASK-039 è inferito.
+
+### Fix `F-038-R01`
+
+- exact SHA tecnico `b22d860046f03e98a5dc9ef00ad26ce41d173f5c`;
+- Payment Info aggiunto come ottavo tipo app-owned, linked, non-tracking e App
+  Functionality; dettagli carta, CVV e payment secret restano non raccolti;
+- regressione dedicata: manifesto mutato senza Payment Info produce duplicate e
+  incomplete-set error; validator 5/5 e checkout repository insieme 21/21 PASS;
+- `flutter analyze`, metadata validator, security 657 file, plist lint e diff
+  check PASS;
+- `flutter build ios --simulator --debug` PASS; bundle `PrivacyInfo.xcprivacy`
+  contiene `NSPrivacyCollectedDataTypePaymentInfo`; scan artifact 233 file PASS;
+- production, SQL, provider e credenziali invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`; prossimo ruolo `CODEX_RE_REVIEWER` distinto.

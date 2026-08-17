@@ -45,7 +45,7 @@ Admin sono verdi sui rispettivi SHA iniziali. I linked worktree del train parton
 | TASK-036 | DONE | `96a9359` | `59668348`, staging verificato | Admin #93; Client #14 merged | review APPROVED; PR/main CI PASS |
 | TASK-037 | DONE | `c4ec680` | `59668348`, read-only | Client #15/#16 merged | review APPROVED; PR/main CI PASS |
 | TASK-038 | DONE | `ce2ab134` | `59668348`, read-only | Client #17 merged | review APPROVED; PR/main CI 3/3 PASS |
-| TASK-039 | ACTIVE / EXECUTION | `ce2ab134` baseline | `59668348`, read-only | NOT_RUN | planning autorizzato |
+| TASK-039 | ACTIVE / REVIEW | `6b878f35` candidate | `59668348`, read-only | NOT_RUN | AAB/APK unsigned verificati; signing/Play esterni |
 | TASK-040 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 | TASK-041 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 | TASK-042 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |

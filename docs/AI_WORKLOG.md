@@ -2954,3 +2954,25 @@
   pulito preservato, production invariata.
 - **Transizione**: TASK-038 `DONE / USER_APPROVED_DONE`; TASK-039 unico
   `ACTIVE / EXECUTION` per autorizzazione persistente del mandato 2026-08-16.
+
+## 2026-08-17 — TASK-039 Execution Android release candidate
+
+- **Fase iniziale/finale**: EXECUTION → REVIEW.
+- **Exact SHA tecnico**: `6b878f35aebfe0e98fa305c624747711fd81f1b0`.
+- **Implementazione**: signing release all-or-none senza debug fallback,
+  R8/minify/resource shrinking, cleartext policy release, production-like config
+  fail-closed, validator source/artifact, runbook e CI Android release gate.
+- **Artifact**: AAB unsigned 67.773.321 byte SHA-256 `6c321e2f…a84718`;
+  APK inspection 70.137.338 byte SHA-256 `82ee832f…b91ce`; package
+  `com.xniw.clientmerchandisecontrol`, versione `0.1.0+1`, ABI arm64-v8a,
+  armeabi-v7a e x86_64, R8 debug false/shrinking true.
+- **Gate**: `scripts/check.sh` PASS; 772/772 non-performance, 10/10
+  performance, repeat 70/70, analyze e build debug Android/iOS verdi;
+  security source/artifact 666/132 senza valori vietati; release build e
+  validator PASS.
+- **External boundary**: nessun signing/Play credential o GitHub secret/var;
+  upload readiness fallisce chiusa su signed AAB richiesto. Install release
+  emulator respinta con `NO_CERTIFICATES`; Internal upload `NOT_RUN`, production
+  invariata.
+- **Transizione**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`; prossimo ruolo reviewer
+  read-only distinto.

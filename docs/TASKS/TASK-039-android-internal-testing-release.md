@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -95,7 +95,39 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso.
+- release signing configurabile soltanto all-or-none da secret store o
+  `android/key.properties` ignorato; nessun fallback al debug certificate;
+- R8/obfuscation/optimization e resource shrinking abilitati, con mapping e
+  metadata R8 inclusi nel bundle;
+- overlay release con cleartext vietato e sole CA di sistema;
+- template production-like pubblico: environment production, OAuth e Maps
+  spenti, backend/callback/shop assenti e bootstrap fail-closed;
+- validator source/artifact e CI release gate aggiunti; package, versione, ABI,
+  manifest, exported boundary, provider, signature e SHA-256 verificati;
+- clean AAB e APK generati sullo SHA `6b878f35aebfe0e98fa305c624747711fd81f1b0`;
+- AAB `67.773.321` byte, SHA-256
+  `6c321e2fcafcf4cd3a7044f366ebaa5c1c2d0e41e2a84c425e931a1b76a84718`;
+- APK di ispezione `70.137.338` byte, SHA-256
+  `82ee832fb88d64eef3d04e0a8f4a5a7f4ddcaf0a2fb13efcfea82bfee81b91ce`;
+- artifact unsigned: install emulator respinta correttamente con
+  `INSTALL_PARSE_FAILED_NO_CERTIFICATES`; nessuno smoke release inventato;
+- nessun keystore, secret/variable GitHub, service account o config Play
+  disponibile; `--require-upload-ready` fallisce con
+  `PLAY_INTERNAL_REQUIRES_SIGNED_AAB`; upload `NOT_RUN`;
+- App Link HTTPS production resta chiuso finché non esistono dominio posseduto,
+  association file e fingerprint release; OAuth production resta vietato.
+
+Gate executor:
+
+- `scripts/check.sh`: PASS;
+- security source/artifact: 666 file source, 132 file artifact, zero valori
+  vietati; fixture security 41/41 negative e 4/4 positive;
+- suite non-performance 772/772, resilience repeat 70/70, performance 10/10;
+- format 292/0, analyze zero issue, metadata/governance/architecture PASS;
+- Android debug build e iOS Simulator debug build PASS;
+- clean AAB/APK release e validator PASS.
+
+`CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Review — `CODEX_REVIEWER`
 

@@ -8,15 +8,14 @@
 - **Task attivo**: TASK-039
 - **File task**: docs/TASKS/TASK-039-android-internal-testing-release.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: eseguire TASK-039 su Android release candidate,
-  signing/config validator e artifact inspection; upload soltanto su Play Internal
-  Testing se le credenziali esterne risultano realmente disponibili
+- **Prossima azione autorizzata**: review indipendente TASK-039 sul release
+  candidate Android unsigned; nessun upload senza signing e credenziali Play reali
 
 ## Repository coinvolti
 

@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -234,6 +234,43 @@ Security report sealed SHA-256
 - upload gate ancora correttamente respinto da
   `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna firma reale, IPA, credenziale,
   configurazione production o upload è stata creata.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Fix 3
+
+- l'app-set dell'archive enumera ora ogni entry top-level `*.app` senza seguire o
+  ignorare symlink e richiede l'unica directory reale canonica `Runner.app`; la
+  regressione `Extra.app` symlink è respinta;
+- il source scanner JWT è streaming con memoria bounded e token-size cap; la lista
+  artifact viene interrotta a 4.096 entry durante `find`, prima di materializzare
+  input illimitati, e la fixture 4.097 file fallisce chiusa;
+- il gate CI usa `package:yaml` come dipendenza dev diretta e verifica job, step,
+  nomi e comandi esatti dal documento YAML; sentinelle in commenti o step no-op non
+  soddisfano più il gate;
+- il binding architetturale lega esattamente `STOREFRONT_SHOP_SLUG` al relativo
+  `String.fromEnvironment`; una chiave sostituita è respinta;
+- config runtime letta da un singolo file descriptor con cap 64 KiB; hash primario
+  del candidate legato al runtime Dart e hash wrapper nativo riportato separatamente;
+  ogni privacy manifest richiesto è validato anche semanticamente;
+- gate mirati `PASS`: config/CI 15/15, iOS release 15/15, security 61/61 negative
+  + 7/7 positive, governance 9/9, architecture 8/8, source 680, artifact 207 e
+  `flutter analyze` senza issue;
+- build production sintetico esterno `PASS` con digest
+  `b6d7f55b1f96785f7e4836d45fb11cd58e6aca6282f166660ca09529db0806a6`
+  presente una sola volta in `App.framework/App`; il file temporaneo è stato
+  eliminato e non versionato;
+- clean build/archive dallo SHA tecnico `12931389b2692bff5739325946ae48ad0eeff730`:
+  archive 201.344 KiB, app 36.724 KiB/207 file, 8 privacy manifest, 7 dSYM,
+  App.framework SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`
+  e UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
+- `scripts/check.sh` `PASS`: 798/798 non-performance, 10/10 performance,
+  repeat resilience 5×14=70, format 300 file, Android debug e iOS Simulator debug;
+  upload gate ancora correttamente bloccato da firma Distribution assente, con
+  0 profili e 0 input App Store Connect. Device fisici iOS presenti solo offline.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 

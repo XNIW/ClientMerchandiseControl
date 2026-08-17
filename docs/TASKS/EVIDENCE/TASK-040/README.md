@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -29,14 +29,14 @@ Snapshot di handoff:
 
 | Test | Esito | Evidence |
 |---|---|---|
-| T-01 | PASS | source gate, runtime config 3/3 e config/signing boundary |
-| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `9065d9c7` |
-| T-03 | PASS | plist/privacy/entitlement/framework/dSYM + fixture iOS 8/8 |
-| T-04 | PASS | scanner 679/207 e fixture 56/56 + 7/7 |
+| T-01 | PASS | source gate, runtime/CI config 15/15 e config/signing boundary |
+| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `1293138` |
+| T-03 | PASS | plist/privacy/entitlement/framework/dSYM + fixture iOS 15/15 |
+| T-04 | PASS | scanner 680/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
-| T-06c | BLOCKED | physical iOS assente; prerequisite: device collegato e autorizzato |
+| T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
 | T-07 | NOT_RUN | fix handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
@@ -132,3 +132,30 @@ Snapshot di handoff:
 - gate indipendenti 39/39, 13/13, 60/60 + 7/7, governance 9/9 e architecture
   7/7 verdi; insufficienti rispetto ai quattro probe residui;
 - nessun upload, firma reale, profilo reale o mutazione production.
+
+## Gate Fix 3
+
+- exact technical SHA `12931389b2692bff5739325946ae48ad0eeff730`;
+  `.app` symlink extra, JWT streaming, cap 4.096 entry durante enumerazione, YAML CI
+  strutturato, exact-key architecture, single-handle config e privacy schema hanno
+  regressioni dedicate;
+- config/CI 15/15, iOS validator 15/15, security 61/61 negative + 7/7 positive,
+  governance 9/9, architecture 8/8, source 680, artifact 207, analyze e diff check
+  `PASS`;
+- build production sintetico esterno `PASS`: digest
+  `b6d7f55b1f96785f7e4836d45fb11cd58e6aca6282f166660ca09529db0806a6`
+  presente una sola volta nel runtime Dart; fixture eliminata e non versionata;
+- clean release/archive canonico: 201.344 KiB, app 36.724 KiB/207 file,
+  8 privacy manifest, 7 dSYM; runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`,
+  Info.plist `8888ca9f64b9c8f60b6a4a18079131c0db551f0630a6b539ee93b6b9980b3fb8`,
+  privacy `5dd288d8eda8adac284ea005bb82585023eb82ae5302e26ffc27979a41ba40cd`
+  e UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
+- `scripts/check.sh` exit 0: 798/798 non-performance, 10/10 performance,
+  repeat 70/70, format 300/0, Android debug e iOS Simulator debug;
+- signing `UNSIGNED`, upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; Distribution 0, profili 0,
+  App Store Connect input 0/3. Device iOS fisici offline, quindi physical smoke
+  `BLOCKED`; nessuna IPA, firma, config reale, upload o production mutation.

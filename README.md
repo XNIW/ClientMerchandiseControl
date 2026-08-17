@@ -191,8 +191,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -208,10 +208,10 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / FIX`: la re-review Fix 2 ha lasciato un P2 su una
-`.app` symlink extra e tre P3 boundedness/CI; tutte le chiusure P2 precedenti restano
-confermate. Distribution, provisioning, App Store Connect key e upload TestFlight
-restano esterni e non sono stati inventati.
+TASK-040 è l'unico task `ACTIVE / REVIEW`: il Fix 3 chiude il P2 `.app` symlink e i
+tre P3 boundedness/CI con fixture dedicate; candidate unsigned e gate completo sono
+verdi e attendono re-review distinta. Distribution, provisioning, App Store Connect
+key e upload TestFlight restano esterni e non sono stati inventati.
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione

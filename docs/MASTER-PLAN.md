@@ -8,16 +8,16 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: correggere il P2 app-set symlink e i tre P3
-  scanner/CI della re-review Fix 2, rieseguire gate e consegnare a re-review distinta;
-  upload resta `NOT_RUN` perché Distribution, provisioning e credenziali App Store
-  Connect sono assenti
+- **Prossima azione autorizzata**: re-review distinta del Fix 3 TASK-040 sullo SHA
+  esatto, inclusi app-set symlink, scanner bounded, YAML CI e artifact hash; upload
+  resta `NOT_RUN` perché Distribution, provisioning e credenziali App Store Connect
+  sono assenti
 
 ## Repository coinvolti
 

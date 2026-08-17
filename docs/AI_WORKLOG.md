@@ -3320,3 +3320,23 @@
   `083337065a0ad22367124162a36766391f9dabd180f3d6f00b9512835b4f9e28`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; production/TestFlight invariati.
+
+## 2026-08-17 — TASK-040 Fix 3 e handoff
+
+- **Technical SHA**: `12931389b2692bff5739325946ae48ad0eeff730`;
+  app-set archive symlink-safe, scanner JWT/file-list bounded, YAML CI strutturato,
+  exact-key architecture, config single-handle e hash runtime/wrapper separati.
+- **Gate**: config/CI 15/15, iOS 15/15, security 61/61 negative + 7/7 positive,
+  governance 9/9, architecture 8/8, source 680, artifact 207 e full
+  `scripts/check.sh` `PASS` con 798/798, performance 10/10 e repeat 70/70.
+- **Attestazione**: build sintetico esterno `PASS`, un solo marker digest
+  `b6d7f55b1f96785f7e4836d45fb11cd58e6aca6282f166660ca09529db0806a6`;
+  file temporaneo rimosso e nessun valore reale/versionato.
+- **Artifact**: archive unsigned 201.344 KiB, app 36.724 KiB/207 file,
+  runtime SHA-256 `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256 `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`,
+  UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`.
+- **Boundary**: upload respinto da Distribution assente; 0 profili, 0/3 input ASC,
+  physical iOS offline; nessuna IPA, firma, TestFlight o production mutation.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.

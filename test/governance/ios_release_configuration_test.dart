@@ -182,6 +182,37 @@ jobs:
 
     expect(() => _validateIosReleaseJob(workflow), throwsA(isA<StateError>()));
   });
+
+  test('CI release gate rejects job and step execution overrides', () {
+    final workflow = File(
+      '$repositoryRoot/.github/workflows/ci.yml',
+    ).readAsStringSync();
+    const candidateStep = '      - name: Validate iOS release candidate\n';
+    expect(workflow, contains(candidateStep));
+
+    final mutations = <String>[
+      workflow.replaceFirst(
+        '    timeout-minutes: 45\n',
+        '    timeout-minutes: 45\n    if: false\n',
+      ),
+      workflow.replaceFirst(candidateStep, '$candidateStep        if: false\n'),
+      workflow.replaceFirst(
+        candidateStep,
+        '$candidateStep        continue-on-error: true\n',
+      ),
+      workflow.replaceFirst(
+        candidateStep,
+        '$candidateStep        shell: python\n',
+      ),
+    ];
+
+    for (final mutation in mutations) {
+      expect(
+        () => _validateIosReleaseJob(mutation),
+        throwsA(isA<StateError>()),
+      );
+    }
+  });
 }
 
 void _validateIosReleaseJob(String workflow) {
@@ -199,10 +230,19 @@ void _validateIosReleaseJob(String workflow) {
     throw StateError('ios-release job missing');
   }
   final job = jobs['ios-release'] as YamlMap;
+  const allowedJobKeys = <String>{
+    'name',
+    'runs-on',
+    'timeout-minutes',
+    'steps',
+  };
+  final jobKeys = job.keys.map((key) => key.toString()).toSet();
   if (job['name'] != 'iOS release candidate' ||
       job['runs-on'] != 'macos-latest' ||
       job['timeout-minutes'] != 45 ||
-      job['steps'] is! YamlList) {
+      job['steps'] is! YamlList ||
+      jobKeys.length != allowedJobKeys.length ||
+      !jobKeys.containsAll(allowedJobKeys)) {
     throw StateError('ios-release job metadata invalid');
   }
 
@@ -230,8 +270,11 @@ void _validateIosReleaseJob(String workflow) {
 
   for (final entry in required.entries) {
     final matches = steps.where((step) {
+      final stepKeys = step.keys.map((key) => key.toString()).toSet();
       return step['name'] == entry.key &&
-          _normalizeCommand(step['run']) == entry.value;
+          _normalizeCommand(step['run']) == entry.value &&
+          stepKeys.length == 2 &&
+          stepKeys.containsAll(const <String>{'name', 'run'});
     }).length;
     if (matches != 1) {
       throw StateError('iOS release step invalid: ${entry.key}');

@@ -182,6 +182,18 @@ cmc_ios_test_expect_failure privacy-empty-schema \
 cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
   "${cmc_ios_test_required_privacy}"
 
+plutil -replace NSPrivacyAccessedAPITypes -json '[{}]' \
+  "${cmc_ios_test_required_privacy}"
+plutil -replace NSPrivacyCollectedDataTypes -json '[{}]' \
+  "${cmc_ios_test_required_privacy}"
+cmc_ios_test_expect_failure privacy-incomplete-nested-schema \
+  DEPENDENCY_PRIVACY_MANIFEST_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
+  "${cmc_ios_test_required_privacy}"
+
 cmc_ios_test_entitlements="${cmc_ios_test_tmp_root}/entitlements.plist"
 cp "${cmc_ios_test_root}/ios/Runner/PrivacyInfo.xcprivacy" \
   "${cmc_ios_test_entitlements}"

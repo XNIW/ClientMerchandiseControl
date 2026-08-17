@@ -17,6 +17,10 @@ void main(List<String> arguments) {
     if (!file.existsSync() || FileSystemEntity.isLinkSync(file.path)) {
       fail('FILE_NOT_REGULAR');
     }
+    if (FileSystemEntity.typeSync(file.path, followLinks: false) !=
+        FileSystemEntityType.file) {
+      fail('FILE_NOT_REGULAR');
+    }
     final resolved = file.resolveSymbolicLinksSync();
     if (resolved != file.path) {
       fail('FILE_PATH_NOT_CANONICAL');

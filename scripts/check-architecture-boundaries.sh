@@ -76,6 +76,8 @@ cmc_arch_require_storefront_slug_binding() {
     use warnings;
     local $/;
     my $content = <>;
+    $content =~ s{/\*.*?\*/}{}gs;
+    $content =~ s{//[^\r\n]*}{}g;
     my $count = () = $content =~ /
       static\s+const\s+_compiledStorefrontShopSlug\s*=\s*
       String\.fromEnvironment\(\s*

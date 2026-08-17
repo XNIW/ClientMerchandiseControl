@@ -154,6 +154,28 @@ cmc_fixture_replace_literal \
   "'ATTACKER_SHOP_SLUG',"
 cmc_fixture_expect_rejection "${cmc_fixture_shop_slug_path}"
 
+cmc_fixture_shop_slug_comment_path="$(
+  cmc_fixture_prepare invalid-storefront-shop-slug-comment-decoy
+)"
+cmc_fixture_shop_slug_comment_file="${cmc_fixture_shop_slug_comment_path}/lib/core/config/app_config.dart"
+cmc_fixture_replace_literal \
+  "${cmc_fixture_shop_slug_comment_file}" \
+  "'STOREFRONT_SHOP_SLUG'," \
+  "'ATTACKER_SHOP_SLUG',"
+awk '
+  {
+    print
+    if ($0 == "class AppConfig {") {
+      print "  /* static const _compiledStorefrontShopSlug ="
+      print "      String.fromEnvironment(\047STOREFRONT_SHOP_SLUG\047); */"
+    }
+  }
+' "${cmc_fixture_shop_slug_comment_file}" \
+  >"${cmc_fixture_shop_slug_comment_file}.tmp"
+mv "${cmc_fixture_shop_slug_comment_file}.tmp" \
+  "${cmc_fixture_shop_slug_comment_file}"
+cmc_fixture_expect_rejection "${cmc_fixture_shop_slug_comment_path}"
+
 if [[ "${cmc_fixture_rejected}" -ne "${cmc_fixture_total}" ]]; then
   printf 'Fixture negative respinte: %d/%d.\n' \
     "${cmc_fixture_rejected}" "${cmc_fixture_total}" >&2

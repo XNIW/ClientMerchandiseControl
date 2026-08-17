@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -155,6 +156,28 @@ void main() {
       expect(result.stderr, contains('FILE_SIZE_INVALID'));
     },
   );
+
+  test(
+    'runtime config FIFO viene respinta senza bloccare la lettura',
+    () async {
+      final directory = await Directory.systemTemp.createTemp(
+        'cmc-ios-runtime-fifo-',
+      );
+      addTearDown(() => directory.deleteSync(recursive: true));
+      final fifoPath = '${directory.path}/production.json';
+      final created = await Process.run('mkfifo', [fifoPath]);
+      expect(created.exitCode, 0, reason: created.stderr as String);
+
+      final result = await _runValidatorBounded(repositoryRoot, fifoPath);
+
+      expect(result.exitCode, 1);
+      expect(result.stdout, isEmpty);
+      expect(
+        result.stderr,
+        contains('IOS_RUNTIME_CONFIG_BLOCKED: FILE_NOT_REGULAR'),
+      );
+    },
+  );
 }
 
 Future<ProcessResult> _runValidator(String repositoryRoot, String path) {
@@ -164,6 +187,28 @@ Future<ProcessResult> _runValidator(String repositoryRoot, String path) {
     '--config',
     path,
   ]);
+}
+
+Future<ProcessResult> _runValidatorBounded(
+  String repositoryRoot,
+  String path,
+) async {
+  final process = await Process.start('dart', [
+    'run',
+    '$repositoryRoot/tool/check_ios_runtime_config.dart',
+    '--config',
+    path,
+  ]);
+  final stdout = process.stdout.transform(utf8.decoder).join();
+  final stderr = process.stderr.transform(utf8.decoder).join();
+  try {
+    final exitCode = await process.exitCode.timeout(const Duration(seconds: 5));
+    return ProcessResult(process.pid, exitCode, await stdout, await stderr);
+  } on TimeoutException {
+    process.kill(ProcessSignal.sigkill);
+    await process.exitCode;
+    throw TestFailure('runtime config validator blocked on a FIFO');
+  }
 }
 
 String _jwt({required List<int> header, required List<int> payload}) {

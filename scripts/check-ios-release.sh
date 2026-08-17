@@ -161,12 +161,60 @@ cmc_ios_release_validate_privacy_manifest() {
       exit 1 if ref($decoded->{NSPrivacyTrackingDomains}) ne "ARRAY";
       exit 1 if !JSON::PP::is_bool($decoded->{NSPrivacyTracking}) ||
         $decoded->{NSPrivacyTracking};
-      exit 1 if grep { ref($_) ne "HASH" }
-        @{$decoded->{NSPrivacyAccessedAPITypes}};
-      exit 1 if grep { ref($_) ne "HASH" }
-        @{$decoded->{NSPrivacyCollectedDataTypes}};
-      exit 1 if grep { ref($_) }
-        @{$decoded->{NSPrivacyTrackingDomains}};
+      exit 1 if @{$decoded->{NSPrivacyTrackingDomains}};
+
+      my %accessed_types;
+      for my $entry (@{$decoded->{NSPrivacyAccessedAPITypes}}) {
+        exit 1 if ref($entry) ne "HASH";
+        my %entry_expected = map { $_ => 1 } qw(
+          NSPrivacyAccessedAPIType
+          NSPrivacyAccessedAPITypeReasons
+        );
+        exit 1 if keys(%$entry) != keys(%entry_expected);
+        exit 1 if grep { !$entry_expected{$_} } keys %$entry;
+        my $type = $entry->{NSPrivacyAccessedAPIType};
+        exit 1 if ref($type) || $type !~
+          /^NSPrivacyAccessedAPICategory[A-Za-z0-9]+$/;
+        exit 1 if $accessed_types{$type}++;
+        my $reasons = $entry->{NSPrivacyAccessedAPITypeReasons};
+        exit 1 if ref($reasons) ne "ARRAY" || !@$reasons;
+        my %seen_reasons;
+        for my $reason (@$reasons) {
+          exit 1 if ref($reason) || $reason !~ /^[A-Z0-9]{4}\.[0-9]+$/;
+          exit 1 if $seen_reasons{$reason}++;
+        }
+      }
+
+      my %collected_types;
+      for my $entry (@{$decoded->{NSPrivacyCollectedDataTypes}}) {
+        exit 1 if ref($entry) ne "HASH";
+        my %entry_expected = map { $_ => 1 } qw(
+          NSPrivacyCollectedDataType
+          NSPrivacyCollectedDataTypeLinked
+          NSPrivacyCollectedDataTypePurposes
+          NSPrivacyCollectedDataTypeTracking
+        );
+        exit 1 if keys(%$entry) != keys(%entry_expected);
+        exit 1 if grep { !$entry_expected{$_} } keys %$entry;
+        my $type = $entry->{NSPrivacyCollectedDataType};
+        exit 1 if ref($type) || $type !~
+          /^NSPrivacyCollectedDataType[A-Za-z0-9]+$/;
+        exit 1 if $collected_types{$type}++;
+        exit 1 if !JSON::PP::is_bool(
+          $entry->{NSPrivacyCollectedDataTypeLinked}
+        );
+        exit 1 if !JSON::PP::is_bool(
+          $entry->{NSPrivacyCollectedDataTypeTracking}
+        ) || $entry->{NSPrivacyCollectedDataTypeTracking};
+        my $purposes = $entry->{NSPrivacyCollectedDataTypePurposes};
+        exit 1 if ref($purposes) ne "ARRAY" || !@$purposes;
+        my %seen_purposes;
+        for my $purpose (@$purposes) {
+          exit 1 if ref($purpose) || $purpose !~
+            /^NSPrivacyCollectedDataTypePurpose[A-Za-z0-9]+$/;
+          exit 1 if $seen_purposes{$purpose}++;
+        }
+      }
       exit 0;
     '
 }

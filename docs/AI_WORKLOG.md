@@ -3622,3 +3622,15 @@
   restano assenti, TestFlight/production invariati.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`; handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`, re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 11 re-review
+
+- **Exact HEAD**: `0fec3ab0f4af8747e82695bc97e4cf61b8799114`.
+- **Esito**: prodotto e security `CHANGES_REQUIRED`, 0 P0/P1/P2 e 3 P3.
+- **Finding**: semantica Markdown non vincolata, chronology/worklog non ancorati
+  al ciclo corrente e SHA non risolto né verificato nella lineage Git.
+- **Security report**: sealed SHA-256
+  `45cd14b5ad3a76bb10e1741331ea6ae7675b749f6248821e4c5f77662cc2c3b5`.
+- **Boundary**: gate completi verdi, ma insufficienti ai probe; TestFlight,
+  signing, credenziali e production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

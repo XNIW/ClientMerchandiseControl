@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
+- **Fase**: FIX
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -623,6 +623,22 @@ report prodotto sealed SHA-256
   validato; firma Distribution, provisioning e credenziali ASC restano assenti.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 11
+
+- exact review SHA: `0fec3ab0f4af8747e82695bc97e4cf61b8799114`;
+- prodotto e security `CHANGES_REQUIRED`: 0 P0/P1/P2 e 3 P3;
+- `F-040-RR11-GOV-MARKDOWN-01`: il parser accetta prose/blockquote,
+  indentazione code block, commenti/code fence e conteggi parziali come evidence;
+- `F-040-RR11-GOV-HISTORY-01`: chronology rollback e un task globale successivo
+  possono lasciare verde il gate;
+- `F-040-RR11-GOV-SHA-01`: formato/prefix non provano esistenza e ancestry Git;
+- report security sealed SHA-256
+  `45cd14b5ad3a76bb10e1741331ea6ae7675b749f6248821e4c5f77662cc2c3b5`;
+- gate completo reviewer verde, ma insufficiente rispetto ai probe avversariali;
+- TestFlight, signing, credenziali e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

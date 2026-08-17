@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -458,3 +458,19 @@ Snapshot di handoff:
   security 681 + 61/61 + 7/7, architecture 17/17, format 301/0, analyze e
   build debug Android/iOS `PASS`;
 - nessun delta runtime/artifact/signing; TestFlight e production invariati.
+
+## Re-review Fix 11
+
+- exact HEAD `0fec3ab0f4af8747e82695bc97e4cf61b8799114`, worktree pulito;
+- prodotto e security `CHANGES_REQUIRED`: 0 P0/P1/P2 e 3 P3 governance;
+- `F-040-RR11-GOV-MARKDOWN-01`: righe non-table/code block, commenti,
+  code fence e conteggi parziali possono soddisfare il parser;
+- `F-040-RR11-GOV-HISTORY-01`: chronology e tail worklog non sono ancorati al
+  ciclo Fix corrente e all'ultimo task globale;
+- `F-040-RR11-GOV-SHA-01`: uno SHA inesistente ma auto-coerente passa formato
+  e confronto prefisso senza risoluzione/ancestry Git;
+- review prodotto: `scripts/check.sh` exit 0 con 801/801, performance 10/10,
+  repeat 70/70, security 681 + 61/61 + 7/7, architecture 17/17 e build verdi;
+- report security sealed SHA-256
+  `45cd14b5ad3a76bb10e1741331ea6ae7675b749f6248821e4c5f77662cc2c3b5`;
+- TestFlight, signing, credenziali e production invariati.

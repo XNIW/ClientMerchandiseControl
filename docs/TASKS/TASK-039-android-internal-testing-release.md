@@ -368,6 +368,10 @@ del train autorizza PR exact-SHA e merge normale solo dopo CI verde.
   fixture, quindi nessun artifact o boundary release viene indebolito;
 - ogni oracle ora emette uno stage bounded; i log negativi espongono soltanto
   l'enum `ANDROID_RELEASE_BLOCKED`, mai path credenziali, fingerprint o payload.
+- il run diagnostico `32013833404` ha isolato il token reale:
+  `SIGNING_FINGERPRINT_UNREADABLE` prima del controllo credenziale; il parser
+  APK ora normalizza spazi, separatori e case come il parser AAB e distingue i
+  due errori fail-closed.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino alla chiusura del token CI reale.
 

@@ -75,6 +75,10 @@ cmc_android_release_require_literal() {
     cmc_android_release_fail "${cmc_android_release_code}"
 }
 
+cmc_android_release_normalize_fingerprint() {
+  LC_ALL=C tr -d '[:space:]:' | tr '[:upper:]' '[:lower:]'
+}
+
 cmc_android_release_require_literal \
   "${cmc_android_release_gradle}" 'isMinifyEnabled = true' 'R8_DISABLED'
 cmc_android_release_require_literal \
@@ -463,16 +467,17 @@ if [[ "${cmc_android_release_signature_state}" == SIGNED ]]; then
   cmc_android_release_aab_fingerprint="$(
     awk -F': ' '/SHA256:/ { print $2 }' \
       <<<"${cmc_android_release_aab_certificate}" | \
-      tr -d ':' | tr '[:upper:]' '[:lower:]' | LC_ALL=C sort -u
+      cmc_android_release_normalize_fingerprint | LC_ALL=C sort -u
   )"
   cmc_android_release_apk_fingerprint="$(
     awk -F': ' '/Signer #1 certificate SHA-256 digest:/ { print $2 }' \
       <<<"${cmc_android_release_apk_signature_output}" | \
-      LC_ALL=C sort -u
+      cmc_android_release_normalize_fingerprint | LC_ALL=C sort -u
   )"
-  [[ "${cmc_android_release_aab_fingerprint}" =~ ^[0-9a-f]{64}$ && \
-    "${cmc_android_release_apk_fingerprint}" =~ ^[0-9a-f]{64}$ ]] || \
-    cmc_android_release_fail 'SIGNING_FINGERPRINT_UNREADABLE'
+  [[ "${cmc_android_release_aab_fingerprint}" =~ ^[0-9a-f]{64}$ ]] || \
+    cmc_android_release_fail 'AAB_SIGNING_FINGERPRINT_UNREADABLE'
+  [[ "${cmc_android_release_apk_fingerprint}" =~ ^[0-9a-f]{64}$ ]] || \
+    cmc_android_release_fail 'APK_SIGNING_FINGERPRINT_UNREADABLE'
   [[ "${cmc_android_release_aab_fingerprint}" == \
     "${cmc_android_release_apk_fingerprint}" ]] || \
     cmc_android_release_fail 'AAB_APK_SIGNER_MISMATCH'

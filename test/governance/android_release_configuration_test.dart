@@ -71,6 +71,16 @@ void main() {
     expect(validator, contains('check_android_bundle_manifest.dart'));
     expect(validator, contains('AAB_APK_PAYLOAD_MISMATCH'));
     expect(validator, contains('AAB_APK_SIGNER_MISMATCH'));
+    expect(
+      'cmc_android_release_normalize_fingerprint'.allMatches(validator),
+      hasLength(3),
+    );
+    expect(
+      validator,
+      contains("tr -d '[:space:]:' | tr '[:upper:]' '[:lower:]'"),
+    );
+    expect(validator, contains('AAB_SIGNING_FINGERPRINT_UNREADABLE'));
+    expect(validator, contains('APK_SIGNING_FINGERPRINT_UNREADABLE'));
     expect(validator, isNot(contains('/Users/')));
   });
 

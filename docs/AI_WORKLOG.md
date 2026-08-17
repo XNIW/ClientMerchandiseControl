@@ -3156,5 +3156,10 @@
   nessuna regressione artifact o release validator rilevata.
 - **Fix diagnostico**: stage espliciti e token enum bounded per ogni oracle,
   senza stampare log, path credenziali, fingerprint o payload.
+- **Root cause**: run `32013833404` osserva
+  `SIGNING_FINGERPRINT_UNREADABLE`; il digest APK del runner non era
+  normalizzato per whitespace, separatori e case come il digest AAB.
+- **Fix tecnico**: normalizzatore condiviso e codici fail-closed distinti per
+  AAB/APK, con regressione source e fixture end-to-end CI.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; nessun merge/upload/production.

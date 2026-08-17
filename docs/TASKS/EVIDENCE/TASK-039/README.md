@@ -145,5 +145,9 @@ revision set verificato. La PR #18, head `9bf4e857`, run `32009738614` attempt
 `PASS`; clean AAB/APK e release validator `PASS`; la fixture firma termina exit
 1 senza token diagnostico. Le repliche macOS e Linux ARM/x64 con Java 17/21
 passano. Il fixer ha reso ogni oracle bounded e diagnostico senza stampare log
-o credenziali; handoff corrente `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino al
-nuovo esito CI. Play/Internal e production restano invariati.
+o credenziali. Il run `32013833404` ha isolato
+`SIGNING_FINGERPRINT_UNREADABLE`: il digest APK del runner non era
+normalizzato come quello AAB. Il parser ora rimuove spazi/separatori, converte
+il case e usa errori AAB/APK distinti; handoff corrente
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino al nuovo esito CI. Play/Internal e
+production restano invariati.

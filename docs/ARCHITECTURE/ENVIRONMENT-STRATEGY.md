@@ -5,9 +5,9 @@
 | Voce | Valore |
 |---|---|
 | Contract ID | `CMC-CLIENT-CONFIG` |
-| Versione | `1.2.0` |
+| Versione | `1.3.0` |
 | Stato | baseline normativa di configurazione client |
-| Task di origine | TASK-004; estensioni autorizzate TASK-013 e TASK-033 |
+| Task di origine | TASK-004; estensioni autorizzate TASK-013, TASK-033 e TASK-040 |
 | Contract owner | repository `ClientMerchandiseControl` |
 | Consumer | bootstrap Flutter Android/iOS |
 
@@ -21,9 +21,9 @@ ammesso fallisce in modo chiuso.
 
 ## Input contrattuali
 
-`CMC-CLIENT-CONFIG 1.2.0` contiene esattamente sei input. Rispetto alla baseline
-`1.0.0`, TASK-013 aggiunge il contesto tenant pubblico e TASK-033 rende OAuth
-fail-closed finché il prodotto non possiede un dominio HTTPS verificato:
+`CMC-CLIENT-CONFIG 1.3.0` contiene esattamente sette input. Rispetto alla baseline
+`1.0.0`, TASK-013 aggiunge il contesto tenant pubblico, TASK-033 rende OAuth
+fail-closed e TASK-040 lega la configurazione production al release artifact:
 
 | Input | Forma | Regola |
 |---|---|---|
@@ -33,6 +33,7 @@ fail-closed finché il prodotto non possiede un dominio HTTPS verificato:
 | `AUTH_REDIRECT_URI` | stringa compile-time | sentinel HTTPS canonico e non instradabile; non abilita callback native |
 | `GOOGLE_AUTH_ENABLED` | stringa compile-time booleana | dopo trim accetta soltanto i literal lowercase `true` o `false`; un valore assente è ammesso soltanto in development e vale `false` |
 | `STOREFRONT_SHOP_SLUG` | stringa compile-time | slug pubblico lowercase di 3–63 caratteri (`a-z`, `0-9`, `-`), assente in development e obbligatorio in staging/production |
+| `RELEASE_CONFIG_SHA256` | SHA-256 lowercase compile-time | obbligatorio soltanto in production; digest del file JSON esterno completo usato dallo stesso build, verificato anche nel release artifact |
 
 Non fanno parte del contratto project ref, `shop_id` UUID, Google client ID/secret, account di
 test, timeout, log level, endpoint health o altri flag. L'aggiunta di un input richiede
@@ -159,6 +160,7 @@ ripetere l'input ricevuto. La diagnostica MAY esporre soltanto:
 - callback configurata: sì/no;
 - Google Auth abilitata: sì/no.
 - Storefront configurato: sì/no.
+- configurazione release attestata: sì/no.
 
 URL, publishable key, callback raw e shop slug MUST NOT comparire in `toString`,
 eccezioni, log, test failure, screenshot o evidence. Nessun logger di valori viene
@@ -167,7 +169,7 @@ introdotto da questo contratto.
 ## File di configurazione
 
 - `config/app_config.example.json` è l'esempio development versionato, contiene
-  esattamente i sei input e resta offline.
+  esattamente i sei input funzionali (senza attestazione production) e resta offline.
 - `config/app_config.staging.example.json` descrive lo shape staging con placeholder
   non operativi, sentinel `.invalid` e Google disabilitato.
 - `config/app_config.staging.local.json` contiene gli eventuali valori staging locali,

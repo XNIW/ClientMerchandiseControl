@@ -49,6 +49,9 @@ Owner Apple Developer/App Store Connect deve fornire tramite keychain/secret sto
 - conferma `IOS_TESTFLIGHT_UPLOAD_AUTHORIZED=true` per il solo canale TestFlight;
 - privacy owner approval, Support/Privacy URL, review contact e account/procedura
   review; i valori `NEEDS_OWNER_VALUE` non vanno sostituiti con dati inventati.
+- file JSON runtime production esterno e completo: backend HTTPS, publishable key,
+  callback canonica, shop slug e capability flag fail-closed. Il file non va
+  versionato né stampato.
 
 Il preflight upload legge solo i file indicati e non stampa chiavi, certificati,
 profile o subject. Gli input richiesti sono:
@@ -57,10 +60,28 @@ profile o subject. Gli input richiesti sono:
 IOS_TESTFLIGHT_UPLOAD_AUTHORIZED
 IOS_EXPECTED_TEAM_ID
 IOS_EXPECTED_SIGNING_CERT_SHA256
+IOS_RELEASE_RUNTIME_CONFIG_PATH
 APP_STORE_CONNECT_KEY_ID
 APP_STORE_CONNECT_ISSUER_ID
 APP_STORE_CONNECT_API_KEY_PATH
 ```
+
+Il build firmato deve usare lo stesso file runtime che verrà attestato. Calcolare il
+fingerprint senza stampare i valori e passarlo insieme allo stesso file:
+
+```bash
+export IOS_RELEASE_RUNTIME_CONFIG_PATH=/path/esterno/production.json
+IOS_RELEASE_CONFIG_SHA256="$(dart run tool/check_ios_runtime_config.dart \
+  --config "${IOS_RELEASE_RUNTIME_CONFIG_PATH}")"
+flutter build ios --release \
+  --dart-define-from-file="${IOS_RELEASE_RUNTIME_CONFIG_PATH}" \
+  --dart-define="RELEASE_CONFIG_SHA256=${IOS_RELEASE_CONFIG_SHA256}"
+```
+
+`AppConfig` rifiuta production senza fingerprint SHA-256. Il validator ricalcola il
+digest del file esterno e richiede che lo stesso valore sia presente nel Mach-O;
+un file diverso, incompleto o una shell compilata con il template fail-closed non
+può raggiungere upload-ready.
 
 Dopo un archive firmato, eseguire prima:
 
@@ -70,6 +91,10 @@ bash scripts/check-ios-release.sh \
   --archive build/ios/archive/Runner.xcarchive \
   --require-upload-ready
 ```
+
+Il path `--app` deve essere esattamente l'app interna all'archive. Il profilo embedded
+è ammesso dallo scanner solo in quel root path, dopo decode CMS e controlli App Store;
+profili altrove restano vietati.
 
 Solo l'output `IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED` consente di procedere. Creare
 un `ExportOptions.plist` esterno al repository con method App Store Connect, team e

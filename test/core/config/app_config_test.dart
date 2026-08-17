@@ -10,6 +10,8 @@ void main() {
   const stagingUrl = 'https://staging.example.invalid';
   const stagingKey = 'sb_publishable_staging';
   const shopSlug = 'storefront-test';
+  const releaseFingerprint =
+      'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
   group('AppConfig', () {
     test('usa development non configurato come default', () {
@@ -61,6 +63,7 @@ void main() {
           authRedirectUri: callback,
           googleAuthEnabled: 'false',
           storefrontShopSlug: shopSlug,
+          releaseConfigSha256: releaseFingerprint,
         ).environment,
         AppEnvironment.production,
       );
@@ -149,6 +152,23 @@ void main() {
       );
     });
 
+    test('production richiede una attestazione SHA-256 lowercase', () {
+      for (final fingerprint in ['', 'NOT_CONFIGURED', 'A' * 64]) {
+        expect(
+          () => AppConfig.fromValues(
+            appEnvironment: 'production',
+            supabaseUrl: 'https://production.example.invalid',
+            supabasePublishableKey: 'sb_publishable_production',
+            authRedirectUri: callback,
+            googleAuthEnabled: 'false',
+            storefrontShopSlug: shopSlug,
+            releaseConfigSha256: fingerprint,
+          ),
+          throwsA(isA<AppConfigurationException>()),
+        );
+      }
+    });
+
     test('staging rifiuta ogni campo obbligatorio mancante', () {
       final attempts = [
         () => AppConfig.fromValues(
@@ -190,10 +210,20 @@ void main() {
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
         storefrontShopSlug: shopSlug,
+        releaseConfigSha256: releaseFingerprint,
       );
 
       expect(valid.environment, AppEnvironment.production);
       expect(valid.googleAuthEnabled, isFalse);
+      expect(
+        valid.sanitizedDiagnostics['releaseConfigurationAttested'],
+        isTrue,
+      );
+      expect(
+        valid.sanitizedDiagnostics,
+        isNot(containsValue(releaseFingerprint)),
+      );
+      expect(valid.toString(), isNot(contains(releaseFingerprint)));
 
       expect(
         () => AppConfig.fromValues(
@@ -434,6 +464,7 @@ void main() {
         'authRedirectConfigured': true,
         'googleAuthEnabled': false,
         'storefrontConfigured': true,
+        'releaseConfigurationAttested': false,
       });
       expect(config.sanitizedDiagnostics, isNot(containsValue(rawUrl)));
       expect(config.sanitizedDiagnostics, isNot(containsValue(rawKey)));
@@ -540,7 +571,7 @@ void main() {
       }
     });
 
-    test('gli esempi hanno esattamente i sei input contrattuali', () {
+    test('gli esempi hanno i sei input funzionali non-production', () {
       const expectedKeys = {
         'APP_ENV',
         'SUPABASE_URL',

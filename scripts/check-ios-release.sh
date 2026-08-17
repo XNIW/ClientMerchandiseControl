@@ -69,7 +69,7 @@ for cmc_ios_release_file in \
 done
 
 for cmc_ios_release_command in \
-  cmp codesign dwarfdump file find lipo openssl plutil shasum; do
+  codesign dart dwarfdump file find lipo openssl perl plutil shasum; do
   command -v "${cmc_ios_release_command}" >/dev/null 2>&1 || \
     cmc_ios_release_fail 'ARTIFACT_TOOLING_MISSING'
 done
@@ -112,6 +112,32 @@ cmc_ios_release_require_literal \
   "${cmc_ios_release_scheme}" 'buildConfiguration = "Release"' \
   'ARCHIVE_NOT_RELEASE'
 
+cmc_ios_release_validate_url_types() {
+  local cmc_ios_release_plist="$1"
+
+  plutil -extract CFBundleURLTypes json -o - \
+    "${cmc_ios_release_plist}" 2>/dev/null | perl -MJSON::PP -e '
+      use strict;
+      use warnings;
+      local $/;
+      my $decoded = eval { JSON::PP->new->utf8->decode(<STDIN>) };
+      exit 1 if $@ || ref($decoded) ne "ARRAY" || @$decoded != 1;
+      my $entry = $decoded->[0];
+      exit 1 if ref($entry) ne "HASH";
+      my %expected = map { $_ => 1 }
+        qw(CFBundleTypeRole CFBundleURLName CFBundleURLSchemes);
+      exit 1 if grep { !$expected{$_} } keys %$entry;
+      exit 1 if keys(%$entry) != keys(%expected);
+      exit 1 if ($entry->{CFBundleTypeRole} // "") ne "Editor";
+      exit 1 if ($entry->{CFBundleURLName} // "") ne
+        "com.xniw.clientmerchandisecontrol.storefront";
+      my $schemes = $entry->{CFBundleURLSchemes};
+      exit 1 if ref($schemes) ne "ARRAY" || @$schemes != 1;
+      exit 1 if $schemes->[0] ne "com.xniw.clientmerchandisecontrol";
+      exit 0;
+    ' || cmc_ios_release_fail 'DEEPLINK_SCHEME_SET_INVALID'
+}
+
 if grep -Eq 'SUPABASE_|AUTH_REDIRECT_URI|STOREFRONT_SHOP_SLUG' \
   "${cmc_ios_release_config}"; then
   cmc_ios_release_fail 'PRODUCTION_TEMPLATE_CONTAINS_EXTERNAL_VALUE'
@@ -133,14 +159,7 @@ cmc_ios_release_source_bundle="$(
 [[ "$(/usr/libexec/PlistBuddy -c 'Print :FlutterDeepLinkingEnabled' \
   "${cmc_ios_release_info}")" == false ]] || \
   cmc_ios_release_fail 'UNREVIEWED_FLUTTER_DEEPLINKING_ENABLED'
-cmc_ios_release_source_scheme="$(
-  /usr/libexec/PlistBuddy -c \
-    'Print :CFBundleURLTypes:0:CFBundleURLSchemes:0' \
-    "${cmc_ios_release_info}" 2>/dev/null || true
-)"
-[[ "${cmc_ios_release_source_scheme// /}" == \
-  'com.xniw.clientmerchandisecontrol' ]] || \
-  cmc_ios_release_fail 'DEEPLINK_SCHEME_MISSING'
+cmc_ios_release_validate_url_types "${cmc_ios_release_info}"
 plutil -lint "${cmc_ios_release_info}" "${cmc_ios_release_privacy}" >/dev/null || \
   cmc_ios_release_fail 'PLIST_INVALID'
 
@@ -171,6 +190,8 @@ cmc_ios_release_executable_name="$(
   /usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' \
     "${cmc_ios_release_app_info}" 2>/dev/null || true
 )"
+[[ "${cmc_ios_release_executable_name}" == 'Runner' ]] || \
+  cmc_ios_release_fail 'APP_EXECUTABLE_NAME_INVALID'
 cmc_ios_release_executable="${cmc_ios_release_app}/${cmc_ios_release_executable_name}"
 [[ -n "${cmc_ios_release_executable_name}" && \
   -x "${cmc_ios_release_executable}" ]] || \
@@ -214,17 +235,25 @@ cmc_ios_release_artifact_maps="$(
 )"
 [[ "${cmc_ios_release_artifact_maps// /}" == 'NOT_CONFIGURED' ]] || \
   cmc_ios_release_fail 'MAPS_ARTIFACT_NOT_FAIL_CLOSED'
-cmc_ios_release_artifact_scheme="$(
-  /usr/libexec/PlistBuddy -c \
-    'Print :CFBundleURLTypes:0:CFBundleURLSchemes:0' \
-    "${cmc_ios_release_app_info}" 2>/dev/null || true
-)"
-[[ "${cmc_ios_release_artifact_scheme// /}" == \
-  'com.xniw.clientmerchandisecontrol' ]] || \
-  cmc_ios_release_fail 'ARTIFACT_DEEPLINK_SCHEME_MISSING'
+cmc_ios_release_validate_url_types "${cmc_ios_release_app_info}"
+cmc_ios_release_privacy_paths=(
+  'PrivacyInfo.xcprivacy'
+  'Frameworks/Flutter.framework/PrivacyInfo.xcprivacy'
+  'app_links_app_links.bundle/PrivacyInfo.xcprivacy'
+  'flutter_secure_storage_darwin_flutter_secure_storage_darwin.bundle/PrivacyInfo.xcprivacy'
+  'google_maps_flutter_ios_privacy.bundle/PrivacyInfo.xcprivacy'
+  'share_plus_share_plus.bundle/PrivacyInfo.xcprivacy'
+  'shared_preferences_foundation_shared_preferences_foundation.bundle/PrivacyInfo.xcprivacy'
+  'url_launcher_ios_url_launcher_ios.bundle/PrivacyInfo.xcprivacy'
+)
+for cmc_ios_release_privacy_relative in \
+  "${cmc_ios_release_privacy_paths[@]}"; do
+  [[ -f "${cmc_ios_release_app}/${cmc_ios_release_privacy_relative}" ]] || \
+    cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_MISSING'
+done
 [[ "$(find "${cmc_ios_release_app}" -name PrivacyInfo.xcprivacy -type f | \
-  wc -l | tr -d '[:space:]')" -ge 2 ]] || \
-  cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_MISSING'
+  wc -l | tr -d '[:space:]')" -eq "${#cmc_ios_release_privacy_paths[@]}" ]] || \
+  cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_SET_INVALID'
 
 cmc_ios_release_framework_count=0
 while IFS= read -r -d '' cmc_ios_release_framework; do
@@ -236,6 +265,11 @@ while IFS= read -r -d '' cmc_ios_release_framework; do
     /usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' \
       "${cmc_ios_release_framework_info}" 2>/dev/null || true
   )"
+  [[ -n "${cmc_ios_release_framework_executable_name}" && \
+    "${cmc_ios_release_framework_executable_name}" != '.' && \
+    "${cmc_ios_release_framework_executable_name}" != '..' && \
+    "${cmc_ios_release_framework_executable_name}" != */* ]] || \
+    cmc_ios_release_fail 'FRAMEWORK_EXECUTABLE_NAME_INVALID'
   cmc_ios_release_framework_executable="${cmc_ios_release_framework}/${cmc_ios_release_framework_executable_name}"
   [[ -n "${cmc_ios_release_framework_executable_name}" && \
     -r "${cmc_ios_release_framework_executable}" ]] || \
@@ -250,10 +284,12 @@ done < <(find "${cmc_ios_release_app}/Frameworks" \
 [[ "${cmc_ios_release_framework_count}" -ge 3 ]] || \
   cmc_ios_release_fail 'EMBEDDED_FRAMEWORK_SET_INCOMPLETE'
 
-if codesign --verify --deep --strict "${cmc_ios_release_app}" >/dev/null 2>&1; then
-  cmc_ios_release_signing_state=SIGNED
+if codesign --display "${cmc_ios_release_app}" >/dev/null 2>&1; then
+  codesign --verify --deep --strict "${cmc_ios_release_app}" \
+    >/dev/null 2>&1 || cmc_ios_release_fail 'ARTIFACT_SIGNATURE_INVALID'
+  cmc_ios_release_signing_state='SIGNED'
 else
-  cmc_ios_release_signing_state=UNSIGNED
+  cmc_ios_release_signing_state='UNSIGNED'
 fi
 
 cmc_ios_release_tmp_parent="${TMPDIR:-/tmp}"
@@ -275,11 +311,31 @@ trap cmc_ios_release_cleanup EXIT
 
 if [[ "${cmc_ios_release_signing_state}" == SIGNED ]]; then
   cmc_ios_release_entitlements="${cmc_ios_release_tmp_root}/entitlements.plist"
-  codesign -d --entitlements - "${cmc_ios_release_app}" \
-    >"${cmc_ios_release_entitlements}" 2>/dev/null || \
+  codesign --display --xml \
+    --entitlements "${cmc_ios_release_entitlements}" \
+    "${cmc_ios_release_app}" >/dev/null 2>&1 || \
     cmc_ios_release_fail 'SIGNED_ENTITLEMENTS_UNREADABLE'
+  [[ -s "${cmc_ios_release_entitlements}" ]] || \
+    cmc_ios_release_fail 'SIGNED_ENTITLEMENTS_MISSING'
   plutil -lint "${cmc_ios_release_entitlements}" >/dev/null || \
     cmc_ios_release_fail 'SIGNED_ENTITLEMENTS_INVALID'
+  plutil -convert json -o - "${cmc_ios_release_entitlements}" | \
+    perl -MJSON::PP -e '
+      use strict;
+      use warnings;
+      local $/;
+      my $decoded = eval { JSON::PP->new->utf8->decode(<STDIN>) };
+      exit 1 if $@ || ref($decoded) ne "HASH";
+      my %allowed = map { $_ => 1 } (
+        "application-identifier",
+        "com.apple.developer.team-identifier",
+        "keychain-access-groups",
+        "get-task-allow",
+        "beta-reports-active",
+      );
+      exit 1 if grep { !$allowed{$_} } keys %$decoded;
+      exit 0;
+    ' || cmc_ios_release_fail 'SIGNED_ENTITLEMENT_SET_INVALID'
   if [[ "$(/usr/libexec/PlistBuddy -c 'Print :get-task-allow' \
     "${cmc_ios_release_entitlements}" 2>/dev/null || true)" == true ]]; then
     cmc_ios_release_fail 'DEBUG_ENTITLEMENT_PRESENT'
@@ -313,9 +369,13 @@ if [[ -n "${cmc_ios_release_archive}" ]]; then
     'Print :ApplicationProperties:CFBundleVersion' \
     "${cmc_ios_release_archive_info}")" == '1' ]] || \
     cmc_ios_release_fail 'ARCHIVE_BUILD_MISMATCH'
-  cmp -s "${cmc_ios_release_executable}" \
-    "${cmc_ios_release_archive_app}/Runner" || \
-    cmc_ios_release_fail 'APP_ARCHIVE_EXECUTABLE_MISMATCH'
+  cmc_ios_release_app_canonical="$(cd -- "${cmc_ios_release_app}" && pwd -P)"
+  cmc_ios_release_archive_app_canonical="$(
+    cd -- "${cmc_ios_release_archive_app}" && pwd -P
+  )"
+  [[ "${cmc_ios_release_app_canonical}" == \
+    "${cmc_ios_release_archive_app_canonical}" ]] || \
+    cmc_ios_release_fail 'APP_ARCHIVE_BUNDLE_MISMATCH'
   cmc_ios_release_binary_uuid="$(
     dwarfdump --uuid "${cmc_ios_release_archive_app}/Runner" | \
       awk 'NR == 1 { print $2 }'
@@ -329,7 +389,32 @@ if [[ -n "${cmc_ios_release_archive}" ]]; then
     cmc_ios_release_fail 'ARCHIVE_DSYM_UUID_MISMATCH'
 fi
 
-bash "${cmc_ios_release_security}" --artifact "${cmc_ios_release_app}"
+cmc_ios_release_profile=''
+if [[ -e "${cmc_ios_release_app}/embedded.mobileprovision" ]]; then
+  [[ "${cmc_ios_release_signing_state}" == SIGNED ]] || \
+    cmc_ios_release_fail 'UNSIGNED_APP_CONTAINS_PROVISIONING_PROFILE'
+  [[ -f "${cmc_ios_release_app}/embedded.mobileprovision" && \
+    ! -L "${cmc_ios_release_app}/embedded.mobileprovision" ]] || \
+    cmc_ios_release_fail 'PROVISIONING_PROFILE_INVALID'
+  command -v security >/dev/null 2>&1 || \
+    cmc_ios_release_fail 'APPLE_SECURITY_TOOL_MISSING'
+  cmc_ios_release_profile="${cmc_ios_release_tmp_root}/profile.plist"
+  security cms -D -i "${cmc_ios_release_app}/embedded.mobileprovision" \
+    >"${cmc_ios_release_profile}" 2>/dev/null || \
+    cmc_ios_release_fail 'PROVISIONING_PROFILE_UNREADABLE'
+  plutil -lint "${cmc_ios_release_profile}" >/dev/null || \
+    cmc_ios_release_fail 'PROVISIONING_PROFILE_INVALID'
+  if /usr/libexec/PlistBuddy -c 'Print :ProvisionedDevices' \
+    "${cmc_ios_release_profile}" >/dev/null 2>&1 || \
+    /usr/libexec/PlistBuddy -c 'Print :ProvisionsAllDevices' \
+      "${cmc_ios_release_profile}" >/dev/null 2>&1; then
+    cmc_ios_release_fail 'APP_STORE_PROVISIONING_PROFILE_REQUIRED'
+  fi
+  bash "${cmc_ios_release_security}" \
+    --allow-ios-embedded-profile --artifact "${cmc_ios_release_app}"
+else
+  bash "${cmc_ios_release_security}" --artifact "${cmc_ios_release_app}"
+fi
 
 cmc_ios_release_sha="$(
   shasum -a 256 "${cmc_ios_release_executable}" | awk '{print $1}'
@@ -344,6 +429,19 @@ if [[ "${cmc_ios_release_require_upload}" == true ]]; then
     cmc_ios_release_fail 'TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE'
   [[ -r "${cmc_ios_release_app}/embedded.mobileprovision" ]] || \
     cmc_ios_release_fail 'TESTFLIGHT_PROVISIONING_PROFILE_MISSING'
+  [[ -n "${IOS_RELEASE_RUNTIME_CONFIG_PATH:-}" && \
+    -f "${IOS_RELEASE_RUNTIME_CONFIG_PATH}" && \
+    ! -L "${IOS_RELEASE_RUNTIME_CONFIG_PATH}" ]] || \
+    cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_MISSING'
+  cmc_ios_release_runtime_fingerprint="$(
+    dart run "${cmc_ios_release_root}/tool/check_ios_runtime_config.dart" \
+      --config "${IOS_RELEASE_RUNTIME_CONFIG_PATH}"
+  )" || cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_INVALID'
+  [[ "${cmc_ios_release_runtime_fingerprint}" =~ ^[0-9a-f]{64}$ ]] || \
+    cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_INVALID'
+  LC_ALL=C grep -aFq -- "${cmc_ios_release_runtime_fingerprint}" \
+    "${cmc_ios_release_executable}" || \
+    cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_NOT_ARTIFACT_BOUND'
   [[ "${IOS_TESTFLIGHT_UPLOAD_AUTHORIZED:-}" == true ]] || \
     cmc_ios_release_fail 'TESTFLIGHT_AUTHORIZATION_MISSING'
   [[ "${IOS_EXPECTED_TEAM_ID:-}" =~ ^[A-Z0-9]{10}$ ]] || \
@@ -379,22 +477,10 @@ if [[ "${cmc_ios_release_require_upload}" == true ]]; then
     "$(tr '[:upper:]' '[:lower:]' \
       <<<"${IOS_EXPECTED_SIGNING_CERT_SHA256}")" ]] || \
     cmc_ios_release_fail 'SIGNING_FINGERPRINT_MISMATCH'
-  cmc_ios_release_profile="${cmc_ios_release_tmp_root}/profile.plist"
-  security cms -D -i "${cmc_ios_release_app}/embedded.mobileprovision" \
-    >"${cmc_ios_release_profile}" 2>/dev/null || \
-    cmc_ios_release_fail 'PROVISIONING_PROFILE_UNREADABLE'
-  plutil -lint "${cmc_ios_release_profile}" >/dev/null || \
-    cmc_ios_release_fail 'PROVISIONING_PROFILE_INVALID'
   [[ "$(/usr/libexec/PlistBuddy -c 'Print :TeamIdentifier:0' \
     "${cmc_ios_release_profile}" 2>/dev/null || true)" == \
     "${IOS_EXPECTED_TEAM_ID}" ]] || \
     cmc_ios_release_fail 'PROVISIONING_TEAM_MISMATCH'
-  if /usr/libexec/PlistBuddy -c 'Print :ProvisionedDevices' \
-    "${cmc_ios_release_profile}" >/dev/null 2>&1 || \
-    /usr/libexec/PlistBuddy -c 'Print :ProvisionsAllDevices' \
-      "${cmc_ios_release_profile}" >/dev/null 2>&1; then
-    cmc_ios_release_fail 'APP_STORE_PROVISIONING_PROFILE_REQUIRED'
-  fi
   [[ "$(/usr/libexec/PlistBuddy -c \
     'Print :Entitlements:application-identifier' \
     "${cmc_ios_release_profile}" 2>/dev/null || true)" == \
@@ -419,6 +505,16 @@ if [[ "${cmc_ios_release_require_upload}" == true ]]; then
     "${cmc_ios_release_entitlements}" 2>/dev/null || true)" == \
     "${IOS_EXPECTED_TEAM_ID}" ]] || \
     cmc_ios_release_fail 'SIGNED_TEAM_IDENTIFIER_MISMATCH'
+  cmc_ios_release_keychain_groups="$(
+    plutil -extract keychain-access-groups json -o - \
+      "${cmc_ios_release_entitlements}" 2>/dev/null | tr -d '[:space:]'
+  )" || cmc_ios_release_fail 'SIGNED_KEYCHAIN_GROUP_MISSING'
+  if [[ "${cmc_ios_release_keychain_groups}" != \
+      "[\"${IOS_EXPECTED_TEAM_ID}.*\"]" && \
+    "${cmc_ios_release_keychain_groups}" != \
+      "[\"${IOS_EXPECTED_TEAM_ID}.com.xniw.clientmerchandisecontrol\"]" ]]; then
+    cmc_ios_release_fail 'SIGNED_KEYCHAIN_GROUP_MISMATCH'
+  fi
   [[ "${APP_STORE_CONNECT_KEY_ID:-}" =~ ^[A-Z0-9]{10}$ ]] || \
     cmc_ios_release_fail 'APP_STORE_CONNECT_KEY_ID_MISSING'
   [[ "${APP_STORE_CONNECT_ISSUER_ID:-}" =~ \

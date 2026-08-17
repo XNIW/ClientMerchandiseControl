@@ -16,6 +16,7 @@ class AppConfig {
     required this.authRedirectUri,
     required this.googleAuthEnabled,
     required this.storefrontShopSlug,
+    required this.releaseConfigSha256,
   });
 
   /// Configurazione esclusiva degli harness che verificano il lifecycle OAuth
@@ -41,6 +42,7 @@ class AppConfig {
       authRedirectUri: safeBase.authRedirectUri,
       googleAuthEnabled: true,
       storefrontShopSlug: safeBase.storefrontShopSlug,
+      releaseConfigSha256: safeBase.releaseConfigSha256,
     );
   }
 
@@ -51,6 +53,7 @@ class AppConfig {
     String authRedirectUri = '',
     String googleAuthEnabled = '',
     String storefrontShopSlug = '',
+    String releaseConfigSha256 = '',
   }) {
     final environment = AppEnvironment.parse(appEnvironment);
     final normalizedUrl = _normalize(supabaseUrl);
@@ -58,6 +61,7 @@ class AppConfig {
     final rawRedirectUri = authRedirectUri.isEmpty ? null : authRedirectUri;
     final normalizedGoogleAuthEnabled = _normalize(googleAuthEnabled);
     final normalizedStorefrontShopSlug = _normalize(storefrontShopSlug);
+    final normalizedReleaseConfigSha256 = _normalize(releaseConfigSha256);
 
     if ((normalizedUrl == null) != (normalizedKey == null)) {
       throw const AppConfigurationException(
@@ -92,7 +96,8 @@ class AppConfig {
             normalizedKey != null ||
             canonicalRedirectUri != null ||
             googleAuth ||
-            canonicalStorefrontShopSlug != null) {
+            canonicalStorefrontShopSlug != null ||
+            normalizedReleaseConfigSha256 != null) {
           throw const AppConfigurationException(
             'La configurazione development non accetta backend, callback, OAuth o Storefront reale.',
           );
@@ -112,6 +117,11 @@ class AppConfig {
             'Google OAuth resta disabilitato finché non è configurato un dominio HTTPS posseduto e verificato.',
           );
         }
+        if (normalizedReleaseConfigSha256 != null) {
+          throw const AppConfigurationException(
+            'RELEASE_CONFIG_SHA256 è ammesso soltanto in production.',
+          );
+        }
         break;
       case AppEnvironment.production:
         if (canonicalUrl == null ||
@@ -127,6 +137,14 @@ class AppConfig {
             'Google OAuth production non è abilitabile in questo milestone.',
           );
         }
+        if (normalizedReleaseConfigSha256 == null ||
+            !RegExp(
+              r'^[0-9a-f]{64}$',
+            ).hasMatch(normalizedReleaseConfigSha256)) {
+          throw const AppConfigurationException(
+            'RELEASE_CONFIG_SHA256 deve attestare la configurazione production compilata.',
+          );
+        }
         break;
     }
 
@@ -137,6 +155,7 @@ class AppConfig {
       authRedirectUri: canonicalRedirectUri,
       googleAuthEnabled: googleAuth,
       storefrontShopSlug: canonicalStorefrontShopSlug,
+      releaseConfigSha256: normalizedReleaseConfigSha256,
     );
   }
 
@@ -153,6 +172,9 @@ class AppConfig {
       authRedirectUri: const String.fromEnvironment('AUTH_REDIRECT_URI'),
       googleAuthEnabled: const String.fromEnvironment('GOOGLE_AUTH_ENABLED'),
       storefrontShopSlug: const String.fromEnvironment('STOREFRONT_SHOP_SLUG'),
+      releaseConfigSha256: const String.fromEnvironment(
+        'RELEASE_CONFIG_SHA256',
+      ),
     );
   }
 
@@ -162,6 +184,7 @@ class AppConfig {
   final String? authRedirectUri;
   final bool googleAuthEnabled;
   final String? storefrontShopSlug;
+  final String? releaseConfigSha256;
 
   bool get isBackendConfigured =>
       supabaseUrl != null && supabasePublishableKey != null;
@@ -176,6 +199,7 @@ class AppConfig {
     'authRedirectConfigured': isAuthRedirectConfigured,
     'googleAuthEnabled': googleAuthEnabled,
     'storefrontConfigured': isStorefrontConfigured,
+    'releaseConfigurationAttested': releaseConfigSha256 != null,
   });
 
   @override

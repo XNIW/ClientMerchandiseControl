@@ -69,3 +69,12 @@ ownership del dominio. La riattivazione OAuth richiede una nuova decisione espli
 App Links/Universal Links verificati su Android/iOS e allow-list remota esatta. Lo
 scheme privato iOS resta ammesso soltanto per i link pubblici bounded di prodotto e
 categoria; route customer-sensitive come ordine e notifica falliscono chiuso.
+
+## Addendum release TASK-040 — 2026-08-17
+
+Il contratto passa a
+[`CMC-CLIENT-CONFIG 1.3.0`](../ARCHITECTURE/ENVIRONMENT-STRATEGY.md) aggiungendo
+`RELEASE_CONFIG_SHA256`, obbligatorio soltanto in production. È il digest non secret
+del file esterno completo fornito allo stesso build; l'app lo valida e il gate iOS
+richiede il digest nel Mach-O prima di dichiarare upload-ready. Il template versionato
+resta intenzionalmente incompleto e non può produrre una app production avviabile.

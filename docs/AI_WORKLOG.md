@@ -3250,7 +3250,18 @@
   architecture 7/7 e build debug Android/iOS `PASS`.
 - **Device**: Simulator debug integration 1/1 `PASS`; debug production-like
   install/launch `PASS` fail-closed; Release Simulator non supportato da Flutter;
-  physical iOS `PHYSICAL_VALIDATION_PENDING_DEVICE`.
+  Release Simulator `NOT_RUN`; physical iOS `BLOCKED` perché nessun device è
+  collegato e autorizzato.
 - **Transizione**: `ACTIVE / EXECUTION -> REVIEW`, handoff
   `CODEX_EXECUTION_COMPLETE_TO_REVIEW`; push/Universal Links/Maps/TestFlight e
   production invariati.
+
+## 2026-08-17 — TASK-040 review indipendente
+
+- **Revision set**: `f30b13e9..c8893dc`, worktree pulito e review read-only.
+- **Esito prodotto**: `CHANGES_REQUIRED`, 3 P2 su profilo/scanner, binding bundle e
+  attestazione runtime; gate autonomi release/analyze/governance verdi.
+- **Esito security**: `CHANGES_REQUIRED`, 4 P2 e 2 P3; report sealed SHA-256
+  `21115fc2692b7361a29123422edee14fc4bd752d1429a94e1c641b50ee352f32`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; nessun upload o sistema esterno mutato.

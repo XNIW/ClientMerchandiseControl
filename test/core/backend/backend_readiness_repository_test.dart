@@ -57,6 +57,8 @@ void main() {
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
         storefrontShopSlug: 'storefront-test',
+        releaseConfigSha256:
+            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       ),
       healthService: health,
     );

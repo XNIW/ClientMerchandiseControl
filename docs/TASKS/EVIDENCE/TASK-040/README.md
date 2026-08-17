@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -34,7 +34,9 @@ Snapshot di handoff:
 | T-03 | PASS | plist/privacy/entitlement/framework/dSYM artifact validator |
 | T-04 | PASS | scanner 676/207 e fixture 52/52 + 6/6 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
-| T-06 | PASS | Simulator debug integration 1/1; physical pending; Release Simulator non supportato |
+| T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
+| T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
+| T-06c | BLOCKED | physical iOS assente; prerequisite: device collegato e autorizzato |
 | T-07 | NOT_RUN | review, PR/main CI e hygiene non iniziate |
 
 ## Activation boundary
@@ -43,7 +45,7 @@ Snapshot di handoff:
 - provisioning: zero file; App Store Connect API key: zero; env rilevanti: zero;
 - App Store Connect access/upload: `NOT_RUN`, prerequisite reali assenti;
 - production App Store: vietata;
-- physical iOS: `PHYSICAL_VALIDATION_PENDING_DEVICE`, separato dal Simulator.
+- physical iOS: `BLOCKED`, zero device collegati; separato dal Simulator.
 
 ## Artifact evidence
 

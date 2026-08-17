@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: review indipendente TASK-040 su release
-  app/archive, signing/TestFlight gate, security diff e CI macOS; upload resta
-  `NOT_RUN` perché Distribution/profile/App Store Connect key sono assenti
+- **Prossima azione autorizzata**: correggere i finding TASK-040 su binding
+  app/archive, signing/entitlement, profilo scoped, runtime attestation, scanner e
+  gate CI/governance; upload resta `NOT_RUN` perché le credenziali sono assenti
 
 ## Repository coinvolti
 

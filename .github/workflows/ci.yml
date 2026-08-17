@@ -37,7 +37,9 @@ jobs:
           bash scripts/check-client-security.sh
           bash scripts/test-client-security-scan.sh
       - name: Validate governance state
-        run: bash scripts/check-governance-state.sh
+        run: |
+          bash scripts/check-governance-state.sh
+          bash scripts/test-governance-release-train.sh
       - name: Validate architecture boundaries
         run: |
           bash scripts/check-architecture-boundaries.sh
@@ -200,4 +202,8 @@ jobs:
         run: >-
           bash scripts/check-ios-release.sh
           --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
+          --archive build/ios/archive/Runner.xcarchive
+      - name: Validate iOS adversarial release boundaries
+        run: >-
+          bash scripts/test-ios-release-validator.sh
           --archive build/ios/archive/Runner.xcarchive

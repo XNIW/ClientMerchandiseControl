@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -136,9 +136,9 @@ Connect credential e autorizzazione di upload risultano realmente presenti.
 - CI aggiunge un job macOS release no-codesign+archive+validator; runbook TestFlight
   documenta export/upload senza eseguirli;
 - Simulator: smoke integration debug 1/1 `PASS`; debug production-like install/launch
-  `PASS` e resta fail-closed alla launch screen; Release Simulator `NOT_APPLICABLE`
-  perché Flutter lo rifiuta esplicitamente; physical iOS
-  `PHYSICAL_VALIDATION_PENDING_DEVICE` (zero device fisici collegati).
+  `PASS` e resta fail-closed alla launch screen; Release Simulator `NOT_RUN`
+  perché Flutter lo rifiuta esplicitamente; physical iOS `BLOCKED` con prerequisite
+  device collegato e autorizzato (zero device fisici collegati).
 
 Gate executor:
 
@@ -153,7 +153,19 @@ Gate executor:
 
 ## Review
 
-In attesa di reviewer read-only distinto sul revision set TASK-040.
+`CHANGES_REQUIRED` sul revision set `f30b13e..c8893dc`: 0 P0, 0 P1, finding
+riproducibili su binding app/archive, firma invalida riclassificata unsigned,
+entitlement Xcode 26, profilo embedded incompatibile con lo scanner, runtime config
+non attestata, UTF-16/path traversal/privacy manifest decoy, test CI strutturalmente
+deboli ed evidence device non canonica. Security report sealed:
+`21115fc2692b7361a29123422edee14fc4bd752d1429a94e1c641b50ee352f32`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Fix
+
+In corso: regressioni per ogni finding, nessuna firma/upload o configurazione
+production reale.
 
 ## Chiusura
 

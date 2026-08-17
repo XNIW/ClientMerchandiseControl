@@ -563,6 +563,33 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_maps_overlap}" \
   --artifact "${cmc_fixture_maps_overlap}/artifact"
 
+cmc_fixture_utf16_le="$(cmc_fixture_prepare bundle-secret-utf16le)"
+mkdir -p "${cmc_fixture_utf16_le}/artifact"
+perl -MEncode -e 'print encode("UTF-16LE", $ARGV[0])' \
+  "${cmc_fixture_google_value}" \
+  >"${cmc_fixture_utf16_le}/artifact/Info.plist"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_utf16_le}" \
+  --artifact "${cmc_fixture_utf16_le}/artifact"
+
+cmc_fixture_utf16_be="$(cmc_fixture_prepare bundle-secret-utf16be)"
+mkdir -p "${cmc_fixture_utf16_be}/artifact"
+perl -MEncode -e 'print encode("UTF-16BE", $ARGV[0])' \
+  "${cmc_fixture_google_value}" \
+  >"${cmc_fixture_utf16_be}/artifact/constants.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_utf16_be}" \
+  --artifact "${cmc_fixture_utf16_be}/artifact"
+
+cmc_fixture_oversized_file="$(cmc_fixture_prepare bundle-file-size-bound)"
+mkdir -p "${cmc_fixture_oversized_file}/artifact"
+dd if=/dev/zero \
+  of="${cmc_fixture_oversized_file}/artifact/oversized.bin" \
+  bs=1 count=0 seek=134217729 2>/dev/null
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_oversized_file}" \
+  --artifact "${cmc_fixture_oversized_file}/artifact"
+
 cmc_fixture_pem_bundle="$(cmc_fixture_prepare bundle-private-key)"
 mkdir -p "${cmc_fixture_pem_bundle}/artifact"
 printf '%s\n' \
@@ -786,6 +813,28 @@ printf '%s\0%s\0%s\0%s\0%s\0%s\n' \
 cmc_fixture_expect_acceptance \
   "${cmc_fixture_maps_sdk_linker}" \
   --artifact "${cmc_fixture_maps_sdk_linker}/artifact"
+
+cmc_fixture_ios_profile="$(cmc_fixture_prepare ios-embedded-profile-scoped)"
+mkdir -p "${cmc_fixture_ios_profile}/artifact/Runner.app"
+printf 'synthetic profile content without credentials\n' \
+  >"${cmc_fixture_ios_profile}/artifact/Runner.app/embedded.mobileprovision"
+cmc_fixture_expect_acceptance \
+  "${cmc_fixture_ios_profile}" \
+  --allow-ios-embedded-profile \
+  --artifact "${cmc_fixture_ios_profile}/artifact/Runner.app"
+
+cmc_fixture_ios_profile_nested="$(
+  cmc_fixture_prepare ios-embedded-profile-nested
+)"
+mkdir -p "${cmc_fixture_ios_profile_nested}/artifact/Runner.app/Nested"
+printf 'synthetic profile content without credentials\n' \
+  >"${cmc_fixture_ios_profile_nested}/artifact/Runner.app/embedded.mobileprovision"
+printf 'synthetic nested profile content without credentials\n' \
+  >"${cmc_fixture_ios_profile_nested}/artifact/Runner.app/Nested/embedded.mobileprovision"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_ios_profile_nested}" \
+  --allow-ios-embedded-profile \
+  --artifact "${cmc_fixture_ios_profile_nested}/artifact/Runner.app"
 
 cmc_fixture_kernel_fences="$(cmc_fixture_prepare kernel-key-parser-constants)"
 mkdir -p "${cmc_fixture_kernel_fences}/artifact"

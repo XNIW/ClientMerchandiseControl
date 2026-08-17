@@ -283,12 +283,21 @@ cmc_expect_pass() {
 cmc_expect_fail() {
   local cmc_name="$1"
   local cmc_target="$2"
+  local cmc_expected="$3"
+  local cmc_log="${cmc_target}/governance-negative.log"
 
   if CMC_GOVERNANCE_REPO_ROOT="${cmc_target}" \
-    bash "${cmc_test_repo_root}/scripts/check-governance-state.sh" >/dev/null 2>&1; then
+    bash "${cmc_test_repo_root}/scripts/check-governance-state.sh" \
+      >"${cmc_log}" 2>&1; then
     printf 'Fixture %s doveva fallire.\n' "${cmc_name}" >&2
     exit 1
   fi
+  if ! grep -Fq -- "${cmc_expected}" "${cmc_log}"; then
+    printf 'Fixture %s fallita per una ragione diversa da quella attesa.\n' \
+      "${cmc_name}" >&2
+    exit 1
+  fi
+  rm "${cmc_log}"
 }
 
 cmc_case="$(cmc_fixture valid)"
@@ -299,21 +308,24 @@ sed -i.bak \
   's/| TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW |/| TASK-031 | Notifiche push e order status events | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
-cmc_expect_fail duplicate-active "${cmc_case}"
+cmc_expect_fail duplicate-active "${cmc_case}" \
+  'Un task corrente ACTIVE richiede esattamente una riga ACTIVE'
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
   's/- \*\*Task attivo\*\*: TASK-040/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
-cmc_expect_fail wrong-active "${cmc_case}"
+cmc_expect_fail wrong-active "${cmc_case}" \
+  'Task ACTIVE in roadmap incoerente'
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
   's/| TASK-045 | Client live map, integrated acceptance and closeout | DONE |/| TASK-045 | Client live map, integrated acceptance and closeout | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
-cmc_expect_fail premature-done "${cmc_case}"
+cmc_expect_fail premature-done "${cmc_case}" \
+  'Un task corrente ACTIVE richiede esattamente una riga ACTIVE'
 
 cmc_case="$(cmc_fixture invalid-train-state)"
 sed -i.bak 's/- \*\*Release train\*\*: CLIENT_FINAL_PRODUCT_COMPLETION/- **Release train**: STOREFRONT_V1/' \
@@ -322,7 +334,8 @@ rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 sed -i.bak 's/- \*\*Stato release train\*\*: EXECUTION/- **Stato release train**: UNKNOWN/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
-cmc_expect_fail invalid-train-state "${cmc_case}"
+cmc_expect_fail invalid-train-state "${cmc_case}" \
+  'Stato release train non valido'
 
 cmc_case="$(cmc_fixture active-during-review)"
 sed -i.bak \
@@ -337,14 +350,16 @@ sed -i.bak \
   's/| TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW |/| TASK-031 | Notifiche push e order status events | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
-cmc_expect_fail active-during-review "${cmc_case}"
+cmc_expect_fail active-during-review "${cmc_case}" \
+  'Durante INTEGRATED_REVIEW nessun task può restare ACTIVE'
 
 cmc_case="$(cmc_fixture active-header-without-active-row)"
 sed -i.bak \
   's/| TASK-040 | iOS TestFlight release | ACTIVE |/| TASK-040 | iOS TestFlight release | TODO |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
-cmc_expect_fail active-header-without-active-row "${cmc_case}"
+cmc_expect_fail active-header-without-active-row "${cmc_case}" \
+  'Un task corrente ACTIVE richiede esattamente una riga ACTIVE'
 
 cmc_case="$(cmc_fixture validated-pending)"
 cmc_expect_pass validated-pending "${cmc_case}"
@@ -357,6 +372,7 @@ rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 mv \
   "${cmc_case}/docs/TASKS/TASK-005-storefront-schema-rls-migration-ownership.md" \
   "${cmc_case}/TASK-005-missing.md"
-cmc_expect_fail validated-file-missing "${cmc_case}"
+cmc_expect_fail validated-file-missing "${cmc_case}" \
+  'TASK-005 validato richiede esattamente un file task'
 
 printf 'Governance release train: 9/9 fixture PASS.\n'

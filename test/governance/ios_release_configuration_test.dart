@@ -76,7 +76,10 @@ void main() {
     expect(validator, contains('APP_PRIVACY_MANIFEST_MISMATCH'));
     expect(validator, contains('DEPENDENCY_PRIVACY_MANIFEST_MISSING'));
     expect(validator, contains('ARCHIVE_DSYM_UUID_MISMATCH'));
-    expect(validator, contains('APP_ARCHIVE_EXECUTABLE_MISMATCH'));
+    expect(validator, contains('APP_ARCHIVE_BUNDLE_MISMATCH'));
+    expect(validator, contains('APP_EXECUTABLE_NAME_INVALID'));
+    expect(validator, contains('ARTIFACT_SIGNATURE_INVALID'));
+    expect(validator, contains('SIGNED_ENTITLEMENT_SET_INVALID'));
     expect(validator, contains('MAPS_ARTIFACT_NOT_FAIL_CLOSED'));
     expect(validator, contains('check-client-security.sh'));
     expect(validator, isNot(contains('/Users/')));
@@ -97,6 +100,8 @@ void main() {
       'SIGNED_APPLICATION_IDENTIFIER_MISMATCH',
       'DEVELOPMENT_PROVISIONING_PROFILE_REJECTED',
       'APP_STORE_CONNECT_API_KEY_INVALID',
+      'TESTFLIGHT_RUNTIME_CONFIG_MISSING',
+      'TESTFLIGHT_RUNTIME_CONFIG_NOT_ARTIFACT_BOUND',
       'IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED',
     ]) {
       expect(validator, contains(boundary), reason: boundary);
@@ -108,10 +113,47 @@ void main() {
       '$repositoryRoot/.github/workflows/ci.yml',
     ).readAsStringSync();
 
-    expect(workflow, contains('iOS release candidate'));
-    expect(workflow, contains('flutter build ios --release --no-codesign'));
-    expect(workflow, contains('xcodebuild archive'));
-    expect(workflow, contains('check-ios-release.sh'));
-    expect(workflow, contains('CODE_SIGNING_ALLOWED=NO'));
+    final job = _yamlJobBlock(workflow, 'ios-release');
+    expect(job, contains('name: iOS release candidate'));
+    expect(job, contains('runs-on: macos-latest'));
+    expect(job, contains('flutter build ios --release --no-codesign'));
+    expect(job, contains('xcodebuild archive'));
+    expect(job, contains('check-ios-release.sh'));
+    expect(job, contains('CODE_SIGNING_ALLOWED=NO'));
   });
+
+  test(
+    'CI release evidence cannot be satisfied by comments outside the job',
+    () {
+      const workflow = '''
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+# ios-release:
+# iOS release candidate
+# flutter build ios --release --no-codesign
+# xcodebuild archive
+# check-ios-release.sh
+# CODE_SIGNING_ALLOWED=NO
+''';
+
+      expect(_yamlJobBlock(workflow, 'ios-release'), isEmpty);
+    },
+  );
+}
+
+String _yamlJobBlock(String workflow, String jobName) {
+  final lines = const LineSplitter().convert(workflow);
+  final start = lines.indexWhere((line) => line == '  $jobName:');
+  if (start < 0) {
+    return '';
+  }
+  final end = lines.indexWhere(
+    (line) => RegExp(r'^  [a-zA-Z0-9_-]+:$').hasMatch(line),
+    start + 1,
+  );
+  return lines
+      .sublist(start, end < 0 ? lines.length : end)
+      .where((line) => !line.trimLeft().startsWith('#'))
+      .join('\n');
 }

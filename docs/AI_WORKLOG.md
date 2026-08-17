@@ -3661,3 +3661,18 @@
 - **Boundary**: closure Fix 11 confermata; TestFlight, signing, credenziali e
   production invariati.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 13 e handoff
+
+- **Technical SHA**: `906fecf10995f2ee1bf673a3b090ac5458530c99`.
+- **Fix**: sezioni/tabelle canoniche per Master, manifest ed evidence; raw HTML
+  fail-closed; label `technical/review` correlate alla fase.
+- **Lineage**: delta post-SHA REVIEW limitato ai sei documenti di handoff;
+  `test_driver`, `assets` e configurazioni root sono negati dalla path policy.
+- **Regressioni**: governance 60/60, security 61/61 negative + 7/7 positive.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security source
+  682, architecture 17/17, format 301/0, analyze e build debug Android/iOS
+  `PASS`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
+- **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -675,6 +675,26 @@ report prodotto sealed SHA-256
 - TestFlight, signing, credenziali e production invariati.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 13
+
+- exact technical SHA: `906fecf10995f2ee1bf673a3b090ac5458530c99`;
+- `F-040-RR12-GOV-MARKDOWN-01` chiuso: backlog Master, revision manifest e
+  matrice T sono validati soltanto dentro sezione, header, delimiter e tabella
+  canonici; raw HTML e relocation falliscono chiusi;
+- `F-040-RR12-GOV-ROLE-01` chiuso: fase, heading, ruolo SHA task/manifest e
+  label/suffix worklog sono correlati esattamente;
+- `F-040-RR12-GOV-SHA-02` chiuso: il delta post-SHA in REVIEW usa una allowlist
+  documentale chiusa; qualunque path tecnico, inclusi `test_driver`, `assets`
+  e configurazioni root, invalida l'handoff;
+- fixture governance 60/60 sui PoC Fix 12 e sibling; security source 682,
+  fixture 61/61 negative + 7/7 positive;
+- `scripts/check.sh` exact-SHA exit 0: 801/801, performance 10/10, repeat
+  70/70, architecture 17/17, format 301/0, analyze e build debug Android/iOS
+  `PASS`;
+- nessun delta runtime/archive/signing; TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

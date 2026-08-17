@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 12 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 13 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,14 +64,14 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 12
+## Gate executor corrente — Fix 13
 
 - `scripts/check.sh`: exit 0;
 - non-performance 801/801; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
-- governance 44/44; architecture negative 17/17; localization/telemetry/action pin PASS;
-- security source 681; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 29/29, config/governance mirati 44/44;
+- governance 60/60; architecture negative 17/17; localization/telemetry/action pin PASS;
+- security source 682; artifact 207; fixture negative 61/61, positive 7/7;
+- validator iOS avversariale 29/29 già invariato; governance mirata 60/60;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
@@ -506,3 +506,22 @@ Snapshot di handoff:
 - report security sealed SHA-256
   `79fbaa3cd39b8ffc0e1ec47f1b67fd8354f1c5f9155716f4fc5028eee4a6a95d`;
 - TestFlight, signing, credenziali e production invariati.
+
+## Gate Fix 13
+
+- exact technical SHA `906fecf10995f2ee1bf673a3b090ac5458530c99`;
+- `F-040-RR12-GOV-MARKDOWN-01` chiuso: Master, manifest ed evidence estraggono
+  soltanto righe da sezione, header, delimiter e tabella canonici; HTML raw,
+  relocation standalone e relocation in altra tabella falliscono chiusi;
+- `F-040-RR12-GOV-ROLE-01` chiuso: REVIEW richiede task/manifest `technical`,
+  worklog `Technical SHA` e heading `e handoff`; FIX richiede gli equivalenti
+  `review`, `Exact HEAD` e `re-review`;
+- `F-040-RR12-GOV-SHA-02` chiuso: dopo lo SHA tecnico REVIEW ammette soltanto
+  i sei documenti di handoff; `test_driver`, `assets` e config root sono
+  esplicitamente respinti;
+- fixture governance 60/60 includono i PoC originali e le nuove regressioni di
+  ownership tabellare, HTML, ruolo e path policy;
+- `scripts/check.sh` exact-SHA exit 0: 801/801, performance 10/10, repeat 70/70,
+  security source 682 + 61/61 + 7/7, architecture 17/17, format 301/0,
+  analyze e build debug Android/iOS `PASS`;
+- nessun delta runtime/archive/signing; TestFlight e production invariati.

@@ -182,7 +182,12 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         cmc_fix_section_count="$(
           grep -Ec '^## Fix$' <<<"${cmc_task_semantic}" || true
         )"
+        cmc_fix_section=''
         cmc_fix_heading_count=0
+        cmc_global_fix_heading_count="$(
+          grep -Ec '^### (Re-review )?Fix [0-9]+$' \
+            <<<"${cmc_task_semantic}" || true
+        )"
         cmc_expected_fix_number=1
         cmc_expected_fix_kind='Re-review'
         cmc_last_fix_heading=''
@@ -191,6 +196,13 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
             "${cmc_fix_section_count}" >&2
           cmc_violation_count=$((cmc_violation_count + 1))
         else
+          cmc_fix_section="$(
+            awk '
+              /^## Fix$/ { capture=1; next }
+              capture && /^## Chiusura$/ { exit }
+              capture { print }
+            ' <<<"${cmc_task_semantic}"
+          )"
           while IFS= read -r cmc_fix_heading; do
             [[ -z "${cmc_fix_heading}" ]] && continue
             cmc_fix_heading_count=$((cmc_fix_heading_count + 1))
@@ -209,12 +221,15 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
               cmc_violation_count=$((cmc_violation_count + 1))
             fi
           done < <(
-            awk '
-              /^## Fix$/ { capture=1; next }
-              capture && /^## Chiusura$/ { exit }
-              capture && /^### (Re-review )?Fix [0-9]+$/ { print }
-            ' <<<"${cmc_task_semantic}"
+            grep -E '^### (Re-review )?Fix [0-9]+$' \
+              <<<"${cmc_fix_section}" || true
           )
+        fi
+        if [[ "${cmc_global_fix_heading_count}" -ne \
+          "${cmc_fix_heading_count}" ]]; then
+          printf 'Task chronology contiene cicli Fix fuori dalla sezione canonica: globali=%s, canonici=%s.\n' \
+            "${cmc_global_fix_heading_count}" "${cmc_fix_heading_count}" >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
         fi
         if [[ "${cmc_fix_heading_count}" -eq 0 ]]; then
           printf 'Task chronology priva di cicli Fix strutturati per %s.\n' \
@@ -234,7 +249,7 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
 
         cmc_last_fix_line="$(
           grep -nE '^### (Re-review )?Fix [0-9]+$' \
-            <<<"${cmc_task_semantic}" | tail -n 1 | cut -d: -f1 || true
+            <<<"${cmc_fix_section}" | tail -n 1 | cut -d: -f1 || true
         )"
         if [[ ! "${cmc_last_fix_line}" =~ ^[0-9]+$ ]]; then
           printf 'Tail task Fix corrente assente per %s.\n' \
@@ -246,7 +261,7 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
               NR < start { next }
               NR > start && /^#{2,3} / { exit }
               { print }
-            ' <<<"${cmc_task_semantic}"
+            ' <<<"${cmc_fix_section}"
           )"
           cmc_last_fix_label="$(
             head -n 1 <<<"${cmc_last_fix_block}" | \
@@ -281,7 +296,9 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
             cmc_violation_count=$((cmc_violation_count + 1))
           fi
           if [[ -z "${cmc_last_fix_revision}" || \
-            "${cmc_manifest_revision}" != "${cmc_last_fix_revision:0:7}"* ]]; then
+            -z "${cmc_manifest_revision}" || \
+            "${cmc_manifest_revision}" != \
+              "${cmc_last_fix_revision:0:${#cmc_manifest_revision}}" ]]; then
             printf 'Release manifest revision incoerente per %s: task=%q, manifest=%q.\n' \
               "${cmc_active_task}" "${cmc_last_fix_revision}" \
               "${cmc_manifest_revision}" >&2
@@ -344,10 +361,24 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         cmc_violation_count=$((cmc_violation_count + 1))
       fi
       cmc_t02_row_count="$(
-        grep -Ec '^\| T-02 \|' "${cmc_evidence_readme}" || true
+        awk -F'|' '
+          {
+            value=$2
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            if (value == "T-02") count++
+          }
+          END { print count + 0 }
+        ' "${cmc_evidence_readme}"
       )"
       cmc_t03_row_count="$(
-        grep -Ec '^\| T-03 \|' "${cmc_evidence_readme}" || true
+        awk -F'|' '
+          {
+            value=$2
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            if (value == "T-03") count++
+          }
+          END { print count + 0 }
+        ' "${cmc_evidence_readme}"
       )"
       cmc_t02_status=''
       cmc_t02_evidence=''

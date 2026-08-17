@@ -442,7 +442,7 @@ printf '%s\n' \
   "- \`${cmc_stale_indicator}\`." \
   >>"${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
 cmc_expect_fail stale-task-tail "${cmc_case}" \
-  'Tail task incoerente con handoff'
+  'Task chronology contiene cicli Fix fuori dalla sezione canonica'
 
 cmc_case="$(cmc_fixture stale-evidence-matrix)"
 perl -0pi.bak -e '
@@ -497,15 +497,15 @@ cmc_expect_fail evidence-t03-fail-status "${cmc_case}" \
   'Matrice T-03 incoerente'
 
 cmc_case="$(cmc_fixture duplicate-evidence-t02-row)"
-grep -E '^\| T-02 \|' \
-  "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md" \
+printf '%s\n' \
+  '|T-02|FAIL|clean release no-codesign e archive Xcode exact SHA `1111111`|' \
   >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
 cmc_expect_fail duplicate-evidence-t02-row "${cmc_case}" \
   'richiede esattamente una riga T-02'
 
 cmc_case="$(cmc_fixture duplicate-evidence-t03-row)"
-grep -E '^\| T-03 \|' \
-  "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md" \
+printf '%s\n' \
+  '   | T-03 | FAIL | plist/privacy + fixture iOS 1/1 |' \
   >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
 cmc_expect_fail duplicate-evidence-t03-row "${cmc_case}" \
   'richiede esattamente una riga T-03'
@@ -536,4 +536,22 @@ rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
 cmc_expect_fail out-of-order-fix-chronology "${cmc_case}" \
   'Task chronology fuori sequenza'
 
-printf 'Governance release train: 24/24 fixture PASS.\n'
+cmc_case="$(cmc_fixture manifest-revision-not-prefix)"
+perl -0pi.bak -e '
+  s/(\| TASK-040 \|[^\n]*\| `)([0-9a-f]{7})(` [^|]*\|)/$1.$2."deadbeef".$3/e
+    or die "TASK-040 manifest revision missing\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail manifest-revision-not-prefix "${cmc_case}" \
+  'Release manifest revision incoerente'
+
+cmc_case="$(cmc_fixture stale-current-task-handoff)"
+perl -0pi.bak -e '
+  s/`CODEX_FIX_COMPLETE_TO_RE_REVIEW`\.\n\n## Chiusura/`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.\n\n## Chiusura/
+    or die "current task handoff missing\n";
+' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
+cmc_expect_fail stale-current-task-handoff "${cmc_case}" \
+  'Tail task incoerente con handoff'
+
+printf 'Governance release train: 26/26 fixture PASS.\n'

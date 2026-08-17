@@ -1,7 +1,7 @@
 # Evidence TASK-037
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance
 
@@ -271,3 +271,9 @@ workflow 1/1 e performance repeat `5 x 10 = 50/50 PASS`. Gate exact-SHA:
 action pin, governance 9/9, format 289/0, analyze, coverage non-performance
 763/763, performance seriale 10/10, diff e worktree clean tutti `PASS`.
 `F-037-R04` è candidato chiuso e viene consegnato alla re-review distinta.
+
+Re-review Fix 2 exact `f473598b21b5a5b2b339b85cb7d14ab4f4ed241b`:
+`APPROVED`, `F-037-R04 CLOSED`, zero P0/P1/P2/P3. Il reviewer ha verificato
+direttamente la run fallita, tutti i 10 tag, il lane seriale, budget invariato,
+repeat 50/50, regressione 1/1, analyze/governance/action pin/format/diff e
+worktree clean. PR e nuova main CI restano il gate successivo.

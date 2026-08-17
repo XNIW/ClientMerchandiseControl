@@ -2871,3 +2871,13 @@
   tutti `PASS`.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`;
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; prossimo ruolo reviewer read-only distinto.
+
+## 2026-08-17 — TASK-037 Re-review Fix 2
+
+- **Exact HEAD**: `f473598b21b5a5b2b339b85cb7d14ab4f4ed241b`.
+- **Esito**: `APPROVED`; `F-037-R04 CLOSED`; zero P0/P1/P2/P3.
+- **Verifica autonoma**: run fallita e root cause, 10/10 tag/lane seriale,
+  repeat 50/50, budget invariato, regressione 1/1, analyze, governance 9/9,
+  action pin, format 289/0, diff e worktree clean tutti `PASS`.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; PR Fix 2 e
+  nuova main CI sono il gate successivo autorizzato.

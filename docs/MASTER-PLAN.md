@@ -9,13 +9,13 @@
 - **File task**: docs/TASKS/TASK-037-performance-images-cache-load.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review read-only distinta di `F-037-R04`,
-  quindi PR/main exact-SHA e closeout TASK-037 se `APPROVED`
+- **Prossima azione autorizzata**: PR Fix 2 exact-SHA, merge normale, nuova main
+  CI verde e closeout TASK-037
 
 ## Repository coinvolti
 

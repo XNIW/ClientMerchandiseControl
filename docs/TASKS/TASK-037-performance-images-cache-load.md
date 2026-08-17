@@ -7,12 +7,12 @@
 - **File task**: `docs/TASKS/TASK-037-performance-images-cache-load.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-037/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -339,6 +339,19 @@ governance che impedisca di riunire nuovamente i due carichi. Il budget resta
 - **Prossima fase**: REVIEW;
 - **Prossimo ruolo**: CODEX_RE_REVIEWER read-only distinto;
 - **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW.
+
+### Re-review Fix 2 sullo SHA `f473598`
+
+`APPROVED`, zero P0/P1/P2/P3. `F-037-R04` è `CLOSED`: run main fallita,
+separazione dei lane, tag dei 10 benchmark e budget invariato sono stati
+verificati direttamente. Repeat autonomo `5 x 10 = 50/50 PASS`; search 25k p95
+nei cinque run 3,987/4,562/5,270/4,662/4,491 ms. Regressione governance 1/1,
+analyze, governance 9/9, action pin, format 289/0, diff e worktree clean sono
+`PASS`. Il delta `e59441b..f473598` è soltanto documentale.
+
+- **Esito**: APPROVED
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Gate successivo**: PR exact-SHA, merge normale e nuova main CI verde
 
 ## Chiusura
 

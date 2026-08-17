@@ -2981,12 +2981,12 @@
 
 - **Exact SHA**: `2f1987ea02fe67b3f537a2de6527c705771516df`;
   worktree pulito, reviewer read-only distinto.
-- **Esito**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 3 P2, 1 P3.
+- **Esito combinato**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 4 P2, 1 P3.
 - **Finding**: firma APK v2-only verificata impropriamente con `jarsigner`;
   upload readiness senza fingerprint approvato né service-account JSON/identity
   verificati; identità e manifest AAB non letti direttamente; resolver SDK con
   path workstation hardcoded.
-- **Security gate**: un ulteriore P2 tecnico dimostra che `.aab` era scansionato
+- **Security gate `F-039-R05`**: un ulteriore P2 tecnico dimostra che `.aab` era scansionato
   come blob compresso invece che come archive; una fixture deflated vietata
   produceva exit 0. L'AAB corrente estratto manualmente è risultato pulito.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
@@ -3009,3 +3009,16 @@
   verdi.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 security re-review
+
+- **Exact SHA**: `7951945ed5bd1c928913785ee6461c614cc8d4d8`; report
+  security finalizzato sul range `2f1987e…7951945` da reviewer read-only.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0, 0 P1, 4 P2 e 1 P3 governance.
+- **Finding**: `F-039-SR01` copertura firma parziale/multi-signer;
+  `F-039-SR02` archive detection dipendente dal suffisso; `F-039-SR03`
+  metadata ZIP non scansionati; `F-039-SR04` permission/exported manifest
+  senza allowlist esatta; `F-039-SR05` conteggio/ID evidence incoerente.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; artifact corrente pulito e unsigned,
+  Play/Internal e production invariati.

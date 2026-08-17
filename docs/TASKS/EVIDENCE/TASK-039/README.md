@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -79,6 +79,7 @@ Snapshot di handoff:
 
 ## Handoff
 
-I finding della review indipendente sono corretti e coperti da regressioni.
-Handoff corrente `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; un re-reviewer read-only
-distinto deve chiudere i finding prima di PR/merge.
+La re-review prodotto ha chiuso i finding iniziali, ma la security re-review
+exact-SHA ha aperto `F-039-SR01`–`F-039-SR05`. Handoff corrente
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; il fix resta limitato a firma AAB,
+archive/metadata scan, allowlist manifest e integrità delle evidence.

@@ -4,6 +4,15 @@ import 'dart:typed_data';
 const _androidNamespace = 'http://schemas.android.com/apk/res/android';
 const _expectedPackage = 'com.xniw.clientmerchandisecontrol';
 const _maximumManifestBytes = 1024 * 1024;
+const _dynamicReceiverPermission =
+    '$_expectedPackage.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION';
+const _expectedUsesPermissions = <String>{
+  'android.permission.INTERNET',
+  'android.permission.ACCESS_NETWORK_STATE',
+  _dynamicReceiverPermission,
+};
+const _profileInstallReceiver =
+    'androidx.profileinstaller.ProfileInstallReceiver';
 
 void main(List<String> arguments) {
   try {
@@ -31,6 +40,34 @@ void main(List<String> arguments) {
     final usesSdk = _singleChild(manifest, 'uses-sdk');
     _requireAttribute(usesSdk, _androidNamespace, 'minSdkVersion', '24');
     _requireAttribute(usesSdk, _androidNamespace, 'targetSdkVersion', '36');
+
+    final usesPermissions = manifest.children
+        .where((element) => element.name == 'uses-permission')
+        .map((element) => element.attribute(_androidNamespace, 'name'))
+        .toList(growable: false);
+    if (usesPermissions.length != _expectedUsesPermissions.length ||
+        usesPermissions.toSet().length != _expectedUsesPermissions.length ||
+        !_expectedUsesPermissions.every(usesPermissions.contains)) {
+      _fail('USES_PERMISSION_ALLOWLIST_INVALID');
+    }
+    final declaredPermissions = manifest.children.where(
+      (element) => element.name == 'permission',
+    );
+    if (declaredPermissions.length != 1) {
+      _fail('DECLARED_PERMISSION_ALLOWLIST_INVALID');
+    }
+    _requireAttribute(
+      declaredPermissions.single,
+      _androidNamespace,
+      'name',
+      _dynamicReceiverPermission,
+    );
+    _requireAttribute(
+      declaredPermissions.single,
+      _androidNamespace,
+      'protectionLevel',
+      'signature',
+    );
 
     final application = _singleChild(manifest, 'application');
     _requireAttribute(application, _androidNamespace, 'allowBackup', 'false');
@@ -81,15 +118,46 @@ void main(List<String> arguments) {
       _fail('DEEPLINK_SCHEME_MISSING');
     }
 
-    final guardedReceivers = application.children.where(
+    const componentNames = <String>{
+      'activity',
+      'activity-alias',
+      'provider',
+      'receiver',
+      'service',
+    };
+    final exportedComponents = <_XmlElement>[];
+    for (final component in application.children.where(
+      (element) => componentNames.contains(element.name),
+    )) {
+      final exported = component.attribute(_androidNamespace, 'exported');
+      if (exported != null && exported != 'true' && exported != 'false') {
+        _fail('EXPORTED_VALUE_INVALID');
+      }
+      if (exported == 'true') {
+        exportedComponents.add(component);
+      }
+    }
+    if (exportedComponents.length != 2) {
+      _fail('EXPORTED_COMPONENT_ALLOWLIST_INVALID');
+    }
+    final approvedMainActivity = exportedComponents.where(
+      (element) =>
+          element.name == 'activity' &&
+          element.attribute(_androidNamespace, 'name') ==
+              '$_expectedPackage.MainActivity' &&
+          element.attribute(_androidNamespace, 'permission') == null,
+    );
+    final approvedProfileReceiver = exportedComponents.where(
       (element) =>
           element.name == 'receiver' &&
-          element.attribute(_androidNamespace, 'exported') == 'true' &&
+          element.attribute(_androidNamespace, 'name') ==
+              _profileInstallReceiver &&
           element.attribute(_androidNamespace, 'permission') ==
               'android.permission.DUMP',
     );
-    if (guardedReceivers.isEmpty) {
-      _fail('EXPORTED_RECEIVER_GUARD_MISSING');
+    if (approvedMainActivity.length != 1 ||
+        approvedProfileReceiver.length != 1) {
+      _fail('EXPORTED_COMPONENT_ALLOWLIST_INVALID');
     }
 
     stdout.writeln('ANDROID_BUNDLE_MANIFEST_VALID');

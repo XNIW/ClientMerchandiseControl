@@ -32,7 +32,7 @@ done
   exit 1
 }
 
-for cmc_signature_command in cp jarsigner keytool unzip; do
+for cmc_signature_command in cp jarsigner keytool unzip zip; do
   command -v "${cmc_signature_command}" >/dev/null 2>&1 || {
     printf 'Android signature fixture: tooling assente.\n' >&2
     exit 1
@@ -166,6 +166,91 @@ if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
 fi
 grep -Fq 'PLAY_SERVICE_ACCOUNT_INVALID' \
   "${cmc_signature_tmp_root}/wrong-account.log"
+
+if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
+  PLAY_SERVICE_ACCOUNT_JSON_PATH="${cmc_signature_credential}" \
+  PLAY_SERVICE_ACCOUNT_EXPECTED_EMAIL="${cmc_signature_email}" \
+  PLAY_SERVICE_ACCOUNT_EXPECTED_PROJECT_ID='other-owned-project' \
+  ANDROID_SIGNING_CERT_SHA256="${cmc_signature_fingerprint}" \
+  bash "${cmc_signature_script_dir}/check-android-release.sh" \
+    --aab "${cmc_signature_candidate_aab}" \
+    --apk "${cmc_signature_candidate_apk}" \
+    --require-upload-ready \
+    >"${cmc_signature_tmp_root}/wrong-project.log" 2>&1; then
+  printf 'Android signature fixture: progetto diverso accettato.\n' >&2
+  exit 1
+fi
+grep -Fq 'PLAY_SERVICE_ACCOUNT_INVALID' \
+  "${cmc_signature_tmp_root}/wrong-project.log"
+
+cmc_signature_renamed_aab="${cmc_signature_tmp_root}/candidate.bundle"
+cp "${cmc_signature_candidate_aab}" "${cmc_signature_renamed_aab}"
+if bash "${cmc_signature_script_dir}/check-android-release.sh" \
+  --aab "${cmc_signature_renamed_aab}" \
+  --apk "${cmc_signature_candidate_apk}" \
+  >"${cmc_signature_tmp_root}/renamed-aab.log" 2>&1; then
+  printf 'Android signature fixture: estensione AAB non canonica accettata.\n' >&2
+  exit 1
+fi
+grep -Fq 'AAB_EXTENSION_INVALID' \
+  "${cmc_signature_tmp_root}/renamed-aab.log"
+
+cmc_signature_partial_aab="${cmc_signature_tmp_root}/partial.aab"
+cmc_signature_unsigned_entry="${cmc_signature_tmp_root}/unsigned-after-signing.txt"
+cp "${cmc_signature_candidate_aab}" "${cmc_signature_partial_aab}"
+printf 'public regression fixture\n' >"${cmc_signature_unsigned_entry}"
+zip -q -j "${cmc_signature_partial_aab}" "${cmc_signature_unsigned_entry}"
+if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
+  PLAY_SERVICE_ACCOUNT_JSON_PATH="${cmc_signature_credential}" \
+  PLAY_SERVICE_ACCOUNT_EXPECTED_EMAIL="${cmc_signature_email}" \
+  PLAY_SERVICE_ACCOUNT_EXPECTED_PROJECT_ID="${cmc_signature_project}" \
+  ANDROID_SIGNING_CERT_SHA256="${cmc_signature_fingerprint}" \
+  bash "${cmc_signature_script_dir}/check-android-release.sh" \
+    --aab "${cmc_signature_partial_aab}" \
+    --apk "${cmc_signature_candidate_apk}" \
+    --require-upload-ready \
+    >"${cmc_signature_tmp_root}/partial-signature.log" 2>&1; then
+  printf 'Android signature fixture: entry AAB non firmata accettata.\n' >&2
+  exit 1
+fi
+grep -Fq 'AAB_SIGNATURE_VERIFICATION_FAILED' \
+  "${cmc_signature_tmp_root}/partial-signature.log"
+
+cmc_signature_second_keystore="${cmc_signature_tmp_root}/fixture-second.p12"
+cmc_signature_multiple_aab="${cmc_signature_tmp_root}/multiple-signers.aab"
+cp "${cmc_signature_candidate_aab}" "${cmc_signature_multiple_aab}"
+keytool -genkeypair -noprompt \
+  -keystore "${cmc_signature_second_keystore}" \
+  -storetype PKCS12 \
+  -storepass fixturepass \
+  -keypass fixturepass \
+  -alias fixturesecond \
+  -keyalg RSA \
+  -keysize 2048 \
+  -validity 2 \
+  -dname 'CN=TASK039 Second Fixture,OU=Release Validation,O=Local Test,L=Santiago,C=CL' \
+  >/dev/null 2>&1
+jarsigner -J-Duser.language=en \
+  -keystore "${cmc_signature_second_keystore}" \
+  -storepass fixturepass \
+  -keypass fixturepass \
+  "${cmc_signature_multiple_aab}" fixturesecond \
+  >/dev/null 2>&1
+if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
+  PLAY_SERVICE_ACCOUNT_JSON_PATH="${cmc_signature_credential}" \
+  PLAY_SERVICE_ACCOUNT_EXPECTED_EMAIL="${cmc_signature_email}" \
+  PLAY_SERVICE_ACCOUNT_EXPECTED_PROJECT_ID="${cmc_signature_project}" \
+  ANDROID_SIGNING_CERT_SHA256="${cmc_signature_fingerprint}" \
+  bash "${cmc_signature_script_dir}/check-android-release.sh" \
+    --aab "${cmc_signature_multiple_aab}" \
+    --apk "${cmc_signature_candidate_apk}" \
+    --require-upload-ready \
+    >"${cmc_signature_tmp_root}/multiple-signers.log" 2>&1; then
+  printf 'Android signature fixture: AAB multi-signer accettato.\n' >&2
+  exit 1
+fi
+grep -Fq 'AAB_SIGNER_SET_INVALID' \
+  "${cmc_signature_tmp_root}/multiple-signers.log"
 
 cmc_signature_validator_output="$(
   PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \

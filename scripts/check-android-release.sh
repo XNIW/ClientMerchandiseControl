@@ -187,6 +187,14 @@ fi
   cmc_android_release_fail 'AAB_AND_APK_REQUIRED'
 [[ -r "${cmc_android_release_aab}" && -r "${cmc_android_release_apk}" ]] || \
   cmc_android_release_fail 'ARTIFACT_NOT_READABLE'
+case "${cmc_android_release_aab}" in
+  *.aab) ;;
+  *) cmc_android_release_fail 'AAB_EXTENSION_INVALID' ;;
+esac
+case "${cmc_android_release_apk}" in
+  *.apk) ;;
+  *) cmc_android_release_fail 'APK_EXTENSION_INVALID' ;;
+esac
 
 for cmc_android_release_command in dart unzip jarsigner keytool shasum; do
   command -v "${cmc_android_release_command}" >/dev/null 2>&1 || \
@@ -379,7 +387,7 @@ grep -Fq 'android:permission="android.permission.DUMP"' \
 cmc_android_release_aab_signature_output=''
 cmc_android_release_aab_signature_status=0
 if cmc_android_release_aab_signature_output="$(
-  jarsigner -J-Duser.language=en -verify -verbose -certs \
+  jarsigner -J-Duser.language=en -strict -verify -verbose -certs \
     "${cmc_android_release_aab}" 2>&1
 )"; then
   :
@@ -388,8 +396,16 @@ else
 fi
 if grep -Fq 'jar is unsigned.' <<<"${cmc_android_release_aab_signature_output}"; then
   cmc_android_release_aab_signature_state=UNSIGNED
-elif [[ "${cmc_android_release_aab_signature_status}" -eq 0 ]] && \
-  grep -Fq 'jar verified.' <<<"${cmc_android_release_aab_signature_output}"; then
+elif { [[ "${cmc_android_release_aab_signature_status}" -eq 0 ]] || \
+  [[ "${cmc_android_release_aab_signature_status}" -eq 4 ]]; } && \
+  grep -Eq 'jar verified(, with signer errors)?\.' \
+    <<<"${cmc_android_release_aab_signature_output}" && \
+  ! grep -Eq \
+    'unsigned entries|certificate has expired|certificate (is not|isn.t) yet valid|algorithm .* disabled|timestamp (has expired|is invalid)' \
+    <<<"${cmc_android_release_aab_signature_output}"; then
+  # `jarsigner -strict` usa il bit 16 per entry non firmate. Il solo codice 4
+  # resta ammesso perché i certificati Android sono normalmente self-signed e
+  # non concatenati a una CA pubblica; ogni altra severe warning fallisce chiusa.
   cmc_android_release_aab_signature_state=SIGNED
 else
   cmc_android_release_fail 'AAB_SIGNATURE_VERIFICATION_FAILED'
@@ -424,14 +440,30 @@ fi
 cmc_android_release_aab_fingerprint=''
 cmc_android_release_apk_fingerprint=''
 if [[ "${cmc_android_release_signature_state}" == SIGNED ]]; then
+  cmc_android_release_aab_signature_entries="$(
+    printf '%s\n' "${cmc_android_release_aab_entries}" | \
+      LC_ALL=C grep -E '^META-INF/[A-Za-z0-9_-]+\.(RSA|DSA|EC)$' || true
+  )"
+  cmc_android_release_aab_signature_entry_count="$(
+    awk 'NF { count += 1 } END { print count + 0 }' \
+      <<<"${cmc_android_release_aab_signature_entries}"
+  )"
+  [[ "${cmc_android_release_aab_signature_entry_count}" -eq 1 ]] || \
+    cmc_android_release_fail 'AAB_SIGNER_SET_INVALID'
+  cmc_android_release_aab_signature_block="${cmc_android_release_tmp_root}/aab-signature-block"
+  if ! unzip -p "${cmc_android_release_aab}" \
+    "${cmc_android_release_aab_signature_entries}" \
+    >"${cmc_android_release_aab_signature_block}"; then
+    cmc_android_release_fail 'AAB_CERTIFICATE_UNREADABLE'
+  fi
   cmc_android_release_aab_certificate="$(
-    keytool -J-Duser.language=en -printcert -jarfile \
-      "${cmc_android_release_aab}" 2>/dev/null
+    keytool -J-Duser.language=en -printcert -file \
+      "${cmc_android_release_aab_signature_block}" 2>/dev/null
   )" || cmc_android_release_fail 'AAB_CERTIFICATE_UNREADABLE'
   cmc_android_release_aab_fingerprint="$(
-    awk -F': ' '/SHA256:/ { print $2; exit }' \
+    awk -F': ' '/SHA256:/ { print $2 }' \
       <<<"${cmc_android_release_aab_certificate}" | \
-      tr -d ':' | tr '[:upper:]' '[:lower:]'
+      tr -d ':' | tr '[:upper:]' '[:lower:]' | LC_ALL=C sort -u
   )"
   cmc_android_release_apk_fingerprint="$(
     awk -F': ' '/Signer #1 certificate SHA-256 digest:/ { print $2 }' \

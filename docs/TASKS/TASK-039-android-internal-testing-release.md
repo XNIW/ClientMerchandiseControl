@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -133,7 +133,7 @@ Gate executor:
 
 - exact SHA `2f1987ea02fe67b3f537a2de6527c705771516df`, reviewer
   read-only distinto, worktree pulito;
-- esito `CHANGES_REQUIRED`: 0 P0, 0 P1, 3 P2, 1 P3;
+- esito combinato `CHANGES_REQUIRED`: 0 P0, 0 P1, 4 P2, 1 P3;
 - `F-039-R01` P2: `jarsigner` applicato all'APK rifiuta un APK valido
   firmato v2-only;
 - `F-039-R02` P2: la readiness accetta un signer non confrontato con un
@@ -142,7 +142,7 @@ Gate executor:
   non direttamente sull'AAB destinato a Play;
 - `F-039-R04` P3: il resolver `apkanalyzer` contiene un path workstation
   hardcoded e non usa i boundary SDK portabili;
-- review security diff-scoped: l'AAB è passato allo scanner artifact ma non
+- `F-039-R05` P2, review security diff-scoped: l'AAB è passato allo scanner artifact ma non
   decompresso, quindi una fixture secret-shaped compressa produce un falso
   negativo; classificato P2 tecnico sul gate release.
 
@@ -172,6 +172,24 @@ validator unsigned reale, fixture v2-only e input Play, `scripts/check.sh`,
 build Android debug e iOS Simulator debug tutti `PASS`.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## Security re-review — `CODEX_RE_REVIEWER`
+
+- exact SHA `7951945ed5bd1c928913785ee6461c614cc8d4d8`, range completo
+  `2f1987e…7951945`, reviewer read-only distinto e report security finalizzato;
+- esito `CHANGES_REQUIRED`: 0 P0, 0 P1, 4 P2 e 1 P3 governance;
+- `F-039-SR01` P2: la verifica non-strict accetta entry AAB post-sign e un
+  archivio multi-signer attribuito al primo fingerprint;
+- `F-039-SR02` P2: il riconoscimento archive dipende dal suffisso e un AAB
+  rinominato `.bundle` con marker DEFLATED supera il gate completo;
+- `F-039-SR03` P2: nomi entry e commento ZIP non partecipano allo scanner
+  secret-shaped;
+- `F-039-SR04` P2: l'allowlist manifest non rifiuta `READ_SMS` o un service
+  aggiuntivo `exported=true` non protetto;
+- `F-039-SR05` P3: review e worklog iniziali contavano tre P2 pur
+  documentandone quattro e il finding scanner non aveva un ID stabile.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

@@ -51,7 +51,9 @@ La readiness di upload richiede inoltre
 `ANDROID_SIGNING_CERT_SHA256`, valorizzato dal release owner con il fingerprint
 SHA-256 pubblico del certificato di upload approvato. Il validator confronta lo
 stesso signer sull'AAB (`jarsigner`/`keytool`) e sull'APK (`apksigner`, incluse
-le firme v2-only); il valore non viene stampato.
+le firme v2-only); per l'AAB usa la verifica strict per-entry, rifiuta entry
+post-sign e richiede un unico signature block/certificato. Il valore non viene
+stampato.
 
 `android/key.properties`, keystore e credenziali sono ignorati da Git. Una
 configurazione parziale o un keystore assente interrompono Gradle prima della
@@ -61,10 +63,14 @@ build. Il release build non usa mai il debug signing.
 
 Il validator controlla R8/obfuscation/optimization, resource shrinking, mapping,
 ABI, package/version, `debuggable=false`, cleartext disabilitato, policy CA di
-sistema, Maps `NOT_CONFIGURED` con flag Dart spenti, deep link canonico, guard sul
-receiver esportato, signature state, SHA-256 e secret scan degli artifact. Legge
+sistema, Maps `NOT_CONFIGURED` con flag Dart spenti, deep link canonico,
+allowlist esatta di permission e componenti esportati, signature state, SHA-256
+e secret scan degli artifact. Legge
 direttamente il manifest protobuf dell'AAB, confronta i `libapp.so` AAB/APK per
-ogni ABI ed estrae sia `.aab` sia `.apk` durante la scansione security.
+ogni ABI e riconosce gli archivi dal contenuto. La scansione security include
+payload, entry duplicate, nomi entry e commento ZIP bounded anche se il file è
+rinominato; il release validator accetta soltanto estensioni canoniche `.aab` e
+`.apk`.
 
 ```sh
 bash scripts/check-android-release.sh --source-only

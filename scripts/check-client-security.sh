@@ -481,26 +481,73 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
     cmc_security_artifact_index=$((cmc_security_artifact_index + 1))
     cmc_security_scan_root="${cmc_security_artifact}"
     cmc_security_archive_payload=''
-    case "${cmc_security_artifact}" in
-      *.aab | *.apk | *.zip)
-        cmc_security_scan_root="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}"
-        cmc_security_archive_payload="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.payload"
-        mkdir -p "${cmc_security_scan_root}"
-        if ! unzip -oq "${cmc_security_artifact}" \
+    cmc_security_archive_metadata=''
+    cmc_security_artifact_is_archive=false
+    if [[ -f "${cmc_security_artifact}" ]]; then
+      if perl -e '
+        use strict;
+        use warnings;
+        my $path = shift;
+        open my $handle, "<", $path or exit 2;
+        binmode $handle;
+        my $read = read $handle, my $magic, 2;
+        close $handle or exit 2;
+        exit 2 if !defined $read;
+        exit($read == 2 && $magic eq "PK" ? 0 : 1);
+      ' "${cmc_security_artifact}"; then
+        cmc_security_artifact_is_archive=true
+      else
+        cmc_security_archive_probe_status="$?"
+        if [[ "${cmc_security_archive_probe_status}" -ne 1 ]]; then
+          printf 'Security scan artifact: tipo non verificabile.\n' >&2
+          exit 1
+        fi
+      fi
+    fi
+    if [[ "${cmc_security_artifact_is_archive}" == true ]]; then
+      cmc_security_scan_root="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}"
+      cmc_security_archive_payload="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.payload"
+      cmc_security_archive_metadata="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.metadata"
+      mkdir -p "${cmc_security_scan_root}"
+      if ! unzip -tqq "${cmc_security_artifact}" || \
+        ! unzip -oq "${cmc_security_artifact}" \
           -d "${cmc_security_scan_root}"; then
+        printf 'Security scan artifact: archivio non leggibile.\n' >&2
+        exit 1
+      fi
+      # Lo stream aggregato conserva anche entry ZIP duplicate che
+      # l'estrazione sovrascrive, evitando che un valore vietato venga
+      # nascosto dietro una seconda entry omonima.
+      if ! unzip -p "${cmc_security_artifact}" \
+        >"${cmc_security_archive_payload}"; then
+        printf 'Security scan artifact: payload archivio non leggibile.\n' >&2
+        exit 1
+      fi
+      # Nomi entry e commento sono distribuiti insieme al payload, quindi
+      # partecipano allo stesso controllo secret-shaped senza essere stampati.
+      if ! {
+        unzip -Z1 "${cmc_security_artifact}"
+        unzip -z "${cmc_security_artifact}"
+      } >"${cmc_security_archive_metadata}"; then
+        printf 'Security scan artifact: metadata archivio non leggibili.\n' >&2
+        exit 1
+      fi
+      cmc_security_archive_metadata_bytes="$(
+        wc -c <"${cmc_security_archive_metadata}" | tr -d '[:space:]'
+      )"
+      if [[ ! "${cmc_security_archive_metadata_bytes}" =~ ^[0-9]+$ || \
+        "${cmc_security_archive_metadata_bytes}" -gt 4194304 ]]; then
+        printf 'Security scan artifact: metadata archivio fuori limite.\n' >&2
+        exit 1
+      fi
+    else
+      case "${cmc_security_artifact}" in
+        *.[aA][aA][bB] | *.[aA][pP][kK] | *.[zZ][iI][pP])
           printf 'Security scan artifact: archivio non leggibile.\n' >&2
           exit 1
-        fi
-        # Lo stream aggregato conserva anche entry ZIP duplicate che
-        # l'estrazione sovrascrive, evitando che un valore vietato venga
-        # nascosto dietro una seconda entry omonima.
-        if ! unzip -p "${cmc_security_artifact}" \
-          >"${cmc_security_archive_payload}"; then
-          printf 'Security scan artifact: payload archivio non leggibile.\n' >&2
-          exit 1
-        fi
-        ;;
-    esac
+          ;;
+      esac
+    fi
 
     if [[ -f "${cmc_security_scan_root}" ]]; then
       cmc_security_artifact_files=("${cmc_security_scan_root}")
@@ -519,6 +566,9 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
       if [[ -n "${cmc_security_archive_payload}" ]]; then
         cmc_security_artifact_files+=("${cmc_security_archive_payload}")
       fi
+      if [[ -n "${cmc_security_archive_metadata}" ]]; then
+        cmc_security_artifact_files+=("${cmc_security_archive_metadata}")
+      fi
     fi
 
     for cmc_security_artifact_file in \
@@ -531,6 +581,9 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
       if [[ -n "${cmc_security_archive_payload}" && \
         "${cmc_security_artifact_file}" == "${cmc_security_archive_payload}" ]]; then
         cmc_security_artifact_relative='__archive_payload__'
+      elif [[ -n "${cmc_security_archive_metadata}" && \
+        "${cmc_security_artifact_file}" == "${cmc_security_archive_metadata}" ]]; then
+        cmc_security_artifact_relative='__archive_metadata__'
       elif [[ -f "${cmc_security_scan_root}" ]]; then
         cmc_security_artifact_relative="${cmc_security_scan_root##*/}"
       else

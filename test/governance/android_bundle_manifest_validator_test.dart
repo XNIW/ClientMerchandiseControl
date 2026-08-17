@@ -40,9 +40,68 @@ void main() {
     expect(result.stderr, contains('ANDROID_BUNDLE_MANIFEST_BLOCKED'));
     expect(result.stderr, isNot(contains(unexpectedPackage)));
   });
+
+  test('rifiuta permission Android fuori allowlist', () {
+    const unexpectedPermission = 'android.permission.READ_SMS';
+    final fixture = _writeManifestFixture(
+      packageName: _packageName,
+      additionalManifestChildren: <List<int>>[
+        _element(
+          'uses-permission',
+          attributes: <List<int>>[
+            _attribute('name', unexpectedPermission, android: true),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => fixture.parent.deleteSync(recursive: true));
+
+    final result = Process.runSync('dart', <String>[
+      '--disable-dart-dev',
+      'tool/check_android_bundle_manifest.dart',
+      '--manifest',
+      fixture.path,
+    ], workingDirectory: repositoryRoot.path);
+
+    expect(result.exitCode, 1);
+    expect(result.stderr, contains('USES_PERMISSION_ALLOWLIST_INVALID'));
+    expect(result.stderr, isNot(contains(unexpectedPermission)));
+  });
+
+  test('rifiuta component Android esportato fuori allowlist', () {
+    const unexpectedComponent = 'com.example.UnsafeService';
+    final fixture = _writeManifestFixture(
+      packageName: _packageName,
+      additionalApplicationChildren: <List<int>>[
+        _element(
+          'service',
+          attributes: <List<int>>[
+            _attribute('name', unexpectedComponent, android: true),
+            _attribute('exported', 'true', android: true),
+          ],
+        ),
+      ],
+    );
+    addTearDown(() => fixture.parent.deleteSync(recursive: true));
+
+    final result = Process.runSync('dart', <String>[
+      '--disable-dart-dev',
+      'tool/check_android_bundle_manifest.dart',
+      '--manifest',
+      fixture.path,
+    ], workingDirectory: repositoryRoot.path);
+
+    expect(result.exitCode, 1);
+    expect(result.stderr, contains('EXPORTED_COMPONENT_ALLOWLIST_INVALID'));
+    expect(result.stderr, isNot(contains(unexpectedComponent)));
+  });
 }
 
-File _writeManifestFixture({required String packageName}) {
+File _writeManifestFixture({
+  required String packageName,
+  List<List<int>> additionalManifestChildren = const <List<int>>[],
+  List<List<int>> additionalApplicationChildren = const <List<int>>[],
+}) {
   final directory = Directory.systemTemp.createTempSync(
     'cmc-android-bundle-manifest.',
   );
@@ -61,6 +120,44 @@ File _writeManifestFixture({required String packageName}) {
           _attribute('targetSdkVersion', '36', android: true),
         ],
       ),
+      _element(
+        'uses-permission',
+        attributes: <List<int>>[
+          _attribute('name', 'android.permission.INTERNET', android: true),
+        ],
+      ),
+      _element(
+        'uses-permission',
+        attributes: <List<int>>[
+          _attribute(
+            'name',
+            'android.permission.ACCESS_NETWORK_STATE',
+            android: true,
+          ),
+        ],
+      ),
+      _element(
+        'permission',
+        attributes: <List<int>>[
+          _attribute(
+            'name',
+            '$_packageName.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION',
+            android: true,
+          ),
+          _attribute('protectionLevel', 'signature', android: true),
+        ],
+      ),
+      _element(
+        'uses-permission',
+        attributes: <List<int>>[
+          _attribute(
+            'name',
+            '$_packageName.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION',
+            android: true,
+          ),
+        ],
+      ),
+      ...additionalManifestChildren,
       _element(
         'application',
         attributes: <List<int>>[
@@ -107,6 +204,11 @@ File _writeManifestFixture({required String packageName}) {
           _element(
             'receiver',
             attributes: <List<int>>[
+              _attribute(
+                'name',
+                'androidx.profileinstaller.ProfileInstallReceiver',
+                android: true,
+              ),
               _attribute('exported', 'true', android: true),
               _attribute(
                 'permission',
@@ -115,6 +217,7 @@ File _writeManifestFixture({required String packageName}) {
               ),
             ],
           ),
+          ...additionalApplicationChildren,
         ],
       ),
     ],

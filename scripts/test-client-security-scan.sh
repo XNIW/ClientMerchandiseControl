@@ -362,6 +362,61 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_aab_secret}" \
   --artifact "${cmc_fixture_aab_secret}/artifact/candidate.aab"
 
+cmc_fixture_aab_renamed="$(cmc_fixture_prepare aab-renamed-deflated-secret)"
+mkdir -p \
+  "${cmc_fixture_aab_renamed}/artifact/input/base/assets/flutter_assets"
+printf '%s\n' \
+  "${cmc_fixture_google_value}" \
+  >"${cmc_fixture_aab_renamed}/artifact/input/base/assets/flutter_assets/config.bin"
+(
+  cd "${cmc_fixture_aab_renamed}/artifact/input"
+  zip -q -9 -r ../candidate.bundle .
+)
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_aab_renamed}" \
+  --artifact "${cmc_fixture_aab_renamed}/artifact/candidate.bundle"
+cp \
+  "${cmc_fixture_aab_renamed}/artifact/candidate.bundle" \
+  "${cmc_fixture_aab_renamed}/artifact/candidate.AAB"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_aab_renamed}" \
+  --artifact "${cmc_fixture_aab_renamed}/artifact/candidate.AAB"
+cp \
+  "${cmc_fixture_aab_renamed}/artifact/candidate.bundle" \
+  "${cmc_fixture_aab_renamed}/artifact/candidate"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_aab_renamed}" \
+  --artifact "${cmc_fixture_aab_renamed}/artifact/candidate"
+
+cmc_fixture_aab_secret_name="$(cmc_fixture_prepare aab-secret-entry-name)"
+mkdir -p \
+  "${cmc_fixture_aab_secret_name}/artifact/input/base/assets/${cmc_fixture_google_value}"
+printf '%s\n' \
+  'public fixture payload' \
+  >"${cmc_fixture_aab_secret_name}/artifact/input/base/assets/${cmc_fixture_google_value}/payload.bin"
+(
+  cd "${cmc_fixture_aab_secret_name}/artifact/input"
+  zip -q -9 -r ../candidate.aab .
+)
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_aab_secret_name}" \
+  --artifact "${cmc_fixture_aab_secret_name}/artifact/candidate.aab"
+
+cmc_fixture_aab_secret_comment="$(cmc_fixture_prepare aab-secret-comment)"
+mkdir -p \
+  "${cmc_fixture_aab_secret_comment}/artifact/input/base/assets/flutter_assets"
+printf '%s\n' \
+  'public fixture payload' \
+  >"${cmc_fixture_aab_secret_comment}/artifact/input/base/assets/flutter_assets/config.bin"
+(
+  cd "${cmc_fixture_aab_secret_comment}/artifact/input"
+  zip -q -9 -r ../candidate.aab .
+  printf '%s\n' "${cmc_fixture_google_value}" | zip -q -z ../candidate.aab
+)
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_aab_secret_comment}" \
+  --artifact "${cmc_fixture_aab_secret_comment}/artifact/candidate.aab"
+
 cmc_fixture_aab_public="$(cmc_fixture_prepare aab-deflated-public)"
 mkdir -p \
   "${cmc_fixture_aab_public}/artifact/input/base/assets/flutter_assets"

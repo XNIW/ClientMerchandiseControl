@@ -404,7 +404,10 @@ cmc_ios_release_expected_macho_paths=(
 # Digest delle sezioni Mach-O loadable: resta stabile dopo codesign perché non
 # include il blob LC_CODE_SIGNATURE, ma lega codice e dati alla revisione build.
 cmc_ios_release_expected_macho_digests=(
-  'd316247c6b085cdfa9e6b714a34b6e945294ae402cc5bf625076c21f90ab42d5'
+  # Flutter e xcodebuild archive producono wrapper Runner semanticamente
+  # equivalenti ma con due layout di stub deterministici distinti. Entrambe le
+  # attestazioni sono exact-content e ogni altro digest resta fail-closed.
+  'd316247c6b085cdfa9e6b714a34b6e945294ae402cc5bf625076c21f90ab42d5 fb53420fd804e760239813b3cf8154f93ee7251bad6389b4325b7e5e2499af60'
   '573f86ac62009795e3294f39acb72be1608825c589204ba3f101909c485d1236'
   '6a98d86dab0f1d3e6043fc9f21b19b131e01847376126852c5f931585e0156b9'
   '4a3f30b61151475837e405e67e67988923d880adb6a49d6eb99ed71b86824a52'
@@ -581,8 +584,8 @@ for cmc_ios_release_macho_index in \
   cmc_ios_release_macho_digest="$(
     cmc_ios_release_macho_sections_digest "${cmc_ios_release_macho_file}"
   )" || cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_UNREADABLE'
-  [[ "${cmc_ios_release_macho_digest}" == \
-    "${cmc_ios_release_expected_macho_digests[cmc_ios_release_macho_index]}" ]] || \
+  [[ " ${cmc_ios_release_expected_macho_digests[cmc_ios_release_macho_index]} " == \
+    *" ${cmc_ios_release_macho_digest} "* ]] || \
     cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
 done
 

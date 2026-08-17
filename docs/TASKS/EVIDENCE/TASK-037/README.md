@@ -1,7 +1,7 @@
 # Evidence TASK-037
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -265,3 +265,9 @@ sicura; nessun risultato viene inferito.
 - `F-037-R04` P2: CI non isolava il gate performance come `scripts/check.sh`;
 - fix candidate: coverage `--exclude-tags performance`, performance separata
   `--tags performance --concurrency=1`, budget invariato e regressione statica.
+
+Fix tecnico exact `e59441b824f84559cedadc9c2dfd24bbea669bde`: regressione
+workflow 1/1 e performance repeat `5 x 10 = 50/50 PASS`. Gate exact-SHA:
+action pin, governance 9/9, format 289/0, analyze, coverage non-performance
+763/763, performance seriale 10/10, diff e worktree clean tutti `PASS`.
+`F-037-R04` è candidato chiuso e viene consegnato alla re-review distinta.

@@ -6,13 +6,13 @@
 - **Titolo**: Performance, immagini, cache e load testing
 - **File task**: `docs/TASKS/TASK-037-performance-images-cache-load.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-037/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -325,6 +325,20 @@ Fix candidato: allineare CI al gate canonico con coverage che esclude il tag
 performance e uno step performance seriale separato; aggiungere una regressione
 governance che impedisca di riunire nuovamente i due carichi. Il budget resta
 15 ms e non viene allentato.
+
+### Fix 2 e handoff Re-review
+
+- exact SHA tecnico `e59441b824f84559cedadc9c2dfd24bbea669bde`;
+- workflow separa coverage `--exclude-tags performance` e performance
+  `--tags performance --concurrency=1`;
+- regressione governance 1/1 `PASS` e action pin/workflow check `PASS`;
+- performance seriale ripetuta 5 volte: `5 x 10 = 50/50 PASS`, budget 15 ms
+  invariato;
+- gate exact-SHA: format 289 file, analyze, governance 9/9, suite coverage senza
+  benchmark 763/763 e performance 10/10 tutti `PASS`; worktree pulito;
+- **Prossima fase**: REVIEW;
+- **Prossimo ruolo**: CODEX_RE_REVIEWER read-only distinto;
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW.
 
 ## Chiusura
 

@@ -2859,3 +2859,15 @@
   performance e aggiunge una regressione governance.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`;
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`. Production invariata.
+
+## 2026-08-17 — TASK-037 Fix 2 gate e handoff
+
+- **Exact SHA tecnico**: `e59441b824f84559cedadc9c2dfd24bbea669bde`.
+- **Fix**: coverage esclude performance; step seriale separato conserva il
+  budget 15 ms; regressione governance impedisce la ricaduta.
+- **Repeat**: cinque run seriali, `5 x 10 = 50/50 PASS`.
+- **Gate exact-SHA**: action pin, governance 9/9, format 289/0, analyze, suite
+  coverage non-performance 763/763, performance 10/10, diff e worktree clean
+  tutti `PASS`.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`;
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; prossimo ruolo reviewer read-only distinto.

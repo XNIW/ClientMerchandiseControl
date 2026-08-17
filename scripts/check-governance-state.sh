@@ -13,9 +13,14 @@ cmc_violation_count=0
 cmc_reject_ambiguous_markdown() {
   local cmc_file="$1"
   local cmc_label="$2"
+  local cmc_mode="${3:-all}"
+  local cmc_raw_pattern='<!--|-->|^[ ]{0,3}<(\?|!\[CDATA\[|![[:upper:]]|/?[[:alpha:]][[:alnum:]-]*([[:space:]]|/?>|$))'
+  local cmc_pattern="${cmc_raw_pattern}"
 
-  if grep -Eq '<!--|-->|</?[[:alpha:]!][^>]*>|^[[:space:]]*(```|~~~)|^[[:space:]]+#{2,3}[[:space:]]' \
-    "${cmc_file}"; then
+  if [[ "${cmc_mode}" == 'all' ]]; then
+    cmc_pattern="${cmc_pattern}|^[[:space:]]*(\`\`\`|~~~)|^[[:space:]]+#{2,3}[[:space:]]"
+  fi
+  if grep -Eq "${cmc_pattern}" "${cmc_file}"; then
     printf '%s contiene commenti, fence o heading indentati non ammessi, oppure HTML: %s.\n' \
       "${cmc_label}" "${cmc_file}" >&2
     cmc_violation_count=$((cmc_violation_count + 1))
@@ -110,6 +115,7 @@ cmc_release_train_state="$(cmc_field "${cmc_master_plan}" "Stato release train")
 cmc_integrated_review="$(cmc_field "${cmc_master_plan}" "Review integrata")"
 
 cmc_reject_ambiguous_markdown "${cmc_master_plan}" "Master Plan"
+cmc_reject_ambiguous_markdown "${cmc_readme}" "README" raw-only
 cmc_master_backlog_rows=''
 if ! cmc_master_backlog_rows="$(
   cmc_canonical_table_rows \
@@ -142,6 +148,26 @@ cmc_compare \
   "${cmc_indicator}" \
   "$(cmc_field "${cmc_readme}" "Indicatore")" \
   "README"
+
+cmc_readme_summary_count="$(
+  sed -nE \
+    's/^TASK-040 è l.unico task `(ACTIVE \/ (FIX|REVIEW))`:.*$/\1/p' \
+    "${cmc_readme}" | awk 'NF { count++ } END { print count + 0 }'
+)"
+cmc_readme_summary_state="$(
+  sed -nE \
+    's/^TASK-040 è l.unico task `(ACTIVE \/ (FIX|REVIEW))`:.*$/\1/p' \
+    "${cmc_readme}"
+)"
+cmc_expected_readme_summary="${cmc_task_status} / ${cmc_phase}"
+if [[ "${cmc_active_task}" == 'TASK-040' && \
+  ( "${cmc_readme_summary_count}" -ne 1 || \
+    "${cmc_readme_summary_state}" != "${cmc_expected_readme_summary}" ) ]]; then
+  printf 'Riepilogo README TASK-040 incoerente: atteso=%q, ricevuto=%q, righe=%s.\n' \
+    "${cmc_expected_readme_summary}" "${cmc_readme_summary_state}" \
+    "${cmc_readme_summary_count}" >&2
+  cmc_violation_count=$((cmc_violation_count + 1))
+fi
 
 cmc_active_task_normalized="$(
   printf '%s' "${cmc_active_task}" | tr '[:upper:]' '[:lower:]'
@@ -528,18 +554,28 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
 
           if [[ "${cmc_phase}" == 'REVIEW' && \
             -n "${cmc_last_fix_revision}" ]]; then
-            while IFS= read -r cmc_post_revision_path; do
-              [[ -z "${cmc_post_revision_path}" ]] && continue
-              if ! cmc_governance_path_is_handoff_document \
-                "${cmc_post_revision_path}"; then
-                printf 'Delta post-SHA tecnico contiene path non documentale: %s.\n' \
-                  "${cmc_post_revision_path}" >&2
-                cmc_violation_count=$((cmc_violation_count + 1))
-              fi
-            done < <(
-              git -C "${cmc_authority_repo_root}" diff --name-only \
-                "${cmc_last_fix_revision}..HEAD"
-            )
+            cmc_post_revision_paths="$(
+              mktemp "${TMPDIR:-/tmp}/cmc-governance-post-sha.XXXXXX"
+            )"
+            if cmc_governance_collect_post_sha_paths \
+              "${cmc_authority_repo_root}" \
+              "${cmc_last_fix_revision}" \
+              "${cmc_post_revision_paths}"; then
+              while IFS= read -r -d '' cmc_post_revision_path; do
+                [[ -z "${cmc_post_revision_path}" ]] && continue
+                if ! cmc_governance_path_is_handoff_document \
+                  "${cmc_post_revision_path}"; then
+                  printf 'Delta post-SHA tecnico contiene path non documentale: %s.\n' \
+                    "${cmc_post_revision_path}" >&2
+                  cmc_violation_count=$((cmc_violation_count + 1))
+                fi
+              done <"${cmc_post_revision_paths}"
+            else
+              printf 'Impossibile enumerare il delta post-SHA tecnico per %q.\n' \
+                "${cmc_last_fix_revision}" >&2
+              cmc_violation_count=$((cmc_violation_count + 1))
+            fi
+            rm -f -- "${cmc_post_revision_paths}"
           fi
         fi
         fi
@@ -550,6 +586,17 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
       -f "${cmc_evidence_readme}" ]]; then
       cmc_reject_ambiguous_markdown \
         "${cmc_evidence_readme}" "Evidence TASK-040"
+      cmc_evidence_acceptance_rows=''
+      if ! cmc_evidence_acceptance_rows="$(
+        cmc_canonical_table_rows \
+          "${cmc_evidence_readme}" \
+          '## Matrice CA -> evidence' \
+          '| CA | Evidence | Esito |' \
+          '|---|---|---|'
+      )"; then
+        printf 'Evidence TASK-040 priva della tabella canonica Matrice CA -> evidence.\n' >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
       cmc_evidence_test_rows=''
       if ! cmc_evidence_test_rows="$(
         cmc_canonical_table_rows \
@@ -608,6 +655,17 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         grep -Eo 'validator iOS avversariale [0-9]+/[0-9]+' \
           <<<"${cmc_current_gate_block}" | awk '{print $4}' || true
       )"
+      cmc_security_gate_count_rows="$(
+        sed -nE \
+          's/^- security source ([0-9]+); artifact ([0-9]+); fixture negative ([0-9]+)\/([0-9]+), positive ([0-9]+)\/([0-9]+);$/\1\t\2\t\3\t\4\t\5\t\6/p' \
+          <<<"${cmc_current_gate_block}" | \
+          awk 'NF { count++ } END { print count + 0 }'
+      )"
+      cmc_security_gate_counts="$(
+        sed -nE \
+          's/^- security source ([0-9]+); artifact ([0-9]+); fixture negative ([0-9]+)\/([0-9]+), positive ([0-9]+)\/([0-9]+);$/\1\t\2\t\3\t\4\t\5\t\6/p' \
+          <<<"${cmc_current_gate_block}"
+      )"
       if [[ "${cmc_artifact_revision_count}" -ne 1 ]]; then
         printf 'Artifact evidence corrente richiede una sola source exact SHA: ricevute=%s.\n' \
           "${cmc_artifact_revision_count}" >&2
@@ -616,6 +674,11 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
       if [[ "${cmc_ios_fixture_count_rows}" -ne 1 ]]; then
         printf 'Gate executor corrente richiede un solo conteggio validator iOS: ricevuti=%s.\n' \
           "${cmc_ios_fixture_count_rows}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
+      if [[ "${cmc_security_gate_count_rows}" -ne 1 ]]; then
+        printf 'Gate executor corrente richiede un solo conteggio security strutturato: ricevuti=%s.\n' \
+          "${cmc_security_gate_count_rows}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       fi
       cmc_t02_global_row_count="$(
@@ -689,6 +752,64 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
       cmc_t07_row_count=''
       cmc_t07_status=''
       cmc_t07_evidence=''
+      cmc_ca06_row_count="$(
+        awk '
+          function trim(value) {
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            return value
+          }
+          split($0, fields, "|") == 5 && trim(fields[2]) == "CA-06" { count++ }
+          END { print count + 0 }
+        ' <<<"${cmc_evidence_acceptance_rows}"
+      )"
+      cmc_t04_row_count="$(
+        awk '
+          function trim(value) {
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            return value
+          }
+          split($0, fields, "|") == 5 && trim(fields[2]) == "T-04" { count++ }
+          END { print count + 0 }
+        ' <<<"${cmc_evidence_test_rows}"
+      )"
+      cmc_ca06_status=''
+      cmc_ca06_evidence=''
+      cmc_t04_status=''
+      cmc_t04_evidence=''
+      if [[ "${cmc_ca06_row_count}" -eq 1 ]]; then
+        IFS=$'\t' read -r cmc_ca06_evidence cmc_ca06_status < <(
+          awk '
+            function trim(value) {
+              gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+              return value
+            }
+            split($0, fields, "|") == 5 && trim(fields[2]) == "CA-06" {
+              printf "%s\t%s\n", trim(fields[3]), trim(fields[4])
+            }
+          ' <<<"${cmc_evidence_acceptance_rows}"
+        )
+      else
+        printf 'Matrice TASK-040 richiede esattamente una riga CA-06 canonica: ricevute=%s.\n' \
+          "${cmc_ca06_row_count}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
+      if [[ "${cmc_t04_row_count}" -eq 1 ]]; then
+        IFS=$'\t' read -r cmc_t04_status cmc_t04_evidence < <(
+          awk '
+            function trim(value) {
+              gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+              return value
+            }
+            split($0, fields, "|") == 5 && trim(fields[2]) == "T-04" {
+              printf "%s\t%s\n", trim(fields[3]), trim(fields[4])
+            }
+          ' <<<"${cmc_evidence_test_rows}"
+        )
+      else
+        printf 'Matrice TASK-040 richiede esattamente una riga T-04 canonica: ricevute=%s.\n' \
+          "${cmc_t04_row_count}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
       if [[ "${cmc_t02_row_count}" -ne 1 || \
         "${cmc_t02_global_row_count}" -ne 1 ]]; then
         printf 'Matrice TASK-040 richiede esattamente una riga T-02 canonica: canoniche=%s, globali=%s.\n' \
@@ -843,6 +964,60 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           "Fix ${cmc_last_fix_number} handoff pronto; re-review, PR/main CI e hygiene da eseguire" ]]; then
         printf 'Matrice T-07 incoerente con il ciclo Fix corrente: task=%q, evidence=%q.\n' \
           "${cmc_last_fix_number}" "${cmc_t07_evidence}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
+      IFS=$'\t' read -r \
+        cmc_security_source_count \
+        cmc_security_artifact_count \
+        cmc_security_negative_passed \
+        cmc_security_negative_total \
+        cmc_security_positive_passed \
+        cmc_security_positive_total \
+        <<<"${cmc_security_gate_counts}"
+      cmc_ca06_counts="$(
+        sed -nE \
+          's/^security source ([0-9]+) e app artifact ([0-9]+); config esterna assente$/\1\t\2/p' \
+          <<<"${cmc_ca06_evidence}"
+      )"
+      IFS=$'\t' read -r cmc_ca06_source_count cmc_ca06_artifact_count \
+        <<<"${cmc_ca06_counts}"
+      cmc_t04_counts="$(
+        sed -nE \
+          's/^scanner ([0-9]+)\/([0-9]+) e fixture ([0-9]+)\/([0-9]+) \+ ([0-9]+)\/([0-9]+)$/\1\t\2\t\3\t\4\t\5\t\6/p' \
+          <<<"${cmc_t04_evidence}"
+      )"
+      IFS=$'\t' read -r \
+        cmc_t04_source_count \
+        cmc_t04_artifact_count \
+        cmc_t04_negative_passed \
+        cmc_t04_negative_total \
+        cmc_t04_positive_passed \
+        cmc_t04_positive_total \
+        <<<"${cmc_t04_counts}"
+      if [[ "${cmc_ca06_status}" != 'PASS' || \
+        -z "${cmc_security_source_count}" || \
+        "${cmc_ca06_source_count}" != "${cmc_security_source_count}" || \
+        "${cmc_ca06_artifact_count}" != "${cmc_security_artifact_count}" ]]; then
+        printf 'Matrice CA-06 incoerente con il gate security corrente: gate=%q, evidence=%q.\n' \
+          "${cmc_security_gate_counts}" "${cmc_ca06_evidence}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
+      if [[ "${cmc_t04_status}" != 'PASS' || \
+        -z "${cmc_security_source_count}" || \
+        ! "${cmc_security_source_count}" =~ ^[1-9][0-9]*$ || \
+        ! "${cmc_security_artifact_count}" =~ ^[1-9][0-9]*$ || \
+        "${cmc_t04_source_count}" != "${cmc_security_source_count}" || \
+        "${cmc_t04_artifact_count}" != "${cmc_security_artifact_count}" || \
+        "${cmc_t04_negative_passed}" != "${cmc_security_negative_passed}" || \
+        "${cmc_t04_negative_total}" != "${cmc_security_negative_total}" || \
+        "${cmc_t04_positive_passed}" != "${cmc_security_positive_passed}" || \
+        "${cmc_t04_positive_total}" != "${cmc_security_positive_total}" || \
+        ! "${cmc_security_negative_passed}" =~ ^[1-9][0-9]*$ || \
+        "${cmc_security_negative_passed}" -ne "${cmc_security_negative_total}" || \
+        ! "${cmc_security_positive_passed}" =~ ^[1-9][0-9]*$ || \
+        "${cmc_security_positive_passed}" -ne "${cmc_security_positive_total}" ]]; then
+        printf 'Matrice T-04 incoerente con il gate security corrente: gate=%q, evidence=%q.\n' \
+          "${cmc_security_gate_counts}" "${cmc_t04_evidence}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       fi
       if ! cmc_git_commit_is_valid "${cmc_artifact_revision}"; then

@@ -328,6 +328,52 @@ cmc_expect_handoff_path() {
   cmc_assertion_count=$((cmc_assertion_count + 1))
 }
 
+cmc_expect_post_sha_path_collection() {
+  local cmc_repository="${cmc_test_tmp}/post-sha-paths"
+  local cmc_output="${cmc_test_tmp}/post-sha-paths.bin"
+  local cmc_base=''
+  local cmc_path=''
+  local cmc_count=0
+  local cmc_source_seen=false
+  local cmc_target_seen=false
+
+  mkdir -p "${cmc_repository}/test_driver"
+  git -C "${cmc_repository}" init -q
+  git -C "${cmc_repository}" config user.email governance@example.invalid
+  git -C "${cmc_repository}" config user.name 'Governance Fixture'
+  printf '%s\n' 'rename sentinel' \
+    >"${cmc_repository}/test_driver/task_040_probe.dart"
+  git -C "${cmc_repository}" add test_driver/task_040_probe.dart
+  git -C "${cmc_repository}" commit -qm base
+  cmc_base="$(git -C "${cmc_repository}" rev-parse HEAD)"
+  git -C "${cmc_repository}" mv \
+    test_driver/task_040_probe.dart README.md
+  git -C "${cmc_repository}" commit -qam rename
+
+  cmc_governance_collect_post_sha_paths \
+    "${cmc_repository}" "${cmc_base}" "${cmc_output}"
+  while IFS= read -r -d '' cmc_path; do
+    cmc_count=$((cmc_count + 1))
+    [[ "${cmc_path}" == 'test_driver/task_040_probe.dart' ]] && \
+      cmc_source_seen=true
+    [[ "${cmc_path}" == 'README.md' ]] && cmc_target_seen=true
+  done <"${cmc_output}"
+  if [[ "${cmc_count}" -ne 2 || "${cmc_source_seen}" != true || \
+    "${cmc_target_seen}" != true ]]; then
+    printf 'Il collector post-SHA non ha conservato entrambi i path del rename.\n' >&2
+    exit 1
+  fi
+  cmc_assertion_count=$((cmc_assertion_count + 1))
+
+  if cmc_governance_collect_post_sha_paths \
+    "${cmc_repository}" '1111111111111111111111111111111111111111' \
+    "${cmc_output}" 2>/dev/null; then
+    printf 'Il collector post-SHA doveva propagare il fallimento Git.\n' >&2
+    exit 1
+  fi
+  cmc_assertion_count=$((cmc_assertion_count + 1))
+}
+
 cmc_case="$(cmc_fixture valid)"
 cmc_expect_pass valid "${cmc_case}"
 
@@ -877,6 +923,72 @@ printf '%s\n' '<pre>hidden evidence matrix</pre>' \
 cmc_expect_fail evidence-raw-html-block "${cmc_case}" \
   'Evidence TASK-040 contiene commenti, fence o heading indentati non ammessi, oppure HTML'
 
+cmc_case="$(cmc_fixture task-processing-instruction)"
+printf '%s\n' '<?governance hidden?>' \
+  >>"${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+cmc_expect_fail task-processing-instruction "${cmc_case}" \
+  'Task chronology contiene commenti, fence o heading indentati non ammessi, oppure HTML'
+
+cmc_case="$(cmc_fixture evidence-cdata-block)"
+printf '%s\n' '<![CDATA[' 'hidden evidence' ']]>' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-cdata-block "${cmc_case}" \
+  'Evidence TASK-040 contiene commenti, fence o heading indentati non ammessi, oppure HTML'
+
+cmc_case="$(cmc_fixture task-multiline-html-block)"
+printf '%s\n' '<pre' 'class="hidden">' 'hidden chronology' '</pre>' \
+  >>"${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+cmc_expect_fail task-multiline-html-block "${cmc_case}" \
+  'Task chronology contiene commenti, fence o heading indentati non ammessi, oppure HTML'
+
+cmc_case="$(cmc_fixture readme-raw-html-state)"
+perl -0pi.bak -e '
+  s/^## Stato$/<pre>\n## Stato/m or die "README state heading missing\n";
+' "${cmc_case}/README.md"
+rm "${cmc_case}/README.md.bak"
+cmc_expect_fail readme-raw-html-state "${cmc_case}" \
+  'README contiene commenti, fence o heading indentati non ammessi, oppure HTML'
+
+cmc_case="$(cmc_fixture readme-summary-mismatch)"
+perl -0pi.bak -e '
+  s/^(TASK-040 .*`ACTIVE \/ )FIX(`:)/${1}REVIEW$2/m
+    or die "README summary missing\n";
+' "${cmc_case}/README.md"
+rm "${cmc_case}/README.md.bak"
+cmc_expect_fail readme-summary-mismatch "${cmc_case}" \
+  'Riepilogo README TASK-040 incoerente'
+
+cmc_case="$(cmc_fixture evidence-ca06-count-mismatch)"
+perl -0pi.bak -e '
+  s/(^\| CA-06 \| security source )682( e app artifact 207;)/${1}681$2/m
+    or die "CA-06 count missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-ca06-count-mismatch "${cmc_case}" \
+  'Matrice CA-06 incoerente con il gate security corrente'
+
+cmc_case="$(cmc_fixture evidence-t04-count-mismatch)"
+perl -0pi.bak -e '
+  s/(^\| T-04 \| PASS \| scanner )682(\/207)/${1}681$2/m
+    or die "T-04 count missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-t04-count-mismatch "${cmc_case}" \
+  'Matrice T-04 incoerente con il gate security corrente'
+
+cmc_case="$(cmc_fixture evidence-security-zero-coordinated)"
+perl -0pi.bak -e '
+  s/(^\| CA-06 \| security source )682( e app artifact )207/${1}0${2}0/m
+    or die "CA-06 counts missing\n";
+  s/(^\| T-04 \| PASS \| scanner )682\/207/${1}0\/0/m
+    or die "T-04 counts missing\n";
+  s/(^- security source )682(; artifact )207/${1}0${2}0/m
+    or die "gate security counts missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-security-zero-coordinated "${cmc_case}" \
+  'Matrice T-04 incoerente con il gate security corrente'
+
 cmc_case="$(cmc_fixture task-role-mismatch)"
 cmc_source_role="$(
   sed -nE 's/^- exact (technical|review) SHA: `[0-9a-f]{40}`;$/\1/p' \
@@ -944,6 +1056,7 @@ cmc_expect_handoff_path docs/TASKS/EVIDENCE/TASK-040/README.md allowed
 cmc_expect_handoff_path test_driver/task_040_probe.dart denied
 cmc_expect_handoff_path assets/release/app-icon-master.png denied
 cmc_expect_handoff_path analysis_options.yaml denied
+cmc_expect_post_sha_path_collection
 
 printf 'Governance release train: %s/%s fixture PASS.\n' \
   "${cmc_assertion_count}" "${cmc_assertion_count}"

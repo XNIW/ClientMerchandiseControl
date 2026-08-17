@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -603,6 +603,25 @@ report prodotto sealed SHA-256
   `10deb98767cac73818233dc9f073934c31c7a81d0768c4fa68f82b5dfbef1837`.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 11
+
+- exact technical SHA: `b870d938df0944e84077c80ebeca95bb34dbce77`;
+- manifest TASK-040, T-02 e T-03 richiedono cardinalità esatta uno, colonne
+  strutturate e stato `PASS`; il gate `Fix N` usa un token completo;
+- la chronology task è obbligatoria, priva di commenti HTML, sequenziale da
+  Re-review Fix 1 a Fix 11 e lega SHA/handoff a linee etichettate e terminali;
+- i blocchi storici Fix 1–10 sono riordinati nella successione canonica;
+- fixture governance 24/24 includono duplicati, `FAIL`, `Fix 100`, heading
+  assenti, comment-decoy e ordine errato;
+- `scripts/check.sh` sullo SHA tecnico: 801/801 non-performance, performance
+  10/10, repeat 5x14=70/70, security source 681 + 61/61 negative + 7/7
+  positive, governance 24/24, architecture 17/17, format 301/0, analyze e
+  build debug Android/iOS `PASS`;
+- archive e TestFlight boundary non sono cambiati: candidate unsigned già
+  validato; firma Distribution, provisioning e credenziali ASC restano assenti.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

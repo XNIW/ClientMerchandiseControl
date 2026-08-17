@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 10 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 11 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,12 +64,12 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 10
+## Gate executor corrente — Fix 11
 
 - `scripts/check.sh`: exit 0;
 - non-performance 801/801; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
-- governance 15/15; architecture negative 17/17; localization/telemetry/action pin PASS;
+- governance 24/24; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 681; artifact 207; fixture negative 61/61, positive 7/7;
 - validator iOS avversariale 29/29, config/governance mirati 44/44;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
@@ -444,3 +444,16 @@ Snapshot di handoff:
 - report security sealed SHA-256
   `10deb98767cac73818233dc9f073934c31c7a81d0768c4fa68f82b5dfbef1837`;
 - nessun upload, firma esterna, profilo, credenziale o mutazione production.
+
+## Gate Fix 11
+
+- technical SHA `b870d938df0944e84077c80ebeca95bb34dbce77`;
+- cardinalità manifest/T-02/T-03, colonne e stato `PASS`, token Fix completo,
+  chronology obbligatoria/sequenziale e comment-free;
+- blocchi task Fix 1–10 riordinati nella successione canonica;
+- governance fixture 24/24: duplicate manifest/T, `FAIL`, `Fix 100`, chronology
+  assente/fuori ordine e comment-decoy sono respinti;
+- `scripts/check.sh` exact-SHA exit 0: 801/801, performance 10/10, repeat 70/70,
+  security 681 + 61/61 + 7/7, architecture 17/17, format 301/0, analyze e
+  build debug Android/iOS `PASS`;
+- nessun delta runtime/artifact/signing; TestFlight e production invariati.

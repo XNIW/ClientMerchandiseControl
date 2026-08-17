@@ -3606,3 +3606,18 @@
   `10deb98767cac73818233dc9f073934c31c7a81d0768c4fa68f82b5dfbef1837`.
 - **Transizione**: `ACTIVE / FIX`; handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; upload TestFlight e production invariati.
+
+## 2026-08-17 — TASK-040 Fix 11 e handoff
+
+- **Technical SHA**: `b870d938df0944e84077c80ebeca95bb34dbce77`.
+- **Governance**: cardinalità esatta per manifest/T-02/T-03, stato `PASS` e
+  token Fix strutturati; chronology task obbligatoria, comment-free e sequenziale.
+- **Regressioni**: fixture 24/24 coprono duplicati, stati `FAIL`, `Fix 100`,
+  heading assenti, comment-decoy e ordine storico errato.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security
+  681 + 61/61 + 7/7, architecture 17/17, format 301/0, analyze e build debug
+  Android/iOS `PASS`.
+- **Boundary**: nessun delta runtime/artifact; Distribution, provisioning e ASC
+  restano assenti, TestFlight/production invariati.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`; handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`, re-review read-only distinta obbligatoria.

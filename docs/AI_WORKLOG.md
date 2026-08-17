@@ -3591,3 +3591,18 @@
   nessuna IPA, credenziale, firma Distribution, TestFlight o production modificata.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 10 re-review
+
+- **Ruolo**: `CODEX_RE_REVIEWER`, read-only distinto dal fixer.
+- **Exact HEAD**: `a85d60774212f212d3ee8dd274db99af011925c8`.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 2 P3 governance.
+- **Finding**: `F-040-RR10-GOV-01` su cardinalità/stato/token esatti di manifest
+  e matrici T; `F-040-RR10-GOV-02` su chronology opzionale, comment-decoy e
+  ordine storico task ambiguo.
+- **Closure iOS**: `F-040-RR9-IOS-01` chiuso con fixture 29/29 e tamper
+  Mach-O/firma respinti; scanner 681/207 e 61/61 + 7/7.
+- **Security report**: sealed SHA-256
+  `10deb98767cac73818233dc9f073934c31c7a81d0768c4fa68f82b5dfbef1837`.
+- **Transizione**: `ACTIVE / FIX`; handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; upload TestFlight e production invariati.

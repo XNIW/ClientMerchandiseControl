@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review indipendente Fix 10 su attestazione
-  Mach-O completa e provenance governance; upload resta `NOT_RUN`
+- **Prossima azione autorizzata**: Fix 11 dei due finding P3 governance su
+  cardinalità, parsing strutturato e cronologia task; upload resta `NOT_RUN`
 
 ## Repository coinvolti
 

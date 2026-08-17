@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -587,6 +587,22 @@ report prodotto sealed SHA-256
   build debug Android/iOS `PASS`; worktree pulito.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 10
+
+`CHANGES_REQUIRED` su exact HEAD
+`a85d60774212f212d3ee8dd274db99af011925c8`: 0 P0/P1/P2 e 2 P3.
+
+- `F-040-RR10-GOV-01`: il parser first-match/substrings accetta manifest
+  duplicati contraddittori, stato T-02/T-03 `FAIL` e gate `Fix 100`;
+- `F-040-RR10-GOV-02`: la chronology è opzionale, considera commenti HTML e
+  non valida l'ordine completo dei cicli Fix;
+- `F-040-RR9-IOS-01` è chiuso: fixture iOS 29/29, tamper header/load-command/
+  firma respinti, scanner source 681/artifact 207 e 61/61 + 7/7;
+- report security sealed SHA-256
+  `10deb98767cac73818233dc9f073934c31c7a81d0768c4fa68f82b5dfbef1837`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

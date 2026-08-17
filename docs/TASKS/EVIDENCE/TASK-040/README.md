@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -432,3 +432,15 @@ Snapshot di handoff:
 - candidate validator `PASS`; upload gate exit 1
   `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; credenziali/IPA/upload/production
   invariati.
+
+## Re-review Fix 10
+
+- exact HEAD `a85d60774212f212d3ee8dd274db99af011925c8`, worktree pulito;
+- prodotto/security `CHANGES_REQUIRED`: 0 P0/P1/P2 e 2 P3 governance;
+- manifest e matrici T first-match/substrings accettano duplicati, `FAIL` e
+  `Fix 100`; chronology task opzionale/comment-aware e ordine storico ambiguo;
+- attestazione iOS Fix 10 chiusa: 29/29, tamper Mach-O e firma corrotta respinti,
+  scanner 681/207 + 61/61 negative + 7/7 positive;
+- report security sealed SHA-256
+  `10deb98767cac73818233dc9f073934c31c7a81d0768c4fa68f82b5dfbef1837`;
+- nessun upload, firma esterna, profilo, credenziale o mutazione production.

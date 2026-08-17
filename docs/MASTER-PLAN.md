@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-036
 - **File task**: docs/TASKS/TASK-036-accessibility-localization-device-matrix.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: eseguire TASK-036, gate automatici/device
-  disponibili, review indipendente, CI exact-SHA, merge e verifica `main`
+- **Prossima azione autorizzata**: review indipendente TASK-036 sul revision set
+  Client/Admin; eventuale fix/re-review, CI exact-SHA, merge e verifica `main`
 
 ## Repository coinvolti
 

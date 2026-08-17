@@ -2667,3 +2667,24 @@
   `success`, annotation 0/0/0.
 - **Transizione**: TASK-035 `DONE / USER_APPROVED_DONE`; TASK-036 è l'unico
   `ACTIVE / EXECUTION`, autorizzato da ADR-015.
+
+## 2026-08-16 — TASK-036 Execution completa a Review
+
+- **Finding corretto**: slot checkout, ordini, timeline e tracking usavano il fuso
+  device invece del fuso canonico del negozio. Client `a2bb8b2` introduce formatter
+  IANA/DST, cache concorrente deduplicata e propagazione/caching fail-closed.
+- **Admin writer motivato**: `7ca6d32f` aggiunge soltanto il contratto pubblico
+  minimale `storefront_time_zone_v1` e 10 assertion pgTAP; nessun altro repository
+  read-only è stato modificato.
+- **Acceptance**: ARB 499 chiavi x 5 bundle, scan hardcoded e fixture verdi; matrice
+  84/84 Android/iOS, 2/2 tema/contrasto, 2/2 keyboard/focus.
+- **Device**: integration smoke reale PASS su Android Emulator API 35 e iPhone 17
+  Simulator iOS 26.2. Physical iOS è offline, physical Android assente e manual
+  TalkBack/VoiceOver non eseguito, senza inferire PASS.
+- **Client gate**: `scripts/check.sh` PASS, 853/853 test, repeat 70/70, 629 file
+  security, APK e iOS Simulator build verdi.
+- **Admin/DB gate**: reset 139 migration, 47 file/2532 assertion e lint DB verdi;
+  `npm run verify` PASS; foundation finale 982 pass, 2 skip, 0 fail dopo avere
+  corretto il path ambientale al checkout Win7POS read-only canonico.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review
+  indipendente distinta obbligatoria prima di PR/CI/merge.

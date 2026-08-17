@@ -191,8 +191,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-036
 - **File task**: docs/TASKS/TASK-036-accessibility-localization-device-matrix.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -201,7 +201,7 @@ TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state 
 normalmente e le CI PR/main exact-SHA sono verdi. Il train
 `CLIENT_FINAL_PRODUCT_COMPLETION` ha chiuso TASK-034 su `main` con review e CI
 exact-SHA verdi; TASK-035 è `DONE` con PR #13, CI PR/main 3/3 e zero finding.
-TASK-036 è l'unico task `ACTIVE / EXECUTION`. Production è invariata.
+TASK-036 è l'unico task `ACTIVE / REVIEW`. Production è invariata.
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione

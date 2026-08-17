@@ -6,13 +6,13 @@
 - **Titolo**: Accessibility, localizzazione e device matrix
 - **File task**: `docs/TASKS/TASK-036-accessibility-localization-device-matrix.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-036/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -105,11 +105,67 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-Da compilare esclusivamente con modifiche e gate realmente eseguiti.
+### Implementazione
+
+- matrice shell parametrica estesa a 7 viewport x 3 text scale x 2 temi x 2
+  target platform: 84 celle Android/iOS, più contrasto/semantics e traversal
+  tastiera/attivazione su entrambe le piattaforme;
+- scanner fail-closed delle stringhe user-facing integrato in `scripts/check.sh`,
+  con fixture positiva e negativa multilinea;
+- contratti ARB verificati su 499 chiavi per es-CL, it, en, zh-Hans e fallback
+  tecnico, inclusi placeholder, plurali 0/1/2 e copy commerce/tracking/privacy;
+- corretta una regressione cross-repository: checkout, ordini e tracking ordine
+  formattavano date business con il fuso del device. Il client ora usa il fuso
+  IANA canonico del negozio, esplicito nella UI, con conversione DST e cache
+  concorrente deduplicata;
+- Admin è diventato writer limitatamente al contratto canonico necessario:
+  migration `storefront_time_zone_v1`, payload minimale, grant anon/authenticated,
+  definer con `search_path` vuoto e timeout 2s, più 10 assertion pgTAP;
+- cache ordini migrata da schema 1 a 2, invalidando fail-closed snapshot privi di
+  timezone; golden delivery aggiornato dopo ispezione visiva.
+
+### Device e accessibility
+
+- Android Emulator API 35: cold launch, navigazione, guest Auth fail-closed,
+  text scale 200%, dark/light, portrait/landscape e semantics `PASS`;
+- iOS Simulator 26.2: lo stesso smoke integration reale `PASS`; smoke visivo
+  aggiuntivo con dark mode e Dynamic Type accessibility-extra-extra-large, processo
+  vivo, contenuto scrollabile e label complete nel semantics tree;
+- physical Android: `NOT_RUN_NO_CONNECTED_DEVICE`;
+- physical iOS: `NOT_RUN_DEVICE_OFFLINE` (device rilevato ma non raggiungibile);
+- TalkBack/VoiceOver manuale: `NOT_RUN_PHYSICAL_MANUAL_SESSION_UNAVAILABLE`;
+  automated semantics resta distinto e `PASS`.
+
+### Gate eseguiti
+
+| Gate | Esito | Evidence |
+|---|---|---|
+| Matrice automatica | PASS | 88/88: 84 celle + 2 tema/contrasto + 2 focus |
+| Locale/timezone mirati | PASS | ARB 6/6, timezone contract 3/3, formatter 6/6 |
+| Client canonico | PASS | `scripts/check.sh` su `a2bb8b2`, 853/853 test, coverage, repeat 70/70, analyze/build Android/iOS |
+| Android device smoke | PASS | `integration_test/app_shell_smoke_test.dart`, emulator API 35 |
+| iOS device smoke | PASS | stesso test, iPhone 17 Simulator iOS 26.2 |
+| Admin migration reset | PASS | 139 migration applicate localmente da zero |
+| Admin database | PASS | 47 file, 2532 assertion; lint `public` zero error |
+| Admin canonico | PASS | `npm run verify`; foundation 982 pass, 2 skip, 0 fail con path Win7POS read-only corretto |
+| Production/staging write | NOT_RUN | nessuna scrittura remota prima di review/merge |
+
+Il primo tentativo foundation Admin ha rilevato un checkout storico Win7POS incompleto
+nel path predefinito (`974 pass / 2 fail / 8 skip`). Il rerun con
+`WIN7POS_REPO_PATH` puntato al checkout read-only canonico del train ha chiuso il
+blocker ambientale (`982 pass / 0 fail / 2 skip`); nessun file Win7POS è stato
+modificato.
+
+### Handoff
+
+- **Revision Client**: `a2bb8b28426e5dab45950451dfaa31ebbcf55cf8`
+- **Revision Admin**: `7ca6d32f4403edd29a996cd61e789ec267e68cbd`
+- **Worktree**: entrambi puliti; primary checkout preservati
+- **Handoff**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`
 
 ## Review — `CODEX_REVIEWER`
 
-`NOT_RUN`.
+`NOT_RUN`: richiesta review indipendente read-only sul revision set Client/Admin.
 
 ## Chiusura
 

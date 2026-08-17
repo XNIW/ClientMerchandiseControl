@@ -282,7 +282,84 @@ cmc_ios_test_expect_failure extensionless-macho EMBEDDED_MACHO_SET_INVALID \
   --archive "${cmc_ios_test_fixture_archive}"
 rm "${cmc_ios_test_fixture_app}/Frameworks/App.framework/EmbeddedPayload"
 
+cmc_ios_test_runner_binary="${cmc_ios_test_fixture_app}/Runner"
+perl -e '
+  use strict;
+  use warnings;
+  my ($path, $mask, $operation) = @ARGV;
+  open my $handle, "+<", $path or die "open\n";
+  binmode $handle;
+  seek $handle, 24, 0 or die "seek\n";
+  read($handle, my $bytes, 4) == 4 or die "read\n";
+  my $flags = unpack "V", $bytes;
+  my $mask_value = hex $mask;
+  $flags = $operation eq "clear"
+    ? $flags & ~$mask_value
+    : $flags | $mask_value;
+  seek $handle, 24, 0 or die "seek\n";
+  print {$handle} pack("V", $flags) or die "write\n";
+  close $handle or die "close\n";
+' "${cmc_ios_test_runner_binary}" 0x00200000 clear
+cmc_ios_test_expect_failure macho-header-pie-disabled \
+  EMBEDDED_COMPONENT_DIGEST_MISMATCH \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_source_app}/Runner" "${cmc_ios_test_runner_binary}"
+
+perl -e '
+  use strict;
+  use warnings;
+  my ($path, $mask, $operation) = @ARGV;
+  open my $handle, "+<", $path or die "open\n";
+  binmode $handle;
+  seek $handle, 24, 0 or die "seek\n";
+  read($handle, my $bytes, 4) == 4 or die "read\n";
+  my $flags = unpack "V", $bytes;
+  my $mask_value = hex $mask;
+  $flags = $operation eq "clear"
+    ? $flags & ~$mask_value
+    : $flags | $mask_value;
+  seek $handle, 24, 0 or die "seek\n";
+  print {$handle} pack("V", $flags) or die "write\n";
+  close $handle or die "close\n";
+' "${cmc_ios_test_runner_binary}" 0x00020000 set
+cmc_ios_test_expect_failure macho-header-stack-executable \
+  EMBEDDED_COMPONENT_DIGEST_MISMATCH \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_source_app}/Runner" "${cmc_ios_test_runner_binary}"
+
 cmc_ios_test_objective_binary="${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework/objective_c"
+perl -e '
+  use strict;
+  use warnings;
+  local $/;
+  my ($path, $before, $after) = @ARGV;
+  length($before) == length($after) or die "length\n";
+  open my $input, "<", $path or die "open-read\n";
+  binmode $input;
+  my $contents = <$input>;
+  close $input or die "close-read\n";
+  my $first = index($contents, $before);
+  $first >= 0 or die "missing\n";
+  index($contents, $before, $first + 1) < 0 or die "duplicate\n";
+  substr($contents, $first, length($before), $after);
+  open my $output, ">", $path or die "open-write\n";
+  binmode $output;
+  print {$output} $contents or die "write\n";
+  close $output or die "close-write\n";
+' "${cmc_ios_test_objective_binary}" \
+  '/usr/lib/libSystem.B.dylib' '/usr/lib/libSystfm.B.dylib'
+cmc_ios_test_expect_failure macho-load-command-digest \
+  EMBEDDED_COMPONENT_DIGEST_MISMATCH \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_source_app}/Frameworks/objective_c.framework/objective_c" \
+  "${cmc_ios_test_objective_binary}"
+
 cmc_ios_test_objective_text_offset="$(
   otool -l "${cmc_ios_test_objective_binary}" | awk '
     $1 == "sectname" && $2 == "__text" { in_text = 1; next }

@@ -73,8 +73,6 @@ for cmc_ios_release_command in \
   command -v "${cmc_ios_release_command}" >/dev/null 2>&1 || \
     cmc_ios_release_fail 'ARTIFACT_TOOLING_MISSING'
 done
-xcrun --find llvm-objdump >/dev/null 2>&1 || \
-  cmc_ios_release_fail 'ARTIFACT_TOOLING_MISSING'
 [[ -x /usr/libexec/PlistBuddy ]] || \
   cmc_ios_release_fail 'PLIST_TOOLING_MISSING'
 
@@ -344,6 +342,24 @@ cmc_ios_release_artifact_maps="$(
 [[ "${cmc_ios_release_artifact_maps// /}" == 'NOT_CONFIGURED' ]] || \
   cmc_ios_release_fail 'MAPS_ARTIFACT_NOT_FAIL_CLOSED'
 cmc_ios_release_validate_url_types "${cmc_ios_release_app_info}"
+
+cmc_ios_release_tmp_parent="${TMPDIR:-/tmp}"
+cmc_ios_release_tmp_parent="${cmc_ios_release_tmp_parent%/}"
+cmc_ios_release_tmp_root="$(
+  mktemp -d "${cmc_ios_release_tmp_parent}/cmc-ios-release.XXXXXX"
+)"
+cmc_ios_release_cleanup() {
+  case "${cmc_ios_release_tmp_root}" in
+    "${cmc_ios_release_tmp_parent}"/cmc-ios-release.*)
+      rm -rf -- "${cmc_ios_release_tmp_root}"
+      ;;
+    *)
+      printf 'IOS_RELEASE_BLOCKED: TEMP_CLEANUP_REFUSED\n' >&2
+      ;;
+  esac
+}
+trap cmc_ios_release_cleanup EXIT
+
 cmc_ios_release_privacy_paths=(
   'PrivacyInfo.xcprivacy'
   'Frameworks/Flutter.framework/PrivacyInfo.xcprivacy'
@@ -401,17 +417,16 @@ cmc_ios_release_expected_macho_paths=(
   'Frameworks/objective_c.framework/objective_c'
   'Frameworks/sqlite3.framework/sqlite3'
 )
-# Digest delle sezioni Mach-O loadable: resta stabile dopo codesign perché non
-# include il blob LC_CODE_SIGNATURE, ma lega codice e dati alla revisione build.
+# Digest dell'intero Mach-O canonicalizzato: la copia viene firmata ad hoc e la
+# firma rimossa, così header, load command, sezioni e __LINKEDIT restano legati
+# mentre l'unica variabilità di signing viene eliminata deterministicamente.
 cmc_ios_release_expected_macho_digests=(
-  # Flutter e xcodebuild archive producono wrapper Runner semanticamente
-  # equivalenti ma con due layout di stub deterministici distinti. Entrambe le
-  # attestazioni sono exact-content e ogni altro digest resta fail-closed.
-  'd316247c6b085cdfa9e6b714a34b6e945294ae402cc5bf625076c21f90ab42d5 fb53420fd804e760239813b3cf8154f93ee7251bad6389b4325b7e5e2499af60'
-  '573f86ac62009795e3294f39acb72be1608825c589204ba3f101909c485d1236'
-  '6a98d86dab0f1d3e6043fc9f21b19b131e01847376126852c5f931585e0156b9'
-  '4a3f30b61151475837e405e67e67988923d880adb6a49d6eb99ed71b86824a52'
-  '3ef36e21a036bc830ec42a4f80390554320213e371384a58d3c4554f51bd329d'
+  # Flutter e xcodebuild archive producono due wrapper Runner deterministici.
+  'bb5f3882b8acb52a66cb2ae7d4641c76bfeb1747ae3cca70d0ae444b73a5989d c6a848062c199f068dcc259b56aa24430563fc4aea14848f45197ce9067b8e6c'
+  '847be0c00445269c63b4c1b3c475da7164a2257dad6bb0ffb99888af7c61dde7'
+  'd1756c1031e3a0661f80dee4f6341b7c678021e571bf7026e1e1a1d61dac6868'
+  'd158535baa2a90f5f22bf5bb50d81583d36553515619edea20acbef3842cfdb4'
+  'e4f81ee4a9dc0cbdbc7ce78b8a7f0a76b4412ef6d53b6750656f0a123bdfb52b'
 )
 cmc_ios_release_expected_bundles=(
   'GoogleMapsResources.bundle'
@@ -472,19 +487,20 @@ cmc_ios_release_require_exact_component_set() {
   done
 }
 
-cmc_ios_release_macho_sections_digest() {
+cmc_ios_release_macho_canonical_digest() {
   local cmc_ios_release_macho="$1"
+  local cmc_ios_release_macho_label="$2"
+  local cmc_ios_release_macho_copy="${cmc_ios_release_tmp_root}/macho-${cmc_ios_release_macho_label}"
 
-  xcrun llvm-objdump --full-contents "${cmc_ios_release_macho}" 2>/dev/null | \
-    awk '
-      /file format mach-o/ || /^[[:space:]]*$/ { next }
-      /^Contents of section / {
-        skip = ($0 ~ /,__(bss|common|thread_bss):$/)
-        if (!skip) print
-        next
-      }
-      !skip { print }
-    ' | shasum -a 256 | awk '{print $1}'
+  cp "${cmc_ios_release_macho}" "${cmc_ios_release_macho_copy}" || return 1
+  chmod u+w "${cmc_ios_release_macho_copy}" || return 1
+  codesign --remove-signature "${cmc_ios_release_macho_copy}" \
+    >/dev/null 2>&1 || true
+  codesign --force --sign - "${cmc_ios_release_macho_copy}" \
+    >/dev/null 2>&1 || return 1
+  codesign --remove-signature "${cmc_ios_release_macho_copy}" \
+    >/dev/null 2>&1 || return 1
+  shasum -a 256 "${cmc_ios_release_macho_copy}" | awk '{print $1}'
 }
 
 cmc_ios_release_bundle_tree_digest() {
@@ -582,7 +598,8 @@ for cmc_ios_release_macho_index in \
     ! -L "${cmc_ios_release_macho_file}" ]] || \
     cmc_ios_release_fail 'EMBEDDED_MACHO_SET_INVALID'
   cmc_ios_release_macho_digest="$(
-    cmc_ios_release_macho_sections_digest "${cmc_ios_release_macho_file}"
+    cmc_ios_release_macho_canonical_digest \
+      "${cmc_ios_release_macho_file}" "${cmc_ios_release_macho_index}"
   )" || cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_UNREADABLE'
   [[ " ${cmc_ios_release_expected_macho_digests[cmc_ios_release_macho_index]} " == \
     *" ${cmc_ios_release_macho_digest} "* ]] || \
@@ -679,23 +696,6 @@ else
   fi
   cmc_ios_release_signing_state='UNSIGNED'
 fi
-
-cmc_ios_release_tmp_parent="${TMPDIR:-/tmp}"
-cmc_ios_release_tmp_parent="${cmc_ios_release_tmp_parent%/}"
-cmc_ios_release_tmp_root="$(
-  mktemp -d "${cmc_ios_release_tmp_parent}/cmc-ios-release.XXXXXX"
-)"
-cmc_ios_release_cleanup() {
-  case "${cmc_ios_release_tmp_root}" in
-    "${cmc_ios_release_tmp_parent}"/cmc-ios-release.*)
-      rm -rf -- "${cmc_ios_release_tmp_root}"
-      ;;
-    *)
-      printf 'IOS_RELEASE_BLOCKED: TEMP_CLEANUP_REFUSED\n' >&2
-      ;;
-  esac
-}
-trap cmc_ios_release_cleanup EXIT
 
 if [[ "${cmc_ios_release_signing_state}" == SIGNED ]]; then
   cmc_ios_release_entitlements="${cmc_ios_release_tmp_root}/entitlements.plist"

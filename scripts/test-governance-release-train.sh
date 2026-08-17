@@ -46,11 +46,15 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-043" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-044" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-045" \
-    "${cmc_target}/docs/TASKS"
+    "${cmc_target}/docs/TASKS" \
+    "${cmc_target}/docs/releases"
   cp "${cmc_test_repo_root}/README.md" "${cmc_target}/README.md"
   cp "${cmc_test_repo_root}/docs/MASTER-PLAN.md" "${cmc_target}/docs/MASTER-PLAN.md"
   cp "${cmc_test_repo_root}/docs/AI_WORKLOG.md" \
     "${cmc_target}/docs/AI_WORKLOG.md"
+  cp \
+    "${cmc_test_repo_root}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md" \
+    "${cmc_target}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
   cp \
     "${cmc_test_repo_root}/docs/TASKS/TASK-005-storefront-schema-rls-migration-ownership.md" \
     "${cmc_target}/docs/TASKS/"
@@ -399,4 +403,63 @@ printf '%s\n' \
 cmc_expect_fail stale-worklog-tail "${cmc_case}" \
   'Worklog corrente incoerente con handoff'
 
-printf 'Governance release train: 10/10 fixture PASS.\n'
+cmc_case="$(cmc_fixture stale-manifest-status)"
+perl -0pi.bak -e '
+  s/(\| TASK-040 \| )[^|]+( \|)/${1}ACTIVE \/ STALE${2}/
+    or die "TASK-040 manifest row missing\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail stale-manifest-status "${cmc_case}" \
+  'Release manifest status incoerente'
+
+cmc_case="$(cmc_fixture stale-manifest-revision)"
+perl -0pi.bak -e '
+  s/(\| TASK-040 \|[^|]*\| )[^|]+( \|)/${1}`1111111` stale${2}/
+    or die "TASK-040 manifest row missing\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail stale-manifest-revision "${cmc_case}" \
+  'Release manifest revision incoerente'
+
+cmc_case="$(cmc_fixture stale-task-tail)"
+cmc_current_indicator="$(
+  sed -n 's/^- \*\*Indicatore\*\*: //p' \
+    "${cmc_case}/docs/MASTER-PLAN.md" | head -n 1
+)"
+case "${cmc_current_indicator}" in
+  CODEX_FIX_COMPLETE_TO_RE_REVIEW)
+    cmc_stale_indicator='CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX'
+    ;;
+  *)
+    cmc_stale_indicator='CODEX_FIX_COMPLETE_TO_RE_REVIEW'
+    ;;
+esac
+printf '%s\n' \
+  '' \
+  '### Fix 99' \
+  '' \
+  '- exact technical SHA `1111111111111111111111111111111111111111`;' \
+  "- \`${cmc_stale_indicator}\`." \
+  >>"${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+cmc_expect_fail stale-task-tail "${cmc_case}" \
+  'Tail task incoerente con handoff'
+
+cmc_case="$(cmc_fixture stale-evidence-matrix)"
+perl -0pi.bak -e '
+  s/(^\| T-02 \|[^\n]*exact SHA `)[0-9a-f]{7,40}(`)/${1}1111111${2}/m
+    or die "T-02 evidence row missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail stale-evidence-matrix "${cmc_case}" \
+  'Matrice T-02 incoerente'
+
+cmc_case="$(cmc_fixture stale-evidence-matrix-t03)"
+perl -0pi.bak -e '
+  s/(^\| T-03 \|[^\n]*fixture iOS )[0-9]+\/[0-9]+/${1}1\/1/m
+    or die "T-03 evidence row missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail stale-evidence-matrix-t03 "${cmc_case}" \
+  'Matrice T-03 incoerente'
+
+printf 'Governance release train: 15/15 fixture PASS.\n'

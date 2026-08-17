@@ -30,8 +30,8 @@ Snapshot di handoff:
 | Test | Esito | Evidence |
 |---|---|---|
 | T-01 | PASS | source gate, runtime/CI 18/18 e config/signing boundary |
-| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `41f5cba` |
-| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 23/23 |
+| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `34d342b` |
+| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 29/29 |
 | T-04 | PASS | scanner 681/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
@@ -71,7 +71,7 @@ Snapshot di handoff:
 - format 301 file/0 cambi; analyze 0 issue;
 - governance 10/10; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 681; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 26/26, config/governance mirati 44/44;
+- validator iOS avversariale 29/29, config/governance mirati 44/44;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
@@ -376,8 +376,9 @@ Snapshot di handoff:
   i nove field compile-time, sette consumer, otto input attestation e il control flow
   production sono legati agli elementi canonici dal resolved AST;
 - exact content provenance su cinque Mach-O e nove bundle; build Flutter e archive
-  hanno due wrapper digest deterministici allowlisted, un secondo archive è
-  byte-identico al primo e ogni tamper resta fail-closed;
+  hanno due wrapper digest deterministici allowlisted, il wrapper Runner è
+  byte-identico tra i due archive e i payload normalizzati coincidono; i contenitori
+  archive differiscono correttamente nel `CreationDate` di `Info.plist`;
 - mirati `PASS`: config/governance 44/44, architecture 17/17, iOS release fixture
   26/26, source/artifact validator 681/207, security 61/61 negative + 7/7 positive;
 - `scripts/check.sh` exit 0 sullo SHA corrente: 801/801 non-performance,

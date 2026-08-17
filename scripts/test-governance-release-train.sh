@@ -42,6 +42,7 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-037" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-038" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-039" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-040" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-043" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-044" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-045" \
@@ -241,6 +242,12 @@ cmc_fixture() {
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-039/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-039/README.md"
   cp \
+    "${cmc_test_repo_root}/docs/TASKS/TASK-040-ios-testflight-release.md" \
+    "${cmc_target}/docs/TASKS/"
+  cp \
+    "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-040/README.md" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+  cp \
     "${cmc_test_repo_root}/docs/TASKS/TASK-043-storefront-commerce-information-architecture-ux-refresh.md" \
     "${cmc_target}/docs/TASKS/"
   cp \
@@ -296,7 +303,7 @@ cmc_expect_fail duplicate-active "${cmc_case}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
-  's/- \*\*Task attivo\*\*: TASK-039/- **Task attivo**: TASK-008/' \
+  's/- \*\*Task attivo\*\*: TASK-040/- **Task attivo**: TASK-008/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}"
@@ -334,7 +341,7 @@ cmc_expect_fail active-during-review "${cmc_case}"
 
 cmc_case="$(cmc_fixture active-header-without-active-row)"
 sed -i.bak \
-  's/| TASK-039 | Android internal testing release | ACTIVE |/| TASK-039 | Android internal testing release | TODO |/' \
+  's/| TASK-040 | iOS TestFlight release | ACTIVE |/| TASK-040 | iOS TestFlight release | TODO |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-header-without-active-row "${cmc_case}"

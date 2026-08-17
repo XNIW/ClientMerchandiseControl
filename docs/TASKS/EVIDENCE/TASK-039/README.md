@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance
 
@@ -163,3 +163,15 @@ finalizer/report-format `PASS`, report SHA-256
 `aa1a6aaa283be5794712fd2f2743911f89cf52c17c087e902d8907aad8110e5c`.
 Handoff `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; Play/Internal e
 production restano invariati.
+
+## Closeout remoto
+
+- approval commit `03d849af95ab5092929a48f5c73c70d1f3776866`, CI PR
+  `32018935396` 4/4 job e tutti gli step `success`;
+- PR #18 merged normalmente in `f30b13e9bfc1ea8b792d2048c0b067077e2d307c`;
+- main CI `32019746636`, exact merge SHA, 4/4 job e ogni step `success`, inclusa
+  release candidate e fixture firma v2-only;
+- branch remota e linked worktree TASK-039 eliminati; primary checkout
+  preservato; nessun artifact o secret versionato;
+- classificazione `TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`:
+  signing/Play credential e upload Internal restano azioni esterne, non bug.

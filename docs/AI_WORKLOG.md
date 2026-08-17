@@ -3213,3 +3213,18 @@
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; la conferma
   persistente autorizza CI approval-commit e merge normale, non upload Play o
   production.
+
+## 2026-08-17 — TASK-039 closeout / TASK-040 activation
+
+- **TASK-039**: approval commit `03d849af`, CI PR `32018935396` 4/4 `success`,
+  PR #18 merged normalmente in `f30b13e9`; main CI `32019746636` 4/4 e ogni
+  step `success`.
+- **Classificazione**: `TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`;
+  AAB/APK unsigned verificati, signing/Play credential e upload Internal
+  `NOT_RUN` esterni; production invariata.
+- **Hygiene**: branch remota TASK-039 e linked worktree rimossi; checkout
+  primario preservato; nuovo worktree pulito da `origin/main` `f30b13e9`.
+- **Transizione**: TASK-039 `DONE / USER_APPROVED_DONE`; TASK-040 unico task
+  `ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`, autorizzazione
+  persistente del mandato 2026-08-16. Nessun upload TestFlight o production
+  senza signing e credenziali reali.

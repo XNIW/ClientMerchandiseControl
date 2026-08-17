@@ -5,14 +5,14 @@
 - **Task ID**: TASK-039
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -409,7 +409,13 @@ non autorizza upload Play o production.
 
 ## Chiusura
 
-- **Classificazione target**: `DONE_INTERNAL_RELEASE_PUBLISHED` oppure
-  `TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`
+- **Classificazione finale**: `TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`
+- **PR/merge**: PR #18, head `03d849af95ab5092929a48f5c73c70d1f3776866`,
+  merge normale `f30b13e9bfc1ea8b792d2048c0b067077e2d307c`
+- **CI PR/main**: `32018935396` / `32019746636`, quattro job e tutti gli step
+  `success` sui rispettivi exact SHA
+- **Upload Internal**: `NOT_RUN`, signing e identità Play esterni assenti
+- **Hygiene**: branch remota eliminata, linked worktree TASK-039 rimosso,
+  checkout primario preservato
 - **Production Play**: vietata
-- **Data completamento**: non ancora
+- **Data completamento**: 2026-08-17

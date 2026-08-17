@@ -3325,6 +3325,25 @@
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
 
+## 2026-08-17 — TASK-040 Fix 8 e handoff
+
+- **Technical SHA**: `41f5cbab7c60ee872a1e2f5ef591e16c18e89b6e`;
+  constructor/consumer AST sono legati agli elementi e al percorso canonico, mentre
+  framework/bundle/dylib sono coperti da inventory recursive identity-bound.
+- **Regressioni**: constructor omonimo, consumer decoy, framework casing/nesting,
+  dylib e sostituzioni framework/bundle respinti; architecture 14/14 e iOS 23/23.
+- **Gate completo**: `scripts/check.sh` exit 0; 801/801 non-performance,
+  10/10 performance, repeat resilience 70/70, security 681 + 61/61 + 7/7,
+  format 301/0, analyze e build debug Android/iOS `PASS`.
+- **Artifact exact-SHA**: clean archive unsigned 201.344 KiB, app 36.724 KiB/
+  207 file, 8 privacy manifest, 7 dSYM; runtime/wrapper/Info/privacy digest invariati
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; 0 Distribution, profili e input ASC,
+  iPhone fisico offline, nessuna IPA, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
 ## 2026-08-17 — TASK-040 Fix 2 re-review
 
 - **Exact HEAD**: `2b7c1480aa7c1e18dfce58abb076cf388b2ed9d2`, worktree pulito.

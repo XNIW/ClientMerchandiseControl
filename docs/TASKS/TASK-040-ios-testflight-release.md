@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -460,6 +460,33 @@ report prodotto sealed SHA-256
 `a1a49bdd9744478abd024fe71d4976f731ad1d7d5fa4cf80d452d65c208d743d`.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 8
+
+- il validator AST lega l'initializer al costruttore const risolto di `dart:core`,
+  limita il factory ai quattro statement canonici, verifica gli exact target
+  `AppConfig.fromValues`/`ReleaseConfigAttestation.fromValues`, i set completi di
+  argomenti e mappe e gli unici due riferimenti al field;
+- l'inventory iOS è recursive e case-insensitive, rifiuta dylib e componenti extra,
+  e lega framework/bundle canonici a executable, bundle ID, install name e simboli
+  distintivi; le regressioni coprono casing, nesting, sostituzioni e dylib;
+- gate mirati `PASS`: architecture 14/14, iOS release 23/23, config/governance
+  36/36, runtime/CI 18/18, security 61/61 negative + 7/7 positive,
+  source/artifact 681/207 e analyze;
+- `scripts/check.sh` exit 0: 801/801 non-performance, 10/10 performance,
+  resilience repeat 5x14=70/70, format 301/0 e build debug Android/iOS;
+- clean release/archive sullo SHA tecnico
+  `41f5cbab7c60ee872a1e2f5ef591e16c18e89b6e`: archive 201.344 KiB,
+  app 36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`;
+- upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`: 0 Apple
+  Distribution, 0 provisioning, 0 input ASC e iPhone fisico offline; nessuna firma,
+  IPA, upload o mutazione production.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

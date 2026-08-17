@@ -462,4 +462,78 @@ rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
 cmc_expect_fail stale-evidence-matrix-t03 "${cmc_case}" \
   'Matrice T-03 incoerente'
 
-printf 'Governance release train: 15/15 fixture PASS.\n'
+cmc_case="$(cmc_fixture duplicate-active-manifest-row)"
+grep -E '^\| TASK-040 \|' \
+  "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md" \
+  >>"${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+cmc_expect_fail duplicate-active-manifest-row "${cmc_case}" \
+  'Release manifest richiede esattamente una riga'
+
+cmc_case="$(cmc_fixture manifest-fix-token-boundary)"
+perl -0pi.bak -e '
+  s{(\| TASK-040 \|[^\n]*\| Fix )([0-9]+)( [^\n]*\|)$}{$1.$2."0".$3}me
+    or die "TASK-040 manifest gate missing\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail manifest-fix-token-boundary "${cmc_case}" \
+  'Release manifest gate incoerente'
+
+cmc_case="$(cmc_fixture evidence-t02-fail-status)"
+perl -0pi.bak -e '
+  s/^(\| T-02 \| )PASS( \|)/${1}FAIL${2}/m
+    or die "T-02 evidence row missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-t02-fail-status "${cmc_case}" \
+  'Matrice T-02 incoerente'
+
+cmc_case="$(cmc_fixture evidence-t03-fail-status)"
+perl -0pi.bak -e '
+  s/^(\| T-03 \| )PASS( \|)/${1}FAIL${2}/m
+    or die "T-03 evidence row missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-t03-fail-status "${cmc_case}" \
+  'Matrice T-03 incoerente'
+
+cmc_case="$(cmc_fixture duplicate-evidence-t02-row)"
+grep -E '^\| T-02 \|' \
+  "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md" \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail duplicate-evidence-t02-row "${cmc_case}" \
+  'richiede esattamente una riga T-02'
+
+cmc_case="$(cmc_fixture duplicate-evidence-t03-row)"
+grep -E '^\| T-03 \|' \
+  "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md" \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail duplicate-evidence-t03-row "${cmc_case}" \
+  'richiede esattamente una riga T-03'
+
+cmc_case="$(cmc_fixture missing-fix-chronology)"
+perl -0pi.bak -e '
+  s/^### ((?:Re-review )?Fix [0-9]+)$/### Ciclo $1/gm
+    or die "Fix headings missing\n";
+' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
+cmc_expect_fail missing-fix-chronology "${cmc_case}" \
+  'Task chronology priva di cicli Fix strutturati'
+
+cmc_case="$(cmc_fixture html-comment-tail-decoy)"
+perl -0pi.bak -e '
+  s/(### Re-review Fix [0-9]+\n\n)- exact review SHA: `([0-9a-f]{40})`;/${1}- exact review SHA: `1111111111111111111111111111111111111111`;\n<!-- exact review SHA: `$2`; CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX -->/
+    or die "review SHA line missing\n";
+' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
+cmc_expect_fail html-comment-tail-decoy "${cmc_case}" \
+  'Task chronology non può contenere commenti HTML'
+
+cmc_case="$(cmc_fixture out-of-order-fix-chronology)"
+perl -0pi.bak -e '
+  s/^### Fix 8$/### Fix 9/m or die "Fix 8 heading missing\n";
+' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
+cmc_expect_fail out-of-order-fix-chronology "${cmc_case}" \
+  'Task chronology fuori sequenza'
+
+printf 'Governance release train: 24/24 fixture PASS.\n'

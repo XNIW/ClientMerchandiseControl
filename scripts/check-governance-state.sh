@@ -118,37 +118,50 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         printf 'Release manifest assente: %s\n' "${cmc_release_manifest}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       else
-        cmc_manifest_status="$(
+        cmc_manifest_row_count="$(
           awk -F'|' -v task="${cmc_active_task}" '
-            $2 ~ "^[[:space:]]*" task "[[:space:]]*$" {
-              value=$3
+            {
+              value=$2
               gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-              print value
-              exit
+              if (value == task) count++
             }
+            END { print count + 0 }
           ' "${cmc_release_manifest}"
         )"
-        cmc_manifest_revision="$(
-          awk -F'|' -v task="${cmc_active_task}" '
-            $2 ~ "^[[:space:]]*" task "[[:space:]]*$" {
-              value=$4
-              gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-              gsub(/`/, "", value)
-              print value
-              exit
-            }
-          ' "${cmc_release_manifest}"
-        )"
-        cmc_manifest_gate="$(
-          awk -F'|' -v task="${cmc_active_task}" '
-            $2 ~ "^[[:space:]]*" task "[[:space:]]*$" {
-              value=$7
-              gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-              print value
-              exit
-            }
-          ' "${cmc_release_manifest}"
-        )"
+        cmc_manifest_status=''
+        cmc_manifest_revision_field=''
+        cmc_manifest_revision=''
+        cmc_manifest_gate=''
+        if [[ "${cmc_manifest_row_count}" -ne 1 ]]; then
+          printf 'Release manifest richiede esattamente una riga per %s: ricevute=%s.\n' \
+            "${cmc_active_task}" "${cmc_manifest_row_count}" >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
+        else
+          IFS=$'\t' read -r \
+            cmc_manifest_status \
+            cmc_manifest_revision_field \
+            cmc_manifest_gate < <(
+              awk -F'|' -v task="${cmc_active_task}" '
+                function trim(value) {
+                  gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+                  return value
+                }
+                trim($2) == task {
+                  printf "%s\t%s\t%s\n", trim($3), trim($4), trim($7)
+                }
+              ' "${cmc_release_manifest}"
+            )
+          cmc_manifest_revision="$(
+            sed -nE \
+              's/^`([0-9a-f]{7,40})`( [[:alnum:]_-]+)?$/\1/p' \
+              <<<"${cmc_manifest_revision_field}"
+          )"
+          if [[ -z "${cmc_manifest_revision}" ]]; then
+            printf 'Release manifest revision non strutturata per %s: %q.\n' \
+              "${cmc_active_task}" "${cmc_manifest_revision_field}" >&2
+            cmc_violation_count=$((cmc_violation_count + 1))
+          fi
+        fi
         cmc_expected_manifest_status="${cmc_task_status} / ${cmc_phase}"
         if [[ "${cmc_manifest_status}" != "${cmc_expected_manifest_status}" ]]; then
           printf 'Release manifest status incoerente per %s: atteso=%q, ricevuto=%q.\n' \
@@ -157,28 +170,112 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           cmc_violation_count=$((cmc_violation_count + 1))
         fi
 
-        cmc_last_fix_line="$(
-          grep -nE '^### (Re-review )?Fix [0-9]+$' "${cmc_task_file}" | \
-            tail -n 1 | cut -d: -f1 || true
+        cmc_task_semantic="$(
+          perl -0pe 's/<!--.*?-->//gs' "${cmc_task_file}"
         )"
-        if [[ "${cmc_last_fix_line}" =~ ^[0-9]+$ ]]; then
+        if grep -Eq '<!--|-->' "${cmc_task_file}"; then
+          printf 'Task chronology non può contenere commenti HTML: %s.\n' \
+            "${cmc_active_task}" >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
+        fi
+
+        cmc_fix_section_count="$(
+          grep -Ec '^## Fix$' <<<"${cmc_task_semantic}" || true
+        )"
+        cmc_fix_heading_count=0
+        cmc_expected_fix_number=1
+        cmc_expected_fix_kind='Re-review'
+        cmc_last_fix_heading=''
+        if [[ "${cmc_fix_section_count}" -ne 1 ]]; then
+          printf 'Task chronology richiede esattamente una sezione Fix: ricevute=%s.\n' \
+            "${cmc_fix_section_count}" >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
+        else
+          while IFS= read -r cmc_fix_heading; do
+            [[ -z "${cmc_fix_heading}" ]] && continue
+            cmc_fix_heading_count=$((cmc_fix_heading_count + 1))
+            cmc_last_fix_heading="${cmc_fix_heading}"
+            if [[ "${cmc_expected_fix_kind}" == 'Re-review' ]]; then
+              cmc_expected_heading="### Re-review Fix ${cmc_expected_fix_number}"
+              cmc_expected_fix_kind='Fix'
+              cmc_expected_fix_number=$((cmc_expected_fix_number + 1))
+            else
+              cmc_expected_heading="### Fix ${cmc_expected_fix_number}"
+              cmc_expected_fix_kind='Re-review'
+            fi
+            if [[ "${cmc_fix_heading}" != "${cmc_expected_heading}" ]]; then
+              printf 'Task chronology fuori sequenza: atteso=%q, ricevuto=%q.\n' \
+                "${cmc_expected_heading}" "${cmc_fix_heading}" >&2
+              cmc_violation_count=$((cmc_violation_count + 1))
+            fi
+          done < <(
+            awk '
+              /^## Fix$/ { capture=1; next }
+              capture && /^## Chiusura$/ { exit }
+              capture && /^### (Re-review )?Fix [0-9]+$/ { print }
+            ' <<<"${cmc_task_semantic}"
+          )
+        fi
+        if [[ "${cmc_fix_heading_count}" -eq 0 ]]; then
+          printf 'Task chronology priva di cicli Fix strutturati per %s.\n' \
+            "${cmc_active_task}" >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
+        elif [[ "${cmc_phase}" == 'FIX' && \
+          "${cmc_last_fix_heading}" != '### Re-review Fix '* ]]; then
+          printf 'Task chronology incoerente con fase FIX: ultimo=%q.\n' \
+            "${cmc_last_fix_heading}" >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
+        elif [[ "${cmc_phase}" == 'REVIEW' && \
+          "${cmc_last_fix_heading}" == '### Re-review Fix '* ]]; then
+          printf 'Task chronology incoerente con fase REVIEW: ultimo=%q.\n' \
+            "${cmc_last_fix_heading}" >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
+        fi
+
+        cmc_last_fix_line="$(
+          grep -nE '^### (Re-review )?Fix [0-9]+$' \
+            <<<"${cmc_task_semantic}" | tail -n 1 | cut -d: -f1 || true
+        )"
+        if [[ ! "${cmc_last_fix_line}" =~ ^[0-9]+$ ]]; then
+          printf 'Tail task Fix corrente assente per %s.\n' \
+            "${cmc_active_task}" >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
+        else
           cmc_last_fix_block="$(
             awk -v start="${cmc_last_fix_line}" '
               NR < start { next }
               NR > start && /^#{2,3} / { exit }
               { print }
-            ' "${cmc_task_file}"
+            ' <<<"${cmc_task_semantic}"
           )"
           cmc_last_fix_label="$(
             head -n 1 <<<"${cmc_last_fix_block}" | \
               sed -E 's/^### (Re-review )?(Fix [0-9]+)$/\2/'
           )"
-          cmc_last_fix_revision="$(
-            grep -Eo '`[0-9a-f]{7,40}`' <<<"${cmc_last_fix_block}" | \
-              head -n 1 | tr -d '`' || true
+          cmc_last_fix_revision_count="$(
+            sed -nE \
+              's/^- exact (technical|review) SHA: `([0-9a-f]{40})`;$/\2/p' \
+              <<<"${cmc_last_fix_block}" | awk 'NF { count++ } END { print count + 0 }'
           )"
-          if ! grep -Fq -- "\`${cmc_indicator}\`" \
-            <<<"${cmc_last_fix_block}"; then
+          cmc_last_fix_revision="$(
+            sed -nE \
+              's/^- exact (technical|review) SHA: `([0-9a-f]{40})`;$/\2/p' \
+              <<<"${cmc_last_fix_block}"
+          )"
+          cmc_last_fix_handoff_count="$(
+            grep -Ec "^\`${cmc_indicator}\`\\.$" \
+              <<<"${cmc_last_fix_block}" || true
+          )"
+          cmc_last_fix_semantic_line="$(
+            sed '/^[[:space:]]*$/d' <<<"${cmc_last_fix_block}" | tail -n 1
+          )"
+          if [[ "${cmc_last_fix_revision_count}" -ne 1 ]]; then
+            printf 'Tail task richiede una sola exact review/technical SHA per %s: ricevute=%s.\n' \
+              "${cmc_active_task}" "${cmc_last_fix_revision_count}" >&2
+            cmc_violation_count=$((cmc_violation_count + 1))
+          fi
+          if [[ "${cmc_last_fix_handoff_count}" -ne 1 || \
+            "${cmc_last_fix_semantic_line}" != "\`${cmc_indicator}\`." ]]; then
             printf 'Tail task incoerente con handoff %s per %s.\n' \
               "${cmc_indicator}" "${cmc_active_task}" >&2
             cmc_violation_count=$((cmc_violation_count + 1))
@@ -190,8 +287,9 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
               "${cmc_manifest_revision}" >&2
             cmc_violation_count=$((cmc_violation_count + 1))
           fi
-          if [[ -n "${cmc_last_fix_label}" && \
-            "${cmc_manifest_gate}" != *"${cmc_last_fix_label}"* ]]; then
+          if [[ -z "${cmc_last_fix_label}" || \
+            ("${cmc_manifest_gate}" != "${cmc_last_fix_label}" && \
+              "${cmc_manifest_gate}" != "${cmc_last_fix_label} "*) ]]; then
             printf 'Release manifest gate incoerente per %s: task=%q, manifest=%q.\n' \
               "${cmc_active_task}" "${cmc_last_fix_label}" \
               "${cmc_manifest_gate}" >&2
@@ -217,28 +315,94 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           capture { print }
         ' "${cmc_evidence_readme}"
       )"
+      cmc_artifact_revision_count="$(
+        sed -nE 's/^- source exact SHA: `([0-9a-f]{7,40})`;$/\1/p' \
+          <<<"${cmc_current_artifact_block}" | \
+          awk 'NF { count++ } END { print count + 0 }'
+      )"
       cmc_artifact_revision="$(
         sed -nE 's/^- source exact SHA: `([0-9a-f]{7,40})`;$/\1/p' \
-          <<<"${cmc_current_artifact_block}" | head -n 1
+          <<<"${cmc_current_artifact_block}"
+      )"
+      cmc_ios_fixture_count_rows="$(
+        grep -Eo 'validator iOS avversariale [0-9]+/[0-9]+' \
+          <<<"${cmc_current_gate_block}" | \
+          awk 'NF { count++ } END { print count + 0 }'
       )"
       cmc_ios_fixture_count="$(
         grep -Eo 'validator iOS avversariale [0-9]+/[0-9]+' \
-          <<<"${cmc_current_gate_block}" | head -n 1 | awk '{print $4}' || true
+          <<<"${cmc_current_gate_block}" | awk '{print $4}' || true
       )"
-      cmc_t02_row="$(
-        grep -E '^\| T-02 \|' "${cmc_evidence_readme}" | head -n 1 || true
+      if [[ "${cmc_artifact_revision_count}" -ne 1 ]]; then
+        printf 'Artifact evidence corrente richiede una sola source exact SHA: ricevute=%s.\n' \
+          "${cmc_artifact_revision_count}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
+      if [[ "${cmc_ios_fixture_count_rows}" -ne 1 ]]; then
+        printf 'Gate executor corrente richiede un solo conteggio validator iOS: ricevuti=%s.\n' \
+          "${cmc_ios_fixture_count_rows}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
+      cmc_t02_row_count="$(
+        grep -Ec '^\| T-02 \|' "${cmc_evidence_readme}" || true
       )"
-      cmc_t03_row="$(
-        grep -E '^\| T-03 \|' "${cmc_evidence_readme}" | head -n 1 || true
+      cmc_t03_row_count="$(
+        grep -Ec '^\| T-03 \|' "${cmc_evidence_readme}" || true
       )"
-      if [[ -z "${cmc_artifact_revision}" || \
-        "${cmc_t02_row}" != *"${cmc_artifact_revision:0:7}"* ]]; then
+      cmc_t02_status=''
+      cmc_t02_evidence=''
+      cmc_t03_status=''
+      cmc_t03_evidence=''
+      if [[ "${cmc_t02_row_count}" -ne 1 ]]; then
+        printf 'Matrice TASK-040 richiede esattamente una riga T-02: ricevute=%s.\n' \
+          "${cmc_t02_row_count}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      else
+        IFS=$'\t' read -r cmc_t02_status cmc_t02_evidence < <(
+          awk -F'|' '
+            function trim(value) {
+              gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+              return value
+            }
+            trim($2) == "T-02" { printf "%s\t%s\n", trim($3), trim($4) }
+          ' "${cmc_evidence_readme}"
+        )
+      fi
+      if [[ "${cmc_t03_row_count}" -ne 1 ]]; then
+        printf 'Matrice TASK-040 richiede esattamente una riga T-03: ricevute=%s.\n' \
+          "${cmc_t03_row_count}" >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      else
+        IFS=$'\t' read -r cmc_t03_status cmc_t03_evidence < <(
+          awk -F'|' '
+            function trim(value) {
+              gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+              return value
+            }
+            trim($2) == "T-03" { printf "%s\t%s\n", trim($3), trim($4) }
+          ' "${cmc_evidence_readme}"
+        )
+      fi
+      cmc_t02_revision="$(
+        sed -nE \
+          's/^clean release no-codesign e archive Xcode exact SHA `([0-9a-f]{7,40})`$/\1/p' \
+          <<<"${cmc_t02_evidence}"
+      )"
+      cmc_t03_fixture_count="$(
+        sed -nE \
+          's/^.*fixture iOS ([0-9]+\/[0-9]+)$/\1/p' \
+          <<<"${cmc_t03_evidence}"
+      )"
+      if [[ "${cmc_t02_status}" != 'PASS' || \
+        -z "${cmc_artifact_revision}" || -z "${cmc_t02_revision}" || \
+        "${cmc_t02_revision}" != "${cmc_artifact_revision:0:${#cmc_t02_revision}}" ]]; then
         printf 'Matrice T-02 incoerente con artifact evidence corrente: artifact=%q.\n' \
           "${cmc_artifact_revision}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       fi
-      if [[ -z "${cmc_ios_fixture_count}" || \
-        "${cmc_t03_row}" != *"${cmc_ios_fixture_count}"* ]]; then
+      if [[ "${cmc_t03_status}" != 'PASS' || \
+        -z "${cmc_ios_fixture_count}" || -z "${cmc_t03_fixture_count}" || \
+        "${cmc_t03_fixture_count}" != "${cmc_ios_fixture_count}" ]]; then
         printf 'Matrice T-03 incoerente con gate iOS corrente: gate=%q.\n' \
           "${cmc_ios_fixture_count}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))

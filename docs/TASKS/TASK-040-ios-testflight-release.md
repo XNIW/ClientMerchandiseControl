@@ -185,67 +185,6 @@ deboli ed evidence device non canonica. Security report sealed:
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
-### Re-review Fix 8
-
-`CHANGES_REQUIRED` su `e88f8762aab52ad7b176cbc0e0bd80b23d2aaf43`.
-La security re-review classifica 2 P2 e 2 P3: la matrice AST lega soltanto lo
-slug, il control flow può ritornare un config alternativo prima dell'attestation,
-i contenuti framework/bundle non hanno digest revision-bound e il worklog non è
-cronologico. La review prodotto aggiunge i sibling P3: library URI collidibile per
-suffisso, Mach-O extensionless non inventariato e fixture constructor non
-analyzer-clean. Report security canonico sealed SHA-256
-`169a5154053c28503744c0de8a8d2a9c923520062e339e28d93b038a83df8f84`;
-report prodotto sealed SHA-256
-`877c30e186d5bd38da82639a023021a3da117defeb63d93d2c6167bc715b92ca`.
-
-`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
-
-### Fix 9
-
-- `F-040-RR8-ARCH-CONFIG-01` e `F-040-RR8-ARCH-CONTROL-01` sono coperti da un
-  validator analyzer-resolved che lega i nove field compile-time, i sette argomenti
-  `AppConfig.fromValues`, gli otto input dell'attestation e l'esatto control flow
-  production/try/catch/return agli elementi canonici;
-- library URI, costruttori e metodi sono risolti sul package canonico; le fixture sono
-  formattate e analyzer-clean prima del probe e coprono binding attacker, guard sempre
-  vera e library decoy; architecture negative 17/17 `PASS`;
-- l'inventory artifact enumera ogni Mach-O regolare, inclusi file extensionless, e
-  attesta il contenuto loadable dei cinque eseguibili più l'albero esatto dei nove
-  bundle; tamper `__text`, binary replacement, risorsa bundle e componenti extra sono
-  respinti; fixture iOS 26/26 `PASS`;
-- il worklog è cronologico e il gate governance verifica che l'ultimo blocco del task
-  contenga l'handoff corrente; governance 10/10 `PASS`;
-- `scripts/check.sh` sullo SHA tecnico
-  `34d342b38b41d73cfe590b2cfe5defd5aab6be40` è `PASS`: 801/801
-  non-performance, 10/10 performance, repeat 5x14=70/70, security 681 e
-  61/61 negative + 7/7 positive, format 301/0, analyze e build debug Android/iOS;
-- clean release/archive no-codesign `PASS`: 201.344 KiB, app 36.724 KiB/207 file,
-  8 privacy manifest e 7 dSYM; runtime SHA-256
-  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
-  wrapper SHA-256
-  `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`
-  e UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
-- un secondo archive ripete byte-for-byte wrapper e digest normalizzato. Il validator
-  ammette esclusivamente i due layout deterministici `flutter build`/archive e resta
-  fail-closed per ogni altro digest;
-- upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`: 0 Apple
-  Distribution, 0 provisioning, 0/3 input App Store Connect; device iOS fisici
-  offline, nessuna firma, IPA, upload o mutazione production.
-
-`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
-
-### Re-review Fix 2
-
-`CHANGES_REQUIRED` sul revision set `be978225..2b7c148`: prodotto 1 P2, security
-0 P0/P1/P2 e 3 P3. Il P2 consente una `.app` symlink extra non inventariata;
-i P3 riguardano materializzazione JWT source, lista directory prima del cap e gate CI
-basato su substring. Report security sealed SHA-256
-`083337065a0ad22367124162a36766391f9dabd180f3d6f00b9512835b4f9e28`.
-Firma, attestation/parità, CMS, UTF-16/chunk, manifest malformati, aggregate bound e
-runtime Dart risultano chiusi e non vengono riaperti.
-
-`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
-
 ### Re-review Fix 1
 
 `CHANGES_REQUIRED` sul revision set `c8893dc..be978225`: 0 P0/P1, 6 P2
@@ -285,6 +224,18 @@ Security report sealed SHA-256
   configurazione production o upload è stata creata.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 2
+
+`CHANGES_REQUIRED` sul revision set `be978225..2b7c148`: prodotto 1 P2, security
+0 P0/P1/P2 e 3 P3. Il P2 consente una `.app` symlink extra non inventariata;
+i P3 riguardano materializzazione JWT source, lista directory prima del cap e gate CI
+basato su substring. Report security sealed SHA-256
+`083337065a0ad22367124162a36766391f9dabd180f3d6f00b9512835b4f9e28`.
+Firma, attestation/parità, CMS, UTF-16/chunk, manifest malformati, aggregate bound e
+runtime Dart risultano chiusi e non vengono riaperti.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ### Fix 3
 
@@ -537,6 +488,55 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 8
+
+`CHANGES_REQUIRED` su `e88f8762aab52ad7b176cbc0e0bd80b23d2aaf43`.
+La security re-review classifica 2 P2 e 2 P3: la matrice AST lega soltanto lo
+slug, il control flow può ritornare un config alternativo prima dell'attestation,
+i contenuti framework/bundle non hanno digest revision-bound e il worklog non è
+cronologico. La review prodotto aggiunge i sibling P3: library URI collidibile per
+suffisso, Mach-O extensionless non inventariato e fixture constructor non
+analyzer-clean. Report security canonico sealed SHA-256
+`169a5154053c28503744c0de8a8d2a9c923520062e339e28d93b038a83df8f84`;
+report prodotto sealed SHA-256
+`877c30e186d5bd38da82639a023021a3da117defeb63d93d2c6167bc715b92ca`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 9
+
+- `F-040-RR8-ARCH-CONFIG-01` e `F-040-RR8-ARCH-CONTROL-01` sono coperti da un
+  validator analyzer-resolved che lega i nove field compile-time, i sette argomenti
+  `AppConfig.fromValues`, gli otto input dell'attestation e l'esatto control flow
+  production/try/catch/return agli elementi canonici;
+- library URI, costruttori e metodi sono risolti sul package canonico; le fixture sono
+  formattate e analyzer-clean prima del probe e coprono binding attacker, guard sempre
+  vera e library decoy; architecture negative 17/17 `PASS`;
+- l'inventory artifact enumera ogni Mach-O regolare, inclusi file extensionless, e
+  attesta il contenuto loadable dei cinque eseguibili più l'albero esatto dei nove
+  bundle; tamper `__text`, binary replacement, risorsa bundle e componenti extra sono
+  respinti; fixture iOS 26/26 `PASS`;
+- il worklog è cronologico e il gate governance verifica che l'ultimo blocco del task
+  contenga l'handoff corrente; governance 10/10 `PASS`;
+- `scripts/check.sh` sullo SHA tecnico
+  `34d342b38b41d73cfe590b2cfe5defd5aab6be40` è `PASS`: 801/801
+  non-performance, 10/10 performance, repeat 5x14=70/70, security 681 e
+  61/61 negative + 7/7 positive, format 301/0, analyze e build debug Android/iOS;
+- clean release/archive no-codesign `PASS`: 201.344 KiB, app 36.724 KiB/207 file,
+  8 privacy manifest e 7 dSYM; runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`
+  e UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
+- un secondo archive ripete byte-for-byte wrapper e digest normalizzato. Il validator
+  ammette esclusivamente i due layout deterministici `flutter build`/archive e resta
+  fail-closed per ogni altro digest;
+- upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`: 0 Apple
+  Distribution, 0 provisioning, 0/3 input App Store Connect; device iOS fisici
+  offline, nessuna firma, IPA, upload o mutazione production.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ### Re-review Fix 9
 
 `CHANGES_REQUIRED` su exact HEAD
@@ -590,8 +590,8 @@ report prodotto sealed SHA-256
 
 ### Re-review Fix 10
 
-`CHANGES_REQUIRED` su exact HEAD
-`a85d60774212f212d3ee8dd274db99af011925c8`: 0 P0/P1/P2 e 2 P3.
+- exact review SHA: `a85d60774212f212d3ee8dd274db99af011925c8`;
+- esito `CHANGES_REQUIRED`: 0 P0/P1/P2 e 2 P3.
 
 - `F-040-RR10-GOV-01`: il parser first-match/substrings accetta manifest
   duplicati contraddittori, stato T-02/T-03 `FAIL` e gate `Fix 100`;

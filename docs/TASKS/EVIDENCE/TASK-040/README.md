@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -88,3 +88,15 @@ Snapshot di handoff:
 - artifact 201.328 KiB, app 36.708 KiB/207 file, 8 privacy manifest, 7 dSYM,
   arm64 e Runner/dSYM UUID corrispondente;
 - worktree pulito; nessun secret, profilo, IPA, upload o mutazione production.
+
+## Re-review Fix 1
+
+- exact HEAD `be978225677304b9f5c8dce5fd3ba05dca7533e8`, worktree pulito;
+- prodotto/security `CHANGES_REQUIRED`: 0 P0/P1, 6 P2 security, 4 P3 security,
+  un P2 tecnico; report sealed SHA-256
+  `e76c6beab23628a979cf20284253e85d7c6afbd1dd5280f629976a4e06ba6d88`;
+- fixture correnti 8/8 iOS, 56/56 + 7/7 security, 54/54 Flutter e governance
+  9/9 verdi ma insufficienti rispetto ai probe avversariali aggiuntivi;
+- firma corrotta, archive `ApplicationPath`, digest-esca/parità runtime,
+  cut/CMS/UTF-16 JWT+PEM, gate CI/privacy e bound aggregate/JWT da correggere;
+- nessun upload, firma reale, profilo reale o mutazione production.

@@ -3281,3 +3281,15 @@
   respinta con `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna IPA/upload.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; worktree pulito e production invariata.
+
+## 2026-08-17 — TASK-040 Fix 1 re-review
+
+- **Exact HEAD**: `be978225677304b9f5c8dce5fd3ba05dca7533e8`.
+- **Esito**: `CHANGES_REQUIRED`; 6 P2 e 4 P3 security più un P2 tecnico,
+  tutti su gate locali riproducibili e risolvibili.
+- **Superfici residue**: firma corrotta/`ApplicationPath`, attestation e parità
+  runtime, scanner chunk/CMS/wide JWT+PEM, CI/privacy e limiti aggregate/JWT.
+- **Security report**: sealed, SHA-256
+  `e76c6beab23628a979cf20284253e85d7c6afbd1dd5280f629976a4e06ba6d88`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; repository e sistemi esterni invariati.

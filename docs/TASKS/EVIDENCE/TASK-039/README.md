@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -113,9 +113,9 @@ Snapshot di handoff:
 
 ## Handoff
 
-La Security Fix 3 sullo SHA tecnico
-`4f2e6867649374f4b93b581475560c2a6ae5de50` corregge i tre P2
-(`F-039-SR01`, `F-039-SR03`, `F-039-SR04`) e il P3 (`F-039-SR06`) con
-regressioni reali e gate canonico verde. Handoff corrente
-`CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production restano
+La re-review sullo SHA `09d2207c7d7409cf933b3783e75d7765e99e1e9c`
+ha chiuso `F-039-SR01`, `F-039-SR03` e `F-039-SR04`, ma ha riaperto
+`F-039-SR06` P3: un archive con size local/central falsificate emette più byte
+del dichiarato e supera il preflight. Handoff corrente
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; Play/Internal e production restano
 invariati.

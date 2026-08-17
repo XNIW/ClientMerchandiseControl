@@ -550,20 +550,38 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
       cmc_security_archive_payload="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.payload"
       cmc_security_archive_metadata="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.metadata"
       mkdir -p "${cmc_security_scan_root}"
+      # I size del central directory sono input non fidati. Materializza prima
+      # lo stream aggregato con un cap effettivo: `head` interrompe `unzip`
+      # oltre 512 MiB e `pipefail` trasforma il SIGPIPE in rifiuto fail-closed.
+      if ! LC_ALL=C unzip -p "${cmc_security_artifact}" | \
+        head -c 536870913 >"${cmc_security_archive_payload}"; then
+        printf 'Security scan artifact: payload archivio fuori limite.\n' >&2
+        exit 1
+      fi
+      cmc_security_archive_actual_bytes="$(
+        wc -c <"${cmc_security_archive_payload}" | tr -d '[:space:]'
+      )"
+      if [[ ! "${cmc_security_archive_actual_bytes}" =~ ^[0-9]+$ || \
+        "${cmc_security_archive_actual_bytes}" -gt 536870912 || \
+        "${cmc_security_archive_actual_bytes}" -ne \
+          "${cmc_security_archive_uncompressed_bytes}" ]] || \
+        { [[ "${cmc_security_archive_compressed_bytes}" -eq 0 ]] && \
+          [[ "${cmc_security_archive_actual_bytes}" -ne 0 ]]; } || \
+        { [[ "${cmc_security_archive_compressed_bytes}" -gt 0 ]] && \
+          [[ "${cmc_security_archive_actual_bytes}" -gt \
+            $((cmc_security_archive_compressed_bytes * 200)) ]]; }; then
+        printf 'Security scan artifact: payload archivio incoerente.\n' >&2
+        exit 1
+      fi
       if ! unzip -tqq "${cmc_security_artifact}" || \
         ! unzip -oq "${cmc_security_artifact}" \
           -d "${cmc_security_scan_root}"; then
         printf 'Security scan artifact: archivio non leggibile.\n' >&2
         exit 1
       fi
-      # Lo stream aggregato conserva anche entry ZIP duplicate che
-      # l'estrazione sovrascrive, evitando che un valore vietato venga
-      # nascosto dietro una seconda entry omonima.
-      if ! unzip -p "${cmc_security_artifact}" \
-        >"${cmc_security_archive_payload}"; then
-        printf 'Security scan artifact: payload archivio non leggibile.\n' >&2
-        exit 1
-      fi
+      # Lo stream aggregato già materializzato conserva anche entry ZIP
+      # duplicate che l'estrazione sovrascrive, evitando che un valore vietato
+      # venga nascosto dietro una seconda entry omonima.
       # Il central directory verbose comprende nomi, archive comment, commenti
       # per-entry ed extra field. `head` rende il bound preventivo: il pipefail
       # rifiuta lo stream se `unzip` viene interrotto oltre 4 MiB.

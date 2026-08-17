@@ -3071,3 +3071,18 @@
   Simulator debug `PASS`.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 3 re-review
+
+- **Exact SHA**: `09d2207c7d7409cf933b3783e75d7765e99e1e9c`; review prodotto e
+  security read-only distinte, worktree pulito.
+- **Esito**: prodotto `APPROVED`; security `CHANGES_REQUIRED`, 0 P0, 0 P1,
+  0 P2 e 1 P3 tecnico.
+- **Chiusure**: `F-039-SR01`, `F-039-SR03`, `F-039-SR04`; SR02/SR05
+  restano chiusi.
+- **Finding**: `F-039-SR06` riaperto perché metadata ZIP falsificati possono
+  dichiarare 2 MiB/123× ma decomprimere realmente 16 MiB e superare il
+  preflight attuale.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; Play/Internal e production
+  invariati.

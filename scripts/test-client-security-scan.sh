@@ -447,6 +447,27 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_aab_expansion}" \
   --artifact "${cmc_fixture_aab_expansion}/artifact/candidate.aab"
 
+cmc_fixture_aab_forged_size="$(cmc_fixture_prepare aab-forged-size-bound)"
+mkdir -p "${cmc_fixture_aab_forged_size}/artifact/input"
+dd if=/dev/zero \
+  of="${cmc_fixture_aab_forged_size}/artifact/input/payload.bin" \
+  bs=1048576 count=16 2>/dev/null
+(
+  cd "${cmc_fixture_aab_forged_size}/artifact/input"
+  zip -q -9 ../candidate.aab payload.bin
+)
+perl -0777 -pi -e '
+  my $declared = 2000000;
+  my $local = index($_, "PK\x03\x04");
+  my $central = index($_, "PK\x01\x02");
+  die "fixture ZIP signature missing\n" if $local < 0 || $central < 0;
+  substr($_, $local + 22, 4) = pack("V", $declared);
+  substr($_, $central + 24, 4) = pack("V", $declared);
+' "${cmc_fixture_aab_forged_size}/artifact/candidate.aab"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_aab_forged_size}" \
+  --artifact "${cmc_fixture_aab_forged_size}/artifact/candidate.aab"
+
 cmc_fixture_aab_entry_bound="$(cmc_fixture_prepare aab-entry-count-bound)"
 mkdir -p "${cmc_fixture_aab_entry_bound}/artifact/input/entries"
 for ((cmc_fixture_entry_index = 0; cmc_fixture_entry_index < 2049; cmc_fixture_entry_index++)); do

@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -259,6 +259,22 @@ format 296/0, analyze e build debug Android/iOS `PASS`. Artifact unsigned e
 SHA-256 byte-identici al candidato precedente.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## Security Fix 3 re-review — `CODEX_RE_REVIEWER`
+
+- exact SHA `09d2207c7d7409cf933b3783e75d7765e99e1e9c`, due reviewer
+  read-only distinti e worktree pulito;
+- review prodotto `APPROVED`; security re-review `CHANGES_REQUIRED` con
+  0 P0, 0 P1, 0 P2 e 1 P3;
+- `F-039-SR01`, `F-039-SR03` e `F-039-SR04` chiusi; `F-039-SR02` e
+  `F-039-SR05` restano chiusi;
+- `F-039-SR06` P3 riaperto: il preflight usa size ZIP dichiarate
+  falsificabili. Un PoC da 16.453 byte dichiara 2.000.000 byte/rapporto 123×,
+  emette realmente 16.777.216 byte e il full scanner termina exit 0;
+- fix richiesto: contatore streaming dei byte effettivamente decompressi con
+  abort alle soglie e regressione su size local/central falsificate.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

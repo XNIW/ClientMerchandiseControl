@@ -183,7 +183,7 @@ jobs:
     expect(() => _validateIosReleaseJob(workflow), throwsA(isA<StateError>()));
   });
 
-  test('CI release gate rejects job and step execution overrides', () {
+  test('CI release gate rejects workflow job and step execution overrides', () {
     final workflow = File(
       '$repositoryRoot/.github/workflows/ci.yml',
     ).readAsStringSync();
@@ -203,6 +203,32 @@ jobs:
       workflow.replaceFirst(
         candidateStep,
         '$candidateStep        shell: python\n',
+      ),
+      workflow.replaceFirst(
+        'jobs:\n',
+        'defaults:\n  run:\n    shell: echo {0}\njobs:\n',
+      ),
+      workflow.replaceFirst(
+        'jobs:\n',
+        'defaults:\n  run:\n    working-directory: .\njobs:\n',
+      ),
+      workflow.replaceFirst(
+        'env:\n  FLUTTER_VERSION: 3.44.8\n',
+        'env:\n  FLUTTER_VERSION: 3.44.8\n  BASH_ENV: .github/noop.sh\n',
+      ),
+      workflow.replaceFirst(
+        'env:\n  FLUTTER_VERSION: 3.44.8\n',
+        'env:\n  FLUTTER_VERSION: 3.44.8\n  ENV: .github/noop.sh\n',
+      ),
+      workflow.replaceFirst(
+        '      - name: Validate iOS release source\n',
+        '      - name: Poison release environment\n'
+            '        run: echo BASH_ENV=.github/noop.sh >> "\$GITHUB_ENV"\n'
+            '      - name: Validate iOS release source\n',
+      ),
+      workflow.replaceFirst(
+        '  pull_request:\n    branches:\n      - main\n',
+        '',
       ),
     ];
 
@@ -225,6 +251,48 @@ void _validateIosReleaseJob(String workflow) {
   if (document is! YamlMap || document['jobs'] is! YamlMap) {
     throw StateError('workflow jobs missing');
   }
+  const allowedWorkflowKeys = <String>{
+    'name',
+    'on',
+    'concurrency',
+    'permissions',
+    'env',
+    'jobs',
+  };
+  final workflowKeys = document.keys.map((key) => key.toString()).toSet();
+  final workflowEnv = document['env'];
+  if (workflowKeys.length != allowedWorkflowKeys.length ||
+      !workflowKeys.containsAll(allowedWorkflowKeys) ||
+      workflowEnv is! YamlMap ||
+      workflowEnv.length != 1 ||
+      workflowEnv['FLUTTER_VERSION'] != '3.44.8') {
+    throw StateError('workflow execution boundary invalid');
+  }
+  final triggers = document['on'];
+  final permissions = document['permissions'];
+  final concurrency = document['concurrency'];
+  if (document['name'] != 'CI' ||
+      triggers is! YamlMap ||
+      !_hasExactKeys(triggers, const <String>{
+        'pull_request',
+        'push',
+        'workflow_dispatch',
+      }) ||
+      !_isMainBranchTrigger(triggers['pull_request']) ||
+      !_isMainBranchTrigger(triggers['push']) ||
+      triggers['workflow_dispatch'] != null ||
+      permissions is! YamlMap ||
+      !_hasExactKeys(permissions, const <String>{'contents'}) ||
+      permissions['contents'] != 'read' ||
+      concurrency is! YamlMap ||
+      !_hasExactKeys(concurrency, const <String>{
+        'group',
+        'cancel-in-progress',
+      }) ||
+      concurrency['group'] != r'ci-${{ github.workflow }}-${{ github.ref }}' ||
+      concurrency['cancel-in-progress'] != true) {
+    throw StateError('workflow trigger or permission boundary invalid');
+  }
   final jobs = document['jobs'] as YamlMap;
   if (!jobs.containsKey('ios-release') || jobs['ios-release'] is! YamlMap) {
     throw StateError('ios-release job missing');
@@ -246,7 +314,45 @@ void _validateIosReleaseJob(String workflow) {
     throw StateError('ios-release job metadata invalid');
   }
 
-  final steps = (job['steps'] as YamlList).whereType<YamlMap>().toList();
+  final rawSteps = job['steps'] as YamlList;
+  final steps = rawSteps.whereType<YamlMap>().toList();
+  if (rawSteps.length != 9 || steps.length != 9) {
+    throw StateError('ios-release step set invalid');
+  }
+  _requireStep(
+    steps[0],
+    name: 'Checkout',
+    keys: const <String>{'name', 'uses'},
+    uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
+  );
+  _requireStep(
+    steps[1],
+    name: 'Set up Flutter',
+    keys: const <String>{'name', 'uses', 'with'},
+    uses: 'subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2',
+  );
+  final flutterWith = steps[1]['with'];
+  if (flutterWith is! YamlMap ||
+      !_hasExactKeys(flutterWith, const <String>{
+        'flutter-version',
+        'channel',
+      }) ||
+      flutterWith['flutter-version'] != r'${{ env.FLUTTER_VERSION }}' ||
+      flutterWith['channel'] != 'stable') {
+    throw StateError('iOS Flutter setup invalid');
+  }
+  _requireStep(
+    steps[2],
+    name: 'Validate Flutter toolchain',
+    keys: const <String>{'name', 'run'},
+    run: 'bash scripts/resolve-flutter.sh',
+  );
+  _requireStep(
+    steps[3],
+    name: 'Resolve dependencies',
+    keys: const <String>{'name', 'run'},
+    run: 'flutter pub get --enforce-lockfile',
+  );
   const required = <String, String>{
     'Validate iOS release source':
         'bash scripts/check-ios-release.sh --source-only',
@@ -268,17 +374,43 @@ void _validateIosReleaseJob(String workflow) {
         '--archive build/ios/archive/Runner.xcarchive',
   };
 
-  for (final entry in required.entries) {
-    final matches = steps.where((step) {
-      final stepKeys = step.keys.map((key) => key.toString()).toSet();
-      return step['name'] == entry.key &&
-          _normalizeCommand(step['run']) == entry.value &&
-          stepKeys.length == 2 &&
-          stepKeys.containsAll(const <String>{'name', 'run'});
-    }).length;
-    if (matches != 1) {
-      throw StateError('iOS release step invalid: ${entry.key}');
-    }
+  for (final indexed in required.entries.indexed) {
+    _requireStep(
+      steps[indexed.$1 + 4],
+      name: indexed.$2.key,
+      keys: const <String>{'name', 'run'},
+      run: indexed.$2.value,
+    );
+  }
+}
+
+bool _hasExactKeys(YamlMap map, Set<String> expected) {
+  final keys = map.keys.map((key) => key.toString()).toSet();
+  return keys.length == expected.length && keys.containsAll(expected);
+}
+
+bool _isMainBranchTrigger(Object? value) {
+  if (value is! YamlMap || !_hasExactKeys(value, const <String>{'branches'})) {
+    return false;
+  }
+  final branches = value['branches'];
+  return branches is YamlList &&
+      branches.length == 1 &&
+      branches.single == 'main';
+}
+
+void _requireStep(
+  YamlMap step, {
+  required String name,
+  required Set<String> keys,
+  String? run,
+  String? uses,
+}) {
+  if (!_hasExactKeys(step, keys) ||
+      step['name'] != name ||
+      (run != null && _normalizeCommand(step['run']) != run) ||
+      (uses != null && step['uses'] != uses)) {
+    throw StateError('iOS release step invalid: $name');
   }
 }
 

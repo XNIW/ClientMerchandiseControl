@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cmc_arch_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cmc_arch_binding_validator="${cmc_arch_script_dir}/../tool/check_app_config_binding.dart"
+
 if [[ -n "${CMC_ARCH_REPO_ROOT:-}" ]]; then
   cmc_arch_repo_root="${CMC_ARCH_REPO_ROOT}"
 else
@@ -71,20 +74,9 @@ cmc_arch_require_count() {
 cmc_arch_require_storefront_slug_binding() {
   local cmc_arch_file="$1"
 
-  if ! perl -0777 -e '
-    use strict;
-    use warnings;
-    local $/;
-    my $content = <>;
-    $content =~ s{/\*.*?\*/}{}gs;
-    $content =~ s{//[^\r\n]*}{}g;
-    my $count = () = $content =~ /
-      static\s+const\s+_compiledStorefrontShopSlug\s*=\s*
-      String\.fromEnvironment\(\s*
-      \x27STOREFRONT_SHOP_SLUG\x27\s*,?\s*\);
-    /gx;
-    exit($count == 1 ? 0 : 1);
-  ' "${cmc_arch_file}"; then
+  if ! command -v dart >/dev/null 2>&1 || ! dart run \
+    "${cmc_arch_binding_validator}" \
+    "${cmc_arch_file}" >/dev/null; then
     printf 'Binding compile-time Storefront shop slug invalido (%s)\n' \
       "${cmc_arch_file}" >&2
     cmc_arch_violation_count=$((cmc_arch_violation_count + 1))

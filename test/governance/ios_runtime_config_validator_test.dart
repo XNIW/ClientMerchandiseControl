@@ -164,7 +164,8 @@ void main() {
         'cmc-ios-runtime-fifo-',
       );
       addTearDown(() => directory.deleteSync(recursive: true));
-      final fifoPath = '${directory.path}/production.json';
+      final fifoPath =
+          '${directory.resolveSymbolicLinksSync()}/production.json';
       final created = await Process.run('mkfifo', [fifoPath]);
       expect(created.exitCode, 0, reason: created.stderr as String);
 

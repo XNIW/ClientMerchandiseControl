@@ -163,7 +163,16 @@ cmc_ios_release_validate_privacy_manifest() {
         $decoded->{NSPrivacyTracking};
       exit 1 if @{$decoded->{NSPrivacyTrackingDomains}};
 
-      my %accessed_types;
+      my %accessed_reasons = (
+        NSPrivacyAccessedAPICategoryDiskSpace => { "85F4.1" => 1 },
+        NSPrivacyAccessedAPICategoryFileTimestamp => {
+          "0A2A.1" => 1,
+          "C617.1" => 1,
+        },
+        NSPrivacyAccessedAPICategorySystemBootTime => { "35F9.1" => 1 },
+        NSPrivacyAccessedAPICategoryUserDefaults => { "1C8F.1" => 1 },
+      );
+      my %seen_accessed_types;
       for my $entry (@{$decoded->{NSPrivacyAccessedAPITypes}}) {
         exit 1 if ref($entry) ne "HASH";
         my %entry_expected = map { $_ => 1 } qw(
@@ -173,19 +182,37 @@ cmc_ios_release_validate_privacy_manifest() {
         exit 1 if keys(%$entry) != keys(%entry_expected);
         exit 1 if grep { !$entry_expected{$_} } keys %$entry;
         my $type = $entry->{NSPrivacyAccessedAPIType};
-        exit 1 if ref($type) || $type !~
-          /^NSPrivacyAccessedAPICategory[A-Za-z0-9]+$/;
-        exit 1 if $accessed_types{$type}++;
+        exit 1 if ref($type) || !exists $accessed_reasons{$type};
+        exit 1 if $seen_accessed_types{$type}++;
         my $reasons = $entry->{NSPrivacyAccessedAPITypeReasons};
         exit 1 if ref($reasons) ne "ARRAY" || !@$reasons;
         my %seen_reasons;
         for my $reason (@$reasons) {
-          exit 1 if ref($reason) || $reason !~ /^[A-Z0-9]{4}\.[0-9]+$/;
+          exit 1 if ref($reason) ||
+            !$accessed_reasons{$type}->{$reason};
           exit 1 if $seen_reasons{$reason}++;
         }
       }
 
-      my %collected_types;
+      my %allowed_collected_types = map { $_ => 1 } qw(
+        NSPrivacyCollectedDataTypeCrashData
+        NSPrivacyCollectedDataTypeDeviceID
+        NSPrivacyCollectedDataTypeEmailAddress
+        NSPrivacyCollectedDataTypeName
+        NSPrivacyCollectedDataTypeOtherUserContent
+        NSPrivacyCollectedDataTypePaymentInfo
+        NSPrivacyCollectedDataTypePerformanceData
+        NSPrivacyCollectedDataTypePhysicalAddress
+        NSPrivacyCollectedDataTypeProductInteraction
+        NSPrivacyCollectedDataTypePurchaseHistory
+        NSPrivacyCollectedDataTypeSearchHistory
+        NSPrivacyCollectedDataTypeUserID
+      );
+      my %allowed_collected_purposes = map { $_ => 1 } qw(
+        NSPrivacyCollectedDataTypePurposeAnalytics
+        NSPrivacyCollectedDataTypePurposeAppFunctionality
+      );
+      my %seen_collected_types;
       for my $entry (@{$decoded->{NSPrivacyCollectedDataTypes}}) {
         exit 1 if ref($entry) ne "HASH";
         my %entry_expected = map { $_ => 1 } qw(
@@ -197,9 +224,8 @@ cmc_ios_release_validate_privacy_manifest() {
         exit 1 if keys(%$entry) != keys(%entry_expected);
         exit 1 if grep { !$entry_expected{$_} } keys %$entry;
         my $type = $entry->{NSPrivacyCollectedDataType};
-        exit 1 if ref($type) || $type !~
-          /^NSPrivacyCollectedDataType[A-Za-z0-9]+$/;
-        exit 1 if $collected_types{$type}++;
+        exit 1 if ref($type) || !$allowed_collected_types{$type};
+        exit 1 if $seen_collected_types{$type}++;
         exit 1 if !JSON::PP::is_bool(
           $entry->{NSPrivacyCollectedDataTypeLinked}
         );
@@ -210,8 +236,7 @@ cmc_ios_release_validate_privacy_manifest() {
         exit 1 if ref($purposes) ne "ARRAY" || !@$purposes;
         my %seen_purposes;
         for my $purpose (@$purposes) {
-          exit 1 if ref($purpose) || $purpose !~
-            /^NSPrivacyCollectedDataTypePurpose[A-Za-z0-9]+$/;
+          exit 1 if ref($purpose) || !$allowed_collected_purposes{$purpose};
           exit 1 if $seen_purposes{$purpose}++;
         }
       }

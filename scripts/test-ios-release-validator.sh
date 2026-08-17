@@ -45,11 +45,15 @@ cp -R "${cmc_ios_test_source_app}" "${cmc_ios_test_fixture_app}"
 cp "${cmc_ios_test_source_info}" "${cmc_ios_test_fixture_archive}/Info.plist"
 cp "${cmc_ios_test_source_dsym}" "${cmc_ios_test_fixture_dsym}/Runner"
 
+cmc_ios_test_total=0
+cmc_ios_test_passed=0
+
 cmc_ios_test_expect_failure() {
   local cmc_ios_test_name="$1"
   local cmc_ios_test_expected="$2"
   shift 2
   local cmc_ios_test_log="${cmc_ios_test_tmp_root}/${cmc_ios_test_name}.log"
+  cmc_ios_test_total=$((cmc_ios_test_total + 1))
 
   if "$@" >"${cmc_ios_test_log}" 2>&1; then
     printf 'Fixture iOS %s doveva fallire.\n' "${cmc_ios_test_name}" >&2
@@ -63,6 +67,7 @@ cmc_ios_test_expect_failure() {
       "${cmc_ios_test_log}" >&2 || true
     exit 1
   }
+  cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 }
 
 cmc_ios_test_baseline_output="$(bash "${cmc_ios_test_validator}" \
@@ -194,6 +199,31 @@ cmc_ios_test_expect_failure privacy-incomplete-nested-schema \
 cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
   "${cmc_ios_test_required_privacy}"
 
+plutil -replace NSPrivacyAccessedAPITypes -json \
+  '[{"NSPrivacyAccessedAPIType":"NSPrivacyAccessedAPICategoryTotallyFake","NSPrivacyAccessedAPITypeReasons":["ZZZZ.999"]}]' \
+  "${cmc_ios_test_required_privacy}"
+plutil -replace NSPrivacyCollectedDataTypes -json \
+  '[{"NSPrivacyCollectedDataType":"NSPrivacyCollectedDataTypeTotallyFake","NSPrivacyCollectedDataTypeLinked":false,"NSPrivacyCollectedDataTypePurposes":["NSPrivacyCollectedDataTypePurposeTotallyFake"],"NSPrivacyCollectedDataTypeTracking":false}]' \
+  "${cmc_ios_test_required_privacy}"
+cmc_ios_test_expect_failure privacy-unknown-enums \
+  DEPENDENCY_PRIVACY_MANIFEST_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
+  "${cmc_ios_test_required_privacy}"
+
+plutil -replace NSPrivacyAccessedAPITypes -json \
+  '[{"NSPrivacyAccessedAPIType":"NSPrivacyAccessedAPICategoryUserDefaults","NSPrivacyAccessedAPITypeReasons":["85F4.1"]}]' \
+  "${cmc_ios_test_required_privacy}"
+cmc_ios_test_expect_failure privacy-reason-category-mismatch \
+  DEPENDENCY_PRIVACY_MANIFEST_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
+  "${cmc_ios_test_required_privacy}"
+
 cmc_ios_test_entitlements="${cmc_ios_test_tmp_root}/entitlements.plist"
 cp "${cmc_ios_test_root}/ios/Runner/PrivacyInfo.xcprivacy" \
   "${cmc_ios_test_entitlements}"
@@ -307,4 +337,5 @@ cmc_ios_test_expect_failure invalid-signature ARTIFACT_SIGNATURE_INVALID \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 
-printf 'iOS release validator fixtures: 15/15 PASS.\n'
+printf 'iOS release validator fixtures: %d/%d PASS.\n' \
+  "${cmc_ios_test_passed}" "${cmc_ios_test_total}"

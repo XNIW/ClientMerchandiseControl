@@ -65,9 +65,28 @@ cmc_ios_test_expect_failure() {
   }
 }
 
-bash "${cmc_ios_test_validator}" \
+cmc_ios_test_baseline_output="$(bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
-  --archive "${cmc_ios_test_fixture_archive}" >/dev/null
+  --archive "${cmc_ios_test_fixture_archive}")"
+cmc_ios_test_expected_runtime_sha="$(
+  shasum -a 256 \
+    "${cmc_ios_test_fixture_app}/Frameworks/App.framework/App" | awk '{print $1}'
+)"
+cmc_ios_test_expected_native_sha="$(
+  shasum -a 256 "${cmc_ios_test_fixture_app}/Runner" | awk '{print $1}'
+)"
+grep -Fxq \
+  "IOS_RELEASE_EXECUTABLE_SHA256=${cmc_ios_test_expected_runtime_sha}" \
+  <<<"${cmc_ios_test_baseline_output}" || {
+  printf 'Fixture iOS: hash runtime non legato ad App.framework/App.\n' >&2
+  exit 1
+}
+grep -Fxq \
+  "IOS_RELEASE_NATIVE_WRAPPER_SHA256=${cmc_ios_test_expected_native_sha}" \
+  <<<"${cmc_ios_test_baseline_output}" || {
+  printf 'Fixture iOS: hash wrapper nativo non verificabile.\n' >&2
+  exit 1
+}
 
 cp "${cmc_ios_test_source_info}" \
   "${cmc_ios_test_tmp_root}/Archive-Info.plist.original"
@@ -90,6 +109,15 @@ cmc_ios_test_expect_failure archive-application-set \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm -rf -- "${cmc_ios_test_fixture_archive}/Products/Applications/Extra.app"
+
+ln -s "${cmc_ios_test_tmp_root}/external-extra.app" \
+  "${cmc_ios_test_fixture_archive}/Products/Applications/Extra.app"
+cmc_ios_test_expect_failure archive-application-symlink \
+  ARCHIVE_APPLICATION_SET_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+rm "${cmc_ios_test_fixture_archive}/Products/Applications/Extra.app"
 
 cmc_ios_test_external_app="${cmc_ios_test_tmp_root}/External.app"
 cp -R "${cmc_ios_test_fixture_app}" "${cmc_ios_test_external_app}"
@@ -135,6 +163,18 @@ cp "${cmc_ios_test_required_privacy}" \
   "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy"
 printf 'not a plist\n' >"${cmc_ios_test_required_privacy}"
 cmc_ios_test_expect_failure privacy-malformed \
+  DEPENDENCY_PRIVACY_MANIFEST_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
+  "${cmc_ios_test_required_privacy}"
+
+printf '<?xml version="1.0" encoding="UTF-8"?>\n' \
+  '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
+  '<plist version="1.0"><dict/></plist>\n' \
+  >"${cmc_ios_test_required_privacy}"
+cmc_ios_test_expect_failure privacy-empty-schema \
   DEPENDENCY_PRIVACY_MANIFEST_INVALID \
   bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
@@ -255,4 +295,4 @@ cmc_ios_test_expect_failure invalid-signature ARTIFACT_SIGNATURE_INVALID \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 
-printf 'iOS release validator fixtures: 13/13 PASS.\n'
+printf 'iOS release validator fixtures: 15/15 PASS.\n'

@@ -147,6 +147,13 @@ cmc_fixture_replace_literal \
   "_origin.resolve('/storage/v1/object/list/product-images')"
 cmc_fixture_expect_rejection "${cmc_fixture_storage_path}"
 
+cmc_fixture_shop_slug_path="$(cmc_fixture_prepare invalid-storefront-shop-slug-key)"
+cmc_fixture_replace_literal \
+  "${cmc_fixture_shop_slug_path}/lib/core/config/app_config.dart" \
+  "'STOREFRONT_SHOP_SLUG'," \
+  "'ATTACKER_SHOP_SLUG',"
+cmc_fixture_expect_rejection "${cmc_fixture_shop_slug_path}"
+
 if [[ "${cmc_fixture_rejected}" -ne "${cmc_fixture_total}" ]]; then
   printf 'Fixture negative respinte: %d/%d.\n' \
     "${cmc_fixture_rejected}" "${cmc_fixture_total}" >&2

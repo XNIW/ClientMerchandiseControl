@@ -138,6 +138,39 @@ cmc_ios_release_validate_url_types() {
     ' || cmc_ios_release_fail 'DEEPLINK_SCHEME_SET_INVALID'
 }
 
+cmc_ios_release_validate_privacy_manifest() {
+  local cmc_ios_release_manifest="$1"
+
+  plutil -convert json -o - "${cmc_ios_release_manifest}" 2>/dev/null | \
+    perl -MJSON::PP -e '
+      use strict;
+      use warnings;
+      local $/;
+      my $decoded = eval { JSON::PP->new->utf8->decode(<STDIN>) };
+      exit 1 if $@ || ref($decoded) ne "HASH";
+      my %expected = map { $_ => 1 } qw(
+        NSPrivacyAccessedAPITypes
+        NSPrivacyCollectedDataTypes
+        NSPrivacyTracking
+        NSPrivacyTrackingDomains
+      );
+      exit 1 if keys(%$decoded) != keys(%expected);
+      exit 1 if grep { !$expected{$_} } keys %$decoded;
+      exit 1 if ref($decoded->{NSPrivacyAccessedAPITypes}) ne "ARRAY";
+      exit 1 if ref($decoded->{NSPrivacyCollectedDataTypes}) ne "ARRAY";
+      exit 1 if ref($decoded->{NSPrivacyTrackingDomains}) ne "ARRAY";
+      exit 1 if !JSON::PP::is_bool($decoded->{NSPrivacyTracking}) ||
+        $decoded->{NSPrivacyTracking};
+      exit 1 if grep { ref($_) ne "HASH" }
+        @{$decoded->{NSPrivacyAccessedAPITypes}};
+      exit 1 if grep { ref($_) ne "HASH" }
+        @{$decoded->{NSPrivacyCollectedDataTypes}};
+      exit 1 if grep { ref($_) }
+        @{$decoded->{NSPrivacyTrackingDomains}};
+      exit 0;
+    '
+}
+
 if grep -Eq 'SUPABASE_|AUTH_REDIRECT_URI|STOREFRONT_SHOP_SLUG' \
   "${cmc_ios_release_config}"; then
   cmc_ios_release_fail 'PRODUCTION_TEMPLATE_CONTAINS_EXTERNAL_VALUE'
@@ -253,6 +286,9 @@ for cmc_ios_release_privacy_relative in \
   plutil -lint \
     "${cmc_ios_release_app}/${cmc_ios_release_privacy_relative}" \
     >/dev/null 2>&1 || \
+    cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_INVALID'
+  cmc_ios_release_validate_privacy_manifest \
+    "${cmc_ios_release_app}/${cmc_ios_release_privacy_relative}" || \
     cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_INVALID'
 done
 [[ "$(find "${cmc_ios_release_app}" -name PrivacyInfo.xcprivacy -type f | \
@@ -375,10 +411,14 @@ if [[ -n "${cmc_ios_release_archive}" ]]; then
     *) cmc_ios_release_fail 'ARCHIVE_EXTENSION_INVALID' ;;
   esac
   cmc_ios_release_archive_info="${cmc_ios_release_archive}/Info.plist"
+  cmc_ios_release_archive_applications="${cmc_ios_release_archive}/Products/Applications"
   cmc_ios_release_archive_app="${cmc_ios_release_archive}/Products/Applications/Runner.app"
   cmc_ios_release_archive_dsym="${cmc_ios_release_archive}/dSYMs/Runner.app.dSYM/Contents/Resources/DWARF/Runner"
   [[ -r "${cmc_ios_release_archive_info}" && \
+    -d "${cmc_ios_release_archive_applications}" && \
+    ! -L "${cmc_ios_release_archive_applications}" && \
     -d "${cmc_ios_release_archive_app}" && \
+    ! -L "${cmc_ios_release_archive_app}" && \
     -r "${cmc_ios_release_archive_dsym}" ]] || \
     cmc_ios_release_fail 'ARCHIVE_CONTENT_MISSING'
   [[ "$(/usr/libexec/PlistBuddy -c \
@@ -386,9 +426,15 @@ if [[ -n "${cmc_ios_release_archive}" ]]; then
     "${cmc_ios_release_archive_info}" 2>/dev/null || true)" == \
     'Applications/Runner.app' ]] || \
     cmc_ios_release_fail 'ARCHIVE_APPLICATION_PATH_MISMATCH'
-  [[ "$(find "${cmc_ios_release_archive}/Products/Applications" \
-    -mindepth 1 -maxdepth 1 -type d -name '*.app' | \
-    wc -l | tr -d '[:space:]')" -eq 1 ]] || \
+  cmc_ios_release_archive_app_count=0
+  while IFS= read -r -d '' cmc_ios_release_archive_app_entry; do
+    cmc_ios_release_archive_app_count=$((cmc_ios_release_archive_app_count + 1))
+    [[ "${cmc_ios_release_archive_app_entry}" == \
+      "${cmc_ios_release_archive_app}" ]] || \
+      cmc_ios_release_fail 'ARCHIVE_APPLICATION_SET_INVALID'
+  done < <(find "${cmc_ios_release_archive_applications}" \
+    -mindepth 1 -maxdepth 1 -name '*.app' -print0)
+  [[ "${cmc_ios_release_archive_app_count}" -eq 1 ]] || \
     cmc_ios_release_fail 'ARCHIVE_APPLICATION_SET_INVALID'
   [[ "$(/usr/libexec/PlistBuddy -c \
     'Print :ApplicationProperties:CFBundleIdentifier' \
@@ -456,9 +502,14 @@ else
 fi
 
 cmc_ios_release_sha="$(
-  shasum -a 256 "${cmc_ios_release_executable}" | awk '{print $1}'
+  shasum -a 256 "${cmc_ios_release_runtime_executable}" | awk '{print $1}'
 )"
 [[ "${cmc_ios_release_sha}" =~ ^[0-9a-f]{64}$ ]] || \
+  cmc_ios_release_fail 'ARTIFACT_HASH_UNREADABLE'
+cmc_ios_release_native_sha="$(
+  shasum -a 256 "${cmc_ios_release_executable}" | awk '{print $1}'
+)"
+[[ "${cmc_ios_release_native_sha}" =~ ^[0-9a-f]{64}$ ]] || \
   cmc_ios_release_fail 'ARTIFACT_HASH_UNREADABLE'
 
 if [[ "${cmc_ios_release_require_upload}" == true ]]; then
@@ -584,6 +635,7 @@ fi
 printf 'IOS_RELEASE_CANDIDATE_VALID\n'
 printf 'IOS_RELEASE_SIGNING=%s\n' "${cmc_ios_release_signing_state}"
 printf 'IOS_RELEASE_EXECUTABLE_SHA256=%s\n' "${cmc_ios_release_sha}"
+printf 'IOS_RELEASE_NATIVE_WRAPPER_SHA256=%s\n' "${cmc_ios_release_native_sha}"
 if [[ "${cmc_ios_release_entitlement_source}" == ABSENT ]]; then
   printf 'IOS_PUSH_ACTIVATION_BLOCKED: REVIEWED_ENTITLEMENT_AND_APNS_REQUIRED\n'
   printf 'IOS_UNIVERSAL_LINKS_ACTIVATION_BLOCKED: OWNED_DOMAIN_AND_ASSOCIATION_FILE_REQUIRED\n'

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yaml/yaml.dart';
 
 void main() {
   final repositoryRoot = Directory.current.path;
@@ -161,50 +162,86 @@ jobs:
     final duplicate = '$workflow\n  ios-release:\n    runs-on: macos-latest\n';
     expect(() => _validateIosReleaseJob(duplicate), throwsA(isA<StateError>()));
   });
+
+  test('CI release gate rejects sentinel strings in a no-op step', () {
+    const workflow = '''
+jobs:
+  ios-release:
+    name: iOS release candidate
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: No-op release evidence
+        run: |
+          : "bash scripts/check-ios-release.sh --source-only"
+          : "flutter build ios --release --no-codesign --dart-define-from-file=config/app_config.production.release.json"
+          : "xcodebuild archive -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release -destination generic/platform=iOS -archivePath build/ios/archive/Runner.xcarchive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO COMPILER_INDEX_STORE_ENABLE=NO"
+          : "bash scripts/check-ios-release.sh --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app --archive build/ios/archive/Runner.xcarchive"
+          : "bash scripts/test-ios-release-validator.sh --archive build/ios/archive/Runner.xcarchive"
+''';
+
+    expect(() => _validateIosReleaseJob(workflow), throwsA(isA<StateError>()));
+  });
 }
 
 void _validateIosReleaseJob(String workflow) {
-  final blocks = _yamlJobBlocks(workflow, 'ios-release');
-  if (blocks.length != 1) {
-    throw StateError('ios-release job cardinality invalid');
+  final Object? document;
+  try {
+    document = loadYaml(workflow);
+  } on YamlException catch (error) {
+    throw StateError('workflow YAML invalid: $error');
   }
-  final job = blocks.single;
-  for (final required in <String>[
-    'name: iOS release candidate',
-    'runs-on: macos-latest',
-    'flutter build ios --release --no-codesign',
-    'xcodebuild archive',
-    'CODE_SIGNING_ALLOWED=NO',
-    'name: Validate iOS release candidate',
-    'scripts/check-ios-release.sh',
-    '--app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app',
-    '--archive build/ios/archive/Runner.xcarchive',
-    'name: Validate iOS adversarial release boundaries',
-    'scripts/test-ios-release-validator.sh',
-  ]) {
-    if (!job.contains(required)) {
-      throw StateError('ios-release job missing required boundary');
+  if (document is! YamlMap || document['jobs'] is! YamlMap) {
+    throw StateError('workflow jobs missing');
+  }
+  final jobs = document['jobs'] as YamlMap;
+  if (!jobs.containsKey('ios-release') || jobs['ios-release'] is! YamlMap) {
+    throw StateError('ios-release job missing');
+  }
+  final job = jobs['ios-release'] as YamlMap;
+  if (job['name'] != 'iOS release candidate' ||
+      job['runs-on'] != 'macos-latest' ||
+      job['timeout-minutes'] != 45 ||
+      job['steps'] is! YamlList) {
+    throw StateError('ios-release job metadata invalid');
+  }
+
+  final steps = (job['steps'] as YamlList).whereType<YamlMap>().toList();
+  const required = <String, String>{
+    'Validate iOS release source':
+        'bash scripts/check-ios-release.sh --source-only',
+    'Build production-like unsigned iOS app':
+        'flutter build ios --release --no-codesign '
+        '--dart-define-from-file=config/app_config.production.release.json',
+    'Archive production-like unsigned iOS app':
+        'xcodebuild archive -workspace ios/Runner.xcworkspace -scheme Runner '
+        '-configuration Release -destination \'generic/platform=iOS\' '
+        '-archivePath build/ios/archive/Runner.xcarchive '
+        'CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO '
+        'COMPILER_INDEX_STORE_ENABLE=NO',
+    'Validate iOS release candidate':
+        'bash scripts/check-ios-release.sh '
+        '--app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app '
+        '--archive build/ios/archive/Runner.xcarchive',
+    'Validate iOS adversarial release boundaries':
+        'bash scripts/test-ios-release-validator.sh '
+        '--archive build/ios/archive/Runner.xcarchive',
+  };
+
+  for (final entry in required.entries) {
+    final matches = steps.where((step) {
+      return step['name'] == entry.key &&
+          _normalizeCommand(step['run']) == entry.value;
+    }).length;
+    if (matches != 1) {
+      throw StateError('iOS release step invalid: ${entry.key}');
     }
   }
 }
 
-List<String> _yamlJobBlocks(String workflow, String jobName) {
-  final lines = const LineSplitter().convert(workflow);
-  final blocks = <String>[];
-  for (var start = 0; start < lines.length; start++) {
-    if (lines[start] != '  $jobName:') {
-      continue;
-    }
-    final end = lines.indexWhere(
-      (line) => RegExp(r'^  [a-zA-Z0-9_-]+:$').hasMatch(line),
-      start + 1,
-    );
-    blocks.add(
-      lines
-          .sublist(start, end < 0 ? lines.length : end)
-          .where((line) => !line.trimLeft().startsWith('#'))
-          .join('\n'),
-    );
+String _normalizeCommand(Object? value) {
+  if (value is! String) {
+    return '';
   }
-  return blocks;
+  return value.trim().split(RegExp(r'\s+')).join(' ');
 }

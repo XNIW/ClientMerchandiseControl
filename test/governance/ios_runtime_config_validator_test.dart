@@ -138,6 +138,23 @@ void main() {
     expect(ancestorLink.exitCode, 1);
     expect(ancestorLink.stderr, contains('FILE_PATH_NOT_CANONICAL'));
   });
+
+  test(
+    'runtime config oltre il limite viene respinta prima del parsing',
+    () async {
+      final fixture = await _runtimeFixture();
+      addTearDown(() => fixture.parent.deleteSync(recursive: true));
+      fixture.writeAsStringSync(
+        '${fixture.readAsStringSync()}${List.filled(65536, ' ').join()}',
+      );
+
+      final result = await _runValidator(repositoryRoot, fixture.path);
+
+      expect(result.exitCode, 1);
+      expect(result.stdout, isEmpty);
+      expect(result.stderr, contains('FILE_SIZE_INVALID'));
+    },
+  );
 }
 
 Future<ProcessResult> _runValidator(String repositoryRoot, String path) {

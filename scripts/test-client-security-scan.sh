@@ -625,6 +625,21 @@ cmc_fixture_expect_rejection \
   "${cmc_fixture_aggregate}" \
   --artifact "${cmc_fixture_aggregate}/artifact"
 
+cmc_fixture_file_count="$(cmc_fixture_prepare bundle-file-count-bound)"
+mkdir -p "${cmc_fixture_file_count}/artifact"
+perl -e '
+  use strict;
+  use warnings;
+  my ($root, $count) = @ARGV;
+  for my $index (1 .. $count) {
+    open my $handle, ">", "$root/file-$index.bin" or exit 2;
+    close $handle or exit 2;
+  }
+' "${cmc_fixture_file_count}/artifact" 4097
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_file_count}" \
+  --artifact "${cmc_fixture_file_count}/artifact"
+
 cmc_fixture_oversized_file="$(cmc_fixture_prepare bundle-file-size-bound)"
 mkdir -p "${cmc_fixture_oversized_file}/artifact"
 dd if=/dev/zero \

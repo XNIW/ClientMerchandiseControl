@@ -43,8 +43,7 @@ if ! git -C "${cmc_security_repo_root}" rev-parse --is-inside-work-tree \
   printf 'Security scan non eseguibile: repository Git non valido.\n' >&2
   exit 1
 fi
-if ! command -v openssl >/dev/null 2>&1 || \
-  ! command -v perl >/dev/null 2>&1 || \
+if ! command -v perl >/dev/null 2>&1 || \
   ! command -v tr >/dev/null 2>&1 || \
   ! perl -MJSON::PP -MDigest::SHA -MMIME::Base64 -e 1 \
     >/dev/null 2>&1; then
@@ -71,66 +70,68 @@ trap cmc_security_cleanup EXIT
 
 cmc_security_secret_value_pattern='(AKIA[0-9A-Z]{16}|github_pat_[0-9A-Za-z_]{20,}|gh[pousr]_[0-9A-Za-z]{30,}|sk-(proj|live|prod)-[0-9A-Za-z_-]{20,}|sk_(live|prod)_[0-9A-Za-z]{20,}|sb_secret_[0-9A-Za-z]{24,}|AIza[0-9A-Za-z_-]{30,}|GOCSPX-[0-9A-Za-z_-]{20,})'
 cmc_security_source_secret_pattern="(${cmc_security_secret_value_pattern}|-----BEGIN (RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY-----)"
-cmc_security_jwt_pattern='eyJ[0-9A-Za-z_-]{8,}\.[0-9A-Za-z_-]{8,}\.[0-9A-Za-z_-]{8,}'
-
 cmc_security_contains_non_publishable_jwt() {
   local cmc_security_file="$1"
-  local cmc_security_token
-  local cmc_security_tokens
-  local cmc_security_payload
-  local cmc_security_padding
-  local cmc_security_grep_status
-  local cmc_security_role_status
+  local cmc_security_perl_status
 
-  if cmc_security_tokens="$(
-    LC_ALL=C grep -aEo -- "${cmc_security_jwt_pattern}" \
-      "${cmc_security_file}"
-  )"; then
-    :
+  if perl -MJSON::PP -MMIME::Base64=decode_base64 -e '
+    use strict;
+    use warnings;
+    my $path = shift;
+    open my $handle, "<", $path or exit 2;
+    binmode $handle;
+    my $jwt = qr/eyJ[0-9A-Za-z_-]{8,16384}\.[0-9A-Za-z_-]{8,16384}\.[0-9A-Za-z_-]{8,16384}/;
+    my $contains_non_publishable = sub {
+      my ($content) = @_;
+      while ($content =~ /($jwt)/g) {
+        my @segments = split /\./, $1, -1;
+        return 1 if @segments != 3;
+        my $payload = $segments[1];
+        return 1 if length($payload) % 4 == 1;
+        $payload =~ tr/_-/+\//;
+        $payload .= "=" x ((4 - length($payload) % 4) % 4);
+        my $raw = decode_base64($payload);
+        return 1 if !defined $raw || $raw =~ /\\u[0-9A-Fa-f]{4}/;
+        my $decoded = eval { JSON::PP->new->utf8->decode($raw) };
+        return 1 if $@ || ref($decoded) ne "HASH";
+        my $role_count = () = $raw =~ /"role"\s*:/g;
+        return 1 if $role_count != 1 || !exists $decoded->{role}
+          || ref($decoded->{role}) || $decoded->{role} ne "anon";
+      }
+      return 0;
+    };
+    my $chunk_size = 1048576;
+    my $overlap = 65536;
+    my $carry = "";
+    while (1) {
+      my $read = read($handle, my $chunk, $chunk_size);
+      exit 2 if !defined $read;
+      last if $read == 0;
+      my $content = $carry . $chunk;
+      exit 0 if $contains_non_publishable->($content);
+      # Un token che supera la finestra è non canonico e viene respinto senza
+      # materializzarlo per intero.
+      exit 0 if $content =~ /eyJ[0-9A-Za-z_-]{16385}/;
+      exit 0 if $content =~ /
+        eyJ[0-9A-Za-z_-]{8,16384}\.[0-9A-Za-z_-]{16385}
+      /x;
+      exit 0 if $content =~ /
+        eyJ[0-9A-Za-z_-]{8,16384}\.
+        [0-9A-Za-z_-]{8,16384}\.[0-9A-Za-z_-]{16385}
+      /x;
+      $carry = length($content) > $overlap
+        ? substr($content, -$overlap)
+        : $content;
+    }
+    close $handle or exit 2;
+    exit($contains_non_publishable->($carry) ? 0 : 1);
+  ' "${cmc_security_file}" 2>/dev/null; then
+    return 0
   else
-    cmc_security_grep_status="$?"
-    if [[ "${cmc_security_grep_status}" -eq 1 ]]; then
-      return 1
-    fi
-    return 2
+    cmc_security_perl_status="$?"
   fi
-
-  while IFS= read -r cmc_security_token; do
-    cmc_security_payload="${cmc_security_token#*.}"
-    cmc_security_payload="${cmc_security_payload%%.*}"
-    case "$((${#cmc_security_payload} % 4))" in
-      0) cmc_security_padding='' ;;
-      2) cmc_security_padding='==' ;;
-      3) cmc_security_padding='=' ;;
-      *) return 2 ;;
-    esac
-    if printf '%s' "${cmc_security_payload}${cmc_security_padding}" \
-      | tr '_-' '/+' \
-      | openssl base64 -d -A 2>/dev/null \
-      | perl -MJSON::PP -e '
-      use strict;
-      use warnings;
-      local $/;
-      my $raw = <STDIN>;
-      my $payload = eval { JSON::PP->new->utf8->decode($raw) };
-      exit 2 if $@ || ref($payload) ne "HASH";
-      exit 1 if $raw =~ /\\u[0-9A-Fa-f]{4}/;
-      my $role_count = () = $raw =~ /"role"\s*:/g;
-      exit 1 if $role_count != 1;
-      exit 1 if !exists $payload->{role};
-      exit 1 if ref($payload->{role});
-      exit($payload->{role} eq "anon" ? 0 : 1);
-    '; then
-      continue
-    else
-      cmc_security_role_status="$?"
-    fi
-    if [[ "${cmc_security_role_status}" -eq 1 ]]; then
-      return 0
-    fi
-    return 2
-  done <<<"${cmc_security_tokens}"
-  return 1
+  [[ "${cmc_security_perl_status}" -eq 1 ]] && return 1
+  return 2
 }
 
 cmc_security_contains_private_key_pem() {
@@ -719,15 +720,43 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
       cmc_security_artifact_files=("${cmc_security_scan_root}")
     else
       cmc_security_artifact_files=()
-      cmc_security_artifact_list="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.files"
-      if ! find "${cmc_security_scan_root}" \
-        \( -type f -o -type l \) -print0 \
-        >"${cmc_security_artifact_list}"; then
-        printf 'Security scan artifact: enumerazione non verificabile.\n' >&2
+      cmc_security_artifact_list="${cmc_security_tmp_root}/artifact-${cmc_security_artifact_index}.entries"
+      if ! find "${cmc_security_scan_root}" -print0 | perl -e '
+        use strict;
+        use warnings;
+        binmode STDIN;
+        binmode STDOUT;
+        local $/ = "\0";
+        local $! = 0;
+        my $count = 0;
+        while (defined(my $entry = <STDIN>)) {
+          exit 3 if ++$count > 4096;
+          print $entry or exit 2;
+        }
+        exit 2 if $!;
+        exit 0;
+      ' >"${cmc_security_artifact_list}"; then
+        printf 'Security scan artifact: enumerazione fuori limite o non verificabile.\n' >&2
         exit 1
       fi
-      while IFS= read -r -d '' cmc_security_artifact_file; do
-        cmc_security_artifact_files+=("${cmc_security_artifact_file}")
+      cmc_security_artifact_entry_count=0
+      while IFS= read -r -d '' cmc_security_artifact_entry; do
+        cmc_security_artifact_entry_count=$((
+          cmc_security_artifact_entry_count + 1
+        ))
+        if [[ "${cmc_security_artifact_entry_count}" -gt 4096 ]]; then
+          printf 'Security scan artifact: numero entry fuori limite.\n' >&2
+          exit 1
+        fi
+        if [[ -f "${cmc_security_artifact_entry}" || \
+          -L "${cmc_security_artifact_entry}" ]]; then
+          if [[ $((cmc_security_artifact_file_count + \
+            ${#cmc_security_artifact_files[@]})) -ge 4096 ]]; then
+            printf 'Security scan artifact: numero file fuori limite.\n' >&2
+            exit 1
+          fi
+          cmc_security_artifact_files+=("${cmc_security_artifact_entry}")
+        fi
       done <"${cmc_security_artifact_list}"
       if [[ -n "${cmc_security_archive_payload}" ]]; then
         cmc_security_artifact_files+=("${cmc_security_archive_payload}")

@@ -68,6 +68,27 @@ cmc_arch_require_count() {
   fi
 }
 
+cmc_arch_require_storefront_slug_binding() {
+  local cmc_arch_file="$1"
+
+  if ! perl -0777 -e '
+    use strict;
+    use warnings;
+    local $/;
+    my $content = <>;
+    my $count = () = $content =~ /
+      static\s+const\s+_compiledStorefrontShopSlug\s*=\s*
+      String\.fromEnvironment\(\s*
+      \x27STOREFRONT_SHOP_SLUG\x27\s*,?\s*\);
+    /gx;
+    exit($count == 1 ? 0 : 1);
+  ' "${cmc_arch_file}"; then
+    printf 'Binding compile-time Storefront shop slug invalido (%s)\n' \
+      "${cmc_arch_file}" >&2
+    cmc_arch_violation_count=$((cmc_arch_violation_count + 1))
+  fi
+}
+
 cmc_arch_unique_table_cell() {
   local cmc_arch_file="$1"
   local cmc_arch_task="$2"
@@ -491,6 +512,7 @@ cmc_arch_require_count \
   "_compiledStorefrontShopSlug = String.fromEnvironment(" \
   1 \
   "un solo input compile-time Storefront shop slug"
+cmc_arch_require_storefront_slug_binding "${cmc_arch_app_config}"
 cmc_arch_require_count \
   "${cmc_arch_storefront_repository}" \
   "function: 'storefront_home_v1'" \

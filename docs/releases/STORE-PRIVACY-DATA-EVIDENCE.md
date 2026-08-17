@@ -11,7 +11,8 @@ attivati. Owner privacy/legal deve approvare le risposte prima della submission.
 | email, nome profilo, subject/account ID | autenticazione, profilo e ownership server-side | linked; no advertising tracking | disclose Account management / App functionality |
 | indirizzo, destinatario e istruzioni consegna | fulfillment scelto dall'utente | linked; no advertising tracking | disclose App functionality |
 | contenuto carrello e selezioni checkout | carrello, revalidation e creazione ordine | linked quando autenticato | disclose App functionality |
-| storico acquisti/ordini, importi, metodo e stato pagamento | ricevuta, supporto e reconciliation | linked | disclose Purchases / App functionality |
+| storico acquisti/ordini, importi e stato pagamento | ricevuta, supporto e reconciliation | linked; no advertising tracking | disclose Purchases / App functionality |
+| forma di pagamento scelta in app (`pay_at_pickup` / cash on delivery quando abilitato) | creazione ordine e fulfillment server-authoritative | linked; no advertising tracking | disclose Financial info / Payment info / App functionality |
 | dettagli carta, CVV, payment secret | il client non li raccoglie né li conserva | not collected by this binary | riesaminare se un SDK/provider payment viene aggiunto |
 | coordinate corriere | ricevute owner-scoped per mostrare tracking live | linked all'ordine/corriere; no ads | disclose Location/App functionality se live tracking è attivo |
 | posizione dispositivo cliente | nessuna permission o lettura native nel client | not collected | non dichiararla come raccolta del client |
@@ -39,11 +40,14 @@ attivati. Owner privacy/legal deve approvare le risposte prima della submission.
 ## iOS privacy manifest e SDK
 
 `ios/Runner/PrivacyInfo.xcprivacy` dichiara i tipi raccolti direttamente dal target app:
-nome, email, indirizzo fisico, user ID, storico acquisti, storico ricerche e altro
-contenuto utente (istruzioni di consegna). Sono tutti linked, usati per App
-Functionality e non usati per tracking. Il target app non dichiara direttamente
-Required Reason API né tracking domains. Le risposte App Privacy devono comunque
-riconciliare questa baseline con i provider e i third-party partners realmente attivi.
+nome, email, indirizzo fisico, user ID, storico acquisti, Payment Info per la forma di
+pagamento scelta, storico ricerche e altro contenuto utente (istruzioni di consegna).
+Sono tutti linked, usati per App Functionality e non usati per tracking. Payment Info
+non implica che il client raccolga dettagli carta, CVV o payment secret: dichiara la
+forma di pagamento scelta in-app e inviata al backend. Il target app non dichiara
+direttamente Required Reason API né tracking domains. Le risposte App Privacy devono
+comunque riconciliare questa baseline con i provider e i third-party partners realmente
+attivi.
 
 Il manifest del plugin Google Maps incluso nella dependency graph dichiara Required
 Reason API per Disk Space, File Timestamp, System Boot Time e User Defaults, oltre a

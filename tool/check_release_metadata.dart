@@ -25,6 +25,7 @@ const expectedIosCollectedDataTypes = <String>{
   'NSPrivacyCollectedDataTypePhysicalAddress',
   'NSPrivacyCollectedDataTypeUserID',
   'NSPrivacyCollectedDataTypePurchaseHistory',
+  'NSPrivacyCollectedDataTypePaymentInfo',
   'NSPrivacyCollectedDataTypeSearchHistory',
   'NSPrivacyCollectedDataTypeOtherUserContent',
 };

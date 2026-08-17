@@ -74,6 +74,31 @@ void main() {
     },
   );
 
+  test('privacy manifest includes the in-app form of payment', () {
+    final manifest = File(
+      'ios/Runner/PrivacyInfo.xcprivacy',
+    ).readAsStringSync();
+    expect(
+      expectedIosCollectedDataTypes,
+      contains('NSPrivacyCollectedDataTypePaymentInfo'),
+    );
+    expect(
+      manifest,
+      contains('<string>NSPrivacyCollectedDataTypePaymentInfo</string>'),
+    );
+
+    final errors = <String>[];
+    validatePrivacyManifest(
+      manifest.replaceFirst(
+        'NSPrivacyCollectedDataTypePaymentInfo',
+        'NSPrivacyCollectedDataTypePurchaseHistory',
+      ),
+      errors,
+    );
+    expect(errors, contains(contains('invalid or duplicate data type')));
+    expect(errors, contains(contains('collected-data types are incomplete')));
+  });
+
   test('PNG inspection detects an alpha color type', () {
     final opaque = File('assets/release/app-icon-master.png').readAsBytesSync();
     expect(inspectPng(opaque).hasAlpha, isFalse);

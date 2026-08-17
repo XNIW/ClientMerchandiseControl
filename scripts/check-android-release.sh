@@ -418,7 +418,7 @@ fi
 cmc_android_release_apk_signature_output=''
 cmc_android_release_apk_signature_status=0
 if cmc_android_release_apk_signature_output="$(
-  "${cmc_android_release_apksigner}" verify --print-certs \
+  "${cmc_android_release_apksigner}" verify --print-certs-pem \
     "${cmc_android_release_apk}" 2>&1
 )"; then
   cmc_android_release_apk_signature_state=SIGNED
@@ -464,14 +464,31 @@ if [[ "${cmc_android_release_signature_state}" == SIGNED ]]; then
     keytool -J-Duser.language=en -printcert -file \
       "${cmc_android_release_aab_signature_block}" 2>/dev/null
   )" || cmc_android_release_fail 'AAB_CERTIFICATE_UNREADABLE'
+  cmc_android_release_apk_certificate_file="${cmc_android_release_tmp_root}/apk-certificate.pem"
+  cmc_android_release_apk_certificate_count="$(
+    awk '/-----BEGIN CERTIFICATE-----/ { count += 1 } END { print count + 0 }' \
+      <<<"${cmc_android_release_apk_signature_output}"
+  )"
+  [[ "${cmc_android_release_apk_certificate_count}" -eq 1 ]] || \
+    cmc_android_release_fail 'APK_SIGNER_SET_INVALID'
+  awk '
+    /-----BEGIN CERTIFICATE-----/ { in_certificate = 1 }
+    in_certificate { print }
+    /-----END CERTIFICATE-----/ { in_certificate = 0 }
+  ' <<<"${cmc_android_release_apk_signature_output}" \
+    >"${cmc_android_release_apk_certificate_file}"
+  cmc_android_release_apk_certificate="$(
+    keytool -J-Duser.language=en -printcert -file \
+      "${cmc_android_release_apk_certificate_file}" 2>/dev/null
+  )" || cmc_android_release_fail 'APK_CERTIFICATE_UNREADABLE'
   cmc_android_release_aab_fingerprint="$(
     awk -F': ' '/SHA256:/ { print $2 }' \
       <<<"${cmc_android_release_aab_certificate}" | \
       cmc_android_release_normalize_fingerprint | LC_ALL=C sort -u
   )"
   cmc_android_release_apk_fingerprint="$(
-    awk -F': ' '/Signer #1 certificate SHA-256 digest:/ { print $2 }' \
-      <<<"${cmc_android_release_apk_signature_output}" | \
+    awk -F': ' '/SHA256:/ { print $2 }' \
+      <<<"${cmc_android_release_apk_certificate}" | \
       cmc_android_release_normalize_fingerprint | LC_ALL=C sort -u
   )"
   [[ "${cmc_android_release_aab_fingerprint}" =~ ^[0-9a-f]{64}$ ]] || \

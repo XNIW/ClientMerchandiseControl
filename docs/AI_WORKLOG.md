@@ -3163,3 +3163,20 @@
   AAB/APK, con regressione source e fixture end-to-end CI.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; nessun merge/upload/production.
+
+## 2026-08-17 — TASK-039 PR CI Fix 2
+
+- **PR/head/run**: #18 / `f787312881fbdadc913ecd51b8b024e75b710c0a` /
+  `32014928249`.
+- **Esito isolato**: Quality, Android debug e iOS Simulator `PASS`; AAB/APK
+  production-like e release validator `PASS`; sola fixture firma `FAIL` con
+  enum bounded `APK_SIGNING_FINGERPRINT_UNREADABLE`.
+- **Root residua**: la normalizzazione non rende portabile il label testuale
+  del digest emesso dalle diverse versioni/ambienti `apksigner`.
+- **Fix tecnico**: `apksigner --print-certs-pem`, cardinalità signer APK pari a
+  uno, certificato parseable con `keytool` e digest SHA-256 normalizzato dal
+  certificato; confronto AAB/APK e tutti gli altri fail-closed restano invariati.
+- **Gate locale**: governance 5/5, source validator, bash syntax, diff check e
+  fixture completa v2-only/negative/input Play tutti `PASS`.
+- **Stato**: resta `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino a
+  CI exact-SHA e re-review indipendente verdi; nessun upload o production.

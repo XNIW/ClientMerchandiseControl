@@ -67,10 +67,12 @@ void main() {
     ).readAsStringSync();
 
     expect(validator, contains('jarsigner -J-Duser.language=en'));
-    expect(validator, contains('verify --print-certs'));
+    expect(validator, contains('verify --print-certs-pem'));
     expect(validator, contains('check_android_bundle_manifest.dart'));
     expect(validator, contains('AAB_APK_PAYLOAD_MISMATCH'));
     expect(validator, contains('AAB_APK_SIGNER_MISMATCH'));
+    expect(validator, contains('APK_SIGNER_SET_INVALID'));
+    expect(validator, contains('APK_CERTIFICATE_UNREADABLE'));
     expect(
       'cmc_android_release_normalize_fingerprint'.allMatches(validator),
       hasLength(3),

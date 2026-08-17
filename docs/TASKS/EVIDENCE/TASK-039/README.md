@@ -148,6 +148,11 @@ passano. Il fixer ha reso ogni oracle bounded e diagnostico senza stampare log
 o credenziali. Il run `32013833404` ha isolato
 `SIGNING_FINGERPRINT_UNREADABLE`: il digest APK del runner non era
 normalizzato come quello AAB. Il parser ora rimuove spazi/separatori, converte
-il case e usa errori AAB/APK distinti; handoff corrente
+il case e usa errori AAB/APK distinti. Il run exact-head `32014928249` su
+`f7873128` mantiene verdi gli altri tre job e tutti gli step release prima della
+fixture, ma restituisce ancora `APK_SIGNING_FINGERPRINT_UNREADABLE`; il parser
+dipendeva quindi da un formato testuale non portabile di `apksigner`. Il Fix 2
+usa `--print-certs-pem`, richiede un solo certificato APK e calcola il digest
+con `keytool`, come per l'AAB. La fixture locale completa è `PASS`; handoff corrente
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino al nuovo esito CI. Play/Internal e
 production restano invariati.

@@ -371,7 +371,16 @@ del train autorizza PR exact-SHA e merge normale solo dopo CI verde.
 - il run diagnostico `32013833404` ha isolato il token reale:
   `SIGNING_FINGERPRINT_UNREADABLE` prima del controllo credenziale; il parser
   APK ora normalizza spazi, separatori e case come il parser AAB e distingue i
-  due errori fail-closed.
+  due errori fail-closed;
+- il run exact-head `32014928249` su `f7873128` conferma Quality, Android debug,
+  iOS Simulator, clean AAB/APK e release validator tutti `PASS`, ma isola ancora
+  `APK_SIGNING_FINGERPRINT_UNREADABLE`: il formato testuale del digest
+  `apksigner` non è un contratto portabile tra runner/tool version;
+- il Fix 2 non analizza più quella riga: `apksigner --print-certs-pem` fornisce
+  il certificato già verificato, il validator impone un solo certificato APK e
+  calcola il digest SHA-256 con lo stesso `keytool` usato per l'AAB. La fixture
+  locale completa attraversa v2-only, signer AAB/APK, negative parziale/
+  multi-signer/mixed-case e input Play coerenti.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino alla chiusura del token CI reale.
 

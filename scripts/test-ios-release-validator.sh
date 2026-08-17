@@ -246,6 +246,60 @@ cmc_ios_test_expect_failure privacy-extra-framework-without-manifest \
   --archive "${cmc_ios_test_fixture_archive}"
 rm -rf -- "${cmc_ios_test_extra_framework}"
 
+cmc_ios_test_extra_framework="${cmc_ios_test_fixture_app}/Frameworks/Extra.FRAMEWORK"
+cp -R "${cmc_ios_test_fixture_app}/Frameworks/App.framework" \
+  "${cmc_ios_test_extra_framework}"
+cmc_ios_test_expect_failure privacy-extra-framework-case \
+  EMBEDDED_FRAMEWORK_SET_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+rm -rf -- "${cmc_ios_test_extra_framework}"
+
+mkdir -p "${cmc_ios_test_fixture_app}/PlugIns"
+cp -R "${cmc_ios_test_fixture_app}/Frameworks/App.framework" \
+  "${cmc_ios_test_fixture_app}/PlugIns/Extra.framework"
+cmc_ios_test_expect_failure privacy-extra-framework-nested \
+  EMBEDDED_FRAMEWORK_SET_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+rm -rf -- "${cmc_ios_test_fixture_app}/PlugIns"
+
+cp "${cmc_ios_test_fixture_app}/Frameworks/App.framework/App" \
+  "${cmc_ios_test_fixture_app}/Frameworks/Extra.dylib"
+cmc_ios_test_expect_failure privacy-extra-dylib EMBEDDED_DYLIB_SET_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+rm "${cmc_ios_test_fixture_app}/Frameworks/Extra.dylib"
+
+rm -rf -- "${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework"
+cp -R "${cmc_ios_test_fixture_app}/Frameworks/sqlite3.framework" \
+  "${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework"
+cmc_ios_test_expect_failure framework-content-replacement \
+  FRAMEWORK_IDENTITY_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+rm -rf -- "${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework"
+cp -R "${cmc_ios_test_source_app}/Frameworks/objective_c.framework" \
+  "${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework"
+
+mv "${cmc_ios_test_fixture_app}/GoogleMapsResources.bundle" \
+  "${cmc_ios_test_tmp_root}/GoogleMapsResources.bundle.original"
+mkdir "${cmc_ios_test_fixture_app}/GoogleMapsResources.bundle"
+cp "${cmc_ios_test_fixture_app}/app_links_app_links.bundle/Info.plist" \
+  "${cmc_ios_test_fixture_app}/GoogleMapsResources.bundle/Info.plist"
+cmc_ios_test_expect_failure bundle-content-replacement \
+  EMBEDDED_BUNDLE_SET_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+rm -rf -- "${cmc_ios_test_fixture_app}/GoogleMapsResources.bundle"
+mv "${cmc_ios_test_tmp_root}/GoogleMapsResources.bundle.original" \
+  "${cmc_ios_test_fixture_app}/GoogleMapsResources.bundle"
+
 cmc_ios_test_entitlements="${cmc_ios_test_tmp_root}/entitlements.plist"
 cp "${cmc_ios_test_root}/ios/Runner/PrivacyInfo.xcprivacy" \
   "${cmc_ios_test_entitlements}"

@@ -363,19 +363,56 @@ cmc_ios_release_privacy_sha256=(
   '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
 )
 cmc_ios_release_expected_frameworks=(
-  'App.framework'
-  'Flutter.framework'
-  'objective_c.framework'
-  'sqlite3.framework'
+  'Frameworks/App.framework'
+  'Frameworks/Flutter.framework'
+  'Frameworks/objective_c.framework'
+  'Frameworks/sqlite3.framework'
+)
+cmc_ios_release_expected_framework_executables=(
+  'App'
+  'Flutter'
+  'objective_c'
+  'sqlite3'
+)
+cmc_ios_release_expected_framework_identifiers=(
+  'io.flutter.flutter.app'
+  'io.flutter.flutter'
+  'io.flutter.flutter.native-assets.objective-c'
+  'io.flutter.flutter.native-assets.sqlite3'
+)
+cmc_ios_release_expected_framework_install_names=(
+  '@rpath/App.framework/App'
+  '@rpath/Flutter.framework/Flutter'
+  '@rpath/objective_c.framework/objective_c'
+  '@rpath/sqlite3.framework/sqlite3'
+)
+cmc_ios_release_expected_framework_symbols=(
+  ''
+  ''
+  '_DOBJC_initializeApi'
+  '_sqlite3_open'
 )
 cmc_ios_release_expected_bundles=(
   'GoogleMapsResources.bundle'
+  'GoogleMapsResources.bundle/GoogleMaps.bundle'
+  'GoogleMapsResources.bundle/GoogleMaps.bundle/GMSCoreResources.bundle'
   'app_links_app_links.bundle'
   'flutter_secure_storage_darwin_flutter_secure_storage_darwin.bundle'
   'google_maps_flutter_ios_privacy.bundle'
   'share_plus_share_plus.bundle'
   'shared_preferences_foundation_shared_preferences_foundation.bundle'
   'url_launcher_ios_url_launcher_ios.bundle'
+)
+cmc_ios_release_expected_bundle_identifiers=(
+  'org.cocoapods.GoogleMapsResources'
+  'com.google.GoogleMaps'
+  'com.google.Maps.GMSCoreResources'
+  'app-links-7.2.1.app-links.resources'
+  'flutter-secure-storage-darwin-0.3.2.flutter-secure-storage-darwin.resources'
+  'org.cocoapods.google-maps-flutter-ios-privacy'
+  'share-plus-13.2.1.share-plus.resources'
+  'shared-preferences-foundation-2.5.6.shared-preferences-foundation.resources'
+  'url-launcher-ios-6.4.1.url-launcher-ios.resources'
 )
 
 cmc_ios_release_require_exact_component_set() {
@@ -390,7 +427,7 @@ cmc_ios_release_require_exact_component_set() {
   while IFS= read -r -d '' cmc_ios_release_component; do
     cmc_ios_release_component_count=$((cmc_ios_release_component_count + 1))
   done < <(find "${cmc_ios_release_component_root}" \
-    -mindepth 1 -maxdepth 1 -name "${cmc_ios_release_component_pattern}" \
+    -mindepth 1 -iname "${cmc_ios_release_component_pattern}" \
     -print0)
   [[ "${cmc_ios_release_component_count}" -eq \
     "${#cmc_ios_release_expected_components[@]}" ]] || \
@@ -437,17 +474,25 @@ done
   cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_SET_INVALID'
 
 cmc_ios_release_require_exact_component_set \
-  "${cmc_ios_release_app}/Frameworks" '*.framework' \
+  "${cmc_ios_release_app}" '*.framework' \
   'EMBEDDED_FRAMEWORK_SET_INVALID' \
   "${cmc_ios_release_expected_frameworks[@]}"
 cmc_ios_release_require_exact_component_set \
   "${cmc_ios_release_app}" '*.bundle' \
   'EMBEDDED_BUNDLE_SET_INVALID' \
   "${cmc_ios_release_expected_bundles[@]}"
+[[ "$(find "${cmc_ios_release_app}" -iname '*.dylib' -print | \
+  wc -l | tr -d '[:space:]')" -eq 0 ]] || \
+  cmc_ios_release_fail 'EMBEDDED_DYLIB_SET_INVALID'
+[[ "$(find "${cmc_ios_release_app}/Frameworks" -mindepth 1 -maxdepth 1 \
+  -print | wc -l | tr -d '[:space:]')" -eq \
+  "${#cmc_ios_release_expected_frameworks[@]}" ]] || \
+  cmc_ios_release_fail 'EMBEDDED_FRAMEWORK_SET_INVALID'
 
-for cmc_ios_release_framework_name in \
-  "${cmc_ios_release_expected_frameworks[@]}"; do
-  cmc_ios_release_framework="${cmc_ios_release_app}/Frameworks/${cmc_ios_release_framework_name}"
+for cmc_ios_release_framework_index in \
+  "${!cmc_ios_release_expected_frameworks[@]}"; do
+  cmc_ios_release_framework_relative="${cmc_ios_release_expected_frameworks[cmc_ios_release_framework_index]}"
+  cmc_ios_release_framework="${cmc_ios_release_app}/${cmc_ios_release_framework_relative}"
   cmc_ios_release_framework_info="${cmc_ios_release_framework}/Info.plist"
   [[ -r "${cmc_ios_release_framework_info}" ]] || \
     cmc_ios_release_fail 'FRAMEWORK_INFO_MISSING'
@@ -455,11 +500,13 @@ for cmc_ios_release_framework_name in \
     /usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' \
       "${cmc_ios_release_framework_info}" 2>/dev/null || true
   )"
-  [[ -n "${cmc_ios_release_framework_executable_name}" && \
-    "${cmc_ios_release_framework_executable_name}" != '.' && \
-    "${cmc_ios_release_framework_executable_name}" != '..' && \
-    "${cmc_ios_release_framework_executable_name}" != */* ]] || \
-    cmc_ios_release_fail 'FRAMEWORK_EXECUTABLE_NAME_INVALID'
+  [[ "${cmc_ios_release_framework_executable_name}" == \
+    "${cmc_ios_release_expected_framework_executables[cmc_ios_release_framework_index]}" ]] || \
+    cmc_ios_release_fail 'FRAMEWORK_IDENTITY_INVALID'
+  [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' \
+    "${cmc_ios_release_framework_info}" 2>/dev/null || true)" == \
+    "${cmc_ios_release_expected_framework_identifiers[cmc_ios_release_framework_index]}" ]] || \
+    cmc_ios_release_fail 'FRAMEWORK_IDENTITY_INVALID'
   cmc_ios_release_framework_executable="${cmc_ios_release_framework}/${cmc_ios_release_framework_executable_name}"
   [[ -n "${cmc_ios_release_framework_executable_name}" && \
     -r "${cmc_ios_release_framework_executable}" ]] || \
@@ -469,6 +516,33 @@ for cmc_ios_release_framework_name in \
   lipo -archs "${cmc_ios_release_framework_executable}" | \
     tr ' ' '\n' | grep -Fxq arm64 || \
     cmc_ios_release_fail 'FRAMEWORK_ARM64_MISSING'
+  cmc_ios_release_framework_install_name="$(
+    otool -D "${cmc_ios_release_framework_executable}" 2>/dev/null | tail -n 1 | \
+      tr -d '[:space:]'
+  )"
+  [[ "${cmc_ios_release_framework_install_name}" == \
+    "${cmc_ios_release_expected_framework_install_names[cmc_ios_release_framework_index]}" ]] || \
+    cmc_ios_release_fail 'FRAMEWORK_IDENTITY_INVALID'
+  cmc_ios_release_framework_symbol="${cmc_ios_release_expected_framework_symbols[cmc_ios_release_framework_index]}"
+  if [[ -n "${cmc_ios_release_framework_symbol}" ]]; then
+    nm -gU "${cmc_ios_release_framework_executable}" 2>/dev/null | \
+      awk '{print $NF}' | grep -Fxq "${cmc_ios_release_framework_symbol}" || \
+      cmc_ios_release_fail 'FRAMEWORK_IDENTITY_INVALID'
+  fi
+done
+for cmc_ios_release_bundle_index in \
+  "${!cmc_ios_release_expected_bundles[@]}"; do
+  cmc_ios_release_bundle="${cmc_ios_release_app}/${cmc_ios_release_expected_bundles[cmc_ios_release_bundle_index]}"
+  cmc_ios_release_bundle_info="${cmc_ios_release_bundle}/Info.plist"
+  [[ -r "${cmc_ios_release_bundle_info}" ]] || \
+    cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
+  [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' \
+    "${cmc_ios_release_bundle_info}" 2>/dev/null || true)" == \
+    "${cmc_ios_release_expected_bundle_identifiers[cmc_ios_release_bundle_index]}" ]] || \
+    cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
+  [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundlePackageType' \
+    "${cmc_ios_release_bundle_info}" 2>/dev/null || true)" == 'BNDL' ]] || \
+    cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
 done
 cmc_ios_release_runtime_executable="${cmc_ios_release_app}/Frameworks/App.framework/App"
 [[ -f "${cmc_ios_release_runtime_executable}" && \

@@ -86,6 +86,29 @@ cmc_fixture_expect_rejection() {
   fi
 }
 
+cmc_fixture_expect_rejection_code() {
+  local cmc_fixture_path="$1"
+  local cmc_fixture_expected="$2"
+  local cmc_fixture_log="${cmc_fixture_root}/${cmc_fixture_path##*/}.log"
+
+  cmc_fixture_total=$((cmc_fixture_total + 1))
+  if CMC_ARCH_REPO_ROOT="${cmc_fixture_path}" \
+    bash "${cmc_fixture_validator}" >"${cmc_fixture_log}" 2>&1; then
+    printf 'Fixture negativa accettata inaspettatamente: %s\n' \
+      "${cmc_fixture_path##*/}" >&2
+    return
+  fi
+  if ! grep -Fq -- "APP_CONFIG_BINDING_BLOCKED: ${cmc_fixture_expected}" \
+    "${cmc_fixture_log}"; then
+    printf 'Fixture negativa fallita per ragione inattesa: %s\n' \
+      "${cmc_fixture_path##*/}" >&2
+    grep -E 'APP_CONFIG_BINDING_BLOCKED: [A-Z0-9_]+' \
+      "${cmc_fixture_log}" >&2 || true
+    return
+  fi
+  cmc_fixture_rejected=$((cmc_fixture_rejected + 1))
+}
+
 bash "${cmc_fixture_validator}"
 
 cmc_fixture_owner_path="$(cmc_fixture_prepare invalid-business-owner)"
@@ -240,6 +263,46 @@ if ! grep -Fq -- "'ATTACKER_SHOP_SLUG'," \
   exit 1
 fi
 cmc_fixture_expect_rejection "${cmc_fixture_shop_slug_shadow_path}"
+
+cmc_fixture_shop_slug_constructor_path="$(
+  cmc_fixture_prepare invalid-storefront-shop-slug-constructor-identity
+)"
+cmc_fixture_shop_slug_constructor_file="${cmc_fixture_shop_slug_constructor_path}/lib/core/config/app_config.dart"
+cmc_fixture_shop_slug_decoy_file="${cmc_fixture_shop_slug_constructor_path}/lib/core/config/storefront_string_decoy.dart"
+{
+  printf '%s\n' "import 'storefront_string_decoy.dart';"
+  cat "${cmc_fixture_shop_slug_constructor_file}"
+} >"${cmc_fixture_shop_slug_constructor_file}.tmp"
+mv "${cmc_fixture_shop_slug_constructor_file}.tmp" \
+  "${cmc_fixture_shop_slug_constructor_file}"
+printf '%s\n' \
+  'extension type const String(dart.core.String value)' \
+  '    implements dart.core.String {' \
+  '  const String.fromEnvironment(' \
+  '    dart.core.String _,' \
+  '  ) : this(const dart.core.String.fromEnvironment(' \
+  "          'ATTACKER_SHOP_SLUG'," \
+  '        ));' \
+  '}' >"${cmc_fixture_shop_slug_decoy_file}"
+cmc_fixture_expect_rejection_code \
+  "${cmc_fixture_shop_slug_constructor_path}" \
+  STOREFRONT_BINDING_STRUCTURE_INVALID
+
+cmc_fixture_shop_slug_consumer_path="$(
+  cmc_fixture_prepare invalid-storefront-shop-slug-consumer-decoy
+)"
+cmc_fixture_shop_slug_consumer_file="${cmc_fixture_shop_slug_consumer_path}/lib/core/config/app_config.dart"
+perl -0pi -e '
+  s{  factory AppConfig\.fromEnvironment\(\) \{.*?\n  \}\n\n  final AppEnvironment environment;}{  factory AppConfig.fromEnvironment() {\n    void canonicalConsumerDecoy() {\n      AppConfig.fromValues(\n        appEnvironment: _compiledAppEnvironment,\n        supabaseUrl: _compiledSupabaseUrl,\n        supabasePublishableKey: _compiledSupabasePublishableKey,\n        authRedirectUri: _compiledAuthRedirectUri,\n        googleAuthEnabled: _compiledGoogleAuthEnabled,\n        storefrontShopSlug: _compiledStorefrontShopSlug,\n        releaseConfigSha256: _compiledReleaseConfigSha256,\n      );\n      ReleaseConfigAttestation.fromValues({\n        \x27APP_ENV\x27: _compiledAppEnvironment,\n        \x27SUPABASE_URL\x27: _compiledSupabaseUrl,\n        \x27SUPABASE_PUBLISHABLE_KEY\x27: _compiledSupabasePublishableKey,\n        \x27AUTH_REDIRECT_URI\x27: _compiledAuthRedirectUri,\n        \x27GOOGLE_AUTH_ENABLED\x27: _compiledGoogleAuthEnabled,\n        \x27STOREFRONT_SHOP_SLUG\x27: _compiledStorefrontShopSlug,\n        \x27DELIVERY_MAPS_ENABLED\x27: _compiledDeliveryMapsEnabled,\n        \x27DELIVERY_MAPS_NATIVE_CONFIGURED\x27:\n            _compiledDeliveryMapsNativeConfigured,\n      });\n    }\n    const attackerShopSlug = String.fromEnvironment(\x27ATTACKER_SHOP_SLUG\x27);\n    final config = Function.apply(AppConfig.fromValues, const [], {\n      #appEnvironment: _compiledAppEnvironment,\n      #supabaseUrl: _compiledSupabaseUrl,\n      #supabasePublishableKey: _compiledSupabasePublishableKey,\n      #authRedirectUri: _compiledAuthRedirectUri,\n      #googleAuthEnabled: _compiledGoogleAuthEnabled,\n      #storefrontShopSlug: attackerShopSlug,\n      #releaseConfigSha256: _compiledReleaseConfigSha256,\n    }) as AppConfig;\n    if (config.environment != AppEnvironment.production) {\n      return config;\n    }\n    try {\n      final values = <String, String>{\n        \x27APP_ENV\x27: _compiledAppEnvironment,\n        \x27SUPABASE_URL\x27: _compiledSupabaseUrl,\n        \x27SUPABASE_PUBLISHABLE_KEY\x27: _compiledSupabasePublishableKey,\n        \x27AUTH_REDIRECT_URI\x27: _compiledAuthRedirectUri,\n        \x27GOOGLE_AUTH_ENABLED\x27: _compiledGoogleAuthEnabled,\n        \x27DELIVERY_MAPS_ENABLED\x27: _compiledDeliveryMapsEnabled,\n        \x27DELIVERY_MAPS_NATIVE_CONFIGURED\x27:\n            _compiledDeliveryMapsNativeConfigured,\n      };\n      values[\x27STOREFRONT_SHOP_SLUG\x27] = attackerShopSlug;\n      final attestation = ReleaseConfigAttestation.fromValues(values);\n      if (config.releaseConfigSha256 != attestation.sha256 ||\n          _compiledReleaseAttestationMarker != attestation.marker) {\n        throw const AppConfigurationException(\n          \x27RELEASE_CONFIG_SHA256 non corrisponde alla configurazione production compilata.\x27,\n        );\n      }\n    } on ReleaseConfigValidationException {\n      throw const AppConfigurationException(\n        \x27La configurazione production compilata non supera l’attestazione semantica.\x27,\n      );\n    }\n    return config;\n  }\n\n  final AppEnvironment environment;}s
+' "${cmc_fixture_shop_slug_consumer_file}"
+if ! grep -Fq -- "'ATTACKER_SHOP_SLUG'" \
+  "${cmc_fixture_shop_slug_consumer_file}"; then
+  printf 'Fixture consumer decoy non preparabile: mutation assente.\n' >&2
+  exit 1
+fi
+cmc_fixture_expect_rejection_code \
+  "${cmc_fixture_shop_slug_consumer_path}" \
+  STOREFRONT_BINDING_CONSUMER_INVALID
 
 if [[ "${cmc_fixture_rejected}" -ne "${cmc_fixture_total}" ]]; then
   printf 'Fixture negative respinte: %d/%d.\n' \

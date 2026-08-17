@@ -4,6 +4,9 @@ set -euo pipefail
 cmc_test_repo_root="$(git rev-parse --show-toplevel)"
 cmc_test_tmp="$(mktemp -d "${TMPDIR:-/tmp}/cmc-governance.XXXXXX")"
 trap 'rm -rf "${cmc_test_tmp}"' EXIT
+cmc_assertion_count=0
+
+source "${cmc_test_repo_root}/scripts/lib/governance_path_policy.sh"
 
 cmc_fixture() {
   local cmc_name="$1"
@@ -284,6 +287,7 @@ cmc_expect_pass() {
     printf 'Fixture %s doveva passare.\n' "${cmc_name}" >&2
     exit 1
   fi
+  cmc_assertion_count=$((cmc_assertion_count + 1))
 }
 
 cmc_expect_fail() {
@@ -304,6 +308,24 @@ cmc_expect_fail() {
     exit 1
   fi
   rm "${cmc_log}"
+  cmc_assertion_count=$((cmc_assertion_count + 1))
+}
+
+cmc_expect_handoff_path() {
+  local cmc_path="$1"
+  local cmc_expected="$2"
+
+  if cmc_governance_path_is_handoff_document "${cmc_path}"; then
+    cmc_actual='allowed'
+  else
+    cmc_actual='denied'
+  fi
+  if [[ "${cmc_actual}" != "${cmc_expected}" ]]; then
+    printf 'Path policy incoerente per %s: atteso=%s, ricevuto=%s.\n' \
+      "${cmc_path}" "${cmc_expected}" "${cmc_actual}" >&2
+    exit 1
+  fi
+  cmc_assertion_count=$((cmc_assertion_count + 1))
 }
 
 cmc_case="$(cmc_fixture valid)"
@@ -770,4 +792,132 @@ rm "${cmc_case}/docs/AI_WORKLOG.md.bak"
 cmc_expect_fail rollback-current-fix-cycle "${cmc_case}" \
   'Ciclo Fix corrente non ancorato alla chronology Git'
 
-printf 'Governance release train: 44/44 fixture PASS.\n'
+cmc_case="$(cmc_fixture master-active-row-relocated)"
+cmc_row="$(grep -E '^\| TASK-040 \|' "${cmc_case}/docs/MASTER-PLAN.md")"
+CMC_ROW="${cmc_row}" perl -0pi.bak -e '
+  my $row = quotemeta $ENV{CMC_ROW};
+  s/^$row\n//m or die "TASK-040 backlog row missing\n";
+  $_ .= "\n$ENV{CMC_ROW}\n";
+' "${cmc_case}/docs/MASTER-PLAN.md"
+rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
+cmc_expect_fail master-active-row-relocated "${cmc_case}" \
+  'Righe ACTIVE fuori dalla tabella canonica Backlog completo'
+
+cmc_case="$(cmc_fixture manifest-row-relocated)"
+cmc_row="$(grep -E '^\| TASK-040 \|' \
+  "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md")"
+CMC_ROW="${cmc_row}" perl -0pi.bak -e '
+  my $row = quotemeta $ENV{CMC_ROW};
+  s/^$row\n//m or die "TASK-040 manifest row missing\n";
+  $_ .= "\n$ENV{CMC_ROW}\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail manifest-row-relocated "${cmc_case}" \
+  'Release manifest richiede esattamente una riga canonica'
+
+cmc_case="$(cmc_fixture manifest-row-other-table)"
+cmc_row="$(grep -E '^\| TASK-040 \|' \
+  "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md")"
+CMC_ROW="${cmc_row}" perl -0pi.bak -e '
+  my $row = quotemeta $ENV{CMC_ROW};
+  s/^$row\n//m or die "TASK-040 manifest row missing\n";
+  $_ .= "\n## Tabella non autoritativa\n\n| Task | Stato | Client revision | Admin revision | PR/merge | Gate |\n|---|---|---|---|---|---|\n$ENV{CMC_ROW}\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail manifest-row-other-table "${cmc_case}" \
+  'Release manifest richiede esattamente una riga canonica'
+
+cmc_case="$(cmc_fixture evidence-rows-relocated)"
+cmc_t02="$(grep -E '^\| T-02 \|' \
+  "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md")"
+cmc_t03="$(grep -E '^\| T-03 \|' \
+  "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md")"
+cmc_t07="$(grep -E '^\| T-07 \|' \
+  "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md")"
+CMC_T02="${cmc_t02}" CMC_T03="${cmc_t03}" CMC_T07="${cmc_t07}" \
+  perl -0pi.bak -e '
+    for my $name (qw(CMC_T02 CMC_T03 CMC_T07)) {
+      my $row = quotemeta $ENV{$name};
+      s/^$row\n//m or die "$name row missing\n";
+    }
+    $_ .= "\n$ENV{CMC_T02}\n$ENV{CMC_T03}\n$ENV{CMC_T07}\n";
+  ' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-rows-relocated "${cmc_case}" \
+  'riga T-02 canonica'
+
+cmc_case="$(cmc_fixture evidence-rows-other-table)"
+cmc_t02="$(grep -E '^\| T-02 \|' \
+  "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md")"
+cmc_t03="$(grep -E '^\| T-03 \|' \
+  "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md")"
+cmc_t07="$(grep -E '^\| T-07 \|' \
+  "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md")"
+CMC_T02="${cmc_t02}" CMC_T03="${cmc_t03}" CMC_T07="${cmc_t07}" \
+  perl -0pi.bak -e '
+    for my $name (qw(CMC_T02 CMC_T03 CMC_T07)) {
+      my $row = quotemeta $ENV{$name};
+      s/^$row\n//m or die "$name row missing\n";
+    }
+    $_ .= "\n## Matrice non autoritativa\n\n| Test | Esito | Evidence |\n|---|---|---|\n$ENV{CMC_T02}\n$ENV{CMC_T03}\n$ENV{CMC_T07}\n";
+  ' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+cmc_expect_fail evidence-rows-other-table "${cmc_case}" \
+  'riga T-02 canonica'
+
+cmc_case="$(cmc_fixture task-raw-html-block)"
+printf '%s\n' '<pre>hidden task chronology</pre>' \
+  >>"${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+cmc_expect_fail task-raw-html-block "${cmc_case}" \
+  'Task chronology contiene commenti, fence o heading indentati non ammessi, oppure HTML'
+
+cmc_case="$(cmc_fixture evidence-raw-html-block)"
+printf '%s\n' '<pre>hidden evidence matrix</pre>' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-raw-html-block "${cmc_case}" \
+  'Evidence TASK-040 contiene commenti, fence o heading indentati non ammessi, oppure HTML'
+
+cmc_case="$(cmc_fixture task-role-mismatch)"
+perl -0pi.bak -e '
+  s/(.*^- exact )review( SHA: `[0-9a-f]{40}`;\n)/${1}technical$2/ms
+    or die "current task role missing\n";
+' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
+cmc_expect_fail task-role-mismatch "${cmc_case}" \
+  'Ruolo revision task/manifest incoerente'
+
+cmc_case="$(cmc_fixture manifest-role-mismatch)"
+perl -0pi.bak -e '
+  s/(\| TASK-040 \|[^\n]*\| `[0-9a-f]{7,40}` )review( \|)/${1}technical$2/
+    or die "current manifest role missing\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail manifest-role-mismatch "${cmc_case}" \
+  'Ruolo revision task/manifest incoerente'
+
+cmc_case="$(cmc_fixture worklog-label-mismatch)"
+perl -0pi.bak -e '
+  s/(.*^## [^\n]+ — TASK-040 Fix [^\n]+\n.*?^- \*\*)Exact HEAD(\*\*: `[0-9a-f]{40}`\.)/${1}Technical SHA$2/ms
+    or die "current worklog revision label missing\n";
+' "${cmc_case}/docs/AI_WORKLOG.md"
+rm "${cmc_case}/docs/AI_WORKLOG.md.bak"
+cmc_expect_fail worklog-label-mismatch "${cmc_case}" \
+  'Ruolo worklog incoerente'
+
+cmc_case="$(cmc_fixture worklog-heading-role-mismatch)"
+perl -0pi.bak -e '
+  s/(.*^## [0-9-]+ — TASK-040 Fix [0-9]+ )re-review$/${1}e handoff/ms
+    or die "current worklog heading role missing\n";
+' "${cmc_case}/docs/AI_WORKLOG.md"
+rm "${cmc_case}/docs/AI_WORKLOG.md.bak"
+cmc_expect_fail worklog-heading-role-mismatch "${cmc_case}" \
+  'Ruolo worklog incoerente'
+
+cmc_expect_handoff_path README.md allowed
+cmc_expect_handoff_path docs/TASKS/EVIDENCE/TASK-040/README.md allowed
+cmc_expect_handoff_path test_driver/task_040_probe.dart denied
+cmc_expect_handoff_path assets/release/app-icon-master.png denied
+cmc_expect_handoff_path analysis_options.yaml denied
+
+printf 'Governance release train: %s/%s fixture PASS.\n' \
+  "${cmc_assertion_count}" "${cmc_assertion_count}"

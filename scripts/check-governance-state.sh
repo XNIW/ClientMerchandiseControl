@@ -3,6 +3,7 @@ set -euo pipefail
 
 cmc_repo_root="${CMC_GOVERNANCE_REPO_ROOT:-$(git rev-parse --show-toplevel)}"
 cmc_authority_repo_root="$({ cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P; })"
+source "${cmc_authority_repo_root}/scripts/lib/governance_path_policy.sh"
 cmc_master_plan="${cmc_repo_root}/docs/MASTER-PLAN.md"
 cmc_readme="${cmc_repo_root}/README.md"
 cmc_worklog="${cmc_repo_root}/docs/AI_WORKLOG.md"
@@ -13,12 +14,58 @@ cmc_reject_ambiguous_markdown() {
   local cmc_file="$1"
   local cmc_label="$2"
 
-  if grep -Eq '<!--|-->|^[[:space:]]*(```|~~~)|^[[:space:]]+#{2,3}[[:space:]]' \
+  if grep -Eq '<!--|-->|</?[[:alpha:]!][^>]*>|^[[:space:]]*(```|~~~)|^[[:space:]]+#{2,3}[[:space:]]' \
     "${cmc_file}"; then
-    printf '%s contiene commenti, fence o heading indentati non ammessi: %s.\n' \
+    printf '%s contiene commenti, fence o heading indentati non ammessi, oppure HTML: %s.\n' \
       "${cmc_label}" "${cmc_file}" >&2
     cmc_violation_count=$((cmc_violation_count + 1))
   fi
+}
+
+cmc_canonical_table_rows() {
+  local cmc_file="$1"
+  local cmc_section="$2"
+  local cmc_header="$3"
+  local cmc_delimiter="$4"
+
+  awk \
+    -v section="${cmc_section}" \
+    -v header="${cmc_header}" \
+    -v delimiter="${cmc_delimiter}" '
+      $0 == section {
+        section_count++
+        in_section = section_count == 1
+        next
+      }
+      in_section && /^## / {
+        in_section = 0
+        in_rows = 0
+      }
+      in_section && $0 == header {
+        header_count++
+        if (header_count == 1) {
+          if ((getline next_line) <= 0 || next_line != delimiter) {
+            invalid = 1
+            next
+          }
+          in_rows = 1
+        }
+        next
+      }
+      in_rows {
+        if ($0 ~ /^\|.*\|$/) {
+          print
+          row_count++
+          next
+        }
+        in_rows = 0
+      }
+      END {
+        if (section_count != 1 || header_count != 1 || invalid || row_count == 0) {
+          exit 1
+        }
+      }
+    ' "${cmc_file}"
 }
 
 cmc_git_commit_is_valid() {
@@ -61,6 +108,19 @@ cmc_indicator="$(cmc_field "${cmc_master_plan}" "Indicatore")"
 cmc_release_train="$(cmc_field "${cmc_master_plan}" "Release train")"
 cmc_release_train_state="$(cmc_field "${cmc_master_plan}" "Stato release train")"
 cmc_integrated_review="$(cmc_field "${cmc_master_plan}" "Review integrata")"
+
+cmc_reject_ambiguous_markdown "${cmc_master_plan}" "Master Plan"
+cmc_master_backlog_rows=''
+if ! cmc_master_backlog_rows="$(
+  cmc_canonical_table_rows \
+    "${cmc_master_plan}" \
+    '## Backlog completo' \
+    '| ID | Titolo | Stato | Dipendenze | Repository interessati | Risultato atteso |' \
+    '|---|---|---|---|---|---|'
+)"; then
+  printf 'Master Plan privo della tabella canonica Backlog completo.\n' >&2
+  cmc_violation_count=$((cmc_violation_count + 1))
+fi
 
 cmc_compare \
   "Task attivo" \
@@ -138,6 +198,8 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
 
     cmc_last_fix_revision=''
     cmc_last_fix_number=''
+    cmc_expected_worklog_suffix=''
+    cmc_expected_worklog_revision_label=''
     if [[ "${cmc_release_train}" == "CLIENT_FINAL_PRODUCT_COMPLETION" ]]; then
       if [[ ! -f "${cmc_release_manifest}" ]]; then
         printf 'Release manifest assente: %s\n' "${cmc_release_manifest}" >&2
@@ -145,7 +207,18 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
       else
         cmc_reject_ambiguous_markdown \
           "${cmc_release_manifest}" "Release manifest"
-        cmc_manifest_row_count="$(
+        cmc_manifest_rows=''
+        if ! cmc_manifest_rows="$(
+          cmc_canonical_table_rows \
+            "${cmc_release_manifest}" \
+            '## Sequenza e revision set' \
+            '| Task | Stato | Client revision | Admin revision | PR/merge | Gate |' \
+            '|---|---|---|---|---|---|'
+        )"; then
+          printf 'Release manifest privo della tabella canonica Sequenza e revision set.\n' >&2
+          cmc_violation_count=$((cmc_violation_count + 1))
+        fi
+        cmc_manifest_global_row_count="$(
           awk -v task="${cmc_active_task}" '
             function trim(value) {
               gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
@@ -167,13 +240,31 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
             END { print count + 0 }
           ' "${cmc_release_manifest}"
         )"
+        cmc_manifest_row_count="$(
+          awk -v task="${cmc_active_task}" '
+            function trim(value) {
+              gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+              return value
+            }
+            function table_row(line, columns) {
+              if (substr(line, 1, 1) != "|" ||
+                  substr(line, length(line), 1) != "|") return 0
+              return split(line, cmc_fields, "|") == columns + 2
+            }
+            table_row($0, 6) && trim(cmc_fields[2]) == task { count++ }
+            END { print count + 0 }
+          ' <<<"${cmc_manifest_rows}"
+        )"
         cmc_manifest_status=''
         cmc_manifest_revision_field=''
         cmc_manifest_revision=''
         cmc_manifest_gate=''
-        if [[ "${cmc_manifest_row_count}" -ne 1 ]]; then
-          printf 'Release manifest richiede esattamente una riga per %s: ricevute=%s.\n' \
-            "${cmc_active_task}" "${cmc_manifest_row_count}" >&2
+        cmc_manifest_revision_role=''
+        if [[ "${cmc_manifest_row_count}" -ne 1 || \
+          "${cmc_manifest_global_row_count}" -ne 1 ]]; then
+          printf 'Release manifest richiede esattamente una riga canonica per %s: canoniche=%s, globali=%s.\n' \
+            "${cmc_active_task}" "${cmc_manifest_row_count}" \
+            "${cmc_manifest_global_row_count}" >&2
           cmc_violation_count=$((cmc_violation_count + 1))
         else
           IFS=$'\t' read -r \
@@ -199,7 +290,7 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
                   printf "%s\t%s\t%s\n", trim(cmc_fields[3]),
                     trim(cmc_fields[4]), trim(cmc_fields[7])
                 }
-              ' "${cmc_release_manifest}"
+              ' <<<"${cmc_manifest_rows}"
             )
           cmc_manifest_revision="$(
             sed -nE \
@@ -211,6 +302,11 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
               "${cmc_active_task}" "${cmc_manifest_revision_field}" >&2
             cmc_violation_count=$((cmc_violation_count + 1))
           fi
+          cmc_manifest_revision_role="$(
+            sed -nE \
+              's/^`[0-9a-f]{7,40}` ([[:alnum:]_-]+)$/\1/p' \
+              <<<"${cmc_manifest_revision_field}"
+          )"
         fi
         cmc_expected_manifest_status="${cmc_task_status} / ${cmc_phase}"
         if [[ "${cmc_manifest_status}" != "${cmc_expected_manifest_status}" ]]; then
@@ -323,6 +419,11 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
               's/^- exact (technical|review) SHA: `([0-9a-f]{40})`;$/\2/p' \
               <<<"${cmc_last_fix_block}"
           )"
+          cmc_last_fix_revision_role="$(
+            sed -nE \
+              's/^- exact (technical|review) SHA: `[0-9a-f]{40}`;$/\1/p' \
+              <<<"${cmc_last_fix_block}"
+          )"
           cmc_last_fix_handoff_count="$(
             grep -Ec "^\`${cmc_indicator}\`\\.$" \
               <<<"${cmc_last_fix_block}" || true
@@ -333,6 +434,29 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           if [[ "${cmc_last_fix_revision_count}" -ne 1 ]]; then
             printf 'Tail task richiede una sola exact review/technical SHA per %s: ricevute=%s.\n' \
               "${cmc_active_task}" "${cmc_last_fix_revision_count}" >&2
+            cmc_violation_count=$((cmc_violation_count + 1))
+          fi
+          cmc_expected_task_heading=''
+          cmc_expected_revision_role=''
+          cmc_expected_worklog_suffix=''
+          cmc_expected_worklog_revision_label=''
+          if [[ "${cmc_phase}" == 'REVIEW' ]]; then
+            cmc_expected_task_heading="### Fix ${cmc_last_fix_number}"
+            cmc_expected_revision_role='technical'
+            cmc_expected_worklog_suffix='e handoff'
+            cmc_expected_worklog_revision_label='Technical SHA'
+          elif [[ "${cmc_phase}" == 'FIX' ]]; then
+            cmc_expected_task_heading="### Re-review Fix ${cmc_last_fix_number}"
+            cmc_expected_revision_role='review'
+            cmc_expected_worklog_suffix='re-review'
+            cmc_expected_worklog_revision_label='Exact HEAD'
+          fi
+          if [[ "${cmc_last_fix_heading}" != "${cmc_expected_task_heading}" || \
+            "${cmc_last_fix_revision_role}" != "${cmc_expected_revision_role}" || \
+            "${cmc_manifest_revision_role}" != "${cmc_expected_revision_role}" ]]; then
+            printf 'Ruolo revision task/manifest incoerente con fase %s: heading=%q, task=%q, manifest=%q.\n' \
+              "${cmc_phase}" "${cmc_last_fix_heading}" \
+              "${cmc_last_fix_revision_role}" "${cmc_manifest_revision_role}" >&2
             cmc_violation_count=$((cmc_violation_count + 1))
           fi
           if [[ "${cmc_last_fix_handoff_count}" -ne 1 || \
@@ -402,18 +526,20 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
             cmc_violation_count=$((cmc_violation_count + 1))
           fi
 
-          if [[ "${cmc_phase}" == 'REVIEW' ]]; then
-            cmc_latest_technical_revision="$(
-              git -C "${cmc_authority_repo_root}" log -1 --format='%H' -- \
-                .github android config integration_test ios lib pubspec.lock \
-                pubspec.yaml scripts test tool
-            )"
-            if [[ "${cmc_last_fix_revision}" != \
-              "${cmc_latest_technical_revision}" ]]; then
-              printf 'Tail task non punta all ultimo commit tecnico: task=%q, git=%q.\n' \
-                "${cmc_last_fix_revision}" "${cmc_latest_technical_revision}" >&2
-              cmc_violation_count=$((cmc_violation_count + 1))
-            fi
+          if [[ "${cmc_phase}" == 'REVIEW' && \
+            -n "${cmc_last_fix_revision}" ]]; then
+            while IFS= read -r cmc_post_revision_path; do
+              [[ -z "${cmc_post_revision_path}" ]] && continue
+              if ! cmc_governance_path_is_handoff_document \
+                "${cmc_post_revision_path}"; then
+                printf 'Delta post-SHA tecnico contiene path non documentale: %s.\n' \
+                  "${cmc_post_revision_path}" >&2
+                cmc_violation_count=$((cmc_violation_count + 1))
+              fi
+            done < <(
+              git -C "${cmc_authority_repo_root}" diff --name-only \
+                "${cmc_last_fix_revision}..HEAD"
+            )
           fi
         fi
         fi
@@ -424,6 +550,17 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
       -f "${cmc_evidence_readme}" ]]; then
       cmc_reject_ambiguous_markdown \
         "${cmc_evidence_readme}" "Evidence TASK-040"
+      cmc_evidence_test_rows=''
+      if ! cmc_evidence_test_rows="$(
+        cmc_canonical_table_rows \
+          "${cmc_evidence_readme}" \
+          '## Matrice T -> risultato' \
+          '| Test | Esito | Evidence |' \
+          '|---|---|---|'
+      )"; then
+        printf 'Evidence TASK-040 priva della tabella canonica Matrice T -> risultato.\n' >&2
+        cmc_violation_count=$((cmc_violation_count + 1))
+      fi
       cmc_current_gate_heading_count="$(
         grep -Ec '^## Gate executor corrente — Fix [0-9]+$' \
           "${cmc_evidence_readme}" || true
@@ -481,7 +618,7 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           "${cmc_ios_fixture_count_rows}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       fi
-      cmc_t02_row_count="$(
+      cmc_t02_global_row_count="$(
         awk '
           function trim(value) {
             gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
@@ -503,7 +640,17 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           END { print count + 0 }
         ' "${cmc_evidence_readme}"
       )"
-      cmc_t03_row_count="$(
+      cmc_t02_row_count="$(
+        awk '
+          function trim(value) {
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            return value
+          }
+          split($0, fields, "|") == 5 && trim(fields[2]) == "T-02" { count++ }
+          END { print count + 0 }
+        ' <<<"${cmc_evidence_test_rows}"
+      )"
+      cmc_t03_global_row_count="$(
         awk '
           function trim(value) {
             gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
@@ -525,6 +672,16 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           END { print count + 0 }
         ' "${cmc_evidence_readme}"
       )"
+      cmc_t03_row_count="$(
+        awk '
+          function trim(value) {
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            return value
+          }
+          split($0, fields, "|") == 5 && trim(fields[2]) == "T-03" { count++ }
+          END { print count + 0 }
+        ' <<<"${cmc_evidence_test_rows}"
+      )"
       cmc_t02_status=''
       cmc_t02_evidence=''
       cmc_t03_status=''
@@ -532,9 +689,10 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
       cmc_t07_row_count=''
       cmc_t07_status=''
       cmc_t07_evidence=''
-      if [[ "${cmc_t02_row_count}" -ne 1 ]]; then
-        printf 'Matrice TASK-040 richiede esattamente una riga T-02: ricevute=%s.\n' \
-          "${cmc_t02_row_count}" >&2
+      if [[ "${cmc_t02_row_count}" -ne 1 || \
+        "${cmc_t02_global_row_count}" -ne 1 ]]; then
+        printf 'Matrice TASK-040 richiede esattamente una riga T-02 canonica: canoniche=%s, globali=%s.\n' \
+          "${cmc_t02_row_count}" "${cmc_t02_global_row_count}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       else
         IFS=$'\t' read -r cmc_t02_status cmc_t02_evidence < <(
@@ -556,12 +714,13 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
             table_row($0, 3) && trim(cmc_fields[2]) == "T-02" {
               printf "%s\t%s\n", trim(cmc_fields[3]), trim(cmc_fields[4])
             }
-          ' "${cmc_evidence_readme}"
+          ' <<<"${cmc_evidence_test_rows}"
         )
       fi
-      if [[ "${cmc_t03_row_count}" -ne 1 ]]; then
-        printf 'Matrice TASK-040 richiede esattamente una riga T-03: ricevute=%s.\n' \
-          "${cmc_t03_row_count}" >&2
+      if [[ "${cmc_t03_row_count}" -ne 1 || \
+        "${cmc_t03_global_row_count}" -ne 1 ]]; then
+        printf 'Matrice TASK-040 richiede esattamente una riga T-03 canonica: canoniche=%s, globali=%s.\n' \
+          "${cmc_t03_row_count}" "${cmc_t03_global_row_count}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       else
         IFS=$'\t' read -r cmc_t03_status cmc_t03_evidence < <(
@@ -583,10 +742,10 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
             table_row($0, 3) && trim(cmc_fields[2]) == "T-03" {
               printf "%s\t%s\n", trim(cmc_fields[3]), trim(cmc_fields[4])
             }
-          ' "${cmc_evidence_readme}"
+          ' <<<"${cmc_evidence_test_rows}"
         )
       fi
-      cmc_t07_row_count="$(
+      cmc_t07_global_row_count="$(
         awk '
           function trim(value) {
             gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
@@ -606,9 +765,20 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           END { print count + 0 }
         ' "${cmc_evidence_readme}"
       )"
-      if [[ "${cmc_t07_row_count}" -ne 1 ]]; then
-        printf 'Matrice TASK-040 richiede esattamente una riga T-07: ricevute=%s.\n' \
-          "${cmc_t07_row_count}" >&2
+      cmc_t07_row_count="$(
+        awk '
+          function trim(value) {
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            return value
+          }
+          split($0, fields, "|") == 5 && trim(fields[2]) == "T-07" { count++ }
+          END { print count + 0 }
+        ' <<<"${cmc_evidence_test_rows}"
+      )"
+      if [[ "${cmc_t07_row_count}" -ne 1 || \
+        "${cmc_t07_global_row_count}" -ne 1 ]]; then
+        printf 'Matrice TASK-040 richiede esattamente una riga T-07 canonica: canoniche=%s, globali=%s.\n' \
+          "${cmc_t07_row_count}" "${cmc_t07_global_row_count}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       else
         IFS=$'\t' read -r cmc_t07_status cmc_t07_evidence < <(
@@ -630,7 +800,7 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
             table_row($0, 3) && trim(cmc_fields[2]) == "T-07" {
               printf "%s\t%s\n", trim(cmc_fields[3]), trim(cmc_fields[4])
             }
-          ' "${cmc_evidence_readme}"
+          ' <<<"${cmc_evidence_test_rows}"
         )
       fi
       cmc_t02_revision="$(
@@ -711,6 +881,11 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
             sed -nE \
               "s/^## [0-9-]+ — ${cmc_active_task} Fix ([0-9]+) (e handoff|re-review)$/\\1/p"
         )"
+        cmc_worklog_suffix="$(
+          head -n 1 <<<"${cmc_last_worklog_block}" | \
+            sed -nE \
+              "s/^## [0-9-]+ — ${cmc_active_task} Fix [0-9]+ (e handoff|re-review)$/\\1/p"
+        )"
         cmc_worklog_revision_count="$(
           sed -nE \
             's/^- \*\*(Technical SHA|Exact HEAD)\*\*: `([0-9a-f]{40})`\.$/\2/p' \
@@ -720,6 +895,11 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         cmc_worklog_revision="$(
           sed -nE \
             's/^- \*\*(Technical SHA|Exact HEAD)\*\*: `([0-9a-f]{40})`\.$/\2/p' \
+              <<<"${cmc_last_worklog_block}"
+        )"
+        cmc_worklog_revision_label="$(
+          sed -nE \
+            's/^- \*\*(Technical SHA|Exact HEAD)\*\*: `[0-9a-f]{40}`\.$/\1/p' \
             <<<"${cmc_last_worklog_block}"
         )"
         cmc_worklog_handoff_count="$(
@@ -745,6 +925,15 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
               "${cmc_last_fix_revision}" >&2
             cmc_violation_count=$((cmc_violation_count + 1))
           fi
+          if [[ "${cmc_worklog_suffix}" != \
+              "${cmc_expected_worklog_suffix}" || \
+            "${cmc_worklog_revision_label}" != \
+              "${cmc_expected_worklog_revision_label}" ]]; then
+            printf 'Ruolo worklog incoerente con fase %s: heading=%q, revision=%q.\n' \
+              "${cmc_phase}" "${cmc_worklog_suffix}" \
+              "${cmc_worklog_revision_label}" >&2
+            cmc_violation_count=$((cmc_violation_count + 1))
+          fi
           if [[ "${cmc_worklog_fix_number}" != \
             "${cmc_last_fix_number}" ]]; then
             printf 'Worklog corrente non correlato al ciclo Fix task: worklog=%q, task=%q.\n' \
@@ -757,7 +946,7 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
   fi
 fi
 
-cmc_table_active_count="$(
+cmc_global_table_active_count="$(
   awk -F'|' '
     /^\| TASK-[0-9][0-9][0-9] / {
       status=$4
@@ -766,6 +955,16 @@ cmc_table_active_count="$(
     }
     END { print count + 0 }
   ' "${cmc_master_plan}"
+)"
+cmc_table_active_count="$(
+  awk -F'|' '
+    /^\| TASK-[0-9][0-9][0-9] / {
+      status=$4
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", status)
+      if (status == "ACTIVE") count++
+    }
+    END { print count + 0 }
+  ' <<<"${cmc_master_backlog_rows}"
 )"
 cmc_table_active_task="$(
   awk -F'|' '
@@ -779,8 +978,14 @@ cmc_table_active_task="$(
         exit
       }
     }
-  ' "${cmc_master_plan}"
+  ' <<<"${cmc_master_backlog_rows}"
 )"
+
+if [[ "${cmc_global_table_active_count}" -ne "${cmc_table_active_count}" ]]; then
+  printf 'Righe ACTIVE fuori dalla tabella canonica Backlog completo: globali=%s, canoniche=%s.\n' \
+    "${cmc_global_table_active_count}" "${cmc_table_active_count}" >&2
+  cmc_violation_count=$((cmc_violation_count + 1))
+fi
 
 if [[ "${cmc_active_task_normalized}" == "nessuno" ]]; then
   if [[ "${cmc_table_active_count}" -ne 0 ]]; then
@@ -837,7 +1042,7 @@ if [[ "${cmc_release_train}" == "STOREFRONT_V1" ]]; then
           print status
           exit
         }
-      ' "${cmc_master_plan}"
+      ' <<<"${cmc_master_backlog_rows}"
     )"
 
     case "${cmc_row_status}" in

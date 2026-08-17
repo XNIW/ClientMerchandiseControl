@@ -6,13 +6,13 @@
 - **Titolo**: Performance, immagini, cache e load testing
 - **File task**: `docs/TASKS/TASK-037-performance-images-cache-load.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-037/`
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -206,11 +206,27 @@
 
 ## Review — `CODEX_REVIEWER`
 
-In attesa di verifica indipendente del revision set e delle evidence.
+### Esito indipendente sullo SHA `5866465`
+
+`CHANGES_REQUIRED`, con `0 P0 / 0 P1 / 2 P2 / 1 P3`:
+
+- `F-037-R01` P2: la single-flight non conserva la deadline assoluta baseline;
+  timeout header e stream possono sommarsi. Richiesti deadline globale condivisa,
+  scheduler controllato, cleanup e retry dopo timeout;
+- `F-037-R02` P2: matrici CA/evidence e T/risultato mancanti e budget non misurati
+  per page append, checkout navigation, tracking publication, decode immagine e
+  request count; CA-05/CA-07 non hanno mapping exact-SHA sufficiente;
+- `F-037-R03` P3: oracle LRU non separano cap entry/byte né distinguono FIFO;
+  l'assert sul tipo State del rebuild è vacuo e va sostituito con widget/root
+  osservabili.
+
+Gate reviewer: analyze, 19/19 mirati, repeat 20/20, performance 12/12,
+governance 9/9, security 634 file + fixture 41/41 e 4/4, architecture 7/7,
+format/diff, staging exact-SHA e cleanup tutti `PASS`. Production invariata.
 
 ## Fix — `CODEX_FIXER`
 
-Non applicabile finché la review non produce finding.
+In corso, limitato ai finding `F-037-R01`–`F-037-R03`.
 
 ## Chiusura
 

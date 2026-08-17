@@ -2781,3 +2781,15 @@
   dichiarati `NOT_RUN`, senza PASS inferito.
 - **Transizione**: `ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`;
   production invariata e finding executor aperti zero P0/P1/P2/P3.
+
+## 2026-08-17 — TASK-037 review indipendente
+
+- **Ruolo**: `CODEX_REVIEWER` read-only distinto; worktree lasciato pulito.
+- **Esito**: `CHANGES_REQUIRED`, `0 P0 / 0 P1 / 2 P2 / 1 P3`.
+- **Finding**: `F-037-R01` deadline immagini non più assoluta; `F-037-R02`
+  matrici e misure performance incomplete; `F-037-R03` oracle LRU/rebuild non
+  sufficientemente discriminanti.
+- **Gate autonomi**: analyze, 19/19 mirati, repeat 20/20, performance 12/12,
+  governance, security, architecture, format/diff e run staging `PASS`.
+- **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`;
+  fix limitato ai tre finding, production invariata.

@@ -574,12 +574,56 @@ cmc_fixture_expect_rejection \
 
 cmc_fixture_utf16_be="$(cmc_fixture_prepare bundle-secret-utf16be)"
 mkdir -p "${cmc_fixture_utf16_be}/artifact"
-perl -MEncode -e 'print encode("UTF-16BE", $ARGV[0])' \
+perl -MEncode -e 'print encode("UTF-16BE", $ARGV[0])' -- \
   "${cmc_fixture_google_value}" \
   >"${cmc_fixture_utf16_be}/artifact/constants.bin"
 cmc_fixture_expect_rejection \
   "${cmc_fixture_utf16_be}" \
   --artifact "${cmc_fixture_utf16_be}/artifact"
+
+cmc_fixture_utf16_jwt="$(cmc_fixture_prepare bundle-jwt-utf16le)"
+mkdir -p "${cmc_fixture_utf16_jwt}/artifact"
+perl -MEncode -e 'print encode("UTF-16LE", $ARGV[0])' \
+  "${cmc_fixture_jwt_value}" \
+  >"${cmc_fixture_utf16_jwt}/artifact/constants.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_utf16_jwt}" \
+  --artifact "${cmc_fixture_utf16_jwt}/artifact"
+
+cmc_fixture_utf16_pem="$(cmc_fixture_prepare bundle-pem-utf16be)"
+mkdir -p "${cmc_fixture_utf16_pem}/artifact"
+cmc_fixture_utf16_pem_text="$(printf '%s\n%s\n%s' \
+  "${cmc_fixture_pem_fence}BEGIN ${cmc_fixture_private_key_label}${cmc_fixture_pem_fence}" \
+  'QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB' \
+  "${cmc_fixture_pem_fence}END ${cmc_fixture_private_key_label}${cmc_fixture_pem_fence}")"
+perl -MEncode -e 'print encode("UTF-16BE", $ARGV[0])' \
+  -- "${cmc_fixture_utf16_pem_text}" \
+  >"${cmc_fixture_utf16_pem}/artifact/key.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_utf16_pem}" \
+  --artifact "${cmc_fixture_utf16_pem}/artifact"
+
+cmc_fixture_chunk_boundary="$(cmc_fixture_prepare bundle-secret-chunk-boundary)"
+mkdir -p "${cmc_fixture_chunk_boundary}/artifact"
+dd if=/dev/zero \
+  of="${cmc_fixture_chunk_boundary}/artifact/bundle.bin" \
+  bs=1 count=0 seek=$((3 * 1024 * 1024 - 10)) 2>/dev/null
+printf '%s\n' "${cmc_fixture_google_value}" \
+  >>"${cmc_fixture_chunk_boundary}/artifact/bundle.bin"
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_chunk_boundary}" \
+  --artifact "${cmc_fixture_chunk_boundary}/artifact"
+
+cmc_fixture_aggregate="$(cmc_fixture_prepare bundle-aggregate-size-bound)"
+mkdir -p "${cmc_fixture_aggregate}/artifact"
+for cmc_fixture_aggregate_index in {1..9}; do
+  dd if=/dev/zero \
+    of="${cmc_fixture_aggregate}/artifact/part-${cmc_fixture_aggregate_index}.bin" \
+    bs=1 count=0 seek=67108864 2>/dev/null
+done
+cmc_fixture_expect_rejection \
+  "${cmc_fixture_aggregate}" \
+  --artifact "${cmc_fixture_aggregate}/artifact"
 
 cmc_fixture_oversized_file="$(cmc_fixture_prepare bundle-file-size-bound)"
 mkdir -p "${cmc_fixture_oversized_file}/artifact"

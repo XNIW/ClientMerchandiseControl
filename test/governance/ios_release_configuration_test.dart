@@ -112,14 +112,7 @@ void main() {
     final workflow = File(
       '$repositoryRoot/.github/workflows/ci.yml',
     ).readAsStringSync();
-
-    final job = _yamlJobBlock(workflow, 'ios-release');
-    expect(job, contains('name: iOS release candidate'));
-    expect(job, contains('runs-on: macos-latest'));
-    expect(job, contains('flutter build ios --release --no-codesign'));
-    expect(job, contains('xcodebuild archive'));
-    expect(job, contains('check-ios-release.sh'));
-    expect(job, contains('CODE_SIGNING_ALLOWED=NO'));
+    expect(() => _validateIosReleaseJob(workflow), returnsNormally);
   });
 
   test(
@@ -137,23 +130,77 @@ jobs:
 # CODE_SIGNING_ALLOWED=NO
 ''';
 
-      expect(_yamlJobBlock(workflow, 'ios-release'), isEmpty);
+      expect(
+        () => _validateIosReleaseJob(workflow),
+        throwsA(isA<StateError>()),
+      );
     },
   );
+
+  test('CI release gate rejects source-only or duplicate jobs', () {
+    const sourceOnly = '''
+jobs:
+  ios-release:
+    name: iOS release candidate
+    runs-on: macos-latest
+    steps:
+      - run: bash scripts/check-ios-release.sh --source-only
+''';
+    expect(
+      () => _validateIosReleaseJob(sourceOnly),
+      throwsA(isA<StateError>()),
+    );
+
+    final workflow = File(
+      '$repositoryRoot/.github/workflows/ci.yml',
+    ).readAsStringSync();
+    final duplicate = '$workflow\n  ios-release:\n    runs-on: macos-latest\n';
+    expect(() => _validateIosReleaseJob(duplicate), throwsA(isA<StateError>()));
+  });
 }
 
-String _yamlJobBlock(String workflow, String jobName) {
-  final lines = const LineSplitter().convert(workflow);
-  final start = lines.indexWhere((line) => line == '  $jobName:');
-  if (start < 0) {
-    return '';
+void _validateIosReleaseJob(String workflow) {
+  final blocks = _yamlJobBlocks(workflow, 'ios-release');
+  if (blocks.length != 1) {
+    throw StateError('ios-release job cardinality invalid');
   }
-  final end = lines.indexWhere(
-    (line) => RegExp(r'^  [a-zA-Z0-9_-]+:$').hasMatch(line),
-    start + 1,
-  );
-  return lines
-      .sublist(start, end < 0 ? lines.length : end)
-      .where((line) => !line.trimLeft().startsWith('#'))
-      .join('\n');
+  final job = blocks.single;
+  for (final required in <String>[
+    'name: iOS release candidate',
+    'runs-on: macos-latest',
+    'flutter build ios --release --no-codesign',
+    'xcodebuild archive',
+    'CODE_SIGNING_ALLOWED=NO',
+    'name: Validate iOS release candidate',
+    'scripts/check-ios-release.sh',
+    '--app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app',
+    '--archive build/ios/archive/Runner.xcarchive',
+    'name: Validate iOS adversarial release boundaries',
+    'scripts/test-ios-release-validator.sh',
+  ]) {
+    if (!job.contains(required)) {
+      throw StateError('ios-release job missing required boundary');
+    }
+  }
+}
+
+List<String> _yamlJobBlocks(String workflow, String jobName) {
+  final lines = const LineSplitter().convert(workflow);
+  final blocks = <String>[];
+  for (var start = 0; start < lines.length; start++) {
+    if (lines[start] != '  $jobName:') {
+      continue;
+    }
+    final end = lines.indexWhere(
+      (line) => RegExp(r'^  [a-zA-Z0-9_-]+:$').hasMatch(line),
+      start + 1,
+    );
+    blocks.add(
+      lines
+          .sublist(start, end < 0 ? lines.length : end)
+          .where((line) => !line.trimLeft().startsWith('#'))
+          .join('\n'),
+    );
+  }
+  return blocks;
 }

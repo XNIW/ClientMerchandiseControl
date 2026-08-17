@@ -69,7 +69,7 @@ for cmc_ios_release_file in \
 done
 
 for cmc_ios_release_command in \
-  codesign dart dwarfdump file find lipo openssl perl plutil shasum; do
+  codesign dart dwarfdump file find lipo openssl otool perl plutil shasum; do
   command -v "${cmc_ios_release_command}" >/dev/null 2>&1 || \
     cmc_ios_release_fail 'ARTIFACT_TOOLING_MISSING'
 done
@@ -250,6 +250,10 @@ for cmc_ios_release_privacy_relative in \
   "${cmc_ios_release_privacy_paths[@]}"; do
   [[ -f "${cmc_ios_release_app}/${cmc_ios_release_privacy_relative}" ]] || \
     cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_MISSING'
+  plutil -lint \
+    "${cmc_ios_release_app}/${cmc_ios_release_privacy_relative}" \
+    >/dev/null 2>&1 || \
+    cmc_ios_release_fail 'DEPENDENCY_PRIVACY_MANIFEST_INVALID'
 done
 [[ "$(find "${cmc_ios_release_app}" -name PrivacyInfo.xcprivacy -type f | \
   wc -l | tr -d '[:space:]')" -eq "${#cmc_ios_release_privacy_paths[@]}" ]] || \
@@ -284,11 +288,24 @@ done < <(find "${cmc_ios_release_app}/Frameworks" \
 [[ "${cmc_ios_release_framework_count}" -ge 3 ]] || \
   cmc_ios_release_fail 'EMBEDDED_FRAMEWORK_SET_INCOMPLETE'
 
-if codesign --display "${cmc_ios_release_app}" >/dev/null 2>&1; then
+cmc_ios_release_signature_commands="$(
+  otool -l "${cmc_ios_release_executable}" | \
+    awk '$1 == "cmd" && $2 == "LC_CODE_SIGNATURE" { count++ } END { print count + 0 }'
+)" || cmc_ios_release_fail 'SIGNATURE_METADATA_UNREADABLE'
+[[ "${cmc_ios_release_signature_commands}" =~ ^[0-9]+$ && \
+  "${cmc_ios_release_signature_commands}" -le 1 ]] || \
+  cmc_ios_release_fail 'SIGNATURE_METADATA_INVALID'
+if [[ "${cmc_ios_release_signature_commands}" -eq 1 || \
+  -e "${cmc_ios_release_app}/_CodeSignature" ]]; then
+  codesign --display "${cmc_ios_release_app}" >/dev/null 2>&1 || \
+    cmc_ios_release_fail 'ARTIFACT_SIGNATURE_INVALID'
   codesign --verify --deep --strict "${cmc_ios_release_app}" \
     >/dev/null 2>&1 || cmc_ios_release_fail 'ARTIFACT_SIGNATURE_INVALID'
   cmc_ios_release_signing_state='SIGNED'
 else
+  if codesign --display "${cmc_ios_release_app}" >/dev/null 2>&1; then
+    cmc_ios_release_fail 'SIGNATURE_METADATA_INVALID'
+  fi
   cmc_ios_release_signing_state='UNSIGNED'
 fi
 
@@ -357,6 +374,15 @@ if [[ -n "${cmc_ios_release_archive}" ]]; then
     -r "${cmc_ios_release_archive_dsym}" ]] || \
     cmc_ios_release_fail 'ARCHIVE_CONTENT_MISSING'
   [[ "$(/usr/libexec/PlistBuddy -c \
+    'Print :ApplicationProperties:ApplicationPath' \
+    "${cmc_ios_release_archive_info}" 2>/dev/null || true)" == \
+    'Applications/Runner.app' ]] || \
+    cmc_ios_release_fail 'ARCHIVE_APPLICATION_PATH_MISMATCH'
+  [[ "$(find "${cmc_ios_release_archive}/Products/Applications" \
+    -mindepth 1 -maxdepth 1 -type d -name '*.app' | \
+    wc -l | tr -d '[:space:]')" -eq 1 ]] || \
+    cmc_ios_release_fail 'ARCHIVE_APPLICATION_SET_INVALID'
+  [[ "$(/usr/libexec/PlistBuddy -c \
     'Print :ApplicationProperties:CFBundleIdentifier' \
     "${cmc_ios_release_archive_info}")" == \
     'com.xniw.clientmerchandisecontrol' ]] || \
@@ -411,9 +437,14 @@ if [[ -e "${cmc_ios_release_app}/embedded.mobileprovision" ]]; then
     cmc_ios_release_fail 'APP_STORE_PROVISIONING_PROFILE_REQUIRED'
   fi
   bash "${cmc_ios_release_security}" \
-    --allow-ios-embedded-profile --artifact "${cmc_ios_release_app}"
+    --artifact "${cmc_ios_release_profile}" || \
+    cmc_ios_release_fail 'PROVISIONING_PROFILE_SECURITY_SCAN_FAILED'
+  bash "${cmc_ios_release_security}" \
+    --allow-ios-embedded-profile --artifact "${cmc_ios_release_app}" || \
+    cmc_ios_release_fail 'ARTIFACT_SECURITY_SCAN_FAILED'
 else
-  bash "${cmc_ios_release_security}" --artifact "${cmc_ios_release_app}"
+  bash "${cmc_ios_release_security}" --artifact "${cmc_ios_release_app}" || \
+    cmc_ios_release_fail 'ARTIFACT_SECURITY_SCAN_FAILED'
 fi
 
 cmc_ios_release_sha="$(
@@ -439,8 +470,20 @@ if [[ "${cmc_ios_release_require_upload}" == true ]]; then
   )" || cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_INVALID'
   [[ "${cmc_ios_release_runtime_fingerprint}" =~ ^[0-9a-f]{64}$ ]] || \
     cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_INVALID'
-  LC_ALL=C grep -aFq -- "${cmc_ios_release_runtime_fingerprint}" \
-    "${cmc_ios_release_executable}" || \
+  cmc_ios_release_runtime_marker="CMC_RELEASE_CONFIG_ATTESTATION_V1:${cmc_ios_release_runtime_fingerprint}"
+  perl -e '
+    use strict;
+    use warnings;
+    my ($path, $expected) = @ARGV;
+    open my $handle, "<", $path or exit 2;
+    binmode $handle;
+    local $/;
+    my $content = <$handle>;
+    close $handle or exit 2;
+    my @markers =
+      $content =~ /(CMC_RELEASE_CONFIG_ATTESTATION_V1:[0-9a-f]{64})/g;
+    exit(@markers == 1 && $markers[0] eq $expected ? 0 : 1);
+  ' "${cmc_ios_release_executable}" "${cmc_ios_release_runtime_marker}" || \
     cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_NOT_ARTIFACT_BOUND'
   [[ "${IOS_TESTFLIGHT_UPLOAD_AUTHORIZED:-}" == true ]] || \
     cmc_ios_release_fail 'TESTFLIGHT_AUTHORIZATION_MISSING'

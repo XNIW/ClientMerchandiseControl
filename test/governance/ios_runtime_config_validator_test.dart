@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
+import 'package:client_merchandise_control/core/config/release_config_attestation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -21,7 +21,7 @@ void main() {
     expect(result.exitCode, 0, reason: result.stderr as String);
     expect(
       (result.stdout as String).trim(),
-      sha256.convert(fixture.readAsBytesSync()).toString(),
+      ReleaseConfigAttestation.fromBytes(fixture.readAsBytesSync()).sha256,
     );
     expect(result.stderr, isNot(contains('sb_publishable_')));
     expect(result.stderr, isNot(contains('production.example.invalid')));
@@ -80,23 +80,100 @@ void main() {
     expect(linked.exitCode, 1);
     expect(linked.stderr, contains('FILE_NOT_REGULAR'));
   });
+
+  test('JWT legacy header non JSON e URL non canonici sono respinti', () async {
+    final fixture = await _runtimeFixture();
+    addTearDown(() => fixture.parent.deleteSync(recursive: true));
+    final values =
+        jsonDecode(fixture.readAsStringSync()) as Map<String, Object?>;
+    values['SUPABASE_PUBLISHABLE_KEY'] = _jwt(
+      header: utf8.encode('not-json'),
+      payload: utf8.encode('{"role":"anon"}'),
+    );
+    fixture.writeAsStringSync(jsonEncode(values));
+
+    final badHeader = await _runValidator(repositoryRoot, fixture.path);
+    expect(badHeader.exitCode, 1);
+    expect(badHeader.stderr, contains('PUBLISHABLE_KEY_INVALID'));
+
+    values['SUPABASE_PUBLISHABLE_KEY'] = 'sb_publishable_synthetic';
+    values['AUTH_REDIRECT_URI'] =
+        ' https://clientmerchandisecontrol.invalid/auth-callback/';
+    fixture.writeAsStringSync(jsonEncode(values));
+    final whitespace = await _runValidator(repositoryRoot, fixture.path);
+    expect(whitespace.exitCode, 1);
+    expect(whitespace.stderr, contains('VALUE_NOT_CANONICAL'));
+
+    values['AUTH_REDIRECT_URI'] =
+        'https://clientmerchandisecontrol.invalid:443/auth-callback/';
+    fixture.writeAsStringSync(jsonEncode(values));
+    final port = await _runValidator(repositoryRoot, fixture.path);
+    expect(port.exitCode, 1);
+    expect(port.stderr, contains('AUTH_REDIRECT_INVALID'));
+  });
+
+  test('duplicate keys e path ancestor symlink falliscono chiusi', () async {
+    final fixture = await _runtimeFixture();
+    addTearDown(() => fixture.parent.deleteSync(recursive: true));
+    final original = fixture.readAsStringSync();
+    fixture.writeAsStringSync(
+      original.replaceFirst('{', '{"APP_ENV":"production",'),
+    );
+    final duplicate = await _runValidator(repositoryRoot, fixture.path);
+    expect(duplicate.exitCode, 1);
+    expect(duplicate.stderr, contains('DUPLICATE_KEY'));
+
+    final linkedDirectory = Link('${fixture.parent.path}-link')
+      ..createSync(fixture.parent.path);
+    addTearDown(() {
+      if (linkedDirectory.existsSync()) {
+        linkedDirectory.deleteSync();
+      }
+    });
+    fixture.writeAsStringSync(original);
+    final ancestorLink = await _runValidator(
+      repositoryRoot,
+      '${linkedDirectory.path}/${fixture.uri.pathSegments.last}',
+    );
+    expect(ancestorLink.exitCode, 1);
+    expect(ancestorLink.stderr, contains('FILE_PATH_NOT_CANONICAL'));
+  });
+}
+
+Future<ProcessResult> _runValidator(String repositoryRoot, String path) {
+  return Process.run('dart', [
+    'run',
+    '$repositoryRoot/tool/check_ios_runtime_config.dart',
+    '--config',
+    path,
+  ]);
+}
+
+String _jwt({required List<int> header, required List<int> payload}) {
+  final signature = base64Url
+      .encode(List<int>.filled(32, 7))
+      .replaceAll('=', '');
+  return '${base64Url.encode(header).replaceAll('=', '')}.'
+      '${base64Url.encode(payload).replaceAll('=', '')}.$signature';
 }
 
 Future<File> _runtimeFixture() async {
   final directory = await Directory.systemTemp.createTemp(
     'cmc-ios-runtime-config-',
   );
-  return File('${directory.path}/production.json')..writeAsStringSync(
-    jsonEncode({
-      'APP_ENV': 'production',
-      'SUPABASE_URL': 'https://production.example.invalid',
-      'SUPABASE_PUBLISHABLE_KEY': 'sb_publishable_synthetic',
-      'AUTH_REDIRECT_URI':
-          'https://clientmerchandisecontrol.invalid/auth-callback/',
-      'GOOGLE_AUTH_ENABLED': 'false',
-      'STOREFRONT_SHOP_SLUG': 'storefront-synthetic',
-      'DELIVERY_MAPS_ENABLED': 'false',
-      'DELIVERY_MAPS_NATIVE_CONFIGURED': 'false',
-    }),
-  );
+  final file = File('${directory.path}/production.json')
+    ..writeAsStringSync(
+      jsonEncode({
+        'APP_ENV': 'production',
+        'SUPABASE_URL': 'https://production.example.invalid',
+        'SUPABASE_PUBLISHABLE_KEY': 'sb_publishable_synthetic',
+        'AUTH_REDIRECT_URI':
+            'https://clientmerchandisecontrol.invalid/auth-callback/',
+        'GOOGLE_AUTH_ENABLED': 'false',
+        'STOREFRONT_SHOP_SLUG': 'storefront-synthetic',
+        'DELIVERY_MAPS_ENABLED': 'false',
+        'DELIVERY_MAPS_NATIVE_CONFIGURED': 'false',
+      }),
+    );
+  return File(file.resolveSymbolicLinksSync());
 }

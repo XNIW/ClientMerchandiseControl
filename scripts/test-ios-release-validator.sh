@@ -59,6 +59,8 @@ cmc_ios_test_expect_failure() {
     "${cmc_ios_test_log}" || {
     printf 'Fixture iOS %s fallita per ragione inattesa.\n' \
       "${cmc_ios_test_name}" >&2
+    grep -E '^IOS_RELEASE_BLOCKED: [A-Z0-9_]+$' \
+      "${cmc_ios_test_log}" >&2 || true
     exit 1
   }
 }
@@ -66,6 +68,28 @@ cmc_ios_test_expect_failure() {
 bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}" >/dev/null
+
+cp "${cmc_ios_test_source_info}" \
+  "${cmc_ios_test_tmp_root}/Archive-Info.plist.original"
+/usr/libexec/PlistBuddy -c \
+  'Set :ApplicationProperties:ApplicationPath Applications/Evil.app' \
+  "${cmc_ios_test_fixture_archive}/Info.plist"
+cmc_ios_test_expect_failure archive-application-path \
+  ARCHIVE_APPLICATION_PATH_MISMATCH \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_tmp_root}/Archive-Info.plist.original" \
+  "${cmc_ios_test_fixture_archive}/Info.plist"
+
+cp -R "${cmc_ios_test_fixture_app}" \
+  "${cmc_ios_test_fixture_archive}/Products/Applications/Extra.app"
+cmc_ios_test_expect_failure archive-application-set \
+  ARCHIVE_APPLICATION_SET_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+rm -rf -- "${cmc_ios_test_fixture_archive}/Products/Applications/Extra.app"
 
 cmc_ios_test_external_app="${cmc_ios_test_tmp_root}/External.app"
 cp -R "${cmc_ios_test_fixture_app}" "${cmc_ios_test_external_app}"
@@ -106,6 +130,17 @@ cmc_ios_test_expect_failure privacy-decoy DEPENDENCY_PRIVACY_MANIFEST_MISSING \
 mv "${cmc_ios_test_tmp_root}/app-links.PrivacyInfo.xcprivacy" \
   "${cmc_ios_test_required_privacy}"
 rm -rf -- "${cmc_ios_test_fixture_app}/privacy-decoy.bundle"
+
+cp "${cmc_ios_test_required_privacy}" \
+  "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy"
+printf 'not a plist\n' >"${cmc_ios_test_required_privacy}"
+cmc_ios_test_expect_failure privacy-malformed \
+  DEPENDENCY_PRIVACY_MANIFEST_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
+  "${cmc_ios_test_required_privacy}"
 
 cmc_ios_test_entitlements="${cmc_ios_test_tmp_root}/entitlements.plist"
 cp "${cmc_ios_test_root}/ios/Runner/PrivacyInfo.xcprivacy" \
@@ -152,6 +187,24 @@ codesign --force --deep --sign - --entitlements "${cmc_ios_test_entitlements}" \
 bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}" >/dev/null
+cmc_ios_test_secret="GOCSPX-$(printf 'A%.0s' {1..32})"
+/usr/libexec/PlistBuddy -c \
+  "Add :FixtureNote string ${cmc_ios_test_secret}" \
+  "${cmc_ios_test_profile_plist}"
+openssl cms -sign -binary -nodetach \
+  -in "${cmc_ios_test_profile_plist}" \
+  -signer "${cmc_ios_test_tmp_root}/profile.crt" \
+  -inkey "${cmc_ios_test_tmp_root}/profile.key" \
+  -outform DER \
+  -out "${cmc_ios_test_fixture_app}/embedded.mobileprovision" \
+  >/dev/null 2>&1
+codesign --force --deep --sign - --entitlements "${cmc_ios_test_entitlements}" \
+  "${cmc_ios_test_fixture_app}" >/dev/null 2>&1
+cmc_ios_test_expect_failure decoded-profile-secret \
+  PROVISIONING_PROFILE_SECURITY_SCAN_FAILED \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
 rm "${cmc_ios_test_fixture_app}/embedded.mobileprovision"
 codesign --force --deep --sign - --entitlements "${cmc_ios_test_entitlements}" \
   "${cmc_ios_test_fixture_app}" >/dev/null 2>&1
@@ -167,10 +220,39 @@ cmc_ios_test_expect_failure unexpected-entitlement SIGNED_ENTITLEMENT_SET_INVALI
   "${cmc_ios_test_entitlements}"
 codesign --force --deep --sign - --entitlements "${cmc_ios_test_entitlements}" \
   "${cmc_ios_test_fixture_app}" >/dev/null 2>&1
+cmc_ios_test_signature_offset="$(
+  otool -l "${cmc_ios_test_fixture_app}/Runner" | awk '
+    $1 == "cmd" && $2 == "LC_CODE_SIGNATURE" { found = 1; next }
+    found && $1 == "dataoff" { print $2; exit }
+  '
+)"
+[[ "${cmc_ios_test_signature_offset}" =~ ^[0-9]+$ ]] || {
+  printf 'Fixture signature offset non leggibile.\n' >&2
+  exit 1
+}
+perl -e '
+  use strict;
+  use warnings;
+  my ($path, $offset) = @ARGV;
+  open my $handle, "+<", $path or die "open\n";
+  binmode $handle;
+  seek $handle, $offset, 0 or die "seek\n";
+  read($handle, my $byte, 1) == 1 or die "read\n";
+  seek $handle, $offset, 0 or die "seek\n";
+  print {$handle} chr(ord($byte) ^ 0xff) or die "write\n";
+  close $handle or die "close\n";
+' "${cmc_ios_test_fixture_app}/Runner" "${cmc_ios_test_signature_offset}"
+cmc_ios_test_expect_failure corrupt-signature-superblob ARTIFACT_SIGNATURE_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp -R "${cmc_ios_test_source_app}/." "${cmc_ios_test_fixture_app}/"
+codesign --force --deep --sign - --entitlements "${cmc_ios_test_entitlements}" \
+  "${cmc_ios_test_fixture_app}" >/dev/null 2>&1
 printf 'tamper after signing\n' >>"${cmc_ios_test_fixture_app}/Assets.car"
 cmc_ios_test_expect_failure invalid-signature ARTIFACT_SIGNATURE_INVALID \
   bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 
-printf 'iOS release validator fixtures: 8/8 PASS.\n'
+printf 'iOS release validator fixtures: 13/13 PASS.\n'

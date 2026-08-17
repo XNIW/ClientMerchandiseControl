@@ -7,6 +7,7 @@ cmc_security_repo_root="${CMC_SECURITY_REPO_ROOT:-${cmc_security_default_root}}"
 cmc_security_violation_count=0
 cmc_security_tracked_count=0
 cmc_security_artifact_file_count=0
+cmc_security_artifact_total_bytes=0
 cmc_security_artifacts=()
 cmc_security_allow_ios_embedded_profile=false
 
@@ -45,7 +46,8 @@ fi
 if ! command -v openssl >/dev/null 2>&1 || \
   ! command -v perl >/dev/null 2>&1 || \
   ! command -v tr >/dev/null 2>&1 || \
-  ! perl -MJSON::PP -MDigest::SHA -e 1 >/dev/null 2>&1; then
+  ! perl -MJSON::PP -MDigest::SHA -MMIME::Base64 -e 1 \
+    >/dev/null 2>&1; then
   printf 'Security scan non eseguibile: dipendenza di decode assente.\n' >&2
   exit 1
 fi
@@ -236,7 +238,7 @@ cmc_security_file_has_prohibited_artifact_value() {
   # con forma AIza. Non è la chiave configurata dall'app: è delimitato da due
   # costanti interne stabili dell'SDK. L'eccezione resta quindi vincolata al contesto
   # binario esatto; qualunque altro token, anche nello stesso file, fallisce chiuso.
-  if perl -e '
+  if perl -MJSON::PP -MMIME::Base64=decode_base64 -e '
     use strict;
     use warnings;
     use Digest::SHA qw(sha256_hex);
@@ -253,6 +255,57 @@ cmc_security_file_has_prohibited_artifact_value() {
       |AIza[0-9A-Za-z_-]{30,}
       |GOCSPX-[0-9A-Za-z_-]{20,}
     )/x;
+    my $jwt = qr/eyJ[0-9A-Za-z_-]{8,}\.[0-9A-Za-z_-]{8,}\.[0-9A-Za-z_-]{8,}/;
+    my $contains_non_publishable_jwt = sub {
+      my ($content) = @_;
+      while ($content =~ /($jwt)/g) {
+        my $token = $1;
+        my @segments = split /\./, $token, -1;
+        return 1 if @segments != 3;
+        my $payload = $segments[1];
+        $payload =~ tr/_-/+\//;
+        return 1 if length($payload) % 4 == 1;
+        $payload .= "=" x ((4 - length($payload) % 4) % 4);
+        my $raw = eval { decode_base64($payload) };
+        return 1 if $@ || !defined $raw || $raw =~ /\\u[0-9A-Fa-f]{4}/;
+        my $decoded = eval { JSON::PP->new->utf8->decode($raw) };
+        return 1 if $@ || ref($decoded) ne "HASH";
+        my $role_count = () = $raw =~ /"role"\s*:/g;
+        return 1 if $role_count != 1 || !exists $decoded->{role}
+          || ref($decoded->{role}) || $decoded->{role} ne "anon";
+      }
+      return 0;
+    };
+    my $contains_private_key = sub {
+      my ($content) = @_;
+      my $label = qr/(?:RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY/;
+      while (
+        $content =~
+          /-----BEGIN ($label)-----[ \t\f\x0b\r]*\n(.*?)-----END \1-----/sg
+      ) {
+        my $body = $2;
+        my $payload = "";
+        my $started = 0;
+        my $valid = 1;
+        for my $line (split /\n/, $body) {
+          $line =~ s/\A[ \t\f\x0b\r]+//;
+          $line =~ s/[ \t\f\x0b\r]+\z//;
+          next if !$started && $line eq "";
+          next if !$started && $line =~ /\A[A-Za-z0-9-]+:[^\r\n]*\z/;
+          $started = 1;
+          $line =~ s/[ \t\f\x0b\r]//g;
+          if ($line !~ /\A[A-Za-z0-9+\/=]+\z/) {
+            $valid = 0;
+            last;
+          }
+          $payload .= $line;
+        }
+        return 1 if $valid && length($payload) >= 16
+          && length($payload) % 4 == 0
+          && $payload =~ /\A[A-Za-z0-9+\/]+={0,2}\z/;
+      }
+      return 0;
+    };
     my $maps_prefix = "X-Ios-Bundle-Identifier\0DeductQuota\0";
     # Il linker può collocare dopo endpoint Maps una costante Places oppure
     # un simbolo `google.internal.*`. Il confine stabile termina al NUL di Maps;
@@ -283,42 +336,20 @@ cmc_security_file_has_prohibited_artifact_value() {
         next if $is_maps_sdk_identifier;
         return 1;
       }
+      return 1 if $contains_non_publishable_jwt->($content);
+      return 1 if $contains_private_key->($content);
       # Costanti e plist possono codificare credenziali ASCII in UTF-16LE/BE.
       for my $encoded_pattern (
-        qr/((?:[\x20-\x7e]\x00){16,})/,
-        qr/((?:\x00[\x20-\x7e]){16,})/
+        qr/((?:[\x09\x0a\x0d\x20-\x7e]\x00){8,})/,
+        qr/((?:\x00[\x09\x0a\x0d\x20-\x7e]){8,})/
       ) {
         while ($content =~ /$encoded_pattern/g) {
           my $decoded = $1;
           $decoded =~ s/\x00//g;
-          return 1 if $decoded =~ /$secret/;
+          return 1 if $decoded =~ /$secret/
+            || $contains_non_publishable_jwt->($decoded)
+            || $contains_private_key->($decoded);
         }
-      }
-      my $label = qr/(?:RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY/;
-      while (
-        $content =~
-          /-----BEGIN ($label)-----[ \t\f\x0b\r]*\n(.*?)-----END \1-----/sg
-      ) {
-        my $body = $2;
-        my $payload = "";
-        my $started = 0;
-        my $valid = 1;
-        for my $line (split /\n/, $body) {
-          $line =~ s/\A[ \t\f\x0b\r]+//;
-          $line =~ s/[ \t\f\x0b\r]+\z//;
-          next if !$started && $line eq "";
-          next if !$started && $line =~ /\A[A-Za-z0-9-]+:[^\r\n]*\z/;
-          $started = 1;
-          $line =~ s/[ \t\f\x0b\r]//g;
-          if ($line !~ /\A[A-Za-z0-9+\/=]+\z/) {
-            $valid = 0;
-            last;
-          }
-          $payload .= $line;
-        }
-        return 1 if $valid && length($payload) >= 16
-          && length($payload) % 4 == 0
-          && $payload =~ /\A[A-Za-z0-9+\/]+={0,2}\z/;
       }
       return 0;
     };
@@ -330,9 +361,8 @@ cmc_security_file_has_prohibited_artifact_value() {
       exit 2 if !defined $read;
       last if $read == 0;
       my $content = $carry . $chunk;
+      exit 0 if $scan->($content);
       if (length($content) > $overlap) {
-        my $safe = substr($content, 0, length($content) - $overlap);
-        exit 0 if $scan->($safe);
         $carry = substr($content, -$overlap);
       } else {
         $carry = $content;
@@ -342,14 +372,6 @@ cmc_security_file_has_prohibited_artifact_value() {
     exit 0 if $scan->($carry);
     exit 1;
   ' "${cmc_security_file}" 2>/dev/null; then
-    return 0
-  else
-    cmc_security_scan_status="$?"
-  fi
-  if [[ "${cmc_security_scan_status}" -ne 1 ]]; then
-    return 2
-  fi
-  if cmc_security_contains_non_publishable_jwt "${cmc_security_file}"; then
     return 0
   else
     cmc_security_scan_status="$?"
@@ -723,6 +745,10 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
     for cmc_security_artifact_file in \
       "${cmc_security_artifact_files[@]}"; do
       cmc_security_artifact_file_count=$((cmc_security_artifact_file_count + 1))
+      if [[ "${cmc_security_artifact_file_count}" -gt 4096 ]]; then
+        printf 'Security scan artifact: numero file fuori limite.\n' >&2
+        exit 1
+      fi
       if [[ -L "${cmc_security_artifact_file}" ]]; then
         printf 'Security scan artifact: symlink non verificabile.\n' >&2
         exit 1
@@ -753,6 +779,13 @@ if [[ "${#cmc_security_artifacts[@]}" -gt 0 ]]; then
         *)
           if [[ "${cmc_security_artifact_file_bytes}" -gt 134217728 ]]; then
             printf 'Security scan artifact: file fuori limite.\n' >&2
+            exit 1
+          fi
+          cmc_security_artifact_total_bytes=$((
+            cmc_security_artifact_total_bytes + cmc_security_artifact_file_bytes
+          ))
+          if [[ "${cmc_security_artifact_total_bytes}" -gt 536870912 ]]; then
+            printf 'Security scan artifact: payload aggregato fuori limite.\n' >&2
             exit 1
           fi
           ;;

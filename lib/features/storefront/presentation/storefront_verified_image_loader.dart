@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 
 import '../../../core/backend/public_backend_http_client.dart';
 import '../../../core/config/app_config.dart';
+import '../../../core/time/app_scheduler.dart';
 
 final storefrontVerifiedImageLoaderProvider =
     Provider<StorefrontVerifiedImageLoader>((ref) {
@@ -15,6 +16,7 @@ final storefrontVerifiedImageLoaderProvider =
       return StorefrontVerifiedImageLoader(
         client: ref.watch(publicBackendHttpClientProvider),
         publicOrigin: origin == null ? null : Uri.parse(origin),
+        scheduler: ref.watch(appSchedulerProvider),
       );
     });
 
@@ -29,6 +31,7 @@ final class StorefrontVerifiedImageLoader {
     this.maximumCacheBytes = 24 * 1024 * 1024,
     this.maximumCacheEntries = 64,
     this.downloadTimeout = const Duration(seconds: 8),
+    this.scheduler = const TimerAppScheduler(),
   }) {
     if (maximumBytes < 1 ||
         maximumCacheBytes < 1 ||
@@ -47,6 +50,7 @@ final class StorefrontVerifiedImageLoader {
   final int maximumCacheBytes;
   final int maximumCacheEntries;
   final Duration downloadTimeout;
+  final AppScheduler scheduler;
   final LinkedHashMap<String, Uint8List> _contentAddressedCache =
       LinkedHashMap<String, Uint8List>();
   final Map<String, Future<Uint8List>> _inFlight = {};
@@ -68,7 +72,12 @@ final class StorefrontVerifiedImageLoader {
     final active = _inFlight[normalizedDigest];
     if (active != null) return active.then(Uint8List.fromList);
 
-    final download = _download(uri, normalizedDigest);
+    final download = _withDeadline(_download(uri, normalizedDigest)).then((
+      value,
+    ) {
+      _store(normalizedDigest, value);
+      return value;
+    });
     _inFlight[normalizedDigest] = download;
     return download.then(Uint8List.fromList).whenComplete(() {
       if (identical(_inFlight[normalizedDigest], download)) {
@@ -109,8 +118,27 @@ final class StorefrontVerifiedImageLoader {
     if (value.isEmpty || sha256.convert(value).toString() != expectedDigest) {
       throw const StorefrontImageVerificationException('image_digest_mismatch');
     }
-    _store(expectedDigest, value);
     return value;
+  }
+
+  Future<T> _withDeadline<T>(Future<T> operation) {
+    final result = Completer<T>();
+    final deadline = scheduler.schedule(downloadTimeout, () {
+      if (!result.isCompleted) {
+        result.completeError(
+          TimeoutException('storefront_image_download', downloadTimeout),
+        );
+      }
+    });
+    operation.then(
+      (value) {
+        if (!result.isCompleted) result.complete(value);
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        if (!result.isCompleted) result.completeError(error, stackTrace);
+      },
+    );
+    return result.future.whenComplete(deadline.cancel);
   }
 
   void _store(String digest, Uint8List value) {

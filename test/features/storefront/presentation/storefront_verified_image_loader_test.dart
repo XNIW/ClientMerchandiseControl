@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
+import '../../../support/manual_app_scheduler.dart';
+
 void main() {
   final allowedUri = Uri.parse(
     'https://project.supabase.co/storage/v1/object/public/'
@@ -115,45 +117,97 @@ void main() {
     );
   });
 
-  test('cache LRU resta bounded per entry e byte', () async {
-    final payloads = <String, List<int>>{
-      'one.webp': [1, 1],
-      'two.webp': [2, 2],
-      'three.webp': [3, 3],
-    };
-    var requests = 0;
-    final loader = StorefrontVerifiedImageLoader(
-      client: MockClient((request) async {
-        requests++;
-        return http.Response.bytes(
-          payloads[request.url.pathSegments.last]!,
-          200,
-          headers: const {'content-type': 'image/webp'},
-        );
-      }),
-      publicOrigin: Uri.parse('https://project.supabase.co'),
-      maximumCacheEntries: 2,
-      maximumCacheBytes: 4,
-    );
-
-    for (final entry in payloads.entries) {
-      await loader.load(
-        uri: allowedUri.resolve(entry.key),
-        sha256Digest: sha256.convert(entry.value).toString(),
+  test(
+    'cache LRU promuove la entry letta ed espelle quella meno recente',
+    () async {
+      final payloads = <String, List<int>>{
+        'one.webp': [1, 1],
+        'two.webp': [2, 2],
+        'three.webp': [3, 3],
+      };
+      var requests = 0;
+      final loader = StorefrontVerifiedImageLoader(
+        client: MockClient((request) async {
+          requests++;
+          return http.Response.bytes(
+            payloads[request.url.pathSegments.last]!,
+            200,
+            headers: const {'content-type': 'image/webp'},
+          );
+        }),
+        publicOrigin: Uri.parse('https://project.supabase.co'),
+        maximumCacheEntries: 2,
+        maximumCacheBytes: 100,
       );
-    }
-    expect(requests, 3);
 
-    await loader.load(
-      uri: allowedUri.resolve('one.webp'),
-      sha256Digest: sha256.convert(payloads['one.webp']!).toString(),
-    );
-    expect(
-      requests,
-      4,
-      reason: "l'elemento LRU deve essere scaricato di nuovo dopo eviction",
-    );
-  });
+      for (final name in const ['one.webp', 'two.webp']) {
+        await loader.load(
+          uri: allowedUri.resolve(name),
+          sha256Digest: sha256.convert(payloads[name]!).toString(),
+        );
+      }
+      await loader.load(
+        uri: allowedUri.resolve('one.webp'),
+        sha256Digest: sha256.convert(payloads['one.webp']!).toString(),
+      );
+      await loader.load(
+        uri: allowedUri.resolve('three.webp'),
+        sha256Digest: sha256.convert(payloads['three.webp']!).toString(),
+      );
+      expect(requests, 3);
+
+      await loader.load(
+        uri: allowedUri.resolve('one.webp'),
+        sha256Digest: sha256.convert(payloads['one.webp']!).toString(),
+      );
+      expect(requests, 3, reason: 'la lettura promuove one a MRU');
+      await loader.load(
+        uri: allowedUri.resolve('two.webp'),
+        sha256Digest: sha256.convert(payloads['two.webp']!).toString(),
+      );
+      expect(
+        requests,
+        4,
+        reason: 'two è la entry realmente LRU, non one come in una FIFO',
+      );
+    },
+  );
+
+  test(
+    'cache applica il limite byte indipendentemente dal cap entry',
+    () async {
+      final payloads = <String, List<int>>{
+        'one.webp': [1, 1, 1],
+        'two.webp': [2, 2, 2],
+      };
+      var requests = 0;
+      final loader = StorefrontVerifiedImageLoader(
+        client: MockClient((request) async {
+          requests++;
+          return http.Response.bytes(
+            payloads[request.url.pathSegments.last]!,
+            200,
+            headers: const {'content-type': 'image/webp'},
+          );
+        }),
+        publicOrigin: Uri.parse('https://project.supabase.co'),
+        maximumCacheEntries: 10,
+        maximumCacheBytes: 5,
+      );
+
+      for (final entry in payloads.entries) {
+        await loader.load(
+          uri: allowedUri.resolve(entry.key),
+          sha256Digest: sha256.convert(entry.value).toString(),
+        );
+      }
+      await loader.load(
+        uri: allowedUri.resolve('one.webp'),
+        sha256Digest: sha256.convert(payloads['one.webp']!).toString(),
+      );
+      expect(requests, 3, reason: '6 byte eccedono il budget di 5 byte');
+    },
+  );
 
   test(
     'stress 256 immagini mantiene soltanto la finestra LRU configurata',
@@ -270,6 +324,66 @@ void main() {
     expect(requests, 2);
   });
 
+  test(
+    'deadline assoluta condivisa rimuove single-flight e consente retry',
+    () async {
+      final bytes = <int>[7, 7, 7, 7];
+      final firstResponse = Completer<http.Response>();
+      final scheduler = ManualAppScheduler();
+      var requests = 0;
+      final loader = StorefrontVerifiedImageLoader(
+        client: MockClient((request) {
+          requests++;
+          if (requests == 1) return firstResponse.future;
+          return Future.value(
+            http.Response.bytes(
+              bytes,
+              200,
+              headers: const {'content-type': 'image/webp'},
+            ),
+          );
+        }),
+        publicOrigin: Uri.parse('https://project.supabase.co'),
+        downloadTimeout: const Duration(seconds: 8),
+        scheduler: scheduler,
+      );
+      final digest = sha256.convert(bytes).toString();
+
+      final first = loader.load(uri: allowedUri, sha256Digest: digest);
+      final shared = loader.load(uri: allowedUri, sha256Digest: digest);
+      final firstExpectation = expectLater(
+        first,
+        throwsA(isA<TimeoutException>()),
+      );
+      final sharedExpectation = expectLater(
+        shared,
+        throwsA(isA<TimeoutException>()),
+      );
+      await _flushMicrotasks();
+      expect(requests, 1);
+
+      scheduler.advance(const Duration(seconds: 8));
+      await firstExpectation;
+      await sharedExpectation;
+      await _flushMicrotasks();
+      expect(scheduler.activeTaskCount, 0);
+
+      final retry = loader.load(uri: allowedUri, sha256Digest: digest);
+      await _flushMicrotasks();
+      expect(requests, 2, reason: 'il timeout rimuove la entry in-flight');
+      firstResponse.complete(
+        http.Response.bytes(
+          bytes,
+          200,
+          headers: const {'content-type': 'image/webp'},
+        ),
+      );
+      expect(await retry, bytes);
+      await loader.load(uri: allowedUri, sha256Digest: digest);
+      expect(requests, 2, reason: 'soltanto il retry riuscito popola la cache');
+    },
+  );
+
   test('rifiuta configurazioni cache non bounded', () {
     expect(
       () => StorefrontVerifiedImageLoader(
@@ -288,4 +402,10 @@ void main() {
       throwsArgumentError,
     );
   });
+}
+
+Future<void> _flushMicrotasks() async {
+  for (var index = 0; index < 6; index++) {
+    await Future<void>.delayed(Duration.zero);
+  }
 }

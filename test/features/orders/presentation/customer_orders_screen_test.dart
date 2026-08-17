@@ -345,6 +345,19 @@ void main() {
 
       await tester.pumpWidget(harness.app());
       await _pumpUntil(tester, find.text('La ubicación se está actualizando'));
+      final detailState = tester.state(find.byType(OrderDetailScreen));
+      final bodyElement = tester.element(
+        find.byKey(const ValueKey('order-detail-scroll')),
+      );
+      final headerElement = tester.element(
+        find.byKey(const ValueKey('order-detail-header')),
+      );
+      final itemsElement = tester.element(
+        find.byKey(const ValueKey('order-detail-items')),
+      );
+      final timelineElement = tester.element(
+        find.byKey(const ValueKey('order-detail-timeline')),
+      );
       final rebuiltTypes = <String>[];
       final previousRebuildCallback = debugOnRebuildDirtyWidget;
       debugOnRebuildDirtyWidget = (element, _) {
@@ -358,11 +371,28 @@ void main() {
       await tester.pump();
 
       expect(rebuiltTypes, contains('_DeliveryTrackingSection'));
-      expect(rebuiltTypes, isNot(contains('_OrderDetailScreenState')));
+      expect(rebuiltTypes, isNot(contains('OrderDetailScreen')));
       expect(rebuiltTypes, isNot(contains('_OrderDetailBody')));
       expect(rebuiltTypes, isNot(contains('_OrderHeader')));
       expect(rebuiltTypes, isNot(contains('_OrderItems')));
       expect(rebuiltTypes, isNot(contains('_TimelineCard')));
+      expect(tester.state(find.byType(OrderDetailScreen)), same(detailState));
+      expect(
+        tester.element(find.byKey(const ValueKey('order-detail-scroll'))),
+        same(bodyElement),
+      );
+      expect(
+        tester.element(find.byKey(const ValueKey('order-detail-header'))),
+        same(headerElement),
+      );
+      expect(
+        tester.element(find.byKey(const ValueKey('order-detail-items'))),
+        same(itemsElement),
+      );
+      expect(
+        tester.element(find.byKey(const ValueKey('order-detail-timeline'))),
+        same(timelineElement),
+      );
       expect(tester.takeException(), isNull);
     },
   );

@@ -137,6 +137,8 @@
   "accountPersonalSettingsTitle": "个人资料、地址与隐私",
   "accountPersonalSettingsDescription": "管理身份、语言、地址和 Storefront 数据。",
   "accountNotificationsDescription": "选择如何接收真实的订单更新。",
+  "accountOpenSourceLicenses": "开源软件许可",
+  "accountOpenSourceLicensesDescription": "查看此应用所含软件的许可信息。",
   "accountSigningInTitle": "正在打开安全登录",
   "accountSigningInMessage": "请在浏览器中完成登录，然后返回应用。",
   "accountCancelSignIn": "取消登录",

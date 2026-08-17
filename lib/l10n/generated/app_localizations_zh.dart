@@ -469,6 +469,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'Elige cómo recibir novedades reales de tus pedidos.';
 
   @override
+  String get accountOpenSourceLicenses => 'Licencias de código abierto';
+
+  @override
+  String get accountOpenSourceLicensesDescription =>
+      'Consulta las licencias del software incluido en esta aplicación.';
+
+  @override
   String get accountSigningInTitle => 'Abriendo el acceso seguro';
 
   @override
@@ -2196,6 +2203,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get accountNotificationsDescription => '选择如何接收真实的订单更新。';
+
+  @override
+  String get accountOpenSourceLicenses => '开源软件许可';
+
+  @override
+  String get accountOpenSourceLicensesDescription => '查看此应用所含软件的许可信息。';
 
   @override
   String get accountSigningInTitle => '正在打开安全登录';

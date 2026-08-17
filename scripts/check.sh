@@ -20,6 +20,7 @@ git diff --check
 git diff --cached --check
 flutter pub get --enforce-lockfile
 flutter gen-l10n
+bash "${cmc_script_dir}/check-release-metadata.sh"
 dart format --output=none --set-exit-if-changed .
 flutter analyze
 flutter test --coverage --exclude-tags performance

@@ -54,6 +54,8 @@ jobs:
         run: flutter pub get --enforce-lockfile
       - name: Generate localizations
         run: flutter gen-l10n
+      - name: Validate release metadata and native assets
+        run: bash scripts/check-release-metadata.sh
       - name: Verify generated and locked files
         run: |
           git diff --exit-code -- pubspec.lock lib/l10n/generated

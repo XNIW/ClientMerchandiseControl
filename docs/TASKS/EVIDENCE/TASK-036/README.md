@@ -1,7 +1,7 @@
 # Evidence TASK-036
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -115,5 +115,12 @@ un cliente con device fuori dal fuso del negozio vedeva orari business errati. I
   con firme/timeout/volatility/least-authority preservati;
 - rimosse seconda RPC e cache client; validazione IANA bounded sul campo atomico;
 - regressioni cambio timezone e completion concorrente fuori ordine;
-- reset locale 139 migration `PASS`; pgTAP mirati 3 file/99 assertion `PASS`;
-  lint DB zero; Client mirato 150/150 `PASS`.
+- technical SHA Client `e5a2f2b4a9000c7ad773a417c7ca01b615bcd639`;
+  technical SHA Admin `c8dd7080`;
+- reset locale 139 migration `PASS`; pgTAP specifico 13/13, mirati 3 file/100
+  e suite completa 47 file/2536 `PASS`; lint DB zero;
+- Admin verify `PASS`; foundation 982 pass, 2 skip, 0 fail;
+- Client mirato 150/150 e suite completa 755/755 `PASS`;
+- `scripts/check.sh` sul technical SHA: 754 test non-performance con coverage,
+  repeat 70/70, benchmark cache 25k, APK debug e iOS Simulator debug `PASS`;
+- handoff: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

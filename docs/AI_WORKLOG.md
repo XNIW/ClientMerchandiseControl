@@ -2703,3 +2703,16 @@
   zero e Client checkout/order/tracking 150/150, tutti `PASS`.
 - **Transizione**: `ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; gate
   completi ed exact-SHA richiesti prima della re-review.
+
+## 2026-08-16 — TASK-036 Fix completo a Re-review
+
+- **Revisioni tecniche**: Client `e5a2f2b`, Admin `c8dd7080`.
+- **Client**: mirati 150/150 e suite completa 755/755; `scripts/check.sh` `PASS`
+  con 754 test non-performance/coverage, repeat 70/70, performance cache 25k,
+  APK debug e iOS Simulator debug.
+- **Admin/DB**: reset 139 migration, TASK-036 13/13, mirati 3 file/100 e suite
+  completa 47 file/2536; lint zero, verify verde e foundation 982 pass/2 skip.
+- **Finding**: `F-036-R01` implementato con payload timezone atomico e nessuna
+  seconda RPC/cache process-lifetime; zero P0/P1/P2 noti al fixer.
+- **Transizione**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; nuova
+  re-review read-only distinta obbligatoria prima di PR/CI/merge.

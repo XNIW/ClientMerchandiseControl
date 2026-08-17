@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-036
 - **File task**: docs/TASKS/TASK-036-accessibility-localization-device-matrix.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: correggere `F-036-R01`, rieseguire gate
-  Client/Admin e consegnare TASK-036 a re-review distinta
+- **Prossima azione autorizzata**: re-review distinta di `F-036-R01` sul revision
+  set Client/Admin; dopo `APPROVED`, PR e CI exact-SHA
 
 ## Repository coinvolti
 

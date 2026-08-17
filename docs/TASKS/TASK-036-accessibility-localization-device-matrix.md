@@ -6,13 +6,13 @@
 - **Titolo**: Accessibility, localizzazione e device matrix
 - **File task**: `docs/TASKS/TASK-036-accessibility-localization-device-matrix.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-16
 - **Ultimo aggiornamento**: 2026-08-16
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-036/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -196,14 +196,22 @@ zero P0, zero P1, un P2, zero P3.
 - regressioni coprono cambio America/Santiago→UTC e richieste concorrenti completate
   fuori ordine, mantenendo il timezone del rispettivo snapshot.
 
-### Gate Fix iniziali
+### Gate Fix completi
 
+- Client technical SHA `e5a2f2b4a9000c7ad773a417c7ca01b615bcd639`;
+- Admin technical SHA `c8dd7080`;
 - reset locale da zero 139 migration: `PASS`;
-- pgTAP mirati timezone/checkout/order: 3 file, 99 assertion, `PASS`;
+- pgTAP specifico 13/13 e mirati timezone/checkout/order 3 file/100
+  assertion: `PASS`;
+- suite DB completa 47 file/2536 assertion: `PASS`;
 - DB lint `public` error-level: zero result;
-- Client formatter/checkout/order/tracking: 150/150, `PASS`.
+- Admin `npm run verify` `PASS`; foundation 982 pass, 2 skip, 0 fail;
+- Client formatter/checkout/order/tracking: 150/150, `PASS`;
+- Client suite completa: 755/755; `scripts/check.sh` sul technical SHA
+  `PASS`, inclusi 754 test non-performance con coverage, repeat 70/70,
+  performance 25k e build Android/iOS Simulator.
 
-Il gate canonico completo e l'exact-SHA verranno registrati prima della re-review.
+**Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

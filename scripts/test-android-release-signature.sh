@@ -7,6 +7,42 @@ cmc_signature_tmp_parent="${cmc_signature_tmp_parent%/}"
 cmc_signature_aab=''
 cmc_signature_apk=''
 
+cmc_signature_fail() {
+  printf 'Android signature fixture: %s.\n' "$1" >&2
+  exit 1
+}
+
+cmc_signature_expect_text() {
+  local cmc_signature_text="$1"
+  local cmc_signature_expected="$2"
+  local cmc_signature_stage="$3"
+  grep -Fq -- "${cmc_signature_expected}" <<<"${cmc_signature_text}" ||
+    cmc_signature_fail "${cmc_signature_stage}: output inatteso"
+  printf 'Android signature fixture: %s validato.\n' \
+    "${cmc_signature_stage}"
+}
+
+cmc_signature_expect_log_token() {
+  local cmc_signature_log="$1"
+  local cmc_signature_expected="$2"
+  local cmc_signature_stage="$3"
+  local cmc_signature_actual='NO_BLOCKED_TOKEN'
+  [[ -r "${cmc_signature_log}" ]] ||
+    cmc_signature_fail "${cmc_signature_stage}: log assente"
+  if ! grep -Fq -- "${cmc_signature_expected}" "${cmc_signature_log}"; then
+    cmc_signature_actual="$(
+      LC_ALL=C grep -Eo 'ANDROID_RELEASE_BLOCKED: [A-Z0-9_]+' \
+        "${cmc_signature_log}" | tail -n 1 || true
+    )"
+    [[ -n "${cmc_signature_actual}" ]] ||
+      cmc_signature_actual='NO_BLOCKED_TOKEN'
+    cmc_signature_fail \
+      "${cmc_signature_stage}: atteso ${cmc_signature_expected}, osservato ${cmc_signature_actual}"
+  fi
+  printf 'Android signature fixture: %s validato.\n' \
+    "${cmc_signature_stage}"
+}
+
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
     --aab)
@@ -112,17 +148,23 @@ cmc_signature_apk_verification="$(
   "${cmc_signature_apksigner}" verify --verbose \
     "${cmc_signature_candidate_apk}" 2>/dev/null
 )"
-grep -Fq 'Verified using v1 scheme (JAR signing): false' \
-  <<<"${cmc_signature_apk_verification}"
-grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' \
-  <<<"${cmc_signature_apk_verification}"
+cmc_signature_expect_text \
+  "${cmc_signature_apk_verification}" \
+  'Verified using v1 scheme (JAR signing): false' \
+  'APK v1 disabilitato'
+cmc_signature_expect_text \
+  "${cmc_signature_apk_verification}" \
+  'Verified using v2 scheme (APK Signature Scheme v2): true' \
+  'APK v2 abilitato'
 
 cmc_signature_fingerprint="$(
   keytool -J-Duser.language=en -printcert -jarfile \
     "${cmc_signature_candidate_aab}" 2>/dev/null | \
     awk -F': ' '/SHA256:/ { print $2; exit }'
 )"
-[[ -n "${cmc_signature_fingerprint}" ]]
+[[ -n "${cmc_signature_fingerprint}" ]] ||
+  cmc_signature_fail 'fingerprint fixture non leggibile'
+printf 'Android signature fixture: fingerprint fixture validato.\n'
 cmc_signature_email='release-fixture@owned-project.iam.gserviceaccount.com'
 cmc_signature_project='owned-project'
 cmc_signature_credential="${cmc_signature_tmp_root}/service-account.json"
@@ -148,8 +190,10 @@ if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
   printf 'Android signature fixture: /dev/null accettato.\n' >&2
   exit 1
 fi
-grep -Fq 'PLAY_SERVICE_ACCOUNT_MISSING' \
-  "${cmc_signature_tmp_root}/device-path.log"
+cmc_signature_expect_log_token \
+  "${cmc_signature_tmp_root}/device-path.log" \
+  'PLAY_SERVICE_ACCOUNT_MISSING' \
+  'device path rifiutato'
 
 if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
   PLAY_SERVICE_ACCOUNT_JSON_PATH="${cmc_signature_credential}" \
@@ -164,8 +208,10 @@ if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
   printf 'Android signature fixture: account diverso accettato.\n' >&2
   exit 1
 fi
-grep -Fq 'PLAY_SERVICE_ACCOUNT_INVALID' \
-  "${cmc_signature_tmp_root}/wrong-account.log"
+cmc_signature_expect_log_token \
+  "${cmc_signature_tmp_root}/wrong-account.log" \
+  'PLAY_SERVICE_ACCOUNT_INVALID' \
+  'service account errato rifiutato'
 
 if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
   PLAY_SERVICE_ACCOUNT_JSON_PATH="${cmc_signature_credential}" \
@@ -180,8 +226,10 @@ if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
   printf 'Android signature fixture: progetto diverso accettato.\n' >&2
   exit 1
 fi
-grep -Fq 'PLAY_SERVICE_ACCOUNT_INVALID' \
-  "${cmc_signature_tmp_root}/wrong-project.log"
+cmc_signature_expect_log_token \
+  "${cmc_signature_tmp_root}/wrong-project.log" \
+  'PLAY_SERVICE_ACCOUNT_INVALID' \
+  'service project errato rifiutato'
 
 cmc_signature_renamed_aab="${cmc_signature_tmp_root}/candidate.bundle"
 cp "${cmc_signature_candidate_aab}" "${cmc_signature_renamed_aab}"
@@ -192,8 +240,10 @@ if bash "${cmc_signature_script_dir}/check-android-release.sh" \
   printf 'Android signature fixture: estensione AAB non canonica accettata.\n' >&2
   exit 1
 fi
-grep -Fq 'AAB_EXTENSION_INVALID' \
-  "${cmc_signature_tmp_root}/renamed-aab.log"
+cmc_signature_expect_log_token \
+  "${cmc_signature_tmp_root}/renamed-aab.log" \
+  'AAB_EXTENSION_INVALID' \
+  'estensione AAB non canonica rifiutata'
 
 cmc_signature_partial_aab="${cmc_signature_tmp_root}/partial.aab"
 cmc_signature_unsigned_entry="${cmc_signature_tmp_root}/unsigned-after-signing.txt"
@@ -213,8 +263,10 @@ if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
   printf 'Android signature fixture: entry AAB non firmata accettata.\n' >&2
   exit 1
 fi
-grep -Fq 'AAB_SIGNATURE_VERIFICATION_FAILED' \
-  "${cmc_signature_tmp_root}/partial-signature.log"
+cmc_signature_expect_log_token \
+  "${cmc_signature_tmp_root}/partial-signature.log" \
+  'AAB_SIGNATURE_VERIFICATION_FAILED' \
+  'AAB parzialmente firmato rifiutato'
 
 cmc_signature_second_keystore="${cmc_signature_tmp_root}/fixture-second.p12"
 cmc_signature_multiple_aab="${cmc_signature_tmp_root}/multiple-signers.aab"
@@ -249,8 +301,10 @@ if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
   printf 'Android signature fixture: AAB multi-signer accettato.\n' >&2
   exit 1
 fi
-grep -Fq 'AAB_SIGNER_SET_INVALID' \
-  "${cmc_signature_tmp_root}/multiple-signers.log"
+cmc_signature_expect_log_token \
+  "${cmc_signature_tmp_root}/multiple-signers.log" \
+  'AAB_SIGNER_SET_INVALID' \
+  'AAB multi-signer rifiutato'
 
 cmc_signature_mixed_case_aab="${cmc_signature_tmp_root}/mixed-case-signers.aab"
 cmc_signature_mixed_case_root="${cmc_signature_tmp_root}/mixed-case-block"
@@ -260,7 +314,8 @@ cmc_signature_second_block="$(
     LC_ALL=C grep -E '^META-INF/[A-Za-z0-9_-]+\.(RSA|DSA|EC)$' | \
     LC_ALL=C sort | tail -n 1
 )"
-[[ -n "${cmc_signature_second_block}" ]]
+[[ -n "${cmc_signature_second_block}" ]] ||
+  cmc_signature_fail 'secondo signature block non trovato'
 cmc_signature_mixed_case_block="${cmc_signature_second_block%.*}.rSa"
 mkdir -p "${cmc_signature_mixed_case_root}/META-INF"
 unzip -p "${cmc_signature_mixed_case_aab}" \
@@ -286,8 +341,10 @@ if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
   printf 'Android signature fixture: signature block mixed-case accettato.\n' >&2
   exit 1
 fi
-grep -Fq 'AAB_SIGNER_SET_INVALID' \
-  "${cmc_signature_tmp_root}/mixed-case-signers.log"
+cmc_signature_expect_log_token \
+  "${cmc_signature_tmp_root}/mixed-case-signers.log" \
+  'AAB_SIGNER_SET_INVALID' \
+  'signature block mixed-case rifiutato'
 
 cmc_signature_validator_output="$(
   PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
@@ -300,9 +357,13 @@ cmc_signature_validator_output="$(
     --apk "${cmc_signature_candidate_apk}" \
     --require-upload-ready
 )"
-grep -Fq 'ANDROID_RELEASE_SIGNING=SIGNED' \
-  <<<"${cmc_signature_validator_output}"
-grep -Fq 'ANDROID_INTERNAL_UPLOAD_INPUTS_VALIDATED' \
-  <<<"${cmc_signature_validator_output}"
+cmc_signature_expect_text \
+  "${cmc_signature_validator_output}" \
+  'ANDROID_RELEASE_SIGNING=SIGNED' \
+  'firma release coerente'
+cmc_signature_expect_text \
+  "${cmc_signature_validator_output}" \
+  'ANDROID_INTERNAL_UPLOAD_INPUTS_VALIDATED' \
+  'input Play validi'
 
 printf 'Android release signature fixture: APK v2-only e input Play validati.\n'

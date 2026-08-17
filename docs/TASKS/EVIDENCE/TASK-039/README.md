@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -139,12 +139,11 @@ Snapshot di handoff:
 
 ## Handoff
 
-Le re-review prodotto e security sullo SHA
-`15e3c4bd78a6cee6ca85cbde75b5fec7068f8596` sono `APPROVED` con zero
-P0/P1/P2/P3. `F-039-SR06` è chiuso: forged-uncompressed,
-forged-compressed e stream effettivo oltre 512 MiB vengono respinti; artifact
-reali 671/285 e fixture firma restano `PASS`. Il finalizer security è terminato
-exit 0 al primo tentativo e il report-format validator è `PASS`; report locale
-SHA-256 `014aef5a14c15e059b77e64c47269ce7e82c21cddeb5e5b028b55eaf01ef85de`.
-Handoff `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; Play/Internal e
-production restano invariati.
+Le re-review prodotto e security sullo SHA `15e3c4bd` restano `APPROVED` sul
+revision set verificato. La PR #18, head `9bf4e857`, run `32009738614` attempt
+1 e 2, ha però riprodotto `F-039-CI01`: Quality, Android debug e iOS Simulator
+`PASS`; clean AAB/APK e release validator `PASS`; la fixture firma termina exit
+1 senza token diagnostico. Le repliche macOS e Linux ARM/x64 con Java 17/21
+passano. Il fixer ha reso ogni oracle bounded e diagnostico senza stampare log
+o credenziali; handoff corrente `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino al
+nuovo esito CI. Play/Internal e production restano invariati.

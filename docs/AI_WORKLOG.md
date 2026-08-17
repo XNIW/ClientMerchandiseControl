@@ -3144,3 +3144,17 @@
   `014aef5a14c15e059b77e64c47269ce7e82c21cddeb5e5b028b55eaf01ef85de`.
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; la conferma
   persistente autorizza PR/CI/merge, non upload Play o production.
+
+## 2026-08-17 — TASK-039 PR CI Fix 1
+
+- **PR/head**: #18 / `9bf4e85765812527cb7c212f2e67b5fcdf64099e`.
+- **Run**: `32009738614`, attempt 1 e rerun attempt 2; Quality, Android debug e
+  iOS Simulator `PASS`; clean release build e validator `PASS`.
+- **Finding**: `F-039-CI01` P2, fixture firma exit 1 deterministica senza
+  diagnostica perché gli oracle `grep` erano silenziosi sotto `set -e`.
+- **Riproduzioni**: macOS e Linux ARM/x64 con Java 17/21 passano integralmente;
+  nessuna regressione artifact o release validator rilevata.
+- **Fix diagnostico**: stage espliciti e token enum bounded per ogni oracle,
+  senza stampare log, path credenziali, fingerprint o payload.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; nessun merge/upload/production.

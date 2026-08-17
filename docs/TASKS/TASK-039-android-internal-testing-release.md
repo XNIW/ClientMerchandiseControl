@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -354,6 +354,22 @@ release e fixture firma avversariale `PASS`. Artifact unsigned e SHA invariati.
 
 `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. La conferma persistente
 del train autorizza PR exact-SHA e merge normale solo dopo CI verde.
+
+## CI Fix 1 — `CODEX_FIXER`
+
+- `F-039-CI01` P2: PR #18, head `9bf4e857`, run `32009738614` attempt 1 e
+  rerun attempt 2 riproducono exit 1 nello step `Validate Android v2-only
+  signature boundary`;
+- Quality, Android debug e iOS Simulator sono `PASS`; il job release costruisce
+  clean AAB/APK e il validator production-like passa prima della failure;
+- il precedente uso di `set -e` con oracle `grep` silenziosi rendeva il token
+  fail-closed non osservabile nel log GitHub;
+- repliche indipendenti su macOS, Linux ARM/x64 e Java 17/21 attraversano la
+  fixture, quindi nessun artifact o boundary release viene indebolito;
+- ogni oracle ora emette uno stage bounded; i log negativi espongono soltanto
+  l'enum `ANDROID_RELEASE_BLOCKED`, mai path credenziali, fingerprint o payload.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` fino alla chiusura del token CI reale.
 
 ## Chiusura
 

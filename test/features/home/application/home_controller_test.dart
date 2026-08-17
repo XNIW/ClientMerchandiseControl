@@ -11,6 +11,7 @@ import 'package:client_merchandise_control/features/storefront/cache/storefront_
 import 'package:client_merchandise_control/features/storefront/domain/storefront_failure.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -256,6 +257,55 @@ void main() {
       cache.writeResult.complete();
     },
   );
+
+  test(
+    'Home cache warm pubblica contenuto entro budget con un solo fetch live',
+    () async {
+      Future<int> measureOnce() async {
+        final pendingLive = Completer<StorefrontHomeData>();
+        final repository = _QueuedRepository()
+          ..responses.add(() => pendingLive.future);
+        final cache = _ImmediateHomeCacheRepository();
+        final stopwatch = Stopwatch()..start();
+        final container = _container(repository, cache: cache);
+        container.read(homeControllerProvider);
+        for (var turn = 0; turn < 100; turn++) {
+          if (container.read(homeControllerProvider).status ==
+              HomeLoadStatus.data) {
+            break;
+          }
+          await Future<void>.delayed(Duration.zero);
+        }
+        stopwatch.stop();
+        expect(
+          container.read(homeControllerProvider).status,
+          HomeLoadStatus.data,
+        );
+        expect(cache.readCalls, 1);
+        expect(repository.calls, 1);
+        container.dispose();
+        return stopwatch.elapsedMicroseconds;
+      }
+
+      for (var warmup = 0; warmup < 5; warmup++) {
+        await measureOnce();
+      }
+      final samples = <int>[];
+      for (var sample = 0; sample < 30; sample++) {
+        samples.add(await measureOnce());
+      }
+      final p50 = _percentileMicros(samples, 0.50);
+      final p95 = _percentileMicros(samples, 0.95);
+      final p99 = _percentileMicros(samples, 0.99);
+      debugPrint(
+        'HOME_WARM_CACHE_PERF environment=flutter_test_host '
+        'warmup=5 samples=30 p50_us=$p50 p95_us=$p95 p99_us=$p99 '
+        'cache_reads=1 live_fetches=1',
+      );
+      expect(p95, lessThan(1000000));
+    },
+    tags: const ['performance'],
+  );
 }
 
 ProviderContainer _container(
@@ -304,6 +354,30 @@ final class _BlockingHomeCacheRepository implements StorefrontCacheRepository {
   }) {
     writeCalls += 1;
     return writeResult.future;
+  }
+
+  @override
+  Future<void> cleanup({required String shopSlug}) async {}
+
+  @override
+  Future<void> clearShop({required String shopSlug}) async {}
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+final class _ImmediateHomeCacheRepository implements StorefrontCacheRepository {
+  var readCalls = 0;
+
+  @override
+  Future<StorefrontCacheSnapshot<StorefrontHomeData>?> readHome({
+    required String shopSlug,
+  }) async {
+    readCalls++;
+    return StorefrontCacheSnapshot(
+      value: validStorefrontHomeData(),
+      refreshedAt: DateTime.now().toUtc(),
+    );
   }
 
   @override
@@ -374,4 +448,9 @@ final class _CompletableReadinessRepository
   void completeNext(BackendReadinessState state) {
     _results.firstWhere((result) => !result.isCompleted).complete(state);
   }
+}
+
+int _percentileMicros(List<int> values, double percentile) {
+  final sorted = [...values]..sort();
+  return sorted[((sorted.length - 1) * percentile).ceil()];
 }

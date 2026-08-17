@@ -191,8 +191,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-039
 - **File task**: docs/TASKS/TASK-039-android-internal-testing-release.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -206,7 +206,7 @@ PR Admin #93 e Client #14 integrate, CI PR/main verdi e staging verificato.
 TASK-037 è `DONE`: `F-037-R01`–`F-037-R04` chiusi, PR #16 e main CI exact-SHA
 verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-review
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
-l'unico task `ACTIVE / FIX` e prepara Android Internal Testing senza
+l'unico task `ACTIVE / REVIEW` e prepara Android Internal Testing senza
 promozione production né credenziali inventate.
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.

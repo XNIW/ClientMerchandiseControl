@@ -2991,3 +2991,21 @@
   produceva exit 0. L'AAB corrente estratto manualmente è risultato pulito.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; production e Play invariati.
+
+## 2026-08-17 — TASK-039 Fix release validator
+
+- **Exact SHA tecnico**: `6b4a79d76ea48649add220f7889ce9121b3e1b49`.
+- **Fix**: `apksigner` per APK v2-only; signer AAB/APK e fingerprint approvato;
+  validator JSON/identity Play; parser protobuf diretto del manifest AAB e
+  confronto payload per ABI; resolver SDK portabile; estrazione `.aab` nello
+  scanner security.
+- **Regressioni**: 10/10 validator mirati; fixture AAB DEFLATED 42/42 negative e
+  5/5 positive; AAB JAR-signed più APK v1=false/v2=true accettato; `/dev/null`,
+  account diverso e signer diverso respinti.
+- **Artifact exact-SHA**: AAB `6c321e2f…a84718`, APK `82ee832f…b91ce`, unsigned,
+  281 file artifact estratti e puliti, package/version `0.1.0+1`.
+- **Gate canonico**: `scripts/check.sh` exit 0; 779/779 non-performance, 10/10
+  performance, repeat 70/70, format 296/0, analyze e build debug Android/iOS
+  verdi.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.

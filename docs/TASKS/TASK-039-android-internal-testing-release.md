@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -150,8 +150,28 @@ Gate executor:
 
 ## Fix — `CODEX_FIXER`
 
-In corso, limitato ai finding `F-039-R01`…`F-039-R04` e al falso negativo
-security dell'archive `.aab`.
+- `F-039-R01`: firma AAB verificata con `jarsigner`, APK con `apksigner`;
+  una regressione reale genera un APK v2-only e lo accetta con signer AAB/APK
+  identico;
+- `F-039-R02`: upload preflight richiede fingerprint SHA-256 approvato e
+  service-account regular JSON con email/progetto attesi; `/dev/null`, JSON
+  malformato, account e signer diversi falliscono chiusi;
+- `F-039-R03`: parser protobuf bounded valida direttamente package/version/SDK,
+  application policy, Maps, deep link e receiver nell'AAB; i `libapp.so` delle
+  tre ABI devono coincidere tra AAB e APK;
+- `F-039-R04`: resolver portabile usa PATH valido, `ANDROID_HOME` o
+  `ANDROID_SDK_ROOT`, senza path workstation;
+- scanner artifact esteso a `.aab` con fixture DEFLATED negativa/positiva;
+  l'artifact reale passa da 132 blob/file apparenti a 281 file effettivamente
+  ispezionati.
+
+Gate fixer sullo SHA tecnico
+`6b4a79d76ea48649add220f7889ce9121b3e1b49`: clean AAB/APK release,
+validator unsigned reale, fixture v2-only e input Play, `scripts/check.sh`,
+779 test non-performance, 10 performance, repeat 70/70, analyze, format 296/0,
+build Android debug e iOS Simulator debug tutti `PASS`.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

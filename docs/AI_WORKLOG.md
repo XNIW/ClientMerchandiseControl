@@ -3311,6 +3311,20 @@
 - **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
   `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
 
+## 2026-08-17 — TASK-040 Fix 7 re-review
+
+- **Exact HEAD**: `189c5e74fb3f32d76a6e8bffb87ca6a95e791fed`, worktree
+  pulito e reviewer prodotto/security read-only distinti.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 4 P3: constructor identity non
+  `dart:core`, consumer canonici non legati al percorso reale, inventory iOS
+  shallow/nominale ed evidence corrente con provenance Fix 6.
+- **Review evidence**: report security sealed SHA-256
+  `fbd804ea9d7057f6c300f4ea91a59439e7327871c287bec4e9f950b27cb99bf2`;
+  report prodotto sealed SHA-256
+  `a1a49bdd9744478abd024fe71d4976f731ad1d7d5fa4cf80d452d65c208d743d`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
 ## 2026-08-17 — TASK-040 Fix 2 re-review
 
 - **Exact HEAD**: `2b7c1480aa7c1e18dfce58abb076cf388b2ed9d2`, worktree pulito.

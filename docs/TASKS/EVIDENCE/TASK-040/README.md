@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -310,3 +310,20 @@ Snapshot di handoff:
 - upload gate exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; zero
   Distribution/profili/input App Store Connect, physical iOS offline, nessuna
   IPA/upload/production.
+
+## Re-review Fix 7
+
+- exact HEAD `189c5e74fb3f32d76a6e8bffb87ca6a95e791fed`, worktree pulito;
+- esito indipendente `CHANGES_REQUIRED`: 0 P0/P1/P2 e 4 P3;
+- `F-040-RR7-ARCH-01`: initializer accetta un costruttore omonimo non
+  `dart:core String.fromEnvironment`;
+- `F-040-RR7-ARCH-02`: consumer canonici irraggiungibili possono attestare un
+  percorso reale dinamico/non canonico;
+- `F-040-RR6-PRIV-01`: casing, nesting, dylib e sostituzione di componenti sotto
+  nomi allowlisted non sono coperti dall'inventory shallow;
+- `F-040-RR7-GOV-01`: le sezioni evidence correnti sono ancora associate a Fix 6;
+- report security sealed SHA-256
+  `fbd804ea9d7057f6c300f4ea91a59439e7327871c287bec4e9f950b27cb99bf2`;
+  report prodotto sealed SHA-256
+  `a1a49bdd9744478abd024fe71d4976f731ad1d7d5fa4cf80d452d65c208d743d`;
+- TestFlight, store, signing e production invariati.

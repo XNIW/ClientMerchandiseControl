@@ -2891,3 +2891,19 @@
 - **Hygiene**: ancestry verificata, branch remota eliminata, production invariata.
 - **Transizione**: TASK-037 `DONE`; TASK-038 unico `ACTIVE / EXECUTION` per
   autorizzazione persistente del mandato 2026-08-16.
+
+## 2026-08-17 — TASK-038 Execution e handoff Review
+
+- **Candidate tecnico**: `fe8c5824921508086d68fa43f5d658c72b80e2b4`;
+  asset store originali, identity/versioning, native privacy, metadata Android/iOS,
+  matrice release 12×3, licenze/debt audit e template owner completati.
+- **Fix pre-handoff**: chiusi la fixture secret-shaped che bloccava CI, il manifest
+  app-owned iOS vuoto e la provenance workstation; validator privacy negativo 2/2.
+- **Gate**: `scripts/check.sh` exit 0, 768/768 funzionali, repeat 70/70,
+  performance 10/10, analyze, APK e iOS Simulator build; artifact scan 549/233.
+- **Smoke**: Android Emulator e iOS Simulator install/launch verdi; device iOS
+  fisici offline e nessun Android fisico, quindi physical validation resta distinta.
+- **Security**: diff scan `e8233586-d75a-4e1d-9bb7-cb356d544f77` completata con
+  zero finding reportable; TASK-033 riusato, production invariata.
+- **Transizione**: `ACTIVE / EXECUTION -> REVIEW`;
+  `CODEX_EXECUTION_COMPLETE_TO_REVIEW`; review e CI non inferite come PASS.

@@ -6,13 +6,13 @@
 - **Titolo**: Store assets, privacy, legal e release metadata
 - **File task**: `docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-038/`
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -100,11 +100,32 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-In corso.
+Completata sul candidate tecnico
+`fe8c5824921508086d68fa43f5d658c72b80e2b4`:
+
+- identità native, icone Android/iOS, adaptive/themed icon e launch asset reali;
+- manifest privacy iOS app-owned con sette tipi linked, App Functionality e
+  tracking disabilitato, incluso e verificato nel bundle Simulator;
+- metadata store, screenshot matrix, privacy/data-safety evidence, TestFlight e
+  internal-testing notes per tutti i valori determinabili;
+- valori legal, support, policy e store-owner non inventabili classificati
+  `NEEDS_OWNER_VALUE` con owner e activation gate;
+- matrice release 12 capability × 3 ambienti e validator automatico con fixture
+  negative, incluso il rifiuto di manifest privacy vuoti/incompleti;
+- audit dipendenze/licenze/debt bounded, nessun upgrade indiscriminato;
+- gate canonico completo, build dual-platform, scan artifact, smoke Emulator e
+  Simulator verdi; device fisici iOS offline e nessun Android fisico disponibile.
+
+La review security diff-scoped canonica `e8233586-d75a-4e1d-9bb7-cb356d544f77`
+non ha finding security reportable. Tre problemi di release review emersi durante
+l'Execution sono stati corretti prima dell'handoff: fixture secret-shaped nel gate,
+privacy manifest app-owned vuoto e percorso workstation nella provenance asset.
+
+**Handoff**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Review — `CODEX_REVIEWER`
 
-`NOT_RUN`.
+`NOT_RUN`: prossimo ruolo `CODEX_REVIEWER` read-only distinto.
 
 ## Chiusura
 

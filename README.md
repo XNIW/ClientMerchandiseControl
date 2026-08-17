@@ -191,8 +191,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-038
 - **File task**: docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -205,7 +205,9 @@ TASK-036 è `DONE`: re-review indipendente `APPROVED`, zero finding P0/P1/P2/P3,
 PR Admin #93 e Client #14 integrate, CI PR/main verdi e staging verificato.
 TASK-037 è `DONE`: `F-037-R01`–`F-037-R04` chiusi, PR #16 e main CI exact-SHA
 verdi, budget invariato e production non modificata. TASK-038 è l'unico task
-`ACTIVE / EXECUTION`; produce asset e metadata reali senza inventare valori legal.
+`ACTIVE / REVIEW`: candidate tecnico `fe8c582` con asset/store metadata, privacy
+manifest app-owned, validator, build e smoke dual-platform verdi; i valori legal e
+store-owner non determinabili restano esplicitamente `NEEDS_OWNER_VALUE`.
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione

@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-038
 - **File task**: docs/TASKS/TASK-038-store-assets-privacy-legal-release-metadata.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: eseguire TASK-038 su asset store, privacy/legal
-  determinabile e metadata release; i valori proprietario mancanti restano
-  `NEEDS_OWNER_VALUE`
+- **Prossima azione autorizzata**: review indipendente read-only di TASK-038 sul
+  candidate exact-SHA; correggere ogni finding e non attivare TASK-039 prima di
+  `APPROVED`, CI e merge normali
 
 ## Repository coinvolti
 

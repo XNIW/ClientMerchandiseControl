@@ -3086,3 +3086,18 @@
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; Play/Internal e production
   invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 4
+
+- **Exact SHA tecnico**: `e7cb2d970cb987267a2cce9f23a187e2bc712f25`.
+- **Fix**: streaming bounded prima dell'estrazione; conteggio dei byte
+  effettivamente emessi, confronto con metadata e rapporto 200×; lo stream
+  viene riusato per il secret scan.
+- **Regressione**: archive da 16 MiB reali con local/central size falsificate a
+  2 MiB respinto prima della materializzazione; fixture 51/51 negative + 5/5
+  positive.
+- **Gate**: artifact reale 671/285 e fixture firma `PASS`; `scripts/check.sh`
+  exit 0 con 782/782 non-performance, 10/10 performance, repeat 70/70,
+  format 296/0, analyze e build Android/iOS `PASS`.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.

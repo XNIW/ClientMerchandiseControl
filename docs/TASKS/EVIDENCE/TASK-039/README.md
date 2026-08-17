@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -111,11 +111,23 @@ Snapshot di handoff:
   repeat 5×14=70/70, format 296/0, analyze, Android debug e iOS Simulator
   debug `PASS`.
 
+## Security Fix 4 evidence
+
+- SHA tecnico `e7cb2d970cb987267a2cce9f23a187e2bc712f25`;
+- stream aggregato decompresso con cap 512 MiB prima di test/estrazione;
+  byte effettivi, size dichiarata e rapporto 200× devono essere coerenti;
+- fixture forged: archive 16.457 byte, dichiarato 2.000.000/16.285 byte,
+  output reale 16.777.216 byte, scanner exit 1 con output redatto;
+- fixture security 51/51 negative + 5/5 positive; validator reale source 671
+  e artifact 285, firma unsigned e SHA artifact invariati;
+- `scripts/check.sh` exit 0: 782/782 non-performance, 10/10 performance,
+  repeat 70/70, format 296/0, analyze e build debug Android/iOS `PASS`;
+  fixture firma avversariale `PASS`.
+
 ## Handoff
 
-La re-review sullo SHA `09d2207c7d7409cf933b3783e75d7765e99e1e9c`
-ha chiuso `F-039-SR01`, `F-039-SR03` e `F-039-SR04`, ma ha riaperto
-`F-039-SR06` P3: un archive con size local/central falsificate emette più byte
-del dichiarato e supera il preflight. Handoff corrente
-`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; Play/Internal e production restano
-invariati.
+La Security Fix 4 sullo SHA tecnico
+`e7cb2d970cb987267a2cce9f23a187e2bc712f25` chiude il PoC di
+`F-039-SR06` con un bound sui byte effettivamente emessi e regressione
+forged-header. Handoff corrente `CODEX_FIX_COMPLETE_TO_RE_REVIEW`;
+Play/Internal e production restano invariati.

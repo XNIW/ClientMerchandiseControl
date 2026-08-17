@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -275,6 +275,28 @@ SHA-256 byte-identici al candidato precedente.
   abort alle soglie e regressione su size local/central falsificate.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Security Fix 4 — `CODEX_FIXER`
+
+- `F-039-SR06`: lo stream aggregato viene decompresso prima
+  dell'estrazione tramite `unzip -p | head`, con cap effettivo 512 MiB e
+  `pipefail`; i byte realmente emessi devono coincidere con la size dichiarata
+  e rispettare il rapporto 200×;
+- la regressione crea 16 MiB reali, falsifica local header e central directory
+  a 2.000.000 byte e verifica il rifiuto `payload archivio incoerente` prima
+  della materializzazione;
+- lo stream bounded viene riusato per scansionare anche entry duplicate, senza
+  una seconda decompressione non controllata.
+
+Gate fixer sullo SHA tecnico
+`e7cb2d970cb987267a2cce9f23a187e2bc712f25`: fixture security 51/51 negative
+e 5/5 positive, PoC forged-header indipendente e artifact reale 671/285
+`PASS`; `scripts/check.sh` exit 0 con 782/782 non-performance, 10/10
+performance, repeat 70/70, format 296/0, analyze e build Android/iOS `PASS`;
+validator release e fixture firma avversariale `PASS`. Artifact unsigned e
+SHA-256 invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

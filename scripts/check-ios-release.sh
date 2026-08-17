@@ -287,6 +287,14 @@ done < <(find "${cmc_ios_release_app}/Frameworks" \
   -mindepth 1 -maxdepth 1 -type d -name '*.framework' -print0)
 [[ "${cmc_ios_release_framework_count}" -ge 3 ]] || \
   cmc_ios_release_fail 'EMBEDDED_FRAMEWORK_SET_INCOMPLETE'
+cmc_ios_release_runtime_executable="${cmc_ios_release_app}/Frameworks/App.framework/App"
+[[ -f "${cmc_ios_release_runtime_executable}" && \
+  ! -L "${cmc_ios_release_runtime_executable}" ]] || \
+  cmc_ios_release_fail 'RUNTIME_EXECUTABLE_INVALID'
+file "${cmc_ios_release_runtime_executable}" | grep -Fq 'Mach-O' || \
+  cmc_ios_release_fail 'RUNTIME_EXECUTABLE_INVALID'
+[[ "$(lipo -archs "${cmc_ios_release_runtime_executable}")" == 'arm64' ]] || \
+  cmc_ios_release_fail 'RUNTIME_ARCHITECTURE_INVALID'
 
 cmc_ios_release_signature_commands="$(
   otool -l "${cmc_ios_release_executable}" | \
@@ -483,7 +491,8 @@ if [[ "${cmc_ios_release_require_upload}" == true ]]; then
     my @markers =
       $content =~ /(CMC_RELEASE_CONFIG_ATTESTATION_V1:[0-9a-f]{64})/g;
     exit(@markers == 1 && $markers[0] eq $expected ? 0 : 1);
-  ' "${cmc_ios_release_executable}" "${cmc_ios_release_runtime_marker}" || \
+  ' "${cmc_ios_release_runtime_executable}" \
+    "${cmc_ios_release_runtime_marker}" || \
     cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_NOT_ARTIFACT_BOUND'
   [[ "${IOS_TESTFLIGHT_UPLOAD_AUTHORIZED:-}" == true ]] || \
     cmc_ios_release_fail 'TESTFLIGHT_AUTHORIZATION_MISSING'

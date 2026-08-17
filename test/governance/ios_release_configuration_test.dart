@@ -80,6 +80,10 @@ void main() {
     expect(validator, contains('APP_EXECUTABLE_NAME_INVALID'));
     expect(validator, contains('ARTIFACT_SIGNATURE_INVALID'));
     expect(validator, contains('SIGNED_ENTITLEMENT_SET_INVALID'));
+    expect(
+      validator,
+      contains(r'${cmc_ios_release_app}/Frameworks/App.framework/App'),
+    );
     expect(validator, contains('MAPS_ARTIFACT_NOT_FAIL_CLOSED'));
     expect(validator, contains('check-client-security.sh'));
     expect(validator, isNot(contains('/Users/')));

@@ -6,13 +6,13 @@
 - **Titolo**: Android Internal Testing release
 - **File task**: `docs/TASKS/TASK-039-android-internal-testing-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-039/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -315,6 +315,26 @@ SHA-256 invariati.
   dichiarato né retry improprio.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Security Fix 5 — `CODEX_FIXER`
+
+- `F-039-SR06`: dimensione fisica del container letta con `wc -c`, bounded a
+  512 MiB e usata come denominatore autorevole del rapporto 200×;
+- `compressed size` dichiarata maggiore del container fisico fallisce chiusa;
+  il controllo metadata resta un preflight rapido, mentre actual/physical è il
+  gate non falsificabile;
+- regressione dedicata gonfia entrambe le compressed size local/central a
+  100.000 byte su un file fisico da 16.457 byte che emette 16.777.216 byte e
+  verifica il rifiuto prima dello streaming.
+
+Gate fixer sullo SHA tecnico
+`0ec1184f5e1413567c32c10cdcc2e0717594234b`: fixture security 52/52 negative
+e 5/5 positive, PoC forged compressed-size e artifact reale 671/285 `PASS`;
+`scripts/check.sh` exit 0 con 782/782 non-performance, 10/10 performance,
+repeat 70/70, format 296/0, analyze e build Android/iOS `PASS`; validator
+release e fixture firma avversariale `PASS`. Artifact unsigned e SHA invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

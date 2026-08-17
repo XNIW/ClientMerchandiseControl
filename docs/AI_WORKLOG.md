@@ -3116,3 +3116,17 @@
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; Play/Internal e production
   invariati.
+
+## 2026-08-17 — TASK-039 Security Fix 5
+
+- **Exact SHA tecnico**: `0ec1184f5e1413567c32c10cdcc2e0717594234b`.
+- **Fix**: size fisica container bounded, compressed dichiarato non può
+  superarla e il rapporto autorevole usa actual uncompressed / physical bytes.
+- **Regressione**: compressed size local/central gonfiata a 100.000 su file
+  fisico da 16.457 byte con output 16 MiB viene respinta; fixture 52/52
+  negative + 5/5 positive.
+- **Gate**: artifact reale 671/285 e fixture firma `PASS`; `scripts/check.sh`
+  exit 0 con 782/782 non-performance, 10/10 performance, repeat 70/70,
+  format 296/0, analyze e build Android/iOS `PASS`.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production invariati.

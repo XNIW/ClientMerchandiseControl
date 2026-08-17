@@ -1,7 +1,7 @@
 # Evidence TASK-039
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -124,11 +124,23 @@ Snapshot di handoff:
   repeat 70/70, format 296/0, analyze e build debug Android/iOS `PASS`;
   fixture firma avversariale `PASS`.
 
+## Security Fix 5 evidence
+
+- SHA tecnico `0ec1184f5e1413567c32c10cdcc2e0717594234b`;
+- container fisico bounded a 512 MiB, `declared compressed <= physical` e
+  rapporto autorevole `actual uncompressed / physical container <= 200×`;
+- fixture forged compressed: file 16.457 byte, compressed dichiarato 100.000,
+  output reale 16.777.216 byte, scanner exit 1 prima dello streaming;
+- fixture security 52/52 negative + 5/5 positive; validator reale source 671
+  e artifact 285, firma unsigned e SHA invariati;
+- `scripts/check.sh` exit 0: 782/782 non-performance, 10/10 performance,
+  repeat 70/70, format 296/0, analyze e build Android/iOS `PASS`; fixture firma
+  avversariale `PASS`.
+
 ## Handoff
 
-La re-review Fix 4 sullo SHA
-`7ddd6f720c23964866cf741bd1351645b6fa9c62` conferma cap e confronto
-uncompressed, ma riapre `F-039-SR06` P3 perché la compressed size dichiarata
-può essere gonfiata e falsificare il ratio. Handoff corrente
-`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; Play/Internal e production restano
+La Security Fix 5 sullo SHA tecnico
+`0ec1184f5e1413567c32c10cdcc2e0717594234b` usa il container fisico per il
+ratio e chiude il PoC compressed-size di `F-039-SR06`. Handoff corrente
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`; Play/Internal e production restano
 invariati.

@@ -3308,3 +3308,5 @@
   Runner/dSYM UUID `BECE880B-91F5-36D2-AD95-F366FB669F41`.
 - **Boundary**: signing `UNSIGNED`; upload gate respinto su Distribution assente;
   nessuna IPA, credential, config production reale, TestFlight o production mutati.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.

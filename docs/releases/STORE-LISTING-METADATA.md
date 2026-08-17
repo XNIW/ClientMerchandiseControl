@@ -107,4 +107,3 @@ coerente, map attribution visibile quando una mappa è presente, contrasto e tex
   <https://developer.apple.com/help/app-store-connect/reference/app-information/platform-version-information/>
 - Apple screenshot specifications:
   <https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/>
-

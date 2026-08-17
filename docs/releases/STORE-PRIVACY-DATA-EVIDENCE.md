@@ -70,4 +70,3 @@ solo perché l'adapter Maps è fail-closed.
   <https://support.google.com/googleplay/android-developer/answer/10787469?hl=en>
 - Google account deletion requirements:
   <https://support.google.com/googleplay/android-developer/answer/13327111?hl=en-EN>
-

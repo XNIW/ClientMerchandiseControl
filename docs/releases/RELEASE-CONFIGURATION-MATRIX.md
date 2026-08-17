@@ -57,4 +57,3 @@ Prima di generare un binary production-like, il validator TASK-039/040 deve conf
 4. nessun `NOT_CONFIGURED`, localhost, fixture, service role o debug flag abilita una
    feature;
 5. output diagnostico booleano/sanitizzato, mai il valore delle credenziali.
-

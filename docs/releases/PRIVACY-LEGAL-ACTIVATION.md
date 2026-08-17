@@ -38,4 +38,3 @@ la submission o activation production indicata, ma non il release-candidate tecn
 4. conservare evidence sanitizzata, mai dati dell'utente;
 5. non dichiarare cancellazione immediata se il processo resta una richiesta soggetta
    a verifica.
-

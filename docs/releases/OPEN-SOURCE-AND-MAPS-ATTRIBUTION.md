@@ -40,4 +40,3 @@ review legale. Non sono stati trovati package diretti GPL/AGPL nel lock corrente
 TASK-039/040 devono aprire il LicensePage nel release candidate, controllare il binary
 per notices e confermare che la mappa non copra attribution. Ogni cambio dependency o
 provider riapre questo audit bounded.
-

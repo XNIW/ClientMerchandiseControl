@@ -128,47 +128,38 @@ void main() {
       '$repositoryRoot/.github/workflows/ci.yml',
     ).readAsStringSync();
 
-    const attestor = 'scripts/create-ios-reference-attestation.sh';
-    const referenceArgument = '--reference-app build/ios/iphoneos/Runner.app';
-    const attestationArgument =
-        '--reference-attestation "\${cmc_ios_reference_attestation}"';
-    expect(_occurrenceCount(runbook, attestor), 2);
-    expect(_occurrenceCount(runbook, referenceArgument), 2);
-    expect(_occurrenceCount(runbook, attestationArgument), 2);
-    expect(workflow, contains(attestor));
-    expect(workflow, contains('--reference-app build/ios/iphoneos/Runner.app'));
     expect(
-      workflow,
-      contains(
-        "--reference-attestation '\${{ steps.ios-reference.outputs.macho_sha256 }}'",
-      ),
+      () => _validateRunbookAttestation(runbook, workflow),
+      returnsNormally,
     );
+  });
 
-    final unsignedBuild = runbook.indexOf(
-      'flutter build ios --release --no-codesign',
+  test('TestFlight runbook rejects commented attestation command decoys', () {
+    final runbook = File(
+      '$repositoryRoot/docs/releases/IOS-TESTFLIGHT-RELEASE-RUNBOOK.md',
+    ).readAsStringSync();
+    final workflow = File(
+      '$repositoryRoot/.github/workflows/ci.yml',
+    ).readAsStringSync();
+    final mutation = runbook
+        .replaceAll(
+          '  bash scripts/create-ios-reference-attestation.sh',
+          '# bash scripts/create-ios-reference-attestation.sh',
+        )
+        .replaceAll(
+          '  --reference-app build/ios/iphoneos/Runner.app',
+          '# --reference-app build/ios/iphoneos/Runner.app',
+        )
+        .replaceAll(
+          '  --reference-attestation "\${cmc_ios_reference_attestation}"',
+          '# --reference-attestation "\${cmc_ios_reference_attestation}"',
+        );
+
+    expect(mutation, isNot(runbook));
+    expect(
+      () => _validateRunbookAttestation(mutation, workflow),
+      throwsA(isA<StateError>()),
     );
-    final unsignedAttestor = runbook.indexOf(attestor, unsignedBuild);
-    final unsignedArchive = runbook.indexOf(
-      'xcodebuild archive',
-      unsignedAttestor,
-    );
-    final signedBuild = runbook.indexOf(
-      'flutter build ios --release',
-      unsignedBuild + 1,
-    );
-    final signedAttestor = runbook.indexOf(attestor, signedBuild);
-    final uploadGate = runbook.indexOf(
-      '--require-upload-ready',
-      signedAttestor,
-    );
-    expect(unsignedBuild, greaterThanOrEqualTo(0));
-    expect(unsignedAttestor, greaterThan(unsignedBuild));
-    expect(unsignedArchive, greaterThan(unsignedAttestor));
-    expect(signedBuild, greaterThan(unsignedArchive));
-    expect(signedAttestor, greaterThan(signedBuild));
-    expect(uploadGate, greaterThan(signedAttestor));
-    expect(runbook, contains("senza ricalcolare l'attestazione"));
-    expect(runbook, contains("successivamente all'archive"));
   });
 
   test(
@@ -291,6 +282,67 @@ jobs:
     }
   });
 }
+
+void _validateRunbookAttestation(String runbook, String workflow) {
+  const attestor = 'scripts/create-ios-reference-attestation.sh';
+  const referenceArgument = '--reference-app build/ios/iphoneos/Runner.app';
+  const attestationArgument =
+      '--reference-attestation "\${cmc_ios_reference_attestation}"';
+  final bashBlocks = RegExp(
+    r'```bash\r?\n([\s\S]*?)\r?\n```',
+  ).allMatches(runbook).map((match) => match.group(1)!).toList();
+  if (bashBlocks.length != 3) {
+    throw StateError('runbook Bash block set invalid');
+  }
+  final executableBlocks = bashBlocks.map(_withoutBashComments).toList();
+  final candidate = executableBlocks[0];
+  final signedBuild = executableBlocks[1];
+  final upload = executableBlocks[2];
+
+  if (_occurrenceCount(candidate, attestor) != 1 ||
+      _occurrenceCount(candidate, referenceArgument) != 1 ||
+      _occurrenceCount(candidate, attestationArgument) != 1 ||
+      _occurrenceCount(signedBuild, attestor) != 1 ||
+      _occurrenceCount(signedBuild, referenceArgument) != 0 ||
+      _occurrenceCount(signedBuild, attestationArgument) != 0 ||
+      _occurrenceCount(upload, attestor) != 0 ||
+      _occurrenceCount(upload, referenceArgument) != 1 ||
+      _occurrenceCount(upload, attestationArgument) != 1) {
+    throw StateError('runbook attestation command set invalid');
+  }
+  final unsignedBuild = candidate.indexOf(
+    'flutter build ios --release --no-codesign',
+  );
+  final unsignedAttestor = candidate.indexOf(attestor);
+  final unsignedArchive = candidate.indexOf('xcodebuild archive');
+  final unsignedValidator = candidate.indexOf(referenceArgument);
+  final productionBuild = signedBuild.indexOf('flutter build ios --release');
+  final productionAttestor = signedBuild.indexOf(attestor);
+  final uploadGate = upload.indexOf('--require-upload-ready');
+  if (unsignedBuild < 0 ||
+      unsignedAttestor <= unsignedBuild ||
+      unsignedArchive <= unsignedAttestor ||
+      unsignedValidator <= unsignedArchive ||
+      productionBuild < 0 ||
+      productionAttestor <= productionBuild ||
+      uploadGate < 0 ||
+      !runbook.contains("senza ricalcolare l'attestazione") ||
+      !runbook.contains("successivamente all'archive")) {
+    throw StateError('runbook attestation order invalid');
+  }
+  if (!workflow.contains(attestor) ||
+      !workflow.contains(referenceArgument) ||
+      !workflow.contains(
+        "--reference-attestation '\${{ steps.ios-reference.outputs.macho_sha256 }}'",
+      )) {
+    throw StateError('workflow/runbook attestation parity invalid');
+  }
+}
+
+String _withoutBashComments(String block) => block
+    .split('\n')
+    .where((line) => !line.trimLeft().startsWith('#'))
+    .join('\n');
 
 int _occurrenceCount(String value, String needle) =>
     RegExp(RegExp.escape(needle)).allMatches(value).length;

@@ -193,7 +193,7 @@ jobs:
         id: ios-reference
         run: |
           cmc_reference_output="$(
-            bash scripts/create-ios-reference-attestation.sh
+            bash scripts/create-ios-reference-attestation.sh \
             --app build/ios/iphoneos/Runner.app
           )"
           case "${cmc_reference_output}" in

@@ -591,8 +591,20 @@ void _validateIosReleaseJob(String workflow) {
     name: 'Attest iOS reference build',
     id: 'ios-reference',
     keys: const <String>{'name', 'id', 'run'},
-    run:
-        r'''cmc_reference_output="$( bash scripts/create-ios-reference-attestation.sh --app build/ios/iphoneos/Runner.app )" case "${cmc_reference_output}" in IOS_REFERENCE_ATTESTATION=*) ;; *) exit 1 ;; esac cmc_reference_digests="${cmc_reference_output#IOS_REFERENCE_ATTESTATION=}" if [[ ! "${cmc_reference_digests}" =~ ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]]; then exit 1 fi printf 'macho_sha256=%s\n' "${cmc_reference_digests}" >>"${GITHUB_OUTPUT}"''',
+    exactRun: r'''cmc_reference_output="$(
+  bash scripts/create-ios-reference-attestation.sh \
+  --app build/ios/iphoneos/Runner.app
+)"
+case "${cmc_reference_output}" in
+  IOS_REFERENCE_ATTESTATION=*) ;;
+  *) exit 1 ;;
+esac
+cmc_reference_digests="${cmc_reference_output#IOS_REFERENCE_ATTESTATION=}"
+if [[ ! "${cmc_reference_digests}" =~ ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]]; then
+  exit 1
+fi
+printf 'macho_sha256=%s\n' "${cmc_reference_digests}" >>"${GITHUB_OUTPUT}"
+''',
   );
   _requireStep(
     steps[7],
@@ -648,12 +660,14 @@ void _requireStep(
   required String name,
   required Set<String> keys,
   String? run,
+  String? exactRun,
   String? uses,
   String? id,
 }) {
   if (!_hasExactKeys(step, keys) ||
       step['name'] != name ||
       (run != null && _normalizeCommand(step['run']) != run) ||
+      (exactRun != null && step['run'] != exactRun) ||
       (uses != null && step['uses'] != uses) ||
       (id != null && step['id'] != id)) {
     throw StateError('iOS release step invalid: $name');

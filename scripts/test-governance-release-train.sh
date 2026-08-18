@@ -531,8 +531,11 @@ cmc_expect_fail stale-evidence-matrix-t03 "${cmc_case}" \
   'Matrice T-03 incoerente'
 
 cmc_case="$(cmc_fixture duplicate-active-manifest-row)"
-grep -E '^\| TASK-040 \|' \
-  "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md" \
+cmc_manifest_row="$(
+  grep -E '^\| TASK-040 \|' \
+    "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+)"
+printf '%s\n' "${cmc_manifest_row}" \
   >>"${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
 cmc_expect_fail duplicate-active-manifest-row "${cmc_case}" \
   'Release manifest richiede esattamente una riga'

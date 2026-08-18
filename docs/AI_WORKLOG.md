@@ -3718,3 +3718,16 @@
   `2a6441ea50ba4cd99491fcd33c04fef51d90e4462a3482285310c31b180798c7`.
 - **Boundary**: TestFlight, signing, credenziali e production invariati.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 15 e handoff
+
+- **Technical SHA**: `da014b18a29bd616f436cb998ea212e58c17b254`.
+- **Fix**: CA-06 e T-04 hanno cardinalità globale esatta oltre alla membership
+  nelle rispettive tabelle canoniche.
+- **Regressioni**: le due tabelle sibling visibili con `0/0` sono respinte;
+  governance 72/72, scanner 682 + 61/61 + 7/7.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, architecture
+  17/17, format 301/0, analyze e build debug Android/iOS `PASS`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

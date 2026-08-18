@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
+- **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -747,6 +747,22 @@ report prodotto sealed SHA-256
 - TestFlight, signing, credenziali e production invariati.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 15
+
+- exact technical SHA: `da014b18a29bd616f436cb998ea212e58c17b254`;
+- `F-040-RR14-GOV-COUNT-01` chiuso: CA-06 e T-04 richiedono esattamente
+  una riga sia nella tabella canonica sia nell'intero documento;
+- le due tabelle sibling visibili con conteggi confliggenti `0/0` falliscono
+  chiuse con regressioni dedicate;
+- fixture governance 72/72; security source 682, fixture 61/61 negative +
+  7/7 positive;
+- `scripts/check.sh` exact-SHA exit 0: 801/801, performance 10/10, repeat
+  70/70, architecture 17/17, format 301/0, analyze e build debug Android/iOS
+  `PASS`;
+- nessun delta runtime/archive/signing; TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

@@ -3818,7 +3818,7 @@
 
 ## 2026-08-17 — TASK-040 Fix 19 e handoff
 
-- **Technical SHA**: `94ab20d2ca473103d222844f51ceea24073aa7f5`.
+- **Technical SHA**: `85f2a01777e43ecd9c521ef0434e601dae3e3340`.
 - **Fix**: digest reference catturati in output CI immutabile prima dell'archive;
   candidate/reference vincolati a quel trust anchor; exact `arm64`.
 - **Regressioni**: attestation missing/malformed, paired tamper e FAT;

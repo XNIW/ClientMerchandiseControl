@@ -588,7 +588,7 @@ viene rieseguita dopo re-review.
   riprodotti; il finalizer Fix 18 è `BLOCKED` da Python 3.9
   `zip(..., strict=True)` e non ha prodotto report sealed;
 - exact technical SHA Fix 19
-  `94ab20d2ca473103d222844f51ceea24073aa7f5`;
+  `85f2a01777e43ecd9c521ef0434e601dae3e3340`;
 - l'attestation reference viene catturata come output CI prima dell'archive;
   candidate e reference sono entrambi confrontati con quel digest immutabile;
 - exact architecture `arm64`; regressioni attestation missing/malformed,

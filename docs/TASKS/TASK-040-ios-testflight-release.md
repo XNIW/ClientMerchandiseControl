@@ -878,7 +878,7 @@ report prodotto sealed SHA-256
 
 ### Fix 19
 
-- exact technical SHA: `94ab20d2ca473103d222844f51ceea24073aa7f5`;
+- exact technical SHA: `85f2a01777e43ecd9c521ef0434e601dae3e3340`;
 - un nuovo attestor canonicalizza i quattro Mach-O reference subito dopo la
   build e pubblica soltanto quattro SHA-256 come output dello step CI; archive,
   reference e candidate successivi devono corrispondere a quel valore già

@@ -7,12 +7,12 @@
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -822,9 +822,13 @@ report prodotto sealed SHA-256
 - `scripts/check.sh` exact-SHA exit 0: 801/801, performance 10/10, repeat
   70/70, security 682 + 61/61 negative + 7/7 positive, architecture 17/17,
   format 301/0, analyze e build debug Android/iOS `PASS`;
+- re-review prodotto/security su
+  `36175e687a8ed913a332f77184fd5acffdae7aa6`: `APPROVED`, zero P0/P1/P2/P3;
+  13/13 probe avversariali autonomi e report security sealed SHA-256
+  `a9f961ddd5e99733eb96fe7d50796d269db85d5516b0eed0eadc7b99484c27ae`;
 - nessun delta runtime/archive/signing; TestFlight e production invariati.
 
-`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Chiusura
 

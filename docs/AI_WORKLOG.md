@@ -3782,6 +3782,10 @@
 - **Gate completo**: 801/801, performance 10/10, repeat 70/70, security
   682 + 61/61 negative + 7/7 positive, architecture 17/17, format 301/0,
   analyze e build debug Android/iOS `PASS`.
+- **Re-review**: prodotto/security `APPROVED` su
+  `36175e687a8ed913a332f77184fd5acffdae7aa6`, zero P0/P1/P2/P3; probe
+  avversariali 13/13 e report sealed SHA-256
+  `a9f961ddd5e99733eb96fe7d50796d269db85d5516b0eed0eadc7b99484c27ae`.
 - **Boundary**: runtime/archive/signing invariati; TestFlight e production non
   modificati.
-- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.

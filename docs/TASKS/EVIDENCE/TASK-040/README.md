@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance
 
@@ -540,3 +540,15 @@ Snapshot di handoff:
 - report security sealed SHA-256
   `3c90a6276c2e0ac41408355a1021fd450f35bd68d23408d018bd79638a1f9cdc`;
 - TestFlight, signing, credenziali e production invariati.
+
+## Re-review conclusiva Fix 17
+
+- exact HEAD `36175e687a8ed913a332f77184fd5acffdae7aa6`, technical
+  `ff52b9d326f001477aa5dac1b72005ed4a707f77`, worktree pulito;
+- reviewer prodotto e security read-only distinti: `APPROVED`, zero
+  P0/P1/P2/P3; `F-040-RR16-GOV-COUNT-01 CLOSED`;
+- probe autonomi 13/13, governance 88/88, scanner 682 + 61/61 negative +
+  7/7 positive, syntax/diff/action pin `PASS`;
+- security finalizer/report-format `PASS`, report sealed SHA-256
+  `a9f961ddd5e99733eb96fe7d50796d269db85d5516b0eed0eadc7b99484c27ae`;
+- TestFlight, signing, credenziali, upload e production invariati.

@@ -9,13 +9,13 @@
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review read-only Fix 17 della policy
-  fail-closed sulle righe tabellari; upload resta `NOT_RUN`
+- **Prossima azione autorizzata**: CI PR exact-SHA sul commit di approvazione,
+  merge normale e main post-merge CI; upload TestFlight resta `NOT_RUN`
 
 ## Repository coinvolti
 

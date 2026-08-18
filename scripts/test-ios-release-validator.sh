@@ -80,7 +80,7 @@ cmc_ios_test_expect_failure() {
     printf 'Fixture iOS %s doveva fallire.\n' "${cmc_ios_test_name}" >&2
     exit 1
   fi
-  grep -Fq -- "IOS_RELEASE_BLOCKED: ${cmc_ios_test_expected}" \
+  grep -Fxq -- "IOS_RELEASE_BLOCKED: ${cmc_ios_test_expected}" \
     "${cmc_ios_test_log}" || {
     printf 'Fixture iOS %s fallita per ragione inattesa.\n' \
       "${cmc_ios_test_name}" >&2
@@ -129,6 +129,22 @@ cmc_ios_test_flip_byte() {
     close $handle or die "close\n";
   ' "$1" "$2"
 }
+
+cmc_ios_test_fake_reason_suffix() {
+  printf 'IOS_RELEASE_BLOCKED: FRAMEWORK_ARCHITECTURE_INVALID_SUFFIX\n' >&2
+  return 1
+}
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+if (
+  cmc_ios_test_expect_failure reason-suffix-rejected \
+    FRAMEWORK_ARCHITECTURE_INVALID \
+    cmc_ios_test_fake_reason_suffix
+) >/dev/null 2>&1; then
+  printf 'Fixture iOS ha accettato una reason con suffisso.\n' >&2
+  exit 1
+fi
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 
 cmc_ios_test_baseline_output="$(cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \

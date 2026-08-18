@@ -3744,3 +3744,17 @@
   `d69ca479c0f77640102ab9a7b022e35e241f0d26eefb81a97a9c3529641d71c9`.
 - **Boundary**: TestFlight, signing, credenziali e production invariati.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 16 e handoff
+
+- **Technical SHA**: `ee0d4818e9abe41a13f3f30d4b937658db91b977`.
+- **Fix**: cardinalità CA-06/T-04 syntax-independent su ogni riga con pipe,
+  mantenendo ownership e parsing canonico della singola attestazione valida.
+- **Regressioni**: otto fixture nuove coprono outer/trailing pipe assenti,
+  whitespace, blockquote ed extra column; governance 80/80.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security
+  682 + 61/61 negative + 7/7 positive, architecture 17/17, format 301/0,
+  analyze e build debug Android/iOS `PASS`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

@@ -840,15 +840,24 @@ report prodotto sealed SHA-256
 
 ### Fix 18
 
-- exact technical SHA: `bd780c93feed70d86bf284564d2c4dfbba2183d1`;
-- CI PR #19 run `32089730726`, exact head `bae1f9be`, job Quality `FAIL`:
-  il checkout `fetch-depth: 1` non conteneva gli SHA tecnici e artifact usati
-  dal gate governance; gli altri job restavano indipendenti;
+- exact technical SHA: `16384ff7c1f7e857117a6eb2ebdd1b5d6f0e1fdd`;
+- CI PR #19 run `32089730726`, exact head `bae1f9be`: job Quality `FAIL`
+  perché il checkout `fetch-depth: 1` non conteneva gli SHA tecnici/artifact
+  usati dal gate governance; job iOS release candidate `FAIL` dopo build e
+  archive su `EMBEDDED_COMPONENT_DIGEST_MISMATCH`;
 - il checkout del solo job Quality usa ora `fetch-depth: 0`, preservando il
   boundary read-only e rendendo disponibile la lineage completa;
 - regressione YAML dedicata: il job Quality deve avere un unico parametro
-  checkout `fetch-depth: 0`; test mirato 2/2 e action pin `PASS`;
-- nessun delta runtime/archive/signing; TestFlight e production invariati.
+  checkout `fetch-depth: 0`;
+- il validator iOS riceve il reference `build/ios/iphoneos/Runner.app` prodotto
+  nello stesso workspace: framework e dylib sono confrontati whole-Mach-O; il
+  wrapper Runner usa ancora un digest whole-Mach-O ma normalizza firma e il
+  solo `LC_UUID`, mentre l'UUID Runner/dSYM resta verificato separatamente;
+- candidate reale con e senza reference `PASS`, scanner 682/207; fixture iOS
+  29/29, test Flutter/YAML 12/12, governance 88/88, security source 682,
+  action pin, syntax, format 301/0, analyze e diff check `PASS`;
+- nessun delta al runtime applicativo o all'artifact; signing, TestFlight e
+  production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 

@@ -3792,13 +3792,16 @@
 
 ## 2026-08-17 — TASK-040 Fix 18 e handoff
 
-- **Technical SHA**: `bd780c93feed70d86bf284564d2c4dfbba2183d1`.
-- **Finding CI**: PR #19 run `32089730726`, head `bae1f9be`, job Quality
-  `FAIL`; il clone shallow non conteneva la lineage richiesta dal gate.
-- **Fix**: checkout full-history soltanto nel job Quality, con permessi
-  read-only invariati.
-- **Regressione**: test YAML Quality 2/2, action pin, syntax e diff check
-  `PASS`.
-- **Boundary**: nessun delta runtime/archive/signing; TestFlight e production
-  invariati.
+- **Technical SHA**: `16384ff7c1f7e857117a6eb2ebdd1b5d6f0e1fdd`.
+- **Finding CI**: PR #19 run `32089730726`, head `bae1f9be`: Quality `FAIL`
+  per clone shallow; iOS release candidate `FAIL` dopo build/archive su
+  `EMBEDDED_COMPONENT_DIGEST_MISMATCH` dipendente dal worktree.
+- **Fix**: checkout full-history nel solo job Quality; candidate/archive iOS
+  legato al reference same-workspace. Runner conserva il digest whole-Mach-O
+  normalizzando firma e solo `LC_UUID`, con UUID dSYM verificato a parte.
+- **Regressione**: candidate con/senza reference `PASS` 682/207; fixture iOS
+  29/29, test Flutter/YAML 12/12, governance 88/88, security 682, action pin,
+  syntax, format 301/0, analyze e diff check `PASS`.
+- **Boundary**: runtime applicativo e artifact invariati; signing, TestFlight e
+  production invariati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

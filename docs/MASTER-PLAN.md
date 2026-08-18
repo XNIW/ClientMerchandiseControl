@@ -14,8 +14,8 @@
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review read-only Fix 18 del checkout CI
-  full-history; upload TestFlight resta `NOT_RUN`
+- **Prossima azione autorizzata**: re-review read-only Fix 18 dei due finding CI
+  su history Git e attestazione iOS; upload TestFlight resta `NOT_RUN`
 
 ## Repository coinvolti
 

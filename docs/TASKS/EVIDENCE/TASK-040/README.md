@@ -71,17 +71,18 @@ Snapshot di handoff:
 - format 301 file/0 cambi; analyze 0 issue;
 - governance 88/88; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 682; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 29/29 già invariato; governance mirata 88/88;
+- validator iOS avversariale 29/29; governance mirata 88/88;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
 
-Il gate completo runtime resta quello exact-SHA Fix 17 perché Fix 18 modifica
-soltanto workflow e relativo test governance. Il delta impattato ha eseguito
-test YAML 2/2, action pin, syntax e diff check; la CI PR viene rieseguita dopo
-re-review.
+Il gate completo runtime resta quello exact-SHA Fix 17: Fix 18 non cambia il
+runtime applicativo né l'artifact. Il delta impattato ha eseguito candidate
+iOS reale con e senza reference `PASS`, fixture iOS 29/29, test Flutter/YAML
+12/12, governance 88/88, security 682, action pin, syntax, format 301/0,
+analyze e diff check. La CI PR viene rieseguita dopo re-review.
 
 ## Gate Fix 1
 
@@ -562,10 +563,18 @@ re-review.
 
 - PR #19 run `32089730726`, head `bae1f9be84217c046d121af86e47e9f6ca6d61db`:
   Quality `FAIL` nello step governance perché `actions/checkout` aveva
-  `fetch-depth: 1`; gli SHA `ff52b9d` e `01dd140` non erano presenti;
+  `fetch-depth: 1`; gli SHA `ff52b9d` e `01dd140` non erano presenti; il job
+  iOS release candidate ha inoltre fallito dopo build/archive con
+  `EMBEDDED_COMPONENT_DIGEST_MISMATCH`;
 - exact technical SHA Fix 18
-  `bd780c93feed70d86bf284564d2c4dfbba2183d1`;
+  `16384ff7c1f7e857117a6eb2ebdd1b5d6f0e1fdd`;
 - il solo checkout Quality usa `fetch-depth: 0`; test YAML 2/2 impedisce il
-  ritorno a clone shallow; action pin e diff check `PASS`;
-- iOS runtime, artifact, firma, provisioning, TestFlight e production non
-  sono stati modificati.
+  ritorno a clone shallow;
+- il gate iOS lega archive e reference same-workspace: framework/dylib usano
+  digest whole-Mach-O comparati; Runner usa digest whole-Mach-O con firma e
+  `LC_UUID` normalizzati, mantenendo il vincolo UUID Runner/dSYM separato;
+- candidate reale con e senza reference `PASS`, source/artifact 682/207;
+  fixture iOS 29/29, test Flutter/YAML 12/12, governance 88/88, security
+  source 682, action pin, syntax, format, analyze e diff check `PASS`;
+- runtime applicativo, artifact, firma, provisioning, TestFlight e production
+  non sono stati modificati.

@@ -762,6 +762,26 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           END { print count + 0 }
         ' <<<"${cmc_evidence_acceptance_rows}"
       )"
+      cmc_ca06_global_row_count="$(
+        awk '
+          function trim(value) {
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            return value
+          }
+          function table_row(line, columns, leading) {
+            leading=0
+            while (substr(line, 1, 1) == " " && leading < 4) {
+              line=substr(line, 2)
+              leading++
+            }
+            if (leading > 3 || substr(line, 1, 1) != "|" ||
+                substr(line, length(line), 1) != "|") return 0
+            return split(line, fields, "|") == columns + 2
+          }
+          table_row($0, 3) && trim(fields[2]) == "CA-06" { count++ }
+          END { print count + 0 }
+        ' "${cmc_evidence_readme}"
+      )"
       cmc_t04_row_count="$(
         awk '
           function trim(value) {
@@ -772,11 +792,32 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           END { print count + 0 }
         ' <<<"${cmc_evidence_test_rows}"
       )"
+      cmc_t04_global_row_count="$(
+        awk '
+          function trim(value) {
+            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+            return value
+          }
+          function table_row(line, columns, leading) {
+            leading=0
+            while (substr(line, 1, 1) == " " && leading < 4) {
+              line=substr(line, 2)
+              leading++
+            }
+            if (leading > 3 || substr(line, 1, 1) != "|" ||
+                substr(line, length(line), 1) != "|") return 0
+            return split(line, fields, "|") == columns + 2
+          }
+          table_row($0, 3) && trim(fields[2]) == "T-04" { count++ }
+          END { print count + 0 }
+        ' "${cmc_evidence_readme}"
+      )"
       cmc_ca06_status=''
       cmc_ca06_evidence=''
       cmc_t04_status=''
       cmc_t04_evidence=''
-      if [[ "${cmc_ca06_row_count}" -eq 1 ]]; then
+      if [[ "${cmc_ca06_row_count}" -eq 1 && \
+        "${cmc_ca06_global_row_count}" -eq 1 ]]; then
         IFS=$'\t' read -r cmc_ca06_evidence cmc_ca06_status < <(
           awk '
             function trim(value) {
@@ -789,11 +830,12 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           ' <<<"${cmc_evidence_acceptance_rows}"
         )
       else
-        printf 'Matrice TASK-040 richiede esattamente una riga CA-06 canonica: ricevute=%s.\n' \
-          "${cmc_ca06_row_count}" >&2
+        printf 'Matrice TASK-040 richiede esattamente una riga CA-06 canonica e globale: canoniche=%s, globali=%s.\n' \
+          "${cmc_ca06_row_count}" "${cmc_ca06_global_row_count}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       fi
-      if [[ "${cmc_t04_row_count}" -eq 1 ]]; then
+      if [[ "${cmc_t04_row_count}" -eq 1 && \
+        "${cmc_t04_global_row_count}" -eq 1 ]]; then
         IFS=$'\t' read -r cmc_t04_status cmc_t04_evidence < <(
           awk '
             function trim(value) {
@@ -806,8 +848,8 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           ' <<<"${cmc_evidence_test_rows}"
         )
       else
-        printf 'Matrice TASK-040 richiede esattamente una riga T-04 canonica: ricevute=%s.\n' \
-          "${cmc_t04_row_count}" >&2
+        printf 'Matrice TASK-040 richiede esattamente una riga T-04 canonica e globale: canoniche=%s, globali=%s.\n' \
+          "${cmc_t04_row_count}" "${cmc_t04_global_row_count}" >&2
         cmc_violation_count=$((cmc_violation_count + 1))
       fi
       if [[ "${cmc_t02_row_count}" -ne 1 || \

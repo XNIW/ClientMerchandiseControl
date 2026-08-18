@@ -998,6 +998,30 @@ rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
 cmc_expect_fail evidence-security-zero-coordinated "${cmc_case}" \
   'Matrice T-04 incoerente con il gate security corrente'
 
+cmc_case="$(cmc_fixture evidence-duplicate-ca06-visible-table)"
+printf '%s\n' \
+  '' \
+  '## Matrice CA non autoritativa' \
+  '' \
+  '| CA | Evidence | Esito |' \
+  '|---|---|---|' \
+  '| CA-06 | security source 0 e app artifact 0; config esterna assente | PASS |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-ca06-visible-table "${cmc_case}" \
+  'riga CA-06 canonica e globale'
+
+cmc_case="$(cmc_fixture evidence-duplicate-t04-visible-table)"
+printf '%s\n' \
+  '' \
+  '## Matrice T non autoritativa' \
+  '' \
+  '| Test | Esito | Evidence |' \
+  '|---|---|---|' \
+  '| T-04 | PASS | scanner 0/0 e fixture 0/0 + 0/0 |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-t04-visible-table "${cmc_case}" \
+  'riga T-04 canonica e globale'
+
 cmc_case="$(cmc_fixture task-role-mismatch)"
 cmc_source_role="$(
   sed -nE 's/^- exact (technical|review) SHA: `[0-9a-f]{40}`;$/\1/p' \

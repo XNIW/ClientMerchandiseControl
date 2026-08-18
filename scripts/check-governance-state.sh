@@ -90,6 +90,35 @@ cmc_pipe_line_marker_count() {
   ' "${cmc_file}"
 }
 
+cmc_reject_ambiguous_pipe_markup() {
+  local cmc_file="$1"
+  local cmc_label="$2"
+
+  if ! LC_ALL=C awk '
+    index($0, "|") == 0 { next }
+    {
+      line = $0
+      gsub(/NOT_RUN/, "", line)
+      if (line ~ /^\| T-02 \| PASS \| clean release no-codesign e archive Xcode exact SHA `[0-9a-f]+` \|$/) {
+        gsub(/`[0-9a-f]+`/, "", line)
+      }
+      if (line ~ /[^ -~]/ || index(line, "&") > 0 ||
+          index(line, "\\") > 0 || index(line, "<") > 0 ||
+          index(line, ">") > 0 || index(line, "*") > 0 ||
+          index(line, "_") > 0 || index(line, "~") > 0 ||
+          index(line, "[") > 0 || index(line, "]") > 0 ||
+          index(line, "!") > 0 || index(line, "`") > 0) {
+        invalid = 1
+      }
+    }
+    END { exit invalid ? 1 : 0 }
+  ' "${cmc_file}"; then
+    printf '%s contiene markup inline ambiguo o caratteri non ASCII nelle righe con pipe: %s.\n' \
+      "${cmc_label}" "${cmc_file}" >&2
+    cmc_violation_count=$((cmc_violation_count + 1))
+  fi
+}
+
 cmc_git_commit_is_valid() {
   local cmc_revision="$1"
 
@@ -602,6 +631,8 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
     if [[ "${cmc_active_task}" == "TASK-040" && \
       -f "${cmc_evidence_readme}" ]]; then
       cmc_reject_ambiguous_markdown \
+        "${cmc_evidence_readme}" "Evidence TASK-040"
+      cmc_reject_ambiguous_pipe_markup \
         "${cmc_evidence_readme}" "Evidence TASK-040"
       cmc_evidence_acceptance_rows=''
       if ! cmc_evidence_acceptance_rows="$(

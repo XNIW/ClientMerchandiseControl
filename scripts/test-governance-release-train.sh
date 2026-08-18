@@ -1110,6 +1110,87 @@ printf '%s\n' \
 cmc_expect_fail evidence-duplicate-t04-extra-column "${cmc_case}" \
   'riga T-04 canonica e globale'
 
+cmc_case="$(cmc_fixture evidence-duplicate-ca06-entity)"
+printf '%s\n' \
+  '' \
+  '| CA | Evidence | Esito |' \
+  '|---|---|---|' \
+  '| CA&#45;06 | security source 0 e app artifact 0 | PASS |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-ca06-entity "${cmc_case}" \
+  'markup inline ambiguo o caratteri non ASCII'
+
+cmc_case="$(cmc_fixture evidence-duplicate-t04-entity)"
+printf '%s\n' \
+  '' \
+  '| Test | Esito | Evidence |' \
+  '|---|---|---|' \
+  '| T-0&#52; | PASS | scanner 0/0 |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-t04-entity "${cmc_case}" \
+  'markup inline ambiguo o caratteri non ASCII'
+
+cmc_case="$(cmc_fixture evidence-duplicate-ca06-escape)"
+printf '%s\n' \
+  '' \
+  '| CA | Evidence | Esito |' \
+  '|---|---|---|' \
+  '| CA\-06 | security source 0 e app artifact 0 | PASS |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-ca06-escape "${cmc_case}" \
+  'markup inline ambiguo o caratteri non ASCII'
+
+cmc_case="$(cmc_fixture evidence-duplicate-t04-escape)"
+printf '%s\n' \
+  '' \
+  '| Test | Esito | Evidence |' \
+  '|---|---|---|' \
+  '| T\-04 | PASS | scanner 0/0 |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-t04-escape "${cmc_case}" \
+  'markup inline ambiguo o caratteri non ASCII'
+
+cmc_case="$(cmc_fixture evidence-duplicate-ca06-emphasis)"
+printf '%s\n' \
+  '' \
+  '| CA | Evidence | Esito |' \
+  '|---|---|---|' \
+  '| CA-**06** | security source 0 e app artifact 0 | PASS |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-ca06-emphasis "${cmc_case}" \
+  'markup inline ambiguo o caratteri non ASCII'
+
+cmc_case="$(cmc_fixture evidence-duplicate-t04-emphasis)"
+printf '%s\n' \
+  '' \
+  '| Test | Esito | Evidence |' \
+  '|---|---|---|' \
+  '| T-**04** | PASS | scanner 0/0 |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-t04-emphasis "${cmc_case}" \
+  'markup inline ambiguo o caratteri non ASCII'
+
+cmc_case="$(cmc_fixture evidence-duplicate-ca06-inline-html)"
+printf '%s\n' \
+  '' \
+  '| CA | Evidence | Esito |' \
+  '|---|---|---|' \
+  '| CA-<span>06</span> | security source 0 e app artifact 0 | PASS |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-ca06-inline-html "${cmc_case}" \
+  'markup inline ambiguo o caratteri non ASCII'
+
+cmc_case="$(cmc_fixture evidence-duplicate-t04-non-ascii)"
+printf '%s\n' \
+  '' \
+  '| Test | Esito | Evidence |' \
+  '|---|---|---|' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+printf '%b\n' '| T-\342\200\21304 | PASS | scanner 0/0 |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-t04-non-ascii "${cmc_case}" \
+  'markup inline ambiguo o caratteri non ASCII'
+
 cmc_case="$(cmc_fixture task-role-mismatch)"
 cmc_source_role="$(
   sed -nE 's/^- exact (technical|review) SHA: `[0-9a-f]{40}`;$/\1/p' \

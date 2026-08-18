@@ -14,8 +14,8 @@
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review read-only Fix 25 del confronto
-  raw byte-for-byte dei blocchi Bash; upload TestFlight resta `NOT_RUN`
+- **Prossima azione autorizzata**: re-review read-only Fix 26 della fingerprint
+  completa del runbook e blocchi raw; upload TestFlight resta `NOT_RUN`
 
 ## Repository coinvolti
 

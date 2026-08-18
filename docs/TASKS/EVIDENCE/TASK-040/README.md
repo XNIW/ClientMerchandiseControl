@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 25 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 26 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,7 +64,7 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 25
+## Gate executor corrente — Fix 26
 
 - `scripts/check.sh`: exit 0;
 - non-performance 801/801; performance 10/10; resilience repeat 70/70;
@@ -78,7 +78,7 @@ Snapshot di handoff:
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
 
-Il gate completo runtime resta quello exact-SHA Fix 17: Fix 25 non cambia il
+Il gate completo runtime resta quello exact-SHA Fix 17: Fix 26 non cambia il
 runtime applicativo né l'artifact. Il delta impattato ha eseguito candidate
 iOS reale con attestation `PASS`, fixture iOS 41/41, test Flutter/YAML 14/14,
 security 683, action pin, syntax, format 301/0, analyze e diff check. La CI PR
@@ -690,6 +690,22 @@ viene rieseguita dopo re-review.
   byte-for-byte contro contenuti canonici completi;
 - regressioni leading CR e tutti i precedenti comment/blank/space/tab/CR/
   control-flow/dynamic decoy devono fallire;
+- Flutter/YAML 14/14, governance 88/88, security 683, analyze, action pin,
+  syntax e diff check `PASS`; iOS 41/41/candidate 683/207 riusati per ancestry
+  perché script/runtime/artifact sono invariati.
+
+## Re-review Fix 25 e Fix 26
+
+- exact Fix 25 HEAD `bb979c030afac3553d00306d677a5e3a52a4b8f4`;
+  prodotto/security `CHANGES_REQUIRED` con un P3 sul blocco canonico nascosto
+  dentro un commento HTML;
+- report security Fix 25 sealed SHA-256
+  `696b9e3bae99d41b54a1a6da2aa65332a9923b844f2b79a75de84d769e8d13a2`;
+- exact technical SHA Fix 26
+  `e1b6fca4a2abb409610a47473f7c57a48d9ecc7c`;
+- SHA-256 dell'intero runbook verificato prima dell'estrazione; HTML comment,
+  blockquote e ogni altra mutazione di contesto falliscono;
+- confronto raw completo dei tre blocchi Bash mantenuto come secondo guard;
 - Flutter/YAML 14/14, governance 88/88, security 683, analyze, action pin,
   syntax e diff check `PASS`; iOS 41/41/candidate 683/207 riusati per ancestry
   perché script/runtime/artifact sono invariati.

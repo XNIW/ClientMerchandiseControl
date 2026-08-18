@@ -1043,6 +1043,30 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 25
+
+- exact HEAD `bb979c030afac3553d00306d677a5e3a52a4b8f4`;
+- prodotto/security `CHANGES_REQUIRED`, un P3: il primo blocco canonico
+  nascosto dentro `<!-- -->` restava regex-matchable ma invisibile al lettore;
+- report security sealed SHA-256
+  `696b9e3bae99d41b54a1a6da2aa65332a9923b844f2b79a75de84d769e8d13a2`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 26
+
+- exact technical SHA: `e1b6fca4a2abb409610a47473f7c57a48d9ecc7c`;
+- fingerprint SHA-256 dell'intero runbook richiesta prima di ogni parse;
+- confronto raw byte-for-byte dei tre blocchi mantenuto come secondo guard;
+- fixture HTML comment e blockquote, oltre a tutti i breaker precedenti,
+  devono fallire;
+- Flutter/YAML 14/14, governance 88/88, security 683, analyze, action pin,
+  syntax, format e diff check `PASS`; iOS 41/41 e candidate 683/207 riusati
+  per ancestry, essendo invariati script/runtime/artifact;
+- signing, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

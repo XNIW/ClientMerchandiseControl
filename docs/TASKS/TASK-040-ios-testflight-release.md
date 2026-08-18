@@ -997,6 +997,29 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 23
+
+- exact HEAD `1f8ee4be6568220a4bd9c42bc02ee7b7a319969b`;
+- prodotto/security `CHANGES_REQUIRED`, un P3: `trim()` cancellava
+  space/tab/CR dopo `\`, ricostruendo una continuation non eseguita da Bash;
+- report security sealed SHA-256
+  `01d410fe2036b1c25d13a15d51281313136743b700f960c718aed78e096dba8d`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 24
+
+- exact technical SHA: `f3edb1adea45be2682655a886111c439fa61b55a`;
+- il parser applica solo `trimLeft()` e preserva il margine destro fisico;
+- fixture dedicate backslash+space, backslash+tab e backslash+CR devono
+  fallire insieme ai comment/blank breaker precedenti;
+- Flutter/YAML 14/14, governance 88/88, security 683, analyze, action pin,
+  syntax, format e diff check `PASS`; iOS 41/41 e candidate 683/207 riusati
+  per ancestry, essendo invariati script/runtime/artifact;
+- signing, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

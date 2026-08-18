@@ -14,9 +14,8 @@
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review read-only Fix 23 di continuation
-  breaker e reason malformed validator/attestor; upload TestFlight resta
-  `NOT_RUN`
+- **Prossima azione autorizzata**: re-review read-only Fix 24 del trailing
+  whitespace fisico nelle continuation Bash; upload TestFlight resta `NOT_RUN`
 
 ## Repository coinvolti
 

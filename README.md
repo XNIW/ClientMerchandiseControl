@@ -208,11 +208,10 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 22 ha chiuso i bypass Bash
-indiretti e le reason multiple normalizzate, ma la re-review ha trovato
-continuation breaker filtrati e reason malformate aggiuntive. Fix 23 preserva
-ogni riga fisica dei tre flow e conta ogni prefisso reserved prima dell'exact
-match; iOS 41/41 e
+TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 23 ha chiuso continuation
+comment/blank e reason malformate, ma la re-review ha trovato trailing
+whitespace cancellato dopo `\`. Fix 24 preserva l'intero margine destro e
+copre space/tab/CR; iOS 41/41 e
 Flutter/YAML 14/14 sono verdi. Re-review richiesta; activation invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.

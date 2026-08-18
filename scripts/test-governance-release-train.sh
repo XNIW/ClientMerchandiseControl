@@ -1022,6 +1022,94 @@ printf '%s\n' \
 cmc_expect_fail evidence-duplicate-t04-visible-table "${cmc_case}" \
   'riga T-04 canonica e globale'
 
+cmc_case="$(cmc_fixture evidence-duplicate-ca06-no-outer-pipes)"
+printf '%s\n' \
+  '' \
+  '## Matrice CA GFM senza outer pipe' \
+  '' \
+  'CA | Evidence | Esito' \
+  '---|---|---' \
+  'CA-06 | security source 0 e app artifact 0 | PASS' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-ca06-no-outer-pipes "${cmc_case}" \
+  'riga CA-06 canonica e globale'
+
+cmc_case="$(cmc_fixture evidence-duplicate-t04-no-trailing-pipe)"
+printf '%s\n' \
+  '' \
+  '## Matrice T GFM senza trailing pipe' \
+  '' \
+  '| Test | Esito | Evidence' \
+  '|---|---|---' \
+  '| T-04 | PASS | scanner 0/0' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-t04-no-trailing-pipe "${cmc_case}" \
+  'riga T-04 canonica e globale'
+
+cmc_case="$(cmc_fixture evidence-duplicate-ca06-trailing-space)"
+printf '%s\n' \
+  '' \
+  '## Matrice CA GFM con trailing whitespace' \
+  '' \
+  '| CA | Evidence | Esito |' \
+  '|---|---|---|' \
+  '| CA-06 | security source 0 e app artifact 0 | PASS |   ' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-ca06-trailing-space "${cmc_case}" \
+  'riga CA-06 canonica e globale'
+
+cmc_case="$(cmc_fixture evidence-duplicate-t04-trailing-space)"
+printf '%s\n' \
+  '' \
+  '## Matrice T GFM con trailing whitespace' \
+  '' \
+  '| Test | Esito | Evidence |' \
+  '|---|---|---|' \
+  '| T-04 | PASS | scanner 0/0 |   ' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-t04-trailing-space "${cmc_case}" \
+  'riga T-04 canonica e globale'
+
+cmc_case="$(cmc_fixture evidence-duplicate-ca06-blockquote)"
+printf '%s\n' \
+  '' \
+  '> | CA | Evidence | Esito |' \
+  '> |---|---|---|' \
+  '> | CA-06 | security source 0 e app artifact 0 | PASS |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-ca06-blockquote "${cmc_case}" \
+  'riga CA-06 canonica e globale'
+
+cmc_case="$(cmc_fixture evidence-duplicate-t04-blockquote)"
+printf '%s\n' \
+  '' \
+  '> | Test | Esito | Evidence |' \
+  '> |---|---|---|' \
+  '> | T-04 | PASS | scanner 0/0 |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-t04-blockquote "${cmc_case}" \
+  'riga T-04 canonica e globale'
+
+cmc_case="$(cmc_fixture evidence-duplicate-ca06-extra-column)"
+printf '%s\n' \
+  '' \
+  '| CA | Evidence | Esito | Note |' \
+  '|---|---|---|---|' \
+  '| CA-06 | security source 0 e app artifact 0 | PASS | conflitto |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-ca06-extra-column "${cmc_case}" \
+  'riga CA-06 canonica e globale'
+
+cmc_case="$(cmc_fixture evidence-duplicate-t04-extra-column)"
+printf '%s\n' \
+  '' \
+  '| Test | Esito | Evidence | Note |' \
+  '|---|---|---|---|' \
+  '| T-04 | PASS | scanner 0/0 | conflitto |' \
+  >>"${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+cmc_expect_fail evidence-duplicate-t04-extra-column "${cmc_case}" \
+  'riga T-04 canonica e globale'
+
 cmc_case="$(cmc_fixture task-role-mismatch)"
 cmc_source_role="$(
   sed -nE 's/^- exact (technical|review) SHA: `[0-9a-f]{40}`;$/\1/p' \

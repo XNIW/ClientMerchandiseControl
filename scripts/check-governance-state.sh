@@ -73,6 +73,23 @@ cmc_canonical_table_rows() {
     ' "${cmc_file}"
 }
 
+cmc_pipe_line_marker_count() {
+  local cmc_file="$1"
+  local cmc_marker="$2"
+
+  awk -v marker="${cmc_marker}" '
+    index($0, "|") == 0 { next }
+    {
+      remainder = $0
+      while ((position = index(remainder, marker)) > 0) {
+        count++
+        remainder = substr(remainder, position + length(marker))
+      }
+    }
+    END { print count + 0 }
+  ' "${cmc_file}"
+}
+
 cmc_git_commit_is_valid() {
   local cmc_revision="$1"
 
@@ -763,24 +780,7 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         ' <<<"${cmc_evidence_acceptance_rows}"
       )"
       cmc_ca06_global_row_count="$(
-        awk '
-          function trim(value) {
-            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-            return value
-          }
-          function table_row(line, columns, leading) {
-            leading=0
-            while (substr(line, 1, 1) == " " && leading < 4) {
-              line=substr(line, 2)
-              leading++
-            }
-            if (leading > 3 || substr(line, 1, 1) != "|" ||
-                substr(line, length(line), 1) != "|") return 0
-            return split(line, fields, "|") == columns + 2
-          }
-          table_row($0, 3) && trim(fields[2]) == "CA-06" { count++ }
-          END { print count + 0 }
-        ' "${cmc_evidence_readme}"
+        cmc_pipe_line_marker_count "${cmc_evidence_readme}" 'CA-06'
       )"
       cmc_t04_row_count="$(
         awk '
@@ -793,24 +793,7 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
         ' <<<"${cmc_evidence_test_rows}"
       )"
       cmc_t04_global_row_count="$(
-        awk '
-          function trim(value) {
-            gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
-            return value
-          }
-          function table_row(line, columns, leading) {
-            leading=0
-            while (substr(line, 1, 1) == " " && leading < 4) {
-              line=substr(line, 2)
-              leading++
-            }
-            if (leading > 3 || substr(line, 1, 1) != "|" ||
-                substr(line, length(line), 1) != "|") return 0
-            return split(line, fields, "|") == columns + 2
-          }
-          table_row($0, 3) && trim(fields[2]) == "T-04" { count++ }
-          END { print count + 0 }
-        ' "${cmc_evidence_readme}"
+        cmc_pipe_line_marker_count "${cmc_evidence_readme}" 'T-04'
       )"
       cmc_ca06_status=''
       cmc_ca06_evidence=''

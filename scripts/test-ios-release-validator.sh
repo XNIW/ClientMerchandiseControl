@@ -550,6 +550,28 @@ cmc_ios_test_expect_failure macho-header-stack-executable \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_source_app}/Runner" "${cmc_ios_test_runner_binary}"
 
+cmc_ios_test_runner_objc_stubs_offset="$(
+  otool -l "${cmc_ios_test_runner_binary}" | awk '
+    $1 == "sectname" && $2 == "__objc_stubs" { in_stubs = 1; next }
+    in_stubs && $1 == "offset" { print $2; exit }
+  '
+)"
+[[ "${cmc_ios_test_runner_objc_stubs_offset}" =~ ^[0-9]+$ ]] || {
+  printf 'Fixture iOS: offset __objc_stubs non leggibile.\n' >&2
+  exit 1
+}
+# I due output Xcode ammessi differiscono solo per la scelta completa fra due
+# slot GOT equivalenti di _objc_msgSend. Una mutazione parziale degli stub deve
+# continuare a fallire l'exact-content gate.
+cmc_ios_test_flip_byte "${cmc_ios_test_runner_binary}" \
+  "$((cmc_ios_test_runner_objc_stubs_offset + 13))"
+cmc_ios_test_expect_failure runner-objc-stub-content-digest \
+  EMBEDDED_COMPONENT_DIGEST_MISMATCH \
+  cmc_ios_test_validate \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_source_app}/Runner" "${cmc_ios_test_runner_binary}"
+
 cmc_ios_test_objective_binary="${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework/objective_c"
 cmc_ios_test_replace_uuid "${cmc_ios_test_objective_binary}"
 cmc_ios_test_total=$((cmc_ios_test_total + 1))

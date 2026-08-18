@@ -483,10 +483,13 @@ cmc_ios_release_expected_macho_paths=(
 # firma rimossa, così header, load command, sezioni e __LINKEDIT restano legati.
 # Runner normalizza LC_UUID, che Xcode rigenera tra build equivalenti; la
 # relazione UUID Runner/dSYM resta verificata separatamente dall'archive.
+# Xcode 26.6 può inoltre scegliere uno dei due slot GOT equivalenti per
+# `_objc_msgSend`: entrambi gli artifact completi verificati restano ammessi
+# come exact digest, senza escludere dal digest alcuna sezione eseguibile.
 # Anche objective_c normalizza il solo LC_UUID: il native asset conserva
 # sezioni identiche ma rigenera quel metadato fra clean build equivalenti.
 cmc_ios_release_expected_macho_digests=(
-  'dea7dc176e6ddd65afd5be5ba8946171bd71b4ad59e96c5c25ce93e368aa0c40'
+  'dea7dc176e6ddd65afd5be5ba8946171bd71b4ad59e96c5c25ce93e368aa0c40 9ddf9cea0d563fa7e8c86b2768f7e291f932958787c4b48dd5c73b2bf2129702'
   '847be0c00445269c63b4c1b3c475da7164a2257dad6bb0ffb99888af7c61dde7'
   'd1756c1031e3a0661f80dee4f6341b7c678021e571bf7026e1e1a1d61dac6868'
   # objective_c conserva l'exact-content completo dopo la sola

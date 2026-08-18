@@ -87,6 +87,14 @@ void main() {
       contains(r'${cmc_ios_release_app}/Frameworks/App.framework/App'),
     );
     expect(validator, contains('MAPS_ARTIFACT_NOT_FAIL_CLOSED'));
+    final runnerDigestAllowlist = RegExp(
+      r"cmc_ios_release_expected_macho_digests=\(\s*'([^']+)'",
+    ).firstMatch(validator);
+    expect(
+      runnerDigestAllowlist?.group(1),
+      'dea7dc176e6ddd65afd5be5ba8946171bd71b4ad59e96c5c25ce93e368aa0c40 '
+      '9ddf9cea0d563fa7e8c86b2768f7e291f932958787c4b48dd5c73b2bf2129702',
+    );
     expect(validator, contains('check-client-security.sh'));
     expect(validator, isNot(contains('/Users/')));
   });

@@ -189,6 +189,22 @@ jobs:
         run: >-
           flutter build ios --release --no-codesign
           --dart-define-from-file=config/app_config.production.release.json
+      - name: Attest iOS reference build
+        id: ios-reference
+        run: |
+          cmc_reference_output="$(
+            bash scripts/create-ios-reference-attestation.sh
+            --app build/ios/iphoneos/Runner.app
+          )"
+          case "${cmc_reference_output}" in
+            IOS_REFERENCE_ATTESTATION=*) ;;
+            *) exit 1 ;;
+          esac
+          cmc_reference_digests="${cmc_reference_output#IOS_REFERENCE_ATTESTATION=}"
+          if [[ ! "${cmc_reference_digests}" =~ ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]]; then
+            exit 1
+          fi
+          printf 'macho_sha256=%s\n' "${cmc_reference_digests}" >>"${GITHUB_OUTPUT}"
       - name: Archive production-like unsigned iOS app
         run: >-
           xcodebuild archive
@@ -206,8 +222,10 @@ jobs:
           --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
           --archive build/ios/archive/Runner.xcarchive
           --reference-app build/ios/iphoneos/Runner.app
+          --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
       - name: Validate iOS adversarial release boundaries
         run: >-
           bash scripts/test-ios-release-validator.sh
           --archive build/ios/archive/Runner.xcarchive
           --reference-app build/ios/iphoneos/Runner.app
+          --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'

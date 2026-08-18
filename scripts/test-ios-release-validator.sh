@@ -6,19 +6,24 @@ cmc_ios_test_root="$(git -C "${cmc_ios_test_script_dir}" rev-parse --show-toplev
 cmc_ios_test_validator="${cmc_ios_test_root}/scripts/check-ios-release.sh"
 cmc_ios_test_archive=''
 cmc_ios_test_reference_app=''
+cmc_ios_test_reference_attestation=''
 
 if [[ "${1:-}" == '--archive' && -n "${2:-}" && \
-  "${3:-}" == '--reference-app' && -n "${4:-}" && "$#" -eq 4 ]]; then
+  "${3:-}" == '--reference-app' && -n "${4:-}" && \
+  "${5:-}" == '--reference-attestation' && -n "${6:-}" && \
+  "$#" -eq 6 ]]; then
   cmc_ios_test_archive="$2"
   cmc_ios_test_reference_app="$4"
+  cmc_ios_test_reference_attestation="$6"
 else
-  printf 'Usage: scripts/test-ios-release-validator.sh --archive <Runner.xcarchive> --reference-app <Runner.app>\n' >&2
+  printf 'Usage: scripts/test-ios-release-validator.sh --archive <Runner.xcarchive> --reference-app <Runner.app> --reference-attestation <sha256-list>\n' >&2
   exit 1
 fi
 
 cmc_ios_test_validate() {
   bash "${cmc_ios_test_validator}" "$@" \
-    --reference-app "${cmc_ios_test_reference_app}"
+    --reference-app "${cmc_ios_test_reference_app}" \
+    --reference-attestation "${cmc_ios_test_reference_attestation}"
 }
 
 cmc_ios_test_source_app="${cmc_ios_test_archive}/Products/Applications/Runner.app"
@@ -33,7 +38,14 @@ cmc_ios_test_source_dsym="${cmc_ios_test_archive}/dSYMs/Runner.app.dSYM/Contents
 cmc_ios_test_tmp_parent="${TMPDIR:-/tmp}"
 cmc_ios_test_tmp_parent="${cmc_ios_test_tmp_parent%/}"
 cmc_ios_test_tmp_root="$(mktemp -d "${cmc_ios_test_tmp_parent}/cmc-ios-validator.XXXXXX")"
+cmc_ios_test_reference_restore=''
+cmc_ios_test_reference_backup=''
 cmc_ios_test_cleanup() {
+  if [[ -n "${cmc_ios_test_reference_restore}" && \
+    -f "${cmc_ios_test_reference_backup}" ]]; then
+    cp "${cmc_ios_test_reference_backup}" \
+      "${cmc_ios_test_reference_restore}" || true
+  fi
   case "${cmc_ios_test_tmp_root}" in
     "${cmc_ios_test_tmp_parent}"/cmc-ios-validator.*)
       rm -rf -- "${cmc_ios_test_tmp_root}"
@@ -78,9 +90,37 @@ cmc_ios_test_expect_failure() {
   cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 }
 
+cmc_ios_test_flip_byte() {
+  perl -e '
+    use strict;
+    use warnings;
+    my ($path, $offset) = @ARGV;
+    open my $handle, "+<", $path or die "open\n";
+    binmode $handle;
+    seek $handle, $offset, 0 or die "seek\n";
+    read($handle, my $byte, 1) == 1 or die "read\n";
+    seek $handle, $offset, 0 or die "seek\n";
+    print {$handle} chr(ord($byte) ^ 0x01) or die "write\n";
+    close $handle or die "close\n";
+  ' "$1" "$2"
+}
+
 cmc_ios_test_baseline_output="$(cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}")"
+cmc_ios_test_expect_failure reference-attestation-missing \
+  REFERENCE_ATTESTATION_ARGUMENT_CONFLICT \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}"
+cmc_ios_test_expect_failure reference-attestation-malformed \
+  REFERENCE_ATTESTATION_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation 'invalid'
 cmc_ios_test_expected_runtime_sha="$(
   shasum -a 256 \
     "${cmc_ios_test_fixture_app}/Frameworks/App.framework/App" | awk '{print $1}'
@@ -392,19 +432,56 @@ cmc_ios_test_objective_slice_offset="${cmc_ios_test_objective_slice_offset:-0}"
 cmc_ios_test_objective_text_offset=$((
   cmc_ios_test_objective_slice_offset + cmc_ios_test_objective_text_offset
 ))
+cmc_ios_test_flip_byte "${cmc_ios_test_objective_binary}" \
+  "$((cmc_ios_test_objective_text_offset + 16))"
+cmc_ios_test_expect_failure macho-content-digest \
+  EMBEDDED_COMPONENT_DIGEST_MISMATCH \
+  cmc_ios_test_validate \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_source_app}/Frameworks/objective_c.framework/objective_c" \
+  "${cmc_ios_test_objective_binary}"
+
+cmc_ios_test_reference_objective="${cmc_ios_test_reference_app}/Frameworks/objective_c.framework/objective_c"
+cmc_ios_test_reference_backup="${cmc_ios_test_tmp_root}/objective-reference.original"
+cmc_ios_test_reference_restore="${cmc_ios_test_reference_objective}"
+cp "${cmc_ios_test_reference_objective}" \
+  "${cmc_ios_test_reference_backup}"
+cmc_ios_test_flip_byte "${cmc_ios_test_objective_binary}" \
+  "$((cmc_ios_test_objective_text_offset + 16))"
+cmc_ios_test_flip_byte "${cmc_ios_test_reference_objective}" \
+  "$((cmc_ios_test_objective_text_offset + 16))"
+cmc_ios_test_expect_failure paired-reference-content-tamper \
+  REFERENCE_ATTESTATION_MISMATCH \
+  cmc_ios_test_validate \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_source_app}/Frameworks/objective_c.framework/objective_c" \
+  "${cmc_ios_test_objective_binary}"
+cp "${cmc_ios_test_reference_backup}" \
+  "${cmc_ios_test_reference_objective}"
+cmc_ios_test_reference_restore=''
+
+cmc_ios_test_objective_arm64="${cmc_ios_test_tmp_root}/objective-arm64"
+cmc_ios_test_objective_x86="${cmc_ios_test_tmp_root}/objective-x86"
+cmc_ios_test_objective_fat="${cmc_ios_test_tmp_root}/objective-fat"
+lipo "${cmc_ios_test_objective_binary}" -thin arm64 \
+  -output "${cmc_ios_test_objective_arm64}"
+cp "${cmc_ios_test_objective_arm64}" "${cmc_ios_test_objective_x86}"
+chmod u+w "${cmc_ios_test_objective_x86}"
 perl -e '
   use strict;
   use warnings;
-  my ($path, $offset) = @ARGV;
-  open my $handle, "+<", $path or die "open\n";
-  binmode $handle;
-  seek $handle, $offset + 16, 0 or die "seek\n";
-  read($handle, my $byte, 1) == 1 or die "read\n";
-  seek $handle, $offset + 16, 0 or die "seek\n";
-  print {$handle} chr(ord($byte) ^ 0x01) or die "write\n";
+  my $path = shift;
+  open my $handle, "+<:raw", $path or die "open\n";
+  seek($handle, 4, 0) or die "seek\n";
+  print {$handle} pack("V", 0x01000007), pack("V", 3) or die "write\n";
   close $handle or die "close\n";
-' "${cmc_ios_test_objective_binary}" "${cmc_ios_test_objective_text_offset}"
-cmc_ios_test_expect_failure macho-content-digest \
+' "${cmc_ios_test_objective_x86}"
+lipo -create "${cmc_ios_test_objective_arm64}" \
+  "${cmc_ios_test_objective_x86}" -output "${cmc_ios_test_objective_fat}"
+cp "${cmc_ios_test_objective_fat}" "${cmc_ios_test_objective_binary}"
+cmc_ios_test_expect_failure framework-fat-architecture \
   EMBEDDED_COMPONENT_DIGEST_MISMATCH \
   cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \

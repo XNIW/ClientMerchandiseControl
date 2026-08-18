@@ -6,6 +6,7 @@ cmc_ios_release_root="$(git -C "${cmc_ios_release_script_dir}" rev-parse --show-
 cmc_ios_release_app=''
 cmc_ios_release_archive=''
 cmc_ios_release_reference_app=''
+cmc_ios_release_reference_attestation=''
 cmc_ios_release_source_only=false
 cmc_ios_release_require_upload=false
 
@@ -17,7 +18,7 @@ cmc_ios_release_fail() {
 cmc_ios_release_usage() {
   printf '%s\n' \
     'Usage: scripts/check-ios-release.sh --source-only' \
-    '   or: scripts/check-ios-release.sh --app <Runner.app> [--archive <Runner.xcarchive>] [--reference-app <Runner.app>] [--require-upload-ready]'
+    '   or: scripts/check-ios-release.sh --app <Runner.app> [--archive <Runner.xcarchive>] [--reference-app <Runner.app> --reference-attestation <sha256-list>] [--require-upload-ready]'
 }
 
 while [[ "$#" -gt 0 ]]; do
@@ -36,6 +37,12 @@ while [[ "$#" -gt 0 ]]; do
       shift
       [[ "$#" -gt 0 ]] || cmc_ios_release_fail 'REFERENCE_APP_PATH_MISSING'
       cmc_ios_release_reference_app="$1"
+      ;;
+    --reference-attestation)
+      shift
+      [[ "$#" -gt 0 ]] || \
+        cmc_ios_release_fail 'REFERENCE_ATTESTATION_MISSING'
+      cmc_ios_release_reference_attestation="$1"
       ;;
     --source-only)
       cmc_ios_release_source_only=true
@@ -278,6 +285,7 @@ plutil -lint "${cmc_ios_release_info}" "${cmc_ios_release_privacy}" >/dev/null |
 if [[ "${cmc_ios_release_source_only}" == true ]]; then
   if [[ -n "${cmc_ios_release_app}" || -n "${cmc_ios_release_archive}" || \
     -n "${cmc_ios_release_reference_app}" || \
+    -n "${cmc_ios_release_reference_attestation}" || \
     "${cmc_ios_release_require_upload}" == true ]]; then
     cmc_ios_release_fail 'SOURCE_ONLY_ARGUMENT_CONFLICT'
   fi
@@ -294,6 +302,23 @@ case "${cmc_ios_release_app}" in
   *.app) ;;
   *) cmc_ios_release_fail 'APP_EXTENSION_INVALID' ;;
 esac
+
+if [[ -n "${cmc_ios_release_reference_app}" || \
+  -n "${cmc_ios_release_reference_attestation}" ]]; then
+  [[ -n "${cmc_ios_release_reference_app}" && \
+    -n "${cmc_ios_release_reference_attestation}" ]] || \
+    cmc_ios_release_fail 'REFERENCE_ATTESTATION_ARGUMENT_CONFLICT'
+  IFS=',' read -r -a cmc_ios_release_reference_digests \
+    <<<"${cmc_ios_release_reference_attestation}"
+  [[ "${#cmc_ios_release_reference_digests[@]}" -eq 4 ]] || \
+    cmc_ios_release_fail 'REFERENCE_ATTESTATION_INVALID'
+  for cmc_ios_release_reference_expected_digest in \
+    "${cmc_ios_release_reference_digests[@]}"; do
+    [[ "${cmc_ios_release_reference_expected_digest}" =~ \
+      ^[0-9a-f]{64}$ ]] || \
+      cmc_ios_release_fail 'REFERENCE_ATTESTATION_INVALID'
+  done
+fi
 
 if [[ -n "${cmc_ios_release_reference_app}" ]]; then
   [[ -d "${cmc_ios_release_reference_app}" && \
@@ -698,8 +723,12 @@ for cmc_ios_release_macho_index in \
           "${cmc_ios_release_reference_macho}" \
           "reference-${cmc_ios_release_macho_index}"
       )" || cmc_ios_release_fail 'REFERENCE_COMPONENT_DIGEST_UNREADABLE'
+      cmc_ios_release_reference_expected_digest="${cmc_ios_release_reference_digests[cmc_ios_release_macho_index - 1]}"
+      [[ "${cmc_ios_release_reference_digest}" == \
+        "${cmc_ios_release_reference_expected_digest}" ]] || \
+        cmc_ios_release_fail 'REFERENCE_ATTESTATION_MISMATCH'
       [[ "${cmc_ios_release_macho_digest}" == \
-        "${cmc_ios_release_reference_digest}" ]] || \
+        "${cmc_ios_release_reference_expected_digest}" ]] || \
         cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
     else
       [[ " ${cmc_ios_release_expected_macho_digests[0]} " == \
@@ -737,9 +766,9 @@ for cmc_ios_release_framework_index in \
     cmc_ios_release_fail 'FRAMEWORK_EXECUTABLE_MISSING'
   file "${cmc_ios_release_framework_executable}" | grep -Fq 'Mach-O' || \
     cmc_ios_release_fail 'FRAMEWORK_EXECUTABLE_NOT_MACHO'
-  lipo -archs "${cmc_ios_release_framework_executable}" | \
-    tr ' ' '\n' | grep -Fxq arm64 || \
-    cmc_ios_release_fail 'FRAMEWORK_ARM64_MISSING'
+  [[ "$(lipo -archs "${cmc_ios_release_framework_executable}" 2>/dev/null)" == \
+    'arm64' ]] || \
+    cmc_ios_release_fail 'FRAMEWORK_ARCHITECTURE_INVALID'
   cmc_ios_release_framework_install_name="$(
     otool -D "${cmc_ios_release_framework_executable}" 2>/dev/null | tail -n 1 | \
       tr -d '[:space:]'

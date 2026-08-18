@@ -316,7 +316,7 @@ void _validateIosReleaseJob(String workflow) {
 
   final rawSteps = job['steps'] as YamlList;
   final steps = rawSteps.whereType<YamlMap>().toList();
-  if (rawSteps.length != 9 || steps.length != 9) {
+  if (rawSteps.length != 10 || steps.length != 10) {
     throw StateError('ios-release step set invalid');
   }
   _requireStep(
@@ -353,37 +353,60 @@ void _validateIosReleaseJob(String workflow) {
     keys: const <String>{'name', 'run'},
     run: 'flutter pub get --enforce-lockfile',
   );
-  const required = <String, String>{
-    'Validate iOS release source':
-        'bash scripts/check-ios-release.sh --source-only',
-    'Build production-like unsigned iOS app':
+  _requireStep(
+    steps[4],
+    name: 'Validate iOS release source',
+    keys: const <String>{'name', 'run'},
+    run: 'bash scripts/check-ios-release.sh --source-only',
+  );
+  _requireStep(
+    steps[5],
+    name: 'Build production-like unsigned iOS app',
+    keys: const <String>{'name', 'run'},
+    run:
         'flutter build ios --release --no-codesign '
         '--dart-define-from-file=config/app_config.production.release.json',
-    'Archive production-like unsigned iOS app':
+  );
+  _requireStep(
+    steps[6],
+    name: 'Attest iOS reference build',
+    id: 'ios-reference',
+    keys: const <String>{'name', 'id', 'run'},
+    run:
+        r'''cmc_reference_output="$( bash scripts/create-ios-reference-attestation.sh --app build/ios/iphoneos/Runner.app )" case "${cmc_reference_output}" in IOS_REFERENCE_ATTESTATION=*) ;; *) exit 1 ;; esac cmc_reference_digests="${cmc_reference_output#IOS_REFERENCE_ATTESTATION=}" if [[ ! "${cmc_reference_digests}" =~ ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]]; then exit 1 fi printf 'macho_sha256=%s\n' "${cmc_reference_digests}" >>"${GITHUB_OUTPUT}"''',
+  );
+  _requireStep(
+    steps[7],
+    name: 'Archive production-like unsigned iOS app',
+    keys: const <String>{'name', 'run'},
+    run:
         'xcodebuild archive -workspace ios/Runner.xcworkspace -scheme Runner '
         '-configuration Release -destination \'generic/platform=iOS\' '
         '-archivePath build/ios/archive/Runner.xcarchive '
         'CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO '
         'COMPILER_INDEX_STORE_ENABLE=NO',
-    'Validate iOS release candidate':
+  );
+  _requireStep(
+    steps[8],
+    name: 'Validate iOS release candidate',
+    keys: const <String>{'name', 'run'},
+    run:
         'bash scripts/check-ios-release.sh '
         '--app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app '
         '--archive build/ios/archive/Runner.xcarchive '
-        '--reference-app build/ios/iphoneos/Runner.app',
-    'Validate iOS adversarial release boundaries':
+        '--reference-app build/ios/iphoneos/Runner.app '
+        "--reference-attestation '\${{ steps.ios-reference.outputs.macho_sha256 }}'",
+  );
+  _requireStep(
+    steps[9],
+    name: 'Validate iOS adversarial release boundaries',
+    keys: const <String>{'name', 'run'},
+    run:
         'bash scripts/test-ios-release-validator.sh '
         '--archive build/ios/archive/Runner.xcarchive '
-        '--reference-app build/ios/iphoneos/Runner.app',
-  };
-
-  for (final indexed in required.entries.indexed) {
-    _requireStep(
-      steps[indexed.$1 + 4],
-      name: indexed.$2.key,
-      keys: const <String>{'name', 'run'},
-      run: indexed.$2.value,
-    );
-  }
+        '--reference-app build/ios/iphoneos/Runner.app '
+        "--reference-attestation '\${{ steps.ios-reference.outputs.macho_sha256 }}'",
+  );
 }
 
 bool _hasExactKeys(YamlMap map, Set<String> expected) {
@@ -407,11 +430,13 @@ void _requireStep(
   required Set<String> keys,
   String? run,
   String? uses,
+  String? id,
 }) {
   if (!_hasExactKeys(step, keys) ||
       step['name'] != name ||
       (run != null && _normalizeCommand(step['run']) != run) ||
-      (uses != null && step['uses'] != uses)) {
+      (uses != null && step['uses'] != uses) ||
+      (id != null && step['id'] != id)) {
     throw StateError('iOS release step invalid: $name');
   }
 }

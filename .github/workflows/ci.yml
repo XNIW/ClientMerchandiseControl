@@ -28,6 +28,8 @@ jobs:
       - name: Checkout
         # actions/checkout v7.0.1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
       - name: Validate workflow action pins
         run: bash scripts/check-action-pins.sh
       - name: Validate shell scripts

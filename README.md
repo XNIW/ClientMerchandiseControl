@@ -208,11 +208,12 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 20 ha chiuso runbook, parser e
-fixture FAT, ma la re-review ha trovato due falsi positivi nel test harness.
-Fix 21 analizza solo comandi Bash eseguibili nei fenced block, aggiunge il
-mutant comment-decoy e richiede reason full-line; iOS 37/37 e Flutter/YAML
-14/14 sono verdi. Re-review richiesta; TestFlight e production invariati.
+TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 21 ha chiuso i mutant originari,
+ma la re-review ha trovato semantica Bash indiretta e reason multiple ancora
+accettabili. Fix 22 vincola l'intero contenuto eseguibile dei tre flow, copre
+comment/no-op/branch/funzione/post-archive e richiede una singola reason anche
+per l'attestor; iOS 39/39 e
+Flutter/YAML 14/14 sono verdi. Re-review richiesta; activation invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

@@ -14,8 +14,9 @@
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review read-only Fix 21 degli oracoli
-  runbook e reason validator; upload TestFlight resta `NOT_RUN`
+- **Prossima azione autorizzata**: re-review read-only Fix 22 dei blocchi
+  runbook exact e reason singleton validator/attestor; upload TestFlight resta
+  `NOT_RUN`
 
 ## Repository coinvolti
 

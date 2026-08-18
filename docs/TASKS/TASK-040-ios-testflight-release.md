@@ -945,6 +945,33 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 21
+
+- exact HEAD `3832f99957e63b5944890f722911c5e072f3b0d6`;
+- prodotto `CHANGES_REQUIRED`, un P3: inline comment/no-op e invocation
+  composta post-archive superavano il parser lessicale;
+- security `CHANGES_REQUIRED`, due P3: lo stesso bypass runbook e reason
+  attesa accompagnata da reason duplicate/wrong;
+- report security sealed SHA-256
+  `6ce9533b0121c2a3b38b983df4cd7c39d36b646191bfe5787164049a32afda49`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 22
+
+- exact technical SHA: `3376caf44a474833c67b7eff37b5fe4b33675520`;
+- i tre fenced block richiedono l'intero contenuto eseguibile e ordine
+  completo; comment, inline no-op, branch/funzione non eseguiti e attestor
+  composto post-archive sono regressioni negative;
+- i matcher reason validator e attestor impongono esattamente una riga
+  normalizzata, uguale a quella attesa; suffix, duplicate ed exact+wrong sono
+  respinti;
+- validator iOS 39/39, Flutter/YAML 14/14, candidate reale 683/207, security
+  683, analyze, action pin, syntax, format e diff check `PASS`;
+- runtime, artifact, signing, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

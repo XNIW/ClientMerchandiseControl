@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
+- **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -712,6 +712,27 @@ report prodotto sealed SHA-256
 - TestFlight, signing, credenziali e production invariati.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 14
+
+- exact technical SHA: `8389f922580b139e4469c11e343f51361cacb218`;
+- `F-040-RR13-GOV-MARKDOWN-01` chiuso: tutti gli opener raw CommonMark,
+  inclusi processing instruction, CDATA e tag multilinea, falliscono chiusi;
+  il README è incluso nel controllo senza vietare i code fence legittimi;
+- `F-040-RR13-GOV-SUMMARY-01` chiuso: il riepilogo README è unico e deve
+  coincidere con stato/fase strutturati;
+- `F-040-RR13-GOV-COUNT-01` chiuso: CA-06 e T-04 sono righe canoniche,
+  correlate al gate security corrente e rifiutano conteggi zero/parziali;
+- `F-040-RR13-GOV-PATH-01` chiuso: l'inventario post-SHA è NUL-delimited,
+  usa `--no-renames`, conserva source/destination e propaga il return code Git;
+- fixture governance 70/70 sui PoC originali e sibling; security source 682,
+  fixture 61/61 negative + 7/7 positive;
+- `scripts/check.sh` exact-SHA exit 0: 801/801, performance 10/10, repeat
+  70/70, architecture 17/17, format 301/0, analyze e build debug Android/iOS
+  `PASS`;
+- nessun delta runtime/archive/signing; TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

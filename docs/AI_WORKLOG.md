@@ -3688,3 +3688,19 @@
 - **Boundary**: closure Fix 12 dirette confermate; TestFlight, signing,
   credenziali e production invariati.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 14 e handoff
+
+- **Technical SHA**: `8389f922580b139e4469c11e343f51361cacb218`.
+- **Fix**: raw CommonMark fail-closed anche sul README, riepilogo di fase
+  correlato e conteggi CA-06/T-04 legati al gate security corrente.
+- **Git inventory**: output NUL-delimited con `--no-renames`, source e
+  destination del rename preservati e return code Git propagato.
+- **Regressioni**: governance 70/70, inclusi PI/CDATA/tag multilinea, README
+  nascosto, mismatch/zero security, rename R100 e revisione Git invalida.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security source
+  682 + 61/61 negative + 7/7 positive, architecture 17/17, format 301/0,
+  analyze e build debug Android/iOS `PASS`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

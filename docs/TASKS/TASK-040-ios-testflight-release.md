@@ -9,7 +9,7 @@
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
-- **Ultimo aggiornamento**: 2026-08-17
+- **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
 - **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
@@ -1090,6 +1090,42 @@ report prodotto sealed SHA-256
   action pin, syntax, format e diff check `PASS`; il blocco attestor reale
   estratto dal workflow termina con exit 0;
 - signing, TestFlight e production invariati; nuova CI exact-SHA richiesta.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 27
+
+- exact review SHA: `46aec479314a58342f58f12bf8efd1c2e2533aab`;
+- review diff-scoped prodotto/security `APPROVED`, ma la CI PR exact-SHA
+  `32109274228` ha chiuso il gate integrato con `CHANGES_REQUIRED`;
+- 4/5 job `PASS`; iOS release ha fallito il candidate per digest whole-Mach-O
+  non riproducibile fra build e archive e ha saltato la fixture dipendente;
+- finding tecnico P2 `EMBEDDED_COMPONENT_DIGEST_MISMATCH`, nessuna modifica a
+  signing, TestFlight o production.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 28
+
+- run PR `32109274228`, exact head
+  `46aec479314a58342f58f12bf8efd1c2e2533aab`: Quality, Android debug,
+  Android release e iOS Simulator debug `PASS`; iOS release `FAIL` nello step
+  candidate con `EMBEDDED_COMPONENT_DIGEST_MISMATCH`; fixture iOS successiva
+  non eseguita per dipendenza;
+- exact technical SHA: `e5801f696edd872de78b22cca880a5abf148ef2d`;
+- `normalize-ios-macho-uuid.pl` canonicalizza fail-closed l'unico `LC_UUID`
+  di thin/fat arm64 senza escludere sezioni eseguibili; reference e candidate
+  `objective_c` restano whole-Mach-O bound;
+- due clean build/archive in checkout assoluti distinti hanno prodotto i due
+  soli digest Runner verificati di Xcode 26.6: l'indirect symbol table è
+  identica e la differenza è la scelta completa fra i due slot GOT equivalenti
+  di `_objc_msgSend`; entrambi sono exact allowlisted, nessuna sezione viene
+  rimossa dal digest;
+- candidate reali sui due checkout `PASS`, source/artifact 684/207; una
+  mutazione parziale degli Objective-C stub fallisce; fixture iOS 43/43,
+  Flutter/YAML 12/12, analyze, security, syntax, format e diff check `PASS`;
+- signing, provisioning, TestFlight, runtime applicativo e production
+  invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 

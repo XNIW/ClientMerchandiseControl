@@ -208,10 +208,12 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 27 chiude i blocker CI GNU e
-continuation iOS trovati dalla run `32107743243`, preservando i guard Fix 26.
-Re-review prodotto e security `APPROVED`, 0 P0/P1/P2/P3; governance 88/88 e
-Flutter/YAML 14/14 sono verdi. La nuova CI exact-SHA resta da eseguire;
+TASK-040 è l'unico task `ACTIVE / REVIEW`: la run `32109274228` ha lasciato
+verdi Quality, Android debug/release e iOS Simulator, ma ha riprodotto un
+`EMBEDDED_COMPONENT_DIGEST_MISMATCH` nel candidate iOS. Fix 28 normalizza il
+solo `LC_UUID` non semantico del native asset e vincola Runner ai due output
+whole-Mach-O verificati di Xcode 26.6; candidate indipendenti e fixture iOS
+43/43 sono verdi. Re-review e nuova CI exact-SHA restano da eseguire;
 activation invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.

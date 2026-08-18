@@ -19,7 +19,7 @@ Snapshot di handoff:
 | CA-03 | release app/archive, 4 digest, 7 dSYM e Runner UUID | PASS |
 | CA-04 | custom scheme bounded; entitlement/Universal Links/push assenti e bloccati | PASS |
 | CA-05 | manifest app byte-identico, 8 privacy manifest e inventory recursive exact 4 framework/9 bundle | PASS |
-| CA-06 | security source 683 e app artifact 207; config esterna assente | PASS |
+| CA-06 | security source 684 e app artifact 207; config esterna assente | PASS |
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
@@ -31,13 +31,13 @@ Snapshot di handoff:
 |---|---|---|
 | T-01 | PASS | source gate, runtime/CI 18/18 e config/signing boundary |
 | T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `01dd140` |
-| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 41/41 |
-| T-04 | PASS | scanner 683/207 e fixture 61/61 + 7/7 |
+| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 43/43 |
+| T-04 | PASS | scanner 684/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 27 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 28 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,25 +64,26 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 27
+## Gate executor corrente — Fix 28
 
 - `scripts/check.sh`: exit 0;
 - non-performance 801/801; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
 - governance 88/88; architecture negative 17/17; localization/telemetry/action pin PASS;
-- security source 683; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 41/41; Flutter/YAML mirati 14/14;
+- security source 684; artifact 207; fixture negative 61/61, positive 7/7;
+- validator iOS avversariale 43/43; Flutter/YAML mirati 12/12;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
 
-Il gate completo runtime resta quello exact-SHA Fix 17: Fix 27 non cambia il
-runtime applicativo né l'artifact. Il delta impattato ha eseguito test
-Flutter/YAML 14/14, governance 88/88, security 683, architecture, action pin,
-syntax, format, analyze e diff check; il blocco attestor estratto dal workflow
-termina con exit 0. La CI PR viene rieseguita dopo re-review.
+Il gate completo runtime resta quello exact-SHA Fix 17: Fix 28 non cambia il
+runtime applicativo. Il delta impattato ha eseguito due clean build/archive in
+checkout assoluti distinti, candidate reali `PASS`, fixture iOS 43/43,
+Flutter/YAML 12/12, security 684, syntax, format, analyze e diff check. Il
+gate completo corrente viene rieseguito dopo l'allineamento governance; la CI
+PR viene rieseguita soltanto dopo re-review.
 
 ## Gate Fix 1
 
@@ -741,3 +742,22 @@ termina con exit 0. La CI PR viene rieseguita dopo re-review.
   report security sealed SHA-256
   `eb921b328d4aec9f030262353740a6a4e80d8bad1c47da2bf14ce9a71d036453`;
 - nuova CI PR exact-SHA `NOT_RUN`; production e TestFlight invariati.
+
+## CI PR Fix 27 e Fix 28
+
+- run PR `32109274228` su exact head
+  `46aec479314a58342f58f12bf8efd1c2e2533aab` completata `FAIL`;
+- Quality, Android debug, Android release e iOS Simulator debug: tutti gli
+  step `PASS`; iOS release: build, attestation e archive `PASS`, validator
+  candidate `FAIL` con `EMBEDDED_COMPONENT_DIGEST_MISMATCH`, fixture
+  adversarial `SKIPPED` per dipendenza;
+- exact technical SHA Fix 28:
+  `e5801f696edd872de78b22cca880a5abf148ef2d`;
+- native asset `objective_c`: digest whole-Mach-O con sola normalizzazione
+  fail-closed dell'unico `LC_UUID`; Runner: allowlist exact dei due output
+  Xcode 26.6 osservati, con indirect symbol table identica e scelta alternativa
+  dello slot GOT `_objc_msgSend`;
+- candidate reali in due checkout distinti `PASS` con scanner 684/207;
+  partial stub tamper `FAIL`, fixture iOS 43/43 e Flutter/YAML 12/12 `PASS`;
+- re-review e nuova CI PR exact-SHA `NOT_RUN`; production, signing e
+  TestFlight invariati.

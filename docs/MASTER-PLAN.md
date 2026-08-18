@@ -14,8 +14,8 @@
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: pubblicare l'handoff approvato, verificare
-  CI PR exact-SHA e chiudere/mergiare normalmente; upload TestFlight `NOT_RUN`
+- **Prossima azione autorizzata**: re-review indipendente Fix 28, CI PR
+  exact-SHA e closeout/merge normale; upload TestFlight `NOT_RUN`
 
 ## Repository coinvolti
 

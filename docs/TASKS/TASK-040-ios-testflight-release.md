@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
+- **Fase**: FIX
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -763,6 +763,21 @@ report prodotto sealed SHA-256
 - nessun delta runtime/archive/signing; TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 15
+
+- exact review SHA: `bb3d986a438c5288808c3d825224f1f564b0af74`;
+- prodotto/security `CHANGES_REQUIRED`: 0 P0/P1/P2 e 1 P3;
+- `F-040-RR15-GOV-COUNT-01`: il conteggio globale richiede outer pipe e
+  cardinalità esatta, quindi ignora varianti GFM visibili senza outer pipe,
+  blockquote, trailing whitespace o colonna extra;
+- le duplicate canoniche restano correttamente respinte e gli errori `awk`
+  falliscono chiusi;
+- report security sealed SHA-256
+  `d69ca479c0f77640102ab9a7b022e35e241f0d26eefb81a97a9c3529641d71c9`;
+- TestFlight, signing, credenziali e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

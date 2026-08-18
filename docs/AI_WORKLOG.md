@@ -3731,3 +3731,16 @@
 - **Boundary**: runtime/archive/signing invariati; TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 Fix 15 re-review
+
+- **Exact HEAD**: `bb3d986a438c5288808c3d825224f1f564b0af74`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, 0 P0/P1/P2 e 1 P3.
+- **Finding**: `F-040-RR15-GOV-COUNT-01`; varianti GFM visibili senza outer
+  pipe, in blockquote o con colonna extra non incrementano la cardinalità.
+- **Counterevidence**: duplicate canoniche respinte, governance 72/72,
+  scanner 682 + 61/61 + 7/7 e propagazione errori verdi.
+- **Security report**: sealed SHA-256
+  `d69ca479c0f77640102ab9a7b022e35e241f0d26eefb81a97a9c3529641d71c9`.
+- **Boundary**: TestFlight, signing, credenziali e production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

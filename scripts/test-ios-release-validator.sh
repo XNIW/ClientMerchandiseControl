@@ -80,7 +80,7 @@ cmc_ios_test_expect_failure() {
     printf 'Fixture iOS %s doveva fallire.\n' "${cmc_ios_test_name}" >&2
     exit 1
   fi
-  if [[ "$(grep -Ec '^IOS_RELEASE_BLOCKED: [A-Z0-9_]+$' \
+  if [[ "$(grep -Ec '^IOS_RELEASE_BLOCKED:' \
     "${cmc_ios_test_log}")" -ne 1 ]] || \
     ! grep -Fxq -- "IOS_RELEASE_BLOCKED: ${cmc_ios_test_expected}" \
       "${cmc_ios_test_log}"; then
@@ -105,7 +105,7 @@ cmc_ios_test_expect_attestor_failure() {
       "${cmc_ios_test_name}" >&2
     exit 1
   fi
-  if [[ "$(grep -Ec '^IOS_REFERENCE_ATTESTATION_BLOCKED: [A-Z0-9_]+$' \
+  if [[ "$(grep -Ec '^IOS_REFERENCE_ATTESTATION_BLOCKED:' \
     "${cmc_ios_test_log}")" -ne 1 ]] || \
     ! grep -Fxq -- \
       "IOS_REFERENCE_ATTESTATION_BLOCKED: ${cmc_ios_test_expected}" \
@@ -151,6 +151,18 @@ cmc_ios_test_fake_attestor_reason_duplicate() {
   return 1
 }
 
+cmc_ios_test_fake_reason_malformed_duplicate() {
+  printf 'IOS_RELEASE_BLOCKED: FRAMEWORK_ARCHITECTURE_INVALID\n' >&2
+  printf 'IOS_RELEASE_BLOCKED: EMBEDDED_COMPONENT_DIGEST_MISMATCH \r\n' >&2
+  return 1
+}
+
+cmc_ios_test_fake_attestor_reason_malformed_duplicate() {
+  printf 'IOS_REFERENCE_ATTESTATION_BLOCKED: REFERENCE_MACHO_ARCHITECTURE_INVALID\n' >&2
+  printf 'IOS_REFERENCE_ATTESTATION_BLOCKED: REFERENCE_COMPONENT_SET_INVALID \r\n' >&2
+  return 1
+}
+
 cmc_ios_test_total=$((cmc_ios_test_total + 1))
 if (
   cmc_ios_test_expect_failure reason-suffix-rejected \
@@ -158,6 +170,16 @@ if (
     cmc_ios_test_fake_reason_suffix
 ) >/dev/null 2>&1; then
   printf 'Fixture iOS ha accettato una reason con suffisso.\n' >&2
+  exit 1
+fi
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+if (
+  cmc_ios_test_expect_failure reason-malformed-duplicate-rejected \
+    FRAMEWORK_ARCHITECTURE_INVALID \
+    cmc_ios_test_fake_reason_malformed_duplicate
+) >/dev/null 2>&1; then
+  printf 'Fixture iOS ha accettato reason malformate multiple.\n' >&2
   exit 1
 fi
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
@@ -178,6 +200,17 @@ if (
     cmc_ios_test_fake_attestor_reason_duplicate
 ) >/dev/null 2>&1; then
   printf 'Fixture attestor iOS ha accettato reason multiple.\n' >&2
+  exit 1
+fi
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+if (
+  cmc_ios_test_expect_attestor_failure \
+    attestor-reason-malformed-duplicate-rejected \
+    REFERENCE_MACHO_ARCHITECTURE_INVALID \
+    cmc_ios_test_fake_attestor_reason_malformed_duplicate
+) >/dev/null 2>&1; then
+  printf 'Fixture attestor iOS ha accettato reason malformate multiple.\n' >&2
   exit 1
 fi
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))

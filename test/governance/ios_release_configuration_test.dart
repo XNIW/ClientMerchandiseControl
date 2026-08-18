@@ -170,6 +170,20 @@ void main() {
           '    bash scripts/create-ios-reference-attestation.sh \\\n'
           '  }\n',
     );
+    final commentContinuationBreaker = runbook.replaceFirst(
+      '  bash scripts/create-ios-reference-attestation.sh \\\n'
+          '    --app build/ios/iphoneos/Runner.app',
+      '  bash scripts/create-ios-reference-attestation.sh \\\n'
+          '    # inserted continuation breaker\n'
+          '    --app build/ios/iphoneos/Runner.app',
+    );
+    final blankContinuationBreaker = runbook.replaceFirst(
+      '  bash scripts/create-ios-reference-attestation.sh \\\n'
+          '    --app build/ios/iphoneos/Runner.app',
+      '  bash scripts/create-ios-reference-attestation.sh \\\n'
+          '\n'
+          '    --app build/ios/iphoneos/Runner.app',
+    );
     final postArchiveComposed = runbook
         .replaceFirst(
           '  bash scripts/create-ios-reference-attestation.sh \\\n',
@@ -189,6 +203,8 @@ void main() {
       inlineComment,
       unreachableBranch,
       uncalledFunction,
+      commentContinuationBreaker,
+      blankContinuationBreaker,
       postArchiveComposed,
     ]) {
       expect(mutation, isNot(runbook));
@@ -464,12 +480,8 @@ cmc_ios_reference_attestation="${cmc_ios_reference_output#IOS_REFERENCE_ATTESTAT
   }
 }
 
-List<String> _executableBashLines(String block) => block
-    .split('\n')
-    .where((line) => line.trim().isNotEmpty)
-    .where((line) => !line.trimLeft().startsWith('#'))
-    .map((line) => line.trim())
-    .toList();
+List<String> _executableBashLines(String block) =>
+    block.split('\n').map((line) => line.trim()).toList();
 
 int _exactLineCount(List<String> lines, String expected) =>
     lines.where((line) => line == expected).length;

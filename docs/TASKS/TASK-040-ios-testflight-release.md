@@ -1047,7 +1047,7 @@ report prodotto sealed SHA-256
 
 - exact HEAD `bb979c030afac3553d00306d677a5e3a52a4b8f4`;
 - prodotto/security `CHANGES_REQUIRED`, un P3: il primo blocco canonico
-  nascosto dentro `<!-- -->` restava regex-matchable ma invisibile al lettore;
+  nascosto dentro un commento HTML restava regex-matchable ma invisibile;
 - report security sealed SHA-256
   `696b9e3bae99d41b54a1a6da2aa65332a9923b844f2b79a75de84d769e8d13a2`.
 

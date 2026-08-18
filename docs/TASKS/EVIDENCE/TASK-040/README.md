@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 26 APPROVED; PR/main exact-SHA CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 26 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 

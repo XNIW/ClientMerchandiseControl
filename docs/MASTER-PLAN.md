@@ -10,7 +10,7 @@
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN

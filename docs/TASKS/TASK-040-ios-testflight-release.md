@@ -12,7 +12,7 @@
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1066,23 +1066,6 @@ report prodotto sealed SHA-256
 - signing, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
-
-### Re-review Fix 26
-
-- exact HEAD `2a5bd08c93c9b5bec7a6d7168fe11f626408a706`;
-- prodotto/security `APPROVED`, 0 P0/P1/P2/P3;
-- fingerprint completa e raw block guard respingono HTML comment, blockquote,
-  raw HTML/details, context mutation, CRLF/mixed e Unicode whitespace;
-- Flutter/YAML 14/14, governance 88/88, security 683, analyze, format, action
-  pin e diff check `PASS`; iOS 41/41 e candidate 683/207 riusati dopo ancestry;
-- security report sealed SHA-256
-  `6c96f403ee9ee6d9f933774d3ee3293dbc9352c8575def29e708fa8bc0a96e43`;
-- CI PR/main exact-SHA e merge ancora `NOT_RUN`; TestFlight upload bloccato
-  da Distribution identity, provisioning e App Store Connect credential.
-
-`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`. La conferma persistente
-del release train autorizza pubblicazione, CI exact-SHA e merge normale; non
-autorizza upload TestFlight o production.
 
 ## Chiusura
 

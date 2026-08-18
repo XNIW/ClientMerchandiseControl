@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -808,6 +808,23 @@ report prodotto sealed SHA-256
 - TestFlight, signing, credenziali e production invariati.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 17
+
+- exact technical SHA: `ff52b9d326f001477aa5dac1b72005ed4a707f77`;
+- `F-040-RR16-GOV-COUNT-01` chiuso con una policy fail-closed sulle righe con
+  pipe: entity, escape, HTML inline, emphasis/link/strike, markup residuo e
+  caratteri non ASCII sono vietati;
+- restano allowlisted soltanto `NOT_RUN` e l'esatto digest backtick T-02 già
+  validato strutturalmente dagli altri controlli;
+- otto regressioni nuove coprono entity, escape, emphasis, inline HTML e
+  zero-width, oltre alle otto varianti Fix 16; governance 88/88;
+- `scripts/check.sh` exact-SHA exit 0: 801/801, performance 10/10, repeat
+  70/70, security 682 + 61/61 negative + 7/7 positive, architecture 17/17,
+  format 301/0, analyze e build debug Android/iOS `PASS`;
+- nessun delta runtime/archive/signing; TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

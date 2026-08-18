@@ -3771,3 +3771,17 @@
   `725921680988f34724c4e2ef726262d6e6a77caed2e0d43fbe7b481e95e31bc5`.
 - **Boundary**: TestFlight, signing, credenziali e production invariati.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 17 e handoff
+
+- **Technical SHA**: `ff52b9d326f001477aa5dac1b72005ed4a707f77`.
+- **Fix**: policy tabellare fail-closed per entity, escape, markup inline e
+  caratteri non ASCII, con sole eccezioni strutturate già validate.
+- **Regressioni**: otto nuove fixture semantiche; governance 88/88 e tutte le
+  varianti Fix 15/16 respinte.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security
+  682 + 61/61 negative + 7/7 positive, architecture 17/17, format 301/0,
+  analyze e build debug Android/iOS `PASS`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

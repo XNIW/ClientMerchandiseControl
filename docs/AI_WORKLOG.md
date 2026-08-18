@@ -3789,3 +3789,16 @@
 - **Boundary**: runtime/archive/signing invariati; TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+
+## 2026-08-17 — TASK-040 Fix 18 e handoff
+
+- **Technical SHA**: `bd780c93feed70d86bf284564d2c4dfbba2183d1`.
+- **Finding CI**: PR #19 run `32089730726`, head `bae1f9be`, job Quality
+  `FAIL`; il clone shallow non conteneva la lineage richiesta dal gate.
+- **Fix**: checkout full-history soltanto nel job Quality, con permessi
+  read-only invariati.
+- **Regressione**: test YAML Quality 2/2, action pin, syntax e diff check
+  `PASS`.
+- **Boundary**: nessun delta runtime/archive/signing; TestFlight e production
+  invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

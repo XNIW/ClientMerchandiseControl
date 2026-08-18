@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 17 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 18 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,7 +64,7 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 17
+## Gate executor corrente — Fix 18
 
 - `scripts/check.sh`: exit 0;
 - non-performance 801/801; performance 10/10; resilience repeat 70/70;
@@ -77,6 +77,11 @@ Snapshot di handoff:
   debug production-like install/launch PASS con provider fail-closed;
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
+
+Il gate completo runtime resta quello exact-SHA Fix 17 perché Fix 18 modifica
+soltanto workflow e relativo test governance. Il delta impattato ha eseguito
+test YAML 2/2, action pin, syntax e diff check; la CI PR viene rieseguita dopo
+re-review.
 
 ## Gate Fix 1
 
@@ -552,3 +557,15 @@ Snapshot di handoff:
 - security finalizer/report-format `PASS`, report sealed SHA-256
   `a9f961ddd5e99733eb96fe7d50796d269db85d5516b0eed0eadc7b99484c27ae`;
 - TestFlight, signing, credenziali, upload e production invariati.
+
+## CI PR failure e Fix 18
+
+- PR #19 run `32089730726`, head `bae1f9be84217c046d121af86e47e9f6ca6d61db`:
+  Quality `FAIL` nello step governance perché `actions/checkout` aveva
+  `fetch-depth: 1`; gli SHA `ff52b9d` e `01dd140` non erano presenti;
+- exact technical SHA Fix 18
+  `bd780c93feed70d86bf284564d2c4dfbba2183d1`;
+- il solo checkout Quality usa `fetch-depth: 0`; test YAML 2/2 impedisce il
+  ritorno a clone shallow; action pin e diff check `PASS`;
+- iOS runtime, artifact, firma, provisioning, TestFlight e production non
+  sono stati modificati.

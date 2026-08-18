@@ -7,12 +7,12 @@
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: USER_APPROVER
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -822,13 +822,35 @@ report prodotto sealed SHA-256
 - `scripts/check.sh` exact-SHA exit 0: 801/801, performance 10/10, repeat
   70/70, security 682 + 61/61 negative + 7/7 positive, architecture 17/17,
   format 301/0, analyze e build debug Android/iOS `PASS`;
-- re-review prodotto/security su
-  `36175e687a8ed913a332f77184fd5acffdae7aa6`: `APPROVED`, zero P0/P1/P2/P3;
-  13/13 probe avversariali autonomi e report security sealed SHA-256
-  `a9f961ddd5e99733eb96fe7d50796d269db85d5516b0eed0eadc7b99484c27ae`;
 - nessun delta runtime/archive/signing; TestFlight e production invariati.
 
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 17
+
+- exact review SHA: `36175e687a8ed913a332f77184fd5acffdae7aa6`;
+- prodotto/security `APPROVED`, zero P0/P1/P2/P3;
+- 13/13 probe avversariali autonomi, governance 88/88 e report security
+  sealed SHA-256
+  `a9f961ddd5e99733eb96fe7d50796d269db85d5516b0eed0eadc7b99484c27ae`;
+- la CI PR exact-SHA resta il gate successivo e TestFlight/production restano
+  invariati.
+
 `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+
+### Fix 18
+
+- exact technical SHA: `bd780c93feed70d86bf284564d2c4dfbba2183d1`;
+- CI PR #19 run `32089730726`, exact head `bae1f9be`, job Quality `FAIL`:
+  il checkout `fetch-depth: 1` non conteneva gli SHA tecnici e artifact usati
+  dal gate governance; gli altri job restavano indipendenti;
+- il checkout del solo job Quality usa ora `fetch-depth: 0`, preservando il
+  boundary read-only e rendendo disponibile la lineage completa;
+- regressione YAML dedicata: il job Quality deve avere un unico parametro
+  checkout `fetch-depth: 0`; test mirato 2/2 e action pin `PASS`;
+- nessun delta runtime/archive/signing; TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

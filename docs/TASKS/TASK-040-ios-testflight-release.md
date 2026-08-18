@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
+- **Fase**: FIX
 - **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -733,6 +733,20 @@ report prodotto sealed SHA-256
 - nessun delta runtime/archive/signing; TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 14
+
+- exact review SHA: `37d08d2010956a5671c75bc002a6f00d4d76ad8d`;
+- prodotto `APPROVED`; security `CHANGES_REQUIRED`: 0 P0/P1/P2 e 1 P3;
+- i quattro finding Fix 13 sono chiusi con probe autonomi e gate 70/70;
+- `F-040-RR14-GOV-COUNT-01`: una seconda tabella Markdown visibile può
+  duplicare CA-06 o T-04 con conteggi `0/0` perché manca la cardinalità
+  globale;
+- report security sealed SHA-256
+  `2a6441ea50ba4cd99491fcd33c04fef51d90e4462a3482285310c31b180798c7`;
+- TestFlight, signing, credenziali e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

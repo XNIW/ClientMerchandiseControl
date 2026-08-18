@@ -3704,3 +3704,17 @@
 - **Boundary**: runtime/archive/signing invariati; TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 Fix 14 re-review
+
+- **Exact HEAD**: `37d08d2010956a5671c75bc002a6f00d4d76ad8d`.
+- **Esito**: prodotto `APPROVED`; security `CHANGES_REQUIRED`, 0 P0/P1/P2 e
+  1 P3.
+- **Closure**: i quattro finding Fix 13 sono chiusi con probe indipendenti;
+  governance 70/70, scanner 682 + 61/61 + 7/7 e diff-check verdi.
+- **Finding**: `F-040-RR14-GOV-COUNT-01`, cardinalità globale assente per
+  CA-06/T-04 quando una seconda tabella visibile contiene conteggi confliggenti.
+- **Security report**: sealed SHA-256
+  `2a6441ea50ba4cd99491fcd33c04fef51d90e4462a3482285310c31b180798c7`.
+- **Boundary**: TestFlight, signing, credenziali e production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

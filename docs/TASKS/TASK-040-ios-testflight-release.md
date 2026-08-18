@@ -861,6 +861,39 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 18
+
+- exact HEAD `e86b15aa4c9cfaf67b340ea79b581a69297668c4`;
+- reviewer prodotto `APPROVED`, zero P0/P1/P2/P3: full-history e portabilità
+  clean-worktree riprodotte, gate impattati verdi;
+- security review `CHANGES_REQUIRED`: `F-040-RR18-IOS-REF-01` P2 ha provato
+  che candidate e reference co-mutabili accettavano lo stesso tamper `__text`;
+  `F-040-RR18-IOS-ARCH-01` P3 ha provato che un framework FAT
+  `x86_64 arm64` superava il controllo di membership;
+- il finalizer security Fix 18 non ha prodotto un report sealed perché Python
+  3.9 non supporta `zip(..., strict=True)`; i finding restano riprodotti e
+  validi, senza trasformare il blocco tooling in un falso PASS.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 19
+
+- exact technical SHA: `94ab20d2ca473103d222844f51ceea24073aa7f5`;
+- un nuovo attestor canonicalizza i quattro Mach-O reference subito dopo la
+  build e pubblica soltanto quattro SHA-256 come output dello step CI; archive,
+  reference e candidate successivi devono corrispondere a quel valore già
+  catturato, quindi un paired tamper non può riscrivere il trust anchor;
+- reference e candidate richiedono exact `arm64`; una slice FAT non è più
+  accettata per semplice presenza della slice arm64;
+- regressioni: attestation mancante/malformata, paired reference tamper e FAT;
+  validator iOS 33/33 `PASS`;
+- candidate reale exact technical SHA `PASS`, source/artifact 683/207;
+  Flutter/YAML 12/12, security source 683, action pin, syntax, format 301/0,
+  analyze e diff check `PASS`;
+- runtime applicativo, artifact, signing, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

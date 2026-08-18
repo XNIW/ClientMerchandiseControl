@@ -3805,3 +3805,25 @@
 - **Boundary**: runtime applicativo e artifact invariati; signing, TestFlight e
   production invariati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 re-review Fix 18
+
+- **Exact HEAD**: `e86b15aa4c9cfaf67b340ea79b581a69297668c4`.
+- **Prodotto**: `APPROVED`, zero P0/P1/P2/P3.
+- **Security**: `CHANGES_REQUIRED`, un P2 candidate/reference co-mutabili e un
+  P3 framework FAT; paired tamper e `x86_64 arm64` riprodotti.
+- **Tooling**: finalizer non sealed per Python 3.9 incompatibile con
+  `zip(..., strict=True)`; nessun PASS inventato.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 19 e handoff
+
+- **Technical SHA**: `94ab20d2ca473103d222844f51ceea24073aa7f5`.
+- **Fix**: digest reference catturati in output CI immutabile prima dell'archive;
+  candidate/reference vincolati a quel trust anchor; exact `arm64`.
+- **Regressioni**: attestation missing/malformed, paired tamper e FAT;
+  validator 33/33, candidate 683/207, Flutter/YAML 12/12, security 683,
+  action pin, syntax, format 301/0, analyze e diff check `PASS`.
+- **Boundary**: runtime applicativo e artifact invariati; signing, TestFlight e
+  production invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

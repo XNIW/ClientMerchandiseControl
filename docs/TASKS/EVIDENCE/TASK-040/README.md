@@ -19,7 +19,7 @@ Snapshot di handoff:
 | CA-03 | release app/archive, 4 digest, 7 dSYM e Runner UUID | PASS |
 | CA-04 | custom scheme bounded; entitlement/Universal Links/push assenti e bloccati | PASS |
 | CA-05 | manifest app byte-identico, 8 privacy manifest e inventory recursive exact 4 framework/9 bundle | PASS |
-| CA-06 | security source 682 e app artifact 207; config esterna assente | PASS |
+| CA-06 | security source 683 e app artifact 207; config esterna assente | PASS |
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
@@ -31,13 +31,13 @@ Snapshot di handoff:
 |---|---|---|
 | T-01 | PASS | source gate, runtime/CI 18/18 e config/signing boundary |
 | T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `01dd140` |
-| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 29/29 |
-| T-04 | PASS | scanner 682/207 e fixture 61/61 + 7/7 |
+| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 33/33 |
+| T-04 | PASS | scanner 683/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 18 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 19 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,25 +64,25 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 18
+## Gate executor corrente — Fix 19
 
 - `scripts/check.sh`: exit 0;
 - non-performance 801/801; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
 - governance 88/88; architecture negative 17/17; localization/telemetry/action pin PASS;
-- security source 682; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 29/29; governance mirata 88/88;
+- security source 683; artifact 207; fixture negative 61/61, positive 7/7;
+- validator iOS avversariale 33/33; governance mirata 88/88;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
 
-Il gate completo runtime resta quello exact-SHA Fix 17: Fix 18 non cambia il
+Il gate completo runtime resta quello exact-SHA Fix 17: Fix 19 non cambia il
 runtime applicativo né l'artifact. Il delta impattato ha eseguito candidate
-iOS reale con e senza reference `PASS`, fixture iOS 29/29, test Flutter/YAML
-12/12, governance 88/88, security 682, action pin, syntax, format 301/0,
-analyze e diff check. La CI PR viene rieseguita dopo re-review.
+iOS reale con attestation `PASS`, fixture iOS 33/33, test Flutter/YAML 12/12,
+security 683, action pin, syntax, format 301/0, analyze e diff check. La CI PR
+viene rieseguita dopo re-review.
 
 ## Gate Fix 1
 
@@ -578,3 +578,21 @@ analyze e diff check. La CI PR viene rieseguita dopo re-review.
   source 682, action pin, syntax, format, analyze e diff check `PASS`;
 - runtime applicativo, artifact, firma, provisioning, TestFlight e production
   non sono stati modificati.
+
+## Re-review Fix 18 e Fix 19
+
+- exact Fix 18 HEAD `e86b15aa4c9cfaf67b340ea79b581a69297668c4`;
+  prodotto `APPROVED` 0 finding; security `CHANGES_REQUIRED` con un P2
+  reference/candidate circolare e un P3 framework FAT;
+- paired tamper `__text` su candidate/reference e `x86_64 arm64` sono stati
+  riprodotti; il finalizer Fix 18 è `BLOCKED` da Python 3.9
+  `zip(..., strict=True)` e non ha prodotto report sealed;
+- exact technical SHA Fix 19
+  `94ab20d2ca473103d222844f51ceea24073aa7f5`;
+- l'attestation reference viene catturata come output CI prima dell'archive;
+  candidate e reference sono entrambi confrontati con quel digest immutabile;
+- exact architecture `arm64`; regressioni attestation missing/malformed,
+  paired tamper e FAT incluse nel validator 33/33;
+- candidate reale source/artifact 683/207 `PASS`; Flutter/YAML 12/12,
+  security 683, action pin, syntax, format, analyze e diff check `PASS`;
+- TestFlight, signing, credenziali e production invariati.

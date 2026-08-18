@@ -208,11 +208,12 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: dopo l'approvazione Fix 17, la CI
-PR ha rilevato il clone shallow del job Quality e un digest iOS dipendente dal
-worktree; Fix 18 configura full history e lega il candidate al reference build
-same-workspace con digest whole-Mach-O portabile. La re-review read-only è
-richiesta; TestFlight e production restano invariati.
+TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 18 ha chiuso i due failure CI,
+ma la security re-review ha trovato candidate/reference co-mutabili e framework
+FAT accettabili. Fix 19 cattura i digest reference in un output CI immutabile
+prima dell'archive, lega entrambi gli artifact a quel trust anchor e richiede
+exact `arm64`; re-review read-only richiesta. TestFlight e production restano
+invariati.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

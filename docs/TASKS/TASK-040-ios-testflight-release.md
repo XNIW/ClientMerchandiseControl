@@ -921,6 +921,30 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 20
+
+- exact HEAD `2fcb7739f5c87d57a53ac50947eb96d12927c564`;
+- i tre finding Fix 19 chiusi; prodotto/security `CHANGES_REQUIRED` per due
+  P3 nel test harness: il parity test accettava comment-decoy e la reason del
+  validator era confrontata come sottostringa;
+- report security sealed SHA-256
+  `924ae9531ca5e28bc5977706f76db17c8cc11fa8a7d38f81cf7bad8553473631`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 21
+
+- exact technical SHA: `3fdc8c40fc30607dd710677816a6658b7aade030`;
+- il test runbook estrae esclusivamente i fenced block Bash, scarta le righe
+  commentate e valida cardinalità/ordine nei tre flow; mutant dedicato;
+- la reason validator usa confronto full-line e una fixture `_SUFFIX` prova
+  che il substring matching non può produrre PASS;
+- validator iOS 37/37, Flutter/YAML 14/14, candidate reale 683/207, security
+  683, analyze, action pin, syntax, format e diff check `PASS`;
+- runtime, artifact, signing, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

@@ -3848,3 +3848,23 @@
 - **Boundary**: runtime/artifact invariati; signing, TestFlight e production
   non modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 re-review Fix 20
+
+- **Exact HEAD**: `2fcb7739f5c87d57a53ac50947eb96d12927c564`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, zero P0/P1/P2 e due P3
+  sugli oracoli runbook/reason.
+- **Report security**: sealed SHA-256
+  `924ae9531ca5e28bc5977706f76db17c8cc11fa8a7d38f81cf7bad8553473631`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 21 e handoff
+
+- **Technical SHA**: `3fdc8c40fc30607dd710677816a6658b7aade030`.
+- **Fix**: parser dei fenced block Bash con comment-decoy negativo; reason
+  validator full-line con fixture suffisso.
+- **Gate**: iOS 37/37, Flutter/YAML 14/14, candidate 683/207, security 683,
+  analyze, action pin, syntax, format e diff check `PASS`.
+- **Boundary**: runtime/artifact invariati; signing, TestFlight e production
+  non modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

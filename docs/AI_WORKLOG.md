@@ -3758,3 +3758,16 @@
 - **Boundary**: runtime/archive/signing invariati; TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 Fix 16 re-review
+
+- **Exact HEAD**: `e01ae0807ce4431e6ebebd34e24a64319d9381da`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, 0 P0/P1/P2 e 1 P3.
+- **Finding**: `F-040-RR16-GOV-COUNT-01`; entity, escape ed emphasis possono
+  rendere CA-06/T-04 senza conservare la substring raw contata dal gate.
+- **Closure**: tutte le varianti Fix 15 sono respinte; governance 80/80 e
+  scanner 682 + 61/61 negative + 7/7 positive verdi.
+- **Security report**: sealed SHA-256
+  `725921680988f34724c4e2ef726262d6e6a77caed2e0d43fbe7b481e95e31bc5`.
+- **Boundary**: TestFlight, signing, credenziali e production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

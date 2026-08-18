@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-17
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -794,6 +794,20 @@ report prodotto sealed SHA-256
 - nessun delta runtime/archive/signing; TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 16
+
+- exact review SHA: `e01ae0807ce4431e6ebebd34e24a64319d9381da`;
+- prodotto/security `CHANGES_REQUIRED`: 0 P0/P1/P2 e 1 P3;
+- `F-040-RR16-GOV-COUNT-01`: il conteggio raw non riconosce marker GFM
+  semanticamente equivalenti costruiti con entity, escape o emphasis;
+- closure diretta Fix 15 confermata; governance 80/80, scanner 682 + 61/61
+  negative + 7/7 positive e hygiene verdi;
+- report security sealed SHA-256
+  `725921680988f34724c4e2ef726262d6e6a77caed2e0d43fbe7b481e95e31bc5`;
+- TestFlight, signing, credenziali e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

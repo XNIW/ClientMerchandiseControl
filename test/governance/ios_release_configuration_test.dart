@@ -368,10 +368,12 @@ void _validateIosReleaseJob(String workflow) {
     'Validate iOS release candidate':
         'bash scripts/check-ios-release.sh '
         '--app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app '
-        '--archive build/ios/archive/Runner.xcarchive',
+        '--archive build/ios/archive/Runner.xcarchive '
+        '--reference-app build/ios/iphoneos/Runner.app',
     'Validate iOS adversarial release boundaries':
         'bash scripts/test-ios-release-validator.sh '
-        '--archive build/ios/archive/Runner.xcarchive',
+        '--archive build/ios/archive/Runner.xcarchive '
+        '--reference-app build/ios/iphoneos/Runner.app',
   };
 
   for (final indexed in required.entries.indexed) {

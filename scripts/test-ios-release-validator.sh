@@ -5,13 +5,21 @@ cmc_ios_test_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cmc_ios_test_root="$(git -C "${cmc_ios_test_script_dir}" rev-parse --show-toplevel)"
 cmc_ios_test_validator="${cmc_ios_test_root}/scripts/check-ios-release.sh"
 cmc_ios_test_archive=''
+cmc_ios_test_reference_app=''
 
-if [[ "${1:-}" == '--archive' && -n "${2:-}" && "$#" -eq 2 ]]; then
+if [[ "${1:-}" == '--archive' && -n "${2:-}" && \
+  "${3:-}" == '--reference-app' && -n "${4:-}" && "$#" -eq 4 ]]; then
   cmc_ios_test_archive="$2"
+  cmc_ios_test_reference_app="$4"
 else
-  printf 'Usage: scripts/test-ios-release-validator.sh --archive <Runner.xcarchive>\n' >&2
+  printf 'Usage: scripts/test-ios-release-validator.sh --archive <Runner.xcarchive> --reference-app <Runner.app>\n' >&2
   exit 1
 fi
+
+cmc_ios_test_validate() {
+  bash "${cmc_ios_test_validator}" "$@" \
+    --reference-app "${cmc_ios_test_reference_app}"
+}
 
 cmc_ios_test_source_app="${cmc_ios_test_archive}/Products/Applications/Runner.app"
 cmc_ios_test_source_info="${cmc_ios_test_archive}/Info.plist"
@@ -70,7 +78,7 @@ cmc_ios_test_expect_failure() {
   cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 }
 
-cmc_ios_test_baseline_output="$(bash "${cmc_ios_test_validator}" \
+cmc_ios_test_baseline_output="$(cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}")"
 cmc_ios_test_expected_runtime_sha="$(
@@ -100,7 +108,7 @@ cp "${cmc_ios_test_source_info}" \
   "${cmc_ios_test_fixture_archive}/Info.plist"
 cmc_ios_test_expect_failure archive-application-path \
   ARCHIVE_APPLICATION_PATH_MISMATCH \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_tmp_root}/Archive-Info.plist.original" \
@@ -110,7 +118,7 @@ cp -R "${cmc_ios_test_fixture_app}" \
   "${cmc_ios_test_fixture_archive}/Products/Applications/Extra.app"
 cmc_ios_test_expect_failure archive-application-set \
   ARCHIVE_APPLICATION_SET_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm -rf -- "${cmc_ios_test_fixture_archive}/Products/Applications/Extra.app"
@@ -119,7 +127,7 @@ ln -s "${cmc_ios_test_tmp_root}/external-extra.app" \
   "${cmc_ios_test_fixture_archive}/Products/Applications/Extra.app"
 cmc_ios_test_expect_failure archive-application-symlink \
   ARCHIVE_APPLICATION_SET_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm "${cmc_ios_test_fixture_archive}/Products/Applications/Extra.app"
@@ -127,7 +135,7 @@ rm "${cmc_ios_test_fixture_archive}/Products/Applications/Extra.app"
 cmc_ios_test_external_app="${cmc_ios_test_tmp_root}/External.app"
 cp -R "${cmc_ios_test_fixture_app}" "${cmc_ios_test_external_app}"
 cmc_ios_test_expect_failure archive-binding APP_ARCHIVE_BUNDLE_MISMATCH \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_external_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 
@@ -137,7 +145,7 @@ cp "${cmc_ios_test_app_info}" "${cmc_ios_test_tmp_root}/Info.plist.original"
   'Add :CFBundleURLTypes:0:CFBundleURLSchemes:1 string com.xniw.clientmerchandisecontrol.dev' \
   "${cmc_ios_test_app_info}"
 cmc_ios_test_expect_failure extra-url-scheme DEEPLINK_SCHEME_SET_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_tmp_root}/Info.plist.original" "${cmc_ios_test_app_info}"
@@ -145,7 +153,7 @@ cp "${cmc_ios_test_tmp_root}/Info.plist.original" "${cmc_ios_test_app_info}"
 /usr/libexec/PlistBuddy -c \
   'Set :CFBundleExecutable ../../outside-runner' "${cmc_ios_test_app_info}"
 cmc_ios_test_expect_failure executable-traversal APP_EXECUTABLE_NAME_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_tmp_root}/Info.plist.original" "${cmc_ios_test_app_info}"
@@ -157,7 +165,7 @@ mkdir -p "${cmc_ios_test_fixture_app}/privacy-decoy.bundle"
 cp "${cmc_ios_test_fixture_app}/PrivacyInfo.xcprivacy" \
   "${cmc_ios_test_fixture_app}/privacy-decoy.bundle/PrivacyInfo.xcprivacy"
 cmc_ios_test_expect_failure privacy-decoy DEPENDENCY_PRIVACY_MANIFEST_MISSING \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 mv "${cmc_ios_test_tmp_root}/app-links.PrivacyInfo.xcprivacy" \
@@ -169,7 +177,7 @@ cp "${cmc_ios_test_required_privacy}" \
 printf 'not a plist\n' >"${cmc_ios_test_required_privacy}"
 cmc_ios_test_expect_failure privacy-malformed \
   DEPENDENCY_PRIVACY_MANIFEST_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
@@ -181,7 +189,7 @@ printf '<?xml version="1.0" encoding="UTF-8"?>\n' \
   >"${cmc_ios_test_required_privacy}"
 cmc_ios_test_expect_failure privacy-empty-schema \
   DEPENDENCY_PRIVACY_MANIFEST_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
@@ -193,7 +201,7 @@ plutil -replace NSPrivacyCollectedDataTypes -json '[{}]' \
   "${cmc_ios_test_required_privacy}"
 cmc_ios_test_expect_failure privacy-incomplete-nested-schema \
   DEPENDENCY_PRIVACY_MANIFEST_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
@@ -207,7 +215,7 @@ plutil -replace NSPrivacyCollectedDataTypes -json \
   "${cmc_ios_test_required_privacy}"
 cmc_ios_test_expect_failure privacy-unknown-enums \
   DEPENDENCY_PRIVACY_MANIFEST_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
@@ -218,7 +226,7 @@ plutil -replace NSPrivacyAccessedAPITypes -json \
   "${cmc_ios_test_required_privacy}"
 cmc_ios_test_expect_failure privacy-reason-category-mismatch \
   DEPENDENCY_PRIVACY_MANIFEST_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_tmp_root}/app-links.valid.xcprivacy" \
@@ -230,7 +238,7 @@ cp "${cmc_ios_test_maps_privacy}" \
 cp "${cmc_ios_test_required_privacy}" "${cmc_ios_test_maps_privacy}"
 cmc_ios_test_expect_failure privacy-sdk-content-mismatch \
   DEPENDENCY_PRIVACY_MANIFEST_CONTENT_MISMATCH \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_tmp_root}/google-maps.valid.xcprivacy" \
@@ -241,7 +249,7 @@ cp -R "${cmc_ios_test_fixture_app}/Frameworks/App.framework" \
   "${cmc_ios_test_extra_framework}"
 cmc_ios_test_expect_failure privacy-extra-framework-without-manifest \
   EMBEDDED_FRAMEWORK_SET_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm -rf -- "${cmc_ios_test_extra_framework}"
@@ -251,7 +259,7 @@ cp -R "${cmc_ios_test_fixture_app}/Frameworks/App.framework" \
   "${cmc_ios_test_extra_framework}"
 cmc_ios_test_expect_failure privacy-extra-framework-case \
   EMBEDDED_FRAMEWORK_SET_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm -rf -- "${cmc_ios_test_extra_framework}"
@@ -261,7 +269,7 @@ cp -R "${cmc_ios_test_fixture_app}/Frameworks/App.framework" \
   "${cmc_ios_test_fixture_app}/PlugIns/Extra.framework"
 cmc_ios_test_expect_failure privacy-extra-framework-nested \
   EMBEDDED_FRAMEWORK_SET_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm -rf -- "${cmc_ios_test_fixture_app}/PlugIns"
@@ -269,7 +277,7 @@ rm -rf -- "${cmc_ios_test_fixture_app}/PlugIns"
 cp "${cmc_ios_test_fixture_app}/Frameworks/App.framework/App" \
   "${cmc_ios_test_fixture_app}/Frameworks/Extra.dylib"
 cmc_ios_test_expect_failure privacy-extra-dylib EMBEDDED_DYLIB_SET_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm "${cmc_ios_test_fixture_app}/Frameworks/Extra.dylib"
@@ -277,7 +285,7 @@ rm "${cmc_ios_test_fixture_app}/Frameworks/Extra.dylib"
 cp "${cmc_ios_test_fixture_app}/Frameworks/App.framework/App" \
   "${cmc_ios_test_fixture_app}/Frameworks/App.framework/EmbeddedPayload"
 cmc_ios_test_expect_failure extensionless-macho EMBEDDED_MACHO_SET_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm "${cmc_ios_test_fixture_app}/Frameworks/App.framework/EmbeddedPayload"
@@ -302,7 +310,7 @@ perl -e '
 ' "${cmc_ios_test_runner_binary}" 0x00200000 clear
 cmc_ios_test_expect_failure macho-header-pie-disabled \
   EMBEDDED_COMPONENT_DIGEST_MISMATCH \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_source_app}/Runner" "${cmc_ios_test_runner_binary}"
@@ -326,7 +334,7 @@ perl -e '
 ' "${cmc_ios_test_runner_binary}" 0x00020000 set
 cmc_ios_test_expect_failure macho-header-stack-executable \
   EMBEDDED_COMPONENT_DIGEST_MISMATCH \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_source_app}/Runner" "${cmc_ios_test_runner_binary}"
@@ -354,7 +362,7 @@ perl -e '
   '/usr/lib/libSystem.B.dylib' '/usr/lib/libSystfm.B.dylib'
 cmc_ios_test_expect_failure macho-load-command-digest \
   EMBEDDED_COMPONENT_DIGEST_MISMATCH \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_source_app}/Frameworks/objective_c.framework/objective_c" \
@@ -398,7 +406,7 @@ perl -e '
 ' "${cmc_ios_test_objective_binary}" "${cmc_ios_test_objective_text_offset}"
 cmc_ios_test_expect_failure macho-content-digest \
   EMBEDDED_COMPONENT_DIGEST_MISMATCH \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_source_app}/Frameworks/objective_c.framework/objective_c" \
@@ -409,7 +417,7 @@ cp -R "${cmc_ios_test_fixture_app}/Frameworks/sqlite3.framework" \
   "${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework"
 cmc_ios_test_expect_failure framework-content-replacement \
   EMBEDDED_MACHO_SET_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm -rf -- "${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework"
@@ -423,7 +431,7 @@ cp "${cmc_ios_test_fixture_app}/app_links_app_links.bundle/Info.plist" \
   "${cmc_ios_test_fixture_app}/GoogleMapsResources.bundle/Info.plist"
 cmc_ios_test_expect_failure bundle-content-replacement \
   EMBEDDED_BUNDLE_SET_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm -rf -- "${cmc_ios_test_fixture_app}/GoogleMapsResources.bundle"
@@ -434,7 +442,7 @@ cmc_ios_test_bundle_tamper="${cmc_ios_test_fixture_app}/app_links_app_links.bund
 printf 'unexpected release resource\n' >"${cmc_ios_test_bundle_tamper}"
 cmc_ios_test_expect_failure bundle-content-digest \
   EMBEDDED_BUNDLE_DIGEST_MISMATCH \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm "${cmc_ios_test_bundle_tamper}"
@@ -454,7 +462,7 @@ cp "${cmc_ios_test_root}/ios/Runner/PrivacyInfo.xcprivacy" \
   "${cmc_ios_test_entitlements}"
 codesign --force --deep --sign - --entitlements "${cmc_ios_test_entitlements}" \
   "${cmc_ios_test_fixture_app}" >/dev/null 2>&1
-bash "${cmc_ios_test_validator}" \
+cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}" >/dev/null
 cmc_ios_test_profile_plist="${cmc_ios_test_tmp_root}/profile.plist"
@@ -481,7 +489,7 @@ openssl cms -sign -binary -nodetach \
   >/dev/null 2>&1
 codesign --force --deep --sign - --entitlements "${cmc_ios_test_entitlements}" \
   "${cmc_ios_test_fixture_app}" >/dev/null 2>&1
-bash "${cmc_ios_test_validator}" \
+cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}" >/dev/null
 cmc_ios_test_secret="GOCSPX-$(printf 'A%.0s' {1..32})"
@@ -499,7 +507,7 @@ codesign --force --deep --sign - --entitlements "${cmc_ios_test_entitlements}" \
   "${cmc_ios_test_fixture_app}" >/dev/null 2>&1
 cmc_ios_test_expect_failure decoded-profile-secret \
   PROVISIONING_PROFILE_SECURITY_SCAN_FAILED \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 rm "${cmc_ios_test_fixture_app}/embedded.mobileprovision"
@@ -510,7 +518,7 @@ codesign --force --deep --sign - --entitlements "${cmc_ios_test_entitlements}" \
 codesign --force --deep --sign - --entitlements "${cmc_ios_test_entitlements}" \
   "${cmc_ios_test_fixture_app}" >/dev/null 2>&1
 cmc_ios_test_expect_failure unexpected-entitlement SIGNED_ENTITLEMENT_SET_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 /usr/libexec/PlistBuddy -c 'Delete :aps-environment' \
@@ -540,7 +548,7 @@ perl -e '
   close $handle or die "close\n";
 ' "${cmc_ios_test_fixture_app}/Runner" "${cmc_ios_test_signature_offset}"
 cmc_ios_test_expect_failure corrupt-signature-superblob ARTIFACT_SIGNATURE_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 cp -R "${cmc_ios_test_source_app}/." "${cmc_ios_test_fixture_app}/"
@@ -548,7 +556,7 @@ codesign --force --deep --sign - --entitlements "${cmc_ios_test_entitlements}" \
   "${cmc_ios_test_fixture_app}" >/dev/null 2>&1
 printf 'tamper after signing\n' >>"${cmc_ios_test_fixture_app}/Assets.car"
 cmc_ios_test_expect_failure invalid-signature ARTIFACT_SIGNATURE_INVALID \
-  bash "${cmc_ios_test_validator}" \
+  cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
 

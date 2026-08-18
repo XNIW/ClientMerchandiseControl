@@ -5,6 +5,7 @@ cmc_ios_release_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cmc_ios_release_root="$(git -C "${cmc_ios_release_script_dir}" rev-parse --show-toplevel)"
 cmc_ios_release_app=''
 cmc_ios_release_archive=''
+cmc_ios_release_reference_app=''
 cmc_ios_release_source_only=false
 cmc_ios_release_require_upload=false
 
@@ -16,7 +17,7 @@ cmc_ios_release_fail() {
 cmc_ios_release_usage() {
   printf '%s\n' \
     'Usage: scripts/check-ios-release.sh --source-only' \
-    '   or: scripts/check-ios-release.sh --app <Runner.app> [--archive <Runner.xcarchive>] [--require-upload-ready]'
+    '   or: scripts/check-ios-release.sh --app <Runner.app> [--archive <Runner.xcarchive>] [--reference-app <Runner.app>] [--require-upload-ready]'
 }
 
 while [[ "$#" -gt 0 ]]; do
@@ -30,6 +31,11 @@ while [[ "$#" -gt 0 ]]; do
       shift
       [[ "$#" -gt 0 ]] || cmc_ios_release_fail 'ARCHIVE_PATH_MISSING'
       cmc_ios_release_archive="$1"
+      ;;
+    --reference-app)
+      shift
+      [[ "$#" -gt 0 ]] || cmc_ios_release_fail 'REFERENCE_APP_PATH_MISSING'
+      cmc_ios_release_reference_app="$1"
       ;;
     --source-only)
       cmc_ios_release_source_only=true
@@ -271,6 +277,7 @@ plutil -lint "${cmc_ios_release_info}" "${cmc_ios_release_privacy}" >/dev/null |
 
 if [[ "${cmc_ios_release_source_only}" == true ]]; then
   if [[ -n "${cmc_ios_release_app}" || -n "${cmc_ios_release_archive}" || \
+    -n "${cmc_ios_release_reference_app}" || \
     "${cmc_ios_release_require_upload}" == true ]]; then
     cmc_ios_release_fail 'SOURCE_ONLY_ARGUMENT_CONFLICT'
   fi
@@ -287,6 +294,31 @@ case "${cmc_ios_release_app}" in
   *.app) ;;
   *) cmc_ios_release_fail 'APP_EXTENSION_INVALID' ;;
 esac
+
+if [[ -n "${cmc_ios_release_reference_app}" ]]; then
+  [[ -d "${cmc_ios_release_reference_app}" && \
+    ! -L "${cmc_ios_release_reference_app}" ]] || \
+    cmc_ios_release_fail 'REFERENCE_APP_NOT_READABLE'
+  case "${cmc_ios_release_reference_app}" in
+    *.app) ;;
+    *) cmc_ios_release_fail 'REFERENCE_APP_EXTENSION_INVALID' ;;
+  esac
+  cmc_ios_release_reference_app_canonical="$(
+    cd -- "${cmc_ios_release_reference_app}" && pwd -P
+  )"
+  cmc_ios_release_expected_reference_app="${cmc_ios_release_root}/build/ios/iphoneos/Runner.app"
+  [[ -d "${cmc_ios_release_expected_reference_app}" ]] || \
+    cmc_ios_release_fail 'REFERENCE_APP_NOT_READABLE'
+  cmc_ios_release_expected_reference_app="$(
+    cd -- "${cmc_ios_release_expected_reference_app}" && pwd -P
+  )"
+  cmc_ios_release_app_canonical="$(cd -- "${cmc_ios_release_app}" && pwd -P)"
+  [[ "${cmc_ios_release_reference_app_canonical}" == \
+      "${cmc_ios_release_expected_reference_app}" && \
+    "${cmc_ios_release_reference_app_canonical}" != \
+      "${cmc_ios_release_app_canonical}" ]] || \
+    cmc_ios_release_fail 'REFERENCE_APP_PATH_INVALID'
+fi
 
 cmc_ios_release_app_info="${cmc_ios_release_app}/Info.plist"
 cmc_ios_release_app_privacy="${cmc_ios_release_app}/PrivacyInfo.xcprivacy"
@@ -418,11 +450,11 @@ cmc_ios_release_expected_macho_paths=(
   'Frameworks/sqlite3.framework/sqlite3'
 )
 # Digest dell'intero Mach-O canonicalizzato: la copia viene firmata ad hoc e la
-# firma rimossa, così header, load command, sezioni e __LINKEDIT restano legati
-# mentre l'unica variabilità di signing viene eliminata deterministicamente.
+# firma rimossa, così header, load command, sezioni e __LINKEDIT restano legati.
+# Runner normalizza inoltre LC_UUID, che Xcode rigenera tra build equivalenti;
+# la relazione UUID Runner/dSYM resta verificata separatamente dall'archive.
 cmc_ios_release_expected_macho_digests=(
-  # Flutter e xcodebuild archive producono due wrapper Runner deterministici.
-  'bb5f3882b8acb52a66cb2ae7d4641c76bfeb1747ae3cca70d0ae444b73a5989d c6a848062c199f068dcc259b56aa24430563fc4aea14848f45197ce9067b8e6c'
+  'dea7dc176e6ddd65afd5be5ba8946171bd71b4ad59e96c5c25ce93e368aa0c40'
   '847be0c00445269c63b4c1b3c475da7164a2257dad6bb0ffb99888af7c61dde7'
   'd1756c1031e3a0661f80dee4f6341b7c678021e571bf7026e1e1a1d61dac6868'
   # objective_c conserva due output exact-content osservati prima/dopo clean;
@@ -492,6 +524,7 @@ cmc_ios_release_require_exact_component_set() {
 cmc_ios_release_macho_canonical_digest() {
   local cmc_ios_release_macho="$1"
   local cmc_ios_release_macho_label="$2"
+  local cmc_ios_release_normalize_uuid="${3:-false}"
   local cmc_ios_release_macho_copy="${cmc_ios_release_tmp_root}/macho-${cmc_ios_release_macho_label}"
 
   cp "${cmc_ios_release_macho}" "${cmc_ios_release_macho_copy}" || return 1
@@ -502,6 +535,38 @@ cmc_ios_release_macho_canonical_digest() {
     >/dev/null 2>&1 || return 1
   codesign --remove-signature "${cmc_ios_release_macho_copy}" \
     >/dev/null 2>&1 || return 1
+  if [[ "${cmc_ios_release_normalize_uuid}" == true ]]; then
+    perl -e '
+      use strict;
+      use warnings;
+      my $path = shift;
+      open my $handle, "+<:raw", $path or exit 1;
+      read($handle, my $header, 32) == 32 or exit 1;
+      my ($magic, $commands, $commands_size) =
+        unpack("Vx12VV", $header);
+      $magic == 0xfeedfacf or exit 1;
+      my $end = 32 + $commands_size;
+      -s $handle >= $end or exit 1;
+      my $offset = 32;
+      my $uuid_count = 0;
+      for (1 .. $commands) {
+        $offset + 8 <= $end or exit 1;
+        seek($handle, $offset, 0) or exit 1;
+        read($handle, my $command_header, 8) == 8 or exit 1;
+        my ($command, $size) = unpack("VV", $command_header);
+        $size >= 8 && $offset + $size <= $end or exit 1;
+        if ($command == 0x1b) {
+          $size == 24 or exit 1;
+          seek($handle, $offset + 8, 0) or exit 1;
+          print {$handle} "\0" x 16 or exit 1;
+          $uuid_count += 1;
+        }
+        $offset += $size;
+      }
+      $offset == $end && $uuid_count == 1 or exit 1;
+      close $handle or exit 1;
+    ' "${cmc_ios_release_macho_copy}" || return 1
+  fi
   shasum -a 256 "${cmc_ios_release_macho_copy}" | awk '{print $1}'
 }
 
@@ -571,6 +636,18 @@ cmc_ios_release_require_exact_component_set \
 if find "${cmc_ios_release_app}" -type l -print -quit | grep -q .; then
   cmc_ios_release_fail 'ARTIFACT_SYMLINK_SET_INVALID'
 fi
+if [[ -n "${cmc_ios_release_reference_app}" ]]; then
+  cmc_ios_release_require_exact_component_set \
+    "${cmc_ios_release_reference_app}" '*.framework' \
+    'REFERENCE_FRAMEWORK_SET_INVALID' \
+    "${cmc_ios_release_expected_frameworks[@]}"
+  [[ "$(find "${cmc_ios_release_reference_app}" -iname '*.dylib' -print | \
+    wc -l | tr -d '[:space:]')" -eq 0 ]] || \
+    cmc_ios_release_fail 'REFERENCE_DYLIB_SET_INVALID'
+  if find "${cmc_ios_release_reference_app}" -type l -print -quit | grep -q .; then
+    cmc_ios_release_fail 'REFERENCE_SYMLINK_SET_INVALID'
+  fi
+fi
 
 cmc_ios_release_macho_count=0
 while IFS= read -r -d '' cmc_ios_release_candidate; do
@@ -599,13 +676,41 @@ for cmc_ios_release_macho_index in \
   [[ -f "${cmc_ios_release_macho_file}" && \
     ! -L "${cmc_ios_release_macho_file}" ]] || \
     cmc_ios_release_fail 'EMBEDDED_MACHO_SET_INVALID'
+  cmc_ios_release_normalize_uuid=false
+  if [[ "${cmc_ios_release_macho_index}" -eq 0 ]]; then
+    cmc_ios_release_normalize_uuid=true
+  fi
   cmc_ios_release_macho_digest="$(
     cmc_ios_release_macho_canonical_digest \
-      "${cmc_ios_release_macho_file}" "${cmc_ios_release_macho_index}"
+      "${cmc_ios_release_macho_file}" "${cmc_ios_release_macho_index}" \
+      "${cmc_ios_release_normalize_uuid}"
   )" || cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_UNREADABLE'
-  [[ " ${cmc_ios_release_expected_macho_digests[cmc_ios_release_macho_index]} " == \
-    *" ${cmc_ios_release_macho_digest} "* ]] || \
-    cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
+  if [[ -n "${cmc_ios_release_reference_app}" ]]; then
+    cmc_ios_release_reference_macho="${cmc_ios_release_reference_app}/${cmc_ios_release_expected_macho_paths[cmc_ios_release_macho_index]}"
+    [[ -f "${cmc_ios_release_reference_macho}" && \
+      ! -L "${cmc_ios_release_reference_macho}" ]] || \
+      cmc_ios_release_fail 'REFERENCE_MACHO_SET_INVALID'
+    file "${cmc_ios_release_reference_macho}" | grep -Fq 'Mach-O' || \
+      cmc_ios_release_fail 'REFERENCE_MACHO_SET_INVALID'
+    if [[ "${cmc_ios_release_macho_index}" -ne 0 ]]; then
+      cmc_ios_release_reference_digest="$(
+        cmc_ios_release_macho_canonical_digest \
+          "${cmc_ios_release_reference_macho}" \
+          "reference-${cmc_ios_release_macho_index}"
+      )" || cmc_ios_release_fail 'REFERENCE_COMPONENT_DIGEST_UNREADABLE'
+      [[ "${cmc_ios_release_macho_digest}" == \
+        "${cmc_ios_release_reference_digest}" ]] || \
+        cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
+    else
+      [[ " ${cmc_ios_release_expected_macho_digests[0]} " == \
+        *" ${cmc_ios_release_macho_digest} "* ]] || \
+        cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
+    fi
+  else
+    [[ " ${cmc_ios_release_expected_macho_digests[cmc_ios_release_macho_index]} " == \
+      *" ${cmc_ios_release_macho_digest} "* ]] || \
+      cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
+  fi
 done
 
 for cmc_ios_release_framework_index in \

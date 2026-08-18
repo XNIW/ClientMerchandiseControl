@@ -972,6 +972,31 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 22
+
+- exact HEAD `74242e6703b81c3edc504e6629059b16e70f1900`;
+- prodotto `CHANGES_REQUIRED`, un P3: commenti o blank line dopo `\`
+  venivano filtrati prima del confronto e potevano spezzare il comando reale;
+- security `CHANGES_REQUIRED`, due P3: continuation-breaker e seconda reason
+  con CRLF/trailing-space non conteggiata;
+- report security sealed SHA-256
+  `b456d1c8337e53c9b9c920ee442b3bc9374a1f710c7120f8ab077eb0e3233c6b`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 23
+
+- exact technical SHA: `8375a08f1ede8337c71d1353255d9df1c238f197`;
+- il confronto exact conserva tutte le righe fisiche, incluse commenti e righe
+  vuote; fixture comment/blank subito dopo una continuation devono fallire;
+- validator e attestor contano tutte le righe col prefisso reserved prima del
+  confronto exact; fixture duplicate con CRLF/trailing-space devono fallire;
+- validator iOS 41/41, Flutter/YAML 14/14, candidate reale 683/207, security
+  683, analyze, action pin, syntax, format e diff check `PASS`;
+- runtime, artifact, signing, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

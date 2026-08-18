@@ -208,11 +208,11 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 21 ha chiuso i mutant originari,
-ma la re-review ha trovato semantica Bash indiretta e reason multiple ancora
-accettabili. Fix 22 vincola l'intero contenuto eseguibile dei tre flow, copre
-comment/no-op/branch/funzione/post-archive e richiede una singola reason anche
-per l'attestor; iOS 39/39 e
+TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 22 ha chiuso i bypass Bash
+indiretti e le reason multiple normalizzate, ma la re-review ha trovato
+continuation breaker filtrati e reason malformate aggiuntive. Fix 23 preserva
+ogni riga fisica dei tre flow e conta ogni prefisso reserved prima dell'exact
+match; iOS 41/41 e
 Flutter/YAML 14/14 sono verdi. Re-review richiesta; activation invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.

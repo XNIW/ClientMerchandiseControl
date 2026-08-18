@@ -31,13 +31,13 @@ Snapshot di handoff:
 |---|---|---|
 | T-01 | PASS | source gate, runtime/CI 18/18 e config/signing boundary |
 | T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `01dd140` |
-| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 39/39 |
+| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 41/41 |
 | T-04 | PASS | scanner 683/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 22 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 23 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,23 +64,23 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 22
+## Gate executor corrente — Fix 23
 
 - `scripts/check.sh`: exit 0;
 - non-performance 801/801; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
 - governance 88/88; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 683; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 39/39; Flutter/YAML mirati 14/14;
+- validator iOS avversariale 41/41; Flutter/YAML mirati 14/14;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
 
-Il gate completo runtime resta quello exact-SHA Fix 17: Fix 22 non cambia il
+Il gate completo runtime resta quello exact-SHA Fix 17: Fix 23 non cambia il
 runtime applicativo né l'artifact. Il delta impattato ha eseguito candidate
-iOS reale con attestation `PASS`, fixture iOS 39/39, test Flutter/YAML 14/14,
+iOS reale con attestation `PASS`, fixture iOS 41/41, test Flutter/YAML 14/14,
 security 683, action pin, syntax, format 301/0, analyze e diff check. La CI PR
 viene rieseguita dopo re-review.
 
@@ -644,4 +644,20 @@ viene rieseguita dopo re-review.
 - reason set validator e attestor con cardinalità esatta uno; suffix e
   duplicate/wrong respinti;
 - iOS 39/39, Flutter/YAML 14/14, candidate 683/207, security 683, analyze,
+  action pin, syntax e diff check `PASS`; external boundary invariato.
+
+## Re-review Fix 22 e Fix 23
+
+- exact Fix 22 HEAD `74242e6703b81c3edc504e6629059b16e70f1900`;
+  prodotto `CHANGES_REQUIRED` con un P3 continuation-breaker; security
+  `CHANGES_REQUIRED` con due P3 continuation/reason malformed;
+- report security Fix 22 sealed SHA-256
+  `b456d1c8337e53c9b9c920ee442b3bc9374a1f710c7120f8ab077eb0e3233c6b`;
+- exact technical SHA Fix 23
+  `8375a08f1ede8337c71d1353255d9df1c238f197`;
+- confronto runbook conserva commenti e blank line, quindi ogni continuation
+  breaker altera il blocco e fallisce; regressioni dedicate per entrambi;
+- validator e attestor contano ogni riga col prefisso reserved prima di
+  richiedere l'unica reason exact; CRLF/trailing-space aggiuntivi respinti;
+- iOS 41/41, Flutter/YAML 14/14, candidate 683/207, security 683, analyze,
   action pin, syntax e diff check `PASS`; external boundary invariato.

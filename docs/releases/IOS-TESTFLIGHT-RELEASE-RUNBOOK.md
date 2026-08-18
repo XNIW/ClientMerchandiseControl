@@ -20,6 +20,17 @@ flutter pub get --enforce-lockfile
 bash scripts/check-ios-release.sh --source-only
 flutter build ios --release --no-codesign \
   --dart-define-from-file=config/app_config.production.release.json
+cmc_ios_reference_output="$(
+  bash scripts/create-ios-reference-attestation.sh \
+    --app build/ios/iphoneos/Runner.app
+)"
+case "${cmc_ios_reference_output}" in
+  IOS_REFERENCE_ATTESTATION=*) ;;
+  *) exit 1 ;;
+esac
+cmc_ios_reference_attestation="${cmc_ios_reference_output#IOS_REFERENCE_ATTESTATION=}"
+[[ "${cmc_ios_reference_attestation}" =~ \
+  ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]] || exit 1
 xcodebuild archive \
   -workspace ios/Runner.xcworkspace \
   -scheme Runner \
@@ -31,7 +42,9 @@ xcodebuild archive \
   COMPILER_INDEX_STORE_ENABLE=NO
 bash scripts/check-ios-release.sh \
   --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
-  --archive build/ios/archive/Runner.xcarchive
+  --archive build/ios/archive/Runner.xcarchive \
+  --reference-app build/ios/iphoneos/Runner.app \
+  --reference-attestation "${cmc_ios_reference_attestation}"
 ```
 
 Il candidate unsigned dimostra build, archive, bundle/version, architettura, privacy,
@@ -77,6 +90,17 @@ IOS_RELEASE_CONFIG_SHA256="$(dart run tool/check_ios_runtime_config.dart \
 flutter build ios --release \
   --dart-define-from-file="${IOS_RELEASE_RUNTIME_CONFIG_PATH}" \
   --dart-define="RELEASE_CONFIG_SHA256=${IOS_RELEASE_CONFIG_SHA256}"
+cmc_ios_reference_output="$(
+  bash scripts/create-ios-reference-attestation.sh \
+    --app build/ios/iphoneos/Runner.app
+)"
+case "${cmc_ios_reference_output}" in
+  IOS_REFERENCE_ATTESTATION=*) ;;
+  *) exit 1 ;;
+esac
+cmc_ios_reference_attestation="${cmc_ios_reference_output#IOS_REFERENCE_ATTESTATION=}"
+[[ "${cmc_ios_reference_attestation}" =~ \
+  ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]] || exit 1
 ```
 
 `AppConfig` e il validator condividono parser, set esatto di otto chiavi e regole di
@@ -87,12 +111,15 @@ un marker completo `CMC_RELEASE_CONFIG_ATTESTATION_V1:<digest>` nel Mach-O Dart
 `Frameworks/App.framework/App`; un digest-esca, un file diverso/incompleto o la shell
 compilata con il template fail-closed non può raggiungere upload-ready.
 
-Dopo un archive firmato, eseguire prima:
+Dopo un archive firmato nella stessa sessione, senza ricalcolare l'attestazione
+successivamente all'archive, eseguire prima:
 
 ```bash
 bash scripts/check-ios-release.sh \
   --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
   --archive build/ios/archive/Runner.xcarchive \
+  --reference-app build/ios/iphoneos/Runner.app \
+  --reference-attestation "${cmc_ios_reference_attestation}" \
   --require-upload-ready
 ```
 

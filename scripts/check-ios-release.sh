@@ -308,6 +308,9 @@ if [[ -n "${cmc_ios_release_reference_app}" || \
   [[ -n "${cmc_ios_release_reference_app}" && \
     -n "${cmc_ios_release_reference_attestation}" ]] || \
     cmc_ios_release_fail 'REFERENCE_ATTESTATION_ARGUMENT_CONFLICT'
+  [[ "${cmc_ios_release_reference_attestation}" =~ \
+    ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]] || \
+    cmc_ios_release_fail 'REFERENCE_ATTESTATION_INVALID'
   IFS=',' read -r -a cmc_ios_release_reference_digests \
     <<<"${cmc_ios_release_reference_attestation}"
   [[ "${#cmc_ios_release_reference_digests[@]}" -eq 4 ]] || \

@@ -4,6 +4,7 @@ set -euo pipefail
 cmc_ios_test_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cmc_ios_test_root="$(git -C "${cmc_ios_test_script_dir}" rev-parse --show-toplevel)"
 cmc_ios_test_validator="${cmc_ios_test_root}/scripts/check-ios-release.sh"
+cmc_ios_test_attestor="${cmc_ios_test_root}/scripts/create-ios-reference-attestation.sh"
 cmc_ios_test_archive=''
 cmc_ios_test_reference_app=''
 cmc_ios_test_reference_attestation=''
@@ -90,6 +91,30 @@ cmc_ios_test_expect_failure() {
   cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 }
 
+cmc_ios_test_expect_attestor_failure() {
+  local cmc_ios_test_name="$1"
+  local cmc_ios_test_expected="$2"
+  shift 2
+  local cmc_ios_test_log="${cmc_ios_test_tmp_root}/${cmc_ios_test_name}.log"
+  cmc_ios_test_total=$((cmc_ios_test_total + 1))
+
+  if "$@" >"${cmc_ios_test_log}" 2>&1; then
+    printf 'Fixture attestor iOS %s doveva fallire.\n' \
+      "${cmc_ios_test_name}" >&2
+    exit 1
+  fi
+  grep -Fxq -- \
+    "IOS_REFERENCE_ATTESTATION_BLOCKED: ${cmc_ios_test_expected}" \
+    "${cmc_ios_test_log}" || {
+    printf 'Fixture attestor iOS %s fallita per ragione inattesa.\n' \
+      "${cmc_ios_test_name}" >&2
+    grep -E '^IOS_REFERENCE_ATTESTATION_BLOCKED: [A-Z0-9_]+$' \
+      "${cmc_ios_test_log}" >&2 || true
+    exit 1
+  }
+  cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+}
+
 cmc_ios_test_flip_byte() {
   perl -e '
     use strict;
@@ -121,6 +146,21 @@ cmc_ios_test_expect_failure reference-attestation-malformed \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
   --reference-attestation 'invalid'
+cmc_ios_test_expect_failure reference-attestation-trailing-delimiter \
+  REFERENCE_ATTESTATION_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation "${cmc_ios_test_reference_attestation},"
+cmc_ios_test_expect_failure reference-attestation-newline \
+  REFERENCE_ATTESTATION_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation \
+  "${cmc_ios_test_reference_attestation}"$'\n'"${cmc_ios_test_reference_attestation}"
 cmc_ios_test_expected_runtime_sha="$(
   shasum -a 256 \
     "${cmc_ios_test_fixture_app}/Frameworks/App.framework/App" | awk '{print $1}'
@@ -480,14 +520,43 @@ perl -e '
 ' "${cmc_ios_test_objective_x86}"
 lipo -create "${cmc_ios_test_objective_arm64}" \
   "${cmc_ios_test_objective_x86}" -output "${cmc_ios_test_objective_fat}"
+cp "${cmc_ios_test_objective_fat}" "${cmc_ios_test_reference_objective}"
+cmc_ios_test_expect_attestor_failure reference-fat-architecture \
+  REFERENCE_MACHO_ARCHITECTURE_INVALID \
+  bash "${cmc_ios_test_attestor}" \
+  --app "${cmc_ios_test_reference_app}"
 cp "${cmc_ios_test_objective_fat}" "${cmc_ios_test_objective_binary}"
+cmc_ios_test_objective_fat_canonical="${cmc_ios_test_tmp_root}/objective-fat-canonical"
+cp "${cmc_ios_test_objective_fat}" \
+  "${cmc_ios_test_objective_fat_canonical}"
+chmod u+w "${cmc_ios_test_objective_fat_canonical}"
+codesign --remove-signature "${cmc_ios_test_objective_fat_canonical}" \
+  >/dev/null 2>&1 || true
+codesign --force --sign - "${cmc_ios_test_objective_fat_canonical}" \
+  >/dev/null 2>&1
+codesign --remove-signature "${cmc_ios_test_objective_fat_canonical}" \
+  >/dev/null 2>&1
+cmc_ios_test_objective_fat_digest="$(
+  shasum -a 256 "${cmc_ios_test_objective_fat_canonical}" | awk '{print $1}'
+)"
+IFS=',' read -r -a cmc_ios_test_fat_digests \
+  <<<"${cmc_ios_test_reference_attestation}"
+cmc_ios_test_fat_digests[2]="${cmc_ios_test_objective_fat_digest}"
+cmc_ios_test_fat_attestation="$(
+  IFS=','
+  printf '%s' "${cmc_ios_test_fat_digests[*]}"
+)"
 cmc_ios_test_expect_failure framework-fat-architecture \
-  EMBEDDED_COMPONENT_DIGEST_MISMATCH \
-  cmc_ios_test_validate \
+  FRAMEWORK_ARCHITECTURE_INVALID \
+  bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
-  --archive "${cmc_ios_test_fixture_archive}"
+  --archive "${cmc_ios_test_fixture_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation "${cmc_ios_test_fat_attestation}"
 cp "${cmc_ios_test_source_app}/Frameworks/objective_c.framework/objective_c" \
   "${cmc_ios_test_objective_binary}"
+cp "${cmc_ios_test_reference_backup}" \
+  "${cmc_ios_test_reference_objective}"
 
 rm -rf -- "${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework"
 cp -R "${cmc_ios_test_fixture_app}/Frameworks/sqlite3.framework" \

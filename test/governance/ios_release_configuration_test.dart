@@ -120,6 +120,57 @@ void main() {
     expect(() => _validateIosReleaseJob(workflow), returnsNormally);
   });
 
+  test('TestFlight runbook preserves the CI reference attestation order', () {
+    final runbook = File(
+      '$repositoryRoot/docs/releases/IOS-TESTFLIGHT-RELEASE-RUNBOOK.md',
+    ).readAsStringSync();
+    final workflow = File(
+      '$repositoryRoot/.github/workflows/ci.yml',
+    ).readAsStringSync();
+
+    const attestor = 'scripts/create-ios-reference-attestation.sh';
+    const referenceArgument = '--reference-app build/ios/iphoneos/Runner.app';
+    const attestationArgument =
+        '--reference-attestation "\${cmc_ios_reference_attestation}"';
+    expect(_occurrenceCount(runbook, attestor), 2);
+    expect(_occurrenceCount(runbook, referenceArgument), 2);
+    expect(_occurrenceCount(runbook, attestationArgument), 2);
+    expect(workflow, contains(attestor));
+    expect(workflow, contains('--reference-app build/ios/iphoneos/Runner.app'));
+    expect(
+      workflow,
+      contains(
+        "--reference-attestation '\${{ steps.ios-reference.outputs.macho_sha256 }}'",
+      ),
+    );
+
+    final unsignedBuild = runbook.indexOf(
+      'flutter build ios --release --no-codesign',
+    );
+    final unsignedAttestor = runbook.indexOf(attestor, unsignedBuild);
+    final unsignedArchive = runbook.indexOf(
+      'xcodebuild archive',
+      unsignedAttestor,
+    );
+    final signedBuild = runbook.indexOf(
+      'flutter build ios --release',
+      unsignedBuild + 1,
+    );
+    final signedAttestor = runbook.indexOf(attestor, signedBuild);
+    final uploadGate = runbook.indexOf(
+      '--require-upload-ready',
+      signedAttestor,
+    );
+    expect(unsignedBuild, greaterThanOrEqualTo(0));
+    expect(unsignedAttestor, greaterThan(unsignedBuild));
+    expect(unsignedArchive, greaterThan(unsignedAttestor));
+    expect(signedBuild, greaterThan(unsignedArchive));
+    expect(signedAttestor, greaterThan(signedBuild));
+    expect(uploadGate, greaterThan(signedAttestor));
+    expect(runbook, contains("senza ricalcolare l'attestazione"));
+    expect(runbook, contains("successivamente all'archive"));
+  });
+
   test(
     'CI release evidence cannot be satisfied by comments outside the job',
     () {
@@ -240,6 +291,9 @@ jobs:
     }
   });
 }
+
+int _occurrenceCount(String value, String needle) =>
+    RegExp(RegExp.escape(needle)).allMatches(value).length;
 
 void _validateIosReleaseJob(String workflow) {
   final Object? document;

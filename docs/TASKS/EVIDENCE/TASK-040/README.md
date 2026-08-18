@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 26 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 27 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,7 +64,7 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 26
+## Gate executor corrente — Fix 27
 
 - `scripts/check.sh`: exit 0;
 - non-performance 801/801; performance 10/10; resilience repeat 70/70;
@@ -78,11 +78,11 @@ Snapshot di handoff:
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
 
-Il gate completo runtime resta quello exact-SHA Fix 17: Fix 26 non cambia il
-runtime applicativo né l'artifact. Il delta impattato ha eseguito candidate
-iOS reale con attestation `PASS`, fixture iOS 41/41, test Flutter/YAML 14/14,
-security 683, action pin, syntax, format 301/0, analyze e diff check. La CI PR
-viene rieseguita dopo re-review.
+Il gate completo runtime resta quello exact-SHA Fix 17: Fix 27 non cambia il
+runtime applicativo né l'artifact. Il delta impattato ha eseguito test
+Flutter/YAML 14/14, governance 88/88, security 683, architecture, action pin,
+syntax, format, analyze e diff check; il blocco attestor estratto dal workflow
+termina con exit 0. La CI PR viene rieseguita dopo re-review.
 
 ## Gate Fix 1
 
@@ -724,3 +724,20 @@ viene rieseguita dopo re-review.
   action pin e diff check `PASS`; iOS 41/41 e candidate 683/207 riusati dopo
   verifica ancestry/code-scope;
 - CI PR/main exact-SHA, merge e hygiene ancora `NOT_RUN`.
+
+## CI PR Fix 26 e Fix 27
+
+- run PR exact-SHA Fix 26 `32107743243` su head `28a64d0a9fd08e5752667da12b0790573b48028a`;
+- Android debug, Android release e iOS Simulator debug `PASS`;
+- Quality `FAIL`: GNU `grep` rifiutava il fixture che leggeva e appendeva allo
+  stesso manifest (`input file is also the output`);
+- iOS release `FAIL`: attestor `ARGUMENT_SET_INVALID`, poi `--app: command not
+  found` per continuation assente;
+- exact technical SHA Fix 27
+  `59d35f81344030528e3b19522656f67e275e3f11`;
+- il fixture acquisisce l'output prima dell'append; il workflow usa `\` e il
+  test impone il `run` multilinea byte-esatto;
+- re-review prodotto/security sul diff completo `APPROVED`, 0 P0/P1/P2/P3;
+  report security sealed SHA-256
+  `eb921b328d4aec9f030262353740a6a4e80d8bad1c47da2bf14ce9a71d036453`;
+- nuova CI PR exact-SHA `NOT_RUN`; production e TestFlight invariati.

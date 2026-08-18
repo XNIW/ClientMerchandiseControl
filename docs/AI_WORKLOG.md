@@ -3972,3 +3972,17 @@
 - **Boundary**: runtime/artifact invariati; signing, TestFlight e production
   non modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 27 e handoff
+
+- **Technical SHA**: `59d35f81344030528e3b19522656f67e275e3f11`.
+- **CI diagnosticata**: run PR `32107743243`; Quality falliva sul fixture GNU
+  same-input/output e iOS release sull'attestor privo di continuation.
+- **Fix**: acquisizione `grep` completata prima dell'append; invocazione iOS
+  multilinea esatta con `\` e regressione raw YAML.
+- **Review**: prodotto/security diff-scoped `APPROVED`, zero P0/P1/P2/P3.
+- **Gate**: Flutter/YAML 14/14, governance 88/88, security 683,
+  architecture, analyze, action pin, syntax, format e diff check `PASS`;
+  attestor reale exit 0.
+- **Boundary**: signing, TestFlight e production non modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

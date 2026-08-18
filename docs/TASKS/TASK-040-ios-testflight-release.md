@@ -1067,6 +1067,32 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 26
+
+- exact HEAD `2a5bd08c93c9b5bec7a6d7168fe11f626408a706`;
+- prodotto e security `APPROVED`, zero P0/P1/P2/P3;
+- report security sealed SHA-256
+  `6c96f403ee9ee6d9f933774d3ee3293dbc9352c8575def29e708fa8bc0a96e43`;
+- CI PR/main exact-SHA, merge e hygiene restavano `NOT_RUN`.
+
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+
+### Fix 27
+
+- exact technical SHA: `59d35f81344030528e3b19522656f67e275e3f11`;
+- la CI PR exact-SHA `32107743243` ha riprodotto due blocker: GNU `grep`
+  rifiutava lettura e append sullo stesso file e lo step iOS eseguiva `--app`
+  come comando separato per una continuation assente;
+- il fixture governance cattura la riga prima dell'append; lo step iOS usa una
+  continuation esplicita e il test confronta il `run` YAML multilinea esatto;
+- re-review diff-scoped prodotto e security `APPROVED`, zero P0/P1/P2/P3;
+- Flutter/YAML 14/14, governance 88/88, security 683, architecture, analyze,
+  action pin, syntax, format e diff check `PASS`; il blocco attestor reale
+  estratto dal workflow termina con exit 0;
+- signing, TestFlight e production invariati; nuova CI exact-SHA richiesta.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

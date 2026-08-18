@@ -196,6 +196,12 @@ void main() {
       '  bash scripts/create-ios-reference-attestation.sh \\\n',
       '  bash scripts/create-ios-reference-attestation.sh \\\r\n',
     );
+    final leadingCarriageReturnArgument = runbook.replaceFirst(
+      '  bash scripts/create-ios-reference-attestation.sh \\\n'
+          '    --app build/ios/iphoneos/Runner.app',
+      '  bash scripts/create-ios-reference-attestation.sh \\\n'
+          '\r    --app build/ios/iphoneos/Runner.app',
+    );
     final postArchiveComposed = runbook
         .replaceFirst(
           '  bash scripts/create-ios-reference-attestation.sh \\\n',
@@ -220,6 +226,7 @@ void main() {
       spaceContinuationBreaker,
       tabContinuationBreaker,
       carriageReturnContinuationBreaker,
+      leadingCarriageReturnArgument,
       postArchiveComposed,
     ]) {
       expect(mutation, isNot(runbook));
@@ -354,135 +361,73 @@ jobs:
 void _validateRunbookAttestation(String runbook, String workflow) {
   const attestor = 'scripts/create-ios-reference-attestation.sh';
   const referenceArgument = '--reference-app build/ios/iphoneos/Runner.app';
-  const attestationArgument =
-      '--reference-attestation "\${cmc_ios_reference_attestation}"';
-  const attestorLine = 'bash scripts/create-ios-reference-attestation.sh \\';
-  const referenceLine = '--reference-app build/ios/iphoneos/Runner.app \\';
-  const candidateAttestationLine =
-      '--reference-attestation "\${cmc_ios_reference_attestation}"';
-  const uploadAttestationLine =
-      '--reference-attestation "\${cmc_ios_reference_attestation}" \\';
   final bashBlocks = RegExp(
     r'```bash\r?\n([\s\S]*?)\r?\n```',
   ).allMatches(runbook).map((match) => match.group(1)!).toList();
   if (bashBlocks.length != 3) {
     throw StateError('runbook Bash block set invalid');
   }
-  final executableBlocks = bashBlocks.map(_physicalBashLines).toList();
-  final candidateLines = executableBlocks[0];
-  final signedBuildLines = executableBlocks[1];
-  final uploadLines = executableBlocks[2];
-  final candidate = candidateLines.join('\n');
-  final signedBuild = signedBuildLines.join('\n');
-  final upload = uploadLines.join('\n');
   const expectedCandidate = r'''flutter clean
 flutter pub get --enforce-lockfile
 bash scripts/check-ios-release.sh --source-only
 flutter build ios --release --no-codesign \
---dart-define-from-file=config/app_config.production.release.json
+  --dart-define-from-file=config/app_config.production.release.json
 cmc_ios_reference_output="$(
-bash scripts/create-ios-reference-attestation.sh \
---app build/ios/iphoneos/Runner.app
+  bash scripts/create-ios-reference-attestation.sh \
+    --app build/ios/iphoneos/Runner.app
 )"
 case "${cmc_ios_reference_output}" in
-IOS_REFERENCE_ATTESTATION=*) ;;
-*) exit 1 ;;
+  IOS_REFERENCE_ATTESTATION=*) ;;
+  *) exit 1 ;;
 esac
 cmc_ios_reference_attestation="${cmc_ios_reference_output#IOS_REFERENCE_ATTESTATION=}"
 [[ "${cmc_ios_reference_attestation}" =~ \
-^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]] || exit 1
+  ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]] || exit 1
 xcodebuild archive \
--workspace ios/Runner.xcworkspace \
--scheme Runner \
--configuration Release \
--destination 'generic/platform=iOS' \
--archivePath build/ios/archive/Runner.xcarchive \
-CODE_SIGNING_ALLOWED=NO \
-CODE_SIGNING_REQUIRED=NO \
-COMPILER_INDEX_STORE_ENABLE=NO
+  -workspace ios/Runner.xcworkspace \
+  -scheme Runner \
+  -configuration Release \
+  -destination 'generic/platform=iOS' \
+  -archivePath build/ios/archive/Runner.xcarchive \
+  CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGNING_REQUIRED=NO \
+  COMPILER_INDEX_STORE_ENABLE=NO
 bash scripts/check-ios-release.sh \
---app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
---archive build/ios/archive/Runner.xcarchive \
---reference-app build/ios/iphoneos/Runner.app \
---reference-attestation "${cmc_ios_reference_attestation}"''';
+  --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
+  --archive build/ios/archive/Runner.xcarchive \
+  --reference-app build/ios/iphoneos/Runner.app \
+  --reference-attestation "${cmc_ios_reference_attestation}"''';
   const expectedSignedBuild =
       r'''export IOS_RELEASE_RUNTIME_CONFIG_PATH=/path/esterno/production.json
 IOS_RELEASE_CONFIG_SHA256="$(dart run tool/check_ios_runtime_config.dart \
---config "${IOS_RELEASE_RUNTIME_CONFIG_PATH}")"
+  --config "${IOS_RELEASE_RUNTIME_CONFIG_PATH}")"
 flutter build ios --release \
---dart-define-from-file="${IOS_RELEASE_RUNTIME_CONFIG_PATH}" \
---dart-define="RELEASE_CONFIG_SHA256=${IOS_RELEASE_CONFIG_SHA256}"
+  --dart-define-from-file="${IOS_RELEASE_RUNTIME_CONFIG_PATH}" \
+  --dart-define="RELEASE_CONFIG_SHA256=${IOS_RELEASE_CONFIG_SHA256}"
 cmc_ios_reference_output="$(
-bash scripts/create-ios-reference-attestation.sh \
---app build/ios/iphoneos/Runner.app
+  bash scripts/create-ios-reference-attestation.sh \
+    --app build/ios/iphoneos/Runner.app
 )"
 case "${cmc_ios_reference_output}" in
-IOS_REFERENCE_ATTESTATION=*) ;;
-*) exit 1 ;;
+  IOS_REFERENCE_ATTESTATION=*) ;;
+  *) exit 1 ;;
 esac
 cmc_ios_reference_attestation="${cmc_ios_reference_output#IOS_REFERENCE_ATTESTATION=}"
 [[ "${cmc_ios_reference_attestation}" =~ \
-^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]] || exit 1''';
+  ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]] || exit 1''';
   const expectedUpload = r'''bash scripts/check-ios-release.sh \
---app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
---archive build/ios/archive/Runner.xcarchive \
---reference-app build/ios/iphoneos/Runner.app \
---reference-attestation "${cmc_ios_reference_attestation}" \
---require-upload-ready''';
+  --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
+  --archive build/ios/archive/Runner.xcarchive \
+  --reference-app build/ios/iphoneos/Runner.app \
+  --reference-attestation "${cmc_ios_reference_attestation}" \
+  --require-upload-ready''';
 
-  if (candidate != expectedCandidate ||
-      signedBuild != expectedSignedBuild ||
-      upload != expectedUpload ||
-      _exactLineCount(candidateLines, attestorLine) != 1 ||
-      _exactLineCount(candidateLines, referenceLine) != 1 ||
-      _exactLineCount(candidateLines, candidateAttestationLine) != 1 ||
-      _exactLineCount(signedBuildLines, attestorLine) != 1 ||
-      _exactLineCount(uploadLines, referenceLine) != 1 ||
-      _exactLineCount(uploadLines, uploadAttestationLine) != 1 ||
-      _occurrenceCount(candidate, attestor) != 1 ||
-      _occurrenceCount(candidate, referenceArgument) != 1 ||
-      _occurrenceCount(candidate, attestationArgument) != 1 ||
-      _occurrenceCount(signedBuild, attestor) != 1 ||
-      _occurrenceCount(signedBuild, referenceArgument) != 0 ||
-      _occurrenceCount(signedBuild, attestationArgument) != 0 ||
-      _occurrenceCount(upload, attestor) != 0 ||
-      _occurrenceCount(upload, referenceArgument) != 1 ||
-      _occurrenceCount(upload, attestationArgument) != 1) {
+  if (bashBlocks[0] != expectedCandidate ||
+      bashBlocks[1] != expectedSignedBuild ||
+      bashBlocks[2] != expectedUpload) {
     throw StateError('runbook attestation command set invalid');
   }
-  final unsignedBuild = candidateLines.indexOf(
-    'flutter build ios --release --no-codesign \\',
-  );
-  final unsignedAttestor = candidateLines.indexOf(attestorLine);
-  final unsignedArchive = candidateLines.indexOf('xcodebuild archive \\');
-  final unsignedValidator = candidateLines.indexOf(
-    'bash scripts/check-ios-release.sh \\',
-  );
-  final unsignedReference = candidateLines.indexOf(referenceLine);
-  final unsignedAttestation = candidateLines.indexOf(candidateAttestationLine);
-  final productionBuild = signedBuildLines.indexOf(
-    'flutter build ios --release \\',
-  );
-  final productionAttestor = signedBuildLines.indexOf(attestorLine);
-  final uploadValidator = uploadLines.indexOf(
-    'bash scripts/check-ios-release.sh \\',
-  );
-  final uploadReference = uploadLines.indexOf(referenceLine);
-  final uploadAttestation = uploadLines.indexOf(uploadAttestationLine);
-  final uploadGate = uploadLines.indexOf('--require-upload-ready');
-  if (unsignedBuild < 0 ||
-      unsignedAttestor <= unsignedBuild ||
-      unsignedArchive <= unsignedAttestor ||
-      unsignedValidator <= unsignedArchive ||
-      unsignedReference <= unsignedValidator ||
-      unsignedAttestation <= unsignedReference ||
-      productionBuild < 0 ||
-      productionAttestor <= productionBuild ||
-      uploadValidator < 0 ||
-      uploadReference <= uploadValidator ||
-      uploadAttestation <= uploadReference ||
-      uploadGate <= uploadAttestation ||
-      !runbook.contains("senza ricalcolare l'attestazione") ||
+  if (!runbook.contains("senza ricalcolare l'attestazione") ||
       !runbook.contains("successivamente all'archive")) {
     throw StateError('runbook attestation order invalid');
   }
@@ -494,15 +439,6 @@ cmc_ios_reference_attestation="${cmc_ios_reference_output#IOS_REFERENCE_ATTESTAT
     throw StateError('workflow/runbook attestation parity invalid');
   }
 }
-
-List<String> _physicalBashLines(String block) =>
-    block.split('\n').map((line) => line.trimLeft()).toList();
-
-int _exactLineCount(List<String> lines, String expected) =>
-    lines.where((line) => line == expected).length;
-
-int _occurrenceCount(String value, String needle) =>
-    RegExp(RegExp.escape(needle)).allMatches(value).length;
 
 void _validateIosReleaseJob(String workflow) {
   final Object? document;

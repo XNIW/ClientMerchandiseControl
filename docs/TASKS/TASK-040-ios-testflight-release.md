@@ -1020,6 +1020,29 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 24
+
+- exact HEAD `eb2efaa598e44ce1c1ee55b58dddfb49e2c1b218`;
+- prodotto/security `CHANGES_REQUIRED`, un P3: `trimLeft()` cancellava un
+  `CR` iniziale su una riga continuata, accettando un comando non canonico;
+- report security sealed SHA-256
+  `3299eebf5015a29184398dd81943f4e8390e1e44e8fa79207d9d00829f05638c`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 25
+
+- exact technical SHA: `a6f813600aa8fd23a8d818904c599c386544200f`;
+- rimosse split/trim/filter/reconstruction: i tre fenced block Bash sono
+  confrontati direttamente raw byte-for-byte con gli snapshot canonici;
+- fixture leading CR più tutti i breaker e decoy precedenti devono fallire;
+- Flutter/YAML 14/14, governance 88/88, security 683, analyze, action pin,
+  syntax, format e diff check `PASS`; iOS 41/41 e candidate 683/207 riusati
+  per ancestry, essendo invariati script/runtime/artifact;
+- signing, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

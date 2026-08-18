@@ -3930,3 +3930,24 @@
 - **Boundary**: runtime/artifact invariati; signing, TestFlight e production
   non modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 re-review Fix 24
+
+- **Exact HEAD**: `eb2efaa598e44ce1c1ee55b58dddfb49e2c1b218`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, zero P0/P1/P2 e un P3
+  sul leading `CR` cancellato da `trimLeft()`.
+- **Report security**: sealed SHA-256
+  `3299eebf5015a29184398dd81943f4e8390e1e44e8fa79207d9d00829f05638c`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 25 e handoff
+
+- **Technical SHA**: `a6f813600aa8fd23a8d818904c599c386544200f`.
+- **Fix**: confronto raw byte-for-byte dei tre fenced block Bash, senza
+  normalizzazione; fixture leading CR e breaker precedenti.
+- **Gate**: Flutter/YAML 14/14, governance 88/88, security 683, analyze,
+  action pin, syntax, format e diff check `PASS`; iOS 41/41 e candidate
+  683/207 riusati dopo verifica ancestry.
+- **Boundary**: runtime/artifact invariati; signing, TestFlight e production
+  non modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

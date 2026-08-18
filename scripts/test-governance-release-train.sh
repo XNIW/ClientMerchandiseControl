@@ -714,9 +714,9 @@ cmc_expect_fail evidence-comment-decoy "${cmc_case}" \
 
 cmc_case="$(cmc_fixture evidence-partial-ios-coordinated)"
 perl -0pi.bak -e '
-  s/(validator iOS avversariale )38\/38/${1}1\/38/
+  s/(validator iOS avversariale )39\/39/${1}1\/39/
     or die "current iOS gate count missing\n";
-  s/(^\| T-03 \|[^\n]*fixture iOS )38\/38/${1}1\/38/m
+  s/(^\| T-03 \|[^\n]*fixture iOS )39\/39/${1}1\/39/m
     or die "T-03 count missing\n";
 ' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
 rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"

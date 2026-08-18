@@ -105,15 +105,17 @@ cmc_ios_test_expect_attestor_failure() {
       "${cmc_ios_test_name}" >&2
     exit 1
   fi
-  grep -Fxq -- \
-    "IOS_REFERENCE_ATTESTATION_BLOCKED: ${cmc_ios_test_expected}" \
-    "${cmc_ios_test_log}" || {
+  if [[ "$(grep -Ec '^IOS_REFERENCE_ATTESTATION_BLOCKED: [A-Z0-9_]+$' \
+    "${cmc_ios_test_log}")" -ne 1 ]] || \
+    ! grep -Fxq -- \
+      "IOS_REFERENCE_ATTESTATION_BLOCKED: ${cmc_ios_test_expected}" \
+      "${cmc_ios_test_log}"; then
     printf 'Fixture attestor iOS %s fallita per ragione inattesa.\n' \
       "${cmc_ios_test_name}" >&2
     grep -E '^IOS_REFERENCE_ATTESTATION_BLOCKED: [A-Z0-9_]+$' \
       "${cmc_ios_test_log}" >&2 || true
     exit 1
-  }
+  fi
   cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 }
 
@@ -143,6 +145,12 @@ cmc_ios_test_fake_reason_duplicate() {
   return 1
 }
 
+cmc_ios_test_fake_attestor_reason_duplicate() {
+  printf 'IOS_REFERENCE_ATTESTATION_BLOCKED: REFERENCE_MACHO_ARCHITECTURE_INVALID\n' >&2
+  printf 'IOS_REFERENCE_ATTESTATION_BLOCKED: REFERENCE_COMPONENT_SET_INVALID\n' >&2
+  return 1
+}
+
 cmc_ios_test_total=$((cmc_ios_test_total + 1))
 if (
   cmc_ios_test_expect_failure reason-suffix-rejected \
@@ -160,6 +168,16 @@ if (
     cmc_ios_test_fake_reason_duplicate
 ) >/dev/null 2>&1; then
   printf 'Fixture iOS ha accettato reason multiple.\n' >&2
+  exit 1
+fi
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+if (
+  cmc_ios_test_expect_attestor_failure attestor-reason-duplicate-rejected \
+    REFERENCE_MACHO_ARCHITECTURE_INVALID \
+    cmc_ios_test_fake_attestor_reason_duplicate
+) >/dev/null 2>&1; then
+  printf 'Fixture attestor iOS ha accettato reason multiple.\n' >&2
   exit 1
 fi
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))

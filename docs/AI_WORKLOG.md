@@ -3972,3 +3972,16 @@
 - **Boundary**: runtime/artifact invariati; signing, TestFlight e production
   non modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 re-review Fix 26 `APPROVED`
+
+- **Exact HEAD**: `2a5bd08c93c9b5bec7a6d7168fe11f626408a706`.
+- **Esito**: prodotto/security `APPROVED`, 0 P0/P1/P2/P3; hidden context,
+  CRLF/mixed e Unicode whitespace respinti.
+- **Gate**: Flutter/YAML 14/14, governance 88/88, security 683, analyze,
+  format, action pin e diff check `PASS`; iOS 41/41/candidate 683/207 riusati
+  dopo verifica ancestry/code-scope.
+- **Report security**: sealed SHA-256
+  `6c96f403ee9ee6d9f933774d3ee3293dbc9352c8575def29e708fa8bc0a96e43`.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; la conferma
+  persistente autorizza PR/CI/merge, non upload TestFlight o production.

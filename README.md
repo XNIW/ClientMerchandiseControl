@@ -208,11 +208,10 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 25 ha chiuso ogni
-normalizzazione dei blocchi, ma la re-review ha trovato un blocco canonico
-nascosto da HTML. Fix 26 lega l'intero runbook a SHA-256 e conserva il secondo
-controllo raw sui tre blocchi Bash; iOS 41/41 e
-Flutter/YAML 14/14 sono verdi. Re-review richiesta; activation invariata.
+TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 26 lega l'intero runbook a
+SHA-256 e conserva il controllo raw sui tre blocchi Bash. Re-review prodotto e
+security `APPROVED`, 0 P0/P1/P2/P3; iOS 41/41 e Flutter/YAML 14/14 sono verdi.
+PR e CI exact-SHA restano da eseguire; activation invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

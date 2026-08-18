@@ -10,12 +10,12 @@
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review read-only Fix 26 della fingerprint
-  completa del runbook e blocchi raw; upload TestFlight resta `NOT_RUN`
+- **Prossima azione autorizzata**: pubblicare l'handoff approvato, verificare
+  CI PR exact-SHA e chiudere/mergiare normalmente; upload TestFlight `NOT_RUN`
 
 ## Repository coinvolti
 

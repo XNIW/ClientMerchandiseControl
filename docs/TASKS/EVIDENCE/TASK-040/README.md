@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 26 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 26 APPROVED; PR/main exact-SHA CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -709,3 +709,18 @@ viene rieseguita dopo re-review.
 - Flutter/YAML 14/14, governance 88/88, security 683, analyze, action pin,
   syntax e diff check `PASS`; iOS 41/41/candidate 683/207 riusati per ancestry
   perché script/runtime/artifact sono invariati.
+
+## Re-review Fix 26 APPROVED
+
+- exact reviewed HEAD `2a5bd08c93c9b5bec7a6d7168fe11f626408a706`;
+- prodotto `APPROVED`, security `APPROVED`, 0 P0/P1/P2/P3;
+- fingerprint runbook reale
+  `411497e6a80f5f5f00be1d18040061a0bba11e494f87698f8a280242f571980c`;
+- HTML comment, blockquote, raw HTML/details, surrounding context, CRLF/mixed
+  line endings e Unicode whitespace tutti respinti;
+- security report sealed SHA-256
+  `6c96f403ee9ee6d9f933774d3ee3293dbc9352c8575def29e708fa8bc0a96e43`;
+- Flutter/YAML 14/14, governance 88/88, source security 683, analyze, format,
+  action pin e diff check `PASS`; iOS 41/41 e candidate 683/207 riusati dopo
+  verifica ancestry/code-scope;
+- CI PR/main exact-SHA, merge e hygiene ancora `NOT_RUN`.

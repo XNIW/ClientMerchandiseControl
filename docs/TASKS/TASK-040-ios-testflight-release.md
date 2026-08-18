@@ -1112,7 +1112,7 @@ report prodotto sealed SHA-256
   Android release e iOS Simulator debug `PASS`; iOS release `FAIL` nello step
   candidate con `EMBEDDED_COMPONENT_DIGEST_MISMATCH`; fixture iOS successiva
   non eseguita per dipendenza;
-- exact technical SHA: `e5801f696edd872de78b22cca880a5abf148ef2d`;
+- exact technical SHA: `d6838bd77e9e7578c90a283539aeeb4e0ec1868c`;
 - `normalize-ios-macho-uuid.pl` canonicalizza fail-closed l'unico `LC_UUID`
   di thin/fat arm64 senza escludere sezioni eseguibili; reference e candidate
   `objective_c` restano whole-Mach-O bound;
@@ -1124,6 +1124,8 @@ report prodotto sealed SHA-256
 - candidate reali sui due checkout `PASS`, source/artifact 684/207; una
   mutazione parziale degli Objective-C stub fallisce; fixture iOS 43/43,
   Flutter/YAML 12/12, analyze, security, syntax, format e diff check `PASS`;
+- `scripts/check.sh` `PASS`: 804/804 non-performance, performance 10/10,
+  resilience repeat 70/70, Android debug e iOS Simulator debug;
 - signing, provisioning, TestFlight, runtime applicativo e production
   invariati.
 

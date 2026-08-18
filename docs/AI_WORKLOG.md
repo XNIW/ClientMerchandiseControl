@@ -4003,13 +4003,14 @@
 - **CI**: run `32109274228`, exact head `46aec479314a58342f58f12bf8efd1c2e2533aab`;
   Quality, Android debug/release e iOS Simulator debug `PASS`; iOS release
   `FAIL` nel candidate per `EMBEDDED_COMPONENT_DIGEST_MISMATCH`.
-- **Technical SHA**: `e5801f696edd872de78b22cca880a5abf148ef2d`.
+- **Technical SHA**: `d6838bd77e9e7578c90a283539aeeb4e0ec1868c`.
 - **Fix**: normalizzazione fail-closed del solo `LC_UUID` di `objective_c` e
   allowlist dei due exact whole-Mach-O Runner prodotti da Xcode 26.6 per due
   slot GOT equivalenti, senza escludere codice eseguibile dal digest.
 - **Evidence**: due clean archive in checkout distinti e candidate 684/207
   `PASS`; partial Objective-C stub tamper respinto; iOS 43/43,
-  Flutter/YAML 12/12, analyze, security, syntax, format e diff check `PASS`.
+  Flutter/YAML 12/12; `scripts/check.sh` `PASS` con 804/804 non-performance,
+  performance 10/10, repeat 70/70 e build debug Android/iOS.
 - **Boundary**: signing, provisioning, TestFlight, runtime e production
   invariati; re-review e nuova CI `NOT_RUN`.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

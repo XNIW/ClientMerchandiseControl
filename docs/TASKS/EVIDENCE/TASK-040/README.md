@@ -67,7 +67,7 @@ Snapshot di handoff:
 ## Gate executor corrente — Fix 28
 
 - `scripts/check.sh`: exit 0;
-- non-performance 801/801; performance 10/10; resilience repeat 70/70;
+- non-performance 804/804; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
 - governance 88/88; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 684; artifact 207; fixture negative 61/61, positive 7/7;
@@ -78,12 +78,12 @@ Snapshot di handoff:
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
 
-Il gate completo runtime resta quello exact-SHA Fix 17: Fix 28 non cambia il
-runtime applicativo. Il delta impattato ha eseguito due clean build/archive in
-checkout assoluti distinti, candidate reali `PASS`, fixture iOS 43/43,
-Flutter/YAML 12/12, security 684, syntax, format, analyze e diff check. Il
-gate completo corrente viene rieseguito dopo l'allineamento governance; la CI
-PR viene rieseguita soltanto dopo re-review.
+Fix 28 non cambia il runtime applicativo. Il gate completo corrente
+`scripts/check.sh` è `PASS`: 804/804 non-performance, performance 10/10,
+repeat 70/70, analyze e build debug Android/iOS. Il delta impattato ha inoltre
+eseguito due clean build/archive in checkout assoluti distinti, candidate reali
+`PASS`, fixture iOS 43/43 e scanner 684/207. La CI PR viene rieseguita soltanto
+dopo re-review.
 
 ## Gate Fix 1
 
@@ -752,12 +752,14 @@ PR viene rieseguita soltanto dopo re-review.
   candidate `FAIL` con `EMBEDDED_COMPONENT_DIGEST_MISMATCH`, fixture
   adversarial `SKIPPED` per dipendenza;
 - exact technical SHA Fix 28:
-  `e5801f696edd872de78b22cca880a5abf148ef2d`;
+  `d6838bd77e9e7578c90a283539aeeb4e0ec1868c`;
 - native asset `objective_c`: digest whole-Mach-O con sola normalizzazione
   fail-closed dell'unico `LC_UUID`; Runner: allowlist exact dei due output
   Xcode 26.6 osservati, con indirect symbol table identica e scelta alternativa
   dello slot GOT `_objc_msgSend`;
 - candidate reali in due checkout distinti `PASS` con scanner 684/207;
   partial stub tamper `FAIL`, fixture iOS 43/43 e Flutter/YAML 12/12 `PASS`;
+- `scripts/check.sh` `PASS`: 804/804 non-performance, performance 10/10,
+  repeat 70/70, analyze, Android debug e iOS Simulator debug;
 - re-review e nuova CI PR exact-SHA `NOT_RUN`; production, signing e
   TestFlight invariati.

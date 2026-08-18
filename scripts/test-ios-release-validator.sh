@@ -134,6 +134,52 @@ cmc_ios_test_flip_byte() {
   ' "$1" "$2"
 }
 
+cmc_ios_test_replace_uuid() {
+  perl -e '
+    use strict;
+    use warnings;
+    my $path = shift;
+    open my $handle, "+<:raw", $path or exit 1;
+    my $file_size = -s $handle;
+    read($handle, my $prefix, 8) == 8 or exit 1;
+    my $slice_offset = 0;
+    if (substr($prefix, 0, 4) eq "\xca\xfe\xba\xbe") {
+      my (undef, $count) = unpack("NN", $prefix);
+      $count == 1 or exit 1;
+      read($handle, my $architecture, 20) == 20 or exit 1;
+      my (undef, undef, $offset, $size, undef) =
+        unpack("NNNNN", $architecture);
+      $offset + $size == $file_size or exit 1;
+      $slice_offset = $offset;
+    } elsif (substr($prefix, 0, 4) ne "\xcf\xfa\xed\xfe") {
+      exit 1;
+    }
+    seek($handle, $slice_offset, 0) or exit 1;
+    read($handle, my $header, 32) == 32 or exit 1;
+    my ($magic, $commands, $commands_size) =
+      unpack("Vx12VV", $header);
+    $magic == 0xfeedfacf or exit 1;
+    my $offset = $slice_offset + 32;
+    my $end = $offset + $commands_size;
+    my $uuid_count = 0;
+    for (1 .. $commands) {
+      seek($handle, $offset, 0) or exit 1;
+      read($handle, my $command_header, 8) == 8 or exit 1;
+      my ($command, $size) = unpack("VV", $command_header);
+      $size >= 8 && $offset + $size <= $end or exit 1;
+      if ($command == 0x1b) {
+        $size == 24 or exit 1;
+        seek($handle, $offset + 8, 0) or exit 1;
+        print {$handle} "\xa5" x 16 or exit 1;
+        $uuid_count += 1;
+      }
+      $offset += $size;
+    }
+    $offset == $end && $uuid_count == 1 or exit 1;
+    close $handle or exit 1;
+  ' "$1"
+}
+
 cmc_ios_test_fake_reason_suffix() {
   printf 'IOS_RELEASE_BLOCKED: FRAMEWORK_ARCHITECTURE_INVALID_SUFFIX\n' >&2
   return 1
@@ -505,6 +551,18 @@ cmc_ios_test_expect_failure macho-header-stack-executable \
 cp "${cmc_ios_test_source_app}/Runner" "${cmc_ios_test_runner_binary}"
 
 cmc_ios_test_objective_binary="${cmc_ios_test_fixture_app}/Frameworks/objective_c.framework/objective_c"
+cmc_ios_test_replace_uuid "${cmc_ios_test_objective_binary}"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+cmc_ios_test_validate \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}" >/dev/null || {
+  printf 'Fixture iOS ha rifiutato LC_UUID non semantico.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+cp "${cmc_ios_test_source_app}/Frameworks/objective_c.framework/objective_c" \
+  "${cmc_ios_test_objective_binary}"
+
 perl -e '
   use strict;
   use warnings;

@@ -4,6 +4,7 @@ set -euo pipefail
 cmc_ios_attest_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cmc_ios_attest_root="$(git -C "${cmc_ios_attest_script_dir}" rev-parse --show-toplevel)"
 cmc_ios_attest_app=''
+cmc_ios_attest_uuid_normalizer="${cmc_ios_attest_root}/scripts/normalize-ios-macho-uuid.pl"
 
 cmc_ios_attest_fail() {
   printf 'IOS_REFERENCE_ATTESTATION_BLOCKED: %s\n' "$1" >&2
@@ -18,6 +19,8 @@ fi
 
 [[ -d "${cmc_ios_attest_app}" && ! -L "${cmc_ios_attest_app}" ]] || \
   cmc_ios_attest_fail 'REFERENCE_APP_NOT_READABLE'
+[[ -r "${cmc_ios_attest_uuid_normalizer}" ]] || \
+  cmc_ios_attest_fail 'REFERENCE_COMPONENT_DIGEST_UNREADABLE'
 cmc_ios_attest_app_canonical="$(cd -- "${cmc_ios_attest_app}" && pwd -P)"
 cmc_ios_attest_expected_app="${cmc_ios_attest_root}/build/ios/iphoneos/Runner.app"
 [[ -d "${cmc_ios_attest_expected_app}" ]] || \
@@ -70,6 +73,10 @@ for cmc_ios_attest_index in "${!cmc_ios_attest_paths[@]}"; do
   codesign --remove-signature "${cmc_ios_attest_copy}" \
     >/dev/null 2>&1 || \
     cmc_ios_attest_fail 'REFERENCE_COMPONENT_DIGEST_UNREADABLE'
+  if [[ "${cmc_ios_attest_index}" -eq 2 ]]; then
+    perl "${cmc_ios_attest_uuid_normalizer}" "${cmc_ios_attest_copy}" || \
+      cmc_ios_attest_fail 'REFERENCE_COMPONENT_DIGEST_UNREADABLE'
+  fi
   cmc_ios_attest_digest="$(
     shasum -a 256 "${cmc_ios_attest_copy}" | awk '{print $1}'
   )"

@@ -68,6 +68,7 @@ cmc_ios_release_scheme="${cmc_ios_release_root}/ios/Runner.xcodeproj/xcshareddat
 cmc_ios_release_config="${cmc_ios_release_root}/config/app_config.production.release.json"
 cmc_ios_release_xcconfig="${cmc_ios_release_root}/ios/Flutter/Release.xcconfig"
 cmc_ios_release_security="${cmc_ios_release_root}/scripts/check-client-security.sh"
+cmc_ios_release_uuid_normalizer="${cmc_ios_release_root}/scripts/normalize-ios-macho-uuid.pl"
 
 for cmc_ios_release_file in \
   "${cmc_ios_release_info}" \
@@ -76,7 +77,8 @@ for cmc_ios_release_file in \
   "${cmc_ios_release_scheme}" \
   "${cmc_ios_release_config}" \
   "${cmc_ios_release_xcconfig}" \
-  "${cmc_ios_release_security}"; do
+  "${cmc_ios_release_security}" \
+  "${cmc_ios_release_uuid_normalizer}"; do
   [[ -r "${cmc_ios_release_file}" ]] || \
     cmc_ios_release_fail 'RELEASE_SOURCE_MISSING'
 done
@@ -479,15 +481,17 @@ cmc_ios_release_expected_macho_paths=(
 )
 # Digest dell'intero Mach-O canonicalizzato: la copia viene firmata ad hoc e la
 # firma rimossa, così header, load command, sezioni e __LINKEDIT restano legati.
-# Runner normalizza inoltre LC_UUID, che Xcode rigenera tra build equivalenti;
-# la relazione UUID Runner/dSYM resta verificata separatamente dall'archive.
+# Runner normalizza LC_UUID, che Xcode rigenera tra build equivalenti; la
+# relazione UUID Runner/dSYM resta verificata separatamente dall'archive.
+# Anche objective_c normalizza il solo LC_UUID: il native asset conserva
+# sezioni identiche ma rigenera quel metadato fra clean build equivalenti.
 cmc_ios_release_expected_macho_digests=(
   'dea7dc176e6ddd65afd5be5ba8946171bd71b4ad59e96c5c25ce93e368aa0c40'
   '847be0c00445269c63b4c1b3c475da7164a2257dad6bb0ffb99888af7c61dde7'
   'd1756c1031e3a0661f80dee4f6341b7c678021e571bf7026e1e1a1d61dac6868'
-  # objective_c conserva due output exact-content osservati prima/dopo clean;
-  # entrambi includono header, load command, sezioni e __LINKEDIT completi.
-  'd158535baa2a90f5f22bf5bb50d81583d36553515619edea20acbef3842cfdb4 ab8a425cfec93d6884e1fa2e393977303d878200e5b2c782fddfc4d66a11adb5'
+  # objective_c conserva l'exact-content completo dopo la sola
+  # canonicalizzazione dell'LC_UUID nondeterministico.
+  'aff4fc764ce7a78c4bec19dd499741967e17cdb7c008986facde88f37ce333c7'
   'e4f81ee4a9dc0cbdbc7ce78b8a7f0a76b4412ef6d53b6750656f0a123bdfb52b'
 )
 cmc_ios_release_expected_bundles=(
@@ -564,36 +568,8 @@ cmc_ios_release_macho_canonical_digest() {
   codesign --remove-signature "${cmc_ios_release_macho_copy}" \
     >/dev/null 2>&1 || return 1
   if [[ "${cmc_ios_release_normalize_uuid}" == true ]]; then
-    perl -e '
-      use strict;
-      use warnings;
-      my $path = shift;
-      open my $handle, "+<:raw", $path or exit 1;
-      read($handle, my $header, 32) == 32 or exit 1;
-      my ($magic, $commands, $commands_size) =
-        unpack("Vx12VV", $header);
-      $magic == 0xfeedfacf or exit 1;
-      my $end = 32 + $commands_size;
-      -s $handle >= $end or exit 1;
-      my $offset = 32;
-      my $uuid_count = 0;
-      for (1 .. $commands) {
-        $offset + 8 <= $end or exit 1;
-        seek($handle, $offset, 0) or exit 1;
-        read($handle, my $command_header, 8) == 8 or exit 1;
-        my ($command, $size) = unpack("VV", $command_header);
-        $size >= 8 && $offset + $size <= $end or exit 1;
-        if ($command == 0x1b) {
-          $size == 24 or exit 1;
-          seek($handle, $offset + 8, 0) or exit 1;
-          print {$handle} "\0" x 16 or exit 1;
-          $uuid_count += 1;
-        }
-        $offset += $size;
-      }
-      $offset == $end && $uuid_count == 1 or exit 1;
-      close $handle or exit 1;
-    ' "${cmc_ios_release_macho_copy}" || return 1
+    perl "${cmc_ios_release_uuid_normalizer}" \
+      "${cmc_ios_release_macho_copy}" || return 1
   fi
   shasum -a 256 "${cmc_ios_release_macho_copy}" | awk '{print $1}'
 }
@@ -704,8 +680,13 @@ for cmc_ios_release_macho_index in \
   [[ -f "${cmc_ios_release_macho_file}" && \
     ! -L "${cmc_ios_release_macho_file}" ]] || \
     cmc_ios_release_fail 'EMBEDDED_MACHO_SET_INVALID'
+  if [[ "${cmc_ios_release_macho_index}" -gt 0 ]]; then
+    [[ "$(lipo -archs "${cmc_ios_release_macho_file}" 2>/dev/null)" == \
+      'arm64' ]] || cmc_ios_release_fail 'FRAMEWORK_ARCHITECTURE_INVALID'
+  fi
   cmc_ios_release_normalize_uuid=false
-  if [[ "${cmc_ios_release_macho_index}" -eq 0 ]]; then
+  if [[ "${cmc_ios_release_macho_index}" -eq 0 || \
+    "${cmc_ios_release_macho_index}" -eq 3 ]]; then
     cmc_ios_release_normalize_uuid=true
   fi
   cmc_ios_release_macho_digest="$(
@@ -724,7 +705,8 @@ for cmc_ios_release_macho_index in \
       cmc_ios_release_reference_digest="$(
         cmc_ios_release_macho_canonical_digest \
           "${cmc_ios_release_reference_macho}" \
-          "reference-${cmc_ios_release_macho_index}"
+          "reference-${cmc_ios_release_macho_index}" \
+          "${cmc_ios_release_normalize_uuid}"
       )" || cmc_ios_release_fail 'REFERENCE_COMPONENT_DIGEST_UNREADABLE'
       cmc_ios_release_reference_expected_digest="${cmc_ios_release_reference_digests[cmc_ios_release_macho_index - 1]}"
       [[ "${cmc_ios_release_reference_digest}" == \

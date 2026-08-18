@@ -184,6 +184,18 @@ void main() {
           '\n'
           '    --app build/ios/iphoneos/Runner.app',
     );
+    final spaceContinuationBreaker = runbook.replaceFirst(
+      '  bash scripts/create-ios-reference-attestation.sh \\\n',
+      '  bash scripts/create-ios-reference-attestation.sh \\   \n',
+    );
+    final tabContinuationBreaker = runbook.replaceFirst(
+      '  bash scripts/create-ios-reference-attestation.sh \\\n',
+      '  bash scripts/create-ios-reference-attestation.sh \\\t\n',
+    );
+    final carriageReturnContinuationBreaker = runbook.replaceFirst(
+      '  bash scripts/create-ios-reference-attestation.sh \\\n',
+      '  bash scripts/create-ios-reference-attestation.sh \\\r\n',
+    );
     final postArchiveComposed = runbook
         .replaceFirst(
           '  bash scripts/create-ios-reference-attestation.sh \\\n',
@@ -205,6 +217,9 @@ void main() {
       uncalledFunction,
       commentContinuationBreaker,
       blankContinuationBreaker,
+      spaceContinuationBreaker,
+      tabContinuationBreaker,
+      carriageReturnContinuationBreaker,
       postArchiveComposed,
     ]) {
       expect(mutation, isNot(runbook));
@@ -353,7 +368,7 @@ void _validateRunbookAttestation(String runbook, String workflow) {
   if (bashBlocks.length != 3) {
     throw StateError('runbook Bash block set invalid');
   }
-  final executableBlocks = bashBlocks.map(_executableBashLines).toList();
+  final executableBlocks = bashBlocks.map(_physicalBashLines).toList();
   final candidateLines = executableBlocks[0];
   final signedBuildLines = executableBlocks[1];
   final uploadLines = executableBlocks[2];
@@ -480,8 +495,8 @@ cmc_ios_reference_attestation="${cmc_ios_reference_output#IOS_REFERENCE_ATTESTAT
   }
 }
 
-List<String> _executableBashLines(String block) =>
-    block.split('\n').map((line) => line.trim()).toList();
+List<String> _physicalBashLines(String block) =>
+    block.split('\n').map((line) => line.trimLeft()).toList();
 
 int _exactLineCount(List<String> lines, String expected) =>
     lines.where((line) => line == expected).length;

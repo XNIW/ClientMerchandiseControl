@@ -14,8 +14,8 @@
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review read-only Fix 19 del trust anchor
-  iOS cross-step e exact arm64; upload TestFlight resta `NOT_RUN`
+- **Prossima azione autorizzata**: re-review read-only Fix 20 di runbook,
+  parser attestation e fixture exact arm64; upload TestFlight resta `NOT_RUN`
 
 ## Repository coinvolti
 

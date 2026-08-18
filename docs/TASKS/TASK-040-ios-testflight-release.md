@@ -894,6 +894,33 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 19
+
+- exact HEAD `4a9ccf3e4edf0f9fe99a3eadc5f9b8e9659c909d`;
+- `F-040-RR18-IOS-REF-01` e `F-040-RR18-IOS-ARCH-01` chiusi nel codice;
+- prodotto `CHANGES_REQUIRED`, un P2 e due P3: runbook stale, parser
+  attestation non canonico e fixture FAT che falliva sul digest;
+- security `CHANGES_REQUIRED`, un P3 sulla fixture exact-arm64; report sealed
+  SHA-256 `6f280b6352031e760137c7296811413bf8b56c1b5ecc18125958a773356a0470`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 20
+
+- exact technical SHA: `247a5ee51911aeb5d9a835b75a2640a87291544c`;
+- entrambi i flow del runbook acquisiscono l'attestation subito dopo la build
+  reference e la passano al validator senza ricalcolarla dopo l'archive;
+- test Flutter di parità workflow/runbook e ordine build-attestor-archive;
+- il validator accetta solo l'intera forma canonica 4×SHA-256; trailing comma
+  e newline sono fixture negative;
+- le fixture FAT raggiungono separatamente l'attestor e il validator con
+  attestation coerente, verificando le reason exact-arm64;
+- validator iOS 36/36, Flutter/YAML 13/13, candidate reale 683/207, security
+  683, analyze, action pin, syntax, format e diff check `PASS`;
+- runtime, artifact, signing, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

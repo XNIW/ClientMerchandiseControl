@@ -208,12 +208,11 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 18 ha chiuso i due failure CI,
-ma la security re-review ha trovato candidate/reference co-mutabili e framework
-FAT accettabili. Fix 19 cattura i digest reference in un output CI immutabile
-prima dell'archive, lega entrambi gli artifact a quel trust anchor e richiede
-exact `arm64`; re-review read-only richiesta. TestFlight e production restano
-invariati.
+TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 19 ha chiuso i finding di trust
+anchor e framework FAT; la re-review ha richiesto parità runbook/CI, parser
+attestation canonico e fixture che raggiungano davvero exact `arm64`. Fix 20
+chiude i tre finding con validator 36/36 e test runbook/workflow dedicato;
+re-review read-only richiesta. TestFlight e production restano invariati.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

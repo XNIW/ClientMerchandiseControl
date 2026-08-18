@@ -717,9 +717,9 @@ cmc_expect_fail evidence-comment-decoy "${cmc_case}" \
 
 cmc_case="$(cmc_fixture evidence-partial-ios-coordinated)"
 perl -0pi.bak -e '
-  s/(validator iOS avversariale )41\/41/${1}1\/41/
+  s/(validator iOS avversariale )([0-9]+)\/\2/${1}1\/$2/
     or die "current iOS gate count missing\n";
-  s/(^\| T-03 \|[^\n]*fixture iOS )41\/41/${1}1\/41/m
+  s/(^\| T-03 \|[^\n]*fixture iOS )([0-9]+)\/\2/${1}1\/$2/m
     or die "T-03 count missing\n";
 ' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
 rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
@@ -972,7 +972,8 @@ cmc_expect_fail readme-summary-mismatch "${cmc_case}" \
 
 cmc_case="$(cmc_fixture evidence-ca06-count-mismatch)"
 perl -0pi.bak -e '
-  s/(^\| CA-06 \| security source )683( e app artifact 207;)/${1}682$2/m
+  s/(^\| CA-06 \| security source )([0-9]+)( e app artifact 207;)/
+    $1 . ($2 - 1) . $3/em
     or die "CA-06 count missing\n";
 ' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
 rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
@@ -981,7 +982,8 @@ cmc_expect_fail evidence-ca06-count-mismatch "${cmc_case}" \
 
 cmc_case="$(cmc_fixture evidence-t04-count-mismatch)"
 perl -0pi.bak -e '
-  s/(^\| T-04 \| PASS \| scanner )683(\/207)/${1}682$2/m
+  s/(^\| T-04 \| PASS \| scanner )([0-9]+)(\/207)/
+    $1 . ($2 - 1) . $3/em
     or die "T-04 count missing\n";
 ' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
 rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
@@ -990,11 +992,11 @@ cmc_expect_fail evidence-t04-count-mismatch "${cmc_case}" \
 
 cmc_case="$(cmc_fixture evidence-security-zero-coordinated)"
 perl -0pi.bak -e '
-  s/(^\| CA-06 \| security source )683( e app artifact )207/${1}0${2}0/m
+  s/(^\| CA-06 \| security source )[0-9]+( e app artifact )[0-9]+/${1}0${2}0/m
     or die "CA-06 counts missing\n";
-  s/(^\| T-04 \| PASS \| scanner )683\/207/${1}0\/0/m
+  s/(^\| T-04 \| PASS \| scanner )[0-9]+\/[0-9]+/${1}0\/0/m
     or die "T-04 counts missing\n";
-  s/(^- security source )683(; artifact )207/${1}0${2}0/m
+  s/(^- security source )[0-9]+(; artifact )[0-9]+/${1}0${2}0/m
     or die "gate security counts missing\n";
 ' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
 rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"

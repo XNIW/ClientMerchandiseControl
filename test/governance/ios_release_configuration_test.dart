@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaml/yaml.dart';
 
@@ -215,6 +216,17 @@ void main() {
               '--app build/ios/iphoneos/Runner.app\n'
               'bash scripts/check-ios-release.sh',
         );
+    final firstBashBlock = RegExp(
+      r'```bash\r?\n[\s\S]*?\r?\n```',
+    ).firstMatch(runbook)!.group(0)!;
+    final hiddenHtmlComment = runbook.replaceFirst(
+      firstBashBlock,
+      '<!-- hidden canonical candidate\n$firstBashBlock\n-->',
+    );
+    final blockquotedCandidate = runbook.replaceFirst(
+      firstBashBlock,
+      firstBashBlock.split('\n').map((line) => '> $line').join('\n'),
+    );
 
     for (final mutation in <String>[
       commented,
@@ -228,6 +240,8 @@ void main() {
       carriageReturnContinuationBreaker,
       leadingCarriageReturnArgument,
       postArchiveComposed,
+      hiddenHtmlComment,
+      blockquotedCandidate,
     ]) {
       expect(mutation, isNot(runbook));
       expect(
@@ -359,6 +373,12 @@ jobs:
 }
 
 void _validateRunbookAttestation(String runbook, String workflow) {
+  const expectedRunbookSha256 =
+      '411497e6a80f5f5f00be1d18040061a0bba11e494f87698f8a280242f571980c';
+  if (sha256.convert(utf8.encode(runbook)).toString() !=
+      expectedRunbookSha256) {
+    throw StateError('runbook byte identity invalid');
+  }
   const attestor = 'scripts/create-ios-reference-attestation.sh';
   const referenceArgument = '--reference-app build/ios/iphoneos/Runner.app';
   final bashBlocks = RegExp(

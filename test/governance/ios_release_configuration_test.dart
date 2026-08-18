@@ -141,7 +141,7 @@ void main() {
     final workflow = File(
       '$repositoryRoot/.github/workflows/ci.yml',
     ).readAsStringSync();
-    final mutation = runbook
+    final commented = runbook
         .replaceAll(
           '  bash scripts/create-ios-reference-attestation.sh',
           '# bash scripts/create-ios-reference-attestation.sh',
@@ -154,12 +154,35 @@ void main() {
           '  --reference-attestation "\${cmc_ios_reference_attestation}"',
           '# --reference-attestation "\${cmc_ios_reference_attestation}"',
         );
-
-    expect(mutation, isNot(runbook));
-    expect(
-      () => _validateRunbookAttestation(mutation, workflow),
-      throwsA(isA<StateError>()),
+    final inlineComment = runbook.replaceAll(
+      '  bash scripts/create-ios-reference-attestation.sh',
+      '  : # bash scripts/create-ios-reference-attestation.sh',
     );
+    final postArchiveComposed = runbook
+        .replaceFirst(
+          '  bash scripts/create-ios-reference-attestation.sh \\\n',
+          '  cmc_ios_attestor_script="scripts/create-ios-reference-attestation.sh"\n',
+        )
+        .replaceFirst(
+          '  COMPILER_INDEX_STORE_ENABLE=NO\n'
+              'bash scripts/check-ios-release.sh',
+          '  COMPILER_INDEX_STORE_ENABLE=NO\n'
+              'bash "\${cmc_ios_attestor_script}" '
+              '--app build/ios/iphoneos/Runner.app\n'
+              'bash scripts/check-ios-release.sh',
+        );
+
+    for (final mutation in <String>[
+      commented,
+      inlineComment,
+      postArchiveComposed,
+    ]) {
+      expect(mutation, isNot(runbook));
+      expect(
+        () => _validateRunbookAttestation(mutation, workflow),
+        throwsA(isA<StateError>()),
+      );
+    }
   });
 
   test(
@@ -288,18 +311,33 @@ void _validateRunbookAttestation(String runbook, String workflow) {
   const referenceArgument = '--reference-app build/ios/iphoneos/Runner.app';
   const attestationArgument =
       '--reference-attestation "\${cmc_ios_reference_attestation}"';
+  const attestorLine = 'bash scripts/create-ios-reference-attestation.sh \\';
+  const referenceLine = '--reference-app build/ios/iphoneos/Runner.app \\';
+  const candidateAttestationLine =
+      '--reference-attestation "\${cmc_ios_reference_attestation}"';
+  const uploadAttestationLine =
+      '--reference-attestation "\${cmc_ios_reference_attestation}" \\';
   final bashBlocks = RegExp(
     r'```bash\r?\n([\s\S]*?)\r?\n```',
   ).allMatches(runbook).map((match) => match.group(1)!).toList();
   if (bashBlocks.length != 3) {
     throw StateError('runbook Bash block set invalid');
   }
-  final executableBlocks = bashBlocks.map(_withoutBashComments).toList();
-  final candidate = executableBlocks[0];
-  final signedBuild = executableBlocks[1];
-  final upload = executableBlocks[2];
+  final executableBlocks = bashBlocks.map(_executableBashLines).toList();
+  final candidateLines = executableBlocks[0];
+  final signedBuildLines = executableBlocks[1];
+  final uploadLines = executableBlocks[2];
+  final candidate = candidateLines.join('\n');
+  final signedBuild = signedBuildLines.join('\n');
+  final upload = uploadLines.join('\n');
 
-  if (_occurrenceCount(candidate, attestor) != 1 ||
+  if (_exactLineCount(candidateLines, attestorLine) != 1 ||
+      _exactLineCount(candidateLines, referenceLine) != 1 ||
+      _exactLineCount(candidateLines, candidateAttestationLine) != 1 ||
+      _exactLineCount(signedBuildLines, attestorLine) != 1 ||
+      _exactLineCount(uploadLines, referenceLine) != 1 ||
+      _exactLineCount(uploadLines, uploadAttestationLine) != 1 ||
+      _occurrenceCount(candidate, attestor) != 1 ||
       _occurrenceCount(candidate, referenceArgument) != 1 ||
       _occurrenceCount(candidate, attestationArgument) != 1 ||
       _occurrenceCount(signedBuild, attestor) != 1 ||
@@ -310,22 +348,38 @@ void _validateRunbookAttestation(String runbook, String workflow) {
       _occurrenceCount(upload, attestationArgument) != 1) {
     throw StateError('runbook attestation command set invalid');
   }
-  final unsignedBuild = candidate.indexOf(
-    'flutter build ios --release --no-codesign',
+  final unsignedBuild = candidateLines.indexOf(
+    'flutter build ios --release --no-codesign \\',
   );
-  final unsignedAttestor = candidate.indexOf(attestor);
-  final unsignedArchive = candidate.indexOf('xcodebuild archive');
-  final unsignedValidator = candidate.indexOf(referenceArgument);
-  final productionBuild = signedBuild.indexOf('flutter build ios --release');
-  final productionAttestor = signedBuild.indexOf(attestor);
-  final uploadGate = upload.indexOf('--require-upload-ready');
+  final unsignedAttestor = candidateLines.indexOf(attestorLine);
+  final unsignedArchive = candidateLines.indexOf('xcodebuild archive \\');
+  final unsignedValidator = candidateLines.indexOf(
+    'bash scripts/check-ios-release.sh \\',
+  );
+  final unsignedReference = candidateLines.indexOf(referenceLine);
+  final unsignedAttestation = candidateLines.indexOf(candidateAttestationLine);
+  final productionBuild = signedBuildLines.indexOf(
+    'flutter build ios --release \\',
+  );
+  final productionAttestor = signedBuildLines.indexOf(attestorLine);
+  final uploadValidator = uploadLines.indexOf(
+    'bash scripts/check-ios-release.sh \\',
+  );
+  final uploadReference = uploadLines.indexOf(referenceLine);
+  final uploadAttestation = uploadLines.indexOf(uploadAttestationLine);
+  final uploadGate = uploadLines.indexOf('--require-upload-ready');
   if (unsignedBuild < 0 ||
       unsignedAttestor <= unsignedBuild ||
       unsignedArchive <= unsignedAttestor ||
       unsignedValidator <= unsignedArchive ||
+      unsignedReference <= unsignedValidator ||
+      unsignedAttestation <= unsignedReference ||
       productionBuild < 0 ||
       productionAttestor <= productionBuild ||
-      uploadGate < 0 ||
+      uploadValidator < 0 ||
+      uploadReference <= uploadValidator ||
+      uploadAttestation <= uploadReference ||
+      uploadGate <= uploadAttestation ||
       !runbook.contains("senza ricalcolare l'attestazione") ||
       !runbook.contains("successivamente all'archive")) {
     throw StateError('runbook attestation order invalid');
@@ -339,10 +393,15 @@ void _validateRunbookAttestation(String runbook, String workflow) {
   }
 }
 
-String _withoutBashComments(String block) => block
+List<String> _executableBashLines(String block) => block
     .split('\n')
+    .where((line) => line.trim().isNotEmpty)
     .where((line) => !line.trimLeft().startsWith('#'))
-    .join('\n');
+    .map((line) => line.trim())
+    .toList();
+
+int _exactLineCount(List<String> lines, String expected) =>
+    lines.where((line) => line == expected).length;
 
 int _occurrenceCount(String value, String needle) =>
     RegExp(RegExp.escape(needle)).allMatches(value).length;

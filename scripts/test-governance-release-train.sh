@@ -11,13 +11,15 @@ cmc_repository_task_status="$(
 )"
 cmc_fixture_revision='HEAD'
 if [[ "${cmc_repository_task_status}" == 'DONE' ]]; then
-  cmc_committed_task_status="$(
-    git show HEAD:docs/MASTER-PLAN.md | \
-      sed -n 's/^- \*\*Stato task\*\*: //p' | head -n 1
+  cmc_closeout_transition="$(
+    git log -1 --format='%H' -S'- **Stato task**: BLOCKED' -- \
+      docs/MASTER-PLAN.md
   )"
-  if [[ "${cmc_committed_task_status}" == 'DONE' ]]; then
-    cmc_fixture_revision='HEAD^'
+  if [[ -z "${cmc_closeout_transition}" ]]; then
+    printf 'Transizione closeout TASK-040 non trovata.\n' >&2
+    exit 1
   fi
+  cmc_fixture_revision="${cmc_closeout_transition}^"
 fi
 cmc_fixture_task_status="$(
   git show "${cmc_fixture_revision}:docs/MASTER-PLAN.md" | \
@@ -306,27 +308,33 @@ cmc_fixture() {
       git show "${cmc_fixture_revision}:${cmc_governance_file}" \
         >"${cmc_target}/${cmc_governance_file}"
     done
+    CMC_REMOTE_REVIEW='dfa81de942f4cc06dc0340096a17d94410943730' \
+      CMC_CURRENT_REVIEW="$(git rev-parse HEAD)" \
+      CMC_REMOTE_TECHNICAL='83e9d42ba51190617c91e3137786e6cd33fe7bd9' \
+      CMC_CURRENT_TECHNICAL="$(
+        git log -1 --format='%H' -- scripts/test-governance-release-train.sh
+      )" \
+      perl -pi -e '
+        s/\Q$ENV{CMC_REMOTE_REVIEW}\E/$ENV{CMC_CURRENT_REVIEW}/g;
+        s/\Q$ENV{CMC_REMOTE_TECHNICAL}\E/$ENV{CMC_CURRENT_TECHNICAL}/g;
+        s/dfa81de/substr($ENV{CMC_CURRENT_REVIEW}, 0, 7)/ge;
+        s/83e9d42/substr($ENV{CMC_CURRENT_TECHNICAL}, 0, 7)/ge;
+      ' \
+      "${cmc_target}/docs/MASTER-PLAN.md" \
+      "${cmc_target}/docs/AI_WORKLOG.md" \
+      "${cmc_target}/docs/TASKS/TASK-040-ios-testflight-release.md" \
+      "${cmc_target}/docs/TASKS/EVIDENCE/TASK-040/README.md" \
+      "${cmc_target}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
     if ! git cat-file -e \
-      'dfa81de942f4cc06dc0340096a17d94410943730^{commit}' 2>/dev/null; then
-      CMC_REMOTE_REVIEW='dfa81de942f4cc06dc0340096a17d94410943730' \
-        CMC_LOCAL_REVIEW='f7ea8876216edaf8de3066c2890921e948679185' \
-        CMC_REMOTE_TECHNICAL='83e9d42ba51190617c91e3137786e6cd33fe7bd9' \
-        CMC_LOCAL_TECHNICAL='b67a3a46ce333a4d455f94041ab8785020055499' \
-        CMC_REMOTE_ARTIFACT='30ccc4de09e7a1e85b3d96d5d217dd1affe414e9' \
+      '30ccc4de09e7a1e85b3d96d5d217dd1affe414e9^{commit}' 2>/dev/null; then
+      CMC_REMOTE_ARTIFACT='30ccc4de09e7a1e85b3d96d5d217dd1affe414e9' \
         CMC_LOCAL_ARTIFACT='dda9c1f8a4933267d625c72a8c20db834260811d' \
         perl -pi -e '
-          s/\Q$ENV{CMC_REMOTE_REVIEW}\E/$ENV{CMC_LOCAL_REVIEW}/g;
-          s/\Q$ENV{CMC_REMOTE_TECHNICAL}\E/$ENV{CMC_LOCAL_TECHNICAL}/g;
           s/\Q$ENV{CMC_REMOTE_ARTIFACT}\E/$ENV{CMC_LOCAL_ARTIFACT}/g;
-          s/dfa81de/f7ea887/g;
-          s/83e9d42/b67a3a4/g;
           s/30ccc4d/dda9c1f/g;
         ' \
-        "${cmc_target}/docs/MASTER-PLAN.md" \
-        "${cmc_target}/docs/AI_WORKLOG.md" \
         "${cmc_target}/docs/TASKS/TASK-040-ios-testflight-release.md" \
-        "${cmc_target}/docs/TASKS/EVIDENCE/TASK-040/README.md" \
-        "${cmc_target}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+        "${cmc_target}/docs/TASKS/EVIDENCE/TASK-040/README.md"
     fi
   fi
 

@@ -46,7 +46,7 @@ Admin sono verdi sui rispettivi SHA iniziali. I linked worktree del train parton
 | TASK-037 | DONE | `c4ec680` | `59668348`, read-only | Client #15/#16 merged | review APPROVED; PR/main CI PASS |
 | TASK-038 | DONE | `ce2ab134` | `59668348`, read-only | Client #17 merged | review APPROVED; PR/main CI 3/3 PASS |
 | TASK-039 | DONE | `f30b13e9` | `59668348`, read-only | Client #18 merged | review APPROVED; PR/main CI 4/4 PASS; signing/Play esterni |
-| TASK-040 | ACTIVE / FIX | `1a2332e` review | `59668348`, read-only | Client #19 open | Fix 32 review: un P2 post-check; Fix 33 richiesto |
+| TASK-040 | ACTIVE / REVIEW | `1e15fd2` technical | `59668348`, read-only | Client #19 open | Fix 33 handoff; re-review e nuova CI exact-SHA richieste |
 | TASK-041 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 | TASK-042 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 

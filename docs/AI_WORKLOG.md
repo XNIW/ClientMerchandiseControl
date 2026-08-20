@@ -4133,3 +4133,17 @@
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; production e TestFlight invariati.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 33 e handoff
+
+- **Technical SHA**: `1e15fd24e694a40bf5b0afb2f9d1f46f2ae0dbfd`.
+- **Fix**: attestazione exact-tree dell'intera app prima/dopo la validazione,
+  cap preventivi, leaf non-follow/non-blocking e digest finale pubblicato.
+- **Regressione**: swap dopo il nuovo helper sul path canonico reale respinto
+  con `ARTIFACT_CHANGED_DURING_VALIDATION`; FIFO/entity restano chiusi.
+- **Gate**: candidate 686/207 e tree SHA-256 `ba2da550...d9d8f3a`, validator
+  iOS 53/53, governance 88/88, Flutter/YAML 12/12, source/security, syntax,
+  py_compile, action pin e diff `PASS`.
+- **Boundary**: runtime, firma, provisioning, TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

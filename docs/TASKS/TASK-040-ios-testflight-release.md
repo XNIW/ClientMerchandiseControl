@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1276,6 +1276,26 @@ report prodotto sealed SHA-256
   `--digest` e non prova il boundary nuovo.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 33
+
+- exact technical SHA: `1e15fd24e694a40bf5b0afb2f9d1f46f2ae0dbfd`;
+- il nuovo attestor exact-tree legge l'intera app con cap preventivi di 4.096
+  entry, 128 MiB per file e 512 MiB aggregati, rifiuta symlink/non-regular e
+  verifica stabilità di leaf e directory;
+- il validator calcola il digest prima e dopo tutti i controlli, fallisce con
+  `ARTIFACT_CHANGED_DURING_VALIDATION` se differiscono ed emette il digest
+  finale `IOS_RELEASE_ARTIFACT_TREE_SHA256`;
+- la regression intercetta `--validate-identity-and-digest` sul path canonico
+  effettivo, esegue lo swap post-helper, prova che il tamper è avvenuto e
+  richiede la reason exact-tree;
+- candidate reale 686/207 `PASS`, digest albero
+  `ba2da55082d0a50b42d2cd88c555e552f4b7de05136df19ab4d41441cd9d8f3a`,
+  validator iOS 53/53, source/security, governance 88/88, Flutter/YAML 12/12,
+  syntax, py_compile, action pin e diff check `PASS`;
+- runtime, firma, provisioning, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

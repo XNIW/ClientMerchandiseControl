@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -19,11 +19,11 @@ Snapshot di handoff:
 | CA-03 | release app/archive, 4 digest, 7 dSYM e Runner UUID | PASS |
 | CA-04 | custom scheme bounded; entitlement/Universal Links/push assenti e bloccati | PASS |
 | CA-05 | manifest app byte-identico, 8 privacy manifest e inventory recursive exact 4 framework/9 bundle | PASS |
-| CA-06 | security source 685 e app artifact 207; config esterna assente | PASS |
+| CA-06 | security source 686 e app artifact 207; config esterna assente | PASS |
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 32 review con fix richiesto; Fix 33 e PR/main CI da eseguire | NOT_RUN |
+| CA-10 | Fix 33 handoff; re-review indipendente e PR/main CI da eseguire | NOT_RUN |
 
 ## Matrice T -> risultato
 
@@ -32,12 +32,12 @@ Snapshot di handoff:
 | T-01 | PASS | source gate, runtime/CI 18/18 e config/signing boundary |
 | T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `01dd140` |
 | T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 53/53 |
-| T-04 | PASS | scanner 685/207 e fixture 61/61 + 7/7 |
+| T-04 | PASS | scanner 686/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 32 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 33 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,19 +64,28 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 32
+## Gate executor corrente — Fix 33
 
 - `scripts/check.sh`: exit 0;
 - non-performance 804/804; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
 - governance 88/88; architecture negative 17/17; localization/telemetry/action pin PASS;
-- security source 685; artifact 207; fixture negative 61/61, positive 7/7;
+- security source 686; artifact 207; fixture negative 61/61, positive 7/7;
 - validator iOS avversariale 53/53; Flutter/YAML mirati 12/12;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
+
+Fix 33 aggiunge un attestor exact-tree bounded su 4.096 entry, 128 MiB per
+file e 512 MiB aggregati. Ogni leaf usa `O_NOFOLLOW` e `O_NONBLOCK`; file e
+directory devono restare stabili durante la lettura. Il validator confronta il
+digest dell'intera app prima e dopo tutti i controlli, emette
+`IOS_RELEASE_ARTIFACT_TREE_SHA256` e respinge lo swap post-helper con
+`ARTIFACT_CHANGED_DURING_VALIDATION`. Il target della regression usa lo stesso
+path canonico `/private/...` del validator. Candidate 686/207 e fixture iOS
+53/53 sono `PASS`.
 
 Fix 32 non cambia il runtime applicativo. Il canonicalizer usa `O_NOFOLLOW` e
 `O_NONBLOCK`, rifiuta FIFO, internal subset ed entity declaration

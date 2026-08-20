@@ -8,15 +8,14 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: Fix 33 del P2 post-check plist, re-review
-  indipendente, CI PR exact-SHA e closeout/merge normale; upload TestFlight
-  `NOT_RUN`
+- **Prossima azione autorizzata**: re-review indipendente Fix 33, CI PR
+  exact-SHA e closeout/merge normale; upload TestFlight `NOT_RUN`
 
 ## Repository coinvolti
 

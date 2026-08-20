@@ -191,8 +191,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -208,12 +208,12 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / FIX`: la re-review Fix 38 ha chiuso
-l'ancestor ABA ma ha riprodotto tre P3 nel lifecycle/cleanup temporaneo:
-terminali name-based dopo la verifica, identità acquisita dopo `mktemp` e
-crescita nominale dei tombstone. Candidate `686/207`, fixture iOS 76/76 e
-governance 88/88 restano verdi; Fix 39, re-review distinta, PR e CI exact-SHA
-sono obbligatori. Activation invariata.
+TASK-040 è l'unico task `ACTIVE / REVIEW`: il Fix 39 crea e attesta la root
+temporanea nello stesso helper, sostituisce i terminali distruttivi name-based
+con quarantine esclusiva identity-bound e conserva soltanto tombstone senza
+payload entro il cap fail-closed di 512 entry. Candidate `686/207`, fixture iOS
+80/80, governance 88/88 e gate completo sono verdi; re-review distinta, PR e CI
+exact-SHA sono obbligatori. Activation invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

@@ -4342,3 +4342,25 @@
   `7f25fcfbf8c5702c8424a5c040b3824f600090a69c332b99d17abbe7da27c515`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 39 e handoff
+
+- **Technical SHA**: `8b820b96f6f3f288c2194bf0ca2a1dbbd2c5bdbe`.
+- **Fix**: creazione/identity della root temporanea atomica e serializzata;
+  cleanup senza terminali name-based tramite quarantine esclusiva,
+  identity check e truncate descriptor-bound; hardlink respinti.
+- **Retention**: tombstone senza payload entro cap fail-closed di 512 entry;
+  i residui storici restano preservati e non vengono cancellati dal fixer.
+- **Regressioni**: root pre-identity, post-clear directory swap,
+  no-name-based-terminal, hardlink e retention cap; iOS 80/80 e Flutter/YAML
+  12/12 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 +
+  7/7, architecture 17/17, analyze, format, syntax, pycompile, action pin e
+  diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready reale exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun upload, signing,
+  provisioning, physical iOS o activation production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

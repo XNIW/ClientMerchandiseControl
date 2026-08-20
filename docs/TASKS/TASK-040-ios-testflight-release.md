@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1589,6 +1589,36 @@ report prodotto sealed SHA-256
   signing, TestFlight e production invariati.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 39
+
+- exact technical SHA: `8b820b96f6f3f288c2194bf0ca2a1dbbd2c5bdbe`;
+- la root `cmc-ios-release.*` viene creata e attestata atomicamente da
+  `--create-temp-directory` sotto lock esclusivo, con path canonico e identita
+  `device,inode` restituiti nello stesso processo;
+- il cleanup non usa piu terminali `unlink`/`rmdir`: ogni entry viene spostata
+  con `renameatx_np(RENAME_EXCL)`, confrontata per identita e svuotata tramite
+  descriptor; hardlink, collisioni e sostituzioni falliscono chiusi;
+- i tombstone trattenuti sono privi di payload e soggetti al cap fail-closed di
+  512 entry per parent temporaneo; le nuove root Fix 39 ispezionate conservano
+  zero file non vuoti, mentre i residui storici dei fix precedenti non vengono
+  alterati distruttivamente;
+- regressioni root pre-identity, post-clear directory swap, terminali name-based,
+  hardlink e retention cap sono verdi; validator iOS 80/80 e Flutter/YAML 12/12
+  `PASS`;
+- candidate reale 686/207 `PASS`, unsigned; tree SHA-256
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`
+  e sealed payload SHA-256
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+- `scripts/check.sh` exact technical SHA exit 0: 804/804 non-performance,
+  performance 10/10, repeat resilience 70/70, security 686 + 61/61 + 7/7,
+  governance 88/88, architecture 17/17, analyze/format e build debug
+  Android/iOS `PASS`;
+- upload-ready reale exit 1 con reason esatta
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

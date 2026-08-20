@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: Fix 39 sul lifecycle/cleanup temporaneo
-  race-safe e senza crescita tombstone, quindi re-review distinta; upload
-  TestFlight `NOT_RUN`
+- **Prossima azione autorizzata**: re-review distinta del Fix 39 sul
+  lifecycle/cleanup temporaneo; dopo `APPROVED`, PR/main CI exact-SHA.
+  Upload TestFlight `NOT_RUN`
 
 ## Repository coinvolti
 

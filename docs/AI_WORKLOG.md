@@ -4042,5 +4042,4 @@
   syntax e diff check `PASS`.
 - **Boundary**: runtime, signing, provisioning, TestFlight e production
   invariati.
-- **Handoff**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
-  read-only distinta obbligatoria.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

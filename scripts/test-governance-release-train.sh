@@ -400,11 +400,23 @@ cmc_expect_review_role_policy \
   REVIEW CODEX_REVIEW_BLOCKED \
   review re-review 'Exact HEAD'
 cmc_expect_review_role_policy \
+  REVIEW CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION \
+  review re-review 'Exact HEAD'
+cmc_expect_review_role_policy \
+  REVIEW CODEX_EXECUTION_COMPLETE_TO_REVIEW \
+  technical 'e handoff' 'Technical SHA'
+cmc_expect_review_role_policy \
+  REVIEW CODEX_FIX_COMPLETE_TO_RE_REVIEW \
+  technical 'e handoff' 'Technical SHA'
+cmc_expect_review_role_policy \
   REVIEW CODEX_FIX_BLOCKED_TO_RE_REVIEW \
   technical 'e handoff' 'Technical SHA'
 cmc_expect_review_role_policy \
   FIX CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX \
   review re-review 'Exact HEAD'
+cmc_expect_review_role_policy \
+  REVIEW CODEX_REVIEW_UNKNOWN \
+  '' '' ''
 
 cmc_case="$(cmc_fixture valid)"
 cmc_expect_pass valid "${cmc_case}"

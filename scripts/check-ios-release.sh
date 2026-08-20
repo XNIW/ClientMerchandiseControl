@@ -392,13 +392,16 @@ cmc_ios_release_tmp_parent="${cmc_ios_release_tmp_parent%/}"
 cmc_ios_release_tmp_parent="$(
   cd -- "${cmc_ios_release_tmp_parent}" && pwd -P
 )" || cmc_ios_release_fail 'TEMP_ROOT_INVALID'
-cmc_ios_release_tmp_root="$(
-  mktemp -d "${cmc_ios_release_tmp_parent}/cmc-ios-release.XXXXXX"
-)"
-cmc_ios_release_tmp_identity="$(
+cmc_ios_release_tmp_record="$(
   python3 "${cmc_ios_release_tree_attestor}" \
-    --directory-identity "${cmc_ios_release_tmp_root}"
+    --create-temp-directory "${cmc_ios_release_tmp_parent}"
 )" || cmc_ios_release_fail 'TEMP_ROOT_INVALID'
+IFS=$'\t' read -r \
+  cmc_ios_release_tmp_root \
+  cmc_ios_release_tmp_identity <<<"${cmc_ios_release_tmp_record}"
+[[ "${cmc_ios_release_tmp_root}" == \
+    "${cmc_ios_release_tmp_parent}"/cmc-ios-release.* ]] || \
+  cmc_ios_release_fail 'TEMP_ROOT_INVALID'
 [[ "${cmc_ios_release_tmp_identity}" =~ ^[0-9]+,[0-9]+$ ]] || \
   cmc_ios_release_fail 'TEMP_ROOT_INVALID'
 cmc_ios_release_guard_pid=''

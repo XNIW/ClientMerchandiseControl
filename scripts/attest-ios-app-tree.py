@@ -4,6 +4,9 @@
 from __future__ import annotations
 
 import hashlib
+import ctypes
+import errno
+import fcntl
 import os
 import posixpath
 import re
@@ -28,9 +31,26 @@ MAX_CLEANUP_DEPTH = 256
 MAX_CLEANUP_PASSES = 16
 MAX_CLEANUP_OPERATIONS = 65_536
 MAX_CLEANUP_QUARANTINE_ATTEMPTS = 16
+MAX_RETAINED_TEMP_ROOTS = 512
 CHUNK_BYTES = 65_536
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 DIRECTORY_IDENTITY_PATTERN = re.compile(r"^[0-9]+,[0-9]+$")
+TEMP_DIRECTORY_RECORD_PATTERN = re.compile(
+    r"^(/[^\t\r\n\x00]+)\t([0-9]+,[0-9]+)$"
+)
+RENAME_EXCL = 0x00000004
+
+_LIBC = ctypes.CDLL(None, use_errno=True)
+_RENAMEATX_NP = getattr(_LIBC, "renameatx_np", None)
+if _RENAMEATX_NP is not None:
+    _RENAMEATX_NP.argtypes = (
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_int,
+        ctypes.c_char_p,
+        ctypes.c_uint,
+    )
+    _RENAMEATX_NP.restype = ctypes.c_int
 
 Record = tuple[bytes, bytes, int, int, bytes]
 
@@ -182,6 +202,66 @@ def _write_all(descriptor: int, payload: bytes) -> None:
         offset += written
 
 
+def _rename_exclusive(
+    source_directory: int,
+    source: str,
+    destination_directory: int,
+    destination: str,
+) -> None:
+    if _RENAMEATX_NP is None:
+        raise OSError(errno.ENOTSUP, "exclusive rename unavailable")
+    result = _RENAMEATX_NP(
+        source_directory,
+        os.fsencode(source),
+        destination_directory,
+        os.fsencode(destination),
+        RENAME_EXCL,
+    )
+    if result != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error))
+
+
+def _restore_mismatched_entry(
+    directory: int,
+    quarantine: str,
+    original: str,
+) -> None:
+    try:
+        _rename_exclusive(directory, quarantine, directory, original)
+    except OSError:
+        # Il victim resta preservato nel nome quarantine se il nome originale
+        # è stato occupato durante la race. Non viene mai cancellato.
+        pass
+
+
+def _quarantine_bound_entry(
+    directory: int,
+    name: str,
+    expected: os.stat_result,
+) -> str:
+    for _ in range(MAX_CLEANUP_QUARANTINE_ATTEMPTS):
+        quarantine = f".cmc-cleanup-{secrets.token_hex(16)}"
+        try:
+            _rename_exclusive(directory, name, directory, quarantine)
+        except FileExistsError:
+            continue
+        moved = os.stat(
+            quarantine,
+            dir_fd=directory,
+            follow_symlinks=False,
+        )
+        if (
+            moved.st_dev != expected.st_dev
+            or moved.st_ino != expected.st_ino
+            or moved.st_mode != expected.st_mode
+        ):
+            _restore_mismatched_entry(directory, quarantine, name)
+            raise OSError("cleanup entry identity mismatch")
+        return quarantine
+    raise OSError("cleanup quarantine unavailable")
+
+
 def _clear_directory(
     directory: int,
     depth: int = 0,
@@ -191,9 +271,14 @@ def _clear_directory(
         raise OSError("cleanup depth exceeded")
     if operations is None:
         operations = [0]
+    retained: set[str] = set()
     for _ in range(MAX_CLEANUP_PASSES):
         with os.scandir(directory) as iterator:
-            names = [entry.name for entry in iterator]
+            names = [
+                entry.name
+                for entry in iterator
+                if entry.name not in retained
+            ]
         if not names:
             return
         for name in names:
@@ -222,12 +307,73 @@ def _clear_directory(
                         os.close(child)
                         raise OSError("cleanup child identity mismatch")
                     try:
+                        quarantine = _quarantine_bound_entry(
+                            directory, name, opened
+                        )
                         _clear_directory(child, depth + 1, operations)
+                        os.fsync(child)
+                        retained.add(quarantine)
                     finally:
                         os.close(child)
-                    os.rmdir(name, dir_fd=directory)
                 else:
-                    os.unlink(name, dir_fd=directory)
+                    descriptor: Optional[int] = None
+                    writable: Optional[int] = None
+                    quarantine_expected = metadata
+                    if stat.S_ISREG(metadata.st_mode):
+                        descriptor = os.open(
+                            name,
+                            os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                            dir_fd=directory,
+                        )
+                        opened = os.fstat(descriptor)
+                        if (
+                            not stat.S_ISREG(opened.st_mode)
+                            or opened.st_dev != metadata.st_dev
+                            or opened.st_ino != metadata.st_ino
+                            or opened.st_mode != metadata.st_mode
+                            or opened.st_nlink != 1
+                        ):
+                            os.close(descriptor)
+                            raise OSError("cleanup file identity mismatch")
+                        os.fchmod(
+                            descriptor,
+                            stat.S_IMODE(opened.st_mode) | stat.S_IWUSR,
+                        )
+                        quarantine_expected = os.fstat(descriptor)
+                        writable = os.open(
+                            name,
+                            os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK,
+                            dir_fd=directory,
+                        )
+                        writable_metadata = os.fstat(writable)
+                        if (
+                            writable_metadata.st_dev != opened.st_dev
+                            or writable_metadata.st_ino != opened.st_ino
+                        ):
+                            os.close(writable)
+                            writable = None
+                            raise OSError("cleanup writable identity mismatch")
+                    try:
+                        quarantine = _quarantine_bound_entry(
+                            directory, name, quarantine_expected
+                        )
+                        if writable is not None:
+                            os.ftruncate(writable, 0)
+                            os.fchmod(writable, stat.S_IMODE(metadata.st_mode))
+                            os.fsync(writable)
+                        retained.add(quarantine)
+                    finally:
+                        if writable is not None:
+                            os.close(writable)
+                        if descriptor is not None:
+                            try:
+                                os.fchmod(
+                                    descriptor,
+                                    stat.S_IMODE(metadata.st_mode),
+                                )
+                            except OSError:
+                                pass
+                            os.close(descriptor)
             except FileNotFoundError:
                 continue
     raise OSError("cleanup did not converge")
@@ -242,39 +388,90 @@ def _cleanup_created_directory(
     if identity is None or directory is None:
         return
     opened = os.fstat(directory)
-    current = os.stat(name, dir_fd=parent, follow_symlinks=False)
     if (
         not stat.S_ISDIR(opened.st_mode)
-        or not stat.S_ISDIR(current.st_mode)
         or (opened.st_dev, opened.st_ino) != identity
-        or (current.st_dev, current.st_ino) != identity
     ):
         raise OSError("cleanup identity mismatch")
-    quarantine: Optional[str] = None
-    for _ in range(MAX_CLEANUP_QUARANTINE_ATTEMPTS):
-        candidate = f".cmc-cleanup-{secrets.token_hex(16)}"
-        try:
-            os.mkdir(candidate, 0o700, dir_fd=parent)
-            quarantine = candidate
-            break
-        except FileExistsError:
-            continue
-    if quarantine is None:
-        raise OSError("cleanup quarantine unavailable")
-    os.rename(
-        name,
-        quarantine,
-        src_dir_fd=parent,
-        dst_dir_fd=parent,
-    )
+    quarantine = _quarantine_bound_entry(parent, name, opened)
     detached = os.fstat(directory)
     if (detached.st_dev, detached.st_ino) != identity:
         raise OSError("cleanup detached identity mismatch")
     _clear_directory(directory)
     os.fsync(directory)
     os.fsync(parent)
-    # Il tombstone vuoto resta intenzionalmente: Python/macOS non espone una
-    # rmdir by-fd sicura contro un secondo swap del nome quarantine.
+    # Il root è rimosso dal path operativo e resta come tombstone bounded. Il
+    # cleanup non esegue mai unlink/rmdir name-based su namespace concorrente.
+    # File regolari sono già troncati via descriptor e nessun payload persiste.
+
+
+def create_temp_directory(parent_path: str) -> str:
+    parent = _open_absolute_directory(parent_path)
+    lock: Optional[int] = None
+    try:
+        lock = os.open(
+            ".cmc-ios-release.lock",
+            os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW,
+            0o600,
+            dir_fd=parent,
+        )
+        lock_metadata = os.fstat(lock)
+        if (
+            not stat.S_ISREG(lock_metadata.st_mode)
+            or lock_metadata.st_nlink != 1
+            or lock_metadata.st_uid != os.getuid()
+        ):
+            raise OSError("temporary directory lock invalid")
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        with os.scandir(parent) as iterator:
+            retained_count = sum(
+                1
+                for entry in iterator
+                if entry.name.startswith("cmc-ios-release.")
+                or entry.name.startswith(".cmc-cleanup-")
+            )
+        if retained_count >= MAX_RETAINED_TEMP_ROOTS:
+            raise OSError("temporary directory retention limit exceeded")
+        for _ in range(MAX_CLEANUP_QUARANTINE_ATTEMPTS):
+            name = f"cmc-ios-release.{secrets.token_hex(16)}"
+            try:
+                os.mkdir(name, 0o700, dir_fd=parent)
+            except FileExistsError:
+                continue
+            directory: Optional[int] = None
+            try:
+                before = os.stat(name, dir_fd=parent, follow_symlinks=False)
+                directory = os.open(
+                    name,
+                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    dir_fd=parent,
+                )
+                opened = os.fstat(directory)
+                after = os.stat(name, dir_fd=parent, follow_symlinks=False)
+                if (
+                    not stat.S_ISDIR(before.st_mode)
+                    or not stat.S_ISDIR(opened.st_mode)
+                    or (before.st_dev, before.st_ino)
+                    != (opened.st_dev, opened.st_ino)
+                    or (after.st_dev, after.st_ino)
+                    != (opened.st_dev, opened.st_ino)
+                    or before.st_mode != opened.st_mode
+                    or after.st_mode != opened.st_mode
+                ):
+                    raise OSError("temporary directory identity mismatch")
+                path = f"{parent_path.rstrip('/')}/{name}"
+                record = f"{path}\t{opened.st_dev},{opened.st_ino}"
+                if not TEMP_DIRECTORY_RECORD_PATTERN.fullmatch(record):
+                    raise ValueError("temporary directory record invalid")
+                return record
+            finally:
+                if directory is not None:
+                    os.close(directory)
+        raise OSError("temporary directory unavailable")
+    finally:
+        if lock is not None:
+            os.close(lock)
+        os.close(parent)
 
 
 def directory_identity(path: str) -> str:
@@ -1286,6 +1483,8 @@ def main(arguments: list[str]) -> int:
             guard(arguments[1], arguments[2])
         elif len(arguments) == 2 and arguments[0] == "--directory-identity":
             print(directory_identity(arguments[1]))
+        elif len(arguments) == 2 and arguments[0] == "--create-temp-directory":
+            print(create_temp_directory(arguments[1]))
         elif len(arguments) == 3 and arguments[0] == "--cleanup-directory":
             cleanup_directory(arguments[1], arguments[2])
         else:

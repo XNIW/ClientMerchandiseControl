@@ -981,6 +981,35 @@ real_python = os.environ["CMC_IOS_TEST_REAL_PYTHON3"]
 tree_attestor = os.environ["CMC_IOS_TEST_TREE_ATTESTOR"]
 mode = os.environ.get("CMC_IOS_TEST_GUARD_PROXY_MODE", "")
 if (
+    len(sys.argv) == 4
+    and sys.argv[1] == tree_attestor
+    and sys.argv[2] == "--create-temp-directory"
+    and mode == "tmp-identity-capture"
+):
+    result = subprocess.run(
+        [real_python, *sys.argv[1:]],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if result.returncode == 0:
+        record = result.stdout.decode("utf-8").strip()
+        temporary_root, _ = record.split("\t", 1)
+        held = os.environ["CMC_IOS_TEST_CLEANUP_HELD"]
+        os.rename(temporary_root, held)
+        os.mkdir(temporary_root, 0o700)
+        with open(os.path.join(temporary_root, "preserved.txt"), "wb") as target:
+            target.write(b"victim")
+        with open(
+            os.environ["CMC_IOS_TEST_CLEANUP_PATH_FILE"],
+            "w",
+            encoding="utf-8",
+        ) as target:
+            target.write(temporary_root)
+    sys.stdout.buffer.write(result.stdout)
+    sys.stderr.buffer.write(result.stderr)
+    raise SystemExit(result.returncode)
+if (
     len(sys.argv) == 6
     and sys.argv[1] == tree_attestor
     and sys.argv[2] == "--publish-seal"
@@ -1235,6 +1264,42 @@ cmc_ios_test_cleanup_aba_victim="$(cat "${cmc_ios_test_cleanup_aba_path_file}")"
 }
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 
+cmc_ios_test_identity_capture_seal="${cmc_ios_test_seal_root}/tmp-identity-capture.zip"
+cmc_ios_test_identity_capture_log="${cmc_ios_test_tmp_root}/tmp-identity-capture.log"
+cmc_ios_test_identity_capture_held="${cmc_ios_test_tmp_root}/tmp-identity-held"
+cmc_ios_test_identity_capture_path_file="${cmc_ios_test_tmp_root}/tmp-identity-path"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+if env \
+  PATH="${cmc_ios_test_guard_proxy}:${PATH}" \
+  CMC_IOS_TEST_TREE_ATTESTOR="${cmc_ios_test_tree_attestor}" \
+  CMC_IOS_TEST_REAL_PYTHON3="${cmc_ios_test_real_python3}" \
+  CMC_IOS_TEST_GUARD_PROXY_MODE='tmp-identity-capture' \
+  CMC_IOS_TEST_CLEANUP_HELD="${cmc_ios_test_identity_capture_held}" \
+  CMC_IOS_TEST_CLEANUP_PATH_FILE="${cmc_ios_test_identity_capture_path_file}" \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --sealed-app-output "${cmc_ios_test_identity_capture_seal}" \
+  >"${cmc_ios_test_identity_capture_log}" 2>&1; then
+  printf 'Fixture iOS: pre-identity temp-root swap accettato.\n' >&2
+  exit 1
+fi
+cmc_ios_test_identity_capture_victim="$(
+  cat "${cmc_ios_test_identity_capture_path_file}"
+)"
+[[ "$(grep -Ec '^IOS_RELEASE_BLOCKED: TEMP_CLEANUP_REFUSED$' \
+    "${cmc_ios_test_identity_capture_log}")" -eq 1 && \
+  "$(grep -Ec '^IOS_(RELEASE_CANDIDATE_VALID|TESTFLIGHT_UPLOAD_INPUTS_VALIDATED)$' \
+    "${cmc_ios_test_identity_capture_log}")" -eq 0 && \
+  -f "${cmc_ios_test_identity_capture_victim}/preserved.txt" && \
+  -d "${cmc_ios_test_identity_capture_held}" ]] || {
+  printf 'Fixture iOS: temp-root identity non acquisita atomicamente.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
 cmc_ios_test_ancestor_root="${cmc_ios_test_tmp_root}/ancestor-race"
 cmc_ios_test_ancestor_bad="${cmc_ios_test_ancestor_root}/bad"
 mkdir -p "${cmc_ios_test_ancestor_root}" "${cmc_ios_test_ancestor_bad}"
@@ -1326,6 +1391,44 @@ module = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
 spec.loader.exec_module(module)
 
+source = f"{root}/cleanup-hardlink-source"
+external = f"{root}/cleanup-hardlink-preserved"
+os.mkdir(source)
+with open(external, "wb") as target:
+    target.write(b"preserved")
+os.link(external, f"{source}/linked")
+directory = os.open(source, os.O_RDONLY | os.O_DIRECTORY)
+failed = False
+try:
+    module._clear_directory(directory)
+except OSError:
+    failed = True
+finally:
+    os.close(directory)
+with open(external, "rb") as target:
+    payload = target.read()
+if not failed or payload != b"preserved":
+    raise SystemExit(1)
+PY
+  printf 'Fixture iOS: cleanup ha alterato un hardlink esterno.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_tmp_root}" <<'PY' || {
+import importlib.util
+import os
+import sys
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
 source = f"{root}/cleanup-child-source"
 child = f"{source}/child"
 detached = f"{source}/detached"
@@ -1366,6 +1469,94 @@ if not failed or not swapped or not os.path.isfile(f"{child}/preserved"):
     raise SystemExit(1)
 PY
   printf 'Fixture iOS: cleanup child swap non identity-bound.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_tmp_root}" <<'PY' || {
+import importlib.util
+import os
+import sys
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
+source = f"{root}/cleanup-terminal-source"
+os.makedirs(f"{source}/child")
+with open(f"{source}/child/file", "wb") as target:
+    target.write(b"payload")
+with open(f"{source}/regular", "wb") as target:
+    target.write(b"payload")
+directory = os.open(source, os.O_RDONLY | os.O_DIRECTORY)
+real_rmdir = module.os.rmdir
+real_unlink = module.os.unlink
+calls = []
+
+def forbidden_rmdir(*args, **kwargs):
+    calls.append("rmdir")
+    raise AssertionError("name-based rmdir reached")
+
+def forbidden_unlink(*args, **kwargs):
+    calls.append("unlink")
+    raise AssertionError("name-based unlink reached")
+
+module.os.rmdir = forbidden_rmdir
+module.os.unlink = forbidden_unlink
+try:
+    module._clear_directory(directory)
+finally:
+    module.os.rmdir = real_rmdir
+    module.os.unlink = real_unlink
+    os.close(directory)
+if calls:
+    raise SystemExit(1)
+for current_root, _, files in os.walk(source):
+    for name in files:
+        if os.path.getsize(os.path.join(current_root, name)) != 0:
+            raise SystemExit(1)
+PY
+  printf 'Fixture iOS: cleanup usa ancora terminali unlink/rmdir name-based.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_tmp_root}" <<'PY' || {
+import importlib.util
+import os
+import sys
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
+parent_path = f"{root}/retention-bound"
+os.mkdir(parent_path)
+for index in range(2):
+    os.mkdir(f"{parent_path}/.cmc-cleanup-existing-{index}")
+original_limit = module.MAX_RETAINED_TEMP_ROOTS
+module.MAX_RETAINED_TEMP_ROOTS = 2
+failed = False
+try:
+    module.create_temp_directory(parent_path)
+except OSError:
+    failed = True
+finally:
+    module.MAX_RETAINED_TEMP_ROOTS = original_limit
+if not failed:
+    raise SystemExit(1)
+PY
+  printf 'Fixture iOS: retention tombstone non bounded.\n' >&2
   exit 1
 }
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
@@ -1807,7 +1998,7 @@ collision = ".cmc-cleanup-collision"
 os.mkdir(f"{root}/{collision}")
 with open(f"{root}/{collision}/preserved", "wb") as target:
     target.write(b"collision")
-tokens = iter(("collision", "unique"))
+tokens = iter(("collision", "unique", "entry"))
 real_token_hex = module.secrets.token_hex
 module.secrets.token_hex = lambda _: next(tokens)
 name = "cleanup-collision.app"
@@ -1832,7 +2023,8 @@ if os.path.lexists(f"{root}/{name}"):
     raise SystemExit(1)
 if not os.path.isfile(f"{root}/{collision}/preserved"):
     raise SystemExit(1)
-if os.listdir(f"{root}/.cmc-cleanup-unique"):
+retained_file = f"{root}/.cmc-cleanup-unique/.cmc-cleanup-entry"
+if not os.path.isfile(retained_file) or os.path.getsize(retained_file) != 0:
     raise SystemExit(1)
 
 name = "cleanup-swap.app"
@@ -1845,33 +2037,25 @@ with open(f"{root}/{victim}/preserved", "wb") as target:
     target.write(b"victim")
 parent = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
 directory = os.open(name, os.O_RDONLY | os.O_DIRECTORY, dir_fd=parent)
-real_rename = module.os.rename
-captured = []
+real_rename = module._rename_exclusive
+detached = f"{root}/{name}.detached"
+swapped = False
 
-def swapped_rename(source, destination, *, src_dir_fd=None, dst_dir_fd=None):
-    real_rename(
+def swapped_rename(source_directory, source, destination_directory, destination):
+    global swapped
+    if not swapped and source == name and destination.startswith(".cmc-cleanup-"):
+        swapped = True
+        os.rename(f"{root}/{name}", detached)
+        os.rename(f"{root}/{victim}", f"{root}/{name}")
+    return real_rename(
+        source_directory,
         source,
+        destination_directory,
         destination,
-        src_dir_fd=src_dir_fd,
-        dst_dir_fd=dst_dir_fd,
     )
-    if source == name and destination.startswith(".cmc-cleanup-"):
-        detached = f"{destination}.detached"
-        real_rename(
-            destination,
-            detached,
-            src_dir_fd=dst_dir_fd,
-            dst_dir_fd=dst_dir_fd,
-        )
-        real_rename(
-            victim,
-            destination,
-            src_dir_fd=dst_dir_fd,
-            dst_dir_fd=dst_dir_fd,
-        )
-        captured.extend((destination, detached))
 
-module.os.rename = swapped_rename
+module._rename_exclusive = swapped_rename
+failed = False
 try:
     metadata = os.fstat(directory)
     module._cleanup_created_directory(
@@ -1880,15 +2064,17 @@ try:
         (metadata.st_dev, metadata.st_ino),
         directory,
     )
+except OSError:
+    failed = True
 finally:
-    module.os.rename = real_rename
+    module._rename_exclusive = real_rename
     os.close(directory)
     os.close(parent)
-if os.path.lexists(f"{root}/{name}") or len(captured) != 2:
+if not failed or not swapped:
     raise SystemExit(1)
-if not os.path.isfile(f"{root}/{captured[0]}/preserved"):
+if not os.path.isfile(f"{root}/{name}/preserved"):
     raise SystemExit(1)
-if os.listdir(f"{root}/{captured[1]}"):
+if not os.path.isfile(f"{detached}/partial"):
     raise SystemExit(1)
 PY
   printf 'Fixture iOS: cleanup collision/swap non inode-bound.\n' >&2

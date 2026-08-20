@@ -395,9 +395,19 @@ cmc_ios_release_tmp_parent="$(
 cmc_ios_release_tmp_root="$(
   mktemp -d "${cmc_ios_release_tmp_parent}/cmc-ios-release.XXXXXX"
 )"
+cmc_ios_release_tmp_identity="$(
+  python3 "${cmc_ios_release_tree_attestor}" \
+    --directory-identity "${cmc_ios_release_tmp_root}"
+)" || cmc_ios_release_fail 'TEMP_ROOT_INVALID'
+[[ "${cmc_ios_release_tmp_identity}" =~ ^[0-9]+,[0-9]+$ ]] || \
+  cmc_ios_release_fail 'TEMP_ROOT_INVALID'
 cmc_ios_release_guard_pid=''
 cmc_ios_release_guard_active=false
+cmc_ios_release_cleanup_complete=false
 cmc_ios_release_cleanup() {
+  if [[ "${cmc_ios_release_cleanup_complete}" == true ]]; then
+    return 0
+  fi
   if [[ "${cmc_ios_release_guard_active}" == true ]]; then
     exec 7<&- 8>&- 9>&- || true
     cmc_ios_release_guard_active=false
@@ -409,14 +419,18 @@ cmc_ios_release_cleanup() {
   fi
   case "${cmc_ios_release_tmp_root}" in
     "${cmc_ios_release_tmp_parent}"/cmc-ios-release.*)
-      rm -rf -- "${cmc_ios_release_tmp_root}"
+      python3 "${cmc_ios_release_tree_attestor}" \
+        --cleanup-directory "${cmc_ios_release_tmp_root}" \
+        "${cmc_ios_release_tmp_identity}" || return 1
+      cmc_ios_release_cleanup_complete=true
       ;;
     *)
       printf 'IOS_RELEASE_BLOCKED: TEMP_CLEANUP_REFUSED\n' >&2
+      return 1
       ;;
   esac
 }
-trap cmc_ios_release_cleanup EXIT
+trap 'cmc_ios_release_cleanup || true' EXIT
 
 cmc_ios_release_start_guard() {
   local cmc_ios_release_guard_ready=''
@@ -1244,6 +1258,12 @@ if [[ "${cmc_ios_release_signing_state}" == SIGNED ]]; then
   codesign --verify --deep --strict "${cmc_ios_release_seal_probe}" \
     >/dev/null 2>&1 || cmc_ios_release_fail 'SEALED_APP_SIGNATURE_INVALID'
 fi
+
+if ! cmc_ios_release_cleanup; then
+  trap - EXIT
+  cmc_ios_release_fail 'TEMP_CLEANUP_REFUSED'
+fi
+trap - EXIT
 
 printf 'IOS_RELEASE_CANDIDATE_VALID\n'
 printf 'IOS_RELEASE_SIGNING=%s\n' "${cmc_ios_release_signing_state}"

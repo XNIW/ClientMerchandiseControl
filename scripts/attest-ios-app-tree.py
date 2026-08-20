@@ -30,6 +30,7 @@ MAX_CLEANUP_OPERATIONS = 65_536
 MAX_CLEANUP_QUARANTINE_ATTEMPTS = 16
 CHUNK_BYTES = 65_536
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
+DIRECTORY_IDENTITY_PATTERN = re.compile(r"^[0-9]+,[0-9]+$")
 
 Record = tuple[bytes, bytes, int, int, bytes]
 
@@ -65,6 +66,66 @@ def _open_absolute_directory(path: str) -> int:
     except BaseException:
         os.close(descriptor)
         raise
+
+
+def _open_absolute_directory_chain(path: str) -> tuple[list[int], list[str]]:
+    _normalized_absolute(path)
+    descriptors = [os.open("/", os.O_RDONLY | os.O_DIRECTORY)]
+    components: list[str] = []
+    try:
+        for component in path.split("/")[1:]:
+            if component in ("", ".", "..") or "\x00" in component:
+                raise ValueError("invalid directory path")
+            before = os.stat(
+                component,
+                dir_fd=descriptors[-1],
+                follow_symlinks=False,
+            )
+            child = os.open(
+                component,
+                os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                dir_fd=descriptors[-1],
+            )
+            after = os.fstat(child)
+            if (
+                not stat.S_ISDIR(before.st_mode)
+                or not stat.S_ISDIR(after.st_mode)
+                or before.st_dev != after.st_dev
+                or before.st_ino != after.st_ino
+                or before.st_mode != after.st_mode
+            ):
+                os.close(child)
+                raise ValueError("directory changed before open")
+            descriptors.append(child)
+            components.append(component)
+        return descriptors, components
+    except BaseException:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+        raise
+
+
+def _directory_chain_matches(
+    descriptors: list[int], components: list[str]
+) -> bool:
+    if len(descriptors) != len(components) + 1:
+        return False
+    for index, component in enumerate(components):
+        current = os.stat(
+            component,
+            dir_fd=descriptors[index],
+            follow_symlinks=False,
+        )
+        opened = os.fstat(descriptors[index + 1])
+        if (
+            not stat.S_ISDIR(current.st_mode)
+            or not stat.S_ISDIR(opened.st_mode)
+            or current.st_dev != opened.st_dev
+            or current.st_ino != opened.st_ino
+            or current.st_mode != opened.st_mode
+        ):
+            return False
+    return True
 
 
 def _open_absolute_regular(path: str) -> int:
@@ -151,6 +212,15 @@ def _clear_directory(
                         os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
                         dir_fd=directory,
                     )
+                    opened = os.fstat(child)
+                    if (
+                        not stat.S_ISDIR(opened.st_mode)
+                        or opened.st_dev != metadata.st_dev
+                        or opened.st_ino != metadata.st_ino
+                        or opened.st_mode != metadata.st_mode
+                    ):
+                        os.close(child)
+                        raise OSError("cleanup child identity mismatch")
                     try:
                         _clear_directory(child, depth + 1, operations)
                     finally:
@@ -205,6 +275,44 @@ def _cleanup_created_directory(
     os.fsync(parent)
     # Il tombstone vuoto resta intenzionalmente: Python/macOS non espone una
     # rmdir by-fd sicura contro un secondo swap del nome quarantine.
+
+
+def directory_identity(path: str) -> str:
+    directory = _open_absolute_directory(path)
+    try:
+        metadata = os.fstat(directory)
+        if not stat.S_ISDIR(metadata.st_mode):
+            raise ValueError("directory identity target invalid")
+        return f"{metadata.st_dev},{metadata.st_ino}"
+    finally:
+        os.close(directory)
+
+
+def cleanup_directory(path: str, expected_identity: str) -> None:
+    if not DIRECTORY_IDENTITY_PATTERN.fullmatch(expected_identity):
+        raise ValueError("invalid directory identity")
+    expected = tuple(int(value) for value in expected_identity.split(","))
+    parent: Optional[int] = None
+    directory: Optional[int] = None
+    try:
+        parent, name = _open_parent(path)
+        directory = os.open(
+            name,
+            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=parent,
+        )
+        metadata = os.fstat(directory)
+        if (
+            not stat.S_ISDIR(metadata.st_mode)
+            or (metadata.st_dev, metadata.st_ino) != expected
+        ):
+            raise OSError("cleanup root identity mismatch")
+        _cleanup_created_directory(parent, name, expected, directory)
+    finally:
+        if directory is not None:
+            os.close(directory)
+        if parent is not None:
+            os.close(parent)
 
 
 def _read_regular(
@@ -984,12 +1092,20 @@ def guard(path: str, expected_sha256: str) -> None:
         raise ValueError("invalid expected tree digest")
     if not hasattr(select, "kqueue"):
         raise RuntimeError("filesystem guard unavailable")
-    parent: Optional[int] = None
+    ancestors: list[int] = []
+    ancestor_components: list[str] = []
     root: Optional[int] = None
     descriptors: list[int] = []
     queue = None
     try:
-        parent, name = _open_parent(path)
+        _normalized_absolute(path)
+        parent_path, name = os.path.split(path)
+        if name in ("", ".", "..") or "/" in name or "\x00" in name:
+            raise ValueError("invalid guard path")
+        ancestors, ancestor_components = _open_absolute_directory_chain(
+            parent_path
+        )
+        parent = ancestors[-1]
         root = os.open(
             name,
             os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
@@ -1030,20 +1146,21 @@ def guard(path: str, expected_sha256: str) -> None:
             )
             for descriptor in descriptors
         ]
-        # Il parent ospita file temporanei legittimi, quindi osserviamo solo
-        # la sua sostituzione/revoca e non le normali modifiche ai figli.
+        # Gli ancestor ospitano modifiche legittime ai figli: osserviamo la
+        # sostituzione/revoca della directory, non le normali child writes.
         parent_flags = (
             select.KQ_NOTE_DELETE
             | select.KQ_NOTE_RENAME
             | select.KQ_NOTE_REVOKE
         )
-        registrations.append(
+        registrations.extend(
             select.kevent(
-                parent,
+                ancestor,
                 filter=select.KQ_FILTER_VNODE,
                 flags=select.KQ_EV_ADD | select.KQ_EV_CLEAR,
                 fflags=parent_flags,
             )
+            for ancestor in ancestors
         )
         registrations.append(
             select.kevent(
@@ -1127,6 +1244,9 @@ def guard(path: str, expected_sha256: str) -> None:
             changed
             or metadata_changed
             or final_digest != expected_sha256
+            or not _directory_chain_matches(
+                ancestors, ancestor_components
+            )
             or not stat.S_ISDIR(current.st_mode)
             or current.st_dev != root_metadata.st_dev
             or current.st_ino != root_metadata.st_ino
@@ -1140,8 +1260,8 @@ def guard(path: str, expected_sha256: str) -> None:
             os.close(descriptor)
         if root is not None:
             os.close(root)
-        if parent is not None:
-            os.close(parent)
+        for ancestor in reversed(ancestors):
+            os.close(ancestor)
 
 
 def main(arguments: list[str]) -> int:
@@ -1164,6 +1284,10 @@ def main(arguments: list[str]) -> int:
             print(extract(arguments[1], arguments[2], arguments[3]))
         elif len(arguments) == 3 and arguments[0] == "--guard":
             guard(arguments[1], arguments[2])
+        elif len(arguments) == 2 and arguments[0] == "--directory-identity":
+            print(directory_identity(arguments[1]))
+        elif len(arguments) == 3 and arguments[0] == "--cleanup-directory":
+            cleanup_directory(arguments[1], arguments[2])
         else:
             return 1
     except (

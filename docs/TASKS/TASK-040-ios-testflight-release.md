@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1351,6 +1351,28 @@ report prodotto sealed SHA-256
 - runtime, firma, provisioning, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 34
+
+- exact review SHA: `dd18f8fd8d0068da54c631077e35477ab5cd9366`;
+- prodotto `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 3 / P3 3;
+- security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 1 / P3 1;
+- `F-040-RR34-IOS-SNAPSHOT-SWAP-01`: snapshot, controlli e seal possono
+  riaprire lo stesso pathname dopo sostituzioni e osservare tree differenti;
+- `F-040-RR34-IOS-RETAINED-UPLOAD-01`: il seal può cambiare dopo l'ultimo
+  hash e il runbook esporta ancora dall'archive sorgente anziché ricostruire
+  esclusivamente dal payload verificato;
+- `F-040-RR34-IOS-ANCESTOR-OPEN-01` e
+  `F-040-RR34-IOS-EXTRACT-SYMLINK-01`: open root non è component-bound e il
+  ripristino mode può seguire un ancestor symlink concorrente;
+- i P3 richiedono cap ZIP pre-materializzazione, errori redatti, snapshot ed
+  extract transazionali e prossima azione Master Plan coerente;
+- tree metadata e depth Fix 33 sono chiusi; candidate 686/207, iOS 60/60,
+  governance 88/88 e gate mirati restano verdi;
+- report security sealed SHA-256
+  `16f4b633e587e2083530f30289dc98937a60ead4b6b2e61adff83fe5e9f33d7a`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

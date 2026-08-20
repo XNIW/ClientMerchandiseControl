@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 34 pronto per re-review indipendente e CI exact-SHA | NOT_RUN |
+| CA-10 | re-review Fix 34 richiede Fix 35 per chiudere 3 P2 e 3 P3 | FAIL |
 
 ## Matrice T -> risultato
 
@@ -122,6 +122,25 @@ Snapshot di handoff:
 - firma, provisioning, TestFlight, physical iOS e production restano invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## Re-review Fix 34
+
+- exact HEAD: `dd18f8fd8d0068da54c631077e35477ab5cd9366`;
+- prodotto `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 3 / P3 3;
+- security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 1 / P3 1;
+- validazione e seal possono vedere snapshot diversi; il seal trattenuto puo
+  cambiare dopo l'hash e il runbook non ricostruisce ancora l'export dal
+  payload sealed;
+- component open ed extract mode non sono interamente descriptor-bound;
+- ZIP entry cap/error handling e cleanup snapshot/extract richiedono hardening
+  transazionale; la prossima azione Master Plan era stale;
+- report security sealed SHA-256
+  `16f4b633e587e2083530f30289dc98937a60ead4b6b2e61adff83fe5e9f33d7a`;
+- gate nominali: candidate 686/207, iOS 60/60, governance 88/88,
+  Flutter/YAML 14/14 e source/security 686 `PASS`;
+- firma, provisioning, TestFlight e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 Fix 33 aggiunge un attestor exact-tree bounded su 4.096 entry, 128 MiB per
 file e 512 MiB aggregati. Ogni leaf usa `O_NOFOLLOW` e `O_NONBLOCK`; file e

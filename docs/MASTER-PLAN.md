@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: Fix 34 per snapshot iOS trattenuto e
-  digest-bound, regressioni TOCTOU/metadata/depth e nuova re-review; upload
-  TestFlight `NOT_RUN`
+- **Prossima azione autorizzata**: Fix 35 per object identity snapshot/seal,
+  consumo export dal payload verificato, component-open e cleanup bounded;
+  upload TestFlight `NOT_RUN`
 
 ## Repository coinvolti
 

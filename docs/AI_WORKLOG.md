@@ -4185,3 +4185,19 @@
 - **Boundary**: signing, provisioning, physical iOS, TestFlight e production
   invariati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 34 re-review
+
+- **Exact HEAD**: `dd18f8fd8d0068da54c631077e35477ab5cd9366`.
+- **Esito**: prodotto `CHANGES_REQUIRED` P0 0/P1 0/P2 3/P3 3;
+  security `CHANGES_REQUIRED` P0 0/P1 0/P2 1/P3 1.
+- **Finding**: snapshot/validation/seal e retained ZIP restano separati da
+  pathname mutabili; component open/extract mode non sono interamente
+  descriptor-bound; cap/error e cleanup ZIP non sono ancora bounded/transazionali.
+- **Governance**: prossima azione Master Plan stale da riallineare a Fix 35.
+- **Evidence**: iOS 60/60, candidate 686/207, governance 88/88; security
+  report sealed SHA-256
+  `16f4b633e587e2083530f30289dc98937a60ead4b6b2e61adff83fe5e9f33d7a`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; signing, upload e production
+  invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 39 consegnato; re-review distinta e PR/main CI da eseguire | NOT_RUN |
+| CA-10 | Re-review Fix 39 negativa; Fix 40 e PR/main CI da eseguire | FAIL |
 
 ## Matrice T -> risultato
 
@@ -1037,3 +1037,18 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 - upload-ready reale exit 1 con
   `IOS_RELEASE_BLOCKED: TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun
   marker upload, signing, provisioning, device fisico, TestFlight o production.
+
+## Re-review Fix 39
+
+- exact HEAD `338a0e7ac46e697e23e2cb67f38c449c01fb52eb`;
+- verdict prodotto/security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 0 / P3 3;
+- late hardlink dopo il primo `st_nlink`, ABA sul lock pathname e replacement
+  nonzero sotto un nome retained sono riprodotti con cleanup/create exit 0;
+- closure reviewer: post-clear ABA e temp identity capture Fix 38 `PASS`; cap
+  nominale non fully closed per lock ABA;
+- gate reviewer: iOS 80/80, candidate 686/207, Flutter/YAML 12/12,
+  governance 88/88, architecture 17/17, analyze/format/syntax/pins/diff
+  `PASS`;
+- report security sealed SHA-256
+  `25c488eb561cf1f74459ba7c56b9ee51f5551310bd6bd4ea3669cb66ce58e979`;
+  signing, TestFlight e production invariati.

@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1619,6 +1619,27 @@ report prodotto sealed SHA-256
   physical iOS, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 39
+
+- exact review SHA: `338a0e7ac46e697e23e2cb67f38c449c01fb52eb`;
+- prodotto e security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 0 / P3 3;
+- `F-040-RR39-IOS-HARDLINK-TOCTOU-01`: un hardlink creato dopo il primo
+  controllo `st_nlink == 1` viene troncato insieme all'inode temporaneo;
+- `F-040-RR39-IOS-LOCK-ABA-CAP-01`: unlink/recreate del pathname lock separa
+  due flock e consente a due creator di superare il cap;
+- `F-040-RR39-IOS-RETAINED-NAME-ABA-01`: il set retained basato sul nome
+  salta un replacement nonzero introdotto dopo la quarantine;
+- closure Fix 38 confermata per post-clear ABA e temp identity capture; il cap
+  nominale richiede il fix lock ABA;
+- gate reviewer: iOS 80/80, candidate 686/207, Flutter/YAML 12/12,
+  governance 88/88, architecture 17/17, analyze/format/syntax/pins/diff
+  `PASS`; upload-ready resta bloccato sulla Distribution signature;
+- report security sealed SHA-256
+  `25c488eb561cf1f74459ba7c56b9ee51f5551310bd6bd4ea3669cb66ce58e979`;
+  signing, TestFlight e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

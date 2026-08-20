@@ -4364,3 +4364,18 @@
   provisioning, physical iOS o activation production.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`; production invariata.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 39 re-review
+
+- **Exact HEAD**: `338a0e7ac46e697e23e2cb67f38c449c01fb52eb`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 3 sia prodotto sia
+  security.
+- **Finding**: late hardlink prima del truncate, lock pathname ABA che divide
+  la sezione critica/cap e retained name-based che salta un replacement
+  nonzero.
+- **Closure**: i tre finding Fix 38 risultano chiusi per le schedule originali;
+  iOS 80/80 e gate mirati restano verdi.
+- **Security report**: SHA-256
+  `25c488eb561cf1f74459ba7c56b9ee51f5551310bd6bd4ea3669cb66ce58e979`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

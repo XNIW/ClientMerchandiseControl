@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 45 governance verde; isolamento same-UID richiede boundary esterno | BLOCKED |
+| CA-10 | Fix 45 approval-role P3; Fix 46 allowlist richiesta | NOT_RUN |
 
 ## Matrice T -> risultato
 
@@ -1184,6 +1184,17 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 - codice iOS, candidate 686/207 e fixture iOS 86/86 invariati;
 - isolation boundary, Distribution signing, physical iOS e TestFlight restano
   `BLOCKED` o `NOT_RUN`; nessuna mutazione esterna eseguita.
+
+## Re-review Fix 45
+
+- exact HEAD `4232f5eff2b4cea4c1c0181696c547dc48420181`;
+- verdict `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 1;
+- `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION` veniva classificato
+  technical/e handoff/Technical SHA anziché review/re-review/Exact HEAD;
+- finding Fix44 chiuso; governance 97/97, syntax, pins, diff, provenance e
+  bounded shell dataflow `PASS`; codice iOS invariato;
+- finalizer security plugin non disponibile nelle lane separate, nessun report
+  inventato; isolation blocker invariato.
 
 ## Re-review Fix 40
 

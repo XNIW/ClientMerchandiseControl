@@ -7,16 +7,16 @@
 - **Stato globale**: ACTIVE
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
-- **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Stato task**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review distinta Fix 45 della matrice
-  ruolo/indicatore; poi scelta USER_APPROVER del boundary esterno o del threat
-  model. Upload TestFlight `NOT_RUN`
+- **Prossima azione autorizzata**: Fix 46 allowlist fail-closed degli outcome
+  reviewer e handoff pre-review, poi re-review distinta; boundary esterno
+  invariato. Upload TestFlight `NOT_RUN`
 
 ## Repository coinvolti
 
@@ -94,7 +94,7 @@
 | TASK-037 | Performance, immagini, cache e load testing | DONE | TASK-009, TASK-017, TASK-019, TASK-027 | Client, Admin, Supabase | Budget performance end-to-end |
 | TASK-038 | Store assets, privacy policy, legal e release metadata | DONE | TASK-002, TASK-021, TASK-032, TASK-033, TASK-036 | Client, Admin | Materiale release conforme |
 | TASK-039 | Android internal testing release | DONE | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build Android internal test |
-| TASK-040 | iOS TestFlight release | BLOCKED | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build iOS TestFlight |
+| TASK-040 | iOS TestFlight release | ACTIVE | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build iOS TestFlight |
 | TASK-041 | Production launch, rollback e runbook | TODO | TASK-039, TASK-040 | Client, Admin, Supabase, POS | Lancio controllato e reversibile |
 | TASK-042 | Post-launch monitoring, supporto e manutenzione | TODO | TASK-041 | Tutti | Operatività post-lancio |
 | TASK-043 | Storefront commerce information architecture and UX refresh | DONE | TASK-033 | Client | Shell a cinque destinazioni e superfici commerce moderne, data-backed e accessibili |

@@ -5,14 +5,14 @@
 - **Task ID**: TASK-040
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
-- **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Stato**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1875,6 +1875,21 @@ report prodotto sealed SHA-256
   prerequisito esterno.
 
 `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+### Re-review Fix 45
+
+- exact review SHA: `4232f5eff2b4cea4c1c0181696c547dc48420181`;
+- `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 0 / P3 1;
+- `F-040-RR45-GOV-REVIEW-OUTCOME-POLICY-01`: la policy assegna role
+  `review` soltanto a `CODEX_REVIEW_BLOCKED`, mentre una approval canonica
+  resta `ACTIVE / REVIEW` e richiede anch'essa Re-review/review/Exact HEAD;
+- closure Fix 44 confermata per handoff fixer bloccato, verdict reviewer
+  bloccato e `FIX / CHANGES_REQUIRED`; governance 97/97 e gate mirati verdi;
+- remediation: allowlist esplicita di outcome reviewer e handoff pre-review,
+  con combinazioni ignote fail-closed;
+- codice iOS e suite lunga invariati; blocker same-UID separato.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

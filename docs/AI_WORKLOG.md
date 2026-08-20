@@ -4561,3 +4561,16 @@
   effimera o emendamento USER_APPROVER sul threat model.
 - **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 45 re-review
+
+- **Exact HEAD**: `4232f5eff2b4cea4c1c0181696c547dc48420181`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 1.
+- **Finding**: l'outcome approval canonico veniva classificato come handoff
+  technical perché soltanto `CODEX_REVIEW_BLOCKED` era allowlisted review.
+- **Closure**: forme fixer-blocked, reviewer-blocked e FIX/changes-required
+  corrette; governance 97/97 e gate mirati verdi.
+- **Security**: review shell bounded senza finding; plugin finalizer non
+  disponibile nelle lane separate e nessun report attribuito.
+- **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

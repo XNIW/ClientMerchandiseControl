@@ -1391,6 +1391,56 @@ module = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
 spec.loader.exec_module(module)
 
+source = f"{root}/cleanup-late-hardlink-source"
+external = f"{root}/cleanup-late-hardlink-preserved"
+os.mkdir(source)
+with open(f"{source}/payload", "wb") as target:
+    target.write(b"preserved-late-link")
+directory = os.open(source, os.O_RDONLY | os.O_DIRECTORY)
+real_quarantine = module._quarantine_bound_entry
+injected = False
+
+def late_link(parent, name, expected):
+    global injected
+    quarantine = real_quarantine(parent, name, expected)
+    if not injected and name == "payload" and parent == directory:
+        injected = True
+        os.link(quarantine, external, src_dir_fd=parent)
+    return quarantine
+
+module._quarantine_bound_entry = late_link
+failed = False
+try:
+    module._clear_directory(directory)
+except OSError:
+    failed = True
+finally:
+    module._quarantine_bound_entry = real_quarantine
+    os.close(directory)
+with open(external, "rb") as target:
+    payload = target.read()
+if not injected or not failed or payload != b"preserved-late-link":
+    raise SystemExit(1)
+PY
+  printf 'Fixture iOS: late hardlink cleanup non fail-closed.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_tmp_root}" <<'PY' || {
+import importlib.util
+import os
+import sys
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
 source = f"{root}/cleanup-hardlink-source"
 external = f"{root}/cleanup-hardlink-preserved"
 os.mkdir(source)
@@ -1411,6 +1461,231 @@ if not failed or payload != b"preserved":
     raise SystemExit(1)
 PY
   printf 'Fixture iOS: cleanup ha alterato un hardlink esterno.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_tmp_root}" <<'PY' || {
+import importlib.util
+import multiprocessing
+import os
+import stat
+import sys
+import threading
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
+parent_path = f"{root}/retention-lock-bound"
+os.mkdir(parent_path)
+real_flock = module.fcntl.flock
+observed_directory_lock = False
+
+def inspect_flock(descriptor, operation):
+    global observed_directory_lock
+    if not stat.S_ISDIR(os.fstat(descriptor).st_mode):
+        raise AssertionError("replaceable pathname lock used")
+    observed_directory_lock = True
+    return real_flock(descriptor, operation)
+
+module.fcntl.flock = inspect_flock
+original_limit = module.MAX_RETAINED_TEMP_ROOTS
+module.MAX_RETAINED_TEMP_ROOTS = 1
+failed = False
+try:
+    module.create_temp_directory(parent_path)
+    try:
+        module.create_temp_directory(parent_path)
+    except OSError:
+        failed = True
+finally:
+    module.MAX_RETAINED_TEMP_ROOTS = original_limit
+    module.fcntl.flock = real_flock
+roots = [
+    name
+    for name in os.listdir(parent_path)
+    if name.startswith("cmc-ios-release.")
+]
+if not observed_directory_lock or not failed or len(roots) != 1:
+    raise SystemExit(1)
+
+race_parent = f"{root}/retention-lock-aba"
+os.mkdir(race_parent)
+legacy_lock = f"{race_parent}/.cmc-ios-release.lock"
+with open(legacy_lock, "wb") as target:
+    target.write(b"legacy")
+context = multiprocessing.get_context("fork")
+start = context.Event()
+results = context.Queue()
+
+def create_once():
+    start.wait()
+    try:
+        module.create_temp_directory(race_parent)
+    except (OSError, ValueError):
+        results.put(False)
+    else:
+        results.put(True)
+
+stop = threading.Event()
+
+def churn_legacy_lock():
+    while not stop.is_set():
+        try:
+            os.unlink(legacy_lock)
+        except FileNotFoundError:
+            pass
+        descriptor = os.open(
+            legacy_lock,
+            os.O_RDWR | os.O_CREAT | os.O_TRUNC,
+            0o600,
+        )
+        os.close(descriptor)
+
+module.MAX_RETAINED_TEMP_ROOTS = 1
+workers = [context.Process(target=create_once) for _ in range(2)]
+churn = threading.Thread(target=churn_legacy_lock)
+churn.start()
+for worker in workers:
+    worker.start()
+start.set()
+for worker in workers:
+    worker.join(10)
+stop.set()
+churn.join(10)
+module.MAX_RETAINED_TEMP_ROOTS = original_limit
+outcomes = [results.get(timeout=2) for _ in workers]
+race_roots = [
+    name
+    for name in os.listdir(race_parent)
+    if name.startswith("cmc-ios-release.")
+]
+if (
+    any(worker.exitcode != 0 for worker in workers)
+    or outcomes.count(True) != 1
+    or len(race_roots) != 1
+):
+    raise SystemExit(1)
+PY
+  printf 'Fixture iOS: lock directory/cap non identity-bound.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_tmp_root}" <<'PY' || {
+import importlib.util
+import os
+import sys
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
+def exercise(kind):
+    source = f"{root}/retained-name-{kind}"
+    os.mkdir(source)
+    target = f"{source}/target"
+    if kind == "file":
+        with open(target, "wb") as handle:
+            handle.write(b"original")
+    else:
+        os.mkdir(target)
+        with open(f"{target}/original", "wb") as handle:
+            handle.write(b"original")
+    directory = os.open(source, os.O_RDONLY | os.O_DIRECTORY)
+    real_quarantine = module._quarantine_bound_entry
+    swapped = False
+    replacement = ""
+
+    def swap_after_quarantine(parent, name, expected):
+        nonlocal swapped, replacement
+        quarantine = real_quarantine(parent, name, expected)
+        if not swapped and name == "target" and parent == directory:
+            swapped = True
+            os.rename(
+                quarantine,
+                f"{quarantine}-held",
+                src_dir_fd=parent,
+                dst_dir_fd=parent,
+            )
+            replacement = f"{source}/{quarantine}"
+            if kind == "file":
+                with open(replacement, "wb") as handle:
+                    handle.write(b"replacement")
+            else:
+                os.mkdir(replacement)
+                with open(f"{replacement}/replacement", "wb") as handle:
+                    handle.write(b"replacement")
+        return quarantine
+
+    module._quarantine_bound_entry = swap_after_quarantine
+    failed = False
+    try:
+        module._clear_directory(directory)
+    except OSError:
+        failed = True
+    finally:
+        module._quarantine_bound_entry = real_quarantine
+        os.close(directory)
+    if kind == "file":
+        with open(replacement, "rb") as handle:
+            preserved = handle.read() == b"replacement"
+    else:
+        with open(f"{replacement}/replacement", "rb") as handle:
+            preserved = handle.read() == b"replacement"
+    if not swapped or not failed or not preserved:
+        raise SystemExit(1)
+
+exercise("file")
+exercise("directory")
+PY
+  printf 'Fixture iOS: retained-name ABA non rilevata.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_tmp_root}" <<'PY' || {
+import importlib.util
+import os
+import sys
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
+for suffix in ("tab\tparent", "newline\nparent"):
+    parent = f"{root}/{suffix}"
+    os.mkdir(parent)
+    failed = False
+    try:
+        module.create_temp_directory(parent)
+    except ValueError:
+        failed = True
+    leaked = [
+        name
+        for name in os.listdir(parent)
+        if name.startswith("cmc-ios-release.")
+    ]
+    if not failed or leaked:
+        raise SystemExit(1)
+PY
+  printf 'Fixture iOS: parent record non valido crea root residue.\n' >&2
   exit 1
 }
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))

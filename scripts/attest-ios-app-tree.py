@@ -262,6 +262,29 @@ def _quarantine_bound_entry(
     raise OSError("cleanup quarantine unavailable")
 
 
+def _validate_retained_entry(
+    directory: int,
+    name: str,
+    expected: os.stat_result,
+) -> os.stat_result:
+    current = os.stat(
+        name,
+        dir_fd=directory,
+        follow_symlinks=False,
+    )
+    if (
+        current.st_dev != expected.st_dev
+        or current.st_ino != expected.st_ino
+        or current.st_mode != expected.st_mode
+    ):
+        raise OSError("cleanup retained entry identity mismatch")
+    if stat.S_ISREG(current.st_mode) and (
+        current.st_nlink != 1 or current.st_size != 0
+    ):
+        raise OSError("cleanup retained file is not empty and private")
+    return current
+
+
 def _clear_directory(
     directory: int,
     depth: int = 0,
@@ -271,17 +294,23 @@ def _clear_directory(
         raise OSError("cleanup depth exceeded")
     if operations is None:
         operations = [0]
-    retained: set[str] = set()
+    retained: dict[str, os.stat_result] = {}
     for _ in range(MAX_CLEANUP_PASSES):
         with os.scandir(directory) as iterator:
-            names = [
-                entry.name
-                for entry in iterator
-                if entry.name not in retained
-            ]
-        if not names:
+            names = [entry.name for entry in iterator]
+        current_names = set(names)
+        if not set(retained).issubset(current_names):
+            raise OSError("cleanup retained entry disappeared")
+        for retained_name, retained_metadata in retained.items():
+            _validate_retained_entry(
+                directory,
+                retained_name,
+                retained_metadata,
+            )
+        pending = [name for name in names if name not in retained]
+        if not pending:
             return
-        for name in names:
+        for name in pending:
             operations[0] += 1
             if operations[0] > MAX_CLEANUP_OPERATIONS:
                 raise OSError("cleanup operation limit exceeded")
@@ -312,7 +341,7 @@ def _clear_directory(
                         )
                         _clear_directory(child, depth + 1, operations)
                         os.fsync(child)
-                        retained.add(quarantine)
+                        retained[quarantine] = os.fstat(child)
                     finally:
                         os.close(child)
                 else:
@@ -358,10 +387,39 @@ def _clear_directory(
                             directory, name, quarantine_expected
                         )
                         if writable is not None:
+                            quarantined = os.fstat(writable)
+                            visible = os.stat(
+                                quarantine,
+                                dir_fd=directory,
+                                follow_symlinks=False,
+                            )
+                            if (
+                                quarantined.st_dev != opened.st_dev
+                                or quarantined.st_ino != opened.st_ino
+                                or quarantined.st_nlink != 1
+                                or visible.st_dev != quarantined.st_dev
+                                or visible.st_ino != quarantined.st_ino
+                                or visible.st_mode != quarantined.st_mode
+                                or visible.st_nlink != 1
+                            ):
+                                raise OSError(
+                                    "cleanup quarantined file identity mismatch"
+                                )
                             os.ftruncate(writable, 0)
                             os.fchmod(writable, stat.S_IMODE(metadata.st_mode))
                             os.fsync(writable)
-                        retained.add(quarantine)
+                            cleaned = os.fstat(writable)
+                            if cleaned.st_nlink != 1 or cleaned.st_size != 0:
+                                raise OSError(
+                                    "cleanup quarantined file link changed"
+                                )
+                            retained[quarantine] = cleaned
+                        else:
+                            retained[quarantine] = os.stat(
+                                quarantine,
+                                dir_fd=directory,
+                                follow_symlinks=False,
+                            )
                     finally:
                         if writable is not None:
                             os.close(writable)
@@ -406,23 +464,18 @@ def _cleanup_created_directory(
 
 
 def create_temp_directory(parent_path: str) -> str:
-    parent = _open_absolute_directory(parent_path)
-    lock: Optional[int] = None
+    record_probe = (
+        f"{parent_path.rstrip('/')}/cmc-ios-release."
+        f"{'0' * 32}\t0,0"
+    )
+    if not TEMP_DIRECTORY_RECORD_PATTERN.fullmatch(record_probe):
+        raise ValueError("temporary directory parent is not record-safe")
+    descriptors, components = _open_absolute_directory_chain(parent_path)
+    parent = descriptors[-1]
     try:
-        lock = os.open(
-            ".cmc-ios-release.lock",
-            os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW,
-            0o600,
-            dir_fd=parent,
-        )
-        lock_metadata = os.fstat(lock)
-        if (
-            not stat.S_ISREG(lock_metadata.st_mode)
-            or lock_metadata.st_nlink != 1
-            or lock_metadata.st_uid != os.getuid()
-        ):
-            raise OSError("temporary directory lock invalid")
-        fcntl.flock(lock, fcntl.LOCK_EX)
+        fcntl.flock(parent, fcntl.LOCK_EX)
+        if not _directory_chain_matches(descriptors, components):
+            raise OSError("temporary directory parent changed")
         with os.scandir(parent) as iterator:
             retained_count = sum(
                 1
@@ -459,6 +512,8 @@ def create_temp_directory(parent_path: str) -> str:
                     or after.st_mode != opened.st_mode
                 ):
                     raise OSError("temporary directory identity mismatch")
+                if not _directory_chain_matches(descriptors, components):
+                    raise OSError("temporary directory parent changed")
                 path = f"{parent_path.rstrip('/')}/{name}"
                 record = f"{path}\t{opened.st_dev},{opened.st_ino}"
                 if not TEMP_DIRECTORY_RECORD_PATTERN.fullmatch(record):
@@ -469,9 +524,8 @@ def create_temp_directory(parent_path: str) -> str:
                     os.close(directory)
         raise OSError("temporary directory unavailable")
     finally:
-        if lock is not None:
-            os.close(lock)
-        os.close(parent)
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
 
 
 def directory_identity(path: str) -> str:

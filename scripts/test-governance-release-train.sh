@@ -341,6 +341,25 @@ cmc_fixture() {
   printf '%s\n' "${cmc_target}"
 }
 
+cmc_closeout_fixture() {
+  local cmc_name="$1"
+  local cmc_target=''
+  local cmc_governance_file=''
+
+  cmc_target="$(cmc_fixture "${cmc_name}")"
+  for cmc_governance_file in \
+    README.md \
+    docs/MASTER-PLAN.md \
+    docs/AI_WORKLOG.md \
+    docs/TASKS/TASK-040-ios-testflight-release.md \
+    docs/TASKS/EVIDENCE/TASK-040/README.md \
+    docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md; do
+    cp "${cmc_test_repo_root}/${cmc_governance_file}" \
+      "${cmc_target}/${cmc_governance_file}"
+  done
+  printf '%s\n' "${cmc_target}"
+}
+
 cmc_expect_pass() {
   local cmc_name="$1"
   local cmc_target="$2"
@@ -481,7 +500,29 @@ cmc_expect_review_role_policy \
   '' '' ''
 
 if [[ "${cmc_repository_task_status}" == 'DONE' ]]; then
-  cmc_expect_pass final-idle-closeout "${cmc_test_repo_root}"
+  cmc_case="$(cmc_closeout_fixture final-idle-closeout)"
+  cmc_expect_pass final-idle-closeout "${cmc_case}"
+
+  cmc_case="$(cmc_closeout_fixture final-idle-manifest-state-mismatch)"
+  sed -i.bak 's/- Stato: `IDLE`/- Stato: `EXECUTION`/' \
+    "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+  rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+  cmc_expect_fail final-idle-manifest-state-mismatch "${cmc_case}" \
+    'Stato release train manifest incoerente'
+
+  cmc_case="$(cmc_closeout_fixture final-idle-manifest-task-mismatch)"
+  sed -i.bak 's/- Task corrente: `nessuno`/- Task corrente: `TASK-040`/' \
+    "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+  rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+  cmc_expect_fail final-idle-manifest-task-mismatch "${cmc_case}" \
+    'Task corrente manifest incoerente'
+
+  cmc_case="$(cmc_closeout_fixture final-idle-manifest-review-mismatch)"
+  sed -i.bak 's/- Review integrata finale: `APPROVED`/- Review integrata finale: `NOT_RUN`/' \
+    "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+  rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+  cmc_expect_fail final-idle-manifest-review-mismatch "${cmc_case}" \
+    'Review integrata manifest incoerente'
 fi
 
 cmc_case="$(cmc_fixture valid)"

@@ -4,9 +4,9 @@
 
 - Release train: `CLIENT_FINAL_PRODUCT_COMPLETION`
 - Governance: `ADR-015`
-- Stato: `EXECUTION`
-- Task corrente: `TASK-040`
-- Review integrata finale: `NOT_RUN`
+- Stato: `IDLE`
+- Task corrente: `nessuno`
+- Review integrata finale: `APPROVED`
 - Production modificata: `no`
 
 ## Baseline remota verificata

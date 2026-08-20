@@ -139,6 +139,13 @@ cmc_field() {
     tr -d '`'
 }
 
+cmc_manifest_field() {
+  local cmc_file="$1"
+  local cmc_label="$2"
+
+  sed -n "s/^- ${cmc_label}: \`\([^\`]*\)\`$/\1/p" "${cmc_file}"
+}
+
 cmc_compare() {
   local cmc_label="$1"
   local cmc_expected="$2"
@@ -196,6 +203,29 @@ cmc_compare \
   "${cmc_indicator}" \
   "$(cmc_field "${cmc_readme}" "Indicatore")" \
   "README"
+
+if [[ "${cmc_release_train}" == 'CLIENT_FINAL_PRODUCT_COMPLETION' ]]; then
+  if [[ ! -f "${cmc_release_manifest}" ]]; then
+    printf 'Release manifest assente: %s\n' "${cmc_release_manifest}" >&2
+    cmc_violation_count=$((cmc_violation_count + 1))
+  else
+    cmc_compare \
+      "Stato release train manifest" \
+      "${cmc_release_train_state}" \
+      "$(cmc_manifest_field "${cmc_release_manifest}" "Stato")" \
+      "release manifest"
+    cmc_compare \
+      "Task corrente manifest" \
+      "${cmc_active_task}" \
+      "$(cmc_manifest_field "${cmc_release_manifest}" "Task corrente")" \
+      "release manifest"
+    cmc_compare \
+      "Review integrata manifest" \
+      "${cmc_integrated_review}" \
+      "$(cmc_manifest_field "${cmc_release_manifest}" "Review integrata finale")" \
+      "release manifest"
+  fi
+fi
 
 cmc_readme_summary_count="$(
   sed -nE \

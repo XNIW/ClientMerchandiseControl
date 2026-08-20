@@ -1240,12 +1240,14 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 - revision set locale `201bb8f..435e8cb`, tree GitHub finale equivalente;
 - delta reviewed: 2 documenti, 21 inserimenti/1 rimozione, zero codice;
 - verdict indipendente `APPROVED`, P0 0 / P1 0 / P2 0 / P3 0;
-- governance final-closeout 102/102, scanner source 688, security fixture 61/61 + 7/7,
+- governance final-closeout 105/105, scanner source 688, security fixture 61/61 + 7/7,
   architecture 17/17, format 301/0 e analyze `PASS`;
 - PR #19 CI run `32337398015` su `c02fa064540105a402d7649d8361acad573bbfee`:
   cinque job `success`, inclusi test/build completi e iOS release adversarial;
 - classification `TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`; nessun
   upload TestFlight, signing production o mutazione production;
+- intestazione manifest legata a Master Plan (`IDLE / nessuno / APPROVED`) con
+  tre regressioni negative dedicate;
 - TASK-041 resta `TODO_NOT_STARTED`; progetto `IDLE`.
 
 ## Re-review Fix 40

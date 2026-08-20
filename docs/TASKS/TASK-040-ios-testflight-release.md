@@ -1131,6 +1131,38 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 28
+
+- exact reviewed HEAD:
+  `45113accf0af42f6b44abc6957b7aa12dc99ca14`;
+- prodotto e security `APPROVED`, zero P0/P1/P2/P3; report security sealed
+  SHA-256
+  `3e23f695c81e5cf370caf90826d8b8c9f390378d689240a5d26c54eed2eb6806`;
+- la CI PR exact-SHA `32116655699` ha chiuso Quality, Android debug/release e
+  iOS Simulator `PASS`, ma iOS release ha fallito il candidate con
+  `EMBEDDED_BUNDLE_DIGEST_MISMATCH`; build, attestation e archive erano verdi,
+  fixture dipendente non eseguita;
+- finding tecnico P2: il digest dei resource bundle includeva
+  `BuildMachineOSBuild`, metadato Xcode dipendente dal macOS host;
+- signing, provisioning, TestFlight e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 29
+
+- exact technical SHA: `cd67e37aca282665dbec80e7c2d0e482ee712315`;
+- il digest tree dei bundle converte ogni `Info.plist` in JSON canonico e
+  rimuove esclusivamente `BuildMachineOSBuild`; ogni altra chiave, path e
+  risorsa continua a partecipare al digest SHA-256;
+- candidate reale source/artifact 684/207 `PASS`; la fixture con solo host
+  build diverso passa, mentre nuova chiave plist e risorsa inattesa falliscono
+  `EMBEDDED_BUNDLE_DIGEST_MISMATCH`;
+- validator iOS avversariale 45/45, security 684, action pin, syntax e diff
+  check `PASS`;
+- runtime, firma, provisioning, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

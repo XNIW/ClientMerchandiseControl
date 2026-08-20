@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review distinta del Fix 41 sui tre P3
-  cleanup/cap; dopo `APPROVED`, PR/main CI exact-SHA. Upload TestFlight
-  `NOT_RUN`
+- **Prossima azione autorizzata**: Fix 42 strutturale sui quattro P3 prodotto
+  retained/cap/rollback e riallineamento evidence Fix 40; poi re-review distinta.
+  Upload TestFlight `NOT_RUN`
 
 ## Repository coinvolti
 

@@ -191,8 +191,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -208,12 +208,12 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: il Fix 41 salva i byte in un buffer
-bounded e li ripristina se il link-count cambia durante `ftruncate`, richiede
-due pass terminali identity-bound/zero-payload e ricontrolla il cap dopo la
-creazione con rollback della root. Candidate `686/207`, fixture iOS 86/86,
-governance 88/88 e gate completo sono verdi; re-review distinta, PR e CI
-exact-SHA sono obbligatori. Activation invariata.
+TASK-040 è l'unico task `ACTIVE / FIX`: la re-review distinta del Fix 41 ha
+chiuso backup hardlink e FIFO, ma richiede il Fix 42 per quattro P3 prodotto su
+retained terminale, cap finale e rollback `rmdir`, oltre al riallineamento del
+conteggio reviewer Fix 40 richiesto dal report security. Candidate `686/207`,
+fixture iOS 86/86, governance 88/88 e gate completo restano verdi ma non
+assolvono i finding; PR e CI exact-SHA restano obbligatori. Activation invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

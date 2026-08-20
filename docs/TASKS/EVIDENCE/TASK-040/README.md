@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 41 consegnato; re-review distinta e PR/main CI da eseguire | NOT_RUN |
+| CA-10 | Fix 41 con finding; Fix 42, re-review e PR/main CI da eseguire | NOT_RUN |
 
 ## Matrice T -> risultato
 
@@ -1094,7 +1094,7 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
   sono riprodotti con invariant violation;
 - closure reviewer: le schedule dirette Fix 39 e il parent con tab/newline
   risultano chiusi;
-- gate reviewer: iOS 84/84, candidate 686/207, Flutter/YAML 12/12,
+- gate reviewer: iOS 84/84, candidate 686/207, Flutter/YAML 14/14,
   governance 88/88, architecture 17/17, analyze/format/syntax/pins/diff
   `PASS`; reference pre/post identica e upload negativo esatto;
 - report security sealed SHA-256
@@ -1124,3 +1124,20 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 - upload-ready exit 1 esatto
   `IOS_RELEASE_BLOCKED: TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun
   upload, signing, provisioning, physical iOS, TestFlight o production.
+
+## Re-review Fix 41
+
+- exact HEAD `e0c36cb2931c857cde796367e1fe8dd33e957fbd`;
+- prodotto `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 4: retained file
+  replacement terminale, retained child same-inode terminale, inserimento
+  dopo l'ultimo count e rollback `rmdir` su victim sostituita;
+- security `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 4: retained aggregato,
+  cap finale, rollback `rmdir` e undercount reviewer Fix 40;
+- hardlink `ftruncate`, FIFO, backup bounded e `LOCK_EX` chiusi; threat
+  model same-UID repository-controlled ancora in scope;
+- iOS 86/86 exit 0 in 739 s, reference aggregate pre/post identica; candidate
+  686/207 `VALID/UNSIGNED`, upload-ready bloccato esattamente sulla
+  Distribution signature; gate mirati verdi;
+- report security sealed SHA-256
+  `12262eff11ef5616c813aa320142b7b6f3269bfed9de669688d51deb32d75207`;
+  nessun upload, signing o accesso production.

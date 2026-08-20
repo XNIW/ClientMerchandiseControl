@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1683,7 +1683,7 @@ report prodotto sealed SHA-256
   `mkdir` supera il cap pur restituendo un record valido;
 - closure diretta Fix 39 confermata per late-link post-quarantine, legacy-lock
   ABA cooperativo, replacement immediato post-quarantine e parent speciale;
-- gate reviewer: iOS 84/84, candidate 686/207, Flutter/YAML 12/12,
+- gate reviewer: iOS 84/84, candidate 686/207, Flutter/YAML 14/14,
   governance 88/88, architecture 17/17, analyze/format/syntax/pins/diff
   `PASS`; upload-ready resta bloccato sulla Distribution signature;
 - report security sealed SHA-256
@@ -1722,6 +1722,31 @@ report prodotto sealed SHA-256
   physical iOS, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 41
+
+- exact review SHA: `e0c36cb2931c857cde796367e1fe8dd33e957fbd`;
+- prodotto `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 0 / P3 4;
+- `F-040-RR41-IOS-RETAINED-FINAL-NAMESPACE-ABA-01`: replacement nonzero
+  dopo l'ultima validazione retained viene accettato dal ritorno terminale;
+- `F-040-RR41-IOS-RETAINED-FINAL-CHILD-ABA-01`: un child nonzero aggiunto
+  allo stesso inode directory dopo l'ultima validazione viene accettato;
+- `F-040-RR41-IOS-CAP-FINAL-COUNT-RACE-01`: una entry inserita dopo
+  l'ultimo count produce un record sopra cap;
+- `F-040-RR41-IOS-ROLLBACK-RMDIR-ABA-01`: il rollback name-based può
+  cancellare una directory-vittima vuota sostituita dopo i controlli;
+- security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 0 / P3 4, aggregando le
+  due varianti retained e aggiungendo l'undercount reviewer Fix 40;
+- hardlink dentro `ftruncate`, backup bounded, FIFO e `LOCK_EX` risultano
+  chiusi; la minaccia repository-controlled same-UID resta in scope;
+- gate reviewer: iOS 86/86 in 739 s, candidate 686/207, Flutter/YAML
+  corrente 12/12, governance 88/88, architecture 17/17 e upload-negative
+  esatto `PASS`; reference aggregate pre/post identica;
+- report security sealed SHA-256
+  `12262eff11ef5616c813aa320142b7b6f3269bfed9de669688d51deb32d75207`;
+  signing, TestFlight e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

@@ -4435,3 +4435,22 @@
   provisioning, physical iOS o activation production.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`; production invariata.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 41 re-review
+
+- **Exact HEAD**: `e0c36cb2931c857cde796367e1fe8dd33e957fbd`.
+- **Esito**: `CHANGES_REQUIRED`; prodotto P0 0/P1 0/P2 0/P3 4,
+  security P0 0/P1 0/P2 0/P3 4 con diversa aggregazione.
+- **Finding**: retained file/directory/child modificabili dopo la validazione
+  terminale, cap superabile dopo l'ultimo count, rollback `rmdir` name-based;
+  security aggiunge l'undercount reviewer Fix 40 12/12 rispetto al receipt
+  sealed 14/14.
+- **Closure**: hardlink dentro `ftruncate`, backup bounded, FIFO e `LOCK_EX`;
+  la minaccia same-UID resta in scope e richiede un boundary strutturale.
+- **Gate**: iOS 86/86 in 739 s, candidate 686/207, governance 88/88,
+  architecture 17/17, analyze/format/syntax/pins/diff `PASS`; upload-negative
+  esatto sulla Distribution signature.
+- **Security report**: SHA-256
+  `12262eff11ef5616c813aa320142b7b6f3269bfed9de669688d51deb32d75207`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

@@ -9,6 +9,7 @@ cmc_ios_release_reference_app=''
 cmc_ios_release_reference_attestation=''
 cmc_ios_release_source_only=false
 cmc_ios_release_require_upload=false
+cmc_ios_release_bundle_plist_max_bytes=1048576
 
 cmc_ios_release_fail() {
   printf 'IOS_RELEASE_BLOCKED: %s\n' "$1" >&2
@@ -90,6 +91,8 @@ for cmc_ios_release_command in \
 done
 [[ -x /usr/libexec/PlistBuddy ]] || \
   cmc_ios_release_fail 'PLIST_TOOLING_MISSING'
+[[ -x /usr/bin/stat ]] || \
+  cmc_ios_release_fail 'ARTIFACT_TOOLING_MISSING'
 
 cmc_ios_release_require_literal() {
   local cmc_ios_release_file="$1"
@@ -581,6 +584,7 @@ cmc_ios_release_bundle_tree_digest() {
   local cmc_ios_release_tree_root="$1"
   local cmc_ios_release_tree_file
   local cmc_ios_release_tree_file_digest
+  local cmc_ios_release_tree_file_size
   local cmc_ios_release_tree_relative
 
   find "${cmc_ios_release_tree_root}" -type f \
@@ -588,9 +592,16 @@ cmc_ios_release_bundle_tree_digest() {
     while IFS= read -r -d '' cmc_ios_release_tree_file; do
       cmc_ios_release_tree_relative="${cmc_ios_release_tree_file#"${cmc_ios_release_tree_root}"/}"
       if [[ "${cmc_ios_release_tree_relative##*/}" == 'Info.plist' ]]; then
+        cmc_ios_release_tree_file_size="$(
+          /usr/bin/stat -f '%z' "${cmc_ios_release_tree_file}"
+        )" || return 1
+        [[ "${cmc_ios_release_tree_file_size}" =~ ^[0-9]+$ && \
+          "${cmc_ios_release_tree_file_size}" -le \
+          "${cmc_ios_release_bundle_plist_max_bytes}" ]] || return 1
         # Xcode inserisce il build number del macOS host nei resource bundle.
         # Quel solo campo varia fra macchine a parita' di toolchain e input;
-        # ogni altra chiave plist e ogni altra risorsa restano nel digest.
+        # ogni altra chiave plist e ogni altra risorsa restano nel digest. Il
+        # limite pre-lettura mantiene bounded la canonicalizzazione JSON.
         cmc_ios_release_tree_file_digest="$(
           plutil -convert json -o - "${cmc_ios_release_tree_file}" 2>/dev/null | \
             perl -MJSON::PP -e '

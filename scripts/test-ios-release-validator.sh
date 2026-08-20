@@ -792,6 +792,30 @@ cmc_ios_test_expect_failure bundle-plist-semantic-digest \
 /usr/libexec/PlistBuddy -c 'Delete :CMCUnexpectedMetadata' \
   "${cmc_ios_test_bundle_info}"
 
+cmc_ios_test_bundle_info_backup="${cmc_ios_test_tmp_root}/bundle-info.plist.original"
+cp "${cmc_ios_test_bundle_info}" "${cmc_ios_test_bundle_info_backup}"
+python3 - "${cmc_ios_test_bundle_info}" <<'PY'
+import plistlib
+import sys
+
+path = sys.argv[1]
+with open(path, "rb") as source:
+    payload = plistlib.load(source)
+payload["CMCOversizedFixture"] = "x" * 1_048_576
+with open(path, "wb") as target:
+    plistlib.dump(payload, target, fmt=plistlib.FMT_XML, sort_keys=True)
+PY
+[[ "$(/usr/bin/stat -f '%z' "${cmc_ios_test_bundle_info}")" -gt 1048576 ]] || {
+  printf 'Fixture iOS: Info.plist oversized non costruito.\n' >&2
+  exit 1
+}
+cmc_ios_test_expect_failure bundle-plist-size-bound \
+  EMBEDDED_BUNDLE_DIGEST_UNREADABLE \
+  cmc_ios_test_validate \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_bundle_info_backup}" "${cmc_ios_test_bundle_info}"
+
 cmc_ios_test_entitlements="${cmc_ios_test_tmp_root}/entitlements.plist"
 cp "${cmc_ios_test_root}/ios/Runner/PrivacyInfo.xcprivacy" \
   "${cmc_ios_test_entitlements}"

@@ -4326,3 +4326,19 @@
   `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
   physical iOS, TestFlight e production invariati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 38 re-review
+
+- **Exact HEAD**: `41e1aef9fb679587af574423b28c3fd86d802430`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 3 prodotto; security
+  deduplica le tre schedule in un root P3 CWE-367/59.
+- **Finding P3**: child post-clear `close→rmdir`, root pre-identity e
+  stat/rename quarantine mantengono terminali name-based cancellabili.
+- **Hygiene P3**: un tombstone viene lasciato per ogni cleanup nominale, con
+  crescita osservata non bounded.
+- **Closure**: ancestor-chain ABA, temp-root swap post-identity e child
+  `stat→open` risultano chiusi; iOS 76/76 e gate mirati restano verdi.
+- **Security report**: SHA-256
+  `7f25fcfbf8c5702c8424a5c040b3824f600090a69c332b99d17abbe7da27c515`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

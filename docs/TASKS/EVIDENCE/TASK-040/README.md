@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 38 pronto; re-review e PR/main CI da eseguire | NOT_RUN |
+| CA-10 | Re-review Fix 38 negativa; Fix 39 e PR/main CI da eseguire | FAIL |
 
 ## Matrice T -> risultato
 
@@ -995,3 +995,20 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 - upload-ready validator exit 1 con
   `IOS_RELEASE_BLOCKED: TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun
   upload, signing, provisioning o activation production eseguito.
+
+## Re-review Fix 38
+
+- exact HEAD `41e1aef9fb679587af574423b28c3fd86d802430`;
+- verdict prodotto `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 0 / P3 3;
+  security deduplicato P3 1;
+- child post-clear `close→rmdir`, root pre-identity e stat/rename quarantine
+  conservano schedule name-based che possono cancellare o spostare victim;
+- il cleanup nominale lascia un tombstone per invocazione, con 100 totali e
+  51 recenti osservati dal reviewer;
+- closure reviewer: ancestor-chain ABA, temp-root swap post-identity e child
+  `stat→open` `PASS`;
+- gate reviewer: iOS 76/76, candidate 686/207, Flutter/YAML 12/12,
+  governance 88/88, architecture, scanner, analyze e syntax `PASS`;
+- report security sealed SHA-256
+  `7f25fcfbf8c5702c8424a5c040b3824f600090a69c332b99d17abbe7da27c515`;
+  production, signing, provisioning e TestFlight invariati.

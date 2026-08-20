@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1568,6 +1568,27 @@ report prodotto sealed SHA-256
   physical iOS, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 38
+
+- exact review SHA: `41e1aef9fb679587af574423b28c3fd86d802430`;
+- prodotto/security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 0 / P3 3 per
+  prodotto; security deduplica le tre schedule in un root P3 CWE-367/59;
+- `F-040-RR38-IOS-CLEANUP-POSTCLEAR-ABA-01` P3: dopo la ricorsione il child
+  viene chiuso e rimosso per nome, consentendo la cancellazione di una victim
+  vuota sostituita;
+- `F-040-RR38-IOS-TMP-IDENTITY-CAPTURE-01` P3: l'identità viene acquisita in
+  un processo successivo a `mktemp` e la sequenza stat/rename resta separata;
+- `F-040-RR38-IOS-TMP-TOMBSTONE-LEAK-01` P3: ogni cleanup nominale conserva
+  un tombstone, con crescita osservata non bounded;
+- ancestor-chain ABA, temp-root swap post-identity e child `stat→open` sono
+  chiusi; gate reviewer iOS 76/76, candidate 686/207, Flutter/YAML 12/12,
+  governance 88/88, scanner, architecture, analyze e syntax `PASS`;
+- report security sealed SHA-256
+  `7f25fcfbf8c5702c8424a5c040b3824f600090a69c332b99d17abbe7da27c515`;
+  signing, TestFlight e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

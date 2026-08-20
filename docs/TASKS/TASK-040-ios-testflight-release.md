@@ -1293,6 +1293,9 @@ report prodotto sealed SHA-256
   `ba2da55082d0a50b42d2cd88c555e552f4b7de05136df19ab4d41441cd9d8f3a`,
   validator iOS 53/53, source/security, governance 88/88, Flutter/YAML 12/12,
   syntax, py_compile, action pin e diff check `PASS`;
+- `scripts/check.sh` exact handoff exit 0: 804/804 non-performance,
+  performance 10/10, repeat resilience 70/70, analyze e build debug
+  Android/iOS `PASS`;
 - runtime, firma, provisioning, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

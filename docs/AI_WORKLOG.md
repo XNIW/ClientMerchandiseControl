@@ -4143,7 +4143,9 @@
   con `ARTIFACT_CHANGED_DURING_VALIDATION`; FIFO/entity restano chiusi.
 - **Gate**: candidate 686/207 e tree SHA-256 `ba2da550...d9d8f3a`, validator
   iOS 53/53, governance 88/88, Flutter/YAML 12/12, source/security, syntax,
-  py_compile, action pin e diff `PASS`.
+  py_compile, action pin e diff `PASS`; `scripts/check.sh` exact handoff exit 0
+  con 804/804 non-performance, performance 10/10, repeat 70/70, analyze e
+  build debug Android/iOS `PASS`.
 - **Boundary**: runtime, firma, provisioning, TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

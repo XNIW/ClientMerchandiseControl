@@ -581,6 +581,8 @@ cmc_ios_release_macho_canonical_digest() {
 
 cmc_ios_release_bundle_tree_digest() {
   local cmc_ios_release_tree_root="$1"
+  local cmc_ios_release_tree_identifier="$2"
+  local cmc_ios_release_tree_package="$3"
   local cmc_ios_release_tree_file
   local cmc_ios_release_tree_file_digest
   local cmc_ios_release_tree_relative
@@ -593,7 +595,15 @@ cmc_ios_release_bundle_tree_digest() {
     ! -path '*/_CodeSignature/*' -print0 | LC_ALL=C sort -z | \
     while IFS= read -r -d '' cmc_ios_release_tree_file; do
       cmc_ios_release_tree_relative="${cmc_ios_release_tree_file#"${cmc_ios_release_tree_root}"/}"
-      if [[ "${cmc_ios_release_tree_relative##*/}" == 'Info.plist' ]]; then
+      if [[ "${cmc_ios_release_tree_relative}" == 'Info.plist' ]]; then
+        cmc_ios_release_tree_file_digest="$(
+          python3 "${cmc_ios_release_bundle_plist_canonicalizer}" \
+            --validate-identity-and-digest \
+            "${cmc_ios_release_tree_file}" \
+            "${cmc_ios_release_tree_identifier}" \
+            "${cmc_ios_release_tree_package}"
+        )" || return $?
+      elif [[ "${cmc_ios_release_tree_relative##*/}" == 'Info.plist' ]]; then
         cmc_ios_release_tree_file_digest="$(
           python3 "${cmc_ios_release_bundle_plist_canonicalizer}" \
             --digest "${cmc_ios_release_tree_file}"
@@ -798,13 +808,18 @@ for cmc_ios_release_bundle_index in \
   cmc_ios_release_bundle_info="${cmc_ios_release_bundle}/Info.plist"
   [[ -r "${cmc_ios_release_bundle_info}" ]] || \
     cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
-  cmc_ios_release_bundle_digest="$(
-    cmc_ios_release_bundle_tree_digest "${cmc_ios_release_bundle}"
-  )" || cmc_ios_release_fail 'EMBEDDED_BUNDLE_DIGEST_UNREADABLE'
-  python3 "${cmc_ios_release_bundle_plist_canonicalizer}" \
-    --validate-identity "${cmc_ios_release_bundle_info}" \
-    "${cmc_ios_release_expected_bundle_identifiers[cmc_ios_release_bundle_index]}" \
-    'BNDL' || cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
+  if cmc_ios_release_bundle_digest="$(
+      cmc_ios_release_bundle_tree_digest \
+        "${cmc_ios_release_bundle}" \
+        "${cmc_ios_release_expected_bundle_identifiers[cmc_ios_release_bundle_index]}" \
+        'BNDL'
+    )"; then
+    :
+  elif [[ "$?" -eq 2 ]]; then
+    cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
+  else
+    cmc_ios_release_fail 'EMBEDDED_BUNDLE_DIGEST_UNREADABLE'
+  fi
   [[ "${cmc_ios_release_bundle_digest}" == \
     "${cmc_ios_release_expected_bundle_digests[cmc_ios_release_bundle_index]}" ]] || \
     cmc_ios_release_fail 'EMBEDDED_BUNDLE_DIGEST_MISMATCH'

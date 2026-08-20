@@ -26,6 +26,7 @@ def _read_bounded_regular_file(path: str) -> bytes:
         or os.path.normpath(path) != path
         or not hasattr(os, "O_DIRECTORY")
         or not hasattr(os, "O_NOFOLLOW")
+        or not hasattr(os, "O_NONBLOCK")
     ):
         raise ValueError("non-canonical path")
     components = path.split(os.sep)[1:]
@@ -35,7 +36,7 @@ def _read_bounded_regular_file(path: str) -> bytes:
         raise ValueError("non-canonical path")
 
     directory_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
-    file_flags = os.O_RDONLY | os.O_NOFOLLOW
+    file_flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
     directory_descriptor: Optional[int] = os.open(os.sep, directory_flags)
     descriptor: Optional[int] = None
     try:
@@ -156,8 +157,22 @@ def _preflight_structure(source: bytes) -> None:
         if element_count > MAX_STRUCTURE_OBJECTS:
             raise ValueError("too many XML elements")
 
+    def reject_internal_subset(
+        _name: str,
+        _system_identifier: Optional[str],
+        _public_identifier: Optional[str],
+        has_internal_subset: int,
+    ) -> None:
+        if has_internal_subset:
+            raise ValueError("XML internal subset is not allowed")
+
+    def reject_entity_declaration(*_arguments: object) -> None:
+        raise ValueError("XML entity declarations are not allowed")
+
     parser = xml.parsers.expat.ParserCreate()
     parser.StartElementHandler = count_element
+    parser.StartDoctypeDeclHandler = reject_internal_subset
+    parser.EntityDeclHandler = reject_entity_declaration
     parser.ExternalEntityRefHandler = lambda *_arguments: 0
     parser.Parse(source, True)
 
@@ -186,13 +201,17 @@ def main(arguments: list[str]) -> int:
             _, canonical = _load_canonical(arguments[1])
             print(hashlib.sha256(canonical).hexdigest())
             return 0
-        if len(arguments) == 4 and arguments[0] == "--validate-identity":
-            payload, _ = _load_canonical(arguments[1])
+        if (
+            len(arguments) == 4
+            and arguments[0] == "--validate-identity-and-digest"
+        ):
+            payload, canonical = _load_canonical(arguments[1])
             if (
                 payload.get("CFBundleIdentifier") != arguments[2]
                 or payload.get("CFBundlePackageType") != arguments[3]
             ):
-                return 1
+                return 2
+            print(hashlib.sha256(canonical).hexdigest())
             return 0
     except (
         OSError,

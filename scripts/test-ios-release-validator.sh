@@ -5,6 +5,8 @@ cmc_ios_test_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cmc_ios_test_root="$(git -C "${cmc_ios_test_script_dir}" rev-parse --show-toplevel)"
 cmc_ios_test_validator="${cmc_ios_test_root}/scripts/check-ios-release.sh"
 cmc_ios_test_attestor="${cmc_ios_test_root}/scripts/create-ios-reference-attestation.sh"
+cmc_ios_test_plist_canonicalizer="${cmc_ios_test_root}/scripts/canonicalize-ios-bundle-plist.py"
+cmc_ios_test_real_python3="$(command -v python3)"
 cmc_ios_test_archive=''
 cmc_ios_test_reference_app=''
 cmc_ios_test_reference_attestation=''
@@ -25,6 +27,34 @@ cmc_ios_test_validate() {
   bash "${cmc_ios_test_validator}" "$@" \
     --reference-app "${cmc_ios_test_reference_app}" \
     --reference-attestation "${cmc_ios_test_reference_attestation}"
+}
+
+cmc_ios_test_validate_bounded() {
+  python3 - "${cmc_ios_test_validator}" \
+    "${cmc_ios_test_reference_app}" \
+    "${cmc_ios_test_reference_attestation}" "$@" <<'PY'
+import subprocess
+import sys
+
+validator, reference_app, reference_attestation, *arguments = sys.argv[1:]
+command = [
+    "bash",
+    validator,
+    *arguments,
+    "--reference-app",
+    reference_app,
+    "--reference-attestation",
+    reference_attestation,
+]
+try:
+    result = subprocess.run(command, capture_output=True, timeout=60)
+except subprocess.TimeoutExpired:
+    print("Fixture iOS: validator non bounded.", file=sys.stderr)
+    raise SystemExit(124)
+sys.stdout.buffer.write(result.stdout)
+sys.stderr.buffer.write(result.stderr)
+raise SystemExit(result.returncode)
+PY
 }
 
 cmc_ios_test_source_app="${cmc_ios_test_archive}/Products/Applications/Runner.app"
@@ -792,8 +822,155 @@ cmc_ios_test_expect_failure bundle-plist-semantic-digest \
 /usr/libexec/PlistBuddy -c 'Delete :CMCUnexpectedMetadata' \
   "${cmc_ios_test_bundle_info}"
 
+/usr/libexec/PlistBuddy -c \
+  'Set :CFBundleIdentifier com.xniw.invalid-bundle-fixture' \
+  "${cmc_ios_test_bundle_info}"
+cmc_ios_test_expect_failure bundle-plist-identity-combined \
+  BUNDLE_IDENTITY_INVALID \
+  cmc_ios_test_validate \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+/usr/libexec/PlistBuddy -c \
+  'Set :CFBundleIdentifier app-links-7.2.1.app-links.resources' \
+  "${cmc_ios_test_bundle_info}"
+
+cmc_ios_test_python_hook="${cmc_ios_test_tmp_root}/python-hook"
+mkdir -p "${cmc_ios_test_python_hook}"
+cat >"${cmc_ios_test_python_hook}/python3" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ "$#" -eq 3 && \
+  "$1" == "${CMC_IOS_TEST_CANONICALIZER}" && \
+  "$2" == '--digest' && \
+  "$3" == "${CMC_IOS_TEST_RACE_TARGET}" ]]; then
+  cmc_ios_test_hook_output="$("${CMC_IOS_TEST_REAL_PYTHON3}" "$@")"
+  "${CMC_IOS_TEST_REAL_PYTHON3}" - "${CMC_IOS_TEST_RACE_TARGET}" <<'PY'
+import os
+import plistlib
+import sys
+
+path = sys.argv[1]
+with open(path, "rb") as source:
+    payload = plistlib.load(source)
+payload["CMCRaceTamper"] = "race"
+temporary = f"{path}.race"
+with open(temporary, "wb") as target:
+    plistlib.dump(payload, target, fmt=plistlib.FMT_BINARY, sort_keys=True)
+os.replace(temporary, path)
+PY
+  printf '%s\n' "${cmc_ios_test_hook_output}"
+  exit 0
+fi
+exec "${CMC_IOS_TEST_REAL_PYTHON3}" "$@"
+SH
+chmod u+x "${cmc_ios_test_python_hook}/python3"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+env \
+  PATH="${cmc_ios_test_python_hook}:${PATH}" \
+  CMC_IOS_TEST_CANONICALIZER="${cmc_ios_test_plist_canonicalizer}" \
+  CMC_IOS_TEST_RACE_TARGET="${cmc_ios_test_bundle_info}" \
+  CMC_IOS_TEST_REAL_PYTHON3="${cmc_ios_test_real_python3}" \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  >/dev/null || {
+  printf 'Fixture iOS: validazione identity+digest combinata fallita.\n' >&2
+  exit 1
+}
+if /usr/libexec/PlistBuddy -c 'Print :CMCRaceTamper' \
+  "${cmc_ios_test_bundle_info}" >/dev/null 2>&1; then
+  printf 'Fixture iOS: digest e identity usano snapshot separati.\n' >&2
+  exit 1
+fi
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
 cmc_ios_test_bundle_info_backup="${cmc_ios_test_tmp_root}/bundle-info.plist.original"
 cp "${cmc_ios_test_bundle_info}" "${cmc_ios_test_bundle_info_backup}"
+
+rm -f "${cmc_ios_test_bundle_info}"
+mkfifo "${cmc_ios_test_bundle_info}"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+python3 - "${cmc_ios_test_plist_canonicalizer}" \
+  "${cmc_ios_test_bundle_info}" <<'PY' || {
+import subprocess
+import sys
+
+canonicalizer, path = sys.argv[1:]
+try:
+    result = subprocess.run(
+        [sys.executable, canonicalizer, "--digest", path],
+        capture_output=True,
+        timeout=1,
+    )
+except subprocess.TimeoutExpired:
+    print("Fixture iOS: FIFO canonicalizer non bounded.", file=sys.stderr)
+    raise SystemExit(1)
+if result.returncode == 0 or result.stdout or result.stderr:
+    print("Fixture iOS: FIFO accettato o non redatto.", file=sys.stderr)
+    raise SystemExit(1)
+PY
+  printf 'Fixture iOS: FIFO canonicalizer non respinto in modo bounded.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+cmc_ios_test_expect_failure bundle-plist-fifo-bound \
+  EMBEDDED_BUNDLE_DIGEST_MISMATCH \
+  cmc_ios_test_validate_bounded \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+rm -f "${cmc_ios_test_bundle_info}"
+cp "${cmc_ios_test_bundle_info_backup}" "${cmc_ios_test_bundle_info}"
+
+python3 - "${cmc_ios_test_bundle_info}" <<'PY'
+import sys
+
+levels = 28
+declarations = ['<!ENTITY cmc0 "A">']
+for index in range(1, levels + 1):
+    declarations.append(
+        f'<!ENTITY cmc{index} "&cmc{index - 1};&cmc{index - 1};">'
+    )
+declaration_text = "\n".join(declarations)
+payload = f'''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist [
+{declaration_text}
+]>
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>&cmc{levels};</string>
+<key>CFBundlePackageType</key><string>BNDL</string>
+</dict></plist>
+'''
+with open(sys.argv[1], "wb") as target:
+    target.write(payload.encode("utf-8"))
+PY
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+python3 - "${cmc_ios_test_plist_canonicalizer}" \
+  "${cmc_ios_test_bundle_info}" <<'PY' || {
+import subprocess
+import sys
+
+canonicalizer, path = sys.argv[1:]
+try:
+    result = subprocess.run(
+        [sys.executable, canonicalizer, "--digest", path],
+        capture_output=True,
+        timeout=1,
+    )
+except subprocess.TimeoutExpired:
+    print("Fixture iOS: entity XML non bounded.", file=sys.stderr)
+    raise SystemExit(1)
+if result.returncode == 0 or result.stdout or result.stderr:
+    print("Fixture iOS: entity XML accettata o non redatta.", file=sys.stderr)
+    raise SystemExit(1)
+PY
+  printf 'Fixture iOS: entity XML non respinta in modo bounded.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+cp "${cmc_ios_test_bundle_info_backup}" "${cmc_ios_test_bundle_info}"
+
 python3 - "${cmc_ios_test_bundle_info}" <<'PY'
 import plistlib
 import sys

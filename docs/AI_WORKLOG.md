@@ -4416,3 +4416,22 @@
   `48421238422626c0eae874ae97284e50335ca342b3896eeb20593f4b1c5d4ebd`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 41 e handoff
+
+- **Technical SHA**: `dda9c1f8a4933267d625c72a8c20db834260811d`.
+- **Fix**: backup bounded/ripristino sul link-count race, retained descriptor e
+  recursive zero-payload su due pass, post-create cap recheck con rollback.
+- **Regressioni**: hardlink dentro `ftruncate`, retained file/directory/child,
+  writer non cooperativo count-to-mkdir e oracle `LOCK_EX`; iOS 86/86 e
+  Flutter/YAML 12/12 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 +
+  7/7, architecture 17/17, analyze, format, syntax, pycompile, action pin e
+  diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready reale exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun upload, signing,
+  provisioning, physical iOS o activation production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

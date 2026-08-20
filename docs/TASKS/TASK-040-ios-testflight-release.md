@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1691,6 +1691,37 @@ report prodotto sealed SHA-256
   signing, TestFlight e production invariati.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 41
+
+- exact technical SHA: `dda9c1f8a4933267d625c72a8c20db834260811d`;
+- prima di azzerare un file, il cleanup copia al massimo 128 MiB nel buffer
+  anonimo `BytesIO`; se il link-count cambia dentro `ftruncate`, ripristina i
+  byte e fallisce chiuso senza alterare l'alias esterno;
+- retained file, directory e FIFO sono riaperti via descriptor, verificati per
+  identity/timestamp/link-count e attraversati ricorsivamente per payload zero;
+  servono due pass terminali stabili prima del successo;
+- dopo `mkdir` la parent chain e il conteggio cap sono verificati due volte;
+  un inserimento non cooperativo sopra il cap rimuove soltanto la root appena
+  creata e non restituisce alcun record;
+- l'oracolo lock richiede esplicitamente `LOCK_EX`; regressioni exact-window
+  hardlink, retained file/directory/child e count-to-mkdir `PASS`;
+- due tentativi intermedi della suite hanno correttamente rilevato FIFO non
+  ammessi e backup `TemporaryFile` name-based; entrambi sono stati corretti
+  prima del commit tecnico e il run finale è 86/86 `PASS`;
+- Flutter/YAML 12/12, governance 88/88, security 61/61 + 7/7, architecture
+  17/17, analyze/format/syntax/pins/diff `PASS`;
+- candidate reale 686/207 `PASS`, unsigned; tree SHA-256
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`
+  e sealed payload SHA-256
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+- `scripts/check.sh` exact technical SHA exit 0: 804/804 non-performance,
+  performance 10/10, repeat resilience 70/70 e build debug Android/iOS;
+- upload-ready reale exit 1 con reason esatta
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

@@ -4014,3 +4014,33 @@
 - **Boundary**: signing, provisioning, TestFlight, runtime e production
   invariati; re-review e nuova CI `NOT_RUN`.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 re-review Fix 28 / CI exact-SHA
+
+- **Exact reviewed HEAD**:
+  `45113accf0af42f6b44abc6957b7aa12dc99ca14`.
+- **Review**: prodotto/security `APPROVED`, zero P0/P1/P2/P3; report sealed
+  SHA-256
+  `3e23f695c81e5cf370caf90826d8b8c9f390378d689240a5d26c54eed2eb6806`.
+- **CI PR**: run `32116655699`; Quality, Android debug/release e iOS
+  Simulator `PASS`; iOS release build/attestation/archive `PASS`, candidate
+  `FAIL` con `EMBEDDED_BUNDLE_DIGEST_MISMATCH`, fixture dipendente `SKIPPED`.
+- **Finding**: P2 tecnico, digest resource bundle legato al campo Xcode
+  `BuildMachineOSBuild` del macOS host.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 29 e handoff
+
+- **Technical SHA**: `cd67e37aca282665dbec80e7c2d0e482ee712315`.
+- **Fix**: canonicalizzazione del solo `BuildMachineOSBuild` negli
+  `Info.plist` dei resource bundle; ogni altra chiave/path/risorsa resta nel
+  digest SHA-256.
+- **Regressioni**: host build diverso accettato; metadata plist aggiuntivo e
+  risorsa inattesa respinti.
+- **Gate**: candidate 684/207 `PASS`, iOS 45/45, security 684, action pins,
+  syntax e diff check `PASS`.
+- **Boundary**: runtime, signing, provisioning, TestFlight e production
+  invariati.
+- **Handoff**: `ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review
+  read-only distinta obbligatoria.

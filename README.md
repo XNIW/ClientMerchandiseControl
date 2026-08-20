@@ -208,13 +208,13 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: la run `32109274228` ha lasciato
-verdi Quality, Android debug/release e iOS Simulator, ma ha riprodotto un
-`EMBEDDED_COMPONENT_DIGEST_MISMATCH` nel candidate iOS. Fix 28 normalizza il
-solo `LC_UUID` non semantico del native asset e vincola Runner ai due output
-whole-Mach-O verificati di Xcode 26.6; candidate indipendenti e fixture iOS
-43/43 sono verdi. Re-review e nuova CI exact-SHA restano da eseguire;
-activation invariata.
+TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 28 è stato approvato da review
+prodotto/security, ma la CI PR exact-SHA `32116655699` ha lasciato 4/5 job
+verdi e ha riprodotto `EMBEDDED_BUNDLE_DIGEST_MISMATCH` nel candidate iOS.
+Fix 29 canonicalizza esclusivamente `BuildMachineOSBuild`, metadato Xcode
+legato al macOS host, mantenendo nel digest ogni altra chiave plist e risorsa;
+candidate reale e fixture iOS 45/45 sono verdi. Re-review e nuova CI exact-SHA
+restano da eseguire; activation invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

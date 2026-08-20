@@ -4503,3 +4503,16 @@
   decisione esplicita del `USER_APPROVER`.
 - **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 43 re-review
+
+- **Exact HEAD**: `41f1fce1651e936299bd4af5bdf23ed10e609962`.
+- **Esito**: prodotto `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 1.
+- **Finding**: il conteggio globale ignorava una seconda riga TASK-040
+  CommonMark con 1–3 spazi iniziali, pur chiudendo le tre divergenze di stato.
+- **Gate**: governance 91/91, syntax, action pins, diff e hygiene `PASS`;
+  codice release invariato e suite iOS non duplicata.
+- **Security lane**: nessun handoff dopo timeout e nessun report attribuito;
+  interrotta come bloccata e da rieseguire sul Fix44.
+- **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

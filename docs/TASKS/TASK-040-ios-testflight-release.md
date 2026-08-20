@@ -5,14 +5,14 @@
 - **Task ID**: TASK-040
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
-- **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Stato**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1802,6 +1802,23 @@ report prodotto sealed SHA-256
   same-UID resta esterno e non viene reinterpretato come `PASS`.
 
 `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+### Re-review Fix 43
+
+- exact review SHA: `41f1fce1651e936299bd4af5bdf23ed10e609962`;
+- prodotto `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 0 / P3 1;
+- `F-040-RR43-GOV-GLOBAL-INDENTED-DUPLICATE-01`: una seconda riga
+  TASK-040 fuori tabella con 1–3 spazi iniziali è CommonMark visibile, ma il
+  conteggio globale `^\|` la ignorava e il checker restava exit 0;
+- closure Fix 42 confermata per `BLOCKED -> TODO`, `DONE` e
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`, duplicate non indentate e relocation;
+- governance 91/91, syntax, action pins, diff e hygiene `PASS`; codice release
+  invariato e suite iOS correttamente non duplicata;
+- la lane security separata non ha restituito un handoff dopo timeout ed è
+  stata interrotta senza attribuire verdict o report; sarà rieseguita sul Fix44;
+- il blocker di isolamento same-UID resta confermato e separato.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

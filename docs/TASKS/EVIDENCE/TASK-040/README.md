@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 43 governance verde; isolamento same-UID richiede boundary esterno | BLOCKED |
+| CA-10 | Fix 43 P3 su duplicate CommonMark indentate; Fix 44 richiesto | NOT_RUN |
 
 ## Matrice T -> risultato
 
@@ -1129,6 +1129,19 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
   rieseguiti o rinominati;
 - isolamento same-UID, Distribution signing, physical iOS e upload TestFlight
   restano `BLOCKED` o `NOT_RUN`; nessuna mutazione esterna è stata eseguita.
+
+## Re-review Fix 43
+
+- exact HEAD `41f1fce1651e936299bd4af5bdf23ed10e609962`;
+- verdict prodotto `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 1;
+- una duplicate TASK-040 con due spazi iniziali fuori tabella non incrementava
+  il count globale e lasciava governance exit 0;
+- `BLOCKED -> TODO/DONE/VALIDATED_PENDING`, duplicate non indentate e
+  relocation risultano chiusi; governance nominale 91/91 `PASS`;
+- re-review security separata senza handoff dopo timeout, interrotta senza
+  dichiarare report sealed; codice iOS e artifact invariati;
+- fix richiesto: parsing globale CommonMark 0–3 spazi e regressioni per 1, 2
+  e 3 spazi; blocker isolamento esterno invariato.
 
 ## Re-review Fix 40
 

@@ -31,13 +31,13 @@ Snapshot di handoff:
 |---|---|---|
 | T-01 | PASS | source gate, runtime/CI 18/18 e config/signing boundary |
 | T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `01dd140` |
-| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 48/48 |
+| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 53/53 |
 | T-04 | PASS | scanner 685/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 31 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 32 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,28 +64,27 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 31
+## Gate executor corrente — Fix 32
 
 - `scripts/check.sh`: exit 0;
 - non-performance 804/804; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
 - governance 88/88; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 685; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 48/48; Flutter/YAML mirati 12/12;
+- validator iOS avversariale 53/53; Flutter/YAML mirati 12/12;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
 
-Fix 31 non cambia il runtime applicativo. Il canonicalizer legge dallo stesso fd
-con component-walk `O_NOFOLLOW`, cap input 1 MiB, massimo 16.384 oggetti o
-elementi e output canonico massimo 4 MiB. Il binary plist shared-reference della
-review usa 14.385.152 byte RSS nel helper e 26.279.936 byte nel validator, contro
-387.284.992 byte; un binary plist sotto 1 MiB con oltre 20.000 oggetti è
-respinto prima del parse completo. Candidate reale `PASS`, fixture iOS 48/48,
-scanner 685/207 e regressioni helper fail-closed sono verdi. La CI PR viene
-rieseguita soltanto dopo re-review.
+Fix 32 non cambia il runtime applicativo. Il canonicalizer usa `O_NOFOLLOW` e
+`O_NONBLOCK`, rifiuta FIFO, internal subset ed entity declaration
+XML prima del parse e produce identity+digest dalla stessa lettura bounded.
+Le regressioni distinguono timeout FIFO, entity bomb a 28 livelli, identity
+errata e il precedente swap atomico fra digest e identity. Candidate reale
+`PASS`, fixture iOS 53/53, scanner 685/207 e gate mirati sono verdi. Il gate
+integrato sullo handoff, la re-review e la CI PR restano da eseguire.
 
 ## Gate Fix 1
 

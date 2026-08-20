@@ -4093,3 +4093,27 @@
 - **Boundary**: runtime, signing, provisioning, TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 31 re-review
+
+- **Exact HEAD**: `8148c798045164e646bf64120d4ce3f64703650e`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`; un P2 TOCTOU digest/identity
+  e due P3 su FIFO bloccante ed entity declaration XML non bounded.
+- **Closure**: binary shared-reference e object-count bomb di Fix 30 chiusi.
+- **Report security**: sealed SHA-256
+  `2e8430aece87ed94c4a686638a8b25188d51bc2d9437768ca7a9fc0bee52c0b7`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 32 e handoff
+
+- **Technical SHA**: `b1c98d1aa6805f102ae0e49c046b03351c0f5d4b`.
+- **Fix**: identity+digest su un'unica lettura bounded, open leaf con
+  `O_NOFOLLOW` e `O_NONBLOCK`, rifiuto immediato di internal subset/entity XML.
+- **Regressioni**: swap API split, identity errata, FIFO diretto/end-to-end ed
+  entity bomb a 28 livelli con timeout discriminante.
+- **Gate**: candidate 685/207, validator iOS 53/53, security 685,
+  Flutter/YAML 12/12, governance 88/88, action pin, syntax e diff `PASS`;
+  gate integrato da rieseguire sullo handoff.
+- **Boundary**: runtime, signing, provisioning, TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

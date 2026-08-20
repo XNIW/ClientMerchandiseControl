@@ -1224,6 +1224,39 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 31
+
+- exact review SHA: `8148c798045164e646bf64120d4ce3f64703650e`;
+- prodotto/security `CHANGES_REQUIRED`: un P2
+  `F-040-RR31-IOS-PLIST-TOCTOU-01` e due P3 su FIFO bloccante ed entity bomb
+  XML; il binary shared-reference di Fix 30 è invece chiuso;
+- lo swap deterministico dopo il digest conservava un plist tampered con
+  identity valida e `IOS_RELEASE_CANDIDATE_VALID`; un FIFO bloccava prima di
+  `fstat`; 26 livelli di entity XML richiedevano 5,78 secondi;
+- report security sealed SHA-256
+  `2e8430aece87ed94c4a686638a8b25188d51bc2d9437768ca7a9fc0bee52c0b7`;
+- candidate 685/207 e fixture iOS 48/48 restavano verdi; signing, TestFlight e
+  production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 32
+
+- exact technical SHA: `b1c98d1aa6805f102ae0e49c046b03351c0f5d4b`;
+- il canonicalizer apre il leaf con `O_NONBLOCK`, rifiuta non-regular file,
+  internal subset ed entity declaration XML prima di `plistlib`;
+- il comando `--validate-identity-and-digest` produce identity e digest dalla
+  stessa lettura/fstat bounded; il validator non riapre più il plist fra i due
+  controlli;
+- regressioni dedicate coprono swap atomico della vecchia API split, identity
+  errata con reason precisa, FIFO diretto/end-to-end ed entity bomb a 28
+  livelli con timeout discriminante;
+- candidate reale 685/207, validator iOS 53/53, security 685, Flutter/YAML
+  12/12, governance 88/88, action pin, syntax e diff check `PASS`;
+- runtime, firma, provisioning, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

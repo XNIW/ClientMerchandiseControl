@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1640,6 +1640,35 @@ report prodotto sealed SHA-256
   signing, TestFlight e production invariati.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 40
+
+- exact technical SHA: `7fdd29a6ffd8f10d2c6a065cc30ad5c4220f4ff1`;
+- il cleanup ripete `st_nlink == 1` sul descriptor e sulla entry quarantine
+  immediatamente prima del truncate e lo riattesta dopo fsync, preservando i
+  byte dell'alias nel probe late-hardlink;
+- la serializzazione usa `flock` direttamente sul descriptor del parent
+  component-bound; il test interprocess sostituisce continuamente il vecchio
+  pathname lock e con cap 1 produce esattamente una root;
+- retained non è più un set di nomi: ogni pass confronta device/inode/mode e,
+  per i file, link-count e size zero; replacement file/directory post-quarantine
+  viene rilevato e preservato con cleanup fail-closed;
+- i parent temporanei con tab/newline sono respinti prima della `mkdir`, senza
+  root residue; il cap resta 512 e il default TMPDIR locale contava 416 entry
+  storiche/bounded dopo i probe, senza cancellazioni manuali;
+- validator iOS 84/84, Flutter/YAML 12/12, governance 88/88, security
+  61/61 + 7/7, architecture 17/17, analyze/format/syntax/pins/diff `PASS`;
+- candidate reale 686/207 `PASS`, unsigned; tree SHA-256
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`
+  e sealed payload SHA-256
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+- `scripts/check.sh` exact technical SHA exit 0: 804/804 non-performance,
+  performance 10/10, repeat resilience 70/70 e build debug Android/iOS;
+- upload-ready reale exit 1 con reason esatta
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

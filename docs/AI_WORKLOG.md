@@ -4379,3 +4379,26 @@
   `25c488eb561cf1f74459ba7c56b9ee51f5551310bd6bd4ea3669cb66ce58e979`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 40 e handoff
+
+- **Technical SHA**: `7fdd29a6ffd8f10d2c6a065cc30ad5c4220f4ff1`.
+- **Fix**: recheck `st_nlink` dopo quarantine e prima/dopo truncate; lock
+  esclusivo sul descriptor della directory parent con ancestor-chain
+  reattestata; retained file/directory identity-bound e zero-payload.
+- **Regressioni**: late-hardlink, interprocess legacy-lock ABA con cap 1,
+  replacement post-quarantine file/directory e parent con tab/newline;
+  validator iOS 84/84 e Flutter/YAML 12/12 `PASS`.
+- **Retention locale**: 416 tombstone su cap 512 nel `TMPDIR` condiviso;
+  nessuna cancellazione manuale. Le fixture avversariali preservano i victim
+  quando falliscono; la re-review lunga userà un `TMPDIR` privato nuovo.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 +
+  7/7, architecture 17/17, analyze, format, syntax, pycompile, action pin e
+  diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready reale exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun upload, signing,
+  provisioning, physical iOS o activation production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

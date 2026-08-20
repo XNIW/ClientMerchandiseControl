@@ -1391,6 +1391,65 @@ module = importlib.util.module_from_spec(spec)
 assert spec.loader is not None
 spec.loader.exec_module(module)
 
+source = f"{root}/cleanup-ftruncate-hardlink-source"
+external = f"{root}/cleanup-ftruncate-hardlink-preserved"
+os.mkdir(source)
+with open(f"{source}/payload", "wb") as target:
+    target.write(b"preserved-inside-ftruncate")
+directory = os.open(source, os.O_RDONLY | os.O_DIRECTORY)
+real_ftruncate = module.os.ftruncate
+injected = False
+
+def inject_inside_ftruncate(descriptor, length):
+    global injected
+    if not injected:
+        quarantine = next(
+            entry.name
+            for entry in os.scandir(directory)
+            if entry.name.startswith(".cmc-cleanup-")
+        )
+        os.link(
+            quarantine,
+            external,
+            src_dir_fd=directory,
+            follow_symlinks=False,
+        )
+        injected = True
+    return real_ftruncate(descriptor, length)
+
+module.os.ftruncate = inject_inside_ftruncate
+failed = False
+try:
+    module._clear_directory(directory)
+except OSError:
+    failed = True
+finally:
+    module.os.ftruncate = real_ftruncate
+    os.close(directory)
+with open(external, "rb") as target:
+    payload = target.read()
+if not injected or not failed or payload != b"preserved-inside-ftruncate":
+    raise SystemExit(1)
+PY
+  printf 'Fixture iOS: hardlink nell ultimo gap ftruncate non preservato.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_tmp_root}" <<'PY' || {
+import importlib.util
+import os
+import sys
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
 source = f"{root}/cleanup-late-hardlink-source"
 external = f"{root}/cleanup-late-hardlink-preserved"
 os.mkdir(source)
@@ -1489,7 +1548,10 @@ observed_directory_lock = False
 
 def inspect_flock(descriptor, operation):
     global observed_directory_lock
-    if not stat.S_ISDIR(os.fstat(descriptor).st_mode):
+    if (
+        not stat.S_ISDIR(os.fstat(descriptor).st_mode)
+        or operation != module.fcntl.LOCK_EX
+    ):
         raise AssertionError("replaceable pathname lock used")
     observed_directory_lock = True
     return real_flock(descriptor, operation)
@@ -1572,8 +1634,165 @@ if (
     or len(race_roots) != 1
 ):
     raise SystemExit(1)
+
+noncooperative_parent = f"{root}/retention-cap-noncooperative"
+os.mkdir(noncooperative_parent)
+real_mkdir = module.os.mkdir
+injected = False
+
+def insert_between_count_and_create(path, mode=0o777, *, dir_fd=None):
+    global injected
+    if (
+        dir_fd is not None
+        and isinstance(path, str)
+        and path.startswith("cmc-ios-release.")
+        and not injected
+    ):
+        real_mkdir(".cmc-cleanup-injected", 0o700, dir_fd=dir_fd)
+        injected = True
+    return real_mkdir(path, mode, dir_fd=dir_fd)
+
+module.os.mkdir = insert_between_count_and_create
+module.MAX_RETAINED_TEMP_ROOTS = 1
+record = None
+failed = False
+try:
+    record = module.create_temp_directory(noncooperative_parent)
+except OSError:
+    failed = True
+finally:
+    module.MAX_RETAINED_TEMP_ROOTS = original_limit
+    module.os.mkdir = real_mkdir
+noncooperative_names = [
+    name
+    for name in os.listdir(noncooperative_parent)
+    if name.startswith("cmc-ios-release.")
+    or name.startswith(".cmc-cleanup-")
+]
+if (
+    not injected
+    or not failed
+    or record is not None
+    or noncooperative_names != [".cmc-cleanup-injected"]
+):
+    raise SystemExit(1)
 PY
   printf 'Fixture iOS: lock directory/cap non identity-bound.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_tmp_root}" <<'PY' || {
+import importlib.util
+import os
+import stat
+import sys
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
+def exercise(kind):
+    source = f"{root}/retained-postvalidate-{kind}"
+    os.mkdir(source)
+    target = f"{source}/target"
+    if kind == "file":
+        with open(target, "wb") as handle:
+            handle.write(b"original")
+    else:
+        os.mkdir(target)
+        with open(f"{target}/original", "wb") as handle:
+            handle.write(b"original")
+    directory = os.open(source, os.O_RDONLY | os.O_DIRECTORY)
+    real_validate = module._validate_retained_entry
+    injected = False
+    replacement = ""
+
+    def inject_after_validate(parent, name, expected):
+        nonlocal injected, replacement
+        current = real_validate(parent, name, expected)
+        expected_type = (
+            stat.S_ISREG(current.st_mode)
+            if kind == "file"
+            else stat.S_ISDIR(current.st_mode)
+        )
+        if (
+            not injected
+            and parent == directory
+            and name.startswith(".cmc-cleanup-")
+            and expected_type
+        ):
+            injected = True
+            if kind == "directory-child":
+                child = os.open(
+                    name,
+                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    dir_fd=parent,
+                )
+                try:
+                    payload = os.open(
+                        "replacement",
+                        os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                        0o600,
+                        dir_fd=child,
+                    )
+                    try:
+                        os.write(payload, b"replacement")
+                    finally:
+                        os.close(payload)
+                finally:
+                    os.close(child)
+                replacement = f"{source}/{name}/replacement"
+            else:
+                os.rename(
+                    name,
+                    f"{name}-held",
+                    src_dir_fd=parent,
+                    dst_dir_fd=parent,
+                )
+                replacement = f"{source}/{name}"
+                if kind == "file":
+                    with open(replacement, "wb") as handle:
+                        handle.write(b"replacement")
+                else:
+                    os.mkdir(replacement)
+                    with open(f"{replacement}/replacement", "wb") as handle:
+                        handle.write(b"replacement")
+        return current
+
+    module._validate_retained_entry = inject_after_validate
+    failed = False
+    try:
+        module._clear_directory(directory)
+    except OSError:
+        failed = True
+    finally:
+        module._validate_retained_entry = real_validate
+        os.close(directory)
+    if kind == "file":
+        with open(replacement, "rb") as handle:
+            preserved = handle.read() == b"replacement"
+    else:
+        with open(
+            replacement
+            if kind == "directory-child"
+            else f"{replacement}/replacement",
+            "rb",
+        ) as handle:
+            preserved = handle.read() == b"replacement"
+    if not injected or not failed or not preserved:
+        raise SystemExit(1)
+
+exercise("file")
+exercise("directory")
+exercise("directory-child")
+PY
+  printf 'Fixture iOS: retained post-validazione non fail-closed.\n' >&2
   exit 1
 }
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))

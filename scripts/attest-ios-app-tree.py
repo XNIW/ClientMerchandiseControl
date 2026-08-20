@@ -7,6 +7,7 @@ import hashlib
 import ctypes
 import errno
 import fcntl
+import io
 import os
 import posixpath
 import re
@@ -276,13 +277,167 @@ def _validate_retained_entry(
         current.st_dev != expected.st_dev
         or current.st_ino != expected.st_ino
         or current.st_mode != expected.st_mode
+        or _stable_times(current) != _stable_times(expected)
     ):
         raise OSError("cleanup retained entry identity mismatch")
-    if stat.S_ISREG(current.st_mode) and (
-        current.st_nlink != 1 or current.st_size != 0
+    if stat.S_ISREG(current.st_mode):
+        retained = os.open(
+            name,
+            os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+            dir_fd=directory,
+        )
+        try:
+            opened = os.fstat(retained)
+            if (
+                opened.st_dev != current.st_dev
+                or opened.st_ino != current.st_ino
+                or opened.st_mode != current.st_mode
+                or _stable_times(opened) != _stable_times(current)
+                or opened.st_nlink != 1
+                or opened.st_size != 0
+            ):
+                raise OSError(
+                    "cleanup retained file is not empty and private"
+                )
+            return opened
+        finally:
+            os.close(retained)
+    if stat.S_ISDIR(current.st_mode):
+        retained = os.open(
+            name,
+            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=directory,
+        )
+        try:
+            opened = os.fstat(retained)
+            if (
+                opened.st_dev != current.st_dev
+                or opened.st_ino != current.st_ino
+                or opened.st_mode != current.st_mode
+                or _stable_times(opened) != _stable_times(current)
+            ):
+                raise OSError("cleanup retained directory changed")
+            _validate_zero_payload_tree(retained)
+            after = os.fstat(retained)
+            if (
+                after.st_dev != opened.st_dev
+                or after.st_ino != opened.st_ino
+                or after.st_mode != opened.st_mode
+                or _stable_times(after) != _stable_times(opened)
+            ):
+                raise OSError("cleanup retained directory changed")
+            return after
+        finally:
+            os.close(retained)
+    if stat.S_ISFIFO(current.st_mode):
+        if current.st_nlink != 1 or current.st_size != 0:
+            raise OSError("cleanup retained fifo is not empty and private")
+        return current
+    raise OSError("cleanup retained entry type invalid")
+
+
+def _validate_zero_payload_tree(
+    directory: int,
+    depth: int = 0,
+    operations: Optional[list[int]] = None,
+) -> None:
+    if depth > MAX_CLEANUP_DEPTH:
+        raise OSError("cleanup retained depth exceeded")
+    if operations is None:
+        operations = [0]
+    before = os.fstat(directory)
+    with os.scandir(directory) as iterator:
+        names = [entry.name for entry in iterator]
+    for name in names:
+        operations[0] += 1
+        if operations[0] > MAX_CLEANUP_OPERATIONS:
+            raise OSError("cleanup retained operation limit exceeded")
+        metadata = os.stat(name, dir_fd=directory, follow_symlinks=False)
+        if stat.S_ISREG(metadata.st_mode):
+            if metadata.st_nlink != 1 or metadata.st_size != 0:
+                raise OSError("cleanup retained payload is not empty")
+        elif stat.S_ISFIFO(metadata.st_mode):
+            if metadata.st_nlink != 1 or metadata.st_size != 0:
+                raise OSError("cleanup retained fifo is not empty and private")
+        elif stat.S_ISDIR(metadata.st_mode):
+            child = os.open(
+                name,
+                os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                dir_fd=directory,
+            )
+            try:
+                opened = os.fstat(child)
+                if (
+                    opened.st_dev != metadata.st_dev
+                    or opened.st_ino != metadata.st_ino
+                    or opened.st_mode != metadata.st_mode
+                ):
+                    raise OSError("cleanup retained child changed")
+                _validate_zero_payload_tree(child, depth + 1, operations)
+            finally:
+                os.close(child)
+        else:
+            raise OSError("cleanup retained entry type invalid")
+    after = os.fstat(directory)
+    if (
+        after.st_dev != before.st_dev
+        or after.st_ino != before.st_ino
+        or after.st_mode != before.st_mode
+        or _stable_times(after) != _stable_times(before)
     ):
-        raise OSError("cleanup retained file is not empty and private")
-    return current
+        raise OSError("cleanup retained tree changed")
+
+
+def _backup_regular(descriptor: int, expected: os.stat_result):
+    if expected.st_size < 0 or expected.st_size > MAX_FILE_BYTES:
+        raise OSError("cleanup file exceeds recoverable size")
+    backup = io.BytesIO()
+    try:
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        remaining = expected.st_size
+        while remaining:
+            chunk = os.read(descriptor, min(CHUNK_BYTES, remaining))
+            if not chunk:
+                raise OSError("cleanup backup short read")
+            if backup.write(chunk) != len(chunk):
+                raise OSError("cleanup backup short write")
+            remaining -= len(chunk)
+        if os.read(descriptor, 1):
+            raise OSError("cleanup backup size changed")
+        after = os.fstat(descriptor)
+        if (
+            after.st_dev != expected.st_dev
+            or after.st_ino != expected.st_ino
+            or after.st_mode != expected.st_mode
+            or after.st_size != expected.st_size
+            or after.st_nlink != 1
+            or _stable_times(after) != _stable_times(expected)
+        ):
+            raise OSError("cleanup source changed during backup")
+        backup.seek(0)
+        return backup
+    except BaseException:
+        backup.close()
+        raise
+
+
+def _restore_regular_from_backup(
+    descriptor: int,
+    backup,
+    expected: os.stat_result,
+) -> None:
+    os.ftruncate(descriptor, 0)
+    os.lseek(descriptor, 0, os.SEEK_SET)
+    backup.seek(0)
+    remaining = expected.st_size
+    while remaining:
+        chunk = backup.read(min(CHUNK_BYTES, remaining))
+        if not chunk:
+            raise OSError("cleanup restore short read")
+        _write_all(descriptor, chunk)
+        remaining -= len(chunk)
+    os.fchmod(descriptor, stat.S_IMODE(expected.st_mode))
+    os.fsync(descriptor)
 
 
 def _clear_directory(
@@ -295,6 +450,7 @@ def _clear_directory(
     if operations is None:
         operations = [0]
     retained: dict[str, os.stat_result] = {}
+    stable_passes = 0
     for _ in range(MAX_CLEANUP_PASSES):
         with os.scandir(directory) as iterator:
             names = [entry.name for entry in iterator]
@@ -309,7 +465,11 @@ def _clear_directory(
             )
         pending = [name for name in names if name not in retained]
         if not pending:
-            return
+            stable_passes += 1
+            if stable_passes >= 2:
+                return
+            continue
+        stable_passes = 0
         for name in pending:
             operations[0] += 1
             if operations[0] > MAX_CLEANUP_OPERATIONS:
@@ -347,6 +507,7 @@ def _clear_directory(
                 else:
                     descriptor: Optional[int] = None
                     writable: Optional[int] = None
+                    backup = None
                     quarantine_expected = metadata
                     if stat.S_ISREG(metadata.st_mode):
                         descriptor = os.open(
@@ -405,14 +566,31 @@ def _clear_directory(
                                 raise OSError(
                                     "cleanup quarantined file identity mismatch"
                                 )
-                            os.ftruncate(writable, 0)
-                            os.fchmod(writable, stat.S_IMODE(metadata.st_mode))
-                            os.fsync(writable)
-                            cleaned = os.fstat(writable)
-                            if cleaned.st_nlink != 1 or cleaned.st_size != 0:
-                                raise OSError(
-                                    "cleanup quarantined file link changed"
+                            backup = _backup_regular(writable, quarantined)
+                            try:
+                                os.ftruncate(writable, 0)
+                                os.fchmod(
+                                    writable,
+                                    stat.S_IMODE(metadata.st_mode),
                                 )
+                                os.fsync(writable)
+                                cleaned = os.fstat(writable)
+                                if cleaned.st_nlink != 1:
+                                    _restore_regular_from_backup(
+                                        writable,
+                                        backup,
+                                        quarantined,
+                                    )
+                                    raise OSError(
+                                        "cleanup quarantined file link changed"
+                                    )
+                                if cleaned.st_size != 0:
+                                    raise OSError(
+                                        "cleanup quarantined file is not empty"
+                                    )
+                            finally:
+                                backup.close()
+                                backup = None
                             retained[quarantine] = cleaned
                         else:
                             retained[quarantine] = os.stat(
@@ -423,12 +601,16 @@ def _clear_directory(
                     finally:
                         if writable is not None:
                             os.close(writable)
+                        if backup is not None:
+                            backup.close()
                         if descriptor is not None:
                             try:
-                                os.fchmod(
-                                    descriptor,
-                                    stat.S_IMODE(metadata.st_mode),
+                                descriptor_mode = stat.S_IMODE(
+                                    os.fstat(descriptor).st_mode
                                 )
+                                original_mode = stat.S_IMODE(metadata.st_mode)
+                                if descriptor_mode != original_mode:
+                                    os.fchmod(descriptor, original_mode)
                             except OSError:
                                 pass
                             os.close(descriptor)
@@ -476,13 +658,7 @@ def create_temp_directory(parent_path: str) -> str:
         fcntl.flock(parent, fcntl.LOCK_EX)
         if not _directory_chain_matches(descriptors, components):
             raise OSError("temporary directory parent changed")
-        with os.scandir(parent) as iterator:
-            retained_count = sum(
-                1
-                for entry in iterator
-                if entry.name.startswith("cmc-ios-release.")
-                or entry.name.startswith(".cmc-cleanup-")
-            )
+        retained_count = _retained_temp_root_count(parent)
         if retained_count >= MAX_RETAINED_TEMP_ROOTS:
             raise OSError("temporary directory retention limit exceeded")
         for _ in range(MAX_CLEANUP_QUARANTINE_ATTEMPTS):
@@ -518,6 +694,21 @@ def create_temp_directory(parent_path: str) -> str:
                 record = f"{path}\t{opened.st_dev},{opened.st_ino}"
                 if not TEMP_DIRECTORY_RECORD_PATTERN.fullmatch(record):
                     raise ValueError("temporary directory record invalid")
+                for _ in range(2):
+                    if not _directory_chain_matches(descriptors, components):
+                        raise OSError("temporary directory parent changed")
+                    if (
+                        _retained_temp_root_count(parent)
+                        > MAX_RETAINED_TEMP_ROOTS
+                    ):
+                        _remove_empty_created_directory(
+                            parent,
+                            name,
+                            directory,
+                        )
+                        raise OSError(
+                            "temporary directory retention limit exceeded"
+                        )
                 return record
             finally:
                 if directory is not None:
@@ -526,6 +717,36 @@ def create_temp_directory(parent_path: str) -> str:
     finally:
         for descriptor in reversed(descriptors):
             os.close(descriptor)
+
+
+def _retained_temp_root_count(parent: int) -> int:
+    with os.scandir(parent) as iterator:
+        return sum(
+            1
+            for entry in iterator
+            if entry.name.startswith("cmc-ios-release.")
+            or entry.name.startswith(".cmc-cleanup-")
+        )
+
+
+def _remove_empty_created_directory(
+    parent: int,
+    name: str,
+    directory: int,
+) -> None:
+    opened = os.fstat(directory)
+    visible = os.stat(name, dir_fd=parent, follow_symlinks=False)
+    if (
+        not stat.S_ISDIR(opened.st_mode)
+        or visible.st_dev != opened.st_dev
+        or visible.st_ino != opened.st_ino
+        or visible.st_mode != opened.st_mode
+    ):
+        raise OSError("temporary directory rollback identity mismatch")
+    with os.scandir(directory) as iterator:
+        if next(iterator, None) is not None:
+            raise OSError("temporary directory rollback is not empty")
+    os.rmdir(name, dir_fd=parent)
 
 
 def directory_identity(path: str) -> str:

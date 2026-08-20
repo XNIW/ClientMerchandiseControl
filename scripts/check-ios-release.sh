@@ -408,13 +408,18 @@ cmc_ios_release_cleanup() {
 trap cmc_ios_release_cleanup EXIT
 
 cmc_ios_release_snapshot="${cmc_ios_release_tmp_root}/Runner.app"
-cmc_ios_release_initial_tree_digest="$(
+cmc_ios_release_internal_seal="${cmc_ios_release_tmp_root}/Runner.app.zip"
+cmc_ios_release_initial_seal_result="$(
   python3 "${cmc_ios_release_tree_attestor}" \
-    --snapshot "${cmc_ios_release_input_app_canonical}" \
+    --seal-snapshot "${cmc_ios_release_input_app_canonical}" \
+    "${cmc_ios_release_internal_seal}" \
     "${cmc_ios_release_snapshot}"
 )" || cmc_ios_release_fail 'ARTIFACT_SNAPSHOT_UNREADABLE'
-[[ "${cmc_ios_release_initial_tree_digest}" =~ ^[0-9a-f]{64}$ ]] || \
+[[ "${cmc_ios_release_initial_seal_result}" =~ \
+  ^[0-9a-f]{64},[0-9a-f]{64}$ ]] || \
   cmc_ios_release_fail 'ARTIFACT_SNAPSHOT_UNREADABLE'
+cmc_ios_release_initial_tree_digest="${cmc_ios_release_initial_seal_result%%,*}"
+cmc_ios_release_sealed_app_sha="${cmc_ios_release_initial_seal_result##*,}"
 cmc_ios_release_app="${cmc_ios_release_snapshot}"
 cmc_ios_release_app_canonical="${cmc_ios_release_snapshot}"
 
@@ -1164,19 +1169,24 @@ if [[ "${cmc_ios_release_require_upload}" == true ]]; then
   cmc_ios_release_upload_inputs_validated=true
 fi
 
-cmc_ios_release_seal_result="$(
+cmc_ios_release_final_tree_digest="$(
   python3 "${cmc_ios_release_tree_attestor}" \
-    --seal "${cmc_ios_release_app_canonical}" \
-    "${cmc_ios_release_sealed_app_output}"
-)" || cmc_ios_release_fail 'SEALED_APP_CREATION_FAILED'
-[[ "${cmc_ios_release_seal_result}" =~ \
-  ^[0-9a-f]{64},[0-9a-f]{64}$ ]] || \
-  cmc_ios_release_fail 'SEALED_APP_CREATION_FAILED'
-cmc_ios_release_final_tree_digest="${cmc_ios_release_seal_result%%,*}"
-cmc_ios_release_sealed_app_sha="${cmc_ios_release_seal_result##*,}"
+    "${cmc_ios_release_app_canonical}"
+)" || cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
+[[ "${cmc_ios_release_final_tree_digest}" =~ ^[0-9a-f]{64}$ ]] || \
+  cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
 [[ "${cmc_ios_release_final_tree_digest}" == \
   "${cmc_ios_release_initial_tree_digest}" ]] || \
   cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
+cmc_ios_release_published_seal_sha="$(
+  python3 "${cmc_ios_release_tree_attestor}" \
+    --publish-seal "${cmc_ios_release_internal_seal}" \
+    "${cmc_ios_release_sealed_app_sha}" \
+    "${cmc_ios_release_sealed_app_output}"
+)" || cmc_ios_release_fail 'SEALED_APP_CREATION_FAILED'
+[[ "${cmc_ios_release_published_seal_sha}" == \
+  "${cmc_ios_release_sealed_app_sha}" ]] || \
+  cmc_ios_release_fail 'SEALED_APP_CREATION_FAILED'
 cmc_ios_release_seal_probe="${cmc_ios_release_tmp_root}/SealedProbe.app"
 cmc_ios_release_extracted_tree_digest="$(
   python3 "${cmc_ios_release_tree_attestor}" \
@@ -1186,12 +1196,6 @@ cmc_ios_release_extracted_tree_digest="$(
 )" || cmc_ios_release_fail 'SEALED_APP_VERIFICATION_FAILED'
 [[ "${cmc_ios_release_extracted_tree_digest}" == \
   "${cmc_ios_release_initial_tree_digest}" ]] || \
-  cmc_ios_release_fail 'SEALED_APP_VERIFICATION_FAILED'
-cmc_ios_release_retained_seal_sha="$(
-  shasum -a 256 "${cmc_ios_release_sealed_app_output}" | awk '{print $1}'
-)" || cmc_ios_release_fail 'SEALED_APP_VERIFICATION_FAILED'
-[[ "${cmc_ios_release_retained_seal_sha}" == \
-  "${cmc_ios_release_sealed_app_sha}" ]] || \
   cmc_ios_release_fail 'SEALED_APP_VERIFICATION_FAILED'
 if [[ "${cmc_ios_release_signing_state}" == SIGNED ]]; then
   codesign --verify --deep --strict "${cmc_ios_release_seal_probe}" \

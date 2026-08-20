@@ -41,12 +41,21 @@ xcodebuild archive \
   CODE_SIGNING_REQUIRED=NO \
   COMPILER_INDEX_STORE_ENABLE=NO
 mkdir -p build/ios/validated
-bash scripts/check-ios-release.sh \
+cmc_ios_candidate_output="$(bash scripts/check-ios-release.sh \
   --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
   --archive build/ios/archive/Runner.xcarchive \
   --sealed-app-output build/ios/validated/Runner.app.zip \
   --reference-app build/ios/iphoneos/Runner.app \
-  --reference-attestation "${cmc_ios_reference_attestation}"
+  --reference-attestation "${cmc_ios_reference_attestation}")"
+printf '%s\n' "${cmc_ios_candidate_output}"
+cmc_ios_candidate_sha="$(sed -nE \
+  's/^IOS_RELEASE_SEALED_APP_SHA256=([0-9a-f]{64})$/\1/p' \
+  <<<"${cmc_ios_candidate_output}")"
+[[ "${cmc_ios_candidate_sha}" =~ ^[0-9a-f]{64}$ ]] || exit 1
+python3 scripts/attest-ios-app-tree.py \
+  --extract build/ios/validated/Runner.app.zip \
+  "${cmc_ios_candidate_sha}" \
+  build/ios/validated/UnsignedCandidate.app
 ```
 
 Il candidate unsigned dimostra build, archive, bundle/version, architettura, privacy,
@@ -125,26 +134,49 @@ successivamente all'archive, eseguire prima:
 
 ```bash
 mkdir -p build/ios/validated
-bash scripts/check-ios-release.sh \
+cmc_ios_upload_validation="$(bash scripts/check-ios-release.sh \
   --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
   --archive build/ios/archive/Runner.xcarchive \
   --sealed-app-output build/ios/validated/Runner.app-upload.zip \
   --reference-app build/ios/iphoneos/Runner.app \
   --reference-attestation "${cmc_ios_reference_attestation}" \
-  --require-upload-ready
+  --require-upload-ready)"
+printf '%s\n' "${cmc_ios_upload_validation}"
+grep -Fxq 'IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED' \
+  <<<"${cmc_ios_upload_validation}" || exit 1
+cmc_ios_upload_sha="$(sed -nE \
+  's/^IOS_RELEASE_SEALED_APP_SHA256=([0-9a-f]{64})$/\1/p' \
+  <<<"${cmc_ios_upload_validation}")"
+[[ "${cmc_ios_upload_sha}" =~ ^[0-9a-f]{64}$ ]] || exit 1
+cmc_ios_export_root="$(mktemp -d build/ios/validated/export.XXXXXX)"
+ditto build/ios/archive/Runner.xcarchive \
+  "${cmc_ios_export_root}/Runner.xcarchive"
+mv "${cmc_ios_export_root}/Runner.xcarchive/Products/Applications/Runner.app" \
+  "${cmc_ios_export_root}/ValidatedSource.app"
+python3 scripts/attest-ios-app-tree.py \
+  --extract build/ios/validated/Runner.app-upload.zip \
+  "${cmc_ios_upload_sha}" \
+  "${cmc_ios_export_root}/Runner.xcarchive/Products/Applications/Runner.app"
+codesign --verify --deep --strict \
+  "${cmc_ios_export_root}/Runner.xcarchive/Products/Applications/Runner.app"
+xcodebuild -exportArchive \
+  -archivePath "${cmc_ios_export_root}/Runner.xcarchive" \
+  -exportOptionsPlist /path/esterno/ExportOptions.plist \
+  -exportPath "${cmc_ios_export_root}/export"
 ```
 
 Il path `--app` deve essere esattamente l'app interna all'archive. Il profilo embedded
 è ammesso dallo scanner solo in quel root path, dopo decode CMS e controlli App Store;
 profili altrove restano vietati.
 
-Solo l'output `IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED`, emesso dopo sealing,
-estrazione verificata e confronto del digest retained, consente di procedere. Creare
-un `ExportOptions.plist` esterno al repository con method App Store Connect, team e
-signing approvati, quindi eseguire `xcodebuild -exportArchive` in una directory
-temporanea. Validare nuovamente IPA e checksum prima di un upload tramite Xcode o
-transport Apple autenticato con la API key. Non usare `--upload` né promuovere il
-build senza un nuovo gate owner esplicito sul candidate firmato.
+Solo l'output `IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED`, emesso dopo sealing ed
+estrazione verificata, consente di procedere. Il comando sopra ricostruisce l'archive
+di export sostituendo l'app originale con l'esatta app estratta dal payload e dallo
+SHA-256 attestati; `xcodebuild -exportArchive` non usa quindi il tree sorgente
+mutabile. `ExportOptions.plist` resta esterno al repository e owner-approved.
+Validare nuovamente IPA e checksum prima di un upload tramite Xcode o transport Apple
+autenticato con la API key. Non usare `--upload` né promuovere il build senza un nuovo
+gate owner esplicito sul candidate firmato.
 
 ## Entitlement e activation boundary
 

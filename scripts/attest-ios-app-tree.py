@@ -8,6 +8,7 @@ import os
 import posixpath
 import re
 import stat
+import struct
 import sys
 import zipfile
 from typing import Optional
@@ -18,6 +19,8 @@ MAX_DEPTH = 64
 MAX_FILE_BYTES = 134_217_728
 MAX_TOTAL_BYTES = 536_870_912
 MAX_SEAL_BYTES = 603_979_776
+MAX_CENTRAL_DIRECTORY_BYTES = 16_777_216
+MAX_PATH_BYTES = 4_096
 CHUNK_BYTES = 65_536
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
@@ -31,23 +34,75 @@ def _stable_times(value: os.stat_result) -> tuple[int, int]:
     )
 
 
-def _canonical_absolute(path: str) -> str:
-    if (
-        not os.path.isabs(path)
-        or os.path.normpath(path) != path
-        or os.path.realpath(path) != path
-    ):
+def _normalized_absolute(path: str) -> str:
+    if not os.path.isabs(path) or os.path.normpath(path) != path:
         raise ValueError("non-canonical path")
     return path
 
 
+def _open_absolute_directory(path: str) -> int:
+    _normalized_absolute(path)
+    descriptor = os.open("/", os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for component in path.split("/")[1:]:
+            if component in ("", ".", "..") or "\x00" in component:
+                raise ValueError("invalid directory path")
+            child = os.open(
+                component,
+                os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                dir_fd=descriptor,
+            )
+            os.close(descriptor)
+            descriptor = child
+        return descriptor
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def _open_absolute_regular(path: str) -> int:
+    _normalized_absolute(path)
+    parent, name = os.path.split(path)
+    if name in ("", ".", "..") or "/" in name or "\x00" in name:
+        raise ValueError("invalid file path")
+    directory = _open_absolute_directory(parent)
+    try:
+        return os.open(
+            name,
+            os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+            dir_fd=directory,
+        )
+    finally:
+        os.close(directory)
+
+
 def _open_parent(path: str) -> tuple[int, str]:
-    _canonical_absolute(path)
+    _normalized_absolute(path)
     parent, name = os.path.split(path)
     if name in ("", ".", "..") or "/" in name or "\x00" in name:
         raise ValueError("invalid output path")
-    descriptor = os.open(parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    descriptor = _open_absolute_directory(parent)
     return descriptor, name
+
+
+def _open_relative_directory(root: int, relative: str) -> int:
+    current = os.dup(root)
+    try:
+        if relative:
+            for component in relative.split("/"):
+                if component in ("", ".", "..") or "\x00" in component:
+                    raise ValueError("invalid relative directory")
+                child = os.open(
+                    component,
+                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    dir_fd=current,
+                )
+                os.close(current)
+                current = child
+        return current
+    except BaseException:
+        os.close(current)
+        raise
 
 
 def _write_all(descriptor: int, payload: bytes) -> None:
@@ -57,6 +112,56 @@ def _write_all(descriptor: int, payload: bytes) -> None:
         if written <= 0:
             raise OSError("short write")
         offset += written
+
+
+def _clear_directory(directory: int, depth: int = 0) -> None:
+    if depth > MAX_DEPTH + 1:
+        raise ValueError("cleanup depth exceeded")
+    with os.scandir(directory) as iterator:
+        names = [entry.name for entry in iterator]
+    for name in names:
+        metadata = os.stat(name, dir_fd=directory, follow_symlinks=False)
+        if stat.S_ISDIR(metadata.st_mode):
+            child = os.open(
+                name,
+                os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                dir_fd=directory,
+            )
+            try:
+                _clear_directory(child, depth + 1)
+            finally:
+                os.close(child)
+            os.rmdir(name, dir_fd=directory)
+        else:
+            os.unlink(name, dir_fd=directory)
+
+
+def _cleanup_created_directory(
+    parent: int,
+    name: str,
+    identity: Optional[tuple[int, int]],
+) -> None:
+    if identity is None:
+        return
+    try:
+        current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+        if (
+            not stat.S_ISDIR(current.st_mode)
+            or (current.st_dev, current.st_ino) != identity
+        ):
+            return
+        directory = os.open(
+            name,
+            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=parent,
+        )
+        try:
+            _clear_directory(directory)
+        finally:
+            os.close(directory)
+        os.rmdir(name, dir_fd=parent)
+    except OSError:
+        pass
 
 
 def _read_regular(
@@ -279,10 +384,7 @@ def _digest_records(records: list[Record]) -> str:
 
 
 def _open_root(path: str) -> tuple[int, os.stat_result]:
-    _canonical_absolute(path)
-    if os.path.islink(path):
-        raise ValueError("non-canonical root")
-    descriptor = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    descriptor = _open_absolute_directory(path)
     metadata = os.fstat(descriptor)
     if not stat.S_ISDIR(metadata.st_mode):
         os.close(descriptor)
@@ -290,27 +392,38 @@ def _open_root(path: str) -> tuple[int, os.stat_result]:
     return descriptor, metadata
 
 
+def _collect_descriptor(
+    descriptor: int,
+    destination: Optional[int] = None,
+    archive: Optional[zipfile.ZipFile] = None,
+) -> tuple[str, os.stat_result]:
+    root = os.fstat(descriptor)
+    if not stat.S_ISDIR(root.st_mode):
+        raise ValueError("root is not a directory")
+    records: list[Record] = [(b"D", b"", root.st_mode & 0o7777, 0, b"")]
+    budget = [0, 0]
+    if archive is not None:
+        archive.writestr(_zip_info("Runner.app/", root.st_mode, True), b"")
+    _walk(descriptor, "", records, budget, 0, destination, archive)
+    after = os.fstat(descriptor)
+    if (
+        root.st_dev != after.st_dev
+        or root.st_ino != after.st_ino
+        or root.st_mode != after.st_mode
+        or _stable_times(root) != _stable_times(after)
+    ):
+        raise ValueError("root changed during read")
+    return _digest_records(records), root
+
+
 def _collect(
     path: str,
     destination: Optional[int] = None,
     archive: Optional[zipfile.ZipFile] = None,
 ) -> tuple[str, os.stat_result]:
-    descriptor, root = _open_root(path)
+    descriptor, _ = _open_root(path)
     try:
-        records: list[Record] = [(b"D", b"", root.st_mode & 0o7777, 0, b"")]
-        budget = [0, 0]
-        if archive is not None:
-            archive.writestr(_zip_info("Runner.app/", root.st_mode, True), b"")
-        _walk(descriptor, "", records, budget, 0, destination, archive)
-        after = os.fstat(descriptor)
-        if (
-            root.st_dev != after.st_dev
-            or root.st_ino != after.st_ino
-            or root.st_mode != after.st_mode
-            or _stable_times(root) != _stable_times(after)
-        ):
-            raise ValueError("root changed during read")
-        return _digest_records(records), root
+        return _collect_descriptor(descriptor, destination, archive)
     finally:
         os.close(descriptor)
 
@@ -323,6 +436,8 @@ def attest(path: str) -> str:
 def snapshot(source: str, destination: str) -> str:
     parent: Optional[int] = None
     target: Optional[int] = None
+    target_identity: Optional[tuple[int, int]] = None
+    completed = False
     try:
         parent, name = _open_parent(destination)
         os.mkdir(name, 0o700, dir_fd=parent)
@@ -331,13 +446,19 @@ def snapshot(source: str, destination: str) -> str:
             os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
             dir_fd=parent,
         )
+        target_metadata = os.fstat(target)
+        target_identity = (target_metadata.st_dev, target_metadata.st_ino)
         digest, root = _collect(source, destination=target)
         os.fchmod(target, root.st_mode & 0o7777)
         os.fsync(target)
+        os.fsync(parent)
+        completed = True
         return digest
     finally:
         if target is not None:
             os.close(target)
+        if not completed and parent is not None:
+            _cleanup_created_directory(parent, name, target_identity)
         if parent is not None:
             os.close(parent)
 
@@ -370,7 +491,11 @@ def _hash_descriptor(descriptor: int, maximum: int) -> str:
     return digest.hexdigest()
 
 
-def seal(source: str, output_path: str) -> tuple[str, str]:
+def seal(
+    source: str,
+    output_path: str,
+    snapshot_destination: Optional[str] = None,
+) -> tuple[str, str]:
     parent: Optional[int] = None
     output: Optional[int] = None
     output_identity: Optional[tuple[int, int]] = None
@@ -396,6 +521,14 @@ def seal(source: str, output_path: str) -> tuple[str, str]:
             stream.flush()
             os.fsync(stream.fileno())
         payload_digest = _hash_descriptor(output, MAX_SEAL_BYTES)
+        if snapshot_destination is not None:
+            extracted_digest = _extract_descriptor(
+                output,
+                payload_digest,
+                snapshot_destination,
+            )
+            if extracted_digest != tree_digest:
+                raise ValueError("sealed snapshot digest mismatch")
         os.fchmod(output, 0o444)
         os.fsync(output)
         os.fsync(parent)
@@ -419,7 +552,67 @@ def seal(source: str, output_path: str) -> tuple[str, str]:
             os.close(parent)
 
 
+def publish_seal(
+    payload_path: str,
+    expected_sha256: str,
+    output_path: str,
+) -> str:
+    if not SHA256_PATTERN.fullmatch(expected_sha256):
+        raise ValueError("invalid expected digest")
+    payload = _open_absolute_regular(payload_path)
+    parent: Optional[int] = None
+    output: Optional[int] = None
+    output_identity: Optional[tuple[int, int]] = None
+    completed = False
+    try:
+        if _hash_descriptor(payload, MAX_SEAL_BYTES) != expected_sha256:
+            raise ValueError("sealed payload digest mismatch")
+        parent, name = _open_parent(output_path)
+        output = os.open(
+            name,
+            os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+            0o400,
+            dir_fd=parent,
+        )
+        output_metadata = os.fstat(output)
+        output_identity = (output_metadata.st_dev, output_metadata.st_ino)
+        os.lseek(payload, 0, os.SEEK_SET)
+        copied = 0
+        while True:
+            chunk = os.read(payload, CHUNK_BYTES)
+            if not chunk:
+                break
+            copied += len(chunk)
+            if copied > MAX_SEAL_BYTES:
+                raise ValueError("sealed payload exceeds limit")
+            _write_all(output, chunk)
+        if _hash_descriptor(payload, MAX_SEAL_BYTES) != expected_sha256:
+            raise ValueError("sealed payload changed during publish")
+        if _hash_descriptor(output, MAX_SEAL_BYTES) != expected_sha256:
+            raise ValueError("published payload digest mismatch")
+        os.fchmod(output, 0o444)
+        os.fsync(output)
+        os.fsync(parent)
+        completed = True
+        return expected_sha256
+    finally:
+        if not completed and parent is not None and output_identity is not None:
+            try:
+                current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+                if (current.st_dev, current.st_ino) == output_identity:
+                    os.unlink(name, dir_fd=parent)
+            except OSError:
+                pass
+        if output is not None:
+            os.close(output)
+        if parent is not None:
+            os.close(parent)
+        os.close(payload)
+
+
 def _safe_zip_relative(name: str) -> tuple[str, bool]:
+    if len(name.encode("utf-8")) > MAX_PATH_BYTES:
+        raise ValueError("sealed path exceeds limit")
     if not name.startswith("Runner.app/"):
         raise ValueError("invalid sealed path")
     is_directory = name.endswith("/")
@@ -434,134 +627,182 @@ def _safe_zip_relative(name: str) -> tuple[str, bool]:
         relative.startswith("/")
         or posixpath.normpath(relative) != relative
         or any(part in ("", ".", "..") for part in relative.split("/"))
+        or len(relative.split("/")) > MAX_DEPTH
         or "\x00" in relative
     ):
         raise ValueError("invalid sealed path")
     return relative, is_directory
 
 
+def _preflight_zip_descriptor(payload: int) -> None:
+    metadata = os.fstat(payload)
+    if not stat.S_ISREG(metadata.st_mode) or metadata.st_size < 22:
+        raise ValueError("invalid sealed payload")
+    tail_length = min(metadata.st_size, 65_557)
+    tail = os.pread(payload, tail_length, metadata.st_size - tail_length)
+    marker = b"PK\x05\x06"
+    offset = tail.rfind(marker)
+    if offset < 0 or offset + 22 > len(tail):
+        raise ValueError("sealed central directory missing")
+    (
+        signature,
+        disk_number,
+        central_disk,
+        disk_entries,
+        total_entries,
+        central_size,
+        central_offset,
+        comment_length,
+    ) = struct.unpack_from("<4s4H2LH", tail, offset)
+    absolute_eocd = metadata.st_size - tail_length + offset
+    if (
+        signature != marker
+        or disk_number != 0
+        or central_disk != 0
+        or disk_entries != total_entries
+        or total_entries == 0
+        or total_entries > MAX_ENTRIES + 1
+        or total_entries == 0xFFFF
+        or central_size == 0xFFFFFFFF
+        or central_offset == 0xFFFFFFFF
+        or central_size > MAX_CENTRAL_DIRECTORY_BYTES
+        or central_offset + central_size != absolute_eocd
+        or absolute_eocd + 22 + comment_length != metadata.st_size
+    ):
+        raise ValueError("sealed central directory invalid")
+
+
+def _extract_descriptor(
+    payload: int,
+    expected_sha256: str,
+    destination: str,
+) -> str:
+    if _hash_descriptor(payload, MAX_SEAL_BYTES) != expected_sha256:
+        raise ValueError("sealed payload digest mismatch")
+    _preflight_zip_descriptor(payload)
+    parent: Optional[int] = None
+    target: Optional[int] = None
+    target_identity: Optional[tuple[int, int]] = None
+    completed = False
+    try:
+        parent, name = _open_parent(destination)
+        os.mkdir(name, 0o700, dir_fd=parent)
+        target = os.open(
+            name,
+            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=parent,
+        )
+        target_metadata = os.fstat(target)
+        target_identity = (target_metadata.st_dev, target_metadata.st_ino)
+        with os.fdopen(os.dup(payload), "rb") as stream:
+            os.lseek(stream.fileno(), 0, os.SEEK_SET)
+            with zipfile.ZipFile(stream, mode="r") as archive:
+                infos = archive.infolist()
+                if len(infos) > MAX_ENTRIES + 1:
+                    raise ValueError("too many sealed entries")
+                seen: set[str] = set()
+                total = 0
+                root_mode: Optional[int] = None
+                directory_modes: dict[str, int] = {}
+                for info in infos:
+                    relative, is_directory = _safe_zip_relative(info.filename)
+                    if (
+                        info.filename in seen
+                        or info.compress_type != zipfile.ZIP_STORED
+                        or info.flag_bits & 0x1
+                    ):
+                        raise ValueError("invalid sealed entry")
+                    seen.add(info.filename)
+                    mode = (info.external_attr >> 16) & 0xFFFF
+                    expected_type = stat.S_IFDIR if is_directory else stat.S_IFREG
+                    if stat.S_IFMT(mode) != expected_type:
+                        raise ValueError("invalid sealed mode")
+                    if is_directory and (info.file_size != 0 or info.compress_size != 0):
+                        raise ValueError("invalid sealed directory")
+                    if not is_directory and info.compress_size != info.file_size:
+                        raise ValueError("invalid sealed compression")
+                    if relative == "":
+                        if root_mode is not None:
+                            raise ValueError("duplicate sealed root")
+                        root_mode = mode & 0o7777
+                        continue
+                    parent_relative, leaf = posixpath.split(relative)
+                    current = _open_relative_directory(target, parent_relative)
+                    try:
+                        if is_directory:
+                            os.mkdir(leaf, 0o700, dir_fd=current)
+                            directory_modes[relative] = mode & 0o7777
+                        else:
+                            if (
+                                info.file_size < 0
+                                or info.file_size > MAX_FILE_BYTES
+                                or total + info.file_size > MAX_TOTAL_BYTES
+                            ):
+                                raise ValueError("sealed file exceeds limit")
+                            descriptor = os.open(
+                                leaf,
+                                os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                                mode & 0o7777,
+                                dir_fd=current,
+                            )
+                            try:
+                                length = 0
+                                with archive.open(info, "r") as source:
+                                    while True:
+                                        chunk = source.read(CHUNK_BYTES)
+                                        if not chunk:
+                                            break
+                                        length += len(chunk)
+                                        if length > info.file_size:
+                                            raise ValueError("sealed size mismatch")
+                                        _write_all(descriptor, chunk)
+                                if length != info.file_size:
+                                    raise ValueError("sealed size mismatch")
+                                os.fchmod(descriptor, mode & 0o7777)
+                                os.fsync(descriptor)
+                            finally:
+                                os.close(descriptor)
+                            total += length
+                    finally:
+                        os.close(current)
+                if root_mode is None:
+                    raise ValueError("sealed root missing")
+                for relative, mode in sorted(
+                    directory_modes.items(),
+                    key=lambda item: item[0].count("/"),
+                    reverse=True,
+                ):
+                    descriptor = _open_relative_directory(target, relative)
+                    try:
+                        os.fchmod(descriptor, mode)
+                        os.fsync(descriptor)
+                    finally:
+                        os.close(descriptor)
+                os.fchmod(target, root_mode)
+                os.fsync(target)
+        if _hash_descriptor(payload, MAX_SEAL_BYTES) != expected_sha256:
+            raise ValueError("sealed payload changed during extraction")
+        digest, _ = _collect_descriptor(target)
+        os.fsync(parent)
+        completed = True
+        return digest
+    finally:
+        if target is not None:
+            os.close(target)
+        if not completed and parent is not None:
+            _cleanup_created_directory(parent, name, target_identity)
+        if parent is not None:
+            os.close(parent)
+
+
 def extract(payload_path: str, expected_sha256: str, destination: str) -> str:
     if not SHA256_PATTERN.fullmatch(expected_sha256):
         raise ValueError("invalid expected digest")
-    _canonical_absolute(payload_path)
-    payload = os.open(
-        payload_path,
-        os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
-    )
+    payload = _open_absolute_regular(payload_path)
     try:
-        if _hash_descriptor(payload, MAX_SEAL_BYTES) != expected_sha256:
-            raise ValueError("sealed payload digest mismatch")
-        parent, name = _open_parent(destination)
-        try:
-            os.mkdir(name, 0o700, dir_fd=parent)
-            target = os.open(
-                name,
-                os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
-                dir_fd=parent,
-            )
-        finally:
-            os.close(parent)
-        try:
-            with os.fdopen(os.dup(payload), "rb") as stream:
-                os.lseek(stream.fileno(), 0, os.SEEK_SET)
-                with zipfile.ZipFile(stream, mode="r") as archive:
-                    infos = archive.infolist()
-                    if len(infos) > MAX_ENTRIES + 1:
-                        raise ValueError("too many sealed entries")
-                    seen: set[str] = set()
-                    total = 0
-                    root_mode: Optional[int] = None
-                    directory_modes: dict[str, int] = {}
-                    for info in infos:
-                        relative, is_directory = _safe_zip_relative(info.filename)
-                        if info.filename in seen or info.compress_type != zipfile.ZIP_STORED:
-                            raise ValueError("invalid sealed entry")
-                        seen.add(info.filename)
-                        mode = (info.external_attr >> 16) & 0xFFFF
-                        expected_type = stat.S_IFDIR if is_directory else stat.S_IFREG
-                        if stat.S_IFMT(mode) != expected_type:
-                            raise ValueError("invalid sealed mode")
-                        if is_directory and (info.file_size != 0 or info.compress_size != 0):
-                            raise ValueError("invalid sealed directory")
-                        if not is_directory and info.compress_size != info.file_size:
-                            raise ValueError("invalid sealed compression")
-                        if relative == "":
-                            root_mode = mode & 0o7777
-                            continue
-                        parts = relative.split("/")
-                        current = target
-                        opened: list[int] = []
-                        try:
-                            for component in parts[:-1]:
-                                child = os.open(
-                                    component,
-                                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
-                                    dir_fd=current,
-                                )
-                                opened.append(child)
-                                current = child
-                            leaf = parts[-1]
-                            if is_directory:
-                                os.mkdir(leaf, 0o700, dir_fd=current)
-                                directory_modes[relative] = mode & 0o7777
-                            else:
-                                if (
-                                    info.file_size < 0
-                                    or info.file_size > MAX_FILE_BYTES
-                                    or total + info.file_size > MAX_TOTAL_BYTES
-                                ):
-                                    raise ValueError("sealed file exceeds limit")
-                                descriptor = os.open(
-                                    leaf,
-                                    os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
-                                    mode & 0o7777,
-                                    dir_fd=current,
-                                )
-                                try:
-                                    length = 0
-                                    with archive.open(info, "r") as source:
-                                        while True:
-                                            chunk = source.read(CHUNK_BYTES)
-                                            if not chunk:
-                                                break
-                                            length += len(chunk)
-                                            if length > info.file_size:
-                                                raise ValueError("sealed size mismatch")
-                                            _write_all(descriptor, chunk)
-                                    if length != info.file_size:
-                                        raise ValueError("sealed size mismatch")
-                                    os.fchmod(descriptor, mode & 0o7777)
-                                    os.fsync(descriptor)
-                                finally:
-                                    os.close(descriptor)
-                                total += length
-                        finally:
-                            for opened_descriptor in reversed(opened):
-                                os.close(opened_descriptor)
-                    if root_mode is None:
-                        raise ValueError("sealed root missing")
-                    for relative, mode in sorted(
-                        directory_modes.items(),
-                        key=lambda item: item[0].count("/"),
-                        reverse=True,
-                    ):
-                        descriptor = os.open(
-                            relative,
-                            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
-                            dir_fd=target,
-                        )
-                        try:
-                            os.fchmod(descriptor, mode)
-                            os.fsync(descriptor)
-                        finally:
-                            os.close(descriptor)
-                    os.fchmod(target, root_mode)
-                    os.fsync(target)
-        finally:
-            os.close(target)
+        return _extract_descriptor(payload, expected_sha256, destination)
     finally:
         os.close(payload)
-    return attest(destination)
 
 
 def main(arguments: list[str]) -> int:
@@ -573,6 +814,13 @@ def main(arguments: list[str]) -> int:
         elif len(arguments) == 3 and arguments[0] == "--seal":
             tree_digest, payload_digest = seal(arguments[1], arguments[2])
             print(f"{tree_digest},{payload_digest}")
+        elif len(arguments) == 4 and arguments[0] == "--seal-snapshot":
+            tree_digest, payload_digest = seal(
+                arguments[1], arguments[2], arguments[3]
+            )
+            print(f"{tree_digest},{payload_digest}")
+        elif len(arguments) == 4 and arguments[0] == "--publish-seal":
+            print(publish_seal(arguments[1], arguments[2], arguments[3]))
         elif len(arguments) == 4 and arguments[0] == "--extract":
             print(extract(arguments[1], arguments[2], arguments[3]))
         else:
@@ -586,6 +834,7 @@ def main(arguments: list[str]) -> int:
         RecursionError,
         zipfile.BadZipFile,
         zipfile.LargeZipFile,
+        RuntimeError,
     ):
         return 1
     return 0

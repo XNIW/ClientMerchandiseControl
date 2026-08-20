@@ -382,7 +382,7 @@ jobs:
 
 void _validateRunbookAttestation(String runbook, String workflow) {
   const expectedRunbookSha256 =
-      '80f13fcc70b3e724a127857211dbbd4fd4658c3f23fa8825574ede342e263922';
+      'ecafc1c5a846d931c72215ba3756736a27dbc6d63c30e4f9de8d2cf3fc5aea51';
   if (sha256.convert(utf8.encode(runbook)).toString() !=
       expectedRunbookSha256) {
     throw StateError('runbook byte identity invalid');
@@ -421,12 +421,21 @@ xcodebuild archive \
   CODE_SIGNING_REQUIRED=NO \
   COMPILER_INDEX_STORE_ENABLE=NO
 mkdir -p build/ios/validated
-bash scripts/check-ios-release.sh \
+cmc_ios_candidate_output="$(bash scripts/check-ios-release.sh \
   --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
   --archive build/ios/archive/Runner.xcarchive \
   --sealed-app-output build/ios/validated/Runner.app.zip \
   --reference-app build/ios/iphoneos/Runner.app \
-  --reference-attestation "${cmc_ios_reference_attestation}"''';
+  --reference-attestation "${cmc_ios_reference_attestation}")"
+printf '%s\n' "${cmc_ios_candidate_output}"
+cmc_ios_candidate_sha="$(sed -nE \
+  's/^IOS_RELEASE_SEALED_APP_SHA256=([0-9a-f]{64})$/\1/p' \
+  <<<"${cmc_ios_candidate_output}")"
+[[ "${cmc_ios_candidate_sha}" =~ ^[0-9a-f]{64}$ ]] || exit 1
+python3 scripts/attest-ios-app-tree.py \
+  --extract build/ios/validated/Runner.app.zip \
+  "${cmc_ios_candidate_sha}" \
+  build/ios/validated/UnsignedCandidate.app''';
   const expectedSignedBuild =
       r'''export IOS_RELEASE_RUNTIME_CONFIG_PATH=/path/esterno/production.json
 IOS_RELEASE_CONFIG_SHA256="$(dart run tool/check_ios_runtime_config.dart \
@@ -446,13 +455,35 @@ cmc_ios_reference_attestation="${cmc_ios_reference_output#IOS_REFERENCE_ATTESTAT
 [[ "${cmc_ios_reference_attestation}" =~ \
   ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]] || exit 1''';
   const expectedUpload = r'''mkdir -p build/ios/validated
-bash scripts/check-ios-release.sh \
+cmc_ios_upload_validation="$(bash scripts/check-ios-release.sh \
   --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
   --archive build/ios/archive/Runner.xcarchive \
   --sealed-app-output build/ios/validated/Runner.app-upload.zip \
   --reference-app build/ios/iphoneos/Runner.app \
   --reference-attestation "${cmc_ios_reference_attestation}" \
-  --require-upload-ready''';
+  --require-upload-ready)"
+printf '%s\n' "${cmc_ios_upload_validation}"
+grep -Fxq 'IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED' \
+  <<<"${cmc_ios_upload_validation}" || exit 1
+cmc_ios_upload_sha="$(sed -nE \
+  's/^IOS_RELEASE_SEALED_APP_SHA256=([0-9a-f]{64})$/\1/p' \
+  <<<"${cmc_ios_upload_validation}")"
+[[ "${cmc_ios_upload_sha}" =~ ^[0-9a-f]{64}$ ]] || exit 1
+cmc_ios_export_root="$(mktemp -d build/ios/validated/export.XXXXXX)"
+ditto build/ios/archive/Runner.xcarchive \
+  "${cmc_ios_export_root}/Runner.xcarchive"
+mv "${cmc_ios_export_root}/Runner.xcarchive/Products/Applications/Runner.app" \
+  "${cmc_ios_export_root}/ValidatedSource.app"
+python3 scripts/attest-ios-app-tree.py \
+  --extract build/ios/validated/Runner.app-upload.zip \
+  "${cmc_ios_upload_sha}" \
+  "${cmc_ios_export_root}/Runner.xcarchive/Products/Applications/Runner.app"
+codesign --verify --deep --strict \
+  "${cmc_ios_export_root}/Runner.xcarchive/Products/Applications/Runner.app"
+xcodebuild -exportArchive \
+  -archivePath "${cmc_ios_export_root}/Runner.xcarchive" \
+  -exportOptionsPlist /path/esterno/ExportOptions.plist \
+  -exportPath "${cmc_ios_export_root}/export"''';
 
   if (bashBlocks[0] != expectedCandidate ||
       bashBlocks[1] != expectedSignedBuild ||

@@ -5,14 +5,14 @@
 - **Task ID**: TASK-040
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1747,6 +1747,28 @@ report prodotto sealed SHA-256
   signing, TestFlight e production invariati.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 42
+
+- exact technical SHA: `1d4d5e03995ac6873cd48c54d827b8e031ef013a`;
+- la threat capability repository-controlled same-UID resta in scope: `flock`
+  e advisory, mode `0700` e ACL dello stesso owner non sono un confine e
+  macOS non offre qui delete fd-bound o lock filesystem obbligatori;
+- fixed pool e quarantine opaca chiudono quota/retained soltanto se il GC
+  resta `NOT_RUN` fino a un teardown affidabile dei writer; nello stesso UID
+  un processo detached può continuare a mutare il namespace;
+- l'implementazione sicura richiede supervisor con UID distinto, sandbox/ACL
+  enforceable o runner/VM effimera distrutta dopo il job;
+- restringere il contratto ai soli writer cooperativi sotto `LOCK_EX` richiede
+  una decisione esplicita del `USER_APPROVER` e non è stata assunta;
+- nessun ulteriore re-check temporale è stato aggiunto; blocker, oracle e
+  alternative sono registrati in
+  `docs/TASKS/EVIDENCE/TASK-040/fix42-isolation-blocker.md`;
+- gate reviewer Fix 41 restano evidence: iOS 86/86, candidate 686/207,
+  governance 88/88 e upload-negative esatto; nessun upload o accesso
+  production.
+
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 ## Chiusura
 

@@ -190,9 +190,9 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
-- **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Stato task**: BLOCKED
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -208,12 +208,13 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / FIX`: la re-review distinta del Fix 41 ha
-chiuso backup hardlink e FIFO, ma richiede il Fix 42 per quattro P3 prodotto su
-retained terminale, cap finale e rollback `rmdir`, oltre al riallineamento del
-conteggio reviewer Fix 40 richiesto dal report security. Candidate `686/207`,
-fixture iOS 86/86, governance 88/88 e gate completo restano verdi ma non
-assolvono i finding; PR e CI exact-SHA restano obbligatori. Activation invariata.
+TASK-040 è l'unico task `BLOCKED / REVIEW`: il Fix 42 ha dimostrato che i
+quattro P3 filesystem non sono chiudibili contro un writer non cooperativo
+same-UID con sole API macOS/POSIX unprivileged. Serve un supervisor/namespace
+enforceable o una VM effimera con GC dopo teardown; in alternativa soltanto il
+`USER_APPROVER` può restringere il threat model. Candidate `686/207`, fixture
+iOS 86/86 e gate precedenti restano verdi ma non assolvono il blocker. PR, CI
+exact-SHA e activation restano sospesi.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

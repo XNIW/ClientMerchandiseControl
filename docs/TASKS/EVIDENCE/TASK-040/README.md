@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 41 con finding; Fix 42, re-review e PR/main CI da eseguire | NOT_RUN |
+| CA-10 | Fix 42 bloccato su isolamento esterno; re-review e CI sospese | BLOCKED |
 
 ## Matrice T -> risultato
 
@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 41 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 42 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -70,7 +70,7 @@ Snapshot di handoff:
   `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
 - il candidate valido è il payload sealed, non il path sorgente mutabile.
 
-## Gate executor corrente — Fix 41
+## Gate executor corrente — Fix 42
 
 - `scripts/check.sh`: exit 0;
 - non-performance 804/804; performance 10/10; resilience repeat 70/70;
@@ -1084,6 +1084,25 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 - upload-ready exit 1 esatto
   `IOS_RELEASE_BLOCKED: TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun
   upload, signing, provisioning, physical iOS, TestFlight o production.
+
+## Fix 42 — blocker corrente
+
+- exact technical SHA `1d4d5e03995ac6873cd48c54d827b8e031ef013a`;
+- blocker: un writer repository-controlled same-UID non cooperativo può
+  ignorare `flock`, riscrivere il namespace e invalidare qualunque ultimo
+  check temporale;
+- nessun terminale macOS/POSIX unprivileged disponibile lega delete/cap e
+  stabilità permanente all'inode descriptor-bound verificato;
+- prerequisite: supervisor/UID distinto, sandbox o ACL enforceable, oppure
+  runner/VM effimera con GC solo dopo teardown attestato;
+- alternativa di policy: restringere esplicitamente il threat model a writer
+  cooperativi, scelta non autorizzata dal fixer;
+- evidence dettagliata e oracle:
+  `docs/TASKS/EVIDENCE/TASK-040/fix42-isolation-blocker.md`;
+- codice release invariato rispetto a Fix 41; gate 86/86 e candidate 686/207
+  riusati come evidence esatta, non reinterpretati come closure del blocker;
+- signing, TestFlight, physical iOS, PR/main CI e production `NOT_RUN` o
+  `BLOCKED`; nessuna mutazione esterna eseguita.
 
 ## Re-review Fix 40
 

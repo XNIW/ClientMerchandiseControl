@@ -4454,3 +4454,22 @@
   `12262eff11ef5616c813aa320142b7b6f3269bfed9de669688d51deb32d75207`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-19 — TASK-040 Fix 42 e handoff
+
+- **Technical SHA**: `1d4d5e03995ac6873cd48c54d827b8e031ef013a`.
+- **Esito**: `BLOCKED`; nessuna modifica runtime applicata dopo la prova di
+  non implementabilità nel confine unprivileged corrente.
+- **Causa**: un writer non cooperativo same-UID può ignorare `flock` e mutare
+  namespace/mode dopo ogni check; macOS non espone qui delete fd-bound o lock
+  obbligatori.
+- **Prerequisito**: supervisor/UID distinto, sandbox o ACL enforceable, oppure
+  runner/VM effimera con GC dopo teardown attestato. Una riduzione del threat
+  model richiede decisione USER_APPROVER.
+- **Evidence**:
+  `docs/TASKS/EVIDENCE/TASK-040/fix42-isolation-blocker.md`; oracle fixed pool,
+  quarantine opaca, GC trusted e zero operazioni distruttive nel worker.
+- **Gate**: iOS 86/86 e candidate 686/207 del Fix 41 restano validi ma non
+  chiudono il blocker; upload/TestFlight/production invariati.
+- **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

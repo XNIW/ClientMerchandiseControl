@@ -4132,3 +4132,4 @@
   `44c1aa5ade0239f4e586c56b85de2ba01fc8f55c08b00ced9b13924236c90b5c`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
   `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; production e TestFlight invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

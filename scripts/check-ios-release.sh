@@ -520,15 +520,15 @@ cmc_ios_release_expected_bundle_identifiers=(
   'url-launcher-ios-6.4.1.url-launcher-ios.resources'
 )
 cmc_ios_release_expected_bundle_digests=(
-  'cf5e655d293c352c225d14f51a428bde5e1141071ff6f0c1136334d101652e27'
-  '846bf4037e058aac73aa2242c61b713f3cae5e5c72fe1c979ea36c90065b23a1'
-  '22e275860cba82d16fcf2267e7570c2a4da09d254bd0e28f05866024462f6d81'
-  'cee79469df2b9800524d3d7047c327b53f3ad6610db21eb4418b3977435406c5'
-  '71b2917169d0f3fde08d9b2f7b376998ec8bea432af316b07d061277eb0c9bbe'
-  '7182418d713f2adf44e6b262dce3e857279dea77e9a5e9dd9e31f9c45948a9bb'
-  'a67b2483ac8abc3891f46e662732d39afb394a549ca470d2ffe2040bf7f0add8'
-  '39dea2befe6c024d9646875c290b39c5e8afca0f9a510bcc5293c61d33dbf250'
-  '965db1b4d36fa9d30c6ee7d025eb7ff1993163672845440ac081637226c35fd7'
+  '25b5d8f6ca51382499bd3a7514ac40d46d7dca4e5d7cf8199d3047e14cc7c1e7'
+  'c68287a3eef73d8803e899188399338b3b9ca25e9cb5f058e7e1fe69917520c7'
+  '9690a463594a7339456e1b947b5b5127d528725045a654984d770c6d0b1de593'
+  '3c21eed078875cd2e08e9e21e74625a5d8186b4a3a4dac52e755ccbf3318dff6'
+  '977af56dd55f489cde8a515811a87f231a41841d85c5bed6b0a1856c12a00592'
+  '5925a2133ba8501fb2bd9202615b9f0d3d4ed4820bb9c45c86bef0642f4bb244'
+  '126170f9e2bd63a6feb1872a44b34b3b3ef2d8aa76e40bb6f826ebbe66fd7152'
+  '3748616f9170148c93cec63927f9afd8d206255993c42712ba31f6a60426f6dc'
+  'fd0c7e7cc49944829772e38e1cccc8e658ac00955e0c64190f9c3b64dfa6075f'
 )
 
 cmc_ios_release_require_exact_component_set() {
@@ -580,15 +580,38 @@ cmc_ios_release_macho_canonical_digest() {
 cmc_ios_release_bundle_tree_digest() {
   local cmc_ios_release_tree_root="$1"
   local cmc_ios_release_tree_file
+  local cmc_ios_release_tree_file_digest
   local cmc_ios_release_tree_relative
 
   find "${cmc_ios_release_tree_root}" -type f \
     ! -path '*/_CodeSignature/*' -print0 | LC_ALL=C sort -z | \
     while IFS= read -r -d '' cmc_ios_release_tree_file; do
       cmc_ios_release_tree_relative="${cmc_ios_release_tree_file#"${cmc_ios_release_tree_root}"/}"
+      if [[ "${cmc_ios_release_tree_relative##*/}" == 'Info.plist' ]]; then
+        # Xcode inserisce il build number del macOS host nei resource bundle.
+        # Quel solo campo varia fra macchine a parita' di toolchain e input;
+        # ogni altra chiave plist e ogni altra risorsa restano nel digest.
+        cmc_ios_release_tree_file_digest="$(
+          plutil -convert json -o - "${cmc_ios_release_tree_file}" 2>/dev/null | \
+            perl -MJSON::PP -e '
+              use strict;
+              use warnings;
+              local $/;
+              my $decoded = eval { JSON::PP->new->utf8->decode(<STDIN>) };
+              exit 1 if $@ || ref($decoded) ne "HASH";
+              delete $decoded->{BuildMachineOSBuild};
+              print JSON::PP->new->canonical->encode($decoded);
+            ' | shasum -a 256 | awk '{print $1}'
+        )" || return 1
+      else
+        cmc_ios_release_tree_file_digest="$(
+          shasum -a 256 "${cmc_ios_release_tree_file}" | awk '{print $1}'
+        )" || return 1
+      fi
+      [[ "${cmc_ios_release_tree_file_digest}" =~ ^[0-9a-f]{64}$ ]] || \
+        return 1
       printf '%s\0' "${cmc_ios_release_tree_relative}"
-      shasum -a 256 "${cmc_ios_release_tree_file}" | \
-        awk '{printf "%s%c", $1, 0}'
+      printf '%s\0' "${cmc_ios_release_tree_file_digest}"
     done | shasum -a 256 | awk '{print $1}'
 }
 

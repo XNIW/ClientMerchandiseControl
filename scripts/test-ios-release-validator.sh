@@ -758,6 +758,40 @@ cmc_ios_test_expect_failure bundle-content-digest \
   --archive "${cmc_ios_test_fixture_archive}"
 rm "${cmc_ios_test_bundle_tamper}"
 
+cmc_ios_test_bundle_info="${cmc_ios_test_fixture_app}/app_links_app_links.bundle/Info.plist"
+cmc_ios_test_bundle_machine_build="$({
+  /usr/libexec/PlistBuddy -c 'Print :BuildMachineOSBuild' \
+    "${cmc_ios_test_bundle_info}" 2>/dev/null || true
+})"
+[[ -n "${cmc_ios_test_bundle_machine_build}" ]] || {
+  printf 'Fixture iOS: BuildMachineOSBuild non leggibile.\n' >&2
+  exit 1
+}
+/usr/libexec/PlistBuddy -c \
+  'Set :BuildMachineOSBuild CMC_HOST_VARIANCE_FIXTURE' \
+  "${cmc_ios_test_bundle_info}"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+cmc_ios_test_validate \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}" >/dev/null || {
+  printf 'Fixture iOS ha legato il bundle al build number del macOS host.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+/usr/libexec/PlistBuddy -c \
+  "Set :BuildMachineOSBuild ${cmc_ios_test_bundle_machine_build}" \
+  "${cmc_ios_test_bundle_info}"
+
+/usr/libexec/PlistBuddy -c 'Add :CMCUnexpectedMetadata string tamper' \
+  "${cmc_ios_test_bundle_info}"
+cmc_ios_test_expect_failure bundle-plist-semantic-digest \
+  EMBEDDED_BUNDLE_DIGEST_MISMATCH \
+  cmc_ios_test_validate \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+/usr/libexec/PlistBuddy -c 'Delete :CMCUnexpectedMetadata' \
+  "${cmc_ios_test_bundle_info}"
+
 cmc_ios_test_entitlements="${cmc_ios_test_tmp_root}/entitlements.plist"
 cp "${cmc_ios_test_root}/ios/Runner/PrivacyInfo.xcprivacy" \
   "${cmc_ios_test_entitlements}"

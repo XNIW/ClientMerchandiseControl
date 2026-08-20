@@ -1163,6 +1163,35 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 29
+
+- exact review SHA: `9e4b543fc1d56433e08a3c316520e54924dba1f7`;
+- review prodotto `APPROVED`, zero P0/P1/P2/P3;
+- review security `CHANGES_REQUIRED`, zero P0/P1/P2 e un P3:
+  `F-040-RR29-IOS-PLIST-BOUND-01`; un plist valido da 96 MiB veniva
+  canonicalizzato in 32,88 secondi con RSS massimo 615.563.264 byte;
+- report security sealed SHA-256
+  `f60ec18f69ebb73ee2aacf470a9459998fdbf8ac422ccce78dac128460ec8f82`;
+- candidate 684/207 e fixture iOS 45/45 restavano verdi; runtime, firma,
+  provisioning, TestFlight e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 30
+
+- exact technical SHA: `2fa97d1cbc956e4ddbe1bd2ab14f2c4f95be50e1`;
+- ogni `Info.plist` dei resource bundle viene misurato con `stat` e rifiutato
+  oltre 1 MiB prima di invocare `plutil` o il serializer JSON;
+- regressione con plist valido da 1.049.942 byte respinta con
+  `EMBEDDED_BUNDLE_DIGEST_UNREADABLE`; esecuzione 6,9 secondi complessivi e
+  RSS massimo 26.329.088 byte;
+- candidate reale 684/207, validator iOS 46/46 e `scripts/check.sh` `PASS`:
+  804/804 non-performance, performance 10/10, repeat 70/70, analyze e build
+  debug Android/iOS;
+- runtime, firma, provisioning, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

@@ -14,7 +14,7 @@
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review indipendente Fix 29, CI PR
+- **Prossima azione autorizzata**: re-review indipendente Fix 30, CI PR
   exact-SHA e closeout/merge normale; upload TestFlight `NOT_RUN`
 
 ## Repository coinvolti

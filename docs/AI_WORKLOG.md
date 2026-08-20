@@ -4043,3 +4043,27 @@
 - **Boundary**: runtime, signing, provisioning, TestFlight e production
   invariati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 29 re-review
+
+- **Exact HEAD**: `9e4b543fc1d56433e08a3c316520e54924dba1f7`.
+- **Review prodotto**: `APPROVED`, zero P0/P1/P2/P3.
+- **Review security**: `CHANGES_REQUIRED`, un P3
+  `F-040-RR29-IOS-PLIST-BOUND-01`; plist valido da 96 MiB processato in
+  32,88 secondi con RSS massimo 615.563.264 byte.
+- **Report security**: sealed SHA-256
+  `f60ec18f69ebb73ee2aacf470a9459998fdbf8ac422ccce78dac128460ec8f82`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 30 e handoff
+
+- **Technical SHA**: `2fa97d1cbc956e4ddbe1bd2ab14f2c4f95be50e1`.
+- **Fix**: cap pre-lettura di 1 MiB per ogni `Info.plist` dei resource bundle
+  prima di `plutil`/JSON; regressione oversized fail-closed.
+- **Evidence**: 1.049.942 byte respinti in 6,9 secondi complessivi, RSS
+  massimo 26.329.088 byte; candidate 684/207 e iOS 46/46 `PASS`.
+- **Gate**: `scripts/check.sh` exit 0, 804/804 non-performance, performance
+  10/10, repeat 70/70, security 684, analyze e build debug Android/iOS.
+- **Boundary**: runtime, signing, provisioning, TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

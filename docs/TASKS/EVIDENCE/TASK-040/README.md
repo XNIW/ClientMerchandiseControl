@@ -31,13 +31,13 @@ Snapshot di handoff:
 |---|---|---|
 | T-01 | PASS | source gate, runtime/CI 18/18 e config/signing boundary |
 | T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `01dd140` |
-| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 45/45 |
+| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 46/46 |
 | T-04 | PASS | scanner 684/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 29 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 30 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -64,25 +64,27 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 29
+## Gate executor corrente — Fix 30
 
 - `scripts/check.sh`: exit 0;
 - non-performance 804/804; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
 - governance 88/88; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 684; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 45/45; Flutter/YAML mirati 12/12;
+- validator iOS avversariale 46/46; Flutter/YAML mirati 12/12;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
 
-Fix 29 non cambia il runtime applicativo. La CI Fix 28 ha confermato `PASS` per
-Quality, Android debug/release e iOS Simulator; il solo candidate iOS ha
-fallito sul digest del resource bundle legato al macOS host. Il delta impattato
-ha rieseguito il candidate reale `PASS`, fixture iOS 45/45, scanner 684/207,
-security e syntax. La CI PR viene rieseguita soltanto dopo re-review.
+Fix 30 non cambia il runtime applicativo. Il cap pre-lettura di 1 MiB impedisce
+che `plutil` e il serializer JSON carichino plist oversized: il probe valido da
+1.049.942 byte fallisce chiuso in 6,9 secondi complessivi con RSS massimo
+26.329.088 byte, contro 32,88 secondi e 615.563.264 byte del probe review da
+96 MiB. Il candidate reale resta `PASS`; fixture iOS 46/46, scanner 684/207,
+`scripts/check.sh` 804/804 + performance 10/10 + repeat 70/70 e build debug
+Android/iOS sono verdi. La CI PR viene rieseguita soltanto dopo re-review.
 
 ## Gate Fix 1
 
@@ -781,5 +783,11 @@ security e syntax. La CI PR viene rieseguita soltanto dopo re-review.
 - candidate reale 684/207 `PASS`; variazione host metadata accettata, nuova
   chiave plist e risorsa inattesa respinte; fixture iOS 45/45, security 684,
   action pin, syntax e diff check `PASS`;
-- re-review e nuova CI exact-SHA `NOT_RUN`; production, signing, provisioning
-  e TestFlight invariati.
+- review prodotto Fix 29 `APPROVED`, zero finding; review security
+  `CHANGES_REQUIRED`, un P3 `F-040-RR29-IOS-PLIST-BOUND-01` su plist valido da
+  96 MiB, report sealed SHA-256
+  `f60ec18f69ebb73ee2aacf470a9459998fdbf8ac422ccce78dac128460ec8f82`;
+- Fix 30 exact technical SHA
+  `2fa97d1cbc956e4ddbe1bd2ab14f2c4f95be50e1`: cap pre-lettura 1 MiB,
+  regressione oversized e gate completi verdi; re-review e nuova CI exact-SHA
+  `NOT_RUN`; production, signing, provisioning e TestFlight invariati.

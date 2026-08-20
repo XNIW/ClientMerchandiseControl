@@ -208,13 +208,13 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 28 è stato approvato da review
-prodotto/security, ma la CI PR exact-SHA `32116655699` ha lasciato 4/5 job
-verdi e ha riprodotto `EMBEDDED_BUNDLE_DIGEST_MISMATCH` nel candidate iOS.
-Fix 29 canonicalizza esclusivamente `BuildMachineOSBuild`, metadato Xcode
-legato al macOS host, mantenendo nel digest ogni altra chiave plist e risorsa;
-candidate reale e fixture iOS 45/45 sono verdi. Re-review e nuova CI exact-SHA
-restano da eseguire; activation invariata.
+TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 29 ha chiuso il mismatch CI
+legato a `BuildMachineOSBuild` ed è stato approvato dalla review prodotto, ma
+la review security ha trovato un P3 bounded sulla canonicalizzazione di plist
+oversized. Fix 30 applica un cap pre-lettura di 1 MiB a ogni `Info.plist` dei
+resource bundle; candidate reale e fixture iOS 46/46 sono verdi e il probe
+oversized scende da circa 615,6 MiB a 26,3 MiB RSS. Re-review e nuova CI
+exact-SHA restano da eseguire; activation invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

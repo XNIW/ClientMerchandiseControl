@@ -221,6 +221,7 @@ jobs:
           bash scripts/check-ios-release.sh
           --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
           --archive build/ios/archive/Runner.xcarchive
+          --sealed-app-output build/ios/Runner.app.validated.zip
           --reference-app build/ios/iphoneos/Runner.app
           --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
       - name: Validate iOS adversarial release boundaries

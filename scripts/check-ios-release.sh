@@ -7,8 +7,10 @@ cmc_ios_release_app=''
 cmc_ios_release_archive=''
 cmc_ios_release_reference_app=''
 cmc_ios_release_reference_attestation=''
+cmc_ios_release_sealed_app_output=''
 cmc_ios_release_source_only=false
 cmc_ios_release_require_upload=false
+cmc_ios_release_upload_inputs_validated=false
 
 cmc_ios_release_fail() {
   printf 'IOS_RELEASE_BLOCKED: %s\n' "$1" >&2
@@ -18,7 +20,7 @@ cmc_ios_release_fail() {
 cmc_ios_release_usage() {
   printf '%s\n' \
     'Usage: scripts/check-ios-release.sh --source-only' \
-    '   or: scripts/check-ios-release.sh --app <Runner.app> [--archive <Runner.xcarchive>] [--reference-app <Runner.app> --reference-attestation <sha256-list>] [--require-upload-ready]'
+    '   or: scripts/check-ios-release.sh --app <Runner.app> --sealed-app-output <Runner.app.zip> [--archive <Runner.xcarchive>] [--reference-app <Runner.app> --reference-attestation <sha256-list>] [--require-upload-ready]'
 }
 
 while [[ "$#" -gt 0 ]]; do
@@ -43,6 +45,11 @@ while [[ "$#" -gt 0 ]]; do
       [[ "$#" -gt 0 ]] || \
         cmc_ios_release_fail 'REFERENCE_ATTESTATION_MISSING'
       cmc_ios_release_reference_attestation="$1"
+      ;;
+    --sealed-app-output)
+      shift
+      [[ "$#" -gt 0 ]] || cmc_ios_release_fail 'SEALED_APP_OUTPUT_MISSING'
+      cmc_ios_release_sealed_app_output="$1"
       ;;
     --source-only)
       cmc_ios_release_source_only=true
@@ -292,6 +299,7 @@ if [[ "${cmc_ios_release_source_only}" == true ]]; then
   if [[ -n "${cmc_ios_release_app}" || -n "${cmc_ios_release_archive}" || \
     -n "${cmc_ios_release_reference_app}" || \
     -n "${cmc_ios_release_reference_attestation}" || \
+    -n "${cmc_ios_release_sealed_app_output}" || \
     "${cmc_ios_release_require_upload}" == true ]]; then
     cmc_ios_release_fail 'SOURCE_ONLY_ARGUMENT_CONFLICT'
   fi
@@ -313,6 +321,7 @@ esac
 cmc_ios_release_app_canonical="$(
   cd -- "${cmc_ios_release_app}" && pwd -P
 )" || cmc_ios_release_fail 'APP_NOT_READABLE'
+cmc_ios_release_input_app_canonical="${cmc_ios_release_app_canonical}"
 
 if [[ -n "${cmc_ios_release_reference_app}" || \
   -n "${cmc_ios_release_reference_attestation}" ]]; then
@@ -357,6 +366,57 @@ if [[ -n "${cmc_ios_release_reference_app}" ]]; then
       "${cmc_ios_release_app_canonical}" ]] || \
     cmc_ios_release_fail 'REFERENCE_APP_PATH_INVALID'
 fi
+
+[[ -n "${cmc_ios_release_sealed_app_output}" ]] || \
+  cmc_ios_release_fail 'SEALED_APP_OUTPUT_MISSING'
+case "${cmc_ios_release_sealed_app_output}" in
+  *.zip) ;;
+  *) cmc_ios_release_fail 'SEALED_APP_OUTPUT_INVALID' ;;
+esac
+[[ ! -e "${cmc_ios_release_sealed_app_output}" && \
+  ! -L "${cmc_ios_release_sealed_app_output}" ]] || \
+  cmc_ios_release_fail 'SEALED_APP_OUTPUT_EXISTS'
+cmc_ios_release_sealed_parent="$(dirname -- "${cmc_ios_release_sealed_app_output}")"
+[[ -d "${cmc_ios_release_sealed_parent}" && \
+  ! -L "${cmc_ios_release_sealed_parent}" ]] || \
+  cmc_ios_release_fail 'SEALED_APP_OUTPUT_PARENT_INVALID'
+cmc_ios_release_sealed_parent="$(
+  cd -- "${cmc_ios_release_sealed_parent}" && pwd -P
+)" || cmc_ios_release_fail 'SEALED_APP_OUTPUT_PARENT_INVALID'
+cmc_ios_release_sealed_app_output="${cmc_ios_release_sealed_parent}/$(
+  basename -- "${cmc_ios_release_sealed_app_output}"
+)"
+
+cmc_ios_release_tmp_parent="${TMPDIR:-/tmp}"
+cmc_ios_release_tmp_parent="${cmc_ios_release_tmp_parent%/}"
+cmc_ios_release_tmp_parent="$(
+  cd -- "${cmc_ios_release_tmp_parent}" && pwd -P
+)" || cmc_ios_release_fail 'TEMP_ROOT_INVALID'
+cmc_ios_release_tmp_root="$(
+  mktemp -d "${cmc_ios_release_tmp_parent}/cmc-ios-release.XXXXXX"
+)"
+cmc_ios_release_cleanup() {
+  case "${cmc_ios_release_tmp_root}" in
+    "${cmc_ios_release_tmp_parent}"/cmc-ios-release.*)
+      rm -rf -- "${cmc_ios_release_tmp_root}"
+      ;;
+    *)
+      printf 'IOS_RELEASE_BLOCKED: TEMP_CLEANUP_REFUSED\n' >&2
+      ;;
+  esac
+}
+trap cmc_ios_release_cleanup EXIT
+
+cmc_ios_release_snapshot="${cmc_ios_release_tmp_root}/Runner.app"
+cmc_ios_release_initial_tree_digest="$(
+  python3 "${cmc_ios_release_tree_attestor}" \
+    --snapshot "${cmc_ios_release_input_app_canonical}" \
+    "${cmc_ios_release_snapshot}"
+)" || cmc_ios_release_fail 'ARTIFACT_SNAPSHOT_UNREADABLE'
+[[ "${cmc_ios_release_initial_tree_digest}" =~ ^[0-9a-f]{64}$ ]] || \
+  cmc_ios_release_fail 'ARTIFACT_SNAPSHOT_UNREADABLE'
+cmc_ios_release_app="${cmc_ios_release_snapshot}"
+cmc_ios_release_app_canonical="${cmc_ios_release_snapshot}"
 
 cmc_ios_release_app_info="${cmc_ios_release_app}/Info.plist"
 cmc_ios_release_app_privacy="${cmc_ios_release_app}/PrivacyInfo.xcprivacy"
@@ -412,23 +472,6 @@ cmc_ios_release_artifact_maps="$(
 [[ "${cmc_ios_release_artifact_maps// /}" == 'NOT_CONFIGURED' ]] || \
   cmc_ios_release_fail 'MAPS_ARTIFACT_NOT_FAIL_CLOSED'
 cmc_ios_release_validate_url_types "${cmc_ios_release_app_info}"
-
-cmc_ios_release_tmp_parent="${TMPDIR:-/tmp}"
-cmc_ios_release_tmp_parent="${cmc_ios_release_tmp_parent%/}"
-cmc_ios_release_tmp_root="$(
-  mktemp -d "${cmc_ios_release_tmp_parent}/cmc-ios-release.XXXXXX"
-)"
-cmc_ios_release_cleanup() {
-  case "${cmc_ios_release_tmp_root}" in
-    "${cmc_ios_release_tmp_parent}"/cmc-ios-release.*)
-      rm -rf -- "${cmc_ios_release_tmp_root}"
-      ;;
-    *)
-      printf 'IOS_RELEASE_BLOCKED: TEMP_CLEANUP_REFUSED\n' >&2
-      ;;
-  esac
-}
-trap cmc_ios_release_cleanup EXIT
 
 cmc_ios_release_privacy_paths=(
   'PrivacyInfo.xcprivacy'
@@ -538,13 +581,6 @@ cmc_ios_release_expected_bundle_digests=(
   '12bd63afd08944399c646dc2d414d6b5066c30ee6f991adca0a34f9e91d5619d'
   'd7f38e37827ebc035aab622778760496d28b4e7711d4f7d94d74617b607c9349'
 )
-
-cmc_ios_release_initial_tree_digest="$(
-  python3 "${cmc_ios_release_tree_attestor}" \
-    "${cmc_ios_release_app_canonical}"
-)" || cmc_ios_release_fail 'ARTIFACT_TREE_DIGEST_UNREADABLE'
-[[ "${cmc_ios_release_initial_tree_digest}" =~ ^[0-9a-f]{64}$ ]] || \
-  cmc_ios_release_fail 'ARTIFACT_TREE_DIGEST_UNREADABLE'
 
 cmc_ios_release_require_exact_component_set() {
   local cmc_ios_release_component_root="$1"
@@ -946,11 +982,10 @@ if [[ -n "${cmc_ios_release_archive}" ]]; then
     'Print :ApplicationProperties:CFBundleVersion' \
     "${cmc_ios_release_archive_info}")" == '1' ]] || \
     cmc_ios_release_fail 'ARCHIVE_BUILD_MISMATCH'
-  cmc_ios_release_app_canonical="$(cd -- "${cmc_ios_release_app}" && pwd -P)"
   cmc_ios_release_archive_app_canonical="$(
     cd -- "${cmc_ios_release_archive_app}" && pwd -P
   )"
-  [[ "${cmc_ios_release_app_canonical}" == \
+  [[ "${cmc_ios_release_input_app_canonical}" == \
     "${cmc_ios_release_archive_app_canonical}" ]] || \
     cmc_ios_release_fail 'APP_ARCHIVE_BUNDLE_MISMATCH'
   cmc_ios_release_binary_uuid="$(
@@ -1126,18 +1161,42 @@ if [[ "${cmc_ios_release_require_upload}" == true ]]; then
   openssl pkey -in "${APP_STORE_CONNECT_API_KEY_PATH}" -noout \
     >/dev/null 2>&1 || \
     cmc_ios_release_fail 'APP_STORE_CONNECT_API_KEY_INVALID'
-  printf 'IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED\n'
+  cmc_ios_release_upload_inputs_validated=true
 fi
 
-cmc_ios_release_final_tree_digest="$(
+cmc_ios_release_seal_result="$(
   python3 "${cmc_ios_release_tree_attestor}" \
-    "${cmc_ios_release_app_canonical}"
-)" || cmc_ios_release_fail 'ARTIFACT_TREE_DIGEST_UNREADABLE'
-[[ "${cmc_ios_release_final_tree_digest}" =~ ^[0-9a-f]{64}$ ]] || \
-  cmc_ios_release_fail 'ARTIFACT_TREE_DIGEST_UNREADABLE'
+    --seal "${cmc_ios_release_app_canonical}" \
+    "${cmc_ios_release_sealed_app_output}"
+)" || cmc_ios_release_fail 'SEALED_APP_CREATION_FAILED'
+[[ "${cmc_ios_release_seal_result}" =~ \
+  ^[0-9a-f]{64},[0-9a-f]{64}$ ]] || \
+  cmc_ios_release_fail 'SEALED_APP_CREATION_FAILED'
+cmc_ios_release_final_tree_digest="${cmc_ios_release_seal_result%%,*}"
+cmc_ios_release_sealed_app_sha="${cmc_ios_release_seal_result##*,}"
 [[ "${cmc_ios_release_final_tree_digest}" == \
   "${cmc_ios_release_initial_tree_digest}" ]] || \
   cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
+cmc_ios_release_seal_probe="${cmc_ios_release_tmp_root}/SealedProbe.app"
+cmc_ios_release_extracted_tree_digest="$(
+  python3 "${cmc_ios_release_tree_attestor}" \
+    --extract "${cmc_ios_release_sealed_app_output}" \
+    "${cmc_ios_release_sealed_app_sha}" \
+    "${cmc_ios_release_seal_probe}"
+)" || cmc_ios_release_fail 'SEALED_APP_VERIFICATION_FAILED'
+[[ "${cmc_ios_release_extracted_tree_digest}" == \
+  "${cmc_ios_release_initial_tree_digest}" ]] || \
+  cmc_ios_release_fail 'SEALED_APP_VERIFICATION_FAILED'
+cmc_ios_release_retained_seal_sha="$(
+  shasum -a 256 "${cmc_ios_release_sealed_app_output}" | awk '{print $1}'
+)" || cmc_ios_release_fail 'SEALED_APP_VERIFICATION_FAILED'
+[[ "${cmc_ios_release_retained_seal_sha}" == \
+  "${cmc_ios_release_sealed_app_sha}" ]] || \
+  cmc_ios_release_fail 'SEALED_APP_VERIFICATION_FAILED'
+if [[ "${cmc_ios_release_signing_state}" == SIGNED ]]; then
+  codesign --verify --deep --strict "${cmc_ios_release_seal_probe}" \
+    >/dev/null 2>&1 || cmc_ios_release_fail 'SEALED_APP_SIGNATURE_INVALID'
+fi
 
 printf 'IOS_RELEASE_CANDIDATE_VALID\n'
 printf 'IOS_RELEASE_SIGNING=%s\n' "${cmc_ios_release_signing_state}"
@@ -1145,6 +1204,11 @@ printf 'IOS_RELEASE_EXECUTABLE_SHA256=%s\n' "${cmc_ios_release_sha}"
 printf 'IOS_RELEASE_NATIVE_WRAPPER_SHA256=%s\n' "${cmc_ios_release_native_sha}"
 printf 'IOS_RELEASE_ARTIFACT_TREE_SHA256=%s\n' \
   "${cmc_ios_release_final_tree_digest}"
+printf 'IOS_RELEASE_SEALED_APP_SHA256=%s\n' \
+  "${cmc_ios_release_sealed_app_sha}"
+if [[ "${cmc_ios_release_upload_inputs_validated}" == true ]]; then
+  printf 'IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED\n'
+fi
 if [[ "${cmc_ios_release_entitlement_source}" == ABSENT ]]; then
   printf 'IOS_PUSH_ACTIVATION_BLOCKED: REVIEWED_ENTITLEMENT_AND_APNS_REQUIRED\n'
   printf 'IOS_UNIVERSAL_LINKS_ACTIVATION_BLOCKED: OWNED_DOMAIN_AND_ASSOCIATION_FILE_REQUIRED\n'

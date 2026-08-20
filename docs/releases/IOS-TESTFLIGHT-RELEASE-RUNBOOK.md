@@ -40,15 +40,24 @@ xcodebuild archive \
   CODE_SIGNING_ALLOWED=NO \
   CODE_SIGNING_REQUIRED=NO \
   COMPILER_INDEX_STORE_ENABLE=NO
+mkdir -p build/ios/validated
 bash scripts/check-ios-release.sh \
   --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
   --archive build/ios/archive/Runner.xcarchive \
+  --sealed-app-output build/ios/validated/Runner.app.zip \
   --reference-app build/ios/iphoneos/Runner.app \
   --reference-attestation "${cmc_ios_reference_attestation}"
 ```
 
 Il candidate unsigned dimostra build, archive, bundle/version, architettura, privacy,
 security scan e dSYM. Non è installabile su device e non è caricabile su TestFlight.
+`IOS_RELEASE_CANDIDATE_VALID` identifica esclusivamente il payload
+`build/ios/validated/Runner.app.zip` tramite
+`IOS_RELEASE_SEALED_APP_SHA256`; il path sorgente `Runner.app` non è un
+artifact trattenuto. Prima di firma, export o packaging, il consumer deve usare lo
+stesso SHA-256 con `scripts/attest-ios-app-tree.py --extract` e lavorare soltanto
+sulla copia estratta dal descriptor verificato. Una divergenza del file ZIP o del
+digest blocca l'attivazione.
 
 ## Input esterni per export/upload
 
@@ -115,9 +124,11 @@ Dopo un archive firmato nella stessa sessione, senza ricalcolare l'attestazione
 successivamente all'archive, eseguire prima:
 
 ```bash
+mkdir -p build/ios/validated
 bash scripts/check-ios-release.sh \
   --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
   --archive build/ios/archive/Runner.xcarchive \
+  --sealed-app-output build/ios/validated/Runner.app-upload.zip \
   --reference-app build/ios/iphoneos/Runner.app \
   --reference-attestation "${cmc_ios_reference_attestation}" \
   --require-upload-ready
@@ -127,7 +138,8 @@ Il path `--app` deve essere esattamente l'app interna all'archive. Il profilo em
 è ammesso dallo scanner solo in quel root path, dopo decode CMS e controlli App Store;
 profili altrove restano vietati.
 
-Solo l'output `IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED` consente di procedere. Creare
+Solo l'output `IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED`, emesso dopo sealing,
+estrazione verificata e confronto del digest retained, consente di procedere. Creare
 un `ExportOptions.plist` esterno al repository con method App Store Connect, team e
 signing approvati, quindi eseguire `xcodebuild -exportArchive` in una directory
 temporanea. Validare nuovamente IPA e checksum prima di un upload tramite Xcode o

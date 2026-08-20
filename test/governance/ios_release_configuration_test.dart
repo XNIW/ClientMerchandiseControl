@@ -382,7 +382,7 @@ jobs:
 
 void _validateRunbookAttestation(String runbook, String workflow) {
   const expectedRunbookSha256 =
-      '411497e6a80f5f5f00be1d18040061a0bba11e494f87698f8a280242f571980c';
+      '80f13fcc70b3e724a127857211dbbd4fd4658c3f23fa8825574ede342e263922';
   if (sha256.convert(utf8.encode(runbook)).toString() !=
       expectedRunbookSha256) {
     throw StateError('runbook byte identity invalid');
@@ -420,9 +420,11 @@ xcodebuild archive \
   CODE_SIGNING_ALLOWED=NO \
   CODE_SIGNING_REQUIRED=NO \
   COMPILER_INDEX_STORE_ENABLE=NO
+mkdir -p build/ios/validated
 bash scripts/check-ios-release.sh \
   --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
   --archive build/ios/archive/Runner.xcarchive \
+  --sealed-app-output build/ios/validated/Runner.app.zip \
   --reference-app build/ios/iphoneos/Runner.app \
   --reference-attestation "${cmc_ios_reference_attestation}"''';
   const expectedSignedBuild =
@@ -443,9 +445,11 @@ esac
 cmc_ios_reference_attestation="${cmc_ios_reference_output#IOS_REFERENCE_ATTESTATION=}"
 [[ "${cmc_ios_reference_attestation}" =~ \
   ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]] || exit 1''';
-  const expectedUpload = r'''bash scripts/check-ios-release.sh \
+  const expectedUpload = r'''mkdir -p build/ios/validated
+bash scripts/check-ios-release.sh \
   --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
   --archive build/ios/archive/Runner.xcarchive \
+  --sealed-app-output build/ios/validated/Runner.app-upload.zip \
   --reference-app build/ios/iphoneos/Runner.app \
   --reference-attestation "${cmc_ios_reference_attestation}" \
   --require-upload-ready''';
@@ -633,6 +637,7 @@ printf 'macho_sha256=%s\n' "${cmc_reference_digests}" >>"${GITHUB_OUTPUT}"
         'bash scripts/check-ios-release.sh '
         '--app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app '
         '--archive build/ios/archive/Runner.xcarchive '
+        '--sealed-app-output build/ios/Runner.app.validated.zip '
         '--reference-app build/ios/iphoneos/Runner.app '
         "--reference-attestation '\${{ steps.ios-reference.outputs.macho_sha256 }}'",
   );

@@ -6,10 +6,12 @@ cmc_ios_test_root="$(git -C "${cmc_ios_test_script_dir}" rev-parse --show-toplev
 cmc_ios_test_validator="${cmc_ios_test_root}/scripts/check-ios-release.sh"
 cmc_ios_test_attestor="${cmc_ios_test_root}/scripts/create-ios-reference-attestation.sh"
 cmc_ios_test_plist_canonicalizer="${cmc_ios_test_root}/scripts/canonicalize-ios-bundle-plist.py"
+cmc_ios_test_tree_attestor="${cmc_ios_test_root}/scripts/attest-ios-app-tree.py"
 cmc_ios_test_real_python3="$(command -v python3)"
 cmc_ios_test_archive=''
 cmc_ios_test_reference_app=''
 cmc_ios_test_reference_attestation=''
+cmc_ios_test_current_seal=''
 
 if [[ "${1:-}" == '--archive' && -n "${2:-}" && \
   "${3:-}" == '--reference-app' && -n "${4:-}" && \
@@ -24,23 +26,29 @@ else
 fi
 
 cmc_ios_test_validate() {
+  cmc_ios_test_prepare_seal
   bash "${cmc_ios_test_validator}" "$@" \
+    --sealed-app-output "${cmc_ios_test_current_seal}" \
     --reference-app "${cmc_ios_test_reference_app}" \
     --reference-attestation "${cmc_ios_test_reference_attestation}"
 }
 
 cmc_ios_test_validate_bounded() {
+  cmc_ios_test_prepare_seal
   python3 - "${cmc_ios_test_validator}" \
     "${cmc_ios_test_reference_app}" \
-    "${cmc_ios_test_reference_attestation}" "$@" <<'PY'
+    "${cmc_ios_test_reference_attestation}" \
+    "${cmc_ios_test_current_seal}" "$@" <<'PY'
 import subprocess
 import sys
 
-validator, reference_app, reference_attestation, *arguments = sys.argv[1:]
+validator, reference_app, reference_attestation, sealed_output, *arguments = sys.argv[1:]
 command = [
     "bash",
     validator,
     *arguments,
+    "--sealed-app-output",
+    sealed_output,
     "--reference-app",
     reference_app,
     "--reference-attestation",
@@ -68,6 +76,7 @@ cmc_ios_test_source_dsym="${cmc_ios_test_archive}/dSYMs/Runner.app.dSYM/Contents
 
 cmc_ios_test_tmp_parent="${TMPDIR:-/tmp}"
 cmc_ios_test_tmp_parent="${cmc_ios_test_tmp_parent%/}"
+cmc_ios_test_tmp_parent="$(cd -- "${cmc_ios_test_tmp_parent}" && pwd -P)"
 cmc_ios_test_tmp_root="$(mktemp -d "${cmc_ios_test_tmp_parent}/cmc-ios-validator.XXXXXX")"
 cmc_ios_test_reference_restore=''
 cmc_ios_test_reference_backup=''
@@ -87,6 +96,15 @@ cmc_ios_test_cleanup() {
   esac
 }
 trap cmc_ios_test_cleanup EXIT
+
+cmc_ios_test_seal_root="${cmc_ios_test_tmp_root}/sealed"
+mkdir -p "${cmc_ios_test_seal_root}"
+cmc_ios_test_prepare_seal() {
+  cmc_ios_test_seal_case="$(
+    mktemp -d "${cmc_ios_test_seal_root}/candidate.XXXXXX"
+  )"
+  cmc_ios_test_current_seal="${cmc_ios_test_seal_case}/Runner.app.zip"
+}
 
 cmc_ios_test_fixture_archive="${cmc_ios_test_tmp_root}/Runner.xcarchive"
 cmc_ios_test_fixture_app="${cmc_ios_test_fixture_archive}/Products/Applications/Runner.app"
@@ -339,6 +357,14 @@ grep -Fxq \
   "IOS_RELEASE_NATIVE_WRAPPER_SHA256=${cmc_ios_test_expected_native_sha}" \
   <<<"${cmc_ios_test_baseline_output}" || {
   printf 'Fixture iOS: hash wrapper nativo non verificabile.\n' >&2
+  exit 1
+}
+cmc_ios_test_baseline_seal_sha="$(
+  sed -nE 's/^IOS_RELEASE_SEALED_APP_SHA256=([0-9a-f]{64})$/\1/p' \
+    <<<"${cmc_ios_test_baseline_output}"
+)"
+[[ "${cmc_ios_test_baseline_seal_sha}" =~ ^[0-9a-f]{64}$ ]] || {
+  printf 'Fixture iOS: payload sealed non legato al digest emesso.\n' >&2
   exit 1
 }
 
@@ -747,7 +773,8 @@ cmc_ios_test_expect_failure framework-fat-architecture \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
-  --reference-attestation "${cmc_ios_test_fat_attestation}"
+  --reference-attestation "${cmc_ios_test_fat_attestation}" \
+  --sealed-app-output "${cmc_ios_test_seal_root}/framework-fat.zip"
 cp "${cmc_ios_test_source_app}/Frameworks/objective_c.framework/objective_c" \
   "${cmc_ios_test_objective_binary}"
 cp "${cmc_ios_test_reference_backup}" \
@@ -836,30 +863,22 @@ cmc_ios_test_expect_failure bundle-plist-identity-combined \
 
 cmc_ios_test_python_hook="${cmc_ios_test_tmp_root}/python-hook"
 mkdir -p "${cmc_ios_test_python_hook}"
-cmc_ios_test_bundle_info_canonical="$(
-  cd -- "$(dirname -- "${cmc_ios_test_bundle_info}")" && pwd -P
-)/Info.plist"
 cat >"${cmc_ios_test_python_hook}/python3" <<'SH'
 #!/usr/bin/env bash
 set -euo pipefail
-if [[ "$#" -eq 5 && \
-  "$1" == "${CMC_IOS_TEST_CANONICALIZER}" && \
-  "$2" == '--validate-identity-and-digest' && \
-  "$3" == "${CMC_IOS_TEST_RACE_TARGET}" ]]; then
+if [[ "$#" -eq 4 && \
+  "$1" == "${CMC_IOS_TEST_TREE_ATTESTOR}" && \
+  "$2" == '--seal' ]]; then
   cmc_ios_test_hook_output="$("${CMC_IOS_TEST_REAL_PYTHON3}" "$@")"
-  "${CMC_IOS_TEST_REAL_PYTHON3}" - "${CMC_IOS_TEST_RACE_TARGET}" <<'PY'
-import os
-import plistlib
+  "${CMC_IOS_TEST_REAL_PYTHON3}" - "$3" \
+    "${CMC_IOS_TEST_HOOK_SENTINEL}" <<'PY'
 import sys
 
-path = sys.argv[1]
-with open(path, "rb") as source:
-    payload = plistlib.load(source)
-payload["CMCRaceTamper"] = "race"
-temporary = f"{path}.race"
-with open(temporary, "wb") as target:
-    plistlib.dump(payload, target, fmt=plistlib.FMT_BINARY, sort_keys=True)
-os.replace(temporary, path)
+snapshot, sentinel = sys.argv[1:]
+with open(f"{snapshot}/post-final-attestation.txt", "wb") as target:
+    target.write(b"retained-path-diverged")
+with open(sentinel, "wb") as target:
+    target.write(b"hook-ran")
 PY
   printf '%s\n' "${cmc_ios_test_hook_output}"
   exit 0
@@ -867,25 +886,242 @@ fi
 exec "${CMC_IOS_TEST_REAL_PYTHON3}" "$@"
 SH
 chmod u+x "${cmc_ios_test_python_hook}/python3"
-cmc_ios_test_expect_failure bundle-plist-retained-postcheck \
-  ARTIFACT_CHANGED_DURING_VALIDATION \
-  env \
+cmc_ios_test_postfinal_seal="${cmc_ios_test_seal_root}/postfinal-bound.zip"
+cmc_ios_test_postfinal_log="${cmc_ios_test_tmp_root}/postfinal-bound.log"
+cmc_ios_test_postfinal_sentinel="${cmc_ios_test_tmp_root}/postfinal-hook-ran"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+env \
   PATH="${cmc_ios_test_python_hook}:${PATH}" \
-  CMC_IOS_TEST_CANONICALIZER="${cmc_ios_test_plist_canonicalizer}" \
-  CMC_IOS_TEST_RACE_TARGET="${cmc_ios_test_bundle_info_canonical}" \
+  CMC_IOS_TEST_TREE_ATTESTOR="${cmc_ios_test_tree_attestor}" \
+  CMC_IOS_TEST_HOOK_SENTINEL="${cmc_ios_test_postfinal_sentinel}" \
   CMC_IOS_TEST_REAL_PYTHON3="${cmc_ios_test_real_python3}" \
   bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
-  --reference-attestation "${cmc_ios_test_reference_attestation}"
-if ! /usr/libexec/PlistBuddy -c 'Print :CMCRaceTamper' \
-  "${cmc_ios_test_bundle_info}" >/dev/null 2>&1; then
-  printf 'Fixture iOS: swap post-check non eseguito.\n' >&2
+  --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --sealed-app-output "${cmc_ios_test_postfinal_seal}" \
+  >"${cmc_ios_test_postfinal_log}" 2>&1 || {
+  printf 'Fixture iOS: payload sealed non ha isolato il post-final swap.\n' >&2
+  exit 1
+}
+cmc_ios_test_postfinal_sha="$(
+  sed -nE 's/^IOS_RELEASE_SEALED_APP_SHA256=([0-9a-f]{64})$/\1/p' \
+    "${cmc_ios_test_postfinal_log}"
+)"
+[[ -f "${cmc_ios_test_postfinal_sentinel}" && \
+  "${cmc_ios_test_postfinal_sha}" =~ ^[0-9a-f]{64}$ ]] || {
+  printf 'Fixture iOS: post-final hook o digest sealed assente.\n' >&2
+  exit 1
+}
+cmc_ios_test_postfinal_extracted="${cmc_ios_test_tmp_root}/PostFinal.app"
+cmc_ios_test_postfinal_tree="$(
+  "${cmc_ios_test_real_python3}" "${cmc_ios_test_tree_attestor}" \
+    --extract "${cmc_ios_test_postfinal_seal}" \
+    "${cmc_ios_test_postfinal_sha}" \
+    "${cmc_ios_test_postfinal_extracted}"
+)" || {
+  printf 'Fixture iOS: payload sealed non estraibile.\n' >&2
+  exit 1
+}
+[[ "${cmc_ios_test_postfinal_tree}" =~ ^[0-9a-f]{64}$ && \
+  ! -e "${cmc_ios_test_postfinal_extracted}/post-final-attestation.txt" ]] || {
+  printf 'Fixture iOS: payload sealed contiene il post-final tamper.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_ancestor_root="${cmc_ios_test_tmp_root}/ancestor-race"
+cmc_ios_test_ancestor_bad="${cmc_ios_test_ancestor_root}/bad"
+mkdir -p "${cmc_ios_test_ancestor_root}" "${cmc_ios_test_ancestor_bad}"
+cp -R "${cmc_ios_test_fixture_app}" \
+  "${cmc_ios_test_ancestor_bad}/Runner.app"
+printf 'injected\n' \
+  >"${cmc_ios_test_ancestor_bad}/Runner.app/ancestor-race-payload.txt"
+ln -s "$(dirname -- "${cmc_ios_test_fixture_app}")" \
+  "${cmc_ios_test_ancestor_root}/current"
+cmc_ios_test_ancestor_hook="${cmc_ios_test_tmp_root}/ancestor-python-hook"
+mkdir -p "${cmc_ios_test_ancestor_hook}"
+cat >"${cmc_ios_test_ancestor_hook}/python3" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ "$#" -eq 4 && \
+  "$1" == "${CMC_IOS_TEST_TREE_ATTESTOR}" && \
+  "$2" == '--snapshot' ]]; then
+  cmc_ios_test_hook_output="$("${CMC_IOS_TEST_REAL_PYTHON3}" "$@")"
+  "${CMC_IOS_TEST_REAL_PYTHON3}" - \
+    "${CMC_IOS_TEST_ANCESTOR_LINK}" \
+    "${CMC_IOS_TEST_ANCESTOR_BAD}" <<'PY'
+import os
+import sys
+
+link, target = sys.argv[1:]
+temporary = f"{link}.next"
+os.symlink(target, temporary)
+os.replace(temporary, link)
+PY
+  printf '%s\n' "${cmc_ios_test_hook_output}"
+  exit 0
+fi
+exec "${CMC_IOS_TEST_REAL_PYTHON3}" "$@"
+SH
+chmod u+x "${cmc_ios_test_ancestor_hook}/python3"
+cmc_ios_test_ancestor_seal="${cmc_ios_test_seal_root}/ancestor-bound.zip"
+cmc_ios_test_ancestor_log="${cmc_ios_test_tmp_root}/ancestor-bound.log"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+env \
+  PATH="${cmc_ios_test_ancestor_hook}:${PATH}" \
+  CMC_IOS_TEST_TREE_ATTESTOR="${cmc_ios_test_tree_attestor}" \
+  CMC_IOS_TEST_REAL_PYTHON3="${cmc_ios_test_real_python3}" \
+  CMC_IOS_TEST_ANCESTOR_LINK="${cmc_ios_test_ancestor_root}/current" \
+  CMC_IOS_TEST_ANCESTOR_BAD="${cmc_ios_test_ancestor_bad}" \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_ancestor_root}/current/Runner.app" \
+  --archive "${cmc_ios_test_fixture_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --sealed-app-output "${cmc_ios_test_ancestor_seal}" \
+  >"${cmc_ios_test_ancestor_log}" 2>&1 || {
+  printf 'Fixture iOS: ancestor swap ha invalidato lo snapshot pinned.\n' >&2
+  exit 1
+}
+cmc_ios_test_ancestor_sha="$(
+  sed -nE 's/^IOS_RELEASE_SEALED_APP_SHA256=([0-9a-f]{64})$/\1/p' \
+    "${cmc_ios_test_ancestor_log}"
+)"
+[[ "${cmc_ios_test_ancestor_sha}" =~ ^[0-9a-f]{64}$ && \
+  -f "${cmc_ios_test_ancestor_root}/current/Runner.app/ancestor-race-payload.txt" ]] || {
+  printf 'Fixture iOS: ancestor swap non eseguito o seal assente.\n' >&2
+  exit 1
+}
+cmc_ios_test_ancestor_extracted="${cmc_ios_test_tmp_root}/AncestorBound.app"
+"${cmc_ios_test_real_python3}" "${cmc_ios_test_tree_attestor}" \
+  --extract "${cmc_ios_test_ancestor_seal}" \
+  "${cmc_ios_test_ancestor_sha}" \
+  "${cmc_ios_test_ancestor_extracted}" >/dev/null || {
+  printf 'Fixture iOS: seal ancestor-bound non estraibile.\n' >&2
+  exit 1
+}
+[[ ! -e "${cmc_ios_test_ancestor_extracted}/ancestor-race-payload.txt" ]] || {
+  printf 'Fixture iOS: payload ancestor incluso nel seal validato.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_tree_probe="${cmc_ios_test_tmp_root}/tree-probe"
+mkdir -p "${cmc_ios_test_tree_probe}"
+cmc_ios_test_tree_before="$(
+  "${cmc_ios_test_real_python3}" "${cmc_ios_test_tree_attestor}" \
+    "${cmc_ios_test_tree_probe}"
+)"
+mkdir "${cmc_ios_test_tree_probe}/empty"
+cmc_ios_test_tree_with_empty="$(
+  "${cmc_ios_test_real_python3}" "${cmc_ios_test_tree_attestor}" \
+    "${cmc_ios_test_tree_probe}"
+)"
+chmod 0777 "${cmc_ios_test_tree_probe}/empty"
+cmc_ios_test_tree_with_mode="$(
+  "${cmc_ios_test_real_python3}" "${cmc_ios_test_tree_attestor}" \
+    "${cmc_ios_test_tree_probe}"
+)"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+[[ "${cmc_ios_test_tree_before}" != "${cmc_ios_test_tree_with_empty}" && \
+  "${cmc_ios_test_tree_with_empty}" != "${cmc_ios_test_tree_with_mode}" ]] || {
+  printf 'Fixture iOS: directory vuote o mode non legati al digest.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_deep_root="${cmc_ios_test_tmp_root}/deep-tree"
+mkdir -p "${cmc_ios_test_deep_root}"
+cmc_ios_test_deep_cursor="${cmc_ios_test_deep_root}"
+for _ in {1..65}; do
+  cmc_ios_test_deep_cursor="${cmc_ios_test_deep_cursor}/d"
+  mkdir "${cmc_ios_test_deep_cursor}"
+done
+cmc_ios_test_deep_stdout="${cmc_ios_test_tmp_root}/deep.stdout"
+cmc_ios_test_deep_stderr="${cmc_ios_test_tmp_root}/deep.stderr"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+if "${cmc_ios_test_real_python3}" "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_deep_root}" >"${cmc_ios_test_deep_stdout}" \
+  2>"${cmc_ios_test_deep_stderr}" || \
+  [[ -s "${cmc_ios_test_deep_stdout}" || -s "${cmc_ios_test_deep_stderr}" ]]; then
+  printf 'Fixture iOS: profondita tree non respinta in modo redatto.\n' >&2
   exit 1
 fi
-/usr/libexec/PlistBuddy -c 'Delete :CMCRaceTamper' \
-  "${cmc_ios_test_bundle_info}"
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_tampered_seal="${cmc_ios_test_seal_root}/tampered.zip"
+cp "${cmc_ios_test_postfinal_seal}" "${cmc_ios_test_tampered_seal}"
+chmod u+w "${cmc_ios_test_tampered_seal}"
+cmc_ios_test_flip_byte "${cmc_ios_test_tampered_seal}" 64
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+if "${cmc_ios_test_real_python3}" "${cmc_ios_test_tree_attestor}" \
+  --extract "${cmc_ios_test_tampered_seal}" \
+  "${cmc_ios_test_postfinal_sha}" \
+  "${cmc_ios_test_tmp_root}/TamperedSeal.app" \
+  >"${cmc_ios_test_tmp_root}/tampered-seal.stdout" \
+  2>"${cmc_ios_test_tmp_root}/tampered-seal.stderr" || \
+  [[ -s "${cmc_ios_test_tmp_root}/tampered-seal.stdout" || \
+    -s "${cmc_ios_test_tmp_root}/tampered-seal.stderr" ]]; then
+  printf 'Fixture iOS: payload sealed alterato non respinto.\n' >&2
+  exit 1
+fi
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_malicious_seal_root="${cmc_ios_test_tmp_root}/malicious-seals"
+mkdir -p "${cmc_ios_test_malicious_seal_root}"
+"${cmc_ios_test_real_python3}" - "${cmc_ios_test_malicious_seal_root}" <<'PY'
+import os
+import stat
+import sys
+import zipfile
+
+root = sys.argv[1]
+
+def directory_info():
+    info = zipfile.ZipInfo("Runner.app/")
+    info.create_system = 3
+    info.external_attr = ((stat.S_IFDIR | 0o755) & 0xFFFF) << 16 | 0x10
+    return info
+
+with zipfile.ZipFile(f"{root}/traversal.zip", "w", zipfile.ZIP_STORED) as archive:
+    archive.writestr(directory_info(), b"")
+    archive.writestr("Runner.app/../../escape", b"escape")
+
+with zipfile.ZipFile(f"{root}/symlink.zip", "w", zipfile.ZIP_STORED) as archive:
+    archive.writestr(directory_info(), b"")
+    info = zipfile.ZipInfo("Runner.app/evil")
+    info.create_system = 3
+    info.external_attr = ((stat.S_IFLNK | 0o777) & 0xFFFF) << 16
+    archive.writestr(info, b"/private/tmp")
+
+with zipfile.ZipFile(f"{root}/compressed.zip", "w", zipfile.ZIP_DEFLATED) as archive:
+    archive.writestr(directory_info(), b"")
+    archive.writestr("Runner.app/payload", b"payload")
+PY
+for cmc_ios_test_malicious_name in traversal symlink compressed; do
+  cmc_ios_test_malicious_payload="${cmc_ios_test_malicious_seal_root}/${cmc_ios_test_malicious_name}.zip"
+  cmc_ios_test_malicious_sha="$(
+    shasum -a 256 "${cmc_ios_test_malicious_payload}" | awk '{print $1}'
+  )"
+  cmc_ios_test_malicious_stdout="${cmc_ios_test_malicious_seal_root}/${cmc_ios_test_malicious_name}.stdout"
+  cmc_ios_test_malicious_stderr="${cmc_ios_test_malicious_seal_root}/${cmc_ios_test_malicious_name}.stderr"
+  cmc_ios_test_total=$((cmc_ios_test_total + 1))
+  if "${cmc_ios_test_real_python3}" "${cmc_ios_test_tree_attestor}" \
+    --extract "${cmc_ios_test_malicious_payload}" \
+    "${cmc_ios_test_malicious_sha}" \
+    "${cmc_ios_test_malicious_seal_root}/${cmc_ios_test_malicious_name}.app" \
+    >"${cmc_ios_test_malicious_stdout}" \
+    2>"${cmc_ios_test_malicious_stderr}" || \
+    [[ -s "${cmc_ios_test_malicious_stdout}" || \
+      -s "${cmc_ios_test_malicious_stderr}" ]]; then
+    printf 'Fixture iOS: seal malevolo %s non respinto.\n' \
+      "${cmc_ios_test_malicious_name}" >&2
+    exit 1
+  fi
+  cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+done
 
 cmc_ios_test_bundle_info_backup="${cmc_ios_test_tmp_root}/bundle-info.plist.original"
 cp "${cmc_ios_test_bundle_info}" "${cmc_ios_test_bundle_info_backup}"
@@ -917,7 +1153,7 @@ PY
 }
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 cmc_ios_test_expect_failure bundle-plist-fifo-bound \
-  ARTIFACT_TREE_DIGEST_UNREADABLE \
+  ARTIFACT_SNAPSHOT_UNREADABLE \
   cmc_ios_test_validate_bounded \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"

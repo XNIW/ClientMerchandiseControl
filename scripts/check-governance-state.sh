@@ -4,6 +4,7 @@ set -euo pipefail
 cmc_repo_root="${CMC_GOVERNANCE_REPO_ROOT:-$(git rev-parse --show-toplevel)}"
 cmc_authority_repo_root="$({ cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P; })"
 source "${cmc_authority_repo_root}/scripts/lib/governance_path_policy.sh"
+source "${cmc_authority_repo_root}/scripts/lib/governance_review_role_policy.sh"
 cmc_master_plan="${cmc_repo_root}/docs/MASTER-PLAN.md"
 cmc_readme="${cmc_repo_root}/README.md"
 cmc_worklog="${cmc_repo_root}/docs/AI_WORKLOG.md"
@@ -159,6 +160,7 @@ cmc_indicator="$(cmc_field "${cmc_master_plan}" "Indicatore")"
 cmc_release_train="$(cmc_field "${cmc_master_plan}" "Release train")"
 cmc_release_train_state="$(cmc_field "${cmc_master_plan}" "Stato release train")"
 cmc_integrated_review="$(cmc_field "${cmc_master_plan}" "Review integrata")"
+cmc_governance_set_review_role_policy "${cmc_phase}" "${cmc_indicator}"
 
 cmc_reject_ambiguous_markdown "${cmc_master_plan}" "Master Plan"
 cmc_reject_ambiguous_markdown "${cmc_readme}" "README" raw-only
@@ -448,12 +450,13 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           printf 'Task chronology priva di cicli Fix strutturati per %s.\n' \
             "${cmc_active_task}" >&2
           cmc_violation_count=$((cmc_violation_count + 1))
-        elif [[ "${cmc_phase}" == 'FIX' && \
+        elif [[ "${cmc_governance_expected_revision_role}" == 'review' && \
           "${cmc_last_fix_heading}" != '### Re-review Fix '* ]]; then
-          printf 'Task chronology incoerente con fase FIX: ultimo=%q.\n' \
-            "${cmc_last_fix_heading}" >&2
+          printf 'Task chronology incoerente con ruolo review: fase=%q, indicatore=%q, ultimo=%q.\n' \
+            "${cmc_phase}" "${cmc_indicator}" "${cmc_last_fix_heading}" >&2
           cmc_violation_count=$((cmc_violation_count + 1))
         elif [[ "${cmc_phase}" == 'REVIEW' && \
+          "${cmc_governance_expected_revision_role}" == 'technical' && \
           "${cmc_last_fix_heading}" == '### Re-review Fix '* ]]; then
           printf 'Task chronology incoerente con fase REVIEW: ultimo=%q.\n' \
             "${cmc_last_fix_heading}" >&2
@@ -512,17 +515,14 @@ if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
           cmc_expected_revision_role=''
           cmc_expected_worklog_suffix=''
           cmc_expected_worklog_revision_label=''
-          if [[ "${cmc_phase}" == 'REVIEW' ]]; then
+          if [[ "${cmc_governance_expected_revision_role}" == 'technical' ]]; then
             cmc_expected_task_heading="### Fix ${cmc_last_fix_number}"
-            cmc_expected_revision_role='technical'
-            cmc_expected_worklog_suffix='e handoff'
-            cmc_expected_worklog_revision_label='Technical SHA'
-          elif [[ "${cmc_phase}" == 'FIX' ]]; then
+          elif [[ "${cmc_governance_expected_revision_role}" == 'review' ]]; then
             cmc_expected_task_heading="### Re-review Fix ${cmc_last_fix_number}"
-            cmc_expected_revision_role='review'
-            cmc_expected_worklog_suffix='re-review'
-            cmc_expected_worklog_revision_label='Exact HEAD'
           fi
+          cmc_expected_revision_role="${cmc_governance_expected_revision_role}"
+          cmc_expected_worklog_suffix="${cmc_governance_expected_worklog_suffix}"
+          cmc_expected_worklog_revision_label="${cmc_governance_expected_worklog_revision_label}"
           if [[ "${cmc_last_fix_heading}" != "${cmc_expected_task_heading}" || \
             "${cmc_last_fix_revision_role}" != "${cmc_expected_revision_role}" || \
             "${cmc_manifest_revision_role}" != "${cmc_expected_revision_role}" ]]; then

@@ -7,6 +7,7 @@ trap 'rm -rf "${cmc_test_tmp}"' EXIT
 cmc_assertion_count=0
 
 source "${cmc_test_repo_root}/scripts/lib/governance_path_policy.sh"
+source "${cmc_test_repo_root}/scripts/lib/governance_review_role_policy.sh"
 
 cmc_fixture() {
   local cmc_name="$1"
@@ -373,6 +374,37 @@ cmc_expect_post_sha_path_collection() {
   fi
   cmc_assertion_count=$((cmc_assertion_count + 1))
 }
+
+cmc_expect_review_role_policy() {
+  local cmc_phase="$1"
+  local cmc_indicator="$2"
+  local cmc_expected_role="$3"
+  local cmc_expected_suffix="$4"
+  local cmc_expected_label="$5"
+
+  cmc_governance_set_review_role_policy "${cmc_phase}" "${cmc_indicator}"
+  if [[ "${cmc_governance_expected_revision_role}" != \
+      "${cmc_expected_role}" || \
+    "${cmc_governance_expected_worklog_suffix}" != \
+      "${cmc_expected_suffix}" || \
+    "${cmc_governance_expected_worklog_revision_label}" != \
+      "${cmc_expected_label}" ]]; then
+    printf 'Role policy incoerente: fase=%s, indicatore=%s.\n' \
+      "${cmc_phase}" "${cmc_indicator}" >&2
+    exit 1
+  fi
+  cmc_assertion_count=$((cmc_assertion_count + 1))
+}
+
+cmc_expect_review_role_policy \
+  REVIEW CODEX_REVIEW_BLOCKED \
+  review re-review 'Exact HEAD'
+cmc_expect_review_role_policy \
+  REVIEW CODEX_FIX_BLOCKED_TO_RE_REVIEW \
+  technical 'e handoff' 'Technical SHA'
+cmc_expect_review_role_policy \
+  FIX CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX \
+  review re-review 'Exact HEAD'
 
 cmc_case="$(cmc_fixture valid)"
 cmc_expect_pass valid "${cmc_case}"

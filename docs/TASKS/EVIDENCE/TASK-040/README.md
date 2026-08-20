@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -23,21 +23,21 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Re-review Fix 36 negativa; Fix 37 e PR/main CI da eseguire | FAIL |
+| CA-10 | Fix 37 consegnato; re-review distinta e PR/main CI da eseguire | NOT_RUN |
 
 ## Matrice T -> risultato
 
 | Test | Esito | Evidence |
 |---|---|---|
 | T-01 | PASS | source gate, runtime/CI 18/18 e config/signing boundary |
-| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `9753fea` |
-| T-03 | PASS | plist/privacy/inventory/framework/sealed payload + fixture iOS 70/70 |
+| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `102caa4` |
+| T-03 | PASS | plist/privacy/inventory/framework/sealed payload + fixture iOS 73/73 |
 | T-04 | PASS | scanner 686/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 36 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 37 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -47,9 +47,9 @@ Snapshot di handoff:
 - production App Store: vietata;
 - physical iOS: `BLOCKED`, zero device collegati; separato dal Simulator.
 
-## Artifact evidence corrente — Fix 36
+## Artifact evidence corrente — Fix 37
 
-- source exact SHA: `9753feac0e455e2f9be326b50e599d64cdeff1ab`;
+- source exact SHA: `102caa49070c7870234119f31d142c79965b1fd2`;
 - archive: `build/ios/archive/Runner.xcarchive`, 201.344 KiB, non versionato;
 - app: 36.724 KiB, 207 file, bundle `com.xniw.clientmerchandisecontrol`,
   `0.1.0 (1)`, `iphoneos`, arm64, unsigned;
@@ -70,14 +70,14 @@ Snapshot di handoff:
   `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
 - il candidate valido è il payload sealed, non il path sorgente mutabile.
 
-## Gate executor corrente — Fix 36
+## Gate executor corrente — Fix 37
 
 - `scripts/check.sh`: exit 0;
 - non-performance 804/804; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
 - governance 88/88; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 686; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 70/70; Flutter/YAML mirati 12/12;
+- validator iOS avversariale 73/73; Flutter/YAML mirati 12/12;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
@@ -937,3 +937,24 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
   governance 88/88, scanner e syntax `PASS`;
 - finalizer security exit 2 prima del sealing per schema relativo mancante;
   bundle non sealed, `report.md` inesistente; production invariata.
+
+## Fix 37 — evidence corrente
+
+- exact technical SHA `102caa49070c7870234119f31d142c79965b1fd2`;
+- parent privato mantenuto descriptor-bound nel guard; rename/delete/revoke
+  dell'ancestor e `KQ_NOTE_ATTRIB` sui descriptor dell'albero sono osservati;
+- confronto finale device/inode/mode/ctime chiude parent e chmod ABA senza
+  invalidare le letture nominali del validator;
+- canale guard aperto prima del child e cleanup tramite quarantine random
+  identity-bound chiudono early-exit, collisione e victim-swap;
+- candidate reale 686/207 `PASS`, unsigned; tree SHA-256
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`
+  e sealed payload SHA-256
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+- validator iOS 73/73, Flutter/YAML 12/12, governance 88/88, security
+  61/61 negative + 7/7 positive, architecture 17/17, analyze e format `PASS`;
+- `scripts/check.sh` exit 0: 804/804 non-performance, 10/10 performance,
+  repeat 5 x 14 = 70/70, Android debug e iOS Simulator debug `PASS`;
+- upload-ready validator exit 1 con
+  `IOS_RELEASE_BLOCKED: TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun
+  upload, signing, provisioning o activation production eseguito.

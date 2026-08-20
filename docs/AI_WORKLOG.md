@@ -4274,3 +4274,22 @@
   mancante; bundle non sealed preservato, nessun report/hash inventato.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 37 e handoff
+
+- **Technical SHA**: `102caa49070c7870234119f31d142c79965b1fd2`.
+- **Fix**: parent descriptor mantenuto nel guard, `KQ_NOTE_ATTRIB` e confronto
+  finale mode/ctime sull'albero, FIFO descriptor-bound e cleanup quarantine
+  random/inode-bound.
+- **Regressioni**: parent ABA e mode ABA full-validator, early guard failure,
+  collisione quarantine e swap victim; validator iOS 73/73 e Flutter/YAML
+  12/12 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 +
+  7/7, architecture 17/17, analyze, format, syntax, pycompile, action pin e
+  diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready validator exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
 
 ## Provenance
 
@@ -1207,6 +1207,20 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
   candidate 686/207 e suite iOS 86/86 invariati;
 - isolation boundary, Distribution signing, physical iOS e TestFlight restano
   `BLOCKED` o `NOT_RUN`; nessuna mutazione esterna eseguita.
+
+## Re-review Fix 46
+
+- exact HEAD `f7ea8876216edaf8de3066c2890921e948679185`;
+- verdict `BLOCKED`, P0 0/P1 0/P2 0/P3 0; finding Fix45 `CLOSED`;
+- matrice diretta completa su approval, reviewer-blocked, execution-complete,
+  fix-complete, fix-blocked, changes-required e unknown; probe checker unknown
+  exit 1 fail-closed;
+- governance state, fixture 101/101, `bash -n`, action pins, diff, ancestry,
+  provenance e hygiene `PASS`; codice iOS invariato e suite 86/86 non duplicata;
+- bounded shell dataflow review senza finding; security plugin formale non
+  disponibile su Python 3.9, nessun report sealed inventato;
+- blocker esterno invariato: UID distinto, sandbox/ACL enforceable, runner/VM
+  effimera con teardown trusted o decisione USER_APPROVER sul threat model.
 
 ## Re-review Fix 40
 

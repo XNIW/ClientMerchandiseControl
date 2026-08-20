@@ -12,7 +12,7 @@
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_BLOCKED
 
 ## Dipendenze
 
@@ -1909,6 +1909,24 @@ report prodotto sealed SHA-256
   esterno non implementabile nel worker corrente.
 
 `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+### Re-review Fix 46
+
+- exact review SHA: `f7ea8876216edaf8de3066c2890921e948679185`;
+- verdict `BLOCKED`: P0 0 / P1 0 / P2 0 / P3 0;
+- `F-040-RR45-GOV-REVIEW-OUTCOME-POLICY-01` è chiuso: approval e blocked
+  sono review-role; execution/fix-complete/fix-blocked sono technical-role;
+  changes-required resta review-role e le combinazioni ignote falliscono;
+- governance state, fixture 101/101, syntax, action pins, diff, ancestry,
+  provenance e hygiene `PASS`; delta post-technical limitato ai sei documenti
+  di handoff, codice iOS invariato e suite lunga non duplicata;
+- review shell bounded senza finding; preflight Security formale non disponibile
+  su Python 3.9 privo di `tomllib`/`tomli`, quindi nessun report sealed attribuito;
+- unico blocker: distinct-UID supervisor, sandbox/ACL enforceable, runner/VM
+  effimera con teardown attestato oppure emendamento esplicito USER_APPROVER
+  del threat model ai writer cooperativi.
+
+`CODEX_REVIEW_BLOCKED`.
 
 ## Chiusura
 

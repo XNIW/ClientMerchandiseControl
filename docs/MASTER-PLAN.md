@@ -10,13 +10,13 @@
 - **Stato task**: BLOCKED
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review distinta Fix 46 della allowlist
-  outcome/ruoli; poi scelta USER_APPROVER del boundary esterno o del threat
-  model. Upload TestFlight `NOT_RUN`
+- **Prossima azione autorizzata**: scelta USER_APPROVER del boundary esterno
+  (supervisor UID distinto, sandbox/ACL o runner/VM effimera) oppure emendamento
+  esplicito del threat model. Upload TestFlight `NOT_RUN`
 
 ## Repository coinvolti
 

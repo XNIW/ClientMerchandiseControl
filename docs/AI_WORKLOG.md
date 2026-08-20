@@ -4588,3 +4588,16 @@
   effimera o emendamento USER_APPROVER sul threat model.
 - **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 46 re-review
+
+- **Exact HEAD**: `f7ea8876216edaf8de3066c2890921e948679185`.
+- **Esito**: `BLOCKED`, P0 0/P1 0/P2 0/P3 0; finding Fix45 chiuso.
+- **Gate**: governance state, fixture 101/101, syntax, action pins, diff,
+  ancestry, provenance e hygiene `PASS`; codice iOS invariato.
+- **Security**: review shell bounded senza finding; preflight formale non
+  disponibile su Python 3.9, nessun report sealed attribuito.
+- **Blocker**: distinct-UID supervisor, sandbox/ACL enforceable, runner/VM
+  effimera con teardown attestato o emendamento esplicito USER_APPROVER.
+- **Transizione**: `BLOCKED / REVIEW -> BLOCKED / REVIEW`; production invariata.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

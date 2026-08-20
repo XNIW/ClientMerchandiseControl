@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 42 bloccato su isolamento esterno; re-review e CI sospese | BLOCKED |
+| CA-10 | Fix 42 con finding governance; Fix 43 e re-review richiesti | NOT_RUN |
 
 ## Matrice T -> risultato
 
@@ -1103,6 +1103,18 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
   riusati come evidence esatta, non reinterpretati come closure del blocker;
 - signing, TestFlight, physical iOS, PR/main CI e production `NOT_RUN` o
   `BLOCKED`; nessuna mutazione esterna eseguita.
+
+## Re-review Fix 42
+
+- exact HEAD `f59cf91a288ff97c3899e235c843192bce6aca7d`;
+- verdict prodotto `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 1;
+- header/task/evidence/manifest `BLOCKED` con sola riga backlog TASK-040
+  mutata a `TODO` veniva accettato dal checker;
+- fix richiesto: esattamente una riga canonica del task corrente e stato riga
+  uguale a `Stato task`, indipendentemente da `ACTIVE` o `BLOCKED`;
+- blocker isolamento same-UID confermato; codice release e gate iOS invariati;
+- governance nominale 88/88 insufficiente rispetto al nuovo probe; nessuna
+  mutazione signing, TestFlight o production.
 
 ## Re-review Fix 40
 

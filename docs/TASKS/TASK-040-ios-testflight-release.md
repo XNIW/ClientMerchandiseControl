@@ -5,14 +5,14 @@
 - **Task ID**: TASK-040
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
-- **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Stato**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1769,6 +1769,22 @@ report prodotto sealed SHA-256
   production.
 
 `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+### Re-review Fix 42
+
+- exact review SHA: `f59cf91a288ff97c3899e235c843192bce6aca7d`;
+- prodotto `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 0 / P3 1;
+- `F-040-RR42-GOV-BLOCKED-ROW-BINDING-01`: mutare soltanto la riga backlog
+  TASK-040 da `BLOCKED` a `TODO`, lasciando header/task/evidence/manifest
+  bloccati, produceva governance exit 0;
+- il checker contava e correlava soltanto le righe `ACTIVE`, senza imporre
+  sempre esattamente una riga del task corrente con stato uguale all'header;
+- il blocker tecnico Fix 42 è confermato e richiede ancora un boundary esterno
+  o una decisione esplicita del `USER_APPROVER` sul threat model;
+- governance nominale 88/88, syntax e diff `PASS`; suite iOS non rieseguita
+  correttamente perché il codice release è invariato.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

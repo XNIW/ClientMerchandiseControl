@@ -4473,3 +4473,16 @@
   chiudono il blocker; upload/TestFlight/production invariati.
 - **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 42 re-review
+
+- **Exact HEAD**: `f59cf91a288ff97c3899e235c843192bce6aca7d`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 1.
+- **Finding**: il checker accettava header `BLOCKED` ma riga backlog TASK-040
+  `TODO`, perché correlava soltanto la cardinalità delle righe `ACTIVE`.
+- **Fix richiesto**: una sola riga canonica del task corrente, sempre legata
+  allo stato header; regression esatta `BLOCKED -> TODO`.
+- **Blocker**: isolamento same-UID Fix 42 confermato e invariato; dopo il fix
+  governance il task resta dipendente dal boundary esterno.
+- **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

@@ -377,13 +377,22 @@ cmc_expect_post_sha_path_collection() {
 cmc_case="$(cmc_fixture valid)"
 cmc_expect_pass valid "${cmc_case}"
 
+cmc_current_task_status="$(
+  sed -n 's/^- \*\*Stato task\*\*: //p' \
+    "${cmc_test_repo_root}/docs/MASTER-PLAN.md" | head -n 1
+)"
+
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \
   's/| TASK-031 | Notifiche push e order status events | VALIDATED_PENDING_INTEGRATED_REVIEW |/| TASK-031 | Notifiche push e order status events | ACTIVE |/' \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
+cmc_duplicate_active_expected='Un task corrente ACTIVE richiede esattamente una riga ACTIVE'
+if [[ "${cmc_current_task_status}" == 'BLOCKED' ]]; then
+  cmc_duplicate_active_expected='Un task corrente BLOCKED non può lasciare righe ACTIVE'
+fi
 cmc_expect_fail duplicate-active "${cmc_case}" \
-  'Un task corrente ACTIVE richiede esattamente una riga ACTIVE'
+  "${cmc_duplicate_active_expected}"
 
 cmc_case="$(cmc_fixture wrong-active)"
 sed -i.bak \
@@ -391,7 +400,9 @@ sed -i.bak \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail wrong-active "${cmc_case}" \
-  'Task ACTIVE in roadmap incoerente'
+  "$([[ "${cmc_current_task_status}" == 'BLOCKED' ]] && \
+    printf 'Task attivo incoerente' || \
+    printf 'Task ACTIVE in roadmap incoerente')"
 
 cmc_case="$(cmc_fixture premature-done)"
 sed -i.bak \
@@ -399,7 +410,7 @@ sed -i.bak \
   "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail premature-done "${cmc_case}" \
-  'Un task corrente ACTIVE richiede esattamente una riga ACTIVE'
+  "${cmc_duplicate_active_expected}"
 
 cmc_case="$(cmc_fixture invalid-train-state)"
 sed -i.bak 's/- \*\*Release train\*\*: CLIENT_FINAL_PRODUCT_COMPLETION/- **Release train**: STOREFRONT_V1/' \
@@ -428,9 +439,15 @@ cmc_expect_fail active-during-review "${cmc_case}" \
   'Durante INTEGRATED_REVIEW nessun task può restare ACTIVE'
 
 cmc_case="$(cmc_fixture active-header-without-active-row)"
-sed -i.bak \
-  's/| TASK-040 | iOS TestFlight release | ACTIVE |/| TASK-040 | iOS TestFlight release | TODO |/' \
-  "${cmc_case}/docs/MASTER-PLAN.md"
+if [[ "${cmc_current_task_status}" == 'BLOCKED' ]]; then
+  sed -i.bak \
+    's/- \*\*Stato task\*\*: BLOCKED/- **Stato task**: ACTIVE/' \
+    "${cmc_case}/docs/MASTER-PLAN.md"
+else
+  sed -i.bak \
+    's/| TASK-040 | iOS TestFlight release | ACTIVE |/| TASK-040 | iOS TestFlight release | TODO |/' \
+    "${cmc_case}/docs/MASTER-PLAN.md"
+fi
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-header-without-active-row "${cmc_case}" \
   'Un task corrente ACTIVE richiede esattamente una riga ACTIVE'
@@ -843,10 +860,15 @@ cmc_expect_fail rollback-current-fix-cycle "${cmc_case}" \
 
 cmc_case="$(cmc_fixture master-active-row-relocated)"
 cmc_row="$(grep -E '^\| TASK-040 \|' "${cmc_case}/docs/MASTER-PLAN.md")"
-CMC_ROW="${cmc_row}" perl -0pi.bak -e '
+cmc_relocated_row="${cmc_row}"
+if [[ "${cmc_current_task_status}" == 'BLOCKED' ]]; then
+  cmc_relocated_row="${cmc_relocated_row/ | BLOCKED |/ | ACTIVE |}"
+fi
+CMC_ROW="${cmc_row}" CMC_RELOCATED_ROW="${cmc_relocated_row}" \
+  perl -0pi.bak -e '
   my $row = quotemeta $ENV{CMC_ROW};
   s/^$row\n//m or die "TASK-040 backlog row missing\n";
-  $_ .= "\n$ENV{CMC_ROW}\n";
+  $_ .= "\n$ENV{CMC_RELOCATED_ROW}\n";
 ' "${cmc_case}/docs/MASTER-PLAN.md"
 rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail master-active-row-relocated "${cmc_case}" \

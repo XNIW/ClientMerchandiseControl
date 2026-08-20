@@ -197,12 +197,12 @@ cmc_compare \
 
 cmc_readme_summary_count="$(
   sed -nE \
-    's/^TASK-040 è l.unico task `(ACTIVE \/ (FIX|REVIEW))`:.*$/\1/p' \
+    's/^TASK-040 è l.unico task `((ACTIVE|BLOCKED) \/ (FIX|REVIEW))`:.*$/\1/p' \
     "${cmc_readme}" | awk 'NF { count++ } END { print count + 0 }'
 )"
 cmc_readme_summary_state="$(
   sed -nE \
-    's/^TASK-040 è l.unico task `(ACTIVE \/ (FIX|REVIEW))`:.*$/\1/p' \
+    's/^TASK-040 è l.unico task `((ACTIVE|BLOCKED) \/ (FIX|REVIEW))`:.*$/\1/p' \
     "${cmc_readme}"
 )"
 cmc_expected_readme_summary="${cmc_task_status} / ${cmc_phase}"

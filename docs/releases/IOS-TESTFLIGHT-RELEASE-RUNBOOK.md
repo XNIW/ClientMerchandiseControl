@@ -15,6 +15,7 @@ repository o nei log.
   fail-closed finché i rispettivi activation gate non sono approvati.
 
 ```bash
+cmc_repo_root="$(pwd -P)"
 flutter clean
 flutter pub get --enforce-lockfile
 bash scripts/check-ios-release.sh --source-only
@@ -22,7 +23,7 @@ flutter build ios --release --no-codesign \
   --dart-define-from-file=config/app_config.production.release.json
 cmc_ios_reference_output="$(
   bash scripts/create-ios-reference-attestation.sh \
-    --app build/ios/iphoneos/Runner.app
+    --app "${cmc_repo_root}/build/ios/iphoneos/Runner.app"
 )"
 case "${cmc_ios_reference_output}" in
   IOS_REFERENCE_ATTESTATION=*) ;;
@@ -42,10 +43,10 @@ xcodebuild archive \
   COMPILER_INDEX_STORE_ENABLE=NO
 mkdir -p build/ios/validated
 cmc_ios_candidate_output="$(bash scripts/check-ios-release.sh \
-  --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
-  --archive build/ios/archive/Runner.xcarchive \
-  --sealed-app-output build/ios/validated/Runner.app.zip \
-  --reference-app build/ios/iphoneos/Runner.app \
+  --app "${cmc_repo_root}/build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app" \
+  --archive "${cmc_repo_root}/build/ios/archive/Runner.xcarchive" \
+  --sealed-app-output "${cmc_repo_root}/build/ios/validated/Runner.app.zip" \
+  --reference-app "${cmc_repo_root}/build/ios/iphoneos/Runner.app" \
   --reference-attestation "${cmc_ios_reference_attestation}")"
 printf '%s\n' "${cmc_ios_candidate_output}"
 cmc_ios_candidate_sha="$(sed -nE \
@@ -53,9 +54,9 @@ cmc_ios_candidate_sha="$(sed -nE \
   <<<"${cmc_ios_candidate_output}")"
 [[ "${cmc_ios_candidate_sha}" =~ ^[0-9a-f]{64}$ ]] || exit 1
 python3 scripts/attest-ios-app-tree.py \
-  --extract build/ios/validated/Runner.app.zip \
+  --extract "${cmc_repo_root}/build/ios/validated/Runner.app.zip" \
   "${cmc_ios_candidate_sha}" \
-  build/ios/validated/UnsignedCandidate.app
+  "${cmc_repo_root}/build/ios/validated/UnsignedCandidate.app"
 ```
 
 Il candidate unsigned dimostra build, archive, bundle/version, architettura, privacy,
@@ -102,6 +103,7 @@ essere canonico, un file regolare non-symlink di massimo 64 KiB. Calcolare il di
 semantico senza stampare i valori e passarlo insieme allo stesso file:
 
 ```bash
+cmc_repo_root="$(pwd -P)"
 export IOS_RELEASE_RUNTIME_CONFIG_PATH=/path/esterno/production.json
 IOS_RELEASE_CONFIG_SHA256="$(dart run tool/check_ios_runtime_config.dart \
   --config "${IOS_RELEASE_RUNTIME_CONFIG_PATH}")"
@@ -110,7 +112,7 @@ flutter build ios --release \
   --dart-define="RELEASE_CONFIG_SHA256=${IOS_RELEASE_CONFIG_SHA256}"
 cmc_ios_reference_output="$(
   bash scripts/create-ios-reference-attestation.sh \
-    --app build/ios/iphoneos/Runner.app
+    --app "${cmc_repo_root}/build/ios/iphoneos/Runner.app"
 )"
 case "${cmc_ios_reference_output}" in
   IOS_REFERENCE_ATTESTATION=*) ;;
@@ -133,12 +135,17 @@ Dopo un archive firmato nella stessa sessione, senza ricalcolare l'attestazione
 successivamente all'archive, eseguire prima:
 
 ```bash
-mkdir -p build/ios/validated
+cmc_repo_root="$(pwd -P)"
+mkdir -p "${cmc_repo_root}/build/ios/validated"
+cmc_ios_export_root="$(mktemp -d \
+  "${cmc_repo_root}/build/ios/validated/export.XXXXXX")"
+ditto "${cmc_repo_root}/build/ios/archive/Runner.xcarchive" \
+  "${cmc_ios_export_root}/Runner.xcarchive"
 cmc_ios_upload_validation="$(bash scripts/check-ios-release.sh \
-  --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app \
-  --archive build/ios/archive/Runner.xcarchive \
-  --sealed-app-output build/ios/validated/Runner.app-upload.zip \
-  --reference-app build/ios/iphoneos/Runner.app \
+  --app "${cmc_ios_export_root}/Runner.xcarchive/Products/Applications/Runner.app" \
+  --archive "${cmc_ios_export_root}/Runner.xcarchive" \
+  --sealed-app-output "${cmc_ios_export_root}/Runner.app-upload.zip" \
+  --reference-app "${cmc_repo_root}/build/ios/iphoneos/Runner.app" \
   --reference-attestation "${cmc_ios_reference_attestation}" \
   --require-upload-ready)"
 printf '%s\n' "${cmc_ios_upload_validation}"
@@ -148,13 +155,10 @@ cmc_ios_upload_sha="$(sed -nE \
   's/^IOS_RELEASE_SEALED_APP_SHA256=([0-9a-f]{64})$/\1/p' \
   <<<"${cmc_ios_upload_validation}")"
 [[ "${cmc_ios_upload_sha}" =~ ^[0-9a-f]{64}$ ]] || exit 1
-cmc_ios_export_root="$(mktemp -d build/ios/validated/export.XXXXXX)"
-ditto build/ios/archive/Runner.xcarchive \
-  "${cmc_ios_export_root}/Runner.xcarchive"
 mv "${cmc_ios_export_root}/Runner.xcarchive/Products/Applications/Runner.app" \
   "${cmc_ios_export_root}/ValidatedSource.app"
 python3 scripts/attest-ios-app-tree.py \
-  --extract build/ios/validated/Runner.app-upload.zip \
+  --extract "${cmc_ios_export_root}/Runner.app-upload.zip" \
   "${cmc_ios_upload_sha}" \
   "${cmc_ios_export_root}/Runner.xcarchive/Products/Applications/Runner.app"
 codesign --verify --deep --strict \
@@ -170,10 +174,11 @@ Il path `--app` deve essere esattamente l'app interna all'archive. Il profilo em
 profili altrove restano vietati.
 
 Solo l'output `IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED`, emesso dopo sealing ed
-estrazione verificata, consente di procedere. Il comando sopra ricostruisce l'archive
-di export sostituendo l'app originale con l'esatta app estratta dal payload e dallo
-SHA-256 attestati; `xcodebuild -exportArchive` non usa quindi il tree sorgente
-mutabile. `ExportOptions.plist` resta esterno al repository e owner-approved.
+estrazione verificata, consente di procedere. Il comando sopra copia prima l'archive
+nel root assoluto di export, valida quella stessa copia, quindi ne sostituisce l'app
+con l'esatta app estratta dal payload e dallo SHA-256 attestati;
+`xcodebuild -exportArchive` non usa quindi archive o tree sorgenti mutabili.
+`ExportOptions.plist` resta esterno al repository e owner-approved.
 Validare nuovamente IPA e checksum prima di un upload tramite Xcode o transport Apple
 autenticato con la API key. Non usare `--upload` né promuovere il build senza un nuovo
 gate owner esplicito sul candidate firmato.

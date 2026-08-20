@@ -7,9 +7,11 @@ import hashlib
 import os
 import posixpath
 import re
+import select
 import stat
 import struct
 import sys
+import tempfile
 import zipfile
 from typing import Optional
 
@@ -21,6 +23,9 @@ MAX_TOTAL_BYTES = 536_870_912
 MAX_SEAL_BYTES = 603_979_776
 MAX_CENTRAL_DIRECTORY_BYTES = 16_777_216
 MAX_PATH_BYTES = 4_096
+MAX_CLEANUP_DEPTH = 256
+MAX_CLEANUP_PASSES = 16
+MAX_CLEANUP_OPERATIONS = 65_536
 CHUNK_BYTES = 65_536
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
@@ -114,26 +119,46 @@ def _write_all(descriptor: int, payload: bytes) -> None:
         offset += written
 
 
-def _clear_directory(directory: int, depth: int = 0) -> None:
-    if depth > MAX_DEPTH + 1:
-        raise ValueError("cleanup depth exceeded")
-    with os.scandir(directory) as iterator:
-        names = [entry.name for entry in iterator]
-    for name in names:
-        metadata = os.stat(name, dir_fd=directory, follow_symlinks=False)
-        if stat.S_ISDIR(metadata.st_mode):
-            child = os.open(
-                name,
-                os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
-                dir_fd=directory,
-            )
+def _clear_directory(
+    directory: int,
+    depth: int = 0,
+    operations: Optional[list[int]] = None,
+) -> None:
+    if depth > MAX_CLEANUP_DEPTH:
+        raise OSError("cleanup depth exceeded")
+    if operations is None:
+        operations = [0]
+    for _ in range(MAX_CLEANUP_PASSES):
+        with os.scandir(directory) as iterator:
+            names = [entry.name for entry in iterator]
+        if not names:
+            return
+        for name in names:
+            operations[0] += 1
+            if operations[0] > MAX_CLEANUP_OPERATIONS:
+                raise OSError("cleanup operation limit exceeded")
             try:
-                _clear_directory(child, depth + 1)
-            finally:
-                os.close(child)
-            os.rmdir(name, dir_fd=directory)
-        else:
-            os.unlink(name, dir_fd=directory)
+                metadata = os.stat(
+                    name,
+                    dir_fd=directory,
+                    follow_symlinks=False,
+                )
+                if stat.S_ISDIR(metadata.st_mode):
+                    child = os.open(
+                        name,
+                        os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                        dir_fd=directory,
+                    )
+                    try:
+                        _clear_directory(child, depth + 1, operations)
+                    finally:
+                        os.close(child)
+                    os.rmdir(name, dir_fd=directory)
+                else:
+                    os.unlink(name, dir_fd=directory)
+            except FileNotFoundError:
+                continue
+    raise OSError("cleanup did not converge")
 
 
 def _cleanup_created_directory(
@@ -143,6 +168,7 @@ def _cleanup_created_directory(
 ) -> None:
     if identity is None:
         return
+    quarantine = f".cmc-cleanup-{os.getpid()}-{identity[1]:x}"
     try:
         current = os.stat(name, dir_fd=parent, follow_symlinks=False)
         if (
@@ -150,8 +176,14 @@ def _cleanup_created_directory(
             or (current.st_dev, current.st_ino) != identity
         ):
             return
-        directory = os.open(
+        os.rename(
             name,
+            quarantine,
+            src_dir_fd=parent,
+            dst_dir_fd=parent,
+        )
+        directory = os.open(
+            quarantine,
             os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
             dir_fd=parent,
         )
@@ -159,7 +191,7 @@ def _cleanup_created_directory(
             _clear_directory(directory)
         finally:
             os.close(directory)
-        os.rmdir(name, dir_fd=parent)
+        os.rmdir(quarantine, dir_fd=parent)
     except OSError:
         pass
 
@@ -491,6 +523,51 @@ def _hash_descriptor(descriptor: int, maximum: int) -> str:
     return digest.hexdigest()
 
 
+def _verified_payload_snapshot(
+    descriptor: int,
+    expected_sha256: str,
+):
+    before = os.fstat(descriptor)
+    if (
+        not stat.S_ISREG(before.st_mode)
+        or before.st_size < 0
+        or before.st_size > MAX_SEAL_BYTES
+    ):
+        raise ValueError("invalid sealed payload")
+    snapshot = tempfile.TemporaryFile(mode="w+b")
+    try:
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        digest = hashlib.sha256()
+        length = 0
+        while True:
+            chunk = os.read(descriptor, CHUNK_BYTES)
+            if not chunk:
+                break
+            length += len(chunk)
+            if length > MAX_SEAL_BYTES:
+                raise ValueError("sealed payload exceeds limit")
+            digest.update(chunk)
+            snapshot.write(chunk)
+        after = os.fstat(descriptor)
+        if (
+            length != before.st_size
+            or before.st_dev != after.st_dev
+            or before.st_ino != after.st_ino
+            or before.st_mode != after.st_mode
+            or before.st_size != after.st_size
+            or _stable_times(before) != _stable_times(after)
+            or digest.hexdigest() != expected_sha256
+        ):
+            raise ValueError("sealed payload changed during snapshot")
+        snapshot.flush()
+        os.fsync(snapshot.fileno())
+        snapshot.seek(0)
+        return snapshot
+    except BaseException:
+        snapshot.close()
+        raise
+
+
 def seal(
     source: str,
     output_path: str,
@@ -634,7 +711,7 @@ def _safe_zip_relative(name: str) -> tuple[str, bool]:
     return relative, is_directory
 
 
-def _preflight_zip_descriptor(payload: int) -> None:
+def _preflight_zip_descriptor(payload: int) -> int:
     metadata = os.fstat(payload)
     if not stat.S_ISREG(metadata.st_mode) or metadata.st_size < 22:
         raise ValueError("invalid sealed payload")
@@ -670,6 +747,27 @@ def _preflight_zip_descriptor(payload: int) -> None:
         or absolute_eocd + 22 + comment_length != metadata.st_size
     ):
         raise ValueError("sealed central directory invalid")
+    central = os.pread(payload, central_size, central_offset)
+    if len(central) != central_size:
+        raise ValueError("sealed central directory unreadable")
+    cursor = 0
+    actual_entries = 0
+    while cursor < len(central):
+        if cursor + 46 > len(central):
+            raise ValueError("sealed central directory truncated")
+        fields = struct.unpack_from("<4s6H3L5H2L", central, cursor)
+        if fields[0] != b"PK\x01\x02" or fields[13] != 0:
+            raise ValueError("sealed central directory entry invalid")
+        record_length = 46 + fields[10] + fields[11] + fields[12]
+        if record_length < 46 or cursor + record_length > len(central):
+            raise ValueError("sealed central directory entry truncated")
+        actual_entries += 1
+        if actual_entries > MAX_ENTRIES + 1:
+            raise ValueError("too many sealed entries")
+        cursor += record_length
+    if cursor != len(central) or actual_entries != total_entries:
+        raise ValueError("sealed central directory count mismatch")
+    return actual_entries
 
 
 def _extract_descriptor(
@@ -677,14 +775,14 @@ def _extract_descriptor(
     expected_sha256: str,
     destination: str,
 ) -> str:
-    if _hash_descriptor(payload, MAX_SEAL_BYTES) != expected_sha256:
-        raise ValueError("sealed payload digest mismatch")
-    _preflight_zip_descriptor(payload)
+    payload_snapshot = _verified_payload_snapshot(payload, expected_sha256)
     parent: Optional[int] = None
     target: Optional[int] = None
     target_identity: Optional[tuple[int, int]] = None
     completed = False
     try:
+        payload_descriptor = payload_snapshot.fileno()
+        expected_entries = _preflight_zip_descriptor(payload_descriptor)
         parent, name = _open_parent(destination)
         os.mkdir(name, 0o700, dir_fd=parent)
         target = os.open(
@@ -694,10 +792,11 @@ def _extract_descriptor(
         )
         target_metadata = os.fstat(target)
         target_identity = (target_metadata.st_dev, target_metadata.st_ino)
-        with os.fdopen(os.dup(payload), "rb") as stream:
-            os.lseek(stream.fileno(), 0, os.SEEK_SET)
-            with zipfile.ZipFile(stream, mode="r") as archive:
+        payload_snapshot.seek(0)
+        with zipfile.ZipFile(payload_snapshot, mode="r") as archive:
                 infos = archive.infolist()
+                if len(infos) != expected_entries:
+                    raise ValueError("sealed entry count changed")
                 if len(infos) > MAX_ENTRIES + 1:
                     raise ValueError("too many sealed entries")
                 seen: set[str] = set()
@@ -780,8 +879,6 @@ def _extract_descriptor(
                         os.close(descriptor)
                 os.fchmod(target, root_mode)
                 os.fsync(target)
-        if _hash_descriptor(payload, MAX_SEAL_BYTES) != expected_sha256:
-            raise ValueError("sealed payload changed during extraction")
         digest, _ = _collect_descriptor(target)
         os.fsync(parent)
         completed = True
@@ -793,6 +890,7 @@ def _extract_descriptor(
             _cleanup_created_directory(parent, name, target_identity)
         if parent is not None:
             os.close(parent)
+        payload_snapshot.close()
 
 
 def extract(payload_path: str, expected_sha256: str, destination: str) -> str:
@@ -803,6 +901,159 @@ def extract(payload_path: str, expected_sha256: str, destination: str) -> str:
         return _extract_descriptor(payload, expected_sha256, destination)
     finally:
         os.close(payload)
+
+
+def _open_guard_descriptors(root: int, parent: int) -> list[int]:
+    del parent
+    descriptors = [os.dup(root)]
+    budget = [0]
+
+    def visit(directory: int, depth: int) -> None:
+        if depth > MAX_DEPTH:
+            raise ValueError("guard tree exceeds depth limit")
+        with os.scandir(directory) as iterator:
+            names = sorted(
+                (entry.name for entry in iterator),
+                key=lambda value: value.encode("utf-8"),
+            )
+        for name in names:
+            budget[0] += 1
+            if budget[0] > MAX_ENTRIES:
+                raise ValueError("guard tree exceeds entry limit")
+            metadata = os.stat(name, dir_fd=directory, follow_symlinks=False)
+            if stat.S_ISDIR(metadata.st_mode):
+                child = os.open(
+                    name,
+                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    dir_fd=directory,
+                )
+                actual = os.fstat(child)
+                if (
+                    actual.st_dev != metadata.st_dev
+                    or actual.st_ino != metadata.st_ino
+                    or actual.st_mode != metadata.st_mode
+                ):
+                    os.close(child)
+                    raise ValueError("guard directory changed before open")
+                descriptors.append(child)
+                visit(child, depth + 1)
+            elif stat.S_ISREG(metadata.st_mode):
+                child = os.open(
+                    name,
+                    os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                    dir_fd=directory,
+                )
+                actual = os.fstat(child)
+                if (
+                    actual.st_dev != metadata.st_dev
+                    or actual.st_ino != metadata.st_ino
+                    or actual.st_mode != metadata.st_mode
+                ):
+                    os.close(child)
+                    raise ValueError("guard file changed before open")
+                descriptors.append(child)
+            else:
+                raise ValueError("guard tree contains non-regular entry")
+
+    try:
+        visit(root, 0)
+        return descriptors
+    except BaseException:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+        raise
+
+
+def guard(path: str, expected_sha256: str) -> None:
+    if not SHA256_PATTERN.fullmatch(expected_sha256):
+        raise ValueError("invalid expected tree digest")
+    if not hasattr(select, "kqueue"):
+        raise RuntimeError("filesystem guard unavailable")
+    parent: Optional[int] = None
+    root: Optional[int] = None
+    descriptors: list[int] = []
+    queue = None
+    try:
+        parent, name = _open_parent(path)
+        root = os.open(
+            name,
+            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+            dir_fd=parent,
+        )
+        root_metadata = os.fstat(root)
+        descriptors = _open_guard_descriptors(root, parent)
+        queue = select.kqueue()
+        vnode_flags = (
+            select.KQ_NOTE_WRITE
+            | select.KQ_NOTE_DELETE
+            | select.KQ_NOTE_EXTEND
+            | select.KQ_NOTE_LINK
+            | select.KQ_NOTE_RENAME
+            | select.KQ_NOTE_REVOKE
+        )
+        registrations = [
+            select.kevent(
+                descriptor,
+                filter=select.KQ_FILTER_VNODE,
+                flags=select.KQ_EV_ADD | select.KQ_EV_CLEAR,
+                fflags=vnode_flags,
+            )
+            for descriptor in descriptors
+        ]
+        registrations.append(
+            select.kevent(
+                sys.stdin.fileno(),
+                filter=select.KQ_FILTER_READ,
+                flags=select.KQ_EV_ADD | select.KQ_EV_CLEAR,
+            )
+        )
+        queue.control(registrations, 0, 0)
+        initial_digest, _ = _collect_descriptor(root)
+        current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+        if (
+            initial_digest != expected_sha256
+            or not stat.S_ISDIR(current.st_mode)
+            or current.st_dev != root_metadata.st_dev
+            or current.st_ino != root_metadata.st_ino
+        ):
+            raise ValueError("guard initial identity mismatch")
+        print("IOS_ARTIFACT_GUARD_READY", flush=True)
+        changed = False
+        stop = False
+        while not stop:
+            for event in queue.control(None, 64, None):
+                if (
+                    event.filter == select.KQ_FILTER_READ
+                    and event.ident == sys.stdin.fileno()
+                ):
+                    if sys.stdin.buffer.readline(16) != b"STOP\n":
+                        raise ValueError("guard command invalid")
+                    stop = True
+                else:
+                    changed = True
+        for event in queue.control(None, 64, 0.05):
+            if event.filter != select.KQ_FILTER_READ:
+                changed = True
+        final_digest, _ = _collect_descriptor(root)
+        current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+        if (
+            changed
+            or final_digest != expected_sha256
+            or not stat.S_ISDIR(current.st_mode)
+            or current.st_dev != root_metadata.st_dev
+            or current.st_ino != root_metadata.st_ino
+        ):
+            raise ValueError("guard detected artifact change")
+        print("IOS_ARTIFACT_GUARD_OK", flush=True)
+    finally:
+        if queue is not None:
+            queue.close()
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+        if root is not None:
+            os.close(root)
+        if parent is not None:
+            os.close(parent)
 
 
 def main(arguments: list[str]) -> int:
@@ -823,6 +1074,8 @@ def main(arguments: list[str]) -> int:
             print(publish_seal(arguments[1], arguments[2], arguments[3]))
         elif len(arguments) == 4 and arguments[0] == "--extract":
             print(extract(arguments[1], arguments[2], arguments[3]))
+        elif len(arguments) == 3 and arguments[0] == "--guard":
+            guard(arguments[1], arguments[2])
         else:
             return 1
     except (

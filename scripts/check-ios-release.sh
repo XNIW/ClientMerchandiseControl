@@ -395,7 +395,18 @@ cmc_ios_release_tmp_parent="$(
 cmc_ios_release_tmp_root="$(
   mktemp -d "${cmc_ios_release_tmp_parent}/cmc-ios-release.XXXXXX"
 )"
+cmc_ios_release_guard_pid=''
+cmc_ios_release_guard_active=false
 cmc_ios_release_cleanup() {
+  if [[ "${cmc_ios_release_guard_active}" == true ]]; then
+    exec 8>&- 9<&- || true
+    cmc_ios_release_guard_active=false
+  fi
+  if [[ -n "${cmc_ios_release_guard_pid}" ]]; then
+    kill "${cmc_ios_release_guard_pid}" 2>/dev/null || true
+    wait "${cmc_ios_release_guard_pid}" 2>/dev/null || true
+    cmc_ios_release_guard_pid=''
+  fi
   case "${cmc_ios_release_tmp_root}" in
     "${cmc_ios_release_tmp_parent}"/cmc-ios-release.*)
       rm -rf -- "${cmc_ios_release_tmp_root}"
@@ -406,6 +417,42 @@ cmc_ios_release_cleanup() {
   esac
 }
 trap cmc_ios_release_cleanup EXIT
+
+cmc_ios_release_start_guard() {
+  local cmc_ios_release_guard_ready=''
+  local cmc_ios_release_guard_input="${cmc_ios_release_tmp_root}/guard.input"
+  local cmc_ios_release_guard_output="${cmc_ios_release_tmp_root}/guard.output"
+  mkfifo "${cmc_ios_release_guard_input}" "${cmc_ios_release_guard_output}" || \
+    cmc_ios_release_fail 'ARTIFACT_SNAPSHOT_UNREADABLE'
+  exec 8<>"${cmc_ios_release_guard_input}"
+  python3 "${cmc_ios_release_tree_attestor}" \
+    --guard "${cmc_ios_release_snapshot}" \
+    "${cmc_ios_release_initial_tree_digest}" \
+    <"${cmc_ios_release_guard_input}" >"${cmc_ios_release_guard_output}" &
+  cmc_ios_release_guard_pid="$!"
+  exec 9<"${cmc_ios_release_guard_output}"
+  cmc_ios_release_guard_active=true
+  if ! IFS= read -r cmc_ios_release_guard_ready <&9 || \
+    [[ "${cmc_ios_release_guard_ready}" != 'IOS_ARTIFACT_GUARD_READY' ]]; then
+    cmc_ios_release_fail 'ARTIFACT_SNAPSHOT_UNREADABLE'
+  fi
+}
+
+cmc_ios_release_stop_guard() {
+  local cmc_ios_release_guard_result=''
+  printf 'STOP\n' >&8 || \
+    cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
+  exec 8>&-
+  if ! IFS= read -r cmc_ios_release_guard_result <&9 || \
+    [[ "${cmc_ios_release_guard_result}" != 'IOS_ARTIFACT_GUARD_OK' ]]; then
+    cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
+  fi
+  exec 9<&-
+  cmc_ios_release_guard_active=false
+  wait "${cmc_ios_release_guard_pid}" || \
+    cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
+  cmc_ios_release_guard_pid=''
+}
 
 cmc_ios_release_snapshot="${cmc_ios_release_tmp_root}/Runner.app"
 cmc_ios_release_internal_seal="${cmc_ios_release_tmp_root}/Runner.app.zip"
@@ -422,6 +469,7 @@ cmc_ios_release_initial_tree_digest="${cmc_ios_release_initial_seal_result%%,*}"
 cmc_ios_release_sealed_app_sha="${cmc_ios_release_initial_seal_result##*,}"
 cmc_ios_release_app="${cmc_ios_release_snapshot}"
 cmc_ios_release_app_canonical="${cmc_ios_release_snapshot}"
+cmc_ios_release_start_guard
 
 cmc_ios_release_app_info="${cmc_ios_release_app}/Info.plist"
 cmc_ios_release_app_privacy="${cmc_ios_release_app}/PrivacyInfo.xcprivacy"
@@ -1169,15 +1217,8 @@ if [[ "${cmc_ios_release_require_upload}" == true ]]; then
   cmc_ios_release_upload_inputs_validated=true
 fi
 
-cmc_ios_release_final_tree_digest="$(
-  python3 "${cmc_ios_release_tree_attestor}" \
-    "${cmc_ios_release_app_canonical}"
-)" || cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
-[[ "${cmc_ios_release_final_tree_digest}" =~ ^[0-9a-f]{64}$ ]] || \
-  cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
-[[ "${cmc_ios_release_final_tree_digest}" == \
-  "${cmc_ios_release_initial_tree_digest}" ]] || \
-  cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
+cmc_ios_release_stop_guard
+cmc_ios_release_final_tree_digest="${cmc_ios_release_initial_tree_digest}"
 cmc_ios_release_published_seal_sha="$(
   python3 "${cmc_ios_release_tree_attestor}" \
     --publish-seal "${cmc_ios_release_internal_seal}" \

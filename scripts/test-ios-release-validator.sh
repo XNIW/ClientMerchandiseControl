@@ -918,6 +918,56 @@ fi
 }
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 
+cmc_ios_test_snapshot_aba_archive="${cmc_ios_test_tmp_root}/snapshot-aba.xcarchive"
+cp -R "${cmc_ios_test_fixture_archive}" "${cmc_ios_test_snapshot_aba_archive}"
+cmc_ios_test_snapshot_aba_app="${cmc_ios_test_snapshot_aba_archive}/Products/Applications/Runner.app"
+printf 'unsafe-retained\n' \
+  >"${cmc_ios_test_snapshot_aba_app}/snapshot-aba-payload.txt"
+cmc_ios_test_snapshot_aba_hook="${cmc_ios_test_tmp_root}/snapshot-aba-hook"
+mkdir -p "${cmc_ios_test_snapshot_aba_hook}"
+cat >"${cmc_ios_test_snapshot_aba_hook}/python3" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ "$#" -eq 5 && \
+  "$1" == "${CMC_IOS_TEST_TREE_ATTESTOR}" && \
+  "$2" == '--seal-snapshot' ]]; then
+  cmc_ios_test_hook_output="$("${CMC_IOS_TEST_REAL_PYTHON3}" "$@")"
+  mv "$5" "${CMC_IOS_TEST_SNAPSHOT_UNSAFE}"
+  cp -R "${CMC_IOS_TEST_SNAPSHOT_SAFE}" "$5"
+  printf '%s\n' "${cmc_ios_test_hook_output}"
+  exit 0
+fi
+exec "${CMC_IOS_TEST_REAL_PYTHON3}" "$@"
+SH
+chmod u+x "${cmc_ios_test_snapshot_aba_hook}/python3"
+cmc_ios_test_snapshot_aba_seal="${cmc_ios_test_seal_root}/snapshot-aba.zip"
+cmc_ios_test_snapshot_aba_log="${cmc_ios_test_tmp_root}/snapshot-aba.log"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+if env \
+  PATH="${cmc_ios_test_snapshot_aba_hook}:${PATH}" \
+  CMC_IOS_TEST_TREE_ATTESTOR="${cmc_ios_test_tree_attestor}" \
+  CMC_IOS_TEST_REAL_PYTHON3="${cmc_ios_test_real_python3}" \
+  CMC_IOS_TEST_SNAPSHOT_SAFE="${cmc_ios_test_fixture_app}" \
+  CMC_IOS_TEST_SNAPSHOT_UNSAFE="${cmc_ios_test_tmp_root}/unsafe-held.app" \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_snapshot_aba_app}" \
+  --archive "${cmc_ios_test_snapshot_aba_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --sealed-app-output "${cmc_ios_test_snapshot_aba_seal}" \
+  >"${cmc_ios_test_snapshot_aba_log}" 2>&1; then
+  printf 'Fixture iOS: snapshot ABA accettata dal validator.\n' >&2
+  exit 1
+fi
+[[ "$(grep -Ec '^IOS_RELEASE_BLOCKED: ARTIFACT_SNAPSHOT_UNREADABLE$' \
+    "${cmc_ios_test_snapshot_aba_log}")" -eq 1 && \
+  "$(grep -Ec '^IOS_(RELEASE_CANDIDATE_VALID|TESTFLIGHT_UPLOAD_INPUTS_VALIDATED)$' \
+    "${cmc_ios_test_snapshot_aba_log}")" -eq 0 ]] || {
+  printf 'Fixture iOS: snapshot ABA non respinta esattamente.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
 cmc_ios_test_ancestor_root="${cmc_ios_test_tmp_root}/ancestor-race"
 cmc_ios_test_ancestor_bad="${cmc_ios_test_ancestor_root}/bad"
 mkdir -p "${cmc_ios_test_ancestor_root}" "${cmc_ios_test_ancestor_bad}"
@@ -1035,6 +1085,47 @@ cmc_ios_test_total=$((cmc_ios_test_total + 1))
 }
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_tmp_root}/guard-aba" <<'PY' || {
+import os
+import shutil
+import subprocess
+import sys
+
+script, root = sys.argv[1:]
+source = f"{root}/Runner.app"
+benign = f"{root}/Benign.app"
+held = f"{root}/Held.app"
+decoy = f"{root}/Decoy.app"
+os.makedirs(source)
+with open(f"{source}/value", "wb") as target:
+    target.write(b"original")
+shutil.copytree(source, benign)
+expected = subprocess.check_output([sys.executable, script, source], text=True).strip()
+process = subprocess.Popen(
+    [sys.executable, script, "--guard", source, expected],
+    stdin=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+)
+assert process.stdout is not None
+if process.stdout.readline() != b"IOS_ARTIFACT_GUARD_READY\n":
+    raise SystemExit(1)
+os.rename(source, held)
+os.rename(benign, source)
+os.rename(source, decoy)
+os.rename(held, source)
+stdout, stderr = process.communicate(b"STOP\n", timeout=5)
+if process.returncode == 0 or stdout or stderr:
+    raise SystemExit(1)
+PY
+  printf 'Fixture iOS: guard snapshot non ha respinto ABA completo.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
 cmc_ios_test_deep_root="${cmc_ios_test_tmp_root}/deep-tree"
 mkdir -p "${cmc_ios_test_deep_root}"
 cmc_ios_test_deep_cursor="${cmc_ios_test_deep_root}"
@@ -1082,6 +1173,81 @@ if "${cmc_ios_test_real_python3}" "${cmc_ios_test_tree_attestor}" \
   printf 'Fixture iOS: payload sealed alterato non respinto.\n' >&2
   exit 1
 fi
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_tmp_root}/extract-aba" <<'PY' || {
+import hashlib
+import importlib.util
+import os
+import sys
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
+source = f"{root}/source"
+alternate = f"{root}/alternate"
+payload = f"{root}/payload.zip"
+alternate_payload = f"{root}/alternate.zip"
+destination = f"{root}/Runner.app"
+os.makedirs(source)
+os.makedirs(alternate)
+with open(f"{source}/large", "wb") as target:
+    target.write(b"A" * 262144)
+with open(f"{alternate}/large", "wb") as target:
+    target.write(b"B" * 262144)
+_, expected = module.seal(source, payload)
+module.seal(alternate, alternate_payload)
+os.chmod(payload, 0o644)
+with open(payload, "rb") as target:
+    original = target.read()
+with open(alternate_payload, "rb") as target:
+    replacement = target.read()
+if len(original) != len(replacement) or len(original) < 196608:
+    raise SystemExit(1)
+identity = os.stat(payload)
+real_read = module.os.read
+reads = 0
+
+def racing_read(descriptor, length):
+    global reads
+    chunk = real_read(descriptor, length)
+    current = os.fstat(descriptor)
+    if current.st_dev == identity.st_dev and current.st_ino == identity.st_ino and chunk:
+        reads += 1
+        if reads == 1:
+            with open(payload, "r+b") as target:
+                target.write(replacement)
+                target.flush()
+                os.fsync(target.fileno())
+        elif reads == 2:
+            with open(payload, "r+b") as target:
+                target.write(original)
+                target.flush()
+                os.fsync(target.fileno())
+    return chunk
+
+module.os.read = racing_read
+failed = False
+try:
+    module.extract(payload, expected, destination)
+except (OSError, ValueError):
+    failed = True
+finally:
+    module.os.read = real_read
+with open(payload, "rb") as target:
+    current_digest = hashlib.sha256(target.read()).hexdigest()
+if not failed or reads < 2 or current_digest != expected or os.path.lexists(destination):
+    raise SystemExit(1)
+PY
+  printf 'Fixture iOS: extract ABA non respinto o output parziale.\n' >&2
+  exit 1
+}
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 
 cmc_ios_test_malicious_seal_root="${cmc_ios_test_tmp_root}/malicious-seals"
@@ -1153,9 +1319,21 @@ with zipfile.ZipFile(f"{root}/too-many.zip", "w", zipfile.ZIP_STORED) as archive
     archive.writestr(directory_info(), b"")
     for index in range(4097):
         archive.writestr(f"Runner.app/e{index:04d}", b"")
+
+forged_path = f"{root}/too-many-forged-count.zip"
+with open(f"{root}/too-many.zip", "rb") as source:
+    forged = bytearray(source.read())
+eocd = forged.rfind(b"PK\x05\x06")
+if eocd < 0:
+    raise SystemExit(1)
+struct.pack_into("<H", forged, eocd + 8, 1)
+struct.pack_into("<H", forged, eocd + 10, 1)
+with open(forged_path, "wb") as target:
+    target.write(forged)
 PY
 for cmc_ios_test_malicious_name in \
-  traversal symlink compressed duplicate encrypted too-many; do
+  traversal symlink compressed duplicate encrypted too-many \
+  too-many-forged-count; do
   cmc_ios_test_malicious_payload="${cmc_ios_test_malicious_seal_root}/${cmc_ios_test_malicious_name}.zip"
   cmc_ios_test_malicious_sha="$(
     shasum -a 256 "${cmc_ios_test_malicious_payload}" | awk '{print $1}'
@@ -1240,6 +1418,45 @@ if os.path.lexists(destination):
     raise SystemExit(1)
 PY
   printf 'Fixture iOS: extract race ha seguito symlink o lasciato output.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_malicious_seal_root}" <<'PY' || {
+import importlib.util
+import os
+import sys
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
+name = "cleanup-depth.app"
+destination = f"{root}/{name}"
+os.mkdir(destination)
+cursor = destination
+for _ in range(70):
+    cursor = f"{cursor}/d"
+    os.mkdir(cursor)
+parent = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+try:
+    metadata = os.stat(name, dir_fd=parent, follow_symlinks=False)
+    module._cleanup_created_directory(
+        parent,
+        name,
+        (metadata.st_dev, metadata.st_ino),
+    )
+finally:
+    os.close(parent)
+if os.path.lexists(destination):
+    raise SystemExit(1)
+PY
+  printf 'Fixture iOS: cleanup profondo non converge.\n' >&2
   exit 1
 }
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))

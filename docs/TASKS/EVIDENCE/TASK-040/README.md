@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 46 policy outcome/ruolo verde; isolamento richiede boundary esterno | BLOCKED |
+| CA-10 | D-05 cooperative same-UID writers registrata; final re-review targeted da eseguire | NOT_RUN |
 
 ## Matrice T -> risultato
 
@@ -1221,6 +1221,19 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
   disponibile su Python 3.9, nessun report sealed inventato;
 - blocker esterno invariato: UID distinto, sandbox/ACL enforceable, runner/VM
   effimera con teardown trusted o decisione USER_APPROVER sul threat model.
+
+## Targeted unblock USER_APPROVER — 2026-08-20
+
+- decisione canonica D-05: il workflow locale assume writer same-UID
+  cooperativi che rispettano lock, ruoli e handoff;
+- restano in scope accidental concurrency, stale worktree, branch confusion,
+  mutation non committate, role violation e processi residui del workflow;
+- processi same-UID deliberatamente non cooperativi, malware, root, kernel
+  compromise e injection intenzionale sono fuori scope del solo boundary locale;
+- RLS, auth, payment, client/Storefront security, runtime production e data
+  protection restano invariati;
+- `scripts/lib/governance_review_role_policy.sh` non richiede modifiche: la
+  matrice nota resta allowlisted e le combinazioni ignote falliscono chiuse.
 
 ## Re-review Fix 40
 

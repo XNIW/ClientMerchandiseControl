@@ -104,6 +104,13 @@ Connect credential e autorizzazione di upload risultano realmente presenti.
 | D-02 | nessun certificato/profile/App Store key viene generato o inventato | Gate esterno | ATTIVA |
 | D-03 | production-like incompleta fallisce chiusa, mai verso staging | Separazione ambienti | ATTIVA |
 | D-04 | mandato 2026-08-16 autorizza Planning→Execution | ADR-015 | ATTIVA |
+| D-05 | la governance locale assume writer same-UID cooperativi che rispettano lock, ruoli e handoff; processi deliberatamente non cooperativi nello stesso UID sono fuori scope | Decisione USER_APPROVER 2026-08-20, limitata al workflow locale di review | ATTIVA |
+
+D-05 non modifica RLS, auth, pagamenti, sicurezza client/Storefront, runtime
+production o protezione dati. Restano in scope collisioni accidentali, processi del
+workflow residui, stale worktree, branch confusion, mutation non committate e
+violazioni dei ruoli CODEX; malware, root, kernel compromise, debugger/injection e
+processi same-UID deliberatamente ostili restano fuori dal solo confine locale.
 
 ### Handoff a Execution
 

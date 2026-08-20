@@ -4149,3 +4149,18 @@
 - **Boundary**: runtime, firma, provisioning, TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 33 re-review
+
+- **Exact HEAD**: `d704b6529aea27298d7c75bbf74a1aaf1ac2b81c`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`; P0 0, P1 0, P2 2, P3 2.
+- **Finding**: race dopo l'attestor finale e divergenza path
+  originale/canonico consentono `IOS_RELEASE_CANDIDATE_VALID` su artifact
+  retained diverso; directory vuote/mode non sono digest-bound e profondita
+  1.100 produce traceback `RecursionError`.
+- **Evidence**: candidate 686/207 e iOS 53/53 restano verdi ma non provano
+  snapshot immutabile; security report sealed SHA-256
+  `a3d57e923e44d8a4bbc2b3cb425b79b686bc27e845b71021b4a88ddf895eb551`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production, signing e TestFlight
+  invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

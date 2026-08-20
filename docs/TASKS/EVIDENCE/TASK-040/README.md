@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 33 handoff; re-review indipendente e PR/main CI da eseguire | NOT_RUN |
+| CA-10 | re-review Fix 33 richiede Fix 34 per chiudere 2 P2 e 2 P3 | FAIL |
 
 ## Matrice T -> risultato
 
@@ -77,6 +77,26 @@ Snapshot di handoff:
   debug production-like install/launch PASS con provider fail-closed;
 - Xcode 26.6 (17F113), Flutter 3.44.8; warning SPM Google Maps upstream noto;
 - worktree pulito allo SHA artifact; production invariata.
+
+## Re-review Fix 33
+
+- exact HEAD: `d704b6529aea27298d7c75bbf74a1aaf1ac2b81c`;
+- prodotto `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 1 / P3 2;
+- security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 2 / P3 0;
+- swap post-final-attestor: validator exit 0, digest emesso
+  `ba2da55082d0a50b42d2cd88c555e552f4b7de05136df19ab4d41441cd9d8f3a`,
+  digest retained diverso dopo aggiunta del payload;
+- ancestor swap: scanner/controlli sul path originale e attestazione sul path
+  canonico hanno certificato tree distinti con `IOS_RELEASE_CANDIDATE_VALID`;
+- directory vuote e mode directory non modificano il digest; una profondita
+  di 1.100 directory fallisce con traceback `RecursionError`;
+- report security sealed SHA-256
+  `a3d57e923e44d8a4bbc2b3cb425b79b686bc27e845b71021b4a88ddf895eb551`;
+- gate nominali reviewer: candidate 686/207, iOS 53/53, governance 88/88,
+  Flutter/YAML 12/12, syntax/pycompile/action pin/diff `PASS`;
+- firma, provisioning, upload TestFlight e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 Fix 33 aggiunge un attestor exact-tree bounded su 4.096 entry, 128 MiB per
 file e 512 MiB aggregati. Ogni leaf usa `O_NOFOLLOW` e `O_NONBLOCK`; file e

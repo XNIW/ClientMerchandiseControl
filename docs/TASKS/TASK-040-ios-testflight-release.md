@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1299,6 +1299,26 @@ report prodotto sealed SHA-256
 - runtime, firma, provisioning, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 33
+
+- exact review SHA: `d704b6529aea27298d7c75bbf74a1aaf1ac2b81c`;
+- prodotto/security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 2 / P3 2;
+- `F-040-RR33-IOS-POSTFINAL-RACE-01`: uno swap dopo la seconda attestazione
+  conserva un artifact divergente mentre il validator emette ancora
+  `IOS_RELEASE_CANDIDATE_VALID`; il marker upload precede inoltre il gate
+  exact-tree finale;
+- `F-040-RR33-IOS-ANCESTOR-SWAP-01`: controlli sul path originale e digest
+  sul path canonico possono divergere quando un ancestor viene ruotato;
+- `F-040-RR33-IOS-TREE-METADATA-01` e
+  `F-040-RR33-IOS-TREE-DEPTH-01`: directory vuote/mode non entrano nel digest
+  e una profondita di 1.100 directory produce traceback `RecursionError`;
+- report security sealed SHA-256
+  `a3d57e923e44d8a4bbc2b3cb425b79b686bc27e845b71021b4a88ddf895eb551`;
+- candidate 686/207, fixture iOS 53/53, governance 88/88 e gate mirati
+  restano verdi, ma non provano un artifact trattenuto e digest-bound.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

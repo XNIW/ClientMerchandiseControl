@@ -191,8 +191,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -208,11 +208,11 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 33 attesta l'intero albero
-`Runner.app` prima e dopo la validazione, emette il digest exact-content finale
-e respinge lo swap post-helper con una regression sul path canonico reale.
-Candidate `686/207`, fixture iOS 53/53, governance 88/88 e gate mirati sono
-verdi; re-review e CI exact-SHA restano da eseguire. Activation invariata.
+TASK-040 è l'unico task `ACTIVE / FIX`: la re-review Fix 33 ha riprodotto due
+P2 TOCTOU sul path trattenuto/ancestor e due P3 su metadata/profondita del tree
+attestor. Candidate `686/207`, fixture iOS 53/53, governance 88/88 e gate
+mirati restano verdi, ma Fix 34 deve consegnare uno snapshot realmente
+digest-bound prima della nuova re-review. Activation invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

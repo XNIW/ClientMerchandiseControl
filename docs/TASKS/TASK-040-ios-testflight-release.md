@@ -5,14 +5,14 @@
 - **Task ID**: TASK-040
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1890,6 +1890,25 @@ report prodotto sealed SHA-256
 - codice iOS e suite lunga invariati; blocker same-UID separato.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 46
+
+- exact technical SHA: `b67a3a46ce333a4d455f94041ab8785020055499`;
+- la policy usa ora una allowlist fail-closed delle coppie fase/indicatore;
+- gli outcome reviewer `CODEX_REVIEW_BLOCKED` e
+  `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION` richiedono
+  Re-review/review/Exact HEAD;
+- gli handoff pre-review `CODEX_EXECUTION_COMPLETE_TO_REVIEW`,
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW` e `CODEX_FIX_BLOCKED_TO_RE_REVIEW`
+  richiedono Fix/technical/Technical SHA;
+- `FIX + CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` resta review-role e una
+  combinazione ignota non riceve alcun ruolo, quindi il checker la respinge;
+- governance 101/101, syntax, action pins e diff-check `PASS`; codice release,
+  candidate, artifact e suite iOS invariati;
+- il finding Fix 45 è corretto; il boundary same-UID resta un prerequisito
+  esterno non implementabile nel worker corrente.
+
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 ## Chiusura
 

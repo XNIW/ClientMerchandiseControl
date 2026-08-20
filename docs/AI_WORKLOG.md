@@ -4574,3 +4574,17 @@
   disponibile nelle lane separate e nessun report attribuito.
 - **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-19 — TASK-040 Fix 46 e handoff
+
+- **Technical SHA**: `b67a3a46ce333a4d455f94041ab8785020055499`.
+- **Fix**: allowlist fail-closed di outcome reviewer, handoff pre-review e
+  `FIX / CHANGES_REQUIRED`; combinazioni ignote non ricevono un ruolo.
+- **Regressioni**: approval, execution-complete, fix-complete, fix-blocked,
+  review-blocked, changes-required e unknown; governance 101/101 `PASS`.
+- **Gate**: syntax, governance state, action pins e diff-check `PASS`; codice
+  release, candidate 686/207 e iOS 86/86 invariati.
+- **Blocker**: distinct-UID supervisor, sandbox/ACL enforceable, runner/VM
+  effimera o emendamento USER_APPROVER sul threat model.
+- **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

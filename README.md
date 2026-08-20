@@ -190,9 +190,9 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
-- **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Stato task**: BLOCKED
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -208,11 +208,11 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / FIX`: Fix 45 chiude il verdict bloccato ma
-classifica ancora una futura `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`
-come handoff tecnico. Fix 46 introduce una allowlist fail-closed completa;
-codice iOS, candidate 686/207, fixture iOS 86/86 e boundary esterno restano
-invariati.
+TASK-040 è l'unico task `BLOCKED / REVIEW`: Fix 46 usa una allowlist
+fail-closed per outcome reviewer e handoff pre-review; governance 101/101 è
+verde. Codice iOS, candidate 686/207 e fixture iOS 86/86 restano invariati;
+la re-review deve confermare il fix, mentre il boundary di isolamento resta
+un prerequisito esterno.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

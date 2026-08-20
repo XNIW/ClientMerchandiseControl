@@ -4402,3 +4402,17 @@
   provisioning, physical iOS o activation production.
 - **Transizione**: `ACTIVE / FIX -> REVIEW`; production invariata.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 40 re-review
+
+- **Exact HEAD**: `37ac7524b300a8d0c0106bf02c327532d4d321e6`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 3 sia prodotto sia
+  security.
+- **Finding**: hardlink nell'ultimo gap di `ftruncate`, retained replacement
+  post-validazione e cap advisory race fra count e `mkdir`.
+- **Closure**: le schedule dirette Fix 39 e il parent speciale risultano
+  chiusi; iOS 84/84 e gate mirati restano verdi.
+- **Security report**: SHA-256
+  `48421238422626c0eae874ae97284e50335ca342b3896eeb20593f4b1c5d4ebd`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1669,6 +1669,28 @@ report prodotto sealed SHA-256
   physical iOS, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 40
+
+- exact review SHA: `37ac7524b300a8d0c0106bf02c327532d4d321e6`;
+- prodotto e security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 0 / P3 3;
+- `F-040-RR40-IOS-HARDLINK-FTRUNCATE-01`: un hardlink iniettato dentro
+  l'ultima chiamata `ftruncate` viene troncato prima del post-check;
+- `F-040-RR40-IOS-RETAINED-POSTVALIDATE-ABA-01`: replacement file/directory
+  dopo l'ultima validazione retained può lasciare payload nonzero con cleanup
+  dichiarato riuscito;
+- `F-040-RR40-IOS-CAP-ADVISORY-RACE-01`: una entry non cooperativa fra count e
+  `mkdir` supera il cap pur restituendo un record valido;
+- closure diretta Fix 39 confermata per late-link post-quarantine, legacy-lock
+  ABA cooperativo, replacement immediato post-quarantine e parent speciale;
+- gate reviewer: iOS 84/84, candidate 686/207, Flutter/YAML 12/12,
+  governance 88/88, architecture 17/17, analyze/format/syntax/pins/diff
+  `PASS`; upload-ready resta bloccato sulla Distribution signature;
+- report security sealed SHA-256
+  `48421238422626c0eae874ae97284e50335ca342b3896eeb20593f4b1c5d4ebd`;
+  signing, TestFlight e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

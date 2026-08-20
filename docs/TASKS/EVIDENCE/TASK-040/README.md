@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 40 consegnato; re-review distinta e PR/main CI da eseguire | NOT_RUN |
+| CA-10 | Re-review Fix 40 negativa; Fix 41 e PR/main CI da eseguire | FAIL |
 
 ## Matrice T -> risultato
 
@@ -1084,3 +1084,19 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 - upload-ready exit 1 esatto
   `IOS_RELEASE_BLOCKED: TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun
   upload, signing, provisioning, physical iOS, TestFlight o production.
+
+## Re-review Fix 40
+
+- exact HEAD `37ac7524b300a8d0c0106bf02c327532d4d321e6`;
+- verdict prodotto/security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 0 / P3 3;
+- hardlink nell'ultima finestra di `ftruncate`, replacement retained dopo la
+  validazione finale e inserimento non cooperativo fra count/cap e `mkdir`
+  sono riprodotti con invariant violation;
+- closure reviewer: le schedule dirette Fix 39 e il parent con tab/newline
+  risultano chiusi;
+- gate reviewer: iOS 84/84, candidate 686/207, Flutter/YAML 12/12,
+  governance 88/88, architecture 17/17, analyze/format/syntax/pins/diff
+  `PASS`; reference pre/post identica e upload negativo esatto;
+- report security sealed SHA-256
+  `48421238422626c0eae874ae97284e50335ca342b3896eeb20593f4b1c5d4ebd`;
+  signing, TestFlight e production invariati.

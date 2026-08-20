@@ -4086,8 +4086,10 @@
   limitati, identity senza `PlistBuddy`, digest binary canonico deterministico.
 - **Evidence**: shared-reference helper 14.385.152 byte RSS e validator
   26.279.936 byte RSS; object-count bomb respinto prima del parse completo.
-- **Gate**: candidate 685/207, validator iOS 48/48, security 685, syntax,
-  diff e probe helper `PASS`; gate integrato da rieseguire sul handoff.
+- **Gate**: `scripts/check.sh` exit `0`; suite non-performance `804/804`,
+  performance `10/10`, repeat resilience `70/70`, security source `685`,
+  candidate `685/207`, validator iOS `48/48`, analyze e build debug Android/iOS
+  `PASS`.
 - **Boundary**: runtime, signing, provisioning, TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

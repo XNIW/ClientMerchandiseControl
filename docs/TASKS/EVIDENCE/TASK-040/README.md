@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 44 governance verde; isolamento same-UID richiede boundary esterno | BLOCKED |
+| CA-10 | Fix 44 role/indicator governance P3; Fix 45 richiesto | NOT_RUN |
 
 ## Matrice T -> risultato
 
@@ -1154,6 +1154,24 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
   `PASS`; codice release e suite iOS 86/86 invariati;
 - isolamento same-UID, Distribution signing, physical iOS e upload TestFlight
   restano `BLOCKED` o `NOT_RUN`; nessuna mutazione esterna eseguita.
+
+## Re-review Fix 44
+
+- exact HEAD `54403fb57e5c3363d2e482bc8d51e20e9120b52f`;
+- verdict prodotto sul parser `BLOCKED`; registrazione governance
+  `CHANGES_REQUIRED`, finding P0 0/P1 0/P2 0/P3 1;
+- duplicate TASK-040 0/1/2/3 spazi, relocation e mutazioni
+  `BLOCKED -> TODO/DONE/VALIDATED_PENDING` respinte; code block 4-spazi/tab
+  ignorati come previsto;
+- governance 94/94, syntax, pins, diff/provenance/hygiene `PASS`; codice iOS
+  invariato e suite 86/86 non duplicata;
+- security re-review finale `BLOCKED/NOT_RUN`: due reviewer lane non hanno
+  restituito un handoff dopo timeout; nessun report o finding è attribuito;
+- il checker rifiuta la forma finale protocollo `CODEX_REVIEW_BLOCKED` con
+  tail Re-review/review/Exact HEAD perché deriva il ruolo dalla sola fase;
+- prerequisite esterno: distinct-UID supervisor, sandbox/ACL enforceable,
+  runner/VM effimera con trusted teardown o decisione USER_APPROVER sul
+  threat model. Signing/TestFlight/production restano invariati.
 
 ## Re-review Fix 40
 

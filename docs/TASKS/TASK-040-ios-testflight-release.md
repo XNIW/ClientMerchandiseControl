@@ -5,14 +5,14 @@
 - **Task ID**: TASK-040
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
-- **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Stato**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1835,6 +1835,28 @@ report prodotto sealed SHA-256
   esterno e non viene convertito in `PASS`.
 
 `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+### Re-review Fix 44
+
+- exact review SHA: `54403fb57e5c3363d2e482bc8d51e20e9120b52f`;
+- prodotto runtime/parser `BLOCKED`, ma governance `CHANGES_REQUIRED` con
+  finding P0 0 / P1 0 / P2 0 / P3 1;
+- `F-040-RR43-GOV-GLOBAL-INDENTED-DUPLICATE-01` è chiuso: duplicate con
+  0/1/2/3 spazi sono respinte, 4 spazi e tab sono ignorati correttamente come
+  code block, relocation e tre divergenze di stato restano fail-closed;
+- governance 94/94, state validator, syntax, action pins, diff, provenance e
+  hygiene `PASS`; codice iOS invariato e suite lunga non duplicata;
+- due lane security separate hanno completato o avviato il preflight ma non
+  hanno restituito un handoff entro il limite bounded; sono state interrotte
+  senza attribuire finding, verdict o report sealed;
+- `F-040-RR44-GOV-REVIEW-BLOCKED-ROLE-01`: il checker deriva il ruolo solo
+  dalla fase `REVIEW` e rifiuta la forma finale corretta Re-review/review/
+  `Exact HEAD` quando l'indicatore è `CODEX_REVIEW_BLOCKED`;
+- blocker esterno: supervisor con UID distinto, sandbox/ACL enforceable,
+  runner/VM effimera con teardown attestato, oppure emendamento esplicito
+  `USER_APPROVER` ai writer cooperativi `LOCK_EX`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

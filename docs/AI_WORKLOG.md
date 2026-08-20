@@ -4531,3 +4531,19 @@
   effimero con GC dopo teardown; riduzione threat model solo con USER_APPROVER.
 - **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 44 re-review
+
+- **Exact HEAD**: `54403fb57e5c3363d2e482bc8d51e20e9120b52f`.
+- **Esito parser**: `BLOCKED`; finding Fix43 chiuso.
+- **Governance**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 1, perché il checker
+  non rappresenta `REVIEW + CODEX_REVIEW_BLOCKED` con role `review`.
+- **Gate**: governance 94/94, state, syntax, pins, diff, provenance e hygiene
+  `PASS`; codice iOS invariato e suite lunga non duplicata.
+- **Security review**: due lane separate senza handoff dopo timeout, interrotte;
+  nessun verdict, finding o report sealed attribuito.
+- **Prerequisito**: distinct-UID supervisor, sandbox/ACL enforceable,
+  runner/VM effimera con teardown attestato o emendamento esplicito del threat
+  model ai writer cooperativi.
+- **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

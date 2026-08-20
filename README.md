@@ -190,9 +190,9 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
-- **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Stato task**: ACTIVE
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -208,11 +208,11 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `BLOCKED / REVIEW`: Fix 44 normalizza nel conteggio
-globale le righe CommonMark con 0–3 spazi e respinge duplicate indentate 1/2/3.
-Codice release, candidate 686/207 e fixture iOS 86/86 restano invariati. Il task
-attende la re-review distinta e rimane bloccato finché manca un boundary di
-isolamento enforceable o una decisione esplicita sul threat model.
+TASK-040 è l'unico task `ACTIVE / FIX`: la re-review prodotto Fix 44 chiude il
+parser CommonMark ma ha confermato un P3 nella registrazione del verdict
+`CODEX_REVIEW_BLOCKED`, che il checker confonde con l'handoff tecnico pre-review.
+Fix 45 resta limitato alla matrice ruolo/indicatore e alle fixture; codice iOS,
+artifact e blocker di isolamento esterno restano invariati.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

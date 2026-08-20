@@ -15,7 +15,8 @@
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
 - **Prossima azione autorizzata**: Fix 39 sul lifecycle/cleanup temporaneo
-  race-safe, quindi re-review distinta; upload TestFlight `NOT_RUN`
+  race-safe e senza crescita tombstone, quindi re-review distinta; upload
+  TestFlight `NOT_RUN`
 
 ## Repository coinvolti
 

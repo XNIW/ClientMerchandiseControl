@@ -968,6 +968,150 @@ fi
 }
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 
+cmc_ios_test_guard_proxy="${cmc_ios_test_tmp_root}/guard-proxy"
+mkdir -p "${cmc_ios_test_guard_proxy}"
+cat >"${cmc_ios_test_guard_proxy}/python3" <<'PY'
+#!/usr/bin/python3
+import os
+import shutil
+import subprocess
+import sys
+
+real_python = os.environ["CMC_IOS_TEST_REAL_PYTHON3"]
+tree_attestor = os.environ["CMC_IOS_TEST_TREE_ATTESTOR"]
+if (
+    len(sys.argv) == 5
+    and sys.argv[1] == tree_attestor
+    and sys.argv[2] == "--guard"
+):
+    process = subprocess.Popen(
+        [real_python, *sys.argv[1:]],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    assert process.stdin is not None
+    assert process.stdout is not None
+    assert process.stderr is not None
+    ready = process.stdout.readline()
+    if ready != b"IOS_ARTIFACT_GUARD_READY\n":
+        process.kill()
+        process.wait()
+        raise SystemExit(1)
+    snapshot = sys.argv[3]
+    mode = os.environ["CMC_IOS_TEST_GUARD_PROXY_MODE"]
+    held = ""
+    decoy = ""
+    executable = ""
+    original_mode = 0
+    if mode == "parent-aba":
+        parent = os.path.dirname(snapshot)
+        held = f"{parent}.held-{os.getpid()}"
+        decoy = f"{parent}.decoy-{os.getpid()}"
+        os.rename(parent, held)
+        os.mkdir(parent, 0o700)
+        shutil.copytree(
+            os.environ["CMC_IOS_TEST_GUARD_SAFE_APP"],
+            os.path.join(parent, "Runner.app"),
+        )
+    elif mode == "mode-aba":
+        executable = os.path.join(snapshot, "Runner")
+        original_mode = os.stat(executable, follow_symlinks=False).st_mode & 0o7777
+        os.chmod(executable, original_mode | 0o100)
+    else:
+        process.kill()
+        process.wait()
+        raise SystemExit(1)
+    sys.stdout.buffer.write(ready)
+    sys.stdout.buffer.flush()
+    command = sys.stdin.buffer.readline()
+    if mode == "parent-aba":
+        parent = os.path.dirname(snapshot)
+        os.rename(parent, decoy)
+        os.rename(held, parent)
+    else:
+        os.chmod(executable, original_mode)
+    process.stdin.write(command)
+    process.stdin.flush()
+    stdout, stderr = process.communicate(timeout=10)
+    sys.stdout.buffer.write(stdout)
+    sys.stderr.buffer.write(stderr)
+    if decoy:
+        shutil.rmtree(decoy)
+    raise SystemExit(process.returncode)
+os.execv(real_python, [real_python, *sys.argv[1:]])
+PY
+chmod u+x "${cmc_ios_test_guard_proxy}/python3"
+
+cmc_ios_test_parent_aba_archive="${cmc_ios_test_tmp_root}/parent-aba.xcarchive"
+cp -R "${cmc_ios_test_fixture_archive}" "${cmc_ios_test_parent_aba_archive}"
+cmc_ios_test_parent_aba_app="${cmc_ios_test_parent_aba_archive}/Products/Applications/Runner.app"
+printf 'unsafe-parent-retained\n' \
+  >"${cmc_ios_test_parent_aba_app}/parent-aba-payload.txt"
+cmc_ios_test_parent_aba_seal="${cmc_ios_test_seal_root}/parent-aba.zip"
+cmc_ios_test_parent_aba_log="${cmc_ios_test_tmp_root}/parent-aba.log"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+if env \
+  PATH="${cmc_ios_test_guard_proxy}:${PATH}" \
+  CMC_IOS_TEST_TREE_ATTESTOR="${cmc_ios_test_tree_attestor}" \
+  CMC_IOS_TEST_REAL_PYTHON3="${cmc_ios_test_real_python3}" \
+  CMC_IOS_TEST_GUARD_PROXY_MODE='parent-aba' \
+  CMC_IOS_TEST_GUARD_SAFE_APP="${cmc_ios_test_fixture_app}" \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_parent_aba_app}" \
+  --archive "${cmc_ios_test_parent_aba_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --sealed-app-output "${cmc_ios_test_parent_aba_seal}" \
+  >"${cmc_ios_test_parent_aba_log}" 2>&1; then
+  printf 'Fixture iOS: parent ABA accettata dal validator.\n' >&2
+  exit 1
+fi
+[[ "$(grep -Ec '^IOS_RELEASE_BLOCKED: ARTIFACT_CHANGED_DURING_VALIDATION$' \
+    "${cmc_ios_test_parent_aba_log}")" -eq 1 && \
+  "$(grep -Ec '^IOS_(RELEASE_CANDIDATE_VALID|TESTFLIGHT_UPLOAD_INPUTS_VALIDATED)$' \
+    "${cmc_ios_test_parent_aba_log}")" -eq 0 ]] || {
+  printf 'Fixture iOS: parent ABA non respinta esattamente.\n' >&2
+  grep -E '^IOS_RELEASE_BLOCKED: [A-Z0-9_]+$' \
+    "${cmc_ios_test_parent_aba_log}" >&2 || true
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_mode_aba_archive="${cmc_ios_test_tmp_root}/mode-aba.xcarchive"
+cp -R "${cmc_ios_test_fixture_archive}" "${cmc_ios_test_mode_aba_archive}"
+cmc_ios_test_mode_aba_app="${cmc_ios_test_mode_aba_archive}/Products/Applications/Runner.app"
+chmod 0644 "${cmc_ios_test_mode_aba_app}/Runner"
+cmc_ios_test_mode_aba_seal="${cmc_ios_test_seal_root}/mode-aba.zip"
+cmc_ios_test_mode_aba_log="${cmc_ios_test_tmp_root}/mode-aba.log"
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+if env \
+  PATH="${cmc_ios_test_guard_proxy}:${PATH}" \
+  CMC_IOS_TEST_TREE_ATTESTOR="${cmc_ios_test_tree_attestor}" \
+  CMC_IOS_TEST_REAL_PYTHON3="${cmc_ios_test_real_python3}" \
+  CMC_IOS_TEST_GUARD_PROXY_MODE='mode-aba' \
+  CMC_IOS_TEST_GUARD_SAFE_APP="${cmc_ios_test_fixture_app}" \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_mode_aba_app}" \
+  --archive "${cmc_ios_test_mode_aba_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --sealed-app-output "${cmc_ios_test_mode_aba_seal}" \
+  >"${cmc_ios_test_mode_aba_log}" 2>&1; then
+  printf 'Fixture iOS: mode ABA accettata dal validator.\n' >&2
+  exit 1
+fi
+[[ "$(grep -Ec '^IOS_RELEASE_BLOCKED: ARTIFACT_CHANGED_DURING_VALIDATION$' \
+    "${cmc_ios_test_mode_aba_log}")" -eq 1 && \
+  "$(grep -Ec '^IOS_(RELEASE_CANDIDATE_VALID|TESTFLIGHT_UPLOAD_INPUTS_VALIDATED)$' \
+    "${cmc_ios_test_mode_aba_log}")" -eq 0 ]] || {
+  printf 'Fixture iOS: mode ABA non respinta esattamente.\n' >&2
+  grep -E '^IOS_RELEASE_BLOCKED: [A-Z0-9_]+$' \
+    "${cmc_ios_test_mode_aba_log}" >&2 || true
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
 cmc_ios_test_ancestor_root="${cmc_ios_test_tmp_root}/ancestor-race"
 cmc_ios_test_ancestor_bad="${cmc_ios_test_ancestor_root}/bad"
 mkdir -p "${cmc_ios_test_ancestor_root}" "${cmc_ios_test_ancestor_bad}"
@@ -1444,19 +1588,129 @@ for _ in range(70):
     cursor = f"{cursor}/d"
     os.mkdir(cursor)
 parent = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+directory = os.open(name, os.O_RDONLY | os.O_DIRECTORY, dir_fd=parent)
 try:
     metadata = os.stat(name, dir_fd=parent, follow_symlinks=False)
     module._cleanup_created_directory(
         parent,
         name,
         (metadata.st_dev, metadata.st_ino),
+        directory,
     )
 finally:
+    os.close(directory)
     os.close(parent)
 if os.path.lexists(destination):
     raise SystemExit(1)
 PY
   printf 'Fixture iOS: cleanup profondo non converge.\n' >&2
+  exit 1
+}
+cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+
+cmc_ios_test_total=$((cmc_ios_test_total + 1))
+"${cmc_ios_test_real_python3}" - \
+  "${cmc_ios_test_tree_attestor}" \
+  "${cmc_ios_test_malicious_seal_root}" <<'PY' || {
+import importlib.util
+import os
+import sys
+
+script, root = sys.argv[1:]
+spec = importlib.util.spec_from_file_location("cmc_ios_tree", script)
+module = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(module)
+
+collision = ".cmc-cleanup-collision"
+os.mkdir(f"{root}/{collision}")
+with open(f"{root}/{collision}/preserved", "wb") as target:
+    target.write(b"collision")
+tokens = iter(("collision", "unique"))
+real_token_hex = module.secrets.token_hex
+module.secrets.token_hex = lambda _: next(tokens)
+name = "cleanup-collision.app"
+os.mkdir(f"{root}/{name}")
+with open(f"{root}/{name}/partial", "wb") as target:
+    target.write(b"partial")
+parent = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+directory = os.open(name, os.O_RDONLY | os.O_DIRECTORY, dir_fd=parent)
+try:
+    metadata = os.fstat(directory)
+    module._cleanup_created_directory(
+        parent,
+        name,
+        (metadata.st_dev, metadata.st_ino),
+        directory,
+    )
+finally:
+    module.secrets.token_hex = real_token_hex
+    os.close(directory)
+    os.close(parent)
+if os.path.lexists(f"{root}/{name}"):
+    raise SystemExit(1)
+if not os.path.isfile(f"{root}/{collision}/preserved"):
+    raise SystemExit(1)
+if os.listdir(f"{root}/.cmc-cleanup-unique"):
+    raise SystemExit(1)
+
+name = "cleanup-swap.app"
+victim = "cleanup-victim"
+os.mkdir(f"{root}/{name}")
+with open(f"{root}/{name}/partial", "wb") as target:
+    target.write(b"partial")
+os.mkdir(f"{root}/{victim}")
+with open(f"{root}/{victim}/preserved", "wb") as target:
+    target.write(b"victim")
+parent = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+directory = os.open(name, os.O_RDONLY | os.O_DIRECTORY, dir_fd=parent)
+real_rename = module.os.rename
+captured = []
+
+def swapped_rename(source, destination, *, src_dir_fd=None, dst_dir_fd=None):
+    real_rename(
+        source,
+        destination,
+        src_dir_fd=src_dir_fd,
+        dst_dir_fd=dst_dir_fd,
+    )
+    if source == name and destination.startswith(".cmc-cleanup-"):
+        detached = f"{destination}.detached"
+        real_rename(
+            destination,
+            detached,
+            src_dir_fd=dst_dir_fd,
+            dst_dir_fd=dst_dir_fd,
+        )
+        real_rename(
+            victim,
+            destination,
+            src_dir_fd=dst_dir_fd,
+            dst_dir_fd=dst_dir_fd,
+        )
+        captured.extend((destination, detached))
+
+module.os.rename = swapped_rename
+try:
+    metadata = os.fstat(directory)
+    module._cleanup_created_directory(
+        parent,
+        name,
+        (metadata.st_dev, metadata.st_ino),
+        directory,
+    )
+finally:
+    module.os.rename = real_rename
+    os.close(directory)
+    os.close(parent)
+if os.path.lexists(f"{root}/{name}") or len(captured) != 2:
+    raise SystemExit(1)
+if not os.path.isfile(f"{root}/{captured[0]}/preserved"):
+    raise SystemExit(1)
+if os.listdir(f"{root}/{captured[1]}"):
+    raise SystemExit(1)
+PY
+  printf 'Fixture iOS: cleanup collision/swap non inode-bound.\n' >&2
   exit 1
 }
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))

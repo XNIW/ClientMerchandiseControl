@@ -399,7 +399,7 @@ cmc_ios_release_guard_pid=''
 cmc_ios_release_guard_active=false
 cmc_ios_release_cleanup() {
   if [[ "${cmc_ios_release_guard_active}" == true ]]; then
-    exec 8>&- 9<&- || true
+    exec 7<&- 8>&- 9>&- || true
     cmc_ios_release_guard_active=false
   fi
   if [[ -n "${cmc_ios_release_guard_pid}" ]]; then
@@ -425,14 +425,16 @@ cmc_ios_release_start_guard() {
   mkfifo "${cmc_ios_release_guard_input}" "${cmc_ios_release_guard_output}" || \
     cmc_ios_release_fail 'ARTIFACT_SNAPSHOT_UNREADABLE'
   exec 8<>"${cmc_ios_release_guard_input}"
+  exec 9<>"${cmc_ios_release_guard_output}"
+  exec 7<"${cmc_ios_release_guard_output}"
   python3 "${cmc_ios_release_tree_attestor}" \
     --guard "${cmc_ios_release_snapshot}" \
     "${cmc_ios_release_initial_tree_digest}" \
-    <"${cmc_ios_release_guard_input}" >"${cmc_ios_release_guard_output}" &
+    <&8 >&9 &
   cmc_ios_release_guard_pid="$!"
-  exec 9<"${cmc_ios_release_guard_output}"
+  exec 9>&-
   cmc_ios_release_guard_active=true
-  if ! IFS= read -r cmc_ios_release_guard_ready <&9 || \
+  if ! IFS= read -r cmc_ios_release_guard_ready <&7 || \
     [[ "${cmc_ios_release_guard_ready}" != 'IOS_ARTIFACT_GUARD_READY' ]]; then
     cmc_ios_release_fail 'ARTIFACT_SNAPSHOT_UNREADABLE'
   fi
@@ -443,11 +445,11 @@ cmc_ios_release_stop_guard() {
   printf 'STOP\n' >&8 || \
     cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
   exec 8>&-
-  if ! IFS= read -r cmc_ios_release_guard_result <&9 || \
+  if ! IFS= read -r cmc_ios_release_guard_result <&7 || \
     [[ "${cmc_ios_release_guard_result}" != 'IOS_ARTIFACT_GUARD_OK' ]]; then
     cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
   fi
-  exec 9<&-
+  exec 7<&-
   cmc_ios_release_guard_active=false
   wait "${cmc_ios_release_guard_pid}" || \
     cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'

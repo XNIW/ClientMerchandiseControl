@@ -7,6 +7,7 @@ import hashlib
 import os
 import posixpath
 import re
+import secrets
 import select
 import stat
 import struct
@@ -26,6 +27,7 @@ MAX_PATH_BYTES = 4_096
 MAX_CLEANUP_DEPTH = 256
 MAX_CLEANUP_PASSES = 16
 MAX_CLEANUP_OPERATIONS = 65_536
+MAX_CLEANUP_QUARANTINE_ATTEMPTS = 16
 CHUNK_BYTES = 65_536
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
@@ -165,35 +167,44 @@ def _cleanup_created_directory(
     parent: int,
     name: str,
     identity: Optional[tuple[int, int]],
+    directory: Optional[int],
 ) -> None:
-    if identity is None:
+    if identity is None or directory is None:
         return
-    quarantine = f".cmc-cleanup-{os.getpid()}-{identity[1]:x}"
-    try:
-        current = os.stat(name, dir_fd=parent, follow_symlinks=False)
-        if (
-            not stat.S_ISDIR(current.st_mode)
-            or (current.st_dev, current.st_ino) != identity
-        ):
-            return
-        os.rename(
-            name,
-            quarantine,
-            src_dir_fd=parent,
-            dst_dir_fd=parent,
-        )
-        directory = os.open(
-            quarantine,
-            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
-            dir_fd=parent,
-        )
+    opened = os.fstat(directory)
+    current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+    if (
+        not stat.S_ISDIR(opened.st_mode)
+        or not stat.S_ISDIR(current.st_mode)
+        or (opened.st_dev, opened.st_ino) != identity
+        or (current.st_dev, current.st_ino) != identity
+    ):
+        raise OSError("cleanup identity mismatch")
+    quarantine: Optional[str] = None
+    for _ in range(MAX_CLEANUP_QUARANTINE_ATTEMPTS):
+        candidate = f".cmc-cleanup-{secrets.token_hex(16)}"
         try:
-            _clear_directory(directory)
-        finally:
-            os.close(directory)
-        os.rmdir(quarantine, dir_fd=parent)
-    except OSError:
-        pass
+            os.mkdir(candidate, 0o700, dir_fd=parent)
+            quarantine = candidate
+            break
+        except FileExistsError:
+            continue
+    if quarantine is None:
+        raise OSError("cleanup quarantine unavailable")
+    os.rename(
+        name,
+        quarantine,
+        src_dir_fd=parent,
+        dst_dir_fd=parent,
+    )
+    detached = os.fstat(directory)
+    if (detached.st_dev, detached.st_ino) != identity:
+        raise OSError("cleanup detached identity mismatch")
+    _clear_directory(directory)
+    os.fsync(directory)
+    os.fsync(parent)
+    # Il tombstone vuoto resta intenzionalmente: Python/macOS non espone una
+    # rmdir by-fd sicura contro un secondo swap del nome quarantine.
 
 
 def _read_regular(
@@ -487,12 +498,14 @@ def snapshot(source: str, destination: str) -> str:
         completed = True
         return digest
     finally:
-        if target is not None:
-            os.close(target)
-        if not completed and parent is not None:
-            _cleanup_created_directory(parent, name, target_identity)
-        if parent is not None:
-            os.close(parent)
+        try:
+            if not completed and parent is not None:
+                _cleanup_created_directory(parent, name, target_identity, target)
+        finally:
+            if target is not None:
+                os.close(target)
+            if parent is not None:
+                os.close(parent)
 
 
 def _hash_descriptor(descriptor: int, maximum: int) -> str:
@@ -884,13 +897,15 @@ def _extract_descriptor(
         completed = True
         return digest
     finally:
-        if target is not None:
-            os.close(target)
-        if not completed and parent is not None:
-            _cleanup_created_directory(parent, name, target_identity)
-        if parent is not None:
-            os.close(parent)
-        payload_snapshot.close()
+        try:
+            if not completed and parent is not None:
+                _cleanup_created_directory(parent, name, target_identity, target)
+        finally:
+            if target is not None:
+                os.close(target)
+            if parent is not None:
+                os.close(parent)
+            payload_snapshot.close()
 
 
 def extract(payload_path: str, expected_sha256: str, destination: str) -> str:
@@ -982,11 +997,26 @@ def guard(path: str, expected_sha256: str) -> None:
         )
         root_metadata = os.fstat(root)
         descriptors = _open_guard_descriptors(root, parent)
+        descriptor_states = {
+            descriptor: (
+                metadata.st_dev,
+                metadata.st_ino,
+                metadata.st_mode,
+                getattr(
+                    metadata,
+                    "st_ctime_ns",
+                    int(metadata.st_ctime * 1_000_000_000),
+                ),
+            )
+            for descriptor in descriptors
+            for metadata in (os.fstat(descriptor),)
+        }
         queue = select.kqueue()
         vnode_flags = (
             select.KQ_NOTE_WRITE
             | select.KQ_NOTE_DELETE
             | select.KQ_NOTE_EXTEND
+            | select.KQ_NOTE_ATTRIB
             | select.KQ_NOTE_LINK
             | select.KQ_NOTE_RENAME
             | select.KQ_NOTE_REVOKE
@@ -1000,6 +1030,21 @@ def guard(path: str, expected_sha256: str) -> None:
             )
             for descriptor in descriptors
         ]
+        # Il parent ospita file temporanei legittimi, quindi osserviamo solo
+        # la sua sostituzione/revoca e non le normali modifiche ai figli.
+        parent_flags = (
+            select.KQ_NOTE_DELETE
+            | select.KQ_NOTE_RENAME
+            | select.KQ_NOTE_REVOKE
+        )
+        registrations.append(
+            select.kevent(
+                parent,
+                filter=select.KQ_FILTER_VNODE,
+                flags=select.KQ_EV_ADD | select.KQ_EV_CLEAR,
+                fflags=parent_flags,
+            )
+        )
         registrations.append(
             select.kevent(
                 sys.stdin.fileno(),
@@ -1018,6 +1063,33 @@ def guard(path: str, expected_sha256: str) -> None:
         ):
             raise ValueError("guard initial identity mismatch")
         print("IOS_ARTIFACT_GUARD_READY", flush=True)
+
+        def event_changed(event: object) -> bool:
+            if event.filter == select.KQ_FILTER_READ:
+                return False
+            non_attribute_flags = event.fflags & ~select.KQ_NOTE_ATTRIB
+            if non_attribute_flags:
+                return True
+            if event.fflags & select.KQ_NOTE_ATTRIB:
+                # Le letture possono aggiornare atime e generare NOTE_ATTRIB;
+                # mode/ctime distinguono quelle letture da chmod/chown ABA.
+                before = descriptor_states.get(event.ident)
+                if before is None:
+                    return True
+                after = os.fstat(event.ident)
+                current_state = (
+                    after.st_dev,
+                    after.st_ino,
+                    after.st_mode,
+                    getattr(
+                        after,
+                        "st_ctime_ns",
+                        int(after.st_ctime * 1_000_000_000),
+                    ),
+                )
+                return current_state != before
+            return True
+
         changed = False
         stop = False
         while not stop:
@@ -1029,15 +1101,31 @@ def guard(path: str, expected_sha256: str) -> None:
                     if sys.stdin.buffer.readline(16) != b"STOP\n":
                         raise ValueError("guard command invalid")
                     stop = True
-                else:
+                elif event_changed(event):
                     changed = True
         for event in queue.control(None, 64, 0.05):
-            if event.filter != select.KQ_FILTER_READ:
+            if event_changed(event):
                 changed = True
         final_digest, _ = _collect_descriptor(root)
         current = os.stat(name, dir_fd=parent, follow_symlinks=False)
+        metadata_changed = any(
+            (
+                current_metadata.st_dev,
+                current_metadata.st_ino,
+                current_metadata.st_mode,
+                getattr(
+                    current_metadata,
+                    "st_ctime_ns",
+                    int(current_metadata.st_ctime * 1_000_000_000),
+                ),
+            )
+            != descriptor_states[descriptor]
+            for descriptor in descriptors
+            for current_metadata in (os.fstat(descriptor),)
+        )
         if (
             changed
+            or metadata_changed
             or final_digest != expected_sha256
             or not stat.S_ISDIR(current.st_mode)
             or current.st_dev != root_metadata.st_dev

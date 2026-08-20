@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -23,21 +23,21 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | re-review Fix 33 richiede Fix 34 per chiudere 2 P2 e 2 P3 | FAIL |
+| CA-10 | Fix 34 pronto per re-review indipendente e CI exact-SHA | NOT_RUN |
 
 ## Matrice T -> risultato
 
 | Test | Esito | Evidence |
 |---|---|---|
 | T-01 | PASS | source gate, runtime/CI 18/18 e config/signing boundary |
-| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `01dd140` |
-| T-03 | PASS | plist/privacy/inventory framework+bundle+dylib/dSYM + fixture iOS 53/53 |
+| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `793f8a4` |
+| T-03 | PASS | plist/privacy/inventory/framework/sealed payload + fixture iOS 60/60 |
 | T-04 | PASS | scanner 686/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 33 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 34 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -47,9 +47,9 @@ Snapshot di handoff:
 - production App Store: vietata;
 - physical iOS: `BLOCKED`, zero device collegati; separato dal Simulator.
 
-## Artifact evidence corrente — Fix 10
+## Artifact evidence corrente — Fix 34
 
-- source exact SHA: `01dd140852733c14ae53d067e7454458cababe19`;
+- source exact SHA: `793f8a41d5abde0a61bfb669f2ec66980dba523b`;
 - archive: `build/ios/archive/Runner.xcarchive`, 201.344 KiB, non versionato;
 - app: 36.724 KiB, 207 file, bundle `com.xniw.clientmerchandisecontrol`,
   `0.1.0 (1)`, `iphoneos`, arm64, unsigned;
@@ -64,14 +64,20 @@ Snapshot di handoff:
 - Runner Mach-O/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`;
 - archive signing identity/team vuoti; nessuna IPA/export/upload prodotto.
 
-## Gate executor corrente — Fix 33
+- retained tree SHA-256:
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`;
+- retained sealed ZIP SHA-256:
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+- il candidate valido è il payload sealed, non il path sorgente mutabile.
+
+## Gate executor corrente — Fix 34
 
 - `scripts/check.sh`: exit 0;
 - non-performance 804/804; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
 - governance 88/88; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 686; artifact 207; fixture negative 61/61, positive 7/7;
-- validator iOS avversariale 53/53; Flutter/YAML mirati 12/12;
+- validator iOS avversariale 60/60; Flutter/YAML mirati 12/12;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
 - release Simulator: comando tentato, Flutter dichiara modalità non supportata;
   debug production-like install/launch PASS con provider fail-closed;
@@ -97,6 +103,25 @@ Snapshot di handoff:
 - firma, provisioning, upload TestFlight e production invariati.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Fix 34 handoff
+
+- exact technical SHA:
+  `793f8a41d5abde0a61bfb669f2ec66980dba523b`;
+- tutti i controlli leggono lo snapshot privato creato una volta; il risultato
+  trattenuto è un ZIP deterministicamente sealed e verificato per SHA-256;
+- post-seal mutation e ancestor swap restano confinati al path originale e non
+  alterano l'estrazione del payload; tree metadata, profondita e archive
+  malicious sono coperti da regressioni fail-closed;
+- direct snapshot, seal ed extract hanno prodotto tree
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`
+  e payload
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+- candidate 686/207, iOS 60/60, Flutter/YAML 12/12, governance 88/88,
+  source/security 686 + 61/61 + 7/7 e `scripts/check.sh` completo sono `PASS`;
+- firma, provisioning, TestFlight, physical iOS e production restano invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 Fix 33 aggiunge un attestor exact-tree bounded su 4.096 entry, 128 MiB per
 file e 512 MiB aggregati. Ogni leaf usa `O_NOFOLLOW` e `O_NONBLOCK`; file e

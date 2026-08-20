@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1319,6 +1319,38 @@ report prodotto sealed SHA-256
   restano verdi, ma non provano un artifact trattenuto e digest-bound.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 34
+
+- exact technical SHA: `793f8a41d5abde0a61bfb669f2ec66980dba523b`;
+- il validator risolve una sola volta l'app sorgente in uno snapshot privato,
+  esegue su quello snapshot tutti i controlli e produce un payload ZIP
+  deterministico, read-only e digest-bound come unico artifact trattenuto;
+- `attest-ios-app-tree.py` include directory, mode ed empty directory nel tree
+  digest, applica cap di entry, profondita, file e totale, usa open leaf
+  non-follow/non-blocking e gestisce profondita invalida senza traceback;
+- il seal usa soltanto entry stored sotto `Runner.app/`; l'extractor rifiuta
+  traversal, symlink, formati compressi, duplicati e digest payload errato,
+  quindi ricalcola e confronta il tree digest estratto;
+- il marker candidate e, quando applicabile, il marker upload vengono emessi
+  soltanto dopo seal, estrazione e verifica; il runbook vincola il consumer al
+  payload e allo SHA-256 pubblicato;
+- regressioni post-seal e ancestor swap provano che le mutazioni del path
+  originale non entrano nel payload trattenuto; mode, empty directory,
+  profondita 65, tamper byte, traversal, symlink e DEFLATED sono fail-closed;
+- candidate reale 686/207 `PASS`, tree SHA-256
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`,
+  sealed payload SHA-256
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+- validator iOS 60/60, governance 88/88, Flutter/YAML 12/12,
+  security source 686 e fixture 61/61 + 7/7, syntax, pycompile, action pin,
+  format, analyze e diff check `PASS`;
+- `scripts/check.sh` exact technical SHA exit 0: 804/804 non-performance,
+  performance 10/10, repeat resilience 70/70 e build debug Android/iOS
+  `PASS`;
+- runtime, firma, provisioning, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

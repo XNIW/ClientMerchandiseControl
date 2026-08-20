@@ -4164,3 +4164,24 @@
 - **Transizione**: `ACTIVE / REVIEW -> FIX`; production, signing e TestFlight
   invariati.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 34 e handoff
+
+- **Technical SHA**: `793f8a41d5abde0a61bfb669f2ec66980dba523b`.
+- **Fix**: snapshot privato unico per i controlli e retained payload ZIP
+  deterministico, read-only, tree-digest e payload-digest bound; marker upload
+  differito dopo tutti i gate.
+- **Regressioni**: post-seal mutation, ancestor swap, mode/empty directory,
+  profondita 65, payload tamper, traversal, symlink e compression fail-closed.
+- **Evidence**: tree SHA-256
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`,
+  sealed SHA-256
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+  candidate 686/207 e iOS 60/60 `PASS`.
+- **Gate**: governance 88/88, Flutter/YAML 12/12, security source 686,
+  fixture 61/61 + 7/7, syntax, pycompile, action pins, format, analyze e
+  `scripts/check.sh` completo exit 0 con 804/804, performance 10/10,
+  resilience 70/70 e build debug Android/iOS.
+- **Boundary**: signing, provisioning, physical iOS, TestFlight e production
+  invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

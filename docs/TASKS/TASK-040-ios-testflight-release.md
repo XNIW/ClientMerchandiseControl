@@ -5,14 +5,14 @@
 - **Task ID**: TASK-040
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1819,6 +1819,22 @@ report prodotto sealed SHA-256
 - il blocker di isolamento same-UID resta confermato e separato.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 44
+
+- exact technical SHA: `3d9dd674d0fff7566345afbb42de99f486fa1ab0`;
+- il conteggio globale normalizza ora 0–3 spazi iniziali prima di riconoscere
+  le righe backlog, sia per la cardinalità `ACTIVE` sia per TASK-040;
+- le duplicate TASK-040 fuori tabella con 1, 2 e 3 spazi CommonMark vengono
+  tutte respinte, mantenendo esattamente una riga globale e canonica;
+- restano verdi le regressioni `BLOCKED -> TODO`, `DONE`,
+  `VALIDATED_PENDING_INTEGRATED_REVIEW`, duplicate non indentate e relocation;
+- `bash -n`, governance canonica, fixture 94/94, action pins e diff-check
+  `PASS`; codice release, artifact e suite iOS sono invariati;
+- il finding Fix 43 è corretto, ma l'isolamento same-UID resta un prerequisito
+  esterno e non viene convertito in `PASS`.
+
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 ## Chiusura
 

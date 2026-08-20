@@ -4516,3 +4516,18 @@
   interrotta come bloccata e da rieseguire sul Fix44.
 - **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-19 — TASK-040 Fix 44 e handoff
+
+- **Technical SHA**: `3d9dd674d0fff7566345afbb42de99f486fa1ab0`.
+- **Fix**: normalizzazione CommonMark 0–3 spazi nel conteggio globale delle
+  righe backlog e della riga task corrente.
+- **Regressioni**: duplicate TASK-040 indentate 1/2/3, divergenze
+  `BLOCKED -> TODO/DONE/VALIDATED_PENDING`, duplicate non indentate e
+  relocation; governance 94/94 `PASS`.
+- **Scope**: soltanto checker e fixture governance; codice release, candidate
+  686/207 e fixture iOS 86/86 invariati.
+- **Blocker**: serve supervisor/UID distinto, sandbox/ACL enforceable o runner
+  effimero con GC dopo teardown; riduzione threat model solo con USER_APPROVER.
+- **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

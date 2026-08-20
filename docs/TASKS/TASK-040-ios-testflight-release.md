@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1373,6 +1373,37 @@ report prodotto sealed SHA-256
   `16f4b633e587e2083530f30289dc98937a60ead4b6b2e61adff83fe5e9f33d7a`.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 35
+
+- exact technical SHA: `906c1dc62427e801f5af68a7d990a0bab4a7433d`;
+- il payload ZIP deterministico viene creato prima dei controlli e la snapshot
+  di validazione viene estratta dallo stesso descriptor e verificata contro il
+  tree digest; il payload interno resta l'unica source trattenuta;
+- publish ed extract riaprono i path con component-walk `O_NOFOLLOW`, verificano
+  lo SHA-256 prima/durante/dopo la copia e il runbook ricostruisce l'archive di
+  export esclusivamente dall'app estratta dal payload exact-SHA;
+- extractor e snapshot sono transazionali; directory mode restoration e cleanup
+  usano descriptor relativi, mentre EOCD/count/central-directory/path/depth sono
+  bounded prima di `ZipFile.infolist`;
+- regressioni dedicate coprono post-publish tamper, ancestor swap sulla nuova API,
+  ancestor symlink, race mode/symlink, deep tree, duplicate/encrypted/DEFLATED,
+  traversal e 4.097 entry con output parziale assente e diagnostica redatta;
+- candidate reale 686/207 `PASS`, tree SHA-256
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`,
+  sealed payload SHA-256
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+- validator iOS 65/65, Flutter/YAML 13/13, governance 88/88, security
+  source 686 e fixture 61/61 + 7/7, syntax, pycompile, action pin,
+  architecture, format, analyze e diff check `PASS`;
+- `scripts/check.sh` exact technical SHA exit 0: 804/804 non-performance,
+  performance 10/10, repeat resilience 70/70 e build debug Android/iOS
+  `PASS`;
+- upload-ready reale exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

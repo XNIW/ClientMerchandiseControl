@@ -4201,3 +4201,26 @@
 - **Transizione**: `ACTIVE / REVIEW -> FIX`; signing, upload e production
   invariati.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 35 e handoff
+
+- **Technical SHA**: `906c1dc62427e801f5af68a7d990a0bab4a7433d`.
+- **Fix**: payload sealed-first e snapshot estratta dallo stesso descriptor;
+  component-walk `O_NOFOLLOW`, publish/extract exact-SHA, cleanup transazionale
+  e preflight ZIP bounded prima della materializzazione.
+- **Runbook**: candidate e upload consumano lo SHA emesso; l'archive di export
+  viene ricostruito dall'app estratta dal payload verificato, non dal tree
+  sorgente mutabile.
+- **Regressioni**: post-publish tamper, ancestor swap/symlink, mode race,
+  deep tree, duplicate, encrypted, DEFLATED, traversal e 4.097 entry;
+  validator iOS 65/65 e Flutter/YAML 13/13 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, tree
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`,
+  sealed SHA `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+  governance 88/88, security 61/61 + 7/7, architecture, analyze, syntax,
+  pycompile, action pin e diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready exit 1 sulla Distribution signature assente;
+  signing, provisioning, physical iOS, TestFlight e production invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

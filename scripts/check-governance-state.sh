@@ -1179,8 +1179,16 @@ fi
 
 cmc_global_table_active_count="$(
   awk -F'|' '
-    /^\| TASK-[0-9][0-9][0-9] / {
-      status=$4
+    {
+      line=$0
+      leading=0
+      while (substr(line, 1, 1) == " " && leading < 4) {
+        line=substr(line, 2)
+        leading++
+      }
+      if (leading > 3 || line !~ /^\| TASK-[0-9][0-9][0-9] /) next
+      split(line, fields, "|")
+      status=fields[4]
       gsub(/^[[:space:]]+|[[:space:]]+$/, "", status)
       if (status == "ACTIVE") count++
     }
@@ -1216,9 +1224,17 @@ cmc_table_current_task_row_count=0
 cmc_table_current_task_row_status=''
 if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
   cmc_global_current_task_row_count="$(
-    awk -F'|' -v expected="${cmc_active_task}" '
-      /^\| TASK-[0-9][0-9][0-9] / {
-        task=$2
+    awk -v expected="${cmc_active_task}" '
+      {
+        line=$0
+        leading=0
+        while (substr(line, 1, 1) == " " && leading < 4) {
+          line=substr(line, 2)
+          leading++
+        }
+        if (leading > 3 || line !~ /^\| TASK-[0-9][0-9][0-9] /) next
+        split(line, fields, "|")
+        task=fields[2]
         gsub(/^[[:space:]]+|[[:space:]]+$/, "", task)
         if (task == expected) count++
       }

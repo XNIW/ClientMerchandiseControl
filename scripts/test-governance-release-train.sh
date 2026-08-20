@@ -509,6 +509,25 @@ for cmc_wrong_blocked_row_status in \
     'Stato task corrente nel backlog incoerente'
 done
 
+for cmc_indented_duplicate_width in 1 2 3; do
+  cmc_case="$(
+    cmc_fixture \
+      "master-current-row-duplicate-indent-${cmc_indented_duplicate_width}"
+  )"
+  cmc_row="$(grep -E '^\| TASK-040 \|' "${cmc_case}/docs/MASTER-PLAN.md")"
+  cmc_indent="$(printf '%*s' "${cmc_indented_duplicate_width}" '')"
+  printf '\n%s%s\n' "${cmc_indent}" "${cmc_row}" \
+    >>"${cmc_case}/docs/MASTER-PLAN.md"
+  cmc_indented_duplicate_expected='Righe ACTIVE fuori dalla tabella canonica Backlog completo'
+  if [[ "${cmc_current_task_status}" == 'BLOCKED' ]]; then
+    cmc_indented_duplicate_expected='Riga task corrente nel backlog incoerente'
+  fi
+  cmc_expect_fail \
+    "master-current-row-duplicate-indent-${cmc_indented_duplicate_width}" \
+    "${cmc_case}" \
+    "${cmc_indented_duplicate_expected}"
+done
+
 cmc_case="$(cmc_fixture validated-pending)"
 cmc_expect_pass validated-pending "${cmc_case}"
 

@@ -452,6 +452,39 @@ rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
 cmc_expect_fail active-header-without-active-row "${cmc_case}" \
   'Un task corrente ACTIVE richiede esattamente una riga ACTIVE'
 
+cmc_case="$(cmc_fixture blocked-header-with-todo-row)"
+perl -0pi.bak -e '
+  s/^- \*\*Stato task\*\*: ACTIVE$/- **Stato task**: BLOCKED/m
+    or die "Master task status missing\n";
+  s/^(\| TASK-040 \| iOS TestFlight release \|) ACTIVE (\|)/$1 TODO $2/m
+    or die "Master TASK-040 row missing\n";
+' "${cmc_case}/docs/MASTER-PLAN.md"
+rm "${cmc_case}/docs/MASTER-PLAN.md.bak"
+perl -0pi.bak -e '
+  s/^- \*\*Stato task\*\*: ACTIVE$/- **Stato task**: BLOCKED/m
+    or die "README task status missing\n";
+  s/^(TASK-040 è l.unico task `)ACTIVE( \/ FIX`)/${1}BLOCKED$2/m
+    or die "README summary missing\n";
+' "${cmc_case}/README.md"
+rm "${cmc_case}/README.md.bak"
+perl -0pi.bak -e '
+  s/^- \*\*Stato\*\*: ACTIVE$/- **Stato**: BLOCKED/m
+    or die "task status missing\n";
+' "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md"
+rm "${cmc_case}/docs/TASKS/TASK-040-ios-testflight-release.md.bak"
+perl -0pi.bak -e '
+  s/^`ACTIVE \/ FIX \/ /`BLOCKED \/ FIX \/ /m
+    or die "evidence state missing\n";
+' "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+rm "${cmc_case}/docs/TASKS/EVIDENCE/TASK-040/README.md.bak"
+perl -0pi.bak -e '
+  s/^(\| TASK-040 \|) ACTIVE \/ FIX (\|)/$1 BLOCKED \/ FIX $2/m
+    or die "manifest TASK-040 state missing\n";
+' "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+rm "${cmc_case}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md.bak"
+cmc_expect_fail blocked-header-with-todo-row "${cmc_case}" \
+  'Stato task corrente nel backlog incoerente'
+
 cmc_case="$(cmc_fixture validated-pending)"
 cmc_expect_pass validated-pending "${cmc_case}"
 

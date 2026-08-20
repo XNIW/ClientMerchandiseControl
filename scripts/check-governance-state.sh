@@ -1211,11 +1211,61 @@ cmc_table_active_task="$(
     }
   ' <<<"${cmc_master_backlog_rows}"
 )"
+cmc_global_current_task_row_count=0
+cmc_table_current_task_row_count=0
+cmc_table_current_task_row_status=''
+if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
+  cmc_global_current_task_row_count="$(
+    awk -F'|' -v expected="${cmc_active_task}" '
+      /^\| TASK-[0-9][0-9][0-9] / {
+        task=$2
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", task)
+        if (task == expected) count++
+      }
+      END { print count + 0 }
+    ' "${cmc_master_plan}"
+  )"
+  cmc_table_current_task_row_count="$(
+    awk -F'|' -v expected="${cmc_active_task}" '
+      /^\| TASK-[0-9][0-9][0-9] / {
+        task=$2
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", task)
+        if (task == expected) count++
+      }
+      END { print count + 0 }
+    ' <<<"${cmc_master_backlog_rows}"
+  )"
+  cmc_table_current_task_row_status="$(
+    awk -F'|' -v expected="${cmc_active_task}" '
+      /^\| TASK-[0-9][0-9][0-9] / {
+        task=$2
+        status=$4
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", task)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", status)
+        if (task == expected) print status
+      }
+    ' <<<"${cmc_master_backlog_rows}"
+  )"
+fi
 
 if [[ "${cmc_global_table_active_count}" -ne "${cmc_table_active_count}" ]]; then
   printf 'Righe ACTIVE fuori dalla tabella canonica Backlog completo: globali=%s, canoniche=%s.\n' \
     "${cmc_global_table_active_count}" "${cmc_table_active_count}" >&2
   cmc_violation_count=$((cmc_violation_count + 1))
+fi
+
+if [[ "${cmc_active_task_normalized}" != "nessuno" ]]; then
+  if [[ "${cmc_table_current_task_row_count}" -ne 1 ||
+    "${cmc_global_current_task_row_count}" -ne 1 ]]; then
+    printf 'Riga task corrente nel backlog incoerente: task=%q, canoniche=%s, globali=%s.\n' \
+      "${cmc_active_task}" "${cmc_table_current_task_row_count}" \
+      "${cmc_global_current_task_row_count}" >&2
+    cmc_violation_count=$((cmc_violation_count + 1))
+  elif [[ "${cmc_table_current_task_row_status}" != "${cmc_task_status}" ]]; then
+    printf 'Stato task corrente nel backlog incoerente: header=%q, roadmap=%q.\n' \
+      "${cmc_task_status}" "${cmc_table_current_task_row_status}" >&2
+    cmc_violation_count=$((cmc_violation_count + 1))
+  fi
 fi
 
 if [[ "${cmc_active_task_normalized}" == "nessuno" ]]; then

@@ -70,6 +70,7 @@ cmc_ios_release_xcconfig="${cmc_ios_release_root}/ios/Flutter/Release.xcconfig"
 cmc_ios_release_security="${cmc_ios_release_root}/scripts/check-client-security.sh"
 cmc_ios_release_uuid_normalizer="${cmc_ios_release_root}/scripts/normalize-ios-macho-uuid.pl"
 cmc_ios_release_bundle_plist_canonicalizer="${cmc_ios_release_root}/scripts/canonicalize-ios-bundle-plist.py"
+cmc_ios_release_tree_attestor="${cmc_ios_release_root}/scripts/attest-ios-app-tree.py"
 
 for cmc_ios_release_file in \
   "${cmc_ios_release_info}" \
@@ -80,7 +81,8 @@ for cmc_ios_release_file in \
   "${cmc_ios_release_xcconfig}" \
   "${cmc_ios_release_security}" \
   "${cmc_ios_release_uuid_normalizer}" \
-  "${cmc_ios_release_bundle_plist_canonicalizer}"; do
+  "${cmc_ios_release_bundle_plist_canonicalizer}" \
+  "${cmc_ios_release_tree_attestor}"; do
   [[ -r "${cmc_ios_release_file}" ]] || \
     cmc_ios_release_fail 'RELEASE_SOURCE_MISSING'
 done
@@ -302,10 +304,15 @@ fi
 
 [[ -n "${cmc_ios_release_app}" && -d "${cmc_ios_release_app}" ]] || \
   cmc_ios_release_fail 'APP_NOT_READABLE'
+[[ ! -L "${cmc_ios_release_app}" ]] || \
+  cmc_ios_release_fail 'APP_NOT_READABLE'
 case "${cmc_ios_release_app}" in
   *.app) ;;
   *) cmc_ios_release_fail 'APP_EXTENSION_INVALID' ;;
 esac
+cmc_ios_release_app_canonical="$(
+  cd -- "${cmc_ios_release_app}" && pwd -P
+)" || cmc_ios_release_fail 'APP_NOT_READABLE'
 
 if [[ -n "${cmc_ios_release_reference_app}" || \
   -n "${cmc_ios_release_reference_attestation}" ]]; then
@@ -344,7 +351,6 @@ if [[ -n "${cmc_ios_release_reference_app}" ]]; then
   cmc_ios_release_expected_reference_app="$(
     cd -- "${cmc_ios_release_expected_reference_app}" && pwd -P
   )"
-  cmc_ios_release_app_canonical="$(cd -- "${cmc_ios_release_app}" && pwd -P)"
   [[ "${cmc_ios_release_reference_app_canonical}" == \
       "${cmc_ios_release_expected_reference_app}" && \
     "${cmc_ios_release_reference_app_canonical}" != \
@@ -532,6 +538,13 @@ cmc_ios_release_expected_bundle_digests=(
   '12bd63afd08944399c646dc2d414d6b5066c30ee6f991adca0a34f9e91d5619d'
   'd7f38e37827ebc035aab622778760496d28b4e7711d4f7d94d74617b607c9349'
 )
+
+cmc_ios_release_initial_tree_digest="$(
+  python3 "${cmc_ios_release_tree_attestor}" \
+    "${cmc_ios_release_app_canonical}"
+)" || cmc_ios_release_fail 'ARTIFACT_TREE_DIGEST_UNREADABLE'
+[[ "${cmc_ios_release_initial_tree_digest}" =~ ^[0-9a-f]{64}$ ]] || \
+  cmc_ios_release_fail 'ARTIFACT_TREE_DIGEST_UNREADABLE'
 
 cmc_ios_release_require_exact_component_set() {
   local cmc_ios_release_component_root="$1"
@@ -1116,10 +1129,22 @@ if [[ "${cmc_ios_release_require_upload}" == true ]]; then
   printf 'IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED\n'
 fi
 
+cmc_ios_release_final_tree_digest="$(
+  python3 "${cmc_ios_release_tree_attestor}" \
+    "${cmc_ios_release_app_canonical}"
+)" || cmc_ios_release_fail 'ARTIFACT_TREE_DIGEST_UNREADABLE'
+[[ "${cmc_ios_release_final_tree_digest}" =~ ^[0-9a-f]{64}$ ]] || \
+  cmc_ios_release_fail 'ARTIFACT_TREE_DIGEST_UNREADABLE'
+[[ "${cmc_ios_release_final_tree_digest}" == \
+  "${cmc_ios_release_initial_tree_digest}" ]] || \
+  cmc_ios_release_fail 'ARTIFACT_CHANGED_DURING_VALIDATION'
+
 printf 'IOS_RELEASE_CANDIDATE_VALID\n'
 printf 'IOS_RELEASE_SIGNING=%s\n' "${cmc_ios_release_signing_state}"
 printf 'IOS_RELEASE_EXECUTABLE_SHA256=%s\n' "${cmc_ios_release_sha}"
 printf 'IOS_RELEASE_NATIVE_WRAPPER_SHA256=%s\n' "${cmc_ios_release_native_sha}"
+printf 'IOS_RELEASE_ARTIFACT_TREE_SHA256=%s\n' \
+  "${cmc_ios_release_final_tree_digest}"
 if [[ "${cmc_ios_release_entitlement_source}" == ABSENT ]]; then
   printf 'IOS_PUSH_ACTIVATION_BLOCKED: REVIEWED_ENTITLEMENT_AND_APNS_REQUIRED\n'
   printf 'IOS_UNIVERSAL_LINKS_ACTIVATION_BLOCKED: OWNED_DOMAIN_AND_ASSOCIATION_FILE_REQUIRED\n'

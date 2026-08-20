@@ -836,12 +836,15 @@ cmc_ios_test_expect_failure bundle-plist-identity-combined \
 
 cmc_ios_test_python_hook="${cmc_ios_test_tmp_root}/python-hook"
 mkdir -p "${cmc_ios_test_python_hook}"
+cmc_ios_test_bundle_info_canonical="$(
+  cd -- "$(dirname -- "${cmc_ios_test_bundle_info}")" && pwd -P
+)/Info.plist"
 cat >"${cmc_ios_test_python_hook}/python3" <<'SH'
 #!/usr/bin/env bash
 set -euo pipefail
-if [[ "$#" -eq 3 && \
+if [[ "$#" -eq 5 && \
   "$1" == "${CMC_IOS_TEST_CANONICALIZER}" && \
-  "$2" == '--digest' && \
+  "$2" == '--validate-identity-and-digest' && \
   "$3" == "${CMC_IOS_TEST_RACE_TARGET}" ]]; then
   cmc_ios_test_hook_output="$("${CMC_IOS_TEST_REAL_PYTHON3}" "$@")"
   "${CMC_IOS_TEST_REAL_PYTHON3}" - "${CMC_IOS_TEST_RACE_TARGET}" <<'PY'
@@ -864,27 +867,25 @@ fi
 exec "${CMC_IOS_TEST_REAL_PYTHON3}" "$@"
 SH
 chmod u+x "${cmc_ios_test_python_hook}/python3"
-cmc_ios_test_total=$((cmc_ios_test_total + 1))
-env \
+cmc_ios_test_expect_failure bundle-plist-retained-postcheck \
+  ARTIFACT_CHANGED_DURING_VALIDATION \
+  env \
   PATH="${cmc_ios_test_python_hook}:${PATH}" \
   CMC_IOS_TEST_CANONICALIZER="${cmc_ios_test_plist_canonicalizer}" \
-  CMC_IOS_TEST_RACE_TARGET="${cmc_ios_test_bundle_info}" \
+  CMC_IOS_TEST_RACE_TARGET="${cmc_ios_test_bundle_info_canonical}" \
   CMC_IOS_TEST_REAL_PYTHON3="${cmc_ios_test_real_python3}" \
   bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
-  --reference-attestation "${cmc_ios_test_reference_attestation}" \
-  >/dev/null || {
-  printf 'Fixture iOS: validazione identity+digest combinata fallita.\n' >&2
-  exit 1
-}
-if /usr/libexec/PlistBuddy -c 'Print :CMCRaceTamper' \
+  --reference-attestation "${cmc_ios_test_reference_attestation}"
+if ! /usr/libexec/PlistBuddy -c 'Print :CMCRaceTamper' \
   "${cmc_ios_test_bundle_info}" >/dev/null 2>&1; then
-  printf 'Fixture iOS: digest e identity usano snapshot separati.\n' >&2
+  printf 'Fixture iOS: swap post-check non eseguito.\n' >&2
   exit 1
 fi
-cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
+/usr/libexec/PlistBuddy -c 'Delete :CMCRaceTamper' \
+  "${cmc_ios_test_bundle_info}"
 
 cmc_ios_test_bundle_info_backup="${cmc_ios_test_tmp_root}/bundle-info.plist.original"
 cp "${cmc_ios_test_bundle_info}" "${cmc_ios_test_bundle_info_backup}"
@@ -916,7 +917,7 @@ PY
 }
 cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 cmc_ios_test_expect_failure bundle-plist-fifo-bound \
-  EMBEDDED_BUNDLE_DIGEST_MISMATCH \
+  ARTIFACT_TREE_DIGEST_UNREADABLE \
   cmc_ios_test_validate_bounded \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"

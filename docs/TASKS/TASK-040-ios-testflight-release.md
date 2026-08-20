@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1428,6 +1428,38 @@ report prodotto sealed SHA-256
   `d2ce42a18882e7293f31332d2f1e6e20a3df8f8f320ee8c1e2b14567f30805b3`.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 36
+
+- exact technical SHA: `9753feac0e455e2f9be326b50e599d64cdeff1ab`;
+- il validator mantiene aperto un guard `kqueue` su root, directory e file della
+  snapshot sigillata per tutti i controlli e rifiuta write, rename, delete,
+  link, extend o revoke prima della pubblicazione del marker candidate;
+- l'extractor copia e verifica il payload in un file privato prima di parsare o
+  estrarre, impedendo l'interleaving ZIP A-B-A, e confronta il conteggio reale
+  dei record central-directory con EOCD prima di `ZipFile.infolist()`;
+- il rollback rinomina atomicamente la destination creata in quarantena e la
+  elimina con passi e operazioni bounded, senza lasciare output parziali;
+- il runbook usa root, archive, snapshot, payload e destination assoluti; il
+  flusso upload valida ed esporta la medesima copia archive ricostruita dal
+  payload exact-SHA;
+- regressioni guard no-mutation/mutation/root-ABA, full validator ABA,
+  extract A-B-A, EOCD count falsificato e cleanup profondo sono verdi;
+- candidate reale 686/207 `PASS`, tree SHA-256
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`,
+  sealed payload SHA-256
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+- validator iOS 70/70, Flutter/YAML 12/12, governance 88/88, security
+  source 686 e fixture 61/61 + 7/7, syntax, pycompile, action pin,
+  architecture, format, analyze e diff check `PASS`;
+- `scripts/check.sh` exact technical SHA exit 0: 804/804 non-performance,
+  performance 10/10, repeat resilience 70/70 e build debug Android/iOS
+  `PASS`;
+- upload-ready reale exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

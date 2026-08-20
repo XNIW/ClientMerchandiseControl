@@ -4239,3 +4239,23 @@
   `d2ce42a18882e7293f31332d2f1e6e20a3df8f8f320ee8c1e2b14567f30805b3`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 36 e handoff
+
+- **Technical SHA**: `9753feac0e455e2f9be326b50e599d64cdeff1ab`.
+- **Fix**: guard `kqueue` descriptor-bound sulla snapshot sigillata per tutta la
+  validazione; extractor da copia privata exact-SHA con conteggio reale del
+  central directory; rollback tramite quarantena bounded.
+- **Runbook**: path candidate/upload assoluti e archive export ricostruito dalla
+  medesima app sealed verificata.
+- **Regressioni**: mutation/root ABA del guard, validator malicious-safe-malicious,
+  ZIP A-B-A, EOCD count falsificato e cleanup profondo; iOS 70/70 e
+  Flutter/YAML 12/12 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 + 7/7,
+  architecture, analyze, syntax, pycompile, action pin e diff `PASS`;
+  `scripts/check.sh` exact technical SHA exit 0 con 804/804 non-performance,
+  performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

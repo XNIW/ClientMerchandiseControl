@@ -4,19 +4,18 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-040
-- **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
-- **Stato task**: BLOCKED
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: EXECUTION
-- **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: scelta USER_APPROVER del boundary esterno
-  (supervisor UID distinto, sandbox/ACL o runner/VM effimera) oppure emendamento
-  esplicito del threat model. Upload TestFlight `NOT_RUN`
+- **Stato release train**: IDLE
+- **Review integrata**: APPROVED
+- **Prossima azione autorizzata**: restare `IDLE`; TASK-041 resta `TODO` e non
+  viene attivato. Upload TestFlight `NOT_RUN` fino agli activation requirement
 
 ## Repository coinvolti
 
@@ -94,7 +93,7 @@
 | TASK-037 | Performance, immagini, cache e load testing | DONE | TASK-009, TASK-017, TASK-019, TASK-027 | Client, Admin, Supabase | Budget performance end-to-end |
 | TASK-038 | Store assets, privacy policy, legal e release metadata | DONE | TASK-002, TASK-021, TASK-032, TASK-033, TASK-036 | Client, Admin | Materiale release conforme |
 | TASK-039 | Android internal testing release | DONE | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build Android internal test |
-| TASK-040 | iOS TestFlight release | BLOCKED | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build iOS TestFlight |
+| TASK-040 | iOS TestFlight release | DONE | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build iOS TestFlight |
 | TASK-041 | Production launch, rollback e runbook | TODO | TASK-039, TASK-040 | Client, Admin, Supabase, POS | Lancio controllato e reversibile |
 | TASK-042 | Post-launch monitoring, supporto e manutenzione | TODO | TASK-041 | Tutti | Operatività post-lancio |
 | TASK-043 | Storefront commerce information architecture and UX refresh | DONE | TASK-033 | Client | Shell a cinque destinazioni e superfici commerce moderne, data-backed e accessibili |

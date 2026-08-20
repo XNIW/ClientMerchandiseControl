@@ -188,14 +188,14 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-040
-- **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
-- **Stato task**: BLOCKED
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: DONE
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Indicatore**: USER_APPROVED_DONE
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: EXECUTION
-- **Review integrata**: NOT_RUN
+- **Stato release train**: IDLE
+- **Review integrata**: APPROVED
 
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
 normalmente e le CI PR/main exact-SHA sono verdi. Il train
@@ -208,12 +208,12 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `BLOCKED / REVIEW`: la re-review Fix 46 ha chiuso
-tutti i finding P0–P3 e la allowlist governance è verde 101/101. Codice iOS,
-candidate 686/207 e fixture iOS 86/86 restano invariati; l'unico blocker è il
-boundary di isolamento esterno per writer same-UID non cooperativi.
-Distribution, provisioning, App Store Connect key e upload TestFlight restano
-esterni e non sono stati inventati.
+TASK-040 è `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: D-05 limita
+il boundary locale ai writer same-UID cooperativi, la targeted final re-review è
+`APPROVED` con zero P0/P1/P2/P3 e la CI PR #19 exact-SHA è verde 5/5. Il progetto
+resta `IDLE`; TASK-041 è `TODO` e non viene attivato. Distribution, provisioning,
+App Store Connect, device fisico ed eventuali production provider key restano
+activation requirement esterni; nessun upload TestFlight è stato dichiarato.
 
 `TASK-001`–`TASK-004` sono `DONE`; la PR batch #3 TASK-003/TASK-004 è merged.
 TASK-011 è `DONE` dopo re-review indipendente `APPROVED` e CI approvazione

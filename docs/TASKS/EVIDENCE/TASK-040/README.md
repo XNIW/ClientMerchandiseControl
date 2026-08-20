@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
-Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
+Snapshot di closeout:
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | D-05 cooperative same-UID writers registrata; final re-review targeted da eseguire | NOT_RUN |
+| CA-10 | D-05 registrata; targeted re-review APPROVED 0 finding; PR CI exact-SHA 5/5 | PASS |
 
 ## Matrice T -> risultato
 
@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 46 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | PASS | targeted re-review APPROVED; PR #19 CI `32337398015` exact `c02fa06` 5/5; main CI resta gate post-merge esterno a questo snapshot |
 
 ## Activation boundary
 
@@ -1234,6 +1234,19 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
   protection restano invariati;
 - `scripts/lib/governance_review_role_policy.sh` non richiede modifiche: la
   matrice nota resta allowlisted e le combinazioni ignote falliscono chiuse.
+
+## Targeted final re-review e closeout — 2026-08-20
+
+- revision set locale `201bb8f..435e8cb`, tree GitHub finale equivalente;
+- delta reviewed: 2 documenti, 21 inserimenti/1 rimozione, zero codice;
+- verdict indipendente `APPROVED`, P0 0 / P1 0 / P2 0 / P3 0;
+- governance final-closeout 102/102, scanner source 688, security fixture 61/61 + 7/7,
+  architecture 17/17, format 301/0 e analyze `PASS`;
+- PR #19 CI run `32337398015` su `c02fa064540105a402d7649d8361acad573bbfee`:
+  cinque job `success`, inclusi test/build completi e iOS release adversarial;
+- classification `TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`; nessun
+  upload TestFlight, signing production o mutazione production;
+- TASK-041 resta `TODO_NOT_STARTED`; progetto `IDLE`.
 
 ## Re-review Fix 40
 

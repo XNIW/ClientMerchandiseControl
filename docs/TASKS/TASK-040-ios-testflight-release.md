@@ -5,14 +5,14 @@
 - **Task ID**: TASK-040
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
-- **Stato**: BLOCKED
+- **Stato**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-17
-- **Ultimo aggiornamento**: 2026-08-18
+- **Ultimo aggiornamento**: 2026-08-20
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -1935,9 +1935,23 @@ report prodotto sealed SHA-256
 
 `CODEX_REVIEW_BLOCKED`.
 
+### Targeted final re-review e closeout
+
+- decisione USER_APPROVER D-05 applicata esclusivamente al workflow locale;
+- diff reviewed `201bb8f5a3182b08bdbaed3f52974305e329c9e8..435e8cbdbb0fe71970efded2ff9c9b22290ca5dd`:
+  due documenti, zero codice/runtime/test/policy modificati;
+- re-review distinta `APPROVED`, P0 0 / P1 0 / P2 0 / P3 0;
+- branch GitHub recuperata con tree byte-identico; CI PR #19 run
+  `32337398015` sullo SHA `c02fa064540105a402d7649d8361acad573bbfee`:
+  Quality, Android debug/release e iOS Simulator/release 5/5 `PASS`;
+- preflight Codex Security formale `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE` su
+  Python 3.9 senza `tomllib/tomli`; nessun report sealed inventato;
+- USER_APPROVER autorizza `DONE` e merge normale; TASK-041 resta `TODO`.
+
+`USER_APPROVED_DONE`.
+
 ## Chiusura
 
-- **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure
-  `TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`
+- **Classificazione finale**: `TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`
 - **Production App Store**: vietata
-- **Data completamento**: non ancora
+- **Data completamento**: 2026-08-20

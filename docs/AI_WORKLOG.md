@@ -4601,3 +4601,22 @@
   effimera con teardown attestato o emendamento esplicito USER_APPROVER.
 - **Transizione**: `BLOCKED / REVIEW -> BLOCKED / REVIEW`; production invariata.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+## 2026-08-20 — TASK-040 targeted closeout
+
+- **Decisione USER_APPROVER**: D-05 restringe il solo workflow locale ai writer
+  same-UID cooperativi; RLS, auth, payment, runtime e data boundary invariati.
+- **Delta reviewed**: `201bb8f..435e8cb`, due documenti, zero codice/test/policy.
+- **Re-review**: `APPROVED`, P0 0/P1 0/P2 0/P3 0; governance final-closeout
+  102/102 (101 fixture storiche + stato `IDLE/DONE`),
+  scanner 688, security 61/61 + 7/7 e gate bounded verdi.
+- **CI PR**: run `32337398015` sullo SHA GitHub
+  `c02fa064540105a402d7649d8361acad573bbfee`, cinque job `success`.
+- **Security tooling**: `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`; Python 3.9
+  senza `tomllib/tomli`, nessun report sealed inventato.
+- **Classificazione**: `TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`;
+  Apple Distribution, provisioning, App Store Connect, device fisico ed eventuali
+  production provider key restano activation requirement.
+- **Transizione**: `BLOCKED / REVIEW -> DONE / REVIEW`; progetto `IDLE`,
+  TASK-041 `TODO_NOT_STARTED`.
+- **Handoff**: `USER_APPROVED_DONE`.

@@ -5,6 +5,24 @@ cmc_test_repo_root="$(git rev-parse --show-toplevel)"
 cmc_test_tmp="$(mktemp -d "${TMPDIR:-/tmp}/cmc-governance.XXXXXX")"
 trap 'rm -rf "${cmc_test_tmp}"' EXIT
 cmc_assertion_count=0
+cmc_repository_task_status="$(
+  sed -n 's/^- \*\*Stato task\*\*: //p' \
+    "${cmc_test_repo_root}/docs/MASTER-PLAN.md" | head -n 1
+)"
+cmc_fixture_revision='HEAD'
+if [[ "${cmc_repository_task_status}" == 'DONE' ]]; then
+  cmc_committed_task_status="$(
+    git show HEAD:docs/MASTER-PLAN.md | \
+      sed -n 's/^- \*\*Stato task\*\*: //p' | head -n 1
+  )"
+  if [[ "${cmc_committed_task_status}" == 'DONE' ]]; then
+    cmc_fixture_revision='HEAD^'
+  fi
+fi
+cmc_fixture_task_status="$(
+  git show "${cmc_fixture_revision}:docs/MASTER-PLAN.md" | \
+    sed -n 's/^- \*\*Stato task\*\*: //p' | head -n 1
+)"
 
 source "${cmc_test_repo_root}/scripts/lib/governance_path_policy.sh"
 source "${cmc_test_repo_root}/scripts/lib/governance_review_role_policy.sh"
@@ -276,6 +294,42 @@ cmc_fixture() {
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-045/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-045/README.md"
 
+  if [[ "${cmc_repository_task_status}" == 'DONE' ]]; then
+    local cmc_governance_file=''
+    for cmc_governance_file in \
+      README.md \
+      docs/MASTER-PLAN.md \
+      docs/AI_WORKLOG.md \
+      docs/TASKS/TASK-040-ios-testflight-release.md \
+      docs/TASKS/EVIDENCE/TASK-040/README.md \
+      docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md; do
+      git show "${cmc_fixture_revision}:${cmc_governance_file}" \
+        >"${cmc_target}/${cmc_governance_file}"
+    done
+    if ! git cat-file -e \
+      'dfa81de942f4cc06dc0340096a17d94410943730^{commit}' 2>/dev/null; then
+      CMC_REMOTE_REVIEW='dfa81de942f4cc06dc0340096a17d94410943730' \
+        CMC_LOCAL_REVIEW='f7ea8876216edaf8de3066c2890921e948679185' \
+        CMC_REMOTE_TECHNICAL='83e9d42ba51190617c91e3137786e6cd33fe7bd9' \
+        CMC_LOCAL_TECHNICAL='b67a3a46ce333a4d455f94041ab8785020055499' \
+        CMC_REMOTE_ARTIFACT='30ccc4de09e7a1e85b3d96d5d217dd1affe414e9' \
+        CMC_LOCAL_ARTIFACT='dda9c1f8a4933267d625c72a8c20db834260811d' \
+        perl -pi -e '
+          s/\Q$ENV{CMC_REMOTE_REVIEW}\E/$ENV{CMC_LOCAL_REVIEW}/g;
+          s/\Q$ENV{CMC_REMOTE_TECHNICAL}\E/$ENV{CMC_LOCAL_TECHNICAL}/g;
+          s/\Q$ENV{CMC_REMOTE_ARTIFACT}\E/$ENV{CMC_LOCAL_ARTIFACT}/g;
+          s/dfa81de/f7ea887/g;
+          s/83e9d42/b67a3a4/g;
+          s/30ccc4d/dda9c1f/g;
+        ' \
+        "${cmc_target}/docs/MASTER-PLAN.md" \
+        "${cmc_target}/docs/AI_WORKLOG.md" \
+        "${cmc_target}/docs/TASKS/TASK-040-ios-testflight-release.md" \
+        "${cmc_target}/docs/TASKS/EVIDENCE/TASK-040/README.md" \
+        "${cmc_target}/docs/releases/CLIENT-FINAL-PRODUCT-COMPLETION-MANIFEST.md"
+    fi
+  fi
+
   printf '%s\n' "${cmc_target}"
 }
 
@@ -418,13 +472,14 @@ cmc_expect_review_role_policy \
   REVIEW CODEX_REVIEW_UNKNOWN \
   '' '' ''
 
+if [[ "${cmc_repository_task_status}" == 'DONE' ]]; then
+  cmc_expect_pass final-idle-closeout "${cmc_test_repo_root}"
+fi
+
 cmc_case="$(cmc_fixture valid)"
 cmc_expect_pass valid "${cmc_case}"
 
-cmc_current_task_status="$(
-  sed -n 's/^- \*\*Stato task\*\*: //p' \
-    "${cmc_test_repo_root}/docs/MASTER-PLAN.md" | head -n 1
-)"
+cmc_current_task_status="${cmc_fixture_task_status}"
 
 cmc_case="$(cmc_fixture duplicate-active)"
 sed -i.bak \

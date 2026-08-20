@@ -9,7 +9,6 @@ cmc_ios_release_reference_app=''
 cmc_ios_release_reference_attestation=''
 cmc_ios_release_source_only=false
 cmc_ios_release_require_upload=false
-cmc_ios_release_bundle_plist_max_bytes=1048576
 
 cmc_ios_release_fail() {
   printf 'IOS_RELEASE_BLOCKED: %s\n' "$1" >&2
@@ -70,6 +69,7 @@ cmc_ios_release_config="${cmc_ios_release_root}/config/app_config.production.rel
 cmc_ios_release_xcconfig="${cmc_ios_release_root}/ios/Flutter/Release.xcconfig"
 cmc_ios_release_security="${cmc_ios_release_root}/scripts/check-client-security.sh"
 cmc_ios_release_uuid_normalizer="${cmc_ios_release_root}/scripts/normalize-ios-macho-uuid.pl"
+cmc_ios_release_bundle_plist_canonicalizer="${cmc_ios_release_root}/scripts/canonicalize-ios-bundle-plist.py"
 
 for cmc_ios_release_file in \
   "${cmc_ios_release_info}" \
@@ -79,7 +79,8 @@ for cmc_ios_release_file in \
   "${cmc_ios_release_config}" \
   "${cmc_ios_release_xcconfig}" \
   "${cmc_ios_release_security}" \
-  "${cmc_ios_release_uuid_normalizer}"; do
+  "${cmc_ios_release_uuid_normalizer}" \
+  "${cmc_ios_release_bundle_plist_canonicalizer}"; do
   [[ -r "${cmc_ios_release_file}" ]] || \
     cmc_ios_release_fail 'RELEASE_SOURCE_MISSING'
 done
@@ -91,8 +92,6 @@ for cmc_ios_release_command in \
 done
 [[ -x /usr/libexec/PlistBuddy ]] || \
   cmc_ios_release_fail 'PLIST_TOOLING_MISSING'
-[[ -x /usr/bin/stat ]] || \
-  cmc_ios_release_fail 'ARTIFACT_TOOLING_MISSING'
 
 cmc_ios_release_require_literal() {
   local cmc_ios_release_file="$1"
@@ -523,15 +522,15 @@ cmc_ios_release_expected_bundle_identifiers=(
   'url-launcher-ios-6.4.1.url-launcher-ios.resources'
 )
 cmc_ios_release_expected_bundle_digests=(
-  '25b5d8f6ca51382499bd3a7514ac40d46d7dca4e5d7cf8199d3047e14cc7c1e7'
-  'c68287a3eef73d8803e899188399338b3b9ca25e9cb5f058e7e1fe69917520c7'
-  '9690a463594a7339456e1b947b5b5127d528725045a654984d770c6d0b1de593'
-  '3c21eed078875cd2e08e9e21e74625a5d8186b4a3a4dac52e755ccbf3318dff6'
-  '977af56dd55f489cde8a515811a87f231a41841d85c5bed6b0a1856c12a00592'
-  '5925a2133ba8501fb2bd9202615b9f0d3d4ed4820bb9c45c86bef0642f4bb244'
-  '126170f9e2bd63a6feb1872a44b34b3b3ef2d8aa76e40bb6f826ebbe66fd7152'
-  '3748616f9170148c93cec63927f9afd8d206255993c42712ba31f6a60426f6dc'
-  'fd0c7e7cc49944829772e38e1cccc8e658ac00955e0c64190f9c3b64dfa6075f'
+  '0cd388395fa426e4cb4b77288ca65b48027fdb206c5cb73a4f634bab1b50db57'
+  '14d62414618056f3f05db2658ad8710db49b39832f9056fa51ce955cab673280'
+  '9209081554908f39eba54995e7f1af923b037c36ec1552b2b5323e30e3a34341'
+  'e4097f81f87c2de3b34dbe384110530359eaaf5c5ca9d7f949232a99c7607cea'
+  '4739815abb1b034c817ddc3f0ef657f5f0a334d841221ed5a169ae8f79a13e7c'
+  '4dcf747f5905ba23a01db81d910fc97ae5aabbbfc6f76b1cb744f29c3ef8fe30'
+  'af3f942514295e5901d95d9aef2ce76550b0f00e3fe0f2cdcb23b9641ec6cafe'
+  '12bd63afd08944399c646dc2d414d6b5066c30ee6f991adca0a34f9e91d5619d'
+  'd7f38e37827ebc035aab622778760496d28b4e7711d4f7d94d74617b607c9349'
 )
 
 cmc_ios_release_require_exact_component_set() {
@@ -584,35 +583,20 @@ cmc_ios_release_bundle_tree_digest() {
   local cmc_ios_release_tree_root="$1"
   local cmc_ios_release_tree_file
   local cmc_ios_release_tree_file_digest
-  local cmc_ios_release_tree_file_size
   local cmc_ios_release_tree_relative
+
+  cmc_ios_release_tree_root="$(
+    cd -- "${cmc_ios_release_tree_root}" && pwd -P
+  )" || return 1
 
   find "${cmc_ios_release_tree_root}" -type f \
     ! -path '*/_CodeSignature/*' -print0 | LC_ALL=C sort -z | \
     while IFS= read -r -d '' cmc_ios_release_tree_file; do
       cmc_ios_release_tree_relative="${cmc_ios_release_tree_file#"${cmc_ios_release_tree_root}"/}"
       if [[ "${cmc_ios_release_tree_relative##*/}" == 'Info.plist' ]]; then
-        cmc_ios_release_tree_file_size="$(
-          /usr/bin/stat -f '%z' "${cmc_ios_release_tree_file}"
-        )" || return 1
-        [[ "${cmc_ios_release_tree_file_size}" =~ ^[0-9]+$ && \
-          "${cmc_ios_release_tree_file_size}" -le \
-          "${cmc_ios_release_bundle_plist_max_bytes}" ]] || return 1
-        # Xcode inserisce il build number del macOS host nei resource bundle.
-        # Quel solo campo varia fra macchine a parita' di toolchain e input;
-        # ogni altra chiave plist e ogni altra risorsa restano nel digest. Il
-        # limite pre-lettura mantiene bounded la canonicalizzazione JSON.
         cmc_ios_release_tree_file_digest="$(
-          plutil -convert json -o - "${cmc_ios_release_tree_file}" 2>/dev/null | \
-            perl -MJSON::PP -e '
-              use strict;
-              use warnings;
-              local $/;
-              my $decoded = eval { JSON::PP->new->utf8->decode(<STDIN>) };
-              exit 1 if $@ || ref($decoded) ne "HASH";
-              delete $decoded->{BuildMachineOSBuild};
-              print JSON::PP->new->canonical->encode($decoded);
-            ' | shasum -a 256 | awk '{print $1}'
+          python3 "${cmc_ios_release_bundle_plist_canonicalizer}" \
+            --digest "${cmc_ios_release_tree_file}"
         )" || return 1
       else
         cmc_ios_release_tree_file_digest="$(
@@ -808,19 +792,19 @@ done
 for cmc_ios_release_bundle_index in \
   "${!cmc_ios_release_expected_bundles[@]}"; do
   cmc_ios_release_bundle="${cmc_ios_release_app}/${cmc_ios_release_expected_bundles[cmc_ios_release_bundle_index]}"
+  cmc_ios_release_bundle="$(
+    cd -- "${cmc_ios_release_bundle}" && pwd -P
+  )" || cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
   cmc_ios_release_bundle_info="${cmc_ios_release_bundle}/Info.plist"
   [[ -r "${cmc_ios_release_bundle_info}" ]] || \
-    cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
-  [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' \
-    "${cmc_ios_release_bundle_info}" 2>/dev/null || true)" == \
-    "${cmc_ios_release_expected_bundle_identifiers[cmc_ios_release_bundle_index]}" ]] || \
-    cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
-  [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundlePackageType' \
-    "${cmc_ios_release_bundle_info}" 2>/dev/null || true)" == 'BNDL' ]] || \
     cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
   cmc_ios_release_bundle_digest="$(
     cmc_ios_release_bundle_tree_digest "${cmc_ios_release_bundle}"
   )" || cmc_ios_release_fail 'EMBEDDED_BUNDLE_DIGEST_UNREADABLE'
+  python3 "${cmc_ios_release_bundle_plist_canonicalizer}" \
+    --validate-identity "${cmc_ios_release_bundle_info}" \
+    "${cmc_ios_release_expected_bundle_identifiers[cmc_ios_release_bundle_index]}" \
+    'BNDL' || cmc_ios_release_fail 'BUNDLE_IDENTITY_INVALID'
   [[ "${cmc_ios_release_bundle_digest}" == \
     "${cmc_ios_release_expected_bundle_digests[cmc_ios_release_bundle_index]}" ]] || \
     cmc_ios_release_fail 'EMBEDDED_BUNDLE_DIGEST_MISMATCH'

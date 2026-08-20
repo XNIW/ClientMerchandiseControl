@@ -816,6 +816,57 @@ cmc_ios_test_expect_failure bundle-plist-size-bound \
   --archive "${cmc_ios_test_fixture_archive}"
 cp "${cmc_ios_test_bundle_info_backup}" "${cmc_ios_test_bundle_info}"
 
+python3 - "${cmc_ios_test_bundle_info}" <<'PY'
+import plistlib
+import sys
+
+shared = "A" * 16384
+payload = {
+    "BuildMachineOSBuild": "25G76",
+    "CFBundleIdentifier": "app-links-7.2.1.app-links.resources",
+    "CFBundlePackageType": "BNDL",
+}
+for index in range(3000):
+    payload[f"CMC{index:04d}"] = shared
+with open(sys.argv[1], "wb") as target:
+    plistlib.dump(payload, target, fmt=plistlib.FMT_BINARY, sort_keys=True)
+PY
+[[ "$(/usr/bin/stat -f '%z' "${cmc_ios_test_bundle_info}")" -lt 1048576 ]] || {
+  printf 'Fixture iOS: binary plist shared-reference fuori bound.\n' >&2
+  exit 1
+}
+cmc_ios_test_expect_failure bundle-plist-shared-reference-bounded \
+  EMBEDDED_BUNDLE_DIGEST_MISMATCH \
+  cmc_ios_test_validate \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_bundle_info_backup}" "${cmc_ios_test_bundle_info}"
+
+python3 - "${cmc_ios_test_bundle_info}" <<'PY'
+import plistlib
+import sys
+
+payload = {
+    "BuildMachineOSBuild": "25G76",
+    "CFBundleIdentifier": "app-links-7.2.1.app-links.resources",
+    "CFBundlePackageType": "BNDL",
+}
+for index in range(20000):
+    payload[f"CMC{index:05d}"] = index
+with open(sys.argv[1], "wb") as target:
+    plistlib.dump(payload, target, fmt=plistlib.FMT_BINARY, sort_keys=True)
+PY
+[[ "$(/usr/bin/stat -f '%z' "${cmc_ios_test_bundle_info}")" -lt 1048576 ]] || {
+  printf 'Fixture iOS: binary plist object-count fuori input bound.\n' >&2
+  exit 1
+}
+cmc_ios_test_expect_failure bundle-plist-object-count-bound \
+  EMBEDDED_BUNDLE_DIGEST_UNREADABLE \
+  cmc_ios_test_validate \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_bundle_info_backup}" "${cmc_ios_test_bundle_info}"
+
 cmc_ios_test_entitlements="${cmc_ios_test_tmp_root}/entitlements.plist"
 cp "${cmc_ios_test_root}/ios/Runner/PrivacyInfo.xcprivacy" \
   "${cmc_ios_test_entitlements}"

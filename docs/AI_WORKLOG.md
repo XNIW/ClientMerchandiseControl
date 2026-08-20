@@ -4119,3 +4119,16 @@
 - **Boundary**: runtime, signing, provisioning, TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 32 re-review
+
+- **Exact HEAD**: `1a2332e4ca574203b73afa7da788072d83ae7a43`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`; P0 0, P1 0, P2 1, P3 0.
+- **Finding**: uno swap atomico post `--validate-identity-and-digest` conserva
+  un plist same-identity alterato mentre il validator emette ancora
+  `IOS_RELEASE_CANDIDATE_VALID`; l'oracle corrente usa la vecchia flag.
+- **Closure**: FIFO ed EntityDecl/internal subset XML sono chiusi.
+- **Report security**: sealed SHA-256
+  `44c1aa5ade0239f4e586c56b85de2ba01fc8f55c08b00ced9b13924236c90b5c`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; production e TestFlight invariati.

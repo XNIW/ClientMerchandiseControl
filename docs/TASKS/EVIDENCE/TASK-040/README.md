@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | re-review indipendente e PR/main CI da eseguire | NOT_RUN |
+| CA-10 | Fix 32 review con fix richiesto; Fix 33 e PR/main CI da eseguire | NOT_RUN |
 
 ## Matrice T -> risultato
 
@@ -85,6 +85,19 @@ Le regressioni distinguono timeout FIFO, entity bomb a 28 livelli, identity
 errata e il precedente swap atomico fra digest e identity. Candidate reale
 `PASS`, fixture iOS 53/53, scanner 685/207 e gate mirati sono verdi. Il gate
 integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
+
+## Re-review corrente — Fix 32
+
+- exact HEAD `1a2332e4ca574203b73afa7da788072d83ae7a43`;
+- prodotto/security `CHANGES_REQUIRED`, P0 0 / P1 0 / P2 1 / P3 0;
+- uno swap atomico subito dopo `--validate-identity-and-digest` conserva un
+  plist same-identity alterato mentre il validator emette
+  `IOS_RELEASE_CANDIDATE_VALID`;
+- FIFO ed EntityDecl/internal subset XML sono chiusi;
+- report security sealed SHA-256
+  `44c1aa5ade0239f4e586c56b85de2ba01fc8f55c08b00ced9b13924236c90b5c`;
+- candidate 685/207, fixture iOS 53/53 e governance 88/88 restano verdi, ma
+  l'oracle TOCTOU deve essere corretto in Fix 33.
 
 ## Gate Fix 1
 

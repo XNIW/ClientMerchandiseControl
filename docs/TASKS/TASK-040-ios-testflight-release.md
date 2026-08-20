@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1259,6 +1259,23 @@ report prodotto sealed SHA-256
 - runtime, firma, provisioning, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 32
+
+- exact review SHA: `1a2332e4ca574203b73afa7da788072d83ae7a43`;
+- prodotto/security `CHANGES_REQUIRED`, P0 0 / P1 0 / P2 1 / P3 0;
+- `F-040-RR32-IOS-PLIST-POSTCHECK-01`: identity e digest condividono una
+  lettura, ma un replace atomico subito dopo il ritorno del helper lascia nel
+  bundle un plist same-identity con `CMCRaceTamper` e il validator raggiunge
+  comunque `IOS_RELEASE_CANDIDATE_VALID`;
+- FIFO ed EntityDecl/internal subset XML sono chiusi;
+- report security sealed SHA-256
+  `44c1aa5ade0239f4e586c56b85de2ba01fc8f55c08b00ced9b13924236c90b5c`;
+- candidate 685/207, fixture iOS 53/53, governance 88/88 e gate mirati
+  restano verdi; la regression corrente intercetta però solo la vecchia flag
+  `--digest` e non prova il boundary nuovo.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

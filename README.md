@@ -191,8 +191,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
@@ -208,12 +208,12 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 31 ha chiuso l'espansione dei
-binary plist, ma la re-review ha trovato uno snapshot digest/identity separato,
-un open FIFO bloccante e dichiarazioni XML interne non bounded. Fix 32 usa un
-solo parse per identity+digest, `O_NONBLOCK` e rifiuto immediato di internal
-subset/entity. Candidate reale `685/207` e fixture iOS 53/53 sono verdi.
-Re-review e nuova CI exact-SHA restano da eseguire; activation invariata.
+TASK-040 è l'unico task `ACTIVE / FIX`: Fix 32 ha chiuso FIFO ed entity XML,
+ma la re-review ha confermato un P2 perché il plist trattenuto può essere
+sostituito dopo il ritorno del helper identity+digest. Candidate reale `685/207`
+e fixture iOS 53/53 restano verdi, ma il loro oracle TOCTOU è insufficiente.
+Fix 33 deve legare una riattestazione exact-tree finale all'artifact trattenuto;
+nuova re-review e CI exact-SHA restano da eseguire. Activation invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

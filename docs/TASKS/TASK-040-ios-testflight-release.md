@@ -5,14 +5,14 @@
 - **Task ID**: TASK-040
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1857,6 +1857,24 @@ report prodotto sealed SHA-256
   `USER_APPROVER` ai writer cooperativi `LOCK_EX`.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 45
+
+- exact technical SHA: `825a45a221bb67e9c4678cde90c123b57efe0d62`;
+- la policy ruolo/indicatore è centralizzata in
+  `scripts/lib/governance_review_role_policy.sh`;
+- `REVIEW + CODEX_REVIEW_BLOCKED` richiede tail Re-review, role `review`,
+  worklog `re-review` e `Exact HEAD`;
+- `REVIEW + CODEX_FIX_BLOCKED_TO_RE_REVIEW` continua a richiedere tail Fix,
+  role `technical`, worklog `e handoff` e `Technical SHA`;
+- `FIX + CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX` continua a richiedere la forma
+  Re-review/review; le tre policy sono coperte da regressioni dedicate;
+- governance 97/97, syntax, action pins e diff-check `PASS`; codice release,
+  artifact e suite iOS invariati;
+- il finding governance Fix 44 è corretto, ma il boundary same-UID resta un
+  prerequisito esterno.
+
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 ## Chiusura
 

@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 44 role/indicator governance P3; Fix 45 richiesto | NOT_RUN |
+| CA-10 | Fix 45 governance verde; isolamento same-UID richiede boundary esterno | BLOCKED |
 
 ## Matrice T -> risultato
 
@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 44 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 45 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -70,12 +70,12 @@ Snapshot di handoff:
   `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
 - il candidate valido è il payload sealed, non il path sorgente mutabile.
 
-## Gate executor corrente — Fix 44
+## Gate executor corrente — Fix 45
 
 - `scripts/check.sh`: exit 0;
 - non-performance 804/804; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
-- governance 94/94; architecture negative 17/17; localization/telemetry/action pin PASS;
+- governance 97/97; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 686; artifact 207; fixture negative 61/61, positive 7/7;
 - validator iOS avversariale 86/86; Flutter/YAML mirati 12/12;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
@@ -1172,6 +1172,18 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 - prerequisite esterno: distinct-UID supervisor, sandbox/ACL enforceable,
   runner/VM effimera con trusted teardown o decisione USER_APPROVER sul
   threat model. Signing/TestFlight/production restano invariati.
+
+## Fix 45 — blocker corrente
+
+- exact technical SHA `825a45a221bb67e9c4678cde90c123b57efe0d62`;
+- policy unica per role task/manifest e forma worklog in base a fase+indicatore;
+- `CODEX_REVIEW_BLOCKED` usa Re-review/review/Exact HEAD, mentre
+  `CODEX_FIX_BLOCKED_TO_RE_REVIEW` mantiene Fix/technical/Technical SHA;
+- regressioni policy nelle tre combinazioni previste; governance 97/97,
+  syntax, pins e diff-check `PASS`;
+- codice iOS, candidate 686/207 e fixture iOS 86/86 invariati;
+- isolation boundary, Distribution signing, physical iOS e TestFlight restano
+  `BLOCKED` o `NOT_RUN`; nessuna mutazione esterna eseguita.
 
 ## Re-review Fix 40
 

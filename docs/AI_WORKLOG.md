@@ -4547,3 +4547,17 @@
   model ai writer cooperativi.
 - **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-19 — TASK-040 Fix 45 e handoff
+
+- **Technical SHA**: `825a45a221bb67e9c4678cde90c123b57efe0d62`.
+- **Fix**: policy centralizzata fase+indicatore per distinguere handoff tecnico
+  pre-review e verdict reviewer `CODEX_REVIEW_BLOCKED`.
+- **Regressioni**: review-blocked review-role, fixer-blocked technical-role e
+  fix changes-required review-role; governance 97/97 `PASS`.
+- **Scope**: checker, policy e fixture governance; codice iOS, candidate
+  686/207 e fixture iOS 86/86 invariati.
+- **Blocker**: distinct-UID supervisor, sandbox/ACL enforceable, runner/VM
+  effimera o emendamento USER_APPROVER sul threat model.
+- **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

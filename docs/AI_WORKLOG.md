@@ -4293,3 +4293,18 @@
   `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
   physical iOS, TestFlight e production invariati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 37 re-review
+
+- **Exact HEAD**: `365bdb560f80aa9a924291894dba5eaaac237650`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 1/P3 2 dopo deduplicazione.
+- **Finding P2**: ancestor ABA sopra il parent immediato separa guard/seal dai
+  controlli Bash path-based e consente un candidate sostituito.
+- **Finding P3**: trap temp-root path-based e gap child `stat→open` possono
+  cancellare directory o child victim sostituiti.
+- **Closure**: immediate parent, mode/ctime, FIFO early-exit, collisione e root
+  quarantine swap risultano chiusi; iOS 73/73 e gate mirati restano verdi.
+- **Security report**: SHA-256
+  `71a0b2c671636cfb8076000e47314b1443d596114aa04c1e690d8464f41e4711`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

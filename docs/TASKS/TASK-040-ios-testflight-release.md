@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1515,6 +1515,30 @@ report prodotto sealed SHA-256
   physical iOS, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 37
+
+- exact review SHA: `365bdb560f80aa9a924291894dba5eaaac237650`;
+- prodotto/security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 1 / P3 2 dopo
+  deduplicazione;
+- `F-040-RR37-IOS-GUARD-ANCESTOR-ABA-01` P2: il guard lega il parent
+  immediato ma non l'intera ancestor chain; un ABA sopra `tmp_root` mostra un
+  decoy ai controlli Bash mentre il seal attacker-controlled resta guardato e
+  viene pubblicato come candidate valido;
+- `F-040-RR37-IOS-TMP-CLEANUP-01` P3: il trap finale usa `rm -rf` sul pathname
+  del temp root e può cancellare una directory victim sostituita dopo STOP;
+- `F-040-RR37-IOS-CLEANUP-CHILD-ABA-01` P3: `_clear_directory` non confronta
+  l'identità `fstat` del child aperto con lo `stat` precedente e può svuotare
+  un victim sostituito;
+- immediate-parent ABA, mode/ctime ABA, FIFO early-exit/path swap, collisione
+  quarantine e root quarantine victim swap risultano chiusi;
+- gate reviewer: iOS 73/73, candidate 686/207, Flutter/YAML 12/12,
+  governance 88/88, scanner, architecture, analyze e syntax `PASS`;
+- report security sealed SHA-256
+  `71a0b2c671636cfb8076000e47314b1443d596114aa04c1e690d8464f41e4711`;
+  signing, TestFlight e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

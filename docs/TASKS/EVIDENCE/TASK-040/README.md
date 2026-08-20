@@ -84,7 +84,7 @@ XML prima del parse e produce identity+digest dalla stessa lettura bounded.
 Le regressioni distinguono timeout FIFO, entity bomb a 28 livelli, identity
 errata e il precedente swap atomico fra digest e identity. Candidate reale
 `PASS`, fixture iOS 53/53, scanner 685/207 e gate mirati sono verdi. Il gate
-integrato sullo handoff, la re-review e la CI PR restano da eseguire.
+integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 
 ## Gate Fix 1
 

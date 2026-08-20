@@ -1253,6 +1253,9 @@ report prodotto sealed SHA-256
   livelli con timeout discriminante;
 - candidate reale 685/207, validator iOS 53/53, security 685, Flutter/YAML
   12/12, governance 88/88, action pin, syntax e diff check `PASS`;
+- `scripts/check.sh` exact handoff exit 0: 804/804 non-performance,
+  performance 10/10, repeat resilience 70/70, analyze e build debug
+  Android/iOS `PASS`;
 - runtime, firma, provisioning, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

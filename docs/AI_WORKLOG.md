@@ -4067,3 +4067,27 @@
 - **Boundary**: runtime, signing, provisioning, TestFlight e production non
   modificati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 30 re-review
+
+- **Exact HEAD**: `8fc931d8fcb5012d7cdf486aa78b480fdf214c13`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, zero P0/P1/P2 e un P3
+  `F-040-RR30-IOS-PLIST-BOUND-01` su espansione binary plist e parser pre-cap.
+- **Evidence**: input sotto 1 MiB, circa 49 MiB JSON e 387.284.992 byte RSS;
+  candidate 684/207 `PASS`, fixture reviewer interrotta `NOT_RUN`.
+- **Report security**: sealed SHA-256
+  `249d26f6749abc2a7737d071a1f529513657f264322c4428ce31ca9ce8419a9a`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 31 e handoff
+
+- **Technical SHA**: `0ac9b5fa3f31c8c31e2057add45bd82b4cc79f17`.
+- **Fix**: canonicalizer plist bounded su fd `O_NOFOLLOW`, input/grafo/output
+  limitati, identity senza `PlistBuddy`, digest binary canonico deterministico.
+- **Evidence**: shared-reference helper 14.385.152 byte RSS e validator
+  26.279.936 byte RSS; object-count bomb respinto prima del parse completo.
+- **Gate**: candidate 685/207, validator iOS 48/48, security 685, syntax,
+  diff e probe helper `PASS`; gate integrato da rieseguire sul handoff.
+- **Boundary**: runtime, signing, provisioning, TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

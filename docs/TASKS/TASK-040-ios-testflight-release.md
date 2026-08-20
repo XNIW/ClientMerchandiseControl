@@ -1192,6 +1192,38 @@ report prodotto sealed SHA-256
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
+### Re-review Fix 30
+
+- exact review SHA: `8fc931d8fcb5012d7cdf486aa78b480fdf214c13`;
+- prodotto/security `CHANGES_REQUIRED`, zero P0/P1/P2 e un P3:
+  `F-040-RR30-IOS-PLIST-BOUND-01`;
+- un binary plist valido sotto 1 MiB espandeva a circa 49 MiB JSON e il
+  validator raggiungeva 387.284.992 byte RSS; inoltre `PlistBuddy` leggeva
+  l'identità prima del cap e `stat` riapriva il pathname;
+- report security sealed SHA-256
+  `249d26f6749abc2a7737d071a1f529513657f264322c4428ce31ca9ce8419a9a`;
+- candidate 684/207 `PASS`; fixture reviewer 46/46 interrotta e classificata
+  correttamente `NOT_RUN`; signing, TestFlight e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 31
+
+- exact technical SHA: `0ac9b5fa3f31c8c31e2057add45bd82b4cc79f17`;
+- nuovo canonicalizer Python stdlib legge lo stesso fd tramite component-walk
+  `O_NOFOLLOW`, verifica stabilità del file e applica cap 1 MiB input,
+  16.384 oggetti/elementi e 4 MiB output canonico;
+- rimosse le letture `PlistBuddy` dei resource bundle e la pipeline
+  `plutil | JSON::PP`; identity e digest condividono il parser bounded;
+- PoC shared-reference: helper 14.385.152 byte RSS e validator 26.279.936
+  byte RSS con reason `EMBEDDED_BUNDLE_DIGEST_MISMATCH`; fixture object-count
+  oltre 20.000 respinta `EMBEDDED_BUNDLE_DIGEST_UNREADABLE`;
+- candidate reale 685/207, validator iOS 48/48, security, syntax, diff e probe
+  helper symlink/identity/malformed/determinismo `PASS`;
+- runtime, firma, provisioning, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
 ## Chiusura
 
 - **Classificazione target**: `DONE_TESTFLIGHT_UPLOADED` oppure

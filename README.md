@@ -208,13 +208,13 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è l'unico task `ACTIVE / REVIEW`: Fix 29 ha chiuso il mismatch CI
-legato a `BuildMachineOSBuild` ed è stato approvato dalla review prodotto, ma
-la review security ha trovato un P3 bounded sulla canonicalizzazione di plist
-oversized. Fix 30 applica un cap pre-lettura di 1 MiB a ogni `Info.plist` dei
-resource bundle; candidate reale e fixture iOS 46/46 sono verdi e il probe
-oversized scende da circa 615,6 MiB a 26,3 MiB RSS. Re-review e nuova CI
-exact-SHA restano da eseguire; activation invariata.
+TASK-040 è l'unico task `ACTIVE / REVIEW`: la re-review Fix 30 ha dimostrato
+che un binary plist compatto poteva aggirare il solo cap byte ed espandersi a
+circa 387,3 MiB RSS. Fix 31 usa un canonicalizer bounded su fd `O_NOFOLLOW`,
+con cap input/grafo/output e senza `PlistBuddy` pre-bound; lo stesso PoC usa
+circa 26,3 MiB nel validator. Candidate reale `685/207` e fixture iOS 48/48
+sono verdi. Re-review e nuova CI exact-SHA restano da eseguire; activation
+invariata.
 Distribution, provisioning, App Store Connect key e upload TestFlight restano
 esterni e non sono stati inventati.
 

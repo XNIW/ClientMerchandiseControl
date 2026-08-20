@@ -4486,3 +4486,20 @@
   governance il task resta dipendente dal boundary esterno.
 - **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-19 — TASK-040 Fix 43 e handoff
+
+- **Technical SHA**: `a116f1197b6a7085ba92a21ccfa7336dd316b8c4`.
+- **Fix**: binding obbligatorio della riga TASK-040 globale e canonica allo
+  stato header per ogni stato, incluso `BLOCKED`.
+- **Regressione**: header/task/evidence/manifest `BLOCKED` con sola riga
+  backlog `TODO`, `DONE` o `VALIDATED_PENDING_INTEGRATED_REVIEW` viene
+  respinta per la ragione esatta; governance 91/91,
+  `bash -n` e diff-check `PASS`.
+- **Scope**: soltanto checker e fixture governance; codice release, candidate
+  686/207 e fixture iOS 86/86 invariati.
+- **Blocker**: serve supervisor/UID distinto, sandbox/ACL enforceable o runner
+  effimero con GC dopo teardown; una riduzione del threat model richiede
+  decisione esplicita del `USER_APPROVER`.
+- **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

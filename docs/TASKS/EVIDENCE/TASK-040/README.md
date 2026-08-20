@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 42 con finding governance; Fix 43 e re-review richiesti | NOT_RUN |
+| CA-10 | Fix 43 governance verde; isolamento same-UID richiede boundary esterno | BLOCKED |
 
 ## Matrice T -> risultato
 
@@ -37,7 +37,7 @@ Snapshot di handoff:
 | T-06a | PASS | Simulator debug integration 1/1 realmente eseguita |
 | T-06b | NOT_RUN | Release Simulator non supportato dal comando Flutter release |
 | T-06c | BLOCKED | physical iOS offline; prerequisite: device collegato e autorizzato |
-| T-07 | NOT_RUN | Fix 42 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
+| T-07 | NOT_RUN | Fix 43 handoff pronto; re-review, PR/main CI e hygiene da eseguire |
 
 ## Activation boundary
 
@@ -70,12 +70,12 @@ Snapshot di handoff:
   `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
 - il candidate valido è il payload sealed, non il path sorgente mutabile.
 
-## Gate executor corrente — Fix 42
+## Gate executor corrente — Fix 43
 
 - `scripts/check.sh`: exit 0;
 - non-performance 804/804; performance 10/10; resilience repeat 70/70;
 - format 301 file/0 cambi; analyze 0 issue;
-- governance 88/88; architecture negative 17/17; localization/telemetry/action pin PASS;
+- governance 91/91; architecture negative 17/17; localization/telemetry/action pin PASS;
 - security source 686; artifact 207; fixture negative 61/61, positive 7/7;
 - validator iOS avversariale 86/86; Flutter/YAML mirati 12/12;
 - release metadata 12 capability × 3 ambienti; Android/iOS debug build PASS;
@@ -1115,6 +1115,20 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 - blocker isolamento same-UID confermato; codice release e gate iOS invariati;
 - governance nominale 88/88 insufficiente rispetto al nuovo probe; nessuna
   mutazione signing, TestFlight o production.
+
+## Fix 43 — blocker corrente
+
+- exact technical SHA `a116f1197b6a7085ba92a21ccfa7336dd316b8c4`;
+- il backlog richiede ora una sola riga globale e canonica per TASK-040 e lo
+  stato della riga deve essere identico allo stato header;
+- la regressione costruisce tutte le fonti correnti `BLOCKED` ma lascia la
+  riga roadmap `TODO`: il checker fallisce con
+  `Stato task corrente nel backlog incoerente`;
+- `bash -n`, checker canonico, governance fixture 91/91 e diff-check `PASS`;
+  il codice release non è cambiato e i gate iOS 86/86 non sono stati
+  rieseguiti o rinominati;
+- isolamento same-UID, Distribution signing, physical iOS e upload TestFlight
+  restano `BLOCKED` o `NOT_RUN`; nessuna mutazione esterna è stata eseguita.
 
 ## Re-review Fix 40
 

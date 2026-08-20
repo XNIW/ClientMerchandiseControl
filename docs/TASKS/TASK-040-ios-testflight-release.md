@@ -5,14 +5,14 @@
 - **Task ID**: TASK-040
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1785,6 +1785,23 @@ report prodotto sealed SHA-256
   correttamente perché il codice release è invariato.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 43
+
+- exact technical SHA: `a116f1197b6a7085ba92a21ccfa7336dd316b8c4`;
+- il checker richiede sempre esattamente una riga globale e canonica del task
+  corrente nel backlog, anche quando lo stato header è `BLOCKED`;
+- lo stato della riga TASK-040 deve coincidere con `Stato task`; il probe
+  Fix 42 con header/task/evidence/manifest `BLOCKED` e backlog `TODO` fallisce
+  ora con diagnostica specifica;
+- una seconda riga TASK-040 fuori dalla tabella canonica è respinta dalla
+  cardinalità globale, evitando fonti roadmap contraddittorie;
+- `bash -n`, governance canonica, fixture governance 91/91 e `git diff
+  --check` sono `PASS`; codice release, artifact e boundary iOS sono invariati;
+- il finding governance Fix 42 è corretto, ma il blocker di isolamento
+  same-UID resta esterno e non viene reinterpretato come `PASS`.
+
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 ## Chiusura
 

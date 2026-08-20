@@ -4419,7 +4419,7 @@
 
 ## 2026-08-18 — TASK-040 Fix 41 e handoff
 
-- **Technical SHA**: `dda9c1f8a4933267d625c72a8c20db834260811d`.
+- **Technical SHA**: `30ccc4de09e7a1e85b3d96d5d217dd1affe414e9`.
 - **Fix**: backup bounded/ripristino sul link-count race, retained descriptor e
   recursive zero-payload su due pass, post-create cap recheck con rollback.
 - **Regressioni**: hardlink dentro `ftruncate`, retained file/directory/child,
@@ -4577,7 +4577,7 @@
 
 ## 2026-08-19 — TASK-040 Fix 46 e handoff
 
-- **Technical SHA**: `b67a3a46ce333a4d455f94041ab8785020055499`.
+- **Technical SHA**: `83e9d42ba51190617c91e3137786e6cd33fe7bd9`.
 - **Fix**: allowlist fail-closed di outcome reviewer, handoff pre-review e
   `FIX / CHANGES_REQUIRED`; combinazioni ignote non ricevono un ruolo.
 - **Regressioni**: approval, execution-complete, fix-complete, fix-blocked,
@@ -4591,7 +4591,7 @@
 
 ## 2026-08-19 — TASK-040 Fix 46 re-review
 
-- **Exact HEAD**: `f7ea8876216edaf8de3066c2890921e948679185`.
+- **Exact HEAD**: `dfa81de942f4cc06dc0340096a17d94410943730`.
 - **Esito**: `BLOCKED`, P0 0/P1 0/P2 0/P3 0; finding Fix45 chiuso.
 - **Gate**: governance state, fixture 101/101, syntax, action pins, diff,
   ancestry, provenance e hygiene `PASS`; codice iOS invariato.

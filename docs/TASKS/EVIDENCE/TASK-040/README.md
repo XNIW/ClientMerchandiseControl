@@ -30,7 +30,7 @@ Snapshot di handoff:
 | Test | Esito | Evidence |
 |---|---|---|
 | T-01 | PASS | source gate, runtime/CI 18/18 e config/signing boundary |
-| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `dda9c1f` |
+| T-02 | PASS | clean release no-codesign e archive Xcode exact SHA `30ccc4d` |
 | T-03 | PASS | plist/privacy/inventory/framework/sealed payload + fixture iOS 86/86 |
 | T-04 | PASS | scanner 686/207 e fixture 61/61 + 7/7 |
 | T-05 | PASS | inventory redatto e upload gate bloccato sulla Distribution signature |
@@ -49,7 +49,7 @@ Snapshot di handoff:
 
 ## Artifact evidence corrente — Fix 41
 
-- source exact SHA: `dda9c1f8a4933267d625c72a8c20db834260811d`;
+- source exact SHA: `30ccc4de09e7a1e85b3d96d5d217dd1affe414e9`;
 - archive: `build/ios/archive/Runner.xcarchive`, 201.344 KiB, non versionato;
 - app: 36.724 KiB, 207 file, bundle `com.xniw.clientmerchandisecontrol`,
   `0.1.0 (1)`, `iphoneos`, arm64, unsigned;
@@ -1198,7 +1198,7 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 
 ## Fix 46 — blocker corrente
 
-- exact technical SHA `b67a3a46ce333a4d455f94041ab8785020055499`;
+- exact technical SHA `83e9d42ba51190617c91e3137786e6cd33fe7bd9`;
 - allowlist esplicita degli outcome reviewer e degli handoff pre-review;
   combinazioni fase/indicatore ignote restano prive di ruolo e falliscono;
 - regression policy approval, execution-complete, fix-complete, fix-blocked,
@@ -1210,7 +1210,7 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 
 ## Re-review Fix 46
 
-- exact HEAD `f7ea8876216edaf8de3066c2890921e948679185`;
+- exact HEAD `dfa81de942f4cc06dc0340096a17d94410943730`;
 - verdict `BLOCKED`, P0 0/P1 0/P2 0/P3 0; finding Fix45 `CLOSED`;
 - matrice diretta completa su approval, reviewer-blocked, execution-complete,
   fix-complete, fix-blocked, changes-required e unknown; probe checker unknown
@@ -1253,7 +1253,7 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 
 ## Fix 41 — evidence corrente
 
-- exact technical SHA `dda9c1f8a4933267d625c72a8c20db834260811d`;
+- exact technical SHA `30ccc4de09e7a1e85b3d96d5d217dd1affe414e9`;
 - backup `BytesIO` bounded a 128 MiB prima del truncate; l'iniezione hardlink
   dentro `ftruncate` produce cleanup fail-closed con byte alias ripristinati;
 - retained file/directory/FIFO descriptor-bound, verifica ricorsiva zero-payload

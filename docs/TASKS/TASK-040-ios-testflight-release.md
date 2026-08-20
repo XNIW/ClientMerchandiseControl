@@ -1701,7 +1701,7 @@ report prodotto sealed SHA-256
 
 ### Fix 41
 
-- exact technical SHA: `dda9c1f8a4933267d625c72a8c20db834260811d`;
+- exact technical SHA: `30ccc4de09e7a1e85b3d96d5d217dd1affe414e9`;
 - prima di azzerare un file, il cleanup copia al massimo 128 MiB nel buffer
   anonimo `BytesIO`; se il link-count cambia dentro `ftruncate`, ripristina i
   byte e fallisce chiuso senza alterare l'alias esterno;
@@ -1900,7 +1900,7 @@ report prodotto sealed SHA-256
 
 ### Fix 46
 
-- exact technical SHA: `b67a3a46ce333a4d455f94041ab8785020055499`;
+- exact technical SHA: `83e9d42ba51190617c91e3137786e6cd33fe7bd9`;
 - la policy usa ora una allowlist fail-closed delle coppie fase/indicatore;
 - gli outcome reviewer `CODEX_REVIEW_BLOCKED` e
   `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION` richiedono
@@ -1919,7 +1919,7 @@ report prodotto sealed SHA-256
 
 ### Re-review Fix 46
 
-- exact review SHA: `f7ea8876216edaf8de3066c2890921e948679185`;
+- exact review SHA: `dfa81de942f4cc06dc0340096a17d94410943730`;
 - verdict `BLOCKED`: P0 0 / P1 0 / P2 0 / P3 0;
 - `F-040-RR45-GOV-REVIEW-OUTCOME-POLICY-01` è chiuso: approval e blocked
   sono review-role; execution/fix-complete/fix-blocked sono technical-role;

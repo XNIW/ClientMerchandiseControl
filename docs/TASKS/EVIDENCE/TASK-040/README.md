@@ -1,7 +1,7 @@
 # Evidence TASK-040
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -23,7 +23,7 @@ Snapshot di handoff:
 | CA-07 | OAuth/Maps/push/telemetry fail-closed; Maps native sentinel | PASS |
 | CA-08 | arm64, Mach-O app/framework e Runner dSYM UUID corrispondente | PASS |
 | CA-09 | 0 Distribution/profile/ASC key; upload readiness exit 1 redatto | PASS |
-| CA-10 | Fix 36 pronto; re-review indipendente e PR/main CI da eseguire | NOT_RUN |
+| CA-10 | Re-review Fix 36 negativa; Fix 37 e PR/main CI da eseguire | FAIL |
 
 ## Matrice T -> risultato
 
@@ -924,3 +924,16 @@ integrato sullo handoff è `PASS`; re-review e CI PR restano da eseguire.
 - upload-ready reale `FAIL` chiuso con reason
   `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun upload, signing o
   activation production eseguiti.
+
+## Re-review Fix 36
+
+- exact HEAD `54152d09373acdfc7aa52038aab7b3625b16bb26`;
+- verdict deduplicato `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 1 / P3 2;
+- parent-directory ABA può separare la view path-based dai descriptor guard/seal;
+- mode ABA non è osservato senza `KQ_NOTE_ATTRIB`; cleanup riapre la quarantine
+  senza identity binding e può eliminare un victim sostituito;
+- extract A-B-A, EOCD count reale e runbook assoluto risultano chiusi;
+- gate reviewer: iOS 70/70, candidate 686/207, Flutter/YAML 12/12,
+  governance 88/88, scanner e syntax `PASS`;
+- finalizer security exit 2 prima del sealing per schema relativo mancante;
+  bundle non sealed, `report.md` inesistente; production invariata.

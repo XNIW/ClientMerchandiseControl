@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1460,6 +1460,28 @@ report prodotto sealed SHA-256
   physical iOS, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 36
+
+- exact review SHA: `54152d09373acdfc7aa52038aab7b3625b16bb26`;
+- prodotto/security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 1 / P3 2 dopo
+  deduplicazione;
+- `F-040-RR36-IOS-GUARD-PARENT-ABA-01` P2: il descriptor parent viene
+  scartato; un ABA dell'intera directory privata mostra un decoy benigno ai
+  controlli path-based mentre guard e seal restano sul bundle malevolo;
+- `F-040-RR36-IOS-GUARD-ATTRIB-01` P3: la mask omette `KQ_NOTE_ATTRIB` e un
+  chmod ABA può soddisfare transitoriamente il controllo executable;
+- `F-040-RR36-IOS-CLEANUP-ABA-01` P3: la quarantine viene riaperta per nome
+  senza verifica device/inode e una sostituzione concorrente può cancellare un
+  victim diverso;
+- extract ZIP A-B-A, count EOCD reale e runbook path/archive sono chiusi;
+  iOS 70/70, candidate 686/207, Flutter/YAML 12/12, governance 88/88,
+  scanner, architecture, analyze e syntax restano verdi;
+- il finalizer security è fallito prima del sealing per schema relativo
+  mancante; bundle non sealed preservato, nessun `report.md` dichiarato;
+  signing, TestFlight e production invariati.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

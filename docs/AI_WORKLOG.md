@@ -4259,3 +4259,18 @@
   `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
   physical iOS, TestFlight e production invariati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 36 re-review
+
+- **Exact HEAD**: `54152d09373acdfc7aa52038aab7b3625b16bb26`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 1/P3 2 dopo deduplicazione.
+- **Finding P2**: swap ABA del parent privato separa i controlli path-based dai
+  descriptor guard/seal e può pubblicare il bundle malevolo originale.
+- **Finding P3**: `KQ_NOTE_ATTRIB` assente consente mode ABA; cleanup riapre la
+  quarantine senza binding device/inode e può cancellare un victim sostituito.
+- **Closure**: extract ZIP A-B-A, count central-directory reale e runbook
+  assoluto/stesso archive sono chiusi; iOS 70/70 e gate mirati restano verdi.
+- **Security report**: finalizer exit 2 prima del sealing per schema relativo
+  mancante; bundle non sealed preservato, nessun report/hash inventato.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

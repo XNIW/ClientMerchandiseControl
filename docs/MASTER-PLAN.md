@@ -8,15 +8,15 @@
 - **Task attivo**: TASK-040
 - **File task**: docs/TASKS/TASK-040-ios-testflight-release.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review indipendente Fix 35 sul payload
-  sealed-first, component-open, cleanup/ZIP bounds e consumo export exact-SHA;
-  upload TestFlight `NOT_RUN`
+- **Prossima azione autorizzata**: Fix 36 su vista immutabile durante i controlli,
+  extract exact-SHA senza ABA, cardinalità ZIP reale, rollback bounded e runbook
+  con path assoluti; upload TestFlight `NOT_RUN`
 
 ## Repository coinvolti
 

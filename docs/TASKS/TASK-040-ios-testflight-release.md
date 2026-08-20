@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -1404,6 +1404,30 @@ report prodotto sealed SHA-256
   physical iOS, TestFlight e production invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+### Re-review Fix 35
+
+- exact review SHA: `00212e02f50a4cc862296b6473b7c2a84abc484a`;
+- prodotto/security `CHANGES_REQUIRED`: P0 0 / P1 0 / P2 2 / P3 3
+  dopo deduplicazione;
+
+- `F-040-RR35-IOS-SNAPSHOT-RACE-01` P2: ABA malicious→benign→malicious
+  consente di validare una snapshot safe e pubblicare il seal unsafe;
+- `F-040-RR35-IOS-EXTRACT-ABA-01` P2: hash ZIP A, consumo ZIP B e ripristino
+  ZIP A possono estrarre byte non legati allo SHA dichiarato;
+- `F-040-RR35-IOS-ZIP-COUNT-01` P3: un EOCD con count falsificato basso
+  raggiunge `infolist()` con 50.001 record reali;
+- `F-040-RR35-IOS-CLEANUP-ABA-01` P3: una race di profondità durante rollback
+  può lasciare la destination creata;
+- `F-040-RR35-RUNBOOK-RELATIVE-PATH-01` P3: i due extract documentati usano
+  path relativi rifiutati dall'helper absolute-only;
+- iOS 65/65, candidate 686/207, Flutter/YAML, governance, architecture,
+  analyze, format, syntax e action pin restano verdi; signing, TestFlight e
+  production invariati;
+- security report sealed SHA-256
+  `d2ce42a18882e7293f31332d2f1e6e20a3df8f8f320ee8c1e2b14567f30805b3`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

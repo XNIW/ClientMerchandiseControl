@@ -4224,3 +4224,18 @@
 - **Boundary**: upload-ready exit 1 sulla Distribution signature assente;
   signing, provisioning, physical iOS, TestFlight e production invariati.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 35 re-review
+
+- **Exact HEAD**: `00212e02f50a4cc862296b6473b7c2a84abc484a`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 2/P3 3 dopo deduplicazione.
+- **Finding P2**: ABA snapshot malicious-benign-malicious e ABA ZIP A-B-A
+  consentono di validare o estrarre byte diversi dal payload attestato.
+- **Finding P3**: EOCD count falsificabile prima di `infolist`, rollback sotto
+  race di profondita non completo e path extract relativi nel runbook.
+- **Gate**: iOS 65/65, candidate 686/207, Flutter/YAML 14/14, governance
+  88/88, scanner, architecture, analyze e syntax `PASS`; nessun upload.
+- **Security report**: SHA-256
+  `d2ce42a18882e7293f31332d2f1e6e20a3df8f8f320ee8c1e2b14567f30805b3`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

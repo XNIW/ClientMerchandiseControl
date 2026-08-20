@@ -6,13 +6,13 @@
 - **Titolo**: iOS TestFlight release
 - **File task**: `docs/TASKS/TASK-040-ios-testflight-release.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-17
 - **Ultimo aggiornamento**: 2026-08-18
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-040/`
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -1539,6 +1539,35 @@ report prodotto sealed SHA-256
   signing, TestFlight e production invariati.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+### Fix 38
+
+- exact technical SHA: `96fe31f8b149220a87b6bcb0a64c2f63875fd4e5`;
+- il guard apre e conserva descriptor per ogni componente assoluto dalla root
+  alla directory privata, registra rename/delete/revoke sugli ancestor e
+  verifica nuovamente device/inode per ogni edge prima del verdetto;
+- il cleanup del temp root usa l'identità `device,inode` catturata subito dopo
+  `mktemp`, riapre il percorso component-bound e rifiuta qualunque sostituzione
+  con `TEMP_CLEANUP_REFUSED` prima di emettere marker candidate/upload;
+- `_clear_directory` confronta il `fstat` del child appena aperto con lo
+  `lstat` precedente, impedendo che lo swap `stat→open` svuoti un victim;
+- regressioni full-validator ancestor-chain ABA, temp-root victim swap e
+  child-identity swap sono verdi; validator iOS 76/76 e Flutter/YAML 12/12
+  `PASS`;
+- candidate reale 686/207 `PASS`, tree SHA-256
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`,
+  sealed payload SHA-256
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+- governance 88/88, security 61/61 + 7/7, architecture 17/17, analyze,
+  format, syntax, pycompile, action pin e diff check `PASS`;
+- `scripts/check.sh` exact technical SHA exit 0: 804/804 non-performance,
+  performance 10/10, repeat resilience 70/70 e build debug Android/iOS
+  `PASS`;
+- upload-ready reale exit 1 con reason esatta
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

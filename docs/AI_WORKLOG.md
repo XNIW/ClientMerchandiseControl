@@ -4308,3 +4308,21 @@
   `71a0b2c671636cfb8076000e47314b1443d596114aa04c1e690d8464f41e4711`.
 - **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 38 e handoff
+
+- **Technical SHA**: `96fe31f8b149220a87b6bcb0a64c2f63875fd4e5`.
+- **Fix**: guard esteso a tutta l'ancestor chain assoluta; cleanup temp-root
+  component-bound e identity-bound; child directory legato con confronto
+  `lstat`/`fstat` dopo l'open.
+- **Regressioni**: ancestor ABA, temp-root victim swap e child `stat→open`;
+  validator iOS 76/76 e Flutter/YAML 12/12 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 +
+  7/7, architecture 17/17, analyze, format, syntax, pycompile, action pin e
+  diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready validator exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

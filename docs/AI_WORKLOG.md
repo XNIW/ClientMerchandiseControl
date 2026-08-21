@@ -4798,3 +4798,22 @@
 - **Predecessori**: TASK-046 e TASK-047 `DONE`, con Admin/Android/iOS integrati e
   review finali P0/P1/P2/P3 zero.
 - **Handoff**: `MOBILE_STOREFRONT_INTEGRATED_STAGING_E2E`.
+
+## 2026-08-21 — MOBILE_STOREFRONT_PRODUCT_CONTROL closeout
+
+- **Staging**: migration ledger e pgTAP/RLS `56/56 PASS`; run cross-surface
+  `32531575267` con E2E-01…14 e cleanup `PASS` su sole fixture sintetiche.
+- **Acceptance**: `APPROVED`, P0/P1/P2 zero; P3 attribution Android/iOS accettato
+  come rischio residuo non autorizzativo, eliminabile correttamente soltanto con
+  platform attestation per-sessione fuori scope.
+- **Candidate**: Android debug/release/bundle e iOS Simulator Release `1.0 (1)`
+  generati sui main finali; iOS install/launch Simulator `PASS`; Client invariato.
+- **Canali**: Android Internal e iOS TestFlight `EXTERNAL_CREDENTIAL_REQUIRED`;
+  device fisici `PENDING_DEVICE`; nessun upload o public store rollout.
+- **Production**: technical e operations prelaunch `PASS`; activation esterna
+  `MISSING`. Nessuna migration production per assenza di project identity, backup,
+  restore, RLS e grants attestati.
+- **CI finali**: Admin `a787331a`, Android `d7c4953c`, iOS `30d226d0`, Client
+  `36de0062` tutti verdi sugli SHA esatti.
+- **Transizione**: TASK-048 e TASK-049 `DONE`; progetto `IDLE`, train `COMPLETE`.
+- **Handoff**: `USER_APPROVED_DONE`.

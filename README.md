@@ -188,18 +188,19 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-048
-- **File task**: `docs/TASKS/TASK-048-cross-surface-staging-e2e-release-candidate.md`
-- **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Indicatore**: MOBILE_STOREFRONT_INTEGRATED_STAGING_E2E
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: nessuno
+- **Fase**: REVIEW
+- **Indicatore**: MOBILE_STOREFRONT_PRODUCT_CONTROL_COMPLETE
 - **Release train**: MOBILE_STOREFRONT_PRODUCT_CONTROL
-- **Stato release train**: ACTIVE
-- **Review integrata**: NOT_RUN
+- **Stato release train**: COMPLETE
+- **Review integrata**: APPROVED — P0/P1/P2 0, P3 1 accepted residual risk
 
-TASK-046 e TASK-047 sono `DONE`: il contratto Admin/Supabase e gli editor Android/iOS
-sono integrati con review finali verdi. TASK-048 è l'unico task `ACTIVE` e governa
-staging E2E-01…14, review cross-repo e release candidate; il Client resta read-only.
+TASK-046–TASK-049 sono `DONE`: contratto Admin/Supabase ed editor Android/iOS sono
+integrati, E2E-01…14 staging e release candidate sono verificati e il Client resta
+read-only. Android Internal, TestFlight, physical smoke e backend production restano
+classificati come requisiti esterni; public store rollout non è stato eseguito.
 
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
 normalmente e le CI PR/main exact-SHA sono verdi. Il train

@@ -5,15 +5,15 @@
 - **Task ID**: TASK-048
 - **Titolo**: Cross-surface staging E2E and release candidate
 - **File task**: `docs/TASKS/TASK-048-cross-surface-staging-e2e-release-candidate.md`
-- **Stato**: ACTIVE
-- **Fase**: EXECUTION
+- **Stato**: DONE
+- **Fase**: REVIEW
 - **Release train**: MOBILE_STOREFRONT_PRODUCT_CONTROL
-- **Responsabile**: CODEX_EXECUTOR
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-21
 - **Ultimo aggiornamento**: 2026-08-21
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-048/`
-- **Handoff**: MOBILE_STOREFRONT_INTEGRATED_STAGING_E2E
+- **Handoff**: USER_APPROVED_DONE
 
 ## Scope
 
@@ -29,4 +29,19 @@
 - Migration history, pgTAP/RLS e dataset sintetico staging verificati.
 - E2E-01…14 con `PASS` o finding tecnico corretto prima del closeout.
 - Candidate con version/build, commit e SHA-256 quando appropriato.
-- Un solo task Client ACTIVE; TASK-049 resta TODO fino al completamento reale.
+- Un solo task Client ACTIVE durante l'esecuzione; TASK-049 governa il closeout.
+
+## Risultato
+
+- Supabase staging `jpgoimipbothfgkokyvm`: migration history esatta, pgTAP/RLS
+  `56/56 PASS`, nessuna migration production.
+- Run integrata `32531575267`: E2E-01…E2E-14 `PASS`, dataset esclusivamente
+  sintetico e cleanup `PASS`.
+- Acceptance cross-repository: `APPROVED`, P0/P1/P2 zero; un P3 di sola
+  attribuzione Android/iOS accettato come rischio residuo perché una correzione forte
+  richiede attestation per-sessione fuori scope. Actor, sessione, shop e permessi
+  restano server-verificati e nessuna autorizzazione dipende dalla source.
+- Android RC staging `1.0 (1)` sul commit `d7c4953c`: debug APK e release APK/AAB
+  generati; release non firmata, quindi nessun upload.
+- iOS RC Simulator Release `1.0 (1)` sul commit `30d226d0`: build, install e launch
+  `PASS`; archive/TestFlight non eseguiti senza Distribution/provisioning/ASC.

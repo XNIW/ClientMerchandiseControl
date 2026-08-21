@@ -1,7 +1,7 @@
 # Evidence TASK-041
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance
 
@@ -50,7 +50,7 @@ Snapshot di handoff:
 | CA-04 | nove domini e requisiti owner/source coperti | PASS |
 | CA-05 | sette fallback separati verificati sul boundary esistente | PASS |
 | CA-06 | security client 690 file, output redatto, production invariata | PASS |
-| CA-07 | review APPROVED; PR/main CI e merge sono fase successiva | NOT_RUN |
+| CA-07 | review APPROVED; PR/main CI verdi, merge e ancestry verificati | PASS |
 
 ## Matrice T -> risultato
 
@@ -61,7 +61,7 @@ Snapshot di handoff:
 | T-03 | PASS | activation default fail-closed e readiness 15/15 |
 | T-04 | PASS | Maps, tracking, carrier, payment, push, telemetry e promotions |
 | T-05 | PASS | scanner client 690 file; review diff-scoped da eseguire |
-| T-06 | NOT_RUN | review APPROVED, governance 101/101 e pins PASS; CI/merge da eseguire |
+| T-06 | PASS | review APPROVED, PR/main CI 5/5, merge e ancestry verificati |
 
 ## Review indipendente
 
@@ -94,3 +94,15 @@ Snapshot di handoff:
 - `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`; review manuale diff-scoped completata;
 - P0 0, P1 0, P2 0, P3 0;
 - esito `APPROVED`; worktree invariato.
+
+## GitHub e closeout
+
+- branch SHA: `02e0f950a57e1e34c33b73aaf882a7a829efa13f`;
+- PR #20: merged normalmente il 2026-08-21;
+- PR CI `32451681206`: exit workflow `success`, 5/5 job e tutti gli step verdi;
+- merge e final `origin/main`: `ce6045e4799cdc0c51cbd15cd173510e5cae88a4`;
+- ancestry del branch SHA in `origin/main`: `PASS`;
+- main CI `32453135940`: `success`, 5/5 job, 67 step, zero step falliti;
+- cleanup branch remota: `PASS` al primo tentativo;
+- outcome: `PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION`;
+- nessun go-live, upload, billing, migration o modifica production eseguiti.

@@ -4685,3 +4685,25 @@
 - **Esito**: `APPROVED`, P0 0/P1 0/P2 0/P3 0; worktree invariato.
 - **Fase finale**: REVIEW.
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+
+## 2026-08-21 — TASK-041 GitHub closeout
+
+- **Branch SHA**: `02e0f950a57e1e34c33b73aaf882a7a829efa13f`.
+- **PR**: Client #20, merge normale `ce6045e4799cdc0c51cbd15cd173510e5cae88a4`.
+- **CI PR**: `32451681206`, 5/5 job `success`, tutti gli step applicabili verdi.
+- **CI main**: `32453135940`, 5/5 job `success`, 67 step, zero failure.
+- **Git**: ancestry verificata; branch remota eliminata al primo tentativo.
+- **Outcome**: `PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION`; production invariata.
+- **Handoff**: `USER_APPROVED_DONE`.
+
+## 2026-08-21 — TASK-042 planning autorizzato
+
+- **Agente**: Codex (`CODEX_PLANNER`).
+- **Baseline**: Client `ce6045e4799cdc0c51cbd15cd173510e5cae88a4`, Admin
+  `59668348e4c728b44b998c80f1aded61e6114a3f`; checkout primari preservati.
+- **Scope**: quattro runbook operations, checker prelaunch/live read-only, dieci drill
+  sintetici, evidence e governance; production e provider invariati.
+- **Decisione**: il mandato USER_APPROVER 2026-08-21 autorizza la transizione immediata
+  Planning -> Execution; live esterno non è CODE_BLOCKER.
+- **Fase finale**: EXECUTION.
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.

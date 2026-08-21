@@ -5,17 +5,17 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-041
-- **File task**: docs/TASKS/TASK-041-production-launch-rollback-runbook.md
+- **Task attivo**: TASK-042
+- **File task**: docs/TASKS/TASK-042-post-launch-monitoring-support-maintenance.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: REVIEW
+- **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: pubblicare la branch TASK-041, verificare la CI sullo
-  SHA esatto e fondere normalmente; production resta invariata
+- **Prossima azione autorizzata**: implementare esclusivamente runbook, checker e drill
+  TASK-042, quindi eseguire i gate mirati e consegnare a review; production resta invariata
 
 ## Repository coinvolti
 
@@ -94,8 +94,8 @@
 | TASK-038 | Store assets, privacy policy, legal e release metadata | DONE | TASK-002, TASK-021, TASK-032, TASK-033, TASK-036 | Client, Admin | Materiale release conforme |
 | TASK-039 | Android internal testing release | DONE | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build Android internal test |
 | TASK-040 | iOS TestFlight release | DONE | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build iOS TestFlight |
-| TASK-041 | Production launch, rollback e runbook | ACTIVE | TASK-039, TASK-040 | Client, Admin, Supabase, POS | Lancio controllato e reversibile |
-| TASK-042 | Post-launch monitoring, supporto e manutenzione | TODO | TASK-041 | Tutti | Operatività post-lancio |
+| TASK-041 | Production launch, rollback e runbook | DONE | TASK-039, TASK-040 | Client, Admin, Supabase, POS | Lancio controllato e reversibile |
+| TASK-042 | Post-launch monitoring, supporto e manutenzione | ACTIVE | TASK-041 | Tutti | Operatività post-lancio |
 | TASK-043 | Storefront commerce information architecture and UX refresh | DONE | TASK-033 | Client | Shell a cinque destinazioni e superfici commerce moderne, data-backed e accessibili |
 | TASK-044 | Delivery tracking contract, privacy boundary and operational writer | DONE | TASK-043 | Client, Admin, Supabase | Contratto tracking owner-scoped e writer courier foreground reale |
 | TASK-045 | Client live map, integrated acceptance and closeout | DONE | TASK-044 | Client, Admin, Supabase | Mappa fail-closed, acceptance integrata e closeout del train |

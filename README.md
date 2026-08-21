@@ -188,13 +188,13 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-041
-- **File task**: docs/TASKS/TASK-041-production-launch-rollback-runbook.md
+- **Task attivo**: TASK-042
+- **File task**: docs/TASKS/TASK-042-post-launch-monitoring-support-maintenance.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Fase**: EXECUTION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: REVIEW
+- **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
 
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
@@ -208,14 +208,17 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-041 è `ACTIVE / REVIEW`: il mandato USER_APPROVER del 2026-08-21 autorizza il
-solo closeout tecnico production-readiness e operations-readiness, senza go-live,
-pubblicazione store, migration production, billing o attivazione provider. TASK-040
+TASK-041 è `DONE / PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION`: PR #20, CI PR/main
+5/5 e merge `ce6045e4` sono verdi. TASK-042 è `ACTIVE / EXECUTION`: il mandato
+USER_APPROVER del 2026-08-21 autorizza il solo closeout tecnico operations-readiness,
+senza go-live, pubblicazione store, migration production, billing o attivazione
+provider. TASK-040
 resta `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: D-05 limita
 il boundary locale ai writer same-UID cooperativi, la targeted final re-review è
 `APPROVED` con zero P0/P1/P2/P3 e la CI PR #19 exact-SHA è verde 5/5. Il progetto
-passa temporaneamente ad `ACTIVE`; `F-041-R01` è `FIXED_VALIDATED`, la re-review è
-`APPROVED` con zero P0/P1/P2/P3 e TASK-042 resta `TODO`. Distribution, provisioning,
+resta incorporato; `F-041-R01` è `FIXED_VALIDATED` e la re-review TASK-041 è
+`APPROVED` con zero P0/P1/P2/P3. Il progetto resta temporaneamente `ACTIVE` durante
+TASK-042. Distribution, provisioning,
 App Store Connect, device fisico ed eventuali production provider key restano
 activation requirement esterni; nessun upload TestFlight è stato dichiarato.
 

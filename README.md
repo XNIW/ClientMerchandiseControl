@@ -188,14 +188,14 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: DONE
+- **Task attivo**: TASK-041
+- **File task**: docs/TASKS/TASK-041-production-launch-rollback-runbook.md
+- **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Indicatore**: USER_APPROVED_DONE
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: IDLE
-- **Review integrata**: APPROVED
+- **Stato release train**: REVIEW
+- **Review integrata**: NOT_RUN
 
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
 normalmente e le CI PR/main exact-SHA sono verdi. Il train
@@ -208,10 +208,14 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-040 è `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: D-05 limita
+TASK-041 è `ACTIVE / REVIEW`: il mandato USER_APPROVER del 2026-08-21 autorizza il
+solo closeout tecnico production-readiness e operations-readiness, senza go-live,
+pubblicazione store, migration production, billing o attivazione provider. TASK-040
+resta `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: D-05 limita
 il boundary locale ai writer same-UID cooperativi, la targeted final re-review è
 `APPROVED` con zero P0/P1/P2/P3 e la CI PR #19 exact-SHA è verde 5/5. Il progetto
-resta `IDLE`; TASK-041 è `TODO` e non viene attivato. Distribution, provisioning,
+passa temporaneamente ad `ACTIVE`; `F-041-R01` è `FIXED_VALIDATED`, la re-review è
+`APPROVED` con zero P0/P1/P2/P3 e TASK-042 resta `TODO`. Distribution, provisioning,
 App Store Connect, device fisico ed eventuali production provider key restano
 activation requirement esterni; nessun upload TestFlight è stato dichiarato.
 

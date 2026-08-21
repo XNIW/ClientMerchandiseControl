@@ -4620,3 +4620,68 @@
 - **Transizione**: `BLOCKED / REVIEW -> DONE / REVIEW`; progetto `IDLE`,
   TASK-041 `TODO_NOT_STARTED`.
 - **Handoff**: `USER_APPROVED_DONE`.
+
+## 2026-08-21 — TASK-041 planning autorizzato
+
+- **Agente**: Codex (`CODEX_PLANNER`).
+- **Baseline**: Client `fdb1fa7962fa7a8eea7ecb0505adc812571fb1db`, Admin
+  `59668348e4c728b44b998c80f1aded61e6114a3f`; checkout primari preservati.
+- **Scope**: tre runbook/checklist, checker production-readiness read-only, test,
+  evidence e governance; production e provider invariati.
+- **Decisione**: il prompt USER_APPROVER 2026-08-21 autorizza la transizione e il
+  closeout sequenziale TASK-041/TASK-042; assenze esterne non sono CODE_BLOCKER.
+- **Risultato**: piano bounded completo, nessun codice applicativo da modificare.
+- **Fase finale**: PLANNING.
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+## 2026-08-21 — TASK-041 execution e handoff
+
+- **Technical SHA**: `92323f309ac39d4ea9565ef841c8a358a2b257a7`.
+- **Deliverable**: activation checklist, launch A-L, rollback, checker
+  technical/activation e test; nessun codice applicativo o release artifact cambiato.
+- **Gate**: readiness 13/13, technical exit 0, activation exit 1 atteso,
+  governance state, action pins e security client 690 file `PASS`.
+- **Regressione governance**: fixture TASK-041 assente e hardcode TASK-040 rilevati dai
+  primi due tentativi; fix bounded e secondo rerun mirato 101/101 `PASS`.
+- **Classificazione esterna**: 59 requisiti activation `MISSING`, non CODE_BLOCKER;
+  production, Admin/Supabase, provider, billing e store invariati.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+
+## 2026-08-21 — TASK-041 review indipendente
+
+- **Exact HEAD**: `ec735a0efdae128c8b1f7e82ca578358c1a56476`.
+- **Coverage**: 12 file cambiati, checker, evidence e supporting code dei sette
+  fallback; worktree invariato.
+- **Gate**: readiness 13/13, technical/activation, diff, syntax, state, pins e
+  security client 695 file verificati; governance lunga non riattribuita dopo yield.
+- **Finding**: `F-041-R01` P2, N/A isolato accettato senza capability OFF e fallback
+  verificato; P0 0, P1 0, P2 1, P3 0.
+- **Security**: `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`, review manuale diff-scoped,
+  nessun report sealed.
+- **Fase finale**: FIX.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-21 — TASK-041 fix e handoff
+
+- **Technical SHA**: `87e00953e3eff81078f305cadbaa176e57ff103e`.
+- **Fix**: N/A atomico per capability opzionale, con capability OFF e fallback
+  verificato; mix, attestazioni incomplete e N/A obbligatori falliscono chiuso.
+- **Regressioni**: readiness 15/15 `PASS`; technical exit 0; activation exit 1 atteso.
+- **Gate**: governance state, governance 101/101, action pins e security client 695
+  file `PASS`; nessun codice applicativo o release configuration cambiato.
+- **Production**: invariata; nessun requisito esterno convertito in CODE_BLOCKER.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-21 — TASK-041 re-review indipendente
+
+- **Exact HEAD**: `47182f04a374a1f5e9e19d174e9d6c1f39d43f4d`.
+- **Finding**: `F-041-R01` `FIXED_VALIDATED`; regressioni N/A atomiche verificate.
+- **Gate reviewer**: readiness 15/15, technical/activation, governance state,
+  governance 101/101, pins e security client 695 file `PASS`.
+- **Security**: review manuale diff-scoped; `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`,
+  nessun deep scan, installazione o report sealed.
+- **Esito**: `APPROVED`, P0 0/P1 0/P2 0/P3 0; worktree invariato.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.

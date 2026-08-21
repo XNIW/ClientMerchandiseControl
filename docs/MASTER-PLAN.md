@@ -4,18 +4,18 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: DONE
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-041
+- **File task**: docs/TASKS/TASK-041-production-launch-rollback-runbook.md
+- **Stato task**: ACTIVE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
-- **Indicatore**: USER_APPROVED_DONE
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: IDLE
-- **Review integrata**: APPROVED
-- **Prossima azione autorizzata**: restare `IDLE`; TASK-041 resta `TODO` e non
-  viene attivato. Upload TestFlight `NOT_RUN` fino agli activation requirement
+- **Stato release train**: REVIEW
+- **Review integrata**: NOT_RUN
+- **Prossima azione autorizzata**: pubblicare la branch TASK-041, verificare la CI sullo
+  SHA esatto e fondere normalmente; production resta invariata
 
 ## Repository coinvolti
 
@@ -94,7 +94,7 @@
 | TASK-038 | Store assets, privacy policy, legal e release metadata | DONE | TASK-002, TASK-021, TASK-032, TASK-033, TASK-036 | Client, Admin | Materiale release conforme |
 | TASK-039 | Android internal testing release | DONE | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build Android internal test |
 | TASK-040 | iOS TestFlight release | DONE | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build iOS TestFlight |
-| TASK-041 | Production launch, rollback e runbook | TODO | TASK-039, TASK-040 | Client, Admin, Supabase, POS | Lancio controllato e reversibile |
+| TASK-041 | Production launch, rollback e runbook | ACTIVE | TASK-039, TASK-040 | Client, Admin, Supabase, POS | Lancio controllato e reversibile |
 | TASK-042 | Post-launch monitoring, supporto e manutenzione | TODO | TASK-041 | Tutti | Operatività post-lancio |
 | TASK-043 | Storefront commerce information architecture and UX refresh | DONE | TASK-033 | Client | Shell a cinque destinazioni e superfici commerce moderne, data-backed e accessibili |
 | TASK-044 | Delivery tracking contract, privacy boundary and operational writer | DONE | TASK-043 | Client, Admin, Supabase | Contratto tracking owner-scoped e writer courier foreground reale |

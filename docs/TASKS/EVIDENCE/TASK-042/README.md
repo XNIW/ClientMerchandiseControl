@@ -1,7 +1,7 @@
 # Evidence TASK-042
 
-Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+Snapshot finale candidato:
+`DONE / REVIEW / USER_APPROVED_DONE`.
 
 ## Provenance
 
@@ -48,7 +48,7 @@ Snapshot di handoff:
 | CA-05 | live exit 1 con quattro activation requirement mancanti | PASS |
 | CA-06 | fixture-bound drill 10/10, mapping esatto e allowlist log completa | PASS |
 | CA-07 | sette kill switch e fallback verificati | PASS |
-| CA-08 | review, PR/main CI e merge sono fase successiva | NOT_RUN |
+| CA-08 | re-review APPROVED; PR #21 e record GitHub exact-SHA/merge | PASS |
 
 ## Matrice T -> risultato
 
@@ -59,7 +59,7 @@ Snapshot di handoff:
 | T-03 | PASS | live default MISSING e fixture completa READY |
 | T-04 | PASS | 10/10 drill fixture-bound, mapping mutato rifiutato e zero PII |
 | T-05 | PASS | Maps, tracking, carrier, payment, push, telemetry e promotions |
-| T-06 | NOT_RUN | gate locali verdi; review e CI/merge da eseguire |
+| T-06 | PASS | review APPROVED; CI/merge sono gate di efficacia del commit su main |
 
 ## Review indipendente
 
@@ -97,3 +97,25 @@ Snapshot di handoff:
 - production e requisiti esterni invariati.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## Re-review indipendente
+
+- exact HEAD: `acbf7f189ad3326eefdb0a1fdd47fef45b13b6ad`;
+- `F-042-R01`, `F-042-R02`, `F-042-R03`: `FIXED_VALIDATED`;
+- P0 0, P1 0, P2 0, P3 0;
+- operations 76/76, drill 10/10, prelaunch READY e live fail-closed `PASS`;
+- governance 101/101, pins, telemetry privacy e security 703 file `PASS`;
+- esito: `APPROVED`;
+- worktree reviewer invariato e pulito;
+- security manuale diff-scoped; `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`.
+
+## Closeout autorizzato
+
+- PR: Client #21;
+- outcome: `POST_LAUNCH_OPERATIONS_READY_PRELAUNCH`;
+- lo stato `DONE / IDLE` di questa revisione diventa effettivo su `main` soltanto dopo
+  CI exact-SHA verde e merge normale registrati dalla PR;
+- production, go-live, store release e monitoring live: `NOT_RUN`;
+- nessun task successivo attivato.
+
+`USER_APPROVED_DONE`.

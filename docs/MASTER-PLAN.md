@@ -4,18 +4,18 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-042
-- **File task**: docs/TASKS/TASK-042-post-launch-monitoring-support-maintenance.md
-- **Stato task**: ACTIVE
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: USER_APPROVED_DONE
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: REVIEW
-- **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review indipendente dei finding P2
-  `F-042-R01`–`F-042-R03` sul candidate `b57bb86`; production resta invariata
+- **Stato release train**: IDLE
+- **Review integrata**: APPROVED
+- **Prossima azione autorizzata**: restare `IDLE`; non attivare altri task e non
+  iniziare `MOBILE_STOREFRONT_PRODUCT_CONTROL`; production resta invariata
 
 ## Repository coinvolti
 
@@ -95,7 +95,7 @@
 | TASK-039 | Android internal testing release | DONE | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build Android internal test |
 | TASK-040 | iOS TestFlight release | DONE | TASK-033, TASK-034, TASK-035, TASK-036, TASK-037, TASK-038 | Client | Build iOS TestFlight |
 | TASK-041 | Production launch, rollback e runbook | DONE | TASK-039, TASK-040 | Client, Admin, Supabase, POS | Lancio controllato e reversibile |
-| TASK-042 | Post-launch monitoring, supporto e manutenzione | ACTIVE | TASK-041 | Tutti | Operatività post-lancio |
+| TASK-042 | Post-launch monitoring, supporto e manutenzione | DONE | TASK-041 | Tutti | Operatività post-lancio |
 | TASK-043 | Storefront commerce information architecture and UX refresh | DONE | TASK-033 | Client | Shell a cinque destinazioni e superfici commerce moderne, data-backed e accessibili |
 | TASK-044 | Delivery tracking contract, privacy boundary and operational writer | DONE | TASK-043 | Client, Admin, Supabase | Contratto tracking owner-scoped e writer courier foreground reale |
 | TASK-045 | Client live map, integrated acceptance and closeout | DONE | TASK-044 | Client, Admin, Supabase | Mappa fail-closed, acceptance integrata e closeout del train |

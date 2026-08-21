@@ -4,9 +4,9 @@
 
 - Release train: `CLIENT_FINAL_PRODUCT_COMPLETION`
 - Governance: `ADR-015`
-- Stato: `REVIEW`
-- Task corrente: `TASK-042`
-- Review integrata finale: `NOT_RUN`
+- Stato: `IDLE`
+- Task corrente: `nessuno`
+- Review integrata finale: `APPROVED`
 - Production modificata: `no`
 
 ## Baseline remota verificata
@@ -48,7 +48,7 @@ Admin sono verdi sui rispettivi SHA iniziali. I linked worktree del train parton
 | TASK-039 | DONE | `f30b13e9` | `59668348`, read-only | Client #18 merged | review APPROVED; PR/main CI 4/4 PASS; signing/Play esterni |
 | TASK-040 | DONE / REVIEW | `c02fa06` review | `59668348`, read-only | Client #19 merge-ready | targeted re-review APPROVED; PR CI 5/5; credenziali esterne |
 | TASK-041 | DONE / REVIEW | `02e0f950` review | `59668348`, read-only | Client #20, merge `ce6045e4` | review APPROVED; PR/main CI 5/5 PASS |
-| TASK-042 | ACTIVE / REVIEW | `b57bb86` | `59668348`, read-only | branch locale TASK-042 | FIX completo; re-review NOT_RUN |
+| TASK-042 | DONE / REVIEW | `acbf7f1` | `59668348`, read-only | Client #21 | re-review APPROVED; exact-SHA CI e merge nel record PR |
 
 Il manifest viene aggiornato soltanto con revisioni, workflow e risultati realmente
 osservati. `NOT_RUN`, `BLOCKED` e gate esterni non vengono convertiti in `PASS`.

@@ -4745,3 +4745,16 @@
 - **Scope**: nessun codice applicativo o release configuration; production invariata.
 - **Fase finale**: REVIEW.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-21 — TASK-042 re-review indipendente e closeout autorizzato
+
+- **Exact HEAD reviewed**: `acbf7f189ad3326eefdb0a1fdd47fef45b13b6ad`.
+- **Finding**: `F-042-R01`–`F-042-R03` tutti `FIXED_VALIDATED`.
+- **Gate reviewer**: operations 76/76, drill 10/10, prelaunch/live, governance
+  101/101, pins, telemetry privacy e security 703 file `PASS`.
+- **Esito**: `APPROVED`, P0 0/P1 0/P2 0/P3 0.
+- **GitHub**: PR Client #21 aperta; lo stato `DONE / IDLE` diventa effettivo su `main`
+  soltanto dopo CI exact-SHA verde e merge normale.
+- **Outcome**: `POST_LAUNCH_OPERATIONS_READY_PRELAUNCH`; go-live e monitoring live
+  `NOT_RUN`, production invariata.
+- **Handoff**: `USER_APPROVED_DONE`.

@@ -5,15 +5,15 @@
 - **Task ID**: TASK-042
 - **Titolo**: Post-launch monitoring, supporto e manutenzione
 - **File task**: `docs/TASKS/TASK-042-post-launch-monitoring-support-maintenance.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-21
 - **Ultimo aggiornamento**: 2026-08-21
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-042/`
 - **Outcome previsto**: POST_LAUNCH_OPERATIONS_READY_PRELAUNCH
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -154,6 +154,22 @@ Esito: `CHANGES_REQUIRED`.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
+### Re-review indipendente
+
+- exact handoff HEAD:
+  `acbf7f189ad3326eefdb0a1fdd47fef45b13b6ad`;
+- `F-042-R01`, `F-042-R02` e `F-042-R03`: `FIXED_VALIDATED`;
+- operations 76/76 e drill 10/10 `PASS`;
+- prelaunch exit 0 con 86 READY e 4 UNVERIFIABLE_EXTERNAL;
+- live exit 1 atteso con quattro requisiti live MISSING piu summary;
+- governance 101/101, pins, telemetry privacy e client security 703 file `PASS`;
+- review security manuale diff-scoped; scanner formale
+  `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`;
+- P0: 0; P1: 0; P2: 0; P3: 0;
+- esito: `APPROVED`.
+
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+
 ## Fix — `CODEX_FIXER`
 
 Un'unica passata bounded ha corretto esclusivamente `F-042-R01`–`F-042-R03`:
@@ -176,4 +192,14 @@ Un'unica passata bounded ha corretto esclusivamente `F-042-R01`–`F-042-R03`:
 
 ## Chiusura
 
-Da compilare dopo review, CI e merge reali.
+L'autorizzazione USER_APPROVER del 2026-08-21 e applicata al candidate approvato. La
+PR #21 e il record GitHub sono l'evidence esterna per CI exact-SHA e merge normale; lo
+stato `DONE` diventa effettivo su `main` soltanto dopo quei gate verdi.
+
+- outcome: `POST_LAUNCH_OPERATIONS_READY_PRELAUNCH`;
+- production launch: `NOT_RUN`;
+- monitoring live osservato: `NOT_RUN`;
+- activation esterne: richieste per il go-live, non blocker del codice;
+- task successivo: nessuno; `MOBILE_STOREFRONT_PRODUCT_CONTROL` non viene attivato.
+
+`USER_APPROVED_DONE`.

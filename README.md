@@ -188,14 +188,14 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-042
-- **File task**: docs/TASKS/TASK-042-post-launch-monitoring-support-maintenance.md
-- **Stato task**: ACTIVE
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: DONE
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: USER_APPROVED_DONE
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: REVIEW
-- **Review integrata**: NOT_RUN
+- **Stato release train**: IDLE
+- **Review integrata**: APPROVED
 
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
 normalmente e le CI PR/main exact-SHA sono verdi. Il train
@@ -209,7 +209,8 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
 TASK-041 è `DONE / PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION`: PR #20, CI PR/main
-5/5 e merge `ce6045e4` sono verdi. TASK-042 è `ACTIVE / REVIEW`: il mandato
+5/5 e merge `ce6045e4` sono verdi. TASK-042 è
+`DONE / POST_LAUNCH_OPERATIONS_READY_PRELAUNCH`: il mandato
 USER_APPROVER del 2026-08-21 autorizza il solo closeout tecnico operations-readiness,
 senza go-live, pubblicazione store, migration production, billing o attivazione
 provider. TASK-040
@@ -219,7 +220,8 @@ il boundary locale ai writer same-UID cooperativi, la targeted final re-review �
 resta incorporato; `F-041-R01` è `FIXED_VALIDATED` e la re-review TASK-041 è
 `APPROVED` con zero P0/P1/P2/P3. Il progetto resta temporaneamente `ACTIVE` durante
 TASK-042; l'unica passata FIX ha corretto i tre finding P2
-`F-042-R01`–`F-042-R03` e il candidate `b57bb86` attende re-review indipendente.
+`F-042-R01`–`F-042-R03`, tutti `FIXED_VALIDATED` dalla re-review indipendente con
+P0/P1/P2/P3 zero. Il progetto resta `IDLE` e nessun task successivo e attivo.
 Distribution, provisioning,
 App Store Connect, device fisico ed eventuali production provider key restano
 activation requirement esterni; nessun upload TestFlight è stato dichiarato.

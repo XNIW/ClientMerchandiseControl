@@ -6,14 +6,14 @@
 - **Titolo**: Production launch, rollback e runbook
 - **File task**: `docs/TASKS/TASK-041-production-launch-rollback-runbook.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-08-21
 - **Ultimo aggiornamento**: 2026-08-21
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-041/`
 - **Outcome previsto**: PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -95,7 +95,26 @@
 
 ## Execution — `CODEX_EXECUTOR`
 
-Da compilare durante l'esecuzione autorizzata.
+- creati checklist di activation, launch runbook A-L e rollback runbook senza
+  valori production, secret o owner inventati;
+- implementati checker read-only `technical`/`activation` e 13 test di contratto;
+- technical mode: exit 0, 72 righe `READY`, 59 requisiti esterni
+  `UNVERIFIABLE_EXTERNAL`, risultato `READY`;
+- activation mode: exit 1 atteso, 71 righe `READY`, 59 requisiti esterni `MISSING`,
+  risultato fail-closed;
+- verificati i sette kill switch/fallback esistenti; nessun flag o codice runtime
+  aggiunto;
+- `git diff --check`, sintassi shell, test readiness, governance state, action pins
+  e security client 690 file sono `PASS`;
+- la prima suite governance ha rilevato fixture non aggiornata per TASK-041; il primo
+  rerun ha rilevato un hardcode TASK-040 residuo; il secondo e ultimo rerun mirato ha
+  concluso 101/101 `PASS` dopo il fix minimo della fixture;
+- `scripts/check.sh`, AAB, archive iOS e performance non eseguiti perché il diff non
+  modifica codice applicativo o release configuration;
+- candidate tecnico: `92323f309ac39d4ea9565ef841c8a358a2b257a7`;
+- production, Admin, Supabase, provider, billing e store invariati.
+
+`CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Review — `CODEX_REVIEWER`
 

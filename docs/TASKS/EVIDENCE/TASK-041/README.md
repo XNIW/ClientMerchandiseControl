@@ -1,7 +1,7 @@
 # Evidence TASK-041
 
 Snapshot di handoff:
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Provenance
 
@@ -17,25 +17,48 @@ Snapshot di handoff:
 - gate final candidate: definiti nella sezione Test del task;
 - activation esterna: separata dal completamento tecnico.
 
+## Candidate tecnico
+
+- exact SHA: `92323f309ac39d4ea9565ef841c8a358a2b257a7`;
+- diff: documentazione release, due checker/test shell e fix fixture governance;
+- codice applicativo/configurazione release: invariati;
+- Admin/Supabase e production: read-only/invariati.
+
+## Gate executor
+
+| Comando | Esito | Exit/evidence |
+|---|---|---|
+| `git diff --check` | PASS | exit 0 |
+| `bash -n scripts/check-production-readiness.sh` | PASS | exit 0 |
+| `bash -n scripts/test-production-readiness.sh` | PASS | exit 0 |
+| `scripts/test-production-readiness.sh` | PASS | exit 0, 13/13 |
+| `scripts/check-production-readiness.sh --mode technical` | PASS | exit 0, 72 READY, 59 UNVERIFIABLE_EXTERNAL |
+| `scripts/check-production-readiness.sh --mode activation` | PASS | exit 1 atteso, 71 READY, 59 requisiti MISSING |
+| `scripts/check-governance-state.sh` | PASS | exit 0 |
+| `scripts/test-governance-release-train.sh` | PASS | FAIL fixture, FAIL primo rerun, secondo rerun exit 0 101/101 |
+| `scripts/check-action-pins.sh` | PASS | exit 0, un workflow |
+| `scripts/check-client-security.sh` | PASS | exit 0, 690 file, zero violazioni |
+| `scripts/check.sh` | NOT_RUN | nessun diff runtime o release configuration |
+
 ## Matrice CA -> evidence
 
 | CA | Evidence | Esito |
 |---|---|---|
-| CA-01 | planning approvato; deliverable da implementare | NOT_RUN |
-| CA-02 | checker e test da implementare | NOT_RUN |
-| CA-03 | activation fail-closed da verificare | NOT_RUN |
-| CA-04 | matrice da implementare | NOT_RUN |
-| CA-05 | capability runtime inventariate | NOT_RUN |
-| CA-06 | security diff-scoped da eseguire | NOT_RUN |
-| CA-07 | review, CI e merge da eseguire | NOT_RUN |
+| CA-01 | checklist e launch A-L più rollback operativi | PASS |
+| CA-02 | technical exit 0 e test readiness 13/13 | PASS |
+| CA-03 | activation exit 1 con 59 requisiti esterni MISSING | PASS |
+| CA-04 | nove domini e requisiti owner/source coperti | PASS |
+| CA-05 | sette fallback separati verificati sul boundary esistente | PASS |
+| CA-06 | security client 690 file, output redatto, production invariata | PASS |
+| CA-07 | review, PR/main CI e merge sono fase successiva | NOT_RUN |
 
 ## Matrice T -> risultato
 
 | Test | Esito | Evidence |
 |---|---|---|
-| T-01 | NOT_RUN | fase Planning |
-| T-02 | NOT_RUN | fase Planning |
-| T-03 | NOT_RUN | fase Planning |
-| T-04 | NOT_RUN | fase Planning |
-| T-05 | NOT_RUN | fase Planning |
-| T-06 | NOT_RUN | fase Planning |
+| T-01 | PASS | sezioni A-L e nove domini validate dal checker |
+| T-02 | PASS | sintassi, idempotenza, read-only e technical mode |
+| T-03 | PASS | activation default fail-closed e fixture completa READY |
+| T-04 | PASS | Maps, tracking, carrier, payment, push, telemetry e promotions |
+| T-05 | PASS | scanner client 690 file; review diff-scoped da eseguire |
+| T-06 | NOT_RUN | local governance 101/101 e pins PASS; review/CI/merge da eseguire |

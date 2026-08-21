@@ -4633,3 +4633,17 @@
 - **Risultato**: piano bounded completo, nessun codice applicativo da modificare.
 - **Fase finale**: PLANNING.
 - **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+## 2026-08-21 — TASK-041 execution e handoff
+
+- **Technical SHA**: `92323f309ac39d4ea9565ef841c8a358a2b257a7`.
+- **Deliverable**: activation checklist, launch A-L, rollback, checker
+  technical/activation e test; nessun codice applicativo o release artifact cambiato.
+- **Gate**: readiness 13/13, technical exit 0, activation exit 1 atteso,
+  governance state, action pins e security client 690 file `PASS`.
+- **Regressione governance**: fixture TASK-041 assente e hardcode TASK-040 rilevati dai
+  primi due tentativi; fix bounded e secondo rerun mirato 101/101 `PASS`.
+- **Classificazione esterna**: 59 requisiti activation `MISSING`, non CODE_BLOCKER;
+  production, Admin/Supabase, provider, billing e store invariati.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.

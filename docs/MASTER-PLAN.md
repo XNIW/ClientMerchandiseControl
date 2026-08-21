@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-041
 - **File task**: docs/TASKS/TASK-041-production-launch-rollback-runbook.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: EXECUTION
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: completare i gate mirati TASK-041 e consegnare il
-  candidato exact-SHA al reviewer indipendente; production resta invariata
+- **Prossima azione autorizzata**: review indipendente read-only sul candidato
+  `92323f309ac39d4ea9565ef841c8a358a2b257a7`; production resta invariata
 
 ## Repository coinvolti
 

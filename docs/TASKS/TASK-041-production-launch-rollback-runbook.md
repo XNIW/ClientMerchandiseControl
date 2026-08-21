@@ -6,14 +6,14 @@
 - **Titolo**: Production launch, rollback e runbook
 - **File task**: `docs/TASKS/TASK-041-production-launch-rollback-runbook.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-21
 - **Ultimo aggiornamento**: 2026-08-21
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-041/`
 - **Outcome previsto**: PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -135,6 +135,23 @@
 - esito: `CHANGES_REQUIRED`.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Fix — `CODEX_FIXER`
+
+- chiuso `F-041-R01`: `NOT_APPLICABLE` è ora atomico per capability opzionale;
+- un gruppo N/A richiede tutti i suoi requisiti `not_applicable` e le attestazioni
+  redatte `disabled=true` e `fallback verified=true`;
+- i mix `READY`/N/A, l'attestazione incompleta e il N/A su requisito obbligatorio
+  falliscono chiuso;
+- aggiunte regressioni per N/A isolato, gruppo Maps N/A completo, fallback mancante e
+  requisito obbligatorio N/A; readiness test 15/15 `PASS`;
+- gate finali: technical exit 0 (72 READY, 59 UNVERIFIABLE_EXTERNAL), activation exit
+  1 atteso (71 READY, 59 requisiti MISSING), governance 101/101, action pins e security
+  client 695 file `PASS`;
+- exact technical SHA: `87e00953e3eff81078f305cadbaa176e57ff103e`;
+- nessuna modifica a codice applicativo, release configuration o production.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

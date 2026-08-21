@@ -1,7 +1,7 @@
 # Evidence TASK-041
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -70,3 +70,16 @@ Snapshot di handoff:
 - `F-041-R01`: N/A opzionale non atomico per capability;
 - security manuale diff-scoped completata; formal scanner non disponibile;
 - worktree invariato dal reviewer.
+
+## Fix e regressioni
+
+- exact technical SHA: `87e00953e3eff81078f305cadbaa176e57ff103e`;
+- `F-041-R01`: chiuso nel checker imponendo N/A atomico per capability e doppia
+  attestazione redatta di capability disabilitata e fallback verificato;
+- `scripts/test-production-readiness.sh`: exit 0, 15/15;
+- technical: exit 0, 72 READY e 59 UNVERIFIABLE_EXTERNAL;
+- activation: exit 1 atteso, 71 READY e 59 requisiti MISSING;
+- governance state exit 0; governance fixture exit 0, 101/101; action pins exit 0,
+  un workflow; security client exit 0, 695 file, zero violazioni;
+- `scripts/check.sh`: NOT_RUN, nessun diff runtime o release configuration;
+- production, Admin, Supabase, store e provider invariati.

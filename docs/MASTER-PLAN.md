@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-041
 - **File task**: docs/TASKS/TASK-041-production-launch-rollback-runbook.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: FIX
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: correggere esclusivamente `F-041-R01`, aggiungere
-  regressioni e riconsegnare allo stesso reviewer; production resta invariata
+- **Prossima azione autorizzata**: re-review indipendente di `F-041-R01` sullo SHA
+  `87e00953`; con esito APPROVED completare PR, CI e merge; production resta invariata
 
 ## Repository coinvolti
 

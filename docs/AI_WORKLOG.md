@@ -4661,3 +4661,15 @@
   nessun report sealed.
 - **Fase finale**: FIX.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-21 — TASK-041 fix e handoff
+
+- **Technical SHA**: `87e00953e3eff81078f305cadbaa176e57ff103e`.
+- **Fix**: N/A atomico per capability opzionale, con capability OFF e fallback
+  verificato; mix, attestazioni incomplete e N/A obbligatori falliscono chiuso.
+- **Regressioni**: readiness 15/15 `PASS`; technical exit 0; activation exit 1 atteso.
+- **Gate**: governance state, governance 101/101, action pins e security client 695
+  file `PASS`; nessun codice applicativo o release configuration cambiato.
+- **Production**: invariata; nessun requisito esterno convertito in CODE_BLOCKER.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

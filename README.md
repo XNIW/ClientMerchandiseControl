@@ -191,10 +191,10 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-042
 - **File task**: docs/TASKS/TASK-042-post-launch-monitoring-support-maintenance.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: REVIEW
+- **Stato release train**: FIX
 - **Review integrata**: NOT_RUN
 
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
@@ -209,7 +209,7 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
 TASK-041 è `DONE / PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION`: PR #20, CI PR/main
-5/5 e merge `ce6045e4` sono verdi. TASK-042 è `ACTIVE / REVIEW`: il mandato
+5/5 e merge `ce6045e4` sono verdi. TASK-042 è `ACTIVE / FIX`: il mandato
 USER_APPROVER del 2026-08-21 autorizza il solo closeout tecnico operations-readiness,
 senza go-live, pubblicazione store, migration production, billing o attivazione
 provider. TASK-040
@@ -218,8 +218,8 @@ il boundary locale ai writer same-UID cooperativi, la targeted final re-review �
 `APPROVED` con zero P0/P1/P2/P3 e la CI PR #19 exact-SHA è verde 5/5. Il progetto
 resta incorporato; `F-041-R01` è `FIXED_VALIDATED` e la re-review TASK-041 è
 `APPROVED` con zero P0/P1/P2/P3. Il progetto resta temporaneamente `ACTIVE` durante
-TASK-042; i gate locali sono verdi e il candidate `d7d4fa9a` attende review
-indipendente. Distribution, provisioning,
+TASK-042; la review indipendente ha richiesto un'unica passata bounded sui tre finding
+P2 `F-042-R01`–`F-042-R03`. Distribution, provisioning,
 App Store Connect, device fisico ed eventuali production provider key restano
 activation requirement esterni; nessun upload TestFlight è stato dichiarato.
 

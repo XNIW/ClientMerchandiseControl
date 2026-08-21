@@ -1,7 +1,7 @@
 # Evidence TASK-042
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -63,7 +63,16 @@ Snapshot di handoff:
 
 ## Review indipendente
 
-`NOT_RUN`.
+- range: `ce6045e4799cdc0c51cbd15cd173510e5cae88a4..f85bc3b99685674d7bc31b9f2775c6d3d5285f13`;
+- esito: `CHANGES_REQUIRED`;
+- severita: P0 0, P1 0, P2 3, P3 0;
+- `F-042-R01`: health/runbook non allineato a `/auth/v1/health` e all'RPC reale
+  `storefront_home_v1`;
+- `F-042-R02`: drill solo strutturali, privi di binding e risultato operativo esatto;
+- `F-042-R03`: log-safety denylist incompleta e fail-open;
+- requisiti live/owner: esterni, non finding;
+- sicurezza: review manuale diff-scoped;
+  `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`.
 
 ## Candidate tecnico
 

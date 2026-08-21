@@ -4719,3 +4719,16 @@
   esterni non CODE_BLOCKER; production e provider invariati.
 - **Fase finale**: REVIEW.
 - **Handoff**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+
+## 2026-08-21 — TASK-042 review indipendente
+
+- **Exact HEAD**: `f85bc3b99685674d7bc31b9f2775c6d3d5285f13`.
+- **Coverage**: range da `ce6045e4`, documenti/governance e due script shell;
+  worktree invariato dal reviewer.
+- **Finding**: `F-042-R01` health/RPC drift, `F-042-R02` drill solo strutturali,
+  `F-042-R03` denylist log fail-open; tutti P2.
+- **Severita**: P0 0/P1 0/P2 3/P3 0.
+- **Security**: review manuale diff-scoped;
+  `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`, nessun deep scan o installazione.
+- **Fase finale**: FIX.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

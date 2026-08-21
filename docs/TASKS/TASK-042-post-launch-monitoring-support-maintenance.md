@@ -6,14 +6,14 @@
 - **Titolo**: Post-launch monitoring, supporto e manutenzione
 - **File task**: `docs/TASKS/TASK-042-post-launch-monitoring-support-maintenance.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-21
 - **Ultimo aggiornamento**: 2026-08-21
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-042/`
 - **Outcome previsto**: POST_LAUNCH_OPERATIONS_READY_PRELAUNCH
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -135,11 +135,29 @@ bounded a Execution.
 
 ## Review — `CODEX_REVIEWER`
 
-Da compilare dal reviewer indipendente read-only.
+- review indipendente read-only sul range
+  `ce6045e4799cdc0c51cbd15cd173510e5cae88a4..f85bc3b99685674d7bc31b9f2775c6d3d5285f13`;
+- P0: 0; P1: 0; P2: 3; P3: 0;
+- `F-042-R01` P2: il runbook attribuiva a `BackendHealthService` un endpoint
+  Storefront inesistente e stati non allineati al runtime; richiesti probe Auth reale,
+  RPC Storefront reale e regressione contro il drift;
+- `F-042-R02` P2: i drill verificavano soltanto la forma della tabella; richiesti
+  fixture/adapter esistenti, risultato operativo esatto e test negativo su mapping
+  alterato;
+- `F-042-R03` P2: la denylist log era fail-open per identificativi, contenuto carrello,
+  telefono e indirizzo; richiesta allowlist sull'intero record con casi negativi;
+- requisiti live e owner mancanti restano esterni e non sono finding tecnici;
+- security review manuale diff-scoped; scanner formale
+  `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`, nessuna Deep Security Scan.
+
+Esito: `CHANGES_REQUIRED`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Fix — `CODEX_FIXER`
 
-Da compilare soltanto per finding reali approvati.
+Un'unica passata bounded corregge esclusivamente `F-042-R01`–`F-042-R03`, aggiunge le
+regressioni richieste e riconsegna allo stesso reviewer indipendente.
 
 ## Chiusura
 

@@ -191,10 +191,10 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-041
 - **File task**: docs/TASKS/TASK-041-production-launch-rollback-runbook.md
 - **Stato task**: ACTIVE
-- **Fase**: PLANNING
+- **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: PLANNING
+- **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
 
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
@@ -208,7 +208,7 @@ verdi, budget invariato e production non modificata. TASK-038 è `DONE`: re-revi
 `APPROVED`, PR #17, merge `ce2ab134` e main CI `31995128511` verdi. TASK-039 è
 `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: PR #18, merge
 `f30b13e9` e main CI `32019746636` sono verdi; signing e Play restano esterni.
-TASK-041 è `ACTIVE / PLANNING`: il mandato USER_APPROVER del 2026-08-21 autorizza il
+TASK-041 è `ACTIVE / EXECUTION`: il mandato USER_APPROVER del 2026-08-21 autorizza il
 solo closeout tecnico production-readiness e operations-readiness, senza go-live,
 pubblicazione store, migration production, billing o attivazione provider. TASK-040
 resta `DONE / TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`: D-05 limita

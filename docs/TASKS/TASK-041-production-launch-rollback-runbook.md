@@ -6,8 +6,8 @@
 - **Titolo**: Production launch, rollback e runbook
 - **File task**: `docs/TASKS/TASK-041-production-launch-rollback-runbook.md`
 - **Stato**: ACTIVE
-- **Fase**: PLANNING
-- **Responsabile**: CODEX_PLANNER
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
 - **Data creazione**: 2026-08-21
 - **Ultimo aggiornamento**: 2026-08-21
 - **Ultimo agente**: Codex

@@ -9,8 +9,14 @@ cmc_repository_task_status="$(
   sed -n 's/^- \*\*Stato task\*\*: //p' \
     "${cmc_test_repo_root}/docs/MASTER-PLAN.md" | head -n 1
 )"
+cmc_repository_active_task="$(
+  sed -n 's/^- \*\*Task attivo\*\*: //p' \
+    "${cmc_test_repo_root}/docs/MASTER-PLAN.md" | head -n 1
+)"
 cmc_fixture_revision='HEAD'
-if [[ "${cmc_repository_task_status}" == 'DONE' ]]; then
+cmc_use_historical_task040_fixture=false
+if [[ "${cmc_repository_task_status}" == 'DONE' || \
+  "${cmc_repository_active_task}" != 'TASK-040' ]]; then
   cmc_closeout_transition="$(
     git log -1 --format='%H' -S'- **Stato task**: BLOCKED' -- \
       docs/MASTER-PLAN.md
@@ -20,6 +26,7 @@ if [[ "${cmc_repository_task_status}" == 'DONE' ]]; then
     exit 1
   fi
   cmc_fixture_revision="${cmc_closeout_transition}^"
+  cmc_use_historical_task040_fixture=true
 fi
 cmc_fixture_task_status="$(
   git show "${cmc_fixture_revision}:docs/MASTER-PLAN.md" | \
@@ -67,6 +74,8 @@ cmc_fixture() {
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-038" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-039" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-040" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-041" \
+    "${cmc_target}/docs/TASKS/EVIDENCE/TASK-042" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-043" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-044" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-045" \
@@ -277,6 +286,22 @@ cmc_fixture() {
   cp \
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-040/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-040/README.md"
+  local cmc_optional_task_number=''
+  local cmc_optional_task_file=''
+  for cmc_optional_task_number in 041 042; do
+    cmc_optional_task_file="$(
+      find "${cmc_test_repo_root}/docs/TASKS" -maxdepth 1 -type f \
+        -name "TASK-${cmc_optional_task_number}-*.md" -print -quit
+    )"
+    if [[ -n "${cmc_optional_task_file}" ]]; then
+      cp "${cmc_optional_task_file}" "${cmc_target}/docs/TASKS/"
+    fi
+    if [[ -f "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-${cmc_optional_task_number}/README.md" ]]; then
+      cp \
+        "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-${cmc_optional_task_number}/README.md" \
+        "${cmc_target}/docs/TASKS/EVIDENCE/TASK-${cmc_optional_task_number}/README.md"
+    fi
+  done
   cp \
     "${cmc_test_repo_root}/docs/TASKS/TASK-043-storefront-commerce-information-architecture-ux-refresh.md" \
     "${cmc_target}/docs/TASKS/"
@@ -296,7 +321,7 @@ cmc_fixture() {
     "${cmc_test_repo_root}/docs/TASKS/EVIDENCE/TASK-045/README.md" \
     "${cmc_target}/docs/TASKS/EVIDENCE/TASK-045/README.md"
 
-  if [[ "${cmc_repository_task_status}" == 'DONE' ]]; then
+  if [[ "${cmc_use_historical_task040_fixture}" == true ]]; then
     local cmc_governance_file=''
     for cmc_governance_file in \
       README.md \

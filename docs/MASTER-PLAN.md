@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-041
 - **File task**: docs/TASKS/TASK-041-production-launch-rollback-runbook.md
 - **Stato task**: ACTIVE
-- **Fase**: PLANNING
-- **Responsabile**: CODEX_PLANNER
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: PLANNING
+- **Stato release train**: EXECUTION
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: eseguire il piano mirato di TASK-041 sul linked
-  worktree da `origin/main`; production e attivazioni esterne restano invariate
+- **Prossima azione autorizzata**: completare i gate mirati TASK-041 e consegnare il
+  candidato exact-SHA al reviewer indipendente; production resta invariata
 
 ## Repository coinvolti
 

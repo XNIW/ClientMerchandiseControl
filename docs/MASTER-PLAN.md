@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-042
 - **File task**: docs/TASKS/TASK-042-post-launch-monitoring-support-maintenance.md
 - **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: EXECUTION
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: implementare esclusivamente runbook, checker e drill
-  TASK-042, quindi eseguire i gate mirati e consegnare a review; production resta invariata
+- **Prossima azione autorizzata**: review indipendente read-only del candidate
+  `d7d4fa9a`; un solo fix/re-review per finding reali; production resta invariata
 
 ## Repository coinvolti
 

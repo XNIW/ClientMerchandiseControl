@@ -6,14 +6,14 @@
 - **Titolo**: Post-launch monitoring, supporto e manutenzione
 - **File task**: `docs/TASKS/TASK-042-post-launch-monitoring-support-maintenance.md`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_REVIEWER
 - **Data creazione**: 2026-08-21
 - **Ultimo aggiornamento**: 2026-08-21
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-042/`
 - **Outcome previsto**: POST_LAUNCH_OPERATIONS_READY_PRELAUNCH
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
 
 ## Dipendenze
 
@@ -113,7 +113,25 @@ bounded a Execution.
 
 ## Execution — `CODEX_EXECUTOR`
 
-Da compilare con file, gate ed evidence reali.
+- creati i quattro runbook autorizzati per operations, incident response, monitoring e
+  kill switch, senza provider o owner inventati;
+- implementati checker read-only `prelaunch`/`live` e 24 test di contratto;
+- eseguiti 10/10 drill locali table-driven con detection, severity, kill switch,
+  fallback, recovery e log safe;
+- prelaunch: exit 0, 81 READY, 4 UNVERIFIABLE_EXTERNAL, risultato READY;
+- live: exit 1 atteso, 80 READY, quattro requisiti esterni MISSING e summary MISSING;
+- definiti i sedici segnali minimi e SEV-0/1/2/3 con ciclo operativo completo;
+- verificati i sette kill switch/fallback esistenti; nessun flag o codice runtime
+  aggiunto;
+- `git diff --check`, sintassi shell, governance state, governance 101/101, action pins,
+  telemetry privacy e security client 703 file sono PASS;
+- `scripts/check.sh`, AAB, archive iOS e performance locali sono NOT_RUN perché il diff
+  non modifica codice applicativo o release configuration; la CI exact-SHA eseguirà i
+  gate canonici;
+- exact technical SHA: `d7d4fa9a94b07dd6422e4018a524ca9e5478bfe1`;
+- production, Admin, Supabase, provider, billing e store invariati.
+
+`CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Review — `CODEX_REVIEWER`
 

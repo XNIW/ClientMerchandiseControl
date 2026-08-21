@@ -1,7 +1,7 @@
 # Evidence TASK-042
 
 Snapshot di handoff:
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
 
 ## Provenance
 
@@ -23,16 +23,53 @@ Snapshot di handoff:
 
 ## Gate executor
 
-Da compilare dopo l'esecuzione reale.
+| Comando | Esito | Exit/evidence |
+|---|---|---|
+| git diff --check | PASS | exit 0, worktree e origin/main...HEAD |
+| bash -n operations scripts | PASS | exit 0, due script |
+| test operations readiness | PASS | exit 0, 24/24 e drill 10/10 |
+| operations prelaunch | PASS | exit 0, 81 READY e 4 UNVERIFIABLE_EXTERNAL |
+| operations live | PASS | exit 1 atteso, 4 requisiti esterni MISSING |
+| governance state | PASS | exit 0 |
+| governance fixture | PASS | exit 0, 101/101 |
+| action pins | PASS | exit 0, un workflow |
+| telemetry privacy | PASS | exit 0, 12 eventi e zero attributi sensibili |
+| client security | PASS | exit 0, 703 file e zero violazioni |
+| scripts/check.sh | NOT_RUN | nessun diff runtime o release configuration |
 
 ## Matrice CA -> evidence
 
-Da compilare dopo l'esecuzione reale.
+| CA | Evidence | Esito |
+|---|---|---|
+| CA-01 | quattro runbook e sezioni operations validate dal checker | PASS |
+| CA-02 | sedici segnali, payload allowlisted e owner placeholder | PASS |
+| CA-03 | SEV-0 fino a SEV-3 e otto campi operativi | PASS |
+| CA-04 | prelaunch exit 0, idempotenza e read-only | PASS |
+| CA-05 | live exit 1 con quattro activation requirement mancanti | PASS |
+| CA-06 | fixture drill 10/10 e scan log PII/secret negativo | PASS |
+| CA-07 | sette kill switch e fallback verificati | PASS |
+| CA-08 | review, PR/main CI e merge sono fase successiva | NOT_RUN |
 
 ## Matrice T -> risultato
 
-Da compilare dopo l'esecuzione reale.
+| Test | Esito | Evidence |
+|---|---|---|
+| T-01 | PASS | struttura, segnali, severity, supporto e privacy |
+| T-02 | PASS | sintassi, prelaunch, idempotenza e read-only |
+| T-03 | PASS | live default MISSING e fixture completa READY |
+| T-04 | PASS | 10/10 drill con schema bounded e zero PII |
+| T-05 | PASS | Maps, tracking, carrier, payment, push, telemetry e promotions |
+| T-06 | NOT_RUN | gate locali verdi; review e CI/merge da eseguire |
 
 ## Review indipendente
 
 `NOT_RUN`.
+
+## Candidate tecnico
+
+- exact SHA: `d7d4fa9a94b07dd6422e4018a524ca9e5478bfe1`;
+- diff: quattro documenti operations e due script shell;
+- codice applicativo, dipendenze e release configuration: invariati;
+- production, Admin e Supabase: read-only/invariati;
+- live esterno: `EXTERNAL_MONITORING_DESTINATION_REQUIRED` e owner values, non
+  CODE_BLOCKER.

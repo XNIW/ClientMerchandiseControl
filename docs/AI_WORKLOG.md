@@ -4707,3 +4707,15 @@
   Planning -> Execution; live esterno non è CODE_BLOCKER.
 - **Fase finale**: EXECUTION.
 - **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+## 2026-08-21 — TASK-042 execution e handoff
+
+- **Technical SHA**: `d7d4fa9a94b07dd6422e4018a524ca9e5478bfe1`.
+- **Deliverable**: quattro runbook operations, checker prelaunch/live e test/drill;
+  nessun codice applicativo o release configuration cambiato.
+- **Gate**: readiness 24/24, drill 10/10, prelaunch exit 0, live exit 1 atteso,
+  governance 101/101, action pins, telemetry privacy e security client 703 file PASS.
+- **Classificazione esterna**: quattro requisiti live MISSING, destination e owner
+  esterni non CODE_BLOCKER; production e provider invariati.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.

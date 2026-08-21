@@ -9,13 +9,13 @@
 - **File task**: docs/TASKS/TASK-041-production-launch-rollback-runbook.md
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
 - **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: re-review indipendente di `F-041-R01` sullo SHA
-  `87e00953`; con esito APPROVED completare PR, CI e merge; production resta invariata
+- **Prossima azione autorizzata**: pubblicare la branch TASK-041, verificare la CI sullo
+  SHA esatto e fondere normalmente; production resta invariata
 
 ## Repository coinvolti
 

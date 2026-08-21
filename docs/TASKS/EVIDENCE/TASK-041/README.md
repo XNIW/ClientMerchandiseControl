@@ -1,7 +1,7 @@
 # Evidence TASK-041
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+`ACTIVE / REVIEW / CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Provenance
 
@@ -50,7 +50,7 @@ Snapshot di handoff:
 | CA-04 | nove domini e requisiti owner/source coperti | PASS |
 | CA-05 | sette fallback separati verificati sul boundary esistente | PASS |
 | CA-06 | security client 690 file, output redatto, production invariata | PASS |
-| CA-07 | review, PR/main CI e merge sono fase successiva | NOT_RUN |
+| CA-07 | review APPROVED; PR/main CI e merge sono fase successiva | NOT_RUN |
 
 ## Matrice T -> risultato
 
@@ -58,10 +58,10 @@ Snapshot di handoff:
 |---|---|---|
 | T-01 | PASS | sezioni A-L e nove domini validate dal checker |
 | T-02 | PASS | sintassi, idempotenza, read-only e technical mode |
-| T-03 | PASS | activation default fail-closed e fixture completa READY |
+| T-03 | PASS | activation default fail-closed e readiness 15/15 |
 | T-04 | PASS | Maps, tracking, carrier, payment, push, telemetry e promotions |
 | T-05 | PASS | scanner client 690 file; review diff-scoped da eseguire |
-| T-06 | NOT_RUN | local governance 101/101 e pins PASS; review/CI/merge da eseguire |
+| T-06 | NOT_RUN | review APPROVED, governance 101/101 e pins PASS; CI/merge da eseguire |
 
 ## Review indipendente
 
@@ -83,3 +83,14 @@ Snapshot di handoff:
   un workflow; security client exit 0, 695 file, zero violazioni;
 - `scripts/check.sh`: NOT_RUN, nessun diff runtime o release configuration;
 - production, Admin, Supabase, store e provider invariati.
+
+## Re-review indipendente
+
+- exact HEAD: `47182f04a374a1f5e9e19d174e9d6c1f39d43f4d`;
+- `F-041-R01`: `FIXED_VALIDATED`;
+- gate reviewer: diff, sintassi, readiness 15/15, technical exit 0, activation exit 1
+  atteso, governance state, governance 101/101, action pins e security client 695 file
+  `PASS`;
+- `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`; review manuale diff-scoped completata;
+- P0 0, P1 0, P2 0, P3 0;
+- esito `APPROVED`; worktree invariato.

@@ -4673,3 +4673,15 @@
 - **Production**: invariata; nessun requisito esterno convertito in CODE_BLOCKER.
 - **Fase finale**: REVIEW.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-21 — TASK-041 re-review indipendente
+
+- **Exact HEAD**: `47182f04a374a1f5e9e19d174e9d6c1f39d43f4d`.
+- **Finding**: `F-041-R01` `FIXED_VALIDATED`; regressioni N/A atomiche verificate.
+- **Gate reviewer**: readiness 15/15, technical/activation, governance state,
+  governance 101/101, pins e security client 695 file `PASS`.
+- **Security**: review manuale diff-scoped; `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`,
+  nessun deep scan, installazione o report sealed.
+- **Esito**: `APPROVED`, P0 0/P1 0/P2 0/P3 0; worktree invariato.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.

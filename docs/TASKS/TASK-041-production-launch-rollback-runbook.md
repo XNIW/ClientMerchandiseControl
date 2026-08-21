@@ -7,13 +7,13 @@
 - **File task**: `docs/TASKS/TASK-041-production-launch-rollback-runbook.md`
 - **Stato**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-21
 - **Ultimo aggiornamento**: 2026-08-21
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-041/`
 - **Outcome previsto**: PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
 
 ## Dipendenze
 
@@ -152,6 +152,22 @@
 - nessuna modifica a codice applicativo, release configuration o production.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## Re-review — `CODEX_RE_REVIEWER`
+
+- exact HEAD `47182f04a374a1f5e9e19d174e9d6c1f39d43f4d`, fix range da
+  `ec735a0efdae128c8b1f7e82ca578358c1a56476`;
+- `F-041-R01` `FIXED_VALIDATED`: N/A isolato/misto, attestazione incompleta e required
+  N/A falliscono chiuso; gruppo N/A completo richiede capability OFF e fallback
+  verificato;
+- readiness 15/15, technical, activation fail-closed, governance state, governance
+  101/101, action pins e security client 695 file verificati dal reviewer;
+- security manuale diff-scoped completata; formal scanner classificato
+  `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`, senza retry o report inventato;
+- finding aperti: P0 0, P1 0, P2 0, P3 0;
+- esito: `APPROVED`.
+
+`CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
 
 ## Chiusura
 

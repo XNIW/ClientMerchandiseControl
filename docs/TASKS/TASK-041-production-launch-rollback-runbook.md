@@ -1,0 +1,108 @@
+# TASK-041 — Production launch, rollback e runbook
+
+## Informazioni generali
+
+- **Task ID**: TASK-041
+- **Titolo**: Production launch, rollback e runbook
+- **File task**: `docs/TASKS/TASK-041-production-launch-rollback-runbook.md`
+- **Stato**: ACTIVE
+- **Fase**: PLANNING
+- **Responsabile**: CODEX_PLANNER
+- **Data creazione**: 2026-08-21
+- **Ultimo aggiornamento**: 2026-08-21
+- **Ultimo agente**: Codex
+- **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-041/`
+- **Outcome previsto**: PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION
+- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+
+## Dipendenze
+
+- **Dipende da**: TASK-039, TASK-040
+- **Sblocca**: TASK-042
+- **Writer**: Client; Admin, Supabase e gli altri repository restano read-only
+
+## Scope
+
+- definire checklist, launch runbook e rollback runbook per il confine tecnico
+  controllabile prima dell'attivazione production;
+- implementare un checker read-only con modalità `technical` e `activation`;
+- inventariare i requisiti Supabase, Auth, Android, iOS, Maps, pagamenti,
+  notifiche, observability e legal/store senza leggere o stampare secret;
+- attestare i kill switch già presenti e i fallback fail-closed;
+- classificare credenziali, billing, console, owner value e approvazioni mancanti
+  come activation requirement esterni, non come blocker del codice.
+
+## Non incluso
+
+- migration, deploy, dati, secret o policy production;
+- upload, release o rollout App Store/Play, TestFlight e transazioni reali;
+- acquisti, billing, provisioning, certificati o nuovi provider;
+- modifica della gestione prodotti mobile, redesign, refactor o nuovi servizi;
+- riapertura delle validazioni artifact TASK-039/040 o deep security scan.
+
+## Criteri di accettazione
+
+| CA | Descrizione | Tipo |
+|---|---|---|
+| CA-01 | Checklist e runbook coprono il flusso A-L e separano tecnica da activation | STATIC |
+| CA-02 | Checker technical è read-only, redatto, idempotente e passa sul repository completo | STATIC/TEST |
+| CA-03 | Checker activation fallisce chiuso senza attestazioni esterne | TEST |
+| CA-04 | Matrice copre Supabase, Auth, Android, iOS, Maps, payment, notification, observability e legal/store | STATIC |
+| CA-05 | Kill switch esistenti sono documentati e verificati senza duplicare flag | STATIC/TEST |
+| CA-06 | Production resta invariata e nessun secret o dato reale compare nelle evidence | SECURITY |
+| CA-07 | Review indipendente, CI exact-SHA, merge normale e hygiene sono reali | REVIEW/CI/GIT |
+
+## Test case
+
+| Test | Criteri | Procedura attesa |
+|---|---|---|
+| T-01 | CA-01/04 | validazione strutturale dei tre documenti e della matrice |
+| T-02 | CA-02 | sintassi, technical mode, idempotenza e controllo read-only |
+| T-03 | CA-03 | activation mode senza input esterni e fixture con attestazioni sintetiche |
+| T-04 | CA-05 | verifica dei sette fallback separati contro config e runtime esistenti |
+| T-05 | CA-06 | security client diff-scoped e scansione output redatto |
+| T-06 | CA-07 | governance, action pins, review distinta, PR/main CI e ancestry |
+
+## Decisioni
+
+| ID | Decisione | Motivazione | Stato |
+|---|---|---|---|
+| D-01 | Il mandato USER_APPROVER 2026-08-21 autorizza Planning, Execution, Review, merge e TASK-042 | Closeout mirato esplicito | ATTIVA |
+| D-02 | Le assenze esterne sono activation requirement e non CODE_BLOCKER | Il codice indipendente deve completarsi | ATTIVA |
+| D-03 | I checker consumano sole attestazioni booleane, mai valori sensibili | Redazione e least privilege | ATTIVA |
+| D-04 | I kill switch esistenti sono riusati; nessun flag runtime duplicato | Evitare scope creep e regressioni | ATTIVA |
+| D-05 | TASK-039/040 e relativi artifact non vengono rigenerati | Il diff non modifica runtime o release configuration | ATTIVA |
+
+## Planning — `CODEX_PLANNER`
+
+1. riusare manifest, runbook, configuration matrix ed evidence TASK-039/040;
+2. creare i tre documenti operativi con matrice e sequenza A-L;
+3. implementare checker e test shell minimali, read-only e redatti;
+4. eseguire una sola volta i gate final-candidate richiesti, incluso activation
+   fail-closed atteso;
+5. consegnare il commit a un reviewer read-only distinto per review prodotto e
+   security diff-scoped;
+6. con esito `APPROVED`, pubblicare PR, verificare CI exact-SHA, fondere
+   normalmente e osservare la CI `main`.
+
+### Rischi e mitigazioni
+
+- valore esterno assente: output `MISSING` o `UNVERIFIABLE_EXTERNAL`, nessun secret;
+- documentazione divergente dal runtime: riferimenti a file e gate già validati;
+- checker che muta stato: sole letture locali e test di stato Git prima/dopo;
+- CI o cleanup non osservabile: singolo retry e classificazione esterna prevista;
+- regressione fuori scope: nessun codice applicativo o release artifact modificato.
+
+## Execution — `CODEX_EXECUTOR`
+
+Da compilare durante l'esecuzione autorizzata.
+
+## Review — `CODEX_REVIEWER`
+
+Da compilare dal reviewer indipendente.
+
+## Chiusura
+
+Da compilare dopo review, CI e merge reali.
+
+`CODEX_PLANNING_APPROVED_TO_EXECUTION`.

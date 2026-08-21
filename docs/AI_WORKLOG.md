@@ -4620,3 +4620,16 @@
 - **Transizione**: `BLOCKED / REVIEW -> DONE / REVIEW`; progetto `IDLE`,
   TASK-041 `TODO_NOT_STARTED`.
 - **Handoff**: `USER_APPROVED_DONE`.
+
+## 2026-08-21 — TASK-041 planning autorizzato
+
+- **Agente**: Codex (`CODEX_PLANNER`).
+- **Baseline**: Client `fdb1fa7962fa7a8eea7ecb0505adc812571fb1db`, Admin
+  `59668348e4c728b44b998c80f1aded61e6114a3f`; checkout primari preservati.
+- **Scope**: tre runbook/checklist, checker production-readiness read-only, test,
+  evidence e governance; production e provider invariati.
+- **Decisione**: il prompt USER_APPROVER 2026-08-21 autorizza la transizione e il
+  closeout sequenziale TASK-041/TASK-042; assenze esterne non sono CODE_BLOCKER.
+- **Risultato**: piano bounded completo, nessun codice applicativo da modificare.
+- **Fase finale**: PLANNING.
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.

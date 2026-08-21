@@ -4,18 +4,17 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: ACTIVE
-- **Task attivo**: TASK-048
-- **File task**: `docs/TASKS/TASK-048-cross-surface-staging-e2e-release-candidate.md`
-- **Stato task**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Indicatore**: MOBILE_STOREFRONT_INTEGRATED_STAGING_E2E
+- **Stato globale**: IDLE
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: nessuno
+- **Fase**: REVIEW
+- **Responsabile**: USER_APPROVER
+- **Indicatore**: MOBILE_STOREFRONT_PRODUCT_CONTROL_COMPLETE
 - **Release train**: MOBILE_STOREFRONT_PRODUCT_CONTROL
-- **Stato release train**: ACTIVE
-- **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: eseguire E2E-01…14 sullo staging sintetico,
-  review cross-repo e release candidate secondo il mandato USER_APPROVER 2026-08-21
+- **Stato release train**: COMPLETE
+- **Review integrata**: APPROVED — P0/P1/P2 0, P3 1 accepted residual risk
+- **Prossima azione autorizzata**: nessuna; public store release resta owner activation
 
 ## Repository coinvolti
 
@@ -103,8 +102,8 @@
 | TASK-045 | Client live map, integrated acceptance and closeout | DONE | TASK-044 | Client, Admin, Supabase | Mappa fail-closed, acceptance integrata e closeout del train |
 | TASK-046 | Mobile Storefront authoring contract and UX | DONE | TASK-005–TASK-010 | Client, Admin, Android, iOS | Contratto unico, UX editor e piano cross-repo bounded |
 | TASK-047 | Android/iOS Storefront authoring integration | DONE | TASK-046 | Android, iOS, Admin | Editor unificati e parita mobile |
-| TASK-048 | Cross-surface staging E2E and release candidate | ACTIVE | TASK-047 | Client, Admin, Android, iOS | E2E-01…14 e candidate verificati |
-| TASK-049 | Testing channels and production activation closeout | TODO | TASK-048 | Client, Admin, Android, iOS | Internal/TestFlight, preflight guardato e stato terminale |
+| TASK-048 | Cross-surface staging E2E and release candidate | DONE | TASK-047 | Client, Admin, Android, iOS | E2E-01…14 e candidate verificati |
+| TASK-049 | Testing channels and production activation closeout | DONE | TASK-048 | Client, Admin, Android, iOS | Internal/TestFlight, preflight guardato e stato terminale |
 
 ## Dipendenze e blocchi
 

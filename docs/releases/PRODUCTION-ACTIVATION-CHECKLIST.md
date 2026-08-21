@@ -161,5 +161,8 @@ scripts/check-production-readiness.sh --mode activation
 
 Il go-live è vietato finché `--mode activation` non conclude `READY`, l'owner di
 release non ha registrato gli SHA dei candidate e non sono verdi backup, migration,
-provider, store e monitoring. Un requisito opzionale può essere `NOT_APPLICABLE` solo
-se il relativo kill switch resta OFF e il fallback è stato verificato.
+provider, store e monitoring. `NOT_APPLICABLE` è atomico per capability: tutti i suoi
+requisiti optional devono essere N/A e servono entrambe le attestazioni redatte
+`CMC_ACTIVATION_<CAPABILITY>_DISABLED=true` e
+`CMC_ACTIVATION_<CAPABILITY>_FALLBACK_VERIFIED=true`. Un mix fra `READY` e N/A o una
+sola attestazione fallisce chiuso.

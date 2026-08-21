@@ -71,11 +71,55 @@ cmc_activation_ready="$(env "${cmc_activation_env[@]}" \
 cmc_require_contains "${cmc_activation_ready}" \
   'MODE=activation STATUS=READY'
 
-cmc_activation_optional="$(env "${cmc_activation_env[@]}" \
+set +e
+env "${cmc_activation_env[@]}" \
   CMC_ACTIVATION_MAPS_BILLING_APPROVAL=not_applicable \
+  "${cmc_checker}" --mode activation >/dev/null 2>&1
+cmc_isolated_optional_status=$?
+set -e
+if [[ ${cmc_isolated_optional_status} -eq 0 ]]; then
+  printf '%s\n' 'Un N/A isolato ha superato il gate capability.' >&2
+  exit 1
+fi
+cmc_pass
+
+cmc_maps_not_applicable_env=()
+while IFS= read -r cmc_assignment; do
+  [[ -z "${cmc_assignment}" ]] && continue
+  cmc_maps_not_applicable_env+=("${cmc_assignment}")
+done < <(
+  awk -F'|' '
+    $1 == "external" { print "CMC_ACTIVATION_" $3 "=true" }
+    $1 == "optional" {
+      if ($3 == "ANDROID_MAPS_KEY_RESTRICTION" ||
+          $3 == "IOS_MAPS_KEY_RESTRICTION" ||
+          $3 ~ /^MAPS_/) {
+        print "CMC_ACTIVATION_" $3 "=not_applicable"
+      } else {
+        print "CMC_ACTIVATION_" $3 "=true"
+      }
+    }
+  ' "${cmc_checker}"
+)
+
+cmc_activation_optional="$(env "${cmc_maps_not_applicable_env[@]}" \
+  CMC_ACTIVATION_MAPS_DISABLED=true \
+  CMC_ACTIVATION_MAPS_FALLBACK_VERIFIED=true \
   "${cmc_checker}" --mode activation)"
 cmc_require_contains "${cmc_activation_optional}" \
   'REQUIREMENT=MAPS_BILLING_APPROVAL STATUS=NOT_APPLICABLE'
+
+set +e
+env "${cmc_maps_not_applicable_env[@]}" \
+  CMC_ACTIVATION_MAPS_DISABLED=true \
+  "${cmc_checker}" --mode activation >/dev/null 2>&1
+cmc_missing_fallback_status=$?
+set -e
+if [[ ${cmc_missing_fallback_status} -eq 0 ]]; then
+  printf '%s\n' 'Capability N/A senza fallback verificato ha superato il gate.' >&2
+  exit 1
+fi
+cmc_pass
 
 set +e
 env "${cmc_activation_env[@]}" \

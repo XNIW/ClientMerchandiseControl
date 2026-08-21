@@ -253,6 +253,75 @@ local|required|LEGAL_OPEN_SOURCE_ATTRIBUTION|Legal release owner|LicensePage and
 CMC_MATRIX
 }
 
+cmc_optional_group_for() {
+  local cmc_optional_name="$1"
+  case "${cmc_optional_name}" in
+    ANDROID_MAPS_KEY_RESTRICTION|IOS_MAPS_KEY_RESTRICTION|MAPS_*)
+      printf '%s\n' MAPS
+      ;;
+    ANDROID_FCM|IOS_APNS|NOTIFICATIONS_FCM|NOTIFICATIONS_APNS|NOTIFICATIONS_CREDENTIALS)
+      printf '%s\n' NOTIFICATIONS
+      ;;
+    PAYMENTS_*)
+      printf '%s\n' PAYMENTS
+      ;;
+    OBSERVABILITY_CRASH_ADAPTER)
+      printf '%s\n' CRASH_REPORTING
+      ;;
+    OBSERVABILITY_ANALYTICS_ADAPTER)
+      printf '%s\n' ANALYTICS
+      ;;
+    *)
+      printf '%s\n' UNKNOWN
+      ;;
+  esac
+}
+
+cmc_optional_group_state() {
+  local cmc_target_group="$1"
+  local cmc_group_seen=false
+  local cmc_all_ready=true
+  local cmc_all_not_applicable=true
+  local cmc_row_kind=''
+  local cmc_row_name=''
+  local cmc_row_group=''
+  local cmc_row_flag=''
+  local cmc_row_value=''
+  local cmc_unused=''
+
+  while IFS='|' read -r \
+    cmc_row_kind cmc_unused cmc_row_name cmc_unused cmc_unused; do
+    [[ "${cmc_row_kind}" == 'optional' ]] || continue
+    cmc_row_group="$(cmc_optional_group_for "${cmc_row_name}")"
+    [[ "${cmc_row_group}" == "${cmc_target_group}" ]] || continue
+    cmc_group_seen=true
+    cmc_row_flag="CMC_ACTIVATION_${cmc_row_name}"
+    cmc_row_value="${!cmc_row_flag:-}"
+    [[ "${cmc_row_value}" == 'true' ]] || cmc_all_ready=false
+    [[ "${cmc_row_value}" == 'not_applicable' ]] || \
+      cmc_all_not_applicable=false
+  done < <(cmc_activation_matrix)
+
+  local cmc_disabled_flag="CMC_ACTIVATION_${cmc_target_group}_DISABLED"
+  local cmc_fallback_flag="CMC_ACTIVATION_${cmc_target_group}_FALLBACK_VERIFIED"
+  local cmc_disabled_value="${!cmc_disabled_flag:-}"
+  local cmc_fallback_value="${!cmc_fallback_flag:-}"
+
+  if [[ "${cmc_group_seen}" == true && \
+    "${cmc_all_ready}" == true && \
+    "${cmc_disabled_value}" != 'true' && \
+    "${cmc_fallback_value}" != 'true' ]]; then
+    printf '%s\n' READY
+  elif [[ "${cmc_group_seen}" == true && \
+    "${cmc_all_not_applicable}" == true && \
+    "${cmc_disabled_value}" == 'true' && \
+    "${cmc_fallback_value}" == 'true' ]]; then
+    printf '%s\n' NOT_APPLICABLE
+  else
+    printf '%s\n' MISSING
+  fi
+}
+
 while IFS='|' read -r cmc_kind cmc_applicability cmc_name cmc_owner cmc_source; do
   [[ -z "${cmc_kind}" ]] && continue
   cmc_status=''
@@ -267,15 +336,19 @@ while IFS='|' read -r cmc_kind cmc_applicability cmc_name cmc_owner cmc_source; 
   elif [[ "${cmc_mode}" == 'technical' ]]; then
     cmc_status=UNVERIFIABLE_EXTERNAL
     cmc_verify="test [REDACTED CMC_ACTIVATION_${cmc_name}] = true"
+  elif [[ "${cmc_kind}" == 'optional' && \
+    "${cmc_applicability}" == 'optional' ]]; then
+    cmc_group="$(cmc_optional_group_for "${cmc_name}")"
+    cmc_status="$(cmc_optional_group_state "${cmc_group}")"
+    cmc_verify="test [REDACTED ${cmc_group} disabled-and-fallback attestations]"
+    if [[ "${cmc_status}" == 'MISSING' ]]; then
+      cmc_activation_failures=$((cmc_activation_failures + 1))
+    fi
   else
     cmc_flag="CMC_ACTIVATION_${cmc_name}"
     cmc_value="${!cmc_flag:-}"
     if [[ "${cmc_value}" == 'true' ]]; then
       cmc_status=READY
-    elif [[ "${cmc_kind}" == 'optional' && \
-      "${cmc_applicability}" == 'optional' && \
-      "${cmc_value}" == 'not_applicable' ]]; then
-      cmc_status=NOT_APPLICABLE
     else
       cmc_status=MISSING
       cmc_activation_failures=$((cmc_activation_failures + 1))

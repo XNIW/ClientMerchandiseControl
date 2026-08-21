@@ -4758,3 +4758,43 @@
 - **Outcome**: `POST_LAUNCH_OPERATIONS_READY_PRELAUNCH`; go-live e monitoring live
   `NOT_RUN`, production invariata.
 - **Handoff**: `USER_APPROVED_DONE`.
+
+## 2026-08-21 — MOBILE_STOREFRONT_PRODUCT_CONTROL planning ed execution start
+
+- **Agente**: Codex (`CODEX_PLANNER` -> `CODEX_EXECUTOR`).
+- **Baseline origin/main**: Client `3a6e84d472eb438b2eb54e07eed78c06de06c4e0`,
+  Admin `59668348e4c728b44b998c80f1aded61e6114a3f`, Android
+  `0406264c7299766b05419f306c320032e427ca2b`, iOS
+  `53396a5731ef2ae0544965325845cfceb2d56dea`; fetch/prune verde.
+- **Checkout primari**: preservati; dirty preesistente Android
+  `docs/TASKS/evidence/TASK-137/android-instrumentation.log` non toccato.
+- **Planning unico**: architecture/file/contract map in TASK-046; Storefront esistente
+  esteso, nessun nuovo source of truth e Client read-only.
+- **Autorizzazione**: mandato USER_APPROVER 2026-08-21 applicato senza checkpoint
+  addizionale fra le fasi previste.
+- **Fase**: EXECUTION, primo writer Admin/Supabase.
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+## 2026-08-21 — MOBILE_STOREFRONT_PRODUCT_CONTROL integration checkpoint
+
+- **Admin/Supabase**: contract e hardening integrati in `a787331a`; staging pgTAP/RLS
+  verdi; review finale `APPROVED`, P0/P1/P2/P3 zero.
+- **Android**: PR #9 e merge `d7c4953c`; CI exact-SHA e review finale verdi.
+- **iOS**: PR #10 e merge `30d226d0`; PR CI run `32524006454` verde; review finale
+  `APPROVED`, P0/P1/P2/P3 zero. Main CI post-merge ancora osservata in corso al
+  checkpoint e non dichiarata PASS anticipatamente.
+- **Client**: public projection invariata, quindi nessun codice Flutter o artifact
+  Client da rigenerare; corretto nel primo commit utile il drift TASK-040, ora
+  registrato come PR #19 merged `fdb1fa79` con main CI verde.
+- **Governance**: TASK-046 e TASK-047 `DONE`; TASK-048 unico `ACTIVE / EXECUTION`;
+  TASK-049 resta TODO.
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION` per staging E2E/RC.
+
+## 2026-08-21 — TASK-048 activation
+
+- **Stato**: unico task `ACTIVE / EXECUTION` del Client coordinator.
+- **Scope**: staging sintetico E2E-01…14, review cross-repo bounded e release
+  candidate Android/iOS; public Client projection invariata.
+- **Predecessori**: TASK-046 e TASK-047 `DONE`, con Admin/Android/iOS integrati e
+  review finali P0/P1/P2/P3 zero.
+- **Handoff**: `MOBILE_STOREFRONT_INTEGRATED_STAGING_E2E`.

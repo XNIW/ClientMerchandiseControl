@@ -4,18 +4,18 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: DONE
-- **Fase**: REVIEW
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: USER_APPROVED_DONE
-- **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: IDLE
-- **Review integrata**: APPROVED
-- **Prossima azione autorizzata**: restare `IDLE`; non attivare altri task e non
-  iniziare `MOBILE_STOREFRONT_PRODUCT_CONTROL`; production resta invariata
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-048
+- **File task**: `docs/TASKS/TASK-048-cross-surface-staging-e2e-release-candidate.md`
+- **Stato task**: ACTIVE
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Indicatore**: MOBILE_STOREFRONT_INTEGRATED_STAGING_E2E
+- **Release train**: MOBILE_STOREFRONT_PRODUCT_CONTROL
+- **Stato release train**: ACTIVE
+- **Review integrata**: NOT_RUN
+- **Prossima azione autorizzata**: eseguire E2E-01…14 sullo staging sintetico,
+  review cross-repo e release candidate secondo il mandato USER_APPROVER 2026-08-21
 
 ## Repository coinvolti
 
@@ -49,6 +49,8 @@
 5. Hardening e rilascio (`TASK-033`–`TASK-042`).
 6. Commerce UX e delivery tracking (`TASK-043`–`TASK-045`), variazione di prodotto
    esplicitamente autorizzata il 2026-08-16 e sequenziale rispetto al backlog storico.
+7. Mobile Storefront product control (`TASK-046`–`TASK-049`), train esplicitamente
+   autorizzato il 2026-08-21 con Client coordinator e activation guardata.
 
 ## Backlog completo
 
@@ -99,6 +101,10 @@
 | TASK-043 | Storefront commerce information architecture and UX refresh | DONE | TASK-033 | Client | Shell a cinque destinazioni e superfici commerce moderne, data-backed e accessibili |
 | TASK-044 | Delivery tracking contract, privacy boundary and operational writer | DONE | TASK-043 | Client, Admin, Supabase | Contratto tracking owner-scoped e writer courier foreground reale |
 | TASK-045 | Client live map, integrated acceptance and closeout | DONE | TASK-044 | Client, Admin, Supabase | Mappa fail-closed, acceptance integrata e closeout del train |
+| TASK-046 | Mobile Storefront authoring contract and UX | DONE | TASK-005–TASK-010 | Client, Admin, Android, iOS | Contratto unico, UX editor e piano cross-repo bounded |
+| TASK-047 | Android/iOS Storefront authoring integration | DONE | TASK-046 | Android, iOS, Admin | Editor unificati e parita mobile |
+| TASK-048 | Cross-surface staging E2E and release candidate | ACTIVE | TASK-047 | Client, Admin, Android, iOS | E2E-01…14 e candidate verificati |
+| TASK-049 | Testing channels and production activation closeout | TODO | TASK-048 | Client, Admin, Android, iOS | Internal/TestFlight, preflight guardato e stato terminale |
 
 ## Dipendenze e blocchi
 

@@ -1,7 +1,7 @@
 # Evidence TASK-041
 
 Snapshot di handoff:
-`ACTIVE / REVIEW / CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Provenance
 
@@ -62,3 +62,11 @@ Snapshot di handoff:
 | T-04 | PASS | Maps, tracking, carrier, payment, push, telemetry e promotions |
 | T-05 | PASS | scanner client 690 file; review diff-scoped da eseguire |
 | T-06 | NOT_RUN | local governance 101/101 e pins PASS; review/CI/merge da eseguire |
+
+## Review indipendente
+
+- exact HEAD: `ec735a0efdae128c8b1f7e82ca578358c1a56476`;
+- esito: `CHANGES_REQUIRED`, P0 0, P1 0, P2 1, P3 0;
+- `F-041-R01`: N/A opzionale non atomico per capability;
+- security manuale diff-scoped completata; formal scanner non disponibile;
+- worktree invariato dal reviewer.

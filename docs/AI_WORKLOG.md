@@ -4647,3 +4647,17 @@
   production, Admin/Supabase, provider, billing e store invariati.
 - **Fase finale**: REVIEW.
 - **Handoff**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+
+## 2026-08-21 — TASK-041 review indipendente
+
+- **Exact HEAD**: `ec735a0efdae128c8b1f7e82ca578358c1a56476`.
+- **Coverage**: 12 file cambiati, checker, evidence e supporting code dei sette
+  fallback; worktree invariato.
+- **Gate**: readiness 13/13, technical/activation, diff, syntax, state, pins e
+  security client 695 file verificati; governance lunga non riattribuita dopo yield.
+- **Finding**: `F-041-R01` P2, N/A isolato accettato senza capability OFF e fallback
+  verificato; P0 0, P1 0, P2 1, P3 0.
+- **Security**: `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`, review manuale diff-scoped,
+  nessun report sealed.
+- **Fase finale**: FIX.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

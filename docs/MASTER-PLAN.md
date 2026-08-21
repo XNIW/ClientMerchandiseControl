@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-041
 - **File task**: docs/TASKS/TASK-041-production-launch-rollback-runbook.md
 - **Stato task**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
-- **Indicatore**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: REVIEW
+- **Stato release train**: FIX
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: review indipendente read-only sul candidato
-  `92323f309ac39d4ea9565ef841c8a358a2b257a7`; production resta invariata
+- **Prossima azione autorizzata**: correggere esclusivamente `F-041-R01`, aggiungere
+  regressioni e riconsegnare allo stesso reviewer; production resta invariata
 
 ## Repository coinvolti
 

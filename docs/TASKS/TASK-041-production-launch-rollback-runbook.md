@@ -6,14 +6,14 @@
 - **Titolo**: Production launch, rollback e runbook
 - **File task**: `docs/TASKS/TASK-041-production-launch-rollback-runbook.md`
 - **Stato**: ACTIVE
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
 - **Data creazione**: 2026-08-21
 - **Ultimo aggiornamento**: 2026-08-21
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-041/`
 - **Outcome previsto**: PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 
 ## Dipendenze
 
@@ -118,7 +118,23 @@
 
 ## Review — `CODEX_REVIEWER`
 
-Da compilare dal reviewer indipendente.
+- exact HEAD `ec735a0efdae128c8b1f7e82ca578358c1a56476`, range da
+  `fdb1fa7962fa7a8eea7ecb0505adc812571fb1db`;
+- coverage: 12 file cambiati e supporting code dei sette fallback;
+- gate reviewer: diff, sintassi, readiness 13/13, technical, activation, governance
+  state, action pins e security 695 file eseguiti; la sessione governance 101/101
+  non ha restituito l'exit finale dopo yield e non è stata dichiarata PASS reviewer;
+- security formale `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE` per Python 3.9 senza
+  `tomllib/tomli`; review manuale diff-scoped, nessun report sealed;
+- `F-041-R01` P2: `NOT_APPLICABLE` può essere assegnato a un singolo requisito
+  optional mentre gli altri prerequisiti della capability sono `READY`, senza
+  attestare capability OFF e fallback verificato;
+- fix richiesto: stato N/A atomico per capability, due attestazioni redatte
+  `disabled`/`fallback verified` e regressioni per mix, gruppo N/A e required N/A;
+- conteggio: P0 0, P1 0, P2 1, P3 0;
+- esito: `CHANGES_REQUIRED`.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 ## Chiusura
 

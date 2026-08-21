@@ -13,12 +13,17 @@ provider o società viene inventato.
 ## Health check
 
 1. confermare environment e release/build senza copiare configurazione raw;
-2. verificare con richiesta read-only gli endpoint `/auth/v1/health` e
-   `/rest/v1/storefront_health` già usati da `BackendHealthService`;
-3. classificare separatamente `healthy`, `offline`, `authUnavailable`,
-   `storefrontUnavailable`, `invalidConfiguration` e `unexpected`;
-4. non usare service role e non modificare dati, RLS o publication;
-5. aprire un incidente se due check consecutivi falliscono dopo una conferma da una
+2. usare `HttpBackendHealthService` esclusivamente per il probe Auth read-only
+   `GET /auth/v1/health`; i risultati reali sono `healthy`, `offline`, `unauthorized`,
+   `notFound`, `recoverableError`, `invalidResponse` e `cancelled`;
+3. verificare separatamente la raggiungibilita Storefront con l'RPC bounded esistente
+   `storefront_home_v1`, tramite il normale client anon/auth e una fixture shop
+   sintetica autorizzata; non attribuire questo probe a `BackendHealthService`;
+4. mappare il probe Auth allo stato runtime `ready`, `offline`, `misconfigured` o
+   `recoverableError`; classificare l'RPC Storefront secondo `StorefrontFailureKind`,
+   senza inventare un endpoint health aggiuntivo;
+5. non usare service role e non modificare dati, RLS o publication;
+6. aprire un incidente se due check consecutivi falliscono dopo una conferma da una
    seconda rete sintetica autorizzata.
 
 Owner operativo: `NEEDS_OWNER_VALUE`. In prelaunch il check usa staging o fixture; il
@@ -164,8 +169,11 @@ Le cadenze diventano operative soltanto con owner e go-live reali.
 
 ## Drill sintetici prelaunch
 
-I drill sono eseguiti localmente da `scripts/test-operations-readiness.sh` con fixture
-bounded e adapter fake/no-op. Non usano rete, tempo reale o production.
+I drill sono eseguiti localmente da `scripts/test-operations-readiness.sh` con input
+bounded collegati a fixture, fake o contratti gia presenti. Un adapter operativo
+deterministico produce il risultato atteso e il test confronta esattamente detection,
+severity, kill switch, fallback, recovery e log safe. Ogni mapping alterato deve
+fallire. Non sono usati rete, tempo reale o production.
 
 | Drill | Scenario | Detection | Severity | Kill switch | Fallback utente | Recovery |
 |---|---|---|---|---|---|---|
@@ -181,5 +189,7 @@ bounded e adapter fake/no-op. Non usano rete, tempo reale o production.
 | D-10 | auth session expiry | unauthorized rate alert | SEV-2 | auth fail-closed | nuovo login senza loop | revoke e callback fixture verdi |
 
 Ogni fixture include detection, classificazione, kill switch, fallback, recovery e un
-log safe. Il test fallisce se trova email, telefono, coordinate, URL, token, indirizzi,
-payment secret, dati carrello o identità non necessarie.
+log safe. Il record log completo e ammesso soltanto nella forma allowlisted
+`component=<enum> outcome=failure category=<enum>`: qualunque chiave extra, identita di
+dominio, contenuto carrello, email, telefono, coordinate, URL, token, indirizzo o secret
+payment viene rifiutato.

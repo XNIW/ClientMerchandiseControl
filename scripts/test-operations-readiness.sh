@@ -109,43 +109,98 @@ if grep -Eq \
 fi
 cmc_pass
 
+cmc_safe_log_allowed() {
+  local cmc_log="$1"
+  [[ "${cmc_log}" =~ ^component=(backend|tracking|checkout|notifications|catalog|bootstrap|auth)[[:space:]]outcome=failure[[:space:]]category=(unavailable|timeout|invalidPayload|unexpected|rateLimited|unauthorized)$ ]]
+}
+
+cmc_simulate_operational_adapter() {
+  case "$1" in
+    'backend unavailable')
+      printf '%s' 'health offline|SEV-1|backend fail-closed|store unavailable|Auth probe and Storefront RPC smoke green|component=backend outcome=failure category=unavailable'
+      ;;
+    'Maps unavailable')
+      printf '%s' 'map adapter failed|SEV-2|Maps OFF|tracking status-only|map probe and fallback green|component=tracking outcome=failure category=unavailable'
+      ;;
+    'payment provider unavailable')
+      printf '%s' 'payment option unavailable|SEV-1|payment OFF|submit blocked|provider probe and reconciliation green|component=checkout outcome=failure category=unavailable'
+      ;;
+    'push unavailable')
+      printf '%s' 'notification delivery degraded|SEV-2|notifications OFF|order status in-app|fake delivery and retry normal|component=notifications outcome=failure category=unavailable'
+      ;;
+    'stale delivery tracking')
+      printf '%s' 'freshness stale|SEV-2|live tracking OFF|timeline status-only|freshness normal|component=tracking outcome=failure category=timeout'
+      ;;
+    'malformed catalog publication')
+      printf '%s' 'invalid payload|SEV-2|publication rollback|valid cache or unavailable|valid fixture republished|component=catalog outcome=failure category=invalidPayload'
+      ;;
+    'bad release requiring rollback')
+      printf '%s' 'crash regression|SEV-1|store halt capability OFF|prior release supported|exact release smoke green|component=bootstrap outcome=failure category=unexpected'
+      ;;
+    'notification retry flood')
+      printf '%s' 'retry rate exceeded|SEV-1|notifications OFF|order status in-app|queue bounded retry normal|component=notifications outcome=failure category=rateLimited'
+      ;;
+    'cleanup/retention failure')
+      printf '%s' 'last success age exceeded|SEV-1|cleanup writer OFF|client state unchanged|synthetic job backlog green|component=backend outcome=failure category=unexpected'
+      ;;
+    'auth session expiry')
+      printf '%s' 'unauthorized rate|SEV-2|Auth fail-closed|new login without loop|revoke callback fixture green|component=auth outcome=failure category=unauthorized'
+      ;;
+    *) return 1 ;;
+  esac
+}
+
+cmc_drill_matches_expected() {
+  [[ "$1" == "$2" ]]
+}
+
 cmc_drill_count=0
 cmc_drill_names=''
 while IFS='|' read -r \
-  cmc_scenario cmc_detection cmc_severity cmc_kill_switch cmc_fallback \
-  cmc_recovery cmc_safe_log; do
+  cmc_scenario cmc_fixture cmc_marker cmc_detection cmc_severity \
+  cmc_kill_switch cmc_fallback cmc_recovery cmc_safe_log; do
   [[ -z "${cmc_scenario}" ]] && continue
   cmc_drill_count=$((cmc_drill_count + 1))
   cmc_drill_names+="${cmc_scenario}"$'\n'
-  if [[ -z "${cmc_detection}" || -z "${cmc_kill_switch}" || \
-    -z "${cmc_fallback}" || -z "${cmc_recovery}" ]]; then
-    printf 'Drill incompleto: %s.\n' "${cmc_scenario}" >&2
+
+  if [[ ! -f "${cmc_fixture}" ]] || ! grep -Fq -- "${cmc_marker}" "${cmc_fixture}"; then
+    printf 'Fixture/adapter drill non verificabile: %s (%s).\n' \
+      "${cmc_scenario}" "${cmc_fixture}" >&2
     exit 1
   fi
-  case "${cmc_severity}" in
-    SEV-0|SEV-1|SEV-2|SEV-3) ;;
-    *)
-      printf 'Severity drill non valida: %s.\n' "${cmc_scenario}" >&2
-      exit 1
-      ;;
-  esac
-  if grep -Eiq \
-    '([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}|https?://|[-+]?([0-9]{1,2}\.[0-9]{4,})[,/]([[:space:]]*)[-+]?[0-9]{1,3}\.[0-9]{4,}|(access_token|refresh_token|payment_secret|push_token|email|phone|address|latitude|longitude)=)' \
-    <<<"${cmc_safe_log}"; then
-    printf 'PII o secret nel log drill: %s.\n' "${cmc_scenario}" >&2
+  cmc_pass
+
+  cmc_expected="${cmc_detection}|${cmc_severity}|${cmc_kill_switch}|${cmc_fallback}|${cmc_recovery}|${cmc_safe_log}"
+  cmc_actual="$(cmc_simulate_operational_adapter "${cmc_scenario}")"
+  if ! cmc_drill_matches_expected "${cmc_actual}" "${cmc_expected}"; then
+    printf 'Esito operativo drill inatteso: %s.\n' "${cmc_scenario}" >&2
     exit 1
   fi
+  cmc_pass
+
+  if ! cmc_safe_log_allowed "${cmc_safe_log}"; then
+    printf 'Record log fuori allowlist: %s.\n' "${cmc_scenario}" >&2
+    exit 1
+  fi
+  cmc_pass
+
+  cmc_mutated="${cmc_actual/|${cmc_kill_switch}|/|unexpected-capability-action|}"
+  if cmc_drill_matches_expected "${cmc_mutated}" "${cmc_expected}"; then
+    printf 'Mapping alterato accettato: %s.\n' "${cmc_scenario}" >&2
+    exit 1
+  fi
+  cmc_pass
 done <<'CMC_DRILLS'
-backend unavailable|health unavailable|SEV-1|backend fail-closed|store unavailable|health smoke green|component=backend outcome=failure category=unavailable
-Maps unavailable|map adapter failed|SEV-2|Maps OFF|tracking status-only|map probe and fallback green|component=tracking outcome=failure category=unavailable
-payment provider unavailable|payment option unavailable|SEV-1|payment OFF|submit blocked|provider probe and reconciliation green|component=checkout outcome=failure category=unavailable
-push unavailable|notification delivery degraded|SEV-2|notifications OFF|order status in-app|fake delivery and retry normal|component=notifications outcome=failure category=unavailable
-stale delivery tracking|freshness stale|SEV-2|live tracking OFF|timeline status-only|freshness normal|component=tracking outcome=failure category=timeout
-malformed catalog publication|invalid payload|SEV-2|publication rollback|valid cache or unavailable|valid fixture republished|component=catalog outcome=failure category=invalidPayload
-bad release requiring rollback|crash regression|SEV-1|store halt capability OFF|prior release supported|exact release smoke green|component=bootstrap outcome=failure category=unexpected
-notification retry flood|retry rate exceeded|SEV-1|notifications OFF|order status in-app|queue bounded retry normal|component=notifications outcome=failure category=rateLimited
-cleanup/retention failure|last success age exceeded|SEV-1|cleanup writer OFF|client state unchanged|synthetic job backlog green|component=backend outcome=failure category=unexpected
-auth session expiry|unauthorized rate|SEV-2|Auth fail-closed|new login without loop|revoke callback fixture green|component=auth outcome=failure category=unauthorized
+backend unavailable|test/core/backend/backend_health_service_test.dart|BackendHealthResult.offline|health offline|SEV-1|backend fail-closed|store unavailable|Auth probe and Storefront RPC smoke green|component=backend outcome=failure category=unavailable
+Maps unavailable|lib/features/delivery_tracking/application/delivery_map_adapter.dart|FakeDeliveryMapAdapter|map adapter failed|SEV-2|Maps OFF|tracking status-only|map probe and fallback green|component=tracking outcome=failure category=unavailable
+payment provider unavailable|test/features/checkout/checkout_test_support.dart|FakeCheckoutRepository|payment option unavailable|SEV-1|payment OFF|submit blocked|provider probe and reconciliation green|component=checkout outcome=failure category=unavailable
+push unavailable|test/features/customer_devices/customer_device_test_support.dart|FakePushTokenProvider|notification delivery degraded|SEV-2|notifications OFF|order status in-app|fake delivery and retry normal|component=notifications outcome=failure category=unavailable
+stale delivery tracking|test/features/delivery_tracking/delivery_tracking_controller_test.dart|DeliveryTrackingFreshness.stale|freshness stale|SEV-2|live tracking OFF|timeline status-only|freshness normal|component=tracking outcome=failure category=timeout
+malformed catalog publication|test/features/storefront/data/storefront_catalog_dto_test.dart|StorefrontFailureKind.invalidPayload|invalid payload|SEV-2|publication rollback|valid cache or unavailable|valid fixture republished|component=catalog outcome=failure category=invalidPayload
+bad release requiring rollback|docs/releases/PRODUCTION-ROLLBACK-RUNBOOK.md|fermare rollout|crash regression|SEV-1|store halt capability OFF|prior release supported|exact release smoke green|component=bootstrap outcome=failure category=unexpected
+notification retry flood|test/features/customer_devices/customer_device_controller_test.dart|retry idempotente|retry rate exceeded|SEV-1|notifications OFF|order status in-app|queue bounded retry normal|component=notifications outcome=failure category=rateLimited
+cleanup/retention failure|docs/TASKS/EVIDENCE/TASK-025/README.md|cleanup batch max 400|last success age exceeded|SEV-1|cleanup writer OFF|client state unchanged|synthetic job backlog green|component=backend outcome=failure category=unexpected
+auth session expiry|test/features/auth/application/auth_controller_test.dart|session expiry|unauthorized rate|SEV-2|Auth fail-closed|new login without loop|revoke callback fixture green|component=auth outcome=failure category=unauthorized
 CMC_DRILLS
 
 if [[ ${cmc_drill_count} -ne 10 ]]; then
@@ -153,6 +208,29 @@ if [[ ${cmc_drill_count} -ne 10 ]]; then
   exit 1
 fi
 cmc_pass
+
+while IFS= read -r cmc_unsafe_log; do
+  [[ -z "${cmc_unsafe_log}" ]] && continue
+  if cmc_safe_log_allowed "${cmc_unsafe_log}"; then
+    printf 'Record sensibile o con chiave extra accettato: %s.\n' \
+      "${cmc_unsafe_log%%=*}" >&2
+    exit 1
+  fi
+  cmc_pass
+done <<'CMC_UNSAFE_LOGS'
+component=backend outcome=failure category=unavailable customer_id=customer-42
+component=checkout outcome=failure category=unavailable cart_items=sku-1
+component=auth outcome=failure category=unauthorized phone=+56912345678
+component=tracking outcome=failure category=timeout address=123_Main_Street
+component=catalog outcome=failure category=invalidPayload email=person@example.invalid
+component=tracking outcome=failure category=timeout latitude=-33.45
+component=notifications outcome=failure category=rateLimited push_token=redacted-looking-token
+component=checkout outcome=failure category=unavailable payment_secret=redacted-looking-secret
+component=backend outcome=failure category=unavailable correlation_id=customer-derived-id
++56 9 1234 5678
+123 Main Street Santiago
+cart item sku-1 quantity 4
+CMC_UNSAFE_LOGS
 
 for cmc_expected_drill in \
   'backend unavailable' \

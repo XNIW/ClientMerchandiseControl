@@ -205,6 +205,30 @@ cmc_check_contains EXTERNAL_MONITORING_CLASSIFICATION \
 cmc_check_contains OWNER_VALUE_CLASSIFICATION \
   docs/operations/POST-LAUNCH-OPERATIONS-RUNBOOK.md \
   'NEEDS_OWNER_VALUE'
+cmc_check_contains AUTH_HEALTH_PROBE_CONTRACT \
+  docs/operations/POST-LAUNCH-OPERATIONS-RUNBOOK.md \
+  'GET /auth/v1/health'
+cmc_check_contains STOREFRONT_RPC_PROBE_CONTRACT \
+  docs/operations/POST-LAUNCH-OPERATIONS-RUNBOOK.md \
+  'storefront_home_v1'
+cmc_check_contains AUTH_HEALTH_RUNTIME_SOURCE \
+  lib/core/backend/backend_health_service.dart \
+  "origin.resolve('/auth/v1/health')"
+cmc_check_contains STOREFRONT_RPC_RUNTIME_SOURCE \
+  lib/features/storefront/data/supabase_storefront_repository.dart \
+  "function: 'storefront_home_v1'"
+
+if grep -Fq '/rest/v1/storefront_health' \
+  docs/operations/POST-LAUNCH-OPERATIONS-RUNBOOK.md; then
+  cmc_emit INVENTED_STOREFRONT_HEALTH_ENDPOINT MISSING \
+    docs/operations/POST-LAUNCH-OPERATIONS-RUNBOOK.md repository-owner \
+    'remove-non-runtime-endpoint'
+  cmc_local_failures=$((cmc_local_failures + 1))
+else
+  cmc_emit INVENTED_STOREFRONT_HEALTH_ENDPOINT READY \
+    docs/operations/POST-LAUNCH-OPERATIONS-RUNBOOK.md repository-owner \
+    'grep -F [REDACTED_FORBIDDEN_ENDPOINT] operations-runbook'
+fi
 
 cmc_live_matrix() {
   cat <<'CMC_MATRIX'

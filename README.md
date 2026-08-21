@@ -188,14 +188,18 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: DONE
-- **Fase**: REVIEW
-- **Indicatore**: USER_APPROVED_DONE
-- **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: IDLE
-- **Review integrata**: APPROVED
+- **Task attivo**: TASK-048
+- **File task**: `docs/TASKS/TASK-048-cross-surface-staging-e2e-release-candidate.md`
+- **Stato task**: ACTIVE
+- **Fase**: EXECUTION
+- **Indicatore**: MOBILE_STOREFRONT_INTEGRATED_STAGING_E2E
+- **Release train**: MOBILE_STOREFRONT_PRODUCT_CONTROL
+- **Stato release train**: ACTIVE
+- **Review integrata**: NOT_RUN
+
+TASK-046 e TASK-047 sono `DONE`: il contratto Admin/Supabase e gli editor Android/iOS
+sono integrati con review finali verdi. TASK-048 è l'unico task `ACTIVE` e governa
+staging E2E-01…14, review cross-repo e release candidate; il Client resta read-only.
 
 TASK-043, TASK-044 e TASK-045 restano `DONE`: tutte le PR coordinate sono state fuse
 normalmente e le CI PR/main exact-SHA sono verdi. Il train

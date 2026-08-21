@@ -101,6 +101,8 @@ void main() {
         authRedirectUri: callback,
         googleAuthEnabled: 'false',
         storefrontShopSlug: 'storefront-test',
+        releaseConfigSha256:
+            'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       ),
       initializer: ({required url, required publishableKey}) async {
         initializationCalls += 1;

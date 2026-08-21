@@ -3213,3 +3213,1410 @@
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`; la conferma
   persistente autorizza CI approval-commit e merge normale, non upload Play o
   production.
+
+## 2026-08-17 — TASK-039 closeout / TASK-040 activation
+
+- **TASK-039**: approval commit `03d849af`, CI PR `32018935396` 4/4 `success`,
+  PR #18 merged normalmente in `f30b13e9`; main CI `32019746636` 4/4 e ogni
+  step `success`.
+- **Classificazione**: `TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`;
+  AAB/APK unsigned verificati, signing/Play credential e upload Internal
+  `NOT_RUN` esterni; production invariata.
+- **Hygiene**: branch remota TASK-039 e linked worktree rimossi; checkout
+  primario preservato; nuovo worktree pulito da `origin/main` `f30b13e9`.
+- **Transizione**: TASK-039 `DONE / USER_APPROVED_DONE`; TASK-040 unico task
+  `ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`, autorizzazione
+  persistente del mandato 2026-08-16. Nessun upload TestFlight o production
+  senza signing e credenziali reali.
+
+## 2026-08-17 — TASK-040 iOS release candidate execution
+
+- **Exact SHA tecnico**: `4c4db2a82ddb276066763fcdb24227bbf2937a4f`;
+  worktree pulito durante build/archive e artifact inspection.
+- **Artifact**: `flutter build ios --release --no-codesign` e `xcodebuild archive`
+  `PASS`; archive 201.328 KiB, app 36.708 KiB, 207 file, arm64,
+  `com.xniw.clientmerchandisecontrol` `0.1.0 (1)`, 7 dSYM e 8 privacy manifest.
+- **Digest**: executable
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`;
+  Runner binary/dSYM UUID corrispondente.
+- **Signing/TestFlight**: unsigned; 1 identity Development, 0 Distribution,
+  0 profile, 0 App Store Connect API key/env. Upload `NOT_RUN`; readiness respinta
+  con enum bounded `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`.
+- **Security**: source 676, app 207, fixture 52/52 negative + 6/6 positive;
+  public identifier Google Maps ammesso solo con fingerprint, prefisso ed endpoint
+  esatti anche nella variante linker Release.
+- **Gate**: `scripts/check.sh` exit 0; 788/788 non-performance, 10/10
+  performance, repeat 70/70, format 297/0, analyze, governance 9/9,
+  architecture 7/7 e build debug Android/iOS `PASS`.
+- **Device**: Simulator debug integration 1/1 `PASS`; debug production-like
+  install/launch `PASS` fail-closed; Release Simulator non supportato da Flutter;
+  Release Simulator `NOT_RUN`; physical iOS `BLOCKED` perché nessun device è
+  collegato e autorizzato.
+- **Transizione**: `ACTIVE / EXECUTION -> REVIEW`, handoff
+  `CODEX_EXECUTION_COMPLETE_TO_REVIEW`; push/Universal Links/Maps/TestFlight e
+  production invariati.
+
+## 2026-08-17 — TASK-040 review indipendente
+
+- **Revision set**: `f30b13e9..c8893dc`, worktree pulito e review read-only.
+- **Esito prodotto**: `CHANGES_REQUIRED`, 3 P2 su profilo/scanner, binding bundle e
+  attestazione runtime; gate autonomi release/analyze/governance verdi.
+- **Esito security**: `CHANGES_REQUIRED`, 4 P2 e 2 P3; report sealed SHA-256
+  `21115fc2692b7361a29123422edee14fc4bd752d1429a94e1c641b50ee352f32`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; nessun upload o sistema esterno mutato.
+
+## 2026-08-17 — TASK-040 Fix 1 handoff
+
+- **Fix**: binding canonico app/archive, signature invalid fail-closed, entitlement
+  Xcode 26, profilo App Store scoped/CMS, runtime-config SHA-256 artifact-bound,
+  scanner UTF-16 e bounded, privacy path esatti e governance CI strutturale.
+- **Regressioni**: iOS release 8/8, runtime config 3/3, mirati Flutter 53/53,
+  security 56/56 negative + 7/7 positive; `scripts/check.sh` exit 0.
+- **Artifact exact SHA**: `9065d9c7a3d9bf34dd8c183c9adbccc896f124d9`;
+  archive unsigned 201.328 KiB, executable SHA-256
+  `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`,
+  Runner/dSYM UUID `F278496B-FCCE-3ADD-A310-7E94973B62D0`.
+- **Activation boundary**: 0 Distribution, 0 provisioning profile; upload readiness
+  respinta con `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna IPA/upload.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; worktree pulito e production invariata.
+
+## 2026-08-17 — TASK-040 Fix 1 re-review
+
+- **Exact HEAD**: `be978225677304b9f5c8dce5fd3ba05dca7533e8`.
+- **Esito**: `CHANGES_REQUIRED`; 6 P2 e 4 P3 security più un P2 tecnico,
+  tutti su gate locali riproducibili e risolvibili.
+- **Superfici residue**: firma corrotta/`ApplicationPath`, attestation e parità
+  runtime, scanner chunk/CMS/wide JWT+PEM, CI/privacy e limiti aggregate/JWT.
+- **Security report**: sealed, SHA-256
+  `e76c6beab23628a979cf20284253e85d7c6afbd1dd5280f629976a4e06ba6d88`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; repository e sistemi esterni invariati.
+
+## 2026-08-17 — TASK-040 Fix 2
+
+- **Technical SHA**: runtime `d4a9edc`, governance gate `ae1e3c7`;
+  firma/archive, attestation semantica condivisa, scanner CMS/wide/chunk/aggregate,
+  privacy e CI governance corretti con regressioni.
+- **Gate mirati**: config/governance 39/39, fixture iOS 13/13, security 60/60
+  negative + 7/7 positive, source 680, artifact 207, analyze e governance 9/9.
+- **Attestazione reale**: build production sintetico esterno senza credenziali reali
+  `PASS`, con un solo marker completo in `Frameworks/App.framework/App`; temp rimosso.
+- **Artifact**: clean release/archive canonico 201.344 KiB, app 36.724 KiB,
+  App.framework SHA-256 `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  Runner/dSYM UUID `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: signing `UNSIGNED`; upload gate respinto su Distribution assente;
+  nessuna IPA, credential, config production reale, TestFlight o production mutati.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 2 re-review
+
+- **Exact HEAD**: `2b7c1480aa7c1e18dfce58abb076cf388b2ed9d2`, worktree pulito.
+- **Esito prodotto**: `CHANGES_REQUIRED`, 1 P2 su `.app` symlink extra non contata.
+- **Esito security**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 3 P3 su JWT source,
+  file-cap tardivo e CI substring; report sealed SHA-256
+  `083337065a0ad22367124162a36766391f9dabd180f3d6f00b9512835b4f9e28`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; production/TestFlight invariati.
+
+## 2026-08-17 — TASK-040 Fix 3 e handoff
+
+- **Technical SHA**: `12931389b2692bff5739325946ae48ad0eeff730`;
+  app-set archive symlink-safe, scanner JWT/file-list bounded, YAML CI strutturato,
+  exact-key architecture, config single-handle e hash runtime/wrapper separati.
+- **Gate**: config/CI 15/15, iOS 15/15, security 61/61 negative + 7/7 positive,
+  governance 9/9, architecture 8/8, source 680, artifact 207 e full
+  `scripts/check.sh` `PASS` con 798/798, performance 10/10 e repeat 70/70.
+- **Attestazione**: build sintetico esterno `PASS`, un solo marker digest
+  `b6d7f55b1f96785f7e4836d45fb11cd58e6aca6282f166660ca09529db0806a6`;
+  file temporaneo rimosso e nessun valore reale/versionato.
+- **Artifact**: archive unsigned 201.344 KiB, app 36.724 KiB/207 file,
+  runtime SHA-256 `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256 `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`,
+  UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`.
+- **Boundary**: upload respinto da Distribution assente; 0 profili, 0/3 input ASC,
+  physical iOS offline; nessuna IPA, firma, TestFlight o production mutation.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 3 re-review
+
+- **Exact HEAD**: `ed0dc628dff7f904d47d214218662d2c2ff587ed`, worktree pulito.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 5 P3 unificati su execution controls
+  YAML, comment decoy architecture, privacy nested schema, FIFO bloccante ed evidence.
+- **Chiusure preservate**: `.app` symlink, JWT streaming, preventive entry cap e
+  hash primario `App.framework/App` confermati dai probe indipendenti.
+- **Security**: report sealed SHA-256
+  `5ba397a40bbfb3ce7d9690deb6a147541f611f2e7f626ef4afaffa7d72167786`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 4 e handoff
+
+- **Technical SHA**: `16f29012e89170a0de2c9b348ec134c4d495b33d`;
+  YAML execution controls, comment decoy architecture, privacy nested schema e FIFO
+  sono chiusi al boundary reale con regressioni dedicate; evidence corrente
+  riallineata a quattro digest e ai conteggi Fix 4.
+- **Gate mirati**: runtime/CI 17/17, iOS release 15/15, architecture 9/9,
+  source/artifact 680/207, analyze e diff check `PASS`.
+- **Gate completo**: `scripts/check.sh` exit 0; 800/800 non-performance,
+  10/10 performance, resilience repeat 70/70, format 300/0, Android debug e
+  iOS Simulator debug build `PASS`.
+- **Artifact exact-SHA**: clean archive unsigned 201.344 KiB, app 36.724 KiB/
+  207 file, 8 privacy manifest, 7 dSYM; runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna firma, profilo, input ASC,
+  IPA, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 4 re-review
+
+- **Exact HEAD**: `6139063623ea6395ec0beca808990739b2fa3792`, worktree
+  pulito e review prodotto/security read-only distinte.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 5 P3 su workflow-level
+  `defaults.run`/`BASH_ENV`, decoy Dart string/comment, enum privacy Apple
+  inesistenti, race regular→FIFO e digest wrapper evidence errato.
+- **Chiusure preservate**: privacy nested `{}`, modifier locali job/step, FIFO
+  statica, app-set/signature e binding runtime; gate nominali 17/17, 9/9, 15/15,
+  680/207 e analyze verdi ma insufficienti rispetto ai PoC.
+- **Security**: report sealed SHA-256
+  `0e98a5c4dd7faf79571002b7edad4b4bb5624449dbb7eb3961e941de024762df`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 5 e handoff
+
+- **Technical SHA**: `ae452c6b10a9b69c9535476c02b01d8ed3ec74b5`;
+  workflow CI allowlisted integralmente, binding verificato sul vero AST Dart,
+  privacy allowlist Apple esatta e runtime config single-descriptor nonblocking.
+- **Gate mirati**: runtime/CI 17/17, iOS release 16/16, architecture 10/10,
+  source/artifact 681/207, scanner 61/61 negative + 7/7 positive e analyze `PASS`.
+- **Gate completo**: `scripts/check.sh` exit 0; 800/800 non-performance,
+  10/10 performance, repeat resilience 70/70, format 301/0, Android debug e
+  iOS Simulator debug build `PASS`.
+- **Artifact exact-SHA**: archive unsigned 201.344 KiB, app 36.724 KiB/207 file,
+  8 privacy manifest, 7 dSYM; runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna firma, profilo, input ASC,
+  IPA, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 5 re-review
+
+- **Exact HEAD**: `354fd2442190cf172e41adf1070e94cb8d31cd5b`, worktree pulito.
+- **Esito prodotto/security**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 3 P3 unificati
+  su ownership AST, ancestor-symlink TOCTOU e privacy manifest non legato al
+  singolo SDK.
+- **Chiusure preservate**: i cinque finding Fix 4; gate nominali 681/207,
+  61/61 + 7/7, architecture 10/10, runtime/CI 17/17 e iOS 16/16.
+- **Security**: report sealed SHA-256
+  `47444ae52e31ad64aa40ac1ffb3828bd56897c93d00f6178cab739cfdf35e346`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 6 e handoff
+
+- **Technical SHA**: `2523385d65dba7dac4dbdf075173c69260111796`;
+  declaration e consumer AST vincolati a `AppConfig`, path runtime percorso con
+  directory fd/openat e privacy manifest legati semanticamente al singolo SDK.
+- **Gate mirati**: runtime/CI 18/18 con 30 tentativi race, iOS release 17/17,
+  architecture 11/11, source/artifact 681/207, scanner 61/61 negative + 7/7
+  positive e analyze `PASS`.
+- **Gate completo**: `scripts/check.sh` exit 0; 801/801 non-performance,
+  10/10 performance, repeat resilience 70/70, format 301/0, Android debug e
+  iOS Simulator debug build `PASS`.
+- **Artifact exact-SHA**: archive unsigned 201.344 KiB, app 36.724 KiB/207 file,
+  8 privacy manifest, 7 dSYM; runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessuna firma, profilo, input ASC,
+  IPA, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 6 re-review
+
+- **Exact HEAD**: `74f65036f7cd295e09fb457e21c804f26e49d70b`, worktree
+  pulito e reviewer prodotto/security read-only distinti.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 2 P3: consumer AST legati al
+  lexema anziché all'elemento dichiarato e inventory framework/bundle non exact
+  rispetto agli otto privacy manifest canonici.
+- **PoC**: parametro factory omonimo instrada entrambi i consumer verso
+  `ATTACKER_SHOP_SLUG`; `Extra.framework` Mach-O senza manifest privacy raggiunge
+  `IOS_RELEASE_CANDIDATE_VALID`.
+- **Chiusure preservate**: ancestor-symlink TOCTOU 60/60 senza alternate/hang e
+  Google Maps empty-manifest respinto; `scripts/check.sh` resta nominalmente verde
+  con 801/801, 10/10, repeat 70/70 e artifact 681/207.
+- **Review evidence**: report prodotto sealed SHA-256
+  `32b79e76daec872db0be080ebe06bf1bb58153518a8356a1f40bdb8fb3a12fe9`
+  e report security canonico sealed SHA-256
+  `3765b04359849bed1fd2d6bb0a95376d2d7974db2fd6fb3d79ec85044b573baa`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 7 e handoff
+
+- **Technical SHA**: `d94b071b3c916a914c9db87cd588621feee4e75d`;
+  i consumer AST sono legati all'element identity del field `AppConfig` e
+  framework/bundle embedded sono inventory exact con policy privacy esplicita.
+- **Regressioni**: formal-parameter shadow respinto; `Extra.framework` senza
+  manifest respinto; architecture 12/12 e fixture iOS 18/18 `PASS`.
+- **Gate completo**: `scripts/check.sh` exit 0; 801/801 non-performance,
+  10/10 performance, repeat resilience 70/70, security 681 + 61/61 + 7/7,
+  format 301/0, analyze e build debug Android/iOS `PASS`.
+- **Artifact exact-SHA**: clean archive unsigned 201.344 KiB, app 36.724 KiB/
+  207 file, 8 privacy manifest, 7 dSYM; runtime SHA-256
+  `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256
+  `7aaa6f37f276f5f458a09772711b8a1c7a0c2cfbf95f6ad85598fe868f5e1928`
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; device iOS fisici offline,
+  nessuna firma, provisioning, input ASC, IPA, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 7 re-review
+
+- **Exact HEAD**: `189c5e74fb3f32d76a6e8bffb87ca6a95e791fed`, worktree
+  pulito e reviewer prodotto/security read-only distinti.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 4 P3: constructor identity non
+  `dart:core`, consumer canonici non legati al percorso reale, inventory iOS
+  shallow/nominale ed evidence corrente con provenance Fix 6.
+- **Review evidence**: report security sealed SHA-256
+  `fbd804ea9d7057f6c300f4ea91a59439e7327871c287bec4e9f950b27cb99bf2`;
+  report prodotto sealed SHA-256
+  `a1a49bdd9744478abd024fe71d4976f731ad1d7d5fa4cf80d452d65c208d743d`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 8 e handoff
+
+- **Technical SHA**: `41f5cbab7c60ee872a1e2f5ef591e16c18e89b6e`;
+  constructor/consumer AST sono legati agli elementi e al percorso canonico, mentre
+  framework/bundle/dylib sono coperti da inventory recursive identity-bound.
+- **Regressioni**: constructor omonimo, consumer decoy, framework casing/nesting,
+  dylib e sostituzioni framework/bundle respinti; architecture 14/14 e iOS 23/23.
+- **Gate completo**: `scripts/check.sh` exit 0; 801/801 non-performance,
+  10/10 performance, repeat resilience 70/70, security 681 + 61/61 + 7/7,
+  format 301/0, analyze e build debug Android/iOS `PASS`.
+- **Artifact exact-SHA**: clean archive unsigned 201.344 KiB, app 36.724 KiB/
+  207 file, 8 privacy manifest, 7 dSYM; runtime/wrapper/Info/privacy digest invariati
+  e UUID app/dSYM `BECE880B-91F5-36D2-AD95-F366FB669F41`.
+- **Boundary**: upload gate exit 1
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; 0 Distribution, profili e input ASC,
+  iPhone fisico offline, nessuna IPA, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 8 re-review
+
+- **Exact HEAD**: `e88f8762aab52ad7b176cbc0e0bd80b23d2aaf43`, worktree
+  pulito e reviewer prodotto/security read-only distinti.
+- **Esito**: `CHANGES_REQUIRED`: 2 P2 sul binding completo della config e sul
+  control flow; P3 su library identity, Mach-O/content provenance, fixture
+  constructor e cronologia worklog.
+- **Review evidence**: report security canonico sealed SHA-256
+  `169a5154053c28503744c0de8a8d2a9c923520062e339e28d93b038a83df8f84`;
+  report prodotto sealed SHA-256
+  `877c30e186d5bd38da82639a023021a3da117defeb63d93d2c6167bc715b92ca`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 9 e handoff
+
+- **Technical SHA**: `34d342b38b41d73cfe590b2cfe5defd5aab6be40`; binding
+  completo dei nove field compile-time, sette consumer e otto input attestation,
+  control flow production e library identity sono verificati sul resolved AST.
+- **Content provenance**: exact set dei cinque Mach-O con digest loadable e dei nove
+  bundle con tree digest; layout wrapper Flutter/archive distinti ma deterministici,
+  archive ripetuto byte-identico e regressioni tamper/extensionless incluse.
+- **Gate**: `scripts/check.sh` exit 0 sullo SHA corrente con 801/801,
+  performance 10/10, repeat 70/70, security 681 + 61/61 + 7/7, governance
+  10/10, architecture 17/17, iOS fixture 26/26, format/analyze/build debug verdi.
+- **Artifact**: archive unsigned 201.344 KiB, app 36.724 KiB/207 file,
+  runtime SHA-256 `2ad06c3f2e0e980ab1907b1ecb353c43e3ce98aad21eb0f02b8fd319f682c336`,
+  wrapper SHA-256 `caa81fa3e2c0a067b4ecbf91f83267fb7dba6c95d54da27bf4022ced821f142c`,
+  UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`.
+- **Boundary**: upload exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`;
+  0 Distribution, 0 profili e 0/3 input ASC, device fisici offline, nessuna IPA,
+  firma, upload o mutazione production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 9 re-review
+
+- **Exact HEAD**: `b5b9ac64299f0dc79f8b43970ca98937cd71c670`, worktree
+  pulito e reviewer prodotto/security read-only distinti.
+- **Esito security**: `CHANGES_REQUIRED`, 0 P0/P1, 1 P2 e 2 P3; report canonico
+  sealed SHA-256
+  `8d346f407851cd9312518984b8a807d0973754fd80a5324226bf87a40d51a5a3`.
+- **Finding**: digest Mach-O section-only aggirabile via header/load command;
+  manifest/matrice T e tail task non allineati a Fix 9. La review prodotto conta
+  2 P3 sul root Mach-O e sulla claim archive byte-identico.
+- **Chiusure**: config/control/library identity, inventory extensionless, content
+  bundle e chronology worklog confermati chiusi.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; TestFlight/production invariati.
+
+## 2026-08-17 — TASK-040 Fix 10 e handoff
+
+- **Technical SHA**: `da83b266bf6298c5a869b74cd271782782c7b4ef`; il
+  validator canonicalizza la sola firma su copia isolata e attesta l'intero Mach-O.
+- **Regressioni**: clear `MH_PIE`, set `MH_ALLOW_STACK_EXECUTION` e modifica
+  `LC_LOAD_DYLIB` sono respinti; iOS fixture 29/29 e governance 15/15 `PASS`.
+- **Provenance**: clean release/archive sul source SHA
+  `01dd140852733c14ae53d067e7454458cababe19`; archive 201.344 KiB, app
+  36.724 KiB/207 file, 8 privacy manifest, 7 dSYM, runtime/wrapper digest invariati
+  e UUID app/dSYM `F278496B-FCCE-3ADD-A310-7E94973B62D0`.
+- **Gate**: `scripts/check.sh` sullo SHA finale: 801/801, performance 10/10,
+  repeat 70/70, security 681 + 61/61 + 7/7, architecture 17/17,
+  format/analyze/build debug verdi; candidate unsigned `PASS`.
+- **Boundary**: upload exit 1 `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`;
+  nessuna IPA, credenziale, firma Distribution, TestFlight o production modificata.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`, handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`; re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 10 re-review
+
+- **Ruolo**: `CODEX_RE_REVIEWER`, read-only distinto dal fixer.
+- **Exact HEAD**: `a85d60774212f212d3ee8dd274db99af011925c8`.
+- **Esito**: `CHANGES_REQUIRED`, 0 P0/P1/P2 e 2 P3 governance.
+- **Finding**: `F-040-RR10-GOV-01` su cardinalità/stato/token esatti di manifest
+  e matrici T; `F-040-RR10-GOV-02` su chronology opzionale, comment-decoy e
+  ordine storico task ambiguo.
+- **Closure iOS**: `F-040-RR9-IOS-01` chiuso con fixture 29/29 e tamper
+  Mach-O/firma respinti; scanner 681/207 e 61/61 + 7/7.
+- **Security report**: sealed SHA-256
+  `10deb98767cac73818233dc9f073934c31c7a81d0768c4fa68f82b5dfbef1837`.
+- **Transizione**: `ACTIVE / FIX`; handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; upload TestFlight e production invariati.
+
+## 2026-08-17 — TASK-040 Fix 11 e handoff
+
+- **Technical SHA**: `32017f34bc840e384fdd4e5023727027cb9ec0cf`.
+- **Governance**: cardinalità esatta per manifest/T-02/T-03, stato `PASS` e
+  token Fix strutturati; chronology task obbligatoria, comment-free e sequenziale.
+- **Regressioni**: fixture 26/26 coprono duplicati/righe non canoniche, stati
+  `FAIL`, `Fix 100`, revisioni non-prefix, heading assenti/fuori sezione,
+  comment-decoy e ordine storico errato.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security
+  681 + 61/61 + 7/7, architecture 17/17, format 301/0, analyze e build debug
+  Android/iOS `PASS`.
+- **Boundary**: nessun delta runtime/artifact; Distribution, provisioning e ASC
+  restano assenti, TestFlight/production invariati.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`; handoff
+  `CODEX_FIX_COMPLETE_TO_RE_REVIEW`, re-review read-only distinta obbligatoria.
+
+## 2026-08-17 — TASK-040 Fix 11 re-review
+
+- **Exact HEAD**: `0fec3ab0f4af8747e82695bc97e4cf61b8799114`.
+- **Esito**: prodotto e security `CHANGES_REQUIRED`, 0 P0/P1/P2 e 3 P3.
+- **Finding**: semantica Markdown non vincolata, chronology/worklog non ancorati
+  al ciclo corrente e SHA non risolto né verificato nella lineage Git.
+- **Security report**: sealed SHA-256
+  `45cd14b5ad3a76bb10e1741331ea6ae7675b749f6248821e4c5f77662cc2c3b5`.
+- **Boundary**: gate completi verdi, ma insufficienti ai probe; TestFlight,
+  signing, credenziali e production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 12 e handoff
+
+- **Technical SHA**: `60e3125ad1055df71c6e04dfb783728f7ad80085`.
+- **Fix**: semantica Markdown/colonne/indentazione bounded, zero comment/fence,
+  conteggi completi, ciclo Fix ancorato a Git e worklog globale strutturato.
+- **Lineage**: SHA task/manifest/artifact risolti, ancestor e ultimo commit
+  tecnico in REVIEW; gate/T-07/worklog correlati allo stesso ciclo.
+- **Regressioni**: governance 44/44 sui PoC originali e sibling compositivi.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security
+  681 + 61/61 + 7/7, architecture 17/17, format 301/0, analyze e build debug
+  Android/iOS `PASS`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 Fix 12 re-review
+
+- **Exact HEAD**: `8f32012dd1514bab74bbf96e13dee0f5100c94b1`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, 0 P0/P1/P2 e 3 P3.
+- **Finding**: exact-section/table ownership e raw HTML, label phase-bound e
+  delta post-SHA non-documentale non verificato fail-closed.
+- **Security report**: sealed SHA-256
+  `79fbaa3cd39b8ffc0e1ec47f1b67fd8354f1c5f9155716f4fc5028eee4a6a95d`.
+- **Boundary**: closure Fix 11 confermata; TestFlight, signing, credenziali e
+  production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 13 e handoff
+
+- **Technical SHA**: `906fecf10995f2ee1bf673a3b090ac5458530c99`.
+- **Fix**: sezioni/tabelle canoniche per Master, manifest ed evidence; raw HTML
+  fail-closed; label `technical/review` correlate alla fase.
+- **Lineage**: delta post-SHA REVIEW limitato ai sei documenti di handoff;
+  `test_driver`, `assets` e configurazioni root sono negati dalla path policy.
+- **Regressioni**: governance 60/60, security 61/61 negative + 7/7 positive.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security source
+  682, architecture 17/17, format 301/0, analyze e build debug Android/iOS
+  `PASS`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 Fix 13 re-review
+
+- **Exact HEAD**: `0c94618bb2aa187ef9dc7c3e3204894f2437b7ff`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, 0 P0/P1/P2 e 4 P3.
+- **Finding**: raw CommonMark/README, riepilogo fase contraddittorio, CA/T count
+  stale e inventario post-SHA lossy su rename/errore Git.
+- **Security report**: sealed SHA-256
+  `3c90a6276c2e0ac41408355a1021fd450f35bd68d23408d018bd79638a1f9cdc`.
+- **Boundary**: closure Fix 12 dirette confermate; TestFlight, signing,
+  credenziali e production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 14 e handoff
+
+- **Technical SHA**: `8389f922580b139e4469c11e343f51361cacb218`.
+- **Fix**: raw CommonMark fail-closed anche sul README, riepilogo di fase
+  correlato e conteggi CA-06/T-04 legati al gate security corrente.
+- **Git inventory**: output NUL-delimited con `--no-renames`, source e
+  destination del rename preservati e return code Git propagato.
+- **Regressioni**: governance 70/70, inclusi PI/CDATA/tag multilinea, README
+  nascosto, mismatch/zero security, rename R100 e revisione Git invalida.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security source
+  682 + 61/61 negative + 7/7 positive, architecture 17/17, format 301/0,
+  analyze e build debug Android/iOS `PASS`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 Fix 14 re-review
+
+- **Exact HEAD**: `37d08d2010956a5671c75bc002a6f00d4d76ad8d`.
+- **Esito**: prodotto `APPROVED`; security `CHANGES_REQUIRED`, 0 P0/P1/P2 e
+  1 P3.
+- **Closure**: i quattro finding Fix 13 sono chiusi con probe indipendenti;
+  governance 70/70, scanner 682 + 61/61 + 7/7 e diff-check verdi.
+- **Finding**: `F-040-RR14-GOV-COUNT-01`, cardinalità globale assente per
+  CA-06/T-04 quando una seconda tabella visibile contiene conteggi confliggenti.
+- **Security report**: sealed SHA-256
+  `2a6441ea50ba4cd99491fcd33c04fef51d90e4462a3482285310c31b180798c7`.
+- **Boundary**: TestFlight, signing, credenziali e production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 15 e handoff
+
+- **Technical SHA**: `da014b18a29bd616f436cb998ea212e58c17b254`.
+- **Fix**: CA-06 e T-04 hanno cardinalità globale esatta oltre alla membership
+  nelle rispettive tabelle canoniche.
+- **Regressioni**: le due tabelle sibling visibili con `0/0` sono respinte;
+  governance 72/72, scanner 682 + 61/61 + 7/7.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, architecture
+  17/17, format 301/0, analyze e build debug Android/iOS `PASS`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 Fix 15 re-review
+
+- **Exact HEAD**: `bb3d986a438c5288808c3d825224f1f564b0af74`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, 0 P0/P1/P2 e 1 P3.
+- **Finding**: `F-040-RR15-GOV-COUNT-01`; varianti GFM visibili senza outer
+  pipe, in blockquote o con colonna extra non incrementano la cardinalità.
+- **Counterevidence**: duplicate canoniche respinte, governance 72/72,
+  scanner 682 + 61/61 + 7/7 e propagazione errori verdi.
+- **Security report**: sealed SHA-256
+  `d69ca479c0f77640102ab9a7b022e35e241f0d26eefb81a97a9c3529641d71c9`.
+- **Boundary**: TestFlight, signing, credenziali e production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 16 e handoff
+
+- **Technical SHA**: `ee0d4818e9abe41a13f3f30d4b937658db91b977`.
+- **Fix**: cardinalità CA-06/T-04 syntax-independent su ogni riga con pipe,
+  mantenendo ownership e parsing canonico della singola attestazione valida.
+- **Regressioni**: otto fixture nuove coprono outer/trailing pipe assenti,
+  whitespace, blockquote ed extra column; governance 80/80.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security
+  682 + 61/61 negative + 7/7 positive, architecture 17/17, format 301/0,
+  analyze e build debug Android/iOS `PASS`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 Fix 16 re-review
+
+- **Exact HEAD**: `e01ae0807ce4431e6ebebd34e24a64319d9381da`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, 0 P0/P1/P2 e 1 P3.
+- **Finding**: `F-040-RR16-GOV-COUNT-01`; entity, escape ed emphasis possono
+  rendere CA-06/T-04 senza conservare la substring raw contata dal gate.
+- **Closure**: tutte le varianti Fix 15 sono respinte; governance 80/80 e
+  scanner 682 + 61/61 negative + 7/7 positive verdi.
+- **Security report**: sealed SHA-256
+  `725921680988f34724c4e2ef726262d6e6a77caed2e0d43fbe7b481e95e31bc5`.
+- **Boundary**: TestFlight, signing, credenziali e production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 17 e handoff
+
+- **Technical SHA**: `ff52b9d326f001477aa5dac1b72005ed4a707f77`.
+- **Fix**: policy tabellare fail-closed per entity, escape, markup inline e
+  caratteri non ASCII, con sole eccezioni strutturate già validate.
+- **Regressioni**: otto nuove fixture semantiche; governance 88/88 e tutte le
+  varianti Fix 15/16 respinte.
+- **Gate completo**: 801/801, performance 10/10, repeat 70/70, security
+  682 + 61/61 negative + 7/7 positive, architecture 17/17, format 301/0,
+  analyze e build debug Android/iOS `PASS`.
+- **Re-review**: prodotto/security `APPROVED` su
+  `36175e687a8ed913a332f77184fd5acffdae7aa6`, zero P0/P1/P2/P3; probe
+  avversariali 13/13 e report sealed SHA-256
+  `a9f961ddd5e99733eb96fe7d50796d269db85d5516b0eed0eadc7b99484c27ae`.
+- **Boundary**: runtime/archive/signing invariati; TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+
+## 2026-08-17 — TASK-040 Fix 18 e handoff
+
+- **Technical SHA**: `16384ff7c1f7e857117a6eb2ebdd1b5d6f0e1fdd`.
+- **Finding CI**: PR #19 run `32089730726`, head `bae1f9be`: Quality `FAIL`
+  per clone shallow; iOS release candidate `FAIL` dopo build/archive su
+  `EMBEDDED_COMPONENT_DIGEST_MISMATCH` dipendente dal worktree.
+- **Fix**: checkout full-history nel solo job Quality; candidate/archive iOS
+  legato al reference same-workspace. Runner conserva il digest whole-Mach-O
+  normalizzando firma e solo `LC_UUID`, con UUID dSYM verificato a parte.
+- **Regressione**: candidate con/senza reference `PASS` 682/207; fixture iOS
+  29/29, test Flutter/YAML 12/12, governance 88/88, security 682, action pin,
+  syntax, format 301/0, analyze e diff check `PASS`.
+- **Boundary**: runtime applicativo e artifact invariati; signing, TestFlight e
+  production invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 re-review Fix 18
+
+- **Exact HEAD**: `e86b15aa4c9cfaf67b340ea79b581a69297668c4`.
+- **Prodotto**: `APPROVED`, zero P0/P1/P2/P3.
+- **Security**: `CHANGES_REQUIRED`, un P2 candidate/reference co-mutabili e un
+  P3 framework FAT; paired tamper e `x86_64 arm64` riprodotti.
+- **Tooling**: finalizer non sealed per Python 3.9 incompatibile con
+  `zip(..., strict=True)`; nessun PASS inventato.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 19 e handoff
+
+- **Technical SHA**: `85f2a01777e43ecd9c521ef0434e601dae3e3340`.
+- **Fix**: digest reference catturati in output CI immutabile prima dell'archive;
+  candidate/reference vincolati a quel trust anchor; exact `arm64`.
+- **Regressioni**: attestation missing/malformed, paired tamper e FAT;
+  validator 33/33, candidate 683/207, Flutter/YAML 12/12, security 683,
+  action pin, syntax, format 301/0, analyze e diff check `PASS`.
+- **Boundary**: runtime applicativo e artifact invariati; signing, TestFlight e
+  production invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-17 — TASK-040 re-review Fix 19
+
+- **Exact HEAD**: `4a9ccf3e4edf0f9fe99a3eadc5f9b8e9659c909d`.
+- **Prodotto**: `CHANGES_REQUIRED`, un P2 runbook e due P3 parser/test.
+- **Security**: `CHANGES_REQUIRED`, un P3 fixture FAT; Fix 18 trust anchor e
+  exact arm64 chiusi nel codice.
+- **Report security**: sealed SHA-256
+  `6f280b6352031e760137c7296811413bf8b56c1b5ecc18125958a773356a0470`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-17 — TASK-040 Fix 20 e handoff
+
+- **Technical SHA**: `247a5ee51911aeb5d9a835b75a2640a87291544c`.
+- **Fix**: runbook/CI parity, parser attestation full-string canonico e fixture
+  FAT che raggiungono attestor e validator.
+- **Gate**: iOS 36/36, Flutter/YAML 13/13, candidate 683/207, security 683,
+  analyze, action pin, syntax, format e diff check `PASS`.
+- **Boundary**: runtime/artifact invariati; signing, TestFlight e production
+  non modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 re-review Fix 20
+
+- **Exact HEAD**: `2fcb7739f5c87d57a53ac50947eb96d12927c564`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, zero P0/P1/P2 e due P3
+  sugli oracoli runbook/reason.
+- **Report security**: sealed SHA-256
+  `924ae9531ca5e28bc5977706f76db17c8cc11fa8a7d38f81cf7bad8553473631`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 21 e handoff
+
+- **Technical SHA**: `3fdc8c40fc30607dd710677816a6658b7aade030`.
+- **Fix**: parser dei fenced block Bash con comment-decoy negativo; reason
+  validator full-line con fixture suffisso.
+- **Gate**: iOS 37/37, Flutter/YAML 14/14, candidate 683/207, security 683,
+  analyze, action pin, syntax, format e diff check `PASS`.
+- **Boundary**: runtime/artifact invariati; signing, TestFlight e production
+  non modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 re-review Fix 21
+
+- **Exact HEAD**: `3832f99957e63b5944890f722911c5e072f3b0d6`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, zero P0/P1/P2; P3 su
+  runbook Bash indiretto e reason multiple.
+- **Report security**: sealed SHA-256
+  `6ce9533b0121c2a3b38b983df4cd7c39d36b646191bfe5787164049a32afda49`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 22 e handoff
+
+- **Technical SHA**: `3376caf44a474833c67b7eff37b5fe4b33675520`.
+- **Fix**: blocchi runbook eseguibili exact, mutant comment/no-op/branch/
+  funzione/composed; singleton reason validator/attestor con fixture
+  suffix/duplicate/wrong.
+- **Gate**: iOS 39/39, Flutter/YAML 14/14, candidate 683/207, security 683,
+  analyze, action pin, syntax, format e diff check `PASS`.
+- **Boundary**: runtime/artifact invariati; signing, TestFlight e production
+  non modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 re-review Fix 22
+
+- **Exact HEAD**: `74242e6703b81c3edc504e6629059b16e70f1900`.
+- **Esito**: prodotto `CHANGES_REQUIRED` con un P3; security
+  `CHANGES_REQUIRED` con due P3 su continuation-breaker e reason malformed.
+- **Report security**: sealed SHA-256
+  `b456d1c8337e53c9b9c920ee442b3bc9374a1f710c7120f8ab077eb0e3233c6b`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 23 e handoff
+
+- **Technical SHA**: `8375a08f1ede8337c71d1353255d9df1c238f197`.
+- **Fix**: confronto runbook su tutte le linee fisiche e singleton reason su
+  ogni prefisso reserved; fixture continuation comment/blank e CRLF/space.
+- **Gate**: iOS 41/41, Flutter/YAML 14/14, candidate 683/207, security 683,
+  analyze, action pin, syntax, format e diff check `PASS`.
+- **Boundary**: runtime/artifact invariati; signing, TestFlight e production
+  non modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 re-review Fix 23
+
+- **Exact HEAD**: `1f8ee4be6568220a4bd9c42bc02ee7b7a319969b`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, zero P0/P1/P2 e un P3
+  sul trailing whitespace cancellato dopo una continuation Bash.
+- **Report security**: sealed SHA-256
+  `01d410fe2036b1c25d13a15d51281313136743b700f960c718aed78e096dba8d`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 24 e handoff
+
+- **Technical SHA**: `f3edb1adea45be2682655a886111c439fa61b55a`.
+- **Fix**: margine destro preservato con `trimLeft()`; mutant space/tab/CR
+  dopo backslash.
+- **Gate**: Flutter/YAML 14/14, governance 88/88, security 683, analyze,
+  action pin, syntax, format e diff check `PASS`; iOS 41/41 e candidate
+  683/207 riusati dopo verifica ancestry.
+- **Boundary**: runtime/artifact invariati; signing, TestFlight e production
+  non modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 re-review Fix 24
+
+- **Exact HEAD**: `eb2efaa598e44ce1c1ee55b58dddfb49e2c1b218`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, zero P0/P1/P2 e un P3
+  sul leading `CR` cancellato da `trimLeft()`.
+- **Report security**: sealed SHA-256
+  `3299eebf5015a29184398dd81943f4e8390e1e44e8fa79207d9d00829f05638c`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 25 e handoff
+
+- **Technical SHA**: `a6f813600aa8fd23a8d818904c599c386544200f`.
+- **Fix**: confronto raw byte-for-byte dei tre fenced block Bash, senza
+  normalizzazione; fixture leading CR e breaker precedenti.
+- **Gate**: Flutter/YAML 14/14, governance 88/88, security 683, analyze,
+  action pin, syntax, format e diff check `PASS`; iOS 41/41 e candidate
+  683/207 riusati dopo verifica ancestry.
+- **Boundary**: runtime/artifact invariati; signing, TestFlight e production
+  non modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 re-review Fix 25
+
+- **Exact HEAD**: `bb979c030afac3553d00306d677a5e3a52a4b8f4`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, zero P0/P1/P2 e un P3
+  sul blocco Bash canonico nascosto da commento HTML.
+- **Report security**: sealed SHA-256
+  `696b9e3bae99d41b54a1a6da2aa65332a9923b844f2b79a75de84d769e8d13a2`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 26 e handoff
+
+- **Technical SHA**: `e1b6fca4a2abb409610a47473f7c57a48d9ecc7c`.
+- **Fix**: SHA-256 del runbook completo prima del parse, più raw block guard;
+  mutant HTML comment e blockquote.
+- **Gate**: Flutter/YAML 14/14, governance 88/88, security 683, analyze,
+  action pin, syntax, format e diff check `PASS`; iOS 41/41 e candidate
+  683/207 riusati dopo verifica ancestry.
+- **Boundary**: runtime/artifact invariati; signing, TestFlight e production
+  non modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 27 e handoff
+
+- **Technical SHA**: `59d35f81344030528e3b19522656f67e275e3f11`.
+- **CI diagnosticata**: run PR `32107743243`; Quality falliva sul fixture GNU
+  same-input/output e iOS release sull'attestor privo di continuation.
+- **Fix**: acquisizione `grep` completata prima dell'append; invocazione iOS
+  multilinea esatta con `\` e regressione raw YAML.
+- **Review**: prodotto/security diff-scoped `APPROVED`, zero P0/P1/P2/P3.
+- **Gate**: Flutter/YAML 14/14, governance 88/88, security 683,
+  architecture, analyze, action pin, syntax, format e diff check `PASS`;
+  attestor reale exit 0.
+- **Boundary**: signing, TestFlight e production non modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 27 re-review
+
+- **Exact HEAD**: `46aec479314a58342f58f12bf8efd1c2e2533aab`.
+- **Review**: prodotto/security diff-scoped `APPROVED`, ma la CI PR
+  `32109274228` ha reso il gate integrato `CHANGES_REQUIRED`.
+- **Evidence**: Quality, Android debug/release e iOS Simulator debug `PASS`;
+  iOS release `FAIL` nel candidate con `EMBEDDED_COMPONENT_DIGEST_MISMATCH`.
+- **Finding**: un P2 tecnico sul digest whole-Mach-O fra clean build e archive;
+  activation e production invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 28 e handoff
+
+- **CI**: run `32109274228`, exact head `46aec479314a58342f58f12bf8efd1c2e2533aab`;
+  Quality, Android debug/release e iOS Simulator debug `PASS`; iOS release
+  `FAIL` nel candidate per `EMBEDDED_COMPONENT_DIGEST_MISMATCH`.
+- **Technical SHA**: `d6838bd77e9e7578c90a283539aeeb4e0ec1868c`.
+- **Fix**: normalizzazione fail-closed del solo `LC_UUID` di `objective_c` e
+  allowlist dei due exact whole-Mach-O Runner prodotti da Xcode 26.6 per due
+  slot GOT equivalenti, senza escludere codice eseguibile dal digest.
+- **Evidence**: due clean archive in checkout distinti e candidate 684/207
+  `PASS`; partial Objective-C stub tamper respinto; iOS 43/43,
+  Flutter/YAML 12/12; `scripts/check.sh` `PASS` con 804/804 non-performance,
+  performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: signing, provisioning, TestFlight, runtime e production
+  invariati; re-review e nuova CI `NOT_RUN`.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 re-review Fix 28 / CI exact-SHA
+
+- **Exact reviewed HEAD**:
+  `45113accf0af42f6b44abc6957b7aa12dc99ca14`.
+- **Review**: prodotto/security `APPROVED`, zero P0/P1/P2/P3; report sealed
+  SHA-256
+  `3e23f695c81e5cf370caf90826d8b8c9f390378d689240a5d26c54eed2eb6806`.
+- **CI PR**: run `32116655699`; Quality, Android debug/release e iOS
+  Simulator `PASS`; iOS release build/attestation/archive `PASS`, candidate
+  `FAIL` con `EMBEDDED_BUNDLE_DIGEST_MISMATCH`, fixture dipendente `SKIPPED`.
+- **Finding**: P2 tecnico, digest resource bundle legato al campo Xcode
+  `BuildMachineOSBuild` del macOS host.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 29 e handoff
+
+- **Technical SHA**: `cd67e37aca282665dbec80e7c2d0e482ee712315`.
+- **Fix**: canonicalizzazione del solo `BuildMachineOSBuild` negli
+  `Info.plist` dei resource bundle; ogni altra chiave/path/risorsa resta nel
+  digest SHA-256.
+- **Regressioni**: host build diverso accettato; metadata plist aggiuntivo e
+  risorsa inattesa respinti.
+- **Gate**: candidate 684/207 `PASS`, iOS 45/45, security 684, action pins,
+  syntax e diff check `PASS`.
+- **Boundary**: runtime, signing, provisioning, TestFlight e production
+  invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 29 re-review
+
+- **Exact HEAD**: `9e4b543fc1d56433e08a3c316520e54924dba1f7`.
+- **Review prodotto**: `APPROVED`, zero P0/P1/P2/P3.
+- **Review security**: `CHANGES_REQUIRED`, un P3
+  `F-040-RR29-IOS-PLIST-BOUND-01`; plist valido da 96 MiB processato in
+  32,88 secondi con RSS massimo 615.563.264 byte.
+- **Report security**: sealed SHA-256
+  `f60ec18f69ebb73ee2aacf470a9459998fdbf8ac422ccce78dac128460ec8f82`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 30 e handoff
+
+- **Technical SHA**: `2fa97d1cbc956e4ddbe1bd2ab14f2c4f95be50e1`.
+- **Fix**: cap pre-lettura di 1 MiB per ogni `Info.plist` dei resource bundle
+  prima di `plutil`/JSON; regressione oversized fail-closed.
+- **Evidence**: 1.049.942 byte respinti in 6,9 secondi complessivi, RSS
+  massimo 26.329.088 byte; candidate 684/207 e iOS 46/46 `PASS`.
+- **Gate**: `scripts/check.sh` exit 0, 804/804 non-performance, performance
+  10/10, repeat 70/70, security 684, analyze e build debug Android/iOS.
+- **Boundary**: runtime, signing, provisioning, TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 30 re-review
+
+- **Exact HEAD**: `8fc931d8fcb5012d7cdf486aa78b480fdf214c13`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`, zero P0/P1/P2 e un P3
+  `F-040-RR30-IOS-PLIST-BOUND-01` su espansione binary plist e parser pre-cap.
+- **Evidence**: input sotto 1 MiB, circa 49 MiB JSON e 387.284.992 byte RSS;
+  candidate 684/207 `PASS`, fixture reviewer interrotta `NOT_RUN`.
+- **Report security**: sealed SHA-256
+  `249d26f6749abc2a7737d071a1f529513657f264322c4428ce31ca9ce8419a9a`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 31 e handoff
+
+- **Technical SHA**: `0ac9b5fa3f31c8c31e2057add45bd82b4cc79f17`.
+- **Fix**: canonicalizer plist bounded su fd `O_NOFOLLOW`, input/grafo/output
+  limitati, identity senza `PlistBuddy`, digest binary canonico deterministico.
+- **Evidence**: shared-reference helper 14.385.152 byte RSS e validator
+  26.279.936 byte RSS; object-count bomb respinto prima del parse completo.
+- **Gate**: `scripts/check.sh` exit `0`; suite non-performance `804/804`,
+  performance `10/10`, repeat resilience `70/70`, security source `685`,
+  candidate `685/207`, validator iOS `48/48`, analyze e build debug Android/iOS
+  `PASS`.
+- **Boundary**: runtime, signing, provisioning, TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 31 re-review
+
+- **Exact HEAD**: `8148c798045164e646bf64120d4ce3f64703650e`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`; un P2 TOCTOU digest/identity
+  e due P3 su FIFO bloccante ed entity declaration XML non bounded.
+- **Closure**: binary shared-reference e object-count bomb di Fix 30 chiusi.
+- **Report security**: sealed SHA-256
+  `2e8430aece87ed94c4a686638a8b25188d51bc2d9437768ca7a9fc0bee52c0b7`.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 32 e handoff
+
+- **Technical SHA**: `b1c98d1aa6805f102ae0e49c046b03351c0f5d4b`.
+- **Fix**: identity+digest su un'unica lettura bounded, open leaf con
+  `O_NOFOLLOW` e `O_NONBLOCK`, rifiuto immediato di internal subset/entity XML.
+- **Regressioni**: swap API split, identity errata, FIFO diretto/end-to-end ed
+  entity bomb a 28 livelli con timeout discriminante.
+- **Gate**: candidate 685/207, validator iOS 53/53, security 685,
+  Flutter/YAML 12/12, governance 88/88, action pin, syntax e diff `PASS`;
+  `scripts/check.sh` exact handoff exit 0 con 804/804 non-performance,
+  performance 10/10, repeat resilience 70/70, analyze e build debug
+  Android/iOS `PASS`.
+- **Boundary**: runtime, signing, provisioning, TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 32 re-review
+
+- **Exact HEAD**: `1a2332e4ca574203b73afa7da788072d83ae7a43`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`; P0 0, P1 0, P2 1, P3 0.
+- **Finding**: uno swap atomico post `--validate-identity-and-digest` conserva
+  un plist same-identity alterato mentre il validator emette ancora
+  `IOS_RELEASE_CANDIDATE_VALID`; l'oracle corrente usa la vecchia flag.
+- **Closure**: FIFO ed EntityDecl/internal subset XML sono chiusi.
+- **Report security**: sealed SHA-256
+  `44c1aa5ade0239f4e586c56b85de2ba01fc8f55c08b00ced9b13924236c90b5c`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`, handoff
+  `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`; production e TestFlight invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 33 e handoff
+
+- **Technical SHA**: `1e15fd24e694a40bf5b0afb2f9d1f46f2ae0dbfd`.
+- **Fix**: attestazione exact-tree dell'intera app prima/dopo la validazione,
+  cap preventivi, leaf non-follow/non-blocking e digest finale pubblicato.
+- **Regressione**: swap dopo il nuovo helper sul path canonico reale respinto
+  con `ARTIFACT_CHANGED_DURING_VALIDATION`; FIFO/entity restano chiusi.
+- **Gate**: candidate 686/207 e tree SHA-256 `ba2da550...d9d8f3a`, validator
+  iOS 53/53, governance 88/88, Flutter/YAML 12/12, source/security, syntax,
+  py_compile, action pin e diff `PASS`; `scripts/check.sh` exact handoff exit 0
+  con 804/804 non-performance, performance 10/10, repeat 70/70, analyze e
+  build debug Android/iOS `PASS`.
+- **Boundary**: runtime, firma, provisioning, TestFlight e production non
+  modificati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 33 re-review
+
+- **Exact HEAD**: `d704b6529aea27298d7c75bbf74a1aaf1ac2b81c`.
+- **Esito**: prodotto/security `CHANGES_REQUIRED`; P0 0, P1 0, P2 2, P3 2.
+- **Finding**: race dopo l'attestor finale e divergenza path
+  originale/canonico consentono `IOS_RELEASE_CANDIDATE_VALID` su artifact
+  retained diverso; directory vuote/mode non sono digest-bound e profondita
+  1.100 produce traceback `RecursionError`.
+- **Evidence**: candidate 686/207 e iOS 53/53 restano verdi ma non provano
+  snapshot immutabile; security report sealed SHA-256
+  `a3d57e923e44d8a4bbc2b3cb425b79b686bc27e845b71021b4a88ddf895eb551`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production, signing e TestFlight
+  invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 34 e handoff
+
+- **Technical SHA**: `793f8a41d5abde0a61bfb669f2ec66980dba523b`.
+- **Fix**: snapshot privato unico per i controlli e retained payload ZIP
+  deterministico, read-only, tree-digest e payload-digest bound; marker upload
+  differito dopo tutti i gate.
+- **Regressioni**: post-seal mutation, ancestor swap, mode/empty directory,
+  profondita 65, payload tamper, traversal, symlink e compression fail-closed.
+- **Evidence**: tree SHA-256
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`,
+  sealed SHA-256
+  `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+  candidate 686/207 e iOS 60/60 `PASS`.
+- **Gate**: governance 88/88, Flutter/YAML 12/12, security source 686,
+  fixture 61/61 + 7/7, syntax, pycompile, action pins, format, analyze e
+  `scripts/check.sh` completo exit 0 con 804/804, performance 10/10,
+  resilience 70/70 e build debug Android/iOS.
+- **Boundary**: signing, provisioning, physical iOS, TestFlight e production
+  invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 34 re-review
+
+- **Exact HEAD**: `dd18f8fd8d0068da54c631077e35477ab5cd9366`.
+- **Esito**: prodotto `CHANGES_REQUIRED` P0 0/P1 0/P2 3/P3 3;
+  security `CHANGES_REQUIRED` P0 0/P1 0/P2 1/P3 1.
+- **Finding**: snapshot/validation/seal e retained ZIP restano separati da
+  pathname mutabili; component open/extract mode non sono interamente
+  descriptor-bound; cap/error e cleanup ZIP non sono ancora bounded/transazionali.
+- **Governance**: prossima azione Master Plan stale da riallineare a Fix 35.
+- **Evidence**: iOS 60/60, candidate 686/207, governance 88/88; security
+  report sealed SHA-256
+  `16f4b633e587e2083530f30289dc98937a60ead4b6b2e61adff83fe5e9f33d7a`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; signing, upload e production
+  invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 35 e handoff
+
+- **Technical SHA**: `906c1dc62427e801f5af68a7d990a0bab4a7433d`.
+- **Fix**: payload sealed-first e snapshot estratta dallo stesso descriptor;
+  component-walk `O_NOFOLLOW`, publish/extract exact-SHA, cleanup transazionale
+  e preflight ZIP bounded prima della materializzazione.
+- **Runbook**: candidate e upload consumano lo SHA emesso; l'archive di export
+  viene ricostruito dall'app estratta dal payload verificato, non dal tree
+  sorgente mutabile.
+- **Regressioni**: post-publish tamper, ancestor swap/symlink, mode race,
+  deep tree, duplicate, encrypted, DEFLATED, traversal e 4.097 entry;
+  validator iOS 65/65 e Flutter/YAML 13/13 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, tree
+  `88808438585983a997fbab3c5c54850e559dd7698ac3f0df73604cb8d82aaf2d`,
+  sealed SHA `d1e63a6f7ed75d52b9155563e503ed2c43d2066f00d8dac9e987b928ce13e10f`;
+  governance 88/88, security 61/61 + 7/7, architecture, analyze, syntax,
+  pycompile, action pin e diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready exit 1 sulla Distribution signature assente;
+  signing, provisioning, physical iOS, TestFlight e production invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 35 re-review
+
+- **Exact HEAD**: `00212e02f50a4cc862296b6473b7c2a84abc484a`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 2/P3 3 dopo deduplicazione.
+- **Finding P2**: ABA snapshot malicious-benign-malicious e ABA ZIP A-B-A
+  consentono di validare o estrarre byte diversi dal payload attestato.
+- **Finding P3**: EOCD count falsificabile prima di `infolist`, rollback sotto
+  race di profondita non completo e path extract relativi nel runbook.
+- **Gate**: iOS 65/65, candidate 686/207, Flutter/YAML 14/14, governance
+  88/88, scanner, architecture, analyze e syntax `PASS`; nessun upload.
+- **Security report**: SHA-256
+  `d2ce42a18882e7293f31332d2f1e6e20a3df8f8f320ee8c1e2b14567f30805b3`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 36 e handoff
+
+- **Technical SHA**: `9753feac0e455e2f9be326b50e599d64cdeff1ab`.
+- **Fix**: guard `kqueue` descriptor-bound sulla snapshot sigillata per tutta la
+  validazione; extractor da copia privata exact-SHA con conteggio reale del
+  central directory; rollback tramite quarantena bounded.
+- **Runbook**: path candidate/upload assoluti e archive export ricostruito dalla
+  medesima app sealed verificata.
+- **Regressioni**: mutation/root ABA del guard, validator malicious-safe-malicious,
+  ZIP A-B-A, EOCD count falsificato e cleanup profondo; iOS 70/70 e
+  Flutter/YAML 12/12 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 + 7/7,
+  architecture, analyze, syntax, pycompile, action pin e diff `PASS`;
+  `scripts/check.sh` exact technical SHA exit 0 con 804/804 non-performance,
+  performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 36 re-review
+
+- **Exact HEAD**: `54152d09373acdfc7aa52038aab7b3625b16bb26`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 1/P3 2 dopo deduplicazione.
+- **Finding P2**: swap ABA del parent privato separa i controlli path-based dai
+  descriptor guard/seal e può pubblicare il bundle malevolo originale.
+- **Finding P3**: `KQ_NOTE_ATTRIB` assente consente mode ABA; cleanup riapre la
+  quarantine senza binding device/inode e può cancellare un victim sostituito.
+- **Closure**: extract ZIP A-B-A, count central-directory reale e runbook
+  assoluto/stesso archive sono chiusi; iOS 70/70 e gate mirati restano verdi.
+- **Security report**: finalizer exit 2 prima del sealing per schema relativo
+  mancante; bundle non sealed preservato, nessun report/hash inventato.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 37 e handoff
+
+- **Technical SHA**: `102caa49070c7870234119f31d142c79965b1fd2`.
+- **Fix**: parent descriptor mantenuto nel guard, `KQ_NOTE_ATTRIB` e confronto
+  finale mode/ctime sull'albero, FIFO descriptor-bound e cleanup quarantine
+  random/inode-bound.
+- **Regressioni**: parent ABA e mode ABA full-validator, early guard failure,
+  collisione quarantine e swap victim; validator iOS 73/73 e Flutter/YAML
+  12/12 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 +
+  7/7, architecture 17/17, analyze, format, syntax, pycompile, action pin e
+  diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready validator exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 37 re-review
+
+- **Exact HEAD**: `365bdb560f80aa9a924291894dba5eaaac237650`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 1/P3 2 dopo deduplicazione.
+- **Finding P2**: ancestor ABA sopra il parent immediato separa guard/seal dai
+  controlli Bash path-based e consente un candidate sostituito.
+- **Finding P3**: trap temp-root path-based e gap child `stat→open` possono
+  cancellare directory o child victim sostituiti.
+- **Closure**: immediate parent, mode/ctime, FIFO early-exit, collisione e root
+  quarantine swap risultano chiusi; iOS 73/73 e gate mirati restano verdi.
+- **Security report**: SHA-256
+  `71a0b2c671636cfb8076000e47314b1443d596114aa04c1e690d8464f41e4711`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 38 e handoff
+
+- **Technical SHA**: `96fe31f8b149220a87b6bcb0a64c2f63875fd4e5`.
+- **Fix**: guard esteso a tutta l'ancestor chain assoluta; cleanup temp-root
+  component-bound e identity-bound; child directory legato con confronto
+  `lstat`/`fstat` dopo l'open.
+- **Regressioni**: ancestor ABA, temp-root victim swap e child `stat→open`;
+  validator iOS 76/76 e Flutter/YAML 12/12 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 +
+  7/7, architecture 17/17, analyze, format, syntax, pycompile, action pin e
+  diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready validator exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; signing, provisioning,
+  physical iOS, TestFlight e production invariati.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 38 re-review
+
+- **Exact HEAD**: `41e1aef9fb679587af574423b28c3fd86d802430`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 3 prodotto; security
+  deduplica le tre schedule in un root P3 CWE-367/59.
+- **Finding P3**: child post-clear `close→rmdir`, root pre-identity e
+  stat/rename quarantine mantengono terminali name-based cancellabili.
+- **Hygiene P3**: un tombstone viene lasciato per ogni cleanup nominale, con
+  crescita osservata non bounded.
+- **Closure**: ancestor-chain ABA, temp-root swap post-identity e child
+  `stat→open` risultano chiusi; iOS 76/76 e gate mirati restano verdi.
+- **Security report**: SHA-256
+  `7f25fcfbf8c5702c8424a5c040b3824f600090a69c332b99d17abbe7da27c515`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 39 e handoff
+
+- **Technical SHA**: `8b820b96f6f3f288c2194bf0ca2a1dbbd2c5bdbe`.
+- **Fix**: creazione/identity della root temporanea atomica e serializzata;
+  cleanup senza terminali name-based tramite quarantine esclusiva,
+  identity check e truncate descriptor-bound; hardlink respinti.
+- **Retention**: tombstone senza payload entro cap fail-closed di 512 entry;
+  i residui storici restano preservati e non vengono cancellati dal fixer.
+- **Regressioni**: root pre-identity, post-clear directory swap,
+  no-name-based-terminal, hardlink e retention cap; iOS 80/80 e Flutter/YAML
+  12/12 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 +
+  7/7, architecture 17/17, analyze, format, syntax, pycompile, action pin e
+  diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready reale exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun upload, signing,
+  provisioning, physical iOS o activation production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 39 re-review
+
+- **Exact HEAD**: `338a0e7ac46e697e23e2cb67f38c449c01fb52eb`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 3 sia prodotto sia
+  security.
+- **Finding**: late hardlink prima del truncate, lock pathname ABA che divide
+  la sezione critica/cap e retained name-based che salta un replacement
+  nonzero.
+- **Closure**: i tre finding Fix 38 risultano chiusi per le schedule originali;
+  iOS 80/80 e gate mirati restano verdi.
+- **Security report**: SHA-256
+  `25c488eb561cf1f74459ba7c56b9ee51f5551310bd6bd4ea3669cb66ce58e979`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 40 e handoff
+
+- **Technical SHA**: `7fdd29a6ffd8f10d2c6a065cc30ad5c4220f4ff1`.
+- **Fix**: recheck `st_nlink` dopo quarantine e prima/dopo truncate; lock
+  esclusivo sul descriptor della directory parent con ancestor-chain
+  reattestata; retained file/directory identity-bound e zero-payload.
+- **Regressioni**: late-hardlink, interprocess legacy-lock ABA con cap 1,
+  replacement post-quarantine file/directory e parent con tab/newline;
+  validator iOS 84/84 e Flutter/YAML 12/12 `PASS`.
+- **Retention locale**: 416 tombstone su cap 512 nel `TMPDIR` condiviso;
+  nessuna cancellazione manuale. Le fixture avversariali preservano i victim
+  quando falliscono; la re-review lunga userà un `TMPDIR` privato nuovo.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 +
+  7/7, architecture 17/17, analyze, format, syntax, pycompile, action pin e
+  diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready reale exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun upload, signing,
+  provisioning, physical iOS o activation production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-18 — TASK-040 Fix 40 re-review
+
+- **Exact HEAD**: `37ac7524b300a8d0c0106bf02c327532d4d321e6`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 3 sia prodotto sia
+  security.
+- **Finding**: hardlink nell'ultimo gap di `ftruncate`, retained replacement
+  post-validazione e cap advisory race fra count e `mkdir`.
+- **Closure**: le schedule dirette Fix 39 e il parent speciale risultano
+  chiusi; iOS 84/84 e gate mirati restano verdi.
+- **Security report**: SHA-256
+  `48421238422626c0eae874ae97284e50335ca342b3896eeb20593f4b1c5d4ebd`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-18 — TASK-040 Fix 41 e handoff
+
+- **Technical SHA**: `30ccc4de09e7a1e85b3d96d5d217dd1affe414e9`.
+- **Fix**: backup bounded/ripristino sul link-count race, retained descriptor e
+  recursive zero-payload su due pass, post-create cap recheck con rollback.
+- **Regressioni**: hardlink dentro `ftruncate`, retained file/directory/child,
+  writer non cooperativo count-to-mkdir e oracle `LOCK_EX`; iOS 86/86 e
+  Flutter/YAML 12/12 `PASS`.
+- **Gate**: candidate 686/207 `PASS`, governance 88/88, security 61/61 +
+  7/7, architecture 17/17, analyze, format, syntax, pycompile, action pin e
+  diff `PASS`.
+- **Gate completo**: `scripts/check.sh` exact technical SHA exit 0 con 804/804
+  non-performance, performance 10/10, repeat 70/70 e build debug Android/iOS.
+- **Boundary**: upload-ready reale exit 1 esatto
+  `TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE`; nessun upload, signing,
+  provisioning, physical iOS o activation production.
+- **Transizione**: `ACTIVE / FIX -> REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 41 re-review
+
+- **Exact HEAD**: `e0c36cb2931c857cde796367e1fe8dd33e957fbd`.
+- **Esito**: `CHANGES_REQUIRED`; prodotto P0 0/P1 0/P2 0/P3 4,
+  security P0 0/P1 0/P2 0/P3 4 con diversa aggregazione.
+- **Finding**: retained file/directory/child modificabili dopo la validazione
+  terminale, cap superabile dopo l'ultimo count, rollback `rmdir` name-based;
+  security aggiunge l'undercount reviewer Fix 40 12/12 rispetto al receipt
+  sealed 14/14.
+- **Closure**: hardlink dentro `ftruncate`, backup bounded, FIFO e `LOCK_EX`;
+  la minaccia same-UID resta in scope e richiede un boundary strutturale.
+- **Gate**: iOS 86/86 in 739 s, candidate 686/207, governance 88/88,
+  architecture 17/17, analyze/format/syntax/pins/diff `PASS`; upload-negative
+  esatto sulla Distribution signature.
+- **Security report**: SHA-256
+  `12262eff11ef5616c813aa320142b7b6f3269bfed9de669688d51deb32d75207`.
+- **Transizione**: `ACTIVE / REVIEW -> FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-19 — TASK-040 Fix 42 e handoff
+
+- **Technical SHA**: `1d4d5e03995ac6873cd48c54d827b8e031ef013a`.
+- **Esito**: `BLOCKED`; nessuna modifica runtime applicata dopo la prova di
+  non implementabilità nel confine unprivileged corrente.
+- **Causa**: un writer non cooperativo same-UID può ignorare `flock` e mutare
+  namespace/mode dopo ogni check; macOS non espone qui delete fd-bound o lock
+  obbligatori.
+- **Prerequisito**: supervisor/UID distinto, sandbox o ACL enforceable, oppure
+  runner/VM effimera con GC dopo teardown attestato. Una riduzione del threat
+  model richiede decisione USER_APPROVER.
+- **Evidence**:
+  `docs/TASKS/EVIDENCE/TASK-040/fix42-isolation-blocker.md`; oracle fixed pool,
+  quarantine opaca, GC trusted e zero operazioni distruttive nel worker.
+- **Gate**: iOS 86/86 e candidate 686/207 del Fix 41 restano validi ma non
+  chiudono il blocker; upload/TestFlight/production invariati.
+- **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 42 re-review
+
+- **Exact HEAD**: `f59cf91a288ff97c3899e235c843192bce6aca7d`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 1.
+- **Finding**: il checker accettava header `BLOCKED` ma riga backlog TASK-040
+  `TODO`, perché correlava soltanto la cardinalità delle righe `ACTIVE`.
+- **Fix richiesto**: una sola riga canonica del task corrente, sempre legata
+  allo stato header; regression esatta `BLOCKED -> TODO`.
+- **Blocker**: isolamento same-UID Fix 42 confermato e invariato; dopo il fix
+  governance il task resta dipendente dal boundary esterno.
+- **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-19 — TASK-040 Fix 43 e handoff
+
+- **Technical SHA**: `a116f1197b6a7085ba92a21ccfa7336dd316b8c4`.
+- **Fix**: binding obbligatorio della riga TASK-040 globale e canonica allo
+  stato header per ogni stato, incluso `BLOCKED`.
+- **Regressione**: header/task/evidence/manifest `BLOCKED` con sola riga
+  backlog `TODO`, `DONE` o `VALIDATED_PENDING_INTEGRATED_REVIEW` viene
+  respinta per la ragione esatta; governance 91/91,
+  `bash -n` e diff-check `PASS`.
+- **Scope**: soltanto checker e fixture governance; codice release, candidate
+  686/207 e fixture iOS 86/86 invariati.
+- **Blocker**: serve supervisor/UID distinto, sandbox/ACL enforceable o runner
+  effimero con GC dopo teardown; una riduzione del threat model richiede
+  decisione esplicita del `USER_APPROVER`.
+- **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 43 re-review
+
+- **Exact HEAD**: `41f1fce1651e936299bd4af5bdf23ed10e609962`.
+- **Esito**: prodotto `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 1.
+- **Finding**: il conteggio globale ignorava una seconda riga TASK-040
+  CommonMark con 1–3 spazi iniziali, pur chiudendo le tre divergenze di stato.
+- **Gate**: governance 91/91, syntax, action pins, diff e hygiene `PASS`;
+  codice release invariato e suite iOS non duplicata.
+- **Security lane**: nessun handoff dopo timeout e nessun report attribuito;
+  interrotta come bloccata e da rieseguire sul Fix44.
+- **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-19 — TASK-040 Fix 44 e handoff
+
+- **Technical SHA**: `3d9dd674d0fff7566345afbb42de99f486fa1ab0`.
+- **Fix**: normalizzazione CommonMark 0–3 spazi nel conteggio globale delle
+  righe backlog e della riga task corrente.
+- **Regressioni**: duplicate TASK-040 indentate 1/2/3, divergenze
+  `BLOCKED -> TODO/DONE/VALIDATED_PENDING`, duplicate non indentate e
+  relocation; governance 94/94 `PASS`.
+- **Scope**: soltanto checker e fixture governance; codice release, candidate
+  686/207 e fixture iOS 86/86 invariati.
+- **Blocker**: serve supervisor/UID distinto, sandbox/ACL enforceable o runner
+  effimero con GC dopo teardown; riduzione threat model solo con USER_APPROVER.
+- **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 44 re-review
+
+- **Exact HEAD**: `54403fb57e5c3363d2e482bc8d51e20e9120b52f`.
+- **Esito parser**: `BLOCKED`; finding Fix43 chiuso.
+- **Governance**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 1, perché il checker
+  non rappresenta `REVIEW + CODEX_REVIEW_BLOCKED` con role `review`.
+- **Gate**: governance 94/94, state, syntax, pins, diff, provenance e hygiene
+  `PASS`; codice iOS invariato e suite lunga non duplicata.
+- **Security review**: due lane separate senza handoff dopo timeout, interrotte;
+  nessun verdict, finding o report sealed attribuito.
+- **Prerequisito**: distinct-UID supervisor, sandbox/ACL enforceable,
+  runner/VM effimera con teardown attestato o emendamento esplicito del threat
+  model ai writer cooperativi.
+- **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-19 — TASK-040 Fix 45 e handoff
+
+- **Technical SHA**: `825a45a221bb67e9c4678cde90c123b57efe0d62`.
+- **Fix**: policy centralizzata fase+indicatore per distinguere handoff tecnico
+  pre-review e verdict reviewer `CODEX_REVIEW_BLOCKED`.
+- **Regressioni**: review-blocked review-role, fixer-blocked technical-role e
+  fix changes-required review-role; governance 97/97 `PASS`.
+- **Scope**: checker, policy e fixture governance; codice iOS, candidate
+  686/207 e fixture iOS 86/86 invariati.
+- **Blocker**: distinct-UID supervisor, sandbox/ACL enforceable, runner/VM
+  effimera o emendamento USER_APPROVER sul threat model.
+- **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 45 re-review
+
+- **Exact HEAD**: `4232f5eff2b4cea4c1c0181696c547dc48420181`.
+- **Esito**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 0/P3 1.
+- **Finding**: l'outcome approval canonico veniva classificato come handoff
+  technical perché soltanto `CODEX_REVIEW_BLOCKED` era allowlisted review.
+- **Closure**: forme fixer-blocked, reviewer-blocked e FIX/changes-required
+  corrette; governance 97/97 e gate mirati verdi.
+- **Security**: review shell bounded senza finding; plugin finalizer non
+  disponibile nelle lane separate e nessun report attribuito.
+- **Transizione**: `BLOCKED / REVIEW -> ACTIVE / FIX`; production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-19 — TASK-040 Fix 46 e handoff
+
+- **Technical SHA**: `83e9d42ba51190617c91e3137786e6cd33fe7bd9`.
+- **Fix**: allowlist fail-closed di outcome reviewer, handoff pre-review e
+  `FIX / CHANGES_REQUIRED`; combinazioni ignote non ricevono un ruolo.
+- **Regressioni**: approval, execution-complete, fix-complete, fix-blocked,
+  review-blocked, changes-required e unknown; governance 101/101 `PASS`.
+- **Gate**: syntax, governance state, action pins e diff-check `PASS`; codice
+  release, candidate 686/207 e iOS 86/86 invariati.
+- **Blocker**: distinct-UID supervisor, sandbox/ACL enforceable, runner/VM
+  effimera o emendamento USER_APPROVER sul threat model.
+- **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`; production invariata.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-08-19 — TASK-040 Fix 46 re-review
+
+- **Exact HEAD**: `dfa81de942f4cc06dc0340096a17d94410943730`.
+- **Esito**: `BLOCKED`, P0 0/P1 0/P2 0/P3 0; finding Fix45 chiuso.
+- **Gate**: governance state, fixture 101/101, syntax, action pins, diff,
+  ancestry, provenance e hygiene `PASS`; codice iOS invariato.
+- **Security**: review shell bounded senza finding; preflight formale non
+  disponibile su Python 3.9, nessun report sealed attribuito.
+- **Blocker**: distinct-UID supervisor, sandbox/ACL enforceable, runner/VM
+  effimera con teardown attestato o emendamento esplicito USER_APPROVER.
+- **Transizione**: `BLOCKED / REVIEW -> BLOCKED / REVIEW`; production invariata.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+## 2026-08-20 — TASK-040 targeted closeout
+
+- **Decisione USER_APPROVER**: D-05 restringe il solo workflow locale ai writer
+  same-UID cooperativi; RLS, auth, payment, runtime e data boundary invariati.
+- **Delta reviewed**: `201bb8f..435e8cb`, due documenti, zero codice/test/policy.
+- **Re-review**: `APPROVED`, P0 0/P1 0/P2 0/P3 0; governance final-closeout
+  105/105 (101 fixture storiche + stato `IDLE/DONE` + tre mismatch manifest),
+  scanner 688, security 61/61 + 7/7 e gate bounded verdi.
+- **CI PR**: run `32337398015` sullo SHA GitHub
+  `c02fa064540105a402d7649d8361acad573bbfee`, cinque job `success`.
+- **Security tooling**: `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`; Python 3.9
+  senza `tomllib/tomli`, nessun report sealed inventato.
+- **Classificazione**: `TECHNICALLY_COMPLETE_EXTERNAL_CREDENTIAL_REQUIRED`;
+  Apple Distribution, provisioning, App Store Connect, device fisico ed eventuali
+  production provider key restano activation requirement.
+- **Transizione**: `BLOCKED / REVIEW -> DONE / REVIEW`; progetto `IDLE`,
+  TASK-041 `TODO_NOT_STARTED`.
+- **Handoff**: `USER_APPROVED_DONE`.

@@ -27,10 +27,13 @@ arrivano insieme alle feature data-backed.
 ## App e navigazione
 
 `main.dart` delega a `bootstrap.dart`. `AppConfig` è l'unica authority del contratto
-compile-time [`CMC-CLIENT-CONFIG 1.2.0`](ENVIRONMENT-STRATEGY.md): legge esattamente
+compile-time [`CMC-CLIENT-CONFIG 1.3.0`](ENVIRONMENT-STRATEGY.md): legge esattamente
 `APP_ENV`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `AUTH_REDIRECT_URI` e
-`GOOGLE_AUTH_ENABLED`, più `STOREFRONT_SHOP_SLUG`, valida l'intera matrice prima di qualunque inizializzazione e
-fornisce al bootstrap soltanto lo stato già normalizzato.
+`GOOGLE_AUTH_ENABLED`, più `STOREFRONT_SHOP_SLUG` e l'attestazione production
+`RELEASE_CONFIG_SHA256`; i due flag Maps fail-closed restano input di activation
+separati. Tool release e app condividono la
+canonicalizzazione semantica; l'app valida la matrice e il marker compilato prima
+di qualunque inizializzazione e fornisce al bootstrap soltanto lo stato già normalizzato.
 
 Development non accetta valori backend/callback né Google attivo e non inizializza
 Supabase. Staging ammette l'inizializzazione SDK soltanto con tuple, callback e flag

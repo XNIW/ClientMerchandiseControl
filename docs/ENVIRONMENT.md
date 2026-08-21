@@ -44,10 +44,13 @@ per il marker booleano non sensibile della nuova installazione; non contiene ses
 verifier.
 
 La configurazione development non accetta backend, callback, OAuth o Storefront e non
-inizializza Supabase. Staging richiede i sei input di `CMC-CLIENT-CONFIG 1.2.0`, incluso
+inizializza Supabase. Staging richiede i sei input funzionali di
+`CMC-CLIENT-CONFIG 1.3.0`, incluso
 lo slug pubblico `STOREFRONT_SHOP_SLUG`, il sentinel HTTPS `.invalid` e
-`GOOGLE_AUTH_ENABLED=false`. Anche production mantiene obbligatoriamente il flag
-`false` e non eredita valori staging. Il runtime distribuibile rifiuta Google OAuth
+`GOOGLE_AUTH_ENABLED=false`; production richiede inoltre `RELEASE_CONFIG_SHA256`,
+digest semantico artifact-bound con marker univoco nel runtime Dart. Production
+mantiene obbligatoriamente il flag `false` e non eredita
+valori staging. Il runtime distribuibile rifiuta Google OAuth
 finché non esiste un dominio HTTPS posseduto e verificato.
 
 Il file locale staging resta ignorato:

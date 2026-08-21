@@ -4,9 +4,9 @@
 
 - Release train: `CLIENT_FINAL_PRODUCT_COMPLETION`
 - Governance: `ADR-015`
-- Stato: `EXECUTION`
-- Task corrente: `TASK-039`
-- Review integrata finale: `NOT_RUN`
+- Stato: `IDLE`
+- Task corrente: `nessuno`
+- Review integrata finale: `APPROVED`
 - Production modificata: `no`
 
 ## Baseline remota verificata
@@ -45,8 +45,8 @@ Admin sono verdi sui rispettivi SHA iniziali. I linked worktree del train parton
 | TASK-036 | DONE | `96a9359` | `59668348`, staging verificato | Admin #93; Client #14 merged | review APPROVED; PR/main CI PASS |
 | TASK-037 | DONE | `c4ec680` | `59668348`, read-only | Client #15/#16 merged | review APPROVED; PR/main CI PASS |
 | TASK-038 | DONE | `ce2ab134` | `59668348`, read-only | Client #17 merged | review APPROVED; PR/main CI 3/3 PASS |
-| TASK-039 | ACTIVE / REVIEW | `6b878f35` candidate | `59668348`, read-only | NOT_RUN | AAB/APK unsigned verificati; signing/Play esterni |
-| TASK-040 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
+| TASK-039 | DONE | `f30b13e9` | `59668348`, read-only | Client #18 merged | review APPROVED; PR/main CI 4/4 PASS; signing/Play esterni |
+| TASK-040 | DONE / REVIEW | `c02fa06` review | `59668348`, read-only | Client #19 merge-ready | targeted re-review APPROVED; PR CI 5/5; credenziali esterne |
 | TASK-041 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 | TASK-042 | TODO | n/a | n/a | NOT_RUN | NOT_RUN |
 

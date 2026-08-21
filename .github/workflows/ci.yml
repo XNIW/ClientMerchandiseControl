@@ -28,6 +28,8 @@ jobs:
       - name: Checkout
         # actions/checkout v7.0.1
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
       - name: Validate workflow action pins
         run: bash scripts/check-action-pins.sh
       - name: Validate shell scripts
@@ -37,11 +39,9 @@ jobs:
           bash scripts/check-client-security.sh
           bash scripts/test-client-security-scan.sh
       - name: Validate governance state
-        run: bash scripts/check-governance-state.sh
-      - name: Validate architecture boundaries
         run: |
-          bash scripts/check-architecture-boundaries.sh
-          bash scripts/test-architecture-boundaries.sh
+          bash scripts/check-governance-state.sh
+          bash scripts/test-governance-release-train.sh
       - name: Set up Flutter
         # subosito/flutter-action v2.23.0
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
@@ -52,6 +52,10 @@ jobs:
         run: bash scripts/resolve-flutter.sh
       - name: Resolve dependencies
         run: flutter pub get --enforce-lockfile
+      - name: Validate architecture boundaries
+        run: |
+          bash scripts/check-architecture-boundaries.sh
+          bash scripts/test-architecture-boundaries.sh
       - name: Generate localizations
         run: flutter gen-l10n
       - name: Validate release metadata and native assets
@@ -160,3 +164,69 @@ jobs:
         run: >-
           bash scripts/check-client-security.sh
           --artifact build/ios/iphonesimulator/Runner.app
+
+  ios-release:
+    name: iOS release candidate
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Validate iOS release source
+        run: bash scripts/check-ios-release.sh --source-only
+      - name: Build production-like unsigned iOS app
+        run: >-
+          flutter build ios --release --no-codesign
+          --dart-define-from-file=config/app_config.production.release.json
+      - name: Attest iOS reference build
+        id: ios-reference
+        run: |
+          cmc_reference_output="$(
+            bash scripts/create-ios-reference-attestation.sh \
+            --app build/ios/iphoneos/Runner.app
+          )"
+          case "${cmc_reference_output}" in
+            IOS_REFERENCE_ATTESTATION=*) ;;
+            *) exit 1 ;;
+          esac
+          cmc_reference_digests="${cmc_reference_output#IOS_REFERENCE_ATTESTATION=}"
+          if [[ ! "${cmc_reference_digests}" =~ ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]]; then
+            exit 1
+          fi
+          printf 'macho_sha256=%s\n' "${cmc_reference_digests}" >>"${GITHUB_OUTPUT}"
+      - name: Archive production-like unsigned iOS app
+        run: >-
+          xcodebuild archive
+          -workspace ios/Runner.xcworkspace
+          -scheme Runner
+          -configuration Release
+          -destination 'generic/platform=iOS'
+          -archivePath build/ios/archive/Runner.xcarchive
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_REQUIRED=NO
+          COMPILER_INDEX_STORE_ENABLE=NO
+      - name: Validate iOS release candidate
+        run: >-
+          bash scripts/check-ios-release.sh
+          --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
+          --archive build/ios/archive/Runner.xcarchive
+          --sealed-app-output build/ios/Runner.app.validated.zip
+          --reference-app build/ios/iphoneos/Runner.app
+          --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
+      - name: Validate iOS adversarial release boundaries
+        run: >-
+          bash scripts/test-ios-release-validator.sh
+          --archive build/ios/archive/Runner.xcarchive
+          --reference-app build/ios/iphoneos/Runner.app
+          --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'

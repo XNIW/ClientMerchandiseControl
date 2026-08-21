@@ -1,13 +1,40 @@
-import 'dart:convert';
-
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_environment.dart';
+import 'release_config_attestation.dart';
 
 class AppConfig {
   static const allowedAuthRedirectUri =
       'https://clientmerchandisecontrol.invalid/auth-callback/';
+  static const _compiledAppEnvironment = String.fromEnvironment(
+    'APP_ENV',
+    defaultValue: 'development',
+  );
+  static const _compiledSupabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  static const _compiledSupabasePublishableKey = String.fromEnvironment(
+    'SUPABASE_PUBLISHABLE_KEY',
+  );
+  static const _compiledAuthRedirectUri = String.fromEnvironment(
+    'AUTH_REDIRECT_URI',
+  );
+  static const _compiledGoogleAuthEnabled = String.fromEnvironment(
+    'GOOGLE_AUTH_ENABLED',
+  );
+  static const _compiledStorefrontShopSlug = String.fromEnvironment(
+    'STOREFRONT_SHOP_SLUG',
+  );
+  static const _compiledDeliveryMapsEnabled = String.fromEnvironment(
+    'DELIVERY_MAPS_ENABLED',
+  );
+  static const _compiledDeliveryMapsNativeConfigured = String.fromEnvironment(
+    'DELIVERY_MAPS_NATIVE_CONFIGURED',
+  );
+  static const _compiledReleaseConfigSha256 = String.fromEnvironment(
+    'RELEASE_CONFIG_SHA256',
+  );
+  static const _compiledReleaseAttestationMarker =
+      '${ReleaseConfigAttestation.markerPrefix}$_compiledReleaseConfigSha256';
 
   const AppConfig._({
     required this.environment,
@@ -16,6 +43,7 @@ class AppConfig {
     required this.authRedirectUri,
     required this.googleAuthEnabled,
     required this.storefrontShopSlug,
+    required this.releaseConfigSha256,
   });
 
   /// Configurazione esclusiva degli harness che verificano il lifecycle OAuth
@@ -41,6 +69,7 @@ class AppConfig {
       authRedirectUri: safeBase.authRedirectUri,
       googleAuthEnabled: true,
       storefrontShopSlug: safeBase.storefrontShopSlug,
+      releaseConfigSha256: safeBase.releaseConfigSha256,
     );
   }
 
@@ -51,6 +80,7 @@ class AppConfig {
     String authRedirectUri = '',
     String googleAuthEnabled = '',
     String storefrontShopSlug = '',
+    String releaseConfigSha256 = '',
   }) {
     final environment = AppEnvironment.parse(appEnvironment);
     final normalizedUrl = _normalize(supabaseUrl);
@@ -58,6 +88,7 @@ class AppConfig {
     final rawRedirectUri = authRedirectUri.isEmpty ? null : authRedirectUri;
     final normalizedGoogleAuthEnabled = _normalize(googleAuthEnabled);
     final normalizedStorefrontShopSlug = _normalize(storefrontShopSlug);
+    final normalizedReleaseConfigSha256 = _normalize(releaseConfigSha256);
 
     if ((normalizedUrl == null) != (normalizedKey == null)) {
       throw const AppConfigurationException(
@@ -92,7 +123,8 @@ class AppConfig {
             normalizedKey != null ||
             canonicalRedirectUri != null ||
             googleAuth ||
-            canonicalStorefrontShopSlug != null) {
+            canonicalStorefrontShopSlug != null ||
+            normalizedReleaseConfigSha256 != null) {
           throw const AppConfigurationException(
             'La configurazione development non accetta backend, callback, OAuth o Storefront reale.',
           );
@@ -112,6 +144,11 @@ class AppConfig {
             'Google OAuth resta disabilitato finché non è configurato un dominio HTTPS posseduto e verificato.',
           );
         }
+        if (normalizedReleaseConfigSha256 != null) {
+          throw const AppConfigurationException(
+            'RELEASE_CONFIG_SHA256 è ammesso soltanto in production.',
+          );
+        }
         break;
       case AppEnvironment.production:
         if (canonicalUrl == null ||
@@ -127,6 +164,14 @@ class AppConfig {
             'Google OAuth production non è abilitabile in questo milestone.',
           );
         }
+        if (normalizedReleaseConfigSha256 == null ||
+            !RegExp(
+              r'^[0-9a-f]{64}$',
+            ).hasMatch(normalizedReleaseConfigSha256)) {
+          throw const AppConfigurationException(
+            'RELEASE_CONFIG_SHA256 deve attestare la configurazione production compilata.',
+          );
+        }
         break;
     }
 
@@ -137,23 +182,47 @@ class AppConfig {
       authRedirectUri: canonicalRedirectUri,
       googleAuthEnabled: googleAuth,
       storefrontShopSlug: canonicalStorefrontShopSlug,
+      releaseConfigSha256: normalizedReleaseConfigSha256,
     );
   }
 
   factory AppConfig.fromEnvironment() {
-    return AppConfig.fromValues(
-      appEnvironment: const String.fromEnvironment(
-        'APP_ENV',
-        defaultValue: 'development',
-      ),
-      supabaseUrl: const String.fromEnvironment('SUPABASE_URL'),
-      supabasePublishableKey: const String.fromEnvironment(
-        'SUPABASE_PUBLISHABLE_KEY',
-      ),
-      authRedirectUri: const String.fromEnvironment('AUTH_REDIRECT_URI'),
-      googleAuthEnabled: const String.fromEnvironment('GOOGLE_AUTH_ENABLED'),
-      storefrontShopSlug: const String.fromEnvironment('STOREFRONT_SHOP_SLUG'),
+    final config = AppConfig.fromValues(
+      appEnvironment: _compiledAppEnvironment,
+      supabaseUrl: _compiledSupabaseUrl,
+      supabasePublishableKey: _compiledSupabasePublishableKey,
+      authRedirectUri: _compiledAuthRedirectUri,
+      googleAuthEnabled: _compiledGoogleAuthEnabled,
+      storefrontShopSlug: _compiledStorefrontShopSlug,
+      releaseConfigSha256: _compiledReleaseConfigSha256,
     );
+    if (config.environment != AppEnvironment.production) {
+      return config;
+    }
+    try {
+      final attestation = ReleaseConfigAttestation.fromValues({
+        'APP_ENV': _compiledAppEnvironment,
+        'SUPABASE_URL': _compiledSupabaseUrl,
+        'SUPABASE_PUBLISHABLE_KEY': _compiledSupabasePublishableKey,
+        'AUTH_REDIRECT_URI': _compiledAuthRedirectUri,
+        'GOOGLE_AUTH_ENABLED': _compiledGoogleAuthEnabled,
+        'STOREFRONT_SHOP_SLUG': _compiledStorefrontShopSlug,
+        'DELIVERY_MAPS_ENABLED': _compiledDeliveryMapsEnabled,
+        'DELIVERY_MAPS_NATIVE_CONFIGURED':
+            _compiledDeliveryMapsNativeConfigured,
+      });
+      if (config.releaseConfigSha256 != attestation.sha256 ||
+          _compiledReleaseAttestationMarker != attestation.marker) {
+        throw const AppConfigurationException(
+          'RELEASE_CONFIG_SHA256 non corrisponde alla configurazione production compilata.',
+        );
+      }
+    } on ReleaseConfigValidationException {
+      throw const AppConfigurationException(
+        'La configurazione production compilata non supera l’attestazione semantica.',
+      );
+    }
+    return config;
   }
 
   final AppEnvironment environment;
@@ -162,6 +231,7 @@ class AppConfig {
   final String? authRedirectUri;
   final bool googleAuthEnabled;
   final String? storefrontShopSlug;
+  final String? releaseConfigSha256;
 
   bool get isBackendConfigured =>
       supabaseUrl != null && supabasePublishableKey != null;
@@ -176,6 +246,7 @@ class AppConfig {
     'authRedirectConfigured': isAuthRedirectConfigured,
     'googleAuthEnabled': googleAuthEnabled,
     'storefrontConfigured': isStorefrontConfigured,
+    'releaseConfigurationAttested': releaseConfigSha256 != null,
   });
 
   @override
@@ -196,29 +267,8 @@ class AppConfig {
 
   static String _canonicalSupabaseOrigin(String value) {
     try {
-      final uri = Uri.parse(value);
-      final hasForbiddenDelimiter = value.contains('?') || value.contains('#');
-      final hasUserInfo = uri.authority.contains('@');
-      final hasInvalidPort = uri.hasPort && (uri.port < 1 || uri.port > 65535);
-
-      if (uri.scheme != 'https' ||
-          !uri.hasAuthority ||
-          uri.host.isEmpty ||
-          hasUserInfo ||
-          hasInvalidPort ||
-          hasForbiddenDelimiter ||
-          (uri.path.isNotEmpty && uri.path != '/')) {
-        throw const AppConfigurationException(
-          'SUPABASE_URL deve essere una origin HTTPS senza credenziali, path, query o fragment.',
-        );
-      }
-
-      return Uri(
-        scheme: 'https',
-        host: uri.host,
-        port: uri.hasPort && uri.port != 443 ? uri.port : null,
-      ).toString();
-    } on FormatException {
+      return ReleaseConfigAttestation.canonicalSupabaseOrigin(value);
+    } on ReleaseConfigValidationException {
       throw const AppConfigurationException(
         'SUPABASE_URL deve essere una origin HTTPS valida.',
       );
@@ -227,26 +277,8 @@ class AppConfig {
 
   static String _canonicalAuthRedirectUri(String value) {
     try {
-      final uri = Uri.parse(value);
-      final isStructurallyAllowed =
-          uri.isAbsolute &&
-          uri.scheme == 'https' &&
-          uri.host == 'clientmerchandisecontrol.invalid' &&
-          uri.userInfo.isEmpty &&
-          !uri.hasPort &&
-          uri.path == '/auth-callback/' &&
-          !uri.hasQuery &&
-          !uri.hasFragment &&
-          !value.contains('*');
-
-      if (!isStructurallyAllowed || value != allowedAuthRedirectUri) {
-        throw const AppConfigurationException(
-          'AUTH_REDIRECT_URI non appartiene alla callback mobile consentita.',
-        );
-      }
-
-      return uri.toString();
-    } on FormatException {
+      return ReleaseConfigAttestation.canonicalAuthRedirectUri(value);
+    } on ReleaseConfigValidationException {
       throw const AppConfigurationException(
         'AUTH_REDIRECT_URI deve essere un URI assoluto valido e consentito.',
       );
@@ -276,40 +308,17 @@ class AppConfig {
   }
 
   static String _canonicalStorefrontShopSlug(String value) {
-    if (!RegExp(r'^[a-z0-9][a-z0-9-]{2,62}$').hasMatch(value)) {
+    try {
+      return ReleaseConfigAttestation.canonicalShopSlug(value);
+    } on ReleaseConfigValidationException {
       throw const AppConfigurationException(
         'STOREFRONT_SHOP_SLUG deve essere uno slug pubblico lowercase valido.',
       );
     }
-    return value;
   }
 
   static bool _isPublishableKeyAllowed(String value) {
-    if (RegExp(r'^sb_publishable_[A-Za-z0-9_-]+$').hasMatch(value)) {
-      return true;
-    }
-
-    final segments = value.split('.');
-    if (segments.length != 3 || segments.any((segment) => segment.isEmpty)) {
-      return false;
-    }
-
-    try {
-      final header = jsonDecode(
-        utf8.decode(base64Url.decode(base64Url.normalize(segments[0]))),
-      );
-      final payload = jsonDecode(
-        utf8.decode(base64Url.decode(base64Url.normalize(segments[1]))),
-      );
-      final signature = base64Url.decode(base64Url.normalize(segments[2]));
-
-      return header is Map<String, dynamic> &&
-          payload is Map<String, dynamic> &&
-          payload['role'] == 'anon' &&
-          signature.isNotEmpty;
-    } on FormatException {
-      return false;
-    }
+    return ReleaseConfigAttestation.isPublishableKeyAllowed(value);
   }
 }
 

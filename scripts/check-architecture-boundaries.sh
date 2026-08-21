@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cmc_arch_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cmc_arch_binding_validator="${cmc_arch_script_dir}/../tool/check_app_config_binding.dart"
+
 if [[ -n "${CMC_ARCH_REPO_ROOT:-}" ]]; then
   cmc_arch_repo_root="${CMC_ARCH_REPO_ROOT}"
 else
@@ -64,6 +67,18 @@ cmc_arch_require_count() {
   if [[ "${cmc_arch_actual_count}" -ne "${cmc_arch_expected_count}" ]]; then
     printf 'Cardinalità boundary errata: %s (%s)\n' \
       "${cmc_arch_label}" "${cmc_arch_file}" >&2
+    cmc_arch_violation_count=$((cmc_arch_violation_count + 1))
+  fi
+}
+
+cmc_arch_require_storefront_slug_binding() {
+  local cmc_arch_file="$1"
+
+  if ! command -v dart >/dev/null 2>&1 || ! dart run \
+    "${cmc_arch_binding_validator}" \
+    "${cmc_arch_file}" >/dev/null; then
+    printf 'Binding compile-time Storefront shop slug invalido (%s)\n' \
+      "${cmc_arch_file}" >&2
     cmc_arch_violation_count=$((cmc_arch_violation_count + 1))
   fi
 }
@@ -488,9 +503,10 @@ cmc_arch_require_count \
 
 cmc_arch_require_count \
   "${cmc_arch_app_config}" \
-  "const String.fromEnvironment('STOREFRONT_SHOP_SLUG')" \
+  "_compiledStorefrontShopSlug = String.fromEnvironment(" \
   1 \
   "un solo input compile-time Storefront shop slug"
+cmc_arch_require_storefront_slug_binding "${cmc_arch_app_config}"
 cmc_arch_require_count \
   "${cmc_arch_storefront_repository}" \
   "function: 'storefront_home_v1'" \

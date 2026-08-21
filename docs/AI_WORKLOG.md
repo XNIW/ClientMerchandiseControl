@@ -4732,3 +4732,16 @@
   `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`, nessun deep scan o installazione.
 - **Fase finale**: FIX.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-21 — TASK-042 fix e handoff
+
+- **Technical SHA**: `b57bb86b1f31302aef87d4423cc12328b8ec0d0b`.
+- **Fix**: health Auth/RPC reale, drill fixture-bound con risultato esatto e log-safety
+  whole-record allowlisted; chiusi in implementazione `F-042-R01`–`F-042-R03`.
+- **Regressioni**: operations 76/76, drill 10/10, mapping alterato e 12 input log
+  sensibili/extra rifiutati.
+- **Gate**: prelaunch exit 0, live exit 1 atteso, governance state e 101/101, pins,
+  telemetry privacy e security client 703 file `PASS`.
+- **Scope**: nessun codice applicativo o release configuration; production invariata.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

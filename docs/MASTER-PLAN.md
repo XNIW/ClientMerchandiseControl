@@ -8,14 +8,14 @@
 - **Task attivo**: TASK-042
 - **File task**: docs/TASKS/TASK-042-post-launch-monitoring-support-maintenance.md
 - **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_FINAL_PRODUCT_COMPLETION
-- **Stato release train**: FIX
+- **Stato release train**: REVIEW
 - **Review integrata**: NOT_RUN
-- **Prossima azione autorizzata**: unica passata FIX sui finding P2
-  `F-042-R01`–`F-042-R03`, quindi re-review indipendente; production resta invariata
+- **Prossima azione autorizzata**: re-review indipendente dei finding P2
+  `F-042-R01`–`F-042-R03` sul candidate `b57bb86`; production resta invariata
 
 ## Repository coinvolti
 

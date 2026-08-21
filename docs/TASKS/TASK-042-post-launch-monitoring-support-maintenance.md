@@ -6,14 +6,14 @@
 - **Titolo**: Post-launch monitoring, supporto e manutenzione
 - **File task**: `docs/TASKS/TASK-042-post-launch-monitoring-support-maintenance.md`
 - **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-21
 - **Ultimo aggiornamento**: 2026-08-21
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-042/`
 - **Outcome previsto**: POST_LAUNCH_OPERATIONS_READY_PRELAUNCH
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 
 ## Dipendenze
 
@@ -156,8 +156,23 @@ Esito: `CHANGES_REQUIRED`.
 
 ## Fix — `CODEX_FIXER`
 
-Un'unica passata bounded corregge esclusivamente `F-042-R01`–`F-042-R03`, aggiunge le
-regressioni richieste e riconsegna allo stesso reviewer indipendente.
+Un'unica passata bounded ha corretto esclusivamente `F-042-R01`–`F-042-R03`:
+
+- il runbook usa il probe Auth reale `GET /auth/v1/health`, separa l'RPC bounded
+  `storefront_home_v1` e allinea i risultati/stati runtime;
+- i dieci drill sono collegati a fixture, fake o contratti esistenti e confrontano
+  l'esito operativo esatto; un mapping mutato viene rifiutato;
+- i log drill usano un'allowlist ancorata sull'intero record; dodici casi negativi
+  coprono chiavi extra, identificativi, carrello, telefono, indirizzo e secret;
+- test operations: 76/76 e drill 10/10 `PASS`;
+- prelaunch: exit 0, 86 READY e 4 UNVERIFIABLE_EXTERNAL;
+- live: exit 1 atteso, 85 READY e quattro requisiti esterni MISSING;
+- governance state, fixture 101/101, action pins, telemetry privacy e client security
+  703 file sono `PASS`;
+- exact technical SHA: `b57bb86b1f31302aef87d4423cc12328b8ec0d0b`;
+- codice applicativo, production, provider, Admin e Supabase sono invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Chiusura
 

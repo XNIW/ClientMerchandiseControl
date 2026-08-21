@@ -1,7 +1,7 @@
 # Evidence TASK-042
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`ACTIVE / REVIEW / CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
 
 ## Provenance
 
@@ -27,8 +27,8 @@ Snapshot di handoff:
 |---|---|---|
 | git diff --check | PASS | exit 0, worktree e origin/main...HEAD |
 | bash -n operations scripts | PASS | exit 0, due script |
-| test operations readiness | PASS | exit 0, 24/24 e drill 10/10 |
-| operations prelaunch | PASS | exit 0, 81 READY e 4 UNVERIFIABLE_EXTERNAL |
+| test operations readiness | PASS | exit 0, 76/76 e drill 10/10 |
+| operations prelaunch | PASS | exit 0, 86 READY e 4 UNVERIFIABLE_EXTERNAL |
 | operations live | PASS | exit 1 atteso, 4 requisiti esterni MISSING |
 | governance state | PASS | exit 0 |
 | governance fixture | PASS | exit 0, 101/101 |
@@ -46,7 +46,7 @@ Snapshot di handoff:
 | CA-03 | SEV-0 fino a SEV-3 e otto campi operativi | PASS |
 | CA-04 | prelaunch exit 0, idempotenza e read-only | PASS |
 | CA-05 | live exit 1 con quattro activation requirement mancanti | PASS |
-| CA-06 | fixture drill 10/10 e scan log PII/secret negativo | PASS |
+| CA-06 | fixture-bound drill 10/10, mapping esatto e allowlist log completa | PASS |
 | CA-07 | sette kill switch e fallback verificati | PASS |
 | CA-08 | review, PR/main CI e merge sono fase successiva | NOT_RUN |
 
@@ -57,7 +57,7 @@ Snapshot di handoff:
 | T-01 | PASS | struttura, segnali, severity, supporto e privacy |
 | T-02 | PASS | sintassi, prelaunch, idempotenza e read-only |
 | T-03 | PASS | live default MISSING e fixture completa READY |
-| T-04 | PASS | 10/10 drill con schema bounded e zero PII |
+| T-04 | PASS | 10/10 drill fixture-bound, mapping mutato rifiutato e zero PII |
 | T-05 | PASS | Maps, tracking, carrier, payment, push, telemetry e promotions |
 | T-06 | NOT_RUN | gate locali verdi; review e CI/merge da eseguire |
 
@@ -82,3 +82,18 @@ Snapshot di handoff:
 - production, Admin e Supabase: read-only/invariati;
 - live esterno: `EXTERNAL_MONITORING_DESTINATION_REQUIRED` e owner values, non
   CODE_BLOCKER.
+
+## Fix evidence
+
+- exact SHA: `b57bb86b1f31302aef87d4423cc12328b8ec0d0b`;
+- `F-042-R01`: probe Auth e RPC Storefront riallineati al runtime, endpoint inventato
+  vietato dal checker;
+- `F-042-R02`: 10/10 drill collegati a fake/fixture/contratti esistenti, output esatto e
+  mapping alterato rifiutato;
+- `F-042-R03`: allowlist sull'intero record e 12/12 input sensibili/extra rifiutati;
+- test: 76/76, prelaunch exit 0, live exit 1 atteso;
+- governance 101/101, pins, privacy e security 703 file `PASS`;
+- `scripts/check.sh`: `NOT_RUN`, nessun diff applicativo o release configuration;
+- production e requisiti esterni invariati.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

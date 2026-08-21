@@ -5,7 +5,7 @@
 - **Task ID**: TASK-041
 - **Titolo**: Production launch, rollback e runbook
 - **File task**: `docs/TASKS/TASK-041-production-launch-rollback-runbook.md`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
 - **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-21
@@ -13,7 +13,7 @@
 - **Ultimo agente**: Codex
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-041/`
 - **Outcome previsto**: PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION
-- **Handoff**: CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION
+- **Handoff**: USER_APPROVED_DONE
 
 ## Dipendenze
 
@@ -171,6 +171,13 @@
 
 ## Chiusura
 
-Da compilare dopo review, CI e merge reali.
+- USER_APPROVER: autorizzazione mirata ricevuta nel prompt 2026-08-21;
+- branch SHA: `02e0f950a57e1e34c33b73aaf882a7a829efa13f`;
+- PR #20: merged normalmente;
+- PR CI `32451681206`: 5/5 job `success`, tutti gli step applicabili verdi;
+- merge: `ce6045e4799cdc0c51cbd15cd173510e5cae88a4`, ancestry verificata;
+- main CI `32453135940`: 5/5 job `success`, 67 step e zero failure;
+- branch remota eliminata al primo tentativo; production invariata;
+- outcome: `PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION`.
 
-`CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`USER_APPROVED_DONE`.

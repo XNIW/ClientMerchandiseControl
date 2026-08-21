@@ -4685,3 +4685,76 @@
 - **Esito**: `APPROVED`, P0 0/P1 0/P2 0/P3 0; worktree invariato.
 - **Fase finale**: REVIEW.
 - **Handoff**: `CODEX_REVIEW_APPROVED_AWAITING_USER_CONFIRMATION`.
+
+## 2026-08-21 — TASK-041 GitHub closeout
+
+- **Branch SHA**: `02e0f950a57e1e34c33b73aaf882a7a829efa13f`.
+- **PR**: Client #20, merge normale `ce6045e4799cdc0c51cbd15cd173510e5cae88a4`.
+- **CI PR**: `32451681206`, 5/5 job `success`, tutti gli step applicabili verdi.
+- **CI main**: `32453135940`, 5/5 job `success`, 67 step, zero failure.
+- **Git**: ancestry verificata; branch remota eliminata al primo tentativo.
+- **Outcome**: `PRODUCTION_READY_PENDING_EXTERNAL_ACTIVATION`; production invariata.
+- **Handoff**: `USER_APPROVED_DONE`.
+
+## 2026-08-21 — TASK-042 planning autorizzato
+
+- **Agente**: Codex (`CODEX_PLANNER`).
+- **Baseline**: Client `ce6045e4799cdc0c51cbd15cd173510e5cae88a4`, Admin
+  `59668348e4c728b44b998c80f1aded61e6114a3f`; checkout primari preservati.
+- **Scope**: quattro runbook operations, checker prelaunch/live read-only, dieci drill
+  sintetici, evidence e governance; production e provider invariati.
+- **Decisione**: il mandato USER_APPROVER 2026-08-21 autorizza la transizione immediata
+  Planning -> Execution; live esterno non è CODE_BLOCKER.
+- **Fase finale**: EXECUTION.
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+## 2026-08-21 — TASK-042 execution e handoff
+
+- **Technical SHA**: `d7d4fa9a94b07dd6422e4018a524ca9e5478bfe1`.
+- **Deliverable**: quattro runbook operations, checker prelaunch/live e test/drill;
+  nessun codice applicativo o release configuration cambiato.
+- **Gate**: readiness 24/24, drill 10/10, prelaunch exit 0, live exit 1 atteso,
+  governance 101/101, action pins, telemetry privacy e security client 703 file PASS.
+- **Classificazione esterna**: quattro requisiti live MISSING, destination e owner
+  esterni non CODE_BLOCKER; production e provider invariati.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+
+## 2026-08-21 — TASK-042 review indipendente
+
+- **Exact HEAD**: `f85bc3b99685674d7bc31b9f2775c6d3d5285f13`.
+- **Coverage**: range da `ce6045e4`, documenti/governance e due script shell;
+  worktree invariato dal reviewer.
+- **Finding**: `F-042-R01` health/RPC drift, `F-042-R02` drill solo strutturali,
+  `F-042-R03` denylist log fail-open; tutti P2.
+- **Severita**: P0 0/P1 0/P2 3/P3 0.
+- **Security**: review manuale diff-scoped;
+  `FORMAL_EXTERNAL_SCANNER_NOT_AVAILABLE`, nessun deep scan o installazione.
+- **Fase finale**: FIX.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-08-21 — TASK-042 fix e handoff
+
+- **Technical SHA**: `b57bb86b1f31302aef87d4423cc12328b8ec0d0b`.
+- **Fix**: health Auth/RPC reale, drill fixture-bound con risultato esatto e log-safety
+  whole-record allowlisted; chiusi in implementazione `F-042-R01`–`F-042-R03`.
+- **Regressioni**: operations 76/76, drill 10/10, mapping alterato e 12 input log
+  sensibili/extra rifiutati.
+- **Gate**: prelaunch exit 0, live exit 1 atteso, governance state e 101/101, pins,
+  telemetry privacy e security client 703 file `PASS`.
+- **Scope**: nessun codice applicativo o release configuration; production invariata.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-21 — TASK-042 re-review indipendente e closeout autorizzato
+
+- **Exact HEAD reviewed**: `acbf7f189ad3326eefdb0a1fdd47fef45b13b6ad`.
+- **Finding**: `F-042-R01`–`F-042-R03` tutti `FIXED_VALIDATED`.
+- **Gate reviewer**: operations 76/76, drill 10/10, prelaunch/live, governance
+  101/101, pins, telemetry privacy e security 703 file `PASS`.
+- **Esito**: `APPROVED`, P0 0/P1 0/P2 0/P3 0.
+- **GitHub**: PR Client #21 aperta; lo stato `DONE / IDLE` diventa effettivo su `main`
+  soltanto dopo CI exact-SHA verde e merge normale.
+- **Outcome**: `POST_LAUNCH_OPERATIONS_READY_PRELAUNCH`; go-live e monitoring live
+  `NOT_RUN`, production invariata.
+- **Handoff**: `USER_APPROVED_DONE`.

@@ -112,6 +112,37 @@ final class SupabaseCustomerOrderRepository implements CustomerOrderRepository {
     });
   }
 
+  @override
+  Future<CustomerReorderPreview> previewReorder(String orderId) {
+    return _guard(() async {
+      _requireInputUuid(orderId);
+      return _parseReorderPreview(
+        await port.invoke('customer_order_reorder_preview_v1', {
+          'p_order_id': orderId,
+        }),
+        expectedOrderId: orderId,
+      );
+    });
+  }
+
+  @override
+  Future<CustomerReorderResult> applyReorder({
+    required String orderId,
+    required String idempotencyKey,
+  }) {
+    return _guard(() async {
+      _requireInputUuid(orderId);
+      _requireInputUuid(idempotencyKey);
+      return _parseReorderResult(
+        await port.invoke('customer_order_reorder_apply_v1', {
+          'p_order_id': orderId,
+          'p_idempotency_key': idempotencyKey,
+        }),
+        expectedOrderId: orderId,
+      );
+    });
+  }
+
   Future<T> _guard<T>(Future<T> Function() operation) async {
     try {
       return await operation().timeout(requestTimeout);
@@ -141,6 +172,190 @@ final class SupabaseCustomerOrderRepository implements CustomerOrderRepository {
       );
     }
   }
+}
+
+CustomerReorderPreview _parseReorderPreview(
+  Object? raw, {
+  required String expectedOrderId,
+}) {
+  final payload = _payload(raw, const {
+    'apiVersion',
+    'status',
+    'orderId',
+    'shopId',
+    'items',
+    'serverTime',
+  }, 'customer_reorder_preview');
+  if (payload['apiVersion'] != 'customer-reorder.v1') {
+    throw const FormatException('customer_reorder_version');
+  }
+  final status = _requiredString(payload, 'status');
+  if (status != 'ok') {
+    if (payload.length != 2) {
+      throw const FormatException('customer_reorder_error_shape');
+    }
+    throw CustomerOrderRepositoryException(_remoteFailure(status));
+  }
+  if (payload.length != 6 ||
+      _requiredUuid(payload, 'orderId') != expectedOrderId) {
+    throw const FormatException('customer_reorder_identity');
+  }
+  final items = _list(
+    payload,
+    'items',
+    maximum: customerOrderMaximumLines,
+  ).map(_parseReorderItem).toList(growable: false);
+  if (items.isEmpty) {
+    throw const FormatException('customer_reorder_empty');
+  }
+  _requireUnique(items.map((item) => item.orderItemId), 'customer_reorder_ids');
+  return CustomerReorderPreview(
+    orderId: expectedOrderId,
+    shopId: _requiredUuid(payload, 'shopId'),
+    items: items,
+    serverTime: _requiredDate(payload, 'serverTime'),
+  );
+}
+
+CustomerReorderItem _parseReorderItem(Object? raw) {
+  final map = _payload(raw, const {
+    'orderItemId',
+    'publicationId',
+    'name',
+    'requestedQuantity',
+    'allowedQuantity',
+    'availability',
+    'historicalPriceClp',
+    'currentPriceClp',
+    'currentCompareAtPriceClp',
+    'currentPromotionName',
+    'priceDifferenceClp',
+  }, 'customer_reorder_item');
+  if (map.length != 11) {
+    throw const FormatException('customer_reorder_item_shape');
+  }
+  final availability = switch (_requiredString(map, 'availability')) {
+    'available' => CustomerReorderAvailability.available,
+    'unavailable' => CustomerReorderAvailability.unavailable,
+    _ => throw const FormatException('customer_reorder_availability'),
+  };
+  final requested = _requiredInt(map, 'requestedQuantity');
+  final allowed = _requiredInt(map, 'allowedQuantity');
+  final current = _optionalAmount(map, 'currentPriceClp');
+  final compareAt = _optionalAmount(map, 'currentCompareAtPriceClp');
+  if (requested < 1 ||
+      requested > 99 ||
+      allowed < 0 ||
+      allowed > requested ||
+      (availability == CustomerReorderAvailability.available &&
+          (allowed < 1 || current == null)) ||
+      (availability == CustomerReorderAvailability.unavailable &&
+          (allowed != 0 || current != null)) ||
+      (compareAt != null && current != null && compareAt < current)) {
+    throw const FormatException('customer_reorder_item_invariant');
+  }
+  return CustomerReorderItem(
+    orderItemId: _requiredUuid(map, 'orderItemId'),
+    publicationId: _requiredUuid(map, 'publicationId'),
+    name: _safeRequiredText(map, 'name', 200),
+    requestedQuantity: requested,
+    allowedQuantity: allowed,
+    availability: availability,
+    historicalPriceClp: _amount(map, 'historicalPriceClp'),
+    currentPriceClp: current,
+    currentCompareAtPriceClp: compareAt,
+    currentPromotionName: _safeOptionalText(map, 'currentPromotionName', 160),
+    priceDifferenceClp: _optionalSignedAmount(map, 'priceDifferenceClp'),
+  );
+}
+
+CustomerReorderResult _parseReorderResult(
+  Object? raw, {
+  required String expectedOrderId,
+}) {
+  final payload = _payload(raw, const {
+    'apiVersion',
+    'status',
+    'idempotent',
+    'orderId',
+    'cartId',
+    'cartVersion',
+    'added',
+    'skipped',
+    'serverTime',
+  }, 'customer_reorder_result');
+  if (payload['apiVersion'] != 'customer-reorder.v1') {
+    throw const FormatException('customer_reorder_result_version');
+  }
+  final status = _requiredString(payload, 'status');
+  if (status != 'ok') {
+    if (payload.length != 2) {
+      throw const FormatException('customer_reorder_result_error_shape');
+    }
+    throw CustomerOrderRepositoryException(_remoteFailure(status));
+  }
+  final idempotent = payload['idempotent'];
+  final cartVersion = _requiredInt(payload, 'cartVersion');
+  if (payload.length != 9 ||
+      idempotent is! bool ||
+      cartVersion < 1 ||
+      _requiredUuid(payload, 'orderId') != expectedOrderId) {
+    throw const FormatException('customer_reorder_result_identity');
+  }
+  final added = _list(
+    payload,
+    'added',
+    maximum: customerOrderMaximumLines,
+  ).map((item) => _parseReorderAppliedLine(item, skipped: false)).toList();
+  final skipped = _list(
+    payload,
+    'skipped',
+    maximum: customerOrderMaximumLines,
+  ).map((item) => _parseReorderAppliedLine(item, skipped: true)).toList();
+  return CustomerReorderResult(
+    orderId: expectedOrderId,
+    cartId: _requiredUuid(payload, 'cartId'),
+    cartVersion: cartVersion,
+    added: added,
+    skipped: skipped,
+    idempotent: idempotent,
+    serverTime: _requiredDate(payload, 'serverTime'),
+  );
+}
+
+CustomerReorderAppliedLine _parseReorderAppliedLine(
+  Object? raw, {
+  required bool skipped,
+}) {
+  final map = _payload(raw, const {
+    'orderItemId',
+    'publicationId',
+    'name',
+    'quantity',
+    'currentPriceClp',
+    'reason',
+  }, 'customer_reorder_applied');
+  const required = {'orderItemId', 'publicationId', 'name'};
+  if (!map.keys.toSet().containsAll(required)) {
+    throw const FormatException('customer_reorder_applied_shape');
+  }
+  final quantity = map.containsKey('quantity')
+      ? _requiredInt(map, 'quantity')
+      : null;
+  final price = _optionalAmount(map, 'currentPriceClp');
+  final reason = _safeOptionalText(map, 'reason', 40);
+  if ((!skipped && (quantity == null || quantity < 1 || price == null)) ||
+      (skipped && (reason == null || (quantity != null && quantity < 1)))) {
+    throw const FormatException('customer_reorder_applied_invariant');
+  }
+  return CustomerReorderAppliedLine(
+    orderItemId: _requiredUuid(map, 'orderItemId'),
+    publicationId: _requiredUuid(map, 'publicationId'),
+    name: _safeRequiredText(map, 'name', 200),
+    quantity: quantity,
+    currentPriceClp: price,
+    reason: reason,
+  );
 }
 
 const _listRootKeys = <String>{
@@ -665,6 +880,7 @@ CustomerOrderFailureKind _remoteFailure(String status) => switch (status) {
   'invalid' => CustomerOrderFailureKind.invalid,
   'unavailable' => CustomerOrderFailureKind.unavailable,
   'not_found' => CustomerOrderFailureKind.notFound,
+  'not_eligible' => CustomerOrderFailureKind.unavailable,
   'not_cancellable' => CustomerOrderFailureKind.notCancellable,
   'version_conflict' => CustomerOrderFailureKind.versionConflict,
   'idempotency_conflict' => CustomerOrderFailureKind.idempotencyConflict,
@@ -795,6 +1011,15 @@ int _amount(Map<String, Object?> map, String key) {
 int? _optionalAmount(Map<String, Object?> map, String key) {
   if (!map.containsKey(key) || map[key] == null) return null;
   return _amount(map, key);
+}
+
+int? _optionalSignedAmount(Map<String, Object?> map, String key) {
+  if (!map.containsKey(key) || map[key] == null) return null;
+  final value = _requiredInt(map, key);
+  if (value.abs() > customerOrderMaximumAmountClp) {
+    throw FormatException('customer_order_$key');
+  }
+  return value;
 }
 
 DateTime _requiredDate(Map<String, Object?> map, String key) {

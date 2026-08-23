@@ -1,0 +1,676 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../app/design_system/tokens/app_radii.dart';
+import '../../../app/design_system/tokens/app_sizes.dart';
+import '../../../app/design_system/tokens/app_spacing.dart';
+import '../../../core/formatting/clp_currency_formatter.dart';
+import '../../../l10n/generated/app_localizations.dart';
+import '../../account/application/customer_account_controller.dart';
+import '../../account/domain/customer_account_models.dart';
+import '../../account/presentation/customer_account_panel.dart';
+import '../../checkout/application/checkout_providers.dart';
+import '../../checkout/domain/checkout_models.dart';
+import '../application/delivery_context_controller.dart';
+import '../application/delivery_context_providers.dart';
+import '../domain/delivery_address_ports.dart';
+import '../domain/delivery_context_models.dart';
+
+class DeliveryContextScreen extends ConsumerStatefulWidget {
+  const DeliveryContextScreen({super.key});
+
+  @override
+  ConsumerState<DeliveryContextScreen> createState() =>
+      _DeliveryContextScreenState();
+}
+
+class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
+  final _guestCommune = TextEditingController();
+  final _search = TextEditingController();
+  Timer? _searchDebounce;
+  Future<StorefrontFulfillmentOptions>? _options;
+  List<AddressSearchSuggestion> _suggestions = const [];
+  bool _searching = false;
+  CustomerDeliveryMode _mode = CustomerDeliveryMode.delivery;
+
+  @override
+  void initState() {
+    super.initState();
+    scheduleMicrotask(_loadOptions);
+  }
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    _guestCommune.dispose();
+    _search.dispose();
+    super.dispose();
+  }
+
+  void _loadOptions() {
+    final shopSlug = ref.read(deliveryContextShopSlugProvider);
+    if (shopSlug == null || !mounted) return;
+    setState(() {
+      _options = ref
+          .read(checkoutRepositoryProvider)
+          .loadOptions(shopSlug: shopSlug);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final state = ref.watch(deliveryContextControllerProvider);
+    final account = ref.watch(customerAccountControllerProvider);
+    final selected = state.context;
+    if (selected != null && selected.mode != _mode && !state.isMutating) {
+      scheduleMicrotask(() {
+        if (mounted) setState(() => _mode = selected.mode);
+      });
+    }
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.deliveryContextTitle)),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
+            SegmentedButton<CustomerDeliveryMode>(
+              segments: [
+                ButtonSegment(
+                  value: CustomerDeliveryMode.delivery,
+                  icon: const Icon(Icons.local_shipping_outlined),
+                  label: Text(l10n.deliveryContextDelivery),
+                ),
+                ButtonSegment(
+                  value: CustomerDeliveryMode.pickup,
+                  icon: const Icon(Icons.storefront_outlined),
+                  label: Text(l10n.deliveryContextPickup),
+                ),
+              ],
+              selected: {_mode},
+              onSelectionChanged: state.isMutating
+                  ? null
+                  : (selection) => setState(() => _mode = selection.single),
+            ),
+            if (state.status == DeliveryContextViewStatus.offline) ...[
+              const SizedBox(height: AppSpacing.md),
+              _StatusBanner(
+                icon: Icons.cloud_off_outlined,
+                message: l10n.deliveryContextOffline,
+                actionLabel: l10n.deliveryContextRetry,
+                onAction: ref
+                    .read(deliveryContextControllerProvider.notifier)
+                    .refresh,
+              ),
+            ],
+            if (selected != null) ...[
+              const SizedBox(height: AppSpacing.lg),
+              _CurrentContextCard(contextValue: selected),
+            ],
+            const SizedBox(height: AppSpacing.lg),
+            if (_mode == CustomerDeliveryMode.delivery)
+              _deliverySections(state, account.snapshot?.addresses ?? const [])
+            else
+              _pickupSection(state),
+            if (state.isMutating) ...[
+              const SizedBox(height: AppSpacing.md),
+              Semantics(
+                liveRegion: true,
+                label: l10n.customerAccountLoading,
+                child: const LinearProgressIndicator(),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.xl),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _deliverySections(
+    DeliveryContextState state,
+    List<CustomerAddress> addresses,
+  ) {
+    final l10n = AppLocalizations.of(context);
+    final searchPort = ref.watch(addressSearchPortProvider);
+    final authenticated = state.authenticated;
+    final recent = addresses
+        .where((address) => address.lastSelectedAt != null)
+        .take(3)
+        .toList(growable: false);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FilledButton.tonalIcon(
+          key: const ValueKey('delivery-use-current-location'),
+          onPressed: state.isMutating ? null : _useCurrentLocation,
+          icon: const Icon(Icons.my_location),
+          label: Text(l10n.deliveryContextUseLocation),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          l10n.deliveryContextManualFallback,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Text(
+          l10n.deliveryContextSearch,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        if (!searchPort.configured)
+          _StatusBanner(
+            icon: Icons.search_off_outlined,
+            message: l10n.deliveryContextSearchUnavailable,
+          )
+        else ...[
+          SearchBar(
+            key: const ValueKey('delivery-address-search'),
+            controller: _search,
+            hintText: l10n.deliveryContextSearchHint,
+            leading: const Icon(Icons.search),
+            trailing: _searching
+                ? const [
+                    SizedBox.square(
+                      dimension: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ]
+                : null,
+            onChanged: _searchAddresses,
+          ),
+          ..._suggestions.map(
+            (suggestion) => ListTile(
+              leading: const Icon(Icons.location_on_outlined),
+              title: Text(suggestion.displayText),
+              onTap: () => _resolveSuggestion(suggestion),
+            ),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.lg),
+        if (!authenticated) ...[
+          TextField(
+            key: const ValueKey('delivery-guest-commune'),
+            controller: _guestCommune,
+            maxLength: 100,
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(
+              labelText: l10n.deliveryContextGuestCommune,
+            ),
+          ),
+          FilledButton(
+            onPressed: state.isMutating
+                ? null
+                : () => ref
+                      .read(deliveryContextControllerProvider.notifier)
+                      .selectGuestCommune(commune: _guestCommune.text.trim()),
+            child: Text(l10n.deliveryContextCheckArea),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(l10n.deliveryContextSignInToSave),
+        ] else ...[
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.deliveryContextSaved,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              IconButton.filledTonal(
+                key: const ValueKey('delivery-address-add'),
+                tooltip: l10n.deliveryContextAdd,
+                onPressed: state.isMutating ? null : _addAddress,
+                icon: const Icon(Icons.add_location_alt_outlined),
+              ),
+            ],
+          ),
+          if (addresses.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+              child: Text(l10n.customerAddressesEmptyMessage),
+            )
+          else
+            ...addresses.map(
+              (address) => _AddressChoiceTile(
+                address: address,
+                selected: state.context?.addressId == address.id,
+                busy: state.isMutating,
+                onSelect: () => ref
+                    .read(deliveryContextControllerProvider.notifier)
+                    .selectAddress(addressId: address.id),
+                onEdit: () => _editAddress(address),
+              ),
+            ),
+          if (recent.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              l10n.deliveryContextRecent,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: recent
+                  .map(
+                    (address) => ActionChip(
+                      avatar: const Icon(Icons.history, size: 18),
+                      label: Text(address.label),
+                      onPressed: state.isMutating
+                          ? null
+                          : () => ref
+                                .read(
+                                  deliveryContextControllerProvider.notifier,
+                                )
+                                .selectAddress(addressId: address.id),
+                    ),
+                  )
+                  .toList(growable: false),
+            ),
+          ],
+        ],
+      ],
+    );
+  }
+
+  Widget _pickupSection(DeliveryContextState state) {
+    final l10n = AppLocalizations.of(context);
+    final options = _options;
+    if (options == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return FutureBuilder<StorefrontFulfillmentOptions>(
+      future: options,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final points = snapshot.data?.pickupPoints ?? const [];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.deliveryContextPickupPoints,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            if (points.isEmpty)
+              Text(l10n.deliveryContextTemporarilyUnavailable)
+            else
+              ...points.map(
+                (point) => Card(
+                  child: ListTile(
+                    minVerticalPadding: AppSpacing.sm,
+                    leading: const Icon(Icons.storefront_outlined),
+                    title: Text(point.name),
+                    subtitle: Text(
+                      '${point.addressLine1}\n${point.commune}, ${point.region}',
+                    ),
+                    isThreeLine: true,
+                    trailing: SizedBox(
+                      width: 116,
+                      child: FilledButton.tonal(
+                        onPressed: state.isMutating
+                            ? null
+                            : () => ref
+                                  .read(
+                                    deliveryContextControllerProvider.notifier,
+                                  )
+                                  .selectPickup(pickupPointId: point.id),
+                        child: Text(
+                          state.context?.pickupPointId == point.id
+                              ? l10n.deliveryContextSelected
+                              : l10n.deliveryContextSelect,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _useCurrentLocation() async {
+    final l10n = AppLocalizations.of(context);
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.deliveryContextLocationRationaleTitle),
+        content: Text(l10n.deliveryContextLocationRationale),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.customerDialogCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.deliveryContextLocationContinue),
+          ),
+        ],
+      ),
+    );
+    if (accepted != true || !mounted) return;
+    try {
+      final locationPort = ref.read(currentLocationPortProvider);
+      if (!locationPort.configured) {
+        _showLocationFallback();
+        return;
+      }
+      final location = await locationPort.readOnce();
+      if (location == null || !mounted) {
+        _showLocationFallback();
+        return;
+      }
+      final mapPort = ref.read(deliveryAddressMapPortProvider);
+      final adjusted = mapPort.configured
+          ? await mapPort.previewAndAdjust(location)
+          : location;
+      final geocoder = ref.read(reverseGeocodingPortProvider);
+      final resolved = geocoder.configured
+          ? await geocoder.reverse(adjusted)
+          : null;
+      if (!mounted) return;
+      if (resolved == null) {
+        _showLocationFallback();
+        return;
+      }
+      await _saveResolvedAddress(
+        resolved,
+        CustomerAddressLocationSource.currentLocation,
+      );
+    } on AddressProviderNotConfiguredException {
+      if (mounted) _showLocationFallback();
+    } on Object {
+      if (mounted) _showLocationFallback();
+    }
+  }
+
+  void _searchAddresses(String value) {
+    _searchDebounce?.cancel();
+    final generationQuery = value.trim();
+    if (generationQuery.length < 3) {
+      setState(() => _suggestions = const []);
+      return;
+    }
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () async {
+      if (!mounted || _search.text.trim() != generationQuery) return;
+      setState(() => _searching = true);
+      try {
+        final results = await ref
+            .read(addressSearchPortProvider)
+            .search(generationQuery);
+        if (mounted && _search.text.trim() == generationQuery) {
+          setState(() => _suggestions = results.take(8).toList());
+        }
+      } on Object {
+        if (mounted) setState(() => _suggestions = const []);
+      } finally {
+        if (mounted && _search.text.trim() == generationQuery) {
+          setState(() => _searching = false);
+        }
+      }
+    });
+  }
+
+  Future<void> _resolveSuggestion(AddressSearchSuggestion suggestion) async {
+    try {
+      final resolved = await ref
+          .read(addressSearchPortProvider)
+          .resolve(suggestion);
+      if (resolved != null && mounted) {
+        await _saveResolvedAddress(
+          resolved,
+          CustomerAddressLocationSource.search,
+        );
+      }
+    } on Object {
+      if (mounted) _showLocationFallback();
+    }
+  }
+
+  Future<void> _saveResolvedAddress(
+    ReverseGeocodedAddress resolved,
+    CustomerAddressLocationSource source,
+  ) async {
+    if (!ref.read(deliveryContextControllerProvider).authenticated) {
+      await ref
+          .read(deliveryContextControllerProvider.notifier)
+          .selectGuestCommune(commune: resolved.commune);
+      return;
+    }
+    final draft = await showCustomerAddressEditor(
+      context,
+      initial: CustomerAddressEditorInitial(
+        label: AppLocalizations.of(context).deliveryContextDelivery,
+        recipientName: '',
+        addressLine1: resolved.addressLine1,
+        addressLine2: null,
+        commune: resolved.commune,
+        region: resolved.region,
+        postalCode: resolved.postalCode,
+        countryCode: resolved.countryCode,
+        deliveryInstructions: null,
+        latitude: resolved.coordinate.latitude,
+        longitude: resolved.coordinate.longitude,
+        locationSource: source,
+        locationAccuracyMeters: resolved.coordinate.accuracyMeters,
+      ),
+    );
+    if (draft != null) await _createAndSelect(draft);
+  }
+
+  Future<void> _addAddress() async {
+    final draft = await showCustomerAddressEditor(context);
+    if (draft != null) await _createAndSelect(draft);
+  }
+
+  Future<void> _editAddress(CustomerAddress address) async {
+    final draft = await showCustomerAddressEditor(context, address: address);
+    if (draft == null) return;
+    await ref
+        .read(customerAccountControllerProvider.notifier)
+        .updateAddress(address.id, address.version, draft);
+    if (mounted &&
+        ref.read(deliveryContextControllerProvider).context?.addressId ==
+            address.id) {
+      await ref.read(deliveryContextControllerProvider.notifier).refresh();
+    }
+  }
+
+  Future<void> _createAndSelect(CustomerAddressDraft draft) async {
+    final created = await ref
+        .read(customerAccountControllerProvider.notifier)
+        .createAddress(draft);
+    if (!mounted || created == null) return;
+    await ref
+        .read(deliveryContextControllerProvider.notifier)
+        .selectAddress(addressId: created.id);
+  }
+
+  void _showLocationFallback() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          AppLocalizations.of(context).deliveryContextLocationUnavailable,
+        ),
+      ),
+    );
+  }
+}
+
+class _CurrentContextCard extends StatelessWidget {
+  const _CurrentContextCard({required this.contextValue});
+
+  final CustomerDeliveryContext contextValue;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final fee = contextValue.estimatedFeeClp;
+    final slotStart = contextValue.earliestSlotStartsAt;
+    final slotEnd = contextValue.earliestSlotEndsAt;
+    final status = switch (contextValue.serviceabilityStatus) {
+      DeliveryServiceabilityStatus.serviceable =>
+        l10n.deliveryContextServiceable,
+      DeliveryServiceabilityStatus.unsupported =>
+        l10n.deliveryContextUnsupported,
+      DeliveryServiceabilityStatus.invalid => l10n.deliveryContextInvalid,
+      DeliveryServiceabilityStatus.temporarilyUnavailable =>
+        l10n.deliveryContextTemporarilyUnavailable,
+    };
+    final formatter = ClpCurrencyFormatter();
+    final slot = slotStart == null || slotEnd == null
+        ? null
+        : '${MaterialLocalizations.of(context).formatShortDate(slotStart.toLocal())} '
+              '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(slotStart.toLocal()))}'
+              '–${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(slotEnd.toLocal()))}';
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      child: Card(
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.deliveryContextCurrent,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Row(
+                children: [
+                  Icon(
+                    contextValue.isCheckoutReady
+                        ? Icons.check_circle_outline
+                        : Icons.info_outline,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(child: Text(status)),
+                ],
+              ),
+              if (fee != null)
+                Text(l10n.deliveryContextEstimatedFee(formatter.format(fee))),
+              if (slot != null) Text(l10n.deliveryContextEarliestSlot(slot)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddressChoiceTile extends StatelessWidget {
+  const _AddressChoiceTile({
+    required this.address,
+    required this.selected,
+    required this.busy,
+    required this.onSelect,
+    required this.onEdit,
+  });
+
+  final CustomerAddress address;
+  final bool selected;
+  final bool busy;
+  final VoidCallback onSelect;
+  final VoidCallback onEdit;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        child: Row(
+          children: [
+            Icon(selected ? Icons.check_circle : Icons.location_on_outlined),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${address.label} · ${address.commune}',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  Text(
+                    address.addressLine1,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  if (address.recipientPhoneE164 != null)
+                    Text(_maskedPhone(address.recipientPhoneE164!)),
+                ],
+              ),
+            ),
+            IconButton(
+              constraints: const BoxConstraints.tightFor(
+                width: AppSizes.minimumTouchTarget,
+                height: AppSizes.minimumTouchTarget,
+              ),
+              tooltip: l10n.customerAddressEdit,
+              onPressed: busy ? null : onEdit,
+              icon: const Icon(Icons.edit_outlined),
+            ),
+            FilledButton.tonal(
+              onPressed: busy ? null : onSelect,
+              child: Text(
+                selected
+                    ? l10n.deliveryContextSelected
+                    : l10n.deliveryContextSelect,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String _maskedPhone(String value) {
+  final suffix = value.length <= 4 ? value : value.substring(value.length - 4);
+  return '•••• $suffix';
+}
+
+class _StatusBanner extends StatelessWidget {
+  const _StatusBanner({
+    required this.icon,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  final IconData icon;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AppRadii.surface),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          children: [
+            Icon(icon),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: Text(message)),
+            if (onAction != null)
+              TextButton(onPressed: onAction, child: Text(actionLabel ?? '')),
+          ],
+        ),
+      ),
+    );
+  }
+}

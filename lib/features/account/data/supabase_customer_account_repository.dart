@@ -38,9 +38,6 @@ final class PlatformCustomerAccountPort implements CustomerAccountPort {
   static const _profileColumns =
       'user_id,display_name,locale,privacy_consent_version,'
       'privacy_consented_at,updated_at';
-  static const _addressColumns =
-      'id,label,recipient_name,address_line_1,address_line_2,commune,region,'
-      'postal_code,country_code,delivery_instructions,is_default,updated_at';
   static const _deletionColumns =
       'id,status,requested_at,cancelled_at,processed_at';
 
@@ -56,13 +53,7 @@ final class PlatformCustomerAccountPort implements CustomerAccountPort {
 
   @override
   Future<Object?> readAddresses() {
-    return _client
-        .from('customer_addresses')
-        .select(_addressColumns)
-        .order('is_default', ascending: false)
-        .order('updated_at', ascending: false)
-        .order('id')
-        .limit(50);
+    return invoke('customer_addresses_read_v2', const {});
   }
 
   @override
@@ -159,8 +150,13 @@ final class SupabaseCustomerAccountRepository
       final profile = responses[0] == null
           ? null
           : _parseProfile(_map(responses[0]), expectedSubjectId);
+      final addressEnvelope = _map(responses[1]);
+      if (addressEnvelope['apiVersion'] != 'customer-address.v2' ||
+          addressEnvelope['status'] != 'ok') {
+        throw const FormatException('Invalid address V2 envelope.');
+      }
       final addresses = _listOfMaps(
-        responses[1],
+        addressEnvelope['items'],
       ).map(_parseAddress).toList(growable: false);
       final requests = _listOfMaps(
         responses[2],
@@ -212,23 +208,60 @@ final class SupabaseCustomerAccountRepository
   }
 
   @override
-  Future<void> createAddress(CustomerAddressDraft draft) {
-    return _guard(() => _port.insertAddress(_addressValues(draft)));
-  }
-
-  @override
-  Future<void> updateAddress(String addressId, CustomerAddressDraft draft) {
+  Future<CustomerAddress> createAddress(CustomerAddressDraft draft) {
     return _guard(() async {
-      _requireUuid(addressId);
-      await _port.updateAddress(addressId, _addressValues(draft));
+      final payload = _map(
+        await _port.invoke('customer_address_upsert_v2', {
+          'p_address_id': null,
+          'p_expected_version': null,
+          'p_payload': _addressValues(draft),
+        }),
+      );
+      _requireAddressRpcStatus(payload, const {'ok'});
+      return _parseAddress(_map(payload['address']));
     });
   }
 
   @override
-  Future<void> deleteAddress(String addressId) {
+  Future<void> updateAddress(
+    String addressId,
+    CustomerAddressDraft draft, {
+    int expectedVersion = 1,
+  }) {
     return _guard(() async {
       _requireUuid(addressId);
-      await _port.deleteAddress(addressId);
+      if (expectedVersion < 1) {
+        throw const CustomerAccountRepositoryException(
+          CustomerAccountFailureKind.invalidInput,
+        );
+      }
+      final payload = _map(
+        await _port.invoke('customer_address_upsert_v2', {
+          'p_address_id': addressId,
+          'p_expected_version': expectedVersion,
+          'p_payload': _addressValues(draft),
+        }),
+      );
+      _requireAddressRpcStatus(payload, const {'ok'});
+    });
+  }
+
+  @override
+  Future<void> deleteAddress(String addressId, {int expectedVersion = 1}) {
+    return _guard(() async {
+      _requireUuid(addressId);
+      if (expectedVersion < 1) {
+        throw const CustomerAccountRepositoryException(
+          CustomerAccountFailureKind.invalidInput,
+        );
+      }
+      final payload = _map(
+        await _port.invoke('customer_address_delete_v2', {
+          'p_address_id': addressId,
+          'p_expected_version': expectedVersion,
+        }),
+      );
+      _requireAddressRpcStatus(payload, const {'ok'});
     });
   }
 
@@ -342,14 +375,25 @@ final class SupabaseCustomerAccountRepository
 Map<String, Object?> _addressValues(CustomerAddressDraft draft) {
   return <String, Object?>{
     'label': draft.label,
-    'recipient_name': draft.recipientName,
-    'address_line_1': draft.addressLine1,
-    'address_line_2': draft.addressLine2,
+    'recipientName': draft.recipientName,
+    'recipientPhoneE164': draft.recipientPhoneE164,
+    'addressLine1': draft.addressLine1,
+    'addressLine2': draft.addressLine2,
     'commune': draft.commune,
     'region': draft.region,
-    'postal_code': draft.postalCode,
-    'country_code': draft.countryCode,
-    'delivery_instructions': draft.deliveryInstructions,
+    'postalCode': draft.postalCode,
+    'countryCode': draft.countryCode,
+    'deliveryInstructions': draft.deliveryInstructions,
+    'latitude': draft.latitude,
+    'longitude': draft.longitude,
+    'locationSource': switch (draft.locationSource) {
+      CustomerAddressLocationSource.manual => 'manual',
+      CustomerAddressLocationSource.search => 'search',
+      CustomerAddressLocationSource.currentLocation => 'current_location',
+      CustomerAddressLocationSource.mapPin => 'map_pin',
+    },
+    'locationAccuracyMeters': draft.locationAccuracyMeters,
+    'isDefault': draft.isDefault,
   };
 }
 
@@ -386,21 +430,36 @@ CustomerProfile _parseProfile(
 }
 
 CustomerAddress _parseAddress(Map<String, Object?> row) {
+  final phone = _optionalString(row, 'recipientPhoneE164');
+  if (phone != null &&
+      !RegExp(r'^(?:\+[1-9][0-9]{7,14}|\+•{2,13}[0-9]{2})$').hasMatch(phone)) {
+    throw const FormatException('Invalid recipient phone display.');
+  }
   final draft = CustomerAddressDraft(
     label: _requiredString(row, 'label'),
-    recipientName: _requiredString(row, 'recipient_name'),
-    addressLine1: _requiredString(row, 'address_line_1'),
-    addressLine2: _optionalString(row, 'address_line_2'),
+    recipientName: _requiredString(row, 'recipientName'),
+    recipientPhoneE164:
+        phone != null && RegExp(r'^\+[1-9][0-9]{7,14}$').hasMatch(phone)
+        ? phone
+        : null,
+    addressLine1: _requiredString(row, 'addressLine1'),
+    addressLine2: _optionalString(row, 'addressLine2'),
     commune: _requiredString(row, 'commune'),
     region: _requiredString(row, 'region'),
-    postalCode: _optionalString(row, 'postal_code'),
-    countryCode: _requiredString(row, 'country_code'),
-    deliveryInstructions: _optionalString(row, 'delivery_instructions'),
+    postalCode: _optionalString(row, 'postalCode'),
+    countryCode: _requiredString(row, 'countryCode'),
+    deliveryInstructions: _optionalString(row, 'deliveryInstructions'),
+    latitude: _optionalDouble(row, 'latitude'),
+    longitude: _optionalDouble(row, 'longitude'),
+    locationSource: _parseLocationSource(row['locationSource']),
+    locationAccuracyMeters: _optionalDouble(row, 'locationAccuracyMeters'),
+    isDefault: _requiredBool(row, 'isDefault'),
   );
   return CustomerAddress(
     id: _requiredUuid(row, 'id'),
     label: draft.label,
     recipientName: draft.recipientName,
+    recipientPhoneE164: phone,
     addressLine1: draft.addressLine1,
     addressLine2: draft.addressLine2,
     commune: draft.commune,
@@ -408,9 +467,26 @@ CustomerAddress _parseAddress(Map<String, Object?> row) {
     postalCode: draft.postalCode,
     countryCode: draft.countryCode,
     deliveryInstructions: draft.deliveryInstructions,
-    isDefault: _requiredBool(row, 'is_default'),
-    updatedAt: _requiredDate(row, 'updated_at'),
+    latitude: draft.latitude,
+    longitude: draft.longitude,
+    locationSource: draft.locationSource,
+    locationAccuracyMeters: draft.locationAccuracyMeters,
+    validatedAt: _optionalDate(row, 'validatedAt'),
+    isDefault: draft.isDefault,
+    version: _requiredInt(row, 'version'),
+    updatedAt: _requiredDate(row, 'updatedAt'),
+    lastSelectedAt: _optionalDate(row, 'lastSelectedAt'),
   );
+}
+
+CustomerAddressLocationSource _parseLocationSource(Object? value) {
+  return switch (value) {
+    'manual' => CustomerAddressLocationSource.manual,
+    'search' => CustomerAddressLocationSource.search,
+    'current_location' => CustomerAddressLocationSource.currentLocation,
+    'map_pin' => CustomerAddressLocationSource.mapPin,
+    _ => throw const FormatException('Invalid address location source.'),
+  };
 }
 
 CustomerDeletionRequest _parseDeletionRequest(Map<String, Object?> row) {
@@ -474,6 +550,23 @@ bool _requiredBool(Map<String, Object?> row, String key) {
   return value;
 }
 
+int _requiredInt(Map<String, Object?> row, String key) {
+  final value = row[key];
+  if (value is! int || value < 1) {
+    throw const FormatException('Invalid customer integer field.');
+  }
+  return value;
+}
+
+double? _optionalDouble(Map<String, Object?> row, String key) {
+  final value = row[key];
+  if (value == null) return null;
+  if (value is! num || !value.isFinite) {
+    throw const FormatException('Invalid customer numeric field.');
+  }
+  return value.toDouble();
+}
+
 DateTime _requiredDate(Map<String, Object?> row, String key) {
   final value = row[key];
   if (value is! String) {
@@ -511,6 +604,23 @@ void _requireRpcStatus(
       !allowedStatuses.contains(payload['status'])) {
     throw const CustomerAccountRepositoryException(
       CustomerAccountFailureKind.unavailable,
+    );
+  }
+}
+
+void _requireAddressRpcStatus(
+  Map<String, Object?> payload,
+  Set<String> allowedStatuses,
+) {
+  if (payload['apiVersion'] != 'customer-address.v2' ||
+      !allowedStatuses.contains(payload['status'])) {
+    final status = payload['status'];
+    throw CustomerAccountRepositoryException(
+      status == 'version_conflict' || status == 'in_active_checkout'
+          ? CustomerAccountFailureKind.conflict
+          : status == 'invalid'
+          ? CustomerAccountFailureKind.invalidInput
+          : CustomerAccountFailureKind.unavailable,
     );
   }
 }

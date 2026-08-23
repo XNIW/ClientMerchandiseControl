@@ -11,7 +11,9 @@ import 'package:client_merchandise_control/features/auth/domain/authenticated_cu
 import 'package:client_merchandise_control/features/cart/application/cart_state.dart';
 import 'package:client_merchandise_control/features/checkout/application/checkout_providers.dart';
 import 'package:client_merchandise_control/features/checkout/domain/checkout_models.dart';
+import 'package:client_merchandise_control/features/delivery_context/application/delivery_context_controller.dart';
 import 'package:client_merchandise_control/features/checkout/presentation/checkout_screen.dart';
+import 'package:client_merchandise_control/features/checkout/presentation/checkout_payment_screen.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,6 +39,10 @@ void main() {
         GoRoute(
           path: AppRoutes.checkoutLocation,
           builder: (context, state) => const CheckoutScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.checkoutPaymentLocation,
+          builder: (context, state) => const CheckoutPaymentScreen(),
         ),
         GoRoute(
           path: AppRoutes.cartLocation,
@@ -81,6 +87,9 @@ void main() {
                   ),
                 )
               : const CustomerAccountState.signedOut(),
+        ),
+        deliveryContextControllerProvider.overrideWith(
+          () => TestDeliveryContextController(authenticated: authenticated),
         ),
         checkoutCartRefreshProvider.overrideWithValue(() async {}),
         checkoutRepositoryProvider.overrideWithValue(repository),
@@ -158,10 +167,6 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('checkout-next-mode')));
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(const ValueKey('checkout-pickup-$checkoutTestPoint')),
-    );
-    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('checkout-next-destination')));
     await tester.pumpAndSettle();
     await tester.tap(
@@ -211,9 +216,15 @@ void main() {
 
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
-    final createOrder = find.byKey(const ValueKey('checkout-create-order'));
-    await tester.ensureVisible(createOrder);
-    await tester.tap(createOrder);
+    final openPayment = find.byKey(const ValueKey('checkout-open-payment'));
+    await tester.ensureVisible(openPayment);
+    await tester.tap(openPayment);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('payment-method-payAtPickup')),
+      findsOneWidget,
+    );
+    await tester.tap(find.byKey(const ValueKey('payment-confirm-order')));
     await tester.pumpAndSettle();
     expect(
       find.byKey(const ValueKey('checkout-order-receipt')),
@@ -298,10 +309,6 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('checkout-next-mode')));
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.byKey(const ValueKey('checkout-pickup-$checkoutTestPoint')),
-      );
-      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('checkout-next-destination')));
       await tester.pumpAndSettle();
       await tester.tap(
@@ -346,10 +353,6 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('checkout-mode-pickup')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('checkout-next-mode')));
-      await tester.pumpAndSettle();
-      await tester.tap(
-        find.byKey(const ValueKey('checkout-pickup-$checkoutTestPoint')),
-      );
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey('checkout-next-destination')));
       await tester.pumpAndSettle();

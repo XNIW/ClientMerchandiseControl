@@ -15,6 +15,8 @@ import '../../home/presentation/storefront_product_card.dart';
 import '../../storefront/domain/storefront_failure.dart';
 import '../../storefront/domain/storefront_models.dart';
 import '../application/catalog_controller.dart';
+import '../application/search_assist_controller.dart';
+import '../domain/search_assist_models.dart';
 
 class CatalogScreen extends ConsumerStatefulWidget {
   const CatalogScreen({super.key});
@@ -26,6 +28,7 @@ class CatalogScreen extends ConsumerStatefulWidget {
 class _CatalogScreenState extends ConsumerState<CatalogScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   final Map<String?, double> _categoryOffsets = {};
   var _filtersExpanded = false;
 
@@ -34,6 +37,7 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
     super.initState();
     _scrollController.addListener(_requestNextPageNearEnd);
     _searchController.addListener(_handleSearchTextChanged);
+    _searchFocusNode.addListener(_handleSearchTextChanged);
   }
 
   @override
@@ -42,6 +46,9 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
       ..removeListener(_requestNextPageNearEnd)
       ..dispose();
     _searchController
+      ..removeListener(_handleSearchTextChanged)
+      ..dispose();
+    _searchFocusNode
       ..removeListener(_handleSearchTextChanged)
       ..dispose();
     super.dispose();
@@ -60,6 +67,7 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
   }
 
   Future<void> _selectCategory(String? categorySlug) async {
+    _searchFocusNode.unfocus();
     final current = ref.read(catalogControllerProvider).selectedCategorySlug;
     if (_scrollController.hasClients) {
       _categoryOffsets[current] = _scrollController.offset;
@@ -80,7 +88,21 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
 
   Future<void> _clearSearch() async {
     _searchController.clear();
+    ref.read(searchAssistControllerProvider.notifier).queryChanged('');
     await ref.read(catalogControllerProvider.notifier).clearSearch();
+  }
+
+  Future<void> _submitSearch(String query) async {
+    await ref.read(searchAssistControllerProvider.notifier).submit(query);
+    await ref.read(catalogControllerProvider.notifier).submitSearch(query);
+    _searchFocusNode.unfocus();
+  }
+
+  Future<void> _selectSearchAssist(String query) async {
+    _searchController
+      ..text = query
+      ..selection = TextSelection.collapsed(offset: query.length);
+    await _submitSearch(query);
   }
 
   Future<void> _showMobileFilters() {
@@ -132,6 +154,7 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(catalogControllerProvider);
+    final searchAssist = ref.watch(searchAssistControllerProvider);
     final l10n = AppLocalizations.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -184,18 +207,46 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
                   child: _CatalogSearch(
                     l10n: l10n,
                     controller: _searchController,
-                    onChanged: ref
-                        .read(catalogControllerProvider.notifier)
-                        .updateSearchQuery,
-                    onSubmitted: (query) => unawaited(
+                    focusNode: _searchFocusNode,
+                    onChanged: (query) {
                       ref
                           .read(catalogControllerProvider.notifier)
-                          .submitSearch(query),
-                    ),
+                          .updateSearchQuery(query);
+                      ref
+                          .read(searchAssistControllerProvider.notifier)
+                          .queryChanged(query);
+                    },
+                    onSubmitted: (query) => unawaited(_submitSearch(query)),
                     onClear: () => unawaited(_clearSearch()),
                   ),
                 ),
               ),
+              if (_searchFocusNode.hasFocus)
+                SliverPadding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    0,
+                    horizontalPadding,
+                    AppSpacing.md,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: _SearchAssistPanel(
+                      state: searchAssist,
+                      onSelected: (query) =>
+                          unawaited(_selectSearchAssist(query)),
+                      onRemove: (query) => unawaited(
+                        ref
+                            .read(searchAssistControllerProvider.notifier)
+                            .remove(query),
+                      ),
+                      onClear: () => unawaited(
+                        ref
+                            .read(searchAssistControllerProvider.notifier)
+                            .clear(),
+                      ),
+                    ),
+                  ),
+                ),
               if (state.isFromCache && state.cachedAt != null)
                 SliverPadding(
                   padding: EdgeInsets.fromLTRB(
@@ -426,6 +477,7 @@ class _CatalogSearch extends StatelessWidget {
   const _CatalogSearch({
     required this.l10n,
     required this.controller,
+    required this.focusNode,
     required this.onChanged,
     required this.onSubmitted,
     required this.onClear,
@@ -433,6 +485,7 @@ class _CatalogSearch extends StatelessWidget {
 
   final AppLocalizations l10n;
   final TextEditingController controller;
+  final FocusNode focusNode;
   final ValueChanged<String> onChanged;
   final ValueChanged<String> onSubmitted;
   final VoidCallback onClear;
@@ -445,6 +498,7 @@ class _CatalogSearch extends StatelessWidget {
     child: SearchBar(
       key: const ValueKey('catalog-search'),
       controller: controller,
+      focusNode: focusNode,
       leading: const Icon(Icons.search),
       hintText: l10n.catalogSearchHint,
       keyboardType: TextInputType.text,
@@ -468,6 +522,98 @@ class _CatalogSearch extends StatelessWidget {
       ),
     ),
   );
+}
+
+class _SearchAssistPanel extends StatelessWidget {
+  const _SearchAssistPanel({
+    required this.state,
+    required this.onSelected,
+    required this.onRemove,
+    required this.onClear,
+  });
+
+  final SearchAssistState state;
+  final ValueChanged<String> onSelected;
+  final ValueChanged<String> onRemove;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final showingSuggestions = state.query.runes.length >= 2;
+    if (!showingSuggestions && state.history.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Card.outlined(
+      key: const ValueKey('catalog-search-assist'),
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    showingSuggestions
+                        ? l10n.searchSuggestionsTitle
+                        : l10n.searchHistoryTitle,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+                if (!showingSuggestions && state.history.isNotEmpty)
+                  TextButton(
+                    onPressed: onClear,
+                    child: Text(l10n.searchHistoryClearAll),
+                  ),
+              ],
+            ),
+            if (state.isLoading) const LinearProgressIndicator(),
+            if (showingSuggestions)
+              ...state.suggestions.map(
+                (suggestion) => ListTile(
+                  minTileHeight: AppSizes.minimumTouchTarget,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(switch (suggestion.kind) {
+                    StorefrontSearchSuggestionKind.product =>
+                      Icons.inventory_2_outlined,
+                    StorefrontSearchSuggestionKind.category =>
+                      Icons.category_outlined,
+                    StorefrontSearchSuggestionKind.brand => Icons.sell_outlined,
+                  }),
+                  title: Text(suggestion.value),
+                  subtitle: Text(switch (suggestion.kind) {
+                    StorefrontSearchSuggestionKind.product =>
+                      l10n.searchSuggestionProduct,
+                    StorefrontSearchSuggestionKind.category =>
+                      l10n.searchSuggestionCategory,
+                    StorefrontSearchSuggestionKind.brand =>
+                      l10n.searchSuggestionBrand,
+                  }),
+                  onTap: () => onSelected(suggestion.value),
+                ),
+              )
+            else
+              ...state.history.map(
+                (query) => ListTile(
+                  minTileHeight: AppSizes.minimumTouchTarget,
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.history),
+                  title: Text(query),
+                  trailing: IconButton(
+                    tooltip: l10n.searchHistoryRemove,
+                    onPressed: () => onRemove(query),
+                    icon: const Icon(Icons.close),
+                  ),
+                  onTap: () => onSelected(query),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _CatalogSearchHeaderDelegate extends SliverPersistentHeaderDelegate {

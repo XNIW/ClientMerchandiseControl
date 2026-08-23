@@ -670,6 +670,29 @@ class _AccountHub extends ConsumerWidget {
         const SizedBox(height: AppSpacing.md),
         Card.outlined(
           margin: EdgeInsets.zero,
+          child: ListTile(
+            key: const ValueKey('account-reviews-shortcut'),
+            leading: const Icon(Icons.rate_review_outlined),
+            title: Text(l10n.reviewsTitle),
+            subtitle: Text('${l10n.reviewsToReview} · ${l10n.reviewsMine}'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.reviewsLocation),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Card.outlined(
+          margin: EdgeInsets.zero,
+          child: ListTile(
+            key: const ValueKey('account-after-sales-shortcut'),
+            leading: const Icon(Icons.support_agent_outlined),
+            title: Text(l10n.afterSalesTitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.afterSalesBaseLocation),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Card.outlined(
+          margin: EdgeInsets.zero,
           clipBehavior: Clip.antiAlias,
           child: ExpansionTile(
             key: const ValueKey('account-personal-settings-section'),

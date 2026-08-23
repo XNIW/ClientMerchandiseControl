@@ -88,23 +88,27 @@ void main() {
     },
   );
 
-  test(
-    'address CRUD usa solo campi pubblici e mai is_default/user_id',
-    () async {
-      final draft = _addressDraft();
-      await repository.createAddress(draft);
-      await repository.updateAddress(addressId, draft);
-      await repository.deleteAddress(addressId);
+  test('address CRUD V2 usa payload privato bounded e versionato', () async {
+    final draft = _addressDraft();
+    final created = await repository.createAddress(draft);
+    final create = Map<String, Object?>.from(port.lastParameters!);
+    await repository.updateAddress(addressId, draft);
+    final update = Map<String, Object?>.from(port.lastParameters!);
+    await repository.deleteAddress(addressId);
+    final deletion = Map<String, Object?>.from(port.lastParameters!);
 
-      expect(port.insertedAddress, port.updatedAddress);
-      expect(
-        port.insertedAddress!.keys,
-        isNot(contains(anyOf('user_id', 'is_default', 'stock', 'email'))),
-      );
-      expect(port.updatedAddressId, addressId);
-      expect(port.deletedAddressId, addressId);
-    },
-  );
+    expect(create['p_address_id'], isNull);
+    expect(created.id, addressId);
+    expect(create['p_expected_version'], isNull);
+    expect(update['p_address_id'], addressId);
+    expect(update['p_expected_version'], 1);
+    expect(deletion, {'p_address_id': addressId, 'p_expected_version': 1});
+    final payload = create['p_payload']! as Map<String, Object?>;
+    expect(
+      payload.keys,
+      isNot(contains(anyOf('user_id', 'is_default', 'stock', 'email'))),
+    );
+  });
 
   test('RPC inviano payload esatto e validano apiVersion/status', () async {
     await repository.setDefaultAddress(addressId);
@@ -230,7 +234,11 @@ final class _FakeCustomerAccountPort implements CustomerAccountPort {
   Future<Object?> readProfile() => _read(profile);
 
   @override
-  Future<Object?> readAddresses() => _read([_addressRow()]);
+  Future<Object?> readAddresses() => _read({
+    'apiVersion': 'customer-address.v2',
+    'status': 'ok',
+    'items': [_addressRow()],
+  });
 
   @override
   Future<Object?> readDeletionRequests() => _read([_deletionRow()]);
@@ -290,6 +298,15 @@ final class _FakeCustomerAccountPort implements CustomerAccountPort {
             'customer_cancel_account_deletion_v1' => 'cancelled',
             _ => 'ok',
           };
+    if (function == 'customer_address_upsert_v2' ||
+        function == 'customer_address_delete_v2') {
+      return {
+        'apiVersion': 'customer-address.v2',
+        'status': status,
+        if (function == 'customer_address_upsert_v2' && status == 'ok')
+          'address': _addressRow(),
+      };
+    }
     return {'apiVersion': 'customer.v1', 'status': status};
   }
 }
@@ -306,16 +323,24 @@ Map<String, Object?> _profileRow() => {
 Map<String, Object?> _addressRow() => {
   'id': addressId,
   'label': 'Casa',
-  'recipient_name': 'Cliente Uno',
-  'address_line_1': 'Avenida Uno 123',
-  'address_line_2': null,
+  'recipientName': 'Cliente Uno',
+  'recipientPhoneE164': '+•••••••89',
+  'addressLine1': 'Avenida Uno 123',
+  'addressLine2': null,
   'commune': 'Santiago',
   'region': 'Metropolitana',
-  'postal_code': '8320000',
-  'country_code': 'CL',
-  'delivery_instructions': null,
-  'is_default': true,
-  'updated_at': timestamp,
+  'postalCode': '8320000',
+  'countryCode': 'CL',
+  'deliveryInstructions': null,
+  'latitude': null,
+  'longitude': null,
+  'locationSource': 'manual',
+  'locationAccuracyMeters': null,
+  'validatedAt': null,
+  'isDefault': true,
+  'version': 1,
+  'updatedAt': timestamp,
+  'lastSelectedAt': null,
 };
 
 Map<String, Object?> _deletionRow() => {

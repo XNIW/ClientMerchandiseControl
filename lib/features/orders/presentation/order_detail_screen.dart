@@ -17,9 +17,11 @@ import '../../delivery_tracking/application/delivery_tracking_providers.dart';
 import '../../delivery_tracking/domain/delivery_tracking_models.dart';
 import '../../delivery_tracking/presentation/delivery_live_map.dart';
 import '../../delivery_tracking/presentation/google_delivery_map_adapter.dart';
+import '../../reviews/presentation/customer_reviews.dart';
 import '../application/customer_order_controller.dart';
 import '../domain/customer_order_failure.dart';
 import '../domain/customer_order_models.dart';
+import 'customer_reorder_card.dart';
 import 'customer_order_presentation.dart';
 import 'orders_screen.dart';
 
@@ -262,6 +264,29 @@ class _OrderDetailBody extends ConsumerWidget {
                   _FulfillmentCard(detail: detail),
                   const SizedBox(height: AppSpacing.md),
                   _TimelineCard(detail: detail),
+                  const SizedBox(height: AppSpacing.md),
+                  OutlinedButton.icon(
+                    key: const ValueKey('order-after-sales'),
+                    onPressed: () => context.push(
+                      AppRoutes.afterSalesCreateLocation(detail.id),
+                    ),
+                    icon: const Icon(Icons.support_agent_outlined),
+                    label: Text(l10n.afterSalesCreate),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(
+                        AppSizes.minimumTouchTarget,
+                      ),
+                    ),
+                  ),
+                  if (detail.status == CustomerOrderStatus.completed ||
+                      detail.status == CustomerOrderStatus.cancelled) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    CustomerReorderCard(orderId: detail.id),
+                  ],
+                  if (detail.status == CustomerOrderStatus.completed) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    CustomerOrderReviewsCard(orderId: detail.id),
+                  ],
                   if (detail.cancellation.allowed) ...[
                     const SizedBox(height: AppSpacing.md),
                     _CancellationCard(

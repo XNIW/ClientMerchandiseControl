@@ -106,10 +106,10 @@ void main() {
   );
 
   final localizedHomeMessages = <Locale, String>{
-    appFallbackLocale: 'Tienda seleccionada',
-    const Locale('it'): 'Negozio selezionato',
-    const Locale('en'): 'Selected store',
-    const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'): '已选门店',
+    appFallbackLocale: 'Destino de entrega',
+    const Locale('it'): 'Destinazione di consegna',
+    const Locale('en'): 'Delivery destination',
+    const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'): '配送目的地',
   };
 
   for (final entry in localizedHomeMessages.entries) {
@@ -191,7 +191,7 @@ void main() {
     await tester.pumpWidget(buildApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('Negozio selezionato'), findsOneWidget);
+    expect(find.text('Destinazione di consegna'), findsOneWidget);
   });
 
   testWidgets('usa lo spagnolo per de, zh-Hant e zh generico', (tester) async {
@@ -207,8 +207,8 @@ void main() {
         Localizations.localeOf(tester.element(find.byType(Scaffold))),
         appFallbackLocale,
       );
-      expect(find.text('Tienda seleccionada'), findsOneWidget);
-      expect(find.text('已选门店'), findsNothing);
+      expect(find.text('Destino de entrega'), findsOneWidget);
+      expect(find.text('配送目的地'), findsNothing);
     }
   });
 

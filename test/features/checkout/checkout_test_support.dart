@@ -4,6 +4,8 @@ import 'package:client_merchandise_control/features/account/domain/customer_acco
 import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
 import 'package:client_merchandise_control/features/checkout/domain/checkout_models.dart';
 import 'package:client_merchandise_control/features/checkout/domain/checkout_repository.dart';
+import 'package:client_merchandise_control/features/delivery_context/domain/delivery_context_models.dart';
+import 'package:client_merchandise_control/features/delivery_context/application/delivery_context_controller.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 
 const checkoutTestOwner = '10000000-0000-4000-8000-000000000001';
@@ -61,6 +63,81 @@ CustomerAddress checkoutTestCustomerAddress({
   isDefault: true,
   updatedAt: checkoutTestNow,
 );
+
+CustomerDeliveryContext checkoutTestDeliveryContext() =>
+    CustomerDeliveryContext(
+      ownerUserId: checkoutTestOwner,
+      shopSlug: 'storefront-test',
+      mode: CustomerDeliveryMode.delivery,
+      addressId: checkoutTestAddress,
+      pickupPointId: null,
+      pickupPointName: null,
+      serviceabilityStatus: DeliveryServiceabilityStatus.serviceable,
+      deliveryZoneId: checkoutTestZone,
+      deliveryZoneName: 'Santiago centro',
+      estimatedFeeClp: 2500,
+      earliestSlotStartsAt: checkoutTestNow.add(const Duration(days: 1)),
+      earliestSlotEndsAt: checkoutTestNow.add(
+        const Duration(days: 1, hours: 2),
+      ),
+      version: 1,
+      selectedAt: checkoutTestNow,
+      serverTime: checkoutTestNow,
+    );
+
+CustomerDeliveryContext checkoutTestPickupContext() => CustomerDeliveryContext(
+  ownerUserId: checkoutTestOwner,
+  shopSlug: 'storefront-test',
+  mode: CustomerDeliveryMode.pickup,
+  addressId: null,
+  pickupPointId: checkoutTestPoint,
+  pickupPointName: 'Tienda Centro',
+  serviceabilityStatus: DeliveryServiceabilityStatus.serviceable,
+  deliveryZoneId: null,
+  deliveryZoneName: null,
+  estimatedFeeClp: 0,
+  earliestSlotStartsAt: checkoutTestNow.add(const Duration(hours: 1)),
+  earliestSlotEndsAt: checkoutTestNow.add(const Duration(hours: 3)),
+  version: 2,
+  selectedAt: checkoutTestNow,
+  serverTime: checkoutTestNow,
+);
+
+final class TestDeliveryContextController extends DeliveryContextController {
+  TestDeliveryContextController({this.authenticated = true});
+
+  final bool authenticated;
+
+  @override
+  DeliveryContextState build() => DeliveryContextState(
+    status: DeliveryContextViewStatus.ready,
+    authenticated: authenticated,
+    context: authenticated ? checkoutTestPickupContext() : null,
+  );
+
+  @override
+  Future<bool> selectPickup({required String pickupPointId}) async {
+    state = DeliveryContextState(
+      status: DeliveryContextViewStatus.ready,
+      authenticated: authenticated,
+      context: checkoutTestPickupContext(),
+    );
+    return true;
+  }
+
+  @override
+  Future<bool> selectAddress({required String addressId}) async {
+    state = DeliveryContextState(
+      status: DeliveryContextViewStatus.ready,
+      authenticated: authenticated,
+      context: checkoutTestDeliveryContext(),
+    );
+    return true;
+  }
+
+  @override
+  Future<void> refresh() async {}
+}
 
 StorefrontFulfillmentOptions checkoutTestOptions() =>
     StorefrontFulfillmentOptions(

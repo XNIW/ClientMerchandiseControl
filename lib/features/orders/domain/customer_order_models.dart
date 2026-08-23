@@ -4,6 +4,89 @@ const customerOrderMaximumPageSize = 50;
 const customerOrderMaximumCachedCards = 50;
 const customerOrderMaximumCachedDetails = 10;
 
+enum CustomerReorderAvailability { available, unavailable }
+
+final class CustomerReorderItem {
+  const CustomerReorderItem({
+    required this.orderItemId,
+    required this.publicationId,
+    required this.name,
+    required this.requestedQuantity,
+    required this.allowedQuantity,
+    required this.availability,
+    required this.historicalPriceClp,
+    required this.currentPriceClp,
+    required this.currentCompareAtPriceClp,
+    required this.currentPromotionName,
+    required this.priceDifferenceClp,
+  });
+
+  final String orderItemId;
+  final String publicationId;
+  final String name;
+  final int requestedQuantity;
+  final int allowedQuantity;
+  final CustomerReorderAvailability availability;
+  final int historicalPriceClp;
+  final int? currentPriceClp;
+  final int? currentCompareAtPriceClp;
+  final String? currentPromotionName;
+  final int? priceDifferenceClp;
+}
+
+final class CustomerReorderPreview {
+  CustomerReorderPreview({
+    required this.orderId,
+    required this.shopId,
+    required List<CustomerReorderItem> items,
+    required this.serverTime,
+  }) : items = List.unmodifiable(items);
+
+  final String orderId;
+  final String shopId;
+  final List<CustomerReorderItem> items;
+  final DateTime serverTime;
+}
+
+final class CustomerReorderAppliedLine {
+  const CustomerReorderAppliedLine({
+    required this.orderItemId,
+    required this.publicationId,
+    required this.name,
+    required this.quantity,
+    required this.currentPriceClp,
+    required this.reason,
+  });
+
+  final String orderItemId;
+  final String publicationId;
+  final String name;
+  final int? quantity;
+  final int? currentPriceClp;
+  final String? reason;
+}
+
+final class CustomerReorderResult {
+  CustomerReorderResult({
+    required this.orderId,
+    required this.cartId,
+    required this.cartVersion,
+    required List<CustomerReorderAppliedLine> added,
+    required List<CustomerReorderAppliedLine> skipped,
+    required this.idempotent,
+    required this.serverTime,
+  }) : added = List.unmodifiable(added),
+       skipped = List.unmodifiable(skipped);
+
+  final String orderId;
+  final String cartId;
+  final int cartVersion;
+  final List<CustomerReorderAppliedLine> added;
+  final List<CustomerReorderAppliedLine> skipped;
+  final bool idempotent;
+  final DateTime serverTime;
+}
+
 enum CustomerOrderStatus {
   confirmed,
   accepted,

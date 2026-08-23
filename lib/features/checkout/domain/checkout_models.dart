@@ -38,6 +38,7 @@ enum CheckoutRemoteStatus {
   unavailable,
   cartEmpty,
   cartVersionConflict,
+  staleContext,
   quoteVersionConflict,
   modeUnavailable,
   slotUnavailable,
@@ -293,6 +294,7 @@ final class CheckoutSelection {
     this.pickupPointId,
     this.slotId,
     this.paymentMethod,
+    this.deliveryContextVersion,
   });
 
   final CheckoutFulfillmentMode? mode;
@@ -300,6 +302,7 @@ final class CheckoutSelection {
   final String? pickupPointId;
   final String? slotId;
   final CheckoutPaymentMethod? paymentMethod;
+  final int? deliveryContextVersion;
 
   CheckoutSelection copyWith({
     CheckoutFulfillmentMode? mode,
@@ -307,11 +310,13 @@ final class CheckoutSelection {
     String? pickupPointId,
     String? slotId,
     CheckoutPaymentMethod? paymentMethod,
+    int? deliveryContextVersion,
     bool clearMode = false,
     bool clearAddress = false,
     bool clearPickupPoint = false,
     bool clearSlot = false,
     bool clearPaymentMethod = false,
+    bool clearDeliveryContextVersion = false,
   }) {
     return CheckoutSelection(
       mode: clearMode ? null : mode ?? this.mode,
@@ -323,6 +328,9 @@ final class CheckoutSelection {
       paymentMethod: clearPaymentMethod
           ? null
           : paymentMethod ?? this.paymentMethod,
+      deliveryContextVersion: clearDeliveryContextVersion
+          ? null
+          : deliveryContextVersion ?? this.deliveryContextVersion,
     );
   }
 }
@@ -471,6 +479,7 @@ final class CheckoutOrder {
     required this.placedAt,
     required this.serverTime,
     required this.idempotent,
+    this.fulfillment,
   }) : items = List.unmodifiable(items);
 
   final String id;
@@ -487,6 +496,31 @@ final class CheckoutOrder {
   final DateTime placedAt;
   final DateTime serverTime;
   final bool idempotent;
+  final CheckoutOrderFulfillment? fulfillment;
+}
+
+final class CheckoutOrderFulfillment {
+  const CheckoutOrderFulfillment({
+    required this.destinationTitle,
+    required this.addressLine1,
+    required this.commune,
+    required this.recipientName,
+    required this.recipientPhoneMasked,
+    required this.deliveryInstructions,
+    required this.slotLabel,
+    required this.slotStartsAt,
+    required this.slotEndsAt,
+  });
+
+  final String destinationTitle;
+  final String addressLine1;
+  final String commune;
+  final String? recipientName;
+  final String? recipientPhoneMasked;
+  final String? deliveryInstructions;
+  final String slotLabel;
+  final DateTime slotStartsAt;
+  final DateTime slotEndsAt;
 }
 
 final class CheckoutOrderRemoteResponse {

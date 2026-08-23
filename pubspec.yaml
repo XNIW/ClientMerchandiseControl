@@ -28,6 +28,8 @@ dependencies:
   sqlite3: ^3.5.0
   supabase_flutter: ^2.16.0
   timezone: ^0.11.1
+  image_picker: ^1.2.3
+  geolocator: ^14.0.3
 
 dev_dependencies:
   analyzer: 13.0.0

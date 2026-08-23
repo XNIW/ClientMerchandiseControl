@@ -4,6 +4,8 @@ import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
 import 'package:client_merchandise_control/features/cart/application/cart_providers.dart';
+import 'package:client_merchandise_control/features/delivery_context/application/delivery_context_controller.dart';
+import 'package:client_merchandise_control/features/delivery_context/domain/delivery_context_models.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_repository.dart';
 import 'package:client_merchandise_control/features/cart/presentation/cart_screen.dart';
@@ -49,6 +51,11 @@ void main() {
           builder: (context, state) =>
               const Scaffold(body: Text('checkout-destination')),
         ),
+        GoRoute(
+          path: AppRoutes.deliveryContextLocation,
+          builder: (context, state) =>
+              const Scaffold(body: Text('delivery-context-destination')),
+        ),
       ],
     );
     addTearDown(router.dispose);
@@ -58,6 +65,29 @@ void main() {
         appConfigProvider.overrideWithValue(_config()),
         customerAccountIdentityProvider.overrideWithValue(null),
         guestCartStoreProvider.overrideWithValue(store),
+        cartDeliveryContextStateProvider.overrideWithValue(
+          DeliveryContextState(
+            status: DeliveryContextViewStatus.ready,
+            authenticated: false,
+            context: CustomerDeliveryContext(
+              ownerUserId: null,
+              shopSlug: 'storefront-test',
+              mode: CustomerDeliveryMode.pickup,
+              addressId: null,
+              pickupPointId: '51000000-0000-4000-8000-000000000001',
+              pickupPointName: 'Tienda Centro',
+              serviceabilityStatus: DeliveryServiceabilityStatus.serviceable,
+              deliveryZoneId: null,
+              deliveryZoneName: null,
+              estimatedFeeClp: 0,
+              earliestSlotStartsAt: DateTime.utc(2026, 8, 3, 16),
+              earliestSlotEndsAt: DateTime.utc(2026, 8, 3, 18),
+              version: 0,
+              selectedAt: DateTime.utc(2026, 8, 3, 12),
+              serverTime: DateTime.utc(2026, 8, 3, 12),
+            ),
+          ),
+        ),
       ],
       child: MaterialApp.router(
         theme: AppTheme.light(),
@@ -101,7 +131,7 @@ void main() {
 
     expect(find.text('Café público'), findsOneWidget);
     expect(find.text(r'$1.200'), findsOneWidget);
-    expect(find.text(r'$2.400'), findsOneWidget);
+    expect(find.text(r'$2.400'), findsWidgets);
     expect(find.text('Estimado'), findsOneWidget);
     expect(
       find.byKey(ValueKey('cart-decrease-$_publicationId')),

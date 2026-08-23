@@ -27,7 +27,7 @@ void main() {
 
     expect(find.text(AppBrand.effectiveDisplayName), findsOneWidget);
     expect(find.text(l10n.homeWelcomeTitle), findsNothing);
-    expect(find.text(l10n.homeSelectedStore), findsOneWidget);
+    expect(find.text(l10n.homeDeliveryDestination), findsOneWidget);
     expect(find.byKey(const ValueKey('home-search')), findsOneWidget);
     expect(find.text(l10n.homeCategoriesTitle), findsOneWidget);
     expect(find.text(l10n.homeOffersEmptyTitle), findsOneWidget);

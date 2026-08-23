@@ -738,6 +738,175 @@ class AppLocalizationsEs extends AppLocalizations {
   String get customerAddressRecipient => 'Nombre de quien recibe';
 
   @override
+  String get customerAddressPhone => 'Teléfono del destinatario (E.164)';
+
+  @override
+  String get deliveryContextTitle => '¿Dónde quieres recibir tu pedido?';
+
+  @override
+  String get deliveryContextDelivery => 'Entrega';
+
+  @override
+  String get deliveryContextPickup => 'Retiro';
+
+  @override
+  String get deliveryContextCurrent => 'Selección actual';
+
+  @override
+  String get deliveryContextUseLocation => 'Usar mi ubicación';
+
+  @override
+  String get deliveryContextLocationRationaleTitle =>
+      'Usar tu ubicación una vez';
+
+  @override
+  String get deliveryContextLocationRationale =>
+      'Pediremos permiso después de tu confirmación y haremos una sola lectura. No se usa en segundo plano ni para analítica.';
+
+  @override
+  String get deliveryContextLocationContinue => 'Continuar';
+
+  @override
+  String get deliveryContextLocationUnavailable =>
+      'La ubicación no está disponible. Puedes buscar o ingresar la dirección manualmente.';
+
+  @override
+  String get deliveryContextSearch => 'Buscar dirección';
+
+  @override
+  String get deliveryContextSearchHint => 'Calle, número o sector';
+
+  @override
+  String get deliveryContextSearchUnavailable =>
+      'La búsqueda del proveedor no está configurada. El ingreso manual sigue disponible.';
+
+  @override
+  String get deliveryContextSaved => 'Direcciones guardadas';
+
+  @override
+  String get deliveryContextRecent => 'Direcciones recientes';
+
+  @override
+  String get deliveryContextAdd => 'Agregar dirección';
+
+  @override
+  String get deliveryContextSignInToSave =>
+      'Inicia sesión para guardar una dirección.';
+
+  @override
+  String get deliveryContextGuestCommune => 'Comuna de entrega';
+
+  @override
+  String get deliveryContextCheckArea => 'Comprobar cobertura';
+
+  @override
+  String get deliveryContextPickupPoints => 'Puntos de retiro';
+
+  @override
+  String get deliveryContextSelect => 'Seleccionar';
+
+  @override
+  String get deliveryContextSelected => 'Seleccionado';
+
+  @override
+  String get deliveryContextServiceable => 'Dirección con cobertura';
+
+  @override
+  String get deliveryContextUnsupported => 'Dirección fuera de cobertura';
+
+  @override
+  String get deliveryContextInvalid =>
+      'Selecciona una dirección o punto válido';
+
+  @override
+  String get deliveryContextTemporarilyUnavailable =>
+      'No hay una franja disponible por ahora';
+
+  @override
+  String deliveryContextEstimatedFee(String fee) {
+    return 'Entrega estimada: $fee';
+  }
+
+  @override
+  String deliveryContextEarliestSlot(String slot) {
+    return 'Primera franja: $slot';
+  }
+
+  @override
+  String get deliveryContextOffline =>
+      'Mostrando el contexto guardado. Se volverá a validar al reconectar.';
+
+  @override
+  String get deliveryContextRetry => 'Reintentar';
+
+  @override
+  String get deliveryContextManualFallback =>
+      'La dirección también se puede ingresar y revisar sin mapa.';
+
+  @override
+  String get notificationsTitle => 'Notificaciones';
+
+  @override
+  String get notificationsAll => 'Todas';
+
+  @override
+  String get notificationsOrders => 'Pedidos';
+
+  @override
+  String get notificationsPayments => 'Pagos';
+
+  @override
+  String get notificationsSupport => 'Asistencia';
+
+  @override
+  String get notificationsMarkAllRead => 'Marcar todo como leído';
+
+  @override
+  String get notificationsEmptyTitle => 'No hay notificaciones';
+
+  @override
+  String get notificationsEmptyMessage =>
+      'Las actualizaciones de pedidos, pagos y asistencia aparecerán aquí.';
+
+  @override
+  String get notificationsOffline =>
+      'Mostrando notificaciones guardadas sin conexión.';
+
+  @override
+  String get notificationsLoadMore => 'Cargar más';
+
+  @override
+  String get notificationsUnread => 'No leída';
+
+  @override
+  String get notificationOrderTitle => 'Actualización del pedido';
+
+  @override
+  String get notificationOrderBody =>
+      'Hay una nueva actualización de tu pedido.';
+
+  @override
+  String get notificationPaymentTitle => 'Actualización del pago';
+
+  @override
+  String get notificationPaymentBody =>
+      'Cambió el estado de pago de tu pedido.';
+
+  @override
+  String get notificationSupportTitle => 'Actualización de asistencia';
+
+  @override
+  String get notificationSupportBody =>
+      'Hay una nueva actualización de tu solicitud.';
+
+  @override
+  String get notificationSystemTitle => 'Información de la tienda';
+
+  @override
+  String get notificationSystemBody =>
+      'Hay una actualización importante de la tienda.';
+
+  @override
   String get customerAddressLine1 => 'Dirección';
 
   @override
@@ -1131,6 +1300,15 @@ class AppLocalizationsEs extends AppLocalizations {
       'Los precios y la disponibilidad se confirmarán nuevamente antes de crear el pedido.';
 
   @override
+  String get cartChooseDelivery => 'Elegir entrega';
+
+  @override
+  String get cartModifyContext => 'Modificar';
+
+  @override
+  String get cartSavingsLabel => 'Ahorro';
+
+  @override
   String cartLineSemantics(String name, int quantity, String price) {
     return '$name, cantidad $quantity, $price';
   }
@@ -1289,6 +1467,28 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get checkoutPaymentOnlineUnavailable =>
       'No configurado para Storefront v1.';
+
+  @override
+  String get checkoutPaymentScreenTitle => 'Pago';
+
+  @override
+  String get checkoutContinuePaymentAction => 'Ir al pago';
+
+  @override
+  String get checkoutConfirmOrderAction => 'Confirmar pedido';
+
+  @override
+  String get checkoutContinueOnlineAction => 'Continuar al pago';
+
+  @override
+  String get checkoutPaymentProcessing =>
+      'Estamos comprobando el estado del pago. No inicies otro cobro.';
+
+  @override
+  String get checkoutViewOrderAction => 'Ver pedido';
+
+  @override
+  String get checkoutBackHomeAction => 'Volver al inicio';
 
   @override
   String get checkoutPaymentRequired =>
@@ -1778,4 +1978,242 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deliveryTrackingInDeliveryIndicator => 'Entrega en curso';
+
+  @override
+  String get ordersReorderAction => 'Volver a comprar';
+
+  @override
+  String get ordersReorderTitle => 'Volver a comprar artículos';
+
+  @override
+  String get ordersReorderCurrentPrice => 'Precio actual';
+
+  @override
+  String get ordersReorderHistoricalPrice => 'Precio del pedido';
+
+  @override
+  String get ordersReorderUnavailable => 'No disponible';
+
+  @override
+  String get ordersReorderApply => 'Agregar disponibles al carro';
+
+  @override
+  String get ordersReorderApplying => 'Actualizando el carro…';
+
+  @override
+  String get ordersReorderResultAdded => 'Artículos agregados';
+
+  @override
+  String get ordersReorderResultSkipped => 'Artículos no agregados';
+
+  @override
+  String get ordersReorderFailure =>
+      'No pudimos verificar esta recompra. Intenta nuevamente.';
+
+  @override
+  String get ordersReorderOpenCart => 'Abrir carro';
+
+  @override
+  String get afterSalesTitle => 'Asistencia posventa';
+
+  @override
+  String get afterSalesEmpty => 'No tienes solicitudes de asistencia.';
+
+  @override
+  String get afterSalesCreate => 'Solicitar asistencia';
+
+  @override
+  String get afterSalesTypeOrderProblem => 'Problema con el pedido';
+
+  @override
+  String get afterSalesTypeReturnRequest => 'Solicitud de devolución';
+
+  @override
+  String get afterSalesTypeRefundRequest => 'Solicitud de reembolso';
+
+  @override
+  String get afterSalesReasonDamaged => 'Artículo dañado';
+
+  @override
+  String get afterSalesReasonWrongItem => 'Artículo incorrecto';
+
+  @override
+  String get afterSalesReasonMissingItem => 'Artículo faltante';
+
+  @override
+  String get afterSalesReasonQualityIssue => 'Problema de calidad';
+
+  @override
+  String get afterSalesReasonChangedMind => 'Cambié de opinión';
+
+  @override
+  String get afterSalesReasonDeliveryIssue => 'Problema de entrega';
+
+  @override
+  String get afterSalesReasonOther => 'Otro';
+
+  @override
+  String get afterSalesStatusSubmitted => 'Enviada';
+
+  @override
+  String get afterSalesStatusReviewing => 'En revisión';
+
+  @override
+  String get afterSalesStatusApproved => 'Aprobada';
+
+  @override
+  String get afterSalesStatusRejected => 'Rechazada';
+
+  @override
+  String get afterSalesStatusReturnRequired => 'Devolución requerida';
+
+  @override
+  String get afterSalesStatusReceived => 'Devolución recibida';
+
+  @override
+  String get afterSalesStatusRefundPending => 'Reembolso pendiente';
+
+  @override
+  String get afterSalesStatusRefunded => 'Reembolsada';
+
+  @override
+  String get afterSalesStatusClosed => 'Cerrada';
+
+  @override
+  String get afterSalesNote => 'Nota opcional';
+
+  @override
+  String get afterSalesItems => 'Artículos afectados';
+
+  @override
+  String get afterSalesQuantity => 'Cantidad';
+
+  @override
+  String get afterSalesSubmit => 'Enviar solicitud';
+
+  @override
+  String get afterSalesCancel => 'Cancelar solicitud';
+
+  @override
+  String get afterSalesTimeline => 'Cronología';
+
+  @override
+  String get afterSalesEvidence => 'Pruebas adjuntas';
+
+  @override
+  String get afterSalesEvidenceAttach => 'Adjuntar imágenes';
+
+  @override
+  String get afterSalesEvidenceHelp =>
+      'Hasta 3 imágenes JPG, PNG o WebP. Las pruebas se mantienen privadas.';
+
+  @override
+  String afterSalesEvidenceSelected(int count) {
+    return '$count imágenes seleccionadas';
+  }
+
+  @override
+  String get afterSalesEvidencePickerFailure =>
+      'No pudimos abrir tu biblioteca de fotos.';
+
+  @override
+  String get afterSalesEvidenceUploadFailure =>
+      'La solicitud fue creada, pero no se pudieron cargar una o más imágenes.';
+
+  @override
+  String get afterSalesFailure =>
+      'No pudimos completar esta acción. Intenta nuevamente.';
+
+  @override
+  String get afterSalesSelectItem => 'Selecciona al menos un artículo.';
+
+  @override
+  String get afterSalesCaseCode => 'Solicitud';
+
+  @override
+  String get reviewsTitle => 'Reseñas';
+
+  @override
+  String get reviewsVerified => 'Compra verificada';
+
+  @override
+  String reviewsCount(int count) {
+    return '$count reseñas';
+  }
+
+  @override
+  String get reviewsEmpty => 'Todavía no hay reseñas publicadas.';
+
+  @override
+  String get reviewsLoadFailure =>
+      'Las reseñas no están disponibles en este momento.';
+
+  @override
+  String get reviewsLeave => 'Dejar una reseña';
+
+  @override
+  String get reviewsToReview => 'Por reseñar';
+
+  @override
+  String get reviewsMine => 'Mis reseñas';
+
+  @override
+  String get reviewsRating => 'Calificación';
+
+  @override
+  String get reviewsComment => 'Comentario opcional';
+
+  @override
+  String get reviewsSubmit => 'Enviar a moderación';
+
+  @override
+  String get reviewsEdit => 'Editar';
+
+  @override
+  String get reviewsWithdraw => 'Retirar';
+
+  @override
+  String get reviewsStatusPending => 'En moderación';
+
+  @override
+  String get reviewsStatusPublished => 'Publicada';
+
+  @override
+  String get reviewsStatusRejected => 'Rechazada';
+
+  @override
+  String get reviewsStatusWithdrawn => 'Retirada';
+
+  @override
+  String get reviewsSubmitSuccess => 'Reseña enviada a moderación.';
+
+  @override
+  String get reviewsFailure => 'No pudimos completar esta acción.';
+
+  @override
+  String get reviewsLoadMore => 'Cargar más reseñas';
+
+  @override
+  String get reviewsAlreadySubmitted => 'Reseña ya enviada';
+
+  @override
+  String get searchHistoryTitle => 'Búsquedas recientes';
+
+  @override
+  String get searchHistoryClearAll => 'Borrar todas';
+
+  @override
+  String get searchHistoryRemove => 'Eliminar búsqueda';
+
+  @override
+  String get searchSuggestionsTitle => 'Sugerencias';
+
+  @override
+  String get searchSuggestionProduct => 'Producto';
+
+  @override
+  String get searchSuggestionCategory => 'Categoría';
+
+  @override
+  String get searchSuggestionBrand => 'Marca';
 }

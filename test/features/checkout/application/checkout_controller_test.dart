@@ -15,6 +15,7 @@ import 'package:client_merchandise_control/features/checkout/application/checkou
 import 'package:client_merchandise_control/features/checkout/application/checkout_state.dart';
 import 'package:client_merchandise_control/features/checkout/domain/checkout_failure.dart';
 import 'package:client_merchandise_control/features/checkout/domain/checkout_models.dart';
+import 'package:client_merchandise_control/features/delivery_context/application/delivery_context_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -526,6 +527,10 @@ void main() {
       await controller.selectMode(CheckoutFulfillmentMode.delivery);
       await controller.nextStep();
       await controller.selectAddress(checkoutTestAddress);
+      await _waitFor(
+        container,
+        (state) => state.status == CheckoutViewStatus.ready,
+      );
       await controller.nextStep();
       await controller.selectSlot(checkoutTestDeliverySlot);
       await controller.nextStep();
@@ -785,6 +790,9 @@ ProviderContainer _container({
             loadedAt: checkoutTestNow,
           ),
         ),
+      ),
+      deliveryContextControllerProvider.overrideWith(
+        TestDeliveryContextController.new,
       ),
       checkoutCartRefreshProvider.overrideWithValue(
         onCartRefresh ?? () async {},

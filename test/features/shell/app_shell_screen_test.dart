@@ -5,6 +5,7 @@ import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/presentation/account_screen.dart';
 import 'package:client_merchandise_control/features/cart/presentation/cart_screen.dart';
 import 'package:client_merchandise_control/features/catalog/presentation/catalog_screen.dart';
+import 'package:client_merchandise_control/features/customer_notifications/application/customer_notification_providers.dart';
 import 'package:client_merchandise_control/features/home/presentation/home_screen.dart';
 import 'package:client_merchandise_control/features/shell/presentation/app_shell_screen.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
@@ -277,6 +278,8 @@ void main() {
     (tester) async {
       final visibilityChanges = <bool>[];
       final overrides = [
+        appConfigProvider.overrideWithValue(AppConfig.fromValues()),
+        customerNotificationIdentityProvider.overrideWithValue(null),
         shellTrackingVisibilityHandlerProvider.overrideWithValue(
           (visible) async => visibilityChanges.add(visible),
         ),

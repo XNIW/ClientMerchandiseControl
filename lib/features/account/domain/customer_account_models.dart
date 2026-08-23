@@ -82,6 +82,7 @@ final class CustomerAddress {
     required this.id,
     required this.label,
     required this.recipientName,
+    this.recipientPhoneE164,
     required this.addressLine1,
     required this.addressLine2,
     required this.commune,
@@ -89,13 +90,23 @@ final class CustomerAddress {
     required this.postalCode,
     required this.countryCode,
     required this.deliveryInstructions,
+    this.latitude,
+    this.longitude,
+    this.locationSource = CustomerAddressLocationSource.manual,
+    this.locationAccuracyMeters,
+    this.validatedAt,
     required this.isDefault,
+    this.version = 1,
     required this.updatedAt,
+    this.lastSelectedAt,
   });
 
   final String id;
   final String label;
   final String recipientName;
+
+  /// Server-masked outside mutation surfaces; never log or append to URLs.
+  final String? recipientPhoneE164;
   final String addressLine1;
   final String? addressLine2;
   final String commune;
@@ -103,13 +114,25 @@ final class CustomerAddress {
   final String? postalCode;
   final String countryCode;
   final String? deliveryInstructions;
+  final double? latitude;
+  final double? longitude;
+  final CustomerAddressLocationSource locationSource;
+  final double? locationAccuracyMeters;
+  final DateTime? validatedAt;
   final bool isDefault;
+  final int version;
   final DateTime updatedAt;
+  final DateTime? lastSelectedAt;
 
   CustomerAddressDraft toDraft() {
     return CustomerAddressDraft(
       label: label,
       recipientName: recipientName,
+      recipientPhoneE164:
+          recipientPhoneE164 != null &&
+              RegExp(r'^\+[1-9][0-9]{7,14}$').hasMatch(recipientPhoneE164!)
+          ? recipientPhoneE164
+          : null,
       addressLine1: addressLine1,
       addressLine2: addressLine2,
       commune: commune,
@@ -117,6 +140,11 @@ final class CustomerAddress {
       postalCode: postalCode,
       countryCode: countryCode,
       deliveryInstructions: deliveryInstructions,
+      latitude: latitude,
+      longitude: longitude,
+      locationSource: locationSource,
+      locationAccuracyMeters: locationAccuracyMeters,
+      isDefault: isDefault,
     );
   }
 
@@ -126,6 +154,7 @@ final class CustomerAddress {
         other.id == id &&
         other.label == label &&
         other.recipientName == recipientName &&
+        other.recipientPhoneE164 == recipientPhoneE164 &&
         other.addressLine1 == addressLine1 &&
         other.addressLine2 == addressLine2 &&
         other.commune == commune &&
@@ -133,8 +162,15 @@ final class CustomerAddress {
         other.postalCode == postalCode &&
         other.countryCode == countryCode &&
         other.deliveryInstructions == deliveryInstructions &&
+        other.latitude == latitude &&
+        other.longitude == longitude &&
+        other.locationSource == locationSource &&
+        other.locationAccuracyMeters == locationAccuracyMeters &&
+        other.validatedAt == validatedAt &&
         other.isDefault == isDefault &&
-        other.updatedAt == updatedAt;
+        other.version == version &&
+        other.updatedAt == updatedAt &&
+        other.lastSelectedAt == lastSelectedAt;
   }
 
   @override
@@ -142,6 +178,7 @@ final class CustomerAddress {
     id,
     label,
     recipientName,
+    recipientPhoneE164,
     addressLine1,
     addressLine2,
     commune,
@@ -149,15 +186,25 @@ final class CustomerAddress {
     postalCode,
     countryCode,
     deliveryInstructions,
+    latitude,
+    longitude,
+    locationSource,
+    locationAccuracyMeters,
+    validatedAt,
     isDefault,
+    version,
     updatedAt,
+    lastSelectedAt,
   );
 }
+
+enum CustomerAddressLocationSource { manual, search, currentLocation, mapPin }
 
 final class CustomerAddressDraft {
   factory CustomerAddressDraft({
     required String label,
     required String recipientName,
+    String? recipientPhoneE164,
     required String addressLine1,
     required String? addressLine2,
     required String commune,
@@ -165,17 +212,32 @@ final class CustomerAddressDraft {
     required String? postalCode,
     required String countryCode,
     required String? deliveryInstructions,
+    double? latitude,
+    double? longitude,
+    CustomerAddressLocationSource locationSource =
+        CustomerAddressLocationSource.manual,
+    double? locationAccuracyMeters,
+    bool isDefault = false,
   }) {
     final normalizedCountryCode = countryCode.trim().toUpperCase();
     final normalizedPostalCode = _optionalSafeText(postalCode, maxRunes: 16);
+    final normalizedPhone = _optionalSafeText(recipientPhoneE164, maxRunes: 16);
     if (!RegExp(r'^[A-Z]{2}$').hasMatch(normalizedCountryCode) ||
         (normalizedPostalCode != null &&
-            !RegExp(r'^[A-Za-z0-9 -]+$').hasMatch(normalizedPostalCode))) {
+            !RegExp(r'^[A-Za-z0-9 -]+$').hasMatch(normalizedPostalCode)) ||
+        (normalizedPhone != null &&
+            !RegExp(r'^\+[1-9][0-9]{7,14}$').hasMatch(normalizedPhone)) ||
+        (latitude == null) != (longitude == null) ||
+        (latitude != null && (latitude < -90 || latitude > 90)) ||
+        (longitude != null && (longitude < -180 || longitude > 180)) ||
+        (locationAccuracyMeters != null &&
+            (locationAccuracyMeters < 0 || locationAccuracyMeters > 100000))) {
       throw const CustomerAccountInputException();
     }
     return CustomerAddressDraft._(
       label: _requiredSafeText(label, maxRunes: 40),
       recipientName: _requiredSafeText(recipientName, maxRunes: 120),
+      recipientPhoneE164: normalizedPhone,
       addressLine1: _requiredSafeText(addressLine1, maxRunes: 200),
       addressLine2: _optionalSafeText(addressLine2, maxRunes: 200),
       commune: _requiredSafeText(commune, maxRunes: 100),
@@ -186,12 +248,18 @@ final class CustomerAddressDraft {
         deliveryInstructions,
         maxRunes: 500,
       ),
+      latitude: latitude == null ? null : _boundedCoordinate(latitude),
+      longitude: longitude == null ? null : _boundedCoordinate(longitude),
+      locationSource: locationSource,
+      locationAccuracyMeters: locationAccuracyMeters,
+      isDefault: isDefault,
     );
   }
 
   const CustomerAddressDraft._({
     required this.label,
     required this.recipientName,
+    required this.recipientPhoneE164,
     required this.addressLine1,
     required this.addressLine2,
     required this.commune,
@@ -199,10 +267,16 @@ final class CustomerAddressDraft {
     required this.postalCode,
     required this.countryCode,
     required this.deliveryInstructions,
+    required this.latitude,
+    required this.longitude,
+    required this.locationSource,
+    required this.locationAccuracyMeters,
+    required this.isDefault,
   });
 
   final String label;
   final String recipientName;
+  final String? recipientPhoneE164;
   final String addressLine1;
   final String? addressLine2;
   final String commune;
@@ -210,7 +284,15 @@ final class CustomerAddressDraft {
   final String? postalCode;
   final String countryCode;
   final String? deliveryInstructions;
+  final double? latitude;
+  final double? longitude;
+  final CustomerAddressLocationSource locationSource;
+  final double? locationAccuracyMeters;
+  final bool isDefault;
 }
+
+double _boundedCoordinate(double value) =>
+    (value * 1000000).roundToDouble() / 1000000;
 
 final class CustomerDeletionRequest {
   const CustomerDeletionRequest({

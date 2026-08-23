@@ -12,8 +12,10 @@ import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../cart/application/cart_controller.dart';
 import '../../delivery_tracking/application/delivery_tracking_controller.dart';
+import '../../customer_notifications/application/customer_notification_inbox_controller.dart';
 import '../../orders/application/customer_order_controller.dart';
 import '../../orders/domain/customer_order_selectors.dart';
+import '../../../app/router/app_routes.dart';
 
 final shellCartCountProvider = Provider<int>((ref) {
   return ref.watch(
@@ -59,6 +61,13 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
     final l10n = AppLocalizations.of(context);
     final cartCount = ref.watch(shellCartCountProvider);
     final activeOrderCount = ref.watch(shellActiveOrderCountProvider);
+    final notificationUnreadCount = ref.watch(
+      customerNotificationInboxControllerProvider.select(
+        (state) => state.status == CustomerNotificationInboxStatus.signedOut
+            ? 0
+            : state.unreadCount,
+      ),
+    );
     final setTrackingRouteVisible = ref.read(
       shellTrackingVisibilityHandlerProvider,
     );
@@ -113,6 +122,21 @@ class _AppShellScreenState extends ConsumerState<AppShellScreen> {
                         maxLines: 1,
                       ),
                     ),
+                    actions: currentIndex == 0 || currentIndex == 4
+                        ? [
+                            IconButton(
+                              key: const ValueKey('home-notifications'),
+                              tooltip: l10n.notificationsTitle,
+                              onPressed: () =>
+                                  context.push(AppRoutes.notificationsLocation),
+                              icon: Badge.count(
+                                isLabelVisible: notificationUnreadCount > 0,
+                                count: notificationUnreadCount.clamp(0, 99),
+                                child: const Icon(Icons.notifications_outlined),
+                              ),
+                            ),
+                          ]
+                        : null,
                   ),
             body: useNavigationRail
                 ? Row(

@@ -98,7 +98,7 @@ void main() {
       );
       expect(restored?.pendingOperation?.idempotencyKey, _key);
       final encoded = preferences.values.values.single;
-      expect(encoded, contains('"version":3'));
+      expect(encoded, contains('"version":4'));
       expect(encoded, isNot(contains('subtotalClp')));
       expect(encoded, isNot(contains('sourceProductId')));
     },

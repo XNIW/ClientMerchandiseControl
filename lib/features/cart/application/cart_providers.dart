@@ -5,6 +5,11 @@ import '../../storefront/application/storefront_providers.dart';
 import '../data/drift_guest_cart_store.dart';
 import '../data/supabase_customer_cart_repository.dart';
 import '../domain/cart_repository.dart';
+import '../../delivery_context/application/delivery_context_controller.dart';
+
+final cartDeliveryContextStateProvider = Provider<DeliveryContextState>((ref) {
+  return ref.watch(deliveryContextControllerProvider);
+});
 
 final guestCartStoreProvider = Provider<GuestCartStore>((ref) {
   return DriftGuestCartStore(ref.watch(storefrontCacheDatabaseProvider));

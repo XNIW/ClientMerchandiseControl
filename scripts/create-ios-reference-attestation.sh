@@ -4,6 +4,7 @@ set -euo pipefail
 cmc_ios_attest_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 cmc_ios_attest_root="$(git -C "${cmc_ios_attest_script_dir}" rev-parse --show-toplevel)"
 cmc_ios_attest_app=''
+cmc_ios_attest_mode='reference'
 cmc_ios_attest_uuid_normalizer="${cmc_ios_attest_root}/scripts/normalize-ios-macho-uuid.pl"
 
 cmc_ios_attest_fail() {
@@ -13,6 +14,9 @@ cmc_ios_attest_fail() {
 
 if [[ "${1:-}" == '--app' && -n "${2:-}" && "$#" -eq 2 ]]; then
   cmc_ios_attest_app="$2"
+elif [[ "${1:-}" == '--archive-app' && -n "${2:-}" && "$#" -eq 2 ]]; then
+  cmc_ios_attest_app="$2"
+  cmc_ios_attest_mode='archive-runner'
 else
   cmc_ios_attest_fail 'ARGUMENT_SET_INVALID'
 fi
@@ -22,7 +26,11 @@ fi
 [[ -r "${cmc_ios_attest_uuid_normalizer}" ]] || \
   cmc_ios_attest_fail 'REFERENCE_COMPONENT_DIGEST_UNREADABLE'
 cmc_ios_attest_app_canonical="$(cd -- "${cmc_ios_attest_app}" && pwd -P)"
-cmc_ios_attest_expected_app="${cmc_ios_attest_root}/build/ios/iphoneos/Runner.app"
+if [[ "${cmc_ios_attest_mode}" == 'archive-runner' ]]; then
+  cmc_ios_attest_expected_app="${cmc_ios_attest_root}/build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app"
+else
+  cmc_ios_attest_expected_app="${cmc_ios_attest_root}/build/ios/iphoneos/Runner.app"
+fi
 [[ -d "${cmc_ios_attest_expected_app}" ]] || \
   cmc_ios_attest_fail 'REFERENCE_APP_NOT_READABLE'
 cmc_ios_attest_expected_app="$(cd -- "${cmc_ios_attest_expected_app}" && pwd -P)"
@@ -44,12 +52,16 @@ cmc_ios_attest_cleanup() {
 }
 trap cmc_ios_attest_cleanup EXIT
 
-cmc_ios_attest_paths=(
-  'Frameworks/App.framework/App'
-  'Frameworks/Flutter.framework/Flutter'
-  'Frameworks/objective_c.framework/objective_c'
-  'Frameworks/sqlite3.framework/sqlite3'
-)
+if [[ "${cmc_ios_attest_mode}" == 'archive-runner' ]]; then
+  cmc_ios_attest_paths=('Runner')
+else
+  cmc_ios_attest_paths=(
+    'Frameworks/App.framework/App'
+    'Frameworks/Flutter.framework/Flutter'
+    'Frameworks/objective_c.framework/objective_c'
+    'Frameworks/sqlite3.framework/sqlite3'
+  )
+fi
 cmc_ios_attest_digests=()
 
 for cmc_ios_attest_index in "${!cmc_ios_attest_paths[@]}"; do
@@ -73,7 +85,8 @@ for cmc_ios_attest_index in "${!cmc_ios_attest_paths[@]}"; do
   codesign --remove-signature "${cmc_ios_attest_copy}" \
     >/dev/null 2>&1 || \
     cmc_ios_attest_fail 'REFERENCE_COMPONENT_DIGEST_UNREADABLE'
-  if [[ "${cmc_ios_attest_index}" -eq 2 ]]; then
+  if [[ "${cmc_ios_attest_mode}" == 'archive-runner' || \
+    "${cmc_ios_attest_index}" -eq 2 ]]; then
     perl "${cmc_ios_attest_uuid_normalizer}" "${cmc_ios_attest_copy}" || \
       cmc_ios_attest_fail 'REFERENCE_COMPONENT_DIGEST_UNREADABLE'
   fi
@@ -85,8 +98,15 @@ for cmc_ios_attest_index in "${!cmc_ios_attest_paths[@]}"; do
   cmc_ios_attest_digests+=("${cmc_ios_attest_digest}")
 done
 
-cmc_ios_attest_joined="$(
-  IFS=','
-  printf '%s' "${cmc_ios_attest_digests[*]}"
-)"
-printf 'IOS_REFERENCE_ATTESTATION=%s\n' "${cmc_ios_attest_joined}"
+if [[ "${cmc_ios_attest_mode}" == 'archive-runner' ]]; then
+  [[ "${#cmc_ios_attest_digests[@]}" -eq 1 ]] || \
+    cmc_ios_attest_fail 'REFERENCE_MACHO_SET_INVALID'
+  printf 'IOS_ARCHIVE_RUNNER_ATTESTATION=%s\n' \
+    "${cmc_ios_attest_digests[0]}"
+else
+  cmc_ios_attest_joined="$(
+    IFS=','
+    printf '%s' "${cmc_ios_attest_digests[*]}"
+  )"
+  printf 'IOS_REFERENCE_ATTESTATION=%s\n' "${cmc_ios_attest_joined}"
+fi

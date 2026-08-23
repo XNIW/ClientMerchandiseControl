@@ -7,6 +7,7 @@ cmc_ios_release_app=''
 cmc_ios_release_archive=''
 cmc_ios_release_reference_app=''
 cmc_ios_release_reference_attestation=''
+cmc_ios_release_archive_runner_attestation=''
 cmc_ios_release_sealed_app_output=''
 cmc_ios_release_source_only=false
 cmc_ios_release_require_upload=false
@@ -20,7 +21,7 @@ cmc_ios_release_fail() {
 cmc_ios_release_usage() {
   printf '%s\n' \
     'Usage: scripts/check-ios-release.sh --source-only' \
-    '   or: scripts/check-ios-release.sh --app <Runner.app> --sealed-app-output <Runner.app.zip> [--archive <Runner.xcarchive>] [--reference-app <Runner.app> --reference-attestation <sha256-list>] [--require-upload-ready]'
+    '   or: scripts/check-ios-release.sh --app <Runner.app> --sealed-app-output <Runner.app.zip> --archive-runner-attestation <sha256> [--archive <Runner.xcarchive>] [--reference-app <Runner.app> --reference-attestation <sha256-list>] [--require-upload-ready]'
 }
 
 while [[ "$#" -gt 0 ]]; do
@@ -45,6 +46,12 @@ while [[ "$#" -gt 0 ]]; do
       [[ "$#" -gt 0 ]] || \
         cmc_ios_release_fail 'REFERENCE_ATTESTATION_MISSING'
       cmc_ios_release_reference_attestation="$1"
+      ;;
+    --archive-runner-attestation)
+      shift
+      [[ "$#" -gt 0 ]] || \
+        cmc_ios_release_fail 'ARCHIVE_RUNNER_ATTESTATION_MISSING'
+      cmc_ios_release_archive_runner_attestation="$1"
       ;;
     --sealed-app-output)
       shift
@@ -300,6 +307,7 @@ if [[ "${cmc_ios_release_source_only}" == true ]]; then
   if [[ -n "${cmc_ios_release_app}" || -n "${cmc_ios_release_archive}" || \
     -n "${cmc_ios_release_reference_app}" || \
     -n "${cmc_ios_release_reference_attestation}" || \
+    -n "${cmc_ios_release_archive_runner_attestation}" || \
     -n "${cmc_ios_release_sealed_app_output}" || \
     "${cmc_ios_release_require_upload}" == true ]]; then
     cmc_ios_release_fail 'SOURCE_ONLY_ARGUMENT_CONFLICT'
@@ -323,6 +331,11 @@ cmc_ios_release_app_canonical="$(
   cd -- "${cmc_ios_release_app}" && pwd -P
 )" || cmc_ios_release_fail 'APP_NOT_READABLE'
 cmc_ios_release_input_app_canonical="${cmc_ios_release_app_canonical}"
+
+[[ -n "${cmc_ios_release_archive_runner_attestation}" ]] || \
+  cmc_ios_release_fail 'ARCHIVE_RUNNER_ATTESTATION_MISSING'
+[[ "${cmc_ios_release_archive_runner_attestation}" =~ ^[0-9a-f]{64}$ ]] || \
+  cmc_ios_release_fail 'ARCHIVE_RUNNER_ATTESTATION_INVALID'
 
 if [[ -n "${cmc_ios_release_reference_app}" || \
   -n "${cmc_ios_release_reference_attestation}" ]]; then
@@ -613,13 +626,12 @@ cmc_ios_release_expected_macho_paths=(
 # firma rimossa, così header, load command, sezioni e __LINKEDIT restano legati.
 # Runner normalizza LC_UUID, che Xcode rigenera tra build equivalenti; la
 # relazione UUID Runner/dSYM resta verificata separatamente dall'archive.
-# Xcode 26.6 può inoltre scegliere uno dei due slot GOT equivalenti per
-# `_objc_msgSend`: entrambi gli artifact completi verificati restano ammessi
-# come exact digest, senza escludere dal digest alcuna sezione eseguibile.
+# Runner è legato all'attestazione exact-content emessa una sola volta subito
+# dopo l'archive e riusata senza ricalcolo durante validate, adversarial test ed
+# eventuale export. Questo evita allowlist di layout linker nondeterministici.
 # Anche objective_c normalizza il solo LC_UUID: il native asset conserva
 # sezioni identiche ma rigenera quel metadato fra clean build equivalenti.
-cmc_ios_release_expected_macho_digests=(
-  '2ad2517589dee12a48bb0ca6df43aae109950b627daf06cdffc6c63c31de877c bd2534de5eb8211f058ee52ca2a453cd143b8b3c5d5ba3a0117ae15e60fc50aa'
+cmc_ios_release_expected_framework_macho_digests=(
   '847be0c00445269c63b4c1b3c475da7164a2257dad6bb0ffb99888af7c61dde7'
   'd1756c1031e3a0661f80dee4f6341b7c678021e571bf7026e1e1a1d61dac6868'
   # objective_c conserva l'exact-content completo dopo la sola
@@ -862,42 +874,40 @@ for cmc_ios_release_macho_index in \
       "${cmc_ios_release_macho_file}" "${cmc_ios_release_macho_index}" \
       "${cmc_ios_release_normalize_uuid}"
   )" || cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_UNREADABLE'
-  if [[ -n "${cmc_ios_release_reference_app}" ]]; then
+  if [[ "${cmc_ios_release_macho_index}" -eq 0 ]]; then
+    if [[ "${cmc_ios_release_macho_digest}" != \
+      "${cmc_ios_release_archive_runner_attestation}" ]]; then
+      printf 'IOS_RELEASE_CANONICAL_MACHO_SHA256[%s]=%s\n' \
+        "${cmc_ios_release_macho_index}" \
+        "${cmc_ios_release_macho_digest}" >&2
+      cmc_ios_release_fail 'ARCHIVE_RUNNER_ATTESTATION_MISMATCH'
+    fi
+  elif [[ -n "${cmc_ios_release_reference_app}" ]]; then
     cmc_ios_release_reference_macho="${cmc_ios_release_reference_app}/${cmc_ios_release_expected_macho_paths[cmc_ios_release_macho_index]}"
     [[ -f "${cmc_ios_release_reference_macho}" && \
       ! -L "${cmc_ios_release_reference_macho}" ]] || \
       cmc_ios_release_fail 'REFERENCE_MACHO_SET_INVALID'
     file "${cmc_ios_release_reference_macho}" | grep -Fq 'Mach-O' || \
       cmc_ios_release_fail 'REFERENCE_MACHO_SET_INVALID'
-    if [[ "${cmc_ios_release_macho_index}" -ne 0 ]]; then
-      cmc_ios_release_reference_digest="$(
-        cmc_ios_release_macho_canonical_digest \
-          "${cmc_ios_release_reference_macho}" \
-          "reference-${cmc_ios_release_macho_index}" \
-          "${cmc_ios_release_normalize_uuid}"
-      )" || cmc_ios_release_fail 'REFERENCE_COMPONENT_DIGEST_UNREADABLE'
-      cmc_ios_release_reference_expected_digest="${cmc_ios_release_reference_digests[cmc_ios_release_macho_index - 1]}"
-      [[ "${cmc_ios_release_reference_digest}" == \
-        "${cmc_ios_release_reference_expected_digest}" ]] || \
-        cmc_ios_release_fail 'REFERENCE_ATTESTATION_MISMATCH'
-      if [[ "${cmc_ios_release_macho_digest}" != \
-        "${cmc_ios_release_reference_expected_digest}" ]]; then
-        printf 'IOS_RELEASE_CANONICAL_MACHO_SHA256[%s]=%s\n' \
-          "${cmc_ios_release_macho_index}" \
-          "${cmc_ios_release_macho_digest}" >&2
-        cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
-      fi
-    else
-      if [[ " ${cmc_ios_release_expected_macho_digests[0]} " != \
-        *" ${cmc_ios_release_macho_digest} "* ]]; then
-        printf 'IOS_RELEASE_CANONICAL_MACHO_SHA256[%s]=%s\n' \
-          "${cmc_ios_release_macho_index}" \
-          "${cmc_ios_release_macho_digest}" >&2
-        cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
-      fi
+    cmc_ios_release_reference_digest="$(
+      cmc_ios_release_macho_canonical_digest \
+        "${cmc_ios_release_reference_macho}" \
+        "reference-${cmc_ios_release_macho_index}" \
+        "${cmc_ios_release_normalize_uuid}"
+    )" || cmc_ios_release_fail 'REFERENCE_COMPONENT_DIGEST_UNREADABLE'
+    cmc_ios_release_reference_expected_digest="${cmc_ios_release_reference_digests[cmc_ios_release_macho_index - 1]}"
+    [[ "${cmc_ios_release_reference_digest}" == \
+      "${cmc_ios_release_reference_expected_digest}" ]] || \
+      cmc_ios_release_fail 'REFERENCE_ATTESTATION_MISMATCH'
+    if [[ "${cmc_ios_release_macho_digest}" != \
+      "${cmc_ios_release_reference_expected_digest}" ]]; then
+      printf 'IOS_RELEASE_CANONICAL_MACHO_SHA256[%s]=%s\n' \
+        "${cmc_ios_release_macho_index}" \
+        "${cmc_ios_release_macho_digest}" >&2
+      cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
     fi
   else
-    if [[ " ${cmc_ios_release_expected_macho_digests[cmc_ios_release_macho_index]} " != \
+    if [[ " ${cmc_ios_release_expected_framework_macho_digests[cmc_ios_release_macho_index - 1]} " != \
       *" ${cmc_ios_release_macho_digest} "* ]]; then
       printf 'IOS_RELEASE_CANONICAL_MACHO_SHA256[%s]=%s\n' \
         "${cmc_ios_release_macho_index}" \

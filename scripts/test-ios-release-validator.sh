@@ -11,17 +11,20 @@ cmc_ios_test_real_python3="$(command -v python3)"
 cmc_ios_test_archive=''
 cmc_ios_test_reference_app=''
 cmc_ios_test_reference_attestation=''
+cmc_ios_test_archive_runner_attestation=''
 cmc_ios_test_current_seal=''
 
 if [[ "${1:-}" == '--archive' && -n "${2:-}" && \
   "${3:-}" == '--reference-app' && -n "${4:-}" && \
   "${5:-}" == '--reference-attestation' && -n "${6:-}" && \
-  "$#" -eq 6 ]]; then
+  "${7:-}" == '--archive-runner-attestation' && -n "${8:-}" && \
+  "$#" -eq 8 ]]; then
   cmc_ios_test_archive="$2"
   cmc_ios_test_reference_app="$4"
   cmc_ios_test_reference_attestation="$6"
+  cmc_ios_test_archive_runner_attestation="$8"
 else
-  printf 'Usage: scripts/test-ios-release-validator.sh --archive <Runner.xcarchive> --reference-app <Runner.app> --reference-attestation <sha256-list>\n' >&2
+  printf 'Usage: scripts/test-ios-release-validator.sh --archive <Runner.xcarchive> --reference-app <Runner.app> --reference-attestation <sha256-list> --archive-runner-attestation <sha256>\n' >&2
   exit 1
 fi
 
@@ -30,7 +33,8 @@ cmc_ios_test_validate() {
   bash "${cmc_ios_test_validator}" "$@" \
     --sealed-app-output "${cmc_ios_test_current_seal}" \
     --reference-app "${cmc_ios_test_reference_app}" \
-    --reference-attestation "${cmc_ios_test_reference_attestation}"
+    --reference-attestation "${cmc_ios_test_reference_attestation}" \
+    --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}"
 }
 
 cmc_ios_test_validate_bounded() {
@@ -38,11 +42,19 @@ cmc_ios_test_validate_bounded() {
   python3 - "${cmc_ios_test_validator}" \
     "${cmc_ios_test_reference_app}" \
     "${cmc_ios_test_reference_attestation}" \
+    "${cmc_ios_test_archive_runner_attestation}" \
     "${cmc_ios_test_current_seal}" "$@" <<'PY'
 import subprocess
 import sys
 
-validator, reference_app, reference_attestation, sealed_output, *arguments = sys.argv[1:]
+(
+    validator,
+    reference_app,
+    reference_attestation,
+    archive_runner_attestation,
+    sealed_output,
+    *arguments,
+) = sys.argv[1:]
 command = [
     "bash",
     validator,
@@ -53,6 +65,8 @@ command = [
     reference_app,
     "--reference-attestation",
     reference_attestation,
+    "--archive-runner-attestation",
+    archive_runner_attestation,
 ]
 try:
     result = subprocess.run(command, capture_output=True, timeout=60)
@@ -312,26 +326,44 @@ cmc_ios_test_passed=$((cmc_ios_test_passed + 1))
 cmc_ios_test_baseline_output="$(cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}")"
+cmc_ios_test_expect_failure archive-runner-attestation-missing \
+  ARCHIVE_RUNNER_ATTESTATION_MISSING \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation "${cmc_ios_test_reference_attestation}"
+cmc_ios_test_expect_failure archive-runner-attestation-malformed \
+  ARCHIVE_RUNNER_ATTESTATION_INVALID \
+  bash "${cmc_ios_test_validator}" \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}" \
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --archive-runner-attestation 'invalid'
 cmc_ios_test_expect_failure reference-attestation-missing \
   REFERENCE_ATTESTATION_ARGUMENT_CONFLICT \
   bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}" \
-  --reference-app "${cmc_ios_test_reference_app}"
+  --reference-app "${cmc_ios_test_reference_app}" \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}"
 cmc_ios_test_expect_failure reference-attestation-malformed \
   REFERENCE_ATTESTATION_INVALID \
   bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
-  --reference-attestation 'invalid'
+  --reference-attestation 'invalid' \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}"
 cmc_ios_test_expect_failure reference-attestation-trailing-delimiter \
   REFERENCE_ATTESTATION_INVALID \
   bash "${cmc_ios_test_validator}" \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
-  --reference-attestation "${cmc_ios_test_reference_attestation},"
+  --reference-attestation "${cmc_ios_test_reference_attestation}," \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}"
 cmc_ios_test_expect_failure reference-attestation-newline \
   REFERENCE_ATTESTATION_INVALID \
   bash "${cmc_ios_test_validator}" \
@@ -339,7 +371,8 @@ cmc_ios_test_expect_failure reference-attestation-newline \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
   --reference-attestation \
-  "${cmc_ios_test_reference_attestation}"$'\n'"${cmc_ios_test_reference_attestation}"
+  "${cmc_ios_test_reference_attestation}"$'\n'"${cmc_ios_test_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}"
 cmc_ios_test_expected_runtime_sha="$(
   shasum -a 256 \
     "${cmc_ios_test_fixture_app}/Frameworks/App.framework/App" | awk '{print $1}'
@@ -590,7 +623,7 @@ perl -e '
   close $handle or die "close\n";
 ' "${cmc_ios_test_runner_binary}" 0x00200000 clear
 cmc_ios_test_expect_failure macho-header-pie-disabled \
-  EMBEDDED_COMPONENT_DIGEST_MISMATCH \
+  ARCHIVE_RUNNER_ATTESTATION_MISMATCH \
   cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
@@ -614,7 +647,7 @@ perl -e '
   close $handle or die "close\n";
 ' "${cmc_ios_test_runner_binary}" 0x00020000 set
 cmc_ios_test_expect_failure macho-header-stack-executable \
-  EMBEDDED_COMPONENT_DIGEST_MISMATCH \
+  ARCHIVE_RUNNER_ATTESTATION_MISMATCH \
   cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
@@ -630,13 +663,12 @@ cmc_ios_test_runner_objc_stubs_offset="$(
   printf 'Fixture iOS: offset __objc_stubs non leggibile.\n' >&2
   exit 1
 }
-# I due output Xcode ammessi differiscono solo per la scelta completa fra due
-# slot GOT equivalenti di _objc_msgSend. Una mutazione parziale degli stub deve
-# continuare a fallire l'exact-content gate.
+# Una mutazione degli stub deve continuare a fallire l'exact-content gate
+# rispetto all'attestazione immutabile emessa sull'archive sorgente.
 cmc_ios_test_flip_byte "${cmc_ios_test_runner_binary}" \
   "$((cmc_ios_test_runner_objc_stubs_offset + 13))"
 cmc_ios_test_expect_failure runner-objc-stub-content-digest \
-  EMBEDDED_COMPONENT_DIGEST_MISMATCH \
+  ARCHIVE_RUNNER_ATTESTATION_MISMATCH \
   cmc_ios_test_validate \
   --app "${cmc_ios_test_fixture_app}" \
   --archive "${cmc_ios_test_fixture_archive}"
@@ -788,6 +820,7 @@ cmc_ios_test_expect_failure framework-fat-architecture \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
   --reference-attestation "${cmc_ios_test_fat_attestation}" \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}" \
   --sealed-app-output "${cmc_ios_test_seal_root}/framework-fat.zip"
 cp "${cmc_ios_test_source_app}/Frameworks/objective_c.framework/objective_c" \
   "${cmc_ios_test_objective_binary}"
@@ -919,6 +952,7 @@ if env \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
   --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}" \
   --sealed-app-output "${cmc_ios_test_postfinal_seal}" \
   >"${cmc_ios_test_postfinal_log}" 2>&1; then
   printf 'Fixture iOS: payload sealed sostituito dopo publish accettato.\n' >&2
@@ -968,6 +1002,7 @@ if env \
   --archive "${cmc_ios_test_snapshot_aba_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
   --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}" \
   --sealed-app-output "${cmc_ios_test_snapshot_aba_seal}" \
   >"${cmc_ios_test_snapshot_aba_log}" 2>&1; then
   printf 'Fixture iOS: snapshot ABA accettata dal validator.\n' >&2
@@ -1155,6 +1190,7 @@ if env \
   --archive "${cmc_ios_test_parent_aba_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
   --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}" \
   --sealed-app-output "${cmc_ios_test_parent_aba_seal}" \
   >"${cmc_ios_test_parent_aba_log}" 2>&1; then
   printf 'Fixture iOS: parent ABA accettata dal validator.\n' >&2
@@ -1194,6 +1230,7 @@ if env \
   --archive "${cmc_ios_test_ancestor_guard_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
   --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}" \
   --sealed-app-output "${cmc_ios_test_ancestor_guard_seal}" \
   >"${cmc_ios_test_ancestor_guard_log}" 2>&1; then
   printf 'Fixture iOS: ancestor ABA accettata dal validator.\n' >&2
@@ -1228,6 +1265,7 @@ if env \
   --archive "${cmc_ios_test_mode_aba_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
   --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}" \
   --sealed-app-output "${cmc_ios_test_mode_aba_seal}" \
   >"${cmc_ios_test_mode_aba_log}" 2>&1; then
   printf 'Fixture iOS: mode ABA accettata dal validator.\n' >&2
@@ -1261,6 +1299,7 @@ if env \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
   --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}" \
   --sealed-app-output "${cmc_ios_test_cleanup_aba_seal}" \
   >"${cmc_ios_test_cleanup_aba_log}" 2>&1; then
   printf 'Fixture iOS: temp-root cleanup ABA accettata.\n' >&2
@@ -1295,6 +1334,7 @@ if env \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
   --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}" \
   --sealed-app-output "${cmc_ios_test_identity_capture_seal}" \
   >"${cmc_ios_test_identity_capture_log}" 2>&1; then
   printf 'Fixture iOS: pre-identity temp-root swap accettato.\n' >&2
@@ -1363,6 +1403,7 @@ env \
   --archive "${cmc_ios_test_fixture_archive}" \
   --reference-app "${cmc_ios_test_reference_app}" \
   --reference-attestation "${cmc_ios_test_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_test_archive_runner_attestation}" \
   --sealed-app-output "${cmc_ios_test_ancestor_seal}" \
   >"${cmc_ios_test_ancestor_log}" 2>&1 || {
   printf 'Fixture iOS: ancestor swap ha invalidato lo snapshot pinned.\n' >&2

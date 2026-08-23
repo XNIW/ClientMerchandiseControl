@@ -327,47 +327,69 @@ class _DestinationStep extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final mode = state.selection.mode!;
     if (mode == CheckoutFulfillmentMode.delivery) {
+      final selectedAddress = state.selectedAddress;
       return _StepSection(
         title: l10n.checkoutDeliveryAddressTitle,
         message: l10n.checkoutDeliveryAddressMessage,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (state.addresses.isEmpty)
+            if (selectedAddress == null)
               StorefrontStatusBanner(
-                message: l10n.checkoutNoAddresses,
+                message: state.addresses.isEmpty
+                    ? l10n.checkoutNoAddresses
+                    : l10n.deliveryContextInvalid,
                 icon: Icons.location_off_outlined,
                 actionLabel: l10n.checkoutManageAddresses,
-                onAction: () => context.push(AppRoutes.accountLocation),
+                onAction: () => context.push(AppRoutes.deliveryContextLocation),
               )
             else
-              RadioGroup<String>(
-                groupValue: state.selection.addressId,
-                onChanged: (addressId) {
-                  if (addressId != null) {
-                    ref
-                        .read(checkoutControllerProvider.notifier)
-                        .selectAddress(addressId);
-                  }
-                },
-                child: Column(
-                  children: [
-                    for (final address in state.addresses)
-                      _AddressChoice(
-                        address: address,
-                        enabled: state.options!.deliveryZones.any(
-                          (zone) => zone.supports(address),
-                        ),
-                      ),
-                  ],
-                ),
+              _AddressChoice(
+                address: selectedAddress,
+                enabled: state.hasValidDeliveryContext,
               ),
             const SizedBox(height: AppSpacing.sm),
             OutlinedButton.icon(
               key: const ValueKey('checkout-manage-addresses'),
-              onPressed: () => context.push(AppRoutes.accountLocation),
+              onPressed: () => context.push(AppRoutes.deliveryContextLocation),
               icon: const Icon(Icons.edit_location_alt_outlined),
               label: Text(l10n.checkoutManageAddresses),
+            ),
+          ],
+        ),
+      );
+    }
+    if (mode == CheckoutFulfillmentMode.pickup) {
+      final point = state.selectedPickupPoint;
+      return _StepSection(
+        title: l10n.checkoutPickupPointTitle,
+        message: l10n.checkoutPickupPointMessage,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (point == null)
+              StorefrontStatusBanner(
+                message: l10n.deliveryContextInvalid,
+                icon: Icons.storefront_outlined,
+              )
+            else
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.storefront_outlined),
+                  title: Text(point.name),
+                  subtitle: Text('${point.addressLine1} · ${point.commune}'),
+                  trailing: Icon(
+                    state.hasValidDeliveryContext
+                        ? Icons.check_circle_outline
+                        : Icons.warning_amber_outlined,
+                  ),
+                ),
+              ),
+            const SizedBox(height: AppSpacing.sm),
+            OutlinedButton.icon(
+              onPressed: () => context.push(AppRoutes.deliveryContextLocation),
+              icon: const Icon(Icons.edit_location_alt_outlined),
+              label: Text(l10n.cartModifyContext),
             ),
           ],
         ),
@@ -494,18 +516,19 @@ class _SlotStep extends ConsumerWidget {
   }
 }
 
-class _ReviewStep extends StatelessWidget {
+class _ReviewStep extends ConsumerWidget {
   const _ReviewStep({required this.state});
 
   final CheckoutState state;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final formatter = ClpCurrencyFormatter();
     final cart = state.cart!;
-    final slot = state.selectedSlot!;
-    final fee = state.options!.deliveryZone(slot.deliveryZoneId)?.feeClp ?? 0;
+    final fee = state.selection.mode == CheckoutFulfillmentMode.reservation
+        ? 0
+        : state.deliveryContext?.estimatedFeeClp ?? 0;
     return _StepSection(
       title: l10n.checkoutReviewTitle,
       message: l10n.checkoutReviewMessage,
@@ -519,7 +542,55 @@ class _ReviewStep extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           _SelectionSummary(state: state),
           const SizedBox(height: AppSpacing.md),
-          _PaymentMethodSelector(state: state),
+          Semantics(
+            key: const ValueKey('checkout-payment-selector'),
+            container: true,
+            label: l10n.checkoutPaymentTitle,
+            child: RadioGroup<CheckoutPaymentMethod>(
+              groupValue: state.selection.paymentMethod,
+              onChanged: (method) {
+                if (method != null && !state.isBusy) {
+                  ref
+                      .read(checkoutControllerProvider.notifier)
+                      .selectPaymentMethod(method);
+                }
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l10n.checkoutPaymentTitle,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  for (final option in state.compatiblePaymentOptions)
+                    Card.outlined(
+                      key: ValueKey('checkout-payment-${option.method.name}'),
+                      child: RadioListTile<CheckoutPaymentMethod>(
+                        value: option.method,
+                        secondary: Icon(checkoutPaymentIcon(option.method)),
+                        title: Text(
+                          checkoutPaymentMethodTitle(l10n, option.method),
+                        ),
+                        subtitle: Text(
+                          checkoutPaymentMethodDescription(l10n, option.method),
+                        ),
+                      ),
+                    ),
+                  if (state.paymentOptions?.option(
+                        CheckoutPaymentMethod.onlinePayment,
+                      )
+                      case final online? when !online.enabled)
+                    ListTile(
+                      key: const ValueKey('checkout-payment-online-disabled'),
+                      enabled: false,
+                      leading: const Icon(Icons.lock_outline),
+                      title: Text(l10n.checkoutPaymentOnline),
+                      subtitle: Text(l10n.checkoutPaymentOnlineUnavailable),
+                    ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: AppSpacing.md),
           for (final item in cart.items)
             ListTile(
@@ -734,6 +805,21 @@ class _OrderReceipt extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text('${l10n.checkoutOrderPlacedAtLabel}: $placedLabel'),
+                    if (order.fulfillment case final fulfillment?) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(fulfillment.destinationTitle),
+                      Text(
+                        '${fulfillment.addressLine1} · '
+                        '${fulfillment.commune}',
+                      ),
+                      if (fulfillment.recipientName != null)
+                        Text(fulfillment.recipientName!),
+                      if (fulfillment.recipientPhoneMasked != null)
+                        Text(fulfillment.recipientPhoneMasked!),
+                      if (fulfillment.deliveryInstructions != null)
+                        Text(fulfillment.deliveryInstructions!),
+                      Text(fulfillment.slotLabel),
+                    ],
                   ],
                 ),
               ),
@@ -770,89 +856,20 @@ class _OrderReceipt extends StatelessWidget {
             l10n.checkoutOrderAuthoritativeNotice,
             style: Theme.of(context).textTheme.bodySmall,
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PaymentMethodSelector extends ConsumerWidget {
-  const _PaymentMethodSelector({required this.state});
-
-  final CheckoutState state;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final methods = state.compatiblePaymentOptions;
-    final online = state.paymentOptions?.option(
-      CheckoutPaymentMethod.onlinePayment,
-    );
-    return Semantics(
-      key: const ValueKey('checkout-payment-selector'),
-      container: true,
-      label: l10n.checkoutPaymentTitle,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Semantics(
-            header: true,
-            child: Text(
-              l10n.checkoutPaymentTitle,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
+          const SizedBox(height: AppSpacing.md),
+          FilledButton.icon(
+            key: const ValueKey('checkout-receipt-view-order'),
+            onPressed: () => context.go(AppRoutes.orderLocation(order.id)),
+            icon: const Icon(Icons.receipt_long_outlined),
+            label: Text(l10n.checkoutViewOrderAction),
           ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(l10n.checkoutPaymentMessage),
           const SizedBox(height: AppSpacing.sm),
-          if (methods.isEmpty)
-            StorefrontStatusBanner(
-              message: l10n.checkoutPaymentUnavailable,
-              icon: Icons.money_off_csred_outlined,
-            )
-          else
-            RadioGroup<CheckoutPaymentMethod>(
-              groupValue: state.selection.paymentMethod,
-              onChanged: (method) {
-                if (method != null) {
-                  ref
-                      .read(checkoutControllerProvider.notifier)
-                      .selectPaymentMethod(method);
-                }
-              },
-              child: Column(
-                children: [
-                  for (final option in methods)
-                    Card(
-                      key: ValueKey('checkout-payment-${option.method.name}'),
-                      clipBehavior: Clip.antiAlias,
-                      child: RadioListTile<CheckoutPaymentMethod>(
-                        value: option.method,
-                        secondary: Icon(checkoutPaymentIcon(option.method)),
-                        title: Text(
-                          checkoutPaymentMethodTitle(l10n, option.method),
-                        ),
-                        subtitle: Text(
-                          checkoutPaymentMethodDescription(l10n, option.method),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          if (online != null && !online.enabled) ...[
-            const SizedBox(height: AppSpacing.xs),
-            ListTile(
-              key: const ValueKey('checkout-payment-online-disabled'),
-              enabled: false,
-              minTileHeight: AppSizes.minimumTouchTarget,
-              leading: const Icon(Icons.lock_outline),
-              title: Text(l10n.checkoutPaymentOnline),
-              subtitle: Text(l10n.checkoutPaymentOnlineUnavailable),
-            ),
-          ],
+          OutlinedButton.icon(
+            key: const ValueKey('checkout-receipt-home'),
+            onPressed: () => context.go(AppRoutes.homeLocation),
+            icon: const Icon(Icons.home_outlined),
+            label: Text(l10n.checkoutBackHomeAction),
+          ),
         ],
       ),
     );
@@ -1006,10 +1023,9 @@ class _CheckoutActions extends ConsumerWidget {
       CheckoutStep.destination => (
         key: 'checkout-next-destination',
         label: l10n.checkoutContinueAction,
-        enabled: state.selection.mode == CheckoutFulfillmentMode.delivery
-            ? state.selection.addressId != null &&
-                  state.supportedDeliveryZones.isNotEmpty
-            : state.selection.pickupPointId != null,
+        enabled: state.selection.mode == CheckoutFulfillmentMode.reservation
+            ? state.selection.pickupPointId != null
+            : state.hasValidDeliveryContext,
         action: controller.nextStep,
       ),
       CheckoutStep.slot => (
@@ -1021,7 +1037,10 @@ class _CheckoutActions extends ConsumerWidget {
       CheckoutStep.review => (
         key: 'checkout-create-quote',
         label: l10n.checkoutValidateAction,
-        enabled: state.hasValidPaymentSelection,
+        enabled:
+            state.selection.slotId != null &&
+            (state.selection.mode == CheckoutFulfillmentMode.reservation ||
+                state.hasValidDeliveryContext),
         action: controller.createQuote,
       ),
       CheckoutStep.confirmation when state.order != null => (
@@ -1040,10 +1059,10 @@ class _CheckoutActions extends ConsumerWidget {
           action: controller.retry,
         ),
       CheckoutStep.confirmation when quote?.isConfirmed ?? false => (
-        key: 'checkout-create-order',
-        label: l10n.checkoutCreateOrderAction,
-        enabled: state.hasValidPaymentSelection,
-        action: controller.createOrder,
+        key: 'checkout-open-payment',
+        label: l10n.checkoutContinuePaymentAction,
+        enabled: true,
+        action: () async => context.push(AppRoutes.checkoutPaymentLocation),
       ),
       CheckoutStep.confirmation when quote?.isExpired ?? true => (
         key: 'checkout-restart',

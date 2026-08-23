@@ -149,16 +149,25 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
     );
   }
 
-  Future<void> updateAddress(String addressId, CustomerAddressDraft draft) {
+  Future<void> updateAddress(
+    String addressId,
+    int expectedVersion,
+    CustomerAddressDraft draft,
+  ) {
     return _mutate(
-      (repository, _) => repository.updateAddress(addressId, draft),
+      (repository, _) => repository.updateAddress(
+        addressId,
+        draft,
+        expectedVersion: expectedVersion,
+      ),
       CustomerAccountNoticeKind.addressSaved,
     );
   }
 
-  Future<void> deleteAddress(String addressId) {
+  Future<void> deleteAddress(String addressId, [int expectedVersion = 1]) {
     return _mutate(
-      (repository, _) => repository.deleteAddress(addressId),
+      (repository, _) =>
+          repository.deleteAddress(addressId, expectedVersion: expectedVersion),
       CustomerAccountNoticeKind.addressDeleted,
     );
   }

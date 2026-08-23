@@ -69,16 +69,27 @@ final class SupabaseCheckoutRepository implements CheckoutRepository {
       _requireVersion(request.cartVersion, allowZero: true);
       _validateSelection(request.selection);
       _requireUuid(request.idempotencyKey);
+      final usesDeliveryContext =
+          request.selection.mode != CheckoutFulfillmentMode.reservation;
+      final parameters = <String, Object?>{
+        'p_shop_slug': request.shopSlug,
+        'p_cart_version': request.cartVersion,
+        'p_fulfillment_mode': request.selection.mode!.name,
+        'p_address_id': request.selection.addressId,
+        'p_pickup_point_id': request.selection.pickupPointId,
+        'p_slot_id': request.selection.slotId,
+        if (usesDeliveryContext)
+          'p_expected_context_version':
+              request.selection.deliveryContextVersion,
+        'p_idempotency_key': request.idempotencyKey,
+      };
       return _parseCheckoutResponse(
-        await port.invoke('customer_checkout_quote_create_v1', {
-          'p_shop_slug': request.shopSlug,
-          'p_cart_version': request.cartVersion,
-          'p_fulfillment_mode': request.selection.mode!.name,
-          'p_address_id': request.selection.addressId,
-          'p_pickup_point_id': request.selection.pickupPointId,
-          'p_slot_id': request.selection.slotId,
-          'p_idempotency_key': request.idempotencyKey,
-        }),
+        await port.invoke(
+          usesDeliveryContext
+              ? 'customer_checkout_quote_create_v2'
+              : 'customer_checkout_quote_create_v1',
+          parameters,
+        ),
         expectedShopSlug: request.shopSlug,
         expectedCartVersion: request.cartVersion,
         expectedSelection: request.selection,
@@ -527,6 +538,7 @@ const _checkoutRootKeys = <String>{
   'confirmedAt',
   'serverTime',
   'remainingSeconds',
+  'contextVersion',
 };
 
 CheckoutRemoteResponse _parseCheckoutResponse(
@@ -538,11 +550,12 @@ CheckoutRemoteResponse _parseCheckoutResponse(
   int? minimumQuoteVersion,
 }) {
   final payload = _payload(raw, _checkoutRootKeys, 'checkout_response');
-  if (payload['apiVersion'] != 'customer-checkout.v1') {
+  if (payload['apiVersion'] != 'customer-checkout.v1' &&
+      payload['apiVersion'] != 'customer-checkout.v2') {
     throw const FormatException('checkout_response_version');
   }
   final status = _remoteStatus(_requiredString(payload, 'status'));
-  final idempotent = payload['idempotent'];
+  final idempotent = payload['idempotent'] ?? false;
   if (idempotent is! bool) {
     throw const FormatException('checkout_response_idempotent');
   }
@@ -558,6 +571,7 @@ CheckoutRemoteResponse _parseCheckoutResponse(
       'serverTime',
       'quoteId',
       'changes',
+      'contextVersion',
     };
     if (payload.keys.any((key) => !minimalKeys.contains(key))) {
       throw const FormatException('checkout_response_minimal');
@@ -585,7 +599,11 @@ CheckoutRemoteResponse _parseCheckoutResponse(
       (minimumQuoteVersion != null &&
           quote.quoteVersion < minimumQuoteVersion) ||
       (expectedSelection != null &&
-          !_quoteMatchesSelection(quote, expectedSelection))) {
+          !_quoteMatchesSelection(quote, expectedSelection)) ||
+      (payload['apiVersion'] == 'customer-checkout.v2' &&
+          expectedSelection?.deliveryContextVersion != null &&
+          payload['contextVersion'] !=
+              expectedSelection!.deliveryContextVersion)) {
     throw const FormatException('checkout_response_server_time');
   }
   return CheckoutRemoteResponse(
@@ -860,7 +878,7 @@ CheckoutOrderRemoteResponse _parseOrderResponse(
     throw const FormatException('checkout_order_shop_mismatch');
   }
   final mode = _mode(_requiredString(payload, 'fulfillmentMode'));
-  _validateOrderFulfillment(payload['fulfillment'], mode);
+  final fulfillment = _parseOrderFulfillment(payload['fulfillment'], mode);
   final subtotal = _amount(payload, 'subtotalClp');
   final fee = _amount(payload, 'deliveryFeeClp');
   final total = _amount(payload, 'totalClp');
@@ -907,6 +925,7 @@ CheckoutOrderRemoteResponse _parseOrderResponse(
     placedAt: placedAt,
     serverTime: serverTime,
     idempotent: idempotent,
+    fulfillment: fulfillment,
   );
   return CheckoutOrderRemoteResponse(
     status: status,
@@ -1004,7 +1023,7 @@ CheckoutQuoteItem _parseOrderItem(Object? raw) {
   );
 }
 
-void _validateOrderFulfillment(
+CheckoutOrderFulfillment _parseOrderFulfillment(
   Object? raw,
   CheckoutFulfillmentMode expectedMode,
 ) {
@@ -1040,8 +1059,9 @@ void _validateOrderFulfillment(
   if (!endsAt.isAfter(startsAt)) {
     throw const FormatException('checkout_order_slot_timing');
   }
+  Map<String, Object?>? point;
   if (map['pickupPoint'] case final Object pointRaw) {
-    final point = _payload(pointRaw, const {
+    point = _payload(pointRaw, const {
       'id',
       'name',
       'addressLine1',
@@ -1070,8 +1090,9 @@ void _validateOrderFulfillment(
     _safeRequiredText(zone, 'region', 100);
     _amount(zone, 'feeClp');
   }
+  Map<String, Object?>? address;
   if (map['address'] case final Object addressRaw) {
-    final address = _payload(addressRaw, const {
+    address = _payload(addressRaw, const {
       'addressId',
       'recipientName',
       'addressLine1',
@@ -1081,6 +1102,8 @@ void _validateOrderFulfillment(
       'postalCode',
       'countryCode',
       'deliveryInstructions',
+      'recipientPhoneE164',
+      'addressVersion',
     }, 'checkout_order_address');
     _requirePayloadUuid(_requiredString(address, 'addressId'));
     _safeRequiredText(address, 'recipientName', 160);
@@ -1091,6 +1114,15 @@ void _validateOrderFulfillment(
     _safeOptionalText(address, 'addressLine2', 200);
     _safeOptionalText(address, 'postalCode', 32);
     _safeOptionalText(address, 'deliveryInstructions', 500);
+    final phone = _safeOptionalText(address, 'recipientPhoneE164', 16);
+    if (phone != null && !RegExp(r'^\+[1-9][0-9]{7,14}$').hasMatch(phone)) {
+      throw const FormatException('checkout_order_phone');
+    }
+    final addressVersion = address['addressVersion'];
+    if (addressVersion != null &&
+        (addressVersion is! int || addressVersion < 1)) {
+      throw const FormatException('checkout_order_address_version');
+    }
   }
   final hasPickup = map.containsKey('pickupPoint');
   final hasZone = map.containsKey('deliveryZone');
@@ -1100,6 +1132,37 @@ void _validateOrderFulfillment(
       : !hasPickup || hasZone || hasAddress) {
     throw const FormatException('checkout_order_fulfillment_shape');
   }
+  final destinationTitle = expectedMode == CheckoutFulfillmentMode.delivery
+      ? _safeRequiredText(address!, 'addressLine1', 200)
+      : _safeRequiredText(point!, 'name', 120);
+  final addressLine1 = expectedMode == CheckoutFulfillmentMode.delivery
+      ? _safeRequiredText(address!, 'addressLine1', 200)
+      : _safeRequiredText(point!, 'addressLine1', 200);
+  final commune = expectedMode == CheckoutFulfillmentMode.delivery
+      ? _safeRequiredText(address!, 'commune', 100)
+      : _safeRequiredText(point!, 'commune', 100);
+  final phone = expectedMode == CheckoutFulfillmentMode.delivery
+      ? _safeOptionalText(address!, 'recipientPhoneE164', 16)
+      : null;
+  return CheckoutOrderFulfillment(
+    destinationTitle: destinationTitle,
+    addressLine1: addressLine1,
+    commune: commune,
+    recipientName: expectedMode == CheckoutFulfillmentMode.delivery
+        ? _safeRequiredText(address!, 'recipientName', 160)
+        : null,
+    recipientPhoneMasked: phone == null
+        ? null
+        : '${phone.substring(0, 1)}'
+              '${List.filled(phone.length - 3, '•').join()}'
+              '${phone.substring(phone.length - 2)}',
+    deliveryInstructions: expectedMode == CheckoutFulfillmentMode.delivery
+        ? _safeOptionalText(address!, 'deliveryInstructions', 500)
+        : _safeOptionalText(point!, 'instructions', 500),
+    slotLabel: _safeRequiredText(slot, 'label', 120),
+    slotStartsAt: startsAt,
+    slotEndsAt: endsAt,
+  );
 }
 
 List<CheckoutQuoteChange> _parseChanges(List<Object?> raw) {
@@ -1284,6 +1347,7 @@ CheckoutRemoteStatus _remoteStatus(String value) => switch (value) {
   'unavailable' => CheckoutRemoteStatus.unavailable,
   'cart_empty' => CheckoutRemoteStatus.cartEmpty,
   'cart_version_conflict' => CheckoutRemoteStatus.cartVersionConflict,
+  'stale_context' => CheckoutRemoteStatus.staleContext,
   'quote_version_conflict' => CheckoutRemoteStatus.quoteVersionConflict,
   'mode_unavailable' => CheckoutRemoteStatus.modeUnavailable,
   'slot_unavailable' => CheckoutRemoteStatus.slotUnavailable,
@@ -1351,7 +1415,11 @@ CheckoutQuoteStatus _quoteStatus(String value) => switch (value) {
 };
 
 void _validateSelection(CheckoutSelection selection) {
-  if (selection.mode == null || selection.slotId == null) {
+  if (selection.mode == null ||
+      selection.slotId == null ||
+      (selection.mode != CheckoutFulfillmentMode.reservation &&
+          (selection.deliveryContextVersion == null ||
+              selection.deliveryContextVersion! < 1))) {
     throw const CheckoutRepositoryException(CheckoutFailureKind.invalidInput);
   }
   _requireUuid(selection.slotId!);

@@ -4,17 +4,18 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: nessuno
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-050 — Delivery context and smart customer addresses
+- **File task**: `docs/TASKS/TASK-050-delivery-context-smart-customer-addresses.md`
+- **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: MOBILE_STOREFRONT_PRODUCT_CONTROL_COMPLETE
-- **Release train**: MOBILE_STOREFRONT_PRODUCT_CONTROL
-- **Stato release train**: COMPLETE
-- **Review integrata**: APPROVED — P0/P1/P2 0, P3 1 accepted residual risk
-- **Prossima azione autorizzata**: nessuna; public store release resta owner activation
+- **Responsabile**: CODEX_REVIEWER
+- **Indicatore**: CLIENT_COMMERCE_JOURNEY_COMPLETION_IN_REVIEW
+- **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
+- **Stato release train**: REVIEW
+- **Review integrata**: IN_PROGRESS
+- **Prossima azione autorizzata**: review Client indipendente diff-scoped, eventuale
+  unico fix/re-review, gate canonici finali, PR/CI/merge e closeout bounded
 
 ## Repository coinvolti
 
@@ -50,6 +51,8 @@
    esplicitamente autorizzata il 2026-08-16 e sequenziale rispetto al backlog storico.
 7. Mobile Storefront product control (`TASK-046`–`TASK-049`), train esplicitamente
    autorizzato il 2026-08-21 con Client coordinator e activation guardata.
+8. Client commerce journey completion (`TASK-050`–`TASK-054`), train esplicitamente
+   autorizzato il 2026-08-22, solo sviluppo/staging e senza production activation.
 
 ## Backlog completo
 
@@ -104,6 +107,11 @@
 | TASK-047 | Android/iOS Storefront authoring integration | DONE | TASK-046 | Android, iOS, Admin | Editor unificati e parita mobile |
 | TASK-048 | Cross-surface staging E2E and release candidate | DONE | TASK-047 | Client, Admin, Android, iOS | E2E-01…14 e candidate verificati |
 | TASK-049 | Testing channels and production activation closeout | DONE | TASK-048 | Client, Admin, Android, iOS | Internal/TestFlight, preflight guardato e stato terminale |
+| TASK-050 | Delivery context and smart customer addresses | ACTIVE | TASK-021, TASK-026, TASK-045 | Client, Admin, Supabase | Address V2 e delivery context owner/shop-scoped |
+| TASK-051 | Cart, checkout and payment journey completion | TODO | TASK-050, TASK-023, TASK-026, TASK-027, TASK-032 | Client, Admin, Supabase | Checkout e payment/recovery completi |
+| TASK-052 | Notification inbox and reorder | TODO | TASK-051, TASK-028, TASK-031 | Client, Admin, Supabase | Inbox persistente e riacquisto validato |
+| TASK-053 | After-sales, verified reviews and search assist | TODO | TASK-052 | Client, Admin, Supabase | Assistenza, recensioni verificate e ricerca assistita |
+| TASK-054 | Integrated staging E2E and closeout | TODO | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
 
 ## Dipendenze e blocchi
 

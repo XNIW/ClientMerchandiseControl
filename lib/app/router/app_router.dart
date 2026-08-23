@@ -10,10 +10,15 @@ import '../../features/auth/application/auth_providers.dart';
 import '../../features/auth/domain/auth_state.dart';
 import '../../features/cart/presentation/cart_screen.dart';
 import '../../features/checkout/presentation/checkout_screen.dart';
+import '../../features/checkout/presentation/checkout_payment_screen.dart';
 import '../../features/catalog/application/catalog_controller.dart';
 import '../../features/catalog/presentation/catalog_screen.dart';
 import '../../features/customer_notifications/application/customer_notification_route_controller.dart';
 import '../../features/customer_notifications/domain/customer_notification_models.dart';
+import '../../features/customer_notifications/presentation/customer_notification_inbox_screen.dart';
+import '../../features/after_sales/presentation/customer_after_sales_screen.dart';
+import '../../features/reviews/presentation/customer_reviews.dart';
+import '../../features/delivery_context/presentation/delivery_context_screen.dart';
 import '../../features/deep_links/application/storefront_deep_link.dart';
 import '../../features/favorites/presentation/favorites_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
@@ -107,6 +112,37 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.checkoutLocation,
         builder: (context, state) => const CheckoutScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.checkoutPaymentLocation,
+        builder: (context, state) => const CheckoutPaymentScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.deliveryContextLocation,
+        builder: (context, state) => const DeliveryContextScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.notificationsLocation,
+        redirect: protectedOrderRedirect,
+        builder: (context, state) => const CustomerNotificationInboxScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.afterSalesBaseLocation,
+        redirect: protectedOrderRedirect,
+        builder: (context, state) => CustomerAfterSalesScreen(
+          orderId: state.uri.queryParameters['orderId'],
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.afterSalesPattern,
+        redirect: protectedOrderRedirect,
+        builder: (context, state) =>
+            CustomerAfterSalesScreen(caseId: state.pathParameters['caseId']),
+      ),
+      GoRoute(
+        path: AppRoutes.reviewsLocation,
+        redirect: protectedOrderRedirect,
+        builder: (context, state) => const CustomerReviewsScreen(),
       ),
       GoRoute(
         path: AppRoutes.productPattern,
@@ -337,7 +373,12 @@ AppScreen appScreenForPath(String path) {
   }
   if (path == AppRoutes.cartLocation) return AppScreen.cart;
   if (path == AppRoutes.accountLocation) return AppScreen.account;
-  if (path == AppRoutes.checkoutLocation) return AppScreen.checkout;
+  if (path == AppRoutes.checkoutLocation ||
+      path == AppRoutes.checkoutPaymentLocation) {
+    return AppScreen.checkout;
+  }
+  if (path == AppRoutes.deliveryContextLocation) return AppScreen.account;
+  if (path == AppRoutes.notificationsLocation) return AppScreen.account;
   if (path == AppRoutes.favoritesLocation) return AppScreen.favorites;
   if (path.startsWith('/product/')) return AppScreen.productDetail;
   return AppScreen.unknown;

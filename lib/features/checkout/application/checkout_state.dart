@@ -1,5 +1,6 @@
 import '../../account/domain/customer_account_models.dart';
 import '../../cart/domain/cart_models.dart';
+import '../../delivery_context/domain/delivery_context_models.dart';
 import '../domain/checkout_failure.dart';
 import '../domain/checkout_models.dart';
 
@@ -18,6 +19,7 @@ final class CheckoutState {
     this.cart,
     this.options,
     this.paymentOptions,
+    this.deliveryContext,
     this.quote,
     this.order,
     this.pendingOperation,
@@ -67,6 +69,7 @@ final class CheckoutState {
   final CustomerCartSnapshot? cart;
   final StorefrontFulfillmentOptions? options;
   final StorefrontPaymentOptions? paymentOptions;
+  final CustomerDeliveryContext? deliveryContext;
   final CheckoutQuote? quote;
   final CheckoutOrder? order;
   final CheckoutPendingOperation? pendingOperation;
@@ -112,12 +115,28 @@ final class CheckoutState {
   }
 
   List<CheckoutDeliveryZone> get supportedDeliveryZones {
-    final address = selectedAddress;
     final current = options;
-    if (address == null || current == null) return const [];
+    final zoneId = deliveryContext?.deliveryZoneId;
+    if (current == null || zoneId == null) return const [];
     return current.deliveryZones
-        .where((zone) => zone.supports(address))
+        .where((zone) => zone.id == zoneId)
         .toList(growable: false);
+  }
+
+  bool get hasValidDeliveryContext {
+    final mode = selection.mode;
+    if (mode == CheckoutFulfillmentMode.reservation) return true;
+    final context = deliveryContext;
+    if (mode == null || context == null || !context.isCheckoutReady) {
+      return false;
+    }
+    return context.version == selection.deliveryContextVersion &&
+        ((mode == CheckoutFulfillmentMode.delivery &&
+                context.mode == CustomerDeliveryMode.delivery &&
+                context.addressId == selection.addressId) ||
+            (mode == CheckoutFulfillmentMode.pickup &&
+                context.mode == CustomerDeliveryMode.pickup &&
+                context.pickupPointId == selection.pickupPointId));
   }
 
   List<CheckoutFulfillmentSlot> get selectableSlots {
@@ -133,6 +152,10 @@ final class CheckoutState {
                 .toSet();
             return zoneIds.contains(slot.deliveryZoneId);
           }
+          if (mode == CheckoutFulfillmentMode.pickup) {
+            return hasValidDeliveryContext &&
+                slot.pickupPointId == deliveryContext?.pickupPointId;
+          }
           return slot.pickupPointId == selection.pickupPointId;
         })
         .toList(growable: false);
@@ -146,6 +169,7 @@ final class CheckoutState {
     Object? cart = _checkoutUnset,
     Object? options = _checkoutUnset,
     Object? paymentOptions = _checkoutUnset,
+    Object? deliveryContext = _checkoutUnset,
     Object? quote = _checkoutUnset,
     Object? order = _checkoutUnset,
     Object? pendingOperation = _checkoutUnset,
@@ -167,6 +191,9 @@ final class CheckoutState {
       paymentOptions: identical(paymentOptions, _checkoutUnset)
           ? this.paymentOptions
           : paymentOptions as StorefrontPaymentOptions?,
+      deliveryContext: identical(deliveryContext, _checkoutUnset)
+          ? this.deliveryContext
+          : deliveryContext as CustomerDeliveryContext?,
       quote: identical(quote, _checkoutUnset)
           ? this.quote
           : quote as CheckoutQuote?,

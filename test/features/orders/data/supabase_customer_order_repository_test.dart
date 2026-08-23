@@ -258,6 +258,67 @@ void main() {
     expect(port.calls, 0);
   });
 
+  test(
+    'reorder usa prezzo e disponibilità correnti senza copiare lo storico',
+    () async {
+      port.response = _reorderPreviewPayload();
+
+      final preview = await repository.previewReorder(orderTestOrder);
+
+      expect(preview.items.first.currentPriceClp, 1500);
+      expect(preview.items.first.historicalPriceClp, 1200);
+      expect(
+        preview.items.last.availability,
+        CustomerReorderAvailability.unavailable,
+      );
+      expect(preview.items.last.allowedQuantity, 0);
+      expect(port.function, 'customer_order_reorder_preview_v1');
+    },
+  );
+
+  test('reorder apply riporta aggiunti e scartati ed è idempotente', () async {
+    port.response = {
+      'apiVersion': 'customer-reorder.v1',
+      'status': 'ok',
+      'idempotent': true,
+      'orderId': orderTestOrder,
+      'cartId': 'a1000000-0000-4000-8000-000000000001',
+      'cartVersion': 8,
+      'added': [
+        {
+          'orderItemId': 'a2000000-0000-4000-8000-000000000001',
+          'publicationId': orderTestPublication,
+          'name': 'Café público',
+          'quantity': 2,
+          'currentPriceClp': 1500,
+          'reason': null,
+        },
+      ],
+      'skipped': [
+        {
+          'orderItemId': 'a2000000-0000-4000-8000-000000000002',
+          'publicationId': '50000000-0000-4000-8000-000000028102',
+          'name': 'Producto oculto',
+          'reason': 'hidden',
+        },
+      ],
+      'serverTime': orderTestNow.toIso8601String(),
+    };
+
+    final result = await repository.applyReorder(
+      orderId: orderTestOrder,
+      idempotencyKey: orderTestKey,
+    );
+
+    expect(result.idempotent, isTrue);
+    expect(result.added, hasLength(1));
+    expect(result.skipped.single.reason, 'hidden');
+    expect(port.parameters, {
+      'p_order_id': orderTestOrder,
+      'p_idempotency_key': orderTestKey,
+    });
+  });
+
   test('offline e timeout vengono classificati senza crash', () async {
     port.error = const SocketException('offline');
     await expectLater(
@@ -277,6 +338,42 @@ void main() {
     );
   });
 }
+
+Map<String, Object?> _reorderPreviewPayload() => {
+  'apiVersion': 'customer-reorder.v1',
+  'status': 'ok',
+  'orderId': orderTestOrder,
+  'shopId': 'a0000000-0000-4000-8000-000000000001',
+  'items': [
+    {
+      'orderItemId': 'a2000000-0000-4000-8000-000000000001',
+      'publicationId': orderTestPublication,
+      'name': 'Café público',
+      'requestedQuantity': 2,
+      'allowedQuantity': 2,
+      'availability': 'available',
+      'historicalPriceClp': 1200,
+      'currentPriceClp': 1500,
+      'currentCompareAtPriceClp': null,
+      'currentPromotionName': null,
+      'priceDifferenceClp': 300,
+    },
+    {
+      'orderItemId': 'a2000000-0000-4000-8000-000000000002',
+      'publicationId': '50000000-0000-4000-8000-000000028102',
+      'name': 'Producto oculto',
+      'requestedQuantity': 1,
+      'allowedQuantity': 0,
+      'availability': 'unavailable',
+      'historicalPriceClp': 900,
+      'currentPriceClp': null,
+      'currentCompareAtPriceClp': null,
+      'currentPromotionName': null,
+      'priceDifferenceClp': null,
+    },
+  ],
+  'serverTime': orderTestNow.toIso8601String(),
+};
 
 Matcher _failure(CustomerOrderFailureKind kind) =>
     isA<CustomerOrderRepositoryException>().having(

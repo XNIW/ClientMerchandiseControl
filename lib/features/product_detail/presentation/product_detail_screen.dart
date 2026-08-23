@@ -16,6 +16,7 @@ import '../../cart/presentation/add_to_cart_button.dart';
 import '../../favorites/presentation/favorite_button.dart';
 import '../../home/presentation/storefront_product_card.dart';
 import '../../reservations/presentation/reservation_hold_panel.dart';
+import '../../reviews/presentation/customer_reviews.dart';
 import '../../sharing/application/product_share_service.dart';
 import '../../storefront/domain/storefront_models.dart';
 import '../../storefront/presentation/storefront_product_metadata.dart';
@@ -295,6 +296,8 @@ class _ProductDetailContent extends StatelessWidget {
                           details,
                         ],
                       ),
+                    const SizedBox(height: AppSpacing.xl),
+                    StorefrontProductReviewsSection(publicationId: product.id),
                     const SizedBox(height: AppSpacing.xxl),
                   ],
                 ),

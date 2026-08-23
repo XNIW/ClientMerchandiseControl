@@ -103,7 +103,7 @@ final class SharedPreferencesCheckoutDraftStore implements CheckoutDraftStore {
 String _encode(CheckoutLocalDraft draft) {
   _validateDraft(draft);
   return jsonEncode({
-    'version': 3,
+    'version': 4,
     'ownerSubjectId': draft.ownerSubjectId,
     'shopSlug': draft.shopSlug,
     'step': draft.step.name,
@@ -113,6 +113,7 @@ String _encode(CheckoutLocalDraft draft) {
       'pickupPointId': draft.selection.pickupPointId,
       'slotId': draft.selection.slotId,
       'paymentMethod': draft.selection.paymentMethod?.name,
+      'deliveryContextVersion': draft.selection.deliveryContextVersion,
     },
     'quoteId': draft.quoteId,
     'orderId': draft.orderId,
@@ -161,12 +162,21 @@ CheckoutLocalDraft _decode(String encoded) {
             'updatedAt',
           },
   );
-  if (version != 1 && version != 2 && version != 3) {
+  if (version != 1 && version != 2 && version != 3 && version != 4) {
     throw const FormatException('checkout_draft_version');
   }
   final selectionMap = _strictMap(
     root['selection'],
-    version == 3
+    version == 4
+        ? const {
+            'mode',
+            'addressId',
+            'pickupPointId',
+            'slotId',
+            'paymentMethod',
+            'deliveryContextVersion',
+          }
+        : version == 3
         ? const {
             'mode',
             'addressId',
@@ -188,7 +198,7 @@ CheckoutLocalDraft _decode(String encoded) {
   if (pendingRaw != null) {
     final map = _strictMap(
       pendingRaw,
-      version == 3
+      version >= 3
           ? const {
               'kind',
               'idempotencyKey',
@@ -216,7 +226,7 @@ CheckoutLocalDraft _decode(String encoded) {
       cartVersion: _integer(map, 'cartVersion'),
       quoteId: _optionalString(map, 'quoteId'),
       expectedQuoteVersion: _optionalInteger(map, 'expectedQuoteVersion'),
-      paymentMethod: version == 3 ? _paymentMethod(map['paymentMethod']) : null,
+      paymentMethod: version >= 3 ? _paymentMethod(map['paymentMethod']) : null,
     );
   }
   final draft = CheckoutLocalDraft(
@@ -235,8 +245,11 @@ CheckoutLocalDraft _decode(String encoded) {
       addressId: _optionalString(selectionMap, 'addressId'),
       pickupPointId: _optionalString(selectionMap, 'pickupPointId'),
       slotId: _optionalString(selectionMap, 'slotId'),
-      paymentMethod: version == 3
+      paymentMethod: version >= 3
           ? _paymentMethod(selectionMap['paymentMethod'])
+          : null,
+      deliveryContextVersion: version == 4
+          ? _optionalInteger(selectionMap, 'deliveryContextVersion')
           : null,
     ),
     quoteId: _optionalString(root, 'quoteId'),

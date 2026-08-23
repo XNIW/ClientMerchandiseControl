@@ -9,6 +9,8 @@ import '../../../core/time/app_scheduler.dart';
 import '../../account/application/customer_account_providers.dart';
 import '../../account/domain/customer_account_models.dart';
 import '../../cart/domain/cart_models.dart';
+import '../../delivery_context/application/delivery_context_controller.dart';
+import '../../delivery_context/domain/delivery_context_models.dart';
 import '../domain/checkout_failure.dart';
 import '../domain/checkout_models.dart';
 import 'checkout_providers.dart';
@@ -37,6 +39,10 @@ final class CheckoutController extends Notifier<CheckoutState> {
     final identity = ref.watch(customerAccountIdentityProvider);
     final cartState = ref.watch(checkoutCartStateProvider);
     final accountState = ref.watch(checkoutAccountStateProvider);
+    final deliveryContextState = ref.watch(
+      checkoutDeliveryContextStateProvider,
+    );
+    final deliveryContext = deliveryContextState.context;
     final shopSlug = config.storefrontShopSlug;
     final cart = cartState.snapshot;
 
@@ -103,18 +109,28 @@ final class CheckoutController extends Notifier<CheckoutState> {
       return _remember(CheckoutState.loading(cart: cart));
     }
     final addresses = accountSnapshot.addresses;
+    if (deliveryContextState.status == DeliveryContextViewStatus.loading &&
+        deliveryContext == null) {
+      return _remember(CheckoutState.loading(cart: cart));
+    }
     final addressRevision = [
       for (final address in addresses) '${address.id}:${address.updatedAt}',
     ].join('|');
+    final deliveryRevision = deliveryContext == null
+        ? 'none'
+        : '${deliveryContext.mode.name}:${deliveryContext.addressId}:'
+              '${deliveryContext.pickupPointId}:${deliveryContext.version}:'
+              '${deliveryContext.serviceabilityStatus.name}';
     final nextContext =
-        '$shopSlug|${identity.subjectId}|${cart.version}|$addressRevision';
+        '$shopSlug|${identity.subjectId}|${cart.version}|$addressRevision|'
+        '$deliveryRevision';
     if (_contextKey == nextContext && _lastState != null) {
       return _lastState!;
     }
     _contextKey = nextContext;
     final loading = CheckoutState.loading(
       cart: cart,
-    ).copyWith(addresses: addresses);
+    ).copyWith(addresses: addresses, deliveryContext: deliveryContext);
     _lastState = loading;
     final generation = ++_generation;
     scheduleMicrotask(
@@ -122,6 +138,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
         generation,
         cart: cart,
         addresses: addresses,
+        deliveryContext: deliveryContext,
         restoreNotice: true,
       ),
     );
@@ -156,6 +173,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
         ++_generation,
         cart: cart,
         addresses: state.addresses,
+        deliveryContext: state.deliveryContext,
         restoreNotice: false,
       );
     });
@@ -166,7 +184,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
     if (state.isBusy || options == null || !options.isEnabled(mode)) return;
     await _replaceDraftState(
       state.copyWith(
-        selection: CheckoutSelection(mode: mode),
+        selection: _selectionForMode(mode, state.deliveryContext),
         quote: null,
         pendingOperation: null,
         failureKind: null,
@@ -184,15 +202,26 @@ final class CheckoutController extends Notifier<CheckoutState> {
             mode != CheckoutFulfillmentMode.reservation)) {
       return;
     }
-    await _replaceDraftState(
-      state.copyWith(
-        selection: CheckoutSelection(mode: mode, pickupPointId: pointId),
-        quote: null,
-        pendingOperation: null,
-        failureKind: null,
-        notice: null,
-      ),
-    );
+    if (mode == CheckoutFulfillmentMode.reservation) {
+      await _replaceDraftState(
+        state.copyWith(
+          selection: CheckoutSelection(mode: mode, pickupPointId: pointId),
+          quote: null,
+          pendingOperation: null,
+          failureKind: null,
+          notice: null,
+        ),
+      );
+      return;
+    }
+    if (state.deliveryContext?.mode == CustomerDeliveryMode.pickup &&
+        state.deliveryContext?.pickupPointId == pointId &&
+        state.selection.pickupPointId == pointId) {
+      return;
+    }
+    await ref
+        .read(deliveryContextControllerProvider.notifier)
+        .selectPickup(pickupPointId: pointId);
   }
 
   Future<void> selectAddress(String addressId) async {
@@ -201,17 +230,14 @@ final class CheckoutController extends Notifier<CheckoutState> {
         !state.addresses.any((address) => address.id == addressId)) {
       return;
     }
-    final next = state.copyWith(
-      selection: CheckoutSelection(
-        mode: CheckoutFulfillmentMode.delivery,
-        addressId: addressId,
-      ),
-      quote: null,
-      pendingOperation: null,
-      failureKind: null,
-      notice: null,
-    );
-    await _replaceDraftState(next);
+    if (state.deliveryContext?.mode == CustomerDeliveryMode.delivery &&
+        state.deliveryContext?.addressId == addressId &&
+        state.selection.addressId == addressId) {
+      return;
+    }
+    await ref
+        .read(deliveryContextControllerProvider.notifier)
+        .selectAddress(addressId: addressId);
   }
 
   Future<void> selectSlot(String slotId) async {
@@ -241,7 +267,6 @@ final class CheckoutController extends Notifier<CheckoutState> {
     await _replaceDraftState(
       state.copyWith(
         selection: state.selection.copyWith(paymentMethod: method),
-        quote: null,
         order: null,
         failureKind: null,
         notice: null,
@@ -424,6 +449,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
     int generation, {
     required CustomerCartSnapshot cart,
     required List<CustomerAddress> addresses,
+    required CustomerDeliveryContext? deliveryContext,
     required bool restoreNotice,
   }) async {
     final owner = _ownerSubjectId;
@@ -434,7 +460,11 @@ final class CheckoutController extends Notifier<CheckoutState> {
       shopSlug: shop,
       generation: generation,
     );
-    _publish(CheckoutState.loading(cart: cart).copyWith(addresses: addresses));
+    _publish(
+      CheckoutState.loading(
+        cart: cart,
+      ).copyWith(addresses: addresses, deliveryContext: deliveryContext),
+    );
     try {
       final results = await Future.wait<Object?>([
         ref.read(checkoutRepositoryProvider).loadOptions(shopSlug: shop),
@@ -487,6 +517,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
         options,
         paymentOptions,
         addresses,
+        deliveryContext,
       );
       CheckoutQuote? quote;
       CheckoutFailureKind? restoreFailure;
@@ -532,6 +563,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
         cart: cart,
         options: options,
         paymentOptions: paymentOptions,
+        deliveryContext: deliveryContext,
         quote: quote,
         pendingOperation: pendingOperation,
         failureKind: restoreFailure,
@@ -570,9 +602,16 @@ final class CheckoutController extends Notifier<CheckoutState> {
       generation: generation,
     );
     try {
-      final draft = await ref
-          .read(checkoutDraftStoreProvider)
-          .read(ownerSubjectId: owner, shopSlug: shop);
+      final restored = await Future.wait<Object?>([
+        ref
+            .read(checkoutDraftStoreProvider)
+            .read(ownerSubjectId: owner, shopSlug: shop),
+        ref.read(checkoutRepositoryProvider).loadOptions(shopSlug: shop),
+        ref.read(checkoutRepositoryProvider).loadPaymentOptions(shopSlug: shop),
+      ]);
+      final draft = restored[0] as CheckoutLocalDraft?;
+      final options = restored[1] as StorefrontFulfillmentOptions;
+      final paymentOptions = restored[2] as StorefrontPaymentOptions;
       if (!_isCurrentContext(context)) return;
       if (draft?.orderId case final String orderId) {
         final response = await ref
@@ -587,6 +626,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
             selection: draft!.selection,
             addresses: const [],
             cart: cart,
+            options: options,
+            paymentOptions: paymentOptions,
             order: order,
             notice: CheckoutNoticeKind.restored,
           );
@@ -605,6 +646,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
           selection: draft!.selection,
           addresses: const [],
           cart: cart,
+          options: options,
+          paymentOptions: paymentOptions,
           pendingOperation: pending,
           failureKind: CheckoutFailureKind.timeout,
           notice: CheckoutNoticeKind.restored,
@@ -883,6 +926,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
     if (!_isCurrentContext(context)) return;
     if (failure == CheckoutFailureKind.staleCart) {
       await ref.read(checkoutCartRefreshProvider)();
+    } else if (response.status == CheckoutRemoteStatus.staleContext) {
+      await ref.read(deliveryContextControllerProvider.notifier).refresh();
     }
   }
 
@@ -1075,44 +1120,62 @@ CheckoutSelection _sanitizeSelection(
   StorefrontFulfillmentOptions options,
   StorefrontPaymentOptions paymentOptions,
   List<CustomerAddress> addresses,
+  CustomerDeliveryContext? deliveryContext,
 ) {
-  final mode = selection.mode;
+  final contextMode = switch (deliveryContext?.mode) {
+    CustomerDeliveryMode.delivery => CheckoutFulfillmentMode.delivery,
+    CustomerDeliveryMode.pickup => CheckoutFulfillmentMode.pickup,
+    null => null,
+  };
+  final mode = selection.mode ?? contextMode;
   if (mode == null || !options.isEnabled(mode)) {
     return const CheckoutSelection();
   }
-  if (mode == CheckoutFulfillmentMode.delivery) {
-    final address = addresses
-        .where((candidate) => candidate.id == selection.addressId)
-        .firstOrNull;
-    if (address == null) return CheckoutSelection(mode: mode);
-    final supportedZones = options.deliveryZones
-        .where((zone) => zone.supports(address))
-        .map((zone) => zone.id)
-        .toSet();
-    final slot = options.slot(selection.slotId);
-    final paymentMethod = _sanitizedPaymentMethod(
-      selection.paymentMethod,
-      mode,
-      paymentOptions,
-    );
-    return CheckoutSelection(
-      mode: mode,
-      addressId: address.id,
-      slotId:
-          slot?.mode == mode && supportedZones.contains(slot?.deliveryZoneId)
-          ? slot?.id
-          : null,
-      paymentMethod: paymentMethod,
-    );
-  }
-  final point = options.pickupPoint(selection.pickupPointId);
-  if (point == null) return CheckoutSelection(mode: mode);
-  final slot = options.slot(selection.slotId);
   final paymentMethod = _sanitizedPaymentMethod(
     selection.paymentMethod,
     mode,
     paymentOptions,
   );
+  if (mode == CheckoutFulfillmentMode.reservation) {
+    final point = options.pickupPoint(selection.pickupPointId);
+    if (point == null) return CheckoutSelection(mode: mode);
+    final slot = options.slot(selection.slotId);
+    return CheckoutSelection(
+      mode: mode,
+      pickupPointId: point.id,
+      slotId: slot?.mode == mode && slot?.pickupPointId == point.id
+          ? slot?.id
+          : null,
+      paymentMethod: paymentMethod,
+    );
+  }
+  if (deliveryContext == null ||
+      !deliveryContext.isCheckoutReady ||
+      deliveryContext.version < 1 ||
+      contextMode != mode) {
+    return CheckoutSelection(mode: mode);
+  }
+  if (mode == CheckoutFulfillmentMode.delivery) {
+    final address = addresses
+        .where((candidate) => candidate.id == deliveryContext.addressId)
+        .firstOrNull;
+    if (address == null) return CheckoutSelection(mode: mode);
+    final slot = options.slot(selection.slotId);
+    return CheckoutSelection(
+      mode: mode,
+      addressId: address.id,
+      slotId:
+          slot?.mode == mode &&
+              slot?.deliveryZoneId == deliveryContext.deliveryZoneId
+          ? slot?.id
+          : null,
+      paymentMethod: paymentMethod,
+      deliveryContextVersion: deliveryContext.version,
+    );
+  }
+  final point = options.pickupPoint(deliveryContext.pickupPointId);
+  if (point == null) return CheckoutSelection(mode: mode);
+  final slot = options.slot(selection.slotId);
   return CheckoutSelection(
     mode: mode,
     pickupPointId: point.id,
@@ -1120,6 +1183,30 @@ CheckoutSelection _sanitizeSelection(
         ? slot?.id
         : null,
     paymentMethod: paymentMethod,
+    deliveryContextVersion: deliveryContext.version,
+  );
+}
+
+CheckoutSelection _selectionForMode(
+  CheckoutFulfillmentMode mode,
+  CustomerDeliveryContext? deliveryContext,
+) {
+  if (mode == CheckoutFulfillmentMode.reservation) {
+    return CheckoutSelection(mode: mode);
+  }
+  final matches =
+      (mode == CheckoutFulfillmentMode.delivery &&
+          deliveryContext?.mode == CustomerDeliveryMode.delivery) ||
+      (mode == CheckoutFulfillmentMode.pickup &&
+          deliveryContext?.mode == CustomerDeliveryMode.pickup);
+  if (!matches || deliveryContext == null) {
+    return CheckoutSelection(mode: mode);
+  }
+  return CheckoutSelection(
+    mode: mode,
+    addressId: deliveryContext.addressId,
+    pickupPointId: deliveryContext.pickupPointId,
+    deliveryContextVersion: deliveryContext.version,
   );
 }
 
@@ -1190,22 +1277,21 @@ CheckoutPendingOperation? _sanitizePendingOperation(
 }
 
 bool _hasDestination(CheckoutState state) =>
-    state.selection.mode == CheckoutFulfillmentMode.delivery
-    ? state.selection.addressId != null &&
-          state.supportedDeliveryZones.isNotEmpty
-    : state.selection.pickupPointId != null;
+    state.selection.mode == CheckoutFulfillmentMode.reservation
+    ? state.selection.pickupPointId != null
+    : state.hasValidDeliveryContext;
 
 bool _selectionComplete(CheckoutState state) =>
     _hasDestination(state) &&
     state.selection.slotId != null &&
-    state.selectableSlots.any((slot) => slot.id == state.selection.slotId) &&
-    state.hasValidPaymentSelection;
+    state.selectableSlots.any((slot) => slot.id == state.selection.slotId);
 
 CheckoutFailureKind _failureFor(
   CheckoutRemoteStatus status,
 ) => switch (status) {
   CheckoutRemoteStatus.cartVersionConflict ||
   CheckoutRemoteStatus.quoteVersionConflict => CheckoutFailureKind.staleCart,
+  CheckoutRemoteStatus.staleContext => CheckoutFailureKind.conflict,
   CheckoutRemoteStatus.invalidAddress => CheckoutFailureKind.invalidAddress,
   CheckoutRemoteStatus.unsupportedZone => CheckoutFailureKind.unsupportedZone,
   CheckoutRemoteStatus.slotUnavailable ||

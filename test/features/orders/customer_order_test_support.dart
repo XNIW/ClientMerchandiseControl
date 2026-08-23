@@ -327,6 +327,16 @@ final class FakeCustomerOrderRepository implements CustomerOrderRepository {
   cancelRequests = [];
 
   @override
+  Future<CustomerReorderPreview> previewReorder(String orderId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<CustomerReorderResult> applyReorder({
+    required String orderId,
+    required String idempotencyKey,
+  }) => throw UnimplementedError();
+
+  @override
   Future<CustomerOrderPage> listOrders({
     required String shopSlug,
     CustomerOrderCursor? cursor,

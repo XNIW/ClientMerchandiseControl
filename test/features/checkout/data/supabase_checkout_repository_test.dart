@@ -166,6 +166,7 @@ void main() {
             mode: CheckoutFulfillmentMode.pickup,
             pickupPointId: _pointId,
             slotId: _pickupSlotId,
+            deliveryContextVersion: 3,
           ),
           idempotencyKey: _idempotencyId,
         ),
@@ -173,7 +174,7 @@ void main() {
 
       expect(response.status, CheckoutRemoteStatus.quoted);
       expect(response.quote?.totalClp, 2400);
-      expect(port.function, 'customer_checkout_quote_create_v1');
+      expect(port.function, 'customer_checkout_quote_create_v2');
       expect(port.parameters, {
         'p_shop_slug': 'storefront-test',
         'p_cart_version': 7,
@@ -181,6 +182,7 @@ void main() {
         'p_address_id': null,
         'p_pickup_point_id': _pointId,
         'p_slot_id': _pickupSlotId,
+        'p_expected_context_version': 3,
         'p_idempotency_key': _idempotencyId,
       });
       expect(
@@ -222,6 +224,7 @@ void main() {
             mode: CheckoutFulfillmentMode.delivery,
             addressId: _addressId,
             slotId: _deliverySlotId,
+            deliveryContextVersion: 3,
           ),
           idempotencyKey: _idempotencyId,
         ),

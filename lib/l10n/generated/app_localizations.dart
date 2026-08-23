@@ -1345,6 +1345,306 @@ abstract class AppLocalizations {
   /// **'Nombre de quien recibe'**
   String get customerAddressRecipient;
 
+  /// No description provided for @customerAddressPhone.
+  ///
+  /// In es, this message translates to:
+  /// **'Teléfono del destinatario (E.164)'**
+  String get customerAddressPhone;
+
+  /// No description provided for @deliveryContextTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Dónde quieres recibir tu pedido?'**
+  String get deliveryContextTitle;
+
+  /// No description provided for @deliveryContextDelivery.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrega'**
+  String get deliveryContextDelivery;
+
+  /// No description provided for @deliveryContextPickup.
+  ///
+  /// In es, this message translates to:
+  /// **'Retiro'**
+  String get deliveryContextPickup;
+
+  /// No description provided for @deliveryContextCurrent.
+  ///
+  /// In es, this message translates to:
+  /// **'Selección actual'**
+  String get deliveryContextCurrent;
+
+  /// No description provided for @deliveryContextUseLocation.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar mi ubicación'**
+  String get deliveryContextUseLocation;
+
+  /// No description provided for @deliveryContextLocationRationaleTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar tu ubicación una vez'**
+  String get deliveryContextLocationRationaleTitle;
+
+  /// No description provided for @deliveryContextLocationRationale.
+  ///
+  /// In es, this message translates to:
+  /// **'Pediremos permiso después de tu confirmación y haremos una sola lectura. No se usa en segundo plano ni para analítica.'**
+  String get deliveryContextLocationRationale;
+
+  /// No description provided for @deliveryContextLocationContinue.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get deliveryContextLocationContinue;
+
+  /// No description provided for @deliveryContextLocationUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'La ubicación no está disponible. Puedes buscar o ingresar la dirección manualmente.'**
+  String get deliveryContextLocationUnavailable;
+
+  /// No description provided for @deliveryContextSearch.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar dirección'**
+  String get deliveryContextSearch;
+
+  /// No description provided for @deliveryContextSearchHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Calle, número o sector'**
+  String get deliveryContextSearchHint;
+
+  /// No description provided for @deliveryContextSearchUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'La búsqueda del proveedor no está configurada. El ingreso manual sigue disponible.'**
+  String get deliveryContextSearchUnavailable;
+
+  /// No description provided for @deliveryContextSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'Direcciones guardadas'**
+  String get deliveryContextSaved;
+
+  /// No description provided for @deliveryContextRecent.
+  ///
+  /// In es, this message translates to:
+  /// **'Direcciones recientes'**
+  String get deliveryContextRecent;
+
+  /// No description provided for @deliveryContextAdd.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar dirección'**
+  String get deliveryContextAdd;
+
+  /// No description provided for @deliveryContextSignInToSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión para guardar una dirección.'**
+  String get deliveryContextSignInToSave;
+
+  /// No description provided for @deliveryContextGuestCommune.
+  ///
+  /// In es, this message translates to:
+  /// **'Comuna de entrega'**
+  String get deliveryContextGuestCommune;
+
+  /// No description provided for @deliveryContextCheckArea.
+  ///
+  /// In es, this message translates to:
+  /// **'Comprobar cobertura'**
+  String get deliveryContextCheckArea;
+
+  /// No description provided for @deliveryContextPickupPoints.
+  ///
+  /// In es, this message translates to:
+  /// **'Puntos de retiro'**
+  String get deliveryContextPickupPoints;
+
+  /// No description provided for @deliveryContextSelect.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar'**
+  String get deliveryContextSelect;
+
+  /// No description provided for @deliveryContextSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionado'**
+  String get deliveryContextSelected;
+
+  /// No description provided for @deliveryContextServiceable.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección con cobertura'**
+  String get deliveryContextServiceable;
+
+  /// No description provided for @deliveryContextUnsupported.
+  ///
+  /// In es, this message translates to:
+  /// **'Dirección fuera de cobertura'**
+  String get deliveryContextUnsupported;
+
+  /// No description provided for @deliveryContextInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona una dirección o punto válido'**
+  String get deliveryContextInvalid;
+
+  /// No description provided for @deliveryContextTemporarilyUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay una franja disponible por ahora'**
+  String get deliveryContextTemporarilyUnavailable;
+
+  /// No description provided for @deliveryContextEstimatedFee.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrega estimada: {fee}'**
+  String deliveryContextEstimatedFee(Object fee);
+
+  /// No description provided for @deliveryContextEarliestSlot.
+  ///
+  /// In es, this message translates to:
+  /// **'Primera franja: {slot}'**
+  String deliveryContextEarliestSlot(Object slot);
+
+  /// No description provided for @deliveryContextOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrando el contexto guardado. Se volverá a validar al reconectar.'**
+  String get deliveryContextOffline;
+
+  /// No description provided for @deliveryContextRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar'**
+  String get deliveryContextRetry;
+
+  /// No description provided for @deliveryContextManualFallback.
+  ///
+  /// In es, this message translates to:
+  /// **'La dirección también se puede ingresar y revisar sin mapa.'**
+  String get deliveryContextManualFallback;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Todas'**
+  String get notificationsAll;
+
+  /// No description provided for @notificationsOrders.
+  ///
+  /// In es, this message translates to:
+  /// **'Pedidos'**
+  String get notificationsOrders;
+
+  /// No description provided for @notificationsPayments.
+  ///
+  /// In es, this message translates to:
+  /// **'Pagos'**
+  String get notificationsPayments;
+
+  /// No description provided for @notificationsSupport.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistencia'**
+  String get notificationsSupport;
+
+  /// No description provided for @notificationsMarkAllRead.
+  ///
+  /// In es, this message translates to:
+  /// **'Marcar todo como leído'**
+  String get notificationsMarkAllRead;
+
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay notificaciones'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Las actualizaciones de pedidos, pagos y asistencia aparecerán aquí.'**
+  String get notificationsEmptyMessage;
+
+  /// No description provided for @notificationsOffline.
+  ///
+  /// In es, this message translates to:
+  /// **'Mostrando notificaciones guardadas sin conexión.'**
+  String get notificationsOffline;
+
+  /// No description provided for @notificationsLoadMore.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargar más'**
+  String get notificationsLoadMore;
+
+  /// No description provided for @notificationsUnread.
+  ///
+  /// In es, this message translates to:
+  /// **'No leída'**
+  String get notificationsUnread;
+
+  /// No description provided for @notificationOrderTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualización del pedido'**
+  String get notificationOrderTitle;
+
+  /// No description provided for @notificationOrderBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Hay una nueva actualización de tu pedido.'**
+  String get notificationOrderBody;
+
+  /// No description provided for @notificationPaymentTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualización del pago'**
+  String get notificationPaymentTitle;
+
+  /// No description provided for @notificationPaymentBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambió el estado de pago de tu pedido.'**
+  String get notificationPaymentBody;
+
+  /// No description provided for @notificationSupportTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualización de asistencia'**
+  String get notificationSupportTitle;
+
+  /// No description provided for @notificationSupportBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Hay una nueva actualización de tu solicitud.'**
+  String get notificationSupportBody;
+
+  /// No description provided for @notificationSystemTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Información de la tienda'**
+  String get notificationSystemTitle;
+
+  /// No description provided for @notificationSystemBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Hay una actualización importante de la tienda.'**
+  String get notificationSystemBody;
+
   /// No description provided for @customerAddressLine1.
   ///
   /// In es, this message translates to:
@@ -1993,6 +2293,24 @@ abstract class AppLocalizations {
   /// **'Los precios y la disponibilidad se confirmarán nuevamente antes de crear el pedido.'**
   String get cartPriceDisclaimer;
 
+  /// No description provided for @cartChooseDelivery.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegir entrega'**
+  String get cartChooseDelivery;
+
+  /// No description provided for @cartModifyContext.
+  ///
+  /// In es, this message translates to:
+  /// **'Modificar'**
+  String get cartModifyContext;
+
+  /// No description provided for @cartSavingsLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahorro'**
+  String get cartSavingsLabel;
+
   /// No description provided for @cartLineSemantics.
   ///
   /// In es, this message translates to:
@@ -2274,6 +2592,48 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No configurado para Storefront v1.'**
   String get checkoutPaymentOnlineUnavailable;
+
+  /// No description provided for @checkoutPaymentScreenTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Pago'**
+  String get checkoutPaymentScreenTitle;
+
+  /// No description provided for @checkoutContinuePaymentAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Ir al pago'**
+  String get checkoutContinuePaymentAction;
+
+  /// No description provided for @checkoutConfirmOrderAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar pedido'**
+  String get checkoutConfirmOrderAction;
+
+  /// No description provided for @checkoutContinueOnlineAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar al pago'**
+  String get checkoutContinueOnlineAction;
+
+  /// No description provided for @checkoutPaymentProcessing.
+  ///
+  /// In es, this message translates to:
+  /// **'Estamos comprobando el estado del pago. No inicies otro cobro.'**
+  String get checkoutPaymentProcessing;
+
+  /// No description provided for @checkoutViewOrderAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver pedido'**
+  String get checkoutViewOrderAction;
+
+  /// No description provided for @checkoutBackHomeAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Volver al inicio'**
+  String get checkoutBackHomeAction;
 
   /// No description provided for @checkoutPaymentRequired.
   ///
@@ -3108,6 +3468,456 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Entrega en curso'**
   String get deliveryTrackingInDeliveryIndicator;
+
+  /// No description provided for @ordersReorderAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Volver a comprar'**
+  String get ordersReorderAction;
+
+  /// No description provided for @ordersReorderTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Volver a comprar artículos'**
+  String get ordersReorderTitle;
+
+  /// No description provided for @ordersReorderCurrentPrice.
+  ///
+  /// In es, this message translates to:
+  /// **'Precio actual'**
+  String get ordersReorderCurrentPrice;
+
+  /// No description provided for @ordersReorderHistoricalPrice.
+  ///
+  /// In es, this message translates to:
+  /// **'Precio del pedido'**
+  String get ordersReorderHistoricalPrice;
+
+  /// No description provided for @ordersReorderUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No disponible'**
+  String get ordersReorderUnavailable;
+
+  /// No description provided for @ordersReorderApply.
+  ///
+  /// In es, this message translates to:
+  /// **'Agregar disponibles al carro'**
+  String get ordersReorderApply;
+
+  /// No description provided for @ordersReorderApplying.
+  ///
+  /// In es, this message translates to:
+  /// **'Actualizando el carro…'**
+  String get ordersReorderApplying;
+
+  /// No description provided for @ordersReorderResultAdded.
+  ///
+  /// In es, this message translates to:
+  /// **'Artículos agregados'**
+  String get ordersReorderResultAdded;
+
+  /// No description provided for @ordersReorderResultSkipped.
+  ///
+  /// In es, this message translates to:
+  /// **'Artículos no agregados'**
+  String get ordersReorderResultSkipped;
+
+  /// No description provided for @ordersReorderFailure.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos verificar esta recompra. Intenta nuevamente.'**
+  String get ordersReorderFailure;
+
+  /// No description provided for @ordersReorderOpenCart.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir carro'**
+  String get ordersReorderOpenCart;
+
+  /// No description provided for @afterSalesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Asistencia posventa'**
+  String get afterSalesTitle;
+
+  /// No description provided for @afterSalesEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'No tienes solicitudes de asistencia.'**
+  String get afterSalesEmpty;
+
+  /// No description provided for @afterSalesCreate.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitar asistencia'**
+  String get afterSalesCreate;
+
+  /// No description provided for @afterSalesTypeOrderProblem.
+  ///
+  /// In es, this message translates to:
+  /// **'Problema con el pedido'**
+  String get afterSalesTypeOrderProblem;
+
+  /// No description provided for @afterSalesTypeReturnRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud de devolución'**
+  String get afterSalesTypeReturnRequest;
+
+  /// No description provided for @afterSalesTypeRefundRequest.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud de reembolso'**
+  String get afterSalesTypeRefundRequest;
+
+  /// No description provided for @afterSalesReasonDamaged.
+  ///
+  /// In es, this message translates to:
+  /// **'Artículo dañado'**
+  String get afterSalesReasonDamaged;
+
+  /// No description provided for @afterSalesReasonWrongItem.
+  ///
+  /// In es, this message translates to:
+  /// **'Artículo incorrecto'**
+  String get afterSalesReasonWrongItem;
+
+  /// No description provided for @afterSalesReasonMissingItem.
+  ///
+  /// In es, this message translates to:
+  /// **'Artículo faltante'**
+  String get afterSalesReasonMissingItem;
+
+  /// No description provided for @afterSalesReasonQualityIssue.
+  ///
+  /// In es, this message translates to:
+  /// **'Problema de calidad'**
+  String get afterSalesReasonQualityIssue;
+
+  /// No description provided for @afterSalesReasonChangedMind.
+  ///
+  /// In es, this message translates to:
+  /// **'Cambié de opinión'**
+  String get afterSalesReasonChangedMind;
+
+  /// No description provided for @afterSalesReasonDeliveryIssue.
+  ///
+  /// In es, this message translates to:
+  /// **'Problema de entrega'**
+  String get afterSalesReasonDeliveryIssue;
+
+  /// No description provided for @afterSalesReasonOther.
+  ///
+  /// In es, this message translates to:
+  /// **'Otro'**
+  String get afterSalesReasonOther;
+
+  /// No description provided for @afterSalesStatusSubmitted.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviada'**
+  String get afterSalesStatusSubmitted;
+
+  /// No description provided for @afterSalesStatusReviewing.
+  ///
+  /// In es, this message translates to:
+  /// **'En revisión'**
+  String get afterSalesStatusReviewing;
+
+  /// No description provided for @afterSalesStatusApproved.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprobada'**
+  String get afterSalesStatusApproved;
+
+  /// No description provided for @afterSalesStatusRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazada'**
+  String get afterSalesStatusRejected;
+
+  /// No description provided for @afterSalesStatusReturnRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Devolución requerida'**
+  String get afterSalesStatusReturnRequired;
+
+  /// No description provided for @afterSalesStatusReceived.
+  ///
+  /// In es, this message translates to:
+  /// **'Devolución recibida'**
+  String get afterSalesStatusReceived;
+
+  /// No description provided for @afterSalesStatusRefundPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Reembolso pendiente'**
+  String get afterSalesStatusRefundPending;
+
+  /// No description provided for @afterSalesStatusRefunded.
+  ///
+  /// In es, this message translates to:
+  /// **'Reembolsada'**
+  String get afterSalesStatusRefunded;
+
+  /// No description provided for @afterSalesStatusClosed.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrada'**
+  String get afterSalesStatusClosed;
+
+  /// No description provided for @afterSalesNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Nota opcional'**
+  String get afterSalesNote;
+
+  /// No description provided for @afterSalesItems.
+  ///
+  /// In es, this message translates to:
+  /// **'Artículos afectados'**
+  String get afterSalesItems;
+
+  /// No description provided for @afterSalesQuantity.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad'**
+  String get afterSalesQuantity;
+
+  /// No description provided for @afterSalesSubmit.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar solicitud'**
+  String get afterSalesSubmit;
+
+  /// No description provided for @afterSalesCancel.
+  ///
+  /// In es, this message translates to:
+  /// **'Cancelar solicitud'**
+  String get afterSalesCancel;
+
+  /// No description provided for @afterSalesTimeline.
+  ///
+  /// In es, this message translates to:
+  /// **'Cronología'**
+  String get afterSalesTimeline;
+
+  /// No description provided for @afterSalesEvidence.
+  ///
+  /// In es, this message translates to:
+  /// **'Pruebas adjuntas'**
+  String get afterSalesEvidence;
+
+  /// No description provided for @afterSalesEvidenceAttach.
+  ///
+  /// In es, this message translates to:
+  /// **'Adjuntar imágenes'**
+  String get afterSalesEvidenceAttach;
+
+  /// No description provided for @afterSalesEvidenceHelp.
+  ///
+  /// In es, this message translates to:
+  /// **'Hasta 3 imágenes JPG, PNG o WebP. Las pruebas se mantienen privadas.'**
+  String get afterSalesEvidenceHelp;
+
+  /// No description provided for @afterSalesEvidenceSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} imágenes seleccionadas'**
+  String afterSalesEvidenceSelected(int count);
+
+  /// No description provided for @afterSalesEvidencePickerFailure.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos abrir tu biblioteca de fotos.'**
+  String get afterSalesEvidencePickerFailure;
+
+  /// No description provided for @afterSalesEvidenceUploadFailure.
+  ///
+  /// In es, this message translates to:
+  /// **'La solicitud fue creada, pero no se pudieron cargar una o más imágenes.'**
+  String get afterSalesEvidenceUploadFailure;
+
+  /// No description provided for @afterSalesFailure.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos completar esta acción. Intenta nuevamente.'**
+  String get afterSalesFailure;
+
+  /// No description provided for @afterSalesSelectItem.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona al menos un artículo.'**
+  String get afterSalesSelectItem;
+
+  /// No description provided for @afterSalesCaseCode.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud'**
+  String get afterSalesCaseCode;
+
+  /// No description provided for @reviewsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Reseñas'**
+  String get reviewsTitle;
+
+  /// No description provided for @reviewsVerified.
+  ///
+  /// In es, this message translates to:
+  /// **'Compra verificada'**
+  String get reviewsVerified;
+
+  /// No description provided for @reviewsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} reseñas'**
+  String reviewsCount(int count);
+
+  /// No description provided for @reviewsEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no hay reseñas publicadas.'**
+  String get reviewsEmpty;
+
+  /// No description provided for @reviewsLoadFailure.
+  ///
+  /// In es, this message translates to:
+  /// **'Las reseñas no están disponibles en este momento.'**
+  String get reviewsLoadFailure;
+
+  /// No description provided for @reviewsLeave.
+  ///
+  /// In es, this message translates to:
+  /// **'Dejar una reseña'**
+  String get reviewsLeave;
+
+  /// No description provided for @reviewsToReview.
+  ///
+  /// In es, this message translates to:
+  /// **'Por reseñar'**
+  String get reviewsToReview;
+
+  /// No description provided for @reviewsMine.
+  ///
+  /// In es, this message translates to:
+  /// **'Mis reseñas'**
+  String get reviewsMine;
+
+  /// No description provided for @reviewsRating.
+  ///
+  /// In es, this message translates to:
+  /// **'Calificación'**
+  String get reviewsRating;
+
+  /// No description provided for @reviewsComment.
+  ///
+  /// In es, this message translates to:
+  /// **'Comentario opcional'**
+  String get reviewsComment;
+
+  /// No description provided for @reviewsSubmit.
+  ///
+  /// In es, this message translates to:
+  /// **'Enviar a moderación'**
+  String get reviewsSubmit;
+
+  /// No description provided for @reviewsEdit.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar'**
+  String get reviewsEdit;
+
+  /// No description provided for @reviewsWithdraw.
+  ///
+  /// In es, this message translates to:
+  /// **'Retirar'**
+  String get reviewsWithdraw;
+
+  /// No description provided for @reviewsStatusPending.
+  ///
+  /// In es, this message translates to:
+  /// **'En moderación'**
+  String get reviewsStatusPending;
+
+  /// No description provided for @reviewsStatusPublished.
+  ///
+  /// In es, this message translates to:
+  /// **'Publicada'**
+  String get reviewsStatusPublished;
+
+  /// No description provided for @reviewsStatusRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazada'**
+  String get reviewsStatusRejected;
+
+  /// No description provided for @reviewsStatusWithdrawn.
+  ///
+  /// In es, this message translates to:
+  /// **'Retirada'**
+  String get reviewsStatusWithdrawn;
+
+  /// No description provided for @reviewsSubmitSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Reseña enviada a moderación.'**
+  String get reviewsSubmitSuccess;
+
+  /// No description provided for @reviewsFailure.
+  ///
+  /// In es, this message translates to:
+  /// **'No pudimos completar esta acción.'**
+  String get reviewsFailure;
+
+  /// No description provided for @reviewsAlreadySubmitted.
+  ///
+  /// In es, this message translates to:
+  /// **'Reseña ya enviada'**
+  String get reviewsAlreadySubmitted;
+
+  /// No description provided for @searchHistoryTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Búsquedas recientes'**
+  String get searchHistoryTitle;
+
+  /// No description provided for @searchHistoryClearAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar todas'**
+  String get searchHistoryClearAll;
+
+  /// No description provided for @searchHistoryRemove.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar búsqueda'**
+  String get searchHistoryRemove;
+
+  /// No description provided for @searchSuggestionsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Sugerencias'**
+  String get searchSuggestionsTitle;
+
+  /// No description provided for @searchSuggestionProduct.
+  ///
+  /// In es, this message translates to:
+  /// **'Producto'**
+  String get searchSuggestionProduct;
+
+  /// No description provided for @searchSuggestionCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Categoría'**
+  String get searchSuggestionCategory;
+
+  /// No description provided for @searchSuggestionBrand.
+  ///
+  /// In es, this message translates to:
+  /// **'Marca'**
+  String get searchSuggestionBrand;
 }
 
 class _AppLocalizationsDelegate

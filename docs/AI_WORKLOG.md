@@ -4817,3 +4817,37 @@
   `36de0062` tutti verdi sugli SHA esatti.
 - **Transizione**: TASK-048 e TASK-049 `DONE`; progetto `IDLE`, train `COMPLETE`.
 - **Handoff**: `USER_APPROVED_DONE`.
+
+## 2026-08-22 — CLIENT_COMMERCE_JOURNEY_COMPLETION start
+
+- **Baseline**: Client `fddd43c2f2b2c6d874f6280f18f1f92a249258c5`, Admin
+  `a787331a6e673b2daf93929b507aa18c6dc24e24`; entrambi `origin/main`, fetch/prune
+  e linked worktree puliti.
+- **Governance bounded**: Client era `IDLE`; Admin TASK-152 risultava formalmente
+  `ACTIVE / REVIEW` nonostante PR #94 merged e closeout Client già completo. Il record
+  Admin viene riconciliato con l’autorizzazione USER_APPROVER odierna prima di TASK-153.
+- **Planning unico**: architecture map e file map sono registrate una sola volta in
+  TASK-050; TASK-051–054 e Admin TASK-153–157 le consumano senza ripianificazione.
+- **Boundary**: sviluppo e staging soltanto; nessuna credential/device discovery,
+  production migration, provider purchase, store upload o modifica POS/gestionali.
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`, primo writer Admin/Supabase.
+
+## 2026-08-23 — CLIENT_COMMERCE_JOURNEY_COMPLETION execution checkpoint
+
+- **Admin**: PR #98 merge `512fcbbbe6e70015b11217330bb9f336e12c5101` e
+  PR correttiva #99 merge `ebeeb057eb454e164f8f595e4be97e4fcd573b78`;
+  exact-SHA e main CI verdi, review indipendenti finali con P0/P1/P2 zero.
+- **Staging**: apply su `jpgoimipbothfgkokyvm` non eseguito perché i due tentativi
+  bounded del provider/CLI non hanno concluso; nessuna credential cercata e nessuna
+  migration production applicata. Classificazione: `STAGING_PARTIAL_EXTERNAL`.
+- **Client**: Address V2 e delivery context; Home/Cart/Checkout/payment e recovery;
+  inbox persistente e reorder; after-sales con evidence private, recensioni verificate
+  e search assist, localizzazione e accessibilità bounded.
+- **Correzione P2 contract/UI**: il form post-vendita usa ora il read model owner-scoped
+  degli snapshot storici `customer_after_sales_order_lines_v1`, non il preview reorder;
+  quantità residua server-side e parser Client fail-closed.
+- **Verifiche pre-review**: `dart analyze lib test integration_test` PASS; suite delle
+  feature modificate `287/287 PASS`; pgTAP Admin mirato finale `55/55 PASS`.
+- **Fase**: REVIEW; gate canonici Client completi rinviati al final candidate dopo
+  review/fix bounded, per rispettare il limite di una sola esecuzione completa.
+- **Handoff**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.

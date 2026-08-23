@@ -39,6 +39,87 @@ final class SupabaseCustomerNotificationRepository
   final Duration requestTimeout;
 
   @override
+  Future<CustomerNotificationPage> list({
+    required String shopSlug,
+    CustomerNotificationCategory? category,
+    CustomerNotificationCursor? before,
+    int pageSize = 25,
+  }) {
+    return _guard(() async {
+      if (!_shopSlug.hasMatch(shopSlug) ||
+          pageSize < 1 ||
+          pageSize > 50 ||
+          (before != null && !_uuid.hasMatch(before.id))) {
+        throw const CustomerNotificationRepositoryException(
+          CustomerNotificationFailureKind.invalid,
+        );
+      }
+      final raw = await port.invoke('customer_notifications_list_v1', {
+        'p_shop_slug': shopSlug,
+        'p_category': category == CustomerNotificationCategory.system
+            ? null
+            : category?.name,
+        'p_before_created_at': before?.createdAt.toUtc().toIso8601String(),
+        'p_before_id': before?.id,
+        'p_page_size': pageSize,
+      });
+      return _parsePage(raw, shopSlug: shopSlug, pageSize: pageSize);
+    });
+  }
+
+  @override
+  Future<DateTime> markRead(String notificationId) {
+    return _guard(() async {
+      if (!_uuid.hasMatch(notificationId)) {
+        throw const CustomerNotificationRepositoryException(
+          CustomerNotificationFailureKind.invalid,
+        );
+      }
+      final payload = _map(
+        await port.invoke('customer_notification_mark_read_v1', {
+          'p_notification_id': notificationId,
+        }),
+      );
+      _requireInboxEnvelope(payload);
+      if (payload['status'] == 'not_found') {
+        throw const CustomerNotificationRepositoryException(
+          CustomerNotificationFailureKind.notFound,
+        );
+      }
+      if (payload['status'] != 'ok') {
+        throw const CustomerNotificationRepositoryException(
+          CustomerNotificationFailureKind.unavailable,
+        );
+      }
+      return _date(payload, 'readAt');
+    });
+  }
+
+  @override
+  Future<int> markAllRead(String shopSlug) {
+    return _guard(() async {
+      if (!_shopSlug.hasMatch(shopSlug)) {
+        throw const CustomerNotificationRepositoryException(
+          CustomerNotificationFailureKind.invalid,
+        );
+      }
+      final payload = _map(
+        await port.invoke('customer_notifications_mark_all_read_v1', {
+          'p_shop_slug': shopSlug,
+        }),
+      );
+      _requireInboxEnvelope(payload);
+      final count = payload['updatedCount'];
+      if (payload['status'] != 'ok' || count is! int || count < 0) {
+        throw const CustomerNotificationRepositoryException(
+          CustomerNotificationFailureKind.unavailable,
+        );
+      }
+      return count;
+    });
+  }
+
+  @override
   Future<CustomerNotificationDestination> resolveRoute({
     required String shopSlug,
     required String routeToken,
@@ -184,4 +265,182 @@ final class SupabaseCustomerNotificationRepository
     'reservation_expiring' => CustomerNotificationEvent.reservationExpiring,
     _ => throw const FormatException('notification_route_event'),
   };
+
+  CustomerNotificationPage _parsePage(
+    Object? raw, {
+    required String shopSlug,
+    required int pageSize,
+  }) {
+    final payload = _map(raw);
+    _requireInboxEnvelope(payload);
+    if (payload['status'] != 'ok') {
+      throw CustomerNotificationRepositoryException(
+        payload['status'] == 'invalid'
+            ? CustomerNotificationFailureKind.invalid
+            : CustomerNotificationFailureKind.unavailable,
+      );
+    }
+    const allowed = {
+      'apiVersion',
+      'status',
+      'items',
+      'unreadCount',
+      'serverTime',
+    };
+    if (payload.keys.any((key) => !allowed.contains(key)) ||
+        payload['items'] is! List) {
+      throw const FormatException('notification_inbox_shape');
+    }
+    final rawItems = payload['items'] as List;
+    if (rawItems.length > pageSize) {
+      throw const FormatException('notification_inbox_page_size');
+    }
+    final items = rawItems
+        .map((item) => _parseNotification(item, expectedShopSlug: shopSlug))
+        .toList(growable: false);
+    if (items.map((item) => item.id).toSet().length != items.length) {
+      throw const FormatException('notification_inbox_duplicate');
+    }
+    final unread = payload['unreadCount'];
+    if (unread is! int || unread < 0) {
+      throw const FormatException('notification_inbox_unread');
+    }
+    final next = items.length == pageSize && items.isNotEmpty
+        ? CustomerNotificationCursor(
+            createdAt: items.last.createdAt,
+            id: items.last.id,
+          )
+        : null;
+    return CustomerNotificationPage(
+      items: items,
+      unreadCount: unread,
+      serverTime: _date(payload, 'serverTime'),
+      nextCursor: next,
+    );
+  }
+
+  CustomerNotification _parseNotification(
+    Object? raw, {
+    required String expectedShopSlug,
+  }) {
+    final map = _map(raw);
+    const allowed = {
+      'id',
+      'shopSlug',
+      'category',
+      'event',
+      'eventVersion',
+      'titleKey',
+      'bodyKey',
+      'safeArguments',
+      'destinationType',
+      'destinationId',
+      'createdAt',
+      'readAt',
+      'expiresAt',
+    };
+    if (map.keys.any((key) => !allowed.contains(key))) {
+      throw const FormatException('notification_inbox_item_keys');
+    }
+    final id = _requiredString(map, 'id');
+    final itemShop = _requiredString(map, 'shopSlug');
+    if (!_uuid.hasMatch(id) || itemShop != expectedShopSlug) {
+      throw const FormatException('notification_inbox_identity');
+    }
+    final category = switch (map['category']) {
+      'order' => CustomerNotificationCategory.order,
+      'payment' => CustomerNotificationCategory.payment,
+      'afterSales' => CustomerNotificationCategory.afterSales,
+      'system' => CustomerNotificationCategory.system,
+      _ => throw const FormatException('notification_inbox_category'),
+    };
+    final destination = switch (map['destinationType']) {
+      'order' => CustomerNotificationDestinationType.order,
+      'after_sales' => CustomerNotificationDestinationType.afterSales,
+      'product' => CustomerNotificationDestinationType.product,
+      'notifications' => CustomerNotificationDestinationType.notifications,
+      _ => throw const FormatException('notification_inbox_destination'),
+    };
+    final destinationId = map['destinationId'];
+    if ((destination == CustomerNotificationDestinationType.notifications &&
+            destinationId != null) ||
+        (destination != CustomerNotificationDestinationType.notifications &&
+            (destinationId is! String || !_uuid.hasMatch(destinationId)))) {
+      throw const FormatException('notification_inbox_destination_id');
+    }
+    final event = _boundedKey(map, 'event');
+    final titleKey = _boundedKey(map, 'titleKey');
+    final bodyKey = _boundedKey(map, 'bodyKey');
+    final version = map['eventVersion'];
+    if (version is! int || version < 1) {
+      throw const FormatException('notification_inbox_event_version');
+    }
+    final argumentsRaw = map['safeArguments'];
+    if (argumentsRaw is! Map) {
+      throw const FormatException('notification_inbox_arguments');
+    }
+    final arguments = <String, String>{};
+    for (final entry in argumentsRaw.entries) {
+      if (entry.key is! String ||
+          !const {'orderCode', 'caseCode'}.contains(entry.key) ||
+          entry.value is! String ||
+          (entry.value as String).runes.length > 40 ||
+          (entry.value as String).runes.any((rune) => rune < 0x20)) {
+        throw const FormatException('notification_inbox_safe_arguments');
+      }
+      arguments[entry.key as String] = entry.value as String;
+    }
+    return CustomerNotification(
+      id: id,
+      shopSlug: itemShop,
+      category: category,
+      event: event,
+      eventVersion: version,
+      titleKey: titleKey,
+      bodyKey: bodyKey,
+      safeArguments: arguments,
+      destinationType: destination,
+      destinationId: destinationId as String?,
+      createdAt: _date(map, 'createdAt'),
+      readAt: _optionalDate(map, 'readAt'),
+      expiresAt: _optionalDate(map, 'expiresAt'),
+    );
+  }
+
+  static Map<String, Object?> _map(Object? raw) {
+    if (raw is! Map) throw const FormatException('notification_inbox_map');
+    return raw.map((key, value) => MapEntry(key.toString(), value));
+  }
+
+  static void _requireInboxEnvelope(Map<String, Object?> payload) {
+    if (payload['apiVersion'] != 'customer-notifications.v1') {
+      throw const FormatException('notification_inbox_version');
+    }
+  }
+
+  static String _requiredString(Map<String, Object?> map, String key) {
+    final value = map[key];
+    if (value is! String || value.isEmpty || value != value.trim()) {
+      throw const FormatException('notification_inbox_string');
+    }
+    return value;
+  }
+
+  static String _boundedKey(Map<String, Object?> map, String key) {
+    final value = _requiredString(map, key);
+    if (!RegExp(r'^[a-z][a-zA-Z0-9_.]{1,119}$').hasMatch(value)) {
+      throw const FormatException('notification_inbox_key');
+    }
+    return value;
+  }
+
+  static DateTime _date(Map<String, Object?> map, String key) {
+    final value = _requiredString(map, key);
+    final parsed = DateTime.tryParse(value)?.toUtc();
+    if (parsed == null) throw const FormatException('notification_inbox_date');
+    return parsed;
+  }
+
+  static DateTime? _optionalDate(Map<String, Object?> map, String key) =>
+      map[key] == null ? null : _date(map, key);
 }

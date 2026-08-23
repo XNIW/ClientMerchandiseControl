@@ -18,12 +18,13 @@ import '../../../core/backend/backend_readiness_controller.dart';
 import '../../../core/backend/backend_readiness_state.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/config/app_environment.dart';
+import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../account/application/customer_account_controller.dart';
 import '../../account/domain/customer_account_models.dart';
-import '../../auth/application/auth_controller.dart';
-import '../../auth/domain/auth_state.dart';
 import '../../catalog/application/catalog_controller.dart';
+import '../../delivery_context/application/delivery_context_controller.dart';
+import '../../delivery_context/domain/delivery_context_models.dart';
 import '../../orders/application/customer_order_controller.dart';
 import '../../orders/domain/customer_order_models.dart';
 import '../../orders/domain/customer_order_selectors.dart';
@@ -43,12 +44,16 @@ class HomeScreen extends ConsumerWidget {
     final backendReadiness = ref.watch(backendReadinessControllerProvider);
     final homeState = ref.watch(homeControllerProvider);
     final accountState = ref.watch(customerAccountControllerProvider);
+    final deliveryContextState = ref.watch(deliveryContextControllerProvider);
     final orderState = ref.watch(customerOrderControllerProvider);
-    final authenticated =
-        ref.watch(authControllerProvider) is AuthAuthenticated;
     final primaryActiveOrder = selectPrimaryActiveOrder(orderState.orders);
+    final selectedAddressId = deliveryContextState.context?.addressId;
     final defaultAddress = accountState.snapshot?.addresses
-        .where((address) => address.isDefault)
+        .where(
+          (address) => selectedAddressId == null
+              ? address.isDefault
+              : address.id == selectedAddressId,
+        )
         .firstOrNull;
     final compactHeight =
         MediaQuery.sizeOf(context).height < 480 ||
@@ -100,7 +105,7 @@ class HomeScreen extends ConsumerWidget {
           ],
           _StoreContextCard(
             address: defaultAddress,
-            authenticated: authenticated,
+            contextValue: deliveryContextState.context,
             fulfillment: homeState.data?.settings.fulfillment,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -363,12 +368,12 @@ class HomeScreen extends ConsumerWidget {
 class _StoreContextCard extends StatelessWidget {
   const _StoreContextCard({
     required this.address,
-    required this.authenticated,
+    required this.contextValue,
     required this.fulfillment,
   });
 
   final CustomerAddress? address;
-  final bool authenticated;
+  final CustomerDeliveryContext? contextValue;
   final StorefrontFulfillment? fulfillment;
 
   @override
@@ -378,12 +383,28 @@ class _StoreContextCard extends StatelessWidget {
       if (fulfillment?.pickup == true) l10n.checkoutModePickup,
       if (fulfillment?.delivery == true) l10n.checkoutModeDelivery,
     ];
-    final title = address == null
-        ? l10n.homeSelectedStore
+    final pickup = contextValue?.mode == CustomerDeliveryMode.pickup;
+    final title = pickup
+        ? l10n.deliveryContextPickup
         : l10n.homeDeliveryDestination;
-    final subtitle = address == null
+    final subtitle = pickup
+        ? (contextValue?.pickupPointName ?? l10n.homeStoreContextFallback)
+        : address == null
         ? (modes.isEmpty ? l10n.homeStoreContextFallback : modes.join(' · '))
         : '${address!.label} · ${address!.commune}';
+    final fee = contextValue?.estimatedFeeClp;
+    final start = contextValue?.earliestSlotStartsAt;
+    final end = contextValue?.earliestSlotEndsAt;
+    final detail = start == null || end == null
+        ? fee == null
+              ? null
+              : l10n.deliveryContextEstimatedFee(
+                  ClpCurrencyFormatter().format(fee),
+                )
+        : '${MaterialLocalizations.of(context).formatShortDate(start.toLocal())} '
+              '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(start.toLocal()))}'
+              '–${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(end.toLocal()))}'
+              '${fee == null ? '' : ' · ${ClpCurrencyFormatter().format(fee)}'}';
     final card = Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -418,22 +439,28 @@ class _StoreContextCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  if (detail != null)
+                    Text(
+                      detail,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                 ],
               ),
             ),
-            if (authenticated) const Icon(Icons.chevron_right),
+            const Icon(Icons.chevron_right),
           ],
         ),
       ),
     );
-    if (!authenticated) return card;
     return Semantics(
       button: true,
       label: '$title, $subtitle',
       child: InkWell(
         key: const ValueKey('home-store-context'),
         borderRadius: BorderRadius.circular(AppRadii.card),
-        onTap: () => context.go(AppRoutes.accountLocation),
+        onTap: () => context.push(AppRoutes.deliveryContextLocation),
         child: ExcludeSemantics(child: card),
       ),
     );

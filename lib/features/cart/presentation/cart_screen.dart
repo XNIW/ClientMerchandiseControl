@@ -15,10 +15,14 @@ import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../home/presentation/storefront_product_card.dart';
 import '../../home/application/home_controller.dart';
+import '../../account/application/customer_account_controller.dart';
+import '../../account/domain/customer_account_models.dart';
+import '../../delivery_context/domain/delivery_context_models.dart';
 import '../../reservations/presentation/reservation_hold_panel.dart';
 import '../../storefront/domain/storefront_models.dart';
 import '../../storefront/presentation/storefront_product_metadata.dart';
 import '../application/cart_controller.dart';
+import '../application/cart_providers.dart';
 import '../application/cart_state.dart';
 import '../domain/cart_failure.dart';
 import '../domain/cart_models.dart';
@@ -57,7 +61,12 @@ class CartScreen extends ConsumerWidget {
                         : () => _confirmClear(context, ref),
                   ),
                 ),
-                _CartSummary(state: state),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.62,
+                  ),
+                  child: _CartSummary(state: state),
+                ),
               ],
             )
           : _CartBody(state: state),
@@ -159,6 +168,13 @@ class _CartBody extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _CartContextHeader(
+                    contextValue: ref
+                        .watch(cartDeliveryContextStateProvider)
+                        .context,
+                    address: _selectedAddress(
+                      ref.watch(customerAccountControllerProvider),
+                      ref.watch(cartDeliveryContextStateProvider).context,
+                    ),
                     fulfillment: ref
                         .watch(homeControllerProvider)
                         .data
@@ -252,8 +268,15 @@ class _EmptyCartContent extends StatelessWidget {
 }
 
 class _CartContextHeader extends StatelessWidget {
-  const _CartContextHeader({required this.fulfillment, required this.onClear});
+  const _CartContextHeader({
+    required this.contextValue,
+    required this.address,
+    required this.fulfillment,
+    required this.onClear,
+  });
 
+  final CustomerDeliveryContext? contextValue;
+  final CustomerAddress? address;
   final StorefrontFulfillment? fulfillment;
   final VoidCallback? onClear;
 
@@ -264,25 +287,91 @@ class _CartContextHeader extends StatelessWidget {
       if (fulfillment?.pickup == true) l10n.checkoutModePickup,
       if (fulfillment?.delivery == true) l10n.checkoutModeDelivery,
     ];
+    final pickup = contextValue?.mode == CustomerDeliveryMode.pickup;
+    final destination = pickup
+        ? contextValue?.pickupPointName
+        : address == null
+        ? null
+        : '${address!.label} · ${address!.commune}';
+    final status = switch (contextValue?.serviceabilityStatus) {
+      DeliveryServiceabilityStatus.serviceable =>
+        l10n.deliveryContextServiceable,
+      DeliveryServiceabilityStatus.unsupported =>
+        l10n.deliveryContextUnsupported,
+      DeliveryServiceabilityStatus.invalid => l10n.deliveryContextInvalid,
+      DeliveryServiceabilityStatus.temporarilyUnavailable =>
+        l10n.deliveryContextTemporarilyUnavailable,
+      null => l10n.deliveryContextInvalid,
+    };
+    final fee = contextValue?.estimatedFeeClp;
+    final slotStart = contextValue?.earliestSlotStartsAt;
+    final slotEnd = contextValue?.earliestSlotEndsAt;
+    final detail = slotStart == null || slotEnd == null
+        ? status
+        : '$status · '
+              '${MaterialLocalizations.of(context).formatShortDate(slotStart.toLocal())} '
+              '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(slotStart.toLocal()))}'
+              '–${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(slotEnd.toLocal()))}'
+              '${fee == null ? '' : ' · ${ClpCurrencyFormatter().format(fee)}'}';
     return Card.outlined(
       key: const ValueKey('cart-store-context'),
       margin: EdgeInsets.zero,
-      child: ListTile(
-        leading: const Icon(Icons.storefront_outlined),
-        title: Text(l10n.homeSelectedStore),
-        subtitle: Text(
-          modes.isEmpty ? l10n.homeStoreContextFallback : modes.join(' · '),
-        ),
-        trailing: Semantics(
-          button: true,
-          label: l10n.cartClearAction,
-          excludeSemantics: true,
-          child: IconButton(
-            key: const ValueKey('cart-clear'),
-            tooltip: l10n.cartClearAction,
-            onPressed: onClear,
-            icon: const Icon(Icons.delete_sweep_outlined),
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.sm),
+              child: Icon(
+                pickup
+                    ? Icons.storefront_outlined
+                    : Icons.local_shipping_outlined,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    pickup
+                        ? l10n.deliveryContextPickup
+                        : l10n.deliveryContextDelivery,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    destination ??
+                        (modes.isEmpty
+                            ? l10n.homeStoreContextFallback
+                            : modes.join(' · ')),
+                  ),
+                  Text(detail, style: Theme.of(context).textTheme.bodySmall),
+                  const SizedBox(height: AppSpacing.sm),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.xs,
+                    children: [
+                      TextButton.icon(
+                        key: const ValueKey('cart-change-delivery-context'),
+                        onPressed: () =>
+                            context.push(AppRoutes.deliveryContextLocation),
+                        icon: const Icon(Icons.edit_location_alt_outlined),
+                        label: Text(l10n.cartModifyContext),
+                      ),
+                      IconButton(
+                        key: const ValueKey('cart-clear'),
+                        tooltip: l10n.cartClearAction,
+                        onPressed: onClear,
+                        icon: const Icon(Icons.delete_sweep_outlined),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -501,6 +590,16 @@ class _CartSummary extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final snapshot = state.snapshot!;
+    final deliveryContext = ref.watch(cartDeliveryContextStateProvider).context;
+    final contextReady = deliveryContext?.isCheckoutReady ?? false;
+    final feeClp = deliveryContext?.estimatedFeeClp;
+    final savingsClp = snapshot.items.fold<int>(0, (total, line) {
+      final compareAt = line.compareAtPriceClp;
+      return total +
+          (compareAt != null && compareAt > line.priceClp
+              ? (compareAt - line.priceClp) * line.quantity
+              : 0);
+    });
     final subtotal = _formatter.format(snapshot.subtotalClp);
     final label = snapshot.quoteStatus == CartQuoteStatus.confirmed
         ? l10n.cartConfirmedSubtotal(subtotal)
@@ -530,42 +629,75 @@ class _CartSummary extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Semantics(
-                    key: const ValueKey('cart-subtotal'),
-                    label: label,
-                    excludeSemantics: true,
-                    child: Wrap(
-                      spacing: AppSpacing.sm,
-                      runSpacing: AppSpacing.xs,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Text(
-                          subtotal,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                        Chip(
-                          visualDensity: VisualDensity.compact,
-                          avatar: Icon(
-                            snapshot.quoteStatus == CartQuoteStatus.confirmed
-                                ? Icons.verified_outlined
-                                : Icons.info_outline,
-                            size: 18,
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Semantics(
+                            key: const ValueKey('cart-subtotal'),
+                            label: label,
+                            excludeSemantics: true,
+                            child: Wrap(
+                              spacing: AppSpacing.sm,
+                              runSpacing: AppSpacing.xs,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Text(
+                                  subtotal,
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.w800),
+                                ),
+                                Chip(
+                                  visualDensity: VisualDensity.compact,
+                                  avatar: Icon(
+                                    snapshot.quoteStatus ==
+                                            CartQuoteStatus.confirmed
+                                        ? Icons.verified_outlined
+                                        : Icons.info_outline,
+                                    size: 18,
+                                  ),
+                                  label: Text(statusLabel),
+                                ),
+                                if (state.isAuthenticated)
+                                  TextButton.icon(
+                                    key: const ValueKey('cart-revalidate'),
+                                    onPressed: state.isBusy
+                                        ? null
+                                        : ref
+                                              .read(
+                                                cartControllerProvider.notifier,
+                                              )
+                                              .revalidate,
+                                    icon: const Icon(Icons.verified_outlined),
+                                    label: Text(l10n.cartRevalidateAction),
+                                  ),
+                              ],
+                            ),
                           ),
-                          label: Text(statusLabel),
-                        ),
-                        if (state.isAuthenticated)
-                          TextButton.icon(
-                            key: const ValueKey('cart-revalidate'),
-                            onPressed: state.isBusy
-                                ? null
-                                : ref
-                                      .read(cartControllerProvider.notifier)
-                                      .revalidate,
-                            icon: const Icon(Icons.verified_outlined),
-                            label: Text(l10n.cartRevalidateAction),
+                          if (savingsClp > 0)
+                            _CartMoneyRow(
+                              label: l10n.cartSavingsLabel,
+                              value: _formatter.format(savingsClp),
+                            ),
+                          _CartMoneyRow(
+                            label: l10n.checkoutDeliveryFeeLabel,
+                            value: feeClp == null
+                                ? '—'
+                                : _formatter.format(feeClp),
                           ),
-                      ],
+                          _CartMoneyRow(
+                            label: l10n.checkoutEstimatedTotalLabel,
+                            value: contextReady
+                                ? _formatter.format(
+                                    snapshot.subtotalClp + (feeClp ?? 0),
+                                  )
+                                : '—',
+                            emphasized: true,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
@@ -573,7 +705,9 @@ class _CartSummary extends ConsumerWidget {
                     key: const ValueKey('cart-checkout'),
                     onPressed: state.isBusy
                         ? null
-                        : () => context.push(AppRoutes.checkoutLocation),
+                        : contextReady
+                        ? () => context.push(AppRoutes.checkoutLocation)
+                        : () => context.push(AppRoutes.deliveryContextLocation),
                     icon: state.isGlobalBusy
                         ? const SizedBox.square(
                             dimension: 20,
@@ -581,7 +715,9 @@ class _CartSummary extends ConsumerWidget {
                           )
                         : const Icon(Icons.shopping_bag_outlined),
                     label: Text(
-                      state.isAuthenticated
+                      !contextReady
+                          ? l10n.cartChooseDelivery
+                          : state.isAuthenticated
                           ? l10n.cartCheckoutAction
                           : l10n.cartSignInCheckoutAction,
                     ),
@@ -596,6 +732,47 @@ class _CartSummary extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+CustomerAddress? _selectedAddress(
+  CustomerAccountState account,
+  CustomerDeliveryContext? context,
+) {
+  final id = context?.addressId;
+  if (id == null) return null;
+  return account.snapshot?.addresses
+      .where((address) => address.id == id)
+      .firstOrNull;
+}
+
+class _CartMoneyRow extends StatelessWidget {
+  const _CartMoneyRow({
+    required this.label,
+    required this.value,
+    this.emphasized = false,
+  });
+
+  final String label;
+  final String value;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = emphasized
+        ? Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)
+        : Theme.of(context).textTheme.bodyMedium;
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.xs),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: style)),
+          Text(value, style: style),
+        ],
       ),
     );
   }

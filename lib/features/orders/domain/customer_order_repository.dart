@@ -18,6 +18,13 @@ abstract interface class CustomerOrderRepository {
     required int expectedStatusVersion,
     required String idempotencyKey,
   });
+
+  Future<CustomerReorderPreview> previewReorder(String orderId);
+
+  Future<CustomerReorderResult> applyReorder({
+    required String orderId,
+    required String idempotencyKey,
+  });
 }
 
 abstract interface class CustomerOrderCacheStore {

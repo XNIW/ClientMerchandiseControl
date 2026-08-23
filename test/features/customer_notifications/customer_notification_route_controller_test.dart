@@ -186,6 +186,26 @@ final class _Repository implements CustomerNotificationRepository {
   final List<String> calls = [];
 
   @override
+  Future<CustomerNotificationPage> list({
+    required String shopSlug,
+    CustomerNotificationCategory? category,
+    CustomerNotificationCursor? before,
+    int pageSize = 25,
+  }) async => CustomerNotificationPage(
+    items: const [],
+    unreadCount: 0,
+    serverTime: DateTime.utc(2026, 8, 23),
+    nextCursor: null,
+  );
+
+  @override
+  Future<int> markAllRead(String shopSlug) => throw UnimplementedError();
+
+  @override
+  Future<DateTime> markRead(String notificationId) =>
+      throw UnimplementedError();
+
+  @override
   Future<CustomerNotificationDestination> resolveRoute({
     required String shopSlug,
     required String routeToken,

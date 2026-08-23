@@ -174,7 +174,7 @@ class _CustomerAccountReady extends StatelessWidget {
               action: l10n.customerAddressDeleteAction,
             );
             if (confirmed) {
-              await controller.deleteAddress(address.id);
+              await controller.deleteAddress(address.id, address.version);
             }
           },
           onSetDefault: controller.setDefaultAddress,
@@ -381,7 +381,11 @@ class _AddressSection extends StatelessWidget {
   final List<CustomerAddress> addresses;
   final bool isBusy;
   final Future<void> Function(CustomerAddressDraft draft) onCreate;
-  final Future<void> Function(String addressId, CustomerAddressDraft draft)
+  final Future<void> Function(
+    String addressId,
+    int expectedVersion,
+    CustomerAddressDraft draft,
+  )
   onUpdate;
   final Future<void> Function(CustomerAddress address) onDelete;
   final Future<void> Function(String addressId) onSetDefault;
@@ -401,7 +405,7 @@ class _AddressSection extends StatelessWidget {
             onPressed: isBusy
                 ? null
                 : () async {
-                    final draft = await _showAddressEditor(context);
+                    final draft = await showCustomerAddressEditor(context);
                     if (draft != null) {
                       await onCreate(draft);
                     }
@@ -426,12 +430,12 @@ class _AddressSection extends StatelessWidget {
                 address: address,
                 isBusy: isBusy,
                 onEdit: () async {
-                  final draft = await _showAddressEditor(
+                  final draft = await showCustomerAddressEditor(
                     context,
                     address: address,
                   );
                   if (draft != null) {
-                    await onUpdate(address.id, draft);
+                    await onUpdate(address.id, address.version, draft);
                   }
                 },
                 onDelete: () => onDelete(address),
@@ -747,9 +751,10 @@ class _EmptySection extends StatelessWidget {
   }
 }
 
-Future<CustomerAddressDraft?> _showAddressEditor(
+Future<CustomerAddressDraft?> showCustomerAddressEditor(
   BuildContext context, {
   CustomerAddress? address,
+  CustomerAddressEditorInitial? initial,
 }) {
   final expectedSubjectId = ProviderScope.containerOf(
     context,
@@ -759,15 +764,48 @@ Future<CustomerAddressDraft?> _showAddressEditor(
     context: context,
     builder: (_) => _AuthBoundDialog(
       expectedSubjectId: expectedSubjectId,
-      child: _AddressEditorDialog(address: address),
+      child: _AddressEditorDialog(address: address, initial: initial),
     ),
   );
 }
 
+final class CustomerAddressEditorInitial {
+  const CustomerAddressEditorInitial({
+    this.label,
+    this.recipientName,
+    this.addressLine1,
+    this.addressLine2,
+    this.commune,
+    this.region,
+    this.postalCode,
+    this.countryCode = 'CL',
+    this.deliveryInstructions,
+    this.latitude,
+    this.longitude,
+    this.locationSource = CustomerAddressLocationSource.manual,
+    this.locationAccuracyMeters,
+  });
+
+  final String? label;
+  final String? recipientName;
+  final String? addressLine1;
+  final String? addressLine2;
+  final String? commune;
+  final String? region;
+  final String? postalCode;
+  final String countryCode;
+  final String? deliveryInstructions;
+  final double? latitude;
+  final double? longitude;
+  final CustomerAddressLocationSource locationSource;
+  final double? locationAccuracyMeters;
+}
+
 class _AddressEditorDialog extends StatefulWidget {
-  const _AddressEditorDialog({required this.address});
+  const _AddressEditorDialog({required this.address, this.initial});
 
   final CustomerAddress? address;
+  final CustomerAddressEditorInitial? initial;
 
   @override
   State<_AddressEditorDialog> createState() => _AddressEditorDialogState();
@@ -782,17 +820,32 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
   void initState() {
     super.initState();
     final address = widget.address;
+    final draft = address?.toDraft();
+    final initial = widget.initial;
     _controllers = {
-      'label': TextEditingController(text: address?.label),
-      'recipient': TextEditingController(text: address?.recipientName),
-      'line1': TextEditingController(text: address?.addressLine1),
-      'line2': TextEditingController(text: address?.addressLine2),
-      'commune': TextEditingController(text: address?.commune),
-      'region': TextEditingController(text: address?.region),
-      'postal': TextEditingController(text: address?.postalCode),
-      'country': TextEditingController(text: address?.countryCode ?? 'CL'),
+      'label': TextEditingController(text: initial?.label ?? draft?.label),
+      'recipient': TextEditingController(
+        text: initial?.recipientName ?? draft?.recipientName,
+      ),
+      'phone': TextEditingController(text: draft?.recipientPhoneE164),
+      'line1': TextEditingController(
+        text: initial?.addressLine1 ?? draft?.addressLine1,
+      ),
+      'line2': TextEditingController(
+        text: initial?.addressLine2 ?? draft?.addressLine2,
+      ),
+      'commune': TextEditingController(
+        text: initial?.commune ?? draft?.commune,
+      ),
+      'region': TextEditingController(text: initial?.region ?? draft?.region),
+      'postal': TextEditingController(
+        text: initial?.postalCode ?? draft?.postalCode,
+      ),
+      'country': TextEditingController(
+        text: initial?.countryCode ?? draft?.countryCode ?? 'CL',
+      ),
       'instructions': TextEditingController(
-        text: address?.deliveryInstructions,
+        text: initial?.deliveryInstructions ?? draft?.deliveryInstructions,
       ),
     };
   }
@@ -825,6 +878,16 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
               children: [
                 _field(l10n, 'label', l10n.customerAddressLabel, 40),
                 _field(l10n, 'recipient', l10n.customerAddressRecipient, 120),
+                _field(
+                  l10n,
+                  'phone',
+                  l10n.customerAddressPhone,
+                  16,
+                  optional: true,
+                  capitalization: TextCapitalization.none,
+                  keyboardType: TextInputType.phone,
+                  helperText: widget.address?.recipientPhoneE164,
+                ),
                 _field(l10n, 'line1', l10n.customerAddressLine1, 200),
                 _field(
                   l10n,
@@ -894,6 +957,8 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
     bool optional = false,
     int maxLines = 1,
     TextCapitalization capitalization = TextCapitalization.words,
+    TextInputType? keyboardType,
+    String? helperText,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -903,7 +968,8 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
         maxLength: maxRunes,
         maxLines: maxLines,
         textCapitalization: capitalization,
-        decoration: InputDecoration(labelText: label),
+        keyboardType: keyboardType,
+        decoration: InputDecoration(labelText: label, helperText: helperText),
         onChanged: (_) {
           if (_inputInvalid) {
             setState(() => _inputInvalid = false);
@@ -921,7 +987,10 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
                   !RegExp(r'^[A-Za-z]{2}$').hasMatch(normalized)) ||
               (key == 'postal' &&
                   normalized.isNotEmpty &&
-                  !RegExp(r'^[A-Za-z0-9 -]+$').hasMatch(normalized))) {
+                  !RegExp(r'^[A-Za-z0-9 -]+$').hasMatch(normalized)) ||
+              (key == 'phone' &&
+                  normalized.isNotEmpty &&
+                  !RegExp(r'^\+[1-9][0-9]{7,14}$').hasMatch(normalized))) {
             return l10n.customerFieldInvalid;
           }
           return null;
@@ -939,6 +1008,7 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
         CustomerAddressDraft(
           label: _controllers['label']!.text,
           recipientName: _controllers['recipient']!.text,
+          recipientPhoneE164: _controllers['phone']!.text,
           addressLine1: _controllers['line1']!.text,
           addressLine2: _controllers['line2']!.text,
           commune: _controllers['commune']!.text,
@@ -946,6 +1016,16 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
           postalCode: _controllers['postal']!.text,
           countryCode: _controllers['country']!.text,
           deliveryInstructions: _controllers['instructions']!.text,
+          latitude: widget.initial?.latitude ?? widget.address?.latitude,
+          longitude: widget.initial?.longitude ?? widget.address?.longitude,
+          locationSource:
+              widget.initial?.locationSource ??
+              widget.address?.locationSource ??
+              CustomerAddressLocationSource.manual,
+          locationAccuracyMeters:
+              widget.initial?.locationAccuracyMeters ??
+              widget.address?.locationAccuracyMeters,
+          isDefault: widget.address?.isDefault ?? false,
         ),
       );
     } on CustomerAccountInputException {

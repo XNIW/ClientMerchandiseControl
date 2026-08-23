@@ -92,7 +92,8 @@ void main() {
     ).firstMatch(validator);
     expect(
       runnerDigestAllowlist?.group(1),
-      '2ad2517589dee12a48bb0ca6df43aae109950b627daf06cdffc6c63c31de877c',
+      '2ad2517589dee12a48bb0ca6df43aae109950b627daf06cdffc6c63c31de877c '
+      'bd2534de5eb8211f058ee52ca2a453cd143b8b3c5d5ba3a0117ae15e60fc50aa',
     );
     expect(validator, contains('check-client-security.sh'));
     expect(validator, isNot(contains('/Users/')));

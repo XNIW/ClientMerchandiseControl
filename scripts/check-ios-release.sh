@@ -619,7 +619,7 @@ cmc_ios_release_expected_macho_paths=(
 # Anche objective_c normalizza il solo LC_UUID: il native asset conserva
 # sezioni identiche ma rigenera quel metadato fra clean build equivalenti.
 cmc_ios_release_expected_macho_digests=(
-  '2ad2517589dee12a48bb0ca6df43aae109950b627daf06cdffc6c63c31de877c'
+  '2ad2517589dee12a48bb0ca6df43aae109950b627daf06cdffc6c63c31de877c bd2534de5eb8211f058ee52ca2a453cd143b8b3c5d5ba3a0117ae15e60fc50aa'
   '847be0c00445269c63b4c1b3c475da7164a2257dad6bb0ffb99888af7c61dde7'
   'd1756c1031e3a0661f80dee4f6341b7c678021e571bf7026e1e1a1d61dac6868'
   # objective_c conserva l'exact-content completo dopo la sola

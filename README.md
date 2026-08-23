@@ -188,19 +188,19 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: TASK-050
-- **File task**: `docs/TASKS/TASK-050-delivery-context-smart-customer-addresses.md`
-- **Stato task**: ACTIVE
+- **Task attivo**: nessuno
+- **File task**: nessuno
+- **Stato task**: nessuno
 - **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Indicatore**: CLIENT_COMMERCE_JOURNEY_COMPLETION_COMPLETE
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
-- **Stato release train**: REVIEW
-- **Review integrata**: IN_PROGRESS
+- **Stato release train**: COMPLETE
+- **Review integrata**: APPROVED — P0/P1/P2 0, P3 1 accepted residual risk
 
-TASK-050 è l'unico task `ACTIVE / REVIEW`: il Fix batch Client ha chiuso i quattro
-P2 della review indipendente e attende la re-review exact-SHA. TASK-051–TASK-054
-restano coordinati dallo stesso candidate bounded; staging è classificato
-`STAGING_PARTIAL_EXTERNAL` senza migration production o attivazioni provider.
+TASK-050–TASK-054 sono `DONE`: Admin e Client sono integrati con review e CI
+exact-SHA verdi. Il risultato è tecnicamente completo; staging resta classificato
+`STAGING_PARTIAL_EXTERNAL` perché apply ed E2E-01…25 live sono `BLOCKED` dopo i due
+tentativi provider/CLI bounded. Nessuna migration production o activation è avvenuta.
 
 TASK-046–TASK-049 sono `DONE`: contratto Admin/Supabase ed editor Android/iOS sono
 integrati, E2E-01…14 staging e release candidate sono verificati e il Client resta

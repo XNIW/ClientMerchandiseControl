@@ -3,11 +3,11 @@
 ## Informazioni generali
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: ACTIVE
+- **Stato**: DONE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
+- **Responsabile**: USER_APPROVER
 - **Data creazione**: 2026-08-22
-- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Handoff**: USER_APPROVED_DONE
 - **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-050/`
 
 ## Obiettivo e scope
@@ -120,3 +120,20 @@ Admin/Supabase, quindi Client.
   governance `101/101`, architecture negative `17/17` e build debug dual-platform.
 
 `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## Review integrata e closeout
+
+- Re-review Client finali e review integrata: `APPROVED`; P0 0, P1 0, P2 0,
+  P3 1 non bloccante nel solo typegen schema-wide Admin.
+- PR Client #24 e #25 fuse normalmente; CI exact-SHA e main
+  `7b16aa81d44b7425727dc774d5842ccd277883e3` verdi 5/5.
+- Contract Admin integrato su
+  `ebeeb057eb454e164f8f595e4be97e4fcd573b78`, con CI main verde e pgTAP
+  finale `55/55 PASS`.
+- Staging `jpgoimipbothfgkokyvm`: apply ed E2E live non eseguiti dopo i due
+  tentativi provider/CLI bounded; stato `STAGING_PARTIAL_EXTERNAL`, production
+  invariata.
+- Classificazione: `CLIENT_COMMERCE_JOURNEY_TECHNICALLY_COMPLETE`;
+  progetto `IDLE` e nessun task successivo attivato.
+
+`USER_APPROVED_DONE`.

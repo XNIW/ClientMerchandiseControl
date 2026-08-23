@@ -1,7 +1,7 @@
 # TASK-051 — Cart, checkout and payment journey completion
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: TODO
+- **Stato**: DONE
 - **Dipende da**: TASK-050 e contract Admin/Supabase del train
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
 
@@ -18,3 +18,10 @@ server-enabled, recovery idempotente e ricevuta completa. Online resta
 - pay-at-pickup/COD/online disabled e payment timeout/replay sono coperti;
 - order snapshot conserva destinatario, telefono mascherabile, indirizzo e istruzioni;
 - test unit/widget, regression checkout/order e gate canonici sul final candidate.
+
+## Closeout
+
+Cart, checkout, `/checkout/payment`, metodi server-enabled, recovery idempotente e
+ricevuta sono integrati nel main Client. Pay-at-pickup e COD rispettano il contratto;
+online payment resta fail-closed `notConfigured`, senza successo simulato. Review
+integrata `APPROVED`, P0/P1/P2 zero.

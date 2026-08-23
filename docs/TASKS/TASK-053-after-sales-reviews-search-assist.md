@@ -1,7 +1,7 @@
 # TASK-053 — After-sales, verified reviews and search assist
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: TODO
+- **Stato**: DONE
 - **Dipende da**: TASK-052
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
 
@@ -17,3 +17,10 @@ senza AI o associazione all’identità.
 
 Owner/shop/RBAC/refund authority/evidence private, duplicate review denied,
 moderation/aggregate e search debounce/cancel/history/clear/offline.
+
+## Closeout
+
+After-sales owner/shop-scoped con evidence private, refund authority server/provider,
+recensioni verificate e moderate e search assist locale bounded sono integrati. Le
+mutation after-sales sono fenced sul cambio account/shop; le recensioni pubbliche
+sono paginate e gli aggregate restano server-side. Review integrata `APPROVED`.

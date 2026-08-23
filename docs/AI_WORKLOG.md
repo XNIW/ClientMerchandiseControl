@@ -4865,3 +4865,24 @@
 - **Staging**: `STAGING_PARTIAL_EXTERNAL`; nessuna migration production, provider o
   store activation.
 - **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.
+
+## 2026-08-23 — CLIENT_COMMERCE_JOURNEY_COMPLETION integrated review e closeout
+
+- **Admin**: PR #98 e #99 fuse; main
+  `ebeeb057eb454e164f8f595e4be97e4fcd573b78`, exact-SHA/main CI verdi e
+  pgTAP finale `55/55 PASS`.
+- **Client**: PR #24 merge `3bb4728222113534336de25abb377348c6808f4f`,
+  quindi fix contract/attestation PR #25 merge
+  `7b16aa81d44b7425727dc774d5842ccd277883e3`. PR #25 CI `32632358072`
+  e main CI `32633356160` entrambe verdi 5/5.
+- **Review integrata**: `APPROVED`, P0 0/P1 0/P2 0/P3 1; il solo P3 è il
+  typegen Admin schema-wide non riallineato, mentre i sette RPC Admin runtime
+  consumati sono tipizzati.
+- **Staging**: apply su `jpgoimipbothfgkokyvm` e conseguenti E2E-01…25 live
+  `BLOCKED` dopo i due tentativi provider/CLI bounded; nessun PASS inventato,
+  nessuna migration production e nessuna activation.
+- **Classificazione**:
+  `CLIENT_COMMERCE_JOURNEY_TECHNICALLY_COMPLETE / STAGING_PARTIAL_EXTERNAL`.
+- **Transizione**: TASK-050–TASK-054 `DONE`; progetto `IDLE`, nessun task
+  successivo attivato.
+- **Handoff**: `USER_APPROVED_DONE`.

@@ -1,7 +1,7 @@
 # TASK-052 — Notification inbox and reorder
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: TODO
+- **Stato**: DONE
 - **Dipende da**: TASK-051
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
 
@@ -16,3 +16,10 @@ idempotenti e senza prezzo o disponibilità storici.
 
 Owner/cross-owner, dedup, destinazioni sicure, account cleanup, prezzi correnti,
 unavailable/hidden/partial apply e nessuna creazione ordine automatica.
+
+## Closeout
+
+Inbox persistente, badge, read/read-all, pagination, cache offline e deep link
+allow-listed sono integrati. Il contratto `notifications` usa lo shop UUID bounded e
+resta no-op nella navigazione; URL arbitrari e ID non UUID sono negati. Reorder usa
+prezzo/disponibilità correnti e idempotency stabile. Review integrata `APPROVED`.

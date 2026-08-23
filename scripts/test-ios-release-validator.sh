@@ -511,6 +511,20 @@ cmc_ios_test_expect_failure privacy-sdk-content-mismatch \
 cp "${cmc_ios_test_tmp_root}/google-maps.valid.xcprivacy" \
   "${cmc_ios_test_maps_privacy}"
 
+cmc_ios_test_geolocator_privacy="${cmc_ios_test_fixture_app}/geolocator_apple_geolocator_apple.bundle/PrivacyInfo.xcprivacy"
+cp "${cmc_ios_test_geolocator_privacy}" \
+  "${cmc_ios_test_tmp_root}/geolocator.valid.xcprivacy"
+plutil -replace NSPrivacyAccessedAPITypes -json \
+  '[{"NSPrivacyAccessedAPIType":"NSPrivacyAccessedAPICategoryUserDefaults","NSPrivacyAccessedAPITypeReasons":["1C8F.1"]}]' \
+  "${cmc_ios_test_geolocator_privacy}"
+cmc_ios_test_expect_failure privacy-geolocator-content-mismatch \
+  DEPENDENCY_PRIVACY_MANIFEST_CONTENT_MISMATCH \
+  cmc_ios_test_validate \
+  --app "${cmc_ios_test_fixture_app}" \
+  --archive "${cmc_ios_test_fixture_archive}"
+cp "${cmc_ios_test_tmp_root}/geolocator.valid.xcprivacy" \
+  "${cmc_ios_test_geolocator_privacy}"
+
 cmc_ios_test_extra_framework="${cmc_ios_test_fixture_app}/Frameworks/Extra.framework"
 cp -R "${cmc_ios_test_fixture_app}/Frameworks/App.framework" \
   "${cmc_ios_test_extra_framework}"

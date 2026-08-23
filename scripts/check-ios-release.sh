@@ -229,6 +229,7 @@ cmc_ios_release_validate_privacy_manifest() {
         NSPrivacyCollectedDataTypePaymentInfo
         NSPrivacyCollectedDataTypePerformanceData
         NSPrivacyCollectedDataTypePhysicalAddress
+        NSPrivacyCollectedDataTypePreciseLocation
         NSPrivacyCollectedDataTypeProductInteraction
         NSPrivacyCollectedDataTypePurchaseHistory
         NSPrivacyCollectedDataTypeSearchHistory
@@ -550,17 +551,23 @@ cmc_ios_release_privacy_paths=(
   'Frameworks/Flutter.framework/PrivacyInfo.xcprivacy'
   'app_links_app_links.bundle/PrivacyInfo.xcprivacy'
   'flutter_secure_storage_darwin_flutter_secure_storage_darwin.bundle/PrivacyInfo.xcprivacy'
+  'geolocator_apple_geolocator_apple.bundle/PrivacyInfo.xcprivacy'
   'google_maps_flutter_ios_privacy.bundle/PrivacyInfo.xcprivacy'
+  'image_picker_ios_image_picker_ios.bundle/PrivacyInfo.xcprivacy'
+  'package_info_plus_package_info_plus.bundle/PrivacyInfo.xcprivacy'
   'share_plus_share_plus.bundle/PrivacyInfo.xcprivacy'
   'shared_preferences_foundation_shared_preferences_foundation.bundle/PrivacyInfo.xcprivacy'
   'url_launcher_ios_url_launcher_ios.bundle/PrivacyInfo.xcprivacy'
 )
 cmc_ios_release_privacy_sha256=(
-  '3528adeddf0b68a86a885a1f361b1e8e4c4c2002f03b1490bba3fa0c6b0ae7c2'
+  '839d6d9703503de79bd02af6e4a8cab444f7115186430f5b8136402d9c319ab1'
   '30e7356e5a4601a790ff13801eb5c16a361a7efed258ba0b7912976a072ba0c6'
   '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
   '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
+  '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
   '53f5cef36626b46c5490cdb9af8ab42c3c67778b21267e899ca6d494118ffb18'
+  '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
+  '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
   '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
   '333d51ec3d7daca74fe6a61bfb18074708bed233b4d5d0f3a1ad161e96d85b1c'
   '3b49c699d80484e28adc8dcd4edc6febc3e232a7d9bab57459dfadac2d80033d'
@@ -612,7 +619,7 @@ cmc_ios_release_expected_macho_paths=(
 # Anche objective_c normalizza il solo LC_UUID: il native asset conserva
 # sezioni identiche ma rigenera quel metadato fra clean build equivalenti.
 cmc_ios_release_expected_macho_digests=(
-  'dea7dc176e6ddd65afd5be5ba8946171bd71b4ad59e96c5c25ce93e368aa0c40 9ddf9cea0d563fa7e8c86b2768f7e291f932958787c4b48dd5c73b2bf2129702'
+  '2ad2517589dee12a48bb0ca6df43aae109950b627daf06cdffc6c63c31de877c'
   '847be0c00445269c63b4c1b3c475da7164a2257dad6bb0ffb99888af7c61dde7'
   'd1756c1031e3a0661f80dee4f6341b7c678021e571bf7026e1e1a1d61dac6868'
   # objective_c conserva l'exact-content completo dopo la sola
@@ -626,7 +633,10 @@ cmc_ios_release_expected_bundles=(
   'GoogleMapsResources.bundle/GoogleMaps.bundle/GMSCoreResources.bundle'
   'app_links_app_links.bundle'
   'flutter_secure_storage_darwin_flutter_secure_storage_darwin.bundle'
+  'geolocator_apple_geolocator_apple.bundle'
   'google_maps_flutter_ios_privacy.bundle'
+  'image_picker_ios_image_picker_ios.bundle'
+  'package_info_plus_package_info_plus.bundle'
   'share_plus_share_plus.bundle'
   'shared_preferences_foundation_shared_preferences_foundation.bundle'
   'url_launcher_ios_url_launcher_ios.bundle'
@@ -637,7 +647,10 @@ cmc_ios_release_expected_bundle_identifiers=(
   'com.google.Maps.GMSCoreResources'
   'app-links-7.2.1.app-links.resources'
   'flutter-secure-storage-darwin-0.3.2.flutter-secure-storage-darwin.resources'
+  'geolocator-apple-2.3.14.geolocator-apple.resources'
   'org.cocoapods.google-maps-flutter-ios-privacy'
+  'image-picker-ios-0.8.13-6.image-picker-ios.resources'
+  'package-info-plus-10.2.1.package-info-plus.resources'
   'share-plus-13.2.1.share-plus.resources'
   'shared-preferences-foundation-2.5.6.shared-preferences-foundation.resources'
   'url-launcher-ios-6.4.1.url-launcher-ios.resources'
@@ -648,7 +661,10 @@ cmc_ios_release_expected_bundle_digests=(
   '9209081554908f39eba54995e7f1af923b037c36ec1552b2b5323e30e3a34341'
   'e4097f81f87c2de3b34dbe384110530359eaaf5c5ca9d7f949232a99c7607cea'
   '4739815abb1b034c817ddc3f0ef657f5f0a334d841221ed5a169ae8f79a13e7c'
+  'cb388c2dd5cf38e13cacdd2b549db97cf2bf6f36f1fe11958054dd7cd1387cc3'
   '4dcf747f5905ba23a01db81d910fc97ae5aabbbfc6f76b1cb744f29c3ef8fe30'
+  '6e68c8ba19248bf9795320f9d39b959c977f864afa878354b228d826e367071f'
+  '49020119df9288805440888dd42c68d31dfcb4ba1a61cd7534c8d2c4212f4026'
   'af3f942514295e5901d95d9aef2ce76550b0f00e3fe0f2cdcb23b9641ec6cafe'
   '12bd63afd08944399c646dc2d414d6b5066c30ee6f991adca0a34f9e91d5619d'
   'd7f38e37827ebc035aab622778760496d28b4e7711d4f7d94d74617b607c9349'

@@ -27,12 +27,3 @@ final customerReviewsAccountProvider = FutureProvider<CustomerReviewsAccount>((
       .read(customerReviewRepositoryProvider)
       .listMine(shopSlug: shopSlug);
 });
-
-final storefrontProductReviewsProvider = FutureProvider.autoDispose
-    .family<StorefrontProductReviews, String>((ref, publicationId) async {
-      final shopSlug = ref.watch(appConfigProvider).storefrontShopSlug;
-      if (shopSlug == null) throw const CustomerReviewException('unavailable');
-      return ref
-          .read(customerReviewRepositoryProvider)
-          .listProduct(shopSlug: shopSlug, publicationId: publicationId);
-    });

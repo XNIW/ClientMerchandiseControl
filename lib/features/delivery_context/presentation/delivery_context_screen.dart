@@ -484,25 +484,13 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
   }
 
   Future<void> _createAndSelect(CustomerAddressDraft draft) async {
-    await ref
+    final created = await ref
         .read(customerAccountControllerProvider.notifier)
         .createAddress(draft);
-    if (!mounted) return;
-    final matches = ref
-        .read(customerAccountControllerProvider)
-        .snapshot
-        ?.addresses
-        .where(
-          (address) =>
-              address.addressLine1 == draft.addressLine1 &&
-              address.commune == draft.commune,
-        )
-        .toList();
-    if (matches != null && matches.isNotEmpty) {
-      await ref
-          .read(deliveryContextControllerProvider.notifier)
-          .selectAddress(addressId: matches.first.id);
-    }
+    if (!mounted || created == null) return;
+    await ref
+        .read(deliveryContextControllerProvider.notifier)
+        .selectAddress(addressId: created.id);
   }
 
   void _showLocationFallback() {

@@ -164,7 +164,9 @@ class _CustomerAccountReady extends StatelessWidget {
         _AddressSection(
           addresses: snapshot.addresses,
           isBusy: state.isMutating,
-          onCreate: (draft) => controller.createAddress(draft),
+          onCreate: (draft) async {
+            await controller.createAddress(draft);
+          },
           onUpdate: controller.updateAddress,
           onDelete: (address) async {
             final confirmed = await _confirm(

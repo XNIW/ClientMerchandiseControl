@@ -154,9 +154,12 @@ final class CustomerNotificationInboxController
         isLoadingMore: false,
       );
       await _saveCache(owner, shop);
-    } on CustomerNotificationRepositoryException catch (error) {
+    } on Object catch (error) {
       if (_current(owner, shop)) {
-        state = state.copyWith(failure: error.kind, isLoadingMore: false);
+        state = state.copyWith(
+          failure: _failureKind(error),
+          isLoadingMore: false,
+        );
       }
     }
   }
@@ -187,9 +190,9 @@ final class CustomerNotificationInboxController
         isMutating: false,
       );
       await _saveCache(owner, shop);
-    } on CustomerNotificationRepositoryException catch (error) {
+    } on Object catch (error) {
       if (_current(owner, shop)) {
-        state = state.copyWith(failure: error.kind, isMutating: false);
+        state = state.copyWith(failure: _failureKind(error), isMutating: false);
       }
     }
   }
@@ -209,9 +212,9 @@ final class CustomerNotificationInboxController
         isMutating: false,
       );
       await _saveCache(owner, shop);
-    } on CustomerNotificationRepositoryException catch (error) {
+    } on Object catch (error) {
       if (_current(owner, shop)) {
-        state = state.copyWith(failure: error.kind, isMutating: false);
+        state = state.copyWith(failure: _failureKind(error), isMutating: false);
       }
     }
   }
@@ -251,17 +254,18 @@ final class CustomerNotificationInboxController
         clearFailure: true,
       );
       await _saveCache(owner, shop);
-    } on CustomerNotificationRepositoryException catch (error) {
+    } on Object catch (error) {
       if (!_current(owner, shop) || generation != _generation) return;
+      final failure = _failureKind(error);
       final cached = state.items.isNotEmpty;
       state = state.copyWith(
         status:
             cached &&
-                (error.kind == CustomerNotificationFailureKind.offline ||
-                    error.kind == CustomerNotificationFailureKind.timeout)
+                (failure == CustomerNotificationFailureKind.offline ||
+                    failure == CustomerNotificationFailureKind.timeout)
             ? CustomerNotificationInboxStatus.offline
             : CustomerNotificationInboxStatus.failure,
-        failure: error.kind,
+        failure: failure,
         isRefreshing: false,
       );
     }
@@ -280,4 +284,9 @@ final class CustomerNotificationInboxController
 
   bool _current(String owner, String shop) =>
       !_disposed && _owner == owner && _shop == shop;
+
+  CustomerNotificationFailureKind _failureKind(Object error) =>
+      error is CustomerNotificationRepositoryException
+      ? error.kind
+      : CustomerNotificationFailureKind.unexpected;
 }

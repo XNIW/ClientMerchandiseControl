@@ -820,12 +820,12 @@ class AppLocalizationsIt extends AppLocalizations {
       'Nessuna fascia disponibile al momento';
 
   @override
-  String deliveryContextEstimatedFee(Object fee) {
+  String deliveryContextEstimatedFee(String fee) {
     return 'Consegna stimata: $fee';
   }
 
   @override
-  String deliveryContextEarliestSlot(Object slot) {
+  String deliveryContextEarliestSlot(String slot) {
     return 'Prima fascia: $slot';
   }
 
@@ -2193,6 +2193,9 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get reviewsFailure => 'Non è stato possibile completare l’operazione.';
+
+  @override
+  String get reviewsLoadMore => 'Carica altre recensioni';
 
   @override
   String get reviewsAlreadySubmitted => 'Recensione già inviata';

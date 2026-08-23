@@ -11,6 +11,7 @@ import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../cart/application/cart_controller.dart';
 import '../application/customer_order_providers.dart';
+import '../application/customer_reorder_attempt.dart';
 import '../domain/customer_order_models.dart';
 
 final class CustomerReorderCard extends ConsumerStatefulWidget {
@@ -26,6 +27,15 @@ final class CustomerReorderCard extends ConsumerStatefulWidget {
 final class _CustomerReorderCardState
     extends ConsumerState<CustomerReorderCard> {
   var _isLoading = false;
+  late final CustomerReorderAttempt _attempt;
+
+  @override
+  void initState() {
+    super.initState();
+    _attempt = CustomerReorderAttempt(
+      ref.read(customerOrderIdempotencyKeyFactoryProvider),
+    );
+  }
 
   Future<void> _open() async {
     if (_isLoading) return;
@@ -35,11 +45,16 @@ final class _CustomerReorderCardState
           .read(customerOrderRepositoryProvider)
           .previewReorder(widget.orderId);
       if (!mounted) return;
+      final idempotencyKey = _attempt.begin();
       await showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
         useSafeArea: true,
-        builder: (_) => _CustomerReorderSheet(preview: preview),
+        builder: (_) => _CustomerReorderSheet(
+          preview: preview,
+          idempotencyKey: idempotencyKey,
+          onDefinitiveResult: () => _attempt.complete(idempotencyKey),
+        ),
       );
     } on Object {
       if (!mounted) return;
@@ -79,9 +94,15 @@ final class _CustomerReorderCardState
 }
 
 final class _CustomerReorderSheet extends ConsumerStatefulWidget {
-  const _CustomerReorderSheet({required this.preview});
+  const _CustomerReorderSheet({
+    required this.preview,
+    required this.idempotencyKey,
+    required this.onDefinitiveResult,
+  });
 
   final CustomerReorderPreview preview;
+  final String idempotencyKey;
+  final VoidCallback onDefinitiveResult;
 
   @override
   ConsumerState<_CustomerReorderSheet> createState() =>
@@ -101,12 +122,12 @@ final class _CustomerReorderSheetState
           .read(customerOrderRepositoryProvider)
           .applyReorder(
             orderId: widget.preview.orderId,
-            idempotencyKey: ref.read(
-              customerOrderIdempotencyKeyFactoryProvider,
-            )(),
+            idempotencyKey: widget.idempotencyKey,
           );
+      widget.onDefinitiveResult();
+      if (!mounted) return;
+      setState(() => _result = result);
       await ref.read(cartControllerProvider.notifier).refresh();
-      if (mounted) setState(() => _result = result);
     } on Object {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

@@ -67,12 +67,23 @@ final class StorefrontProductReview {
   final bool verifiedPurchase;
 }
 
+final class StorefrontReviewCursor {
+  const StorefrontReviewCursor({
+    required this.beforeCreatedAt,
+    required this.beforeId,
+  });
+
+  final DateTime beforeCreatedAt;
+  final String beforeId;
+}
+
 final class StorefrontProductReviews {
   StorefrontProductReviews({
     required this.averageRating,
     required this.publishedCount,
     required Map<int, int> distribution,
     required List<StorefrontProductReview> items,
+    required this.nextCursor,
     required this.serverTime,
   }) : distribution = Map.unmodifiable(distribution),
        items = List.unmodifiable(items);
@@ -81,6 +92,7 @@ final class StorefrontProductReviews {
   final int publishedCount;
   final Map<int, int> distribution;
   final List<StorefrontProductReview> items;
+  final StorefrontReviewCursor? nextCursor;
   final DateTime serverTime;
 }
 

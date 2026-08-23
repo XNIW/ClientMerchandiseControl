@@ -4851,3 +4851,17 @@
 - **Fase**: REVIEW; gate canonici Client completi rinviati al final candidate dopo
   review/fix bounded, per rispettare il limite di una sola esecuzione completa.
 - **Handoff**: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`.
+
+## 2026-08-23 — TASK-050 Fix 1 e handoff
+
+- **Review indipendente**: `CHANGES_REQUIRED`, P0 0/P1 0/P2 4/P3 1; coverage
+  reviewer `91/91 PASS`.
+- **Fix**: fence after-sales owner/shop, idempotency reorder stabile, pagination
+  recensioni keyset e selezione address ID esatto; chiuso anche il drift documentale.
+- **Gate**: targeted fix verdi, analyze verde, `flutter test --coverage` 839/839,
+  APK debug e iOS Simulator debug verdi; `scripts/check.sh` completo verde con
+  test non-performance 829/829, repeat 5 x 14, performance 10/10, fixture security
+  61/61 + 7/7, governance 101/101 e architecture negative 17/17.
+- **Staging**: `STAGING_PARTIAL_EXTERNAL`; nessuna migration production, provider o
+  store activation.
+- **Handoff**: `CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

@@ -93,16 +93,30 @@ final class SupabaseCustomerReviewRepository
   Future<StorefrontProductReviews> listProduct({
     required String shopSlug,
     required String publicationId,
+    StorefrontReviewCursor? cursor,
+    int pageSize = 20,
   }) => _guard(() async {
     _inputShop(shopSlug);
     _inputUuid(publicationId);
+    if (cursor != null) {
+      _inputUuid(cursor.beforeId);
+      final before = cursor.beforeCreatedAt.toUtc();
+      if (before.year < 2020 || before.year > 2200) {
+        throw const CustomerReviewException('invalid');
+      }
+    }
+    if (pageSize < 1 || pageSize > 50) {
+      throw const CustomerReviewException('invalid');
+    }
     final payload = _payload(
       await port.invoke('storefront_product_reviews_v1', {
         'p_shop_slug': shopSlug,
         'p_publication_id': publicationId,
-        'p_before_created_at': null,
-        'p_before_id': null,
-        'p_page_size': 20,
+        'p_before_created_at': cursor?.beforeCreatedAt
+            .toUtc()
+            .toIso8601String(),
+        'p_before_id': cursor?.beforeId,
+        'p_page_size': pageSize,
       }),
       const {
         'apiVersion',
@@ -140,11 +154,24 @@ final class SupabaseCustomerReviewRepository
         count) {
       throw const FormatException('product_reviews_distribution_count');
     }
+    final items = _list(
+      payload,
+      'items',
+      pageSize,
+    ).map(_public).toList(growable: false);
+    _unique(items.map((item) => item.id));
+    final last = items.lastOrNull;
     return StorefrontProductReviews(
       averageRating: average.toDouble(),
       publishedCount: count,
       distribution: distribution,
-      items: _list(payload, 'items', 20).map(_public).toList(),
+      items: items,
+      nextCursor: items.length == pageSize && last != null
+          ? StorefrontReviewCursor(
+              beforeCreatedAt: last.createdAt,
+              beforeId: last.id,
+            )
+          : null,
       serverTime: _date(payload, 'serverTime'),
     );
   });
@@ -357,6 +384,13 @@ void _inputReview(int rating, String? comment) {
 void _inputUuid(String value) {
   if (!_uuidPattern.hasMatch(value)) {
     throw const CustomerReviewException('invalid');
+  }
+}
+
+void _unique(Iterable<String> values) {
+  final list = values.toList(growable: false);
+  if (list.toSet().length != list.length) {
+    throw const FormatException('customer_review_duplicate');
   }
 }
 

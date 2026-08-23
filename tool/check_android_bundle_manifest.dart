@@ -9,6 +9,8 @@ const _dynamicReceiverPermission =
 const _expectedUsesPermissions = <String>{
   'android.permission.INTERNET',
   'android.permission.ACCESS_NETWORK_STATE',
+  'android.permission.ACCESS_COARSE_LOCATION',
+  'android.permission.ACCESS_FINE_LOCATION',
   _dynamicReceiverPermission,
 };
 const _profileInstallReceiver =

@@ -23,6 +23,7 @@ const expectedIosCollectedDataTypes = <String>{
   'NSPrivacyCollectedDataTypeName',
   'NSPrivacyCollectedDataTypeEmailAddress',
   'NSPrivacyCollectedDataTypePhysicalAddress',
+  'NSPrivacyCollectedDataTypePreciseLocation',
   'NSPrivacyCollectedDataTypeUserID',
   'NSPrivacyCollectedDataTypePurchaseHistory',
   'NSPrivacyCollectedDataTypePaymentInfo',
@@ -268,6 +269,8 @@ Future<List<String>> validateRepository(Directory root) async {
     'android:icon="@mipmap/ic_launcher"',
     'android:allowBackup="false"',
     'android.permission.INTERNET',
+    'android.permission.ACCESS_COARSE_LOCATION',
+    'android.permission.ACCESS_FINE_LOCATION',
   ]);
   requireText(
     'android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml',
@@ -283,9 +286,17 @@ Future<List<String>> validateRepository(Directory root) async {
   ]);
 
   final manifest = file('android/app/src/main/AndroidManifest.xml');
-  if (manifest.existsSync() &&
-      manifest.readAsStringSync().contains('android.permission.ACCESS_')) {
-    errors.add('Android manifest unexpectedly requests a location permission');
+  if (manifest.existsSync()) {
+    final locationPermissions = RegExp(r'android\.permission\.ACCESS_[A-Z_]+')
+        .allMatches(manifest.readAsStringSync())
+        .map((match) => match.group(0))
+        .toSet();
+    if (!_sameStrings(locationPermissions.cast<Object?>(), const {
+      'android.permission.ACCESS_COARSE_LOCATION',
+      'android.permission.ACCESS_FINE_LOCATION',
+    })) {
+      errors.add('Android foreground location permission boundary is invalid');
+    }
   }
 
   final iconContents = file(

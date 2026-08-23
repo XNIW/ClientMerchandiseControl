@@ -17,4 +17,3 @@ senza AI o associazione all’identità.
 
 Owner/shop/RBAC/refund authority/evidence private, duplicate review denied,
 moderation/aggregate e search debounce/cancel/history/clear/offline.
-

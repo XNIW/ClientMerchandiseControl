@@ -1,6 +1,9 @@
 {
   "@@locale": "zh",
   "backendNotConfigured": "Backend no configurado: modo de desarrollo sin conexión.",
+  "@backendNotConfigured": {
+    "description": "Diagnóstico visible solo en builds debug de development sin backend configurado."
+  },
   "backendChecking": "Comprobando la conexión de la tienda…",
   "backendOffline": "Sin conexión. Puedes seguir explorando y volver a intentarlo.",
   "backendUnavailable": "La tienda no está disponible por el momento.",
@@ -12,39 +15,132 @@
   "@storefrontCacheStale": {"placeholders": {"date": {"type": "String"}}},
   "storefrontCacheRefreshing": "Actualizando en segundo plano…",
   "navigationHome": "Inicio",
+  "@navigationHome": {
+    "description": "Etiqueta de la navegación hacia Inicio."
+  },
   "navigationCatalog": "Catálogo",
+  "@navigationCatalog": {
+    "description": "Etiqueta de la navegación hacia el catálogo."
+  },
   "navigationOrders": "Pedidos",
+  "@navigationOrders": {
+    "description": "Etiqueta de la navegación hacia los pedidos del cliente."
+  },
   "navigationCartBadge": "{count, plural, =0{Carrito, sin productos} =1{Carrito, 1 producto} other{Carrito, {count} productos}}",
+  "@navigationCartBadge": {
+    "placeholders": {"count": {"type": "int"}}
+  },
   "navigationOrdersBadge": "{count, plural, =0{Pedidos, sin pedidos activos} =1{Pedidos, 1 pedido activo} other{Pedidos, {count} pedidos activos}}",
+  "@navigationOrdersBadge": {
+    "placeholders": {"count": {"type": "int"}}
+  },
   "navigationCart": "Carrito",
+  "@navigationCart": {
+    "description": "Etiqueta de la navegación hacia el carrito."
+  },
   "navigationAccount": "Cuenta",
+  "@navigationAccount": {
+    "description": "Etiqueta de la navegación hacia la cuenta."
+  },
   "homeTitle": "Inicio",
+  "@homeTitle": {
+    "description": "Título de la pantalla Inicio."
+  },
   "homeFoundationMessage": "Pronto podrás descubrir aquí las novedades de la tienda.",
+  "@homeFoundationMessage": {
+    "description": "Estado temporal de Inicio mientras no hay contenido público."
+  },
   "catalogTitle": "Catálogo",
+  "@catalogTitle": {
+    "description": "Título de la pantalla Catálogo."
+  },
   "catalogFoundationMessage": "El catálogo estará disponible aquí próximamente.",
+  "@catalogFoundationMessage": {
+    "description": "Estado temporal del catálogo antes de su conexión."
+  },
   "cartTitle": "Carrito",
+  "@cartTitle": {
+    "description": "Título de la pantalla Carrito."
+  },
   "cartFoundationMessage": "Tu carrito estará disponible cuando puedas elegir productos.",
+  "@cartFoundationMessage": {
+    "description": "Estado temporal del carrito antes de que existan productos."
+  },
   "accountTitle": "Cuenta",
+  "@accountTitle": {
+    "description": "Título de la pantalla Cuenta."
+  },
   "accountFoundationMessage": "Podrás acceder a tu cuenta cuando esta función esté disponible.",
+  "@accountFoundationMessage": {
+    "description": "Estado temporal de la cuenta antes de habilitar el acceso."
+  },
   "homeWelcomeTitle": "Todo listo para empezar a explorar",
+  "@homeWelcomeTitle": {
+    "description": "Título de bienvenida de Inicio."
+  },
   "homeWelcomeMessage": "Recorre las secciones de la tienda mientras preparamos el catálogo.",
+  "@homeWelcomeMessage": {
+    "description": "Mensaje de bienvenida honesto mientras el catálogo aún no contiene datos."
+  },
   "homeSearchLabel": "Buscar en la tienda",
+  "@homeSearchLabel": {
+    "description": "Etiqueta accesible del acceso a búsqueda en Inicio."
+  },
   "homeSearchHint": "¿Qué estás buscando?",
   "homeSelectedStore": "Tienda seleccionada",
   "homeDeliveryDestination": "Destino de entrega",
   "homeStoreContextFallback": "Disponibilidad confirmada por la tienda",
   "homeActiveOrderTitle": "Pedido activo",
   "homeActiveOrderSemantics": "Pedido activo {code}, estado {status}",
+  "@homeActiveOrderSemantics": {
+    "placeholders": {
+      "code": {"type": "String"},
+      "status": {"type": "String"}
+    }
+  },
+  "@homeSearchHint": {
+    "description": "Texto orientativo del acceso a búsqueda en Inicio."
+  },
   "homeCategoriesTitle": "Explora por categoría",
+  "@homeCategoriesTitle": {
+    "description": "Título de la sección de categorías de Inicio."
+  },
   "homeCategoriesMessage": "Las categorías aparecerán cuando el catálogo esté disponible.",
+  "@homeCategoriesMessage": {
+    "description": "Estado vacío de categorías sin inventar contenido comercial."
+  },
   "homeExploreCategories": "Ver categorías",
+  "@homeExploreCategories": {
+    "description": "Acción para abrir la vista de categorías del catálogo."
+  },
   "homeOffersTitle": "Ofertas",
+  "@homeOffersTitle": {
+    "description": "Título de la futura sección de ofertas."
+  },
   "homeOffersEmptyTitle": "Ofertas, próximamente",
+  "@homeOffersEmptyTitle": {
+    "description": "Título del estado vacío de ofertas."
+  },
   "homeOffersEmptyMessage": "Aquí mostraremos ofertas reales cuando estén disponibles.",
+  "@homeOffersEmptyMessage": {
+    "description": "Mensaje del estado vacío de ofertas, sin promociones ficticias."
+  },
   "homeFeaturedTitle": "Productos destacados",
+  "@homeFeaturedTitle": {
+    "description": "Título de la futura sección de productos destacados."
+  },
   "homeFeaturedEmptyTitle": "Destacados, próximamente",
+  "@homeFeaturedEmptyTitle": {
+    "description": "Título del estado vacío de productos destacados."
+  },
   "homeFeaturedEmptyMessage": "Esta sección mostrará productos reales cuando el catálogo esté disponible.",
+  "@homeFeaturedEmptyMessage": {
+    "description": "Mensaje del estado vacío de destacados, sin productos ficticios."
+  },
   "homeExploreCatalog": "Explorar catálogo",
+  "@homeExploreCatalog": {
+    "description": "Acción principal para abrir el catálogo."
+  },
   "homeLoadingTitle": "Cargando la tienda",
   "homeLoadingMessage": "Estamos preparando categorías, ofertas y productos destacados.",
   "homeLoadErrorTitle": "No pudimos cargar la tienda",
@@ -61,14 +157,32 @@
     "placeholders": {"percent": {"type": "String"}}
   },
   "catalogSearchLabel": "Buscar en el catálogo",
+  "@catalogSearchLabel": {
+    "description": "Etiqueta accesible del control de búsqueda del catálogo."
+  },
   "catalogSearchHint": "Busca productos o categorías",
+  "@catalogSearchHint": {
+    "description": "Texto orientativo del control de búsqueda del catálogo."
+  },
   "catalogSearchMinimum": "Escribe al menos 2 caracteres para buscar.",
   "catalogClearSearch": "Borrar búsqueda",
   "catalogFilterLabel": "Filtrar",
+  "@catalogFilterLabel": {
+    "description": "Etiqueta del futuro control de filtros."
+  },
   "catalogSortLabel": "Ordenar",
+  "@catalogSortLabel": {
+    "description": "Etiqueta del futuro control de orden."
+  },
   "catalogControlsUnavailable": "La búsqueda, los filtros y el orden estarán disponibles en el siguiente paso.",
+  "@catalogControlsUnavailable": {
+    "description": "Explica por qué los controles futuros aún no están habilitados."
+  },
   "catalogFiltersLabel": "Filtros del catálogo",
   "catalogLoadedCount": "{count, plural, =0{No hay productos cargados} =1{1 producto cargado} other{{count} productos cargados}}",
+  "@catalogLoadedCount": {
+    "placeholders": {"count": {"type": "int"}}
+  },
   "catalogShowFilters": "Mostrar filtros",
   "catalogHideFilters": "Ocultar filtros",
   "catalogFiltersUnavailableDuringSearch": "Durante la búsqueda puedes filtrar por categoría. Borra la búsqueda para usar disponibilidad, descuentos u orden.",
@@ -100,7 +214,16 @@
   "productDetailBrandLabel": "Marca",
   "productDetailPriceLabel": "Precio",
   "productDetailSavings": "Ahorras {amount}",
+  "@productDetailSavings": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
   "productDetailImagePosition": "Imagen {current} de {total}",
+  "@productDetailImagePosition": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
   "productDetailAvailabilityLabel": "Disponibilidad comercial",
   "productDetailFulfillmentLabel": "Opciones de compra",
   "productDetailPickup": "Retiro en tienda",
@@ -108,58 +231,208 @@
   "productDetailReservation": "Reserva",
   "productDetailPromotionLabel": "Promoción activa",
   "catalogCategoriesLabel": "Categorías",
+  "@catalogCategoriesLabel": {
+    "description": "Título accesible del selector de categorías públicas."
+  },
   "catalogAllCategories": "Todos",
+  "@catalogAllCategories": {
+    "description": "Opción del catálogo que elimina el filtro de categoría."
+  },
   "catalogLoadingMore": "Cargando más productos",
+  "@catalogLoadingMore": {
+    "description": "Estado accesible mientras se carga otra página keyset."
+  },
   "catalogLoadMoreError": "No pudimos cargar más productos",
+  "@catalogLoadMoreError": {
+    "description": "Título del error incremental sin eliminar productos visibles."
+  },
   "catalogConnectingTitle": "Preparando el catálogo",
+  "@catalogConnectingTitle": {
+    "description": "Título del estado de conexión del catálogo."
+  },
   "catalogConnectingMessage": "Estamos comprobando si la tienda está disponible.",
+  "@catalogConnectingMessage": {
+    "description": "Mensaje del estado de conexión del catálogo."
+  },
   "catalogEmptyTitle": "No hay productos publicados",
+  "@catalogEmptyTitle": {
+    "description": "Título del catálogo vacío."
+  },
   "catalogEmptyMessage": "Prueba otra categoría o vuelve más tarde.",
+  "@catalogEmptyMessage": {
+    "description": "Mensaje del catálogo vacío."
+  },
   "catalogOfflineTitle": "Estás sin conexión",
+  "@catalogOfflineTitle": {
+    "description": "Título del estado sin conexión del catálogo."
+  },
   "catalogOfflineMessage": "Comprueba tu conexión y vuelve a intentarlo. El resto de la app sigue disponible.",
+  "@catalogOfflineMessage": {
+    "description": "Mensaje recuperable del catálogo sin conexión."
+  },
   "catalogUnavailableTitle": "La tienda no está disponible",
+  "@catalogUnavailableTitle": {
+    "description": "Título del estado de servicio no disponible."
+  },
   "catalogUnavailableMessage": "No podemos preparar el catálogo público por el momento.",
+  "@catalogUnavailableMessage": {
+    "description": "Mensaje temporal de servicio no disponible."
+  },
   "catalogRetryTitle": "No pudimos comprobar la tienda",
+  "@catalogRetryTitle": {
+    "description": "Título del estado de error recuperable."
+  },
   "catalogRetryMessage": "Inténtalo de nuevo. También puedes seguir explorando otras secciones.",
+  "@catalogRetryMessage": {
+    "description": "Mensaje del estado de error recuperable."
+  },
   "cartEmptyTitle": "Tu carrito está vacío",
+  "@cartEmptyTitle": {
+    "description": "Título del carrito vacío."
+  },
   "cartEmptyMessage": "Cuando el catálogo esté disponible, podrás agregar productos aquí.",
+  "@cartEmptyMessage": {
+    "description": "Mensaje del carrito vacío sin prometer precios ni disponibilidad."
+  },
   "cartExploreCatalog": "Explorar catálogo",
+  "@cartExploreCatalog": {
+    "description": "Acción del carrito vacío para abrir el catálogo."
+  },
   "accountGuestTitle": "Tu cuenta",
+  "@accountGuestTitle": {
+    "description": "Título de Cuenta para una persona invitada."
+  },
   "accountGuestBenefit": "Inicia sesión para acceder a funciones personales. Puedes seguir explorando sin una cuenta.",
+  "@accountGuestBenefit": {
+    "description": "Explica el beneficio del acceso sin bloquear la navegación invitada."
+  },
   "accountContinueWithGoogle": "Continuar con Google",
+  "@accountContinueWithGoogle": {
+    "description": "Acción de autenticación con Google."
+  },
   "accountGoogleComingSoon": "El acceso con Google estará disponible próximamente.",
+  "@accountGoogleComingSoon": {
+    "description": "Aviso honesto cuando la autenticación aún no está habilitada."
+  },
   "accountBrowseAsGuest": "Seguir explorando como invitado",
+  "@accountBrowseAsGuest": {
+    "description": "Acción para continuar la navegación pública sin iniciar sesión."
+  },
   "accountAuthenticatedTitle": "Sesión iniciada",
+  "@accountAuthenticatedTitle": {
+    "description": "Título de Cuenta para una sesión autenticada."
+  },
   "accountNameFallback": "Cliente",
+  "@accountNameFallback": {
+    "description": "Nombre seguro cuando el perfil autenticado no incluye uno."
+  },
   "accountEmailFallback": "Correo no disponible",
+  "@accountEmailFallback": {
+    "description": "Texto seguro cuando la sesión no incluye correo."
+  },
   "accountSessionActive": "Tu sesión está activa.",
+  "@accountSessionActive": {
+    "description": "Confirmación breve de sesión autenticada."
+  },
   "accountLogout": "Cerrar sesión",
   "accountPersonalSettingsTitle": "Perfil, direcciones y privacidad",
   "accountPersonalSettingsDescription": "Gestiona tu identidad, idioma, direcciones y datos Storefront.",
   "accountNotificationsDescription": "Elige cómo recibir novedades reales de tus pedidos.",
   "accountOpenSourceLicenses": "Licencias de código abierto",
   "accountOpenSourceLicensesDescription": "Consulta las licencias del software incluido en esta aplicación.",
+  "@accountLogout": {
+    "description": "Acción para cerrar la sesión."
+  },
   "accountSigningInTitle": "Abriendo el acceso seguro",
+  "@accountSigningInTitle": {
+    "description": "Título mientras se inicia el acceso con Google."
+  },
   "accountSigningInMessage": "Completa el acceso en el navegador y vuelve a la aplicación.",
+  "@accountSigningInMessage": {
+    "description": "Instrucción segura durante el flujo OAuth externo."
+  },
   "accountCancelSignIn": "Cancelar acceso",
+  "@accountCancelSignIn": {
+    "description": "Acción para cancelar el flujo OAuth pendiente."
+  },
   "accountCancellingTitle": "Cancelando el acceso",
+  "@accountCancellingTitle": {
+    "description": "Título mientras se limpia un flujo OAuth cancelado."
+  },
   "accountCancellingMessage": "Estamos cerrando este intento de acceso de forma segura.",
+  "@accountCancellingMessage": {
+    "description": "Mensaje durante la cancelación del flujo OAuth."
+  },
   "accountCancelledTitle": "Acceso cancelado",
+  "@accountCancelledTitle": {
+    "description": "Título de cancelación no crítica del acceso."
+  },
   "accountCancelledMessage": "No se hizo ningún cambio en tu cuenta. Puedes intentarlo de nuevo.",
+  "@accountCancelledMessage": {
+    "description": "Mensaje de cancelación recuperable."
+  },
   "accountRetry": "Intentar de nuevo",
+  "@accountRetry": {
+    "description": "Acción manual para reintentar el acceso."
+  },
   "accountAuthErrorTitle": "No pudimos iniciar sesión",
+  "@accountAuthErrorTitle": {
+    "description": "Título genérico de error recuperable de autenticación."
+  },
   "accountConfigurationErrorTitle": "Acceso no disponible",
+  "@accountConfigurationErrorTitle": {
+    "description": "Título de error de configuración o almacenamiento seguro."
+  },
   "accountSigningOut": "Cerrando sesión…",
+  "@accountSigningOut": {
+    "description": "Estado mientras se elimina la sesión local."
+  },
   "accountAuthOffline": "Comprueba tu conexión y vuelve a intentarlo.",
+  "@accountAuthOffline": {
+    "description": "Error de autenticación sin conexión."
+  },
   "accountAuthProviderUnavailable": "Google no está disponible por el momento. Inténtalo más tarde.",
+  "@accountAuthProviderUnavailable": {
+    "description": "Error temporal del proveedor OAuth."
+  },
   "accountAuthBrowserLaunchFailed": "No pudimos abrir el navegador para continuar.",
+  "@accountAuthBrowserLaunchFailed": {
+    "description": "Error al abrir el navegador externo."
+  },
   "accountAuthInvalidCallback": "El retorno de acceso no era válido. Inicia un intento nuevo.",
+  "@accountAuthInvalidCallback": {
+    "description": "Error seguro para un callback OAuth rechazado."
+  },
   "accountAuthSessionExpired": "Tu sesión terminó. Inicia sesión de nuevo cuando quieras.",
+  "@accountAuthSessionExpired": {
+    "description": "Aviso cuando una sesión expira o es revocada."
+  },
   "accountAuthSecureStorageUnavailable": "Este dispositivo no puede proteger la sesión de forma segura.",
+  "@accountAuthSecureStorageUnavailable": {
+    "description": "Error cerrado de almacenamiento seguro."
+  },
   "accountAuthConfiguration": "El acceso con Google no está configurado para este entorno.",
+  "@accountAuthConfiguration": {
+    "description": "Error seguro de configuración OAuth."
+  },
   "accountAuthUnexpected": "Ocurrió un problema inesperado. Puedes intentarlo de nuevo.",
+  "@accountAuthUnexpected": {
+    "description": "Error de autenticación inesperado sin detalles técnicos."
+  },
   "accountAvatarLabel": "Avatar de {name}",
+  "@accountAvatarLabel": {
+    "description": "Etiqueta accesible del avatar de la cuenta.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Alex"
+      }
+    }
+  },
   "storefrontComingSoonLabel": "Próximamente",
+  "@storefrontComingSoonLabel": {
+    "description": "Etiqueta breve para funciones futuras no habilitadas."
+  },
   "favoritesTitle": "Favoritos",
   "favoritesOpen": "Ver favoritos",
   "favoritesEmptyTitle": "Aún no tienes favoritos",
@@ -174,6 +447,19 @@
   "favoriteUnavailableMessage": "Puedes conservar este favorito o quitarlo de la lista.",
   "productShare": "Compartir producto",
   "productShareText": "Mira {name} en Merchandise Control:\n{uri}",
+  "@productShareText": {
+    "description": "Texto público enviado al diálogo nativo de compartir.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Café"
+      },
+      "uri": {
+        "type": "String",
+        "example": "com.xniw.clientmerchandisecontrol://storefront/shop/product/id"
+      }
+    }
+  },
   "productShareError": "No pudimos abrir las opciones para compartir.",
   "customerAccountLoading": "Cargando tus datos de cuenta",
   "customerAccountRetry": "Volver a intentar",
@@ -207,6 +493,13 @@
   "customerAddressEdit": "Editar dirección",
   "customerAddressDeleteTitle": "Eliminar dirección",
   "customerAddressDeleteMessage": "¿Eliminar la dirección “{label}”?",
+  "@customerAddressDeleteMessage": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
   "customerAddressDeleteAction": "Eliminar",
   "customerAddressSaved": "Dirección guardada.",
   "customerAddressDeleted": "Dirección eliminada.",
@@ -242,7 +535,9 @@
   "deliveryContextInvalid": "Selecciona una dirección o punto válido",
   "deliveryContextTemporarilyUnavailable": "No hay una franja disponible por ahora",
   "deliveryContextEstimatedFee": "Entrega estimada: {fee}",
+  "@deliveryContextEstimatedFee": {"placeholders": {"fee": {"type": "String"}}},
   "deliveryContextEarliestSlot": "Primera franja: {slot}",
+  "@deliveryContextEarliestSlot": {"placeholders": {"slot": {"type": "String"}}},
   "deliveryContextOffline": "Mostrando el contexto guardado. Se volverá a validar al reconectar.",
   "deliveryContextRetry": "Reintentar",
   "deliveryContextManualFallback": "La dirección también se puede ingresar y revisar sin mapa.",
@@ -273,6 +568,19 @@
   "customerAddressCountryCode": "Código de país",
   "customerAddressInstructions": "Indicaciones de entrega (opcional)",
   "customerAddressSemantics": "Dirección {label}: {address}, {commune}",
+  "@customerAddressSemantics": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "address": {
+        "type": "String"
+      },
+      "commune": {
+        "type": "String"
+      }
+    }
+  },
   "customerPrivacyTitle": "Privacidad y datos",
   "customerPrivacyDescription": "Tú decides el consentimiento y puedes consultar una copia de los datos Storefront asociados a tu cuenta.",
   "customerPrivacyConsentTitle": "Consentimiento de privacidad",
@@ -314,11 +622,13 @@
   "customerNotificationsRevoke": "Revocar",
   "customerNotificationsRetry": "Reintentar",
   "reservationHoldCreateAction": "Reservar {quantity} por 15 min",
+  "@reservationHoldCreateAction": {"placeholders": {"quantity": {"type": "int"}}},
   "reservationHoldSignInAction": "Inicia sesión para reservar",
   "reservationHoldLoading": "Confirmando la reserva con la tienda",
   "reservationHoldActive": "Reserva activa",
   "reservationHoldExpiring": "La reserva vence pronto",
   "reservationHoldRemaining": "Quedan {time}",
+  "@reservationHoldRemaining": {"placeholders": {"time": {"type": "String"}}},
   "reservationHoldExpired": "La reserva venció y la capacidad volvió a la tienda.",
   "reservationHoldReleased": "Reserva liberada.",
   "reservationHoldConsumed": "La reserva ya fue utilizada.",
@@ -337,11 +647,14 @@
   "reservationHoldUnexpectedError": "No pudimos verificar la reserva. Inténtalo nuevamente.",
   "cartAddAction": "Agregar al carrito",
   "cartAddQuantityAction": "Agregar {quantity} al carrito",
+  "@cartAddQuantityAction": {"placeholders": {"quantity": {"type": "int"}}},
   "cartAddedNotice": "Producto agregado al carrito.",
   "cartGuestSyncMessage": "Tu carrito se guarda en este dispositivo y funciona sin conexión.",
   "cartAccountSyncMessage": "Tu carrito está asociado a tu cuenta y se valida con la tienda.",
   "cartIndicativeSubtotal": "Subtotal estimado: {price}",
+  "@cartIndicativeSubtotal": {"placeholders": {"price": {"type": "String"}}},
   "cartConfirmedSubtotal": "Subtotal validado: {price}",
+  "@cartConfirmedSubtotal": {"placeholders": {"price": {"type": "String"}}},
   "cartRevalidateAction": "Validar carrito",
   "cartEstimatedLabel": "Estimado",
   "cartValidatedLabel": "Validado",
@@ -351,6 +664,7 @@
   "cartClearMessage": "Se eliminarán todos los productos de este carrito.",
   "cartRemoveAction": "Eliminar",
   "cartQuantityLabel": "Cantidad: {quantity}",
+  "@cartQuantityLabel": {"placeholders": {"quantity": {"type": "int"}}},
   "cartDecreaseQuantity": "Reducir cantidad",
   "cartIncreaseQuantity": "Aumentar cantidad",
   "cartUnavailableLine": "Este producto ya no está disponible.",
@@ -377,6 +691,7 @@
   "cartModifyContext": "Modificar",
   "cartSavingsLabel": "Ahorro",
   "cartLineSemantics": "{name}, cantidad {quantity}, {price}",
+  "@cartLineSemantics": {"placeholders": {"name": {"type": "String"}, "quantity": {"type": "int"}, "price": {"type": "String"}}},
   "cartCheckoutAction": "Ir al checkout",
   "cartSignInCheckoutAction": "Inicia sesión y continúa",
   "checkoutTitle": "Checkout",
@@ -386,6 +701,7 @@
   "checkoutStepReview": "Resumen",
   "checkoutStepConfirmation": "Confirmación",
   "checkoutStepProgress": "Paso {current} de {total}: {title}",
+  "@checkoutStepProgress": {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}, "title": {"type": "String"}}},
   "checkoutAuthTitle": "Inicia sesión para confirmar",
   "checkoutAuthMessage": "Puedes explorar y conservar el carrito sin una cuenta. Para validar dirección, precios y disponibilidad necesitamos tu sesión de cliente.",
   "checkoutContinueBrowsing": "Volver al carrito",
@@ -456,6 +772,7 @@
   "checkoutConfirmedMessage": "Resumen confirmado por la tienda.",
   "checkoutExpiredMessage": "Este resumen venció. Vuelve a validar antes de continuar.",
   "checkoutQuoteRemaining": "Este resumen vence en {time}",
+  "@checkoutQuoteRemaining": {"placeholders": {"time": {"type": "String"}}},
   "checkoutChangesTitle": "Cambios que debes revisar",
   "checkoutConfirmAction": "Confirmar resumen",
   "checkoutAcceptChangesAction": "Aceptar cambios y confirmar",
@@ -465,7 +782,9 @@
   "checkoutOrderReceiptMessage": "Guardamos el pedido con el precio y la modalidad confirmados por la tienda.",
   "checkoutOrderCodeLabel": "Código de pedido",
   "checkoutOrderCodeSemantics": "Código de pedido {code}",
+  "@checkoutOrderCodeSemantics": {"placeholders": {"code": {"type": "String"}}},
   "checkoutOrderConfirmedMessage": "Pedido {code} confirmado.",
+  "@checkoutOrderConfirmedMessage": {"placeholders": {"code": {"type": "String"}}},
   "checkoutOrderStatusLabel": "Estado",
   "checkoutOrderPlacedAtLabel": "Creado",
   "checkoutOrderAuthoritativeNotice": "El total de este comprobante fue calculado y confirmado por el servidor. El pedido no es una venta fiscal.",
@@ -522,10 +841,15 @@
   "ordersRetry": "Reintentar",
   "ordersLoadMore": "Cargar más",
   "ordersItemCount": "{count} productos",
+  "@ordersItemCount": {"placeholders": {"count": {"type": "int"}}},
   "ordersCardSemantics": "Pedido {code}, estado {status}, total {total}.",
+  "@ordersCardSemantics": {"placeholders": {"code": {"type": "String"}, "status": {"type": "String"}, "total": {"type": "String"}}},
   "ordersPlacedAt": "Creado {date}",
+  "@ordersPlacedAt": {"placeholders": {"date": {"type": "String"}}},
   "ordersUpdatedAt": "Actualizado {date}",
+  "@ordersUpdatedAt": {"placeholders": {"date": {"type": "String"}}},
   "ordersCachedAt": "Copia guardada {date}",
+  "@ordersCachedAt": {"placeholders": {"date": {"type": "String"}}},
   "ordersTotalLabel": "Total",
   "ordersDetailTitle": "Detalle del pedido",
   "ordersProductsTitle": "Productos",
@@ -542,6 +866,7 @@
   "ordersNotFound": "El pedido no existe en esta tienda o no pertenece a esta cuenta.",
   "ordersUnexpected": "No pudimos verificar el pedido. La copia guardada permanece en modo de solo lectura.",
   "ordersCancellationDeadline": "Puedes cancelar hasta {date}",
+  "@ordersCancellationDeadline": {"placeholders": {"date": {"type": "String"}}},
   "ordersDetailRefresh": "Actualizar detalle",
   "ordersBackToOrders": "Volver a mis pedidos",
   "deliveryTrackingTitle": "Seguimiento de la entrega",
@@ -552,16 +877,21 @@
   "deliveryTrackingModeExternalCarrier": "Empresa de transporte externa",
   "deliveryTrackingModeLiveCourier": "Repartidor en vivo",
   "deliveryTrackingWindow": "Entrega prevista entre {start} y {end}",
+  "@deliveryTrackingWindow": {"placeholders": {"start": {"type": "String"}, "end": {"type": "String"}}},
   "deliveryTrackingLastUpdated": "Última actualización de ubicación: {date}",
+  "@deliveryTrackingLastUpdated": {"placeholders": {"date": {"type": "String"}}},
   "deliveryTrackingLiveWaiting": "La ubicación en vivo aparecerá cuando el repartidor inicie la entrega.",
   "deliveryTrackingFresh": "La ubicación se está actualizando",
   "deliveryTrackingStale": "La ubicación no se está actualizando",
   "deliveryTrackingEnded": "La ubicación dejó de compartirse",
   "deliveryTrackingCourierLabel": "Repartidor: {label}",
+  "@deliveryTrackingCourierLabel": {"placeholders": {"label": {"type": "String"}}},
   "deliveryTrackingExternalCode": "Referencia {code}",
+  "@deliveryTrackingExternalCode": {"placeholders": {"code": {"type": "String"}}},
   "deliveryTrackingPollingFallback": "Las actualizaciones en vivo se están reconectando. Revisamos periódicamente el estado de la entrega.",
   "deliveryTrackingOfflineCached": "Mostramos la última copia cifrada guardada en este dispositivo.",
   "deliveryTrackingMapSemantics": "Mapa de la entrega. {status}. {updated}",
+  "@deliveryTrackingMapSemantics": {"placeholders": {"status": {"type": "String"}, "updated": {"type": "String"}}},
   "deliveryTrackingMapRecenter": "Volver a centrar el mapa de la entrega",
   "deliveryTrackingMapLoading": "Cargando el mapa de la entrega",
   "deliveryTrackingMapStoreMarker": "Tienda",
@@ -569,81 +899,82 @@
   "deliveryTrackingMapCourierMarker": "Repartidor",
   "deliveryTrackingFollowAction": "Seguir entrega",
   "deliveryTrackingInDeliveryIndicator": "Entrega en curso",
-  "ordersReorderAction": "再次购买",
-  "ordersReorderTitle": "再次购买商品",
-  "ordersReorderCurrentPrice": "当前价格",
-  "ordersReorderHistoricalPrice": "订单价格",
-  "ordersReorderUnavailable": "不可购买",
-  "ordersReorderApply": "将可购商品加入购物车",
-  "ordersReorderApplying": "正在更新购物车…",
-  "ordersReorderResultAdded": "已加入商品",
-  "ordersReorderResultSkipped": "未加入商品",
-  "ordersReorderFailure": "无法核验此次再次购买，请重试。",
-  "ordersReorderOpenCart": "打开购物车",
-  "afterSalesTitle": "售后服务",
-  "afterSalesEmpty": "暂无售后申请。",
-  "afterSalesCreate": "申请售后",
-  "afterSalesTypeOrderProblem": "订单问题",
-  "afterSalesTypeReturnRequest": "退货申请",
-  "afterSalesTypeRefundRequest": "退款申请",
-  "afterSalesReasonDamaged": "商品损坏",
-  "afterSalesReasonWrongItem": "商品错误",
-  "afterSalesReasonMissingItem": "商品缺失",
-  "afterSalesReasonQualityIssue": "质量问题",
-  "afterSalesReasonChangedMind": "改变主意",
-  "afterSalesReasonDeliveryIssue": "配送问题",
-  "afterSalesReasonOther": "其他",
-  "afterSalesStatusSubmitted": "已提交",
-  "afterSalesStatusReviewing": "审核中",
-  "afterSalesStatusApproved": "已批准",
-  "afterSalesStatusRejected": "已拒绝",
-  "afterSalesStatusReturnRequired": "需要退货",
-  "afterSalesStatusReceived": "已收到退货",
-  "afterSalesStatusRefundPending": "退款处理中",
-  "afterSalesStatusRefunded": "已退款",
-  "afterSalesStatusClosed": "已关闭",
-  "afterSalesNote": "可选备注",
-  "afterSalesItems": "涉及商品",
-  "afterSalesQuantity": "数量",
-  "afterSalesSubmit": "提交申请",
-  "afterSalesCancel": "取消申请",
-  "afterSalesTimeline": "进度",
-  "afterSalesEvidence": "附件凭证",
-  "afterSalesEvidenceAttach": "添加图片",
-  "afterSalesEvidenceHelp": "最多 3 张 JPG、PNG 或 WebP 图片。证据保持私密。",
-  "afterSalesEvidenceSelected": "已选择 {count} 张图片",
+  "ordersReorderAction": "Volver a comprar",
+  "ordersReorderTitle": "Volver a comprar artículos",
+  "ordersReorderCurrentPrice": "Precio actual",
+  "ordersReorderHistoricalPrice": "Precio del pedido",
+  "ordersReorderUnavailable": "No disponible",
+  "ordersReorderApply": "Agregar disponibles al carro",
+  "ordersReorderApplying": "Actualizando el carro…",
+  "ordersReorderResultAdded": "Artículos agregados",
+  "ordersReorderResultSkipped": "Artículos no agregados",
+  "ordersReorderFailure": "No pudimos verificar esta recompra. Intenta nuevamente.",
+  "ordersReorderOpenCart": "Abrir carro",
+  "afterSalesTitle": "Asistencia posventa",
+  "afterSalesEmpty": "No tienes solicitudes de asistencia.",
+  "afterSalesCreate": "Solicitar asistencia",
+  "afterSalesTypeOrderProblem": "Problema con el pedido",
+  "afterSalesTypeReturnRequest": "Solicitud de devolución",
+  "afterSalesTypeRefundRequest": "Solicitud de reembolso",
+  "afterSalesReasonDamaged": "Artículo dañado",
+  "afterSalesReasonWrongItem": "Artículo incorrecto",
+  "afterSalesReasonMissingItem": "Artículo faltante",
+  "afterSalesReasonQualityIssue": "Problema de calidad",
+  "afterSalesReasonChangedMind": "Cambié de opinión",
+  "afterSalesReasonDeliveryIssue": "Problema de entrega",
+  "afterSalesReasonOther": "Otro",
+  "afterSalesStatusSubmitted": "Enviada",
+  "afterSalesStatusReviewing": "En revisión",
+  "afterSalesStatusApproved": "Aprobada",
+  "afterSalesStatusRejected": "Rechazada",
+  "afterSalesStatusReturnRequired": "Devolución requerida",
+  "afterSalesStatusReceived": "Devolución recibida",
+  "afterSalesStatusRefundPending": "Reembolso pendiente",
+  "afterSalesStatusRefunded": "Reembolsada",
+  "afterSalesStatusClosed": "Cerrada",
+  "afterSalesNote": "Nota opcional",
+  "afterSalesItems": "Artículos afectados",
+  "afterSalesQuantity": "Cantidad",
+  "afterSalesSubmit": "Enviar solicitud",
+  "afterSalesCancel": "Cancelar solicitud",
+  "afterSalesTimeline": "Cronología",
+  "afterSalesEvidence": "Pruebas adjuntas",
+  "afterSalesEvidenceAttach": "Adjuntar imágenes",
+  "afterSalesEvidenceHelp": "Hasta 3 imágenes JPG, PNG o WebP. Las pruebas se mantienen privadas.",
+  "afterSalesEvidenceSelected": "{count} imágenes seleccionadas",
   "@afterSalesEvidenceSelected": {"placeholders": {"count": {"type": "int"}}},
-  "afterSalesEvidencePickerFailure": "无法打开照片图库。",
-  "afterSalesEvidenceUploadFailure": "申请已创建，但一张或多张图片上传失败。",
-  "afterSalesFailure": "无法完成此操作，请重试。",
-  "afterSalesSelectItem": "请至少选择一件商品。",
-  "afterSalesCaseCode": "申请",
-  "reviewsTitle": "评价",
-  "reviewsVerified": "已验证购买",
-  "reviewsCount": "{count} 条评价",
+  "afterSalesEvidencePickerFailure": "No pudimos abrir tu biblioteca de fotos.",
+  "afterSalesEvidenceUploadFailure": "La solicitud fue creada, pero no se pudieron cargar una o más imágenes.",
+  "afterSalesFailure": "No pudimos completar esta acción. Intenta nuevamente.",
+  "afterSalesSelectItem": "Selecciona al menos un artículo.",
+  "afterSalesCaseCode": "Solicitud",
+  "reviewsTitle": "Reseñas",
+  "reviewsVerified": "Compra verificada",
+  "reviewsCount": "{count} reseñas",
   "@reviewsCount": {"placeholders": {"count": {"type": "int"}}},
-  "reviewsEmpty": "暂无已发布评价。",
-  "reviewsLoadFailure": "暂时无法加载评价。",
-  "reviewsLeave": "发表评价",
-  "reviewsToReview": "待评价",
-  "reviewsMine": "我的评价",
-  "reviewsRating": "评分",
-  "reviewsComment": "可选评论",
-  "reviewsSubmit": "提交审核",
-  "reviewsEdit": "编辑",
-  "reviewsWithdraw": "撤回",
-  "reviewsStatusPending": "审核中",
-  "reviewsStatusPublished": "已发布",
-  "reviewsStatusRejected": "已拒绝",
-  "reviewsStatusWithdrawn": "已撤回",
-  "reviewsSubmitSuccess": "评价已提交审核。",
-  "reviewsFailure": "无法完成此操作。",
-  "reviewsAlreadySubmitted": "评价已提交",
-  "searchHistoryTitle": "最近搜索",
-  "searchHistoryClearAll": "全部清除",
-  "searchHistoryRemove": "移除搜索",
-  "searchSuggestionsTitle": "搜索建议",
-  "searchSuggestionProduct": "商品",
-  "searchSuggestionCategory": "分类",
-  "searchSuggestionBrand": "品牌"
+  "reviewsEmpty": "Todavía no hay reseñas publicadas.",
+  "reviewsLoadFailure": "Las reseñas no están disponibles en este momento.",
+  "reviewsLeave": "Dejar una reseña",
+  "reviewsToReview": "Por reseñar",
+  "reviewsMine": "Mis reseñas",
+  "reviewsRating": "Calificación",
+  "reviewsComment": "Comentario opcional",
+  "reviewsSubmit": "Enviar a moderación",
+  "reviewsEdit": "Editar",
+  "reviewsWithdraw": "Retirar",
+  "reviewsStatusPending": "En moderación",
+  "reviewsStatusPublished": "Publicada",
+  "reviewsStatusRejected": "Rechazada",
+  "reviewsStatusWithdrawn": "Retirada",
+  "reviewsSubmitSuccess": "Reseña enviada a moderación.",
+  "reviewsFailure": "No pudimos completar esta acción.",
+  "reviewsLoadMore": "Cargar más reseñas",
+  "reviewsAlreadySubmitted": "Reseña ya enviada",
+  "searchHistoryTitle": "Búsquedas recientes",
+  "searchHistoryClearAll": "Borrar todas",
+  "searchHistoryRemove": "Eliminar búsqueda",
+  "searchSuggestionsTitle": "Sugerencias",
+  "searchSuggestionProduct": "Producto",
+  "searchSuggestionCategory": "Categoría",
+  "searchSuggestionBrand": "Marca"
 }

@@ -5,12 +5,12 @@
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
 - **Stato globale**: ACTIVE
-- **Task attivo**: TASK-050 — Delivery context and smart customer addresses
+- **Task attivo**: TASK-050
 - **File task**: `docs/TASKS/TASK-050-delivery-context-smart-customer-addresses.md`
 - **Stato task**: ACTIVE
 - **Fase**: REVIEW
-- **Responsabile**: CODEX_REVIEWER
-- **Indicatore**: CLIENT_COMMERCE_JOURNEY_COMPLETION_IN_REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: REVIEW
 - **Review integrata**: IN_PROGRESS

@@ -823,12 +823,12 @@ class AppLocalizationsZh extends AppLocalizations {
       'No hay una franja disponible por ahora';
 
   @override
-  String deliveryContextEstimatedFee(Object fee) {
+  String deliveryContextEstimatedFee(String fee) {
     return 'Entrega estimada: $fee';
   }
 
   @override
-  String deliveryContextEarliestSlot(Object slot) {
+  String deliveryContextEarliestSlot(String slot) {
     return 'Primera franja: $slot';
   }
 
@@ -1980,233 +1980,242 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deliveryTrackingInDeliveryIndicator => 'Entrega en curso';
 
   @override
-  String get ordersReorderAction => '再次购买';
+  String get ordersReorderAction => 'Volver a comprar';
 
   @override
-  String get ordersReorderTitle => '再次购买商品';
+  String get ordersReorderTitle => 'Volver a comprar artículos';
 
   @override
-  String get ordersReorderCurrentPrice => '当前价格';
+  String get ordersReorderCurrentPrice => 'Precio actual';
 
   @override
-  String get ordersReorderHistoricalPrice => '订单价格';
+  String get ordersReorderHistoricalPrice => 'Precio del pedido';
 
   @override
-  String get ordersReorderUnavailable => '不可购买';
+  String get ordersReorderUnavailable => 'No disponible';
 
   @override
-  String get ordersReorderApply => '将可购商品加入购物车';
+  String get ordersReorderApply => 'Agregar disponibles al carro';
 
   @override
-  String get ordersReorderApplying => '正在更新购物车…';
+  String get ordersReorderApplying => 'Actualizando el carro…';
 
   @override
-  String get ordersReorderResultAdded => '已加入商品';
+  String get ordersReorderResultAdded => 'Artículos agregados';
 
   @override
-  String get ordersReorderResultSkipped => '未加入商品';
+  String get ordersReorderResultSkipped => 'Artículos no agregados';
 
   @override
-  String get ordersReorderFailure => '无法核验此次再次购买，请重试。';
+  String get ordersReorderFailure =>
+      'No pudimos verificar esta recompra. Intenta nuevamente.';
 
   @override
-  String get ordersReorderOpenCart => '打开购物车';
+  String get ordersReorderOpenCart => 'Abrir carro';
 
   @override
-  String get afterSalesTitle => '售后服务';
+  String get afterSalesTitle => 'Asistencia posventa';
 
   @override
-  String get afterSalesEmpty => '暂无售后申请。';
+  String get afterSalesEmpty => 'No tienes solicitudes de asistencia.';
 
   @override
-  String get afterSalesCreate => '申请售后';
+  String get afterSalesCreate => 'Solicitar asistencia';
 
   @override
-  String get afterSalesTypeOrderProblem => '订单问题';
+  String get afterSalesTypeOrderProblem => 'Problema con el pedido';
 
   @override
-  String get afterSalesTypeReturnRequest => '退货申请';
+  String get afterSalesTypeReturnRequest => 'Solicitud de devolución';
 
   @override
-  String get afterSalesTypeRefundRequest => '退款申请';
+  String get afterSalesTypeRefundRequest => 'Solicitud de reembolso';
 
   @override
-  String get afterSalesReasonDamaged => '商品损坏';
+  String get afterSalesReasonDamaged => 'Artículo dañado';
 
   @override
-  String get afterSalesReasonWrongItem => '商品错误';
+  String get afterSalesReasonWrongItem => 'Artículo incorrecto';
 
   @override
-  String get afterSalesReasonMissingItem => '商品缺失';
+  String get afterSalesReasonMissingItem => 'Artículo faltante';
 
   @override
-  String get afterSalesReasonQualityIssue => '质量问题';
+  String get afterSalesReasonQualityIssue => 'Problema de calidad';
 
   @override
-  String get afterSalesReasonChangedMind => '改变主意';
+  String get afterSalesReasonChangedMind => 'Cambié de opinión';
 
   @override
-  String get afterSalesReasonDeliveryIssue => '配送问题';
+  String get afterSalesReasonDeliveryIssue => 'Problema de entrega';
 
   @override
-  String get afterSalesReasonOther => '其他';
+  String get afterSalesReasonOther => 'Otro';
 
   @override
-  String get afterSalesStatusSubmitted => '已提交';
+  String get afterSalesStatusSubmitted => 'Enviada';
 
   @override
-  String get afterSalesStatusReviewing => '审核中';
+  String get afterSalesStatusReviewing => 'En revisión';
 
   @override
-  String get afterSalesStatusApproved => '已批准';
+  String get afterSalesStatusApproved => 'Aprobada';
 
   @override
-  String get afterSalesStatusRejected => '已拒绝';
+  String get afterSalesStatusRejected => 'Rechazada';
 
   @override
-  String get afterSalesStatusReturnRequired => '需要退货';
+  String get afterSalesStatusReturnRequired => 'Devolución requerida';
 
   @override
-  String get afterSalesStatusReceived => '已收到退货';
+  String get afterSalesStatusReceived => 'Devolución recibida';
 
   @override
-  String get afterSalesStatusRefundPending => '退款处理中';
+  String get afterSalesStatusRefundPending => 'Reembolso pendiente';
 
   @override
-  String get afterSalesStatusRefunded => '已退款';
+  String get afterSalesStatusRefunded => 'Reembolsada';
 
   @override
-  String get afterSalesStatusClosed => '已关闭';
+  String get afterSalesStatusClosed => 'Cerrada';
 
   @override
-  String get afterSalesNote => '可选备注';
+  String get afterSalesNote => 'Nota opcional';
 
   @override
-  String get afterSalesItems => '涉及商品';
+  String get afterSalesItems => 'Artículos afectados';
 
   @override
-  String get afterSalesQuantity => '数量';
+  String get afterSalesQuantity => 'Cantidad';
 
   @override
-  String get afterSalesSubmit => '提交申请';
+  String get afterSalesSubmit => 'Enviar solicitud';
 
   @override
-  String get afterSalesCancel => '取消申请';
+  String get afterSalesCancel => 'Cancelar solicitud';
 
   @override
-  String get afterSalesTimeline => '进度';
+  String get afterSalesTimeline => 'Cronología';
 
   @override
-  String get afterSalesEvidence => '附件凭证';
+  String get afterSalesEvidence => 'Pruebas adjuntas';
 
   @override
-  String get afterSalesEvidenceAttach => '添加图片';
+  String get afterSalesEvidenceAttach => 'Adjuntar imágenes';
 
   @override
-  String get afterSalesEvidenceHelp => '最多 3 张 JPG、PNG 或 WebP 图片。证据保持私密。';
+  String get afterSalesEvidenceHelp =>
+      'Hasta 3 imágenes JPG, PNG o WebP. Las pruebas se mantienen privadas.';
 
   @override
   String afterSalesEvidenceSelected(int count) {
-    return '已选择 $count 张图片';
+    return '$count imágenes seleccionadas';
   }
 
   @override
-  String get afterSalesEvidencePickerFailure => '无法打开照片图库。';
+  String get afterSalesEvidencePickerFailure =>
+      'No pudimos abrir tu biblioteca de fotos.';
 
   @override
-  String get afterSalesEvidenceUploadFailure => '申请已创建，但一张或多张图片上传失败。';
+  String get afterSalesEvidenceUploadFailure =>
+      'La solicitud fue creada, pero no se pudieron cargar una o más imágenes.';
 
   @override
-  String get afterSalesFailure => '无法完成此操作，请重试。';
+  String get afterSalesFailure =>
+      'No pudimos completar esta acción. Intenta nuevamente.';
 
   @override
-  String get afterSalesSelectItem => '请至少选择一件商品。';
+  String get afterSalesSelectItem => 'Selecciona al menos un artículo.';
 
   @override
-  String get afterSalesCaseCode => '申请';
+  String get afterSalesCaseCode => 'Solicitud';
 
   @override
-  String get reviewsTitle => '评价';
+  String get reviewsTitle => 'Reseñas';
 
   @override
-  String get reviewsVerified => '已验证购买';
+  String get reviewsVerified => 'Compra verificada';
 
   @override
   String reviewsCount(int count) {
-    return '$count 条评价';
+    return '$count reseñas';
   }
 
   @override
-  String get reviewsEmpty => '暂无已发布评价。';
+  String get reviewsEmpty => 'Todavía no hay reseñas publicadas.';
 
   @override
-  String get reviewsLoadFailure => '暂时无法加载评价。';
+  String get reviewsLoadFailure =>
+      'Las reseñas no están disponibles en este momento.';
 
   @override
-  String get reviewsLeave => '发表评价';
+  String get reviewsLeave => 'Dejar una reseña';
 
   @override
-  String get reviewsToReview => '待评价';
+  String get reviewsToReview => 'Por reseñar';
 
   @override
-  String get reviewsMine => '我的评价';
+  String get reviewsMine => 'Mis reseñas';
 
   @override
-  String get reviewsRating => '评分';
+  String get reviewsRating => 'Calificación';
 
   @override
-  String get reviewsComment => '可选评论';
+  String get reviewsComment => 'Comentario opcional';
 
   @override
-  String get reviewsSubmit => '提交审核';
+  String get reviewsSubmit => 'Enviar a moderación';
 
   @override
-  String get reviewsEdit => '编辑';
+  String get reviewsEdit => 'Editar';
 
   @override
-  String get reviewsWithdraw => '撤回';
+  String get reviewsWithdraw => 'Retirar';
 
   @override
-  String get reviewsStatusPending => '审核中';
+  String get reviewsStatusPending => 'En moderación';
 
   @override
-  String get reviewsStatusPublished => '已发布';
+  String get reviewsStatusPublished => 'Publicada';
 
   @override
-  String get reviewsStatusRejected => '已拒绝';
+  String get reviewsStatusRejected => 'Rechazada';
 
   @override
-  String get reviewsStatusWithdrawn => '已撤回';
+  String get reviewsStatusWithdrawn => 'Retirada';
 
   @override
-  String get reviewsSubmitSuccess => '评价已提交审核。';
+  String get reviewsSubmitSuccess => 'Reseña enviada a moderación.';
 
   @override
-  String get reviewsFailure => '无法完成此操作。';
+  String get reviewsFailure => 'No pudimos completar esta acción.';
 
   @override
-  String get reviewsAlreadySubmitted => '评价已提交';
+  String get reviewsLoadMore => 'Cargar más reseñas';
 
   @override
-  String get searchHistoryTitle => '最近搜索';
+  String get reviewsAlreadySubmitted => 'Reseña ya enviada';
 
   @override
-  String get searchHistoryClearAll => '全部清除';
+  String get searchHistoryTitle => 'Búsquedas recientes';
 
   @override
-  String get searchHistoryRemove => '移除搜索';
+  String get searchHistoryClearAll => 'Borrar todas';
 
   @override
-  String get searchSuggestionsTitle => '搜索建议';
+  String get searchHistoryRemove => 'Eliminar búsqueda';
 
   @override
-  String get searchSuggestionProduct => '商品';
+  String get searchSuggestionsTitle => 'Sugerencias';
 
   @override
-  String get searchSuggestionCategory => '分类';
+  String get searchSuggestionProduct => 'Producto';
 
   @override
-  String get searchSuggestionBrand => '品牌';
+  String get searchSuggestionCategory => 'Categoría';
+
+  @override
+  String get searchSuggestionBrand => 'Marca';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -2953,12 +2962,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get deliveryContextTemporarilyUnavailable => '目前没有可用时段';
 
   @override
-  String deliveryContextEstimatedFee(Object fee) {
+  String deliveryContextEstimatedFee(String fee) {
     return '预计配送费：$fee';
   }
 
   @override
-  String deliveryContextEarliestSlot(Object slot) {
+  String deliveryContextEarliestSlot(String slot) {
     return '最早时段：$slot';
   }
 
@@ -4198,6 +4207,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get reviewsFailure => '无法完成此操作。';
+
+  @override
+  String get reviewsLoadMore => '加载更多评价';
 
   @override
   String get reviewsAlreadySubmitted => '评价已提交';

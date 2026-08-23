@@ -18,4 +18,3 @@ server-enabled, recovery idempotente e ricevuta completa. Online resta
 - pay-at-pickup/COD/online disabled e payment timeout/replay sono coperti;
 - order snapshot conserva destinatario, telefono mascherabile, indirizzo e istruzioni;
 - test unit/widget, regression checkout/order e gate canonici sul final candidate.
-

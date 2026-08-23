@@ -45,10 +45,10 @@ void main() {
     () async {
       const port = NotConfiguredAddressSearchPort();
       expect(port.configured, isFalse);
-    expect(
-      () => port.search('Providencia'),
-      throwsA(isA<AddressProviderNotConfiguredException>()),
-    );
+      expect(
+        () => port.search('Providencia'),
+        throwsA(isA<AddressProviderNotConfiguredException>()),
+      );
     },
   );
 }

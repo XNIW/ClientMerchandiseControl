@@ -813,12 +813,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'No time window is currently available';
 
   @override
-  String deliveryContextEstimatedFee(Object fee) {
+  String deliveryContextEstimatedFee(String fee) {
     return 'Estimated delivery: $fee';
   }
 
   @override
-  String deliveryContextEarliestSlot(Object slot) {
+  String deliveryContextEarliestSlot(String slot) {
     return 'Earliest window: $slot';
   }
 
@@ -2166,6 +2166,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reviewsFailure => 'We couldn\'t complete this action.';
+
+  @override
+  String get reviewsLoadMore => 'Load more reviews';
 
   @override
   String get reviewsAlreadySubmitted => 'Review already submitted';

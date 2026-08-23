@@ -90,7 +90,7 @@ void main() {
 
   test('address CRUD V2 usa payload privato bounded e versionato', () async {
     final draft = _addressDraft();
-    await repository.createAddress(draft);
+    final created = await repository.createAddress(draft);
     final create = Map<String, Object?>.from(port.lastParameters!);
     await repository.updateAddress(addressId, draft);
     final update = Map<String, Object?>.from(port.lastParameters!);
@@ -98,6 +98,7 @@ void main() {
     final deletion = Map<String, Object?>.from(port.lastParameters!);
 
     expect(create['p_address_id'], isNull);
+    expect(created.id, addressId);
     expect(create['p_expected_version'], isNull);
     expect(update['p_address_id'], addressId);
     expect(update['p_expected_version'], 1);
@@ -299,7 +300,12 @@ final class _FakeCustomerAccountPort implements CustomerAccountPort {
           };
     if (function == 'customer_address_upsert_v2' ||
         function == 'customer_address_delete_v2') {
-      return {'apiVersion': 'customer-address.v2', 'status': status};
+      return {
+        'apiVersion': 'customer-address.v2',
+        'status': status,
+        if (function == 'customer_address_upsert_v2' && status == 'ok')
+          'address': _addressRow(),
+      };
     }
     return {'apiVersion': 'customer.v1', 'status': status};
   }

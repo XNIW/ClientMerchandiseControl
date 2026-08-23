@@ -1505,13 +1505,13 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Entrega estimada: {fee}'**
-  String deliveryContextEstimatedFee(Object fee);
+  String deliveryContextEstimatedFee(String fee);
 
   /// No description provided for @deliveryContextEarliestSlot.
   ///
   /// In es, this message translates to:
   /// **'Primera franja: {slot}'**
-  String deliveryContextEarliestSlot(Object slot);
+  String deliveryContextEarliestSlot(String slot);
 
   /// No description provided for @deliveryContextOffline.
   ///
@@ -3870,6 +3870,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No pudimos completar esta acción.'**
   String get reviewsFailure;
+
+  /// No description provided for @reviewsLoadMore.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargar más reseñas'**
+  String get reviewsLoadMore;
 
   /// No description provided for @reviewsAlreadySubmitted.
   ///

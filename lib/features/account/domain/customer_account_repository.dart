@@ -11,7 +11,7 @@ abstract interface class CustomerAccountRepository {
 
   Future<void> deleteProfile(String expectedSubjectId);
 
-  Future<void> createAddress(CustomerAddressDraft draft);
+  Future<CustomerAddress> createAddress(CustomerAddressDraft draft);
 
   Future<void> updateAddress(
     String addressId,

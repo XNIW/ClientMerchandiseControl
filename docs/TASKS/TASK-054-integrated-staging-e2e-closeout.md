@@ -16,4 +16,3 @@ repository read-only.
 
 E2E reali con `PASS/FAIL/NOT_RUN/BLOCKED`, P0/P1/P2 zero, CI exact-SHA e main,
 cleanup fixture/worktree/branch e stato finale progetto `IDLE`.
-

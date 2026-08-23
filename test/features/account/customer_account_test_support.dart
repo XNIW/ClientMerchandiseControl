@@ -110,16 +110,15 @@ final class FakeCustomerAccountRepository implements CustomerAccountRepository {
   }
 
   @override
-  Future<void> createAddress(CustomerAddressDraft draft) async {
+  Future<CustomerAddress> createAddress(CustomerAddressDraft draft) async {
     _throwMutationIfNeeded();
     createAddressCalls++;
-    addresses = [
-      ...addresses,
-      _addressFromDraft(
-        '22000000-0000-4000-8000-${createAddressCalls.toString().padLeft(12, '0')}',
-        draft,
-      ),
-    ];
+    final created = _addressFromDraft(
+      '22000000-0000-4000-8000-${createAddressCalls.toString().padLeft(12, '0')}',
+      draft,
+    );
+    addresses = [...addresses, created];
+    return created;
   }
 
   @override

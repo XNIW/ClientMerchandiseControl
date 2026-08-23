@@ -169,6 +169,26 @@ File _writeManifestFixture({
         ],
       ),
       _element(
+        'uses-permission',
+        attributes: <List<int>>[
+          _attribute(
+            'name',
+            'android.permission.ACCESS_COARSE_LOCATION',
+            android: true,
+          ),
+        ],
+      ),
+      _element(
+        'uses-permission',
+        attributes: <List<int>>[
+          _attribute(
+            'name',
+            'android.permission.ACCESS_FINE_LOCATION',
+            android: true,
+          ),
+        ],
+      ),
+      _element(
         'permission',
         attributes: <List<int>>[
           _attribute(

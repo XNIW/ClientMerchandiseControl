@@ -4,10 +4,11 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
 - **Data creazione**: 2026-08-22
-- **Handoff**: CODEX_EXECUTION_COMPLETE_TO_REVIEW
+- **Handoff**: CODEX_FIX_COMPLETE_TO_RE_REVIEW
+- **Evidence directory**: `docs/TASKS/EVIDENCE/TASK-050/`
 
 ## Obiettivo e scope
 
@@ -89,3 +90,33 @@ Admin/Supabase, quindi Client.
 - Analisi statica estesa: `PASS`; suite feature-scoped pre-review: `287/287 PASS`.
 - Handoff: `CODEX_EXECUTION_COMPLETE_TO_REVIEW`; TASK-050 resta l'unico `ACTIVE`
   finché la review indipendente non assegna l'esito.
+
+## Review indipendente
+
+- Esito: `CHANGES_REQUIRED`; P0 0, P1 0, P2 4, P3 1.
+- P2: risposta after-sales stale dopo account/shop switch; idempotency reorder non
+  stabile dopo timeout; recensioni prodotto troncate alla prima pagina; selezione
+  post-create basata su indirizzo euristico anziché sull'ID restituito.
+- P3: quattro task documentali con newline finale incoerente.
+- Verifica autonoma reviewer: `91/91 PASS`; artifact esterno sanitizzato in
+  `/tmp/codex-security-scans/client-commerce/review.md`.
+
+## Fix batch unico
+
+- Fence owner/shop/generation per le mutation after-sales e idempotency key stabile
+  attraverso timeout/retry.
+- Reorder conserva la stessa idempotency key fino a risposta autorevole.
+- Reviews usa keyset cursor composto, merge deduplicato e CTA accessibile per pagine
+  successive, con regressione widget e repository.
+- Address create propaga e seleziona l'ID server esatto; niente euristica su linee
+  duplicate.
+- Fallback inbox/reviews fail-closed nei test senza backend; permission foreground e
+  privacy metadata mobile riallineati; bundle tecnico `zh` ripristinato al fallback
+  spagnolo canonico.
+- Verifiche final candidate: analyze `PASS`; targeted fix `PASS`; test completi
+  `839/839 PASS`; APK debug e iOS Simulator debug `PASS`; nessun secret o PII nei
+  gate eseguiti. Aggregato `scripts/check.sh` `PASS`: test non-performance `829/829`,
+  resilience repeat `5 x 14`, performance `10/10`, fixture security `61/61 + 7/7`,
+  governance `101/101`, architecture negative `17/17` e build debug dual-platform.
+
+`CODEX_FIX_COMPLETE_TO_RE_REVIEW`.

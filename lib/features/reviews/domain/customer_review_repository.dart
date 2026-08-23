@@ -20,6 +20,8 @@ abstract interface class CustomerReviewRepository {
   Future<StorefrontProductReviews> listProduct({
     required String shopSlug,
     required String publicationId,
+    StorefrontReviewCursor? cursor,
+    int pageSize = 20,
   });
 }
 

@@ -823,12 +823,12 @@ class AppLocalizationsEs extends AppLocalizations {
       'No hay una franja disponible por ahora';
 
   @override
-  String deliveryContextEstimatedFee(Object fee) {
+  String deliveryContextEstimatedFee(String fee) {
     return 'Entrega estimada: $fee';
   }
 
   @override
-  String deliveryContextEarliestSlot(Object slot) {
+  String deliveryContextEarliestSlot(String slot) {
     return 'Primera franja: $slot';
   }
 
@@ -2189,6 +2189,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get reviewsFailure => 'No pudimos completar esta acción.';
+
+  @override
+  String get reviewsLoadMore => 'Cargar más reseñas';
 
   @override
   String get reviewsAlreadySubmitted => 'Reseña ya enviada';

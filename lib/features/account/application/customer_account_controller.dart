@@ -142,11 +142,14 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
     );
   }
 
-  Future<void> createAddress(CustomerAddressDraft draft) {
-    return _mutate(
-      (repository, _) => repository.createAddress(draft),
-      CustomerAccountNoticeKind.addressSaved,
-    );
+  Future<CustomerAddress?> createAddress(CustomerAddressDraft draft) async {
+    final subjectId = _subjectId;
+    CustomerAddress? created;
+    await _mutate((repository, _) async {
+      created = await repository.createAddress(draft);
+    }, CustomerAccountNoticeKind.addressSaved);
+    if (_disposed || subjectId == null || _subjectId != subjectId) return null;
+    return created;
   }
 
   Future<void> updateAddress(

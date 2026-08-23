@@ -16,4 +16,3 @@ idempotenti e senza prezzo o disponibilità storici.
 
 Owner/cross-owner, dedup, destinazioni sicure, account cleanup, prezzi correnti,
 unavailable/hidden/partial apply e nessuna creazione ordine automatica.
-

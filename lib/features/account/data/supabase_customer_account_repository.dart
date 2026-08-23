@@ -208,7 +208,7 @@ final class SupabaseCustomerAccountRepository
   }
 
   @override
-  Future<void> createAddress(CustomerAddressDraft draft) {
+  Future<CustomerAddress> createAddress(CustomerAddressDraft draft) {
     return _guard(() async {
       final payload = _map(
         await _port.invoke('customer_address_upsert_v2', {
@@ -218,6 +218,7 @@ final class SupabaseCustomerAccountRepository
         }),
       );
       _requireAddressRpcStatus(payload, const {'ok'});
+      return _parseAddress(_map(payload['address']));
     });
   }
 

@@ -61,6 +61,8 @@ final class CustomerAfterSalesController
     extends Notifier<CustomerAfterSalesState> {
   String? _contextKey;
   var _generation = 0;
+  String? _pendingCreateSignature;
+  String? _pendingCreateIdempotencyKey;
 
   @override
   CustomerAfterSalesState build() {
@@ -69,6 +71,8 @@ final class CustomerAfterSalesController
     final key = '${identity?.subjectId}|$shopSlug';
     if (_contextKey != key) {
       _contextKey = key;
+      _pendingCreateSignature = null;
+      _pendingCreateIdempotencyKey = null;
       final generation = ++_generation;
       scheduleMicrotask(() => _load(generation));
       return CustomerAfterSalesState.loading();
@@ -80,22 +84,30 @@ final class CustomerAfterSalesController
 
   Future<CustomerAfterSalesCase?> create(CustomerAfterSalesDraft draft) async {
     if (state.isMutating) return null;
+    final contextFence = _captureContextFence();
+    if (contextFence == null) return null;
+    final signature = _createSignature(draft);
+    if (_pendingCreateSignature != signature) {
+      _pendingCreateSignature = signature;
+      _pendingCreateIdempotencyKey = ref.read(
+        customerOrderIdempotencyKeyFactoryProvider,
+      )();
+    }
     state = state.copyWith(isMutating: true, clearFailure: true);
     try {
       final value = await ref
           .read(customerAfterSalesRepositoryProvider)
-          .create(
-            draft: draft,
-            idempotencyKey: ref.read(
-              customerOrderIdempotencyKeyFactoryProvider,
-            )(),
-          );
+          .create(draft: draft, idempotencyKey: _pendingCreateIdempotencyKey!);
+      if (!_isCurrentContext(contextFence)) return null;
+      _pendingCreateSignature = null;
+      _pendingCreateIdempotencyKey = null;
       state = state.copyWith(
         isMutating: false,
         cases: [value, ...state.cases.where((item) => item.id != value.id)],
       );
       return value;
     } on CustomerAfterSalesException catch (error) {
+      if (!_isCurrentContext(contextFence)) return null;
       state = state.copyWith(isMutating: false, failure: error.code);
       return null;
     }
@@ -103,11 +115,14 @@ final class CustomerAfterSalesController
 
   Future<void> cancel(CustomerAfterSalesCase value) async {
     if (state.isMutating || !value.canCancel) return;
+    final contextFence = _captureContextFence();
+    if (contextFence == null) return;
     state = state.copyWith(isMutating: true, clearFailure: true);
     try {
       final updated = await ref
           .read(customerAfterSalesRepositoryProvider)
           .cancel(caseId: value.id, expectedVersion: value.version);
+      if (!_isCurrentContext(contextFence)) return;
       state = state.copyWith(
         isMutating: false,
         cases: state.cases
@@ -115,6 +130,7 @@ final class CustomerAfterSalesController
             .toList(),
       );
     } on CustomerAfterSalesException catch (error) {
+      if (!_isCurrentContext(contextFence)) return;
       state = state.copyWith(isMutating: false, failure: error.code);
     }
   }
@@ -124,14 +140,18 @@ final class CustomerAfterSalesController
     required CustomerAfterSalesEvidenceInput input,
   }) async {
     if (state.isMutating) return false;
+    final contextFence = _captureContextFence();
+    if (contextFence == null) return false;
     state = state.copyWith(isMutating: true, clearFailure: true);
     try {
       await ref
           .read(customerAfterSalesRepositoryProvider)
           .uploadEvidence(caseId: caseId, input: input);
+      if (!_isCurrentContext(contextFence)) return false;
       state = state.copyWith(isMutating: false);
       return true;
     } on CustomerAfterSalesException catch (error) {
+      if (!_isCurrentContext(contextFence)) return false;
       state = state.copyWith(isMutating: false, failure: error.code);
       return false;
     }
@@ -168,4 +188,30 @@ final class CustomerAfterSalesController
       }
     }
   }
+
+  ({int generation, String key})? _captureContextFence() {
+    final identity = ref.read(customerAccountIdentityProvider);
+    final shopSlug = ref.read(appConfigProvider).storefrontShopSlug;
+    if (identity == null || shopSlug == null) return null;
+    final key = '${identity.subjectId}|$shopSlug';
+    if (key != _contextKey) return null;
+    return (generation: _generation, key: key);
+  }
+
+  bool _isCurrentContext(({int generation, String key}) fence) {
+    final identity = ref.read(customerAccountIdentityProvider);
+    final shopSlug = ref.read(appConfigProvider).storefrontShopSlug;
+    return fence.generation == _generation &&
+        fence.key == _contextKey &&
+        identity != null &&
+        '${identity.subjectId}|$shopSlug' == fence.key;
+  }
 }
+
+String _createSignature(CustomerAfterSalesDraft draft) => [
+  draft.orderId,
+  draft.type.name,
+  draft.reason.name,
+  draft.note ?? '',
+  ...draft.lines.map((line) => '${line.orderItemId}:${line.quantity}'),
+].join('|');

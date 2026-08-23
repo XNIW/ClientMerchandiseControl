@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,12 +7,13 @@ import 'package:go_router/go_router.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../app/router/app_routes.dart';
+import '../../../core/config/app_config.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../application/customer_review_providers.dart';
 import '../domain/customer_review_models.dart';
 import '../domain/customer_review_repository.dart';
 
-final class StorefrontProductReviewsSection extends ConsumerWidget {
+final class StorefrontProductReviewsSection extends ConsumerStatefulWidget {
   const StorefrontProductReviewsSection({
     required this.publicationId,
     super.key,
@@ -19,56 +22,180 @@ final class StorefrontProductReviewsSection extends ConsumerWidget {
   final String publicationId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<StorefrontProductReviewsSection> createState() =>
+      _StorefrontProductReviewsSectionState();
+}
+
+final class _StorefrontProductReviewsSectionState
+    extends ConsumerState<StorefrontProductReviewsSection> {
+  StorefrontProductReviews? _value;
+  var _isLoading = false;
+  var _hasFailure = false;
+  var _generation = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    scheduleMicrotask(() => _load(reset: true));
+  }
+
+  @override
+  void didUpdateWidget(StorefrontProductReviewsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.publicationId != widget.publicationId) {
+      _generation++;
+      _value = null;
+      _isLoading = false;
+      _hasFailure = false;
+      scheduleMicrotask(() => _load(reset: true));
+    }
+  }
+
+  Future<void> _load({bool reset = false}) async {
+    if (!mounted || _isLoading) return;
+    final current = _value;
+    final cursor = reset ? null : current?.nextCursor;
+    if (!reset && current != null && cursor == null) return;
+    final shopSlug = ref.read(appConfigProvider).storefrontShopSlug;
+    if (shopSlug == null) {
+      if (mounted) setState(() => _hasFailure = true);
+      return;
+    }
+    final generation = ++_generation;
+    setState(() {
+      _isLoading = true;
+      _hasFailure = false;
+    });
+    try {
+      final page = await ref
+          .read(customerReviewRepositoryProvider)
+          .listProduct(
+            shopSlug: shopSlug,
+            publicationId: widget.publicationId,
+            cursor: cursor,
+          );
+      if (!mounted || generation != _generation) return;
+      final combined = reset || current == null
+          ? page.items
+          : [
+              ...current.items,
+              ...page.items.where(
+                (item) =>
+                    current.items.every((existing) => existing.id != item.id),
+              ),
+            ];
+      setState(() {
+        _value = StorefrontProductReviews(
+          averageRating: page.averageRating,
+          publishedCount: page.publishedCount,
+          distribution: page.distribution,
+          items: combined,
+          nextCursor: page.nextCursor,
+          serverTime: page.serverTime,
+        );
+        _isLoading = false;
+      });
+    } on Object {
+      if (mounted && generation == _generation) {
+        setState(() {
+          _isLoading = false;
+          _hasFailure = true;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final reviews = ref.watch(storefrontProductReviewsProvider(publicationId));
+    final value = _value;
     return Card.outlined(
       key: const ValueKey('product-reviews'),
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
-        child: reviews.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, _) => Text(l10n.reviewsLoadFailure),
-          data: (value) => Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.star, color: Colors.amber),
-                  const SizedBox(width: AppSpacing.xs),
-                  Text(
-                    value.averageRating.toStringAsFixed(1),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(l10n.reviewsCount(value.publishedCount)),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.md),
-              if (value.items.isEmpty)
-                Text(l10n.reviewsEmpty)
-              else
-                ...value.items.map(
-                  (review) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Row(
+        child: value == null
+            ? _hasFailure
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text('★' * review.rating),
-                        const SizedBox(width: AppSpacing.sm),
-                        Chip(
-                          avatar: const Icon(Icons.verified_outlined, size: 16),
-                          label: Text(l10n.reviewsVerified),
+                        Text(l10n.reviewsLoadFailure),
+                        const SizedBox(height: AppSpacing.sm),
+                        OutlinedButton(
+                          onPressed: _isLoading
+                              ? null
+                              : () => _load(reset: true),
+                          child: Text(l10n.backendRetry),
                         ),
                       ],
-                    ),
-                    subtitle: review.comment == null
-                        ? null
-                        : Text(review.comment!),
+                    )
+                  : const Center(child: CircularProgressIndicator())
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.star, color: Colors.amber),
+                      const SizedBox(width: AppSpacing.xs),
+                      Text(
+                        value.averageRating.toStringAsFixed(1),
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(l10n.reviewsCount(value.publishedCount)),
+                    ],
                   ),
-                ),
-            ],
-          ),
-        ),
+                  const SizedBox(height: AppSpacing.md),
+                  if (value.items.isEmpty)
+                    Text(l10n.reviewsEmpty)
+                  else
+                    ...value.items.map(
+                      (review) => ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Row(
+                          children: [
+                            _RatingStars(rating: review.rating),
+                            const SizedBox(width: AppSpacing.sm),
+                            Chip(
+                              avatar: const Icon(
+                                Icons.verified_outlined,
+                                size: 16,
+                              ),
+                              label: Text(l10n.reviewsVerified),
+                            ),
+                          ],
+                        ),
+                        subtitle: review.comment == null
+                            ? null
+                            : Text(review.comment!),
+                      ),
+                    ),
+                  if (_hasFailure) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Semantics(
+                      liveRegion: true,
+                      child: Text(l10n.reviewsLoadFailure),
+                    ),
+                  ],
+                  if (value.nextCursor != null || _isLoading) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    OutlinedButton(
+                      key: const ValueKey('product-reviews-load-more'),
+                      onPressed: _isLoading ? null : _load,
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(
+                          AppSizes.minimumTouchTarget,
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox.square(
+                              dimension: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Text(l10n.reviewsLoadMore),
+                    ),
+                  ],
+                ],
+              ),
       ),
     );
   }
@@ -154,7 +281,9 @@ final class _CustomerReviewsScreenState
                                 .map(
                                   (review) => Card(
                                     child: ListTile(
-                                      title: Text('★' * review.rating),
+                                      title: _RatingStars(
+                                        rating: review.rating,
+                                      ),
                                       subtitle: Text(
                                         [
                                           _reviewStatus(l10n, review.status),
@@ -315,9 +444,6 @@ final class _CustomerReviewDialogState
           rating: _rating,
           comment: comment,
         );
-        ref.invalidate(
-          storefrontProductReviewsProvider(eligible.publicationId),
-        );
       } else {
         final review = widget.review!;
         await repository.update(
@@ -327,7 +453,6 @@ final class _CustomerReviewDialogState
           comment: comment,
           withdraw: withdraw,
         );
-        ref.invalidate(storefrontProductReviewsProvider(review.publicationId));
       }
       if (mounted) Navigator.of(context).pop(true);
     } on CustomerReviewException {
@@ -357,7 +482,7 @@ final class _CustomerReviewDialogState
                   .map(
                     (rating) => DropdownMenuItem(
                       value: rating,
-                      child: Text('★' * rating),
+                      child: _RatingStars(rating: rating),
                     ),
                   )
                   .toList(),
@@ -397,6 +522,27 @@ final class _CustomerReviewDialogState
       ],
     );
   }
+}
+
+final class _RatingStars extends StatelessWidget {
+  const _RatingStars({required this.rating});
+
+  final int rating;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: AppLocalizations.of(context).reviewsRating,
+    value: rating.toString(),
+    child: ExcludeSemantics(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(
+          rating,
+          (_) => const Icon(Icons.star, size: 18, color: Colors.amber),
+        ),
+      ),
+    ),
+  );
 }
 
 String _reviewStatus(AppLocalizations l10n, CustomerReviewStatus status) =>

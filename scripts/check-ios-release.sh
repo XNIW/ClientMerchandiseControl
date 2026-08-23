@@ -880,18 +880,30 @@ for cmc_ios_release_macho_index in \
       [[ "${cmc_ios_release_reference_digest}" == \
         "${cmc_ios_release_reference_expected_digest}" ]] || \
         cmc_ios_release_fail 'REFERENCE_ATTESTATION_MISMATCH'
-      [[ "${cmc_ios_release_macho_digest}" == \
-        "${cmc_ios_release_reference_expected_digest}" ]] || \
+      if [[ "${cmc_ios_release_macho_digest}" != \
+        "${cmc_ios_release_reference_expected_digest}" ]]; then
+        printf 'IOS_RELEASE_CANONICAL_MACHO_SHA256[%s]=%s\n' \
+          "${cmc_ios_release_macho_index}" \
+          "${cmc_ios_release_macho_digest}" >&2
         cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
+      fi
     else
-      [[ " ${cmc_ios_release_expected_macho_digests[0]} " == \
-        *" ${cmc_ios_release_macho_digest} "* ]] || \
+      if [[ " ${cmc_ios_release_expected_macho_digests[0]} " != \
+        *" ${cmc_ios_release_macho_digest} "* ]]; then
+        printf 'IOS_RELEASE_CANONICAL_MACHO_SHA256[%s]=%s\n' \
+          "${cmc_ios_release_macho_index}" \
+          "${cmc_ios_release_macho_digest}" >&2
         cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
+      fi
     fi
   else
-    [[ " ${cmc_ios_release_expected_macho_digests[cmc_ios_release_macho_index]} " == \
-      *" ${cmc_ios_release_macho_digest} "* ]] || \
+    if [[ " ${cmc_ios_release_expected_macho_digests[cmc_ios_release_macho_index]} " != \
+      *" ${cmc_ios_release_macho_digest} "* ]]; then
+      printf 'IOS_RELEASE_CANONICAL_MACHO_SHA256[%s]=%s\n' \
+        "${cmc_ios_release_macho_index}" \
+        "${cmc_ios_release_macho_digest}" >&2
       cmc_ios_release_fail 'EMBEDDED_COMPONENT_DIGEST_MISMATCH'
+    fi
   fi
 done
 

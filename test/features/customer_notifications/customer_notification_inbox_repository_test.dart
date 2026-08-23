@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _notification = '65000000-0000-4000-8000-000000000001';
 const _order = '57000000-0000-4000-8000-000000000001';
+const _shopId = '45000000-0000-4000-8000-000000000001';
 
 void main() {
   test('inbox valida destinazione sicura, unread e cursor composto', () async {
@@ -36,6 +37,34 @@ void main() {
       throwsA(isA<CustomerNotificationRepositoryException>()),
     );
   });
+
+  test(
+    'destinazione inbox accetta soltanto lo shop UUID del contract',
+    () async {
+      final port = _Port()
+        ..response = _page(
+          itemOverride: const {
+            'category': 'system',
+            'event': 'reservation_hold',
+            'titleKey': 'notification.reservation.title',
+            'bodyKey': 'notification.reservation.body',
+            'safeArguments': <String, String>{},
+            'destinationType': 'notifications',
+            'destinationId': _shopId,
+          },
+        );
+
+      final page = await SupabaseCustomerNotificationRepository(
+        port: port,
+      ).list(shopSlug: 'storefront-test');
+
+      expect(
+        page.items.single.destinationType,
+        CustomerNotificationDestinationType.notifications,
+      );
+      expect(page.items.single.destinationId, _shopId);
+    },
+  );
 
   test('mark read e mark all usano solo identifier owner-scoped', () async {
     final port = _Port()

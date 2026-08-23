@@ -362,10 +362,7 @@ final class SupabaseCustomerNotificationRepository
       _ => throw const FormatException('notification_inbox_destination'),
     };
     final destinationId = map['destinationId'];
-    if ((destination == CustomerNotificationDestinationType.notifications &&
-            destinationId != null) ||
-        (destination != CustomerNotificationDestinationType.notifications &&
-            (destinationId is! String || !_uuid.hasMatch(destinationId)))) {
+    if (destinationId is! String || !_uuid.hasMatch(destinationId)) {
       throw const FormatException('notification_inbox_destination_id');
     }
     final event = _boundedKey(map, 'event');
@@ -400,7 +397,7 @@ final class SupabaseCustomerNotificationRepository
       bodyKey: bodyKey,
       safeArguments: arguments,
       destinationType: destination,
-      destinationId: destinationId as String?,
+      destinationId: destinationId,
       createdAt: _date(map, 'createdAt'),
       readAt: _optionalDate(map, 'readAt'),
       expiresAt: _optionalDate(map, 'expiresAt'),

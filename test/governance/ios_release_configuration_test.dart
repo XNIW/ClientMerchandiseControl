@@ -87,13 +87,11 @@ void main() {
       contains(r'${cmc_ios_release_app}/Frameworks/App.framework/App'),
     );
     expect(validator, contains('MAPS_ARTIFACT_NOT_FAIL_CLOSED'));
-    final runnerDigestAllowlist = RegExp(
-      r"cmc_ios_release_expected_macho_digests=\(\s*'([^']+)'",
-    ).firstMatch(validator);
+    expect(validator, contains('ARCHIVE_RUNNER_ATTESTATION_MISSING'));
+    expect(validator, contains('ARCHIVE_RUNNER_ATTESTATION_MISMATCH'));
     expect(
-      runnerDigestAllowlist?.group(1),
-      '2ad2517589dee12a48bb0ca6df43aae109950b627daf06cdffc6c63c31de877c '
-      'bd2534de5eb8211f058ee52ca2a453cd143b8b3c5d5ba3a0117ae15e60fc50aa',
+      validator,
+      isNot(contains('2ad2517589dee12a48bb0ca6df43aae109950b627daf06cdff')),
     );
     expect(validator, contains('check-client-security.sh'));
     expect(validator, isNot(contains('/Users/')));
@@ -382,7 +380,7 @@ jobs:
 
 void _validateRunbookAttestation(String runbook, String workflow) {
   const expectedRunbookSha256 =
-      'a781b762458002465c3ab8a0e86c46ef12b96c27ce19eb6e69e57b4ea52db03d';
+      'c432e6094880cde1fcdff2a1cf7107fd47ae0804032fec26099aeb6d00890999';
   if (sha256.convert(utf8.encode(runbook)).toString() !=
       expectedRunbookSha256) {
     throw StateError('runbook byte identity invalid');
@@ -421,13 +419,24 @@ xcodebuild archive \
   CODE_SIGNING_ALLOWED=NO \
   CODE_SIGNING_REQUIRED=NO \
   COMPILER_INDEX_STORE_ENABLE=NO
+cmc_ios_archive_output="$(
+  bash scripts/create-ios-reference-attestation.sh \
+    --archive-app "${cmc_repo_root}/build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app"
+)"
+case "${cmc_ios_archive_output}" in
+  IOS_ARCHIVE_RUNNER_ATTESTATION=*) ;;
+  *) exit 1 ;;
+esac
+cmc_ios_archive_runner_attestation="${cmc_ios_archive_output#IOS_ARCHIVE_RUNNER_ATTESTATION=}"
+[[ "${cmc_ios_archive_runner_attestation}" =~ ^[0-9a-f]{64}$ ]] || exit 1
 mkdir -p build/ios/validated
 cmc_ios_candidate_output="$(bash scripts/check-ios-release.sh \
   --app "${cmc_repo_root}/build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app" \
   --archive "${cmc_repo_root}/build/ios/archive/Runner.xcarchive" \
   --sealed-app-output "${cmc_repo_root}/build/ios/validated/Runner.app.zip" \
   --reference-app "${cmc_repo_root}/build/ios/iphoneos/Runner.app" \
-  --reference-attestation "${cmc_ios_reference_attestation}")"
+  --reference-attestation "${cmc_ios_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_archive_runner_attestation}")"
 printf '%s\n' "${cmc_ios_candidate_output}"
 cmc_ios_candidate_sha="$(sed -nE \
   's/^IOS_RELEASE_SEALED_APP_SHA256=([0-9a-f]{64})$/\1/p' \
@@ -457,6 +466,16 @@ cmc_ios_reference_attestation="${cmc_ios_reference_output#IOS_REFERENCE_ATTESTAT
   ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]] || exit 1''';
   const expectedUpload = r'''cmc_repo_root="$(pwd -P)"
 mkdir -p "${cmc_repo_root}/build/ios/validated"
+cmc_ios_archive_output="$(
+  bash scripts/create-ios-reference-attestation.sh \
+    --archive-app "${cmc_repo_root}/build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app"
+)"
+case "${cmc_ios_archive_output}" in
+  IOS_ARCHIVE_RUNNER_ATTESTATION=*) ;;
+  *) exit 1 ;;
+esac
+cmc_ios_archive_runner_attestation="${cmc_ios_archive_output#IOS_ARCHIVE_RUNNER_ATTESTATION=}"
+[[ "${cmc_ios_archive_runner_attestation}" =~ ^[0-9a-f]{64}$ ]] || exit 1
 cmc_ios_export_root="$(mktemp -d \
   "${cmc_repo_root}/build/ios/validated/export.XXXXXX")"
 ditto "${cmc_repo_root}/build/ios/archive/Runner.xcarchive" \
@@ -467,6 +486,7 @@ cmc_ios_upload_validation="$(bash scripts/check-ios-release.sh \
   --sealed-app-output "${cmc_ios_export_root}/Runner.app-upload.zip" \
   --reference-app "${cmc_repo_root}/build/ios/iphoneos/Runner.app" \
   --reference-attestation "${cmc_ios_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_archive_runner_attestation}" \
   --require-upload-ready)"
 printf '%s\n' "${cmc_ios_upload_validation}"
 grep -Fxq 'IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED' \
@@ -493,14 +513,17 @@ xcodebuild -exportArchive \
       bashBlocks[2] != expectedUpload) {
     throw StateError('runbook attestation command set invalid');
   }
-  if (!runbook.contains("senza ricalcolare l'attestazione") ||
-      !runbook.contains("successivamente all'archive")) {
+  if (!runbook.contains('calcolare una sola volta') ||
+      !runbook.contains('riusarla senza ricalcolo')) {
     throw StateError('runbook attestation order invalid');
   }
   if (!workflow.contains(attestor) ||
       !workflow.contains(referenceArgument) ||
       !workflow.contains(
         "--reference-attestation '\${{ steps.ios-reference.outputs.macho_sha256 }}'",
+      ) ||
+      !workflow.contains(
+        "--archive-runner-attestation '\${{ steps.ios-archive-runner.outputs.macho_sha256 }}'",
       )) {
     throw StateError('workflow/runbook attestation parity invalid');
   }
@@ -581,7 +604,7 @@ void _validateIosReleaseJob(String workflow) {
 
   final rawSteps = job['steps'] as YamlList;
   final steps = rawSteps.whereType<YamlMap>().toList();
-  if (rawSteps.length != 10 || steps.length != 10) {
+  if (rawSteps.length != 11 || steps.length != 11) {
     throw StateError('ios-release step set invalid');
   }
   _requireStep(
@@ -665,6 +688,26 @@ printf 'macho_sha256=%s\n' "${cmc_reference_digests}" >>"${GITHUB_OUTPUT}"
   );
   _requireStep(
     steps[8],
+    name: 'Attest iOS archive Runner',
+    id: 'ios-archive-runner',
+    keys: const <String>{'name', 'id', 'run'},
+    exactRun: r'''cmc_archive_output="$(
+  bash scripts/create-ios-reference-attestation.sh \
+  --archive-app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
+)"
+case "${cmc_archive_output}" in
+  IOS_ARCHIVE_RUNNER_ATTESTATION=*) ;;
+  *) exit 1 ;;
+esac
+cmc_archive_digest="${cmc_archive_output#IOS_ARCHIVE_RUNNER_ATTESTATION=}"
+if [[ ! "${cmc_archive_digest}" =~ ^[0-9a-f]{64}$ ]]; then
+  exit 1
+fi
+printf 'macho_sha256=%s\n' "${cmc_archive_digest}" >>"${GITHUB_OUTPUT}"
+''',
+  );
+  _requireStep(
+    steps[9],
     name: 'Validate iOS release candidate',
     keys: const <String>{'name', 'run'},
     run:
@@ -673,17 +716,19 @@ printf 'macho_sha256=%s\n' "${cmc_reference_digests}" >>"${GITHUB_OUTPUT}"
         '--archive build/ios/archive/Runner.xcarchive '
         '--sealed-app-output build/ios/Runner.app.validated.zip '
         '--reference-app build/ios/iphoneos/Runner.app '
-        "--reference-attestation '\${{ steps.ios-reference.outputs.macho_sha256 }}'",
+        "--reference-attestation '\${{ steps.ios-reference.outputs.macho_sha256 }}' "
+        "--archive-runner-attestation '\${{ steps.ios-archive-runner.outputs.macho_sha256 }}'",
   );
   _requireStep(
-    steps[9],
+    steps[10],
     name: 'Validate iOS adversarial release boundaries',
     keys: const <String>{'name', 'run'},
     run:
         'bash scripts/test-ios-release-validator.sh '
         '--archive build/ios/archive/Runner.xcarchive '
         '--reference-app build/ios/iphoneos/Runner.app '
-        "--reference-attestation '\${{ steps.ios-reference.outputs.macho_sha256 }}'",
+        "--reference-attestation '\${{ steps.ios-reference.outputs.macho_sha256 }}' "
+        "--archive-runner-attestation '\${{ steps.ios-archive-runner.outputs.macho_sha256 }}'",
   );
 }
 

@@ -41,13 +41,24 @@ xcodebuild archive \
   CODE_SIGNING_ALLOWED=NO \
   CODE_SIGNING_REQUIRED=NO \
   COMPILER_INDEX_STORE_ENABLE=NO
+cmc_ios_archive_output="$(
+  bash scripts/create-ios-reference-attestation.sh \
+    --archive-app "${cmc_repo_root}/build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app"
+)"
+case "${cmc_ios_archive_output}" in
+  IOS_ARCHIVE_RUNNER_ATTESTATION=*) ;;
+  *) exit 1 ;;
+esac
+cmc_ios_archive_runner_attestation="${cmc_ios_archive_output#IOS_ARCHIVE_RUNNER_ATTESTATION=}"
+[[ "${cmc_ios_archive_runner_attestation}" =~ ^[0-9a-f]{64}$ ]] || exit 1
 mkdir -p build/ios/validated
 cmc_ios_candidate_output="$(bash scripts/check-ios-release.sh \
   --app "${cmc_repo_root}/build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app" \
   --archive "${cmc_repo_root}/build/ios/archive/Runner.xcarchive" \
   --sealed-app-output "${cmc_repo_root}/build/ios/validated/Runner.app.zip" \
   --reference-app "${cmc_repo_root}/build/ios/iphoneos/Runner.app" \
-  --reference-attestation "${cmc_ios_reference_attestation}")"
+  --reference-attestation "${cmc_ios_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_archive_runner_attestation}")"
 printf '%s\n' "${cmc_ios_candidate_output}"
 cmc_ios_candidate_sha="$(sed -nE \
   's/^IOS_RELEASE_SEALED_APP_SHA256=([0-9a-f]{64})$/\1/p' \
@@ -131,12 +142,22 @@ un marker completo `CMC_RELEASE_CONFIG_ATTESTATION_V1:<digest>` nel Mach-O Dart
 `Frameworks/App.framework/App`; un digest-esca, un file diverso/incompleto o la shell
 compilata con il template fail-closed non può raggiungere upload-ready.
 
-Dopo un archive firmato nella stessa sessione, senza ricalcolare l'attestazione
-successivamente all'archive, eseguire prima:
+Dopo un archive firmato nella stessa sessione, calcolare una sola volta
+l'attestazione Runner exact-content e riusarla senza ricalcolo per validate ed export:
 
 ```bash
 cmc_repo_root="$(pwd -P)"
 mkdir -p "${cmc_repo_root}/build/ios/validated"
+cmc_ios_archive_output="$(
+  bash scripts/create-ios-reference-attestation.sh \
+    --archive-app "${cmc_repo_root}/build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app"
+)"
+case "${cmc_ios_archive_output}" in
+  IOS_ARCHIVE_RUNNER_ATTESTATION=*) ;;
+  *) exit 1 ;;
+esac
+cmc_ios_archive_runner_attestation="${cmc_ios_archive_output#IOS_ARCHIVE_RUNNER_ATTESTATION=}"
+[[ "${cmc_ios_archive_runner_attestation}" =~ ^[0-9a-f]{64}$ ]] || exit 1
 cmc_ios_export_root="$(mktemp -d \
   "${cmc_repo_root}/build/ios/validated/export.XXXXXX")"
 ditto "${cmc_repo_root}/build/ios/archive/Runner.xcarchive" \
@@ -147,6 +168,7 @@ cmc_ios_upload_validation="$(bash scripts/check-ios-release.sh \
   --sealed-app-output "${cmc_ios_export_root}/Runner.app-upload.zip" \
   --reference-app "${cmc_repo_root}/build/ios/iphoneos/Runner.app" \
   --reference-attestation "${cmc_ios_reference_attestation}" \
+  --archive-runner-attestation "${cmc_ios_archive_runner_attestation}" \
   --require-upload-ready)"
 printf '%s\n' "${cmc_ios_upload_validation}"
 grep -Fxq 'IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED' \

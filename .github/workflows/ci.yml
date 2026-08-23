@@ -216,6 +216,22 @@ jobs:
           CODE_SIGNING_ALLOWED=NO
           CODE_SIGNING_REQUIRED=NO
           COMPILER_INDEX_STORE_ENABLE=NO
+      - name: Attest iOS archive Runner
+        id: ios-archive-runner
+        run: |
+          cmc_archive_output="$(
+            bash scripts/create-ios-reference-attestation.sh \
+            --archive-app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
+          )"
+          case "${cmc_archive_output}" in
+            IOS_ARCHIVE_RUNNER_ATTESTATION=*) ;;
+            *) exit 1 ;;
+          esac
+          cmc_archive_digest="${cmc_archive_output#IOS_ARCHIVE_RUNNER_ATTESTATION=}"
+          if [[ ! "${cmc_archive_digest}" =~ ^[0-9a-f]{64}$ ]]; then
+            exit 1
+          fi
+          printf 'macho_sha256=%s\n' "${cmc_archive_digest}" >>"${GITHUB_OUTPUT}"
       - name: Validate iOS release candidate
         run: >-
           bash scripts/check-ios-release.sh
@@ -224,9 +240,11 @@ jobs:
           --sealed-app-output build/ios/Runner.app.validated.zip
           --reference-app build/ios/iphoneos/Runner.app
           --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
+          --archive-runner-attestation '${{ steps.ios-archive-runner.outputs.macho_sha256 }}'
       - name: Validate iOS adversarial release boundaries
         run: >-
           bash scripts/test-ios-release-validator.sh
           --archive build/ios/archive/Runner.xcarchive
           --reference-app build/ios/iphoneos/Runner.app
           --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
+          --archive-runner-attestation '${{ steps.ios-archive-runner.outputs.macho_sha256 }}'

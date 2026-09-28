@@ -22,7 +22,7 @@ cliente in evidence. Exit0 TAP è accettato soltanto dopo conteggio e assenza `n
 | `flutter test --coverage --exclude-tags performance` | tutta la suite | 835 PASS,2 golden FAIL:6px checkout e18px tracking su macOS27 | FAIL1; golden non aggiornati |
 | due test `--name golden` con tutti i sorgenti runtime ripristinati temporaneamente da HEAD base, poi restituiti al candidato | distinguere regressione | stessi2 fallimenti, stessi conteggi pixel | FAIL1 baseline; limite locale confermato |
 | suite funzionale `--no-pub --coverage --exclude-tags performance --name '^(?!golden)'` | comportamento non visuale |840/840 PASS prima dell'ultima regressione purge-cache | PASS0, non sostituisce golden |
-| delivery_context + customer_notifications + after_sales sul candidato finale | race, revoca, dispose, errori repository |37/37 PASS; include purge cache fallito con errore autorizzazione ancora visibile | PASS0 |
+| delivery_context + customer_notifications + after_sales sul candidato finale | race, revoca, dispose, errori repository |39/39 PASS; include purge cache fallito con errore autorizzazione ancora visibile | PASS0 |
 | `CMC_TASK034_REPEAT_COUNT=5 bash scripts/test-task034-resilience-repeat.sh` | race canoniche ripetibili |5×14=70 PASS | PASS0 |
 | `flutter test --tags performance --concurrency=1` | budget invariati |10/10 PASS prima/dopo | PASS0 |
 | `check-backend-compatibility.py --source-only` |55 consumer allineati |55/55, runtime NOT_RUN | PASS0 |
@@ -34,9 +34,9 @@ cliente in evidence. Exit0 TAP è accettato soltanto dopo conteggio e assenza `n
 | Admin typegen completo isolato + `npm run typecheck` |schema-wide allineato |incompatibilità nullability in più domini | FAIL2; P3 non chiuso |
 | Admin candidate additivo commerce + `npm run typecheck` |nessun cast nuovo, tipi mancanti aggiunti |typecheck completo PASS nella copia isolata | PASS0; integrazione NOT_RUN |
 | `git apply --check` patch Admin sul checkout canonico readonly |patch applicabile |nessun errore | PASS0; nessuna scrittura Admin |
-| Android debug build |APK development |primo tentativo fermato durante download Gradle9.1.0; mirror ufficiale bounded | BLOCKED toolchain locale, nuova CI da verificare |
-| iOS simulator debug build |app compilata |in corso al freeze documentale iniziale | NOT_RUN fino a ricevuta finale |
-| smoke shell Android/iOS |avvio e interazione effettivi |emulatori dedicati avviati, test dopo build | NOT_RUN fino a ricevuta finale |
+| Android debug build |APK development |primo tentativo interrotto143 durante download Gradle9.1.0; mirror ufficiale timeout28 dopo90s/3,1MiB di221MiB | BLOCKED toolchain locale, nuova CI da verificare |
+| iOS simulator debug build |app compilata |Xcode27 rifiuta target minimo14.0; build canonica exit1 | FAIL1 locale |
+| smoke shell Android/iOS |avvio e interazione effettivi |iOS: app_shell_smoke_test PASS0, interazione reale; Android bloccato dal toolchain | PASS iOS diagnostico / BLOCKED Android |
 | release AAB/APK/iOS unsigned |artifact e preflight distinti |da eseguire sul candidato | NOT_RUN fino a ricevuta finale |
 | fisico, signing/store upload, payment/refund/push reale |collaudo reale autorizzato |prerequisiti/mandato assenti | BLOCKED o NOT_RUN per scope, nessun PASS |
 
@@ -156,5 +156,29 @@ storica TASK-054 e TASK-157 Admin. Owner sblocco: utente/backend owner + reviewe
 | E2E-24 | BLOCKED | fonte scenario originale + migration/mandato staging + login reale |
 | E2E-25 | BLOCKED | fonte scenario originale + migration/mandato staging + login reale |
 
-Le regressioni R01–R11 e il caso storage di R03 sono aggiunte autonome della run,
+Le regressioni R01–R12 e il caso storage di R03 sono aggiunte autonome della run,
 con atteso/osservato nella matrice finding. Non vengono rinominate E2E-01…25.
+
+## Smoke iOS del candidato447d2a8
+
+Comando effettivo: `XCODE_XCCONFIG_FILE=/tmp/cmc-functional-audit/ios-simulator-audit.xcconfig flutter --no-version-check test --no-pub integration_test/app_shell_smoke_test.dart -d EA223A82-1F51-40E7-9B2E-441686CA193A --reporter expanded`.
+Il file xcconfig locale imposta soltanto `IPHONEOS_DEPLOYMENT_TARGET=15.0`: Xcode27
+rifiuta14.0, mentre il deployment target versionato e il preflight release rimangono14.0.
+Nessuna elevazione del minimo supportato nel prodotto. Questa deviazione rende lo smoke
+una verifica diagnostica del runtime development, non un PASS della build canonica.
+
+Build simulator63,1s; test11s,1/1 PASS, exit0. Simulator dedicato iPhone17/iOS27:
+cold launch, cinque destinazioni, back/tab state, light/dark, text scale200%,
+portrait/landscape, semantics/target touch e assenza di dati commerciali fittizi.
+Supabase non inizializzato nel development non configurato. Nessun login/business live.
+Warning: google_maps_flutter_ios non supporta ancora Swift Package Manager; CocoaPods
+usato dal progetto. Nessun aggiornamento plugin o modifica del target per aggirare gate.
+
+Controllo aggiuntivo del candidato447d2a8: due nuove prove con preview e read/refresh
+completati in ordine invertito riproducono loading permanente. Corretto il coordinamento
+fra lettura e preview;39/39 focused e analyzer PASS sul fix successivo. La prova red
+appartiene al candidato447d2a8, non alla baseline493c2c9.
+
+Il SQL emesso dal gate è stato eseguito anche attraverso il connector readonly sul
+ref autorizzato:32RPC/145migration lette realmente, snapshot gate FAIL1 con23+2
+assenze. Non è stato usato un pg_service privilegiato né fatto un apply.

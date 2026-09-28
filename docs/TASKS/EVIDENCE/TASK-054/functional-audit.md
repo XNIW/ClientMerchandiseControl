@@ -77,7 +77,7 @@ nella suite mirata, exit 0. Questo è evidence deterministica, non traffico live
 | F01 P1 | gate 55 RPC → staging ne espone 32; checkout v2 pickup/delivery non disponibile | due migration canoniche non applicate, nuovi oggetti assenti; piano pronto, nessun apply condiviso | gate snapshot remoto FAIL23+2; SQL isolato PASS; aperto runtime |
 | R01 P1 | preview owner, logout, risposta → guest vuoto; prima contesto owner pubblicato | fence owner/shop/generazione prima di pubblicare preview | delivery_context_lifecycle_test: preview dopo logout, FAIL→PASS |
 | R02 P2 | selezione A→logout→A → sessione nuova invariata; prima selezione vecchia sovrascriveva | generation per scope e mutation | stesso file: risposta A-B-A, FAIL→PASS |
-| R03 P1 | refresh dopo revoca → contesto/cache vuoti; prima snapshot ancora visibile | cache ammessa solo su offline/timeout | stesso file: revoca, FAIL→PASS |
+| R03 P1 | refresh dopo revoca → contesto/cache vuoti; prima snapshot ancora visibile | cache ammessa solo su offline/timeout; UI cleared prima del purge, anche se lo storage fallisce | stesso file: revoca + errore purge, FAIL→PASS |
 | R04 P2 | dispose durante preview → nessun accesso ref; prima eccezione | guard disposed prima di stato/ref tardivi | stesso file: dispose, FAIL→PASS |
 | R05 P2 | contesto delivery salvato, tap pickup → pickup resta; prima build reimpostava delivery | sync del selettore solo quando cambia il contesto ricevuto | delivery_context_screen_test: modalità, FAIL→PASS |
 | R06 P2 | query pendente, cancella testo → spinner finisce; prima rimaneva attivo | invalidazione query e reset dello stato searching | stesso file: query cancellata, FAIL→PASS |
@@ -86,6 +86,7 @@ nella suite mirata, exit 0. Questo è evidence deterministica, non traffico live
 | R09 P2 | mark-all pendente A-B-A → nuove notifiche unread; prima unread0 | fence sessione/generazione mutation | stesso file: mark-all tardivo, FAIL→PASS |
 | R10 P1 | inbox, revoca, refresh → lista/cache vuote; prima notifiche visibili | failure autoritativa elimina snapshot; offline continua readonly | stesso file: revoca FAIL→PASS, offline PASS |
 | R11 P2 | create assistenza, dispose, risposta → risultato scartato; prima Bad state su ref distrutta | controllo dispose anche nei fence e caricamenti assistenza | after_sales_controller_test: dispose, FAIL→PASS |
+| R12 P2, correzione del candidato447d2a8 | preview concorrente con read/refresh → lettura ready; candidato rimaneva loading | preview conserva la generazione della lettura, loading conserva busy e denial invalida preview | due ordini completamento FAIL→PASS; non attribuito falsamente alla baseline |
 | F02 P1 release | configurazione Google true staging/prod → login reale; respinta, sentinel non verificabile | risorsa esterna mancante, controlli di sicurezza corretti conservati | AppConfig/auth/native source + test; aperto |
 | F03 P2 | ricerca/reverse/mappa indirizzi runtime → provider reale; NotConfigured | decisione di provider non presente; parti neutrali e manuale completate | ADR-014 scope tracking; aperto esterno |
 | F04 P3 | rigenerazione completa Admin → typecheck; fallisce su nullability in POS/History/WeChat e commerce | schema-wide non riallineato; candidato additivo commerce locale tipizzato, senza cast nuovi | patch separata verificata typecheck; integrazione/review coordinata aperta |

@@ -15,7 +15,7 @@ merge o distribuzione dei task storici. Nessun DONE e nessuna auto-approvazione.
 
 | Livello | Stato | Evidence / limite |
 |---|---|---|
-| CODE | BLOCKED per acceptance completa |11 difetti corretti con regressioni;840 test funzionali,37 focused finali,70 race,10 benchmark PASS; due golden macOS27 falliscono anche a baseline; review distinta da ottenere |
+| CODE | BLOCKED per acceptance completa |11 difetti corretti con regressioni;840 test funzionali,39 focused finali,70 race,10 benchmark PASS; due golden macOS27 falliscono anche a baseline; review distinta da ottenere |
 | BACKEND_RUNTIME | FAIL |staging32/55 RPC;23 mancanti; due migration assenti;1034 assertion SQL locali PASS |
 | STAGING_E2E | BLOCKED |25 ID originali preservati; descrizioni originali non recuperate; apply/login/mandato specifico assenti |
 | PHYSICAL_DEVICES | BLOCKED |nessuna installazione o smoke su telefono; fixture/account/dispositivi autorizzati necessari |

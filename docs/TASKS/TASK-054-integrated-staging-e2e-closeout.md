@@ -123,7 +123,7 @@ canoniche mancanti. Validazione SQL isolata1034/1034; regressioni dimostrate
 corrette in delivery context, inbox e assistenza. Gate source/artifact backend
 aggiunto a CI, check integrato e preflight upload.
 
-840 test funzionali e37 focused finali,70race e10benchmark PASS. Il gate completo
+840 test funzionali e39 focused finali,70race e10benchmark PASS. Il gate completo
 locale conserva due FAIL golden riprodotti anche a baseline. Build/smoke/CI del
 candidato vengono registrati soltanto a conclusione. OAuth/provider indirizzi,
 E2E originali e review distinta restano prerequisiti esterni. Nessun apply condiviso,

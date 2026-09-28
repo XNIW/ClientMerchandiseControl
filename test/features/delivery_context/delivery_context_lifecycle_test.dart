@@ -100,6 +100,48 @@ void main() {
     },
   );
 
+  for (final readFirst in [false, true]) {
+    test(
+      'preview non annulla lettura iniziale, readFirst=$readFirst',
+      () async {
+        final read = Completer<CustomerDeliveryContext?>();
+        final preview = Completer<CustomerDeliveryContext>();
+        repository.pendingRead = read.future;
+        repository.pendingPreview = preview.future;
+        final controller = container.read(
+          deliveryContextControllerProvider.notifier,
+        );
+        final refresh = controller.refresh();
+        await Future<void>.delayed(Duration.zero);
+        final operation = controller.previewAddress(
+          addressId: checkoutTestAddress,
+        );
+        if (readFirst) {
+          read.complete(checkoutTestDeliveryContext());
+          await refresh;
+          expect(
+            container.read(deliveryContextControllerProvider).isMutating,
+            isTrue,
+          );
+        }
+        preview.complete(checkoutTestDeliveryContext());
+        expect(await operation, isNotNull);
+        if (!readFirst) {
+          read.complete(checkoutTestDeliveryContext());
+          await refresh;
+        }
+        expect(
+          container.read(deliveryContextControllerProvider).status,
+          DeliveryContextViewStatus.ready,
+        );
+        expect(
+          container.read(deliveryContextControllerProvider).isMutating,
+          isFalse,
+        );
+      },
+    );
+  }
+
   test(
     'revoca resta visibile anche se il purge della cache fallisce',
     () async {
@@ -158,13 +200,14 @@ class _Cache implements DeliveryContextCacheStore {
 }
 
 class _Repository implements DeliveryContextRepository {
+  Future<CustomerDeliveryContext?>? pendingRead;
   Future<CustomerDeliveryContext>? pendingPreview;
   Future<CustomerDeliveryContext>? pendingSelect;
   DeliveryContextRepositoryException? readFailure;
   @override
   Future<CustomerDeliveryContext?> read({required String shopSlug}) async {
     if (readFailure != null) throw readFailure!;
-    return checkoutTestDeliveryContext();
+    return pendingRead ?? checkoutTestDeliveryContext();
   }
 
   @override

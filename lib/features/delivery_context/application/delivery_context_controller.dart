@@ -84,7 +84,11 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
     );
   }
 
-  Future<void> refresh() => _load(++_generation);
+  Future<void> refresh() {
+    if (_disposed) return Future.value();
+    state = state.copyWith(isMutating: false);
+    return _load(++_generation);
+  }
 
   Future<CustomerDeliveryContext?> previewAddress({
     String? addressId,
@@ -128,6 +132,7 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
           authenticated: true,
           context: cached,
           isFromCache: true,
+          isMutating: state.isMutating,
         );
       }
       final remote = await ref
@@ -148,6 +153,7 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
         status: DeliveryContextViewStatus.ready,
         authenticated: true,
         context: remote,
+        isMutating: state.isMutating,
       );
     } on DeliveryContextRepositoryException catch (error) {
       if (!_current(owner, shopSlug, generation)) return;
@@ -155,6 +161,7 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
           error.kind == DeliveryContextFailureKind.offline ||
           error.kind == DeliveryContextFailureKind.timeout;
       final cached = mayUseCache ? state.context : null;
+      if (!mayUseCache) _generation++;
       state = DeliveryContextState(
         status: cached != null && mayUseCache
             ? DeliveryContextViewStatus.offline
@@ -163,6 +170,7 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
         context: cached,
         failure: error.kind,
         isFromCache: cached != null,
+        isMutating: mayUseCache && state.isMutating,
       );
       if (!mayUseCache) {
         try {
@@ -185,7 +193,7 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
     final shopSlug = _shopSlug;
     final owner = _owner;
     if (_disposed || shopSlug == null || state.isMutating) return null;
-    final generation = ++_generation;
+    final generation = _generation;
     state = state.copyWith(isMutating: true, clearFailure: true);
     try {
       final result = await ref

@@ -4894,7 +4894,7 @@
 - **Scope**: audit completo, fix dimostrati e verifiche sviluppo; staging readonly.
 - **Baseline**: Client 493c2c9, Admin fe4907ad; checkout originari preservati.
 - **Risultati**: 23RPC staging assenti,1034SQL locali PASS;11difetti con regressioni,
-  840test funzionali/37focused finali,70race/10benchmark PASS; golden locale2FAIL
+  840test funzionali/39focused finali,70race/10benchmark PASS; golden locale2FAIL
   anche a baseline. Manifest/gate55RPC e blocco preflight distribuzione implementati.
 - **Limiti**: apply/login/provider/E2E originali/review distinti aperti; build/CI
   aggiornate solo con ricevute. Nessun merge, distribuzione o production.

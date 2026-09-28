@@ -4634,6 +4634,15 @@
 - **Fase finale**: PLANNING.
 - **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
 
+### Follow-up CI dello stesso audit
+
+La run36461675459 ha fallito nel test di governance dopo la riapertura BLOCKED:
+la ricerca Git generica selezionava TASK-054 invece della fixture storica TASK-040.
+Corretto il selettore e aggiunta una verifica esplicita di identità/stato della
+fixture; `bash scripts/test-governance-release-train.sh` PASS / 0, 101/101 fixture.
+Nessuna modifica ai validator o ai criteri di acceptance. Runtime Flutter invariato
+rispetto a6353c9b; nuova CI completa richiesta sul commit del fix.
+
 ## 2026-08-21 — TASK-041 execution e handoff
 
 - **Technical SHA**: `92323f309ac39d4ea9565ef841c8a358a2b257a7`.

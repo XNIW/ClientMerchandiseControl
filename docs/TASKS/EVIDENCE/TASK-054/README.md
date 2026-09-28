@@ -44,7 +44,8 @@ Branch `codex/client-functional-audit`; PR [27](https://github.com/XNIW/ClientMe
 OPEN/DRAFT, nessun merge. Commit implementazione447d2a89ef37e175dfdd592507307bb528c12314;
 fix finale6353c9bd02162cc858f0d1a2b9459c8ee92f48e2. Push confermato dal remote.
 Le revisioni successive aggiornano evidence/governance e correggono la selezione
-della fixture storica nel test di governance; il runtime resta quello di6353c9b. Baseline493c2c9;
+della fixture storica nel test di governance e l'aspettativa della fixture firma
+Android rispetto al nuovo preflight; il runtime resta quello di6353c9b. Baseline493c2c9;
 checkout originari e modifiche utente preservati. Database/emulatori creati per la run
 sono stati fermati, senza eliminare altri ambienti o dati.
 
@@ -60,6 +61,12 @@ La run36461675459 ha rilevato una regressione nel harness di governance: cercand
 l'ultima transizione BLOCKED selezionava TASK-054 al posto di TASK-040. La selezione
 ora usa l'identità del task storico e ne verifica lo stato; 101/101 fixture locali
 PASS dopo il fix. La CI finale deve includere questa correzione.
+
+La run36462598679 ha poi rilevato un'aspettativa obsoleta della fixture Android:
+firma e input Play sintetici validi non bastano più a emettere la ricevuta di upload.
+Il preflight rifiutava correttamente ANDROID_RUNTIME_CONFIG_MISSING. La fixture ora
+verifica firma v2-only/SIGNED, rifiuto esatto e assenza della ricevuta upload; conserva
+tutti i casi avversariali precedenti. Sintassi shell PASS; prova artifact nella CI finale.
 
 Review distinta NOT_RUN: nessun reviewer inventato né approvazione dell'autore.
 Il task è BLOCKED in EXECUTION perché manca acceptance runtime e una review distinta;

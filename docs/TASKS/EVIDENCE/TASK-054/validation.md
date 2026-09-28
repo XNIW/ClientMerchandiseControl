@@ -28,6 +28,7 @@ cliente in evidence. Exit0 TAP è accettato soltanto dopo conteggio e assenza `n
 | `check-backend-compatibility.py --source-only` |55 consumer allineati |55/55, runtime NOT_RUN | PASS / 0 |
 | `test-backend-compatibility.py` | rifiuto drift e artifact non coerente |11 test, incluse varianti signature/grant/body/history e3 ABI mancanti/diverse/duplicate | PASS / 0 |
 | `bash scripts/test-governance-release-train.sh` dopo il fix della fixture storica | fixture TASK-040 indipendente da nuovi task bloccati | 101/101 fixture PASS; prima falliva dopo il commit dello stato BLOCKED di TASK-054 | PASS / 0 locale; nuova CI da verificare |
+| fixture firma Android e preflight | firma valida distinta da upload-ready | run36462598679: vecchia aspettativa FAIL, preflight reale respinge correttamente runtime config assente; fixture aggiornata conserva gli abusi e pretende rifiuto/nessuna ricevuta upload | sintassi PASS / 0; artifact locale NOT_RUN, ricevuta CI finale separata |
 | gate snapshot SQL isolato |55 firme/grants/body corrispondenti |PASS scope=snapshot_only | PASS / 0, history ricostruzione non ricevuta CLI |
 | gate snapshot metadata staging | rilevare incompatibilità reale |23 missing_rpc,2 missing_migration | FAIL / 1; runtime non compatibile |
 | gate `--live` senza connessione autorizzata | niente falso PASS |prerequisite=CMC_BACKEND_PGSERVICE_and_artifact_config | BLOCKED / 2 |

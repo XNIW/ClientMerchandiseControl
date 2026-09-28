@@ -4911,3 +4911,9 @@ Corretto il selettore e aggiunta una verifica esplicita di identità/stato della
 fixture; `bash scripts/test-governance-release-train.sh` PASS / 0, 101/101 fixture.
 Nessuna modifica ai validator o ai criteri di acceptance. Runtime Flutter invariato
 rispetto a6353c9b; nuova CI completa richiesta sul commit del fix.
+
+La run36462598679 rileva inoltre la vecchia aspettativa upload-ready della fixture
+Android con sola firma e input Play sintetici. Il nuovo preflight rifiuta correttamente
+ANDROID_RUNTIME_CONFIG_MISSING; il test ora pretende firma valida, rifiuto esatto e
+assenza di ricevuta upload. Casi avversariali precedenti conservati; `bash -n` PASS / 0,
+prova artifact affidata alla nuova CI, senza dichiarare una verifica live del backend.

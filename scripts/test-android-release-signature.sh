@@ -346,24 +346,30 @@ cmc_signature_expect_log_token \
   'AAB_SIGNER_SET_INVALID' \
   'signature block mixed-case rifiutato'
 
-cmc_signature_validator_output="$(
-  PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
+if PLAY_INTERNAL_UPLOAD_AUTHORIZED=true \
   PLAY_SERVICE_ACCOUNT_JSON_PATH="${cmc_signature_credential}" \
   PLAY_SERVICE_ACCOUNT_EXPECTED_EMAIL="${cmc_signature_email}" \
   PLAY_SERVICE_ACCOUNT_EXPECTED_PROJECT_ID="${cmc_signature_project}" \
   ANDROID_SIGNING_CERT_SHA256="${cmc_signature_fingerprint}" \
+  ANDROID_RELEASE_RUNTIME_CONFIG_PATH='' \
     bash "${cmc_signature_script_dir}/check-android-release.sh" \
     --aab "${cmc_signature_candidate_aab}" \
     --apk "${cmc_signature_candidate_apk}" \
-    --require-upload-ready
-)"
-cmc_signature_expect_text \
-  "${cmc_signature_validator_output}" \
+    --require-upload-ready \
+    >"${cmc_signature_tmp_root}/signed-without-runtime.log" 2>&1; then
+  cmc_signature_fail 'upload accettato senza runtime config e backend verificato'
+fi
+cmc_signature_expect_log_token \
+  "${cmc_signature_tmp_root}/signed-without-runtime.log" \
   'ANDROID_RELEASE_SIGNING=SIGNED' \
   'firma release coerente'
-cmc_signature_expect_text \
-  "${cmc_signature_validator_output}" \
-  'ANDROID_INTERNAL_UPLOAD_INPUTS_VALIDATED' \
-  'input Play validi'
+cmc_signature_expect_log_token \
+  "${cmc_signature_tmp_root}/signed-without-runtime.log" \
+  'ANDROID_RELEASE_BLOCKED: ANDROID_RUNTIME_CONFIG_MISSING' \
+  'firma valida ma runtime config mancante rifiutato'
+if grep -Fq 'ANDROID_INTERNAL_UPLOAD_INPUTS_VALIDATED' \
+  "${cmc_signature_tmp_root}/signed-without-runtime.log"; then
+  cmc_signature_fail 'ricevuta upload emessa prima della verifica runtime'
+fi
 
-printf 'Android release signature fixture: APK v2-only e input Play validati.\n'
+printf 'Android release signature fixture: APK v2-only valido; upload senza runtime bloccato.\n'

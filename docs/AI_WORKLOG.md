@@ -4894,8 +4894,11 @@
 - **Scope**: audit completo, fix dimostrati e verifiche sviluppo; staging readonly.
 - **Baseline**: Client 493c2c9, Admin fe4907ad; checkout originari preservati.
 - **Risultati**: 23RPC staging assenti,1034SQL locali PASS;11difetti con regressioni,
-  840test funzionali/39focused finali,70race/10benchmark PASS; golden locale2FAIL
+  843test PASS/2golden FAIL e39focused finali,70race/10benchmark PASS; golden locale2FAIL
   anche a baseline. Manifest/gate55RPC e blocco preflight distribuzione implementati.
-- **Limiti**: apply/login/provider/E2E originali/review distinti aperti; build/CI
-  aggiornate solo con ricevute. Nessun merge, distribuzione o production.
+- **Git/runtime**: PR27 OPEN/DRAFT,6353c9b pubblicato; smoke iOS development PASS
+  anche sul fix finale con override simulator15.0. CI separata sui cinque job della PR.
+- **Limiti**: apply/login/provider/E2E originali/review distinti aperti; Android locale
+  download Gradle BLOCKED, Xcode27 target14.0 FAIL. TASK-054 BLOCKED/EXECUTION;
+  nessun merge, distribuzione o production. Resources locali della run fermate.
 - **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.

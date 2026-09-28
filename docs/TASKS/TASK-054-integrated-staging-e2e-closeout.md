@@ -1,7 +1,7 @@
 # TASK-054 — Integrated staging E2E and closeout
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: ACTIVE
+- **Stato**: BLOCKED
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -66,7 +66,7 @@ contract test non vengono presentati come sostituti di staging.
 | E2E-24 | BLOCKED | migration staging non applicata |
 | E2E-25 | BLOCKED | migration staging non applicata |
 
-## Classificazione
+## Classificazione storica del closeout
 
 `CLIENT_COMMERCE_JOURNEY_TECHNICALLY_COMPLETE`
 
@@ -123,9 +123,10 @@ canoniche mancanti. Validazione SQL isolata1034/1034; regressioni dimostrate
 corrette in delivery context, inbox e assistenza. Gate source/artifact backend
 aggiunto a CI, check integrato e preflight upload.
 
-840 test funzionali e39 focused finali,70race e10benchmark PASS. Il gate completo
-locale conserva due FAIL golden riprodotti anche a baseline. Build/smoke/CI del
-candidato vengono registrati soltanto a conclusione. OAuth/provider indirizzi,
+Sul candidato runtime6353c9b:843 test PASS e2golden FAIL,39focused PASS,
+70race e10benchmark PASS. I due golden falliscono anche a baseline. Smoke iOS
+diagnostico PASS con override locale15.0; build canonica Xcode27 FAIL su target14.0
+e Android locale BLOCKED da download Gradle. CI separata nella PR draft27. OAuth/provider indirizzi,
 E2E originali e review distinta restano prerequisiti esterni. Nessun apply condiviso,
 store upload, production, merge o DONE.
 
@@ -138,5 +139,5 @@ store upload, production, merge o DONE.
 | CA-05 / T-05 | validation.md; qualità/build/performance | BLOCKED per gate ancora non verdi |
 | CA-06 / T-06 | matrice25ID e requisiti esterni | BLOCKED fonte originale e review distinta |
 
-L'Execution non è review-ready: rimane aperta, senza transizione fittizia
+L'Execution non è review-ready: resta BLOCKED in EXECUTION, senza transizione fittizia
 CODEX_EXECUTION_COMPLETE_TO_REVIEW.

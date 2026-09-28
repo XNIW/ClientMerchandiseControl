@@ -9,7 +9,7 @@ Ambiente host: Mac Apple M3 Max arm64, macOS27.0 build26A428, Flutter3.44.8
 `058e0af2c2`, Dart3.12.2. Test flutter_test/debug, dataset sintetici versionati;
 benchmark host senza rete business. I risultati non sono misure release su telefono.
 
-Log completi fuori Git in `/tmp/cmc-functional-audit/`; nessuna credenziale o dato
+Log completi fuori Git, anche conservati in `~/.codex/outputs/client-functional-audit/evidence/`; nessuna credenziale o dato
 cliente in evidence. Exit0 TAP è accettato soltanto dopo conteggio e assenza `not ok`.
 
 ## Registro locale
@@ -19,7 +19,7 @@ cliente in evidence. Exit0 TAP è accettato soltanto dopo conteggio e assenza `n
 | `scripts/check.sh` con Flutter `--no-version-check` | gate completi | source contract, security, governance, architecture, localizzazione, metadata e release source PASS; primo analyze segnala2 braces, corrette | FAIL1 iniziale, non presentato come gate completo PASS |
 | `dart format --output=none --set-exit-if-changed .` | zero differenze | 344 file,0 cambiamenti dopo formatter | PASS0 |
 | `flutter --no-version-check analyze --no-pub` finale | zero issues | No issues found | PASS0 |
-| `flutter test --coverage --exclude-tags performance` | tutta la suite | 835 PASS,2 golden FAIL:6px checkout e18px tracking su macOS27 | FAIL1; golden non aggiornati |
+| `flutter test --coverage --exclude-tags performance` | tutta la suite | 843 PASS,2 golden FAIL sul candidato6353c9b:6px checkout e18px tracking su macOS27 | FAIL1; golden non aggiornati |
 | due test `--name golden` con tutti i sorgenti runtime ripristinati temporaneamente da HEAD base, poi restituiti al candidato | distinguere regressione | stessi2 fallimenti, stessi conteggi pixel | FAIL1 baseline; limite locale confermato |
 | suite funzionale `--no-pub --coverage --exclude-tags performance --name '^(?!golden)'` | comportamento non visuale |840/840 PASS prima dell'ultima regressione purge-cache | PASS0, non sostituisce golden |
 | delivery_context + customer_notifications + after_sales sul candidato finale | race, revoca, dispose, errori repository |39/39 PASS; include purge cache fallito con errore autorizzazione ancora visibile | PASS0 |
@@ -37,7 +37,7 @@ cliente in evidence. Exit0 TAP è accettato soltanto dopo conteggio e assenza `n
 | Android debug build |APK development |primo tentativo interrotto143 durante download Gradle9.1.0; mirror ufficiale timeout28 dopo90s/3,1MiB di221MiB | BLOCKED toolchain locale, nuova CI da verificare |
 | iOS simulator debug build |app compilata |Xcode27 rifiuta target minimo14.0; build canonica exit1 | FAIL1 locale |
 | smoke shell Android/iOS |avvio e interazione effettivi |iOS: app_shell_smoke_test PASS0, interazione reale; Android bloccato dal toolchain | PASS iOS diagnostico / BLOCKED Android |
-| release AAB/APK/iOS unsigned |artifact e preflight distinti |da eseguire sul candidato | NOT_RUN fino a ricevuta finale |
+| release AAB/APK/iOS unsigned |artifact e preflight distinti |eseguiti dai job CI del commit della PR; nessuna build firmata o upload | esito finale nei check GitHub e handoff |
 | fisico, signing/store upload, payment/refund/push reale |collaudo reale autorizzato |prerequisiti/mandato assenti | BLOCKED o NOT_RUN per scope, nessun PASS |
 
 `--no-version-check` evita il git fetch automatico del SDK Flutter installato;
@@ -82,6 +82,10 @@ Totale: **1.034 assertion,23 suite**. Seed e bootstrap corretti sono descritti n
 
 ## Performance prima/dopo
 
+Baseline runtime493c2c9 ripristinata temporaneamente nei quattro file modificati:
+`git diff 493c2c9 --name-only -- lib` vuoto durante la misura; harness prestazionali
+invariati. Candidato runtime6353c9b ripristinato prima della seconda misura.
+Questa coppia finale sostituisce le misure esplorative precedenti del worktree.
 5 warm-up e30 campioni per i benchmark che riportano percentili; identici harness,
 dataset e budget TASK-019/034/037. Host condiviso con altri processi di sviluppo:
 variazione osservata, nessun miglioramento attribuito arbitrariamente al fix.
@@ -89,26 +93,26 @@ Valori tripli p50/p95/p99 in microsecondi, salvo dove indicato.
 
 | Metrica/dataset | Prima | Dopo | Controllo |
 |---|---:|---:|---|
-| Home cache |227/281/285 |238/392/442 |1 cache read,1 live fetch fake |
-| Catalogo small1000 |739/1142/1320 |987/1465/1508 |250 categorie |
-| Search small1000 |870/1168/7045 |1229/1991/6351 |SQLite locale |
-| Catalogo medium10000 |521/620/705 |695/917/985 |cursore bounded |
-| Search medium10000 |2191/3188/3368 |3085/3896/4008 |SQLite locale |
-| Catalogo extreme25000 |533/694/761 |637/872/1073 |budget canonico PASS |
-| Search extreme25000 |6296/6756/6836 |7111/8179/11870 |budget canonico PASS |
-| Open/write cache small, ms |268/92 |499/97 |una misura setup per run |
-| Open/write medium, ms |1/274 |4/298 |una misura setup per run |
-| Open/write extreme, ms |1/575 |1/604 |una misura setup per run |
-| Decode image1024→480 |8496/8942/8989 |8574/8771/9349 |dimensione decode bounded |
-| Tracking publication |285/416/481 |262/420/454 |1RPC/1subscription |
-| Catalog append24 |264/505/527 |255/437/531 |36 richieste complessive |
-| Detail render |49151/61295/65691 |39682/51052/51601 |1RPC/navigation |
-| Checkout navigation |11020/14221/15672 |11205/13758/14186 |0read extra/navigation |
-| Guest cart100 read |455/636/648 |434/870/1035 |SQLite |
-| Guest cart100 mutation |723/973/2441 |698/1063/1929 |SQLite |
-| Order cache50 write |579/954/1764 |597/950/1600 |17105byte |
-| Order cache50 read |891/1703/2424 |803/1814/2198 |bounded |
-| Order selector500 |86/177/290 |82/174/339 |derivazione locale |
+| Home cache |266/417/424 |224/337/348 |1 cache read,1 live fetch fake |
+| Catalogo small1000 |843/1537/8903 |871/1613/6822 |250 categorie |
+| Search small1000 |1041/1487/1702 |1031/1112/1163 |SQLite locale |
+| Catalogo medium10000 |614/896/959 |581/767/770 |cursore bounded |
+| Search medium10000 |3283/3606/3616 |2578/3585/4673 |SQLite locale |
+| Catalogo extreme25000 |696/830/866 |593/728/956 |budget canonico PASS |
+| Search extreme25000 |7623/8236/8268 |5544/6784/7316 |budget canonico PASS |
+| Open/write cache small, ms |774/104 |494/86 |una misura setup per run |
+| Open/write medium, ms |2/298 |1/274 |una misura setup per run |
+| Open/write extreme, ms |1/618 |1/610 |una misura setup per run |
+| Decode image1024→480 |8738/9176/9543 |8553/8729/8850 |dimensione decode bounded |
+| Tracking publication |299/507/561 |289/516/525 |1RPC/1subscription |
+| Catalog append24 |285/448/525 |254/507/527 |36 richieste complessive |
+| Detail render |52502/64742/70714 |39878/53209/53289 |1RPC/navigation |
+| Checkout navigation |12697/19020/19235 |11621/14689/15361 |0read extra/navigation |
+| Guest cart100 read |461/801/878 |479/805/839 |SQLite |
+| Guest cart100 mutation |697/1014/2358 |755/1018/2611 |SQLite |
+| Order cache50 write |708/1096/1782 |588/1097/1757 |17105byte |
+| Order cache50 read |911/1668/2211 |801/1586/2384 |bounded |
+| Order selector500 |90/186/453 |84/176/317 |derivazione locale |
 
 Launch reale, primo contenuto da rete staging, memoria dispositivo release, rete reale,
 query live sotto carico: NOT_RUN, distinti dagli smoke development e dalle query SQL
@@ -159,7 +163,7 @@ storica TASK-054 e TASK-157 Admin. Owner sblocco: utente/backend owner + reviewe
 Le regressioni R01–R12 e il caso storage di R03 sono aggiunte autonome della run,
 con atteso/osservato nella matrice finding. Non vengono rinominate E2E-01…25.
 
-## Smoke iOS del candidato447d2a8
+## Smoke iOS del candidato finale6353c9b
 
 Comando effettivo: `XCODE_XCCONFIG_FILE=/tmp/cmc-functional-audit/ios-simulator-audit.xcconfig flutter --no-version-check test --no-pub integration_test/app_shell_smoke_test.dart -d EA223A82-1F51-40E7-9B2E-441686CA193A --reporter expanded`.
 Il file xcconfig locale imposta soltanto `IPHONEOS_DEPLOYMENT_TARGET=15.0`: Xcode27
@@ -167,7 +171,7 @@ rifiuta14.0, mentre il deployment target versionato e il preflight release riman
 Nessuna elevazione del minimo supportato nel prodotto. Questa deviazione rende lo smoke
 una verifica diagnostica del runtime development, non un PASS della build canonica.
 
-Build simulator63,1s; test11s,1/1 PASS, exit0. Simulator dedicato iPhone17/iOS27:
+Prima build simulator63,1s su447d2a8; ripetizione finale6353c9b: build21,3s; test11s,1/1 PASS, exit0. Simulator dedicato iPhone17/iOS27:
 cold launch, cinque destinazioni, back/tab state, light/dark, text scale200%,
 portrait/landscape, semantics/target touch e assenza di dati commerciali fittizi.
 Supabase non inizializzato nel development non configurato. Nessun login/business live.
@@ -182,3 +186,7 @@ appartiene al candidato447d2a8, non alla baseline493c2c9.
 Il SQL emesso dal gate è stato eseguito anche attraverso il connector readonly sul
 ref autorizzato:32RPC/145migration lette realmente, snapshot gate FAIL1 con23+2
 assenze. Non è stato usato un pg_service privilegiato né fatto un apply.
+
+I risultati finali della CI sono separati dai limiti locali: il confronto SHA, job,
+step e annotation viene eseguito dopo la conclusione delle run e riportato nell'handoff.
+Il checkout resta BLOCKED/EXECUTION; un job di build verde non abilita E2E o distribuzione.

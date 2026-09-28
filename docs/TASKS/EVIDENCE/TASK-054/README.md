@@ -1,7 +1,7 @@
 # TASK-054 — Audit operativo riaperto
 
 Snapshot di handoff:
-`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`BLOCKED / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
 
 Il prompt del2026-09-28 autorizza sviluppo/audit/fix. Non rinnova gli apply staging,
 merge o distribuzione dei task storici. Nessun DONE e nessuna auto-approvazione.
@@ -15,7 +15,7 @@ merge o distribuzione dei task storici. Nessun DONE e nessuna auto-approvazione.
 
 | Livello | Stato | Evidence / limite |
 |---|---|---|
-| CODE | BLOCKED per acceptance completa |11 difetti corretti con regressioni;840 test funzionali,39 focused finali,70 race,10 benchmark PASS; due golden macOS27 falliscono anche a baseline; review distinta da ottenere |
+| CODE | BLOCKED per acceptance completa |11 difetti corretti con regressioni;843 test PASS e2golden FAIL,39 focused finali,70 race,10 benchmark PASS; due golden macOS27 falliscono anche a baseline; review distinta da ottenere |
 | BACKEND_RUNTIME | FAIL |staging32/55 RPC;23 mancanti; due migration assenti;1034 assertion SQL locali PASS |
 | STAGING_E2E | BLOCKED |25 ID originali preservati; descrizioni originali non recuperate; apply/login/mandato specifico assenti |
 | PHYSICAL_DEVICES | BLOCKED |nessuna installazione o smoke su telefono; fixture/account/dispositivi autorizzati necessari |
@@ -40,8 +40,26 @@ Non si attivano provider o dashboard esterni in questa run.
 
 ## Git, CI e review
 
-Lavoro in checkout gestito `codex/client-functional-audit`, baseline Client493c2c9.
-Checkout originali e lavori concorrenti preservati. Candidate e documenti sono in
-preparazione per PR draft; le ricevute effettive sono aggiunte dopo conferma remota.
-La CI storica32635780234 non è un gate del candidato. Merge NOT_RUN/non autorizzato.
-Review distinta NOT_RUN; nessun reviewer inventato, nessuna approvazione autonoma.
+Branch `codex/client-functional-audit`; PR [27](https://github.com/XNIW/ClientMerchandiseControl/pull/27)
+OPEN/DRAFT, nessun merge. Commit implementazione447d2a89ef37e175dfdd592507307bb528c12314;
+fix finale6353c9bd02162cc858f0d1a2b9459c8ee92f48e2. Push confermato dal remote.
+Le revisioni successive contengono soltanto evidence/governance. Baseline493c2c9;
+checkout originari e modifiche utente preservati. Database/emulatori creati per la run
+sono stati fermati, senza eliminare altri ambienti o dati.
+
+La CI valida cinque job sul commit della PR: Quality, Android debug, Android release
+unsigned AAB/APK, iOS simulator, iOS release unsigned/archive e validator avversariali.
+La run36459656662 di447d2a8 è stata cancellata dalla normale concurrency al push del fix;
+non è un PASS del candidato. Le ricevute finali, con SHA/job/step/annotation, devono
+corrispondere ai [check della PR](https://github.com/XNIW/ClientMerchandiseControl/pull/27/checks).
+Nessuna CI precedente sostituisce i check del nuovo head; esito finale riportato
+nell'handoff al termine delle run, senza alterare il revision set implementativo.
+
+Review distinta NOT_RUN: nessun reviewer inventato né approvazione dell'autore.
+Il task è BLOCKED in EXECUTION perché manca acceptance runtime e una review distinta;
+non viene consegnato come review-ready e non passa a DONE. I prerequisiti sopra e le
+due prove golden locali restano aperti anche se la CI di build risulta verde.
+
+Evidence completa locale non versionata: `~/.codex/outputs/client-functional-audit/`.
+Il manifest locale associa log sanitizzati ai file con SHA256; il candidato typegen
+Admin rimane separato e non applicato. Nessun processo locale di verifica irrisolto.

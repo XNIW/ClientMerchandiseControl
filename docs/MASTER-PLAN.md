@@ -7,14 +7,15 @@
 - **Stato globale**: ACTIVE
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: ACTIVE
+- **Stato task**: BLOCKED
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: REOPENED_DEVELOPMENT_AUDIT
 - **Review integrata**: NOT_RUN — nuovo audit operativo del 2026-09-28
-- **Prossima azione autorizzata**: audit funzionale, fix e gate locali di TASK-054;
+- **Prossima azione autorizzata**: completare verifica CI della PR draft27;
+  riprendere Execution dopo sblocco documentato di runtime, fonti E2E e reviewer;
   staging write, distribuzione e merge richiedono mandato specifico vigente
 
 ## Repository coinvolti
@@ -112,7 +113,7 @@
 | TASK-051 | Cart, checkout and payment journey completion | DONE | TASK-050, TASK-023, TASK-026, TASK-027, TASK-032 | Client, Admin, Supabase | Checkout e payment/recovery completi |
 | TASK-052 | Notification inbox and reorder | DONE | TASK-051, TASK-028, TASK-031 | Client, Admin, Supabase | Inbox persistente e riacquisto validato |
 | TASK-053 | After-sales, verified reviews and search assist | DONE | TASK-052 | Client, Admin, Supabase | Assistenza, recensioni verificate e ricerca assistita |
-| TASK-054 | Integrated staging E2E and closeout | ACTIVE | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
+| TASK-054 | Integrated staging E2E and closeout | BLOCKED | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
 
 ## Dipendenze e blocchi
 

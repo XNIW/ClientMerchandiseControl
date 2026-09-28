@@ -192,7 +192,7 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: ACTIVE
+- **Stato task**: BLOCKED
 - **Fase**: EXECUTION
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION

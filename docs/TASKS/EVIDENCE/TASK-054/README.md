@@ -15,7 +15,7 @@ merge o distribuzione dei task storici. Nessun DONE e nessuna auto-approvazione.
 
 | Livello | Stato | Evidence / limite |
 |---|---|---|
-| CODE | BLOCKED per acceptance completa |11 difetti corretti con regressioni;843 test PASS e2golden FAIL,39 focused finali,70 race,10 benchmark PASS; due golden macOS27 falliscono anche a baseline; review distinta da ottenere |
+| CODE | BLOCKED per acceptance completa |11 difetti corretti con regressioni;843 test PASS e2 golden FAIL,39 focused finali,70 race,10 benchmark PASS; due golden macOS 27 falliscono anche a baseline; review distinta da ottenere |
 | BACKEND_RUNTIME | FAIL |staging32/55 RPC;23 mancanti; due migration assenti;1034 assertion SQL locali PASS |
 | STAGING_E2E | BLOCKED |25 ID originali preservati; descrizioni originali non recuperate; apply/login/mandato specifico assenti |
 | PHYSICAL_DEVICES | BLOCKED |nessuna installazione o smoke su telefono; fixture/account/dispositivi autorizzati necessari |
@@ -31,7 +31,7 @@ merge o distribuzione dei task storici. Nessun DONE e nessuna auto-approvazione.
 | Product/address owner |decidere provider di ricerca/reverse/pin e condizioni di caching/quote, senza riutilizzare chiavi tracking |adapter reale + offline/GPS/permessi/zona non servita + fallback manuale |
 | QA/product owner |recuperare la definizione originale E2E-01…25 |mapping a criteri originali senza sostituzioni |
 | Reviewer distinto |revisionare Client/backend candidate e coordinare P3 Admin |finding riproducibili e re-review; niente approvazione dell'autore |
-| Mobile/release owner |toolchain compatibile col deployment target iOS14, Gradle9.1 verificato, poi device/config/signing approvati |build canoniche,smoke emulatori e fisici separati,preflight e upload distinti |
+| Mobile/release owner |toolchain compatibile col deployment target iOS 14, Gradle 9.1 verificato, poi device/config/signing approvati |build canoniche,smoke emulatori e fisici separati,preflight e upload distinti |
 | Admin writer/reviewer |integrare candidato typegen commerce dopo coordinamento con TASK-159 |typecheck/foundation/diff schema; restante drift schema-wide resta aperto |
 
 Push reale e online payment/refund richiedono decisioni/configurazioni proprie;

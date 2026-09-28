@@ -3,7 +3,7 @@
 ## Osservazione remota, sola lettura
 
 Target riconfermato: `merchandisecontrol-dev`, ref `jpgoimipbothfgkokyvm`,
-ACTIVE_HEALTHY, PostgreSQL17.6.1.104. È un database condiviso, non sacrificabile.
+ACTIVE_HEALTHY, PostgreSQL 17.6.1.104. È un database condiviso, non sacrificabile.
 Metadata: 145 migration registrate, comprese modifiche WeChat successive fino a
 `20260926164349`. Nessuna query dati cliente, mutation, fixture o DDL eseguita qui.
 

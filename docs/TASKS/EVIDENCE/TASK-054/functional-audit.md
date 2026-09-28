@@ -90,14 +90,14 @@ nella suite mirata, exit 0. Questo è evidence deterministica, non traffico live
 | F02 P1 release | configurazione Google true staging/prod → login reale; respinta, sentinel non verificabile | risorsa esterna mancante, controlli di sicurezza corretti conservati | AppConfig/auth/native source + test; aperto |
 | F03 P2 | ricerca/reverse/mappa indirizzi runtime → provider reale; NotConfigured | decisione di provider non presente; parti neutrali e manuale completate | ADR-014 scope tracking; aperto esterno |
 | F04 P3 | rigenerazione completa Admin → typecheck; fallisce su nullability in POS/History/WeChat e commerce | schema-wide non riallineato; candidato additivo commerce locale tipizzato, senza cast nuovi | patch separata verificata typecheck; integrazione/review coordinata aperta |
-| F05 P2 gate | golden originali macOS → pixel identici; 6px checkout/18px tracking diversi | riprodotto identico a baseline su macOS27; causa raster specifica ambiente da confermare | full suite FAIL; goldens baseline FAIL; immagini attese non cambiate |
+| F05 P2 gate | golden originali macOS → pixel identici; 6 px checkout/18 px tracking diversi | riprodotto identico a baseline su macOS 27; causa raster specifica ambiente da confermare | full suite FAIL; goldens baseline FAIL; immagini attese non cambiate |
 
 La review distinta non è ancora ottenuta: l'autore non assegna APPROVED ai propri fix.
 Non si dichiarano zero finding aperti: F01/F02/F03/F04/F05 e collaudo live restano visibili.
 
 ## P3 Admin: candidato concreto, integrazione non attestata
 
-La generazione reale con postgres-meta0.97.0 sul DB isolato produce 13.176 righe contro
+La generazione reale con postgres-meta 0.97.0 sul DB isolato produce 13.176 righe contro
 5.612 del file corrente. Sostituirlo integralmente rompe typecheck in domini estranei.
 È stato preparato fuori dal checkout Admin un candidato che aggiunge 51 tabelle e 73
 funzioni pubbliche commerce mancanti, conservando le definizioni esistenti (incluse le

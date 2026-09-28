@@ -118,14 +118,14 @@ Handoff planning: CODEX_PLANNING_APPROVED_TO_EXECUTION, già autorizzato dal pro
 ## Execution audit — 2026-09-28
 
 Audit e fix locali eseguiti; evidence strutturata nel
-[README](EVIDENCE/TASK-054/README.md). Staging32/55RPC,23assenti e due migration
+[README](EVIDENCE/TASK-054/README.md). Staging32/55 RPC,23assenti e due migration
 canoniche mancanti. Validazione SQL isolata1034/1034; regressioni dimostrate
 corrette in delivery context, inbox e assistenza. Gate source/artifact backend
 aggiunto a CI, check integrato e preflight upload.
 
-Sul candidato runtime6353c9b:843 test PASS e2golden FAIL,39focused PASS,
-70race e10benchmark PASS. I due golden falliscono anche a baseline. Smoke iOS
-diagnostico PASS con override locale15.0; build canonica Xcode27 FAIL su target14.0
+Sul candidato runtime6353c9b:843 test PASS e2 golden FAIL,39 focused PASS,
+70 race e10 benchmark PASS. I due golden falliscono anche a baseline. Smoke iOS
+diagnostico PASS con override locale15.0; build canonica Xcode 27 FAIL su target14.0
 e Android locale BLOCKED da download Gradle. CI separata nella PR draft27. OAuth/provider indirizzi,
 E2E originali e review distinta restano prerequisiti esterni. Nessun apply condiviso,
 store upload, production, merge o DONE.
@@ -133,11 +133,11 @@ store upload, production, merge o DONE.
 | CA / T | Evidence | Stato |
 |---|---|---|
 | CA-01 / T-01 | functional-audit.md, baseline Git/CI e percorsi | PASS statico, live distinto |
-| CA-02 / T-02 | manifest55, gate11test; schema remoto incompatibile rilevato | PASS controllo; runtime FAIL |
-| CA-03 / T-03 | backend-reconciliation.md;23suite1034SQL | PASS locale; apply BLOCKED |
+| CA-02 / T-02 | manifest55, gate11 test; schema remoto incompatibile rilevato | PASS controllo; runtime FAIL |
+| CA-03 / T-03 | backend-reconciliation.md;23 suite1034 SQL | PASS locale; apply BLOCKED |
 | CA-04 / T-04 | finding R01–R11, regressioni FAIL prima/PASS dopo | PASS deterministico; review NOT_RUN |
 | CA-05 / T-05 | validation.md; qualità/build/performance | BLOCKED per gate ancora non verdi |
-| CA-06 / T-06 | matrice25ID e requisiti esterni | BLOCKED fonte originale e review distinta |
+| CA-06 / T-06 | matrice25 ID e requisiti esterni | BLOCKED fonte originale e review distinta |
 
 L'Execution non è review-ready: resta BLOCKED in EXECUTION, senza transizione fittizia
 CODEX_EXECUTION_COMPLETE_TO_REVIEW.

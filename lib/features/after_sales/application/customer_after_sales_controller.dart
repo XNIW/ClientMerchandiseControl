@@ -61,11 +61,16 @@ final class CustomerAfterSalesController
     extends Notifier<CustomerAfterSalesState> {
   String? _contextKey;
   var _generation = 0;
+  var _disposed = false;
   String? _pendingCreateSignature;
   String? _pendingCreateIdempotencyKey;
 
   @override
   CustomerAfterSalesState build() {
+    _disposed = false;
+    ref.onDispose(() {
+      _disposed = true;
+    });
     final identity = ref.watch(customerAccountIdentityProvider);
     final shopSlug = ref.watch(appConfigProvider).storefrontShopSlug;
     final key = '${identity?.subjectId}|$shopSlug';
@@ -158,10 +163,11 @@ final class CustomerAfterSalesController
   }
 
   Future<void> _load(int generation) async {
+    if (_disposed || generation != _generation) return;
     final identity = ref.read(customerAccountIdentityProvider);
     final shopSlug = ref.read(appConfigProvider).storefrontShopSlug;
     if (identity == null || shopSlug == null) {
-      if (generation == _generation) {
+      if (!_disposed && generation == _generation) {
         state = CustomerAfterSalesState(
           isLoading: false,
           isMutating: false,
@@ -175,7 +181,7 @@ final class CustomerAfterSalesController
       final values = await ref
           .read(customerAfterSalesRepositoryProvider)
           .list(shopSlug: shopSlug);
-      if (generation == _generation) {
+      if (!_disposed && generation == _generation) {
         state = CustomerAfterSalesState(
           isLoading: false,
           isMutating: false,
@@ -183,13 +189,14 @@ final class CustomerAfterSalesController
         );
       }
     } on CustomerAfterSalesException catch (error) {
-      if (generation == _generation) {
+      if (!_disposed && generation == _generation) {
         state = state.copyWith(isLoading: false, failure: error.code);
       }
     }
   }
 
   ({int generation, String key})? _captureContextFence() {
+    if (_disposed) return null;
     final identity = ref.read(customerAccountIdentityProvider);
     final shopSlug = ref.read(appConfigProvider).storefrontShopSlug;
     if (identity == null || shopSlug == null) return null;
@@ -199,6 +206,7 @@ final class CustomerAfterSalesController
   }
 
   bool _isCurrentContext(({int generation, String key}) fence) {
+    if (_disposed || fence.generation != _generation) return false;
     final identity = ref.read(customerAccountIdentityProvider);
     final shopSlug = ref.read(appConfigProvider).storefrontShopSlug;
     return fence.generation == _generation &&

@@ -4,30 +4,31 @@
 
 - **Progetto**: ClientMerchandiseControl
 - **Obiettivo**: app clienti Android/iOS per il dominio pubblico Storefront di Merchandise Control
-- **Stato globale**: IDLE
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: nessuno
-- **Fase**: REVIEW
-- **Responsabile**: USER_APPROVER
-- **Indicatore**: CLIENT_COMMERCE_JOURNEY_COMPLETION_COMPLETE
+- **Stato globale**: ACTIVE
+- **Task attivo**: TASK-054
+- **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
+- **Stato task**: ACTIVE
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
-- **Stato release train**: COMPLETE
-- **Review integrata**: APPROVED — P0/P1/P2 0, P3 1 accepted residual risk
-- **Prossima azione autorizzata**: nessuna; le activation esterne richiedono un
-  mandato production separato
+- **Stato release train**: REOPENED_DEVELOPMENT_AUDIT
+- **Review integrata**: NOT_RUN — nuovo audit operativo del 2026-09-28
+- **Prossima azione autorizzata**: audit funzionale, fix e gate locali di TASK-054;
+  staging write, distribuzione e merge richiedono mandato specifico vigente
 
 ## Repository coinvolti
 
 - `XNIW/ClientMerchandiseControl` — repository corrente e unico writer del client.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
-  authority canonica verificata; branch integration e PR draft coordinata.
+  authority canonica verificata; TASK-159 concorrente in sola lettura, candidato
+  typegen commerce preparato fuori dal checkout, integrazione non attestata.
 - `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
 - `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
-- Supabase staging esistente — Auth e Milestone 1 TASK-005/TASK-006/TASK-010
-  applicati e verificati; production non modificata.
+- Supabase staging esistente — audit metadata readonly: 32/55 RPC presenti,
+  23 assenti e due migration commerce non applicate; production non modificata.
 - Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 
 ## Principi architetturali
@@ -111,7 +112,7 @@
 | TASK-051 | Cart, checkout and payment journey completion | DONE | TASK-050, TASK-023, TASK-026, TASK-027, TASK-032 | Client, Admin, Supabase | Checkout e payment/recovery completi |
 | TASK-052 | Notification inbox and reorder | DONE | TASK-051, TASK-028, TASK-031 | Client, Admin, Supabase | Inbox persistente e riacquisto validato |
 | TASK-053 | After-sales, verified reviews and search assist | DONE | TASK-052 | Client, Admin, Supabase | Assistenza, recensioni verificate e ricerca assistita |
-| TASK-054 | Integrated staging E2E and closeout | DONE | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
+| TASK-054 | Integrated staging E2E and closeout | ACTIVE | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
 
 ## Dipendenze e blocchi
 

@@ -88,7 +88,6 @@ final class CustomerNotificationInboxController
     _disposed = false;
     ref.onDispose(() {
       _disposed = true;
-      _generation++;
     });
     final owner = ref.watch(customerNotificationIdentityProvider)?.subjectId;
     final shop = ref.watch(customerNotificationShopSlugProvider);
@@ -96,12 +95,12 @@ final class CustomerNotificationInboxController
     _initialized = true;
     _owner = owner;
     _shop = shop;
+    final generation = ++_generation;
     if (owner == null || shop == null) {
       return const CustomerNotificationInboxState(
         status: CustomerNotificationInboxStatus.signedOut,
       );
     }
-    final generation = ++_generation;
     scheduleMicrotask(() => _load(generation, allowCache: true));
     return const CustomerNotificationInboxState(
       status: CustomerNotificationInboxStatus.loading,
@@ -128,6 +127,7 @@ final class CustomerNotificationInboxController
   Future<void> loadMore() async {
     final owner = _owner;
     final shop = _shop;
+    final generation = _generation;
     final cursor = state.nextCursor;
     if (owner == null ||
         shop == null ||
@@ -140,7 +140,7 @@ final class CustomerNotificationInboxController
       final page = await ref
           .read(customerNotificationRepositoryProvider)
           .list(shopSlug: shop, category: state.category, before: cursor);
-      if (!_current(owner, shop)) return;
+      if (!_current(owner, shop, generation)) return;
       final merged = <String, CustomerNotification>{
         for (final item in state.items) item.id: item,
         for (final item in page.items) item.id: item,
@@ -155,18 +155,14 @@ final class CustomerNotificationInboxController
       );
       await _saveCache(owner, shop);
     } on Object catch (error) {
-      if (_current(owner, shop)) {
-        state = state.copyWith(
-          failure: _failureKind(error),
-          isLoadingMore: false,
-        );
-      }
+      await _recordFailure(error, owner, shop, generation);
     }
   }
 
   Future<void> markRead(String id) async {
     final owner = _owner;
     final shop = _shop;
+    final generation = _generation;
     final current = state.items.where((item) => item.id == id).firstOrNull;
     if (owner == null ||
         shop == null ||
@@ -180,7 +176,7 @@ final class CustomerNotificationInboxController
       final readAt = await ref
           .read(customerNotificationRepositoryProvider)
           .markRead(id);
-      if (!_current(owner, shop)) return;
+      if (!_current(owner, shop, generation)) return;
       state = state.copyWith(
         items: [
           for (final item in state.items)
@@ -191,20 +187,19 @@ final class CustomerNotificationInboxController
       );
       await _saveCache(owner, shop);
     } on Object catch (error) {
-      if (_current(owner, shop)) {
-        state = state.copyWith(failure: _failureKind(error), isMutating: false);
-      }
+      await _recordFailure(error, owner, shop, generation);
     }
   }
 
   Future<void> markAllRead() async {
     final owner = _owner;
     final shop = _shop;
+    final generation = _generation;
     if (owner == null || shop == null || state.isMutating) return;
     state = state.copyWith(isMutating: true, clearFailure: true);
     try {
       await ref.read(customerNotificationRepositoryProvider).markAllRead(shop);
-      if (!_current(owner, shop)) return;
+      if (!_current(owner, shop, generation)) return;
       final now = DateTime.now().toUtc();
       state = state.copyWith(
         items: state.items.map((item) => item.markRead(now)).toList(),
@@ -213,21 +208,29 @@ final class CustomerNotificationInboxController
       );
       await _saveCache(owner, shop);
     } on Object catch (error) {
-      if (_current(owner, shop)) {
-        state = state.copyWith(failure: _failureKind(error), isMutating: false);
-      }
+      await _recordFailure(error, owner, shop, generation);
     }
   }
 
   Future<void> _load(int generation, {required bool allowCache}) async {
     final owner = _owner;
     final shop = _shop;
-    if (owner == null || shop == null) return;
+    if (owner == null ||
+        shop == null ||
+        generation != _generation ||
+        _disposed) {
+      return;
+    }
+    state = state.copyWith(
+      isRefreshing: true,
+      isLoadingMore: false,
+      isMutating: false,
+    );
     if (allowCache && state.category == null) {
       final cached = await ref
           .read(customerNotificationCacheProvider)
           .read(ownerSubjectId: owner, shopSlug: shop);
-      if (!_current(owner, shop) || generation != _generation) return;
+      if (!_current(owner, shop, generation)) return;
       if (cached.isNotEmpty) {
         state = state.copyWith(
           status: CustomerNotificationInboxStatus.loading,
@@ -242,7 +245,7 @@ final class CustomerNotificationInboxController
       final page = await ref
           .read(customerNotificationRepositoryProvider)
           .list(shopSlug: shop, category: state.category);
-      if (!_current(owner, shop) || generation != _generation) return;
+      if (!_current(owner, shop, generation)) return;
       state = state.copyWith(
         status: CustomerNotificationInboxStatus.ready,
         items: page.items,
@@ -255,19 +258,48 @@ final class CustomerNotificationInboxController
       );
       await _saveCache(owner, shop);
     } on Object catch (error) {
-      if (!_current(owner, shop) || generation != _generation) return;
-      final failure = _failureKind(error);
-      final cached = state.items.isNotEmpty;
-      state = state.copyWith(
-        status:
-            cached &&
-                (failure == CustomerNotificationFailureKind.offline ||
-                    failure == CustomerNotificationFailureKind.timeout)
-            ? CustomerNotificationInboxStatus.offline
-            : CustomerNotificationInboxStatus.failure,
-        failure: failure,
-        isRefreshing: false,
-      );
+      await _recordFailure(error, owner, shop, generation, loading: true);
+    }
+  }
+
+  Future<void> _recordFailure(
+    Object error,
+    String owner,
+    String shop,
+    int generation, {
+    bool loading = false,
+  }) async {
+    if (!_current(owner, shop, generation)) return;
+    final failure = _failureKind(error);
+    final transient =
+        failure == CustomerNotificationFailureKind.offline ||
+        failure == CustomerNotificationFailureKind.timeout;
+    final clear = !transient;
+    state = state.copyWith(
+      status: clear
+          ? CustomerNotificationInboxStatus.failure
+          : loading
+          ? (state.items.isNotEmpty
+                ? CustomerNotificationInboxStatus.offline
+                : CustomerNotificationInboxStatus.failure)
+          : state.status,
+      items: clear ? const [] : null,
+      unreadCount: clear ? 0 : null,
+      clearCursor: clear,
+      isFromCache: clear ? false : null,
+      failure: failure,
+      isRefreshing: false,
+      isLoadingMore: false,
+      isMutating: false,
+    );
+    if (clear) {
+      try {
+        await ref
+            .read(customerNotificationCacheProvider)
+            .remove(ownerSubjectId: owner, shopSlug: shop);
+      } on Object {
+        // Il fallimento della cache non ripubblica dati non autorizzati.
+      }
     }
   }
 
@@ -282,8 +314,11 @@ final class CustomerNotificationInboxController
     }
   }
 
-  bool _current(String owner, String shop) =>
-      !_disposed && _owner == owner && _shop == shop;
+  bool _current(String owner, String shop, int generation) =>
+      !_disposed &&
+      _generation == generation &&
+      _owner == owner &&
+      _shop == shop;
 
   CustomerNotificationFailureKind _failureKind(Object error) =>
       error is CustomerNotificationRepositoryException

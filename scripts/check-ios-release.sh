@@ -1315,6 +1315,9 @@ printf 'IOS_RELEASE_ARTIFACT_TREE_SHA256=%s\n' \
 printf 'IOS_RELEASE_SEALED_APP_SHA256=%s\n' \
   "${cmc_ios_release_sealed_app_sha}"
 if [[ "${cmc_ios_release_upload_inputs_validated}" == true ]]; then
+  python3 "${cmc_ios_release_script_dir}/check-backend-compatibility.py" \
+    --live --app-config "${IOS_RELEASE_RUNTIME_CONFIG_PATH}" || \
+    cmc_ios_release_fail 'BACKEND_COMPATIBILITY_REQUIRED'
   printf 'IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED\n'
 fi
 if [[ "${cmc_ios_release_entitlement_source}" == ABSENT ]]; then

@@ -1,10 +1,12 @@
 # ClientMerchandiseControl
 
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
-Merchandise Control. La fondazione corrente offre una shell guest localizzata,
-accessibile e data-safe con Home e Catalogo Storefront reali, Carrello e Account, più
-Google OAuth customer verificato in staging tramite Supabase Auth. Search/discovery,
-commerce e ordini avanzano nei task proprietari del release train.
+Merchandise Control. Il codice include catalogo, account, carrello, checkout,
+ordini, consegna, inbox, assistenza e recensioni. L'audit operativo TASK-054 del
+2026-09-28 ha riconfermato 23 RPC mancanti nello staging e risorse esterne non
+configurate per OAuth, indirizzi assistiti e push: il prodotto non è dichiarato
+operativamente completo. Il [rapporto verificabile](docs/TASKS/EVIDENCE/TASK-054/README.md)
+separa codice, SQL locale, staging, dispositivi e distribuzione.
 
 ## Relazione con Merchandise Control
 
@@ -188,17 +190,18 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 ## Stato
 
-- **Task attivo**: nessuno
-- **File task**: nessuno
-- **Stato task**: nessuno
-- **Fase**: REVIEW
-- **Indicatore**: CLIENT_COMMERCE_JOURNEY_COMPLETION_COMPLETE
+- **Task attivo**: TASK-054
+- **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
+- **Stato task**: ACTIVE
+- **Fase**: EXECUTION
+- **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
-- **Stato release train**: COMPLETE
-- **Review integrata**: APPROVED — P0/P1/P2 0, P3 1 accepted residual risk
+- **Stato release train**: REOPENED_DEVELOPMENT_AUDIT
+- **Review integrata**: NOT_RUN — nuovo audit operativo del 2026-09-28
 
-TASK-050–TASK-054 sono `DONE`: Admin e Client sono integrati con review e CI
-exact-SHA verdi. Il risultato è tecnicamente completo; staging resta classificato
+TASK-054 è riaperto dal mandato del 2026-09-28 per audit funzionale e completamento
+nel perimetro di sviluppo. Le attestazioni di closeout seguenti sono storiche:
+TASK-050–053 restano invariati; staging era classificato
 `STAGING_PARTIAL_EXTERNAL` perché apply ed E2E-01…25 live sono `BLOCKED` dopo i due
 tentativi provider/CLI bounded. Nessuna migration production o activation è avvenuta.
 

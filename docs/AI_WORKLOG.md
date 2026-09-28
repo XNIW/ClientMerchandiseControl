@@ -4886,3 +4886,16 @@
 - **Transizione**: TASK-050–TASK-054 `DONE`; progetto `IDLE`, nessun task
   successivo attivato.
 - **Handoff**: `USER_APPROVED_DONE`.
+
+
+## 2026-09-28 — TASK-054 riapertura audit operativo
+
+- **Ruolo**: CODEX_PLANNER -> CODEX_EXECUTOR, continuità autorizzata dal prompt.
+- **Scope**: audit completo, fix dimostrati e verifiche sviluppo; staging readonly.
+- **Baseline**: Client 493c2c9, Admin fe4907ad; checkout originari preservati.
+- **Risultati**: 23RPC staging assenti,1034SQL locali PASS;11difetti con regressioni,
+  840test funzionali/37focused finali,70race/10benchmark PASS; golden locale2FAIL
+  anche a baseline. Manifest/gate55RPC e blocco preflight distribuzione implementati.
+- **Limiti**: apply/login/provider/E2E originali/review distinti aperti; build/CI
+  aggiornate solo con ricevute. Nessun merge, distribuzione o production.
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.

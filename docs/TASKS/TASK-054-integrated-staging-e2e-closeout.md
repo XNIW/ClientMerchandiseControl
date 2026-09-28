@@ -1,7 +1,11 @@
 # TASK-054 — Integrated staging E2E and closeout
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: DONE
+- **Stato**: ACTIVE
+- **Fase**: EXECUTION
+- **Responsabile**: CODEX_EXECUTOR
+- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
 
@@ -17,7 +21,7 @@ repository read-only.
 E2E reali con `PASS/FAIL/NOT_RUN/BLOCKED`, P0/P1/P2 zero, CI exact-SHA e main,
 cleanup fixture/worktree/branch e stato finale progetto `IDLE`.
 
-## Review integrata
+## Review integrata storica — closeout 2026-08-23
 
 - Esito: `APPROVED`; P0 0, P1 0, P2 0, P3 1 non bloccante nel typegen
   schema-wide Admin. I sette RPC Admin consumati a runtime sono tipizzati.
@@ -69,3 +73,70 @@ contract test non vengono presentati come sostituti di staging.
 `STAGING_PARTIAL_EXTERNAL`
 
 `PROJECT_IDLE`
+
+
+## Emendamento utente — 2026-09-28
+
+Il nuovo prompt riapre la verifica operativa e autorizza analisi, implementazione,
+test locali, review e fix in continuità nel perimetro di sviluppo. Non riusa come
+mandato le autorizzazioni staging/merge del train chiuso. Nessuna modifica ai task
+futuri o conversione dei vecchi VALIDATED_PENDING_INTEGRATED_REVIEW in DONE.
+Admin ha TASK-159 concorrente: il checkout corrente resta in sola lettura; eventuali
+fix dimostrati richiedono un candidato isolato e review coordinata.
+
+## Planning audit approvato dal mandato corrente
+
+Obiettivo: ricostruire i percorsi reali e correggere i difetti dimostrati, mantenendo
+separati codice, database locale, staging, dispositivi, distribuzione e production.
+
+1. Baseline Git/CI/PR e inventario UI/controller/repository/backend per tutte le aree.
+2. Manifest RPC completo, firme/parametri/payload e migration reconciliation readonly;
+   gate ripetibile di compatibilità integrato e preflight distribuzione fail-closed.
+3. Validazione SQL isolata delle migration canoniche, dipendenze e recovery; niente
+   reset/apply sul database condiviso e niente migrazioni duplicate.
+4. Riproduzione e correzione dei difetti Client, OAuth/provider solo entro configurazioni
+   validate, fallback manuale e server authority conservati.
+5. Gate canonici, benchmark esistenti, build unsigned e smoke locale quando possibile.
+6. Review distinta e re-review; E2E originali preservati e prerequisiti esterni precisi.
+
+Non incluso: nuovi provider, wallet/loyalty/chat, production, billing, DNS/OAuth dashboard,
+pagamenti/rimborsi reali, store upload, merge, aggiornamenti massivi o inventario privato.
+Rischi: deriva schema, staging condiviso e callback/provider non configurati. Mitigazioni:
+readonly metadata, database dedicato, failure chiusa, fixture sintetiche e nessun secret.
+
+| CA | Criterio | Test |
+|---|---|---|
+| CA-01 | Inventario completo e baseline verificata | T-01 lettura Git/CI e percorsi |
+| CA-02 | Compatibilità RPC e migrazioni verificabile, blocco su drift | T-02 contract gate positivo/negativo e snapshot readonly |
+| CA-03 | SQL canonico riproducibile isolato e piano apply/recovery | T-03 pgTAP locale e schema/grants/RLS |
+| CA-04 | Difetti dimostrati corretti senza indebolire confini | T-04 regressioni unit/widget, auth e account switch |
+| CA-05 | Qualità/build/performance con evidence della revisione | T-05 check.sh e benchmark canonici |
+| CA-06 | E2E originali e requisiti esterni classificati onestamente | T-06 matrice e review distinta |
+
+Handoff planning: CODEX_PLANNING_APPROVED_TO_EXECUTION, già autorizzato dal prompt.
+
+## Execution audit — 2026-09-28
+
+Audit e fix locali eseguiti; evidence strutturata nel
+[README](EVIDENCE/TASK-054/README.md). Staging32/55RPC,23assenti e due migration
+canoniche mancanti. Validazione SQL isolata1034/1034; regressioni dimostrate
+corrette in delivery context, inbox e assistenza. Gate source/artifact backend
+aggiunto a CI, check integrato e preflight upload.
+
+840 test funzionali e37 focused finali,70race e10benchmark PASS. Il gate completo
+locale conserva due FAIL golden riprodotti anche a baseline. Build/smoke/CI del
+candidato vengono registrati soltanto a conclusione. OAuth/provider indirizzi,
+E2E originali e review distinta restano prerequisiti esterni. Nessun apply condiviso,
+store upload, production, merge o DONE.
+
+| CA / T | Evidence | Stato |
+|---|---|---|
+| CA-01 / T-01 | functional-audit.md, baseline Git/CI e percorsi | PASS statico, live distinto |
+| CA-02 / T-02 | manifest55, gate11test; schema remoto incompatibile rilevato | PASS controllo; runtime FAIL |
+| CA-03 / T-03 | backend-reconciliation.md;23suite1034SQL | PASS locale; apply BLOCKED |
+| CA-04 / T-04 | finding R01–R11, regressioni FAIL prima/PASS dopo | PASS deterministico; review NOT_RUN |
+| CA-05 / T-05 | validation.md; qualità/build/performance | BLOCKED per gate ancora non verdi |
+| CA-06 / T-06 | matrice25ID e requisiti esterni | BLOCKED fonte originale e review distinta |
+
+L'Execution non è review-ready: rimane aperta, senza transizione fittizia
+CODEX_EXECUTION_COMPLETE_TO_REVIEW.

@@ -54,6 +54,22 @@ void main() {
     },
   );
 
+  test('create dopo dispose scarta la risposta senza accedere a ref', () async {
+    final repository = _Repository()..createBarrier = Completer<void>();
+    final identity = StateProvider<AuthenticatedCustomer?>(
+      (ref) => _customer(_ownerA),
+    );
+    final container = _container(repository, identity);
+    container.listen(customerAfterSalesControllerProvider, (_, _) {});
+    await _settle();
+    final pending = container
+        .read(customerAfterSalesControllerProvider.notifier)
+        .create(_draft());
+    container.dispose();
+    repository.createBarrier!.complete();
+    expect(await pending, isNull);
+  });
+
   test('retry create riusa la stessa idempotency key dopo timeout', () async {
     final repository = _Repository()..failFirstCreate = true;
     final identity = StateProvider<AuthenticatedCustomer?>(

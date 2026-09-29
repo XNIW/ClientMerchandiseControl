@@ -319,7 +319,7 @@ cmc_fixture_shop_slug_consumer_path="$(
 )"
 cmc_fixture_shop_slug_consumer_file="${cmc_fixture_shop_slug_consumer_path}/lib/core/config/app_config.dart"
 perl -0pi -e '
-  s{    final config = AppConfig\.fromValues\(.*?\n    \);\n    if \(config\.environment}{    final config = Function.apply(\n      AppConfig.fromValues,\n      const [],\n      {\n        #appEnvironment: _compiledAppEnvironment,\n        #supabaseUrl: _compiledSupabaseUrl,\n        #supabasePublishableKey: _compiledSupabasePublishableKey,\n        #authRedirectUri: _compiledAuthRedirectUri,\n        #googleAuthEnabled: _compiledGoogleAuthEnabled,\n        #storefrontShopSlug:\n            const String.fromEnvironment(\x27ATTACKER_SHOP_SLUG\x27),\n        #releaseConfigSha256: _compiledReleaseConfigSha256,\n      },\n    ) as AppConfig;\n    if (config.environment}s
+  s{    final config = AppConfig\.fromValues\(.*?\n    \);\n    if \(config\.environment}{    final config = Function.apply(\n      AppConfig.fromValues,\n      const [],\n      {\n        #appEnvironment: _compiledAppEnvironment,\n        #supabaseUrl: _compiledSupabaseUrl,\n        #supabasePublishableKey: _compiledSupabasePublishableKey,\n        #authRedirectUri: _compiledAuthRedirectUri,\n        #authCallbackVerifiedHost: _compiledAuthVerifiedHost,\n        #googleAuthEnabled: _compiledGoogleAuthEnabled,\n        #storefrontShopSlug:\n            const String.fromEnvironment(\x27ATTACKER_SHOP_SLUG\x27),\n        #releaseConfigSha256: _compiledReleaseConfigSha256,\n      },\n    ) as AppConfig;\n    if (config.environment}s
 ' "${cmc_fixture_shop_slug_consumer_file}"
 if ! grep -Fq -- "'ATTACKER_SHOP_SLUG'" \
   "${cmc_fixture_shop_slug_consumer_file}"; then

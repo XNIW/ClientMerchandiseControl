@@ -32,3 +32,6 @@ Runner/GeneratedPluginRegistrant.*
 !default.mode2v3
 !default.pbxuser
 !default.perspectivev3
+
+# Generato dalla PreAction del solo scheme Runner; verificato prima della build.
+Flutter/AuthCallback.entitlements

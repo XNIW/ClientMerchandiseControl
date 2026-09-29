@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import plistlib
 import re
+import sys
 
 
 def entitlements(encoded):
@@ -28,8 +29,18 @@ def entitlements(encoded):
 if __name__ == '__main__':
     try:
         output = Path(os.environ['SCRIPT_OUTPUT_FILE_0'])
+        checking = sys.argv[1:] == ['--check']
+        if sys.argv[1:] not in ([], ['--check']):
+            raise ValueError('unsupported_arguments')
+        if not checking:
+            # Non lasciare un entitlement precedente utilizzabile dopo config invalida.
+            output.unlink(missing_ok=True)
         payload = entitlements(os.environ.get('DART_DEFINES', ''))
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_bytes(plistlib.dumps(payload))
+        if checking:
+            if plistlib.loads(output.read_bytes()) != payload:
+                raise ValueError('stale_native_binding')
+        else:
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_bytes(plistlib.dumps(payload))
     except (KeyError, ValueError, OSError):
         raise SystemExit('AUTH_NATIVE_BINDING_INVALID') from None

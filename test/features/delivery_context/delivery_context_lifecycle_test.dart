@@ -42,6 +42,55 @@ void main() {
     await Future<void>.delayed(Duration.zero);
   });
 
+  for (final preview in [false, true]) {
+    for (final purgeFails in [false, true]) {
+      test(
+        'diniego contesto invalida read pendente preview=$preview purgeFails=$purgeFails',
+        () async {
+          final response = Completer<CustomerDeliveryContext>();
+          final read = Completer<CustomerDeliveryContext?>();
+          repository.pendingRead = read.future;
+          cache.failRemove = purgeFails;
+          final controller = container.read(
+            deliveryContextControllerProvider.notifier,
+          );
+          final refresh = controller.refresh();
+          await Future<void>.delayed(Duration.zero);
+          final Future<Object?> operation;
+          if (preview) {
+            repository.pendingPreview = response.future;
+            operation = controller.previewAddress(
+              addressId: checkoutTestAddress,
+            );
+          } else {
+            repository.pendingSelect = response.future;
+            operation = controller.selectPickup(
+              pickupPointId: checkoutTestPoint,
+            );
+          }
+          response.completeError(
+            const DeliveryContextRepositoryException(
+              DeliveryContextFailureKind.unauthorized,
+            ),
+          );
+          await operation;
+          final writes = cache.writes;
+          expect(
+            container.read(deliveryContextControllerProvider).context,
+            isNull,
+          );
+          read.complete(checkoutTestPickupContext());
+          await refresh;
+          final state = container.read(deliveryContextControllerProvider);
+          expect(state.context, isNull);
+          expect(state.failure, DeliveryContextFailureKind.unauthorized);
+          expect(cache.writes, writes);
+          if (!purgeFails) expect(cache.value, isNull);
+        },
+      );
+    }
+  }
+
   test(
     'preview completata dopo logout non pubblica il contesto owner al guest',
     () async {
@@ -176,6 +225,7 @@ void main() {
 class _Cache implements DeliveryContextCacheStore {
   CustomerDeliveryContext? value;
   bool failRemove = false;
+  int writes = 0;
   @override
   Future<CustomerDeliveryContext?> read({
     required String ownerSubjectId,
@@ -186,6 +236,7 @@ class _Cache implements DeliveryContextCacheStore {
     required String ownerSubjectId,
     required CustomerDeliveryContext context,
   }) async {
+    writes++;
     value = context;
   }
 

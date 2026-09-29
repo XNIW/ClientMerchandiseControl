@@ -199,3 +199,7 @@ Prima di apply condiviso servono anche una finestra concordata senza writer comm
 finestra. Dopo qualunque scrittura a ordini/pagamenti/notifiche/indirizzi/quote o alle
 nuove tabelle, niente inverse schema-only: preservare i dati e valutare fix-forward.
 Nessun DDL o fixture di questa ripresa è stato applicato al database condiviso.
+
+Il confronto recovery non include righe della migration history. Apply/inverse locali
+via psql non collaudano il recupero delle ricevute del runner canonico: questo resta
+un ulteriore prerequisito prima dell’apply condiviso, anche dopo cleanup Storage.

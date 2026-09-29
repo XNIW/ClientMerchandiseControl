@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -11,18 +13,24 @@ final class GoogleAddressMapPort implements DeliveryAddressMapPort {
   const GoogleAddressMapPort({
     required this.navigatorKey,
     required this.enabled,
+    required this.nativeConfigurationProbe,
+    required this.isCurrent,
+    this.probeTimeout = const Duration(seconds: 2),
   });
   final GlobalKey<NavigatorState> navigatorKey;
   final bool enabled;
+  final Future<bool> Function() nativeConfigurationProbe;
+  final bool Function() isCurrent;
+  final Duration probeTimeout;
   @override
-  bool get configured => enabled;
+  bool get configured => enabled && isCurrent();
 
   @override
   Future<DeliveryCoordinate> previewAndAdjust(
     DeliveryCoordinate initial,
   ) async {
     final context = navigatorKey.currentContext;
-    if (!enabled ||
+    if (!configured ||
         context == null ||
         !initial.latitude.isFinite ||
         !initial.longitude.isFinite ||
@@ -30,6 +38,16 @@ final class GoogleAddressMapPort implements DeliveryAddressMapPort {
         initial.longitude.abs() > 180) {
       throw const AddressProviderNotConfiguredException();
     }
+    bool nativeReady;
+    try {
+      nativeReady = await nativeConfigurationProbe().timeout(probeTimeout);
+    } on Object {
+      throw const AddressProviderNotConfiguredException();
+    }
+    if (!configured || !context.mounted) {
+      throw const AddressMapCancelledException();
+    }
+    if (!nativeReady) throw const AddressProviderNotConfiguredException();
     final result = await showModalBottomSheet<DeliveryCoordinate>(
       context: context,
       isScrollControlled: true,

@@ -275,6 +275,7 @@ final class CustomerNotificationInboxController
         failure == CustomerNotificationFailureKind.offline ||
         failure == CustomerNotificationFailureKind.timeout;
     final clear = !transient;
+    if (clear) _generation++;
     state = state.copyWith(
       status: clear
           ? CustomerNotificationInboxStatus.failure

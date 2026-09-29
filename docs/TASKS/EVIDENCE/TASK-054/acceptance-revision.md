@@ -61,7 +61,7 @@ Ogni esecuzione deve registrare SHA Client/Admin, build/config hash, versione OS
 - **Fonte/requisito:** TASK-050 CA2; TASK-054 §8.
 - **Precondizioni:** Provider approvato configurato; consenso GPS separato.
 - **Setup:** protocollo comune; fixture specifiche descritte nelle precondizioni.
-- **Passi:** Cercare e scegliere suggerimento; spostare pin e confermare; reverse; modificare testo; risposte fuori ordine.
+- **Passi:** Cercare e scegliere suggerimento nell'editor; attivare GPS per aprire il pin, spostarlo e confermare; reverse; modificare testo; risposte fuori ordine.
 - **Atteso/assert:** Ultima query vince; resolve solo del batch corrente; pin confermato conservato; nessuna autorizzazione zona dal geocoder; provider non riceve identità/token. Assert transport e payload manuale finale.
 - **Test correlati:** `test/features/delivery_context/photon_address_provider_test.dart; test/features/delivery_context/address_provider_adapters_test.dart`.
 - **Teardown:** protocollo comune, rollback SQL quando applicabile.

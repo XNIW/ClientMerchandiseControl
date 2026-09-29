@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: ACTIVE
-- **Fase**: EXECUTION
-- **Responsabile**: CODEX_EXECUTOR
-- **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -191,3 +191,42 @@ Ripresa ACTIVE/EXECUTION sulla PR27 aperta draft, HEAD e main riconfermate.
 Due reviewer distinti hanno fornito analisi preparatoria senza approvazioni formali.
 Il registro residui governa azioni, dipendenze e risultati; la review formale attende
 revision set congelato. Nessun risultato del precedente audit è una nuova evidence.
+
+
+## Review operativa distinta — freeze a3364f61 / Admin fb9546ca
+
+Reviewer Client `/root/client_reviewer`, copia isolata readonly: **CHANGES_REQUIRED**.
+37+80 test autonomi PASS;2golden OS27 realmente confrontati PASS. C-01/P2:
+flag mappa ON con probe nativo false costruiva comunque GoogleMap (test rosso0→1).
+C-02/P1: loadMore inbox completato dopo unauthorized da markAllRead ripubblicava
+notifiche/UI/cache. C-03/P2: preview/select delivery negati conservavano contesto/cache.
+Gli ultimi due riprodotti con test autonomi rossi. Acceptance30casi idonea come piano,
+non certificato di esecuzione; precisare ingresso pin da GPS.
+
+Reviewer backend `/root/backend_reviewer`, readonly: **CHANGES_REQUIRED** per B-04/P2:
+il gate basato solo sulle migration delle RPC accettava backend senza correttiva
+20260928200000. B-01 dedup/B-02 nullable/B-03 receipt verificati corretti;
+12test backend+3entitlement e TSstrictPASS; AST Admin51tabelle/73funzioni aggiunte,
+nessuna definizione preesistente alterata/rimossa. Recovery catalogo equivalente,
+ma Storage cleanup/history runner/window restano BLOCKED.
+
+Handoff review: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`. Questi esiti sono dei
+reviewer distinti, non auto-approvazione del writer. Ambito è l'integrazione sviluppo
+consentita dal nuovo mandato; nessuna approvazione a apply condiviso o closeout.
+
+## Fix operativo — rilievi indipendenti
+
+C-01: probe nativo riusato con timeout2s e invalidazione account prima della mappa;
+false/throw/timeout/logout non costruiscono superficie (4regressioni nuove).
+C-02/C-03: diniego autoritativo invalida epoch concorrenti e svuota UI; purge fallibile
+conserva la causa. Sei nuove regressioni eseguite prima:11PASS/6FAIL; post-fix in corso.
+B-04: manifest richiede migration correttiva/hash e definizione/unicità/validità dei
+due indici; test negativo13suite prima12PASS/1FAIL, dopo13PASS. Metadata fresco32RPC,
+1indice,145migration: gateFAIL; metadata locale55RPC/2indici con history ricostruita
+esplicita: PASS snapshot_only, mai ricevuta di apply.
+
+CI a3364f61: golden macOS26 PASS; build simulatorFAIL per ciclo nel grafo Xcode
+entitlements/buildphase. Generazione spostata alla PreAction già associata a Runner;
+fase di build conserva solo verifica esatta, senza dipendenza output ciclica.
+Generazione invalida elimina il vecchio file; check mancante/diverso fallisce.
+Minimo iOS14 invariato. Nuova CI richiesta dopo il fix.

@@ -6,6 +6,8 @@ import '../../../core/config/app_config.dart';
 import '../../../core/config/app_environment.dart';
 import '../../../core/navigation/app_navigator.dart';
 import '../presentation/google_address_map.dart';
+import '../../delivery_tracking/presentation/delivery_live_map.dart'
+    show deliveryMapNativeConfigurationProbeProvider;
 import '../../account/application/customer_account_providers.dart';
 import '../data/address_provider_adapters.dart';
 import '../data/photon_address_provider.dart';
@@ -34,7 +36,14 @@ final deliveryContextCacheProvider = Provider<DeliveryContextCacheStore>((ref) {
 });
 
 final deliveryAddressMapPortProvider = Provider<DeliveryAddressMapPort>((ref) {
+  ref.watch(deliveryContextIdentityProvider);
+  var disposed = false;
+  ref.onDispose(() => disposed = true);
   return GoogleAddressMapPort(
+    nativeConfigurationProbe: ref.watch(
+      deliveryMapNativeConfigurationProbeProvider,
+    ),
+    isCurrent: () => !disposed,
     navigatorKey: ref.watch(appNavigatorKeyProvider),
     enabled:
         ref.watch(appConfigProvider).environment == AppEnvironment.staging &&

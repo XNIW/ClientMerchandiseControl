@@ -4927,3 +4927,13 @@ richiesto ai writer WeChat e Android/iOS attivi. Registro unico residuals.md. Nu
 merge di sviluppo autorizzato condizionatamente; niente DONE o production inferiti.
 
 - **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+
+## 2026-09-29 — TASK-054 FIX dopo review distinta
+
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+Client reviewer C-01/P2,C-02/P1,C-03/P2 e backend reviewer B-04/P2 riprodotti sul
+freeze a3364f61/Adminfb9546ca. Root unico fixer. Nuove regressioni negative prima
+correzione e source/artifact gate preservati. Admin CI36506913745 PASS sullo SHA
+fb9546ca (Verify+Database; gate staging opt-in SKIP, non PASS). Nessun apply remoto.

@@ -341,7 +341,7 @@ build firmato effettivo. Non inserire client secret o credenziali amministrative
 JSON Flutter. Nessun dominio approvato è stato trovato/configurato da questa run.
 
 Android deriva host e autoVerify dai medesimi DART_DEFINES e rifiuta binding discordi.
-iOS genera nel DerivedData soltanto l'entitlement `applinks:<host>` quando approvato;
+iOS genera nella PreAction Runner (file ignorato Flutter/AuthCallback.entitlements) soltanto l'entitlement `applinks:<host>` quando approvato;
 OFF genera dizionario vuoto. AppConfig e callback validator usano lo stesso URI;
 PKCE, storage protetto, router e invalidazione sessione restano quelli esistenti.
 La configurazione production continua a rifiutare Google ON: questa estensione è
@@ -351,3 +351,7 @@ Verifica dopo intervento owner: `python3 scripts/test-auth-entitlements.py`, tes
 `oauth_activation_test.dart`, build native con file staging privato e prove
 E2E-054-R02/R03 (login/cancel, cold/warm, refresh, logout, revoca, A→B→A).
 I test con host sintetico provano parser/binding, non l'associazione pubblica o il login.
+
+La build verifica di nuovo il file generato contro DART_DEFINES prima di procedere.
+La generazione non è una dipendenza ciclica del packaging Xcode. Le
+[PreActions espongono i build settings del target](https://developer.apple.com/documentation/xcode/customizing-the-build-schemes-for-a-project).

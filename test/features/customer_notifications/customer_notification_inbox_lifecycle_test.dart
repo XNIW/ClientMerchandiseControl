@@ -41,6 +41,46 @@ void main() {
     await Future<void>.delayed(Duration.zero);
   });
 
+  for (final purgeFails in [false, true]) {
+    test('revoca durante paginazione, purgeFails=$purgeFails', () async {
+      cache.failRemove = purgeFails;
+      final page = Completer<CustomerNotificationPage>();
+      repository.next = page.future;
+      final controller = container.read(
+        customerNotificationInboxControllerProvider.notifier,
+      );
+      final pagination = controller.loadMore();
+      final mutationBarrier = Completer<int>();
+      repository.markAll = mutationBarrier.future;
+      final mutation = controller.markAllRead();
+      mutationBarrier.completeError(
+        const CustomerNotificationRepositoryException(
+          CustomerNotificationFailureKind.unauthorized,
+        ),
+      );
+      await mutation;
+      expect(
+        container.read(customerNotificationInboxControllerProvider).items,
+        isEmpty,
+      );
+      final writes = cache.writes;
+      page.complete(
+        _page('old-sensitive-order', CustomerNotificationCategory.order),
+      );
+      await pagination;
+      final state = container.read(customerNotificationInboxControllerProvider);
+      expect(
+        state.items,
+        isEmpty,
+        reason: 'authoritative denial must invalidate older successful page',
+      );
+      expect(cache.writes, writes);
+      if (!purgeFails) expect(cache.items, isEmpty);
+      expect(state.status, CustomerNotificationInboxStatus.failure);
+      expect(state.failure, CustomerNotificationFailureKind.unauthorized);
+    });
+  }
+
   test(
     'pagina tardiva non entra nel filtro selezionato successivamente',
     () async {
@@ -180,6 +220,8 @@ class _Repository implements CustomerNotificationRepository {
 
 class _Cache implements CustomerNotificationCache {
   List<CustomerNotification> items = [];
+  bool failRemove = false;
+  int writes = 0;
   @override
   Future<List<CustomerNotification>> read({
     required String ownerSubjectId,
@@ -191,6 +233,7 @@ class _Cache implements CustomerNotificationCache {
     required String shopSlug,
     required List<CustomerNotification> items,
   }) async {
+    writes++;
     this.items = items;
   }
 
@@ -199,6 +242,7 @@ class _Cache implements CustomerNotificationCache {
     required String ownerSubjectId,
     required String shopSlug,
   }) async {
+    if (failRemove) throw StateError('fixture_cache_failure');
     items = [];
   }
 }

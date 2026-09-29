@@ -301,10 +301,10 @@
 			files = ();
 			inputPaths = ("$(SRCROOT)/../scripts/prepare-auth-entitlements.py");
 			name = "Auth callback entitlements";
-			outputPaths = ("$(DERIVED_FILE_DIR)/AuthCallback.entitlements");
+			outputPaths = ();
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python3 \"$SRCROOT/../scripts/prepare-auth-entitlements.py\"";
+			shellScript = "SCRIPT_OUTPUT_FILE_0=\"$SRCROOT/Flutter/AuthCallback.entitlements\" python3 \"$SRCROOT/../scripts/prepare-auth-entitlements.py\" --check";
 		};
 		28890B64EEEAD25F4AA7FA7A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -516,7 +516,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.xniw.clientmerchandisecontrol;
-				CODE_SIGN_ENTITLEMENTS = "$(DERIVED_FILE_DIR)/AuthCallback.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(SRCROOT)/Flutter/AuthCallback.entitlements";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -699,7 +699,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.xniw.clientmerchandisecontrol;
-				CODE_SIGN_ENTITLEMENTS = "$(DERIVED_FILE_DIR)/AuthCallback.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(SRCROOT)/Flutter/AuthCallback.entitlements";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -722,7 +722,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.xniw.clientmerchandisecontrol;
-				CODE_SIGN_ENTITLEMENTS = "$(DERIVED_FILE_DIR)/AuthCallback.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "$(SRCROOT)/Flutter/AuthCallback.entitlements";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

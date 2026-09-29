@@ -52,6 +52,12 @@ def query(manifest):
         if rpc['schema'] != 'public' or not re.fullmatch(r'[a-z][a-z0-9_]+', rpc['name']):
             raise ValueError('invalid_manifest_identifier')
         names.append("'" + rpc['name'] + "'")
+    index_names = []
+    for index in manifest.get('indexes', []):
+        if index.get('schema') != 'public' or not re.fullmatch(r'[a-z][a-z0-9_]+', index.get('name', '')):
+            raise ValueError('invalid_manifest_index')
+        index_names.append("'" + index['name'] + "'")
+    index_filter = ','.join(index_names) or "NULL"
     return """BEGIN READ ONLY;
 SET LOCAL statement_timeout='10s';
 SELECT json_build_object('observed_at', clock_timestamp(), 'rpcs', COALESCE((SELECT json_agg(r ORDER BY name) FROM (
@@ -64,6 +70,12 @@ SELECT json_build_object('observed_at', clock_timestamp(), 'rpcs', COALESCE((SEL
  has_function_privilege('authenticated',p.oid,'EXECUTE') AS authenticated_execute
  FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
  WHERE n.nspname='public' AND p.proname IN (""" + ','.join(names) + """)) r),'[]'),
+  'indexes', COALESCE((SELECT json_agg(x ORDER BY name) FROM (
+ SELECT n.nspname AS schema, c.relname AS name, pg_get_indexdef(c.oid) AS definition,
+ i.indisunique AS unique, i.indisvalid AS valid
+ FROM pg_index i JOIN pg_class c ON c.oid=i.indexrelid
+ JOIN pg_namespace n ON n.oid=c.relnamespace
+ WHERE n.nspname='public' AND c.relname IN (""" + index_filter + """)) x),'[]'),
  'migrations', COALESCE((SELECT json_agg(version ORDER BY version)
  FROM supabase_migrations.schema_migrations),'[]'));
 ROLLBACK;
@@ -93,9 +105,20 @@ def schema_errors(manifest, snapshot):
     if not isinstance(versions, list):
         errors.append('missing_migration_history')
     else:
-        for version in sorted({r['migration'].split('_')[0] for r in manifest['rpcs']}):
+        for version in sorted({r['migration'].split('_')[0] for r in manifest['rpcs']} |
+                              {r['version'] for r in manifest.get('required_migrations', [])}):
             if version not in versions:
                 errors.append(f'missing_migration:{version}')
+    indexes = snapshot.get('indexes', [])
+    if not isinstance(indexes, list) or any(not isinstance(i, dict) for i in indexes):
+        errors.append('invalid_index_snapshot')
+    else:
+        for expected in manifest.get('indexes', []):
+            observed = [i for i in indexes if i.get('schema') == expected['schema'] and i.get('name') == expected['name']]
+            if not observed:
+                errors.append('missing_index:' + expected['name'])
+            elif len(observed) != 1 or observed[0] != expected:
+                errors.append('incompatible_index:' + expected['name'])
     return errors
 
 

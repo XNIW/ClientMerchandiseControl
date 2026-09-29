@@ -1331,5 +1331,29 @@
     "lib/features/reservations/data/supabase_reservation_hold_repository.dart": "50ba4ec1656a38ee773113719451f8d775d1a19a491597d132e677bd87af2e38",
     "lib/features/reviews/data/supabase_customer_review_repository.dart": "f8fa38b718c26beb6894701ed92b673bb703d136b73e0e7976550f9a7296d1b8",
     "lib/features/storefront/data/supabase_storefront_repository.dart": "dfc9c0f91f98173814b7992f7212242cee4ea47df3e1bb19e4c0db53ff241c79"
-  }
+  },
+  "required_migrations": [
+    {
+      "version": "20260928200000",
+      "file": "20260928200000_customer_notification_hold_dedup.sql",
+      "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e",
+      "authority_sha": "fb9546ca4e2e9abc4c280f1b87a020f0912fee24"
+    }
+  ],
+  "indexes": [
+    {
+      "schema": "public",
+      "name": "customer_notification_events_hold_source_idx",
+      "definition": "CREATE UNIQUE INDEX customer_notification_events_hold_source_idx ON public.customer_notification_events USING btree (reservation_hold_id, event_key) WHERE (source_kind = 'reservation_hold'::text)",
+      "unique": true,
+      "valid": true
+    },
+    {
+      "schema": "public",
+      "name": "customer_notification_events_safe_dedup_idx",
+      "definition": "CREATE UNIQUE INDEX customer_notification_events_safe_dedup_idx ON public.customer_notification_events USING btree (user_id, shop_id, source_kind, destination_id, event_key, event_version) WHERE (source_kind <> 'reservation_hold'::text)",
+      "unique": true,
+      "valid": true
+    }
+  ]
 }

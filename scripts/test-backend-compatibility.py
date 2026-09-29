@@ -22,7 +22,8 @@ class CompatibilityTest(unittest.TestCase):
     def setUp(self):
         self.manifest = json.loads(gate.MANIFEST.read_text())
         self.snapshot = {'rpcs': copy.deepcopy(self.manifest['rpcs']),
-                         'migrations': sorted({r['migration'].split('_')[0] for r in self.manifest['rpcs']})}
+                         'migrations': sorted({r['migration'].split('_')[0] for r in self.manifest['rpcs']} | {r['version'] for r in self.manifest.get('required_migrations', [])}),
+                         'indexes': copy.deepcopy(self.manifest.get('indexes', []))}
 
     def test_live_receipt_binds_target_revision_config_and_freshness(self):
         from datetime import datetime, timezone, timedelta
@@ -67,6 +68,21 @@ class CompatibilityTest(unittest.TestCase):
     def test_schema_without_migration_receipt_is_not_compatible(self):
         self.snapshot['migrations'].remove('20260823023037')
         self.assertIn('missing_migration:20260823023037', gate.schema_errors(self.manifest, self.snapshot))
+
+    def test_non_rpc_migration_and_index_are_required(self):
+        self.manifest['required_migrations'] = [{'version': '20260928200000', 'sha256': 'a' * 64}]
+        self.manifest['indexes'] = [{'schema': 'public', 'name': 'fixture_index', 'definition': 'CREATE UNIQUE INDEX fixture_index ON public.fixture(id)', 'unique': True, 'valid': True}]
+        self.snapshot['migrations'] = [v for v in self.snapshot['migrations'] if v != '20260928200000']
+        self.snapshot['indexes'] = copy.deepcopy(self.manifest['indexes'])
+        self.assertIn('missing_migration:20260928200000', gate.schema_errors(self.manifest, self.snapshot))
+        self.snapshot['migrations'].append('20260928200000')
+        self.assertEqual(gate.schema_errors(self.manifest, self.snapshot), [])
+        for delta in [{'definition': 'old unfiltered index'}, {'unique': False}, {'valid': False}]:
+            broken = copy.deepcopy(self.snapshot)
+            broken['indexes'][0].update(delta)
+            self.assertIn('incompatible_index:fixture_index', gate.schema_errors(self.manifest, broken))
+        self.snapshot['indexes'] = []
+        self.assertIn('missing_index:fixture_index', gate.schema_errors(self.manifest, self.snapshot))
 
     def test_parameter_change_requires_new_contract_review(self):
         with tempfile.TemporaryDirectory() as temp:

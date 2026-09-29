@@ -217,13 +217,7 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
       }
       return result;
     } on DeliveryContextRepositoryException catch (error) {
-      if (_current(owner, shopSlug, generation)) {
-        state = state.copyWith(
-          status: DeliveryContextViewStatus.failure,
-          failure: error.kind,
-          isMutating: false,
-        );
-      }
+      await _recordMutationFailure(error, owner, shopSlug, generation);
       return null;
     }
   }
@@ -268,18 +262,47 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
       );
       return true;
     } on DeliveryContextRepositoryException catch (error) {
-      if (_current(owner, shopSlug, generation)) {
-        state = state.copyWith(
-          status: DeliveryContextViewStatus.failure,
-          failure: error.kind,
-          isMutating: false,
-        );
-        if (error.kind == DeliveryContextFailureKind.conflict) {
-          unawaited(refresh());
-        }
+      final current = await _recordMutationFailure(
+        error,
+        owner,
+        shopSlug,
+        generation,
+      );
+      if (current && error.kind == DeliveryContextFailureKind.conflict) {
+        unawaited(refresh());
       }
       return false;
     }
+  }
+
+  Future<bool> _recordMutationFailure(
+    DeliveryContextRepositoryException error,
+    String? owner,
+    String shopSlug,
+    int generation,
+  ) async {
+    if (!_current(owner, shopSlug, generation)) return false;
+    final transient =
+        error.kind == DeliveryContextFailureKind.offline ||
+        error.kind == DeliveryContextFailureKind.timeout;
+    final failureGeneration = transient ? generation : ++_generation;
+    state = state.copyWith(
+      status: DeliveryContextViewStatus.failure,
+      clearContext: !transient,
+      isFromCache: transient ? null : false,
+      failure: error.kind,
+      isMutating: false,
+    );
+    if (!transient && owner != null) {
+      try {
+        await ref
+            .read(deliveryContextCacheProvider)
+            .remove(ownerSubjectId: owner, shopSlug: shopSlug);
+      } on Object {
+        // Conservare il diniego autorevole anche se lo storage non risponde.
+      }
+    }
+    return _current(owner, shopSlug, failureGeneration);
   }
 
   bool _current(String? owner, String shopSlug, int generation) =>

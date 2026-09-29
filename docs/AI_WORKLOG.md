@@ -4917,3 +4917,11 @@ Android con sola firma e input Play sintetici. Il nuovo preflight rifiuta corret
 ANDROID_RUNTIME_CONFIG_MISSING; il test ora pretende firma valida, rifiuto esatto e
 assenza di ricevuta upload. Casi avversariali precedenti conservati; `bash -n` PASS / 0,
 prova artifact affidata alla nuova CI, senza dichiarare una verifica live del backend.
+
+
+## 2026-09-28 — TASK-054 completamento operativo autorizzato
+
+Registrato mandato successivo e planning operativo; ripresa ACTIVE/EXECUTION sulla
+PR27 0990c80. Root unico writer, due reviewer read-only autorizzati; coordinamento
+richiesto ai writer WeChat e Android/iOS attivi. Registro unico residuals.md. Nuovo
+merge di sviluppo autorizzato condizionatamente; niente DONE o production inferiti.

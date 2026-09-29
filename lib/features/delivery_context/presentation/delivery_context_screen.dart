@@ -1,3 +1,4 @@
+import 'google_address_map.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -201,6 +202,7 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
                 : null,
             onChanged: _searchAddresses,
           ),
+          Text(l10n.deliveryAddressAttribution),
           ..._suggestions.map(
             (suggestion) => ListTile(
               leading: const Icon(Icons.location_on_outlined),
@@ -394,6 +396,12 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
           return;
         }
         final mapPort = ref.read(deliveryAddressMapPortProvider);
+        if (!mapPort.configured &&
+            (location.accuracyMeters == null ||
+                location.accuracyMeters! > 250)) {
+          _showLocationFallback();
+          return;
+        }
         final adjusted = mapPort.configured
             ? await mapPort.previewAndAdjust(location)
             : location;
@@ -411,8 +419,12 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
         }
         await _saveResolvedAddress(
           resolved,
-          CustomerAddressLocationSource.currentLocation,
+          mapPort.configured
+              ? CustomerAddressLocationSource.mapPin
+              : CustomerAddressLocationSource.currentLocation,
         );
+      } on AddressMapCancelledException {
+        return;
       } on AddressProviderNotConfiguredException {
         if (_currentScope(generation)) _showLocationFallback();
       } on Object {

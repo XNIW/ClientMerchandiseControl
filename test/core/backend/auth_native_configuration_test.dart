@@ -12,7 +12,7 @@ void main() {
         '$repositoryRoot/android/app/src/main/AndroidManifest.xml',
       ).readAsStringSync();
 
-      expect(_count(manifest, 'android.intent.action.VIEW'), 1);
+      expect(_count(manifest, 'android.intent.action.VIEW'), 2);
       expect(
         _count(manifest, 'android:scheme="com.xniw.clientmerchandisecontrol"'),
         1,
@@ -31,10 +31,15 @@ void main() {
           ),
         ),
       );
-      expect(manifest, isNot(contains('android:autoVerify')));
+      expect(
+        manifest,
+        contains(r'android:autoVerify="${AUTH_CALLBACK_VERIFY}"'),
+      );
+      expect(manifest, contains(r'android:host="${AUTH_CALLBACK_HOST}"'));
+      expect(manifest, contains('android:path="/auth-callback/"'));
       expect(manifest, isNot(contains('android:pathPattern')));
       expect(manifest, isNot(contains('android:scheme="http"')));
-      expect(manifest, isNot(contains('android:scheme="https"')));
+      expect(_count(manifest, 'android:scheme="https"'), 1);
       expect(manifest, isNot(contains('*')));
 
       final mainActivity = File(

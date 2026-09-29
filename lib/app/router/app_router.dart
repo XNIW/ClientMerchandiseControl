@@ -28,6 +28,7 @@ import '../../features/orders/domain/customer_order_selectors.dart';
 import '../../features/product_detail/presentation/product_detail_screen.dart';
 import '../../features/shell/presentation/app_shell_screen.dart';
 import '../../core/config/app_config.dart';
+import '../../core/navigation/app_navigator.dart';
 import '../../core/observability/observability_event.dart';
 import '../../core/observability/observability_providers.dart';
 import '../../core/time/app_scheduler.dart';
@@ -47,6 +48,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   }
 
   final router = GoRouter(
+    navigatorKey: ref.watch(appNavigatorKeyProvider),
     initialLocation: AppRoutes.homeLocation,
     routes: [
       StatefulShellRoute.indexedStack(

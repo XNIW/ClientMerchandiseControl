@@ -15,6 +15,7 @@ fi
 flutter pub get --enforce-lockfile
 python3 "${cmc_script_dir}/check-backend-compatibility.py" --source-only
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-backend-compatibility.py"
+PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-auth-entitlements.py"
 if [[ -n "${cmc_backend_config}" ]]; then
   python3 "${cmc_script_dir}/check-backend-compatibility.py" \
     --live --app-config "${cmc_backend_config}"

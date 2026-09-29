@@ -175,6 +175,48 @@ void main() {
     },
   );
 
+  test('mutation A-B-A non rilegge né pubblica nella nuova sessione', () async {
+    container.dispose();
+    final identity = StateProvider<AuthenticatedCustomer?>(
+      (ref) => _identity(),
+    );
+    container = ProviderContainer(
+      overrides: [
+        customerAccountIdentityProvider.overrideWith(
+          (ref) => ref.watch(identity),
+        ),
+        customerAccountRepositoryProvider.overrideWithValue(repository),
+        customerIdempotencyKeyFactoryProvider.overrideWithValue(
+          () => '21000000-0000-4000-8000-000000000777',
+        ),
+      ],
+    );
+    final notices = <CustomerAccountNoticeKind?>[];
+    container.listen(
+      customerAccountControllerProvider,
+      (_, next) => notices.add(next.notice),
+    );
+    await _waitForStatus(container, CustomerAccountStatus.ready);
+    final barrier = Completer<void>();
+    repository.deletionBarrier = barrier;
+    final pending = container
+        .read(customerAccountControllerProvider.notifier)
+        .requestAccountDeletion();
+    container.read(identity.notifier).state = _identity(secondSubject);
+    container.read(customerAccountControllerProvider);
+    container.read(identity.notifier).state = _identity();
+    container.read(customerAccountControllerProvider);
+    notices.clear();
+    barrier.complete();
+    await pending;
+    await _waitForStatus(container, CustomerAccountStatus.ready);
+    expect(
+      notices,
+      isNot(contains(CustomerAccountNoticeKind.deletionRequested)),
+    );
+    expect(repository.loadCalls, 2);
+  });
+
   test('identity assente non legge repository e resta signedOut', () async {
     container.dispose();
     container = ProviderContainer(

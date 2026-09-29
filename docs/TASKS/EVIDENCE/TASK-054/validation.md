@@ -192,3 +192,43 @@ assenze. Non è stato usato un pg_service privilegiato né fatto un apply.
 I risultati finali della CI sono separati dai limiti locali: il confronto SHA, job,
 step e annotation viene eseguito dopo la conclusione delle run e riportato nell'handoff.
 Il checkout resta BLOCKED/EXECUTION; un job di build verde non abilita E2E o distribuzione.
+
+## Ripresa operativa — candidato successivo a0990c80
+
+Nuove prove locali, Flutter3.44.8/Dart3.12.2/macOS27.0, stesso host/dataset/budget.
+Non sostituiscono le ricevute storiche sopra:
+
+| Gate | Risultato effettivo |
+|---|---|
+| Race account/order/search: test prima del fix |20PASS/3FAIL, exit1 |
+| Stessi test dopo fix |23PASS, exit0 |
+| Config/auth/address mirati |112PASS, exit0 |
+| Provider Photon/editor |12PASS, exit0 |
+| Due golden checkout/tracking, compare reale |2PASS, exit0; nuove sole baseline OS27 dopo ispezione6/18pixel; baseline precedenti preservate |
+| Analyze finale |PASS nessun issue, exit0 |
+| Full suite locale |856PASS/1FAIL, exit1: governance attendeva macos-latest; ora richiede macos26 e DEVELOPER_DIR Xcode26.6 esatto |
+| Regressione governance iOS dopo correzione |12PASS, exit0; full suite nuovo candidato affidata alla CI |
+| Benchmark canonici invariati |10PASS, exit0; nessuna accelerazione rivendicata |
+| Resilience |5×14=70PASS, exit0 |
+| Android debug |build PASS, exit0, nessun cambio Gradle; distribuzione verificata SHA256 |
+| Android smoke integration shell |PASS1, exit0, avvio/installazione/interazione su CMC_Task054_API35/emulator5558, API35 arm64; guest development |
+| Python backend receipt |12PASS, exit0; target/commit/config/time vincolati, ricevuta non riusabile per upload |
+| Python entitlement native |3PASS, exit0; staging host esatto/invalidi/OFF |
+| Admin verify Node22.23.3 |PASS lint/typegen/tsc/security/build, exit0 |
+| Admin foundation con POS readonly origin/main |1031PASS/2skip, exit0; primo run1023PASS/2FAIL/8skip per file assenti sul checkout POS dirty, intatto |
+| SQL isolato cmc_verified |23suite/1035assert PASS, exit0 e zero not ok; nuovo test hold incluso |
+| Schema fresco staging ripristinato cmc_recovery |journey55 e tracking60PASS; test immagini fallisce per seed bucket assente nella copia schema-only, nessuna regressione dedotta |
+| Inverse schema fresco/reapply |catalogo schema/ACL identico, exit0; cleanup bucket via Storage API NON provato, recupero completo BLOCKED |
+
+Comandi/log del nuovo giro: `/tmp/cmc-functional-audit/resume-*`,
+`android-smoke-resume.log`, `admin-verify-node22.log`,
+`admin-foundation-pos-reference.log`, `verified-resume-sql-results.json`.
+I log completi restano fuori Git. Skip foundation riguardano gate opt-in esterni,
+non sono conteggiati come PASS. La nuova matrice [acceptance R](acceptance-revision.md)
+ha30 casi distinti e risultati end-to-end NOT_RUN fino alla review/esecuzione.
+
+iOS prodotto resta14.0. CI usa macOS26/Xcode26.6 esplicito, SDK26.5 e un simulatore
+iOS26 disponibile selezionato dal catalogo effettivo; fonte runner ufficiale
+[macOS26 image](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md).
+Il job include confronto golden richiesto e smoke; Linux tracking ha skip esplicito.
+Nessun override15.0 è presentato come gate canonico.

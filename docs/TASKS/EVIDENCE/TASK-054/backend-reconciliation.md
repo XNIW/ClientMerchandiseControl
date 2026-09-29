@@ -151,3 +151,51 @@ APK/AAB. iOS conserva l'attestation runtime/native/sealed-app già esistente. Po
 richiedono compatibilità backend prima di `UPLOAD_INPUTS_VALIDATED`. Non hanno effettuato
 upload. Un esito live_schema PASS proverebbe struttura/definizioni/history, lasciando
 sempre payload, owner/shop E2E e device come gate distinti.
+
+## Ripresa operativa autorizzata — nuova evidence
+
+Il mandato successivo supera il precedente limite di autorizzazione all'apply, che
+resta descritto sopra soltanto come stato storico. Target riconfermato PG17.6.1.104,
+145 versioni,32/55 RPC; due migration canoniche ancora assenti. CLI2.118.0: backups
+list restituisce backups=null, PITR=false. `db dump --schema
+public,app_private,supabase_migrations` è ora riuscito, exit0; schema fresco73348righe,
+SHA in operational-provenance.json, nessuna esportazione di righe cliente.
+
+Ripristino reale in `cmc_recovery`, container locale isolato: prerequisiti auth/storage
+schema-only dal predecessore, poi public/app_private sostituiti dal dump fresco.
+Primo restore con postgres si fermava sulle ACL di ruoli gestiti; ripetuto correttamente
+con supabase_admin locale, exit0. Il trigger auth.users di creazione profilo, perso
+nella sostituzione locale dello schema, è stato ricostruito dalla definizione letta
+fresh sul target; publication realtime ricostruita dal contratto canonico.
+Questo bootstrap non è una copia delle righe di auth/storage del target.
+
+Apply ordinato dei due file originali + correttiva Admin
+`20260928200000_customer_notification_hold_dedup.sql`, tutti transazionali, exit0.
+La correttiva esclude reservation_hold dall'indice safe_dedup: il precedente indice
+hold_source mantiene unicità per hold/evento. Regressione due hold stesso owner/shop:
+40PASS+1FAIL prima,41PASS dopo; nessuna modifica retroattiva alle canoniche.
+
+Inverse provata in una transazione con lock/statement timeout, nessun CASCADE:
+rimozione soli oggetti nuovi vuoti, ripristino guard condiviso, quattro CHECK e ACL
+indirizzi incluse14 ACL colonna. Confronto cataloghi prima/dopo: identici per tabelle,
+colonne/ACL, constraint, indici, policy, trigger, definizioni/owner/ACL funzioni.
+Reapply delle tre migration riuscita, exit0. Script/cataloghi/log completi locali in
+`/tmp/cmc-functional-audit/recovery-*`, hash nella provenance.
+
+Limite rilevato realmente: Storage protegge la cancellazione SQL del nuovo bucket.
+Il primo inverse è stato rollbackato per42501; nessuna protezione disabilitata.
+L'inverse DB corretto lascia il bucket **privato e vuoto**, senza le nuove policy.
+Cleanup finale richiesto via Storage API `deleteBucket('customer-after-sales-evidence')`
+solo dopo nuova verifica vuoto e appartenenza alla run; manca la prova di questo
+passaggio tramite servizio Storage nell'ambiente isolato. Pertanto recupero completo
+resta BLOCKED, anche se ripristino dello schema e ACL è PASS. Riferimento:
+[Storage schema](https://supabase.com/docs/guides/storage/schema/design).
+
+Baseline separata readonly:145 versioni e hash riga delle ricevute migration, una
+policy storage.objects preesistente, bucket after-sales assente. Il dump schema-only
+non contiene queste ricevute né file Storage; non viene presentato come backup dati.
+Prima di apply condiviso servono anche una finestra concordata senza writer commerce
+**e legacy** e prova cleanup Storage. Il contatore istantaneo transazioni=0 non è una
+finestra. Dopo qualunque scrittura a ordini/pagamenti/notifiche/indirizzi/quote o alle
+nuove tabelle, niente inverse schema-only: preservare i dati e valutare fix-forward.
+Nessun DDL o fixture di questa ripresa è stato applicato al database condiviso.

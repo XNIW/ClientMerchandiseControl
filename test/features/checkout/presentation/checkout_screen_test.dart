@@ -329,6 +329,8 @@ void main() {
         matchesGoldenFile(
           Platform.isLinux
               ? 'goldens/checkout_review_es_cl_linux.png'
+              : Platform.operatingSystemVersion.startsWith('Version 27.')
+              ? 'goldens/checkout_review_es_cl_macos27.png'
               : 'goldens/checkout_review_es_cl.png',
         ),
       );

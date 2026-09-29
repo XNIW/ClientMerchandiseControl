@@ -322,3 +322,32 @@ nel client, nel bundle e in Git: secret key, legacy `service_role`, OAuth client
 secret, password, token amministrativi, certificati e credenziali di signing. Callback
 completa, code/state, access/refresh/provider token, session/User, account test e PII
 non devono comparire in alcun output persistente o evidence.
+
+## Emendamento TASK-054 — callback staging configurabile
+
+Il mandato operativo del 2026-09-28 autorizza l'implementazione del binding, non
+modifiche DNS/dashboard. `GOOGLE_AUTH_ENABLED=false` resta il default. Con flag ON,
+`APP_ENV=staging`, `AUTH_CALLBACK_VERIFIED_HOST` deve essere un hostname HTTPS
+approvato e `AUTH_REDIRECT_URI` esattamente `https://<host>/auth-callback/`, senza
+query, fragment, porta, wildcard o dominio riservato. Il nome del parametro attesta
+una verifica dell'owner: il Client non verifica né possiede il dominio.
+
+Prima di valorizzarlo l'owner deve registrare: controllo del dominio; risposta HTTPS
+senza redirect per `/.well-known/assetlinks.json` con package e SHA256 del certificato
+di firma staging; `/.well-known/apple-app-site-association` con TeamID/bundle staging
+e path callback; URL identico nella redirect allow-list Supabase del progetto TEST;
+provider Google abilitato per quel progetto. Le associazioni vanno verificate sul
+build firmato effettivo. Non inserire client secret o credenziali amministrative nel
+JSON Flutter. Nessun dominio approvato è stato trovato/configurato da questa run.
+
+Android deriva host e autoVerify dai medesimi DART_DEFINES e rifiuta binding discordi.
+iOS genera nel DerivedData soltanto l'entitlement `applinks:<host>` quando approvato;
+OFF genera dizionario vuoto. AppConfig e callback validator usano lo stesso URI;
+PKCE, storage protetto, router e invalidazione sessione restano quelli esistenti.
+La configurazione production continua a rifiutare Google ON: questa estensione è
+limitata allo sviluppo staging e non modifica l'attestation di produzione.
+
+Verifica dopo intervento owner: `python3 scripts/test-auth-entitlements.py`, test
+`oauth_activation_test.dart`, build native con file staging privato e prove
+E2E-054-R02/R03 (login/cancel, cold/warm, refresh, logout, revoca, A→B→A).
+I test con host sintetico provano parser/binding, non l'associazione pubblica o il login.

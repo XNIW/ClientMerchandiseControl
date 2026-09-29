@@ -3924,6 +3924,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Marca'**
   String get searchSuggestionBrand;
+
+  /// No description provided for @deliveryContextPinHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Arrastra el marcador o toca el mapa para confirmar la ubicación.'**
+  String get deliveryContextPinHint;
+
+  /// No description provided for @deliveryAddressAttribution.
+  ///
+  /// In es, this message translates to:
+  /// **'© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright'**
+  String get deliveryAddressAttribution;
 }
 
 class _AppLocalizationsDelegate

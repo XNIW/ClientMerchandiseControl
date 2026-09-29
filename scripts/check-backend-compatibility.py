@@ -2,6 +2,8 @@
 """Contratto consumer e preflight SQL readonly; nessuna credenziale nei risultati."""
 
 import argparse
+from datetime import datetime, timezone
+import time
 import hashlib
 import json
 import os
@@ -52,7 +54,7 @@ def query(manifest):
         names.append("'" + rpc['name'] + "'")
     return """BEGIN READ ONLY;
 SET LOCAL statement_timeout='10s';
-SELECT json_build_object('rpcs', COALESCE((SELECT json_agg(r ORDER BY name) FROM (
+SELECT json_build_object('observed_at', clock_timestamp(), 'rpcs', COALESCE((SELECT json_agg(r ORDER BY name) FROM (
  SELECT n.nspname AS schema, p.proname AS name,
  pg_get_function_identity_arguments(p.oid) AS identity_arguments,
  pg_get_function_arguments(p.oid) AS arguments,
@@ -110,6 +112,30 @@ def target_connection(service, config):
     return f"service={service} host=db.{match[1]}.supabase.co hostaddr='' port=5432 dbname=postgres sslmode=verify-full"
 
 
+def live_receipt(manifest_bytes, config_bytes, snapshot, revision, started, finished, duration_ms, errors):
+    config = json.loads(config_bytes)
+    target_connection('receipt', config)
+    observed = datetime.fromisoformat(snapshot['observed_at'].replace('Z', '+00:00'))
+    if observed.tzinfo is None or not (started.timestamp() - 5 <= observed.timestamp() <= finished.timestamp() + 5):
+        raise ValueError('stale_live_response')
+    if duration_ms < 0 or duration_ms > 30000 or (finished - started).total_seconds() > 35:
+        raise ValueError('live_query_expired')
+    if not re.fullmatch(r'[0-9a-f]{40}', revision):
+        raise ValueError('missing_revision')
+    return {
+        'schema_version': 1, 'scope': 'live_schema', 'reusable_for_upload': False,
+        'result': 'FAIL' if errors else 'PASS', 'client_commit': revision,
+        'manifest_sha256': hashlib.sha256(manifest_bytes).hexdigest(),
+        'config_sha256': hashlib.sha256(config_bytes).hexdigest(),
+        'environment': config['APP_ENV'], 'project_ref': config['SUPABASE_URL'].split('//')[1].split('.')[0],
+        'started_at_utc': started.isoformat(), 'checked_at_utc': finished.isoformat(),
+        'server_observed_at': observed.isoformat(), 'duration_ms': duration_ms,
+        'freshness_policy': 'query_per_invocation_max_30_seconds_no_receipt_reuse',
+        'rpcs': len(json.loads(manifest_bytes)['rpcs']),
+        'errors': errors,
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)
@@ -119,9 +145,13 @@ def main():
     mode.add_argument('--live', action='store_true')
     parser.add_argument('--service', default=os.environ.get('CMC_BACKEND_PGSERVICE'))
     parser.add_argument('--app-config', type=Path)
+    parser.add_argument('--receipt', type=Path, help='Output sanitizzato solo per query live; mai input di autorizzazione.')
     args = parser.parse_args()
     try:
-        manifest = json.loads(MANIFEST.read_text())
+        if args.receipt and not args.live:
+            raise ValueError('receipt_requires_live')
+        manifest_bytes = MANIFEST.read_bytes()
+        manifest = json.loads(manifest_bytes)
         errors = source_errors(manifest)
         if errors:
             for error in errors:
@@ -137,7 +167,11 @@ def main():
             if not args.service or args.app_config is None:
                 print('BACKEND_COMPATIBILITY BLOCKED prerequisite=CMC_BACKEND_PGSERVICE_and_artifact_config')
                 return 2
-            connection = target_connection(args.service, json.loads(args.app_config.read_text()))
+            config_bytes = args.app_config.read_bytes()
+            connection = target_connection(args.service, json.loads(config_bytes))
+            revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+            started = datetime.now(timezone.utc)
+            monotonic_started = time.monotonic()
             env = dict(os.environ, PGCONNECT_TIMEOUT='10', PGOPTIONS='-c default_transaction_read_only=on')
             result = subprocess.run(['psql', '-X', '-w', '-Atq', '-v', 'ON_ERROR_STOP=1',
                                      connection], input=query(manifest),
@@ -145,10 +179,24 @@ def main():
             if result.returncode:
                 print('BACKEND_COMPATIBILITY BLOCKED prerequisite=authorized_readonly_database_connection')
                 return 2
+            finished = datetime.now(timezone.utc)
+            duration_ms = round((time.monotonic() - monotonic_started) * 1000)
             snapshot = json.loads(result.stdout)
         else:
             snapshot = json.loads(args.snapshot.read_text())
         errors = schema_errors(manifest, snapshot)
+        if args.live:
+            receipt = live_receipt(manifest_bytes, config_bytes, snapshot, revision, started, finished, duration_ms, errors)
+            receipt['source_dirty'] = bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).strip())
+            receipt['consumer_sources'] = manifest['consumer_sources']
+            receipt['client_sources_sha256'] = hashlib.sha256(b''.join(
+                str(p.relative_to(ROOT)).encode() + b'\0' + p.read_bytes() + b'\0'
+                for p in sorted((ROOT / 'lib').rglob('*.dart')))).hexdigest()
+            if args.receipt:
+                descriptor = os.open(args.receipt, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+                with os.fdopen(descriptor, 'w') as handle:
+                    json.dump(receipt, handle, sort_keys=True, indent=2)
+            print('BACKEND_LIVE_RECEIPT ' + json.dumps(receipt, sort_keys=True))
         for error in errors:
             print('BACKEND_COMPATIBILITY FAIL ' + error)
         if errors:
@@ -156,7 +204,7 @@ def main():
         print('BACKEND_COMPATIBILITY PASS scope=' + ('live_schema' if args.live else 'snapshot_only'))
         print('BACKEND_BEHAVIOR NOT_RUN prerequisite=payload_and_owner_shop_E2E')
         return 0
-    except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired):
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
         print('BACKEND_COMPATIBILITY BLOCKED prerequisite=valid_manifest_snapshot_or_connection')
         return 2
 

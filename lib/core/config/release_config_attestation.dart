@@ -106,13 +106,28 @@ class ReleaseConfigAttestation {
     }
   }
 
-  static String canonicalAuthRedirectUri(String value) {
-    const allowed = 'https://clientmerchandisecontrol.invalid/auth-callback/';
+  static String canonicalAuthRedirectUri(
+    String value, {
+    String verifiedHost = '',
+  }) {
+    final approved =
+        verifiedHost.isNotEmpty &&
+        RegExp(
+          r'^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$',
+        ).hasMatch(verifiedHost) &&
+        !RegExp(r'\.(invalid|localhost|test|example)$').hasMatch(verifiedHost);
+    if (verifiedHost.isNotEmpty && !approved) {
+      throw const ReleaseConfigValidationException('AUTH_HOST_INVALID');
+    }
+    final host = approved ? verifiedHost : 'clientmerchandisecontrol.invalid';
+    final allowed = approved
+        ? 'https://$host/auth-callback/'
+        : 'https://clientmerchandisecontrol.invalid/auth-callback/';
     try {
       final uri = Uri.parse(value);
       if (!uri.isAbsolute ||
           uri.scheme != 'https' ||
-          uri.host != 'clientmerchandisecontrol.invalid' ||
+          uri.host != host ||
           uri.userInfo.isNotEmpty ||
           uri.hasPort ||
           uri.path != '/auth-callback/' ||

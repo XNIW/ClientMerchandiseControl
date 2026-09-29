@@ -153,6 +153,60 @@ void main() {
     expect(repository.listRequests.last.cursor?.beforeOrderId, orderTestOrder);
   });
 
+  test(
+    'pagina A-B-A non entra nello stato o cache della nuova sessione',
+    () async {
+      final identity = StateProvider<AuthenticatedCustomer?>(
+        (ref) => _identity(),
+      );
+      final barrier = Completer<CustomerOrderPage>();
+      final repository = FakeCustomerOrderRepository()
+        ..listOutcomes.add(
+          orderTestPage(
+            nextCursor: CustomerOrderCursor(
+              beforePlacedAt: orderTestNow,
+              beforeOrderId: orderTestOrder,
+            ),
+          ),
+        )
+        ..listOutcomes.add(barrier.future);
+      final store = MemoryCustomerOrderCacheStore();
+      final container = _container(
+        repository: repository,
+        store: store,
+        identityProvider: identity,
+      );
+      addTearDown(container.dispose);
+      final seen = <String>[];
+      container.listen(
+        customerOrderControllerProvider,
+        (_, next) => seen.addAll(next.orders.map((o) => o.id)),
+      );
+      await _waitFor(container, (s) => s.status == CustomerOrdersStatus.ready);
+      final pending = container
+          .read(customerOrderControllerProvider.notifier)
+          .loadMore();
+      await Future<void>.delayed(Duration.zero);
+      container.read(identity.notifier).state = _identity(
+        subjectId: '00000000-0000-4000-8000-000000021002',
+      );
+      container.read(customerOrderControllerProvider);
+      container.read(identity.notifier).state = _identity();
+      container.read(customerOrderControllerProvider);
+      seen.clear();
+      barrier.complete(
+        orderTestPage(orders: [orderTestCard(id: orderTestOlderOrder)]),
+      );
+      await pending;
+      await _waitFor(container, (s) => s.status == CustomerOrdersStatus.ready);
+      expect(seen, isNot(contains(orderTestOlderOrder)));
+      expect(
+        store.snapshot?.orders.map((o) => o.id),
+        isNot(contains(orderTestOlderOrder)),
+      );
+    },
+  );
+
   test('timeout cancel conserva e riusa la stessa chiave al retry', () async {
     final repository = FakeCustomerOrderRepository()
       ..cancelOutcomes.addAll([

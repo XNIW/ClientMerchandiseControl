@@ -7,16 +7,17 @@
 - **Stato globale**: ACTIVE
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: BLOCKED
+- **Stato task**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Indicatore**: CODEX_PLANNING_APPROVED_TO_EXECUTION
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
-- **Stato release train**: REOPENED_DEVELOPMENT_AUDIT
+- **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: NOT_RUN — nuovo audit operativo del 2026-09-28
-- **Prossima azione autorizzata**: completare verifica CI della PR draft27;
-  riprendere Execution dopo sblocco documentato di runtime, fonti E2E e reviewer;
-  staging write, distribuzione e merge richiedono mandato specifico vigente
+- **Prossima azione autorizzata**: completamento operativo del mandato successivo
+  del 2026-09-28: codice, provider, Admin isolato, recovery e apply staging condizionato,
+  nuova acceptance e due review read-only; merge di sviluppo dopo gate applicabili.
+  TASK-054 resta aperta finché i requisiti live obbligatori non sono verificati.
 
 ## Repository coinvolti
 

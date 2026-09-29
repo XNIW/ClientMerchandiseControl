@@ -18,6 +18,9 @@ class AppConfig {
   static const _compiledAuthRedirectUri = String.fromEnvironment(
     'AUTH_REDIRECT_URI',
   );
+  static const _compiledAuthVerifiedHost = String.fromEnvironment(
+    'AUTH_CALLBACK_VERIFIED_HOST',
+  );
   static const _compiledGoogleAuthEnabled = String.fromEnvironment(
     'GOOGLE_AUTH_ENABLED',
   );
@@ -79,6 +82,7 @@ class AppConfig {
     String supabasePublishableKey = '',
     String authRedirectUri = '',
     String googleAuthEnabled = '',
+    String authCallbackVerifiedHost = '',
     String storefrontShopSlug = '',
     String releaseConfigSha256 = '',
   }) {
@@ -108,7 +112,10 @@ class AppConfig {
 
     final canonicalRedirectUri = rawRedirectUri == null
         ? null
-        : _canonicalAuthRedirectUri(rawRedirectUri);
+        : _canonicalAuthRedirectUri(
+            rawRedirectUri,
+            verifiedHost: authCallbackVerifiedHost,
+          );
     final googleAuth = _parseGoogleAuthEnabled(
       normalizedGoogleAuthEnabled,
       environment: environment,
@@ -116,6 +123,13 @@ class AppConfig {
     final canonicalStorefrontShopSlug = normalizedStorefrontShopSlug == null
         ? null
         : _canonicalStorefrontShopSlug(normalizedStorefrontShopSlug);
+
+    if (authCallbackVerifiedHost.isNotEmpty &&
+        environment != AppEnvironment.staging) {
+      throw const AppConfigurationException(
+        'Il binding OAuth approvato è limitato allo staging.',
+      );
+    }
 
     switch (environment) {
       case AppEnvironment.development:
@@ -139,9 +153,11 @@ class AppConfig {
             'La configurazione staging richiede backend, callback, flag Google e Storefront completi.',
           );
         }
-        if (googleAuth) {
+        if (googleAuth &&
+            (authCallbackVerifiedHost.isEmpty ||
+                canonicalRedirectUri == allowedAuthRedirectUri)) {
           throw const AppConfigurationException(
-            'Google OAuth resta disabilitato finché non è configurato un dominio HTTPS posseduto e verificato.',
+            'OAuth richiede AUTH_CALLBACK_VERIFIED_HOST approvato e callback HTTPS corrispondente.',
           );
         }
         if (normalizedReleaseConfigSha256 != null) {
@@ -193,6 +209,7 @@ class AppConfig {
       supabasePublishableKey: _compiledSupabasePublishableKey,
       authRedirectUri: _compiledAuthRedirectUri,
       googleAuthEnabled: _compiledGoogleAuthEnabled,
+      authCallbackVerifiedHost: _compiledAuthVerifiedHost,
       storefrontShopSlug: _compiledStorefrontShopSlug,
       releaseConfigSha256: _compiledReleaseConfigSha256,
     );
@@ -275,9 +292,15 @@ class AppConfig {
     }
   }
 
-  static String _canonicalAuthRedirectUri(String value) {
+  static String _canonicalAuthRedirectUri(
+    String value, {
+    String verifiedHost = '',
+  }) {
     try {
-      return ReleaseConfigAttestation.canonicalAuthRedirectUri(value);
+      return ReleaseConfigAttestation.canonicalAuthRedirectUri(
+        value,
+        verifiedHost: verifiedHost,
+      );
     } on ReleaseConfigValidationException {
       throw const AppConfigurationException(
         'AUTH_REDIRECT_URI deve essere un URI assoluto valido e consentito.',

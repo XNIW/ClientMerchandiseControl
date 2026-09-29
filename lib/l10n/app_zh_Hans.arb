@@ -648,5 +648,7 @@
   "searchSuggestionsTitle": "搜索建议",
   "searchSuggestionProduct": "商品",
   "searchSuggestionCategory": "分类",
-  "searchSuggestionBrand": "品牌"
+  "searchSuggestionBrand": "品牌",
+  "deliveryContextPinHint": "拖动标记或点按地图以确认位置。",
+  "deliveryAddressAttribution": "© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright"
 }

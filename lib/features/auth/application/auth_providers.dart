@@ -56,7 +56,10 @@ final authCallbackSourceProvider = Provider<AuthCallbackSource>((ref) {
 });
 
 final authCallbackValidatorProvider = Provider<AuthCallbackValidator>((ref) {
-  final callback = Uri.parse(AppConfig.allowedAuthRedirectUri);
+  final callback = Uri.parse(
+    ref.watch(appConfigProvider).authRedirectUri ??
+        AppConfig.allowedAuthRedirectUri,
+  );
   return AuthCallbackValidator(
     allowedScheme: callback.scheme,
     allowedHost: callback.host,

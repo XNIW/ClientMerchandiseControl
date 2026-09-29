@@ -589,12 +589,17 @@ void _validateIosReleaseJob(String workflow) {
   const allowedJobKeys = <String>{
     'name',
     'runs-on',
+    'env',
     'timeout-minutes',
     'steps',
   };
   final jobKeys = job.keys.map((key) => key.toString()).toSet();
   if (job['name'] != 'iOS release candidate' ||
-      job['runs-on'] != 'macos-latest' ||
+      job['runs-on'] != 'macos-26' ||
+      job['env'] is! YamlMap ||
+      !_hasExactKeys(job['env'] as YamlMap, const {'DEVELOPER_DIR'}) ||
+      job['env']['DEVELOPER_DIR'] !=
+          '/Applications/Xcode_26.6.app/Contents/Developer' ||
       job['timeout-minutes'] != 45 ||
       job['steps'] is! YamlList ||
       jobKeys.length != allowedJobKeys.length ||

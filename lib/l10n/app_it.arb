@@ -648,5 +648,7 @@
   "searchSuggestionsTitle": "Suggerimenti",
   "searchSuggestionProduct": "Prodotto",
   "searchSuggestionCategory": "Categoria",
-  "searchSuggestionBrand": "Marca"
+  "searchSuggestionBrand": "Marca",
+  "deliveryContextPinHint": "Trascina il segnaposto o tocca la mappa per confermare la posizione.",
+  "deliveryAddressAttribution": "© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright"
 }

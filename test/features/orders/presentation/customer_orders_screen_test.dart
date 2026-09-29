@@ -465,7 +465,6 @@ void main() {
   testWidgets(
     'golden dettaglio consegna live 390x844 es-CL light',
     (tester) async {
-      if (Platform.isLinux) return;
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.binding.setSurfaceSize(const Size(390, 844));
       final orderRepository = FakeCustomerOrderRepository()
@@ -506,10 +505,16 @@ void main() {
 
       await expectLater(
         find.byType(OrderDetailScreen),
-        matchesGoldenFile('goldens/order_delivery_live_es_cl.png'),
+        matchesGoldenFile(
+          Platform.operatingSystemVersion.startsWith('Version 27.')
+              ? 'goldens/order_delivery_live_es_cl_macos27.png'
+              : 'goldens/order_delivery_live_es_cl.png',
+        ),
       );
       expect(tester.takeException(), isNull);
     },
+    skip: !Platform
+        .isMacOS, // Confronto richiesto nel job iOS/macOS26; Linux non è un PASS.
     variant: TargetPlatformVariant.only(TargetPlatform.android),
   );
 

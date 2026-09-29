@@ -24,6 +24,27 @@ class CompatibilityTest(unittest.TestCase):
         self.snapshot = {'rpcs': copy.deepcopy(self.manifest['rpcs']),
                          'migrations': sorted({r['migration'].split('_')[0] for r in self.manifest['rpcs']})}
 
+    def test_live_receipt_binds_target_revision_config_and_freshness(self):
+        from datetime import datetime, timezone, timedelta
+        now = datetime.now(timezone.utc)
+        snapshot = dict(self.snapshot, observed_at=now.isoformat())
+        manifest = json.dumps(self.manifest).encode()
+        config = json.dumps({'APP_ENV': 'staging', 'SUPABASE_URL': 'https://abcdefghijklmnopqrst.supabase.co', 'SUPABASE_PUBLISHABLE_KEY': 'do-not-print-this-value'}).encode()
+        receipt = gate.live_receipt(manifest, config, snapshot, 'a' * 40, now, now, 12, [])
+        self.assertEqual(receipt['scope'], 'live_schema')
+        self.assertFalse(receipt['reusable_for_upload'])
+        self.assertNotIn('do-not-print', json.dumps(receipt))
+        self.assertEqual(receipt['client_commit'], 'a' * 40)
+        changed = gate.live_receipt(manifest, config.replace(b'abcdefghijklmnopqrst', b'bcdefghijklmnopqrstu'), snapshot, 'b' * 40, now, now, 12, ['missing_rpc:fixture'])
+        self.assertNotEqual(receipt['config_sha256'], changed['config_sha256'])
+        self.assertNotEqual(receipt['project_ref'], changed['project_ref'])
+        self.assertEqual(changed['result'], 'FAIL')
+        for stale in [dict(snapshot, observed_at=(now - timedelta(minutes=1)).isoformat()), self.snapshot]:
+            with self.assertRaises((ValueError, KeyError)):
+                gate.live_receipt(manifest, config, stale, 'a' * 40, now, now, 12, [])
+        with self.assertRaises(ValueError):
+            gate.live_receipt(manifest, config, snapshot, 'a' * 40, now, now, 30001, [])
+
     def test_complete_schema(self):
         self.assertEqual(gate.schema_errors(self.manifest, self.snapshot), [])
         self.assertEqual(gate.source_errors(self.manifest), [])

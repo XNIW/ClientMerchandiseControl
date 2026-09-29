@@ -153,6 +153,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
   }
 
   Future<void> loadMore() {
+    final generation = _generation;
     return _serialized(() async {
       final subjectId = _subjectId;
       final shopSlug = _shopSlug;
@@ -173,7 +174,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         final page = await ref
             .read(customerOrderRepositoryProvider)
             .listOrders(shopSlug: shopSlug, cursor: cursor);
-        if (!_isCurrent(subjectId, shopSlug)) return;
+        if (!_isCurrent(subjectId, shopSlug, generation)) return;
         final merged = <String, CustomerOrderCard>{
           for (final order in _lastState?.orders ?? const <CustomerOrderCard>[])
             order.id: order,
@@ -192,6 +193,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
           cachedAt: ref.read(customerOrderClockProvider)(),
         );
         if (!await _saveCache(
+          generation: generation,
           subjectId: subjectId,
           shopSlug: shopSlug,
           required: false,
@@ -209,14 +211,22 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
           ),
         );
       } on Object catch (error) {
-        if (!_isCurrent(subjectId, shopSlug)) return;
-        if (await _purgeIfUnauthorized(error, subjectId, shopSlug)) return;
+        if (!_isCurrent(subjectId, shopSlug, generation)) return;
+        if (await _purgeIfUnauthorized(
+          error,
+          subjectId,
+          shopSlug,
+          generation,
+        )) {
+          return;
+        }
         _publishLoadFailure(error, isLoadingMore: true);
       }
     });
   }
 
   Future<void> openOrder(String orderId, {bool forceRefresh = false}) {
+    final generation = _generation;
     return _serialized(() async {
       final subjectId = _subjectId;
       final shopSlug = _shopSlug;
@@ -237,12 +247,13 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         final detail = await ref
             .read(customerOrderRepositoryProvider)
             .loadOrder(shopSlug: shopSlug, orderId: orderId);
-        if (!_isCurrent(subjectId, shopSlug) ||
+        if (!_isCurrent(subjectId, shopSlug, generation) ||
             _lastState?.selectedOrderId != orderId) {
           return;
         }
         _rememberDetail(detail, subjectId: subjectId, shopSlug: shopSlug);
         if (!await _saveCache(
+          generation: generation,
           subjectId: subjectId,
           shopSlug: shopSlug,
           required: false,
@@ -259,11 +270,18 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
           ),
         );
       } on Object catch (error) {
-        if (!_isCurrent(subjectId, shopSlug) ||
+        if (!_isCurrent(subjectId, shopSlug, generation) ||
             _lastState?.selectedOrderId != orderId) {
           return;
         }
-        if (await _purgeIfUnauthorized(error, subjectId, shopSlug)) return;
+        if (await _purgeIfUnauthorized(
+          error,
+          subjectId,
+          shopSlug,
+          generation,
+        )) {
+          return;
+        }
         final failure = _failure(error);
         _publish(
           _lastState!.copyWith(
@@ -282,6 +300,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
   }
 
   Future<void> cancelSelectedOrder() {
+    final generation = _generation;
     return _serialized(() async {
       final subjectId = _subjectId;
       final shopSlug = _shopSlug;
@@ -311,6 +330,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         ).copyWith(pendingCancellation: pending);
         try {
           if (!await _saveCache(
+            generation: generation,
             subjectId: subjectId,
             shopSlug: shopSlug,
             required: true,
@@ -318,6 +338,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
             return;
           }
         } on Object {
+          if (!_isCurrent(subjectId, shopSlug, generation)) return;
           _publishCancellationFailure(CustomerOrderFailureKind.unexpected);
           return;
         }
@@ -334,13 +355,14 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
               expectedStatusVersion: pending.expectedStatusVersion,
               idempotencyKey: pending.idempotencyKey,
             );
-        if (!_isCurrent(subjectId, shopSlug) ||
+        if (!_isCurrent(subjectId, shopSlug, generation) ||
             _lastState?.selectedOrderId != detail.id) {
           return;
         }
         _rememberDetail(updated, subjectId: subjectId, shopSlug: shopSlug);
         _cache = _cache!.copyWith(clearPendingCancellation: true);
         if (!await _saveCache(
+          generation: generation,
           subjectId: subjectId,
           shopSlug: shopSlug,
           required: false,
@@ -360,8 +382,15 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
           ),
         );
       } on Object catch (error) {
-        if (!_isCurrent(subjectId, shopSlug)) return;
-        if (await _purgeIfUnauthorized(error, subjectId, shopSlug)) return;
+        if (!_isCurrent(subjectId, shopSlug, generation)) return;
+        if (await _purgeIfUnauthorized(
+          error,
+          subjectId,
+          shopSlug,
+          generation,
+        )) {
+          return;
+        }
         final failure = _failure(error);
         final isAmbiguous =
             failure == CustomerOrderFailureKind.offline ||
@@ -369,6 +398,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         if (!isAmbiguous) {
           _cache = _cache?.copyWith(clearPendingCancellation: true);
           if (!await _saveCache(
+            generation: generation,
             subjectId: subjectId,
             shopSlug: shopSlug,
             required: false,
@@ -379,10 +409,11 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
             final latest = await ref
                 .read(customerOrderRepositoryProvider)
                 .loadOrder(shopSlug: shopSlug, orderId: detail.id);
-            if (_isCurrent(subjectId, shopSlug) &&
+            if (_isCurrent(subjectId, shopSlug, generation) &&
                 _lastState?.selectedOrderId == detail.id) {
               _rememberDetail(latest, subjectId: subjectId, shopSlug: shopSlug);
               if (!await _saveCache(
+                generation: generation,
                 subjectId: subjectId,
                 shopSlug: shopSlug,
                 required: false,
@@ -402,7 +433,9 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
             // refresh can recover when this best-effort reconciliation fails.
           }
         }
-        _publishCancellationFailure(failure);
+        if (_isCurrent(subjectId, shopSlug, generation)) {
+          _publishCancellationFailure(failure);
+        }
       }
     });
   }
@@ -440,7 +473,8 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         final cached = await ref
             .read(customerOrderCacheStoreProvider)
             .read(ownerSubjectId: subjectId, shopSlug: shopSlug);
-        if (!_isCurrent(subjectId, shopSlug) || generation != _generation) {
+        if (!_isCurrent(subjectId, shopSlug, generation) ||
+            generation != _generation) {
           return;
         }
         _cache = cached;
@@ -465,6 +499,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
           );
         }
       } on Object {
+        if (!_isCurrent(subjectId, shopSlug, generation)) return;
         _cache = null;
       }
       await _refreshList(generation);
@@ -474,10 +509,15 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
   Future<void> _refreshList(int generation) async {
     final subjectId = _subjectId;
     final shopSlug = _shopSlug;
-    if (subjectId == null || shopSlug == null) return;
+    if (subjectId == null || shopSlug == null || generation != _generation) {
+      return;
+    }
     _publish(
       (_lastState ?? const CustomerOrdersState.loading()).copyWith(
         isRefreshing: true,
+        isLoadingMore: false,
+        isDetailLoading: false,
+        isCancelling: false,
         failure: null,
       ),
     );
@@ -485,7 +525,8 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
       final page = await ref
           .read(customerOrderRepositoryProvider)
           .listOrders(shopSlug: shopSlug);
-      if (!_isCurrent(subjectId, shopSlug) || generation != _generation) {
+      if (!_isCurrent(subjectId, shopSlug, generation) ||
+          generation != _generation) {
         return;
       }
       final previous = _currentCache(subjectId, shopSlug);
@@ -506,6 +547,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         cachedAt: ref.read(customerOrderClockProvider)(),
       );
       if (!await _saveCache(
+        generation: generation,
         subjectId: subjectId,
         shopSlug: shopSlug,
         required: false,
@@ -527,10 +569,13 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
         ),
       );
     } on Object catch (error) {
-      if (!_isCurrent(subjectId, shopSlug) || generation != _generation) {
+      if (!_isCurrent(subjectId, shopSlug, generation) ||
+          generation != _generation) {
         return;
       }
-      if (await _purgeIfUnauthorized(error, subjectId, shopSlug)) return;
+      if (await _purgeIfUnauthorized(error, subjectId, shopSlug, generation)) {
+        return;
+      }
       _publishLoadFailure(error);
     }
   }
@@ -618,11 +663,12 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
   }
 
   Future<bool> _saveCache({
+    required int generation,
     required String subjectId,
     required String shopSlug,
     required bool required,
   }) async {
-    if (!_isCurrent(subjectId, shopSlug)) return false;
+    if (!_isCurrent(subjectId, shopSlug, generation)) return false;
     final cache = _cache;
     if (cache == null ||
         cache.ownerSubjectId != subjectId ||
@@ -631,10 +677,10 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
     }
     try {
       await ref.read(customerOrderCacheStoreProvider).save(cache);
-      return _isCurrent(subjectId, shopSlug);
+      return _isCurrent(subjectId, shopSlug, generation);
     } on Object {
       if (required) rethrow;
-      return _isCurrent(subjectId, shopSlug);
+      return _isCurrent(subjectId, shopSlug, generation);
     }
   }
 
@@ -642,6 +688,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
     Object error,
     String subjectId,
     String shopSlug,
+    int generation,
   ) async {
     if (_failure(error) != CustomerOrderFailureKind.unauthorized) return false;
     try {
@@ -651,7 +698,7 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
     } on Object {
       // La UI viene comunque azzerata; il cleanup Auth ritenterà la rimozione.
     }
-    if (!_isCurrent(subjectId, shopSlug)) return true;
+    if (!_isCurrent(subjectId, shopSlug, generation)) return true;
     _cache = null;
     _publish(
       const CustomerOrdersState(
@@ -667,12 +714,18 @@ final class CustomerOrderController extends Notifier<CustomerOrdersState> {
     return CustomerOrderFailureKind.unexpected;
   }
 
-  bool _isCurrent(String subjectId, String shopSlug) {
-    return !_disposed && _subjectId == subjectId && _shopSlug == shopSlug;
+  bool _isCurrent(String subjectId, String shopSlug, int generation) {
+    return !_disposed &&
+        _subjectId == subjectId &&
+        _shopSlug == shopSlug &&
+        generation == _generation;
   }
 
   Future<void> _serialized(Future<void> Function() operation) {
-    final next = _tail.then((_) => operation());
+    final generation = _generation;
+    final next = _tail.then((_) async {
+      if (!_disposed && generation == _generation) await operation();
+    });
     _tail = next.then<void>((_) {}, onError: (_, _) {});
     return next;
   }

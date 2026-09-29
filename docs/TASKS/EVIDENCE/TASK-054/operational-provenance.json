@@ -1,0 +1,35 @@
+{
+  "started_at": "2026-09-28",
+  "client_base": "0990c80d8f96d9442dde411cee6afb7c9c2cd870",
+  "admin_base": "fe4907adc51ff842720e1c7eb36aa05e0fa53cb8",
+  "staging_ref": "jpgoimipbothfgkokyvm",
+  "staging_rpc_present": 32,
+  "staging_history_count": 145,
+  "staging_latest_migration": "20260926164349",
+  "backup_list": {
+    "backups": null,
+    "pitr_enabled": false
+  },
+  "schema_dump_sha256": "0979c51d4db66fb09bdf4b425f51b59b96fa60a0af0c6f6a5d69712a2aa6f935",
+  "schema_dump_scope": [
+    "public",
+    "app_private",
+    "supabase_migrations"
+  ],
+  "recovery_status": "BLOCKED_storage_api_cleanup_and_writer_window",
+  "aggregate_preflight": {
+    "notification_rows": 2,
+    "address_rows": 0,
+    "quote_rows": 0,
+    "projected_hold_collisions": 0,
+    "after_sales_bucket_exists": false
+  },
+  "schema_restore": "PASS",
+  "schema_inverse_comparison": "PASS",
+  "recovery_hashes": {
+    "recovery-before.json": "1b0b3c89cb220210a4acab0567de1c67460660632683046d7708af430417a91a",
+    "recovery-restored.json": "1b0b3c89cb220210a4acab0567de1c67460660632683046d7708af430417a91a",
+    "recovery-inverse.sql": "d90edd7aba499530652110a58e491ae6d3069d6f002bec9c770d4a6725d113c4",
+    "recovery-remote-baseline.json": "b8cb85c52a36b77cba03346b86069cfa55352a212deeb279aa794c24ffa50957"
+  }
+}

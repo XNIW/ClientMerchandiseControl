@@ -1,7 +1,7 @@
 # TASK-054 — Integrated staging E2E and closeout
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: BLOCKED
+- **Stato**: ACTIVE
 - **Fase**: EXECUTION
 - **Responsabile**: CODEX_EXECUTOR
 - **Handoff**: CODEX_PLANNING_APPROVED_TO_EXECUTION
@@ -141,3 +141,53 @@ store upload, production, merge o DONE.
 
 L'Execution non è review-ready: resta BLOCKED in EXECUTION, senza transizione fittizia
 CODEX_EXECUTION_COMPLETE_TO_REVIEW.
+
+
+## Emendamento operativo utente — 2026-09-28, mandato successivo
+
+Il mandato «COMPLETAMENTO OPERATIVO TASK-054» supersede i limiti del precedente
+emendamento soltanto nei seguenti punti: due reviewer/subagent read-only distinti;
+integrazione Admin in checkout isolato e coordinato; scelta tecnica di sviluppo del
+provider indirizzi senza acquisti; nuova acceptance E2E-054-R distinta dallo storico;
+apply delle sole migration canoniche necessarie su `jpgoimipbothfgkokyvm` dopo target,
+assenza conflitti e ripristino dimostrato; merge ordinario sulle main di sviluppo
+con gate applicabili e review APPROVED. Sono autorizzate tutte le fasi e re-review.
+
+Le capacità dipendenti da risorse esterne possono restare OFF/fail-closed mentre i
+fix verificati vengono integrati. Questa autorizzazione non chiude TASK-054, non
+attiva production, non autorizza costi, nuovi account/contratti, reset condivisi,
+pagamenti/rimborsi reali, DNS/dashboard OAuth o pubblicazione pubblica. Firma/upload
+interni e dispositivi richiedono le destinazioni/credenziali già approvate e gate reali.
+
+## Planning operativo approvato dal mandato successivo
+
+Unico writer root nel worktree Client esistente, Admin isolato; reviewer Client e
+backend in sola lettura. Nessun cambio a task futuri o priorità. Baseline Client
+0990c80d8f96d9442dde411cee6afb7c9c2cd870, main493c2c9; Admin mainfe4907ad.
+Preservare gli undici fix e distinguere regressioni supplementari da nuovi finding.
+
+| CA / test | Criterio e verifica richiesta | File / dipendenze |
+|---|---|---|
+| CA-O1 / T-O1 | 55 RPC riconfrontate; recovery provato prima di apply e RLS con ruoli reali sintetici | manifest, gate Python, migration/test SQL Admin; finestra staging |
+| CA-O2 / T-O2 | Typegen commerce nullable corretto e integrato tramite PR coordinata | tipi Admin, test di compilazione positivi/negativi |
+| CA-O3 / T-O3 | OAuth configurabile e nativo, fail-closed, PKCE/session lifecycle | AppConfig, callback validator, binding Android/iOS, attestation e test |
+| CA-O4 / T-O4 | Adapter indirizzi concreti e fallback; race riprodotte e corrette | delivery/account/orders/search, transport test e widget |
+| CA-O5 / T-O5 | Golden confrontati realmente, target iOS dichiarato e smoke Android/iOS | golden mirati, CI, toolchain, nessun aumento tolleranze |
+| CA-O6 / T-O6 | Nuova acceptance tracciabile, benchmark10 e gate del candidato congelato | matrice E2E, CI/artifact, review indipendenti |
+| CA-O7 / T-O7 | Merge di sviluppo soltanto dopo gate/review; stato live separato | PR Client27/Admin, ancestry e main CI |
+
+Rischi: perdita notifiche nella migration, scritture staging concorrenti, configurazioni
+non approvate e raster variabile. Mitigazioni: regressioni e migration correttiva
+canonica, recovery isolato, coordinamento, defaultOFF, baseline mirate revisionate.
+Un blocco esterno arresta solo il relativo ramo. Gate completi una volta sul candidato
+stabile; dopo fix soltanto gate impattati più obbligatori.
+
+Handoff planning: `CODEX_PLANNING_APPROVED_TO_EXECUTION`, autorizzazione già ricevuta.
+Registro unico: [residui operativi](EVIDENCE/TASK-054/residuals.md).
+
+## Execution operativa — 2026-09-28
+
+Ripresa ACTIVE/EXECUTION sulla PR27 aperta draft, HEAD e main riconfermate.
+Due reviewer distinti hanno fornito analisi preparatoria senza approvazioni formali.
+Il registro residui governa azioni, dipendenze e risultati; la review formale attende
+revision set congelato. Nessun risultato del precedente audit è una nuova evidence.

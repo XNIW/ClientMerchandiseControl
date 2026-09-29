@@ -1,3 +1,4 @@
+import 'package:client_merchandise_control/features/account/domain/customer_account_models.dart';
 import 'dart:ui' as ui;
 
 import 'package:client_merchandise_control/app/client_merchandise_control_app.dart';
@@ -13,6 +14,59 @@ import 'package:flutter_test/flutter_test.dart';
 import 'customer_account_test_support.dart';
 
 void main() {
+  testWidgets('modifica testo geografico invalida il pin precedente', (
+    tester,
+  ) async {
+    CustomerAddressDraft? saved;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          customerAccountIdentityProvider.overrideWithValue(_identity()),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: appSupportedLocales,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () async {
+                  saved = await showCustomerAddressEditor(
+                    context,
+                    initial: const CustomerAddressEditorInitial(
+                      label: 'Casa',
+                      recipientName: 'Cliente Test',
+                      addressLine1: 'Via Test 1',
+                      commune: 'Comune Test',
+                      region: 'Regione Test',
+                      latitude: -33,
+                      longitude: -70,
+                      locationSource: CustomerAddressLocationSource.search,
+                    ),
+                  );
+                },
+                child: const Text('apri'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('apri'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('customer-address-field-line1')),
+      'Via Nuova 2',
+    );
+    await tester.tap(find.byKey(const ValueKey('customer-address-submit')));
+    await tester.pumpAndSettle();
+    expect(saved, isNotNull);
+    expect(saved?.addressLine1, 'Via Nuova 2');
+    expect(saved?.latitude, isNull);
+    expect(saved?.longitude, isNull);
+    expect(saved?.locationAccuracyMeters, isNull);
+    expect(saved?.locationSource, CustomerAddressLocationSource.manual);
+  });
+
   testWidgets(
     'profilo, address CRUD, consent, export e deletion sono data-backed',
     (tester) async {

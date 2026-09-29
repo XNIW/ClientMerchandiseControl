@@ -4925,3 +4925,5 @@ Registrato mandato successivo e planning operativo; ripresa ACTIVE/EXECUTION sul
 PR27 0990c80. Root unico writer, due reviewer read-only autorizzati; coordinamento
 richiesto ai writer WeChat e Android/iOS attivi. Registro unico residuals.md. Nuovo
 merge di sviluppo autorizzato condizionatamente; niente DONE o production inferiti.
+
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.

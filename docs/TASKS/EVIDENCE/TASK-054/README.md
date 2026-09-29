@@ -1,15 +1,15 @@
-# TASK-054 — Audit operativo riaperto
+# TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+`ACTIVE / EXECUTION / CODEX_PLANNING_APPROVED_TO_EXECUTION`.
 
-Il prompt del2026-09-28 autorizza sviluppo/audit/fix. Non rinnova gli apply staging,
-merge o distribuzione dei task storici. Nessun DONE e nessuna auto-approvazione.
+Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
+di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
+Stato corrente nel [registro residui](residuals.md), prove nuove in
+[validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
+[acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
-- [Inventario completo e finding prima/dopo](functional-audit.md)
-- [Manifest55 RPC](../../../contracts/client-backend-rpc-manifest.json)
-- [Riconciliazione migration, preflight e recovery](backend-reconciliation.md)
-- [Gate, benchmark prima/dopo ed E2E-01…25](validation.md)
+## Registro storico del primo audit (superato dal mandato operativo)
 
 ## Stato operativo
 

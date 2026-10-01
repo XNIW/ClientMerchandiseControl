@@ -192,12 +192,12 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: ACTIVE
+- **Stato task**: BLOCKED
 - **Fase**: FIX
 - **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
-- **Stato release train**: REOPENED_DEVELOPMENT_AUDIT
-- **Review integrata**: NOT_RUN — nuovo audit operativo del 2026-09-28
+- **Stato release train**: OPERATIONAL_COMPLETION
+- **Review integrata**: BLOCKED — closeout live; re-review sviluppo in corso
 
 TASK-054 è riaperto dal mandato del 2026-09-28 per audit funzionale e completamento
 nel perimetro di sviluppo. Le attestazioni di closeout seguenti sono storiche:

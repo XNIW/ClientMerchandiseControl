@@ -1,13 +1,51 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
 Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
+
+## Stato corrente del mandato operativo
+
+Revision set: Client runtime `ecba981c42bb80b125927478dc02c07210039407`,
+Admin PR117 `d4fbf49ce274b7a97f7c34fa5519a0b8a088b9d5`, merged
+con `6d5f3768bcc7e7bef2a5c539742cce0a99ef58ee`; main ora `f21339bb`.
+C-01/C-02/C-03/B-04 chiusi tramite re-review distinta; nessun P0/P1/P2 aperto nel
+delta verificato. Approvazione finale di integrazione in attesa delle CI applicabili.
+La documentazione e la matrice dichiarativa OAuth sono allineate dopo il freeze;
+runtime, criteri dei validator e configurazione production non sono cambiati.
+
+| Livello | Stato | Evidence / limite |
+|---|---|---|
+| CODE | BLOCKED smoke iOS |CI36507927784:866 test PASS/1skip,10benchmark PASS,4job PASS; Simulator golden/build PASS ma smoke timeout; fix runner da verificare |
+| BACKEND_RUNTIME | FAIL |metadata fresco32/55 RPC,1/2 indici richiesti,3 migration assenti; apply BLOCKED per recovery completa e finestra |
+| STAGING_E2E | NOT_RUN |nuova acceptance30casi revisionata come piano; nessuna fixture business condivisa creata |
+| AUTH_LIVE | NOT_RUN |codice configurabile e testato; dominio/provider e associazioni native approvati assenti |
+| ADDRESS_PROVIDER_LIVE | NOT_RUN |adapter Photon/map/GPS e fallback implementati; endpoint e chiavi approvati non configurati |
+| PHYSICAL_DEVICES | NOT_RUN |iPhone rilevato, ma runtime/firma approvati per questo bundle non attestati; Android emulator smoke PASS |
+| DISTRIBUTION | BLOCKED |preflight richiede runtime, firma/destinazione e backend compatibile; nessun upload |
+| MAIN_INTEGRATION | BLOCKED Client |Admin PR117 merged6d5, CI PR/main PASS; Client27 draft fino a smoke e review finali |
+| PRODUCTION | NOT_ACTIVATED |nessuna modifica o attivazione |
+
+## Risorse ancora necessarie
+
+| Owner / risorsa | Controllo eseguito e azione minima | Configurazione e verifica successiva |
+|---|---|---|
+| Backend owner / recovery e finestra |dump schema fresco ripristinato, inverse/reapply e cataloghi identici; backups null/PITR false; Storage API e history canonica provati separatamente; prova combinata e conservazione147history non completate. Concordare pausa writer e completare recovery combinato |recovery-hash in operational-provenance.json; apply canonico3file solo dopo preflight, readback history/55RPC/2indici, RLS e fixture sintetiche owner/shop con cleanup |
+| Backend/release owner / servizio readonly |gate live tentato, manca servizio approvato; predisporre connessione readonly TLS al ref autorizzato |CMC_BACKEND_PGSERVICE e config artifact esterna; check-backend-compatibility.py --live --app-config PATH; snapshot non abilita upload |
+| Auth/domain owner / dominio |nessun dominio approvato nei riferimenti; indicare riferimento già autorizzato e associazioni esatte |AUTH_CALLBACK_VERIFIED_HOST e AUTH_REDIRECT_URI nel JSON staging esterno; allow-list Supabase TEST, assetlinks/AASA; R02/R03 cold/warm/login/logout/revoca |
+| Address owner / endpoint e Maps |adapter implementati, nessun endpoint implicito; fornire solo riferimento al servizio approvato e chiavi native ristrette già disponibili |ADDRESS_PHOTON_ORIGIN/ADDRESS_PROVIDER_APPROVED/ADDRESS_SEARCH_ENABLED; ADDRESS_MAPS_ENABLED e probe nativo; ADR014 e R05/R26 |
+| Mobile/release owner / firma e canale |inventario rileva iPhone e1identità, ma input dedicati assenti; associare configurazione approvata al bundle com.xniw.clientmerchandisecontrol senza creare nuove credenziali |IOS_EXPECTED_TEAM_ID,IOS_EXPECTED_SIGNING_CERT_SHA256,IOS_RELEASE_RUNTIME_CONFIG_PATH e riferimenti App Store Connect; equivalenti Android nel runbook. Preflight, ricevuta upload e smoke fisico restano prove distinte |
+
+L'autorizzazione all'apply e al merge è già nel mandato: i limiti qui sono prerequisiti
+tecnici o risorse esterne, non nuove richieste generiche di consenso. Il runbook
+distribuzione attuale richiede inoltre un backend conforme; non si indebolisce il gate
+per caricare un artifact. Online payment e push restano con adapter non configurati
+secondo le decisioni precedenti; nessuna attivazione implicita.
 
 ## Registro storico del primo audit (superato dal mandato operativo)
 

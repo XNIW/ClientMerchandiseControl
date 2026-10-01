@@ -1,7 +1,7 @@
 # TASK-054 — Integrated staging E2E and closeout
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: ACTIVE
+- **Stato**: BLOCKED
 - **Fase**: FIX
 - **Responsabile**: CODEX_FIXER
 - **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
@@ -219,7 +219,7 @@ consentita dal nuovo mandato; nessuna approvazione a apply condiviso o closeout.
 C-01: probe nativo riusato con timeout2s e invalidazione account prima della mappa;
 false/throw/timeout/logout non costruiscono superficie (4regressioni nuove).
 C-02/C-03: diniego autoritativo invalida epoch concorrenti e svuota UI; purge fallibile
-conserva la causa. Sei nuove regressioni eseguite prima:11PASS/6FAIL; post-fix in corso.
+conserva la causa. Sei nuove regressioni eseguite prima:11PASS/6FAIL; post-fix69PASS, exit0.
 B-04: manifest richiede migration correttiva/hash e definizione/unicità/validità dei
 due indici; test negativo13suite prima12PASS/1FAIL, dopo13PASS. Metadata fresco32RPC,
 1indice,145migration: gateFAIL; metadata locale55RPC/2indici con history ricostruita
@@ -230,3 +230,32 @@ entitlements/buildphase. Generazione spostata alla PreAction già associata a Ru
 fase di build conserva solo verifica esatta, senza dipendenza output ciclica.
 Generazione invalida elimina il vecchio file; check mancante/diverso fallisce.
 Minimo iOS14 invariato. Nuova CI richiesta dopo il fix.
+
+
+## Handoff Fix e re-review tecnica — ecba981
+
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`: fix completati, ma gate live obbligatori ancora
+bloccati. TASK-054 resta BLOCKED/REVIEW; il mandato operativo consente separatamente
+l'integrazione di sviluppo dopo CI e approvazione dei reviewer distinti.
+
+Client reviewer:133 test Flutter autonomi e4 test entitlement PASS/exit0; C-01,
+C-02 e C-03 chiusi, nessun nuovo P0/P1/P2. Backend reviewer:13 test backend,
+4 entitlement, source gate55 PASS; B-04 chiuso, nessun P0/P1/P2 residuo nel delta.
+La nuova acceptance30casi è revisionata come piano, nessun PASS live dedotto.
+Approvazione finale di integrazione ancora in attesa della CI Client36507927784.
+
+Admin54e22e94 integra main53e58013 senza modificare i cinque file commerce già
+revisionati in fb9546ca. Review delta indipendente:7 test catalog/query e tsc strict
+fixture commerce PASS/exit0, nessuna interferenza rilevata. CI36508452826 e
+Cloudflare36508452831 in corso. Le approvazioni finali e ricevute sono riportate
+nell'evidence canonica, senza dichiarare DONE o apply condiviso.
+
+| CA / test | Evidence attuale | Esito |
+|---|---|---|
+| CA-O1 / T-O1 | backend-reconciliation, provenance,13 test gate,1035 SQL locali | PASS locale; runtime FAIL; apply BLOCKED |
+| CA-O2 / T-O2 | PR117,typegen nullable,tsc,review delta | PASS codice; merge NOT_RUN |
+| CA-O3 / T-O3 | auth/config/native test,133 test indipendenti,4 entitlement | PASS deterministico; AUTH_LIVE NOT_RUN |
+| CA-O4 / T-O4 | adapter concreti,69 test fix,review133 | PASS deterministico; provider live NOT_RUN |
+| CA-O5 / T-O5 | golden2 OS27,Android smoke ecba981,iOS CI | PASS Android/golden locale; CI in corso |
+| CA-O6 / T-O6 | acceptance30,benchmark10,resilience70,review distinte | PASS piano/test locali; E2E NOT_RUN |
+| CA-O7 / T-O7 | PR27/117,CI exact SHA,review distinte | NOT_RUN merge, gate in corso |

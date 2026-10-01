@@ -203,3 +203,41 @@ Nessun DDL o fixture di questa ripresa è stato applicato al database condiviso.
 Il confronto recovery non include righe della migration history. Apply/inverse locali
 via psql non collaudano il recupero delle ricevute del runner canonico: questo resta
 un ulteriore prerequisito prima dell’apply condiviso, anche dopo cleanup Storage.
+
+
+Riconferma finale readonly 2026-09-29T01:41:59Z: i writer WeChat hanno aggiunto due
+ricevute, history147 (ultime20260929013345/20260929013437). Le RPC Client restano32/55,
+indici richiesti1/2; snapshot gate FAIL/exit1 con23RPC,3migration e1indice mancanti.
+Il dump/rehearsal precedenti conservano la propria data e non attestano questo nuovo
+stato. Qualunque apply futuro deve acquisire di nuovo il delta e il punto di recupero
+nella finestra concordata. Nessuna scrittura condivisa effettuata da TASK-054.
+
+
+## Rehearsal supplementare CLI e Storage API
+
+CLI2.118.0 Linux arm64 ufficiale, digest verificato dalla release prima di eseguirla
+nel container `network=none`, nessuna porta esposta. Il progetto temporaneo contiene
+soltanto i tre file canonici hash-bound. `migration up --include-all --db-url` punta
+esclusivamente a127.0.0.1/cmc_recovery nello stesso container; crea tre ricevute reali
+con181/5/7statement. Dopo l'inverse SQL realmente riuscita, `migration repair --status
+reverted` delle sole tre versioni effettivamente annullate ripristina history0; non
+è una dichiarazione di apply fittizio. Reapply genera nuovamente le stesse tre ricevute.
+I cataloghi/ACL coincidono con recovery-before.json. Il primo confronto differiva
+solo per storage.migrations, artifact aggiunto dal tentativo Storage descritto sotto;
+rimosso esclusivamente quell'artifact locale e confronto ripetuto PASS/exit0.
+
+Il servizio Storage non avviava sul bootstrap schema-only precedente: mancavano sua
+history e ownership canonici. Creato un servizio isolato v1.69.0 su un nuovo database
+locale, con proprie migration canoniche, helper auth sintetici e i grant service_role
+corrispondenti al bootstrap. Modello di configurazione dal
+[Compose ufficiale](https://github.com/supabase/supabase/blob/master/docker/docker-compose.yml).
+Create via API di un bucket sintetico privato200; readback vuoto; DELETE SQL rifiutato
+da storage.protect_delete; DELETE via API200, readback bucket0/oggetti0. Nessun bypass
+della protezione e nessun accesso al servizio Storage condiviso.
+
+Queste prove chiudono il comportamento locale del runner/history e del componente
+Storage API. Restano distinte: history baseline locale0 (non147ricevute remote),
+Storage su database dedicato (non stesso restore combinato), snapshot staging avanzato
+e finestra writer assente. Non sono una certificazione di recovery completa del target
+corrente e non autorizzano da sole l'apply. Il reviewer backend valuta questi limiti;
+prima dell'apply è richiesto rehearsal combinato sulla baseline concordata e protetta.

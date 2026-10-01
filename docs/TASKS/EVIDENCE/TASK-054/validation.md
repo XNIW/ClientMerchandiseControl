@@ -232,3 +232,54 @@ iOS26 disponibile selezionato dal catalogo effettivo; fonte runner ufficiale
 [macOS26 image](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md).
 Il job include confronto golden richiesto e smoke; Linux tracking ha skip esplicito.
 Nessun override15.0 è presentato come gate canonico.
+
+
+## Fix e re-review — runtime ecba981
+
+- Root:69 test mirati delivery/inbox/aftersales/native PASS,13 backend PASS,
+  4 entitlement PASS,analyze PASS e17 fixture architecture PASS, exit0.
+  Prima del fix: suite denial11PASS/6FAIL; requisito indice12PASS/1FAIL.
+- Reviewer Client in copia isolata:133 test Flutter e4 entitlement PASS,exit0.
+- Reviewer backend:13backend+4entitlement,source55 e negative history/indici PASS;
+  history locale positiva ricostruita in memoria e dichiarata sintetica.
+- `flutter --no-version-check test --no-pub integration_test/app_shell_smoke_test.dart
+  -d emulator-5558 --reporter expanded`:1PASS,exit0. API35 arm64 dedicato,
+  build15,1s,installazione576ms,interazione15s. Guest development, nessun E2E commerce.
+- Admin54e22e94 dopo merge main53e58013: `npm run typecheck` PASS/exit0 e
+  `node --test tests/foundation/wechat-010-catalog-cursor.test.mjs
+  tests/foundation/wechat-010-cloudflare-query.test.mjs`:7PASS/exit0, Node22.23.3.
+  Reviewer ripete7test e tsc strict fixture autonomamente: PASS/exit0.
+- Inventario device fresco: un iPhone iOS27 rilevato e una identità di firma locale;
+  non risultano configurazione runtime, TeamID/fingerprint approvati associati al
+  bundle o input TestFlight/Play nelle variabili dedicate. Nessuna installazione
+  fisica tentata o certificazione dedotta dalla sola presenza di device/identità.
+
+CI precedente Adminfb9546ca:36506913745 Verify+Database PASS e
+36506913734 Cloudflare build PASS; gate staging e deploy SKIP. Annotation ispezionate:
+warning Node20 deprecato nelle Actions preesistenti (runner usa Node24), notice futuro
+ubuntu26; nessun errore. Non sono modificati workflow altrui per eliminare warning.
+
+
+## Ripresa 2026-10-01 — CI e simulator smoke
+
+CI36507927784 exact ecba981: quality866PASS/1skip e10benchmarkPASS;
+Android debug/release e iOS release PASS. Simulator: due golden reali, build
+e controllo security PASS; smoke avviato01:34:19Z, boot completato01:35:45Z,
+seconda build conclusa01:39:18Z, poi timeout job01:58:15Z. Smoke BLOCKED,
+nessuna asserzione osservata. Diagnosi readonly conferma che Flutter3.44.8
+attende install/launch/VM senza limite complessivo.
+
+Fix del runner: apre Simulator.app del DEVELOPER_DIR selezionato, mantiene
+bootstatus e target14.0, usa --no-pub --verbose e limite900s con errore124;
+termina solo il gruppo del comando creato e fa cleanup del device dedicato.
+Nessun aumento del timeout CI o skip. Esito reale affidato alla nuova CI.
+
+Admin PR117 d4fbf49ce merged6d5f3768 il29settembre: PR CI36508971907/916
+e main36509391948/926 PASS per job applicabili, deploy e staging opt-in SKIP.
+Mainf21339bb del1ottobre include6d5 e due migration WeChat, senza cambiare i
+cinque file commerce. Nessuna activation production.
+
+Dopo riavvio host, i log temporanei /tmp/cmc-functional-audit non sono più
+disponibili; ricevute concise versionate e log GitHub restano le fonti storiche.
+Non si ricostruiscono retroattivamente output mancanti. Container isolato
+conserva database e history; prova recovery147 ancora incompleta.

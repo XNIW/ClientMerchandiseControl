@@ -4937,3 +4937,32 @@ Client reviewer C-01/P2,C-02/P1,C-03/P2 e backend reviewer B-04/P2 riprodotti su
 freeze a3364f61/Adminfb9546ca. Root unico fixer. Nuove regressioni negative prima
 correzione e source/artifact gate preservati. Admin CI36506913745 PASS sullo SHA
 fb9546ca (Verify+Database; gate staging opt-in SKIP, non PASS). Nessun apply remoto.
+
+
+## 2026-09-29 — TASK-054 riconsegna a re-review
+
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Ruolo**: CODEX_FIXER -> CODEX_RE_REVIEWER; TASK-054 BLOCKED/REVIEW.
+- **Fix**: C-01/C-02/C-03/B-04 chiusi dai reviewer distinti su ecba981;
+  133 test Flutter autonomi,13backend e4entitlement PASS. Smoke Android ripetuto
+  sull'esatto runtime ecba981:1PASS/exit0. CI Client in corso, non anticipata.
+- **Admin**:54e22e94 include main53e58013; cinque file commerce invariati,
+  typecheck e7test integrazione PASS, nuova CI in corso.
+- **Limiti**: staging incompatibile; recupero Storage/history e finestra non provati;
+  live/provider/firma/distribuzione non eseguiti. Integrazione sviluppo condizionata
+  già autorizzata, nessun DONE o approvazione del writer.
+
+
+## 2026-10-01 — TASK-054 ripresa autorizzata e fix del gate iOS
+
+- **Task**: TASK-054; **Ruolo**: CODEX_FIXER.
+- CI36507927784 sul commit ecba981: quality, Android debug/release e iOS release
+  riusciti; il job Simulator ha superato golden, build e sicurezza ma lo smoke è
+  rimasto senza esito fino al timeout. Nessun PASS attribuito allo smoke.
+- Diagnosi distinta: Flutter attende install/launch/VM; senza verbose non è
+  dimostrato quale attesa abbia bloccato. Si apre Simulator.app e si limita
+  l'esecuzione con errore e diagnostica; nessun gate rimosso o timeout CI aumentato.
+- Admin PR117 già merged con6d5f3768, CI PR e merge PASS; main ora f21339bb
+  include anche PR118. Nessun apply condiviso eseguito.
+- **Fase finale**: FIX.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

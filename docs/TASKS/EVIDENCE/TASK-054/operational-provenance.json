@@ -16,7 +16,7 @@
     "app_private",
     "supabase_migrations"
   ],
-  "recovery_status": "BLOCKED_storage_api_cleanup_and_writer_window",
+  "recovery_status": "BLOCKED_combined_recovery_populated_history_and_writer_window",
   "aggregate_preflight": {
     "notification_rows": 2,
     "address_rows": 0,
@@ -31,5 +31,70 @@
     "recovery-restored.json": "1b0b3c89cb220210a4acab0567de1c67460660632683046d7708af430417a91a",
     "recovery-inverse.sql": "d90edd7aba499530652110a58e491ae6d3069d6f002bec9c770d4a6725d113c4",
     "recovery-remote-baseline.json": "b8cb85c52a36b77cba03346b86069cfa55352a212deeb279aa794c24ffa50957"
+  },
+  "client_runtime_revision": "ecba981c42bb80b125927478dc02c07210039407",
+  "admin_revision": "54e22e9465981f30609bcb1c829bc4da693a75a6",
+  "staging_metadata_observed_at": "2026-09-29T01:19:21.582366Z",
+  "staging_required_indexes_present": 1,
+  "staging_required_migrations_missing": [
+    "20260823023037",
+    "20260823150000",
+    "20260928200000"
+  ],
+  "latest_staging_metadata": {
+    "observed_at": "2026-09-29T01:41:59.209341Z",
+    "rpc_present": 32,
+    "required_indexes_present": 1,
+    "history_count": 147,
+    "latest_migration": "20260929013437",
+    "compatibility": "FAIL",
+    "apply_by_this_task": false
+  },
+  "admin_development_integration": {
+    "revision": "d4fbf49ce274b7a97f7c34fa5519a0b8a088b9d5",
+    "review": "APPROVED",
+    "reviewer": "backend_reviewer",
+    "pr": 117,
+    "merge": "6d5f3768bcc7e7bef2a5c539742cce0a99ef58ee",
+    "pr_ci": [
+      36508971907,
+      36508971916
+    ],
+    "main_ci": [
+      36509391948,
+      36509391926
+    ],
+    "applicable_jobs": "PASS",
+    "deploy": "NOT_RUN"
+  },
+  "additional_recovery_rehearsal": {
+    "cli_version": "2.118.0",
+    "cli_linux_sha256": "0cd35fea97c2c93dce8a2cd661311be88c107233946cbe3692566196238859c5",
+    "network": "none",
+    "history_baseline_rows": 0,
+    "history_applied_rows": 3,
+    "history_reverted_rows": 0,
+    "history_reapplied_rows": 3,
+    "catalog_restore_sha256": "1b0b3c89cb220210a4acab0567de1c67460660632683046d7708af430417a91a",
+    "storage_api": "1.69.0",
+    "storage_component_create_delete_status": [
+      200,
+      200
+    ],
+    "storage_component_remaining_buckets": 0,
+    "storage_component_remaining_objects": 0,
+    "combined_staging_restore": "NOT_RUN",
+    "live_apply": "NOT_RUN"
+  },
+  "resume_2026_10_01": {
+    "staging_target_confirmed": true,
+    "history_count": 147,
+    "required_migrations_applied": [],
+    "remote_apply": false,
+    "admin_main": "f21339bb6c49a87057f629bc67c6519c478b50de",
+    "client_previous_ci": 36507927784,
+    "client_ios_smoke": "BLOCKED_timeout",
+    "host_temporary_artifacts": "unavailable_after_restart",
+    "populated_history_recovery": "NOT_RUN_inverse_pending"
   }
 }

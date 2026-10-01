@@ -2216,6 +2216,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get searchSuggestionBrand => 'Marca';
+
+  @override
+  String get deliveryContextPinHint =>
+      'Arrastra el marcador o toca el mapa para confirmar la ubicación.';
+
+  @override
+  String get deliveryAddressAttribution =>
+      '© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4234,4 +4242,11 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get searchSuggestionBrand => '品牌';
+
+  @override
+  String get deliveryContextPinHint => '拖动标记或点按地图以确认位置。';
+
+  @override
+  String get deliveryAddressAttribution =>
+      '© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright';
 }

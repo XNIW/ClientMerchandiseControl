@@ -75,6 +75,9 @@ final class SearchAssistController extends Notifier<SearchAssistState> {
   }
 
   Future<void> submit(String raw) async {
+    _debounce?.cancel();
+    _requestGeneration++;
+    state = state.copyWith(isLoading: false, suggestions: const []);
     final query = raw.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (query.runes.length < 2 || query.runes.length > 80) return;
     final shopSlug = _shopSlug;

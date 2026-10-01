@@ -4,7 +4,22 @@ set -euo pipefail
 cmc_script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=resolve-flutter.sh
 source "${cmc_script_dir}/resolve-flutter.sh"
+cmc_backend_config=''
+if [[ $# -gt 0 ]]; then
+  [[ $# -eq 2 && "$1" == '--backend-config' ]] || {
+    printf 'USAGE: check.sh [--backend-config /absolute/config.json]\n' >&2
+    exit 2
+  }
+  cmc_backend_config="$2"
+fi
 flutter pub get --enforce-lockfile
+python3 "${cmc_script_dir}/check-backend-compatibility.py" --source-only
+PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-backend-compatibility.py"
+PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-auth-entitlements.py"
+if [[ -n "${cmc_backend_config}" ]]; then
+  python3 "${cmc_script_dir}/check-backend-compatibility.py" \
+    --live --app-config "${cmc_backend_config}"
+fi
 
 bash -n "${cmc_script_dir}"/*.sh
 bash "${cmc_script_dir}/check-action-pins.sh"

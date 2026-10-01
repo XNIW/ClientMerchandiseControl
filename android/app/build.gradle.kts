@@ -1,9 +1,28 @@
 import java.util.Properties
+import java.util.Base64
 
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+val callbackDefines = (project.findProperty("dart-defines") as String?).orEmpty()
+    .split(",").filter(String::isNotEmpty).associate { encoded ->
+        val pair = String(Base64.getDecoder().decode(encoded), Charsets.UTF_8).split("=", limit = 2)
+        require(pair.size == 2) { "Invalid Dart define" }
+        pair[0] to pair[1]
+    }
+val callbackEnabled = callbackDefines["GOOGLE_AUTH_ENABLED"] == "true"
+val callbackHost = if (callbackEnabled) callbackDefines["AUTH_CALLBACK_VERIFIED_HOST"].orEmpty()
+    else "clientmerchandisecontrol.invalid"
+if (callbackEnabled) {
+    require(callbackDefines["APP_ENV"] == "staging" &&
+        callbackHost.matches(Regex("(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}")) &&
+        !callbackHost.matches(Regex(".*\\.(invalid|localhost|test|example)")) &&
+        callbackDefines["AUTH_REDIRECT_URI"] == "https://$callbackHost/auth-callback/") {
+        "OAuth callback requires the approved staging host and exact HTTPS redirect"
+    }
 }
 
 val localProperties = Properties().apply {
@@ -74,6 +93,8 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+        manifestPlaceholders["AUTH_CALLBACK_HOST"] = callbackHost
+        manifestPlaceholders["AUTH_CALLBACK_VERIFY"] = callbackEnabled.toString()
     }
 
     signingConfigs {

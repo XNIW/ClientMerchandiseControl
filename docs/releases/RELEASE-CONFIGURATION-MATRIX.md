@@ -21,7 +21,7 @@ Fonte machine-readable: `config/release_configuration_matrix.json`.
 | Capability | Development | Staging | Production | Fallback production |
 |---|---|---|---|---|
 | Supabase URL/public key | forbidden | required | required | startup fail-closed |
-| OAuth | forbidden | forbidden nell'attuale boundary | forbidden nell'attuale boundary | guest storefront |
+| OAuth | forbidden | optional, default OFF, dominio e binding verificati | forbidden nell'attuale boundary | guest storefront |
 | callback | forbidden | required | required | startup fail-closed |
 | Maps | optional | optional | optional | tracking status-only |
 | payment | optional | optional | optional | online payment disabled |
@@ -37,6 +37,7 @@ Fonte machine-readable: `config/release_configuration_matrix.json`.
 
 Le define runtime correnti sono `APP_ENV`, `SUPABASE_URL`,
 `SUPABASE_PUBLISHABLE_KEY`, `AUTH_REDIRECT_URI`, `GOOGLE_AUTH_ENABLED`,
+`AUTH_CALLBACK_VERIFIED_HOST`,
 `STOREFRONT_SHOP_SLUG`, `DELIVERY_MAPS_ENABLED` e
 `DELIVERY_MAPS_NATIVE_CONFIGURED`; production richiede inoltre
 `RELEASE_CONFIG_SHA256`, digest non secret della configurazione semantica canonica
@@ -44,6 +45,14 @@ fornita allo stesso build e attestata nel runtime Dart dell'artifact.
 Android riceve la key Maps esclusivamente da
 `ANDROID_GOOGLE_MAPS_API_KEY`/`local.properties`; iOS da una xcconfig non versionata che
 sovrascrive il valore fail-closed `NOT_CONFIGURED`.
+
+Per il solo staging, ricerca/reverse indirizzo richiedono
+`ADDRESS_SEARCH_ENABLED`, `ADDRESS_PROVIDER_APPROVED` e `ADDRESS_PHOTON_ORIGIN`;
+il pin richiede `ADDRESS_MAPS_ENABLED`, `DELIVERY_MAPS_NATIVE_CONFIGURED` e probe
+nativo positivo. Tutti i flag sono OFF per default. Configurazione, approvazione
+dell'endpoint e prove live sono distinte dall'implementazione degli adapter.
+Le condizioni complete sono in [AUTH-BOUNDARY](../ARCHITECTURE/AUTH-BOUNDARY.md)
+e [ADR-014](../DECISIONS/ADR-014-client-delivery-map-provider.md).
 
 Payment, tracking mode, external carrier e relativi enable switch arrivano da dati
 server-authoritative owner-scoped. Analytics, crash e push usano adapter no-op finché

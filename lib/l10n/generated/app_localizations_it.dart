@@ -2220,4 +2220,12 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get searchSuggestionBrand => 'Marca';
+
+  @override
+  String get deliveryContextPinHint =>
+      'Trascina il segnaposto o tocca la mappa per confermare la posizione.';
+
+  @override
+  String get deliveryAddressAttribution =>
+      '© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright';
 }

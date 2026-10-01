@@ -28,9 +28,9 @@
         "validation": "GOOGLE_AUTH_ENABLED is false and no provider is contacted."
       },
       "staging": {
-        "policy": "forbidden",
+        "policy": "optional",
         "fallback": "Guest storefront remains available.",
-        "validation": "Current application boundary rejects an enabled flag until an owned HTTPS domain is verified."
+        "validation": "Disabled by default. GOOGLE_AUTH_ENABLED requires an owner-verified AUTH_CALLBACK_VERIFIED_HOST, the exact HTTPS AUTH_REDIRECT_URI, provider allowlist and matching native app links; invalid configuration fails closed."
       },
       "production": {
         "policy": "forbidden",

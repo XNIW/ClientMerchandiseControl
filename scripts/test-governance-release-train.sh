@@ -18,7 +18,7 @@ cmc_use_historical_task040_fixture=false
 if [[ "${cmc_repository_task_status}" == 'DONE' || \
   "${cmc_repository_active_task}" != 'TASK-040' ]]; then
   cmc_closeout_transition="$(
-    git log -1 --format='%H' -S'- **Stato task**: BLOCKED' -- \
+    git log -1 --format='%H' -S'- **Task attivo**: TASK-040' -- \
       docs/MASTER-PLAN.md
   )"
   if [[ -z "${cmc_closeout_transition}" ]]; then
@@ -32,6 +32,17 @@ cmc_fixture_task_status="$(
   git show "${cmc_fixture_revision}:docs/MASTER-PLAN.md" | \
     sed -n 's/^- \*\*Stato task\*\*: //p' | head -n 1
 )"
+if [[ "${cmc_use_historical_task040_fixture}" == true ]]; then
+  cmc_fixture_task="$(
+    git show "${cmc_fixture_revision}:docs/MASTER-PLAN.md" | \
+      sed -n 's/^- \*\*Task attivo\*\*: //p' | head -n 1
+  )"
+  if [[ "${cmc_fixture_task}" != 'TASK-040' || \
+    "${cmc_fixture_task_status}" != 'BLOCKED' ]]; then
+    printf 'Fixture storica closeout TASK-040 incoerente.\n' >&2
+    exit 1
+  fi
+fi
 
 source "${cmc_test_repo_root}/scripts/lib/governance_path_policy.sh"
 source "${cmc_test_repo_root}/scripts/lib/governance_review_role_policy.sh"

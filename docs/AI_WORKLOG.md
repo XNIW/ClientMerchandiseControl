@@ -4886,3 +4886,98 @@
 - **Transizione**: TASK-050–TASK-054 `DONE`; progetto `IDLE`, nessun task
   successivo attivato.
 - **Handoff**: `USER_APPROVED_DONE`.
+
+
+## 2026-09-28 — TASK-054 riapertura audit operativo
+
+- **Ruolo**: CODEX_PLANNER -> CODEX_EXECUTOR, continuità autorizzata dal prompt.
+- **Scope**: audit completo, fix dimostrati e verifiche sviluppo; staging readonly.
+- **Baseline**: Client 493c2c9, Admin fe4907ad; checkout originari preservati.
+- **Risultati**: 23RPC staging assenti,1034SQL locali PASS;11difetti con regressioni,
+  843test PASS/2golden FAIL e39focused finali,70race/10benchmark PASS; golden locale2FAIL
+  anche a baseline. Manifest/gate55RPC e blocco preflight distribuzione implementati.
+- **Git/runtime**: PR27 OPEN/DRAFT,6353c9b pubblicato; smoke iOS development PASS
+  anche sul fix finale con override simulator15.0. CI separata sui cinque job della PR.
+- **Limiti**: apply/login/provider/E2E originali/review distinti aperti; Android locale
+  download Gradle BLOCKED, Xcode27 target14.0 FAIL. TASK-054 BLOCKED/EXECUTION;
+  nessun merge, distribuzione o production. Resources locali della run fermate.
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+### Follow-up CI dello stesso audit
+
+La run36461675459 ha fallito nel test di governance dopo la riapertura BLOCKED:
+la ricerca Git generica selezionava TASK-054 invece della fixture storica TASK-040.
+Corretto il selettore e aggiunta una verifica esplicita di identità/stato della
+fixture; `bash scripts/test-governance-release-train.sh` PASS / 0, 101/101 fixture.
+Nessuna modifica ai validator o ai criteri di acceptance. Runtime Flutter invariato
+rispetto a6353c9b; nuova CI completa richiesta sul commit del fix.
+
+La run36462598679 rileva inoltre la vecchia aspettativa upload-ready della fixture
+Android con sola firma e input Play sintetici. Il nuovo preflight rifiuta correttamente
+ANDROID_RUNTIME_CONFIG_MISSING; il test ora pretende firma valida, rifiuto esatto e
+assenza di ricevuta upload. Casi avversariali precedenti conservati; `bash -n` PASS / 0,
+prova artifact affidata alla nuova CI, senza dichiarare una verifica live del backend.
+
+
+## 2026-09-28 — TASK-054 completamento operativo autorizzato
+
+Registrato mandato successivo e planning operativo; ripresa ACTIVE/EXECUTION sulla
+PR27 0990c80. Root unico writer, due reviewer read-only autorizzati; coordinamento
+richiesto ai writer WeChat e Android/iOS attivi. Registro unico residuals.md. Nuovo
+merge di sviluppo autorizzato condizionatamente; niente DONE o production inferiti.
+
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+
+## 2026-09-29 — TASK-054 FIX dopo review distinta
+
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+Client reviewer C-01/P2,C-02/P1,C-03/P2 e backend reviewer B-04/P2 riprodotti sul
+freeze a3364f61/Adminfb9546ca. Root unico fixer. Nuove regressioni negative prima
+correzione e source/artifact gate preservati. Admin CI36506913745 PASS sullo SHA
+fb9546ca (Verify+Database; gate staging opt-in SKIP, non PASS). Nessun apply remoto.
+
+
+## 2026-09-29 — TASK-054 riconsegna a re-review
+
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Ruolo**: CODEX_FIXER -> CODEX_RE_REVIEWER; TASK-054 BLOCKED/REVIEW.
+- **Fix**: C-01/C-02/C-03/B-04 chiusi dai reviewer distinti su ecba981;
+  133 test Flutter autonomi,13backend e4entitlement PASS. Smoke Android ripetuto
+  sull'esatto runtime ecba981:1PASS/exit0. CI Client in corso, non anticipata.
+- **Admin**:54e22e94 include main53e58013; cinque file commerce invariati,
+  typecheck e7test integrazione PASS, nuova CI in corso.
+- **Limiti**: staging incompatibile; recupero Storage/history e finestra non provati;
+  live/provider/firma/distribuzione non eseguiti. Integrazione sviluppo condizionata
+  già autorizzata, nessun DONE o approvazione del writer.
+
+
+## 2026-10-01 — TASK-054 ripresa autorizzata e fix del gate iOS
+
+- **Task**: TASK-054; **Ruolo**: CODEX_FIXER.
+- CI36507927784 sul commit ecba981: quality, Android debug/release e iOS release
+  riusciti; il job Simulator ha superato golden, build e sicurezza ma lo smoke è
+  rimasto senza esito fino al timeout. Nessun PASS attribuito allo smoke.
+- Diagnosi distinta: Flutter attende install/launch/VM; senza verbose non è
+  dimostrato quale attesa abbia bloccato. Si apre Simulator.app e si limita
+  l'esecuzione con errore e diagnostica; nessun gate rimosso o timeout CI aumentato.
+- Admin PR117 già merged con6d5f3768, CI PR e merge PASS; main ora f21339bb
+  include anche PR118. Nessun apply condiviso eseguito.
+- **Fase finale**: FIX.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-01 — TASK-054 freeze finale di sviluppo e re-review
+
+- **Ruolo**: CODEX_FIXER -> CODEX_RE_REVIEWER.
+- Runner4c3e71b: smoke iOS reale1PASS/exit0 su iOS26.5, target14.0; watchdog5
+  test autonomi PASS. CI quality866PASS/1skip e10benchmarkPASS, Android2jobPASS.
+- Recovery combinata e re-review distinta PASS:147→150→147, schema/ACL/dati
+  fixture identici, Storage API stessoDB. Dry-run remoto limitato alle3canoniche.
+- Admin117 merged6d5, CI PR/main PASS; Client27 resta soggetta alla CI del freeze
+  e ai due giudizi distinti, poi merge normale autorizzato e verifica main.
+- Gate live BLOCKED/NOT_RUN: finestra writer, configurazione OAuth/provider,
+  firma/canali approvati ed E2E. Nessun apply condiviso o production.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

@@ -817,6 +817,7 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
   final _formKey = GlobalKey<FormState>();
   late final Map<String, TextEditingController> _controllers;
   var _inputInvalid = false;
+  bool _geographyEdited = false;
 
   @override
   void initState() {
@@ -973,6 +974,16 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
         keyboardType: keyboardType,
         decoration: InputDecoration(labelText: label, helperText: helperText),
         onChanged: (_) {
+          if (const {
+            'line1',
+            'line2',
+            'commune',
+            'region',
+            'postal',
+            'country',
+          }.contains(key)) {
+            _geographyEdited = true;
+          }
           if (_inputInvalid) {
             setState(() => _inputInvalid = false);
           }
@@ -1018,15 +1029,21 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
           postalCode: _controllers['postal']!.text,
           countryCode: _controllers['country']!.text,
           deliveryInstructions: _controllers['instructions']!.text,
-          latitude: widget.initial?.latitude ?? widget.address?.latitude,
-          longitude: widget.initial?.longitude ?? widget.address?.longitude,
-          locationSource:
-              widget.initial?.locationSource ??
-              widget.address?.locationSource ??
-              CustomerAddressLocationSource.manual,
-          locationAccuracyMeters:
-              widget.initial?.locationAccuracyMeters ??
-              widget.address?.locationAccuracyMeters,
+          latitude: _geographyEdited
+              ? null
+              : widget.initial?.latitude ?? widget.address?.latitude,
+          longitude: _geographyEdited
+              ? null
+              : widget.initial?.longitude ?? widget.address?.longitude,
+          locationSource: _geographyEdited
+              ? CustomerAddressLocationSource.manual
+              : widget.initial?.locationSource ??
+                    widget.address?.locationSource ??
+                    CustomerAddressLocationSource.manual,
+          locationAccuracyMeters: _geographyEdited
+              ? null
+              : widget.initial?.locationAccuracyMeters ??
+                    widget.address?.locationAccuracyMeters,
           isDefault: widget.address?.isDefault ?? false,
         ),
       );

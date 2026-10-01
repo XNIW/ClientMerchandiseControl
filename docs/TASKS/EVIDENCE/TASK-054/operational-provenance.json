@@ -1,0 +1,154 @@
+{
+  "started_at": "2026-09-28",
+  "client_base": "0990c80d8f96d9442dde411cee6afb7c9c2cd870",
+  "admin_base": "fe4907adc51ff842720e1c7eb36aa05e0fa53cb8",
+  "staging_ref": "jpgoimipbothfgkokyvm",
+  "staging_rpc_present": 32,
+  "staging_history_count": 145,
+  "staging_latest_migration": "20260926164349",
+  "backup_list": {
+    "backups": null,
+    "pitr_enabled": false
+  },
+  "schema_dump_sha256": "0979c51d4db66fb09bdf4b425f51b59b96fa60a0af0c6f6a5d69712a2aa6f935",
+  "schema_dump_scope": [
+    "public",
+    "app_private",
+    "supabase_migrations"
+  ],
+  "recovery_status": "PASS_local_combined_remote_apply_BLOCKED_writer_window",
+  "aggregate_preflight": {
+    "notification_rows": 2,
+    "address_rows": 0,
+    "quote_rows": 0,
+    "projected_hold_collisions": 0,
+    "after_sales_bucket_exists": false
+  },
+  "schema_restore": "PASS",
+  "schema_inverse_comparison": "PASS",
+  "recovery_hashes": {
+    "recovery-before.json": "1b0b3c89cb220210a4acab0567de1c67460660632683046d7708af430417a91a",
+    "recovery-restored.json": "1b0b3c89cb220210a4acab0567de1c67460660632683046d7708af430417a91a",
+    "recovery-inverse.sql": "d90edd7aba499530652110a58e491ae6d3069d6f002bec9c770d4a6725d113c4",
+    "recovery-remote-baseline.json": "b8cb85c52a36b77cba03346b86069cfa55352a212deeb279aa794c24ffa50957"
+  },
+  "client_runtime_revision": "ecba981c42bb80b125927478dc02c07210039407",
+  "admin_revision": "54e22e9465981f30609bcb1c829bc4da693a75a6",
+  "staging_metadata_observed_at": "2026-09-29T01:19:21.582366Z",
+  "staging_required_indexes_present": 1,
+  "staging_required_migrations_missing": [
+    "20260823023037",
+    "20260823150000",
+    "20260928200000"
+  ],
+  "latest_staging_metadata": {
+    "observed_at": "2026-10-01T19:32:13.901681Z",
+    "rpc_present": 32,
+    "required_indexes_present": 1,
+    "history_count": 147,
+    "latest_migration": "20260929013437",
+    "compatibility": "FAIL",
+    "apply_by_this_task": false
+  },
+  "admin_development_integration": {
+    "revision": "d4fbf49ce274b7a97f7c34fa5519a0b8a088b9d5",
+    "review": "APPROVED",
+    "reviewer": "backend_reviewer",
+    "pr": 117,
+    "merge": "6d5f3768bcc7e7bef2a5c539742cce0a99ef58ee",
+    "pr_ci": [
+      36508971907,
+      36508971916
+    ],
+    "main_ci": [
+      36509391948,
+      36509391926
+    ],
+    "applicable_jobs": "PASS",
+    "deploy": "NOT_RUN"
+  },
+  "additional_recovery_rehearsal": {
+    "cli_version": "2.118.0",
+    "cli_linux_sha256": "0cd35fea97c2c93dce8a2cd661311be88c107233946cbe3692566196238859c5",
+    "network": "none",
+    "history_baseline_rows": 0,
+    "history_applied_rows": 3,
+    "history_reverted_rows": 0,
+    "history_reapplied_rows": 3,
+    "catalog_restore_sha256": "1b0b3c89cb220210a4acab0567de1c67460660632683046d7708af430417a91a",
+    "storage_api": "1.69.0",
+    "storage_component_create_delete_status": [
+      200,
+      200
+    ],
+    "storage_component_remaining_buckets": 0,
+    "storage_component_remaining_objects": 0,
+    "combined_staging_restore": "NOT_RUN",
+    "live_apply": "NOT_RUN"
+  },
+  "resume_2026_10_01": {
+    "staging_target_confirmed": true,
+    "history_count": 147,
+    "required_migrations_applied": [],
+    "remote_apply": false,
+    "admin_main": "f21339bb6c49a87057f629bc67c6519c478b50de",
+    "client_previous_ci": 36507927784,
+    "client_ios_smoke": "BLOCKED_timeout",
+    "host_temporary_artifacts": "unavailable_after_restart",
+    "populated_history_recovery": "NOT_RUN_inverse_pending"
+  },
+  "recovery_combined_2026_10_01": {
+    "database": "cmc_recovery_oct01_clean",
+    "network": "none",
+    "shared_apply": false,
+    "history": "147 -> 150 -> 147",
+    "catalog_and_acl": "PASS",
+    "original_synthetic_rows": "PASS",
+    "negative_new_data": "PASS",
+    "negative_concurrent_shared_write": "PASS",
+    "storage_delete_api": "PASS",
+    "sql_direct_delete": "REJECTED",
+    "bucket_and_objects_remaining": 0,
+    "hashes": {
+      "before-clean.json": "911d7eef7eb21ce76b6f8670f7a9963995bd65d792fb6da3fdfafd86ccf15988",
+      "applied-clean.json": "9021d85d170fa641b9bd77fbd56d6edf9eb4feed01a3ca16ea94aad809037622",
+      "restored-clean.json": "911d7eef7eb21ce76b6f8670f7a9963995bd65d792fb6da3fdfafd86ccf15988",
+      "history-before-clean.json": "8cb6d33309bf2961f003049ee0ba0d47395e197b6478aa38109c680191a2a15c",
+      "history-applied-clean.json": "38cb220aa46bf26734da3472d139afaeacb1d5c931e138ca0fc3d2bd55a94bfe",
+      "history-restored-clean.json": "8cb6d33309bf2961f003049ee0ba0d47395e197b6478aa38109c680191a2a15c",
+      "rows-before-clean.json": "5cdc70d322a5a0131b9cf7d2d75ed9883f316bf7a9f69d2eaa7b1f3916bbca95",
+      "rows-restored-clean.json": "5cdc70d322a5a0131b9cf7d2d75ed9883f316bf7a9f69d2eaa7b1f3916bbca95",
+      "inverse-clean.sql": "ec2296585fabb6c0818db92200d37032b196ca63ca9fc1b08acc7f8ff116f58f",
+      "storage-combined-clean.json": "8430ca0630df6d31fbe4f4d07397d4a552de61dd0f0b412b6a960deaca48cf29",
+      "staging-schema.sql": "801f2afdee5c1b51617e64918bc1b32bfdacf00bc418313f571cab84634a459a"
+    }
+  },
+  "staging_dry_run_2026_10_01": {
+    "target": "jpgoimipbothfgkokyvm",
+    "started_at": "2026-10-01T19:50:15Z",
+    "exit_code": 0,
+    "cli_version": "2.119.0",
+    "admin_revision": "f21339bb6c49a87057f629bc67c6519c478b50de",
+    "mode": "dry_run_skip_vault",
+    "pending": [
+      "20260823023037",
+      "20260823150000",
+      "20260928200000"
+    ],
+    "seeds": [],
+    "roles": [],
+    "remote_history_alias": {
+      "observed_at": "2026-10-01 19:56:01.786556+00",
+      "version": "20260727084040",
+      "name": "task_142_catalog_text_policy_v1",
+      "statements_md5": "08eebae06a722a3f6eb6372693e7f7c1",
+      "target": "jpgoimipbothfgkokyvm",
+      "read_only": true
+    },
+    "hashes": {
+      "canonical-staging-index-manifest.json": "083c8cfc07277eebd9555ce8e1e76516c85d07c528125f4c2cbd908f5df13556",
+      "staging-apply-dry-run.log": "87cff3208a1dba03055e73a772033f912e9c6d8277f13879cb5b1e642dbe112a",
+      "history-alias-remote-metadata.json": "d774a70c81ab52c6dfd1ec35d2d65396efbe9829f8ae5fed9c2d2656f02dcc43"
+    }
+  }
+}

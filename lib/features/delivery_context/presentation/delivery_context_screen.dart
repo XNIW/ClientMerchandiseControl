@@ -1,3 +1,4 @@
+import 'google_address_map.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -33,6 +34,10 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
   Future<StorefrontFulfillmentOptions>? _options;
   List<AddressSearchSuggestion> _suggestions = const [];
   bool _searching = false;
+  int _scopeGeneration = 0;
+  int _searchGeneration = 0;
+  bool _resolvingAddress = false;
+  CustomerDeliveryContext? _displayedContext;
   CustomerDeliveryMode _mode = CustomerDeliveryMode.delivery;
 
   @override
@@ -43,6 +48,8 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
 
   @override
   void dispose() {
+    _scopeGeneration++;
+    _searchGeneration++;
     _searchDebounce?.cancel();
     _guestCommune.dispose();
     _search.dispose();
@@ -65,10 +72,21 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
     final state = ref.watch(deliveryContextControllerProvider);
     final account = ref.watch(customerAccountControllerProvider);
     final selected = state.context;
-    if (selected != null && selected.mode != _mode && !state.isMutating) {
-      scheduleMicrotask(() {
-        if (mounted) setState(() => _mode = selected.mode);
-      });
+    ref.listen(deliveryContextIdentityProvider, (previous, next) {
+      if (previous?.subjectId != next?.subjectId) {
+        _resetScope();
+        _loadOptions();
+      }
+    });
+    ref.listen(deliveryContextShopSlugProvider, (previous, next) {
+      if (previous != next) {
+        _resetScope();
+        _loadOptions();
+      }
+    });
+    if (!identical(selected, _displayedContext)) {
+      _displayedContext = selected;
+      if (selected != null) _mode = selected.mode;
     }
     return Scaffold(
       appBar: AppBar(title: Text(l10n.deliveryContextTitle)),
@@ -146,7 +164,9 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
       children: [
         FilledButton.tonalIcon(
           key: const ValueKey('delivery-use-current-location'),
-          onPressed: state.isMutating ? null : _useCurrentLocation,
+          onPressed: state.isMutating || _resolvingAddress
+              ? null
+              : _useCurrentLocation,
           icon: const Icon(Icons.my_location),
           label: Text(l10n.deliveryContextUseLocation),
         ),
@@ -182,11 +202,14 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
                 : null,
             onChanged: _searchAddresses,
           ),
+          Text(l10n.deliveryAddressAttribution),
           ..._suggestions.map(
             (suggestion) => ListTile(
               leading: const Icon(Icons.location_on_outlined),
               title: Text(suggestion.displayText),
-              onTap: () => _resolveSuggestion(suggestion),
+              onTap: _resolvingAddress
+                  ? null
+                  : () => _resolveSuggestion(suggestion),
             ),
           ),
         ],
@@ -337,81 +360,130 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
   }
 
   Future<void> _useCurrentLocation() async {
-    final l10n = AppLocalizations.of(context);
-    final accepted = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.deliveryContextLocationRationaleTitle),
-        content: Text(l10n.deliveryContextLocationRationale),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(l10n.customerDialogCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(l10n.deliveryContextLocationContinue),
-          ),
-        ],
-      ),
-    );
-    if (accepted != true || !mounted) return;
+    if (_resolvingAddress) return;
+    final generation = _scopeGeneration;
+    setState(() => _resolvingAddress = true);
     try {
-      final locationPort = ref.read(currentLocationPortProvider);
-      if (!locationPort.configured) {
-        _showLocationFallback();
-        return;
-      }
-      final location = await locationPort.readOnce();
-      if (location == null || !mounted) {
-        _showLocationFallback();
-        return;
-      }
-      final mapPort = ref.read(deliveryAddressMapPortProvider);
-      final adjusted = mapPort.configured
-          ? await mapPort.previewAndAdjust(location)
-          : location;
-      final geocoder = ref.read(reverseGeocodingPortProvider);
-      final resolved = geocoder.configured
-          ? await geocoder.reverse(adjusted)
-          : null;
-      if (!mounted) return;
-      if (resolved == null) {
-        _showLocationFallback();
-        return;
-      }
-      await _saveResolvedAddress(
-        resolved,
-        CustomerAddressLocationSource.currentLocation,
+      final l10n = AppLocalizations.of(context);
+      final accepted = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(l10n.deliveryContextLocationRationaleTitle),
+          content: Text(l10n.deliveryContextLocationRationale),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(l10n.customerDialogCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(l10n.deliveryContextLocationContinue),
+            ),
+          ],
+        ),
       );
-    } on AddressProviderNotConfiguredException {
-      if (mounted) _showLocationFallback();
-    } on Object {
-      if (mounted) _showLocationFallback();
+      if (accepted != true || !_currentScope(generation)) return;
+      try {
+        final locationPort = ref.read(currentLocationPortProvider);
+        if (!locationPort.configured) {
+          _showLocationFallback();
+          return;
+        }
+        final location = await locationPort.readOnce();
+        if (!_currentScope(generation)) return;
+        if (location == null) {
+          _showLocationFallback();
+          return;
+        }
+        final mapPort = ref.read(deliveryAddressMapPortProvider);
+        if (!mapPort.configured &&
+            (location.accuracyMeters == null ||
+                location.accuracyMeters! > 250)) {
+          _showLocationFallback();
+          return;
+        }
+        final adjusted = mapPort.configured
+            ? await mapPort.previewAndAdjust(location)
+            : location;
+        if (!_currentScope(generation)) return;
+        final geocoder = ref.read(reverseGeocodingPortProvider);
+        final resolved = geocoder.configured
+            ? await geocoder
+                  .reverse(adjusted)
+                  .timeout(const Duration(seconds: 8))
+            : null;
+        if (!_currentScope(generation)) return;
+        if (resolved == null) {
+          _showLocationFallback();
+          return;
+        }
+        await _saveResolvedAddress(
+          resolved,
+          mapPort.configured
+              ? CustomerAddressLocationSource.mapPin
+              : CustomerAddressLocationSource.currentLocation,
+        );
+      } on AddressMapCancelledException {
+        return;
+      } on AddressProviderNotConfiguredException {
+        if (_currentScope(generation)) _showLocationFallback();
+      } on Object {
+        if (_currentScope(generation)) _showLocationFallback();
+      }
+    } finally {
+      if (_currentScope(generation)) setState(() => _resolvingAddress = false);
     }
+  }
+
+  bool _currentScope(int generation) =>
+      mounted && generation == _scopeGeneration;
+
+  void _resetScope() {
+    _scopeGeneration++;
+    _searchGeneration++;
+    _searchDebounce?.cancel();
+    _search.clear();
+    _guestCommune.clear();
+    setState(() {
+      _suggestions = const [];
+      _searching = false;
+      _resolvingAddress = false;
+      _displayedContext = null;
+      _mode = CustomerDeliveryMode.delivery;
+      _options = null;
+    });
   }
 
   void _searchAddresses(String value) {
     _searchDebounce?.cancel();
     final generationQuery = value.trim();
+    final request = ++_searchGeneration;
+    final scope = _scopeGeneration;
+    setState(() {
+      _searching = false;
+      _suggestions = const [];
+    });
     if (generationQuery.length < 3) {
       setState(() => _suggestions = const []);
       return;
     }
     _searchDebounce = Timer(const Duration(milliseconds: 300), () async {
-      if (!mounted || _search.text.trim() != generationQuery) return;
+      if (!_currentScope(scope) || request != _searchGeneration) return;
       setState(() => _searching = true);
       try {
         final results = await ref
             .read(addressSearchPortProvider)
-            .search(generationQuery);
-        if (mounted && _search.text.trim() == generationQuery) {
+            .search(generationQuery)
+            .timeout(const Duration(seconds: 8));
+        if (_currentScope(scope) && request == _searchGeneration) {
           setState(() => _suggestions = results.take(8).toList());
         }
       } on Object {
-        if (mounted) setState(() => _suggestions = const []);
+        if (_currentScope(scope) && request == _searchGeneration) {
+          setState(() => _suggestions = const []);
+        }
       } finally {
-        if (mounted && _search.text.trim() == generationQuery) {
+        if (_currentScope(scope) && request == _searchGeneration) {
           setState(() => _searching = false);
         }
       }
@@ -419,18 +491,24 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
   }
 
   Future<void> _resolveSuggestion(AddressSearchSuggestion suggestion) async {
+    if (_resolvingAddress) return;
+    final generation = _scopeGeneration;
+    setState(() => _resolvingAddress = true);
     try {
       final resolved = await ref
           .read(addressSearchPortProvider)
-          .resolve(suggestion);
-      if (resolved != null && mounted) {
+          .resolve(suggestion)
+          .timeout(const Duration(seconds: 8));
+      if (resolved != null && _currentScope(generation)) {
         await _saveResolvedAddress(
           resolved,
           CustomerAddressLocationSource.search,
         );
       }
     } on Object {
-      if (mounted) _showLocationFallback();
+      if (_currentScope(generation)) _showLocationFallback();
+    } finally {
+      if (_currentScope(generation)) setState(() => _resolvingAddress = false);
     }
   }
 
@@ -444,6 +522,7 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
           .selectGuestCommune(commune: resolved.commune);
       return;
     }
+    final generation = _scopeGeneration;
     final draft = await showCustomerAddressEditor(
       context,
       initial: CustomerAddressEditorInitial(
@@ -462,17 +541,23 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
         locationAccuracyMeters: resolved.coordinate.accuracyMeters,
       ),
     );
-    if (draft != null) await _createAndSelect(draft);
+    if (draft != null && _currentScope(generation)) {
+      await _createAndSelect(draft);
+    }
   }
 
   Future<void> _addAddress() async {
+    final generation = _scopeGeneration;
     final draft = await showCustomerAddressEditor(context);
-    if (draft != null) await _createAndSelect(draft);
+    if (draft != null && _currentScope(generation)) {
+      await _createAndSelect(draft);
+    }
   }
 
   Future<void> _editAddress(CustomerAddress address) async {
+    final generation = _scopeGeneration;
     final draft = await showCustomerAddressEditor(context, address: address);
-    if (draft == null) return;
+    if (draft == null || !_currentScope(generation)) return;
     await ref
         .read(customerAccountControllerProvider.notifier)
         .updateAddress(address.id, address.version, draft);
@@ -484,10 +569,11 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
   }
 
   Future<void> _createAndSelect(CustomerAddressDraft draft) async {
+    final generation = _scopeGeneration;
     final created = await ref
         .read(customerAccountControllerProvider.notifier)
         .createAddress(draft);
-    if (!mounted || created == null) return;
+    if (!_currentScope(generation) || created == null) return;
     await ref
         .read(deliveryContextControllerProvider.notifier)
         .selectAddress(addressId: created.id);

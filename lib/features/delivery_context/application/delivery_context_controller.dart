@@ -62,7 +62,6 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
     _disposed = false;
     ref.onDispose(() {
       _disposed = true;
-      _generation++;
     });
     final owner = ref.watch(deliveryContextIdentityProvider)?.subjectId;
     final shopSlug = ref.watch(deliveryContextShopSlugProvider);
@@ -70,6 +69,7 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
     _initialized = true;
     _owner = owner;
     _shopSlug = shopSlug;
+    final generation = ++_generation;
     final authenticated = owner != null;
     if (!authenticated || shopSlug == null) {
       return DeliveryContextState(
@@ -77,7 +77,6 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
         authenticated: authenticated,
       );
     }
-    final generation = ++_generation;
     scheduleMicrotask(() => _load(generation));
     return const DeliveryContextState(
       status: DeliveryContextViewStatus.loading,
@@ -85,7 +84,11 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
     );
   }
 
-  Future<void> refresh() => _load(++_generation);
+  Future<void> refresh() {
+    if (_disposed) return Future.value();
+    state = state.copyWith(isMutating: false);
+    return _load(++_generation);
+  }
 
   Future<CustomerDeliveryContext?> previewAddress({
     String? addressId,
@@ -129,6 +132,7 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
           authenticated: true,
           context: cached,
           isFromCache: true,
+          isMutating: state.isMutating,
         );
       }
       final remote = await ref
@@ -149,22 +153,34 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
         status: DeliveryContextViewStatus.ready,
         authenticated: true,
         context: remote,
+        isMutating: state.isMutating,
       );
     } on DeliveryContextRepositoryException catch (error) {
       if (!_current(owner, shopSlug, generation)) return;
-      final cached = state.context;
+      final mayUseCache =
+          error.kind == DeliveryContextFailureKind.offline ||
+          error.kind == DeliveryContextFailureKind.timeout;
+      final cached = mayUseCache ? state.context : null;
+      if (!mayUseCache) _generation++;
       state = DeliveryContextState(
-        status:
-            cached != null &&
-                (error.kind == DeliveryContextFailureKind.offline ||
-                    error.kind == DeliveryContextFailureKind.timeout)
+        status: cached != null && mayUseCache
             ? DeliveryContextViewStatus.offline
             : DeliveryContextViewStatus.failure,
         authenticated: true,
         context: cached,
         failure: error.kind,
         isFromCache: cached != null,
+        isMutating: mayUseCache && state.isMutating,
       );
+      if (!mayUseCache) {
+        try {
+          await ref
+              .read(deliveryContextCacheProvider)
+              .remove(ownerSubjectId: owner, shopSlug: shopSlug);
+        } on Object {
+          // L'errore storage non ripubblica il contesto rifiutato dal server.
+        }
+      }
     }
   }
 
@@ -175,7 +191,9 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
     String? commune,
   }) async {
     final shopSlug = _shopSlug;
-    if (shopSlug == null || state.isMutating) return null;
+    final owner = _owner;
+    if (_disposed || shopSlug == null || state.isMutating) return null;
+    final generation = _generation;
     state = state.copyWith(isMutating: true, clearFailure: true);
     try {
       final result = await ref
@@ -187,8 +205,8 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
             pickupPointId: pickupPointId,
             commune: commune,
           );
-      if (_shopSlug != shopSlug) return null;
-      if (_owner == null) {
+      if (!_current(owner, shopSlug, generation)) return null;
+      if (owner == null) {
         state = DeliveryContextState(
           status: DeliveryContextViewStatus.ready,
           authenticated: false,
@@ -199,13 +217,7 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
       }
       return result;
     } on DeliveryContextRepositoryException catch (error) {
-      if (_shopSlug == shopSlug) {
-        state = state.copyWith(
-          status: DeliveryContextViewStatus.failure,
-          failure: error.kind,
-          isMutating: false,
-        );
-      }
+      await _recordMutationFailure(error, owner, shopSlug, generation);
       return null;
     }
   }
@@ -217,7 +229,7 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
   }) async {
     final shopSlug = _shopSlug;
     final owner = _owner;
-    if (shopSlug == null || state.isMutating) return false;
+    if (_disposed || shopSlug == null || state.isMutating) return false;
     if (owner == null) {
       final preview = await _preview(
         mode: mode,
@@ -226,6 +238,7 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
       );
       return preview != null;
     }
+    final generation = ++_generation;
     state = state.copyWith(isMutating: true, clearFailure: true);
     try {
       final selected = await ref
@@ -237,11 +250,11 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
             pickupPointId: pickupPointId,
             expectedVersion: state.context?.version ?? 0,
           );
-      if (_owner != owner || _shopSlug != shopSlug) return false;
+      if (!_current(owner, shopSlug, generation)) return false;
       await ref
           .read(deliveryContextCacheProvider)
           .write(ownerSubjectId: owner, context: selected);
-      if (_owner != owner || _shopSlug != shopSlug) return false;
+      if (!_current(owner, shopSlug, generation)) return false;
       state = DeliveryContextState(
         status: DeliveryContextViewStatus.ready,
         authenticated: true,
@@ -249,21 +262,50 @@ class DeliveryContextController extends Notifier<DeliveryContextState> {
       );
       return true;
     } on DeliveryContextRepositoryException catch (error) {
-      if (_owner == owner && _shopSlug == shopSlug) {
-        state = state.copyWith(
-          status: DeliveryContextViewStatus.failure,
-          failure: error.kind,
-          isMutating: false,
-        );
-        if (error.kind == DeliveryContextFailureKind.conflict) {
-          unawaited(refresh());
-        }
+      final current = await _recordMutationFailure(
+        error,
+        owner,
+        shopSlug,
+        generation,
+      );
+      if (current && error.kind == DeliveryContextFailureKind.conflict) {
+        unawaited(refresh());
       }
       return false;
     }
   }
 
-  bool _current(String owner, String shopSlug, int generation) =>
+  Future<bool> _recordMutationFailure(
+    DeliveryContextRepositoryException error,
+    String? owner,
+    String shopSlug,
+    int generation,
+  ) async {
+    if (!_current(owner, shopSlug, generation)) return false;
+    final transient =
+        error.kind == DeliveryContextFailureKind.offline ||
+        error.kind == DeliveryContextFailureKind.timeout;
+    final failureGeneration = transient ? generation : ++_generation;
+    state = state.copyWith(
+      status: DeliveryContextViewStatus.failure,
+      clearContext: !transient,
+      isFromCache: transient ? null : false,
+      failure: error.kind,
+      isMutating: false,
+    );
+    if (!transient && owner != null) {
+      try {
+        await ref
+            .read(deliveryContextCacheProvider)
+            .remove(ownerSubjectId: owner, shopSlug: shopSlug);
+      } on Object {
+        // Conservare il diniego autorevole anche se lo storage non risponde.
+      }
+    }
+    return _current(owner, shopSlug, failureGeneration);
+  }
+
+  bool _current(String? owner, String shopSlug, int generation) =>
       !_disposed &&
       _owner == owner &&
       _shopSlug == shopSlug &&

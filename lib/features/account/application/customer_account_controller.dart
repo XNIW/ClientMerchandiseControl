@@ -144,11 +144,12 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
 
   Future<CustomerAddress?> createAddress(CustomerAddressDraft draft) async {
     final subjectId = _subjectId;
+    final generation = _generation;
     CustomerAddress? created;
     await _mutate((repository, _) async {
       created = await repository.createAddress(draft);
     }, CustomerAccountNoticeKind.addressSaved);
-    if (_disposed || subjectId == null || _subjectId != subjectId) return null;
+    if (subjectId == null || !_isCurrent(subjectId, generation)) return null;
     return created;
   }
 
@@ -213,6 +214,7 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
   Future<void> exportData() {
     return _serialize(() async {
       final subjectId = _subjectId;
+      final generation = _generation;
       if (subjectId == null) {
         return;
       }
@@ -226,7 +228,7 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
       try {
         final repository = ref.read(customerAccountRepositoryProvider);
         final export = await repository.exportData();
-        if (_subjectId != subjectId || _disposed) {
+        if (!_isCurrent(subjectId, generation)) {
           return;
         }
         _publish(
@@ -238,7 +240,7 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
           ),
         );
       } on Object catch (error) {
-        _publishMutationFailure(error, subjectId);
+        _publishMutationFailure(error, subjectId, generation);
       }
     });
   }
@@ -322,6 +324,7 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
   }) {
     return _serialize(() async {
       final subjectId = _subjectId;
+      final generation = _generation;
       final current = _lastState;
       if (subjectId == null || current?.snapshot == null) {
         return;
@@ -337,8 +340,9 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
       try {
         final repository = ref.read(customerAccountRepositoryProvider);
         await action(repository, subjectId);
+        if (!_isCurrent(subjectId, generation)) return;
         final snapshot = await repository.load(subjectId);
-        if (_subjectId != subjectId || _disposed) {
+        if (!_isCurrent(subjectId, generation)) {
           return;
         }
         afterSuccess?.call();
@@ -351,13 +355,13 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
           ),
         );
       } on Object catch (error) {
-        _publishMutationFailure(error, subjectId);
+        _publishMutationFailure(error, subjectId, generation);
       }
     });
   }
 
-  void _publishMutationFailure(Object error, String subjectId) {
-    if (_subjectId != subjectId || _disposed) {
+  void _publishMutationFailure(Object error, String subjectId, int generation) {
+    if (!_isCurrent(subjectId, generation)) {
       return;
     }
     final current = _lastState ?? const CustomerAccountState.loading();

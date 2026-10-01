@@ -2193,4 +2193,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchSuggestionBrand => 'Brand';
+
+  @override
+  String get deliveryContextPinHint =>
+      'Drag the pin or tap the map to confirm the location.';
+
+  @override
+  String get deliveryAddressAttribution =>
+      '© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright';
 }

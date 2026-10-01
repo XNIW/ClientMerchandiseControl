@@ -2216,4 +2216,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get searchSuggestionBrand => 'Marca';
+
+  @override
+  String get deliveryContextPinHint =>
+      'Arrastra el marcador o toca el mapa para confirmar la ubicación.';
+
+  @override
+  String get deliveryAddressAttribution =>
+      '© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright';
 }

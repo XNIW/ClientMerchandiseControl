@@ -76,3 +76,41 @@ invariata.
   non soddisfa recenter e aggiornamento marker isolato.
 - **Mappa custom o coordinate su canvas**: scartata perché simulerebbe contesto
   geografico e qualità cartografica non verificati.
+
+## Estensione di sviluppo TASK-054 — indirizzo (2026-09-28)
+
+Il nuovo mandato autorizza una scelta tecnica in assenza di precedente decisione
+per ricerca/reverse. Si riusa Google Maps SDK già presente per il pin indirizzo,
+con `GoogleAddressMapPort` distinto dal tracking. Attivazione solo staging con
+`ADDRESS_MAPS_ENABLED=true` e `DELIVERY_MAPS_NATIVE_CONFIGURED=true`; chiavi native
+ristrette già approvate secondo questo ADR. Nessuna attivazione o nuovo billing.
+
+Ricerca e reverse usano l'adapter concreto Photon, API GeoJSON, con endpoint
+`ADDRESS_PHOTON_ORIGIN` HTTPS esplicitamente approvato, `ADDRESS_SEARCH_ENABLED=true`,
+`ADDRESS_PROVIDER_APPROVED=true`, `APP_ENV=staging`. Non esiste endpoint pubblico
+implicito. La decisione conserva Google per la mappa ma evita di imporre un nuovo
+servizio Places a pagamento per memorizzare indirizzi; Photon permette un servizio
+compatibile scelto/gestito dall'owner. Non è autorizzato avviare hosting o acquistarlo.
+
+Fonti primarie consultate: [Photon README/API](https://github.com/komoot/photon/blob/master/README.md),
+[API v1](https://github.com/komoot/photon/blob/master/docs/api-v1.md),
+[licenza software Apache2.0](https://github.com/komoot/photon/blob/master/LICENSE),
+[licenza dati OSM](https://www.openstreetmap.org/copyright) e
+[linee guida attribuzione](https://osmfoundation.org/wiki/Licence/Attribution_Guidelines).
+Il server demo Photon non offre SLA, limita utilizzi e può sospendere richieste:
+non viene selezionato automaticamente. Il software non impone una tariffa d'uso;
+serving/rete e condizioni dell'endpoint restano da approvare. La licenza software
+non sostituisce ODbL dei dati: attribuzione OSM e riferimento licenza sono visibili
+nell'editor. L'owner deve verificare condizioni/privacy dell'endpoint prima di ON.
+
+Il provider riceve solo query indirizzo o coordinate del pin, mai identità/sessione
+Supabase; niente log/telemetria o cache persistente provider. Una pagina di otto
+risultati vive in memoria fino a query/dispose/cambio account. HTTPS, niente redirect,
+risposta max64KiB, timeout6s, cooldown429 max300s, latest-query-wins e invalidazione
+account proteggono le richieste. Input manuale resta completo con provider OFF,
+rete/GPS negati o imprecisi. Cambiare campi geografici invalida il pin precedente;
+la conferma pin conserva la coordinata scelta. Solo il server decide zona/fee/slot.
+
+Test transport controllato e widget non attestano servizio/chiave/GPS reali.
+Dopo configurazione approvata eseguire E2E-054-R05/R26 su Android/iOS; finché manca,
+ADDRESS_PROVIDER_LIVE resta NOT_RUN e le capacità restano OFF per default.

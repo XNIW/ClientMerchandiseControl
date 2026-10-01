@@ -1,0 +1,308 @@
+# Contratti e riconciliazione backend
+
+## Osservazione remota, sola lettura
+
+Target riconfermato: `merchandisecontrol-dev`, ref `jpgoimipbothfgkokyvm`,
+ACTIVE_HEALTHY, PostgreSQL 17.6.1.104. È un database condiviso, non sacrificabile.
+Metadata: 145 migration registrate, comprese modifiche WeChat successive fino a
+`20260926164349`. Nessuna query dati cliente, mutation, fixture o DDL eseguita qui.
+
+Il [manifest consumer](../../../contracts/client-backend-rpc-manifest.json) contiene
+**55 RPC**: schema, nome, firma identitaria, parametri con default/tipi, ritorno,
+SECURITY DEFINER, search_path/timeout, grants anon/authenticated, hash definizione SQL,
+file consumer e loro SHA256, migration canonica/SHA256, versioni payload attese nei parser.
+Le liste payload sono riferite al file consumer: alcuni parser condividono più RPC.
+Non si afferma che la firma SQL da sola verifichi il payload restituito.
+
+32 RPC esistenti coincidono con schema locale canonico in firme, default, grants,
+settings e hash del corpo SQL. `customer_order_create_v2` e `customer_order_read_v2`
+sono presenti. Le 23 assenti sono elencate nella tabella sotto. Anche la storia
+migration manca delle due versioni commerce. `customer_addresses` ha solo le colonne
+v1; i nove nuovi oggetti commerce controllati sono assenti: nessuna installazione
+parziale di questi oggetti è stata rilevata. Questo non equivale a un audit completo
+su ogni oggetto o contenuto dello staging.
+
+| Gruppo | RPC assenti |
+|---|---|
+| Address v2 | customer_address_delete_v2, customer_address_upsert_v2, customer_addresses_read_v2 |
+| Delivery context/checkout | customer_delivery_context_read_v1, customer_delivery_context_select_v1, storefront_delivery_context_preview_v1, customer_checkout_quote_create_v2 |
+| Inbox | customer_notification_mark_read_v1, customer_notifications_list_v1, customer_notifications_mark_all_read_v1 |
+| Riordino | customer_order_reorder_apply_v1, customer_order_reorder_preview_v1 |
+| Assistenza | customer_after_sales_cancel_v1, customer_after_sales_create_v1, customer_after_sales_evidence_register_v1, customer_after_sales_evidence_upload_ticket_v1, customer_after_sales_list_v1, customer_after_sales_order_lines_v1 |
+| Recensioni | customer_review_submit_v1, customer_review_update_v1, customer_reviews_list_v1, storefront_product_reviews_v1 |
+| Ricerca | storefront_search_suggestions_v1 |
+
+## Migration canoniche da applicare, in ordine
+
+Autorità: Admin `fe4907adc51ff842720e1c7eb36aa05e0fa53cb8`, directory
+`supabase/migrations/`. Non si introducono copie né modifiche retroattive.
+
+1. `20260823023037_client_commerce_journey_v1.sql`
+   SHA256 `741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc`.
+   Transazione propria, colonne address additive, dominio delivery context,
+   inbox/riordino/assistenza/reviews, constraints/RLS/grants, RPC e refresh schema.
+   Include modifiche ai privilegi di lettura indirizzi: la compatibilità con i client
+   esistenti va verificata tramite RPC e suite, non assumendo accesso diretto invariato.
+2. `20260823150000_customer_after_sales_order_lines_v1.sql`
+   SHA256 `18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467`.
+   Read model storico owner-scoped e correzione della creazione del caso rispetto alla
+   quantità residua. Richiede la prima; usare runner migration transazionale perché il
+   file non contiene un proprio BEGIN/COMMIT.
+
+Non applicare in blocco tutte le migration Admin né usare `db reset` sul progetto
+condiviso. I nuovi timestamp WeChat registrati non sostituiscono queste due versioni.
+
+## Validazione isolata realmente eseguita
+
+Container `cmc-functional-audit-20260928`, immagine PostgreSQL Supabase17.6.1.158,
+`--network none`, zero porte esposte. DB dedicato `cmc_verified`.
+Il bootstrap usa solo lo schema, **senza dati**, da un ambiente locale predecessore
+fermo alle migration precedenti. Ripristinati extensions e grant canonici; applicate
+in ordine tutte le 21 migration successive, incluse le due candidate.
+Le altre migration sono servite solo a ricostruire localmente l'HEAD Admin.
+Non è un reset CLI integrale da zero e non è un apply remoto.
+
+Comandi rappresentativi effettivamente usati:
+
+```bash
+docker exec -i cmc-functional-audit-20260928 \
+  psql -U postgres -d cmc_verified -v ON_ERROR_STOP=1 < migration-canonica.sql
+docker exec -i cmc-functional-audit-20260928 \
+  psql -U postgres -d cmc_verified -v ON_ERROR_STOP=1 -At < test-canonico.sql
+```
+
+Il dump schema-only non contiene righe di configurazione cron/storage/publication.
+I primi tentativi hanno rilevato extension/default-grants e seed mancanti. Corretto
+esclusivamente il bootstrap locale: extension canoniche, default grants col ruolo
+proprietario, tre schedule cron, bucket immagini pubblico e pubblicazione realtime
+previsti dalle migration. Non sono stati indeboliti test o RLS. I log completi e i
+fallimenti iniziali restano locali; la tabella finale registra solo le riesecuzioni
+concluse e controllate per `not ok`, oltre all'exit code psql.
+
+23 suite / **1.034 assertion pgTAP PASS**, exit0; zero `not ok`, piano di ogni suite
+coincidente con il conteggio. Journey55 include assenza accesso cross-owner/shop,
+quantità residua assistenza, acquisto verificato, idempotenza e boundary privilegiati.
+Le suite preesistenti verificano anche compatibilità del checkout reservation v1 e
+order/payment v2, quote, carrello, RLS, pubblicazione e confine fiscale POS.
+Il registro [validation.md](validation.md) riporta tutti i conteggi.
+
+Lo snapshot positivo locale del nuovo gate unisce metadata realmente letti da pg_proc
+alle versioni della ricostruzione canonica: è `snapshot_only`, non una ricevuta di
+migration history CLI. I test negativi distinguono firme, overload, grant/body drift e
+migration mancante. Lo snapshot remoto reale fallisce con 23 RPC e 2 migration mancanti.
+
+## Preflight, recovery e verifiche da eseguire dopo il mandato
+
+**Stato apply condiviso: BLOCKED.** Il prompt corrente richiede un mandato specifico
+per target/azione e non rinnova i due tentativi storici esauriti. Anche backup/PITR e
+finestra operativa devono essere attestati dal proprietario del database. Owner:
+utente/responsabile Supabase; reviewer backend distinto dal writer.
+
+Prima della scrittura:
+
+1. Riconfermare ref, SHA Admin/Client, hash esatti dei due file, 145 versioni/hash della
+   history e assenza dei nuovi oggetti; interrompere su variazioni o apply parziale.
+2. Ottenere e verificare backup ripristinabile/PITR con timestamp e owner; acquisire
+   definizioni/grants/policy/constraint e history antecedenti in archivio protetto locale.
+3. Verificare spazio, lock, compatibilità client ancora in uso e nessuna mutation
+   concorrente nella finestra; determinare timeout e limite di tentativi esplicito.
+4. Review del piano/diff SQL e restore rehearsal in database isolato. Il test locale
+   già svolto prova apply/contratti; **restore remoto/PITR non è stato provato**.
+
+Apply: primo file, readback e ricevuta history, poi secondo file transazionale. Nessun
+reset/truncate, repair history fittizio, broad grant o bypass di RLS. Su failure del
+primo file verificare rollback effettivo; su failure del secondo preservare la prima
+migration e il suo receipt, interrompere e diagnosticare prima di altro tentativo.
+
+Dopo ogni apply: rileggere history/versioni/hash e oggetti; dopo entrambi eseguire il
+gate live55, confrontare definizioni/grants/settings, FORCE RLS e policy; verificare
+che le vecchie ricevute non cambino. Eseguire test con fixture sintetiche approvate
+owner A/B e shop A/B, anon/auth/service, versioni obsolete, replay e v1 preesistenti;
+readback business e cleanup identificato. SQL locale non abilita queste scritture.
+
+Recovery: in caso di degrado sospendere il percorso nuovo e conservare schema/ledger
+additivi; niente DROP dei nuovi oggetti se contengono dati. Ripristino definizioni/ACL
+o fix forward solo dopo review e nuova verifica dei vincoli; PITR esclusivamente
+nell'ambiente/finestra approvati. Attestare nuovamente i client vecchi e le funzioni
+preesistenti. Nessuna recovery production o modifica WeChat compresa nel mandato.
+
+## Gate ripetibile nel Client
+
+```bash
+python3 scripts/check-backend-compatibility.py --source-only
+PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-backend-compatibility.py
+python3 scripts/check-backend-compatibility.py --emit-sql
+python3 scripts/check-backend-compatibility.py --snapshot /percorso/metadata.json
+CMC_BACKEND_PGSERVICE=servizio_readonly \
+  bash scripts/check.sh --backend-config /percorso/config-validata.json
+```
+
+`--source-only` è incluso in CI e check.sh; dichiara runtime NOT_RUN. `--snapshot`
+è diagnostico e non abilita upload. Il gate integrato esplicito e i preflight upload
+Android/iOS richiedono una connessione live autorizzata. Le credenziali rimangono nel
+meccanismo pg_service/pgpass approvato; non vengono richieste o stampate in chat.
+Il target è derivato dalla configurazione dell'artifact, connessione diretta al ref,
+porta5432/database postgres, TLS verify-full e transazione READ ONLY. Connessioni
+pooler/custom-domain non sono attualmente supportate: falliscono chiuse.
+
+Android verifica prima la firma/configurazione e il marker della stessa configurazione
+in tutti e tre i libapp.so dell'AAB; la verifica preesistente confronta anche payload
+APK/AAB. iOS conserva l'attestation runtime/native/sealed-app già esistente. Poi entrambi
+richiedono compatibilità backend prima di `UPLOAD_INPUTS_VALIDATED`. Non hanno effettuato
+upload. Un esito live_schema PASS proverebbe struttura/definizioni/history, lasciando
+sempre payload, owner/shop E2E e device come gate distinti.
+
+## Ripresa operativa autorizzata — nuova evidence
+
+Il mandato successivo supera il precedente limite di autorizzazione all'apply, che
+resta descritto sopra soltanto come stato storico. Target riconfermato PG17.6.1.104,
+145 versioni,32/55 RPC; due migration canoniche ancora assenti. CLI2.118.0: backups
+list restituisce backups=null, PITR=false. `db dump --schema
+public,app_private,supabase_migrations` è ora riuscito, exit0; schema fresco73348righe,
+SHA in operational-provenance.json, nessuna esportazione di righe cliente.
+
+Ripristino reale in `cmc_recovery`, container locale isolato: prerequisiti auth/storage
+schema-only dal predecessore, poi public/app_private sostituiti dal dump fresco.
+Primo restore con postgres si fermava sulle ACL di ruoli gestiti; ripetuto correttamente
+con supabase_admin locale, exit0. Il trigger auth.users di creazione profilo, perso
+nella sostituzione locale dello schema, è stato ricostruito dalla definizione letta
+fresh sul target; publication realtime ricostruita dal contratto canonico.
+Questo bootstrap non è una copia delle righe di auth/storage del target.
+
+Apply ordinato dei due file originali + correttiva Admin
+`20260928200000_customer_notification_hold_dedup.sql`, tutti transazionali, exit0.
+La correttiva esclude reservation_hold dall'indice safe_dedup: il precedente indice
+hold_source mantiene unicità per hold/evento. Regressione due hold stesso owner/shop:
+40PASS+1FAIL prima,41PASS dopo; nessuna modifica retroattiva alle canoniche.
+
+Inverse provata in una transazione con lock/statement timeout, nessun CASCADE:
+rimozione soli oggetti nuovi vuoti, ripristino guard condiviso, quattro CHECK e ACL
+indirizzi incluse14 ACL colonna. Confronto cataloghi prima/dopo: identici per tabelle,
+colonne/ACL, constraint, indici, policy, trigger, definizioni/owner/ACL funzioni.
+Reapply delle tre migration riuscita, exit0. Script/cataloghi/log completi locali in
+`/tmp/cmc-functional-audit/recovery-*`, hash nella provenance.
+
+Limite rilevato realmente: Storage protegge la cancellazione SQL del nuovo bucket.
+Il primo inverse è stato rollbackato per42501; nessuna protezione disabilitata.
+L'inverse DB corretto lascia il bucket **privato e vuoto**, senza le nuove policy.
+Cleanup finale richiesto via Storage API `deleteBucket('customer-after-sales-evidence')`
+solo dopo nuova verifica vuoto e appartenenza alla run; manca la prova di questo
+passaggio tramite servizio Storage nell'ambiente isolato. Pertanto recupero completo
+resta BLOCKED, anche se ripristino dello schema e ACL è PASS. Riferimento:
+[Storage schema](https://supabase.com/docs/guides/storage/schema/design).
+
+Baseline separata readonly:145 versioni e hash riga delle ricevute migration, una
+policy storage.objects preesistente, bucket after-sales assente. Il dump schema-only
+non contiene queste ricevute né file Storage; non viene presentato come backup dati.
+Prima di apply condiviso servono anche una finestra concordata senza writer commerce
+**e legacy** e prova cleanup Storage. Il contatore istantaneo transazioni=0 non è una
+finestra. Dopo qualunque scrittura a ordini/pagamenti/notifiche/indirizzi/quote o alle
+nuove tabelle, niente inverse schema-only: preservare i dati e valutare fix-forward.
+Nessun DDL o fixture di questa ripresa è stato applicato al database condiviso.
+
+Il confronto recovery non include righe della migration history. Apply/inverse locali
+via psql non collaudano il recupero delle ricevute del runner canonico: questo resta
+un ulteriore prerequisito prima dell’apply condiviso, anche dopo cleanup Storage.
+
+
+Riconferma finale readonly 2026-09-29T01:41:59Z: i writer WeChat hanno aggiunto due
+ricevute, history147 (ultime20260929013345/20260929013437). Le RPC Client restano32/55,
+indici richiesti1/2; snapshot gate FAIL/exit1 con23RPC,3migration e1indice mancanti.
+Il dump/rehearsal precedenti conservano la propria data e non attestano questo nuovo
+stato. Qualunque apply futuro deve acquisire di nuovo il delta e il punto di recupero
+nella finestra concordata. Nessuna scrittura condivisa effettuata da TASK-054.
+
+
+## Rehearsal supplementare CLI e Storage API
+
+CLI2.118.0 Linux arm64 ufficiale, digest verificato dalla release prima di eseguirla
+nel container `network=none`, nessuna porta esposta. Il progetto temporaneo contiene
+soltanto i tre file canonici hash-bound. `migration up --include-all --db-url` punta
+esclusivamente a127.0.0.1/cmc_recovery nello stesso container; crea tre ricevute reali
+con181/5/7statement. Dopo l'inverse SQL realmente riuscita, `migration repair --status
+reverted` delle sole tre versioni effettivamente annullate ripristina history0; non
+è una dichiarazione di apply fittizio. Reapply genera nuovamente le stesse tre ricevute.
+I cataloghi/ACL coincidono con recovery-before.json. Il primo confronto differiva
+solo per storage.migrations, artifact aggiunto dal tentativo Storage descritto sotto;
+rimosso esclusivamente quell'artifact locale e confronto ripetuto PASS/exit0.
+
+Il servizio Storage non avviava sul bootstrap schema-only precedente: mancavano sua
+history e ownership canonici. Creato un servizio isolato v1.69.0 su un nuovo database
+locale, con proprie migration canoniche, helper auth sintetici e i grant service_role
+corrispondenti al bootstrap. Modello di configurazione dal
+[Compose ufficiale](https://github.com/supabase/supabase/blob/master/docker/docker-compose.yml).
+Create via API di un bucket sintetico privato200; readback vuoto; DELETE SQL rifiutato
+da storage.protect_delete; DELETE via API200, readback bucket0/oggetti0. Nessun bypass
+della protezione e nessun accesso al servizio Storage condiviso.
+
+Queste prove chiudono il comportamento locale del runner/history e del componente
+Storage API. Restano distinte: history baseline locale0 (non147ricevute remote),
+Storage su database dedicato (non stesso restore combinato), snapshot staging avanzato
+e finestra writer assente. Non sono una certificazione di recovery completa del target
+corrente e non autorizzano da sole l'apply. Il reviewer backend valuta questi limiti;
+prima dell'apply è richiesto rehearsal combinato sulla baseline concordata e protetta.
+
+
+## Recovery combinata — 2026-10-01
+
+Riconfermato target `jpgoimipbothfgkokyvm`, PG17.6.1.104 healthy,147 versioni,
+32/55RPC conformi e1/2indici. Gate snapshot aggiornato: FAIL/exit1 per23RPC,
+3migration e indice safe_dedup assenti. CLI host2.119.0 conferma backups=null
+e PITR=false. Dump schema-only nuovo, nessuna riga reale esportata.
+
+Il riavvio host ha rimosso i temporanei precedenti: gli output non sono stati
+ricreati come prove storiche. Nuovo ciclo completo in PG17.6.1.158 isolato,
+network none, DB `cmc_recovery_oct01_clean`; artifact persistenti in
+`~/.codex/outputs/client-functional-audit/recovery-20261001/`.
+
+- Bootstrap: auth pre-data e constraint, Storage canonico1.69.0 con62 migration,
+  dump public/app_private/supabase_migrations, trigger auth dopo le funzioni.
+  Errori iniziali di ordine FK/trigger e owner database diagnosticati e corretti
+  esclusivamente nel bootstrap; database owner postgres come ambiente canonico.
+-147 file fixture dichiaratamente sintetici generano vere receipt CLI2.118.0.
+  I timestamp coincidono con lo staging, i contenuti `SELECT n` NON sono la sua
+  history e non possono essere usati per un apply remoto. Workdir completo147+3.
+- Fixture legacy: una notifica derivata da un ordine sintetico e relative FK.
+  Baseline hash delle righe di6 tabelle condivise, cataloghi/ACL e147receipt.
+- Apply ordinato delle3 canoniche PASS/exit0:150receipt,147hash preesistenti
+  identici. Nessuna migration oltre le3 è pending in questo secondo passaggio.
+- Inverse rigenerata dal diff reale:11tabelle/44funzioni nuove; ripristino
+  4constraint,1funzione,ACL addresses e14colonne. RESTRICT, no CASCADE; target
+  locale esatto, lock con timeout5s/statement30s, stop su dati nuovi o qualsiasi
+  scrittura nei6 shared table rispetto all'istante post-apply.
+- Due negative reali in transazione: nuova delivery context e modifica a un
+  campo settings rifiutate, schema intatto. Una precedente prova su read_at ha
+  confermato il vincolo write-once; quel DB resta separato e il ciclo positivo
+  è stato ripetuto da fixture pulita, senza disabilitare trigger.
+- Inverse effettiva PASS/exit0; repair reverted SOLO delle3 realmente annullate.
+  History147 identica, hash6tabelle identici,130tabelle/1701colonne/1033constraint/
+  478indici/159trigger/86policy/630funzioni e ACL identici alla baseline.
+- Storage API sullo STESSO DB: bucket creato dalla migration,GET200 privato;
+  DELETE200, poiGET400/body404; bucket0 eobjects0. DELETE SQL diretto rifiutato
+  dal guard originale. Nessun bypass di protect_delete.
+
+Hash e ricevuta sintetica sanitizzata sono in operational-provenance.json.
+Il risultato è PASS per la recovery locale combinata, non un backup dei dati
+remoti o una prova di apply condiviso. L'apply resta BLOCKED finché la finestra
+con i writer concorrenti non è confermata; prima di applicare occorre nuovo
+preflight e un index canonico della history reale, mai i147 file sintetici.
+
+
+La re-review distinta ha ricatturato i cataloghi dal DB clean e confermato tutti
+gli11hash della ricevuta, history147, dati, bucket/objects0 e protect_delete
+abilitato: PASS locale, nessun finding bloccante.
+
+Riconciliato anche l'index operativo della history reale: la versione remota
+20260727084040/task_142_catalog_text_policy_v1 coincide byte per byte con il file
+canonico20260727055520 (MD5 08eebae06a722a3f6eb6372693e7f7c1). Nel solo workdir
+privato del runner è indicizzata con timestamp realmente registrato, senza
+modificare history remota o file canonici.147 file esistenti+3pending; nessuna
+fixture sintetica in questo index.
+
+`supabase db push --dry-run --skip-vault --include-all --project-ref
+jpgoimipbothfgkokyvm --workdir <canonical-staging-index>` con CLI2.119.0:
+PASS/exit0, pending esattamente20260823023037,20260823150000,20260928200000;
+seed/roles vuoti, nessuna migration applicata. Conservati manifest150file con
+SHA256 e log del dry-run nel medesimo archivio locale protetto. Il prerequisito
+ancora mancante per l'apply è la finestra coordinata, poi preflight nuovamente
+fresco e readback/ruoli/E2E reali; il dry-run non li sostituisce.

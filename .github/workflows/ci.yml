@@ -34,6 +34,11 @@ jobs:
         run: bash scripts/check-action-pins.sh
       - name: Validate shell scripts
         run: bash -n scripts/*.sh
+      - name: Validate backend consumer contract
+        run: |
+          python3 scripts/check-backend-compatibility.py --source-only
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-backend-compatibility.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-auth-entitlements.py
       - name: Validate client security boundary
         run: |
           bash scripts/check-client-security.sh
@@ -142,7 +147,9 @@ jobs:
 
   ios-build:
     name: iOS Simulator debug build
-    runs-on: macos-latest
+    runs-on: macos-26
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -158,6 +165,8 @@ jobs:
         run: bash scripts/resolve-flutter.sh
       - name: Resolve dependencies
         run: flutter pub get --enforce-lockfile
+      - name: Compare checkout and tracking goldens (required macOS surface)
+        run: flutter test --plain-name golden test/features/checkout/presentation/checkout_screen_test.dart test/features/orders/presentation/customer_orders_screen_test.dart
       - name: Build iOS Simulator
         run: flutter build ios --simulator --debug
       - name: Validate iOS bundle security
@@ -165,9 +174,14 @@ jobs:
           bash scripts/check-client-security.sh
           --artifact build/ios/iphonesimulator/Runner.app
 
+      - name: Smoke iOS on the declared deployment target
+        run: bash scripts/test-ios-shell-smoke.sh
+
   ios-release:
     name: iOS release candidate
-    runs-on: macos-latest
+    runs-on: macos-26
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
     timeout-minutes: 45
     steps:
       - name: Checkout

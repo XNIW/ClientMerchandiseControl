@@ -536,6 +536,19 @@ printf 'ANDROID_RELEASE_APK_SHA256=%s\n' "${cmc_android_release_apk_sha}"
 printf 'ANDROID_APP_LINK_BLOCKED: OWNED_HTTPS_DOMAIN_AND_ASSOCIATION_FILE_REQUIRED\n'
 
 if [[ "${cmc_android_release_require_upload}" == true ]]; then
+  [[ -n "${ANDROID_RELEASE_RUNTIME_CONFIG_PATH:-}" ]] || \
+    cmc_android_release_fail 'ANDROID_RUNTIME_CONFIG_MISSING'
+  cmc_android_runtime_fingerprint="$(
+    dart run "${cmc_android_release_root}/tool/check_ios_runtime_config.dart" \
+      --config "${ANDROID_RELEASE_RUNTIME_CONFIG_PATH}"
+  )" || cmc_android_release_fail 'ANDROID_RUNTIME_CONFIG_INVALID'
+  python3 "${cmc_android_release_script_dir}/check-android-runtime-binding.py" \
+    --aab "${cmc_android_release_aab}" \
+    --fingerprint "${cmc_android_runtime_fingerprint}" || \
+    cmc_android_release_fail 'RUNTIME_CONFIG_NOT_ARTIFACT_BOUND'
+  python3 "${cmc_android_release_script_dir}/check-backend-compatibility.py" \
+    --live --app-config "${ANDROID_RELEASE_RUNTIME_CONFIG_PATH}" || \
+    cmc_android_release_fail 'BACKEND_COMPATIBILITY_REQUIRED'
   printf 'ANDROID_INTERNAL_UPLOAD_INPUTS_VALIDATED\n'
 else
   if [[ "${cmc_android_release_signature_state}" == SIGNED ]]; then

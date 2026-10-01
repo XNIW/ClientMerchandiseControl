@@ -1,9 +1,43 @@
+import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/features/catalog/application/search_assist_controller.dart';
+import 'package:client_merchandise_control/features/catalog/domain/search_assist_repository.dart';
 import 'package:client_merchandise_control/features/catalog/data/search_assist_data.dart';
 import 'package:client_merchandise_control/features/catalog/domain/search_assist_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  testWidgets('submit invalida suggerimenti pendenti e spinner', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final repository = _DeferredSuggestions();
+    final container = ProviderContainer(
+      overrides: [
+        appConfigProvider.overrideWithValue(AppConfig.authFlowTest()),
+        searchAssistRepositoryProvider.overrideWithValue(repository),
+      ],
+    );
+    addTearDown(container.dispose);
+    container.read(searchAssistControllerProvider);
+    await tester.pump();
+    final controller = container.read(searchAssistControllerProvider.notifier);
+    controller.queryChanged('caffè');
+    await tester.pump(const Duration(milliseconds: 251));
+    await controller.submit('caffè');
+    expect(container.read(searchAssistControllerProvider).isLoading, isFalse);
+    repository.pending.complete([
+      const StorefrontSearchSuggestion(
+        value: 'vecchio',
+        kind: StorefrontSearchSuggestionKind.product,
+      ),
+    ]);
+    await tester.pump();
+    expect(container.read(searchAssistControllerProvider).suggestions, isEmpty);
+  });
+
   test('cronologia resta locale, shop-scoped e bounded a dieci', () async {
     SharedPreferences.setMockInitialValues({});
     final store = SharedPreferencesSearchHistoryStore();
@@ -53,4 +87,13 @@ final class _Port implements SearchAssistPort {
       'serverTime': '2026-08-23T12:00:00Z',
     };
   }
+}
+
+final class _DeferredSuggestions implements SearchAssistRepository {
+  final pending = Completer<List<StorefrontSearchSuggestion>>();
+  @override
+  Future<List<StorefrontSearchSuggestion>> suggestions({
+    required String shopSlug,
+    required String query,
+  }) => pending.future;
 }

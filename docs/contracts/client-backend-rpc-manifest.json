@@ -1,0 +1,1359 @@
+{
+  "version": 1,
+  "authority": {
+    "repository": "XNIW/merchandise-control-admin-web",
+    "sha": "fe4907adc51ff842720e1c7eb36aa05e0fa53cb8"
+  },
+  "rpcs": [
+    {
+      "schema": "public",
+      "name": "customer_address_delete_v2",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/account/data/supabase_customer_account_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_address_id uuid, p_expected_version bigint",
+      "arguments": "p_address_id uuid, p_expected_version bigint",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-address.v2",
+        "customer.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "45bc6529510b14587be298895b9e3afc"
+    },
+    {
+      "schema": "public",
+      "name": "customer_address_upsert_v2",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/account/data/supabase_customer_account_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_address_id uuid, p_expected_version bigint, p_payload jsonb",
+      "arguments": "p_address_id uuid, p_expected_version bigint, p_payload jsonb",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-address.v2",
+        "customer.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "0a695f59ce6a74d47594f5ca5da7d984"
+    },
+    {
+      "schema": "public",
+      "name": "customer_addresses_read_v2",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/account/data/supabase_customer_account_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "",
+      "arguments": "",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-address.v2",
+        "customer.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "d0c660b1defd672ae19dbc31e3dc6f9a"
+    },
+    {
+      "schema": "public",
+      "name": "customer_after_sales_cancel_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/after_sales/data/supabase_customer_after_sales_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_case_id uuid, p_expected_version bigint",
+      "arguments": "p_case_id uuid, p_expected_version bigint",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-after-sales-order-lines.v1",
+        "customer-after-sales.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "17ae918e4eb15d505a12054b178dbcb4"
+    },
+    {
+      "schema": "public",
+      "name": "customer_after_sales_create_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/after_sales/data/supabase_customer_after_sales_repository.dart"
+      ],
+      "migration": "20260823150000_customer_after_sales_order_lines_v1.sql",
+      "identity_arguments": "p_order_id uuid, p_type text, p_reason text, p_note text, p_lines jsonb, p_idempotency_key uuid",
+      "arguments": "p_order_id uuid, p_type text, p_reason text, p_note text, p_lines jsonb, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=8s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-after-sales-order-lines.v1",
+        "customer-after-sales.v1"
+      ],
+      "migration_sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467",
+      "definition_md5": "f47e7bc80809b2c4a04c7563e7625789"
+    },
+    {
+      "schema": "public",
+      "name": "customer_after_sales_evidence_register_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/after_sales/data/supabase_customer_after_sales_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_case_id uuid, p_object_path text",
+      "arguments": "p_case_id uuid, p_object_path text",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-after-sales-order-lines.v1",
+        "customer-after-sales.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "c2f7199d27d6b87e6f73eb4edf6837a6"
+    },
+    {
+      "schema": "public",
+      "name": "customer_after_sales_evidence_upload_ticket_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/after_sales/data/supabase_customer_after_sales_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_case_id uuid, p_extension text",
+      "arguments": "p_case_id uuid, p_extension text",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-after-sales-order-lines.v1",
+        "customer-after-sales.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "9179bc02f26fec4922eadd6396cf3f99"
+    },
+    {
+      "schema": "public",
+      "name": "customer_after_sales_list_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/after_sales/data/supabase_customer_after_sales_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_page_size integer",
+      "arguments": "p_shop_slug text, p_page_size integer DEFAULT 25",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-after-sales-order-lines.v1",
+        "customer-after-sales.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "9fe04b00ec351a30481265ed09e8a40d"
+    },
+    {
+      "schema": "public",
+      "name": "customer_after_sales_order_lines_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/after_sales/data/supabase_customer_after_sales_repository.dart"
+      ],
+      "migration": "20260823150000_customer_after_sales_order_lines_v1.sql",
+      "identity_arguments": "p_order_id uuid",
+      "arguments": "p_order_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-after-sales-order-lines.v1",
+        "customer-after-sales.v1"
+      ],
+      "migration_sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467",
+      "definition_md5": "f86c48046d851f361a219fe45c3853d1"
+    },
+    {
+      "schema": "public",
+      "name": "customer_cancel_account_deletion_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/account/data/supabase_customer_account_repository.dart"
+      ],
+      "migration": "20260802181823_storefront_v1_customer_profiles_addresses.sql",
+      "identity_arguments": "p_request_id uuid",
+      "arguments": "p_request_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-address.v2",
+        "customer.v1"
+      ],
+      "migration_sha256": "3371fbbac64cdcb7b86296b54e358a186b78af39f2b9df2ea3944590f6601357",
+      "definition_md5": "f872d2dc6de03687e3690c0e0ab79ba3"
+    },
+    {
+      "schema": "public",
+      "name": "customer_cart_merge_guest_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/cart/data/supabase_customer_cart_repository.dart"
+      ],
+      "migration": "20260802213000_storefront_v1_customer_cart_public_slug.sql",
+      "identity_arguments": "p_shop_slug text, p_guest_items jsonb, p_expected_version bigint, p_idempotency_key uuid",
+      "arguments": "p_shop_slug text, p_guest_items jsonb, p_expected_version bigint, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-cart.v1"
+      ],
+      "migration_sha256": "842e263ef3d43c83b3c2add71c1391524e9108b89f5e2ce8e5c0f127abde4ea8",
+      "definition_md5": "cb823aac1112ac2e7cafbeae3c44e7d3"
+    },
+    {
+      "schema": "public",
+      "name": "customer_cart_mutate_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/cart/data/supabase_customer_cart_repository.dart"
+      ],
+      "migration": "20260802213000_storefront_v1_customer_cart_public_slug.sql",
+      "identity_arguments": "p_shop_slug text, p_operation text, p_publication_id uuid, p_quantity integer, p_expected_version bigint, p_idempotency_key uuid",
+      "arguments": "p_shop_slug text, p_operation text, p_publication_id uuid, p_quantity integer, p_expected_version bigint, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-cart.v1"
+      ],
+      "migration_sha256": "842e263ef3d43c83b3c2add71c1391524e9108b89f5e2ce8e5c0f127abde4ea8",
+      "definition_md5": "c6c16db3be3451ef7a8ab4eb25118e28"
+    },
+    {
+      "schema": "public",
+      "name": "customer_cart_read_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/cart/data/supabase_customer_cart_repository.dart"
+      ],
+      "migration": "20260802213000_storefront_v1_customer_cart_public_slug.sql",
+      "identity_arguments": "p_shop_slug text",
+      "arguments": "p_shop_slug text",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-cart.v1"
+      ],
+      "migration_sha256": "842e263ef3d43c83b3c2add71c1391524e9108b89f5e2ce8e5c0f127abde4ea8",
+      "definition_md5": "a06bf16d80c891ae1deabb782e1213cf"
+    },
+    {
+      "schema": "public",
+      "name": "customer_cart_revalidate_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/cart/data/supabase_customer_cart_repository.dart"
+      ],
+      "migration": "20260802213000_storefront_v1_customer_cart_public_slug.sql",
+      "identity_arguments": "p_shop_slug text, p_expected_version bigint, p_idempotency_key uuid",
+      "arguments": "p_shop_slug text, p_expected_version bigint, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-cart.v1"
+      ],
+      "migration_sha256": "842e263ef3d43c83b3c2add71c1391524e9108b89f5e2ce8e5c0f127abde4ea8",
+      "definition_md5": "3a395b89dfa02137727d1881684123ac"
+    },
+    {
+      "schema": "public",
+      "name": "customer_checkout_quote_confirm_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/checkout/data/supabase_checkout_repository.dart"
+      ],
+      "migration": "20260803020000_storefront_v1_checkout_fulfillment.sql",
+      "identity_arguments": "p_quote_id uuid, p_expected_quote_version bigint, p_idempotency_key uuid",
+      "arguments": "p_quote_id uuid, p_expected_quote_version bigint, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-checkout.v1",
+        "customer-checkout.v2",
+        "customer-order.v2",
+        "storefront-fulfillment.v1",
+        "storefront-payment-options.v1"
+      ],
+      "migration_sha256": "0a5abf67db8cc8d467fa9665fba4faf1cac4ac621e055c8b99104b90d9aa1a03",
+      "definition_md5": "b82b9128ce3a1391a63f06135f08cf77"
+    },
+    {
+      "schema": "public",
+      "name": "customer_checkout_quote_create_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/checkout/data/supabase_checkout_repository.dart"
+      ],
+      "migration": "20260803020000_storefront_v1_checkout_fulfillment.sql",
+      "identity_arguments": "p_shop_slug text, p_cart_version bigint, p_fulfillment_mode text, p_address_id uuid, p_pickup_point_id uuid, p_slot_id uuid, p_idempotency_key uuid",
+      "arguments": "p_shop_slug text, p_cart_version bigint, p_fulfillment_mode text, p_address_id uuid, p_pickup_point_id uuid, p_slot_id uuid, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-checkout.v1",
+        "customer-checkout.v2",
+        "customer-order.v2",
+        "storefront-fulfillment.v1",
+        "storefront-payment-options.v1"
+      ],
+      "migration_sha256": "0a5abf67db8cc8d467fa9665fba4faf1cac4ac621e055c8b99104b90d9aa1a03",
+      "definition_md5": "8f7eab102f6c544817289700b4a78e9e"
+    },
+    {
+      "schema": "public",
+      "name": "customer_checkout_quote_create_v2",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/checkout/data/supabase_checkout_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_cart_version bigint, p_fulfillment_mode text, p_address_id uuid, p_pickup_point_id uuid, p_slot_id uuid, p_expected_context_version bigint, p_idempotency_key uuid",
+      "arguments": "p_shop_slug text, p_cart_version bigint, p_fulfillment_mode text, p_address_id uuid, p_pickup_point_id uuid, p_slot_id uuid, p_expected_context_version bigint, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=8s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-checkout.v1",
+        "customer-checkout.v2",
+        "customer-order.v2",
+        "storefront-fulfillment.v1",
+        "storefront-payment-options.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "b721a707bde3005ca4a3b877798db849"
+    },
+    {
+      "schema": "public",
+      "name": "customer_checkout_quote_read_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/checkout/data/supabase_checkout_repository.dart"
+      ],
+      "migration": "20260803020000_storefront_v1_checkout_fulfillment.sql",
+      "identity_arguments": "p_quote_id uuid",
+      "arguments": "p_quote_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-checkout.v1",
+        "customer-checkout.v2",
+        "customer-order.v2",
+        "storefront-fulfillment.v1",
+        "storefront-payment-options.v1"
+      ],
+      "migration_sha256": "0a5abf67db8cc8d467fa9665fba4faf1cac4ac621e055c8b99104b90d9aa1a03",
+      "definition_md5": "cddcfc0a51fe76ad4b78bd22956e1586"
+    },
+    {
+      "schema": "public",
+      "name": "customer_data_export_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/account/data/supabase_customer_account_repository.dart"
+      ],
+      "migration": "20260802181823_storefront_v1_customer_profiles_addresses.sql",
+      "identity_arguments": "",
+      "arguments": "",
+      "security_definer": false,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-address.v2",
+        "customer.v1"
+      ],
+      "migration_sha256": "3371fbbac64cdcb7b86296b54e358a186b78af39f2b9df2ea3944590f6601357",
+      "definition_md5": "6d7eeaa969a3729779d3a52532b33b9b"
+    },
+    {
+      "schema": "public",
+      "name": "customer_delivery_context_read_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/delivery_context/data/supabase_delivery_context_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_shop_slug text",
+      "arguments": "p_shop_slug text",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-delivery-context.v1",
+        "storefront-delivery-context.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "660c5e86f1772922615fb70d1792a6dc"
+    },
+    {
+      "schema": "public",
+      "name": "customer_delivery_context_select_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/delivery_context/data/supabase_delivery_context_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_mode text, p_address_id uuid, p_pickup_point_id uuid, p_expected_version bigint",
+      "arguments": "p_shop_slug text, p_mode text, p_address_id uuid, p_pickup_point_id uuid, p_expected_version bigint DEFAULT NULL::bigint",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-delivery-context.v1",
+        "storefront-delivery-context.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "ae59856f7ae70920cb382f736b54b121"
+    },
+    {
+      "schema": "public",
+      "name": "customer_device_status_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/customer_devices/data/supabase_customer_device_repository.dart"
+      ],
+      "migration": "20260802194500_storefront_v1_customer_devices.sql",
+      "identity_arguments": "p_installation_id uuid",
+      "arguments": "p_installation_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-device.v1"
+      ],
+      "migration_sha256": "b15d4651b2619080ee796cd6da4a71430559c2dedf1584e335efaf7ff2ca040e",
+      "definition_md5": "329f7107a5b68a99157c321f86a139c9"
+    },
+    {
+      "schema": "public",
+      "name": "customer_notification_mark_read_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/customer_notifications/data/supabase_customer_notification_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_notification_id uuid",
+      "arguments": "p_notification_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-notification-route.v1",
+        "customer-notifications.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "3a8c9d92eaa893b9b684e7e71f520dd5"
+    },
+    {
+      "schema": "public",
+      "name": "customer_notification_route_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/customer_notifications/data/supabase_customer_notification_repository.dart"
+      ],
+      "migration": "20260803104431_storefront_v1_order_notifications.sql",
+      "identity_arguments": "p_shop_slug text, p_route_token uuid",
+      "arguments": "p_shop_slug text, p_route_token uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-notification-route.v1",
+        "customer-notifications.v1"
+      ],
+      "migration_sha256": "ecf555043e63d43b514a90a2be8b875c6f2c95109b6059a5f21cf52e07f1e5d0",
+      "definition_md5": "cb8963aa4753f47e18d4bd13f82eacba"
+    },
+    {
+      "schema": "public",
+      "name": "customer_notifications_list_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/customer_notifications/data/supabase_customer_notification_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_category text, p_before_created_at timestamp with time zone, p_before_id uuid, p_page_size integer",
+      "arguments": "p_shop_slug text, p_category text DEFAULT NULL::text, p_before_created_at timestamp with time zone DEFAULT NULL::timestamp with time zone, p_before_id uuid DEFAULT NULL::uuid, p_page_size integer DEFAULT 25",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-notification-route.v1",
+        "customer-notifications.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "954450e01832e46d6fc200d61c4c2041"
+    },
+    {
+      "schema": "public",
+      "name": "customer_notifications_mark_all_read_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/customer_notifications/data/supabase_customer_notification_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_shop_slug text",
+      "arguments": "p_shop_slug text",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-notification-route.v1",
+        "customer-notifications.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "9f7a79dc8e2ef164a1994e66ddadd426"
+    },
+    {
+      "schema": "public",
+      "name": "customer_order_cancel_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/orders/data/supabase_customer_order_repository.dart"
+      ],
+      "migration": "20260816232752_storefront_customer_timezone_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_order_id uuid, p_expected_status_version bigint, p_idempotency_key uuid",
+      "arguments": "p_shop_slug text, p_order_id uuid, p_expected_status_version bigint, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=8s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-order-detail.v1",
+        "customer-order-list.v1",
+        "customer-reorder.v1"
+      ],
+      "migration_sha256": "4f5d45d810dc94b0d34e064066668cbf204245c0517f1963be316d730d3c2f61",
+      "definition_md5": "fb7b56127c81b6153498c6305d641c02"
+    },
+    {
+      "schema": "public",
+      "name": "customer_order_create_v2",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/checkout/data/supabase_checkout_repository.dart"
+      ],
+      "migration": "20260803122644_storefront_v1_customer_payments.sql",
+      "identity_arguments": "p_quote_id uuid, p_expected_quote_version bigint, p_payment_method text, p_idempotency_key uuid",
+      "arguments": "p_quote_id uuid, p_expected_quote_version bigint, p_payment_method text, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=8s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-checkout.v1",
+        "customer-checkout.v2",
+        "customer-order.v2",
+        "storefront-fulfillment.v1",
+        "storefront-payment-options.v1"
+      ],
+      "migration_sha256": "67e21b42d7c08bf385427f87de3482ece266b8f320179ace8fa9463b328f0c3f",
+      "definition_md5": "7427b2d2fbfa1d7b8eb4b2178289033d"
+    },
+    {
+      "schema": "public",
+      "name": "customer_order_detail_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/orders/data/supabase_customer_order_repository.dart"
+      ],
+      "migration": "20260816232752_storefront_customer_timezone_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_order_id uuid",
+      "arguments": "p_shop_slug text, p_order_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-order-detail.v1",
+        "customer-order-list.v1",
+        "customer-reorder.v1"
+      ],
+      "migration_sha256": "4f5d45d810dc94b0d34e064066668cbf204245c0517f1963be316d730d3c2f61",
+      "definition_md5": "a05b6ebddc1f720a78b3b347e8b74a38"
+    },
+    {
+      "schema": "public",
+      "name": "customer_order_list_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/orders/data/supabase_customer_order_repository.dart"
+      ],
+      "migration": "20260816232752_storefront_customer_timezone_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_limit integer, p_before_placed_at timestamp with time zone, p_before_order_id uuid",
+      "arguments": "p_shop_slug text, p_limit integer DEFAULT 20, p_before_placed_at timestamp with time zone DEFAULT NULL::timestamp with time zone, p_before_order_id uuid DEFAULT NULL::uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-order-detail.v1",
+        "customer-order-list.v1",
+        "customer-reorder.v1"
+      ],
+      "migration_sha256": "4f5d45d810dc94b0d34e064066668cbf204245c0517f1963be316d730d3c2f61",
+      "definition_md5": "2632457b1249b14704d199ec0f7f473a"
+    },
+    {
+      "schema": "public",
+      "name": "customer_order_read_v2",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/checkout/data/supabase_checkout_repository.dart"
+      ],
+      "migration": "20260803122644_storefront_v1_customer_payments.sql",
+      "identity_arguments": "p_order_id uuid",
+      "arguments": "p_order_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-checkout.v1",
+        "customer-checkout.v2",
+        "customer-order.v2",
+        "storefront-fulfillment.v1",
+        "storefront-payment-options.v1"
+      ],
+      "migration_sha256": "67e21b42d7c08bf385427f87de3482ece266b8f320179ace8fa9463b328f0c3f",
+      "definition_md5": "941739bd53493df1e9541f42107560af"
+    },
+    {
+      "schema": "public",
+      "name": "customer_order_reorder_apply_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/orders/data/supabase_customer_order_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_order_id uuid, p_idempotency_key uuid",
+      "arguments": "p_order_id uuid, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=8s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-order-detail.v1",
+        "customer-order-list.v1",
+        "customer-reorder.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "000d795a0e6630e5816abf6f9a79faea"
+    },
+    {
+      "schema": "public",
+      "name": "customer_order_reorder_preview_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/orders/data/supabase_customer_order_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_order_id uuid",
+      "arguments": "p_order_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-order-detail.v1",
+        "customer-order-list.v1",
+        "customer-reorder.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "7a100b0ec3f9cd3b5c7c6023f3934065"
+    },
+    {
+      "schema": "public",
+      "name": "customer_record_privacy_consent_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/account/data/supabase_customer_account_repository.dart"
+      ],
+      "migration": "20260802181823_storefront_v1_customer_profiles_addresses.sql",
+      "identity_arguments": "p_version text, p_accepted boolean",
+      "arguments": "p_version text, p_accepted boolean",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-address.v2",
+        "customer.v1"
+      ],
+      "migration_sha256": "3371fbbac64cdcb7b86296b54e358a186b78af39f2b9df2ea3944590f6601357",
+      "definition_md5": "de3dc0f6acb08964e94b0ca15fc2db12"
+    },
+    {
+      "schema": "public",
+      "name": "customer_register_device_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/customer_devices/data/supabase_customer_device_repository.dart"
+      ],
+      "migration": "20260802194500_storefront_v1_customer_devices.sql",
+      "identity_arguments": "p_installation_id uuid, p_platform text, p_locale text, p_consent_status text, p_permission_status text, p_push_token text, p_idempotency_key uuid",
+      "arguments": "p_installation_id uuid, p_platform text, p_locale text, p_consent_status text, p_permission_status text, p_push_token text, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-device.v1"
+      ],
+      "migration_sha256": "b15d4651b2619080ee796cd6da4a71430559c2dedf1584e335efaf7ff2ca040e",
+      "definition_md5": "3bca448ab9a5297e7ee3fcc062fdd428"
+    },
+    {
+      "schema": "public",
+      "name": "customer_request_account_deletion_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/account/data/supabase_customer_account_repository.dart"
+      ],
+      "migration": "20260802181823_storefront_v1_customer_profiles_addresses.sql",
+      "identity_arguments": "p_idempotency_key uuid",
+      "arguments": "p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-address.v2",
+        "customer.v1"
+      ],
+      "migration_sha256": "3371fbbac64cdcb7b86296b54e358a186b78af39f2b9df2ea3944590f6601357",
+      "definition_md5": "400f9309833b5dea8d17fc6a1d3a3852"
+    },
+    {
+      "schema": "public",
+      "name": "customer_reservation_hold_create_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/reservations/data/supabase_reservation_hold_repository.dart"
+      ],
+      "migration": "20260803003855_storefront_v1_reservation_hold_eligibility.sql",
+      "identity_arguments": "p_shop_slug text, p_publication_id uuid, p_quantity integer, p_idempotency_key uuid",
+      "arguments": "p_shop_slug text, p_publication_id uuid, p_quantity integer, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-reservation-hold.v1"
+      ],
+      "migration_sha256": "67adfc2667444487dc801652780ff5822a8667674b0368afd7aeefd43924a235",
+      "definition_md5": "a2caf73336d6a7f1b6dcc251c3166afb"
+    },
+    {
+      "schema": "public",
+      "name": "customer_reservation_hold_read_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/reservations/data/supabase_reservation_hold_repository.dart"
+      ],
+      "migration": "20260803000951_storefront_v1_reservation_holds.sql",
+      "identity_arguments": "p_hold_id uuid",
+      "arguments": "p_hold_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-reservation-hold.v1"
+      ],
+      "migration_sha256": "5d7ea82b88e5c5da346f72f222cef045f2a0b44e21e86f9462d3d1708fceb02d",
+      "definition_md5": "6af8e19138bbe2f3b23c64def2dc004c"
+    },
+    {
+      "schema": "public",
+      "name": "customer_reservation_hold_release_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/reservations/data/supabase_reservation_hold_repository.dart"
+      ],
+      "migration": "20260803000951_storefront_v1_reservation_holds.sql",
+      "identity_arguments": "p_hold_id uuid, p_idempotency_key uuid",
+      "arguments": "p_hold_id uuid, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-reservation-hold.v1"
+      ],
+      "migration_sha256": "5d7ea82b88e5c5da346f72f222cef045f2a0b44e21e86f9462d3d1708fceb02d",
+      "definition_md5": "2dd869866f0677b0f1534df7e6ffa3ff"
+    },
+    {
+      "schema": "public",
+      "name": "customer_review_submit_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/reviews/data/supabase_customer_review_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_order_item_id uuid, p_rating integer, p_comment text",
+      "arguments": "p_order_item_id uuid, p_rating integer, p_comment text",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-reviews.v1",
+        "storefront-reviews.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "9d184b60964bf98f4eb877be0c4048e9"
+    },
+    {
+      "schema": "public",
+      "name": "customer_review_update_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/reviews/data/supabase_customer_review_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_review_id uuid, p_expected_version bigint, p_rating integer, p_comment text, p_withdraw boolean",
+      "arguments": "p_review_id uuid, p_expected_version bigint, p_rating integer, p_comment text, p_withdraw boolean DEFAULT false",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-reviews.v1",
+        "storefront-reviews.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "8c7d4d5e842f30e2d30edd2be7fd74b4"
+    },
+    {
+      "schema": "public",
+      "name": "customer_reviews_list_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/reviews/data/supabase_customer_review_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_pending_only boolean",
+      "arguments": "p_shop_slug text, p_pending_only boolean DEFAULT false",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-reviews.v1",
+        "storefront-reviews.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "e4907487d41c82de35914907ff68deee"
+    },
+    {
+      "schema": "public",
+      "name": "customer_revoke_device_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/customer_devices/data/supabase_customer_device_repository.dart"
+      ],
+      "migration": "20260802194500_storefront_v1_customer_devices.sql",
+      "identity_arguments": "p_installation_id uuid, p_idempotency_key uuid",
+      "arguments": "p_installation_id uuid, p_idempotency_key uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-device.v1"
+      ],
+      "migration_sha256": "b15d4651b2619080ee796cd6da4a71430559c2dedf1584e335efaf7ff2ca040e",
+      "definition_md5": "eca8b98d7c9be220a5350ff0ec51ac0e"
+    },
+    {
+      "schema": "public",
+      "name": "customer_set_default_address_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/account/data/supabase_customer_account_repository.dart"
+      ],
+      "migration": "20260803143000_storefront_v1_default_address_transition.sql",
+      "identity_arguments": "p_address_id uuid",
+      "arguments": "p_address_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\""
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-address.v2",
+        "customer.v1"
+      ],
+      "migration_sha256": "f1477be7aeba2e265ef247a7ddf3ab74c9559162379588dd63412abb4b384b7a",
+      "definition_md5": "0034dabdc7aeaa5473c00b094b5bc3e5"
+    },
+    {
+      "schema": "public",
+      "name": "storefront_catalog_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/storefront/data/supabase_storefront_repository.dart"
+      ],
+      "migration": "20260802043000_storefront_v1_catalog_performance.sql",
+      "identity_arguments": "p_shop_slug text, p_cursor text, p_limit integer, p_category_slug text, p_availability text, p_discounted boolean, p_featured boolean, p_sort text",
+      "arguments": "p_shop_slug text, p_cursor text DEFAULT NULL::text, p_limit integer DEFAULT NULL::integer, p_category_slug text DEFAULT NULL::text, p_availability text DEFAULT NULL::text, p_discounted boolean DEFAULT NULL::boolean, p_featured boolean DEFAULT NULL::boolean, p_sort text DEFAULT 'catalog'::text",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=3s"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "storefront.v1"
+      ],
+      "migration_sha256": "4c922c766b49dc3df70bbdf634d8b9650f03f4e32e2c60ef4c8854b58301e2f4",
+      "definition_md5": "db2a2b0f4897569dd2881ca83213448b"
+    },
+    {
+      "schema": "public",
+      "name": "storefront_categories_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/storefront/data/supabase_storefront_repository.dart"
+      ],
+      "migration": "20260801223000_storefront_v1_public_api.sql",
+      "identity_arguments": "p_shop_slug text, p_cursor text, p_limit integer",
+      "arguments": "p_shop_slug text, p_cursor text DEFAULT NULL::text, p_limit integer DEFAULT NULL::integer",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=3s"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "storefront.v1"
+      ],
+      "migration_sha256": "726ce6ae8ae934cb83f095ee9b79d6d7a035e2ee94c1cd5d0fa446bab11e64ed",
+      "definition_md5": "a997144f6969aa20b4a6a5ff1925d476"
+    },
+    {
+      "schema": "public",
+      "name": "storefront_delivery_context_preview_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/delivery_context/data/supabase_delivery_context_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_mode text, p_address_id uuid, p_pickup_point_id uuid, p_commune text",
+      "arguments": "p_shop_slug text, p_mode text, p_address_id uuid DEFAULT NULL::uuid, p_pickup_point_id uuid DEFAULT NULL::uuid, p_commune text DEFAULT NULL::text",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-delivery-context.v1",
+        "storefront-delivery-context.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "bef0d414532af3fa779e328387f9ddd6"
+    },
+    {
+      "schema": "public",
+      "name": "storefront_fulfillment_options_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/checkout/data/supabase_checkout_repository.dart"
+      ],
+      "migration": "20260816232752_storefront_customer_timezone_v1.sql",
+      "identity_arguments": "p_shop_slug text",
+      "arguments": "p_shop_slug text",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-checkout.v1",
+        "customer-checkout.v2",
+        "customer-order.v2",
+        "storefront-fulfillment.v1",
+        "storefront-payment-options.v1"
+      ],
+      "migration_sha256": "4f5d45d810dc94b0d34e064066668cbf204245c0517f1963be316d730d3c2f61",
+      "definition_md5": "6d10cc5ec3fcbab7b3dd0095c965fe33"
+    },
+    {
+      "schema": "public",
+      "name": "storefront_home_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/storefront/data/supabase_storefront_repository.dart"
+      ],
+      "migration": "20260801223000_storefront_v1_public_api.sql",
+      "identity_arguments": "p_shop_slug text, p_category_limit integer, p_featured_limit integer, p_offer_limit integer",
+      "arguments": "p_shop_slug text, p_category_limit integer DEFAULT 12, p_featured_limit integer DEFAULT 8, p_offer_limit integer DEFAULT 8",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=3s"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "storefront.v1"
+      ],
+      "migration_sha256": "726ce6ae8ae934cb83f095ee9b79d6d7a035e2ee94c1cd5d0fa446bab11e64ed",
+      "definition_md5": "2c15690bb0e82e7f235eb8d339a6f913"
+    },
+    {
+      "schema": "public",
+      "name": "storefront_order_tracking_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/delivery_tracking/data/supabase_delivery_tracking_repository.dart"
+      ],
+      "migration": "20260816072836_storefront_delivery_tracking_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_order_id uuid",
+      "arguments": "p_shop_slug text, p_order_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "delivery-tracking-snapshot.v1"
+      ],
+      "migration_sha256": "de46f0db55839e27629db9f9d8834d88e0acc353fb71c85ce592628dea123493",
+      "definition_md5": "f1a24f48e2dc424a4de2f39dae007cc5"
+    },
+    {
+      "schema": "public",
+      "name": "storefront_payment_options_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/checkout/data/supabase_checkout_repository.dart"
+      ],
+      "migration": "20260803122644_storefront_v1_customer_payments.sql",
+      "identity_arguments": "p_shop_slug text",
+      "arguments": "p_shop_slug text",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-checkout.v1",
+        "customer-checkout.v2",
+        "customer-order.v2",
+        "storefront-fulfillment.v1",
+        "storefront-payment-options.v1"
+      ],
+      "migration_sha256": "67e21b42d7c08bf385427f87de3482ece266b8f320179ace8fa9463b328f0c3f",
+      "definition_md5": "440c5a47919f6c853a2e83692514b510"
+    },
+    {
+      "schema": "public",
+      "name": "storefront_product_detail_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/storefront/data/supabase_storefront_repository.dart"
+      ],
+      "migration": "20260801223000_storefront_v1_public_api.sql",
+      "identity_arguments": "p_shop_slug text, p_publication_id uuid",
+      "arguments": "p_shop_slug text, p_publication_id uuid",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=3s"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "storefront.v1"
+      ],
+      "migration_sha256": "726ce6ae8ae934cb83f095ee9b79d6d7a035e2ee94c1cd5d0fa446bab11e64ed",
+      "definition_md5": "104d9c0f73ae1622a2b07f0976e99ed4"
+    },
+    {
+      "schema": "public",
+      "name": "storefront_product_reviews_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/reviews/data/supabase_customer_review_repository.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_publication_id uuid, p_before_created_at timestamp with time zone, p_before_id uuid, p_page_size integer",
+      "arguments": "p_shop_slug text, p_publication_id uuid, p_before_created_at timestamp with time zone DEFAULT NULL::timestamp with time zone, p_before_id uuid DEFAULT NULL::uuid, p_page_size integer DEFAULT 20",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "customer-reviews.v1",
+        "storefront-reviews.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "9f78bb76fc27cba31a5b9f2d4def4cd6"
+    },
+    {
+      "schema": "public",
+      "name": "storefront_search_suggestions_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/catalog/data/search_assist_data.dart"
+      ],
+      "migration": "20260823023037_client_commerce_journey_v1.sql",
+      "identity_arguments": "p_shop_slug text, p_query text, p_limit integer",
+      "arguments": "p_shop_slug text, p_query text, p_limit integer DEFAULT 10",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=3s"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "storefront-search-suggestions.v1"
+      ],
+      "migration_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "definition_md5": "ee2b4e988d44ce5936da5bd7b7bb63ff"
+    },
+    {
+      "schema": "public",
+      "name": "storefront_search_v1",
+      "result": "jsonb",
+      "sources": [
+        "lib/features/storefront/data/supabase_storefront_repository.dart"
+      ],
+      "migration": "20260802043000_storefront_v1_catalog_performance.sql",
+      "identity_arguments": "p_shop_slug text, p_query text, p_cursor text, p_limit integer, p_category_slug text",
+      "arguments": "p_shop_slug text, p_query text, p_cursor text DEFAULT NULL::text, p_limit integer DEFAULT NULL::integer, p_category_slug text DEFAULT NULL::text",
+      "security_definer": true,
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=3s"
+      ],
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "payload_versions_in_consumer": [
+        "storefront.v1"
+      ],
+      "migration_sha256": "4c922c766b49dc3df70bbdf634d8b9650f03f4e32e2c60ef4c8854b58301e2f4",
+      "definition_md5": "58d1efe9e07d9675d440134216504eff"
+    }
+  ],
+  "consumer_sources": {
+    "lib/features/account/data/supabase_customer_account_repository.dart": "8476e3a38f6c80991910afa3da81f3e3b8e6800af622639d34c2d2b13c57cbac",
+    "lib/features/after_sales/data/supabase_customer_after_sales_repository.dart": "66a3d11bbaa016cbfa8beda0a5fce2dd12ba1b6edbdfa854396e22e97e578486",
+    "lib/features/cart/data/supabase_customer_cart_repository.dart": "8b9f39aefcc9a129a8cb41e8e4a33a2f3214896b5079723bf3a6365da2d2cf40",
+    "lib/features/catalog/data/search_assist_data.dart": "31ebf3a0b4bbd735d21fe371cfe3708f382006572aeffd1503b0a6ed1df188cd",
+    "lib/features/checkout/data/supabase_checkout_repository.dart": "cfb72b9d6c811cb3ad3001a07573c7bf4562984b6f0682f3c01118f1e1c02375",
+    "lib/features/customer_devices/data/supabase_customer_device_repository.dart": "96fafbcbc92745a909bf644699d45e2477c3d014b2f3218e0d5b1b3fbf0e1f34",
+    "lib/features/customer_notifications/data/supabase_customer_notification_repository.dart": "02664a13c6c22e2833b6d8020c51ff1a3e40616e53222856ce11e425deea93c9",
+    "lib/features/delivery_context/data/supabase_delivery_context_repository.dart": "7515ce576a0435cb31801df0db7219581d45ee6ae9196a2e0585dfb6885a8b44",
+    "lib/features/delivery_tracking/data/supabase_delivery_tracking_repository.dart": "c45bfc1d6622af3d0a381f636b6abc9073952069266e2e927e44d3b6e392623e",
+    "lib/features/orders/data/supabase_customer_order_repository.dart": "4cf16949cc99dde590e849b92b5e97cbb9bcc75de62fd823116eec439c2be3ea",
+    "lib/features/reservations/data/supabase_reservation_hold_repository.dart": "50ba4ec1656a38ee773113719451f8d775d1a19a491597d132e677bd87af2e38",
+    "lib/features/reviews/data/supabase_customer_review_repository.dart": "f8fa38b718c26beb6894701ed92b673bb703d136b73e0e7976550f9a7296d1b8",
+    "lib/features/storefront/data/supabase_storefront_repository.dart": "dfc9c0f91f98173814b7992f7212242cee4ea47df3e1bb19e4c0db53ff241c79"
+  },
+  "required_migrations": [
+    {
+      "version": "20260928200000",
+      "file": "20260928200000_customer_notification_hold_dedup.sql",
+      "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e",
+      "authority_sha": "fb9546ca4e2e9abc4c280f1b87a020f0912fee24"
+    }
+  ],
+  "indexes": [
+    {
+      "schema": "public",
+      "name": "customer_notification_events_hold_source_idx",
+      "definition": "CREATE UNIQUE INDEX customer_notification_events_hold_source_idx ON public.customer_notification_events USING btree (reservation_hold_id, event_key) WHERE (source_kind = 'reservation_hold'::text)",
+      "unique": true,
+      "valid": true
+    },
+    {
+      "schema": "public",
+      "name": "customer_notification_events_safe_dedup_idx",
+      "definition": "CREATE UNIQUE INDEX customer_notification_events_safe_dedup_idx ON public.customer_notification_events USING btree (user_id, shop_id, source_kind, destination_id, event_key, event_version) WHERE (source_kind <> 'reservation_hold'::text)",
+      "unique": true,
+      "valid": true
+    }
+  ]
+}

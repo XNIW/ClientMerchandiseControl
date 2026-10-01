@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/design_system/tokens/app_sizes.dart';
+import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../core/config/app_config.dart';
@@ -132,15 +133,22 @@ final class _StorefrontProductReviewsSectionState
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.xs,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      const Icon(Icons.star, color: Colors.amber),
-                      const SizedBox(width: AppSpacing.xs),
-                      Text(
-                        value.averageRating.toStringAsFixed(1),
-                        style: Theme.of(context).textTheme.titleLarge,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber),
+                          const SizedBox(width: AppSpacing.xs),
+                          Text(
+                            value.averageRating.toStringAsFixed(1),
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: AppSpacing.sm),
                       Text(l10n.reviewsCount(value.publishedCount)),
                     ],
                   ),
@@ -151,16 +159,40 @@ final class _StorefrontProductReviewsSectionState
                     ...value.items.map(
                       (review) => ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: Row(
+                        title: Wrap(
+                          spacing: AppSpacing.sm,
+                          runSpacing: AppSpacing.xs,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             _RatingStars(rating: review.rating),
-                            const SizedBox(width: AppSpacing.sm),
-                            Chip(
-                              avatar: const Icon(
-                                Icons.verified_outlined,
-                                size: 16,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                                vertical: AppSpacing.xs,
                               ),
-                              label: Text(l10n.reviewsVerified),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  AppRadii.control,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.verified_outlined, size: 16),
+                                  const SizedBox(width: AppSpacing.xs),
+                                  Flexible(
+                                    child: Text(
+                                      l10n.reviewsVerified,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.labelLarge,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),

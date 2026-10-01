@@ -28,6 +28,14 @@ import '../domain/cart_failure.dart';
 import '../domain/cart_models.dart';
 import 'cart_messages.dart';
 
+Future<void> _handleCartMutation(Future<void> Function() action) async {
+  try {
+    await action();
+  } on CartRepositoryException {
+    // Il controller conserva le righe e pubblica failure/retry nella UI.
+  }
+}
+
 class CartScreen extends ConsumerWidget {
   const CartScreen({super.key});
 
@@ -94,7 +102,9 @@ class CartScreen extends ConsumerWidget {
       ),
     );
     if (confirmed == true) {
-      await ref.read(cartControllerProvider.notifier).clear();
+      await _handleCartMutation(
+        () => ref.read(cartControllerProvider.notifier).clear(),
+      );
     }
   }
 }
@@ -486,12 +496,14 @@ class _CartLineCard extends ConsumerWidget {
                           icon: Icons.remove,
                           onPressed: busy || line.quantity <= 1
                               ? null
-                              : () => ref
-                                    .read(cartControllerProvider.notifier)
-                                    .setQuantity(
-                                      line.publicationId,
-                                      line.quantity - 1,
-                                    ),
+                              : () => _handleCartMutation(
+                                  () => ref
+                                      .read(cartControllerProvider.notifier)
+                                      .setQuantity(
+                                        line.publicationId,
+                                        line.quantity - 1,
+                                      ),
+                                ),
                         ),
                         SizedBox(
                           height: AppSizes.minimumTouchTarget,
@@ -514,20 +526,24 @@ class _CartLineCard extends ConsumerWidget {
                                   !line.isAvailable ||
                                   line.quantity >= customerCartMaximumQuantity
                               ? null
-                              : () => ref
-                                    .read(cartControllerProvider.notifier)
-                                    .setQuantity(
-                                      line.publicationId,
-                                      line.quantity + 1,
-                                    ),
+                              : () => _handleCartMutation(
+                                  () => ref
+                                      .read(cartControllerProvider.notifier)
+                                      .setQuantity(
+                                        line.publicationId,
+                                        line.quantity + 1,
+                                      ),
+                                ),
                         ),
                         TextButton.icon(
                           key: ValueKey('cart-remove-${line.publicationId}'),
                           onPressed: busy
                               ? null
-                              : () => ref
-                                    .read(cartControllerProvider.notifier)
-                                    .remove(line.publicationId),
+                              : () => _handleCartMutation(
+                                  () => ref
+                                      .read(cartControllerProvider.notifier)
+                                      .remove(line.publicationId),
+                                ),
                           icon: const Icon(Icons.delete_outline),
                           label: Text(l10n.cartRemoveAction),
                           style: TextButton.styleFrom(

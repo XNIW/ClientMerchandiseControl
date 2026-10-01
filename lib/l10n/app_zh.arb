@@ -978,5 +978,7 @@
   "searchSuggestionCategory": "Categoría",
   "searchSuggestionBrand": "Marca",
   "deliveryContextPinHint": "Arrastra el marcador o toca el mapa para confirmar la ubicación.",
-  "deliveryAddressAttribution": "© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright"
+  "deliveryAddressAttribution": "© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright",
+  "afterSalesReason": "Motivo",
+  "notificationsUnreadOnly": "Solo no leídas"
 }

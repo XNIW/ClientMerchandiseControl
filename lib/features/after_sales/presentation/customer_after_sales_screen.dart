@@ -349,6 +349,9 @@ final class _AfterSalesCreateFormState
           children: [
             DropdownButtonFormField<CustomerAfterSalesType>(
               initialValue: _type,
+              isExpanded: true,
+              itemHeight: null,
+              isDense: false,
               decoration: InputDecoration(labelText: l10n.afterSalesCreate),
               items: CustomerAfterSalesType.values
                   .map(
@@ -365,9 +368,10 @@ final class _AfterSalesCreateFormState
             const SizedBox(height: AppSpacing.md),
             DropdownButtonFormField<CustomerAfterSalesReason>(
               initialValue: _reason,
-              decoration: InputDecoration(
-                labelText: l10n.afterSalesReasonOther,
-              ),
+              isExpanded: true,
+              itemHeight: null,
+              isDense: false,
+              decoration: InputDecoration(labelText: l10n.afterSalesReason),
               items: CustomerAfterSalesReason.values
                   .map(
                     (value) => DropdownMenuItem(

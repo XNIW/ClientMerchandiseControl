@@ -45,7 +45,7 @@ class CustomerNotificationInboxScreen extends ConsumerWidget {
         CustomerNotificationInboxStatus.failure when state.items.isEmpty =>
           StorefrontEmptyState(
             icon: Icons.cloud_off_outlined,
-            title: l10n.checkoutUnavailableTitle,
+            title: l10n.notificationsTitle,
             message: l10n.customerAccountUnavailable,
             actionLabel: l10n.deliveryContextRetry,
             onAction: controller.refresh,
@@ -96,6 +96,13 @@ class _InboxBody extends ConsumerWidget {
                   controller.selectCategory(selection.single),
             ),
           ),
+          CheckboxListTile(
+            key: const ValueKey('notifications-unread-only'),
+            contentPadding: EdgeInsets.zero,
+            title: Text(l10n.notificationsUnreadOnly),
+            value: state.unreadOnly,
+            onChanged: (value) => controller.selectUnreadOnly(value ?? false),
+          ),
           if (state.status == CustomerNotificationInboxStatus.offline) ...[
             const SizedBox(height: AppSpacing.md),
             StorefrontStatusBanner(
@@ -106,14 +113,14 @@ class _InboxBody extends ConsumerWidget {
             ),
           ],
           const SizedBox(height: AppSpacing.md),
-          if (state.items.isEmpty)
+          if (state.visibleItems.isEmpty)
             StorefrontEmptyState(
               icon: Icons.notifications_none_outlined,
               title: l10n.notificationsEmptyTitle,
               message: l10n.notificationsEmptyMessage,
             )
           else
-            ...state.items.map(
+            ...state.visibleItems.map(
               (item) => _NotificationTile(
                 item: item,
                 onTap: () => _openNotification(context, ref, item),

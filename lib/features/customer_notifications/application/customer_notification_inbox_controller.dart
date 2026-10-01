@@ -26,6 +26,7 @@ final class CustomerNotificationInboxState {
     this.isLoadingMore = false,
     this.isMutating = false,
     this.isFromCache = false,
+    this.unreadOnly = false,
   });
 
   final CustomerNotificationInboxStatus status;
@@ -38,6 +39,11 @@ final class CustomerNotificationInboxState {
   final bool isLoadingMore;
   final bool isMutating;
   final bool isFromCache;
+  final bool unreadOnly;
+
+  List<CustomerNotification> get visibleItems => unreadOnly
+      ? items.where((item) => item.isUnread).toList(growable: false)
+      : items;
 
   bool get hasMore => nextCursor != null;
 
@@ -55,6 +61,7 @@ final class CustomerNotificationInboxState {
     bool? isLoadingMore,
     bool? isMutating,
     bool? isFromCache,
+    bool? unreadOnly,
   }) => CustomerNotificationInboxState(
     status: status ?? this.status,
     items: List.unmodifiable(items ?? this.items),
@@ -66,6 +73,7 @@ final class CustomerNotificationInboxState {
     isLoadingMore: isLoadingMore ?? this.isLoadingMore,
     isMutating: isMutating ?? this.isMutating,
     isFromCache: isFromCache ?? this.isFromCache,
+    unreadOnly: unreadOnly ?? this.unreadOnly,
   );
 }
 
@@ -110,6 +118,10 @@ final class CustomerNotificationInboxController
 
   Future<void> refresh() => _load(++_generation, allowCache: false);
 
+  void selectUnreadOnly(bool value) {
+    state = state.copyWith(unreadOnly: value);
+  }
+
   Future<void> selectCategory(CustomerNotificationCategory? category) async {
     if (category == CustomerNotificationCategory.system ||
         category == state.category) {
@@ -118,6 +130,7 @@ final class CustomerNotificationInboxController
     state = CustomerNotificationInboxState(
       status: CustomerNotificationInboxStatus.loading,
       category: category,
+      unreadOnly: state.unreadOnly,
       unreadCount: state.unreadCount,
       isRefreshing: true,
     );

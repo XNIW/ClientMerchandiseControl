@@ -1,0 +1,546 @@
+{
+  "schema_version": 1,
+  "task": "TASK-054",
+  "captured_at_utc": "2026-10-01T21:54:29.867198+00:00",
+  "client_sha": "12f03c7cc81970facb363d0bebedb194c084a218",
+  "admin_sha": "f21339bb6c49a87057f629bc67c6519c478b50de",
+  "staging": {
+    "project_ref": "jpgoimipbothfgkokyvm",
+    "status": "ACTIVE_HEALTHY",
+    "postgres": "17.6.1.104",
+    "observed_at": "2026-10-01T21:44:00.63145+00:00",
+    "rpc_required": 55,
+    "rpc_present": 32,
+    "rpc_absent": 23,
+    "rpcs": [
+      {
+        "name": "customer_address_delete_v2",
+        "signature": "p_address_id uuid, p_expected_version bigint",
+        "present": false
+      },
+      {
+        "name": "customer_address_upsert_v2",
+        "signature": "p_address_id uuid, p_expected_version bigint, p_payload jsonb",
+        "present": false
+      },
+      {
+        "name": "customer_addresses_read_v2",
+        "signature": "",
+        "present": false
+      },
+      {
+        "name": "customer_after_sales_cancel_v1",
+        "signature": "p_case_id uuid, p_expected_version bigint",
+        "present": false
+      },
+      {
+        "name": "customer_after_sales_create_v1",
+        "signature": "p_order_id uuid, p_type text, p_reason text, p_note text, p_lines jsonb, p_idempotency_key uuid",
+        "present": false
+      },
+      {
+        "name": "customer_after_sales_evidence_register_v1",
+        "signature": "p_case_id uuid, p_object_path text",
+        "present": false
+      },
+      {
+        "name": "customer_after_sales_evidence_upload_ticket_v1",
+        "signature": "p_case_id uuid, p_extension text",
+        "present": false
+      },
+      {
+        "name": "customer_after_sales_list_v1",
+        "signature": "p_shop_slug text, p_page_size integer",
+        "present": false
+      },
+      {
+        "name": "customer_after_sales_order_lines_v1",
+        "signature": "p_order_id uuid",
+        "present": false
+      },
+      {
+        "name": "customer_cancel_account_deletion_v1",
+        "signature": "p_request_id uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_cart_merge_guest_v1",
+        "signature": "p_shop_slug text, p_guest_items jsonb, p_expected_version bigint, p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_cart_mutate_v1",
+        "signature": "p_shop_slug text, p_operation text, p_publication_id uuid, p_quantity integer, p_expected_version bigint, p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_cart_read_v1",
+        "signature": "p_shop_slug text",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_cart_revalidate_v1",
+        "signature": "p_shop_slug text, p_expected_version bigint, p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_checkout_quote_confirm_v1",
+        "signature": "p_quote_id uuid, p_expected_quote_version bigint, p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_checkout_quote_create_v1",
+        "signature": "p_shop_slug text, p_cart_version bigint, p_fulfillment_mode text, p_address_id uuid, p_pickup_point_id uuid, p_slot_id uuid, p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_checkout_quote_create_v2",
+        "signature": "p_shop_slug text, p_cart_version bigint, p_fulfillment_mode text, p_address_id uuid, p_pickup_point_id uuid, p_slot_id uuid, p_expected_context_version bigint, p_idempotency_key uuid",
+        "present": false
+      },
+      {
+        "name": "customer_checkout_quote_read_v1",
+        "signature": "p_quote_id uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_data_export_v1",
+        "signature": "",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_delivery_context_read_v1",
+        "signature": "p_shop_slug text",
+        "present": false
+      },
+      {
+        "name": "customer_delivery_context_select_v1",
+        "signature": "p_shop_slug text, p_mode text, p_address_id uuid, p_pickup_point_id uuid, p_expected_version bigint",
+        "present": false
+      },
+      {
+        "name": "customer_device_status_v1",
+        "signature": "p_installation_id uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_notification_mark_read_v1",
+        "signature": "p_notification_id uuid",
+        "present": false
+      },
+      {
+        "name": "customer_notification_route_v1",
+        "signature": "p_shop_slug text, p_route_token uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_notifications_list_v1",
+        "signature": "p_shop_slug text, p_category text, p_before_created_at timestamp with time zone, p_before_id uuid, p_page_size integer",
+        "present": false
+      },
+      {
+        "name": "customer_notifications_mark_all_read_v1",
+        "signature": "p_shop_slug text",
+        "present": false
+      },
+      {
+        "name": "customer_order_cancel_v1",
+        "signature": "p_shop_slug text, p_order_id uuid, p_expected_status_version bigint, p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_order_create_v2",
+        "signature": "p_quote_id uuid, p_expected_quote_version bigint, p_payment_method text, p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_order_detail_v1",
+        "signature": "p_shop_slug text, p_order_id uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_order_list_v1",
+        "signature": "p_shop_slug text, p_limit integer, p_before_placed_at timestamp with time zone, p_before_order_id uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_order_read_v2",
+        "signature": "p_order_id uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_order_reorder_apply_v1",
+        "signature": "p_order_id uuid, p_idempotency_key uuid",
+        "present": false
+      },
+      {
+        "name": "customer_order_reorder_preview_v1",
+        "signature": "p_order_id uuid",
+        "present": false
+      },
+      {
+        "name": "customer_record_privacy_consent_v1",
+        "signature": "p_version text, p_accepted boolean",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_register_device_v1",
+        "signature": "p_installation_id uuid, p_platform text, p_locale text, p_consent_status text, p_permission_status text, p_push_token text, p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_request_account_deletion_v1",
+        "signature": "p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_reservation_hold_create_v1",
+        "signature": "p_shop_slug text, p_publication_id uuid, p_quantity integer, p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_reservation_hold_read_v1",
+        "signature": "p_hold_id uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_reservation_hold_release_v1",
+        "signature": "p_hold_id uuid, p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_review_submit_v1",
+        "signature": "p_order_item_id uuid, p_rating integer, p_comment text",
+        "present": false
+      },
+      {
+        "name": "customer_review_update_v1",
+        "signature": "p_review_id uuid, p_expected_version bigint, p_rating integer, p_comment text, p_withdraw boolean",
+        "present": false
+      },
+      {
+        "name": "customer_reviews_list_v1",
+        "signature": "p_shop_slug text, p_pending_only boolean",
+        "present": false
+      },
+      {
+        "name": "customer_revoke_device_v1",
+        "signature": "p_installation_id uuid, p_idempotency_key uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "customer_set_default_address_v1",
+        "signature": "p_address_id uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "storefront_catalog_v1",
+        "signature": "p_shop_slug text, p_cursor text, p_limit integer, p_category_slug text, p_availability text, p_discounted boolean, p_featured boolean, p_sort text",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "storefront_categories_v1",
+        "signature": "p_shop_slug text, p_cursor text, p_limit integer",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "storefront_delivery_context_preview_v1",
+        "signature": "p_shop_slug text, p_mode text, p_address_id uuid, p_pickup_point_id uuid, p_commune text",
+        "present": false
+      },
+      {
+        "name": "storefront_fulfillment_options_v1",
+        "signature": "p_shop_slug text",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "storefront_home_v1",
+        "signature": "p_shop_slug text, p_category_limit integer, p_featured_limit integer, p_offer_limit integer",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "storefront_order_tracking_v1",
+        "signature": "p_shop_slug text, p_order_id uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "storefront_payment_options_v1",
+        "signature": "p_shop_slug text",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "storefront_product_detail_v1",
+        "signature": "p_shop_slug text, p_publication_id uuid",
+        "present": true,
+        "matches_manifest": true
+      },
+      {
+        "name": "storefront_product_reviews_v1",
+        "signature": "p_shop_slug text, p_publication_id uuid, p_before_created_at timestamp with time zone, p_before_id uuid, p_page_size integer",
+        "present": false
+      },
+      {
+        "name": "storefront_search_suggestions_v1",
+        "signature": "p_shop_slug text, p_query text, p_limit integer",
+        "present": false
+      },
+      {
+        "name": "storefront_search_v1",
+        "signature": "p_shop_slug text, p_query text, p_cursor text, p_limit integer, p_category_slug text",
+        "present": true,
+        "matches_manifest": true
+      }
+    ],
+    "schema_gate_result": "FAIL",
+    "schema_gate_exit": 1,
+    "errors": [
+      "missing_rpc:customer_address_delete_v2",
+      "missing_rpc:customer_address_upsert_v2",
+      "missing_rpc:customer_addresses_read_v2",
+      "missing_rpc:customer_after_sales_cancel_v1",
+      "missing_rpc:customer_after_sales_create_v1",
+      "missing_rpc:customer_after_sales_evidence_register_v1",
+      "missing_rpc:customer_after_sales_evidence_upload_ticket_v1",
+      "missing_rpc:customer_after_sales_list_v1",
+      "missing_rpc:customer_after_sales_order_lines_v1",
+      "missing_rpc:customer_checkout_quote_create_v2",
+      "missing_rpc:customer_delivery_context_read_v1",
+      "missing_rpc:customer_delivery_context_select_v1",
+      "missing_rpc:customer_notification_mark_read_v1",
+      "missing_rpc:customer_notifications_list_v1",
+      "missing_rpc:customer_notifications_mark_all_read_v1",
+      "missing_rpc:customer_order_reorder_apply_v1",
+      "missing_rpc:customer_order_reorder_preview_v1",
+      "missing_rpc:customer_review_submit_v1",
+      "missing_rpc:customer_review_update_v1",
+      "missing_rpc:customer_reviews_list_v1",
+      "missing_rpc:storefront_delivery_context_preview_v1",
+      "missing_rpc:storefront_product_reviews_v1",
+      "missing_rpc:storefront_search_suggestions_v1",
+      "missing_migration:20260823023037",
+      "missing_migration:20260823150000",
+      "missing_migration:20260928200000",
+      "missing_index:customer_notification_events_safe_dedup_idx"
+    ],
+    "indexes": [
+      {
+        "name": "customer_notification_events_hold_source_idx",
+        "unique": true,
+        "valid": true,
+        "definition_sha256": "ddd818bf2bc312f851c053e54ac33c3ead6c6ba123696b1da1036caa1430ec74"
+      }
+    ],
+    "missing_index": "customer_notification_events_safe_dedup_idx",
+    "history_count": 147,
+    "latest_migration": "20260929013437",
+    "required_missing_migrations": [
+      "20260823023037",
+      "20260823150000",
+      "20260928200000"
+    ],
+    "backups": null,
+    "pitr_enabled": false,
+    "shared_apply": false
+  },
+  "canonical_checksums": [
+    {
+      "file": "20260801223000_storefront_v1_public_api.sql",
+      "sha256": "726ce6ae8ae934cb83f095ee9b79d6d7a035e2ee94c1cd5d0fa446bab11e64ed",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260802043000_storefront_v1_catalog_performance.sql",
+      "sha256": "4c922c766b49dc3df70bbdf634d8b9650f03f4e32e2c60ef4c8854b58301e2f4",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260802181823_storefront_v1_customer_profiles_addresses.sql",
+      "sha256": "3371fbbac64cdcb7b86296b54e358a186b78af39f2b9df2ea3944590f6601357",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260802194500_storefront_v1_customer_devices.sql",
+      "sha256": "b15d4651b2619080ee796cd6da4a71430559c2dedf1584e335efaf7ff2ca040e",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260802213000_storefront_v1_customer_cart_public_slug.sql",
+      "sha256": "842e263ef3d43c83b3c2add71c1391524e9108b89f5e2ce8e5c0f127abde4ea8",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260803000951_storefront_v1_reservation_holds.sql",
+      "sha256": "5d7ea82b88e5c5da346f72f222cef045f2a0b44e21e86f9462d3d1708fceb02d",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260803003855_storefront_v1_reservation_hold_eligibility.sql",
+      "sha256": "67adfc2667444487dc801652780ff5822a8667674b0368afd7aeefd43924a235",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260803020000_storefront_v1_checkout_fulfillment.sql",
+      "sha256": "0a5abf67db8cc8d467fa9665fba4faf1cac4ac621e055c8b99104b90d9aa1a03",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260803104431_storefront_v1_order_notifications.sql",
+      "sha256": "ecf555043e63d43b514a90a2be8b875c6f2c95109b6059a5f21cf52e07f1e5d0",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260803122644_storefront_v1_customer_payments.sql",
+      "sha256": "67e21b42d7c08bf385427f87de3482ece266b8f320179ace8fa9463b328f0c3f",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260803143000_storefront_v1_default_address_transition.sql",
+      "sha256": "f1477be7aeba2e265ef247a7ddf3ab74c9559162379588dd63412abb4b384b7a",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260816072836_storefront_delivery_tracking_v1.sql",
+      "sha256": "de46f0db55839e27629db9f9d8834d88e0acc353fb71c85ce592628dea123493",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260816232752_storefront_customer_timezone_v1.sql",
+      "sha256": "4f5d45d810dc94b0d34e064066668cbf204245c0517f1963be316d730d3c2f61",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260823023037_client_commerce_journey_v1.sql",
+      "sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260823150000_customer_after_sales_order_lines_v1.sql",
+      "sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467",
+      "matches_current_admin": true
+    },
+    {
+      "file": "20260928200000_customer_notification_hold_dedup.sql",
+      "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e",
+      "matches_current_admin": true
+    }
+  ],
+  "recovery": {
+    "archive": "/Users/minxiang/.codex/outputs/client-functional-audit/recovery-20261001",
+    "artifact_hashes": "14_of_14_match",
+    "history": "147 -> 150 -> 147",
+    "catalog_acl": "PASS_recorded_artifacts",
+    "synthetic_rows_six_tables": "PASS_recorded_artifacts",
+    "negative_guards": "PASS_recorded_artifacts",
+    "storage_cleanup": "PASS_recorded_artifacts",
+    "current_database_recapture": "NOT_RUN_containers_removed",
+    "remote_data_backup": "NOT_ATTESTED",
+    "canonical_index_entries": 150,
+    "canonical_index_hashes": "150_of_150_match_current_admin",
+    "canonical_index_applied": 147,
+    "canonical_index_pending": [
+      "20260823023037",
+      "20260823150000",
+      "20260928200000"
+    ]
+  },
+  "approved_service_refs": {
+    "CMC_BACKEND_PGSERVICE_set": false,
+    "PGSERVICE_set": false,
+    "PGSERVICEFILE_set": false,
+    "default_pg_service_exists": false,
+    "artifact_config_reference_available": false
+  },
+  "activity_snapshot": {
+    "observed_at": "2026-10-01T21:47:16.669953+00:00",
+    "other_transactions": 0,
+    "other_active_queries": 0,
+    "waiting_locks": 0,
+    "proves_coordinated_window": false
+  },
+  "deployment_readonly": {
+    "worker": "merchandise-control-admin-web-staging",
+    "approved_admin_origin": "https://merchandise-control-admin-web-staging.merchandise-control-admin-web.workers.dev",
+    "approved_backend_ref": "jpgoimipbothfgkokyvm",
+    "github_staging_variables_match": true,
+    "deployment_id": "dbb46232-b45b-4413-b7e6-9f5f71b9c42a",
+    "active_version_id": "bdd42368-1398-4b74-8139-43d4b290dddf",
+    "percentage": 100,
+    "created_on": "2026-09-29T01:31:09.838918Z",
+    "active_metadata_sha40_present": false,
+    "main_sha_deployed": "NOT_ATTESTED",
+    "workflow_independent_of_migration": true,
+    "workflow_mutations": [
+      "secret put TASK150_QA_HMAC_KEY",
+      "full selected-ref Worker deploy"
+    ],
+    "selective_release_coordination_required": true,
+    "deploy_performed": false,
+    "references": [
+      "docs/RUNBOOKS/win7pos-workers-dev-staging-connection.md:7",
+      "docs/RUNBOOKS/win7pos-workers-dev-staging-connection.md:75",
+      ".github/workflows/cloudflare.yml:85",
+      ".github/workflows/cloudflare.yml:174",
+      "docs/TASKS/TASK-159-wechat-010-staging-readiness.md:5",
+      "docs/AUDITS/WECHAT-010-FUNCTIONAL-WORKLOG.md:176"
+    ],
+    "version_metadata_inspection": {
+      "exit_code": 0,
+      "result": "PASS_version_metadata",
+      "version_id": "bdd42368-1398-4b74-8139-43d4b290dddf",
+      "runtime_backend_url_visible": true,
+      "runtime_backend_url_matches": true,
+      "annotation_git_sha_candidates": []
+    }
+  },
+  "blockers": [
+    "No coordinated writer/cron window attested; one zero-activity snapshot is insufficient",
+    "Missing23RPC/3migrations/safe_dedup index prevent dependent payload/roles/journeyE2E",
+    "Approved readonly TLS PGSERVICE and artifact configuration absent",
+    "Remote recoverable data backup is not attested; synthetic local rehearsal is distinct",
+    "Fresh local DB recapture unavailable because rehearsal containers removed",
+    "Current Admin main deployment not attested by active Worker metadata; shared selective release must be preserved/coordinate before a deploy"
+  ],
+  "warnings": [
+    "Exploration had harmless missing-path/glob errors; final checks use correct paths",
+    "First Wrangler attempt suppressed JSON via WRANGLER_LOG=error; repeated without override returned valid metadata",
+    "No protected values, rawSQL bodies or rawlogs included; no remote mutation performed"
+  ],
+  "admin_fresh_remote_observation": {
+    "origin_main": "4532831b30de8ba19d1c26a040c0bfc6b64b794a",
+    "canonical_checkout_head": "f21339bb6c49a87057f629bc67c6519c478b50de",
+    "canonical_status": "clean_behind2",
+    "new_pr": 119,
+    "new_code_commit": "df79d440e3ea3f86d88a42bce8899e0e9e293fc5",
+    "staging_deploy_or_schema_effect": "NOT_ATTESTED"
+  }
+}

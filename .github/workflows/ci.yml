@@ -177,6 +177,18 @@ jobs:
       - name: Smoke iOS on the declared deployment target
         run: bash scripts/test-ios-shell-smoke.sh
 
+      - name: Capture commerce UI with synthetic fixtures on iOS
+        run: bash scripts/test-task054-visual.sh --ios
+      - name: Save synthetic UI captures
+        if: always()
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-ios-visual-fixtures
+          path: build/task054/visual/*.png
+          if-no-files-found: warn
+          retention-days: 7
+
   ios-release:
     name: iOS release candidate
     runs-on: macos-26

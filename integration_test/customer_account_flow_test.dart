@@ -1,3 +1,5 @@
+import 'support/visual_capture.dart';
+
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
 import 'package:client_merchandise_control/features/account/presentation/customer_account_panel.dart';
@@ -9,6 +11,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../test/features/account/customer_account_test_support.dart';
+import '../test/features/checkout/checkout_test_support.dart';
+import 'package:client_merchandise_control/features/delivery_context/application/delivery_context_controller.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +30,7 @@ void main() {
       findsOneWidget,
     );
     expect(repository.subjectId, testCustomerSubject);
+    await captureVisual(tester, 'account-loaded');
 
     await tester.enterText(
       find.byKey(const ValueKey('customer-profile-name')),
@@ -39,6 +44,7 @@ void main() {
     expect(repository.profile?.locale, 'en');
 
     await _tap(tester, ValueKey('customer-address-edit-$testAddressId'));
+    await captureVisual(tester, 'address-editor');
     await tester.enterText(
       find.byKey(const ValueKey('customer-address-field-label')),
       'Casa principal',
@@ -48,6 +54,7 @@ void main() {
     expect(repository.addresses.single.label, 'Casa principal');
 
     await _tap(tester, const ValueKey('customer-address-add'));
+    await captureVisual(tester, 'address-new');
     for (final entry in const {
       'label': 'Trabajo',
       'recipient': 'Cliente Integración',
@@ -63,6 +70,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('customer-address-submit')));
     await tester.pumpAndSettle();
     expect(repository.addresses, hasLength(2));
+    await captureVisual(tester, 'address-saved');
 
     final createdAddress = repository.addresses.last;
     expect(createdAddress.id, isNot(testAddressId));
@@ -96,6 +104,7 @@ void main() {
     expect(tester.takeException(), isNull);
     semantics.dispose();
     binding.reportData = <String, Object?>{
+      ...?binding.reportData,
       'ownerSnapshot': 'PASS',
       'profileCreateUpdate': 'PASS',
       'addressCreateUpdateDelete': 'PASS',
@@ -126,6 +135,9 @@ Widget _buildApp(FakeCustomerAccountRepository repository) {
   return ProviderScope(
     overrides: [
       customerAccountIdentityProvider.overrideWithValue(identity),
+      deliveryContextControllerProvider.overrideWith(
+        TestDeliveryContextController.new,
+      ),
       customerAccountRepositoryProvider.overrideWithValue(repository),
       customerIdempotencyKeyFactoryProvider.overrideWithValue(
         () => '21000000-0000-4000-8000-000000000777',

@@ -289,3 +289,60 @@ per i gate live. Il mandato autorizza a completare separatamente l'integrazione
 Client di sviluppo dopo review distinta APPROVED e CI applicabile; la ricevuta
 finale post-freeze è nella PR27/rapporto locale. Nessun DONE, firma, upload,
 collaudo fisico o activation production è inferito dalla CI.
+
+
+## Emendamento utente funzionale e UX — 2026-10-01
+
+Il prompt «COMPLETAMENTO FUNZIONALE STAGING E REVISIONE UX/UI» autorizza
+esecuzione, correzioni riproducibili, collaudo visivo Android/iOS con fixture dichiarate,
+parità authoring coordinata, due review read-only e integrazione di sviluppo condizionata.
+L’autorizzazione precedente ad apply staging resta subordinata a recovery attuale e
+finestra effettivamente coordinata con tutti i writer/cron; nessuna nuova richiesta
+generica di consenso. Firma, canale e provider richiedono i riferimenti già approvati.
+TASK-054 resta aperta; nessun TASK-055, DONE, production, provider nuovo o spesa.
+
+## Planning funzionale e UX approvato dal mandato
+
+Ripartire dalla main fresca e dalle ricevute post-merge, preservando audit e ID storici.
+Unico writer root Client su worktree isolato; verifiche backend/config/native readonly
+parallele, reviewer distinti sul candidato congelato. Catturare schermate di componenti
+produzione in processo nativo con repository sintetici dichiarati, riprodurre lacune
+prima di correggere, aggiungere regressioni mirate e rieseguire gate canonici.
+
+| CA / test | Criterio | Prova |
+|---|---|---|
+| CA-U1 / T-U1 | Main Client/Admin, PR integrate e CI correnti riconciliate | SHA, ancestry, job/step/annotation |
+| CA-U2 / T-U2 | Preflight staging corrente senza scritture senza finestra | 55 RPC, 2 indici, history, gate live e prerequisiti |
+| CA-U3 / T-U3 | UX osservata Android/iOS e correzioni minime riproducibili | Screenshot prima/dopo, interazioni, scale/locali/accessibilità |
+| CA-U4 / T-U4 | R01–R30 e R24 senza promozione dei risultati parziali | Matrice ambiente/piattaforma, namespace fixture e cleanup |
+| CA-U5 / T-U5 | Gate candidato e due review indipendenti | Test mirati/canonici, benchmark10, build, CI e review |
+
+Handoff: CODEX_PLANNING_APPROVED_TO_EXECUTION, già autorizzato dall’utente.
+
+
+## Fix funzionale e UX del mandato 2026-10-01 — freeze di sviluppo
+
+Riprese le correzioni nello scope esplicito su worktree isolato da main12f03c7.
+Recensioni: reflow/count/badge completo. Assistenza: motivo localizzato e dropdown
+non densi/espansi. Delivery: selettore verticale a testo grande, azioni indirizzo e
+pickup separate dai dettagli. Inbox: filtro non lette delle pagine caricate e titolo
+feature corretto in errore. Cart: errori attesi gestiti dalle CTA senza eccezione non
+catturata; righe/quantità conservate e successivo tentativo possibile.
+
+AndroiddebugAPI35 proprio:41test reali con fixture e55PNG, exit0, dopo FAIL osservati
+nel runtime/harness. Quattro lingue320x568/200%:12regressioniPASS;4mutazioni Cart
+PASS; filtro inboxPASS. Nessuna goldenbaseline modificata o provider attivato.
+Suitecanonico/CI/iOScapture ancora da associare al candidato; nessun PASS anticipato.
+
+| CA / test | Evidence corrente | Esito / limite |
+|---|---|---|
+| CA-U1 / T-U1 | baselinePR27/main36924259905; Admin117/118/119 riconciliate | PASS baseline; candidato nuovo richiedeCI |
+| CA-U2 / T-U2 | metadata-preflight-20261001.json, hash canonici/recovery, livegateexit2 | PASS preflight; runtimeFAIL; apply/gateBLOCKED |
+| CA-U3 / T-U3 | suitevisual41test/55PNG Android;12accessibilità/4Cart/filtro; nuovi stati UI | PASS sottoinsieme; iOS/IME/screenreader/contrastoNOT_RUN |
+| CA-U4 / T-U4 | acceptanceR01–30 overlay eR24 scomposto; chatnative/Admin coordinate | PASS mapping; liveR01–30/R24NOT_RUN |
+| CA-U5 / T-U5 | reportoperativo, candidataPR/2review/CI da completare | NOT_RUN freeze, nessuna integrazione anticipata |
+
+Handoff `CODEX_FIX_BLOCKED_TO_RE_REVIEW`: delta tecnico consegnabile ai reviewer
+read-only distinti dopo gate applicabili; TASK054non review-ready per acceptance
+completa. L'integrazione sviluppo resta autorizzata soltanto dopo le due review del
+candidato esatto eCI, senza promuovere alcun livello live o dichiarareDONE.

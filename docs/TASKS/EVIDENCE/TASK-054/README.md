@@ -9,7 +9,15 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
-## Freeze del mandato operativo — 2026-10-01
+## Mandato funzionale e UX corrente
+
+[CLIENT_TASK054_FUNCTIONAL_UX_OPERATIONAL_RESULT](functional-ux-operational-result.md)
+è l'overlay corrente alla main Client12f03c7 e Admin4532831b. Preflight fresco:
+32/55RPC,1/2indici,history147; applyBLOCKED senza finestra/recoveryremota.
+Correzioni UI, filtro non lette e mutazioni carrello completate; review del nuovo candidato e CI
+sono separate dalle ricevute storiche. Le capability live restano NOT_RUN/BLOCKED.
+
+## Snapshot storico PR27 — 2026-10-01
 
 Revision set: Client runtime `ecba981c42bb80b125927478dc02c07210039407`,
 Admin PR117 `d4fbf49ce274b7a97f7c34fa5519a0b8a088b9d5`, merged

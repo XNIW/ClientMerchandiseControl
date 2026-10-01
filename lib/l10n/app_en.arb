@@ -650,5 +650,7 @@
   "searchSuggestionCategory": "Category",
   "searchSuggestionBrand": "Brand",
   "deliveryContextPinHint": "Drag the pin or tap the map to confirm the location.",
-  "deliveryAddressAttribution": "© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright"
+  "deliveryAddressAttribution": "© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright",
+  "afterSalesReason": "Reason",
+  "notificationsUnreadOnly": "Unread only"
 }

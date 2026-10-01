@@ -26,3 +26,15 @@ Fix della review distinta: C-01 probe mappa nativo, C-02 epoch inbox su revoca,
 C-03 purge/epoch delivery preview/select, B-04 migration e indici obbligatori nel gate.
 Tutti chiusi sui test indipendenti del runtime ecba981; nessun nuovo P0/P1/P2 rilevato.
 CI/merge correnti e dipendenze esterne con parametri/owner sono nel README canonico.
+
+
+## Overlay funzionale e UX — 2026-10-01
+
+[Rapporto corrente](functional-ux-operational-result.md) e
+[preflight fresco](metadata-preflight-20261001.json) governano la nuova run.
+Runtime32/55RPC,1/2indici ehistory147 invariati; applyBLOCKED e gateTLSexit2.
+Fix riprodotti: reflow recensioni/badge, motivo/dropdown assistenza, delivery/pickup,
+filtro non letteR18, heading inbox e CTA Cart offline che propagava eccezione.
+Android nativo fixture41test/55PNG exit0; quattro locale12accessibilitàPASS.
+CI/review/newmerge al freezeNOT_RUN; snapshot storici non riscritti.
+Tutti25ID E2E storici e30casi compositi R conservati; nessun PASSlive inferito.

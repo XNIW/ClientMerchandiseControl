@@ -7,6 +7,7 @@ import 'package:client_merchandise_control/features/cart/application/cart_provid
 import 'package:client_merchandise_control/features/delivery_context/application/delivery_context_controller.dart';
 import 'package:client_merchandise_control/features/delivery_context/domain/delivery_context_models.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
+import 'package:client_merchandise_control/features/cart/domain/cart_failure.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_repository.dart';
 import 'package:client_merchandise_control/features/cart/presentation/cart_screen.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
@@ -174,6 +175,48 @@ void main() {
     expect(store.removeCalls, 1);
     expect(find.text('Tu carrito está vacío'), findsOneWidget);
   });
+
+  for (final action in ['increase', 'decrease', 'remove', 'clear']) {
+    testWidgets('mutazione $action offline conserva righe e retry', (
+      tester,
+    ) async {
+      final store = _FakeGuestCartStore(snapshot: _cartSnapshot(quantity: 2));
+      await tester.pumpWidget(buildApp(store: store));
+      await tester.pumpAndSettle();
+      store.mutationFailure = CartFailureKind.offline;
+      final button = find.byKey(
+        ValueKey(
+          action == 'clear' ? 'cart-clear' : 'cart-$action-$_publicationId',
+        ),
+      );
+      await tester.ensureVisible(button);
+      await tester.pumpAndSettle();
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+      if (action == 'clear') {
+        await tester.tap(find.byKey(const ValueKey('cart-clear-confirm')));
+        await tester.pumpAndSettle();
+      }
+      expect(store.snapshot.items.single.quantity, 2);
+      expect(find.text('Café público'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      store.mutationFailure = null;
+      if (action != 'clear') {
+        await tester.ensureVisible(button);
+        await tester.pumpAndSettle();
+        await tester.tap(button);
+        await tester.pumpAndSettle();
+        if (action == 'remove') {
+          expect(store.snapshot.items, isEmpty);
+        } else {
+          expect(
+            store.snapshot.items.single.quantity,
+            action == 'increase' ? 3 : 1,
+          );
+        }
+      }
+    });
+  }
 
   testWidgets(
     'CTA guest apre checkout, che governa il gate di autenticazione',
@@ -387,6 +430,13 @@ final class _FakeGuestCartStore implements GuestCartStore {
   final List<int> quantityCalls = [];
   int removeCalls = 0;
   int readCalls = 0;
+  CartFailureKind? mutationFailure;
+
+  void _checkMutation() {
+    if (mutationFailure case final failure?) {
+      throw CartRepositoryException(failure);
+    }
+  }
 
   @override
   Future<CustomerCartSnapshot> read({required String shopSlug}) async {
@@ -400,6 +450,7 @@ final class _FakeGuestCartStore implements GuestCartStore {
     required String publicationId,
     required int quantity,
   }) async {
+    _checkMutation();
     quantityCalls.add(quantity);
     final line = snapshot.items.single.copyWith(quantity: quantity);
     snapshot = CustomerCartSnapshot(
@@ -420,6 +471,7 @@ final class _FakeGuestCartStore implements GuestCartStore {
     required String shopSlug,
     required String publicationId,
   }) async {
+    _checkMutation();
     removeCalls++;
     snapshot = CustomerCartSnapshot.empty(
       shopSlug: shopSlug,
@@ -430,6 +482,7 @@ final class _FakeGuestCartStore implements GuestCartStore {
 
   @override
   Future<CustomerCartSnapshot> clear({required String shopSlug}) async {
+    _checkMutation();
     snapshot = CustomerCartSnapshot.empty(
       shopSlug: shopSlug,
       source: CartSource.guest,

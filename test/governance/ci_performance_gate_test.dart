@@ -42,7 +42,43 @@ void main() {
     final checkoutWith = checkout['with'];
 
     expect(checkoutWith, isA<YamlMap>());
-    expect((checkoutWith as YamlMap).keys, unorderedEquals(['fetch-depth']));
+    expect(
+      (checkoutWith as YamlMap).keys,
+      unorderedEquals(['ref', 'fetch-depth']),
+    );
+    expect(
+      checkoutWith['ref'],
+      r'${{ github.event.pull_request.head.sha || github.sha }}',
+    );
     expect(checkoutWith['fetch-depth'], 0);
+  });
+
+  test('tutti i job CI verificano il commit esatto del candidato', () {
+    final document =
+        loadYaml(File('.github/workflows/ci.yml').readAsStringSync())
+            as YamlMap;
+    final jobs = document['jobs'] as YamlMap;
+
+    expect(jobs.length, 5);
+    for (final entry in jobs.entries) {
+      final steps = (entry.value as YamlMap)['steps'] as YamlList;
+      final checkout = steps.whereType<YamlMap>().singleWhere(
+        (step) => step['name'] == 'Checkout',
+      );
+      final inputs = checkout['with'] as YamlMap;
+
+      expect(
+        inputs.keys,
+        unorderedEquals(
+          entry.key == 'quality' ? ['ref', 'fetch-depth'] : ['ref'],
+        ),
+        reason: 'input checkout non previsti nel job ${entry.key}',
+      );
+      expect(
+        inputs['ref'],
+        r'${{ github.event.pull_request.head.sha || github.sha }}',
+        reason: 'il job ${entry.key} deve verificare lo stesso candidato',
+      );
+    }
   });
 }

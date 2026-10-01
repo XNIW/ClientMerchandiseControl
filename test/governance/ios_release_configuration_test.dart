@@ -376,6 +376,39 @@ jobs:
       );
     }
   });
+
+  test('CI release gate rejects checkout refs outside the exact candidate', () {
+    final workflow = File(
+      '$repositoryRoot/.github/workflows/ci.yml',
+    ).readAsStringSync();
+    const candidateRef =
+        r'${{ github.event.pull_request.head.sha || github.sha }}';
+    final releaseOffset = workflow.indexOf('  ios-release:\n');
+    expect(releaseOffset, greaterThan(0));
+    final prefix = workflow.substring(0, releaseOffset);
+    final releaseJob = workflow.substring(releaseOffset);
+    expect(releaseJob, contains(candidateRef));
+
+    for (final ref in ['main', r'${{ github.head_ref }}', '']) {
+      final mutation = prefix + releaseJob.replaceFirst(candidateRef, ref);
+      expect(
+        () => _validateIosReleaseJob(mutation),
+        throwsA(isA<StateError>()),
+        reason: 'il checkout release deve rifiutare ref=$ref',
+      );
+    }
+    final extraInput =
+        prefix +
+        releaseJob.replaceFirst(
+          '          ref: $candidateRef\n',
+          '          ref: $candidateRef\n          fetch-depth: 0\n',
+        );
+    expect(extraInput, isNot(workflow));
+    expect(
+      () => _validateIosReleaseJob(extraInput),
+      throwsA(isA<StateError>()),
+    );
+  });
 }
 
 void _validateRunbookAttestation(String runbook, String workflow) {
@@ -615,9 +648,16 @@ void _validateIosReleaseJob(String workflow) {
   _requireStep(
     steps[0],
     name: 'Checkout',
-    keys: const <String>{'name', 'uses'},
+    keys: const <String>{'name', 'uses', 'with'},
     uses: 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
   );
+  final checkoutWith = steps[0]['with'];
+  if (checkoutWith is! YamlMap ||
+      !_hasExactKeys(checkoutWith, const <String>{'ref'}) ||
+      checkoutWith['ref'] !=
+          r'${{ github.event.pull_request.head.sha || github.sha }}') {
+    throw StateError('iOS release checkout candidate invalid');
+  }
   _requireStep(
     steps[1],
     name: 'Set up Flutter',

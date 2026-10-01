@@ -471,7 +471,8 @@
       "20260823023037",
       "20260823150000",
       "20260928200000"
-    ]
+    ],
+    "canonical_index_baseline_sha": "f21339bb6c49a87057f629bc67c6519c478b50de"
   },
   "approved_service_refs": {
     "CMC_BACKEND_PGSERVICE_set": false,
@@ -541,6 +542,95 @@
     "canonical_status": "clean_behind2",
     "new_pr": 119,
     "new_code_commit": "df79d440e3ea3f86d88a42bce8899e0e9e293fc5",
-    "staging_deploy_or_schema_effect": "NOT_ATTESTED"
+    "staging_deploy_or_schema_effect": "NOT_ATTESTED",
+    "canonical_migration_count": 151,
+    "existing_index_coverage": "150_of_151_sources",
+    "new_migration": "20261001195438_wechat_010_recovery_checkpoint_performance.sql",
+    "new_migration_sha256": "54a49cbf529e1019468c9e2708c36f83eea783edca31b0df3c22af43e8fc80d7",
+    "client_rpc_sources_changed": false,
+    "remote_history": "NOT_RECAPTURED_after_PR119",
+    "future_apply": "Fresh_remote_history_and_schema_snapshot_reconciliation_dry_run_and_writer_window_required"
+  },
+  "admin_pr119_delta_readonly": {
+    "base": "f21339bb6c49a87057f629bc67c6519c478b50de",
+    "head": "4532831b30de8ba19d1c26a040c0bfc6b64b794a",
+    "pr_head": "df79d440e3ea3f86d88a42bce8899e0e9e293fc5",
+    "changed_files_count": 6,
+    "canonical16_changed": [],
+    "canonical_index150_existing_sources_changed": [],
+    "new_migration_outside_original_index": "20261001195438_wechat_010_recovery_checkpoint_performance.sql",
+    "manifest55_public_rpc_declarations_changed": [],
+    "canonical16_direct_references_to_changed_helpers": [],
+    "private_helpers_changed": [
+      "sync_checkpoint_json_timestamp",
+      "sync_price_recovery_row_v1",
+      "sync_checkpoint_timestamp",
+      "sync_checkpoint_chain_step_v1",
+      "sync_checkpoint_sha256",
+      "sync_product_recovery_row_v1"
+    ],
+    "client_manifest_changed": false,
+    "new_schema_dump_or_recovery": "NOT_RUN_no_new_apply_or_authorized_writer_window_no_schema_or_recovery_recapture_after_Admin151",
+    "ci_pr_runs": [
+      36931262840,
+      36931262847
+    ],
+    "ci_main_runs": [
+      36931671476,
+      36931671402
+    ],
+    "ci_applicable_jobs_and_steps": "PASS",
+    "ci_deploy_staging_production_and_E2E094": "SKIPPED",
+    "annotations": [
+      {
+        "id": 110600776012,
+        "exit": 0,
+        "failure": 0,
+        "warning": 1,
+        "notice": 1
+      },
+      {
+        "id": 110600776310,
+        "exit": 0,
+        "failure": 0,
+        "warning": 1,
+        "notice": 1
+      },
+      {
+        "id": 110600775713,
+        "exit": 0,
+        "failure": 0,
+        "warning": 1,
+        "notice": 1
+      },
+      {
+        "id": 110602177421,
+        "exit": 0,
+        "failure": 0,
+        "warning": 1,
+        "notice": 1
+      },
+      {
+        "id": 110602177687,
+        "exit": 0,
+        "failure": 0,
+        "warning": 1,
+        "notice": 1
+      },
+      {
+        "id": 110602172686,
+        "exit": 0,
+        "failure": 0,
+        "warning": 1,
+        "notice": 1
+      }
+    ],
+    "annotation_categories": [
+      "Node20 deprecation warning",
+      "ubuntu26 migration notice"
+    ],
+    "all_commands_exit": 0,
+    "remote_current_history": "NOT_RECAPTURED",
+    "original_index_future_apply": "Requires fresh remote history reconciliation including new canonical version before any apply"
   }
 }

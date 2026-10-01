@@ -338,7 +338,7 @@ Suitecanonico/CI/iOScapture ancora da associare al candidato; nessun PASS antici
 |---|---|---|
 | CA-U1 / T-U1 | baselinePR27/main36924259905; Admin117/118/119 riconciliate | PASS baseline; candidato nuovo richiedeCI |
 | CA-U2 / T-U2 | metadata-preflight-20261001.json, hash canonici/recovery, livegateexit2 | PASS preflight; runtimeFAIL; apply/gateBLOCKED |
-| CA-U3 / T-U3 | suitevisual41test/55PNG Android;12accessibilità/4Cart/filtro; nuovi stati UI | PASS sottoinsieme; iOS/IME/screenreader/contrastoNOT_RUN |
+| CA-U3 / T-U3 | suitevisual41test/55PNG Android;12accessibilità/4Cart/filtro; nuovi stati UI | PASS sottoinsieme; baseline iOS55PNG/3contrasti puntuali osservati; nuovo freeze/IME/screenreader/contrasto globaleNOT_RUN |
 | CA-U4 / T-U4 | acceptanceR01–30 overlay eR24 scomposto; chatnative/Admin coordinate | PASS mapping; liveR01–30/R24NOT_RUN |
 | CA-U5 / T-U5 | reportoperativo, candidataPR/2review/CI da completare | NOT_RUN freeze, nessuna integrazione anticipata |
 
@@ -346,3 +346,34 @@ Handoff `CODEX_FIX_BLOCKED_TO_RE_REVIEW`: delta tecnico consegnabile ai reviewer
 read-only distinti dopo gate applicabili; TASK054non review-ready per acceptance
 completa. L'integrazione sviluppo resta autorizzata soltanto dopo le due review del
 candidato esatto eCI, senza promuovere alcun livello live o dichiarareDONE.
+
+
+## Review indipendente del candidato 0bea0016 — 2026-10-01
+
+Client/UX/lifecycle: `CHANGES_REQUIRED`, 3 P2 e 1 P3 riprodotti dal reviewer
+read-only distinto. CUX-01: titolo inbox a200%; CUX-02: CTA eleggibile comprime
+il prodotto/assert ListTile; CUX-03/P3: cleanup simulator interrotto dal timeout;
+CUX-04: pagina tardiva ripristina unread dopo mark-all. Dropdown4PASS, inbox
+1PASS/3FAIL, race1FAIL, exit code conservati nei receipt locali sanitizzati.
+Backend/contratti/sicurezza: `APPROVED` sul delta0bea0016, zeroP0–P3;
+source55/test13/entitlement4/security61+7/governance101/architecture17PASS.
+La review del task completo resta BLOCKED. Nessuna approvazione del writer.
+
+## Fix dei finding CUX-01–05
+
+Correzioni autorizzate dal mandato nello scope: titolo/action inbox, CTA review
+account/ordine, ordine temporale lettura/paginazione e cleanup bounded.
+Regressioni reali prima/dopo, nuovo freeze e re-review di entrambi sul nuovoSHA.
+CUX-05/P2 riprodotto autonomamente sul fix (baseline0beaPASS): mark-all durante
+categoria loading annullava l’epoch della lettura e lasciava uno spinner. Fixbounded:
+azione/controller disabilitati in loadingempty, categoria termina e azione si riabilita.
+41regressioni miratePASS/exit0, incluse controller/widget loading categoria;
+analyzePASS. Suite completa dopo checkout head:904PASS/2FAIL whitelist;
+validatori esatti aggiornati e regressione ref errato respinto,16governancePASS.
+Nuovo run completo908PASS/exit0, senza skip; 10benchmark finaliPASS/exit0.
+Handoff corrente: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+Validazione checkout CI: tutti i cinque job verificano il commit head immutabile;
+Quality conserva fetch-depth0. Whitelist release iOS esatta, ref main/head_ref/vuoto
+e input extra respinti; nessun gate di firma, runtime o sicurezza indebolito.
+43test nativi/61capture attesi al nuovo freeze: esecuzione ancoraNOT_RUN.

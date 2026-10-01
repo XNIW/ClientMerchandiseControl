@@ -23,14 +23,21 @@ class CustomerNotificationInboxScreen extends ConsumerWidget {
     );
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.notificationsTitle),
+        toolbarHeight:
+            kToolbarHeight * MediaQuery.textScalerOf(context).scale(20) / 20,
+        title: Text(l10n.notificationsTitle, maxLines: 2),
         actions: [
-          TextButton(
+          IconButton(
+            tooltip: l10n.notificationsMarkAllRead,
             key: const ValueKey('notifications-mark-all-read'),
-            onPressed: state.unreadCount == 0 || state.isMutating
+            onPressed:
+                state.unreadCount == 0 ||
+                    state.isMutating ||
+                    (state.status == CustomerNotificationInboxStatus.loading &&
+                        state.items.isEmpty)
                 ? null
                 : controller.markAllRead,
-            child: Text(l10n.notificationsMarkAllRead),
+            icon: const Icon(Icons.done_all),
           ),
         ],
       ),

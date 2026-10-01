@@ -90,6 +90,7 @@ final class CustomerNotificationInboxController
   var _initialized = false;
   var _generation = 0;
   var _disposed = false;
+  Future<void> _cacheOperations = Future.value();
 
   @override
   CustomerNotificationInboxState build() {
@@ -116,14 +117,18 @@ final class CustomerNotificationInboxController
     );
   }
 
-  Future<void> refresh() => _load(++_generation, allowCache: false);
+  Future<void> refresh() async {
+    if (state.isMutating) return;
+    await _load(++_generation, allowCache: false);
+  }
 
   void selectUnreadOnly(bool value) {
     state = state.copyWith(unreadOnly: value);
   }
 
   Future<void> selectCategory(CustomerNotificationCategory? category) async {
-    if (category == CustomerNotificationCategory.system ||
+    if (state.isMutating ||
+        category == CustomerNotificationCategory.system ||
         category == state.category) {
       return;
     }
@@ -145,7 +150,8 @@ final class CustomerNotificationInboxController
     if (owner == null ||
         shop == null ||
         cursor == null ||
-        state.isLoadingMore) {
+        state.isLoadingMore ||
+        state.isMutating) {
       return;
     }
     state = state.copyWith(isLoadingMore: true, clearFailure: true);
@@ -175,7 +181,6 @@ final class CustomerNotificationInboxController
   Future<void> markRead(String id) async {
     final owner = _owner;
     final shop = _shop;
-    final generation = _generation;
     final current = state.items.where((item) => item.id == id).firstOrNull;
     if (owner == null ||
         shop == null ||
@@ -184,7 +189,15 @@ final class CustomerNotificationInboxController
         state.isMutating) {
       return;
     }
-    state = state.copyWith(isMutating: true, clearFailure: true);
+    // Le letture precedenti non possono ripubblicare uno snapshot pre-mutation.
+    // Il cursore resta valido per una nuova pagina autorevole dopo il risultato.
+    final generation = ++_generation;
+    state = state.copyWith(
+      isMutating: true,
+      isRefreshing: false,
+      isLoadingMore: false,
+      clearFailure: true,
+    );
     try {
       final readAt = await ref
           .read(customerNotificationRepositoryProvider)
@@ -207,9 +220,22 @@ final class CustomerNotificationInboxController
   Future<void> markAllRead() async {
     final owner = _owner;
     final shop = _shop;
-    final generation = _generation;
-    if (owner == null || shop == null || state.isMutating) return;
-    state = state.copyWith(isMutating: true, clearFailure: true);
+    if (owner == null ||
+        shop == null ||
+        state.isMutating ||
+        (state.status == CustomerNotificationInboxStatus.loading &&
+            state.items.isEmpty)) {
+      return;
+    }
+    // Le letture precedenti non possono ripubblicare uno snapshot pre-mutation.
+    // Il cursore resta valido per una nuova pagina autorevole dopo il risultato.
+    final generation = ++_generation;
+    state = state.copyWith(
+      isMutating: true,
+      isRefreshing: false,
+      isLoadingMore: false,
+      clearFailure: true,
+    );
     try {
       await ref.read(customerNotificationRepositoryProvider).markAllRead(shop);
       if (!_current(owner, shop, generation)) return;
@@ -307,25 +333,36 @@ final class CustomerNotificationInboxController
       isMutating: false,
     );
     if (clear) {
-      try {
-        await ref
-            .read(customerNotificationCacheProvider)
-            .remove(ownerSubjectId: owner, shopSlug: shop);
-      } on Object {
-        // Il fallimento della cache non ripubblica dati non autorizzati.
-      }
+      final cache = ref.read(customerNotificationCacheProvider);
+      await _queueCacheOperation(
+        () => cache.remove(ownerSubjectId: owner, shopSlug: shop),
+      );
     }
   }
 
   Future<void> _saveCache(String owner, String shop) async {
     if (state.category != null) return;
-    try {
-      await ref
-          .read(customerNotificationCacheProvider)
-          .write(ownerSubjectId: owner, shopSlug: shop, items: state.items);
-    } on Object {
-      // Read-only cache failure never changes the server-authoritative inbox.
-    }
+    final cache = ref.read(customerNotificationCacheProvider);
+    final generation = _generation;
+    final items = state.items;
+    await _queueCacheOperation(() async {
+      if (!_current(owner, shop, generation)) return;
+      await cache.write(ownerSubjectId: owner, shopSlug: shop, items: items);
+    });
+  }
+
+  Future<void> _queueCacheOperation(Future<void> Function() operation) {
+    // Una write già avviata deve finire prima del nuovo snapshot o del purge.
+    // L'epoch scarta quelle accodate ma non ancora iniziate.
+    final result = _cacheOperations.then((_) async {
+      try {
+        await operation();
+      } on Object {
+        // La cache best-effort non modifica lo stato autorevole della UI.
+      }
+    });
+    _cacheOperations = result;
+    return result;
   }
 
   bool _current(String owner, String shop, int generation) =>

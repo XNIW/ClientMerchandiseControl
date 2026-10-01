@@ -39,6 +39,8 @@ def run(command, timeout):
         raise SystemExit(code)
 
 
+primary_failure = None
+cleanup_failed = False
 try:
     if owns_device:
         developer = os.environ.get('DEVELOPER_DIR') or subprocess.check_output(
@@ -64,8 +66,22 @@ try:
     run(['flutter', 'drive', '--no-pub', '--driver=test_driver/task054_visual.dart',
          '--target=integration_test/task054_visual_flow_test.dart', '-d', device,
          '--dart-define=CMC_VISUAL_CAPTURE=true'], 900)
+except BaseException as error:
+    primary_failure = error
 finally:
     if owns_device and device:
         for action in ('shutdown', 'delete'):
-            subprocess.run(['xcrun', 'simctl', action, device], timeout=30, check=False)
+            try:
+                result = subprocess.run(['xcrun', 'simctl', action, device],
+                                        timeout=30, check=False)
+                if result.returncode:
+                    cleanup_failed = True
+                    print(f"FAIL: cleanup {action} exit{result.returncode}", flush=True)
+            except (OSError, subprocess.TimeoutExpired) as error:
+                cleanup_failed = True
+                print(f"FAIL: cleanup {action} {type(error).__name__}", flush=True)
+if primary_failure is not None:
+    raise primary_failure
+if cleanup_failed:
+    raise SystemExit(1)
 PYCODE

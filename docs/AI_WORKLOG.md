@@ -5014,3 +5014,34 @@ fb9546ca (Verify+Database; gate staging opt-in SKIP, non PASS). Nessun apply rem
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 - **Task**: TASK-054 resta aperta. La review tecnica della PR di sviluppo è distinta
   dalla acceptance complessiva bloccata; nessun task futuro attivato.
+
+
+## 2026-10-01 — TASK-054 finding indipendenti a Fix
+
+- **Ruolo**: CODEX_FIXER, unico writer root.
+- **Task**: TASK-054
+- **Esito review**: Client CHANGES_REQUIRED3P2/1P3; backend delta APPROVED.
+- **Azioni**: regressioni CUX-01–04, inclusa race page/mark-all riprodotta
+  autonomamente; correzioni minime e nuovo candidato senza merge anticipato.
+- **Fase finale**: FIX.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Limiti**: acceptance live BLOCKED, production NOT_ACTIVATED.
+
+
+## 2026-10-01 — TASK-054 fix CUX-01–05 consegnato a re-review
+
+- **Ruolo**: CODEX_FIXER -> CODEX_RE_REVIEWER; unico writer root.
+- **Task**: TASK-054 resta BLOCKED, nessun task futuro attivato.
+- **Azioni**: header inbox e CTA eleggibili account/ordine, dialog scrollabile,
+  epoch letture/paginazione, serializzazione cache/purge e guard loading categoria.
+  Cleanup runner bounded indipendente; tutti5checkout CI legati al commit esatto.
+- **Verifiche**: 41test miratiPASS;16governance checkout/releasePASS con ref errati
+  respinti;908test coveragePASS senza skip;10benchmarkPASS con budget invariati;
+  runner8PASS; analyzePASS e security798file/zero violazioni. Gate canonico precedente exit1 sulla sola build iOS locale Xcode27
+  incompatibile con target14 preservato; CI iOS compatibile resta separata.
+- **Review**: entrambi i reviewer distinti riverificheranno il nuovo commit; nessuna
+  approvazione del writer, PR28draft e mergeNOT_RUN al freeze.
+- **Limiti**: apply stagingBLOCKED, AUTH/address live/fisici/distribuzioneNOT_RUN.
+  Admin151richiede recapture, nessuna quarta migration implicitamente autorizzata.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

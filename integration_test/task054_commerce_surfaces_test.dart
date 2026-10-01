@@ -19,6 +19,13 @@ void main() {
         orderId: task054VisualOrder,
       ),
       'reviews-account': const CustomerReviewsScreen(),
+      'reviews-order': const Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: CustomerOrderReviewsCard(orderId: task054VisualOrder),
+          ),
+        ),
+      ),
       'reviews-product': const Scaffold(
         body: SafeArea(
           child: SingleChildScrollView(
@@ -54,10 +61,43 @@ void main() {
         );
         await tester.pumpAndSettle();
         await captureVisual(tester, '${entry.key}-scale${scale.toInt()}');
+        if (entry.key == 'reviews-account') {
+          final l10n = AppLocalizations.of(
+            tester.element(find.byType(CustomerReviewsScreen)),
+          );
+          final leave = find.text(l10n.reviewsLeave);
+          await tester.ensureVisible(leave);
+          await tester.pumpAndSettle();
+          await tester.tap(leave);
+          await tester.pumpAndSettle();
+          expect(find.byType(AlertDialog), findsOneWidget);
+          await captureVisual(tester, 'review-dialog-scale${scale.toInt()}');
+          final cancel = MaterialLocalizations.of(
+            tester.element(find.byType(AlertDialog)),
+          ).cancelButtonLabel;
+          await tester.tap(find.text(cancel));
+          await tester.pumpAndSettle();
+        }
         if (entry.key == 'delivery-provider-off') {
           final l10n = AppLocalizations.of(
             tester.element(find.byType(DeliveryContextScreen)),
           );
+          await tester.scrollUntilVisible(
+            find.textContaining('Casa').first,
+            150,
+            scrollable: find.byType(Scrollable).last,
+          );
+          await tester.pumpAndSettle();
+          await captureVisual(
+            tester,
+            'delivery-saved-address-scale${scale.toInt()}',
+          );
+          await tester.scrollUntilVisible(
+            find.text(l10n.deliveryContextPickup),
+            -150,
+            scrollable: find.byType(Scrollable).last,
+          );
+          await tester.pumpAndSettle();
           await tester.tap(find.text(l10n.deliveryContextPickup));
           await tester.pumpAndSettle();
           await captureVisual(tester, 'pickup-options-scale${scale.toInt()}');

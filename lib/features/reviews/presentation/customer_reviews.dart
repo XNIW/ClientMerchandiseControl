@@ -293,17 +293,33 @@ final class _CustomerReviewsScreenState
                           ? value.eligible
                                 .map(
                                   (line) => Card(
-                                    child: ListTile(
-                                      title: Text(line.name),
-                                      subtitle: Text(l10n.reviewsVerified),
-                                      trailing: FilledButton(
-                                        onPressed: () =>
-                                            showCustomerReviewDialog(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(
+                                        AppSpacing.md,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Text(
+                                            line.name,
+                                            style: Theme.of(
                                               context,
-                                              ref,
-                                              eligible: line,
-                                            ),
-                                        child: Text(l10n.reviewsLeave),
+                                            ).textTheme.titleMedium,
+                                          ),
+                                          const SizedBox(height: AppSpacing.xs),
+                                          Text(l10n.reviewsVerified),
+                                          const SizedBox(height: AppSpacing.md),
+                                          FilledButton(
+                                            onPressed: () =>
+                                                showCustomerReviewDialog(
+                                                  context,
+                                                  ref,
+                                                  eligible: line,
+                                                ),
+                                            child: Text(l10n.reviewsLeave),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -386,16 +402,27 @@ final class CustomerOrderReviewsCard extends ConsumerWidget {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 ...eligible.map(
-                  (line) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(line.name),
-                    trailing: TextButton(
-                      onPressed: () => showCustomerReviewDialog(
-                        context,
-                        ref,
-                        eligible: line,
-                      ),
-                      child: Text(l10n.reviewsLeave),
+                  (line) => Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.sm,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          line.name,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        TextButton(
+                          onPressed: () => showCustomerReviewDialog(
+                            context,
+                            ref,
+                            eligible: line,
+                          ),
+                          child: Text(l10n.reviewsLeave),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -502,6 +529,7 @@ final class _CustomerReviewDialogState
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return AlertDialog(
+      scrollable: true,
       title: Text(l10n.reviewsLeave),
       content: SingleChildScrollView(
         child: Column(

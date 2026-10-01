@@ -201,12 +201,16 @@ void main() {
       expect(find.text('Café público'), findsOneWidget);
       expect(tester.takeException(), isNull);
       store.mutationFailure = null;
-      if (action != 'clear') {
+      {
         await tester.ensureVisible(button);
         await tester.pumpAndSettle();
         await tester.tap(button);
         await tester.pumpAndSettle();
-        if (action == 'remove') {
+        if (action == 'clear') {
+          await tester.tap(find.byKey(const ValueKey('cart-clear-confirm')));
+          await tester.pumpAndSettle();
+        }
+        if (action == 'remove' || action == 'clear') {
           expect(store.snapshot.items, isEmpty);
         } else {
           expect(

@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -259,3 +259,33 @@ nell'evidence canonica, senza dichiarare DONE o apply condiviso.
 | CA-O5 / T-O5 | golden2 OS27,Android smoke ecba981,iOS CI | PASS Android/golden locale; CI in corso |
 | CA-O6 / T-O6 | acceptance30,benchmark10,resilience70,review distinte | PASS piano/test locali; E2E NOT_RUN |
 | CA-O7 / T-O7 | PR27/117,CI exact SHA,review distinte | NOT_RUN merge, gate in corso |
+
+
+## Fix finale e handoff — 2026-10-01
+
+Ripresa esplicitamente richiesta dall'utente. Risolto il gate iOS con avvio
+Simulator.app e timeout bounded/cleanup del gruppo proprio:5regressioni autonome
+PASS e smoke reale1PASS/exit0 su4c3e71b, senza elevare il target14.0. Quality866
+PASS/1skip e10benchmarkPASS; due golden reali e Android debug/release PASS.
+La ricevuta dell'ultimo job release e del freeze finale resta associata alla PR27.
+
+Admin117 è merged6d5f3768, CI PR/main PASS e ancestry verificata su mainf21339bb.
+Recovery combinata ripetuta da dump fresco:147receipt→150→147, cataloghi/ACL e
+dati sintetici identici, cleanup Storage API nello stesso DB; re-review autonoma
+PASS. Dry-run target reale propone esattamente le3canoniche, nessuna applicata.
+
+| CA / test | Evidence del nuovo ciclo | Esito al freeze |
+|---|---|---|
+| CA-O1 / T-O1 | recovery combinata,13gate,1035SQL locali,metadata/dry-run freschi | PASS locale/preflight; runtime FAIL; apply BLOCKED finestra writer |
+| CA-O2 / T-O2 | PR117 merged6d5,review APPROVED,CI PR/main e ancestry | PASS |
+| CA-O3 / T-O3 | configurazione/native/lifecycle/PKCE e regression | PASS deterministico; AUTH_LIVE NOT_RUN configurazione approvata assente |
+| CA-O4 / T-O4 | adapter concreti,denial/lifecycle e fallback | PASS deterministico; provider live NOT_RUN endpoint/chiavi approvati assenti |
+| CA-O5 / T-O5 | due golden,Android smoke ecba981,iOS smoke4c3e71b | PASS emulator/simulator, non device fisico |
+| CA-O6 / T-O6 | acceptance30 revisionata,866test/1skip,10benchmark | PASS test/piano; E2E live NOT_RUN |
+| CA-O7 / T-O7 | Admin integrazione conclusa; Client PR27 dopo freeze | PASS Admin; Client subordinato a CI/review e ricevuta main |
+
+**Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`. TASK-054 resta BLOCKED/REVIEW
+per i gate live. Il mandato autorizza a completare separatamente l'integrazione
+Client di sviluppo dopo review distinta APPROVED e CI applicabile; la ricevuta
+finale post-freeze è nella PR27/rapporto locale. Nessun DONE, firma, upload,
+collaudo fisico o activation production è inferito dalla CI.

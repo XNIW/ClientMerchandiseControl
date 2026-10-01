@@ -8,12 +8,12 @@
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — closeout live; re-review sviluppo in corso
+- **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
 - **Prossima azione autorizzata**: completamento operativo del mandato successivo
   del 2026-09-28: codice, provider, Admin isolato, recovery e apply staging condizionato,
   nuova acceptance e due review read-only; merge di sviluppo dopo gate applicabili.

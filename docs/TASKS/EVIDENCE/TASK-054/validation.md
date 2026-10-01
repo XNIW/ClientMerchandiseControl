@@ -283,3 +283,23 @@ Dopo riavvio host, i log temporanei /tmp/cmc-functional-audit non sono più
 disponibili; ricevute concise versionate e log GitHub restano le fonti storiche.
 Non si ricostruiscono retroattivamente output mancanti. Container isolato
 conserva database e history; prova recovery147 ancora incompleta.
+
+
+## Verifiche del fix runner — 4c3e71b
+
+CI36914909098 exact4c3e71b: quality866PASS/1skip,10benchmarkPASS; duegolden
+macOS26 confrontati realmente; Android debug/release PASS. Simulator iPhone17/
+iOS26.5 con Xcode26.6, deployment target14.0: build149,3s; build integration167s;
+install19:47:27Z,launch19:48:02Z, test shell19:48:16Z,17s/1PASS ed exit0
+19:48:34Z. Aperta Simulator.app nel DEVELOPER_DIR selezionato. Questa run
+chiude il timeout precedente; non stabilisce quale attesa fosse bloccata allora.
+
+Reviewer distinto:5/5 prove reali del watchdog PASS (success0,errore7,timeout124,
+figlio resistente aTERM,leader resistente aTERM); nessun processo vivo residuo.
+Il finding sul figlio orfano è stato corretto prima del commit4c3e71b.
+
+Recovery combinata nuova e re-review autonoma PASS, dettagli in
+backend-reconciliation.md e operational-provenance.json. Nessun apply condiviso.
+Le ricevute della CI sul freeze documentale e del merge successivo sono registrate
+nella PR27 e nel rapporto finale locale dopo la loro conclusione; non si anticipa
+un esito sullo SHA futuro.

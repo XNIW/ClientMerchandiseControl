@@ -16,7 +16,7 @@
     "app_private",
     "supabase_migrations"
   ],
-  "recovery_status": "BLOCKED_combined_recovery_populated_history_and_writer_window",
+  "recovery_status": "PASS_local_combined_remote_apply_BLOCKED_writer_window",
   "aggregate_preflight": {
     "notification_rows": 2,
     "address_rows": 0,
@@ -42,7 +42,7 @@
     "20260928200000"
   ],
   "latest_staging_metadata": {
-    "observed_at": "2026-09-29T01:41:59.209341Z",
+    "observed_at": "2026-10-01T19:32:13.901681Z",
     "rpc_present": 32,
     "required_indexes_present": 1,
     "history_count": 147,
@@ -96,5 +96,59 @@
     "client_ios_smoke": "BLOCKED_timeout",
     "host_temporary_artifacts": "unavailable_after_restart",
     "populated_history_recovery": "NOT_RUN_inverse_pending"
+  },
+  "recovery_combined_2026_10_01": {
+    "database": "cmc_recovery_oct01_clean",
+    "network": "none",
+    "shared_apply": false,
+    "history": "147 -> 150 -> 147",
+    "catalog_and_acl": "PASS",
+    "original_synthetic_rows": "PASS",
+    "negative_new_data": "PASS",
+    "negative_concurrent_shared_write": "PASS",
+    "storage_delete_api": "PASS",
+    "sql_direct_delete": "REJECTED",
+    "bucket_and_objects_remaining": 0,
+    "hashes": {
+      "before-clean.json": "911d7eef7eb21ce76b6f8670f7a9963995bd65d792fb6da3fdfafd86ccf15988",
+      "applied-clean.json": "9021d85d170fa641b9bd77fbd56d6edf9eb4feed01a3ca16ea94aad809037622",
+      "restored-clean.json": "911d7eef7eb21ce76b6f8670f7a9963995bd65d792fb6da3fdfafd86ccf15988",
+      "history-before-clean.json": "8cb6d33309bf2961f003049ee0ba0d47395e197b6478aa38109c680191a2a15c",
+      "history-applied-clean.json": "38cb220aa46bf26734da3472d139afaeacb1d5c931e138ca0fc3d2bd55a94bfe",
+      "history-restored-clean.json": "8cb6d33309bf2961f003049ee0ba0d47395e197b6478aa38109c680191a2a15c",
+      "rows-before-clean.json": "5cdc70d322a5a0131b9cf7d2d75ed9883f316bf7a9f69d2eaa7b1f3916bbca95",
+      "rows-restored-clean.json": "5cdc70d322a5a0131b9cf7d2d75ed9883f316bf7a9f69d2eaa7b1f3916bbca95",
+      "inverse-clean.sql": "ec2296585fabb6c0818db92200d37032b196ca63ca9fc1b08acc7f8ff116f58f",
+      "storage-combined-clean.json": "8430ca0630df6d31fbe4f4d07397d4a552de61dd0f0b412b6a960deaca48cf29",
+      "staging-schema.sql": "801f2afdee5c1b51617e64918bc1b32bfdacf00bc418313f571cab84634a459a"
+    }
+  },
+  "staging_dry_run_2026_10_01": {
+    "target": "jpgoimipbothfgkokyvm",
+    "started_at": "2026-10-01T19:50:15Z",
+    "exit_code": 0,
+    "cli_version": "2.119.0",
+    "admin_revision": "f21339bb6c49a87057f629bc67c6519c478b50de",
+    "mode": "dry_run_skip_vault",
+    "pending": [
+      "20260823023037",
+      "20260823150000",
+      "20260928200000"
+    ],
+    "seeds": [],
+    "roles": [],
+    "remote_history_alias": {
+      "observed_at": "2026-10-01 19:56:01.786556+00",
+      "version": "20260727084040",
+      "name": "task_142_catalog_text_policy_v1",
+      "statements_md5": "08eebae06a722a3f6eb6372693e7f7c1",
+      "target": "jpgoimipbothfgkokyvm",
+      "read_only": true
+    },
+    "hashes": {
+      "canonical-staging-index-manifest.json": "083c8cfc07277eebd9555ce8e1e76516c85d07c528125f4c2cbd908f5df13556",
+      "staging-apply-dry-run.log": "87cff3208a1dba03055e73a772033f912e9c6d8277f13879cb5b1e642dbe112a",
+      "history-alias-remote-metadata.json": "d774a70c81ab52c6dfd1ec35d2d65396efbe9829f8ae5fed9c2d2656f02dcc43"
+    }
   }
 }

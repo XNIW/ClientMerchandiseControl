@@ -241,3 +241,68 @@ Storage su database dedicato (non stesso restore combinato), snapshot staging av
 e finestra writer assente. Non sono una certificazione di recovery completa del target
 corrente e non autorizzano da sole l'apply. Il reviewer backend valuta questi limiti;
 prima dell'apply è richiesto rehearsal combinato sulla baseline concordata e protetta.
+
+
+## Recovery combinata — 2026-10-01
+
+Riconfermato target `jpgoimipbothfgkokyvm`, PG17.6.1.104 healthy,147 versioni,
+32/55RPC conformi e1/2indici. Gate snapshot aggiornato: FAIL/exit1 per23RPC,
+3migration e indice safe_dedup assenti. CLI host2.119.0 conferma backups=null
+e PITR=false. Dump schema-only nuovo, nessuna riga reale esportata.
+
+Il riavvio host ha rimosso i temporanei precedenti: gli output non sono stati
+ricreati come prove storiche. Nuovo ciclo completo in PG17.6.1.158 isolato,
+network none, DB `cmc_recovery_oct01_clean`; artifact persistenti in
+`~/.codex/outputs/client-functional-audit/recovery-20261001/`.
+
+- Bootstrap: auth pre-data e constraint, Storage canonico1.69.0 con62 migration,
+  dump public/app_private/supabase_migrations, trigger auth dopo le funzioni.
+  Errori iniziali di ordine FK/trigger e owner database diagnosticati e corretti
+  esclusivamente nel bootstrap; database owner postgres come ambiente canonico.
+-147 file fixture dichiaratamente sintetici generano vere receipt CLI2.118.0.
+  I timestamp coincidono con lo staging, i contenuti `SELECT n` NON sono la sua
+  history e non possono essere usati per un apply remoto. Workdir completo147+3.
+- Fixture legacy: una notifica derivata da un ordine sintetico e relative FK.
+  Baseline hash delle righe di6 tabelle condivise, cataloghi/ACL e147receipt.
+- Apply ordinato delle3 canoniche PASS/exit0:150receipt,147hash preesistenti
+  identici. Nessuna migration oltre le3 è pending in questo secondo passaggio.
+- Inverse rigenerata dal diff reale:11tabelle/44funzioni nuove; ripristino
+  4constraint,1funzione,ACL addresses e14colonne. RESTRICT, no CASCADE; target
+  locale esatto, lock con timeout5s/statement30s, stop su dati nuovi o qualsiasi
+  scrittura nei6 shared table rispetto all'istante post-apply.
+- Due negative reali in transazione: nuova delivery context e modifica a un
+  campo settings rifiutate, schema intatto. Una precedente prova su read_at ha
+  confermato il vincolo write-once; quel DB resta separato e il ciclo positivo
+  è stato ripetuto da fixture pulita, senza disabilitare trigger.
+- Inverse effettiva PASS/exit0; repair reverted SOLO delle3 realmente annullate.
+  History147 identica, hash6tabelle identici,130tabelle/1701colonne/1033constraint/
+  478indici/159trigger/86policy/630funzioni e ACL identici alla baseline.
+- Storage API sullo STESSO DB: bucket creato dalla migration,GET200 privato;
+  DELETE200, poiGET400/body404; bucket0 eobjects0. DELETE SQL diretto rifiutato
+  dal guard originale. Nessun bypass di protect_delete.
+
+Hash e ricevuta sintetica sanitizzata sono in operational-provenance.json.
+Il risultato è PASS per la recovery locale combinata, non un backup dei dati
+remoti o una prova di apply condiviso. L'apply resta BLOCKED finché la finestra
+con i writer concorrenti non è confermata; prima di applicare occorre nuovo
+preflight e un index canonico della history reale, mai i147 file sintetici.
+
+
+La re-review distinta ha ricatturato i cataloghi dal DB clean e confermato tutti
+gli11hash della ricevuta, history147, dati, bucket/objects0 e protect_delete
+abilitato: PASS locale, nessun finding bloccante.
+
+Riconciliato anche l'index operativo della history reale: la versione remota
+20260727084040/task_142_catalog_text_policy_v1 coincide byte per byte con il file
+canonico20260727055520 (MD5 08eebae06a722a3f6eb6372693e7f7c1). Nel solo workdir
+privato del runner è indicizzata con timestamp realmente registrato, senza
+modificare history remota o file canonici.147 file esistenti+3pending; nessuna
+fixture sintetica in questo index.
+
+`supabase db push --dry-run --skip-vault --include-all --project-ref
+jpgoimipbothfgkokyvm --workdir <canonical-staging-index>` con CLI2.119.0:
+PASS/exit0, pending esattamente20260823023037,20260823150000,20260928200000;
+seed/roles vuoti, nessuna migration applicata. Conservati manifest150file con
+SHA256 e log del dry-run nel medesimo archivio locale protetto. Il prerequisito
+ancora mancante per l'apply è la finestra coordinata, poi preflight nuovamente
+fresco e readback/ruoli/E2E reali; il dry-run non li sostituisce.

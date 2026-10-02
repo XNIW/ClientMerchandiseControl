@@ -3936,6 +3936,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright'**
   String get deliveryAddressAttribution;
+
+  /// No description provided for @afterSalesReason.
+  ///
+  /// In es, this message translates to:
+  /// **'Motivo'**
+  String get afterSalesReason;
+
+  /// No description provided for @notificationsUnreadOnly.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo no leídas'**
+  String get notificationsUnreadOnly;
 }
 
 class _AppLocalizationsDelegate

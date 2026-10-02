@@ -367,3 +367,17 @@ Ogni esecuzione deve registrare SHA Client/Admin, build/config hash, versione OS
 - **Teardown:** protocollo comune, rollback SQL quando applicabile.
 - **Piattaforma/ambiente:** Android+iOS; emulatore/simulatore + macOS.
 - **Risultato:** NOT_RUN end-to-end della nuova revisione; prove parziali distinte nel registro residui.
+
+
+## Collegamento eseguibile del mandato UX — 2026-10-01
+
+`integration_test/task054_visual_flow_test.dart` e
+`scripts/test-task054-visual.sh --device OWNED_DEVICE_ID|--ios` esercitano41casi
+sintetici dei componenti Client, con55capture di superficie/stato. NON sono il
+protocollo UI→API→persistenza→Admin→Client comune a R01–R30.
+R18 aggiunge `customer_notification_unread_filter_test.dart`: filtro sulle pagine
+caricate, letture singole/all e conservazione dei dati. Cursor/loadMore e isolamento
+owner restano nei test lifecycle esistenti; l'acceptance live restaNOT_RUN.
+R25 aggiunge4regressioni Cart quantity/remove/clear offline senza eccezioni UI e
+retry riuscito. R21/R22/R26 aggiungono12widget compatti200% nei quattro locale.
+Risultati per piattaforma e limiti sono nell'overlayoperativo, senza cambiarecriteri.

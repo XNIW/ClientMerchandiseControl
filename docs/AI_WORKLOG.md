@@ -130,7 +130,7 @@
   lettura; definiti scope, non-scope, 38 criteri e 30 test case.
 - **Verifiche**: TASK-001 merged; branch derivato dal merge commit; nessun public brand,
   logo o palette ufficiale verificato; nessun repository esterno modificato.
-- **Risultato**: CODEX_PLANNING_APPROVED_TO_EXECUTION
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
 - **Branch/commit/PR**: `task/002-product-scope-branding-design-system`; PR non ancora
   aperta.
 - **Fase finale**: EXECUTION
@@ -4979,5 +4979,69 @@ fb9546ca (Verify+Database; gate staging opt-in SKIP, non PASS). Nessun apply rem
   e ai due giudizi distinti, poi merge normale autorizzato e verifica main.
 - Gate live BLOCKED/NOT_RUN: finestra writer, configurazione OAuth/provider,
   firma/canali approvati ed E2E. Nessun apply condiviso o production.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-01 — TASK-054 mandato funzionale e UX dopo PR27
+
+- **Agente**: Codex, unico writer root; agenti preparatori read-only.
+- **Task**: TASK-054
+- **Fase iniziale**: REVIEW, BLOCKED; estensione utente esplicita ricevuta.
+- **Azioni principali**: ripresa su worktree isolato da main12f03c7; riconciliazione
+  Admin4532831b; metadata staging readonly32/55; UI nativa sintetica e correzioni
+  recensioni, assistenza, delivery e filtro inbox non lette. Nessun apply/deploy.
+- **Verifiche**: accessibility12PASS, analyzePASS; suitevisuale e gate completo
+  del nuovo candidato ancora in corso; esiti storici preservati come baseline.
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+- **Branch/commit/PR**: codex/task054-functional-ux; baseline12f03c7; nuovaPRNOT_RUN.
+- **Fase finale**: EXECUTION
+- **Blocker/note**: writerwindow/recoveryremota, auth/provider/firma/pilot esterni
+  non attestati; Clientoriginale8423c868 e supabase/untracked preservati.
+
+
+## 2026-10-01 — TASK-054 fix funzionale e UX a re-review distinta
+
+- **Ruolo**: CODEX_FIXER -> CODEX_RE_REVIEWER, unico writer root.
+- **Azioni**: fix recensioni/assistenza/delivery, filtro inbox non lette, heading errore
+  e gestione delle CartRepositoryException dalle CTA quantità/remove/clear.
+- **Verifiche**: suite native sintetica Android41test/55PNG PASS/exit0;12widget
+  accessibilità e analyzePASS. R18filtertestPASS;4cartmutazioni/recoveryPASS.
+  Gate completo candidato in corso, CI e iOSvisualNOT_RUN a questo freeze.
+- **Limiti**: preflight32/55RPC e1/2indici FAIL; applyBLOCKED writerwindow/recovery
+  remota; gateTLSexit2BLOCKED; E2E/provider/fisico/distribuzioneNOT_RUN/BLOCKED.
+- **Fase finale**: REVIEW.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Task**: TASK-054 resta aperta. La review tecnica della PR di sviluppo è distinta
+  dalla acceptance complessiva bloccata; nessun task futuro attivato.
+
+
+## 2026-10-01 — TASK-054 finding indipendenti a Fix
+
+- **Ruolo**: CODEX_FIXER, unico writer root.
+- **Task**: TASK-054
+- **Esito review**: Client CHANGES_REQUIRED3P2/1P3; backend delta APPROVED.
+- **Azioni**: regressioni CUX-01–04, inclusa race page/mark-all riprodotta
+  autonomamente; correzioni minime e nuovo candidato senza merge anticipato.
+- **Fase finale**: FIX.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+- **Limiti**: acceptance live BLOCKED, production NOT_ACTIVATED.
+
+
+## 2026-10-01 — TASK-054 fix CUX-01–05 consegnato a re-review
+
+- **Ruolo**: CODEX_FIXER -> CODEX_RE_REVIEWER; unico writer root.
+- **Task**: TASK-054 resta BLOCKED, nessun task futuro attivato.
+- **Azioni**: header inbox e CTA eleggibili account/ordine, dialog scrollabile,
+  epoch letture/paginazione, serializzazione cache/purge e guard loading categoria.
+  Cleanup runner bounded indipendente; tutti5checkout CI legati al commit esatto.
+- **Verifiche**: 41test miratiPASS;16governance checkout/releasePASS con ref errati
+  respinti;908test coveragePASS senza skip;10benchmarkPASS con budget invariati;
+  runner8PASS; analyzePASS e security798file/zero violazioni. Gate canonico precedente exit1 sulla sola build iOS locale Xcode27
+  incompatibile con target14 preservato; CI iOS compatibile resta separata.
+- **Review**: entrambi i reviewer distinti riverificheranno il nuovo commit; nessuna
+  approvazione del writer, PR28draft e mergeNOT_RUN al freeze.
+- **Limiti**: apply stagingBLOCKED, AUTH/address live/fisici/distribuzioneNOT_RUN.
+  Admin151richiede recapture, nessuna quarta migration implicitamente autorizzata.
 - **Fase finale**: REVIEW.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

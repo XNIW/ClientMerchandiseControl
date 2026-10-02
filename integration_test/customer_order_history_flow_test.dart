@@ -1,3 +1,5 @@
+import 'support/visual_capture.dart';
+
 import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
@@ -65,10 +67,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await captureVisual(tester, 'orders-loaded');
     await tester.tap(find.byKey(const ValueKey('order-card-$orderTestOrder')));
     await tester.pumpAndSettle();
     expect(router.state.uri.path, AppRoutes.orderLocation(orderTestOrder));
     expect(find.byKey(const ValueKey('order-detail-header')), findsOneWidget);
+    await captureVisual(tester, 'order-detail');
 
     await tester.drag(
       find.byKey(const ValueKey('order-detail-scroll')),
@@ -78,6 +82,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('order-cancel-button')));
     await tester.pumpAndSettle();
     expect(repository.cancelRequests, isEmpty);
+    await captureVisual(tester, 'order-cancel-dialog');
 
     await tester.tap(find.byKey(const ValueKey('order-cancel-confirm')));
     await tester.pumpAndSettle();

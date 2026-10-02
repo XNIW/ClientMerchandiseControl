@@ -96,6 +96,9 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
             SegmentedButton<CustomerDeliveryMode>(
+              direction: MediaQuery.textScalerOf(context).scale(14) >= 21
+                  ? Axis.vertical
+                  : Axis.horizontal,
               segments: [
                 ButtonSegment(
                   value: CustomerDeliveryMode.delivery,
@@ -323,36 +326,48 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
             if (points.isEmpty)
               Text(l10n.deliveryContextTemporarilyUnavailable)
             else
-              ...points.map(
-                (point) => Card(
-                  child: ListTile(
-                    minVerticalPadding: AppSpacing.sm,
-                    leading: const Icon(Icons.storefront_outlined),
-                    title: Text(point.name),
-                    subtitle: Text(
-                      '${point.addressLine1}\n${point.commune}, ${point.region}',
-                    ),
-                    isThreeLine: true,
-                    trailing: SizedBox(
-                      width: 116,
-                      child: FilledButton.tonal(
-                        onPressed: state.isMutating
-                            ? null
-                            : () => ref
-                                  .read(
-                                    deliveryContextControllerProvider.notifier,
-                                  )
-                                  .selectPickup(pickupPointId: point.id),
-                        child: Text(
-                          state.context?.pickupPointId == point.id
-                              ? l10n.deliveryContextSelected
-                              : l10n.deliveryContextSelect,
-                        ),
-                      ),
-                    ),
+              ...points.map((point) {
+                final select = FilledButton.tonal(
+                  onPressed: state.isMutating
+                      ? null
+                      : () => ref
+                            .read(deliveryContextControllerProvider.notifier)
+                            .selectPickup(pickupPointId: point.id),
+                  child: Text(
+                    state.context?.pickupPointId == point.id
+                        ? l10n.deliveryContextSelected
+                        : l10n.deliveryContextSelect,
                   ),
-                ),
-              ),
+                );
+                final largeText =
+                    MediaQuery.textScalerOf(context).scale(14) >= 21;
+                final details = ListTile(
+                  minVerticalPadding: AppSpacing.sm,
+                  leading: const Icon(Icons.storefront_outlined),
+                  title: Text(point.name),
+                  subtitle: Text(
+                    '${point.addressLine1}\n${point.commune}, ${point.region}',
+                  ),
+                  isThreeLine: true,
+                  trailing: largeText
+                      ? null
+                      : SizedBox(width: 116, child: select),
+                );
+                return Card(
+                  child: largeText
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            details,
+                            Padding(
+                              padding: const EdgeInsets.all(AppSpacing.md),
+                              child: select,
+                            ),
+                          ],
+                        )
+                      : details,
+                );
+              }),
           ],
         );
       },
@@ -674,44 +689,54 @@ class _AddressChoiceTile extends StatelessWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.sm),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(selected ? Icons.check_circle : Icons.location_on_outlined),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${address.label} · ${address.commune}',
-                    style: Theme.of(context).textTheme.titleSmall,
+            Row(
+              children: [
+                Icon(
+                  selected ? Icons.check_circle : Icons.location_on_outlined,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${address.label} · ${address.commune}',
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      Text(address.addressLine1),
+                      if (address.recipientPhoneE164 != null)
+                        Text(_maskedPhone(address.recipientPhoneE164!)),
+                    ],
                   ),
-                  Text(
-                    address.addressLine1,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+            Wrap(
+              alignment: WrapAlignment.end,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: AppSpacing.sm,
+              children: [
+                IconButton(
+                  constraints: const BoxConstraints.tightFor(
+                    width: AppSizes.minimumTouchTarget,
+                    height: AppSizes.minimumTouchTarget,
                   ),
-                  if (address.recipientPhoneE164 != null)
-                    Text(_maskedPhone(address.recipientPhoneE164!)),
-                ],
-              ),
-            ),
-            IconButton(
-              constraints: const BoxConstraints.tightFor(
-                width: AppSizes.minimumTouchTarget,
-                height: AppSizes.minimumTouchTarget,
-              ),
-              tooltip: l10n.customerAddressEdit,
-              onPressed: busy ? null : onEdit,
-              icon: const Icon(Icons.edit_outlined),
-            ),
-            FilledButton.tonal(
-              onPressed: busy ? null : onSelect,
-              child: Text(
-                selected
-                    ? l10n.deliveryContextSelected
-                    : l10n.deliveryContextSelect,
-              ),
+                  tooltip: l10n.customerAddressEdit,
+                  onPressed: busy ? null : onEdit,
+                  icon: const Icon(Icons.edit_outlined),
+                ),
+                FilledButton.tonal(
+                  onPressed: busy ? null : onSelect,
+                  child: Text(
+                    selected
+                        ? l10n.deliveryContextSelected
+                        : l10n.deliveryContextSelect,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

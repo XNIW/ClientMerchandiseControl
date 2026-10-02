@@ -130,6 +130,175 @@ void main() {
     },
   );
 
+  for (final markAll in [true, false]) {
+    test(
+      'pagina precedente non ripristina unread dopo lettura all=$markAll',
+      () async {
+        final page = Completer<CustomerNotificationPage>();
+        repository.next = page.future;
+        final controller = container.read(
+          customerNotificationInboxControllerProvider.notifier,
+        );
+        controller.selectUnreadOnly(true);
+        final pagination = controller.loadMore();
+        if (markAll) {
+          await controller.markAllRead();
+        } else {
+          await controller.markRead('order');
+        }
+        final writes = cache.writes;
+        page.complete(_page('order', CustomerNotificationCategory.order));
+        await pagination;
+        final state = container.read(
+          customerNotificationInboxControllerProvider,
+        );
+        expect(state.visibleItems, isEmpty);
+        expect(state.unreadCount, 0);
+        expect(state.isLoadingMore, isFalse);
+        expect(state.hasMore, isTrue);
+        expect(cache.writes, writes);
+        expect(cache.items.single.isUnread, isFalse);
+        repository.next = Future.value(
+          _page('fresh-event', CustomerNotificationCategory.order),
+        );
+        await controller.loadMore();
+        expect(
+          container
+              .read(customerNotificationInboxControllerProvider)
+              .visibleItems
+              .single
+              .id,
+          'fresh-event',
+          reason: 'Nuovi eventi autorevoli conservano unread',
+        );
+        expect(cache.items.last.isUnread, isTrue);
+      },
+    );
+    test(
+      'lettura in volo non avvia refresh o altre pagine all=$markAll',
+      () async {
+        final controller = container.read(
+          customerNotificationInboxControllerProvider.notifier,
+        );
+        final barrier = Completer<int>();
+        final singleBarrier = Completer<DateTime>();
+        repository.markAll = barrier.future;
+        repository.markSingle = singleBarrier.future;
+        final mutation = markAll
+            ? controller.markAllRead()
+            : controller.markRead('order');
+        final calls = repository.listCalls;
+        await controller.refresh();
+        await controller.loadMore();
+        expect(repository.listCalls, calls);
+        expect(
+          container
+              .read(customerNotificationInboxControllerProvider)
+              .isMutating,
+          isTrue,
+        );
+        barrier.complete(1);
+        singleBarrier.complete(DateTime.utc(2026, 9, 1));
+        await mutation;
+        expect(
+          container
+              .read(customerNotificationInboxControllerProvider)
+              .items
+              .single
+              .isUnread,
+          isFalse,
+        );
+        expect(
+          container.read(customerNotificationInboxControllerProvider).hasMore,
+          isTrue,
+        );
+      },
+    );
+    test(
+      'lettura fallita conserva cursor e pagina ritentabile all=$markAll',
+      () async {
+        final controller = container.read(
+          customerNotificationInboxControllerProvider.notifier,
+        );
+        final page = Completer<CustomerNotificationPage>();
+        repository.next = page.future;
+        final pagination = controller.loadMore();
+        if (markAll) {
+          repository.markAll = Future.error(
+            const CustomerNotificationRepositoryException(
+              CustomerNotificationFailureKind.offline,
+            ),
+          );
+          await controller.markAllRead();
+        } else {
+          repository.markSingle = Future.error(
+            const CustomerNotificationRepositoryException(
+              CustomerNotificationFailureKind.offline,
+            ),
+          );
+          await controller.markRead('order');
+        }
+        page.complete(_page('stale-event', CustomerNotificationCategory.order));
+        await pagination;
+        final state = container.read(
+          customerNotificationInboxControllerProvider,
+        );
+        expect(state.items.map((item) => item.id), ['order']);
+        expect(state.unreadCount, 1);
+        expect(state.hasMore, isTrue);
+        expect(state.isLoadingMore, isFalse);
+        repository.next = Future.value(
+          _page('next-event', CustomerNotificationCategory.order),
+        );
+        await controller.loadMore();
+        expect(
+          container
+              .read(customerNotificationInboxControllerProvider)
+              .items
+              .map((item) => item.id),
+          ['order', 'next-event'],
+        );
+      },
+    );
+  }
+
+  test(
+    'mark-all durante categoria loading non annulla il caricamento',
+    () async {
+      final controller = container.read(
+        customerNotificationInboxControllerProvider.notifier,
+      );
+      final page = Completer<CustomerNotificationPage>();
+      repository.categoryPage = page.future;
+      final change = controller.selectCategory(
+        CustomerNotificationCategory.payment,
+      );
+      expect(
+        container.read(customerNotificationInboxControllerProvider).status,
+        CustomerNotificationInboxStatus.loading,
+      );
+      await controller.markAllRead();
+      page.complete(_page('payment', CustomerNotificationCategory.payment));
+      await change;
+      final state = container.read(customerNotificationInboxControllerProvider);
+      expect(state.status, CustomerNotificationInboxStatus.ready);
+      expect(state.isRefreshing, isFalse);
+      expect(state.isMutating, isFalse);
+      expect(state.category, CustomerNotificationCategory.payment);
+      expect(state.items.single.id, 'payment');
+      expect(state.items.single.isUnread, isTrue);
+      await controller.markAllRead();
+      expect(
+        container
+            .read(customerNotificationInboxControllerProvider)
+            .items
+            .single
+            .isUnread,
+        isFalse,
+      );
+    },
+  );
+
   test('revoca autorizzazione rimuove notifiche da UI e cache', () async {
     repository.failure = CustomerNotificationFailureKind.unauthorized;
     await container
@@ -187,7 +356,10 @@ CustomerNotificationPage _page(
 
 class _Repository implements CustomerNotificationRepository {
   Future<CustomerNotificationPage>? next;
+  Future<CustomerNotificationPage>? categoryPage;
   Future<int>? markAll;
+  Future<DateTime>? markSingle;
+  int listCalls = 0;
   CustomerNotificationFailureKind? failure;
   @override
   Future<CustomerNotificationPage> list({
@@ -196,10 +368,12 @@ class _Repository implements CustomerNotificationRepository {
     CustomerNotificationCursor? before,
     int pageSize = 25,
   }) async {
+    listCalls++;
     if (failure != null) {
       throw CustomerNotificationRepositoryException(failure!);
     }
     if (before != null && next != null) return next!;
+    if (category != null && categoryPage != null) return categoryPage!;
     return _page(
       category?.name ?? 'order',
       category ?? CustomerNotificationCategory.order,
@@ -210,7 +384,7 @@ class _Repository implements CustomerNotificationRepository {
   Future<int> markAllRead(String shopSlug) async => markAll ?? 1;
   @override
   Future<DateTime> markRead(String notificationId) async =>
-      DateTime.utc(2026, 9, 1);
+      markSingle ?? DateTime.utc(2026, 9, 1);
   @override
   Future<CustomerNotificationDestination> resolveRoute({
     required String shopSlug,

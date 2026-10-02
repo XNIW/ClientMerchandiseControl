@@ -1,3 +1,8 @@
+import 'support/visual_capture.dart';
+import 'package:go_router/go_router.dart';
+import 'package:client_merchandise_control/app/router/app_routes.dart';
+import 'package:client_merchandise_control/features/checkout/presentation/checkout_payment_screen.dart';
+
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_controller.dart';
@@ -16,6 +21,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../test/features/checkout/checkout_test_support.dart';
+import 'package:client_merchandise_control/features/delivery_context/application/delivery_context_controller.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -61,22 +67,27 @@ void main() {
 
       await tester.pumpWidget(_buildApp(repository, store));
       await tester.pumpAndSettle();
+      await captureVisual(tester, 'checkout-mode');
       await _tap(tester, const ValueKey('checkout-mode-pickup'));
       await _tap(tester, const ValueKey('checkout-next-mode'));
-      await _tap(tester, const ValueKey('checkout-pickup-$checkoutTestPoint'));
+      expect(find.text('Tienda Centro'), findsOneWidget);
+      await captureVisual(tester, 'checkout-pickup');
       await _tap(tester, const ValueKey('checkout-next-destination'));
       await _tap(
         tester,
         const ValueKey('checkout-slot-$checkoutTestPickupSlot'),
       );
+      await captureVisual(tester, 'checkout-slot');
       await _tap(tester, const ValueKey('checkout-next-slot'));
       await _tap(tester, const ValueKey('checkout-payment-payAtPickup'));
+      await captureVisual(tester, 'checkout-payment');
       await _tap(tester, const ValueKey('checkout-create-quote'));
 
       expect(
         find.byKey(const ValueKey('checkout-failure-banner')),
         findsOneWidget,
       );
+      await captureVisual(tester, 'checkout-timeout-recovery');
       expect(store.draft?.pendingOperation?.idempotencyKey, checkoutTestKey);
       await _tap(tester, const ValueKey('storefront-status-action'));
 
@@ -103,6 +114,7 @@ void main() {
         everyElement(7),
       );
 
+      await captureVisual(tester, 'checkout-price-change');
       await _tap(tester, const ValueKey('checkout-confirm-quote'));
       expect(repository.confirmRequests, hasLength(1));
       expect(repository.confirmRequests.single.key, checkoutTestKey);
@@ -112,7 +124,13 @@ void main() {
 
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await _tap(tester, const ValueKey('checkout-create-order'));
+      await _tap(tester, const ValueKey('checkout-open-payment'));
+      expect(
+        find.byKey(const ValueKey('payment-online-not-configured')),
+        findsOneWidget,
+      );
+      await captureVisual(tester, 'payment-offline-provider-off');
+      await _tap(tester, const ValueKey('payment-confirm-order'));
       expect(
         store.draft?.pendingOperation?.kind,
         CheckoutPendingOperationKind.order,
@@ -124,6 +142,7 @@ void main() {
         find.byKey(const ValueKey('checkout-order-receipt')),
         findsOneWidget,
       );
+      await captureVisual(tester, 'checkout-receipt');
       expect(find.text(checkoutTestOrderCode), findsOneWidget);
       expect(repository.orderRequests, hasLength(2));
       expect(repository.orderRequests.map((request) => request.key).toSet(), {
@@ -140,6 +159,7 @@ void main() {
 
       await tester.pumpWidget(const SizedBox.shrink());
       binding.reportData = <String, Object?>{
+        ...?binding.reportData,
         'realWidgetTaps': 'PASS',
         'fiveStepFlow': 'PASS',
         'serverAuthoritativePricing': 'PASS',
@@ -172,6 +192,20 @@ Widget _buildApp(
   FakeCheckoutRepository repository,
   MemoryCheckoutDraftStore store,
 ) {
+  final router = GoRouter(
+    initialLocation: AppRoutes.checkoutLocation,
+    routes: [
+      GoRoute(
+        path: AppRoutes.checkoutLocation,
+        builder: (_, _) => const CheckoutScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.checkoutPaymentLocation,
+        builder: (_, _) => const CheckoutPaymentScreen(),
+      ),
+    ],
+  );
+  addTearDown(router.dispose);
   final identity = AuthenticatedCustomer.fromUntrustedIdentity(
     subjectId: checkoutTestOwner,
     email: 'checkout-integration@example.invalid',
@@ -181,6 +215,9 @@ Widget _buildApp(
     overrides: [
       appConfigProvider.overrideWithValue(_config()),
       customerAccountIdentityProvider.overrideWithValue(identity),
+      deliveryContextControllerProvider.overrideWith(
+        TestDeliveryContextController.new,
+      ),
       checkoutCartStateProvider.overrideWithValue(
         CartState(
           status: CartViewStatus.ready,
@@ -207,13 +244,13 @@ Widget _buildApp(
         () => checkoutTestKey,
       ),
     ],
-    child: MaterialApp(
+    child: MaterialApp.router(
       locale: const Locale('es', 'CL'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      home: const CheckoutScreen(),
+      routerConfig: router,
     ),
   );
 }

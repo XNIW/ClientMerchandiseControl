@@ -2228,4 +2228,10 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get deliveryAddressAttribution =>
       '© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright';
+
+  @override
+  String get afterSalesReason => 'Motivo';
+
+  @override
+  String get notificationsUnreadOnly => 'Solo non lette';
 }

@@ -2224,6 +2224,12 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deliveryAddressAttribution =>
       '© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright';
+
+  @override
+  String get afterSalesReason => 'Motivo';
+
+  @override
+  String get notificationsUnreadOnly => 'Solo no leídas';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4249,4 +4255,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String get deliveryAddressAttribution =>
       '© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright';
+
+  @override
+  String get afterSalesReason => '原因';
+
+  @override
+  String get notificationsUnreadOnly => '仅未读';
 }

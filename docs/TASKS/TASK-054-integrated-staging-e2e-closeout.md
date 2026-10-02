@@ -289,3 +289,91 @@ per i gate live. Il mandato autorizza a completare separatamente l'integrazione
 Client di sviluppo dopo review distinta APPROVED e CI applicabile; la ricevuta
 finale post-freeze è nella PR27/rapporto locale. Nessun DONE, firma, upload,
 collaudo fisico o activation production è inferito dalla CI.
+
+
+## Emendamento utente funzionale e UX — 2026-10-01
+
+Il prompt «COMPLETAMENTO FUNZIONALE STAGING E REVISIONE UX/UI» autorizza
+esecuzione, correzioni riproducibili, collaudo visivo Android/iOS con fixture dichiarate,
+parità authoring coordinata, due review read-only e integrazione di sviluppo condizionata.
+L’autorizzazione precedente ad apply staging resta subordinata a recovery attuale e
+finestra effettivamente coordinata con tutti i writer/cron; nessuna nuova richiesta
+generica di consenso. Firma, canale e provider richiedono i riferimenti già approvati.
+TASK-054 resta aperta; nessun TASK-055, DONE, production, provider nuovo o spesa.
+
+## Planning funzionale e UX approvato dal mandato
+
+Ripartire dalla main fresca e dalle ricevute post-merge, preservando audit e ID storici.
+Unico writer root Client su worktree isolato; verifiche backend/config/native readonly
+parallele, reviewer distinti sul candidato congelato. Catturare schermate di componenti
+produzione in processo nativo con repository sintetici dichiarati, riprodurre lacune
+prima di correggere, aggiungere regressioni mirate e rieseguire gate canonici.
+
+| CA / test | Criterio | Prova |
+|---|---|---|
+| CA-U1 / T-U1 | Main Client/Admin, PR integrate e CI correnti riconciliate | SHA, ancestry, job/step/annotation |
+| CA-U2 / T-U2 | Preflight staging corrente senza scritture senza finestra | 55 RPC, 2 indici, history, gate live e prerequisiti |
+| CA-U3 / T-U3 | UX osservata Android/iOS e correzioni minime riproducibili | Screenshot prima/dopo, interazioni, scale/locali/accessibilità |
+| CA-U4 / T-U4 | R01–R30 e R24 senza promozione dei risultati parziali | Matrice ambiente/piattaforma, namespace fixture e cleanup |
+| CA-U5 / T-U5 | Gate candidato e due review indipendenti | Test mirati/canonici, benchmark10, build, CI e review |
+
+Handoff: CODEX_PLANNING_APPROVED_TO_EXECUTION, già autorizzato dall’utente.
+
+
+## Fix funzionale e UX del mandato 2026-10-01 — freeze di sviluppo
+
+Riprese le correzioni nello scope esplicito su worktree isolato da main12f03c7.
+Recensioni: reflow/count/badge completo. Assistenza: motivo localizzato e dropdown
+non densi/espansi. Delivery: selettore verticale a testo grande, azioni indirizzo e
+pickup separate dai dettagli. Inbox: filtro non lette delle pagine caricate e titolo
+feature corretto in errore. Cart: errori attesi gestiti dalle CTA senza eccezione non
+catturata; righe/quantità conservate e successivo tentativo possibile.
+
+AndroiddebugAPI35 proprio:41test reali con fixture e55PNG, exit0, dopo FAIL osservati
+nel runtime/harness. Quattro lingue320x568/200%:12regressioniPASS;4mutazioni Cart
+PASS; filtro inboxPASS. Nessuna goldenbaseline modificata o provider attivato.
+Suitecanonico/CI/iOScapture ancora da associare al candidato; nessun PASS anticipato.
+
+| CA / test | Evidence corrente | Esito / limite |
+|---|---|---|
+| CA-U1 / T-U1 | baselinePR27/main36924259905; Admin117/118/119 riconciliate | PASS baseline; candidato nuovo richiedeCI |
+| CA-U2 / T-U2 | metadata-preflight-20261001.json, hash canonici/recovery, livegateexit2 | PASS preflight; runtimeFAIL; apply/gateBLOCKED |
+| CA-U3 / T-U3 | suitevisual41test/55PNG Android;12accessibilità/4Cart/filtro; nuovi stati UI | PASS sottoinsieme; baseline iOS55PNG/3contrasti puntuali osservati; nuovo freeze/IME/screenreader/contrasto globaleNOT_RUN |
+| CA-U4 / T-U4 | acceptanceR01–30 overlay eR24 scomposto; chatnative/Admin coordinate | PASS mapping; liveR01–30/R24NOT_RUN |
+| CA-U5 / T-U5 | reportoperativo, candidataPR/2review/CI da completare | NOT_RUN freeze, nessuna integrazione anticipata |
+
+Handoff `CODEX_FIX_BLOCKED_TO_RE_REVIEW`: delta tecnico consegnabile ai reviewer
+read-only distinti dopo gate applicabili; TASK054non review-ready per acceptance
+completa. L'integrazione sviluppo resta autorizzata soltanto dopo le due review del
+candidato esatto eCI, senza promuovere alcun livello live o dichiarareDONE.
+
+
+## Review indipendente del candidato 0bea0016 — 2026-10-01
+
+Client/UX/lifecycle: `CHANGES_REQUIRED`, 3 P2 e 1 P3 riprodotti dal reviewer
+read-only distinto. CUX-01: titolo inbox a200%; CUX-02: CTA eleggibile comprime
+il prodotto/assert ListTile; CUX-03/P3: cleanup simulator interrotto dal timeout;
+CUX-04: pagina tardiva ripristina unread dopo mark-all. Dropdown4PASS, inbox
+1PASS/3FAIL, race1FAIL, exit code conservati nei receipt locali sanitizzati.
+Backend/contratti/sicurezza: `APPROVED` sul delta0bea0016, zeroP0–P3;
+source55/test13/entitlement4/security61+7/governance101/architecture17PASS.
+La review del task completo resta BLOCKED. Nessuna approvazione del writer.
+
+## Fix dei finding CUX-01–05
+
+Correzioni autorizzate dal mandato nello scope: titolo/action inbox, CTA review
+account/ordine, ordine temporale lettura/paginazione e cleanup bounded.
+Regressioni reali prima/dopo, nuovo freeze e re-review di entrambi sul nuovoSHA.
+CUX-05/P2 riprodotto autonomamente sul fix (baseline0beaPASS): mark-all durante
+categoria loading annullava l’epoch della lettura e lasciava uno spinner. Fixbounded:
+azione/controller disabilitati in loadingempty, categoria termina e azione si riabilita.
+41regressioni miratePASS/exit0, incluse controller/widget loading categoria;
+analyzePASS. Suite completa dopo checkout head:904PASS/2FAIL whitelist;
+validatori esatti aggiornati e regressione ref errato respinto,16governancePASS.
+Nuovo run completo908PASS/exit0, senza skip; 10benchmark finaliPASS/exit0.
+Handoff corrente: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+Validazione checkout CI: tutti i cinque job verificano il commit head immutabile;
+Quality conserva fetch-depth0. Whitelist release iOS esatta, ref main/head_ref/vuoto
+e input extra respinti; nessun gate di firma, runtime o sicurezza indebolito.
+43test nativi/61capture attesi al nuovo freeze: esecuzione ancoraNOT_RUN.

@@ -14,9 +14,9 @@
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: completamento operativo del mandato successivo
-  del 2026-09-28: codice, provider, Admin isolato, recovery e apply staging condizionato,
-  nuova acceptance e due review read-only; merge di sviluppo dopo gate applicabili.
+- **Prossima azione autorizzata**: eseguire il mandato funzionale e UX del 2026-10-01
+  sulla main aggiornata: preflight staging, flussi e schermate nativi con fixture,
+  correzioni riproducibili e due review read-only; integrazione dopo gate applicabili.
   TASK-054 resta aperta finché i requisiti live obbligatori non sono verificati.
 
 ## Repository coinvolti
@@ -24,7 +24,7 @@
 - `XNIW/ClientMerchandiseControl` — repository corrente e unico writer del client.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
   authority canonica verificata; TASK-159 concorrente preservato, PR commerce117 merged con6d5f3768 dopo review APPROVED e CI verde;
-  mainf21339bb include anche PR118, ancestry verificata il 2026-10-01.
+  main4532831b include anche PR119; f21339bb è la baseline PR118, ancestry verificata.
 - `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
 - `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release

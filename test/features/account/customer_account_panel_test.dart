@@ -171,6 +171,50 @@ void main() {
     },
   );
 
+  testWidgets(
+    'edit ACK versione7 a8 con refresh fallito non offre una seconda update',
+    (tester) async {
+      final repository = FakeCustomerAccountRepository(
+        addresses: [testCustomerAddress(version: 7)],
+      );
+      await tester.pumpWidget(_buildApp(repository));
+      await tester.pumpAndSettle();
+      await _openAddress(tester, editing: true);
+      await _fillAddress(tester, line1: 'Calle modificación ya aceptada 303');
+      repository.loadError = const CustomerAccountRepositoryException(
+        CustomerAccountFailureKind.unavailable,
+      );
+      await tester.tap(find.byKey(const ValueKey('customer-address-submit')));
+      await tester.pumpAndSettle();
+      expect(repository.addressUpdates, hasLength(1));
+      expect(repository.addressUpdates.single.expectedVersion, 7);
+      expect(repository.addresses.single.version, 8);
+      expect(
+        repository.addresses.single.addressLine1,
+        'Calle modificación ya aceptada 303',
+      );
+      expect(
+        find.byKey(const ValueKey('customer-address-dialog')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const ValueKey('customer-address-submit')),
+        findsNothing,
+      );
+      expect(
+        find.text(
+          AppLocalizations.of(
+            tester.element(find.byType(CustomerAccountPanel)),
+          ).customerAccountUnavailable,
+        ),
+        findsOneWidget,
+      );
+      await tester.pump(const Duration(seconds: 1));
+      expect(repository.addressUpdates, hasLength(1));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('cancel durante write pendente non chiude il dialog successivo', (
     tester,
   ) async {

@@ -381,7 +381,7 @@ class _AddressSection extends StatelessWidget {
   final List<CustomerAddress> addresses;
   final bool isBusy;
   final Future<CustomerAddress?> Function(CustomerAddressDraft draft) onCreate;
-  final Future<void> Function(
+  final Future<bool> Function(
     String addressId,
     int expectedVersion,
     CustomerAddressDraft draft,
@@ -459,26 +459,21 @@ class _AddressSection extends StatelessWidget {
         // The controller serializes mutations by reusing the active Future.
         // Never attribute another operation's completion to this draft.
         if (before.isMutating || before.snapshot == null) return unavailable;
-        CustomerAddress? created;
+        bool acknowledged;
         if (address == null) {
-          created = await onCreate(draft);
+          acknowledged = await onCreate(draft) != null;
         } else {
-          await onUpdate(address.id, address.version, draft);
+          acknowledged = await onUpdate(address.id, address.version, draft);
         }
         if (!context.mounted ||
             container.read(customerAccountIdentityProvider)?.subjectId !=
                 subjectId) {
           return unavailable;
         }
-        // A create acknowledgement survives a subsequent refresh failure.
-        // Close the editor so retry cannot create that address a second time.
-        if (created != null) return null;
+        // L'ACK della scrittura sopravvive a un refresh fallito: il dialogo
+        // non offre una seconda mutation sulla versione ormai superata.
+        if (acknowledged) return null;
         final after = container.read(customerAccountControllerProvider);
-        if (after.noticeRevision > before.noticeRevision &&
-            after.notice == CustomerAccountNoticeKind.addressSaved &&
-            after.failure == null) {
-          return null;
-        }
         return after.failure ?? unavailable;
       },
     );

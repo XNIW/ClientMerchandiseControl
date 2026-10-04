@@ -145,7 +145,12 @@ final class FakeCustomerAccountRepository implements CustomerAccountRepository {
     addresses = [
       for (final address in addresses)
         if (address.id == addressId)
-          _addressFromDraft(addressId, draft, isDefault: address.isDefault)
+          _addressFromDraft(
+            addressId,
+            draft,
+            isDefault: address.isDefault,
+            version: address.version + 1,
+          )
         else
           address,
     ];
@@ -262,6 +267,7 @@ CustomerAddress _addressFromDraft(
   String id,
   CustomerAddressDraft draft, {
   bool isDefault = false,
+  int version = 1,
 }) {
   return CustomerAddress(
     id: id,
@@ -275,6 +281,7 @@ CustomerAddress _addressFromDraft(
     countryCode: draft.countryCode,
     deliveryInstructions: draft.deliveryInstructions,
     isDefault: isDefault,
+    version: version,
     updatedAt: testTimestamp,
   );
 }

@@ -153,19 +153,26 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
     return created;
   }
 
-  Future<void> updateAddress(
+  /// Conferma la scrittura nella stessa sessione, anche se il refresh fallisce.
+  Future<bool> updateAddress(
     String addressId,
     int expectedVersion,
     CustomerAddressDraft draft,
-  ) {
-    return _mutate(
-      (repository, _) => repository.updateAddress(
+  ) async {
+    final subjectId = _subjectId;
+    final generation = _generation;
+    var acknowledged = false;
+    await _mutate((repository, _) async {
+      await repository.updateAddress(
         addressId,
         draft,
         expectedVersion: expectedVersion,
-      ),
-      CustomerAccountNoticeKind.addressSaved,
-    );
+      );
+      acknowledged = true;
+    }, CustomerAccountNoticeKind.addressSaved);
+    return acknowledged &&
+        subjectId != null &&
+        _isCurrent(subjectId, generation);
   }
 
   Future<void> deleteAddress(String addressId, [int expectedVersion = 1]) {

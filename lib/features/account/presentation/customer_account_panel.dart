@@ -456,8 +456,8 @@ class _AddressSection extends StatelessWidget {
           return unavailable;
         }
         final before = container.read(customerAccountControllerProvider);
-        // The controller serializes mutations by reusing the active Future.
-        // Never attribute another operation's completion to this draft.
+        // Il controller serializza le mutation riusando la Future attiva.
+        // Il completamento di un'altra operazione non conferma questa bozza.
         if (before.isMutating || before.snapshot == null) return unavailable;
         bool acknowledged;
         if (address == null) {

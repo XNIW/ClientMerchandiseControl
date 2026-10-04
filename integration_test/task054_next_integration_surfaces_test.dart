@@ -116,8 +116,8 @@ void main() {
         expect(input.focusNode.hasFocus, isTrue);
         expect(input.readOnly, isFalse);
         await captureVisual(tester, 'address-editor-focus-compact200');
-        // Focus/requestKeyboard is observable here; actual Android IME pixels
-        // are a separate driver/OS capture gate, never inferred from viewInsets.
+        // Qui si osservano focus e requestKeyboard. I pixel della IME Android
+        // richiedono una cattura driver/OS separata, senza inferirli da viewInsets.
         fixture.account.mutationError = null;
         await _reveal(tester, submit);
         await tester.tap(submit);

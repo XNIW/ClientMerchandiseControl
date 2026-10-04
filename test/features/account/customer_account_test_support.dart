@@ -70,6 +70,7 @@ final class FakeCustomerAccountRepository implements CustomerAccountRepository {
   int saveProfileCalls = 0;
   int createAddressCalls = 0;
   int createAddressAttempts = 0;
+  final addressCreates = <CustomerAddressDraft>[];
   final addressUpdates =
       <({String addressId, int expectedVersion, CustomerAddressDraft draft})>[];
   int requestDeletionCalls = 0;
@@ -118,6 +119,7 @@ final class FakeCustomerAccountRepository implements CustomerAccountRepository {
   @override
   Future<CustomerAddress> createAddress(CustomerAddressDraft draft) async {
     createAddressAttempts++;
+    addressCreates.add(draft);
     await addressMutationBarrier?.future;
     _throwMutationIfNeeded();
     createAddressCalls++;
@@ -279,6 +281,10 @@ CustomerAddress _addressFromDraft(
     region: draft.region,
     postalCode: draft.postalCode,
     countryCode: draft.countryCode,
+    latitude: draft.latitude,
+    longitude: draft.longitude,
+    locationSource: draft.locationSource,
+    locationAccuracyMeters: draft.locationAccuracyMeters,
     deliveryInstructions: draft.deliveryInstructions,
     isDefault: isDefault,
     version: version,

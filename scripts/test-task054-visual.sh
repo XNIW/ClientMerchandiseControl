@@ -35,10 +35,28 @@ def run(command, timeout):
                 pass
         process.wait()
         raise SystemExit(124)
+    except BaseException:
+        # TERM/INT del parent termina anche il figlio avviato in sessione propria.
+        for sig in (signal.SIGTERM, signal.SIGKILL):
+            try:
+                os.killpg(process.pid, sig)
+            except ProcessLookupError:
+                pass
+            try:
+                process.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                pass
+        raise
     if code:
         raise SystemExit(code)
 
 
+def interrupted(signum, _frame):
+    raise SystemExit(128 + signum)
+
+
+signal.signal(signal.SIGTERM, interrupted)
+signal.signal(signal.SIGINT, interrupted)
 primary_failure = None
 cleanup_failed = False
 try:

@@ -41,6 +41,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-backend-compatibility.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-auth-entitlements.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-visual-runner.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-android-runner.py
       - name: Validate client security boundary
         run: |
           bash scripts/check-client-security.sh
@@ -111,6 +112,25 @@ jobs:
         run: >-
           bash scripts/check-client-security.sh
           --artifact build/app/outputs/flutter-apk/app-debug.apk
+      - name: Enable runner access to KVM
+        run: |
+          test -c /dev/kvm
+          sudo -n chown "$(id -u):$(id -g)" /dev/kvm
+          sudo -n chmod u+rw /dev/kvm
+      - name: Capture commerce UI with synthetic fixtures on Android
+        run: python3 scripts/run-task054-android-visual.py
+      - name: Save Android synthetic UI captures and runner receipt
+        if: always()
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-android-visual-fixtures
+          path: |
+            build/task054/visual/*.png
+            build/task054/android-visual-receipt.json
+            build/task054/android-emulator.log
+          if-no-files-found: warn
+          retention-days: 7
 
   android-release:
     name: Android release candidate

@@ -2,6 +2,7 @@
 """Regressioni del runner con processi simulati: nessun device viene controllato."""
 import json
 from pathlib import Path
+import signal
 import subprocess
 import unittest
 from unittest.mock import Mock, patch
@@ -11,9 +12,10 @@ SOURCE = (Path(__file__).parent / 'test-task054-visual.sh').read_text().split("<
 
 class VisualRunnerTest(unittest.TestCase):
     def execute(self, primary=0, shutdown_error=None, delete_error=None,
-                drive_timeout=False, owned=True):
+                drive_timeout=False, owned=True, drive_signal=None):
         actions = []
         processes = []
+        handlers = {}
 
         def output(command, **kwargs):
             if command[0] == 'xcode-select':
@@ -30,6 +32,16 @@ class VisualRunnerTest(unittest.TestCase):
             child.wait.side_effect = ([subprocess.TimeoutExpired(command, 900), 0, 0, 0]
                                      if is_drive and drive_timeout else None)
             child.wait.return_value = primary if is_drive else 0
+            if is_drive and drive_signal:
+                attempts = []
+
+                def interrupted_wait(**kwargs):
+                    if not attempts:
+                        attempts.append(True)
+                        handlers[drive_signal](drive_signal, None)
+                    return 0
+
+                child.wait.side_effect = interrupted_wait
             processes.append(command)
             return child
 
@@ -46,12 +58,14 @@ class VisualRunnerTest(unittest.TestCase):
              patch('os.environ', {}), patch('os.path.isdir', return_value=True), \
              patch('subprocess.check_output', side_effect=output), \
              patch('subprocess.Popen', side_effect=process), \
-             patch('subprocess.run', side_effect=cleanup), patch('os.killpg'):
+             patch('subprocess.run', side_effect=cleanup), patch('os.killpg') as kill, \
+             patch('signal.signal', side_effect=lambda key, handler: handlers.update({key: handler})):
             try:
                 exec(compile(SOURCE, 'test-task054-visual.sh', 'exec'), {})
                 code = 0
             except SystemExit as error:
                 code = error.code
+            self.terminated_groups = [call.args for call in kill.call_args_list]
         return code, actions, processes
 
     def test_success_cleanup(self):
@@ -93,6 +107,26 @@ class VisualRunnerTest(unittest.TestCase):
         code, actions, _ = self.execute(primary=7, owned=False)
         self.assertEqual(code, 7)
         self.assertEqual(actions, [])
+
+    def test_term_stops_owned_drive_group_then_shuts_down_and_deletes(self):
+        code, actions, _ = self.execute(drive_signal=signal.SIGTERM)
+        self.assertEqual(code, 143)
+        self.assertEqual(actions, ['shutdown', 'delete'])
+        self.assertEqual(self.terminated_groups,
+            [(54321, signal.SIGTERM), (54321, signal.SIGKILL)])
+
+    def test_int_stops_drive_without_touching_external_device(self):
+        code, actions, _ = self.execute(drive_signal=signal.SIGINT, owned=False)
+        self.assertEqual(code, 130)
+        self.assertEqual(actions, [])
+        self.assertEqual(self.terminated_groups,
+            [(54321, signal.SIGTERM), (54321, signal.SIGKILL)])
+
+    def test_signal_failure_survives_cleanup_failure(self):
+        code, actions, _ = self.execute(drive_signal=signal.SIGTERM,
+            shutdown_error=OSError('mock'))
+        self.assertEqual(code, 143)
+        self.assertEqual(actions, ['shutdown', 'delete'])
 
 
 if __name__ == '__main__':

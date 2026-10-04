@@ -17,6 +17,7 @@ python3 "${cmc_script_dir}/check-backend-compatibility.py" --source-only
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-backend-compatibility.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-auth-entitlements.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-visual-runner.py"
+PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-android-runner.py"
 if [[ -n "${cmc_backend_config}" ]]; then
   python3 "${cmc_script_dir}/check-backend-compatibility.py" \
     --live --app-config "${cmc_backend_config}"

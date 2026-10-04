@@ -24,18 +24,41 @@ class Failure(Exception):
         self.code = code
 
 
+def owned_group_has_live_members(group):
+    """Legge solo PGID/stato, senza nomi, argomenti o identificatori applicativi."""
+    snapshot = subprocess.run(['ps', '-A', '-o', 'pgid=', '-o', 'stat='],
+        capture_output=True, text=True, timeout=2, check=False)
+    if snapshot.returncode:
+        raise Failure('cleanup-process', 1, 'stato del gruppo proprio non verificabile')
+    live = False
+    for line in snapshot.stdout.splitlines():
+        fields = line.split()
+        if len(fields) != 2 or not fields[0].isdigit():
+            raise Failure('cleanup-process', 1, 'snapshot gruppi non verificabile')
+        if int(fields[0]) == group and not fields[1].startswith('Z'):
+            live = True
+    return live
+
+
 def stop_owned_process(process):
-    """Termina soltanto il gruppo creato da questa istanza del runner."""
+    """Verifica l'intero PGID proprio; leader uscito non implica gruppo fermo."""
     for sig in (signal.SIGTERM, signal.SIGKILL):
         try:
             os.killpg(process.pid, sig)
         except ProcessLookupError:
-            pass
-        try:
-            process.wait(timeout=5)
+            process.wait(timeout=1)
             return
-        except subprocess.TimeoutExpired:
-            continue
+        deadline = time.monotonic() + 5
+        while True:
+            if not owned_group_has_live_members(process.pid):
+                # Gli zombie non eseguono codice; reap del leader solo a quiescenza.
+                process.wait(timeout=1)
+                return
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            time.sleep(min(0.05, remaining))
+        # Nessun segnale tardivo dopo avere osservato un gruppo vuoto/quiescente.
     raise Failure('cleanup-process', 1, 'gruppo proprio non terminato')
 
 

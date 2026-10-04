@@ -5,7 +5,9 @@ import json
 from pathlib import Path
 import signal
 import subprocess
+import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import Mock, patch
 
@@ -17,6 +19,48 @@ SPEC.loader.exec_module(MODULE)
 
 
 class AndroidVisualRunnerTest(unittest.TestCase):
+    def test_real_descendant_ignoring_term_is_stopped_after_leader_exit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            pid_file = Path(directory) / 'child.pid'
+            child_source = (
+                'import os, signal, time; from pathlib import Path; '
+                'signal.signal(signal.SIGTERM, signal.SIG_IGN); '
+                f'Path({str(pid_file)!r}).write_text(str(os.getpid())); time.sleep(60)')
+            leader_source = (
+                'import subprocess, sys, time; '
+                f'subprocess.Popen([sys.executable, "-c", {child_source!r}]); time.sleep(60)')
+            leader = subprocess.Popen([sys.executable, '-c', leader_source],
+                start_new_session=True, stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            child_pid = None
+            try:
+                deadline = time.monotonic() + 3
+                while not pid_file.exists() and time.monotonic() < deadline:
+                    time.sleep(0.01)
+                self.assertTrue(pid_file.exists(), 'child readiness bounded')
+                child_pid = int(pid_file.read_text())
+                MODULE.stop_owned_process(leader)
+                status = subprocess.run(['ps', '-p', str(child_pid), '-o', 'stat='],
+                    capture_output=True, text=True, timeout=2, check=False).stdout.strip()
+                self.assertTrue(not status or status.startswith('Z'),
+                    f'discendente proprio ancora vivo: {status}')
+                self.assertEqual(leader.returncode, -signal.SIGTERM)
+            finally:
+                try:
+                    MODULE.os.killpg(leader.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                leader.wait(timeout=5)
+                if child_pid is not None:
+                    deadline = time.monotonic() + 2
+                    while time.monotonic() < deadline:
+                        status = subprocess.run(['ps', '-p', str(child_pid), '-o', 'stat='],
+                            capture_output=True, text=True, timeout=2, check=False).stdout.strip()
+                        if not status or status.startswith('Z'):
+                            break
+                        time.sleep(0.01)
+                    self.assertTrue(not status or status.startswith('Z'), 'cleanup test bounded')
+
     def execute(self, failure=None, cleanup_failure=False, foreign=False,
                 early_exit=False, wrong_api=False, capture_count=103):
         calls = []
@@ -71,6 +115,7 @@ class AndroidVisualRunnerTest(unittest.TestCase):
                  patch.object(MODULE.platform, 'machine', return_value='x86_64'), \
                  patch.object(MODULE.os, 'access', return_value=True), \
                  patch.object(MODULE.socket, 'socket') as socket_type, \
+                 patch.object(MODULE, 'owned_group_has_live_members', return_value=False), \
                  patch.object(MODULE.subprocess, 'Popen', side_effect=process), \
                  patch.object(MODULE.os, 'killpg') as kill:
                 code = runner.run()
@@ -174,9 +219,11 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         runner = MODULE.AndroidVisualRunner('/fake')
         child = Mock(pid=54321)
         child.communicate.side_effect = subprocess.TimeoutExpired('fake', 3)
-        child.wait.side_effect = [subprocess.TimeoutExpired('fake', 5), 0]
+        child.wait.return_value = 0
         with patch.object(MODULE.subprocess, 'Popen', return_value=child), \
              patch.object(MODULE.os, 'killpg') as kill, \
+             patch.object(MODULE, 'owned_group_has_live_members', side_effect=[True, False]), \
+             patch.object(MODULE.time, 'monotonic', side_effect=[0, 6, 6]), \
              self.assertRaises(MODULE.Failure) as failure:
             runner.command(['fake'], 3)
         self.assertEqual(failure.exception.code, 124)
@@ -188,6 +235,7 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         child = Mock(pid=54321)
         child.communicate.side_effect = MODULE.Failure('signal', 143, 'interrotto')
         with patch.object(MODULE.subprocess, 'Popen', return_value=child), \
+             patch.object(MODULE, 'owned_group_has_live_members', return_value=False), \
              patch.object(MODULE.os, 'killpg') as kill, \
              self.assertRaises(MODULE.Failure) as failure:
             runner.command(['fake'], None, capture=False)
@@ -204,6 +252,33 @@ class AndroidVisualRunnerTest(unittest.TestCase):
             runner.command(['fake'], 3)
         self.assertEqual(failure.exception.code, 124)
         self.assertTrue(runner.cleanup_failed)
+
+    def test_zombie_only_group_is_quiescent_and_foreign_members_are_ignored(self):
+        snapshot = Mock(returncode=0, stdout='54321 Z\n11111 S\n')
+        with patch.object(MODULE.subprocess, 'run', return_value=snapshot):
+            self.assertFalse(MODULE.owned_group_has_live_members(54321))
+
+    def test_live_descendant_is_detected_even_with_zombie_leader(self):
+        snapshot = Mock(returncode=0, stdout='54321 Z\n54321 S\n')
+        with patch.object(MODULE.subprocess, 'run', return_value=snapshot):
+            self.assertTrue(MODULE.owned_group_has_live_members(54321))
+
+    def test_invalid_group_snapshot_fails_closed(self):
+        snapshot = Mock(returncode=0, stdout='unverifiable\n')
+        with patch.object(MODULE.subprocess, 'run', return_value=snapshot), \
+             self.assertRaises(MODULE.Failure):
+            MODULE.owned_group_has_live_members(54321)
+
+    def test_kill_cannot_claim_success_with_remaining_live_group(self):
+        child = Mock(pid=54321)
+        with patch.object(MODULE.os, 'killpg') as kill, \
+             patch.object(MODULE, 'owned_group_has_live_members', return_value=True), \
+             patch.object(MODULE.time, 'monotonic', side_effect=[0, 6, 6, 12]), \
+             self.assertRaises(MODULE.Failure):
+            MODULE.stop_owned_process(child)
+        self.assertEqual([call.args for call in kill.call_args_list],
+            [(54321, signal.SIGTERM), (54321, signal.SIGKILL)])
+        child.wait.assert_not_called()
 
     def test_kvm_unavailable_stops_before_mutating_resources(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -74,6 +74,10 @@ class _InboxBody extends ConsumerWidget {
     final controller = ref.read(
       customerNotificationInboxControllerProvider.notifier,
     );
+    final partialUnread =
+        state.hasMore ||
+        state.isFromCache ||
+        state.status == CustomerNotificationInboxStatus.offline;
     return RefreshIndicator.adaptive(
       onRefresh: controller.refresh,
       child: ListView(
@@ -118,13 +122,33 @@ class _InboxBody extends ConsumerWidget {
               actionLabel: l10n.deliveryContextRetry,
               onAction: controller.refresh,
             ),
+          ] else if (state.failure != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            StorefrontStatusBanner(
+              key: const ValueKey('notifications-update-failed'),
+              message: l10n.notificationsUpdateFailed,
+              icon: Icons.sync_problem_outlined,
+              actionLabel: l10n.deliveryContextRetry,
+              onAction: controller.refresh,
+            ),
           ],
           const SizedBox(height: AppSpacing.md),
           if (state.visibleItems.isEmpty)
             StorefrontEmptyState(
+              key: const ValueKey('notifications-filter-empty'),
               icon: Icons.notifications_none_outlined,
-              title: l10n.notificationsEmptyTitle,
-              message: l10n.notificationsEmptyMessage,
+              title: state.unreadOnly
+                  ? partialUnread
+                        ? l10n.notificationsUnreadPartialEmptyTitle
+                        : l10n.notificationsUnreadEmptyTitle
+                  : l10n.notificationsEmptyTitle,
+              message: state.unreadOnly
+                  ? state.hasMore
+                        ? l10n.notificationsUnreadPageHint
+                        : partialUnread
+                        ? l10n.notificationsUnreadCachedEmptyMessage
+                        : l10n.notificationsUnreadEmptyMessage
+                  : l10n.notificationsEmptyMessage,
             )
           else
             ...state.visibleItems.map(
@@ -132,6 +156,14 @@ class _InboxBody extends ConsumerWidget {
                 item: item,
                 onTap: () => _openNotification(context, ref, item),
               ),
+            ),
+          if (state.unreadOnly &&
+              state.hasMore &&
+              state.visibleItems.isNotEmpty)
+            StorefrontStatusBanner(
+              key: const ValueKey('notifications-unread-page-hint'),
+              message: l10n.notificationsUnreadPageHint,
+              icon: Icons.info_outline,
             ),
           if (state.hasMore) ...[
             const SizedBox(height: AppSpacing.sm),

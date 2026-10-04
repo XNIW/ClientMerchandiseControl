@@ -652,5 +652,11 @@
   "deliveryContextPinHint": "拖动标记或点按地图以确认位置。",
   "deliveryAddressAttribution": "© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright",
   "afterSalesReason": "原因",
-  "notificationsUnreadOnly": "仅未读"
+  "notificationsUnreadOnly": "仅未读",
+  "notificationsUnreadPartialEmptyTitle": "当前显示的通知中没有未读通知",
+  "notificationsUnreadEmptyTitle": "没有未读通知",
+  "notificationsUnreadPageHint": "加载更早的通知，查看是否还有未读通知。",
+  "notificationsUnreadCachedEmptyMessage": "重新连接以查看是否还有未读通知。",
+  "notificationsUnreadEmptyMessage": "你已阅读所有显示的通知。",
+  "notificationsUpdateFailed": "无法更新通知。请重试。"
 }

@@ -2230,4 +2230,27 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get notificationsUnreadOnly => 'Solo no leídas';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle =>
+      'No hay no leídas entre las notificaciones mostradas';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'No hay notificaciones sin leer';
+
+  @override
+  String get notificationsUnreadPageHint =>
+      'Puedes buscar más notificaciones sin leer cargando las anteriores.';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage =>
+      'Vuelve a conectarte para comprobar si hay más notificaciones sin leer.';
+
+  @override
+  String get notificationsUnreadEmptyMessage =>
+      'Has leído todas las notificaciones mostradas.';
+
+  @override
+  String get notificationsUpdateFailed =>
+      'No se pudieron actualizar las notificaciones. Inténtalo de nuevo.';
 }

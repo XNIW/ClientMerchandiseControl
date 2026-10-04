@@ -2234,4 +2234,27 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get notificationsUnreadOnly => 'Solo non lette';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle =>
+      'Nessuna non letta tra le notifiche mostrate';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'Nessuna notifica non letta';
+
+  @override
+  String get notificationsUnreadPageHint =>
+      'Puoi cercare altre notifiche non lette caricando quelle precedenti.';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage =>
+      'Riconnettiti per verificare se ci sono altre notifiche non lette.';
+
+  @override
+  String get notificationsUnreadEmptyMessage =>
+      'Hai letto tutte le notifiche mostrate.';
+
+  @override
+  String get notificationsUpdateFailed =>
+      'Non è stato possibile aggiornare le notifiche. Riprova.';
 }

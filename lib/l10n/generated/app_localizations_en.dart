@@ -2207,4 +2207,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsUnreadOnly => 'Unread only';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle =>
+      'No unread notifications among those shown';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'No unread notifications';
+
+  @override
+  String get notificationsUnreadPageHint =>
+      'Load earlier notifications to check for more unread updates.';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage =>
+      'Reconnect to check for more unread notifications.';
+
+  @override
+  String get notificationsUnreadEmptyMessage =>
+      'You have read all the notifications shown.';
+
+  @override
+  String get notificationsUpdateFailed =>
+      'Notifications could not be updated. Try again.';
 }

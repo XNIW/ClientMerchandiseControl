@@ -3948,6 +3948,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Solo no leídas'**
   String get notificationsUnreadOnly;
+
+  /// No description provided for @notificationsUnreadPartialEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay no leídas entre las notificaciones mostradas'**
+  String get notificationsUnreadPartialEmptyTitle;
+
+  /// No description provided for @notificationsUnreadEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay notificaciones sin leer'**
+  String get notificationsUnreadEmptyTitle;
+
+  /// No description provided for @notificationsUnreadPageHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes buscar más notificaciones sin leer cargando las anteriores.'**
+  String get notificationsUnreadPageHint;
+
+  /// No description provided for @notificationsUnreadCachedEmptyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Vuelve a conectarte para comprobar si hay más notificaciones sin leer.'**
+  String get notificationsUnreadCachedEmptyMessage;
+
+  /// No description provided for @notificationsUnreadEmptyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Has leído todas las notificaciones mostradas.'**
+  String get notificationsUnreadEmptyMessage;
+
+  /// No description provided for @notificationsUpdateFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron actualizar las notificaciones. Inténtalo de nuevo.'**
+  String get notificationsUpdateFailed;
 }
 
 class _AppLocalizationsDelegate

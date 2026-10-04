@@ -652,5 +652,11 @@
   "deliveryContextPinHint": "Drag the pin or tap the map to confirm the location.",
   "deliveryAddressAttribution": "© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright",
   "afterSalesReason": "Reason",
-  "notificationsUnreadOnly": "Unread only"
+  "notificationsUnreadOnly": "Unread only",
+  "notificationsUnreadPartialEmptyTitle": "No unread notifications among those shown",
+  "notificationsUnreadEmptyTitle": "No unread notifications",
+  "notificationsUnreadPageHint": "Load earlier notifications to check for more unread updates.",
+  "notificationsUnreadCachedEmptyMessage": "Reconnect to check for more unread notifications.",
+  "notificationsUnreadEmptyMessage": "You have read all the notifications shown.",
+  "notificationsUpdateFailed": "Notifications could not be updated. Try again."
 }

@@ -2230,6 +2230,29 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notificationsUnreadOnly => 'Solo no leídas';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle =>
+      'No hay no leídas entre las notificaciones mostradas';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'No hay notificaciones sin leer';
+
+  @override
+  String get notificationsUnreadPageHint =>
+      'Puedes buscar más notificaciones sin leer cargando las anteriores.';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage =>
+      'Vuelve a conectarte para comprobar si hay más notificaciones sin leer.';
+
+  @override
+  String get notificationsUnreadEmptyMessage =>
+      'Has leído todas las notificaciones mostradas.';
+
+  @override
+  String get notificationsUpdateFailed =>
+      'No se pudieron actualizar las notificaciones. Inténtalo de nuevo.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4261,4 +4284,22 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get notificationsUnreadOnly => '仅未读';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle => '当前显示的通知中没有未读通知';
+
+  @override
+  String get notificationsUnreadEmptyTitle => '没有未读通知';
+
+  @override
+  String get notificationsUnreadPageHint => '加载更早的通知，查看是否还有未读通知。';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage => '重新连接以查看是否还有未读通知。';
+
+  @override
+  String get notificationsUnreadEmptyMessage => '你已阅读所有显示的通知。';
+
+  @override
+  String get notificationsUpdateFailed => '无法更新通知。请重试。';
 }

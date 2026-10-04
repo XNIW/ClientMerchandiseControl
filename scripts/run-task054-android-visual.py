@@ -43,7 +43,7 @@ def owned_group_has_live_members(group):
     return live
 
 
-def stop_owned_process(process):
+def stop_owned_process(process, *, term_grace=5):
     """Verifica l'intero PGID proprio; leader uscito non implica gruppo fermo."""
     for sig in (signal.SIGTERM, signal.SIGKILL):
         try:
@@ -51,7 +51,7 @@ def stop_owned_process(process):
         except ProcessLookupError:
             process.wait(timeout=1)
             return
-        deadline = time.monotonic() + 5
+        deadline = time.monotonic() + (term_grace if sig == signal.SIGTERM else 5)
         while True:
             if not owned_group_has_live_members(process.pid):
                 # Gli zombie non eseguono codice; reap del leader solo a quiescenza.
@@ -103,7 +103,10 @@ class AndroidVisualRunner:
 
     def stop_command(self, child):
         try:
-            stop_owned_process(child)
+            # Il processo visuale deve poter drenare Flutter e il bridge OS prima
+            # del KILL esterno. È grace di cleanup, non timeout build/test.
+            stop_owned_process(child,
+                term_grace=30 if self.phase == 'native-fixture-capture' else 5)
         except (OSError, Failure) as error:
             self.cleanup_failed = True
             print(f'FAIL: cleanup command {type(error).__name__}', flush=True)
@@ -220,13 +223,15 @@ class AndroidVisualRunner:
             raise Failure(self.phase, 2, 'API/ABI del device differenti dal contratto')
         self.command(target + ['shell', 'input', 'keyevent', '82'], 10)
         self.phase = 'native-fixture-capture'
+        self.environment.update(CMC_OS_FRAME_PLATFORM='android',
+            CMC_OS_FRAME_DEVICE=self.serial, CMC_OS_FRAME_ADB=str(adb))
         # Il runner visuale esistente possiede già il timeout drive900 e i suoi figli.
         self.command(['bash', 'scripts/test-task054-visual.sh', '--device', self.serial],
             None, capture=False)
         self.phase = 'capture-completeness'
         self.capture_count = len(list(visual_output.glob('*.png')))
-        if self.capture_count != 103:
-            raise Failure(self.phase, 1, f'capture attese103, ottenute{self.capture_count}')
+        if self.capture_count != 105:
+            raise Failure(self.phase, 1, f'capture attese105, ottenute{self.capture_count}')
 
     def cleanup(self):
         # Mai adb kill-server, emu kill, shutdown-all o selezione di device altrui.

@@ -62,7 +62,7 @@ class AndroidVisualRunnerTest(unittest.TestCase):
                     self.assertTrue(not status or status.startswith('Z'), 'cleanup test bounded')
 
     def execute(self, failure=None, cleanup_failure=False, foreign=False,
-                early_exit=False, wrong_api=False, capture_count=103,
+                early_exit=False, wrong_api=False, capture_count=105,
                 emulator_install_failure=False):
         calls = []
         environments = []
@@ -141,7 +141,9 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(receipt['cleanup'], 'PASS')
         self.assertEqual(receipt['revision'], 'a' * 40)
-        self.assertEqual(receipt['capture_count'], 103)
+        self.assertEqual(receipt['capture_count'], 105)
+        self.assertEqual(environments[-2]['CMC_OS_FRAME_PLATFORM'], 'android')
+        self.assertEqual(environments[-2]['CMC_OS_FRAME_DEVICE'], runner.serial)
         drive = next(args for args in calls if args[0] == 'bash')
         self.assertEqual(drive, ['bash', 'scripts/test-task054-visual.sh',
             '--device', runner.serial])
@@ -209,10 +211,10 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         self.assertFalse(any(args[0] == 'bash' for args in calls))
 
     def test_partial_capture_is_not_promoted_to_success(self):
-        code, _, _, _, receipt, _ = self.execute(capture_count=102)
+        code, _, _, _, receipt, _ = self.execute(capture_count=104)
         self.assertEqual(code, 1)
         self.assertEqual(receipt['failed_phase'], 'capture-completeness')
-        self.assertEqual(receipt['capture_count'], 102)
+        self.assertEqual(receipt['capture_count'], 104)
 
     def test_readiness_polls_then_runs_only_once_when_ready(self):
         runner = MODULE.AndroidVisualRunner('/fake')

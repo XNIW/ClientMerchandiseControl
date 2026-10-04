@@ -7,15 +7,32 @@ source "${cmc_visual_script_dir}/resolve-flutter.sh"
   printf 'USAGE: test-task054-visual.sh --ios | --device OWNED_DEVICE_ID\n' >&2
   exit 2
 }
-python3 - "$@" <<'PYCODE'
+CMC_TASK054_SCRIPTS_DIR="${cmc_visual_script_dir}" python3 - "$@" <<'PYCODE'
+import importlib.util
 import json
 import os
+from pathlib import Path
 import signal
 import subprocess
 import sys
 
 device = None
 owns_device = sys.argv[1] == '--ios'
+cleanup_spec = importlib.util.spec_from_file_location('cmc_owned_cleanup',
+    Path(os.environ['CMC_TASK054_SCRIPTS_DIR']) / 'run-task054-android-visual.py')
+cleanup_module = importlib.util.module_from_spec(cleanup_spec)
+cleanup_spec.loader.exec_module(cleanup_module)
+
+
+def stop_command(process):
+    global cleanup_failed
+    try:
+        # Python OS drena i propri tool group entro 14s incluso probe: questa
+        # grace evita di uccidere il bridge prima del suo KILL/receipt finale.
+        cleanup_module.stop_owned_process(process, term_grace=20)
+    except (OSError, subprocess.TimeoutExpired, cleanup_module.Failure) as error:
+        cleanup_failed = True
+        print(f"FAIL: cleanup visual command {type(error).__name__}", flush=True)
 
 
 def run(command, timeout):
@@ -24,28 +41,11 @@ def run(command, timeout):
         code = process.wait(timeout=timeout)
     except subprocess.TimeoutExpired:
         print(f"FAIL: verifica visuale timeout dopo {timeout}s", flush=True)
-        for sig in (signal.SIGTERM, signal.SIGKILL):
-            try:
-                os.killpg(process.pid, sig)
-            except ProcessLookupError:
-                pass
-            try:
-                process.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                pass
-        process.wait()
+        stop_command(process)
         raise SystemExit(124)
     except BaseException:
         # TERM/INT del parent termina anche il figlio avviato in sessione propria.
-        for sig in (signal.SIGTERM, signal.SIGKILL):
-            try:
-                os.killpg(process.pid, sig)
-            except ProcessLookupError:
-                pass
-            try:
-                process.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                pass
+        stop_command(process)
         raise
     if code:
         raise SystemExit(code)
@@ -81,9 +81,21 @@ try:
         run(['xcrun', 'simctl', 'bootstatus', device, '-b'], 300)
     else:
         device = sys.argv[2]
+    if owns_device:
+        os.environ['CMC_OS_FRAME_PLATFORM'] = 'ios'
+        os.environ['CMC_OS_FRAME_DEVICE'] = device
+    os_capture = bool(os.environ.get('CMC_OS_FRAME_PLATFORM') and
+                      os.environ.get('CMC_OS_FRAME_DEVICE'))
+    if (bool(os.environ.get('CMC_OS_FRAME_PLATFORM')) !=
+            bool(os.environ.get('CMC_OS_FRAME_DEVICE')) or
+            os_capture and (os.environ['CMC_OS_FRAME_PLATFORM'] not in ('android', 'ios') or
+                            os.environ['CMC_OS_FRAME_DEVICE'] != device)):
+        print('FAIL: contesto OS frame non corrisponde al device esplicito', flush=True)
+        raise SystemExit(2)
     run(['flutter', 'drive', '--no-pub', '--driver=test_driver/task054_visual.dart',
          '--target=integration_test/task054_visual_flow_test.dart', '-d', device,
-         '--dart-define=CMC_VISUAL_CAPTURE=true'], 900)
+         '--dart-define=CMC_VISUAL_CAPTURE=true',
+         '--dart-define=CMC_OS_FRAME_CAPTURE=' + str(os_capture).lower()], 900)
 except BaseException as error:
     primary_failure = error
 finally:

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import signal
 import subprocess
+from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 
@@ -12,10 +13,14 @@ SOURCE = (Path(__file__).parent / 'test-task054-visual.sh').read_text().split("<
 
 class VisualRunnerTest(unittest.TestCase):
     def execute(self, primary=0, shutdown_error=None, delete_error=None,
-                drive_timeout=False, owned=True, drive_signal=None):
+                drive_timeout=False, owned=True, drive_signal=None,
+                process_cleanup_error=None, environment=None, external_device='foreign-device'):
         actions = []
         processes = []
         handlers = {}
+        owned_stop = Mock(side_effect=process_cleanup_error)
+        module = SimpleNamespace(stop_owned_process=owned_stop, Failure=RuntimeError)
+        spec = Mock()
 
         def output(command, **kwargs):
             if command[0] == 'xcode-select':
@@ -54,8 +59,12 @@ class VisualRunnerTest(unittest.TestCase):
                 raise error
             return Mock(returncode=0)
 
-        with patch('sys.argv', ['runner', '--ios'] if owned else ['runner', '--device', 'foreign-device']), \
-             patch('os.environ', {}), patch('os.path.isdir', return_value=True), \
+        with patch('sys.argv', ['runner', '--ios'] if owned else ['runner', '--device', external_device]), \
+             patch('os.environ', {'CMC_TASK054_SCRIPTS_DIR': str(Path(__file__).parent),
+                                 **(environment or {})}), \
+             patch('os.path.isdir', return_value=True), \
+             patch('importlib.util.spec_from_file_location', return_value=spec), \
+             patch('importlib.util.module_from_spec', return_value=module), \
              patch('subprocess.check_output', side_effect=output), \
              patch('subprocess.Popen', side_effect=process), \
              patch('subprocess.run', side_effect=cleanup), patch('os.killpg') as kill, \
@@ -65,13 +74,15 @@ class VisualRunnerTest(unittest.TestCase):
                 code = 0
             except SystemExit as error:
                 code = error.code
+            self.owned_stops = owned_stop.call_args_list
             self.terminated_groups = [call.args for call in kill.call_args_list]
         return code, actions, processes
 
     def test_success_cleanup(self):
-        code, actions, _ = self.execute()
+        code, actions, processes = self.execute()
         self.assertEqual(code, 0)
         self.assertEqual(actions, ['shutdown', 'delete'])
+        self.assertIn('--dart-define=CMC_OS_FRAME_CAPTURE=true', processes[-1])
 
     def test_primary_failure_preserved(self):
         code, actions, _ = self.execute(primary=7)
@@ -104,29 +115,58 @@ class VisualRunnerTest(unittest.TestCase):
         self.assertEqual(actions, ['shutdown', 'delete'])
 
     def test_external_device_is_never_cleaned(self):
-        code, actions, _ = self.execute(primary=7, owned=False)
+        code, actions, processes = self.execute(primary=7, owned=False)
         self.assertEqual(code, 7)
         self.assertEqual(actions, [])
+        self.assertIn('--dart-define=CMC_OS_FRAME_CAPTURE=false', processes[-1])
 
     def test_term_stops_owned_drive_group_then_shuts_down_and_deletes(self):
         code, actions, _ = self.execute(drive_signal=signal.SIGTERM)
         self.assertEqual(code, 143)
         self.assertEqual(actions, ['shutdown', 'delete'])
-        self.assertEqual(self.terminated_groups,
-            [(54321, signal.SIGTERM), (54321, signal.SIGKILL)])
+        self.assertEqual(len(self.owned_stops), 1)
+        self.assertEqual(self.owned_stops[0].args[0].pid, 54321)
+        self.assertEqual(self.owned_stops[0].kwargs, {'term_grace': 20})
+        self.assertEqual(self.terminated_groups, [])
 
     def test_int_stops_drive_without_touching_external_device(self):
         code, actions, _ = self.execute(drive_signal=signal.SIGINT, owned=False)
         self.assertEqual(code, 130)
         self.assertEqual(actions, [])
-        self.assertEqual(self.terminated_groups,
-            [(54321, signal.SIGTERM), (54321, signal.SIGKILL)])
+        self.assertEqual(len(self.owned_stops), 1)
+        self.assertEqual(self.owned_stops[0].args[0].pid, 54321)
+        self.assertEqual(self.owned_stops[0].kwargs, {'term_grace': 20})
+        self.assertEqual(self.terminated_groups, [])
 
     def test_signal_failure_survives_cleanup_failure(self):
         code, actions, _ = self.execute(drive_signal=signal.SIGTERM,
             shutdown_error=OSError('mock'))
         self.assertEqual(code, 143)
         self.assertEqual(actions, ['shutdown', 'delete'])
+
+    def test_owned_group_cleanup_failure_preserves_timeout_and_device_cleanup(self):
+        code, actions, _ = self.execute(drive_timeout=True,
+            process_cleanup_error=RuntimeError('controlled'))
+        self.assertEqual(code, 124)
+        self.assertEqual(actions, ['shutdown', 'delete'])
+
+    def test_explicit_owned_os_context_is_forwarded_without_device_cleanup(self):
+        device = '12345678-1234-4234-8234-123456789abc'
+        code, actions, processes = self.execute(owned=False, external_device=device,
+            environment={'CMC_OS_FRAME_PLATFORM': 'ios', 'CMC_OS_FRAME_DEVICE': device})
+        self.assertEqual(code, 0)
+        self.assertEqual(actions, [])
+        self.assertIn('--dart-define=CMC_OS_FRAME_CAPTURE=true', processes[-1])
+
+    def test_wrong_or_partial_os_context_does_not_start_flutter(self):
+        for context in ({'CMC_OS_FRAME_PLATFORM': 'ios'},
+                        {'CMC_OS_FRAME_DEVICE': 'foreign-device'},
+                        {'CMC_OS_FRAME_PLATFORM': 'ios', 'CMC_OS_FRAME_DEVICE': 'other-device'},
+                        {'CMC_OS_FRAME_PLATFORM': 'unknown', 'CMC_OS_FRAME_DEVICE': 'foreign-device'}):
+            code, actions, processes = self.execute(owned=False, environment=context)
+            self.assertEqual(code, 2)
+            self.assertEqual(actions, [])
+            self.assertEqual(processes, [])
 
 
 if __name__ == '__main__':

@@ -3,9 +3,13 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+import 'os_frame_sync.dart';
+
 const visualCaptureEnabled = bool.fromEnvironment('CMC_VISUAL_CAPTURE');
 var _captureIndex = 0;
 var _androidSurfaceConverted = false;
+const _osFrameCaptureEnabled = bool.fromEnvironment('CMC_OS_FRAME_CAPTURE');
+final _osFrameSync = OsFrameSync();
 
 /// Cattura il componente di produzione già montato dal test con fixture sintetiche.
 /// Il file prova solo rendering/interazione deterministica, mai API o staging live.
@@ -26,7 +30,9 @@ Future<void> captureVisual(
   } else {
     await tester.pump(const Duration(milliseconds: 100));
   }
-  await binding.takeScreenshot(
-    '${(++_captureIndex).toString().padLeft(2, '0')}-$state',
-  );
+  final name = '${(++_captureIndex).toString().padLeft(2, '0')}-$state';
+  if (_osFrameCaptureEnabled && validOsFrameMarker(name)) {
+    await _osFrameSync.capture(name);
+  }
+  await binding.takeScreenshot(name);
 }

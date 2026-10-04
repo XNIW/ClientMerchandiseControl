@@ -4,6 +4,8 @@ import 'dart:async';
 
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/app/router/app_routes.dart';
+import 'package:client_merchandise_control/features/account/domain/customer_account_failure.dart';
+import 'package:client_merchandise_control/features/account/presentation/customer_account_panel.dart';
 import 'package:client_merchandise_control/features/after_sales/application/customer_after_sales_controller.dart';
 import 'package:client_merchandise_control/features/after_sales/presentation/customer_after_sales_screen.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
@@ -35,13 +37,176 @@ import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../test/features/delivery_tracking/delivery_tracking_test_support.dart';
+import '../test/features/account/customer_account_test_support.dart';
 import '../test/features/orders/customer_order_test_support.dart';
 import '../test/support/commerce_surface_fixtures.dart';
+import '../test/support/storefront_surface_fixtures.dart';
 import 'support/next_integration_fixtures.dart';
 import 'support/visual_capture.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets(
+    'address editor focus compatto200% conserva testo dopo errore mutation',
+    (tester) async {
+      final fixture = Task054VisualFixtures();
+      await tester.pumpWidget(
+        fixture.wrap(
+          _app(
+            const Scaffold(
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(16),
+                  child: CustomerAccountPanel(
+                    authDisplayName: 'Cliente sintético',
+                  ),
+                ),
+              ),
+            ),
+            compact: true,
+          ),
+        ),
+      );
+      try {
+        await tester.pumpAndSettle();
+        final edit = find.byKey(
+          const ValueKey('customer-address-edit-$testAddressId'),
+        );
+        await _reveal(tester, edit);
+        await tester.tap(edit);
+        await tester.pumpAndSettle();
+        final line1 = find.byKey(
+          const ValueKey('customer-address-field-line1'),
+        );
+        const draft = 'Calle borrador conservado 456';
+        await _reveal(tester, line1);
+        await tester.enterText(line1, draft);
+        fixture.account.mutationError =
+            const CustomerAccountRepositoryException(
+              CustomerAccountFailureKind.unavailable,
+            );
+        final submit = find.byKey(const ValueKey('customer-address-submit'));
+        await _reveal(tester, submit);
+        await tester.tap(submit);
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('customer-address-dialog')),
+          findsOneWidget,
+        );
+        expect(tester.widget<TextFormField>(line1).controller!.text, draft);
+        final l10n = AppLocalizations.of(tester.element(line1));
+        expect(
+          find.byKey(const ValueKey('customer-address-save-failure')),
+          findsOneWidget,
+        );
+        expect(find.text(l10n.customerAccountUnavailable), findsWidgets);
+        expect(tester.widget<FilledButton>(submit).onPressed, isNotNull);
+        expect(fixture.account.addressUpdates.single.expectedVersion, 1);
+        final editable = find.descendant(
+          of: line1,
+          matching: find.byType(EditableText),
+        );
+        await Scrollable.ensureVisible(tester.element(editable), alignment: 0);
+        await tester.pumpAndSettle();
+        expect(editable.hitTestable(), findsOneWidget);
+        await tester.tap(editable);
+        await tester.showKeyboard(line1);
+        final input = tester.widget<EditableText>(editable);
+        expect(input.focusNode.hasFocus, isTrue);
+        expect(input.readOnly, isFalse);
+        await captureVisual(tester, 'address-editor-focus-compact200');
+        // Focus/requestKeyboard is observable here; actual Android IME pixels
+        // are a separate driver/OS capture gate, never inferred from viewInsets.
+        fixture.account.mutationError = null;
+        await _reveal(tester, submit);
+        await tester.tap(submit);
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('customer-address-dialog')),
+          findsNothing,
+        );
+        expect(fixture.account.addresses.single.addressLine1, draft);
+        expect(fixture.account.addressUpdates, hasLength(2));
+        expect(
+          fixture.account.addressUpdates.every(
+            (attempt) =>
+                attempt.addressId == testAddressId &&
+                attempt.expectedVersion == 1 &&
+                attempt.draft.addressLine1 == draft,
+          ),
+          isTrue,
+        );
+        expect(tester.takeException(), isNull);
+      } finally {
+        await _unmount(tester);
+      }
+    },
+  );
+
+  testWidgets(
+    'search field focus compatto200% conserva query e retry dopo errore',
+    (tester) async {
+      final fixture = await Task054LongNameStorefrontFixture.create(
+        const Locale('es', 'CL'),
+      );
+      await tester.pumpWidget(
+        fixture.wrap(
+          _app(
+            const Scaffold(body: SafeArea(child: CatalogScreen())),
+            compact: true,
+          ),
+        ),
+      );
+      try {
+        await tester.pumpAndSettle();
+        final search = find.byKey(const ValueKey('catalog-search'));
+        final container = ProviderScope.containerOf(tester.element(search));
+        fixture.local.transport.state = Task054StorefrontState.error;
+        const query = 'consulta sintética';
+        await _reveal(tester, search);
+        await tester.enterText(search, query);
+        await tester.testTextInput.receiveAction(TextInputAction.search);
+        await tester.pumpAndSettle();
+        expect(
+          container.read(catalogControllerProvider).status,
+          CatalogLoadStatus.unavailable,
+        );
+        expect(container.read(catalogControllerProvider).searchQuery, query);
+        expect(tester.widget<SearchBar>(search).controller!.text, query);
+        expect(fixture.local.transport.calls, contains('storefront_search_v1'));
+        final retry = find.byKey(const ValueKey('catalog-retry-action'));
+        await _reveal(tester, retry);
+        expect(retry.hitTestable(), findsOneWidget);
+        expect(tester.widget<FilledButton>(retry).onPressed, isNotNull);
+        final clear = find.byKey(const ValueKey('catalog-search-clear'));
+        expect(tester.widget<IconButton>(clear).onPressed, isNotNull);
+        await _reveal(tester, search);
+        await tester.tap(search);
+        await tester.showKeyboard(search);
+        final input = tester.widget<EditableText>(
+          find.descendant(of: search, matching: find.byType(EditableText)),
+        );
+        expect(input.focusNode.hasFocus, isTrue);
+        expect(input.readOnly, isFalse);
+        await captureVisual(tester, 'search-field-focus-compact200');
+        fixture.local.transport.state = Task054StorefrontState.loaded;
+        await _reveal(tester, retry);
+        await tester.tap(retry);
+        await tester.pumpAndSettle();
+        expect(
+          container.read(catalogControllerProvider).status,
+          CatalogLoadStatus.empty,
+        );
+        expect(container.read(catalogControllerProvider).searchQuery, query);
+        expect(tester.widget<SearchBar>(search).controller!.text, query);
+        expect(tester.takeException(), isNull);
+      } finally {
+        await _unmount(tester);
+        await fixture.dispose();
+      }
+    },
+  );
 
   for (final locale in const [
     Locale('es', 'CL'),

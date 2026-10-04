@@ -5071,7 +5071,7 @@ coordinamento delle chat attive avviato. Nessun TASK055, DONE o activation.
   assenti. CaptureCI/freeze/review/mergeNOT_RUN al freeze.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
-## 2026-10-04 — TASK054 review8360 e fix NI054
+## 2026-10-04 — TASK-054 review8360 e fix NI054
 
 - **Ruolo**: reviewer distinti -> CODEX_FIXER.
 - **Esito review**: CHANGES_REQUIRED, C-NI054-04/P2 draftindirizzo perso dopo

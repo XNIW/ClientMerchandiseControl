@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -433,3 +433,19 @@ al freeze. Il task completo non è review-ready per acceptance integrata: tutti 
 gate live restano espliciti. FaseREVIEW, statoBLOCKED, handoff
 `CODEX_FIX_BLOCKED_TO_RE_REVIEW`; nessun DONE o TASK055. L'autorizzazione
 utente copre il merge ordinario del solo delta dopo due APPROVED e CIverde.
+
+### Review indipendente NI054 — candidato8360eab6
+
+Due reviewer read-only distinti dai writer. Client:48regressioni e22surfacePASS,
+ma C-NI054-04/P2 preesistente nello scope conserva-draft è riprodotto con
+transportunavailable: customer_account_panel.dart1015–1020 chiude il dialog
+prima della mutation435–440, perde l'edit. ReproautonomaFAIL/exit1.
+Backend/CI: BECI-01/P2, Android stop_owned_process29–38 ritorna al termine
+del leader ma lascia un discendente proprio che ignoraTERM; PoCprocessreale
+FAIL/exit1, runnercleanup erroneamentePASS. EsitoCHANGES_REQUIRED;
+TASKcompletoBLOCKED per live. Nessun merge del candidato8360.
+
+Fix autorizzato dal mandato: writerharness corregge draft/busy/retry/lifecycle
+nel suo worktree; writerrunner corregge gruppo proprio e readiness/IME-testbridge
+in worktree distinto. Root integra sequenzialmente, nuova review/CI mandatory.
+FaseFIX, handoffCODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.

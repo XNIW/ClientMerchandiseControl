@@ -64,3 +64,6 @@ NI054-01–03: fix e regressioni mirate PASS; review/CI finale pendenti.
 NI054-07: harness esteso65test/103PNG attesi, hostPASS; catture native, OSIME,
 VoiceOver/TalkBack e contrasto globale ancoraNOT_RUN. Le restanti risorse
 NI054-04–06/08–09 restanoBLOCKED/NOT_RUN secondo la ricevuta unica.
+
+| NI054-10 | C-NI054-04/P2 BUG_CONFIRMED | Editor indirizzo perde draft su errore remoto sintetico | WriterharnessFIX; regressioneerror→draft→retry/lifecycle e reviewCI |
+| NI054-11 | BECI-01/P2 BUG_CONFIRMED | CleanupAndroid lascia discendente proprio che ignoraTERM | WriterrunnerFIX; processreale/cleanupbounded e re-review |

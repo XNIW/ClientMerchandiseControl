@@ -1,7 +1,7 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`BLOCKED / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.

@@ -219,3 +219,17 @@ attivaTASK055. Prima dell'handoff finale: esito reviewer, CI exactSHA, receipt
 capture/benchmark, merge autorizzato soltanto con gate verdi, stato worktree e
 assenza processi pendenti. Gli eventuali risultati del freeze saranno aggiunti a
 questa stessa ricevuta, conservando fallimenti e limiti già osservati.
+
+## Review autonoma8360 e ciclo FIX
+
+Esito delta **CHANGES_REQUIRED**. C-NI054-04/P2: l'editor indirizzo chiude prima
+della mutation e perde draft se repositoryunavailable (preesistente, mandato§9).
+Reviewer ha riprodottoFAIL/exit1. BECI-01/P2: gruppo processoAndroid mantiene
+discendente proprio vivo se ignoraTERM mentreleadertermina; PoCautonomaFAIL/exit1.
+Due writer distinti stanno correggendo nei propri worktree, root integra
+sequenzialmente e consegna nuovoSHA a re-review+CI. Nessunmerge8360.
+
+ScreenshotcallbackFlutterdrive è buffered e invocato a fine suite nel SDKpinned:
+una catturaOS lì sarebbe l'ultimo frame, non lo stato-focus richiesto. È in
+preparazione una bridge test-only sincronizzata; eventuale impossibilità rimane
+NOT_RUN con causa precisa. Il focus da solo non viene promosso a IME.

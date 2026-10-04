@@ -5070,3 +5070,13 @@ coordinamento delle chat attive avviato. Nessun TASK055, DONE o activation.
   attivi/finestra e recovery remota non attestate; livePGTLS/config/host/pilota
   assenti. CaptureCI/freeze/review/mergeNOT_RUN al freeze.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-10-04 — TASK054 review8360 e fix NI054
+
+- **Ruolo**: reviewer distinti -> CODEX_FIXER.
+- **Esito review**: CHANGES_REQUIRED, C-NI054-04/P2 draftindirizzo perso dopo
+  errore e BECI-01/P2 discendente proprio sopravviveTERM; due reproautonomeexit1.
+- **Azioni autorizzate**: fix nello scope user, regressioni reali/lifecycle; CI8360
+  preservata, nessunmerge. OSframe richiede sincronizzazione con focus, callback
+  onScreenshotbuffered non usata per falsa provaIME.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

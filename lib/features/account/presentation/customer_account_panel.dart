@@ -164,9 +164,7 @@ class _CustomerAccountReady extends StatelessWidget {
         _AddressSection(
           addresses: snapshot.addresses,
           isBusy: state.isMutating,
-          onCreate: (draft) async {
-            await controller.createAddress(draft);
-          },
+          onCreate: controller.createAddress,
           onUpdate: controller.updateAddress,
           onDelete: (address) async {
             final confirmed = await _confirm(
@@ -382,7 +380,7 @@ class _AddressSection extends StatelessWidget {
 
   final List<CustomerAddress> addresses;
   final bool isBusy;
-  final Future<void> Function(CustomerAddressDraft draft) onCreate;
+  final Future<CustomerAddress?> Function(CustomerAddressDraft draft) onCreate;
   final Future<void> Function(
     String addressId,
     int expectedVersion,
@@ -404,14 +402,7 @@ class _AddressSection extends StatelessWidget {
           message: l10n.customerAddressesDescription,
           trailing: IconButton.filledTonal(
             key: const ValueKey('customer-address-add'),
-            onPressed: isBusy
-                ? null
-                : () async {
-                    final draft = await showCustomerAddressEditor(context);
-                    if (draft != null) {
-                      await onCreate(draft);
-                    }
-                  },
+            onPressed: isBusy ? null : () => _editAddress(context),
             tooltip: l10n.customerAddressAdd,
             icon: const Icon(Icons.add_location_alt_outlined),
           ),
@@ -431,15 +422,7 @@ class _AddressSection extends StatelessWidget {
               child: _AddressTile(
                 address: address,
                 isBusy: isBusy,
-                onEdit: () async {
-                  final draft = await showCustomerAddressEditor(
-                    context,
-                    address: address,
-                  );
-                  if (draft != null) {
-                    await onUpdate(address.id, address.version, draft);
-                  }
-                },
+                onEdit: () => _editAddress(context, address: address),
                 onDelete: () => onDelete(address),
                 onSetDefault: address.isDefault
                     ? null
@@ -448,6 +431,56 @@ class _AddressSection extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+
+  Future<void> _editAddress(
+    BuildContext context, {
+    CustomerAddress? address,
+  }) async {
+    final container = ProviderScope.containerOf(context);
+    final subjectId = container
+        .read(customerAccountIdentityProvider)
+        ?.subjectId;
+    if (subjectId == null) return;
+    await showCustomerAddressEditor(
+      context,
+      address: address,
+      onSave: (draft) async {
+        const unavailable = CustomerAccountFailure(
+          CustomerAccountFailureKind.unexpected,
+        );
+        if (!context.mounted ||
+            container.read(customerAccountIdentityProvider)?.subjectId !=
+                subjectId) {
+          return unavailable;
+        }
+        final before = container.read(customerAccountControllerProvider);
+        // The controller serializes mutations by reusing the active Future.
+        // Never attribute another operation's completion to this draft.
+        if (before.isMutating || before.snapshot == null) return unavailable;
+        CustomerAddress? created;
+        if (address == null) {
+          created = await onCreate(draft);
+        } else {
+          await onUpdate(address.id, address.version, draft);
+        }
+        if (!context.mounted ||
+            container.read(customerAccountIdentityProvider)?.subjectId !=
+                subjectId) {
+          return unavailable;
+        }
+        // A create acknowledgement survives a subsequent refresh failure.
+        // Close the editor so retry cannot create that address a second time.
+        if (created != null) return null;
+        final after = container.read(customerAccountControllerProvider);
+        if (after.noticeRevision > before.noticeRevision &&
+            after.notice == CustomerAccountNoticeKind.addressSaved &&
+            after.failure == null) {
+          return null;
+        }
+        return after.failure ?? unavailable;
+      },
     );
   }
 }
@@ -757,6 +790,7 @@ Future<CustomerAddressDraft?> showCustomerAddressEditor(
   BuildContext context, {
   CustomerAddress? address,
   CustomerAddressEditorInitial? initial,
+  Future<CustomerAccountFailure?> Function(CustomerAddressDraft draft)? onSave,
 }) {
   final expectedSubjectId = ProviderScope.containerOf(
     context,
@@ -766,7 +800,11 @@ Future<CustomerAddressDraft?> showCustomerAddressEditor(
     context: context,
     builder: (_) => _AuthBoundDialog(
       expectedSubjectId: expectedSubjectId,
-      child: _AddressEditorDialog(address: address, initial: initial),
+      child: _AddressEditorDialog(
+        address: address,
+        initial: initial,
+        onSave: onSave,
+      ),
     ),
   );
 }
@@ -804,10 +842,16 @@ final class CustomerAddressEditorInitial {
 }
 
 class _AddressEditorDialog extends StatefulWidget {
-  const _AddressEditorDialog({required this.address, this.initial});
+  const _AddressEditorDialog({
+    required this.address,
+    this.initial,
+    this.onSave,
+  });
 
   final CustomerAddress? address;
   final CustomerAddressEditorInitial? initial;
+  final Future<CustomerAccountFailure?> Function(CustomerAddressDraft draft)?
+  onSave;
 
   @override
   State<_AddressEditorDialog> createState() => _AddressEditorDialogState();
@@ -818,6 +862,8 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
   late final Map<String, TextEditingController> _controllers;
   var _inputInvalid = false;
   bool _geographyEdited = false;
+  bool _saving = false;
+  CustomerAccountFailure? _saveFailure;
 
   @override
   void initState() {
@@ -866,6 +912,7 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
     final l10n = AppLocalizations.of(context);
     return AlertDialog(
       key: const ValueKey('customer-address-dialog'),
+      scrollable: true,
       title: Text(
         widget.address == null
             ? l10n.customerAddressAdd
@@ -875,78 +922,94 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
         width: 520,
         child: Form(
           key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _field(l10n, 'label', l10n.customerAddressLabel, 40),
-                _field(l10n, 'recipient', l10n.customerAddressRecipient, 120),
-                _field(
-                  l10n,
-                  'phone',
-                  l10n.customerAddressPhone,
-                  16,
-                  optional: true,
-                  capitalization: TextCapitalization.none,
-                  keyboardType: TextInputType.phone,
-                  helperText: widget.address?.recipientPhoneE164,
-                ),
-                _field(l10n, 'line1', l10n.customerAddressLine1, 200),
-                _field(
-                  l10n,
-                  'line2',
-                  l10n.customerAddressLine2,
-                  200,
-                  optional: true,
-                ),
-                _field(l10n, 'commune', l10n.customerAddressCommune, 100),
-                _field(l10n, 'region', l10n.customerAddressRegion, 100),
-                _field(
-                  l10n,
-                  'postal',
-                  l10n.customerAddressPostalCode,
-                  16,
-                  optional: true,
-                ),
-                _field(
-                  l10n,
-                  'country',
-                  l10n.customerAddressCountryCode,
-                  2,
-                  capitalization: TextCapitalization.characters,
-                ),
-                _field(
-                  l10n,
-                  'instructions',
-                  l10n.customerAddressInstructions,
-                  500,
-                  optional: true,
-                  maxLines: 3,
-                ),
-                if (_inputInvalid)
-                  Semantics(
-                    liveRegion: true,
-                    child: Text(
-                      l10n.customerFieldInvalid,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _field(l10n, 'label', l10n.customerAddressLabel, 40),
+              _field(l10n, 'recipient', l10n.customerAddressRecipient, 120),
+              _field(
+                l10n,
+                'phone',
+                l10n.customerAddressPhone,
+                16,
+                optional: true,
+                capitalization: TextCapitalization.none,
+                keyboardType: TextInputType.phone,
+                helperText: widget.address?.recipientPhoneE164,
+              ),
+              _field(l10n, 'line1', l10n.customerAddressLine1, 200),
+              _field(
+                l10n,
+                'line2',
+                l10n.customerAddressLine2,
+                200,
+                optional: true,
+              ),
+              _field(l10n, 'commune', l10n.customerAddressCommune, 100),
+              _field(l10n, 'region', l10n.customerAddressRegion, 100),
+              _field(
+                l10n,
+                'postal',
+                l10n.customerAddressPostalCode,
+                16,
+                optional: true,
+              ),
+              _field(
+                l10n,
+                'country',
+                l10n.customerAddressCountryCode,
+                2,
+                capitalization: TextCapitalization.characters,
+              ),
+              _field(
+                l10n,
+                'instructions',
+                l10n.customerAddressInstructions,
+                500,
+                optional: true,
+                maxLines: 3,
+              ),
+              if (_inputInvalid)
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    l10n.customerFieldInvalid,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
                     ),
                   ),
-              ],
-            ),
+                ),
+              if (_saveFailure != null)
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    _failureMessage(l10n, _saveFailure),
+                    key: const ValueKey('customer-address-save-failure'),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
       actions: [
         TextButton(
+          key: const ValueKey('customer-address-cancel'),
           onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.customerDialogCancel),
         ),
         FilledButton(
           key: const ValueKey('customer-address-submit'),
-          onPressed: _submit,
-          child: Text(l10n.customerDialogSave),
+          onPressed: _saving ? null : _submit,
+          child: _saving
+              ? const SizedBox.square(
+                  key: ValueKey('customer-address-saving'),
+                  dimension: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : Text(l10n.customerDialogSave),
         ),
       ],
     );
@@ -968,6 +1031,7 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
       child: TextFormField(
         key: ValueKey('customer-address-field-$key'),
         controller: _controllers[key],
+        enabled: !_saving,
         maxLength: maxRunes,
         maxLines: maxLines,
         textCapitalization: capitalization,
@@ -1012,41 +1076,58 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
     );
   }
 
-  void _submit() {
+  Future<void> _submit() async {
+    if (_saving) return;
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
     try {
-      Navigator.of(context).pop(
-        CustomerAddressDraft(
-          label: _controllers['label']!.text,
-          recipientName: _controllers['recipient']!.text,
-          recipientPhoneE164: _controllers['phone']!.text,
-          addressLine1: _controllers['line1']!.text,
-          addressLine2: _controllers['line2']!.text,
-          commune: _controllers['commune']!.text,
-          region: _controllers['region']!.text,
-          postalCode: _controllers['postal']!.text,
-          countryCode: _controllers['country']!.text,
-          deliveryInstructions: _controllers['instructions']!.text,
-          latitude: _geographyEdited
-              ? null
-              : widget.initial?.latitude ?? widget.address?.latitude,
-          longitude: _geographyEdited
-              ? null
-              : widget.initial?.longitude ?? widget.address?.longitude,
-          locationSource: _geographyEdited
-              ? CustomerAddressLocationSource.manual
-              : widget.initial?.locationSource ??
-                    widget.address?.locationSource ??
-                    CustomerAddressLocationSource.manual,
-          locationAccuracyMeters: _geographyEdited
-              ? null
-              : widget.initial?.locationAccuracyMeters ??
-                    widget.address?.locationAccuracyMeters,
-          isDefault: widget.address?.isDefault ?? false,
-        ),
+      final draft = CustomerAddressDraft(
+        label: _controllers['label']!.text,
+        recipientName: _controllers['recipient']!.text,
+        recipientPhoneE164: _controllers['phone']!.text,
+        addressLine1: _controllers['line1']!.text,
+        addressLine2: _controllers['line2']!.text,
+        commune: _controllers['commune']!.text,
+        region: _controllers['region']!.text,
+        postalCode: _controllers['postal']!.text,
+        countryCode: _controllers['country']!.text,
+        deliveryInstructions: _controllers['instructions']!.text,
+        latitude: _geographyEdited
+            ? null
+            : widget.initial?.latitude ?? widget.address?.latitude,
+        longitude: _geographyEdited
+            ? null
+            : widget.initial?.longitude ?? widget.address?.longitude,
+        locationSource: _geographyEdited
+            ? CustomerAddressLocationSource.manual
+            : widget.initial?.locationSource ??
+                  widget.address?.locationSource ??
+                  CustomerAddressLocationSource.manual,
+        locationAccuracyMeters: _geographyEdited
+            ? null
+            : widget.initial?.locationAccuracyMeters ??
+                  widget.address?.locationAccuracyMeters,
+        isDefault: widget.address?.isDefault ?? false,
       );
+      final onSave = widget.onSave;
+      if (onSave == null) {
+        Navigator.of(context).pop(draft);
+        return;
+      }
+      setState(() {
+        _saving = true;
+        _saveFailure = null;
+      });
+      final failure = await onSave(draft);
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _saveFailure = failure;
+      });
+      if (failure == null && ModalRoute.of(context)?.isCurrent == true) {
+        Navigator.of(context).pop(draft);
+      }
     } on CustomerAccountInputException {
       setState(() => _inputInvalid = true);
     }

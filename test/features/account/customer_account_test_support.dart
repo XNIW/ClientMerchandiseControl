@@ -28,6 +28,7 @@ CustomerAddress testCustomerAddress({
   String id = testAddressId,
   String label = 'Casa',
   bool isDefault = true,
+  int version = 1,
 }) {
   return CustomerAddress(
     id: id,
@@ -41,6 +42,7 @@ CustomerAddress testCustomerAddress({
     countryCode: 'CL',
     deliveryInstructions: null,
     isDefault: isDefault,
+    version: version,
     updatedAt: testTimestamp,
   );
 }
@@ -62,10 +64,14 @@ final class FakeCustomerAccountRepository implements CustomerAccountRepository {
   Object? mutationError;
   Completer<void>? loadBarrier;
   Completer<void>? deletionBarrier;
+  Completer<void>? addressMutationBarrier;
   String? subjectId;
   int loadCalls = 0;
   int saveProfileCalls = 0;
   int createAddressCalls = 0;
+  int createAddressAttempts = 0;
+  final addressUpdates =
+      <({String addressId, int expectedVersion, CustomerAddressDraft draft})>[];
   int requestDeletionCalls = 0;
   final List<String> deletionKeys = [];
 
@@ -111,6 +117,8 @@ final class FakeCustomerAccountRepository implements CustomerAccountRepository {
 
   @override
   Future<CustomerAddress> createAddress(CustomerAddressDraft draft) async {
+    createAddressAttempts++;
+    await addressMutationBarrier?.future;
     _throwMutationIfNeeded();
     createAddressCalls++;
     final created = _addressFromDraft(
@@ -127,6 +135,12 @@ final class FakeCustomerAccountRepository implements CustomerAccountRepository {
     CustomerAddressDraft draft, {
     int expectedVersion = 1,
   }) async {
+    addressUpdates.add((
+      addressId: addressId,
+      expectedVersion: expectedVersion,
+      draft: draft,
+    ));
+    await addressMutationBarrier?.future;
     _throwMutationIfNeeded();
     addresses = [
       for (final address in addresses)

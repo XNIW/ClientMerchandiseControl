@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:client_merchandise_control/features/account/domain/customer_account_models.dart';
+import 'package:client_merchandise_control/features/account/domain/customer_account_failure.dart';
 import 'dart:ui' as ui;
 
 import 'package:client_merchandise_control/app/client_merchandise_control_app.dart';
@@ -14,6 +17,267 @@ import 'package:flutter_test/flutter_test.dart';
 import 'customer_account_test_support.dart';
 
 void main() {
+  for (final editing in [false, true]) {
+    testWidgets(
+      '${editing ? 'edit' : 'create'} address conserva bozza dopo errore e ritenta',
+      (tester) async {
+        final repository =
+            FakeCustomerAccountRepository(
+                addresses: editing ? [testCustomerAddress(version: 7)] : null,
+              )
+              ..mutationError = const CustomerAccountRepositoryException(
+                CustomerAccountFailureKind.unavailable,
+              );
+        await tester.pumpWidget(_buildApp(repository));
+        await tester.pumpAndSettle();
+        await _openAddress(tester, editing: editing);
+        await _fillAddress(tester, line1: 'Calle borrador conservado 456');
+        await tester.tap(find.byKey(const ValueKey('customer-address-submit')));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(const ValueKey('customer-address-dialog')),
+          findsOneWidget,
+        );
+        expect(_addressText(tester, 'line1'), 'Calle borrador conservado 456');
+        final l10n = AppLocalizations.of(
+          tester.element(find.byKey(const ValueKey('customer-address-dialog'))),
+        );
+        expect(find.text(l10n.customerAccountUnavailable), findsWidgets);
+        expect(
+          tester
+              .widget<FilledButton>(
+                find.byKey(const ValueKey('customer-address-submit')),
+              )
+              .onPressed,
+          isNotNull,
+        );
+
+        repository.mutationError = null;
+        await tester.tap(find.byKey(const ValueKey('customer-address-submit')));
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('customer-address-dialog')),
+          findsNothing,
+        );
+        expect(
+          repository.addresses.last.addressLine1,
+          'Calle borrador conservado 456',
+        );
+        if (editing) {
+          expect(repository.addressUpdates, hasLength(2));
+          expect(
+            repository.addressUpdates.every(
+              (attempt) =>
+                  attempt.addressId == testAddressId &&
+                  attempt.expectedVersion == 7 &&
+                  attempt.draft.addressLine1 == 'Calle borrador conservado 456',
+            ),
+            isTrue,
+          );
+        }
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
+  for (final editing in [false, true]) {
+    testWidgets(
+      '${editing ? 'edit' : 'create'} address busy blocca doppio submit',
+      (tester) async {
+        final barrier = Completer<void>();
+        final repository = FakeCustomerAccountRepository(
+          addresses: editing ? [testCustomerAddress(version: 7)] : null,
+        );
+        await tester.pumpWidget(_buildApp(repository));
+        await tester.pumpAndSettle();
+        repository.addressMutationBarrier = barrier;
+        await _openAddress(tester, editing: editing);
+        await _fillAddress(tester, line1: 'Calle guardado pendiente 789');
+        final save = find.byKey(const ValueKey('customer-address-submit'));
+        await tester.tap(save);
+        await tester.pump();
+        expect(
+          find.byKey(const ValueKey('customer-address-saving')),
+          findsOneWidget,
+        );
+        expect(tester.widget<FilledButton>(save).onPressed, isNull);
+        expect(
+          tester
+              .widget<TextFormField>(
+                find.byKey(const ValueKey('customer-address-field-line1')),
+              )
+              .enabled,
+          isFalse,
+        );
+        await tester.tap(save);
+        await tester.pump();
+        expect(
+          editing
+              ? repository.addressUpdates.length
+              : repository.createAddressAttempts,
+          1,
+        );
+        barrier.complete();
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const ValueKey('customer-address-dialog')),
+          findsNothing,
+        );
+        expect(
+          repository.addresses.last.addressLine1,
+          'Calle guardado pendiente 789',
+        );
+        if (editing) {
+          expect(repository.addressUpdates.single.addressId, testAddressId);
+          expect(repository.addressUpdates.single.expectedVersion, 7);
+        }
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
+  testWidgets(
+    'create accettata con refresh fallito non offre una seconda create',
+    (tester) async {
+      final repository = FakeCustomerAccountRepository();
+      await tester.pumpWidget(_buildApp(repository));
+      await tester.pumpAndSettle();
+      await _openAddress(tester, editing: false);
+      await _fillAddress(tester, line1: 'Calle guardada sin refresh 101');
+      repository.loadError = const CustomerAccountRepositoryException(
+        CustomerAccountFailureKind.unavailable,
+      );
+      await tester.tap(find.byKey(const ValueKey('customer-address-submit')));
+      await tester.pumpAndSettle();
+      expect(repository.createAddressCalls, 1);
+      expect(
+        repository.addresses.last.addressLine1,
+        'Calle guardada sin refresh 101',
+      );
+      expect(
+        find.byKey(const ValueKey('customer-address-dialog')),
+        findsNothing,
+      );
+      expect(
+        find.text(
+          AppLocalizations.of(
+            tester.element(find.byType(CustomerAccountPanel)),
+          ).customerAccountUnavailable,
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('cancel durante write pendente non chiude il dialog successivo', (
+    tester,
+  ) async {
+    final barrier = Completer<void>();
+    final repository = FakeCustomerAccountRepository();
+    await tester.pumpWidget(_buildApp(repository));
+    await tester.pumpAndSettle();
+    repository.addressMutationBarrier = barrier;
+    await _openAddress(tester, editing: true);
+    await _fillAddress(tester, line1: 'Calle write poi cancel 202');
+    await tester.tap(find.byKey(const ValueKey('customer-address-submit')));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('customer-address-cancel')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byKey(const ValueKey('customer-address-dialog')), findsNothing);
+    unawaited(
+      showDialog<void>(
+        context: tester.element(find.byType(CustomerAccountPanel)),
+        builder: (_) => const AlertDialog(
+          key: ValueKey('later-dialog'),
+          title: Text('Successivo'),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    barrier.complete();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('later-dialog')), findsOneWidget);
+    expect(repository.addressUpdates, hasLength(1));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'cambio owner A-B-A durante write elimina bozza e ignora risposta tardiva',
+    (tester) async {
+      final identity = StateProvider<AuthenticatedCustomer?>(
+        (ref) => _identity(),
+      );
+      final barrier = Completer<void>();
+      final repository = FakeCustomerAccountRepository();
+      await tester.pumpWidget(
+        _buildApp(repository, identityProvider: identity),
+      );
+      await tester.pumpAndSettle();
+      repository.addressMutationBarrier = barrier;
+      await _openAddress(tester, editing: true);
+      await _fillAddress(tester, line1: 'Bozza privata owner A');
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(CustomerAccountPanel)),
+      );
+      await tester.tap(find.byKey(const ValueKey('customer-address-submit')));
+      await tester.pump();
+      container.read(identity.notifier).state = _identity(
+        subjectId: '10000000-0000-4000-8000-000000000999',
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+        find.byKey(const ValueKey('customer-address-dialog')),
+        findsNothing,
+      );
+      container.read(identity.notifier).state = _identity();
+      await tester.pump();
+      repository.mutationError = const CustomerAccountRepositoryException(
+        CustomerAccountFailureKind.unavailable,
+      );
+      barrier.complete();
+      await tester.pumpAndSettle();
+      expect(find.text('Bozza privata owner A'), findsNothing);
+      expect(
+        find.byKey(const ValueKey('customer-address-dialog')),
+        findsNothing,
+      );
+      expect(
+        find.text(
+          AppLocalizations.of(
+            tester.element(find.byType(CustomerAccountPanel)),
+          ).customerAccountUnavailable,
+        ),
+        findsNothing,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'dispose durante write pendente non usa context o controller testo eliminati',
+    (tester) async {
+      final barrier = Completer<void>();
+      final repository = FakeCustomerAccountRepository();
+      await tester.pumpWidget(_buildApp(repository));
+      await tester.pumpAndSettle();
+      repository.addressMutationBarrier = barrier;
+      await _openAddress(tester, editing: true);
+      await _fillAddress(tester, line1: 'Bozza prima del dispose');
+      await tester.tap(find.byKey(const ValueKey('customer-address-submit')));
+      await tester.pump();
+      await tester.pumpWidget(const SizedBox.shrink());
+      barrier.complete();
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('modifica testo geografico invalida il pin precedente', (
     tester,
   ) async {
@@ -277,6 +541,38 @@ void main() {
     expect(find.byKey(const ValueKey('customer-export-dialog')), findsNothing);
   });
 }
+
+Future<void> _openAddress(WidgetTester tester, {required bool editing}) async {
+  final action = find.byKey(
+    ValueKey(
+      editing ? 'customer-address-edit-$testAddressId' : 'customer-address-add',
+    ),
+  );
+  await tester.ensureVisible(action);
+  await tester.tap(action);
+  await tester.pumpAndSettle();
+}
+
+Future<void> _fillAddress(WidgetTester tester, {required String line1}) async {
+  for (final entry in {
+    'label': 'Casa borrador',
+    'recipient': 'Cliente Sintético',
+    'line1': line1,
+    'commune': 'Santiago',
+    'region': 'Metropolitana',
+  }.entries) {
+    final field = find.byKey(ValueKey('customer-address-field-${entry.key}'));
+    await tester.ensureVisible(field);
+    await tester.enterText(field, entry.value);
+  }
+}
+
+String _addressText(WidgetTester tester, String field) => tester
+    .widget<TextFormField>(
+      find.byKey(ValueKey('customer-address-field-$field')),
+    )
+    .controller!
+    .text;
 
 Widget _buildApp(
   FakeCustomerAccountRepository repository, {

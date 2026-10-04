@@ -32,6 +32,8 @@ class Fixture:
         self.booted = False
         self.runner = None
         self.record_before_boot = None
+        self.owner_environment = {key: os.environ[key] for key in MODULE.OWNER_CONTEXT
+                                  if key in os.environ}
 
     def command(self, runner, arguments, timeout, capture=False):
         self.runner = runner
@@ -77,7 +79,8 @@ class Fixture:
             args += ['--github-output', str(github_output)]
         with patch.object(MODULE.IosOwnedRunner, 'command', command), \
              patch.object(MODULE.Path, 'is_dir', return_value=True), \
-             patch.object(MODULE.signal, 'signal'), patch.dict(os.environ, {}, clear=True):
+             patch.object(MODULE.signal, 'signal'), \
+             patch.dict(os.environ, self.owner_environment, clear=True):
             return MODULE.main(args)
 
 
@@ -181,20 +184,29 @@ class IosOwnedTest(unittest.TestCase):
             self.assertEqual(fixture.calls, [])
 
     def test_cleanup_mismatched_name_or_runtime_never_mutates_device(self):
-        for key in ('name', 'runtime'):
-            with self.subTest(key=key), tempfile.TemporaryDirectory() as directory:
-                fixture = Fixture(directory)
-                self.assertEqual(fixture.execute('prepare'), 0)
-                runner = MODULE.IosOwnedRunner(fixture.path)
-                runner.load()
-                entry = {'udid': DEVICE, 'name': runner.record['name']}
-                runtime = runner.record['runtime']
-                if key == 'name': entry['name'] = 'Someone else'
-                else: runtime = 'foreign-runtime'
-                with patch.object(runner, 'device_record', return_value=(entry, runtime)), \
-                     patch.object(runner, 'command') as command, self.assertRaises(MODULE.Failure):
-                    runner.cleanup()
-                command.assert_not_called()
+        contexts = ({}, {'GITHUB_RUN_ID': '123456789', 'GITHUB_RUN_ATTEMPT': '2',
+                         'GITHUB_JOB': 'ios-build', 'GITHUB_SHA': '65487aee'})
+        for context in contexts:
+            for key in ('name', 'runtime'):
+                with self.subTest(key=key, context=context), \
+                     patch.dict(os.environ, context, clear=True), \
+                     tempfile.TemporaryDirectory() as directory:
+                    fixture = Fixture(directory)
+                    self.assertEqual(fixture.execute('prepare'), 0)
+                    runner = MODULE.IosOwnedRunner(fixture.path)
+                    runner.load()
+                    self.assertEqual(runner.record['ownerContext'],
+                                     {name: context.get(name) for name in MODULE.OWNER_CONTEXT})
+                    entry = {'udid': DEVICE, 'name': runner.record['name']}
+                    runtime = runner.record['runtime']
+                    if key == 'name': entry['name'] = 'Someone else'
+                    else: runtime = 'foreign-runtime'
+                    with patch.object(runner, 'device_record', return_value=(entry, runtime)), \
+                         patch.object(runner, 'command') as command, \
+                         self.assertRaises(MODULE.Failure) as failure:
+                        runner.cleanup()
+                    self.assertIn('ownership simulatore non coincide', str(failure.exception))
+                    command.assert_not_called()
 
     def test_delete_failure_cannot_claim_cleanup_pass(self):
         with tempfile.TemporaryDirectory() as directory:

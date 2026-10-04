@@ -62,7 +62,8 @@ class AndroidVisualRunnerTest(unittest.TestCase):
                     self.assertTrue(not status or status.startswith('Z'), 'cleanup test bounded')
 
     def execute(self, failure=None, cleanup_failure=False, foreign=False,
-                early_exit=False, wrong_api=False, capture_count=103):
+                early_exit=False, wrong_api=False, capture_count=103,
+                emulator_install_failure=False):
         calls = []
         environments = []
         emulator = Mock(pid=12345)
@@ -72,6 +73,12 @@ class AndroidVisualRunnerTest(unittest.TestCase):
             runner = MODULE.AndroidVisualRunner(directory)
             runner.environment = {'ANDROID_HOME': '/fake/sdk', 'RUNNER_TEMP': directory}
             owned_paths = []
+            sdk_installed = []
+
+            def executable(path, _mode):
+                if str(path) == '/fake/sdk/emulator/emulator':
+                    return bool(sdk_installed) and not emulator_install_failure
+                return True
 
             def process(arguments, **kwargs):
                 calls.append(arguments)
@@ -82,6 +89,8 @@ class AndroidVisualRunnerTest(unittest.TestCase):
                 child = Mock(pid=54321, returncode=0)
                 phase = runner.phase
                 child.returncode = 7 if phase == failure else 0
+                if phase == 'sdk-install' and not child.returncode:
+                    sdk_installed.append(True)
                 if phase == 'avd-create' and not child.returncode:
                     path = Path(arguments[arguments.index('-p') + 1])
                     path.mkdir()
@@ -113,7 +122,7 @@ class AndroidVisualRunnerTest(unittest.TestCase):
 
             with patch.object(MODULE.platform, 'system', return_value='Linux'), \
                  patch.object(MODULE.platform, 'machine', return_value='x86_64'), \
-                 patch.object(MODULE.os, 'access', return_value=True), \
+                 patch.object(MODULE.os, 'access', side_effect=executable), \
                  patch.object(MODULE.socket, 'socket') as socket_type, \
                  patch.object(MODULE, 'owned_group_has_live_members', return_value=False), \
                  patch.object(MODULE.subprocess, 'Popen', side_effect=process), \
@@ -165,6 +174,20 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         self.assertEqual(len(calls), 2)
         self.assertEqual(killed, [])
         self.assertFalse(runner.owned_directory.exists())
+
+    def test_emulator_is_installed_with_image_before_it_is_required(self):
+        code, calls, _, _, _, _ = self.execute()
+        self.assertEqual(code, 0)
+        install = next(args for args in calls if args[0].endswith('/sdkmanager'))
+        self.assertIn('emulator', install)
+        self.assertIn('system-images;android-35;google_apis;x86_64', install)
+
+    def test_missing_emulator_after_install_is_explicit_failure(self):
+        code, calls, _, killed, receipt, _ = self.execute(emulator_install_failure=True)
+        self.assertEqual(code, 2)
+        self.assertEqual(receipt['failed_phase'], 'sdk-install')
+        self.assertFalse(any('-avd' in args or args[0] == 'bash' for args in calls))
+        self.assertEqual(killed, [])
 
     def test_foreign_identity_is_never_used_or_stopped_via_adb(self):
         code, calls, _, killed, receipt, _ = self.execute(foreign=True)
@@ -268,6 +291,33 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         with patch.object(MODULE.subprocess, 'run', return_value=snapshot), \
              self.assertRaises(MODULE.Failure):
             MODULE.owned_group_has_live_members(54321)
+
+    def test_group_probe_timeout_is_failure_and_preserves_primary_exit(self):
+        runner = MODULE.AndroidVisualRunner('/fake')
+        child = Mock(pid=54321)
+        child.communicate.side_effect = MODULE.Failure('signal', 143, 'interrotto')
+        with patch.object(MODULE.subprocess, 'Popen', return_value=child), \
+             patch.object(MODULE.subprocess, 'run', side_effect=subprocess.TimeoutExpired('ps', 2)), \
+             patch.object(MODULE.os, 'killpg'), \
+             self.assertRaises(MODULE.Failure) as failure:
+            runner.command(['fake'], None, capture=False)
+        self.assertEqual(failure.exception.code, 143)
+        self.assertTrue(runner.cleanup_failed)
+
+    def test_group_probe_timeout_during_emulator_cleanup_still_deletes_and_receipts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            runner = MODULE.AndroidVisualRunner(directory)
+            runner.emulator = Mock(pid=54321)
+            runner.owned_directory = Path(directory) / 'owned'
+            runner.owned_directory.mkdir()
+            with patch.object(runner, 'execute', side_effect=MODULE.Failure('capture', 7, 'fake')), \
+                 patch.object(MODULE.subprocess, 'run', side_effect=subprocess.TimeoutExpired('ps', 2)), \
+                 patch.object(MODULE.os, 'killpg'):
+                self.assertEqual(runner.run(), 7)
+            receipt = json.loads((Path(directory) /
+                'build/task054/android-visual-receipt.json').read_text())
+            self.assertEqual(receipt['cleanup'], 'FAIL')
+            self.assertFalse(runner.owned_directory.exists())
 
     def test_kill_cannot_claim_success_with_remaining_live_group(self):
         child = Mock(pid=54321)

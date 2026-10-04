@@ -26,8 +26,11 @@ class Failure(Exception):
 
 def owned_group_has_live_members(group):
     """Legge solo PGID/stato, senza nomi, argomenti o identificatori applicativi."""
-    snapshot = subprocess.run(['ps', '-A', '-o', 'pgid=', '-o', 'stat='],
-        capture_output=True, text=True, timeout=2, check=False)
+    try:
+        snapshot = subprocess.run(['ps', '-A', '-o', 'pgid=', '-o', 'stat='],
+            capture_output=True, text=True, timeout=2, check=False)
+    except subprocess.TimeoutExpired as error:
+        raise Failure('cleanup-process', 1, 'timeout probe gruppo proprio') from error
     if snapshot.returncode:
         raise Failure('cleanup-process', 1, 'stato del gruppo proprio non verificabile')
     live = False
@@ -148,9 +151,11 @@ class AndroidVisualRunner:
         self.avdmanager = sdk / 'cmdline-tools/latest/bin/avdmanager'
         emulator = sdk / 'emulator/emulator'
         adb = sdk / 'platform-tools/adb'
-        for tool in (sdkmanager, self.avdmanager, emulator, adb):
-            if not os.access(tool, os.X_OK):
-                raise Failure(self.phase, 2, 'tool SDK richiesto non disponibile')
+        for tool in (sdkmanager, self.avdmanager, adb):
+            executable = os.access(tool, os.X_OK)
+            print(f'SDK_TOOL name={tool.name} path={tool} executable={executable}', flush=True)
+            if not executable:
+                raise Failure(self.phase, 2, f'tool SDK richiesto non disponibile: {tool}')
         _, self.revision = self.command(['git', 'rev-parse', 'HEAD'], 15)
         if len(self.revision) != 40 or any(char not in '0123456789abcdef' for char in self.revision):
             raise Failure(self.phase, 2, 'revision Git non verificabile')
@@ -171,7 +176,11 @@ class AndroidVisualRunner:
         self.phase = 'sdk-install'
         # Usa le licenze già accettate nel runner; non ne accetta di nuove.
         self.command([str(sdkmanager), '--sdk_root=' + str(sdk),
-            'system-images;android-35;google_apis;x86_64'], 180)
+            'emulator', 'system-images;android-35;google_apis;x86_64'], 180)
+        executable = os.access(emulator, os.X_OK)
+        print(f'SDK_TOOL name=emulator path={emulator} executable={executable}', flush=True)
+        if not executable:
+            raise Failure(self.phase, 2, 'tool emulator assente dopo SDK install')
         self.phase = 'kvm-check'
         self.command([str(emulator), '-accel-check'], 15)
         self.phase = 'avd-create'

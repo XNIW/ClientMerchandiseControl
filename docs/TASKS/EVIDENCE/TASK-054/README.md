@@ -9,7 +9,13 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
-## Mandato funzionale e UX corrente
+## Prossima integrazione NI054 — 2026-10-04
+
+Baseline main bfbfc0b6, PR28 già MERGED. Execution corrente in worktree isolato;
+registro unico residuals.md. Le ricevute sotto restano snapshot storici. Il nuovo
+risultato NI054 sarà collegato qui al freeze, con runtime TEST e UI distinti.
+
+## Mandato funzionale e UX precedente
 
 [CLIENT_TASK054_FUNCTIONAL_UX_OPERATIONAL_RESULT](functional-ux-operational-result.md)
 è l'overlay corrente alla main Client12f03c7 e Admin4532831b. Preflight fresco:
@@ -125,3 +131,5 @@ due prove golden locali restano aperti anche se la CI di build risulta verde.
 Evidence completa locale non versionata: `~/.codex/outputs/client-functional-audit/`.
 Il manifest locale associa log sanitizzati ai file con SHA256; il candidato typegen
 Admin rimane separato e non applicato. Nessun processo locale di verifica irrisolto.
+
+Ricevuta unica del mandato corrente: [CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md).

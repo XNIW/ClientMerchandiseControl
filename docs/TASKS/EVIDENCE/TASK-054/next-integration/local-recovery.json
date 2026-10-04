@@ -1,0 +1,77 @@
+{
+  "scope": "local_synthetic_same_database_not_remote_backup",
+  "remote_mutation": false,
+  "results": [
+    {
+      "label": "negative-sharedwrite",
+      "exit_code": 3,
+      "result": "PASS",
+      "detail": "rejected atomically; metadata unchanged"
+    },
+    {
+      "label": "negative-newdata",
+      "exit_code": 3,
+      "result": "PASS",
+      "detail": "rejected atomically; metadata unchanged"
+    },
+    {
+      "label": "storage-direct-delete-negative",
+      "exit_code": 3,
+      "result": "PASS",
+      "detail": "original guard rejected SQL delete"
+    },
+    {
+      "label": "storage-delete-api",
+      "exit_code": 0,
+      "result": "PASS",
+      "detail": {
+        "delete_status": 200,
+        "readback_status": 400,
+        "readback_body_status": "404",
+        "buckets": 0,
+        "objects": 0
+      }
+    },
+    {
+      "label": "inverse-catalog-and-acl",
+      "exit_code": 0,
+      "result": "PASS",
+      "detail": {
+        "categories": {
+          "tables": 130,
+          "columns": 1701,
+          "constraints": 1033,
+          "indexes": 480,
+          "triggers": 159,
+          "policies": 86,
+          "functions": 632
+        },
+        "before_sha256": "4a6a2a7b1141c19df663f36daf7dfa2dcab4fa1cadc80061720af9bae2281db7",
+        "restored_sha256": "4a6a2a7b1141c19df663f36daf7dfa2dcab4fa1cadc80061720af9bae2281db7"
+      }
+    },
+    {
+      "label": "history155-and-synthetic-row-digests",
+      "exit_code": 0,
+      "result": "PASS",
+      "detail": {
+        "history": "155 -> 158 -> 155",
+        "baseline_history_is_synthetic": true,
+        "shared_table_digest_count": 6
+      }
+    },
+    {
+      "label": "local-cli-dry-run-exact3",
+      "exit_code": 0,
+      "result": "PASS",
+      "detail": {
+        "pending": [
+          "20260823023037",
+          "20260823150000",
+          "20260928200000"
+        ],
+        "scope": "local_synthetic_registry_only"
+      }
+    }
+  ]
+}

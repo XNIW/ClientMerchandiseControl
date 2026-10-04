@@ -1,0 +1,51 @@
+{
+  "created_at": "2026-10-04T19:19:21.942190+00:00",
+  "target_test": "jpgoimipbothfgkokyvm",
+  "source_repository": "XNIW/merchandise-control-admin-web",
+  "source_revision": "82af13ef0005ecfb767809bd362327e91692b5ba",
+  "mode": "prepared_readonly_no_apply",
+  "registry_observed_at": "2026-10-04T19:12:25.55859+00:00",
+  "registry_count": 155,
+  "expected_pending_versions": [
+    "20260823023037",
+    "20260823150000",
+    "20260928200000"
+  ],
+  "migrations": [
+    {
+      "version": "20260823023037",
+      "name": "client_commerce_journey_v1",
+      "path": "supabase/migrations/20260823023037_client_commerce_journey_v1.sql",
+      "git_blob": "83aff0b62052f149fe7302bdc4612d0c601eedba",
+      "bytes": 149375,
+      "sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "ordinal": 1,
+      "depends_on_package_versions": []
+    },
+    {
+      "version": "20260823150000",
+      "name": "customer_after_sales_order_lines_v1",
+      "path": "supabase/migrations/20260823150000_customer_after_sales_order_lines_v1.sql",
+      "git_blob": "9e9aa7f3e698b96d27286ff520f150f177b73831",
+      "bytes": 8028,
+      "sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467",
+      "ordinal": 2,
+      "depends_on_package_versions": [
+        "20260823023037"
+      ]
+    },
+    {
+      "version": "20260928200000",
+      "name": "customer_notification_hold_dedup",
+      "path": "supabase/migrations/20260928200000_customer_notification_hold_dedup.sql",
+      "git_blob": "057f591b91bd2cdfc99e4478b0261c2a711907a2",
+      "bytes": 697,
+      "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e",
+      "ordinal": 3,
+      "depends_on_package_versions": [
+        "20260823023037",
+        "20260823150000"
+      ]
+    }
+  ]
+}

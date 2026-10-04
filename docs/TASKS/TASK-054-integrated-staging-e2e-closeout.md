@@ -377,3 +377,59 @@ Validazione checkout CI: tutti i cinque job verificano il commit head immutabile
 Quality conserva fetch-depth0. Whitelist release iOS esatta, ref main/head_ref/vuoto
 e input extra respinti; nessun gate di firma, runtime o sicurezza indebolito.
 43test nativi/61capture attesi al nuovo freeze: esecuzione ancoraNOT_RUN.
+
+
+## Emendamento utente — prossima integrazione, 2026-10-04
+
+Il mandato allegato riapre l'Execution da main `bfbfc0b6` e autorizza sviluppo,
+TEST/staging, coordinamento delle lane, review distinte, PR e merge ordinari dei
+candidati indipendenti dopo gate verdi. Supersede i precedenti limiti di sola lettura
+dei gestionali soltanto per interventi coordinati nella lane proprietaria. PR28
+resta integrata; nessun fix storico viene ricreato. TASK055 non viene attivata.
+Mutazioni condivise richiedono target TEST, esclusione writer/cron e recuperabilità
+attuale; provider OFF, production, spese, nuovi account e dati reali restano esclusi.
+
+### Planning del delta già autorizzato
+
+Owner Client: root, writer nel worktree `task054-next-integration`. Owner harness:
+`/root/visual_harness`, writer in worktree distinto `task054-next-visual`; integrazione
+sequenziale. Lane backend/config/native read-only sul lavoro altrui; reviewer distinti
+dai writer sul candidato congelato. Registro unico: `residuals.md`, overlay NI054.
+
+| CA / test | Criterio del delta | Prova prevista |
+|---|---|---|
+| CA-N1 / T-N1 | Baseline corrente, owner e confini preservati | Git/PR/CI, ricevute e coordinamento |
+| CA-N2 / T-N2 | Runtime TEST riconciliato e delta minimo canonico | Metadata fresco, mapping prezzi, package; apply solo con prerequisiti |
+| CA-N3 / T-N3 | Filtro non lette comprensibile con altre pagine | FAIL iniziale, regressioni quattro lingue200%, cursor/cache invariati |
+| CA-N4 / T-N4 | Stati mancanti esercitati sul codice di produzione | Harness fixture esplicito, interazioni/capture Android e iOS separate |
+| CA-N5 / T-N5 | Candidato verificato e review distinta | Gate applicabili, benchmark, CI exact-SHA, due reviewer |
+| CA-N6 / T-N6 | R01–R30 e livelli live conservati | Unico risultato NI054, ricevute durevoli e prerequisiti precisi |
+
+Handoff planning: `CODEX_PLANNING_APPROVED_TO_EXECUTION`, autorizzato dal mandato.
+
+### Execution NI054
+
+In corso nel worktree isolato da main `bfbfc0b6`; checkout originario `8423c868`
+e `supabase/` preservati. Le prove di PR28 sono baseline storica, non gate del nuovo
+delta. Nessuna mutazione TEST, distribuzione o verifica live dichiarata anticipatamente.
+
+### Fix NI054 e consegna del delta ai reviewer
+
+I difetti riprodotti NI054-01–03 sono corretti nello scope già autorizzato:
+inbox partial/unread vuoto, errore pagina visibile e badge fulfillment reflow.
+40test inbox e19prodotto PASS/exit0; nuove superfici20hostPASS e sette casi
+impattati aggiuntivi PASS nella lane harness. Aggregate finale65test/103PNG
+attesi per piattaforma; CI nativa ancoraNOT_RUN al freeze. Runner Android
+AVD proprio bounded,5job/25min e target iOS14 invariati;25regressioni runnerPASS.
+
+La lane backend ha eseguito23suite/1035assertion e recovery sintetica155→158→155
+PASS, otto fingerprint metadata uguali al TEST corrente. Il runtime TEST resta
+FAIL32/55RPC e1/2indici, applyBLOCKED per finestra/recovery remota/PGTLS.
+Nessun gate live viene promosso. Unico risultato:
+[CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md](EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md).
+
+Il delta di sviluppo è consegnato a due reviewer distinti con CI da associare
+al freeze. Il task completo non è review-ready per acceptance integrata: tutti i
+gate live restano espliciti. FaseREVIEW, statoBLOCKED, handoff
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`; nessun DONE o TASK055. L'autorizzazione
+utente copre il merge ordinario del solo delta dopo due APPROVED e CIverde.

@@ -14,19 +14,20 @@
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: eseguire il mandato funzionale e UX del 2026-10-01
-  sulla main aggiornata: preflight staging, flussi e schermate nativi con fixture,
-  correzioni riproducibili e due review read-only; integrazione dopo gate applicabili.
+- **Prossima azione autorizzata**: riesaminare il candidato NI054 del mandato 2026-10-04
+  con due reviewer distinti e CI exact-SHA; integrazione di sviluppo autorizzata
+  dopo APPROVED e gate verdi. Apply TEST subordinato a risorse e finestra attuali.
   TASK-054 resta aperta finché i requisiti live obbligatori non sono verificati.
 
 ## Repository coinvolti
 
 - `XNIW/ClientMerchandiseControl` — repository corrente e unico writer del client.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
-  authority canonica verificata; TASK-159 concorrente preservato, PR commerce117 merged con6d5f3768 dopo review APPROVED e CI verde;
-  main4532831b include anche PR119; f21339bb è la baseline PR118, ancestry verificata.
-- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
-- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura.
+  authority canonica; main corrente82af13ef,158sorgenti e155receipt TEST;
+  TASK159/Worker selettivo appartiene a W, modifiche concorrenti preservate.
+  Le riconciliazioni4532831b/f21339bb precedenti rimangono nelle evidence storiche.
+- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, owner N; mainfe0927c3 e patch recovery in corso.
+- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, owner N; main433e7daf e patch recovery in corso.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
 - Supabase staging esistente — audit metadata readonly: 32/55 RPC presenti,

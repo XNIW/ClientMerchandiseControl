@@ -5045,3 +5045,28 @@ fb9546ca (Verify+Database; gate staging opt-in SKIP, non PASS). Nessun apply rem
   Admin151richiede recapture, nessuna quarta migration implicitamente autorizzata.
 - **Fase finale**: REVIEW.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-04 — TASK-054 prossima integrazione NI054
+
+Mandato utente letto integralmente; main bfbfc0b6 e PR28 già integrata riconfermate.
+Checkout originario e cartella supabase/ preservati, nuovo worktree Client isolato.
+Execution autorizzata con lane backend/config/native e writer harness distinto;
+coordinamento delle chat attive avviato. Nessun TASK055, DONE o activation.
+
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+## 2026-10-04 — TASK-054 NI054 consegna del delta
+
+- **Ruolo**: CODEX_EXECUTOR/CODEX_FIXER -> CODEX_RE_REVIEWER.
+- **Task**: TASK054 BLOCKED/REVIEW, delta sviluppo sottoposto a review distinta.
+- **Azioni**: partial unread/errore pagina visibile, reflow fulfillment; harness
+  produzione sintetico65casi/103capture attesi; runner AndroidCI bounded e
+  TERM/INT cleanup del solo gruppo proprio. Nessuna scrittura remota/deviceN.
+- **Verifiche**: inbox40 eproduct19PASS, hostnuovisurface20PASS più7impattati
+  PASS nella lane distinta; runner25PASS; analyze e governancePASS.
+  Backend23SQL/1035PASS, recovery155sinteticaPASS, otto metadatafingerprint uguali.
+- **Limiti**: runtimeTESTFAIL32/55RPC e1/2indici; applyBLOCKED quattro cron
+  attivi/finestra e recovery remota non attestate; livePGTLS/config/host/pilota
+  assenti. CaptureCI/freeze/review/mergeNOT_RUN al freeze.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

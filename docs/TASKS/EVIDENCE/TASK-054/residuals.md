@@ -38,3 +38,29 @@ filtro non letteR18, heading inbox e CTA Cart offline che propagava eccezione.
 Android nativo fixture41test/55PNG exit0; quattro locale12accessibilitàPASS.
 CI/review/newmerge al freezeNOT_RUN; snapshot storici non riscritti.
 Tutti25ID E2E storici e30casi compositi R conservati; nessun PASSlive inferito.
+
+## Overlay NI054 — mandato del 2026-10-04
+
+Baseline sviluppo Client `bfbfc0b6`, PR28 integrata. Questo è l'unico backlog del
+mandato corrente; R01–R30 e i 25 E2E storici conservano definizioni e provenance.
+Le lane native N e Mini W restano owner dei rispettivi fix; nessuna seconda patch.
+
+| ID / requisito | Classificazione | Impatto / causa o ipotesi | Repository / owner | Dipendenze | Intervento minimo / prova di chiusura | Esito corrente |
+|---|---|---|---|---|---|---|
+| NI054-01 / R18 | Difetto riprodotto | Filtro vuoto riusa “nessuna notifica” mentre il server ha unread in pagine successive; cache offline incompleta | Client / root | Nessuna esterna | Titolo e messaggio parziali, CTA pagina conservata; cursor/dedup/cache e4locale200% | PASS test mirati; live NOT_RUN |
+| NI054-02 / R18 | Difetto riprodotto | Errore transitorio loadMore conservava ready e non mostrava feedback; il tap sembrava senza effetto | Client / root | Nessuna esterna | Banner errore, retry stessa pagina; dati/filtro/cursor conservati | FAIL iniziale, PASS40test inbox; live NOT_RUN |
+| NI054-03 / R30 | Difetto riprodotto | Badge fulfillment dettaglio prodotto320/200%: Row con label non flessibile, overflow ES/IT/EN | Client / root | Harness visuale separato | Reflow della sola etichetta,4locale light/dark e dettaglio; native prima/dopo separata | Riprodotto; fix/test in corso |
+| NI054-04 / R01–R30 | Configurazione/attivazione TEST mancante | Metadata fresco:32/55RPC,1/2indici,registry155; source canonica158 | Admin/Supabase / backend owner | Recuperabilità corrente DB+Storage ed esclusione writer/cron | Sole3canoniche in ordine, package hash-bound; poi apply e ruoli reali | Package/preflight in corso; apply BLOCKED |
+| NI054-05 / R24 | Implementazione presente ma prova mancante | Authoring/camera/galleria/publish implementati; nuovo recovery N ancora FIX | Android/iOS / N; Admin + Client | Candidato N stabile, pilota/shop TEST e runtime verde | Ricetta e mapping sourceProductId→publicationId; ricevute separate authoring/consumo | Contratto PASS lettura; catena NOT_RUN |
+| NI054-06 / R02–R04 | Configurazione TEST mancante | Google attivo/17redirect; manca host HTTPS verificato nel contratto corrente e configshop pilota | Auth/domain + mobile release | Riferimenti già approvati, AASA/assetlinks e allow-list | Config esterna validata, cold/warm/login/revoca su entrambe le piattaforme | Parser respinge config legacy; AUTH_LIVE NOT_RUN |
+| NI054-07 / R18/R21/R22/R30 | Implementazione presente ma prova mancante | Stati reviews mutation, inbox pagina/offline/revoca, tracking OFF/stale e4superfici200% non attestati | Client / visual_harness | Worktree distinto; runtime native proprio/CI | Harness su controller/UI produzione con fixture; capture e interazioni separate | Patch20test in corso; staging NOT_RUN |
+| NI054-08 / R29–R30 | Dipendenza esterna | Servizio readonlyTLS/runtime/firma/canale Client assenti; iPhone unavailable=-27,Android fisico assente | Backend/release/device owner | CMC_BACKEND_PGSERVICE, configartifact e input signing approvati | Gate live, artifact→firma→upload→install→smoke con ricevute distinte | Gate exit2 BLOCKED; nessun upload |
+| NI054-09 / Admin staging | Implementazione presente ma prova mancante | SHA main non prova versione Worker distribuita; release selettiva da riconfermare | Admin/release owner | Ricevuta autorizzata commit→build→versione→TEST | Read-only deployment corrente; eventuale deploy solo delta approvato | Verifica in corso |
+
+Le proposte UX del mandato restano da valutare, non finding presunti. Provider
+indirizzi, mappe, pagamento online e push restano OFF; nessun requisito cancellato.
+
+NI054-01–03: fix e regressioni mirate PASS; review/CI finale pendenti.
+NI054-07: harness esteso65test/103PNG attesi, hostPASS; catture native, OSIME,
+VoiceOver/TalkBack e contrasto globale ancoraNOT_RUN. Le restanti risorse
+NI054-04–06/08–09 restanoBLOCKED/NOT_RUN secondo la ricevuta unica.

@@ -1,8 +1,12 @@
 // Dataset dichiaratamente sintetici per componenti/controller di produzione.
 // Nessun dato, autenticazione, conteggio o mutazione qui prova il backend live.
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:client_merchandise_control/core/backend/backend_readiness_controller.dart';
+import 'package:client_merchandise_control/features/after_sales/domain/customer_after_sales_models.dart';
+import 'package:client_merchandise_control/features/after_sales/domain/customer_after_sales_repository.dart';
 import 'package:client_merchandise_control/features/cart/application/cart_providers.dart';
 import 'package:client_merchandise_control/features/catalog/application/search_assist_controller.dart';
 import 'package:client_merchandise_control/features/customer_notifications/domain/customer_notification_failure.dart';
@@ -15,6 +19,8 @@ import 'package:client_merchandise_control/features/storefront/application/store
 import 'package:client_merchandise_control/features/storefront/data/supabase_storefront_repository.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import '../../test/support/commerce_surface_fixtures.dart';
 import '../../test/support/storefront_surface_fixtures.dart';
@@ -268,5 +274,155 @@ final class Task054MutableReviewFixture implements CustomerReviewRepository {
       status: status,
       version: version,
     );
+  }
+}
+
+final class Task054RecordedAfterSalesFixture
+    implements CustomerAfterSalesRepository {
+  Task054RecordedAfterSalesFixture(this.delegate);
+
+  final Task054AfterSalesRepository delegate;
+  final drafts = <CustomerAfterSalesDraft>[];
+  final idempotencyKeys = <String>[];
+  final uploads = <CustomerAfterSalesEvidenceInput>[];
+  final evidence = <CustomerAfterSalesEvidence>[];
+  bool failCreate = false;
+  int? failUploadIndex;
+  Completer<void>? createDelay;
+
+  @override
+  Future<List<CustomerAfterSalesCase>> list({required String shopSlug}) async =>
+      (await delegate.list(
+        shopSlug: shopSlug,
+      )).map((value) => _copy(value, evidence: evidence)).toList();
+
+  @override
+  Future<CustomerAfterSalesOrderLines> listOrderLines(String orderId) =>
+      delegate.listOrderLines(orderId);
+
+  @override
+  Future<CustomerAfterSalesCase> create({
+    required CustomerAfterSalesDraft draft,
+    required String idempotencyKey,
+  }) async {
+    drafts.add(draft);
+    idempotencyKeys.add(idempotencyKey);
+    await createDelay?.future;
+    if (failCreate) throw const CustomerAfterSalesException('timeout');
+    final value = _copy(
+      await delegate.create(draft: draft, idempotencyKey: idempotencyKey),
+      draft: draft,
+    );
+    delegate.createdCases = [value];
+    return value;
+  }
+
+  @override
+  Future<CustomerAfterSalesCase> cancel({
+    required String caseId,
+    required int expectedVersion,
+  }) => delegate.cancel(caseId: caseId, expectedVersion: expectedVersion);
+
+  @override
+  Future<String> uploadEvidence({
+    required String caseId,
+    required CustomerAfterSalesEvidenceInput input,
+  }) async {
+    uploads.add(input);
+    if (uploads.length == failUploadIndex) {
+      throw const CustomerAfterSalesException('unavailable');
+    }
+    final id =
+        '89000000-0000-4000-8000-${uploads.length.toString().padLeft(12, '0')}';
+    evidence.add(
+      CustomerAfterSalesEvidence(
+        id: id,
+        status: 'pending_scan',
+        mimeType: input.mimeType,
+        createdAt: task054VisualNow,
+      ),
+    );
+    return id;
+  }
+
+  CustomerAfterSalesCase _copy(
+    CustomerAfterSalesCase value, {
+    CustomerAfterSalesDraft? draft,
+    List<CustomerAfterSalesEvidence>? evidence,
+  }) => CustomerAfterSalesCase(
+    id: value.id,
+    caseCode: value.caseCode,
+    orderId: value.orderId,
+    type: draft?.type ?? value.type,
+    status: value.status,
+    reason: draft?.reason ?? value.reason,
+    note: draft?.note ?? value.note,
+    version: value.version,
+    submittedAt: value.submittedAt,
+    updatedAt: value.updatedAt,
+    lines: draft == null
+        ? value.lines
+        : [
+            for (final line in draft.lines)
+              CustomerAfterSalesLine(
+                id: value.lines.first.id,
+                orderItemId: line.orderItemId,
+                quantity: line.quantity,
+                name: value.lines.first.name,
+              ),
+          ],
+    evidence: evidence ?? value.evidence,
+    timeline: value.timeline,
+  );
+}
+
+/// Seam del picker: file PNG sintetici veri, nessun dialogo/permesso/compressione OS.
+/// Canali verificati sulla source pinned image_picker1.2.3 e relativi plugin.
+final class Task054SyntheticEvidencePicker {
+  Task054SyntheticEvidencePicker() {
+    directory = Directory.systemTemp.createTempSync('cmc-task054-evidence-');
+    final bytes = base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Zl1sAAAAASUVORK5CYII=',
+    );
+    paths = List.generate(4, (index) {
+      final file = File('${directory.path}/synthetic-${index + 1}.png');
+      file.writeAsBytesSync(bytes);
+      return file.path;
+    });
+  }
+
+  late final Directory directory;
+  late final List<String> paths;
+  var calls = 0;
+  static const _legacy = MethodChannel('plugins.flutter.io/image_picker');
+  static const _channels = [
+    'dev.flutter.pigeon.image_picker_android.ImagePickerApi.pickImages',
+    'dev.flutter.pigeon.image_picker_ios.ImagePickerApi.pickMultiImage',
+  ];
+
+  void install() {
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    for (final channel in _channels) {
+      messenger.setMockMessageHandler(channel, (_) async {
+        calls++;
+        return const StandardMessageCodec().encodeMessage([paths]);
+      });
+    }
+    messenger.setMockMethodCallHandler(_legacy, (call) async {
+      if (call.method != 'pickMultiImage') throw MissingPluginException();
+      calls++;
+      return paths;
+    });
+  }
+
+  void dispose() {
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    for (final channel in _channels) {
+      messenger.setMockMessageHandler(channel, null);
+    }
+    messenger.setMockMethodCallHandler(_legacy, null);
+    directory.deleteSync(recursive: true);
   }
 }

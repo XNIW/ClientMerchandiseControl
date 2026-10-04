@@ -3,6 +3,9 @@
 import 'dart:async';
 
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
+import 'package:client_merchandise_control/app/router/app_routes.dart';
+import 'package:client_merchandise_control/features/after_sales/application/customer_after_sales_controller.dart';
+import 'package:client_merchandise_control/features/after_sales/presentation/customer_after_sales_screen.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:client_merchandise_control/features/cart/application/cart_controller.dart';
 import 'package:client_merchandise_control/features/cart/presentation/cart_screen.dart';
@@ -28,6 +31,7 @@ import 'package:client_merchandise_control/l10n/generated/app_localizations.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../test/features/delivery_tracking/delivery_tracking_test_support.dart';
@@ -148,6 +152,16 @@ void main() {
               tester,
               '${surface.key}-compact200-long-${locale.toLanguageTag()}',
             );
+            if (surface.key == 'product') {
+              await _reveal(
+                tester,
+                find.byKey(const ValueKey('product-detail-fulfillment')),
+              );
+              await captureVisual(
+                tester,
+                'product-fulfillment-compact200-${locale.toLanguageTag()}',
+              );
+            }
             expect(
               tester.takeException(),
               isNull,
@@ -341,6 +355,14 @@ void main() {
       const comment =
           'Comentario sintético conservado después de un error de envío.';
       await tester.enterText(field, comment);
+      expect(
+        tester
+            .widget<EditableText>(find.byType(EditableText))
+            .focusNode
+            .hasFocus,
+        isTrue,
+      );
+      await captureVisual(tester, 'review-comment-focus-compact200');
       final submit = find.byKey(const ValueKey('review-submit'));
       await tester.ensureVisible(submit);
       await tester.pumpAndSettle();
@@ -433,6 +455,224 @@ void main() {
       await _unmount(tester);
     }
   });
+
+  for (final partialUploadFailure in [false, true]) {
+    testWidgets(
+      partialUploadFailure
+          ? 'assistenza upload parziale conserva caso e mostra errore'
+          : 'assistenza submit busy timeout retry max3allegati dettaglio',
+      (tester) async {
+        final fixture = Task054VisualFixtures();
+        fixture.afterSales.createdCases = [];
+        final repository = Task054RecordedAfterSalesFixture(fixture.afterSales)
+          ..failCreate = !partialUploadFailure
+          ..failUploadIndex = partialUploadFailure ? 2 : null;
+        final picker = Task054SyntheticEvidencePicker()..install();
+        final router = GoRouter(
+          initialLocation: AppRoutes.afterSalesCreateLocation(
+            task054VisualOrder,
+          ),
+          routes: [
+            GoRoute(
+              path: AppRoutes.afterSalesBaseLocation,
+              builder: (context, state) => CustomerAfterSalesScreen(
+                orderId: state.uri.queryParameters['orderId'],
+              ),
+            ),
+            GoRoute(
+              path: AppRoutes.afterSalesPattern,
+              builder: (context, state) => CustomerAfterSalesScreen(
+                caseId: state.pathParameters['caseId'],
+              ),
+            ),
+          ],
+        );
+        await tester.pumpWidget(
+          fixture.wrap(
+            MaterialApp.router(
+              theme: AppTheme.light(),
+              locale: const Locale('es', 'CL'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              routerConfig: router,
+            ),
+            additionalOverrides: [
+              customerAfterSalesRepositoryProvider.overrideWithValue(
+                repository,
+              ),
+            ],
+          ),
+        );
+        try {
+          await tester.pumpAndSettle();
+          final container = ProviderScope.containerOf(
+            tester.element(find.byType(CustomerAfterSalesScreen)),
+          );
+          final l10n = AppLocalizations.of(
+            tester.element(find.byType(CustomerAfterSalesScreen)),
+          );
+          final eligible = find.byType(Checkbox).first;
+          expect(
+            tester.widget<Checkbox>(find.byType(Checkbox).last).onChanged,
+            isNull,
+          );
+          await _reveal(tester, eligible);
+          await tester.tap(eligible);
+          await tester.pumpAndSettle();
+          final quantity = find.byType(DropdownButton<int>);
+          await _reveal(tester, quantity);
+          await tester.tap(quantity);
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('2').last);
+          await tester.pumpAndSettle();
+          final note = find.byType(TextField);
+          await _reveal(tester, note);
+          const text =
+              'Nota sintética conservada con cantidad y tres archivos al reintentar.';
+          await tester.enterText(note, text);
+          expect(
+            tester
+                .widget<EditableText>(find.byType(EditableText))
+                .focusNode
+                .hasFocus,
+            isTrue,
+          );
+          if (!partialUploadFailure) {
+            await captureVisual(tester, 'assistance-note-focus');
+          }
+          final attach = find.byKey(
+            const ValueKey('after-sales-evidence-picker'),
+          );
+          await _reveal(tester, attach);
+          await tester.tap(attach);
+          await tester.pumpAndSettle();
+          expect(picker.calls, 1);
+          expect(find.text(l10n.afterSalesEvidenceSelected(3)), findsOneWidget);
+          expect(find.text(l10n.afterSalesEvidenceSelected(4)), findsNothing);
+          if (!partialUploadFailure) {
+            await captureVisual(
+              tester,
+              'assistance-selected3-fixture-attachments',
+            );
+          }
+          final submit = find.byKey(const ValueKey('after-sales-submit'));
+          await _reveal(tester, submit);
+          if (!partialUploadFailure) {
+            repository.createDelay = Completer<void>();
+          }
+          await tester.tap(submit);
+          await tester.pump();
+          if (!partialUploadFailure) {
+            expect(
+              container.read(customerAfterSalesControllerProvider).isMutating,
+              isTrue,
+            );
+            expect(tester.widget<FilledButton>(submit).onPressed, isNull);
+            expect(tester.widget<OutlinedButton>(attach).onPressed, isNull);
+            expect(tester.widget<TextField>(note).enabled, isFalse);
+            expect(repository.drafts.single.lines.single.quantity, 2);
+            await captureVisual(tester, 'assistance-submit-busy');
+            repository.createDelay!.complete();
+            await tester.pumpAndSettle();
+            expect(
+              container.read(customerAfterSalesControllerProvider).failure,
+              'timeout',
+            );
+            expect(tester.widget<TextField>(note).controller!.text, text);
+            expect(tester.widget<DropdownButton<int>>(quantity).value, 2);
+            expect(
+              find.text(l10n.afterSalesEvidenceSelected(3)),
+              findsOneWidget,
+            );
+            expect(find.text(l10n.afterSalesFailure), findsOneWidget);
+            expect(repository.uploads, isEmpty);
+            await captureVisual(
+              tester,
+              'assistance-submit-timeout-draft-preserved',
+            );
+            await _waitForFailureNotice(tester);
+            repository.failCreate = false;
+            repository.createDelay = null;
+            await _reveal(tester, submit);
+            await tester.tap(submit);
+          }
+          await tester.pumpAndSettle();
+          expect(repository.uploads, hasLength(3));
+          expect(
+            repository.uploads.every(
+              (input) =>
+                  input.extension == 'png' &&
+                  input.mimeType == 'image/png' &&
+                  input.bytes.isNotEmpty,
+            ),
+            isTrue,
+          );
+          expect(repository.drafts.last.note, text);
+          expect(repository.drafts.last.lines.single.quantity, 2);
+          expect(
+            repository.drafts.last.lines.single.orderItemId,
+            task054VisualOrderItem,
+          );
+          if (!partialUploadFailure) {
+            expect(repository.idempotencyKeys, hasLength(2));
+            expect(repository.idempotencyKeys.toSet(), hasLength(1));
+          } else {
+            expect(repository.drafts, hasLength(1));
+            expect(
+              find.text(l10n.afterSalesEvidenceUploadFailure),
+              findsOneWidget,
+            );
+          }
+          expect(
+            find.byKey(const ValueKey('after-sales-submit')),
+            findsNothing,
+          );
+          expect(
+            router.routeInformationProvider.value.uri.path,
+            AppRoutes.afterSalesLocation(task054VisualCase),
+          );
+          final created = container
+              .read(customerAfterSalesControllerProvider)
+              .cases
+              .single;
+          expect(created.note, text);
+          expect(created.lines.single.quantity, 2);
+          expect(created.evidence, hasLength(partialUploadFailure ? 2 : 3));
+          expect(fixture.afterSales.createCalls, 1);
+          if (partialUploadFailure) {
+            await captureVisual(
+              tester,
+              'assistance-evidence-partial-upload-failure',
+            );
+          }
+          await _reveal(tester, find.text(created.caseCode));
+          await captureVisual(
+            tester,
+            partialUploadFailure
+                ? 'assistance-partial-evidence-detail'
+                : 'assistance-submitted-detail',
+          );
+          if (!partialUploadFailure) {
+            await _reveal(tester, find.text(l10n.afterSalesEvidence));
+            expect(find.text('pending_scan'), findsNWidgets(3));
+            await captureVisual(
+              tester,
+              'assistance-submitted3-evidence-detail',
+            );
+          }
+          expect(tester.takeException(), isNull);
+        } finally {
+          if (repository.createDelay case final delay?
+              when !delay.isCompleted) {
+            delay.complete();
+          }
+          await _unmount(tester);
+          router.dispose();
+          picker.dispose();
+        }
+      },
+    );
+  }
 
   testWidgets('tracking provider OFF conserva ordine fresh e stale testuali', (
     tester,

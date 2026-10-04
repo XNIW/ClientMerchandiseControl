@@ -335,11 +335,15 @@ class AndroidVisualRunnerTest(unittest.TestCase):
             runner = MODULE.AndroidVisualRunner(directory)
             with patch.object(MODULE.platform, 'system', return_value='Linux'), \
                  patch.object(MODULE.platform, 'machine', return_value='x86_64'), \
+                 patch.object(runner, 'command', return_value=(0, 'a' * 40)), \
                  patch.object(MODULE.os, 'access', return_value=False), \
                  patch.object(MODULE.subprocess, 'Popen') as process:
                 self.assertEqual(runner.run(), 2)
             process.assert_not_called()
             self.assertIsNone(runner.owned_directory)
+            receipt = json.loads((Path(directory) /
+                'build/task054/android-visual-receipt.json').read_text())
+            self.assertEqual(receipt['revision'], 'a' * 40)
 
 
 if __name__ == '__main__':

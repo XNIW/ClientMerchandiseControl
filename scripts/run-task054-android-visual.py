@@ -141,6 +141,9 @@ class AndroidVisualRunner:
     def execute(self):
         if platform.system() != 'Linux' or platform.machine() != 'x86_64':
             raise Failure(self.phase, 2, 'richiede runner Linux x86_64')
+        _, self.revision = self.command(['git', 'rev-parse', 'HEAD'], 15)
+        if len(self.revision) != 40 or any(char not in '0123456789abcdef' for char in self.revision):
+            raise Failure(self.phase, 2, 'revision Git non verificabile')
         if not os.access('/dev/kvm', os.R_OK | os.W_OK):
             raise Failure(self.phase, 2, 'KVM non accessibile al runner')
         sdk = self.environment.get('ANDROID_HOME') or self.environment.get('ANDROID_SDK_ROOT')
@@ -156,9 +159,6 @@ class AndroidVisualRunner:
             print(f'SDK_TOOL name={tool.name} path={tool} executable={executable}', flush=True)
             if not executable:
                 raise Failure(self.phase, 2, f'tool SDK richiesto non disponibile: {tool}')
-        _, self.revision = self.command(['git', 'rev-parse', 'HEAD'], 15)
-        if len(self.revision) != 40 or any(char not in '0123456789abcdef' for char in self.revision):
-            raise Failure(self.phase, 2, 'revision Git non verificabile')
         visual_output = self.repository / 'build/task054/visual'
         if visual_output.exists() and any(visual_output.iterdir()):
             raise Failure(self.phase, 2, 'directory capture non vuota; nessuna cancellazione')

@@ -5120,3 +5120,44 @@ coordinamento delle chat attive avviato. Nessun TASK055, DONE o activation.
   NOT_RUN. Nessun aumento budget, nuovo skip o processo root pendente.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 - **Stato**: BLOCKED/REVIEW, nessun DONE, TASK-055 o production.
+
+
+## 2026-10-05 — TASK-054 NI054 secondo CI e fix mirato
+
+- **Ruolo**: review indipendente -> CODEX_FIXER.
+- **Finding**: BECI-06/P2 receipt iOS perde il primo cleanupFAIL quando lo step
+  always riesce; PoC autonoma exit1. Primario prepare124 resta corretto.
+- **CI37346144008**: Androiddebug FAIL nel test allegati parziali (finder0);
+  103PNG parziali e4OS con IMEtrue. iOSdebug boot300FAIL prima di Flutter,
+  cleanup UUID finale PASS, niente smoke/capture. Quality/Androidrelease PASS;
+  iOSrelease da attendere.
+- **Azione**: writer distinti fix receipt e harness, nessun timeout aumentato,
+  skip o build nativa locale. D9fc non mergeabile.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-05 — TASK-054 NI054 review pixel e fix persistence
+
+- **Ruolo**: CODEX_FIXER, reviewer separati.
+- **CI d9fc terminale**: Quality942/1skip preesistente e10benchmark PASS;
+  Androidrelease/iOSrelease PASS; AndroiddebugFAIL1, iOSprepareFAIL124.
+- **Nuovo C07/P2**: errore recensione dietro il modal, PNG91/93 e PoC autonoma
+  exit1; writer feedback isolato. OS89/96 stale rispetto al paint, fix harness.
+- **BECI06**: source99b6f21 integrato9eec464;37test CI-like root PASS/exit0,
+  receipt conserva failure prima e dopo resourcecleanupPASS. Review pendente.
+- **Evidence**: cinquecheckoutSHA d9fc, 103PNG parziali e4OS; sei before
+  originali sanitizzati durevoli. Nessun capture completo/IME acceptance dichiarato.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-05 — TASK-054 NI054 terzo candidato composto
+
+- **Ruolo**: CODEX_FIXER -> CODEX_RE_REVIEWER, reviewer distinti.
+- **Fix**: d0e93b9 recensioni,0203ce0 receipt storica iOS,d9da3c5 harness.
+- **Verifiche writer**:31recensioni,37locale/37CI-like,24host/2assistenza/4reflow/
+  1sentinel/14bridge PASS/exit0; native del nuovo codice NOT_RUN.
+- **Evidence**: CI37346144008 terminale FAIL conservato, cinque checkout d9fc;
+  sei PNG before originali, feedback/C07 e BECI06 originali e residuo incompleto.
+- **Stato**: BLOCKED/REVIEW; CI e re-review sul freeze composto da completare.
+  Nessun processo proprio pendente, merge dei freeze falliti vietato.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

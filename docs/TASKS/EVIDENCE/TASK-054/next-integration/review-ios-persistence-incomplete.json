@@ -1,0 +1,101 @@
+{
+  "reviewer": "/root/review_evidence_ci",
+  "observedAt": "2026-10-05T17:46:13.914318+00:00",
+  "sourceRevision": "99b6f21ef93222d61abab617223bbeb426b39f82",
+  "rootIntegration": "9eec4641e450070d359c8d2f9b3f1be56bd4102c",
+  "deltaVerdict": "CHANGES_REQUIRED",
+  "taskLiveVerdict": "BLOCKED",
+  "finding": {
+    "id": "BECI-06",
+    "priority": "P2",
+    "status": "OPEN_PARTIAL_FIX",
+    "file": "scripts/run-task054-ios-owned.py",
+    "lines": [
+      261,
+      267,
+      280
+    ],
+    "originalCase": "FIXED_VALIDATED: prepare124/process failure true + failing initial inventory query persists firstFAIL and reopens1/FAIL even after successful device removal",
+    "residualCase": "Final receipt write fails after initial cleanup query failure: first persisted attempt remains NOT_RUN and top-level NOT_RUN. New instance ignores incomplete prior attempt and promotes combined cleanup to PASS/exit0 after resource-current removal.",
+    "impact": "Final combined lifecycle receipt asserts PASS with a previous cleanup attempt not attested; prior failed query/receipt write is lost from combined result, despite incomplete attempt still visible.",
+    "requiredFix": "An incomplete prior cleanup attempt must keep aggregate result non-PASS across reopen; resourceCleanup PASS of current attempt may remain separate. Preserve primary error, acquired/validated ownership and private receipt guards; no new native retries or timeout changes.",
+    "regression": "Actual cleanup entrypoint, queryFailure7 then secondpersistOSError, new cleanup entrypoint with successful own resource delete: prior attempt stays explicit, resource-currentPASS allowed, combinednonPASS/exitnonzero. Control processCleanupFailedTrue stays stickyFAIL."
+  },
+  "independentChecks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 GITHUB_RUN_ID=123456789 GITHUB_RUN_ATTEMPT=2 GITHUB_JOB=ios-build GITHUB_SHA=99b6f21ef93222d61abab617223bbeb426b39f82 python3 scripts/test-task054-ios-owned.py",
+      "exitCode": 0,
+      "tests": 37,
+      "seconds": 47.562,
+      "scope": "synthetic tool replies and real Python process lifecycle only, no simulator/build/device"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 build/task054/review-evidence-ci/task054-ios-prepare-cleanup-persistence-repro-d9fcbfd9.py",
+      "exitCode": 0,
+      "observed": {
+        "prepareExit": 124,
+        "firstReceiptProcessCleanupFailed": true,
+        "firstReceiptCleanup": "FAIL",
+        "reopenCleanupExit": 1,
+        "finalReceiptProcessCleanupFailed": true,
+        "finalReceiptCleanup": "FAIL",
+        "syntheticDeviceStillPresent": false
+      },
+      "pocSha256": "02975d5c34f034427af9caa59c2bccacd0d1be9b3a9e11a85dc1811c61d7a053"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 /tmp/task054-ios-beci06-final-write-reopen.py --repository /Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "exitCode": 1,
+      "independentlyRepeatedBy": [
+        "/root/review_evidence_ci/runner_edge_review",
+        "/root/review_evidence_ci"
+      ],
+      "pocSha256": "5f542f3914b7780c966b26f1751a1d4658c1141d609c94fc86cee587c808ee18",
+      "ownIgnoredPocCopy": "locale:task054-ios-beci06-final-write-reopen-99b6f21.py",
+      "observed": {
+        "processFlagFalseLane": {
+          "firstExit": 1,
+          "firstDiskCleanup": "NOT_RUN",
+          "firstAttemptResult": "NOT_RUN",
+          "reopenExit": 0,
+          "finalCombinedCleanup": "PASS",
+          "finalResourceCleanup": "PASS",
+          "priorAttemptResult": "NOT_RUN",
+          "syntheticResourceAbsent": true
+        },
+        "processFlagTrueControl": {
+          "firstExit": 1,
+          "firstDiskCleanup": "FAIL",
+          "reopenExit": 1,
+          "finalCombinedCleanup": "FAIL",
+          "finalResourceCleanup": "PASS",
+          "syntheticResourceAbsent": true
+        }
+      },
+      "scope": "actual main/cleanup/private0600file/new instance with synthetic commands, no native or process spawned"
+    }
+  ],
+  "immutableSourceBytes": {
+    "scripts/run-task054-ios-owned.py": {
+      "sourceSha256": "e0787377348dfebc629cb77e0498750f47cbafbd947cffff9bc3a1148ee8f63d",
+      "rootSha256": "e0787377348dfebc629cb77e0498750f47cbafbd947cffff9bc3a1148ee8f63d",
+      "exactBytes": true
+    },
+    "scripts/test-task054-ios-owned.py": {
+      "sourceSha256": "128b657f1eeaa0098f3f1d45e198471d998f601a4136a514fea5e79e98c7e06e",
+      "rootSha256": "128b657f1eeaa0098f3f1d45e198471d998f601a4136a514fea5e79e98c7e06e",
+      "exactBytes": true
+    }
+  },
+  "otherReview": {
+    "receipt": "locale:receipt.json",
+    "reviewer": "/root/review_evidence_ci/runner_edge_review",
+    "targetedOwnershipPersistenceNegatives": 8,
+    "exitCode": 0,
+    "residualPoCExitCode": 1,
+    "activeOwnVerificationProcesses": 0
+  },
+  "currentComposedCi": "NOT_RUN; old d9fc CI37346144008 remains terminalFAIL and is not evidence for99b source",
+  "activeOwnVerificationProcesses": 0,
+  "trackedMutationScope": "none; own ignored PoC and receipt only"
+}

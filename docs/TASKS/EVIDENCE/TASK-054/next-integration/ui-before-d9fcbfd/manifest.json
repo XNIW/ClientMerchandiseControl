@@ -1,0 +1,57 @@
+{
+  "source": "d9fcbfd96add14b7effa00be8fa310d483bdb9b3",
+  "run_id": 37346144008,
+  "suite_result": "FAIL",
+  "synthetic_data": true,
+  "qualification": "Unaltered genuine before frames; partial Android fixture suite, not staging or full native acceptance. OS89/96 are stale relative to paired Flutter frames, as documented by review. No iOS baseline reconstructed.",
+  "files": [
+    {
+      "file": "flutter-91-review-submit-failure-comment-preserved-compact200.png",
+      "sha256": "593931fd3a6880e952dd07f861d9242d3fa4cf5bfbb04de966010a59a57fcdb8",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "file": "flutter-93-review-edit-failure-comment-preserved-compact200.png",
+      "sha256": "9277b18364eba7e2b682c4e77cbdba81d790e16c8a5912b7ef2248b7fc6861ce",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "file": "os-62-address-editor-focus-compact200.png",
+      "sha256": "6497038be40808788428c8cef019ae93c48eb3e19b6026571636d7ecc0865d8e",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "file": "os-63-search-field-focus-compact200.png",
+      "sha256": "f6a691c56a6f3c1f5855cb95911756b2971b66c2de629d7f512c5c16ed730f0f",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "file": "os-89-review-comment-focus-compact200.png",
+      "sha256": "706b98b4ccf0775ba760953952777f49b245583578afed40efe41fd54dacc867",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "file": "os-96-assistance-note-focus.png",
+      "sha256": "c3e3c6355ac38cd45cec953a7e355c1580f66744fbacf29f5a2d7143d1648e79",
+      "dimensions": [
+        320,
+        640
+      ]
+    }
+  ]
+}

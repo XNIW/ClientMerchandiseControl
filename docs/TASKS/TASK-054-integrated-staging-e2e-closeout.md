@@ -499,3 +499,49 @@ distinti. Restano cinque job, Android25/iOS30 minuti, drive900 e target iOS14.
 Re-review indipendente e CI sullo SHA composto da completare; nessuna cattura
 nativa, tastiera, acceptance live o integrazione main dichiarata da queste prove.
 FIX -> REVIEW, stato BLOCKED, CODEX_FIX_BLOCKED_TO_RE_REVIEW.
+
+
+### Review CI reale NI054 — d9fcbfd, 2026-10-05
+
+BECI-06/P2, CHANGES_REQUIRED: dopo timeout prepare124 e cleanup processi fallito,
+il catch non persiste il flag. Lo step always rimuove il simulatore ma riapre una
+receipt precedente, scrivendo cleanupPASS/processCleanupFailedfalse. PoC del
+reviewer distinto exit1; primario124 corretto, perdita della failure durable.
+Runtime iOS26.5/iPhone17: boot300 fallito prima di Flutter, smoke e visual SKIPPED.
+Rimozione finale del solo UUID PASS; la causa del probe processi non è accertata.
+
+Android: quattro frame OS reali con due flag IMEtrue, ma suite FAIL nel caso
+assistenza upload parziale: picker non montato dopo metriche tastiera/scroll.
+Artifact parziale103PNG, suite con un FAIL: nessun PASS del percorso composto.
+Lane harness verifica race di test; nessun bug produzione dedotto. Quality e
+Androidrelease PASS, iOSrelease ancora attiva al checkpoint.
+
+REVIEW -> FIX, CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX. Nessun merge o retry cieco;
+fix minimo con review autonoma, budget invariati e fallimenti conservati.
+
+
+### Review pixel e fix receipt NI054 — 2026-10-05
+
+C-NI054-07/P2: errori recensione submit/edit oscurati nello Snackbar sotto il
+modal; PNG91/93 reali e PoC autonoma FAIL/exit1. Writer feedback distinto corregge
+il messaggio locale, conservando draft/busy/retry. C04–06 rimangono chiusi.
+OS89/96 sono desincronizzati dal paint Flutter, causa confermata dal SDK pinned;
+writer harness corregge barriera di rasterizzazione e reveal dopo reflow.
+
+Il secondo CI è terminale: Quality942/1skip e10benchmark PASS, Android/iOSrelease
+PASS, due debugFAIL. Le immagini parziali/source d9fc sono conservate senza
+ricostruzioni. BECI06 fix99b6f21 integrato9eec464, 37CI-like root PASS/exit0;
+re-review distinta in corso. Nessun processo root pendente, nessun nuovo push.
+
+
+### Fix composto NI054 — d9da3c5, 2026-10-05
+
+C07: feedback nel dialogo e regressioni31PASS. BECI06: primo FAIL conservato;
+edge storico incompleto riprodotto dalla re-review e corretto0203ce0, aggregato
+BLOCKED/FAIL distinto da risorsa correntePASS. Harness d9da3c5: barriera paint
+Flutter prima di OS, reveal bounded dopo reflow;24host/2assistenza/4reflow/1sentinel
+PASS writer. 67/105/4 invariati; nessun timeout/skip/target/dependency nuovo.
+
+FIX -> REVIEW, TASK054 BLOCKED, CODEX_FIX_BLOCKED_TO_RE_REVIEW. Review
+indipendenti e CI composte da completare; fallimenti originali e before reali
+durevoli. Nessun processo root o writer pendente, nessuna build locale pesante.

@@ -18,9 +18,10 @@ Client eseguiti. N resta owner della finestra e dello stato autenticato. Le buil
 e lo smoke simulatore del primo freeze sono prove separate; le catture native del
 nuovo candidato devono ancora terminare. Firma, canale e installazione interna
 restano BLOCKED. TASK-054 resta aperta; TASK-055 e production non attivate.
-Stato: BLOCKED/REVIEW. Il codice UI/controller ha review APPROVED; il fix dei
-runner è verificato localmente e consegnato alla re-review indipendente. CI del
-candidato composto e catture native restano da eseguire.
+Stato: BLOCKED/REVIEW. C04–06 restano approvati; il secondo CI
+ha riprodotto un difetto nella conservazione del cleanup iOS, un fallimento del
+test native di assistenza e C07: errore recensione oscurato dietro il dialogo. Le quattro tastiere Android sono state osservate in
+frame OS reali; suite e acceptance native complete non sono PASS.
 
 ## Provenance e ownership
 
@@ -77,7 +78,7 @@ le tre sorgenti SQL canoniche rimangono nella main Admin indicata sotto.
 | `flutter analyze` | PASS,exit0 | Analisi del sorgente corrente; due filename info dei helper locali corretti, nessuna esclusione |
 | `bash scripts/check-governance-state.sh` | PASS,exit0 | Iniziale FAIL5 per snapshot README/worklog incompleto, corretto |
 | `flutter test` account + delivery, lane writer e reviewer | PASS,101writer/104reviewer,exit0; due focus host PASS | C04/C05/C06 chiusi; APPROVED SOURCE_CODE_ONLY su163b9c2 e conferma blob da26c15 ([ricevuta](next-integration/review-client-current.json)); non CI/live |
-| Gate completi / benchmark / CI nuovo candidato | NOT_RUN | Primo freeze FAIL conservato sotto; nuova revisione in preparazione |
+| Gate completi / benchmark / CI nuovo candidato | NOT_RUN | Due freeze FAIL conservati sotto; terzo candidato da verificare |
 
 I fallimenti iniziali di compile e harness sono conservati nei log locali: variabile
 in scope errato, tap sotto AppBar/viewport e teardown semantics tardivo sono stati
@@ -140,8 +141,8 @@ non replayare history e non applicare tutta main. Otto receipt storiche con rawM
 diverso e130receipt multi-statement restano NOT_RUN per equivalenza del contenuto
 remoto; i16check del package non attestano il contenuto di tutte155migration.
 
-Clone locale schema-only più otto delta: otto fingerprint uguali allo staging
-corrente (615funzioni,120tabelle,1616colonne,1014constraint,458indici,155trigger,
+Clone locale schema-only più otto delta: otto fingerprint uguali allo snapshot
+del TEST del 4 ottobre (615funzioni,120tabelle,1616colonne,1014constraint,458indici,155trigger,
 86policy,5view). È una verifica metadata, senza dati remoti. Nel clone:
 23suite/1035assertion PASS; manifest55RPC/2indici/history158 PASS snapshot-only;
 recovery155→158→155 PASS con155receipt **sintetiche** e sei digest di righe
@@ -278,13 +279,13 @@ nessuna scrittura di staging è stata eseguita da questa lane.
 
 | Livello | Esito corrente | Perché |
 |---|---|---|
-| CODE | PASS locale; review finale e CI NOT_RUN | C04–06 approvati; fix BECI03/04 fa985b9 verificato, re-review indipendente pendente; suite completa del nuovo candidato da eseguire |
+| CODE | PASS verifiche mirate writer; re-review e CI composte NOT_RUN | C07/BECI06 e harness corretti; due CI FAIL conservati, nessuna approvazione ereditata dal codice modificato |
 | BACKEND_RUNTIME | FAIL metadata; apply BLOCKED |32/55RPC,1/2indici; clone non attesta runtimeTEST |
 | STAGING_E2E | NOT_RUN | P1/P2 e prerequisiti per caso |
 | AUTH_LIVE | NOT_RUN | P3; GoogleManagementGET non prova login |
 | AUTHORING_CHAIN | NOT_RUN | P4/P5 e catena entrambe le piattaforme |
 | ADMIN_STAGING | NOT_RUN per commerce corrente | Worker identificato ma versione selettiva incompleta |
-| UI_VISUAL_QA | PASS widget22; capture nuovo candidato NOT_RUN | Fixture esplicite; OSIME/accessibilità globale NOT_RUN |
+| UI_VISUAL_QA | PASS widget; suite Android d9fc FAIL, nuovo capture NOT_RUN | 103/105 PNG parziali e4OS reali; commento/nota anticipati dal harness, nessuna acceptance completa |
 | PHYSICAL_DEVICES | BLOCKED per artifact/config/finestra | Android fisico assente; iPhone disponibile via rete al5ottobre, installazione/smoke Client NOT_RUN |
 | DISTRIBUTION | BLOCKED | Team/certificati/API/canali/config artifact non referenziati |
 | MAIN_INTEGRATION | NOT_RUN nuovo delta | DraftPR, review e CI da completare |
@@ -403,3 +404,59 @@ Root ha eseguito quattro comandi terminali: 63 scenari reali, 27 test Android,
 risposte sintetiche; native/IME/staging restano NOT_RUN. La re-review distinta e
 la CI saranno associate al freeze composto, senza promuovere questi PASS locali
 all'acceptance integrata.
+
+
+## Secondo CI — d9fcbfd, risultati parziali
+
+Run37346144008: Androiddebug FAIL/exit1 nel test di upload parziale assistenza,
+picker non montato dopo apertura tastiera. 103 PNG Flutter parziali e quattro
+frame OS; entrambi i flag IMEtrue in ogni receipt, tastiera presente nei pixel.
+Queste prove non attestano suite completa, back/chiusura o screenreader.
+
+iOSdebug FAIL/exit124: runtime iOS26.5/iPhone17, bootstatus300 scaduto prima
+di Flutter. Smoke e visual SKIPPED. Lo step always ha eliminato e riletto assente
+il solo UUID. BECI-06/P2: receipt finale perde il precedente processo-cleanupFAIL,
+riprodotto autonomamente; fix minimo in corso. Tre job terminali PASS: Quality (942 test, uno skip Linux preesistente; dieci
+benchmark host), Androidrelease e iOSrelease. Due debug FAIL. Tutti i cinque
+checkout reali verificati su d9fc. [Ricevuta](next-integration/ci-second.json).
+
+
+La review dei pixel ha riprodotto C-NI054-07/P2: errore submit/edit recensione
+dietro il modal, escluso dal layer AlertDialog. PoC indipendente widget FAIL/exit1,
+[data e hash](next-integration/review-client-native-first.json). Le sei immagini
+[before reali](next-integration/ui-before-d9fcbfd/manifest.json) sono byte originali
+del run fallito: due errori recensione e quattro frame OS. OS89/96 sono anticipati
+rispetto al paint Flutter e non mostrano correttamente commento/nota; causa del
+harness verificata sul SDK pinned. Nessuna perdita di draft produzione dedotta.
+
+Fix iOS persistence99b6f21 integrato9eec464; 37regressioni root in ambiente CI
+sintetico PASS/exit0. Budget/probe/boot invariati. Re-review BECI06 in corso,
+writer separati correggono feedback C07 e harness. Nessun merge d9fc.
+
+
+## Terzo candidato — fix composti del 5 ottobre
+
+Fonte composta `d9da3c56845dc3ebab23d2d783edbffb795af927`, successiva al CI
+fallito d9fc. C07 integrato d0e93b9: messaggio persistente nel dialogo recensione,
+annunciato come liveRegion e raggiungibile con scroll; draft/rating, busy, retry e
+ACK distinto da readback conservati. Writer31test PASS/exit0, inclusa PoC originale,
+quattro lingue light/dark320×568/200%. La re-review indipendente resta necessaria.
+
+BECI06: il primo fix9eec464 conserva il FAIL originale; la re-review riproduce
+un secondo edge (scrittura finale fallita, storico NOT_RUN poi aggregato PASS).
+Delta0203ce0 conserva tale storico come BLOCKED, o FAIL se attestato, separandolo
+dal resourceCleanup corrente. Writer37locali/37CI-like e reopen PASS/exit0;
+primari7/124 e budget300/900/30 invariati. Entrambi i fallimenti sono preservati.
+
+Harness d9da3c5: screenshot Flutter precede la richiesta OS e funge da barriera
+del SDK pinned; reveal ricalcola due volte e rimonta lo Scrollable esterno dopo
+reflow evitando la gesture sul TextField interno. Focus e testo restano visibili
+prima della capture; la nota è defocalizzata soltanto dopo il frame richiesto.
+Writer24host/2assistenza/4reflow/sentinel1/bridge14 PASS/exit0; invariati
+67casi/105FlutterPNG/4OS, timeout e callsite di capture. Questi test non sono
+prova native: CI e pixel dello SHA congelato devono ancora terminare.
+
+[Ricevuta dei tre fix](next-integration/fixes-third.json). Fonti e test sono
+separati dalle ricevute del CI fallito e dai sei before originali. Handoff
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`: gate live restano BLOCKED, sviluppo sottoposto
+a due review distinte e CI, nessun merge dei candidati falliti.

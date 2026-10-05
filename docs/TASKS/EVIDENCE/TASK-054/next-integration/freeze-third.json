@@ -1,0 +1,94 @@
+{
+  "source": "d9da3c56845dc3ebab23d2d783edbffb795af927",
+  "checks": [
+    {
+      "command": [
+        "bash",
+        "scripts/check-governance-state.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "Governance coerente: TASK-054 / BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW.\n"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-action-pins.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "Action pin verificati in 1 workflow.\n"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-client-security.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "Security scan client: 841 file tracciati, zero secret/config/artifact vietati.\n"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-architecture-boundaries.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "Running build hooks...Running build hooks...Boundary architetturali coerenti: ownership, TASK-012, Auth, DAG e RPC Storefront Home/Categories/Catalog/Search/Detail verificati.\n"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-telemetry-privacy.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "Telemetry privacy scan: 12 eventi allowlisted, logger/export confinati, zero attributi sensibili.\n"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-user-facing-localization.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "LOCALIZATION_SCAN_PASS: no direct user-facing string literals detected.\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 2,
+      "result": "FAIL",
+      "output": "docs/TASKS/EVIDENCE/TASK-054/residuals.md:78: new blank line at EOF.\n"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "nota": "Whitespace EOF corretto; FAIL iniziale conservato"
+    },
+    {
+      "command": "dart format --output=none --set-exit-if-changed lib test integration_test test_driver scripts/test-task054-os-sync.dart",
+      "exitCode": 0,
+      "result": "PASS",
+      "files": 365,
+      "changed": 0
+    },
+    {
+      "command": "flutter analyze --no-pub",
+      "exitCode": 0,
+      "result": "PASS",
+      "issues": 0
+    }
+  ],
+  "ci": "NOT_RUN",
+  "review": "NOT_RUN"
+}

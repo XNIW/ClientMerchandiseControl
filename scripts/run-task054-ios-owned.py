@@ -25,16 +25,40 @@ class Failure(Exception):
         self.code, self.output = code, output
 
 
+def process_diagnostic(operation, error=None, **metadata):
+    # Mai str(error), cmd, stdout, stderr o nomi/argomenti di processi altrui.
+    detail = dict(operation=operation, **metadata)
+    if error is not None:
+        detail['errorType'] = type(error).__name__
+        if isinstance(error, subprocess.TimeoutExpired):
+            detail['timeoutSeconds'] = error.timeout
+        elif isinstance(error, OSError):
+            detail['errno'] = error.errno
+        elif isinstance(error, Failure):
+            detail['failureCode'] = error.code
+    print('DIAGNOSTIC: ' + json.dumps(detail, sort_keys=True), flush=True)
+
+
 def group_has_live_members(group):
     # Solo metadati pgid/stato, mai argomenti o dati applicativi.
-    result = subprocess.run(['ps', '-axo', 'pgid=,stat='], capture_output=True,
-                            text=True, timeout=2, check=False)
+    try:
+        result = subprocess.run(['ps', '-axo', 'pgid=,stat='], capture_output=True,
+                                text=True, timeout=2, check=False)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        process_diagnostic('psProbe', error, ownedPgid=group)
+        raise
     if result.returncode:
+        process_diagnostic('psProbe', ownedPgid=group, reason='exitStatus',
+                           exitCode=result.returncode, rowCount=len(result.stdout.splitlines()))
         raise Failure(1, 'process-group probe fallita')
     alive = False
-    for line in result.stdout.splitlines():
+    rows = result.stdout.splitlines()
+    for line in rows:
         fields = line.split()
         if len(fields) != 2 or not fields[0].isdigit():
+            process_diagnostic('psProbe', ownedPgid=group, reason='shape',
+                               rowCount=len(rows), fieldCount=len(fields),
+                               numericPgid=bool(fields and fields[0].isdigit()))
             raise Failure(1, 'process-group probe non verificabile')
         if int(fields[0]) == group and not fields[1].startswith('Z'):
             alive = True
@@ -65,6 +89,8 @@ def stop_owned_process(process):
             time.sleep(0.05)
     if probe_error:
         raise probe_error
+    process_diagnostic('ownedGroupVerification', ownedPgid=process.pid,
+                       reason='liveMembersAfterKill')
     raise Failure(1, 'process-group proprio ancora attivo dopo cleanup bounded')
 
 
@@ -120,7 +146,8 @@ class IosOwnedRunner:
                 if not must_stop:
                     try:
                         must_stop = group_has_live_members(process.pid)
-                    except (OSError, subprocess.TimeoutExpired, Failure):
+                    except (OSError, subprocess.TimeoutExpired, Failure) as error:
+                        process_diagnostic('commandProbe', error, ownedPgid=process.pid)
                         self.process_cleanup_failed = True
                         must_stop = True
                         primary = Failure(1, 'probe processi non verificata', output)
@@ -128,7 +155,8 @@ class IosOwnedRunner:
                     # Anche successo del leader con figli rimasti va verificato.
                     if must_stop:
                         stop_owned_process(process)
-                except (OSError, subprocess.TimeoutExpired, Failure):
+                except (OSError, subprocess.TimeoutExpired, Failure) as error:
+                    process_diagnostic('commandCleanup', error, ownedPgid=process.pid)
                     self.process_cleanup_failed = True
                     print('FAIL: cleanup del gruppo proprio non verificato', flush=True)
                     if primary is None:

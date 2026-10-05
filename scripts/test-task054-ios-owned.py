@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Regressioni lifecycle/processi: nessun boot, build o dispositivo reale."""
 import importlib.util
+import contextlib
+import io
 import json
 import os
 from pathlib import Path
@@ -433,28 +435,53 @@ class IosOwnedTest(unittest.TestCase):
             self.assertEqual(fixture.calls, [])
 
     def test_probe_failure_after_normal_command_still_stops_only_owned_group(self):
-        runner = MODULE.IosOwnedRunner()
-        process = Mock(pid=54321, returncode=0)
-        process.communicate.return_value = ('', None)
-        with patch.object(MODULE.subprocess, 'Popen', return_value=process), \
-             patch.object(MODULE, 'group_has_live_members', side_effect=MODULE.Failure(1, 'probe')), \
-             patch.object(MODULE, 'stop_owned_process') as stop, \
-             self.assertRaises(MODULE.Failure) as failure:
-            runner.command(['fake'], 900)
-        self.assertEqual(failure.exception.code, 1)
-        self.assertTrue(runner.process_cleanup_failed)
-        stop.assert_called_once_with(process)
+        secret = 'FOREIGN_ARGUMENT_OR_SECRET_SENTINEL'
+        cases = [(subprocess.TimeoutExpired(secret, 2, output=secret, stderr=secret),
+                  {'errorType': 'TimeoutExpired', 'timeoutSeconds': 2}),
+                 (OSError(5, secret, secret), {'errorType': 'OSError', 'errno': 5}),
+                 (Mock(returncode=9, stdout=secret, stderr=secret),
+                  {'reason': 'exitStatus', 'exitCode': 9, 'rowCount': 1}),
+                 (Mock(returncode=0, stdout='54321 S\n'+secret+' args payload\n', stderr=secret),
+                  {'reason': 'shape', 'rowCount': 2, 'fieldCount': 3, 'numericPgid': False})]
+        for reply, expected in cases:
+            with self.subTest(expected=expected):
+                runner = MODULE.IosOwnedRunner()
+                process = Mock(pid=54321, returncode=0)
+                process.communicate.return_value = ('', None)
+                result = {'side_effect': reply} if isinstance(reply, Exception) else {'return_value': reply}
+                output = io.StringIO()
+                with patch.object(MODULE.subprocess, 'Popen', return_value=process), \
+                     patch.object(MODULE.subprocess, 'run', **result), \
+                     patch.object(MODULE, 'stop_owned_process') as stop, \
+                     contextlib.redirect_stdout(output), \
+                     self.assertRaises(MODULE.Failure) as failure:
+                    runner.command(['fake'], 900)
+                self.assertEqual(failure.exception.code, 1)
+                self.assertTrue(runner.process_cleanup_failed)
+                stop.assert_called_once_with(process)
+                events = [json.loads(line.removeprefix('DIAGNOSTIC: '))
+                          for line in output.getvalue().splitlines() if line.startswith('DIAGNOSTIC: ')]
+                self.assertEqual(events[0], dict(operation='psProbe', ownedPgid=54321, **expected))
+                self.assertEqual(events[1]['operation'], 'commandProbe')
+                self.assertNotIn(secret, output.getvalue())
 
     def test_timeout_keeps_124_if_process_cleanup_probe_fails(self):
         runner = MODULE.IosOwnedRunner()
         process = Mock(pid=54321)
         process.communicate.side_effect = subprocess.TimeoutExpired('fake', 900)
+        output = io.StringIO()
         with patch.object(MODULE.subprocess, 'Popen', return_value=process), \
-             patch.object(MODULE, 'stop_owned_process', side_effect=MODULE.Failure(1, 'probe')), \
+             patch.object(MODULE, 'stop_owned_process', side_effect=MODULE.Failure(1, 'SECRET_SENTINEL')), \
+             contextlib.redirect_stdout(output), \
              self.assertRaises(MODULE.Failure) as failure:
             runner.command(['fake'], 900)
         self.assertEqual(failure.exception.code, 124)
         self.assertTrue(runner.process_cleanup_failed)
+        events = [json.loads(line.removeprefix('DIAGNOSTIC: '))
+                  for line in output.getvalue().splitlines() if line.startswith('DIAGNOSTIC: ')]
+        self.assertEqual(events, [dict(operation='commandCleanup', ownedPgid=54321,
+                                       errorType='Failure', failureCode=1)])
+        self.assertNotIn('SECRET_SENTINEL', output.getvalue())
 
     def test_interrupt_keeps_primary_and_stops_only_owned_group(self):
         for signum in (signal.SIGTERM, signal.SIGINT):
@@ -480,12 +507,17 @@ class IosOwnedTest(unittest.TestCase):
 
     def test_live_group_after_kill_is_not_pass(self):
         process = Mock(pid=54321)
+        output = io.StringIO()
         with patch.object(MODULE.os, 'killpg'), \
              patch.object(MODULE, 'group_has_live_members', return_value=True), \
              patch.object(MODULE.time, 'monotonic', side_effect=[0,6,6,12]), \
+             contextlib.redirect_stdout(output), \
              self.assertRaises(MODULE.Failure):
             MODULE.stop_owned_process(process)
         process.wait.assert_not_called()
+        event = json.loads(output.getvalue().strip().removeprefix('DIAGNOSTIC: '))
+        self.assertEqual(event, dict(operation='ownedGroupVerification', ownedPgid=54321,
+                                    reason='liveMembersAfterKill'))
 
     def test_zombie_group_and_foreign_group_are_quiescent(self):
         result = Mock(returncode=0, stdout='54321 Z\n123 S\n')

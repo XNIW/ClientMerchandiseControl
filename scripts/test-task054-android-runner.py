@@ -278,6 +278,8 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         child.communicate.side_effect = subprocess.TimeoutExpired('fake', 3)
         with patch.object(MODULE.subprocess, 'Popen', return_value=child), \
              patch.object(MODULE, 'stop_owned_process', side_effect=OSError('mock')), \
+             patch.object(MODULE.os, 'killpg'), \
+             patch.object(MODULE, 'owned_group_has_live_members', return_value=False), \
              self.assertRaises(MODULE.Failure) as failure:
             runner.command(['fake'], 3)
         self.assertEqual(failure.exception.code, 124)
@@ -298,6 +300,35 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         with patch.object(MODULE.subprocess, 'run', return_value=snapshot), \
              self.assertRaises(MODULE.Failure):
             MODULE.owned_group_has_live_members(54321)
+
+    def test_failed_probe_remains_failure_after_kill_and_valid_quiescent_snapshot(self):
+        for primary in (0, 7):
+            runner = MODULE.AndroidVisualRunner('/controlled')
+            child = Mock(pid=54321, returncode=primary)
+            child.communicate.return_value = ('fixture', None)
+            with self.subTest(primary=primary), \
+                 patch.object(MODULE.subprocess, 'Popen', return_value=child), \
+                 patch.object(MODULE.subprocess, 'run', side_effect=[
+                     Mock(returncode=0, stdout='malformed\n'),
+                     Mock(returncode=0, stdout='54321 Z\n11111 S\n')]), \
+                 patch.object(MODULE.os, 'killpg') as kill, \
+                 self.assertRaises(MODULE.Failure) as failure:
+                runner.command(['controlled'], 3, check=False)
+            self.assertEqual(failure.exception.code, primary or 1)
+            self.assertTrue(runner.cleanup_failed)
+            self.assertEqual([item.args for item in kill.call_args_list],
+                [(54321, signal.SIGTERM), (54321, signal.SIGKILL)])
+            child.wait.assert_called_once_with(timeout=1)
+
+    def test_already_observed_quiescence_never_sends_a_late_group_signal(self):
+        child = Mock(pid=54321)
+        child._cmc_owned_group_drained = True
+        with patch.object(MODULE.os, 'killpg') as kill, \
+             patch.object(MODULE, 'owned_group_has_live_members') as probe:
+            MODULE.stop_owned_process(child)
+        kill.assert_not_called()
+        probe.assert_not_called()
+        child.wait.assert_called_once_with(timeout=1)
 
     def test_group_probe_timeout_is_failure_and_preserves_primary_exit(self):
         runner = MODULE.AndroidVisualRunner('/fake')

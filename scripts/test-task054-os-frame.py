@@ -121,8 +121,16 @@ class OSFrameTest(unittest.TestCase):
             if child.phase == cleanup_failure:
                 raise MODULE._cleanup_module.Failure('cleanup-process', 1, 'private error')
 
+        def fallback(_child, error, **_kwargs):
+            # Il fake non prova quiescenza di processi: nessun segnale reale a
+            # PID inventati, mentre la suite own-process esercita il lifecycle.
+            error.owned_cleanup_quiescent = False
+            return error
+
         with patch.object(MODULE.subprocess, 'Popen', side_effect=Child), \
              patch.object(MODULE, 'stop_owned_process', side_effect=stop), \
+             patch.object(MODULE._cleanup_module, 'finish_owned_cleanup_after_error',
+                          side_effect=fallback), \
              redirect_stdout(self.stdout), redirect_stderr(self.stderr):
             code = capture.run()
         self.assertNotIn(PRIVATE.decode(), self.stdout.getvalue() + self.stderr.getvalue())

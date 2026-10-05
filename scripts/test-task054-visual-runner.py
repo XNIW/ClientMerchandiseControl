@@ -22,7 +22,11 @@ class VisualRunnerTest(unittest.TestCase):
             if child.command[0] == 'flutter' and process_cleanup_error is not None:
                 raise process_cleanup_error
         owned_stop = Mock(side_effect=stop)
-        module = SimpleNamespace(stop_owned_process=owned_stop, Failure=RuntimeError)
+        def fallback(_child, error, **_kwargs):
+            error.owned_cleanup_quiescent = False
+            return error
+        module = SimpleNamespace(stop_owned_process=owned_stop, Failure=RuntimeError,
+            finish_owned_cleanup_after_error=fallback)
         spec = Mock()
 
         def output(command, **kwargs):

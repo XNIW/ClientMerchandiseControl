@@ -27,20 +27,24 @@ cleanup_spec.loader.exec_module(cleanup_module)
 def stop_command(process):
     global cleanup_failed
     try:
-        # Python OS drena i propri tool group entro 14s incluso probe: questa
-        # grace evita di uccidere il bridge prima del suo KILL/receipt finale.
+        # Python OS drena i propri tool group con TERM5/KILL5, probe2/reap1:
+        # questa grace20 preserva il suo KILL e il receipt finale.
         cleanup_module.stop_owned_process(process, term_grace=20)
     except BaseException as error:
+        if getattr(error, 'owned_cleanup_quiescent', None) is None:
+            # Il primo segnale può interrompere anche prima di entrare nel
+            # helper; conserva il primario e drena comunque il PGID proprio.
+            error = cleanup_module.finish_owned_cleanup_after_error(
+                process, error, term_grace=20)
         if not getattr(error, 'owned_cleanup_quiescent', False):
             cleanup_failed = True
             print(f"FAIL: cleanup visual command {type(error).__name__}", flush=True)
-        if getattr(error, 'owned_cleanup_quiescent', None) is not None:
-            raise
         if isinstance(error, (SystemExit, KeyboardInterrupt)):
-            raise
+            raise error
 
 
 def run(command, timeout):
+    global cleanup_failed
     process = subprocess.Popen(command, start_new_session=True)
     primary_failure = None
     try:
@@ -56,6 +60,12 @@ def run(command, timeout):
         try:
             stop_command(process)
         except BaseException as error:
+            if getattr(error, 'owned_cleanup_quiescent', None) is None:
+                error = cleanup_module.finish_owned_cleanup_after_error(
+                    process, error, term_grace=20)
+                if not error.owned_cleanup_quiescent:
+                    # L'ingresso nel wrapper è ancora dentro il lifecycle own.
+                    cleanup_failed = True
             if primary_failure is None:
                 primary_failure = error
     if primary_failure is not None:

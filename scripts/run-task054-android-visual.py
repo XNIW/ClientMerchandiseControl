@@ -46,24 +46,88 @@ def owned_group_has_live_members(group):
 
 def _stop_owned_group(process, term_grace):
     """Verifica l'intero PGID proprio; leader uscito non implica gruppo fermo."""
+    if getattr(process, '_cmc_owned_group_drained', False) is True:
+        process.wait(timeout=1)
+        return
+    probe_error = None
     for sig in (signal.SIGTERM, signal.SIGKILL):
         try:
             os.killpg(process.pid, sig)
         except ProcessLookupError:
+            process._cmc_owned_group_drained = True
             process.wait(timeout=1)
+            if probe_error is not None:
+                raise probe_error
             return
         deadline = time.monotonic() + (term_grace if sig == signal.SIGTERM else 5)
         while True:
-            if not owned_group_has_live_members(process.pid):
+            try:
+                live = owned_group_has_live_members(process.pid)
+            except (OSError, Failure) as error:
+                probe_error = probe_error or error
+                if sig == signal.SIGTERM:
+                    # La probe fallita non autorizza PASS e non salta il KILL.
+                    break
+                # Fallback limitato al PGID allocato: signal0 verifica soltanto
+                # l'esistenza. Anche se scompare, la prima probe resta FAIL.
+                try:
+                    os.killpg(process.pid, 0)
+                except ProcessLookupError:
+                    process._cmc_owned_group_drained = True
+                    process.wait(timeout=1)
+                    raise probe_error
+                except OSError:
+                    break
+                live = True
+            if not live:
                 # Gli zombie non eseguono codice; reap del leader solo a quiescenza.
+                process._cmc_owned_group_drained = True
                 process.wait(timeout=1)
+                if probe_error is not None:
+                    raise probe_error
                 return
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 break
             time.sleep(min(0.05, remaining))
         # Nessun segnale tardivo dopo avere osservato un gruppo vuoto/quiescente.
+    if probe_error is not None:
+        # Il reap è indipendente dalla lettura ps, anche quando il gruppo non è
+        # verificabile. Nessun ulteriore segnale dopo il KILL già tentato.
+        try:
+            process.wait(timeout=1)
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+        raise probe_error
     raise Failure('cleanup-process', 1, 'gruppo proprio non terminato')
+
+
+def finish_owned_cleanup_after_error(process, error, *, term_grace=5, handlers=None):
+    """Fallback del lifecycle caller se il primo handler interrompe l'ingresso.
+
+    Gli handler CLI ignorano già i segnali successivi al primo. L'eccezione è
+    conservata, ma il gruppo proprio viene drenato prima di propagarla.
+    """
+    signals = (signal.SIGTERM, signal.SIGINT)
+    handlers = handlers or {signum: signal.getsignal(signum) for signum in signals}
+    interrupted = (getattr(error, 'phase', None) == 'signal' or
+                   isinstance(error, (SystemExit, KeyboardInterrupt)))
+    for signum in signals:
+        signal.signal(signum, signal.SIG_IGN)
+    cleanup_error = None
+    try:
+        # Un segnale dopo una quiescenza già osservata non autorizza un altro
+        # TERM/KILL sul valore numerico del PGID che potrebbe essere riutilizzato.
+        if getattr(process, '_cmc_owned_group_drained', False) is not True:
+            _stop_owned_group(process, term_grace)
+    except BaseException as failure:
+        cleanup_error = failure
+    finally:
+        for signum in signals:
+            signal.signal(signum, signal.SIG_IGN if interrupted else handlers[signum])
+    error.owned_cleanup_quiescent = cleanup_error is None and interrupted
+    error.owned_cleanup_error = cleanup_error or (None if interrupted else error)
+    return error
 
 
 def stop_owned_process(process, *, term_grace=5):
@@ -81,13 +145,26 @@ def stop_owned_process(process, *, term_grace=5):
         if not received:
             received.append((signum, frame))
 
-    previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, signals)
+    previous_mask = None
+    setup_error = None
     try:
+        # Legge la mask senza cambiarla prima del vero block: anche un handler
+        # dopo il block ma prima del suo return conserva lo stato da ripristinare.
+        previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, [])
+        signal.pthread_sigmask(signal.SIG_BLOCK, signals)
         for signum, handler in handlers.items():
             if handler != signal.SIG_IGN:
                 signal.signal(signum, remember)
+    except BaseException as error:
+        # Include il primo SIG_BLOCK: il segnale può arrivare prima che esso
+        # diventi effettivo. Il finally caller resta responsabile del gruppo.
+        setup_error = error
     finally:
-        signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
+        if previous_mask is not None:
+            signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
+    if setup_error is not None:
+        raise finish_owned_cleanup_after_error(process, setup_error,
+            term_grace=term_grace, handlers=handlers)
     cleanup_error = None
     try:
         _stop_owned_group(process, term_grace)
@@ -96,12 +173,17 @@ def stop_owned_process(process, *, term_grace=5):
     finally:
         # Il primo handler CLI ignora ulteriori segnali. Evita che un secondo
         # segnale prevalga nella finestra fra restore e dispatch del primo.
-        previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, signals)
         try:
-            for signum in signals:
-                signal.signal(signum, signal.SIG_IGN if received else handlers[signum])
-        finally:
-            signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
+            previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, signals)
+            try:
+                for signum in signals:
+                    signal.signal(signum, signal.SIG_IGN if received else handlers[signum])
+            finally:
+                signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
+        except BaseException as error:
+            error.owned_cleanup_quiescent = cleanup_error is None
+            error.owned_cleanup_error = cleanup_error
+            raise
     if received:
         signum, frame = received[0]
         try:
@@ -115,6 +197,8 @@ def stop_owned_process(process, *, term_grace=5):
             error.owned_cleanup_error = cleanup_error
             raise
     if cleanup_error is not None:
+        cleanup_error.owned_cleanup_quiescent = False
+        cleanup_error.owned_cleanup_error = cleanup_error
         raise cleanup_error
 
 
@@ -156,6 +240,13 @@ class AndroidVisualRunner:
             try:
                 self.stop_command(child)
             except BaseException as error:
+                if getattr(error, 'owned_cleanup_quiescent', None) is None:
+                    # Il primo handler può interrompere il wrapper prima che il
+                    # suo try sia entrato: il lifecycle conserva ancora child.
+                    error = finish_owned_cleanup_after_error(child, error,
+                        term_grace=30 if self.phase == 'native-fixture-capture' else 5)
+                    if not error.owned_cleanup_quiescent:
+                        self.cleanup_failed = True
                 if primary_failure is None:
                     # Anche check=False deve conservare un exit nonzero già
                     # osservato, fermando la lane se il cleanup è interrotto.
@@ -173,16 +264,21 @@ class AndroidVisualRunner:
             stop_owned_process(child,
                 term_grace=30 if self.phase == 'native-fixture-capture' else 5)
         except BaseException as error:
+            if getattr(error, 'owned_cleanup_quiescent', None) is None:
+                # Copre anche un primo segnale prima del corpo del helper.
+                error = finish_owned_cleanup_after_error(child, error,
+                    term_grace=30 if self.phase == 'native-fixture-capture' else 5)
             if not getattr(error, 'owned_cleanup_quiescent', False):
                 self.cleanup_failed = True
                 print(f'FAIL: cleanup command {type(error).__name__}', flush=True)
-            if getattr(error, 'owned_cleanup_quiescent', None) is not None:
-                raise
             if isinstance(error, Failure) and error.phase == 'signal':
-                raise
+                raise error
             if isinstance(error, (SystemExit, KeyboardInterrupt)):
-                raise
-            raise Failure('cleanup-process', 1, 'cleanup command non verificato') from None
+                raise error
+            failure = Failure('cleanup-process', 1, 'cleanup command non verificato')
+            failure.owned_cleanup_quiescent = False
+            failure.owned_cleanup_error = error
+            raise failure from None
 
     def wait_ready(self, phase, seconds, arguments, expected):
         self.phase = phase
@@ -322,6 +418,8 @@ class AndroidVisualRunner:
             try:
                 stop_owned_process(self.emulator)
             except BaseException as error:
+                if getattr(error, 'owned_cleanup_quiescent', None) is None:
+                    error = finish_owned_cleanup_after_error(self.emulator, error)
                 record(error, 'emulator')
         if self.log is not None:
             try:

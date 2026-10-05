@@ -136,12 +136,17 @@ def stop_descendant_group(group):
 
 
 class OwnedNestedProcessTest(unittest.TestCase):
-    def exercise_callsite(self, owner, leader_code, signum=None):
+    def exercise_callsite(self, owner, leader_code, signum=None, trigger='during-cleanup'):
         """Processi reali; grace test ridotta, valori di produzione verificati."""
         previous = {sig: signal.getsignal(sig) for sig in (signal.SIGTERM, signal.SIGINT)}
         leaders, timers, received = [], [], []
         real_popen = subprocess.Popen
+        real_mask, real_probe, real_killpg = signal.pthread_sigmask, subprocess.run, os.killpg
+        previous_mask = real_mask(signal.SIG_BLOCK, [])
+        probe_enabled, sent = [], []
         real_stop = (OS_MODULE.stop_owned_process if owner == 'os' else MODULE.stop_owned_process)
+        real_fallback = (OS_MODULE._cleanup_module.finish_owned_cleanup_after_error
+                         if owner == 'os' else MODULE.finish_owned_cleanup_after_error)
         with tempfile.TemporaryDirectory(prefix='cmc-owned-callsite-') as directory:
             root = Path(directory).resolve()
             ready = root / 'child.json'
@@ -174,7 +179,11 @@ class OwnedNestedProcessTest(unittest.TestCase):
                 self.assertEqual(child['pgid'], process.pid)
                 self.assertNotEqual(process.pid, os.getpgrp())
                 self.assertTrue(MODULE.owned_group_has_live_members(process.pid))
-                if signum is not None:
+                probe_enabled.append(True)
+                if trigger == 'pre-helper':
+                    received.append(signum)
+                    os.kill(os.getpid(), signum)
+                if signum is not None and trigger == 'during-cleanup':
                     def send():
                         received.append(signum)
                         os.kill(os.getpid(), signum)
@@ -183,7 +192,40 @@ class OwnedNestedProcessTest(unittest.TestCase):
                     timer.start()
                 # Il limite ridotto appartiene solo al test. Il figlio IGNORETERM
                 # rende osservabile il KILL vero senza attendere i 20s del driver.
-                return real_stop(process, term_grace=.5 if signum is not None else .2)
+                return real_stop(process, term_grace=.5 if trigger == 'during-cleanup'
+                                 and signum is not None else .2)
+
+            def fallback(process, error, **kwargs):
+                if 'handlers' in kwargs:
+                    # Entrata interrotta dentro il helper, dopo la grace test
+                    # ridotta già verificata dal wrapper stop.
+                    self.assertEqual(kwargs['term_grace'], .2)
+                    self.assertEqual(set(kwargs['handlers']), set(previous))
+                else:
+                    self.assertEqual(kwargs, {} if owner == 'os' else {
+                        'term_grace': 20 if owner == 'visual' else 5})
+                return real_fallback(process, error, term_grace=.2,
+                    handlers=kwargs.get('handlers'))
+
+            def mask(how, signals):
+                if trigger == 'pre-guard' and how == signal.SIG_BLOCK and not received:
+                    received.append(signum)
+                    os.kill(os.getpid(), signum)
+                return real_mask(how, signals)
+
+            def probe(arguments, *args, **kwargs):
+                if probe_enabled and arguments == ['ps', '-A', '-o', 'pgid=', '-o', 'stat=']:
+                    if trigger == 'malformed-probe':
+                        return SimpleNamespace(returncode=0, stdout='unverifiable\n')
+                    if trigger == 'timeout-probe':
+                        raise subprocess.TimeoutExpired('ps', 2)
+                return real_probe(arguments, *args, **kwargs)
+
+            def killpg(group, sig):
+                self.assertEqual(group, leaders[0].pid)
+                self.assertNotEqual(group, os.getpgrp())
+                sent.append(sig)
+                return real_killpg(group, sig)
 
             try:
                 if owner == 'visual':
@@ -192,7 +234,8 @@ class OwnedNestedProcessTest(unittest.TestCase):
                          patch.dict(os.environ, {'CMC_TASK054_SCRIPTS_DIR': str(HELPER_PATH.parent)}):
                         exec(compile(VISUAL_SOURCE, 'visual-owned-callsite', 'exec'), namespace)
                     namespace['cleanup_module'] = SimpleNamespace(
-                        stop_owned_process=stop, Failure=MODULE.Failure)
+                        stop_owned_process=stop, Failure=MODULE.Failure,
+                        finish_owned_cleanup_after_error=fallback)
                     handler = namespace['interrupted']
                     operation = lambda: namespace['run'](command, 3)
                 elif owner == 'android':
@@ -206,30 +249,48 @@ class OwnedNestedProcessTest(unittest.TestCase):
                     capture.capture = lambda: capture.command(command, 3, 'screen')
                     handler = OS_MODULE.interrupted
                     operation = capture.run
+                if trigger == 'pre-caller':
+                    def before_caller(_process):
+                        received.append(signum)
+                        os.kill(os.getpid(), signum)
+                    if owner == 'android':
+                        runner.stop_command = before_caller
+                    else:
+                        namespace['stop_command'] = before_caller
                 for sig in previous:
                     signal.signal(sig, handler)
                 target = OS_MODULE if owner == 'os' else MODULE
+                fallback_target = OS_MODULE._cleanup_module if owner == 'os' else MODULE
                 with patch.object(subprocess, 'Popen', side_effect=start), \
-                     patch.object(target, 'stop_owned_process', side_effect=stop):
+                     patch.object(target, 'stop_owned_process', side_effect=stop), \
+                     patch.object(fallback_target, 'finish_owned_cleanup_after_error',
+                                  side_effect=fallback), \
+                     patch.object(signal, 'pthread_sigmask', side_effect=mask), \
+                     patch.object(subprocess, 'run', side_effect=probe), \
+                     patch.object(os, 'killpg', side_effect=killpg):
                     try:
                         result = operation()
                         code = result if owner == 'os' else 0
                     except (SystemExit, MODULE.Failure, OS_MODULE.Failure) as error:
                         code = error.code
-                expected = leader_code or (128 + signum if signum is not None else 0)
+                probe_failure = trigger in ('malformed-probe', 'timeout-probe')
+                expected = leader_code or (128 + signum if signum is not None
+                                          else 1 if probe_failure else 0)
                 self.assertEqual(code, expected)
                 self.assertEqual(len(leaders), 1)
                 self.assertFalse(MODULE.owned_group_has_live_members(leaders[0].pid))
+                self.assertEqual(real_mask(signal.SIG_BLOCK, []), previous_mask)
+                self.assertEqual([sig for sig in sent if sig], [signal.SIGTERM, signal.SIGKILL])
                 if signum is not None:
                     self.assertEqual(received, [signum])
                 if owner == 'os':
                     receipt = json.loads(capture.receipt_path.read_text())
                     self.assertEqual(receipt['exit_code'], expected)
-                    self.assertEqual(receipt['cleanup_status'], 'PASS')
+                    self.assertEqual(receipt['cleanup_status'], 'FAIL' if probe_failure else 'PASS')
                 elif owner == 'android':
-                    self.assertFalse(runner.cleanup_failed)
+                    self.assertEqual(runner.cleanup_failed, probe_failure)
                 else:
-                    self.assertFalse(namespace['cleanup_failed'])
+                    self.assertEqual(namespace['cleanup_failed'], probe_failure)
             finally:
                 for timer in timers:
                     timer.cancel()
@@ -237,6 +298,7 @@ class OwnedNestedProcessTest(unittest.TestCase):
                     self.assertFalse(timer.is_alive())
                 for sig, handler in previous.items():
                     signal.signal(sig, handler)
+                real_mask(signal.SIG_SETMASK, previous_mask)
                 for leader in leaders:
                     if MODULE.owned_group_has_live_members(leader.pid):
                         MODULE.stop_owned_process(leader, term_grace=.1)
@@ -254,6 +316,28 @@ class OwnedNestedProcessTest(unittest.TestCase):
                 for code in (0, 7):
                     with self.subTest(owner=owner, signal=signum, code=code):
                         self.exercise_callsite(owner, code, signum)
+
+    def test_term_and_int_before_helper_and_before_first_guard_still_drain_group(self):
+        for owner in ('android', 'visual', 'os'):
+            for trigger in ('pre-helper', 'pre-guard'):
+                for signum in (signal.SIGTERM, signal.SIGINT):
+                    for code in (0, 7):
+                        with self.subTest(owner=owner, trigger=trigger, signal=signum, code=code):
+                            self.exercise_callsite(owner, code, signum, trigger)
+
+    def test_malformed_and_timeout_probes_still_kill_and_preserve_primary_failure(self):
+        for owner in ('android', 'visual', 'os'):
+            for trigger in ('malformed-probe', 'timeout-probe'):
+                for code in (0, 7):
+                    with self.subTest(owner=owner, trigger=trigger, code=code):
+                        self.exercise_callsite(owner, code, trigger=trigger)
+
+    def test_term_and_int_before_cleanup_wrapper_still_drain_owned_lifecycle(self):
+        for owner in ('android', 'visual'):
+            for signum in (signal.SIGTERM, signal.SIGINT):
+                for code in (0, 7):
+                    with self.subTest(owner=owner, signal=signum, code=code):
+                        self.exercise_callsite(owner, code, signum, 'pre-caller')
 
     def test_parent_waits_for_nested_owned_cleanup_and_preserves_leader_exit(self):
         leader = None

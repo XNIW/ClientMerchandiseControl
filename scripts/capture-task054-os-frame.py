@@ -252,12 +252,14 @@ class OSFrameCapture:
             # Mai kill-server, shutdown/delete device o gruppi del caller.
             try:
                 stop_owned_process(child)
-            except Exception as error:
+            except BaseException as error:
+                if getattr(error, 'owned_cleanup_quiescent', None) is None:
+                    error = _cleanup_module.finish_owned_cleanup_after_error(child, error)
                 if not getattr(error, 'owned_cleanup_quiescent', False):
                     self.receipt['cleanup_status'] = 'FAIL'
                 if primary_failure is None:
                     if isinstance(error, Failure) and error.phase == 'signal':
-                        raise
+                        raise error
                     raise Failure('cleanup', 1) from None
 
     def save_png(self, contents):

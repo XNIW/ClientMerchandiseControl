@@ -13,13 +13,14 @@ non ha una ricevuta live. Il Worker TEST identificato non contiene ancora i sett
 file commerce Admin richiesti. Nessuna nuova pubblicazione operativa è dichiarata.
 
 Sul telefono fisico non è provato un flusso completo: Android fisico non disponibile;
-al refresh del5ottobre l'iPhone è disponibile via rete, senza installazione o avvio
+al refresh del 5 ottobre l'iPhone è disponibile via rete, senza installazione o avvio
 Client eseguiti. N resta owner della finestra e dello stato autenticato. Le build unsigned
 e lo smoke simulatore del primo freeze sono prove separate; le catture native del
 nuovo candidato devono ancora terminare. Firma, canale e installazione interna
 restano BLOCKED. TASK-054 resta aperta; TASK-055 e production non attivate.
-Stato: BLOCKED/FIX. UI/Controller approvati; due finding cleanup ancora aperti
-prima del freeze per nuova CI.
+Stato: BLOCKED/REVIEW. Il codice UI/controller ha review APPROVED; il fix dei
+runner è verificato localmente e consegnato alla re-review indipendente. CI del
+candidato composto e catture native restano da eseguire.
 
 ## Provenance e ownership
 
@@ -56,7 +57,7 @@ le tre sorgenti SQL canoniche rimangono nella main Admin indicata sotto.
 - Harness di produzione con repository sintetici: Home/catalogo/prodotto/carrello
   compatti nelle quattro lingue, inbox paginata/cache/denial, recensioni con busy,
   errore/retry/modifica/cancel e tracking testuale fresco/stale con GoogleMaps OFF.
-  Nuovi22casi host PASS/exit0 sul delta completo, verificati autonomamente dal
+  22 casi host iniziali PASS/exit0, più due casi focus host; verifiche autonome del
   reviewer; sette casi impattati PASS nella lane writer distinta.
   Assistenza esercita tre allegati, submitbusy/timeout/draft/retry con stessa chiave
   e upload parziale; focus recensione, nota, ricerca e indirizzo sono prove Flutter.
@@ -75,7 +76,7 @@ le tre sorgenti SQL canoniche rimangono nella main Admin indicata sotto.
 | `flutter test build/task054/next/host_next_integration_test.dart` | PASS,22,exit0 | Host widget; warning plugin integration non rilevato, non native |
 | `flutter analyze` | PASS,exit0 | Analisi del sorgente corrente; due filename info dei helper locali corretti, nessuna esclusione |
 | `bash scripts/check-governance-state.sh` | PASS,exit0 | Iniziale FAIL5 per snapshot README/worklog incompleto, corretto |
-| `flutter test` account + delivery, lane writer e reviewer | PASS,101writer/104reviewer,exit0; due focus host PASS | C04/C05/C06 chiusi; APPROVED solo codice163b9c2, non CI/live |
+| `flutter test` account + delivery, lane writer e reviewer | PASS,101writer/104reviewer,exit0; due focus host PASS | C04/C05/C06 chiusi; APPROVED SOURCE_CODE_ONLY su163b9c2 e conferma blob da26c15 ([ricevuta](next-integration/review-client-current.json)); non CI/live |
 | Gate completi / benchmark / CI nuovo candidato | NOT_RUN | Primo freeze FAIL conservato sotto; nuova revisione in preparazione |
 
 I fallimenti iniziali di compile e harness sono conservati nei log locali: variabile
@@ -83,12 +84,14 @@ in scope errato, tap sotto AppBar/viewport e teardown semantics tardivo sono sta
 corretti e rieseguiti; non sono presentati come difetti di produzione. Nessuno skip,
 aumento di timeout/target iOS o rigenerazione golden per ottenere verde.
 
-RunnerAndroid aggiunto nel job debug esistente: API35/x86_64/KVM, AVD isolato,
+Runner Android aggiunto nel job debug esistente: API35/x86_64/KVM, AVD isolato,
 readiness e cleanup bounded; conserva5job/25min/drive900, security e checkoutSHA.
-25regressioni Android e14visual runner PASS/exit0,31OS,14Dart handshake e
-tre test reali con19scenari propri PASS;33iOS in envCI-like PASS. Root ha rieseguito tutti questi comandi:
-[runner-local.json](next-integration/runner-local.json), con hash dei sorgenti.
-Conta105PNG completi; artifact parziale non attesta successo. Il bridge test-only
+Su fa985b9, quattro comandi root PASS/exit0: 27 test Android, 14 visual, 31 OS
+e sei test di lifecycle con 63 scenari reali di processi propri. Le ricevute Dart
+(14 test) e iOS (33 in env CI-like) restano applicabili dopo confronto byte per byte
+delle loro fonti. [Ricevuta corrente](next-integration/runner-current.json);
+[ricevuta precedente da26c15](next-integration/runner-local.json) conservata.
+Il runner richiede 105 PNG completi; artifact parziale non attesta successo. Il bridge test-only
 usa pending→claim→ACK prima che il test avanzi; Android conserva solo flag IME
 e iOS richiede ispezione del PNG OS. Focus non equivale a tastiera osservata.
 `flutter_driver` SDK già locked è ora dev dependency esplicita:188entry locked e
@@ -220,7 +223,7 @@ rimane invariato e non viene ricostruito dalla nuova matrice.
 | E2E-054-R27 — Pagamento provider sandbox | Android e iOS | ProviderOFF, TEST; nessuna nuova attivazione | NOT_RUN | [CI primo freeze](next-integration/ci-first.json), codice/fixture; live senza receipt | P3; provider OFF resta OFF, nessuna nuova attivazione |
 | E2E-054-R28 — Push provider e cold/warm link | Android e iOS | ProviderOFF, TEST; nessuna nuova attivazione | NOT_RUN | [CI primo freeze](next-integration/ci-first.json), codice/fixture; live senza receipt | P3; provider OFF resta OFF, nessuna nuova attivazione |
 | E2E-054-R29 — Artifact, firma e ambiente distribuito | Android e iOS | Canali interni TEST, non eseguiti | NOT_RUN | [Config/firma](next-integration/config-distribution.json), nessun artifact firmato/upload | P6 |
-| E2E-054-R30 — Smoke nativo e superfici visuali | Android e iOS | CI nativefixture + verificaOS; fisico assente | NOT_RUN | [CI](next-integration/ci-first.json): Android preflightFAIL, iOScaptureCANCELLED; OS/nuovo freeze pendenti | P7; native fixture separata dal live |
+| E2E-054-R30 — Smoke nativo e superfici visuali | Android e iOS | CI con fixture e verifica OS; fisico Client non eseguito | NOT_RUN | [CI](next-integration/ci-first.json): Android preflightFAIL, iOScaptureCANCELLED; OS/nuovo freeze pendenti | P7; native fixture separata dal live |
 
 | Codice | Risorsa minima / owner |
 |---|---|
@@ -268,14 +271,14 @@ nessuna scrittura di staging è stata eseguita da questa lane.
 | CA-N2 / T-N2 | backend.json, canonical-delta.json, catalog-parity.json, sql-validation.json, local-recovery.json | PASS package/metadata/locale; runtimeFAIL32/55,1/2; applyBLOCKED P1/PGTLS |
 | CA-N3 / T-N3 | test customer_notification_unread_filter_test.dart e suite inbox40, quattro lingue200% | PASS widget; liveR18NOT_RUN P1/P2 |
 | CA-N4 / T-N4 | task054_next_integration_surfaces_test.dart,22hostPASS +2focus;67native/105PNG e4OS attesi | PASS host; nativeNOT_RUN al freeze, OSIME/screenreaderNOT_RUN |
-| CA-N5 / T-N5 | runner-local.json, analyze/security/governance; review e CI primo freeze conservate | NOT_RUN finale: nuovaCI/re-review sullo SHA congelato pendenti |
+| CA-N5 / T-N5 | runner-current.json e runner-local.json, analyze/security/governance; review e CI primo freeze conservate | NOT_RUN finale: nuovaCI/re-review sullo SHA congelato pendenti |
 | CA-N6 / T-N6 | Matrice R01–30 invariata, backlogNI054 e questa ricevuta con risorseP1–P7 | PASS rendiconto; acceptance liveNOT_RUN, firma/fisiciBLOCKED |
 
 ## Livelli di prova e stop condition
 
 | Livello | Esito corrente | Perché |
 |---|---|---|
-| CODE | FAIL runner residuo; UI mirata PASS | C04–06 approvati, BECI03/04 da correggere; suite completa del nuovo candidato NOT_RUN |
+| CODE | PASS locale; review finale e CI NOT_RUN | C04–06 approvati; fix BECI03/04 fa985b9 verificato, re-review indipendente pendente; suite completa del nuovo candidato da eseguire |
 | BACKEND_RUNTIME | FAIL metadata; apply BLOCKED |32/55RPC,1/2indici; clone non attesta runtimeTEST |
 | STAGING_E2E | NOT_RUN | P1/P2 e prerequisiti per caso |
 | AUTH_LIVE | NOT_RUN | P3; GoogleManagementGET non prova login |
@@ -385,3 +388,18 @@ Re-review39d180d: BECI02 chiuso; BECI03/04 restanoCHANGES_REQUIRED.6PoC
 autonome reali exit1 trovano child vivo su segnale preguard/probe malformata,
 nonostante primario preservato. Finalowncleanup dei PoC PASS; fix ancora in corso,
 nessun nuovo push. [review-cleanup-second.json](next-integration/review-cleanup-second.json).
+
+
+## Fix finale del cleanup — fa985b9
+
+Il secondo fallimento BECI-03/04 è conservato nella ricevuta sopra. Il writer
+consegna df1d26a, integrato come fa985b9: il lifecycle del caller drena il gruppo
+proprio anche se il primo segnale precede il guard; una probe fallita conserva
+FAIL e tenta KILL/reap, senza segnalare dopo quiescenza osservata. Nessuna variazione
+dei budget di job, boot, drive, dipendenze o target iOS.
+
+Root ha eseguito quattro comandi terminali: 63 scenari reali, 27 test Android,
+31 OS e 14 visual, tutti PASS/exit0. Le prove riguardano solo processi controllati e
+risposte sintetiche; native/IME/staging restano NOT_RUN. La re-review distinta e
+la CI saranno associate al freeze composto, senza promuovere questi PASS locali
+all'acceptance integrata.

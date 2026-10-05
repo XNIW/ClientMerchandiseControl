@@ -5107,3 +5107,16 @@ coordinamento delle chat attive avviato. Nessun TASK055, DONE o activation.
 - **Azione**: fix minimo e regressioni reali prima di nuovo freeze; CI non
   dispatchata. APPROVED Client è limitato al codice invariato, non al runner.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-05 — TASK-054 NI054 consegna fix finale dei runner
+
+- **Ruolo**: CODEX_FIXER -> CODEX_RE_REVIEWER; reviewer distinti dai writer.
+- **Fix**: df1d26a integrato fa985b9, solo sette script; ingresso cleanup e probe
+  fallita ora drenano il gruppo proprio conservando FAIL/codice primario.
+- **Verifiche root**: quattro comandi terminali PASS/exit0, 63 scenari reali,
+  27 Android, 31 OS, 14 visual. Dart14/iOS33 riusati dopo confronto byte per byte.
+- **Limiti**: CI composta e re-review indipendente pendenti; native/IME/live
+  NOT_RUN. Nessun aumento budget, nuovo skip o processo root pendente.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Stato**: BLOCKED/REVIEW, nessun DONE, TASK-055 o production.

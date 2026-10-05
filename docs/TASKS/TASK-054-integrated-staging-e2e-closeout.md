@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -484,3 +484,18 @@ delle sole risorse dei PoC PASS. La validazione iniziale non copriva queste fine
 WriterOS corregge nello scope originario, guard/cleanupsu ogni path e fallbackKILL
 proprio anche con metadata non verificabile, senza dichiarare quiescenzaPASS.
 REVIEW -> FIX, CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX; nessun nuovo push/merge.
+
+
+### Fix finale NI054 — fa985b9, 2026-10-05
+
+Il writer dei runner consegna df1d26a, integrato sequenzialmente come fa985b9.
+Sono corretti ingresso del cleanup prima del guard e fallback dopo probe fallita;
+FAIL e codice primario restano conservati. Root: quattro comandi terminali PASS,
+63 scenari reali di processi propri, 27 Android, 31 OS, 14 visual. La fonte UI
+resta byte identica a quella approvata; Dart14 e iOS33 riusati dopo bytecheck.
+
+Workflow composto congela un solo simulatore proprio per smoke e visual in step
+distinti. Restano cinque job, Android25/iOS30 minuti, drive900 e target iOS14.
+Re-review indipendente e CI sullo SHA composto da completare; nessuna cattura
+nativa, tastiera, acceptance live o integrazione main dichiarata da queste prove.
+FIX -> REVIEW, stato BLOCKED, CODEX_FIX_BLOCKED_TO_RE_REVIEW.

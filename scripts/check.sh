@@ -20,6 +20,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-visual-runner.
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-android-runner.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-os-frame.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-owned-process.py"
+PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-ios-owned.py"
 dart "${cmc_script_dir}/test-task054-os-sync.dart"
 if [[ -n "${cmc_backend_config}" ]]; then
   python3 "${cmc_script_dir}/check-backend-compatibility.py" \

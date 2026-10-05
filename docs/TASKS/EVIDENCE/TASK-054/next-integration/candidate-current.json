@@ -1,0 +1,57 @@
+{
+  "source_revision": "fa985b9c215834c02f5eb66ab376de4d9ef98142",
+  "checks": [
+    {
+      "command": "bash -n scripts/*.sh; git diff --check",
+      "result": "PASS",
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "bash scripts/check-action-pins.sh; bash scripts/check-client-security.sh",
+      "result": "PASS",
+      "exit_code": 0,
+      "log_sha256": "712fc7aa694a0dea4729c6457af80faf85c649b1ca63c5fcc118007817e0eb78"
+    },
+    {
+      "command": "bash scripts/check-governance-state.sh",
+      "result": "PASS",
+      "exit_code": 0,
+      "log_sha256": "24c86382c8115b024c7e880321e2aa15005e9ebdef84b94ddb2c01a0ce2fa7e8"
+    },
+    {
+      "command": "bash scripts/check-telemetry-privacy.sh; bash scripts/check-user-facing-localization.sh; bash scripts/check-architecture-boundaries.sh",
+      "result": "PASS",
+      "exit_code": 0,
+      "log_sha256": "da205cb7b3c8e3a5d67d97dd855433c0e182e607166674fbc2a6a022c68f88f4"
+    },
+    {
+      "command": "dart format --output=none --set-exit-if-changed .",
+      "result": "PASS",
+      "exit_code": 0,
+      "log_sha256": "89b41deb30d7f3ad4ee91e247974b2d7a0ed3e6c37a95c33030a9ca80423174b"
+    },
+    {
+      "command": "Ruby YAML validation of 5 jobs, budgets and exact checkout ref",
+      "result": "PASS",
+      "exit_code": 0,
+      "log_sha256": "d09e06e44fbcef2256d2cd4a37910ab8dd1c4adb80a24d539e1ce55a1cd836f5"
+    }
+  ],
+  "prior_failure_preserved": {
+    "command": "bash scripts/check-governance-state.sh",
+    "result": "FAIL",
+    "exit_code": 1,
+    "cause": "Evidence README still had old FIX handoff snapshot; aligned with REVIEW without changing gate"
+  },
+  "workflow_sha256": "d2516b4627dc7f7319a9d6d5c2798f1448fd77baeb2f1cc2e0a864af80eeaa60",
+  "job_budgets_minutes": {
+    "quality": 20,
+    "android-build": 25,
+    "android-release": 35,
+    "ios-build": 30,
+    "ios-release": 45
+  },
+  "runtime_status": "NOT_RUN",
+  "active_verification_processes": 0
+}

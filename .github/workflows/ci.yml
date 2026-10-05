@@ -44,6 +44,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-android-runner.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-os-frame.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-owned-process.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-owned.py
       - name: Validate client security boundary
         run: |
           bash scripts/check-client-security.sh
@@ -208,11 +209,47 @@ jobs:
           bash scripts/check-client-security.sh
           --artifact build/ios/iphonesimulator/Runner.app
 
+      - name: Prepare one owned iOS Simulator for smoke and visual
+        id: ios_owned
+        run: |
+          mkdir -p build/task054
+          python3 scripts/run-task054-ios-owned.py prepare \
+            --receipt build/task054/ios-owned-receipt.json \
+            --github-output "$GITHUB_OUTPUT"
+
       - name: Smoke iOS on the declared deployment target
-        run: bash scripts/test-ios-shell-smoke.sh
+        run: >-
+          bash scripts/test-ios-shell-smoke.sh
+          --device "${{ steps.ios_owned.outputs.device_id }}"
+          --receipt build/task054/ios-owned-receipt.json
 
       - name: Capture commerce UI with synthetic fixtures on iOS
-        run: bash scripts/test-task054-visual.sh --ios
+        id: ios_visual
+        env:
+          CMC_OS_FRAME_PLATFORM: ios
+          CMC_OS_FRAME_DEVICE: ${{ steps.ios_owned.outputs.device_id }}
+        run: >-
+          bash scripts/test-task054-visual.sh
+          --device "${{ steps.ios_owned.outputs.device_id }}"
+      - name: Clean up the owned iOS Simulator
+        if: always()
+        env:
+          CMC_IOS_VISUAL_STEP_OUTCOME: ${{ steps.ios_visual.outcome }}
+        run: |
+          mkdir -p build/task054
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('build/task054/ios-visual-step-result.json').write_text(json.dumps({
+              'schemaVersion': 1,
+              'visualStepOutcome': os.environ.get('CMC_IOS_VISUAL_STEP_OUTCOME'),
+              'scope': 'Esito dello step GitHub; non attesta quiescenza dei processi visual'
+          }, indent=2) + '\n')
+          PY
+          if [[ -f build/task054/ios-owned-receipt.json ]]; then
+            python3 scripts/run-task054-ios-owned.py cleanup \
+              --receipt build/task054/ios-owned-receipt.json
+          fi
       - name: Save synthetic UI captures
         if: always()
         # actions/upload-artifact v4.6.2
@@ -223,6 +260,8 @@ jobs:
             build/task054/visual/*.png
             build/task054/os-visual/*.png
             build/task054/os-visual/*.json
+            build/task054/ios-owned-receipt.json
+            build/task054/ios-visual-step-result.json
           if-no-files-found: warn
           retention-days: 7
 

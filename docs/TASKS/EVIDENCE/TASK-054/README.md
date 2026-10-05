@@ -1,7 +1,7 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
@@ -19,7 +19,7 @@ con snapshot storici, refresh5ottobre e gate del nuovo candidato distinti.
 ## Mandato funzionale e UX precedente
 
 [CLIENT_TASK054_FUNCTIONAL_UX_OPERATIONAL_RESULT](functional-ux-operational-result.md)
-è l'overlay corrente alla main Client12f03c7 e Admin4532831b. Preflight fresco:
+è la ricevuta storica sulla main Client12f03c7 e Admin4532831b. Preflight di quel ciclo:
 32/55RPC,1/2indici,history147; applyBLOCKED senza finestra/recoveryremota.
 Correzioni UI, filtro non lette e mutazioni carrello completate; review del nuovo candidato e CI
 sono separate dalle ricevute storiche. Le capability live restano NOT_RUN/BLOCKED.

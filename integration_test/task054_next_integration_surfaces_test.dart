@@ -520,6 +520,9 @@ void main() {
       const comment =
           'Comentario sintético conservado después de un error de envío.';
       await tester.enterText(field, comment);
+      await tester.showKeyboard(field);
+      await _reveal(tester, field);
+      expect(field.hitTestable(), findsOneWidget);
       expect(
         tester
             .widget<EditableText>(find.byType(EditableText))
@@ -695,16 +698,18 @@ void main() {
           const text =
               'Nota sintética conservada con cantidad y tres archivos al reintentar.';
           await tester.enterText(note, text);
-          expect(
-            tester
-                .widget<EditableText>(find.byType(EditableText))
-                .focusNode
-                .hasFocus,
-            isTrue,
+          await tester.pumpAndSettle();
+          final editable = tester.widget<EditableText>(
+            find.byType(EditableText),
           );
+          expect(editable.focusNode.hasFocus, isTrue);
           if (!partialUploadFailure) {
             await captureVisual(tester, 'assistance-note-focus');
           }
+          editable.focusNode.unfocus();
+          await tester.pumpAndSettle();
+          expect(editable.focusNode.hasFocus, isFalse);
+          expect(editable.controller.text, text);
           final attach = find.byKey(
             const ValueKey('after-sales-evidence-picker'),
           );
@@ -964,21 +969,47 @@ Widget _app(
 );
 
 Future<void> _reveal(WidgetTester tester, Finder finder) async {
-  if (finder.evaluate().isEmpty) {
-    await tester.scrollUntilVisible(
-      finder,
-      160,
-      scrollable: find
+  await tester.pumpAndSettle();
+  // Un reflow successivo al primo scroll può smontare un elemento della lista.
+  for (var attempt = 0; attempt < 2; attempt++) {
+    if (finder.evaluate().isEmpty) {
+      final scrollable = find
           .byWidgetPredicate(
             (widget) =>
                 widget is Scrollable &&
                 widget.axisDirection == AxisDirection.down,
           )
-          .first,
-    );
+          .first;
+      final position = tester.state<ScrollableState>(scrollable).position;
+      // Un drag dal centro può finire nello scroll interno del campo testo.
+      for (
+        var scrolls = 0;
+        scrolls < 50 && finder.evaluate().isEmpty;
+        scrolls++
+      ) {
+        final next = (position.pixels + 160).clamp(
+          position.minScrollExtent,
+          position.maxScrollExtent,
+        );
+        if (next == position.pixels) break;
+        position.jumpTo(next);
+        await tester.pumpAndSettle();
+      }
+      expect(
+        finder,
+        findsOneWidget,
+        reason: 'Il controllo deve essere montato nella lista esterna.',
+      );
+    }
+    await Scrollable.ensureVisible(tester.element(finder), alignment: 0.5);
+    await tester.pumpAndSettle();
+    if (finder.hitTestable().evaluate().isNotEmpty) return;
   }
-  await Scrollable.ensureVisible(tester.element(finder), alignment: 0.5);
-  await tester.pumpAndSettle();
+  expect(
+    finder.hitTestable(),
+    findsOneWidget,
+    reason: 'Il controllo deve essere raggiungibile dopo il reflow.',
+  );
 }
 
 Future<void> _unmount(WidgetTester tester) async {

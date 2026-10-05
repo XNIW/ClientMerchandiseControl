@@ -31,8 +31,10 @@ Future<void> captureVisual(
     await tester.pump(const Duration(milliseconds: 100));
   }
   final name = '${(++_captureIndex).toString().padLeft(2, '0')}-$state';
+  // Attende l'acquisizione Flutter del frame prima della richiesta OS.
+  // L'ACK resta necessario e il confronto dei pixel richiede evidence native.
+  await binding.takeScreenshot(name);
   if (_osFrameCaptureEnabled && validOsFrameMarker(name)) {
     await _osFrameSync.capture(name);
   }
-  await binding.takeScreenshot(name);
 }

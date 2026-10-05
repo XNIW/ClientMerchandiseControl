@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/features/reviews/application/customer_review_providers.dart';
@@ -7,6 +8,7 @@ import 'package:client_merchandise_control/features/reviews/domain/customer_revi
 import 'package:client_merchandise_control/features/reviews/presentation/customer_reviews.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/commerce_surface_fixtures.dart';
@@ -14,6 +16,21 @@ import '../../support/commerce_surface_fixtures.dart';
 const _draft = 'Comentario sintético conservado después de un error de envío.';
 
 void main() {
+  setUpAll(() async {
+    // Il font Ahem dei widget test non riproduce l'altezza del messaggio mobile.
+    // Flutter esporta FLUTTER_ROOT; usa lo stesso Roboto del SDK pinned.
+    final flutterRoot = Platform.environment['FLUTTER_ROOT'];
+    expect(flutterRoot, isNotNull);
+    final fontFile = File.fromUri(
+      Directory(
+        flutterRoot!,
+      ).uri.resolve('bin/cache/artifacts/material_fonts/Roboto-Regular.ttf'),
+    );
+    final bytes = await fontFile.readAsBytes();
+    await (FontLoader(
+      'Roboto',
+    )..addFont(Future.value(ByteData.sublistView(bytes)))).load();
+  });
   for (final action in ['submit', 'edit', 'withdraw']) {
     testWidgets('$action conserva bozza, errore locale e retry fino ad ACK', (
       tester,
@@ -113,6 +130,13 @@ void main() {
         await tester.pumpAndSettle();
         await _open(tester, l10n);
         await tester.enterText(_comment, 'Nuova bozza sintetica');
+        expect(
+          tester
+              .widget<EditableText>(find.byType(EditableText))
+              .focusNode
+              .hasFocus,
+          isTrue,
+        );
         if (lateFailure) {
           repository.attempts.single.result.completeError(
             const CustomerReviewException('unavailable'),
@@ -128,6 +152,14 @@ void main() {
         );
         expect(repository.listCalls, 1);
         expect(find.text(l10n.reviewsFailure), findsNothing);
+        expect(
+          tester
+              .widget<EditableText>(find.byType(EditableText))
+              .focusNode
+              .hasFocus,
+          isTrue,
+          reason: 'La risposta vecchia non modifica il focus del nuovo dialog',
+        );
         expect(tester.takeException(), isNull);
       },
     );
@@ -140,53 +172,77 @@ void main() {
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
   ]) {
     for (final dark in [false, true]) {
-      testWidgets(
-        'errore modal leggibile compact200 ${locale.toLanguageTag()} dark=$dark',
-        (tester) async {
-          final semantics = tester.ensureSemantics();
-          try {
-            final repository = _ControlledReviews();
-            final l10n = await _pump(
-              tester,
-              repository,
-              locale: locale,
-              dark: dark,
-              scale: 2,
-            );
-            await _open(tester, l10n);
-            await tester.enterText(_comment, _draft);
-            await _tap(tester, _submit);
-            repository.attempts.single.result.completeError(
-              const CustomerReviewException('unavailable'),
-            );
-            await tester.pumpAndSettle();
-            _expectFailureInDialog(tester, l10n);
-            final error = find.text(l10n.reviewsFailure);
-            expect(error.hitTestable(), findsOneWidget);
-            expect(
-              tester.getSemantics(error).flagsCollection.isLiveRegion,
-              isTrue,
-            );
-            final material = find
-                .ancestor(of: error, matching: find.byType(Material))
-                .first;
-            expect(
-              tester.getRect(material).contains(tester.getRect(error).center),
-              isTrue,
-              reason: 'Il messaggio resta sulla superficie visibile del dialog',
-            );
-            await tester.ensureVisible(_comment);
-            await tester.pumpAndSettle();
-            expect(tester.widget<TextField>(_comment).controller!.text, _draft);
-            await tester.ensureVisible(_submit);
-            await tester.pumpAndSettle();
-            expect(_submit.hitTestable(), findsOneWidget);
-            expect(tester.takeException(), isNull);
-          } finally {
-            semantics.dispose();
-          }
-        },
-      );
+      for (final action in ['submit', 'edit', 'withdraw']) {
+        testWidgets(
+          '$action errore modal leggibile compact200 ${locale.toLanguageTag()} dark=$dark',
+          (tester) async {
+            final semantics = tester.ensureSemantics();
+            try {
+              final repository = _ControlledReviews()..failImmediately = true;
+              final l10n = await _pump(
+                tester,
+                repository,
+                locale: locale,
+                dark: dark,
+                scale: 2,
+              );
+              await _open(tester, l10n, edit: action != 'submit');
+              await tester.enterText(_comment, _draft);
+              await tester.showKeyboard(_comment);
+              expect(tester.testTextInput.isVisible, isTrue);
+              final actionButton = action == 'withdraw'
+                  ? find.widgetWithText(TextButton, l10n.reviewsWithdraw)
+                  : _submit;
+              await _tap(tester, actionButton);
+              await tester.pumpAndSettle();
+              _expectFailureInDialog(tester, l10n);
+              expect(
+                tester
+                    .widget<EditableText>(find.byType(EditableText))
+                    .focusNode
+                    .hasFocus,
+                isFalse,
+                reason:
+                    'L’errore libera la tastiera e lo spazio del dialog, conservando il draft',
+              );
+              expect(tester.testTextInput.isVisible, isFalse);
+              final error = find.text(l10n.reviewsFailure);
+              expect(error.hitTestable(), findsOneWidget);
+              expect(
+                tester.getSemantics(error).flagsCollection.isLiveRegion,
+                isTrue,
+              );
+              for (final scrollable
+                  in find
+                      .ancestor(of: error, matching: find.byType(Scrollable))
+                      .evaluate()) {
+                final viewport = tester.getRect(
+                  find.byWidget(scrollable.widget),
+                );
+                final message = tester.getRect(error);
+                expect(
+                  viewport.intersect(message),
+                  message,
+                  reason:
+                      'Il messaggio intero resta nel viewport di ogni scroll, non soltanto il centro',
+                );
+              }
+              await tester.ensureVisible(_comment);
+              await tester.pumpAndSettle();
+              expect(
+                tester.widget<TextField>(_comment).controller!.text,
+                _draft,
+              );
+              await tester.ensureVisible(_submit);
+              await tester.pumpAndSettle();
+              expect(_submit.hitTestable(), findsOneWidget);
+              expect(tester.takeException(), isNull);
+            } finally {
+              semantics.dispose();
+            }
+          },
+        );
+      }
     }
   }
 }
@@ -296,6 +352,7 @@ final class _ControlledReviews implements CustomerReviewRepository {
   final attempts = <_Attempt>[];
   int listCalls = 0;
   bool failReadback = false;
+  bool failImmediately = false;
 
   @override
   Future<CustomerReviewsAccount> listMine({required String shopSlug}) {
@@ -314,6 +371,11 @@ final class _ControlledReviews implements CustomerReviewRepository {
   }) {
     final attempt = _Attempt(comment: comment, rating: rating, withdraw: false);
     attempts.add(attempt);
+    if (failImmediately) {
+      attempt.result.completeError(
+        const CustomerReviewException('unavailable'),
+      );
+    }
     return attempt.result.future;
   }
 
@@ -332,6 +394,11 @@ final class _ControlledReviews implements CustomerReviewRepository {
       expectedVersion: expectedVersion,
     );
     attempts.add(attempt);
+    if (failImmediately) {
+      attempt.result.completeError(
+        const CustomerReviewException('unavailable'),
+      );
+    }
     return attempt.result.future;
   }
 

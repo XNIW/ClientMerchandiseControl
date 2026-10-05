@@ -602,7 +602,10 @@ final class _CustomerReviewDialogState
       }
       if (_ownerIsCurrent) _close(true);
     } on CustomerReviewException {
-      if (_ownerIsCurrent) {
+      if (mounted && _ownerIsCurrent) {
+        // Rilascia il focus del campo nel dialog: l'IME non deve coprire il
+        // feedback quando il rifiuto arriva prima del frame busy.
+        FocusScope.of(context).focusedChild?.unfocus();
         setState(() => _hasFailure = true);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           final failureContext = _failureKey.currentContext;

@@ -451,6 +451,7 @@ class IosOwnedTest(unittest.TestCase):
                 result = {'side_effect': reply} if isinstance(reply, Exception) else {'return_value': reply}
                 output = io.StringIO()
                 with patch.object(MODULE.subprocess, 'Popen', return_value=process), \
+                     patch.object(MODULE.os, 'killpg') as probe, \
                      patch.object(MODULE.subprocess, 'run', **result), \
                      patch.object(MODULE, 'stop_owned_process') as stop, \
                      contextlib.redirect_stdout(output), \
@@ -459,6 +460,7 @@ class IosOwnedTest(unittest.TestCase):
                 self.assertEqual(failure.exception.code, 1)
                 self.assertTrue(runner.process_cleanup_failed)
                 stop.assert_called_once_with(process)
+                probe.assert_called_once_with(54321, 0)
                 events = [json.loads(line.removeprefix('DIAGNOSTIC: '))
                           for line in output.getvalue().splitlines() if line.startswith('DIAGNOSTIC: ')]
                 self.assertEqual(events[0], dict(operation='psProbe', ownedPgid=54321, **expected))
@@ -521,8 +523,159 @@ class IosOwnedTest(unittest.TestCase):
 
     def test_zombie_group_and_foreign_group_are_quiescent(self):
         result = Mock(returncode=0, stdout='54321 Z\n123 S\n')
-        with patch.object(MODULE.subprocess, 'run', return_value=result):
+        with patch.object(MODULE.os, 'killpg') as probe, \
+             patch.object(MODULE.subprocess, 'run', return_value=result) as ps:
             self.assertFalse(MODULE.group_has_live_members(54321))
+        probe.assert_called_once_with(54321, 0)
+        self.assertEqual(ps.call_args.kwargs['timeout'], 2)
+
+    def test_real_absent_owned_group_bypasses_ps_timeout(self):
+        process = subprocess.Popen([sys.executable, '-c', 'pass'], start_new_session=True)
+        process.wait(timeout=2)
+        with self.assertRaises(ProcessLookupError):
+            os.killpg(process.pid, 0)
+        with patch.object(MODULE.subprocess, 'run',
+                          side_effect=subprocess.TimeoutExpired(['ps'], 2)) as ps:
+            self.assertFalse(MODULE.group_has_live_members(process.pid))
+        ps.assert_not_called()
+
+    def test_real_successful_command_does_not_require_ps_after_group_exit(self):
+        runner = MODULE.IosOwnedRunner()
+        with patch.object(MODULE.subprocess, 'run',
+                          side_effect=subprocess.TimeoutExpired(['ps'], 2)) as ps:
+            self.assertEqual(runner.command([sys.executable, '-c', 'pass'], 5), '')
+        ps.assert_not_called()
+        self.assertFalse(runner.process_cleanup_failed)
+
+    def test_kernel_probe_rejects_nonpositive_or_noninteger_groups_without_syscall(self):
+        for group in (0, -1, -54321, True, None, 1.0, 'SECRET_SENTINEL'):
+            with self.subTest(group_type=type(group).__name__):
+                output = io.StringIO()
+                with patch.object(MODULE.os, 'killpg') as probe, \
+                     patch.object(MODULE.subprocess, 'run') as ps, \
+                     contextlib.redirect_stdout(output), \
+                     self.assertRaises(MODULE.Failure) as failure:
+                    MODULE.group_has_live_members(group)
+                self.assertEqual(failure.exception.code, 1)
+                probe.assert_not_called()
+                ps.assert_not_called()
+                self.assertNotIn('SECRET_SENTINEL', output.getvalue())
+
+    def test_kernel_permission_requires_ps_verification_of_live_or_zombie_members(self):
+        for rows, alive in [('54321 S\n123 Z\n', True),
+                            ('54321 Z\n123 S\n', False), ('123 S\n', False)]:
+            with self.subTest(alive=alive, owned_row=rows.startswith('54321')):
+                output = io.StringIO()
+                error = PermissionError(1, 'SECRET_SENTINEL', 'SECRET_FILENAME')
+                with patch.object(MODULE.os, 'killpg', side_effect=error) as probe, \
+                     patch.object(MODULE.subprocess, 'run',
+                                  return_value=Mock(returncode=0, stdout=rows)) as ps, \
+                     contextlib.redirect_stdout(output):
+                    self.assertEqual(MODULE.group_has_live_members(54321), alive)
+                probe.assert_called_once_with(54321, 0)
+                self.assertEqual(ps.call_args.args[0], ['ps', '-axo', 'pgid=,stat='])
+                self.assertEqual(ps.call_args.kwargs['timeout'], 2)
+                event = json.loads(output.getvalue().strip().removeprefix('DIAGNOSTIC: '))
+                self.assertEqual(event, dict(operation='kernelGroupProbe', ownedPgid=54321,
+                                            errorType='PermissionError', errno=1))
+                self.assertNotIn('SECRET', output.getvalue())
+
+    def test_kernel_permission_does_not_bypass_ps_failures_or_strict_parser(self):
+        for result, error, raised in [
+                (None, subprocess.TimeoutExpired(['SECRET_SENTINEL'], 2), subprocess.TimeoutExpired),
+                (None, OSError(5, 'SECRET_SENTINEL'), OSError),
+                (Mock(returncode=9, stdout='SECRET_SENTINEL'), None, MODULE.Failure),
+                (Mock(returncode=0, stdout='54321 Z\nSECRET_SENTINEL\n'), None, MODULE.Failure)]:
+            with self.subTest(error_type=raised.__name__, exit_status=getattr(result, 'returncode', None)):
+                output = io.StringIO()
+                with patch.object(MODULE.os, 'killpg',
+                                  side_effect=PermissionError(1, 'SECRET_SENTINEL')) as probe, \
+                     patch.object(MODULE.subprocess, 'run', return_value=result, side_effect=error) as ps, \
+                     contextlib.redirect_stdout(output), \
+                     self.assertRaises(raised):
+                    MODULE.group_has_live_members(54321)
+                probe.assert_called_once_with(54321, 0)
+                self.assertEqual(ps.call_args.kwargs['timeout'], 2)
+                self.assertNotIn('SECRET', output.getvalue())
+
+    def test_kernel_other_os_error_fails_closed_without_ps(self):
+        output = io.StringIO()
+        error = OSError(5, 'SECRET_SENTINEL', 'SECRET_FILENAME')
+        with patch.object(MODULE.os, 'killpg', side_effect=error) as probe, \
+             patch.object(MODULE.subprocess, 'run') as ps, \
+             contextlib.redirect_stdout(output), \
+             self.assertRaises(OSError) as failure:
+            MODULE.group_has_live_members(54321)
+        self.assertIs(failure.exception, error)
+        probe.assert_called_once_with(54321, 0)
+        ps.assert_not_called()
+        event = json.loads(output.getvalue().strip().removeprefix('DIAGNOSTIC: '))
+        self.assertEqual(event, dict(operation='kernelGroupProbe', ownedPgid=54321,
+                                    errorType='OSError', errno=5))
+        self.assertNotIn('SECRET', output.getvalue())
+
+    def test_permission_fallback_ps_failure_remains_sticky_after_kernel_absence(self):
+        process = Mock(pid=54321)
+        error = subprocess.TimeoutExpired(['SECRET_SENTINEL'], 2)
+        output = io.StringIO()
+        with patch.object(MODULE.os, 'killpg', side_effect=[
+                None, PermissionError(1, 'SECRET_SENTINEL'), None, ProcessLookupError(3, 'absent')]) as probe, \
+             patch.object(MODULE.subprocess, 'run', side_effect=error) as ps, \
+             contextlib.redirect_stdout(output), \
+             self.assertRaises(subprocess.TimeoutExpired) as failure:
+            MODULE.stop_owned_process(process)
+        self.assertIs(failure.exception, error)
+        self.assertEqual([call.args for call in probe.call_args_list],
+                         [(54321, signal.SIGTERM), (54321, 0),
+                          (54321, signal.SIGKILL), (54321, 0)])
+        self.assertEqual(ps.call_args.kwargs['timeout'], 2)
+        process.wait.assert_called_once_with(timeout=2)
+        self.assertNotIn('SECRET', output.getvalue())
+
+    def test_real_live_group_remains_live_after_zero_signal_probe(self):
+        process = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'],
+            start_new_session=True, stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            real_killpg = os.killpg
+            with patch.object(MODULE.os, 'killpg', wraps=real_killpg) as probe:
+                self.assertTrue(MODULE.group_has_live_members(process.pid))
+            probe.assert_called_once_with(process.pid, 0)
+            self.assertIsNone(process.poll())
+        finally:
+            MODULE.stop_owned_process(process)
+
+    def test_real_present_group_keeps_ps_timeout_fail_closed(self):
+        process = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'],
+            start_new_session=True, stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            with patch.object(MODULE.subprocess, 'run',
+                              side_effect=subprocess.TimeoutExpired(['ps'], 2)) as ps, \
+                 self.assertRaises(subprocess.TimeoutExpired):
+                MODULE.group_has_live_members(process.pid)
+            self.assertEqual(ps.call_args.kwargs['timeout'], 2)
+            self.assertIsNone(process.poll())
+        finally:
+            MODULE.stop_owned_process(process)
+
+    def test_real_unreaped_zombie_group_is_quiescent(self):
+        process = subprocess.Popen([sys.executable, '-c', 'pass'],
+            start_new_session=True, stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            deadline = time.monotonic() + 3
+            state = ''
+            while time.monotonic() < deadline:
+                state = subprocess.run(['ps', '-p', str(process.pid), '-o', 'stat='],
+                    capture_output=True, text=True, timeout=2).stdout.strip()
+                if state.startswith('Z'):
+                    break
+                time.sleep(.01)
+            self.assertTrue(state.startswith('Z'), state)
+            self.assertFalse(MODULE.group_has_live_members(process.pid))
+        finally:
+            process.wait(timeout=2)
 
     def test_shell_entrypoint_exec_routes_standalone_and_borrowed_arguments(self):
         script = Path(__file__).with_name('test-ios-shell-smoke.sh')

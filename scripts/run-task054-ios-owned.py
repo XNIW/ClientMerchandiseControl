@@ -40,6 +40,21 @@ def process_diagnostic(operation, error=None, **metadata):
 
 
 def group_has_live_members(group):
+    if type(group) is not int or group <= 0:
+        process_diagnostic('kernelGroupProbe', reason='invalidOwnedPgid',
+                           numericPgid=type(group) is int)
+        raise Failure(1, 'process-group proprio invalido')
+    try:
+        os.killpg(group, 0)  # Esistenza/permessi, senza inviare un segnale.
+    except ProcessLookupError:
+        return False
+    except PermissionError as error:
+        # EPERM non prova assenza: anche un gruppo proprio zombie può darlo.
+        # La probe ps originale resta decisiva e fallisce in modo chiuso.
+        process_diagnostic('kernelGroupProbe', error, ownedPgid=group)
+    except OSError as error:
+        process_diagnostic('kernelGroupProbe', error, ownedPgid=group)
+        raise
     # Solo metadati pgid/stato, mai argomenti o dati applicativi.
     try:
         result = subprocess.run(['ps', '-axo', 'pgid=,stat='], capture_output=True,

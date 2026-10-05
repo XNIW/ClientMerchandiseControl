@@ -346,6 +346,19 @@ class IosOwnedTest(unittest.TestCase):
                 runner.cleanup()
             self.assertEqual(failure.exception.code, 7)
             self.assertEqual(str(failure.exception), 'query primaria')
+            initial = json.loads(fixture.path.read_text())
+            self.assertEqual(initial['cleanup'], 'NOT_RUN')
+            self.assertEqual(initial['cleanupAttempts'][0]['result'], 'NOT_RUN')
+            self.assertFalse(initial['processCleanupFailed'])
+            # Nuovo processo: la risorsa rimossa non completa il tentativo storico.
+            self.assertEqual(fixture.execute('cleanup'), 1)
+            final = json.loads(fixture.path.read_text())
+            self.assertFalse(fixture.exists)
+            self.assertEqual(final['cleanup'], 'BLOCKED')
+            self.assertFalse(final['processCleanupFailed'])
+            self.assertEqual(final['cleanupAttempts'][0]['result'], 'NOT_RUN')
+            self.assertEqual(final['cleanupAttempts'][1]['resourceCleanup'], 'PASS')
+            self.assertEqual(final['cleanupAttempts'][1]['result'], 'BLOCKED')
 
     def test_borrowed_smoke_runs_exact_test_with_900_without_lifecycle_mutation(self):
         with tempfile.TemporaryDirectory() as directory:

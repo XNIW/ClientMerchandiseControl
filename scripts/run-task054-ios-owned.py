@@ -257,6 +257,7 @@ class IosOwnedRunner:
         attempts = self.record.setdefault('cleanupAttempts', [])
         if not isinstance(attempts, list):
             raise Failure(2, 'receipt tentativi cleanup invalida')
+        incomplete = any(attempt.get('result') == 'NOT_RUN' for attempt in attempts)
         process_failed = bool(self.process_cleanup_failed or self.record.get('processCleanupFailed'))
         failed = process_failed or self.record.get('cleanup') == 'FAIL'
         attempt = {'attempt': len(attempts) + 1, 'result': 'NOT_RUN',
@@ -273,7 +274,7 @@ class IosOwnedRunner:
             attempt['errorType'] = type(error).__name__
         process_failed = bool(self.process_cleanup_failed or self.record.get('processCleanupFailed'))
         failed = failed or process_failed or resource_result == 'FAIL'
-        self.record['cleanup'] = 'FAIL' if failed else resource_result
+        self.record['cleanup'] = 'FAIL' if failed else 'BLOCKED' if incomplete else resource_result
         attempt.update(result=self.record['cleanup'], resourceCleanup=resource_result,
                        processCleanupFailed=process_failed)
         try:

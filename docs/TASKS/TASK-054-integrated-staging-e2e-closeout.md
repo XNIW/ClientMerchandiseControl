@@ -545,3 +545,48 @@ PASS writer. 67/105/4 invariati; nessun timeout/skip/target/dependency nuovo.
 FIX -> REVIEW, TASK054 BLOCKED, CODEX_FIX_BLOCKED_TO_RE_REVIEW. Review
 indipendenti e CI composte da completare; fallimenti originali e before reali
 durevoli. Nessun processo root o writer pendente, nessuna build locale pesante.
+
+
+### Review publicroute NI054 — a9777869, 2026-10-05
+
+C-NI054-08/P2: due PoC indipendenti con appRouter/AuthController reali FAIL/exit1,
+dialog e bozza ownerA rimangono dopo expiry o cambio ownerB; failure tardiva
+riappare nel nuovo contesto. C07 chiuso31PASS, owner-lifecycle da correggere
+nel solo dialogo con writer distinto. CI precedente può concludere ma nessun
+merge con finding aperto. REVIEW -> FIX, CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.
+
+
+### Fix finale C08 e diagnostiche — feda593, 2026-10-05
+
+C08:42test passano il primo fix ma re-review riproduce openingABA prima del
+mount. Monitor ora installato all'intento, latch permanente e cleanup idempotente
+in finally/dispose.45regressioni writer e PoCopening PASS/exit0, nessun router/
+controller/shop/dependency modificato. Re-review distinta e hostnext24 necessari.
+
+CIa977 terminale FAIL: Quality956/1skip+10benchmark e releaseunsignedPASS;
+Android trasporto ADB/VM perso, dueOSparziali/zeroFlutterbuffered; iOS probe
+post-open prima bootstatusFAIL1, risorsa finalePASS/storicoFAIL preservato.
+Diagnostiche71f1468/ca53980 future distinte, stessi primari/budget/ownership.
+FIX -> REVIEW, CODEX_FIX_BLOCKED_TO_RE_REVIEW, TASK054 BLOCKED. Nessun processo
+writer pendente, nuova CI e reviewer sul candidato composto; nessun merge stale.
+
+
+### Residuo cleanup C08 pre-mount — feda593, 2026-10-05
+
+PoC read-only FAIL/exit1: Navigator disposed prima del primo mount del dialog,
+ProviderContainer esterno ancora vivo; monitor rimane aperto. P3 cleanup: zero
+mutation, nessun dialog montato, nessun trigger pubblico production dimostrato
+nel bootstrap corrente a lifetime condiviso. Fix minimo assegnato al writer
+originale, nessun ampliamento del router o contratto. REVIEW -> FIX,
+CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX; 70PASS precedenti e tre CI FAIL conservati.
+
+
+### Fix cleanup intento —1bf2e98,2026-10-05
+
+DialogRoute pubblica e attesa Future.any(push,completed) terminano l'intento
+anteriormente al mount se Navigator è disposed; finally chiude il monitor.
+Source11righe/test31,41insert/1delete, nessun seam o API interna. Canonical
+Future e PoC closed: FAIL1 prima -> PASS0 dopo; writer46recensioni e2PoC PASS0,
+analyzer globale zero issue. Ricevuta durevole review-owner-cleanup-fix.json.
+FIX -> REVIEW, CODEX_FIX_BLOCKED_TO_RE_REVIEW; reviewer distinto e nuova CI,
+gate live BLOCKED. Tutti processi writer terminali, zero pending propri.

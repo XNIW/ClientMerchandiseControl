@@ -1,0 +1,832 @@
+{
+  "revision": "a97778697051f93380ace9d6181a226c7f79ca77",
+  "run_id": 37352605356,
+  "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37352605356",
+  "result": "FAIL",
+  "actual_checkouts": [
+    {
+      "job": "quality",
+      "logSha256": "fa7ba5953a7a216dfec51d2f978b532a6f229c4d8d4a423024cd62fa1a4684f2",
+      "actualCheckout": "a97778697051f93380ace9d6181a226c7f79ca77",
+      "exitCode": 0
+    },
+    {
+      "job": "android-debug",
+      "logSha256": "41ee59fdcf4c3c7e1fcdfbbcd504a432763a1ca43089843fa5cfd4b542a49f22",
+      "actualCheckout": "a97778697051f93380ace9d6181a226c7f79ca77",
+      "exitCode": 0
+    },
+    {
+      "job": "android-release",
+      "logSha256": "5dc0b9b4ce973d5ce4f7f5eefd78eff44b5364b32514b8db923e2863218195d8",
+      "actualCheckout": "a97778697051f93380ace9d6181a226c7f79ca77",
+      "exitCode": 0
+    },
+    {
+      "job": "ios-debug",
+      "logSha256": "3321dec6e322bec648e779163d67622bd3cd03543282528155d8ebd625ac7f19",
+      "actualCheckout": "a97778697051f93380ace9d6181a226c7f79ca77",
+      "exitCode": 0
+    },
+    {
+      "job": "ios-release",
+      "logSha256": "7864d9eb0372ddd072ea7d14f101e9dd9e79307186eac46dc26812edc4b6144c",
+      "actualCheckout": "a97778697051f93380ace9d6181a226c7f79ca77",
+      "exitCode": 0
+    }
+  ],
+  "jobs": [
+    {
+      "name": "Quality",
+      "id": 111906920136,
+      "result": "PASS",
+      "steps": [
+        {
+          "completedAt": "2026-10-05T17:59:51Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-05T17:59:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T17:59:53Z",
+          "conclusion": "success",
+          "name": "Checkout",
+          "number": 2,
+          "startedAt": "2026-10-05T17:59:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T17:59:53Z",
+          "conclusion": "success",
+          "name": "Validate workflow action pins",
+          "number": 3,
+          "startedAt": "2026-10-05T17:59:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T17:59:53Z",
+          "conclusion": "success",
+          "name": "Validate shell scripts",
+          "number": 4,
+          "startedAt": "2026-10-05T17:59:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:01:20Z",
+          "conclusion": "success",
+          "name": "Validate backend consumer contract",
+          "number": 5,
+          "startedAt": "2026-10-05T17:59:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:02:49Z",
+          "conclusion": "success",
+          "name": "Validate client security boundary",
+          "number": 6,
+          "startedAt": "2026-10-05T18:01:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:03:18Z",
+          "conclusion": "success",
+          "name": "Validate governance state",
+          "number": 7,
+          "startedAt": "2026-10-05T18:02:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:04:05Z",
+          "conclusion": "success",
+          "name": "Set up Flutter",
+          "number": 8,
+          "startedAt": "2026-10-05T18:03:18Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:04:05Z",
+          "conclusion": "success",
+          "name": "Validate Flutter toolchain",
+          "number": 9,
+          "startedAt": "2026-10-05T18:04:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:04:14Z",
+          "conclusion": "success",
+          "name": "Resolve dependencies",
+          "number": 10,
+          "startedAt": "2026-10-05T18:04:05Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:04:14Z",
+          "conclusion": "success",
+          "name": "Validate synchronized OS capture bridge",
+          "number": 11,
+          "startedAt": "2026-10-05T18:04:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:09Z",
+          "conclusion": "success",
+          "name": "Validate architecture boundaries",
+          "number": 12,
+          "startedAt": "2026-10-05T18:04:14Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:10Z",
+          "conclusion": "success",
+          "name": "Generate localizations",
+          "number": 13,
+          "startedAt": "2026-10-05T18:08:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:10Z",
+          "conclusion": "success",
+          "name": "Validate release metadata and native assets",
+          "number": 14,
+          "startedAt": "2026-10-05T18:08:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:10Z",
+          "conclusion": "success",
+          "name": "Verify generated and locked files",
+          "number": 15,
+          "startedAt": "2026-10-05T18:08:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:11Z",
+          "conclusion": "success",
+          "name": "Check formatting",
+          "number": 16,
+          "startedAt": "2026-10-05T18:08:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:26Z",
+          "conclusion": "success",
+          "name": "Analyze",
+          "number": 17,
+          "startedAt": "2026-10-05T18:08:11Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:11:16Z",
+          "conclusion": "success",
+          "name": "Test with coverage",
+          "number": 18,
+          "startedAt": "2026-10-05T18:08:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:49Z",
+          "conclusion": "success",
+          "name": "Performance gate",
+          "number": 19,
+          "startedAt": "2026-10-05T18:11:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:49Z",
+          "conclusion": "success",
+          "name": "Check whitespace errors",
+          "number": 20,
+          "startedAt": "2026-10-05T18:12:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:49Z",
+          "conclusion": "success",
+          "name": "Post Set up Flutter",
+          "number": 39,
+          "startedAt": "2026-10-05T18:12:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:49Z",
+          "conclusion": "success",
+          "name": "Post Checkout",
+          "number": 40,
+          "startedAt": "2026-10-05T18:12:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:49Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 41,
+          "startedAt": "2026-10-05T18:12:49Z",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "name": "Android debug build",
+      "id": 111906920340,
+      "result": "FAIL",
+      "steps": [
+        {
+          "completedAt": "2026-10-05T17:59:51Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-05T17:59:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T17:59:52Z",
+          "conclusion": "success",
+          "name": "Checkout",
+          "number": 2,
+          "startedAt": "2026-10-05T17:59:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:00:49Z",
+          "conclusion": "success",
+          "name": "Set up Flutter",
+          "number": 3,
+          "startedAt": "2026-10-05T17:59:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:00:49Z",
+          "conclusion": "success",
+          "name": "Validate Flutter toolchain",
+          "number": 4,
+          "startedAt": "2026-10-05T18:00:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:01:01Z",
+          "conclusion": "success",
+          "name": "Resolve dependencies",
+          "number": 5,
+          "startedAt": "2026-10-05T18:00:49Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:06:12Z",
+          "conclusion": "success",
+          "name": "Build APK",
+          "number": 6,
+          "startedAt": "2026-10-05T18:01:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:07:54Z",
+          "conclusion": "success",
+          "name": "Validate Android bundle security",
+          "number": 7,
+          "startedAt": "2026-10-05T18:06:12Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:07:54Z",
+          "conclusion": "success",
+          "name": "Enable runner access to KVM",
+          "number": 8,
+          "startedAt": "2026-10-05T18:07:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:15Z",
+          "conclusion": "failure",
+          "name": "Capture commerce UI with synthetic fixtures on Android",
+          "number": 9,
+          "startedAt": "2026-10-05T18:07:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:16Z",
+          "conclusion": "success",
+          "name": "Save Android synthetic UI captures and runner receipt",
+          "number": 10,
+          "startedAt": "2026-10-05T18:12:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:16Z",
+          "conclusion": "success",
+          "name": "Post Set up Flutter",
+          "number": 19,
+          "startedAt": "2026-10-05T18:12:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:17Z",
+          "conclusion": "success",
+          "name": "Post Checkout",
+          "number": 20,
+          "startedAt": "2026-10-05T18:12:16Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:17Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 21,
+          "startedAt": "2026-10-05T18:12:17Z",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "name": "iOS Simulator debug build",
+      "id": 111906920464,
+      "result": "FAIL",
+      "steps": [
+        {
+          "completedAt": "2026-10-05T17:59:56Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-05T17:59:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T17:59:58Z",
+          "conclusion": "success",
+          "name": "Checkout",
+          "number": 2,
+          "startedAt": "2026-10-05T17:59:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:01:21Z",
+          "conclusion": "success",
+          "name": "Set up Flutter",
+          "number": 3,
+          "startedAt": "2026-10-05T17:59:58Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:01:22Z",
+          "conclusion": "success",
+          "name": "Validate Flutter toolchain",
+          "number": 4,
+          "startedAt": "2026-10-05T18:01:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:01:35Z",
+          "conclusion": "success",
+          "name": "Resolve dependencies",
+          "number": 5,
+          "startedAt": "2026-10-05T18:01:22Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:02:00Z",
+          "conclusion": "success",
+          "name": "Compare checkout and tracking goldens (required macOS surface)",
+          "number": 6,
+          "startedAt": "2026-10-05T18:01:35Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:05:24Z",
+          "conclusion": "success",
+          "name": "Build iOS Simulator",
+          "number": 7,
+          "startedAt": "2026-10-05T18:02:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:07:08Z",
+          "conclusion": "success",
+          "name": "Validate iOS bundle security",
+          "number": 8,
+          "startedAt": "2026-10-05T18:05:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:28Z",
+          "conclusion": "failure",
+          "name": "Prepare one owned iOS Simulator for smoke and visual",
+          "number": 9,
+          "startedAt": "2026-10-05T18:07:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:28Z",
+          "conclusion": "skipped",
+          "name": "Smoke iOS on the declared deployment target",
+          "number": 10,
+          "startedAt": "2026-10-05T18:08:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:28Z",
+          "conclusion": "skipped",
+          "name": "Capture commerce UI with synthetic fixtures on iOS",
+          "number": 11,
+          "startedAt": "2026-10-05T18:08:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:37Z",
+          "conclusion": "failure",
+          "name": "Clean up the owned iOS Simulator",
+          "number": 12,
+          "startedAt": "2026-10-05T18:08:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:39Z",
+          "conclusion": "success",
+          "name": "Save synthetic UI captures",
+          "number": 13,
+          "startedAt": "2026-10-05T18:08:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:39Z",
+          "conclusion": "success",
+          "name": "Post Set up Flutter",
+          "number": 25,
+          "startedAt": "2026-10-05T18:08:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:40Z",
+          "conclusion": "success",
+          "name": "Post Checkout",
+          "number": 26,
+          "startedAt": "2026-10-05T18:08:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:44Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 27,
+          "startedAt": "2026-10-05T18:08:40Z",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "name": "Android release candidate",
+      "id": 111906920475,
+      "result": "PASS",
+      "steps": [
+        {
+          "completedAt": "2026-10-05T17:59:51Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-05T17:59:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T17:59:53Z",
+          "conclusion": "success",
+          "name": "Checkout",
+          "number": 2,
+          "startedAt": "2026-10-05T17:59:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:00:53Z",
+          "conclusion": "success",
+          "name": "Set up Flutter",
+          "number": 3,
+          "startedAt": "2026-10-05T17:59:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:00:54Z",
+          "conclusion": "success",
+          "name": "Validate Flutter toolchain",
+          "number": 4,
+          "startedAt": "2026-10-05T18:00:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:01:08Z",
+          "conclusion": "success",
+          "name": "Resolve dependencies",
+          "number": 5,
+          "startedAt": "2026-10-05T18:00:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:07:39Z",
+          "conclusion": "success",
+          "name": "Build production-like unsigned AAB",
+          "number": 6,
+          "startedAt": "2026-10-05T18:01:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:07:57Z",
+          "conclusion": "success",
+          "name": "Build production-like unsigned inspection APK",
+          "number": 7,
+          "startedAt": "2026-10-05T18:07:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:09:41Z",
+          "conclusion": "success",
+          "name": "Validate Android release candidate",
+          "number": 8,
+          "startedAt": "2026-10-05T18:07:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:57Z",
+          "conclusion": "success",
+          "name": "Validate Android v2-only signature boundary",
+          "number": 9,
+          "startedAt": "2026-10-05T18:09:41Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:57Z",
+          "conclusion": "success",
+          "name": "Post Set up Flutter",
+          "number": 17,
+          "startedAt": "2026-10-05T18:12:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:57Z",
+          "conclusion": "success",
+          "name": "Post Checkout",
+          "number": 18,
+          "startedAt": "2026-10-05T18:12:57Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:12:57Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 19,
+          "startedAt": "2026-10-05T18:12:57Z",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "name": "iOS release candidate",
+      "id": 111906920604,
+      "result": "PASS",
+      "steps": [
+        {
+          "completedAt": "2026-10-05T17:59:56Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-05T17:59:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T17:59:59Z",
+          "conclusion": "success",
+          "name": "Checkout",
+          "number": 2,
+          "startedAt": "2026-10-05T17:59:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:01:24Z",
+          "conclusion": "success",
+          "name": "Set up Flutter",
+          "number": 3,
+          "startedAt": "2026-10-05T17:59:59Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:01:25Z",
+          "conclusion": "success",
+          "name": "Validate Flutter toolchain",
+          "number": 4,
+          "startedAt": "2026-10-05T18:01:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:01:39Z",
+          "conclusion": "success",
+          "name": "Resolve dependencies",
+          "number": 5,
+          "startedAt": "2026-10-05T18:01:25Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:01:39Z",
+          "conclusion": "success",
+          "name": "Validate iOS release source",
+          "number": 6,
+          "startedAt": "2026-10-05T18:01:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:05:33Z",
+          "conclusion": "success",
+          "name": "Build production-like unsigned iOS app",
+          "number": 7,
+          "startedAt": "2026-10-05T18:01:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:05:36Z",
+          "conclusion": "success",
+          "name": "Attest iOS reference build",
+          "number": 8,
+          "startedAt": "2026-10-05T18:05:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:07:31Z",
+          "conclusion": "success",
+          "name": "Archive production-like unsigned iOS app",
+          "number": 9,
+          "startedAt": "2026-10-05T18:05:36Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:07:31Z",
+          "conclusion": "success",
+          "name": "Attest iOS archive Runner",
+          "number": 10,
+          "startedAt": "2026-10-05T18:07:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:08:50Z",
+          "conclusion": "success",
+          "name": "Validate iOS release candidate",
+          "number": 11,
+          "startedAt": "2026-10-05T18:07:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:27:31Z",
+          "conclusion": "success",
+          "name": "Validate iOS adversarial release boundaries",
+          "number": 12,
+          "startedAt": "2026-10-05T18:08:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:27:31Z",
+          "conclusion": "success",
+          "name": "Post Set up Flutter",
+          "number": 23,
+          "startedAt": "2026-10-05T18:27:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:27:32Z",
+          "conclusion": "success",
+          "name": "Post Checkout",
+          "number": 24,
+          "startedAt": "2026-10-05T18:27:31Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-05T18:27:34Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 25,
+          "startedAt": "2026-10-05T18:27:32Z",
+          "status": "completed"
+        }
+      ]
+    }
+  ],
+  "functional_tests": {
+    "result": "PASS",
+    "count": 956,
+    "preexisting_linux_golden_skip": 1,
+    "no_new_skip": true
+  },
+  "performance": {
+    "result": "PASS",
+    "tests": 10,
+    "level": "flutter_test_host",
+    "metrics": [
+      "PRODUCT_DETAIL_RENDER_PERF environment=flutter_test_host warmup=5 samples=30 p50_us=44708 p95_us=62483 p99_us=67139 rpc_per_navigation=1",
+      "IMAGE_DECODE_PERF environment=flutter_test_host source_px=1024 target_px=480 warmup=5 samples=30 p50_us=9939 p95_us=12645 p99_us=14030",
+      "STOREFRONT_CACHE_PERF profile=small rows=1000 categories=250 open_ms=32 write_ms=110 catalog_us=944/1887/3944 search_us=1083/1399/1421",
+      "STOREFRONT_CACHE_PERF profile=medium rows=10000 categories=250 open_ms=1 write_ms=292 catalog_us=702/861/1104 search_us=1728/2088/2174",
+      "STOREFRONT_CACHE_PERF profile=extreme rows=25000 categories=250 open_ms=1 write_ms=628 catalog_us=700/1019/1087 search_us=3727/6689/7610",
+      "HOME_WARM_CACHE_PERF environment=flutter_test_host warmup=5 samples=30 p50_us=215 p95_us=355 p99_us=380 cache_reads=1 live_fetches=1",
+      "CHECKOUT_NAVIGATION_PERF environment=flutter_test_host warmup=5 samples=30 p50_us=11810 p95_us=16375 p99_us=18646 extra_reads_per_navigation=0",
+      "GUEST_CART_PERF rows=100 read_us=597/1442/2323 mutation_us=791/1106/4468",
+      "CATALOG_APPEND_PERF environment=flutter_test_host warmup=5 samples=30 page_size=24 p50_us=238 p95_us=407 p99_us=634 requests=36",
+      "CUSTOMER_ORDER_CACHE_PERF rows=50 bytes=17105 write_us=679/935/2509 read_us=846/1584/1991",
+      "CUSTOMER_ORDER_SELECTOR_PERF rows=500 selector_us=91/205/457",
+      "TRACKING_PUBLICATION_PERF environment=flutter_test_host warmup=5 samples=30 p50_us=331 p95_us=488 p99_us=840 rpc_loads=1 realtime_subscriptions=1"
+    ],
+    "staging_device_latency": "NOT_RUN"
+  },
+  "android": {
+    "build_security_kvm": "PASS",
+    "native_fixture_suite": "FAIL",
+    "flutter_png": 0,
+    "expected_flutter_png": 105,
+    "os_png": 2,
+    "expected_os_png": 4,
+    "last_case": "search field focus compatto200%",
+    "literal_framework_counter": "+44",
+    "counter_qualification": "Il contatore del framework include lifecycle; non attesta44casi utente conclusi",
+    "observed_failure": "probe ADBexit255, ACKRPCError112 Service has disappeared, adb device offline",
+    "cause": "BLOCKED: log non prova causa emulator/app/trasporto",
+    "flutter_png_qualification": "onScreenshot SDK buffered, callback finale non raggiunta",
+    "cleanup": "PASS",
+    "os": [
+      {
+        "gitHead": "a97778697051f93380ace9d6181a226c7f79ca77",
+        "source": "os_display",
+        "platform": "android",
+        "marker": "62-address-editor-focus-compact200",
+        "frame_status": "PASS",
+        "probe_status": "PASS",
+        "mInputShown": true,
+        "mIsInputViewShown": true,
+        "ime_acceptance": "NOT_RUN",
+        "frame_sha256": "67f39347c47b6954f2768b19ad7e6bdb82e3e2a9cafbfba33c5cc4e97e4a7303",
+        "exit_code": 0,
+        "failed_phase": null,
+        "cleanup_status": "PASS"
+      },
+      {
+        "gitHead": "a97778697051f93380ace9d6181a226c7f79ca77",
+        "source": "os_display",
+        "platform": "android",
+        "marker": "63-search-field-focus-compact200",
+        "frame_status": "PASS",
+        "probe_status": "FAIL",
+        "mInputShown": null,
+        "mIsInputViewShown": null,
+        "ime_acceptance": "NOT_RUN",
+        "frame_sha256": "434acf9e1c9c229068ee477aa7c494b4ad2b508ceb4f96a079b7d46a68f4de3f",
+        "exit_code": 255,
+        "failed_phase": "probe",
+        "cleanup_status": "PASS"
+      }
+    ]
+  },
+  "ios": {
+    "result": "FAIL",
+    "runtime": "iOS26.5",
+    "model": "iPhone17",
+    "failure_phase": "probe dopo open Simulator.app, prima di bootstatus",
+    "primary_exit_code": 1,
+    "bootstatus": "NOT_RUN",
+    "smoke": "NOT_RUN",
+    "visual": "NOT_RUN",
+    "flutter_png": 0,
+    "os_png": 0,
+    "cause": "BLOCKED: tipo della probe non salvato nella source precedente",
+    "owned_receipt": {
+      "schemaVersion": 1,
+      "nonce": "ede1b952af7d46ea9aaaa1bced263490",
+      "device": "8567E197-008A-4C58-8EDF-202DB2516F58",
+      "creationStarted": true,
+      "cleanup": "FAIL",
+      "ownerContext": {
+        "GITHUB_RUN_ID": "37352605356",
+        "GITHUB_RUN_ATTEMPT": "1",
+        "GITHUB_JOB": "ios-build",
+        "GITHUB_SHA": "029af296e525e0f4d80289d23ddca099a0fc72a4"
+      },
+      "name": "CMC-Task054-Owned-ede1b952af7d46ea9aaaa1bced263490",
+      "processCleanupFailed": true,
+      "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-5",
+      "cleanupAttempts": [
+        {
+          "attempt": 1,
+          "result": "FAIL",
+          "resourceCleanup": "FAIL",
+          "processCleanupFailed": true,
+          "errorType": "Failure"
+        },
+        {
+          "attempt": 2,
+          "result": "FAIL",
+          "resourceCleanup": "PASS",
+          "processCleanupFailed": true
+        }
+      ]
+    },
+    "resource_cleanup_current": "PASS",
+    "process_quiescence": "FAIL non attestata; non prova childalive",
+    "sticky_history_preservation": "PASS scoped BECI06"
+  },
+  "later_source": {
+    "C08": "FIX in corso, impedisce merge di a977",
+    "diagnostics": "delta separati71f1468/ca53980, nuovaCI NOT_RUN"
+  },
+  "source_retries": 0
+}

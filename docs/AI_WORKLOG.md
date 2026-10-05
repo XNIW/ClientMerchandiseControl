@@ -5161,3 +5161,61 @@ coordinamento delle chat attive avviato. Nessun TASK055, DONE o activation.
 - **Stato**: BLOCKED/REVIEW; CI e re-review sul freeze composto da completare.
   Nessun processo proprio pendente, merge dei freeze falliti vietato.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-05 — TASK-054 NI054 finding publicroute C08
+
+- **Ruolo**: reviewer Client distinto -> CODEX_FIXER.
+- **Finding**: C-NI054-08/P2 su a977,2PoC real appRouter/AuthController FAIL/exit1:
+  expiry/ownerB conserva dialogo/draftA e pubblica failure tardiva. C07 chiuso31PASS.
+- **Azione**: writer feedback distinto, fix owner-lifecycle del solo dialogo e
+  regressioni publicroute; terzo CI in corso utile ma candidato non mergeabile.
+- **Stato**: BLOCKED/FIX; nessun processo reviewer pendente, production invariata.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-05 — TASK-054 NI054 freeze C08 e diagnostiche
+
+- **Ruolo**: CODEX_FIXER -> CODEX_RE_REVIEWER, writer e reviewer distinti.
+- **Fix**:422638e/feda593 owner/epoch dialog recensioni;45regressioni e PoCopening
+  PASS writer.71f1468/ca53980 diagnostiche sanitizzate iOS/Android,37/27PASS e
+  PoC autonome, primari e budget invariati.
+- **CI3**:37352605356 terminale FAIL, cinque checkouta977; Quality956/1skip e
+  10benchmarkPASS, releaseunsignedPASS; due debugFAIL prima suite completa.
+- **Evidence**: ricevute CI/review/failure originali e residuo opening durevoli;
+  Admin remoto82af invariato e sorgenti package identiche,5stagedW preservati.
+- **Stato**: BLOCKED/REVIEW, prossimo CI e re-review sullo SHA composto;
+  nessun processo writer pendente, nessun DONE, TASK055 o production.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-05 — TASK-054 NI054 residuo cleanup pre-mount C08
+
+- **Ruolo**: CODEX_RE_REVIEWER -> CODEX_FIXER, writer source distinto.
+- **Finding**: C08/P3, PoC autonoma su feda593 FAIL/exit1: Navigator smontato
+  prima del primo mount, container esterno vivo, subscription monitor non chiusa.
+  Zero mutation e nessun dialog montato; nessun trigger pubblico production
+  dimostrato con lifetime separati, nessun finding cross-owner.
+- **Azione**: fix minimo del lifetime del dialog, source e test lifecycle soltanto;
+  SDK pubblico pinned, niente router/controller/fixture/dependency.
+- **Gate**: 70 verifiche reviewer PASS/exit0 prima del delta; analyzer globale
+  FAIL per sole PoC ignored sotto build, da preservare e ricollocare fuori repo.
+- **Stato**: BLOCKED/FIX; CI4 non avviata prima del freeze composto.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-05 — TASK-054 NI054 freeze finale cleanup intento
+
+- **Ruolo**: CODEX_FIXER -> CODEX_RE_REVIEWER, writer source/reviewer distinti.
+- **Fix**:7d85c56 cherry1bf2e98, DialogRoute pubblica con default modali pinned
+  e Future.any(push,completed); finally termina monitor anche pre-mount dispose.
+- **Gate writer**: canonical Future e PoC closed FAIL1 -> PASS0;46recensioni,
+  1opening e1cleanup PASS0; analyze globale/format/architecture/localization/
+  security856/diff PASS0. Race asset e prove test scartate conservate/distinte.
+- **Gate root**: analyze globale1bf2e98 zero issue/exit0, nessuna esclusione;
+  FAIL precedente delle PoC ignored conservato e relocation byteimmutata.
+- **Review Client**: APPROVED SOURCE_CODE_ONLY su1bf2e98,72PASS0,
+  analyzer globale senza esclusioni e zero finding; native/live non approvati.
+- **Stato**: BLOCKED/REVIEW; review backend/CI sul freeze completo,
+  nessun processo writer pendente e nessun merge dei candidati falliti.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

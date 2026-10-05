@@ -1,0 +1,261 @@
+{
+  "kind": "independent_readonly_client_source_re_review",
+  "reviewer": "/root/review_client_delta",
+  "revision": "1bf2e98a59d7c27e566e0640ca9591c573798b9b",
+  "outcome": "APPROVED",
+  "scope": "SOURCE_CODE_ONLY: Client UI/controller and Dart integration harness, not CI/native/live/TASK054 approval",
+  "counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0
+  },
+  "findings": [],
+  "closed_findings": [
+    "C-NI054-04",
+    "C-NI054-05",
+    "C-NI054-06",
+    "C-NI054-07",
+    "C-NI054-08",
+    "C-NI054-08-P3-cleanup"
+  ],
+  "resolution": {
+    "C04_C06": "Previously independently verified address draft, received write ACK vs readback failure, delivery three entrances, busy, owner/shop/lifecycle guards remain exact SHA256 and Git blob invariant. No unnecessary 104-test rerun.",
+    "C07": "Persistent local failure inside review modal; submit/edit/withdraw error preserves draft/rating, retry clears failure, busy prevents duplicate, accepted ACK separated from readback failure. Original error-overlay PoC still PASS.",
+    "C08_P2": "Production public App/Router/AuthController/identity exercised through synthetic remote ports: expiry/owner switch, late ACK/error, coalesced A-B-A after mount and before first frame, unsent draft, same-subject metadata, secondary route and own rating popup all pass. Opening monitor before showDialog replacement captures interrupted owner epoch; latch and result scope remain guarded.",
+    "C08_P3": "Original public-tap pre-mount unmount PoC now observes opening subscription.closed=true. New canonical also observes public Future<void> completion after unmount without mounting dialog. Future.any between route.popped and TransitionRoute.completed reaches finally on forced disposal; ordinary results preserve existing owner/readback guards. Original P3 demonstrated external-container cleanup only, not production cross-owner behavior."
+  },
+  "checks": [
+    {
+      "command": "flutter test --no-pub test/features/reviews /Users/minxiang/.codex/review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/review_error_overlay_reproduction_test.dart /Users/minxiang/.codex/review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_public_router_auth_test.dart --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 46,
+      "log": {
+        "path": "build/task054/review_client/1bf-re-review-logs/task054-review-client-reviews-1bf.log",
+        "sha256": "d66d61cc9dd254e2d46b97a60bef9d17ee0df2cb8d89d5fe47f310893761be98"
+      }
+    },
+    {
+      "command": "flutter test --no-pub /Users/minxiang/.codex/review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_aba_reproduction_test.dart --plain-name 'route /reviews A-B-A prima del primo frame del dialog' --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 1,
+      "log": {
+        "path": "build/task054/review_client/1bf-re-review-logs/task054-review-client-opening-aba-1bf.log",
+        "sha256": "0aa1d2ca401dfe360ca78f229ac9bde6e8a9db19e92af4f0b9966ab1da176e0b"
+      }
+    },
+    {
+      "command": "flutter test --no-pub /Users/minxiang/.codex/review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart --plain-name 'route /reviews unmount prima del primo frame chiude monitor' --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 1,
+      "log": {
+        "path": "build/task054/review_client/1bf-re-review-logs/task054-review-client-opening-unmount-1bf.log",
+        "sha256": "cb6c984f4ce10d8b935ea80d5a4e5587cedd964690249a2d7d9ecc280eb4eed3"
+      }
+    },
+    {
+      "command": "flutter test --no-pub /Users/minxiang/.codex/review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/host_next_integration_test.dart --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 24,
+      "log": {
+        "path": "build/task054/review_client/1bf-re-review-logs/task054-review-client-host-next-1bf.log",
+        "sha256": "f87003d8af98ee49dc48af242a2c9305ca7593efd6b4e7c5918a43a70ca4ce76"
+      },
+      "type": "WIDGET_HOST_ONLY",
+      "warning": "integration_test native plugin unavailable; capture and IME not validated by this host run"
+    },
+    {
+      "command": "flutter analyze [complete repository; PoCs outside repository; no exclusions]",
+      "result": "PASS",
+      "exit_code": 0,
+      "issues": 0,
+      "log": {
+        "path": "build/task054/review_client/1bf-re-review-logs/task054-review-client-analyze-full-1bf.log",
+        "sha256": "093a34c1a3e1bdbc0bef85126ba4d2898af7762356e6ad7e382beaf6a90d7771"
+      }
+    },
+    {
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "result": "PASS",
+      "exit_code": 0,
+      "log": {
+        "path": "build/task054/review_client/1bf-re-review-logs/task054-review-client-architecture-1bf.log",
+        "sha256": "da205cb7b3c8e3a5d67d97dd855433c0e182e607166674fbc2a6a022c68f88f4"
+      }
+    },
+    {
+      "command": "bash scripts/check-user-facing-localization.sh",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "dart format --output=none --set-exit-if-changed [2 touched Dart files]",
+      "result": "PASS",
+      "exit_code": 0,
+      "changed": 0
+    },
+    {
+      "command": "git diff --check feda..1bf; exact source/dependency invariant assertions; integration/test-support/app/auth/account/delivery trees identical a977",
+      "result": "PASS",
+      "exit_code": 0
+    }
+  ],
+  "autonomous_passed_tests": 72,
+  "file_hashes": [
+    {
+      "path": "lib/features/reviews/presentation/customer_reviews.dart",
+      "sha256": "fd39fd7ea8cdcbac473ad3e4cf6f34c9150a63597114b4ebe9054a966ea30dd3",
+      "git_blob": "ee7f6cfcc8a34a8dd8ba351c6563bfa3a48a5b71"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart",
+      "sha256": "d16dbaf62f8cc49421af6b03fa10913fcefdff0dcb17d21769082a510237fc02",
+      "git_blob": "498482ea5ce94bb49d71745ec088089b32bb5142"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_feedback_test.dart",
+      "sha256": "bf94a36ca3a4cbd344d6d7f6441aa6799b860706e5266f0c9714b9dec39c12e4",
+      "git_blob": "4bfd2c4cb64d9dba04636eed97f1c556c1bb4bf2"
+    },
+    {
+      "path": "integration_test/support/visual_capture.dart",
+      "sha256": "de6a13f82053cf4807f5b88f3634a680636d47cb748f11b35e8144eb3ba8e68f",
+      "git_blob": "9c8689c2cbd388cad1e90a92d4f0a7523784cf56"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "sha256": "be55bc82ef5f2dd0d7b922c44852a113a296e0d4a4d4b9d00d62420524a57180",
+      "git_blob": "025e8594be1399f720033919c47a930657a4a1e1"
+    }
+  ],
+  "unchanged_C04_C06_protocol_driver_dependencies": [
+    {
+      "path": "lib/features/account/application/customer_account_controller.dart",
+      "sha256": "caac38f9aab34a9be5258f23b3d4a6109dea777a58a634a36b35b02c34ecbd49",
+      "git_blob": "f967210a2aadef27eab228b4a9a948aaf1c8f7e5"
+    },
+    {
+      "path": "lib/features/account/presentation/customer_account_panel.dart",
+      "sha256": "ccebee050fda8afe2a2c5501aa8d2a4ad02b90b7779bab65df4454a0a111e90e",
+      "git_blob": "c69db6ecc6cf7ab5b1c582216e78019d2fe92c15"
+    },
+    {
+      "path": "lib/features/delivery_context/presentation/delivery_context_screen.dart",
+      "sha256": "d0db1874661ed382799d80dfa686b76a8f516ddd939f084e4ac0797f2a543874",
+      "git_blob": "2eae21e15fc041919a2af97a2df64d120b3fa979"
+    },
+    {
+      "path": "integration_test/support/os_frame_sync.dart",
+      "sha256": "366674393468f1b44cd3a806ba08db3c71592a3c3c0e47bcdbf8eaa250dcfea7",
+      "git_blob": "3e6c8a606f68fafc663b3c85efabf8caca213599"
+    },
+    {
+      "path": "test_driver/task054_visual.dart",
+      "sha256": "94f63d570000719fdb4261ee9350df874cae6178d8581eea4906ce21f939c2a8",
+      "git_blob": "640b22529abbd0b726ce5a67c1e76e10ecda9a17"
+    },
+    {
+      "path": "pubspec.yaml",
+      "sha256": "fd185361646fcaec1d543b20dfd6e3430dc5656a7252c93c09309cb09184ea55",
+      "git_blob": "3aea140ff63b8b882313f68549ae67b4ea075306"
+    },
+    {
+      "path": "pubspec.lock",
+      "sha256": "360f0222bb529970e33dd5d83e52a0a7313e3323044095626156cd009b42a75e",
+      "git_blob": "28c22cf39b68707d679652ccc388650e0bf7d0c1"
+    }
+  ],
+  "lib_changes_since_163b": [
+    "lib/features/reviews/presentation/customer_reviews.dart"
+  ],
+  "pocs": [
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/review_error_overlay_reproduction_test.dart",
+      "sha256": "4ac0c4ca7cc16c7a04da2ff7101579d8324405b06f945eb21bfb7d70c15c1a17",
+      "bytes_unchanged": true
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_public_router_auth_test.dart",
+      "sha256": "9646308f111cdce24f8ce2b9d88249d897cb593d391129c6d457b8518fbea719",
+      "bytes_unchanged": true
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_aba_reproduction_test.dart",
+      "sha256": "94929202bfab2c07b6c6ab00e9428745232eb5c129d4a44f24a426aeb4cf9c49",
+      "bytes_unchanged": true
+    },
+    {
+      "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart",
+      "sha256": "5537ef1327f8cb70e0152ec05c2428b54b3752879331e25d88522c01e8171796",
+      "bytes_unchanged": true
+    }
+  ],
+  "poc_relocation_manifest": "/Users/minxiang/.codex/review-artifacts/task054/review-client-feda-20261005/relocation.json",
+  "prior_failures_preserved": [
+    {
+      "revision": "a97778697051f93380ace9d6181a226c7f79ca77",
+      "receipt": "build/task054/review_client/RE_REVIEW_CLIENT_A977_C08_CHANGES_REQUIRED.json",
+      "case": "Original public auth two PoCs FAIL2"
+    },
+    {
+      "revision": "422638e673a44369e39bc691cf79ff273caec0b4",
+      "receipt": "build/task054/review_client/RE_REVIEW_CLIENT_4226_C08_OPENING_CHANGES_REQUIRED.json",
+      "case": "Original opening A-B-A FAIL1"
+    },
+    {
+      "revision": "feda593fcc301686226c0bf6246affa7a891ebe8",
+      "receipt": "build/task054/review_client/RE_REVIEW_CLIENT_FEDA_C08_PREMOUNT_CLEANUP_CHANGES_REQUIRED.json",
+      "sha256": "b4d0d9b5b82acd7e187953dc5b58ce840c303be14f9615411510e56c67c407b9",
+      "case": "Original cleanup FAIL1 and analyzer artifact-only FAIL preserved; after relocation full analyzer PASS"
+    }
+  ],
+  "sdk_public_api_audit": {
+    "flutter_revision": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+    "material_showDialog": "packages/flutter/lib/src/material/dialog.dart:1622-1669",
+    "DialogRoute_defaults": "packages/flutter/lib/src/material/dialog.dart:1821-1855",
+    "normal_modal_push": "packages/flutter/lib/src/widgets/dialog.dart:102-125",
+    "TransitionRoute_completed": "packages/flutter/lib/src/widgets/routes.dart:121,628-638",
+    "equivalent_current_defaults": [
+      "rootNavigator=true",
+      "CapturedThemes from caller to root navigator",
+      "DialogTheme/Theme/Colors.black54 barrier fallback",
+      "barrierDismissible=true",
+      "useSafeArea=true",
+      "closedLoop traversal",
+      "localized default barrierLabel",
+      "settings/anchorPoint/requestFocus/animationStyle=null",
+      "fullscreenDialog=false"
+    ],
+    "completed_semantics": "Navigator.push resolves popped first in ordinary close; TransitionRoute.dispose completes completed even for forced disposal before State mount. Future.any resolves helper and finally cleanup in both paths.",
+    "excluded_branch": "Experimental WindowRegistry+windowing separate-window path is absent from current public Android/iOS bootstrap; no desktop equivalence claimed.",
+    "riverpod_version": "2.6.1",
+    "subscription_close": "public and safe multiple calls; helper finally and State.dispose idempotent",
+    "second_reader": "/root/review_client_delta/native_focus_source_attribution reviewed exact1bf2e98 source and SDK independently; no finding. No runtime/native tests delegated or writer PASS assumed."
+  },
+  "expected_native_counts": {
+    "tests": 67,
+    "flutter_png": 105,
+    "os_png": 4
+  },
+  "count_basis": "integration_test Git tree invariant from a977, including capture registrations/calls; this is expected suite size, not actual captured file count.",
+  "harness_scope": "Flutter screenshot before OS request, explicit field focus/reveal and bounded outer Scrollable reveal are source-reviewed and host-tested; actual fields, keyboard, comment/error rendering and assistance picker require final native CI.",
+  "limits": [
+    "Whole TASK054 acceptance remains BLOCKED; APPROVED applies only to this source slice.",
+    "CI associated with final composed source and terminal native PNG/IME acceptance remain NOT_RUN here.",
+    "No local native build/device/emulator/benchmark or lane N resource used.",
+    "Public app/auth/router tests use synthetic remote ports and are not authenticated live backend evidence.",
+    "P3 external-container trigger did not demonstrate current production lifetime mismatch or any mutation/cross-owner behavior.",
+    "COMMIT with completely lost response remains ambiguous without remote idempotency contract; no new idempotency claim.",
+    "Backend Python runners/workflow/docs aggregate are separately reviewed; this receipt does not approve them.",
+    "No DONE, TASK055 or merge authorization."
+  ],
+  "tracked_source_mutations": 0,
+  "tracked_worktree_clean": true,
+  "owned_verification_processes_pending": 0,
+  "originalReceiptSha256": "2e61d7ca035aa873e93e8e77a6f0fbf37763306741e8529912ee980b79b581d7",
+  "qualification": "Review indipendente source-only; prefisso checkout rimosso, comandi/hash/risultati reali conservati. CI/native/live e TASK054 non approvati."
+}

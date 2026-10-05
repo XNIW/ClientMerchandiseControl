@@ -1,0 +1,62 @@
+{
+  "schema": "task054-ios-minimal-process-diagnostic-independent-v1",
+  "reviewer": "/root/review_evidence_ci",
+  "source": "0df0bd0a165d2927ddd9c7341fc9e18a0fa2f60b",
+  "root_integration": "71f1468896c1995cd36b72dbbcb9777f212160c5",
+  "created_utc": "2026-10-05T18:25:14.511230+00:00",
+  "source_review_status": "PASS scoped",
+  "aggregate_review": "NON_ASSEGNATO: freezecomposto e nuovaCI pendenti; a977C08OPEN/nativeCI3FAIL",
+  "source_bytes": {
+    "scripts/run-task054-ios-owned.py": {
+      "sha256": "93d3dff87f07fae2692672e7b8bbce75f7d4918b74423f8e7cd5bfe99c40580a",
+      "exact_source_root_working": true
+    },
+    "scripts/test-task054-ios-owned.py": {
+      "sha256": "31a79408f539f10abbe4bb3835b0eac72e8582be22de5d6d371e2200f4d5299e",
+      "exact_source_root_working": true
+    }
+  },
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 GITHUB_RUN_ID=123456789 GITHUB_RUN_ATTEMPT=2 GITHUB_JOB=ios-build GITHUB_SHA=0df0bd0a165d2927ddd9c7341fc9e18a0fa2f60b python3 scripts/test-task054-ios-owned.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "tests": 37,
+      "seconds": 47.989,
+      "scope": "Fixture+ownPythonprocess lifecycle;no native simulator/device/build"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 build/task054/review-evidence-ci/task054-ios-prepare-cleanup-persistence-repro-d9fcbfd9.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": "primary124;stickytrue/FAIL;reopen1/FAIL;resourceabsent"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 build/task054/review-evidence-ci/task054-ios-beci06-final-write-reopen-99b6f21.py --repository /Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "status": "PASS",
+      "exit_code": 0,
+      "observed": "flagfalse combinedBLOCKED/reopen1;flagtruecombinedFAIL/reopen1;currentresourcePASS/priorNOT_RUN distinct"
+    }
+  ],
+  "static_review": {
+    "diagnostic_fields": "operation,ownedPgid,errorType,timeoutSeconds,errno,failureCode,reasonliteral,exitCode,rowCount,fieldCount,numericPgid",
+    "raw_args_stdout_stderr_str_error": "ABSENT",
+    "unchanged_AST_methods": [
+      "persist",
+      "device_record",
+      "check_device",
+      "load",
+      "prepare",
+      "cleanup",
+      "cleanup_device",
+      "smoke",
+      "main",
+      "interrupted"
+    ],
+    "behavior_and_budget": "unchanged originalFailure/strictshape/probe2/TERM5/KILL5/boot300/drive900/jobs30",
+    "historical_CI_cause": "NOT_ESTABLISHED;newdiagnosticsapplyonlynewrun"
+  },
+  "retained_failure_receipt": "build/task054/review-evidence-ci/ci_a9777869_job_111906920464_technical.json",
+  "owned_verification_processes_pending": false,
+  "mutation_scope": "Only ownignoredreceipt"
+}

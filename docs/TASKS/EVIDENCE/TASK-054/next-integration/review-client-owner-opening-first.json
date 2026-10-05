@@ -1,0 +1,84 @@
+{
+  "kind": "independent_readonly_client_c08_residual_re_review",
+  "reviewer": "/root/review_client_delta",
+  "revision": "422638e673a44369e39bc691cf79ff273caec0b4",
+  "outcome": "CHANGES_REQUIRED",
+  "scope": "SOURCE_CODE_ONLY review owner lifecycle; native/CI/task not approved",
+  "counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 1,
+    "P3": 0
+  },
+  "closed_findings": [
+    "C-NI054-04",
+    "C-NI054-05",
+    "C-NI054-06",
+    "C-NI054-07"
+  ],
+  "finding": {
+    "id": "C-NI054-08",
+    "severity": "P2",
+    "status": "ORIGINAL_REPRO_RESOLVED, OPENING_EPOCH_RESIDUAL_REPRODUCED",
+    "source_path": "locale:customer_reviews.dart",
+    "source_lines": {
+      "subject_capture": 457,
+      "showDialog_before_monitor": [
+        459,
+        465
+      ],
+      "monitor_only_initState": [
+        506,
+        520
+      ]
+    },
+    "trigger": "Public /reviews production App+Router+AuthController+identity. TapreviewsLeave then two synthetic port signedIn events B+A without a pump before first dialog frame. FinalidentityA is verified; old opening requested in an interrupted owner epoch still builds AlertDialog.",
+    "runtime_observed": "Expected0AlertDialog, actual1; reviewwrite attempts0. Original42tests stillPASS, including expiry/lateACK, ownerB/latefailure, ABA postmount, rating popup and secondary dialog.",
+    "source_attribution": "Helper captures subject only; irreversible latch and raw AuthController listener start only in dialoginitState, too late for transitions beforefirstframe. Subject equality at mount cannot recover opening epoch history.",
+    "impact_limit": "Invalidation of editor opening epoch remains incomplete. No write crossowner, no UI painted under ownerB, no draft typed before mount, no backend auth escalation inferred.",
+    "required_fix": "Monitor opening owner epoch before showDialog request, retain irreversible loss marker through mount and result; keep targeted popup/secondary route and stableowner behavior. No router/controller/shop/dependency changes.",
+    "poc_path": "locale:reviews_owner_opening_aba_reproduction_test.dart",
+    "poc_sha256": "94929202bfab2c07b6c6ab00e9428745232eb5c129d4a44f24a426aeb4cf9c49",
+    "command": "flutter test --no-pub build/task054/review_client/reviews_owner_opening_aba_reproduction_test.dart --plain-name 'route /reviews A-B-A prima del primo frame del dialog' --reporter expanded --concurrency=1",
+    "result": "FAIL",
+    "exit_code": 1,
+    "log": "/tmp/task054-review-client-opening-aba-4226.log",
+    "log_sha256": "de73f0cc5c7af3d3181e9ac2793c6bacb37396712050cc11c7ba663928a6f61c",
+    "tests_failed": 1,
+    "poc_frozen_for_writer": true
+  },
+  "autonomous_checks": [
+    {
+      "command": "flutter test --no-pub test/features/reviews build/task054/review_client/review_error_overlay_reproduction_test.dart build/task054/review_client/reviews_public_router_auth_test.dart --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 42,
+      "log": "/tmp/task054-review-client-c08-4226.log",
+      "log_sha256": "4d3ed2d1a72584610c3adf45c0767e9175630b49afa4e8754664256f42f7c79d"
+    },
+    {
+      "command": "one opening-ABA publicroute variant above",
+      "result": "FAIL",
+      "exit_code": 1
+    }
+  ],
+  "read_only_source_checks": [
+    "Only2files delta reviews presentation + publicroute regression; no router/controller/shop/dependency mutation",
+    "RawAuth +identity latch covers coalescedA-B-A aftermount; mounted short circuit prevents stale ref reads afterdispose",
+    "OwnDropdown PopupRoute tracking, removeRoute ownDialog when notcurrent, upper secondaryDialog left intact",
+    "Callback ACK/failure/scroll/busy guarded bycurrentowner; C07localerror/draft/rating behavior unchanged",
+    "Dart harness/counts/callsite/driver/deps identical to priorreview d9da/a977;67/105/4 expected unchanged"
+  ],
+  "source_sha256": "97b9bd11385ea1bc32c2ac7181528c31a5b6c2a1215ee86653edd103a924263a",
+  "source_git_blob": "0adcb246d20a8c77db1fdc0b0f76773f8e039bf1",
+  "limits": [
+    "APPROVED not assigned while residualC08 open; rootFIX and writer distinct alreadyassigned",
+    "Previous CIa977Android failed VMservice/device offline, not independently diagnosed here; no nativeapproval",
+    "No localnative/build/device/emulator used",
+    "FullTASK054 live remainsBLOCKED"
+  ],
+  "owned_pending_futures": 0,
+  "owned_verification_processes_pending": 0,
+  "tracked_source_mutations": 0,
+  "worktree_tracked_changes": 0
+}

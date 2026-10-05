@@ -29,5 +29,57 @@
       "reported": "collaudo Mini/Admin NOT_RUN; attende rilascio effettivo simulatori e ripristino UI; richiesta sblocco pendente nella chat principale"
     }
   ],
-  "qualification": "Stato di coordinamento e claim delle lane; nessun comando/test log nativo verificato da root in questo refresh. Non promuove R24, authoring remoto, Mini/Admin o recovery terminale a PASS. Nessuna patch duplicata, dispositivo o processo altrui arrestato."
+  "qualification": "Stato di coordinamento e claim delle lane; nessun comando/test log nativo verificato da root in questo refresh. Non promuove R24, authoring remoto, Mini/Admin o recovery terminale a PASS. Nessuna patch duplicata, dispositivo o processo altrui arrestato.",
+  "terminalOverlay": {
+    "observedUtc": "2026-10-05T21:10:45.335967+00:00",
+    "tool": "wait_threads timeoutMs0, one target per read",
+    "rows": [
+      {
+        "lane": "N",
+        "threadId": "01a0e903-0c9d-7583-8d62-4c25da6785e1",
+        "cursor": "bed8c1f8-6b52-4fa8-b6e2-6f8160d050e5:71",
+        "threadStatus": {
+          "type": "active",
+          "activeFlags": []
+        },
+        "turnStatus": "inProgress",
+        "latestClaim": "La riproduzione usa due aggiornamenti consecutivi della stessa sessione dopo la pubblicazione dei dati. Il controllo richiede che il recupero finisca sulla generazione già attivata, senza riscaricare le pagine e senza accettare risposte appartenenti a un’identità o dispositivo diverso.",
+        "changed": true,
+        "mcpSuccess": true,
+        "exitCode": null,
+        "qualification": "CLAIM_ONLY; no code/log/data terminal proof"
+      },
+      {
+        "lane": "C",
+        "threadId": "01a107d6-6011-7423-b602-adb18fa89cc3",
+        "cursor": "313a8699-c3d5-4ecc-8f00-d761f5937aa3:6",
+        "threadStatus": {
+          "type": "active",
+          "activeFlags": []
+        },
+        "turnStatus": "inProgress",
+        "latestClaim": "La regressione ora richiede la chiusura sulla generazione già attivata dopo due aggiornamenti della stessa sessione, senza riscaricare pagine. Le risposte di un’altra identità o di un altro dispositivo devono continuare a essere rifiutate. È il delta di finalizzazione da verificare.",
+        "changed": true,
+        "mcpSuccess": true,
+        "exitCode": null,
+        "qualification": "CLAIM_ONLY; no code/log/data terminal proof"
+      },
+      {
+        "lane": "W",
+        "threadId": "01a0d946-6dd0-70f1-9146-e65e8d3f6020",
+        "cursor": "15a23d57-5471-45c1-84c4-c7f0e3572658:1",
+        "threadStatus": {
+          "type": "notLoaded"
+        },
+        "turnStatus": "completed",
+        "latestClaim": null,
+        "changed": false,
+        "mcpSuccess": true,
+        "exitCode": null,
+        "qualification": "CLAIM_ONLY; no code/log/data terminal proof"
+      }
+    ],
+    "mutations": 0,
+    "meaning": "N/C sono ancora attive sul delta recovery di finalizzazione stessa sessione; W non presenta nuovo esito. Nessuna prova R24/live promossa, nessuna duplicazione del writer o controllo delle loro risorse."
+  }
 }

@@ -1,7 +1,7 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
@@ -11,7 +11,9 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 
 ## Prossima integrazione NI054 — 2026-10-04
 
-Baseline main bfbfc0b6, PR28 già MERGED. Execution corrente in worktree isolato;
+Baseline main bfbfc0b6, PR28 già MERGED. Source NI054 e review scoped completate;
+CI5 terminale nonverde, REVIEW/BLOCKED e PR29 draft. Evidence finale su branch
+codex/task054-next-evidence-ci5, candidato c796526 immutabile nel worktree isolato;
 registro unico residuals.md. Le ricevute sotto restano snapshot storici. Il risultato unico è
 [CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md),
 con snapshot storici, refresh5ottobre e gate del nuovo candidato distinti.

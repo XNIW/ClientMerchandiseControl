@@ -1,0 +1,85 @@
+{
+  "reviewer": "/root/review_client_visual_resume",
+  "candidateHead": "c796526a799c959408257f4c89c36a4439515b23",
+  "runId": 37369690043,
+  "platform": "ios",
+  "artifactReadResult": "PASS",
+  "artifactPngCount": 0,
+  "nativePixelInspection": "NOT_RUN",
+  "nativeFixtureVisualExecution": "NOT_RUN",
+  "C09NativeAfter": "NOT_RUN",
+  "reason": "Step visual skipped: prepare terminatedbootstatus300exit124 beforeFlutter, supplied by root/logreviewer. Nessun PNG da ispezionare. Nonattribuito a difettoapp.",
+  "files": [
+    {
+      "file": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/ci-fifth/ios/ios-owned-receipt.json",
+      "sha256": "bb47e64d603bda26180d9b15c508bedaa47a004be4fd94452f34b56fdf5ea203",
+      "receipt": {
+        "schemaVersion": 1,
+        "nonce": "e94fd9bb653a49cf98238e4d3c9f7744",
+        "device": "8DBD144C-9C1C-4B63-945E-1F06CE8B7BE5",
+        "creationStarted": true,
+        "cleanup": "PASS",
+        "ownerContext": {
+          "GITHUB_RUN_ID": "37369690043",
+          "GITHUB_RUN_ATTEMPT": "1",
+          "GITHUB_JOB": "ios-build",
+          "GITHUB_SHA": "02d0a7cbe5a6600e31e2f42e8b73f7aa16df1698"
+        },
+        "name": "CMC-Task054-Owned-e94fd9bb653a49cf98238e4d3c9f7744",
+        "processCleanupFailed": false,
+        "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-5",
+        "cleanupAttempts": [
+          {
+            "attempt": 1,
+            "result": "PASS",
+            "resourceCleanup": "PASS",
+            "processCleanupFailed": false
+          },
+          {
+            "attempt": 2,
+            "result": "PASS",
+            "resourceCleanup": "PASS",
+            "processCleanupFailed": false
+          }
+        ]
+      }
+    },
+    {
+      "file": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/ci-fifth/ios/ios-visual-step-result.json",
+      "sha256": "7ee9a1baa7db586d7f1c1e6e76cf35524a8af5da8f53931cdaab4ba26a0317b0",
+      "receipt": {
+        "schemaVersion": 1,
+        "visualStepOutcome": "skipped",
+        "scope": "Esito dello step GitHub; non attesta quiescenza dei processi visual"
+      }
+    }
+  ],
+  "reportedLanePrimary": {
+    "result": "FAIL",
+    "exitCode": 124,
+    "phase": "owned-simulator-prepare/bootstatus",
+    "budgetSeconds": 300,
+    "causeSource": "root terminal job log; detailed CI reviewer receipt separate"
+  },
+  "cleanupReceipt": {
+    "attempts": [
+      "PASS",
+      "PASS"
+    ],
+    "processCleanupFailed": false,
+    "qualification": "PASS dei cleanup dichiarati dalla receipt; non attesta salute/quiescenza di servizi globali o risorse N."
+  },
+  "sourceQualification": "ownerContext.GITHUB_SHA è contextSHA PR/syntheticmerge02d0... distinto da checkoutsourcec796. Nessun frame gitHead da verificare; actualcheckout verificato dal reviewer CI separato.",
+  "atUtc": "2026-10-05T20:40:47.293140+00:00",
+  "ownProcesses": "ALL_TERMINAL",
+  "limits": [
+    "iOSbefore mai ricostruito",
+    "Nessun probe locale/deldevice,nessuna retry/download/source/Gitmutation",
+    "AT/physical/live NOT_RUN/BLOCKED separati"
+  ],
+  "originalReceipt": {
+    "path": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/ci5-native-qa/ios-native-not-run.json",
+    "sha256": "26fb17cd0a57629c4fc0489d97bb9a08d7dddccf271e713e25a1a9432d726cbc"
+  },
+  "durableQualification": "Ricevuta di TASK-054 copiata con outcome e limiti conservati; log completi e artifact locali fuori Git. Il candidato CI è c796526, source50a immutabile. Questo branch documentale non è un nuovo candidato applicativo o una prova di CI sul suo HEAD."
+}

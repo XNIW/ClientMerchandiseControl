@@ -13,11 +13,16 @@ non ha una ricevuta live. Il Worker TEST identificato non contiene ancora i sett
 file commerce Admin richiesti. Nessuna nuova pubblicazione operativa è dichiarata.
 
 Sul telefono fisico non è provato un flusso completo: Android fisico non disponibile;
-al refresh del 5 ottobre l'iPhone è disponibile via rete, senza installazione o avvio
-Client eseguiti. N resta owner della finestra e dello stato autenticato. Le build unsigned
-e lo smoke simulatore del primo freeze sono prove separate; il CI4 ha prodotto catture Android parziali e ha fermato iOS prima dello smoke. Firma, canale e installazione interna
+nell'inventario del5ottobre16:30UTC l'iPhone era disponibile via rete, senza
+installazione o avvio Client eseguiti. N resta owner della finestra e dello stato autenticato. Le build unsigned
+e lo smoke simulatore del primo freeze sono prove separate; il CI5 ha prodotto
+release iOS unsigned PASS ma nessuna nuova cattura nativa. Il CI4 parziale resta
+storico. Firma, canale e installazione interna
 restano BLOCKED. TASK-054 resta aperta; TASK-055 e production non attivate.
-Stato: BLOCKED/REVIEW, composto source50a3123; harness, kernel e ClientC09 APPROVED scoped; CI5 e pixel native after pendenti. La review1bf2e98 resta storica e C04–06 sono approvati. Il secondo CI
+Stato: BLOCKED/REVIEW, handoff CODEX_REVIEW_BLOCKED. Source50a3123 e candidata
+c796526 congelate: harness, kernel, ClientC09 e documenti APPROVED scoped;
+suite locale globale986PASS/exit0. CI5 terminaleFAIL, re-reviewBLOCKED; nuovi
+pixel native after NOT_RUN. PR29 aperta/draft, nuovo delta non integrato. La review1bf2e98 resta storica e C04–06 sono approvati. Il secondo CI
 ha riprodotto un difetto nella conservazione del cleanup iOS, un fallimento del
 test native di assistenza e C07: errore recensione oscurato dietro il dialogo. Le quattro tastiere Android sono state osservate in
 frame OS reali; suite e acceptance native complete non sono PASS.
@@ -250,13 +255,13 @@ append-only conserva retention autorizzata. Non usare record esistenti come pilo
 
 | Blocco / azione tentata | Esito osservato | Risorsa e owner | Minimo intervento residuo |
 |---|---|---|---|
-| P1: metadata, catalogo migration, backup e cron readonly; clone e recovery locali eseguiti | FAIL32/55,1/2; quattro cron commerce attivi, backup remoto null/PITRfalse; nessuna esclusione attestata | Backend/release + Admin: recovery corrente DB/Storage e finestra writer/cron | Fornire la ricevuta recovery corrente e la finestra coordinata prima dell'apply delle sole3canoniche; clone locale non sostituisce recovery remota |
+| P1: metadata, catalogo migration, backup e cron readonly; clone e recovery locali eseguiti | FAIL32/55,1/2; quattro cron commerce attivi, backup remoto null/PITRfalse nel solo snapshot4ottobre; nessuna esclusione attuale attestata | Backend/release + Admin: recovery corrente DB/Storage e finestra writer/cron | Fornire la ricevuta recovery corrente e la finestra coordinata prima dell'apply delle sole3canoniche; clone locale non sostituisce recovery remota |
 | P2: config legacy provata sul parser corrente; ricerca dei riferimenti esterni e gate live | Legacy respinta; `--live` BLOCKED/exit2 | Owner Client/backend: `CMC_APPROVED_TEST_ARTIFACT_CONFIG_PATH`, shop/owner fixture e `CMC_BACKEND_PGSERVICE` readonly/TLSverify-full | Indicare i riferimenti già approvati e il manifest delle fixture sintetiche; nessun segreto nel rapporto |
 | P3: AuthManagementGET e allow-list esistenti lette | GoogleON/17redirect; login/callback NOT_RUN | Owner Auth/domain: HTTPS verificato, AASA/assetlinks e pilota TEST | Consegnare host e configurazione già approvati; OFF di mappe/pagamento/push preservato |
 | P4: Worker/versione/tree e mainAdmin confrontati; owner W/coordinatore contattati | Sette file commerce main assenti nel tree distribuito; byte build→Worker NOT_RUN | W/AdminTASK159: delta selettivo e ricevuta build/versione | Consegna del candidato selettivo concordato e dell'operator fixture; nessun deploy implicito di tutta main |
 | P5: main native/CI verificate e owner N contattato | Nuova recovery ancora FIX; authoring-chain R24 NOT_RUN | N: artifact verificato e finestra su entrambe le piattaforme | Ricevuta terminale recovery/continuità e catena localID→publicationId→Client con pilota TEST |
 | P6: riferimenti signing, identità, canali e device inventory verificati | Riferimenti signing Client assenti; iPhone ora disponibile via rete al5ottobre, Android fisico assente | Release/device owner/N: Team, cert SHA, runtime config, artifact e canale interno già approvati | Fornire i riferimenti `IOS_EXPECTED_TEAM_ID`, `IOS_EXPECTED_SIGNING_CERT_SHA256`, `IOS_RELEASE_RUNTIME_CONFIG_PATH` e equivalenti Android; concordare la finestra senza usare il contesto autenticato N |
-| P7: fixture host e primo run CI eseguiti; bridge OS e lifecycle runner corretti | Primo CI FAIL conservato; nuove catture e screenreader NOT_RUN | Client/CI per native fixture; device owner per sessione interattiva | Nuovo run exact-SHA con PNG OS osservabili; VoiceOver/TalkBack richiedono una sessione propria sul candidato e non sono attestati dalla CI fixture |
+| P7: cinque freeze CI conservati, bridge OS/runner corretti e suite986host eseguita | CI5 terminaleFAIL: iOS migrazione locationd/300/124; Android runner interrotto; Quality/releaseAndroid senza runner; after e screenreader NOT_RUN | GitHub/CI per risorse hosted; release owner per toolchain locale compatibile14; device owner per AT | Ripristinare risorse hosted e readiness iOS entro budget, poi gate exact-SHA e QA105Flutter/4OS; nessun retry cieco o aumento timeout. Locale attuale Xcode27/SDKmin15 e ricetta non pronta. AT richiede sessione propria |
 
 Ricetta gate live quando P1/P2 sono disponibili:
 
@@ -279,23 +284,23 @@ nessuna scrittura di staging è stata eseguita da questa lane.
 | CA-N2 / T-N2 | backend.json, canonical-delta.json, catalog-parity.json, sql-validation.json, local-recovery.json | PASS package/metadata/locale; runtimeFAIL32/55,1/2; applyBLOCKED P1/PGTLS |
 | CA-N3 / T-N3 | test customer_notification_unread_filter_test.dart e suite inbox40, quattro lingue200% | PASS widget; liveR18NOT_RUN P1/P2 |
 | CA-N4 / T-N4 | task054_next_integration_surfaces_test.dart,24hostPASS;67native/105PNG e4OS attesi | PASS host; CI4 Android64case PASS/3FAIL e102Flutter/4OS parziali, iOS0PNG; IME composto e screenreader NOT_RUN |
-| CA-N5 / T-N5 | runner-current.json e runner-local.json, analyze/security/governance; review e CI primo freeze conservate | NOT_RUN finale: nuovaCI/re-review sullo SHA congelato pendenti |
+| CA-N5 / T-N5 | freeze-fifth.json, ci-fifth-review.json e ci-fifth-jobs.json; local-full-candidate.json | PASS source/review scoped e986host; CI5 terminaleFAIL con5job/44step, re-reviewBLOCKED per gate mandatory; main integration NOT_RUN |
 | CA-N6 / T-N6 | Matrice R01–30 invariata, backlogNI054 e questa ricevuta con risorseP1–P7 | PASS rendiconto; acceptance liveNOT_RUN, firma/fisiciBLOCKED |
 
 ## Livelli di prova e stop condition
 
 | Livello | Esito corrente | Perché |
 |---|---|---|
-| CODE | PASS source applicativa; Client/harness/kernel APPROVED scoped; CI composta4 FAIL | Source50a3123: C09 chiuso con62verifiche autonome, kernel53 e harness67+4 PASS; CI5 NOT_RUN al freeze ([checkpoint](next-integration/freeze-fifth.json)) |
+| CODE | PASS source e986host; review scoped APPROVED; CI5 FAIL | Source50a3123: Client62, kernel53 e harness67+4 PASS, documenti c796 APPROVED; [suite globale](next-integration/local-full-candidate.json) separata da LinuxCI BLOCKED |
 | BACKEND_RUNTIME | FAIL metadata; apply BLOCKED |32/55RPC,1/2indici; clone non attesta runtimeTEST |
 | STAGING_E2E | NOT_RUN | P1/P2 e prerequisiti per caso |
 | AUTH_LIVE | NOT_RUN | P3; GoogleManagementGET non prova login |
 | AUTHORING_CHAIN | NOT_RUN | P4/P5 e catena entrambe le piattaforme |
 | ADMIN_STAGING | NOT_RUN per commerce corrente | Worker identificato ma versione selettiva incompleta |
-| UI_VISUAL_QA | PASS widget; capture native CI4 FAIL; afterCI5 NOT_RUN | CI4 Android102Flutter/4OS parziali: submit errore leggibile, edit errore incompleto; iOS0PNG prima di bootstatus. Before reali conservati; C09sourcefix approvato, nessuna acceptance nativa completa |
+| UI_VISUAL_QA | PASS widget; nuove capture native CI5 NOT_RUN/BLOCKED | CI5 Android interrotto prima test/PNG, artifact assente; iOS bootstatus124 prima Flutter,0PNG. CI4102Flutter/4OS e before reali preservati; C09 edit clipped corretto nel codice, after nativo mancante |
 | PHYSICAL_DEVICES | BLOCKED per artifact/config/finestra | Android fisico assente; iPhone disponibile via rete al5ottobre, installazione/smoke Client NOT_RUN |
 | DISTRIBUTION | BLOCKED | Team/certificati/API/canali/config artifact non referenziati |
-| MAIN_INTEGRATION | NOT_RUN nuovo delta | DraftPR29 aperta; source review scoped APPROVED, review documentale e CI5 richieste prima del merge ordinario |
+| MAIN_INTEGRATION | NOT_RUN nuovo delta; merge BLOCKED | DraftPR29 candidata c796 immutata, main bfbfc0b6. Source/docs APPROVED scoped; CI5 non verde impedisce integrazione. Risultati finali su branch evidence separato |
 | PRODUCTION | NOT_RUN | Disposizione NOT_ACTIVATED, fuori scope |
 
 Nessun account/provider nuovo, spesa o privilege expansion. I blocker dipendenti
@@ -699,3 +704,65 @@ Il composto50a3123 è congelato nel codice; segue il freeze documentale e CI5
 exact-SHA. CI4 e le sei after parziali restano evidence storicaFAIL, non finalQA.
 TASK054BLOCKED/REVIEW, CODEX_FIX_BLOCKED_TO_RE_REVIEW; nessun merge anticipato,
 DONE, TASK055 o production.
+
+
+## CI5 terminale e consegna — candidata c796526
+
+[CI5](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37369690043)
+conclusa con failure: cinque job terminali,44step e annotation4failure/1warning/11notice
+ispezionati autonomamente. Tre checkout reali sono c796526; gli altri due non
+hanno acquisito runner e non hanno eseguito checkout. [Review indipendente](next-integration/ci-fifth-review.json),
+[tutti i job/step/annotation](next-integration/ci-fifth-jobs.json),
+[QA native finale BLOCKED](next-integration/ci-fifth-native-qa.json),
+[review documentale precedente APPROVED](next-integration/review-documents-fifth.json).
+
+| Job / piattaforma | Esito reale | Prova e limite |
+|---|---|---|
+| iOS release111963462899 | PASS | Build/archive unsigned,89/89 fixture adversarial; nessuna firma, distribuzione o runtime14 attestato |
+| iOS debug111963462747 | FAIL prepare124; smoke/visual NOT_RUN | Runtime26.5,UUID8DBD144C-9C1C-4B63-945E-1F06CE8B7BE5: bootstatus20:31:24→20:36:25,300s; Data Migration/com.apple.locationd.migrator,Status2 nonterminal. Build/security e2golden macOS PASS |
+| Cleanup iOS | PASS | Due attempt PASS,flag processCleanupFailedfalse; assenza risorsa/readback associati a log/source. Due JSON originali,0PNG. [Artifact](next-integration/ci-fifth-ios-artifact.json), [receipt UUID](next-integration/ci5-ios-receipt/ios-owned-receipt.json) |
+| Android debug111963462599 | Build/security PASS; visual BLOCKED | Segnale shutdown runner20:45:41 durante assembleDebug del drive; step capture CANCELLED, Save artifact SKIPPED. Nessun test Flutter/PNG, artifact assente, cleanup finale NOT_RUN; causa esclusiva non stabilita |
+| Android release111963462788 | BLOCKED CI_EXTERNAL | cancelled senza hosted runner,0step, checkout NOT_RUN; loggetter404/exit1 conservato |
+| Quality111963462898 | BLOCKED CI_EXTERNAL | cancelled senza hosted runner,0step, checkout NOT_RUN; loggetter404/exit1 conservato |
+
+I due job senza runner riportano esplicitamente il mancato acquisto di hosted
+runner dopo più tentativi. L'[incidente GitHub Actions](https://www.githubstatus.com/incidents/3q1yb5m7ltvb)
+conferma ritardi/fallimenti di assegnazione: corrobora tale limite, senza attribuire
+la migrazione iOS allo stesso incidente. Nessun cancel manuale, rerun cieco,
+nuovo skip, timeout aumentato o target iOS alzato. Il fix kernel è esercitato
+oltre il precedente psProbe: boot/open e cleanup superati; la nuova causa è
+una readiness non terminale prima di Flutter. Non è un finding app.
+
+La suite globale del candidato è stata eseguita sul Mac perché Quality era
+bloccata: flutter test --no-pub --coverage --exclude-tags performance
+--concurrency=1 --reporter expanded,986PASS/exit0,20:49:29→20:52:50UTC.
+[Ricevuta](next-integration/local-full-candidate.json). Non sostituisce LinuxCI,
+native capture o prove live. I10benchmark PASS su302 nel CI4 restano storici;
+nuova esecuzione performance NOT_RUN. I62test reviewer si sovrappongono ai
+canonici della suite986 e non sono sommati come1048casi distinti.
+
+[Readiness locale](next-integration/ios-local-readiness.json): Xcode27.0/27A266a
+unico sotto /Applications, SDKSimulator27 dichiara min15 e non include14 nei
+target validi. Le due toolchain compatibili note e Simulator.app della ricetta
+sono assenti; nel worktree manca Runner.app corrente. Nessun build/boot
+locale tentato e nessun compilerFAIL dichiarato. Il bundle originale1agosto
+non è del candidato e non è stato riusato. Prerequisito: toolchain compatibile
+con14 e ricetta pronta, poi build corrente e finestra coordinata su risorse proprie.
+
+[Presence finale](next-integration/config-terminal-current.json),20:29UTC:
+sette path certi,legacyJSON originale presente e invariato nei metadati,sei
+assenti; quattro directory NOT_RUN perché mapping non conservata. Nessun
+body letto o config legacy autorizzata. Le27ENV/GHmetadata19:25 e il gate
+backend BLOCKED2 precedente restano qualificati; nessun nuovo gate live
+eseguito da questo probe. Le risorseP1–P6 restano necessarie per TEST/live/R24.
+
+Consegna CODEX_REVIEW_BLOCKED: source e review scoped completate, TASK054
+restaBLOCKED/REVIEW. PR29 resta draft sul candidato c796526, main bfbfc0b6
+non avanzata; merge e mainCI del nuovo delta NOT_RUN. I risultati terminali
+sono persistiti sul branch codex/task054-next-evidence-ci5, solo documenti
+e ricevute, senza nuova PR o CI applicativa sul suo HEAD. Source verificata
+immutabile50a/c796. Nessuna attività promessa in background, nessun processo
+locale di verifica proprio pendente; tutti cinque job della CI5 sono terminali.
+Le risorse remote Android non hanno receipt cleanup finale, mentre iOS ha PASS.
+Checkout originale8423 e supabase/ untracked preservati; nessun DONE,TASK055
+o production.

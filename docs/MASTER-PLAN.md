@@ -10,15 +10,17 @@
 - **Stato task**: BLOCKED
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: congelare il composto NI054 source50a3123 dopo review source
-  Client/harness/kernel APPROVED scoped, conservare i quattro freeze falliti e
-  verificare documenti e CI exact-SHA con reviewer distinti; integrazione di sviluppo autorizzata
-  dopo APPROVED e gate verdi. Apply TEST subordinato a risorse e finestra attuali.
-  TASK-054 resta aperta finché i requisiti live obbligatori non sono verificati.
+- **Prossima azione autorizzata**: riprendere il candidato NI054 c796526/source50a
+  dopo lo sblocco hosted runner e readiness iOS entro il budget approvato; source
+  e documenti APPROVED scoped, suite locale986PASS, CI5 terminale nonverde e
+  re-reviewBLOCKED. PR29 draft; integrazione ordinaria soltanto con gate reali
+  verdi. Evidence finale su codex/task054-next-evidence-ci5, senza nuovo candidato
+  app. Apply TEST subordinato a recovery corrente, finestra writer/cron e
+  riferimenti approvati. TASK054 resta aperta; nessun TASK055 o production.
 
 ## Repository coinvolti
 

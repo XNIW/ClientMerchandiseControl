@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 1,
+  "kind": "TASK-054 iOS local readiness, read-only metadata",
+  "role": "READ_ONLY_READINESS_REVIEW",
+  "startedAtUtc": "2026-10-05T20:43:59.077331+00:00",
+  "completedAtUtc": "2026-10-05T20:43:59.547809+00:00",
+  "sourceRevision": "50a3123e9b81e2a2c5490808aaf6056a1fa1e7ef",
+  "candidateRevision": "c796526a799c959408257f4c89c36a4439515b23",
+  "sourceAssociation": {
+    "status": "PASS",
+    "type": "GIT",
+    "relevantFilesUnchangedBetweenSourceAndCandidate": true,
+    "sourceFiles": [
+      {
+        "path": "scripts/test-task054-visual.sh",
+        "sha256": "4cc3352b187cde124d384d6c2b923a17d98bad46a64fc1fb4a70cf7589af348a"
+      },
+      {
+        "path": "scripts/run-task054-ios-owned.py",
+        "sha256": "5784f4db204b58d4cbc925e3a1366088d42b47906923eb34fcdb815113599d8f"
+      },
+      {
+        "path": "ios/Runner.xcodeproj/project.pbxproj",
+        "sha256": "7df77d74492f53dd6cc6b5913095f41c2e99d3d26103082595c25e98af9cdd09"
+      },
+      {
+        "path": ".github/workflows/ci.yml",
+        "sha256": "d2516b4627dc7f7319a9d6d5c2798f1448fd77baeb2f1cc2e0a864af80eeaa60"
+      }
+    ],
+    "worktreeClean": true
+  },
+  "checks": [
+    {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "startedAtUtc": "2026-10-05T20:43:59.077455+00:00",
+      "completedAtUtc": "2026-10-05T20:43:59.086422+00:00",
+      "exitCode": 0,
+      "stdout": "c796526a799c959408257f4c89c36a4439515b23",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "startedAtUtc": "2026-10-05T20:43:59.086441+00:00",
+      "completedAtUtc": "2026-10-05T20:43:59.104937+00:00",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/xcode-select",
+        "-p"
+      ],
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "startedAtUtc": "2026-10-05T20:43:59.104961+00:00",
+      "completedAtUtc": "2026-10-05T20:43:59.108164+00:00",
+      "exitCode": 0,
+      "stdout": "/Applications/Xcode.app/Contents/Developer",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/xcodebuild",
+        "-version"
+      ],
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "startedAtUtc": "2026-10-05T20:43:59.108182+00:00",
+      "completedAtUtc": "2026-10-05T20:43:59.156910+00:00",
+      "exitCode": 0,
+      "stdout": "Xcode 27.0\nBuild version 27A266a",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/xcodebuild",
+        "-showsdks"
+      ],
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "startedAtUtc": "2026-10-05T20:43:59.156936+00:00",
+      "completedAtUtc": "2026-10-05T20:43:59.530643+00:00",
+      "exitCode": 0,
+      "stdout": "DriverKit SDKs:\n\tDriverKit 27.0                \t-sdk driverkit27.0\n\niOS SDKs:\n\tiOS 27.0                      \t-sdk iphoneos27.0\n\niOS Simulator SDKs:\n\tSimulator - iOS 27.0          \t-sdk iphonesimulator27.0\n\nmacOS SDKs:\n\tmacOS 27.0                    \t-sdk macosx27.0\n\tmacOS 27.0                    \t-sdk macosx27.0\n\ntvOS SDKs:\n\ttvOS 27.0                     \t-sdk appletvos27.0\n\ntvOS Simulator SDKs:\n\tSimulator - tvOS 27.0         \t-sdk appletvsimulator27.0\n\nvisionOS SDKs:\n\tvisionOS 27.0                 \t-sdk xros27.0\n\nvisionOS Simulator SDKs:\n\tSimulator - visionOS 27.0     \t-sdk xrsimulator27.0\n\nwatchOS SDKs:\n\twatchOS 27.0                  \t-sdk watchos27.0\n\nwatchOS Simulator SDKs:\n\tSimulator - watchOS 27.0      \t-sdk watchsimulator27.0",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/usr/bin/xcrun",
+        "--sdk",
+        "iphonesimulator",
+        "--show-sdk-path"
+      ],
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "startedAtUtc": "2026-10-05T20:43:59.530677+00:00",
+      "completedAtUtc": "2026-10-05T20:43:59.537116+00:00",
+      "exitCode": 0,
+      "stdout": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "50a3123e9b81e2a2c5490808aaf6056a1fa1e7ef",
+        "c796526a799c959408257f4c89c36a4439515b23",
+        "--",
+        "scripts/test-task054-visual.sh",
+        "scripts/run-task054-ios-owned.py",
+        "ios/Runner.xcodeproj/project.pbxproj",
+        ".github/workflows/ci.yml"
+      ],
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+      "startedAtUtc": "2026-10-05T20:43:59.537135+00:00",
+      "completedAtUtc": "2026-10-05T20:43:59.547034+00:00",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "xcodeApplicationNamesInApplicationsOnly": [
+    {
+      "name": "Xcode.app",
+      "path": "/Applications/Xcode.app"
+    }
+  ],
+  "simulatorSdkMetadata": {
+    "settingsPath": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/SDKSettings.plist",
+    "sha256": "d217fa1ae2a58d197871b59b93ac5970dc6422e8782a7b486d67768285cbbffa",
+    "version": "27.0",
+    "canonicalName": "iphonesimulator27.0",
+    "minimumDeploymentTarget": "15.0",
+    "validDeploymentTargets": [
+      "15.0",
+      "15.1",
+      "15.2",
+      "15.3",
+      "15.4",
+      "15.5",
+      "15.6",
+      "16.0",
+      "16.1",
+      "16.2",
+      "16.3",
+      "16.4",
+      "16.5",
+      "16.6",
+      "17.0",
+      "17.1",
+      "17.2",
+      "17.3",
+      "17.4",
+      "17.5",
+      "17.6",
+      "18.0",
+      "18.1",
+      "18.2",
+      "18.3",
+      "18.4",
+      "18.5",
+      "18.6",
+      "26.0",
+      "26.2",
+      "26.3",
+      "26.4",
+      "26.5",
+      "26.6",
+      "27.0"
+    ],
+    "ios14Listed": false
+  },
+  "knownPathsPresence": [
+    {
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/ios/iphonesimulator/Runner.app",
+      "exists": false
+    },
+    {
+      "path": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/ios/iphoneos/Runner.app",
+      "exists": false
+    },
+    {
+      "path": "/Applications/Xcode_26.6.app",
+      "exists": false
+    },
+    {
+      "path": "/Applications/Xcode_26.5.app",
+      "exists": false
+    },
+    {
+      "path": "/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app",
+      "exists": false
+    },
+    {
+      "path": "/Users/minxiang/Projects/ClientMerchandiseControl/build/ios/iphonesimulator/Runner.app",
+      "exists": true,
+      "isDirectory": true,
+      "mtimeUtc": "2026-08-01T18:31:16+00:00",
+      "infoPlistSha256": "902c3f6b6eb6c5d9bc82d0ac7cd169c78223b6e74aa22bedb039ce4e03f946bb",
+      "metadata": {
+        "MinimumOSVersion": "13.0",
+        "DTXcode": "2660",
+        "DTXcodeBuild": "17F113",
+        "DTSDKName": "iphonesimulator26.5",
+        "DTSDKBuild": "23F81a",
+        "CFBundleVersion": "1",
+        "CFBundleShortVersionString": "0.1.0"
+      },
+      "runnerExecutablePresent": true,
+      "runnerExecutableSize": 156752
+    }
+  ],
+  "historicalDiagnosis": {
+    "path": "docs/TASKS/EVIDENCE/TASK-054/validation.md",
+    "lines": [
+      168,
+      178
+    ],
+    "claim": "Historical canonical iOS14 build failed on Xcode27; override15 smoke was diagnostic only.",
+    "currentVerification": "Current selected SDK metadata independently confirms minimum15 and excludes14; no build rerun."
+  },
+  "recipe": {
+    "path": "scripts/test-task054-visual.sh",
+    "iosOwnedPreflight": "Requires Developer/Applications/Simulator.app, available iOS26 runtime and own iPhone17 UUID.",
+    "visualCommand": [
+      "flutter",
+      "drive",
+      "--no-pub",
+      "--driver=test_driver/task054_visual.dart",
+      "--target=integration_test/task054_visual_flow_test.dart",
+      "-d",
+      "OWNED_UUID",
+      "--dart-define=CMC_VISUAL_CAPTURE=true",
+      "--dart-define=CMC_OS_FRAME_CAPTURE=true"
+    ],
+    "budgetsUnchangedSeconds": {
+      "bootstatus": 300,
+      "visual": 900
+    },
+    "deploymentTarget": "14.0",
+    "ciToolchainPath": "/Applications/Xcode_26.6.app/Contents/Developer"
+  },
+  "outcome": {
+    "status": "BLOCKED",
+    "classification": "LOCAL_CANONICAL_LANE_EXTERNAL_PREREQUISITE",
+    "readyToolchain": false,
+    "readyCandidateRunnerApp": false,
+    "possibleWithBuildOnExistingSelectedToolchain": false,
+    "reason": "Installed selected Xcode27 SDK minimum15 conflicts with canonical14. Neither known compatible Xcode26.5/26.6 nor required Simulator.app recipe path exists. Frozen worktree has no current Runner.app.",
+    "prerequisite": "Provide a compatible already-approved Xcode toolchain supporting14 and owned iOS26 simulator recipe; then build the exact candidate before native QA.",
+    "usefulWorkNow": "Static source and host/widget gates remain independently practicable; no local native lane is ready from checked metadata.",
+    "historicalAppQualification": "Original checkout Runner.app is dated2026-08-01, SDK26.5/min13 and has no association with the current candidate; it cannot replace a current build."
+  },
+  "notRun": {
+    "build": "No compatible canonical toolchain or current build; heavyweight build prohibited in this read-only check.",
+    "smoke": "No ready candidate build; no device or simulator control authorized in this check.",
+    "visual": "No ready candidate build; no device or simulator control authorized in this check.",
+    "runtimeAvailability": "No simctl/device inventory in this strictly limited check.",
+    "ci5Cause": "CI5 bootstatus timeout is parent-provided context, not independently re-read here; no app-cause attribution."
+  },
+  "hygiene": {
+    "noToolchainChanges": true,
+    "noDeviceOperations": true,
+    "noBuildOrTestLaunched": true,
+    "noForeignProcessesControlled": true,
+    "allOwnMetadataCommandsTerminal": true,
+    "noRepositoryFilesModified": true,
+    "artifactOutsideRepositoryAndDartAnalysisPaths": true
+  },
+  "originalReceipt": {
+    "path": "/Users/minxiang/.codex/review-artifacts/task054/ios-local-readiness-20261005/receipt.json",
+    "sha256": "f5a4d63d0e1f412e30edad0bb2459d6cc2042b00ca48de0096cacd9c4761bbe2"
+  },
+  "durableQualification": "Ricevuta di TASK-054 copiata con outcome e limiti conservati; log completi e artifact locali fuori Git. Il candidato CI è c796526, source50a immutabile. Questo branch documentale non è un nuovo candidato applicativo o una prova di CI sul suo HEAD."
+}

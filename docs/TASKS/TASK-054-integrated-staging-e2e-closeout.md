@@ -449,3 +449,38 @@ Fix autorizzato dal mandato: writerharness corregge draft/busy/retry/lifecycle
 nel suo worktree; writerrunner corregge gruppo proprio e readiness/IME-testbridge
 in worktree distinto. Root integra sequenzialmente, nuova review/CI mandatory.
 FaseFIX, handoffCODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.
+
+
+### Fix NI054 — candidato composto, 2026-10-05
+
+C04/C05/C06 chiusi dal reviewer Client sul codice163b9c2:104test autonomi e
+2focus host PASS; UI invariata nei commit successivi. ACK write distinto da
+refresh/select, draft/busy/errore preservati nei tre ingressi delivery.
+Source freeze composto da26c15: runner OS valida PNG e quiescenza su ogni uscita;
+iOS prepara un solo simulatore proprio e lo presta a smoke/visual in step distinti.
+BECI-02/03/04 hanno reproFAIL conservate e fix39d180d, re-review autonoma corrente.
+BECI-05 fixtureCI chiuso autonomamente dopo26b597, guardproduction invariato.
+Root ha eseguito6gate runner PASS/exit0:31OS,25Android,14visual,14Dart,3real-owned
+con19scenari e33iOS in envCI-like. Nessuna cattura nativa inferita da questi test.
+
+Workflow composto mantiene5job,25minAndroid/30miniOS,drive900 e target14;
+CI exact-SHA da associare al freeze. Refresh TEST5ottobre invariato32/55RPC,
+1/2indici,155history,4cron attivi. iPhone ora available viarete, non installato
+o avviato da Client; ownerN preservato. Task complessivoBLOCKED per gate live.
+
+FIX -> REVIEW con CODEX_FIX_BLOCKED_TO_RE_REVIEW; nessunDONE/TASK055.
+L'integrazione di sviluppo resta autorizzata solo dopo review distinteAPPROVED
+e gate applicabili verdi; ricevute in unico risultatoNI054.
+
+
+### Re-review runner NI054 — source39d180d, 2026-10-05
+
+BECI-02 chiuso autonomamente:31OS e corpus13valid/13corruptPASS; invalidPNG
+produceFAIL senza file/framePASS. BECI-03/04 ancoraCHANGES_REQUIRED:6PoC reali
+ripetute da reviewer indipendente exit1, segnale prima delSIG_BLOCK oppure probe
+ps malformata lascia ownchildlive. Primari143/130/1/7 conservati, cleanup finale
+delle sole risorse dei PoC PASS. La validazione iniziale non copriva queste finestre.
+
+WriterOS corregge nello scope originario, guard/cleanupsu ogni path e fallbackKILL
+proprio anche con metadata non verificabile, senza dichiarare quiescenzaPASS.
+REVIEW -> FIX, CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX; nessun nuovo push/merge.

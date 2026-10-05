@@ -12,8 +12,9 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 ## Prossima integrazione NI054 — 2026-10-04
 
 Baseline main bfbfc0b6, PR28 già MERGED. Execution corrente in worktree isolato;
-registro unico residuals.md. Le ricevute sotto restano snapshot storici. Il nuovo
-risultato NI054 sarà collegato qui al freeze, con runtime TEST e UI distinti.
+registro unico residuals.md. Le ricevute sotto restano snapshot storici. Il risultato unico è
+[CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md),
+con snapshot storici, refresh5ottobre e gate del nuovo candidato distinti.
 
 ## Mandato funzionale e UX precedente
 

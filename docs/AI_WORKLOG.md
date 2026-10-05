@@ -5080,3 +5080,30 @@ coordinamento delle chat attive avviato. Nessun TASK055, DONE o activation.
   preservata, nessunmerge. OSframe richiede sincronizzazione con focus, callback
   onScreenshotbuffered non usata per falsa provaIME.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-05 — TASK-054 NI054 fix composto e nuova re-review
+
+- **Ruolo**: CODEX_FIXER -> CODEX_RE_REVIEWER, writer isolati e reviewer distinti.
+- **Fix**: C04/C05/C06 conservazione draft/ACK, sourcecodeAPPROVED163b dal Client;
+  BECI02/03/04 PNG/processi, source39d180d integrato da26c15; BECI05 fixtureCI
+  26b597 integrato28d74aa, chiuso autonomamente con33CI-like e negativi3PASS.
+- **Gate reali**:6comandi runner root PASS/exit0, inclusi3test/19scenari processi
+  propri e33iOS con envCI sintetico. PrimoCI8360FAIL conservato, nuovaCI/re-review
+  source composto pendenti. Nessun native/fisico/stagingPASSpromosso dai fakes.
+- **Refresh**: TEST invariato32/55,1/2,155history e4cron; iPhone disponibile via
+  rete5ottobre, N notificato; firma/configartifact/pilota/TLS restano dipendenze.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+- **Stato**: BLOCKED/REVIEW. TASK055 e production non attivati; nessun processo
+  di verifica root pendente al freeze.
+
+
+## 2026-10-05 — TASK-054 NI054 re-review runner e fix residuo
+
+- **Ruolo**: reviewer indipendente -> CODEX_FIXER.
+- **Esito**: BECI02 chiuso, BECI03/04 CHANGES_REQUIRED;6PoC reali exit1 con
+  ownchildlive su finestra preguard o probe malformata, primari conservati.
+  Cleanup finale delle sole risorse PoC PASS; nessun processo reviewer residuo.
+- **Azione**: fix minimo e regressioni reali prima di nuovo freeze; CI non
+  dispatchata. APPROVED Client è limitato al codice invariato, non al runner.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

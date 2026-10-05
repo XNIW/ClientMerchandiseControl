@@ -1,0 +1,49 @@
+{
+  "kind": "independent_readonly_client_review_checks",
+  "baseline": "bfbfc0b6a7122f29b8d8f6e2c2263d77b252749c",
+  "frozen_candidate": "8360eab6c962892c98ff61833d7478961fa2d1c9",
+  "formal_review_outcome": "CHANGES_REQUIRED",
+  "pending": ["CI exact-SHA terminale", "capture native Android e iOS"],
+  "client_findings_confirmed": [
+    {
+      "id": "C-NI054-04",
+      "severity": "P2",
+      "status": "OPEN",
+      "file": "lib/features/account/presentation/customer_account_panel.dart",
+      "lines": [1015, 1020],
+      "related_lines": [435, 440],
+      "description": "Il submit chiude e dispone l'editor prima della mutation remota; in errore i dati digitati vengono persi.",
+      "impact": "Un errore transitorio di create/edit indirizzo costringe a riscrivere il form; il requisito di conservazione del testo dopo errore del mandato non è soddisfatto.",
+      "provenance": "Preesistente, non introdotto dai fix inbox/fulfillment; dentro lo scope UX indirizzi/keyboard autorizzato.",
+      "reproduction": "Edit indirizzo sintetico; line1='Avenida nueva sintética 456'; repository mutation unavailable; Save mostra notice-1, repository invariato, dialog chiuso; riaprire mostra 'Avenida Uno 123'.",
+      "command": "flutter test --no-pub build/task054/review_client/address_error_reproduction_test.dart",
+      "result": "FAIL",
+      "exit_code": 1,
+      "correction_requested": "Attendere l'esito della mutation mantenendo editor/draft recuperabile, feedback locale e busy/doppio-submit; chiudere dopo successo, preservando auth fence e comportamento degli altri call site.",
+      "regression_tests_requested": ["create/edit errore → draft preservato → retry", "busy blocca input e doppio-submit", "cancel", "logout/account switch mentre dialog/mutation sono aperti", "coordinate/metadata invalidati se geografia modificata"]
+    }
+  ],
+  "checks": [
+    {"command": "flutter pub get", "result": "PASS", "exit_code": 0, "limit": "lockfile invariato"},
+    {"command": "flutter test --no-pub test/features/customer_notifications test/features/storefront/storefront_fulfillment_badges_accessibility_test.dart", "revision": "34c079befd065e2007c06a7bceb0895cde1fd67a", "result": "PASS", "exit_code": 0, "passed": 48, "type": "WIDGET/UNIT", "limit": "fixture sintetiche; production lib invariata fino al freeze"},
+    {"command": "flutter test --no-pub build/task054/review_client/host_next_integration_test.dart", "revision": "a067f15be18680385c5835d3c44f1fb47b1870cc", "result": "PASS", "exit_code": 0, "passed": 22, "type": "WIDGET", "limit": "warning integration plugin host non rilevato; nessuna prova native/live/picker OS/IME"},
+    {"command": "bash scripts/check-user-facing-localization.sh", "revision": "a067f15be18680385c5835d3c44f1fb47b1870cc", "result": "PASS", "exit_code": 0},
+    {"command": "bash scripts/check-architecture-boundaries.sh", "revision": "a067f15be18680385c5835d3c44f1fb47b1870cc", "result": "PASS", "exit_code": 0},
+    {"command": "bash scripts/check-governance-state.sh", "revision": "8360eab6c962892c98ff61833d7478961fa2d1c9", "result": "PASS", "exit_code": 0},
+    {"command": "git diff --check bfbfc0b6..HEAD", "revision": "8360eab6c962892c98ff61833d7478961fa2d1c9", "result": "PASS", "exit_code": 0},
+    {"command": "flutter test --no-pub build/task054/review_client/address_error_reproduction_test.dart", "revision": "8360eab6c962892c98ff61833d7478961fa2d1c9", "result": "FAIL", "exit_code": 1, "type": "WIDGET", "finding": "C-NI054-04", "limit": "repository sintetico, non live"}
+  ],
+  "scope_checks": [
+    "Due soli componenti di produzione modificati; nessun controller/repository/contratto remoto modificato",
+    "Cursor/dedup/cache e failure authority conservati; testi in quattro locale e generated l10n coerenti",
+    "Flexible consente reflow completo delle label fulfillment; semantics aggregate invariata",
+    "Fixture picker risponde su canali plugin pinned; file temporanei propri rimossi; non prova OS",
+    "Assistenza: draft e idempotency key conservati su timeout/retry; upload parziale mantiene caso",
+    "Recensioni: busy blocca mutation/input, failure conserva commento, expectedVersion verificata sul retry",
+    "Tracking OFF: nessuna costruzione mappa né coordinate esposte; fresh/stale testuale",
+    "R01-R30 e gate live non promossi; task completo resta BLOCKED"
+  ],
+  "native_expected": {"test_cases": 65, "png": 103, "limit": "conteggio statico, non risultato eseguito"},
+  "worktree_tracked_changes": 0,
+  "owned_verification_processes_pending": 0
+}

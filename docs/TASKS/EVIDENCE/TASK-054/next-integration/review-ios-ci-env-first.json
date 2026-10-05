@@ -1,0 +1,36 @@
+{
+  "reviewer": "/root/review_evidence_ci",
+  "revision": "65487aee49e56fa724a903b2b5d8c0b0bc70c669",
+  "deltaVerdict": "CHANGES_REQUIRED",
+  "taskLiveVerdict": "BLOCKED",
+  "finding": {
+    "id": "BECI-05",
+    "priority": "P2",
+    "status": "OPEN",
+    "scope": "test fixture environment consistency only; production ownerContext guard correctly fails closed",
+    "file": "scripts/test-task054-ios-owned.py",
+    "lines": [
+      76,
+      183,
+      189
+    ],
+    "description": "Fixture.execute clear=True persiste ownerContext nullo, ma runner.load nel test name/runtime usa ambiente CI reale fuori mock. La suite fallisce con variabili GitHub valorizzate, bloccando Quality CI.",
+    "command": "GITHUB_RUN_ID=123456789 GITHUB_RUN_ATTEMPT=2 GITHUB_JOB=ios-build GITHUB_SHA=65487aee49e56fa724a903b2b5d8c0b0bc70c669 PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-owned.py IosOwnedTest.test_cleanup_mismatched_name_or_runtime_never_mutates_device",
+    "cwd": "/Users/minxiang/.codex/worktrees/task054-ios-owned-ci/ClientMerchandiseControl",
+    "exitCode": 1,
+    "fullSuite": {
+      "tests": 33,
+      "exitCode": 1,
+      "errors": 2,
+      "durationSeconds": 47.703
+    },
+    "targetedRepro": {
+      "tests": 1,
+      "exitCode": 1,
+      "errors": 2
+    },
+    "observed": "Entrambi subcase name/runtime falliscono a runner.load con receipt di altra run/job/revisione; ownership negative mutation assertion non raggiunta.",
+    "requiredFix": "Usare un contesto ambiente coerente fra prepare/load nei test, includendo contesto sintetico CI nonnulllo; mantenere guard produzione e test negativi owner mismatch. Fullsuite con envCI valorizzato deve exit0."
+  },
+  "aggregateCI": "NOT_RUN composed candidate not frozen"
+}

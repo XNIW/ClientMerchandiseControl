@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "scope": "single_final_readonly_metadata_refresh",
+  "created_at_utc": "2026-10-05T19:19:35.369136+00:00",
+  "target_test": "jpgoimipbothfgkokyvm",
+  "client_commit": "302857a558fe2d309172f5061542106443b45cfb",
+  "client_ci_run": 37361963759,
+  "tracked_edits": false,
+  "remote_mutations": false,
+  "commands": [
+    {
+      "tool": "supabase_execute_sql",
+      "query_file": "contract-query.sql",
+      "query_sha256": "a45c9093d436e40af95c83e68323fe340e4baec94b35ce0fec4988c52fbafe01",
+      "started_at_utc": "2026-10-05T19:17:36Z",
+      "server_observed_at": "2026-10-05T19:18:14.286378+00:00",
+      "tool_status": "PASS",
+      "shell_exit_code": null,
+      "exit_note": "MCP successo; nessun exit code shell fornito"
+    },
+    {
+      "tool": "supabase_execute_sql",
+      "query_file": "infrastructure-query.sql",
+      "query_sha256": "8f8350ad77fd37d369f3e5932e8af6de69c98ca1883921a0f8af79fb346118eb",
+      "server_observed_at": "2026-10-05T19:18:18.206251+00:00",
+      "tool_status": "PASS",
+      "shell_exit_code": null
+    },
+    {
+      "command": "git ls-remote origin refs/heads/main",
+      "repository": "XNIW/merchandise-control-admin-web",
+      "exit_code": 0,
+      "main": "82af13ef0005ecfb767809bd362327e91692b5ba",
+      "changed_from_package_source": false
+    },
+    {
+      "command": "python3 scripts/check-backend-compatibility.py --snapshot build/task054/backend-final/contract-snapshot-20261005.json",
+      "exit_code": 1,
+      "result": "FAIL",
+      "errors": [
+        "missing_rpc:customer_address_delete_v2",
+        "missing_rpc:customer_address_upsert_v2",
+        "missing_rpc:customer_addresses_read_v2",
+        "missing_rpc:customer_after_sales_cancel_v1",
+        "missing_rpc:customer_after_sales_create_v1",
+        "missing_rpc:customer_after_sales_evidence_register_v1",
+        "missing_rpc:customer_after_sales_evidence_upload_ticket_v1",
+        "missing_rpc:customer_after_sales_list_v1",
+        "missing_rpc:customer_after_sales_order_lines_v1",
+        "missing_rpc:customer_checkout_quote_create_v2",
+        "missing_rpc:customer_delivery_context_read_v1",
+        "missing_rpc:customer_delivery_context_select_v1",
+        "missing_rpc:customer_notification_mark_read_v1",
+        "missing_rpc:customer_notifications_list_v1",
+        "missing_rpc:customer_notifications_mark_all_read_v1",
+        "missing_rpc:customer_order_reorder_apply_v1",
+        "missing_rpc:customer_order_reorder_preview_v1",
+        "missing_rpc:customer_review_submit_v1",
+        "missing_rpc:customer_review_update_v1",
+        "missing_rpc:customer_reviews_list_v1",
+        "missing_rpc:storefront_delivery_context_preview_v1",
+        "missing_rpc:storefront_product_reviews_v1",
+        "missing_rpc:storefront_search_suggestions_v1",
+        "missing_migration:20260823023037",
+        "missing_migration:20260823150000",
+        "missing_migration:20260928200000",
+        "missing_index:customer_notification_events_safe_dedup_idx"
+      ]
+    },
+    {
+      "command": "docker ps --format names/image/status",
+      "exit_code": 0,
+      "own_recovery_db_container_running": false,
+      "own_recovery_storage_container_running": false,
+      "other_local_supabase_stack_present": true,
+      "other_stack_is_current_recovery_proof": false
+    }
+  ],
+  "outputs": {
+    "registry_count": 155,
+    "latest_migration": "20261002180757",
+    "canonical3_applied": [],
+    "required_rpcs": 55,
+    "present_compatible_rpcs": 32,
+    "missing_rpcs": 23,
+    "present_indexes": 1,
+    "required_indexes": 2,
+    "cron_count": 4,
+    "active_cron_count": 4,
+    "cron": [
+      {
+        "name": "storefront-promotion-reconcile-v1",
+        "jobid": 1,
+        "active": true,
+        "schedule": "* * * * *",
+        "command_md5": "f6f4b3c8926b7b2195e3b7f267270df2"
+      },
+      {
+        "name": "storefront-reservation-hold-expire-v1",
+        "jobid": 2,
+        "active": true,
+        "schedule": "* * * * *",
+        "command_md5": "0d60a28ed4bc82ff660a017b911c6249"
+      },
+      {
+        "name": "storefront-checkout-quote-expire-v1",
+        "jobid": 3,
+        "active": true,
+        "schedule": "* * * * *",
+        "command_md5": "7f3bc0554dc0895712da347244049fe9"
+      },
+      {
+        "name": "storefront-delivery-tracking-cleanup-v1",
+        "jobid": 4,
+        "active": true,
+        "schedule": "*/15 * * * *",
+        "command_md5": "c572917e6d9cab89a1252f929dbd6efe"
+      }
+    ],
+    "storage_schema": {
+      "buckets_table_exists": true,
+      "objects_table_exists": true
+    },
+    "activity_counts": {
+      "waiting": 0,
+      "other_xact": 0,
+      "other_active": 1
+    },
+    "registry_metadata_md5": "b4684c7b879318b6258b1e78e46abbad"
+  },
+  "preservation": {
+    "previous_snapshots_changed": false,
+    "metadata_equal_previous": {
+      "rpcs": true,
+      "indexes": true,
+      "migrations": true
+    },
+    "package158_hash_verification": "NOT_RUN",
+    "package158_hash_verification_reason": "Admin main invariata82af13ef; come richiesto nessuna verifica integrale ripetuta",
+    "prior_source_registry_index_sha256": "bdea1937baafbe75d572309a3ff5d2e107a5c4ffe8ab9666597ca5bf8936fdc7"
+  },
+  "prerequisites": [
+    {
+      "lane": "shared_staging_apply",
+      "status": "BLOCKED",
+      "resource": "jpgoimipbothfgkokyvm / writer-commerce e4cron nominati",
+      "owner": "coordinatore Admin TASK159, coordinatore Client TASK054, backend owner",
+      "needed": "Finestra effettiva attestata con writer/cron pertinenti esclusi; attività readonly puntuale senza lock non la prova"
+    },
+    {
+      "lane": "recovery_current",
+      "status": "BLOCKED",
+      "resource": "baseline staging155 e dati interessati/Storage",
+      "owner": "backend/release owner",
+      "needed": "Recuperabilità fresca applicabile ai dati del target; recovery locale sintetica precedente e stack generico attuale non sono un backup o una nuova prova combinata"
+    },
+    {
+      "lane": "PGreadonly_TLS",
+      "status": "BLOCKED",
+      "resource": "CMC_BACKEND_PGSERVICE più configurazione artifact TEST approvata",
+      "owner": "backend/release owner",
+      "needed": "Servizio readonly conTLSverify-full e config valida; env service,PGSERVICEFILE,~/.pg_service.conf e~/.pgpass risultano assenti in questo refresh"
+    },
+    {
+      "lane": "AUTH_shop_refs",
+      "status": "NOT_RUN",
+      "resource": "callback/allow-list e identità/shop TEST già approvati",
+      "owner": "auth/release e pilot owner",
+      "needed": "Ricevute della lane config/auth; questo refresh metadata non ne presume la risoluzione"
+    }
+  ],
+  "processes_pending": false,
+  "artifact_hashes": {
+    "contract-query.sql": "a45c9093d436e40af95c83e68323fe340e4baec94b35ce0fec4988c52fbafe01",
+    "infrastructure-query.sql": "8f8350ad77fd37d369f3e5932e8af6de69c98ca1883921a0f8af79fb346118eb",
+    "contract-snapshot-20261005.json": "39a9b1e2472a30db5631c94332828d45c4dbd98326bdadb8ec2f9d68ce5536c0",
+    "infrastructure-snapshot-20261005.json": "d753f59a94460a2b58c94939e9f005a8a2ba6e01ca23f6ac1f594c6daf518bec"
+  },
+  "originalReceiptSha256": "61d132ca71a244ff673792440ac43b6a5ac9ae21b49f54d3deec6583e49932cc",
+  "qualification": "Refresh readonly metadata delle19:18UTC; nessun apply condiviso. Fonte Admin invariata, hash package158 non ripetuti. Tool MCP PASS non assegna exit code shell; gate compatibilita FAIL1."
+}

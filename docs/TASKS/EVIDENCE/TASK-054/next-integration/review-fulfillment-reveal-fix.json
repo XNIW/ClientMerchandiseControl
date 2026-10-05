@@ -1,0 +1,139 @@
+{
+  "reviewer": "/root/review_client_visual_resume",
+  "role": "CODEX_RE_REVIEWER",
+  "atUtc": "2026-10-05T20:08:51.948603+00:00",
+  "outcome": "APPROVED",
+  "scope": "ONLY_TEST_HARNESS_DELTA_EFFB",
+  "sourceHead": "effb687e8a298fe03e2239f76e5d2b02ea7054cf",
+  "rootAssociationAtReview": "0c09aa20cd2ef88e302e0811476650ab9801aa60",
+  "baseHead": "302857a558fe2d309172f5061542106443b45cfb",
+  "gates": [
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test /Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/fulfillment_before_test.dart --no-pub --name 'product compatto200%' --reporter expanded",
+      "result": "FAIL",
+      "exitCode": 1,
+      "counts": "loadingFAIL1",
+      "log": "fulfillment-before.log",
+      "qualification": "Errore tecnico del solo probe esterno: import support relativi nonrisolti; riparato senza modifiche repo.",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-visual/ClientMerchandiseControl",
+      "logSha256": "7aa937870eb246a2260f5fb2f0a6ec6576672d2cf2ac2fa80a2c8e93d44331a3"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test /Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/fulfillment_before_test.dart --no-pub --name 'product compatto200%' --reporter expanded",
+      "result": "FAIL",
+      "exitCode": 1,
+      "counts": "1PASS/3FAIL",
+      "log": "fulfillment-before-repaired-probe.log",
+      "qualification": "Regressione host baseline302 realeRoboto,320x640: es-CL/it/en rosse; zh-Hans verde.",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-visual/ClientMerchandiseControl",
+      "logSha256": "4ccedf6219e3616e6ebd1edc5926d0b2ca694e7402229be4b894f3e58b382415"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test /Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/fulfillment_after_test.dart --no-pub --name 'product compatto200%' --reporter expanded",
+      "result": "PASS",
+      "exitCode": 0,
+      "counts": "4",
+      "log": "fulfillment-after.log",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-visual/ClientMerchandiseControl",
+      "logSha256": "e7424dff5a9d9c26d0a611a350677d82350e5223b484041fcd02ea8d6a70ec16"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test /Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/all_host_test.dart --no-pub --reporter expanded",
+      "result": "PASS",
+      "exitCode": 0,
+      "counts": "67",
+      "log": "all-host-67.log",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-visual/ClientMerchandiseControl",
+      "logSha256": "84a1d4731d0d90c75036ce9308acbdb508773ff4df118e337f15254e70dd21df"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter analyze --no-pub",
+      "result": "PASS",
+      "exitCode": 0,
+      "counts": "0issues",
+      "log": "analyze-global.log",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-visual/ClientMerchandiseControl",
+      "logSha256": "4df558fadabdb6bbfeef99416b570c7c3098f6accf8161f879c7aa38819dedae"
+    },
+    {
+      "command": "/Users/minxiang/develop/flutter/bin/dart format --output=none --set-exit-if-changed integration_test/task054_next_integration_surfaces_test.dart",
+      "result": "PASS",
+      "exitCode": 0,
+      "counts": "1file0changes",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-visual/ClientMerchandiseControl"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS",
+      "exitCode": 0,
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-visual/ClientMerchandiseControl"
+    }
+  ],
+  "invariants": {
+    "integration_test/task054_next_integration_surfaces_test.dart": {
+      "visualSha256": "01903afb303bccc4854a8c4e36c32bb06ab1d49b8b67320d3fb4d887b46b6de5",
+      "rootSha256": "01903afb303bccc4854a8c4e36c32bb06ab1d49b8b67320d3fb4d887b46b6de5",
+      "identical": true
+    },
+    "lib/features/reviews/presentation/customer_reviews.dart": {
+      "visualSha256": "fd39fd7ea8cdcbac473ad3e4cf6f34c9150a63597114b4ebe9054a966ea30dd3",
+      "rootSha256": "fd39fd7ea8cdcbac473ad3e4cf6f34c9150a63597114b4ebe9054a966ea30dd3",
+      "identical": true
+    },
+    "codeTreesSame": true,
+    "revealHelperUnchanged": true,
+    "otherFilesUnchanged": {
+      "integration_test/task054_visual_flow_test.dart": true,
+      "integration_test/support/visual_capture.dart": true,
+      "integration_test/support/os_frame_sync.dart": true,
+      "test_driver/task054_visual.dart": true,
+      ".github/workflows/flutter.yml": true
+    },
+    "nativePixels": {
+      "88-review-submit-failure-comment-preserved-compact200.png": {
+        "sha256": "92562837ef238acdc539e244fa0ddd8efaf713babf36b5bda9b65ab26ca4b874",
+        "bytes": 39218
+      },
+      "90-review-edit-failure-comment-preserved-compact200.png": {
+        "sha256": "f9b16170bf15dbe1c9c8195badcb075d542b67a5dd269478ea774a193890b062",
+        "bytes": 20234
+      }
+    }
+  },
+  "captureInvariants": {
+    "captureCallExpressionsUnchanged": true,
+    "literalCaptureCallsites": 25,
+    "meaning": "67test/105Flutter/4OS enumerazione runtime preesistente: nessuna nuova captura o skip. Questo controllo compara gli argomenti reali del solo file modificato."
+  },
+  "primaryAndRelocation": {
+    "relocatedProbeCount": 38,
+    "relocatedAllVerified": true,
+    "primarySDK": {
+      "packages/flutter_test/lib/src/finders.dart": "6caf9b9f7e92fad6c5b075136c86f07b1b143d60915b8bcc79f6a9522453bcf0",
+      "packages/flutter/lib/src/rendering/wrap.dart": "35f978fa60e8ab82452700b3e27bd1c487143d250d53e726f9b774829bc3dfc7",
+      "packages/flutter/lib/src/widgets/scrollable.dart": "10d7f77a6e3765b0c00e866c684910c928f850c9e015d17819a14406e84b11cb",
+      "packages/flutter/lib/src/material/dialog.dart": "d523ada19c8aa22e9ef1948ca93a5bbff78242836796570abacbb118b8dc0ee4",
+      "bin/cache/artifacts/material_fonts/Roboto-Regular.ttf": "79e851404657dac2106b3d22ad256d47824a9a5765458edb72c9102a45816d95"
+    },
+    "countsExpected": {
+      "cases": 67,
+      "flutter": 105,
+      "OS": 4
+    }
+  },
+  "rationale": "Finder.hitTestable campiona il centro; Wrap ha gutter fra run. Reveal label reale + contenimento intero + due label hittable + gesti sulle vere CTA/Driftquantity4 coprono il caso senza indebolire helperglobale o gate. Nessuna modifica produzione o captura/count/timeouts/dependency.",
+  "findingsHarness": [],
+  "separateOpenFinding": "C-NI054-09/P2 source review errorlegibility, non coperto da questa approvazione harness",
+  "warnings": [
+    "Warning integration_test plugin was not detected: atteso in hostwrapper, non prova instrumentation/runtime nativo."
+  ],
+  "limits": [
+    "Nuova cattura nativa aftereffb NOT_RUN; CI success e staging non inferiti.",
+    "105Flutter/4OS sono inventario atteso byte-preservato, non105nuove catture locali.",
+    "Nessun nativeheavy avviato, nessun processo own pendente, trackedWTclean."
+  ],
+  "ownedProcesses": "ALL_TERMINAL",
+  "gitStatus": "## codex/task054-fulfillment-reveal-fix",
+  "originalReceiptSha256": "33f535ffbc30602a95039949d44401918d391e67357ab28e1aad2c6197d19e24",
+  "qualification": "Reviewer distinto APPROVED solo testharness effb/cherry0c09;67host e4RobotoPASS0, fullanalyzePASS0 senzaexcludes. Nessuna fonte applicativa toccata da questo delta; C09sourcelegibility inFIX separata."
+}

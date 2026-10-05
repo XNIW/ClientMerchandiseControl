@@ -5219,3 +5219,57 @@ coordinamento delle chat attive avviato. Nessun TASK055, DONE o activation.
 - **Stato**: BLOCKED/REVIEW; review backend/CI sul freeze completo,
   nessun processo writer pendente e nessun merge dei candidati falliti.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-05 — TASK-054 NI054 failure CI4 e fix circoscritti
+
+CI4 su302857a preservata: iOS prepare e cleanup FAIL/exit1 per psProbe
+TimeoutExpired2 sui soli PGID propri dopo open, prima di bootstatus; assenza
+del simulatore e quiescenza non attestate. Android capture FAIL/exit1 con
+tre failure di hit-test product-detail-fulfillment nel viewport compatto200%
+es-CL/it/en; diagnosi app/harness ancora da verificare, non un timeout device.
+Quality e Android release PASS; iOS release ancora in corso al checkpoint.
+REVIEW -> FIX, CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX: writer separati in
+worktree distinti, timeout e copertura invariati, nessun push del freeze
+incompleto né merge. TASK054 resta BLOCKED per i gate live esterni.
+
+
+## 2026-10-05 — TASK-054 NI054 fix CI4 e viewport recensione
+
+Fix fulfillment effb687 importato0c09aa2: center del Wrap nel gutter, label
+intere visibili; callsite test corregge target e verifica badge/CTA/Drift.67host
+e4Roboto PASS, reviewer distinto APPROVED scoped; nessun difetto app da quelFAIL.
+Kernel559 importato36f9a84: solo ESRCH evita ps; EPERM zombie richiede psstrict2.
+37baseline e47finale writer PASS; primo44FAIL preservato,53reviewerPASS/source
+APPROVED. Nessuna prova retroattiva su PGID del CI4 o quiescenza di quel runner.
+Finding autonomo C-NI054-09/P2: edit immediato mantiene focus/IME, errore120px
+contro viewport60px; pixel90 reale e probehostcontrastivi, draft conservato.
+Fix50a3123 rilascia focusedChild solo nel dialog mounted/currentowner; canonical
+Roboto/immediate primaFAIL1 -> dopo59reviewsPASS, incluse30feedback nelle4locale
+e2theme; latefocus protetto. Analyze globale zeroissue, format374zerochange,
+architecture/localization/security874/diff PASS0. Errori setup/lint/flag tool
+preservati, nessuna esclusione/skip/timeout/golden alterata.
+CI4 terminaleFAIL:5checkout302 verificati,13getter0,969test/1skippreesistente,
+10bench e2releaseunsignedPASS; Android64casePASS3FAIL102Flutter4OS/cleanupPASS;
+iOSprepare/cleanupFAIL perpsTimeout2,0PNG/resourcequiescenza nonattestate.
+FIX -> REVIEW, CODEX_FIX_BLOCKED_TO_RE_REVIEW; re-reviewC09 e CI5 del freeze
+composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
+
+
+## 2026-10-05 — TASK-054 NI054 re-review C09 e freeze documentale
+
+- **Ruolo**: CODEX_RE_REVIEWER, distinto dal writer del fix.
+- **Technical SHA**: `50a3123e9b81e2a2c5490808aaf6056a1fa1e7ef`.
+- **Review**: Client C09 APPROVED SOURCE_CODE_ONLY;59canonici e tre prove
+  autonome,62PASS/exit0. Focus ownerB e draft protetti dopo failure tardivaA,
+  openingABA e cleanup pre-mount verificati. Analyze globale e statiche PASS0.
+  Harness67host+4Roboto e kernel53reviewer già APPROVED scoped.
+- **Limiti**: CI4 FAIL e pixel originali conservati; CI5/nativeafter ancora
+  NOT_RUN al freeze. Backend/live, authoring, firma e distribuzione BLOCKED.
+- **Checkpoint**: due invocazioni Python a nomi inesistenti exit2 conservate
+  come errore tooling; action pins/telemetry/source contract corretti PASS0.
+  Governance iniziale FAIL1 per riga Handoff assente, riparata nei documenti
+  senza cambiare protocollo o implementation. Nessuna esclusione/skip.
+- **Stato**: BLOCKED/REVIEW; integrazione sviluppo condizionata alla CI reale
+  verde e review documentale distinta; nessun DONE/TASK055/production.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

@@ -1,0 +1,70 @@
+{
+  "reviewer": "/root/review_client_visual_resume",
+  "outcome": "CHANGES_REQUIRED",
+  "scope": "Client review error legibility; source effb/0c09 currently customer_reviews byte-identical1bf",
+  "id": "C-NI054-09",
+  "severity": "P2",
+  "status": "OPEN",
+  "file": "lib/features/reviews/presentation/customer_reviews.dart",
+  "lines": [
+    603,
+    610,
+    682,
+    644,
+    700
+  ],
+  "description": "Il fallimento edit immediato conserva il focus del campo. Con viewport320x568, testo200percento e insetIME260, le tre azioni fisse sottraggono spazio al contenuto: testo errore alto120px contro viewport esterno60px. ensureVisible alignment1 e hitTestable1 mostrano soltanto parte del messaggio.",
+  "preconditions": [
+    "Dialogo modifica con review già esistente e tre azioni",
+    "es-CL, Roboto reale pinned SDK, viewport320x568/physical320x640, textScale2",
+    "Campo commento focused; mutation update fallisce prima di un frame disabled; IME o metriche equivalenti ancora presenti"
+  ],
+  "impact": "Il cliente non legge interamente il motivo del mancato salvataggio; draft conservato e retry disponibili, nessuna perdita dati dimostrata.",
+  "evidence": {
+    "nativeCI4Head": "302857a558fe2d309172f5061542106443b45cfb",
+    "nativePng90": "f9b16170bf15dbe1c9c8195badcb075d542b67a5dd269478ea774a193890b062",
+    "nativeObservation": "Pixel90 mostra solo acción. sopra Retirar/Cancelar/Enviar; PNG88submit mostra erroreintero. Screenshot diagnostico, nonprova autonoma di causaIME.",
+    "hostRepro": {
+      "command": "/Users/minxiang/develop/flutter/bin/flutter test /Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/c07_test.dart --no-pub --name 'recensione submit busy failure retry edit conserva commento' --dart-define=REVIEW_INSET=260 --reporter expanded",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-next-visual/ClientMerchandiseControl",
+      "result": "FAIL",
+      "exitCode": 1,
+      "log": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/c07-inset260.log",
+      "logSha256": "d0bcde739fefe95843c77c9cbdf0f188741c9f2f6d26ecf4eadbb0be70615e99",
+      "geometry": "/Users/minxiang/.codex/review-artifacts/task054/review-client-visual-resume-20261005/c07-260-review-edit-failure-comment-preserved-compact200.json"
+    },
+    "settledAndOneSecond": "Identici errorRect0..120/viewPort60..120; focus true, errore120px, viewport60px. Non race di un frame host. Anche min/max scroll non possono contenerlo intero.",
+    "draft": "Comentario sintético editado sin perder el texto en el retry."
+  },
+  "correctionRequested": "Nel ramo failure owner attuale terminare il focus/IME conservando draft e rating, poi assicurare visibilità completa del feedback nel viewport disponibile. Nessun unfocus di owner nuovo su completamento tardivo. Fix minimo nello scope; layoutalternativo solo se necessario.",
+  "regressionRequested": [
+    "submit/edit/withdraw: inputfocus e keyboardprimaFAIL, keyboardnonripristinata dopoFAIL currentowner, draft/rating/CTA/retry conservati",
+    "Messaggio errore contenuto interamente nei viewport ancestor, non solo centro/hitTestable",
+    "Fallimento tardivo dopo switchowner non rimuove focus del nuovo owner",
+    "Nuova acquisizione Android reale della edit failure; iOS quando lane realmenteeseguibile"
+  ],
+  "limits": [
+    "Metriche inset260 sintetiche sono WIDGET diagnostic, non ANDROID_EMU/IOS_SIM proof",
+    "Non sono stati avviati device, emulatori o simulatori dal reviewer",
+    "Nessuna modifica implementazione durante review"
+  ],
+  "primarySDK": [
+    {
+      "path": "/Users/minxiang/develop/flutter/packages/flutter/lib/src/material/dialog.dart",
+      "lines": "904-925",
+      "reason": "scrollable impacchetta titolo/content inFlexibleSingleChildScrollView; actions restano fuori"
+    },
+    {
+      "path": "/Users/minxiang/develop/flutter/packages/flutter/lib/src/widgets/scrollable.dart",
+      "lines": "487-530",
+      "reason": "ensureVisible percorre scrollable e rende target asvisibleaspossible, non garantisce targetpiùgrandeviewport"
+    },
+    {
+      "path": "/Users/minxiang/develop/flutter/packages/flutter_test/lib/src/finders.dart",
+      "lines": "1464-1498",
+      "reason": "hitTestable campiona un solo punto center perdefault"
+    }
+  ],
+  "originalReceiptSha256": "b951aa33383a3a71ed557fdbb392eb25139d459fe2ff77edcd9ee50a8165edaf",
+  "qualification": "Finding indipendente P2 CHANGES_REQUIRED su source1bf/0c09: errore non contenuto nel viewport con inputfocus e inset260. Metriche host sintetiche, pixelAndroidCI4 reali corroboranti; nessun draftloss/authoring/liveclaim. Path assoluti dei comandi locali conservati per riproducibilita, canonical regression corrente nel repository."
+}

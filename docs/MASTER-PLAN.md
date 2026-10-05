@@ -14,8 +14,9 @@
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: riesaminare il candidato NI054 del mandato 2026-10-04
-  con due reviewer distinti e CI exact-SHA; integrazione di sviluppo autorizzata
+- **Prossima azione autorizzata**: congelare il composto NI054 source50a3123 dopo review source
+  Client/harness/kernel APPROVED scoped, conservare i quattro freeze falliti e
+  verificare documenti e CI exact-SHA con reviewer distinti; integrazione di sviluppo autorizzata
   dopo APPROVED e gate verdi. Apply TEST subordinato a risorse e finestra attuali.
   TASK-054 resta aperta finché i requisiti live obbligatori non sono verificati.
 

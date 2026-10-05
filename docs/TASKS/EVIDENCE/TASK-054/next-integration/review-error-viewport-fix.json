@@ -1,0 +1,137 @@
+{
+  "task": "TASK-054",
+  "role": "CODEX_FIXER",
+  "finding": "C-NI054-09/P2",
+  "candidate": "50a3123e9b81e2a2c5490808aaf6056a1fa1e7ef",
+  "base": "36f9a84",
+  "observedUtc": "2026-10-05T20:15:25.555272+00:00",
+  "files": [
+    {
+      "path": "lib/features/reviews/presentation/customer_reviews.dart",
+      "sha256": "84adcbf5950bb9bcd4fca9e9498d3627bc8c89d7d248c4fc4d764911047e3e5d"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_feedback_test.dart",
+      "sha256": "33caf0c2d75d23232857eb457ef1134725d6ea5cd5c46795304d473c07e00dfc"
+    }
+  ],
+  "change": "Solo current owner/mounted failure: focusedChild.unfocus nel focus scope del dialog, poi feedback locale/reveal; draft/rating/retry/owner invariati. Nessun timeout/layout/golden/dependency.",
+  "canonicalCoverage": "30feedback inclusi59reviews:24modali4locale×2theme×3azioni, rifiuto immediato prima busyframe, focus/IMEwidget hidden, testo intero nei viewport, draft e CTA; due late-response/new-dialog focus restano protetti. Non sommati come89test distinti.",
+  "checks": [
+    {
+      "command": "flutter test --no-pub test/features/reviews/customer_review_dialog_feedback_test.dart --plain-name 'edit errore modal leggibile compact200 es-CL dark=false' --reporter expanded --concurrency=1",
+      "result": "FAIL",
+      "exitCode": 1,
+      "log": "build/task054/review-error-viewport-fix/before-edit-focus-roboto-immediate.log",
+      "logSha256": "35953054fb4b075601ae69a8330af55babb777f6da8d188d8f8a2fbaf5a4c2d9",
+      "revision": "36f9a84 + canonical regression; source app1bf immutata",
+      "meaning": "Roboto pinned e errore immediato: focusTRUE inveceFALSE"
+    },
+    {
+      "command": "flutter test --no-pub test/features/reviews/customer_review_dialog_feedback_test.dart --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/feedback-after.log",
+      "logSha256": "18cc04a11ac0d3ba6f84d56f3be8d767ba596542e2188f9ea0e2f0f36cec730a",
+      "passed": 30,
+      "scope": "Prima delle sole riparazioni lint, runtime equivalente"
+    },
+    {
+      "command": "flutter test --no-pub test/features/reviews --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/reviews-final.log",
+      "logSha256": "3249068afed1077a0cdc7ee962435a127a673ee08bc618f35f531ce42f11ac4d",
+      "passed": 59
+    },
+    {
+      "command": "flutter analyze --no-pub",
+      "result": "FAIL",
+      "exitCode": 1,
+      "log": "build/task054/review-error-viewport-fix/analyze-full-after.log",
+      "logSha256": "ed76c1835002bb0037b8d166b9944922100f5d3f911bbfc3424d73b9b12b6743",
+      "issues": 2,
+      "meaning": "mounted check non espansa dal lint e import ByteData ridondante; corrette senza esclusioni"
+    },
+    {
+      "command": "flutter analyze --no-pub",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/analyze-full-repaired.log",
+      "logSha256": "37584a5d00a501ceba2183e86003a760aa5eb6c152963a4b64601bd1fe84f02f",
+      "issues": 0
+    },
+    {
+      "command": "dart format --output=none --set-exit-if-changed .",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/format-final.log",
+      "logSha256": "944bfde98df4a6f2e31b3e9cfd4acf801eebac4c866adc72207940561a82cc1e",
+      "files": 374,
+      "changed": 0
+    },
+    {
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/architecture-after.log",
+      "logSha256": "da205cb7b3c8e3a5d67d97dd855433c0e182e607166674fbc2a6a022c68f88f4"
+    },
+    {
+      "command": "bash scripts/check-user-facing-localization.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/localization-after.log",
+      "logSha256": "3327d2169a76cf880d2cf28a6be01c3a7570273b2468a83e9627240da6e1717f"
+    },
+    {
+      "command": "bash scripts/check-client-security.sh --staged",
+      "result": "FAIL",
+      "exitCode": 1,
+      "log": "build/task054/review-error-viewport-fix/security-staged.log",
+      "logSha256": "c8c95d536536ddddd6a732d75a311af9f2048c19febc5a7222c680cdea645263",
+      "meaning": "Flag non supportato, errore invocazione del tooling root, non finding security"
+    },
+    {
+      "command": "bash scripts/check-client-security.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/security-index-corrected.log",
+      "logSha256": "26469745d31cfea4a2a6e7ecc867098ee735d97c40a4e308906e921fad54bb46",
+      "tracked": 874
+    }
+  ],
+  "discardedScaffolding": {
+    "command": "flutter test --no-pub test/features/reviews/customer_review_dialog_feedback_test.dart --plain-name 'edit errore modal leggibile compact200 es-CL dark=false' --reporter expanded --concurrency=1",
+    "result": "FAIL",
+    "exitCode": 1,
+    "log": "build/task054/review-error-viewport-fix/before-edit-focus.log",
+    "logSha256": "c583aebc2821aab321f102801532cda1ba2136ecd6f64af1b8aaf8b786a092db",
+    "meaning": "Prima struttura del test con font Ahem e rifiuto differito: geometria sintetica200px/176, non riproduzione precisa del runtime. Sostituita con Roboto pinned + rifiuto immediato; log preservato."
+  },
+  "sdkPrimaryFiles": [
+    {
+      "path": "/Users/minxiang/develop/flutter/packages/flutter/lib/src/widgets/focus_manager.dart",
+      "sha256": "16286e50e6d9877a7a5bbfc36b8a2643fed71ddcffd6fc55047ce535703ffd1b"
+    },
+    {
+      "path": "/Users/minxiang/develop/flutter/packages/flutter/lib/src/widgets/focus_scope.dart",
+      "sha256": "a85d3164821570c55a5c0fdeffa5c6971b6705d3af748dd4a23aa1f0e73b4fa1"
+    },
+    {
+      "path": "/Users/minxiang/develop/flutter/bin/internal/shared.sh",
+      "sha256": "7029bb28e9f60927807f2119d2afe388742db41d34c26f5e263bf15568911fa2"
+    },
+    {
+      "path": "/Users/minxiang/develop/flutter/bin/cache/artifacts/material_fonts/Roboto-Regular.ttf",
+      "sha256": "79e851404657dac2106b3d22ad256d47824a9a5765458edb72c9102a45816d95"
+    }
+  ],
+  "pendingOwnedCommands": 0,
+  "scopeLimits": [
+    "TestTextInput/widget focus non prova IME nativa o VoiceOver/TalkBack.",
+    "Native after richiesto nel nuovo CI5; CI4PNG90FAIL preservato e nessun PASSretroattivo.",
+    "Re-review indipendente sullo SHA composto richiesta prima di merge."
+  ],
+  "originalReceiptSha256": "932847eb6afdea57b82328ea88541af6a75f818f70374b1e63f974a836089e41"
+}

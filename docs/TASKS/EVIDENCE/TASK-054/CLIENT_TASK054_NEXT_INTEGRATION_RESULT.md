@@ -15,10 +15,9 @@ file commerce Admin richiesti. Nessuna nuova pubblicazione operativa è dichiara
 Sul telefono fisico non è provato un flusso completo: Android fisico non disponibile;
 al refresh del 5 ottobre l'iPhone è disponibile via rete, senza installazione o avvio
 Client eseguiti. N resta owner della finestra e dello stato autenticato. Le build unsigned
-e lo smoke simulatore del primo freeze sono prove separate; le catture native del
-nuovo candidato devono ancora terminare. Firma, canale e installazione interna
+e lo smoke simulatore del primo freeze sono prove separate; il CI4 ha prodotto catture Android parziali e ha fermato iOS prima dello smoke. Firma, canale e installazione interna
 restano BLOCKED. TASK-054 resta aperta; TASK-055 e production non attivate.
-Stato: BLOCKED/REVIEW, Client APPROVED SOURCE_CODE_ONLY su1bf2e98; C04–06 restano approvati. Il secondo CI
+Stato: BLOCKED/REVIEW, composto source50a3123; harness, kernel e ClientC09 APPROVED scoped; CI5 e pixel native after pendenti. La review1bf2e98 resta storica e C04–06 sono approvati. Il secondo CI
 ha riprodotto un difetto nella conservazione del cleanup iOS, un fallimento del
 test native di assistenza e C07: errore recensione oscurato dietro il dialogo. Le quattro tastiere Android sono state osservate in
 frame OS reali; suite e acceptance native complete non sono PASS.
@@ -44,6 +43,10 @@ Fonti durevoli: [backlog unico](residuals.md), [acceptance invariata](acceptance
 Refresh5ottobre: [backend](next-integration/backend-current.json),
 [config e device](next-integration/config-current.json),
 [Worker/source](next-integration/worker-current-review.json).
+Refresh finale5ottobre: [backend19:18UTC](next-integration/backend-final-current.json),
+[reference config19:25UTC](next-integration/config-final-current.json),
+[coordinamento corrente](next-integration/coordination-final-current.json),
+[associazione review Client al freeze302](next-integration/review-client-fourth-association.json).
 Log completi, package SQL e artifact locali restano fuori Git in `build/task054/`;
 le tre sorgenti SQL canoniche rimangono nella main Admin indicata sotto.
 
@@ -78,7 +81,7 @@ le tre sorgenti SQL canoniche rimangono nella main Admin indicata sotto.
 | `flutter analyze --no-pub` | PASS,exit0 sul source feda593 | FAIL1 iniziale delle PoC ignored preservato; dopo relocation byteimmutata il controllo globale supera zero issue, senza esclusioni |
 | `bash scripts/check-governance-state.sh` | PASS,exit0 | Iniziale FAIL5 per snapshot README/worklog incompleto, corretto |
 | `flutter test` account + delivery, lane writer e reviewer | PASS,101writer/104reviewer,exit0; due focus host PASS | C04/C05/C06 chiusi; APPROVED SOURCE_CODE_ONLY su163b9c2 e conferma blob da26c15 ([ricevuta](next-integration/review-client-current.json)); non CI/live |
-| Gate completi / benchmark / CI nuovo candidato | NOT_RUN sul prossimo freeze | Tre CI FAIL conservati; source corrente testata separatamente e residuo cleanup in correzione |
+| Gate completi / benchmark / CI4 | PASS Quality e due release unsigned; FAIL Android/iOS debug | Cleanup C08 chiuso e review source1bf2e98 APPROVED; i nuovi failure CI4 sono registrati e in diagnosi/FIX separata |
 
 I fallimenti iniziali di compile e harness sono conservati nei log locali: variabile
 in scope errato, tap sotto AppBar/viewport e teardown semantics tardivo sono stati
@@ -275,7 +278,7 @@ nessuna scrittura di staging è stata eseguita da questa lane.
 | CA-N1 / T-N1 | BaselinePR28/mainCI36946491646, native-main.json, Worker/config receipt e ownerN/W riconfermati | PASS riconciliazione; nuova patch N in esecuzione, non attestata |
 | CA-N2 / T-N2 | backend.json, canonical-delta.json, catalog-parity.json, sql-validation.json, local-recovery.json | PASS package/metadata/locale; runtimeFAIL32/55,1/2; applyBLOCKED P1/PGTLS |
 | CA-N3 / T-N3 | test customer_notification_unread_filter_test.dart e suite inbox40, quattro lingue200% | PASS widget; liveR18NOT_RUN P1/P2 |
-| CA-N4 / T-N4 | task054_next_integration_surfaces_test.dart,24hostPASS;67native/105PNG e4OS attesi | PASS host; capture native CI2/3 FAIL, prossima capture NOT_RUN; IME composto e screenreader NOT_RUN |
+| CA-N4 / T-N4 | task054_next_integration_surfaces_test.dart,24hostPASS;67native/105PNG e4OS attesi | PASS host; CI4 Android64case PASS/3FAIL e102Flutter/4OS parziali, iOS0PNG; IME composto e screenreader NOT_RUN |
 | CA-N5 / T-N5 | runner-current.json e runner-local.json, analyze/security/governance; review e CI primo freeze conservate | NOT_RUN finale: nuovaCI/re-review sullo SHA congelato pendenti |
 | CA-N6 / T-N6 | Matrice R01–30 invariata, backlogNI054 e questa ricevuta con risorseP1–P7 | PASS rendiconto; acceptance liveNOT_RUN, firma/fisiciBLOCKED |
 
@@ -283,16 +286,16 @@ nessuna scrittura di staging è stata eseguita da questa lane.
 
 | Livello | Esito corrente | Perché |
 |---|---|---|
-| CODE | PASS source; Client APPROVED SOURCE_CODE_ONLY; CI composta NOT_RUN al freeze | C07/BECI06/C08 eP3 chiusi nel codice,72test autonomi su1bf2e98; tre CI FAIL conservati |
+| CODE | PASS source applicativa; Client/harness/kernel APPROVED scoped; CI composta4 FAIL | Source50a3123: C09 chiuso con62verifiche autonome, kernel53 e harness67+4 PASS; CI5 NOT_RUN al freeze ([checkpoint](next-integration/freeze-fifth.json)) |
 | BACKEND_RUNTIME | FAIL metadata; apply BLOCKED |32/55RPC,1/2indici; clone non attesta runtimeTEST |
 | STAGING_E2E | NOT_RUN | P1/P2 e prerequisiti per caso |
 | AUTH_LIVE | NOT_RUN | P3; GoogleManagementGET non prova login |
 | AUTHORING_CHAIN | NOT_RUN | P4/P5 e catena entrambe le piattaforme |
 | ADMIN_STAGING | NOT_RUN per commerce corrente | Worker identificato ma versione selettiva incompleta |
-| UI_VISUAL_QA | PASS widget; capture native CI2/3 FAIL, prossima capture NOT_RUN | Before d9fc103/105Flutter e4OS parziali; ultimo a9770Flutter/2OS per perdita transport, iOS prima di Flutter; nessuna acceptance completa |
+| UI_VISUAL_QA | PASS widget; capture native CI4 FAIL; afterCI5 NOT_RUN | CI4 Android102Flutter/4OS parziali: submit errore leggibile, edit errore incompleto; iOS0PNG prima di bootstatus. Before reali conservati; C09sourcefix approvato, nessuna acceptance nativa completa |
 | PHYSICAL_DEVICES | BLOCKED per artifact/config/finestra | Android fisico assente; iPhone disponibile via rete al5ottobre, installazione/smoke Client NOT_RUN |
 | DISTRIBUTION | BLOCKED | Team/certificati/API/canali/config artifact non referenziati |
-| MAIN_INTEGRATION | NOT_RUN nuovo delta | DraftPR, review e CI da completare |
+| MAIN_INTEGRATION | NOT_RUN nuovo delta | DraftPR29 aperta; source review scoped APPROVED, review documentale e CI5 richieste prima del merge ordinario |
 | PRODUCTION | NOT_RUN | Disposizione NOT_ACTIVATED, fuori scope |
 
 Nessun account/provider nuovo, spesa o privilege expansion. I blocker dipendenti
@@ -578,3 +581,121 @@ non approvati. [Review](next-integration/review-client-fourth-source.json).
 [Freeze e comandi root](next-integration/freeze-fourth.json). Nuova CI exact-SHA richiesta: tutte le fonti dei
 runner/diagnostiche, budget,105Flutter/4OS e cinque job restano invariati.
 TASK054 BLOCKED/REVIEW, CODEX_FIX_BLOCKED_TO_RE_REVIEW; nessun merge stale.
+
+
+## CI4 terminale — freeze302857a
+
+[Run37361963759](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37361963759)
+è FAIL: Quality969PASS/1skipLinux preesistente,10benchmark e le due release unsigned sono PASS; Android debug e iOS debug
+sono FAIL. Source applicativa1bf2e98 associata indipendentemente al delta22docs
+302857a,72PASS/sourceAPPROVED; nessun merge del freeze fallito. Il controllo
+autonomo di tutti i cinque checkout/step/annotation è conservato nella
+[ricevuta terminale](next-integration/ci-fourth-review.json):13getter exit0,
+3failure/2warning/6notice; il primo errore di lettura del log è preservato
+e corretto con un retry mirato del solo endpoint, senza rieseguire la CI. Il contesto merge GITHUB_SHA resta distinto dal checkout.
+
+Android35/x86_64:64case PASS e3FAIL, es-CL/it/en nel reveal di
+product-detail-fulfillment al200%; zh-Hans passa. Il display finale +65 include
+tearDownAll, non è il conteggio di casi funzionali. Sono presenti102FlutterPNG
+e4OS, tre capture fulfillment mancanti; la receipt capture_count0 indica che
+il conteggio finale non è raggiunto dopo driveFAIL, non assenza di artifact.
+Emulatore alive/exitnull prima del cleanup; cleanupPASS. Nessun device-offline
+o ServiceDisappeared osservato in questo run. Il font reale pinned sul host
+riproduce i tre failure: classificazione e fix del callsite sono in verifica.
+
+iOS runtime26.5, proprio UUID dichiarato: dopo open, psProbeTimeoutExpired2
+poi commandProbe sul PGID22925; bootstatus non invocato. Always cleanup ripete
+psProbeTimeoutExpired2 sul PGID23653. Due attemptFAIL/resourceFAIL, flag
+processCleanupFailedtrue persistente; nessun shutdown/delete/readback osservato.
+Assenza della risorsa e quiescenza non attestate, zero ready/PNG, smoke e visual
+NOT_RUN per dipendenza prepareFAIL. Questa diagnostica appartiene al CI4; la
+causa interna del probeFAIL CI3 resta sconosciuta.
+
+Il writer iOS distinto prova un controllo kernel del solo PGID proprio con
+signal0: soltanto ProcessLookupError attesta assenza; gruppo esistente mantiene
+ps/schema/zombie/deadline2, errori permission/I/O falliscono chiusi. Prima/dopo
+locale e negative sono in corso, nessun esito nativo nuovo ancora dichiarato.
+Writer visual distinto possiede il reveal dei badge informativi, senza ridurre
+casi/capture o modificare golden/budget. REVIEW -> FIX registrata in Master/task
+e worklog; re-review indipendente richiesta dopo i delta.
+
+Correzione documentale BECI-DOC-01: path della PoC esterna qualificato
+../../../review-artifacts dal cwd managed e SHA5537 verificati, senza rieseguire
+Flutter né riscrivere il FAIL storico. [Receipt](next-integration/documentary-path-fix.json).
+La prova canonica e la sourceAPPROVED successive restano riferimenti durevoli.
+
+Refresh readonly finale: staging155/latest20261002180757,32/55RPC,1/2indici,
+3canoniche assenti e4cron attivi; gateFAIL1/27errori. Un'attività readonly senza
+lock non prova una finestra esclusiva. Adminmain82af13ef invariata; package158
+non ricontrollato senza delta. Config:27reference environment assenti e tre
+inventari GitHub Client count0/exit0; la serializzazione filesystem finale perde
+i valori ed è esclusa dalle conclusioni attuali, gli11record16:28 restano storici.
+Nessun valore secret letto, login/smoke fisico/apply/deploy eseguito. N/C riferiscono
+batch9iOS PASS e proseguono due verifiche rootUI; W attende risorse e UI. Sono
+claim di coordinamento, nessuna promozione della catena authoring R24 a PASS.
+
+
+## Correzione reveal fulfillment e QA parziale reale
+
+Con Roboto-Regular pinned e viewport320×640, entrambe le label fulfillment
+sono interamente visibili e colpite dal hit-test; il centro del Wrap informativo
+cade nel gutter fra due righe. Repro3FAIL/1PASS nelle stesse lingue del CI4;
+non è un difetto della UI di produzione. Il solo callsite del test ora verifica
+contenimento del gruppo e hit delle due label, poi esercita quantità/CTA e
+readback Driftmemory2→4. Il helper globale,67casi/105Flutter/4OS, nomi capture
+e budget sono invariati. Writer effb687 importato0c09aa2: host67PASS e
+Roboto4PASS; re-review distinta richiesta. [Receipt](next-integration/fulfillment-reveal-fix.json).
+
+[QA reale CI4 e sei after](next-integration/ci-fourth-partial-visual.json):
+102Flutter/4OS,64PASS/3FAIL, nessuna suite completa PASS. Submitfailure88 mostra
+errore intero, porzione del draft e CTA; editfailure90 lascia solo l'ultima parola
+visibile e il draft fuori viewport: FAIL di leggibilità, diagnosi indipendente
+aperta. I quattro frame OS mostrano tastiera e probe true, separati dalla prova
+di input fisico/IME composto e screenreader, che restano NOT_RUN. C07 originale
+ha localizzato il feedback nel dialog, ma la leggibilità finale edit non è approvata.
+Le sei immagini prima d9fc sono preservate; nessun before ricostruito o pixel
+modificato. Il rapporto non dipende dal solo artifact CI a scadenza.
+
+
+## Fix minimo del viewport e nuovo composto source50a3123
+
+Finding indipendente C-NI054-09/P2: il rifiuto edit immediato mantiene il focus
+del commento, mentre il busy differito submit lo perde; con metriche IME260
+e testo200%, messaggio120px contro viewport60px. Anche dopo1s e ai limiti
+dello scroll non è contenibile. Inset0 PASS e inset260 FAIL sono controlli host
+contrastivi, non prove di tastiera nativa; PNG90 reale conferma la leggibilità
+incompleta. [Finding](next-integration/review-client-error-viewport-finding.json).
+
+Fix50a3123, soltanto source dialog e test feedback: nel ramo mounted/currentowner
+unfocus del focusedChild del dialog, conservando il suo scope, draft/rating e
+retry; poi feedback e reveal esistenti. Canonico Roboto pinned, rifiuto immediato
+prima del frame busy: primaFAIL1/focusTRUE -> dopo59reviewsPASS/exit0, comprese
+30feedback;24modali4locale×2theme×3azioni verificano focus/keyboard widget
+rilasciati, messaggio intero in ogni viewport, draft/CTA e latefocus protetto.
+Non si sommano30+59 come89test distinti. Analyze completo zeroissue, format374
+zerochange, architecture/localization/security874/diff PASS0. Lint iniziali,
+scaffold Ahem e flag security non supportato restano preservati e qualificati;
+nessuna esclusione o conversione in failure di produzione.
+[Writer](next-integration/review-error-viewport-fix.json);
+[re-review distinta](next-integration/review-client-error-viewport.json) APPROVED
+SOURCE_CODE_ONLY su50a3123:59canonici più tre prove autonome (Roboto con evento
+metriche, route AuthA→B con focus nuovo protetto, openingA→B→A),62PASS/exit0.
+Analyze globale zero issue, architecture/localization/format PASS0. C09 chiuso
+sul codice; acquisizione Android/iOS after sul nuovo freeze ancora NOT_RUN.
+I failure tecnici dei probe e la correzione del solo metadata geometry sono
+preservati; immagini native originali immutabili.
+
+Kernel559 cherry36f9a84: solo ProcessLookupError evita ps; Darwin zombie può
+restituire EPERM e richiede psstrict2. Primo44FAIL conservato; finale47writerPASS
+e53reviewerPASS, APPROVED SOURCE_CODE_ONLY, nessuna causa dei PGID CI4
+retroprovata. [Fix](next-integration/ios-kernel-probe-fix.json),
+[review](next-integration/review-ios-kernel-probe.json). Il helper stop, primary
+143/130/19, stickyhistory e budget restano invariati.
+
+Harness effb/0c09: reviewer distinto67host+4RobotoPASS/exit0, analisi globale
+zeroissue dopo38probe relocated senzaalterarehash/escluderefonti; APPROVED
+solo sul delta test. [Review](next-integration/review-fulfillment-reveal-fix.json).
+Il composto50a3123 è congelato nel codice; segue il freeze documentale e CI5
+exact-SHA. CI4 e le sei after parziali restano evidence storicaFAIL, non finalQA.
+TASK054BLOCKED/REVIEW, CODEX_FIX_BLOCKED_TO_RE_REVIEW; nessun merge anticipato,
+DONE, TASK055 o production.

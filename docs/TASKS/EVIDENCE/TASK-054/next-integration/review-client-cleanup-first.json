@@ -29,9 +29,9 @@
       "observed": "One public authControllerProvider subscription created by helper remains closed=false after app/Navigator unmount. Dialog State never mounts, therefore dispose cleanup does not run. Navigator forced dispose does not complete showDialog popped future, so helper finally is not reached.",
       "impact": "Residual retained opening monitor/closure in external-container lifetime. No dialog mounted, no mutation, no old draft painted, no cross-owner callback/write observed.",
       "production_applicability_limit": "Current bootstrap owns ProviderScope and ClientApp in the same lifetime; no current public production trigger that disposes root Navigator while keeping container alive was found. This is P3 cleanup robustness, not a demonstrated P2 production/security issue.",
-      "poc_path": "review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart",
+      "poc_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart",
       "poc_sha256": "5537ef1327f8cb70e0152ec05c2428b54b3752879331e25d88522c01e8171796",
-      "command": "flutter test --no-pub review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart --plain-name 'route /reviews unmount prima del primo frame chiude monitor' --reporter expanded --concurrency=1",
+      "command": "flutter test --no-pub ../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart --plain-name 'route /reviews unmount prima del primo frame chiude monitor' --reporter expanded --concurrency=1",
       "result": "FAIL",
       "exit_code": 1,
       "failed": 1,
@@ -167,51 +167,51 @@
   ],
   "source_audit": "Independent second source reader confirms pre-showDialog latch, mounted identity/raw listeners, guard for ACK/failure/reveal/finally, own popup/dialog removal and idempotent close. It independently identified the pre-mount external-container gap. No new P2 production finding.",
   "poc_relocation": {
-    "manifest": "review-artifacts/task054/review-client-feda-20261005/relocation.json",
+    "manifest": "../../../review-artifacts/task054/review-client-feda-20261005/relocation.json",
     "files": [
       {
         "previous_path": "build/task054/review_client/address_edit_ack_reproduction_test.dart",
-        "current_path": "review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/address_edit_ack_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/address_edit_ack_reproduction_test.dart",
         "sha256": "5e0cbbd8a3866aaffedfd4f2d57ad5ce54d937d53a871f997cd2478de5c0c805"
       },
       {
         "previous_path": "build/task054/review_client/address_error_reproduction_test.dart",
-        "current_path": "review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/address_error_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/address_error_reproduction_test.dart",
         "sha256": "d42ea9e3dc46c8e3c1cac6e0506b2856b1990078a0e7b3e12b9dce619333e685"
       },
       {
         "previous_path": "build/task054/review_client/delivery_address_error_reproduction_test.dart",
-        "current_path": "review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/delivery_address_error_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/delivery_address_error_reproduction_test.dart",
         "sha256": "e8c6771e21fad1978c2a6deb87fe64dd7021a559954cb224a82bd8ad0b30bd62"
       },
       {
         "previous_path": "build/task054/review_client/host_next_integration_test.dart",
-        "current_path": "review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/host_next_integration_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/host_next_integration_test.dart",
         "sha256": "348eaef6f47ffbdca22f40a363e0790d5398e32a5e5d941147cc16a659ca569f"
       },
       {
         "previous_path": "build/task054/review_client/review_error_overlay_reproduction_test.dart",
-        "current_path": "review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/review_error_overlay_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/review_error_overlay_reproduction_test.dart",
         "sha256": "4ac0c4ca7cc16c7a04da2ff7101579d8324405b06f945eb21bfb7d70c15c1a17"
       },
       {
         "previous_path": "build/task054/review_client/reviews_owner_opening_aba_reproduction_test.dart",
-        "current_path": "review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_aba_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_aba_reproduction_test.dart",
         "sha256": "94929202bfab2c07b6c6ab00e9428745232eb5c129d4a44f24a426aeb4cf9c49"
       },
       {
         "previous_path": "build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart",
-        "current_path": "review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart",
         "sha256": "5537ef1327f8cb70e0152ec05c2428b54b3752879331e25d88522c01e8171796"
       },
       {
         "previous_path": "build/task054/review_client/reviews_public_router_auth_test.dart",
-        "current_path": "review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_public_router_auth_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_public_router_auth_test.dart",
         "sha256": "9646308f111cdce24f8ce2b9d88249d897cb593d391129c6d457b8518fbea719"
       },
       {
         "previous_path": "build/task054/reviewer-public-auth-d9da-20261005/reviews_public_router_auth_test.dart",
-        "current_path": "review-artifacts/task054/review-client-feda-20261005/root-copy/build/task054/reviewer-public-auth-d9da-20261005/reviews_public_router_auth_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/root-copy/build/task054/reviewer-public-auth-d9da-20261005/reviews_public_router_auth_test.dart",
         "sha256": "9646308f111cdce24f8ce2b9d88249d897cb593d391129c6d457b8518fbea719"
       }
     ],
@@ -231,5 +231,12 @@
   "tracked_source_mutations": 0,
   "owned_verification_processes_pending": 0,
   "originalReceiptSha256": "b4d0d9b5b82acd7e187953dc5b58ce840c303be14f9615411510e56c67c407b9",
-  "qualification": "Ricevuta read-only originale; solo prefissi filesystem locali rimossi, comandi/result/source/log hash conservati. P3 lifetime distinto, nessun trigger pubblico production dimostrato."
+  "qualification": "Ricevuta read-only originale sanitizzata; path degli artifact rilocati ora qualificati relativamente al cwd del repository managed sotto .codex/worktrees. I comandi storici, FAIL/PASS e hash restano riferiti alle esecuzioni originali; la correzione documentale non è una riesecuzione Flutter.",
+  "documentary_path_fix": {
+    "id": "BECI-DOC-01",
+    "previousSanitizedReceiptSha256": "7c92b913b5e71a7af0f9e86e87c4c77db4edd85bd7982259140d947803af4a1d",
+    "cwd": ".codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+    "current_reproduction_command": "flutter test --no-pub ../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart --plain-name 'route /reviews unmount prima del primo frame chiude monitor' --reporter expanded --concurrency=1",
+    "scope": "Validazione esistenza e SHA256 del path corrente; nessuna nuova esecuzione Flutter."
+  }
 }

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "observedUtc": "2026-10-05T19:41:51.762397+00:00",
+  "tool": "mcp__codex_app__wait_threads",
+  "timeoutMs": 0,
+  "targets": [
+    {
+      "owner": "N",
+      "threadId": "01a0e903-0c9d-7583-8d62-4c25da6785e1",
+      "title": "Correggi sync e parità Android/iOS",
+      "cursor": "ece9e134-da09-4003-9b66-9b899e5f1f13:334",
+      "state": "active",
+      "reported": "batch iOS9test PASS; rootUI focus postcutover e navigazione vuota con rete pending in verifica"
+    },
+    {
+      "owner": "C",
+      "threadId": "01a107d6-6011-7423-b602-adb18fa89cc3",
+      "title": "Riprendi recovery e parità mobile",
+      "cursor": "d45f0076-8f5c-4617-9835-224743cd3325:49",
+      "state": "active",
+      "reported": "batch iOS9test PASS; medesima verifica UI proprietaria"
+    },
+    {
+      "owner": "W",
+      "threadId": "01a0d946-6dd0-70f1-9146-e65e8d3f6020",
+      "title": "Completa attivazione WECHAT-010",
+      "cursor": "a8a7e1b5-f150-4a8b-b31c-76232102a8ef:76",
+      "state": "idle",
+      "reported": "collaudo Mini/Admin NOT_RUN; attende rilascio effettivo simulatori e ripristino UI; richiesta sblocco pendente nella chat principale"
+    }
+  ],
+  "qualification": "Stato di coordinamento e claim delle lane; nessun comando/test log nativo verificato da root in questo refresh. Non promuove R24, authoring remoto, Mini/Admin o recovery terminale a PASS. Nessuna patch duplicata, dispositivo o processo altrui arrestato."
+}

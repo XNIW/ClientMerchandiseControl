@@ -473,7 +473,9 @@ final class _CustomerReviewDialogState
     extends ConsumerState<_CustomerReviewDialog> {
   late int _rating;
   late final TextEditingController _comment;
+  final _failureKey = GlobalKey();
   var _busy = false;
+  var _hasFailure = false;
 
   @override
   void initState() {
@@ -490,8 +492,10 @@ final class _CustomerReviewDialogState
 
   Future<void> _save({bool withdraw = false}) async {
     if (_busy) return;
-    setState(() => _busy = true);
-    final l10n = AppLocalizations.of(context);
+    setState(() {
+      _busy = true;
+      _hasFailure = false;
+    });
     try {
       final comment = _comment.text.trim().isEmpty
           ? null
@@ -516,9 +520,13 @@ final class _CustomerReviewDialogState
       if (mounted) Navigator.of(context).pop(true);
     } on CustomerReviewException {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.reviewsFailure)));
+        setState(() => _hasFailure = true);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final failureContext = _failureKey.currentContext;
+          if (mounted && failureContext != null) {
+            unawaited(Scrollable.ensureVisible(failureContext, alignment: 1));
+          }
+        });
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -558,6 +566,17 @@ final class _CustomerReviewDialogState
               enabled: !_busy,
               decoration: InputDecoration(labelText: l10n.reviewsComment),
             ),
+            if (_hasFailure) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Semantics(
+                key: _failureKey,
+                liveRegion: true,
+                child: Text(
+                  l10n.reviewsFailure,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+            ],
           ],
         ),
       ),

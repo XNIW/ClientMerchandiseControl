@@ -15,8 +15,10 @@ import os
 from pathlib import Path
 import re
 import signal
+import struct
 import subprocess
 import tempfile
+import zlib
 
 
 _cleanup_spec = importlib.util.spec_from_file_location(
@@ -28,6 +30,12 @@ stop_owned_process = _cleanup_module.stop_owned_process
 
 PNG_SIGNATURE = b'\x89PNG\r\n\x1a\n'
 FLAGS = ('mInputShown', 'mIsInputViewShown')
+MAX_PNG_PIXELS = 32 * 1024 * 1024
+MAX_PNG_BYTES = 128 * 1024 * 1024
+PNG_TYPES = {0: (1, (1, 2, 4, 8, 16)), 2: (3, (8, 16)),
+             3: (1, (1, 2, 4, 8)), 4: (2, (8, 16)), 6: (4, (8, 16))}
+ADAM7 = ((0, 0, 8, 8), (4, 0, 8, 8), (0, 4, 4, 8), (2, 0, 4, 4),
+         (0, 2, 2, 4), (1, 0, 2, 2), (0, 1, 1, 2))
 
 
 class Failure(Exception):
@@ -35,6 +43,123 @@ class Failure(Exception):
         super().__init__(phase)
         self.phase = phase
         self.code = code
+
+
+def validate_png(contents):
+    """PNG3: CRC, chunk critici, zlib completo e scanline decodificabili.
+
+    Profilo statico bounded per i frame dei device propri. Supporta tutti i color
+    type/bit depth PNG e Adam7; i chunk ancillary non cambiano la decodificabilità
+    dei pixel e restano opachi. Fonte: https://www.w3.org/TR/png-3/.
+    """
+    if not contents.startswith(PNG_SIGNATURE) or len(contents) > MAX_PNG_BYTES:
+        raise Failure('screen', 1)
+    offset, header, palette = len(PNG_SIGNATURE), None, None
+    image_data, last_idat_length = [], 0
+    idat_ended, ended = False, False
+    while offset < len(contents):
+        if len(contents) - offset < 12:
+            raise Failure('screen', 1)
+        length = struct.unpack_from('>I', contents, offset)[0]
+        kind = contents[offset + 4:offset + 8]
+        end = offset + length + 12
+        if (length > 0x7fffffff or end > len(contents) or
+                not re.fullmatch(rb'[A-Za-z]{4}', kind) or kind[2] & 32):
+            raise Failure('screen', 1)
+        payload = contents[offset + 8:end - 4]
+        crc = struct.unpack_from('>I', contents, end - 4)[0]
+        if zlib.crc32(kind + payload) != crc:
+            raise Failure('screen', 1)
+        if header is None and kind != b'IHDR':
+            raise Failure('screen', 1)
+        if kind == b'IHDR':
+            if header is not None or length != 13:
+                raise Failure('screen', 1)
+            header = struct.unpack('>IIBBBBB', payload)
+            width, height, depth, color, compression, filtering, interlace = header
+            if (not 0 < width <= 0x7fffffff or not 0 < height <= 0x7fffffff or
+                    width * height > MAX_PNG_PIXELS or color not in PNG_TYPES or
+                    depth not in PNG_TYPES[color][1] or compression != 0 or
+                    filtering != 0 or interlace not in (0, 1)):
+                raise Failure('screen', 1)
+        elif kind == b'PLTE':
+            if (palette is not None or image_data or color in (0, 4) or
+                    not 0 < length <= 768 or length % 3 or
+                    color == 3 and length // 3 > 1 << depth):
+                raise Failure('screen', 1)
+            palette = length // 3
+        elif kind == b'IDAT':
+            if idat_ended or color == 3 and palette is None:
+                raise Failure('screen', 1)
+            image_data.append(payload)
+            last_idat_length = length
+        elif kind == b'IEND':
+            if length or not image_data or end != len(contents):
+                raise Failure('screen', 1)
+            ended = True
+        else:
+            if not kind[0] & 32:  # Unknown critical: nessuna decodifica sicura.
+                raise Failure('screen', 1)
+            if image_data:
+                idat_ended = True
+        offset = end
+    if not ended:
+        raise Failure('screen', 1)
+
+    bits = PNG_TYPES[color][0] * depth
+    passes = []
+    for x, y, dx, dy in (ADAM7 if interlace else ((0, 0, 1, 1),)):
+        pass_width = max(0, (width - x + dx - 1) // dx)
+        pass_height = max(0, (height - y + dy - 1) // dy)
+        if pass_width and pass_height:
+            passes.append((pass_width, pass_height, (pass_width * bits + 7) // 8))
+    expected = sum(rows * (row_bytes + 1) for _, rows, row_bytes in passes)
+    if expected > MAX_PNG_BYTES:
+        raise Failure('screen', 1)
+    decoder = zlib.decompressobj()
+    try:
+        decoded = decoder.decompress(b''.join(image_data), expected + 1)
+    except zlib.error:
+        raise Failure('screen', 1) from None
+    if (not decoder.eof or len(decoded) != expected or decoder.unconsumed_tail or
+            len(decoder.unused_data) > last_idat_length):
+        raise Failure('screen', 1)
+    # PNG3 §11.2.3 permette di ignorare byte inutilizzati nell'ULTIMO IDAT.
+    position = 0
+    for pass_width, rows, row_bytes in passes:
+        previous = bytearray(row_bytes) if color == 3 else None
+        for _ in range(rows):
+            filter_type = decoded[position]
+            if filter_type > 4:
+                raise Failure('screen', 1)
+            position += 1
+            if color == 3:
+                row = bytearray(decoded[position:position + row_bytes])
+                for index in range(row_bytes):
+                    left = row[index - 1] if index else 0
+                    above = previous[index]
+                    upper_left = previous[index - 1] if index else 0
+                    if filter_type == 1:
+                        prediction = left
+                    elif filter_type == 2:
+                        prediction = above
+                    elif filter_type == 3:
+                        prediction = (left + above) // 2
+                    elif filter_type == 4:
+                        estimate = left + above - upper_left
+                        distances = (abs(estimate - left), abs(estimate - above),
+                                     abs(estimate - upper_left))
+                        prediction = (left, above, upper_left)[distances.index(min(distances))]
+                    else:
+                        prediction = 0
+                    row[index] = (row[index] + prediction) & 255
+                for pixel in range(pass_width):
+                    bit = pixel * depth
+                    value = (row[bit // 8] >> (8 - depth - bit % 8)) & ((1 << depth) - 1)
+                    if value >= palette:
+                        raise Failure('screen', 1)
+                previous = row
+            position += row_bytes
 
 
 def parse_ime_flags(output):
@@ -128,15 +253,15 @@ class OSFrameCapture:
             try:
                 stop_owned_process(child)
             except Exception as error:
-                self.receipt['cleanup_status'] = 'FAIL'
+                if not getattr(error, 'owned_cleanup_quiescent', False):
+                    self.receipt['cleanup_status'] = 'FAIL'
                 if primary_failure is None:
                     if isinstance(error, Failure) and error.phase == 'signal':
                         raise
                     raise Failure('cleanup', 1) from None
 
     def save_png(self, contents):
-        if len(contents) <= len(PNG_SIGNATURE) or not contents.startswith(PNG_SIGNATURE):
-            raise Failure('screen', 1)
+        validate_png(contents)
         # Il create esclusivo conserva anche un file apparso dopo il preflight.
         with self.image.open('xb') as destination:
             destination.write(contents)

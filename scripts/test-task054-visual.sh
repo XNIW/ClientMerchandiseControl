@@ -30,28 +30,43 @@ def stop_command(process):
         # Python OS drena i propri tool group entro 14s incluso probe: questa
         # grace evita di uccidere il bridge prima del suo KILL/receipt finale.
         cleanup_module.stop_owned_process(process, term_grace=20)
-    except (OSError, subprocess.TimeoutExpired, cleanup_module.Failure) as error:
-        cleanup_failed = True
-        print(f"FAIL: cleanup visual command {type(error).__name__}", flush=True)
+    except BaseException as error:
+        if not getattr(error, 'owned_cleanup_quiescent', False):
+            cleanup_failed = True
+            print(f"FAIL: cleanup visual command {type(error).__name__}", flush=True)
+        if getattr(error, 'owned_cleanup_quiescent', None) is not None:
+            raise
+        if isinstance(error, (SystemExit, KeyboardInterrupt)):
+            raise
 
 
 def run(command, timeout):
     process = subprocess.Popen(command, start_new_session=True)
+    primary_failure = None
     try:
         code = process.wait(timeout=timeout)
+        if code:
+            primary_failure = SystemExit(code if code > 0 else 128 - code)
     except subprocess.TimeoutExpired:
         print(f"FAIL: verifica visuale timeout dopo {timeout}s", flush=True)
-        stop_command(process)
-        raise SystemExit(124)
-    except BaseException:
-        # TERM/INT del parent termina anche il figlio avviato in sessione propria.
-        stop_command(process)
-        raise
-    if code:
-        raise SystemExit(code)
+        primary_failure = SystemExit(124)
+    except BaseException as error:
+        primary_failure = error
+    finally:
+        try:
+            stop_command(process)
+        except BaseException as error:
+            if primary_failure is None:
+                primary_failure = error
+    if primary_failure is not None:
+        raise primary_failure
+    if cleanup_failed:
+        raise SystemExit(1)
 
 
 def interrupted(signum, _frame):
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
     raise SystemExit(128 + signum)
 
 

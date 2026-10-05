@@ -7,9 +7,11 @@ import io
 import json
 from pathlib import Path
 import signal
+import struct
 import subprocess
 import tempfile
 import unittest
+import zlib
 from unittest.mock import patch
 
 
@@ -19,7 +21,40 @@ MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 
 REVISION = b'a' * 40 + b'\n'
-PNG = MODULE.PNG_SIGNATURE + b'synthetic-frame-bytes'
+
+
+def chunk(kind, payload=b''):
+    return (struct.pack('>I', len(payload)) + kind + payload +
+            struct.pack('>I', zlib.crc32(kind + payload)))
+
+
+def png(width=1, height=1, depth=8, color=6, interlace=0,
+        raw=None, compressed=None, palette=None, extra=b''):
+    channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}[color]
+    if raw is None:
+        # Matrice W3C dei pass Adam7: indipendente dalla formula stride validator.
+        pattern = ((1, 6, 4, 6, 2, 6, 4, 6), (7,) * 8,
+                   (5, 6, 5, 6, 5, 6, 5, 6), (7,) * 8,
+                   (3, 6, 4, 6, 3, 6, 4, 6), (7,) * 8,
+                   (5, 6, 5, 6, 5, 6, 5, 6), (7,) * 8)
+        raw = b''
+        for label in (range(1, 8) if interlace else (0,)):
+            for row in range(height):
+                pixels = (sum(pattern[row % 8][col % 8] == label for col in range(width))
+                          if interlace else width)
+                if pixels:
+                    raw += b'\0' + bytes((pixels * channels * depth + 7) // 8)
+    header = chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, depth,
+                                      color, 0, 0, interlace))
+    if color == 3 and palette is None:
+        palette = b'\0\0\0'
+    return (MODULE.PNG_SIGNATURE + header +
+            (chunk(b'PLTE', palette) if palette is not None else b'') + extra +
+            chunk(b'IDAT', zlib.compress(raw) if compressed is None else compressed) +
+            chunk(b'IEND'))
+
+
+PNG = png()
 PRIVATE = b'PRIVATE_OWNER_AND_TEXT_MUST_NEVER_BE_WRITTEN'
 UUID = '12345678-1234-4234-8234-123456789abc'
 
@@ -288,12 +323,33 @@ class OSFrameTest(unittest.TestCase):
         self.assertEqual(result['exit_code'], 9)
 
     def test_empty_or_non_png_frame_produces_failure_receipt(self):
-        for index, frame in enumerate((b'', MODULE.PNG_SIGNATURE, PRIVATE)):
-            with self.subTest(index=index):
-                code, capture = self.execute(name=f'{index}-focus', frame=frame)
-                self.assertEqual(code, 1)
-                self.assertFalse(capture.image.exists())
-                self.assertEqual(self.receipt(capture)['frame_status'], 'FAIL')
+        for platform in ('android', 'ios'):
+            for index, frame in enumerate((b'', MODULE.PNG_SIGNATURE, PRIVATE,
+                                          MODULE.PNG_SIGNATURE + b'X')):
+                with self.subTest(platform=platform, index=index):
+                    code, capture = self.execute(platform=platform,
+                        name=f'{platform}-{index}-focus', frame=frame)
+                    self.assertEqual(code, 1)
+                    self.assertFalse(capture.image.exists())
+                    result = self.receipt(capture)
+                    self.assertEqual(result['frame_status'], 'FAIL')
+                    self.assertEqual(result['failed_phase'], 'screen')
+                    self.assertEqual(result['probe_status'], 'NOT_RUN')
+                    self.assertIsNone(result['frame_sha256'])
+
+    def test_complete_png_with_invalid_scanlines_is_not_a_pass_or_probe(self):
+        for platform in ('android', 'ios'):
+            for index, frame in enumerate((png(raw=b'\0'), png(raw=b'\5' + bytes(4)),
+                                          png(compressed=zlib.compress(bytes(5))[:-1]))):
+                with self.subTest(platform=platform, index=index):
+                    code, capture = self.execute(platform=platform,
+                        name=f'{platform}-scanline-{index}-focus', frame=frame)
+                    self.assertEqual(code, 1)
+                    self.assertFalse(capture.image.exists())
+                    result = self.receipt(capture)
+                    self.assertEqual(result['frame_status'], 'FAIL')
+                    self.assertEqual(result['probe_status'], 'NOT_RUN')
+                    self.assertEqual(result['failed_phase'], 'screen')
 
     def test_git_failure_prevents_os_actions_and_has_nullable_revision(self):
         code, capture = self.execute(git=11)
@@ -392,6 +448,92 @@ class OSFrameTest(unittest.TestCase):
             MODULE.main(['--device', PRIVATE.decode(), '--platform', 'unexpected'])
         self.assertEqual(caught.exception.code, 2)
         self.assertNotIn(PRIVATE.decode(), self.stderr.getvalue())
+
+
+class PNGValidationTest(unittest.TestCase):
+    def test_standard_legal_color_depth_combinations_and_adam7(self):
+        legal = {0: (1, 2, 4, 8, 16), 2: (8, 16), 3: (1, 2, 4, 8),
+                 4: (8, 16), 6: (8, 16)}
+        for color, depths in legal.items():
+            for depth in depths:
+                for interlace in (0, 1):
+                    for width, height in ((1, 1), (7, 11)):
+                        with self.subTest(color=color, depth=depth,
+                                          interlace=interlace, size=(width, height)):
+                            MODULE.validate_png(png(width, height, depth, color, interlace))
+
+    def test_real_versioned_png_assets_and_ancillary_metadata_are_supported(self):
+        root = Path(__file__).resolve().parent.parent
+        for name in ('assets/release/google-play-icon-512.png',
+                     'test/features/checkout/presentation/goldens/checkout_review_es_cl_linux.png',
+                     'test/features/orders/presentation/goldens/order_delivery_live_es_cl_macos27.png'):
+            with self.subTest(name=name):
+                MODULE.validate_png((root / name).read_bytes())
+        MODULE.validate_png(png(extra=chunk(b'tEXt', b'Software\0synthetic encoder')))
+
+    def test_critical_chunk_order_lengths_crc_and_header_are_checked(self):
+        header, data, end = PNG[8:33], PNG[33:-12], PNG[-12:]
+        invalid_headers = [struct.pack('>IIBBBBB', *values) for values in (
+            (0, 1, 8, 6, 0, 0, 0), (1, 0, 8, 6, 0, 0, 0),
+            (1, 1, 1, 6, 0, 0, 0), (1, 1, 8, 5, 0, 0, 0),
+            (1, 1, 8, 6, 1, 0, 0), (1, 1, 8, 6, 0, 1, 0),
+            (1, 1, 8, 6, 0, 0, 2), (0x80000000, 1, 8, 6, 0, 0, 0),
+            (MODULE.MAX_PNG_PIXELS + 1, 1, 8, 6, 0, 0, 0))]
+        cases = [MODULE.PNG_SIGNATURE + b'X', PNG[:-1], PNG[:-12],
+                 PNG + b'trailing', PNG[:-1] + bytes([PNG[-1] ^ 1]),
+                 MODULE.PNG_SIGNATURE + data + header + end,
+                 MODULE.PNG_SIGNATURE + header + header + data + end,
+                 MODULE.PNG_SIGNATURE + header + end,
+                 MODULE.PNG_SIGNATURE + header + data + chunk(b'IEND', b'X'),
+                 MODULE.PNG_SIGNATURE + chunk(b'IHDR', bytes(12)) + data + end,
+                 MODULE.PNG_SIGNATURE + header + chunk(b'ABCD') + data + end,
+                 MODULE.PNG_SIGNATURE + header + chunk(b'abcd') + data + end]
+        cases.extend(MODULE.PNG_SIGNATURE + chunk(b'IHDR', value) + data + end
+                     for value in invalid_headers)
+        for index, contents in enumerate(cases):
+            with self.subTest(index=index), self.assertRaises(MODULE.Failure):
+                MODULE.validate_png(contents)
+
+    def test_idat_stream_boundaries_eof_and_exact_scanline_lengths(self):
+        compressed = zlib.compress(b'\0' + bytes(4))
+        header = PNG[8:33]
+        # Chunk boundaries possono attraversare anche il checksum Adler.
+        MODULE.validate_png(MODULE.PNG_SIGNATURE + header + chunk(b'IDAT') +
+            chunk(b'IDAT', compressed[:-2]) + chunk(b'IDAT', compressed[-2:]) +
+            chunk(b'IDAT') + chunk(b'IEND'))
+        # W3C consiglia di ignorare eventuali byte inutilizzati nell'ultimo IDAT.
+        MODULE.validate_png(png(compressed=compressed + b'unused'))
+        cases = [png(compressed=b''), png(compressed=b'not-zlib'),
+                 png(compressed=compressed[:-1]), png(raw=b'\0'),
+                 png(raw=bytes(6)), png(raw=bytes(1000000)), png(raw=b'\5' + bytes(4)),
+                 png(raw=b'\0' + bytes(4) + b'\0' + bytes(4)),
+                 MODULE.PNG_SIGNATURE + header + chunk(b'IDAT', compressed[:2]) +
+                 chunk(b'tEXt', b'key\0value') + chunk(b'IDAT', compressed[2:]) + chunk(b'IEND'),
+                 MODULE.PNG_SIGNATURE + header + chunk(b'IDAT', compressed + b'unused') +
+                 chunk(b'IDAT') + chunk(b'IEND')]
+        for index, contents in enumerate(cases):
+            with self.subTest(index=index), self.assertRaises(MODULE.Failure):
+                MODULE.validate_png(contents)
+        for filter_type in range(5):
+            MODULE.validate_png(png(raw=bytes([filter_type]) + bytes(4)))
+
+    def test_indexed_palette_is_bounded_after_reconstructing_filters(self):
+        # Sub: [1,0] ricostruisce [1,1]; padding bits del singolo pixel ignorati.
+        MODULE.validate_png(png(2, 1, 8, 3, raw=b'\1\1\0', palette=bytes(6)))
+        MODULE.validate_png(png(1, 1, 1, 3, raw=b'\0\x7f', palette=bytes(3)))
+        for filter_type in range(5):
+            MODULE.validate_png(png(2, 2, 8, 3,
+                raw=(bytes([filter_type]) + bytes(2)) * 2))
+        cases = [png(2, 1, 8, 3, raw=b'\1\1\1', palette=bytes(6)),
+                 png(2, 1, 1, 3, raw=b'\0\x7f', palette=bytes(3)),
+                 png(color=3, palette=b''), png(color=3, palette=bytes(4)),
+                 png(color=3, palette=bytes(771)), png(depth=1, color=3, palette=bytes(9)),
+                 png(color=0, palette=bytes(3))]
+        indexed = png(color=3)
+        cases.append(indexed[:33] + indexed[48:])  # Palette richiesta mancante.
+        for index, contents in enumerate(cases):
+            with self.subTest(index=index), self.assertRaises(MODULE.Failure):
+                MODULE.validate_png(contents)
 
 
 if __name__ == '__main__':

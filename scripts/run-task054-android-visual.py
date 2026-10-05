@@ -21,6 +21,7 @@ import uuid
 class Failure(Exception):
     def __init__(self, phase, code, reason):
         super().__init__(f'{phase}: {reason}')
+        self.phase = phase
         self.code = code
 
 
@@ -43,7 +44,7 @@ def owned_group_has_live_members(group):
     return live
 
 
-def stop_owned_process(process, *, term_grace=5):
+def _stop_owned_group(process, term_grace):
     """Verifica l'intero PGID proprio; leader uscito non implica gruppo fermo."""
     for sig in (signal.SIGTERM, signal.SIGKILL):
         try:
@@ -63,6 +64,58 @@ def stop_owned_process(process, *, term_grace=5):
             time.sleep(min(0.05, remaining))
         # Nessun segnale tardivo dopo avere osservato un gruppo vuoto/quiescente.
     raise Failure('cleanup-process', 1, 'gruppo proprio non terminato')
+
+
+def stop_owned_process(process, *, term_grace=5):
+    """Drena il gruppo anche se TERM/INT arriva durante il primo cleanup.
+
+    Il primo segnale è differito fino alla quiescenza; il caller conserva il
+    proprio tipo di failure e un errore primario già presente. Solo questa fase
+    temporanea cambia gli handler del processo che possiede il gruppo.
+    """
+    signals = (signal.SIGTERM, signal.SIGINT)
+    handlers = {signum: signal.getsignal(signum) for signum in signals}
+    received = []
+
+    def remember(signum, frame):
+        if not received:
+            received.append((signum, frame))
+
+    previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, signals)
+    try:
+        for signum, handler in handlers.items():
+            if handler != signal.SIG_IGN:
+                signal.signal(signum, remember)
+    finally:
+        signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
+    cleanup_error = None
+    try:
+        _stop_owned_group(process, term_grace)
+    except BaseException as error:
+        cleanup_error = error
+    finally:
+        # Il primo handler CLI ignora ulteriori segnali. Evita che un secondo
+        # segnale prevalga nella finestra fra restore e dispatch del primo.
+        previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, signals)
+        try:
+            for signum in signals:
+                signal.signal(signum, signal.SIG_IGN if received else handlers[signum])
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
+    if received:
+        signum, frame = received[0]
+        try:
+            original = handlers[signum]
+            if callable(original):
+                original(signum, frame)
+            else:
+                raise Failure('signal', 128 + signum, 'interrotto dopo cleanup proprio')
+        except BaseException as error:
+            error.owned_cleanup_quiescent = cleanup_error is None
+            error.owned_cleanup_error = cleanup_error
+            raise
+    if cleanup_error is not None:
+        raise cleanup_error
 
 
 class AndroidVisualRunner:
@@ -87,18 +140,30 @@ class AndroidVisualRunner:
             stdin=subprocess.PIPE if input_text is not None else subprocess.DEVNULL,
             stdout=subprocess.PIPE if capture else None,
             stderr=subprocess.STDOUT if capture else None)
+        primary_failure = None
         try:
             output, _ = child.communicate(input=input_text, timeout=timeout)
+            if check and child.returncode:
+                if output:
+                    print(output, flush=True)
+                code = child.returncode if child.returncode > 0 else 128 - child.returncode
+                raise Failure(self.phase, code, 'comando fallito')
         except subprocess.TimeoutExpired:
-            self.stop_command(child)
-            raise Failure(self.phase, 124, f'timeout {timeout}s')
-        except BaseException:
-            self.stop_command(child)
-            raise
-        if check and child.returncode:
-            if output:
-                print(output, flush=True)
-            raise Failure(self.phase, child.returncode, 'comando fallito')
+            primary_failure = Failure(self.phase, 124, f'timeout {timeout}s')
+        except BaseException as error:
+            primary_failure = error
+        finally:
+            try:
+                self.stop_command(child)
+            except BaseException as error:
+                if primary_failure is None:
+                    # Anche check=False deve conservare un exit nonzero già
+                    # osservato, fermando la lane se il cleanup è interrotto.
+                    primary_failure = (Failure(self.phase,
+                        child.returncode if child.returncode > 0 else 128 - child.returncode,
+                        'exit primario prima del cleanup') if child.returncode else error)
+        if primary_failure is not None:
+            raise primary_failure
         return child.returncode, (output or '').strip()
 
     def stop_command(self, child):
@@ -107,9 +172,17 @@ class AndroidVisualRunner:
             # del KILL esterno. È grace di cleanup, non timeout build/test.
             stop_owned_process(child,
                 term_grace=30 if self.phase == 'native-fixture-capture' else 5)
-        except (OSError, Failure) as error:
-            self.cleanup_failed = True
-            print(f'FAIL: cleanup command {type(error).__name__}', flush=True)
+        except BaseException as error:
+            if not getattr(error, 'owned_cleanup_quiescent', False):
+                self.cleanup_failed = True
+                print(f'FAIL: cleanup command {type(error).__name__}', flush=True)
+            if getattr(error, 'owned_cleanup_quiescent', None) is not None:
+                raise
+            if isinstance(error, Failure) and error.phase == 'signal':
+                raise
+            if isinstance(error, (SystemExit, KeyboardInterrupt)):
+                raise
+            raise Failure('cleanup-process', 1, 'cleanup command non verificato') from None
 
     def wait_ready(self, phase, seconds, arguments, expected):
         self.phase = phase
@@ -235,14 +308,26 @@ class AndroidVisualRunner:
 
     def cleanup(self):
         # Mai adb kill-server, emu kill, shutdown-all o selezione di device altrui.
+        deferred_signal = None
+
+        def record(error, resource):
+            nonlocal deferred_signal
+            if not getattr(error, 'owned_cleanup_quiescent', False):
+                self.cleanup_failed = True
+                print(f'FAIL: cleanup {resource} {type(error).__name__}', flush=True)
+            if isinstance(error, Failure) and error.phase == 'signal' and deferred_signal is None:
+                deferred_signal = error
+
         if self.emulator is not None:
             try:
                 stop_owned_process(self.emulator)
-            except (OSError, Failure) as error:
-                self.cleanup_failed = True
-                print(f'FAIL: cleanup emulator {type(error).__name__}', flush=True)
+            except BaseException as error:
+                record(error, 'emulator')
         if self.log is not None:
-            self.log.close()
+            try:
+                self.log.close()
+            except BaseException as error:
+                record(error, 'log')
         if self.owned_directory is not None:
             self.phase = 'avd-delete'
             try:
@@ -251,15 +336,15 @@ class AndroidVisualRunner:
                 if avd_path.exists():
                     self.command([str(self.avdmanager), 'delete', 'avd', '-n',
                         self.avd_name], 20)
-            except (OSError, Failure) as error:
-                self.cleanup_failed = True
-                print(f'FAIL: cleanup avd {type(error).__name__}', flush=True)
+            except BaseException as error:
+                record(error, 'avd')
             finally:
                 try:
                     shutil.rmtree(self.owned_directory)
-                except OSError as error:
-                    self.cleanup_failed = True
-                    print(f'FAIL: cleanup directory {type(error).__name__}', flush=True)
+                except BaseException as error:
+                    record(error, 'directory')
+        if deferred_signal is not None:
+            raise deferred_signal
 
     def run(self):
         code = 0
@@ -275,7 +360,11 @@ class AndroidVisualRunner:
             failed_phase = self.phase
             print(f'FAIL: {self.phase} {type(error).__name__}', flush=True)
         finally:
-            self.cleanup()
+            try:
+                self.cleanup()
+            except Failure as error:
+                if not code:
+                    code, failed_phase = error.code, error.phase
         code = code or (1 if self.cleanup_failed else 0)
         receipt = self.repository / 'build/task054/android-visual-receipt.json'
         receipt.parent.mkdir(parents=True, exist_ok=True)
@@ -288,6 +377,8 @@ class AndroidVisualRunner:
 
 
 def interrupted(signum, _frame):
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
     raise Failure('signal', 128 + signum, 'esecuzione interrotta')
 
 

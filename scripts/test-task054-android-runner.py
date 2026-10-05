@@ -148,7 +148,10 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         self.assertEqual(drive, ['bash', 'scripts/test-task054-visual.sh',
             '--device', runner.serial])
         self.assertEqual(runner.serial, 'emulator-5554')
-        self.assertEqual(killed[0].args, (12345, signal.SIGTERM))
+        self.assertEqual(killed[0].args, (54321, signal.SIGTERM))
+        self.assertEqual(sum(call.args == (12345, signal.SIGTERM) for call in killed), 1)
+        self.assertEqual(sum(call.args == (54321, signal.SIGTERM) for call in killed),
+            sum('-avd' not in command for command in calls))
         delete = calls[-1]
         self.assertEqual(delete[-4:], ['delete', 'avd', '-n', runner.avd_name])
         self.assertEqual(environments[-1]['ANDROID_AVD_HOME'],
@@ -174,7 +177,8 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         self.assertEqual(code, 7)
         self.assertEqual(receipt['failed_phase'], 'sdk-install')
         self.assertEqual(len(calls), 2)
-        self.assertEqual(killed, [])
+        self.assertEqual([call.args for call in killed],
+            [(54321, signal.SIGTERM), (54321, signal.SIGTERM)])
         self.assertFalse(runner.owned_directory.exists())
 
     def test_emulator_is_installed_with_image_before_it_is_required(self):
@@ -189,14 +193,15 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertEqual(receipt['failed_phase'], 'sdk-install')
         self.assertFalse(any('-avd' in args or args[0] == 'bash' for args in calls))
-        self.assertEqual(killed, [])
+        self.assertEqual([call.args for call in killed],
+            [(54321, signal.SIGTERM), (54321, signal.SIGTERM)])
 
     def test_foreign_identity_is_never_used_or_stopped_via_adb(self):
         code, calls, _, killed, receipt, _ = self.execute(foreign=True)
         self.assertEqual(code, 2)
         self.assertEqual(receipt['failed_phase'], 'device-identity')
         self.assertFalse(any('shell' in args or args[0] == 'bash' for args in calls))
-        self.assertTrue(all(call.args[0] == 12345 for call in killed))
+        self.assertTrue(all(call.args[0] in (12345, 54321) for call in killed))
 
     def test_early_emulator_exit_stops_dependent_phases(self):
         code, calls, _, _, receipt, _ = self.execute(early_exit=True)
@@ -320,6 +325,46 @@ class AndroidVisualRunnerTest(unittest.TestCase):
                 'build/task054/android-visual-receipt.json').read_text())
             self.assertEqual(receipt['cleanup'], 'FAIL')
             self.assertFalse(runner.owned_directory.exists())
+
+    def test_deferred_signal_during_cleanup_keeps_receipt_and_independent_owned_delete(self):
+        for primary in (0, 7):
+            with self.subTest(primary=primary), tempfile.TemporaryDirectory() as directory:
+                runner = MODULE.AndroidVisualRunner(directory)
+                runner.phase = 'capture'
+                runner.emulator = Mock(pid=54321)
+                runner.log = Mock()
+                runner.owned_directory = Path(directory) / 'owned'
+                avd = runner.owned_directory / 'avd' / (runner.avd_name + '.avd')
+                avd.mkdir(parents=True)
+                runner.avdmanager = Path('/controlled/avdmanager')
+                deferred = MODULE.Failure('signal', 143, 'differito dopo quiescenza')
+                deferred.owned_cleanup_quiescent = True
+                execution = MODULE.Failure('capture', primary, 'fixture') if primary else None
+                with patch.object(runner, 'execute', side_effect=execution), \
+                     patch.object(MODULE, 'stop_owned_process', side_effect=deferred), \
+                     patch.object(runner, 'command', return_value=(0, '')) as delete:
+                    self.assertEqual(runner.run(), primary or 143)
+                delete.assert_called_once_with([str(runner.avdmanager), 'delete', 'avd',
+                    '-n', runner.avd_name], 20)
+                runner.log.close.assert_called_once()
+                self.assertFalse(runner.owned_directory.exists())
+                receipt = json.loads((Path(directory) /
+                    'build/task054/android-visual-receipt.json').read_text())
+                self.assertEqual(receipt['exit_code'], primary or 143)
+                self.assertEqual(receipt['cleanup'], 'PASS')
+
+    def test_check_false_nonzero_is_preserved_when_signal_arrives_during_cleanup(self):
+        runner = MODULE.AndroidVisualRunner('/controlled')
+        child = Mock(pid=54321, returncode=7)
+        child.communicate.return_value = ('unready', None)
+        deferred = MODULE.Failure('signal', 143, 'differito dopo quiescenza')
+        deferred.owned_cleanup_quiescent = True
+        with patch.object(MODULE.subprocess, 'Popen', return_value=child), \
+             patch.object(MODULE, 'stop_owned_process', side_effect=deferred), \
+             self.assertRaises(MODULE.Failure) as failure:
+            runner.command(['controlled'], 3, check=False)
+        self.assertEqual(failure.exception.code, 7)
+        self.assertFalse(runner.cleanup_failed)
 
     def test_kill_cannot_claim_success_with_remaining_live_group(self):
         child = Mock(pid=54321)

@@ -18,7 +18,10 @@ class VisualRunnerTest(unittest.TestCase):
         actions = []
         processes = []
         handlers = {}
-        owned_stop = Mock(side_effect=process_cleanup_error)
+        def stop(child, **_kwargs):
+            if child.command[0] == 'flutter' and process_cleanup_error is not None:
+                raise process_cleanup_error
+        owned_stop = Mock(side_effect=stop)
         module = SimpleNamespace(stop_owned_process=owned_stop, Failure=RuntimeError)
         spec = Mock()
 
@@ -33,6 +36,7 @@ class VisualRunnerTest(unittest.TestCase):
 
         def process(command, **kwargs):
             child = Mock(pid=54321)
+            child.command = command
             is_drive = command[0] == 'flutter'
             child.wait.side_effect = ([subprocess.TimeoutExpired(command, 900), 0, 0, 0]
                                      if is_drive and drive_timeout else None)
@@ -124,9 +128,9 @@ class VisualRunnerTest(unittest.TestCase):
         code, actions, _ = self.execute(drive_signal=signal.SIGTERM)
         self.assertEqual(code, 143)
         self.assertEqual(actions, ['shutdown', 'delete'])
-        self.assertEqual(len(self.owned_stops), 1)
-        self.assertEqual(self.owned_stops[0].args[0].pid, 54321)
-        self.assertEqual(self.owned_stops[0].kwargs, {'term_grace': 20})
+        self.assertEqual(len(self.owned_stops), 4)
+        self.assertTrue(all(call.args[0].pid == 54321 and call.kwargs == {'term_grace': 20}
+                            for call in self.owned_stops))
         self.assertEqual(self.terminated_groups, [])
 
     def test_int_stops_drive_without_touching_external_device(self):

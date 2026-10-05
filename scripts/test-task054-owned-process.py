@@ -8,7 +8,9 @@ import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
+from types import SimpleNamespace
 import unittest
 from unittest.mock import call, patch
 
@@ -17,6 +19,13 @@ HELPER_PATH = Path(__file__).with_name('run-task054-android-visual.py').resolve(
 SPEC = importlib.util.spec_from_file_location('cmc_owned_process', HELPER_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
+OS_SPEC = importlib.util.spec_from_file_location('cmc_os_cleanup_signal',
+    HELPER_PATH.with_name('capture-task054-os-frame.py'))
+OS_MODULE = importlib.util.module_from_spec(OS_SPEC)
+OS_SPEC.loader.exec_module(OS_MODULE)
+VISUAL_SOURCE = HELPER_PATH.with_name('test-task054-visual.sh').read_text().split(
+    "<<'PYCODE'\n", 1)[1].rsplit('\nPYCODE', 1)[0].split(
+    'signal.signal(signal.SIGTERM, interrupted)', 1)[0]
 
 CHILD_SOURCE = '''\
 import json
@@ -127,6 +136,125 @@ def stop_descendant_group(group):
 
 
 class OwnedNestedProcessTest(unittest.TestCase):
+    def exercise_callsite(self, owner, leader_code, signum=None):
+        """Processi reali; grace test ridotta, valori di produzione verificati."""
+        previous = {sig: signal.getsignal(sig) for sig in (signal.SIGTERM, signal.SIGINT)}
+        leaders, timers, received = [], [], []
+        real_popen = subprocess.Popen
+        real_stop = (OS_MODULE.stop_owned_process if owner == 'os' else MODULE.stop_owned_process)
+        with tempfile.TemporaryDirectory(prefix='cmc-owned-callsite-') as directory:
+            root = Path(directory).resolve()
+            ready = root / 'child.json'
+            child_source = (
+                'import json,os,signal,time;from pathlib import Path;'
+                'signal.signal(signal.SIGTERM,signal.SIG_IGN);'
+                f'Path({str(ready)!r}).write_text(json.dumps({{"pid":os.getpid(),"pgid":os.getpgrp()}}));'
+                'time.sleep(60)')
+            leader_source = (
+                'import subprocess,sys,time;from pathlib import Path;'
+                f'subprocess.Popen([sys.executable,"-c",{child_source!r}],'
+                'stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL);'
+                f'p=Path({str(ready)!r});deadline=time.monotonic()+3\n'
+                'while not p.exists() and time.monotonic()<deadline:time.sleep(.01)\n'
+                f'sys.exit({leader_code})')
+            command = [sys.executable, '-c', leader_source]
+
+            def start(arguments, **kwargs):
+                process = real_popen(arguments, **kwargs)
+                if arguments == command:
+                    self.assertTrue(kwargs['start_new_session'])
+                    leaders.append(process)
+                return process
+
+            def stop(process, **kwargs):
+                expected = {'term_grace': 20 if owner == 'visual' else 5}
+                self.assertEqual(kwargs, {} if owner == 'os' else expected)
+                self.assertTrue(ready.exists(), 'child pronto prima cleanup')
+                child = json.loads(ready.read_text())
+                self.assertEqual(child['pgid'], process.pid)
+                self.assertNotEqual(process.pid, os.getpgrp())
+                self.assertTrue(MODULE.owned_group_has_live_members(process.pid))
+                if signum is not None:
+                    def send():
+                        received.append(signum)
+                        os.kill(os.getpid(), signum)
+                    timer = threading.Timer(.1, send)
+                    timers.append(timer)
+                    timer.start()
+                # Il limite ridotto appartiene solo al test. Il figlio IGNORETERM
+                # rende osservabile il KILL vero senza attendere i 20s del driver.
+                return real_stop(process, term_grace=.5 if signum is not None else .2)
+
+            try:
+                if owner == 'visual':
+                    namespace = {'cleanup_failed': False}
+                    with patch('sys.argv', ['runner', '--device', 'owned-fixture']), \
+                         patch.dict(os.environ, {'CMC_TASK054_SCRIPTS_DIR': str(HELPER_PATH.parent)}):
+                        exec(compile(VISUAL_SOURCE, 'visual-owned-callsite', 'exec'), namespace)
+                    namespace['cleanup_module'] = SimpleNamespace(
+                        stop_owned_process=stop, Failure=MODULE.Failure)
+                    handler = namespace['interrupted']
+                    operation = lambda: namespace['run'](command, 3)
+                elif owner == 'android':
+                    runner = MODULE.AndroidVisualRunner(root)
+                    handler = MODULE.interrupted
+                    operation = lambda: runner.command(command, 3)
+                else:
+                    capture = OS_MODULE.OSFrameCapture(root, 'signal-focus', 'ios',
+                        '11111111-1111-4111-8111-111111111111', {})
+                    capture.receipt['frame_status'] = 'FAIL'
+                    capture.capture = lambda: capture.command(command, 3, 'screen')
+                    handler = OS_MODULE.interrupted
+                    operation = capture.run
+                for sig in previous:
+                    signal.signal(sig, handler)
+                target = OS_MODULE if owner == 'os' else MODULE
+                with patch.object(subprocess, 'Popen', side_effect=start), \
+                     patch.object(target, 'stop_owned_process', side_effect=stop):
+                    try:
+                        result = operation()
+                        code = result if owner == 'os' else 0
+                    except (SystemExit, MODULE.Failure, OS_MODULE.Failure) as error:
+                        code = error.code
+                expected = leader_code or (128 + signum if signum is not None else 0)
+                self.assertEqual(code, expected)
+                self.assertEqual(len(leaders), 1)
+                self.assertFalse(MODULE.owned_group_has_live_members(leaders[0].pid))
+                if signum is not None:
+                    self.assertEqual(received, [signum])
+                if owner == 'os':
+                    receipt = json.loads(capture.receipt_path.read_text())
+                    self.assertEqual(receipt['exit_code'], expected)
+                    self.assertEqual(receipt['cleanup_status'], 'PASS')
+                elif owner == 'android':
+                    self.assertFalse(runner.cleanup_failed)
+                else:
+                    self.assertFalse(namespace['cleanup_failed'])
+            finally:
+                for timer in timers:
+                    timer.cancel()
+                    timer.join(timeout=1)
+                    self.assertFalse(timer.is_alive())
+                for sig, handler in previous.items():
+                    signal.signal(sig, handler)
+                for leader in leaders:
+                    if MODULE.owned_group_has_live_members(leader.pid):
+                        MODULE.stop_owned_process(leader, term_grace=.1)
+                    leader.wait(timeout=2)
+
+    def test_normal_exit_zero_and_seven_drain_owned_groups_at_every_callsite(self):
+        for owner in ('android', 'visual', 'os'):
+            for code in (0, 7):
+                with self.subTest(owner=owner, code=code):
+                    self.exercise_callsite(owner, code)
+
+    def test_first_term_and_int_during_cleanup_are_deferred_until_quiescence(self):
+        for owner in ('android', 'visual', 'os'):
+            for signum in (signal.SIGTERM, signal.SIGINT):
+                for code in (0, 7):
+                    with self.subTest(owner=owner, signal=signum, code=code):
+                        self.exercise_callsite(owner, code, signum)
+
     def test_parent_waits_for_nested_owned_cleanup_and_preserves_leader_exit(self):
         leader = None
         child_group = None

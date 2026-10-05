@@ -251,21 +251,49 @@ class IosOwnedRunner:
 
     def cleanup(self):
         self.phase = 'cleanup'
-        if not self.record:
+        if not self.owns_receipt:
             self.load()
-        device = self.record.get('device')
-        failed = bool(self.process_cleanup_failed or self.record.get('processCleanupFailed'))
-        if not device:
-            self.record['cleanup'] = 'BLOCKED' if self.record.get('creationStarted') else 'PASS'
-            if failed:
-                self.record['cleanup'] = 'FAIL'
+        # Solo receipt acquisita con O_EXCL o appena validata da load().
+        attempts = self.record.setdefault('cleanupAttempts', [])
+        if not isinstance(attempts, list):
+            raise Failure(2, 'receipt tentativi cleanup invalida')
+        process_failed = bool(self.process_cleanup_failed or self.record.get('processCleanupFailed'))
+        failed = process_failed or self.record.get('cleanup') == 'FAIL'
+        attempt = {'attempt': len(attempts) + 1, 'result': 'NOT_RUN',
+                   'resourceCleanup': 'NOT_RUN', 'processCleanupFailed': process_failed}
+        attempts.append(attempt)
+        if failed:
+            self.record['cleanup'] = 'FAIL'
+        self.persist()  # Flag durevole prima di inventory/readback che possono sollevare.
+        primary = None
+        try:
+            resource_result = self.cleanup_device()
+        except (Failure, OSError, ValueError, KeyError) as error:
+            primary, resource_result = error, 'FAIL'
+            attempt['errorType'] = type(error).__name__
+        process_failed = bool(self.process_cleanup_failed or self.record.get('processCleanupFailed'))
+        failed = failed or process_failed or resource_result == 'FAIL'
+        self.record['cleanup'] = 'FAIL' if failed else resource_result
+        attempt.update(result=self.record['cleanup'], resourceCleanup=resource_result,
+                       processCleanupFailed=process_failed)
+        try:
             self.persist()
-            return self.record['cleanup'] == 'PASS'
+        except (OSError, ValueError, KeyError) as error:
+            print(f'FAIL: persistenza cleanup ({type(error).__name__})', flush=True)
+            if primary is None:
+                primary = error
+        if primary is not None:
+            raise primary
+        return self.record['cleanup'] == 'PASS'
+
+    def cleanup_device(self):
+        device = self.record.get('device')
+        if not device:
+            return 'BLOCKED' if self.record.get('creationStarted') else 'PASS'
         # Identità diversa impedisce sia shutdown sia delete.
         if not self.check_device(device, owned=True):
-            self.record['cleanup'] = 'FAIL' if failed else 'PASS'
-            self.persist()
-            return not failed
+            return 'PASS'
+        failed = False
         actions = ('delete',) if self.observed_device_state == 'Shutdown' else ('shutdown', 'delete')
         for action in actions:
             try:
@@ -275,10 +303,7 @@ class IosOwnedRunner:
                 print(f'FAIL: cleanup {action} {type(error).__name__}', flush=True)
         if self.check_device(device, owned=True):
             failed = True
-        failed = failed or self.process_cleanup_failed
-        self.record['cleanup'] = 'FAIL' if failed else 'PASS'
-        self.persist()
-        return not failed
+        return 'FAIL' if failed else 'PASS'
 
     def smoke(self, device):
         self.phase = 'smoke'

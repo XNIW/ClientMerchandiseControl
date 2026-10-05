@@ -179,9 +179,11 @@ class IosOwnedTest(unittest.TestCase):
             record = json.loads(fixture.path.read_text())
             record['ownerContext']['GITHUB_RUN_ID'] = 'another-run'
             fixture.path.write_text(json.dumps(record))
+            before = fixture.path.read_bytes()
             fixture.calls.clear()
             self.assertEqual(fixture.execute('cleanup'), 1)
             self.assertEqual(fixture.calls, [])
+            self.assertEqual(fixture.path.read_bytes(), before)
 
     def test_cleanup_mismatched_name_or_runtime_never_mutates_device(self):
         contexts = ({}, {'GITHUB_RUN_ID': '123456789', 'GITHUB_RUN_ATTEMPT': '2',
@@ -250,6 +252,100 @@ class IosOwnedTest(unittest.TestCase):
             self.assertFalse(fixture.exists)
             self.assertEqual(fixture.execute('cleanup'), 1)
             self.assertEqual(json.loads(fixture.path.read_text())['cleanup'], 'FAIL')
+
+    def test_prepare_timeout_and_inventory_failure_survive_next_cleanup_process(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(directory)
+            original = fixture.command
+            state = {'bootTimedOut': False, 'initialCleanupFailed': False}
+            def command(runner, arguments, timeout, capture=False):
+                if arguments[:3] == ['xcrun', 'simctl', 'bootstatus']:
+                    state['bootTimedOut'] = True
+                    runner.process_cleanup_failed = True
+                    raise MODULE.Failure(124, 'bootstatus primario')
+                if arguments[:4] == ['xcrun', 'simctl', 'list', 'devices'] and \
+                        state['bootTimedOut'] and not state['initialCleanupFailed']:
+                    state['initialCleanupFailed'] = True
+                    raise MODULE.Failure(124, 'inventory cleanup fallita')
+                return original(runner, arguments, timeout, capture)
+            fixture.command = command
+            self.assertEqual(fixture.execute('prepare'), 124)
+            initial = json.loads(fixture.path.read_text())
+            self.assertTrue(initial['processCleanupFailed'])
+            self.assertEqual(initial['cleanup'], 'FAIL')
+            self.assertEqual(initial['cleanupAttempts'][0]['resourceCleanup'], 'FAIL')
+            self.assertTrue(fixture.exists)
+            self.assertEqual(fixture.execute('cleanup'), 1)
+            final = json.loads(fixture.path.read_text())
+            self.assertFalse(fixture.exists)
+            self.assertTrue(final['processCleanupFailed'])
+            self.assertEqual(final['cleanup'], 'FAIL')
+            self.assertEqual([a['attempt'] for a in final['cleanupAttempts']], [1, 2])
+            self.assertEqual([a['result'] for a in final['cleanupAttempts']], ['FAIL', 'FAIL'])
+            self.assertEqual([a['resourceCleanup'] for a in final['cleanupAttempts']], ['FAIL', 'PASS'])
+
+    def test_failed_cleanup_query_remains_failed_after_later_resource_success(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(directory)
+            self.assertEqual(fixture.execute('prepare'), 0)
+            original = fixture.command
+            def command(runner, arguments, timeout, capture=False):
+                if arguments[:4] == ['xcrun', 'simctl', 'list', 'devices']:
+                    raise MODULE.Failure(7, 'query cleanup fallita')
+                return original(runner, arguments, timeout, capture)
+            fixture.command = command
+            fixture.calls.clear()
+            self.assertEqual(fixture.execute('cleanup'), 1)
+            self.assertEqual(fixture.calls, [])
+            initial = json.loads(fixture.path.read_text())
+            self.assertEqual(initial['cleanup'], 'FAIL')
+            self.assertFalse(initial['processCleanupFailed'])
+            fixture.command = original
+            self.assertEqual(fixture.execute('cleanup'), 1)
+            final = json.loads(fixture.path.read_text())
+            self.assertFalse(fixture.exists)
+            self.assertEqual(final['cleanup'], 'FAIL')
+            self.assertFalse(final['processCleanupFailed'])
+            self.assertEqual(final['cleanupAttempts'][1]['resourceCleanup'], 'PASS')
+
+    def test_identity_failure_records_attempt_without_mutating_another_device(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(directory)
+            self.assertEqual(fixture.execute('prepare'), 0)
+            runner = MODULE.IosOwnedRunner(fixture.path)
+            entry = {'udid': DEVICE, 'name': 'Unrelated owner'}
+            with patch.object(runner, 'device_record', return_value=(entry, RUNTIME)), \
+                 patch.object(runner, 'command') as command, \
+                 self.assertRaises(MODULE.Failure) as failure:
+                runner.cleanup()
+            self.assertIn('ownership simulatore non coincide', str(failure.exception))
+            command.assert_not_called()
+            initial = json.loads(fixture.path.read_text())
+            self.assertEqual(initial['cleanup'], 'FAIL')
+            self.assertEqual(initial['cleanupAttempts'][0]['resourceCleanup'], 'FAIL')
+            self.assertEqual(fixture.execute('cleanup'), 1)
+            self.assertFalse(fixture.exists)
+            self.assertEqual(json.loads(fixture.path.read_text())['cleanupAttempts'][1]['resourceCleanup'], 'PASS')
+
+    def test_final_receipt_write_failure_keeps_primary_query_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(directory)
+            self.assertEqual(fixture.execute('prepare'), 0)
+            runner = MODULE.IosOwnedRunner(fixture.path)
+            runner.load()
+            persist = runner.persist
+            writes = []
+            def failing_final_write():
+                writes.append(True)
+                if len(writes) == 2:
+                    raise OSError('scrittura fixture non disponibile')
+                persist()
+            with patch.object(runner, 'persist', side_effect=failing_final_write), \
+                 patch.object(runner, 'check_device', side_effect=MODULE.Failure(7, 'query primaria')), \
+                 self.assertRaises(MODULE.Failure) as failure:
+                runner.cleanup()
+            self.assertEqual(failure.exception.code, 7)
+            self.assertEqual(str(failure.exception), 'query primaria')
 
     def test_borrowed_smoke_runs_exact_test_with_900_without_lifecycle_mutation(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -468,8 +468,16 @@ Future<void> showCustomerReviewDialog(
     },
   );
   try {
-    final result = await showDialog<bool>(
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final route = DialogRoute<bool>(
       context: context,
+      themes: InheritedTheme.capture(from: context, to: navigator.context),
+      barrierColor:
+          DialogTheme.of(context).barrierColor ??
+          Theme.of(context).dialogTheme.barrierColor ??
+          Colors.black54,
+      barrierDismissible: true,
+      traversalEdgeBehavior: TraversalEdgeBehavior.closedLoop,
       builder: (_) => _CustomerReviewDialog(
         subjectId: subjectId,
         openingOwnerInvalidated: openingOwnerInvalidated,
@@ -478,6 +486,7 @@ Future<void> showCustomerReviewDialog(
         review: review,
       ),
     );
+    final result = await Future.any([navigator.push(route), route.completed]);
     if (result == true &&
         !openingOwnerInvalidated &&
         context.mounted &&

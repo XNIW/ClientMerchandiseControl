@@ -242,6 +242,37 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('route /reviews unmount prima del primo frame conclude intento', (
+    tester,
+  ) async {
+    final rig = await _openPublicRoute(tester);
+    final leave = find.text(rig.l10n.reviewsLeave);
+    await tester.ensureVisible(leave);
+    await tester.pumpAndSettle();
+    final context = tester.element(find.byType(CustomerReviewsScreen));
+    final eligible = rig.container
+        .read(customerReviewsAccountProvider)
+        .requireValue
+        .eligible
+        .first;
+    var completed = false;
+    unawaited(
+      showCustomerReviewDialog(
+        context,
+        context as WidgetRef,
+        eligible: eligible,
+      ).then((_) => completed = true),
+    );
+    expect(completed, isFalse);
+    expect(find.byType(AlertDialog), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    expect(completed, isTrue);
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(rig.reviews.attempts, isEmpty);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('route /reviews stesso subject conserva editor e bozza', (
     tester,
   ) async {

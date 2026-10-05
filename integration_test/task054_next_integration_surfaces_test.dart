@@ -318,13 +318,59 @@ void main() {
               '${surface.key}-compact200-long-${locale.toLanguageTag()}',
             );
             if (surface.key == 'product') {
-              await _reveal(
-                tester,
-                find.byKey(const ValueKey('product-detail-fulfillment')),
+              final fulfillment = find.byKey(
+                const ValueKey('product-detail-fulfillment'),
               );
+              final l10n = AppLocalizations.of(
+                tester.element(find.byType(ProductDetailScreen)),
+              );
+              final pickup = find.descendant(
+                of: fulfillment,
+                matching: find.text(l10n.productDetailPickup),
+              );
+              final delivery = find.descendant(
+                of: fulfillment,
+                matching: find.text(l10n.productDetailDelivery),
+              );
+              // Il centro del Wrap può cadere nello spazio fra le due righe.
+              // Raggiunge una label reale, poi rende visibile l'intero gruppo.
+              await _reveal(tester, pickup);
+              await Scrollable.ensureVisible(
+                tester.element(fulfillment),
+                alignment: 0.5,
+              );
+              await tester.pumpAndSettle();
+              final viewport = tester.getRect(
+                find.byWidget(
+                  Scrollable.of(tester.element(fulfillment)).widget,
+                ),
+              );
+              final badges = tester.getRect(fulfillment);
+              expect(viewport.intersect(badges), badges);
+              expect(pickup.hitTestable(), findsOneWidget);
+              expect(delivery.hitTestable(), findsOneWidget);
               await captureVisual(
                 tester,
                 'product-fulfillment-compact200-${locale.toLanguageTag()}',
+              );
+              final increase = find.byKey(
+                const ValueKey('product-quantity-increase'),
+              );
+              final add = find.byKey(
+                const ValueKey('add-to-cart-$task054VisualPublication'),
+              );
+              expect(increase.hitTestable(), findsOneWidget);
+              await tester.tap(increase);
+              await tester.pumpAndSettle();
+              expect(add.hitTestable(), findsOneWidget);
+              expect(tester.widget<FilledButton>(add).onPressed, isNotNull);
+              await tester.tap(add);
+              await tester.pumpAndSettle();
+              expect(
+                (await fixture.local.cart.read(
+                  shopSlug: 'storefront-test',
+                )).items.first.quantity,
+                4,
               );
             }
             expect(

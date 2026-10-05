@@ -456,29 +456,51 @@ Future<void> showCustomerReviewDialog(
   assert((eligible == null) != (review == null));
   final subjectId = ref.read(customerAccountIdentityProvider)?.subjectId;
   if (subjectId == null) return;
-  final result = await showDialog<bool>(
-    context: context,
-    builder: (_) => _CustomerReviewDialog(
-      subjectId: subjectId,
-      eligible: eligible,
-      review: review,
-    ),
+  var openingOwnerInvalidated = false;
+  final subscription = ProviderScope.containerOf(context, listen: false).listen(
+    authControllerProvider,
+    (_, state) {
+      final nextSubjectId = switch (state) {
+        AuthAuthenticated(:final customer) => customer.subjectId,
+        _ => null,
+      };
+      if (nextSubjectId != subjectId) openingOwnerInvalidated = true;
+    },
   );
-  if (result == true &&
-      context.mounted &&
-      ref.read(customerAccountIdentityProvider)?.subjectId == subjectId) {
-    ref.invalidate(customerReviewsAccountProvider);
+  try {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (_) => _CustomerReviewDialog(
+        subjectId: subjectId,
+        openingOwnerInvalidated: openingOwnerInvalidated,
+        closeOpeningMonitor: subscription.close,
+        eligible: eligible,
+        review: review,
+      ),
+    );
+    if (result == true &&
+        !openingOwnerInvalidated &&
+        context.mounted &&
+        ref.read(customerAccountIdentityProvider)?.subjectId == subjectId) {
+      ref.invalidate(customerReviewsAccountProvider);
+    }
+  } finally {
+    subscription.close();
   }
 }
 
 final class _CustomerReviewDialog extends ConsumerStatefulWidget {
   const _CustomerReviewDialog({
     required this.subjectId,
+    required this.openingOwnerInvalidated,
+    required this.closeOpeningMonitor,
     this.eligible,
     this.review,
   });
 
   final String subjectId;
+  final bool openingOwnerInvalidated;
+  final VoidCallback closeOpeningMonitor;
   final CustomerReviewEligibleLine? eligible;
   final CustomerReview? review;
 
@@ -507,6 +529,7 @@ final class _CustomerReviewDialogState
     super.initState();
     _rating = widget.review?.rating ?? 5;
     _comment = TextEditingController(text: widget.review?.comment);
+    if (widget.openingOwnerInvalidated) _invalidateOwner();
     ref.listenManual(
       customerAccountIdentityProvider.select((identity) => identity?.subjectId),
       (_, subjectId) => _checkOwner(subjectId),
@@ -521,7 +544,11 @@ final class _CustomerReviewDialogState
   }
 
   void _checkOwner(String? subjectId) {
-    if (subjectId == widget.subjectId || _ownerInvalidated) return;
+    if (subjectId != widget.subjectId) _invalidateOwner();
+  }
+
+  void _invalidateOwner() {
+    if (_ownerInvalidated) return;
     _ownerInvalidated = true;
     scheduleMicrotask(() {
       if (!mounted) return;
@@ -532,6 +559,7 @@ final class _CustomerReviewDialogState
 
   @override
   void dispose() {
+    widget.closeOpeningMonitor();
     _comment.dispose();
     super.dispose();
   }

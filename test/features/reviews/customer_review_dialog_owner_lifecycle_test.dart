@@ -176,6 +176,72 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets(
+    'route /reviews A-B-A prima del primo frame invalida solo intento',
+    (tester) async {
+      final rig = await _openPublicRoute(tester);
+      final leave = find.text(rig.l10n.reviewsLeave);
+      await tester.ensureVisible(leave);
+      await tester.pumpAndSettle();
+      await tester.tap(leave);
+      rig.auth.signIn(_customer(_ownerB));
+      rig.auth.signIn(_customer(_ownerA));
+      await tester.pumpAndSettle();
+      expect(
+        rig.container.read(customerAccountIdentityProvider)?.subjectId,
+        _ownerA,
+      );
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(rig.reviews.attempts, isEmpty);
+      await _openEditor(tester, rig.l10n, draft: 'Nuovo intento sintetico');
+      expect(_visibleDraft(tester), 'Nuovo intento sintetico');
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('route /reviews metadata stesso subject prima del primo frame', (
+    tester,
+  ) async {
+    final rig = await _openPublicRoute(tester);
+    final leave = find.text(rig.l10n.reviewsLeave);
+    await tester.ensureVisible(leave);
+    await tester.pumpAndSettle();
+    await tester.tap(leave);
+    rig.auth.signIn(
+      AuthenticatedCustomer.fromUntrustedIdentity(
+        subjectId: _ownerA,
+        email: null,
+        metadata: const {'full_name': 'Nome sintetico aggiornato'},
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    await tester.enterText(_field, 'Bozza sintetica stesso subject');
+    expect(_visibleDraft(tester), 'Bozza sintetica stesso subject');
+    expect(rig.reviews.attempts, isEmpty);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('route /reviews smontata isola ACK e cambio owner tardivi', (
+    tester,
+  ) async {
+    final rig = await _openPublicRoute(tester);
+    await _beginMutation(tester, rig.l10n);
+    final readsBeforeDispose = rig.reviews.listCalls;
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpAndSettle();
+    rig.auth.signIn(_customer(_ownerB));
+    rig.reviews.attempts.single.complete(_ack);
+    await tester.pumpAndSettle();
+    expect(
+      rig.container.read(customerAccountIdentityProvider)?.subjectId,
+      _ownerB,
+    );
+    expect(rig.reviews.listCalls, readsBeforeDispose);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('route /reviews stesso subject conserva editor e bozza', (
     tester,
   ) async {

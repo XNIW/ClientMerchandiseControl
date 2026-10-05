@@ -447,6 +447,7 @@ class AndroidVisualRunner:
     def run(self):
         code = 0
         failed_phase = None
+        emulator_before_cleanup = None
         try:
             self.execute()
         except Failure as error:
@@ -459,17 +460,32 @@ class AndroidVisualRunner:
             print(f'FAIL: {self.phase} {type(error).__name__}', flush=True)
         finally:
             try:
-                self.cleanup()
-            except Failure as error:
-                if not code:
-                    code, failed_phase = error.code, error.phase
+                if (code and failed_phase == 'native-fixture-capture' and
+                        self.emulator is not None):
+                    # Osservazione non bloccante prima dei segnali di cleanup:
+                    # non identifica la causa né modifica il risultato primario.
+                    emulator_code = self.emulator.poll()
+                    emulator_before_cleanup = {
+                        'state': 'alive' if emulator_code is None else 'exited',
+                        'exit_code': (None if emulator_code is None else
+                            emulator_code if emulator_code >= 0 else 128 - emulator_code),
+                    }
+            except (OSError, Failure):
+                emulator_before_cleanup = {'state': 'unavailable', 'exit_code': None}
+            finally:
+                try:
+                    self.cleanup()
+                except Failure as error:
+                    if not code:
+                        code, failed_phase = error.code, error.phase
         code = code or (1 if self.cleanup_failed else 0)
         receipt = self.repository / 'build/task054/android-visual-receipt.json'
         receipt.parent.mkdir(parents=True, exist_ok=True)
         receipt.write_text(json.dumps({'evidence_level': 'native_android_fixture',
             'revision': self.revision, 'capture_count': self.capture_count,
             'api': 35, 'abi': 'x86_64', 'exit_code': code,
-            'failed_phase': failed_phase, 'cleanup': 'FAIL' if self.cleanup_failed else 'PASS'},
+            'failed_phase': failed_phase, 'emulator_before_cleanup': emulator_before_cleanup,
+            'cleanup': 'FAIL' if self.cleanup_failed else 'PASS'},
             indent=2) + '\n')
         return code
 

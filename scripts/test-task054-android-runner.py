@@ -63,7 +63,7 @@ class AndroidVisualRunnerTest(unittest.TestCase):
 
     def execute(self, failure=None, cleanup_failure=False, foreign=False,
                 early_exit=False, wrong_api=False, capture_count=105,
-                emulator_install_failure=False):
+                emulator_install_failure=False, capture_failure_emulator_exit=None):
         calls = []
         environments = []
         emulator = Mock(pid=12345)
@@ -89,6 +89,11 @@ class AndroidVisualRunnerTest(unittest.TestCase):
                 child = Mock(pid=54321, returncode=0)
                 phase = runner.phase
                 child.returncode = 7 if phase == failure else 0
+                if phase == 'native-fixture-capture' and child.returncode:
+                    if isinstance(capture_failure_emulator_exit, (OSError, MODULE.Failure)):
+                        emulator.poll.side_effect = capture_failure_emulator_exit
+                    else:
+                        emulator.poll.return_value = capture_failure_emulator_exit
                 if phase == 'sdk-install' and not child.returncode:
                     sdk_installed.append(True)
                 if phase == 'avd-create' and not child.returncode:
@@ -127,6 +132,12 @@ class AndroidVisualRunnerTest(unittest.TestCase):
                  patch.object(MODULE, 'owned_group_has_live_members', return_value=False), \
                  patch.object(MODULE.subprocess, 'Popen', side_effect=process), \
                  patch.object(MODULE.os, 'killpg') as kill:
+                def stopped(group, sig):
+                    if group == emulator.pid:
+                        emulator.poll.side_effect = None
+                        emulator.poll.return_value = -sig
+
+                kill.side_effect = stopped
                 code = runner.run()
                 receipt = json.loads((Path(directory) /
                     'build/task054/android-visual-receipt.json').read_text())
@@ -140,6 +151,7 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         code, calls, environments, killed, receipt, runner = self.execute()
         self.assertEqual(code, 0)
         self.assertEqual(receipt['cleanup'], 'PASS')
+        self.assertIsNone(receipt['emulator_before_cleanup'])
         self.assertEqual(receipt['revision'], 'a' * 40)
         self.assertEqual(receipt['capture_count'], 105)
         self.assertEqual(environments[-2]['CMC_OS_FRAME_PLATFORM'], 'android')
@@ -160,12 +172,23 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         self.assertFalse(any('kill-server' in args or 'kill' in args for args in calls))
 
     def test_capture_failure_and_cleanup_failure_preserve_primary_code(self):
-        code, calls, _, _, receipt, _ = self.execute(
-            failure='native-fixture-capture', cleanup_failure=True)
-        self.assertEqual(code, 7)
-        self.assertEqual(receipt['cleanup'], 'FAIL')
-        self.assertEqual(receipt['failed_phase'], 'native-fixture-capture')
-        self.assertIn('delete', calls[-1])
+        for observed, state, normalized in (
+                (None, 'alive', None), (0, 'exited', 0), (19, 'exited', 19),
+                (-signal.SIGKILL, 'exited', 137),
+                (OSError('poll failed'), 'unavailable', None),
+                (MODULE.Failure('signal', 143, 'interruzione durante poll'),
+                    'unavailable', None)):
+            with self.subTest(observed=observed):
+                code, calls, _, _, receipt, _ = self.execute(
+                    failure='native-fixture-capture', cleanup_failure=True,
+                    capture_failure_emulator_exit=observed)
+                self.assertEqual(code, 7)
+                self.assertEqual(receipt['exit_code'], 7)
+                self.assertEqual(receipt['cleanup'], 'FAIL')
+                self.assertEqual(receipt['failed_phase'], 'native-fixture-capture')
+                self.assertEqual(receipt['emulator_before_cleanup'],
+                    {'state': state, 'exit_code': normalized})
+                self.assertIn('delete', calls[-1])
 
     def test_cleanup_failure_fails_successful_capture(self):
         code, _, _, _, receipt, _ = self.execute(cleanup_failure=True)

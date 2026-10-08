@@ -30,6 +30,60 @@ AuthenticatedCustomer user(String owner) =>
 
 void main() {
   testWidgets(
+    'real AuthController A-B-A invalidates in-flight ACK and recovers the same intent',
+    (tester) async {
+      final rig = await openAccount(tester);
+      final controller = rig.container.read(
+        customerAccountControllerProvider.notifier,
+      );
+      final draft = testCustomerAddress().toDraft();
+      final barrier = Completer<void>();
+      rig.account.addressMutationBarrier = barrier;
+      final pending = controller.createAddress(draft);
+      await tester.pump();
+      expect(rig.account.createAddressAttempts, 1);
+      final intent = await rig.account.addressCreationJournal.read(
+        testCustomerSubject,
+      );
+      expect(intent, isNotNull);
+      rig.auth.signIn(user(ownerB));
+      rig.auth.signIn(user(testCustomerSubject));
+      await tester.idle();
+      await tester.pump();
+      barrier.complete();
+      final result = await pending;
+      await tester.pumpAndSettle();
+      final state = rig.container.read(customerAccountControllerProvider);
+      expect(result, isNull);
+      expect(state.notice, isNot(CustomerAccountNoticeKind.addressSaved));
+      expect(state.status, CustomerAccountStatus.ready);
+      expect(state.isMutating, isFalse);
+      expect(state.pendingAddressDraft, isNotNull);
+      expect(state.failure?.isUncertain, isTrue);
+      expect(
+        (await rig.account.addressCreationJournal.read(
+          testCustomerSubject,
+        ))?.id,
+        intent!.id,
+      );
+
+      // Il ritorno ad A recupera il journal senza attribuirgli il vecchio ACK.
+      // Solo una nuova verifica esplicita conferma il canonico già creato.
+      final confirmed = await controller.createAddress(draft);
+      await tester.pumpAndSettle();
+      expect(confirmed?.id, rig.account.creationResults[intent.id]?.id);
+      expect(confirmed, isNotNull);
+      expect(rig.account.createAddressCalls, 1);
+      expect(rig.account.reconcileCalls, 1);
+      expect(
+        await rig.account.addressCreationJournal.read(testCustomerSubject),
+        isNull,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
     'same-owner AuthController refresh preserves address ACK and releases busy state',
     (tester) async {
       final rig = await openAccount(tester);

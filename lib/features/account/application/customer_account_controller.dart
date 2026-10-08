@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_state.dart';
 import '../domain/customer_account_failure.dart';
 import '../domain/address_creation_intent.dart';
 import '../domain/customer_account_models.dart';
@@ -112,6 +114,24 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
       _generation++;
     });
     final identity = ref.watch(customerAccountIdentityProvider);
+    if (ref.exists(authControllerProvider)) {
+      ref.listen(authControllerProvider, (previous, next) {
+        String? owner(AuthState? value) => switch (value) {
+          AuthAuthenticated(:final customer) => customer.subjectId,
+          _ => null,
+        };
+        if (owner(previous) == owner(next)) return;
+        // La identity derivata può coalescere A→B→A fra due frame. Invalida
+        // subito la risposta vecchia e ricarica il journal per l'owner finale.
+        // Mantiene l'operazione attiva: il nuovo load ne attende il termine.
+        _generation++;
+        _subjectId = null;
+        _pendingIntent = null;
+        _pendingDeletionKey = null;
+        _lastState = null;
+        ref.invalidateSelf();
+      });
+    }
     final shopSlug = identity == null
         ? null
         : ref.watch(customerAccountShopSlugProvider);

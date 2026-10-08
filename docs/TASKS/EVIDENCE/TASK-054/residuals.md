@@ -81,3 +81,40 @@ NI054-01–03: fix e regressioni mirate PASS; review source APPROVED, CI5 termin
 NI054-07: harness esteso67test/105PNG più4OS attesi, hostPASS; catture native, OSIME,
 VoiceOver/TalkBack e contrasto globale ancoraNOT_RUN. Le restanti risorse
 NI054-04–06/08–09 restanoBLOCKED/NOT_RUN secondo la ricevuta unica.
+
+
+## Overlay completamento operativo — 2026-10-08
+
+Il mandato corrente conserva tutte le definizioni R01–R30 ed E2E-01…25.
+Le righe sotto aggiornano i residui pertinenti senza sostituire gli esiti storici.
+
+| ID / requisito | Classificazione | Impatto / causa verificata o ipotesi | Owner | Intervento minimo e prova di chiusura | Stato osservato |
+|---|---|---|---|---|---|
+| NI054-26 / R04, R14, R25 | Difetto riprodotto | Creazione indirizzo senza identità durevole: commit con risposta persa e retry crea due righe; chiamate concorrenti non condividono risultato | Client indirizzi + Admin SQL | Nuova create/reconcile RPC, intent account-bound persistito cifrato prima invio, risposta canonica e conflitto payload; sei scenari del mandato | RED Flutter exit1; 99 test account PASS; finding indipendenti chiusi, re-review SOURCE_CODE_ONLY APPROVED; native restart e live NOT_RUN |
+| NI054-27 / R18, R30 | Miglioramento misurato | visibleItems.map costruisce l'intera lista; costo dopo20pagine da misurare a viewport/dataset fissi | Client inbox | Baseline25/500righe,5campioni e budget lavoro dichiarato prima fix; lazy soltanto se dimostrato | Baseline25/500config,5build; dopo lazy5config/5build entrambi,5campioni;49testPASS, performance fisica distinta |
+| NI054-28 / R03, R18 | Difetto riprodotto | Tap attende markRead; mounted potrebbe non distinguere owner cambiato sullo stesso screen | Client inbox | Risposta markRead lenta, switch owner, assenza navigazione stale e destinazione accessibile | 7navigationFAIL prima;8PASS dopo push immediato senza callback navigazione tardiva; suite49PASS |
+| NI054-04 / R01–R30 | Configurazione/distribuzione incompleta | Snapshot iniziale TEST155receipt e32/55RPC conformi,23assenti;3canoniche e indice assenti. Manifest nuovo57 include altre2RPCv3 e migration20261008151018 non applicate | Backend readiness | Export corrente protetto dati/history; restore applicabile, finestra writer/cron; delta canonico e gate readonlyTLS | Snapshot gate FAIL1; recovery corrente scoped PASS e integrità preesistente FAIL; live gate BLOCKED2 per riferimenti assenti; apply condiviso NOT_RUN |
+| NI054-09 / Admin,R21,R22,R24 | Runtime incompleto | Worker TEST versione22107a6f invariata; sorgente commerce assente dal tree1f0679b2 distribuito | Admin worker_candidate, coordinamento W | Candidato selettivo sorgente/build/versione/TEST, nessun deploy globale; review distinta | Candidato selettivo34ed0c50 e review W PASS; config pubblica TEST0600 pronta, build/runtime commerce NOT_RUN |
+| NI054-25 / CI,R30 | Prerequisito hosted cambiato | Actions operativo dopo incidente5ott; CI5 conservata con cause precedenti | QA CI | Un nuovo tentativo sul candidato finale, job/step/annotation e artifact reali | NOT_RUN nuova CI; niente rerun stale |
+| NI054-29 / R03, R20, R25 | Difetto riprodotto | Sheet riordino usa mounted senza invalidazione owner/sessione; preview e risultato sopravvivono a logout/cambio account | Client flow_coverage | Tre PoC con AuthController/router reali; fence minimo e review distinta | 3 FAIL/exit1 prima; fix commit386e4b3, 7 regression scope PASS; review distinta PASS (49 verifiche aggregate) |
+| NI054-30 / R03, R21, R25 | Difetto riprodotto | Form assistenza conserva stato locale/Future righe dopo invalidazione del controller | Client flow_coverage | Due PoC owner/revoca con bozza e risposta tardiva; invalidazione del solo form | 2 FAIL/exit1 prima; 7 regression scope PASS, suite65PASS prima guardmounted espliciti; review distinta PASS (49 verifiche aggregate) |
+| NI054-31 / R03, R25 | Difetto riprodotto P1 | Export privato di A resta visibile dopo cambio B fra push e mount | Client account, reviewer distinto | Monitor owner prima del push, invalidazione persistente e cleanup; conferme sensibili protette dalla stessa causa | PoC reale FAIL/exit1; fix confirm/export e 7 casi realAuth dentro98account PASS; re-review distinta PASS (49 verifiche aggregate) |
+| NI054-32 / R04, R30 | Difetto riprodotto P2 | La notice busy ricrea la sezione indirizzi priva di key; il guard sul vecchio opener blocca retry/Verify pur mantenendo aperto il dialogo | Client account + QA | Key stabile della sola sezione, preservando mounted/owner; UPDATE immediato→differito→successo e Verify ripetuto nella stessa route | Baseline396 e candidato568 riproducono FAIL; 2 RED permanenti→98account PASS, targeted completo e matrice9 PASS su eab76f7 |
+| NI054-33 / R03, R04, R25 | Difetto riprodotto P2 | Auth reale A→B→A durante create viene coalesciata dalla identity derivata e il vecchio ACK pubblica addressSaved | Client account + reviewer distinto | Invalidazione immediata generation dal flusso Auth; nessuna invalidazione per refresh dello stesso owner; journal preservato e Verify esplicito | PoC indipendente FAIL exit1; fix edfec536, 99 account PASS con recupero stesso intent e una creazione; re-review distinta APPROVED, 36 PASS |
+| NI054-34 / R30 | Difetto contratto locale | Quattro stringhe nuove cinesi nel bundle tecnico zh violano il fallback es richiesto; zh_Hans è corretto | Client l10n | Ripristinare quattro valori spagnoli e rigenerare l10n senza cambiare contratto o zh_Hans | Suite globale1042PASS/2FAIL include RED del contratto; fix bb538923, 9 writer e 9 reviewer PASS |
+| NI054-35 / CI | Test del runner non allineato | Il test conta cinque job dopo l’aggiunta del sesto gate journal dedicato | Root CI | Atteso6, conservando il controllo exact-SHA per ogni checkout e i budget esistenti | Secondo FAIL globale; modifica di una riga bb538923, 9 writer e 9 reviewer PASS |
+
+P2/P3/P6: riferimenti approvati per config artifact TEST, readonly TLS, fixture
+sintetiche, OAuth e distribuzione ancora da confermare. Domanda mirata sui soli
+riferimenti inviata all'utente; nessuna richiesta di credenziali in chat.
+
+Correzioni/review del nuovo candidato: la prima probe host indirizzo osserva
+il messaggio fuori dal viewport (bottom1458 contro400 disponibili), ma da sola
+non dimostra che il cliente non possa raggiungerlo. La verifica contrastiva con focus/IME coerenti e scroll reale passa sulla baseline: nessun difetto di raggiungibilità UPDATE attribuito al codice precedente. Il nuovo feedback sending aveva invece overflow20px durante la chiusura animata IME, corretto portandolo nella zona scrollabile; matrice9 PASS. Prova OS ancora NOT_RUN. Gli stress con inset mantenuto dopo blur sono conservati come tali. C-OC-01/P2: ACK indirizzo malformato generava
+invalidInput nel parser e cancellazione journal; PoC2FAIL. C-OC-02/P1: cambio
+owner/shop/A-B-A fra tap e primo mount lasciava la bozza precedente visibile;
+PoC3FAIL. Writer99GREEN dopo i fix; review autonoma chiude questi finding. Il P2 Auth in-flight corretto in edfec536 supera la re-review distinta di 36 verifiche.
+
+Nuova causa backend:2notifiche TEST correnti hanno riferimenti mancanti; recupero
+fedele del dato e integrità relazionale sono verifiche distinte. Nessuna riga
+riparata o parent inventato per ottenere un PASS; export solo protetto fuori Git.

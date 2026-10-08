@@ -9,6 +9,23 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
+## Mandato operativo corrente — 8 ottobre 2026
+
+Il [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md#mandato-operativo-corrente--8-ottobre-2026)
+ e il [registro unico](residuals.md#overlay-completamento-operativo--2026-10-08)
+ governano il candidato operativo. La [review sorgente distinta](next-integration/client-source-review-20261008.md)
+ è APPROVED SOURCE_CODE_ONLY su bb538923 dopo re-review dei contratti;
+ suite globale e CI sono gate separati.
+ Il [backend corrente](next-integration/backend-operational-readiness-20261008.md)
+ documenta history155, recovery scoped delle tre canoniche PASS e integrità
+ preesistente FAIL. Il manifest nuovo ha57RPC: alle23 assenti sullo snapshot
+ iniziale55 si aggiungono2RPCv3 e una migration additiva distinta non applicata.
+ Recovery del delta v3, finestra writer/cron, TLS/config/pilot approvati e
+ accettazione autenticata restano prerequisiti; nessun PASS live dedotto.
+
+Le sezioni del4/5ottobre e le risorse elencate sotto sono snapshot storici,
+ inclusi147receipt/55RPC/c796. Non sostituiscono la readiness corrente.
+
 ## Prossima integrazione NI054 — 2026-10-04
 
 Baseline main bfbfc0b6, PR28 già MERGED. Source NI054 e review scoped completate;
@@ -51,7 +68,7 @@ locale finale del mandato; nessuno stato live viene promosso per il solo merge.
 | MAIN_INTEGRATION | PASS Admin; NOT_RUN Client al freeze |Admin117 merged6d5, CI PR/main PASS; Client27 merge condizionato a CI/review esatte, ricevuta finale nella PR |
 | PRODUCTION | NOT_ACTIVATED |nessuna modifica o attivazione |
 
-## Risorse ancora necessarie
+## Risorse registrate nel precedente snapshot
 
 | Owner / risorsa | Controllo eseguito e azione minima | Configurazione e verifica successiva |
 |---|---|---|

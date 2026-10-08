@@ -667,3 +667,144 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   e lavoro N/W preservati; merge/mainCI nuovo deltaNOT_RUN,nessun DONE/TASK055
   o production. Sblocco minimo: hosted/runtime/toolchain e risorseP1–P6.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## Emendamento utente e planning operativo — 2026-10-08
+
+Il mandato «Completamento operativo, funzionale, prestazioni e UI/UX» autorizza
+la ripresa continua di ricognizione mirata, implementazione, verifiche, review,
+correzioni e integrazione di sviluppo secondo le autorizzazioni già registrate.
+Amplia esplicitamente il lavoro alla creazione indirizzo idempotente e durevole,
+con eventuale nuova versione RPC/migration coordinata e separata dalle tre canoniche.
+Richiede recovery corrente DB/Storage, finestra writer/cron prima dell'apply TEST,
+release Worker TEST selettiva concordata con W e acquisizione della readiness N
+per la catena R24, senza duplicare i fix nativi. Confermati stack/versioni/lockfile,
+iOS14, budget e ID R01–R30/E2E01–25; production, pubblicazione pubblica,
+spesa e pagamenti/rimborsi reali restano esclusi. Provider OFF restano OFF.
+
+Baseline riconfermata live: main bfbfc0b6, PR29 draft c796526, evidence3962414.
+Checkout originale8423c86 con supabase/ non tracciato preservato. Nuovo checkout
+isolato codex/task054-operational-completion derivato da3962414, che include
+la candidata c796526; nessuna nuova inventariazione generale o riesecuzione
+1035 assertion SQL in assenza di drift. Il riferimento storico main IDLE
+nel checkout originario è superato dal Master del candidato/task corrente.
+
+| CA / test | Criterio invariato o aggiunto esplicitamente | Verifica prevista |
+|---|---|---|
+| CA-C1 / T-C1 | Stesso intento crea un solo indirizzo canonico, owner isolato | RED/GREEN risposta persa, retry, concorrenza, restart, owner/shop tardivi, edit ambiguo; SQL atomico e journal cifrato |
+| CA-C2 / T-C2 | Errore e recupero indirizzo raggiungibili con IME e testo200% | Interazione nativa immediata/differita compact; chiusura editor coerente con invio già avvenuto |
+| CA-C3 / T-C3 | Backend TEST effettivamente compatibile e recuperabile | Metadata completi, recovery applicabile al target, finestra coordinata, delta canonico, gate TLS e smoke con ruoli |
+| CA-C4 / T-C4 | Runtime Admin e R24 provati per revisione/ambiente | Provenance build/Worker/TEST; evidence N e catena sourceProductId/publicationId su entrambe le origini |
+| CA-C5 / T-C5 | Prestazioni misurate e ottimizzazioni motivate | Baseline inbox paginata, dieci benchmark canonici sul candidato finale; profile fisico distinto |
+| CA-C6 / T-C6 | Nessuna regressione nei percorsi concordati; integrazione controllata | Suite/race/build/CI exact-SHA, review Client/backend distinte, matrici R/E2E e residui |
+
+File e ownership: lane Client indirizzi/account/delivery e relative localizzazioni;
+lane inbox performance su schermata/test disgiunti; lane QA sul solo harness;
+lane Admin su migration/typegen/test in checkout isolato. Root integra in sequenza,
+aggiorna governance/manifest/registro unico; reviewer distinti verificano il freeze.
+Test e build pesanti serializzati, risorse native N preservate.
+Rischi: commit tardivo dopo reconcile not_found, riuso key con payload diverso,
+perdita journal, risposte owner obsolete, concorrenza su TEST e toolchain iOS.
+Mitigazioni: stesso intent prima dell'invio, risultato canonico server, errore chiuso
+su persistence failure, confine sessione/generation, recovery e finestra effettive.
+
+Handoff planning: `CODEX_PLANNING_APPROVED_TO_EXECUTION`, autorizzato dal mandato.
+
+## Execution del mandato — 2026-10-08
+
+Avviate le lane disgiunte e il coordinamento esplicitamente richiesto con W/N.
+Nessun risultato ancora attribuito al candidato nuovo; le evidence storiche restano
+riferite ai propri SHA. I blocker esterni arrestano soltanto le operazioni dipendenti.
+
+
+## Review sorgente distinta e transizione a Fix — 2026-10-08
+
+La review read-only di `eab76f7a6b1b14be28f49be71980bc0ab93b0101`, separata
+ dai writer, dichiara **CHANGES_REQUIRED**. I gate della review sono 49 PASS
+ (exit0) e un PoC separato FAIL (exit1): create indirizzo in corso, eventi reali
+ AuthController A→B→A senza letture intermedie della identity derivata, poi vecchio
+ ACK restituito e notice addressSaved ripubblicata. Finding P2 entro CA-C1/T-C1;
+ nessun leak verso B affermato. Export P1, riordino/assistenza P1 e retry editor
+ NI054-32 risultano invece chiusi dalla verifica autonoma.
+
+Ricevute locali: `review-micro-freeze-receipt.json` e
+ `review-inflight-aba-receipt.json`, directory `/tmp/cmc-review-freeze-5688361`.
+ Le prove host non attribuiscono PASS a CI, runtime nativo o staging.
+ La review integrata globale resta bloccata dai gate live. Il mandato autorizza
+ il fix della generazione/sessione e la successiva re-review distinta, senza
+ modificare criteri, scope o versioni.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Fix dopo la review sorgente — 2026-10-08
+
+Il commit `edfec536363e4c45a13a5efc2c6e2020408f45a3` corregge il finding P2
+ inflight Auth A→B→A tramite invalidazione immediata della generazione.
+ RED conservato; 99 test account PASS, exit0, incluso stesso intento recuperato
+ con una creazione e refresh della stessa identità valido. La re-review distinta
+ verifica il PoC originale; i gate globali seguono sul freeze completo.
+ Il rientro sarà a REVIEW con i gate esterni esposti come BLOCKED/NOT_RUN.
+
+
+## Rientro a Review e re-review distinta — 2026-10-08
+
+Il fixer consegna `edfec536` con `CODEX_FIX_BLOCKED_TO_RE_REVIEW`: il delta
+ applicativo è verificato, ma i gate esterni obbligatori restano BLOCKED/NOT_RUN.
+ Il re-reviewer distinto approva **SOURCE_CODE_ONLY** sullo stesso SHA: 36 PASS
+ autonomi, exit0, compreso il PoC originale e il refresh same-owner. La precedente
+ suite49 rimane qualificata sul proprio SHA; nessun finding sorgente residuo.
+ Ricevuta: `next-integration/client-source-review-20261008.{json,md}`.
+
+Esito integrato **BLOCKED**: nuova CI, catture native, TEST autenticato, R24,
+ accessibilità assistiva e distribuzione sono lane distinte ancora da completare.
+ I gate globali locali e la nuova CI possono proseguire sotto il mandato corrente;
+ nessun DONE/TASK-055 o merge è dedotto dall'approvazione sorgente.
+
+Handoff corrente: `CODEX_REVIEW_BLOCKED`.
+
+
+## Gate globale e fix di contratto locale/CI — 2026-10-08
+
+La suite completa su edfec536 termina con1042PASS/2FAIL, exit1: quattro testi
+ nuovi nel bundle tecnico zh violano il fallback spagnolo richiesto dal contratto
+ esistente; il test CI conta ancora5job, mentre il journal nativo introduce
+ il sesto job dedicato. Gli altri1042test passano. Non si modificano il contratto
+ locale, zh_Hans, i checkout exact-SHA o i budget dei cinque job preesistenti.
+
+Esito CHANGES_REQUIRED nel perimetro corrente: fix delle sole quattro stringhe
+ e generazione l10n, allineamento della cardinalità a6 conservando la verifica
+ di ciascun checkout, test mirati e successiva re-review distinta.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## Re-review dei contratti e freeze sorgente — 2026-10-08
+
+Commit `bb53892393710d3ed6d2574053fe1206561b87f0`: tre file modificati,
+ quattro fallback tecnici zh uguali a es, classe zh_Hans byte-identica e count CI6.
+ Il writer esegue9test PASS; reviewer distinto ripete autonomamente9test PASS,
+ exit0, senza finding. Source APPROVED, nessun criterio/budget aggirato.
+ Fix riconsegnato con CODEX_FIX_BLOCKED_TO_RE_REVIEW; re-review globale BLOCKED
+ per le lane esterne. La suite completa riparte sul freeze finale.
+
+Handoff: `CODEX_REVIEW_BLOCKED`.
+
+
+## Matrice del freeze operativo bb538923 — 2026-10-08
+
+| CA / test | Esito osservato | Evidence / limite |
+|---|---|---|
+| CA-C1 / T-C1 | PASS sorgente/local; native/live NOT_RUN |99 account writer su edfec536,36 re-review,162 SQL e concorrenza a due sessioni; full1044 su bb538923. Journal nativo nella nuova CI dedicata.|
+| CA-C2 / T-C2 | PASS host; native NOT_RUN |Matrice9 e harness75 su UI eab, quattro locali/due temi. Catture113+4 per piattaforma ancora da acquisire.|
+| CA-C3 / T-C3 | PASS recovery scoped3; FAIL integrità; BLOCKED apply |History155→158→155 con dati/metadati identici; due notifiche con otto riferimenti preesistenti mancanti. Nuovo delta v3 separato, protocollo locale pronto. TLS/config/pilot e finestra writer/cron mancanti.|
+| CA-C4 / T-C4 | BLOCKED runtime condiviso |Worker selettivo34ed0c50 con review W e configurazione pubblica protetta; build locale pronta da eseguire. R24 resta della lane N, nessun esito autenticato inferito.|
+| CA-C5 / T-C5 | PASS host; profile fisico NOT_RUN |Dieci benchmark canonici byte-identici e caso inbox aggiuntivo:11PASS.500 righe inbox:5configurazioni/5build,20richieste.|
+| CA-C6 / T-C6 | PASS locale/source; CI NOT_RUN al freeze |1044 test coverage,70 race,37 gate applicabili,APK debug/JVM4/security PASS. Source review APPROVED; nuova CI esatta ancora da avviare. iOS locale BLOCKED toolchain14.|
+
+Ricevute: `next-integration/local-gates-operational-20261008.json`,
+ `performance-operational-20261008.{json,md}`, review/source e backend dedicate.
+ Tutti i comandi locali propri sono terminali. I fail iniziali di governance,
+ formatter sui18diagnostici poi archiviati byte-identici e i2contratti corretti
+ rimangono nelle receipt; nessuna esclusione, skip, modifica budget o target.
+ La source review e questi gate consentono la nuova CI; non dichiarano DONE
+ o accettazione integrata. Handoff `CODEX_REVIEW_BLOCKED`.

@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "observed_utc": "2026-10-08T16:39:57.887911+00:00",
+  "evidence_scope": "HOST_WIDGET_PRODUCTION_UI_SYNTHETIC_REPOSITORIES",
+  "candidate_commit": null,
+  "commit_association_result": "NOT_RUN",
+  "commit_association_reason": "Root associa le impronte al candidato dopo freeze finale; non assumere che un successivo fix controller Auth ABA sia gia incluso nei run qui registrati.",
+  "head_observed_at_receipt": "eab76f7a6b1b14be28f49be71980bc0ab93b0101",
+  "source_sha256_at_run_start": {
+    "lib/features/account/presentation/customer_account_panel.dart": "7d854c736c589fe6b859272d15de5338ab53f7a325d4bbb6956bf0fb648cc42f",
+    "lib/features/account/application/customer_account_controller.dart": "18bb75ac0f7e09e378f0f2bf4e366a048c9416725e8cf8ba40a01b2c87aa7cb8",
+    "test/features/account/customer_account_test_support.dart": "1b7cd4d756b46b1022390a3def68abacf4f0d0d289275693bd5feb176176a51b",
+    "integration_test/task054_next_integration_surfaces_test.dart": "cb8d1dae5c765a85ea441aad4d98c95caca70700304d02e8d8f3a48a4fae78b0"
+  },
+  "source_sha256_at_run_end": {
+    "lib/features/account/presentation/customer_account_panel.dart": "7d854c736c589fe6b859272d15de5338ab53f7a325d4bbb6956bf0fb648cc42f",
+    "lib/features/account/application/customer_account_controller.dart": "18bb75ac0f7e09e378f0f2bf4e366a048c9416725e8cf8ba40a01b2c87aa7cb8",
+    "test/features/account/customer_account_test_support.dart": "1b7cd4d756b46b1022390a3def68abacf4f0d0d289275693bd5feb176176a51b",
+    "integration_test/task054_next_integration_surfaces_test.dart": "cb8d1dae5c765a85ea441aad4d98c95caca70700304d02e8d8f3a48a4fae78b0"
+  },
+  "recorded_sources_unchanged_during_run": true,
+  "other_sources_sha256_at_end": {
+    "integration_test/task054_visual_flow_test.dart": "63052cca7cc8cc096c5f3172b181a722ea2e57591ed809758d7f67dce6a589d4",
+    "integration_test/customer_account_flow_test.dart": "1684c7da591a242730028b7697222f7f58a5e003958b3dcf8bf152ce2a94c641",
+    "integration_test/customer_checkout_flow_test.dart": "bb265d23c16cf05eb6b291638dd40824b9ab4c2a69aea625e36e6a81ed6077fa",
+    "integration_test/customer_order_history_flow_test.dart": "321556df492f59f6b47214930668bf5d79aaa5f0582bdd5c9573c6064bf076a5",
+    "integration_test/task054_commerce_surfaces_test.dart": "cedb5ebc38b5f6679e4a4febae90f34bc6cef6cadc3b59620b8c10bead2cd9a7",
+    "integration_test/task054_storefront_surfaces_test.dart": "cdb4771beac6a0848d74b74da6715f0489e31c995514a34293205715e199785b",
+    "integration_test/support/next_integration_fixtures.dart": "54fc4f38cb9650ca64009923c500a0e8bad42b0b0f8d2815f0ee4a56bc01e43f",
+    "scripts/run-task054-android-visual.py": "b6ee1bb0294bc5a2bc0b89c7e686d7bfbe7539e90371a00b184a0d3deac9b246",
+    "scripts/test-task054-android-runner.py": "9879b15b9da7ba5356207d7a1cb6d7114e1fd622bee8523aab500b0920e7f8fa",
+    "lib/features/after_sales/presentation/customer_after_sales_screen.dart": "5ad7ad694d2121237e27ccaa0a4074ab61bd563851f07f0d8be90443b6479c17"
+  },
+  "gates": {
+    "address_matrix": {
+      "result": "PASS",
+      "tests": 9,
+      "exit_code": 0,
+      "command": "flutter test build/task054/qa-20261008/address_keyboard_host_test.dart --no-pub --plain-name 'address ' --concurrency=1 --reporter expanded",
+      "log": "build/task054/qa-20261008/address-matrix-green-final.log",
+      "log_sha256": "a6cfe82a50338f95d0b856954bfd57479569efe46c3983b938f6a3308ae5804a"
+    },
+    "host_harness": {
+      "result": "PASS",
+      "tests": 75,
+      "exit_code": 0,
+      "command": "flutter test build/task054/qa-20261008/host_harness/task054_visual_flow_test.dart --no-pub --concurrency=1 --reporter expanded",
+      "log": "build/task054/qa-20261008/visual-host-75-final.log",
+      "log_sha256": "d323d152d18875746ead58c1df0b6bbf054231446521e9effc0079875a9c4d1e"
+    },
+    "visual_runner_contracts": {
+      "result": "PASS",
+      "tests": 27,
+      "exit_code": 0,
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-android-runner.py",
+      "log": "build/task054/qa-20261008/android-runner-final.log",
+      "log_sha256": "a6e552bf457b5037a16f35011b618db5696e69174099242e6fe3079b514d1746"
+    },
+    "scoped_analyze": {
+      "result": "PASS",
+      "exit_code": 0,
+      "command": "flutter analyze --no-pub integration_test/task054_next_integration_surfaces_test.dart",
+      "log": "build/task054/qa-20261008/harness-analyze-green-final.log"
+    },
+    "separate_journal_runner_review": {
+      "result": "PASS",
+      "evidence": "docs/TASKS/EVIDENCE/TASK-054/next-integration/native-journal-review-20261008.json",
+      "evidence_sha256": "fef0f76e973ae98bc6459447ae7cf06a0a109883148360b35a8e08370b31135b",
+      "unit_tests": 13,
+      "unit_exit_code": 0,
+      "independent_negative_checks": 11,
+      "independent_exit_code": 0,
+      "executed_by": "reviewer indipendente della lane journal, non ci_native",
+      "scope": "Solo delta sorgente del gate, driver, fixture e confini runner; non review integrata del prodotto",
+      "native_runtime": "NOT_RUN",
+      "review": "APPROVED"
+    }
+  },
+  "address_coverage": {
+    "update": "Errore immediato, focus riaperto, errore differito e terzo tentativo con ACK; payload/id/versione preservati.",
+    "create_unknown": "4 locali es-CL/it/en/zh-Hans x light/dark; light Verify nella stessa route, dark chiusura/riapertura e Verify; unico intent e singola creazione.",
+    "geometry": "Viewport host 320x640, contenitore 320x568, testo200%, Roboto dal Flutter3.44.8 pinned; inset sintetico240 segue FocusNode.",
+    "recoverability": "Messaggio completo e ciascuna CTA raggiungibili anche tramite scroll; non e richiesta visibilita simultanea.",
+    "native_keyboard": "NOT_RUN"
+  },
+  "baseline_and_fix": {
+    "baseline_commit": "39624143955f0329b3ac85e27a51d722a6884ad8",
+    "baseline_reachability": {
+      "result": "PASS",
+      "tests": 1,
+      "exit_code": 0,
+      "command": "flutter test build/task054/qa-20261008/address_keyboard_reachability_only_baseline_test.dart --no-pub --plain-name 'address editor focus' --concurrency=1 --reporter expanded",
+      "log": "build/task054/qa-20261008/address-baseline-reachability-only.log",
+      "log_sha256": "d79b38b831a58fe3508db19a75a6d3e644cf6b73271c5cf6cb368c01812315dd"
+    },
+    "baseline_cwd": "Archivio isolato in /private/tmp/cmc-task054-ci-native-baseline-3962414",
+    "prior_no_scroll_failure": "bottom1458 contro viewport400 era un requisito piu forte di visibilita iniziale: non dimostra irraggiungibilita e non e usato per giustificare un fix UPDATE.",
+    "transient_busy_overflow": {
+      "result_before_fix": "FAIL",
+      "pixels": 20,
+      "constraints": "w296,maxh304 durante AnimatedPadding; focus gia perso",
+      "log": "build/task054/qa-20261008/address-matrix-final.log",
+      "resolution": "Feedback scrollabile, azioni raggiungibili; assenza overflow nei run finali9/75."
+    },
+    "NI054-32": {
+      "red_baseline_and_candidate": "FAIL exit1: opener _AddressSection mounted=false dopo richiesta differita; due attempt, bottone enabled, snapshot presente, nessun campo invalido; terzo tentativo non inviato.",
+      "source_candidate_before_fix": "56883610e0132b2d1f02175ee88b6b0d8ceca07c",
+      "source_before_fix": {
+        "lib/features/account/presentation/customer_account_panel.dart": "1074afa799635e3b80d86c400a8ec7bd0abf10513a0514df3c3e2f93861e053e",
+        "lib/features/account/application/customer_account_controller.dart": "18bb75ac0f7e09e378f0f2bf4e366a048c9416725e8cf8ba40a01b2c87aa7cb8",
+        "test/features/account/customer_account_test_support.dart": "44796421e0835bd830e95808f111b04db432dceb9ebcb0084b2cb9a3b336dda2",
+        "integration_test/task054_next_integration_surfaces_test.dart": "0e342b4ca73e3718bfcaa4900ea5d9f8a1609f309804111aa543d054f2e54a3c"
+      },
+      "probe_sha256": {
+        "build/task054/qa-20261008/address_retry_opener_diagnostic_test.dart": "819561f3b8eb4aeae1f2404da507c86339eafce293010a65263a170b515b4f9d",
+        "/private/tmp/cmc-task054-ci-native-baseline-3962414/build/task054/qa-20261008/address_retry_opener_baseline_test.dart": "b8321bc51a2e2eab4661b7f75b089b9a6e6ffe8778c575420d8d3a2bb21340b7"
+      },
+      "commands": {
+        "current": {
+          "cwd": "/Users/minxiang/.codex/worktrees/task054-operational-completion/ClientMerchandiseControl",
+          "command": "/Users/minxiang/develop/flutter/bin/flutter test build/task054/qa-20261008/address_retry_opener_diagnostic_test.dart --no-pub --plain-name 'address editor focus' --concurrency=1 --reporter expanded",
+          "exitCode": 1
+        },
+        "baseline": {
+          "cwd": "/private/tmp/cmc-task054-ci-native-baseline-3962414",
+          "command": "/Users/minxiang/develop/flutter/bin/flutter test build/task054/qa-20261008/address_retry_opener_baseline_test.dart --no-pub --plain-name 'address editor focus' --concurrency=1 --reporter expanded",
+          "exitCode": 1
+        }
+      },
+      "baseline_log": "build/task054/qa-20261008/address-retry-opener-baseline.log",
+      "candidate_log": "build/task054/qa-20261008/address-retry-opener-diagnostic.log",
+      "fix": "Key stabile per _AddressSection e super.key; guard mounted/identita/sessione conservati.",
+      "after": "PASS nel caso UPDATE completo compreso nei9 e75; review finale separata."
+    }
+  },
+  "host_adapter": {
+    "generator_local": "build/task054/qa-20261008/prepare_host_harness.py",
+    "transformations": [
+      "Binding IntegrationTest sostituito con TestWidgets solo nelle copie host; tutte le asserzioni conservate.",
+      "FontLoader Roboto-Regular/Bold dal Flutter pinned; inset240 aggiornato su eventi FocusNode.",
+      "reportData nativo sostituito con mappa locale solo per rendere compatibile il report del mirror.",
+      "Allegati PNG sintetici reali: prima della stessa assert3uploads, massimo20 turni runAsync20ms+pump per drenare File.readAsBytes fuori FakeAsync."
+    ],
+    "compile_adapter_failure": {
+      "result": "FAIL",
+      "exit_code": 1,
+      "tests_executed": 0,
+      "log": "build/task054/qa-20261008/visual-host-final.log"
+    },
+    "io_adapter_failure": {
+      "result": "FAIL",
+      "exit_code": 1,
+      "passed": 73,
+      "failed": 2,
+      "log": "build/task054/qa-20261008/visual-host-green-final.log"
+    },
+    "io_diagnosis": {
+      "result": "PASS",
+      "exit_code": 0,
+      "tests": 2,
+      "log": "build/task054/qa-20261008/assistance-io-diagnostic.log",
+      "observation": "identity coerente,shop storefront-test,authController non istanziato; uploads0->3 dopo drainIO. Nessuna disattivazione guard o autenticazione forzata."
+    }
+  },
+  "native_capture_contract": {
+    "result": "NOT_RUN",
+    "flutter_expected_per_platform": 113,
+    "previous_flutter_preserved": 105,
+    "additive_unknown": 8,
+    "os_expected_per_platform": 4,
+    "unknown_marker": "address-create-unknown-compact200-<locale>-<brightness>",
+    "update_focus_marker": "address-editor-focus-compact200",
+    "os_frame_reason": "Le metriche keyboard sono una precondizione; pixel OS e interazione nativa richiedono run e ispezione dedicati."
+  },
+  "ci5": {
+    "run": 37369690043,
+    "head": "c796526a799c959408257f4c89c36a4439515b23",
+    "result": "failure",
+    "jobCount": 5,
+    "steps": 44,
+    "annotationCounts": {
+      "failure": 4,
+      "warning": 1,
+      "notice": 11
+    },
+    "androidDebug": {
+      "job": 111963462599,
+      "buildSecurity": "PASS",
+      "capture": "BLOCKED",
+      "lastObserved": "2026-10-05T20:45:41.0189545Z runner shutdown signal during drive assembleDebug; no tests or PNG",
+      "cleanup": "NOT_RUN",
+      "exclusiveCause": "unknown; no manual cancellation inferred"
+    },
+    "iosDebug": {
+      "job": 111963462747,
+      "buildSecurityGoldens": "PASS",
+      "prepare": "FAIL exit124 bootstatus300s locationd Data Migration",
+      "smokeVisual": "NOT_RUN",
+      "ownCleanup": "PASS two attempts"
+    },
+    "qualityAndroidRelease": "BLOCKED hosted runner not acquired; zero steps",
+    "iosRelease": "PASS unsigned build/archive and89fixtures"
+  },
+  "ci5_url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37369690043",
+  "hosted_readiness": {
+    "observed_utc": "2026-10-08T15:14:03.348204+00:00",
+    "status": "All Systems Operational;0incidenti aperti al controllo",
+    "source": "https://www.githubstatus.com/",
+    "incident": "https://www.githubstatus.com/incidents/3q1yb5m7ltvb",
+    "qualification": "Servizio hosted ripristinato e prerequisito cambiato; non promette capacita e non identifica la causa esclusiva dello shutdown Android.",
+    "image": {
+      "source": "https://github.com/actions/runner-images/blob/main/images/macos/macos-26-arm64-Readme.md",
+      "version": "20260907.0351.1",
+      "xcode": "26.6 17F113 /Applications/Xcode_26.6.app",
+      "runtime": "iOS26.5 iPhone17",
+      "matchesCI5Image": true,
+      "qualification": "Hosted service changed to operational; runtime image unchanged, so iOS readiness remains to prove by one bounded diagnostic attempt"
+    }
+  },
+  "local_toolchain": {
+    "xcode": "27.0 27A266a",
+    "onlyApp": "/Applications/Xcode.app",
+    "deviceSimulatorSdk": "27.0",
+    "minimumDeploymentTarget": "15.0",
+    "target14Supported": false,
+    "simulatorAppExists": false,
+    "readiness": "BLOCKED, no build attempt",
+    "ci": "macos-26 Xcode_26.6 Flutter3.44.8"
+  },
+  "next_ci_attempt": {
+    "result": "NOT_RUN",
+    "sequence": "Un solo nuovo candidato dopo freeze e review; push ordinario PR e CI automatica, mai rerun stale CI5. Verificare SHA checkout/job/step/annotation,113+4 e cleanup per piattaforma.",
+    "budgets": "Job visualAndroid25/iOS30,boot300,drive900 e iOS14 invariati; journalAndroid separato25 con stessi pin.",
+    "duplicate_infrastructure_failure": "Conservare causa e bloccare solo lane impattata, senza retry invariati seriali."
+  },
+  "runtime_commands": {
+    "benchmarks": "flutter test --tags performance --concurrency=1",
+    "android": "python3 scripts/run-task054-android-visual.py (Linux x86_64 KVM only)",
+    "iosPrepare": "python3 scripts/run-task054-ios-owned.py prepare --receipt build/task054/ios-owned-receipt.json --github-output \"$GITHUB_OUTPUT\"",
+    "iosSmoke": "bash scripts/test-ios-shell-smoke.sh --device \"$OWNED_DEVICE_ID\" --receipt build/task054/ios-owned-receipt.json",
+    "iosVisual": "CMC_OS_FRAME_PLATFORM=ios CMC_OS_FRAME_DEVICE=\"$OWNED_DEVICE_ID\" bash scripts/test-task054-visual.sh --device \"$OWNED_DEVICE_ID\"",
+    "iosCleanup": "python3 scripts/run-task054-ios-owned.py cleanup --receipt build/task054/ios-owned-receipt.json"
+  },
+  "unrun_native_gates": {
+    "talkback_voiceover": "NOT_RUN: sessione OS/device own e prova operatore richieste; semantics widget non sostituiscono lettore reale.",
+    "physical_profile": "NOT_RUN: device fisico own e configurazione TEST approvata; target storefront_performance_live_test.dart richiede staging e shop sintetico task010-load.",
+    "profile_command": "flutter drive --profile --no-pub --driver=test_driver/integration_test.dart --target=integration_test/storefront_performance_live_test.dart -d APPROVED_PHYSICAL_DEVICE --dart-define-from-file=APPROVED_TEST_CONFIG",
+    "native_journal": "NOT_RUN; runner separato e relativa review source non attestano kill/restart eseguito.",
+    "benchmark_mapping": "10 benchmark canonici host +1 inbox aggiuntivo; flutter test --tags performance --concurrency=1. Nessuna misura device ricavata da questi test."
+  },
+  "logs_versioned": false,
+  "processes": "Tutti i comandi della lane sono terminali; slot rilasciato al root. Nessun device N, simulatore o CI mutato dalla lane."
+}

@@ -5298,3 +5298,72 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   e lavoro N/W preservati; merge/mainCI nuovo deltaNOT_RUN,nessun DONE/TASK055
   o production. Sblocco minimo: hosted/runtime/toolchain e risorseP1–P6.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-08 — TASK-054 ripresa operativa autorizzata
+
+- Riconfermati main bfbfc0b6, PR29 draft c796526 e rapporto3962414; checkout
+  originale arretrato con supabase/ non tracciato preservato.
+- Nuovo worktree codex/task054-operational-completion; emendamento e planning
+  del mandato registrati, ACTIVE/EXECUTION senza attivare TASK-055.
+- Lane indirizzo idempotente Client/SQL, runtime Admin, readiness TEST, harness
+  nativo e misura inbox disgiunte; carichi pesanti serializzati e review distinte.
+- Coordinamento W/N richiesto nel mandato avviato. Nessun apply/deploy/merge
+  o PASS live dedotto.
+- **Handoff**: `CODEX_PLANNING_APPROVED_TO_EXECUTION`.
+
+
+## 2026-10-08 — TASK-054 review sorgente operativa e ultimo fix sessione
+
+- **Ruolo**: coordinamento CODEX_FIXER dopo reviewer read-only distinto.
+- **Source review**: eab76f7, CHANGES_REQUIRED; 49 verifiche PASS, un PoC P2
+  inflight Auth A→B→A FAIL. Export, scope riordino/assistenza e retry opener chiusi.
+- **Altri gate**: account writer98 e matrice UI host75 PASS; Android journal
+  native e nuova CI ancora NOT_RUN. Nessuna equivalenza con staging autenticato.
+- **Stato**: TASK-054 ACTIVE/FIX; criteri e risorse dei task futuri invariati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-08 — TASK-054 re-review sorgente approvata e gate complessivi
+
+- **Ruolo**: CODEX_RE_REVIEWER distinto dai writer; root coordina evidence e gate.
+- **Technical SHA**: `edfec536363e4c45a13a5efc2c6e2020408f45a3`.
+- **Review**: APPROVED SOURCE_CODE_ONLY, 36 verifiche autonome PASS, exit0;
+  ultimo P2 Auth in-flight chiuso, 49 PASS precedenti conservati per revisione.
+- **Transizione**: FIX → REVIEW con CODEX_FIX_BLOCKED_TO_RE_REVIEW;
+  esito integrato BLOCKED per gate esterni, senza modifica dei criteri.
+- **Gate**: writer99, UI host75 e matrice9 PASS; gate globali in esecuzione.
+  Primo governance FAIL per heading del worklog privo dell'ID task, corretto
+  senza modificare il protocollo; controllo e regressioni governance PASS.
+- **Stato**: BLOCKED/REVIEW; CI finale e native ancora NOT_RUN.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-08 — TASK-054 fix dei due contratti emersi dal globale
+
+- **Ruolo**: CODEX_FIXER; source edfec536 con review applicativa distinta.
+- **Gate globale**:1042PASS/2FAIL,exit1: fallback tecnico zh e cardinalità
+  dei job CI rimasta5 dopo l'aggiunta del gate journal dedicato.
+- **Scope fix**: quattro stringhe zh uguali a es, generated l10n; expected6
+  con controllo exact-SHA ancora su ogni job. Nessun budget o zh_Hans alterato.
+- **Stato**: ACTIVE/FIX; test mirati e re-review distinta prima del nuovo freeze.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-08 — TASK-054 re-review contratti e freeze bb538923
+
+- **Ruolo**: CODEX_RE_REVIEWER, distinto dagli autori.
+- **Technical SHA**: `bb53892393710d3ed6d2574053fe1206561b87f0`.
+- **Review**: APPROVED SOURCE_CODE_ONLY;9test autonomi PASS,exit0,
+  oltre ai9writer. Delta di3file, zh_Hans e checkout exact-SHA preservati.
+- **Transizione**: FIX→REVIEW, CODEX_FIX_BLOCKED_TO_RE_REVIEW; esito globale
+  BLOCKED. Suite globale/benchmark/build/CI restano verifiche distinte.
+- **Stato**: BLOCKED/REVIEW; nessun DONE/TASK-055 o merge dedotto.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+- **Gate terminali sul freeze**: 1044 test coverage PASS,5×14 race PASS,
+  11 benchmark PASS con budget canonici invariati,APK debug/JVM4/security PASS.
+ 37 gate applicabili conclusi,log/hash in local-gates-operational-20261008.json.
+ iOS locale BLOCKED per toolchain, nuova CI hosted ancora NOT_RUN al freeze.
+- **Higiene**:18sorgenti diagnostiche locali spostate fuori repository con
+ byte/hash identici; nessuna esclusione analyzer/formatter. Lockfile/SDK/target invariati.

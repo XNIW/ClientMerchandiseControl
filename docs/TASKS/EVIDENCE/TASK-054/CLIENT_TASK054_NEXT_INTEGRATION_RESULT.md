@@ -1,5 +1,67 @@
 # CLIENT_TASK054_NEXT_INTEGRATION_RESULT
 
+## Mandato operativo corrente — 8 ottobre 2026
+
+Stato BLOCKED/REVIEW, handoff CODEX_REVIEW_BLOCKED.
+Freeze sorgente `bb53892393710d3ed6d2574053fe1206561b87f0`,
+ approvato SOURCE_CODE_ONLY dopo re-review dei contratti (9 PASS autonomi).
+Il candidato viene composto in `codex/task054-operational-completion` da
+`3962414` (codice PR29 `c796526`). Le sezioni del rapporto del 5 ottobre
+conservano le prove storiche e non qualificano il candidato nuovo.
+
+- **Gate globali locali:** 1044 test con coverage PASS, 5 ripetizioni dei 14
+  casi race PASS, 11 test di prestazione PASS (dieci canonici invariati e
+  inbox aggiuntivo). Formato e analyze globali PASS. APK debug, quattro test JVM Android
+  e scansione del bundle PASS; 37 gate locali applicabili conclusi.
+  CI finale e smoke nativi restano verifiche separate.
+- **Indirizzi:** contratto create/reconcile v3 e journal cifrato prima dell'invio.
+  Commit con risposta persa, retry e concorrenza sono stati riprodotti prima
+  della correzione. La review ha aggiunto casi ACK malformato, cambio owner
+  prima del mount, chiusura route, payload geografico e persistenza Android.
+  Il writer ha eseguito 99 test account con esito PASS; re-review sorgente APPROVED con 36 verifiche autonome. Le prove
+  native del nuovo candidato restano pendenti.
+- **Inbox:** apertura immediata della destinazione senza attendere markRead,
+  nessuna navigazione dalla risposta tardiva; suite mirata 49 PASS. A viewport
+  fisso, per 500 righe i widget configurati scendono da 500 a 5; quelli
+  effettivamente costruiti restano 5 e le richieste 20. Cinque campioni prima
+  e dopo: misura del lavoro sullo host, non del frame time su telefono.
+- **SQL Admin:** delta additivo `f16c5f4`, 162 assertion e concorrenza reale
+  PASS, review indipendente APPROVED source/local. PR131 integrata normalmente
+  nella main di sviluppo `02ea44b9`; CI PR e main PASS, deploy saltati.
+  Il manifest Client descrive ora 57 RPC. La nuova migration
+  `20261008151018` è separata dalle tre canoniche e non applicata al TEST.
+- **Backend TEST:** le 32 RPC presenti sono conformi ai campi del manifest
+  storico da 55; le 23 assenti e le nuove 2 v3 restano da applicare.
+  Recovery corrente del perimetro coinvolto PASS: dati e history protetti,
+  apply delle sole tre canoniche nel clone, cleanup tramite Storage API e
+  inverse con history 155 → 158 → 155. Dodici digest di righe e otto
+  fingerprint metadata coincidono col TEST corrente. Integrità FAIL distinta:
+  due notifiche conservano otto riferimenti mancanti preesistenti.
+  Apply condiviso BLOCKED per finestra writer/cron e prerequisiti live;
+  nessuna riga remota riparata o parent inventato.
+- **Worker TEST:** candidato selettivo `34ed0c50`, 13 file sorgente, review W
+  della selezione senza finding. Configurazione pubblica TEST ottenuta dai
+  connector e salvata in file 0600 esterno a Git; build e runtime commerce
+  restano da verificare.
+- **Percorsi e native:** Cinque PoC di privacy riordino/assistenza prima FAIL,
+  sette regressioni finali PASS dopo i fix e review distinta senza finding.
+  Harness host 75 PASS; matrice indirizzi 9 PASS nelle quattro lingue e due temi.
+  La review ha chiuso anche export e retry editor; il solo P2 Auth A→B→A
+  in-flight è corretto in `edfec536`, con re-review APPROVED (36 PASS, exit0).
+  Servizio hosted operativo; nuova CI sul freeze
+  finale. Prova Android journal in job dedicato, senza consumare il budget
+  delle catture UI. Toolchain locale Xcode27 incompatibile con target14 e
+  Simulator.app assente; nessuna modifica del target. R24 resta della lane N.
+
+[Gate locali e hash del candidato](next-integration/local-gates-operational-20261008.json),
+[benchmark finali misurati](next-integration/performance-operational-20261008.md),
+[preflight corrente sanitizzato](next-integration/operational-preflight-20261008.json)
+e [registro unico](residuals.md) mantengono le dipendenze TEST, N/W e release.
+R01–R30 e i 25 E2E storici conservano i loro ID; nessun PASS live è dedotto
+anche quando sorgente, fixture o build passano.
+
+## Rapporto storico del 5 ottobre 2026
+
 Il cliente può esercitare con repository sintetici catalogo, prodotto, carrello,
 inbox paginata, assistenza e recensioni; le nuove regressioni verificano testo grande,
 feedback e conservazione delle bozze. Dopo un errore di salvataggio indirizzo la

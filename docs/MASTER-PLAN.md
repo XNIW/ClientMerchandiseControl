@@ -14,28 +14,29 @@
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: riprendere il candidato NI054 c796526/source50a
-  dopo lo sblocco hosted runner e readiness iOS entro il budget approvato; source
-  e documenti APPROVED scoped, suite locale986PASS, CI5 terminale nonverde e
-  re-reviewBLOCKED. PR29 draft; integrazione ordinaria soltanto con gate reali
-  verdi. Evidence finale su codex/task054-next-evidence-ci5, senza nuovo candidato
-  app. Apply TEST subordinato a recovery corrente, finestra writer/cron e
-  riferimenti approvati. TASK054 resta aperta; nessun TASK055 o production.
+- **Prossima azione autorizzata**: eseguire il mandato operativo dell'8 ottobre
+  sul candidato isolato derivato da c796526 e dal rapporto 3962414: idempotenza
+  durevole degli indirizzi Client/backend, verifica mirata UX e prestazioni,
+  readiness TEST e coordinamento W/N, poi review distinte e CI del candidato.
+  Apply TEST subordinato a recovery corrente, finestra writer/cron e riferimenti
+  approvati; integrazione sviluppo ordinaria soltanto con review e gate verdi.
+  TASK-054 resta aperta; nessun TASK-055, DONE o production.
 
 ## Repository coinvolti
 
 - `XNIW/ClientMerchandiseControl` — repository corrente e unico writer del client.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
-  authority canonica; main corrente82af13ef,158sorgenti e155receipt TEST;
+  authority canonica; main verificata02ea44b9,159sorgenti e155receipt TEST;
   TASK159/Worker selettivo appartiene a W, modifiche concorrenti preservate.
   Le riconciliazioni4532831b/f21339bb precedenti rimangono nelle evidence storiche.
 - `XNIW/MerchandiseControlSplitView` — fonte operativa Android, owner N; mainfe0927c3 e patch recovery in corso.
 - `XNIW/iOSMerchandiseControl` — fonte operativa iOS, owner N; main433e7daf e patch recovery in corso.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
-- Supabase staging esistente — audit metadata readonly: 32/55 RPC presenti,
-  23 assenti e tre migration richieste non applicate (due commerce e correttiva
-  dedup); production non modificata.
+- Supabase TEST — snapshot readonly iniziale dell’8 ottobre: 32/55 RPC presenti,
+  23 assenti e tre migration canoniche non applicate. Il manifest corrente ha
+  57 RPC: si aggiungono due RPC v3 e la migration `20261008151018`, anch’esse
+  non applicate. Non è dichiarato un nuovo gate live da 57 RPC; production invariata.
 - Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 
 ## Principi architetturali

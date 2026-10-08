@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "run_id": 37840621912,
+  "job_id": 113528756147,
+  "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37840621912",
+  "candidate": "6ab7e9a7c70b5ff5c02c1f83914ce05060a8cb72",
+  "branch": "codex/task054-ios-preflight-measured",
+  "status": "completed",
+  "result": "FAIL",
+  "exit_code": 124,
+  "phase": "CLI help with private device set, before inventory/create/boot",
+  "app": "NOT_RUN",
+  "journal": "NOT_RUN",
+  "smoke": "NOT_RUN",
+  "visual": "NOT_RUN",
+  "gui": "NOT_RUN",
+  "native_transport": "BLOCKED",
+  "explicit_create_command": "NOT_RUN",
+  "explicit_boot_command": "NOT_RUN",
+  "device_set_contents": "NOT_VERIFIED",
+  "postboot_reproduction": "NOT_RUN",
+  "measurements": [
+    {
+      "command": "simctl --set <private path> help",
+      "pid_pgid": 1857,
+      "timeout_nominal_seconds": 30,
+      "spawn_seconds": 0.003731916,
+      "communicate_timeout_seconds": 30.003138,
+      "spawn_to_timeout_event_seconds": 30.007656917,
+      "leader_at_timeout": "alive",
+      "stdout_bytes": 0,
+      "output_complete": false,
+      "inherited_pipe": "not_demonstrated",
+      "reap_exit_code": -15,
+      "reap_seconds": 3.1666e-05
+    },
+    {
+      "command": "simctl --set <private path> list devices --json (cleanup)",
+      "pid_pgid": 2474,
+      "timeout_nominal_seconds": 30,
+      "spawn_seconds": 0.024756458,
+      "communicate_timeout_seconds": 30.002419875,
+      "spawn_to_timeout_event_seconds": 30.027409875,
+      "leader_at_timeout": "alive",
+      "stdout_bytes": 0,
+      "output_complete": false,
+      "inherited_pipe": "not_demonstrated",
+      "reap_exit_code": -9,
+      "reap_seconds": 1.6709e-05
+    }
+  ],
+  "process_cleanup": {
+    "result": "PASS",
+    "owned_session_pids": [
+      1856,
+      1857,
+      2474
+    ],
+    "all_owned_session_leaders_reaped": true,
+    "help_group_after_TERM": "zombie_only observed, leader reaped -15",
+    "cleanup_inventory_after_TERM": "live S<s observed during 5s budget",
+    "cleanup_inventory_after_KILL": "kernel signal0 EPERM errno1; strict ps zombie_only Z<; leader reaped -9",
+    "inherited_pipes": "NOT_DEMONSTRATED"
+  },
+  "resource_cleanup": "FAIL",
+  "device_set_cleanup": "FAIL",
+  "resource_reason": "empty readback timed out; private directory preserved; no claim of zero devices/contents",
+  "cleanup_overall": "FAIL",
+  "simctl_help_file": "NOT_CAPTURED: first help command timed out before writing help file",
+  "cli_declared_set_support": "documented in prior installed CLI help at same pinned Xcode, not verified functionally here",
+  "source_review": {
+    "result": "APPROVED_SOURCE_CODE_ONLY",
+    "independent_tests": 34,
+    "writer_tests": 26,
+    "finding_P2": "closed with RED before guardfix; preserved raw",
+    "finding_P3": "closed with RED before statusfix; preserved raw"
+  },
+  "artifact": {
+    "id": 11576919325,
+    "node_id": "MDg6QXJ0aWZhY3QxMTU3NjkxOTMyNQ==",
+    "name": "task054-ios-measured",
+    "size_in_bytes": 16057,
+    "url": "https://api.github.com/repos/XNIW/ClientMerchandiseControl/actions/artifacts/11576919325",
+    "archive_download_url": "https://api.github.com/repos/XNIW/ClientMerchandiseControl/actions/artifacts/11576919325/zip",
+    "expired": false,
+    "digest": "sha256:70e170ac492d0daf87651dbadcd379f1fc44a8287150093dfecf0c00e5989a0b",
+    "created_at": "2026-10-08T20:37:10Z",
+    "updated_at": "2026-10-08T20:37:10Z",
+    "expires_at": "2026-10-15T20:37:09Z",
+    "workflow_run": {
+      "id": 37840621912,
+      "repository_id": 1316800935,
+      "head_repository_id": 1316800935,
+      "head_branch": "codex/task054-ios-preflight-measured",
+      "head_sha": "6ab7e9a7c70b5ff5c02c1f83914ce05060a8cb72"
+    }
+  },
+  "annotations": [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/6ab7e9a7c70b5ff5c02c1f83914ce05060a8cb72/.github",
+      "start_line": 2,
+      "start_column": null,
+      "end_line": 2,
+      "end_column": null,
+      "annotation_level": "warning",
+      "title": "",
+      "message": "Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/6ab7e9a7c70b5ff5c02c1f83914ce05060a8cb72/.github",
+      "start_line": 12,
+      "start_column": null,
+      "end_line": 12,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "Process completed with exit code 124.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/XNIW/ClientMerchandiseControl/blob/6ab7e9a7c70b5ff5c02c1f83914ce05060a8cb72/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    }
+  ],
+  "next_action": "No further diagnostic runs or canonical patches. Inspect already running final CI43fd jobs only. Native acceptance remains BLOCKED.",
+  "prior_runs_preserved": [
+    37817219242,
+    37822118836,
+    37836564977,
+    37838207516
+  ],
+  "sha256": {
+    "device-set-hosted-artifact/device-set-owner.json": "ccccc69b229c5c866e14010c0328c5ebba298b201cd163e01e8231b384539eb4",
+    "device-set-hosted-artifact/processes.jsonl": "98eb5189e7420e339cb75df0009a3d0e7add0b6ef288ad4d474248a734a805e0",
+    "device-set-hosted-artifact/result.json": "72ff1f893360d91559977497bb04de0c11c9a8a9ba983b76a52e246dd8e96354",
+    "device-set-preflight-hosted.log": "87b7af94eb8db14c40e26b6df308d7d5e77f114185a90f96cbc1b34f3039d407"
+  }
+}

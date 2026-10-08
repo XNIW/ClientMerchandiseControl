@@ -148,7 +148,7 @@ applicativo f9a61d5; source approvate separatamente, review integrata non dedott
 | NI054-09 / stato remoto | Versione22107a6f al100%, deploymentf726de06 invariati; Mini auth/catalog mutations già true | Preservare binding/stato corrente / W | Piano keep-vars/keep_bindings e readback pronti; attestare versione/asset/binding dopo deploy effettivo | Nessuna activation/deploy eseguita |
 | NI054-05 / R24 Android | N main9d5c270b, APK installato con dati preservati; signedIn e lettura locale durante update osservate da N, quattro ACK storici non sono nuova catena | Pilot/backend/Worker+N/Admin/Client | Ricetta IDs pronta; eseguire prodotto+immagine→ACK→Admin→pubblicazione/prezzo→Client con ricevute correlate | NOT_RUN catena, separata da install/sessione |
 | NI054-05 / R24 iOS | N PR21/3212799e:1524unitPASS36skip,14UIpass2FAIL; nuovo Proper preparato non integrato/installato | Diagnosi CI N + pilot/backend/Worker | N sole writer/device owner; completare diagnosi e catena separata per origine iOS | NOT_RUN catena; CI nativa N FAIL |
-| NI054-25/38 / iOS Client | Preflight37836564977/1862dbd: bootPASS, inventory globale postboot30s timeout con leader vivo;37,560s spawn→timeout; ps4,607s endtoend;113s storici non riprodotti | Runtime hosted/CoreSimulator / QA iOS | Trace monotonic+PID/PGID/output, TERM/reap e cleanup risorse/processi PASS; provare scopedUUID supportato dalla CLI, timeout invariato, poi fix solo se confermato | FAIL preflight exit124; app/journal/smoke/visual NOT_RUN |
+| NI054-25/38 / iOS Client journal | CI43 journal prepareFAIL124, app/Keychain NOT_RUN; tre esperimenti CLI terminali senza alternativa qualificata | Runtime hosted/CoreSimulator / QA iOS | Trace+brief pronti; nuovaCI37848510649 su f326 canonica, nessun altro esperimento UUID/set o retry43 | CI43 journal FAIL/cleanupPASS; nuovaCI in corso, esito NOT_RUN fino terminale |
 | NI054-39 / R04,R30 | Journal illeggibile impediva anche lettura sicura account;3RED causali prima fix | Nessuna esterna per source; runtime finale per accettazione / Client+reviewer |2ea8fa1 conserva snapshot, sospende create, retry storage senza erase;102accountPASS,69reviewerPASS,8hostmatrixPASS; catturare soli8nuovi stati | PASS source/local e review APPROVED scoped; native/live NOT_RUN |
 | NI054-40 / R18,R21,R30 | Dettaglio assistenza assente senza spiegazione/lista e failure transitoria senza retry;2RED causali | Runtime finale e backend/Worker per live / Client+reviewer |f9a61d5 feedback neutro/CTA lista/retry vero;30miratiPASS,41reviewerPASS+3baselineRED;8hostmatrixPASS,16PNGnuove attese | PASS source/local e review APPROVED scoped; native/live NOT_RUN |
 | NI054-07 / R30 | Nuova fixture137catture=113pregresse+24nuove;16casi host4lingue2temi320×568200%PASS | CI candidato composto e reviewer pixel / QA |4c3abf9 count137 e trace nei gate, review50testautonomiPASS; eseguire/interagire e ispezionare delta nativo | Nuove catture NOT_RUN; storico113+4 preservato |
@@ -174,3 +174,111 @@ Fonti correnti: [rapporto](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md),
 [config](next-integration/completion-config-preparation-receipt.json),
 [service](next-integration/completion-pgservice-preparation.json),
 [coord](next-integration/completion-coordination-completion-receipt.json).
+
+
+Aggiornamento checkpoint candidato: PR29 `43fd7af` pubblicato normalmente,
+CI `37839967964` in corso sui sette job. Appfreeze f9a61d5 invariato rispetto
+5a40488;35/35gate locali PASS e review distinta della capsula senza finding.
+La run UUID37838207516/6b5a34e riproduce inventory postboot30s timeout,
+leader vivo, stdout0;36,938s envelope. ps2s timeout e SIGKILL gruppoEPERM
+impediscono attestationreap/quiescenza simctl. Risorse cleanupPASS, processiFAIL.
+Nessuna patch canonica derivata; esperimento --set soltanto CLI in preparazione.
+Le ipotesi sperimentali restano su branch separato, non modificano la PR43fd.
+
+
+Ultima ipotesi CLI iOS `37840621912/6ab7e9a` terminaleFAIL124: primo
+`simctl --set help` e inventorycleanup timeout30s, prima di qualsiasi
+comando create/boot. Processcleanup/reap PASS; risorse/setcontents non
+verificati, directory non rimossa, cleanupcomplessivoFAIL. Nessuna patch
+canonica né ulteriore tentativo di preparazione. Brief operatore pronto
+fuoriGit: `outputs/task054-completion-20261008/ios-runner-issue.prepared.md`.
+NI054-25/38: prossima azione ownerCI è fornire/diagnosticare superficie
+CoreSimulator supportata dai trace, poi qualificare i gate canonici.
+Il jobSmoke della CI43fd ha successivamente PreparePASS sul proprio runner;
+il jobjournal su altro runner ha PrepareFAIL124/cleanupPASS, VerifyKeychain
+NOT_RUN. È nuova evidenza di variabilitàhost, non esito app né causa dimostrata.
+Le tre run CLI e i due job app conservano risultati distinti.
+
+
+Finding pixel del candidato43fd — NI054-41 / R04,R30: il badge informativo
+indirizzo predefinito si tronca al200% nello stato journal illeggibile.
+Prova causale sul pannello/controller produzione con Roboto pinned,
+320×568, quattro lingue/due temi:2FAIL es-CL light/dark,6PASS; testo naturale
+200,230px contro190px disponibili, RawChip impone una riga/softWrap=false/fade.
+Semantica completa, ma leggibilità visuale insufficiente. P3 in scope del
+mandato UX; non blocca recovery o conservazione dei dati. Source43fd e catture
+sono preservati. Owner Client UX; fix minimo del solo label reflow autorizzato
+senza clamp, traduzioni o controller, con regressione geometria/semantica,
+review distinta e nuovaCI del codice finale. Nessun retry invariato journal43.
+La nuova CI è dovuta al difetto riprodotto, non ai tre esperimenti CLI.
+
+
+NI054-41: fix9fe418a integrato localmente in16e4681; tre blob identici e
+patch-id invariato. Re-review distinta APPROVED SOURCE_CODE_ONLY,59PASS
+autonomi e dueREDbaseline distinti. NuovaCI/pixel finali NOT_RUN, nessunpush.
+
+NI054-42 / R30 — difetto harness riprodotto: viewport320×568 centrata in
+parent400×900 con viewInsets.bottom300 conserva erroneamente inset300,
+mentre l'intersezione fisica IME è134px (sovrastima166px). Un RED causale
+e quattro controfattuali PASS distinguono viewport centrata, fullsmallwindow
+che conserva300, e occlusione totale che conserva568. Owner Client UX;
+fix minimo della proiezione geometrica insets/safezones, test permanenti
+e review distinta autorizzati, nessuna riduzione di interazione/count137.
+Questo difetto non è ancora la causa certa del FAIL iOS43: campo recensione
+nonhitTestable, overflow24px con creatorchainDEFUNCT e joblimit30m restano
+evidenze distinte. Nessuna modifica preventiva alla UI recensioni.
+
+
+NI054-42: bf9be05 integrato in2327948 dopo review distinta APPROVED
+SOURCE_CODE_ONLY_HARNESS,32PASS autonomi (8geometrie,6PoC,18host),
+analyze/format/diff PASS. Causa esatta24px iOS ancora NOT_VERIFIED.
+Fixture finale SHAe468956971c99cf67457170dee75629523892e5652e7a96069b0d7c3c3f1a5f0,
+conteggio137 invariato. La prossima CI qualificherà il composto; nativeafter
+NOT_RUN. [Review](next-integration/completion-viewport-source-review.md).
+
+Preview/budget iOS7e7ecd2 integrato in d4a7e97 dopo review distinta
+APPROVED_SOURCE_CODE_ONLY (53test mirati+5PoC PASS). Artifact raw invariato,
+preview separata full-frame con hash/dimensioni; job35min misurato, timeout
+comandi invariati. NuovaCI del composto/pixel ancora NOT_RUN prima del push.
+Questo delta non corregge per inferenza il FAIL UI né qualifica TEST/live.
+
+### Candidato composto f326faa — checkpoint prima dei risultati CI
+
+Tre fix sorgente separatamente APPROVED: badge16e4681 (NI054-41),
+harness2327948 (NI054-42), preview/budgetd4a7e97. Manifest552path, review
+associazione38PASS, nessun delta applicativo dopo16e. CI37848510649 in corso.
+NI054-39/40 hanno catture Android43 acquisite, ma NI054-41 impone review
+finale dei pixel successivi; non restano semplicemente «mai catturati».
+NI054-07 separa debugiOS43 smokePASS/visual91PASS1FAIL e journalprepareFAIL.
+Le ipotesi UUID e customset sono terminali, non prossime azioni. R14 riguarda
+il checkout; restart del journal indirizzi non lo certifica. E resta prova
+supplementare, non modifica dei criteri R30.
+
+### Esito terminale f326faa — 2026-10-08, consegna a re-review
+
+CI37848510649attempt1 terminale5PASS/2FAIL: runtimeiOSfallisceprimaapp
+nel postbootinventory dopo bootPASS; cleanupPASSscoped,0PNG/0OSverificati.
+Nessunrerun invariato. Android92fixture/137PNG+4OS e restartPID4492→4604
+PASS; Quality1064PASS+1SKIP/11benchmark; unsignedAndroid/iOSPASS89fixture.
+NI054-41 risolto nei8journalAndroid, review73Flutter+4OSfreshAPPROVEDscoped,
+64riusiperhashconlimiti storici; nessun finding nuovo nei77delta. NI054-42
+PASSsource/Androidfixture, causa24pxiOSstoricaNOT_VERIFIED. NI054-39/40
+PASSsource/fixtureAndroiddelta; TESTauth/live ed iOS restanoNOT_RUN.
+
+Backend21:58:32/57conformi,25assenti,4canonicheassenti,1/2indici/history155;
+RLS/ACL59deltaattesi,4cronattivi invariati. TLS/input/IPv6/finestraBLOCKED.
+Worker22:13:22107a6f100%,23binding/rollbackinvariati; deployNOT_RUN.
+Firma/upload/installClientNOT_RUN. Config/fixture/service/runbook e package
+restanopronti; una sola richiesta riferimenti protetti giàpendente.
+Azioni/owner/dipendenze per ogni residuo nel rapporto corrente, stesso registro.
+Handoff `CODEX_FIX_BLOCKED_TO_RE_REVIEW`, taskBLOCKED/REVIEW.
+
+### Re-review distinta conclusiva — 2026-10-08
+
+Esito **BLOCKED**, handoff `CODEX_REVIEW_BLOCKED`, reviewer read-only distinto
+`/root/final_audit`.77 controlli autonomi PASS; i rilievi editoriali sono chiusi,
+nessun nuovo finding prodotto nel perimetro verificato. Il verdetto non chiude
+i residui esterni o le prove integrate mancanti. Cause, dipendenze, owner,
+preparazione e azione singola restano nella tabella del rapporto corrente;
+questo resta l'unico registro, senza nuovi ID o backlog paralleli.
+[Verbale](next-integration/completion-integrated-rereview.md).

@@ -1,0 +1,518 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-08T21:43:03.539357+00:00",
+  "reviewer": "/root/final_audit",
+  "role": "READ_ONLY_ASSOCIATION_REVIEW",
+  "scope": "SOURCE_ASSOCIATION_ONLY",
+  "outcome": "APPROVED",
+  "candidateHead": "d4a7e97ff4ef9f05b7932019e10813eddfd046de",
+  "baseCommit": "43fd7afc806404e667573734b2c4b3b3ffe8cc29",
+  "applicationFreeze": "16e46817d9da5f4a5ce0fbca89137f2652f52b56",
+  "baseManifest": {
+    "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-gates/source-manifest.sha256",
+    "sha256": "6ff14e3620447e9c7bcf4de80cbc081f2c800a04cc7f86d3450340549aab8f81",
+    "count": 547
+  },
+  "currentManifest": {
+    "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-review/current-source/source-manifest-current.sha256",
+    "sha256": "c20c6b845e601956c0b5be9acf8abd54d3c03614cffb96d018b3a1ceed8d76b2",
+    "count": 552,
+    "bytes": 66176
+  },
+  "newPaths": [
+    "integration_test/support/compact_viewport.dart",
+    "scripts/create-task054-ios-preview.py",
+    "scripts/test-task054-ios-preview.py",
+    "test/features/account/customer_address_default_badge_test.dart",
+    "test/integration_support/task054_compact_viewport_test.dart"
+  ],
+  "changedExistingPaths": [
+    ".github/workflows/ci.yml",
+    "integration_test/task054_next_integration_surfaces_test.dart",
+    "lib/features/account/presentation/customer_account_panel.dart",
+    "scripts/check.sh"
+  ],
+  "associations": [
+    {
+      "label": "badge",
+      "originalCommit": "9fe418a95defd0a5b595e4c2b5604d5c70ac509f",
+      "integratedCommit": "16e46817d9da5f4a5ce0fbca89137f2652f52b56",
+      "stablePatchId": "aea62dabef41914826f83aac5b0d46215123912d",
+      "files": [
+        {
+          "path": "integration_test/task054_next_integration_surfaces_test.dart",
+          "sha256": "0fabb98e535fda3252ded76a8e4c8764bf4c05a51144a4d8934ee778e5727564",
+          "gitBlobOriginal": "f72cdc4077041dc583e7d430dd6f9dc4991d86a6",
+          "gitBlobCherry": "f72cdc4077041dc583e7d430dd6f9dc4991d86a6"
+        },
+        {
+          "path": "lib/features/account/presentation/customer_account_panel.dart",
+          "sha256": "795e1a184b387f6989ef04e52d4548a6c3efe8503e8f6cfee23bfe9b0a3c06d5",
+          "gitBlobOriginal": "a783bbe5a4fd31be8f03903899055355a335eb95",
+          "gitBlobCherry": "a783bbe5a4fd31be8f03903899055355a335eb95"
+        },
+        {
+          "path": "test/features/account/customer_address_default_badge_test.dart",
+          "sha256": "7e8aa6f229341d6d5e89f04e0cdfa21c9a37c270906158ac59225a178eb02a02",
+          "gitBlobOriginal": "c804bf543dda3aa108ca84e197929cddfe84691a",
+          "gitBlobCherry": "c804bf543dda3aa108ca84e197929cddfe84691a"
+        }
+      ]
+    },
+    {
+      "label": "viewport",
+      "originalCommit": "bf9be0591621f2540a1c10a053e835e6dd0e6b88",
+      "integratedCommit": "232794847877f47ed1b9c95c497ceb96242cb180",
+      "stablePatchId": "2cbb8720d98d843d7be5ce8f66c339f528550f95",
+      "files": [
+        {
+          "path": "integration_test/support/compact_viewport.dart",
+          "sha256": "6beec945c179553085af21251d3191bb19ca024585c360834bcd65a25812a258",
+          "gitBlobOriginal": "5afaac6eb22c81e66f556d940f294f0b5ca85e2c",
+          "gitBlobCherry": "5afaac6eb22c81e66f556d940f294f0b5ca85e2c"
+        },
+        {
+          "path": "integration_test/task054_next_integration_surfaces_test.dart",
+          "sha256": "e468956971c99cf67457170dee75629523892e5652e7a96069b0d7c3c3f1a5f0",
+          "gitBlobOriginal": "73270313594dfbe9b76a780bf475cbb25bc755b4",
+          "gitBlobCherry": "73270313594dfbe9b76a780bf475cbb25bc755b4"
+        },
+        {
+          "path": "test/integration_support/task054_compact_viewport_test.dart",
+          "sha256": "d085cc26adadfa2ac26bb27ab53d684e6454aad924955bbe0cf989ba0ac88703",
+          "gitBlobOriginal": "90b48b5b618a4bced1b322d568339489001f8080",
+          "gitBlobCherry": "90b48b5b618a4bced1b322d568339489001f8080"
+        }
+      ]
+    },
+    {
+      "label": "preview",
+      "originalCommit": "7e7ecd2c9fe073665025cd88220648ca538bb7eb",
+      "integratedCommit": "d4a7e97ff4ef9f05b7932019e10813eddfd046de",
+      "stablePatchId": "5ef7b54e1fd23dc28d06ee237860add8ee2781e3",
+      "files": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "sha256": "9dd6c93303a4a36e3d938f185a55d29217a9c31871bacb9bd9db65daae4eed77",
+          "gitBlobOriginal": "e11408d009c440bcfdb30ab4e993e16ffecc1ec5",
+          "gitBlobCherry": "e11408d009c440bcfdb30ab4e993e16ffecc1ec5"
+        },
+        {
+          "path": "scripts/check.sh",
+          "sha256": "a8ddda685e0c4e7d3029cf593ddc18954e7c1ebe84065c61d064f554975c1c34",
+          "gitBlobOriginal": "ff2e6cba17ae063d1426deacfb718e101f3c791c",
+          "gitBlobCherry": "ff2e6cba17ae063d1426deacfb718e101f3c791c"
+        },
+        {
+          "path": "scripts/create-task054-ios-preview.py",
+          "sha256": "a9044d7157e77c2e3234f92e9c5ad0660a3c441228cfcdd255d620abaaa28461",
+          "gitBlobOriginal": "8f9bec17f08574a2b9f0702ad1eea686f4e3a864",
+          "gitBlobCherry": "8f9bec17f08574a2b9f0702ad1eea686f4e3a864"
+        },
+        {
+          "path": "scripts/test-task054-ios-preview.py",
+          "sha256": "6470d2201420352c8235e76c5a50e601881295e1907a5d590fba0a9c3e4bee24",
+          "gitBlobOriginal": "5d894d6a61075490ab4b64f2d2aa4980cc372f25",
+          "gitBlobCherry": "5d894d6a61075490ab4b64f2d2aa4980cc372f25"
+        }
+      ]
+    }
+  ],
+  "checkCount": 38,
+  "checks": [
+    {
+      "id": "candidate-head",
+      "result": "PASS",
+      "detail": "d4a7e97ff4ef9f05b7932019e10813eddfd046de"
+    },
+    {
+      "id": "base-manifest-row-count",
+      "result": "PASS",
+      "detail": 547
+    },
+    {
+      "id": "base-manifest-unique-sorted",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "id": "badge-exact-paths",
+      "result": "PASS",
+      "detail": {
+        "original": [
+          "integration_test/task054_next_integration_surfaces_test.dart",
+          "lib/features/account/presentation/customer_account_panel.dart",
+          "test/features/account/customer_address_default_badge_test.dart"
+        ],
+        "cherry": [
+          "integration_test/task054_next_integration_surfaces_test.dart",
+          "lib/features/account/presentation/customer_account_panel.dart",
+          "test/features/account/customer_address_default_badge_test.dart"
+        ]
+      }
+    },
+    {
+      "id": "badge-stable-patch-id",
+      "result": "PASS",
+      "detail": {
+        "original": "aea62dabef41914826f83aac5b0d46215123912d",
+        "cherry": "aea62dabef41914826f83aac5b0d46215123912d"
+      }
+    },
+    {
+      "id": "badge-blob-integration_test/task054_next_integration_surfaces_test.dart",
+      "result": "PASS",
+      "detail": {
+        "originalSha256": "0fabb98e535fda3252ded76a8e4c8764bf4c05a51144a4d8934ee778e5727564",
+        "cherrySha256": "0fabb98e535fda3252ded76a8e4c8764bf4c05a51144a4d8934ee778e5727564"
+      }
+    },
+    {
+      "id": "badge-blob-lib/features/account/presentation/customer_account_panel.dart",
+      "result": "PASS",
+      "detail": {
+        "originalSha256": "795e1a184b387f6989ef04e52d4548a6c3efe8503e8f6cfee23bfe9b0a3c06d5",
+        "cherrySha256": "795e1a184b387f6989ef04e52d4548a6c3efe8503e8f6cfee23bfe9b0a3c06d5"
+      }
+    },
+    {
+      "id": "badge-blob-test/features/account/customer_address_default_badge_test.dart",
+      "result": "PASS",
+      "detail": {
+        "originalSha256": "7e8aa6f229341d6d5e89f04e0cdfa21c9a37c270906158ac59225a178eb02a02",
+        "cherrySha256": "7e8aa6f229341d6d5e89f04e0cdfa21c9a37c270906158ac59225a178eb02a02"
+      }
+    },
+    {
+      "id": "viewport-exact-paths",
+      "result": "PASS",
+      "detail": {
+        "original": [
+          "integration_test/support/compact_viewport.dart",
+          "integration_test/task054_next_integration_surfaces_test.dart",
+          "test/integration_support/task054_compact_viewport_test.dart"
+        ],
+        "cherry": [
+          "integration_test/support/compact_viewport.dart",
+          "integration_test/task054_next_integration_surfaces_test.dart",
+          "test/integration_support/task054_compact_viewport_test.dart"
+        ]
+      }
+    },
+    {
+      "id": "viewport-stable-patch-id",
+      "result": "PASS",
+      "detail": {
+        "original": "2cbb8720d98d843d7be5ce8f66c339f528550f95",
+        "cherry": "2cbb8720d98d843d7be5ce8f66c339f528550f95"
+      }
+    },
+    {
+      "id": "viewport-blob-integration_test/support/compact_viewport.dart",
+      "result": "PASS",
+      "detail": {
+        "originalSha256": "6beec945c179553085af21251d3191bb19ca024585c360834bcd65a25812a258",
+        "cherrySha256": "6beec945c179553085af21251d3191bb19ca024585c360834bcd65a25812a258"
+      }
+    },
+    {
+      "id": "viewport-blob-integration_test/task054_next_integration_surfaces_test.dart",
+      "result": "PASS",
+      "detail": {
+        "originalSha256": "e468956971c99cf67457170dee75629523892e5652e7a96069b0d7c3c3f1a5f0",
+        "cherrySha256": "e468956971c99cf67457170dee75629523892e5652e7a96069b0d7c3c3f1a5f0"
+      }
+    },
+    {
+      "id": "viewport-blob-test/integration_support/task054_compact_viewport_test.dart",
+      "result": "PASS",
+      "detail": {
+        "originalSha256": "d085cc26adadfa2ac26bb27ab53d684e6454aad924955bbe0cf989ba0ac88703",
+        "cherrySha256": "d085cc26adadfa2ac26bb27ab53d684e6454aad924955bbe0cf989ba0ac88703"
+      }
+    },
+    {
+      "id": "preview-exact-paths",
+      "result": "PASS",
+      "detail": {
+        "original": [
+          ".github/workflows/ci.yml",
+          "scripts/check.sh",
+          "scripts/create-task054-ios-preview.py",
+          "scripts/test-task054-ios-preview.py"
+        ],
+        "cherry": [
+          ".github/workflows/ci.yml",
+          "scripts/check.sh",
+          "scripts/create-task054-ios-preview.py",
+          "scripts/test-task054-ios-preview.py"
+        ]
+      }
+    },
+    {
+      "id": "preview-stable-patch-id",
+      "result": "PASS",
+      "detail": {
+        "original": "5ef7b54e1fd23dc28d06ee237860add8ee2781e3",
+        "cherry": "5ef7b54e1fd23dc28d06ee237860add8ee2781e3"
+      }
+    },
+    {
+      "id": "preview-blob-.github/workflows/ci.yml",
+      "result": "PASS",
+      "detail": {
+        "originalSha256": "9dd6c93303a4a36e3d938f185a55d29217a9c31871bacb9bd9db65daae4eed77",
+        "cherrySha256": "9dd6c93303a4a36e3d938f185a55d29217a9c31871bacb9bd9db65daae4eed77"
+      }
+    },
+    {
+      "id": "preview-blob-scripts/check.sh",
+      "result": "PASS",
+      "detail": {
+        "originalSha256": "a8ddda685e0c4e7d3029cf593ddc18954e7c1ebe84065c61d064f554975c1c34",
+        "cherrySha256": "a8ddda685e0c4e7d3029cf593ddc18954e7c1ebe84065c61d064f554975c1c34"
+      }
+    },
+    {
+      "id": "preview-blob-scripts/create-task054-ios-preview.py",
+      "result": "PASS",
+      "detail": {
+        "originalSha256": "a9044d7157e77c2e3234f92e9c5ad0660a3c441228cfcdd255d620abaaa28461",
+        "cherrySha256": "a9044d7157e77c2e3234f92e9c5ad0660a3c441228cfcdd255d620abaaa28461"
+      }
+    },
+    {
+      "id": "preview-blob-scripts/test-task054-ios-preview.py",
+      "result": "PASS",
+      "detail": {
+        "originalSha256": "6470d2201420352c8235e76c5a50e601881295e1907a5d590fba0a9c3e4bee24",
+        "cherrySha256": "6470d2201420352c8235e76c5a50e601881295e1907a5d590fba0a9c3e4bee24"
+      }
+    },
+    {
+      "id": "combined-nine-paths",
+      "result": "PASS",
+      "detail": {
+        "actual": [
+          ".github/workflows/ci.yml",
+          "integration_test/support/compact_viewport.dart",
+          "integration_test/task054_next_integration_surfaces_test.dart",
+          "lib/features/account/presentation/customer_account_panel.dart",
+          "scripts/check.sh",
+          "scripts/create-task054-ios-preview.py",
+          "scripts/test-task054-ios-preview.py",
+          "test/features/account/customer_address_default_badge_test.dart",
+          "test/integration_support/task054_compact_viewport_test.dart"
+        ],
+        "expected": [
+          ".github/workflows/ci.yml",
+          "integration_test/support/compact_viewport.dart",
+          "integration_test/task054_next_integration_surfaces_test.dart",
+          "lib/features/account/presentation/customer_account_panel.dart",
+          "scripts/check.sh",
+          "scripts/create-task054-ios-preview.py",
+          "scripts/test-task054-ios-preview.py",
+          "test/features/account/customer_address_default_badge_test.dart",
+          "test/integration_support/task054_compact_viewport_test.dart"
+        ]
+      }
+    },
+    {
+      "id": "no-deletions",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "id": "base-manifest-belongs-to-ci43-source",
+      "result": "PASS",
+      "detail": []
+    },
+    {
+      "id": "only-four-existing-source-paths-changed",
+      "result": "PASS",
+      "detail": {
+        "count": 4,
+        "paths": [
+          ".github/workflows/ci.yml",
+          "integration_test/task054_next_integration_surfaces_test.dart",
+          "lib/features/account/presentation/customer_account_panel.dart",
+          "scripts/check.sh"
+        ]
+      }
+    },
+    {
+      "id": "five-new-nondoc-paths",
+      "result": "PASS",
+      "detail": [
+        "integration_test/support/compact_viewport.dart",
+        "scripts/create-task054-ios-preview.py",
+        "scripts/test-task054-ios-preview.py",
+        "test/features/account/customer_address_default_badge_test.dart",
+        "test/integration_support/task054_compact_viewport_test.dart"
+      ]
+    },
+    {
+      "id": "new-manifest-count",
+      "result": "PASS",
+      "detail": 552
+    },
+    {
+      "id": "all-current-source-worktree-bytes-match-head",
+      "result": "PASS",
+      "detail": []
+    },
+    {
+      "id": "production-and-native-boundaries-frozen-after-badge",
+      "result": "PASS",
+      "detail": {
+        "paths": [
+          "lib",
+          "android",
+          "ios",
+          "assets",
+          "config",
+          "pubspec.yaml",
+          "pubspec.lock",
+          "l10n.yaml",
+          "test_driver"
+        ],
+        "changed": [],
+        "appFreeze": "16e46817d9da5f4a5ce0fbca89137f2652f52b56"
+      }
+    },
+    {
+      "id": "only-production-change-is-badge",
+      "result": "PASS",
+      "detail": [
+        "lib/features/account/presentation/customer_account_panel.dart"
+      ]
+    },
+    {
+      "id": "xcode-flutter-pins-preserved",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "id": "preview-upload-pin-is-existing-canonical-pin",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "id": "base-manifest-preserved",
+      "result": "PASS",
+      "detail": {
+        "sha256": "6ff14e3620447e9c7bcf4de80cbc081f2c800a04cc7f86d3450340549aab8f81"
+      }
+    },
+    {
+      "id": "source-worktree-clean-at-end",
+      "result": "PASS",
+      "detail": []
+    },
+    {
+      "id": "post-audit-commit-is-documentation-only",
+      "result": "PASS",
+      "detail": {
+        "observedHead": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+        "pathCount": 37,
+        "nonDocumentalPaths": []
+      }
+    },
+    {
+      "id": "only-quality-and-ios-debug-job-blocks-change",
+      "result": "PASS",
+      "detail": [
+        "quality",
+        "ios-build"
+      ]
+    },
+    {
+      "id": "ios-debug-job-timeout-30-to-35",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "id": "all-other-job-budgets-unchanged",
+      "result": "PASS",
+      "detail": null
+    },
+    {
+      "id": "docs-head-exact-current-manifest-association",
+      "result": "PASS",
+      "detail": {
+        "observedHead": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+        "count": 552,
+        "mismatches": []
+      }
+    },
+    {
+      "id": "base-manifest-remains-preserved-after-second-check",
+      "result": "PASS",
+      "detail": null
+    }
+  ],
+  "commandCount": 1729,
+  "initialWorktreeStatus": [
+    "M  README.md",
+    "M  docs/AI_WORKLOG.md",
+    "M  docs/MASTER-PLAN.md",
+    "M  docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md",
+    "M  docs/TASKS/EVIDENCE/TASK-054/README.md",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-badge-fix-9fe418a.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-badge-fix-9fe418a.md",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-badge-source-review.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-badge-source-review.md",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ci43-assigned.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ci43-evidence-review.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ci43-ios-checkpoint-review.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ci43-ios-checkpoint.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ci43-ios-checkpoint.md",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ci43-review-ui-diagnostic.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-composed-impact-gates.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-coordination-delta.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-final-gates-review.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ios-diagnostic-capsule-audit.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ios-preflight-37836564977-capsule.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ios-preflight-37836564977-capsule.md",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ios-preflight-37838207516-capsule.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ios-preflight-37838207516-capsule.md",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ios-preflight-37840621912-capsule.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ios-preflight-37840621912-capsule.md",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ios-preview-budget-review.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ios-preview-budget-review.md",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ios-preview-budget.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-ios-preview-budget.md",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-viewport-fix-bf9be05.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-viewport-fix-bf9be05.md",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-viewport-red-receipt.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-viewport-red-result.md",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-viewport-source-review.json",
+    "A  docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-viewport-source-review.md",
+    "M  docs/TASKS/EVIDENCE/TASK-054/residuals.md",
+    "M  docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md"
+  ],
+  "finalWorktreeStatus": [],
+  "limitations": [
+    "Non e una review integrata o una nuova esecuzione dei test applicativi.",
+    "Non attribuisce PASS a CI, screenshot, runtime nativo, staging, auth, distribuzione, target iOS14 o accessibilita assistiva.",
+    "Il manifest attesta le sorgenti del freeze d4a7e97 e non trasferisce i PASS dei gate storici ai nuovi file."
+  ],
+  "associatedDocumentationHead": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "auditAssertionCorrection": {
+    "firstAttemptSha256": "b99ac5bd470a180c2f52611b33fb1ff490f822ce32fff142a35a012a077f8ff9",
+    "firstAttemptFile": "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-review/current-source/source-association-review-first-attempt.json",
+    "description": "Due false assertion: conteggio globale35 includeva job preesistente; root ha aggiunto sole evidence durante la lettura. Verifiche corrette per blocco job e tutti552blob sul nuovo head.",
+    "auditHarnessRepair": {
+      "exitCode": 1,
+      "error": "KeyError ios",
+      "cause": "Nome job supposto invece di ios-build",
+      "resolution": "Nome reale letto dal workflow; parser limitato ai blocchi jobs; nessuna sorgente modificata."
+    }
+  },
+  "commandSummary": {
+    "count": 1729,
+    "allExitZero": true,
+    "fullReceiptSha256": "cb9e4285b803e8cf1f5bf9ffa54ede6be6fef508a465140b3230a63f7600213f",
+    "fullReceiptProtectedPath": "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-review/current-source/source-association-review.json"
+  }
+}

@@ -4474,6 +4474,7 @@
 - **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
+
 ## 2026-08-19 — TASK-040 Fix 42 re-review
 
 - **Exact HEAD**: `f59cf91a288ff97c3899e235c843192bce6aca7d`.
@@ -5476,3 +5477,80 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   BLOCKED conservato, ricetta canonica finale199,860s PASS con cleanup.
   Scanner staged988file PASS; CI finale del candidato da eseguire.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-08 — TASK-054 CI43 terminale, fix badge e geometria harness
+
+- **Ruolo/fase**: CODEX_FIXER, ACTIVE/FIX; unico writer per componente e
+  reviewer distinti. Nessun nuovo consenso generico richiesto.
+- **CI43**: cinque job PASS/76step; Quality1048PASS+1goldenSKIP,11benchmark;
+  Android92fixture/137PNG+4OS e journal2PID PASS. iOS unsigned89fixture PASS.
+  Smoke iOS PASS, visual91PASS/1FAIL campo recensione e overflow24px,
+  job CANCELLED30min; journal prepareFAIL. Cause/app/budget distinte.
+- **NI054-41**:2RED es-CL,6PASS; badge9fe→16e4681 approvato source da
+  reviewer distinto59PASS,110account e8hostjournal PASS. Pixel finale NOT_RUN.
+- **NI054-42**: RED projection globale/locale e controfattuali preservati;
+  bf9be05→2327948,8geometrie/18hostmirati PASS, review distinta32PASS. Fullsmall397
+  sintetico FAIL distinto; nessuna appreviewspatch o riduzione di occlusione.
+- **TEST/ownership**: accessi protetti, IPv6, pilot/A/B/callback/firma e
+  finestraDB/cron ancora mancanti; unica richiesta circoscritta pendente.
+  W idle invariato; N diagnostica le proprie CI, dispositivi riservati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-10-08 — TASK-054 composto d4a7e97 pronto per nuova CI
+
+- **Ruolo/fase**: CODEX_FIXER / FIX, mandato operativo già autorizzato.
+- **Delta**: badge16e4681 e harness2327948 approvati; preview7e7ecd2
+  integrata in d4a7e97 dopo review distinta53test+5PoC PASS.
+- **Budget**: solo job iOS debug30→35min;1097s previsual+900s capture
+  superano1800s. Timeout comandi e rawupload invariati; preview full-frame
+  hash-bound separata, benchmark sintetico7,42s distinto da pixel nativi.
+- **Gate**: runner14test e architecture sul232 PASS; nuovaCI/pixel NOT_RUN
+  prima del push. VecchiaCI43 preservata con5PASS/journalFAIL/visualcancel.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-10-08 — TASK-054 Fix concluso, CI f326 terminale, consegna bloccata
+
+- **Ruolo/fase**: CODEX_FIXER→CODEX_RE_REVIEWER / FIX→REVIEW.
+- **Candidato**: PR29f326faa, source d4a7e97/appfreeze16e4681; clean/tracking
+  allineati. CI37848510649attempt1 terminale5PASS/2FAILpostbootinventoryiOS.
+- **Gate**: Quality1064PASS+1SKIP,11benchmark; Android92native/137PNG+4OS
+  e restartPID4492→4604 PASSlocale. UnsignedAndroid/iOSPASS.
+- **Limiti**: iOS0PNG/0OSverificati, Keychain/smoke/visualNOT_RUN; cleanup
+  PASSscoped, nessun rerun. PixelAndroid77delta APPROVED scoped,64byteidentici
+  riusati con scope storico. Auth/live/distribuzione non eseguiti.
+- **TEST**: readback21:58conferma32/57conformi,25assenti,4migrationassenti,
+ 1/2indici/history155; cron4attivi. TLS/input/IPv6/finestraBLOCKED.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-10-08 — TASK-054 allineamenti editoriali e riconsegna
+
+- **Review preliminare**: CHANGES_REQUIRED limitato a3righe obsolete di stato
+  e2capsulebadge conservate prima della review59PASS. Nessun finding prodotto.
+- **Fix**: R04/report, ultimaentryworklog, riepilogoREADMEevidence riallineati;
+  badgeJSON/MD copiati dalle fonti finali. Ciclo logico REVIEW→FIX→REVIEW;
+  implementazione/f326 e risultatiCI invariati, nessuna nuova suiteapplicativa.
+- **Hygiene**: fullsecurity1032filePASS prima di questi delta; scan canonico
+  ristretto dei soli file modificati dopo il freeze al termine del verbale.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-10-08 — TASK-054 re-review distinta conclusiva BLOCKED
+
+- **Ruolo/fase**: CODEX_RE_REVIEWER / REVIEW. Verdetto di `/root/final_audit`
+  read-only distinto; il coordinatore ne trascrive esito e limiti.
+- **Review**:77 controlli autonomi PASS,115 comandi Git terminali exit0,
+ 55 file staged esatti,33 JSON validi,220 link relativi senza file mancanti.
+  Due rilievi editoriali chiusi dopo fix e recheck; nessun nuovo finding prodotto
+  nel perimetro eseguito. PR29 OPEN/DRAFT f326 e CI5PASS/2FAIL verificati via API.
+- **Gate**: iOS preapp FAIL, TEST schema FAIL; TLS/input/finestra, Auth/live,
+  Worker aggiornato, R24 due origini, AT/profile e distribuzione non conclusi.
+  Approvazioni source/Androidpixel/fidelity conservano il proprio scope.
+- **Hygiene**: fullsecurity1032file PASS; ricevute dei controlli finali sul solo
+  delta documentale, governance/link/diff e Git nel percorso protetto
+  `task054-completion-20261008/final-review/`. Nessuna suite app ripetuta.
+- **Correzione documentale**: governance finale inizialmente FAIL exit1 perché
+  il parser richiede la riga Handoff isolata; riga normalizzata senza cambiare
+  protocollo, stato o risultati applicativi. Receipt negativo conservato.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.
+  TASK-054 BLOCKED/REVIEW, nessun merge, DONE, TASK-055, apply/deploy/install
+  Client o attività production.

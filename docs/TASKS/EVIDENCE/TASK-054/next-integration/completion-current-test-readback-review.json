@@ -1,0 +1,433 @@
+{
+  "AUTH_LIVE": "NOT_RUN",
+  "TEST_schema": "FAIL",
+  "TLS_aggregate": "BLOCKED",
+  "TLS_new_lane": "NOT_RUN",
+  "checks": [
+    {
+      "name": "frozen_capsule_json",
+      "result": "PASS"
+    },
+    {
+      "name": "frozen_capsule_md",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:baseline-comparison.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:final-contract-snapshot.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:final-readback-normalized.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:final-readback-summary.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:final-readback.sql",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:local-security-receipt.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:local-security.stdout.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:local-validation-command-results.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:management-sql-tool-response.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:management-tool-envelope.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:network-and-reference-inventory.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:prepared-plan.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:project-identity-final.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:query-review.json",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:query-review.md",
+      "result": "PASS"
+    },
+    {
+      "name": "artifact:source-association-final.json",
+      "result": "PASS"
+    },
+    {
+      "name": "one_raw_response_exact_normalization",
+      "result": "PASS"
+    },
+    {
+      "name": "contract_projection_exact",
+      "result": "PASS"
+    },
+    {
+      "name": "server_transaction_read_only",
+      "result": "PASS"
+    },
+    {
+      "name": "tool_fulfilled_no_error_null_exitcode",
+      "result": "PASS"
+    },
+    {
+      "name": "query_and_response_hashes",
+      "result": "PASS"
+    },
+    {
+      "name": "server_timestamp_within_tool_envelope",
+      "result": "PASS"
+    },
+    {
+      "name": "server_timestamp_propagated",
+      "result": "PASS"
+    },
+    {
+      "name": "manifest57_and_observed32_unique",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_cancel_account_deletion_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_cart_merge_guest_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_cart_mutate_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_cart_read_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_cart_revalidate_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_checkout_quote_confirm_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_checkout_quote_create_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_checkout_quote_read_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_data_export_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_device_status_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_notification_route_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_order_cancel_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_order_create_v2",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_order_detail_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_order_list_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_order_read_v2",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_record_privacy_consent_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_register_device_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_request_account_deletion_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_reservation_hold_create_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_reservation_hold_read_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_reservation_hold_release_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_revoke_device_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:customer_set_default_address_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:storefront_catalog_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:storefront_categories_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:storefront_fulfillment_options_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:storefront_home_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:storefront_order_tracking_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:storefront_payment_options_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:storefront_product_detail_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "rpc_conformant:storefront_search_v1",
+      "result": "PASS"
+    },
+    {
+      "name": "present_index_exact",
+      "result": "PASS"
+    },
+    {
+      "name": "32_conformant25_missing30_contract_errors",
+      "result": "PASS"
+    },
+    {
+      "name": "index1_of2_history155",
+      "result": "PASS"
+    },
+    {
+      "name": "four_canonical_absent",
+      "result": "PASS"
+    },
+    {
+      "name": "baseline_exact_excluding_timestamp",
+      "result": "PASS"
+    },
+    {
+      "name": "baseline_hashes_and_claims_exact",
+      "result": "PASS"
+    },
+    {
+      "name": "cron_four_active_exact_previous",
+      "result": "PASS"
+    },
+    {
+      "name": "cron_no_window_proof",
+      "result": "PASS"
+    },
+    {
+      "name": "59_security_deltas_exact",
+      "result": "PASS"
+    },
+    {
+      "name": "security_reference_hash",
+      "result": "PASS"
+    },
+    {
+      "name": "12_new_relations_absent_2_existing_rls_forced",
+      "result": "PASS"
+    },
+    {
+      "name": "absent_rls_null_not_disabled",
+      "result": "PASS"
+    },
+    {
+      "name": "13_helpers12_absent_placeholder_not_acl_proof",
+      "result": "PASS"
+    },
+    {
+      "name": "59_not_new_findings",
+      "result": "PASS"
+    },
+    {
+      "name": "schema_fail_rls_not_auth_acceptance",
+      "result": "PASS"
+    },
+    {
+      "name": "command_output_hash:0",
+      "result": "PASS"
+    },
+    {
+      "name": "command_output_hash:1",
+      "result": "PASS"
+    },
+    {
+      "name": "command_output_hash:2",
+      "result": "PASS"
+    },
+    {
+      "name": "snapshot_exit1_actual_exact30_errors",
+      "result": "PASS"
+    },
+    {
+      "name": "validator_exit0_classification_not_acceptance",
+      "result": "PASS"
+    },
+    {
+      "name": "comparison_exit0_actual",
+      "result": "PASS"
+    },
+    {
+      "name": "first_parser_error_preserved_single_sql_recorded",
+      "result": "PASS"
+    },
+    {
+      "name": "prior_tls_exit2_record_only_hash_verified",
+      "result": "PASS"
+    },
+    {
+      "name": "fresh_dns_host_boundary",
+      "result": "PASS"
+    },
+    {
+      "name": "network_receipt_exit0_hash",
+      "result": "PASS"
+    },
+    {
+      "name": "tls_not_executed_new_lane_aggregate_blocked",
+      "result": "PASS"
+    },
+    {
+      "name": "project_identity_healthy_not_tls_proof",
+      "result": "PASS"
+    },
+    {
+      "name": "readonly_role_not_credentials_missing_approved_paths",
+      "result": "PASS"
+    },
+    {
+      "name": "prepared_service_only",
+      "result": "PASS"
+    },
+    {
+      "name": "auth_not_run_missing_pilot_owner_callback",
+      "result": "PASS"
+    },
+    {
+      "name": "management_session_not_client_credentials",
+      "result": "PASS"
+    },
+    {
+      "name": "no_apply_cron_mutation_or_distribution",
+      "result": "PASS"
+    },
+    {
+      "name": "source_association_hashes_match_capsule",
+      "result": "PASS"
+    },
+    {
+      "name": "no_own_processes_or_suite_device_mutations",
+      "result": "PASS"
+    },
+    {
+      "name": "protected_directory_files",
+      "result": "PASS"
+    }
+  ],
+  "checks_fail": 0,
+  "checks_pass": 93,
+  "findings": [],
+  "frozen_capsule_json_sha256": "438685118046f77358d13f7418554d5c519f8764b4161051bbaed55d966ce4e8",
+  "frozen_capsule_md_sha256": "bff5db74e782c96b9d8b96d602fa8183722d88c09e5554b2d9872cd5e6f6dd60",
+  "inputs_sha256": {
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/backend-summary.json": "b0572fce05dbd465b6abbced4aeef89f0f5ce8e4bf520c8be6a45f051cc1c127",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/current-contract-snapshot.json": "7b19b2f3c8c024e5f2fa30f204b9d2cfe32ecc3acd90b80f409236c1af9ff4b3",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/readiness.json": "9dd3baa34bd03892a66dadcccf10eb49bb9bf789b9d3be7cea3b30a8b993ce8d",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/baseline-comparison.json": "13059338464f5b35ec72230fe956a513a7d7839d81d5635e3ebaf0ba04a477a2",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/final-contract-snapshot.json": "3251bd625fe725053f193e9164492d20127d816e939f6200489aa120a80f5e30",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/final-readback-normalized.json": "919833653d70188be34807e973f3609206cc798c0f0a90a60c658415690ee4e2",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/final-readback-summary.json": "7de01c5dd5a739bbaba166e8defecbba6213838a58d8da33831f8c537330bdb3",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/local-validation-0.output.txt": "e4ee56f3250d47101a95eac1267698d1071c846d1cb1d33819dc14d9b45c9415",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/local-validation-1.output.txt": "73032be423b30bd59c28feffd8fd56e163569089363123385591bb1958f86432",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/local-validation-2.output.txt": "4a9c4af71e1c01aebc2f3ee8bec476b173bfbff48a657b84ee6366337927a69f",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/local-validation-command-results.json": "e2082ef2f8846f858e747e12862bead4641253fc870767205e37eaf1178e5ed2",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/management-sql-tool-response.json": "afcfd1588126697bbf7e71a6e42f0a90d04eb636ede398e3e509a25e0c52631c",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/management-tool-envelope.json": "360534681b7e461eeb8dda0ee8731ed169172bedcc2d9acd6fbc904f6dd5d8be",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/network-and-reference-inventory.json": "0562a7e0a3fbaa906abeeb8f369f49decea2bafa6891a86544e56d3609c7f46c",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/project-identity-final.json": "f43954175775cd354d51db42343eee8ea4dbebe0b29bce4950960bfa69be77ab",
+    "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-test-readback/source-association-final.json": "868f24f7c1efcb012cb800863bafd6338a332b6db4e32dff630e65249335109c",
+    "/Users/minxiang/.codex/worktrees/task054-final-completion/ClientMerchandiseControl/docs/contracts/client-backend-rpc-manifest.json": "9eadce2cfddbb894dc6e018a26d5ff152dc69b05dd1c6d9fee9c83f83a9585b8",
+    "/Users/minxiang/.codex/worktrees/task054-final-completion/ClientMerchandiseControl/scripts/check-backend-compatibility.py": "b42fc17b4ea16191c2602dfc845c993f6bc4e4cfb978f4615ca1f80c5e6b3d2c"
+  },
+  "integrated_review_approval": false,
+  "qualification_notes": [
+    "Review esclusivamente della fedelta delle evidence, non review integrata, test Auth/RLS runtime, apply o accettazione TLS.",
+    "Raw MCP normalizzato esattamente:32/57 RPC tutte32conformi,25assenti,1/2indici,history155 e4canoniche assenti: schema FAIL. Contratto identico al19:59 escluso timestamp.",
+    "59delta security =43assenze e16differenze rispetto al clone canonico; non59nuovi finding.12nuove relazioni assenti,2preesistenti RLS enabled/forced.",
+    "Quattro cron esatti rispetto ai precedenti metadati; nessuna finestra writer/cron attestata.",
+    "SQL MCP fulfilled/isError=false, PostgreSQL exitcode null. Gate locale --snapshot exit1 distinto dal validatore exit0. Parser iniziale FAIL conservato e corretto senza SQLretry registrato.",
+    "TLS exit2 verificato soltanto come valore/hash della capsula storica; nessun raw comando localizzato o nuovo gate eseguito. DNS/input aggiornati lasciano TLS BLOCKED; questa lane TLS NOT_RUN.",
+    "Management connector usa sessione autorizzata; nessuna credenziale Client letta/loggata. Auth/apply/distribuzione NOT_RUN.",
+    "Due letture locali del reviewer sono terminate exit1: nome abbreviato normalized.json inesistente e parser Python3.9 non compatibile con frazione timestamp4cifre. Corrette soltanto le letture/parsing locali; nessuna API/DB/suite eseguita, nessun processo pendente."
+  ],
+  "reviewed_at_utc": "2026-10-08T22:05:48.828036+00:00",
+  "reviewer_API_calls": 0,
+  "reviewer_database_connections": 0,
+  "reviewer_pending_processes": 0,
+  "reviewer_repository_mutations": 0,
+  "reviewer_suite_runs": 0,
+  "scope": "RAW_TO_CAPSULE_EVIDENCE_FIDELITY_ONLY",
+  "security_difference_groups": {
+    "different_address_column_acl": 14,
+    "different_private_helpers": 1,
+    "different_relations": 1,
+    "missing_address_column_acl": 9,
+    "missing_policies": 10,
+    "missing_private_helpers": 12,
+    "missing_relations": 12
+  },
+  "verdict": "APPROVED_READBACK_FIDELITY_ONLY"
+}

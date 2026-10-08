@@ -7,23 +7,23 @@
 - **Stato globale**: ACTIVE
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Stato task**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — CI nativa iOS e gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: completare il mandato operativo successivo
-  dell'8 ottobre, allegato `fdab4373`. Recovery v3 popolata e qualifica bundle
-  workerd sono PASS locali con review distinta; apply/deploy TEST restano
-  condizionati a TLS, accessi/configurazione e finestra DB/cron attestata.
-  Candidato composto dal checkpoint PR29 e7b194c, freeze applicativo f9a61d5:
-  due fix UX approvati,1049test Flutter PASS, fixture137 da verificare nativamente.
-  Preflight iOS misurato separato da backend/Worker; esperimento UUID dopo
-  timeout inventario globale, nessun target minimo o timeout aumentato.
-  Coordinamento W/N e risorse assegnate preservati; reviewer distinti prima
-  dell'integrazione. TASK-054 resta aperta; nessun TASK-055, DONE o production.
+- **Prossima azione autorizzata**: risolvere i prerequisiti concreti del registro
+  residui; re-review indipendente conclusa BLOCKED sul composto PR29
+  `f326faa`, CI37848510649 terminale con cinque job PASS e due runtimeiOS
+  FAILpreapp nel postboot inventory;0PNG/0OSiOS, cleanupPASSscoped.
+  Quality1064PASS+1SKIP,11benchmark; Android92fixture/137PNG+4OS e journal
+  restartPASS. Reviewpixel77delta APPROVED scoped,64immagini identiche riusate
+  con scope storico. Backendreadback21:58:32/57RPCconformi,25assenti,
+  quattrocanonicheassenti,1/2indici/history155. Recoverypopolata/workerdPASS
+  locali; apply/deployTEST non eseguiti per TLS/input/IPv6/finestraDBcron.
+  W/N e dispositivi preservati; nessun merge, DONE, TASK055 o production.
 
 ## Repository coinvolti
 
@@ -123,7 +123,7 @@
 | TASK-051 | Cart, checkout and payment journey completion | DONE | TASK-050, TASK-023, TASK-026, TASK-027, TASK-032 | Client, Admin, Supabase | Checkout e payment/recovery completi |
 | TASK-052 | Notification inbox and reorder | DONE | TASK-051, TASK-028, TASK-031 | Client, Admin, Supabase | Inbox persistente e riacquisto validato |
 | TASK-053 | After-sales, verified reviews and search assist | DONE | TASK-052 | Client, Admin, Supabase | Assistenza, recensioni verificate e ricerca assistita |
-| TASK-054 | Integrated staging E2E and closeout | ACTIVE | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
+| TASK-054 | Integrated staging E2E and closeout | BLOCKED | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
 
 ## Dipendenze e blocchi
 

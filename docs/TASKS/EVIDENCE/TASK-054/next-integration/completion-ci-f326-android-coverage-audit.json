@@ -1,0 +1,50 @@
+{
+  "schema": "task054.android-pixel-coverage-integrity-audit.v1",
+  "status": "PASS",
+  "scope": "RECEIPT_COVERAGE_INTEGRITY_ONLY; writer does not self-approve pixel",
+  "candidate": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "run_id": 37848510649,
+  "artifact_id": 11580674758,
+  "fresh_originals_visually_reviewed_by_distinct_reviewers": {
+    "Flutter": 73,
+    "OS": 4,
+    "total": 77,
+    "journal_badges_included": 8
+  },
+  "historical_provenance_based_reuse": {
+    "Flutter": 64,
+    "OS": 0,
+    "new_visual_inspection": false,
+    "retained_scope": "Historical scoped reviews and their limits are inherited; not globalVQA or new inspection of all141images."
+  },
+  "association_count": 141,
+  "missing": 0,
+  "duplicates": 0,
+  "SHA_matches": 141,
+  "new_added_or_removed_capture": 0,
+  "reviewer_outcomes": {
+    "primary": "APPROVED",
+    "secondary": "APPROVED"
+  },
+  "new_findings_in_inspected77": 0,
+  "artifact_provenance": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/artifact-provenance.json",
+  "artifact_provenance_sha256": "5d7c5470544ed1ded7e25a25239253e2771b4f68420407387a11158c5f9039a5",
+  "semantic_comparison": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/semantic-checksum-comparison.json",
+  "semantic_comparison_sha256": "2a1e95da7ec766266e285b4ecb609dc74310f92d313446ac6c908724f46a29b0",
+  "primary_proof": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/primary-pixel-observations.json",
+  "primary_proof_sha256": "adecd52c129d08eac3a61a683639d1d0951d44ed9abfa511fae5b7163b6c5210",
+  "secondary_proof": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/secondary-pixel-review.json",
+  "secondary_proof_sha256": "dbd6d1db8403c92b6a3010b604f1ca5ac1ed03a485ada7d71001bd933997c864",
+  "secondary_review_sha256": "64303b783b3c55e0e21c211b7cb48e4acbb25cb7efc95d8b1843d946eeda029c",
+  "remaining": {
+    "aggregate_distinct_reviewer_receipt": "PENDING",
+    "AUTH_TEST": "NOT_RUN",
+    "AT": "NOT_RUN",
+    "global_focus_IME_acceptance": "NOT_RUN",
+    "physical_profile": "NOT_RUN",
+    "iOS_pixel_after": "NOT_RUN"
+  },
+  "source_edits": false,
+  "own_commands_terminal": true,
+  "observed_at_utc": "2026-10-08T22:12:19.840401+00:00"
+}

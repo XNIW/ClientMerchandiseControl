@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "scope": "TASK054_INTEGRATED_REREVIEW_SOURCE_DOCS_EVIDENCE_FINAL",
+  "reviewer": "/root/final_audit",
+  "reviewRole": "CODEX_RE_REVIEWER",
+  "readOnly": true,
+  "createdAtUtc": "2026-10-08T22:26:36.329596+00:00",
+  "outcome": "BLOCKED",
+  "handoff": "CODEX_REVIEW_BLOCKED",
+  "candidate": {
+    "sourceHead": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+    "sourceFreeze": "d4a7e97ff4ef9f05b7932019e10813eddfd046de",
+    "applicationFreeze": "16e46817d9da5f4a5ce0fbca89137f2652f52b56",
+    "sourceManifestCount": 552,
+    "sourceManifestSha256": "c20c6b845e601956c0b5be9acf8abd54d3c03614cffb96d018b3a1ceed8d76b2",
+    "pr": "https://github.com/XNIW/ClientMerchandiseControl/pull/29",
+    "prState": "OPEN_DRAFT_NOT_MERGED",
+    "sourceWorktreeCleanAndTracking": true
+  },
+  "documentFreeze": {
+    "ownedStagedPaths": 55,
+    "jsonValid": 33,
+    "relativeLinkFilesChecked": 220,
+    "missingRelativeLinkFiles": 0,
+    "documentManifestSha256": "6da6fd8085774f543ea7dd2e9a36b737fdad698347208e0f8ede7ab25b9ee2a9",
+    "fullManifestProtectedReceipt": "final-review/independent-final-document-checks.json",
+    "requirementRows": 31,
+    "requirements": 30,
+    "R24Origins": 2,
+    "historicalE2ERows": 25,
+    "historicalE2EUnchangedAndBlocked": true,
+    "currentCATPairs": 6,
+    "state": "BLOCKED / REVIEW / CODEX_RE_REVIEWER / CODEX_FIX_BLOCKED_TO_RE_REVIEW"
+  },
+  "executedChecks": {
+    "independentDocumentChecks": 77,
+    "gitCommandsInDocumentCheck": 115,
+    "canonicalGovernance": {
+      "exitCode": 0,
+      "toolChunk": "81bf79"
+    },
+    "stagedDiffCheck": {
+      "exitCode": 0,
+      "toolChunk": "33bde9"
+    },
+    "independentReadOnlyGitHubCalls": 3,
+    "githubCallExitCodes": [
+      0,
+      0,
+      0
+    ],
+    "sourceAssociationChecks": 38,
+    "capsuleIntegrity": "47byteexact+1pixelprojection; initial206PASS/2FAIL preserved, recheck5PASS/0FAIL",
+    "reviewerProcessesTerminal": true,
+    "repositoryOrDeviceMutationsByReviewer": "NONE"
+  },
+  "ci": {
+    "id": 37848510649,
+    "attempt": 1,
+    "status": "COMPLETED",
+    "outcome": "FAIL",
+    "allJobsExactSourceHead": true,
+    "jobsPASS": 5,
+    "jobsFAIL": 2,
+    "failureBoundary": "Prepare postboot global inventory only; native app tests NOT_RUN on this freeze",
+    "Quality": "1064PASS+1intentionalLinuxgoldenSKIP;11benchmark; source/CI qualification only",
+    "Android": "92nativefixturePASS;137FlutterPNG+4OS acquired; journal twoPID/sameAPKUIDPASS, backendNOT_RUN",
+    "unsignedRelease": "Android/iOSPASS, neither signing nor distribution/installClient",
+    "iOS": "TwoPrepareFAIL124, bootPASS, cleanupPASSscoped;0FlutterPNG/0OS/0preview, no actualiOS14/Keychain/smoke/visual proof"
+  },
+  "scopedApprovalsPreserved": {
+    "source": "Prior distinctsource reviews and immutableassociation preserved, no sourcefinding opened by this association/doc review.",
+    "AndroidPixel": "APPROVED_ANDROID_PIXEL_DELTA_RUNTIME_FIXTURE:73Flutter+4OS actualfreshoriginals,64hashreuses historicalscope,8badgecasesresolved.",
+    "iOSPixel": "NOT_RUN; previewNOINPUT is not resampling/rendering/nativeQA.",
+    "backendRecovery": "APPROVED_LOCAL only;33cases54commands populatedledger/inverseguard, equivalentAuthparentsprerequisite.",
+    "Worker": "APPROVED_LOCAL runtime/package only; authenticatedHTTP/backend/deploy remainNOT_RUN."
+  },
+  "security": {
+    "fullDocumentationScan": {
+      "command": "CMC_SECURITY_REPO_ROOT=<operational-worktree> bash <f326-worktree>/scripts/check-client-security.sh",
+      "exitCode": 0,
+      "outcome": "PASS",
+      "trackedFiles": 1032,
+      "prohibitedItems": 0,
+      "toolChunk": "bbcba4",
+      "scannerSha256": "3f165fd4895f53acf24ee1ed79290e3b41e152a2c852ae49fddd0386ee506bc8",
+      "inputManifestSha256": "c573b17482470f1b1302ba28cf8c6047f6614a9a84b676ae74f7445a6d79bdec",
+      "observedAtUtc": "2026-10-08T22:21:57Z",
+      "qualification": "Final documentation branch; source candidate security separately covered by exact f326 CI. Follow-up editorial-only changes will receive scoped canonical scan."
+    },
+    "postReviewDeltaCanonicalScan": "NOT_RUN at this review snapshot; root must scan all changed/new documents and reviewcapsules against fullmanifest before final commit/handoff. Sourcef326 security separately PASS exactCI."
+  },
+  "closedEditorialFindings": [
+    {
+      "id": "DOC-FINAL-01",
+      "severity": "P3",
+      "state": "CLOSED",
+      "scope": "Tre testi di stato obsoleti R04/report, ultima entryworklog, riepilogoREADMEevidence",
+      "evidence": "Riallineati ai terminali e alla reviewAndroidAPPROVEDscoped; ciclo logico REVIEW→FIX→REVIEW esplicito; verifiche77PASS."
+    },
+    {
+      "id": "DOC-FINAL-02",
+      "severity": "P3",
+      "state": "CLOSED",
+      "scope": "Due capsule badgeJSON/MD rimaste al checkpoint prereview",
+      "evidence": "Ricopiate da fonti private finali; recheck5PASS di fonte/pubblico/stage byteidentici. Receipt206PASS/2FAIL iniziale preservata, nessun negativo cancellato."
+    }
+  ],
+  "openNewProductFindingsWithinExecutedReviewScope": [],
+  "blockers": [
+    {
+      "id": "NI054-25/38",
+      "requirements": [
+        "CA-C1/T-C1",
+        "CA-C2/T-C2",
+        "CA-C6/T-C6",
+        "R04",
+        "R30"
+      ],
+      "state": "BLOCKED",
+      "observedFailure": "Due job runtime iOS FAIL124 nel postboot global inventory dopo bootPASS. Keychain, smoke e visual sul freeze f326 non attraversati;0PNG/0OS/0preview verificati. CleanupPASS solo nel perimetro dei receipt.",
+      "owner": "QA iOS hosted / owner runner",
+      "prepared": "Trace monotonic, tre esperimenti CLI terminali, gate canonico e preview hash-bound; nessun appfix inferito o retry invariato.",
+      "nextAction": "Fornire un host supportato che completi Prepare e poi journal/smoke/visual sullo stesso freeze."
+    },
+    {
+      "id": "NI054-04",
+      "requirements": [
+        "CA-C3/T-C3",
+        "R01-R30 applicabili"
+      ],
+      "state": "BLOCKED",
+      "observedFailure": "Snapshot TEST21:58:32/57RPC presenti e conformi,25assenti,4canonicheassenti,1/2indici/history155; snapshotgateFAILexit1. Input readonlyTLS/passfile/trust/runnerIPv6 mancanti; nessuna nuova sessioneTLS/Auth nel readback finale. Quattro cron attivi e nessuna finestra esclusiva attestata.",
+      "owner": "Operatore TEST / root + W/N + owner cron",
+      "prepared": "Quattro canoniche hash-bound, recovery popolata33casi54comandi, inverseguard, serviceverify-full e runbook.",
+      "nextAction": "Collegare il pacchetto accesso protetto e runnerIPv6 approvato per eseguire il gateTLS; dopo PASS coordinare una nuova finestra writer/cron."
+    },
+    {
+      "id": "NI054-06",
+      "requirements": [
+        "R02",
+        "R03",
+        "R04",
+        "R08-R25 applicabili",
+        "A",
+        "B"
+      ],
+      "state": "BLOCKED",
+      "observedFailure": "Shop pilota, sessioni sintetiche A/B Client e callback/dominio verificati assenti. A/B integrati TESTNOT_RUN; SQLlocale, ManagementAPI e fixture non sostituiscono Clientautenticato.",
+      "owner": "Auth/shop owner",
+      "prepared": "Config pubblica parziale e manifest fixture in percorso protetto; una sola richiesta dei riferimenti già pendente.",
+      "nextAction": "Collegare i riferimenti autorizzati di shop/account/callback per completare la configurazione TEST e le sessioni reali."
+    },
+    {
+      "id": "NI054-09",
+      "requirements": [
+        "CA-C4/T-C4",
+        "R21",
+        "R22",
+        "B"
+      ],
+      "state": "BLOCKED",
+      "observedFailure": "WorkerTEST22:13 mantiene versione22107a6f al100%; candidato96758/artifacte1b2f30e non distribuito, deployNOT_RUN per backend/finestra.",
+      "owner": "Worker + W",
+      "prepared": "Runtimeworkerd9HTTPprobe, writerroute e readerInspector; packageesatto2012artifact/23binding, rollback disponibile. Readback49controlli di fedelta sanitizzata, digest binding non ricomputato autonomamente dal reviewer.",
+      "nextAction": "Dopo backendverde e finestra confermata, distribuire l artifact selettivo invariato e verificare versione/route TEST."
+    },
+    {
+      "id": "NI054-05",
+      "requirements": [
+        "R24-Android",
+        "R24-iOS",
+        "C"
+      ],
+      "state": "BLOCKED",
+      "observedFailure": "Due catene native IDs→ACK→Admin→ClientNOT_RUN. Installazione/lettura gestionale Android e checkpoint N non qualificano R24 o installazione Client.",
+      "owner": "N + Admin + Client",
+      "prepared": "Coordinamento e mappingID, origini separate, snapshotAndroid/iOS conservati senza attribuire SHA ai messaggi recenti non correlati.",
+      "nextAction": "Eseguire una catenaR24 per ciascuna origine disponibile con fixture pilota autorizzata e receipt correlate."
+    },
+    {
+      "id": "NI054-07/41/42",
+      "requirements": [
+        "R30",
+        "D"
+      ],
+      "state": "BLOCKED",
+      "observedFailure": "Android77delta approvati scoped e64riusi hash con limiti storici; iOS0PNG. Causa overflow24pxCI43NOT_VERIFIED. NessunaAT o acceptanceIME/focus globale.",
+      "owner": "QA visuale/accessibilita Client",
+      "prepared": "Badge16e e proiezioneharness232 approvati source; badge risolto negli8stati journalAndroid. Catture137invariate;77originali effettivamente ispezionati.",
+      "nextAction": "Dopo preflightiOSverde completare catture/reviewiOS e verificare le stesse attivita con TalkBack/VoiceOver sul dispositivo Client autorizzato."
+    },
+    {
+      "id": "NI054-27",
+      "requirements": [
+        "CA-C5/T-C5",
+        "E supplementare R18/R30"
+      ],
+      "state": "NOT_RUN",
+      "observedFailure": "Tap→destinazione/frame/memoria/cicli fisici non misurati.11benchmarkhost e500→5configurati/5→5costruiti/20→20richieste non sono performance su telefono.",
+      "owner": "QA performance / owner device",
+      "prepared": "Budget esistenti, dataset e baseline host a5campioni per stato.",
+      "nextAction": "Misurare gli stessi percorsi in profile sul dispositivo Client autorizzato con condizioni e dataset comparabili."
+    },
+    {
+      "id": "NI054-08 + provider",
+      "requirements": [
+        "R05",
+        "R17",
+        "R26",
+        "R27",
+        "R28",
+        "R29"
+      ],
+      "state": "BLOCKED",
+      "observedFailure": "Firma/canali/installClient e input provider autorizzati mancanti. Onlinepayment/push/mappe/OAuth/sensitivelinksOFF conservano requisiti; artifact unsigned non equivale a distribuzione.",
+      "owner": "Mobile release e owner dei provider",
+      "prepared": "Manifest operatorrefs e gate release, fallbackmanuale/testuale, payAtPickup/cashOnDelivery distinti dalla rete assente.",
+      "nextAction": "Collegare i pacchetti TEST approvati per la rispettiva firma/configurazione/provider e completare i gate reali."
+    }
+  ],
+  "additionalDataResidual": {
+    "scope": "Two notifications/eightmissingrefs; scopedmigration/recovery/list/markreadseparateRPC are not blocked in clone. MissingORDERdestination remains unavailable; dataownerdecision required.",
+    "prepared": "Originnamespace/harnessmechanism and localRPC diagnostics preserved; no inventedparent or remote automaticrepair.",
+    "owner": "DataownerTEST",
+    "nextAction": "Decidere repair delle sole fixtures orfane su snapshot hash-bound.",
+    "integrity": "FAIL",
+    "repair": "NOT_RUN"
+  },
+  "limits": [
+    "Nessuna nuova suiteapplicativa o backend query durante questa review documentale; riuso delle prove source/CI sulle revisioni attestate.",
+    "Review CI1584 e readback93/Worker49 sono approvazioni di fedelta, non accettazione integrata.",
+    "Il gate TLSfresh e AuthNOT_RUN; exit2 del precedente riepilogo non e stato riverificato dalla lane conclusiva.",
+    "Solo sourceassociation, documentintegrity e metadataGitHub hanno verifiche autonome qui; i pixel sono approvati da reviewer distinti, non dall autore/finalauditor.",
+    "Nessun PASS integrato A–E, E2E01–25 o R01–R30 dedotto da fixture/HTTP200/installunsigned/CI parziale.",
+    "Nessun merge/DONE/TASK055/production possibile con CI e gate reali mancanti."
+  ],
+  "protectedEvidenceHashes": {
+    "independent-final-document-checks.json": "41e3fa30b1ac9cd41c88340e1a3d12045b40423ae3d94cbc2160f29407d36a19",
+    "independent-ci-metadata.json": "3006e185431d5df6d197ba0a4c0426f6edd228a1a5225ab11e899c1a973aa536",
+    "independent-pr-metadata.json": "db0a895ac57e8a07543733e2645c2ff422bf7de0b216bdd6ae8ec2d5f99f6a63",
+    "integrity-subreview.json": "6f2ee84b51ef7d71ee252f314d7cba08883f21ad103613fd15397e38af7d1ad0",
+    "integrity-subreview-recheck.json": "1ebb363c2ac7a2dc54f693d00956ff7b593f26566ce2f71ef291bc5874fa0758",
+    "full-security-terminal.json": "9d58fed417a00acf5760e91bcc91128da203667e73099d989315c28d546ccb28",
+    "current-source/source-association-capsule.json": "13934eacddb6a03f22ef7efee8519d8a931e245bf43fdcc9848c8350b04667d9"
+  }
+}

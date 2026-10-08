@@ -1,7 +1,7 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
@@ -9,15 +9,44 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
+## Ultimo risultato — candidato f326faa
+
+CI37848510649 terminale5PASS/2FAILiOSpreapp. Quality1064PASS+1SKIP e11benchmark;
+Android92fixture/137PNG+4OS e journalrestartPASS; unsignedAndroid/iOSPASS.
+Reviewpixel77delta APPROVEDscoped,64riusi con limiti storici; badge risolto
+negli8stati journal. iOS0PNG/0OSverificati, Keychain/smoke/visualNOT_RUN.
+Backendreadback21:58 e Workerreadback22:13 confermano prerequisiti mancanti
+e nessunapply/deploy/installClient. [Rapporto](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md),
+[CI](next-integration/completion-ci-f326-assigned.json),
+[pixel](next-integration/completion-ci-f326-android-pixel-review.md),
+[iOS](next-integration/completion-ci-f326-ios.md).
+
+La [re-review integrata distinta](next-integration/completion-integrated-rereview.md)
+è conclusa BLOCKED:77 controlli autonomi PASS, rilievi editoriali chiusi,
+nessun nuovo finding prodotto nel perimetro eseguito. CI iOS, TEST autenticato,
+Worker aggiornato, R24 e distribuzione impediscono APPROVED/merge/DONE.
+
 ## Completamento successivo — 8 ottobre 2026
 
 Il [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md#completamento-successivo--8-ottobre-2026)
 e l'ultimo [overlay del registro unico](residuals.md#overlay-completamento-successivo--2026-10-08-mandato-fdab4373)
-prevalgono sui checkpoint storici. Il freeze applicativo f9a61d5 integra journal
+prevalgono sui checkpoint storici. Il checkpoint applicativo f9a61d5 integra journal
 illeggibile e assistenza missing/retry, entrambi APPROVED SOURCE_CODE_ONLY dopo
 regressioni RED. Nuova matrice host16casi PASS; fixture137 con sole24catture nuove.
-Suite globale finale1049PASS, formato e analyze PASS; 35/35gate locali PASS nella
-[capsula finale](next-integration/completion-final-gates.json). Native finale ancora in verifica, nessun PASS integrato dedotto.
+Suite globale al checkpoint5a40488:1049PASS, formato e analyze PASS; 35/35gate locali PASS nella
+[capsula finale](next-integration/completion-final-gates.json). CI43 terminale cinque job PASS, journal iOS prepareFAIL, smoke/visual job
+CANCELLED30min con smokePASS e visual91PASS/1FAIL; nuovaCI dopo i fix R30.
+Nuovo freeze applicativo16e4681; harness2327948 e preview7e→d4a7e97
+approvati separatamente. [Preview/budget](next-integration/completion-ios-preview-budget.md)
+e [review](next-integration/completion-ios-preview-budget-review.md).
+CI37848510649 del composto terminale5PASS/2FAILpreapp; nessun PASS integrato dedotto.
+
+[CI43 raccolta distinta](next-integration/completion-ci43-assigned.json),
+[checkpoint iOS](next-integration/completion-ci43-ios-checkpoint.md),
+[badge approvato](next-integration/completion-badge-source-review.md) e
+[fix harness approvato](next-integration/completion-viewport-source-review.md)
+conservano esiti e scope. NI054-41/42 restano nel registro unico; production
+reviews invariato e causa esatta24px iOS non dimostrata.
 
 [Recovery popolata](next-integration/completion-backend.json) e
 [review distinta](next-integration/completion-backend-review.md) PASS locale;

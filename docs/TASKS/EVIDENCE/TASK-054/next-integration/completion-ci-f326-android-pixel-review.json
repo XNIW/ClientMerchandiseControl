@@ -1,0 +1,208 @@
+{
+  "schema": "task054.android-pixel-delta-aggregate-review.v1",
+  "created_at_utc": "2026-10-08T22:14:05.601151+00:00",
+  "reviewer": "/root/client_ux/journal_source_review",
+  "secondary_reviewer": "/root/client_ux/existing_ux_checks",
+  "independent_from_writer": true,
+  "outcome": "APPROVED",
+  "scope": "ANDROID_PIXEL_DELTA/RUNTIME_FIXTURE",
+  "global_VQA": "NOT_RUN",
+  "task_final_approval": false,
+  "candidate": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "run_id": 37848510649,
+  "artifact_id": 11580674758,
+  "artifact_root": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ci-final/artifacts/artifact-11580674758/extracted",
+  "zip_sha256": "e4edfc5a074b5d5aec86824a287b1a8b010c90205509c5747c1abecbd39caf50",
+  "provided_source_association": {
+    "source_commit": "d4a7e97ff4ef9f05b7932019e10813eddfd046de",
+    "application_freeze": "16e46817d9da5f4a5ce0fbca89137f2652f52b56",
+    "authority": "Root handoff; questa lane verifica artifact exactHEAD, senza Git/source inspection."
+  },
+  "native_fixture_receipt": {
+    "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ci-final/artifacts/artifact-11580674758/extracted/android-visual-receipt.json",
+    "sha256": "5196e5d7617f22b85209e852c30bd7d6d1cc7510782c74f2884672198138d1c4",
+    "result": {
+      "evidence_level": "native_android_fixture",
+      "revision": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "capture_count": 137,
+      "api": 35,
+      "abi": "x86_64",
+      "exit_code": 0,
+      "failed_phase": null,
+      "emulator_before_cleanup": null,
+      "cleanup": "PASS"
+    }
+  },
+  "counts": {
+    "fresh_originals_visually_reviewed_now": 77,
+    "fresh_Flutter": 73,
+    "fresh_OS": 4,
+    "primary_originals": 37,
+    "secondary_originals": 40,
+    "unchanged_associations_reused_provenance_only": 64,
+    "integrity_associations_total": 141,
+    "integrity_Flutter": 137,
+    "integrity_OS": 4,
+    "added": 0,
+    "removed": 0,
+    "duplicates": 0,
+    "new_findings": 0,
+    "fresh_journal_badges": 8,
+    "old_failed_badge_originals_compared": 2,
+    "secondary_baseline_originals_compared": 15
+  },
+  "finding_resolution": {
+    "id": "V054-PIXEL-01",
+    "priority": "P3",
+    "result": "PASS",
+    "scope": "Android native fixture journal8 only",
+    "observation": "Predeterminada completa cona finale e spazio dal bordo in es-CL dark/light; confronto diretto2oldFAIL→2newPASS. Tutti8badge journal leggibili.",
+    "global_or_iOS_closure": false,
+    "baseline_comparison_proof": [
+      {
+        "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ci-non-runtime/artifact-11578401485/extracted/visual/63-address-journal-unavailable-compact200-es-CL-dark.png",
+        "sha256": "969b2c08d16ff1b8ebed251c7fe10632e9eda51e578149f7b656c28e34d9b3eb",
+        "directly_viewed": true,
+        "method": "view_image(detail=original)",
+        "observed_defect": "Etichetta Predeterminada sfumata/tagliata prima della a finale; nuova etichetta completa dentro il bordo.",
+        "historical_result": "FAIL",
+        "candidate_result": "PASS"
+      },
+      {
+        "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/ci-non-runtime/artifact-11578401485/extracted/visual/67-address-journal-unavailable-compact200-es-CL-light.png",
+        "sha256": "c22e29a7b53cdc5a6eac1ad58e8d6ee45d7769eea60f326dde15fc3ea4cb9764",
+        "directly_viewed": true,
+        "method": "view_image(detail=original)",
+        "observed_defect": "Etichetta Predeterminada sfumata/tagliata prima della a finale; nuova etichetta completa dentro il bordo.",
+        "historical_result": "FAIL",
+        "candidate_result": "PASS"
+      }
+    ]
+  },
+  "new_findings": [],
+  "proof_references": [
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/primary-pixel-observations.json",
+      "sha256": "adecd52c129d08eac3a61a683639d1d0951d44ed9abfa511fae5b7163b6c5210"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/secondary-pixel-review.json",
+      "sha256": "dbd6d1db8403c92b6a3010b604f1ca5ac1ed03a485ada7d71001bd933997c864"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/secondary-pixel-review.md",
+      "sha256": "64303b783b3c55e0e21c211b7cb48e4acbb25cb7efc95d8b1843d946eeda029c"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/baseline43-verified-index.json",
+      "sha256": "ac83347222278db81fa0ec9792ce7b683a3b9283076ff44556a12b1986800d25"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/semantic-checksum-comparison.json",
+      "sha256": "2a1e95da7ec766266e285b4ecb609dc74310f92d313446ac6c908724f46a29b0"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/reviewer-semantic-delta.json",
+      "sha256": "f38bcc4d8c8947a361cd7a54c804321ef667bdf84e30ebb140072c338d8ec329"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/artifact-provenance.json",
+      "sha256": "5d7c5470544ed1ded7e25a25239253e2771b4f68420407387a11158c5f9039a5"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/coverage-integrity-audit.json",
+      "sha256": "abfd95c9c8e9d909c955ea078cd8e96e75fa01c22b75f6db2d3db3dea990a591"
+    }
+  ],
+  "OS_lane": {
+    "originals_reviewed": 4,
+    "frame_probe_cleanup": "PASS",
+    "exactHEAD_and_frame_sha": "PASS",
+    "keyboard_visible_in_frames": 4,
+    "mInputShown_and_mIsInputViewShown": true,
+    "ime_acceptance": "NOT_RUN",
+    "focus_observations": "Search e review caret/handle visibili; nota linea focus; editorcampo/titolo solo parziali nel segmento scrollato. Nessuna acceptance focus inferita."
+  },
+  "font_assessment": {
+    "glyph_observation": "Latin/CJK leggibili, nessun tofu o taglio nei controlli visibili dei77delta; porzioni scorse dichiarate nei proof.",
+    "family_from_PNG": "NOT_VERIFIED",
+    "runtime_TASK054_REVIEW_GEOMETRY_log": "NOT_VERIFIED",
+    "reason": "Nessun log runtime exactHEAD usato per dedurre famiglia/font metriche o causalità; sole osservazioniPNG."
+  },
+  "inherited_reuse_limits": [
+    "Le64associazioni riusate derivano da review storiche campionate e di delta; uguaglianza SHA non trasforma tali campioni in VQA globale.",
+    "Nessuna nuova visione dei64frame byteidentici in questo ciclo; i limiti delle associazioni precedenti restano ereditati.",
+    "Non si dichiarano visione fresca di141frame, pixel QA globale o acceptance integrata.",
+    "Frame e fixture sintetiche non provano backend live, autenticazioneTEST, persistenza dopo kill/restart o completezza dei flussi.",
+    "Font è soltanto osservazione di glifi leggibili/no tofu/taglio nei controlli visibili; la famiglia non si deduce dallePNG.",
+    "Porzioni oltre il viewport e contenuto interno scrollato non sono attestati integralmente o raggiungibili dalla sola immagine.",
+    "Focus/caret/handle e tastiera sono osservazioni di pittura; non provano acceptance globale focus/IME o AT.",
+    "Nessuna misura strumentale di contrasto, target touch, performance o profilo fisico.",
+    "Nessuna attribuzione della precedente anomalia24px iOS da questi frame Android."
+  ],
+  "primary_limits": [
+    "Pixel review non equivale a touch-target, AT, autenticazioneTEST, IME acceptance o profilo fisico.",
+    "Focus/keyboard descritti soltanto per quanto effettivamente visibile nel frame.",
+    "Porzioni fuori dal viewport scrollato non attestano leggibilità simultanea dell’intero contenuto.",
+    "iOS separato:2job preapp FAIL,0PNG; nessuna acceptance iOS attribuita da Android."
+  ],
+  "secondary_limits": [
+    "Le osservazioni descrivono i pixel del dataset fixture Android; non dimostrano autenticazione, backend/staging, completezza dei flussi o interazione con i controlli.",
+    "Caret, handle e aspetto grigio sono osservazioni di pittura; questi frame Flutter non attestano tastiera/IME OS, focus effettivo o corretto comportamento async.",
+    "Nessuna attestazione TalkBack/VoiceOver, contrasto strumentale, target touch misurati, profiling o iOS.",
+    "Porzioni oltre viewport e testo interno scrollato sono descritte come tali; la raggiungibilità con scroll non è provata dalla singola immagine.",
+    "Titoli/label con ellissi e spezzature al 200% restano espliciti; non è dichiarata la visibilità integrale di tutti i testi.",
+    "Questa review non sostituisce la review degli altri frame, dei sorgenti o delle lane OS/runtime. Nessuna attribuzione causale alla precedente anomalia iOS.",
+    "Coordinate dei locator approssimative, ricavate dall osservazione della PNG 320x640; non sono misure di layout o dell IME."
+  ],
+  "remaining_lanes": [
+    {
+      "lane": "AUTH_TEST_live",
+      "result": "NOT_RUN",
+      "reason": "Fixture sintetiche, nessuna autenticazione o azione backend."
+    },
+    {
+      "lane": "AT_global_focus_IME_acceptance_physical_profile",
+      "result": "NOT_RUN",
+      "reason": "Nessuna interazione assistiva, acceptance di tastiera o dispositivo fisico in questa review."
+    },
+    {
+      "lane": "iOS_pixel_acceptance",
+      "result": "NOT_RUN",
+      "reason": "Lane distinta; root segnala2job preappFAIL/0PNG. Nessun giudizio iOS ricavato daAndroid."
+    },
+    {
+      "lane": "historical_iOS24px_causal_attribution",
+      "result": "NOT_RUN",
+      "verification": "NOT_VERIFIED",
+      "reason": "Nessuna misura/log iOS exactHEAD usata; raw397 sintetico e29px host non sono prova causale iOS."
+    }
+  ],
+  "operations": {
+    "source_or_Git_edits": false,
+    "tests_or_native_reruns": false,
+    "remote_calls_or_downloads": false,
+    "image_editing": false,
+    "all_own_processes_terminal": true,
+    "secondary_terminal_handoff_received": true
+  },
+  "permissions": {
+    "directory": "0700",
+    "files": "0600"
+  },
+  "publication_projection": {
+    "full_receipt_path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/android-after-fixes/native-pixel-review.json",
+    "full_receipt_sha256": "328ead4f6e6db8a404a7ff022b360fce61259ff1f648edadfbe9fdf34ac597de",
+    "omitted_arrays": {
+      "fresh_frame_associations": {
+        "count": 77,
+        "sha256_canonical_json": "4313332467ad91fdb20040d8fbfca1a0bdb98782f17cc2c0c3ceae76184a3344"
+      },
+      "provenance_only_reuse": {
+        "count": 64,
+        "sha256_canonical_json": "e864a22d95c9e56961ad995f50c01d9aa6061ddd6f924892eaa421d0f709a186"
+      }
+    },
+    "qualification": "Exact retained fields; full per-frame hashes/proofs protected offGit. This projection does not add review or globalVQA."
+  }
+}

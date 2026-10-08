@@ -192,12 +192,21 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Stato task**: BLOCKED
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
+
+Il candidato PR29 `f326faa` è draft; CI37848510649 terminale5PASS/2FAIL
+iOSpostbootinventory, prima dell'app. Android92fixture e137PNG+4OS; review
+mirata73Flutter+4OS senza nuovi finding,64riusi perhash con limiti storici.
+Il badge predefinito è corretto negli8stati journal; iOS0PNG e gate nativi
+NOT_RUN. Quality1064PASS+1SKIP,11benchmark; unsignedAndroid/iOSPASS.
+TEST21:58:32/57RPCconformi,25assenti,4migrationassenti,1/2indici/history155.
+Worker22:13 versione22107a6f invariata; nessunapply/deploy/installClient.
+Il rapporto sul branch evidence distingue tutti i livelli e i prerequisiti.
 
 TASK-054 è riaperto dal mandato del 2026-09-28 per audit funzionale e completamento
 nel perimetro di sviluppo. Le attestazioni di closeout seguenti sono storiche:

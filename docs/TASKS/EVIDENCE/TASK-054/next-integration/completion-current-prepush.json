@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "scope": "COMPOSED_PREPUSH_ONLY",
+  "sourceHead": "d4a7e97ff4ef9f05b7932019e10813eddfd046de",
+  "pushHead": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "applicationFreeze": "16e46817d9da5f4a5ce0fbca89137f2652f52b56",
+  "previousRemote": "43fd7afc806404e667573734b2c4b3b3ffe8cc29",
+  "runId": 37848510649,
+  "gates": [
+    {
+      "command": "git diff --cached --check",
+      "exitCode": 0,
+      "outcome": "PASS"
+    },
+    {
+      "command": "bash scripts/check-governance-state.sh",
+      "exitCode": 0,
+      "outcome": "PASS",
+      "output": "TASK-054 / ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX"
+    },
+    {
+      "command": "bash scripts/check-client-security.sh",
+      "exitCode": 0,
+      "outcome": "PASS",
+      "trackedFiles": 1024,
+      "prohibitedItems": 0,
+      "toolChunk": "ba2a22"
+    },
+    {
+      "command": "git fetch origin codex/task054-next-integration",
+      "exitCode": 0,
+      "outcome": "PASS",
+      "remoteObserved": "43fd7afc806404e667573734b2c4b3b3ffe8cc29"
+    },
+    {
+      "command": "git push origin HEAD:codex/task054-next-integration",
+      "exitCode": 0,
+      "outcome": "PASS",
+      "mode": "normal-fast-forward"
+    },
+    {
+      "command": "gh pr edit 29 --body-file <protected-body>",
+      "exitCode": 0,
+      "outcome": "PASS"
+    },
+    {
+      "command": "git status --short --branch",
+      "exitCode": 0,
+      "outcome": "PASS",
+      "worktree": "clean",
+      "tracking": "aligned"
+    }
+  ],
+  "invalidClaimsExcluded": [
+    "new native results",
+    "authenticated TEST",
+    "deploy",
+    "merge",
+    "distribution"
+  ],
+  "ownCommandsTerminal": true
+}

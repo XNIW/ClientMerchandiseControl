@@ -1,10 +1,10 @@
 # TASK-054 — Integrated staging E2E and closeout
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_REVIEW_BLOCKED
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -531,7 +531,7 @@ writer harness corregge barriera di rasterizzazione e reveal dopo reflow.
 Il secondo CI è terminale: Quality942/1skip e10benchmark PASS, Android/iOSrelease
 PASS, due debugFAIL. Le immagini parziali/source d9fc sono conservate senza
 ricostruzioni. BECI06 fix99b6f21 integrato9eec464, 37CI-like root PASS/exit0;
-re-review distinta in corso. Nessun processo root pendente, nessun nuovo push.
+review distinta APPROVED SOURCE_CODE_ONLY_HARNESS con32PASS autonomi. Nessun processo root pendente, nessun nuovo push.
 
 
 ### Fix composto NI054 — d9da3c5, 2026-10-05
@@ -990,3 +990,106 @@ CA→evidence e residui→owner/azione sono nell'overlay corrente del
 [rapporto](EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md) e
 [registro unico](EVIDENCE/TASK-054/residuals.md). E2E-01…25/R01–R30 conservati.
 Handoff finale dopo conclusione dei comandi e verifica distinta del candidato.
+
+
+## Fix emersi dalla CI43 — 2026-10-08, R30
+
+La CI37839967964 su43fd7af è terminale: cinque job PASS, journal iOS FAIL
+in preparazione, smoke/visual job CANCELLED al limite globale30min. Lo smoke
+nativo ha preflight/VM attach e un test PASS. La suite visuale registra91PASS
+ed un FAIL: campo recensione non hitTestable dopo apertura tastiera, prima
+della prima cattura di quel test; compare overflow24px con creatorchain
+DEFUNCT. Non si attribuisce il FAIL UI al budget né si inventa una causa app.
+Capsule separate e review della sola fedeltà delle evidence sono nel rapporto.
+
+NI054-41/P3 è un difetto visuale reale del badge indirizzo al200% in es-CL:
+dueRED/seiPASS prima, otto regressioni glifi/semantica e110account PASS dopo.
+Il fix9fe418a è integrato in16e4681, tre blob/patch-id identici. Review distinta
+APPROVED SOURCE_CODE_ONLY con59test autonomi; niente clamp, traduzioni o
+controller. La prima proposta DefaultTextStyle è respinta e preservata.
+
+NI054-42 è un difetto harness riprodotto: viewport centrata320×568 che eredita
+inset globali del parent400×900 sovrastima l'occlusione locale. Fixbf9be05
+proietta inset/padding/safezone sul rect effettivo; otto geometrie e18casi host
+mirati PASS, review distinta APPROVED SOURCE_CODE_ONLY_HARNESS con32PASS autonomi. Fullwindow conserva300/397 e
+occlusione totale568; nessuno spazio inventato. Il limite app con397 sintetico
+su finestra intera è un controfattuale FAIL, non una misura iOS o un finding
+app automaticamente qualificato. Productionreviews invariato. Diagnostica
+privacy-safe aggiunta al prossimo focus nativo, senza nuovi capture/skip/attese.
+
+Il nuovo candidato sarà verificato dalla CI esatta dopo le review; i35gate locali
+su5a40488 e i cinque job43 restano checkpoint, non una certificazione del codice
+successivo. Backend/Worker/configurazione e gate reali conservano gli stessi
+blocker esterni. Fase FIX e handoff CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.
+
+Preview/budget iOS7e7ecd2 integrato in d4a7e97 dopo review distinta
+APPROVED_SOURCE_CODE_ONLY (53test mirati+5PoC PASS). Artifact raw invariato,
+preview separata full-frame con hash/dimensioni; job35min misurato, timeout
+comandi invariati. NuovaCI del composto/pixel ancora NOT_RUN prima del push.
+Questo delta non corregge per inferenza il FAIL UI né qualifica TEST/live.
+
+### Matrice del completamento operativo — checkpoint prima dei terminali f326
+
+I risultati della CI37848510649 sono ancora in corso; questa matrice non
+assegna PASS nativi nuovi. I riferimenti indicano capsule e ambito effettivi.
+
+| CA / test | Risultato al checkpoint | Evidence / limite |
+|---|---|---|
+| CA-C1 / T-C1 | PASS source/recovery popolata locale; live BLOCKED | Journal/v3 e account preservati; recovery33casi54comandi con ledger popolato e inverseguard, review50controlli39comandi. Android43 restart locale; iOSf326 prepareFAIL, KeychainNOT_RUN. |
+| CA-C2 / T-C2 | PASS host/source; pixel finali NOT_RUN | Badge16e dopo2RED, review59PASS; helper232 review32PASS,137capture invariati. CI43 Androidpixel P3 conservato; nuovaCI in corso. |
+| CA-C3 / T-C3 | PASS recovery/package; FAIL schema/integrità; BLOCKED TLS/apply/live | Quattro canoniche hash-bound; TEST32/57RPC,1/2indici,history155 al19:59UTC. Service readonly preparato; passfile/trust/IPv6/window mancanti. Orphan non impediscono migration nel clone; repair distinto. |
+| CA-C4 / T-C4 | PASS runtime/packaging Worker locale; shared/R24 BLOCKED | Workerd9HTTPprobe e reader/writer invocati;2.012artifact esatti,23binding/rollback pronti. Worker remoto22107a6f non sostituito; due origini N e catene R24 separate NOT_RUN. |
+| CA-C5 / T-C5 | PASS benchmark host; profiling fisico NOT_RUN |11benchmark e500→5config/5→5build/20→20request acquisiti; nessun tap/frame/memoria fisico inferito. |
+| CA-C6 / T-C6 | PASS sourceassociation/gate checkpoint; nuovaCI in corso; integrata BLOCKED | Manifest552path e3cherry esatti,38reviewchecks;1049Mac/70race/35gate sucheckpoint5a, nuovi fix mirati approvati. CI f326 e reviewpixel finali devono terminare; auth/distribuzione ancora mancanti. |
+
+La matrice completa R01–R30 è nel rapporto corrente; R14 riguarda checkout
+kill/restart, distinto dal journal indirizzi A/R04/R25. I25E2Estorici conservano
+ID e statoBLOCKED, senza ricostruzione della provenance. Nessun criterio cambiato.
+
+## Handoff Fix finale — f326faa, 2026-10-08
+
+Source d4a7e97/appfreeze16e4681, PR29draftf326faa. Tutti7jobCIterminali:5PASS
+e2FAILiOSpreappinventory;0PNG/0OSiOSverificati, Keychain/smoke/visualNOT_RUN.
+Le capsule iOS e CI hanno review autonome della fedeltà APPROVED, non review
+integrata del prodotto. Nessunretryinvariato e nessunappfixinferito.
+
+| CA / test | Esito corrente | Evidence e limite |
+|---|---|---|
+| CA-C1 / T-C1 | PASS source/SQLlocale/Androidjournal; iOS/liveBLOCKED | Recoverypopolata33casi54comandi, inverseguard; AndroidPID4492→4604 stessoAPK/UID, backendNOT_RUN. |
+| CA-C2 / T-C2 | PASS host/Androiddelta scoped; iOS/ATNOT_RUN |73Flutter+4OSispezionati,64riusiperhashscope storico; badgecorretto8journal, sourcehelperreview32PASS. |
+| CA-C3 / T-C3 | FAIL schema/integrità; BLOCKED TLS/apply/live | Readback21:58:32/57conformi,25assenti,4canonicheassenti,1/2indici/history155; recoverypopolata/packagePASSlocali. |
+| CA-C4 / T-C4 | PASS workerd/package locale; shared/R24BLOCKED | Worker22:13:22107a6f100%/23bindinginvariati; candidato96758 nondeployed, duecateneR24NOT_RUN. |
+| CA-C5 / T-C5 | PASS11benchmarkhost; profilefisicoNOT_RUN | Inbox500→5config/5→5build/20→20request acquisiti; nessunframe/memoria/tapfisico. |
+| CA-C6 / T-C6 | PASS source/Quality/release/Androidscoped; integrataBLOCKED | Manifest552e3cherryesatti, Quality1064PASS+1SKIP; CI5PASS/2FAIL, gateiOSruntime e auth/distribuzione mancanti. |
+
+Source/fix conclusi nei perimetri approvati. Backend/Workerapply/configTEST
+e accettazione autentica non conclusi per dipendenze reali. Registro unico e
+rapporto contengono30ID, dueoriginiR24 e25E2EstoriciBLOCKED. NessunDONE,
+mergeClient, TASK055 oproduction. **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## Re-review integrata finale distinta — f326faa, 2026-10-08
+
+Il reviewer read-only distinto `/root/final_audit` assegna **BLOCKED**, con
+handoff `CODEX_REVIEW_BLOCKED`. Il coordinatore trascrive il verdetto senza
+approvare il proprio lavoro. Nessun nuovo finding di prodotto nei controlli
+eseguiti; rilievi editoriali chiusi dopo fix e verifica autonoma delle copie.
+
+Verifiche autonome:77 controlli PASS,115 comandi Git terminali exit0,
+55 file staged byte-identici,33 JSON validi,220 link relativi senza file
+mancanti;30 ID in31 righe, R24 distinto per origine e25 E2E storici preservati.
+GitHub readonly conferma PR29 OPEN/DRAFT e CI37848510649 sul freeze f326:
+cinque job PASS e due FAIL iOS prima dell'app;0 PNG/0 OS iOS verificati.
+
+Il badge è risolto nei frame Android verificati;73 Flutter e4 OS nuovi/delta
+sono ispezionati,64 byte-identici riusati con i limiti delle review storiche.
+Queste approvazioni scoped non sostituiscono iOS, Auth/live, AT o profiling.
+TEST32/57 RPC e quattro canoniche assenti mantengono FAIL schema; TLS,
+finestra DB/cron, sessioni/configurazione Client, Worker TEST aggiornato,
+R24 dalle due origini e distribuzione restano prerequisiti non soddisfatti.
+
+[Verbale distinto](EVIDENCE/TASK-054/next-integration/completion-integrated-rereview.md)
+e [capsula](EVIDENCE/TASK-054/next-integration/completion-integrated-rereview.json).
+Il gate security completo1032 file PASS precede i delta editoriali finali;
+ricevute dello scan canonico ristretto, governance, link e hygiene finali nel
+percorso protetto `task054-completion-20261008/final-review/`.
+TASK-054 resta BLOCKED/REVIEW. Nessun merge, DONE o attivazione TASK-055.

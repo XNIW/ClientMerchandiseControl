@@ -1,0 +1,157 @@
+{
+  "schema": "task054-completion-final-gates-v1",
+  "scope": "Qualifica locale sorgente, fixture e Flutter host; non accettazione nativa o autenticata TEST.",
+  "status": "PASS",
+  "gate_counts": {
+    "applicable_local": 35,
+    "PASS": 35,
+    "FAIL": 0,
+    "BLOCKED": 0,
+    "NOT_RUN": 0
+  },
+  "tested_head": "5a40488473a5f4041c72e1ce05682e9328b070ed",
+  "head_at_consolidation": "5a40488473a5f4041c72e1ce05682e9328b070ed",
+  "application_freeze": "f9a61d59a1cccd95f1b7e9ba09f696ecf51c30f6",
+  "application_freeze_paths": [
+    "lib",
+    "assets",
+    "android",
+    "ios",
+    "pubspec.yaml",
+    "pubspec.lock"
+  ],
+  "application_freeze_diff_empty": true,
+  "toolchain": {
+    "resolver": "scripts/resolve-flutter.sh",
+    "flutter": "3.44.8",
+    "flutter_revision": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+    "dart": "3.12.2",
+    "python": "3.9.6",
+    "note": "I comandi Flutter/Dart hanno sourced il resolver prima di ogni gate."
+  },
+  "source_integrity": {
+    "tracked_non_docs_paths": 547,
+    "manifest_sha256": "6ff14e3620447e9c7bcf4de80cbc081f2c800a04cc7f86d3450340549aab8f81",
+    "manifest_encoding": "UTF-8, path NUL sha256 LF; paths sorted lexicographically",
+    "before_after_and_final_identical": true,
+    "pubspec_lock_sha256": "360f0222bb529970e33dd5d83e52a0a7313e3323044095626156cd009b42a75e",
+    "code_scripts_and_index_modified_by_lane": false,
+    "concurrent_changes_preserved": "README.md e docs/* del writer /root"
+  },
+  "test_counts": {
+    "flutter_without_performance": 1049,
+    "python_unittest": 186,
+    "dart_os_sync_regressions": 14,
+    "resilience_repeats": 5,
+    "resilience_races_per_repeat": 14,
+    "resilience_total": 70,
+    "performance": 11,
+    "security_fixtures": 68,
+    "localization_fixtures": 2,
+    "governance_fixtures": 101,
+    "architecture_negative_fixtures": 17,
+    "shell_files_parsed": 26
+  },
+  "coverage": {
+    "lines_found": 23214,
+    "lines_hit": 17970,
+    "line_percent": 77.41,
+    "lcov_sha256": "027ff1a812ca9f88284a0813658d961a985c109881aa77325fbf6d4478866306",
+    "scope": "Flutter host/widget coverage"
+  },
+  "checks": [
+    {"gate":"pubget-enforce-lock","command":"flutter pub get --enforce-lockfile","exit_code":0,"duration_seconds":2.614,"log":"pubget.log","log_sha256":"506d96d13ac83603e1ba5c1c650bf07aa9760d63ebaf7240aa5d121fcef7d7ae"},
+    {"gate":"check-backend-compatibility","command":"python3 scripts/check-backend-compatibility.py --source-only","exit_code":0,"duration_seconds":0.099,"log":"source/python/01-check-backend-compatibility.log","log_sha256":"62f6d2f82f74764e4add1cf1291a0cf9b47d94a7678ff7535c2f7efade89405a"},
+    {"gate":"test-backend-compatibility","command":"python3 scripts/test-backend-compatibility.py","exit_code":0,"duration_seconds":0.114,"log":"source/python/02-test-backend-compatibility.log","log_sha256":"70470e06cbcc6e6bd0a68cf09ffea2a61918b758954943bb7af62135d9c7b44f","test_count":13},
+    {"gate":"test-auth-entitlements","command":"python3 scripts/test-auth-entitlements.py","exit_code":0,"duration_seconds":0.197,"log":"source/python/03-test-auth-entitlements.log","log_sha256":"4e6d45692ed1a035ad0ae66736d0f5aef7dfcf6425438ad113a7ef007707b9f4","test_count":4},
+    {"gate":"test-task054-visual-runner","command":"python3 scripts/test-task054-visual-runner.py","exit_code":0,"duration_seconds":0.095,"log":"source/python/04-test-task054-visual-runner.log","log_sha256":"0d11d232af0b7a8b7872fdc2ed8022afdf5f06df57137abc5427fffd6b70cef8","test_count":14},
+    {"gate":"test-task054-android-runner","command":"python3 scripts/test-task054-android-runner.py","exit_code":0,"duration_seconds":15.368,"log":"source/python/05-test-task054-android-runner.log","log_sha256":"79e4c9cb06b3964cf397d7a1aa1c8408d368e39e03954fa84babbd52f326e7a7","test_count":27},
+    {"gate":"test-address-journal-android","command":"python3 scripts/test-address-journal-android.py","exit_code":0,"duration_seconds":0.284,"log":"source/python/06-test-address-journal-android.log","log_sha256":"d79659ef5c83e1a50f209110fbddd32dad87b1f4449e0a4cd637cb12b0ab6781","test_count":13},
+    {"gate":"test-address-journal-ios","command":"python3 scripts/test-address-journal-ios.py","exit_code":0,"duration_seconds":0.13,"log":"source/python/07-test-address-journal-ios.log","log_sha256":"bd22d98bd93fb5d1dc51b09d988ec965284fa9c8a951f54b4039c2157d0a9b23","test_count":21},
+    {"gate":"test-task054-os-frame","command":"python3 scripts/test-task054-os-frame.py","exit_code":0,"duration_seconds":0.165,"log":"source/python/08-test-task054-os-frame.log","log_sha256":"2e549d8b85ee9f07853d5dc522a8fc8aa1d7ddd5e4f140689f96dfd42f8f4c61","test_count":31},
+    {"gate":"test-task054-owned-process","command":"python3 scripts/test-task054-owned-process.py","exit_code":0,"duration_seconds":31.866,"log":"source/python/09-test-task054-owned-process.log","log_sha256":"af60635c8256b651dca857380573d165ee2f3306072e8f35749785ad785d79c4","test_count":6},
+    {"gate":"test-task054-ios-owned","command":"python3 scripts/test-task054-ios-owned.py","exit_code":0,"duration_seconds":47.875,"log":"source/python/10-test-task054-ios-owned.log","log_sha256":"6cac1ddc29d6df4c5a3cdede51ca94cc084e9a61513df66586721f3a565c400e","test_count":47},
+    {"gate":"test-ios-process-trace","command":"python3 scripts/test-ios-process-trace.py","exit_code":0,"duration_seconds":0.39,"log":"source/python/11-test-ios-process-trace.log","log_sha256":"60edc1642bc553a74493a5c86c8b549d2b54d4c1316c73371f77e066e2776ca0","test_count":10},
+    {"gate":"dart-os-sync","command":"dart scripts/test-task054-os-sync.dart","exit_code":0,"duration_seconds":0.611,"log":"dart-os-sync.log","log_sha256":"fe8781a3d9bb228f105dcadc7331340e6ba19cd898033782a840e1b7648ef3ba","test_count":14},
+    {"gate":"01-shell-syntax","command":"bash -n scripts/*.sh (each of 26 files separately)","exit_code":0,"duration_seconds":0.116,"log":"source/shell/01-shell-syntax.log","log_sha256":"e0053ce00fc60c6b0e340fbda0cd613b8c076f69287f3d9163244ecc2766c407","test_count":26},
+    {"gate":"02-action-pins","command":"bash scripts/check-action-pins.sh","exit_code":0,"duration_seconds":0.02,"log":"source/shell/02-action-pins.log","log_sha256":"528c56a006b77baa260244882fc5b05e65405fffecc19ded2f1c4a38c61cf552"},
+    {"gate":"03-client-security","command":"bash scripts/check-client-security.sh","exit_code":0,"duration_seconds":47.506,"log":"source/shell/03-client-security.log","log_sha256":"8f474b727d3b0b000131756c7dbbe186d0e6252806cae27786ec5c670901b8f7"},
+    {"gate":"04-security-fixtures","command":"bash scripts/test-client-security-scan.sh","exit_code":0,"duration_seconds":105.134,"log":"source/shell/04-security-fixtures.log","log_sha256":"e6aaba7aee3e1e26c97f4fccd7f3440d416f73fdff9a4e8db4278d47a01a0c53","test_count":68},
+    {"gate":"05-telemetry-privacy","command":"bash scripts/check-telemetry-privacy.sh","exit_code":0,"duration_seconds":0.131,"log":"source/shell/05-telemetry-privacy.log","log_sha256":"8dc5be66d3a66c21fb097b146ab7877431210e60354f0de45fac562ae23052d9"},
+    {"gate":"06-localization","command":"bash scripts/check-user-facing-localization.sh","exit_code":0,"duration_seconds":0.048,"log":"source/shell/06-localization.log","log_sha256":"3327d2169a76cf880d2cf28a6be01c3a7570273b2468a83e9627240da6e1717f"},
+    {"gate":"07-localization-fixtures","command":"bash scripts/test-user-facing-localization-scan.sh","exit_code":0,"duration_seconds":0.1,"log":"source/shell/07-localization-fixtures.log","log_sha256":"c02b83ac0cdafcd8d888ddc8dfed2b7879e94de999fea7e7765e9b7b293393eb","test_count":2},
+    {"gate":"09-governance-fixtures","command":"bash scripts/test-governance-release-train.sh","exit_code":0,"duration_seconds":74.299,"log":"source/shell/09-governance-fixtures.log","log_sha256":"b29da57197cf36f45139d94db665391d15ed1a49f931db5dda674931480a5dc6","test_count":101},
+    {"gate":"12-diff-worktree","command":"git diff --check","exit_code":0,"duration_seconds":0.024,"log":"source/shell/12-diff-worktree.log","log_sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    {"gate":"13-diff-index","command":"git diff --cached --check","exit_code":0,"duration_seconds":0.015,"log":"source/shell/13-diff-index.log","log_sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    {"gate":"15-android-release-source","command":"bash scripts/check-android-release.sh --source-only","exit_code":0,"duration_seconds":0.053,"log":"source/shell/15-android-release-source.log","log_sha256":"99e0089acb2d8a0221bd4effbecf88d10b436601a55457708bba799100f0f8a5"},
+    {"gate":"16-ios-release-source","command":"bash scripts/check-ios-release.sh --source-only","exit_code":0,"duration_seconds":0.095,"log":"source/shell/16-ios-release-source.log","log_sha256":"245860d72153226ea773aa2c5c95bb7a40ae2b890db75a85a933665f8e0048ec"},
+    {"gate":"governance-state-after-heading-fix","command":"bash scripts/check-governance-state.sh","exit_code":0,"duration_seconds":0.18,"log":"governance-rerun.log","log_sha256":"96b4282341db88b3bde66b6e74f38905388d1445500d8e064203c8b0fc585569"},
+    {"gate":"check-release-metadata","command":"bash scripts/check-release-metadata.sh","exit_code":0,"duration_seconds":1.041,"log":"check-release-metadata.log","log_sha256":"20ecae46547ca28998d6d611520144a597412955e6721db66930576fc9f5a536"},
+    {"gate":"check-architecture-boundaries","command":"bash scripts/check-architecture-boundaries.sh","exit_code":0,"duration_seconds":10.641,"log":"check-architecture-boundaries.log","log_sha256":"2e7cd32664f8679801ecc28489e63f4a7194b4345633d6ea5f0fb2eb0e2411bb"},
+    {"gate":"test-architecture-boundaries","command":"bash scripts/test-architecture-boundaries.sh","exit_code":0,"duration_seconds":199.86,"log":"architecture-fixtures-final.log","log_sha256":"d9c739112e4f5dc4e07627879b7e3041946a9b8ea85ba163d7dc14f3a6c626ae","test_count":17},
+    {"gate":"gen-l10n","command":"flutter gen-l10n","exit_code":0,"duration_seconds":1.225,"log":"gen-l10n.log","log_sha256":"71da328334ee33818c5bda47930aa81f789ee062ca28f6020ab6f5761f3c5fae"},
+    {"gate":"dart-format","command":"dart format --output=none --set-exit-if-changed .","exit_code":0,"duration_seconds":2.315,"log":"dart-format.log","log_sha256":"9fbb008481bc64d16942b005e8631095b133c94e768264d2d678adcd59910b5a"},
+    {"gate":"flutter-analyze","command":"flutter analyze","exit_code":0,"duration_seconds":7.222,"log":"flutter-analyze.log","log_sha256":"48b2b6af507933f8f68527f4f30b7a1fe1b87bc3f3dab983c2126f82f0371cf4"},
+    {"gate":"flutter-test-coverage","command":"flutter test --coverage --exclude-tags performance","exit_code":0,"duration_seconds":104.87,"log":"flutter-test-coverage.log","log_sha256":"2e5164d0a645ea0ec5a918f6650af2a92323a6a9b7c33e35ec08c76e2d1fb2b5","test_count":1049},
+    {"gate":"resilience-repeat-five","command":"CMC_TASK034_REPEAT_COUNT=5 bash scripts/test-task034-resilience-repeat.sh","exit_code":0,"duration_seconds":37.156,"log":"resilience-repeat-five.log","log_sha256":"5d6ea8dbf1900578a4e04d2dd3ab78db0db42db64fef674a6b6deb7735e979f7","test_count":70},
+    {"gate":"performance-eleven","command":"flutter test --tags performance --concurrency=1","exit_code":0,"duration_seconds":83.28,"log":"performance-eleven.log","log_sha256":"a0d4f75c1309b24333f10e722fcbca81574757a08662248934da0fa06aeef4f7","test_count":11}
+  ],
+  "historical_attempts": [
+    {
+      "gate": "check-governance-state.sh",
+      "status": "FAIL",
+      "exit_code": 1,
+      "duration_seconds": 0.179,
+      "log_sha256": "6ac5c7e0677648d0447f8c8f94d87b49141a01406eea0b5113f4542e9662e0df",
+      "reason": "Ultimo heading globale del worklog privo di TASK-054.",
+      "resolution": "Writer corretto il solo heading; un solo rerun impattato PASS.",
+      "corrected_worklog_sha256": "496da6cf631cc78984aaf82c133bc873d6823d424d92b08bcfeebf21dae4d86f"
+    },
+    {
+      "gate": "test-architecture-boundaries.sh wrapper",
+      "status": "BLOCKED",
+      "kind": "HARNESS_TIMEOUT",
+      "wrapper_exit_code": 1,
+      "canonical_gate_exit_code": null,
+      "limit_seconds": 180,
+      "log_sha256": "17758fbc83d1c7927ef332544a5d25547f8fca2e0b2434a6718ac7299c880276",
+      "application_defect_reproduced": false,
+      "cleanup": "PASS",
+      "resolution": "Solo runner corretto a 900 s; unico retry canonico PASS in 199.860 s, 17/17 fixture."
+    }
+  ],
+  "separate_lanes": [
+    {
+      "lane": "Android APK build / JVM tests",
+      "status": "NOT_RUN",
+      "reason": "Delegati alla CI hosted; nessun build nativo locale richiesto."
+    },
+    {
+      "lane": "iOS simulator build",
+      "status": "NOT_RUN",
+      "reason": "Delegato alla CI hosted; Xcode locale 27 incompatibile."
+    },
+    {
+      "lane": "native runtime / visual QA / authenticated TEST",
+      "status": "NOT_RUN",
+      "reason": "Nessun dispositivo o login usato da questa corsia."
+    },
+    {
+      "lane": "backend compatibility live",
+      "status": "NOT_RUN",
+      "reason": "Nessun config autenticato fornito a questa corsia; source-only PASS non prova live."
+    }
+  ],
+  "execution": {
+    "started_at_utc": "2026-10-08T20:13:09.305176+00:00",
+    "finished_at_utc": "2026-10-08T20:26:46.012495+00:00",
+    "own_processes_terminal": true,
+    "architecture_retry_cleanup": "PASS",
+    "other_suites_repeated": false,
+    "canonical_check_sh_executed_whole": false,
+    "recipe": "Comandi locali applicabili di scripts/check.sh separati; indipendenti in parallelo, prerequisito pubget PASS."
+  },
+  "protected_evidence_root": "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-gates",
+  "raw_evidence_policy": "Log e ricevute complete fuori Git; directory 0700 e file 0600.",
+  "consolidated_at_utc": "2026-10-08T20:28:40.079873+00:00"
+}

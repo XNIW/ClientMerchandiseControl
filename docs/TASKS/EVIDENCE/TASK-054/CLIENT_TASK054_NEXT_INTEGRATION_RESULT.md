@@ -1,6 +1,179 @@
 # CLIENT_TASK054_NEXT_INTEGRATION_RESULT
 
-## Mandato operativo corrente — 8 ottobre 2026
+## Completamento successivo — 8 ottobre 2026
+
+Questo overlay prevale sui checkpoint conservati sotto. Il mandato utente
+`fdab4373-52ed-45a9-8ce7-07e6d9f4e7b8` autorizza apply, deploy TEST e merge
+ordinari quando i prerequisiti pertinenti sono soddisfatti. Non manca un consenso
+generico: mancano accesso operativo protetto, rete DB, identità/configurazione
+Client e finestra DB/cron. La preparazione e le attività indipendenti sono proseguite.
+
+Il candidato composto parte da PR29 `e7b194c`, conserva le prove pregresse e
+integra i due fix UX approvati separatamente: journal `b820f826` riprodotto in
+`2ea8fa1`, assistenza `26713a4` riprodotta in `f9a61d5`. Freeze applicativo
+`f9a61d5`; fixture SHA-256
+`18e3d20e1bbde38af14d1ba448f70256fbc09fc72b213c4b8410977b839ac658`.
+Il conteggio atteso passa da113 a137, con sole24 nuove catture: journal
+illeggibile, assistenza non disponibile e retry, quattro lingue e due temi.
+Il preflight misurato `1862dbd` e il controllo137 `4c3abf9` sono integrati in
+`ca90788` e `5a40488`. Le review approvano esclusivamente i perimetri indicati.
+
+### Risultati disponibili e limiti
+
+- Il codice consente di consultare le parti sicure dell'account anche quando
+  il journal non è leggibile. Sospende nuove creazioni e offre un recupero che
+  rilegge lo storage, senza cancellare dati. Tre regressioni RED precedono il fix;
+ 102 test account PASS, review distinta69 test autonomi PASS.
+- Il dettaglio assistenza non disponibile spiega lo stato senza dedurre che
+  l'utente abbia perso autorizzazione o che il dato sia stato eliminato. Offre
+  la lista; un errore transitorio offre retry reale. Due regressioni RED prima,
+ 30 test mirati PASS dopo, review distinta41 test autonomi PASS e tre PoC RED
+  sulla baseline. Le risposte tardive restano vincolate alla sessione.
+- La matrice host dei soli stati nuovi passa16 casi a320×568, testo200%,
+  quattro lingue e due temi. Non produce PNG native e non qualifica
+  TalkBack/VoiceOver o prestazioni su telefono.
+- Recovery v3 popolata PASS:33 casi,54 comandi, export/restore esatto di un
+  indirizzo e due intenti, inclusa tombstone; stesso intento/indirizzo, payload
+  incompatibile, altro owner e cancellazione verificati. Review distinta50
+  controlli/39 comandi APPROVED locale; rifiuto inverse specifico al ledger
+  popolato riprodotto, dati/schema/history invariati. Auth globale non è parte
+  della procedura: parent sintetici equivalenti già presenti sono prerequisito.
+- Worker esatto avviato in workerd, nove probe HTTP PASS. Writer Excel invocato
+  dalla route; reader incorporato invocato via Inspector su template sintetico,
+  quattro fogli. Riferimenti root Excel non usati dai caller `/node`, OTel
+  facoltativo ricade su null, helper sharp senza caller applicativo. Nessuna
+  patch speculativa. Packaging no-bundle byte-identico e23 binding preservati;
+ 2.012 artifact invariati. Review distinta APPROVED locale, non deploy/live.
+- Primo preflight iOS misurato: boot PASS; inventario globale postboot ancora
+  timeout nominale30s, leader vivo. Spawn7,146s, attesa30,172s,37,560s spawn→evento timeout; ps4,607s
+  end-to-end. TERM/reap e
+  cleanup processi/risorse PASS. I113s storici non sono riprodotti. L'app non è
+  avviata; nessuna conclusione su Keychain/schermate. L'esperimento successivo
+  circoscrive l'inventario all'UUID solo dopo verifica CLI, senza alzare timeout.
+
+Gate globali sul composto5a40488:35/35PASS,1049Flutter con coverage77,41%,
+70race in5ripetizioni e11benchmark, formato/analyze PASS. Source manifest547
+path invariato; appfreeze f9a61d5 byte-identico nei percorsi applicativi.
+Il wrapper architecture180s ha prodotto BLOCKED/124; la ricetta canonica
+invariata completa199,860s PASS con cleanup e nessun discendente. Un errore
+heading worklog produce FAIL iniziale, correzione documentale e gate PASS;
+nessuna suite applicativa ripetuta per questi delta.
+[Capsula35gate](next-integration/completion-final-gates.json) e
+[associazione distinta](next-integration/completion-source-association.md).
+
+### Stato TEST e distribuzione
+
+Il readback readonly Management API del2026-10-08 19:59:38UTC conferma
+**32/57 RPC conformi,25 assenti, quattro migrazioni assenti,1/2 indici,
+history155**. È FAIL schema distinto da TLS. Nessuna delle quattro canoniche
+è applicata al TEST. Nel clone finale57RPC/2indici/history159 PASS.
+Le quattro migrazioni sono byte-identiche alla fonte Admin `f16c5f4` e al
+merge `02ea44b9`; ordine/hash e rollback compatibile sono pronti.
+
+Il DB diretto ha solo AAAA e il Mac non ha IPv6 raggiungibile. È stato preparato
+il service `cmc_task054_test_readonly` con il ruolo esistente
+`supabase_read_only_user`, host verificato e `sslmode=verify-full`; passfile e
+trust approvati non sono disponibili. Il gate TLS eseguito termina exit2 BLOCKED.
+Questa preparazione aggiorna il dettaglio precedente del runbook, che non aveva
+ancora costruito il service. La finestra20:15–20:45UTC era proposta, mai
+confermata o riservata; nessun cron pausato e nessuna finestra inferita dall'orario.
+
+Il Worker TEST resta sulla versione
+`22107a6f-f515-44c4-8392-a8e5653ff0b8` al100%, deployment
+`f726de06-fb79-46f5-a1b3-1d35fdc9de69`. Candidato sorgente `96758b89`,
+manifest artifact `c905fde55da03cfc0dca100ee6c8313b0a689e41b1f65ad87c204eda4a208b64`,
+bundle `e1b2f30e3e1413e0404543cf2ddf21bb14157b9aa339121d8b3ba47d01542997`.
+Deploy NOT_RUN per readiness backend/finestra BLOCKED. Rollback precedente
+verificato disponibile. Mini auth/catalog mutations erano già true: piano e W
+preservano lo stato; nessuna nuova activation è dichiarata.
+
+Config Client e manifest fixture sono preparati fuori Git,0700/0600, con
+Supabase pubblico TEST coincidente col file Worker. Restano incompleti shop
+pilota, sessioni sintetiche A/B, dominio/callback verificati, firma e canali.
+Il file parziale non è usato per simulare una build autenticata. OAuth, sensitive
+links, provider indirizzi/mappe, pagamento online e push restano OFF, conservando
+i rispettivi requisiti. Inserimento manuale, payAtPickup e cashOnDelivery sono
+percorsi previsti; assenza di rete è uno stato distinto dal metodo di pagamento.
+Google services/plist, key.properties,14 riferimenti env di release e secrets,
+vars/environments GitHub approvati non risultano disponibili nell'inventario.
+Firma, upload, installazione Client TEST e relativo smoke NOT_RUN.
+
+### Requisiti, piattaforme e prova integrata
+
+R01–R30 ed E2E-01…25 conservano definizioni e ID. La tabella raggruppa gli ID
+con le stesse dipendenze; la matrice completa resta in
+[acceptance](acceptance-revision.md) e nel [registro unico](residuals.md).
+PASS codice/fixture non è PASS dell'intero requisito.
+
+| Requisito / percorso | Codice / prova locale | Configurazione TEST | Runtime Android / iOS | Integrata / esito |
+|---|---|---|---|---|
+| R01,07–13,15–16,20 / acquisto B | PASS contratti e suite acquisite; nessun delta pagamento | FAIL schema32/57; pilot/A/B BLOCKED | Fixture Android precedente PASS; nuova integrata NOT_RUN / iOS NOT_RUN | BLOCKED: UI→server→Admin→notifica e idempotenza reali non attraversati |
+| R03–04,14,25 / indirizzo A | PASS v3/journal e nuovo recupero illeggibile; recovery popolata locale PASS | Quattro migration e sessioni BLOCKED | Android restart precedente PASS locale; delta NOT_RUN / iOS NOT_RUN | BLOCKED: commit reale con risposta persa, nuovo processo e riconciliazione server |
+| R02,19,23 / accesso e link | PASS guard/PKCE/route locali; link sensibili OFF | Dominio/callback/A/B BLOCKED | Cold/warm TEST NOT_RUN su entrambe | BLOCKED: OAuth revoca/cambio account e link autorizzati |
+| R05–06,17,26 / delivery e mappe | PASS adapter/fallback/query race acquisiti | Provider/mappe OFF; manuale predisposto | Fixture Android acquisita PASS / iOS NOT_RUN | NOT_RUN provider live; manuale integrato BLOCKED da backend/account |
+| R18,21–22 / inbox, assistenza, recensioni B/D | PASS nuovi feedback/retry, owner fence e16 casi host | Backend/Worker TEST incompleti | Android113+4 precedente PASS;24 nuovi PNG NOT_RUN / iOS NOT_RUN | BLOCKED: transizioni Admin/live; nessuna deduzione dai due orphan |
+| R24 / catena C, origine Android | PASS sorgente N; nuovo APK gestionale installato | Pilot/backend/Worker BLOCKED | N riferisce sessione signedIn e lettura locale durante update; catena NOT_RUN | NOT_RUN sourceProductId→ACK→publicationId→immagini→Client |
+| R24 / catena C, origine iOS | PASS build N; CI PR21 con due UI FAIL | Pilot/backend/Worker BLOCKED | Candidato preparato non installato; N diagnostica PR21 | NOT_RUN, separata dall'origine Android |
+| R27–28 / provider online e push | Gate/fallback acquisiti; integrazione provider non qualificata; nessuna nuova activation | OFF; sandbox/FCM/APNs e canale mancanti | NOT_RUN su entrambe | NOT_RUN; requisito conservato, owner provider/release |
+| R29 / artifact e distribuzione | PASS preparazione riferimenti; candidato nuovo non distribuito | Firma/canale/callback BLOCKED | Firma/upload/install Client NOT_RUN su entrambe | BLOCKED, install gestionale N distinta |
+| R30 / UX D e profiling E | PASS16 host200%; inbox500→5config,5→5build,20→20request acquisito | Dataset/sessioni fisici BLOCKED | Android delta/assistive/profile NOT_RUN / iOS preflight FAIL prima app | BLOCKED composito; nessuna misura host promossa a frame time fisico |
+
+### Coordinamento e azioni residue pronte
+
+W conserva i suoi cinque staged e sei documenti Mini; la lane Worker isolata è
+l'unico writer autorizzato del candidato. N conserva dispositivi, input e repository
+nativi: nessun uso dei dispositivi da questa lane. Android N main `9d5c270b`,
+APK installato con dati preservati; sessione connessa e lettura locale durante
+update osservate da N. I quattro eventi storici ACK12446–12449 non sono una
+nuova prova R24. iOS N PR21 `3212799e`:1524 unit PASS/36 skip,14 UI PASS/2
+FAIL, causa in diagnosi; nuovo candidato Proper preparato separatamente.
+La sincronizzazione ordinaria di N non equivale a stop globale degli writer.
+
+| Residuo / owner | Causa e dipendenza concreta | Lavoro pronto | Singola azione necessaria |
+|---|---|---|---|
+| NI054-04 / backend + operatore TEST | DB AAAA, host corrente IPv4; passfile/trust/apply access assenti | Quattro canoniche hash-bound, recovery popolata, service readonly e runbook | Fornire percorso pacchetto accesso protetto e runner IPv6 approvato; poi concordare finestra reale con W/N/cron |
+| NI054-06 / Auth/shop owner | Shop pilota e sessioni A/B Client non disponibili, callback non verificata | Config pubblica parziale, fixture namespace e campi validati | Indicare i riferimenti approvati del pilota/account/dominio; completare validazione e callback sul canale TEST |
+| NI054-08 / mobile release | Firma/canale/artifact config finale assenti | Manifest riferimenti, parser e release gate esistenti | Collegare pacchetto release TEST approvato per build→firma→upload→install→smoke |
+| NI054-09 / Worker + W | Backend non aggiornato e finestra non confermata | Bundle workerd qualificato, multipart esatto,23 binding e rollback pronti | Dopo backend verde, confermare finestra e distribuire l'artifact selettivo invariato |
+| NI054-05 / N + Admin + Client | Due origini native e config integrata non qualificate | Mapping IDs e coordinamento N, Android installato; diagnosi CI iOS aperta | Eseguire una catena R24 per origine con fixture pilota autorizzata e ricevute correlate |
+| NI054-25/38 / QA iOS hosted | Inventario globale postboot timeout riprodotto, app non avviata | Trace monotonic e controllo ownership/cleanup; ipotesi scoped UUID | Eseguire esperimento circoscritto revisionato; solo al PASS proseguire journal/smoke/visual |
+| NI054-07/R30 / QA accessibilità e performance | Nessuna sessione/device fisico Client autorizzato | Harness nuovi24 stati, budget e benchmark host acquisiti | Esercitare le stesse attività su device Client disponibile con assistive technology e profiling |
+| R05/17/26/27/28 / owner provider | Provider OFF e input sandbox/push/mappe non approvati | Fallback manuale/testuale e metodi previsti coerenti | Collegare configurazione/provider autorizzati per la relativa prova live |
+| Orphan notifiche / data owner TEST | Due righe/otto riferimenti; namespace harness verificato, origine run non attestata | Diagnosi locale lista/mark-read/replay PASS e missing destination not_found; proposta scoped cleanup | Decidere repair delle sole fixture orfane su snapshot hash-bound; nessuna riparazione automatica |
+
+Il percorso inbox ORDER mancante è stato verificato readonly: mostra not_found
+distinto da unauthorized, retry e Back verso inbox/storico. I nove sorgenti/test
+sono invariati; nessun nuovo difetto riprodotto. Il fix after-sales non qualifica
+le due notifiche ORDER remote.
+[Receipt ordine](next-integration/completion-order-orphan-ui-readonly.json).
+
+I pacchetti operativi persistenti sono fuori Git in
+`/Users/minxiang/.codex/outputs/task054-completion-20261008/`:
+`backend/canonical-package/manifest.json` fissa i quattro byte,
+`worker/relocated-commands.json` contiene i comandi deploy/rollback rilocati,
+`operator-reference-manifest.prepared.json` elenca i soli riferimenti richiesti,
+`pg_service.test.conf` contiene il servizio readonly preparato.
+Permessi directory0700/file0600; nessun valore sensibile è nei documenti.
+
+Una sola richiesta all'utente sui percorsi protetti mancanti è pendente, dopo
+inventari locali/GitHub e coordinamento W. Nessuna credenziale richiesta in chat.
+Le capsule seguenti conservano comandi, exit, hash e limiti; raw/protected config,
+DB export e artifact restano fuori Git:
+[backend](next-integration/completion-backend.json),
+[rollback/apply](next-integration/completion-backend-runbook.md),
+[review recovery](next-integration/completion-backend-review.md),
+[notifiche](next-integration/completion-notification-diagnostic.md),
+[Worker](next-integration/completion-worker.md),
+[review Worker](next-integration/completion-worker-review.json),
+[Client UX](next-integration/completion-client-ux.json),
+[review journal](next-integration/completion-journal-source-review.md),
+[review assistenza](next-integration/completion-after-sales-source-review.md),
+[config](next-integration/completion-config-preparation-receipt.json),
+[service readonly](next-integration/completion-pgservice-preparation.json),
+[release](next-integration/completion-distribution-reference-receipt.json),
+[coordinamento](next-integration/completion-coordination-completion-receipt.json).
+
+## Checkpoint storico precedente — 8 ottobre 2026, PR29 e7b194c
 
 Stato BLOCKED/REVIEW, handoff CODEX_REVIEW_BLOCKED.
 Freeze sorgente `bb53892393710d3ed6d2574053fe1206561b87f0`,

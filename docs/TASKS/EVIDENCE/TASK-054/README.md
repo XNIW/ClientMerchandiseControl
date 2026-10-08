@@ -1,13 +1,34 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
 Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
+
+## Completamento successivo — 8 ottobre 2026
+
+Il [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md#completamento-successivo--8-ottobre-2026)
+e l'ultimo [overlay del registro unico](residuals.md#overlay-completamento-successivo--2026-10-08-mandato-fdab4373)
+prevalgono sui checkpoint storici. Il freeze applicativo f9a61d5 integra journal
+illeggibile e assistenza missing/retry, entrambi APPROVED SOURCE_CODE_ONLY dopo
+regressioni RED. Nuova matrice host16casi PASS; fixture137 con sole24catture nuove.
+Suite globale finale1049PASS, formato e analyze PASS; 35/35gate locali PASS nella
+[capsula finale](next-integration/completion-final-gates.json). Native finale ancora in verifica, nessun PASS integrato dedotto.
+
+[Recovery popolata](next-integration/completion-backend.json) e
+[review distinta](next-integration/completion-backend-review.md) PASS locale;
+readback TEST32/57RPC conformi,25assenti,quattro migration assenti,1/2indici,
+history155. Service verify-full preparato dal coordinatore; TLS BLOCKED per
+accesso protetto/trust/runner IPv6. Apply NOT_RUN, nessun cron pausato.
+[Worker](next-integration/completion-worker.md) esatto qualificato in workerd e
+packaging no-bundle PASS, review distinta APPROVED locale; versione TEST22107a6f
+invariata, deploy NOT_RUN per backend/finestra. Config/fixture Client parziali
+preparate fuori Git; pilot/account/callback/firma/canali assenti. Una sola richiesta
+sui riferimenti protetti è pendente. R01–R30 e25E2E conservano ID e prove mancanti.
 
 ## Gate journal iOS aggiuntivo — 8 ottobre 2026
 
@@ -17,9 +38,9 @@ SOURCE_CODE_ONLY con 21 test e otto PoC e nove hash associati a e7b194c.
 Il runtime journal resta NOT_RUN: nella CI hosted la preparazione fallisce
 dopo il boot, prima della fixture; nessun difetto Keychain dedotto.
 
-## Mandato operativo corrente — 8 ottobre 2026
+## Checkpoint precedente — 8 ottobre 2026, PR29 e7b194c
 
-Il [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md#mandato-operativo-corrente--8-ottobre-2026)
+Il [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md#checkpoint-storico-precedente--8-ottobre-2026-pr29-e7b194c)
  e il [registro unico](residuals.md#overlay-completamento-operativo--2026-10-08)
  governano il candidato operativo. La [review sorgente distinta](next-integration/client-source-review-20261008.md)
  è APPROVED SOURCE_CODE_ONLY su bb538923 dopo re-review dei contratti;

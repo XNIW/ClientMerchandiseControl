@@ -1,0 +1,14 @@
+# TASK-054 — associazione finale sorgenti e capsule
+
+Esito **APPROVED — SOURCE_ASSOCIATION_AND_CAPSULE_SCOPE_ONLY** su `5a40488473a5f4041c72e1ce05682e9328b070ed`, freeze applicativo `f9a61d5`. Nessun finding nel perimetro verificato. Esito integrato **BLOCKED**: TLS/configurazione Client/runtime autenticato, preflight iOS e gate finali non sono qualificati da questa review.
+
+- `2ea8fa1` ↔ `b820f826` e `f9a61d5` ↔ `26713a4`: patch complete identiche e ogni file importato byte-identico alla revisione approvata. Le due receipt review copiate sono identiche agli originali e ai digest dichiarati.
+- I 19 SHA-256 di `completion-client-ux.json` coincidono con HEAD e worktree; gli otto blob dei confini invariati coincidono con la baseline. Il controllo distinto dei nove file ORDER/inbox coincide con baseline, candidata e receipt.
+- 93 controlli PASS e 126 comandi Git exit0 nella receipt `association.json`; nessuna suite completa ripetuta, nessun file del repository modificato. Il controllo mirato indipendente iOS aggiunge 43 comandi exit0 e 10 regressioni Python PASS, senza Simulator: `ca90788` ↔ `1862dbd` e `5a40488` ↔ `4c3abf9`, nove file byte-identici. Albero `ios/` invariato e minimo14.0 conservato.
+- Snapshot di 19 capsule `completion-*`, JSON validi, digest registrati. Lettura manuale e scansione di pattern non rilevano credenziali privilegiate, token, chiavi private o dati cliente. Le capsule contengono riferimenti protetti e hash, non valori di autenticazione. Il controllo di pattern non è una garanzia contro ogni possibile codifica di secret.
+- Rapporto e residuals distinguono clone SQL da sessione Client, workerd locale da deploy, matrice widget host da catture native e installazione gestionale N da catena R24. Lo schema remoto32/57 resta FAIL, TLS BLOCKED e apply/deploy live NOT_RUN. Il service readonly preparato successivamente è esplicitamente distinto dal vecchio stato del runbook; la finestra è solo proposta.
+- Le due righe orphan ORDER restano un problema di integrità remoto. La diagnosi locale di lista/mark-read/replay e il `not_found` ORDER non sono attribuiti al fix after-sales. Il tap inbox ORDER apre immediatamente la route separatamente dall'ACK; `not_found`, retry e Back sono presenti nei sorgenti invariati. Il nuovo caso after-sales mostra un feedback neutro e offre lista/retry. Nessuna di queste letture statiche equivale a traversata Client autenticata delle notifiche remote.
+
+I documenti sono ancora in lavorazione: i digest in receipt identificano lo snapshot letto, non un'approvazione anticipata di aggiornamenti futuri o di CI. `6b5a34e` è esterno alla candidata verificata. Re-review documentale finale prevista dopo il freeze iOS e i risultati dei gate finali.
+
+Nessuna scrittura TEST, deploy, merge, uso di dispositivi N o modifica di implementazione. Tutti i comandi propri sono terminali.

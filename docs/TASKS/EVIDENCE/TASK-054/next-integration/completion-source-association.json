@@ -1,0 +1,478 @@
+{
+  "reviewed_at_utc": "2026-10-08T20:20:07.204136+00:00",
+  "reviewer": "distinct_readonly_backend_lane",
+  "source_head": "5a40488473a5f4041c72e1ce05682e9328b070ed",
+  "application_freeze": "f9a61d59a1cccd95f1b7e9ba09f696ecf51c30f6",
+  "review_result": "APPROVED",
+  "qualification": "SOURCE_ASSOCIATION_AND_CURRENT_CAPSULE_SCOPE_ONLY",
+  "integrated_result": "BLOCKED",
+  "app_patch_pairs": [
+    {
+      "imported": "2ea8fa14e3bdb9ae015667409224b23c7705bd38",
+      "reviewed_original": "b820f826184f2dd5503f086576d228b15ca1be7a",
+      "files": [
+        {
+          "path": "integration_test/task054_next_integration_surfaces_test.dart",
+          "sha256": "4987fbfe0a761ef753af26599436f9b3f24f4a114d3ec1a89f7559576f77613b",
+          "identical": true
+        },
+        {
+          "path": "lib/features/account/application/customer_account_controller.dart",
+          "sha256": "275d3fb13523c15afb20006647b580ad42322207d2dfd0301900b6f7aef3c66a",
+          "identical": true
+        },
+        {
+          "path": "lib/features/account/presentation/customer_account_panel.dart",
+          "sha256": "19947aae772b0c0189a8dbaffeb2f45ad4e3d13823f0a733a329ed9af6cfcd20",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/app_en.arb",
+          "sha256": "3952632efbb130288463ce200fc5d41e783bff39c911eef698f025bbd1d14684",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/app_es.arb",
+          "sha256": "d800b7758849ad6efa19b373fa409dea54ffc8937cf22dc7950d91449561bbf9",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/app_it.arb",
+          "sha256": "6752245e94d92a0233b7cf1af84f5b5fbd8947fdaf08436aa5c79db9f78b367f",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/app_zh.arb",
+          "sha256": "4a208cd2abc7019f080df7c911e6128638bb80ccc99b60d57fae6c1dfa6fd04d",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/app_zh_Hans.arb",
+          "sha256": "76aebfc3d59eb27b21c1246651a7ee1d8cd7c8b2b36b858894a7bd9cbbeb0249",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/generated/app_localizations.dart",
+          "sha256": "dcdf6e80217e6319b43629518b2d154dfd2aa523a5d29bc10940681c12e3f8f6",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/generated/app_localizations_en.dart",
+          "sha256": "247122e9826fcba838247ac7b56263e1e481157da1ee86b8aaf0153cf66eef95",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/generated/app_localizations_es.dart",
+          "sha256": "1b9e6eb9acd7415837b5b9599c69fba103f3f33caeb5a8f79461403d09b863bc",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/generated/app_localizations_it.dart",
+          "sha256": "fcea3cf1b94044eaa87818aacc99c6b28774402b9a14fd993f7abc128bdd6bd6",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/generated/app_localizations_zh.dart",
+          "sha256": "5a13900cfc46b6f8119d5a03e077658ada6c9260462ade98b6fe43ea7c478cb0",
+          "identical": true
+        },
+        {
+          "path": "test/features/account/application/customer_account_controller_test.dart",
+          "sha256": "2a8c90dd660bbb3021b0361ad5f5c19713e6ad7a22deb78e53c746948c831497",
+          "identical": true
+        },
+        {
+          "path": "test/features/account/customer_account_panel_test.dart",
+          "sha256": "28f788e96bcfccf94ccbefeb05feaaec1102168990dc078f39ed994dd44f2603",
+          "identical": true
+        },
+        {
+          "path": "test/features/account/customer_account_test_support.dart",
+          "sha256": "70ead18455f782aaf08dff780833b0978b272fa610e7ce4ff6b623cd7a96744b",
+          "identical": true
+        }
+      ]
+    },
+    {
+      "imported": "f9a61d59a1cccd95f1b7e9ba09f696ecf51c30f6",
+      "reviewed_original": "26713a4294f3976236e8e83f983950b8f281c6fc",
+      "files": [
+        {
+          "path": "integration_test/support/next_integration_fixtures.dart",
+          "sha256": "104c39ad74f5602cb365987fa1739f16330e29d73b4a14ad6c777b2a8e136cae",
+          "identical": true
+        },
+        {
+          "path": "integration_test/task054_next_integration_surfaces_test.dart",
+          "sha256": "18e3d20e1bbde38af14d1ba448f70256fbc09fc72b213c4b8410977b839ac658",
+          "identical": true
+        },
+        {
+          "path": "lib/features/after_sales/presentation/customer_after_sales_screen.dart",
+          "sha256": "57acdb45e1d53e4e8aa59b7cf994a970ca699075097e35d5c1c90016d95a2977",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/app_en.arb",
+          "sha256": "331c165e8df668f8eca21e6d3d189de6b8ca5c877f2ebd6e54cc822234008b83",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/app_es.arb",
+          "sha256": "9fdf8d58e6b0f6f02435abc284de858159029e0d3c70cc9ee3c0d128deaa93b9",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/app_it.arb",
+          "sha256": "d674697d1a6437824c4fe620d2b0ca758e750ca7a594e0cec22a3336a727c5f2",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/app_zh.arb",
+          "sha256": "a608af6f71394b2ad6ccc27638d6fb8d0d5ebc85b332c851e2c0d5abcdf94e96",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/app_zh_Hans.arb",
+          "sha256": "29754e8d3373f1acf0d1d3d6fe50a576572e186c2a83267c6970ba7656778c98",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/generated/app_localizations.dart",
+          "sha256": "58a684ea3a209eb4f42a1ce55da97caba3805ceb6da5c335a87b0b28144e29a7",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/generated/app_localizations_en.dart",
+          "sha256": "335cce899585c93448fa955767bc8d9d00d5f401d1662f748da15a65176d5c52",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/generated/app_localizations_es.dart",
+          "sha256": "b8537419e2050141ee740e981ad1763a8a06bdbc429807e44002724e7847df91",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/generated/app_localizations_it.dart",
+          "sha256": "83e2023031b40beea6714e72c884a80faec45af30459f2c9cfe36e763e00ec3a",
+          "identical": true
+        },
+        {
+          "path": "lib/l10n/generated/app_localizations_zh.dart",
+          "sha256": "9949ee3eac836de8d9a9bcc5619e1d46a64dfacb81dec75db6200c19f35cc6cf",
+          "identical": true
+        },
+        {
+          "path": "test/features/after_sales/customer_after_sales_missing_destination_test.dart",
+          "sha256": "edad86e28599ab2edff12d27133115c6bd7724de4e6162382beac00db540ec96",
+          "identical": true
+        }
+      ]
+    }
+  ],
+  "capsule_source_files": [
+    {
+      "path": "integration_test/support/next_integration_fixtures.dart",
+      "expected_sha256": "104c39ad74f5602cb365987fa1739f16330e29d73b4a14ad6c777b2a8e136cae",
+      "head_sha256": "104c39ad74f5602cb365987fa1739f16330e29d73b4a14ad6c777b2a8e136cae",
+      "worktree_sha256": "104c39ad74f5602cb365987fa1739f16330e29d73b4a14ad6c777b2a8e136cae"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "expected_sha256": "18e3d20e1bbde38af14d1ba448f70256fbc09fc72b213c4b8410977b839ac658",
+      "head_sha256": "18e3d20e1bbde38af14d1ba448f70256fbc09fc72b213c4b8410977b839ac658",
+      "worktree_sha256": "18e3d20e1bbde38af14d1ba448f70256fbc09fc72b213c4b8410977b839ac658"
+    },
+    {
+      "path": "lib/features/account/application/customer_account_controller.dart",
+      "expected_sha256": "275d3fb13523c15afb20006647b580ad42322207d2dfd0301900b6f7aef3c66a",
+      "head_sha256": "275d3fb13523c15afb20006647b580ad42322207d2dfd0301900b6f7aef3c66a",
+      "worktree_sha256": "275d3fb13523c15afb20006647b580ad42322207d2dfd0301900b6f7aef3c66a"
+    },
+    {
+      "path": "lib/features/account/presentation/customer_account_panel.dart",
+      "expected_sha256": "19947aae772b0c0189a8dbaffeb2f45ad4e3d13823f0a733a329ed9af6cfcd20",
+      "head_sha256": "19947aae772b0c0189a8dbaffeb2f45ad4e3d13823f0a733a329ed9af6cfcd20",
+      "worktree_sha256": "19947aae772b0c0189a8dbaffeb2f45ad4e3d13823f0a733a329ed9af6cfcd20"
+    },
+    {
+      "path": "lib/features/after_sales/presentation/customer_after_sales_screen.dart",
+      "expected_sha256": "57acdb45e1d53e4e8aa59b7cf994a970ca699075097e35d5c1c90016d95a2977",
+      "head_sha256": "57acdb45e1d53e4e8aa59b7cf994a970ca699075097e35d5c1c90016d95a2977",
+      "worktree_sha256": "57acdb45e1d53e4e8aa59b7cf994a970ca699075097e35d5c1c90016d95a2977"
+    },
+    {
+      "path": "lib/l10n/app_en.arb",
+      "expected_sha256": "331c165e8df668f8eca21e6d3d189de6b8ca5c877f2ebd6e54cc822234008b83",
+      "head_sha256": "331c165e8df668f8eca21e6d3d189de6b8ca5c877f2ebd6e54cc822234008b83",
+      "worktree_sha256": "331c165e8df668f8eca21e6d3d189de6b8ca5c877f2ebd6e54cc822234008b83"
+    },
+    {
+      "path": "lib/l10n/app_es.arb",
+      "expected_sha256": "9fdf8d58e6b0f6f02435abc284de858159029e0d3c70cc9ee3c0d128deaa93b9",
+      "head_sha256": "9fdf8d58e6b0f6f02435abc284de858159029e0d3c70cc9ee3c0d128deaa93b9",
+      "worktree_sha256": "9fdf8d58e6b0f6f02435abc284de858159029e0d3c70cc9ee3c0d128deaa93b9"
+    },
+    {
+      "path": "lib/l10n/app_it.arb",
+      "expected_sha256": "d674697d1a6437824c4fe620d2b0ca758e750ca7a594e0cec22a3336a727c5f2",
+      "head_sha256": "d674697d1a6437824c4fe620d2b0ca758e750ca7a594e0cec22a3336a727c5f2",
+      "worktree_sha256": "d674697d1a6437824c4fe620d2b0ca758e750ca7a594e0cec22a3336a727c5f2"
+    },
+    {
+      "path": "lib/l10n/app_zh.arb",
+      "expected_sha256": "a608af6f71394b2ad6ccc27638d6fb8d0d5ebc85b332c851e2c0d5abcdf94e96",
+      "head_sha256": "a608af6f71394b2ad6ccc27638d6fb8d0d5ebc85b332c851e2c0d5abcdf94e96",
+      "worktree_sha256": "a608af6f71394b2ad6ccc27638d6fb8d0d5ebc85b332c851e2c0d5abcdf94e96"
+    },
+    {
+      "path": "lib/l10n/app_zh_Hans.arb",
+      "expected_sha256": "29754e8d3373f1acf0d1d3d6fe50a576572e186c2a83267c6970ba7656778c98",
+      "head_sha256": "29754e8d3373f1acf0d1d3d6fe50a576572e186c2a83267c6970ba7656778c98",
+      "worktree_sha256": "29754e8d3373f1acf0d1d3d6fe50a576572e186c2a83267c6970ba7656778c98"
+    },
+    {
+      "path": "lib/l10n/generated/app_localizations.dart",
+      "expected_sha256": "58a684ea3a209eb4f42a1ce55da97caba3805ceb6da5c335a87b0b28144e29a7",
+      "head_sha256": "58a684ea3a209eb4f42a1ce55da97caba3805ceb6da5c335a87b0b28144e29a7",
+      "worktree_sha256": "58a684ea3a209eb4f42a1ce55da97caba3805ceb6da5c335a87b0b28144e29a7"
+    },
+    {
+      "path": "lib/l10n/generated/app_localizations_en.dart",
+      "expected_sha256": "335cce899585c93448fa955767bc8d9d00d5f401d1662f748da15a65176d5c52",
+      "head_sha256": "335cce899585c93448fa955767bc8d9d00d5f401d1662f748da15a65176d5c52",
+      "worktree_sha256": "335cce899585c93448fa955767bc8d9d00d5f401d1662f748da15a65176d5c52"
+    },
+    {
+      "path": "lib/l10n/generated/app_localizations_es.dart",
+      "expected_sha256": "b8537419e2050141ee740e981ad1763a8a06bdbc429807e44002724e7847df91",
+      "head_sha256": "b8537419e2050141ee740e981ad1763a8a06bdbc429807e44002724e7847df91",
+      "worktree_sha256": "b8537419e2050141ee740e981ad1763a8a06bdbc429807e44002724e7847df91"
+    },
+    {
+      "path": "lib/l10n/generated/app_localizations_it.dart",
+      "expected_sha256": "83e2023031b40beea6714e72c884a80faec45af30459f2c9cfe36e763e00ec3a",
+      "head_sha256": "83e2023031b40beea6714e72c884a80faec45af30459f2c9cfe36e763e00ec3a",
+      "worktree_sha256": "83e2023031b40beea6714e72c884a80faec45af30459f2c9cfe36e763e00ec3a"
+    },
+    {
+      "path": "lib/l10n/generated/app_localizations_zh.dart",
+      "expected_sha256": "9949ee3eac836de8d9a9bcc5619e1d46a64dfacb81dec75db6200c19f35cc6cf",
+      "head_sha256": "9949ee3eac836de8d9a9bcc5619e1d46a64dfacb81dec75db6200c19f35cc6cf",
+      "worktree_sha256": "9949ee3eac836de8d9a9bcc5619e1d46a64dfacb81dec75db6200c19f35cc6cf"
+    },
+    {
+      "path": "test/features/account/application/customer_account_controller_test.dart",
+      "expected_sha256": "2a8c90dd660bbb3021b0361ad5f5c19713e6ad7a22deb78e53c746948c831497",
+      "head_sha256": "2a8c90dd660bbb3021b0361ad5f5c19713e6ad7a22deb78e53c746948c831497",
+      "worktree_sha256": "2a8c90dd660bbb3021b0361ad5f5c19713e6ad7a22deb78e53c746948c831497"
+    },
+    {
+      "path": "test/features/account/customer_account_panel_test.dart",
+      "expected_sha256": "28f788e96bcfccf94ccbefeb05feaaec1102168990dc078f39ed994dd44f2603",
+      "head_sha256": "28f788e96bcfccf94ccbefeb05feaaec1102168990dc078f39ed994dd44f2603",
+      "worktree_sha256": "28f788e96bcfccf94ccbefeb05feaaec1102168990dc078f39ed994dd44f2603"
+    },
+    {
+      "path": "test/features/account/customer_account_test_support.dart",
+      "expected_sha256": "70ead18455f782aaf08dff780833b0978b272fa610e7ce4ff6b623cd7a96744b",
+      "head_sha256": "70ead18455f782aaf08dff780833b0978b272fa610e7ce4ff6b623cd7a96744b",
+      "worktree_sha256": "70ead18455f782aaf08dff780833b0978b272fa610e7ce4ff6b623cd7a96744b"
+    },
+    {
+      "path": "test/features/after_sales/customer_after_sales_missing_destination_test.dart",
+      "expected_sha256": "edad86e28599ab2edff12d27133115c6bd7724de4e6162382beac00db540ec96",
+      "head_sha256": "edad86e28599ab2edff12d27133115c6bd7724de4e6162382beac00db540ec96",
+      "worktree_sha256": "edad86e28599ab2edff12d27133115c6bd7724de4e6162382beac00db540ec96"
+    }
+  ],
+  "review_receipts": [
+    {
+      "name": "journal-source-review.json",
+      "sha256": "ec394be3b8fa88eedeadd78c6122da5b130f8343ebfbf3bf8c07639acbc75219",
+      "same_as_original": true
+    },
+    {
+      "name": "after-sales-source-review.json",
+      "sha256": "b800c1402dfc4ba57a2d829c8be38767ef166bb1975cf6052805c141dd8cf7e7",
+      "same_as_original": true
+    }
+  ],
+  "capsule_snapshot": [
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-after-sales-source-review.json",
+      "sha256": "b800c1402dfc4ba57a2d829c8be38767ef166bb1975cf6052805c141dd8cf7e7",
+      "bytes": 6044,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-after-sales-source-review.md",
+      "sha256": "27f6d2397a407b424bb55616a0fc960d14ddc5b321f05b9c139ac57ded0015df",
+      "bytes": 1885,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-backend-review.md",
+      "sha256": "8cab782a3f0a8d146aac125309a14592b86118b956d2d5c4d976cec16cafe2cd",
+      "bytes": 3486,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-backend-runbook.md",
+      "sha256": "410deef91b405dc10a152eabef464f8212c58a87f6d51ce347b58969fd56c3c8",
+      "bytes": 7451,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-backend.json",
+      "sha256": "b0572fce05dbd465b6abbced4aeef89f0f5ce8e4bf520c8be6a45f051cc1c127",
+      "bytes": 10594,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-client-ux.json",
+      "sha256": "703ab0085f5316f1f372b829317924dd0893fb7e2f94a5aa6722a9c34e93e6d0",
+      "bytes": 14549,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-client-ux.md",
+      "sha256": "55ebcbdced10af4ae8a989f871f59e3470d597d1e6370a9debc85855e18c4e8e",
+      "bytes": 3717,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-config-preparation-receipt.json",
+      "sha256": "6ebba52b146d771670b61743fe319c4be94f6889b47265c2960a7e295556ecc7",
+      "bytes": 1301,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-coordination-completion-receipt.json",
+      "sha256": "da63685217455bbdbbc7b993ed0cd8a88d5b6dc3e9979796a8bd62c1b8353e39",
+      "bytes": 1538,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-distribution-reference-receipt.json",
+      "sha256": "aa14d1fd80c7cfd13836f8237cbc5c0cf6312a3f5a385a7c437179967558f0de",
+      "bytes": 2399,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-fixture-field-validation.json",
+      "sha256": "f1ef10c252047b82c8e41513b82bfd34a8fb81995693c8aeb987cf025d122451",
+      "bytes": 302,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-journal-source-review.json",
+      "sha256": "ec394be3b8fa88eedeadd78c6122da5b130f8343ebfbf3bf8c07639acbc75219",
+      "bytes": 5912,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-journal-source-review.md",
+      "sha256": "50ad9a72defdf54275b8ed4f6de38d0eb69cc8e716d5798b4c1fd61219058ca1",
+      "bytes": 1921,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-notification-diagnostic.md",
+      "sha256": "05a27b93927eb06854d354fe6dc9462bfa8bff2ffbc8e9b22f9f9218c36f6a62",
+      "bytes": 6718,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-order-orphan-ui-readonly.json",
+      "sha256": "02677e1c38d7329687dd808e2bcefeb75d47c76a732d207bb1a549180dfa6a11",
+      "bytes": 6103,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-pgservice-preparation.json",
+      "sha256": "2af1a95ff3b3174fb77b8963db12c1eeb1175d8bdae8913a8992d892513f15fb",
+      "bytes": 899,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-worker-review.json",
+      "sha256": "1c023bf1d0957f017d7b1babb79ca53e71a61b0bf84e89fc70a2f231c8d8b32e",
+      "bytes": 4710,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-worker.json",
+      "sha256": "bf9d191c10ed188119c055db594ae4448e1f09482c6bcd6b59cff9346ca73bdd",
+      "bytes": 2495,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/completion-worker.md",
+      "sha256": "0ab1aeebd5f5eec29d66ce32e2482546322c10acc37625a6547dc004dd0dfffa",
+      "bytes": 4963,
+      "sensitive_pattern_hits": {},
+      "json_valid": true
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md",
+      "sha256": "a2fe33459f6c192b7f17f0837776f83be080d0e49be220518b31e53ac2705f90",
+      "bytes": 80395,
+      "scope": "mutable_document_overlay_snapshot"
+    },
+    {
+      "path": "docs/TASKS/EVIDENCE/TASK-054/residuals.md",
+      "sha256": "5c2742dd36069436f2f95796bd2150f881ece001196397a1e390223e74dc6c4b",
+      "bytes": 32341,
+      "scope": "mutable_document_overlay_snapshot"
+    }
+  ],
+  "command_count": 126,
+  "check_count": 93,
+  "finding_count": 0,
+  "findings": [],
+  "limits": [
+    "No complete suite repeated; independent byte/hash and scoped source review.",
+    "No authenticated Client or live TEST traversal; no TEST mutation/deploy/merge.",
+    "Overlay and completion capsules snapshot current mutable documents; final documentary re-review pending CI and iOS freeze.",
+    "iOS association receipt separate; 6b5a34e is excluded from the reviewed source head.",
+    "Pattern scan complements manual domain/data review; it is not a guarantee against every possible secret encoding."
+  ],
+  "manual_review": {
+    "finding_count": 0,
+    "scope": "Current completion capsules and current report/residual overlay; no final CI approval",
+    "domain_separation": "notification orphan ORDER vs after-sales missing destination preserved",
+    "evidence_lanes": "SQL local, workerd local, host UI, native/Auth/live remain distinct",
+    "data_review": "No privileged credential value or customer data found in capsule snapshot",
+    "own_processes": "All terminal",
+    "repository_mutation": false
+  },
+  "ios_independent_receipts": {
+    "ios-association/association.json": "ffe7e6b7fbfb3e096ad0a81f5afc07a8368ebab1987ab60fed272031a99fc816",
+    "ios-association/targeted-tests.json": "355883e49a3a4bd9b771b00a930ba3e68696e1d580bb2d8ce648fbf62ffb2b26",
+    "ios-association/REVIEW.md": "6183bf0eb007addfcdf49e29fa194ea7468f935c753035065ce5d13389bd88e2"
+  },
+  "full_receipt": {
+    "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-review/source-association/association.json",
+    "sha256": "fc73d8afaee7301cde681fcc47d9d2d419c57f0361778eb6be281717d817a117",
+    "qualification": "Full command receipts remain protected outside Git; this is a concise projection."
+  }
+}

@@ -1,10 +1,10 @@
 # TASK-054 — Integrated staging E2E and closeout
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Stato**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -911,3 +911,82 @@ Esito integrato **BLOCKED**, handoff `CODEX_REVIEW_BLOCKED`. PR29 resta draft;
 TASK-054 non è DONE, TASK-055 e production non attivati. Apply TEST richiede
 finestra writer/cron e riferimenti artifact/TLS/pilot già approvati; il blocker
 è tecnico e di disponibilità, non una nuova richiesta generica di consenso.
+
+## Emendamento utente — completamento operativo successivo, 2026-10-08
+
+Il mandato allegato `fdab4373-52ed-45a9-8ce7-07e6d9f4e7b8` autorizza a
+proseguire dai residui effettivi del checkpoint PR29 `e7b194c`, freeze applicativo
+`bb538923` e registro operativo `3bd5677`. Gli overlay recenti prevalgono sulle
+fotografie storiche, preservate. Sono autorizzati fix in scope, recovery isolato
+con ledger v3 popolato, preparazione autonoma degli input disponibili, apply delle
+quattro canoniche e deploy selettivo TEST quando i prerequisiti pertinenti siano
+soddisfatti, review distinte e merge ordinari dopo i gate applicabili.
+
+Backend, Worker e preflight iOS procedono con responsabili distinti. Il
+coordinatore mantiene configurazione/fixture, registro unico e coordinamento W/N.
+La finestra DB/cron deve essere concreta e attestata; il preflight iOS hosted
+non condiziona automaticamente backend e Worker. Le risorse native N restano
+riservate. Il target iOS minimo e la protezione del ledger popolato restano criteri.
+Nessuna nuova autorizzazione a production, spesa o task futuri.
+
+Il nuovo esperimento iOS misura preparazione, timeout e reap prima di avviare
+l'app; ogni tentativo verifica un'ipotesi. La UX del journal illeggibile è un rischio
+da riprodurre, non un finding presunto. Le prove integrate A–E sono mappate agli
+ID esistenti R01–R30/E2E-01…25, senza un secondo backlog. Il fix torna sempre a
+Review, anche con gate esterni bloccati.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## Fix del completamento successivo — 2026-10-08, mandato fdab4373
+
+Il fixer ha completato le attività indipendenti e riprodotto due difetti UX prima
+di modificarli: journal illeggibile che nascondeva anche lo snapshot account
+sicuro, e dettaglio assistenza assente/transitorio senza prosecuzione/retry
+adeguati. Tre e due nuove regressioni RED precedono rispettivamente i fix
+2ea8fa1 e f9a61d5; appfreeze f9a61d5.102account e30mirati PASS,16casi host
+4lingue/2temi/320×568/200% PASS. Review distinte69 e41test autonomi PASS,
+APPROVED SOURCE_CODE_ONLY. Il percorso ordine not_found esistente è verificato
+readonly con Back/retry e messaggio distinto da unauthorized; nessun nuovo
+difetto dimostrato, nessuna attribuzione del fix assistenza agli orphan ORDER.
+
+Il backend ha33casi54comandi di recovery popolata PASS e review distinta
+50controlli39comandi APPROVED locale. Export/restore di indirizzo+due intenti,
+replay/mismatch/owner/deleted e rifiuto inverse specifico ledger popolato
+preservano dati/schema/history. Il rollback applicativo conserva schema v3
+additivo, ledger, journal e reconcile. Nessun restore globale Auth richiesto
+per la procedura scoped con parent sintetici equivalenti già presenti.
+Quattro canoniche byte-identiche a f16c5f4/02ea44b9 pronte; TEST32/57RPC
+conformi,25assenti,quattro migration assenti,1/2indici,history155 al19:59UTC.
+Integrità due notifiche/otto riferimenti FAIL distinta dalla fedeltà recovery.
+RPC lista/mark-read/replay separati PASS locale; batch doppio UPDATE23503
+e assertion wrapper errata conservati. Nessuna riparazione remota.
+
+Worker selettivo esatto e1b2f30e qualificato in workerd:9probeHTTP PASS,
+writer route e reader incorporato Inspector su template4fogli invocati. OTel
+facoltativo/null e sharp senza caller applicativo qualificati senza patch.
+2012artifact invariati; multipart no-bundle identico,23binding preservati,
+rollback disponibile; review distinta APPROVED locale. Versione remota
+22107a6f invariata, deploy NOT_RUN per backend/finestra BLOCKED.
+
+Il primo preflight iOS minimo37836564977/1862dbd riproduce solo inventory
+globale postboot timeout30s con leader vivo:37,560s spawn→timeout, ps4,607s
+end-to-end; TERM/reap e cleanup processi/risorse PASS.113s storici non
+riprodotti, pipe ereditate non dimostrate, app non avviata. CLI help STDERR
+verificata; nuova ipotesi scopedUUID6b5a34e con timeout/ownership invariati
+e review distinta25testPASS, runner hosted37838207516 in verifica.
+Non è un fix app/Keychain, target minimo invariato.
+
+Root ha preparato config pubblica TEST parziale, fixture e service readonly
+verify-full dal ruolo realmente esistente. Mancano passfile/trust approvati,
+runner IPv6, shop/sessioniA/B/callback, firma/canali. La sola domanda sui
+percorsi protetti è pendente dopo preparazione e inventari. W/N confermano
+ownership: finestra20:15–20:45UTC proposta non riservata, nessun cron pausato,
+nessun device N usato. Provider OFF conservano requisiti e fallback coerenti.
+Gate globali finali sul composto5a40488:1049Flutter PASS, formato/analyze
+PASS; resilience5×14PASS. Native/delivery/live restano lane distinte.
+
+CA→evidence e residui→owner/azione sono nell'overlay corrente del
+[rapporto](EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md) e
+[registro unico](EVIDENCE/TASK-054/residuals.md). E2E-01…25/R01–R30 conservati.
+Handoff finale dopo conclusione dei comandi e verifica distinta del candidato.

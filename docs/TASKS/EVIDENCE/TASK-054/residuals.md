@@ -129,3 +129,48 @@ PoC3FAIL. Writer99GREEN dopo i fix; review autonoma chiude questi finding. Il P2
 Nuova causa backend:2notifiche TEST correnti hanno riferimenti mancanti; recupero
 fedele del dato e integrità relazionale sono verifiche distinte. Nessuna riga
 riparata o parent inventato per ottenere un PASS; export solo protetto fuori Git.
+
+
+## Overlay completamento successivo — 2026-10-08, mandato fdab4373
+
+Prevale sui checkpoint sopra, senza cancellarne FAIL o provenance. È lo stesso
+registro; gli ID esistenti sono aggiornati. Candidato composto5a40488, freeze
+applicativo f9a61d5; source approvate separatamente, review integrata non dedotta.
+
+| ID / requisito | Causa o risultato osservato | Dipendenza concreta / owner | Preparazione e singola azione di chiusura | Esito corrente |
+|---|---|---|---|---|
+| NI054-04 / R01–R30 | TEST readonly19:59UTC32/57RPC conformi,25assenti, quattro migration assenti,1/2indici,history155 | DB diretto AAAA, Mac IPv4; accesso protetto/trust/apply e finestra writer/cron mancanti / backend+operatore TEST | Quattro byte canonici, manifest, recovery popolata e service verify-full pronti; collegare pacchetto accesso su runner IPv6 e concordare finestra prima del readback/apply | FAIL schema; TLS BLOCKED exit2; apply NOT_RUN |
+| NI054-04 / recovery v3 | Export un indirizzo/due intenti incluso tombstone; digest/identità/replay/mismatch/owner/deleted conformi | Parent Auth sintetici equivalenti già presenti; nessun restore globale Auth necessario per procedura scoped / backend |33casi54comandi PASS, review distinta50controlli39comandi APPROVED locale; inverse specifico ledger popolato rifiuta e preserva dati/schema/history | PASS locale, non sessione Client/live |
+| NI054-04 / integrità notifiche | Namespace payment concurrency harness verificato; due righe/otto riferimenti mancanti. Cleanup replica che omette notification_* è meccanismo coerente, esecuzione originaria non attestata | Decisione data owner TEST per sole fixture orfane | Migrazioni PASS conservando righe; lista/mark-read/replay RPC separati PASS locale, order detail not_found; repair scoped proposto, nessun parent inventato | FAIL integrità; AUTH_LIVE NOT_RUN; repair NOT_RUN |
+| NI054-06 / R02–R04 | File pubblico Worker e Client Supabase coincidono; config Client parziale non attivabile, pilot/sessioniA/B/callback mancanti | Auth/shop/domain owner | Config e fixture preparati0700/0600; indicare riferimenti approvati per validazione/cold-warm/revoca/cambio account | BLOCKED; nessuna sessione forzata |
+| NI054-08 / R29–R30 |14envref assenti, zero GHsecrets/vars/environments; firma/canali/associazioni native non disponibili | Mobile release owner | Manifest operator refs pronto; collegare pacchetto release TEST per build→firma→upload→install→smoke | BLOCKED; firma/upload/installClient NOT_RUN |
+| NI054-09 / R21–R24 | Bundle esatto e1b2f30e avviato in workerd;9HTTPprobe, reader Inspector/template4fogli, writer route PASS; OTel fallback e sharp unreachable qualificati | Backend verde e finestra W / Worker+W |2.012artifact invariati, no-bundle multipart identico,23binding/rollback verificati; distribuire selezione96758b89 quando prerequisiti verdi | PASS locale/review scoped; deploy/live NOT_RUN, prerequisito BLOCKED |
+| NI054-09 / stato remoto | Versione22107a6f al100%, deploymentf726de06 invariati; Mini auth/catalog mutations già true | Preservare binding/stato corrente / W | Piano keep-vars/keep_bindings e readback pronti; attestare versione/asset/binding dopo deploy effettivo | Nessuna activation/deploy eseguita |
+| NI054-05 / R24 Android | N main9d5c270b, APK installato con dati preservati; signedIn e lettura locale durante update osservate da N, quattro ACK storici non sono nuova catena | Pilot/backend/Worker+N/Admin/Client | Ricetta IDs pronta; eseguire prodotto+immagine→ACK→Admin→pubblicazione/prezzo→Client con ricevute correlate | NOT_RUN catena, separata da install/sessione |
+| NI054-05 / R24 iOS | N PR21/3212799e:1524unitPASS36skip,14UIpass2FAIL; nuovo Proper preparato non integrato/installato | Diagnosi CI N + pilot/backend/Worker | N sole writer/device owner; completare diagnosi e catena separata per origine iOS | NOT_RUN catena; CI nativa N FAIL |
+| NI054-25/38 / iOS Client | Preflight37836564977/1862dbd: bootPASS, inventory globale postboot30s timeout con leader vivo;37,560s spawn→timeout; ps4,607s endtoend;113s storici non riprodotti | Runtime hosted/CoreSimulator / QA iOS | Trace monotonic+PID/PGID/output, TERM/reap e cleanup risorse/processi PASS; provare scopedUUID supportato dalla CLI, timeout invariato, poi fix solo se confermato | FAIL preflight exit124; app/journal/smoke/visual NOT_RUN |
+| NI054-39 / R04,R30 | Journal illeggibile impediva anche lettura sicura account;3RED causali prima fix | Nessuna esterna per source; runtime finale per accettazione / Client+reviewer |2ea8fa1 conserva snapshot, sospende create, retry storage senza erase;102accountPASS,69reviewerPASS,8hostmatrixPASS; catturare soli8nuovi stati | PASS source/local e review APPROVED scoped; native/live NOT_RUN |
+| NI054-40 / R18,R21,R30 | Dettaglio assistenza assente senza spiegazione/lista e failure transitoria senza retry;2RED causali | Runtime finale e backend/Worker per live / Client+reviewer |f9a61d5 feedback neutro/CTA lista/retry vero;30miratiPASS,41reviewerPASS+3baselineRED;8hostmatrixPASS,16PNGnuove attese | PASS source/local e review APPROVED scoped; native/live NOT_RUN |
+| NI054-07 / R30 | Nuova fixture137catture=113pregresse+24nuove;16casi host4lingue2temi320×568200%PASS | CI candidato composto e reviewer pixel / QA |4c3abf9 count137 e trace nei gate, review50testautonomiPASS; eseguire/interagire e ispezionare delta nativo | Nuove catture NOT_RUN; storico113+4 preservato |
+| NI054-27 / R30 E | Inbox acquisita500→5configurati,5→5costruiti,20→20request;11benchmarkhost acquisiti | Device fisico Client/config/dataset/sessioni autorizzati / QA performance+Nfinestra | Budget/benchmark esistenti; misurare tap→destinazione/frame/memoria/cicli nelle stesse condizioni | PASS host, profiling fisico NOT_RUN |
+| R05/17/26/27/28 | Provider indirizzi/mappe/online/push OFF; metodi payAtPickup/cashOnDelivery distinti da assenza rete | Owner provider/release, input sandbox/FCM/APNs/domain/device | Manuale/fallback testuale/gate coerenti; collegare provider autorizzato prima della prova specifica | NOT_RUN provider live, requisito conservato |
+
+La prima assertion notifiche era errata: attendeva troppi failure nel batch e
+falliva; il23503 osservato riguarda il secondo UPDATE nella stessa transazione.
+Il normale trasporto RPC con transazioni separate e replay passa. Esiti negativi
+conservati nella capsula; non attribuiti impropriamente all'endpoint ordinario.
+
+Il service readonly è stato costruito autonomamente dai campi verificati.
+PGPASSFILE/PGSSLROOTCERT e runner IPv6 rimangono input esterni, non l'alias.
+La finestra20:15–20:45UTC è solo proposta non confermata; nessun cron pausato.
+Una richiesta circoscritta sui percorsi protetti è pendente dopo preparazione e
+inventari; nessuna credenziale richiesta in chat. Dispositivi N e lavoro W
+preservati; production e TASK-055 non attivati.
+
+Fonti correnti: [rapporto](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md),
+[capsula backend](next-integration/completion-backend.json),
+[Worker](next-integration/completion-worker.json),
+[Client](next-integration/completion-client-ux.json),
+[config](next-integration/completion-config-preparation-receipt.json),
+[service](next-integration/completion-pgservice-preparation.json),
+[coord](next-integration/completion-coordination-completion-receipt.json).

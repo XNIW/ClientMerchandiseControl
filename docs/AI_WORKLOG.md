@@ -5432,3 +5432,47 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   label canonica Handoff, corretta senza cambiare gate. Ricevuta locale
   `build/task054/operational-20261008/final-handoff/receipt.json`, SHA-256
   `85ded3dcc9a55fbf6c9c79278b129475003463a33cb277bb53ef05d60e9dc47d`; log completi non versionati.
+
+## 2026-10-08 — TASK-054 ripresa del completamento operativo
+
+- **Ruolo/fase**: CODEX_FIXER, ACTIVE/FIX; mandato umano successivo `fdab4373`.
+- **Baseline verificata**: checkout principale storico preservato con `supabase/`
+  untracked; writer documentale nel worktree operativo `3bd5677`. PR29 draft,
+  aperta su `e7b194c`; cinque job PASS e due preflight iOS FAIL conservati.
+- **Responsabilità**: backend/recovery popolato, runtime Worker e iOS preflight
+  assegnati in parallelo; writer applicativo separato sul rischio journal.
+  Root mantiene registro/configurazione/fixture; nessun dispositivo N usato.
+- **Coordinamento**: richieste circoscritte a W per finestra writer/cron e deploy,
+  a N per recovery/ACK/catena R24. Nessun apply o deploy inferito dal coordinamento.
+- **Preparazione**: config pubblica Client e manifest fixture fuori Git0700/0600;
+  backend pubblico coincide con input Worker approvato. Slug pilota, sessioni,
+  callback posseduta e firma/canali restano input mancanti, non PASS runtime.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-08 — TASK-054 completamento successivo, integrazione dei delta indipendenti
+
+- **Ruolo**: CODEX_FIXER, mandato fdab4373, tre responsabili backend/Worker/iOS
+  e coordinamento root configurazione/fixture/W/N.
+- **Source**: composto5a40488 da e7b194c; appfreeze f9a61d5. Journal2ea8fa1
+  e assistenzaf9a61d5 hanno regressioni RED prima e review distinte APPROVED
+  source.102account/30mirati/16hostmatrixPASS;137catture attese,24sole nuove.
+- **Backend**: recovery popolata33casi54comandi PASS, review50/39 APPROVED
+  locale; inverse ledgerpopolato rifiuta e preserva dati/schema/history.
+  TEST19:59UTC32/57RPC conformi,25assenti,4migration assenti,1/2indici,history155.
+  Diagnosi notifiche preserva2orphan/8ref, mark-read separati/replay PASS locale.
+- **Worker**: bundle esatto workerd9probeHTTP PASS, Excel writer route e
+  reader Inspector invocati;2012artifact invariati, packaging/23binding PASS.
+  Review distinta APPROVED locale; versione22107a6f invariata, deploy NOT_RUN.
+- **iOS**:37836564977 inventoryglobale postboot timeout30s, leader vivo,
+ 37,560s end-to-end; cleanupPASS. ScopedUUID6b5a34e revisionato25PASS,
+ 37838207516 hosted in verifica; nessun appfix/timeoutraise/targetchange.
+- **Config/ownership**: config/fixture/service verify-full pronti fuori Git;
+  accesso protetto/trust/IPv6/pilot/A/B/callback/release input mancanti, unica
+  domanda circoscritta pendente. W/N preservati, nessun cron/apply/deploy/device
+  N; finestra proposta non confermata.
+- **Gate**:1049Flutter PASS, formato/analyze PASS, resilience70PASS sul
+  candidato;35/35gate locali applicabili PASS. Wrapper architecture180s
+  BLOCKED conservato, ricetta canonica finale199,860s PASS con cleanup.
+  Scanner staged988file PASS; CI finale del candidato da eseguire.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

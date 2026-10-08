@@ -1,0 +1,8 @@
+{
+  "result": "PASS",
+  "scope": "PREPARED_ADDRESS_FIELD_SET_ONLY",
+  "fields": 15,
+  "source_sha256": "fac23068824a8b1cb773dacc08a6710dd16833066caf385adff18762ba8230b0",
+  "fixture_sha256": "eb24e3b80f1dca5a97adbc24be9b6ed65c046d48133858426dbd0745c5601770",
+  "server_or_auth_invocation": "NOT_RUN"
+}

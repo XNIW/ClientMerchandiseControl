@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "scope": "PGSERVICE_FILE_PREPARATION_ONLY",
+  "service_file": "/Users/minxiang/.codex/outputs/task054-completion-20261008/pg_service.test.conf",
+  "alias": "cmc_task054_test_readonly",
+  "role_source": "Backend readonly metadata19:59UTC, existing role; no role/grant created",
+  "sha256": "16863f1a6cc2c121d5f9b683fe7fb7ccb040494be0dfb54826ba8ea6d679e5dc",
+  "mode": "0o600",
+  "tls_mode": "verify-full",
+  "host_target_bound": true,
+  "authentication_present": false,
+  "trust_reference_present": false,
+  "connection": "BLOCKED:IPv6 network, protected authentication and trust references absent",
+  "prerequisite_paths": [
+    "PGSERVICEFILE=/Users/minxiang/.codex/outputs/task054-completion-20261008/pg_service.test.conf",
+    "PGPASSFILE=approved protected authentication path",
+    "PGSSLROOTCERT=approved trusted root certificate path"
+  ],
+  "query_executed": false
+}

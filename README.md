@@ -2,9 +2,9 @@
 
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
 Merchandise Control. Il codice include catalogo, account, carrello, checkout,
-ordini, consegna, inbox, assistenza e recensioni. L'audit operativo TASK-054 del
-2026-09-28 ha riconfermato 23 RPC mancanti nello staging e risorse esterne non
-configurate per OAuth, indirizzi assistiti e push: il prodotto non è dichiarato
+ordini, consegna, inbox, assistenza e recensioni. Il readback TEST TASK-054
+dell'8 ottobre 2026 rileva32/57RPC conformi,25 mancanti e quattro migration non
+applicate; risorse esterne restano da configurare per OAuth, indirizzi assistiti e push: il prodotto non è dichiarato
 operativamente completo. Il [rapporto verificabile](docs/TASKS/EVIDENCE/TASK-054/README.md)
 separa codice, SQL locale, staging, dispositivi e distribuzione.
 
@@ -192,9 +192,9 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Stato task**: ACTIVE
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata

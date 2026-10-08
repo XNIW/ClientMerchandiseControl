@@ -12,25 +12,23 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Preflight minimo oppure native dopo preflight approvato sullo stesso SHA
+        description: Ultimo esperimento CLI con device set proprio, nessun gate app
         required: true
         default: preflight
         type: choice
         options:
           - preflight
-          - native
 
 permissions:
   contents: read
 
 jobs:
   measured-ios:
-    name: Owned iOS measured preflight and native
+    name: Owned iOS measured device-set CLI experiment
     runs-on: macos-26
     timeout-minutes: 45
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
-      FLUTTER_VERSION: 3.44.8
     steps:
       - name: Checkout exact candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -42,57 +40,16 @@ jobs:
           bash scripts/check-action-pins.sh
       - name: Minimal owned preflight
         run: |
-          cmc_keep_ready=()
-          if [[ '${{ inputs.mode }}' == native ]]; then
-            cmc_keep_ready=(--keep-ready)
-          fi
           python3 scripts/run-ios-preflight-measured.py \
-            --output build/task054/ios-measured --inventory-scope uuid "${cmc_keep_ready[@]}"
-      - name: Set up Flutter
-        if: inputs.mode == 'native'
-        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
-      - name: Validate Flutter toolchain and dependencies
-        if: inputs.mode == 'native'
-        run: |
-          bash scripts/resolve-flutter.sh
-          flutter pub get --enforce-lockfile
-      - name: Existing journal runner on the same owned Simulator
-        if: inputs.mode == 'native'
-        run: >-
-          python3 scripts/run-address-journal-ios.py
-          --owner-receipt build/task054/ios-measured/owner.json
-      - name: Smoke after journal
-        if: inputs.mode == 'native'
-        run: |
-          cmc_device="$(python3 -c 'import json; print(json.load(open("build/task054/ios-measured/owner.json"))["device"])')"
-          bash scripts/test-ios-shell-smoke.sh \
-            --device "$cmc_device" --receipt build/task054/ios-measured/owner.json
-      - name: Visual after smoke
-        if: inputs.mode == 'native'
-        run: |
-          cmc_device="$(python3 -c 'import json; print(json.load(open("build/task054/ios-measured/owner.json"))["device"])')"
-          CMC_OS_FRAME_PLATFORM=ios CMC_OS_FRAME_DEVICE="$cmc_device" \
-            bash scripts/test-task054-visual.sh --device "$cmc_device"
-      - name: Final owned cleanup
-        if: always() && inputs.mode == 'native'
-        run: |
-          if [[ -f build/task054/ios-measured/owner.json ]]; then
-            python3 scripts/run-task054-ios-owned.py cleanup \
-              --receipt build/task054/ios-measured/owner.json
-          fi
-      - name: Save measurements and native receipts
+            --output build/task054/ios-measured --inventory-scope device-set
+      - name: Save CLI measurements and ownership receipts
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: task054-ios-measured
           path: |
-            build/task054/ios-measured/*
-            build/task054/ios-address-journal/*.json
-            build/task054/visual/*.png
-            build/task054/os-visual/*.png
-            build/task054/os-visual/*.json
+            build/task054/ios-measured/*.json
+            build/task054/ios-measured/*.jsonl
+            build/task054/ios-measured/*.txt
           retention-days: 7
           if-no-files-found: error

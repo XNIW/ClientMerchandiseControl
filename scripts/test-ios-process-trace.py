@@ -271,5 +271,133 @@ class ScopedInventoryTest(unittest.TestCase):
             self.device], 30, capture=True)
 
 
+class DedicatedSetTest(unittest.TestCase):
+    device = ScopedInventoryTest.device
+    runtime = ScopedInventoryTest.runtime
+
+    def test_set_operation_is_labeled_without_recording_private_path(self):
+        self.assertEqual(TRACE.operation(['xcrun', 'simctl', '--set',
+            '/PRIVATE_SENTINEL', 'list', 'devices', '--json']), 'simctl-list')
+
+    def test_each_simctl_uses_the_same_private_identity_and_original_budget(self):
+        with tempfile.TemporaryDirectory() as directory:
+            owner = PREFLIGHT.DedicatedSetOwner(Path(directory) / 'owner.json')
+            with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command',
+                    return_value='{"devices":{}}') as command:
+                owner.command(['xcrun', 'simctl', 'list', 'devices', '--json'],
+                              30, capture=True)
+            command.assert_called_once_with(['xcrun', 'simctl', '--set',
+                str(owner.device_set), 'list', 'devices', '--json'], 30, capture=True)
+            self.assertEqual(owner.device_set.stat().st_mode & 0o777, 0o700)
+            self.assertEqual((Path(directory) / 'device-set-owner.json').stat().st_mode &
+                             0o777, 0o600)
+
+    def test_replaced_or_public_set_cannot_authorize_any_command(self):
+        for substitution in ('directory', 'symlink', 'mode'):
+            with self.subTest(substitution=substitution), tempfile.TemporaryDirectory() as directory:
+                owner = PREFLIGHT.DedicatedSetOwner(Path(directory) / 'owner.json')
+                if substitution == 'mode':
+                    owner.device_set.chmod(0o755)
+                else:
+                    original = owner.device_set.with_name('original')
+                    owner.device_set.rename(original)
+                    if substitution == 'directory':
+                        owner.device_set.mkdir(mode=0o700)
+                    else:
+                        owner.device_set.symlink_to(original, target_is_directory=True)
+                with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command') as command, \
+                     self.assertRaises(PREFLIGHT.IOS.Failure):
+                    owner.command(['xcrun', 'simctl', 'boot', self.device], 60)
+                command.assert_not_called()
+
+    def test_initial_foreign_device_and_wrong_owned_identity_fail_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            owner = PREFLIGHT.DedicatedSetOwner(Path(directory) / 'owner.json')
+            entry = {'udid': self.device, 'name': 'foreign', 'state': 'Booted',
+                     'isAvailable': True}
+            payload = json.dumps({'devices': {self.runtime: [entry]}})
+            with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command', return_value=payload), \
+                 self.assertRaises(PREFLIGHT.IOS.Failure):
+                owner.command(['xcrun', 'simctl', 'list', 'devices', '--json'], 30, capture=True)
+            owner.record = {'device': self.device, 'name': 'owned', 'runtime': self.runtime}
+            with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command', return_value=payload), \
+                 self.assertRaises(PREFLIGHT.IOS.Failure):
+                owner.check_device(self.device, ready=True, owned=True)
+
+    def test_headless_recipe_and_cleanup_do_not_use_default_set_or_gui(self):
+        with tempfile.TemporaryDirectory() as directory:
+            owner = PREFLIGHT.DedicatedSetOwner(Path(directory) / 'owner.json')
+            state = {'created': False, 'booted': False, 'deleted': False}
+            calls = []
+
+            def command(arguments, timeout, capture=False):
+                calls.append((arguments, timeout, capture))
+                self.assertEqual(arguments[:4], ['xcrun', 'simctl', '--set',
+                                                str(owner.device_set)])
+                action = arguments[4]
+                if action == 'list' and arguments[5] == 'runtimes':
+                    return json.dumps({'runtimes': [{'isAvailable': True, 'version': '26.5',
+                                                    'identifier': self.runtime}]})
+                if action == 'create':
+                    state['created'] = True
+                    return self.device
+                if action == 'boot':
+                    state['booted'] = True
+                if action == 'delete':
+                    state['deleted'] = True
+                if action == 'list':
+                    entries = [] if not state['created'] or state['deleted'] else [{
+                        'udid': self.device, 'name': owner.record['name'], 'isAvailable': True,
+                        'state': 'Booted' if state['booted'] else 'Shutdown'}]
+                    return json.dumps({'devices': {self.runtime: entries}})
+                return ''
+
+            with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command', side_effect=command):
+                self.assertEqual(owner.prepare(), self.device)
+                self.assertTrue(owner.cleanup())
+            budgets = {arguments[4]: timeout for arguments, timeout, _ in calls}
+            self.assertEqual(budgets, {'list': 30, 'create': 30, 'boot': 60,
+                                      'bootstatus': 300, 'shutdown': 30, 'delete': 30})
+            self.assertFalse(owner.device_set.exists())
+            self.assertEqual(owner.set_cleanup, 'PASS')
+
+    def test_failed_process_cleanup_preserves_private_set_and_negative_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            owner = PREFLIGHT.DedicatedSetOwner(Path(directory) / 'owner.json')
+            owner.record = {'device': self.device}
+            owner.owns_receipt = True
+            with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'cleanup', return_value=False):
+                self.assertFalse(owner.cleanup())
+            self.assertTrue(owner.device_set.exists())
+            self.assertEqual(owner.set_cleanup, 'BLOCKED')
+
+    def test_process_failure_before_device_receipt_cannot_become_cleanup_pass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            owner = PREFLIGHT.DedicatedSetOwner(Path(directory) / 'owner.json')
+            owner.process_cleanup_failed = True
+            with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command',
+                    return_value='{"devices":{}}') as command:
+                self.assertFalse(owner.cleanup())
+            command.assert_not_called()
+            self.assertTrue(owner.device_set.exists())
+            self.assertEqual(owner.set_cleanup, 'BLOCKED')
+
+    def test_failed_attempted_empty_readback_is_fail_and_keeps_set(self):
+        with tempfile.TemporaryDirectory() as directory:
+            owner = PREFLIGHT.DedicatedSetOwner(Path(directory) / 'owner.json')
+            with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command',
+                    side_effect=PREFLIGHT.IOS.Failure(124, 'timeout')), \
+                 self.assertRaises(PREFLIGHT.IOS.Failure):
+                owner.cleanup()
+            self.assertTrue(owner.device_set.exists())
+            self.assertEqual(owner.set_cleanup, 'FAIL')
+
+    def test_set_cannot_be_exported_to_unverified_native_transport(self):
+        with tempfile.TemporaryDirectory() as directory, self.assertRaises(SystemExit) as exit:
+            PREFLIGHT.main(['--output', str(Path(directory) / 'output'),
+                            '--inventory-scope', 'device-set', '--keep-ready'])
+        self.assertEqual(exit.exception.code, 2)
+
+
 if __name__ == '__main__':
     unittest.main()

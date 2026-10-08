@@ -17,7 +17,8 @@ def operation(arguments):
     if not isinstance(arguments, (list, tuple)):
         return 'subprocess'
     if arguments[:2] == ['xcrun', 'simctl'] and len(arguments) > 2:
-        action = arguments[2]
+        action_index = 4 if arguments[2] == '--set' else 2
+        action = arguments[action_index] if len(arguments) > action_index else None
         return 'simctl-' + action if action in (
             'help', 'list', 'create', 'boot', 'bootstatus', 'shutdown', 'delete',
             'listapps', 'install', 'launch', 'terminate', 'get_app_container') else 'simctl'

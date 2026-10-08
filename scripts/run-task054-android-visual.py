@@ -408,8 +408,8 @@ class AndroidVisualRunner:
             None, capture=False)
         self.phase = 'capture-completeness'
         self.capture_count = len(list(visual_output.glob('*.png')))
-        if self.capture_count != 113:
-            raise Failure(self.phase, 1, f'capture attese113, ottenute{self.capture_count}')
+        if self.capture_count != 137:
+            raise Failure(self.phase, 1, f'capture attese137, ottenute{self.capture_count}')
 
     def cleanup(self):
         # Mai adb kill-server, emu kill, shutdown-all o selezione di device altrui.

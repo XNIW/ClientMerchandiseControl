@@ -197,12 +197,12 @@ with patch.object(runner, 'service_uri', return_value='http://127.0.0.1:1234/fix
                 self.assertEqual(receipt['exit_code'], process.returncode)
                 self.assertNotEqual(receipt['restart'], 'PASS')
 
-    def test_visual_runner_still_prepares_before_capture_and_requires_113(self):
+    def test_visual_runner_still_prepares_before_capture_and_requires_137(self):
         with tempfile.TemporaryDirectory() as directory:
             runner = M.OWNED.AndroidVisualRunner(directory)
             visual = Path(directory) / 'visual'
             visual.mkdir()
-            for number in range(113):
+            for number in range(137):
                 (visual / f'{number}.png').touch()
             runner.environment['CMC_VISUAL_OUTPUT_DIR'] = str(visual)
             runner.serial = 'emulator-5554'
@@ -213,7 +213,7 @@ with patch.object(runner, 'service_uri', return_value='http://127.0.0.1:1234/fix
                     sequence.append('capture') or (0, '')):
                 runner.execute()
             self.assertEqual(sequence, ['prepare', 'capture'])
-            self.assertEqual(runner.capture_count, 113)
+            self.assertEqual(runner.capture_count, 137)
 
 
 if __name__ == '__main__':

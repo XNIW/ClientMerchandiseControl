@@ -5,7 +5,11 @@
 Stato BLOCKED/REVIEW, handoff CODEX_REVIEW_BLOCKED.
 Freeze sorgente `bb53892393710d3ed6d2574053fe1206561b87f0`,
  approvato SOURCE_CODE_ONLY dopo re-review dei contratti (9 PASS autonomi).
-Il candidato viene composto in `codex/task054-operational-completion` da
+Il candidato PR29 `62980d29327c1bd09d07ecbd0116570f1df4b94f` contiene lo stesso
+codice del freeze e 17 file documentali aggiuntivi. La CI `37817219242` è
+terminale FAIL su questo SHA: cinque job PASS, smoke iOS FAIL durante il
+collegamento alla VM Service. Le ricevute successive sono raccolte sul branch separato
+`codex/task054-operational-evidence-20261008`. La base è
 `3962414` (codice PR29 `c796526`). Le sezioni del rapporto del 5 ottobre
 conservano le prove storiche e non qualificano il candidato nuovo.
 
@@ -13,13 +17,20 @@ conservano le prove storiche e non qualificano il candidato nuovo.
   casi race PASS, 11 test di prestazione PASS (dieci canonici invariati e
   inbox aggiuntivo). Formato e analyze globali PASS. APK debug, quattro test JVM Android
   e scansione del bundle PASS; 37 gate locali applicabili conclusi.
-  CI finale e smoke nativi restano verifiche separate.
+  Quality CI: 1043 PASS e un golden skipped su Linux; 11 benchmark PASS.
+  Android debug/release, iOS release unsigned e journal Android PASS.
+  Lo smoke iOS compila e avvia il processo, poi termina exit 124 senza test
+  dopo 719 secondi di attesa della VM Service. Cleanup PASS, zero catture iOS.
+  Non è il precedente blocco durante il boot; causa app/attach ancora da distinguere.
 - **Indirizzi:** contratto create/reconcile v3 e journal cifrato prima dell'invio.
   Commit con risposta persa, retry e concorrenza sono stati riprodotti prima
   della correzione. La review ha aggiunto casi ACK malformato, cambio owner
   prima del mount, chiusura route, payload geografico e persistenza Android.
   Il writer ha eseguito 99 test account con esito PASS; re-review sorgente APPROVED con 36 verifiche autonome. Le prove
-  native del nuovo candidato restano pendenti.
+  native sono separate: il job Android journal della CI corrente ha esito PASS
+  dopo force-stop, con PID diverso, stesso APK/UID e cleanup riuscito. Prova
+  della persistenza cifrata locale; backend autenticato NOT_RUN. Una prova
+  equivalente iOS è in preparazione in un worktree isolato.
 - **Inbox:** apertura immediata della destinazione senza attendere markRead,
   nessuna navigazione dalla risposta tardiva; suite mirata 49 PASS. A viewport
   fisso, per 500 righe i widget configurati scendono da 500 a 5; quelli
@@ -33,28 +44,44 @@ conservano le prove storiche e non qualificano il candidato nuovo.
 - **Backend TEST:** le 32 RPC presenti sono conformi ai campi del manifest
   storico da 55; le 23 assenti e le nuove 2 v3 restano da applicare.
   Recovery corrente del perimetro coinvolto PASS: dati e history protetti,
-  apply delle sole tre canoniche nel clone, cleanup tramite Storage API e
-  inverse con history 155 → 158 → 155. Dodici digest di righe e otto
+  apply delle tre canoniche e del delta v3 nel clone, cleanup tramite Storage
+  API e inverse con history 155 → 158 → 159 → 158 → 155. Le 57 RPC e i due
+  indici risultano conformi nel clone. Dodici digest di righe e otto
   fingerprint metadata coincidono col TEST corrente. Integrità FAIL distinta:
   due notifiche conservano otto riferimenti mancanti preesistenti.
   Apply condiviso BLOCKED per finestra writer/cron e prerequisiti live;
-  nessuna riga remota riparata o parent inventato.
-- **Worker TEST:** candidato selettivo `34ed0c50`, 13 file sorgente, review W
-  della selezione senza finding. Configurazione pubblica TEST ottenuta dai
-  connector e salvata in file 0600 esterno a Git; build e runtime commerce
-  restano da verificare.
+  nessuna riga remota riparata o parent inventato. Il ledger v3 è vuoto:
+  recovery con ledger popolato e Auth globale NOT_RUN. La review indipendente
+  delle 56 entry di comando non ha finding; l'attach Storage termina con 137
+  durante il cleanup esplicito, mentre API e cleanup hanno exit 0.
+- **Worker TEST:** candidato selettivo `96758b89`, 14 file sorgente/supporto,
+  review W della selezione senza finding. Il primo verify ha rilevato sette RPC
+  mancanti nell'allowlist; il delta aggiunge le 27 righe canoniche, senza
+  modificare scanner o enforcement. Configurazione pubblica TEST ottenuta dai
+  connector e salvata in file 0600 esterno a Git. Il nuovo verify/Next, la build
+  OpenNext e 29 smoke locali sono PASS dopo il rilascio dei job pesanti N;
+  2012 file di artifact, manifest SHA-256 `c905fde55da03cfc0dca100ee6c8313b0a689e41b1f65ad87c204eda4a208b64`.
+  Cleanup riuscito, source e checkout W preservati; deploy TEST NOT_RUN.
 - **Percorsi e native:** Cinque PoC di privacy riordino/assistenza prima FAIL,
   sette regressioni finali PASS dopo i fix e review distinta senza finding.
   Harness host 75 PASS; matrice indirizzi 9 PASS nelle quattro lingue e due temi.
   La review ha chiuso anche export e retry editor; il solo P2 Auth A→B→A
   in-flight è corretto in `edfec536`, con re-review APPROVED (36 PASS, exit0).
   Servizio hosted operativo; nuova CI sul freeze
-  finale. Prova Android journal in job dedicato, senza consumare il budget
-  delle catture UI. Toolchain locale Xcode27 incompatibile con target14 e
-  Simulator.app assente; nessuna modifica del target. R24 resta della lane N.
+  finale conclusa con la distinzione sopra. Android produce 113 catture Flutter
+  e quattro frame OS reali; review critica indipendente senza finding bloccanti
+  sul campione di 27 immagini. La prova Android journal usa un job dedicato,
+  senza consumare il budget delle catture UI. Toolchain locale Xcode27 incompatibile con target14 e
+  Simulator.app assente; nessuna modifica del target. N ha concluso Android
+  1237 PASS/7 SKIP e iOS 1540 PASS/36 SKIP, più Debug/Release/Analyze PASS
+  con 34 warning preesistenti. Sono gate locali distinti: R24 autenticato
+  resta NOT_RUN e i dispositivi primari restano sotto la responsabilità di N.
 
 [Gate locali e hash del candidato](next-integration/local-gates-operational-20261008.json),
 [benchmark finali misurati](next-integration/performance-operational-20261008.md),
+[recovery corrente con delta v3](next-integration/backend-v3-recovery-20261008.md),
+[build selettiva Worker](next-integration/worker-selective-build-20261008.md),
+[coordinamento N/W](next-integration/coordination-operational-20261008.json),
 [preflight corrente sanitizzato](next-integration/operational-preflight-20261008.json)
 e [registro unico](residuals.md) mantengono le dipendenze TEST, N/W e release.
 R01–R30 e i 25 E2E storici conservano i loro ID; nessun PASS live è dedotto

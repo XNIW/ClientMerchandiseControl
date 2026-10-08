@@ -20,8 +20,18 @@ Il [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md#mandato-operati
  documenta history155, recovery scoped delle tre canoniche PASS e integrità
  preesistente FAIL. Il manifest nuovo ha57RPC: alle23 assenti sullo snapshot
  iniziale55 si aggiungono2RPCv3 e una migration additiva distinta non applicata.
- Recovery del delta v3, finestra writer/cron, TLS/config/pilot approvati e
- accettazione autenticata restano prerequisiti; nessun PASS live dedotto.
+ La [recovery corrente con delta v3](next-integration/backend-v3-recovery-20261008.md)
+ è PASS nel clone con history 155→158→159→158→155 e ledger vuoto;
+ l'integrità preesistente resta FAIL. Finestra writer/cron, TLS/config/pilot
+ approvati e accettazione autenticata restano prerequisiti; nessun PASS live dedotto.
+
+La CI `37817219242` su `62980d2` termina con cinque job PASS e smoke iOS
+ FAIL: build e lancio riusciti, timeout in attesa della VM Service senza test.
+ Android produce 113 PNG Flutter e quattro frame OS;
+ [review pixel distinta](next-integration/native-visual-review-20261008.md)
+ approvata sul campione critico di 27 immagini. iOS capture NOT_RUN.
+ La [build Worker selettiva](next-integration/worker-selective-build-20261008.md)
+ è PASS con 29 smoke locali, mentre il runtime TEST distribuito resta invariato.
 
 Le sezioni del4/5ottobre e le risorse elencate sotto sono snapshot storici,
  inclusi147receipt/55RPC/c796. Non sostituiscono la readiness corrente.

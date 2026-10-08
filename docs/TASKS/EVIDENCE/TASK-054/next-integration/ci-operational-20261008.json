@@ -1,0 +1,916 @@
+{
+  "schema_version": 1,
+  "task": "TASK-054",
+  "scope": "Unica CI candidata, ispezione read-only di job, step, annotation, checkout, log e artifact; nessun rerun/cancel/test locale.",
+  "observed_at": "2026-10-08T18:00:48Z",
+  "result": "FAIL",
+  "run_id": 37817219242,
+  "run_url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37817219242",
+  "attempt": 1,
+  "event": "pull_request",
+  "candidate_sha": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+  "source_sha": "bb53892393710d3ed6d2574053fe1206561b87f0",
+  "source_association": {
+    "documents_only_above_source": true,
+    "receipt": "build/task054/ci-20261008-37817219242/source-association.json",
+    "sha256": "b145235c7b677e5a0d4330b2d9eeee535aa9c864b5a7fa8a00f7be161756699c"
+  },
+  "jobs_pass": 5,
+  "jobs_fail": 1,
+  "jobs": [
+    {
+      "name": "Android address journal restart",
+      "job_id": 113448811429,
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37817219242/job/113448811429",
+      "result": "PASS",
+      "github_conclusion": "success",
+      "started_at": "2026-10-08T17:31:28Z",
+      "completed_at": "2026-10-08T17:38:56Z",
+      "checkout": {
+        "line": 139,
+        "commit": "62980d29327c1bd09d07ecbd0116570f1df4b94f"
+      },
+      "log_path": "build/task054/ci-20261008-37817219242/journal-job.log",
+      "log_sha256": "c4dc25b088be735aa1aa9cb9f93883689fd641a015d57491706eb0345ac026cf",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Validate journal runner failure boundaries",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Validate Flutter toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Resolve dependencies",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Enable runner access to KVM",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Verify durable synthetic journal across two Android processes",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Save journal restart receipts",
+          "conclusion": "success"
+        },
+        {
+          "number": 17,
+          "name": "Post Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 18,
+          "name": "Post Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 19,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "annotations": [
+        {
+          "level": "warning",
+          "line": 6,
+          "message": "Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/"
+        },
+        {
+          "level": "notice",
+          "line": 1,
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\""
+        }
+      ]
+    },
+    {
+      "name": "Android debug build",
+      "job_id": 113448811529,
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37817219242/job/113448811529",
+      "result": "PASS",
+      "github_conclusion": "success",
+      "started_at": "2026-10-08T17:31:28Z",
+      "completed_at": "2026-10-08T17:47:00Z",
+      "checkout": {
+        "line": 139,
+        "commit": "62980d29327c1bd09d07ecbd0116570f1df4b94f"
+      },
+      "log_path": "build/task054/ci-20261008-37817219242/android-debug-job.log",
+      "log_sha256": "990106600f13922e0f899847f0b57e5bd7d192f2ce1ed67ce48f2f6d383b85ff",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Validate Flutter toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Resolve dependencies",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Build APK",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Verify native Android persistence and routing",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Validate Android bundle security",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Enable runner access to KVM",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Capture commerce UI with synthetic fixtures on Android",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Save Android synthetic UI captures and runner receipt",
+          "conclusion": "success"
+        },
+        {
+          "number": 21,
+          "name": "Post Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 22,
+          "name": "Post Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 23,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "annotations": [
+        {
+          "level": "warning",
+          "line": 6,
+          "message": "Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/"
+        },
+        {
+          "level": "notice",
+          "line": 1,
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\""
+        }
+      ]
+    },
+    {
+      "name": "iOS release candidate",
+      "job_id": 113448811673,
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37817219242/job/113448811673",
+      "result": "PASS",
+      "github_conclusion": "success",
+      "started_at": "2026-10-08T17:31:34Z",
+      "completed_at": "2026-10-08T18:00:38Z",
+      "checkout": {
+        "line": 122,
+        "commit": "62980d29327c1bd09d07ecbd0116570f1df4b94f"
+      },
+      "log_path": "build/task054/ci-20261008-37817219242/ios-release-job.log",
+      "log_sha256": "ce5634a932af8392953277150bbeaed62a395e8b9f7f60dc195e95d4de0da5e6",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Validate Flutter toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Resolve dependencies",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Validate iOS release source",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Build production-like unsigned iOS app",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Attest iOS reference build",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Archive production-like unsigned iOS app",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Attest iOS archive Runner",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Validate iOS release candidate",
+          "conclusion": "success"
+        },
+        {
+          "number": 12,
+          "name": "Validate iOS adversarial release boundaries",
+          "conclusion": "success"
+        },
+        {
+          "number": 23,
+          "name": "Post Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 24,
+          "name": "Post Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 25,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "annotations": [
+        {
+          "level": "notice",
+          "line": 1,
+          "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times."
+        }
+      ]
+    },
+    {
+      "name": "Android release candidate",
+      "job_id": 113448811739,
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37817219242/job/113448811739",
+      "result": "PASS",
+      "github_conclusion": "success",
+      "started_at": "2026-10-08T17:31:28Z",
+      "completed_at": "2026-10-08T17:43:54Z",
+      "checkout": {
+        "line": 138,
+        "commit": "62980d29327c1bd09d07ecbd0116570f1df4b94f"
+      },
+      "log_path": "build/task054/ci-20261008-37817219242/android-release-job.log",
+      "log_sha256": "4ae4c976bf6627afc0ddad6420f0feb60829ac5c68919a062c4ad28a28052d38",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Validate Flutter toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Resolve dependencies",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Build production-like unsigned AAB",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Build production-like unsigned inspection APK",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Validate Android release candidate",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Validate Android v2-only signature boundary",
+          "conclusion": "success"
+        },
+        {
+          "number": 17,
+          "name": "Post Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 18,
+          "name": "Post Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 19,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "annotations": [
+        {
+          "level": "notice",
+          "line": 1,
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\""
+        }
+      ]
+    },
+    {
+      "name": "iOS Simulator debug build",
+      "job_id": 113448811818,
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37817219242/job/113448811818",
+      "result": "FAIL",
+      "github_conclusion": "failure",
+      "started_at": "2026-10-08T17:31:33Z",
+      "completed_at": "2026-10-08T17:55:35Z",
+      "checkout": {
+        "line": 123,
+        "commit": "62980d29327c1bd09d07ecbd0116570f1df4b94f"
+      },
+      "log_path": "build/task054/ci-20261008-37817219242/ios-debug-job.log",
+      "log_sha256": "f6d4bf91b65cf7b3fcccb46af204cc9c2f8b6ffd6fdbd8b611e55a8223dc9ad6",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Validate Flutter toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Resolve dependencies",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Compare checkout and tracking goldens (required macOS surface)",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Build iOS Simulator",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Validate iOS bundle security",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Prepare one owned iOS Simulator for smoke and visual",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Smoke iOS on the declared deployment target",
+          "conclusion": "failure"
+        },
+        {
+          "number": 11,
+          "name": "Capture commerce UI with synthetic fixtures on iOS",
+          "conclusion": "skipped"
+        },
+        {
+          "number": 12,
+          "name": "Clean up the owned iOS Simulator",
+          "conclusion": "success"
+        },
+        {
+          "number": 13,
+          "name": "Save synthetic UI captures",
+          "conclusion": "success"
+        },
+        {
+          "number": 25,
+          "name": "Post Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 26,
+          "name": "Post Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 27,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "annotations": [
+        {
+          "level": "warning",
+          "line": 4,
+          "message": "Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/"
+        },
+        {
+          "level": "failure",
+          "line": 15297,
+          "message": "Process completed with exit code 124."
+        },
+        {
+          "level": "notice",
+          "line": 1,
+          "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times."
+        }
+      ]
+    },
+    {
+      "name": "Quality",
+      "job_id": 113448811897,
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37817219242/job/113448811897",
+      "result": "PASS",
+      "github_conclusion": "success",
+      "started_at": "2026-10-08T17:31:29Z",
+      "completed_at": "2026-10-08T17:50:11Z",
+      "checkout": {
+        "line": 144,
+        "commit": "62980d29327c1bd09d07ecbd0116570f1df4b94f"
+      },
+      "log_path": "build/task054/ci-20261008-37817219242/quality-job.log",
+      "log_sha256": "1b2e9346c821de22531588960914349596658c371c582c66162e9dc047859e0c",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Validate workflow action pins",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Validate shell scripts",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Validate backend consumer contract",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Validate client security boundary",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Validate governance state",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Validate Flutter toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Resolve dependencies",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Validate synchronized OS capture bridge",
+          "conclusion": "success"
+        },
+        {
+          "number": 12,
+          "name": "Validate architecture boundaries",
+          "conclusion": "success"
+        },
+        {
+          "number": 13,
+          "name": "Generate localizations",
+          "conclusion": "success"
+        },
+        {
+          "number": 14,
+          "name": "Validate release metadata and native assets",
+          "conclusion": "success"
+        },
+        {
+          "number": 15,
+          "name": "Verify generated and locked files",
+          "conclusion": "success"
+        },
+        {
+          "number": 16,
+          "name": "Check formatting",
+          "conclusion": "success"
+        },
+        {
+          "number": 17,
+          "name": "Analyze",
+          "conclusion": "success"
+        },
+        {
+          "number": 18,
+          "name": "Test with coverage",
+          "conclusion": "success"
+        },
+        {
+          "number": 19,
+          "name": "Performance gate",
+          "conclusion": "success"
+        },
+        {
+          "number": 20,
+          "name": "Check whitespace errors",
+          "conclusion": "success"
+        },
+        {
+          "number": 39,
+          "name": "Post Set up Flutter",
+          "conclusion": "success"
+        },
+        {
+          "number": 40,
+          "name": "Post Checkout",
+          "conclusion": "success"
+        },
+        {
+          "number": 41,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "annotations": [
+        {
+          "level": "notice",
+          "line": 1,
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\""
+        }
+      ]
+    }
+  ],
+  "annotation_counts": {
+    "warning": 3,
+    "notice": 6,
+    "failure": 1
+  },
+  "artifacts": [
+    {
+      "id": 11569040559,
+      "name": "task054-android-visual-fixtures",
+      "size_in_bytes": 3787664,
+      "digest": "sha256:c2a1e302405dc9b3cadffc3c8f9228ea627c689b570bde3a2c2380908da9e74c",
+      "created_at": "2026-10-08T17:46:58Z",
+      "expires_at": "2026-10-15T17:46:57Z"
+    },
+    {
+      "id": 11568059259,
+      "name": "task054-ios-visual-fixtures",
+      "size_in_bytes": 803,
+      "digest": "sha256:afb49bd76b14deed384f7d5a2b9b6c6b3a49c364cd45d2830c9288b9ca62e1e6",
+      "created_at": "2026-10-08T17:55:31Z",
+      "expires_at": "2026-10-15T17:55:29Z"
+    },
+    {
+      "id": 11567687819,
+      "name": "task054-android-address-journal",
+      "size_in_bytes": 5099,
+      "digest": "sha256:40c3d44cb14addf38247d9ebbbbfd4e7d526fc393d4bd625580016ac00c5ed2d",
+      "created_at": "2026-10-08T17:38:53Z",
+      "expires_at": "2026-10-15T17:38:53Z"
+    }
+  ],
+  "quality": {
+    "result": "PASS",
+    "tests_passed": 1043,
+    "tests_skipped": 1,
+    "skip": "Golden dettaglio consegna live 390x844 es-CL light, TargetPlatform.android su Linux; due golden dedicati PASS nel job macOS.",
+    "host_performance_tests": 11,
+    "canonical_benchmarks": 10,
+    "additional_inbox_case": 1,
+    "native_profile_benchmarks": "NOT_RUN"
+  },
+  "android_visual": {
+    "result": "PASS",
+    "evidence_level": "native_android_fixture",
+    "flutter_png": 113,
+    "os_png": 4,
+    "native_test_log_summary": "+76: All tests passed!",
+    "receipt": {
+      "evidence_level": "native_android_fixture",
+      "revision": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+      "capture_count": 113,
+      "api": 35,
+      "abi": "x86_64",
+      "exit_code": 0,
+      "failed_phase": null,
+      "emulator_before_cleanup": null,
+      "cleanup": "PASS"
+    },
+    "artifact_file_manifest_sha256": "c2f40214a7b2436a0a0033ab4c357f0360e686179da3787e0ffc1be2c1fa45e2",
+    "inspection_receipt": "build/task054/ci-20261008-37817219242/android-inspection.json",
+    "inspection_sha256": "6aa2ef8cd6f16b9793af561afd279bc4615b38e72ee674156215b445680fa22c",
+    "os_metadata": [
+      {
+        "gitHead": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+        "source": "os_display",
+        "platform": "android",
+        "marker": "104-assistance-note-focus",
+        "frame_status": "PASS",
+        "probe_status": "PASS",
+        "mInputShown": true,
+        "mIsInputViewShown": true,
+        "ime_acceptance": "NOT_RUN",
+        "frame_sha256": "658eb75a205376628a909bc473cc2bdf401b7d3e80c1683f33afb3a623c7a278",
+        "exit_code": 0,
+        "failed_phase": null,
+        "cleanup_status": "PASS"
+      },
+      {
+        "gitHead": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+        "source": "os_display",
+        "platform": "android",
+        "marker": "62-address-editor-focus-compact200",
+        "frame_status": "PASS",
+        "probe_status": "PASS",
+        "mInputShown": true,
+        "mIsInputViewShown": true,
+        "ime_acceptance": "NOT_RUN",
+        "frame_sha256": "63a9d161b77ac73f3a3e2796dc2d3dd6d7a58384804800a34546d5a8bcd9a59c",
+        "exit_code": 0,
+        "failed_phase": null,
+        "cleanup_status": "PASS"
+      },
+      {
+        "gitHead": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+        "source": "os_display",
+        "platform": "android",
+        "marker": "71-search-field-focus-compact200",
+        "frame_status": "PASS",
+        "probe_status": "PASS",
+        "mInputShown": true,
+        "mIsInputViewShown": true,
+        "ime_acceptance": "NOT_RUN",
+        "frame_sha256": "02147d5adddc11998cfbdb208a026549001a557db2c3984a22a1a147126724d4",
+        "exit_code": 0,
+        "failed_phase": null,
+        "cleanup_status": "PASS"
+      },
+      {
+        "gitHead": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+        "source": "os_display",
+        "platform": "android",
+        "marker": "97-review-comment-focus-compact200",
+        "frame_status": "PASS",
+        "probe_status": "PASS",
+        "mInputShown": true,
+        "mIsInputViewShown": true,
+        "ime_acceptance": "NOT_RUN",
+        "frame_sha256": "2bbb623563c156244f0259262b8ebf329b79064301c21c409ea7f5085086ea1e",
+        "exit_code": 0,
+        "failed_phase": null,
+        "cleanup_status": "PASS"
+      }
+    ],
+    "os_hashes_verified": true,
+    "first_inspection": {
+      "flutter_images_seen": 113,
+      "os_frames_seen": 4,
+      "author_lane": 83,
+      "separate_child_lane_flutter": 30,
+      "separate_child_lane_os": 4,
+      "child_receipt": "build/task054/ci-20261008-37817219242/android-artifact/android-pixel-review/android-pixel-review.json",
+      "child_receipt_sha256": "22a834876ffd8d0b9360d690259bc495be9a49a0afb6f12a19b67489c6b34f5f",
+      "unknown_copy_and_actions_readable": "8/8 locales×themes",
+      "keyboard_pixels_visible": "4/4 OS frames",
+      "render_overflow_stripes_seen": false,
+      "limits": "Posizioni scorse possono mostrare bordi parziali; nessuna irraggiungibilità dedotta dal solo cutoff. Prima ispezione non approva il proprio harness. Review UI distinta in native-visual-review-20261008."
+    }
+  },
+  "android_journal": {
+    "result": "PASS",
+    "evidence_level": "native_android_fixture",
+    "api": 35,
+    "abi": "x86_64",
+    "run_id": "93a73501-b46b-409a-a316-07b6fb08870c",
+    "exit_code": 0,
+    "seed_process_id": 4242,
+    "recover_process_id": 4453,
+    "seed_terminated": "PASS",
+    "same_apk_and_uid": "PASS",
+    "app_identity": {
+      "uid": 10209,
+      "apk_sha256": "4fef2fdb6fd597491ea6464051e902d61d2e8cf86cd13a514feb1caa138e6b1f"
+    },
+    "process_restart_read": "PASS",
+    "cleanup": "PASS",
+    "backend": "NOT_RUN",
+    "receipt_sha256": "13b1f0025a341a7fd421b12cd63f14ee86279a3a68ed3aba2da58c4d15257ed2",
+    "limits": "Persistenza di fixture dopo force-stop sullo stesso APK/UID; non power-loss, device fisico o recovery autenticata."
+  },
+  "ios_smoke": {
+    "job_result": "FAIL",
+    "runtime_acceptance": "BLOCKED",
+    "test_outcome": "NOT_RUN",
+    "visual_outcome": "NOT_RUN",
+    "exit_code": 124,
+    "classification": "runtime_or_vm_service_attachment_timeout_after_successful_boot_build_and_simctl_launch",
+    "root_cause": "UNDETERMINED",
+    "product_defect_demonstrated": false,
+    "boot_elapsed_seconds": 150,
+    "smoke_build_elapsed_seconds": 87.1,
+    "launched_pid": 31543,
+    "vm_service_wait_seconds": 719,
+    "wrapper_timeout_seconds": 900,
+    "excerpt": [
+      {
+        "line": 568,
+        "text": "2026-10-08T17:35:43.5861740Z Xcode build done.                                           108.4s"
+      },
+      {
+        "line": 992,
+        "text": "2026-10-08T17:39:47.1365400Z [2026-10-08 17:39:46 +0000] Status=4294967295, isTerminal=YES, Elapsed=02:30."
+      },
+      {
+        "line": 993,
+        "text": "2026-10-08T17:39:47.1367540Z \tFinished"
+      },
+      {
+        "line": 996,
+        "text": "2026-10-08T17:40:09.7009000Z READY: simulatore proprio preparato per smoke e visual"
+      },
+      {
+        "line": 15929,
+        "text": "2026-10-08T17:42:53.8353740Z [        ] Xcode build done.                                           87.1s"
+      },
+      {
+        "line": 16241,
+        "text": "2026-10-08T17:43:11.9416170Z [ +402 ms] executing: /usr/bin/arch -arm64e xcrun simctl launch DBFA8149-F97C-4643-9159-DB3B3DA81765 com.xniw.clientmerchandisecontrol --enable-dart-profiling --disable-vm-service-publication --enable-checked-mode --verify-entry-points"
+      },
+      {
+        "line": 16243,
+        "text": "2026-10-08T17:43:24.4276350Z [+12532 ms] com.xniw.clientmerchandisecontrol: 31543"
+      },
+      {
+        "line": 16244,
+        "text": "2026-10-08T17:43:24.5264580Z [  +80 ms] Waiting for VM Service port to be available..."
+      },
+      {
+        "line": 16245,
+        "text": "2026-10-08T17:55:22.7528620Z [+719138 ms] Running 4 shutdown hooks"
+      },
+      {
+        "line": 16249,
+        "text": "2026-10-08T17:55:22.7944450Z No tests ran."
+      },
+      {
+        "line": 16260,
+        "text": "2026-10-08T17:55:22.8031320Z [   +4 ms] \"flutter test\" took 899,186ms."
+      },
+      {
+        "line": 16292,
+        "text": "2026-10-08T17:55:24.7409080Z FAIL: timeout dopo 900s"
+      },
+      {
+        "line": 16293,
+        "text": "2026-10-08T17:55:24.8087750Z ##[error]Process completed with exit code 124."
+      }
+    ]
+  },
+  "ios_visual": {
+    "result": "NOT_RUN",
+    "reason": "Smoke fallito prima di eseguire test; step visual skipped.",
+    "flutter_png": 0,
+    "os_png": 0,
+    "expected_flutter_png": 113,
+    "expected_os_png": 4,
+    "runtime": "iOS26.5",
+    "owned_ready": true,
+    "cleanup": "PASS",
+    "cleanup_attempts": 1,
+    "process_cleanup_failed": false,
+    "receipt_sha256": "869ef1e15101268c3f7b67ad0f76f6e513c6645c655f40a3f3453d507ee4f9be",
+    "step_receipt_sha256": "7ee9a1baa7db586d7f1c1e6e76cf35524a8af5da8f53931cdaab4ba26a0317b0",
+    "owner_context_note": "GITHUB_SHA298bd51583af11393236b9e67ae53f5958741e55 è merge event context; checkout effettivo62980d2 verificato dal git log del job."
+  },
+  "ios_release": {
+    "result": "PASS",
+    "signing": "UNSIGNED",
+    "adversarial_fixtures": "89/89 PASS",
+    "distribution": "NOT_RUN"
+  },
+  "diagnostic_readonly": {
+    "sdk": "Flutter3.44.8",
+    "smoke_discovery": "ProtocolDiscovery legge URI da DeviceLogReader/unified log; attesa URI dopo simctl.launch. Fonte SDK locale: packages/flutter_tools/lib/src/ios/simulators.dart:478–535,815–870 e protocol_discovery.dart:115+.",
+    "discriminator_proposed": "Runner journal separato con simctl --stdout/--stderr privati, attestazione PID/binario e ricerca URI entro 30s; nessuna patch app/entitlements presunta, nessun aumento del timeout smoke 900s o del budget CI.",
+    "existing_smoke_patch": "NOT_RUN; non necessaria per acquisire prima prova contrastiva.",
+    "exclusive_root_cause": "Questi log non distinguono mancata disponibilità di engine/VM da discovery tramite unified log. La mancanza Bonjour non dimostra causalità."
+  },
+  "remaining": {
+    "ios_native_journal": "NOT_RUN: non incluso nei sei job del candidato 62980d2.",
+    "talkback_voiceover": "NOT_RUN: nessuna interazione assistive technology in questa CI.",
+    "profile_device_benchmarks": "NOT_RUN: le 11 misure CI sono flutter_test_host.",
+    "authenticated_staging_backend": "NOT_RUN: fixture sintetiche e runner locali non attraversano Auth/backend reale.",
+    "global_operational_acceptance": "BLOCKED: smoke/catture iOS e gate reali separati non chiusi."
+  },
+  "acquisition": {
+    "metadata_and_all_final_log_downloads_exit": 0,
+    "ios_log_first_download": "TLS handshake timeout exit 1, file vuoto; retry read-only exit 0. Non è un rerun CI.",
+    "all_local_processes_terminal": true
+  },
+  "raw_evidence_policy": "Solo capsule sanitizzata versionata; log completi,PNG e artifact scaricati restano build/ignored."
+}

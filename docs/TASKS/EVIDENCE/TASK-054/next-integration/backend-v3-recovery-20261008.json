@@ -1,0 +1,470 @@
+{
+  "execution_evidence_review": {
+    "findings_open": 0,
+    "phase_command_entries": 50,
+    "qualification": "Empty-ledger local cycle only; no shared runtime, global Auth or relational-integrity approval.",
+    "readonly_inspection_command_entries": 6,
+    "result": "PASS",
+    "review_receipt": "v3-execution-receipts-independent-review.json",
+    "review_receipt_sha256": "1b04aeed005adb65e5e9e1fffec279d292a356f6d582a5d05f5235a455e0ab41",
+    "scope": "Independent review of local receipts and metadata only; no SQL rerun or protected row reads",
+    "total_recorded_command_entries": 56
+  },
+  "external_package": "task054-operational-backend-20261008/v3-additive-recovery",
+  "external_receipt_sha256": {
+    "current-canonical-apply-receipt.json": "ad772afe69a8474d54d5dfef4e3e0802d4a548e7ec1a12ebf999b56b343b7bb8",
+    "current-scoped-recovery-final.json": "ba29f01a47d6cc7c841da8fd0253d417ce28eff7371428c134c44d6ce063709c",
+    "current-server-native-digest-receipt.json": "288aabf5c91ffac149e0bc3f10fdc1925772c758aa60db5bf24e8e726f628d43",
+    "current-storage-api-receipt.json": "64c3888c18a405c530665ab59da88c981aa507bbd124c2c51dad83f8c59a0939",
+    "scoped-recovery-apply-commands.json": "734792120bce7c444dce860e06e38a5a6a11b06da71eb70309fa2ec8cb0c1a67",
+    "scoped-recovery-apply_v3-commands.json": "05d94d79583c902c76361e9ee0ea6a27c6cc342de7cb21f9dbaf23ccaa1a031a",
+    "scoped-recovery-inspection-commands.json": "41a5780b2b17e65bff4ca3cfa4da4bacff6e471ec4c4bcc43045496c91eaae25",
+    "scoped-recovery-inverse-commands.json": "a606ab79cf584b4485593979110a04475cd8aa3a41fc99282bc907aa21de2c79",
+    "scoped-recovery-inverse_v3-commands.json": "9ebdd7aacd93d743c3b4c959aabb32fa4f3b823344605db114cbdca275e28684",
+    "v3-apply-receipt.json": "7a9e1f1bac725491ff54e16e0847b649f44415243737efc12355342d26df5a2c",
+    "v3-canonical-byte-preflight.json": "71948963e8de41637e56b930fa7f5005f32441934817a10c6e3fbb0949ac5a2a",
+    "v3-execution-preflight.json": "94fdbedec9b6fd592fc497ffafa3f8e06f7fbef3a82125c87ae381be5f2dfc3f",
+    "v3-execution-receipts-independent-review.json": "1b04aeed005adb65e5e9e1fffec279d292a356f6d582a5d05f5235a455e0ab41",
+    "v3-inverse-receipt.json": "90df39966058d097ad3375f3eacb1ca88d95310c0a62797fa5e11ea46c0ac3e7",
+    "v3-inverse-static-readback.json": "885d71502773cc7c2509baead3afaa6d96d3233f2e5c01815996bbd17d299a17",
+    "v3-preflight-server-native-digest.json": "e3d120829ffce4ed56504f796218b8870e65d757a8bb9f00945118796cc93ff2",
+    "v3-static-rereview-receipt.json": "d45981b079f36f0c2f8e235957cc2e677d9bee09049889c26bbf8cb493166d4d",
+    "v3-storage-api-schema-readback.json": "b3249b1e9f67581c6304daadbf533dc53eeae2b25c38892c5f85064e79542b38"
+  },
+  "history_qualification": "155 original exported rows preserved; four local receipts recorded only after actual canonical SQL applies; removed only those local receipts during inverse. No shared history repair and no claim of remote CLI atomicity.",
+  "history_sequence": [
+    155,
+    158,
+    159,
+    158,
+    155
+  ],
+  "hygiene": {
+    "external_directory_mode": "0700",
+    "external_file_mode": "0600",
+    "heavy_lease_released": true,
+    "new_repository_files_only": [
+      "backend-v3-recovery-20261008.json",
+      "backend-v3-recovery-20261008.md"
+    ],
+    "postgres_clone_retained_for_review": true,
+    "previous_backend_evidence_untouched": true,
+    "raw_data_outside_git": true,
+    "verification_processes_pending": false
+  },
+  "inverse_scope": {
+    "altered_tables": [
+      "\"app_private\".\"customer_address_create_intents_v3\""
+    ],
+    "broad_drop_absent": true,
+    "dropped_functions": [
+      "app_private.customer_address_session_user_v3",
+      "public.customer_address_create_reconcile_v3",
+      "public.customer_address_create_v3"
+    ],
+    "dropped_tables": [
+      "\"app_private\".\"customer_address_create_intents_v3\""
+    ],
+    "inverse_sha256": "6ad8c59ea7a1a2ccc4d7d528dc90ac1f20b1b54a25e68b61df266411f808f607",
+    "local_database_guard": true,
+    "locked_tables": [
+      "\"app_private\".\"customer_address_create_intents_v3\""
+    ],
+    "nonempty_ledger_guard": true,
+    "result": "PASS"
+  },
+  "limits": [
+    "No shared TEST SQL mutation, cron change, account/session fabrication or production action.",
+    "Shared apply still requires coordinated writer/cron exclusion, refreshed recovery inputs and approved artifact configuration plus readonly PostgreSQL TLS gate.",
+    "Recovery fidelity does not change relational integrity FAIL caused by two preexisting notifications and eight missing FK references.",
+    "No global database/Auth or unrelated Storage backup claim."
+  ],
+  "local_contract": {
+    "errors": [],
+    "fields": [
+      "identity_arguments",
+      "arguments",
+      "result",
+      "security_definer",
+      "anon_execute",
+      "authenticated_execute",
+      "settings",
+      "definition_md5"
+    ],
+    "history_count_at_readback": 159,
+    "indexes": 2,
+    "indexes_observed": [
+      {
+        "definition": "CREATE UNIQUE INDEX customer_notification_events_hold_source_idx ON public.customer_notification_events USING btree (reservation_hold_id, event_key) WHERE (source_kind = 'reservation_hold'::text)",
+        "name": "customer_notification_events_hold_source_idx",
+        "schema": "public",
+        "unique": true,
+        "valid": true
+      },
+      {
+        "definition": "CREATE UNIQUE INDEX customer_notification_events_safe_dedup_idx ON public.customer_notification_events USING btree (user_id, shop_id, source_kind, destination_id, event_key, event_version) WHERE (source_kind <> 'reservation_hold'::text)",
+        "name": "customer_notification_events_safe_dedup_idx",
+        "schema": "public",
+        "unique": true,
+        "valid": true
+      }
+    ],
+    "readback_observed_at": "2026-10-08T17:27:12.173709+00:00",
+    "result": "PASS",
+    "rpcs": 57,
+    "v3_ledger": {
+      "anon": false,
+      "authenticated": false,
+      "force": true,
+      "owner": "postgres",
+      "public_grant": false,
+      "rls": true,
+      "rows": 0,
+      "service_role": false
+    },
+    "v3_private_helper_acl": {
+      "anon": false,
+      "authenticated": false,
+      "owner": "postgres",
+      "public": false,
+      "service_role": false
+    },
+    "v3_public_rpc_acl": [
+      {
+        "anon": false,
+        "authenticated": true,
+        "name": "customer_address_create_reconcile_v3",
+        "owner": "postgres",
+        "public": false,
+        "service_role": false
+      },
+      {
+        "anon": false,
+        "authenticated": true,
+        "name": "customer_address_create_v3",
+        "owner": "postgres",
+        "public": false,
+        "service_role": false
+      }
+    ]
+  },
+  "preflight": {
+    "activity": {
+      "current_database": "task054_scoped_recovery_current",
+      "other_active_transactions": 0,
+      "other_connections": 0,
+      "replication_role": "origin"
+    },
+    "baseline_metadata_matches_prior_recovery": true,
+    "checked_at_utc": "2026-10-08T17:26:26.070037+00:00",
+    "container": "cmc-task054-address-create-20261008",
+    "container_running": true,
+    "existing_orphans": {
+      "order": 2,
+      "shop": 2,
+      "source_event": 2,
+      "user": 2
+    },
+    "history": 155,
+    "metadata_matches_target_snapshot": {
+      "columns": true,
+      "constraints": true,
+      "functions": true,
+      "indexes": true,
+      "policies": true,
+      "tables": true,
+      "triggers": true,
+      "views": true
+    },
+    "network": "none",
+    "relational_integrity": "FAIL",
+    "remote_writes": false,
+    "result": "PASS",
+    "root_heavy_lease": "EXCLUSIVE_GRANTED",
+    "runner_pid": 97401,
+    "runner_sha256": "43fed53dfb8bb5f1f21b1177cb54b8896f82ac0466571677aceec8fd14a600a2"
+  },
+  "recorded_at_utc": "2026-10-08T17:33:54.814791+00:00",
+  "recovery": {
+    "auth_boundary": "13 existing user ids projected only; no credentials or Auth sessions created or recovered; no authenticated RPC calls.",
+    "existing_orphans": {
+      "by_fk": {
+        "order": 2,
+        "shop": 2,
+        "source_event": 2,
+        "user": 2
+      },
+      "missing_references": 8,
+      "notification_rows": 2,
+      "parent_rows_invented": false,
+      "result": "FAIL",
+      "source_rows_deleted": false
+    },
+    "existing_rows_unchanged_through_v3": true,
+    "final_metadata_matches_before": true,
+    "final_metadata_matches_recorded_target_baseline": {
+      "columns": true,
+      "constraints": true,
+      "functions": true,
+      "indexes": true,
+      "policies": true,
+      "tables": true,
+      "triggers": true,
+      "views": true
+    },
+    "inverse_v3_returns_after_three_metadata": true,
+    "ledger_boundary": "New v3 ledger stays empty. This proof does not cover inverse of a populated v3 ledger.",
+    "native_final_readonly_digests": {
+      "checks": [
+        {
+          "count": 13,
+          "same_count_and_server_native_digest": true,
+          "table": "auth.users"
+        },
+        {
+          "count": 1238,
+          "same_count_and_server_native_digest": true,
+          "table": "catalog.all_trigger_flags"
+        },
+        {
+          "count": 0,
+          "same_count_and_server_native_digest": true,
+          "table": "public.customer_addresses"
+        },
+        {
+          "count": 0,
+          "same_count_and_server_native_digest": true,
+          "table": "public.customer_checkout_quotes"
+        },
+        {
+          "count": 2,
+          "same_count_and_server_native_digest": true,
+          "table": "public.customer_notification_events"
+        },
+        {
+          "count": 6,
+          "same_count_and_server_native_digest": true,
+          "table": "public.customer_orders"
+        },
+        {
+          "count": 0,
+          "same_count_and_server_native_digest": true,
+          "table": "public.customer_payment_events"
+        },
+        {
+          "count": 7,
+          "same_count_and_server_native_digest": true,
+          "table": "public.profiles"
+        },
+        {
+          "count": 7,
+          "same_count_and_server_native_digest": true,
+          "table": "public.shops"
+        },
+        {
+          "count": 6,
+          "same_count_and_server_native_digest": true,
+          "table": "public.storefront_fulfillment_slots"
+        },
+        {
+          "count": 6,
+          "same_count_and_server_native_digest": true,
+          "table": "public.storefront_pickup_points"
+        },
+        {
+          "count": 1,
+          "same_count_and_server_native_digest": true,
+          "table": "public.storefront_settings"
+        },
+        {
+          "count": 155,
+          "same_count_and_server_native_digest": true,
+          "table": "supabase_migrations.schema_migrations"
+        }
+      ],
+      "http_status": 201,
+      "normalization": "NONE; exact PostgreSQL to_jsonb(row)::text aggregates, computed independently on target and restored clone",
+      "numeric_precision_or_string_coercion": "NONE",
+      "remote_changes": false,
+      "result": "PASS",
+      "scope": "READ_ONLY_CURRENT_SERVER_NATIVE_TEXT_DIGESTS",
+      "scope_sets": 13,
+      "started_at": "2026-10-08T17:28:49.397385+00:00"
+    },
+    "row_sets": {
+      "auth.users": {
+        "count": 13,
+        "same": true
+      },
+      "public.customer_addresses": {
+        "count": 0,
+        "same": true
+      },
+      "public.customer_checkout_quotes": {
+        "count": 0,
+        "same": true
+      },
+      "public.customer_notification_events": {
+        "count": 2,
+        "same": true
+      },
+      "public.customer_orders": {
+        "count": 6,
+        "same": true
+      },
+      "public.customer_payment_events": {
+        "count": 0,
+        "same": true
+      },
+      "public.profiles": {
+        "count": 7,
+        "same": true
+      },
+      "public.shops": {
+        "count": 7,
+        "same": true
+      },
+      "public.storefront_fulfillment_slots": {
+        "count": 6,
+        "same": true
+      },
+      "public.storefront_pickup_points": {
+        "count": 6,
+        "same": true
+      },
+      "public.storefront_settings": {
+        "count": 1,
+        "same": true
+      }
+    }
+  },
+  "results": {
+    "authenticated_behavior": "NOT_RUN",
+    "global_auth_recovery": "NOT_RUN",
+    "global_database_backup": "NOT_RUN",
+    "local_57_rpc_index_history_contract": "PASS",
+    "recovery_fidelity": "PASS",
+    "relational_integrity": "FAIL",
+    "shared_TEST_apply": "NOT_RUN"
+  },
+  "schema_version": 1,
+  "scope": "CURRENT_SCOPED_LOCAL_RECOVERY_THREE_CANONICALS_PLUS_EXACT_ADDRESS_V3",
+  "source": {
+    "admin_v3_commit": "f16c5f4f",
+    "canonical_migrations": [
+      {
+        "exact": true,
+        "migration": "20260823023037_client_commerce_journey_v1.sql",
+        "sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc"
+      },
+      {
+        "exact": true,
+        "migration": "20260823150000_customer_after_sales_order_lines_v1.sql",
+        "sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467"
+      },
+      {
+        "exact": true,
+        "migration": "20260928200000_customer_notification_hold_dedup.sql",
+        "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e"
+      }
+    ],
+    "client_head_at_capsule_generation": "62980d29327c1bd09d07ecbd0116570f1df4b94f",
+    "manifest_sha256": "9eadce2cfddbb894dc6e018a26d5ff152dc69b05dd1c6d9fee9c83f83a9585b8",
+    "protocol_sha256": "4b5559c27575cab4e7bf874cb6f390ac331d76fd32eb8ae10b8e8c3e23eab8ca",
+    "qualification": "Client HEAD identifies the manifest source checkout at capsule generation, not authenticated or hosted runtime acceptance.",
+    "reviewed_runner_sha256": "43fed53dfb8bb5f1f21b1177cb54b8896f82ac0466571677aceec8fd14a600a2",
+    "v3_migration_sha256": "b290c6373d2d49a3c9fb4847e5ee8f47f2ce11f4eeeb17da4d3fc4086a615e56"
+  },
+  "static_review": {
+    "negative_acl_cases": 17,
+    "new_sql_suite_1035": "NOT_RUN; unchanged historical suite not repeated",
+    "receipt_sha256": "d45981b079f36f0c2f8e235957cc2e677d9bee09049889c26bbf8cb493166d4d",
+    "result": "PASS",
+    "total_pure_cases": 18
+  },
+  "storage": {
+    "attach_exit_qualification": "137 follows explicit docker rm -f after successful API checks; container_state in raw receipt is the earlier running snapshot, not final state.",
+    "container_cleanup_exit": 0,
+    "delete_http": 200,
+    "docker_attach_exit": 137,
+    "get_http": 200,
+    "history_qualification": "62 known migrations share exact names/hashes with target prefix; hash refresh disabled, all73 storage history rows unchanged.",
+    "image": "public.ecr.aws/supabase/storage-api:v1.69.0",
+    "image_id": "sha256:28424184c9f699790cc190f78ddf7d6abfb5c87af78af260529a394d12c135e9",
+    "migration_freeze": "mark-filename-immutable",
+    "node_api_exit": 0,
+    "object_bytes_recovery": "NOT_RUN; scoped objects were zero in protected export.",
+    "owned_container_absent_after_cleanup": true,
+    "private_bucket": true,
+    "readback_body_status": 404,
+    "readback_http": 400,
+    "result": "PASS",
+    "runner_exit": 0,
+    "same_local_database": true,
+    "schema_and_history_readback": {
+      "bucket_count": 0,
+      "metadata_equals_after_three": true,
+      "object_count": 0,
+      "result": "PASS",
+      "storage_history73_identical": true,
+      "storage_migration_rows": 73
+    }
+  },
+  "terminal_commands": [
+    {
+      "command": "Python readonly clone preflight (recorded in v3-execution-preflight.json)",
+      "exit_code": 0,
+      "phase": "preflight",
+      "runner_pid": 97401
+    },
+    {
+      "command": "python3 verify-current-scoped-server-digests.py",
+      "exec_session": 27528,
+      "exit_code": 0,
+      "phase": "native-digest-preflight"
+    },
+    {
+      "command": "python3 scoped-recovery.py apply",
+      "exec_session": 75564,
+      "exit_code": 0,
+      "phase": "apply3"
+    },
+    {
+      "command": "python3 v3-delta.py apply_v3",
+      "exec_session": 67618,
+      "exit_code": 0,
+      "phase": "apply-v3"
+    },
+    {
+      "command": "python3 v3-delta.py inverse_v3",
+      "exec_session": 5790,
+      "exit_code": 0,
+      "phase": "inverse-v3"
+    },
+    {
+      "command": "python3 current-storage-api.py",
+      "exec_session": 54161,
+      "exit_code": 0,
+      "phase": "Storage API",
+      "runner_pid": 98989
+    },
+    {
+      "command": "python3 scoped-recovery.py inverse",
+      "exec_session": 62436,
+      "exit_code": 0,
+      "phase": "inverse3"
+    },
+    {
+      "command": "python3 verify-current-scoped-server-digests.py",
+      "exec_session": 22261,
+      "exit_code": 0,
+      "phase": "native-digest-final"
+    },
+    {
+      "command": "docker ps -a --filter name=^/cmc-task054-storage-current-20261008$ --format {{.Names}}",
+      "exit_code": 0,
+      "matching_containers": 0,
+      "phase": "owned-container-absence"
+    }
+  ]
+}

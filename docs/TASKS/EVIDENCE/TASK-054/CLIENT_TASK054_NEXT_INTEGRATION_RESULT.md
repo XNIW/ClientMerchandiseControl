@@ -5,10 +5,13 @@
 Stato BLOCKED/REVIEW, handoff CODEX_REVIEW_BLOCKED.
 Freeze sorgente `bb53892393710d3ed6d2574053fe1206561b87f0`,
  approvato SOURCE_CODE_ONLY dopo re-review dei contratti (9 PASS autonomi).
-Il candidato PR29 `62980d29327c1bd09d07ecbd0116570f1df4b94f` contiene lo stesso
-codice del freeze e 17 file documentali aggiuntivi. La CI `37817219242` è
-terminale FAIL su questo SHA: cinque job PASS, smoke iOS FAIL durante il
-collegamento alla VM Service. Le ricevute successive sono raccolte sul branch separato
+Il candidato PR29 è `e7b194cea8bb53b23d3e994268d5cd47e67d085e`: source
+applicativo invariato, con nuovo gate journal iOS approvato su nove hash
+associati al commit, 21 unit e otto PoC indipendenti PASS. La CI precedente
+`37817219242` su `62980d2` è terminale FAIL: cinque job PASS, smoke iOS FAIL
+durante il collegamento alla VM Service. La nuova CI `37822118836` ha due
+job iOS bloccati già nell'inventario postboot e cleanup processi: esito finale
+**cinque job PASS e due FAIL**, incluso iOS release unsigned PASS. Le ricevute sono sul branch separato
 `codex/task054-operational-evidence-20261008`. La base è
 `3962414` (codice PR29 `c796526`). Le sezioni del rapporto del 5 ottobre
 conservano le prove storiche e non qualificano il candidato nuovo.
@@ -19,18 +22,21 @@ conservano le prove storiche e non qualificano il candidato nuovo.
   e scansione del bundle PASS; 37 gate locali applicabili conclusi.
   Quality CI: 1043 PASS e un golden skipped su Linux; 11 benchmark PASS.
   Android debug/release, iOS release unsigned e journal Android PASS.
-  Lo smoke iOS compila e avvia il processo, poi termina exit 124 senza test
-  dopo 719 secondi di attesa della VM Service. Cleanup PASS, zero catture iOS.
-  Non è il precedente blocco durante il boot; causa app/attach ancora da distinguere.
+  Nella CI precedente su629 lo smoke iOS compila e avvia il processo, poi
+  termina exit 124 senza test dopo 719 secondi di attesa della VM Service;
+  cleanup PASS e zero catture. Nella CI finale su e7 l'app non viene avviata:
+  prepare/inventario postboot e cleanup processi FAIL, risorse Simulator
+  eliminate. Quiescenza non attestata; nessun difetto dell'app dedotto.
 - **Indirizzi:** contratto create/reconcile v3 e journal cifrato prima dell'invio.
   Commit con risposta persa, retry e concorrenza sono stati riprodotti prima
   della correzione. La review ha aggiunto casi ACK malformato, cambio owner
   prima del mount, chiusura route, payload geografico e persistenza Android.
   Il writer ha eseguito 99 test account con esito PASS; re-review sorgente APPROVED con 36 verifiche autonome. Le prove
-  native sono separate: il job Android journal della CI corrente ha esito PASS
+  native sono separate: il job Android journal della CI finale su e7 ha esito PASS
   dopo force-stop, con PID diverso, stesso APK/UID e cleanup riuscito. Prova
   della persistenza cifrata locale; backend autenticato NOT_RUN. Una prova
-  equivalente iOS è in preparazione in un worktree isolato.
+  equivalente iOS è implementata e revisionata, ma non attraversata perché
+  la preparazione fallisce prima della fixture. Non è un fallimento Keychain.
 - **Inbox:** apertura immediata della destinazione senza attendere markRead,
   nessuna navigazione dalla risposta tardiva; suite mirata 49 PASS. A viewport
   fisso, per 500 righe i widget configurati scendono da 500 a 5; quelli
@@ -62,25 +68,37 @@ conservano le prove storiche e non qualificano il candidato nuovo.
   OpenNext e 29 smoke locali sono PASS dopo il rilascio dei job pesanti N;
   2012 file di artifact, manifest SHA-256 `c905fde55da03cfc0dca100ee6c8313b0a689e41b1f65ad87c204eda4a208b64`.
   Cleanup riuscito, source e checkout W preservati; deploy TEST NOT_RUN.
+  Il packaging Wrangler successivo, con rete negata, è PASS: quattro symlink
+  inventariati e nessuno selezionato nel multipart locale. Cinque riferimenti
+  package esterni mantengono runtime NOT_RUN; nessun difetto dedotto dai link.
 - **Percorsi e native:** Cinque PoC di privacy riordino/assistenza prima FAIL,
   sette regressioni finali PASS dopo i fix e review distinta senza finding.
   Harness host 75 PASS; matrice indirizzi 9 PASS nelle quattro lingue e due temi.
   La review ha chiuso anche export e retry editor; il solo P2 Auth A→B→A
   in-flight è corretto in `edfec536`, con re-review APPROVED (36 PASS, exit0).
-  Servizio hosted operativo; nuova CI sul freeze
-  finale conclusa con la distinzione sopra. Android produce 113 catture Flutter
+  La CI su629 produce 113 catture Flutter Android
   e quattro frame OS reali; review critica indipendente senza finding bloccanti
-  sul campione di 27 immagini. La prova Android journal usa un job dedicato,
+  sul campione di 27 immagini. La CI e7 conferma gli stessi conteggi: 109 PNG
+  Flutter identici, quattro Flutter e quattro OS mutati ispezionati nuovamente
+  dal reviewer, senza finding e con IME visibile nei quattro frame OS. La prova Android journal usa un job dedicato,
   senza consumare il budget delle catture UI. Toolchain locale Xcode27 incompatibile con target14 e
   Simulator.app assente; nessuna modifica del target. N ha concluso Android
   1237 PASS/7 SKIP e iOS 1540 PASS/36 SKIP, più Debug/Release/Analyze PASS
-  con 34 warning preesistenti. Sono gate locali distinti: R24 autenticato
-  resta NOT_RUN e i dispositivi primari restano sotto la responsabilità di N.
+  con 34 warning preesistenti. N ha poi integrato Android PR23/main9d5c270b
+  e riferisce nuova installazione TEST con dati/preferenze preservati;
+  recupero terminale e ACK restano da provare. iOS PR21/3212799e è aperta:
+  CI full suite fallita dopo build riuscita, diagnosi affidata a N. Il Mac è
+  nuovamente bloccato; R24 resta NOT_RUN e i dispositivi restano sotto N.
 
 [Gate locali e hash del candidato](next-integration/local-gates-operational-20261008.json),
 [benchmark finali misurati](next-integration/performance-operational-20261008.md),
 [recovery corrente con delta v3](next-integration/backend-v3-recovery-20261008.md),
 [build selettiva Worker](next-integration/worker-selective-build-20261008.md),
+[packaging e symlink Worker](next-integration/worker-selective-packaging-20261008.md),
+[CI629 terminale](next-integration/ci-operational-20261008.md),
+[CI finale e7](next-integration/ci-ios-journal-20261008.md),
+[associazione pixel finale](next-integration/native-visual-association-e7b194c-20261008.md),
+[review pixel Android](next-integration/native-visual-review-20261008.md),
 [coordinamento N/W](next-integration/coordination-operational-20261008.json),
 [preflight corrente sanitizzato](next-integration/operational-preflight-20261008.json)
 e [registro unico](residuals.md) mantengono le dipendenze TEST, N/W e release.

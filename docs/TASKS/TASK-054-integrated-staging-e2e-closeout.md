@@ -4,7 +4,7 @@
 - **Stato**: BLOCKED
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Handoff**: CODEX_REVIEW_BLOCKED
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -869,3 +869,45 @@ Il reviewer read-only distinto `/root/backend_readiness` comunica APPROVED
  verificare dopo il commit selettivo, prima dell’integrazione root.
 
 Handoff di consegna: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## Re-review integrata del checkpoint nativo e backend — 2026-10-08
+
+La source review del nuovo gate iOS è associata indipendentemente al commit
+`e7b194cea8bb53b23d3e994268d5cd47e67d085e`: nove hash byte-identici,
+21 unit e otto PoC autonomi PASS. Tutti e tre i finding P2 risultano chiusi.
+L'app resta byte-identica al freeze bb538923; il nuovo delta modifica fixture,
+orchestratore, gate e documenti. Nessuna approvazione integrata è dedotta.
+
+La CI precedente `37817219242` su629 è terminale FAIL: cinque job PASS e
+smoke iOS exit124 dopo build/launch, senza test per VM Service non scoperta.
+La singola CI successiva `37822118836` su e7 aggiunge una prova discriminante
+con console privata. I suoi due job iOS nativi falliscono già nella preparazione:
+bootstatus PASS, inventario postboot timeout30s, probe processi EPERM/timeout.
+Shutdown/delete del simulatore PASS; cleanup processi e cleanup complessivo FAIL
+conservati. Journal, VM attach e visual iOS non attraversati. Nessun retry
+invariato, aumento budget o fix app/entitlement è autorizzato da questi sintomi.
+La seconda CI è terminale: cinque job PASS e due FAIL. Anche iOS release
+unsigned è PASS; nessun comando della verifica rimane attivo. Il mancato
+accertamento della quiescenza nei due job iOS resta esposto come FAIL, senza
+inferire processi superstiti.
+
+| CA / test | Esito corrente e limite | Evidence |
+|---|---|---|
+| CA-C1 / T-C1 | PASS sorgente/SQL locale/Android journal; iOS e live NOT_RUN |99 account,162 assertion SQL e concorrenza; Android e7 due processi con APK/UID invariati. e7 source21+8 e nove hash associati; iOS bloccato prima della fixture.|
+| CA-C2 / T-C2 | PASS host e campione pixel Android; iOS/assistive NOT_RUN |CI629/e7:76 test,113 PNG Flutter+4OS; reviewer distinto25+2 pixel, poi109PNG identici e8mutati ispezionati; IME visibile e azioni leggibili.|
+| CA-C3 / T-C3 | PASS recovery scoped; FAIL integrità; BLOCKED apply/live |History155→158→159→158→155,57RPC/due indici nel clone,ledger vuoto; due orphan/otto riferimenti preservati. Auth globale e ledger popolato NOT_RUN.|
+| CA-C4 / T-C4 | PASS Worker locale/packaging; BLOCKED runtime condiviso/R24 |Source96758b89:verify/Next/OpenNext/29smoke e dry-run con rete negata PASS; Worker remoto invariato. N AndroidPR23merged9d5c, iOSPR21open321; Android nuovo APK installato con dati preservati secondo N, recovery/ACK non qualificati; iOS CI suite fallita dopo build, diagnosi N.|
+| CA-C5 / T-C5 | PASS benchmark host; profile fisico NOT_RUN |Dieci test canonici invariati più inbox11PASS; cinque configurazioni/build a500righe. Global host quiescence non attestata, nessun claim fisico.|
+| CA-C6 / T-C6 | PASS review source/local; BLOCKED integrazione |Local1044/70race,37gate,APK/JVM4; CI6295PASS1FAIL e CIe7 cinque PASS/due FAIL pre-app. Nessun merge Client con CI non verde.|
+
+Le capsule aggiunte su branch evidence separato mantengono comando, exit, SHA,
+log hash e limiti. Il checkpoint documentale b3ae52f è stato revisionato
+indipendentemente senza finding; security scan954file, governance e diffcheck
+PASS. Review W conferma build e packaging locali, conservando NOT_RUN delle
+cinque reference package esterne e di upload/deploy/autenticazione.
+
+Esito integrato **BLOCKED**, handoff `CODEX_REVIEW_BLOCKED`. PR29 resta draft;
+TASK-054 non è DONE, TASK-055 e production non attivati. Apply TEST richiede
+finestra writer/cron e riferimenti artifact/TLS/pilot già approvati; il blocker
+è tecnico e di disponibilità, non una nuova richiesta generica di consenso.

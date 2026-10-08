@@ -1,7 +1,7 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
@@ -13,7 +13,9 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 
 Il [gate iOS dedicato](next-integration/ios-journal-source-20261008.md) riusa la
 fixture Android e mantiene app/entitlement invariati. Review distinta APPROVED
-SOURCE_CODE_ONLY con 21 test e otto PoC; runtime hosted ancora NOT_RUN.
+SOURCE_CODE_ONLY con 21 test e otto PoC e nove hash associati a e7b194c.
+Il runtime journal resta NOT_RUN: nella CI hosted la preparazione fallisce
+dopo il boot, prima della fixture; nessun difetto Keychain dedotto.
 
 ## Mandato operativo corrente — 8 ottobre 2026
 
@@ -38,6 +40,14 @@ La CI `37817219242` su `62980d2` termina con cinque job PASS e smoke iOS
  approvata sul campione critico di 27 immagini. iOS capture NOT_RUN.
  La [build Worker selettiva](next-integration/worker-selective-build-20261008.md)
  è PASS con 29 smoke locali, mentre il runtime TEST distribuito resta invariato.
+
+La [CI finale](next-integration/ci-ios-journal-20261008.md) `37822118836`
+su `e7b194c` termina con cinque job PASS e due FAIL nella preparazione/cleanup
+iOS. Anche release iOS unsigned PASS. La
+[review Android finale](next-integration/native-visual-association-e7b194c-20261008.md)
+associa 109 PNG identici e ispeziona gli otto mutati senza finding. Il
+[packaging Worker](next-integration/worker-selective-packaging-20261008.md)
+è PASS locale con rete negata; upload/deploy e cinque reference runtime NOT_RUN.
 
 Le sezioni del4/5ottobre e le risorse elencate sotto sono snapshot storici,
  inclusi147receipt/55RPC/c796. Non sostituiscono la readiness corrente.

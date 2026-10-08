@@ -10,10 +10,10 @@
 - **Stato task**: BLOCKED
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
+- **Review integrata**: BLOCKED — CI nativa iOS e gate live; integrazione sviluppo separata e condizionata
 - **Prossima azione autorizzata**: eseguire il mandato operativo dell'8 ottobre
   sul candidato isolato derivato da c796526 e dal rapporto 3962414: idempotenza
   durevole degli indirizzi Client/backend, verifica mirata UX e prestazioni,
@@ -29,8 +29,8 @@
   authority canonica; main verificata02ea44b9,159sorgenti e155receipt TEST;
   TASK159/Worker selettivo appartiene a W, modifiche concorrenti preservate.
   Le riconciliazioni4532831b/f21339bb precedenti rimangono nelle evidence storiche.
-- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, owner N; mainfe0927c3 e patch recovery in corso.
-- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, owner N; main433e7daf e patch recovery in corso.
+- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, owner N; PR23 integrata in main9d5c270b il8ottobre; runtime aggiornato e R24 non qualificati.
+- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, owner N; PR21 corrente3212799e aperta al checkpoint8ottobre18:17UTC; main433e7daf è il riferimento storico, non prova runtime nuova.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
 - Supabase TEST — snapshot readonly iniziale dell’8 ottobre: 32/55 RPC presenti,

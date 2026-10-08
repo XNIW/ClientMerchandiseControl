@@ -14,16 +14,18 @@
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — CI nativa iOS e gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: completare il mandato operativo successivo
-  dell'8 ottobre, allegato `fdab4373`. Recovery v3 popolata e qualifica bundle
-  workerd sono PASS locali con review distinta; apply/deploy TEST restano
-  condizionati a TLS, accessi/configurazione e finestra DB/cron attestata.
-  Candidato composto dal checkpoint PR29 e7b194c, freeze applicativo f9a61d5:
-  due fix UX approvati,1049test Flutter PASS, fixture137 da verificare nativamente.
-  Preflight iOS misurato separato da backend/Worker; esperimento UUID dopo
-  timeout inventario globale, nessun target minimo o timeout aumentato.
-  Coordinamento W/N e risorse assegnate preservati; reviewer distinti prima
-  dell'integrazione. TASK-054 resta aperta; nessun TASK-055, DONE o production.
+- **Prossima azione autorizzata**: completare i finding R30 emersi dalla CI
+  `37839967964` su PR29 `43fd7af`: cinque job PASS, journal iOS FAIL prima
+  dell'app e job smoke/visual CANCELLED al limite globale di30min. Lo smoke
+  nativo è PASS; il test recensioni registra campo non hitTestable e overflow
+  24px, causa in diagnosi. Badge predefinito corretto in16e4681 dopo RED e
+  review distinta; proiezione degli inset nel solo harness bf9be05 approvato e integrato in2327948.
+  Preview iOS7e approvata e integrata in d4a7e97; job35min misurato,
+  timeout comandi invariati. Avviare una nuova CI esatta del composto e
+  ispezionare i nuovi pixel hash-bound. Recovery v3 popolata e bundle workerd sono PASS locali;
+  apply/deploy TEST restano condizionati a TLS, accessi/configurazione e finestra
+  DB/cron attestata. W/N e dispositivi assegnati preservati; TASK-054 aperta,
+  nessun TASK-055, DONE o production.
 
 ## Repository coinvolti
 

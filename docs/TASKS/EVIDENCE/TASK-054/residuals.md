@@ -174,3 +174,70 @@ Fonti correnti: [rapporto](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md),
 [config](next-integration/completion-config-preparation-receipt.json),
 [service](next-integration/completion-pgservice-preparation.json),
 [coord](next-integration/completion-coordination-completion-receipt.json).
+
+
+Aggiornamento checkpoint candidato: PR29 `43fd7af` pubblicato normalmente,
+CI `37839967964` in corso sui sette job. Appfreeze f9a61d5 invariato rispetto
+5a40488;35/35gate locali PASS e review distinta della capsula senza finding.
+La run UUID37838207516/6b5a34e riproduce inventory postboot30s timeout,
+leader vivo, stdout0;36,938s envelope. ps2s timeout e SIGKILL gruppoEPERM
+impediscono attestationreap/quiescenza simctl. Risorse cleanupPASS, processiFAIL.
+Nessuna patch canonica derivata; esperimento --set soltanto CLI in preparazione.
+Le ipotesi sperimentali restano su branch separato, non modificano la PR43fd.
+
+
+Ultima ipotesi CLI iOS `37840621912/6ab7e9a` terminaleFAIL124: primo
+`simctl --set help` e inventorycleanup timeout30s, prima di qualsiasi
+comando create/boot. Processcleanup/reap PASS; risorse/setcontents non
+verificati, directory non rimossa, cleanupcomplessivoFAIL. Nessuna patch
+canonica né ulteriore tentativo di preparazione. Brief operatore pronto
+fuoriGit: `outputs/task054-completion-20261008/ios-runner-issue.prepared.md`.
+NI054-25/38: prossima azione ownerCI è fornire/diagnosticare superficie
+CoreSimulator supportata dai trace, poi qualificare i gate canonici.
+Il jobSmoke della CI43fd ha successivamente PreparePASS sul proprio runner;
+il jobjournal su altro runner ha PrepareFAIL124/cleanupPASS, VerifyKeychain
+NOT_RUN. È nuova evidenza di variabilitàhost, non esito app né causa dimostrata.
+Le tre run CLI e i due job app conservano risultati distinti.
+
+
+Finding pixel del candidato43fd — NI054-41 / R04,R30: il badge informativo
+indirizzo predefinito si tronca al200% nello stato journal illeggibile.
+Prova causale sul pannello/controller produzione con Roboto pinned,
+320×568, quattro lingue/due temi:2FAIL es-CL light/dark,6PASS; testo naturale
+200,230px contro190px disponibili, RawChip impone una riga/softWrap=false/fade.
+Semantica completa, ma leggibilità visuale insufficiente. P3 in scope del
+mandato UX; non blocca recovery o conservazione dei dati. Source43fd e catture
+sono preservati. Owner Client UX; fix minimo del solo label reflow autorizzato
+senza clamp, traduzioni o controller, con regressione geometria/semantica,
+review distinta e nuovaCI del codice finale. Nessun retry invariato journal43.
+La nuova CI è dovuta al difetto riprodotto, non ai tre esperimenti CLI.
+
+
+NI054-41: fix9fe418a integrato localmente in16e4681; tre blob identici e
+patch-id invariato. Re-review distinta APPROVED SOURCE_CODE_ONLY,59PASS
+autonomi e dueREDbaseline distinti. NuovaCI/pixel finali NOT_RUN, nessunpush.
+
+NI054-42 / R30 — difetto harness riprodotto: viewport320×568 centrata in
+parent400×900 con viewInsets.bottom300 conserva erroneamente inset300,
+mentre l'intersezione fisica IME è134px (sovrastima166px). Un RED causale
+e quattro controfattuali PASS distinguono viewport centrata, fullsmallwindow
+che conserva300, e occlusione totale che conserva568. Owner Client UX;
+fix minimo della proiezione geometrica insets/safezones, test permanenti
+e review distinta autorizzati, nessuna riduzione di interazione/count137.
+Questo difetto non è ancora la causa certa del FAIL iOS43: campo recensione
+nonhitTestable, overflow24px con creatorchainDEFUNCT e joblimit30m restano
+evidenze distinte. Nessuna modifica preventiva alla UI recensioni.
+
+
+NI054-42: bf9be05 integrato in2327948 dopo review distinta APPROVED
+SOURCE_CODE_ONLY_HARNESS,32PASS autonomi (8geometrie,6PoC,18host),
+analyze/format/diff PASS. Causa esatta24px iOS ancora NOT_VERIFIED.
+Fixture finale SHAe468956971c99cf67457170dee75629523892e5652e7a96069b0d7c3c3f1a5f0,
+conteggio137 invariato. La prossima CI qualificherà il composto; nativeafter
+NOT_RUN. [Review](next-integration/completion-viewport-source-review.md).
+
+Preview/budget iOS7e7ecd2 integrato in d4a7e97 dopo review distinta
+APPROVED_SOURCE_CODE_ONLY (53test mirati+5PoC PASS). Artifact raw invariato,
+preview separata full-frame con hash/dimensioni; job35min misurato, timeout
+comandi invariati. NuovaCI del composto/pixel ancora NOT_RUN prima del push.
+Questo delta non corregge per inferenza il FAIL UI né qualifica TEST/live.

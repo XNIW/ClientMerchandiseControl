@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "createdUtc": "2026-10-08T20:46:41.192541+00:00",
+  "outcome": "PASS",
+  "scope": "DIAGNOSTIC_CAPSULES_ONLY",
+  "exit_code": 0,
+  "checks_completed": 76,
+  "findings": [],
+  "runs": [
+    {
+      "run_id": 37836564977,
+      "outcome": "PASS",
+      "capsule_sha256": {
+        "capsules/preflight-37836564977-capsule.json": "ada04680f38cbb9895cdbb85826570af9c5c1e7712f5ed09b68a4b15cc523f9f",
+        "capsules/preflight-37836564977-capsule.md": "dfb583ac048a5263c41ae2d3bd0620bf6d3e3a0f392439799d52f5a9ceea5f89"
+      },
+      "raw_hash_count": 5,
+      "source_hashes": {
+        ".github/workflows/task054-ios-measured.yml": "19b236ce6867e2f2590e4b666011af0cc6f2aa7284e3a3a3ada9efeacaf3b5d1",
+        "scripts/run-ios-preflight-measured.py": "59d66f88998c0dbf814719a343e0a02f8b42b459d85525d650bc617151f5f3fb",
+        "scripts/run-task054-ios-owned.py": "5784f4db204b58d4cbc925e3a1366088d42b47906923eb34fcdb815113599d8f",
+        "scripts/test-ios-process-trace.py": "a8908bd36c5fc44229084b01e19033e35e696061dfd70f8b4914e1b4de82e324",
+        "scripts/trace-ios-owned-process.py": "9827d8173a4aee131d45025c392ecbe791f3bb86b159acdf77738b87816d7883"
+      },
+      "measurements": [
+        {
+          "pid": 11031,
+          "trace_sequences": [
+            103,
+            104,
+            105,
+            106
+          ],
+          "spawn_internal_seconds": 7.145579875,
+          "communicate_internal_seconds": 30.17215775,
+          "spawn_to_timeout_event_seconds": 37.559595084,
+          "communicate_start_to_timeout_event_seconds": 30.172610084
+        }
+      ],
+      "primary": "FAIL124",
+      "app": "NOT_RUN",
+      "process_cleanup": "PASS",
+      "resource_cleanup": "PASS",
+      "cleanup_overall": "PASS",
+      "historical113": "NOT_REPRODUCED",
+      "ps_internal_seconds": 1.621322292,
+      "ps_spawn_to_end_event_seconds": 4.606738083
+    },
+    {
+      "run_id": 37838207516,
+      "outcome": "PASS",
+      "capsule_sha256": {
+        "capsules/preflight-37838207516-capsule.json": "6d148d4db5aa27b3b4e31ab0dddbbe519dfc6e4527e7885f73b57393c2ab38e7",
+        "capsules/preflight-37838207516-capsule.md": "56be25c206f19d22d98117bb77f0cd50e193996c26574eb263d7a40c8dfeed98"
+      },
+      "raw_hash_count": 5,
+      "source_hashes": {
+        ".github/workflows/task054-ios-measured.yml": "4c90429ebfe3bef9557c2329e076a8d4bbbe4fe698d01dd9931b687405fddf1a",
+        "scripts/run-ios-preflight-measured.py": "f9037bb37125641e2eace8b847f820addfbbece026f43299f96330902cc015f2",
+        "scripts/run-task054-ios-owned.py": "5784f4db204b58d4cbc925e3a1366088d42b47906923eb34fcdb815113599d8f",
+        "scripts/test-ios-process-trace.py": "4a972e16ba38555cac39dc447d3e8e0b31abecb7bf0f92c555f06751951afe51",
+        "scripts/trace-ios-owned-process.py": "9827d8173a4aee131d45025c392ecbe791f3bb86b159acdf77738b87816d7883"
+      },
+      "measurements": [
+        {
+          "pid": 2668,
+          "trace_sequences": [
+            103,
+            104,
+            105,
+            106
+          ],
+          "spawn_internal_seconds": 6.111200833,
+          "communicate_internal_seconds": 30.474575292,
+          "spawn_to_timeout_event_seconds": 36.938054125,
+          "communicate_start_to_timeout_event_seconds": 30.804750041
+        }
+      ],
+      "primary": "FAIL124",
+      "app": "NOT_RUN",
+      "process_cleanup": "FAIL",
+      "resource_cleanup": "PASS",
+      "cleanup_overall": "FAIL",
+      "simctl_reap": "NOT_VERIFIED",
+      "independent_secondary_review": "PASS; five raw hashes, artifact/annotations, source review pins and test receipts independently checked"
+    },
+    {
+      "run_id": 37840621912,
+      "outcome": "PASS",
+      "capsule_sha256": {
+        "capsules/preflight-37840621912-capsule.json": "9a5aa0023c6d49d624e685f2730a74404f21b9a09f11c600656e22dfb6abcd45",
+        "capsules/preflight-37840621912-capsule.md": "c4c03a89b77719cbd4555bfaeed6c92db17c7b719b30f98ae7a57c95afe18ee1"
+      },
+      "raw_hash_count": 4,
+      "source_hashes": {
+        ".github/workflows/task054-ios-measured.yml": "935658adb788d04ade9ddcccd6ed1787cbbc045cd84d4affd491589560a0d232",
+        "scripts/run-ios-preflight-measured.py": "1ac1b543670a45d6f052538cb9e065a07c38b78ca9a7b8225d58aef1f1cf6e11",
+        "scripts/run-task054-ios-owned.py": "5784f4db204b58d4cbc925e3a1366088d42b47906923eb34fcdb815113599d8f",
+        "scripts/test-ios-process-trace.py": "7b20dfc92ea8e5bb858e27383bec1c713c280158034f94bf166495b2cff740db",
+        "scripts/trace-ios-owned-process.py": "c52cca39ce57fe28ead35827cf11e5721aa861b770eb509c721f43d025cccb95"
+      },
+      "measurements": [
+        {
+          "pid": 1857,
+          "trace_sequences": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "spawn_internal_seconds": 0.003731916,
+          "communicate_internal_seconds": 30.003138,
+          "spawn_to_timeout_event_seconds": 30.007656917,
+          "communicate_start_to_timeout_event_seconds": 30.003795875
+        },
+        {
+          "pid": 2474,
+          "trace_sequences": [
+            33,
+            34,
+            35,
+            36
+          ],
+          "spawn_internal_seconds": 0.024756458,
+          "communicate_internal_seconds": 30.002419875,
+          "spawn_to_timeout_event_seconds": 30.027409875,
+          "communicate_start_to_timeout_event_seconds": 30.002502292
+        }
+      ],
+      "primary": "FAIL124",
+      "app": "NOT_RUN",
+      "process_cleanup": "PASS",
+      "resource_cleanup": "FAIL",
+      "cleanup_overall": "FAIL",
+      "create_boot": "NOT_RUN",
+      "device_set_contents": "NOT_VERIFIED"
+    }
+  ],
+  "timing_semantics": "duration_ns is the value sampled inside the wrapper; event envelope uses monotonic timestamps of separate emitted events. Metadata calculation, scheduling and emission may add observable gaps; no causal diagnosis from those gaps.",
+  "limits": [
+    "Inventory stdout grezzo non conservato: JSON validity/shape e readback ricostruibili solo fino ai metadata/hash/receipt mantenuti.",
+    "Nessun readback esterno dopo i job.",
+    "Stato dei job nativi CI finale non esaminato e nessuna acceptance app dichiarata."
+  ],
+  "mutations": "Solo questo receipt di audit; capsule/raw/source e repository non modificati."
+}

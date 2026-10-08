@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "scope": "Checkpoint iOS CI43, non accettazione finale o autenticata",
+  "runId": 37839967964,
+  "runUrl": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37839967964",
+  "attempt": 1,
+  "checkoutHead": "43fd7afc806404e667573734b2c4b3b3ffe8cc29",
+  "receiptEventMergeSha": "3f0c525cba08a4f7d76ebbb9e51589ce31919d5a",
+  "treeBoth": "3ea5a6f3e0407f4c99825e6e60298938b2c07aff",
+  "mergeParents": [
+    "bfbfc0b6a7122f29b8d8f6e2c2263d77b252749c",
+    "43fd7afc806404e667573734b2c4b3b3ffe8cc29"
+  ],
+  "sourceAssociation": "Checkout log43fd; APIhead43fd; eventGITHUB_SHA mergecontext3f0; identical trees, rawreceipt preserved",
+  "journal": {
+    "jobId": 113526562134,
+    "runnerId": 1000004438,
+    "conclusion": "failure",
+    "gate": "FAIL",
+    "exitCode": 124,
+    "phase": "prepare, global inventory after boot",
+    "uiJournal": "NOT_RUN",
+    "keychain": "NOT_RUN",
+    "cleanupReceiptAttempts": [
+      "PASS",
+      "PASS"
+    ],
+    "processCleanupFailedFlag": false,
+    "processCleanupFlagScope": "No failure registered; no independent process-group trace/quiescence proof"
+  },
+  "simulator": {
+    "jobId": 113526561762,
+    "runnerId": 1000004433,
+    "conclusion": "cancelled",
+    "build": "PASS",
+    "bundleSecurity": "PASS",
+    "prepare": "PASS",
+    "smoke": "PASS",
+    "smokeTest": "smoke reale della shell development su device",
+    "smokeTestCount": 1,
+    "visualTest": "FAIL",
+    "outerJobBudget": "BLOCKED",
+    "outerCancelAnnotation": "maximum execution time30m0s",
+    "visualExitCode": "NOT_VERIFIED; cancellation before finalwrapperexit",
+    "resourceCleanupStep": "PASS",
+    "visualProcessQuiescence": "NOT_VERIFIED",
+    "fixtureExpected": 137,
+    "osExpected": 4,
+    "fixtureActual": "NOT_VERIFIED",
+    "osActual": "NOT_VERIFIED",
+    "pixelReview": "NOT_RUN",
+    "device": {
+      "uuid": "D9C74CD3-43DA-47C0-865D-2416F3866D17",
+      "model": "iPhone17/iPhone18,3",
+      "runtime": "iOS26.5",
+      "osBuild": "23F77"
+    }
+  },
+  "visualFailure": {
+    "test": "recensione submit busy failure retry edit conserva commento",
+    "caller": "integration_test/task054_next_integration_surfaces_test.dart:934",
+    "assertion": "_reveal:1418; exactly1 TextField hitTestable underAlertDialog, actual0",
+    "rendering": "24px bottomoverflow; RenderFlex DISPOSED, creatorchainDEFUNCT;240×123",
+    "fixture": "es_CL/light,320×568,textScaler2,showKeyboardcalled933",
+    "firstScreenshotNotReached": "review-comment-focus-compact200:943",
+    "possibleSkippedCaptures": 7,
+    "actualMissingCaptures": "NOT_VERIFIED",
+    "cause": "NOT_VERIFIED between compactviewport projection andproductiondialog; geometricRED identified separately byUXwriter",
+    "physicalAndKeyboardMetrics": "NOT_VERIFIED; no logged physicalSize/DPR/viewInsets/viewPadding"
+  },
+  "timeline": {
+    "visualStarted": "20:48:58Z",
+    "xcodeVisualDone": "20:52:21Z",
+    "driverConnected": "20:52:49Z",
+    "failureReported": "20:59:36Z",
+    "suiteSomeFailed": "21:00:15Z",
+    "failureDetails": "21:00:46Z",
+    "outerCancel": "21:01:06Z",
+    "cleanupStepDone": "21:01:15Z",
+    "artifactUploadDone": "21:01:20Z"
+  },
+  "budget": {
+    "jobSeconds": 1800,
+    "beforeVisualSeconds": 1097,
+    "nominalVisualRemainingSeconds": 703,
+    "visualCommandBudgetSeconds": 900,
+    "beforeVisualPlusCommandSeconds": 1997,
+    "scope": "Budget mismatch measured; no proof of hang or requiredextraelapsed; UI failure precedes cancellation",
+    "tail": "FailureDetails after SDKscreenshotprocessing anddriver.close; callbackdrain/responseencode/write/exit notlocalized"
+  },
+  "artifact": {
+    "id": 11578996266,
+    "name": "task054-ios-visual-fixtures",
+    "sizeBytes": 25441913,
+    "sha256": "e95966898114bce36245df575323689676b51ec7fc9da98f25fa213099bd51b6",
+    "remoteUpload": "PASS",
+    "download": "BLOCKED",
+    "firstDownload": "gh>10minutes,noextraction; ownPID1236 TERM,exit143",
+    "secondDownload": "serialAPIblob outer120s,2MiBpartial; ownPID6794 TERM,exit143",
+    "localDownloadsTerminal": true,
+    "partialNotExtracted": true,
+    "consoleFileCount": 138,
+    "consoleOsPassMarkerCount": 3,
+    "limits": "138files and3markers do not prove PNGcardinality, pixelquality or numericOSmetrics"
+  },
+  "acceptance": {
+    "nativeiOS14Runtime": "NOT_RUN",
+    "authenticatedTEST": "NOT_RUN",
+    "voiceoverIMEacceptance": "NOT_RUN",
+    "distribution": "NOT_RUN",
+    "finalCandidate": "NOT_RUN; old43checkpointinvalidated bynewreviewedsourcefixes"
+  },
+  "actions": {
+    "rerunExecuted": false,
+    "sourceOrTimeoutPatchByIosOwner": false,
+    "next": "Root composes badge+viewportfix afterdistinctreview, then legitimate newCI; no rerun43 orfurtherCLIexperiment"
+  },
+  "evidence": [
+    {
+      "path": "raw/final-ci-smoke-hosted.log",
+      "bytes": 3379797,
+      "sha256": "23de29d36553838d9a845d3da548a8d764274fd3effe78bb674d62a330913889"
+    },
+    {
+      "path": "raw/final-ci-journal-hosted.log",
+      "bytes": 59419,
+      "sha256": "8d40f7cf89ed7c342f9404d559c43b212b5797b1c43beff1ac0872dac07ddc48"
+    },
+    {
+      "path": "raw/final-ci-smoke-status.json",
+      "bytes": 3654,
+      "sha256": "a01a059937061473795916e596145f37e0acd7a95f9edbfb480ac99d91c47e49"
+    },
+    {
+      "path": "raw/final-ci-journal-status.json",
+      "bytes": 3138,
+      "sha256": "c3ebd50b0e32895b8891e7a21ad1e0967331190cd812cc277b696540614ee80d"
+    },
+    {
+      "path": "raw/final-ci-smoke-annotations.json",
+      "bytes": 1564,
+      "sha256": "b06ee5651e5b3dcc04650d69af12defd9d56e42f6bf09590f1c5536e0a0885b6"
+    },
+    {
+      "path": "raw/final-ci-artifacts.json",
+      "bytes": 2997,
+      "sha256": "822b6c387552230f3ad1c7ab40e33875e66a5eb7db2fb332f688b81a6c686f0d"
+    },
+    {
+      "path": "raw/final-ci-workflow-exact.yml",
+      "bytes": 18386,
+      "sha256": "b08461792a0af66220810b210c726e2533b9c9e510e2abd44fd9e8332673b8f4"
+    },
+    {
+      "path": "raw/checkpoint43-fixture-source.dart",
+      "bytes": 60390,
+      "sha256": "18e3d20e1bbde38af14d1ba448f70256fbc09fc72b213c4b8410977b839ac658"
+    },
+    {
+      "path": "raw/checkpoint43-customer-reviews-source.dart",
+      "bytes": 27258,
+      "sha256": "84adcbf5950bb9bcd4fca9e9498d3627bc8c89d7d248c4fc4d764911047e3e5d"
+    },
+    {
+      "path": "raw/ci43-review-ui-failure-exact.log",
+      "bytes": 22211,
+      "sha256": "5035c29c9812daf177052ec95ef3e564091d8dfc4256afd5db184b68235e9fbc"
+    },
+    {
+      "path": "raw/visual-artifact-first-download-receipt.json",
+      "bytes": 454,
+      "sha256": "f624ff38305ba28da9cdde57b0a59a69e3bca6eb2945c69ec0123533457cc456"
+    },
+    {
+      "path": "raw/visual-artifact-outer-budget-receipt.json",
+      "bytes": 521,
+      "sha256": "1420b3759a0c7799d8db06de925f88e994759c9bf51317b3d1139056e9183223"
+    },
+    {
+      "path": "raw/checkpoint-ci-ios-visual-artifact.zip.part",
+      "bytes": 2097152,
+      "sha256": "019743ab19fb36325ab2fbe02ce271abba3068fe6f81a19894ca3942ac13e194"
+    }
+  ]
+}

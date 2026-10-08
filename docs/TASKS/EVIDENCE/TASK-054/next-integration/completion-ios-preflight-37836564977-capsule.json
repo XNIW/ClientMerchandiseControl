@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "run_id": 37836564977,
+  "job_id": 113514965503,
+  "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37836564977",
+  "candidate": "1862dbdb08a3c7239443338504c31b9b7554ff91",
+  "result": "FAIL",
+  "exit_code": 124,
+  "scope": "hosted_preflight_only",
+  "app": "NOT_RUN",
+  "journal": "NOT_RUN",
+  "smoke": "NOT_RUN",
+  "visual": "NOT_RUN",
+  "bootstatus": "PASS",
+  "postboot_inventory": {
+    "command": "xcrun simctl list devices --json",
+    "owned_pid_pgid": 11031,
+    "nominal_timeout_seconds": 30,
+    "spawn_seconds": 7.145579875,
+    "communicate_seconds": 30.17215775,
+    "spawn_to_timeout_event_seconds": 37.559595084,
+    "leader_at_timeout": "alive",
+    "output_complete": false,
+    "stdout_bytes": 0,
+    "inherited_pipe": "not_demonstrated"
+  },
+  "process_cleanup": {
+    "result": "PASS",
+    "term_group_own_only": true,
+    "kernel_probe_errno": 1,
+    "ps_timeout_nominal_seconds": 2,
+    "ps_spawn_seconds": 0.995284166,
+    "ps_communicate_seconds": 1.621322292,
+    "ps_spawn_to_communicate_end_event_seconds": 4.606738083,
+    "matching_state": "Z<",
+    "matching_group_classification": "zombie_only",
+    "leader_reaped_exit_code": -15,
+    "reap_seconds": 0.000189833
+  },
+  "resource_cleanup": "PASS",
+  "cleanup_overall": "PASS",
+  "cli": {
+    "device_set_supported": true,
+    "search_term_documented_in_stderr": true,
+    "uuid_filter_test": "NOT_RUN",
+    "summary_list_search_term_false": "capture_limit: list help writes stderr, stdout was empty; not unsupported CLI",
+    "help_capture_fix": "new precise experiment, no app/entitlement change"
+  },
+  "historical_113_seconds": "NOT_REPRODUCED in this run; no retrospective diagnosis",
+  "next_hypothesis": "Limit device inventory to owned UUID; same 30s timeout and original strict identity/runtime/ownership/state checks",
+  "artifacts": [
+    {
+      "id": 11576520230,
+      "name": "task054-ios-measured",
+      "sha256_digest": "sha256:a02545330d806df135abb5ebeb772bcf434d45a495525eb4961e93ef0d3b8cc7",
+      "size_bytes": 7867
+    }
+  ],
+  "sha256": {
+    "preflight-hosted.log": "d6a8891f0ef837dbef524b70815347f8c2106cbacb5f897e6ec2faf181b5e869",
+    "hosted-artifact/ios-measured/processes.jsonl": "8e4ea6a4abfa65ee510f4ad133209a9b70d40c08d6ba3860a2b9938a9c322b29",
+    "hosted-artifact/ios-measured/owner.json": "b75835d0fa16e2dd1702f043ed238e96f295528f3bea517e8c73e27245b5b288",
+    "hosted-artifact/ios-measured/result.json": "3b70e75e17870f9440aa9516e6222694752b3246416a1d39eeeb0c178bb3858f",
+    "hosted-artifact/ios-measured/simctl-help.txt": "1613627cff3ab8beea084e06ff10f9145607d5796f094164082a673e7a2fbf59"
+  },
+  "all_own_commands_terminal": true,
+  "prior_runs_preserved": [
+    37817219242,
+    37822118836
+  ],
+  "annotations_by_level": {
+    "warning": 1,
+    "failure": 1,
+    "notice": 1
+  },
+  "annotations": [
+    {
+      "level": "warning",
+      "message": "Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/"
+    },
+    {
+      "level": "failure",
+      "message": "Process completed with exit code 124."
+    },
+    {
+      "level": "notice",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times."
+    }
+  ]
+}

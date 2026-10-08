@@ -1,0 +1,67 @@
+{
+  "schema": "task054-final-capsule-review-v1",
+  "reviewed_at_utc": "2026-10-08T20:31:49.868075+00:00",
+  "outcome": "APPROVED",
+  "verification_status": "PASS",
+  "scope": "Integrità, associazione e limiti della capsula di qualifica locale sorgente/fixture/Flutter host; nessuna approvazione di codice, review integrata, deploy, native runtime o TEST autenticato.",
+  "capsule": {
+    "path": "/Users/minxiang/.codex/outputs/task054-completion-20261008/final-gates/completion-final-gates.json",
+    "bytes": 13737,
+    "sha256": "f748a9c68d17fea0efdc6d4d9485412e2769cac109f20565d9a1d2db247eba74"
+  },
+  "checked": {
+    "unique_local_commands": 35,
+    "receipt_exit_zero": 35,
+    "log_sha256_matches": 35,
+    "receipt_duration_matches_to_millisecond": 35,
+    "declared_counts_confirmed_directly_in_logs": 19,
+    "source_manifest_paths": 547,
+    "source_manifest_sha256": "6ff14e3620447e9c7bcf4de80cbc081f2c800a04cc7f86d3450340549aab8f81",
+    "source_before_after_current_identical": true,
+    "pubspec_lock_sha256": "360f0222bb529970e33dd5d83e52a0a7313e3323044095626156cd009b42a75e",
+    "application_freeze_diff_empty": true,
+    "pinned_flutter_resolver_log_markers": 11,
+    "toolchain": {
+      "resolver": "scripts/resolve-flutter.sh",
+      "flutter": "3.44.8",
+      "flutter_revision": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+      "dart": "3.12.2",
+      "python": "3.9.6",
+      "note": "I comandi Flutter/Dart hanno sourced il resolver prima di ogni gate."
+    },
+    "coverage": {
+      "lines_found": 23214,
+      "lines_hit": 17970,
+      "line_percent": 77.41,
+      "lcov_sha256": "027ff1a812ca9f88284a0813658d961a985c109881aa77325fbf6d4478866306",
+      "scope": "Flutter host/widget coverage"
+    },
+    "own_process_cleanup_receipts": "PASS",
+    "permissions": {
+      "files_0600": 125,
+      "directories_0700": 5,
+      "review_file_0600": true
+    }
+  },
+  "revision_association": {
+    "tested_head": "5a40488473a5f4041c72e1ce05682e9328b070ed",
+    "head_at_capsule_consolidation": "5a40488473a5f4041c72e1ce05682e9328b070ed",
+    "review_head": "43fd7afc806404e667573734b2c4b3b3ffe8cc29",
+    "new_head_descends_from_tested_head": true,
+    "intervening_diff": "44 soli percorsi README/docs; 547 input sorgente e freeze applicativo identici. Nessun nuovo test attribuito al commit documentale.",
+    "application_freeze": "f9a61d59a1cccd95f1b7e9ba09f696ecf51c30f6"
+  },
+  "history_preserved": {
+    "governance_original": "FAIL exit1 separato; heading documentale corretto e un solo gate impattato PASS con receipt distinta.",
+    "architecture_wrapper": "BLOCKED HARNESS_TIMEOUT 180s; exit wrapper1 e canonical exit null, separati dai 35 PASS.",
+    "architecture_final": "Unico retry del solo gate con harness900s, exit0 in199.860s,17/17fixture, script SHA d255e816e7ccdc569f78d7fb41301a767f0f6c7896e2eed9ba0855162d9706dc invariato."
+  },
+  "scope_lanes": {
+    "native_build_runtime_visual_QA": "NOT_RUN in questa capsula",
+    "authenticated_TEST_backend_live": "NOT_RUN in questa capsula",
+    "integrated_review_deploy": "Non oggetto di approvazione."
+  },
+  "findings": [],
+  "review_methods": "Letture JSON/log, SHA-256, parsing conteggi/LCOV, confronto input e sola lettura Git. Nessun rerun gate/test/build o modifica Client/Git.",
+  "role_limit": "L autore della review aveva eseguito i precedenti gate Python; il secondo verificatore aveva eseguito i gate shell. Questa review verifica autonomamente associazione/integrità delle evidence e le ricevute delle altre lane; non sostituisce reviewer integrato distinto dal writer."
+}

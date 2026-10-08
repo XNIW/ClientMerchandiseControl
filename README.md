@@ -199,6 +199,14 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
 
+Il checkpoint PR29 `43fd7af` conserva CI43 terminale: cinque job PASS,
+journal iOS FAIL in preparazione e job smoke/visual CANCELLED30min. Lo smoke
+è PASS; visual91PASS/1FAIL resta distinto dal budget. Badge predefinito al200%
+corretto dopo RED/review in16e4681; la proiezione degli inset del solo harness
+bf9be05 è approvato e integrato in2327948. La preview iOS7e è approvata e integrata in d4a7e97; nuova CI del composto da avviare; il rapporto corrente
+sul branch evidence distingue checkpoint e candidato finale. Firma/upload/
+install Client TEST e percorsi autenticati rimangono NOT_RUN/BLOCKED.
+
 TASK-054 è riaperto dal mandato del 2026-09-28 per audit funzionale e completamento
 nel perimetro di sviluppo. Le attestazioni di closeout seguenti sono storiche:
 TASK-050–053 restano invariati; staging era classificato

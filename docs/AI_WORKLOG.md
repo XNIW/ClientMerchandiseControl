@@ -5476,3 +5476,34 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   BLOCKED conservato, ricetta canonica finale199,860s PASS con cleanup.
   Scanner staged988file PASS; CI finale del candidato da eseguire.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-08 — TASK-054 CI43 terminale, fix badge e geometria harness
+
+- **Ruolo/fase**: CODEX_FIXER, ACTIVE/FIX; unico writer per componente e
+  reviewer distinti. Nessun nuovo consenso generico richiesto.
+- **CI43**: cinque job PASS/76step; Quality1048PASS+1goldenSKIP,11benchmark;
+  Android92fixture/137PNG+4OS e journal2PID PASS. iOS unsigned89fixture PASS.
+  Smoke iOS PASS, visual91PASS/1FAIL campo recensione e overflow24px,
+  job CANCELLED30min; journal prepareFAIL. Cause/app/budget distinte.
+- **NI054-41**:2RED es-CL,6PASS; badge9fe→16e4681 approvato source da
+  reviewer distinto59PASS,110account e8hostjournal PASS. Pixel finale NOT_RUN.
+- **NI054-42**: RED projection globale/locale e controfattuali preservati;
+  bf9be05→2327948,8geometrie/18hostmirati PASS, review distinta32PASS. Fullsmall397
+  sintetico FAIL distinto; nessuna appreviewspatch o riduzione di occlusione.
+- **TEST/ownership**: accessi protetti, IPv6, pilot/A/B/callback/firma e
+  finestraDB/cron ancora mancanti; unica richiesta circoscritta pendente.
+  W idle invariato; N diagnostica le proprie CI, dispositivi riservati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-10-08 — TASK-054 composto d4a7e97 pronto per nuova CI
+
+- **Ruolo/fase**: CODEX_FIXER / FIX, mandato operativo già autorizzato.
+- **Delta**: badge16e4681 e harness2327948 approvati; preview7e7ecd2
+  integrata in d4a7e97 dopo review distinta53test+5PoC PASS.
+- **Budget**: solo job iOS debug30→35min;1097s previsual+900s capture
+  superano1800s. Timeout comandi e rawupload invariati; preview full-frame
+  hash-bound separata, benchmark sintetico7,42s distinto da pixel nativi.
+- **Gate**: runner14test e architecture sul232 PASS; nuovaCI/pixel NOT_RUN
+  prima del push. VecchiaCI43 preservata con5PASS/journalFAIL/visualcancel.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

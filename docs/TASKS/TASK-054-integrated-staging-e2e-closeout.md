@@ -531,7 +531,7 @@ writer harness corregge barriera di rasterizzazione e reveal dopo reflow.
 Il secondo CI è terminale: Quality942/1skip e10benchmark PASS, Android/iOSrelease
 PASS, due debugFAIL. Le immagini parziali/source d9fc sono conservate senza
 ricostruzioni. BECI06 fix99b6f21 integrato9eec464, 37CI-like root PASS/exit0;
-re-review distinta in corso. Nessun processo root pendente, nessun nuovo push.
+review distinta APPROVED SOURCE_CODE_ONLY_HARNESS con32PASS autonomi. Nessun processo root pendente, nessun nuovo push.
 
 
 ### Fix composto NI054 — d9da3c5, 2026-10-05
@@ -990,3 +990,40 @@ CA→evidence e residui→owner/azione sono nell'overlay corrente del
 [rapporto](EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md) e
 [registro unico](EVIDENCE/TASK-054/residuals.md). E2E-01…25/R01–R30 conservati.
 Handoff finale dopo conclusione dei comandi e verifica distinta del candidato.
+
+
+## Fix emersi dalla CI43 — 2026-10-08, R30
+
+La CI37839967964 su43fd7af è terminale: cinque job PASS, journal iOS FAIL
+in preparazione, smoke/visual job CANCELLED al limite globale30min. Lo smoke
+nativo ha preflight/VM attach e un test PASS. La suite visuale registra91PASS
+ed un FAIL: campo recensione non hitTestable dopo apertura tastiera, prima
+della prima cattura di quel test; compare overflow24px con creatorchain
+DEFUNCT. Non si attribuisce il FAIL UI al budget né si inventa una causa app.
+Capsule separate e review della sola fedeltà delle evidence sono nel rapporto.
+
+NI054-41/P3 è un difetto visuale reale del badge indirizzo al200% in es-CL:
+dueRED/seiPASS prima, otto regressioni glifi/semantica e110account PASS dopo.
+Il fix9fe418a è integrato in16e4681, tre blob/patch-id identici. Review distinta
+APPROVED SOURCE_CODE_ONLY con59test autonomi; niente clamp, traduzioni o
+controller. La prima proposta DefaultTextStyle è respinta e preservata.
+
+NI054-42 è un difetto harness riprodotto: viewport centrata320×568 che eredita
+inset globali del parent400×900 sovrastima l'occlusione locale. Fixbf9be05
+proietta inset/padding/safezone sul rect effettivo; otto geometrie e18casi host
+mirati PASS, review distinta APPROVED SOURCE_CODE_ONLY_HARNESS con32PASS autonomi. Fullwindow conserva300/397 e
+occlusione totale568; nessuno spazio inventato. Il limite app con397 sintetico
+su finestra intera è un controfattuale FAIL, non una misura iOS o un finding
+app automaticamente qualificato. Productionreviews invariato. Diagnostica
+privacy-safe aggiunta al prossimo focus nativo, senza nuovi capture/skip/attese.
+
+Il nuovo candidato sarà verificato dalla CI esatta dopo le review; i35gate locali
+su5a40488 e i cinque job43 restano checkpoint, non una certificazione del codice
+successivo. Backend/Worker/configurazione e gate reali conservano gli stessi
+blocker esterni. Fase FIX e handoff CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.
+
+Preview/budget iOS7e7ecd2 integrato in d4a7e97 dopo review distinta
+APPROVED_SOURCE_CODE_ONLY (53test mirati+5PoC PASS). Artifact raw invariato,
+preview separata full-frame con hash/dimensioni; job35min misurato, timeout
+comandi invariati. NuovaCI del composto/pixel ancora NOT_RUN prima del push.
+Questo delta non corregge per inferenza il FAIL UI né qualifica TEST/live.

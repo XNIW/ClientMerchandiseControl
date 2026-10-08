@@ -1,0 +1,77 @@
+{
+  "scope": "Proposta autorizzata, sola schedulazione iOS Simulator debug e artifact preview; non fix UI",
+  "baselineSource": "43fd7afc806404e667573734b2c4b3b3ffe8cc29",
+  "baselineRun": 37839967964,
+  "baselineJob": 113526561762,
+  "baselineBeforeVisualSeconds": 1097,
+  "canonicalVisualCommandBudgetSeconds": 900,
+  "sumBeforeVisualAndCanonicalCommand": 1997,
+  "oldJobBudgetSeconds": 1800,
+  "newJobBudgetSeconds": 2100,
+  "nominalRemainderAfterCanonicalVisualSeconds": 103,
+  "observedCleanupRawUploadPostSeconds": 22,
+  "previewScriptBudgetSeconds": 45,
+  "previewStepBudgetSeconds": 60,
+  "localActualSipsFinalSeconds": 6.921364834,
+  "localActualSipsSyntheticFiles": 141,
+  "syntheticRawBytes": 27149832,
+  "syntheticPreviewBytes": 1585122,
+  "nativePreviewArtifactBytes": "NOT_VERIFIED",
+  "remainingUiFailure": "FAIL at43; correctedfixture must pass onnewnativeCI",
+  "limitations": [
+    "35minutes is a finite measuredcap, not proof of finalPASS or a strictsum of every cleanup/networkmaximum",
+    "Percommand simctl/app/VM/drive timeout, target, ownership andrawupload unchanged",
+    "Native iOS PNGs andnumericOSmetrics from43 notverified because artifactdownloadblocked",
+    "Local syntheticbenchmark proves transformation/performance only; not nativepixelacceptance",
+    "NewlegitimateCI andfull137+4review stillrequired"
+  ],
+  "checks": {
+    "previewUnit": {
+      "count": 16,
+      "exitCode": 0
+    },
+    "pngValidatorUnit": {
+      "count": 31,
+      "exitCode": 0
+    },
+    "ownedProcessUnit": {
+      "count": 6,
+      "exitCode": 0
+    },
+    "actionPins": {
+      "exitCode": 0
+    },
+    "shellSyntax": {
+      "exitCode": 0
+    },
+    "diffCheck": {
+      "exitCode": 0
+    },
+    "security": {
+      "trackedFiles": 992,
+      "exitCode": 0
+    }
+  },
+  "sourceCommit": "7e7ecd2c9fe073665025cd88220648ca538bb7eb",
+  "sourceBaseline": "16e46817d9da5f4a5ce0fbca89137f2652f52b56",
+  "review": {
+    "verdict": "APPROVED_SOURCE_CODE_ONLY",
+    "path": "review/preview-budget/review.json",
+    "sha256": "9789bb6944e106155f434c43098d4ad1254fd277336545b31f404a3f1f0f0284",
+    "findings": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 0,
+      "P3": 0
+    },
+    "independentTests": 53,
+    "independentPocs": 5,
+    "independentSyntheticBenchmarkSeconds": 7.417,
+    "nativeAcceptance": "NOT_RUN"
+  },
+  "nativeCI": "NOT_RUN: rootawaitsfrozenreviewedcandidate",
+  "fullCheck": "NOT_RUN: CI-onlydelta validatedtargeted; localiOSbuild excluded/toolchain27min14 unavailable",
+  "branch": "codex/task054-ios-preview-budget",
+  "branchPushed": false,
+  "worktreeClean": true
+}

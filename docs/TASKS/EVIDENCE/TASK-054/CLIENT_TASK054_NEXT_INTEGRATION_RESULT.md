@@ -8,15 +8,20 @@ ordinari quando i prerequisiti pertinenti sono soddisfatti. Non manca un consens
 generico: mancano accesso operativo protetto, rete DB, identità/configurazione
 Client e finestra DB/cron. La preparazione e le attività indipendenti sono proseguite.
 
-Il candidato composto parte da PR29 `e7b194c`, conserva le prove pregresse e
-integra i due fix UX approvati separatamente: journal `b820f826` riprodotto in
-`2ea8fa1`, assistenza `26713a4` riprodotta in `f9a61d5`. Freeze applicativo
-`f9a61d5`; fixture SHA-256
-`18e3d20e1bbde38af14d1ba448f70256fbc09fc72b213c4b8410977b839ac658`.
-Il conteggio atteso passa da113 a137, con sole24 nuove catture: journal
-illeggibile, assistenza non disponibile e retry, quattro lingue e due temi.
-Il preflight misurato `1862dbd` e il controllo137 `4c3abf9` sono integrati in
-`ca90788` e `5a40488`. Le review approvano esclusivamente i perimetri indicati.
+Il checkpoint PR29 `43fd7afc806404e667573734b2c4b3b3ffe8cc29` conserva
+la CI terminale `37839967964`: cinque job PASS, journal iOS FAIL in
+preparazione e job smoke/visual iOS CANCELLED al limite globale30min. Lo smoke
+è PASS; visual91PASS/1FAIL, campo recensione non hitTestable e overflow24px
+con creator chain DEFUNCT. La causa esatta dell'overflow resta NOT_VERIFIED.
+
+Il nuovo composto sorgente `d4a7e97` integra badge9fe→16e4681,
+proiezione harness bf9→2327948 e preview/budget7e→d4a7e97, dopo review
+distinte APPROVED nei soli perimetri sorgente. Freeze applicativo16e4681;
+fixture SHA-256 `e468956971c99cf67457170dee75629523892e5652e7a96069b0d7c3c3f1a5f0`.
+Journal b820→2ea8fa1 e assistenza267→f9a61d5 restano integrati.
+Conteggio137 invariato, con24 stati aggiunti alla baseline113, quattro lingue
+e due temi. Nuova CI e nuovi pixel del composto ancora NOT_RUN al checkpoint
+prima del push; i risultati precedenti non sono promossi al codice successivo.
 
 ### Risultati disponibili e limiti
 
@@ -48,18 +53,81 @@ Il preflight misurato `1862dbd` e il controllo137 `4c3abf9` sono integrati in
   timeout nominale30s, leader vivo. Spawn7,146s, attesa30,172s,37,560s spawn→evento timeout; ps4,607s
   end-to-end. TERM/reap e
   cleanup processi/risorse PASS. I113s storici non sono riprodotti. L'app non è
-  avviata; nessuna conclusione su Keychain/schermate. L'esperimento successivo
-  circoscrive l'inventario all'UUID solo dopo verifica CLI, senza alzare timeout.
+  avviata; nessuna conclusione su Keychain/schermate. L'esperimento UUID successivo
+  `37838207516/6b5a34e` fallisce ancora nel postboot list, leader vivo:
+  spawn6,111s, attesa30,475s, envelope36,938s. La probe ps supera2s;
+  cleanup risorse PASS, processi FAIL, quiescenza/zombie/reap simctl non
+  verificati. Ipotesi filtro non qualificata, nessuna patch canonica. Un
+  device set separato `37840621912/6ab7e9a` fallisce già su `--set help`,
+  prima di create/boot; anche inventory di cleanup scade. Processi/reap PASS,
+  contenuto e assenza del set non verificati, directory non rimossa. È un
+  blocco CLI precedente alla ricetta, non una riproduzione postboot. Nessuna
+  patch canonica e nessun ulteriore esperimento di preparazione. Flutter
+  discovery custom-set e native restano NOT_RUN per quell'esperimento.
 
 Gate globali sul composto5a40488:35/35PASS,1049Flutter con coverage77,41%,
 70race in5ripetizioni e11benchmark, formato/analyze PASS. Source manifest547
 path invariato; appfreeze f9a61d5 byte-identico nei percorsi applicativi.
-Il wrapper architecture180s ha prodotto BLOCKED/124; la ricetta canonica
+Il wrapper architecture180s ha prodotto BLOCKED HARNESS_TIMEOUT,
+exit del wrapper1 ed exit canonico non osservato; la ricetta canonica
 invariata completa199,860s PASS con cleanup e nessun discendente. Un errore
 heading worklog produce FAIL iniziale, correzione documentale e gate PASS;
 nessuna suite applicativa ripetuta per questi delta.
-[Capsula35gate](next-integration/completion-final-gates.json) e
+[Capsula35gate](next-integration/completion-final-gates.json),
+[review distinta della capsula](next-integration/completion-final-gates-review.json) e
 [associazione distinta](next-integration/completion-source-association.md).
+
+### CI43 e finding visuali da chiudere
+
+I cinque job raccolti separatamente hanno 76 step PASS: Quality Linux
+1048 PASS più un golden SKIP intenzionale macOS, 11 benchmark; Android
+92 test fixture PASS, 137 PNG Flutter e quattro frame OS, cleanup PASS.
+Il journal Android riavvia con PID distinto sullo stesso APK/UID e conserva
+lo storage cifrato; backend NOT_RUN. Le release unsigned Android/iOS sono
+PASS; la iOS verifica 89 fixture avversarie. La review distinta approva la
+sola fedeltà delle evidence, non il prodotto integrato.
+[Capsula](next-integration/completion-ci43-assigned.json),
+[review](next-integration/completion-ci43-evidence-review.json).
+
+La review pixel Android trova un P3 in scope R30 (NI054-41): badge indirizzo
+predefinito troncato al 200% in es-CL, due temi. Due RED causali e sei PASS
+nelle altre combinazioni precedono il fix `9fe418a`, APPROVED SOURCE_CODE_ONLY da reviewer distinto con59 test autonomi PASS e integrato in16e4681.
+La sola modifica DefaultTextStyle è stata respinta perché RawChip tagliava
+comunque la seconda riga. Il badge informativo ora rifluisce con token
+coerenti: otto regressioni geometria/semantica, 110 test account e otto casi
+host journal PASS; nessun clamp o cambio controller/traduzioni. Il controllo
+è aggiunto agli otto stati nativi esistenti; conteggio 137 invariato. Pixel
+successivi al fix NOT_RUN. [Receipt](next-integration/completion-badge-fix-9fe418a.json).
+
+Lo smoke iOS ha preflight e VM/DDS attach PASS e un test nativo PASS.
+La cattura visuale successiva ha attach riuscito e termina 91 PASS/1 FAIL:
+campo recensione non hitTestable dopo apertura tastiera, prima della prima
+cattura di quel test. Compare anche overflow RenderFlex 24px con creator chain
+DEFUNCT; il log non localizza ancora la causa della Column. Entrambi precedono
+il limite globale. Un difetto geometrico del solo wrapper fixture è riprodotto e corretto in2327948,
+con32 test autonomi PASS e review distinta. Conserva gli inset del vero
+fullscreen piccolo e l’occlusione totale; production reviews invariato.
+Non dimostra da solo la causa dei24px. Nessun timeout dei comandi aumentato,
+skip o retry invariato journal43. La nuova CI verifica i fix riprodotti. Le tre
+ipotesi CLI restano separate e non sostituiscono questo risultato applicativo.
+
+### Preview iOS e budget del job
+
+Il trasporto dell'artifact raw25MB della CI43 non completa nei due tentativi
+limitati, terminati esplicitamente; nessun conteggio PNG locale è inventato.
+Il fix7e7ecd2 aggiunge un artifact preview separato, full-frame PNG fino a1000px,
+con manifest hash raw/preview, dimensioni e trasformazione; raw e relativo
+upload restano invariati. La preview permette ispezione attuale derivata,
+con qualifica esplicita, e non sostituisce le immagini originali remote.
+Script45s e step1min; job iOS debug30→35min perché1097s previsual osservati
+più900s consentiti alla cattura superano1800s. I timeout dei comandi restano
+invariati. Il budget non corregge il FAIL UI e non garantisce il completamento.
+Review distinta APPROVED_SOURCE_CODE_ONLY:53 test mirati e5 PoC PASS;
+benchmark141 PNG sintetici con sips7,42s, raw byte-identici, non prova nativa.
+[Capsula](next-integration/completion-ios-preview-budget.md),
+[review](next-integration/completion-ios-preview-budget-review.md).
+Sul composto2327948 anche runner visuale14test e confini architetturali PASS;
+[receipt](next-integration/completion-composed-impact-gates.json).
 
 ### Stato TEST e distribuzione
 
@@ -136,7 +204,7 @@ La sincronizzazione ordinaria di N non equivale a stop globale degli writer.
 | NI054-08 / mobile release | Firma/canale/artifact config finale assenti | Manifest riferimenti, parser e release gate esistenti | Collegare pacchetto release TEST approvato per build→firma→upload→install→smoke |
 | NI054-09 / Worker + W | Backend non aggiornato e finestra non confermata | Bundle workerd qualificato, multipart esatto,23 binding e rollback pronti | Dopo backend verde, confermare finestra e distribuire l'artifact selettivo invariato |
 | NI054-05 / N + Admin + Client | Due origini native e config integrata non qualificate | Mapping IDs e coordinamento N, Android installato; diagnosi CI iOS aperta | Eseguire una catena R24 per origine con fixture pilota autorizzata e ricevute correlate |
-| NI054-25/38 / QA iOS hosted | Inventario globale postboot timeout riprodotto, app non avviata | Trace monotonic e controllo ownership/cleanup; ipotesi scoped UUID | Eseguire esperimento circoscritto revisionato; solo al PASS proseguire journal/smoke/visual |
+| NI054-25/38 / QA iOS hosted | Inventario globale postboot timeout riprodotto, app non avviata | Trace monotonic e controllo ownership/cleanup; ipotesi scoped UUID | Fornire una superficie CoreSimulator supportata usando trace e segnalazione preparata; qualificare poi journal/smoke/visual canonici |
 | NI054-07/R30 / QA accessibilità e performance | Nessuna sessione/device fisico Client autorizzato | Harness nuovi24 stati, budget e benchmark host acquisiti | Esercitare le stesse attività su device Client disponibile con assistive technology e profiling |
 | R05/17/26/27/28 / owner provider | Provider OFF e input sandbox/push/mappe non approvati | Fallback manuale/testuale e metodi previsti coerenti | Collegare configurazione/provider autorizzati per la relativa prova live |
 | Orphan notifiche / data owner TEST | Due righe/otto riferimenti; namespace harness verificato, origine run non attestata | Diagnosi locale lista/mark-read/replay PASS e missing destination not_found; proposta scoped cleanup | Decidere repair delle sole fixture orfane su snapshot hash-bound; nessuna riparazione automatica |
@@ -170,6 +238,9 @@ DB export e artifact restano fuori Git:
 [review assistenza](next-integration/completion-after-sales-source-review.md),
 [config](next-integration/completion-config-preparation-receipt.json),
 [service readonly](next-integration/completion-pgservice-preparation.json),
+[preflight globale](next-integration/completion-ios-preflight-37836564977-capsule.json),
+[preflight UUID](next-integration/completion-ios-preflight-37838207516-capsule.md),
+[preflight set proprio](next-integration/completion-ios-preflight-37840621912-capsule.md),
 [release](next-integration/completion-distribution-reference-receipt.json),
 [coordinamento](next-integration/completion-coordination-completion-receipt.json).
 

@@ -1,0 +1,23 @@
+{
+  "schema": "task054-coordination-status-delta-v1",
+  "observed_at_utc": "2026-10-08T21:26:29.661213+00:00",
+  "method": "wait_threads compact snapshot timeoutMs0; previous cursors supplied",
+  "W": {
+    "thread_id": "01a0d946-6dd0-70f1-9146-e65e8d3f6020",
+    "status": "idle",
+    "revision": 5,
+    "changed": false,
+    "cursor": "551549bf-1fdb-4f33-b3f5-7b276bbc0262:5"
+  },
+  "N": {
+    "thread_id": "01a0e903-0c9d-7583-8d62-4c25da6785e1",
+    "status": "active",
+    "revision": 526,
+    "changed": true,
+    "cursor": "37e81ab3-bed5-4052-83b2-92d43f36e49b:526",
+    "latest_commentary": "La CI sul merge Android è terminata con un errore nei test, dopo build e lint superati; la CI della PR era verde. Recupero i risultati originali per identificare il test fallito. I due test iOS sono ora in esecuzione sul simulatore isolato.",
+    "qualification": "Progress update only; new merge-CI exact run/SHA not received, no failure attached to a guessed revision."
+  },
+  "mutations": "NONE; no message, device, credential, deploy, cron or repository action",
+  "R24": "NOT_RUN; original source-specific lanes remain separate"
+}

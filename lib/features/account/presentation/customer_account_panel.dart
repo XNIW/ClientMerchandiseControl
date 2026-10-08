@@ -7,6 +7,8 @@ import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_state.dart';
 import '../application/customer_account_controller.dart';
 import '../application/customer_account_providers.dart';
 import '../domain/customer_account_failure.dart';
@@ -187,16 +189,29 @@ class _CustomerAccountReady extends StatelessWidget {
           isBusy: state.isMutating,
           onConsentChanged: controller.recordPrivacyConsent,
           onExport: () async {
+            final container = ProviderScope.containerOf(context);
+            final expectedSubjectId = container
+                .read(customerAccountIdentityProvider)
+                ?.subjectId;
+            if (expectedSubjectId == null) return;
             await controller.exportData();
-            if (!context.mounted) {
+            if (!context.mounted ||
+                container.read(customerAccountIdentityProvider)?.subjectId !=
+                    expectedSubjectId) {
               return;
             }
-            final export = ProviderScope.containerOf(context).read(
+            final export = container.read(
               customerAccountControllerProvider.select((value) => value.export),
             );
             if (export != null) {
-              await _showExport(context, export);
-              controller.clearExport();
+              await _showExport(context, export, expectedSubjectId);
+              if (context.mounted &&
+                  identical(
+                    container.read(customerAccountControllerProvider).export,
+                    export,
+                  )) {
+                controller.clearExport();
+              }
             }
           },
           onRequestDeletion: () async {
@@ -786,22 +801,85 @@ Future<CustomerAddressDraft?> showCustomerAddressEditor(
   CustomerAddress? address,
   CustomerAddressEditorInitial? initial,
   Future<CustomerAccountFailure?> Function(CustomerAddressDraft draft)? onSave,
-}) {
-  final expectedSubjectId = ProviderScope.containerOf(
-    context,
-  ).read(customerAccountIdentityProvider)?.subjectId;
-  if (expectedSubjectId == null) return Future.value();
-  return showDialog<CustomerAddressDraft>(
-    context: context,
-    builder: (_) => _AuthBoundDialog(
-      expectedSubjectId: expectedSubjectId,
-      child: _AddressEditorDialog(
-        address: address,
-        initial: initial,
-        onSave: onSave,
-      ),
-    ),
+}) async {
+  final container = ProviderScope.containerOf(context);
+  final expectedSubjectId = container
+      .read(customerAccountIdentityProvider)
+      ?.subjectId;
+  final expectedShop = onSave == null
+      ? null
+      : container.read(customerAccountShopSlugProvider);
+  final pendingDraft = address == null && onSave != null
+      ? container.read(customerAccountControllerProvider).pendingAddressDraft
+      : null;
+  if (expectedSubjectId == null) return null;
+  // I listener esistono prima del push: anche A→B→A fra apertura e primo
+  // frame invalida definitivamente questo editor e la bozza catturata.
+  final scopeValid = ValueNotifier(true);
+  final identitySubscription = container.listen(
+    customerAccountIdentityProvider,
+    (_, next) {
+      if (next?.subjectId != expectedSubjectId) scopeValid.value = false;
+    },
   );
+  // In produzione identity è derivata da AuthController: ascolta anche la
+  // sorgente per osservare transizioni A→B→A coalescenti fra due frame.
+  final authSubscription = container.exists(authControllerProvider)
+      ? container.listen(authControllerProvider, (_, next) {
+          final owner = switch (next) {
+            AuthAuthenticated(:final customer) => customer.subjectId,
+            _ => null,
+          };
+          if (owner != expectedSubjectId) scopeValid.value = false;
+        })
+      : null;
+  final shopSubscription = onSave == null
+      ? null
+      : container.listen(customerAccountShopSlugProvider, (_, next) {
+          if (next != expectedShop) scopeValid.value = false;
+        });
+  try {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final route = DialogRoute<CustomerAddressDraft>(
+      context: context,
+      themes: InheritedTheme.capture(from: context, to: navigator.context),
+      barrierColor:
+          DialogTheme.of(context).barrierColor ??
+          Theme.of(context).dialogTheme.barrierColor ??
+          Colors.black54,
+      barrierDismissible: true,
+      traversalEdgeBehavior: TraversalEdgeBehavior.closedLoop,
+      builder: (dialogContext) => ValueListenableBuilder<bool>(
+        valueListenable: scopeValid,
+        child: _AddressEditorDialog(
+          address: address,
+          initial: initial,
+          pendingDraft: pendingDraft,
+          onSave: onSave,
+        ),
+        builder: (context, valid, child) {
+          if (!valid) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!dialogContext.mounted) return;
+              final route = ModalRoute.of(dialogContext);
+              if (route != null && route.isActive) {
+                Navigator.of(dialogContext).removeRoute(route);
+              }
+            });
+            return const SizedBox.shrink();
+          }
+          return child!;
+        },
+      ),
+    );
+    // Anche il dispose del Navigator prima del mount chiude il monitor.
+    return await Future.any([navigator.push(route), route.completed]);
+  } finally {
+    identitySubscription.close();
+    authSubscription?.close();
+    shopSubscription?.close();
+    scopeValid.dispose();
+  }
 }
 
 final class CustomerAddressEditorInitial {
@@ -840,9 +918,11 @@ class _AddressEditorDialog extends StatefulWidget {
   const _AddressEditorDialog({
     required this.address,
     this.initial,
+    this.pendingDraft,
     this.onSave,
   });
 
+  final CustomerAddressDraft? pendingDraft;
   final CustomerAddress? address;
   final CustomerAddressEditorInitial? initial;
   final Future<CustomerAccountFailure?> Function(CustomerAddressDraft draft)?
@@ -854,18 +934,27 @@ class _AddressEditorDialog extends StatefulWidget {
 
 class _AddressEditorDialogState extends State<_AddressEditorDialog> {
   final _formKey = GlobalKey<FormState>();
+  final _feedbackKey = GlobalKey();
   late final Map<String, TextEditingController> _controllers;
   var _inputInvalid = false;
   bool _geographyEdited = false;
   bool _saving = false;
+  bool _submitted = false;
   CustomerAccountFailure? _saveFailure;
 
   @override
   void initState() {
     super.initState();
     final address = widget.address;
-    final draft = address?.toDraft();
-    final initial = widget.initial;
+    final draft = widget.pendingDraft ?? address?.toDraft();
+    final initial = widget.pendingDraft == null ? widget.initial : null;
+    if (widget.pendingDraft != null) {
+      _submitted = true;
+      _saveFailure = const CustomerAccountFailure(
+        CustomerAccountFailureKind.unavailable,
+        isUncertain: true,
+      );
+    }
     _controllers = {
       'label': TextEditingController(text: initial?.label ?? draft?.label),
       'recipient': TextEditingController(
@@ -907,6 +996,13 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
     final l10n = AppLocalizations.of(context);
     return AlertDialog(
       key: const ValueKey('customer-address-dialog'),
+      insetPadding: const EdgeInsets.all(AppSpacing.sm),
+      actionsPadding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.xs,
+        AppSpacing.md,
+        AppSpacing.md,
+      ),
       scrollable: true,
       title: Text(
         widget.address == null
@@ -920,6 +1016,24 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (_saveFailure != null || _saving) ...[
+                Semantics(
+                  key: _feedbackKey,
+                  liveRegion: true,
+                  child: Text(
+                    _saving
+                        ? l10n.customerAddressSending
+                        : _failureMessage(l10n, _saveFailure),
+                    key: const ValueKey('customer-address-save-failure'),
+                    style: TextStyle(
+                      color: _saving
+                          ? null
+                          : Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+              ],
               _field(l10n, 'label', l10n.customerAddressLabel, 40),
               _field(l10n, 'recipient', l10n.customerAddressRecipient, 120),
               _field(
@@ -974,37 +1088,46 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
                     ),
                   ),
                 ),
-              if (_saveFailure != null)
-                Semantics(
-                  liveRegion: true,
-                  child: Text(
-                    _failureMessage(l10n, _saveFailure),
-                    key: const ValueKey('customer-address-save-failure'),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ),
             ],
           ),
         ),
       ),
       actions: [
-        TextButton(
-          key: const ValueKey('customer-address-cancel'),
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.customerDialogCancel),
-        ),
-        FilledButton(
-          key: const ValueKey('customer-address-submit'),
-          onPressed: _saving ? null : _submit,
-          child: _saving
-              ? const SizedBox.square(
-                  key: ValueKey('customer-address-saving'),
-                  dimension: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(l10n.customerDialogSave),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: AppSpacing.sm,
+              children: [
+                TextButton(
+                  key: const ValueKey('customer-address-cancel'),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    _submitted
+                        ? l10n.customerAddressCloseEditor
+                        : l10n.customerDialogCancel,
+                  ),
+                ),
+                FilledButton(
+                  key: const ValueKey('customer-address-submit'),
+                  onPressed: _saving ? null : _submit,
+                  child: _saving
+                      ? const SizedBox.square(
+                          key: ValueKey('customer-address-saving'),
+                          dimension: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(
+                          _saveFailure?.isUncertain == true
+                              ? l10n.customerAddressVerify
+                              : l10n.customerDialogSave,
+                        ),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     );
@@ -1026,7 +1149,7 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
       child: TextFormField(
         key: ValueKey('customer-address-field-$key'),
         controller: _controllers[key],
-        enabled: !_saving,
+        enabled: !_saving && _saveFailure?.isUncertain != true,
         maxLength: maxRunes,
         maxLines: maxLines,
         textCapitalization: capitalization,
@@ -1071,6 +1194,17 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
     );
   }
 
+  void _revealSaveFeedback() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+      final feedbackContext = _feedbackKey.currentContext;
+      if (feedbackContext == null) return;
+      // Agisce soltanto sullo scroll di questo editor, senza prendere il focus
+      // mentre l'IME o una route successiva stanno cambiando geometria.
+      Scrollable.ensureVisible(feedbackContext, alignment: 0);
+    });
+  }
+
   Future<void> _submit() async {
     if (_saving) return;
     if (!(_formKey.currentState?.validate() ?? false)) {
@@ -1090,20 +1224,30 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
         deliveryInstructions: _controllers['instructions']!.text,
         latitude: _geographyEdited
             ? null
+            : widget.pendingDraft != null
+            ? widget.pendingDraft!.latitude
             : widget.initial?.latitude ?? widget.address?.latitude,
         longitude: _geographyEdited
             ? null
+            : widget.pendingDraft != null
+            ? widget.pendingDraft!.longitude
             : widget.initial?.longitude ?? widget.address?.longitude,
         locationSource: _geographyEdited
             ? CustomerAddressLocationSource.manual
-            : widget.initial?.locationSource ??
+            : widget.pendingDraft?.locationSource ??
+                  widget.initial?.locationSource ??
                   widget.address?.locationSource ??
                   CustomerAddressLocationSource.manual,
         locationAccuracyMeters: _geographyEdited
             ? null
+            : widget.pendingDraft != null
+            ? widget.pendingDraft!.locationAccuracyMeters
             : widget.initial?.locationAccuracyMeters ??
                   widget.address?.locationAccuracyMeters,
-        isDefault: widget.address?.isDefault ?? false,
+        isDefault:
+            widget.pendingDraft?.isDefault ??
+            widget.address?.isDefault ??
+            false,
       );
       final onSave = widget.onSave;
       if (onSave == null) {
@@ -1112,14 +1256,17 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
       }
       setState(() {
         _saving = true;
+        _submitted = true;
         _saveFailure = null;
       });
+      _revealSaveFeedback();
       final failure = await onSave(draft);
       if (!mounted) return;
       setState(() {
         _saving = false;
         _saveFailure = failure;
       });
+      if (failure != null) _revealSaveFeedback();
       if (failure == null && ModalRoute.of(context)?.isCurrent == true) {
         Navigator.of(context).pop(draft);
       }
@@ -1139,78 +1286,119 @@ Future<bool> _confirm(
     context,
   ).read(customerAccountIdentityProvider)?.subjectId;
   if (expectedSubjectId == null) return false;
-  return await showDialog<bool>(
-        context: context,
-        builder: (dialogContext) => _AuthBoundDialog(
-          expectedSubjectId: expectedSubjectId,
-          child: AlertDialog(
-            title: Text(title),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: Text(AppLocalizations.of(context).customerDialogCancel),
-              ),
-              FilledButton(
-                key: const ValueKey('customer-confirm-action'),
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: Text(action),
-              ),
-            ],
-          ),
+  return await _showAccountDialog<bool>(
+        context,
+        expectedSubjectId: expectedSubjectId,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(AppLocalizations.of(context).customerDialogCancel),
+            ),
+            FilledButton(
+              key: const ValueKey('customer-confirm-action'),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(action),
+            ),
+          ],
         ),
       ) ??
       false;
 }
 
-Future<void> _showExport(BuildContext context, CustomerDataExport export) {
-  final expectedSubjectId = ProviderScope.containerOf(
-    context,
-  ).read(customerAccountIdentityProvider)?.subjectId;
-  if (expectedSubjectId == null) return Future.value();
+Future<void> _showExport(
+  BuildContext context,
+  CustomerDataExport export,
+  String expectedSubjectId,
+) {
   final formatted = const JsonEncoder.withIndent(
     '  ',
   ).convert(jsonDecode(export.json));
   final l10n = AppLocalizations.of(context);
-  return showDialog<void>(
-    context: context,
-    builder: (dialogContext) => _AuthBoundDialog(
-      expectedSubjectId: expectedSubjectId,
-      child: AlertDialog(
-        key: const ValueKey('customer-export-dialog'),
-        title: Text(l10n.customerDataExportTitle),
-        content: SizedBox(
-          width: 560,
-          child: SingleChildScrollView(child: SelectableText(formatted)),
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.customerDialogClose),
-          ),
-        ],
+  return _showAccountDialog<void>(
+    context,
+    expectedSubjectId: expectedSubjectId,
+    builder: (dialogContext) => AlertDialog(
+      key: const ValueKey('customer-export-dialog'),
+      title: Text(l10n.customerDataExportTitle),
+      content: SizedBox(
+        width: 560,
+        child: SingleChildScrollView(child: SelectableText(formatted)),
       ),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: Text(l10n.customerDialogClose),
+        ),
+      ],
     ),
   );
 }
 
-class _AuthBoundDialog extends ConsumerWidget {
-  const _AuthBoundDialog({
-    required this.expectedSubjectId,
-    required this.child,
-  });
-
-  final String expectedSubjectId;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(customerAccountIdentityProvider, (previous, next) {
-      if (next?.subjectId != expectedSubjectId && context.mounted) {
-        Navigator.of(context).maybePop();
-      }
-    });
-    return child;
+Future<T?> _showAccountDialog<T>(
+  BuildContext context, {
+  required String expectedSubjectId,
+  required WidgetBuilder builder,
+}) async {
+  final container = ProviderScope.containerOf(context);
+  if (container.read(customerAccountIdentityProvider)?.subjectId !=
+      expectedSubjectId) {
+    return null;
+  }
+  // Esiste prima del push e resta invalidato anche se A torna dopo B prima
+  // del primo frame: né l'export né una conferma possono passare al nuovo owner.
+  final scopeValid = ValueNotifier(true);
+  final identitySubscription = container.listen(
+    customerAccountIdentityProvider,
+    (_, next) {
+      if (next?.subjectId != expectedSubjectId) scopeValid.value = false;
+    },
+  );
+  final authSubscription = container.exists(authControllerProvider)
+      ? container.listen(authControllerProvider, (_, next) {
+          final owner = switch (next) {
+            AuthAuthenticated(:final customer) => customer.subjectId,
+            _ => null,
+          };
+          if (owner != expectedSubjectId) scopeValid.value = false;
+        })
+      : null;
+  try {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final route = DialogRoute<T>(
+      context: context,
+      themes: InheritedTheme.capture(from: context, to: navigator.context),
+      barrierColor:
+          DialogTheme.of(context).barrierColor ??
+          Theme.of(context).dialogTheme.barrierColor ??
+          Colors.black54,
+      barrierDismissible: true,
+      traversalEdgeBehavior: TraversalEdgeBehavior.closedLoop,
+      builder: (dialogContext) => ValueListenableBuilder<bool>(
+        valueListenable: scopeValid,
+        builder: (context, valid, _) {
+          if (!valid) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!dialogContext.mounted) return;
+              final route = ModalRoute.of(dialogContext);
+              if (route != null && route.isActive) {
+                Navigator.of(dialogContext).removeRoute(route);
+              }
+            });
+            return const SizedBox.shrink();
+          }
+          return builder(dialogContext);
+        },
+      ),
+    );
+    final result = await Future.any([navigator.push(route), route.completed]);
+    return scopeValid.value ? result : null;
+  } finally {
+    identitySubscription.close();
+    authSubscription?.close();
+    scopeValid.dispose();
   }
 }
 
@@ -1242,6 +1430,7 @@ String? _optionalFieldValidator(
 }
 
 String _failureMessage(AppLocalizations l10n, CustomerAccountFailure? failure) {
+  if (failure?.isUncertain == true) return l10n.customerAddressUnknown;
   return switch (failure?.kind) {
     CustomerAccountFailureKind.offline => l10n.customerAccountOffline,
     CustomerAccountFailureKind.unauthorized => l10n.customerAccountUnauthorized,

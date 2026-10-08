@@ -658,5 +658,9 @@
   "notificationsUnreadPageHint": "Puoi cercare altre notifiche non lette caricando quelle precedenti.",
   "notificationsUnreadCachedEmptyMessage": "Riconnettiti per verificare se ci sono altre notifiche non lette.",
   "notificationsUnreadEmptyMessage": "Hai letto tutte le notifiche mostrate.",
-  "notificationsUpdateFailed": "Non è stato possibile aggiornare le notifiche. Riprova."
+  "notificationsUpdateFailed": "Non è stato possibile aggiornare le notifiche. Riprova.",
+  "customerAddressUnknown": "Esito da verificare. Verifica prima di modificare.",
+  "customerAddressVerify": "Verifica",
+  "customerAddressCloseEditor": "Chiudi",
+  "customerAddressSending": "Salvataggio in corso. Chiudere non lo annulla."
 }

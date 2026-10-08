@@ -43,7 +43,14 @@ void main() {
         final l10n = AppLocalizations.of(
           tester.element(find.byKey(const ValueKey('customer-address-dialog'))),
         );
-        expect(find.text(l10n.customerAccountUnavailable), findsWidgets);
+        expect(
+          find.text(
+            editing
+                ? l10n.customerAccountUnavailable
+                : l10n.customerAddressUnknown,
+          ),
+          findsWidgets,
+        );
         expect(
           tester
               .widget<FilledButton>(
@@ -136,6 +143,47 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    'create ambigua riapre bozza immutabile e verifica stesso salvataggio',
+    (tester) async {
+      final repository = FakeCustomerAccountRepository();
+      await tester.pumpWidget(_buildApp(repository));
+      await tester.pumpAndSettle();
+      await _openAddress(tester, editing: false);
+      await _fillAddress(tester, line1: 'Bozza da riconciliare');
+      repository.addressResponseError = offlineCustomerFailure();
+      await tester.tap(find.byKey(const ValueKey('customer-address-submit')));
+      await tester.pumpAndSettle();
+      final l10n = AppLocalizations.of(
+        tester.element(find.byKey(const ValueKey('customer-address-dialog'))),
+      );
+      expect(find.text(l10n.customerAddressVerify), findsOneWidget);
+      expect(find.text(l10n.customerAddressCloseEditor), findsOneWidget);
+      expect(
+        tester
+            .widget<TextFormField>(
+              find.byKey(const ValueKey('customer-address-field-line1')),
+            )
+            .enabled,
+        isFalse,
+      );
+      await tester.tap(find.byKey(const ValueKey('customer-address-cancel')));
+      await tester.pumpAndSettle();
+      await _openAddress(tester, editing: false);
+      expect(_addressText(tester, 'line1'), 'Bozza da riconciliare');
+      expect(find.text(l10n.customerAddressVerify), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('customer-address-submit')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('customer-address-dialog')),
+        findsNothing,
+      );
+      expect(repository.createAddressCalls, 1);
+      expect(repository.reconcileCalls, 1);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets(
     'create accettata con refresh fallito non offre una seconda create',
@@ -631,6 +679,7 @@ Widget _buildApp(
         return provider == null ? _identity() : ref.watch(provider);
       }),
       customerAccountRepositoryProvider.overrideWithValue(repository),
+      customerAccountShopSlugProvider.overrideWithValue(null),
       customerIdempotencyKeyFactoryProvider.overrideWithValue(
         () => '21000000-0000-4000-8000-000000000777',
       ),

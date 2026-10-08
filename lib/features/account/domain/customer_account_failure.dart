@@ -9,9 +9,10 @@ enum CustomerAccountFailureKind {
 }
 
 final class CustomerAccountFailure {
-  const CustomerAccountFailure(this.kind);
+  const CustomerAccountFailure(this.kind, {this.isUncertain = false});
 
   final CustomerAccountFailureKind kind;
+  final bool isUncertain;
 
   bool get canRetry => switch (kind) {
     CustomerAccountFailureKind.offline ||
@@ -25,9 +26,18 @@ final class CustomerAccountFailure {
 }
 
 final class CustomerAccountRepositoryException implements Exception {
-  const CustomerAccountRepositoryException(this.kind);
+  const CustomerAccountRepositoryException(
+    this.kind, {
+    this.creationDeleted = false,
+    this.creationRejected = false,
+  });
 
   final CustomerAccountFailureKind kind;
+
+  final bool creationDeleted;
+
+  /// Solo un rifiuto server autorevole, mai un errore di parsing dell’ACK.
+  final bool creationRejected;
 
   @override
   String toString() => 'CustomerAccountRepositoryException(${kind.name})';

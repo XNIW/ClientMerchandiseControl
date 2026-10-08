@@ -2253,4 +2253,18 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get notificationsUpdateFailed =>
       'No se pudieron actualizar las notificaciones. Inténtalo de nuevo.';
+
+  @override
+  String get customerAddressUnknown =>
+      'Resultado por verificar. Verifica antes de editar.';
+
+  @override
+  String get customerAddressVerify => 'Verificar';
+
+  @override
+  String get customerAddressCloseEditor => 'Cerrar';
+
+  @override
+  String get customerAddressSending =>
+      'Guardando. Cerrar el editor no cancela el guardado.';
 }

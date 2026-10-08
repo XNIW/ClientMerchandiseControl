@@ -658,5 +658,9 @@
   "notificationsUnreadPageHint": "Load earlier notifications to check for more unread updates.",
   "notificationsUnreadCachedEmptyMessage": "Reconnect to check for more unread notifications.",
   "notificationsUnreadEmptyMessage": "You have read all the notifications shown.",
-  "notificationsUpdateFailed": "Notifications could not be updated. Try again."
+  "notificationsUpdateFailed": "Notifications could not be updated. Try again.",
+  "customerAddressUnknown": "Save unconfirmed. Check before editing.",
+  "customerAddressVerify": "Check save",
+  "customerAddressCloseEditor": "Close",
+  "customerAddressSending": "Saving. Closing the editor does not cancel the save."
 }

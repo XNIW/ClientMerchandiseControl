@@ -3984,6 +3984,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se pudieron actualizar las notificaciones. Inténtalo de nuevo.'**
   String get notificationsUpdateFailed;
+
+  /// No description provided for @customerAddressUnknown.
+  ///
+  /// In es, this message translates to:
+  /// **'Resultado por verificar. Verifica antes de editar.'**
+  String get customerAddressUnknown;
+
+  /// No description provided for @customerAddressVerify.
+  ///
+  /// In es, this message translates to:
+  /// **'Verificar'**
+  String get customerAddressVerify;
+
+  /// No description provided for @customerAddressCloseEditor.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar'**
+  String get customerAddressCloseEditor;
+
+  /// No description provided for @customerAddressSending.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando. Cerrar el editor no cancela el guardado.'**
+  String get customerAddressSending;
 }
 
 class _AppLocalizationsDelegate

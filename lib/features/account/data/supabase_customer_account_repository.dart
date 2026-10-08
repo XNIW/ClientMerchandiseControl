@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/customer_account_failure.dart';
+import '../domain/address_creation_intent.dart';
+import 'secure_address_creation_journal.dart';
 import '../domain/customer_account_models.dart';
 import '../domain/customer_account_repository.dart';
 
@@ -208,16 +210,53 @@ final class SupabaseCustomerAccountRepository
   }
 
   @override
-  Future<CustomerAddress> createAddress(CustomerAddressDraft draft) {
+  final AddressCreationJournal addressCreationJournal =
+      SecureAddressCreationJournal();
+
+  @override
+  Future<CustomerAddress> createAddress(
+    CustomerAddressDraft draft, {
+    required String intentId,
+  }) {
     return _guard(() async {
+      _requireUuid(intentId);
       final payload = _map(
-        await _port.invoke('customer_address_upsert_v2', {
-          'p_address_id': null,
-          'p_expected_version': null,
+        await _port.invoke('customer_address_create_v3', {
+          'p_intent_id': intentId,
           'p_payload': _addressValues(draft),
         }),
       );
-      _requireAddressRpcStatus(payload, const {'ok'});
+      _requireAddressRpcStatus(payload, const {
+        'ok',
+      }, apiVersion: 'customer-address.v3');
+      return _parseAddress(_map(payload['address']));
+    });
+  }
+
+  @override
+  Future<CustomerAddress?> reconcileAddressCreation(String intentId) {
+    return _guard(() async {
+      _requireUuid(intentId);
+      final payload = _map(
+        await _port.invoke('customer_address_create_reconcile_v3', {
+          'p_intent_id': intentId,
+        }),
+      );
+      if (payload['apiVersion'] != 'customer-address.v3') {
+        throw const CustomerAccountRepositoryException(
+          CustomerAccountFailureKind.unexpected,
+        );
+      }
+      if (payload['status'] == 'not_found') return null;
+      if (payload['status'] == 'deleted') {
+        throw const CustomerAccountRepositoryException(
+          CustomerAccountFailureKind.conflict,
+          creationDeleted: true,
+        );
+      }
+      _requireAddressRpcStatus(payload, const {
+        'ok',
+      }, apiVersion: 'customer-address.v3');
       return _parseAddress(_map(payload['address']));
     });
   }
@@ -357,9 +396,16 @@ final class SupabaseCustomerAccountRepository
     } on AuthException {
       throw const CustomerAccountRepositoryException(
         CustomerAccountFailureKind.unauthorized,
+        creationRejected: true,
       );
     } on PostgrestException catch (error) {
-      throw CustomerAccountRepositoryException(_postgrestFailure(error.code));
+      final kind = _postgrestFailure(error.code);
+      throw CustomerAccountRepositoryException(
+        kind,
+        creationRejected:
+            kind == CustomerAccountFailureKind.invalidInput ||
+            kind == CustomerAccountFailureKind.unauthorized,
+      );
     } on FormatException {
       throw const CustomerAccountRepositoryException(
         CustomerAccountFailureKind.unexpected,
@@ -372,30 +418,8 @@ final class SupabaseCustomerAccountRepository
   }
 }
 
-Map<String, Object?> _addressValues(CustomerAddressDraft draft) {
-  return <String, Object?>{
-    'label': draft.label,
-    'recipientName': draft.recipientName,
-    'recipientPhoneE164': draft.recipientPhoneE164,
-    'addressLine1': draft.addressLine1,
-    'addressLine2': draft.addressLine2,
-    'commune': draft.commune,
-    'region': draft.region,
-    'postalCode': draft.postalCode,
-    'countryCode': draft.countryCode,
-    'deliveryInstructions': draft.deliveryInstructions,
-    'latitude': draft.latitude,
-    'longitude': draft.longitude,
-    'locationSource': switch (draft.locationSource) {
-      CustomerAddressLocationSource.manual => 'manual',
-      CustomerAddressLocationSource.search => 'search',
-      CustomerAddressLocationSource.currentLocation => 'current_location',
-      CustomerAddressLocationSource.mapPin => 'map_pin',
-    },
-    'locationAccuracyMeters': draft.locationAccuracyMeters,
-    'isDefault': draft.isDefault,
-  };
-}
+Map<String, Object?> _addressValues(CustomerAddressDraft draft) =>
+    addressDraftPayload(draft);
 
 CustomerProfile _parseProfile(
   Map<String, Object?> row,
@@ -610,17 +634,27 @@ void _requireRpcStatus(
 
 void _requireAddressRpcStatus(
   Map<String, Object?> payload,
-  Set<String> allowedStatuses,
-) {
-  if (payload['apiVersion'] != 'customer-address.v2' ||
-      !allowedStatuses.contains(payload['status'])) {
+  Set<String> allowedStatuses, {
+  String apiVersion = 'customer-address.v2',
+}) {
+  if (payload['apiVersion'] != apiVersion) {
+    throw const CustomerAccountRepositoryException(
+      CustomerAccountFailureKind.unexpected,
+    );
+  }
+  if (!allowedStatuses.contains(payload['status'])) {
     final status = payload['status'];
     throw CustomerAccountRepositoryException(
-      status == 'version_conflict' || status == 'in_active_checkout'
+      status == 'version_conflict' ||
+              status == 'intent_conflict' ||
+              status == 'deleted' ||
+              status == 'in_active_checkout'
           ? CustomerAccountFailureKind.conflict
           : status == 'invalid'
           ? CustomerAccountFailureKind.invalidInput
           : CustomerAccountFailureKind.unavailable,
+      creationRejected:
+          apiVersion == 'customer-address.v3' && status == 'invalid',
     );
   }
 }

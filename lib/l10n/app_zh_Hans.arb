@@ -658,5 +658,9 @@
   "notificationsUnreadPageHint": "加载更早的通知，查看是否还有未读通知。",
   "notificationsUnreadCachedEmptyMessage": "重新连接以查看是否还有未读通知。",
   "notificationsUnreadEmptyMessage": "你已阅读所有显示的通知。",
-  "notificationsUpdateFailed": "无法更新通知。请重试。"
+  "notificationsUpdateFailed": "无法更新通知。请重试。",
+  "customerAddressUnknown": "保存结果待确认，请验证后再修改。",
+  "customerAddressVerify": "验证保存",
+  "customerAddressCloseEditor": "关闭",
+  "customerAddressSending": "正在保存。关闭编辑器不会取消保存。"
 }

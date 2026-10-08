@@ -2257,4 +2257,18 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get notificationsUpdateFailed =>
       'Non è stato possibile aggiornare le notifiche. Riprova.';
+
+  @override
+  String get customerAddressUnknown =>
+      'Esito da verificare. Verifica prima di modificare.';
+
+  @override
+  String get customerAddressVerify => 'Verifica';
+
+  @override
+  String get customerAddressCloseEditor => 'Chiudi';
+
+  @override
+  String get customerAddressSending =>
+      'Salvataggio in corso. Chiudere non lo annulla.';
 }

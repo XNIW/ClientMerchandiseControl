@@ -2230,4 +2230,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notificationsUpdateFailed =>
       'Notifications could not be updated. Try again.';
+
+  @override
+  String get customerAddressUnknown =>
+      'Save unconfirmed. Check before editing.';
+
+  @override
+  String get customerAddressVerify => 'Check save';
+
+  @override
+  String get customerAddressCloseEditor => 'Close';
+
+  @override
+  String get customerAddressSending =>
+      'Saving. Closing the editor does not cancel the save.';
 }

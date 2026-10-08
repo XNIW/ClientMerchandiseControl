@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:client_merchandise_control/features/account/domain/address_creation_intent.dart';
 
 import 'package:client_merchandise_control/features/account/domain/customer_account_failure.dart';
 import 'package:client_merchandise_control/features/account/domain/customer_account_models.dart';
@@ -62,12 +63,21 @@ final class FakeCustomerAccountRepository implements CustomerAccountRepository {
   CustomerDeletionRequest? deletionRequest;
   Object? loadError;
   Object? mutationError;
+  Object? addressResponseError;
   Completer<void>? loadBarrier;
   Completer<void>? deletionBarrier;
   Completer<void>? addressMutationBarrier;
   String? subjectId;
   int loadCalls = 0;
   int saveProfileCalls = 0;
+  @override
+  final MemoryAddressCreationJournal addressCreationJournal =
+      MemoryAddressCreationJournal();
+  final creationResults = <String, CustomerAddress>{};
+  final creationIntents = <String, AddressCreationIntent>{};
+  final receivedIntentIds = <String>[];
+  int reconcileCalls = 0;
+  Object? reconcileError;
   int createAddressCalls = 0;
   int createAddressAttempts = 0;
   final addressCreates = <CustomerAddressDraft>[];
@@ -117,18 +127,43 @@ final class FakeCustomerAccountRepository implements CustomerAccountRepository {
   }
 
   @override
-  Future<CustomerAddress> createAddress(CustomerAddressDraft draft) async {
+  Future<CustomerAddress> createAddress(
+    CustomerAddressDraft draft, {
+    required String intentId,
+  }) async {
+    receivedIntentIds.add(intentId);
     createAddressAttempts++;
     addressCreates.add(draft);
     await addressMutationBarrier?.future;
     _throwMutationIfNeeded();
+    if (creationResults[intentId] case final existing?) {
+      if (!creationIntents[intentId]!.matches(draft)) {
+        throw const CustomerAccountRepositoryException(
+          CustomerAccountFailureKind.conflict,
+        );
+      }
+      return existing;
+    }
+    creationIntents[intentId] = AddressCreationIntent(
+      id: intentId,
+      draft: draft,
+    );
     createAddressCalls++;
     final created = _addressFromDraft(
       '22000000-0000-4000-8000-${createAddressCalls.toString().padLeft(12, '0')}',
       draft,
     );
+    creationResults[intentId] = created;
     addresses = [...addresses, created];
+    if (addressResponseError case final error?) throw error;
     return created;
+  }
+
+  @override
+  Future<CustomerAddress?> reconcileAddressCreation(String intentId) async {
+    reconcileCalls++;
+    if (reconcileError case final error?) throw error;
+    return creationResults[intentId];
   }
 
   @override
@@ -296,4 +331,23 @@ CustomerAccountRepositoryException offlineCustomerFailure() {
   return const CustomerAccountRepositoryException(
     CustomerAccountFailureKind.offline,
   );
+}
+
+final class MemoryAddressCreationJournal implements AddressCreationJournal {
+  final intents = <String, AddressCreationIntent>{};
+  Object? writeError;
+  Object? clearError;
+  @override
+  Future<AddressCreationIntent?> read(String owner) async => intents[owner];
+  @override
+  Future<void> write(String owner, AddressCreationIntent intent) async {
+    if (writeError case final error?) throw error;
+    intents[owner] = intent;
+  }
+
+  @override
+  Future<void> clear(String owner) async {
+    if (clearError case final error?) throw error;
+    intents.remove(owner);
+  }
 }

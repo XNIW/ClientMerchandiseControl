@@ -310,7 +310,14 @@ class AndroidVisualRunner:
                 return port
         raise Failure('preflight', 2, 'nessuna coppia di porte libera')
 
-    def execute(self):
+    def prepare_output(self):
+        visual_output = self.repository / 'build/task054/visual'
+        if visual_output.exists() and any(visual_output.iterdir()):
+            raise Failure(self.phase, 2, 'directory capture non vuota; nessuna cancellazione')
+        self.environment['CMC_VISUAL_OUTPUT_DIR'] = str(visual_output)
+
+    def prepare_device(self):
+        """Prepara e verifica esclusivamente il proprio AVD; nessuna app avviata."""
         if platform.system() != 'Linux' or platform.machine() != 'x86_64':
             raise Failure(self.phase, 2, 'richiede runner Linux x86_64')
         _, self.revision = self.command(['git', 'rev-parse', 'HEAD'], 15)
@@ -331,10 +338,7 @@ class AndroidVisualRunner:
             print(f'SDK_TOOL name={tool.name} path={tool} executable={executable}', flush=True)
             if not executable:
                 raise Failure(self.phase, 2, f'tool SDK richiesto non disponibile: {tool}')
-        visual_output = self.repository / 'build/task054/visual'
-        if visual_output.exists() and any(visual_output.iterdir()):
-            raise Failure(self.phase, 2, 'directory capture non vuota; nessuna cancellazione')
-        self.environment['CMC_VISUAL_OUTPUT_DIR'] = str(visual_output)
+        self.prepare_output()
 
         self.owned_directory = Path(tempfile.mkdtemp(prefix='cmc-task054-',
             dir=self.environment.get('RUNNER_TEMP')))
@@ -391,6 +395,11 @@ class AndroidVisualRunner:
         if (api, abi) != ('35', 'x86_64'):
             raise Failure(self.phase, 2, 'API/ABI del device differenti dal contratto')
         self.command(target + ['shell', 'input', 'keyevent', '82'], 10)
+        return adb
+
+    def execute(self):
+        adb = self.prepare_device()
+        visual_output = Path(self.environment['CMC_VISUAL_OUTPUT_DIR'])
         self.phase = 'native-fixture-capture'
         self.environment.update(CMC_OS_FRAME_PLATFORM='android',
             CMC_OS_FRAME_DEVICE=self.serial, CMC_OS_FRAME_ADB=str(adb))
@@ -399,8 +408,8 @@ class AndroidVisualRunner:
             None, capture=False)
         self.phase = 'capture-completeness'
         self.capture_count = len(list(visual_output.glob('*.png')))
-        if self.capture_count != 105:
-            raise Failure(self.phase, 1, f'capture attese105, ottenute{self.capture_count}')
+        if self.capture_count != 113:
+            raise Failure(self.phase, 1, f'capture attese113, ottenute{self.capture_count}')
 
     def cleanup(self):
         # Mai adb kill-server, emu kill, shutdown-all o selezione di device altrui.

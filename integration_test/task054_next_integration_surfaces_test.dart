@@ -1,6 +1,7 @@
 // UI/controller produzione con fixture dichiarate: nessuna prova staging,
 // tastiera di sistema, screen reader, provider o persistenza dopo kill/restart.
 import 'dart:async';
+import 'dart:io';
 
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/app/router/app_routes.dart';
@@ -48,7 +49,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets(
-    'address editor focus compatto200% conserva testo dopo errore mutation',
+    'address editor focus compatto200% rende recuperabili errori immediati e differiti',
     (tester) async {
       final fixture = Task054VisualFixtures();
       await tester.pumpWidget(
@@ -87,7 +88,14 @@ void main() {
               CustomerAccountFailureKind.unavailable,
             );
         final submit = find.byKey(const ValueKey('customer-address-submit'));
+        final editable = find.descendant(
+          of: line1,
+          matching: find.byType(EditableText),
+        );
+        await tester.showKeyboard(line1);
+        await _expectAddressKeyboardReady(tester, editable);
         await _reveal(tester, submit);
+        await _expectAddressKeyboardReady(tester, editable);
         await tester.tap(submit);
         await tester.pumpAndSettle();
         expect(
@@ -103,22 +111,39 @@ void main() {
         expect(find.text(l10n.customerAccountUnavailable), findsWidgets);
         expect(tester.widget<FilledButton>(submit).onPressed, isNotNull);
         expect(fixture.account.addressUpdates.single.expectedVersion, 1);
-        final editable = find.descendant(
-          of: line1,
-          matching: find.byType(EditableText),
-        );
+        await _expectAddressRecoveryReachable(tester);
         await Scrollable.ensureVisible(tester.element(editable), alignment: 0);
         await tester.pumpAndSettle();
         expect(editable.hitTestable(), findsOneWidget);
         await tester.tap(editable);
         await tester.showKeyboard(line1);
+        await _expectAddressKeyboardReady(tester, editable);
         final input = tester.widget<EditableText>(editable);
         expect(input.focusNode.hasFocus, isTrue);
         expect(input.readOnly, isFalse);
+        await _expectAddressRecoveryReachable(tester);
         await captureVisual(tester, 'address-editor-focus-compact200');
-        // Qui si osservano focus e requestKeyboard. I pixel della IME Android
-        // richiedono una cattura driver/OS separata, senza inferirli da viewInsets.
+        // Il frame OS permette di verificare l'IME prima del retry differito;
+        // le metriche Flutter non sostituiscono l'ispezione dei pixel OS.
+        final delayed = Completer<void>();
+        fixture.account.addressMutationBarrier = delayed;
+        await _reveal(tester, submit);
+        await _expectAddressKeyboardReady(tester, editable);
+        await tester.tap(submit);
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(
+          find.byKey(const ValueKey('customer-address-saving')),
+          findsOneWidget,
+        );
+        expect(tester.widget<FilledButton>(submit).onPressed, isNull);
+        expect(tester.widget<TextFormField>(line1).controller!.text, draft);
+        delayed.complete();
+        await tester.pumpAndSettle();
+        await _expectAddressRecoveryReachable(tester);
+        expect(tester.widget<TextFormField>(line1).controller!.text, draft);
+        expect(fixture.account.addressUpdates, hasLength(2));
         fixture.account.mutationError = null;
+        fixture.account.addressMutationBarrier = null;
         await _reveal(tester, submit);
         await tester.tap(submit);
         await tester.pumpAndSettle();
@@ -127,7 +152,7 @@ void main() {
           findsNothing,
         );
         expect(fixture.account.addresses.single.addressLine1, draft);
-        expect(fixture.account.addressUpdates, hasLength(2));
+        expect(fixture.account.addressUpdates, hasLength(3));
         expect(
           fixture.account.addressUpdates.every(
             (attempt) =>
@@ -143,6 +168,133 @@ void main() {
       }
     },
   );
+
+  for (final locale in const [
+    Locale('es', 'CL'),
+    Locale('it'),
+    Locale('en'),
+    Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+  ]) {
+    for (final brightness in Brightness.values) {
+      testWidgets(
+        'address create compatto200% esito incerto ${locale.toLanguageTag()} ${brightness.name}',
+        (tester) async {
+          final fixture = Task054VisualFixtures();
+          await tester.pumpWidget(
+            fixture.wrap(
+              _app(
+                const Scaffold(
+                  body: SafeArea(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(16),
+                      child: CustomerAccountPanel(
+                        authDisplayName: 'Cliente sintético',
+                      ),
+                    ),
+                  ),
+                ),
+                compact: true,
+                locale: locale,
+                brightness: brightness,
+              ),
+            ),
+          );
+          try {
+            await tester.pumpAndSettle();
+            final add = find.byKey(const ValueKey('customer-address-add'));
+            await _reveal(tester, add);
+            await tester.tap(add);
+            await tester.pumpAndSettle();
+            const draft = 'Calle intento incierto 789';
+            for (final entry in {
+              'label': 'Casa sintética',
+              'recipient': 'Cliente sintético',
+              'line1': draft,
+              'commune': 'Santiago',
+              'region': 'Metropolitana',
+              'country': 'CL',
+            }.entries) {
+              final field = find.byKey(
+                ValueKey('customer-address-field-${entry.key}'),
+              );
+              await _reveal(tester, field);
+              await tester.enterText(field, entry.value);
+            }
+            final line1 = find.byKey(
+              const ValueKey('customer-address-field-line1'),
+            );
+            final editable = find.descendant(
+              of: line1,
+              matching: find.byType(EditableText),
+            );
+            await _reveal(tester, line1);
+            await tester.showKeyboard(line1);
+            await _expectAddressKeyboardReady(tester, editable);
+            fixture.account.addressResponseError =
+                const CustomerAccountRepositoryException(
+                  CustomerAccountFailureKind.unavailable,
+                );
+            final submit = find.byKey(
+              const ValueKey('customer-address-submit'),
+            );
+            await _reveal(tester, submit);
+            await _expectAddressKeyboardReady(tester, editable);
+            await tester.tap(submit);
+            await tester.pumpAndSettle();
+            final l10n = AppLocalizations.of(tester.element(line1));
+            expect(find.text(l10n.customerAddressUnknown), findsWidgets);
+            expect(find.text(l10n.customerAddressVerify), findsOneWidget);
+            expect(find.text(l10n.customerAddressCloseEditor), findsOneWidget);
+            expect(tester.widget<TextFormField>(line1).enabled, isFalse);
+            expect(tester.widget<TextFormField>(line1).controller!.text, draft);
+            await _expectAddressRecoveryReachable(tester);
+            expect(fixture.account.createAddressCalls, 1);
+            expect(fixture.account.createAddressAttempts, 1);
+            await captureVisual(
+              tester,
+              'address-create-unknown-compact200-${locale.toLanguageTag()}-${brightness.name}',
+            );
+            if (brightness == Brightness.dark) {
+              await tester.tap(
+                find.byKey(const ValueKey('customer-address-cancel')),
+              );
+              await tester.pumpAndSettle();
+              await _reveal(tester, add);
+              await tester.tap(add);
+              await tester.pumpAndSettle();
+              expect(
+                tester.widget<TextFormField>(line1).controller!.text,
+                draft,
+              );
+              expect(tester.widget<TextFormField>(line1).enabled, isFalse);
+              await _expectAddressRecoveryReachable(tester);
+            }
+            // In light verifica nella route ancora aperta; in dark prova anche
+            // chiusura e riapertura, sempre sullo stesso intent per ogni lingua.
+            await _reveal(tester, submit);
+            await tester.tap(submit);
+            await tester.pumpAndSettle();
+            expect(
+              find.byKey(const ValueKey('customer-address-dialog')),
+              findsNothing,
+            );
+            expect(fixture.account.createAddressCalls, 1);
+            expect(fixture.account.createAddressAttempts, 1);
+            expect(fixture.account.reconcileCalls, 1);
+            expect(
+              fixture.account.addresses.where(
+                (item) => item.addressLine1 == draft,
+              ),
+              hasLength(1),
+            );
+            expect(tester.takeException(), isNull);
+          } finally {
+            await _unmount(tester);
+          }
+        },
+      );
+    }
+  }
 
   testWidgets(
     'search field focus compatto200% conserva query e retry dopo errore',
@@ -990,8 +1142,9 @@ Widget _app(
   Widget home, {
   Locale locale = const Locale('es', 'CL'),
   bool compact = false,
+  Brightness brightness = Brightness.light,
 }) => MaterialApp(
-  theme: AppTheme.light(),
+  theme: brightness == Brightness.dark ? AppTheme.dark() : AppTheme.light(),
   locale: locale,
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
@@ -1061,6 +1214,86 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
 Future<void> _unmount(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pumpAndSettle();
+}
+
+Future<void> _expectAddressKeyboardReady(
+  WidgetTester tester,
+  Finder editable,
+) async {
+  expect(tester.widget<EditableText>(editable).focusNode.hasFocus, isTrue);
+  if (!visualCaptureEnabled || !(Platform.isAndroid || Platform.isIOS)) return;
+  var previousInset = -1.0;
+  var stableSamples = 0;
+  for (var attempt = 0; attempt < 20; attempt++) {
+    final inset = tester.view.viewInsets.bottom;
+    stableSamples = inset > 0 && (inset - previousInset).abs() < 0.5
+        ? stableSamples + 1
+        : 0;
+    if (stableSamples >= 2) return;
+    previousInset = inset;
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(
+    stableSamples,
+    greaterThanOrEqualTo(2),
+    reason: 'La richiesta parte solo con tastiera di sistema già aperta.',
+  );
+}
+
+Future<void> _expectAddressRecoveryReachable(WidgetTester tester) async {
+  // Un cliente può scorrere per leggere: controlliamo il messaggio completo e
+  // ciascuna azione raggiungibile, senza imporre che siano visibili insieme.
+  for (final key in [
+    'customer-address-save-failure',
+    'customer-address-submit',
+    'customer-address-cancel',
+  ]) {
+    final target = find.byKey(ValueKey(key));
+    expect(target, findsOneWidget);
+    await _reveal(tester, target);
+    final compact = tester.getRect(
+      find.byKey(const ValueKey('task054-compact-viewport')),
+    );
+    final ratio = tester.view.devicePixelRatio;
+    final unobscured = compact.intersect(
+      Rect.fromLTWH(
+        0,
+        0,
+        tester.view.physicalSize.width / ratio,
+        (tester.view.physicalSize.height - tester.view.viewInsets.bottom) /
+            ratio,
+      ),
+    );
+    final rect = tester.getRect(target);
+    expect(rect.left, greaterThanOrEqualTo(unobscured.left));
+    expect(rect.right, lessThanOrEqualTo(unobscured.right));
+    final longMessage =
+        key == 'customer-address-save-failure' &&
+        rect.height > unobscured.height;
+    if (longMessage) {
+      await Scrollable.ensureVisible(tester.element(target), alignment: 0);
+      await tester.pumpAndSettle();
+      expect(tester.getRect(target).top, greaterThanOrEqualTo(unobscured.top));
+      expect(tester.getRect(target).top, lessThan(unobscured.bottom));
+      await Scrollable.ensureVisible(tester.element(target), alignment: 1);
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(target).bottom,
+        lessThanOrEqualTo(unobscured.bottom),
+      );
+      expect(tester.getRect(target).bottom, greaterThan(unobscured.top));
+    } else {
+      expect(rect.top, greaterThanOrEqualTo(unobscured.top));
+      expect(
+        rect.bottom,
+        lessThanOrEqualTo(unobscured.bottom),
+        reason:
+            '$key deve essere raggiungibile senza essere coperto dalla tastiera.',
+      );
+    }
+    if (!longMessage) expect(target.hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  }
 }
 
 Future<void> _waitForFailureNotice(WidgetTester tester) async {

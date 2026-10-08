@@ -113,6 +113,9 @@ jobs:
         run: flutter pub get --enforce-lockfile
       - name: Build APK
         run: flutter build apk --debug
+      - name: Verify native Android persistence and routing
+        working-directory: android
+        run: ./gradlew :app:testDebugUnitTest --no-daemon
       - name: Validate Android bundle security
         run: >-
           bash scripts/check-client-security.sh
@@ -352,3 +355,45 @@ jobs:
           --reference-app build/ios/iphoneos/Runner.app
           --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
           --archive-runner-attestation '${{ steps.ios-archive-runner.outputs.macho_sha256 }}'
+
+  android-address-journal:
+    name: Android address journal restart
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Validate journal runner failure boundaries
+        run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-android.py
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Enable runner access to KVM
+        run: |
+          test -c /dev/kvm
+          sudo -n chown "$(id -u):$(id -g)" /dev/kvm
+          sudo -n chmod u+rw /dev/kvm
+      - name: Verify durable synthetic journal across two Android processes
+        run: python3 scripts/run-address-journal-android.py
+      - name: Save journal restart receipts
+        if: always()
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-android-address-journal
+          path: |
+            build/task054/address-journal/*.json
+            build/task054/address-journal-receipt.json
+            build/task054/android-emulator.log
+          if-no-files-found: warn
+          retention-days: 7

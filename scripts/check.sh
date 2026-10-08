@@ -18,6 +18,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-backend-compatibility.
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-auth-entitlements.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-visual-runner.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-android-runner.py"
+PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-address-journal-android.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-os-frame.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-owned-process.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-ios-owned.py"
@@ -50,6 +51,7 @@ flutter test --coverage --exclude-tags performance
 CMC_TASK034_REPEAT_COUNT=5 bash "${cmc_script_dir}/test-task034-resilience-repeat.sh"
 flutter test --tags performance --concurrency=1
 flutter build apk --debug
+(cd android && ./gradlew :app:testDebugUnitTest --no-daemon)
 flutter build ios --simulator --debug
 git diff --check
 git diff --cached --check

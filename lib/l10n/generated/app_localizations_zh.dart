@@ -2255,16 +2255,18 @@ class AppLocalizationsZh extends AppLocalizations {
       'No se pudieron actualizar las notificaciones. Inténtalo de nuevo.';
 
   @override
-  String get customerAddressUnknown => '保存结果待确认，请验证后再修改。';
+  String get customerAddressUnknown =>
+      'Resultado por verificar. Verifica antes de editar.';
 
   @override
-  String get customerAddressVerify => '验证保存';
+  String get customerAddressVerify => 'Verificar';
 
   @override
-  String get customerAddressCloseEditor => '关闭';
+  String get customerAddressCloseEditor => 'Cerrar';
 
   @override
-  String get customerAddressSending => '正在保存。关闭编辑器不会取消保存。';
+  String get customerAddressSending =>
+      'Guardando. Cerrar el editor no cancela el guardado.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).

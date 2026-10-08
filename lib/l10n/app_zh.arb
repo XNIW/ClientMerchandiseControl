@@ -987,8 +987,8 @@
   "notificationsUnreadCachedEmptyMessage": "Vuelve a conectarte para comprobar si hay más notificaciones sin leer.",
   "notificationsUnreadEmptyMessage": "Has leído todas las notificaciones mostradas.",
   "notificationsUpdateFailed": "No se pudieron actualizar las notificaciones. Inténtalo de nuevo.",
-  "customerAddressUnknown": "保存结果待确认，请验证后再修改。",
-  "customerAddressVerify": "验证保存",
-  "customerAddressCloseEditor": "关闭",
-  "customerAddressSending": "正在保存。关闭编辑器不会取消保存。"
+  "customerAddressUnknown": "Resultado por verificar. Verifica antes de editar.",
+  "customerAddressVerify": "Verificar",
+  "customerAddressCloseEditor": "Cerrar",
+  "customerAddressSending": "Guardando. Cerrar el editor no cancela el guardado."
 }

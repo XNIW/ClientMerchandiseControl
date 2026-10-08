@@ -1,6 +1,7 @@
 // UI/controller produzione con fixture dichiarate: nessuna prova staging,
 // tastiera di sistema, screen reader, provider o persistenza dopo kill/restart.
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
@@ -45,6 +46,7 @@ import '../test/features/orders/customer_order_test_support.dart';
 import '../test/support/commerce_surface_fixtures.dart';
 import '../test/support/storefront_surface_fixtures.dart';
 import 'support/next_integration_fixtures.dart';
+import 'support/compact_viewport.dart';
 import 'support/visual_capture.dart';
 
 void main() {
@@ -953,7 +955,7 @@ void main() {
           'Comentario sintético conservado después de un error de envío.';
       await tester.enterText(field, comment);
       await tester.showKeyboard(field);
-      await _reveal(tester, field);
+      await _reveal(tester, field, geometryStage: 'review-first-focus');
       expect(field.hitTestable(), findsOneWidget);
       expect(
         tester
@@ -1386,22 +1388,18 @@ Widget _app(
   home: home,
 );
 
-Widget _compactViewport(BuildContext context, Widget? child) => Center(
-  child: SizedBox(
-    key: const ValueKey('task054-compact-viewport'),
-    width: 320,
-    height: 568,
-    child: MediaQuery(
-      data: MediaQuery.of(
-        context,
-      ).copyWith(size: const Size(320, 568), textScaler: TextScaler.linear(2)),
-      child: child!,
-    ),
-  ),
-);
+Widget _compactViewport(BuildContext context, Widget? child) =>
+    Task054CompactViewport(child: child!);
 
-Future<void> _reveal(WidgetTester tester, Finder finder) async {
+Future<void> _reveal(
+  WidgetTester tester,
+  Finder finder, {
+  String? geometryStage,
+}) async {
   await tester.pumpAndSettle();
+  if (geometryStage != null) {
+    _logCompactGeometry(tester, finder, '$geometryStage-before-scroll');
+  }
   // Un reflow successivo al primo scroll può smontare un elemento della lista.
   for (var attempt = 0; attempt < 2; attempt++) {
     if (finder.evaluate().isEmpty) {
@@ -1435,7 +1433,15 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
     }
     await Scrollable.ensureVisible(tester.element(finder), alignment: 0.5);
     await tester.pumpAndSettle();
-    if (finder.hitTestable().evaluate().isNotEmpty) return;
+    if (finder.hitTestable().evaluate().isNotEmpty) {
+      if (geometryStage != null) {
+        _logCompactGeometry(tester, finder, '$geometryStage-after-scroll');
+      }
+      return;
+    }
+  }
+  if (geometryStage != null) {
+    _logCompactGeometry(tester, finder, '$geometryStage-unreachable');
   }
   expect(
     finder.hitTestable(),
@@ -1443,6 +1449,40 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
     reason: 'Il controllo deve essere raggiungibile dopo il reflow.',
   );
 }
+
+void _logCompactGeometry(WidgetTester tester, Finder finder, String stage) {
+  final viewport = find.byKey(const ValueKey('task054-compact-viewport'));
+  final global = MediaQuery.of(tester.element(viewport));
+  final local = tester
+      .widget<MediaQuery>(
+        find.descendant(of: viewport, matching: find.byType(MediaQuery)).first,
+      )
+      .data;
+  final theme = Theme.of(tester.element(find.byType(CustomerReviewsScreen)));
+  final rawInsets = tester.view.viewInsets;
+  debugPrint(
+    'TASK054_REVIEW_GEOMETRY=${jsonEncode({'stage': stage, 'physicalSize': _sizeGeometry(tester.view.physicalSize), 'devicePixelRatio': tester.view.devicePixelRatio, 'physicalViewInsets': _edgeGeometry(EdgeInsets.fromLTRB(rawInsets.left, rawInsets.top, rawInsets.right, rawInsets.bottom)), 'globalSize': _sizeGeometry(global.size), 'globalViewInsets': _edgeGeometry(global.viewInsets), 'globalViewPadding': _edgeGeometry(global.viewPadding), 'globalPadding': _edgeGeometry(global.padding), 'viewportRect': _rectGeometry(tester.getRect(viewport)), 'localSize': _sizeGeometry(local.size), 'localViewInsets': _edgeGeometry(local.viewInsets), 'localViewPadding': _edgeGeometry(local.viewPadding), 'localPadding': _edgeGeometry(local.padding), 'fieldRect': finder.evaluate().length == 1 ? _rectGeometry(tester.getRect(finder)) : null, 'platform': theme.platform.name, 'bodyFontFamily': theme.textTheme.bodyMedium?.fontFamily, 'labelFontFamily': theme.textTheme.labelLarge?.fontFamily})}',
+  );
+}
+
+Map<String, double> _sizeGeometry(Size size) => {
+  'width': size.width,
+  'height': size.height,
+};
+
+Map<String, double> _rectGeometry(Rect rect) => {
+  'left': rect.left,
+  'top': rect.top,
+  'right': rect.right,
+  'bottom': rect.bottom,
+};
+
+Map<String, double> _edgeGeometry(EdgeInsets edges) => {
+  'left': edges.left,
+  'top': edges.top,
+  'right': edges.right,
+  'bottom': edges.bottom,
+};
 
 Future<void> _unmount(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox.shrink());

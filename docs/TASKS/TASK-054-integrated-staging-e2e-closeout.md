@@ -4,7 +4,7 @@
 - **Stato**: BLOCKED
 - **Fase**: REVIEW
 - **Responsabile**: CODEX_RE_REVIEWER
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Handoff**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -808,3 +808,64 @@ Ricevute: `next-integration/local-gates-operational-20261008.json`,
  rimangono nelle receipt; nessuna esclusione, skip, modifica budget o target.
  La source review e questi gate consentono la nuova CI; non dichiarano DONE
  o accettazione integrata. Handoff `CODEX_REVIEW_BLOCKED`.
+
+
+## Fix autorizzato — prova journal iOS, 2026-10-08
+
+Il mandato operativo dell’8 ottobre autorizza a colmare la prova nativa iOS
+ ancora mancante. La CI Android journal su 62980d2 ha concluso il riavvio reale;
+ il nuovo gate iOS riusa fixture, driver e ownership Simulator già esistenti.
+ Scope del fix: una build/installazione, seed e terminate/recover sullo stesso
+ bundle/container, PID distinto, URI privata, timeout e cleanup propri.
+ Nessuna modifica preventiva a app o entitlement; eventuali problemi Keychain
+ richiedono prima la riproduzione runtime. Il nuovo job separato conserva
+ Xcode 26.6, Flutter 3.44.8, target 14 e i budget dei sei job preesistenti.
+ Nessun build o simulatore locale nella lane; esecuzione hosted ancora NOT_RUN.
+
+Handoff: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## Consegna Fix — runner journal iOS, 2026-10-08
+
+La fixture condivisa accetta ora entrambe le piattaforme. Il driver resta
+ byte-identico; un orchestratore iOS riusa ownership Simulator e cleanup dei
+ gruppi di processi esistenti. Ricevute correlate a UUID/PID e hash del bundle,
+ binario e container; `simctl terminate` è limitato all’app e al dispositivo
+ attestati. Una sola installazione, nessun erase/reinstall fra seed e recover.
+ Le URI VM restano nei file temporanei privati, esclusi dagli artifact.
+
+Il writer ha eseguito 16 test Python rapidi con exit 0. Build e runtime iOS
+ rimangono NOT_RUN: nessun simulatore locale o risorsa N è stato usato. La
+ verifica hosted appartiene al nuovo job separato, senza presumere gli esiti
+ del job iOS visuale o dell’Android journal. Review sorgente distinta richiesta;
+ nessun APPROVED autoassegnato e nessun merge/CI avviato dalla lane.
+
+Handoff: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## Fix dei rilievi sul gate iOS — 2026-10-08
+
+Il reviewer distinto ha riprodotto P2 nel nuovo orchestratore: errore inventory
+ trattato come assenza app e mismatch dei contratti signal/cleanup. Il fixer usa
+ ora inventario positivo convertito in JSON e un solo trasporto robusto per i
+ processi, senza cambiare il lifecycle iOS generale. Un terzo P2 nella diagnostica
+ è corretto preservando sempre l’exit del driver se la lettura dei log fallisce.
+ Sono stati aggiunti metadata sanitizzati che distinguono processo e attach VM,
+ senza dedurre Keychain o crash dal precedente timeout smoke hosted.
+ La prima suite ampliata fallisce per una firma mock errata; dopo correzione
+ il comando finale restituisce 21 PASS, exit 0. Re-review distinta richiesta.
+
+Handoff: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## Esito ricevuto della re-review iOS — 2026-10-08
+
+Il reviewer read-only distinto `/root/backend_readiness` comunica APPROVED
+ SOURCE_CODE_ONLY sugli hash registrati in `ios-journal-source-20261008.json`:
+ 21 test autonomi e otto PoC PASS, exit 0; tutti e tre i P2 risolti. Sei job CI
+ preesistenti byte-identici; nessuna app o capability modificata. Il fixer non
+ attribuisce un PASS runtime a queste prove: la CI hosted del delta iOS è NOT_RUN.
+ Stato integrato BLOCKED/REVIEW; associazione hash al commit finale ancora da
+ verificare dopo il commit selettivo, prima dell’integrazione root.
+
+Handoff di consegna: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

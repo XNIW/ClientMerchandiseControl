@@ -397,3 +397,55 @@ jobs:
             build/task054/android-emulator.log
           if-no-files-found: warn
           retention-days: 7
+
+  ios-address-journal:
+    name: iOS address journal restart
+    runs-on: macos-26
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Validate iOS journal runner failure boundaries
+        run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-ios.py
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Prepare one owned iOS Simulator for journal restart
+        run: |
+          mkdir -p build/task054
+          python3 scripts/run-task054-ios-owned.py prepare \
+            --receipt build/task054/ios-journal-owned-receipt.json
+      - name: Verify synthetic Keychain journal across two iOS processes
+        run: >-
+          python3 scripts/run-address-journal-ios.py
+          --owner-receipt build/task054/ios-journal-owned-receipt.json
+      - name: Clean up the owned journal Simulator
+        if: always()
+        run: |
+          if [[ -f build/task054/ios-journal-owned-receipt.json ]]; then
+            python3 scripts/run-task054-ios-owned.py cleanup \
+              --receipt build/task054/ios-journal-owned-receipt.json
+          fi
+      - name: Save iOS journal restart receipts
+        if: always()
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-ios-address-journal
+          path: |
+            build/task054/ios-address-journal/*.json
+            build/task054/ios-journal-owned-receipt.json
+          if-no-files-found: warn
+          retention-days: 7

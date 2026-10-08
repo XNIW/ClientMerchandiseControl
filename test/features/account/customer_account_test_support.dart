@@ -67,6 +67,7 @@ final class FakeCustomerAccountRepository implements CustomerAccountRepository {
   Completer<void>? loadBarrier;
   Completer<void>? deletionBarrier;
   Completer<void>? addressMutationBarrier;
+  Completer<void>? addressReconcileBarrier;
   String? subjectId;
   int loadCalls = 0;
   int saveProfileCalls = 0;
@@ -162,6 +163,7 @@ final class FakeCustomerAccountRepository implements CustomerAccountRepository {
   @override
   Future<CustomerAddress?> reconcileAddressCreation(String intentId) async {
     reconcileCalls++;
+    await addressReconcileBarrier?.future;
     if (reconcileError case final error?) throw error;
     return creationResults[intentId];
   }

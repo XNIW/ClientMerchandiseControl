@@ -17,6 +17,95 @@ import 'package:flutter_test/flutter_test.dart';
 import 'customer_account_test_support.dart';
 
 void main() {
+  testWidgets(
+    'stessa route UPDATE ripete errore immediato, differito e successo',
+    (tester) async {
+      final repository = FakeCustomerAccountRepository()
+        ..mutationError = const CustomerAccountRepositoryException(
+          CustomerAccountFailureKind.unavailable,
+        );
+      await tester.pumpWidget(_buildApp(repository));
+      await tester.pumpAndSettle();
+      await _openAddress(tester, editing: true);
+      await _fillAddress(tester, line1: 'Calle retry sulla stessa route 456');
+      final submit = find.byKey(const ValueKey('customer-address-submit'));
+      final dialog = find.byKey(const ValueKey('customer-address-dialog'));
+      final originalRoute = ModalRoute.of(tester.element(dialog));
+
+      await tester.tap(submit);
+      await tester.pumpAndSettle();
+      expect(repository.addressUpdates, hasLength(1));
+      final delayed = Completer<void>();
+      repository.addressMutationBarrier = delayed;
+      await tester.tap(submit);
+      await tester.pump();
+      expect(tester.widget<FilledButton>(submit).onPressed, isNull);
+      delayed.complete();
+      await tester.pumpAndSettle();
+      expect(repository.addressUpdates, hasLength(2));
+      expect(ModalRoute.of(tester.element(dialog)), same(originalRoute));
+
+      repository
+        ..mutationError = null
+        ..addressMutationBarrier = null;
+      await tester.tap(submit);
+      await tester.pumpAndSettle();
+      expect(repository.addressUpdates, hasLength(3));
+      expect(dialog, findsNothing);
+      expect(
+        repository.addresses.single.addressLine1,
+        'Calle retry sulla stessa route 456',
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'stessa route Verify diretto dopo errore differito conferma un solo create',
+    (tester) async {
+      final repository = FakeCustomerAccountRepository(addresses: [])
+        ..addressResponseError = const CustomerAccountRepositoryException(
+          CustomerAccountFailureKind.unavailable,
+        );
+      await tester.pumpWidget(_buildApp(repository));
+      await tester.pumpAndSettle();
+      await _openAddress(tester, editing: false);
+      await _fillAddress(tester, line1: 'Calle Verify sulla stessa route 789');
+      final submit = find.byKey(const ValueKey('customer-address-submit'));
+      final dialog = find.byKey(const ValueKey('customer-address-dialog'));
+      final originalRoute = ModalRoute.of(tester.element(dialog));
+      await tester.tap(submit);
+      await tester.pumpAndSettle();
+      expect(repository.createAddressCalls, 1);
+      final delayed = Completer<void>();
+      repository
+        ..addressReconcileBarrier = delayed
+        ..reconcileError = const CustomerAccountRepositoryException(
+          CustomerAccountFailureKind.unavailable,
+        );
+      await tester.tap(submit);
+      await tester.pump();
+      expect(tester.widget<FilledButton>(submit).onPressed, isNull);
+      delayed.complete();
+      await tester.pumpAndSettle();
+      expect(repository.reconcileCalls, 1);
+      expect(ModalRoute.of(tester.element(dialog)), same(originalRoute));
+
+      repository
+        ..reconcileError = null
+        ..addressReconcileBarrier = null;
+      // Invoca la stessa azione esposta dalla UI: un hit-test non può mascherare
+      // il controllo lifecycle del callback dopo il rebuild della notice.
+      tester.widget<FilledButton>(submit).onPressed!();
+      await tester.pumpAndSettle();
+      expect(repository.reconcileCalls, 2);
+      expect(repository.createAddressCalls, 1);
+      expect(repository.addresses, hasLength(1));
+      expect(dialog, findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   for (final editing in [false, true]) {
     testWidgets(
       '${editing ? 'edit' : 'create'} address conserva bozza dopo errore e ritenta',

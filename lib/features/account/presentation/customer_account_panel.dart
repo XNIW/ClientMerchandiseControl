@@ -164,6 +164,9 @@ class _CustomerAccountReady extends StatelessWidget {
         const SizedBox(height: AppSpacing.xl),
         const Divider(),
         _AddressSection(
+          // La notice precedente entra/esce durante i retry. Conserva il
+          // contesto che possiede l'editor finché questa sezione è presente.
+          key: const ValueKey('customer-address-section'),
           addresses: snapshot.addresses,
           isBusy: state.isMutating,
           onCreate: controller.createAddress,
@@ -391,6 +394,7 @@ class _AddressSection extends StatelessWidget {
     required this.onUpdate,
     required this.onDelete,
     required this.onSetDefault,
+    super.key,
   });
 
   final List<CustomerAddress> addresses;

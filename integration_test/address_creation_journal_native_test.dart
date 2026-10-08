@@ -1,6 +1,6 @@
-// Fixture nativa senza Auth/backend, eseguita due volte nello stesso APK.
+// Fixture nativa senza Auth/backend, eseguita due volte nello stesso bundle.
 // Il runner assegna un UUID nuovo, termina il processo seed e avvia recover
-// senza reinstallare o cancellare dati. Solo il runner attesta kill, APK e UID.
+// senza reinstallare o cancellare dati. Il runner attesta stop e identità nativa.
 import 'dart:io';
 
 import 'package:client_merchandise_control/features/account/data/secure_address_creation_journal.dart';
@@ -29,7 +29,7 @@ void main() {
   testWidgets('journal indirizzo: persistenza nativa dopo processo terminato', (
     tester,
   ) async {
-    expect(Platform.isAndroid, isTrue);
+    expect(Platform.isAndroid || Platform.isIOS, isTrue);
     await tester.pumpWidget(const SizedBox.shrink());
     const runId = String.fromEnvironment('ADDRESS_JOURNAL_RUN_ID');
     expect(
@@ -40,7 +40,7 @@ void main() {
       reason: 'Occorre un UUID fixture nuovo assegnato dal runner.',
     );
 
-    // Il plugin e la barriera Android reali non sono sostituiti da mock.
+    // Plugin nativo reale: barriera Android o Keychain iOS, senza mock.
     final journal = SecureAddressCreationJournal();
     final pending = await journal.read(_fixtureOwner);
     final phase = pending == null ? 'seed' : 'recover';
@@ -62,7 +62,7 @@ void main() {
       ).firstMatch(pending.draft.deliveryInstructions ?? '');
       expect(marker, isNotNull);
       seedPid = int.parse(marker!.group(1)!);
-      expect(pid, isNot(seedPid), reason: 'Serve un processo Android nuovo.');
+      expect(pid, isNot(seedPid), reason: 'Serve un processo nativo nuovo.');
     }
     final restored = await SecureAddressCreationJournal().read(_fixtureOwner);
     expect(restored?.id, runId);

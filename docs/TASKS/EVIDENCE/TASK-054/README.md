@@ -1,13 +1,19 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
+`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
 Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
+
+## Gate journal iOS aggiuntivo — 8 ottobre 2026
+
+Il [gate iOS dedicato](next-integration/ios-journal-source-20261008.md) riusa la
+fixture Android e mantiene app/entitlement invariati. Review distinta APPROVED
+SOURCE_CODE_ONLY con 21 test e otto PoC; runtime hosted ancora NOT_RUN.
 
 ## Mandato operativo corrente — 8 ottobre 2026
 

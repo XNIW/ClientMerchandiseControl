@@ -5367,3 +5367,38 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
  iOS locale BLOCKED per toolchain, nuova CI hosted ancora NOT_RUN al freeze.
 - **Higiene**:18sorgenti diagnostiche locali spostate fuori repository con
  byte/hash identici; nessuna esclusione analyzer/formatter. Lockfile/SDK/target invariati.
+
+
+## 2026-10-08 — TASK-054 prova journal iOS
+
+- **Ruolo**: CODEX_FIXER, seguito da re-review distinta.
+- **Scope**: gate mancante di persistenza nativa iOS entro il mandato operativo
+  dell’8 ottobre; una build/installazione e due processi sullo stesso bundle.
+- **Modifiche**: fixture condivisa, orchestratore iOS con lifecycle riusati,
+  settimo job separato e conteggio governance aggiornato; nessuna app/capability.
+- **Verifiche**: 16 test Python writer PASS, exit 0; build/runtime locale NOT_RUN
+  per vincolo di ownership N. Hosted e review sorgente ancora da eseguire.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-08 — TASK-054 fix dei rilievi journal iOS
+
+- **Ruolo**: CODEX_FIXER, con reviewer backend distinto.
+- **Finding**: tre P2 riprodotti nel nuovo runner e corretti: inventory incerta,
+  signal/cleanup non omogenei e diagnostica che mascherava l’exit primario.
+- **Verifica**: 21 test Python finali PASS, exit 0; primo test signal fallito
+  per mock con firma errata e corretto. I 16 test iniziali restano storici.
+- **Limiti**: nessun build/device locale; runtime nuovo ancora NOT_RUN.
+  Nessuna app, entitlement, versione o budget preesistente modificato.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-08 — TASK-054 consegna journal iOS con re-review distinta
+
+- **Ruolo**: CODEX_FIXER; esito ricevuto da reviewer read-only distinto.
+- **Review sorgente**: APPROVED SOURCE_CODE_ONLY, 21 test e otto PoC autonomi
+  PASS, exit 0; tre P2 chiusi. Hash verificati nella nuova evidence iOS separata.
+- **Gate**: governance, action pins, shell syntax e diff PASS, exit 0.
+- **Limiti**: CI/build/runtime iOS ancora NOT_RUN; nessun push o nuova CI dalla
+  lane. Task integrato BLOCKED/REVIEW, senza DONE o merge.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.

@@ -127,7 +127,7 @@ class PreflightLifecycleTest(unittest.TestCase):
         owner.command.side_effect = lambda arguments, *_args, **_kwargs: (
             'a' * 40 if arguments[0] == 'git' else
             'usage: simctl --set <path>' if arguments[-1] == 'help' else
-            'list devices [<search term>]' if arguments[-1] == 'list' else
+            'list devices [<search term>]' if arguments[0] == '/bin/sh' else
             '{"devices":{}}')
 
         def prepare():
@@ -176,6 +176,99 @@ class PreflightLifecycleTest(unittest.TestCase):
             self.assertEqual(result['cleanup'], 'NOT_RUN')
             self.assertEqual(result['cleanup_reason'], 'owned_workflow_finally_after_native_steps')
             owner.cleanup.assert_not_called()
+
+    def test_installed_cli_help_on_stderr_is_not_misclassified_as_unsupported(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fake = root / 'xcrun'
+            fake.write_text('#!/bin/sh\n'
+                'if [ "$2" = help ] && [ "$3" = list ]; then\n'
+                '  printf "Usage: list devices [<search term>|available]\\n" >&2\n'
+                'elif [ "$2" = help ]; then\n'
+                '  printf "usage: simctl --set <path>\\n"\n'
+                'else\n'
+                '  printf \'{"devices":{}}\\n\'\n'
+                'fi\n')
+            fake.chmod(0o755)
+            with patch.dict(os.environ, {'PATH': str(root) + os.pathsep + os.environ['PATH']}), \
+                 patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'prepare',
+                    side_effect=PREFLIGHT.IOS.Failure(124, 'test stops before any device')):
+                code = PREFLIGHT.main(['--output', str(root / 'result')])
+            self.assertEqual(code, 124)
+            result = json.loads((root / 'result/result.json').read_text())
+            self.assertTrue(result['cli']['list_search_term'])
+
+
+class ScopedInventoryTest(unittest.TestCase):
+    device = '12345678-1234-1234-1234-123456789ABC'
+    runtime = 'com.apple.CoreSimulator.SimRuntime.iOS-26-5'
+
+    def owner(self):
+        owner = PREFLIGHT.UuidInventoryOwner()
+        owner.record = {'device': self.device, 'name': 'owned', 'runtime': self.runtime}
+        return owner
+
+    def test_scoped_inventory_retains_exact_ownership_state_and_budget(self):
+        owner = self.owner()
+        entry = {'udid': self.device, 'name': 'owned', 'state': 'Booted', 'isAvailable': True}
+        with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command',
+                return_value=json.dumps({'devices': {self.runtime: [entry]}})) as command:
+            self.assertTrue(owner.check_device(self.device, ready=True, owned=True))
+        command.assert_called_once_with(['xcrun', 'simctl', 'list', 'devices', '--json',
+            self.device], 30, capture=True)
+
+    def test_empty_unproved_filter_cannot_authorize_boot_or_false_absence(self):
+        owner = self.owner()
+        owner.phase = 'prepare'
+        with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command',
+                return_value=json.dumps({'devices': {}})), \
+             self.assertRaises(PREFLIGHT.IOS.Failure):
+            owner.check_device(self.device, owned=True)
+
+    def test_scope_cannot_hide_foreign_entries_or_mismatched_identity(self):
+        for change in ({'udid': 'foreign'}, {'name': 'foreign'}, {'state': 'Shutdown'},
+                       {'isAvailable': False}):
+            entry = {'udid': self.device, 'name': 'owned', 'state': 'Booted', 'isAvailable': True}
+            entry.update(change)
+            with self.subTest(change=change), patch.object(PREFLIGHT.IOS.IosOwnedRunner,
+                    'command', return_value=json.dumps({'devices': {self.runtime: [entry]}})), \
+                 self.assertRaises(PREFLIGHT.IOS.Failure):
+                self.owner().check_device(self.device, ready=True, owned=True)
+
+    def test_scope_keeps_duplicate_runtime_and_cleanup_absence_guards(self):
+        entry = {'udid': self.device, 'name': 'owned', 'state': 'Booted', 'isAvailable': True}
+        for payload in ({'devices': {self.runtime: [entry, entry]}},
+                        {'devices': {'foreign-runtime': [entry]}}):
+            with self.subTest(payload=payload), patch.object(PREFLIGHT.IOS.IosOwnedRunner,
+                    'command', return_value=json.dumps(payload)), \
+                 self.assertRaises(PREFLIGHT.IOS.Failure):
+                self.owner().check_device(self.device, ready=True, owned=True)
+        with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command',
+                return_value=json.dumps({'devices': {}})):
+            owner = self.owner()
+            owner.phase = 'cleanup'
+            self.assertFalse(owner.check_device(self.device, owned=True))
+
+    def test_cleanup_unproved_filter_uses_global_identity_readback(self):
+        owner = self.owner()
+        owner.phase = 'cleanup'
+        entry = {'udid': self.device, 'name': 'owned', 'state': 'Shutdown', 'isAvailable': True}
+        with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command', side_effect=[
+                json.dumps({'devices': {}}),
+                json.dumps({'devices': {self.runtime: [entry]}})]) as command:
+            self.assertTrue(owner.check_device(self.device, owned=True))
+        self.assertEqual(command.call_args_list[-1].args,
+                         (['xcrun', 'simctl', 'list', 'devices', '--json'], 30))
+
+    def test_cleanup_proved_filter_does_not_require_global_inventory(self):
+        owner = self.owner()
+        owner.scoped_query_verified = True
+        owner.phase = 'cleanup'
+        with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command',
+                return_value=json.dumps({'devices': {}})) as command:
+            self.assertFalse(owner.check_device(self.device, owned=True))
+        command.assert_called_once_with(['xcrun', 'simctl', 'list', 'devices', '--json',
+            self.device], 30, capture=True)
 
 
 if __name__ == '__main__':

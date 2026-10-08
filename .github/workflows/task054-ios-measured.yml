@@ -47,7 +47,7 @@ jobs:
             cmc_keep_ready=(--keep-ready)
           fi
           python3 scripts/run-ios-preflight-measured.py \
-            --output build/task054/ios-measured "${cmc_keep_ready[@]}"
+            --output build/task054/ios-measured --inventory-scope uuid "${cmc_keep_ready[@]}"
       - name: Set up Flutter
         if: inputs.mode == 'native'
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2

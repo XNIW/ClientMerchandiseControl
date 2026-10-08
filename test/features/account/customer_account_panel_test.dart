@@ -18,6 +18,48 @@ import 'customer_account_test_support.dart';
 
 void main() {
   testWidgets(
+    'journal temporaneamente illeggibile conserva account e offre recupero',
+    (tester) async {
+      final repository = FakeCustomerAccountRepository();
+      repository.addressCreationJournal.readError = StateError(
+        'temporarily_unreadable',
+      );
+      await tester.pumpWidget(_buildApp(repository));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('customer-account-ready')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('customer-account-load-failure')),
+        findsNothing,
+      );
+      final add = find.byKey(const ValueKey('customer-address-add'));
+      expect(tester.widget<IconButton>(add).onPressed, isNull);
+      expect(
+        find.byKey(const ValueKey('customer-address-journal-unavailable')),
+        findsOneWidget,
+      );
+      expect(find.text('Avenida Uno 123'), findsOneWidget);
+      repository.addressCreationJournal.readError = null;
+      final retry = find.byKey(
+        const ValueKey('customer-address-journal-retry'),
+      );
+      await tester.ensureVisible(retry);
+      await tester.tap(retry);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const ValueKey('customer-address-journal-unavailable')),
+        findsNothing,
+      );
+      expect(tester.widget<IconButton>(add).onPressed, isNotNull);
+      expect(repository.addressCreationJournal.clearCalls, 0);
+      expect(repository.createAddressAttempts, 0);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
     'stessa route UPDATE ripete errore immediato, differito e successo',
     (tester) async {
       final repository = FakeCustomerAccountRepository()

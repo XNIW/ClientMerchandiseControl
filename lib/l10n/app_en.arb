@@ -660,6 +660,7 @@
   "notificationsUnreadEmptyMessage": "You have read all the notifications shown.",
   "notificationsUpdateFailed": "Notifications could not be updated. Try again.",
   "customerAddressUnknown": "Save unconfirmed. Check before editing.",
+  "customerAddressJournalUnavailable": "We cannot read the recovery information saved on this device. You can view your account; adding addresses is paused. Retry to recover access without deleting data.",
   "customerAddressVerify": "Check save",
   "customerAddressCloseEditor": "Close",
   "customerAddressSending": "Saving. Closing the editor does not cancel the save."

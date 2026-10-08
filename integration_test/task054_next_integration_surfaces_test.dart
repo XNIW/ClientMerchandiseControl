@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/features/account/domain/customer_account_failure.dart';
+import 'package:client_merchandise_control/features/account/domain/address_creation_intent.dart';
 import 'package:client_merchandise_control/features/account/presentation/customer_account_panel.dart';
 import 'package:client_merchandise_control/features/after_sales/application/customer_after_sales_controller.dart';
 import 'package:client_merchandise_control/features/after_sales/presentation/customer_after_sales_screen.dart';
@@ -176,6 +177,97 @@ void main() {
     Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
   ]) {
     for (final brightness in Brightness.values) {
+      testWidgets(
+        'journal illeggibile compatto200% recupera senza cancellare ${locale.toLanguageTag()} ${brightness.name}',
+        (tester) async {
+          final fixture = Task054VisualFixtures();
+          final draft = testCustomerAddress(
+            label: 'Borrador sintético',
+          ).toDraft();
+          final intent = AddressCreationIntent(
+            id: '21000000-0000-4000-8000-000000000888',
+            draft: draft,
+          );
+          fixture.account.addressCreationJournal
+            ..intents[testCustomerSubject] = intent
+            ..readError = StateError('temporarily_unreadable');
+          await tester.pumpWidget(
+            fixture.wrap(
+              _app(
+                const Scaffold(
+                  body: SafeArea(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(16),
+                      child: CustomerAccountPanel(
+                        authDisplayName: 'Cliente sintético',
+                      ),
+                    ),
+                  ),
+                ),
+                compact: true,
+                locale: locale,
+                brightness: brightness,
+              ),
+            ),
+          );
+          try {
+            await tester.pumpAndSettle();
+            expect(
+              find.byKey(const ValueKey('customer-account-ready')),
+              findsOneWidget,
+            );
+            final add = find.byKey(const ValueKey('customer-address-add'));
+            expect(tester.widget<IconButton>(add).onPressed, isNull);
+            final warning = find.byKey(
+              const ValueKey('customer-address-journal-unavailable'),
+            );
+            final l10n = AppLocalizations.of(tester.element(warning));
+            expect(
+              find.text(l10n.customerAddressJournalUnavailable),
+              findsOneWidget,
+            );
+            await _reveal(tester, warning);
+            final retry = find.byKey(
+              const ValueKey('customer-address-journal-retry'),
+            );
+            await _reveal(tester, retry);
+            expect(tester.getSize(retry).height, greaterThanOrEqualTo(48));
+            expect(fixture.account.addressCreationJournal.clearCalls, 0);
+            expect(fixture.account.createAddressAttempts, 0);
+            await captureVisual(
+              tester,
+              'address-journal-unavailable-compact200-${locale.toLanguageTag()}-${brightness.name}',
+            );
+            fixture.account.addressCreationJournal.readError = null;
+            await tester.tap(retry);
+            await tester.pumpAndSettle();
+            expect(warning, findsNothing);
+            await _reveal(tester, add);
+            await tester.tap(add);
+            await tester.pumpAndSettle();
+            final line1 = find.byKey(
+              const ValueKey('customer-address-field-line1'),
+            );
+            expect(
+              tester.widget<TextFormField>(line1).controller!.text,
+              draft.addressLine1,
+            );
+            expect(tester.widget<TextFormField>(line1).enabled, isFalse);
+            expect(
+              fixture
+                  .account
+                  .addressCreationJournal
+                  .intents[testCustomerSubject],
+              same(intent),
+            );
+            expect(fixture.account.addressCreationJournal.clearCalls, 0);
+            expect(tester.takeException(), isNull);
+          } finally {
+            await _unmount(tester);
+          }
+        },
+      );
+
       testWidgets(
         'address create compatto200% esito incerto ${locale.toLanguageTag()} ${brightness.name}',
         (tester) async {

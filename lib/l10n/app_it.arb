@@ -660,6 +660,7 @@
   "notificationsUnreadEmptyMessage": "Hai letto tutte le notifiche mostrate.",
   "notificationsUpdateFailed": "Non è stato possibile aggiornare le notifiche. Riprova.",
   "customerAddressUnknown": "Esito da verificare. Verifica prima di modificare.",
+  "customerAddressJournalUnavailable": "Non riusciamo a leggere le informazioni di recupero salvate sul dispositivo. Puoi consultare il tuo account; la creazione di indirizzi è sospesa. Riprova per recuperare l’accesso senza cancellare dati.",
   "customerAddressVerify": "Verifica",
   "customerAddressCloseEditor": "Chiudi",
   "customerAddressSending": "Salvataggio in corso. Chiudere non lo annulla."

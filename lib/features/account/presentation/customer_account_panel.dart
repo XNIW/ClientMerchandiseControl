@@ -169,6 +169,8 @@ class _CustomerAccountReady extends StatelessWidget {
           key: const ValueKey('customer-address-section'),
           addresses: snapshot.addresses,
           isBusy: state.isMutating,
+          isCreationSuspended: state.isAddressJournalUnavailable,
+          onRetryJournal: controller.refresh,
           onCreate: controller.createAddress,
           onUpdate: controller.updateAddress,
           onDelete: (address) async {
@@ -390,6 +392,8 @@ class _AddressSection extends StatelessWidget {
   const _AddressSection({
     required this.addresses,
     required this.isBusy,
+    required this.isCreationSuspended,
+    required this.onRetryJournal,
     required this.onCreate,
     required this.onUpdate,
     required this.onDelete,
@@ -399,6 +403,8 @@ class _AddressSection extends StatelessWidget {
 
   final List<CustomerAddress> addresses;
   final bool isBusy;
+  final bool isCreationSuspended;
+  final VoidCallback onRetryJournal;
   final Future<CustomerAddress?> Function(CustomerAddressDraft draft) onCreate;
   final Future<bool> Function(
     String addressId,
@@ -421,12 +427,30 @@ class _AddressSection extends StatelessWidget {
           message: l10n.customerAddressesDescription,
           trailing: IconButton.filledTonal(
             key: const ValueKey('customer-address-add'),
-            onPressed: isBusy ? null : () => _editAddress(context),
+            onPressed: isBusy || isCreationSuspended
+                ? null
+                : () => _editAddress(context),
             tooltip: l10n.customerAddressAdd,
             icon: const Icon(Icons.add_location_alt_outlined),
           ),
         ),
         const SizedBox(height: AppSpacing.md),
+        if (isCreationSuspended) ...[
+          Semantics(
+            key: const ValueKey('customer-address-journal-unavailable'),
+            container: true,
+            liveRegion: true,
+            child: Text(l10n.customerAddressJournalUnavailable),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          OutlinedButton.icon(
+            key: const ValueKey('customer-address-journal-retry'),
+            onPressed: isBusy ? null : onRetryJournal,
+            icon: const Icon(Icons.refresh),
+            label: Text(l10n.customerAccountRetry),
+          ),
+          const SizedBox(height: AppSpacing.md),
+        ],
         if (addresses.isEmpty)
           _EmptySection(
             key: const ValueKey('customer-address-empty'),

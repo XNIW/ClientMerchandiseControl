@@ -988,6 +988,7 @@
   "notificationsUnreadEmptyMessage": "Has leído todas las notificaciones mostradas.",
   "notificationsUpdateFailed": "No se pudieron actualizar las notificaciones. Inténtalo de nuevo.",
   "customerAddressUnknown": "Resultado por verificar. Verifica antes de editar.",
+  "customerAddressJournalUnavailable": "No podemos leer la información de recuperación guardada en este dispositivo. Puedes consultar tu cuenta; añadir direcciones está en pausa. Vuelve a intentar para recuperar el acceso sin borrar datos.",
   "customerAddressVerify": "Verificar",
   "customerAddressCloseEditor": "Cerrar",
   "customerAddressSending": "Guardando. Cerrar el editor no cancela el guardado."

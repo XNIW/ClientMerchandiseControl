@@ -337,10 +337,16 @@ CustomerAccountRepositoryException offlineCustomerFailure() {
 
 final class MemoryAddressCreationJournal implements AddressCreationJournal {
   final intents = <String, AddressCreationIntent>{};
+  Object? readError;
   Object? writeError;
   Object? clearError;
+  int clearCalls = 0;
   @override
-  Future<AddressCreationIntent?> read(String owner) async => intents[owner];
+  Future<AddressCreationIntent?> read(String owner) async {
+    if (readError case final error?) throw error;
+    return intents[owner];
+  }
+
   @override
   Future<void> write(String owner, AddressCreationIntent intent) async {
     if (writeError case final error?) throw error;
@@ -349,6 +355,7 @@ final class MemoryAddressCreationJournal implements AddressCreationJournal {
 
   @override
   Future<void> clear(String owner) async {
+    clearCalls++;
     if (clearError case final error?) throw error;
     intents.remove(owner);
   }

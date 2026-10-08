@@ -2259,6 +2259,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Resultado por verificar. Verifica antes de editar.';
 
   @override
+  String get customerAddressJournalUnavailable =>
+      'No podemos leer la información de recuperación guardada en este dispositivo. Puedes consultar tu cuenta; añadir direcciones está en pausa. Vuelve a intentar para recuperar el acceso sin borrar datos.';
+
+  @override
   String get customerAddressVerify => 'Verificar';
 
   @override

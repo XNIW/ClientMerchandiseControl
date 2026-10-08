@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:client_merchandise_control/features/account/application/customer_account_controller.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
 import 'package:client_merchandise_control/features/account/domain/customer_account_failure.dart';
+import 'package:client_merchandise_control/features/account/domain/address_creation_intent.dart';
 import 'package:client_merchandise_control/features/account/domain/customer_account_models.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,6 +31,109 @@ void main() {
     );
     addTearDown(() => container.dispose());
   });
+
+  test(
+    'journal illeggibile carica account e recupera intento senza cancellarlo',
+    () async {
+      final draft = testCustomerAddress(label: 'Bozza conservata').toDraft();
+      const intentId = '21000000-0000-4000-8000-000000000888';
+      final canonical = await repository.createAddress(
+        draft,
+        intentId: intentId,
+      );
+      final intent = AddressCreationIntent(id: intentId, draft: draft);
+      repository.addressCreationJournal
+        ..intents[testCustomerSubject] = intent
+        ..readError = StateError('temporarily_unreadable');
+
+      container.read(customerAccountControllerProvider);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      final state = container.read(customerAccountControllerProvider);
+      expect(state.status, CustomerAccountStatus.ready);
+      expect(state.isAddressJournalUnavailable, isTrue);
+      expect(state.snapshot?.profile?.displayName, 'Cliente Uno');
+      expect(state.snapshot?.addresses.last.id, canonical.id);
+      final controller = container.read(
+        customerAccountControllerProvider.notifier,
+      );
+      expect(await controller.createAddress(draft), isNull);
+      expect(repository.createAddressAttempts, 1);
+      expect(repository.addressCreationJournal.clearCalls, 0);
+      expect(
+        repository.addressCreationJournal.intents[testCustomerSubject],
+        same(intent),
+      );
+
+      repository.addressCreationJournal.readError = null;
+      await controller.refresh();
+      expect(
+        container
+            .read(customerAccountControllerProvider)
+            .isAddressJournalUnavailable,
+        isFalse,
+      );
+      expect(
+        container
+            .read(customerAccountControllerProvider)
+            .pendingAddressDraft
+            ?.label,
+        'Bozza conservata',
+      );
+      expect(await controller.createAddress(draft), isNotNull);
+      expect(repository.createAddressCalls, 1);
+      expect(repository.reconcileCalls, 1);
+      expect(repository.addressCreationJournal.intents, isEmpty);
+    },
+  );
+
+  test(
+    'profile ed export non sbloccano create con journal ancora illeggibile',
+    () async {
+      repository.addressCreationJournal.readError = StateError(
+        'temporarily_unreadable',
+      );
+      container.read(customerAccountControllerProvider);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      final controller = container.read(
+        customerAccountControllerProvider.notifier,
+      );
+      await controller.saveProfile(
+        CustomerProfileDraft(displayName: 'Profilo aggiornato', locale: 'it'),
+      );
+      await controller.exportData();
+      expect(
+        container
+            .read(customerAccountControllerProvider)
+            .snapshot
+            ?.profile
+            ?.displayName,
+        'Profilo aggiornato',
+      );
+      expect(
+        container
+            .read(customerAccountControllerProvider)
+            .isAddressJournalUnavailable,
+        isTrue,
+      );
+      expect(
+        container.read(customerAccountControllerProvider).export,
+        isNotNull,
+      );
+      expect(
+        await controller.createAddress(testCustomerAddress().toDraft()),
+        isNull,
+      );
+      expect(repository.createAddressAttempts, 0);
+      expect(repository.addressCreationJournal.clearCalls, 0);
+      repository.addressCreationJournal.readError = null;
+      await controller.refresh();
+      expect(
+        await controller.createAddress(testCustomerAddress().toDraft()),
+        isNotNull,
+      );
+      expect(repository.createAddressCalls, 1);
+    },
+  );
 
   test(
     'create commit con risposta persa e retry produce un solo indirizzo',

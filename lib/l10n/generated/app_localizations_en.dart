@@ -2236,6 +2236,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Save unconfirmed. Check before editing.';
 
   @override
+  String get customerAddressJournalUnavailable =>
+      'We cannot read the recovery information saved on this device. You can view your account; adding addresses is paused. Retry to recover access without deleting data.';
+
+  @override
   String get customerAddressVerify => 'Check save';
 
   @override

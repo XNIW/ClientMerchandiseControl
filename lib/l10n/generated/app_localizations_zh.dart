@@ -2259,6 +2259,10 @@ class AppLocalizationsZh extends AppLocalizations {
       'Resultado por verificar. Verifica antes de editar.';
 
   @override
+  String get customerAddressJournalUnavailable =>
+      'No podemos leer la información de recuperación guardada en este dispositivo. Puedes consultar tu cuenta; añadir direcciones está en pausa. Vuelve a intentar para recuperar el acceso sin borrar datos.';
+
+  @override
   String get customerAddressVerify => 'Verificar';
 
   @override
@@ -4319,6 +4323,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get customerAddressUnknown => '保存结果待确认，请验证后再修改。';
+
+  @override
+  String get customerAddressJournalUnavailable =>
+      '暂时无法读取此设备保存的恢复信息。你仍可查看账户，新增地址已暂停。请重试以恢复访问，无需删除数据。';
 
   @override
   String get customerAddressVerify => '验证保存';

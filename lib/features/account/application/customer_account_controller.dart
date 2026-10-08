@@ -36,6 +36,7 @@ final class CustomerAccountState {
     this.notice,
     this.noticeRevision = 0,
     this.pendingAddressDraft,
+    this.isAddressJournalUnavailable = false,
   });
 
   const CustomerAccountState.signedOut()
@@ -52,6 +53,7 @@ final class CustomerAccountState {
   final CustomerAccountNoticeKind? notice;
   final int noticeRevision;
   final CustomerAddressDraft? pendingAddressDraft;
+  final bool isAddressJournalUnavailable;
 
   CustomerAccountState copyWith({
     CustomerAccountStatus? status,
@@ -62,6 +64,7 @@ final class CustomerAccountState {
     Object? notice = _customerStateUnset,
     int? noticeRevision,
     Object? pendingAddressDraft = _customerStateUnset,
+    bool? isAddressJournalUnavailable,
   }) {
     return CustomerAccountState(
       status: status ?? this.status,
@@ -82,6 +85,8 @@ final class CustomerAccountState {
       pendingAddressDraft: identical(pendingAddressDraft, _customerStateUnset)
           ? this.pendingAddressDraft
           : pendingAddressDraft as CustomerAddressDraft?,
+      isAddressJournalUnavailable:
+          isAddressJournalUnavailable ?? this.isAddressJournalUnavailable,
     );
   }
 }
@@ -99,6 +104,7 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
   String? _subjectId;
   String? _shopSlug;
   AddressCreationIntent? _pendingIntent;
+  var _addressJournalUnavailable = false;
   Future<CustomerAddress?>? _addressOperation;
   CustomerAddressDraft? _activeAddressDraft;
   int? _activeAddressGeneration;
@@ -127,6 +133,7 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
         _generation++;
         _subjectId = null;
         _pendingIntent = null;
+        _addressJournalUnavailable = false;
         _pendingDeletionKey = null;
         _lastState = null;
         ref.invalidateSelf();
@@ -139,6 +146,7 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
       _generation++;
       _subjectId = null;
       _pendingIntent = null;
+      _addressJournalUnavailable = false;
       _pendingDeletionKey = null;
       final signedOut = const CustomerAccountState.signedOut();
       _lastState = signedOut;
@@ -152,6 +160,7 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
     _subjectId = identity.subjectId;
     _shopSlug = shopSlug;
     _pendingIntent = null;
+    _addressJournalUnavailable = false;
     _pendingDeletionKey = null;
     final loading = const CustomerAccountState.loading();
     _lastState = loading;
@@ -194,7 +203,7 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
           ).matches(draft);
       return same ? active : Future.value();
     }
-    if (_operation != null) return Future.value();
+    if (_operation != null || _addressJournalUnavailable) return Future.value();
     final owner = _subjectId;
     final generation = _generation;
     if (owner == null || _lastState?.snapshot == null) return Future.value();
@@ -226,9 +235,11 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
       _publish(current.copyWith(isMutating: true, failure: null, notice: null));
       var ambiguous = false;
       var hadPending = false;
+      var journalRead = false;
       try {
         var intent = await journal.read(owner);
         if (!_isCurrent(owner, generation)) return;
+        journalRead = true;
         if (intent != null) {
           hadPending = true;
           _pendingIntent = intent;
@@ -290,6 +301,7 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
         );
       } on Object catch (error) {
         if (!_isCurrent(owner, generation)) return;
+        if (!journalRead) _addressJournalUnavailable = true;
         final failure = _failureFrom(error);
         final rejected =
             error is CustomerAccountRepositoryException &&
@@ -463,9 +475,19 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
       );
       try {
         final repository = ref.read(customerAccountRepositoryProvider);
-        final intent = await repository.addressCreationJournal.read(subjectId);
-        if (!_isCurrent(subjectId, generation)) return;
-        _pendingIntent = intent;
+        try {
+          final intent = await repository.addressCreationJournal.read(
+            subjectId,
+          );
+          if (!_isCurrent(subjectId, generation)) return;
+          _pendingIntent = intent;
+          _addressJournalUnavailable = false;
+        } on Object {
+          if (!_isCurrent(subjectId, generation)) return;
+          // Lo storage illeggibile sospende soltanto le nuove creazioni.
+          // Conserva il dato e carica le parti indipendenti dell'account.
+          _addressJournalUnavailable = true;
+        }
         final snapshot = await repository.load(subjectId);
         if (!_isCurrent(subjectId, generation)) {
           return;
@@ -591,7 +613,10 @@ final class CustomerAccountController extends Notifier<CustomerAccountState> {
     if (_disposed) {
       return;
     }
-    final scoped = next.copyWith(pendingAddressDraft: _pendingIntent?.draft);
+    final scoped = next.copyWith(
+      pendingAddressDraft: _pendingIntent?.draft,
+      isAddressJournalUnavailable: _addressJournalUnavailable,
+    );
     _lastState = scoped;
     state = scoped;
   }

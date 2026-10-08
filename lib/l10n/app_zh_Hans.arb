@@ -660,6 +660,7 @@
   "notificationsUnreadEmptyMessage": "你已阅读所有显示的通知。",
   "notificationsUpdateFailed": "无法更新通知。请重试。",
   "customerAddressUnknown": "保存结果待确认，请验证后再修改。",
+  "customerAddressJournalUnavailable": "暂时无法读取此设备保存的恢复信息。你仍可查看账户，新增地址已暂停。请重试以恢复访问，无需删除数据。",
   "customerAddressVerify": "验证保存",
   "customerAddressCloseEditor": "关闭",
   "customerAddressSending": "正在保存。关闭编辑器不会取消保存。"

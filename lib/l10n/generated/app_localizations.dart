@@ -3991,6 +3991,12 @@ abstract class AppLocalizations {
   /// **'Resultado por verificar. Verifica antes de editar.'**
   String get customerAddressUnknown;
 
+  /// No description provided for @customerAddressJournalUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No podemos leer la información de recuperación guardada en este dispositivo. Puedes consultar tu cuenta; añadir direcciones está en pausa. Vuelve a intentar para recuperar el acceso sin borrar datos.'**
+  String get customerAddressJournalUnavailable;
+
   /// No description provided for @customerAddressVerify.
   ///
   /// In es, this message translates to:

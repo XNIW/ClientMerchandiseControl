@@ -24,6 +24,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-os-frame.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-owned-process.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-ios-owned.py"
 PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-ios-process-trace.py"
+PYTHONDONTWRITEBYTECODE=1 python3 "${cmc_script_dir}/test-task054-ios-preview.py"
 dart "${cmc_script_dir}/test-task054-os-sync.dart"
 if [[ -n "${cmc_backend_config}" ]]; then
   python3 "${cmc_script_dir}/check-backend-compatibility.py" \

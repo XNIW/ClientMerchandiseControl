@@ -2125,6 +2125,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'No pudimos completar esta acción. Intenta nuevamente.';
 
   @override
+  String get afterSalesDestinationUnavailable =>
+      'Esta solicitud de asistencia no está disponible. Puedes consultar las demás solicitudes.';
+
+  @override
+  String get afterSalesBackToList => 'Ir a las solicitudes';
+
+  @override
   String get afterSalesSelectItem => 'Selecciona al menos un artículo.';
 
   @override

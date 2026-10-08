@@ -269,6 +269,126 @@ void main() {
       );
 
       testWidgets(
+        'inbox destinazione assistenza mancante e retry compatto200% ${locale.toLanguageTag()} ${brightness.name}',
+        (tester) async {
+          final fixture = Task054VisualFixtures(
+            state: Task054VisualState.empty,
+          );
+          final inbox = Task054PagedInboxFixture(
+            afterSalesDestination: task054VisualCase,
+          );
+          final router = GoRouter(
+            initialLocation: AppRoutes.notificationsLocation,
+            routes: [
+              GoRoute(
+                path: AppRoutes.notificationsLocation,
+                builder: (_, _) => const CustomerNotificationInboxScreen(),
+              ),
+              GoRoute(
+                path: AppRoutes.afterSalesBaseLocation,
+                builder: (_, _) => const CustomerAfterSalesScreen(),
+              ),
+              GoRoute(
+                path: AppRoutes.afterSalesPattern,
+                builder: (_, state) => CustomerAfterSalesScreen(
+                  caseId: state.pathParameters['caseId'],
+                ),
+              ),
+            ],
+          );
+          await tester.pumpWidget(
+            fixture.wrap(
+              MaterialApp.router(
+                routerConfig: router,
+                theme: brightness == Brightness.dark
+                    ? AppTheme.dark()
+                    : AppTheme.light(),
+                locale: locale,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                builder: _compactViewport,
+              ),
+              additionalOverrides: [
+                customerNotificationRepositoryProvider.overrideWithValue(inbox),
+              ],
+            ),
+          );
+          try {
+            await tester.pumpAndSettle();
+            final container = ProviderScope.containerOf(
+              tester.element(find.byType(CustomerNotificationInboxScreen)),
+            );
+            final more = find.byKey(const ValueKey('notifications-load-more'));
+            await _reveal(tester, more);
+            await tester.tap(more);
+            await tester.pumpAndSettle();
+            final notification = find.byKey(
+              const ValueKey('notification-page-2-unread'),
+            );
+            await _reveal(tester, notification);
+            await tester.tap(notification);
+            await tester.pumpAndSettle();
+            expect(
+              router.state.uri.path,
+              AppRoutes.afterSalesLocation(task054VisualCase),
+            );
+            expect(inbox.markReadCalls, 1);
+            expect(
+              container
+                  .read(customerNotificationInboxControllerProvider)
+                  .items
+                  .last
+                  .isUnread,
+              isFalse,
+            );
+            final missing = find.byKey(
+              const ValueKey('after-sales-destination-unavailable'),
+            );
+            expect(missing, findsOneWidget);
+            final l10n = AppLocalizations.of(tester.element(missing));
+            expect(
+              find.text(l10n.afterSalesDestinationUnavailable),
+              findsOneWidget,
+            );
+            final list = find.byKey(const ValueKey('after-sales-back-to-list'));
+            await _reveal(tester, list);
+            expect(tester.getSize(list).height, greaterThanOrEqualTo(48));
+            await captureVisual(
+              tester,
+              'assistance-missing-destination-compact200-${locale.toLanguageTag()}-${brightness.name}',
+            );
+            await tester.tap(list);
+            await tester.pumpAndSettle();
+            expect(router.state.uri.path, AppRoutes.afterSalesBaseLocation);
+            fixture.afterSales.state = Task054VisualState.error;
+            await container
+                .read(customerAfterSalesControllerProvider.notifier)
+                .refresh();
+            router.go(AppRoutes.afterSalesLocation(task054VisualCase));
+            await tester.pumpAndSettle();
+            expect(missing, findsNothing);
+            final retry = find.byKey(
+              const ValueKey('after-sales-detail-retry'),
+            );
+            await _reveal(tester, retry);
+            expect(tester.getSize(retry).height, greaterThanOrEqualTo(48));
+            await captureVisual(
+              tester,
+              'assistance-detail-retry-compact200-${locale.toLanguageTag()}-${brightness.name}',
+            );
+            fixture.afterSales.state = Task054VisualState.loaded;
+            await tester.tap(retry);
+            await tester.pumpAndSettle();
+            expect(find.text(task054AfterSalesCase().caseCode), findsOneWidget);
+            expect(tester.takeException(), isNull);
+          } finally {
+            await _unmount(tester);
+            router.dispose();
+          }
+        },
+      );
+
+      testWidgets(
         'address create compatto200% esito incerto ${locale.toLanguageTag()} ${brightness.name}',
         (tester) async {
           final fixture = Task054VisualFixtures();
@@ -1240,23 +1360,22 @@ Widget _app(
   locale: locale,
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
-  builder: !compact
-      ? null
-      : (context, child) => Center(
-          child: SizedBox(
-            key: const ValueKey('task054-compact-viewport'),
-            width: 320,
-            height: 568,
-            child: MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                size: const Size(320, 568),
-                textScaler: TextScaler.linear(2),
-              ),
-              child: child!,
-            ),
-          ),
-        ),
+  builder: !compact ? null : _compactViewport,
   home: home,
+);
+
+Widget _compactViewport(BuildContext context, Widget? child) => Center(
+  child: SizedBox(
+    key: const ValueKey('task054-compact-viewport'),
+    width: 320,
+    height: 568,
+    child: MediaQuery(
+      data: MediaQuery.of(
+        context,
+      ).copyWith(size: const Size(320, 568), textScaler: TextScaler.linear(2)),
+      child: child!,
+    ),
+  ),
 );
 
 Future<void> _reveal(WidgetTester tester, Finder finder) async {

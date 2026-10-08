@@ -3745,6 +3745,18 @@ abstract class AppLocalizations {
   /// **'No pudimos completar esta acción. Intenta nuevamente.'**
   String get afterSalesFailure;
 
+  /// No description provided for @afterSalesDestinationUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta solicitud de asistencia no está disponible. Puedes consultar las demás solicitudes.'**
+  String get afterSalesDestinationUnavailable;
+
+  /// No description provided for @afterSalesBackToList.
+  ///
+  /// In es, this message translates to:
+  /// **'Ir a las solicitudes'**
+  String get afterSalesBackToList;
+
   /// No description provided for @afterSalesSelectItem.
   ///
   /// In es, this message translates to:

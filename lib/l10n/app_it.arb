@@ -618,6 +618,8 @@
   "afterSalesEvidencePickerFailure": "Impossibile aprire la libreria foto.",
   "afterSalesEvidenceUploadFailure": "La richiesta è stata creata, ma una o più immagini non sono state caricate.",
   "afterSalesFailure": "Non è stato possibile completare l’operazione. Riprova.",
+  "afterSalesDestinationUnavailable": "Questa richiesta di assistenza non è disponibile. Puoi consultare le altre richieste.",
+  "afterSalesBackToList": "Vai alle richieste",
   "afterSalesSelectItem": "Seleziona almeno un articolo.",
   "afterSalesCaseCode": "Richiesta",
   "reviewsTitle": "Recensioni",

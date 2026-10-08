@@ -618,6 +618,8 @@
   "afterSalesEvidencePickerFailure": "无法打开照片图库。",
   "afterSalesEvidenceUploadFailure": "申请已创建，但一张或多张图片上传失败。",
   "afterSalesFailure": "无法完成此操作，请重试。",
+  "afterSalesDestinationUnavailable": "此售后申请暂不可用。你可以查看其他申请。",
+  "afterSalesBackToList": "查看售后申请",
   "afterSalesSelectItem": "请至少选择一件商品。",
   "afterSalesCaseCode": "申请",
   "reviewsTitle": "评价",

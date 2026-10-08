@@ -104,6 +104,9 @@ final class Task054LongNameStorefrontFixture {
 }
 
 final class Task054PagedInboxFixture implements CustomerNotificationRepository {
+  Task054PagedInboxFixture({this.afterSalesDestination});
+
+  final String? afterSalesDestination;
   CustomerNotificationFailureKind? failure;
   final cursors = <CustomerNotificationCursor?>[];
   var markReadCalls = 0;
@@ -123,8 +126,10 @@ final class Task054PagedInboxFixture implements CustomerNotificationRepository {
         titleKey: 'notification.order.confirmed.title',
         bodyKey: 'notification.order.confirmed.body',
         safeArguments: const {'orderCode': 'MC-0123456789ABCDEF0123'},
-        destinationType: CustomerNotificationDestinationType.notifications,
-        destinationId: null,
+        destinationType: afterSalesDestination == null
+            ? CustomerNotificationDestinationType.notifications
+            : CustomerNotificationDestinationType.afterSales,
+        destinationId: afterSalesDestination,
         createdAt: id == 'page-1-read'
             ? task054VisualNow
             : task054VisualNow.subtract(const Duration(minutes: 1)),

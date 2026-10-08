@@ -946,6 +946,8 @@
   "afterSalesEvidencePickerFailure": "No pudimos abrir tu biblioteca de fotos.",
   "afterSalesEvidenceUploadFailure": "La solicitud fue creada, pero no se pudieron cargar una o más imágenes.",
   "afterSalesFailure": "No pudimos completar esta acción. Intenta nuevamente.",
+  "afterSalesDestinationUnavailable": "Esta solicitud de asistencia no está disponible. Puedes consultar las demás solicitudes.",
+  "afterSalesBackToList": "Ir a las solicitudes",
   "afterSalesSelectItem": "Selecciona al menos un artículo.",
   "afterSalesCaseCode": "Solicitud",
   "reviewsTitle": "Reseñas",

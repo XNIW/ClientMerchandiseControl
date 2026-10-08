@@ -2129,6 +2129,13 @@ class AppLocalizationsIt extends AppLocalizations {
       'Non è stato possibile completare l’operazione. Riprova.';
 
   @override
+  String get afterSalesDestinationUnavailable =>
+      'Questa richiesta di assistenza non è disponibile. Puoi consultare le altre richieste.';
+
+  @override
+  String get afterSalesBackToList => 'Vai alle richieste';
+
+  @override
   String get afterSalesSelectItem => 'Seleziona almeno un articolo.';
 
   @override

@@ -2103,6 +2103,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t complete this action. Try again.';
 
   @override
+  String get afterSalesDestinationUnavailable =>
+      'This support request is unavailable. You can view your other requests.';
+
+  @override
+  String get afterSalesBackToList => 'View support requests';
+
+  @override
   String get afterSalesSelectItem => 'Select at least one item.';
 
   @override

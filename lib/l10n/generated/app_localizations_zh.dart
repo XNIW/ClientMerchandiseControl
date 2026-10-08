@@ -2125,6 +2125,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'No pudimos completar esta acción. Intenta nuevamente.';
 
   @override
+  String get afterSalesDestinationUnavailable =>
+      'Esta solicitud de asistencia no está disponible. Puedes consultar las demás solicitudes.';
+
+  @override
+  String get afterSalesBackToList => 'Ir a las solicitudes';
+
+  @override
   String get afterSalesSelectItem => 'Selecciona al menos un artículo.';
 
   @override
@@ -4197,6 +4204,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get afterSalesFailure => '无法完成此操作，请重试。';
+
+  @override
+  String get afterSalesDestinationUnavailable => '此售后申请暂不可用。你可以查看其他申请。';
+
+  @override
+  String get afterSalesBackToList => '查看售后申请';
 
   @override
   String get afterSalesSelectItem => '请至少选择一件商品。';

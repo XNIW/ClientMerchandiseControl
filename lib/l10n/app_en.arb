@@ -618,6 +618,8 @@
   "afterSalesEvidencePickerFailure": "We couldn't open your photo library.",
   "afterSalesEvidenceUploadFailure": "The request was created, but one or more images could not be uploaded.",
   "afterSalesFailure": "We couldn't complete this action. Try again.",
+  "afterSalesDestinationUnavailable": "This support request is unavailable. You can view your other requests.",
+  "afterSalesBackToList": "View support requests",
   "afterSalesSelectItem": "Select at least one item.",
   "afterSalesCaseCode": "Request",
   "reviewsTitle": "Reviews",

@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
+import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../account/application/customer_account_providers.dart';
@@ -119,7 +120,42 @@ final class _AfterSalesCaseDetail extends ConsumerWidget {
       return const Center(child: CircularProgressIndicator());
     }
     if (item == null) {
-      return Center(child: Text(l10n.afterSalesFailure));
+      final failed = state.failure != null;
+      return ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          Semantics(
+            liveRegion: true,
+            child: StorefrontEmptyState(
+              key: ValueKey(
+                failed
+                    ? 'after-sales-detail-unavailable'
+                    : 'after-sales-destination-unavailable',
+              ),
+              icon: failed
+                  ? Icons.cloud_off_outlined
+                  : Icons.support_agent_outlined,
+              title: l10n.afterSalesTitle,
+              message: failed
+                  ? l10n.afterSalesFailure
+                  : l10n.afterSalesDestinationUnavailable,
+              actionKey: ValueKey(
+                failed
+                    ? 'after-sales-detail-retry'
+                    : 'after-sales-back-to-list',
+              ),
+              actionLabel: failed
+                  ? l10n.customerAccountRetry
+                  : l10n.afterSalesBackToList,
+              onAction: failed
+                  ? ref
+                        .read(customerAfterSalesControllerProvider.notifier)
+                        .refresh
+                  : () => context.go(AppRoutes.afterSalesBaseLocation),
+            ),
+          ),
+        ],
+      );
     }
     return RefreshIndicator.adaptive(
       onRefresh: ref

@@ -41,6 +41,12 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-backend-compatibility.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-auth-entitlements.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-visual-runner.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-android-runner.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-os-frame.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-owned-process.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-owned.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-preview.py
       - name: Validate client security boundary
         run: |
           bash scripts/check-client-security.sh
@@ -59,6 +65,8 @@ jobs:
         run: bash scripts/resolve-flutter.sh
       - name: Resolve dependencies
         run: flutter pub get --enforce-lockfile
+      - name: Validate synchronized OS capture bridge
+        run: dart scripts/test-task054-os-sync.dart
       - name: Validate architecture boundaries
         run: |
           bash scripts/check-architecture-boundaries.sh
@@ -107,10 +115,34 @@ jobs:
         run: flutter pub get --enforce-lockfile
       - name: Build APK
         run: flutter build apk --debug
+      - name: Verify native Android persistence and routing
+        working-directory: android
+        run: ./gradlew :app:testDebugUnitTest --no-daemon
       - name: Validate Android bundle security
         run: >-
           bash scripts/check-client-security.sh
           --artifact build/app/outputs/flutter-apk/app-debug.apk
+      - name: Enable runner access to KVM
+        run: |
+          test -c /dev/kvm
+          sudo -n chown "$(id -u):$(id -g)" /dev/kvm
+          sudo -n chmod u+rw /dev/kvm
+      - name: Capture commerce UI with synthetic fixtures on Android
+        run: python3 scripts/run-task054-android-visual.py
+      - name: Save Android synthetic UI captures and runner receipt
+        if: always()
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-android-visual-fixtures
+          path: |
+            build/task054/visual/*.png
+            build/task054/android-visual-receipt.json
+            build/task054/android-emulator.log
+            build/task054/os-visual/*.png
+            build/task054/os-visual/*.json
+          if-no-files-found: warn
+          retention-days: 7
 
   android-release:
     name: Android release candidate
@@ -156,7 +188,9 @@ jobs:
     runs-on: macos-26
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
-    timeout-minutes: 30
+    # CI43: 1097s prima del visual + budget visual 900s; il job include anche
+    # cleanup/upload e preview (budget 45s). I timeout dei comandi restano invariati.
+    timeout-minutes: 35
     steps:
       - name: Checkout
         # actions/checkout v7.0.1
@@ -182,18 +216,73 @@ jobs:
           bash scripts/check-client-security.sh
           --artifact build/ios/iphonesimulator/Runner.app
 
+      - name: Prepare one owned iOS Simulator for smoke and visual
+        id: ios_owned
+        run: |
+          mkdir -p build/task054
+          python3 scripts/run-task054-ios-owned.py prepare \
+            --receipt build/task054/ios-owned-receipt.json \
+            --github-output "$GITHUB_OUTPUT"
+
       - name: Smoke iOS on the declared deployment target
-        run: bash scripts/test-ios-shell-smoke.sh
+        run: >-
+          bash scripts/test-ios-shell-smoke.sh
+          --device "${{ steps.ios_owned.outputs.device_id }}"
+          --receipt build/task054/ios-owned-receipt.json
 
       - name: Capture commerce UI with synthetic fixtures on iOS
-        run: bash scripts/test-task054-visual.sh --ios
+        id: ios_visual
+        env:
+          CMC_OS_FRAME_PLATFORM: ios
+          CMC_OS_FRAME_DEVICE: ${{ steps.ios_owned.outputs.device_id }}
+        run: >-
+          bash scripts/test-task054-visual.sh
+          --device "${{ steps.ios_owned.outputs.device_id }}"
+      - name: Clean up the owned iOS Simulator
+        if: always()
+        env:
+          CMC_IOS_VISUAL_STEP_OUTCOME: ${{ steps.ios_visual.outcome }}
+        run: |
+          mkdir -p build/task054
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('build/task054/ios-visual-step-result.json').write_text(json.dumps({
+              'schemaVersion': 1,
+              'visualStepOutcome': os.environ.get('CMC_IOS_VISUAL_STEP_OUTCOME'),
+              'scope': 'Esito dello step GitHub; non attesta quiescenza dei processi visual'
+          }, indent=2) + '\n')
+          PY
+          if [[ -f build/task054/ios-owned-receipt.json ]]; then
+            python3 scripts/run-task054-ios-owned.py cleanup \
+              --receipt build/task054/ios-owned-receipt.json
+          fi
       - name: Save synthetic UI captures
         if: always()
         # actions/upload-artifact v4.6.2
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: task054-ios-visual-fixtures
-          path: build/task054/visual/*.png
+          path: |
+            build/task054/visual/*.png
+            build/task054/os-visual/*.png
+            build/task054/os-visual/*.json
+            build/task054/ios-owned-receipt.json
+            build/task054/ios-visual-step-result.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Create PNG previews for iOS visual QA
+        if: always()
+        timeout-minutes: 1
+        run: python3 scripts/create-task054-ios-preview.py
+      - name: Save separate iOS visual QA previews
+        if: always()
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-ios-visual-previews
+          path: build/task054/ios-visual-preview/
           if-no-files-found: warn
           retention-days: 7
 
@@ -284,3 +373,97 @@ jobs:
           --reference-app build/ios/iphoneos/Runner.app
           --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
           --archive-runner-attestation '${{ steps.ios-archive-runner.outputs.macho_sha256 }}'
+
+  android-address-journal:
+    name: Android address journal restart
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Validate journal runner failure boundaries
+        run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-android.py
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Enable runner access to KVM
+        run: |
+          test -c /dev/kvm
+          sudo -n chown "$(id -u):$(id -g)" /dev/kvm
+          sudo -n chmod u+rw /dev/kvm
+      - name: Verify durable synthetic journal across two Android processes
+        run: python3 scripts/run-address-journal-android.py
+      - name: Save journal restart receipts
+        if: always()
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-android-address-journal
+          path: |
+            build/task054/address-journal/*.json
+            build/task054/address-journal-receipt.json
+            build/task054/android-emulator.log
+          if-no-files-found: warn
+          retention-days: 7
+
+  ios-address-journal:
+    name: iOS address journal restart
+    runs-on: macos-26
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Validate iOS journal runner failure boundaries
+        run: PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-ios.py
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Prepare one owned iOS Simulator for journal restart
+        run: |
+          mkdir -p build/task054
+          python3 scripts/run-task054-ios-owned.py prepare \
+            --receipt build/task054/ios-journal-owned-receipt.json
+      - name: Verify synthetic Keychain journal across two iOS processes
+        run: >-
+          python3 scripts/run-address-journal-ios.py
+          --owner-receipt build/task054/ios-journal-owned-receipt.json
+      - name: Clean up the owned journal Simulator
+        if: always()
+        run: |
+          if [[ -f build/task054/ios-journal-owned-receipt.json ]]; then
+            python3 scripts/run-task054-ios-owned.py cleanup \
+              --receipt build/task054/ios-journal-owned-receipt.json
+          fi
+      - name: Save iOS journal restart receipts
+        if: always()
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-ios-address-journal
+          path: |
+            build/task054/ios-address-journal/*.json
+            build/task054/ios-journal-owned-receipt.json
+          if-no-files-found: warn
+          retention-days: 7

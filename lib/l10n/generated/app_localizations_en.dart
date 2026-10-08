@@ -2103,6 +2103,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn\'t complete this action. Try again.';
 
   @override
+  String get afterSalesDestinationUnavailable =>
+      'This support request is unavailable. You can view your other requests.';
+
+  @override
+  String get afterSalesBackToList => 'View support requests';
+
+  @override
   String get afterSalesSelectItem => 'Select at least one item.';
 
   @override
@@ -2207,4 +2214,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsUnreadOnly => 'Unread only';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle =>
+      'No unread notifications among those shown';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'No unread notifications';
+
+  @override
+  String get notificationsUnreadPageHint =>
+      'Load earlier notifications to check for more unread updates.';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage =>
+      'Reconnect to check for more unread notifications.';
+
+  @override
+  String get notificationsUnreadEmptyMessage =>
+      'You have read all the notifications shown.';
+
+  @override
+  String get notificationsUpdateFailed =>
+      'Notifications could not be updated. Try again.';
+
+  @override
+  String get customerAddressUnknown =>
+      'Save unconfirmed. Check before editing.';
+
+  @override
+  String get customerAddressJournalUnavailable =>
+      'We cannot read the recovery information saved on this device. You can view your account; adding addresses is paused. Retry to recover access without deleting data.';
+
+  @override
+  String get customerAddressVerify => 'Check save';
+
+  @override
+  String get customerAddressCloseEditor => 'Close';
+
+  @override
+  String get customerAddressSending =>
+      'Saving. Closing the editor does not cancel the save.';
 }

@@ -2129,6 +2129,13 @@ class AppLocalizationsIt extends AppLocalizations {
       'Non è stato possibile completare l’operazione. Riprova.';
 
   @override
+  String get afterSalesDestinationUnavailable =>
+      'Questa richiesta di assistenza non è disponibile. Puoi consultare le altre richieste.';
+
+  @override
+  String get afterSalesBackToList => 'Vai alle richieste';
+
+  @override
   String get afterSalesSelectItem => 'Seleziona almeno un articolo.';
 
   @override
@@ -2234,4 +2241,45 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get notificationsUnreadOnly => 'Solo non lette';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle =>
+      'Nessuna non letta tra le notifiche mostrate';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'Nessuna notifica non letta';
+
+  @override
+  String get notificationsUnreadPageHint =>
+      'Puoi cercare altre notifiche non lette caricando quelle precedenti.';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage =>
+      'Riconnettiti per verificare se ci sono altre notifiche non lette.';
+
+  @override
+  String get notificationsUnreadEmptyMessage =>
+      'Hai letto tutte le notifiche mostrate.';
+
+  @override
+  String get notificationsUpdateFailed =>
+      'Non è stato possibile aggiornare le notifiche. Riprova.';
+
+  @override
+  String get customerAddressUnknown =>
+      'Esito da verificare. Verifica prima di modificare.';
+
+  @override
+  String get customerAddressJournalUnavailable =>
+      'Non riusciamo a leggere le informazioni di recupero salvate sul dispositivo. Puoi consultare il tuo account; la creazione di indirizzi è sospesa. Riprova per recuperare l’accesso senza cancellare dati.';
+
+  @override
+  String get customerAddressVerify => 'Verifica';
+
+  @override
+  String get customerAddressCloseEditor => 'Chiudi';
+
+  @override
+  String get customerAddressSending =>
+      'Salvataggio in corso. Chiudere non lo annulla.';
 }

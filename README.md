@@ -2,9 +2,9 @@
 
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
 Merchandise Control. Il codice include catalogo, account, carrello, checkout,
-ordini, consegna, inbox, assistenza e recensioni. L'audit operativo TASK-054 del
-2026-09-28 ha riconfermato 23 RPC mancanti nello staging e risorse esterne non
-configurate per OAuth, indirizzi assistiti e push: il prodotto non è dichiarato
+ordini, consegna, inbox, assistenza e recensioni. Il readback TEST TASK-054
+dell'8 ottobre 2026 rileva32/57RPC conformi,25 mancanti e quattro migration non
+applicate; risorse esterne restano da configurare per OAuth, indirizzi assistiti e push: il prodotto non è dichiarato
 operativamente completo. Il [rapporto verificabile](docs/TASKS/EVIDENCE/TASK-054/README.md)
 separa codice, SQL locale, staging, dispositivi e distribuzione.
 
@@ -192,12 +192,20 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Stato task**: ACTIVE
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
+
+Il checkpoint PR29 `43fd7af` conserva CI43 terminale: cinque job PASS,
+journal iOS FAIL in preparazione e job smoke/visual CANCELLED30min. Lo smoke
+è PASS; visual91PASS/1FAIL resta distinto dal budget. Badge predefinito al200%
+corretto dopo RED/review in16e4681; la proiezione degli inset del solo harness
+bf9be05 è approvato e integrato in2327948. La preview iOS7e è approvata e integrata in d4a7e97; nuova CI del composto da avviare; il rapporto corrente
+sul branch evidence distingue checkpoint e candidato finale. Firma/upload/
+install Client TEST e percorsi autenticati rimangono NOT_RUN/BLOCKED.
 
 TASK-054 è riaperto dal mandato del 2026-09-28 per audit funzionale e completamento
 nel perimetro di sviluppo. Le attestazioni di closeout seguenti sono storiche:

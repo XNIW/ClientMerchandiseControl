@@ -1,0 +1,270 @@
+{
+  "date": "2026-10-08",
+  "review": "APPROVED",
+  "evidence_scope": "SOURCE_CODE_ONLY",
+  "review_scope": "Delta Client inbox, creazione indirizzi, dialoghi privati account, riordino e assistenza; nessuna approvazione integrata del prodotto.",
+  "reviewer_role": "Reviewer distinto dagli autori; sorgenti read-only; PoC indipendenti in copia isolata; soli due file evidence aggiunti su richiesta del root.",
+  "candidate_commit": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+  "reviewed_against_base_commit": "39624143955f0329b3ac85e27a51d722a6884ad8",
+  "source_copy_matches_git": "PASS",
+  "source_files_sha256": {
+    "android/app/src/main/kotlin/com/xniw/clientmerchandisecontrol/AddressCreationDurability.kt": "c20b3712a89d8832f4447b92efc39be26f718db66da9a5180dca7dd295352775",
+    "android/app/src/main/kotlin/com/xniw/clientmerchandisecontrol/MainActivity.kt": "eeb53450b2dc8a5dc5b0c3fd4b3c93ad9e6e3f1a783889958ec5724d88b6d877",
+    "lib/features/account/application/customer_account_controller.dart": "8681eee5e3b10aaecbe580cdda95a22c7b871ee6e9c737d57c84bf27fc1847b2",
+    "lib/features/account/application/customer_account_providers.dart": "bb9b4da5a8cb820936b57f4cf5ffdddaf7c0803366c44e8634a8e6513159ee7b",
+    "lib/features/account/data/secure_address_creation_journal.dart": "49d0f55b5fb0f879a2da8a26fc7aea0d21834a9fb29a4fa492e402bfd4b93d78",
+    "lib/features/account/data/supabase_customer_account_repository.dart": "11ef13e1be34f2ca0fdaa14ed4e36193855f4beee301bc62286e67feb4d32d51",
+    "lib/features/account/domain/address_creation_intent.dart": "fac23068824a8b1cb773dacc08a6710dd16833066caf385adff18762ba8230b0",
+    "lib/features/account/domain/customer_account_failure.dart": "429bfe1863ddc66ff03aad24252c86366dc06fcc5ce0caf4f195ee1a64a04188",
+    "lib/features/account/domain/customer_account_repository.dart": "91bd6d27d2bca155496fe6e74c0a2db58e5bd990e1a0b3fa81a85089a408d386",
+    "lib/features/account/presentation/customer_account_panel.dart": "7d854c736c589fe6b859272d15de5338ab53f7a325d4bbb6956bf0fb648cc42f",
+    "lib/features/after_sales/presentation/customer_after_sales_screen.dart": "5ad7ad694d2121237e27ccaa0a4074ab61bd563851f07f0d8be90443b6479c17",
+    "lib/features/customer_notifications/presentation/customer_notification_inbox_screen.dart": "7e0fba5b35749de9e87f66c259c572510aecf271e9dcc46d24270237d328c9a8",
+    "lib/features/delivery_context/application/delivery_context_providers.dart": "37a08f28111f9944dbb9af2dc3a84c614fe73a5f791b3649d16ea3a525e22505",
+    "lib/features/orders/presentation/customer_reorder_card.dart": "ed2097e8b6f8b960cfe06dd5e7a420e9edafdd77419358b26dc646470251e4c0",
+    "lib/l10n/app_en.arb": "3d54701f9193b765b09b9c45b457bed49ae91e956f7a051bf87c9dd7f29a7e78",
+    "lib/l10n/app_es.arb": "69318670d15e5cd9eeb8578025c6749ca37582de58de4582a57cde2a99c63763",
+    "lib/l10n/app_it.arb": "3b80ef880b7d9c46245393468ad2cac80292a5d9139b05311dfe9998aa504e85",
+    "lib/l10n/app_zh.arb": "81e112bacff30307df2e5ff45a27b899c3a6ad7a2ef5e3b9cd931bd7f051dced",
+    "lib/l10n/app_zh_Hans.arb": "be1536efe08fa17d4d031b03a78ab406cf4701d763532afe8834427c1a86b7c2",
+    "lib/l10n/generated/app_localizations.dart": "d246a159d38773be8d62309ac4098013cf1e4d00e238511c7c0b5b5358bfbb46",
+    "lib/l10n/generated/app_localizations_en.dart": "9cfa76bc887735d2802b0f8dd6fe09a5a383ae34d72e57ba7208eb98b925662b",
+    "lib/l10n/generated/app_localizations_es.dart": "d6b292826f1d8fa5911c1c9aa7e56f217660ac018384f5d1065138ec677287f6",
+    "lib/l10n/generated/app_localizations_it.dart": "d3f92a3d0c4a2a56eeca29451b721fad1083c1666188478c9177fcea20c7f948",
+    "lib/l10n/generated/app_localizations_zh.dart": "b4fa5c3ada462398c5bac3d7afee507e2dfe7c654fc2f4357f4576824d79dae2"
+  },
+  "independent_verifications": [
+    {
+      "id": "pre-fix-auth-aba",
+      "candidate_commit": "eab76f7a6b1b14be28f49be71980bc0ab93b0101",
+      "command": "flutter test --no-pub --concurrency=1 test/reviewer_address_real_auth_route_test.dart --plain-name 'review: real AuthController A-B-A invalidates an in-flight address response'",
+      "result": "FAIL",
+      "exit_code": 1,
+      "passed": 0,
+      "failed": 1,
+      "observed": "ACK non nullo e notice addressSaved dopo AuthController A-B-A durante create.",
+      "log_sha256": "062859e1337b8dded67e15ce73eb6cbbcc88dee2a00368c11247b9e645bf2335"
+    },
+    {
+      "id": "scoped-regressions-before-final-auth-fix",
+      "candidate_commit": "eab76f7a6b1b14be28f49be71980bc0ab93b0101",
+      "command": "flutter test --no-pub --concurrency=1 test/reviewer_address_ack_contract_test.dart test/reviewer_address_opening_scope_test.dart test/reviewer_address_monitor_cleanup_test.dart test/reviewer_pending_address_initial_test.dart test/reviewer_address_flush_retry_test.dart test/features/account/account_dialog_scope_test.dart test/features/account/customer_account_panel_test.dart test/features/orders/customer_reorder_scope_test.dart test/features/after_sales/customer_after_sales_scope_test.dart test/features/customer_notifications/customer_notification_inbox_navigation_test.dart test/features/customer_notifications/customer_notification_inbox_work_budget_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 49,
+      "coverage": {
+        "ownAckOpeningCleanupGeoFlush": 8,
+        "accountDialogRealAuth": 7,
+        "accountPanelIncludingSameRouteRetries": 18,
+        "flowScopeRealAuth": 7,
+        "inboxNavigationAndWorkBudget": 9
+      },
+      "inbox_samples": {
+        "25": {
+          "configurations": 5,
+          "builds": 5,
+          "samples": 5,
+          "requests": 1
+        },
+        "500": {
+          "configurations": 5,
+          "builds": 5,
+          "samples": 5,
+          "requests": 20
+        }
+      },
+      "log_sha256": "14d88e6f645d43b91ec720521726c2763e371680f8cbbc9ff8d4471fc026947c",
+      "qualification": "Eseguiti sul commit precedente. Il controller finale e i percorsi impattati sono verificati dal run successivo; non si dichiara un nuovo run completo dei 49 test."
+    },
+    {
+      "id": "final-auth-generation-re-review",
+      "candidate_commit": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+      "command": "flutter test --no-pub --concurrency=1 test/reviewer_address_real_auth_route_test.dart test/features/account/account_dialog_scope_test.dart test/features/account/application/customer_account_controller_test.dart test/reviewer_address_flush_retry_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 36,
+      "coverage": {
+        "independent_real_auth": 4,
+        "permanent_real_auth_dialogs": 8,
+        "account_controller": 23,
+        "independent_flush_failure_retry": 1
+      },
+      "observed": [
+        "PoC originario: ACK nullo, notice actionFailed, busy false.",
+        "Refresh della stessa identità: ACK restituito, busy false.",
+        "Permanente: READY con intent originale conservato; nuova Verify riconcilia un solo canonico e una sola create."
+      ],
+      "log_sha256": "52115600bb77555d33712fb5454e099298d048c89d06246065171f0ade883ad4",
+      "test_files_sha256": {
+        "test/reviewer_address_real_auth_route_test.dart": "317cec6874cfee1507f04a6daf67c61ffdb67a84d1d86b5a6a76b196046a377a",
+        "test/features/account/account_dialog_scope_test.dart": "4658005d4c2fb37bfe532e27ee1afb597cf89ef2e2e9a9820ca68b0138811c8e",
+        "test/features/account/application/customer_account_controller_test.dart": "03ef77ddadbabdbe3592ee69b39b27ae6069dd71c19b69910d2a2177a070af69",
+        "test/reviewer_address_flush_retry_test.dart": "aa112ab6ed458af6af80d4c5971cb2e5eb0ceb8d395d25a2b9c3a4d0432f4116"
+      }
+    }
+  ],
+  "findings_closed": [
+    {
+      "finding": "ACK create malformato non deve cancellare identità durevole",
+      "severity": "P2",
+      "result": "PASS",
+      "verification": "Due PoC adapter reale e regressioni controller: parser locale non produce creationRejected."
+    },
+    {
+      "finding": "Bozza indirizzi prima del mount dopo owner/shop/ABA",
+      "severity": "P1",
+      "result": "PASS",
+      "verification": "Monitor installato prima del push, auth sorgente diretto e latch irreversibile."
+    },
+    {
+      "finding": "Cleanup listener con Navigator disposto prima del mount",
+      "severity": "P3",
+      "result": "PASS",
+      "verification": "PoC indipendente DialogRoute/completed e chiusura subscription."
+    },
+    {
+      "finding": "Coordinate nulle del pending draft alterate da initial",
+      "severity": "P2",
+      "result": "PASS",
+      "verification": "Il payload originale resta autoritativo, anche per null."
+    },
+    {
+      "finding": "Export privato e conferme nella sessione successiva",
+      "severity": "P1",
+      "result": "PASS",
+      "verification": "PoC route /account con AuthController reale; latch pre-push e rifiuto del risultato invalidato."
+    },
+    {
+      "finding": "NI054-32: terzo retry bloccato da openerElement rimosso",
+      "severity": "P2",
+      "result": "PASS",
+      "verification": "Key stabile della sezione; due regressioni UPDATE e Verify sulla stessa route."
+    },
+    {
+      "finding": "R20/R21: riordino e assistenza oltre il cambio sessione",
+      "severity": "P1",
+      "result": "PASS",
+      "verification": "Sette test autonomamente eseguiti con App/router/AuthController reali, confini remoti sintetici."
+    },
+    {
+      "finding": "ACK in-flight Auth A-B-A coalescente",
+      "severity": "P2",
+      "result": "PASS",
+      "verification": "PoC indipendente RED su eab76f7, GREEN su edfec53; generazione invalidata sincronicamente dalla sorgente Auth."
+    }
+  ],
+  "journal_controls": {
+    "result": "PASS",
+    "scope": "Source e mock di errore persistente; non prova di durabilità su device.",
+    "checks": [
+      "Journal cifrato account-global e owner verificato nel payload.",
+      "Lookup SHA256 privo di owner raw nei possibili log del plugin.",
+      "Android resetOnError false, namespace dedicato e commit barrier; errore/timeout non abilita RPC.",
+      "Retry riscrive e conferma il medesimo intent prima di reconcile/create.",
+      "La chiave rimane la stessa dopo perdita risposta e riavvio simulato."
+    ]
+  },
+  "open_source_findings": [],
+  "other_lanes": {
+    "full_local_mandatory_suite": {
+      "result": "NOT_RUN",
+      "reason": "Non eseguita da questo reviewer; gate globale del root distinto dalla micro-review."
+    },
+    "same_sha_ci": {
+      "result": "NOT_RUN",
+      "reason": "Job/step/annotation della CI sul candidato finale non verificati in questa review."
+    },
+    "native_android": {
+      "result": "NOT_RUN",
+      "reason": "Nessuna esecuzione autonoma su Android, nessun kill/restart reale in questa review."
+    },
+    "native_ios": {
+      "result": "NOT_RUN",
+      "reason": "Nessuna esecuzione autonoma su iOS in questa review."
+    },
+    "authenticated_shared_test": {
+      "result": "NOT_RUN",
+      "reason": "AuthController reale con repository sintetico non equivale a login o RPC su TEST condiviso."
+    },
+    "integrated_acceptance": {
+      "result": "NOT_RUN",
+      "reason": "Fonte di decisione separata, affidata al root dopo gate obbligatori; questa evidence non autorizza DONE o merge."
+    }
+  },
+  "warnings": [
+    "Warning debug Drift per creazione ripetuta del database nelle fixture account con container distinti; nessuna eccezione di test o dato reale usato."
+  ],
+  "limitations": [
+    "La navigazione inbox usa destinazioni stub in un router locale; i test account/riordino/assistenza usano App e router reali con confini remoti sintetici.",
+    "Il budget inbox conta configurazioni/build: 5/5 in cinque campioni sia con 25 sia con 500 righe; non misura latenza o frame nativi.",
+    "La review non modifica il backend, non valida autonomamente migrazioni o comportamento server concorrente.",
+    "I log completi e le copie locali non sono versionati; i test permanenti pertinenti sono nel commit e questa receipt conserva comandi, esiti e hash."
+  ],
+  "toolchain": {
+    "flutter": "3.44.8",
+    "flutter_revision": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+    "dart": "3.12.2"
+  },
+  "pending_processes": 0,
+  "final_association": {
+    "candidate_commit": "bb53892393710d3ed6d2574053fe1206561b87f0",
+    "previous_reviewed_commit": "edfec536363e4c45a13a5efc2c6e2020408f45a3",
+    "review": "APPROVED",
+    "evidence_scope": "SOURCE_CODE_ONLY",
+    "delta_summary": "Quattro valori del fallback tecnico zh e relativi getter generati riallineati allo spagnolo; attesa numero job CI aggiornata da 5 a 6, loop di verifica checkout invariato.",
+    "delta_files": 3,
+    "diff_insertions": 11,
+    "diff_deletions": 9,
+    "delta_files_sha256": {
+      "lib/l10n/app_zh.arb": "81a96a02bb364e73d1370e4f2f2cd7ce774ce6e7d8feb553059f645b40d3d7d8",
+      "lib/l10n/generated/app_localizations_zh.dart": "03fbc7e1979d2024616f2ed7da4ff197e0e8f24086fdf4fa4697f8177fe28968",
+      "test/governance/ci_performance_gate_test.dart": "7d1c5e6623f4be8fb5030b25d2f9213e08257eb3f8efb9fe86f185290cf5ea33"
+    },
+    "independent_gate": {
+      "command": "flutter test --no-pub --concurrency=1 test/l10n/app_localizations_contract_test.dart test/governance/ci_performance_gate_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 9,
+      "coverage": {
+        "localization_contract": 6,
+        "ci_performance_and_checkout_contract": 3
+      },
+      "log_sha256": "11816a11c2607d7d221e531ddf8a42931a1beee3b49f6a40369deb708cd7ee39"
+    },
+    "static_checks": {
+      "four_technical_zh_values_equal_spanish": "PASS",
+      "zh_Hans_arb_unchanged": "PASS",
+      "zh_Hans_generated_class_unchanged": "PASS",
+      "zh_Hans_arb_sha256": "be1536efe08fa17d4d031b03a78ab406cf4701d763532afe8834427c1a86b7c2",
+      "zh_Hans_generated_class_sha256": "aadb59a4d6d695c8a5605ce9635ceec91845bfafc2d2da80c5d9a5b487c7a9da",
+      "ci_test_only_expected_count_changes": "PASS",
+      "ci_checkout_loop_unchanged": "PASS",
+      "workflow_sha256": "a77f2b12fb097116d5e8f5c511b1f570b803e379d582279e85cf7549763a1533"
+    },
+    "prior_evidence_qualification": "I 36 PASS appartengono a edfec536; i 49 PASS a eab76f7. I 99 account del writer e la UI host75 sono ricevute distinte e non sono rieseguiti né rinominati come prove sul nuovo SHA. Il delta finale è coperto dai 9 test autonomi e dalla verifica statica circoscritta.",
+    "open_source_findings": [],
+    "other_lanes": {
+      "global_local_suite": "NOT_RUN",
+      "same_sha_ci": "NOT_RUN",
+      "native_android_ios": "NOT_RUN",
+      "authenticated_shared_test": "NOT_RUN",
+      "reason": "Lane distinte non eseguite da questo reviewer; il root conduce i gate complessivi successivi, senza anticipare PASS."
+    },
+    "pending_processes": 0
+  },
+  "documentation_review": {
+    "result": "PASS",
+    "scope": "Controllo read-only di Master, task, worklog, README, residuals, rapporto e nuove capsule al checkpoint dell 8 ottobre; nessun gate runtime eseguito in questa passata.",
+    "findings_resolved": [
+      "Eliminata la re-review finale duplicata in_progress/NOT_RUN nella capsule address; unico esito SOURCE_CODE_ONLY APPROVED con hash coerente.",
+      "Ripristinata la riga NI054-33 nella tabella residuals.",
+      "Snapshot iniziale32/55 distinto da manifest57 e nuova migration v3 non applicata.",
+      "Entrypoint evidence aggiornato all 8 ottobre; history147/55RPC/c796 esplicitamente storiche."
+    ],
+    "checked_claims": [
+      "99writer,36reviewer,49precedenti e75UI/eab distinti per revisione.",
+      "Recovery scoped PASS distinto da integrità preesistente FAIL.",
+      "Gate globali/CI/native/live non promossi a PASS."
+    ]
+  }
+}

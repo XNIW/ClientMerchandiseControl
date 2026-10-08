@@ -1,0 +1,135 @@
+{
+  "task": "TASK-054",
+  "finding": "C-NI054-08/P2",
+  "scope": "Residuo apertura A-B-A prima del mount del dialog recensione",
+  "handoff": "CODEX_FIX_COMPLETE_TO_RE_REVIEW",
+  "base_commit": "422638e673a44369e39bc691cf79ff273caec0b4",
+  "commit": "ab793e7b9c143afac830401ea824b9976de3dcb3",
+  "branch": "codex/task054-review-opening-owner",
+  "worktree": "locale:ClientMerchandiseControl",
+  "files": {
+    "lib/features/reviews/presentation/customer_reviews.dart": "19a7a065a49229ca3fd66765640d5232b051a730eaaadb87c9c45059e124a765",
+    "test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart": "058edfbf86e55e7dac2ac3ad24c39afb4a325e1b920a2b7874c471bb2935fe49"
+  },
+  "implementation": "ProviderContainer.listen su AuthController installato prima di showDialog; latch di owner invalidato permanente condiviso con mount e readback. Cleanup in finally e dispose via ProviderSubscription.close idempotente. Restano i guard e le rimozioni delle sole route possedute già presenti.",
+  "sdk": {
+    "flutter": "3.44.8",
+    "framework": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+    "dart": "3.12.2",
+    "riverpod": "2.6.1"
+  },
+  "public_api_evidence": [
+    "locale:container.dart:273 ProviderContainer.listen pubblico",
+    "locale:foundation.dart:258 ProviderSubscription.close sicuro per chiamate multiple"
+  ],
+  "poc_frozen_sha256": "94929202bfab2c07b6c6ab00e9428745232eb5c129d4a44f24a426aeb4cf9c49",
+  "gates": [
+    {
+      "id": "poc_before",
+      "status": "FAIL",
+      "exit_code": 1,
+      "revision": "422638e673a44369e39bc691cf79ff273caec0b4",
+      "tests_failed": 1,
+      "command": "flutter test --no-pub build/task054/review-opening-owner-fix/reviews_owner_opening_aba_reproduction_test.dart --plain-name 'route /reviews A-B-A prima del primo frame del dialog' --reporter expanded",
+      "log": "reproduction-before.log",
+      "meaning": "La route reale monta un AlertDialog della richiesta attraversata da A-B-A prima del primo frame.",
+      "log_sha256": "4142d44673b516309fc9fcfba86d2beeb6c4d7ddf7e016685ec4dd4e8be726aa"
+    },
+    {
+      "id": "poc_final",
+      "status": "PASS",
+      "exit_code": 0,
+      "tests_passed": 1,
+      "command": "flutter test --no-pub build/task054/review-opening-owner-fix/reviews_owner_opening_aba_reproduction_test.dart --plain-name 'route /reviews A-B-A prima del primo frame del dialog' --reporter expanded",
+      "log": "reproduction-freeze.log",
+      "log_sha256": "f4195a6590fd0eb1f23fc0521278de276c988bfb4172e10ebf4013de400a3cc1"
+    },
+    {
+      "id": "reviews_final",
+      "status": "PASS",
+      "exit_code": 0,
+      "tests_passed": 45,
+      "command": "flutter test --no-pub test/features/reviews build/task054/feedback-fix/review_error_overlay_reproduction_test.dart build/task054/review-owner-fix/reviews_public_router_auth_test.dart --reporter expanded",
+      "log": "reviews-final.log",
+      "meaning": "Conserva 42 prove precedenti e aggiunge 3 regressioni su A-B-A pre-mount, metadata stesso subject e app smontata con ACK tardivo.",
+      "log_sha256": "d41d64a28eb12d593764a79ca64d33e4da93afaf107175b091325221b74bd8bd"
+    },
+    {
+      "id": "analyze",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "flutter analyze --no-pub lib/features/reviews/presentation/customer_reviews.dart test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart",
+      "log": "analyze-final.log",
+      "log_sha256": "f097a65ebeb694c4d591ee50f5539f211e17b837052f4b9b7eecf04e417ebd67"
+    },
+    {
+      "id": "format",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "dart format --output=none --set-exit-if-changed lib/features/reviews/presentation/customer_reviews.dart test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart",
+      "log": "format.log",
+      "log_sha256": "86cbe6234237454cd872d2340a34541d75abeb076ec9f849ac6f88fbd2f5cdeb"
+    },
+    {
+      "id": "architecture",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "log": "architecture.log",
+      "log_sha256": "da205cb7b3c8e3a5d67d97dd855433c0e182e607166674fbc2a6a022c68f88f4"
+    },
+    {
+      "id": "localization",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "bash scripts/check-user-facing-localization.sh",
+      "log": "localization.log",
+      "log_sha256": "3327d2169a76cf880d2cf28a6be01c3a7570273b2468a83e9627240da6e1717f"
+    },
+    {
+      "id": "security",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "bash scripts/check-client-security.sh",
+      "log": "security.log",
+      "tracked_files": 856,
+      "log_sha256": "e4e23e5a9a738e4977c972b64b43b7a17a0a450828001d2e9d28719feb017fff"
+    },
+    {
+      "id": "diff",
+      "status": "PASS",
+      "exit_code": 0,
+      "command": "git diff --check; git diff --cached --check",
+      "meaning": "Entrambi eseguiti separatamente, prima del commit, senza output."
+    }
+  ],
+  "processes": {
+    "owned_pending_verification_sessions": 0,
+    "meaning": "Tutte le sessioni avviate da questo writer per PoC, test, analyze, architecture e security hanno restituito exit code terminale. Non si attesta lo stato delle lane di altri agenti."
+  },
+  "git_status": "",
+  "not_run": [
+    {
+      "gate": "next24",
+      "status": "NOT_RUN",
+      "reason": "Assegnato al reviewer indipendente sul freeze; writer non modifica fixture o harness."
+    },
+    {
+      "gate": "native_android_ios",
+      "status": "NOT_RUN",
+      "reason": "Lane native del root/owner dedicato; nessun build o emulatore locale avviato qui."
+    },
+    {
+      "gate": "authenticated_staging",
+      "status": "NOT_RUN",
+      "reason": "Regressioni widget con produzione ClientApp/appRouter/AuthController/identity e porte remote sintetiche; non prova staging autenticato."
+    }
+  ],
+  "limits": [
+    "La correzione invalida la UI e il readback al cambio owner; non annulla una RPC già inviata.",
+    "Resta ambigua una scrittura server con risposta totalmente persa, senza ACK.",
+    "Nessuna approvazione autonoma, push, merge, modifica di docs globali, router, controller, shop, harness o dipendenze."
+  ],
+  "evidence_storage": "Receipt e log locali ignorati, non versionati.",
+  "command_correction": "Stringhe reali riconfermate dal writer del receipt storico; corretta sanitizzazione del prefisso assoluto, nessun risultato/SHA/loghash cambiato."
+}

@@ -1,0 +1,173 @@
+{
+  "finding": "V054-PIXEL-01",
+  "candidate_reviewed_before_fix": "43fd7afc806404e667573734b2c4b3b3ffe8cc29",
+  "fix_commit": "9fe418a95defd0a5b595e4c2b5604d5c70ac509f",
+  "fix_base": "26713a4294f3976236e8e83f983950b8f281c6fc",
+  "scope": "SOURCE_HOST_FIXTURE_ONLY pending independent source review and native after pixels",
+  "red": {
+    "pass": 6,
+    "fail": 2,
+    "failed_cases": [
+      "es-CL dark",
+      "es-CL light"
+    ],
+    "natural_label_width": 200.23007202148438,
+    "available_width": 190.0,
+    "full_semantic_label": true
+  },
+  "causal_rejected_attempt": {
+    "change": "DefaultTextStyle.new resets maxLines and softWrap while preserving Chip style",
+    "why_rejected": "RawChip determines content height before subtracting avatar; paragraph height40 with second line y43.6..76.4 clips visually. A weak flags-only test passed but the glyph-rectangles test rejected it.",
+    "selection_box_tolerance_final": "0.5 logical pixel to allow subpixel/letter-spacing bounds; original 0.01 also rejected harmless ~0.1px selection box rounding in other locales."
+  },
+  "final_change": "Only informational default badge: Semantics container with decorated Wrap, theme labelLarge/onSurfaceVariant, primary icon18, outlineVariant border, control radius and existing spacing; no controller, mutation, localization, dependency or text-scale clamp.",
+  "final_checks": [
+    {
+      "check": "RED_CAUSAL",
+      "status": "FAIL",
+      "exit_code": 1,
+      "passed": 6,
+      "failed": 2,
+      "command": "flutter test --no-pub /private/tmp/task054-client-ux-20261008/address_default_badge_probe_test.dart --concurrency=1 --reporter expanded",
+      "log": "address-default-badge-red-fixed-setup.log",
+      "sha256": "a27e2fe8e5fffb213f90f6b89b6b882f858ea35ccd9c031d806ffcc347f95bd7",
+      "qualification": null
+    },
+    {
+      "check": "REJECTED_FIRST_ATTEMPT",
+      "status": "FAIL",
+      "exit_code": 1,
+      "passed": 0,
+      "failed": 8,
+      "command": "flutter test --no-pub test/features/account/customer_address_default_badge_test.dart --concurrency=1 --reporter expanded",
+      "log": "address-default-badge-green.log",
+      "sha256": "74f38af7705396af3a38ffb86d98e2b72b90539df6b12b82d4f2fd1974144410",
+      "qualification": null
+    },
+    {
+      "check": "REJECTED_FIRST_ATTEMPT_ACCOUNT",
+      "status": "FAIL",
+      "exit_code": 1,
+      "passed": 102,
+      "failed": 8,
+      "command": "flutter test --no-pub test/features/account --concurrency=1 --reporter expanded",
+      "log": "address-default-badge-account.log",
+      "sha256": "4e962d7c8fd9e6e9c73b1a5e9c612670ade51bb727a1538078ef4be6fe4351d8",
+      "qualification": null
+    },
+    {
+      "check": "DIAGNOSTIC_WEAK_ASSERT_ONLY",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": 8,
+      "failed": 0,
+      "command": "flutter test --no-pub /private/tmp/task054-client-ux-20261008/address_default_badge_probe_test.dart --concurrency=1 --reporter expanded",
+      "log": "address-default-badge-green-probe.log",
+      "sha256": "ee5d84c9e2ef6aed8c7eb08b31bba633af8892833b895024f35267d341e0f8b1",
+      "qualification": "diagnostic; insufficient for full visual correctness"
+    },
+    {
+      "check": "GREEN_FINAL_BADGE",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": 8,
+      "failed": 0,
+      "command": "flutter test --no-pub test/features/account/customer_address_default_badge_test.dart --concurrency=1 --reporter expanded",
+      "log": "address-default-badge-green-final.log",
+      "sha256": "1b8c571ca68d6a33dc75fdb8bd30ca59ed83e7afe5929a03adb516cf6007b940",
+      "qualification": null
+    },
+    {
+      "check": "GREEN_FINAL_ACCOUNT",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": 110,
+      "failed": 0,
+      "command": "flutter test --no-pub test/features/account --concurrency=1 --reporter expanded",
+      "log": "address-default-badge-account-final.log",
+      "sha256": "a0ea5296f3d4543b3ca02e0b032dc5ef9a1044cbb60138713955c8dec3d6dadd",
+      "qualification": null
+    },
+    {
+      "check": "GREEN_FINAL_HOST_JOURNAL_MATRIX",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": 8,
+      "failed": 0,
+      "command": "flutter test --no-pub /private/tmp/task054-client-ux-20261008/journal_host_harness_test.dart --name 'journal illeggibile' --concurrency=1 --reporter expanded",
+      "log": "address-default-badge-host-matrix.log",
+      "sha256": "a49fd32059fe47b05f595c93c38ec665ca3dc3d6110f9a31a2d8e87baed30377",
+      "qualification": null
+    },
+    {
+      "check": "GREEN_FINAL_ANALYZE",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": null,
+      "failed": 0,
+      "command": "flutter analyze --no-pub lib/features/account/presentation/customer_account_panel.dart test/features/account/customer_address_default_badge_test.dart integration_test/task054_next_integration_surfaces_test.dart",
+      "log": "address-default-badge-analyze-final.log",
+      "sha256": "7816f1ffa787f80105dce77f6544167db39444c8c941ed09849fa91047359b31",
+      "qualification": null
+    },
+    {
+      "check": "GREEN_FINAL_FORMAT",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": null,
+      "failed": 0,
+      "command": "dart format --output=none --set-exit-if-changed lib/features/account/presentation/customer_account_panel.dart test/features/account/customer_address_default_badge_test.dart integration_test/task054_next_integration_surfaces_test.dart",
+      "log": "address-default-badge-format.log",
+      "sha256": "40dda0d6720d5d81c116c7d712e568c462af50b3eb2133b082b66cd05745759b",
+      "qualification": null
+    },
+    {
+      "check": "GREEN_FINAL_DIFFCHECK",
+      "status": "PASS",
+      "exit_code": 0,
+      "passed": null,
+      "failed": 0,
+      "command": "git diff HEAD^ HEAD --check",
+      "log": "address-default-badge-diffcheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "qualification": null
+    }
+  ],
+  "source_files": [
+    {
+      "path": "lib/features/account/presentation/customer_account_panel.dart",
+      "sha256": "795e1a184b387f6989ef04e52d4548a6c3efe8503e8f6cfee23bfe9b0a3c06d5",
+      "git_blob": "a783bbe5a4fd31be8f03903899055355a335eb95",
+      "change": "modified"
+    },
+    {
+      "path": "test/features/account/customer_address_default_badge_test.dart",
+      "sha256": "7e8aa6f229341d6d5e89f04e0cdfa21c9a37c270906158ac59225a178eb02a02",
+      "git_blob": "c804bf543dda3aa108ca84e197929cddfe84691a",
+      "change": "added"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "sha256": "0fabb98e535fda3252ded76a8e4c8764bf4c05a51144a4d8934ee778e5727564",
+      "git_blob": "f72cdc4077041dc583e7d430dd6f9dc4991d86a6",
+      "change": "modified"
+    }
+  ],
+  "fixture_capture_count": 137,
+  "new_captures_added": 0,
+  "native_assert_cases": 8,
+  "host_total_account_pass": 110,
+  "invalidated_previous_associations": [
+    "production panel blob/sha",
+    "native fixture blob/sha",
+    "new permanent test means source manifest file set changes"
+  ],
+  "native_after": "NOT_RUN; root will execute composed candidate CI",
+  "authenticated_TEST": "NOT_RUN",
+  "assistive_AT": "NOT_RUN",
+  "physical_profile": "NOT_RUN",
+  "writer_worktree_clean": true,
+  "remote_push": false,
+  "processes_terminal": true,
+  "observed_at_utc": "2026-10-08T21:03:42.404468+00:00"
+}

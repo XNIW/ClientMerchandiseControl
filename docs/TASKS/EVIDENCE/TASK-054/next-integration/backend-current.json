@@ -1,0 +1,82 @@
+{
+  "reviewer": "/root/review_evidence_ci",
+  "project": "jpgoimipbothfgkokyvm",
+  "observedAt": "2026-10-05T16:29:49.071829+00:00",
+  "api": "mcp Supabase execute_sql",
+  "queryScope": "BEGIN READ ONLY; statement_timeout5s; catalogs/history/cron metadata only; ROLLBACK",
+  "transactionReadOnly": "on",
+  "rpcNamesPresent": 32,
+  "rpcNamesRequired": 55,
+  "indexesPresent": 1,
+  "indexesRequired": 2,
+  "historyCount": 155,
+  "historyLatest": "20261002180757",
+  "canonicalPendingPresent": [],
+  "cron": [
+    {
+      "name": "storefront-checkout-quote-expire-v1",
+      "active": true,
+      "schedule": "* * * * *"
+    },
+    {
+      "name": "storefront-delivery-tracking-cleanup-v1",
+      "active": true,
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "name": "storefront-promotion-reconcile-v1",
+      "active": true,
+      "schedule": "* * * * *"
+    },
+    {
+      "name": "storefront-reservation-hold-expire-v1",
+      "active": true,
+      "schedule": "* * * * *"
+    }
+  ],
+  "compatibilityGate": {
+    "command": "python3 scripts/check-backend-compatibility.py --snapshot /Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/review-evidence-ci/remote_contract_refresh_20261005.json",
+    "exitCode": 1,
+    "status": "FAIL",
+    "errors": [
+      "missing_rpc:customer_address_delete_v2",
+      "missing_rpc:customer_address_upsert_v2",
+      "missing_rpc:customer_addresses_read_v2",
+      "missing_rpc:customer_after_sales_cancel_v1",
+      "missing_rpc:customer_after_sales_create_v1",
+      "missing_rpc:customer_after_sales_evidence_register_v1",
+      "missing_rpc:customer_after_sales_evidence_upload_ticket_v1",
+      "missing_rpc:customer_after_sales_list_v1",
+      "missing_rpc:customer_after_sales_order_lines_v1",
+      "missing_rpc:customer_checkout_quote_create_v2",
+      "missing_rpc:customer_delivery_context_read_v1",
+      "missing_rpc:customer_delivery_context_select_v1",
+      "missing_rpc:customer_notification_mark_read_v1",
+      "missing_rpc:customer_notifications_list_v1",
+      "missing_rpc:customer_notifications_mark_all_read_v1",
+      "missing_rpc:customer_order_reorder_apply_v1",
+      "missing_rpc:customer_order_reorder_preview_v1",
+      "missing_rpc:customer_review_submit_v1",
+      "missing_rpc:customer_review_update_v1",
+      "missing_rpc:customer_reviews_list_v1",
+      "missing_rpc:storefront_delivery_context_preview_v1",
+      "missing_rpc:storefront_product_reviews_v1",
+      "missing_rpc:storefront_search_suggestions_v1",
+      "missing_migration:20260823023037",
+      "missing_migration:20260823150000",
+      "missing_migration:20260928200000",
+      "missing_index:customer_notification_events_safe_dedup_idx"
+    ]
+  },
+  "equalityVsHistoricalSnapshot20261004": {
+    "rpcs": true,
+    "indexes": true,
+    "migrations": true
+  },
+  "snapshotSha256": "f9ed69662894ac97ef752d1715b0d27518497e701af03af05f5a3a1cdd862c07",
+  "snapshotPath": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/review-evidence-ci/remote_contract_refresh_20261005.json",
+  "liveBehavior": "NOT_RUN",
+  "remoteApply": "NOT_RUN",
+  "remoteRecovery": "NOT_RUN",
+  "taskLiveVerdict": "BLOCKED"
+}

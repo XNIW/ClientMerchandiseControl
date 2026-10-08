@@ -7,31 +7,41 @@
 - **Stato globale**: ACTIVE
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_FIX_BLOCKED_TO_RE_REVIEW
+- **Stato task**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: eseguire il mandato funzionale e UX del 2026-10-01
-  sulla main aggiornata: preflight staging, flussi e schermate nativi con fixture,
-  correzioni riproducibili e due review read-only; integrazione dopo gate applicabili.
-  TASK-054 resta aperta finché i requisiti live obbligatori non sono verificati.
+- **Review integrata**: BLOCKED — CI nativa iOS e gate live; integrazione sviluppo separata e condizionata
+- **Prossima azione autorizzata**: completare i finding R30 emersi dalla CI
+  `37839967964` su PR29 `43fd7af`: cinque job PASS, journal iOS FAIL prima
+  dell'app e job smoke/visual CANCELLED al limite globale di30min. Lo smoke
+  nativo è PASS; il test recensioni registra campo non hitTestable e overflow
+  24px, causa in diagnosi. Badge predefinito corretto in16e4681 dopo RED e
+  review distinta; proiezione degli inset nel solo harness bf9be05 approvato e integrato in2327948.
+  Preview iOS7e approvata e integrata in d4a7e97; job35min misurato,
+  timeout comandi invariati. Avviare una nuova CI esatta del composto e
+  ispezionare i nuovi pixel hash-bound. Recovery v3 popolata e bundle workerd sono PASS locali;
+  apply/deploy TEST restano condizionati a TLS, accessi/configurazione e finestra
+  DB/cron attestata. W/N e dispositivi assegnati preservati; TASK-054 aperta,
+  nessun TASK-055, DONE o production.
 
 ## Repository coinvolti
 
 - `XNIW/ClientMerchandiseControl` — repository corrente e unico writer del client.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
-  authority canonica verificata; TASK-159 concorrente preservato, PR commerce117 merged con6d5f3768 dopo review APPROVED e CI verde;
-  main4532831b include anche PR119; f21339bb è la baseline PR118, ancestry verificata.
-- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, sola lettura.
-- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, sola lettura.
+  authority canonica; main verificata02ea44b9,159sorgenti e155receipt TEST;
+  TASK159/Worker selettivo appartiene a W, modifiche concorrenti preservate.
+  Le riconciliazioni4532831b/f21339bb precedenti rimangono nelle evidence storiche.
+- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, owner N; PR23 integrata in main9d5c270b il8ottobre; runtime aggiornato e R24 non qualificati.
+- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, owner N; PR21 corrente3212799e aperta al checkpoint8ottobre18:17UTC; main433e7daf è il riferimento storico, non prova runtime nuova.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
-- Supabase staging esistente — audit metadata readonly: 32/55 RPC presenti,
-  23 assenti e tre migration richieste non applicate (due commerce e correttiva
-  dedup); production non modificata.
+- Supabase TEST — snapshot Management API readonly dell'8 ottobre19:59UTC:
+  32/57RPC presenti e conformi,25assenti,quattro migration canoniche assenti,
+  1/2indici,history155. Gate TLS distinto BLOCKED; nessun apply o repair remoto.
+  Recovery popolata57RPC/2indici/history159 PASS esclusivamente nel clone isolato.
 - Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 
 ## Principi architetturali
@@ -115,7 +125,7 @@
 | TASK-051 | Cart, checkout and payment journey completion | DONE | TASK-050, TASK-023, TASK-026, TASK-027, TASK-032 | Client, Admin, Supabase | Checkout e payment/recovery completi |
 | TASK-052 | Notification inbox and reorder | DONE | TASK-051, TASK-028, TASK-031 | Client, Admin, Supabase | Inbox persistente e riacquisto validato |
 | TASK-053 | After-sales, verified reviews and search assist | DONE | TASK-052 | Client, Admin, Supabase | Assistenza, recensioni verificate e ricerca assistita |
-| TASK-054 | Integrated staging E2E and closeout | BLOCKED | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
+| TASK-054 | Integrated staging E2E and closeout | ACTIVE | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
 
 ## Dipendenze e blocchi
 

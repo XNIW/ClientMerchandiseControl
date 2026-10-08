@@ -1,0 +1,344 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-08",
+  "scope": "Regressioni widget inbox e misura lavoro di costruzione; sourcefreeze locale isolato",
+  "source_boundary": {
+    "base_commit": "39624143955f0329b3ac85e27a51d722a6884ad8",
+    "tested_worktree": "/tmp/cmc-inbox-20261008",
+    "verified_delta_files": [
+      {
+        "path": "lib/features/customer_notifications/presentation/customer_notification_inbox_screen.dart",
+        "verified_source_sha256": "7e0fba5b35749de9e87f66c259c572510aecf271e9dcc46d24270237d328c9a8",
+        "current_root_sha256": "7e0fba5b35749de9e87f66c259c572510aecf271e9dcc46d24270237d328c9a8",
+        "isolated_sha256": "7e0fba5b35749de9e87f66c259c572510aecf271e9dcc46d24270237d328c9a8",
+        "same_bytes": true
+      },
+      {
+        "path": "test/features/customer_notifications/customer_notification_screen_test_support.dart",
+        "verified_source_sha256": "0616e74f6ee95fb11bcdbf8e8583dc5fa2105f0b2a37ec5c7c04a8eb12b79ba7",
+        "current_root_sha256": "0616e74f6ee95fb11bcdbf8e8583dc5fa2105f0b2a37ec5c7c04a8eb12b79ba7",
+        "isolated_sha256": "0616e74f6ee95fb11bcdbf8e8583dc5fa2105f0b2a37ec5c7c04a8eb12b79ba7",
+        "same_bytes": true
+      },
+      {
+        "path": "test/features/customer_notifications/customer_notification_inbox_navigation_test.dart",
+        "verified_source_sha256": "8572becd99d78a03ba2bb8282fbd34e0ef2dbb9adb491d995a441b8d1adb7dee",
+        "current_root_sha256": "8572becd99d78a03ba2bb8282fbd34e0ef2dbb9adb491d995a441b8d1adb7dee",
+        "isolated_sha256": "8572becd99d78a03ba2bb8282fbd34e0ef2dbb9adb491d995a441b8d1adb7dee",
+        "same_bytes": true
+      },
+      {
+        "path": "test/features/customer_notifications/customer_notification_inbox_work_budget_test.dart",
+        "verified_source_sha256": "b4e6bd629974f21e8af7123f5c419b9df8704abcb58b58cda0ab7af4c4a14590",
+        "current_root_sha256": "b4e6bd629974f21e8af7123f5c419b9df8704abcb58b58cda0ab7af4c4a14590",
+        "isolated_sha256": "b4e6bd629974f21e8af7123f5c419b9df8704abcb58b58cda0ab7af4c4a14590",
+        "same_bytes": true
+      }
+    ],
+    "red_source": "Baseline implementativa invariata + tre nuovi file test non formattati; aspettative identiche al GREEN.",
+    "green_source": "Baseline + quattro file elencati, formattati.",
+    "current_whole_candidate_tested": false,
+    "final_global_benchmarks": "NOT_RUN",
+    "final_global_benchmarks_reason": "Ricevuta locale antecedente al freeze integrato finale; non attribuisce PASS al candidato globale."
+  },
+  "log_provenance": {
+    "source": "stdout originali dei tool gia eseguiti, estratti dalla relativa sessione Codex",
+    "extracted_without_rerun": true,
+    "local_logs_outside_git": true,
+    "tool_session_id": "01a11c0f-fd8f-77b0-bc9a-77c8e5bd35da",
+    "full_session_not_copied": true,
+    "full_logs_versioned": false
+  },
+  "environment": {
+    "execution": "Flutter widget test su host macOS; debug VM, fixture in memoria",
+    "flutter_version": "3.44.8",
+    "dart_version": "3.12.2",
+    "viewport_logical_pixels": {
+      "width": 390,
+      "height": 844
+    },
+    "locale": "es-CL",
+    "theme": "light",
+    "text_scale": 1,
+    "network": "Assente: repository e cache fixture in memoria",
+    "dataset": "Notifiche sintetiche unread, pagine da 25; stessa distribuzione prima/dopo",
+    "warmup": "Caricamento di tutte le pagine e pumpAndSettle prima dei cinque campioni",
+    "sample_trigger": "Alternanza unreadOnly su dataset interamente unread; righe invariate",
+    "physical_device": null
+  },
+  "budget_defined_before_fix": {
+    "max_tile_configurations_per_rebuild": 20,
+    "max_tile_builds_per_rebuild": 20,
+    "max_configuration_growth_25_to_500": 2,
+    "reason": "20 tile coprono oltre due viewport 390x844 con le righe correnti e cache viewport; nessuna crescita proporzionale alle pagine caricate.",
+    "definition_recorded_before_first_red_run": true,
+    "duration_budget_added": false,
+    "existing_budgets_changed": false
+  },
+  "measurements": [
+    {
+      "rows": 25,
+      "page_size": 25,
+      "page_requests_before": 1,
+      "page_requests_after": 1,
+      "before": [
+        {
+          "retained_tile_configurations": 25,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 25,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 25,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 25,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 25,
+          "tile_builds": 5
+        }
+      ],
+      "after": [
+        {
+          "retained_tile_configurations": 5,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 5,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 5,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 5,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 5,
+          "tile_builds": 5
+        }
+      ],
+      "before_configuration_range": [
+        25,
+        25
+      ],
+      "after_configuration_range": [
+        5,
+        5
+      ],
+      "before_build_range": [
+        5,
+        5
+      ],
+      "after_build_range": [
+        5,
+        5
+      ]
+    },
+    {
+      "rows": 500,
+      "page_size": 25,
+      "page_requests_before": 20,
+      "page_requests_after": 20,
+      "before": [
+        {
+          "retained_tile_configurations": 500,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 500,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 500,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 500,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 500,
+          "tile_builds": 5
+        }
+      ],
+      "after": [
+        {
+          "retained_tile_configurations": 5,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 5,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 5,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 5,
+          "tile_builds": 5
+        },
+        {
+          "retained_tile_configurations": 5,
+          "tile_builds": 5
+        }
+      ],
+      "before_configuration_range": [
+        500,
+        500
+      ],
+      "after_configuration_range": [
+        5,
+        5
+      ],
+      "before_build_range": [
+        5,
+        5
+      ],
+      "after_build_range": [
+        5,
+        5
+      ]
+    }
+  ],
+  "red": {
+    "result": "FAIL",
+    "tests_passed": 1,
+    "tests_failed": 8,
+    "navigation_failures": 7,
+    "work_budget_failures": 1,
+    "reproduced": [
+      "Apertura order/afterSales/product bloccata da markRead pendente",
+      "ACK dopo account/shop/A-B-A avvia una navigazione vecchia",
+      "Errore markRead tardivo riapre la destinazione",
+      "500 configurazioni di tile conservate dal delegate pur con soli 5 tile buildati"
+    ],
+    "logout_regression": "PASS"
+  },
+  "green": {
+    "result": "PASS",
+    "tests_passed": 49,
+    "tests_failed": 0,
+    "navigation_tests": 8,
+    "new_work_budget_tests": 1,
+    "qualification": "Suite inbox locale: sourcefreeze sopra, non suite Flutter globale e non tutti i benchmark canonici"
+  },
+  "commands": {
+    "red": {
+      "command": "flutter test test/features/customer_notifications/customer_notification_inbox_navigation_test.dart test/features/customer_notifications/customer_notification_inbox_work_budget_test.dart --reporter expanded --concurrency=1",
+      "working_directory": "/tmp/cmc-inbox-20261008",
+      "exit_code": 1,
+      "result": "FAIL",
+      "started_output_at_utc": "2026-10-08T15:14:50.445Z",
+      "terminal_output_at_utc": "2026-10-08T15:15:01.741Z",
+      "log_path": "/tmp/cmc-inbox-evidence-20261008/red.log",
+      "log_sha256": "6b7286f7291c1ae2f1146b86e1e1113a17a435a38e2871e7ee49b35dfb76fe32",
+      "original_tool_output_chunks": [
+        "3c6e10",
+        "c85bfe"
+      ]
+    },
+    "green": {
+      "command": "flutter test test/features/customer_notifications --reporter expanded --concurrency=1",
+      "working_directory": "/tmp/cmc-inbox-20261008",
+      "exit_code": 0,
+      "result": "PASS",
+      "started_output_at_utc": "2026-10-08T15:16:02.729Z",
+      "terminal_output_at_utc": "2026-10-08T15:16:22.219Z",
+      "log_path": "/tmp/cmc-inbox-evidence-20261008/green.log",
+      "log_sha256": "e1f11bcb9a5cdc8aba0e55b52a5ff4e400b2e2f506335ccd5ca2eb84ee924078",
+      "original_tool_output_chunks": [
+        "991472",
+        "308119",
+        "a034d5"
+      ]
+    },
+    "analyze": {
+      "command": "flutter analyze lib/features/customer_notifications/presentation/customer_notification_inbox_screen.dart test/features/customer_notifications/customer_notification_screen_test_support.dart test/features/customer_notifications/customer_notification_inbox_navigation_test.dart test/features/customer_notifications/customer_notification_inbox_work_budget_test.dart --no-pub",
+      "working_directory": "/tmp/cmc-inbox-20261008",
+      "exit_code": 0,
+      "result": "PASS",
+      "started_output_at_utc": "2026-10-08T15:16:22.219Z",
+      "terminal_output_at_utc": "2026-10-08T15:16:51.848Z",
+      "log_path": "/tmp/cmc-inbox-evidence-20261008/analyze.log",
+      "log_sha256": "5d00f2dfa8a0cd07d38531be986aa0938195d00d1fc5fa7e995ed70e2ab177db",
+      "original_tool_output_chunks": [
+        "3d2d1c",
+        "00a5bb"
+      ]
+    },
+    "format": {
+      "command": "dart format lib/features/customer_notifications/presentation/customer_notification_inbox_screen.dart test/features/customer_notifications/customer_notification_screen_test_support.dart test/features/customer_notifications/customer_notification_inbox_navigation_test.dart test/features/customer_notifications/customer_notification_inbox_work_budget_test.dart",
+      "working_directory": "root worktree Client",
+      "exit_code": 0,
+      "result": "PASS",
+      "started_output_at_utc": "2026-10-08T15:16:02.729Z",
+      "terminal_output_at_utc": "2026-10-08T15:16:02.729Z",
+      "log_path": "/tmp/cmc-inbox-evidence-20261008/format.log",
+      "log_sha256": "d68747334b9e5a4e21c5f92acaa982eb0f382d886779c20a8eb95bf0e75d64c4",
+      "original_tool_output_chunks": [
+        "40d408"
+      ]
+    },
+    "diff_check": {
+      "command": "git diff --check",
+      "working_directory": "/tmp/cmc-inbox-20261008",
+      "exit_code": 0,
+      "result": "PASS",
+      "started_output_at_utc": "2026-10-08T15:16:51.848Z",
+      "terminal_output_at_utc": "2026-10-08T15:16:51.848Z",
+      "log_path": "/tmp/cmc-inbox-evidence-20261008/diff_check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_tool_output_chunks": [
+        "f8b94f"
+      ]
+    },
+    "hashes_root": {
+      "command": "shasum -a 256 lib/features/customer_notifications/presentation/customer_notification_inbox_screen.dart test/features/customer_notifications/customer_notification_screen_test_support.dart test/features/customer_notifications/customer_notification_inbox_navigation_test.dart test/features/customer_notifications/customer_notification_inbox_work_budget_test.dart",
+      "working_directory": "root worktree Client",
+      "exit_code": 0,
+      "result": "PASS",
+      "started_output_at_utc": "2026-10-08T15:17:25.870Z",
+      "terminal_output_at_utc": "2026-10-08T15:17:25.870Z",
+      "log_path": "/tmp/cmc-inbox-evidence-20261008/hashes_root.log",
+      "log_sha256": "10e181d2aa968aa7030ed0679cb7a9daab536c47f8a40f97741729297474199d",
+      "original_tool_output_chunks": [
+        "2b399f"
+      ]
+    },
+    "hashes_isolated": {
+      "command": "shasum -a 256 lib/features/customer_notifications/presentation/customer_notification_inbox_screen.dart test/features/customer_notifications/customer_notification_screen_test_support.dart test/features/customer_notifications/customer_notification_inbox_navigation_test.dart test/features/customer_notifications/customer_notification_inbox_work_budget_test.dart",
+      "working_directory": "/tmp/cmc-inbox-20261008",
+      "exit_code": 0,
+      "result": "PASS",
+      "started_output_at_utc": "2026-10-08T15:17:25.870Z",
+      "terminal_output_at_utc": "2026-10-08T15:17:25.870Z",
+      "log_path": "/tmp/cmc-inbox-evidence-20261008/hashes_isolated.log",
+      "log_sha256": "10e181d2aa968aa7030ed0679cb7a9daab536c47f8a40f97741729297474199d",
+      "original_tool_output_chunks": [
+        "6170bb"
+      ]
+    }
+  },
+  "implementation": {
+    "navigation": "Invio markRead senza attenderlo e apertura sincrona; controller conserva protezioni owner/generation e gestione errore. Nessuna navigazione avviata da ACK tardivo.",
+    "work": "ListView.builder crea configurazioni delle sole righe richieste dal viewport; visibleItems calcolato una volta nel build.",
+    "controller_or_backend_changed": false
+  },
+  "limitations": [
+    "Numero configurazioni trattenute dal delegate e build effettivi: non misura allocazioni totali VM, RSS, CPU o frame time.",
+    "ListView precedente disponeva gia i render object in modo lazy: build effettivi rimangono 5. Il miglioramento misurato riguarda configurazioni widget.",
+    "Cinque campioni deterministici: dispersione zero, nessun percentile di latenza dichiarato.",
+    "Nessuna prova profile/release su telefono, TalkBack/VoiceOver, autenticazione live o accesso backend implicata.",
+    "La sorgente osservata oggi e byte-identica sui quattro file; altri cambiamenti del candidato globale non sono coperti."
+  ],
+  "pending_verification_processes": false
+}

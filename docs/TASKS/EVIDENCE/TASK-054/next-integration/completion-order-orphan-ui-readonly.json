@@ -1,0 +1,117 @@
+{
+  "candidate": "5a40488473a5f4041c72e1ce05682e9328b070ed",
+  "verification": "STATIC_READONLY",
+  "status": "PASS",
+  "exit_code_git_diff": 0,
+  "new_test_or_app_change": false,
+  "source_blobs": {
+    "lib/features/customer_notifications/presentation/customer_notification_inbox_screen.dart": {
+      "baseline_git_blob": "a9ad4ff91d1aa3849259662ae938e476db33e37b",
+      "candidate_git_blob": "a9ad4ff91d1aa3849259662ae938e476db33e37b",
+      "identical": true
+    },
+    "lib/features/customer_notifications/data/supabase_customer_notification_repository.dart": {
+      "baseline_git_blob": "1b8c8aa9c66c892a6776066990c22685f690a75c",
+      "candidate_git_blob": "1b8c8aa9c66c892a6776066990c22685f690a75c",
+      "identical": true
+    },
+    "lib/features/orders/application/customer_order_controller.dart": {
+      "baseline_git_blob": "6461638c6056713828b17e1b48549d74296ae81f",
+      "candidate_git_blob": "6461638c6056713828b17e1b48549d74296ae81f",
+      "identical": true
+    },
+    "lib/features/orders/presentation/order_detail_screen.dart": {
+      "baseline_git_blob": "58c20ab2da4dbe63f9a23fcf91abf753b5062a7e",
+      "candidate_git_blob": "58c20ab2da4dbe63f9a23fcf91abf753b5062a7e",
+      "identical": true
+    },
+    "lib/features/orders/presentation/customer_order_presentation.dart": {
+      "baseline_git_blob": "168e485e15d86d551310c9051cc2b166a660f72e",
+      "candidate_git_blob": "168e485e15d86d551310c9051cc2b166a660f72e",
+      "identical": true
+    },
+    "lib/features/deep_links/application/storefront_deep_link.dart": {
+      "baseline_git_blob": "c720ff14d3c0855ab6b2db5c1e9c42c614e74f4a",
+      "candidate_git_blob": "c720ff14d3c0855ab6b2db5c1e9c42c614e74f4a",
+      "identical": true
+    },
+    "lib/features/orders/data/supabase_customer_order_repository.dart": {
+      "baseline_git_blob": "e76665c3e9a30d9025a2d2310111ab1ed79d956b",
+      "candidate_git_blob": "e76665c3e9a30d9025a2d2310111ab1ed79d956b",
+      "identical": true
+    },
+    "test/features/customer_notifications/customer_notification_inbox_navigation_test.dart": {
+      "baseline_git_blob": "d6f12e081db8f3fe30d3d0159977b8726a83b9a7",
+      "candidate_git_blob": "d6f12e081db8f3fe30d3d0159977b8726a83b9a7",
+      "identical": true
+    },
+    "test/features/orders/data/supabase_customer_order_repository_test.dart": {
+      "baseline_git_blob": "8df81390f896e34157a5e189b62b82da558783c0",
+      "candidate_git_blob": "8df81390f896e34157a5e189b62b82da558783c0",
+      "identical": true
+    }
+  },
+  "conclusion": "Il percorso inbox ORDER assente gia spiega lo stato e consente retry e prosecuzione via Back. Nessun nuovo difetto funzionale dimostrato.",
+  "source_locators": [
+    {
+      "file": "lib/features/customer_notifications/presentation/customer_notification_inbox_screen.dart",
+      "line": 202,
+      "behavior": "Tap tile esegue markRead unawaited; destinationType.order usa context.push(orderLocation(destinationId)). Non richiede routeToken."
+    },
+    {
+      "file": "lib/features/customer_notifications/data/supabase_customer_notification_repository.dart",
+      "line": 357,
+      "behavior": "Parser richiede UUID e shop corretto; non verifica esistenza ordine. Un riferimento orfano sintatticamente valido non e rifiutato per la sola assenza del target."
+    },
+    {
+      "file": "lib/features/orders/application/customer_order_controller.dart",
+      "line": 228,
+      "behavior": "openOrder chiama loadOrder con shop/ID, pubblica failure notFound; purge dei dati scatta solo per unauthorized."
+    },
+    {
+      "file": "lib/features/orders/presentation/order_detail_screen.dart",
+      "line": 129,
+      "behavior": "AppBar Back fa pop verso precedente route o go storico ordini quando ingresso diretto."
+    },
+    {
+      "file": "lib/features/orders/presentation/order_detail_screen.dart",
+      "line": 167,
+      "behavior": "Senza dettaglio: _OrderDetailUnavailable mostra ordersNotFound, messaggio dedicato e order-detail-retry che forza refresh."
+    },
+    {
+      "file": "lib/features/orders/presentation/order_detail_screen.dart",
+      "line": 248,
+      "behavior": "Con cache: banner espone not_found mentre il contenuto owner-scoped e Back restano consultabili."
+    },
+    {
+      "file": "lib/features/orders/presentation/customer_order_presentation.dart",
+      "line": 63,
+      "behavior": "customerOrderFailureMessage distingue notFound da unauthorized e offline."
+    },
+    {
+      "file": "lib/features/deep_links/application/storefront_deep_link.dart",
+      "line": 72,
+      "behavior": "Sensitive order/notification callback OFF: URI generator fallisce chiuso e decoder non produce questi intenti. Separato dal tile inbox che usa destinationId."
+    }
+  ],
+  "existing_evidence": [
+    {
+      "file": "test/features/customer_notifications/customer_notification_inbox_navigation_test.dart",
+      "line": 23,
+      "coverage": "Test tap ORDER con markRead lento apre subito la route; test ACK tardivi account/shop/A-B-A/logout non avviano vecchie navigazioni. Eseguiti nella suite writer di30test, tutti PASS/exit0.",
+      "log": "after-sales-regressions.log"
+    },
+    {
+      "file": "test/features/orders/data/supabase_customer_order_repository_test.dart",
+      "line": 187,
+      "coverage": "Test esistente stati remoti minimali: customer_order_detail not_found mappa CustomerOrderFailureKind.notFound. Nessuna nuova esecuzione in questa verifica readonly."
+    }
+  ],
+  "limits": [
+    "Lettura sorgente e prove host esistenti non equivalgono a sessione Client autenticata contro le due notifiche legacy reali.",
+    "Nessun nuovo test UI completo inbox-to-order-not_found o screenshot dedicato aggiunto; appfreeze invariato durante gate globale root.",
+    "La UI not_found preserva la distinzione di dominio; non dimostra da sola un errore di autorizzazione.",
+    "Il fix26713a4 riguarda after-sales missing/retry e NON corregge ne attribuisce PASS agli orphan ORDER backend."
+  ],
+  "backend_provenance": "Diagnostica backend lista/mark-read PASS e detail not_found comunicata dal coordinatore; non rieseguita dalla lane UX."
+}

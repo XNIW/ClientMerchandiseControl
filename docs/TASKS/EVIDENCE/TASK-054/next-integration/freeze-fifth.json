@@ -1,0 +1,225 @@
+{
+  "schema": "task054-fifth-freeze-source-gates-v1",
+  "observedUtc": "2026-10-05T20:24:04.885266+00:00",
+  "sourceSha": "50a3123e9b81e2a2c5490808aaf6056a1fa1e7ef",
+  "baselineMain": "bfbfc0b6a7122f29b8d8f6e2c2263d77b252749c",
+  "sourceFiles": [
+    {
+      "path": "lib/features/reviews/presentation/customer_reviews.dart",
+      "sha256": "84adcbf5950bb9bcd4fca9e9498d3627bc8c89d7d248c4fc4d764911047e3e5d",
+      "gitBlob": "971ad99070d991b959122b516affb4b8142351d4"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_feedback_test.dart",
+      "sha256": "33caf0c2d75d23232857eb457ef1134725d6ea5cd5c46795304d473c07e00dfc",
+      "gitBlob": "9a96c82024e4ae21eb881b90a535faf739937372"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart",
+      "sha256": "d16dbaf62f8cc49421af6b03fa10913fcefdff0dcb17d21769082a510237fc02",
+      "gitBlob": "498482ea5ce94bb49d71745ec088089b32bb5142"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "sha256": "01903afb303bccc4854a8c4e36c32bb06ab1d49b8b67320d3fb4d887b46b6de5",
+      "gitBlob": "09b4bc4f0d582f8d679e73b13a3535a511db6dc7"
+    },
+    {
+      "path": "scripts/run-task054-ios-owned.py",
+      "sha256": "5784f4db204b58d4cbc925e3a1366088d42b47906923eb34fcdb815113599d8f",
+      "gitBlob": "d591806f71136f33b16893bb1948e9d6811ac9d7"
+    },
+    {
+      "path": "scripts/test-task054-ios-owned.py",
+      "sha256": "7f9986ff3230285fa6d40bb05535f7577e8f45eeb9a7b413f48fe6f009807397",
+      "gitBlob": "c846bde475dde9fe26b09b840dbaac16e69f478f"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "d2516b4627dc7f7319a9d6d5c2798f1448fd77baeb2f1cc2e0a864af80eeaa60",
+      "gitBlob": "b629d7dadc0833bc0197667d3b4f2edc6744a054"
+    },
+    {
+      "path": "pubspec.yaml",
+      "sha256": "fd185361646fcaec1d543b20dfd6e3430dc5656a7252c93c09309cb09184ea55",
+      "gitBlob": "3aea140ff63b8b882313f68549ae67b4ea075306"
+    },
+    {
+      "path": "pubspec.lock",
+      "sha256": "360f0222bb529970e33dd5d83e52a0a7313e3323044095626156cd009b42a75e",
+      "gitBlob": "28c22cf39b68707d679652ccc388650e0bf7d0c1"
+    }
+  ],
+  "sourceChecks": [
+    {
+      "command": "flutter test --no-pub test/features/reviews/customer_review_dialog_feedback_test.dart --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/feedback-after.log",
+      "logSha256": "18cc04a11ac0d3ba6f84d56f3be8d767ba596542e2188f9ea0e2f0f36cec730a",
+      "passed": 30,
+      "scope": "Prima delle sole riparazioni lint, runtime equivalente"
+    },
+    {
+      "command": "flutter test --no-pub test/features/reviews --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/reviews-final.log",
+      "logSha256": "3249068afed1077a0cdc7ee962435a127a673ee08bc618f35f531ce42f11ac4d",
+      "passed": 59
+    },
+    {
+      "command": "flutter analyze --no-pub",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/analyze-full-repaired.log",
+      "logSha256": "37584a5d00a501ceba2183e86003a760aa5eb6c152963a4b64601bd1fe84f02f",
+      "issues": 0
+    },
+    {
+      "command": "dart format --output=none --set-exit-if-changed .",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/format-final.log",
+      "logSha256": "944bfde98df4a6f2e31b3e9cfd4acf801eebac4c866adc72207940561a82cc1e",
+      "files": 374,
+      "changed": 0
+    },
+    {
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/architecture-after.log",
+      "logSha256": "da205cb7b3c8e3a5d67d97dd855433c0e182e607166674fbc2a6a022c68f88f4"
+    },
+    {
+      "command": "bash scripts/check-user-facing-localization.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/localization-after.log",
+      "logSha256": "3327d2169a76cf880d2cf28a6be01c3a7570273b2468a83e9627240da6e1717f"
+    },
+    {
+      "command": "bash scripts/check-client-security.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-error-viewport-fix/security-index-corrected.log",
+      "logSha256": "26469745d31cfea4a2a6e7ecc867098ee735d97c40a4e308906e921fad54bb46",
+      "tracked": 874
+    }
+  ],
+  "static": [
+    {
+      "command": [
+        "bash",
+        "scripts/check-governance-state.sh"
+      ],
+      "result": "PASS",
+      "exitCode": 0,
+      "output": "Governance coerente: TASK-054 / BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW.\n",
+      "logSha256": "24c86382c8115b024c7e880321e2aa15005e9ebdef84b94ddb2c01a0ce2fa7e8"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-action-pins.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "Action pin verificati in 1 workflow.\n",
+      "logSha256": "38138780865f2a7928e0418586e6074f6cb89a16a2733965627e36bca9235149"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-telemetry-privacy.sh"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "Telemetry privacy scan: 12 eventi allowlisted, logger/export confinati, zero attributi sensibili.\n",
+      "logSha256": "8dc5be66d3a66c21fb097b146ab7877431210e60354f0de45fac562ae23052d9"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check-backend-compatibility.py",
+        "--source-only"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "output": "BACKEND_CONTRACT_SOURCE PASS rpcs=55 runtime=NOT_RUN\n",
+      "logSha256": "033391da95196ca84fa807661160b4e2e8bdb0c956fe74dba3b45bf5b20117d5"
+    }
+  ],
+  "preservedInvocationErrors": [
+    {
+      "command": [
+        "python3",
+        "scripts/check-governance.py"
+      ],
+      "exitCode": 2,
+      "result": "FAIL",
+      "logSha256": "ff7b0b4f4f3b972af19cc9aae87772225deecc37e83a275a262777549e73f3cc",
+      "meaning": "Invocazione di filename inesistente, errore tooling root conservato; comando canonico corretto eseguito separatamente."
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check-workflow-action-pins.py"
+      ],
+      "exitCode": 2,
+      "result": "FAIL",
+      "logSha256": "af58f829f9eb60240ac2ff73472ab63233d9fd628afd438d16d20e1b2e3d4729",
+      "meaning": "Invocazione di filename inesistente, errore tooling root conservato; comando canonico corretto eseguito separatamente."
+    }
+  ],
+  "preservedGovernanceFailure": {
+    "command": [
+      "bash",
+      "scripts/check-governance-state.sh"
+    ],
+    "exitCode": 1,
+    "result": "FAIL",
+    "output": "Worklog corrente incoerente con handoff CODEX_FIX_BLOCKED_TO_RE_REVIEW per TASK-054.\nControllo governance fallito: 1 violazione/i.\n",
+    "logSha256": "03450bd27454a20737157206a2c776d2f5db0f92b00379edb2360b9ab6d75afa"
+  },
+  "developmentReview": {
+    "client": "APPROVED",
+    "clientScope": "CLIENT_SOURCE_C09_AND_ASSOCIATED_HARNESS_ONLY",
+    "clientSource": "50a3123e9b81e2a2c5490808aaf6056a1fa1e7ef",
+    "clientPassCount": 62,
+    "harness": "APPROVED HARNESS_ONLY 67host+4Roboto",
+    "kernel": "APPROVED SOURCE_CODE_ONLY 53reviewer"
+  },
+  "securityStaged": {
+    "command": [
+      "bash",
+      "scripts/check-client-security.sh"
+    ],
+    "result": "PASS",
+    "exitCode": 0,
+    "output": "Security scan client: 895 file tracciati, zero secret/config/artifact vietati.\n",
+    "logSha256": "c6a5bb71f663ea76829eed68526aee52243e34a36a8d515dae89d52d4d33e6ac"
+  },
+  "newCI": {
+    "result": "NOT_RUN",
+    "reason": "Push del candidato documentale successivo al checkpoint."
+  },
+  "preservedFailedRuns": [
+    37229533852,
+    37346144008,
+    37352605356,
+    37361963759
+  ],
+  "nativeExpectedPerPlatform": {
+    "cases": 67,
+    "flutterPNG": 105,
+    "osPNG": 4
+  },
+  "task": {
+    "status": "BLOCKED",
+    "phase": "REVIEW",
+    "handoff": "CODEX_FIX_BLOCKED_TO_RE_REVIEW"
+  },
+  "qualification": "Review scoped source non approva TASK né live/native/merge. Codice congelato e processi propri terminali. CI4FAIL conservata; afterC09 nativo richiesto sul nuovo checkout effettivo di tutti5job. iOS14 e budget/casi/golden invariati."
+}

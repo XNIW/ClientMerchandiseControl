@@ -9,6 +9,8 @@ import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_state.dart';
 import '../../cart/application/cart_controller.dart';
 import '../application/customer_order_providers.dart';
 import '../application/customer_reorder_attempt.dart';
@@ -39,31 +41,86 @@ final class _CustomerReorderCardState
 
   Future<void> _open() async {
     if (_isLoading) return;
+    final container = ProviderScope.containerOf(context);
+    final owner = container.read(customerOrderIdentityProvider)?.subjectId;
+    final shop = container.read(customerOrderShopSlugProvider);
+    if (owner == null || shop == null) return;
+    final scopeValid = ValueNotifier(true);
+    final identitySubscription = container.listen(
+      customerOrderIdentityProvider,
+      (_, next) {
+        if (next?.subjectId != owner) scopeValid.value = false;
+      },
+    );
+    // Il listener diretto osserva anche A→B→A fra due frame, prima del mount.
+    final authSubscription = container.exists(authControllerProvider)
+        ? container.listen(authControllerProvider, (_, next) {
+            final subject = switch (next) {
+              AuthAuthenticated(:final customer) => customer.subjectId,
+              _ => null,
+            };
+            if (subject != owner) scopeValid.value = false;
+          })
+        : null;
+    final shopSubscription = container.listen(customerOrderShopSlugProvider, (
+      _,
+      next,
+    ) {
+      if (next != shop) scopeValid.value = false;
+    });
     setState(() => _isLoading = true);
     try {
       final preview = await ref
           .read(customerOrderRepositoryProvider)
           .previewReorder(widget.orderId);
-      if (!mounted) return;
+      if (!mounted || !scopeValid.value) return;
       final idempotencyKey = _attempt.begin();
-      await showModalBottomSheet<void>(
-        context: context,
+      final navigator = Navigator.of(context);
+      final route = ModalBottomSheetRoute<void>(
+        capturedThemes: InheritedTheme.capture(
+          from: context,
+          to: navigator.context,
+        ),
+        barrierLabel: MaterialLocalizations.of(
+          context,
+        ).modalBarrierDismissLabel,
         isScrollControlled: true,
         useSafeArea: true,
-        builder: (_) => _CustomerReorderSheet(
-          preview: preview,
-          idempotencyKey: idempotencyKey,
-          onDefinitiveResult: () => _attempt.complete(idempotencyKey),
+        builder: (sheetContext) => ValueListenableBuilder<bool>(
+          valueListenable: scopeValid,
+          builder: (context, valid, _) {
+            if (!valid) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!sheetContext.mounted) return;
+                final route = ModalRoute.of(sheetContext);
+                if (route != null && route.isActive) {
+                  Navigator.of(sheetContext).removeRoute(route);
+                }
+              });
+              return const SizedBox.shrink();
+            }
+            return _CustomerReorderSheet(
+              preview: preview,
+              idempotencyKey: idempotencyKey,
+              scopeValid: scopeValid,
+              onDefinitiveResult: () => _attempt.complete(idempotencyKey),
+            );
+          },
         ),
       );
+      await Future.any([navigator.push(route), route.completed]);
     } on Object {
-      if (!mounted) return;
+      if (!mounted || !scopeValid.value) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocalizations.of(context).ordersReorderFailure),
         ),
       );
     } finally {
+      identitySubscription.close();
+      authSubscription?.close();
+      shopSubscription.close();
+      scopeValid.dispose();
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -97,11 +154,13 @@ final class _CustomerReorderSheet extends ConsumerStatefulWidget {
   const _CustomerReorderSheet({
     required this.preview,
     required this.idempotencyKey,
+    required this.scopeValid,
     required this.onDefinitiveResult,
   });
 
   final CustomerReorderPreview preview;
   final String idempotencyKey;
+  final ValueNotifier<bool> scopeValid;
   final VoidCallback onDefinitiveResult;
 
   @override
@@ -115,7 +174,7 @@ final class _CustomerReorderSheetState
   var _isApplying = false;
 
   Future<void> _apply() async {
-    if (_isApplying) return;
+    if (_isApplying || !widget.scopeValid.value) return;
     setState(() => _isApplying = true);
     try {
       final result = await ref
@@ -124,12 +183,12 @@ final class _CustomerReorderSheetState
             orderId: widget.preview.orderId,
             idempotencyKey: widget.idempotencyKey,
           );
+      if (!mounted || !widget.scopeValid.value) return;
       widget.onDefinitiveResult();
-      if (!mounted) return;
       setState(() => _result = result);
       await ref.read(cartControllerProvider.notifier).refresh();
     } on Object {
-      if (!mounted) return;
+      if (!mounted || !widget.scopeValid.value) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocalizations.of(context).ordersReorderFailure),
@@ -221,6 +280,7 @@ final class _CustomerReorderSheetState
             FilledButton(
               key: const ValueKey('customer-order-reorder-open-cart'),
               onPressed: () {
+                if (!widget.scopeValid.value) return;
                 Navigator.of(context).pop();
                 context.go(AppRoutes.cartLocation);
               },

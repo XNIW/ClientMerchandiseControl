@@ -2125,6 +2125,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'No pudimos completar esta acción. Intenta nuevamente.';
 
   @override
+  String get afterSalesDestinationUnavailable =>
+      'Esta solicitud de asistencia no está disponible. Puedes consultar las demás solicitudes.';
+
+  @override
+  String get afterSalesBackToList => 'Ir a las solicitudes';
+
+  @override
   String get afterSalesSelectItem => 'Selecciona al menos un artículo.';
 
   @override
@@ -2230,4 +2237,45 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get notificationsUnreadOnly => 'Solo no leídas';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle =>
+      'No hay no leídas entre las notificaciones mostradas';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'No hay notificaciones sin leer';
+
+  @override
+  String get notificationsUnreadPageHint =>
+      'Puedes buscar más notificaciones sin leer cargando las anteriores.';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage =>
+      'Vuelve a conectarte para comprobar si hay más notificaciones sin leer.';
+
+  @override
+  String get notificationsUnreadEmptyMessage =>
+      'Has leído todas las notificaciones mostradas.';
+
+  @override
+  String get notificationsUpdateFailed =>
+      'No se pudieron actualizar las notificaciones. Inténtalo de nuevo.';
+
+  @override
+  String get customerAddressUnknown =>
+      'Resultado por verificar. Verifica antes de editar.';
+
+  @override
+  String get customerAddressJournalUnavailable =>
+      'No podemos leer la información de recuperación guardada en este dispositivo. Puedes consultar tu cuenta; añadir direcciones está en pausa. Vuelve a intentar para recuperar el acceso sin borrar datos.';
+
+  @override
+  String get customerAddressVerify => 'Verificar';
+
+  @override
+  String get customerAddressCloseEditor => 'Cerrar';
+
+  @override
+  String get customerAddressSending =>
+      'Guardando. Cerrar el editor no cancela el guardado.';
 }

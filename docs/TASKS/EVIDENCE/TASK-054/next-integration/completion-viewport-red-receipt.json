@@ -1,0 +1,616 @@
+{
+  "schema": "task054.viewport-projection.synthetic-probe.v1",
+  "generatedAtUtc": "2026-10-08T21:16:04.954482+00:00",
+  "sourceCandidate": "9fe418a95defd0a5b595e4c2b5604d5c70ac509f",
+  "scope": "Synthetic Flutter host geometry and constraint diagnostic; no OS IME replica, native device, live backend or source patch.",
+  "exactHarnessFunctionMirror": true,
+  "originalHarnessFragmentSha256": "0b3ed230fe3d86af46d9415a7a5538ba6c233ac07493a6829c1ac71e7318a21b",
+  "productionReviewsSha256": "84adcbf5950bb9bcd4fca9e9498d3627bc8c89d7d248c4fc4d764911047e3e5d",
+  "commands": [
+    {
+      "command": "flutter test --no-pub /private/tmp/task054-viewport-probe-20261008/viewport_projection_probe_test.dart --reporter expanded --concurrency=1",
+      "exitCode": 1,
+      "pass": 4,
+      "fail": 1,
+      "meaning": "Expected RED for exact original harness inset mismatch; counterfactual and fullscreen controls passed."
+    },
+    {
+      "command": "flutter test --no-pub /private/tmp/task054-viewport-probe-20261008/reviews_synthetic_constraint_probe_test.dart --reporter expanded --concurrency=1",
+      "exitCode": 1,
+      "pass": 2,
+      "fail": 2,
+      "meaning": "Centered original and genuinely small fullscreen constraint123 overflow; projected centered and fullscreen inset300 pass."
+    }
+  ],
+  "historicalProbeSetupFailure": {
+    "file": "reviews-initial-setup-error.log",
+    "exitCode": 1,
+    "pass": 1,
+    "fail": 1,
+    "meaning": "Inset applied before opening dialog caused unmounted CTA. Probe setup corrected to open first then set synthetic inset after enterText/showKeyboard. Not accepted as product RED; original exploratory source superseded."
+  },
+  "observations": [
+    {
+      "id": "centered-original-RED",
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+      "parent": {
+        "width": 400.0,
+        "height": 900.0
+      },
+      "globalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 300.0
+      },
+      "globalViewPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 34.0
+      },
+      "globalPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 0.0
+      },
+      "viewportRect": {
+        "left": 40.0,
+        "top": 166.0,
+        "right": 360.0,
+        "bottom": 734.0,
+        "width": 320.0,
+        "height": 568.0
+      },
+      "actualLocalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 300.0
+      },
+      "actualLocalViewPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 34.0
+      },
+      "actualLocalPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 0.0
+      },
+      "expectedLocalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 134.0
+      },
+      "expectedLocalViewPadding": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "bottomOcclusionIntersection": {
+        "left": 40.0,
+        "top": 600.0,
+        "right": 360.0,
+        "bottom": 734.0,
+        "width": 320.0,
+        "height": 134.0
+      },
+      "source": "exact_current_harness_mirror"
+    },
+    {
+      "id": "centered-counterfactual",
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+      "parent": {
+        "width": 400.0,
+        "height": 900.0
+      },
+      "globalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 300.0
+      },
+      "globalViewPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 34.0
+      },
+      "globalPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 0.0
+      },
+      "viewportRect": {
+        "left": 40.0,
+        "top": 166.0,
+        "right": 360.0,
+        "bottom": 734.0,
+        "width": 320.0,
+        "height": 568.0
+      },
+      "actualLocalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 134.0
+      },
+      "actualLocalViewPadding": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "actualLocalPadding": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "expectedLocalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 134.0
+      },
+      "expectedLocalViewPadding": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "bottomOcclusionIntersection": {
+        "left": 40.0,
+        "top": 600.0,
+        "right": 360.0,
+        "bottom": 734.0,
+        "width": 320.0,
+        "height": 134.0
+      },
+      "source": "counterfactual_only"
+    },
+    {
+      "id": "small-fullscreen-original",
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+      "parent": {
+        "width": 320.0,
+        "height": 568.0
+      },
+      "globalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 300.0
+      },
+      "globalViewPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 34.0
+      },
+      "globalPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 0.0
+      },
+      "viewportRect": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 320.0,
+        "bottom": 568.0,
+        "width": 320.0,
+        "height": 568.0
+      },
+      "actualLocalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 300.0
+      },
+      "actualLocalViewPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 34.0
+      },
+      "actualLocalPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 0.0
+      },
+      "expectedLocalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 300.0
+      },
+      "expectedLocalViewPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 34.0
+      },
+      "bottomOcclusionIntersection": {
+        "left": 0.0,
+        "top": 268.0,
+        "right": 320.0,
+        "bottom": 568.0,
+        "width": 320.0,
+        "height": 300.0
+      },
+      "source": "exact_current_harness_mirror"
+    },
+    {
+      "id": "small-fullscreen-counterfactual",
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+      "parent": {
+        "width": 320.0,
+        "height": 568.0
+      },
+      "globalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 300.0
+      },
+      "globalViewPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 34.0
+      },
+      "globalPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 0.0
+      },
+      "viewportRect": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 320.0,
+        "bottom": 568.0,
+        "width": 320.0,
+        "height": 568.0
+      },
+      "actualLocalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 300.0
+      },
+      "actualLocalViewPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 34.0
+      },
+      "actualLocalPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 0.0
+      },
+      "expectedLocalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 300.0
+      },
+      "expectedLocalViewPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 34.0
+      },
+      "bottomOcclusionIntersection": {
+        "left": 0.0,
+        "top": 268.0,
+        "right": 320.0,
+        "bottom": 568.0,
+        "width": 320.0,
+        "height": 300.0
+      },
+      "source": "counterfactual_only"
+    },
+    {
+      "id": "centered-full-occlusion-counterfactual",
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+      "parent": {
+        "width": 400.0,
+        "height": 900.0
+      },
+      "globalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 800.0
+      },
+      "globalViewPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 34.0
+      },
+      "globalPadding": {
+        "left": 30.0,
+        "top": 44.0,
+        "right": 16.0,
+        "bottom": 0.0
+      },
+      "viewportRect": {
+        "left": 40.0,
+        "top": 166.0,
+        "right": 360.0,
+        "bottom": 734.0,
+        "width": 320.0,
+        "height": 568.0
+      },
+      "actualLocalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 568.0
+      },
+      "actualLocalViewPadding": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "actualLocalPadding": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "expectedLocalInsets": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 568.0
+      },
+      "expectedLocalViewPadding": {
+        "left": 0.0,
+        "top": 0.0,
+        "right": 0.0,
+        "bottom": 0.0
+      },
+      "bottomOcclusionIntersection": {
+        "left": 40.0,
+        "top": 166.0,
+        "right": 360.0,
+        "bottom": 734.0,
+        "width": 320.0,
+        "height": 568.0
+      },
+      "source": "counterfactual_only"
+    },
+    {
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+      "id": "centered-original-123",
+      "projected": false,
+      "globalSyntheticInset": 397.0,
+      "parentWidth": 400.0,
+      "parentHeight": 900.0,
+      "localInset": 397.0,
+      "dialogColumns": [
+        {
+          "width": 240.0,
+          "height": 123.0,
+          "constraints": "BoxConstraints(w=240.0, 0.0<=h<=123.0)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "stretch"
+        },
+        {
+          "width": 240.0,
+          "height": 564.0,
+          "constraints": "BoxConstraints(w=240.0, 0.0<=h<=Infinity)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "stretch"
+        },
+        {
+          "width": 224.0,
+          "height": 388.0,
+          "constraints": "BoxConstraints(w=224.0, 0.0<=h<=Infinity)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "center"
+        }
+      ],
+      "error": "A RenderFlex overflowed by 29 pixels on the bottom.",
+      "fieldHitTestableBeforeReveal": false,
+      "themePlatform": "android"
+    },
+    {
+      "id": "centered-original-123",
+      "projected": false,
+      "fieldHitTestableAfterReveal": false,
+      "draft": "Comentario sint\u00e9tico conservado despu\u00e9s de un error de env\u00edo.",
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica"
+    },
+    {
+      "id": "centered-original-123",
+      "submitHitTestable": true,
+      "submitHeight": 80.0,
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica"
+    },
+    {
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+      "id": "centered-projected-289",
+      "projected": true,
+      "globalSyntheticInset": 397.0,
+      "parentWidth": 400.0,
+      "parentHeight": 900.0,
+      "localInset": 231.0,
+      "dialogColumns": [
+        {
+          "width": 240.0,
+          "height": 289.0,
+          "constraints": "BoxConstraints(w=240.0, 0.0<=h<=289.0)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "stretch"
+        },
+        {
+          "width": 240.0,
+          "height": 564.0,
+          "constraints": "BoxConstraints(w=240.0, 0.0<=h<=Infinity)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "stretch"
+        },
+        {
+          "width": 224.0,
+          "height": 388.0,
+          "constraints": "BoxConstraints(w=224.0, 0.0<=h<=Infinity)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "center"
+        }
+      ],
+      "error": null,
+      "fieldHitTestableBeforeReveal": false,
+      "themePlatform": "android"
+    },
+    {
+      "id": "centered-projected-289",
+      "projected": true,
+      "fieldHitTestableAfterReveal": true,
+      "draft": "Comentario sint\u00e9tico conservado despu\u00e9s de un error de env\u00edo.",
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica"
+    },
+    {
+      "id": "centered-projected-289",
+      "submitHitTestable": true,
+      "submitHeight": 80.0,
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica"
+    },
+    {
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+      "id": "small-fullscreen-123",
+      "projected": true,
+      "globalSyntheticInset": 397.0,
+      "parentWidth": 320.0,
+      "parentHeight": 568.0,
+      "localInset": 397.0,
+      "dialogColumns": [
+        {
+          "width": 240.0,
+          "height": 123.0,
+          "constraints": "BoxConstraints(w=240.0, 0.0<=h<=123.0)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "stretch"
+        },
+        {
+          "width": 240.0,
+          "height": 564.0,
+          "constraints": "BoxConstraints(w=240.0, 0.0<=h<=Infinity)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "stretch"
+        },
+        {
+          "width": 224.0,
+          "height": 388.0,
+          "constraints": "BoxConstraints(w=224.0, 0.0<=h<=Infinity)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "center"
+        }
+      ],
+      "error": "A RenderFlex overflowed by 29 pixels on the bottom.",
+      "fieldHitTestableBeforeReveal": false,
+      "themePlatform": "android"
+    },
+    {
+      "id": "small-fullscreen-123",
+      "projected": true,
+      "fieldHitTestableAfterReveal": false,
+      "draft": "Comentario sint\u00e9tico conservado despu\u00e9s de un error de env\u00edo.",
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica"
+    },
+    {
+      "id": "small-fullscreen-123",
+      "submitHitTestable": true,
+      "submitHeight": 80.0,
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica"
+    },
+    {
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica",
+      "id": "small-fullscreen-220",
+      "projected": true,
+      "globalSyntheticInset": 300.0,
+      "parentWidth": 320.0,
+      "parentHeight": 568.0,
+      "localInset": 300.0,
+      "dialogColumns": [
+        {
+          "width": 240.0,
+          "height": 220.0,
+          "constraints": "BoxConstraints(w=240.0, 0.0<=h<=220.0)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "stretch"
+        },
+        {
+          "width": 240.0,
+          "height": 564.0,
+          "constraints": "BoxConstraints(w=240.0, 0.0<=h<=Infinity)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "stretch"
+        },
+        {
+          "width": 224.0,
+          "height": 388.0,
+          "constraints": "BoxConstraints(w=224.0, 0.0<=h<=Infinity)",
+          "mainAxisSize": "min",
+          "crossAxisAlignment": "center"
+        }
+      ],
+      "error": null,
+      "fieldHitTestableBeforeReveal": false,
+      "themePlatform": "android"
+    },
+    {
+      "id": "small-fullscreen-220",
+      "projected": true,
+      "fieldHitTestableAfterReveal": true,
+      "draft": "Comentario sint\u00e9tico conservado despu\u00e9s de un error de env\u00edo.",
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica"
+    },
+    {
+      "id": "small-fullscreen-220",
+      "submitHitTestable": true,
+      "submitHeight": 80.0,
+      "scope": "synthetic_constraint_diagnostic_not_OS_IME_replica"
+    }
+  ],
+  "nativeEvidence": {
+    "sourceLog": "/private/tmp/task054-ios-completion-20261008/final-ci-smoke-hosted.log",
+    "lineStart": 16335,
+    "lineEnd": 16427,
+    "observedOuterFlex": "240x123 vertical/min/stretch",
+    "overflowPixels": 24,
+    "failureStage": "_reveal TextField after enterText/showKeyboard",
+    "imeInsets": "NOT_RECORDED",
+    "devicePixelRatio": "NOT_RECORDED"
+  },
+  "limits": [
+    "Synthetic raw inset397 is derived solely as 568-48-123; not measured iOS IME.",
+    "Host production-dialog probe uses Android theme and Roboto, with overflow29 rather than native24.",
+    "Geometry RED establishes a harness projection defect. Native causal attribution remains unproven.",
+    "Small fullscreen inset397 exposes separate production-dialog robustness limit under that synthetic local occlusion. No app fix or native acceptance claimed."
+  ],
+  "files": {
+    "original_compact_viewport.dart": "edf35f3b8000351dbc1aab3c98d2fdb05bd231a2569c6eb23accf4677b30b855",
+    "viewport_projection_probe_test.dart": "dd1c32283bac1915765bb3062473be402a03f2e6870fb1ca407c72c2b12c7724",
+    "viewport-projection.log": "c6aca950df8a7f16d9d7e4c70ac730860ca71bcfa8e109da1a8f914dd0818021",
+    "reviews_synthetic_constraint_probe_test.dart": "3670c6046f7b55b3bb62bfac6ba06a600976f036757c4126f4d9e122271705c8",
+    "reviews-synthetic-constraint.log": "8d66d011fd5accb81493688ec9593147789d0c2be06b14de72d7ca00d7f552f1",
+    "reviews-initial-setup-error.log": "693827b75a8c6d0b6aaca7fd81af76d4cc409f99f113015470c7509148baccb1"
+  },
+  "processes": "All three own Flutter invocations terminal; no native process started."
+}

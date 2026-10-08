@@ -1,0 +1,191 @@
+{
+  "admin_commit": "82af13ef0005ecfb767809bd362327e91692b5ba",
+  "database": "cmc_task054_verified",
+  "scope": "local_synthetic_not_staging",
+  "tests": [
+    {
+      "suite": "storefront_v1_schema_rls",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 49,
+      "failures": [],
+      "source_sha256": "839fc7ebc255ca875a7bd87acd95d1c67f94c7f2f560e9e27efd595f8d892c51"
+    },
+    {
+      "suite": "storefront_v1_catalog_projection",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 48,
+      "failures": [],
+      "source_sha256": "55cf8b7aef106ef1c0e1c155f6df97e7b8c671254b717b909001ed3817e421b5"
+    },
+    {
+      "suite": "storefront_v1_public_api",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 53,
+      "failures": [],
+      "source_sha256": "f73269f42ae74b122f11bcb3524aea261bc7a120e744907e54819c7a168b015c"
+    },
+    {
+      "suite": "storefront_v1_admin_publications",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 56,
+      "failures": [],
+      "source_sha256": "779dcea42a8d2c8ad677d6c0e83adc41c945fd67fe2ee911bf2c8ab92a24c577"
+    },
+    {
+      "suite": "storefront_v1_admin_promotions",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 23,
+      "failures": [],
+      "source_sha256": "ef7dff61f3577ea2db5712f028f3e0713b5d92b15a0eec3a46db2fd065621f40"
+    },
+    {
+      "suite": "storefront_v1_admin_images",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 43,
+      "failures": [],
+      "source_sha256": "ed48f2fc669bc6f9d1278a24c3dae6ed87d57aa0f7d2f54a1ab23f61623bad09"
+    },
+    {
+      "suite": "storefront_v1_catalog_performance",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 3,
+      "failures": [],
+      "source_sha256": "32f21dd51ac70e4fac2040e14d782ca15eff82e5d2710255c33d82f13d8dce13"
+    },
+    {
+      "suite": "storefront_v1_customer_profiles_addresses",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 64,
+      "failures": [],
+      "source_sha256": "3996bbdee951b6d7521186ef6cf70f527028a7477b906bc6783b0a158d2fd2f6"
+    },
+    {
+      "suite": "storefront_v1_customer_devices",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 58,
+      "failures": [],
+      "source_sha256": "928955270e0c640bb4a332b64c17b4561185ef5dc769213b4e24f773bd59391b"
+    },
+    {
+      "suite": "storefront_v1_customer_cart",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 98,
+      "failures": [],
+      "source_sha256": "1562210d22a862e3c6fb8654512a5e57160adade63dbcd2aabd5a4c55815b973"
+    },
+    {
+      "suite": "storefront_v1_public_availability",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 44,
+      "failures": [],
+      "source_sha256": "e84790e460d45bfa8cd55b362ff694ca375a723173ffeb18040f78e50d0d5958"
+    },
+    {
+      "suite": "storefront_v1_reservation_holds",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 54,
+      "failures": [],
+      "source_sha256": "f71454966ea26cf11b934dbb36184cc4a11c157323b444a3a9b594da63dadc2a"
+    },
+    {
+      "suite": "storefront_v1_checkout_fulfillment",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 57,
+      "failures": [],
+      "source_sha256": "8a9bf3e9493659787b331da59283f27f39c8e4dcc7ec3ba93c0d69eacda5845e"
+    },
+    {
+      "suite": "storefront_v1_customer_orders",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 35,
+      "failures": [],
+      "source_sha256": "472790b6299a36ff10216540f1d5b7c77dc04edca02f80a5032fa0263b326c83"
+    },
+    {
+      "suite": "storefront_v1_customer_order_history",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 30,
+      "failures": [],
+      "source_sha256": "2ee1aae9cf2851879737ecd64fbb74813d96d1b7653428642458b5cc73433bb6"
+    },
+    {
+      "suite": "storefront_v1_admin_orders",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 34,
+      "failures": [],
+      "source_sha256": "cc99a3e3de20db972a1b09fc0ecba665d2766c923a1a86bf0ddbffa089eacebb"
+    },
+    {
+      "suite": "storefront_v1_pos_order_handoff",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 40,
+      "failures": [],
+      "source_sha256": "63e4651ec8260878617ebe2f72fae91d9067e2f581edb2540776582a294539c0"
+    },
+    {
+      "suite": "storefront_v1_order_notifications",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 41,
+      "failures": [],
+      "source_sha256": "3c9b0f69e9ced129d53ff13761091998e0564fe2122e90689467d0d469326f0d"
+    },
+    {
+      "suite": "storefront_v1_customer_payments",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 37,
+      "failures": [],
+      "source_sha256": "1911fa42996dd303c99c674b039ced309a484aaf9bc7a58d77e9fe403700a07f"
+    },
+    {
+      "suite": "storefront_v1_milestone4_e2e",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 40,
+      "failures": [],
+      "source_sha256": "8d77387a027304fb8fafe2aee25578139e184ee31b99ba4f58a6bdac2ce47cf5"
+    },
+    {
+      "suite": "storefront_delivery_tracking_v1",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 60,
+      "failures": [],
+      "source_sha256": "122c2189e034af39bf4c05d04ec24eb1b2c335ff7606e0578924d6b2293a8b06"
+    },
+    {
+      "suite": "storefront_v1_customer_timezone",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 13,
+      "failures": [],
+      "source_sha256": "6d2f39a42aac877c28c6f25dd6a11b4660b1de7f858f0ac94b6ed733128b629b"
+    },
+    {
+      "suite": "client_commerce_journey_v1",
+      "exit_code": 0,
+      "result": "PASS",
+      "assertions": 55,
+      "failures": [],
+      "source_sha256": "d49c46336e4006d9ced06df99b0e1e1916178f1486e2056d28d4c650f8c826ea"
+    }
+  ]
+}

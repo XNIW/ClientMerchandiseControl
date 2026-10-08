@@ -1,0 +1,429 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-04T19:32:02.855323+00:00",
+  "client_base": "34c079befd065e2007c06a7bceb0895cde1fd67a",
+  "admin_source": "82af13ef0005ecfb767809bd362327e91692b5ba",
+  "target_test": "jpgoimipbothfgkokyvm",
+  "remote_changes_by_this_lane": false,
+  "remote_contract": {
+    "result": "FAIL",
+    "scope": "readonly_metadata_not_authenticated_behavior",
+    "observed_at": "2026-10-04T19:11:15.007271+00:00",
+    "history_count": 155,
+    "latest_migration": "20261002180757",
+    "required_rpcs": 55,
+    "present_compatible_rpcs": 32,
+    "missing_rpcs": 23,
+    "required_indexes": 2,
+    "present_indexes": 1,
+    "missing_migrations": [
+      "20260823023037",
+      "20260823150000",
+      "20260928200000"
+    ],
+    "gate_exit_code": 1
+  },
+  "catalog_parity": {
+    "result": "PASS",
+    "scope": "current_readonly_metadata_vs_derived_local_schema",
+    "categories": {
+      "views": {
+        "remote": {
+          "md5": "bbf322487f27ed376b15c524e978a8fd",
+          "count": 5
+        },
+        "local": {
+          "md5": "bbf322487f27ed376b15c524e978a8fd",
+          "count": 5
+        },
+        "match": true
+      },
+      "tables": {
+        "remote": {
+          "md5": "c6e3352466ef3d1e4592ed61c08fe931",
+          "count": 120
+        },
+        "local": {
+          "md5": "c6e3352466ef3d1e4592ed61c08fe931",
+          "count": 120
+        },
+        "match": true
+      },
+      "columns": {
+        "remote": {
+          "md5": "529aab4ac12263154d0bbec4dc07c3ac",
+          "count": 1616
+        },
+        "local": {
+          "md5": "529aab4ac12263154d0bbec4dc07c3ac",
+          "count": 1616
+        },
+        "match": true
+      },
+      "indexes": {
+        "remote": {
+          "md5": "172f8f40a682ce6a1debfd7d3cd3eb6f",
+          "count": 458
+        },
+        "local": {
+          "md5": "172f8f40a682ce6a1debfd7d3cd3eb6f",
+          "count": 458
+        },
+        "match": true
+      },
+      "policies": {
+        "remote": {
+          "md5": "9fc78e0577b8313b7efc651a00eb4c91",
+          "count": 86
+        },
+        "local": {
+          "md5": "9fc78e0577b8313b7efc651a00eb4c91",
+          "count": 86
+        },
+        "match": true
+      },
+      "triggers": {
+        "remote": {
+          "md5": "23d102c628134c944ea5d54bc83f6c60",
+          "count": 155
+        },
+        "local": {
+          "md5": "23d102c628134c944ea5d54bc83f6c60",
+          "count": 155
+        },
+        "match": true
+      },
+      "functions": {
+        "remote": {
+          "md5": "ea86ad5e9b2623801794641c17dad98a",
+          "count": 615
+        },
+        "local": {
+          "md5": "ea86ad5e9b2623801794641c17dad98a",
+          "count": 615
+        },
+        "match": true
+      },
+      "constraints": {
+        "remote": {
+          "md5": "083033a8b9983fc31d544b67728bb396",
+          "count": 1014
+        },
+        "local": {
+          "md5": "083033a8b9983fc31d544b67728bb396",
+          "count": 1014
+        },
+        "match": true
+      }
+    }
+  },
+  "canonical_package": {
+    "result": "PASS",
+    "source": "82af13ef0005ecfb767809bd362327e91692b5ba",
+    "migrations": [
+      {
+        "version": "20260823023037",
+        "sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+        "bytes": 149375
+      },
+      {
+        "version": "20260823150000",
+        "sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467",
+        "bytes": 8028
+      },
+      {
+        "version": "20260928200000",
+        "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e",
+        "bytes": 697
+      }
+    ],
+    "remote_registry_count": 155,
+    "canonical_sources": 158,
+    "manifest_sha256": "d51b17775e9906eff711bf2688e680524e58433ae904ddff17c54319f6af3589",
+    "source_registry_index_sha256": "bdea1937baafbe75d572309a3ff5d2e107a5c4ffe8ab9666597ca5bf8936fdc7",
+    "verification": {
+      "status": "PASS",
+      "type": "STATIC_LOCAL_PACKAGE",
+      "checks": [
+        {
+          "name": "revision_pinned",
+          "status": "PASS",
+          "detail": "82af13ef0005ecfb767809bd362327e91692b5ba"
+        },
+        {
+          "name": "git_revision_available",
+          "status": "PASS",
+          "detail": "82af13ef0005ecfb767809bd362327e91692b5ba"
+        },
+        {
+          "name": "index_hash",
+          "status": "PASS",
+          "detail": "bdea1937baafbe75d572309a3ff5d2e107a5c4ffe8ab9666597ca5bf8936fdc7"
+        },
+        {
+          "name": "exact_remote_metadata_snapshot",
+          "status": "PASS",
+          "detail": {
+            "sha256": "2e18affc3e2893180e512f5f24b72ae00a6e4213ab711e818b67854efb5bcac2",
+            "observed_at": "2026-10-04T19:12:25.55859+00:00"
+          }
+        },
+        {
+          "name": "complete_source_index",
+          "status": "PASS",
+          "detail": {
+            "count": 158
+          }
+        },
+        {
+          "name": "all_source_sha_blob_bytes",
+          "status": "PASS",
+          "detail": {
+            "mismatches": []
+          }
+        },
+        {
+          "name": "complete_remote_mapping",
+          "status": "PASS",
+          "detail": {
+            "remote_count": 155
+          }
+        },
+        {
+          "name": "unique_version_name_or_attested_alias",
+          "status": "PASS",
+          "detail": {
+            "mismatches": []
+          }
+        },
+        {
+          "name": "exact_minimal_pending",
+          "status": "PASS",
+          "detail": [
+            "20260823023037",
+            "20260823150000",
+            "20260928200000"
+          ]
+        },
+        {
+          "name": "three_files_only",
+          "status": "PASS",
+          "detail": {
+            "count": 3
+          }
+        },
+        {
+          "name": "minimal_payload_exact_bytes_order_dependencies",
+          "status": "PASS",
+          "detail": {
+            "mismatches": []
+          }
+        },
+        {
+          "name": "prior_baseline_already_mapped",
+          "status": "PASS",
+          "detail": {
+            "count": 141
+          }
+        },
+        {
+          "name": "task142_service_alias_hash",
+          "status": "PASS",
+          "detail": {
+            "source": "20260727055520",
+            "service": "20260727084040"
+          }
+        },
+        {
+          "name": "price_service_mapping_exact_bytes",
+          "status": "PASS",
+          "detail": {
+            "source": "20261002002517",
+            "service": "20261002005414"
+          }
+        },
+        {
+          "name": "historical_rename_byte_parity",
+          "status": "PASS",
+          "detail": {
+            "count": 11,
+            "mismatches": []
+          }
+        },
+        {
+          "name": "no_runtime_claim_or_apply",
+          "status": "PASS",
+          "detail": {
+            "apply": "NOT_RUN",
+            "mode": "prepared_readonly_no_apply"
+          }
+        }
+      ],
+      "remote_apply": "NOT_RUN",
+      "runtime_acceptance": "NOT_RUN"
+    }
+  },
+  "sql_validation": {
+    "result": "PASS",
+    "exit_code": 0,
+    "scope": "local_synthetic_isolated",
+    "suites": 23,
+    "assertions": 1035
+  },
+  "local_contract": {
+    "result": "PASS",
+    "exit_code": 0,
+    "scope": "snapshot_only_local_synthetic",
+    "rpcs": 55,
+    "indexes": 2,
+    "history": 158
+  },
+  "local_combined_recovery": {
+    "result": "PASS",
+    "exit_code": 0,
+    "scope": "local_synthetic_same_db",
+    "history": "155 -> 158 -> 155",
+    "baseline_history_is_synthetic": true,
+    "shared_table_digests": 6,
+    "results": [
+      {
+        "label": "negative-sharedwrite",
+        "exit_code": 3,
+        "result": "PASS",
+        "detail": "rejected atomically; metadata unchanged"
+      },
+      {
+        "label": "negative-newdata",
+        "exit_code": 3,
+        "result": "PASS",
+        "detail": "rejected atomically; metadata unchanged"
+      },
+      {
+        "label": "storage-direct-delete-negative",
+        "exit_code": 3,
+        "result": "PASS",
+        "detail": "original guard rejected SQL delete"
+      },
+      {
+        "label": "storage-delete-api",
+        "exit_code": 0,
+        "result": "PASS",
+        "detail": {
+          "delete_status": 200,
+          "readback_status": 400,
+          "readback_body_status": "404",
+          "buckets": 0,
+          "objects": 0
+        }
+      },
+      {
+        "label": "inverse-catalog-and-acl",
+        "exit_code": 0,
+        "result": "PASS",
+        "detail": {
+          "categories": {
+            "tables": 130,
+            "columns": 1701,
+            "constraints": 1033,
+            "indexes": 480,
+            "triggers": 159,
+            "policies": 86,
+            "functions": 632
+          },
+          "before_sha256": "4a6a2a7b1141c19df663f36daf7dfa2dcab4fa1cadc80061720af9bae2281db7",
+          "restored_sha256": "4a6a2a7b1141c19df663f36daf7dfa2dcab4fa1cadc80061720af9bae2281db7"
+        }
+      },
+      {
+        "label": "history155-and-synthetic-row-digests",
+        "exit_code": 0,
+        "result": "PASS",
+        "detail": {
+          "history": "155 -> 158 -> 155",
+          "baseline_history_is_synthetic": true,
+          "shared_table_digest_count": 6
+        }
+      },
+      {
+        "label": "local-cli-dry-run-exact3",
+        "exit_code": 0,
+        "result": "PASS",
+        "detail": {
+          "pending": [
+            "20260823023037",
+            "20260823150000",
+            "20260928200000"
+          ],
+          "scope": "local_synthetic_registry_only"
+        }
+      }
+    ]
+  },
+  "remote_dry_run": {
+    "result": "NOT_RUN",
+    "reason": "no authorized database TLS service/connection; metadata index prepared only"
+  },
+  "shared_apply": {
+    "result": "BLOCKED",
+    "reason": "writer/cron exclusion window not attested; fresh remote recovery data capability not established",
+    "cron_active": 4,
+    "backup_count": 0,
+    "pitr_enabled": false,
+    "resources": [
+      "jpgoimipbothfgkokyvm",
+      "CMC_BACKEND_PGSERVICE",
+      "authorized TEST artifact config",
+      "commerce writer/cron exclusion window"
+    ],
+    "owners": [
+      "backend/release owner",
+      "Admin TASK159 coordinator",
+      "Client TASK054 coordinator"
+    ]
+  },
+  "authenticated_staging_behavior": {
+    "result": "NOT_RUN",
+    "reason": "canonical3 not applied; no approved authenticated customer/operator fixture consumed"
+  },
+  "tls_live_gate": {
+    "result": "BLOCKED",
+    "reason": "CMC_BACKEND_PGSERVICE and verified artifact config absent; MCP metadata cannot substitute direct TLS gate"
+  },
+  "evidence_hashes": {
+    "remote-contract-snapshot.json": "8e220c4776a04570f8c10e74ff2c2b60c462430f6063fc44c61136e2b5c32392",
+    "remote-registry-preflight.json": "2e18affc3e2893180e512f5f24b72ae00a6e4213ab711e818b67854efb5bcac2",
+    "remote-catalog-fingerprint.json": "a6039b3c9cd5ee48fd47b929c7925b1ad296b7d79ad06f442f1f33a6263b451b",
+    "catalog-parity.json": "ca3568de641eb857e2e8ac3da15817ec3d6800b14e9f1ebe4053595d5442f8b9",
+    "remote-aggregate-preflight.json": "653d81cb8d386892c640eadc2451033271c324f7223e489709a55b8f51f6e8be",
+    "sql-validation-receipt.json": "a64481ee90740f0e7e6f14e36da6f88050970d674dbfce28e116080419af168e",
+    "recovery-current-receipt.json": "2072b31c82ee30d7da1447ade9ed354ebb8318f7a3278180d8af7af3ea39728a",
+    "history155-before.json": "2c297182a2dfa710e793fe5a3d373fb2a6ad23ec451ef3f28c34416d20b00cb6",
+    "history155-restored.json": "2c297182a2dfa710e793fe5a3d373fb2a6ad23ec451ef3f28c34416d20b00cb6",
+    "rows-before.json": "dfa61fe379bd9ceb72c1986a7210452827fee9395c00a676d15eba7aa8041813",
+    "rows-restored.json": "dfa61fe379bd9ceb72c1986a7210452827fee9395c00a676d15eba7aa8041813",
+    "inverse-current-local.sql": "459ce92797418d7e0036a97c1e6879bde05f0b4219baa765820ba11fdad1f699",
+    "storage-delete-api-receipt.json": "44ae5770b9e881090d4e4e9c9ece8fd783d40c41978b35a020bad6507d97624d",
+    "preserved-bootstrap-failures.json": "ff908ccd2959d84238a021bf98b09cab14ad0b2a98fba3111a1e5471e645e043",
+    "cleanup-receipt.json": "bf4b78ad2ce2985fa4092f6f700083eef481213529e85ad1240229906707c583",
+    "backend-summary.md": "f8b9464f17926f425eaebd6a86aa87bae51ef3fab93d4ff08586ee83044d8c90"
+  },
+  "cleanup": {
+    "at_utc": "2026-10-04T19:33:19.053870+00:00",
+    "cleanup": [
+      {
+        "own_container": "cmc-task054-storage-next-20261004",
+        "exit_code": 0
+      },
+      {
+        "own_container": "cmc-task054-backend-next-20261004",
+        "exit_code": 0
+      }
+    ],
+    "other_containers_touched": false,
+    "shared_remote_changes": false,
+    "verification_processes_pending": false,
+    "scope": "own_resources_only"
+  },
+  "client_manifest_sha256": "ea1ff64adac1ea08fede123efb4a92d1d3a36624cd9617b54dd90d38a2bef008",
+  "client_revision_note": "Commit osservato in questa lane; candidato finale e dirty source sono responsabilita del writer root. Nessuna approvazione del candidato e assegnata."
+}

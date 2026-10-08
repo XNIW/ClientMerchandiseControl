@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "reviewer": "/root/review_evidence_ci",
+  "fix_revision": "dccffc54f79a0322b291bcaf6958866a9b25dbcc",
+  "fix_parent": "3c91e3b77dd9b55409692caec703cdf0490b0bcd",
+  "scope": "BECI-01 cleanup finding resolution; not aggregate candidate approval",
+  "finding": "BECI-01",
+  "severity": "P2",
+  "finding_status": "FIXED_VALIDATED",
+  "new_findings": 0,
+  "aggregate_review": "NOT_RUN pending composed root freeze and real CI/capture",
+  "verifications": [
+    {
+      "command": "python3 scripts/test-task054-android-runner.py",
+      "worktree": "task054-android-ci",
+      "exit_code": 0,
+      "result": "PASS",
+      "count": 23,
+      "scope": "19previous plus timeout/receipt and emulator SDK preflight regressions"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 build/task054/review-evidence-ci/group_cleanup_repro_dccffc54.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "observed": {
+        "runner_exit": 0,
+        "cleanup": "PASS",
+        "leader_exit": -15,
+        "owned_descendant_alive": false,
+        "descendant_state": ""
+      },
+      "scope": "two real Python processes only; finally only ownPGID; adaptation accepts gone/reaped child and points to fixed source"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 build/task054/review-evidence-ci/probe_timeout_repro_3c91e3b.py",
+      "exit_code": 0,
+      "result": "PASS",
+      "observed": {
+        "primary_code_expected": 7,
+        "returned_code": 7,
+        "escaped_exception": null,
+        "receipt_exists": true
+      },
+      "scope": "same narrow fake probe timeout; filename marks regression origin, current imported source isdccffc54"
+    }
+  ],
+  "fix_effect": "Whole ownPGID live membership checked before leader reaping; SIGTERM/SIGKILL bounded5s each; zombie-only considered quiescent, invalid or timedout probe fails closed and preserves primaryfailure/receipt. Emulator installed before post-install availability probe in existing180s SDK command.",
+  "unchanged_limits": {
+    "sdk_install_seconds": 180,
+    "drive_seconds": 900,
+    "ci_android_minutes": 25,
+    "jobs": 5
+  },
+  "source_hashes": {
+    "scripts/run-task054-android-visual.py": "05fa702e3af9d92370787a3cee9f563fcb21455cc922ff6eac0e3e64eb3a25bf",
+    "scripts/test-task054-android-runner.py": "8fbcf7ddc21615fc1928a0808dc4ff51e917bfeb78946d8e20368549c09d5fe1"
+  },
+  "repro_hashes": {
+    "group_cleanup_repro_dccffc54.py": "dbb02dd19ea48898ee8448890f90604023d63783f559123765e8f6b21b076217",
+    "probe_timeout_repro_3c91e3b.py": "f3fb8f9ae0fe6e2b5701ff62854969ccd3c143f770e314e676ba9093cb5051e5"
+  },
+  "pending_owned_processes": false,
+  "native_or_remote_operations": false
+}

@@ -1,0 +1,161 @@
+{
+  "changed": {
+    "ios_physical_availability": {
+      "checked_at_utc": "2026-10-05T16:30:12.019893+00:00",
+      "command": "xcrun xcdevice list",
+      "current_available": true,
+      "current_error_code": null,
+      "current_interface": "network",
+      "exit_code": 0,
+      "model": "iPhone 15 Pro Max",
+      "previous_available": false,
+      "previous_error_code": -27,
+      "previous_interface": "usb",
+      "scope": "DEVICE_INVENTORY_ONLY;NO_AUTH_OR_BUSINESS_SMOKE"
+    }
+  },
+  "created_at_utc": "2026-10-05T16:37:14.735239+00:00",
+  "diagnostic_attempt": {
+    "command": "rg on docs/RUNBOOKS",
+    "exit_code": 2,
+    "reason": "PATH_ABSENT",
+    "resolution": "rg --files located docs/releases; targeted docs search/read exit0; no approved concrete external reference supplied"
+  },
+  "fresh_observation": {
+    "comparison_limit": "04 receipt did not record booted runtime; count1 unchanged, runtime26.1 is fresh observation only",
+    "ios_booted_simulator_runtime": {
+      "booted_count": 1,
+      "booted_runtime_states": [
+        {
+          "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-1",
+          "state": "Booted"
+        }
+      ],
+      "exit_code": 0
+    }
+  },
+  "fresh_receipts": [
+    "reference-presence-20261005.json",
+    "device-signing-presence-20261005.json",
+    "worker-runtime-readonly-20261005.json"
+  ],
+  "mutations": {
+    "device_or_app_control": 0,
+    "external": 0,
+    "implementation": 0,
+    "original_config": 0,
+    "owned_ignored_receipts_only": true
+  },
+  "not_run_today": {
+    "https_aasa_assetlinks": "NO_APPROVED_OWNED_HOST_REF;DO_NOT_PROBE_PLACEHOLDER_OR_CHANGE_PROVIDER",
+    "native_smoke_auth_business_distribution": "NATIVE_OWNER_LANE;INVENTORY_NOT_ACCEPTANCE",
+    "recovery_backup_pitr": "REVIEWER_BACKEND_LANE;NO_DUPLICATE_QUERY",
+    "runtime_parser": "NO_BUILD_OR_CONFIG_BODY_READ;04_REJECTION_RECEIPT_HISTORICAL",
+    "supabase_auth_config_allowlist": "NO_MANUAL_TOKEN_VALUE_READ;04_HTTP200_RECEIPT_HISTORICAL",
+    "toolchain_version_recheck": "NATIVE_OWNER_LANE;04_VERSION_RECEIPT_HISTORICAL"
+  },
+  "previous_snapshot": "config-distribution-summary.json;worker-runtime-readonly.json;config-distribution-result.md",
+  "reconfirmed": {
+    "android_inventory": {
+      "emulator_count": 1,
+      "exit_code": 0,
+      "physical_count": 0,
+      "ready_count": 1,
+      "unauthorized_count": 0
+    },
+    "approved_runtime_auth_backend_refs": {
+      "checked_at_utc": "2026-10-05T16:28:58.539148+00:00",
+      "dedicated_env_present_count": 0,
+      "default_pgpass_exists": false,
+      "default_pgservice_exists": false,
+      "github_query_exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "legacy_staging_file": "UNCHANGED_STAT_ONLY;SIZE280;MTIME20260801;BODY_NOT_READ_TODAY",
+      "named_keychain_refs": "DEDICATED_ABSENT_EXIT44;SUPABASE_CLI_METADATA_PRESENT_EXIT0;NO_VALUE_READ",
+      "repo_environment_count": 0,
+      "repo_named_secret_count": 0,
+      "repo_named_variable_count": 0,
+      "status": "BLOCKED",
+      "unblock_inputs": [
+        "approved TEST artifact config with shop and pilot references",
+        "readonly TLS CMC_BACKEND_PGSERVICE",
+        "owned HTTPS callback and redirect allowlist receipts",
+        "release owner signing and channel inputs"
+      ]
+    },
+    "backend_live_gate": {
+      "command": "python3 scripts/check-backend-compatibility.py --live",
+      "exit_code": 2,
+      "gate_source_sha256": "b42fc17b4ea16191c2602dfc845c993f6bc4e4cfb978f4615ca1f80c5e6b3d2c",
+      "observed_interval_utc": "2026-10-05T16:30:12Z..2026-10-05T16:34:04Z",
+      "sql_executed": false,
+      "status": "BLOCKED",
+      "stdout": "BACKEND_COMPATIBILITY BLOCKED prerequisite=CMC_BACKEND_PGSERVICE_and_artifact_config"
+    },
+    "release_signing_channel": {
+      "android_key_properties_exists": false,
+      "apple_development_count": 1,
+      "apple_distribution_count": 0,
+      "approved_fingerprint_team_runtime_upload_refs_present": false,
+      "checked_at_utc": "2026-10-05T16:30:12.019893+00:00",
+      "provisioning_profile_count": 0,
+      "release_uploads": "NOT_RUN;APPROVED_INPUTS_ABSENT",
+      "status": "BLOCKED"
+    },
+    "worker_source_boundary": {
+      "annotated_tree_entries": 1586,
+      "changed_since_04": false,
+      "commerce_paths_missing_from_worker_tree_present_in_remote_authority": [
+        "src/app/shop/after-sales/actions.ts",
+        "src/app/shop/after-sales/page.tsx",
+        "src/app/shop/reviews/actions.ts",
+        "src/app/shop/reviews/page.tsx",
+        "src/server/shop-admin/customer-commerce-evidence.ts",
+        "src/server/shop-admin/customer-commerce-mutations.ts",
+        "src/server/shop-admin/customer-commerce-read-model.ts"
+      ],
+      "exact_remote_binary_bytes_attestation": "NOT_RUN",
+      "index_exact_tree_match": true,
+      "index_missing_extra_blob_mode_stage_mismatches": 0,
+      "local_canonical_head": "553c4568b335ee95be31aaaea6735ed0a751879c",
+      "local_canonical_scope": "STALE_UNCHANGED_SINCE04;NOT_REMOTE_MAIN_AUTHORITY",
+      "remote_authority": "82af13ef0005ecfb767809bd362327e91692b5ba",
+      "remote_authority_command": "git ls-remote origin refs/heads/main",
+      "remote_authority_exit_code": 0,
+      "remote_authority_observed_completed_utc": "2026-10-05T16:28:42.750495+00:00",
+      "remote_authority_receipt": "/Users/minxiang/.codex/worktrees/task054-next-integration/ClientMerchandiseControl/build/task054/review-evidence-ci/refresh_20261005_admin_authority.json",
+      "required_owner_action": "TASK159 selective commerce release with source-tree -> build artifact -> active Worker version receipt; full-main deploy not authorized",
+      "selective_worktree_head": "22158297fe8fc5601cee1d681cf197bcf529ff18",
+      "source_probe_exit_code": 0,
+      "source_probe_interval_utc": "2026-10-05T16:30:57Z..2026-10-05T16:32:05Z",
+      "source_probe_owner": "/root/config_distribution/worker_tree_drift_readonly",
+      "status": "PASS_STATIC_COMPARISON;LIVE_COMMERCE_RELEASE_BLOCKED",
+      "worker_tree_to_remote_authority_delta": {
+        "added": 64,
+        "deleted": 2,
+        "modified": 21
+      }
+    },
+    "worker_test_metadata": {
+      "annotated_git_tree": "1f0679b261dde089800a3bdef7888c1f7a7b8014",
+      "annotation_is_commit": false,
+      "changed_since_04": false,
+      "checked_at_utc": "2026-10-05T16:28:58.545573+00:00",
+      "command": "python3 build/task054/config-next/probe_worker_readonly_20261005.py",
+      "deployment": "f726de06-fb79-46f5-a1b3-1d35fdc9de69",
+      "deployments_list_exit_code": 0,
+      "exit_code": 0,
+      "percentage": 100,
+      "status": "PASS",
+      "test_backend_binding_matches": true,
+      "version": "22107a6f-f515-44c4-8392-a8e5653ff0b8",
+      "version_view_exit_code": 0,
+      "worker": "merchandise-control-admin-web-staging"
+    }
+  },
+  "scope": "READONLY_DRIFT_FROM_20261004;NO_BUILD_NO_DEVICE_CONTROL_NO_SECRET_VALUES",
+  "secret_values_read": false
+}

@@ -2125,6 +2125,13 @@ class AppLocalizationsZh extends AppLocalizations {
       'No pudimos completar esta acción. Intenta nuevamente.';
 
   @override
+  String get afterSalesDestinationUnavailable =>
+      'Esta solicitud de asistencia no está disponible. Puedes consultar las demás solicitudes.';
+
+  @override
+  String get afterSalesBackToList => 'Ir a las solicitudes';
+
+  @override
   String get afterSalesSelectItem => 'Selecciona al menos un artículo.';
 
   @override
@@ -2230,6 +2237,47 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notificationsUnreadOnly => 'Solo no leídas';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle =>
+      'No hay no leídas entre las notificaciones mostradas';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'No hay notificaciones sin leer';
+
+  @override
+  String get notificationsUnreadPageHint =>
+      'Puedes buscar más notificaciones sin leer cargando las anteriores.';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage =>
+      'Vuelve a conectarte para comprobar si hay más notificaciones sin leer.';
+
+  @override
+  String get notificationsUnreadEmptyMessage =>
+      'Has leído todas las notificaciones mostradas.';
+
+  @override
+  String get notificationsUpdateFailed =>
+      'No se pudieron actualizar las notificaciones. Inténtalo de nuevo.';
+
+  @override
+  String get customerAddressUnknown =>
+      'Resultado por verificar. Verifica antes de editar.';
+
+  @override
+  String get customerAddressJournalUnavailable =>
+      'No podemos leer la información de recuperación guardada en este dispositivo. Puedes consultar tu cuenta; añadir direcciones está en pausa. Vuelve a intentar para recuperar el acceso sin borrar datos.';
+
+  @override
+  String get customerAddressVerify => 'Verificar';
+
+  @override
+  String get customerAddressCloseEditor => 'Cerrar';
+
+  @override
+  String get customerAddressSending =>
+      'Guardando. Cerrar el editor no cancela el guardado.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4158,6 +4206,12 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get afterSalesFailure => '无法完成此操作，请重试。';
 
   @override
+  String get afterSalesDestinationUnavailable => '此售后申请暂不可用。你可以查看其他申请。';
+
+  @override
+  String get afterSalesBackToList => '查看售后申请';
+
+  @override
   String get afterSalesSelectItem => '请至少选择一件商品。';
 
   @override
@@ -4261,4 +4315,38 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get notificationsUnreadOnly => '仅未读';
+
+  @override
+  String get notificationsUnreadPartialEmptyTitle => '当前显示的通知中没有未读通知';
+
+  @override
+  String get notificationsUnreadEmptyTitle => '没有未读通知';
+
+  @override
+  String get notificationsUnreadPageHint => '加载更早的通知，查看是否还有未读通知。';
+
+  @override
+  String get notificationsUnreadCachedEmptyMessage => '重新连接以查看是否还有未读通知。';
+
+  @override
+  String get notificationsUnreadEmptyMessage => '你已阅读所有显示的通知。';
+
+  @override
+  String get notificationsUpdateFailed => '无法更新通知。请重试。';
+
+  @override
+  String get customerAddressUnknown => '保存结果待确认，请验证后再修改。';
+
+  @override
+  String get customerAddressJournalUnavailable =>
+      '暂时无法读取此设备保存的恢复信息。你仍可查看账户，新增地址已暂停。请重试以恢复访问，无需删除数据。';
+
+  @override
+  String get customerAddressVerify => '验证保存';
+
+  @override
+  String get customerAddressCloseEditor => '关闭';
+
+  @override
+  String get customerAddressSending => '正在保存。关闭编辑器不会取消保存。';
 }

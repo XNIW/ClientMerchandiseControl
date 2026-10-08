@@ -1,7 +1,7 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
@@ -9,10 +9,95 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
-## Mandato funzionale e UX corrente
+## Completamento successivo — 8 ottobre 2026
+
+Il [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md#completamento-successivo--8-ottobre-2026)
+e l'ultimo [overlay del registro unico](residuals.md#overlay-completamento-successivo--2026-10-08-mandato-fdab4373)
+prevalgono sui checkpoint storici. Il checkpoint applicativo f9a61d5 integra journal
+illeggibile e assistenza missing/retry, entrambi APPROVED SOURCE_CODE_ONLY dopo
+regressioni RED. Nuova matrice host16casi PASS; fixture137 con sole24catture nuove.
+Suite globale al checkpoint5a40488:1049PASS, formato e analyze PASS; 35/35gate locali PASS nella
+[capsula finale](next-integration/completion-final-gates.json). CI43 terminale cinque job PASS, journal iOS prepareFAIL, smoke/visual job
+CANCELLED30min con smokePASS e visual91PASS/1FAIL; nuovaCI dopo i fix R30.
+Nuovo freeze applicativo16e4681; harness2327948 e preview7e→d4a7e97
+approvati separatamente. [Preview/budget](next-integration/completion-ios-preview-budget.md)
+e [review](next-integration/completion-ios-preview-budget-review.md).
+NuovaCI del composto da avviare; nessun PASS integrato dedotto.
+
+[CI43 raccolta distinta](next-integration/completion-ci43-assigned.json),
+[checkpoint iOS](next-integration/completion-ci43-ios-checkpoint.md),
+[badge approvato](next-integration/completion-badge-source-review.md) e
+[fix harness approvato](next-integration/completion-viewport-source-review.md)
+conservano esiti e scope. NI054-41/42 restano nel registro unico; production
+reviews invariato e causa esatta24px iOS non dimostrata.
+
+[Recovery popolata](next-integration/completion-backend.json) e
+[review distinta](next-integration/completion-backend-review.md) PASS locale;
+readback TEST32/57RPC conformi,25assenti,quattro migration assenti,1/2indici,
+history155. Service verify-full preparato dal coordinatore; TLS BLOCKED per
+accesso protetto/trust/runner IPv6. Apply NOT_RUN, nessun cron pausato.
+[Worker](next-integration/completion-worker.md) esatto qualificato in workerd e
+packaging no-bundle PASS, review distinta APPROVED locale; versione TEST22107a6f
+invariata, deploy NOT_RUN per backend/finestra. Config/fixture Client parziali
+preparate fuori Git; pilot/account/callback/firma/canali assenti. Una sola richiesta
+sui riferimenti protetti è pendente. R01–R30 e25E2E conservano ID e prove mancanti.
+
+## Gate journal iOS aggiuntivo — 8 ottobre 2026
+
+Il [gate iOS dedicato](next-integration/ios-journal-source-20261008.md) riusa la
+fixture Android e mantiene app/entitlement invariati. Review distinta APPROVED
+SOURCE_CODE_ONLY con 21 test e otto PoC e nove hash associati a e7b194c.
+Il runtime journal resta NOT_RUN: nella CI hosted la preparazione fallisce
+dopo il boot, prima della fixture; nessun difetto Keychain dedotto.
+
+## Checkpoint precedente — 8 ottobre 2026, PR29 e7b194c
+
+Il [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md#checkpoint-storico-precedente--8-ottobre-2026-pr29-e7b194c)
+ e il [registro unico](residuals.md#overlay-completamento-operativo--2026-10-08)
+ governano il candidato operativo. La [review sorgente distinta](next-integration/client-source-review-20261008.md)
+ è APPROVED SOURCE_CODE_ONLY su bb538923 dopo re-review dei contratti;
+ suite globale e CI sono gate separati.
+ Il [backend corrente](next-integration/backend-operational-readiness-20261008.md)
+ documenta history155, recovery scoped delle tre canoniche PASS e integrità
+ preesistente FAIL. Il manifest nuovo ha57RPC: alle23 assenti sullo snapshot
+ iniziale55 si aggiungono2RPCv3 e una migration additiva distinta non applicata.
+ La [recovery corrente con delta v3](next-integration/backend-v3-recovery-20261008.md)
+ è PASS nel clone con history 155→158→159→158→155 e ledger vuoto;
+ l'integrità preesistente resta FAIL. Finestra writer/cron, TLS/config/pilot
+ approvati e accettazione autenticata restano prerequisiti; nessun PASS live dedotto.
+
+La CI `37817219242` su `62980d2` termina con cinque job PASS e smoke iOS
+ FAIL: build e lancio riusciti, timeout in attesa della VM Service senza test.
+ Android produce 113 PNG Flutter e quattro frame OS;
+ [review pixel distinta](next-integration/native-visual-review-20261008.md)
+ approvata sul campione critico di 27 immagini. iOS capture NOT_RUN.
+ La [build Worker selettiva](next-integration/worker-selective-build-20261008.md)
+ è PASS con 29 smoke locali, mentre il runtime TEST distribuito resta invariato.
+
+La [CI finale](next-integration/ci-ios-journal-20261008.md) `37822118836`
+su `e7b194c` termina con cinque job PASS e due FAIL nella preparazione/cleanup
+iOS. Anche release iOS unsigned PASS. La
+[review Android finale](next-integration/native-visual-association-e7b194c-20261008.md)
+associa 109 PNG identici e ispeziona gli otto mutati senza finding. Il
+[packaging Worker](next-integration/worker-selective-packaging-20261008.md)
+è PASS locale con rete negata; upload/deploy e cinque reference runtime NOT_RUN.
+
+Le sezioni del4/5ottobre e le risorse elencate sotto sono snapshot storici,
+ inclusi147receipt/55RPC/c796. Non sostituiscono la readiness corrente.
+
+## Prossima integrazione NI054 — 2026-10-04
+
+Baseline main bfbfc0b6, PR28 già MERGED. Source NI054 e review scoped completate;
+CI5 terminale nonverde, REVIEW/BLOCKED e PR29 draft. Evidence finale su branch
+codex/task054-next-evidence-ci5, candidato c796526 immutabile nel worktree isolato;
+registro unico residuals.md. Le ricevute sotto restano snapshot storici. Il risultato unico è
+[CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md),
+con snapshot storici, refresh5ottobre e gate del nuovo candidato distinti.
+
+## Mandato funzionale e UX precedente
 
 [CLIENT_TASK054_FUNCTIONAL_UX_OPERATIONAL_RESULT](functional-ux-operational-result.md)
-è l'overlay corrente alla main Client12f03c7 e Admin4532831b. Preflight fresco:
+è la ricevuta storica sulla main Client12f03c7 e Admin4532831b. Preflight di quel ciclo:
 32/55RPC,1/2indici,history147; applyBLOCKED senza finestra/recoveryremota.
 Correzioni UI, filtro non lette e mutazioni carrello completate; review del nuovo candidato e CI
 sono separate dalle ricevute storiche. Le capability live restano NOT_RUN/BLOCKED.
@@ -42,7 +127,7 @@ locale finale del mandato; nessuno stato live viene promosso per il solo merge.
 | MAIN_INTEGRATION | PASS Admin; NOT_RUN Client al freeze |Admin117 merged6d5, CI PR/main PASS; Client27 merge condizionato a CI/review esatte, ricevuta finale nella PR |
 | PRODUCTION | NOT_ACTIVATED |nessuna modifica o attivazione |
 
-## Risorse ancora necessarie
+## Risorse registrate nel precedente snapshot
 
 | Owner / risorsa | Controllo eseguito e azione minima | Configurazione e verifica successiva |
 |---|---|---|
@@ -125,3 +210,5 @@ due prove golden locali restano aperti anche se la CI di build risulta verde.
 Evidence completa locale non versionata: `~/.codex/outputs/client-functional-audit/`.
 Il manifest locale associa log sanitizzati ai file con SHA256; il candidato typegen
 Admin rimane separato e non applicato. Nessun processo locale di verifica irrisolto.
+
+Ricevuta unica del mandato corrente: [CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md).

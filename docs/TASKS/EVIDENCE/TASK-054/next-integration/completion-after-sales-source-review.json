@@ -1,0 +1,114 @@
+{
+  "reviewer": "/root/client_ux/journal_source_review",
+  "review": "APPROVED",
+  "scope": "SOURCE_CODE_ONLY",
+  "base": "b820f826184f2dd5503f086576d228b15ca1be7a",
+  "candidate": "26713a4294f3976236e8e83f983950b8f281c6fc",
+  "worktree": "/private/tmp/task054-after-sales-review-checkout-20261008",
+  "tracked_worktree_clean": true,
+  "findings": [],
+  "checks": [
+    {
+      "type": "GIT",
+      "command": "git diff --check b820f82 26713a4",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "type": "UNIT_WIDGET",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded test/features/after_sales test/features/customer_notifications/customer_notification_inbox_navigation_test.dart test/l10n/app_localizations_contract_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "tests": 30,
+      "log": "after-sales-autonomous-focused.log"
+    },
+    {
+      "type": "WIDGET",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded /private/tmp/task054-client-ux-review-20261008/after_sales_host_harness_test.dart --plain-name 'inbox destinazione assistenza mancante'",
+      "result": "PASS",
+      "exit_code": 0,
+      "tests": 8,
+      "log": "after-sales-autonomous-host-matrix.log",
+      "limitation": "host; visualCaptureEnabled=false;320x568;testo200%;4lingue2temi;nessuna PNG"
+    },
+    {
+      "type": "WIDGET",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded /private/tmp/task054-client-ux-review-20261008/after_sales_independent_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "tests": 3,
+      "log": "after-sales-independent-green.log",
+      "candidate": "26713a4"
+    },
+    {
+      "type": "WIDGET",
+      "command": "flutter test --no-pub --concurrency=1 --reporter expanded /private/tmp/task054-client-ux-review-20261008/after_sales_independent_test.dart",
+      "result": "FAIL",
+      "exit_code": 1,
+      "tests_failed": 3,
+      "log": "after-sales-independent-red-baseline.log",
+      "candidate": "b820f82",
+      "purpose": "RED autonomo atteso: CTA missing/retry assenti; il terzo test si ferma alla CTA assente prima di verificare la risposta tardiva"
+    },
+    {
+      "type": "ANDROID_EMU",
+      "result": "NOT_RUN",
+      "reason": "lane source; coordinator gestisce CI finale"
+    },
+    {
+      "type": "IOS_SIM",
+      "result": "NOT_RUN",
+      "reason": "lane source; coordinator gestisce CI finale"
+    },
+    {
+      "type": "MANUAL",
+      "result": "NOT_RUN",
+      "reason": "capture native/assistive richiedono superficie propria; non dedotte da host"
+    },
+    {
+      "type": "CI",
+      "result": "NOT_RUN",
+      "reason": "freeze integrato e CI exact-SHA gestiti da coordinator"
+    },
+    {
+      "type": "LIVE_TEST",
+      "result": "NOT_RUN",
+      "reason": "nessun backend o sessione reale in lane source"
+    }
+  ],
+  "writer_evidence_inspected": {
+    "red-after-sales-missing.log": "2FAIL exit1 prima delle CTA",
+    "green-after-sales-missing.log": "2PASS exit0 dopo fix;coerente con diff e test autonomi"
+  },
+  "independent_poc_cases": [
+    "UUID assente con lista non vuota permette lista e altro dettaglio canonico",
+    "retry fallito mantiene errore recuperabile poi risposta vuota passa a unavailable",
+    "retry A tardivo dopo cambio owner B non ripubblica caso A"
+  ],
+  "native_harness_additions": "8casi4lingue2temi;2capture per caso=16nuove PNG future, mai prodotte in questa lane",
+  "existing_limitation": "adapter afterSales list usa p_page_size50; nessun lookup/paginazione. Copy non disponibile non pretende cancellazione o diniego; limiti preesistenti non introdotti da questo delta",
+  "changed_file_sha256": {
+    "integration_test/support/next_integration_fixtures.dart": "104c39ad74f5602cb365987fa1739f16330e29d73b4a14ad6c777b2a8e136cae",
+    "integration_test/task054_next_integration_surfaces_test.dart": "18e3d20e1bbde38af14d1ba448f70256fbc09fc72b213c4b8410977b839ac658",
+    "lib/features/after_sales/presentation/customer_after_sales_screen.dart": "57acdb45e1d53e4e8aa59b7cf994a970ca699075097e35d5c1c90016d95a2977",
+    "lib/l10n/app_en.arb": "331c165e8df668f8eca21e6d3d189de6b8ca5c877f2ebd6e54cc822234008b83",
+    "lib/l10n/app_es.arb": "9fdf8d58e6b0f6f02435abc284de858159029e0d3c70cc9ee3c0d128deaa93b9",
+    "lib/l10n/app_it.arb": "d674697d1a6437824c4fe620d2b0ca758e750ca7a594e0cec22a3336a727c5f2",
+    "lib/l10n/app_zh.arb": "a608af6f71394b2ad6ccc27638d6fb8d0d5ebc85b332c851e2c0d5abcdf94e96",
+    "lib/l10n/app_zh_Hans.arb": "29754e8d3373f1acf0d1d3d6fe50a576572e186c2a83267c6970ba7656778c98",
+    "lib/l10n/generated/app_localizations.dart": "58a684ea3a209eb4f42a1ce55da97caba3805ceb6da5c335a87b0b28144e29a7",
+    "lib/l10n/generated/app_localizations_en.dart": "335cce899585c93448fa955767bc8d9d00d5f401d1662f748da15a65176d5c52",
+    "lib/l10n/generated/app_localizations_es.dart": "b8537419e2050141ee740e981ad1763a8a06bdbc429807e44002724e7847df91",
+    "lib/l10n/generated/app_localizations_it.dart": "83e2023031b40beea6714e72c884a80faec45af30459f2c9cfe36e763e00ec3a",
+    "lib/l10n/generated/app_localizations_zh.dart": "9949ee3eac836de8d9a9bcc5619e1d46a64dfacb81dec75db6200c19f35cc6cf",
+    "test/features/after_sales/customer_after_sales_missing_destination_test.dart": "edad86e28599ab2edff12d27133115c6bd7724de4e6162382beac00db540ec96"
+  },
+  "evidence_sha256": {
+    "after-sales-independent-red-baseline.log": "215eab59069e2909db26cc04aa4c21b14b1983567f647f54999e831f8f32e441",
+    "after-sales-autonomous-host-matrix.log": "567a1b0da1edf5900304f0aafcbbddf7ca3c64247a9cb113e51ca48f72efb145",
+    "after-sales-autonomous-focused.log": "6fa92f42b71346cd84af78c42c9b3f693f82334457765092a4f614ac2a821399",
+    "after-sales-independent-green.log": "75df40cadeef483c969c0445a510fa509ffe853e9e6b10bf2a4b3124ce168a64",
+    "after-sales-pub-get.log": "aa1812eea2efe25dcdc83af7e5a242e3434dce5c1fe2756d0e49059d1b5bc837"
+  },
+  "integrated_review": "BLOCKED invariato per gate native/live; source approval non autorizza DONE o merge autonomo"
+}

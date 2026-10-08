@@ -1,0 +1,19 @@
+{
+  "jobs": {
+    "quality": 20,
+    "android-build": 25,
+    "android-release": 35,
+    "ios-build": 30,
+    "ios-release": 45
+  },
+  "checkout": {
+    "quality": "${{ github.event.pull_request.head.sha || github.sha }}",
+    "android-build": "${{ github.event.pull_request.head.sha || github.sha }}",
+    "android-release": "${{ github.event.pull_request.head.sha || github.sha }}",
+    "ios-build": "${{ github.event.pull_request.head.sha || github.sha }}",
+    "ios-release": "${{ github.event.pull_request.head.sha || github.sha }}"
+  },
+  "result": "PASS",
+  "workflow_sha256": "d2516b4627dc7f7319a9d6d5c2798f1448fd77baeb2f1cc2e0a864af80eeaa60",
+  "source_revision": "da26c15d4078bbc5a5fb94c364dec84b72c04a62"
+}

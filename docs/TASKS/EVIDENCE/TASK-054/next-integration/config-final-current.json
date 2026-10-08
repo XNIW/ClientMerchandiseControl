@@ -1,0 +1,76 @@
+{
+  "schema": "task054-final-reference-presence-v1",
+  "observedUtc": "2026-10-05T19:25:51.604264+00:00",
+  "environmentPresence": {
+    "ANDROID_KEYSTORE_PASSWORD": false,
+    "ANDROID_KEYSTORE_PATH": false,
+    "ANDROID_KEY_ALIAS": false,
+    "ANDROID_KEY_PASSWORD": false,
+    "ANDROID_RELEASE_RUNTIME_CONFIG_PATH": false,
+    "ANDROID_SIGNING_CERT_SHA256": false,
+    "APP_STORE_CONNECT_API_KEY_PATH": false,
+    "APP_STORE_CONNECT_ISSUER_ID": false,
+    "APP_STORE_CONNECT_KEY_ID": false,
+    "AUTH_CALLBACK_VERIFIED_HOST": false,
+    "AUTH_REDIRECT_URI": false,
+    "CMC_APPROVED_TEST_ARTIFACT_CONFIG_PATH": false,
+    "CMC_BACKEND_PGSERVICE": false,
+    "IOS_EXPECTED_SIGNING_CERT_SHA256": false,
+    "IOS_EXPECTED_TEAM_ID": false,
+    "IOS_RELEASE_RUNTIME_CONFIG_PATH": false,
+    "IOS_TESTFLIGHT_UPLOAD_AUTHORIZED": false,
+    "PGPASSFILE": false,
+    "PGSERVICE": false,
+    "PGSERVICEFILE": false,
+    "PGSSLROOTCERT": false,
+    "PGSYSCONFDIR": false,
+    "PLAY_INTERNAL_UPLOAD_AUTHORIZED": false,
+    "PLAY_SERVICE_ACCOUNT_EXPECTED_EMAIL": false,
+    "PLAY_SERVICE_ACCOUNT_EXPECTED_PROJECT_ID": false,
+    "PLAY_SERVICE_ACCOUNT_JSON_PATH": false,
+    "STOREFRONT_SHOP_SLUG": false
+  },
+  "repositoryReferences": {
+    "secrets": {
+      "command": [
+        "gh",
+        "api",
+        "repos/XNIW/ClientMerchandiseControl/actions/secrets?per_page=100"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "count": 0,
+      "responseSha256": "28c5423a249b6b471b90805492666338fab88266ac6a72b4f2b711fa65c03a68"
+    },
+    "variables": {
+      "command": [
+        "gh",
+        "api",
+        "repos/XNIW/ClientMerchandiseControl/actions/variables?per_page=100"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "count": 0,
+      "responseSha256": "8fb236d9855d43b214ea37db3296df40b54f11ee84dd9c96394813c4fbdf6423"
+    },
+    "environments": {
+      "command": [
+        "gh",
+        "api",
+        "repos/XNIW/ClientMerchandiseControl/environments?per_page=100"
+      ],
+      "exitCode": 0,
+      "result": "PASS",
+      "count": 0,
+      "responseSha256": "310b1231b21edb0dde47b2ee59b26a0fc9b4cdd801864140a03561f16fb03c9d"
+    }
+  },
+  "secretValuesRead": false,
+  "mutations": false,
+  "physicalSmoke": "NOT_RUN",
+  "physicalInventorySource": "Snapshot del5ottobre16:30, da distinguere dalla presenza attuale delle refs; nessun device avviato/installato.",
+  "qualification": "Refresh valido per27boolean environment e tre inventari metadata GitHub Client, zero reference repository. Le entry filesystem del receipt originale hanno perso i valori durante serializzazione e sono escluse dalle conclusioni attuali. Nessun valore secret/certificato letto; nessun callback/login/distribuzione o smoke fisico implicato.",
+  "originalReceiptSha256": "0159b6884a5785eb9a8a2ab28baef5004220303abf1c18c8930c35cab4f527fa",
+  "filesystemCurrentResult": "NOT_RUN: la serializzazione finale conserva soltanto nomi dei campi, non i valori; nessuna presenza filesystem attuale inferita.",
+  "filesystemHistoricalReceipt": "config-current.json: snapshot11reference del5ottobre16:28UTC, storico preservato; non promosso a19:25UTC."
+}

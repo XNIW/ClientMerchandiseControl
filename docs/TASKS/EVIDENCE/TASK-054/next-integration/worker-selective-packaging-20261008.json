@@ -1,0 +1,222 @@
+{
+  "status": "PASS",
+  "scope": "Local Wrangler packaging and exact serialized payload membership; not runtime reachability or remote upload",
+  "build_source_sha": "96758b899aac2ccde1a70aeda4bbe7983007fb18",
+  "build_source_tree": "b75fe609cda8f53067cfe1cf1cb7782a9dba757b",
+  "docs_only_sha": "a771cee43b0c43ec844e60282ea764646905996e",
+  "wrangler": "4.123.0",
+  "node": "22.23.3",
+  "command_exit_code": 0,
+  "elapsed_seconds": 1.689,
+  "network": "OS sandbox deny network*",
+  "dry_run_exit_marker": true,
+  "original_manifest_limit": "2012 regular files only; four symlinks inventoried separately here",
+  "symlinks": [
+    {
+      "path": ".open-next/server-functions/default/.next/node_modules/read-excel-file-442857d11c22bfb7",
+      "target": "../../node_modules/read-excel-file",
+      "resolved_target": "/Users/minxiang/.codex/worktrees/task054-worker-commerce-candidate/merchandise-control-admin-web/.open-next/server-functions/default/node_modules/read-excel-file",
+      "exists": true,
+      "target_is_dir": true,
+      "mode": "0o755",
+      "within_artifact_root": true,
+      "regular_target_files_in_original_manifest": 50,
+      "target_selected_by_wrangler_metafile": false,
+      "link_selected_by_wrangler_metafile": false,
+      "multipart_part_membership": false
+    },
+    {
+      "path": ".open-next/server-functions/default/.next/node_modules/sharp-20c6a5da84e2135f",
+      "target": "../../node_modules/sharp",
+      "resolved_target": "/Users/minxiang/.codex/worktrees/task054-worker-commerce-candidate/merchandise-control-admin-web/.open-next/server-functions/default/node_modules/sharp",
+      "exists": false,
+      "target_is_dir": false,
+      "mode": "0o755",
+      "within_artifact_root": true,
+      "regular_target_files_in_original_manifest": 0,
+      "target_selected_by_wrangler_metafile": false,
+      "link_selected_by_wrangler_metafile": false,
+      "multipart_part_membership": false
+    },
+    {
+      "path": ".open-next/server-functions/default/.next/node_modules/unzipper-esm-58d57714355aaea9",
+      "target": "../../node_modules/unzipper-esm",
+      "resolved_target": "/Users/minxiang/.codex/worktrees/task054-worker-commerce-candidate/merchandise-control-admin-web/.open-next/server-functions/default/node_modules/unzipper-esm",
+      "exists": true,
+      "target_is_dir": true,
+      "mode": "0o755",
+      "within_artifact_root": true,
+      "regular_target_files_in_original_manifest": 18,
+      "target_selected_by_wrangler_metafile": false,
+      "link_selected_by_wrangler_metafile": false,
+      "multipart_part_membership": false
+    },
+    {
+      "path": ".open-next/server-functions/default/.next/node_modules/write-excel-file-6e348ba6e49c728e",
+      "target": "../../node_modules/write-excel-file",
+      "resolved_target": "/Users/minxiang/.codex/worktrees/task054-worker-commerce-candidate/merchandise-control-admin-web/.open-next/server-functions/default/node_modules/write-excel-file",
+      "exists": true,
+      "target_is_dir": true,
+      "mode": "0o755",
+      "within_artifact_root": true,
+      "regular_target_files_in_original_manifest": 80,
+      "target_selected_by_wrangler_metafile": false,
+      "link_selected_by_wrangler_metafile": false,
+      "multipart_part_membership": false
+    }
+  ],
+  "wrangler_input_count": 42,
+  "wrangler_regular_input_count": 11,
+  "wrangler_virtual_input_count": 31,
+  "wrangler_virtual_input_note": "31 esbuild plugin wrappers named node-built-in-modules:*; not missing filesystem files",
+  "wrangler_regular_inputs_match_original_manifest": true,
+  "multipart": {
+    "parts": [
+      {
+        "name": "metadata",
+        "filename": null,
+        "bytes": 2410,
+        "sha256": "85e59ea7f13b8eff6928f3a686fa614c728ba227fe12794bd9e68ba2cf0ee716"
+      },
+      {
+        "name": "worker.js",
+        "filename": "worker.js",
+        "bytes": 11307949,
+        "sha256": "e1b2f30e3e1413e0404543cf2ddf21bb14157b9aa339121d8b3ba47d01542997"
+      }
+    ],
+    "bytes": 11310643,
+    "sha256": "a3139836a17bc3be15e8269a8e3f8a5daabee0bf31be6d5afb9e2c5069da60a6",
+    "metadata_summary": {
+      "keys": [
+        "bindings",
+        "compatibility_date",
+        "compatibility_flags",
+        "keep_bindings",
+        "main_module",
+        "observability",
+        "package_dependencies"
+      ],
+      "main_module": "worker.js",
+      "bindings_name_type_only": [
+        {
+          "name": "WORKER_SELF_REFERENCE",
+          "type": "service"
+        },
+        {
+          "name": "ASSETS",
+          "type": "assets"
+        }
+      ],
+      "keep_bindings": [
+        "plain_text",
+        "json",
+        "secret_text",
+        "secret_key"
+      ],
+      "compatibility_date": "2026-06-10",
+      "compatibility_flags": [
+        "nodejs_compat",
+        "global_fetch_strictly_public"
+      ],
+      "assets_upload_token_present": false
+    }
+  },
+  "external_non_builtin_package_paths": [
+    "@img/sharp-libvips-dev/cplusplus",
+    "@img/sharp-libvips-dev/include",
+    "@opentelemetry/api",
+    "read-excel-file",
+    "write-excel-file"
+  ],
+  "runtime_residual": "External package references are present but not exercised by this packaging or previous unauthenticated smoke. Dynamic reachability and supported behavior remain NOT_RUN; the dangling sharp link alone is not a reproduced runtime defect.",
+  "open_next_handler_mapping": "sharp hash and unzipper hash resolve to code already inlined in handler.mjs; Excel /node variants inlined, bare Excel variants remain external dynamic imports",
+  "unchanged": {
+    "original_2012_regular_files": true,
+    "four_symlinks": true,
+    "source_clean": true,
+    "source_config_lock_handlers": true,
+    "original_regular_file_set_exact": true
+  },
+  "compiled_handler_sha256": "6aa3dff35b2b80352c8d36555d5e7ef226d397bbe55105fbb4584d327c6a6345",
+  "restored_dependency_request_handler_sha256": "d9d67f62e82d9f51c9afc22cbe74750a5933e06dfb02a748c1d4db0522bf04a7",
+  "remote_upload": "NOT_RUN",
+  "rebuild": "NOT_RUN",
+  "new_runtime_smoke": "NOT_RUN",
+  "review": {
+    "result": "APPROVED",
+    "reviewer": "/root/admin_runtime/worker_candidate",
+    "scope": "Local packaging membership and artifact preservation only",
+    "open_findings": 0,
+    "no_rerun": true
+  },
+  "evidence_directory": "/Users/minxiang/.codex/outputs/task054-address-create-20261008/worker-packaging-96758b89",
+  "source_inspection": {
+    "wrangler_cli_sha256": "54f9ac65c8136f81ee4695844be67c37d543b40f3f6486f4234e2dce92b14a7d",
+    "dry_run_auth_skip_line": 285774,
+    "pre_upload_skip_line": 149704,
+    "asset_upload_skip_line": 149893,
+    "upload_form_local_only_line": 150019,
+    "return_before_triggers_line": 150270,
+    "config_has_custom_build_command": false,
+    "autoconfig": false,
+    "containers": false
+  },
+  "assets": {
+    "count": 53,
+    "dry_run_validated": true,
+    "uploaded": false,
+    "log_reported_paths": 58,
+    "directory_count": 5,
+    "regular_files_count": 53,
+    "count_note": "Wrangler log Read 58 includes 53 regular files plus five directories; no symlinks in assets",
+    "wrangler_source_explanation": "cli.js:156214-156260 logs readdir recursive entries before excluding directories; 58 is path count, 53 regular asset files"
+  },
+  "full_closure_receipt": {
+    "path": "/Users/minxiang/.codex/outputs/task054-address-create-20261008/worker-packaging-96758b89/closure.json",
+    "sha256": "68735d57b55731b43dc0686201fcc0e619fe380153b86dbfc3a0a3116fb47a43"
+  },
+  "files": [
+    {
+      "name": "bundle/README.md",
+      "bytes": 138,
+      "sha256": "adfa51443e231ff4b96931b659960e267be9ae041f17d3d70344a4b1274999c9"
+    },
+    {
+      "name": "bundle/worker.js",
+      "bytes": 11307949,
+      "sha256": "e1b2f30e3e1413e0404543cf2ddf21bb14157b9aa339121d8b3ba47d01542997"
+    },
+    {
+      "name": "bundle/worker.js.map",
+      "bytes": 23514488,
+      "sha256": "489045f3b7ad333845609bccb244b1dfa905d54817d3acadac677fd1823df868"
+    },
+    {
+      "name": "deny-network.sb",
+      "bytes": 44,
+      "sha256": "5c358b8d847211333e7ba22df82d84f796b5f30a41a2682209a949d783adbd08"
+    },
+    {
+      "name": "esbuild-metafile.json",
+      "bytes": 67332,
+      "sha256": "d5528ff09dbd9b32da5a596be11fac3d5d0e1f359d75a089aecc4b6a1952f94f"
+    },
+    {
+      "name": "receipt.json",
+      "bytes": 4776,
+      "sha256": "b8502bf6c4206a4a4cc821616bce1361c2720b273bd790fae3054ffcc8eaf46a"
+    },
+    {
+      "name": "stdout.log",
+      "bytes": 626,
+      "sha256": "1bb7b8d6c1a96d47ba8c5219922838dab5be75557f7ea1c9ed79e57115ce0c4b"
+    },
+    {
+      "name": "worker-upload.multipart",
+      "bytes": 11310643,
+      "sha256": "a3139836a17bc3be15e8269a8e3f8a5daabee0bf31be6d5afb9e2c5069da60a6"
+    }
+  ],
+  "note_payload": "Multipart is the actual locally serialized dry-run upload form; asset upload token absent as expected. It does not attest the eventual remote request or runtime."
+}

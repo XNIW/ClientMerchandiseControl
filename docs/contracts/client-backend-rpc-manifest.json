@@ -2,9 +2,55 @@
   "version": 1,
   "authority": {
     "repository": "XNIW/merchandise-control-admin-web",
-    "sha": "fe4907adc51ff842720e1c7eb36aa05e0fa53cb8"
+    "sha": "f16c5f4f37051e7876a847fb1ae2e544c89377d2"
   },
   "rpcs": [
+    {
+      "name": "customer_address_create_reconcile_v3",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "arguments": "p_intent_id uuid",
+      "anon_execute": false,
+      "definition_md5": "0ab9e432fb8c2038f53b76cba9a6dc7d",
+      "security_definer": true,
+      "identity_arguments": "p_intent_id uuid",
+      "authenticated_execute": true,
+      "migration": "20261008151018_customer_address_create_intent_v3.sql",
+      "migration_sha256": "b290c6373d2d49a3c9fb4847e5ee8f47f2ce11f4eeeb17da4d3fc4086a615e56",
+      "sources": [
+        "lib/features/account/data/supabase_customer_account_repository.dart"
+      ],
+      "payload_versions_in_consumer": [
+        "customer-address.v3"
+      ]
+    },
+    {
+      "name": "customer_address_create_v3",
+      "result": "jsonb",
+      "schema": "public",
+      "settings": [
+        "search_path=\"\"",
+        "statement_timeout=5s"
+      ],
+      "arguments": "p_intent_id uuid, p_payload jsonb",
+      "anon_execute": false,
+      "definition_md5": "4238f17114e2f2543692ab990c126fb1",
+      "security_definer": true,
+      "identity_arguments": "p_intent_id uuid, p_payload jsonb",
+      "authenticated_execute": true,
+      "migration": "20261008151018_customer_address_create_intent_v3.sql",
+      "migration_sha256": "b290c6373d2d49a3c9fb4847e5ee8f47f2ce11f4eeeb17da4d3fc4086a615e56",
+      "sources": [
+        "lib/features/account/data/supabase_customer_account_repository.dart"
+      ],
+      "payload_versions_in_consumer": [
+        "customer-address.v3"
+      ]
+    },
     {
       "schema": "public",
       "name": "customer_address_delete_v2",
@@ -1318,7 +1364,7 @@
     }
   ],
   "consumer_sources": {
-    "lib/features/account/data/supabase_customer_account_repository.dart": "8476e3a38f6c80991910afa3da81f3e3b8e6800af622639d34c2d2b13c57cbac",
+    "lib/features/account/data/supabase_customer_account_repository.dart": "11ef13e1be34f2ca0fdaa14ed4e36193855f4beee301bc62286e67feb4d32d51",
     "lib/features/after_sales/data/supabase_customer_after_sales_repository.dart": "66a3d11bbaa016cbfa8beda0a5fce2dd12ba1b6edbdfa854396e22e97e578486",
     "lib/features/cart/data/supabase_customer_cart_repository.dart": "8b9f39aefcc9a129a8cb41e8e4a33a2f3214896b5079723bf3a6365da2d2cf40",
     "lib/features/catalog/data/search_assist_data.dart": "31ebf3a0b4bbd735d21fe371cfe3708f382006572aeffd1503b0a6ed1df188cd",

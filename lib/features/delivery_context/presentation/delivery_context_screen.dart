@@ -10,6 +10,7 @@ import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../core/formatting/clp_currency_formatter.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../account/application/customer_account_controller.dart';
+import '../../account/domain/customer_account_failure.dart';
 import '../../account/domain/customer_account_models.dart';
 import '../../account/presentation/customer_account_panel.dart';
 import '../../checkout/application/checkout_providers.dart';
@@ -132,6 +133,15 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
               _CurrentContextCard(contextValue: selected),
             ],
             const SizedBox(height: AppSpacing.lg),
+            if (account.failure != null)
+              Padding(
+                key: const ValueKey('delivery-account-failure'),
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: _StatusBanner(
+                  icon: Icons.error_outline,
+                  message: _accountFailureMessage(l10n, account.failure!),
+                ),
+              ),
             if (_mode == CustomerDeliveryMode.delivery)
               _deliverySections(state, account.snapshot?.addresses ?? const [])
             else
@@ -537,9 +547,7 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
           .selectGuestCommune(commune: resolved.commune);
       return;
     }
-    final generation = _scopeGeneration;
-    final draft = await showCustomerAddressEditor(
-      context,
+    await _showAddressEditor(
       initial: CustomerAddressEditorInitial(
         label: AppLocalizations.of(context).deliveryContextDelivery,
         recipientName: '',
@@ -556,42 +564,66 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
         locationAccuracyMeters: resolved.coordinate.accuracyMeters,
       ),
     );
-    if (draft != null && _currentScope(generation)) {
-      await _createAndSelect(draft);
-    }
   }
 
-  Future<void> _addAddress() async {
-    final generation = _scopeGeneration;
-    final draft = await showCustomerAddressEditor(context);
-    if (draft != null && _currentScope(generation)) {
-      await _createAndSelect(draft);
-    }
-  }
+  Future<void> _addAddress() => _showAddressEditor();
 
-  Future<void> _editAddress(CustomerAddress address) async {
+  Future<void> _editAddress(CustomerAddress address) =>
+      _showAddressEditor(address: address);
+
+  Future<void> _showAddressEditor({
+    CustomerAddress? address,
+    CustomerAddressEditorInitial? initial,
+  }) async {
     final generation = _scopeGeneration;
-    final draft = await showCustomerAddressEditor(context, address: address);
-    if (draft == null || !_currentScope(generation)) return;
-    await ref
-        .read(customerAccountControllerProvider.notifier)
-        .updateAddress(address.id, address.version, draft);
-    if (mounted &&
+    final owner = ref.read(deliveryContextIdentityProvider)?.subjectId;
+    final shop = ref.read(deliveryContextShopSlugProvider);
+    bool current() =>
+        _currentScope(generation) &&
+        ref.read(deliveryContextIdentityProvider)?.subjectId == owner &&
+        ref.read(deliveryContextShopSlugProvider) == shop;
+    CustomerAddress? created;
+    final saved = await showCustomerAddressEditor(
+      context,
+      address: address,
+      initial: initial,
+      onSave: (draft) async {
+        const unavailable = CustomerAccountFailure(
+          CustomerAccountFailureKind.unexpected,
+        );
+        if (!current()) return unavailable;
+        final before = ref.read(customerAccountControllerProvider);
+        if (before.isMutating || before.snapshot == null) return unavailable;
+        final account = ref.read(customerAccountControllerProvider.notifier);
+        final bool acknowledged;
+        if (address == null) {
+          created = await account.createAddress(draft);
+          acknowledged = created != null;
+        } else {
+          acknowledged = await account.updateAddress(
+            address.id,
+            address.version,
+            draft,
+          );
+        }
+        // Un ACK owner-bound chiude l'editor anche se lo shop è cambiato.
+        // Selezione e refresh successivi restano vincolati allo scope originale.
+        if (acknowledged) return null;
+        if (!current()) return unavailable;
+        return ref.read(customerAccountControllerProvider).failure ??
+            unavailable;
+      },
+    );
+    if (saved == null || !current()) return;
+    if (created case final createdAddress?) {
+      await ref
+          .read(deliveryContextControllerProvider.notifier)
+          .selectAddress(addressId: createdAddress.id);
+    } else if (address != null &&
         ref.read(deliveryContextControllerProvider).context?.addressId ==
             address.id) {
       await ref.read(deliveryContextControllerProvider.notifier).refresh();
     }
-  }
-
-  Future<void> _createAndSelect(CustomerAddressDraft draft) async {
-    final generation = _scopeGeneration;
-    final created = await ref
-        .read(customerAccountControllerProvider.notifier)
-        .createAddress(draft);
-    if (!_currentScope(generation) || created == null) return;
-    await ref
-        .read(deliveryContextControllerProvider.notifier)
-        .selectAddress(addressId: created.id);
   }
 
   void _showLocationFallback() {
@@ -604,6 +636,19 @@ class _DeliveryContextScreenState extends ConsumerState<DeliveryContextScreen> {
     );
   }
 }
+
+String _accountFailureMessage(
+  AppLocalizations l10n,
+  CustomerAccountFailure failure,
+) => switch (failure.kind) {
+  CustomerAccountFailureKind.offline => l10n.customerAccountOffline,
+  CustomerAccountFailureKind.unauthorized => l10n.customerAccountUnauthorized,
+  CustomerAccountFailureKind.invalidInput => l10n.customerAccountInvalid,
+  CustomerAccountFailureKind.conflict => l10n.customerAccountConflict,
+  CustomerAccountFailureKind.timeout => l10n.customerAccountTimeout,
+  CustomerAccountFailureKind.unavailable => l10n.customerAccountUnavailable,
+  CustomerAccountFailureKind.unexpected => l10n.customerAccountUnexpected,
+};
 
 class _CurrentContextCard extends StatelessWidget {
   const _CurrentContextCard({required this.contextValue});

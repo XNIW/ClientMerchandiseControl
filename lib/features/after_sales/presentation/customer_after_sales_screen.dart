@@ -7,8 +7,13 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
+import '../../../app/design_system/widgets/storefront_empty_state.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../account/application/customer_account_providers.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_state.dart';
+import '../../auth/domain/authenticated_customer.dart';
 import '../application/customer_after_sales_controller.dart';
 import '../domain/customer_after_sales_models.dart';
 
@@ -115,7 +120,42 @@ final class _AfterSalesCaseDetail extends ConsumerWidget {
       return const Center(child: CircularProgressIndicator());
     }
     if (item == null) {
-      return Center(child: Text(l10n.afterSalesFailure));
+      final failed = state.failure != null;
+      return ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          Semantics(
+            liveRegion: true,
+            child: StorefrontEmptyState(
+              key: ValueKey(
+                failed
+                    ? 'after-sales-detail-unavailable'
+                    : 'after-sales-destination-unavailable',
+              ),
+              icon: failed
+                  ? Icons.cloud_off_outlined
+                  : Icons.support_agent_outlined,
+              title: l10n.afterSalesTitle,
+              message: failed
+                  ? l10n.afterSalesFailure
+                  : l10n.afterSalesDestinationUnavailable,
+              actionKey: ValueKey(
+                failed
+                    ? 'after-sales-detail-retry'
+                    : 'after-sales-back-to-list',
+              ),
+              actionLabel: failed
+                  ? l10n.customerAccountRetry
+                  : l10n.afterSalesBackToList,
+              onAction: failed
+                  ? ref
+                        .read(customerAfterSalesControllerProvider.notifier)
+                        .refresh
+                  : () => context.go(AppRoutes.afterSalesBaseLocation),
+            ),
+          ),
+        ],
+      );
     }
     return RefreshIndicator.adaptive(
       onRefresh: ref
@@ -217,27 +257,81 @@ final class _AfterSalesCreateForm extends ConsumerStatefulWidget {
 final class _AfterSalesCreateFormState
     extends ConsumerState<_AfterSalesCreateForm> {
   final _note = TextEditingController();
+  final _noteFocus = FocusNode();
   CustomerAfterSalesType _type = CustomerAfterSalesType.orderProblem;
   CustomerAfterSalesReason _reason = CustomerAfterSalesReason.damaged;
   final Map<String, int> _selected = {};
   final List<XFile> _evidence = [];
-  late final Future<CustomerAfterSalesOrderLines> _items;
+  Future<CustomerAfterSalesOrderLines>? _items;
+  late final String? _owner;
+  late final String? _shop;
+  late final ProviderSubscription<AuthenticatedCustomer?> _identitySubscription;
+  late final ProviderSubscription<String?> _shopSubscription;
+  ProviderSubscription<AuthState>? _authSubscription;
+  var _scopeValid = true;
 
   @override
   void initState() {
     super.initState();
-    _items = ref
-        .read(customerAfterSalesRepositoryProvider)
-        .listOrderLines(widget.orderId);
+    final container = ProviderScope.containerOf(context, listen: false);
+    _owner = container.read(customerAccountIdentityProvider)?.subjectId;
+    _shop = container.read(customerAccountShopSlugProvider);
+    _scopeValid = _owner != null && _shop != null;
+    _identitySubscription = container.listen(customerAccountIdentityProvider, (
+      _,
+      next,
+    ) {
+      if (next?.subjectId != _owner) _invalidateScope();
+    });
+    _shopSubscription = container.listen(customerAccountShopSlugProvider, (
+      _,
+      next,
+    ) {
+      if (next != _shop) _invalidateScope();
+    });
+    if (container.exists(authControllerProvider)) {
+      _authSubscription = container.listen(authControllerProvider, (_, next) {
+        final owner = switch (next) {
+          AuthAuthenticated(:final customer) => customer.subjectId,
+          _ => null,
+        };
+        if (owner != _owner) _invalidateScope();
+      });
+    }
+    if (_scopeValid) {
+      _items = ref
+          .read(customerAfterSalesRepositoryProvider)
+          .listOrderLines(widget.orderId);
+    }
   }
+
+  void _invalidateScope() {
+    if (!_scopeValid || !mounted) return;
+    setState(() => _scopeValid = false);
+    _note.clear();
+    _selected.clear();
+    _evidence.clear();
+    if (_noteFocus.hasFocus) _noteFocus.unfocus();
+  }
+
+  bool get _isCurrent =>
+      mounted &&
+      _scopeValid &&
+      ref.read(customerAccountIdentityProvider)?.subjectId == _owner &&
+      ref.read(customerAccountShopSlugProvider) == _shop;
 
   @override
   void dispose() {
+    _identitySubscription.close();
+    _authSubscription?.close();
+    _shopSubscription.close();
+    _noteFocus.dispose();
     _note.dispose();
     super.dispose();
   }
 
   Future<void> _submit() async {
+    if (!mounted || !_isCurrent) return;
     final l10n = AppLocalizations.of(context);
     if (_selected.isEmpty) {
       ScaffoldMessenger.of(
@@ -263,7 +357,7 @@ final class _AfterSalesCreateFormState
                 .toList(),
           ),
         );
-    if (!mounted) return;
+    if (!mounted || !_isCurrent) return;
     if (value == null) {
       ScaffoldMessenger.of(
         context,
@@ -271,6 +365,7 @@ final class _AfterSalesCreateFormState
     } else {
       var uploadsPassed = true;
       for (final file in _evidence) {
+        if (!mounted || !_isCurrent) return;
         final extension = file.name.split('.').last.toLowerCase();
         final mimeType = switch (extension) {
           'jpg' || 'jpeg' => 'image/jpeg',
@@ -282,19 +377,22 @@ final class _AfterSalesCreateFormState
           uploadsPassed = false;
           continue;
         }
+        final bytes = await file.readAsBytes();
+        if (!mounted || !_isCurrent) return;
         final passed = await ref
             .read(customerAfterSalesControllerProvider.notifier)
             .uploadEvidence(
               caseId: value.id,
               input: CustomerAfterSalesEvidenceInput(
-                bytes: await file.readAsBytes(),
+                bytes: bytes,
                 extension: extension,
                 mimeType: mimeType,
               ),
             );
+        if (!mounted || !_isCurrent) return;
         uploadsPassed = uploadsPassed && passed;
       }
-      if (!mounted) return;
+      if (!mounted || !_isCurrent) return;
       context.go(AppRoutes.afterSalesLocation(value.id));
       unawaited(
         ref.read(customerAfterSalesControllerProvider.notifier).refresh(),
@@ -308,6 +406,7 @@ final class _AfterSalesCreateFormState
   }
 
   Future<void> _pickEvidence() async {
+    if (!mounted || !_isCurrent) return;
     final l10n = AppLocalizations.of(context);
     try {
       final selected = await ImagePicker().pickMultiImage(
@@ -317,14 +416,14 @@ final class _AfterSalesCreateFormState
         maxHeight: 2048,
         requestFullMetadata: false,
       );
-      if (!mounted) return;
+      if (!mounted || !_isCurrent) return;
       setState(() {
         _evidence
           ..clear()
           ..addAll(selected.take(3));
       });
     } on Object {
-      if (!mounted) return;
+      if (!mounted || !_isCurrent) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.afterSalesEvidencePickerFailure)),
       );
@@ -335,6 +434,7 @@ final class _AfterSalesCreateFormState
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(customerAfterSalesControllerProvider);
+    if (!_scopeValid) return Center(child: Text(l10n.afterSalesFailure));
     return FutureBuilder<CustomerAfterSalesOrderLines>(
       future: _items,
       builder: (context, snapshot) {
@@ -437,6 +537,7 @@ final class _AfterSalesCreateFormState
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: _note,
+              focusNode: _noteFocus,
               maxLength: 1000,
               maxLines: 4,
               enabled: !state.isMutating,

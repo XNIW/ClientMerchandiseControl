@@ -1,0 +1,57 @@
+{
+  "reviewer": "/root/review_evidence_ci",
+  "revision": "d9fcbfd96add14b7effa00be8fa310d483bdb9b3",
+  "observedAt": "2026-10-05T17:30:10.854275+00:00",
+  "deltaVerdict": "CHANGES_REQUIRED",
+  "taskLiveVerdict": "BLOCKED",
+  "finding": {
+    "id": "BECI-06",
+    "priority": "P2",
+    "status": "OPEN",
+    "file": "scripts/run-task054-ios-owned.py",
+    "lines": [
+      351,
+      360
+    ],
+    "title": "Persist prior process cleanup failure when initial device cleanup throws before receipt write",
+    "observed": "prepare records process_cleanup_failed in memory; initial cleanup check_device query throws before cleanup.persist; main finally catch prints and returns primary124 without persisting. Later cleanup action loads processCleanupFailed=false and writes cleanupPASS/exit0 despite prior real process cleanup FAIL.",
+    "impact": "CI uploaded final receipt erases earlier unverified process cleanup from prepare; successful simulator delete cannot attest earlier process-group quiescence.",
+    "requiredFix": "Persist monotonic process cleanup failure and truthful prior cleanup failure only when current process acquired/validated its own record, even if initial cleanup throws; preserve primary124/7/143/130. Subsequent cleanup may delete own device but aggregate process failure must remain FAIL. Keep private ownership and stale/foreign guards, no mutation from invalid receipt.",
+    "regression": "real prepare entrypoint with synthetic bootstatus timeout+process cleanup failure followed by failing initial cleanup identity query, then new cleanup process/reopen+successful delete: initial and final processCleanupFailed true, finalcleanup FAIL, exits124 then1"
+  },
+  "independentPoC": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 build/task054/review-evidence-ci/task054-ios-prepare-cleanup-persistence-repro-d9fcbfd9.py",
+    "exitCode": 1,
+    "sha256": "02975d5c34f034427af9caa59c2bccacd0d1be9b3a9e11a85dc1811c61d7a053",
+    "observed": {
+      "prepareExit": 124,
+      "firstReceiptProcessCleanupFailed": false,
+      "firstReceiptCleanup": "NOT_RUN",
+      "reopenCleanupExit": 0,
+      "finalReceiptProcessCleanupFailed": false,
+      "finalReceiptCleanup": "PASS",
+      "syntheticDeviceStillPresent": false
+    },
+    "scope": "actual main/prepare/cleanup/private file/reopen, synthetic tool replies, no native process/simulator/build"
+  },
+  "ciEvidence": {
+    "runId": 37346144008,
+    "headSha": "d9fcbfd96add14b7effa00be8fa310d483bdb9b3",
+    "iosJobId": 111885072537,
+    "prepareStepExit": 124,
+    "prepareFailureMarkersUTC": [
+      "2026-10-05T17:21:27.5994900Z cleanup group FAIL",
+      "2026-10-05T17:22:08.3215020Z cleanup group FAIL",
+      "2026-10-05T17:22:08.3389480Z initial cleanup query FAIL"
+    ],
+    "finalArtifactReceipt": "build/task054/next/ci-second-ios/ios-owned-receipt.json",
+    "finalReceiptSha256": "705a83eaa1ddc0a3ef40a4d68e350ce1679de8b34376b0fedd9a98d75bfb6a4b",
+    "finalReceiptCleanup": "PASS",
+    "finalReceiptProcessCleanupFailed": false,
+    "visualStepOutcome": "skipped",
+    "qualification": "Root cause of actual process-group cleanup probe FAIL remains unknown from generic catch; finding is independently reproduced persistence loss, not a claim about actual descendant liveness."
+  },
+  "sourceSha256": "bcfeace2cf3a82d55af313640f6b3e951e1c7424291075ba82ac27e3e0cd27e4",
+  "activeOwnVerificationProcesses": 0,
+  "repositoryMutationScope": "own ignored receipt and independent PoC only"
+}

@@ -618,6 +618,8 @@
   "afterSalesEvidencePickerFailure": "无法打开照片图库。",
   "afterSalesEvidenceUploadFailure": "申请已创建，但一张或多张图片上传失败。",
   "afterSalesFailure": "无法完成此操作，请重试。",
+  "afterSalesDestinationUnavailable": "此售后申请暂不可用。你可以查看其他申请。",
+  "afterSalesBackToList": "查看售后申请",
   "afterSalesSelectItem": "请至少选择一件商品。",
   "afterSalesCaseCode": "申请",
   "reviewsTitle": "评价",
@@ -652,5 +654,16 @@
   "deliveryContextPinHint": "拖动标记或点按地图以确认位置。",
   "deliveryAddressAttribution": "© OpenStreetMap contributors · ODbL\nhttps://www.openstreetmap.org/copyright",
   "afterSalesReason": "原因",
-  "notificationsUnreadOnly": "仅未读"
+  "notificationsUnreadOnly": "仅未读",
+  "notificationsUnreadPartialEmptyTitle": "当前显示的通知中没有未读通知",
+  "notificationsUnreadEmptyTitle": "没有未读通知",
+  "notificationsUnreadPageHint": "加载更早的通知，查看是否还有未读通知。",
+  "notificationsUnreadCachedEmptyMessage": "重新连接以查看是否还有未读通知。",
+  "notificationsUnreadEmptyMessage": "你已阅读所有显示的通知。",
+  "notificationsUpdateFailed": "无法更新通知。请重试。",
+  "customerAddressUnknown": "保存结果待确认，请验证后再修改。",
+  "customerAddressJournalUnavailable": "暂时无法读取此设备保存的恢复信息。你仍可查看账户，新增地址已暂停。请重试以恢复访问，无需删除数据。",
+  "customerAddressVerify": "验证保存",
+  "customerAddressCloseEditor": "关闭",
+  "customerAddressSending": "正在保存。关闭编辑器不会取消保存。"
 }

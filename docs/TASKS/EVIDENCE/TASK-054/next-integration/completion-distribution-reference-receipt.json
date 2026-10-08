@@ -1,0 +1,64 @@
+{
+  "observed_utc": "2026-10-08T19:57:05.891176+00:00",
+  "environment_reference_presence": {
+    "ANDROID_KEYSTORE_PATH": false,
+    "ANDROID_RELEASE_RUNTIME_CONFIG_PATH": false,
+    "ANDROID_SIGNING_CERT_SHA256": false,
+    "PLAY_SERVICE_ACCOUNT_JSON_PATH": false,
+    "PLAY_INTERNAL_UPLOAD_AUTHORIZED": false,
+    "IOS_EXPECTED_TEAM_ID": false,
+    "IOS_EXPECTED_SIGNING_CERT_SHA256": false,
+    "IOS_RELEASE_RUNTIME_CONFIG_PATH": false,
+    "APP_STORE_CONNECT_API_KEY_PATH": false,
+    "IOS_TESTFLIGHT_UPLOAD_AUTHORIZED": false,
+    "AUTH_CALLBACK_VERIFIED_HOST": false,
+    "AUTH_REDIRECT_URI": false,
+    "STOREFRONT_SHOP_SLUG": false,
+    "CMC_APPROVED_TEST_ARTIFACT_CONFIG_PATH": false
+  },
+  "secret_values_read": false,
+  "device_control": false,
+  "remote_metadata": {
+    "secrets": {
+      "command": [
+        "gh",
+        "api",
+        "repos/XNIW/ClientMerchandiseControl/actions/secrets?per_page=100"
+      ],
+      "exit_code": 0,
+      "count": 0,
+      "response_sha256": "28c5423a249b6b471b90805492666338fab88266ac6a72b4f2b711fa65c03a68"
+    },
+    "variables": {
+      "command": [
+        "gh",
+        "api",
+        "repos/XNIW/ClientMerchandiseControl/actions/variables?per_page=100"
+      ],
+      "exit_code": 0,
+      "count": 0,
+      "response_sha256": "8fb236d9855d43b214ea37db3296df40b54f11ee84dd9c96394813c4fbdf6423"
+    },
+    "environments": {
+      "command": [
+        "gh",
+        "api",
+        "repos/XNIW/ClientMerchandiseControl/environments?per_page=100"
+      ],
+      "exit_code": 0,
+      "count": 0,
+      "response_sha256": "310b1231b21edb0dde47b2ee59b26a0fc9b4cdd801864140a03561f16fb03c9d"
+    }
+  },
+  "local_files": {
+    "/Users/minxiang/.codex/worktrees/task054-operational-completion/ClientMerchandiseControl/android/key.properties": false,
+    "/Users/minxiang/.codex/worktrees/task054-operational-completion/ClientMerchandiseControl/android/app/google-services.json": false,
+    "/Users/minxiang/.codex/worktrees/task054-operational-completion/ClientMerchandiseControl/ios/Runner/GoogleService-Info.plist": false
+  },
+  "result": "BLOCKED",
+  "build": "NOT_RUN:no valid complete runtime configuration",
+  "sign": "NOT_RUN:approved signing references absent",
+  "upload": "NOT_RUN:approved channel references absent",
+  "install": "NOT_RUN:no Client target device lease",
+  "smoke": "NOT_RUN:no authenticated configured Client installed"
+}

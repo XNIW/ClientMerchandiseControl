@@ -1,0 +1,1061 @@
+{
+  "sourceRevision": "302857a558fe2d309172f5061542106443b45cfb",
+  "runId": 37361963759,
+  "role": "QA autore harness, non review indipendente",
+  "runtimeVerifiedLog": "Flutter3.44.8 /058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+  "androidReceipt": {
+    "evidence_level": "native_android_fixture",
+    "revision": "302857a558fe2d309172f5061542106443b45cfb",
+    "capture_count": 0,
+    "api": 35,
+    "abi": "x86_64",
+    "exit_code": 1,
+    "failed_phase": "native-fixture-capture",
+    "emulator_before_cleanup": {
+      "state": "alive",
+      "exit_code": null
+    },
+    "cleanup": "PASS"
+  },
+  "actualCases": {
+    "expected": 67,
+    "passed": 64,
+    "failed": 3,
+    "displayFinal": "+65 -3 include tearDownAll"
+  },
+  "captureInventory": {
+    "expectedFlutter": 105,
+    "actualFlutter": 102,
+    "expectedOS": 4,
+    "actualOS": 4,
+    "missingFlutter": [
+      "product-fulfillment-compact200-es-CL",
+      "product-fulfillment-compact200-it",
+      "product-fulfillment-compact200-en"
+    ]
+  },
+  "nativeSuiteResult": "FAIL",
+  "selectedRecords": [
+    {
+      "actualMarker": "88-review-submit-failure-comment-preserved-compact200",
+      "expectedIndexCompleteSuite": 91,
+      "sourcePath": "build/task054/next/ci-fourth-android/visual/88-review-submit-failure-comment-preserved-compact200.png",
+      "preservedPath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/flutter-88-review-submit-failure-comment-preserved-compact200.png",
+      "sha256": "92562837ef238acdc539e244fa0ddd8efaf713babf36b5bda9b65ab26ca4b874",
+      "dimensions": [
+        320,
+        640
+      ],
+      "pixelObservationResult": "PASS",
+      "observation": "Errore intero nel dialog, porzione finale draft e CTA leggibili.",
+      "beforePath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-before-d9fcbfd/flutter-91-review-submit-failure-comment-preserved-compact200.png",
+      "beforeSha256": "593931fd3a6880e952dd07f861d9242d3fa4cf5bfbb04de966010a59a57fcdb8",
+      "pairedFlutterSha256": null
+    },
+    {
+      "actualMarker": "90-review-edit-failure-comment-preserved-compact200",
+      "expectedIndexCompleteSuite": 93,
+      "sourcePath": "build/task054/next/ci-fourth-android/visual/90-review-edit-failure-comment-preserved-compact200.png",
+      "preservedPath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/flutter-90-review-edit-failure-comment-preserved-compact200.png",
+      "sha256": "f9b16170bf15dbe1c9c8195badcb075d542b67a5dd269478ea774a193890b062",
+      "dimensions": [
+        320,
+        640
+      ],
+      "pixelObservationResult": "FAIL",
+      "observation": "Solo ultima parola azione visibile; draft fuori viewport. Leggibilita errore/draft non provata.",
+      "beforePath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-before-d9fcbfd/flutter-93-review-edit-failure-comment-preserved-compact200.png",
+      "beforeSha256": "9277b18364eba7e2b682c4e77cbdba81d790e16c8a5912b7ef2248b7fc6861ce",
+      "pairedFlutterSha256": null
+    },
+    {
+      "actualMarker": "62-address-editor-focus-compact200",
+      "expectedIndexCompleteSuite": 62,
+      "sourcePath": "build/task054/next/ci-fourth-android/os-visual/62-address-editor-focus-compact200.png",
+      "preservedPath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/os-62-address-editor-focus-compact200.png",
+      "sha256": "aa2f398e55bd9756209f9a37a853a64a008be0e7d85359067cc0bc7276e33d57",
+      "dimensions": [
+        320,
+        640
+      ],
+      "pixelObservationResult": "PASS",
+      "observation": "Campo indirizzo con testo conservado456, caret e tastiera visibile; Cancelar e Guardar visibili. Valore completo non interamente osservabile nello stesso frame.",
+      "beforePath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-before-d9fcbfd/os-62-address-editor-focus-compact200.png",
+      "beforeSha256": "6497038be40808788428c8cef019ae93c48eb3e19b6026571636d7ecc0865d8e",
+      "receipt": {
+        "gitHead": "302857a558fe2d309172f5061542106443b45cfb",
+        "source": "os_display",
+        "platform": "android",
+        "marker": "62-address-editor-focus-compact200",
+        "frame_status": "PASS",
+        "probe_status": "PASS",
+        "mInputShown": true,
+        "mIsInputViewShown": true,
+        "ime_acceptance": "NOT_RUN",
+        "frame_sha256": "aa2f398e55bd9756209f9a37a853a64a008be0e7d85359067cc0bc7276e33d57",
+        "exit_code": 0,
+        "failed_phase": null,
+        "cleanup_status": "PASS"
+      },
+      "receiptSha256": "805ac392e9d9bd5a0640efc4a8b292c8f59099e042a88ec936b94c04b2162979",
+      "pairedFlutterSha256": "f91912056f6108e9a16c2a716e10f5cfd4e90133f4d04383575435765cad9bfd"
+    },
+    {
+      "actualMarker": "63-search-field-focus-compact200",
+      "expectedIndexCompleteSuite": 63,
+      "sourcePath": "build/task054/next/ci-fourth-android/os-visual/63-search-field-focus-compact200.png",
+      "preservedPath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/os-63-search-field-focus-compact200.png",
+      "sha256": "d99d4c4c943c6dcaccc7e35f5762e8748de52b631f1fa7b4c1ac728bcbd3a7a1",
+      "dimensions": [
+        320,
+        640
+      ],
+      "pixelObservationResult": "PASS",
+      "observation": "Ricerca con porzione query sintética, caret e tastiera visibile. Valore completo non interamente osservabile nello stesso frame.",
+      "beforePath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-before-d9fcbfd/os-63-search-field-focus-compact200.png",
+      "beforeSha256": "f6a691c56a6f3c1f5855cb95911756b2971b66c2de629d7f512c5c16ed730f0f",
+      "receipt": {
+        "gitHead": "302857a558fe2d309172f5061542106443b45cfb",
+        "source": "os_display",
+        "platform": "android",
+        "marker": "63-search-field-focus-compact200",
+        "frame_status": "PASS",
+        "probe_status": "PASS",
+        "mInputShown": true,
+        "mIsInputViewShown": true,
+        "ime_acceptance": "NOT_RUN",
+        "frame_sha256": "d99d4c4c943c6dcaccc7e35f5762e8748de52b631f1fa7b4c1ac728bcbd3a7a1",
+        "exit_code": 0,
+        "failed_phase": null,
+        "cleanup_status": "PASS"
+      },
+      "receiptSha256": "af48faad2b27ee87e246f302de8bca8ff44abc97e3df46040a0de20c7936de62",
+      "pairedFlutterSha256": "2c312dcf5e1784edaee241b1ef98c6cde1d33c50d70bab36e1483f2a2c97c40d"
+    },
+    {
+      "actualMarker": "86-review-comment-focus-compact200",
+      "expectedIndexCompleteSuite": 89,
+      "sourcePath": "build/task054/next/ci-fourth-android/os-visual/86-review-comment-focus-compact200.png",
+      "preservedPath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/os-86-review-comment-focus-compact200.png",
+      "sha256": "27f3e2e1adde065361238dce903d7b008354f62d2feddfbee8254591d797d28f",
+      "dimensions": [
+        320,
+        640
+      ],
+      "pixelObservationResult": "PASS",
+      "observation": "Commento conservado/despuésdeun visibile nel dialog insieme a Cancelar/Invio e tastiera; frame Flutter associato mostra stessa porzione, nessuna desincronizzazione osservata.",
+      "beforePath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-before-d9fcbfd/os-89-review-comment-focus-compact200.png",
+      "beforeSha256": "706b98b4ccf0775ba760953952777f49b245583578afed40efe41fd54dacc867",
+      "receipt": {
+        "gitHead": "302857a558fe2d309172f5061542106443b45cfb",
+        "source": "os_display",
+        "platform": "android",
+        "marker": "86-review-comment-focus-compact200",
+        "frame_status": "PASS",
+        "probe_status": "PASS",
+        "mInputShown": true,
+        "mIsInputViewShown": true,
+        "ime_acceptance": "NOT_RUN",
+        "frame_sha256": "27f3e2e1adde065361238dce903d7b008354f62d2feddfbee8254591d797d28f",
+        "exit_code": 0,
+        "failed_phase": null,
+        "cleanup_status": "PASS"
+      },
+      "receiptSha256": "cf483e385d00fe01a8cf3d4af098c4b08336b1807923ef112258f0c755af705a",
+      "pairedFlutterSha256": "7eb38c4b547ac53216ad9f88fb829012aaa1ba22330f960c740af61bde45bea3"
+    },
+    {
+      "actualMarker": "93-assistance-note-focus",
+      "expectedIndexCompleteSuite": 96,
+      "sourcePath": "build/task054/next/ci-fourth-android/os-visual/93-assistance-note-focus.png",
+      "preservedPath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-after-ci4-302857a/os-93-assistance-note-focus.png",
+      "sha256": "d55d668aa9b4573e388ed19d1c5b661dcbc5c9e9d33f88020523b3d0484ca896",
+      "dimensions": [
+        320,
+        640
+      ],
+      "pixelObservationResult": "PASS",
+      "observation": "Nota sintetica conservata completa e tastiera visibili; frame Flutter associato mostra stessa nota.",
+      "beforePath": "docs/TASKS/EVIDENCE/TASK-054/next-integration/ui-before-d9fcbfd/os-96-assistance-note-focus.png",
+      "beforeSha256": "c3e3c6355ac38cd45cec953a7e355c1580f66744fbacf29f5a2d7143d1648e79",
+      "receipt": {
+        "gitHead": "302857a558fe2d309172f5061542106443b45cfb",
+        "source": "os_display",
+        "platform": "android",
+        "marker": "93-assistance-note-focus",
+        "frame_status": "PASS",
+        "probe_status": "PASS",
+        "mInputShown": true,
+        "mIsInputViewShown": true,
+        "ime_acceptance": "NOT_RUN",
+        "frame_sha256": "d55d668aa9b4573e388ed19d1c5b661dcbc5c9e9d33f88020523b3d0484ca896",
+        "exit_code": 0,
+        "failed_phase": null,
+        "cleanup_status": "PASS"
+      },
+      "receiptSha256": "1bd376f8b6f4d0fd1ecb4fa1b6ae2e9a389c1f4c242a78cadd4d0b1364397c70",
+      "pairedFlutterSha256": "c5f696aa1365817c2292fef38457f28d2a01ad8b74d1f9b188edf0fd711a5d0f"
+    }
+  ],
+  "inventory": [
+    {
+      "path": "visual/01-account-loaded.png",
+      "sha256": "7f67db912ce0466f5090d1e26dd1480678a1b7a9a30f0877204c9121311e7218",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/02-address-editor.png",
+      "sha256": "7a078af584fc32b4aaa8c67e79440246b0003acfddad675fcabcd911fa04de4b",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/03-address-new.png",
+      "sha256": "dbd70968d56aa266ced9ee422f72a89215a778cc47d44be6f20640a45479b329",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/04-address-saved.png",
+      "sha256": "ba37c9887a7d5c25f3d46ea4c7adaac08441cee7b77711afe23313be1d477e11",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/05-checkout-mode.png",
+      "sha256": "d616024622916cb82b6bafa3e951cf45e73e217a664772d1a48d62d7a948abcd",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/06-checkout-pickup.png",
+      "sha256": "b6b45285bef0e39fc288247d818a4120ccd10f8b97c47e873d3ba2655fe1e75a",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/07-checkout-slot.png",
+      "sha256": "c426023cee353587cb96ec312f9670cc80f926c9b9c9e443ed4c382c2b1fb435",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/08-checkout-payment.png",
+      "sha256": "ecde1bd7b45d363a786e07c44acacf5b2f695d89b0c02ffab84f5bf64b3101c7",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/09-checkout-timeout-recovery.png",
+      "sha256": "ccd37e3f1f57f0b1ad14e282ff8c49a7c5be82f1d6d25f640a2304b1e4f8ad4c",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/10-checkout-price-change.png",
+      "sha256": "f12399113ccb35c77af707529906feed6ba9dcfc529e3362f1d6a29a6f9c1bb0",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/100-assistance-partial-evidence-detail.png",
+      "sha256": "56ea5475a2fc6ddc72139593c416e9f4d476335aaa744495daa701576122ddf4",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/101-tracking-provider-off-fresh-text.png",
+      "sha256": "b6817041845dd75f79e049268dbd162df2d124f9ed0c6c31bd9e7fa8b208c662",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/102-tracking-provider-off-stale-text.png",
+      "sha256": "ddb181a5fb8cc5f43b3e597573091ddb2cb842d1d49f0f15611327fd1457e75f",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/11-payment-offline-provider-off.png",
+      "sha256": "b782a9d2773b210d4eed23955e81a1ca3413abba5944f1467fae33f0a4329168",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/12-checkout-receipt.png",
+      "sha256": "1d9d731be2467dcb8e85045ea1270d75d1e98e7a98723162a0c16ab29ba0b400",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/13-orders-loaded.png",
+      "sha256": "77e44ecdfdbee73b27175934938afbf20daa621072af6ee95c8c9bfdacb51363",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/14-order-detail.png",
+      "sha256": "7b6f2bd41223ef02f92ba25315bda599d5fd6aaa06827f47c08a117d6d3e652d",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/15-order-cancel-dialog.png",
+      "sha256": "45ae3232a7b2599be858fca072e54f233ed50f454e6214b810f1dcfbd21e1120",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/16-assistance-form-scale1.png",
+      "sha256": "639ab6e0cd6ecdb937addb8c93d2fe33f97ce42e52c418f57a3a0f9039fca86e",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/17-reviews-account-scale1.png",
+      "sha256": "abea471008de4c9f31fde980a91af641739890694063f4815492ec6067cab425",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/18-review-dialog-scale1.png",
+      "sha256": "be895bf374f43db5c09f4b82a7805587fd606ce1fffefdd0f9bc54c4a1e45069",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/19-reviews-order-scale1.png",
+      "sha256": "38052f76fa0a1080b26f6a91d0fafad5399d2e9e88ff21caad02d34c868cbc9e",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/20-reviews-product-scale1.png",
+      "sha256": "3dab3faf5403386a20a1213a5e6cf0222338f092c36c7e67db2ffce50ef4cb0c",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/21-inbox-scale1.png",
+      "sha256": "9d24e69a64d430d80fad45b17e5ac3f477935243be46f6695c587badac27ec68",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/22-delivery-provider-off-scale1.png",
+      "sha256": "fff5bb8200ec5f3471cdc0bc953ebe53d0ceaf8b55004e21d9220fec553010c6",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/23-delivery-saved-address-scale1.png",
+      "sha256": "e1a718ef018ec9d5528548cdf144edb7b3cce8dd8cb4acae0f47673c25c6041c",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/24-pickup-options-scale1.png",
+      "sha256": "1fbf9fed9579e1e9d13c34dbaf654b4cfef95b8b2cfc125c4381c946acf7505c",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/25-assistance-form-scale2.png",
+      "sha256": "58dbc3d499d45e51fa4b07fc2f91c51a6d8ecf66bd13d53ba03d56930b09e5ed",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/26-reviews-account-scale2.png",
+      "sha256": "2c34c412a8ea30e4fec8181835a1e25263a547abb9915d6c4c17aaf8151d2630",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/27-review-dialog-scale2.png",
+      "sha256": "bcf4a5ea291b2e33e4d03637991cd23b95245f3f0aaa8a1c544dccd0c4660a2f",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/28-reviews-order-scale2.png",
+      "sha256": "92bb46ba4934a856db206cd5bf249e75ca3085e9958361e06b7dec46dd3e72d2",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/29-reviews-product-scale2.png",
+      "sha256": "3caefe50e4c3543f395cd99f2713eeb7558e020f6891358a6be3e62c24e946e5",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/30-inbox-scale2.png",
+      "sha256": "c6b8e12e623360e8c340e778dc9289ef33d725eb89e01cf3c8f9e71793248328",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/31-delivery-provider-off-scale2.png",
+      "sha256": "b19f3ba84b525c051756e99dea7bfe86a4c166eb51f4bf800875327d4753ebdb",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/32-delivery-saved-address-scale2.png",
+      "sha256": "791691506f65357c0627c34c00c365988b07619e9c9b0aa4221a37945482e595",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/33-pickup-options-scale2.png",
+      "sha256": "2568f4f51041e1ebeb41e18dbf13df8bde48fa9810abe65a5b9e24b236a599b6",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/34-assistance-list-empty.png",
+      "sha256": "aacd4300944edfc665d4a4c4c97983692f708d8cbecef9826fcfd6faecc1652c",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/35-reviews-account-empty.png",
+      "sha256": "e67de6c2c3f9eede8a4ea78b539d9ee24355d6c6729da6d07b7b9d1c8b57a4c0",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/36-reviews-product-empty.png",
+      "sha256": "175d632060de3ac3de2c5919c52d90b0505d46102e5910bf6ed6dc87d4752604",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/37-inbox-empty.png",
+      "sha256": "fba37214510aa0c715848fd9221a994c771f9f0cd177a36696f683dc5f638778",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/38-assistance-list-error.png",
+      "sha256": "bc48cf56e46ea4a4278aac429019b6ea1f011f00a2d0f0bcc4be0c0dfb7a09c6",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/39-reviews-account-error.png",
+      "sha256": "6a3996cf7ca2325e43a914dc83d4e8482511cc9cfae229358f329509d7cdd6ed",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/40-reviews-product-error.png",
+      "sha256": "088736b47c01f924727cd1e50f1fd6decabac96730deecb39898308185a7fb93",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/41-inbox-error.png",
+      "sha256": "498e4f6840fd5384ec9a0fa337044bb266ac4df1e3c81aa47faaac8d698e7b94",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/42-assistance-list-loading.png",
+      "sha256": "31cac42607108df841037108db0ae4d8f6a2d7977acfa244fed5a2722fe1f513",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/43-reviews-account-loading.png",
+      "sha256": "64ac580a80de8e00a5a0516323d5009db7e69e4399d1ac89137ff34b91e31762",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/44-reviews-product-loading.png",
+      "sha256": "f2fd76bcb3ba50a2a9af38c50ed7a0e420bf84d3f461b7a57142533d4bbd80d7",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/45-inbox-loading.png",
+      "sha256": "82b278fa7304a671fe264177e41513d6798d72553edcb003ed96c6fc42fee24e",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/46-home-loaded.png",
+      "sha256": "5b8c02e11f00b5a5a972ee0c4f878353a3a60f7dfa31ad16fd6452de9433e09d",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/47-catalog-loaded.png",
+      "sha256": "794fd3b28c3c8afed61b27c90a7619a2df0e27e3a66e50e9ccf8879fa42eecba",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/48-product-loaded.png",
+      "sha256": "9b0c43c20bacaabbc761ffce1387aac795ce81a8a8d5a3c4abc45c159282c44b",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/49-cart-loaded.png",
+      "sha256": "7d702ecaf230932e3e7d80d18b2b9284e6545c6f0c957114a7d89b2307d1e024",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/50-home-empty.png",
+      "sha256": "0fea691bea7b4119ad703c364c242938a2117cc323ad4aa72727f4b74243df1c",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/51-catalog-empty.png",
+      "sha256": "eca664af4c440f3507cd55abeaec94cd2072aa875f9c2395c9b879e5d18e0cf8",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/52-product-empty.png",
+      "sha256": "3232f5eff9db5a71813bc29b45826a12cfa8cc19781d760dad82df006bd2f8bc",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/53-cart-empty.png",
+      "sha256": "8852a48a735b02e8c0cbfdc7223dfac3c77800a71c50c6dd0319da94dd2864e2",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/54-home-offline.png",
+      "sha256": "69ebb5bab152f9536df9d96df202f47895b6ed546e6ddeec2d7b5d4ba70270d7",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/55-catalog-offline.png",
+      "sha256": "70248c75f131bf46f4049e27cae594d6f5d8f9f2486a95b1e36a318c29010033",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/56-product-offline.png",
+      "sha256": "ff6fc9032a186ff80893a3f421c7e8c3d54808b5a20e8e0c2eca992353549dc4",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/57-cart-offline.png",
+      "sha256": "d3df1d96ddaec4ed1d4b4bfa0502325013f0a23ce5d67c647bddee7e7c7ac262",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/58-home-error.png",
+      "sha256": "0cba073a85707cfd10f34d7d1eb035294e43ca3ac3120ba1dcabbf8c9027ff2f",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/59-catalog-error.png",
+      "sha256": "bab39b84fcb3fcc326b0d01820bc8f6ba990da62b87ef540fb6f4caef5d9a6ef",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/60-product-error.png",
+      "sha256": "3232f5eff9db5a71813bc29b45826a12cfa8cc19781d760dad82df006bd2f8bc",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/61-cart-error.png",
+      "sha256": "bceccb29cbde9c958e0f70c581f368b26a67af2323411f653a66899e4af87d76",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/62-address-editor-focus-compact200.png",
+      "sha256": "f91912056f6108e9a16c2a716e10f5cfd4e90133f4d04383575435765cad9bfd",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/63-search-field-focus-compact200.png",
+      "sha256": "2c312dcf5e1784edaee241b1ef98c6cde1d33c50d70bab36e1483f2a2c97c40d",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/64-home-compact200-long-es-CL.png",
+      "sha256": "42cb39feee11359f4cb41e073daf4d70e381a8adf7d8adceb115cde0789ef1c6",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/65-catalog-compact200-long-es-CL.png",
+      "sha256": "472c14c613add1064f3e0c796aabe18cb76881e094ec5ed260da0ed8c45b155e",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/66-product-compact200-long-es-CL.png",
+      "sha256": "ecf8452062c78c6b9c632b3e767e6bd2fdf00fe7fd0f295ffc81a9b9bf4fe6a5",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/67-cart-compact200-long-es-CL.png",
+      "sha256": "f7b85999a3347e13c7033eff6d3420eabee1f8a4c8f30edb49959617528f152d",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/68-home-compact200-long-it.png",
+      "sha256": "9f5de6827c012347a2cb6542ed0589e0d0fa65deadf7df6454110fd4ee52e5ec",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/69-catalog-compact200-long-it.png",
+      "sha256": "f4f22be90cc52be37e5a00d22439d0c8759a154814a66693873cf6a74f4834d9",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/70-product-compact200-long-it.png",
+      "sha256": "566cb9291f47f86f611e277c91ff830ba34393591efd4e3c8b9d18a0738c07a4",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/71-cart-compact200-long-it.png",
+      "sha256": "b9aed6021e10ae5898676b208bb6637758da945c3a301bbdbda6c6d8d2c9443f",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/72-home-compact200-long-en.png",
+      "sha256": "be7abc4beee0adb1ce0555ee8d8e14dd18b178512f505447d1bb0a514889befe",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/73-catalog-compact200-long-en.png",
+      "sha256": "853b4f1f8889304968f938cd7cd088bfab9a5cfe2acceeee1d62c8125c580846",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/74-product-compact200-long-en.png",
+      "sha256": "5fcc65c16793bca8ed76221bf6956c3a0af4035dd6cc858d664839463bcf8982",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/75-cart-compact200-long-en.png",
+      "sha256": "f9cd3ebde06aafd7f99f9fa13480e4942ba10f109f6ec01645827d9c03be04ee",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/76-home-compact200-long-zh-Hans.png",
+      "sha256": "8fe061a9907ef91e4b9a3dd796282cf6d6130148dab204a598298ec95a6d8331",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/77-catalog-compact200-long-zh-Hans.png",
+      "sha256": "bd8a0edb2b12812b2181cac47b81c3e7d5e99b2c94b08bc18724601511a94d23",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/78-product-compact200-long-zh-Hans.png",
+      "sha256": "4fd70f7a56f16ee3eccdf0ca9931b8412ec896799758fe9d016e49c8cebaf013",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/79-product-fulfillment-compact200-zh-Hans.png",
+      "sha256": "d60c806c53292f1c756071829671d60c58f88f762cab7b241127081064d427a4",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/80-cart-compact200-long-zh-Hans.png",
+      "sha256": "7c621004ea99a05abdef7af3f3d20efea16df185e595eecbb094ac3f9483fd50",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/81-inbox-unread-partial-compact200.png",
+      "sha256": "68233b0f17ea987ef1ebcdeb6167135149853ce1a9c34eab704dbd88dc1fad35",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/82-inbox-page2-unread-compact200.png",
+      "sha256": "ab0ec50ec7ae4e2c2cb21d2ee44a2e23f263bd8eafa8e0d3ac9e042d740acc33",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/83-inbox-page2-read-empty-compact200.png",
+      "sha256": "a73a3591e158f7eb25a66eb6e730f3ca9b94b1d9e15713e1360774dda97edb33",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/84-inbox-offline-cache.png",
+      "sha256": "3dbb5feb6e2773be9792a4c148d3027688e5794bb4cfea3408244cacbc37f15c",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/85-inbox-auth-expired-purged.png",
+      "sha256": "498e4f6840fd5384ec9a0fa337044bb266ac4df1e3c81aa47faaac8d698e7b94",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/86-review-comment-focus-compact200.png",
+      "sha256": "7eb38c4b547ac53216ad9f88fb829012aaa1ba22330f960c740af61bde45bea3",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/87-review-submit-busy-compact200.png",
+      "sha256": "8ef5d1ce59b5086c3ccc9f47f8268d167f1815e29e297df3428597b970383735",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/88-review-submit-failure-comment-preserved-compact200.png",
+      "sha256": "92562837ef238acdc539e244fa0ddd8efaf713babf36b5bda9b65ab26ca4b874",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/89-review-submitted-readback-compact200.png",
+      "sha256": "92f954997fda26025a2ece19733756f5a6490cf8b76b640f872127abeec65ea9",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/90-review-edit-failure-comment-preserved-compact200.png",
+      "sha256": "f9b16170bf15dbe1c9c8195badcb075d542b67a5dd269478ea774a193890b062",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/91-review-edited-readback-compact200.png",
+      "sha256": "d87ec27b44891e7ba26a905a5997c8068e6f0721bba1fecba47ecb0753310613",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/92-review-edit-cancel-readback-compact200.png",
+      "sha256": "d87ec27b44891e7ba26a905a5997c8068e6f0721bba1fecba47ecb0753310613",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/93-assistance-note-focus.png",
+      "sha256": "c5f696aa1365817c2292fef38457f28d2a01ad8b74d1f9b188edf0fd711a5d0f",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/94-assistance-selected3-fixture-attachments.png",
+      "sha256": "faa987404bb12683c7ee32e6e29384cf6d81a5c29fc1f24f049d93e7548c6123",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/95-assistance-submit-busy.png",
+      "sha256": "30a89804cf360f1324914ef1a6c0b598e89f91c884e6be1b6e1463ea9bb7f0f8",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/96-assistance-submit-timeout-draft-preserved.png",
+      "sha256": "59f0c36603d7c63b0e306d3d58994a1f8536c3623bda34866627df60eedebfc3",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/97-assistance-submitted-detail.png",
+      "sha256": "17db241a0d25aab3984977cd5f2419e38cb2c2a1db68e0b8b8a0b955753952b2",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/98-assistance-submitted3-evidence-detail.png",
+      "sha256": "93142cbfe47d207295be683b78014be6c6a9e9f7c66d94f5ced2437d39ccf16d",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "visual/99-assistance-evidence-partial-upload-failure.png",
+      "sha256": "56ea5475a2fc6ddc72139593c416e9f4d476335aaa744495daa701576122ddf4",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "os-visual/62-address-editor-focus-compact200.png",
+      "sha256": "aa2f398e55bd9756209f9a37a853a64a008be0e7d85359067cc0bc7276e33d57",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "os-visual/63-search-field-focus-compact200.png",
+      "sha256": "d99d4c4c943c6dcaccc7e35f5762e8748de52b631f1fa7b4c1ac728bcbd3a7a1",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "os-visual/86-review-comment-focus-compact200.png",
+      "sha256": "27f3e2e1adde065361238dce903d7b008354f62d2feddfbee8254591d797d28f",
+      "dimensions": [
+        320,
+        640
+      ]
+    },
+    {
+      "path": "os-visual/93-assistance-note-focus.png",
+      "sha256": "d55d668aa9b4573e388ed19d1c5b661dcbc5c9e9d33f88020523b3d0484ca896",
+      "dimensions": [
+        320,
+        640
+      ]
+    }
+  ],
+  "rawNativeLogSha256": "f9e693bfe67dcf3befd69d4c7972c219d0c9bd6e3cf369b940a55479e8f5be9d",
+  "emulatorLogSha256": "537b6f9933b1ffed29a18b3d79593bf942eccae019695986ad3e0fe81c15d058",
+  "limits": [
+    "Capture suite parziale non promossaPASS.",
+    "Receipt runnercapture_count0 precede verifica inventario dopo comandoFAIL:102PNG effettivi separati.",
+    "Pixel+boolean Android mostrano tastiera presente; input fisico/IME acceptance/VoiceOver/TalkBack/staging/killrestartNOT_RUN.",
+    "Prima d9fc originale immutata, nessuna ricostruzione o modifica PNG.",
+    "Contrasto WCAG widget distinto dallosservazione pixel."
+  ],
+  "originalReceiptSha256": "d6ceb3f1c95be3bdeccceb4f96b337507df57f92284ae0dab2b5869aaf0407a2",
+  "qualification": "QA writer distinta dalla re-review autonoma. Sei after reali Android dal CI4FAIL copiati senza alterare pixel e verificati SHA; confronto per marker semantico, indici shifted dopo tre capture mancanti. Edit90 FAIL osservato, source correzione e nuova CI da verificare. Prima d9fc byteimmutata; iOS nessuna baseline/after disponibile."
+}

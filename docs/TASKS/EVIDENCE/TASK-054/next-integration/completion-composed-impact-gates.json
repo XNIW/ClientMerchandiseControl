@@ -1,0 +1,41 @@
+{
+  "schema": "task054-composed-impact-gates-v1",
+  "observed_at_utc": "2026-10-08T21:30:55.634487+00:00",
+  "tested_head": "232794847877f47ed1b9c95c497ceb96242cb180",
+  "status": "PASS",
+  "scope": "Due gate impattati dall’integrazione helper; non suite globale o prova nativa",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "scripts/test-task054-visual-runner.py"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "outcome": "PASS",
+      "observed_output": "Ran 14 tests in 0.031s; OK",
+      "expected_negative_fixture_stderr": "FAIL diagnostics belong to asserted negative fixtures; terminal unittest OK and exit0",
+      "tool_chunk_id": "27bac0"
+    },
+    {
+      "command": [
+        "bash",
+        "scripts/check-architecture-boundaries.sh"
+      ],
+      "exit_code": 0,
+      "outcome": "PASS",
+      "observed_output": "Boundary architetturali coerenti: ownership, TASK-012, Auth, DAG e RPC Storefront Home/Categories/Catalog/Search/Detail verificati.",
+      "initial_tool_chunk_id": "962e9f",
+      "terminal_tool_chunk_id": "6064f7",
+      "session_id": 89005,
+      "session_terminal": true
+    }
+  ],
+  "source_sha256": {
+    "scripts/test-task054-visual-runner.py": "b205fbff38f5f671baeb27b1aa00874357472c28fd95b90e28a7f61848b8191b",
+    "scripts/check-architecture-boundaries.sh": "cb647ad1783312fad0756a5a3b95336726e4903400b85ecba97f5d641853c113"
+  },
+  "all_own_commands_terminal": true
+}

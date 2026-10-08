@@ -1,0 +1,170 @@
+{
+  "kind": "independent_readonly_client_source_re_review_with_public_auth_reproduction",
+  "reviewer": "/root/review_client_delta",
+  "revision": "a97778697051f93380ace9d6181a226c7f79ca77",
+  "source_test_revision": "d9da3c56845dc3ebab23d2d783edbffb795af927",
+  "outcome": "CHANGES_REQUIRED",
+  "scope": "Client SOURCE_CODE_ONLY + functional docs, native acceptance still pending",
+  "counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 1,
+    "P3": 0
+  },
+  "closed_findings": [
+    "C-NI054-04",
+    "C-NI054-05",
+    "C-NI054-06",
+    "C-NI054-07"
+  ],
+  "findings": [
+    {
+      "id": "C-NI054-08",
+      "severity": "P2",
+      "kind": "Client owner lifecycle, reproduced on public app/router/auth path",
+      "file": "locale:customer_reviews.dart",
+      "start_line": 499,
+      "end_line": 527,
+      "source_trigger": "Dialog has no owner-bound lifetime; _save/current response checks mounted only. Public /reviews redirect guards entry, auth event listener does not dismiss the modal. Reviews account provider updates identity but dialog remains mounted independently.",
+      "impact": "Old customer draft remains in modal after sessionExpired/AuthGuest or ownerA->B. A late old-owner failure is rendered inside the still-open dialog under ownerB; late ACK can pop/invalidate after scope lost. No backend privilege escalation or server write-as-old-owner claim.",
+      "reproductions": [
+        {
+          "case": "expiry with pending mutation then late ACK",
+          "preconditions_verified": [
+            "ClientMerchandiseControlApp and appRouterProvider production mounted",
+            "/reviews actual public route current",
+            "AuthController production initially AuthAuthenticated(ownerA)",
+            "pending review submit1",
+            "signedOut/sessionExpired event from synthetic AuthRepository port transitions production controller to AuthGuest",
+            "customerAccountIdentityProvider production returnsnull",
+            "late ACK resolved before assertion"
+          ],
+          "observed": "modal and original draft survive expiry until lateACK; required modalSurvivedExpiry=false istrue",
+          "result": "FAIL",
+          "exit_code": 1
+        },
+        {
+          "case": "ownerA->B with pending mutation then late failure",
+          "preconditions_verified": [
+            "same public app/router/identity path, no identity/authState/Scaffold override",
+            "signedIn port event transitions production controller to AuthAuthenticated(ownerB)",
+            "identityProvider returnsownerB",
+            "late CustomerReviewException resolved before assertion"
+          ],
+          "observed": "old modal survives owner switch, old draft and local failure from ownerA remain visible under ownerB",
+          "result": "FAIL",
+          "exit_code": 1
+        }
+      ],
+      "poc_path": "locale:reviews_public_router_auth_test.dart",
+      "poc_sha256": "9646308f111cdce24f8ce2b9d88249d897cb593d391129c6d457b8518fbea719",
+      "command": "flutter test --no-pub build/task054/review_client/reviews_public_router_auth_test.dart --reporter expanded --concurrency=1",
+      "log_path": "/tmp/task054-review-client-public-auth-a977.log",
+      "log_sha256": "9002ac5d72883be31ab6282819d6800e4e17f3865e83a8ee58c563e0aac74a1b",
+      "result": "FAIL",
+      "exit_code": 1,
+      "tests_failed": 2,
+      "test_seams": "Config.authFlowTest and remote auth/callback/account/review ports synthetic; public App/Router/AuthController/identity/dialog real",
+      "required_fix": "Only owner lifecycle of review dialog/late ACK/failure: invalidate old editor lifetime on owner loss/change and do not update/pop/readback old callback into new scope; no speculative shop guard or router/refactor",
+      "required_regression": "Original two public-route PoCs PASS; logout/expiry and owner change with late ACK/failure; stable owner submit/edit/withdraw/busy/draft/rating/readback continuePASS, A-B-A where applicable",
+      "owned_future_cleanup": "Both pending mutations resolved before failing assertions; teardown drains any remaining completers, unmounts app and disposes container/auth/callback streams; Flutter command terminal exit1, no async error from tester.takeException"
+    }
+  ],
+  "checks": [
+    {
+      "command": "flutter test --no-pub test/features/reviews build/task054/review_client/review_error_overlay_reproduction_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 31,
+      "log": "/tmp/task054-review-client-c07-d9da.log"
+    },
+    {
+      "command": "flutter test --no-pub build/task054/review_client/host_next_integration_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 24,
+      "type": "WIDGET host, not native",
+      "log": "/tmp/task054-review-client-harness-d9da.log",
+      "warning": "integration_test plugin not detected for host, no native proof"
+    },
+    {
+      "command": "flutter analyze",
+      "result": "PASS",
+      "exit_code": 0,
+      "log": "/tmp/task054-review-client-analyze-d9da.log"
+    },
+    {
+      "command": "bash scripts/check-user-facing-localization.sh; bash scripts/check-architecture-boundaries.sh; dart format --output=none --set-exit-if-changed [4 touched Dart files]",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "source Git object identity d9da3c5->a977; aggregate registrations and capture calls d9fc->a977; unchanged C04–06/protocol/driver/deps",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "flutter test --no-pub build/task054/review_client/reviews_public_router_auth_test.dart --reporter expanded --concurrency=1",
+      "result": "FAIL",
+      "exit_code": 1,
+      "failed": 2,
+      "log": "/tmp/task054-review-client-public-auth-a977.log"
+    }
+  ],
+  "c07_re_review": "Original FAIL PoC nowPASS; error persists inside modal withliveRegion, draft/rating kept on submit/edit/withdraw failure, clearretry, busy preventsduplicate, currentownerACK closes andreadbackFAIL doesnotreopenwrite. Fourlocales light/darkcompact200 widgetPASS. Nativeupdatederrors NOT_RUN.",
+  "harness_re_review": "Flutter takeScreenshot awaited beforeOS, invokes SDK image acquire/framebarrier; review explicit keyboard+reveal+hitTestable; assist unfocus onlyafterfocuscapture thenboundedouterlistreveal; existing capture calls/names/counts/budgets unchanged. This is source/widget proof, no new native field rendering acceptance.",
+  "expected_native_counts": {
+    "tests": 67,
+    "flutter_png": 105,
+    "os_png": 4
+  },
+  "file_hashes": [
+    {
+      "path": "lib/features/reviews/presentation/customer_reviews.dart",
+      "sha256": "3b8a3a7ce5fee5f7af4e6af3c8ab78556bfb108ea8f00edf1924ee0950eed0eb",
+      "git_blob": "f076bc4167aa44190f5aa8627a240dcff191eaff"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_feedback_test.dart",
+      "sha256": "bf94a36ca3a4cbd344d6d7f6441aa6799b860706e5266f0c9714b9dec39c12e4",
+      "git_blob": "4bfd2c4cb64d9dba04636eed97f1c556c1bb4bf2"
+    },
+    {
+      "path": "integration_test/support/visual_capture.dart",
+      "sha256": "de6a13f82053cf4807f5b88f3634a680636d47cb748f11b35e8144eb3ba8e68f",
+      "git_blob": "9c8689c2cbd388cad1e90a92d4f0a7523784cf56"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "sha256": "be55bc82ef5f2dd0d7b922c44852a113a296e0d4a4d4b9d00d62420524a57180",
+      "git_blob": "025e8594be1399f720033919c47a930657a4a1e1"
+    },
+    {
+      "path": "lib/app/router/app_router.dart",
+      "sha256": "59368d8d7f46562e47f566ee5ca778171a4237ec1fa32ad564eeb174c1b57e6b",
+      "git_blob": "6993a64d640ba4a3312ddb7948f4c720c08ef301"
+    },
+    {
+      "path": "lib/app/client_merchandise_control_app.dart",
+      "sha256": "f255821446fbb3bbeec235fe3d819b74dbd01cb0cce11f9874dbdeef48451f40",
+      "git_blob": "39536d3fe097f1b5d5ae60f923bd12500f618133"
+    },
+    {
+      "path": "lib/features/reviews/application/customer_review_providers.dart",
+      "sha256": "e3cf511a7ef19d3ec95f9c0e20b84b79ea8bb02e5f568ffd5c11571a86c4841f",
+      "git_blob": "2e4c27a9dc8f44bd46e003fd9e01ebcb35fc2eec"
+    }
+  ],
+  "docs_status": "BLOCKED/REVIEW/CODEX_FIX_BLOCKED_TO_RE_REVIEW; failed CI and originalbefore6PNG preserved; latestCIqueued37352605356 not independently reviewed here",
+  "doc_editorial_suggestion": "Harness visible text claim can describe checked controller/focus/targethitTestable; parent acknowledges nonblockingprecisions to record with terminal CI/nativecheckpoint",
+  "limits": [
+    "Source gate CHANGES_REQUIRED while C08 open; no candidate or task approval",
+    "No localnative/emulator/build/resourceN use",
+    "CIa977 continues independently forC07/harness native evidence, notmergeability",
+    "Full TASK054 live BLOCKED",
+    "No speculative new shop/router guard requirement"
+  ],
+  "tracked_source_mutations": 0,
+  "owned_verification_processes_pending": 0,
+  "poc_frozen_for_writer": true
+}

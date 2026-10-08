@@ -7,6 +7,8 @@ import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_state.dart';
 import '../application/customer_account_controller.dart';
 import '../application/customer_account_providers.dart';
 import '../domain/customer_account_failure.dart';
@@ -162,11 +164,14 @@ class _CustomerAccountReady extends StatelessWidget {
         const SizedBox(height: AppSpacing.xl),
         const Divider(),
         _AddressSection(
+          // La notice precedente entra/esce durante i retry. Conserva il
+          // contesto che possiede l'editor finché questa sezione è presente.
+          key: const ValueKey('customer-address-section'),
           addresses: snapshot.addresses,
           isBusy: state.isMutating,
-          onCreate: (draft) async {
-            await controller.createAddress(draft);
-          },
+          isCreationSuspended: state.isAddressJournalUnavailable,
+          onRetryJournal: controller.refresh,
+          onCreate: controller.createAddress,
           onUpdate: controller.updateAddress,
           onDelete: (address) async {
             final confirmed = await _confirm(
@@ -189,16 +194,29 @@ class _CustomerAccountReady extends StatelessWidget {
           isBusy: state.isMutating,
           onConsentChanged: controller.recordPrivacyConsent,
           onExport: () async {
+            final container = ProviderScope.containerOf(context);
+            final expectedSubjectId = container
+                .read(customerAccountIdentityProvider)
+                ?.subjectId;
+            if (expectedSubjectId == null) return;
             await controller.exportData();
-            if (!context.mounted) {
+            if (!context.mounted ||
+                container.read(customerAccountIdentityProvider)?.subjectId !=
+                    expectedSubjectId) {
               return;
             }
-            final export = ProviderScope.containerOf(context).read(
+            final export = container.read(
               customerAccountControllerProvider.select((value) => value.export),
             );
             if (export != null) {
-              await _showExport(context, export);
-              controller.clearExport();
+              await _showExport(context, export, expectedSubjectId);
+              if (context.mounted &&
+                  identical(
+                    container.read(customerAccountControllerProvider).export,
+                    export,
+                  )) {
+                controller.clearExport();
+              }
             }
           },
           onRequestDeletion: () async {
@@ -374,16 +392,21 @@ class _AddressSection extends StatelessWidget {
   const _AddressSection({
     required this.addresses,
     required this.isBusy,
+    required this.isCreationSuspended,
+    required this.onRetryJournal,
     required this.onCreate,
     required this.onUpdate,
     required this.onDelete,
     required this.onSetDefault,
+    super.key,
   });
 
   final List<CustomerAddress> addresses;
   final bool isBusy;
-  final Future<void> Function(CustomerAddressDraft draft) onCreate;
-  final Future<void> Function(
+  final bool isCreationSuspended;
+  final VoidCallback onRetryJournal;
+  final Future<CustomerAddress?> Function(CustomerAddressDraft draft) onCreate;
+  final Future<bool> Function(
     String addressId,
     int expectedVersion,
     CustomerAddressDraft draft,
@@ -404,19 +427,30 @@ class _AddressSection extends StatelessWidget {
           message: l10n.customerAddressesDescription,
           trailing: IconButton.filledTonal(
             key: const ValueKey('customer-address-add'),
-            onPressed: isBusy
+            onPressed: isBusy || isCreationSuspended
                 ? null
-                : () async {
-                    final draft = await showCustomerAddressEditor(context);
-                    if (draft != null) {
-                      await onCreate(draft);
-                    }
-                  },
+                : () => _editAddress(context),
             tooltip: l10n.customerAddressAdd,
             icon: const Icon(Icons.add_location_alt_outlined),
           ),
         ),
         const SizedBox(height: AppSpacing.md),
+        if (isCreationSuspended) ...[
+          Semantics(
+            key: const ValueKey('customer-address-journal-unavailable'),
+            container: true,
+            liveRegion: true,
+            child: Text(l10n.customerAddressJournalUnavailable),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          OutlinedButton.icon(
+            key: const ValueKey('customer-address-journal-retry'),
+            onPressed: isBusy ? null : onRetryJournal,
+            icon: const Icon(Icons.refresh),
+            label: Text(l10n.customerAccountRetry),
+          ),
+          const SizedBox(height: AppSpacing.md),
+        ],
         if (addresses.isEmpty)
           _EmptySection(
             key: const ValueKey('customer-address-empty'),
@@ -431,15 +465,7 @@ class _AddressSection extends StatelessWidget {
               child: _AddressTile(
                 address: address,
                 isBusy: isBusy,
-                onEdit: () async {
-                  final draft = await showCustomerAddressEditor(
-                    context,
-                    address: address,
-                  );
-                  if (draft != null) {
-                    await onUpdate(address.id, address.version, draft);
-                  }
-                },
+                onEdit: () => _editAddress(context, address: address),
                 onDelete: () => onDelete(address),
                 onSetDefault: address.isDefault
                     ? null
@@ -448,6 +474,51 @@ class _AddressSection extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+
+  Future<void> _editAddress(
+    BuildContext context, {
+    CustomerAddress? address,
+  }) async {
+    final container = ProviderScope.containerOf(context);
+    final subjectId = container
+        .read(customerAccountIdentityProvider)
+        ?.subjectId;
+    if (subjectId == null) return;
+    await showCustomerAddressEditor(
+      context,
+      address: address,
+      onSave: (draft) async {
+        const unavailable = CustomerAccountFailure(
+          CustomerAccountFailureKind.unexpected,
+        );
+        if (!context.mounted ||
+            container.read(customerAccountIdentityProvider)?.subjectId !=
+                subjectId) {
+          return unavailable;
+        }
+        final before = container.read(customerAccountControllerProvider);
+        // Il controller serializza le mutation riusando la Future attiva.
+        // Il completamento di un'altra operazione non conferma questa bozza.
+        if (before.isMutating || before.snapshot == null) return unavailable;
+        bool acknowledged;
+        if (address == null) {
+          acknowledged = await onCreate(draft) != null;
+        } else {
+          acknowledged = await onUpdate(address.id, address.version, draft);
+        }
+        if (!context.mounted ||
+            container.read(customerAccountIdentityProvider)?.subjectId !=
+                subjectId) {
+          return unavailable;
+        }
+        // L'ACK della scrittura sopravvive a un refresh fallito: il dialogo
+        // non offre una seconda mutation sulla versione ormai superata.
+        if (acknowledged) return null;
+        final after = container.read(customerAccountControllerProvider);
+        return after.failure ?? unavailable;
+      },
     );
   }
 }
@@ -499,10 +570,38 @@ class _AddressTile extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   if (address.isDefault)
-                    Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: const Icon(Icons.check_circle_outline, size: 18),
-                      label: Text(l10n.customerAddressDefault),
+                    Semantics(
+                      container: true,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: colors.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(AppRadii.control),
+                          border: Border.all(color: colors.outlineVariant),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                            vertical: AppSpacing.xs,
+                          ),
+                          child: Wrap(
+                            spacing: AppSpacing.sm,
+                            runSpacing: AppSpacing.xs,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.check_circle_outline,
+                                size: 18,
+                                color: colors.primary,
+                              ),
+                              Text(
+                                l10n.customerAddressDefault,
+                                style: Theme.of(context).textTheme.labelLarge
+                                    ?.copyWith(color: colors.onSurfaceVariant),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -757,18 +856,86 @@ Future<CustomerAddressDraft?> showCustomerAddressEditor(
   BuildContext context, {
   CustomerAddress? address,
   CustomerAddressEditorInitial? initial,
-}) {
-  final expectedSubjectId = ProviderScope.containerOf(
-    context,
-  ).read(customerAccountIdentityProvider)?.subjectId;
-  if (expectedSubjectId == null) return Future.value();
-  return showDialog<CustomerAddressDraft>(
-    context: context,
-    builder: (_) => _AuthBoundDialog(
-      expectedSubjectId: expectedSubjectId,
-      child: _AddressEditorDialog(address: address, initial: initial),
-    ),
+  Future<CustomerAccountFailure?> Function(CustomerAddressDraft draft)? onSave,
+}) async {
+  final container = ProviderScope.containerOf(context);
+  final expectedSubjectId = container
+      .read(customerAccountIdentityProvider)
+      ?.subjectId;
+  final expectedShop = onSave == null
+      ? null
+      : container.read(customerAccountShopSlugProvider);
+  final pendingDraft = address == null && onSave != null
+      ? container.read(customerAccountControllerProvider).pendingAddressDraft
+      : null;
+  if (expectedSubjectId == null) return null;
+  // I listener esistono prima del push: anche A→B→A fra apertura e primo
+  // frame invalida definitivamente questo editor e la bozza catturata.
+  final scopeValid = ValueNotifier(true);
+  final identitySubscription = container.listen(
+    customerAccountIdentityProvider,
+    (_, next) {
+      if (next?.subjectId != expectedSubjectId) scopeValid.value = false;
+    },
   );
+  // In produzione identity è derivata da AuthController: ascolta anche la
+  // sorgente per osservare transizioni A→B→A coalescenti fra due frame.
+  final authSubscription = container.exists(authControllerProvider)
+      ? container.listen(authControllerProvider, (_, next) {
+          final owner = switch (next) {
+            AuthAuthenticated(:final customer) => customer.subjectId,
+            _ => null,
+          };
+          if (owner != expectedSubjectId) scopeValid.value = false;
+        })
+      : null;
+  final shopSubscription = onSave == null
+      ? null
+      : container.listen(customerAccountShopSlugProvider, (_, next) {
+          if (next != expectedShop) scopeValid.value = false;
+        });
+  try {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final route = DialogRoute<CustomerAddressDraft>(
+      context: context,
+      themes: InheritedTheme.capture(from: context, to: navigator.context),
+      barrierColor:
+          DialogTheme.of(context).barrierColor ??
+          Theme.of(context).dialogTheme.barrierColor ??
+          Colors.black54,
+      barrierDismissible: true,
+      traversalEdgeBehavior: TraversalEdgeBehavior.closedLoop,
+      builder: (dialogContext) => ValueListenableBuilder<bool>(
+        valueListenable: scopeValid,
+        child: _AddressEditorDialog(
+          address: address,
+          initial: initial,
+          pendingDraft: pendingDraft,
+          onSave: onSave,
+        ),
+        builder: (context, valid, child) {
+          if (!valid) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!dialogContext.mounted) return;
+              final route = ModalRoute.of(dialogContext);
+              if (route != null && route.isActive) {
+                Navigator.of(dialogContext).removeRoute(route);
+              }
+            });
+            return const SizedBox.shrink();
+          }
+          return child!;
+        },
+      ),
+    );
+    // Anche il dispose del Navigator prima del mount chiude il monitor.
+    return await Future.any([navigator.push(route), route.completed]);
+  } finally {
+    identitySubscription.close();
+    authSubscription?.close();
+    shopSubscription?.close();
+    scopeValid.dispose();
+  }
 }
 
 final class CustomerAddressEditorInitial {
@@ -804,10 +971,18 @@ final class CustomerAddressEditorInitial {
 }
 
 class _AddressEditorDialog extends StatefulWidget {
-  const _AddressEditorDialog({required this.address, this.initial});
+  const _AddressEditorDialog({
+    required this.address,
+    this.initial,
+    this.pendingDraft,
+    this.onSave,
+  });
 
+  final CustomerAddressDraft? pendingDraft;
   final CustomerAddress? address;
   final CustomerAddressEditorInitial? initial;
+  final Future<CustomerAccountFailure?> Function(CustomerAddressDraft draft)?
+  onSave;
 
   @override
   State<_AddressEditorDialog> createState() => _AddressEditorDialogState();
@@ -815,16 +990,27 @@ class _AddressEditorDialog extends StatefulWidget {
 
 class _AddressEditorDialogState extends State<_AddressEditorDialog> {
   final _formKey = GlobalKey<FormState>();
+  final _feedbackKey = GlobalKey();
   late final Map<String, TextEditingController> _controllers;
   var _inputInvalid = false;
   bool _geographyEdited = false;
+  bool _saving = false;
+  bool _submitted = false;
+  CustomerAccountFailure? _saveFailure;
 
   @override
   void initState() {
     super.initState();
     final address = widget.address;
-    final draft = address?.toDraft();
-    final initial = widget.initial;
+    final draft = widget.pendingDraft ?? address?.toDraft();
+    final initial = widget.pendingDraft == null ? widget.initial : null;
+    if (widget.pendingDraft != null) {
+      _submitted = true;
+      _saveFailure = const CustomerAccountFailure(
+        CustomerAccountFailureKind.unavailable,
+        isUncertain: true,
+      );
+    }
     _controllers = {
       'label': TextEditingController(text: initial?.label ?? draft?.label),
       'recipient': TextEditingController(
@@ -866,6 +1052,14 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
     final l10n = AppLocalizations.of(context);
     return AlertDialog(
       key: const ValueKey('customer-address-dialog'),
+      insetPadding: const EdgeInsets.all(AppSpacing.sm),
+      actionsPadding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.xs,
+        AppSpacing.md,
+        AppSpacing.md,
+      ),
+      scrollable: true,
       title: Text(
         widget.address == null
             ? l10n.customerAddressAdd
@@ -875,78 +1069,121 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
         width: 520,
         child: Form(
           key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _field(l10n, 'label', l10n.customerAddressLabel, 40),
-                _field(l10n, 'recipient', l10n.customerAddressRecipient, 120),
-                _field(
-                  l10n,
-                  'phone',
-                  l10n.customerAddressPhone,
-                  16,
-                  optional: true,
-                  capitalization: TextCapitalization.none,
-                  keyboardType: TextInputType.phone,
-                  helperText: widget.address?.recipientPhoneE164,
-                ),
-                _field(l10n, 'line1', l10n.customerAddressLine1, 200),
-                _field(
-                  l10n,
-                  'line2',
-                  l10n.customerAddressLine2,
-                  200,
-                  optional: true,
-                ),
-                _field(l10n, 'commune', l10n.customerAddressCommune, 100),
-                _field(l10n, 'region', l10n.customerAddressRegion, 100),
-                _field(
-                  l10n,
-                  'postal',
-                  l10n.customerAddressPostalCode,
-                  16,
-                  optional: true,
-                ),
-                _field(
-                  l10n,
-                  'country',
-                  l10n.customerAddressCountryCode,
-                  2,
-                  capitalization: TextCapitalization.characters,
-                ),
-                _field(
-                  l10n,
-                  'instructions',
-                  l10n.customerAddressInstructions,
-                  500,
-                  optional: true,
-                  maxLines: 3,
-                ),
-                if (_inputInvalid)
-                  Semantics(
-                    liveRegion: true,
-                    child: Text(
-                      l10n.customerFieldInvalid,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_saveFailure != null || _saving) ...[
+                Semantics(
+                  key: _feedbackKey,
+                  liveRegion: true,
+                  child: Text(
+                    _saving
+                        ? l10n.customerAddressSending
+                        : _failureMessage(l10n, _saveFailure),
+                    key: const ValueKey('customer-address-save-failure'),
+                    style: TextStyle(
+                      color: _saving
+                          ? null
+                          : Theme.of(context).colorScheme.error,
                     ),
                   ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
               ],
-            ),
+              _field(l10n, 'label', l10n.customerAddressLabel, 40),
+              _field(l10n, 'recipient', l10n.customerAddressRecipient, 120),
+              _field(
+                l10n,
+                'phone',
+                l10n.customerAddressPhone,
+                16,
+                optional: true,
+                capitalization: TextCapitalization.none,
+                keyboardType: TextInputType.phone,
+                helperText: widget.address?.recipientPhoneE164,
+              ),
+              _field(l10n, 'line1', l10n.customerAddressLine1, 200),
+              _field(
+                l10n,
+                'line2',
+                l10n.customerAddressLine2,
+                200,
+                optional: true,
+              ),
+              _field(l10n, 'commune', l10n.customerAddressCommune, 100),
+              _field(l10n, 'region', l10n.customerAddressRegion, 100),
+              _field(
+                l10n,
+                'postal',
+                l10n.customerAddressPostalCode,
+                16,
+                optional: true,
+              ),
+              _field(
+                l10n,
+                'country',
+                l10n.customerAddressCountryCode,
+                2,
+                capitalization: TextCapitalization.characters,
+              ),
+              _field(
+                l10n,
+                'instructions',
+                l10n.customerAddressInstructions,
+                500,
+                optional: true,
+                maxLines: 3,
+              ),
+              if (_inputInvalid)
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    l10n.customerFieldInvalid,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.customerDialogCancel),
-        ),
-        FilledButton(
-          key: const ValueKey('customer-address-submit'),
-          onPressed: _submit,
-          child: Text(l10n.customerDialogSave),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: AppSpacing.sm,
+              children: [
+                TextButton(
+                  key: const ValueKey('customer-address-cancel'),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    _submitted
+                        ? l10n.customerAddressCloseEditor
+                        : l10n.customerDialogCancel,
+                  ),
+                ),
+                FilledButton(
+                  key: const ValueKey('customer-address-submit'),
+                  onPressed: _saving ? null : _submit,
+                  child: _saving
+                      ? const SizedBox.square(
+                          key: ValueKey('customer-address-saving'),
+                          dimension: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(
+                          _saveFailure?.isUncertain == true
+                              ? l10n.customerAddressVerify
+                              : l10n.customerDialogSave,
+                        ),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     );
@@ -968,6 +1205,7 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
       child: TextFormField(
         key: ValueKey('customer-address-field-$key'),
         controller: _controllers[key],
+        enabled: !_saving && _saveFailure?.isUncertain != true,
         maxLength: maxRunes,
         maxLines: maxLines,
         textCapitalization: capitalization,
@@ -1012,41 +1250,82 @@ class _AddressEditorDialogState extends State<_AddressEditorDialog> {
     );
   }
 
-  void _submit() {
+  void _revealSaveFeedback() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+      final feedbackContext = _feedbackKey.currentContext;
+      if (feedbackContext == null) return;
+      // Agisce soltanto sullo scroll di questo editor, senza prendere il focus
+      // mentre l'IME o una route successiva stanno cambiando geometria.
+      Scrollable.ensureVisible(feedbackContext, alignment: 0);
+    });
+  }
+
+  Future<void> _submit() async {
+    if (_saving) return;
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
     try {
-      Navigator.of(context).pop(
-        CustomerAddressDraft(
-          label: _controllers['label']!.text,
-          recipientName: _controllers['recipient']!.text,
-          recipientPhoneE164: _controllers['phone']!.text,
-          addressLine1: _controllers['line1']!.text,
-          addressLine2: _controllers['line2']!.text,
-          commune: _controllers['commune']!.text,
-          region: _controllers['region']!.text,
-          postalCode: _controllers['postal']!.text,
-          countryCode: _controllers['country']!.text,
-          deliveryInstructions: _controllers['instructions']!.text,
-          latitude: _geographyEdited
-              ? null
-              : widget.initial?.latitude ?? widget.address?.latitude,
-          longitude: _geographyEdited
-              ? null
-              : widget.initial?.longitude ?? widget.address?.longitude,
-          locationSource: _geographyEdited
-              ? CustomerAddressLocationSource.manual
-              : widget.initial?.locationSource ??
-                    widget.address?.locationSource ??
-                    CustomerAddressLocationSource.manual,
-          locationAccuracyMeters: _geographyEdited
-              ? null
-              : widget.initial?.locationAccuracyMeters ??
-                    widget.address?.locationAccuracyMeters,
-          isDefault: widget.address?.isDefault ?? false,
-        ),
+      final draft = CustomerAddressDraft(
+        label: _controllers['label']!.text,
+        recipientName: _controllers['recipient']!.text,
+        recipientPhoneE164: _controllers['phone']!.text,
+        addressLine1: _controllers['line1']!.text,
+        addressLine2: _controllers['line2']!.text,
+        commune: _controllers['commune']!.text,
+        region: _controllers['region']!.text,
+        postalCode: _controllers['postal']!.text,
+        countryCode: _controllers['country']!.text,
+        deliveryInstructions: _controllers['instructions']!.text,
+        latitude: _geographyEdited
+            ? null
+            : widget.pendingDraft != null
+            ? widget.pendingDraft!.latitude
+            : widget.initial?.latitude ?? widget.address?.latitude,
+        longitude: _geographyEdited
+            ? null
+            : widget.pendingDraft != null
+            ? widget.pendingDraft!.longitude
+            : widget.initial?.longitude ?? widget.address?.longitude,
+        locationSource: _geographyEdited
+            ? CustomerAddressLocationSource.manual
+            : widget.pendingDraft?.locationSource ??
+                  widget.initial?.locationSource ??
+                  widget.address?.locationSource ??
+                  CustomerAddressLocationSource.manual,
+        locationAccuracyMeters: _geographyEdited
+            ? null
+            : widget.pendingDraft != null
+            ? widget.pendingDraft!.locationAccuracyMeters
+            : widget.initial?.locationAccuracyMeters ??
+                  widget.address?.locationAccuracyMeters,
+        isDefault:
+            widget.pendingDraft?.isDefault ??
+            widget.address?.isDefault ??
+            false,
       );
+      final onSave = widget.onSave;
+      if (onSave == null) {
+        Navigator.of(context).pop(draft);
+        return;
+      }
+      setState(() {
+        _saving = true;
+        _submitted = true;
+        _saveFailure = null;
+      });
+      _revealSaveFeedback();
+      final failure = await onSave(draft);
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _saveFailure = failure;
+      });
+      if (failure != null) _revealSaveFeedback();
+      if (failure == null && ModalRoute.of(context)?.isCurrent == true) {
+        Navigator.of(context).pop(draft);
+      }
     } on CustomerAccountInputException {
       setState(() => _inputInvalid = true);
     }
@@ -1063,78 +1342,119 @@ Future<bool> _confirm(
     context,
   ).read(customerAccountIdentityProvider)?.subjectId;
   if (expectedSubjectId == null) return false;
-  return await showDialog<bool>(
-        context: context,
-        builder: (dialogContext) => _AuthBoundDialog(
-          expectedSubjectId: expectedSubjectId,
-          child: AlertDialog(
-            title: Text(title),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: Text(AppLocalizations.of(context).customerDialogCancel),
-              ),
-              FilledButton(
-                key: const ValueKey('customer-confirm-action'),
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: Text(action),
-              ),
-            ],
-          ),
+  return await _showAccountDialog<bool>(
+        context,
+        expectedSubjectId: expectedSubjectId,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(AppLocalizations.of(context).customerDialogCancel),
+            ),
+            FilledButton(
+              key: const ValueKey('customer-confirm-action'),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(action),
+            ),
+          ],
         ),
       ) ??
       false;
 }
 
-Future<void> _showExport(BuildContext context, CustomerDataExport export) {
-  final expectedSubjectId = ProviderScope.containerOf(
-    context,
-  ).read(customerAccountIdentityProvider)?.subjectId;
-  if (expectedSubjectId == null) return Future.value();
+Future<void> _showExport(
+  BuildContext context,
+  CustomerDataExport export,
+  String expectedSubjectId,
+) {
   final formatted = const JsonEncoder.withIndent(
     '  ',
   ).convert(jsonDecode(export.json));
   final l10n = AppLocalizations.of(context);
-  return showDialog<void>(
-    context: context,
-    builder: (dialogContext) => _AuthBoundDialog(
-      expectedSubjectId: expectedSubjectId,
-      child: AlertDialog(
-        key: const ValueKey('customer-export-dialog'),
-        title: Text(l10n.customerDataExportTitle),
-        content: SizedBox(
-          width: 560,
-          child: SingleChildScrollView(child: SelectableText(formatted)),
-        ),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.customerDialogClose),
-          ),
-        ],
+  return _showAccountDialog<void>(
+    context,
+    expectedSubjectId: expectedSubjectId,
+    builder: (dialogContext) => AlertDialog(
+      key: const ValueKey('customer-export-dialog'),
+      title: Text(l10n.customerDataExportTitle),
+      content: SizedBox(
+        width: 560,
+        child: SingleChildScrollView(child: SelectableText(formatted)),
       ),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: Text(l10n.customerDialogClose),
+        ),
+      ],
     ),
   );
 }
 
-class _AuthBoundDialog extends ConsumerWidget {
-  const _AuthBoundDialog({
-    required this.expectedSubjectId,
-    required this.child,
-  });
-
-  final String expectedSubjectId;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(customerAccountIdentityProvider, (previous, next) {
-      if (next?.subjectId != expectedSubjectId && context.mounted) {
-        Navigator.of(context).maybePop();
-      }
-    });
-    return child;
+Future<T?> _showAccountDialog<T>(
+  BuildContext context, {
+  required String expectedSubjectId,
+  required WidgetBuilder builder,
+}) async {
+  final container = ProviderScope.containerOf(context);
+  if (container.read(customerAccountIdentityProvider)?.subjectId !=
+      expectedSubjectId) {
+    return null;
+  }
+  // Esiste prima del push e resta invalidato anche se A torna dopo B prima
+  // del primo frame: né l'export né una conferma possono passare al nuovo owner.
+  final scopeValid = ValueNotifier(true);
+  final identitySubscription = container.listen(
+    customerAccountIdentityProvider,
+    (_, next) {
+      if (next?.subjectId != expectedSubjectId) scopeValid.value = false;
+    },
+  );
+  final authSubscription = container.exists(authControllerProvider)
+      ? container.listen(authControllerProvider, (_, next) {
+          final owner = switch (next) {
+            AuthAuthenticated(:final customer) => customer.subjectId,
+            _ => null,
+          };
+          if (owner != expectedSubjectId) scopeValid.value = false;
+        })
+      : null;
+  try {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final route = DialogRoute<T>(
+      context: context,
+      themes: InheritedTheme.capture(from: context, to: navigator.context),
+      barrierColor:
+          DialogTheme.of(context).barrierColor ??
+          Theme.of(context).dialogTheme.barrierColor ??
+          Colors.black54,
+      barrierDismissible: true,
+      traversalEdgeBehavior: TraversalEdgeBehavior.closedLoop,
+      builder: (dialogContext) => ValueListenableBuilder<bool>(
+        valueListenable: scopeValid,
+        builder: (context, valid, _) {
+          if (!valid) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!dialogContext.mounted) return;
+              final route = ModalRoute.of(dialogContext);
+              if (route != null && route.isActive) {
+                Navigator.of(dialogContext).removeRoute(route);
+              }
+            });
+            return const SizedBox.shrink();
+          }
+          return builder(dialogContext);
+        },
+      ),
+    );
+    final result = await Future.any([navigator.push(route), route.completed]);
+    return scopeValid.value ? result : null;
+  } finally {
+    identitySubscription.close();
+    authSubscription?.close();
+    scopeValid.dispose();
   }
 }
 
@@ -1166,6 +1486,7 @@ String? _optionalFieldValidator(
 }
 
 String _failureMessage(AppLocalizations l10n, CustomerAccountFailure? failure) {
+  if (failure?.isUncertain == true) return l10n.customerAddressUnknown;
   return switch (failure?.kind) {
     CustomerAccountFailureKind.offline => l10n.customerAccountOffline,
     CustomerAccountFailureKind.unauthorized => l10n.customerAccountUnauthorized,

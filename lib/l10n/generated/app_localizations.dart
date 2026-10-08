@@ -3745,6 +3745,18 @@ abstract class AppLocalizations {
   /// **'No pudimos completar esta acción. Intenta nuevamente.'**
   String get afterSalesFailure;
 
+  /// No description provided for @afterSalesDestinationUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta solicitud de asistencia no está disponible. Puedes consultar las demás solicitudes.'**
+  String get afterSalesDestinationUnavailable;
+
+  /// No description provided for @afterSalesBackToList.
+  ///
+  /// In es, this message translates to:
+  /// **'Ir a las solicitudes'**
+  String get afterSalesBackToList;
+
   /// No description provided for @afterSalesSelectItem.
   ///
   /// In es, this message translates to:
@@ -3948,6 +3960,72 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Solo no leídas'**
   String get notificationsUnreadOnly;
+
+  /// No description provided for @notificationsUnreadPartialEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay no leídas entre las notificaciones mostradas'**
+  String get notificationsUnreadPartialEmptyTitle;
+
+  /// No description provided for @notificationsUnreadEmptyTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay notificaciones sin leer'**
+  String get notificationsUnreadEmptyTitle;
+
+  /// No description provided for @notificationsUnreadPageHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Puedes buscar más notificaciones sin leer cargando las anteriores.'**
+  String get notificationsUnreadPageHint;
+
+  /// No description provided for @notificationsUnreadCachedEmptyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Vuelve a conectarte para comprobar si hay más notificaciones sin leer.'**
+  String get notificationsUnreadCachedEmptyMessage;
+
+  /// No description provided for @notificationsUnreadEmptyMessage.
+  ///
+  /// In es, this message translates to:
+  /// **'Has leído todas las notificaciones mostradas.'**
+  String get notificationsUnreadEmptyMessage;
+
+  /// No description provided for @notificationsUpdateFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron actualizar las notificaciones. Inténtalo de nuevo.'**
+  String get notificationsUpdateFailed;
+
+  /// No description provided for @customerAddressUnknown.
+  ///
+  /// In es, this message translates to:
+  /// **'Resultado por verificar. Verifica antes de editar.'**
+  String get customerAddressUnknown;
+
+  /// No description provided for @customerAddressJournalUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No podemos leer la información de recuperación guardada en este dispositivo. Puedes consultar tu cuenta; añadir direcciones está en pausa. Vuelve a intentar para recuperar el acceso sin borrar datos.'**
+  String get customerAddressJournalUnavailable;
+
+  /// No description provided for @customerAddressVerify.
+  ///
+  /// In es, this message translates to:
+  /// **'Verificar'**
+  String get customerAddressVerify;
+
+  /// No description provided for @customerAddressCloseEditor.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar'**
+  String get customerAddressCloseEditor;
+
+  /// No description provided for @customerAddressSending.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando. Cerrar el editor no cancela el guardado.'**
+  String get customerAddressSending;
 }
 
 class _AppLocalizationsDelegate

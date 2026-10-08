@@ -1,0 +1,242 @@
+{
+  "kind": "independent_readonly_client_source_re_review_with_premount_cleanup_reproduction",
+  "reviewer": "/root/review_client_delta",
+  "revision": "feda593fcc301686226c0bf6246affa7a891ebe8",
+  "outcome": "CHANGES_REQUIRED",
+  "scope": "Client SOURCE_CODE_ONLY; native, CI, backend runner and whole TASK054 acceptance excluded",
+  "counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 1
+  },
+  "closed_findings": [
+    "C-NI054-04",
+    "C-NI054-05",
+    "C-NI054-06",
+    "C-NI054-07"
+  ],
+  "c08_owner_scope": "Original P2 owner/draft/late ACK/failure and opening A-B-A gap verified resolved. Residual P3 opening-monitor cleanup remains.",
+  "findings": [
+    {
+      "id": "C-NI054-08-P3-cleanup",
+      "severity": "P3",
+      "file": "lib/features/reviews/presentation/customer_reviews.dart",
+      "start_line": 459,
+      "end_line": 488,
+      "additional_line": 562,
+      "trigger": "Public ClientApp /reviews route with production router/AuthController/identity. Tap reviewsLeave, then unmount app before any dialog frame while externally owned ProviderContainer remains alive.",
+      "observed": "One public authControllerProvider subscription created by helper remains closed=false after app/Navigator unmount. Dialog State never mounts, therefore dispose cleanup does not run. Navigator forced dispose does not complete showDialog popped future, so helper finally is not reached.",
+      "impact": "Residual retained opening monitor/closure in external-container lifetime. No dialog mounted, no mutation, no old draft painted, no cross-owner callback/write observed.",
+      "production_applicability_limit": "Current bootstrap owns ProviderScope and ClientApp in the same lifetime; no current public production trigger that disposes root Navigator while keeping container alive was found. This is P3 cleanup robustness, not a demonstrated P2 production/security issue.",
+      "poc_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart",
+      "poc_sha256": "5537ef1327f8cb70e0152ec05c2428b54b3752879331e25d88522c01e8171796",
+      "command": "flutter test --no-pub ../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart --plain-name 'route /reviews unmount prima del primo frame chiude monitor' --reporter expanded --concurrency=1",
+      "result": "FAIL",
+      "exit_code": 1,
+      "failed": 1,
+      "log": {
+        "path": "build/task054/review_client/feda-re-review-logs/task054-review-client-opening-unmount-external-feda.log",
+        "sha256": "54308a3cced695db69fb73ca58f95370ea142941678779c47b91d5fc337f4505"
+      },
+      "first_reproduction_log": {
+        "path": "build/task054/review_client/feda-re-review-logs/task054-review-client-opening-unmount-feda.log",
+        "sha256": "af8ce49d2ad83c2b6f4199083abaf9f3b2487cbc24ca32d1a2b6ab47db7c5656"
+      },
+      "test_seams": "Remote auth/callback/review/account ports and authFlowTest config synthetic. App/router/AuthController/identity real. ProviderContainer public listen override records returned ProviderSubscription.closed without private API or production mutation.",
+      "required_fix": "Minimal opening-monitor cleanup for route disposal before State mount; preserve showDialog public defaults, theme capture, owner latch and existing result/readback guards. No router/controller/shop/dependency change.",
+      "required_regression": "PoC PASS; original owner/draft/late response/opening A-B-A and secondary-route/rating-popup regressions remain PASS; analyzer complete PASS after ignored artifacts relocation.",
+      "teardown": "Failure asserted before container disposal; addTearDown disposes container and drains ports/completers. Command terminal exit1; no owned verification process pending."
+    }
+  ],
+  "checks": [
+    {
+      "command": "flutter test --no-pub test/features/reviews build/task054/review_client/review_error_overlay_reproduction_test.dart build/task054/review_client/reviews_public_router_auth_test.dart --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 45,
+      "log": {
+        "path": "build/task054/review_client/feda-re-review-logs/task054-review-client-c08-feda.log",
+        "sha256": "e8920ad89eaab56782a96c63a38e57e309c4480b82c334e623dd6ffa7a9603bf"
+      }
+    },
+    {
+      "command": "flutter test --no-pub build/task054/review_client/reviews_owner_opening_aba_reproduction_test.dart --plain-name 'route /reviews A-B-A prima del primo frame del dialog' --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 1,
+      "log": {
+        "path": "build/task054/review_client/feda-re-review-logs/task054-review-client-opening-aba-feda.log",
+        "sha256": "b87d63c6481f0059d9e42338bbed7a30aadb23252db86ade2e415644cdf23b20"
+      }
+    },
+    {
+      "command": "flutter test --no-pub build/task054/review_client/host_next_integration_test.dart --reporter expanded --concurrency=1",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 24,
+      "log": {
+        "path": "build/task054/review_client/feda-re-review-logs/task054-review-client-host-next-feda.log",
+        "sha256": "fe93c0a72cf59556ded3acdedbc44d574cec2a118626e5356cf5d56b533f3614"
+      },
+      "type": "WIDGET host; integration_test native plugin unavailable warning, no IME/native proof"
+    },
+    {
+      "command": "flutter analyze [before artifact relocation]",
+      "result": "FAIL",
+      "exit_code": 1,
+      "issues": 2,
+      "cause": "Only visibleForTesting warnings in reviewer ignored public-auth/opening PoCs outside test directory; no source exclusion added. FAIL preserved.",
+      "log": {
+        "path": "build/task054/review_client/feda-re-review-logs/task054-review-client-analyze-feda.log",
+        "sha256": "70ec1cb14233f70bc69b03f4a7515dd1aaa4d798c9b94e092228ae898662d541"
+      }
+    },
+    {
+      "command": "flutter analyze [complete repository after byte-preserving PoC relocation]",
+      "result": "PASS",
+      "exit_code": 0,
+      "issues": 0,
+      "log": {
+        "path": "build/task054/review_client/feda-re-review-logs/task054-review-client-analyze-full-clean-feda.log",
+        "sha256": "bd4308097ab035ea910d3d87da7bfb20facea1a3b9e3e0bf91f704dff3701a94"
+      }
+    },
+    {
+      "command": "flutter analyze --no-pub lib; dart analyze test/integration_test/test_driver/scripts/tool individually",
+      "result": "PASS",
+      "exit_code": 0,
+      "issues": 0,
+      "supplemental_only": true
+    },
+    {
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "bash scripts/check-user-facing-localization.sh",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "dart format --output=none --set-exit-if-changed [2 touched Dart files]",
+      "result": "PASS",
+      "exit_code": 0,
+      "changed": 0
+    },
+    {
+      "command": "git diff --check a977..feda; exact SHA256/Git blob invariants C04-C06/protocol/driver/dependencies; fixture/capture tree identical a977",
+      "result": "PASS",
+      "exit_code": 0
+    }
+  ],
+  "autonomous_passed_tests": 70,
+  "expected_native_counts": {
+    "tests": 67,
+    "flutter_png": 105,
+    "os_png": 4
+  },
+  "count_basis": "Full integration_test tree unchanged a977->feda; expected registrations/captures from earlier independent source count retained by exact Git-object identity, not a native runtime capture claim.",
+  "file_hashes": [
+    {
+      "path": "lib/features/reviews/presentation/customer_reviews.dart",
+      "sha256": "19a7a065a49229ca3fd66765640d5232b051a730eaaadb87c9c45059e124a765",
+      "git_blob": "3dba34a0ba95c6ecd028d00c3f4c65e87c015878"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_owner_lifecycle_test.dart",
+      "sha256": "058edfbf86e55e7dac2ac3ad24c39afb4a325e1b920a2b7874c471bb2935fe49",
+      "git_blob": "ff6a7434b2a01862688189a3f07e3417f17b4d77"
+    },
+    {
+      "path": "integration_test/support/visual_capture.dart",
+      "sha256": "de6a13f82053cf4807f5b88f3634a680636d47cb748f11b35e8144eb3ba8e68f",
+      "git_blob": "9c8689c2cbd388cad1e90a92d4f0a7523784cf56"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "sha256": "be55bc82ef5f2dd0d7b922c44852a113a296e0d4a4d4b9d00d62420524a57180",
+      "git_blob": "025e8594be1399f720033919c47a930657a4a1e1"
+    },
+    {
+      "path": "test/features/reviews/customer_review_dialog_feedback_test.dart",
+      "sha256": "bf94a36ca3a4cbd344d6d7f6441aa6799b860706e5266f0c9714b9dec39c12e4",
+      "git_blob": "4bfd2c4cb64d9dba04636eed97f1c556c1bb4bf2"
+    }
+  ],
+  "source_audit": "Independent second source reader confirms pre-showDialog latch, mounted identity/raw listeners, guard for ACK/failure/reveal/finally, own popup/dialog removal and idempotent close. It independently identified the pre-mount external-container gap. No new P2 production finding.",
+  "poc_relocation": {
+    "manifest": "../../../review-artifacts/task054/review-client-feda-20261005/relocation.json",
+    "files": [
+      {
+        "previous_path": "build/task054/review_client/address_edit_ack_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/address_edit_ack_reproduction_test.dart",
+        "sha256": "5e0cbbd8a3866aaffedfd4f2d57ad5ce54d937d53a871f997cd2478de5c0c805"
+      },
+      {
+        "previous_path": "build/task054/review_client/address_error_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/address_error_reproduction_test.dart",
+        "sha256": "d42ea9e3dc46c8e3c1cac6e0506b2856b1990078a0e7b3e12b9dce619333e685"
+      },
+      {
+        "previous_path": "build/task054/review_client/delivery_address_error_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/delivery_address_error_reproduction_test.dart",
+        "sha256": "e8c6771e21fad1978c2a6deb87fe64dd7021a559954cb224a82bd8ad0b30bd62"
+      },
+      {
+        "previous_path": "build/task054/review_client/host_next_integration_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/host_next_integration_test.dart",
+        "sha256": "348eaef6f47ffbdca22f40a363e0790d5398e32a5e5d941147cc16a659ca569f"
+      },
+      {
+        "previous_path": "build/task054/review_client/review_error_overlay_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/review_error_overlay_reproduction_test.dart",
+        "sha256": "4ac0c4ca7cc16c7a04da2ff7101579d8324405b06f945eb21bfb7d70c15c1a17"
+      },
+      {
+        "previous_path": "build/task054/review_client/reviews_owner_opening_aba_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_aba_reproduction_test.dart",
+        "sha256": "94929202bfab2c07b6c6ab00e9428745232eb5c129d4a44f24a426aeb4cf9c49"
+      },
+      {
+        "previous_path": "build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart",
+        "sha256": "5537ef1327f8cb70e0152ec05c2428b54b3752879331e25d88522c01e8171796"
+      },
+      {
+        "previous_path": "build/task054/review_client/reviews_public_router_auth_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_public_router_auth_test.dart",
+        "sha256": "9646308f111cdce24f8ce2b9d88249d897cb593d391129c6d457b8518fbea719"
+      },
+      {
+        "previous_path": "build/task054/reviewer-public-auth-d9da-20261005/reviews_public_router_auth_test.dart",
+        "current_path": "../../../review-artifacts/task054/review-client-feda-20261005/root-copy/build/task054/reviewer-public-auth-d9da-20261005/reviews_public_router_auth_test.dart",
+        "sha256": "9646308f111cdce24f8ce2b9d88249d897cb593d391129c6d457b8518fbea719"
+      }
+    ],
+    "original_bytes_unchanged": true,
+    "historical_receipts_preserved": true,
+    "reproduction_external_path_verified": true
+  },
+  "limits": [
+    "TASK054 whole acceptance remains BLOCKED; no DONE, next task or merge.",
+    "C07 native rendered error, four OS fields and assistance picker require new native CI pixel evidence after final source.",
+    "CI a977 Android VM-service/device loss has no proved production cause; prior CI failures preserved and no native approval inferred.",
+    "No local native build/device/emulator/benchmark was run.",
+    "Public-route auth tests use synthetic remote ports; they do not prove live auth/backend access.",
+    "ACK vs readback failure is handled; COMMIT with completely lost remote response remains ambiguous without server idempotency contract.",
+    "Backend Python runners/workflow diagnostics are reviewed separately; this source slice does not approve them."
+  ],
+  "tracked_source_mutations": 0,
+  "owned_verification_processes_pending": 0,
+  "originalReceiptSha256": "b4d0d9b5b82acd7e187953dc5b58ce840c303be14f9615411510e56c67c407b9",
+  "qualification": "Ricevuta read-only originale sanitizzata; path degli artifact rilocati ora qualificati relativamente al cwd del repository managed sotto .codex/worktrees. I comandi storici, FAIL/PASS e hash restano riferiti alle esecuzioni originali; la correzione documentale non è una riesecuzione Flutter.",
+  "documentary_path_fix": {
+    "id": "BECI-DOC-01",
+    "previousSanitizedReceiptSha256": "7c92b913b5e71a7af0f9e86e87c4c77db4edd85bd7982259140d947803af4a1d",
+    "cwd": ".codex/worktrees/task054-next-integration/ClientMerchandiseControl",
+    "current_reproduction_command": "flutter test --no-pub ../../../review-artifacts/task054/review-client-feda-20261005/build/task054/review_client/reviews_owner_opening_unmount_reproduction_test.dart --plain-name 'route /reviews unmount prima del primo frame chiude monitor' --reporter expanded --concurrency=1",
+    "scope": "Validazione esistenza e SHA256 del path corrente; nessuna nuova esecuzione Flutter."
+  }
+}

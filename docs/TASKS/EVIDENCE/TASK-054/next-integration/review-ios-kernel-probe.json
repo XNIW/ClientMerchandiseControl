@@ -1,0 +1,272 @@
+{
+  "task": "TASK-054",
+  "reviewer": "/root/review_ios_kernel_resume",
+  "role": "CODEX_RE_REVIEWER",
+  "generatedAtUtc": "2026-10-05T20:06:16.604118+00:00",
+  "outcome": "APPROVED",
+  "scopeQualification": "SOURCE_CODE_ONLY_IOS_OWNED_KERNEL_PROBE",
+  "base": "302857a558fe2d309172f5061542106443b45cfb",
+  "candidate": "559595649a5886a654bfe34b06077d4f2368e89e",
+  "implementationEdits": false,
+  "sourceFiles": [
+    {
+      "path": "scripts/run-task054-ios-owned.py",
+      "sha256": "5784f4db204b58d4cbc925e3a1366088d42b47906923eb34fcdb815113599d8f"
+    },
+    {
+      "path": "scripts/test-task054-ios-owned.py",
+      "sha256": "7f9986ff3230285fa6d40bb05535f7577e8f45eeb9a7b413f48fe6f009807397"
+    }
+  ],
+  "findingCounts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0
+  },
+  "findings": [],
+  "assessment": [
+    "Solo PGID int positivo viene probed con signal0; bool/nonpositivo/stringa non possono indirizzare il gruppo chiamante o altri gruppi.",
+    "Solo ProcessLookupError/ESRCH attesta assenza e permette False senza ps. EPERM conserva la diagnostic typed/errno e richiede ps strict2; altri OSError non attesteranno assenza.",
+    "Il leader reaped con un figlio vivo continua a usare ps e resta live; la nuova probe non invia segnali e preserva il gruppo di controllo distinto.",
+    "Darwin reale restituisce EPERM1 su own zombie unreaped; fallback ps rileva Z quiescente, quindi dopo reap il kernel attesta ESRCH3.",
+    "La parte originaria ps/parser, tutte le altre funzioni, primari143/130/124 e sticky receipt restano AST-identiche alla base; tutti gli altri blob tracked sono identici."
+  ],
+  "gates": {
+    "canonical": {
+      "type": "UNIT",
+      "command": "python3 scripts/test-task054-ios-owned.py -v > build/task054/review-ios-kernel/canonical-47.log 2>&1",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-review-ios-kernel/ClientMerchandiseControl",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-ios-kernel/canonical-47.log",
+      "logSha256": "5d8a6f218ce02dbbd8987c8244b0ebf5250ec57921c3f97db894e4e759f9f3d0",
+      "count": 47
+    },
+    "supplement": {
+      "type": "UNIT",
+      "command": "python3 build/task054/review-ios-kernel/supplement.py > build/task054/review-ios-kernel/supplement.log 2>&1",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-review-ios-kernel/ClientMerchandiseControl",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-ios-kernel/supplement.log",
+      "logSha256": "804d085b88c6c1ec220efb0e34df472f60f7787fd9d986e4596fab3e9516212a",
+      "count": 6
+    },
+    "reproductionBefore": {
+      "type": "UNIT",
+      "command": "python3 build/task054/review-ios-kernel/absence-repro.py before > build/task054/review-ios-kernel/absence-before.log 2>&1",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-review-ios-kernel/ClientMerchandiseControl",
+      "status": "FAIL",
+      "exitCode": 1,
+      "log": "build/task054/review-ios-kernel/absence-before.log",
+      "logSha256": "9323ac6371028479483a0420e4c16879d795a9c7379e7a0c73c38649ee09ceab",
+      "revision": "302857a558fe2d309172f5061542106443b45cfb"
+    },
+    "reproductionAfter": {
+      "type": "UNIT",
+      "command": "python3 build/task054/review-ios-kernel/absence-repro.py after > build/task054/review-ios-kernel/absence-after.log 2>&1",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-review-ios-kernel/ClientMerchandiseControl",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-ios-kernel/absence-after.log",
+      "logSha256": "75fe144f9f048ab08822aed7397ecbf75ef693e71c5c773aa5d827fc477474e6",
+      "revision": "559595649a5886a654bfe34b06077d4f2368e89e"
+    },
+    "audit": {
+      "type": "STATIC",
+      "command": "python3 build/task054/review-ios-kernel/audit.py > build/task054/review-ios-kernel/audit.log 2>&1",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-review-ios-kernel/ClientMerchandiseControl",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-ios-kernel/audit.log",
+      "logSha256": "0003fd12727de0aeff8c15601b1c4a77c3c6d783728d204b23d528f67298d82a"
+    },
+    "compile": {
+      "type": "ANALYZE",
+      "command": "python3 -m py_compile scripts/run-task054-ios-owned.py scripts/test-task054-ios-owned.py > build/task054/review-ios-kernel/pycompile.log 2>&1",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-review-ios-kernel/ClientMerchandiseControl",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-ios-kernel/pycompile.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "diffCheck": {
+      "type": "STATIC",
+      "command": "git diff --check 302857a558fe2d309172f5061542106443b45cfb 559595649a5886a654bfe34b06077d4f2368e89e > build/task054/review-ios-kernel/diff-check.log 2>&1",
+      "cwd": "/Users/minxiang/.codex/worktrees/task054-review-ios-kernel/ClientMerchandiseControl",
+      "status": "PASS",
+      "exitCode": 0,
+      "log": "build/task054/review-ios-kernel/diff-check.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native": {
+      "type": "IOS_SIM",
+      "status": "NOT_RUN",
+      "reason": "Review circoscritta host; nessun boot, simctl, Flutter build o dispositivo. La lane nativa appartiene al root."
+    },
+    "ciCandidate": {
+      "type": "CI",
+      "status": "NOT_RUN",
+      "reason": "Non avviata da questo reviewer; APPROVED source non approva CI4 né rende verde la nuova CI del candidato composto."
+    }
+  },
+  "testEvidence": {
+    "canonicalCount": 47,
+    "supplementCount": 6,
+    "canonicalSeconds": 48.354,
+    "originalCount": 37,
+    "originalNamesPreserved": true,
+    "originalFixtureAdaptations": [
+      "test_probe_failure_after_normal_command_still_stops_only_owned_group",
+      "test_zombie_group_and_foreign_group_are_quiescent"
+    ],
+    "supplementObservations": [
+      {
+        "scenario": "primary_exit_19_absent_group",
+        "status": "PASS"
+      },
+      {
+        "scenario": "private_group_absent_ps_timeout",
+        "before": "FAIL",
+        "after": "PASS",
+        "kernelErrno": 3
+      },
+      {
+        "scenario": "EINVAL_metadata_only_closed",
+        "status": "PASS"
+      },
+      {
+        "scenario": "leader_reaped_child_live",
+        "status": "PASS"
+      },
+      {
+        "scenario": "zero_signal_private_group_foreign_control",
+        "status": "PASS"
+      },
+      {
+        "scenario": "real_unreaped_zombie_then_reaped",
+        "status": "PASS",
+        "zombieKernelErrno": 1,
+        "reapedKernelErrno": 3
+      }
+    ]
+  },
+  "reproductionQualification": "Own group realmente creato e reaped, ESRCH verificato; TimeoutExpired della sola ps iniettato. FAIL1 sulla base e PASS0 sul candidato sono autonomi. Non prova che il PGID della CI4 fosse assente.",
+  "invariants": {
+    "status": "PASS",
+    "exitCode": 0,
+    "candidate": "559595649a5886a654bfe34b06077d4f2368e89e",
+    "base": "302857a558fe2d309172f5061542106443b45cfb",
+    "sourceFilesChanged": [
+      "scripts/run-task054-ios-owned.py",
+      "scripts/test-task054-ios-owned.py"
+    ],
+    "sourceFunctionsChanged": [
+      "group_has_live_members"
+    ],
+    "psParserAndBudgetBodyIdentical": true,
+    "otherFunctionsIdentical": true,
+    "primarySignalsAndStickyReceiptIdentical": true,
+    "otherTrackedBlobsIdentical": true,
+    "originalTestsPreserved": 37,
+    "candidateCanonicalTests": 47,
+    "originalFixtureAdaptations": [
+      "test_probe_failure_after_normal_command_still_stops_only_owned_group",
+      "test_zombie_group_and_foreign_group_are_quiescent"
+    ],
+    "writerReceiptSha256": "6c92104793af12bfc03ef21b4ae35990e708d80126e431faf9024468b10fd76d",
+    "writerArtifactHashesVerified": 15,
+    "ownWorktreeClean": true,
+    "ownedLiveVerificationProcesses": [],
+    "sourceSha256": {
+      "scripts/run-task054-ios-owned.py": "5784f4db204b58d4cbc925e3a1366088d42b47906923eb34fcdb815113599d8f",
+      "scripts/test-task054-ios-owned.py": "7f9986ff3230285fa6d40bb05535f7577e8f45eeb9a7b413f48fe6f009807397"
+    },
+    "host": {
+      "system": "Darwin",
+      "release": "27.0.0",
+      "python": "3.9.6"
+    }
+  },
+  "traceability": [
+    {
+      "criterion": "CA-04/T-04",
+      "status": "PASS",
+      "evidence": "47 canonici e6 supplementari; failclosed/ownership/primary/lifecycle"
+    },
+    {
+      "criterion": "CA-05/T-05 source",
+      "status": "PASS",
+      "evidence": "compile0, diff0 e invarianti0 sul candidate559; copertura37 preservata"
+    },
+    {
+      "criterion": "CA-05/T-05 CI/native",
+      "status": "NOT_RUN",
+      "evidence": "Fuori review scoped; nuova CI exact-SHA obbligatoria prima di integrazione sviluppo"
+    },
+    {
+      "criterion": "CA-06/T-06 evidence",
+      "status": "PASS",
+      "evidence": "Failure baseline, primo writer EPERMraise e CI4 storica non sono convertiti in PASS"
+    }
+  ],
+  "references": [
+    {
+      "url": "https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kill.2.html",
+      "use": "signal0 senza delivery; controllo errori"
+    },
+    {
+      "url": "https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/killpg.2.html",
+      "use": "ESRCH assenza del gruppo; pgrp0 alias gruppo corrente"
+    },
+    {
+      "url": "https://docs.python.org/3.9/library/exceptions.html#ProcessLookupError",
+      "use": "mappatura ProcessLookupError a ESRCH"
+    },
+    {
+      "url": "https://docs.python.org/3/library/os.html#os.killpg",
+      "use": "API del processo Unix host, non runtime Python sul device iOS"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "build/task054/review-ios-kernel/supplement.py",
+      "sha256": "11cc6979646a2d1ca827561648318dab8c83cba14353a305690cbe137cd8ce25"
+    },
+    {
+      "path": "build/task054/review-ios-kernel/absence-repro.py",
+      "sha256": "4ecf19ca430e3ca40ed713e6c47cf244a04418eac437f304ff066ecc6a4f80b6"
+    },
+    {
+      "path": "build/task054/review-ios-kernel/baseline.py",
+      "sha256": "93d3dff87f07fae2692672e7b8bbce75f7d4918b74423f8e7cd5bfe99c40580a"
+    },
+    {
+      "path": "build/task054/review-ios-kernel/audit.py",
+      "sha256": "cc42fdccc4c5ef328fe5ec8634df6623dd9fec9a49c3d10131bc853709f70157"
+    },
+    {
+      "path": "build/task054/review-ios-kernel/audit-result.json",
+      "sha256": "fa4599bd52c485bdcafd991903333864af7670d6534343125526b3bc057d923e"
+    },
+    {
+      "path": "build/task054/review-ios-kernel/supplement-observations.json",
+      "sha256": "20c7ad3e9b942eaaacc003fee3d4fc9e97114b5e0647f25a4b1af52122764246"
+    }
+  ],
+  "hygiene": {
+    "ownWorktree": "/Users/minxiang/.codex/worktrees/task054-review-ios-kernel/ClientMerchandiseControl",
+    "head": "559595649a5886a654bfe34b06077d4f2368e89e",
+    "trackedClean": true,
+    "ownedLiveVerificationProcesses": 0,
+    "allCommandsTerminal": true,
+    "nativeResourcesCreated": 0,
+    "writerWorktreeUnmodified": true,
+    "pushed": false,
+    "merged": false
+  },
+  "limitations": "Approvazione del delta helper/test559 soltanto. Causa completa e risorse della CI4 restano indeterminate; budget e lane native non sostituiti con mock. Integrazione sviluppo richiede gli altri reviewer e la CI del freeze composto, TASK054 non è DONE.",
+  "originalReceiptSha256": "64c25c29a0650b7521a4af73e498d19cb9dcbf58989e6410c3822cf32508f182",
+  "qualification": "Reviewer distinto APPROVED SOURCE_CODE_ONLY559;53PASS0 e PoCcontrastiva autonoma. Delta root36f9a84 composto solo dalla stessa patch; CI5 ancoraNOT_RUN, CI4FAIL preservato."
+}

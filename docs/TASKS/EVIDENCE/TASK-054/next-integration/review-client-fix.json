@@ -1,0 +1,142 @@
+{
+  "kind": "independent_readonly_client_code_re_review",
+  "reviewer": "/root/review_client_delta",
+  "revision": "163b9c246ee4e8ead06f4fd097228a649aa3e217",
+  "outcome": "APPROVED",
+  "scope": "SOURCE_CODE_ONLY",
+  "counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0
+  },
+  "closed_findings": [
+    "C-NI054-04",
+    "C-NI054-05",
+    "C-NI054-06"
+  ],
+  "checks": [
+    {
+      "command": "flutter pub get --enforce-lockfile",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "flutter test --no-pub test/features/account test/features/delivery_context build/task054/review_client/address_error_reproduction_test.dart build/task054/review_client/address_edit_ack_reproduction_test.dart build/task054/review_client/delivery_address_error_reproduction_test.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 104,
+      "type": "UNIT/WIDGET"
+    },
+    {
+      "command": "flutter test --no-pub build/task054/review_client/host_next_integration_test.dart --name '(address editor focus|search field focus)'",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 2,
+      "type": "WIDGET",
+      "warning": "integration_test plugin host non rilevato; nessuna prova native"
+    },
+    {
+      "command": "dart run scripts/test-task054-os-sync.dart",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 14,
+      "type": "UNIT protocollo sintetico"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-os-frame.py",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 25,
+      "type": "UNIT subprocess fake; non OS"
+    },
+    {
+      "command": "flutter analyze",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "bash scripts/check-architecture-boundaries.sh",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "bash scripts/check-user-facing-localization.sh",
+      "result": "PASS",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check bfbfc0b6..HEAD",
+      "result": "PASS",
+      "exit_code": 0
+    }
+  ],
+  "findings_verification": {
+    "C-NI054-04": "PoC draft-loss account passa; errore mantiene editor/testo, retry attende mutation, busy blocca write/input",
+    "C-NI054-05": "PoC version7 -> ACK8 -> loadFAIL passa; zero seconda update, panel conserva failure refresh",
+    "C-NI054-06": "PoC delivery draft-loss passa; add/edit/resolved callback conservano draft/metadata; ACK distinto da select/readback failure; owner/shop epoch/cancel/dispose impediscono stale select"
+  },
+  "bridge_review": {
+    "public_api": "FlutterDriver.serviceClient/appIsolate, VM service extension stream/call/getIsolate, dart:developer.postEvent/registerExtension; verificate sulla SDK locale pinned",
+    "client_exposure": "Solo integration_test/test_driver/scripts; nessun import nelle sorgenti lib o nuova porta client di produzione",
+    "dependency": "flutter_driver SDK gia transitive, reso direct dev; versioni lock immutate",
+    "protocol": "claim + request_id monotono + ACK, snapshot pending per evento precedente listener, dedup, deadline e failure esplicite",
+    "privacy": "dump input_method solo in memoria; persistono flag nullable e screenshot di fixture, non raw dump",
+    "classification": "frame/probe transport PASS non equivale a IME acceptance; receipt ime_acceptance resta NOT_RUN fino al giudizio sui frame reali"
+  },
+  "limits": [
+    "APPROVED riguarda solo il codice revisionato, non CI/gate del candidato finale o autorizzazione al merge",
+    "Nuovo SHA congelato + CI terminale e capture Android/iOS/OS ancora necessari",
+    "Write con COMMIT remoto e risposta totalmente persa resta ambigua; nessuna idempotency remota nuova o dedup inferita",
+    "TASK-054 completa resta BLOCKED per acceptance live, auth, authoring, firma e dispositivi"
+  ],
+  "file_hashes": [
+    {
+      "path": "lib/features/account/application/customer_account_controller.dart",
+      "sha256": "caac38f9aab34a9be5258f23b3d4a6109dea777a58a634a36b35b02c34ecbd49",
+      "git_blob": "f967210a2aadef27eab228b4a9a948aaf1c8f7e5"
+    },
+    {
+      "path": "lib/features/account/presentation/customer_account_panel.dart",
+      "sha256": "ccebee050fda8afe2a2c5501aa8d2a4ad02b90b7779bab65df4454a0a111e90e",
+      "git_blob": "c69db6ecc6cf7ab5b1c582216e78019d2fe92c15"
+    },
+    {
+      "path": "lib/features/delivery_context/presentation/delivery_context_screen.dart",
+      "sha256": "d0db1874661ed382799d80dfa686b76a8f516ddd939f084e4ac0797f2a543874",
+      "git_blob": "2eae21e15fc041919a2af97a2df64d120b3fa979"
+    },
+    {
+      "path": "integration_test/support/os_frame_sync.dart",
+      "sha256": "366674393468f1b44cd3a806ba08db3c71592a3c3c0e47bcdbf8eaa250dcfea7",
+      "git_blob": "3e6c8a606f68fafc663b3c85efabf8caca213599"
+    },
+    {
+      "path": "integration_test/support/visual_capture.dart",
+      "sha256": "7b597269dfd72f40b64c67766220b1c570711f5c5f8bcc36dd3d72aacff97e4c",
+      "git_blob": "a5edcac304a44f56d6287269a1bd11781ddfab8e"
+    },
+    {
+      "path": "test_driver/task054_visual.dart",
+      "sha256": "94f63d570000719fdb4261ee9350df874cae6178d8581eea4906ce21f939c2a8",
+      "git_blob": "640b22529abbd0b726ce5a67c1e76e10ecda9a17"
+    },
+    {
+      "path": "scripts/capture-task054-os-frame.py",
+      "sha256": "b8c59f06a9be633548dcfc4998b3de07787f6914b2f5b35326d1d39242555b89",
+      "git_blob": "bf56a2f599f5f94a14c78f943e62fad5180d8d98"
+    },
+    {
+      "path": "pubspec.yaml",
+      "sha256": "fd185361646fcaec1d543b20dfd6e3430dc5656a7252c93c09309cb09184ea55",
+      "git_blob": "3aea140ff63b8b882313f68549ae67b4ea075306"
+    },
+    {
+      "path": "pubspec.lock",
+      "sha256": "360f0222bb529970e33dd5d83e52a0a7313e3323044095626156cd009b42a75e",
+      "git_blob": "28c22cf39b68707d679652ccc388650e0bf7d0c1"
+    }
+  ],
+  "owned_verification_processes_pending": 0,
+  "worktree_tracked_changes": 0
+}

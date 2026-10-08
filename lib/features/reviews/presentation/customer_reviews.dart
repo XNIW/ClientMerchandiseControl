@@ -10,6 +10,9 @@ import '../../../app/design_system/tokens/app_spacing.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../core/config/app_config.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../account/application/customer_account_providers.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_state.dart';
 import '../application/customer_review_providers.dart';
 import '../domain/customer_review_models.dart';
 import '../domain/customer_review_repository.dart';
@@ -451,16 +454,62 @@ Future<void> showCustomerReviewDialog(
   CustomerReview? review,
 }) async {
   assert((eligible == null) != (review == null));
-  final result = await showDialog<bool>(
-    context: context,
-    builder: (_) => _CustomerReviewDialog(eligible: eligible, review: review),
+  final subjectId = ref.read(customerAccountIdentityProvider)?.subjectId;
+  if (subjectId == null) return;
+  var openingOwnerInvalidated = false;
+  final subscription = ProviderScope.containerOf(context, listen: false).listen(
+    authControllerProvider,
+    (_, state) {
+      final nextSubjectId = switch (state) {
+        AuthAuthenticated(:final customer) => customer.subjectId,
+        _ => null,
+      };
+      if (nextSubjectId != subjectId) openingOwnerInvalidated = true;
+    },
   );
-  if (result == true) ref.invalidate(customerReviewsAccountProvider);
+  try {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final route = DialogRoute<bool>(
+      context: context,
+      themes: InheritedTheme.capture(from: context, to: navigator.context),
+      barrierColor:
+          DialogTheme.of(context).barrierColor ??
+          Theme.of(context).dialogTheme.barrierColor ??
+          Colors.black54,
+      barrierDismissible: true,
+      traversalEdgeBehavior: TraversalEdgeBehavior.closedLoop,
+      builder: (_) => _CustomerReviewDialog(
+        subjectId: subjectId,
+        openingOwnerInvalidated: openingOwnerInvalidated,
+        closeOpeningMonitor: subscription.close,
+        eligible: eligible,
+        review: review,
+      ),
+    );
+    final result = await Future.any([navigator.push(route), route.completed]);
+    if (result == true &&
+        !openingOwnerInvalidated &&
+        context.mounted &&
+        ref.read(customerAccountIdentityProvider)?.subjectId == subjectId) {
+      ref.invalidate(customerReviewsAccountProvider);
+    }
+  } finally {
+    subscription.close();
+  }
 }
 
 final class _CustomerReviewDialog extends ConsumerStatefulWidget {
-  const _CustomerReviewDialog({this.eligible, this.review});
+  const _CustomerReviewDialog({
+    required this.subjectId,
+    required this.openingOwnerInvalidated,
+    required this.closeOpeningMonitor,
+    this.eligible,
+    this.review,
+  });
 
+  final String subjectId;
+  final bool openingOwnerInvalidated;
+  final VoidCallback closeOpeningMonitor;
   final CustomerReviewEligibleLine? eligible;
   final CustomerReview? review;
 
@@ -473,25 +522,63 @@ final class _CustomerReviewDialogState
     extends ConsumerState<_CustomerReviewDialog> {
   late int _rating;
   late final TextEditingController _comment;
+  final _failureKey = GlobalKey();
   var _busy = false;
+  var _hasFailure = false;
+  var _ownerInvalidated = false;
+  PopupRoute<dynamic>? _ratingPopupRoute;
+
+  bool get _ownerIsCurrent =>
+      mounted &&
+      !_ownerInvalidated &&
+      ref.read(customerAccountIdentityProvider)?.subjectId == widget.subjectId;
 
   @override
   void initState() {
     super.initState();
     _rating = widget.review?.rating ?? 5;
     _comment = TextEditingController(text: widget.review?.comment);
+    if (widget.openingOwnerInvalidated) _invalidateOwner();
+    ref.listenManual(
+      customerAccountIdentityProvider.select((identity) => identity?.subjectId),
+      (_, subjectId) => _checkOwner(subjectId),
+      fireImmediately: true,
+    );
+    ref.listenManual(authControllerProvider, (_, state) {
+      _checkOwner(switch (state) {
+        AuthAuthenticated(:final customer) => customer.subjectId,
+        _ => null,
+      });
+    });
+  }
+
+  void _checkOwner(String? subjectId) {
+    if (subjectId != widget.subjectId) _invalidateOwner();
+  }
+
+  void _invalidateOwner() {
+    if (_ownerInvalidated) return;
+    _ownerInvalidated = true;
+    scheduleMicrotask(() {
+      if (!mounted) return;
+      _comment.clear();
+      _close(false);
+    });
   }
 
   @override
   void dispose() {
+    widget.closeOpeningMonitor();
     _comment.dispose();
     super.dispose();
   }
 
   Future<void> _save({bool withdraw = false}) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    final l10n = AppLocalizations.of(context);
+    if (_busy || !_ownerIsCurrent) return;
+    setState(() {
+      _busy = true;
+      _hasFailure = false;
+    });
     try {
       final comment = _comment.text.trim().isEmpty
           ? null
@@ -513,20 +600,49 @@ final class _CustomerReviewDialogState
           withdraw: withdraw,
         );
       }
-      if (mounted) Navigator.of(context).pop(true);
+      if (_ownerIsCurrent) _close(true);
     } on CustomerReviewException {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.reviewsFailure)));
+      if (mounted && _ownerIsCurrent) {
+        // Rilascia il focus del campo nel dialog: l'IME non deve coprire il
+        // feedback quando il rifiuto arriva prima del frame busy.
+        FocusScope.of(context).focusedChild?.unfocus();
+        setState(() => _hasFailure = true);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final failureContext = _failureKey.currentContext;
+          if (_ownerIsCurrent && failureContext != null) {
+            unawaited(Scrollable.ensureVisible(failureContext, alignment: 1));
+          }
+        });
       }
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (_ownerIsCurrent) setState(() => _busy = false);
+    }
+  }
+
+  void _close(bool result) {
+    final route = ModalRoute.of(context);
+    if (route == null || !route.isActive) return;
+    final navigator = Navigator.of(context);
+    final ratingPopup = _ratingPopupRoute;
+    if (ratingPopup != null && ratingPopup.isActive) {
+      navigator.removeRoute(ratingPopup);
+    }
+    _ratingPopupRoute = null;
+    if (route.isCurrent) {
+      navigator.pop(result);
+    } else {
+      navigator.removeRoute(route, result);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final subjectId = ref.watch(
+      customerAccountIdentityProvider.select((identity) => identity?.subjectId),
+    );
+    if (_ownerInvalidated || subjectId != widget.subjectId) {
+      return const SizedBox.shrink();
+    }
     final l10n = AppLocalizations.of(context);
     return AlertDialog(
       scrollable: true,
@@ -542,7 +658,16 @@ final class _CustomerReviewDialogState
                   .map(
                     (rating) => DropdownMenuItem(
                       value: rating,
-                      child: _RatingStars(rating: rating),
+                      child: Builder(
+                        builder: (itemContext) {
+                          final itemRoute = ModalRoute.of(itemContext);
+                          if (itemRoute is PopupRoute &&
+                              itemRoute != ModalRoute.of(context)) {
+                            _ratingPopupRoute = itemRoute;
+                          }
+                          return _RatingStars(rating: rating);
+                        },
+                      ),
                     ),
                   )
                   .toList(),
@@ -558,6 +683,17 @@ final class _CustomerReviewDialogState
               enabled: !_busy,
               decoration: InputDecoration(labelText: l10n.reviewsComment),
             ),
+            if (_hasFailure) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Semantics(
+                key: _failureKey,
+                liveRegion: true,
+                child: Text(
+                  l10n.reviewsFailure,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+            ],
           ],
         ),
       ),

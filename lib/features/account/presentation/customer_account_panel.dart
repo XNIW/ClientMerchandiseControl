@@ -570,10 +570,38 @@ class _AddressTile extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   if (address.isDefault)
-                    Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: const Icon(Icons.check_circle_outline, size: 18),
-                      label: Text(l10n.customerAddressDefault),
+                    Semantics(
+                      container: true,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: colors.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(AppRadii.control),
+                          border: Border.all(color: colors.outlineVariant),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.sm,
+                            vertical: AppSpacing.xs,
+                          ),
+                          child: Wrap(
+                            spacing: AppSpacing.sm,
+                            runSpacing: AppSpacing.xs,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.check_circle_outline,
+                                size: 18,
+                                color: colors.primary,
+                              ),
+                              Text(
+                                l10n.customerAddressDefault,
+                                style: Theme.of(context).textTheme.labelLarge
+                                    ?.copyWith(color: colors.onSurfaceVariant),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                 ],
               ),

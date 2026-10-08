@@ -33,6 +33,7 @@ import 'package:client_merchandise_control/features/reviews/application/customer
 import 'package:client_merchandise_control/features/reviews/presentation/customer_reviews.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -225,6 +226,27 @@ void main() {
             expect(
               find.text(l10n.customerAddressJournalUnavailable),
               findsOneWidget,
+            );
+            final defaultBadge = tester.renderObject<RenderParagraph>(
+              find.text(l10n.customerAddressDefault),
+            );
+            final badgeGlyphs = defaultBadge.getBoxesForSelection(
+              TextSelection(
+                baseOffset: 0,
+                extentOffset: l10n.customerAddressDefault.length,
+              ),
+            );
+            expect(badgeGlyphs, isNotEmpty);
+            expect(
+              badgeGlyphs.every(
+                (box) =>
+                    box.left >= -0.5 &&
+                    box.right <= defaultBadge.size.width + 0.5 &&
+                    box.top >= -0.5 &&
+                    box.bottom <= defaultBadge.size.height + 0.5,
+              ),
+              isTrue,
+              reason: 'Il badge default deve essere leggibile al 200%.',
             );
             await _reveal(tester, warning);
             final retry = find.byKey(

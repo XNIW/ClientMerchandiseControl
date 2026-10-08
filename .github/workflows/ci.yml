@@ -45,6 +45,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-os-frame.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-owned-process.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-owned.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py
       - name: Validate client security boundary
         run: |
           bash scripts/check-client-security.sh

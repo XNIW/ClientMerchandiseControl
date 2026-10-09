@@ -122,16 +122,21 @@ class ProcessTraceTest(unittest.TestCase):
 
 
 class PreflightLifecycleTest(unittest.TestCase):
-    def exercise(self, directory, *, failure=None, cleanup=True, keep=False):
+    def exercise(self, directory, *, failure=None, cleanup=True, keep=False,
+                 developer="/Applications/Xcode_26.5.app/Contents/Developer",
+                 present=True, version="Xcode 26.5\nBuild version TEST", sdk="26.5",
+                 runtime="com.apple.CoreSimulator.SimRuntime.iOS-26-5"):
         owner = Mock(record=None, owns_receipt=False)
         owner.command.side_effect = lambda arguments, *_args, **_kwargs: (
             'a' * 40 if arguments[0] == 'git' else
+            version if arguments[0] == 'xcodebuild' else
+            sdk if arguments[-1] == '--show-sdk-version' else
             'usage: simctl --set <path>' if arguments[-1] == 'help' else
             'list devices [<search term>]' if arguments[-1] == 'list' else
             '{"devices":{}}')
 
         def prepare():
-            owner.record, owner.owns_receipt = {'device': 'owned'}, True
+            owner.record, owner.owns_receipt = {'device': 'owned', 'runtime': runtime}, True
             if failure is not None:
                 raise failure
             return 'owned'
@@ -140,9 +145,30 @@ class PreflightLifecycleTest(unittest.TestCase):
         owner.cleanup.return_value = cleanup
         output = Path(directory) / 'output'
         arguments = ['--output', str(output)] + (['--keep-ready'] if keep else [])
-        with patch.object(PREFLIGHT.IOS, 'IosOwnedRunner', return_value=owner):
+        with patch.object(PREFLIGHT.IOS, 'IosOwnedRunner', return_value=owner), \
+             patch.dict(os.environ, {'DEVELOPER_DIR': developer}), \
+             patch.object(PREFLIGHT.Path, 'is_dir', return_value=present), \
+             patch.object(PREFLIGHT.Path, 'glob', return_value=[]):
             code = PREFLIGHT.main(arguments)
         return code, owner, json.loads((output / 'result.json').read_text())
+
+    def test_missing_wrong_or_incompatible_toolchain_never_prepares(self):
+        for change in ({'present': False}, {'developer': '/unrelated'},
+                       {'version': 'Xcode 26.6'}, {'version': ''}, {'sdk': '26.6'}):
+            with self.subTest(change=change), tempfile.TemporaryDirectory() as directory:
+                code, owner, result = self.exercise(directory, **change)
+                self.assertEqual(code, 2)
+                self.assertEqual(result['preflight'], 'FAIL')
+                owner.prepare.assert_not_called()
+                owner.cleanup.assert_not_called()
+
+    def test_wrong_runtime_cleans_and_does_not_keep_ready(self):
+        with tempfile.TemporaryDirectory() as directory:
+            code, owner, result = self.exercise(directory, keep=True,
+                runtime='com.apple.CoreSimulator.SimRuntime.iOS-26-6')
+            self.assertEqual(code, 2)
+            self.assertEqual(result['preflight'], 'FAIL')
+            owner.cleanup.assert_called_once_with()
 
     def test_preflight_pass_requires_terminal_cleanup(self):
         with tempfile.TemporaryDirectory() as directory:

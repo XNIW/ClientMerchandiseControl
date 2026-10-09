@@ -17,6 +17,13 @@ MANIFEST = ROOT / 'docs/contracts/client-backend-rpc-manifest.json'
 RPC = re.compile(r"['\"]((?:customer|storefront)_[a-z0-9_]+_v\d+)['\"]")
 FIELDS = ('identity_arguments', 'arguments', 'result', 'security_definer',
           'anon_execute', 'authenticated_execute', 'settings', 'definition_md5')
+READONLY_ROLE = 'supabase_read_only_user'
+IDENTITY_SQL = """json_build_object(
+ 'current_user', current_user, 'session_user', session_user,
+ 'database', current_database(), 'transaction_read_only', current_setting('transaction_read_only'),
+ 'superuser', r.rolsuper, 'create_role', r.rolcreaterole,
+ 'create_db', r.rolcreatedb, 'replication', r.rolreplication)
+ FROM pg_roles r WHERE r.rolname = current_user"""
 
 
 def source_errors(manifest, root=ROOT):
@@ -45,7 +52,15 @@ def source_errors(manifest, root=ROOT):
     return errors
 
 
-def query(manifest):
+def query(manifest, connection_only=False):
+    if connection_only:
+        # Nessuna dipendenza dalle migrazioni da applicare o esecuzione di RPC.
+        return """BEGIN READ ONLY;
+SET LOCAL statement_timeout='10s';
+SELECT json_build_object('observed_at', clock_timestamp(),
+ 'connection_identity', (SELECT """ + IDENTITY_SQL + """));
+ROLLBACK;
+"""
     # I nomi provengono solo dal manifest versionato, mai da input SQL libero.
     names = []
     for rpc in manifest['rpcs']:
@@ -60,7 +75,9 @@ def query(manifest):
     index_filter = ','.join(index_names) or "NULL"
     return """BEGIN READ ONLY;
 SET LOCAL statement_timeout='10s';
-SELECT json_build_object('observed_at', clock_timestamp(), 'rpcs', COALESCE((SELECT json_agg(r ORDER BY name) FROM (
+SELECT json_build_object('observed_at', clock_timestamp(),
+ 'connection_identity', (SELECT """ + IDENTITY_SQL + """),
+ 'rpcs', COALESCE((SELECT json_agg(r ORDER BY name) FROM (
  SELECT n.nspname AS schema, p.proname AS name,
  pg_get_function_identity_arguments(p.oid) AS identity_arguments,
  pg_get_function_arguments(p.oid) AS arguments,
@@ -122,22 +139,66 @@ def schema_errors(manifest, snapshot):
     return errors
 
 
-def target_connection(service, config):
-    """Il target deriva dalla configurazione dell'artifact, non dal nome del service."""
-    if not service or not re.fullmatch(r'[a-zA-Z0-9_-]{1,80}', service):
-        raise ValueError('missing_service')
+def connection_target(config, connection_type='direct', endpoint=None):
+    """Il service non sceglie target/ruolo; il pooler richiede un riferimento ufficiale."""
     if config.get('APP_ENV') not in ('staging', 'production'):
         raise ValueError('invalid_environment')
     match = re.fullmatch(r'https://([a-z]{20})\.supabase\.co', config.get('SUPABASE_URL', ''))
     if not match:
         raise ValueError('missing_validated_target')
-    # hostaddr viene svuotato per impedire che il service rediriga la connessione.
-    return f"service={service} host=db.{match[1]}.supabase.co hostaddr='' port=5432 dbname=postgres sslmode=verify-full"
+    project = match[1]
+    host, username = f'db.{project}.supabase.co', READONLY_ROLE
+    if connection_type == 'session-pooler':
+        expected = {'schema_version': 1, 'environment': config['APP_ENV'], 'project_ref': project,
+                    'connection_type': connection_type, 'port': 5432, 'database': 'postgres',
+                    'username': f'{READONLY_ROLE}.{project}', 'sslmode': 'verify-full'}
+        if (not isinstance(endpoint, dict) or set(endpoint) != set(expected) | {'host', 'source'}
+                or any(endpoint.get(k) != v or type(endpoint.get(k)) is not type(v) for k, v in expected.items())):
+            raise ValueError('invalid_project_bound_endpoint')
+        host = endpoint['host']
+        if not isinstance(host, str) or not re.fullmatch(r'aws-[0-9]+-[a-z0-9]+(?:-[a-z0-9]+)+\.pooler\.supabase\.com', host):
+            raise ValueError('invalid_pooler_hostname')
+        source = endpoint['source']
+        sources = {
+            'supabase-dashboard-connect': f'https://supabase.com/dashboard/project/{project}',
+            'supabase-management-api': f'https://api.supabase.com/v1/projects/{project}/config/database/pooler',
+        }
+        if (not isinstance(source, dict) or set(source) != {'kind', 'url'}
+                or not isinstance(source.get('kind'), str)
+                or source.get('kind') not in sources or source.get('url') != sources[source['kind']]):
+            raise ValueError('missing_authoritative_endpoint_reference')
+        username = expected['username']
+    elif connection_type != 'direct' or endpoint is not None:
+        raise ValueError('invalid_connection_type_or_unused_endpoint')
+    return {'type': connection_type, 'host': host, 'port': 5432, 'database': 'postgres',
+            'username': username, 'database_role': READONLY_ROLE, 'sslmode': 'verify-full'}
 
 
-def live_receipt(manifest_bytes, config_bytes, snapshot, revision, started, finished, duration_ms, errors):
+def target_connection(service, config, connection_type='direct', endpoint=None):
+    if not service or not re.fullmatch(r'[a-zA-Z0-9_-]{1,80}', service):
+        raise ValueError('missing_service')
+    target = connection_target(config, connection_type, endpoint)
+    # I parametri espliciti prevalgono su service/PG*: anche options non può cambiare ruolo.
+    return (f"service={service} host={target['host']} hostaddr='' port=5432 dbname=postgres sslmode=verify-full "
+            f"user={target['username']} options='-c default_transaction_read_only=on' "
+            "connect_timeout=10 gssencmode=disable")
+
+
+def connection_errors(snapshot):
+    observed = snapshot.get('connection_identity') if isinstance(snapshot, dict) else None
+    expected = {'current_user': READONLY_ROLE, 'session_user': READONLY_ROLE,
+                'database': 'postgres', 'transaction_read_only': 'on',
+                'superuser': False, 'create_role': False, 'create_db': False, 'replication': False}
+    if not isinstance(observed, dict):
+        return ['missing_connection_identity']
+    return ['invalid_connection_' + key for key, value in expected.items()
+            if observed.get(key) != value or type(observed.get(key)) is not type(value)]
+
+
+def live_receipt(manifest_bytes, config_bytes, snapshot, revision, started, finished, duration_ms, errors,
+                 connection_type='direct', endpoint=None, connection_only=False):
     config = json.loads(config_bytes)
-    target_connection('receipt', config)
+    target = connection_target(config, connection_type, endpoint)
     observed = datetime.fromisoformat(snapshot['observed_at'].replace('Z', '+00:00'))
     if observed.tzinfo is None or not (started.timestamp() - 5 <= observed.timestamp() <= finished.timestamp() + 5):
         raise ValueError('stale_live_response')
@@ -146,7 +207,12 @@ def live_receipt(manifest_bytes, config_bytes, snapshot, revision, started, fini
     if not re.fullmatch(r'[0-9a-f]{40}', revision):
         raise ValueError('missing_revision')
     return {
-        'schema_version': 1, 'scope': 'live_schema', 'reusable_for_upload': False,
+        'schema_version': 2, 'scope': 'live_connection_identity' if connection_only else 'live_schema',
+        'reusable_for_upload': False,
+        'schema_result': 'NOT_RUN' if connection_only or connection_errors(snapshot) else ('FAIL' if errors else 'PASS'),
+        'connection': target, 'connection_identity': snapshot.get('connection_identity'),
+        'connection_result': 'FAIL' if connection_errors(snapshot) else 'PASS',
+        'endpoint_metadata_sha256': hashlib.sha256(json.dumps(endpoint, sort_keys=True, separators=(',', ':')).encode()).hexdigest() if endpoint else None,
         'result': 'FAIL' if errors else 'PASS', 'client_commit': revision,
         'manifest_sha256': hashlib.sha256(manifest_bytes).hexdigest(),
         'config_sha256': hashlib.sha256(config_bytes).hexdigest(),
@@ -166,13 +232,20 @@ def main():
     mode.add_argument('--emit-sql', action='store_true')
     mode.add_argument('--snapshot', type=Path)
     mode.add_argument('--live', action='store_true')
+    mode.add_argument('--connection-only', action='store_true', help='Solo connessione/identità readonly preapply; schema non qualificato.')
     parser.add_argument('--service', default=os.environ.get('CMC_BACKEND_PGSERVICE'))
+    parser.add_argument('--connection-type', choices=('direct', 'session-pooler'))
+    parser.add_argument('--endpoint-metadata', type=Path,
+                        help='Riferimento pubblico ufficiale del pooler, associato al progetto; mai credenziali.')
     parser.add_argument('--app-config', type=Path)
     parser.add_argument('--receipt', type=Path, help='Output sanitizzato solo per query live; mai input di autorizzazione.')
     args = parser.parse_args()
     try:
-        if args.receipt and not args.live:
+        live = args.live or args.connection_only
+        if args.receipt and not live:
             raise ValueError('receipt_requires_live')
+        if not live and (args.endpoint_metadata or args.connection_type not in (None, 'direct')):
+            raise ValueError('transport_options_require_live')
         manifest_bytes = MANIFEST.read_bytes()
         manifest = json.loads(manifest_bytes)
         errors = source_errors(manifest)
@@ -186,30 +259,43 @@ def main():
         if args.source_only:
             print(f'BACKEND_CONTRACT_SOURCE PASS rpcs={len(manifest["rpcs"])} runtime=NOT_RUN')
             return 0
-        if args.live:
+        if live:
+            args.connection_type = args.connection_type or os.environ.get('CMC_BACKEND_CONNECTION_TYPE', 'direct')
+            if args.endpoint_metadata is None and os.environ.get('CMC_BACKEND_ENDPOINT_METADATA'):
+                args.endpoint_metadata = Path(os.environ['CMC_BACKEND_ENDPOINT_METADATA'])
             if not args.service or args.app_config is None:
-                print('BACKEND_COMPATIBILITY BLOCKED prerequisite=CMC_BACKEND_PGSERVICE_and_artifact_config')
+                print('BACKEND_CONNECTION NOT_RUN attempted=false prerequisite=CMC_BACKEND_PGSERVICE_and_artifact_config')
                 return 2
             config_bytes = args.app_config.read_bytes()
-            connection = target_connection(args.service, json.loads(config_bytes))
+            endpoint = json.loads(args.endpoint_metadata.read_text()) if args.endpoint_metadata else None
+            connection = target_connection(args.service, json.loads(config_bytes), args.connection_type, endpoint)
             revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
             started = datetime.now(timezone.utc)
             monotonic_started = time.monotonic()
             env = dict(os.environ, PGCONNECT_TIMEOUT='10', PGOPTIONS='-c default_transaction_read_only=on')
             result = subprocess.run(['psql', '-X', '-w', '-Atq', '-v', 'ON_ERROR_STOP=1',
-                                     connection], input=query(manifest),
+                                     connection], input=query(manifest, connection_only=args.connection_only),
                                     text=True, capture_output=True, env=env, timeout=30)
             if result.returncode:
-                print('BACKEND_COMPATIBILITY BLOCKED prerequisite=authorized_readonly_database_connection')
+                # Non stampare stderr: può contenere dati del service o del server.
+                failure = 'connection_or_query'
+                if 'certificate' in result.stderr.lower() or 'ssl error' in result.stderr.lower():
+                    failure = 'tls_handshake'
+                elif 'password authentication failed' in result.stderr.lower():
+                    failure = 'authentication'
+                print(f'BACKEND_CONNECTION BLOCKED attempted=true stage={failure} schema=NOT_RUN')
                 return 2
             finished = datetime.now(timezone.utc)
             duration_ms = round((time.monotonic() - monotonic_started) * 1000)
             snapshot = json.loads(result.stdout)
         else:
             snapshot = json.loads(args.snapshot.read_text())
-        errors = schema_errors(manifest, snapshot)
-        if args.live:
-            receipt = live_receipt(manifest_bytes, config_bytes, snapshot, revision, started, finished, duration_ms, errors)
+        errors = connection_errors(snapshot) if live else []
+        if not args.connection_only:
+            errors += schema_errors(manifest, snapshot)
+        if live:
+            receipt = live_receipt(manifest_bytes, config_bytes, snapshot, revision, started, finished, duration_ms, errors,
+                                   args.connection_type, endpoint, args.connection_only)
             receipt['source_dirty'] = bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).strip())
             receipt['consumer_sources'] = manifest['consumer_sources']
             receipt['client_sources_sha256'] = hashlib.sha256(b''.join(
@@ -217,6 +303,7 @@ def main():
                 for p in sorted((ROOT / 'lib').rglob('*.dart')))).hexdigest()
             if args.receipt:
                 descriptor = os.open(args.receipt, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+                os.fchmod(descriptor, 0o600)
                 with os.fdopen(descriptor, 'w') as handle:
                     json.dump(receipt, handle, sort_keys=True, indent=2)
             print('BACKEND_LIVE_RECEIPT ' + json.dumps(receipt, sort_keys=True))
@@ -224,7 +311,10 @@ def main():
             print('BACKEND_COMPATIBILITY FAIL ' + error)
         if errors:
             return 1
-        print('BACKEND_COMPATIBILITY PASS scope=' + ('live_schema' if args.live else 'snapshot_only'))
+        if args.connection_only:
+            print('BACKEND_CONNECTION PASS scope=live_connection_identity schema=NOT_RUN apply_authorization=NOT_RUN')
+        else:
+            print('BACKEND_COMPATIBILITY PASS scope=' + ('live_schema' if args.live else 'snapshot_only'))
         print('BACKEND_BEHAVIOR NOT_RUN prerequisite=payload_and_owner_shop_E2E')
         return 0
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):

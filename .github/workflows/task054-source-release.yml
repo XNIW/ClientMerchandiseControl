@@ -218,3 +218,5 @@ jobs:
           --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
           --archive-runner-attestation '${{ steps.ios-archive-runner.outputs.macho_sha256 }}'
 
+# Queste build restano production-like unsigned; i test del ramo staging
+# eseguiti su host non qualificano un artifact TEST nativo o la sua distribuzione.

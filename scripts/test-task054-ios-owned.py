@@ -71,7 +71,7 @@ class Fixture:
             return json.dumps({'devices': {RUNTIME: entries}})
         return '/fake/Developer' if arguments[0] == 'xcode-select' else ''
 
-    def execute(self, action, github_output=None):
+    def execute(self, action, github_output=None, headless=False, simulator_app=True):
         def command(runner, *args, **kwargs):
             return self.command(runner, *args, **kwargs)
         args = [action, '--receipt', str(self.path)]
@@ -79,14 +79,54 @@ class Fixture:
             args += ['--device', DEVICE]
         if github_output:
             args += ['--github-output', str(github_output)]
+        if headless:
+            args += ['--headless']
         with patch.object(MODULE.IosOwnedRunner, 'command', command), \
-             patch.object(MODULE.Path, 'is_dir', return_value=True), \
+             patch.object(MODULE.Path, 'is_dir', return_value=simulator_app), \
              patch.object(MODULE.signal, 'signal'), \
              patch.dict(os.environ, self.owner_environment, clear=True):
             return MODULE.main(args)
 
 
 class IosOwnedTest(unittest.TestCase):
+    def test_headless_prepare_without_gui_keeps_owned_lifecycle_and_cleanup(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(directory)
+            self.assertEqual(fixture.execute('prepare', headless=True, simulator_app=False), 0)
+            record = json.loads(fixture.path.read_text())
+            self.assertEqual(record['launchMode'], 'headless')
+            self.assertTrue(record['ready'])
+            self.assertEqual(fixture.record_before_boot['device'], DEVICE)
+            self.assertFalse(any(c[0] == 'open' for c, _ in fixture.calls))
+            self.assertIn((['xcrun', 'simctl', 'bootstatus', DEVICE, '-b'], 300), fixture.calls)
+            self.assertEqual(fixture.execute('cleanup'), 0)
+            mutations = [c for c, _ in fixture.calls if c[:2] == ['xcrun', 'simctl']
+                         and c[2] in ('boot', 'shutdown', 'delete')]
+            self.assertTrue(mutations)
+            self.assertTrue(all(c[3] == DEVICE for c in mutations))
+            self.assertEqual(json.loads(fixture.path.read_text())['cleanup'], 'PASS')
+
+    def test_gui_prepare_without_simulator_app_stops_before_creation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(directory)
+            self.assertEqual(fixture.execute('prepare', simulator_app=False), 2)
+            record = json.loads(fixture.path.read_text())
+            self.assertFalse(record['creationStarted'])
+            self.assertIsNone(record['device'])
+            self.assertFalse(any('create' in c or 'boot' in c or 'open' in c
+                                 for c, _ in fixture.calls))
+            self.assertEqual(record['cleanup'], 'PASS')
+
+    def test_headless_boot_failure_preserves_failure_and_cleans_only_owned_device(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Fixture(directory, fail='boot')
+            self.assertEqual(fixture.execute('prepare', headless=True, simulator_app=False), 7)
+            record = json.loads(fixture.path.read_text())
+            self.assertFalse(record.get('ready', False))
+            self.assertEqual(record['cleanup'], 'PASS')
+            self.assertFalse(any(c[0] == 'open' or FOREIGN in c for c, _ in fixture.calls))
+            self.assertIn((['xcrun', 'simctl', 'delete', DEVICE], 30), fixture.calls)
+
     def test_prepare_owns_once_persists_before_boot_and_exports_after_ready(self):
         with tempfile.TemporaryDirectory() as directory:
             fixture = Fixture(directory)

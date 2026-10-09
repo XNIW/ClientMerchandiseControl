@@ -229,16 +229,18 @@ class IosOwnedRunner:
             raise Failure(2, 'simulatore richiesto non Booted/disponibile')
         return True
 
-    def prepare(self):
+    def prepare(self, headless=False):
         self.record = {'schemaVersion': 1, 'nonce': uuid.uuid4().hex,
                        'device': None, 'creationStarted': False, 'cleanup': 'NOT_RUN'}
         self.record['ownerContext'] = {key: os.environ.get(key) for key in OWNER_CONTEXT}
         self.record['name'] = PREFIX + self.record['nonce']
+        if headless:
+            self.record['launchMode'] = 'headless'
         self.persist(exclusive=True)  # Nessuna creazione se la receipt esiste.
         developer = os.environ.get('DEVELOPER_DIR') or self.command(
             ['xcode-select', '-p'], 15, capture=True).strip()
         simulator = developer + '/Applications/Simulator.app'
-        if not Path(simulator).is_dir():
+        if not headless and not Path(simulator).is_dir():
             raise Failure(2, 'Simulator.app assente nella toolchain selezionata')
         payload = json.loads(self.command(['xcrun', 'simctl', 'list', 'runtimes',
                                           '--json'], 30, capture=True))
@@ -271,7 +273,8 @@ class IosOwnedRunner:
             raise Failure(2, 'create non ha restituito un UUID verificabile')
         self.check_device(device, owned=True)
         self.command(['xcrun', 'simctl', 'boot', device], 60)
-        self.command(['open', '-a', simulator, '--args', '-CurrentDeviceUDID', device], 60)
+        if not headless:
+            self.command(['open', '-a', simulator, '--args', '-CurrentDeviceUDID', device], 60)
         self.command(['xcrun', 'simctl', 'bootstatus', device, '-b'], 300)
         self.check_device(device, ready=True, owned=True)
         self.record['ready'] = True
@@ -385,6 +388,8 @@ def main(argv=None):
     prepare = subcommands.add_parser('prepare')
     prepare.add_argument('--receipt', required=True)
     prepare.add_argument('--github-output')
+    prepare.add_argument('--headless', action='store_true',
+                         help='prepara il solo simulatore proprio via simctl, senza interfaccia GUI')
     cleanup = subcommands.add_parser('cleanup')
     cleanup.add_argument('--receipt', required=True)
     smoke = subcommands.add_parser('smoke')
@@ -402,7 +407,7 @@ def main(argv=None):
     must_cleanup = options.action == 'cleanup'
     try:
         if options.action == 'prepare' or standalone:
-            device = runner.prepare()
+            device = runner.prepare(headless=getattr(options, 'headless', False))
             if options.action == 'prepare' and options.github_output:
                 with open(options.github_output, 'a') as output:
                     output.write('device_id=' + device + '\n')

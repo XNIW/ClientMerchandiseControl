@@ -1,0 +1,220 @@
+name: TASK054 source and release gates
+
+# Verifica del delta source/config e dei confini release unsigned.
+# Il push sul solo branch composto registra la prima run; dispatch resta esplicito.
+# I tre job sono copie delle ricette canoniche in ci.yml, inclusa la suite
+# adversarial iOS nello stesso job che produce reference app e archive.
+# Non qualifica runtime/UI, autenticazione TEST o distribuzione firmata.
+on:
+  push:
+    branches:
+      - codex/task054-test-activation-source
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: 3.44.8
+
+jobs:
+  quality:
+    name: Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Validate workflow action pins
+        run: bash scripts/check-action-pins.sh
+      - name: Validate shell scripts
+        run: bash -n scripts/*.sh
+      - name: Validate backend consumer contract
+        run: |
+          python3 scripts/check-backend-compatibility.py --source-only
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-backend-compatibility.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-auth-entitlements.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-visual-runner.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-android-runner.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-os-frame.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-owned-process.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-owned.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-preview.py
+      - name: Validate client security boundary
+        run: |
+          bash scripts/check-client-security.sh
+          bash scripts/test-client-security-scan.sh
+      - name: Validate governance state
+        run: |
+          bash scripts/check-governance-state.sh
+          bash scripts/test-governance-release-train.sh
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Validate synchronized OS capture bridge
+        run: dart scripts/test-task054-os-sync.dart
+      - name: Validate architecture boundaries
+        run: |
+          bash scripts/check-architecture-boundaries.sh
+          bash scripts/test-architecture-boundaries.sh
+      - name: Generate localizations
+        run: flutter gen-l10n
+      - name: Validate release metadata and native assets
+        run: bash scripts/check-release-metadata.sh
+      - name: Verify generated and locked files
+        run: |
+          git diff --exit-code -- pubspec.lock lib/l10n/generated
+          if [[ -n "$(git status --porcelain --untracked-files=all -- pubspec.lock lib/l10n/generated)" ]]; then
+            git status --short --untracked-files=all -- pubspec.lock lib/l10n/generated
+            exit 1
+          fi
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+      - name: Analyze
+        run: flutter analyze
+      - name: Test with coverage
+        run: flutter test --coverage --exclude-tags performance
+      - name: Performance gate
+        run: flutter test --tags performance --concurrency=1
+      - name: Check whitespace errors
+        run: git diff --check
+
+  android-release:
+    name: Android release candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Build production-like unsigned AAB
+        run: >-
+          flutter build appbundle --release
+          --dart-define-from-file=config/app_config.production.release.json
+      - name: Build production-like unsigned inspection APK
+        run: >-
+          flutter build apk --release
+          --dart-define-from-file=config/app_config.production.release.json
+      - name: Validate Android release candidate
+        run: >-
+          bash scripts/check-android-release.sh
+          --aab build/app/outputs/bundle/release/app-release.aab
+          --apk build/app/outputs/flutter-apk/app-release.apk
+      - name: Validate Android v2-only signature boundary
+        run: >-
+          bash scripts/test-android-release-signature.sh
+          --aab build/app/outputs/bundle/release/app-release.aab
+          --apk build/app/outputs/flutter-apk/app-release.apk
+
+  ios-release:
+    name: iOS release candidate
+    runs-on: macos-26
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        # actions/checkout v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up Flutter
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate Flutter toolchain
+        run: bash scripts/resolve-flutter.sh
+      - name: Resolve dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Validate iOS release source
+        run: bash scripts/check-ios-release.sh --source-only
+      - name: Build production-like unsigned iOS app
+        run: >-
+          flutter build ios --release --no-codesign
+          --dart-define-from-file=config/app_config.production.release.json
+      - name: Attest iOS reference build
+        id: ios-reference
+        run: |
+          cmc_reference_output="$(
+            bash scripts/create-ios-reference-attestation.sh \
+            --app build/ios/iphoneos/Runner.app
+          )"
+          case "${cmc_reference_output}" in
+            IOS_REFERENCE_ATTESTATION=*) ;;
+            *) exit 1 ;;
+          esac
+          cmc_reference_digests="${cmc_reference_output#IOS_REFERENCE_ATTESTATION=}"
+          if [[ ! "${cmc_reference_digests}" =~ ^[0-9a-f]{64}(,[0-9a-f]{64}){3}$ ]]; then
+            exit 1
+          fi
+          printf 'macho_sha256=%s\n' "${cmc_reference_digests}" >>"${GITHUB_OUTPUT}"
+      - name: Archive production-like unsigned iOS app
+        run: >-
+          xcodebuild archive
+          -workspace ios/Runner.xcworkspace
+          -scheme Runner
+          -configuration Release
+          -destination 'generic/platform=iOS'
+          -archivePath build/ios/archive/Runner.xcarchive
+          CODE_SIGNING_ALLOWED=NO
+          CODE_SIGNING_REQUIRED=NO
+          COMPILER_INDEX_STORE_ENABLE=NO
+      - name: Attest iOS archive Runner
+        id: ios-archive-runner
+        run: |
+          cmc_archive_output="$(
+            bash scripts/create-ios-reference-attestation.sh \
+            --archive-app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
+          )"
+          case "${cmc_archive_output}" in
+            IOS_ARCHIVE_RUNNER_ATTESTATION=*) ;;
+            *) exit 1 ;;
+          esac
+          cmc_archive_digest="${cmc_archive_output#IOS_ARCHIVE_RUNNER_ATTESTATION=}"
+          if [[ ! "${cmc_archive_digest}" =~ ^[0-9a-f]{64}$ ]]; then
+            exit 1
+          fi
+          printf 'macho_sha256=%s\n' "${cmc_archive_digest}" >>"${GITHUB_OUTPUT}"
+      - name: Validate iOS release candidate
+        run: >-
+          bash scripts/check-ios-release.sh
+          --app build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app
+          --archive build/ios/archive/Runner.xcarchive
+          --sealed-app-output build/ios/Runner.app.validated.zip
+          --reference-app build/ios/iphoneos/Runner.app
+          --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
+          --archive-runner-attestation '${{ steps.ios-archive-runner.outputs.macho_sha256 }}'
+      - name: Validate iOS adversarial release boundaries
+        run: >-
+          bash scripts/test-ios-release-validator.sh
+          --archive build/ios/archive/Runner.xcarchive
+          --reference-app build/ios/iphoneos/Runner.app
+          --reference-attestation '${{ steps.ios-reference.outputs.macho_sha256 }}'
+          --archive-runner-attestation '${{ steps.ios-archive-runner.outputs.macho_sha256 }}'
+

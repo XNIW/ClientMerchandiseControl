@@ -429,6 +429,13 @@ grep -Fq 'android:permission="android.permission.DUMP"' \
   <<<"${cmc_android_release_compiled_manifest}" || \
   cmc_android_release_fail 'EXPORTED_PROFILE_RECEIVER_NOT_GUARDED'
 
+if [[ "${cmc_android_release_test}" == true ]]; then
+  printf '%s' "${cmc_android_release_compiled_manifest}" | \
+    python3 "${cmc_android_release_script_dir}/check-android-test-callback.py" \
+      --host "${cmc_android_release_callback_host}" || \
+      cmc_android_release_fail 'TEST_APK_CALLBACK_BINDING_INVALID'
+fi
+
 cmc_android_release_aab_signature_output=''
 cmc_android_release_aab_signature_status=0
 if cmc_android_release_aab_signature_output="$(

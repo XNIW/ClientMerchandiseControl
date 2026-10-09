@@ -249,6 +249,8 @@ bool _hasExactTestCallback(_XmlElement activity, String host) {
 
 bool _hasExactAttributes(_XmlElement element, Map<String, String> expected) =>
     element.attributes.length == expected.length &&
+    element.attributes.map((attribute) => attribute.name).toSet().length ==
+        expected.length &&
     element.attributes.every(
       (attribute) =>
           attribute.namespace == _androidNamespace &&

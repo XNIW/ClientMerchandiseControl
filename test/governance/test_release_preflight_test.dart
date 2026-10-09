@@ -4,6 +4,79 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test(
+    'guard APK reale richiede callback XML esatto oltre al binding AAB',
+    () async {
+      final script = File(
+        'scripts/check-android-release.sh',
+      ).readAsStringSync();
+      final call = script.indexOf('check-android-test-callback.py');
+      expect(call, greaterThan(0));
+      final start = script.lastIndexOf('if [[', call);
+      final end = script.indexOf('\nfi', call) + 3;
+      final guard = script.substring(start, end);
+      final canonical = _apkManifest();
+      final variants = <String, String>{
+        'canonico': canonical,
+        'host diverso': _apkManifest(host: 'other.client.example.com'),
+        'HTTPS assente': _apkManifest(includeCallback: false),
+        'path prefix': canonical.replaceFirst(
+          'android:path=',
+          'android:pathPrefix=',
+        ),
+        'autoVerify false': canonical.replaceFirst(
+          'autoVerify="true"',
+          'autoVerify="false"',
+        ),
+        'host duplicato': canonical.replaceFirst(
+          'android:path="/auth-callback/"',
+          'android:host="auth.client.example.com"',
+        ),
+        'filtro aggiuntivo': canonical.replaceFirst(
+          '</activity>',
+          '<intent-filter><data android:scheme="https" android:host="other.client.example.com"/></intent-filter></activity>',
+        ),
+        'DOCTYPE': '<!DOCTYPE manifest []>$canonical',
+        'oltre limite': ' ' * (1024 * 1024 + 1),
+      };
+      for (final entry in variants.entries) {
+        final process = await Process.start(
+          'bash',
+          [
+            '-c',
+            r'''
+set -euo pipefail
+cmc_android_release_test=true
+cmc_android_release_callback_host=auth.client.example.com
+cmc_android_release_script_dir="$CMC_TEST_SCRIPTS_DIR"
+cmc_android_release_compiled_manifest="$(cat)"
+cmc_android_release_fail() { printf '%s\n' "$1" >&2; exit 1; }
+''' +
+                guard,
+          ],
+          environment: {
+            'CMC_TEST_SCRIPTS_DIR': '${Directory.current.path}/scripts',
+          },
+        );
+        final output = process.stdout.transform(utf8.decoder).join();
+        final errors = process.stderr.transform(utf8.decoder).join();
+        process.stdin.write(entry.value);
+        await process.stdin.close();
+        final code = await process.exitCode;
+        final stdout = await output;
+        final stderr = await errors;
+        expect(
+          code,
+          entry.key == 'canonico' ? 0 : 1,
+          reason: '${entry.key}: $stdout $stderr',
+        );
+        if (entry.key != 'canonico') {
+          expect(stderr, contains('TEST_APK_CALLBACK_BINDING_INVALID'));
+        }
+      }
+    },
+  );
+
   for (final script in [
     'test-android-runtime-binding.py',
     'test-ios-test-callback.py',
@@ -212,3 +285,19 @@ const _values = <String, String>{
   'DELIVERY_MAPS_NATIVE_CONFIGURED': 'false',
   'AUTH_CALLBACK_VERIFIED_HOST': 'auth.client.example.com',
 };
+
+String _apkManifest({
+  String host = 'auth.client.example.com',
+  bool includeCallback = true,
+}) =>
+    '''
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.xniw.clientmerchandisecontrol">
+<application><activity android:name="com.xniw.clientmerchandisecontrol.MainActivity" android:exported="true">
+${includeCallback ? '''<intent-filter android:autoVerify="true">
+<action android:name="android.intent.action.VIEW"/>
+<category android:name="android.intent.category.DEFAULT"/>
+<category android:name="android.intent.category.BROWSABLE"/>
+<data android:scheme="https" android:host="$host" android:path="/auth-callback/"/>
+</intent-filter>''' : ''}
+</activity></application></manifest>
+''';

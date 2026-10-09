@@ -148,7 +148,7 @@ void main() {
     });
   }
 
-  for (final mismatch in ['host', 'verify', 'prefix', 'extra']) {
+  for (final mismatch in ['host', 'verify', 'prefix', 'extra', 'duplicate']) {
     test('TEST rifiuta binding callback nativo $mismatch', () {
       final fixture = _writeManifestFixture(
         packageName: _packageName,
@@ -158,6 +158,7 @@ void main() {
         callbackVerify: mismatch != 'verify',
         callbackPathPrefix: mismatch == 'prefix',
         callbackExtraData: mismatch == 'extra',
+        callbackDuplicateHost: mismatch == 'duplicate',
       );
       addTearDown(() => fixture.parent.deleteSync(recursive: true));
       final result = Process.runSync('dart', [
@@ -183,6 +184,7 @@ File _writeManifestFixture({
   bool callbackVerify = true,
   bool callbackPathPrefix = false,
   bool callbackExtraData = false,
+  bool callbackDuplicateHost = false,
 }) {
   final directory = Directory.systemTemp.createTempSync(
     'cmc-android-bundle-manifest.',
@@ -343,11 +345,14 @@ File _writeManifestFixture({
                       attributes: [
                         _attribute('scheme', 'https', android: true),
                         _attribute('host', callbackHost, android: true),
-                        _attribute(
-                          callbackPathPrefix ? 'pathPrefix' : 'path',
-                          callbackPath,
-                          android: true,
-                        ),
+                        if (callbackDuplicateHost)
+                          _attribute('host', callbackHost, android: true),
+                        if (!callbackDuplicateHost)
+                          _attribute(
+                            callbackPathPrefix ? 'pathPrefix' : 'path',
+                            callbackPath,
+                            android: true,
+                          ),
                       ],
                     ),
                     if (callbackExtraData)

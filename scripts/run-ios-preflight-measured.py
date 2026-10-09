@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import signal
 
@@ -38,6 +39,23 @@ def main(argv=None):
             try:
                 revision = owner.command(['git', 'rev-parse', 'HEAD'], 15, capture=True)
                 result['revision'] = revision.strip()
+                developer = '/Applications/Xcode_26.5.app/Contents/Developer'
+                result['toolchain'] = {
+                    'image_os': os.environ.get('ImageOS'),
+                    'image_version': os.environ.get('ImageVersion'),
+                    'available_xcodes': sorted(str(path) for path in
+                        Path('/Applications').glob('Xcode*.app')),
+                    'developer_dir': os.environ.get('DEVELOPER_DIR'),
+                }
+                if os.environ.get('DEVELOPER_DIR') != developer or not Path(developer).is_dir():
+                    raise IOS.Failure(2, 'Xcode26.5 richiesto non presente/selezionato')
+                version = owner.command(['xcodebuild', '-version'], 30, capture=True).strip()
+                sdk = owner.command(['xcrun', '--sdk', 'iphonesimulator', '--show-sdk-version'],
+                                    30, capture=True).strip()
+                result['toolchain'].update(xcode_version=version, simulator_sdk=sdk)
+                print(json.dumps({'toolchain': result['toolchain']}), flush=True)
+                if version.splitlines()[:1] != ['Xcode 26.5'] or sdk != '26.5':
+                    raise IOS.Failure(2, 'Xcode/SDK non coincide con ipotesi26.5')
                 help_main = owner.command(['xcrun', 'simctl', 'help'], 30, capture=True)
                 help_list = owner.command(['xcrun', 'simctl', 'help', 'list'], 30, capture=True)
                 (output / 'simctl-help.txt').write_text(help_main + '\n' + help_list)
@@ -53,6 +71,8 @@ def main(argv=None):
                 result['initial_inventory'] = 'PASS'
                 emit('preflight-prepare-start')
                 owner.prepare()
+                if owner.record['runtime'] != 'com.apple.CoreSimulator.SimRuntime.iOS-26-5':
+                    raise IOS.Failure(2, 'runtime diverso dalla baseline iOS26.5')
                 result['preflight'] = 'PASS'
                 emit('preflight-prepare-end', result='PASS')
             except (IOS.Failure, OSError, ValueError, KeyError) as error:

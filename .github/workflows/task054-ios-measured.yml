@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Preflight minimo oppure native dopo preflight approvato sullo stesso SHA
+        description: Preflight26.5 oppure recensione, journal e matrice sullo stesso simulatore proprio
         required: true
         default: preflight
         type: choice
@@ -27,9 +27,9 @@ jobs:
   measured-ios:
     name: Owned iOS measured preflight and native
     runs-on: macos-26
-    timeout-minutes: 45
+    timeout-minutes: 35
     env:
-      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.5.app/Contents/Developer
       FLUTTER_VERSION: 3.44.8
     steps:
       - name: Checkout exact candidate
@@ -59,11 +59,31 @@ jobs:
         run: |
           bash scripts/resolve-flutter.sh
           flutter pub get --enforce-lockfile
+      - name: Critical review alone on the same owned Simulator
+        if: inputs.mode == 'native'
+        env:
+          CMC_TASK054_VISUAL_SELECTION: review
+        run: |
+          cmc_device="$(python3 -c 'import json; print(json.load(open("build/task054/ios-measured/owner.json"))["device"])')"
+          bash scripts/test-task054-visual.sh --device "$cmc_device"
+      - name: Review after the two preceding inbox cases
+        if: inputs.mode == 'native'
+        env:
+          CMC_TASK054_VISUAL_SELECTION: review-after-inbox
+        run: |
+          cmc_device="$(python3 -c 'import json; print(json.load(open("build/task054/ios-measured/owner.json"))["device"])')"
+          bash scripts/test-task054-visual.sh --device "$cmc_device"
       - name: Existing journal runner on the same owned Simulator
         if: inputs.mode == 'native'
         run: >-
           python3 scripts/run-address-journal-ios.py
           --owner-receipt build/task054/ios-measured/owner.json
+      - name: Build normal iOS Simulator app after journal
+        if: inputs.mode == 'native'
+        run: flutter build ios --simulator --debug
+      - name: Validate normal iOS bundle security
+        if: inputs.mode == 'native'
+        run: bash scripts/check-client-security.sh --artifact build/ios/iphonesimulator/Runner.app
       - name: Smoke after journal
         if: inputs.mode == 'native'
         run: |
@@ -96,3 +116,15 @@ jobs:
             build/task054/os-visual/*.json
           retention-days: 7
           if-no-files-found: error
+      - name: Create separate iOS PNG previews
+        if: always()
+        timeout-minutes: 1
+        run: python3 scripts/create-task054-ios-preview.py
+      - name: Save separate iOS PNG previews
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-ios-measured-previews
+          path: build/task054/ios-visual-preview/
+          retention-days: 7
+          if-no-files-found: warn

@@ -11,6 +11,7 @@ CMC_TASK054_SCRIPTS_DIR="${cmc_visual_script_dir}" python3 - "$@" <<'PYCODE'
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 import signal
 import subprocess
@@ -117,10 +118,27 @@ try:
                             os.environ['CMC_OS_FRAME_DEVICE'] != device)):
         print('FAIL: contesto OS frame non corrisponde al device esplicito', flush=True)
         raise SystemExit(2)
-    run(['flutter', 'drive', '--no-pub', '--driver=test_driver/task054_visual.dart',
-         '--target=integration_test/task054_visual_flow_test.dart', '-d', device,
-         '--dart-define=CMC_VISUAL_CAPTURE=true',
-         '--dart-define=CMC_OS_FRAME_CAPTURE=' + str(os_capture).lower()], 900)
+    selection = os.environ.get('CMC_TASK054_VISUAL_SELECTION', 'full')
+    if selection == 'full':
+        run(['flutter', 'drive', '--no-pub', '--driver=test_driver/task054_visual.dart',
+             '--target=integration_test/task054_visual_flow_test.dart', '-d', device,
+             '--dart-define=CMC_VISUAL_CAPTURE=true',
+             '--dart-define=CMC_OS_FRAME_CAPTURE=' + str(os_capture).lower()], 900)
+    elif selection in ('review', 'review-after-inbox'):
+        # Selezione nativa ufficiale Flutter: nessuno skip o cambio della fixture.
+        names = ['recensione submit busy failure retry edit conserva commento']
+        if selection == 'review-after-inbox':
+            names = ['inbox non lette parziale raggiunge pagina2 e deduplica',
+                     'inbox offline conserva cache e auth scaduta la elimina'] + names
+        command = ['flutter', 'test', '--no-pub',
+                   'integration_test/task054_next_integration_surfaces_test.dart', '-d', device]
+        if selection == 'review':
+            command += ['--plain-name', names[0]]
+        else:
+            command += ['--name', '^(?:' + '|'.join(re.escape(name) for name in names) + ')$']
+        run(command, 900)
+    else:
+        raise SystemExit('FAIL: selezione visuale diagnostica non riconosciuta')
 except BaseException as error:
     primary_failure = error
 finally:

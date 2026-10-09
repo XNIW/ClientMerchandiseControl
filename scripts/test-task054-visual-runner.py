@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Regressioni del runner con processi simulati: nessun device viene controllato."""
 import json
+import re
 from pathlib import Path
 import signal
 import subprocess
@@ -91,6 +92,36 @@ class VisualRunnerTest(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertEqual(actions, ['shutdown', 'delete'])
         self.assertIn('--dart-define=CMC_OS_FRAME_CAPTURE=true', processes[-1])
+
+    def test_review_uses_native_filter_without_changing_capture_matrix(self):
+        code, actions, processes = self.execute(owned=False,
+            environment={'CMC_TASK054_VISUAL_SELECTION': 'review'})
+        self.assertEqual(code, 0)
+        self.assertEqual(actions, [])
+        command = processes[-1]
+        self.assertEqual(command[:3], ['flutter', 'test', '--no-pub'])
+        self.assertEqual(command.count('--plain-name'), 1)
+        self.assertIn('recensione submit busy failure retry edit conserva commento', command)
+        self.assertFalse(any('CMC_VISUAL_CAPTURE' in part for part in command))
+
+    def test_review_after_inbox_selects_only_three_existing_cases(self):
+        code, _, processes = self.execute(owned=False,
+            environment={'CMC_TASK054_VISUAL_SELECTION': 'review-after-inbox'})
+        self.assertEqual(code, 0)
+        self.assertEqual(processes[-1].count('--name'), 1)
+        pattern = re.compile(processes[-1][-1])
+        for name in ('inbox non lette parziale raggiunge pagina2 e deduplica',
+                     'inbox offline conserva cache e auth scaduta la elimina',
+                     'recensione submit busy failure retry edit conserva commento'):
+            self.assertIsNotNone(pattern.fullmatch(name))
+        self.assertIsNone(pattern.fullmatch('another review case'))
+
+    def test_unknown_selection_never_launches_flutter(self):
+        code, actions, processes = self.execute(owned=False,
+            environment={'CMC_TASK054_VISUAL_SELECTION': 'unknown'})
+        self.assertNotEqual(code, 0)
+        self.assertEqual(actions, [])
+        self.assertEqual(processes, [])
 
     def test_primary_failure_preserved(self):
         code, actions, _ = self.execute(primary=7)

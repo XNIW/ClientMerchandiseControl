@@ -931,15 +931,41 @@ void main() {
     final fixture = Task054VisualFixtures();
     final repository = Task054MutableReviewFixture(fixture.reviews)
       ..failMutation = true;
-    await tester.pumpWidget(
-      fixture.wrap(
-        _app(const CustomerReviewsScreen(), compact: true),
-        additionalOverrides: [
-          customerReviewRepositoryProvider.overrideWithValue(repository),
-        ],
-      ),
+    final previousOnError = FlutterError.onError;
+    var firstFrameworkError = true;
+    final reviewField = find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.byType(TextField),
     );
+    FlutterError.onError = (details) {
+      try {
+        if (firstFrameworkError) {
+          firstFrameworkError = false;
+          try {
+            _logCompactGeometry(
+              tester,
+              reviewField,
+              'review-first-framework-error',
+            );
+          } on Object catch (error) {
+            debugPrint(
+              'TASK054_REVIEW_GEOMETRY=${jsonEncode({'stage': 'review-first-framework-error', 'snapshotErrorType': error.runtimeType.toString()})}',
+            );
+          }
+        }
+      } finally {
+        previousOnError?.call(details);
+      }
+    };
     try {
+      await tester.pumpWidget(
+        fixture.wrap(
+          _app(const CustomerReviewsScreen(), compact: true),
+          additionalOverrides: [
+            customerReviewRepositoryProvider.overrideWithValue(repository),
+          ],
+        ),
+      );
       await tester.pumpAndSettle();
       final l10n = AppLocalizations.of(
         tester.element(find.byType(CustomerReviewsScreen)),
@@ -951,9 +977,11 @@ void main() {
         of: find.byType(AlertDialog),
         matching: find.byType(TextField),
       );
+      _logCompactGeometry(tester, field, 'review-open');
       const comment =
           'Comentario sintético conservado después de un error de envío.';
       await tester.enterText(field, comment);
+      _logCompactGeometry(tester, field, 'review-before-keyboard');
       await tester.showKeyboard(field);
       await _reveal(tester, field, geometryStage: 'review-first-focus');
       expect(field.hitTestable(), findsOneWidget);
@@ -968,28 +996,33 @@ void main() {
       final submit = find.byKey(const ValueKey('review-submit'));
       await tester.ensureVisible(submit);
       await tester.pumpAndSettle();
+      _logCompactGeometry(tester, field, 'review-before-submit');
       repository.mutationDelay = Completer<void>();
       await tester.tap(submit);
       await tester.pump();
       expect(repository.submitCalls, 1);
       expect(tester.widget<FilledButton>(submit).onPressed, isNull);
       expect(tester.widget<TextField>(field).enabled, isFalse);
+      _logCompactGeometry(tester, field, 'review-busy');
       await captureVisual(tester, 'review-submit-busy-compact200');
       repository.mutationDelay!.complete();
       await tester.pumpAndSettle();
       expect(find.byType(AlertDialog), findsOneWidget);
       expect(tester.widget<TextField>(field).controller!.text, comment);
       expect(repository.saved, isNull);
+      _logCompactGeometry(tester, field, 'review-failure');
       expect(find.text(l10n.reviewsFailure), findsOneWidget);
       expect(tester.widget<FilledButton>(submit).onPressed, isNotNull);
       await captureVisual(
         tester,
         'review-submit-failure-comment-preserved-compact200',
       );
+      _logCompactGeometry(tester, field, 'review-before-retry');
       repository.failMutation = false;
       repository.mutationDelay = null;
       await tester.tap(submit);
       await tester.pumpAndSettle();
+      _logCompactGeometry(tester, field, 'review-after-retry');
       expect(repository.submitCalls, 2);
       expect(repository.lastComment, comment);
       expect(repository.saved!.comment, comment);
@@ -1051,6 +1084,7 @@ void main() {
       await captureVisual(tester, 'review-edit-cancel-readback-compact200');
       expect(tester.takeException(), isNull);
     } finally {
+      FlutterError.onError = previousOnError;
       if (repository.mutationDelay case final delay? when !delay.isCompleted) {
         delay.complete();
       }
@@ -1452,6 +1486,55 @@ Future<void> _reveal(
 
 void _logCompactGeometry(WidgetTester tester, Finder finder, String stage) {
   final viewport = find.byKey(const ValueKey('task054-compact-viewport'));
+  if (viewport.evaluate().length != 1) {
+    debugPrint(
+      'TASK054_REVIEW_GEOMETRY=${jsonEncode({'stage': stage, 'mounted': false})}',
+    );
+    return;
+  }
+  final dialog = find.byType(AlertDialog);
+  final editable = find.descendant(
+    of: dialog,
+    matching: find.byType(EditableText),
+  );
+  final scrollables = find.descendant(
+    of: dialog,
+    matching: find.byType(Scrollable),
+  );
+  final dialogWidget = dialog.evaluate().length == 1
+      ? tester.widget<AlertDialog>(dialog)
+      : null;
+  final details = <String, Object?>{
+    'dialog': _finderGeometry(tester, dialog),
+    'field': _finderGeometry(tester, finder),
+    'title': dialogWidget?.title == null
+        ? null
+        : _finderGeometry(tester, find.byWidget(dialogWidget!.title!)),
+    'actions': _finderGeometry(
+      tester,
+      find.descendant(of: dialog, matching: find.byType(OverflowBar)),
+    ),
+    'submit': _finderGeometry(
+      tester,
+      find.byKey(const ValueKey('review-submit')),
+    ),
+    'focus': editable
+        .evaluate()
+        .map((element) => (element.widget as EditableText).focusNode.hasFocus)
+        .toList(),
+    'scroll': scrollables.evaluate().map((element) {
+      final position = (element as StatefulElement).state as ScrollableState;
+      final scroll = position.position;
+      return {
+        'pixels': scroll.hasPixels ? scroll.pixels : null,
+        'viewport': scroll.hasViewportDimension
+            ? scroll.viewportDimension
+            : null,
+        'min': scroll.hasContentDimensions ? scroll.minScrollExtent : null,
+        'max': scroll.hasContentDimensions ? scroll.maxScrollExtent : null,
+      };
+    }).toList(),
+  };
   final global = MediaQuery.of(tester.element(viewport));
   final local = tester
       .widget<MediaQuery>(
@@ -1461,9 +1544,22 @@ void _logCompactGeometry(WidgetTester tester, Finder finder, String stage) {
   final theme = Theme.of(tester.element(find.byType(CustomerReviewsScreen)));
   final rawInsets = tester.view.viewInsets;
   debugPrint(
-    'TASK054_REVIEW_GEOMETRY=${jsonEncode({'stage': stage, 'physicalSize': _sizeGeometry(tester.view.physicalSize), 'devicePixelRatio': tester.view.devicePixelRatio, 'physicalViewInsets': _edgeGeometry(EdgeInsets.fromLTRB(rawInsets.left, rawInsets.top, rawInsets.right, rawInsets.bottom)), 'globalSize': _sizeGeometry(global.size), 'globalViewInsets': _edgeGeometry(global.viewInsets), 'globalViewPadding': _edgeGeometry(global.viewPadding), 'globalPadding': _edgeGeometry(global.padding), 'viewportRect': _rectGeometry(tester.getRect(viewport)), 'localSize': _sizeGeometry(local.size), 'localViewInsets': _edgeGeometry(local.viewInsets), 'localViewPadding': _edgeGeometry(local.viewPadding), 'localPadding': _edgeGeometry(local.padding), 'fieldRect': finder.evaluate().length == 1 ? _rectGeometry(tester.getRect(finder)) : null, 'platform': theme.platform.name, 'bodyFontFamily': theme.textTheme.bodyMedium?.fontFamily, 'labelFontFamily': theme.textTheme.labelLarge?.fontFamily})}',
+    'TASK054_REVIEW_GEOMETRY=${jsonEncode({'stage': stage, 'mounted': true, 'layout': details, 'physicalSize': _sizeGeometry(tester.view.physicalSize), 'devicePixelRatio': tester.view.devicePixelRatio, 'physicalViewInsets': _edgeGeometry(EdgeInsets.fromLTRB(rawInsets.left, rawInsets.top, rawInsets.right, rawInsets.bottom)), 'globalSize': _sizeGeometry(global.size), 'globalViewInsets': _edgeGeometry(global.viewInsets), 'globalViewPadding': _edgeGeometry(global.viewPadding), 'globalPadding': _edgeGeometry(global.padding), 'viewportRect': _rectGeometry(tester.getRect(viewport)), 'localSize': _sizeGeometry(local.size), 'localViewInsets': _edgeGeometry(local.viewInsets), 'localViewPadding': _edgeGeometry(local.viewPadding), 'localPadding': _edgeGeometry(local.padding), 'fieldRect': finder.evaluate().length == 1 ? _rectGeometry(tester.getRect(finder)) : null, 'platform': theme.platform.name, 'bodyFontFamily': theme.textTheme.bodyMedium?.fontFamily, 'labelFontFamily': theme.textTheme.labelLarge?.fontFamily})}',
   );
 }
+
+List<Map<String, Object?>> _finderGeometry(
+  WidgetTester tester,
+  Finder finder,
+) => finder.evaluate().map((element) {
+  final render = element.findRenderObject();
+  return <String, Object?>{
+    'rect': render is RenderBox && render.hasSize
+        ? _rectGeometry(render.localToGlobal(Offset.zero) & render.size)
+        : null,
+    'constraints': render is RenderBox ? render.constraints.toString() : null,
+  };
+}).toList();
 
 Map<String, double> _sizeGeometry(Size size) => {
   'width': size.width,

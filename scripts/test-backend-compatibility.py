@@ -336,6 +336,48 @@ class ConnectionTransportTest(unittest.TestCase):
             self.assertEqual(gate.main(), 0)
             self.assertFalse(run.called)
 
+    def test_missing_connection_inputs_are_not_attempted_on_both_live_modes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            config = Path(temp) / 'config.json'
+            config.write_text(json.dumps(self.config))
+            absent = Path(temp) / 'private-do-not-echo.json'
+            cases = [
+                (['--app-config', str(absent)], 'readable_artifact_config'),
+                (['--app-config', str(config), '--connection-type', 'session-pooler'], 'resolved_project_endpoint'),
+                (['--app-config', str(config), '--connection-type', 'session-pooler',
+                  '--endpoint-metadata', str(absent)], 'readable_project_endpoint'),
+                (['--app-config', temp], 'readable_artifact_config'),
+            ]
+            for mode in ['--connection-only', '--live']:
+                for arguments, prerequisite in cases:
+                    with self.subTest(mode=mode, prerequisite=prerequisite):
+                        stream = io.StringIO()
+                        with mock.patch.object(gate.sys, 'argv', ['gate', mode, '--service', 'readonly', *arguments]), \
+                             mock.patch.dict(os.environ, {'CMC_BACKEND_CONNECTION_TYPE': 'direct',
+                                                         'CMC_BACKEND_ENDPOINT_METADATA': ''}), \
+                             mock.patch.object(gate.subprocess, 'run') as run, contextlib.redirect_stdout(stream):
+                            self.assertEqual(gate.main(), 2)
+                        self.assertFalse(run.called)
+                        self.assertIn('NOT_RUN attempted=false prerequisite=' + prerequisite, stream.getvalue())
+                        self.assertNotIn(temp, stream.getvalue())
+
+    def test_unreadable_artifact_config_is_not_attempted(self):
+        stream = io.StringIO()
+        original_read = Path.read_bytes
+
+        def read_except_config(path):
+            if path == Path('/private-not-readable.json'):
+                raise PermissionError('private')
+            return original_read(path)
+
+        with mock.patch.object(gate.sys, 'argv', ['gate', '--connection-only', '--service', 'readonly',
+                                               '--app-config', '/private-not-readable.json']), \
+             mock.patch.object(Path, 'read_bytes', autospec=True, side_effect=read_except_config), \
+             mock.patch.object(gate.subprocess, 'run') as run, contextlib.redirect_stdout(stream):
+            self.assertEqual(gate.main(), 2)
+        self.assertFalse(run.called)
+        self.assertEqual(stream.getvalue(), 'BACKEND_CONNECTION NOT_RUN attempted=false prerequisite=readable_artifact_config\n')
+
 
 class AndroidBindingTest(unittest.TestCase):
     def test_each_abi_must_match_exactly_once(self):

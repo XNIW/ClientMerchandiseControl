@@ -266,8 +266,22 @@ def main():
             if not args.service or args.app_config is None:
                 print('BACKEND_CONNECTION NOT_RUN attempted=false prerequisite=CMC_BACKEND_PGSERVICE_and_artifact_config')
                 return 2
-            config_bytes = args.app_config.read_bytes()
-            endpoint = json.loads(args.endpoint_metadata.read_text()) if args.endpoint_metadata else None
+            try:
+                config_bytes = args.app_config.read_bytes()
+            except OSError:
+                print('BACKEND_CONNECTION NOT_RUN attempted=false prerequisite=readable_artifact_config')
+                return 2
+            if args.connection_type == 'session-pooler' and args.endpoint_metadata is None:
+                print('BACKEND_CONNECTION NOT_RUN attempted=false prerequisite=resolved_project_endpoint')
+                return 2
+            endpoint = None
+            if args.endpoint_metadata is not None:
+                try:
+                    endpoint_bytes = args.endpoint_metadata.read_bytes()
+                except OSError:
+                    print('BACKEND_CONNECTION NOT_RUN attempted=false prerequisite=readable_project_endpoint')
+                    return 2
+                endpoint = json.loads(endpoint_bytes)
             connection = target_connection(args.service, json.loads(config_bytes), args.connection_type, endpoint)
             revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
             started = datetime.now(timezone.utc)

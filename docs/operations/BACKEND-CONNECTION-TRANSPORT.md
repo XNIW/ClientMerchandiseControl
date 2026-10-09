@@ -59,6 +59,9 @@ espliciti. Il suo PASS ha scope `live_connection_identity`, `schema_result=NOT_R
 e non autorizza l'apply: privilegi del canale operatore, recuperabilità, confronto
 del delta atteso e finestra writer/cron hanno prove distinte. Le RPC ancora
 assenti non impediscono questo controllo preliminare.
+Nella receipt `rpcs` è il numero atteso dal manifest, non il numero verificato
+dal preapply; `endpoint_metadata_sha256` usa il JSON normalizzato con chiavi
+ordinate e separatori `,` e `:`, non i byte originali del file.
 
 Dopo l'apply, sostituire `--connection-only` con `--live` e usare un nuovo path
 receipt. Questo controllo richiede l'intero manifest, oltre all'identità readonly.

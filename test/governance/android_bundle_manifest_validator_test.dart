@@ -127,12 +127,62 @@ void main() {
     expect(result.stderr, contains('EXPORTED_COMPONENT_ALLOWLIST_INVALID'));
     expect(result.stderr, isNot(contains(unexpectedComponent)));
   });
+
+  for (final path in ['/auth-callback/', '/auth-callback/widened']) {
+    test('TEST richiede callback HTTPS nativo esatto: $path', () {
+      final fixture = _writeManifestFixture(
+        packageName: _packageName,
+        callbackHost: 'auth.client.example.com',
+        callbackPath: path,
+      );
+      addTearDown(() => fixture.parent.deleteSync(recursive: true));
+      final result = Process.runSync('dart', [
+        '--disable-dart-dev',
+        'tool/check_android_bundle_manifest.dart',
+        '--manifest',
+        fixture.path,
+        '--test-callback-host',
+        'auth.client.example.com',
+      ]);
+      expect(result.exitCode, path == '/auth-callback/' ? 0 : 1);
+    });
+  }
+
+  for (final mismatch in ['host', 'verify', 'prefix', 'extra']) {
+    test('TEST rifiuta binding callback nativo $mismatch', () {
+      final fixture = _writeManifestFixture(
+        packageName: _packageName,
+        callbackHost: mismatch == 'host'
+            ? 'other.client.example.com'
+            : 'auth.client.example.com',
+        callbackVerify: mismatch != 'verify',
+        callbackPathPrefix: mismatch == 'prefix',
+        callbackExtraData: mismatch == 'extra',
+      );
+      addTearDown(() => fixture.parent.deleteSync(recursive: true));
+      final result = Process.runSync('dart', [
+        '--disable-dart-dev',
+        'tool/check_android_bundle_manifest.dart',
+        '--manifest',
+        fixture.path,
+        '--test-callback-host',
+        'auth.client.example.com',
+      ]);
+      expect(result.exitCode, 1);
+      expect(result.stderr, contains('TEST_CALLBACK_BINDING_INVALID'));
+    });
+  }
 }
 
 File _writeManifestFixture({
   required String packageName,
   List<List<int>> additionalManifestChildren = const <List<int>>[],
   List<List<int>> additionalApplicationChildren = const <List<int>>[],
+  String? callbackHost,
+  String callbackPath = '/auth-callback/',
+  bool callbackVerify = true,
+  bool callbackPathPrefix = false,
+  bool callbackExtraData = false,
 }) {
   final directory = Directory.systemTemp.createTempSync(
     'cmc-android-bundle-manifest.',
@@ -251,6 +301,68 @@ File _writeManifestFixture({
                   ),
                 ],
               ),
+              if (callbackHost != null)
+                _element(
+                  'intent-filter',
+                  attributes: [
+                    _attribute('autoVerify', '$callbackVerify', android: true),
+                  ],
+                  children: [
+                    _element(
+                      'action',
+                      attributes: [
+                        _attribute(
+                          'name',
+                          'android.intent.action.VIEW',
+                          android: true,
+                        ),
+                      ],
+                    ),
+                    _element(
+                      'category',
+                      attributes: [
+                        _attribute(
+                          'name',
+                          'android.intent.category.DEFAULT',
+                          android: true,
+                        ),
+                      ],
+                    ),
+                    _element(
+                      'category',
+                      attributes: [
+                        _attribute(
+                          'name',
+                          'android.intent.category.BROWSABLE',
+                          android: true,
+                        ),
+                      ],
+                    ),
+                    _element(
+                      'data',
+                      attributes: [
+                        _attribute('scheme', 'https', android: true),
+                        _attribute('host', callbackHost, android: true),
+                        _attribute(
+                          callbackPathPrefix ? 'pathPrefix' : 'path',
+                          callbackPath,
+                          android: true,
+                        ),
+                      ],
+                    ),
+                    if (callbackExtraData)
+                      _element(
+                        'data',
+                        attributes: [
+                          _attribute(
+                            'host',
+                            'other.client.example.com',
+                            android: true,
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
             ],
           ),
           _element(

@@ -30,16 +30,7 @@ class ReleaseConfigAttestation {
   String get marker => '$markerPrefix$sha256';
 
   static ReleaseConfigAttestation fromBytes(List<int> bytes) {
-    if (bytes.isEmpty || bytes.length > 65536) {
-      throw const ReleaseConfigValidationException('FILE_SIZE_INVALID');
-    }
-    final String source;
-    try {
-      source = utf8.decode(bytes, allowMalformed: false);
-    } on FormatException {
-      throw const ReleaseConfigValidationException('JSON_INVALID');
-    }
-    return fromValues(_FlatJsonStringObjectParser(source).parse());
+    return fromValues(_decodeFlatConfigBytes(bytes));
   }
 
   static ReleaseConfigAttestation fromValues(Map<String, String> input) {
@@ -174,6 +165,96 @@ class ReleaseConfigAttestation {
       return false;
     }
   }
+}
+
+/// Attestazione esclusiva del canale TEST: non abilita la produzione.
+class TestReleaseConfigAttestation {
+  TestReleaseConfigAttestation._(this.values, this.sha256);
+
+  static const markerPrefix = 'CMC_TEST_CONFIG_ATTESTATION_V1:';
+  static const projectRef = 'jpgoimipbothfgkokyvm';
+  static const backendOrigin = 'https://$projectRef.supabase.co';
+  static const requiredKeys = <String>[
+    ...ReleaseConfigAttestation.requiredKeys,
+    'AUTH_CALLBACK_VERIFIED_HOST',
+  ];
+
+  final Map<String, String> values;
+  final String sha256;
+
+  String get marker => '$markerPrefix$sha256';
+  String get callbackHost => values['AUTH_CALLBACK_VERIFIED_HOST']!;
+
+  static TestReleaseConfigAttestation fromBytes(List<int> bytes) =>
+      fromValues(_decodeFlatConfigBytes(bytes));
+
+  static TestReleaseConfigAttestation fromValues(Map<String, String> input) {
+    final expected = requiredKeys.toSet();
+    if (input.keys.toSet().difference(expected).isNotEmpty ||
+        expected.difference(input.keys.toSet()).isNotEmpty) {
+      throw const ReleaseConfigValidationException('KEY_SET_INVALID');
+    }
+    if (input.values.any((value) => value.isEmpty || value != value.trim())) {
+      throw const ReleaseConfigValidationException('VALUE_NOT_CANONICAL');
+    }
+    if (input['APP_ENV'] != 'staging') {
+      throw const ReleaseConfigValidationException('ENVIRONMENT_INVALID');
+    }
+    if (input['SUPABASE_URL'] != backendOrigin) {
+      throw const ReleaseConfigValidationException(
+        'TEST_BACKEND_TARGET_INVALID',
+      );
+    }
+    if (input['GOOGLE_AUTH_ENABLED'] != 'true' ||
+        input['DELIVERY_MAPS_ENABLED'] != 'false' ||
+        input['DELIVERY_MAPS_NATIVE_CONFIGURED'] != 'false') {
+      throw const ReleaseConfigValidationException('CAPABILITY_STATE_INVALID');
+    }
+    final host = input['AUTH_CALLBACK_VERIFIED_HOST']!;
+    ReleaseConfigAttestation.canonicalAuthRedirectUri(
+      input['AUTH_REDIRECT_URI']!,
+      verifiedHost: host,
+    );
+    ReleaseConfigAttestation.canonicalShopSlug(input['STOREFRONT_SHOP_SLUG']!);
+    final key = input['SUPABASE_PUBLISHABLE_KEY']!;
+    if (!ReleaseConfigAttestation.isPublishableKeyAllowed(key)) {
+      throw const ReleaseConfigValidationException('PUBLISHABLE_KEY_INVALID');
+    }
+    if (!key.startsWith('sb_publishable_')) {
+      final payload =
+          jsonDecode(
+                utf8.decode(
+                  base64Url.decode(base64Url.normalize(key.split('.')[1])),
+                ),
+              )
+              as Map<String, dynamic>;
+      if (payload['ref'] != projectRef) {
+        throw const ReleaseConfigValidationException(
+          'TEST_PUBLIC_KEY_TARGET_INVALID',
+        );
+      }
+    }
+    final canonical = <String, String>{
+      for (final key in requiredKeys) key: input[key]!,
+    };
+    final digest = crypto.sha256
+        .convert(utf8.encode(jsonEncode(canonical)))
+        .toString();
+    return TestReleaseConfigAttestation._(Map.unmodifiable(canonical), digest);
+  }
+}
+
+Map<String, String> _decodeFlatConfigBytes(List<int> bytes) {
+  if (bytes.isEmpty || bytes.length > 65536) {
+    throw const ReleaseConfigValidationException('FILE_SIZE_INVALID');
+  }
+  final String source;
+  try {
+    source = utf8.decode(bytes, allowMalformed: false);
+  } on FormatException {
+    throw const ReleaseConfigValidationException('JSON_INVALID');
+  }
+  return _FlatJsonStringObjectParser(source).parse();
 }
 
 class _FlatJsonStringObjectParser {

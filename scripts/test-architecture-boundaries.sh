@@ -319,7 +319,7 @@ cmc_fixture_shop_slug_consumer_path="$(
 )"
 cmc_fixture_shop_slug_consumer_file="${cmc_fixture_shop_slug_consumer_path}/lib/core/config/app_config.dart"
 perl -0pi -e '
-  s{    final config = AppConfig\.fromValues\(.*?\n    \);\n    if \(config\.environment}{    final config = Function.apply(\n      AppConfig.fromValues,\n      const [],\n      {\n        #appEnvironment: _compiledAppEnvironment,\n        #supabaseUrl: _compiledSupabaseUrl,\n        #supabasePublishableKey: _compiledSupabasePublishableKey,\n        #authRedirectUri: _compiledAuthRedirectUri,\n        #authCallbackVerifiedHost: _compiledAuthVerifiedHost,\n        #googleAuthEnabled: _compiledGoogleAuthEnabled,\n        #storefrontShopSlug:\n            const String.fromEnvironment(\x27ATTACKER_SHOP_SLUG\x27),\n        #releaseConfigSha256: _compiledReleaseConfigSha256,\n      },\n    ) as AppConfig;\n    if (config.environment}s
+  s{    final config = AppConfig\.fromValues\(.*?\n    \);\n}{    final config = Function.apply(\n      AppConfig.fromValues,\n      const [],\n      {\n        #appEnvironment: _compiledAppEnvironment,\n        #supabaseUrl: _compiledSupabaseUrl,\n        #supabasePublishableKey: _compiledSupabasePublishableKey,\n        #authRedirectUri: _compiledAuthRedirectUri,\n        #authCallbackVerifiedHost: _compiledAuthVerifiedHost,\n        #googleAuthEnabled: _compiledGoogleAuthEnabled,\n        #storefrontShopSlug:\n            const String.fromEnvironment(\x27ATTACKER_SHOP_SLUG\x27),\n        #releaseConfigSha256: _compiledReleaseConfigSha256,\n        #testConfigSha256: _compiledTestConfigSha256,\n      },\n    ) as AppConfig;\n}s
 ' "${cmc_fixture_shop_slug_consumer_file}"
 if ! grep -Fq -- "'ATTACKER_SHOP_SLUG'" \
   "${cmc_fixture_shop_slug_consumer_file}"; then
@@ -391,6 +391,37 @@ cmc_fixture_require_analyzer_clean \
 cmc_fixture_expect_rejection_code \
   "${cmc_fixture_attestation_library_path}" \
   COMPILED_BINDING_STRUCTURE_INVALID
+
+for cmc_fixture_test_mutation in guard host digest marker; do
+  cmc_fixture_test_path="$(cmc_fixture_prepare "invalid-test-attestation-${cmc_fixture_test_mutation}")"
+  cmc_fixture_test_file="${cmc_fixture_test_path}/lib/core/config/app_config.dart"
+  case "${cmc_fixture_test_mutation}" in
+    guard)
+      cmc_fixture_replace_literal "${cmc_fixture_test_file}" \
+        'if (config.testConfigSha256 != null)' 'if (config.testConfigSha256 == null)'
+      cmc_fixture_test_code=COMPILED_BINDING_CONSUMER_INVALID
+      ;;
+    host)
+      cmc_fixture_replace_literal "${cmc_fixture_test_file}" \
+        "'AUTH_CALLBACK_VERIFIED_HOST': _compiledAuthVerifiedHost" \
+        "'AUTH_CALLBACK_VERIFIED_HOST': _compiledAuthRedirectUri"
+      cmc_fixture_test_code=COMPILED_BINDING_CONSUMER_INVALID
+      ;;
+    digest)
+      cmc_fixture_replace_literal "${cmc_fixture_test_file}" \
+        'config.testConfigSha256 != testAttestation.sha256' \
+        'config.testConfigSha256 == testAttestation.sha256'
+      cmc_fixture_test_code=COMPILED_BINDING_CONSUMER_INVALID
+      ;;
+    marker)
+      cmc_fixture_replace_literal "${cmc_fixture_test_file}" \
+        'TestReleaseConfigAttestation.markerPrefix' 'ReleaseConfigAttestation.markerPrefix'
+      cmc_fixture_test_code=COMPILED_BINDING_STRUCTURE_INVALID
+      ;;
+  esac
+  cmc_fixture_require_analyzer_clean "${cmc_fixture_test_path}" "${cmc_fixture_test_file}"
+  cmc_fixture_expect_rejection_code "${cmc_fixture_test_path}" "${cmc_fixture_test_code}"
+done
 
 if [[ "${cmc_fixture_rejected}" -ne "${cmc_fixture_total}" ]]; then
   printf 'Fixture negative respinte: %d/%d.\n' \

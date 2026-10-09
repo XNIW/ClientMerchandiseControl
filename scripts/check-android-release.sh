@@ -7,6 +7,7 @@ cmc_android_release_aab=''
 cmc_android_release_apk=''
 cmc_android_release_source_only=false
 cmc_android_release_require_upload=false
+cmc_android_release_test=false
 
 cmc_android_release_fail() {
   printf 'ANDROID_RELEASE_BLOCKED: %s\n' "$1" >&2
@@ -16,7 +17,7 @@ cmc_android_release_fail() {
 cmc_android_release_usage() {
   printf '%s\n' \
     'Usage: scripts/check-android-release.sh --source-only' \
-    '   or: scripts/check-android-release.sh --aab <path> --apk <path> [--require-upload-ready]'
+    '   or: scripts/check-android-release.sh --aab <path> --apk <path> [--require-upload-ready [--test]]'
 }
 
 while [[ "$#" -gt 0 ]]; do
@@ -37,6 +38,9 @@ while [[ "$#" -gt 0 ]]; do
     --require-upload-ready)
       cmc_android_release_require_upload=true
       ;;
+    --test)
+      cmc_android_release_test=true
+      ;;
     --help)
       cmc_android_release_usage
       exit 0
@@ -47,6 +51,12 @@ while [[ "$#" -gt 0 ]]; do
   esac
   shift
 done
+
+if [[ "${cmc_android_release_test}" == true && \
+  ( "${cmc_android_release_require_upload}" != true || \
+    "${cmc_android_release_source_only}" == true ) ]]; then
+  cmc_android_release_fail 'TEST_REQUIRES_UPLOAD_PREFLIGHT'
+fi
 
 cmc_android_release_gradle="${cmc_android_release_root}/android/app/build.gradle.kts"
 cmc_android_release_manifest="${cmc_android_release_root}/android/app/src/release/AndroidManifest.xml"
@@ -319,13 +329,44 @@ cmc_android_release_cleanup() {
 }
 trap cmc_android_release_cleanup EXIT
 
+cmc_android_release_runtime_config="${ANDROID_RELEASE_RUNTIME_CONFIG_PATH:-}"
+cmc_android_release_callback_arguments=()
+cmc_android_release_binding_arguments=()
+if [[ "${cmc_android_release_test}" == true ]]; then
+  [[ -n "${cmc_android_release_runtime_config}" ]] || \
+    cmc_android_release_fail 'ANDROID_RUNTIME_CONFIG_MISSING'
+  cmc_android_release_test_binding="$(
+    dart --disable-dart-dev "${cmc_android_release_root}/tool/check_ios_runtime_config.dart" \
+      --config "${cmc_android_release_runtime_config}" --test --binding
+  )" || cmc_android_release_fail 'ANDROID_RUNTIME_CONFIG_INVALID'
+  cmc_android_release_test_snapshot="$(cd -- "${cmc_android_release_tmp_root}" && pwd -P)/test-runtime.json"
+  (umask 077; cp -- "${cmc_android_release_runtime_config}" "${cmc_android_release_test_snapshot}") || \
+    cmc_android_release_fail 'TEST_RUNTIME_SNAPSHOT_FAILED'
+  chmod 400 "${cmc_android_release_test_snapshot}"
+  cmc_android_release_snapshot_binding="$(
+    dart --disable-dart-dev "${cmc_android_release_root}/tool/check_ios_runtime_config.dart" \
+      --config "${cmc_android_release_test_snapshot}" --test --binding
+  )" || cmc_android_release_fail 'ANDROID_RUNTIME_CONFIG_INVALID'
+  [[ "${cmc_android_release_snapshot_binding}" == "${cmc_android_release_test_binding}" ]] || \
+    cmc_android_release_fail 'TEST_RUNTIME_CONFIG_CHANGED'
+  read -r cmc_android_runtime_fingerprint cmc_android_release_callback_host \
+    cmc_android_release_binding_extra <<<"${cmc_android_release_test_binding}"
+  [[ "${cmc_android_runtime_fingerprint}" =~ ^[0-9a-f]{64}$ && \
+    -n "${cmc_android_release_callback_host}" && -z "${cmc_android_release_binding_extra}" ]] || \
+    cmc_android_release_fail 'ANDROID_RUNTIME_CONFIG_INVALID'
+  cmc_android_release_runtime_config="${cmc_android_release_test_snapshot}"
+  cmc_android_release_callback_arguments=(--test-callback-host "${cmc_android_release_callback_host}")
+  cmc_android_release_binding_arguments=(--test)
+fi
+
 cmc_android_release_aab_manifest="${cmc_android_release_tmp_root}/AndroidManifest.xml"
 if ! unzip -p "${cmc_android_release_aab}" \
   base/manifest/AndroidManifest.xml >"${cmc_android_release_aab_manifest}"; then
   cmc_android_release_fail 'AAB_MANIFEST_UNAVAILABLE'
 fi
 if ! dart --disable-dart-dev "${cmc_android_release_bundle_manifest_tool}" \
-  --manifest "${cmc_android_release_aab_manifest}" >/dev/null; then
+  --manifest "${cmc_android_release_aab_manifest}" \
+  ${cmc_android_release_callback_arguments[@]+"${cmc_android_release_callback_arguments[@]}"} >/dev/null; then
   cmc_android_release_fail 'AAB_MANIFEST_INVALID'
 fi
 
@@ -536,19 +577,27 @@ printf 'ANDROID_RELEASE_APK_SHA256=%s\n' "${cmc_android_release_apk_sha}"
 printf 'ANDROID_APP_LINK_BLOCKED: OWNED_HTTPS_DOMAIN_AND_ASSOCIATION_FILE_REQUIRED\n'
 
 if [[ "${cmc_android_release_require_upload}" == true ]]; then
-  [[ -n "${ANDROID_RELEASE_RUNTIME_CONFIG_PATH:-}" ]] || \
+  [[ -n "${cmc_android_release_runtime_config}" ]] || \
     cmc_android_release_fail 'ANDROID_RUNTIME_CONFIG_MISSING'
-  cmc_android_runtime_fingerprint="$(
-    dart run "${cmc_android_release_root}/tool/check_ios_runtime_config.dart" \
-      --config "${ANDROID_RELEASE_RUNTIME_CONFIG_PATH}"
-  )" || cmc_android_release_fail 'ANDROID_RUNTIME_CONFIG_INVALID'
+  if [[ "${cmc_android_release_test}" != true ]]; then
+    cmc_android_runtime_fingerprint="$(
+      dart run "${cmc_android_release_root}/tool/check_ios_runtime_config.dart" \
+        --config "${cmc_android_release_runtime_config}"
+    )" || cmc_android_release_fail 'ANDROID_RUNTIME_CONFIG_INVALID'
+  fi
   python3 "${cmc_android_release_script_dir}/check-android-runtime-binding.py" \
     --aab "${cmc_android_release_aab}" \
-    --fingerprint "${cmc_android_runtime_fingerprint}" || \
+    --fingerprint "${cmc_android_runtime_fingerprint}" \
+    ${cmc_android_release_binding_arguments[@]+"${cmc_android_release_binding_arguments[@]}"} || \
     cmc_android_release_fail 'RUNTIME_CONFIG_NOT_ARTIFACT_BOUND'
   python3 "${cmc_android_release_script_dir}/check-backend-compatibility.py" \
-    --live --app-config "${ANDROID_RELEASE_RUNTIME_CONFIG_PATH}" || \
+    --live --app-config "${cmc_android_release_runtime_config}" || \
     cmc_android_release_fail 'BACKEND_COMPATIBILITY_REQUIRED'
+  if [[ "${cmc_android_release_test}" == true ]]; then
+    printf 'ANDROID_TEST_CONFIG_AND_NATIVE_CALLBACK_BOUND\n'
+    printf 'ANDROID_TEST_HOSTED_ASSOCIATION_NOT_VERIFIED\n'
+    printf 'ANDROID_TEST_AUTHENTICATED_RUNTIME_NOT_RUN\n'
+  fi
   printf 'ANDROID_INTERNAL_UPLOAD_INPUTS_VALIDATED\n'
 else
   if [[ "${cmc_android_release_signature_state}" == SIGNED ]]; then

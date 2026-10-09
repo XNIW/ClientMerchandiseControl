@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:client_merchandise_control/core/config/release_config_attestation.dart';
+
 const _androidNamespace = 'http://schemas.android.com/apk/res/android';
 const _expectedPackage = 'com.xniw.clientmerchandisecontrol';
 const _maximumManifestBytes = 1024 * 1024;
@@ -18,7 +20,9 @@ const _profileInstallReceiver =
 
 void main(List<String> arguments) {
   try {
-    if (arguments.length != 2 || arguments.first != '--manifest') {
+    final test =
+        arguments.length == 4 && arguments[2] == '--test-callback-host';
+    if ((arguments.length != 2 && !test) || arguments.first != '--manifest') {
       _fail('ARGUMENTS_INVALID');
     }
     final file = File(arguments[1]);
@@ -126,6 +130,20 @@ void main(List<String> arguments) {
     if (!schemes.contains(_expectedPackage)) {
       _fail('DEEPLINK_SCHEME_MISSING');
     }
+    if (test) {
+      final host = arguments[3];
+      try {
+        ReleaseConfigAttestation.canonicalAuthRedirectUri(
+          'https://$host/auth-callback/',
+          verifiedHost: host,
+        );
+      } on ReleaseConfigValidationException {
+        _fail('TEST_CALLBACK_BINDING_INVALID');
+      }
+      if (!_hasExactTestCallback(mainActivity, host)) {
+        _fail('TEST_CALLBACK_BINDING_INVALID');
+      }
+    }
 
     const componentNames = <String>{
       'activity',
@@ -181,6 +199,61 @@ void main(List<String> arguments) {
     exitCode = 1;
   }
 }
+
+bool _hasExactTestCallback(_XmlElement activity, String host) {
+  final filters = activity.children.where(
+    (element) =>
+        element.name == 'intent-filter' &&
+        element
+            .descendantsNamed('data')
+            .any(
+              (data) => data.attribute(_androidNamespace, 'scheme') == 'https',
+            ),
+  );
+  if (filters.length != 1) return false;
+  final filter = filters.single;
+  if (!_hasExactAttributes(filter, {'autoVerify': 'true'}) ||
+      filter.children.length != 4) {
+    return false;
+  }
+  final data = filter.children.where((element) => element.name == 'data');
+  final actions = filter.children.where((element) => element.name == 'action');
+  final categories = filter.children.where(
+    (element) => element.name == 'category',
+  );
+  return data.length == 1 &&
+      _hasExactAttributes(data.single, {
+        'scheme': 'https',
+        'host': host,
+        'path': '/auth-callback/',
+      }) &&
+      actions.length == 1 &&
+      _hasExactAttributes(actions.single, {
+        'name': 'android.intent.action.VIEW',
+      }) &&
+      categories.length == 2 &&
+      categories.every(
+        (element) =>
+            element.attributes.length == 1 &&
+            element.attributes.single.namespace == _androidNamespace &&
+            element.attributes.single.name == 'name',
+      ) &&
+      categories
+          .map((element) => element.attribute(_androidNamespace, 'name'))
+          .toSet()
+          .containsAll({
+            'android.intent.category.DEFAULT',
+            'android.intent.category.BROWSABLE',
+          });
+}
+
+bool _hasExactAttributes(_XmlElement element, Map<String, String> expected) =>
+    element.attributes.length == expected.length &&
+    element.attributes.every(
+      (attribute) =>
+          attribute.namespace == _androidNamespace &&
+          expected[attribute.name] == attribute.value,
+    );
 
 Never _fail(String code) => throw _ValidationException(code);
 

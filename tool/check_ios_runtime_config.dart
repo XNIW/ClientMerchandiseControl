@@ -8,15 +8,28 @@ Never fail(String code) {
 }
 
 void main(List<String> arguments) {
-  if (arguments.length != 2 || arguments[0] != '--config') {
+  final test = arguments.length >= 3 && arguments[2] == '--test';
+  final binding = test && arguments.length == 4 && arguments[3] == '--binding';
+  if (arguments.length < 2 ||
+      arguments[0] != '--config' ||
+      !(arguments.length == 2 || (test && arguments.length == 3) || binding)) {
     fail('USAGE');
   }
 
   try {
     final file = File(arguments[1]).absolute;
     final bytes = _readRegularFile(file.path);
-    final attestation = ReleaseConfigAttestation.fromBytes(bytes);
-    stdout.writeln(attestation.sha256);
+    if (test) {
+      final attestation = TestReleaseConfigAttestation.fromBytes(bytes);
+      stdout.writeln(
+        binding
+            ? '${attestation.sha256} ${attestation.callbackHost}'
+            : attestation.sha256,
+      );
+    } else {
+      final attestation = ReleaseConfigAttestation.fromBytes(bytes);
+      stdout.writeln(attestation.sha256);
+    }
   } on ReleaseConfigValidationException catch (error) {
     fail(error.code);
   } on FileSystemException {

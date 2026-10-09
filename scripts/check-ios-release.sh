@@ -12,6 +12,9 @@ cmc_ios_release_sealed_app_output=''
 cmc_ios_release_source_only=false
 cmc_ios_release_require_upload=false
 cmc_ios_release_upload_inputs_validated=false
+cmc_ios_release_test=false
+cmc_ios_release_callback_host=''
+cmc_ios_release_runtime_config="${IOS_RELEASE_RUNTIME_CONFIG_PATH:-}"
 
 cmc_ios_release_fail() {
   printf 'IOS_RELEASE_BLOCKED: %s\n' "$1" >&2
@@ -21,7 +24,7 @@ cmc_ios_release_fail() {
 cmc_ios_release_usage() {
   printf '%s\n' \
     'Usage: scripts/check-ios-release.sh --source-only' \
-    '   or: scripts/check-ios-release.sh --app <Runner.app> --sealed-app-output <Runner.app.zip> --archive-runner-attestation <sha256> [--archive <Runner.xcarchive>] [--reference-app <Runner.app> --reference-attestation <sha256-list>] [--require-upload-ready]'
+    '   or: scripts/check-ios-release.sh --app <Runner.app> --sealed-app-output <Runner.app.zip> --archive-runner-attestation <sha256> [--archive <Runner.xcarchive>] [--reference-app <Runner.app> --reference-attestation <sha256-list>] [--require-upload-ready [--test]]'
 }
 
 while [[ "$#" -gt 0 ]]; do
@@ -64,6 +67,9 @@ while [[ "$#" -gt 0 ]]; do
     --require-upload-ready)
       cmc_ios_release_require_upload=true
       ;;
+    --test)
+      cmc_ios_release_test=true
+      ;;
     --help)
       cmc_ios_release_usage
       exit 0
@@ -74,6 +80,12 @@ while [[ "$#" -gt 0 ]]; do
   esac
   shift
 done
+
+if [[ "${cmc_ios_release_test}" == true && \
+  ( "${cmc_ios_release_require_upload}" != true || \
+    "${cmc_ios_release_source_only}" == true ) ]]; then
+  cmc_ios_release_fail 'TEST_REQUIRES_UPLOAD_PREFLIGHT'
+fi
 
 cmc_ios_release_info="${cmc_ios_release_root}/ios/Runner/Info.plist"
 cmc_ios_release_privacy="${cmc_ios_release_root}/ios/Runner/PrivacyInfo.xcprivacy"
@@ -448,6 +460,31 @@ cmc_ios_release_cleanup() {
   esac
 }
 trap 'cmc_ios_release_cleanup || true' EXIT
+
+if [[ "${cmc_ios_release_test}" == true ]]; then
+  [[ -n "${cmc_ios_release_runtime_config}" ]] || \
+    cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_MISSING'
+  cmc_ios_release_test_binding="$(
+    dart --disable-dart-dev "${cmc_ios_release_root}/tool/check_ios_runtime_config.dart" \
+      --config "${cmc_ios_release_runtime_config}" --test --binding
+  )" || cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_INVALID'
+  cmc_ios_release_test_snapshot="${cmc_ios_release_tmp_root}/test-runtime.json"
+  (umask 077; cp -- "${cmc_ios_release_runtime_config}" "${cmc_ios_release_test_snapshot}") || \
+    cmc_ios_release_fail 'TEST_RUNTIME_SNAPSHOT_FAILED'
+  chmod 400 "${cmc_ios_release_test_snapshot}"
+  cmc_ios_release_snapshot_binding="$(
+    dart --disable-dart-dev "${cmc_ios_release_root}/tool/check_ios_runtime_config.dart" \
+      --config "${cmc_ios_release_test_snapshot}" --test --binding
+  )" || cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_INVALID'
+  [[ "${cmc_ios_release_snapshot_binding}" == "${cmc_ios_release_test_binding}" ]] || \
+    cmc_ios_release_fail 'TEST_RUNTIME_CONFIG_CHANGED'
+  read -r cmc_ios_release_runtime_fingerprint cmc_ios_release_callback_host \
+    cmc_ios_release_binding_extra <<<"${cmc_ios_release_test_binding}"
+  [[ "${cmc_ios_release_runtime_fingerprint}" =~ ^[0-9a-f]{64}$ && \
+    -n "${cmc_ios_release_callback_host}" && -z "${cmc_ios_release_binding_extra}" ]] || \
+    cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_INVALID'
+  cmc_ios_release_runtime_config="${cmc_ios_release_test_snapshot}"
+fi
 
 cmc_ios_release_start_guard() {
   local cmc_ios_release_guard_ready=''
@@ -1037,9 +1074,10 @@ if [[ "${cmc_ios_release_signing_state}" == SIGNED ]]; then
         "get-task-allow",
         "beta-reports-active",
       );
+      $allowed{"com.apple.developer.associated-domains"} = 1 if length($ARGV[0]);
       exit 1 if grep { !$allowed{$_} } keys %$decoded;
       exit 0;
-    ' || cmc_ios_release_fail 'SIGNED_ENTITLEMENT_SET_INVALID'
+    ' "${cmc_ios_release_callback_host}" || cmc_ios_release_fail 'SIGNED_ENTITLEMENT_SET_INVALID'
   if [[ "$(/usr/libexec/PlistBuddy -c 'Print :get-task-allow' \
     "${cmc_ios_release_entitlements}" 2>/dev/null || true)" == true ]]; then
     cmc_ios_release_fail 'DEBUG_ENTITLEMENT_PRESENT'
@@ -1161,17 +1199,27 @@ if [[ "${cmc_ios_release_require_upload}" == true ]]; then
     cmc_ios_release_fail 'TESTFLIGHT_REQUIRES_DISTRIBUTION_SIGNATURE'
   [[ -r "${cmc_ios_release_app}/embedded.mobileprovision" ]] || \
     cmc_ios_release_fail 'TESTFLIGHT_PROVISIONING_PROFILE_MISSING'
-  [[ -n "${IOS_RELEASE_RUNTIME_CONFIG_PATH:-}" && \
-    -f "${IOS_RELEASE_RUNTIME_CONFIG_PATH}" && \
-    ! -L "${IOS_RELEASE_RUNTIME_CONFIG_PATH}" ]] || \
+  [[ -n "${cmc_ios_release_runtime_config}" && \
+    -f "${cmc_ios_release_runtime_config}" && \
+    ! -L "${cmc_ios_release_runtime_config}" ]] || \
     cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_MISSING'
-  cmc_ios_release_runtime_fingerprint="$(
-    dart run "${cmc_ios_release_root}/tool/check_ios_runtime_config.dart" \
-      --config "${IOS_RELEASE_RUNTIME_CONFIG_PATH}"
-  )" || cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_INVALID'
+  if [[ "${cmc_ios_release_test}" != true ]]; then
+    cmc_ios_release_runtime_fingerprint="$(
+      dart run "${cmc_ios_release_root}/tool/check_ios_runtime_config.dart" \
+        --config "${cmc_ios_release_runtime_config}"
+    )" || cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_INVALID'
+  fi
   [[ "${cmc_ios_release_runtime_fingerprint}" =~ ^[0-9a-f]{64}$ ]] || \
     cmc_ios_release_fail 'TESTFLIGHT_RUNTIME_CONFIG_INVALID'
   cmc_ios_release_runtime_marker="CMC_RELEASE_CONFIG_ATTESTATION_V1:${cmc_ios_release_runtime_fingerprint}"
+  if [[ "${cmc_ios_release_test}" == true ]]; then
+    cmc_ios_release_runtime_marker="CMC_TEST_CONFIG_ATTESTATION_V1:${cmc_ios_release_runtime_fingerprint}"
+    python3 "${cmc_ios_release_script_dir}/check-ios-test-callback.py" \
+      --entitlements "${cmc_ios_release_entitlements}" \
+      --profile "${cmc_ios_release_profile}" \
+      --host "${cmc_ios_release_callback_host}" || \
+      cmc_ios_release_fail 'TEST_CALLBACK_BINDING_INVALID'
+  fi
   perl -e '
     use strict;
     use warnings;
@@ -1182,7 +1230,7 @@ if [[ "${cmc_ios_release_require_upload}" == true ]]; then
     my $content = <$handle>;
     close $handle or exit 2;
     my @markers =
-      $content =~ /(CMC_RELEASE_CONFIG_ATTESTATION_V1:[0-9a-f]{64})/g;
+      $content =~ /(CMC_(?:RELEASE|TEST)_CONFIG_ATTESTATION_V1:[0-9a-f]{64})/g;
     exit(@markers == 1 && $markers[0] eq $expected ? 0 : 1);
   ' "${cmc_ios_release_runtime_executable}" \
     "${cmc_ios_release_runtime_marker}" || \
@@ -1300,6 +1348,13 @@ if [[ "${cmc_ios_release_signing_state}" == SIGNED ]]; then
     >/dev/null 2>&1 || cmc_ios_release_fail 'SEALED_APP_SIGNATURE_INVALID'
 fi
 
+if [[ "${cmc_ios_release_upload_inputs_validated}" == true && \
+  "${cmc_ios_release_test}" == true ]]; then
+  python3 "${cmc_ios_release_script_dir}/check-backend-compatibility.py" \
+    --live --app-config "${cmc_ios_release_runtime_config}" || \
+    cmc_ios_release_fail 'BACKEND_COMPATIBILITY_REQUIRED'
+fi
+
 if ! cmc_ios_release_cleanup; then
   trap - EXIT
   cmc_ios_release_fail 'TEMP_CLEANUP_REFUSED'
@@ -1315,9 +1370,16 @@ printf 'IOS_RELEASE_ARTIFACT_TREE_SHA256=%s\n' \
 printf 'IOS_RELEASE_SEALED_APP_SHA256=%s\n' \
   "${cmc_ios_release_sealed_app_sha}"
 if [[ "${cmc_ios_release_upload_inputs_validated}" == true ]]; then
-  python3 "${cmc_ios_release_script_dir}/check-backend-compatibility.py" \
-    --live --app-config "${IOS_RELEASE_RUNTIME_CONFIG_PATH}" || \
-    cmc_ios_release_fail 'BACKEND_COMPATIBILITY_REQUIRED'
+  if [[ "${cmc_ios_release_test}" != true ]]; then
+    python3 "${cmc_ios_release_script_dir}/check-backend-compatibility.py" \
+      --live --app-config "${cmc_ios_release_runtime_config}" || \
+      cmc_ios_release_fail 'BACKEND_COMPATIBILITY_REQUIRED'
+  fi
+  if [[ "${cmc_ios_release_test}" == true ]]; then
+    printf 'IOS_TEST_CONFIG_AND_NATIVE_CALLBACK_BOUND\n'
+    printf 'IOS_TEST_HOSTED_ASSOCIATION_NOT_VERIFIED\n'
+    printf 'IOS_TEST_AUTHENTICATED_RUNTIME_NOT_RUN\n'
+  fi
   printf 'IOS_TESTFLIGHT_UPLOAD_INPUTS_VALIDATED\n'
 fi
 if [[ "${cmc_ios_release_entitlement_source}" == ABSENT ]]; then

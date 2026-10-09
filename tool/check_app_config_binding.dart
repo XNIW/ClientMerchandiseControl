@@ -22,6 +22,7 @@ const _compiledBindings = <String, String>{
   '_compiledDeliveryMapsEnabled': 'DELIVERY_MAPS_ENABLED',
   '_compiledDeliveryMapsNativeConfigured': 'DELIVERY_MAPS_NATIVE_CONFIGURED',
   '_compiledReleaseConfigSha256': 'RELEASE_CONFIG_SHA256',
+  '_compiledTestConfigSha256': 'TEST_CONFIG_SHA256',
 };
 const _configArguments = <String, String>{
   'appEnvironment': '_compiledAppEnvironment',
@@ -32,6 +33,7 @@ const _configArguments = <String, String>{
   'googleAuthEnabled': '_compiledGoogleAuthEnabled',
   'storefrontShopSlug': '_compiledStorefrontShopSlug',
   'releaseConfigSha256': '_compiledReleaseConfigSha256',
+  'testConfigSha256': '_compiledTestConfigSha256',
 };
 const _attestationEntries = <String, String>{
   'APP_ENV': '_compiledAppEnvironment',
@@ -42,6 +44,10 @@ const _attestationEntries = <String, String>{
   'STOREFRONT_SHOP_SLUG': '_compiledStorefrontShopSlug',
   'DELIVERY_MAPS_ENABLED': '_compiledDeliveryMapsEnabled',
   'DELIVERY_MAPS_NATIVE_CONFIGURED': '_compiledDeliveryMapsNativeConfigured',
+};
+const _testAttestationEntries = <String, String>{
+  ..._attestationEntries,
+  'AUTH_CALLBACK_VERIFIED_HOST': '_compiledAuthVerifiedHost',
 };
 
 Never _fail(String code) {
@@ -92,6 +98,7 @@ Future<void> main(List<String> arguments) async {
       visitor.fromEnvironmentFactory!,
       visitor.bindingElements,
       visitor.releaseMarkerElement!,
+      visitor.testMarkerElement!,
     )) {
       _fail('COMPILED_BINDING_CONSUMER_INVALID');
     }
@@ -110,6 +117,7 @@ final class _AppConfigBindingVisitor extends RecursiveAstVisitor<void> {
   final bindingElements = <String, VariableElement>{};
   ConstructorDeclaration? fromEnvironmentFactory;
   VariableElement? releaseMarkerElement;
+  VariableElement? testMarkerElement;
 
   bool get hasCanonicalStructure =>
       appConfigClasses == 1 &&
@@ -118,7 +126,9 @@ final class _AppConfigBindingVisitor extends RecursiveAstVisitor<void> {
       bindingElements.length == _compiledBindings.length &&
       _compiledBindings.keys.every((name) => declarationCounts[name] == 1) &&
       declarationCounts['_compiledReleaseAttestationMarker'] == 1 &&
-      releaseMarkerElement != null;
+      declarationCounts['_compiledTestAttestationMarker'] == 1 &&
+      releaseMarkerElement != null &&
+      testMarkerElement != null;
 
   @override
   void visitClassDeclaration(ClassDeclaration node) {
@@ -141,7 +151,8 @@ final class _AppConfigBindingVisitor extends RecursiveAstVisitor<void> {
   void visitVariableDeclaration(VariableDeclaration node) {
     final name = node.name.lexeme;
     if (!_compiledBindings.containsKey(name) &&
-        name != '_compiledReleaseAttestationMarker') {
+        name != '_compiledReleaseAttestationMarker' &&
+        name != '_compiledTestAttestationMarker') {
       super.visitVariableDeclaration(node);
       return;
     }
@@ -162,6 +173,12 @@ final class _AppConfigBindingVisitor extends RecursiveAstVisitor<void> {
     if (name == '_compiledReleaseAttestationMarker') {
       if (_isCanonicalReleaseMarker(node.initializer)) {
         releaseMarkerElement = element;
+      }
+      return;
+    }
+    if (name == '_compiledTestAttestationMarker') {
+      if (_isCanonicalReleaseMarker(node.initializer, test: true)) {
+        testMarkerElement = element;
       }
       return;
     }
@@ -210,7 +227,7 @@ bool _isCanonicalEnvironmentBinding(
           'development';
 }
 
-bool _isCanonicalReleaseMarker(Expression? initializer) {
+bool _isCanonicalReleaseMarker(Expression? initializer, {bool test = false}) {
   if (initializer is! StringInterpolation) {
     return false;
   }
@@ -223,23 +240,26 @@ bool _isCanonicalReleaseMarker(Expression? initializer) {
   }
   final markerPrefix = expressions[0];
   final releaseSha = expressions[1];
-  return markerPrefix.toSource() == 'ReleaseConfigAttestation.markerPrefix' &&
+  return markerPrefix.toSource() ==
+          '${test ? 'TestReleaseConfigAttestation' : 'ReleaseConfigAttestation'}.markerPrefix' &&
       _elementLibrary(markerPrefix) == _releaseAttestationLibrary &&
       releaseSha is SimpleIdentifier &&
-      releaseSha.name == '_compiledReleaseConfigSha256';
+      releaseSha.name ==
+          (test ? '_compiledTestConfigSha256' : '_compiledReleaseConfigSha256');
 }
 
 bool _hasCanonicalFactory(
   ConstructorDeclaration factory,
   Map<String, VariableElement> bindings,
   VariableElement releaseMarker,
+  VariableElement testMarker,
 ) {
   final body = factory.body;
   if (body is! BlockFunctionBody) {
     return false;
   }
   final statements = body.block.statements;
-  if (statements.length != 4) {
+  if (statements.length != 5) {
     return false;
   }
 
@@ -262,10 +282,16 @@ bool _hasCanonicalFactory(
     return false;
   }
 
-  if (!_isProductionGuard(statements[1], configElement)) {
+  if (!_isTestAttestationBlock(
+        statements[1],
+        configElement,
+        bindings,
+        testMarker,
+      ) ||
+      !_isProductionGuard(statements[2], configElement)) {
     return false;
   }
-  final tryStatement = statements[2];
+  final tryStatement = statements[3];
   if (tryStatement is! TryStatement ||
       tryStatement.body.statements.length != 2 ||
       tryStatement.catchClauses.length != 1 ||
@@ -294,7 +320,7 @@ bool _hasCanonicalFactory(
   if (!_isCanonicalAttestationCatch(tryStatement.catchClauses.single)) {
     return false;
   }
-  if (!_isReturnOf(statements[3], configElement)) {
+  if (!_isReturnOf(statements[4], configElement)) {
     return false;
   }
 
@@ -311,10 +337,9 @@ bool _hasCanonicalFactory(
   final expectedReferenceCounts = <String, int>{
     for (final name in _compiledBindings.keys)
       name:
-          _configArguments.containsValue(name) &&
-              _attestationEntries.containsValue(name)
-          ? 2
-          : 1,
+          (_configArguments.containsValue(name) ? 1 : 0) +
+          (_attestationEntries.containsValue(name) ? 1 : 0) +
+          (_testAttestationEntries.containsValue(name) ? 1 : 0),
   };
   for (final entry in bindings.entries) {
     if (bindingReferences.counts[entry.value] !=
@@ -323,6 +348,50 @@ bool _hasCanonicalFactory(
     }
   }
   return true;
+}
+
+bool _isTestAttestationBlock(
+  Statement statement,
+  VariableElement config,
+  Map<String, VariableElement> bindings,
+  VariableElement marker,
+) {
+  if (statement is! IfStatement ||
+      statement.elseStatement != null ||
+      statement.expression.toSource() != 'config.testConfigSha256 != null' ||
+      statement.expression is! BinaryExpression ||
+      _targetElement((statement.expression as BinaryExpression).leftOperand) !=
+          config ||
+      statement.thenStatement is! Block) {
+    return false;
+  }
+  final statements = (statement.thenStatement as Block).statements;
+  if (statements.length != 1 || statements.single is! TryStatement) {
+    return false;
+  }
+  final attempt = statements.single as TryStatement;
+  if (attempt.body.statements.length != 2 ||
+      attempt.catchClauses.length != 1 ||
+      attempt.finallyBlock != null ||
+      !_isCanonicalAttestationCatch(attempt.catchClauses.single)) {
+    return false;
+  }
+  final declaration = _singleVariable(
+    attempt.body.statements[0],
+    'testAttestation',
+  );
+  final element = declaration?.declaredFragment?.element;
+  final call = declaration?.initializer;
+  return element != null &&
+      call is MethodInvocation &&
+      _isCanonicalAttestationCall(call, bindings, test: true) &&
+      _isAttestationGuard(
+        attempt.body.statements[1],
+        config,
+        element,
+        marker,
+        test: true,
+      );
 }
 
 bool _matchesNamedBindings(
@@ -369,14 +438,19 @@ bool _isProductionGuard(Statement statement, VariableElement config) {
 
 bool _isCanonicalAttestationCall(
   MethodInvocation call,
-  Map<String, VariableElement> bindings,
-) {
+  Map<String, VariableElement> bindings, {
+  bool test = false,
+}) {
+  final className = test
+      ? 'TestReleaseConfigAttestation'
+      : 'ReleaseConfigAttestation';
+  final entries = test ? _testAttestationEntries : _attestationEntries;
   final method = call.methodName.element;
-  if (call.target?.toSource() != 'ReleaseConfigAttestation' ||
+  if (call.target?.toSource() != className ||
       method is! MethodElement ||
       !method.isStatic ||
       method.name != 'fromValues' ||
-      method.enclosingElement?.name != 'ReleaseConfigAttestation' ||
+      method.enclosingElement?.name != className ||
       method.library.uri.toString() != _releaseAttestationLibrary) {
     return false;
   }
@@ -385,7 +459,7 @@ bool _isCanonicalAttestationCall(
     return false;
   }
   final literal = arguments.single as SetOrMapLiteral;
-  if (literal.elements.length != _attestationEntries.length) {
+  if (literal.elements.length != entries.length) {
     return false;
   }
   final actual = <String, Expression>{};
@@ -399,7 +473,7 @@ bool _isCanonicalAttestationCall(
     }
     actual[key] = element.value;
   }
-  return _attestationEntries.entries.every(
+  return entries.entries.every(
     (entry) => _isReference(actual[entry.key], bindings[entry.value]),
   );
 }
@@ -408,13 +482,18 @@ bool _isAttestationGuard(
   Statement statement,
   VariableElement config,
   VariableElement attestation,
-  VariableElement releaseMarker,
-) {
+  VariableElement releaseMarker, {
+  bool test = false,
+}) {
+  final field = test ? 'testConfigSha256' : 'releaseConfigSha256';
+  final variable = test ? 'testAttestation' : 'attestation';
+  final marker = test
+      ? '_compiledTestAttestationMarker'
+      : '_compiledReleaseAttestationMarker';
   if (statement is! IfStatement ||
       statement.elseStatement != null ||
       statement.expression.toSource() !=
-          'config.releaseConfigSha256 != attestation.sha256 || '
-              '_compiledReleaseAttestationMarker != attestation.marker' ||
+          'config.$field != $variable.sha256 || $marker != $variable.marker' ||
       statement.thenStatement is! Block ||
       (statement.thenStatement as Block).statements.length != 1 ||
       !_isThrowStatement(

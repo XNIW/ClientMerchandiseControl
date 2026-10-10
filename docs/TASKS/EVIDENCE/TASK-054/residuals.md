@@ -1,6 +1,6 @@
 # TASK-054 — Registro unico dei residui operativi
 
-## Stato corrente — attivazione TEST, mandato8da5e50f (9 ottobre)
+## Stato corrente — attivazione TEST, mandato8da5e50f (10 ottobre)
 
 Questo overlay prevale sulle fotografie storiche. Codice DB revisionato, esperimento
 iOS terminale; release TEST source revisionata, unsignedf513 PASS; Quality8fc PASS1095/1SKIP+11performance,23step terminali. Unica richiesta owner già inviata, riferimenti
@@ -10,13 +10,21 @@ Review distinta dell’attivazione **BLOCKED / CODEX_REVIEW_BLOCKED**, zero find
 aperti; [verbale](next-integration/activation-integrated-rereview.md). I gate
 obbligatori del registro restano non superati; nessun APPROVED o merge inferito.
 
+Rollout POS esterno verificato sourceacb3e4ac/PR133/run38083172469→Workerfdfb3a7e
+servito100%. Catalogo20:49:33UTC:history158, tre nuove versioni POS; prefisso155
+version/name e ultimo statement coincidono, senza confronto di tutti i dati/statement.
+Le quattro canoniche Client restano assenti; nuovo postapply atteso162 se invariato.
+[Provenienza](next-integration/activation-external-worker-source.json),
+[readback](next-integration/activation-external-worker-readback.json),
+[lineage](next-integration/activation-external-worker-lineage.json).
+
 | Residuo / stato | Causa concreta | Lavoro preparato e dipendenze pertinenti | Singolo prossimo intervento / owner |
 |---|---|---|---|
 | Connessione PG readonly / NOT_RUN | Endpoint Session pooler ufficiale e auth protetta assenti; nessun handshake tentato | Trasporto0cec105 APPROVED_SOURCE_CODE_ONLY,30 test; CA ufficiale e service pronti | Owner riferisce host da Connect e passfile del ruolo readonly; root genera metadata target-bound ed esegue connection-only |
 | Procedura apply TEST / BLOCKED | MCP postgres metadata disponibile, ma apply_migration non espone le quattro versioni canoniche; serve il distinto canale PG operatore | Quattro SQL esatti, recovery popolata PASS; driver825ae0 e batchdb17d17 approvati R2 scoped, commit SQL/history separati e pending durevole | Owner indica endpoint ufficiale e service/passfile PostgreSQL operatore autorizzato, separato dal readonly; root esegue verifier e prepara recovery/finestra effettive |
 | Finestra/snapshot/cron / NOT_RUN | Nessuna finestra corrente: fotografia22:55 non prova esclusione | Job1/2/3 pertinenti;4 escluso senza interferenza; snapshot di recovery da rinnovare; nessuna pausa app globale | Root+W fissano inizio/fine e writer reali, coordinano eventuali dispatcher concreti rilevati, poi pause/drain/restore dei soli cron pertinenti |
-| Schema finale / FAIL | Delta atteso32/57,1/2,history155;25 RPC+4 migrazioni+1 indice assenti | Confronto delta atteso PASS, nessun drift inatteso nel contratto;57/2/159 richiesti dopoapply | Root applica quattro canoniche in ordine attraverso canale qualificato e verifica manifest+RLS/helper/ledger completo |
-| Worker TEST / BLOCKED | Schema compatibile e finestra W non ancora disponibili | Cloudflare OAuth/write PASS; exactbundle/53asset/23binding/rollback pronti; MiniAuth/catalogON | Owner Worker pubblica su GO root schema+finestra; rilegge versione/binding/assets e smokes pertinenti |
+| Schema finale / FAIL | Delta atteso32/57,1/2,history158 dopo3DDL POS;25 RPC+4 canoniche+1 indice assenti | Confronto delta atteso PASS, nessun drift inatteso nel contratto;57/2/162 richiesti dopoapply se nessun altro cambio; recovery/profilo da rinnovare | Root riconcilia baseline158 e recuperabilità corrente, applica quattro canoniche attraverso canale qualificato e verifica manifest+RLS/helper/ledger completo |
+| Worker TEST / BLOCKED per candidato Client | Rollout POS acb3e4ac→fdfb3a7e sostituisce pin22107a6f; candidato96758b89 non distribuito | Provenienza CI/versione servita PASS scoped; evento secret distinto; vecchio piano/bundle/rollback restano storici, MiniC04 non qualificato | Owner Worker+root/W riconciliano nuova baseline e preservano delta POS prima di un futuro upload; richiedono schema pertinente e finestra reale, nessun rollback storico automatico |
 | Recensione/journal/smoke iOS / BLOCKED; buildlocale FAIL | Hosted26.5 postbootinventoryFAIL124; locale3f8 PrepareheadlessPASS ma SDK27 minimum15 confligge target14 primaapp | Runner3f8 sourceAPPROVED/50test; wrapper20reviewchecks; native68.059s, cleanupPASS,6dependentNOT_RUN/0PNG, fidelity26+13PASS | Owner indica Mac/runner esistente autorizzato con SDK compatibile con14 e runtime26.5; nessun target14 rialzato o retry invariato |
 | Percorso Client base / BLOCKED | Riferimento Google TEST A, hostHTTPS controllato e accesso operatore pilota assenti | Config pubblico recuperato; Codex genera pilota cmc054r-20261008-pilot/dataset minimo nel TEST già autorizzato | Owner fornisce riferimenti A/domain/accesso; root completa config e primo percorso disponibile, senza attendere B o provider facoltativi |
 | Isolamento A→B→A / NOT_RUN | Identità Google TEST B assente | Fence/race locali acquisiti; B non blocca il primo percorso A | Owner rende disponibile B quando si attraversa l'isolamento reale |

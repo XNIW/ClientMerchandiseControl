@@ -9,7 +9,16 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
-## Attivazione TEST — mandato8da5e50f, 9 ottobre
+## Attivazione TEST — mandato8da5e50f, aggiornamento10ottobre
+
+Il rollout POS esterno sourceacb3e4ac/PR133/run38083172469 è associato al Worker
+fdfb3a7e servito100%; root non ha deployato. [Provenienza](next-integration/activation-external-worker-source.json)
+e [readback](next-integration/activation-external-worker-readback.json).
+MCP readonly20:49UTC riconcilia history158/tre aggiuntePOS; Client32/57,1/2,
+quattro canoniche ancora assenti: deltaattesoPASS/schemaFAIL. [Lineage](next-integration/activation-external-worker-lineage.json).
+Postapply atteso162 se invariato; recovery/profilo e vecchio piano upload/rollback
+con pin22107a6f richiedono riconciliazione. Nessun nuovo GO/pin/APPROVED inferito.
+Le fotografie9ottobre sotto mantengono i propri perimetri.
 
 Il [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md) e la prima
 sezione del [registro unico](residuals.md) prevalgono sulle fotografie storiche.

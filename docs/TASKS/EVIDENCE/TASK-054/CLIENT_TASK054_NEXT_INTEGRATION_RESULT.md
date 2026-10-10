@@ -1,10 +1,48 @@
 # CLIENT_TASK054_NEXT_INTEGRATION_RESULT
 
-## Rapporto corrente — attivazione TEST, 9 ottobre 2026
+## Rapporto corrente — riconciliazione TEST, 10 ottobre 2026
+
+Il rollout POS esterno ha cambiato il Worker e la history TEST. Questo checkpoint
+prevale sulle fotografie del9ottobre; sorgente Client3f8, gate iOS, Auth,
+distribuzione e accettazione integrata restano invariati, **BLOCKED / REVIEW /
+CODEX_REVIEW_BLOCKED**. Nessun apply, secret, cron o deploy eseguito da root.
+
+Readback Cloudflare20:44:49UTC: versione **fdfb3a7e-b9bb-437d-a569-8cb2dc4c4f1d**
+al100%, deployment `c368359f-7e9e-4c2f-83c3-b4d27488ed0e` del20:22:05UTC.
+Il log originale del [job deploy114304682567](https://github.com/XNIW/merchandise-control-admin-web/actions/runs/38083172469/job/114304682567)
+riporta esattamente quel versionID; run38083172469, source
+`acb3e4ac0eb41568ce9980dc82f1b293a6fd2e35`, [PR133](https://github.com/XNIW/merchandise-control-admin-web/pull/133)
+OPEN. Build/deploy staging e smoke del workflow PASS, production SKIPPED;
+non sono prove Client o C04. ExecutorAsus e ricevuta Windows sono riferiti
+dalla chat «Completa interoperabilità e rollout»; root non ha letto direttamente
+la ricevuta Windows. Evento secret20:21:51UTC osservato, nessun valore recuperato
+o confronto di uguaglianza da root.
+[Readback](next-integration/activation-external-worker-readback.json),
+[associazione source→run→versione servita](next-integration/activation-external-worker-source.json).
+
+Un solo SELECT MCP in BEGIN READ ONLY/timeout5s alle **20:49:33UTC** conferma
+**history158**, con tre aggiunte POS20261010200917/20261010201015/20261010201137.
+Nome/versione del prefisso155 e MD5 dell'ultimo statement del prefisso coincidono
+con il readback19:11UTC; non sono confrontati tutti gli statement o dati.
+Il manifest Client completo resta **32/57 conformi,25 RPC assenti,1/2indici,
+quattro canoniche assenti**. Delta atteso PASS, schema completo FAIL, zero
+incompatibilità inattese. Postapply atteso **162**, salvo nuove versioni legittime
+riconciliate. [Lineage e valutazione](next-integration/activation-external-worker-lineage.json).
+Due tentativi di parsing locale negativi sono conservati; nessun retry SQL remoto.
+
+Il candidato Worker root96758b89 e la recovery popolata precedente conservano
+soltanto il loro perimetro storico. Il piano upload/rollback con pin22107a6f
+non è riutilizzabile senza riconciliare il rollout POS corrente; prima di apply
+servono snapshot/recovery e profilo baseline freschi per158, oltre al canale
+PG operatore e alla finestra effettiva. Nessuna adozione automatica del nuovo
+pin e nessun GO C04, SDK, T0 o R24. Delta di sola evidence/metadata; nessuna
+nuova review APPROVED o suite applicativa attribuita a questo aggiornamento.
+
+## Checkpoint precedente — attivazione TEST, 9 ottobre 2026
 
 Mandato `8da5e50f-ba0f-4fd8-ab3c-9c4e0dd785c2`; baseline PR29 `f326faa`
-e prove `7fc3643`. Questo blocco e il registro residui corrente prevalgono sui
-checkpoint storici successivi. FIX concluso nei perimetri autorizzati; TASK-054 è
+e prove `7fc3643`. Fotografia del9ottobre superseduta dal checkpoint corrente;
+il registro residui distingue i risultati riusabili. FIX concluso nei perimetri autorizzati; TASK-054 è
 BLOCKED/REVIEW, handoff CODEX_REVIEW_BLOCKED dopo review distinta. Nessun DONE o merge Client.
 Il gate DB è corretto e revisionato; il singolo esperimento Xcode26.5 è terminale.
 Il preflight di distribuzione TEST ha superato la re-review dopo RED e due P2.

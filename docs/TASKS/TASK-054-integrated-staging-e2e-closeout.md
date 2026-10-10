@@ -1216,3 +1216,26 @@ provano stream completo o upload mai tentato. Contesti57014 associati offline a
 metadata N, nessun missing-index/slow-plan inferito. R24dueoriginiNOT_RUN,
 BLOCKED/REVIEW e CODEX_REVIEW_BLOCKED invariati.
 [Capsula](EVIDENCE/TASK-054/next-integration/activation-native-owner-save-update.json).
+
+## Review — riconciliazione rollout POS esterno, 10 ottobre
+
+Root verifica in sola lettura la nuova versione Workerfdfb3a7e100% alle20:44UTC:
+sourceacb3e4ac/PR133/run38083172469 e versionID nel log originale del job deploy
+coincidono con il readback Cloudflare. ExecutorAsus è riferito dalla chat rollout;
+receipt Windows non letta direttamente. Evento secret distinto; root non legge
+né confronta valori. Nessun deploy/rollback o adozione pin da root.
+
+Il solo SELECT MCP20:49:33UTC in BEGIN READ ONLY/timeout5s osserva history158 e
+tre additions POS. Prefisso155 versione/nome e ultimo statementMD5 coincidono
+col precedente19:11UTC; il confronto non copre tutti gli statement o dati.
+Manifest Client32/57,1/2 e quattro canoniche assenti: expecteddeltaPASS,
+schemaFAIL, zero incompatibilità inattese; postapplyatteso162 se invariato.
+[Lineage](EVIDENCE/TASK-054/next-integration/activation-external-worker-lineage.json),
+[source→run→versione](EVIDENCE/TASK-054/next-integration/activation-external-worker-source.json),
+[readback](EVIDENCE/TASK-054/next-integration/activation-external-worker-readback.json).
+
+Piano Worker col vecchio pin e recovery/profilo sulla baseline155 restano storici:
+riconciliare il delta POS e recuperabilità corrente prima di qualsiasi apply/upload.
+Nessun nuovo gate C04/Client/Auth/iOS/R24, nessuna nuova review APPROVED o suite
+applicativa sul delta di metadata. Stato BLOCKED/REVIEW, handoff
+`CODEX_REVIEW_BLOCKED` invariati; nessun DONE/merge/tasksuccessivo.

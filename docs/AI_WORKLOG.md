@@ -1,5 +1,32 @@
 # AI worklog
 
+## 2026-10-10 — TASK-054, lineage TEST dopo rollout POS esterno
+
+- **Ruolo/fase**: CODEX_RE_REVIEWER / REVIEW; checkpoint di sola evidence.
+- **Azioni**: Cloudflare deployments/version readonly20:44UTC, query GitHub sul
+  workflow38083172469 e PR133, lettura del solo log deploy già esistente. Source
+  acb3e4ac e versionIDfdfb3a7e coincidono con Worker servito100%; stagingPASS,
+  productionSKIPPED. ExecutorAsus e ricevuta Windows sono riferiti da chat distinta,
+  non lettura diretta della ricevuta. Nessun secret/update/deploy/rollback root.
+- **TEST**: un SELECT MCP BEGIN READ ONLY/timeout5s20:49:33UTC, toolSUCCESS senza
+  exitcode di processo; history158/tre aggiuntePOS. Prefisso155 versione/nome e
+  ultimo statementMD5 coincidono con19:11UTC, non tutti gli statement/dati.
+  Evaluator canonico locale exit0:32/57 conformi,25missing,1/2indici,quattro
+  canonichemissing, zero incompatibilità inattese. DeltaattesoPASS/schemaFAIL;
+  nuovo postapplyatteso162 se nessun cambio ulteriore.
+- **Negativi preservati**: compare GitHub vecchia annotation1f0679→acb3 HTTP404;
+  due parsing locali del wrapper SQL non estraggono snapshot. Risposta salvata
+  decodificata correttamente, zero retry SQL. Primo patch documentale non applicato
+  per context mismatch, poi corretto senza modifiche sorgente.
+- **Consegna**: tre capsule concise e rapporto/registro aggiornati. Vecchio pin
+  Worker22107a6f e piano upload/rollback, snapshot/recovery/profilo155 da
+  riconciliare prima delle operazioni. C04 gestito da W; zero SDK/UI/heavy root,
+  nessun nuovo GO/pin/R24/T0 o prova Client live. BLOCKED/REVIEW e
+  CODEX_REVIEW_BLOCKED invariati; nessun APPROVED, DONE o merge Client.
+- **Controlli del delta**:3JSON validi,282link relativi risolti e2copie private
+  byte-identiche; security sui9file, governance e whitespace PASS/exit0.
+  Nessuna nuova suite Flutter richiesta per il solo delta di evidence/metadata.
+
 ## 2026-07-29 — Bootstrap avviato
 
 - **Agente**: Codex

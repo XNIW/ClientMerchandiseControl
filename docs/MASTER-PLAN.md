@@ -16,8 +16,9 @@
 - **Review integrata**: BLOCKED — runtime iOS e gate live; integrazione sviluppo separata e condizionata
 - **Prossima azione autorizzata**: completare l'attivazione TEST secondo mandato
   `8da5e50f`: gate DB direct/session-pooler revisionato0cec105; CA ufficiale
-  recuperata. Readback22:55UTC del9ottobre conferma delta atteso PASS, schema
- 32/57 FAIL e history155. Il canale MCP legge come postgres, ma il wrapper
+  recuperata. Readback20:49UTC del10ottobre riconcilia tre aggiunte POS: delta
+  Client atteso PASS, schema32/57 FAIL e history158; postapplyatteso162 se invariato.
+  Recovery/profilo baseline da rinnovare. Il canale MCP legge come postgres, ma il wrapper
   apply non espone versioni canoniche: procedura operatore PG approvata R2 scoped,
   riferimento service/passfile operatore distinto ancora assente.
    Unico esperimento Xcode26.5 run37863497939 terminale FAIL124 prima Flutter;
@@ -30,26 +31,30 @@
    f513330 unsignedAndroid/iOSPASS. Quality8fc38001393798 terminalePASS23step,
    1095test/1SKIP+11performance; delta headless ha prove scoped proprie. Owner input
    richiesti una volta, separati per DB, Auth e piattaforma; la superficie locale
-   ha ora mostrato incompatibilità build14 e serve un SDK compatibile esistente. Nessuna migration/cron/deploy eseguita;
-   Worker22107a6f confermato22:54UTC. Nessun DONE o merge Client.
+   ha ora mostrato incompatibilità build14 e serve un SDK compatibile esistente. Nessuna migration/cron/deploy eseguita da root;
+   rollout POS Asus suacb3e4ac/PR133/run38083172469 associato al Workerfdfb3a7e100%
+   alle20:44UTC. Vecchio pin22107a6f e piano upload/rollback richiedono riconciliazione
+   prima di ogni operazione; nessun nuovo GO/pin automatico. Nessun DONE o merge Client.
 
 
 ## Repository coinvolti
 
 - `XNIW/ClientMerchandiseControl` — repository corrente e unico writer del client.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
-  authority canonica; main verificata02ea44b9,159sorgenti e155receipt TEST;
+  authority canonica; snapshot storico main02ea44b9,159sorgenti e155receipt TEST;
+  rollout POS corrente daacb3e4ac/PR133 (OPEN), distinto dal candidato Client96758b89;
   TASK159/Worker selettivo appartiene a W, modifiche concorrenti preservate.
   Le riconciliazioni4532831b/f21339bb precedenti rimangono nelle evidence storiche.
 - `XNIW/MerchandiseControlSplitView` — owner N riferisce PR26 merged, mainbbbda83 e APK74e75 installato con preservazione; N riferisce SaveA locale e1riga/2prezzi remoti nel readback00:28:52UTC del10ottobre, HTTPACK non provato/peerA0; R24 NOT_RUN.
 - `XNIW/iOSMerchandiseControl` — owner N riferisce PR21 merged, mainb869c9b e Proper2cb5de installato; N riferisce primoSaveB localePASS/3pending, remotoB assente al solo readback00:28:52UTC del10ottobre; diagnostica errori8ott storica, ACK/convergenza da provare; R24 NOT_RUN.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
-- Supabase TEST — snapshot MCP readonly del9ottobre22:55UTC:
+- Supabase TEST — snapshot MCP readonly del10ottobre20:49UTC:
   32/57RPC presenti e conformi,25assenti,quattro migration canoniche assenti,
-  1/2indici,history155; delta atteso PASS. Gate TLS distinto NOT_RUN per input
-  assenti; nessun apply o repair remoto.
-  Recovery popolata57RPC/2indici/history159 PASS esclusivamente nel clone isolato.
+  1/2indici,history158 con tre aggiunte POS; delta Client atteso PASS. Gate TLS
+  distinto NOT_RUN per input assenti; nessun apply o repair Client remoto.
+  Recovery popolata57RPC/2indici/history159 PASS nel clone della precedente baseline;
+  dati/schema correnti e profilo operatore devono essere riconciliati prima di apply.
 - Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 
 ## Principi architetturali

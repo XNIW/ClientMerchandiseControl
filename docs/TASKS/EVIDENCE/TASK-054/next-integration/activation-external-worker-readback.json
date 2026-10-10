@@ -1,0 +1,103 @@
+{
+  "schema": "task054-worker-version-drift-readonly-v1",
+  "observed_at_utc": "2026-10-10T20:44:49.136279+00:00",
+  "commands": [
+    {
+      "operation": "deployments",
+      "exit_code": 0,
+      "stdout_sha256": "5c25f0af9af1a32bf6ee9c0a5e65e345dee9d3b2fc6b7e44f3c3f75338fc0451",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "operation": "version",
+      "exit_code": 0,
+      "stdout_sha256": "4433a786586817b46f8c15ce16d6a5d2e879633e7707b2808e2f99876b5e4c39",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "read_only": true,
+  "upload": "NOT_RUN",
+  "rollback": "NOT_RUN",
+  "version_id": "fdfb3a7e-b9bb-437d-a569-8cb2dc4c4f1d",
+  "metadata": {
+    "created_on": "2026-10-10T20:22:03.590401Z",
+    "source": "wrangler",
+    "author_id_sha256": "f4d355fd9e944b749e31dd970ae2c5ad6432fe25ce26fea45a5acda15ec01e20",
+    "author_email_sha256": "50094971cb3a794b12a635e0c48fab85434e3265a5229b176cfb4a912e323cb8"
+  },
+  "annotations": {
+    "workers/triggered_by": "version_upload"
+  },
+  "script": {
+    "etag": "fc925ef47cc97e089654e4c32df09442a77ed5bd3d71912d554026d6f56e84a2",
+    "handlers": [
+      "fetch"
+    ],
+    "named_handlers": [
+      {
+        "name": "BucketCachePurge",
+        "handlers": [
+          "class"
+        ]
+      },
+      {
+        "name": "DOQueueHandler",
+        "handlers": [
+          "class"
+        ]
+      },
+      {
+        "name": "DOShardedTagCache",
+        "handlers": [
+          "class"
+        ]
+      }
+    ],
+    "last_deployed_from": "wrangler"
+  },
+  "status": "PASS_METADATA_ONLY",
+  "deployment_metadata": [
+    {
+      "id": "6964321c-e7d8-47fc-ae17-68216b8e7c7b",
+      "source": "wrangler",
+      "strategy": "percentage",
+      "created_on": "2026-10-10T20:21:51.28725Z",
+      "versions": [
+        {
+          "version_id": "50f999ca-6516-4a67-9a5f-fd5a1865192f",
+          "percentage": 100
+        }
+      ],
+      "annotations": {
+        "workers/triggered_by": "secret"
+      }
+    },
+    {
+      "id": "c368359f-7e9e-4c2f-83c3-b4d27488ed0e",
+      "source": "wrangler",
+      "strategy": "percentage",
+      "created_on": "2026-10-10T20:22:05.618855Z",
+      "versions": [
+        {
+          "version_id": "fdfb3a7e-b9bb-437d-a569-8cb2dc4c4f1d",
+          "percentage": 100
+        }
+      ],
+      "annotations": {
+        "workers/triggered_by": "deployment"
+      }
+    }
+  ],
+  "raw_output_saved": false,
+  "prior_qualified_version": "22107a6f-f515-44c4-8392-a8e5653ff0b8",
+  "root_candidate": "96758b899aac2ccde1a70aeda4bbe7983007fb18",
+  "root_upload": false,
+  "source_association": "activation-external-worker-source.json",
+  "Client_lineage": "activation-external-worker-lineage.json",
+  "limits": [
+    "Autore umano non identificato dai digest Cloudflare; executorAsus riferito da chat separata.",
+    "Evento secret osservato, nessun valore recuperato/confrontato da root.",
+    "Il nuovo Worker non \u00e8 il candidato selettivo root e non abilita C04 o GO Client.",
+    "Piano di upload/rollback con vecchio pin non riutilizzabile senza riconciliazione esplicita."
+  ]
+}

@@ -251,6 +251,23 @@ override timeout nelle5funzioni; p_limit e payload bounded non provano tempo bou
 Correlazione per finestra/UAclasse, senza requestID unico o piano SQL qualificato;
 nessuna RPC pesante, EXPLAIN ANALYZE, scrittura o migration. È distinta dal blocco
 SDK Client e dalle quattro canoniche Storefront; nessun fix generico inferito.
+Aggiornamento N ricevuto il9ottobre locale: [proiezione e associazione offline](next-integration/activation-native-owner-save-update.json).
+Il Save Android A è riferito da N alle23:46:32UTC; alla lettura00:28:52UTC del10ottobre
+A ha1riga e2prezzi remoti coerenti. OwnHTTPACK non provato, peer iOS A0 riferito;
+nessuna convergenza o publication Client inferita. N riferisce il primo Save iOS B
+alle00:17:26UTC: localePASS,3pending/lastAttempt assente; remotoB assente al solo
+istante00:28:52UTC. Nei log disponibili postB (5edge/70postgres/1postgrest) nessuna
+RPC corrispondente, senza prova di completezza del flusso o del percorso Client.
+
+Le righe di contesto PG57014 coincidono staticamente con le definizioni archiviate
+root23:40UTC: scoped_rows213 RETURN QUERY e page141 candidates MATERIALIZED;
+marker7 chiama checkpoint529, SELECT con scalar_contract e raw_prices533.
+La riga2 dell’helper SHA256 resta soltanto riferita da N, fuori dalle5definizioni
+archiviate; nessun nuovo catalogo remoto o piano SQL eseguito. Metadata N mostra
+indici recovery shop/id e legacy owner/id su entrambe le tabelle: non prova uso del
+piano, copertura dei predicati o un indice mancante. Nessun fix generico, retry,
+SQLwrite/apply/cron/deploy. Richiesta humanunlock già pendente presso owner,
+nessuna domanda duplicata o input root ai device N.
 Nuova catena Save/ACK/publication fino al Client ancora NOT_RUN.
 
 ### Matrice corrente dei requisiti

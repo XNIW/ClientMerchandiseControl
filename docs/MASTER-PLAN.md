@@ -41,8 +41,8 @@
   authority canonica; main verificata02ea44b9,159sorgenti e155receipt TEST;
   TASK159/Worker selettivo appartiene a W, modifiche concorrenti preservate.
   Le riconciliazioni4532831b/f21339bb precedenti rimangono nelle evidence storiche.
-- `XNIW/MerchandiseControlSplitView` — owner N riferisce PR26 merged, mainbbbda83 e APK74e75 installato con preservazione; N9ott riferisce Cloud account connected, write/scope/convergenza da provare; R24 NOT_RUN.
-- `XNIW/iOSMerchandiseControl` — owner N riferisce PR21 merged, mainb869c9b e Proper2cb5de installato; N9ott riferisce Cloud account connected; diagnostica errori8ott storica, write/scope da provare; R24 NOT_RUN.
+- `XNIW/MerchandiseControlSplitView` — owner N riferisce PR26 merged, mainbbbda83 e APK74e75 installato con preservazione; N riferisce SaveA locale e1riga/2prezzi remoti nel readback00:28:52UTC del10ottobre, HTTPACK non provato/peerA0; R24 NOT_RUN.
+- `XNIW/iOSMerchandiseControl` — owner N riferisce PR21 merged, mainb869c9b e Proper2cb5de installato; N riferisce primoSaveB localePASS/3pending, remotoB assente al solo readback00:28:52UTC del10ottobre; diagnostica errori8ott storica, ACK/convergenza da provare; R24 NOT_RUN.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
 - Supabase TEST — snapshot MCP readonly del9ottobre22:55UTC:

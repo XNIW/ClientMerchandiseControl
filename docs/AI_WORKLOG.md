@@ -5645,3 +5645,18 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   canonico del delta finale9file PASS (7documenti+2capsule verbale), distinto
   dalla scansione precedente61file. Questa sola annotazione ha verifica separata.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-09 — TASK-054 aggiornamento owner N dopo il checkpoint
+
+- **Ruolo/fase**: CODEX_RE_REVIEWER / REVIEW; integrazione di metadata owner,
+  nessuna implementazione o riapertura dei gate prodotto.
+- **Evidence**: [capsula](TASKS/EVIDENCE/TASK-054/next-integration/activation-native-owner-save-update.json),
+  projectionN SHA256 `c205fd9381e51cbe6d6145d97b74d91e68a9cb25991c882bcd2c68981ebf1a84`.
+- **Confine**: A1riga/2prezzi remoti, OwnHTTPACKnonprovato/peerA0; SaveB locale
+  PASS riferito owner,3pending/lastAttemptassente e remotoB assente all’istante.
+  Contesti4corpiSQL PASS associazione offline; helperline2 soloN. Metadataindici
+  presente, nessun missing-index/slow-plan/stream-completeness inferito.
+- **Gate**: R24dueoriginiNOT_RUN, ClientAuth/publication non provati;0rootSQL,
+  RPCheavy, EXPLAINANALYZE, UI, apply/deploy/cron e0domandehumanunlock duplicate.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

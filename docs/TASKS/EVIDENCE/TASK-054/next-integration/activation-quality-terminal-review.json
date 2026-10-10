@@ -1,0 +1,231 @@
+{
+  "schema": "task054-quality-retry-terminal-evidence-review-v1",
+  "recorded_at_utc": "2026-10-09T23:28:53.604872+00:00",
+  "reviewer": "/root/final_audit/acceptance_matrix",
+  "verdict": "APPROVED",
+  "qualification": "QUALITY_TERMINAL_EVIDENCE_ONLY",
+  "integrated_verdict": "BLOCKED",
+  "run": 38001393798,
+  "source_commit": "8fc7f8dc5221f22a393ffbe73c4f5827654e171f",
+  "quality_job": 114060055373,
+  "capsule_private_path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/quality-retry/terminal-capsule.json",
+  "capsule_public_path": "/Users/minxiang/.codex/worktrees/task054-operational-completion/ClientMerchandiseControl/docs/TASKS/EVIDENCE/TASK-054/next-integration/activation-quality-terminal.json",
+  "capsule_sha256": "6b48178385faf728b5303d19e4dc782fff0788bccd56b82cbd77e56b2474c2e8",
+  "collection_receipt_sha256": "c0021799f113486adf33f05ff01dd64c29ca8aab8a9e26730b6fb286feb2f972",
+  "source_receipt_hashes": {
+    "run.json": "528f7c5288e3ca4d880311b9af88e6bddfaf0be3e6cfb832c4f74ff95a1cb258",
+    "quality-metadata.json": "f9bd1629e371ce494fef8c44d74b58a88bc76c02a8d6eb8bbb80a063470c2bb0",
+    "quality-annotations.json": "f542d9fd9f42ca305eb05bac1cb814629f286bd624275160004d382411b1da4f",
+    "collection-receipt.json": "c0021799f113486adf33f05ff01dd64c29ca8aab8a9e26730b6fb286feb2f972",
+    "terminal-capsule.json": "6b48178385faf728b5303d19e4dc782fff0788bccd56b82cbd77e56b2474c2e8",
+    "quality.log": "34e7aac326e9dd90260b92271ab1527ada4be6762fa135d7b9f9ceeb5ba6daf6"
+  },
+  "independent_api": {
+    "argv": [
+      "gh",
+      "api",
+      "repos/XNIW/ClientMerchandiseControl/actions/runs/38001393798/jobs?per_page=100"
+    ],
+    "exit_code": 0,
+    "timeout_seconds": 45,
+    "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/review/quality-budget/retry-independent-jobs.json",
+    "bytes": 6681,
+    "sha256": "6bd24a59cb2b0cf9e46908015c5402c351bb66d72ad14fd0bed47afda89b1db9",
+    "stderr_bytes": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "recorded_at_utc": "2026-10-09T23:27:54.801721+00:00"
+  },
+  "checks": [
+    {
+      "id": "QRT-01",
+      "status": "PASS",
+      "evidence": "Public capsule byte-identical to private terminal capsule."
+    },
+    {
+      "id": "QRT-02",
+      "status": "PASS",
+      "evidence": "Run, job metadata and capsule identify exact8fc source."
+    },
+    {
+      "id": "QRT-03",
+      "status": "PASS",
+      "evidence": "Original run terminal success; no in-progress result promoted."
+    },
+    {
+      "id": "QRT-04",
+      "status": "PASS",
+      "evidence": "Correct run/job association, attempt1."
+    },
+    {
+      "id": "QRT-05",
+      "status": "PASS",
+      "evidence": "Quality job completed successfully."
+    },
+    {
+      "id": "QRT-06",
+      "status": "PASS",
+      "evidence": "All23 API steps completed and success; no skipped/failed Quality gate."
+    },
+    {
+      "id": "QRT-07",
+      "status": "PASS",
+      "evidence": "Capsule23 step projection exactly matches original metadata."
+    },
+    {
+      "id": "QRT-08",
+      "status": "PASS",
+      "evidence": "gh run view and gh api job step projections agree."
+    },
+    {
+      "id": "QRT-09",
+      "status": "PASS",
+      "evidence": "Original Quality timestamps preserved."
+    },
+    {
+      "id": "QRT-10",
+      "status": "PASS",
+      "evidence": "One independent bounded GET terminal exit0; response hash bound."
+    },
+    {
+      "id": "QRT-11",
+      "status": "PASS",
+      "evidence": "Independent fresh metadata confirms three terminal jobs exact8fc."
+    },
+    {
+      "id": "QRT-12",
+      "status": "PASS",
+      "evidence": "Independent Quality metadata matches all23 steps, statuses and timestamps."
+    },
+    {
+      "id": "QRT-13",
+      "status": "PASS",
+      "evidence": "Fresh metadata explicitly confirms two release SKIPPED jobs,0steps."
+    },
+    {
+      "id": "QRT-14",
+      "status": "PASS",
+      "evidence": "Capsule separates current NOT_RUN release gates from prior f513 unsigned PASS reuse."
+    },
+    {
+      "id": "QRT-HASH-1",
+      "status": "PASS",
+      "evidence": "Original collection item1 output bytes/hash match stored file; exit0 and empty stderr digest retained."
+    },
+    {
+      "id": "QRT-HASH-2",
+      "status": "PASS",
+      "evidence": "Original collection item2 output bytes/hash match stored file; exit0 and empty stderr digest retained."
+    },
+    {
+      "id": "QRT-HASH-3",
+      "status": "PASS",
+      "evidence": "Original collection item3 output bytes/hash match stored file; exit0 and empty stderr digest retained."
+    },
+    {
+      "id": "QRT-HASH-4",
+      "status": "PASS",
+      "evidence": "Original collection item4 output bytes/hash match stored file; exit0 and empty stderr digest retained."
+    },
+    {
+      "id": "QRT-15",
+      "status": "PASS",
+      "evidence": "Capsule binds complete4-item collection receipt exactbytes."
+    },
+    {
+      "id": "QRT-16",
+      "status": "PASS",
+      "evidence": "One Ubuntu image-migration notice preserved;0failure/0warning annotations in collected receipt."
+    },
+    {
+      "id": "QRT-17",
+      "status": "PASS",
+      "evidence": "Coverage log final aggregate1095PASS/1SKIP line4116"
+    },
+    {
+      "id": "QRT-18",
+      "status": "PASS",
+      "evidence": "Performance log final aggregate11PASS line4261"
+    },
+    {
+      "id": "QRT-19",
+      "status": "PASS",
+      "evidence": "Actual format/analyze log summaries agree with successful API steps."
+    },
+    {
+      "id": "QRT-20",
+      "status": "PASS",
+      "evidence": "Whitespace gate executed success in this run, unlike prior cancelled run."
+    },
+    {
+      "id": "QRT-21",
+      "status": "PASS",
+      "evidence": "All11 performance families present; repeated profiles/samples not mistaken for separate tests."
+    },
+    {
+      "id": "QRT-22",
+      "status": "PASS",
+      "evidence": "Capsule scope expressly excludes signed TEST, native runtime, pixels and Auth."
+    },
+    {
+      "id": "QRT-23",
+      "status": "PASS",
+      "evidence": "No causal speed/performance improvement claim attributed to25min budget."
+    },
+    {
+      "id": "QRT-24",
+      "status": "PASS",
+      "evidence": "Terminal Performance step log contains no Actions failure/cancellation marker; PASS backed by aggregate and API."
+    }
+  ],
+  "checks_summary": {
+    "PASS": 28,
+    "FAIL": 0
+  },
+  "facts": {
+    "quality_steps_passed": 23,
+    "coverage_passed": 1095,
+    "coverage_skipped": 1,
+    "performance_tests_passed": 11,
+    "release_jobs_skipped": 2,
+    "quality_duration_seconds": 1126.0,
+    "pre_performance_seconds": 1028.0,
+    "performance_seconds": 95.0,
+    "annotation_failures": 0,
+    "annotation_warnings": 0,
+    "annotation_notices": 1,
+    "coverage_aggregate_line": 4116,
+    "performance_aggregate_line": 4261
+  },
+  "findings": [],
+  "limits": [
+    "Only one fresh read-only GitHub jobs GET was used; annotation/log files were hash-validated and read from collected artifacts rather than downloaded again.",
+    "Original command exit codes and stderr digests are retained collector receipts; their stored bytes/hashes validated independently.",
+    "Run duration1126s is below even old20min budget; success alone does not demonstrate that25min caused improved speed or that future runs cannot vary.",
+    "Two release jobs SKIPPED on this dispatch are NOT_RUN; reuse of previous f513 unsigned PASS depends on separate source/recipe byte association, reviewed by parent.",
+    "No new build signedTEST, native iOS/Android runtime, pixel, Auth or E2E acceptance inferred; subsequent headless patch not covered by8fc run.",
+    "No repo/Git edits, SQL, app/UI/boot or CI mutation/retry/test execution performed."
+  ],
+  "commands": [
+    {
+      "command": "Read provided run/job/annotation/collection/capsule JSON and selected log summaries using Python",
+      "exit_code": 0,
+      "terminal": true
+    },
+    {
+      "command": [
+        "gh",
+        "api",
+        "repos/XNIW/ClientMerchandiseControl/actions/runs/38001393798/jobs?per_page=100"
+      ],
+      "exit_code": 0,
+      "terminal": true,
+      "timeout_seconds": 45
+    },
+    {
+      "command": "Python static hash, projection and aggregate review; atomic private receipt write",
+      "exit_code": 0,
+      "terminal": true
+    }
+  ],
+  "all_commands_terminal": true
+}

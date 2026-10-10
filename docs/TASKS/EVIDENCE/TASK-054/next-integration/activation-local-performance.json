@@ -1,0 +1,18 @@
+{
+  "schema": "task054-local-gate-receipt-v1",
+  "source_commit": "f513330fbeef6139a5b9d278cc6824ce5c6bcc63",
+  "command": "flutter test --tags performance --concurrency=1 --reporter expanded",
+  "status": "PASS",
+  "exit_code": 0,
+  "tests": 11,
+  "duration_seconds_approx": 55,
+  "surface": "local macOS host, not physical-device profile",
+  "unified_exec_session": 10732,
+  "tool_chunks": [
+    "6c3ba2",
+    "3cc18f",
+    "4c8b26"
+  ],
+  "reason": "Completes the independent performance gate after CI job total timeout; does not change cancelled CI performance status.",
+  "artifact_logs_versioned": false
+}

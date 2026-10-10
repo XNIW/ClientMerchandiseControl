@@ -1,0 +1,104 @@
+{
+  "generated_at_utc": "2026-10-09T00:20:11.682462+00:00",
+  "reviewer": "/root/db_pooler/transport_review",
+  "verdict": "CHANGES_REQUIRED",
+  "scope": "Source code and local proofs only; independent read-only review of DB transport delta",
+  "base": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "candidate": "7177d3059fb2cc6c32b91f2446bb681e6d28c501",
+  "files": {
+    "scripts/check-backend-compatibility.py": "6ac2daf8be6b8e87eb7f836d575277b924454f5e20b7be4ba17a2333699f2bef",
+    "scripts/test-backend-compatibility.py": "91cf7ce740f155b291ee42e7ef5af82a81120f7890bbe31354755535b9516778",
+    "docs/operations/BACKEND-CONNECTION-TRANSPORT.md": "9b2824f1558a26161d0121b136ffb3813bd49f0ecec191dca01556b132c3c35a"
+  },
+  "findings": [
+    {
+      "id": "DBT-R01",
+      "severity": "P2",
+      "status": "OPEN",
+      "file": "scripts/check-backend-compatibility.py",
+      "lines": [
+        265,
+        271,
+        321
+      ],
+      "title": "Input di connessione assenti classificati come blocco generico anziche collegamento non tentato",
+      "description": "App-config path inesistente, endpoint path inesistente o endpoint pooler omesso raggiungono il catch generico e stampano BACKEND_COMPATIBILITY BLOCKED senza attempted=false. Nessun psql e eseguito. Questo contraddice il mandato3.3 e il runbook, che distinguono input assenti NOT_RUN da handshake/query falliti BLOCKED e schema incompleto FAIL.",
+      "reproduction": "python3 -B review/test_missing_input_classification.py: exit1, sei subcase negativi su --connection-only e --live, mock psql call_count0. Tre CLI reali con input sintetici: exit2 e messaggio generico; controllo service/config omessi: NOT_RUN corretto.",
+      "impact": "La ricevuta operativa non permette di distinguere una connessione mai tentata da un problema durante il tentativo, impedendo l esito richiesto per il prerequisito DB. Nessun bypass del target o accesso remoto.",
+      "requested_fix": "Classificare input necessari assenti o non accessibili prima di invocare psql come BACKEND_CONNECTION NOT_RUN attempted=false con motivo strutturato e sanitizzato. Non stampare path o contenuti. Conservare BLOCKED attempted=true per handshake/query falliti e FAIL per schema incompatibile; nessun allentamento del manifest.",
+      "regression": "Entrambe le modalita live: config path assente, pooler endpoint omesso e path assente; psql non chiamato, exit nonzero e output NOT_RUN attempted=false. Mantenere test TLS/auth/schema gia presenti."
+    }
+  ],
+  "checks": {
+    "unit_suite": {
+      "result": "PASS",
+      "tests": 28,
+      "exit_code": 0
+    },
+    "source_manifest": {
+      "result": "PASS",
+      "rpcs": 57,
+      "exit_code": 0
+    },
+    "diff_check": {
+      "result": "PASS",
+      "exit_code": 0
+    },
+    "libpq_effective_parameters": {
+      "result": "PASS",
+      "modes": 2,
+      "fields_per_mode": 9,
+      "socket_each": -1,
+      "scope": "real installed libpq parse/precedence, deliberately failed before DNS/socket; not TLS/auth"
+    },
+    "independent_input_regression": {
+      "result": "FAIL",
+      "exit_code": 1,
+      "subcases": 6,
+      "psql_calls": 0
+    },
+    "unchanged_contract_checks": {
+      "result": "PASS",
+      "source_errors_AST_identical": true,
+      "schema_errors_AST_identical": true
+    },
+    "caller_microreview": {
+      "result": "PASS",
+      "reviewer": "/root/db_pooler/transport_review/callers_readonly",
+      "scope": "static only; check.sh/Android/iOS wrappers inherit exported live transport env; no receipt schema consumer found"
+    }
+  },
+  "reused_executor_proofs": {
+    "local_PostgreSQL17_query": "Executor proof read, query syntax/identity plausible and hashes source-associated; not independently rerun by reviewer",
+    "red_before_fix": "Preserved by executor; independent reviewer PoC added for new finding"
+  },
+  "limits": {
+    "live_tls": "NOT_RUN",
+    "TEST_authentication": "NOT_RUN",
+    "apply": "NOT_RUN",
+    "production": "NOT_RUN",
+    "operator_apply_authorization": "NOT_RUN",
+    "schema_runtime_TEST": "NOT_RUN",
+    "endpoint_provenance": "operator-attested public metadata, not cryptographic attestation",
+    "receipt_endpoint_hash": "canonical JSON SHA256, not source file bytes"
+  },
+  "harness_history": [
+    "First libpq probe exit1 because reviewer decoder confused empty bytes and None; corrected decoder only, two modes PASS, socket -1.",
+    "First input CLI harness SyntaxError before execution; corrected harness, real negative preserved."
+  ],
+  "official_sources": [
+    "https://supabase.com/docs/guides/database/connecting-to-postgres",
+    "https://www.postgresql.org/docs/current/libpq-pgservice.html"
+  ],
+  "evidence_sha256": {
+    "source-integrity.json": "01c8bf3ef15e7d987a98956b0466b5f515cac30c837e70de0fdf4cd4b03fa6d5",
+    "test_missing_input_classification.py": "4a6bf6ba23515a7a4e1776b29221460de9c9682e19419ab428c0f2ed3c566d31",
+    "missing-input-regression-red.log": "a3cd3f5804f882e076ab9e5377f5bd6fefbc47893b39284415b98f2f79fb5cc0",
+    "independent-gates.json": "dea1b1bf9bbe806e1443295d945b6c62e2b1ed1565b90e3e42cc56c18bfa5908",
+    "libpq-first-probe.json": "8d90b567b49d9998dd5f2102c761b978da2bf57a05b30db18631590242ce48fd",
+    "libpq-independent.json": "9a7f1ba0e253e1ddecf85c9e74a9735bc89502c9178360b6ae4647d459b6a53d",
+    "missing-input-status-poc.json": "888429d6f2fa0b969ad08341ad1a7d22bb0c8daddb469b783aabeb945c318401"
+  },
+  "all_own_commands_terminal": true,
+  "repository_modified_by_reviewer": false
+}

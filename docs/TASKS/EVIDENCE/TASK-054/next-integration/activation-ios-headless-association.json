@@ -1,0 +1,27 @@
+{
+  "schema": "task054-ios-headless-commit-association-v1",
+  "created_at_utc": "2026-10-09T23:22:10.624691+00:00",
+  "source": "3f8d3d19a46d95bc7b7eb494a8f5b85a42372428",
+  "base": "8fc7f8dc5221f22a393ffbe73c4f5827654e171f",
+  "branch": "codex/task054-ios-local-owned",
+  "files": {
+    "scripts/run-task054-ios-owned.py": "68adacf921d85e166d5221a5d460b07f438ab714af9e52eee182a4332c8205b3",
+    "scripts/test-task054-ios-owned.py": "dbc129051c59f03dcd609240319b2d9bdccd68be067fddb982db47ada913e6fa"
+  },
+  "review_sha256": "d130a0fd660a4c4ab7c6d28d59c327123a8a14ee3255ee29d28dad159ddfb9dc",
+  "qualification": "APPROVED_SOURCE_DELTA_ONLY",
+  "publication": "PASS",
+  "clean_tracking": "PASS",
+  "native": "NOT_RUN",
+  "toolchain": {
+    "Xcode": "27.0",
+    "build": "27A266a",
+    "simulator_SDK": "27.0",
+    "Flutter": "3.44.8",
+    "Flutter_revision": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+    "pubspec_lock_sha256": "360f0222bb529970e33dd5d83e52a0a7313e3323044095626156cd009b42a75e",
+    "minimum_iOS": "14.0",
+    "runtime_selected_by_existing_filter": "iOS26.5 available; native not yet prepared",
+    "inventory_tool_exit": 0
+  }
+}

@@ -1,0 +1,403 @@
+{
+  "schema": "task054-source-release-terminal-v1",
+  "recorded_at_utc": "2026-10-09T22:50:27.967501+00:00",
+  "run_id": 37867138429,
+  "run_url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37867138429",
+  "source_commit": "f513330fbeef6139a5b9d278cc6824ce5c6bcc63",
+  "status": "completed",
+  "conclusion": "cancelled",
+  "jobs": [
+    {
+      "id": 113616443034,
+      "name": "Quality",
+      "conclusion": "cancelled",
+      "started_at": "2026-10-09T00:54:45Z",
+      "completed_at": "2026-10-09T01:15:02Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:54:46Z",
+          "completed_at": "2026-10-09T00:54:47Z"
+        },
+        {
+          "name": "Checkout",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:54:47Z",
+          "completed_at": "2026-10-09T00:54:48Z"
+        },
+        {
+          "name": "Validate workflow action pins",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:54:48Z",
+          "completed_at": "2026-10-09T00:54:48Z"
+        },
+        {
+          "name": "Validate shell scripts",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:54:48Z",
+          "completed_at": "2026-10-09T00:54:49Z"
+        },
+        {
+          "name": "Validate backend consumer contract",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:54:49Z",
+          "completed_at": "2026-10-09T00:56:19Z"
+        },
+        {
+          "name": "Validate client security boundary",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:56:19Z",
+          "completed_at": "2026-10-09T00:59:00Z"
+        },
+        {
+          "name": "Validate governance state",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:59:00Z",
+          "completed_at": "2026-10-09T00:59:37Z"
+        },
+        {
+          "name": "Set up Flutter",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:59:37Z",
+          "completed_at": "2026-10-09T01:00:32Z"
+        },
+        {
+          "name": "Validate Flutter toolchain",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:00:32Z",
+          "completed_at": "2026-10-09T01:00:32Z"
+        },
+        {
+          "name": "Resolve dependencies",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:00:32Z",
+          "completed_at": "2026-10-09T01:00:44Z"
+        },
+        {
+          "name": "Validate synchronized OS capture bridge",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:00:44Z",
+          "completed_at": "2026-10-09T01:00:45Z"
+        },
+        {
+          "name": "Validate architecture boundaries",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:00:45Z",
+          "completed_at": "2026-10-09T01:08:27Z"
+        },
+        {
+          "name": "Generate localizations",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:08:27Z",
+          "completed_at": "2026-10-09T01:08:27Z"
+        },
+        {
+          "name": "Validate release metadata and native assets",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:08:27Z",
+          "completed_at": "2026-10-09T01:08:28Z"
+        },
+        {
+          "name": "Verify generated and locked files",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:08:28Z",
+          "completed_at": "2026-10-09T01:08:28Z"
+        },
+        {
+          "name": "Check formatting",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:08:28Z",
+          "completed_at": "2026-10-09T01:08:30Z"
+        },
+        {
+          "name": "Analyze",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:08:30Z",
+          "completed_at": "2026-10-09T01:08:51Z"
+        },
+        {
+          "name": "Test with coverage",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:08:51Z",
+          "completed_at": "2026-10-09T01:13:21Z"
+        },
+        {
+          "name": "Performance gate",
+          "conclusion": "cancelled",
+          "started_at": "2026-10-09T01:13:21Z",
+          "completed_at": "2026-10-09T01:15:00Z"
+        },
+        {
+          "name": "Check whitespace errors",
+          "conclusion": "skipped",
+          "started_at": "2026-10-09T01:15:00Z",
+          "completed_at": "2026-10-09T01:15:00Z"
+        },
+        {
+          "name": "Post Set up Flutter",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:15:00Z",
+          "completed_at": "2026-10-09T01:15:00Z"
+        },
+        {
+          "name": "Post Checkout",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:15:00Z",
+          "completed_at": "2026-10-09T01:15:00Z"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:15:00Z",
+          "completed_at": "2026-10-09T01:15:00Z"
+        }
+      ],
+      "proof": [
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/jobs/113616443034/metadata.json",
+          "sha256": "2f73af89e60a6951b66c06f3d6e29f405bd6e1534b93a034944a0ff88bdbb2da"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/jobs/113616443034/annotations.json",
+          "sha256": "a854dddc233bca1fc6fc014f5c3c320ec8bbcd0904538d6d55a3322a3d6160b1"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/jobs/113616443034/collection-receipt.json",
+          "sha256": "6e40c4774afdb3b6d40754d5993555373b80bebe206e781e1b8d5f7a3a955402"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/jobs/113616443034/log-fallback-receipt.json",
+          "sha256": "44680d8c0df06329c7ca75da099a5b4f090ce6ab0c225b11184110afeb42fd3f"
+        }
+      ]
+    },
+    {
+      "id": 113616443187,
+      "name": "iOS release candidate",
+      "conclusion": "success",
+      "started_at": "2026-10-09T00:54:45Z",
+      "completed_at": "2026-10-09T01:23:49Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:54:46Z",
+          "completed_at": "2026-10-09T00:54:47Z"
+        },
+        {
+          "name": "Checkout",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:54:47Z",
+          "completed_at": "2026-10-09T00:54:49Z"
+        },
+        {
+          "name": "Set up Flutter",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:54:49Z",
+          "completed_at": "2026-10-09T00:56:08Z"
+        },
+        {
+          "name": "Validate Flutter toolchain",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:56:08Z",
+          "completed_at": "2026-10-09T00:56:09Z"
+        },
+        {
+          "name": "Resolve dependencies",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:56:09Z",
+          "completed_at": "2026-10-09T00:56:21Z"
+        },
+        {
+          "name": "Validate iOS release source",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:56:21Z",
+          "completed_at": "2026-10-09T00:56:21Z"
+        },
+        {
+          "name": "Build production-like unsigned iOS app",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:56:21Z",
+          "completed_at": "2026-10-09T00:58:42Z"
+        },
+        {
+          "name": "Attest iOS reference build",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:58:42Z",
+          "completed_at": "2026-10-09T00:58:44Z"
+        },
+        {
+          "name": "Archive production-like unsigned iOS app",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:58:44Z",
+          "completed_at": "2026-10-09T01:00:16Z"
+        },
+        {
+          "name": "Attest iOS archive Runner",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:00:16Z",
+          "completed_at": "2026-10-09T01:00:17Z"
+        },
+        {
+          "name": "Validate iOS release candidate",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:00:17Z",
+          "completed_at": "2026-10-09T01:02:21Z"
+        },
+        {
+          "name": "Validate iOS adversarial release boundaries",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:02:21Z",
+          "completed_at": "2026-10-09T01:23:44Z"
+        },
+        {
+          "name": "Post Set up Flutter",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:23:44Z",
+          "completed_at": "2026-10-09T01:23:45Z"
+        },
+        {
+          "name": "Post Checkout",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:23:45Z",
+          "completed_at": "2026-10-09T01:23:45Z"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:23:45Z",
+          "completed_at": "2026-10-09T01:23:47Z"
+        }
+      ],
+      "proof": [
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/jobs/113616443187/metadata.json",
+          "sha256": "240370a81b8aacedd7b6323a1e81c82c29a326abc99e33865e4b70367ee803b2"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/jobs/113616443187/annotations.json",
+          "sha256": "7a85ca1fd2aaa1c69af72347b9f9c99e1c9e6af38cda93db5e560dea18e80123"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/jobs/113616443187/collection-receipt.json",
+          "sha256": "f7de4c4031369d5214ed235002d0fcdc69365226afb80ef2812e8c0e27af2e34"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/jobs/113616443187/log-fallback-receipt.json",
+          "sha256": "5f7b5f12b9cb937c291903af8c6d513c265aa015bbddb112d0c2c665321963b3"
+        }
+      ]
+    },
+    {
+      "id": 113616443203,
+      "name": "Android release candidate",
+      "conclusion": "success",
+      "started_at": "2026-10-09T00:54:41Z",
+      "completed_at": "2026-10-09T01:08:24Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:54:42Z",
+          "completed_at": "2026-10-09T00:54:43Z"
+        },
+        {
+          "name": "Checkout",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:54:43Z",
+          "completed_at": "2026-10-09T00:54:45Z"
+        },
+        {
+          "name": "Set up Flutter",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:54:45Z",
+          "completed_at": "2026-10-09T00:55:43Z"
+        },
+        {
+          "name": "Validate Flutter toolchain",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:55:43Z",
+          "completed_at": "2026-10-09T00:55:44Z"
+        },
+        {
+          "name": "Resolve dependencies",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:55:44Z",
+          "completed_at": "2026-10-09T00:55:57Z"
+        },
+        {
+          "name": "Build production-like unsigned AAB",
+          "conclusion": "success",
+          "started_at": "2026-10-09T00:55:57Z",
+          "completed_at": "2026-10-09T01:02:45Z"
+        },
+        {
+          "name": "Build production-like unsigned inspection APK",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:02:45Z",
+          "completed_at": "2026-10-09T01:03:05Z"
+        },
+        {
+          "name": "Validate Android release candidate",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:03:05Z",
+          "completed_at": "2026-10-09T01:04:59Z"
+        },
+        {
+          "name": "Validate Android v2-only signature boundary",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:04:59Z",
+          "completed_at": "2026-10-09T01:08:21Z"
+        },
+        {
+          "name": "Post Set up Flutter",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:08:21Z",
+          "completed_at": "2026-10-09T01:08:21Z"
+        },
+        {
+          "name": "Post Checkout",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:08:21Z",
+          "completed_at": "2026-10-09T01:08:22Z"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success",
+          "started_at": "2026-10-09T01:08:22Z",
+          "completed_at": "2026-10-09T01:08:22Z"
+        }
+      ],
+      "proof": [
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/jobs/113616443203/metadata.json",
+          "sha256": "47654048f89b7dfc31f8f05fdc6a17607508c9b3db21595adf14f1aa764ccc2b"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/jobs/113616443203/annotations.json",
+          "sha256": "7d98c1dff6fccc079fc6e910c9c605566b1e6ead9418c651a20b7cee4c0c9ccf"
+        },
+        {
+          "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/ci-source-release/jobs/113616443203/collection-receipt.json",
+          "sha256": "65f624dbbf57f13ad00fb4bd751b7f93a6c52e9a0867452ce037a2b3c9cc3904"
+        }
+      ]
+    }
+  ],
+  "scope": "source/config and unsigned production recipe only; not TEST auth, signing/upload, runtime or pixel proof",
+  "qualified_results": {
+    "Android_unsigned": "PASS",
+    "iOS_unsigned": "PASS",
+    "iOS_adversarial_fixture_cases": 89,
+    "coverage_test_passed": 1095,
+    "coverage_test_skipped": 1,
+    "format_analyze": "PASS",
+    "performance_gate": "BLOCKED",
+    "performance_positive_markers": 11,
+    "whitespace_CI": "NOT_RUN",
+    "local_performance": "PASS 11 cases exit0, separate host lane",
+    "quality_cause": "Annotation: job exceeded maximum execution time of 20m0s; performance process cancelled despite eleven positive markers. No completed gate inferred."
+  },
+  "log_collection_limit": "Initial gh api job logs command failed exit1 with zero output for Quality/iOS; fallback gh run view --job --log succeeded and original receipts retained. No raw logs versioned."
+}

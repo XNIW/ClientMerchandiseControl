@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "review_role": "CODEX_RE_REVIEWER_READ_ONLY",
+  "review_outcome": "CHANGES_REQUIRED",
+  "scope": "PG_OPERATOR_PREPARATION_R1_ONLY",
+  "source_driver_sha256": "3b7b3743cc7c75f3ebb18c396f5527063143040cb15baea979ab8c893ceba120",
+  "source_manifest_sha256": "df43e83f73568d3702125906fe75bec91a12d49d6517400fa93db610dbfa6fb1",
+  "source_archived_at": "pg-operator/superseded-review-r1",
+  "findings": [
+    {
+      "id": "PG-01",
+      "severity": "P2",
+      "status": "OPEN_AT_R1",
+      "file": "pg_operator.py",
+      "location": "main profile load and apply entry",
+      "description": "Qualified profile is registered by SHA in batch manifest but loaded and used without digest enforcement. It determines accepted schema/baseline/stage errors before history INSERT.",
+      "evidence": "offline-poc-results.json profile_pin: modified in-memory stage permits exact baseline snapshot after alleged SQL exit0, then reaches record-history. Static main uses a direct load of qualified-profile.json.",
+      "impact": "Profile drift can weaken the reviewed fail-closed qualification and allow history recording before the expected migration stage is verified.",
+      "required_fix": "Hard-pin the qualified profile digest before the first CLI query and reject a profile different from the reviewed profile at non-learn apply entry.",
+      "regression": "Alter file and/or in-memory profile; reject before runner or history insertion."
+    },
+    {
+      "id": "PG-02",
+      "severity": "P2",
+      "status": "OPEN_AT_R1",
+      "file": "pg_operator.py",
+      "location": "post-history introspection before completed marker and pending unlink",
+      "description": "After committing history, only the new receipt and version set are verified. Contents of all preceding history rows are not compared with the previous digest.",
+      "evidence": "offline-poc-results.json prior_history_preservation: replay changes the post-history digest while keeping columns, versions and new receipt unchanged; original driver reaches final PASS and accepts altered digest in completed marker.",
+      "impact": "The driver cannot attest previous history preservation and can adopt an unexpected history-content change as its baseline. The PoC is control-flow evidence, not actual database corruption.",
+      "required_fix": "Read digest excluding the newly inserted version in the existing post-history readback and compare with before.history_digest before completing or removing pending.",
+      "regression": "Previous-history digest mismatch after INSERT must leave pending and stop before next canonical file; matching digest must proceed."
+    }
+  ],
+  "verified": {
+    "canonical_bytes_four_and_transaction_boundaries": "PASS STATIC peer independent 146 assertions",
+    "contract57_and_gate_unchanged": "PASS STATIC",
+    "native_transactions_three_wrapper_one": "PASS STATIC",
+    "pending_durability_and_no_auto_retry": "PASS STATIC plus retained crash/lostACK state readback",
+    "five_existing_clones_readonly": "PASS 5 commands exit0; transaction_read_only=on; prior history preserved in actual retained clones",
+    "remote_TLS_or_apply": "NOT_RUN",
+    "integrated_acceptance": "BLOCKED"
+  },
+  "observed_writer_cases": "19 primary plus 15 supplemental remain source-R1 author evidence, not rerun by reviewer.",
+  "offline_negative_pocs": {
+    "command_exit": 0,
+    "test_results": [
+      "FAIL expected PG-01 reproduced",
+      "FAIL expected PG-02 reproduced"
+    ],
+    "db_calls_executed": 0
+  },
+  "read_only_clone_summary": {
+    "scope": "READ_ONLY_EXISTING_CLONES_NETWORK_NONE",
+    "remote_SQL_calls": 0,
+    "mutating_SQL_calls": 0,
+    "baseline_history_digest": "e836920f67b44ccb47f433ec06a18beb",
+    "results": [
+      {
+        "command": [
+          "docker",
+          "exec",
+          "-i",
+          "cmc-task054-address-create-20261008",
+          "psql",
+          "-X",
+          "--no-password",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-Atq",
+          "-U",
+          "postgres",
+          "-d",
+          "task054_pg_operator_ok"
+        ],
+        "query_sha256": "a8604dbbb82af52c60c3964bb8c1e2b07b716b6594201c0f292332ff9f166f0c",
+        "exit_code": 0,
+        "elapsed_seconds": 0.11,
+        "observed": {
+          "database": "task054_pg_operator_ok",
+          "operator": "postgres",
+          "read_only": "on",
+          "rpc_count": 57,
+          "session_user": "postgres",
+          "history_count": 159,
+          "canonical_receipts": [
+            {
+              "name": "client_commerce_journey_v1",
+              "version": "20260823023037",
+              "statement_md5": "2204f4c519c0895d7bbfd1fd6ddf4aa4",
+              "statement_bytes": 149375,
+              "statement_elements": 1
+            },
+            {
+              "name": "customer_after_sales_order_lines_v1",
+              "version": "20260823150000",
+              "statement_md5": "677ceace91cbea5a99b7f17bb4eea2fd",
+              "statement_bytes": 8028,
+              "statement_elements": 1
+            },
+            {
+              "name": "customer_notification_hold_dedup",
+              "version": "20260928200000",
+              "statement_md5": "77221ca6ffb3ff751e825f41a8c40bad",
+              "statement_bytes": 697,
+              "statement_elements": 1
+            },
+            {
+              "name": "customer_address_create_intent_v3",
+              "version": "20261008151018",
+              "statement_md5": "021aa4141bdfacd245d6d60af5484d54",
+              "statement_bytes": 7874,
+              "statement_elements": 1
+            }
+          ],
+          "baseline_history_digest": "e836920f67b44ccb47f433ec06a18beb"
+        },
+        "stdout_sha256": "e90f89fe655f236b95d3d74afe68122eb08a0502c1ab6a894a8833711b2ce413",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "checks": "PASS READ_ONLY_LOCAL_CLONE"
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "-i",
+          "cmc-task054-address-create-20261008",
+          "psql",
+          "-X",
+          "--no-password",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-Atq",
+          "-U",
+          "postgres",
+          "-d",
+          "task054_pg_operator_rollback"
+        ],
+        "query_sha256": "a8604dbbb82af52c60c3964bb8c1e2b07b716b6594201c0f292332ff9f166f0c",
+        "exit_code": 0,
+        "elapsed_seconds": 0.099,
+        "observed": {
+          "database": "task054_pg_operator_rollback",
+          "operator": "postgres",
+          "read_only": "on",
+          "rpc_count": 32,
+          "session_user": "postgres",
+          "history_count": 155,
+          "canonical_receipts": [],
+          "baseline_history_digest": "e836920f67b44ccb47f433ec06a18beb"
+        },
+        "stdout_sha256": "26cfa8ca118e0dc61bf0c5d3d7535647dcd05b707d66e3c0e6f8b4e5b9b64615",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "checks": "PASS READ_ONLY_LOCAL_CLONE"
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "-i",
+          "cmc-task054-address-create-20261008",
+          "psql",
+          "-X",
+          "--no-password",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-Atq",
+          "-U",
+          "postgres",
+          "-d",
+          "task054_pg_operator_crash"
+        ],
+        "query_sha256": "a8604dbbb82af52c60c3964bb8c1e2b07b716b6594201c0f292332ff9f166f0c",
+        "exit_code": 0,
+        "elapsed_seconds": 0.103,
+        "observed": {
+          "database": "task054_pg_operator_crash",
+          "operator": "postgres",
+          "read_only": "on",
+          "rpc_count": 54,
+          "session_user": "postgres",
+          "history_count": 155,
+          "canonical_receipts": [],
+          "baseline_history_digest": "e836920f67b44ccb47f433ec06a18beb"
+        },
+        "stdout_sha256": "16abc817a4b5cc2a74ad874368f7ab616a5563ad0178a298480a37611fdb95c0",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "checks": "PASS READ_ONLY_LOCAL_CLONE"
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "-i",
+          "cmc-task054-address-create-20261008",
+          "psql",
+          "-X",
+          "--no-password",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-Atq",
+          "-U",
+          "postgres",
+          "-d",
+          "task054_pg_operator_histfail"
+        ],
+        "query_sha256": "a8604dbbb82af52c60c3964bb8c1e2b07b716b6594201c0f292332ff9f166f0c",
+        "exit_code": 0,
+        "elapsed_seconds": 0.103,
+        "observed": {
+          "database": "task054_pg_operator_histfail",
+          "operator": "postgres",
+          "read_only": "on",
+          "rpc_count": 54,
+          "session_user": "postgres",
+          "history_count": 155,
+          "canonical_receipts": [],
+          "baseline_history_digest": "e836920f67b44ccb47f433ec06a18beb"
+        },
+        "stdout_sha256": "be61c60f421941f9c99b8dbbc84d1d32b2dd6e634fc82487b007c49762bae162",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "checks": "PASS READ_ONLY_LOCAL_CLONE"
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "-i",
+          "cmc-task054-address-create-20261008",
+          "psql",
+          "-X",
+          "--no-password",
+          "-v",
+          "ON_ERROR_STOP=1",
+          "-Atq",
+          "-U",
+          "postgres",
+          "-d",
+          "task054_pg_operator_histack"
+        ],
+        "query_sha256": "a8604dbbb82af52c60c3964bb8c1e2b07b716b6594201c0f292332ff9f166f0c",
+        "exit_code": 0,
+        "elapsed_seconds": 0.1,
+        "observed": {
+          "database": "task054_pg_operator_histack",
+          "operator": "postgres",
+          "read_only": "on",
+          "rpc_count": 54,
+          "session_user": "postgres",
+          "history_count": 156,
+          "canonical_receipts": [
+            {
+              "name": "client_commerce_journey_v1",
+              "version": "20260823023037",
+              "statement_md5": "2204f4c519c0895d7bbfd1fd6ddf4aa4",
+              "statement_bytes": 149375,
+              "statement_elements": 1
+            }
+          ],
+          "baseline_history_digest": "e836920f67b44ccb47f433ec06a18beb"
+        },
+        "stdout_sha256": "b863657576f073f38b42c6b7b43b4dbbf2fc9711f8df904c660c3c950ebebf64",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "checks": "PASS READ_ONLY_LOCAL_CLONE"
+      }
+    ]
+  },
+  "source_modified_by_fixer_during_closeout": true,
+  "reviewer_modified_implementation_or_repository": false,
+  "remote_sql_calls": 0,
+  "db_mutations": 0,
+  "processes_terminal": true,
+  "evidence_hashes": {
+    "offline-pocs.py": "a7b1d456347a81a87fdfbbf52f1a8c91f5207db390f20beed51dfa3b1f40a9e8",
+    "offline-poc-results.json": "40a5fee2b6c7923844d0e99a92ae68a8d6561b03e6b831fcc333e010813395a6",
+    "clone-readonly.json": "d8129b8489916660669a1d91b661305627d8cecf5567d6a370a926004e9f4055",
+    "pending-readonly.json": "739147d6134f698571b1f3a141bb62b21d881af7931364db9dffbda79e31094d",
+    "peer-hash-tx/receipt.json": "6806ddc74e899c7e8d6bc61e567465dda087667656b5967868fa187a36e0f68b"
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "scope": "PREAPPLY_MANAGEMENT_METADATA_NOT_TLS_AUTH",
+  "observed_at": "2026-10-09T22:55:03.108437+00:00",
+  "project_ref": "jpgoimipbothfgkokyvm",
+  "previous_readback": "2026-10-09T00:16:20.802643+00:00",
+  "unchanged_since_previous": {
+    "contract": true,
+    "security": true,
+    "commerce_cron": true,
+    "readonly_role_exists": true
+  },
+  "expected_delta_status": "PASS",
+  "schema_status": "FAIL",
+  "rpcs_present": 32,
+  "indexes_present": 1,
+  "history": 155,
+  "schema_errors": [
+    "missing_rpc:customer_address_create_reconcile_v3",
+    "missing_rpc:customer_address_create_v3",
+    "missing_rpc:customer_address_delete_v2",
+    "missing_rpc:customer_address_upsert_v2",
+    "missing_rpc:customer_addresses_read_v2",
+    "missing_rpc:customer_after_sales_cancel_v1",
+    "missing_rpc:customer_after_sales_create_v1",
+    "missing_rpc:customer_after_sales_evidence_register_v1",
+    "missing_rpc:customer_after_sales_evidence_upload_ticket_v1",
+    "missing_rpc:customer_after_sales_list_v1",
+    "missing_rpc:customer_after_sales_order_lines_v1",
+    "missing_rpc:customer_checkout_quote_create_v2",
+    "missing_rpc:customer_delivery_context_read_v1",
+    "missing_rpc:customer_delivery_context_select_v1",
+    "missing_rpc:customer_notification_mark_read_v1",
+    "missing_rpc:customer_notifications_list_v1",
+    "missing_rpc:customer_notifications_mark_all_read_v1",
+    "missing_rpc:customer_order_reorder_apply_v1",
+    "missing_rpc:customer_order_reorder_preview_v1",
+    "missing_rpc:customer_review_submit_v1",
+    "missing_rpc:customer_review_update_v1",
+    "missing_rpc:customer_reviews_list_v1",
+    "missing_rpc:storefront_delivery_context_preview_v1",
+    "missing_rpc:storefront_product_reviews_v1",
+    "missing_rpc:storefront_search_suggestions_v1",
+    "missing_migration:20260823023037",
+    "missing_migration:20260823150000",
+    "missing_migration:20260928200000",
+    "missing_migration:20261008151018",
+    "missing_index:customer_notification_events_safe_dedup_idx"
+  ],
+  "unexpected_contract_errors": [],
+  "operator_identity": {
+    "database": "postgres",
+    "cron_usage": true,
+    "current_user": "postgres",
+    "session_user": "postgres",
+    "public_create": true,
+    "postgres_member": true,
+    "app_private_create": true,
+    "transaction_read_only": "on"
+  },
+  "readonly_role_attributes": {
+    "name": "supabase_read_only_user",
+    "login": true,
+    "create_db": false,
+    "superuser": false,
+    "bypass_rls": true,
+    "create_role": false,
+    "replication": false
+  },
+  "commerce_cron": [
+    {
+      "name": "storefront-promotion-reconcile-v1",
+      "jobid": 1,
+      "active": true,
+      "schedule": "* * * * *",
+      "command_md5": "f6f4b3c8926b7b2195e3b7f267270df2"
+    },
+    {
+      "name": "storefront-reservation-hold-expire-v1",
+      "jobid": 2,
+      "active": true,
+      "schedule": "* * * * *",
+      "command_md5": "0d60a28ed4bc82ff660a017b911c6249"
+    },
+    {
+      "name": "storefront-checkout-quote-expire-v1",
+      "jobid": 3,
+      "active": true,
+      "schedule": "* * * * *",
+      "command_md5": "7f3bc0554dc0895712da347244049fe9"
+    },
+    {
+      "name": "storefront-delivery-tracking-cleanup-v1",
+      "jobid": 4,
+      "active": true,
+      "schedule": "*/15 * * * *",
+      "command_md5": "c572917e6d9cab89a1252f929dbd6efe"
+    }
+  ],
+  "cron_inflight": [],
+  "write_locks": [],
+  "TLS_gate": "NOT_RUN",
+  "apply": "NOT_RUN",
+  "window_exclusion": "NOT_PROVEN",
+  "source_response_sha256": "4ae7ff4ad2f95cc56772624c44b31acdbb6107bf09057527d3c9405655069cf2",
+  "source_query_sha256": "de0d0da99bcce5e17ca6e0c29d340f4cde6bc3e5fcd264a601626e043e86960c",
+  "contract_gate_source_commit": "8fc7f8dc5221f22a393ffbe73c4f5827654e171f",
+  "readonly_query": "BEGIN READ ONLY; metadata SELECT with statement_timeout10s; ROLLBACK",
+  "MCP_isError": false,
+  "parse_initial_failure": {
+    "exit_code": 1,
+    "tool_chunk": "780d75",
+    "cause": "Warning mentions the boundary tag inline; parser corrected to anchored opening tag using the same saved response, no new remote query."
+  }
+}

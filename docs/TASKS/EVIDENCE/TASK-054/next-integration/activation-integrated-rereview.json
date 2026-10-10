@@ -1,0 +1,238 @@
+{
+  "schema": "task054.final_activation_integrated_review.v1",
+  "recorded_at_utc": "2026-10-09T23:57:28.261202+00:00",
+  "reviewer": "/root/final_audit",
+  "role": "CODEX_RE_REVIEWER",
+  "phase": "REVIEW",
+  "verdict": "BLOCKED",
+  "handoff": "CODEX_REVIEW_BLOCKED",
+  "integrated_approved": false,
+  "qualification": "Review distinta read-only del delta autorizzato e delle evidence congelate. Nessun finding aperto; gate obbligatori remoti, runtime e distribuzione ancora non superati.",
+  "scope": {
+    "docs_base": "7fc3643200c26129faf45a077cb770077710524d",
+    "frozen_staged_files": 59,
+    "documents": 7,
+    "new_capsules": 52,
+    "valid_JSON": 50,
+    "freeze_sha256": "349f5d4fc8fb1f23a124ff43655b56b9dfbd8a72f34f82a96e1a9421d970f494",
+    "source_head": "3f8d3d19a46d95bc7b7eb494a8f5b85a42372428",
+    "Quality_source": "8fc7f8dc5221f22a393ffbe73c4f5827654e171f",
+    "unsigned_release_source": "f513330fbeef6139a5b9d278cc6824ce5c6bcc63"
+  },
+  "independent_checks": {
+    "acceptance_matrix": {
+      "PASS": 40,
+      "FAIL": 0,
+      "R_IDs": 30,
+      "R_rows": 31,
+      "historic_E2E": 25,
+      "historic_E2E_status": "BLOCKED",
+      "canonical_criteria_preserved": true
+    },
+    "capsule_fidelity": {
+      "PASS": 177,
+      "FAIL": 0,
+      "private_copies_exact": 52
+    },
+    "hygiene": {
+      "frozen_disk_and_index_exact": 59,
+      "JSON_valid": 50,
+      "relative_file_links": 262,
+      "missing_links": 0,
+      "diff_check_exit_code": 0,
+      "unstaged_bytes": 0,
+      "untracked": 0,
+      "source_paths_in_document_delta": 0
+    },
+    "last_readonly_closecheck": {
+      "freeze_and_59_files_exact": true,
+      "source_3f8_clean": true
+    }
+  },
+  "closed_editorial_findings": [
+    "AM-01: tracking base R17 e provider distinti",
+    "AM-FINAL-01: README CI terminale e scope 3f8",
+    "AM-FINAL-02: checkpoint pre-native storico esplicito e superseduto dall’handoff corrente"
+  ],
+  "findings": [],
+  "qualified_successes": [
+    {
+      "id": "QUALITY_8FC",
+      "result": "PASS",
+      "evidence": "Run 38001393798 terminale SUCCESS: 23 step, 1095 test PASS + 1 SKIP, analyze, 11 benchmark e whitespace PASS; durata 18m46s. Due release SKIPPED=NOT_RUN in questa dispatch. Nessun miglioramento causale dedotto dal budget 25min, né copertura CI estesa a 3f8 per inferenza."
+    },
+    {
+      "id": "SOURCE_ASSOCIATION",
+      "result": "PASS",
+      "evidence": "f513→8fc: solo due YAML; 8fc→3f8: solo due script headless. Source 3f8 pulito. Rispetto al freeze UI 16e, le sole due lib modificate sono config/attestazione: nessun claim di applicazione interamente byteimmutata."
+    },
+    {
+      "id": "HEADLESS_PREPARATION",
+      "result": "PASS",
+      "evidence": "Tre regressioni nuove con RED e GREEN reali: suite 50 test GREEN exit0. Review del wrapper privata e cinque finding chiusi. Preparazione/source approval scoped; il successivo build nativo è FAIL."
+    },
+    {
+      "id": "NEGATIVE_NATIVE_FIDELITY",
+      "result": "PASS",
+      "evidence": "26 verifiche primarie + 13 peer; raw capsule da9c956a… distinta da normalized/public 6009bf95…. Prepare, process trace, log del build, source e cleanup associati; la fedeltà del negativo non è runtime acceptance."
+    },
+    {
+      "id": "ANDROID_HISTORICAL_SCOPE",
+      "result": "PASS",
+      "evidence": "77 immagini delta Android e riuso 64 hash già qualificati scoped sullo SHA storico f326. Address journal R04/R25 distinto da checkout R13/R14; nessun PASS checkout inferito."
+    }
+  ],
+  "mandatory_gate_matrix": [
+    {
+      "id": "PREAPPLY_EXPECTED_DELTA",
+      "result": "PASS",
+      "evidence": "Catalogo TEST 2026-10-09 22:55:03 UTC: 32/57 RPC conformi, 25 assenti; delta previsto, nessuna deriva inattesa. Non è schema completo né apply."
+    },
+    {
+      "id": "REMOTE_FULL_SCHEMA",
+      "result": "FAIL",
+      "evidence": "TEST: 32/57 RPC, 1/2 indici, quattro migration canoniche assenti, history 155. Il clone locale completo non sostituisce TEST.",
+      "unblock": "Apply autorizzato e POST completo 57 RPC/2 indici/history 159 riconciliata con le versioni canoniche."
+    },
+    {
+      "id": "READONLY_TLS",
+      "result": "NOT_RUN",
+      "evidence": "Nessun handshake eseguito; target diretto/session-pooler distinto da MCP. CA ufficiale già recuperata.",
+      "unblock": "Hostname ufficiale session-pooler e riferimento protetto passfile readonly; verifica TLS reale. BYPASSRLS readonly non prova Auth/isolamento Client."
+    },
+    {
+      "id": "CANONICAL_APPLY_AND_RECOVERY",
+      "result": "NOT_RUN",
+      "evidence": "Procedura PG R2 qualificata in preparazione; operatore distinto da readonly non autenticato. Nessun apply remoto. SQL e history sono transazioni distinte con pending durevole; nessuna atomicità globale dichiarata.",
+      "unblock": "Service/passfile operatore dedicato, recovery mutable fresca, finestra reale writer/cron e readback successivo completo. Il wrapper MCP non espone la versione canonica."
+    },
+    {
+      "id": "WRITER_CRON_WINDOW",
+      "result": "BLOCKED",
+      "evidence": "Fotografia fresca: quattro cron attivi, inflight 0 e write-lock 0. Non dimostra esclusione dei writer.",
+      "unblock": "Pause/drain/restore dei tre job pertinenti e coordinamento dei writer; job cleanup separato, snapshot/recovery rinnovati."
+    },
+    {
+      "id": "WORKER_ACTIVATION",
+      "result": "NOT_RUN",
+      "evidence": "Versione 22107a6f-f515-44c4-8392-a8e5653ff0b8 ancora 100%, 23 binding invariati; Mini Auth/catalog ON. Bundle e rollback preparati, nessun nuovo deploy/rollback/smoke.",
+      "unblock": "Backend completo compatibile e GO/finestra reale con W. OAuth già recuperato; nessun requisito universale iOS, firma o Google."
+    },
+    {
+      "id": "IOS_NATIVE",
+      "result": "FAIL",
+      "evidence": "Source 3f8: lock PASS, Prepare headless PASS con runtime 26.5 e UUID proprio; review-alone exit 1 prima dell’app: SDK 27 richiede deployment >=15, target 14 preservato. Sei dipendenti NOT_RUN, 0 PNG/UI; cleanup PASS, UUID rimosso, processCleanupFailed=false. Il precedente esperimento hosted Xcode 26.5 resta FAIL pre-Flutter distinto.",
+      "unblock": "Superficie esistente, nominata e autorizzata compatibile con deployment 14, runtime 26.5 e Flutter/lock congelati; poi sequenza isolata/trio/journal/build/security/smoke/visual. Xcode 26.5 esatto non è requisito universale. Nessun nuovo retry o modifica min14 qui."
+    },
+    {
+      "id": "CLIENT_TEST_AUTH_AND_BUSINESS",
+      "result": "NOT_RUN",
+      "evidence": "Config compilata/attestazione e release unsigned non provano TEST Auth. Google TEST A/callback HTTPS esatto e accesso operatore/pilota non qualificati.",
+      "unblock": "Input protetti per A e dominio/callback, accesso operatore; Codex può generare pilota/dataset sintetici nel perimetro autorizzato. B soltanto per isolamento. Provider opzionali OFF per i percorsi base ammessi."
+    },
+    {
+      "id": "SIGNED_DISTRIBUTION",
+      "result": "NOT_RUN",
+      "evidence": "Release unsigned f513 PASS distinta da artifact TEST firmati e installati. Team/profile/channel iOS e destinazione/canale Android non qualificati.",
+      "unblock": "Riferimenti protetti di firma e canali/destinazioni per ciascuna piattaforma; upload/installazione e prova reale indipendenti."
+    },
+    {
+      "id": "LIVE_RECOVERY_TRACKING_R24",
+      "result": "NOT_RUN",
+      "evidence": "R24 conserva due origini native e richiede nuove catene Save/ACK→Admin→Client. Tracking base/owner resta distinto dal provider opzionale. La prova N SQLSTATE 57014 è limitata a finestra temporale/classi UA; catalogo cinque funzioni e default 8s non provano request unico, piano o timeout effettivo.",
+      "unblock": "Sessioni TEST autorizzate e percorsi reali a backend completo; nessun fix generico Sync/Storefront dedotto dalle metadata."
+    },
+    {
+      "id": "NATIVE_ACCESSIBILITY_AND_PHYSICAL_PERFORMANCE",
+      "result": "NOT_RUN",
+      "evidence": "Controller 24px NOT_TRAVERSED/NOT_VERIFIED. Android storico scoped e benchmark host restano separati da iOS corrente, AT e prestazioni fisiche.",
+      "unblock": "Visuale reale per piattaforma/locale/200%, focus/AT e profiling fisico richiesti dai criteri."
+    }
+  ],
+  "negative_and_history_preservation": [
+    "Primo Quality f513 cancellato al budget 20min: marker performance positivi senza uscita aggregata restano BLOCKED; whitespace NOT_RUN.",
+    "Fallimento hosted pre-Flutter e preflight GUI assente conservati; Prepare locale successivo non li cancella.",
+    "Local review-alone FAIL prima di install/start/firstframe; nessun finding UI/controller derivato da un percorso non attraversato.",
+    "RLS/catalogo MCP e readonly BYPASSRLS non promossi ad Auth/isolamento.",
+    "Storico 25 E2E, criteri CA/T e TASK-055 preservati; nessuna production, apply, deploy, merge, DONE o reset."
+  ],
+  "boundary_review": {
+    "CA_official_owner_input": false,
+    "operator_separate_from_TLS_readonly": true,
+    "artifact_identity_preapply": "Identità TEST deterministica già recuperata; callback, pilota e firma completi sono prerequisiti dei rispettivi percorsi Client, non gate universali DB/Worker.",
+    "pilot_dataset": "Generabile da Codex dopo accesso operatore autorizzato; A per primo percorso, B solo isolamento.",
+    "iOS_toolchain": "Esatta26.5 soltanto per esperimento hosted già concluso; fallback nominato compatibile con min14/runtime26.5/lock.",
+    "cron": "Tre job pertinenti distinti dal cleanup.",
+    "N_metadata": "Proiezione sanitizzata e catalogo readonly, senza RPC/EXPLAIN ANALYZE/write; nessuna atribuzione univoca né diagnosi generica."
+  },
+  "PR29_readonly_observation": {
+    "result": "PASS",
+    "command_exit_code": 0,
+    "state": "OPEN",
+    "draft": true,
+    "head": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+    "base": "main",
+    "merged": false,
+    "qualification": "Source 8fc e 3f8 sono revisioni pubblicate separatamente; head PR29 non sostituito da questa review."
+  },
+  "receipts": [
+    {
+      "path": "pre-review-staged-r2.json",
+      "sha256": "349f5d4fc8fb1f23a124ff43655b56b9dfbd8a72f34f82a96e1a9421d970f494"
+    },
+    {
+      "path": "public-private-provenance.json",
+      "sha256": "ea86b2378c986f4ad3361ee9a5dcb768a99860dad9f40053d434f0fce11008d5"
+    },
+    {
+      "path": "review/final-activation-acceptance-review.json",
+      "sha256": "a955b5e3669426357ac18c38abf407aa34348355738edf8d0d26dcad18a5bfce"
+    },
+    {
+      "path": "review/final-activation-capsule-review.json",
+      "sha256": "b3a15c4c711fe568e2c14286aabbaf552cc3d784104dc25b7d3ae33d5682a4b6"
+    },
+    {
+      "path": "review/final-activation-freeze-hygiene-review.json",
+      "sha256": "8b7fc254b3eacbf9f2d7f3f2c762a95c129f181358aae3ba9e139fc1cdcfa696"
+    },
+    {
+      "path": "review/final-activation-source-hashes.json",
+      "sha256": "98ddffb052a4b78065330873cfeeabd6e97c5aa0ba150a725344da5383d054b2"
+    },
+    {
+      "path": "review/local-native-fidelity-review.json",
+      "sha256": "c132d2bee470c2edf4eb84df8849e34f51141cbeb2e111cb7f3165fb8e0be061"
+    },
+    {
+      "path": "review/local-native-peer-review.json",
+      "sha256": "32f1e46bbfd06bce99dd949be62e73b95a3cf97b801f93981eb53896f5dd4854"
+    },
+    {
+      "path": "review/local-native-review-association.json",
+      "sha256": "35174440c3ec5f88a0158d9bd163dd6ecb12146afa2f72385dba3fdd768c1fdd"
+    },
+    {
+      "path": "review/local-wrapper-rereview.json",
+      "sha256": "2a64751d9fab078305ad6c18c0b1d16a60820bfd3617b6faf3de6be315f90a02"
+    },
+    {
+      "path": "review/quality-budget/retry-terminal-evidence-review.json",
+      "sha256": "9d9f4975eff62e563539a81fb2c4b14f9c17418712381fe58bc7c602f695a621"
+    }
+  ],
+  "required_documentary_closeout": {
+    "result": "NOT_RUN",
+    "reason": "Trascrizione del presente verdetto non ancora effettuata al freeze R2.",
+    "next": "Unico writer trascrive esclusivamente Review/handoff e riferimenti, copia esatta JSON/MD; poi security canonico sui sette documenti realmente cambiati e nuove capsule, governance/diff/JSON/link e narrow metadata recheck indipendente. Nessun nuovo gate app/native/SQL/CI richiesto da tale delta."
+  },
+  "security_scope": "Security canonico precedente PASS su 61 file (R1 59doc/caps + 2script); R2 cambia tre editoriali. Il prossimo delta documentale viene verificato separatamente, senza attribuire la scansione precedente a byte successivi.",
+  "limits": [
+    "Review read-only: letture Git/file/JSON/hash e metadata API; nessuna modifica repo/Git, query SQL remota, CI mutation/retry, nuovo test prodotto, build, boot o UI.",
+    "Gate CI/native/TLS/Auth riportati dai log/capsule ispezionati e associati, non rieseguiti dal reviewer. Alcuni exit esterni sono receipt dell’executor; nessun PASS inferito da colore/marker.",
+    "Native trace comprende Prepare in-process e figli esterni; inventario simctl finale raw non persistito, cleanup provato da exit0/receipt/codice canonico e osservazione readonly UUID assente.",
+    "N SQLSTATE57014 e default8s non identificano un singolo request/device/sessione né un piano eseguito.",
+    "Tutti i comandi di reviewer e peer sono terminali; le auto-verifiche inizialmente negative e poi corrette dei checker rimangono nelle rispettive receipt."
+  ],
+  "all_commands_terminal": true
+}

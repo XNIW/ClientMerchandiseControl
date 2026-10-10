@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-09T00:35:02.756208+00:00",
+  "scope": "PREAPPLY_INPUTS_NOT_ACTIVATION",
+  "canonical_package": {
+    "result": "PASS",
+    "authority_commit": "f16c5f4f37051e7876a847fb1ae2e544c89377d2",
+    "integrated_authority_commit": "02ea44b95d4a05baddbf46f24251f0d5f0dea294",
+    "files": [
+      {
+        "file": "20260823023037_client_commerce_journey_v1.sql",
+        "sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+        "result": "PASS"
+      },
+      {
+        "file": "20260823150000_customer_after_sales_order_lines_v1.sql",
+        "sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467",
+        "result": "PASS"
+      },
+      {
+        "file": "20260928200000_customer_notification_hold_dedup.sql",
+        "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e",
+        "result": "PASS"
+      },
+      {
+        "file": "20261008151018_customer_address_create_intent_v3.sql",
+        "sha256": "b290c6373d2d49a3c9fb4847e5ee8f47f2ce11f4eeeb17da4d3fc4086a615e56",
+        "result": "PASS"
+      }
+    ]
+  },
+  "CLI_attempts": [
+    {
+      "command": "supabase projects list --output-format json",
+      "exit_code": 0,
+      "specific_project_endpoint": "NOT_VERIFIED",
+      "detail": "Response wrapper alone does not establish target endpoint/auth"
+    },
+    {
+      "command": "supabase init in owned private workdir",
+      "exit_code": 0
+    },
+    {
+      "command": "supabase link to TEST in owned private workdir, no password supplied",
+      "wrapper_exit_code": 1,
+      "result": "BLOCKED",
+      "timeout_seconds": 60,
+      "endpoint_created": false,
+      "remote_side_effects": "NOT_VERIFIED"
+    },
+    {
+      "command": "supabase projects list --output-format json, one bounded parse retry",
+      "wrapper_exit_code": 1,
+      "result": "BLOCKED",
+      "timeout_seconds": 25
+    }
+  ],
+  "CLI_process_handling": "subprocess timeout kills and waits on direct child",
+  "own_cli_process_check": {
+    "command": "ps -axo pid=,ppid=,comm=,args=; owned executable/command filter",
+    "exit_code": 0,
+    "matching_process_count": 0,
+    "foreign_argv_retained": false
+  },
+  "dashboard": {
+    "result": "BLOCKED",
+    "cause": "Official Connect redirects to Supabase/GitHub login; no credentials entered"
+  },
+  "CA": {
+    "result": "PASS",
+    "reference": "certs/certificate-receipt.json",
+    "handshake": "NOT_RUN"
+  },
+  "readonly_connection": {
+    "result": "NOT_RUN",
+    "attempted": false,
+    "missing": [
+      "Official exact session-pooler hostname",
+      "Protected PostgreSQL readonly authentication reference"
+    ]
+  },
+  "operator_channel": {
+    "result": "PASS",
+    "scope": "MCP readonly identity/privilege metadata only",
+    "current_user": "postgres",
+    "apply": "NOT_RUN",
+    "cron_mutations": "NOT_RUN",
+    "canonical_versioning": "NOT_VERIFIED: MCP apply_migration exposes no version argument; separate audit in progress"
+  },
+  "config_scope": "Existing APP_ENV staging and TEST URL identify preapply target; complete OAuth/pilot/signing config is required only for related Client lanes",
+  "schema_delta": "preapply-metadata-summary.json",
+  "window": {
+    "result": "NOT_RUN",
+    "cause": "No new window activated while compatibility of the actual operator apply channel with canonical migration history is still under audit; snapshot/restore inputs must be refreshed in the actual window.",
+    "candidate_cron_jobs": [
+      1,
+      2,
+      3
+    ],
+    "excluded_without_further_overlap_evidence": [
+      4
+    ],
+    "dispatcher_owner": "To identify before actual apply window",
+    "instant_empty_inflight_and_locks_proves_exclusion": false
+  },
+  "apply": "NOT_RUN",
+  "deploy": "NOT_RUN",
+  "local_capsule_first_attempt": {
+    "exit_code": 1,
+    "cause": "Canonical migration files are under supabase/migrations; initial local hash probe used package root. Corrected path; no remote operation."
+  }
+}

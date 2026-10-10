@@ -13,17 +13,26 @@
 - **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — CI nativa iOS e gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: risolvere i prerequisiti concreti del registro
-  residui; re-review indipendente conclusa BLOCKED sul composto PR29
-  `f326faa`, CI37848510649 terminale con cinque job PASS e due runtimeiOS
-  FAILpreapp nel postboot inventory;0PNG/0OSiOS, cleanupPASSscoped.
-  Quality1064PASS+1SKIP,11benchmark; Android92fixture/137PNG+4OS e journal
-  restartPASS. Reviewpixel77delta APPROVED scoped,64immagini identiche riusate
-  con scope storico. Backendreadback21:58:32/57RPCconformi,25assenti,
-  quattrocanonicheassenti,1/2indici/history155. Recoverypopolata/workerdPASS
-  locali; apply/deployTEST non eseguiti per TLS/input/IPv6/finestraDBcron.
-  W/N e dispositivi preservati; nessun merge, DONE, TASK055 o production.
+- **Review integrata**: BLOCKED — runtime iOS e gate live; integrazione sviluppo separata e condizionata
+- **Prossima azione autorizzata**: completare l'attivazione TEST secondo mandato
+  `8da5e50f`: gate DB direct/session-pooler revisionato0cec105; CA ufficiale
+  recuperata. Readback22:55UTC del9ottobre conferma delta atteso PASS, schema
+ 32/57 FAIL e history155. Il canale MCP legge come postgres, ma il wrapper
+  apply non espone versioni canoniche: procedura operatore PG approvata R2 scoped,
+  riferimento service/passfile operatore distinto ancora assente.
+   Unico esperimento Xcode26.5 run37863497939 terminale FAIL124 prima Flutter;
+   cleanup PASS e0PNG. Mac locale disponibile Xcode27.0/runtime26.5: GUI mancante
+   riprodotta prima create; fix headless3f8d3d1 revisionato17+9controlli e50testPASS,
+   Prepare locale PASS su UUID proprio/runtime26.5; recensioneisolata FAIL build
+   SDK27 minimum15 contro target14 primaapp. CleanupPASS,0PNG,6dipendentiNOT_RUN;
+   serve superficie esistente con SDK compatibile14, senza Xcode26.5 universale.
+   Preflight distribuzione TEST source revisionata dopo RED e due P2; CI37867138429
+   f513330 unsignedAndroid/iOSPASS. Quality8fc38001393798 terminalePASS23step,
+   1095test/1SKIP+11performance; delta headless ha prove scoped proprie. Owner input
+   richiesti una volta, separati per DB, Auth e piattaforma; la superficie locale
+   ha ora mostrato incompatibilità build14 e serve un SDK compatibile esistente. Nessuna migration/cron/deploy eseguita;
+   Worker22107a6f confermato22:54UTC. Nessun DONE o merge Client.
+
 
 ## Repository coinvolti
 
@@ -32,13 +41,14 @@
   authority canonica; main verificata02ea44b9,159sorgenti e155receipt TEST;
   TASK159/Worker selettivo appartiene a W, modifiche concorrenti preservate.
   Le riconciliazioni4532831b/f21339bb precedenti rimangono nelle evidence storiche.
-- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, owner N; PR23 integrata in main9d5c270b il8ottobre; runtime aggiornato e R24 non qualificati.
-- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, owner N; PR21 corrente3212799e aperta al checkpoint8ottobre18:17UTC; main433e7daf è il riferimento storico, non prova runtime nuova.
+- `XNIW/MerchandiseControlSplitView` — owner N riferisce PR26 merged, mainbbbda83 e APK74e75 installato con preservazione; N9ott riferisce Cloud account connected, write/scope/convergenza da provare; R24 NOT_RUN.
+- `XNIW/iOSMerchandiseControl` — owner N riferisce PR21 merged, mainb869c9b e Proper2cb5de installato; N9ott riferisce Cloud account connected; diagnostica errori8ott storica, write/scope da provare; R24 NOT_RUN.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
-- Supabase TEST — snapshot Management API readonly dell'8 ottobre19:59UTC:
+- Supabase TEST — snapshot MCP readonly del9ottobre22:55UTC:
   32/57RPC presenti e conformi,25assenti,quattro migration canoniche assenti,
-  1/2indici,history155. Gate TLS distinto BLOCKED; nessun apply o repair remoto.
+  1/2indici,history155; delta atteso PASS. Gate TLS distinto NOT_RUN per input
+  assenti; nessun apply o repair remoto.
   Recovery popolata57RPC/2indici/history159 PASS esclusivamente nel clone isolato.
 - Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 

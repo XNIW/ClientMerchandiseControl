@@ -3,10 +3,12 @@
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
 Merchandise Control. Il codice include catalogo, account, carrello, checkout,
 ordini, consegna, inbox, assistenza e recensioni. Il readback TEST TASK-054
-dell'8 ottobre 2026 rileva32/57RPC conformi,25 mancanti e quattro migration non
+del9 ottobre 2026 rileva32/57RPC conformi,25 mancanti e quattro migration non
 applicate; risorse esterne restano da configurare per OAuth, indirizzi assistiti e push: il prodotto non è dichiarato
 operativamente completo. Il [rapporto verificabile](docs/TASKS/EVIDENCE/TASK-054/README.md)
-separa codice, SQL locale, staging, dispositivi e distribuzione.
+separa codice, SQL locale, staging, dispositivi e distribuzione. Quality8fc è PASS
+1095test/1SKIP+11performance. Il nuovo Prepare iOS headless passa, ma SDK27
+non compila il target14 richiesto; le prove UI dipendenti restano NOT_RUN.
 
 ## Relazione con Merchandise Control
 
@@ -74,10 +76,12 @@ flutter run --dart-define-from-file=config/app_config.local.json
 `config/*.local.json` è ignorato. Non inserire service role, secret key, password o valori
 production nel repository.
 
-Per preparare staging, copiare l'esempio nel file locale ignorato, valorizzare URL,
-publishable key non-production e `STOREFRONT_SHOP_SLUG` con lo slug pubblico assegnato;
-mantenere `GOOGLE_AUTH_ENABLED=false`: il runtime distribuibile non abilita OAuth
-finché non esiste un dominio HTTPS posseduto e verificato:
+Per preparare staging, copiare l'esempio nel file locale ignorato e valorizzare
+URL, publishable key TEST e `STOREFRONT_SHOP_SLUG`. Il percorso base senza OAuth
+mantiene `GOOGLE_AUTH_ENABLED=false`; l'Auth TEST autorizzata richiede il dominio
+HTTPS controllato, `AUTH_CALLBACK_VERIFIED_HOST` e la callback esatta
+`https://<host>/auth-callback/`, oltre alle associazioni native e hosted verificate.
+Il sentinel `.invalid` dell'esempio non dimostra ownership o login operativo.
 
 ```bash
 cp config/app_config.staging.example.json config/app_config.staging.local.json
@@ -86,16 +90,11 @@ flutter build apk --debug --dart-define-from-file=config/app_config.staging.loca
 flutter build ios --simulator --debug --dart-define-from-file=config/app_config.staging.local.json
 ```
 
-Il contratto staging richiede il sentinel non instradabile
-`https://clientmerchandisecontrol.invalid/auth-callback/` e rifiuta il flag `true`.
-Il sentinel non è registrato come callback nativa e non dichiara ownership. Una futura
-riattivazione richiede App Links/Universal Links verificati e un task autorizzato.
-Sessione e verifier restano protetti in Keychain/Keystore. Development, staging OAuth
-e production restano fail-closed. TASK-011 continua a verificare il solo endpoint Auth
-health senza tabelle o dati; TASK-012 non aggiunge query o dati commerciali.
-TASK-013 usa lo slug esclusivamente con l'RPC pubblico `storefront_home_v1`;
-TASK-014 estende lo stesso boundary con `storefront_categories_v1` e
-`storefront_catalog_v1`.
+TASK-054 distingue configurazione, firma, callback e prova Google reale. La nuova
+qualifica esplicita del preflight TEST ha review source approvata; Quality8fc è
+terminale PASS e il successivo runner3f8 ha review e50test scoped. Gli artifact unsigned già verificati
+non attestano distribuzione o login. Sessione e verifier rimangono protetti in
+Keychain/Keystore, e la configurazione non valida fallisce in modo chiuso.
 
 ### Mappa delivery opzionale
 
@@ -199,7 +198,8 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
 
-Il candidato PR29 `f326faa` è draft; CI37848510649 terminale5PASS/2FAIL
+Checkpoint storico8ottobre del candidato PR29 `f326faa`, ancora draft:
+CI37848510649 terminale5PASS/2FAIL
 iOSpostbootinventory, prima dell'app. Android92fixture e137PNG+4OS; review
 mirata73Flutter+4OS senza nuovi finding,64riusi perhash con limiti storici.
 Il badge predefinito è corretto negli8stati journal; iOS0PNG e gate nativi
@@ -207,6 +207,12 @@ NOT_RUN. Quality1064PASS+1SKIP,11benchmark; unsignedAndroid/iOSPASS.
 TEST21:58:32/57RPCconformi,25assenti,4migrationassenti,1/2indici/history155.
 Worker22:13 versione22107a6f invariata; nessunapply/deploy/installClient.
 Il rapporto sul branch evidence distingue tutti i livelli e i prerequisiti.
+
+Nel corrente9ottobre, source8fc Quality38001393798 è PASS1095/1SKIP+11performance;
+runner headless3f8 source APPROVED/50test, PreparelocalePASS e buildcriticaFAIL
+primaapp per SDK27min15 contro target14. CleanupPASS/0PNG, nessunapply/deploy.
+Il [rapporto corrente](docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md)
+e il registro residui prevalgono sul checkpoint storico sopra.
 
 TASK-054 è riaperto dal mandato del 2026-09-28 per audit funzionale e completamento
 nel perimetro di sviluppo. Le attestazioni di closeout seguenti sono storiche:

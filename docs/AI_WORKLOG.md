@@ -5554,3 +5554,94 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
   TASK-054 BLOCKED/REVIEW, nessun merge, DONE, TASK-055, apply/deploy/install
   Client o attività production.
+
+## 2026-10-08 — TASK-054 ripresa attivazione TEST e runtime iOS
+
+- **Ruolo/fase**: CODEX_FIXER / FIX, mandato utente8da5e50f già autorizzato.
+- **Baseline**: PR29f326faa, freezeapp16e4681, sourced4a7e97, evidence7fc3643.
+- **Piano autorizzato**: trasporto DB direct/session-pooler e controlli del target;
+  preapply distinto dalla compatibilità finale; un esperimento Xcode26.5 prima
+  delle prove native costose. Riuso recovery/workerd/Android nei propri scope.
+- **Ownership**: due filoni separati; coordinatore DB/cron/config e owner Worker
+  coordinato con W. Dispositivi N preservati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-09 — TASK-054 attivazione preparata e Quality corretto
+
+- **Ruolo/fase**: CODEX_FIXER / FIX; ripresa esplicita dell'utente.
+- **Source**: f513330 associa26file già revisionati;8fc7f8d modifica solo2YAML,
+  Quality20→25min, dispatchquality_only/defaultfalse. Review24+15PASS scoped;
+  pin/diff/3testgovernance exit0, sourceworktreeclean/trackingallineati.
+- **CI**:37867138429 terminaleunsignedAndroid/iOSPASS, iOS89fixture;
+  Qualitycancelled20min dopo1095PASS/1SKIP/analyzePASS.11marker non bastano per
+  PerformancePASS; host11testexit0/55s distinto.38001393798 Qualitycompleto in corso,
+  release2SKIPPED con riusobyteimmutati f513, nessun retryruntimeiOS.
+- **DB**: gate30test/re-review10PASS; CAufficialePASS; proceduraPG R2 APPROVEDscoped,
+  P2PG01/02chiusi, SQL/historycommit separati e pendingdurevole; zeroSQLremoto nel
+  driver. SoloMCPmetadatareadonly22:55: deltaattesoPASS, schema32/57/1indice/history155FAIL.
+- **Worker**: readbackCLIreadonly22:54PASS:22107a6f100%,23binding/digestinvariati,
+  MiniAuth/catalogON. Nessun deploy/finestraGO. Wcoordination senza devicesN.
+- **iOS/Client**: unica37863497939FAIL124primaFlutter/cleanupPASS/0PNG;27.0 è
+  l'unicoXcodelocale22:50, nessuna superficie26.5 inferita dal Mac disponibile.
+  ConfigTESTpreflightAPPROVEDsource dopo2P2chiusi; Auth/signedartifact/liveNOT_RUN.
+- **Input**: unico manifest pronto, canalePGoperatore distinto esplicitato; Afirst,
+  Bsolo isolamento, pilot/dataset generabili dopoaccesso; provider specifici.
+- **Consegna**: attesa Qualityterminale e re-review distinta del nuovo freeze.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-09 — TASK-054 Quality terminale e fallback locale preparato
+
+- **Ruolo/fase**: CODEX_FIXER / FIX; autorizzazione già ricevuta.
+- **Quality**:38001393798/8fc7f8d SUCCESS,23step terminali,1095PASS/1SKIP,
+  11performance e whitespace PASS,18min46s; nessuna causalità della durata inferita.
+- **Source headless**:3f8d3d1 pubblicato; solo runner/test, opt-in omette guard/openGUI.
+  RED50/2errori e GREEN50/OK exit0; review distinta17+9PASS SOURCE_DELTA_ONLY,
+  associazione dei due blob e trackingclean PASS. Nessun nuovo tentativo hosted.
+- **Locale**:Xcode27.0/27A266a SDK27.0, Flutter3.44.8/058e, target14 invariato,
+  runtime26.5 disponibile. PrepareGUI reale exit2 prima create/UUID, cleanupPASS;
+  non prova incompatibilità del percorso simctl headless.
+- **Risorse**:N riserva ora il breve slot MiniW; nessun Prepare/UUIDClient reale.
+  Root attende il rilascio esplicito e poi usa35min/UUID proprio/noDeviceHub/N.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-09 — TASK-054 Fix concluso con native negativo qualificato
+
+- **Ruolo/fase**: CODEX_FIXER→CODEX_RE_REVIEWER / FIX→REVIEW.
+- **Source**:3f8d3d19 runnerheadless,2script/50testGREEN/review17+9PASS, source
+  clean/trackingesatto. Quality8fc SUCCESS1095/1SKIP+11performance,23step;
+  reviewer28checksPASS e2releaseSKIPPED byte-bound unsignedf513.
+- **Wrapper**:5finding privati chiusi primaavvio, review20staticPASS e8offline
+  classifications; nessun timeout900 o minimo14 cambiati, ownershipcanonico.
+- **Native**:77733exit1 terminale23:36:11; elapsed68.059s entro35min,
+  PreparePASS27.241/runtime26.5, reviewaloneFAIL1/35.101 buildSDK27min15 vs14
+  primaapp;6dependentNOT_RUN/0PNG. CleanupPASS3.868/UUIDgone/processiPASS.
+  Review26+13PASS solo fedeltà negativa; UI24pxNOT_TRAVERSED/NOT_VERIFIED.
+- **N**: singolaRetryiOSHTTP500/57014STATEMENT_TIMEOUTproiezioneowner; root
+  catalogoreadonly23:40:59 conferma5func/callchains/defaults8s/nooverride.
+  Nessuna RPCheavy/piano/write/migration; noexactrequestcorrelation oR24PASS.
+- **Input**: operator-reference-manifest protetto aggiornato conlocalnativeFAIL
+  eSDKinventario; superficie esistente/support14 necessaria dopo prova reale,
+  endpoint/service/passfilePGdistinti e A/domain/pilota/firma ancora mancanti.
+- **Stato**:BLOCKED/REVIEW; nessunprocessorootattivo odevicesW/Nmutati.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-09 — TASK-054 re-review distinta dell’attivazione
+
+- **Ruolo/fase**: CODEX_RE_REVIEWER / REVIEW, reviewer `/root/final_audit`
+  distinto dai writer; root trascrive soltanto il verdetto e l’handoff.
+- **Esito**: BLOCKED, zero finding aperti. Freeze R2:59file esatti,52copie,
+  50JSONvalidi,262link;40controlli matrice e177fedeltà PASS. Receipt JSON
+  `cbac9191b689fed01e57e1336af377efc20d4e2560cb2d2112d13a03fe27d790`.
+- **Gate aperti**: schemaTESTFAIL32/57; apply/finestra/Worker/Auth/distribuzione
+  e prove live non concluse; iOSSDK27/target14FAILprimaapp, cleanupPASS,
+  6dipendentiNOT_RUN. Nessun APPROVED integrato, merge o DONE.
+- **Evidence**: [verbale distinto](TASKS/EVIDENCE/TASK-054/next-integration/activation-integrated-rereview.md)
+  e [capsula](TASKS/EVIDENCE/TASK-054/next-integration/activation-integrated-rereview.json).
+- **Controlli documentali**: governance/diff e51JSON/271link PASS; scanner
+  canonico del delta finale9file PASS (7documenti+2capsule verbale), distinto
+  dalla scansione precedente61file. Questa sola annotazione ha verifica separata.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

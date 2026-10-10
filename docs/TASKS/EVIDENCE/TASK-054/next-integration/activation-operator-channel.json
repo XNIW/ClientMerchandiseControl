@@ -1,0 +1,185 @@
+{
+  "schema": "task054-backend-channel-audit-v1",
+  "recorded_at_utc": "2026-10-09T00:40:26.073247+00:00",
+  "mandate": "8da5e50f-ba0f-4fd8-ab3c-9c4e0dd785c2",
+  "scope": "READONLY_OFFLINE_CHANNEL_AND_RECOVERY_PROCEDURE_AUDIT",
+  "audit_status": "PASS",
+  "remote_sql_calls": 0,
+  "remote_mutations": false,
+  "repository_changes": false,
+  "package_files": [
+    {
+      "file": "20260823023037_client_commerce_journey_v1.sql",
+      "version": "20260823023037",
+      "sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "manifest_match": true,
+      "static_wrapper_incompatible_pattern_hits": {
+        "transaction_control": 2,
+        "concurrent_index": 0,
+        "vacuum": 0
+      },
+      "bytes": 149375
+    },
+    {
+      "file": "20260823150000_customer_after_sales_order_lines_v1.sql",
+      "version": "20260823150000",
+      "sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467",
+      "manifest_match": true,
+      "static_wrapper_incompatible_pattern_hits": {
+        "transaction_control": 0,
+        "concurrent_index": 0,
+        "vacuum": 0
+      },
+      "bytes": 8028
+    },
+    {
+      "file": "20260928200000_customer_notification_hold_dedup.sql",
+      "version": "20260928200000",
+      "sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e",
+      "manifest_match": true,
+      "static_wrapper_incompatible_pattern_hits": {
+        "transaction_control": 2,
+        "concurrent_index": 0,
+        "vacuum": 0
+      },
+      "bytes": 697
+    },
+    {
+      "file": "20261008151018_customer_address_create_intent_v3.sql",
+      "version": "20261008151018",
+      "sha256": "b290c6373d2d49a3c9fb4847e5ee8f47f2ce11f4eeeb17da4d3fc4086a615e56",
+      "manifest_match": true,
+      "static_wrapper_incompatible_pattern_hits": {
+        "transaction_control": 2,
+        "concurrent_index": 0,
+        "vacuum": 0
+      },
+      "bytes": 7874
+    }
+  ],
+  "package_manifest_sha256": "49ef380397c06140a51aa3b2f76b1fa288b632300fd8f00303b71a42893f6b98",
+  "existing_recovery": {
+    "summary": "/Users/minxiang/.codex/outputs/task054-completion-20261008/backend/populated-ledger/summary.json",
+    "sha256": "289bb7abe0e301b67c4bf6ad50e7f24fa3d3346da9a8632f43d024438c031845",
+    "qualification": "Previously executed local scoped populated-ledger recovery reused; mutable TEST export still needs refresh in actual window"
+  },
+  "read_metadata_receipt": {
+    "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/access/preapply-metadata-summary.json",
+    "sha256": "296629fa95ebc59b38b6fe602a75d13a29c00ce63ff8a3e4b70e0253d62344f2",
+    "observed_at": "2026-10-09T00:16:20.802643+00:00",
+    "expected_delta_status": "PASS",
+    "operator_identity": {
+      "database": "postgres",
+      "cron_usage": true,
+      "current_user": "postgres",
+      "session_user": "postgres",
+      "public_create": true,
+      "postgres_member": true,
+      "app_private_create": true,
+      "transaction_read_only": "on"
+    },
+    "rpcs_present": 32,
+    "indexes_present": 1,
+    "history": 155,
+    "unexpected_contract_errors": []
+  },
+  "channel_decision": {
+    "MCP_metadata": "PASS",
+    "MCP_apply_canonical_versions": "BLOCKED_PROCEDURE_COMPATIBILITY",
+    "reason": "apply_migration has no version argument; name is not a version, generated history cannot be asserted canonical; SQL+history backend atomicity not publicly attested",
+    "MCP_execute_sql_DDL": "NOT_USED_TOOL_REQUIRES_APPLY_MIGRATION",
+    "MCP_history_repair_after_apply": "NOT_QUALIFIED_NONATOMIC_RECONCILIATION",
+    "operator_PG_reference": "REQUIRED_SEPARATELY_FROM_READONLY_ROLE",
+    "PostgreSQL_readonly_TLS": "NOT_RUN_DISTINCT_LANE",
+    "POST57_metadata": "NOT_RUN",
+    "Client_RLS_AUTH_LIVE": "NOT_RUN"
+  },
+  "operator_action_prepared": {
+    "reference_kind": "protected operator PostgreSQL service+passfile locator",
+    "target": "jpgoimipbothfgkokyvm",
+    "endpoint": "official direct or exact Session pooler endpoint verified to target; no cluster inference",
+    "tls": "verify-full using existing public CA",
+    "operator_role": "approved DDL/cron role, not readonly role",
+    "readonly_role_reference": "separate; not a universal prerequisite to operator-channel authorization",
+    "requested_again": false
+  },
+  "existing_manifest_prerequisite_correction": {
+    "original_manifest_unchanged": true,
+    "original_universal_readonly_TLS_prerequisite": "historical runbook constraint, superseded by mandate8da5 separation of operator channel and readonly gate",
+    "full57_preapply": "not required; missing25/fourmigration/oneindex are expected delta"
+  },
+  "own_processes_terminal": true,
+  "sources": [
+    {
+      "title": "Apply a migration",
+      "url": "https://supabase.com/docs/reference/api/v1-apply-a-migration"
+    },
+    {
+      "title": "Run a query",
+      "url": "https://supabase.com/docs/reference/api/v1-run-a-query"
+    },
+    {
+      "title": "Upsert without applying",
+      "url": "https://supabase.com/docs/reference/api/v1-upsert-a-migration"
+    },
+    {
+      "title": "Official MCP",
+      "url": "https://supabase.com/docs/guides/ai-tools/mcp"
+    }
+  ],
+  "audit_md_sha256": "1b51042431b5974ca1110d885f82baefca450a8a7522baf44ded8db7e80aeec6",
+  "limits": [
+    "No remote SQL called in this audit.",
+    "No assertion about undocumented generated-version algorithm or backend migration transaction implementation.",
+    "Three canonical files contain their own BEGIN/COMMIT; no global transaction claimed. SQL/history commits separate in pending per-file protocol."
+  ],
+  "correction": {
+    "recorded_at_utc": "2026-10-09T00:45:55.891452+00:00",
+    "finding": "Prior MD/message claimed no transaction control although initial package_files already recorded2matches for3files",
+    "actual_native_transactions": {
+      "20260823023037_client_commerce_journey_v1.sql": [
+        7,
+        3602
+      ],
+      "20260928200000_customer_notification_hold_dedup.sql": [
+        3,
+        13
+      ],
+      "20261008151018_customer_address_create_intent_v3.sql": [
+        3,
+        180
+      ]
+    },
+    "no_native_transaction": "20260823150000_customer_after_sales_order_lines_v1.sql",
+    "global_wrapper": "WITHDRAWN_NOT_EXECUTED",
+    "per_file_protocol": "Qualified local per-file protocol with separate history transaction, durable pending, negative crash/ACK proof and independent R2 scoped approval",
+    "originals": {
+      "AUDIT.md": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/superseded-initial-audit/AUDIT.md",
+        "sha256": "f8808bc08907f0d33378328bce90734ea54aa7ea5b18b95f2058b559f834ded6"
+      },
+      "audit.json": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/superseded-initial-audit/audit.json",
+        "sha256": "4439dd745ff2c5446b2217eafabaa81742a4de35c3866f1460e0ff0603404a2e"
+      }
+    }
+  },
+  "operational_delta": {
+    "status": "PASS",
+    "review": "APPROVED_SCOPED_PREPARATION",
+    "capsule": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/operator-capsule.json",
+      "sha256": "50ba6a61d9b0848c5e975847f0c1de359ed0d122bb3b9021d67206e31926203e"
+    },
+    "review_r2": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/operator-review/r2-review.json",
+      "sha256": "137babae1f23ba7bbc51b538b0ff112eb62ea3f3bb422746714bb45a79a77c4f"
+    },
+    "driver_sha256": "825ae0ae214d4dcfa1fe8f57a2bbcc0742e7f6799f8cf5c593488ead9bc708ba",
+    "batch_manifest_sha256": "db17d17d79831dc524b34bc8504974bb720df75121bff1ee8c1a65166c57e644",
+    "global_atomic": false,
+    "SQL_history_atomic_together": false,
+    "remote_apply": "NOT_RUN",
+    "own_processes_terminal": true
+  }
+}

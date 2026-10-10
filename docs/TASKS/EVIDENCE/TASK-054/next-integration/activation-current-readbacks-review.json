@@ -1,0 +1,167 @@
+{
+  "schema": "task054-current-readbacks-fidelity-review-v1",
+  "created_at_utc": "2026-10-09T23:00:26.333920+00:00",
+  "reviewer": "/root/final_audit",
+  "verdict": "APPROVED",
+  "scope": "OFFLINE_FIDELITY_AND_MANIFEST_RECOMPUTATION_ONLY",
+  "checks": {
+    "PASS": 23,
+    "FAIL": 0,
+    "items": [
+      {
+        "name": "public_preapply_exact_private",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "public_worker_exact_private",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "source_response_sha256",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "source_query_sha256",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "contract_unchanged:rpcs",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "contract_unchanged:indexes",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "contract_unchanged:migrations",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "metadata_unchanged:security",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "metadata_unchanged:commerce_cron",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "metadata_unchanged:readonly_role_exists",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "metadata_unchanged:readonly_role_attributes",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "schema_errors_recomputed_exact",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "expected_delta_exact_30_only",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "conforming_manifest_32_of_57",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "readback_1_of_2_indexes_history155",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "expected_delta_PASS_schema_FAIL",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "metadata_not_TLS_or_apply",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "MCP_postgres_readonly_not_Client_auth",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "cron_four_active_no_exclusion_claim",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "initial_parse_FAILURE_preserved_same_response",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "worker_old_version100_23bindings_MiniON",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "worker_actual_readonly_terminal_commands",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "name": "worker_deploy_and_window_not_claimed",
+        "result": "PASS",
+        "detail": ""
+      }
+    ]
+  },
+  "inputs": [
+    {
+      "path": "/Users/minxiang/.codex/worktrees/task054-operational-completion/ClientMerchandiseControl/docs/TASKS/EVIDENCE/TASK-054/next-integration/activation-preapply-current.json",
+      "sha256": "ece0313a875bc767657d3313463fec04a5de85885d48176542e53145e8c015b1"
+    },
+    {
+      "path": "/Users/minxiang/.codex/worktrees/task054-operational-completion/ClientMerchandiseControl/docs/TASKS/EVIDENCE/TASK-054/next-integration/activation-worker-current.json",
+      "sha256": "239175b846b54999cf1f04f06f1661f097d572242ab3a9225e8639f25d22094e"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/access/preapply-metadata-normalized.json",
+      "sha256": "24a1b22b3f6bbb36983fed6bbe7493e18e632f6b78950470e6540dcdd514544c"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/access/preapply-metadata-normalized-20261009T2255.json",
+      "sha256": "05cf6aa761272a5195bb8a1dbdc946381b7fc6b1adb9e3bc7df8c5c01f881703"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/access/preapply-metadata-response-20261009T2255.json",
+      "sha256": "4ae7ff4ad2f95cc56772624c44b31acdbb6107bf09057527d3c9405655069cf2"
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/access/preapply-metadata.sql",
+      "sha256": "de0d0da99bcce5e17ca6e0c29d340f4cde6bc3e5fcd264a601626e043e86960c"
+    },
+    {
+      "path": "/Users/minxiang/.codex/worktrees/task054-final-completion/ClientMerchandiseControl/docs/contracts/client-backend-rpc-manifest.json",
+      "sha256": "9eadce2cfddbb894dc6e018a26d5ff152dc69b05dd1c6d9fee9c83f83a9585b8"
+    },
+    {
+      "path": "/Users/minxiang/.codex/worktrees/task054-final-completion/ClientMerchandiseControl/scripts/check-backend-compatibility.py",
+      "sha256": "2db803a7080eb1d8796cc0bb7d3cf6d1121cb08d8d987d19b432a861aa2a9d07"
+    }
+  ],
+  "remote_read_repeated": false,
+  "remote_SQL": false,
+  "Client_Auth_proven": false,
+  "integrated_verdict": "BLOCKED",
+  "all_own_commands_terminal": true
+}

@@ -1,0 +1,311 @@
+{
+  "schemaVersion": 1,
+  "created_at": "2026-10-09T00:29:26.917012+00:00",
+  "reviewer": "/root/ios_xcode265/ios_workflow_review",
+  "scope": "TERMINAL_IOS_EVIDENCE_FIDELITY_ONLY",
+  "verdict": "APPROVED",
+  "qualification": "APPROVED_TERMINAL_EVIDENCE_FIDELITY_ONLY",
+  "revision": "530260b2db7ff29a81f14b7ec5f06f678a862ded",
+  "run_id": 37863497939,
+  "capsule_sha256": "fddb4bb2cc4f2be68d1b6a8d1cceae5319398ec3b557a947f67f6a11a84a4905",
+  "markdown_sha256": "51a332118f42ddde18d25183d01cb0c1529c1dfb367207dc6af9809c4ffbeb3b",
+  "checks": [
+    {
+      "name": "frozen_json_sha",
+      "status": "PASS"
+    },
+    {
+      "name": "frozen_md_sha",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_sha:run-terminal.json",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_sha:run-terminal.log",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_sha:artifacts/task054-ios-measured/ios-measured/result.json",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_sha:artifacts/task054-ios-measured/ios-measured/owner.json",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_sha:artifacts/task054-ios-measured/ios-measured/processes.jsonl",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_sha:artifacts/metadata.json",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_sha:artifacts/download-receipts.json",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_sha:artifacts/task054-ios-measured-previews/manifest.json",
+      "status": "PASS"
+    },
+    {
+      "name": "proof_sha:review/xcode265-source-review.json",
+      "status": "PASS"
+    },
+    {
+      "name": "run_id_head_and_terminal",
+      "status": "PASS"
+    },
+    {
+      "name": "event_attempt_timestamps",
+      "status": "PASS"
+    },
+    {
+      "name": "single_terminal_job",
+      "status": "PASS"
+    },
+    {
+      "name": "only_preflight_failed",
+      "status": "PASS"
+    },
+    {
+      "name": "nine_skipped_steps",
+      "status": "PASS"
+    },
+    {
+      "name": "cleanup_and_artifact_steps_success",
+      "status": "PASS"
+    },
+    {
+      "name": "exit124_in_real_log",
+      "status": "PASS"
+    },
+    {
+      "name": "image_metadata_real_setup",
+      "status": "PASS"
+    },
+    {
+      "name": "artifact_count",
+      "status": "PASS"
+    },
+    {
+      "name": "artifact_metadata:task054-ios-measured-previews",
+      "status": "PASS"
+    },
+    {
+      "name": "artifact_hash_api_log:task054-ios-measured-previews",
+      "status": "PASS"
+    },
+    {
+      "name": "artifact_size:task054-ios-measured-previews",
+      "status": "PASS"
+    },
+    {
+      "name": "artifact_crc:task054-ios-measured-previews",
+      "status": "PASS"
+    },
+    {
+      "name": "artifact_file_manifest:task054-ios-measured-previews",
+      "status": "PASS"
+    },
+    {
+      "name": "extracted_bytes:task054-ios-measured-previews/manifest.json",
+      "status": "PASS"
+    },
+    {
+      "name": "no_png_in_artifact:task054-ios-measured-previews",
+      "status": "PASS"
+    },
+    {
+      "name": "artifact_metadata:task054-ios-measured",
+      "status": "PASS"
+    },
+    {
+      "name": "artifact_hash_api_log:task054-ios-measured",
+      "status": "PASS"
+    },
+    {
+      "name": "artifact_size:task054-ios-measured",
+      "status": "PASS"
+    },
+    {
+      "name": "artifact_crc:task054-ios-measured",
+      "status": "PASS"
+    },
+    {
+      "name": "artifact_file_manifest:task054-ios-measured",
+      "status": "PASS"
+    },
+    {
+      "name": "extracted_bytes:task054-ios-measured/ios-measured/owner.json",
+      "status": "PASS"
+    },
+    {
+      "name": "extracted_bytes:task054-ios-measured/ios-measured/processes.jsonl",
+      "status": "PASS"
+    },
+    {
+      "name": "extracted_bytes:task054-ios-measured/ios-measured/result.json",
+      "status": "PASS"
+    },
+    {
+      "name": "extracted_bytes:task054-ios-measured/ios-measured/simctl-help.txt",
+      "status": "PASS"
+    },
+    {
+      "name": "no_png_in_artifact:task054-ios-measured",
+      "status": "PASS"
+    },
+    {
+      "name": "result_preflight_exit_and_app",
+      "status": "PASS"
+    },
+    {
+      "name": "actual_toolchain_no_mock",
+      "status": "PASS"
+    },
+    {
+      "name": "real_toolchain_print_matches_receipt",
+      "status": "PASS"
+    },
+    {
+      "name": "initial_inventory",
+      "status": "PASS"
+    },
+    {
+      "name": "owner_context",
+      "status": "PASS"
+    },
+    {
+      "name": "owner_device_runtime",
+      "status": "PASS"
+    },
+    {
+      "name": "cleanup_receipts_exact",
+      "status": "PASS"
+    },
+    {
+      "name": "cleanup_overall",
+      "status": "PASS"
+    },
+    {
+      "name": "owner_never_ready",
+      "status": "PASS"
+    },
+    {
+      "name": "preview_noinput",
+      "status": "PASS"
+    },
+    {
+      "name": "native_gates_not_run",
+      "status": "PASS"
+    },
+    {
+      "name": "trace184_sequence",
+      "status": "PASS"
+    },
+    {
+      "name": "trace_monotonic",
+      "status": "PASS"
+    },
+    {
+      "name": "trace_terminal",
+      "status": "PASS"
+    },
+    {
+      "name": "bootstatus_exact",
+      "status": "PASS"
+    },
+    {
+      "name": "timeout_exact",
+      "status": "PASS"
+    },
+    {
+      "name": "timeout_budget30",
+      "status": "PASS"
+    },
+    {
+      "name": "leader_alive_zero_output",
+      "status": "PASS"
+    },
+    {
+      "name": "inherited_pipe_not_demonstrated",
+      "status": "PASS"
+    },
+    {
+      "name": "term_delivered",
+      "status": "PASS"
+    },
+    {
+      "name": "eperm_probe_only",
+      "status": "PASS"
+    },
+    {
+      "name": "ps_group_zombie",
+      "status": "PASS"
+    },
+    {
+      "name": "leader_reaped",
+      "status": "PASS"
+    },
+    {
+      "name": "primary_preserved",
+      "status": "PASS"
+    },
+    {
+      "name": "owned_shutdown_delete_terminal",
+      "status": "PASS"
+    },
+    {
+      "name": "final_inventory_terminal",
+      "status": "PASS"
+    },
+    {
+      "name": "source_review_bound",
+      "status": "PASS"
+    },
+    {
+      "name": "no_fix_claim",
+      "status": "PASS"
+    },
+    {
+      "name": "selfhost_transcription_integrity",
+      "status": "PASS"
+    }
+  ],
+  "counts": {
+    "pass": 66,
+    "fail": 0,
+    "trace_events": 184,
+    "archives": 2,
+    "skipped_steps": 9,
+    "raw_png": 0,
+    "preview_png": 0
+  },
+  "independent_remote_readback": {
+    "proof": "xcode265-independent-run-metadata.json",
+    "sha256": "b9b31949268a52ba9e7c37cc1319d11c2bca9754fb5b0faa261ada8057baca45",
+    "tool_chunk": "60d11e",
+    "exit_code": 0,
+    "api_calls": 1
+  },
+  "technical_outcome": {
+    "preflight": "FAIL",
+    "exit_code": 124,
+    "native": "NOT_RUN",
+    "cleanup": "PASS"
+  },
+  "limitations": [
+    "Source and test approval remain the previous xcode265-source-review; no suite rerun in this fidelity pass.",
+    "Artifact metadata API receipts were collected by executor; reviewer independently recomputed exact ZIP SHA/CRC, extraction bytes and matched upload log digests. Only run metadata was refreshed independently remotely.",
+    "Self-hosted inventory zero is executor transcription tied to tool0011c8. No independent second runner query was made and no claim that no other authorized Mac exists.",
+    "Raw inventory JSON bodies are retained only as hashes in trace; cleanup identity/readback is supported by exact canonical owner receipt, trace exit codes and scoped command log, not reconstructed raw inventory rows.",
+    "Communicate48.801089958s is measured wrapper duration, including observer operations; command timeout remains30s. OS scheduling cause and inherited pipe not demonstrated.",
+    "All executor commands terminal is an executor statement; reviewer independently verified hosted completed status, full trace-end and own commands terminal.",
+    "No iOS application execution, journal, review usability,24px localization, Auth TEST or task closeout approval."
+  ],
+  "source_workspace": "clean/aligned530260b observed by git status/rev-parse tool87fb8c",
+  "writes": "review output only; no source/global docs/device/dispatch/mutations"
+}

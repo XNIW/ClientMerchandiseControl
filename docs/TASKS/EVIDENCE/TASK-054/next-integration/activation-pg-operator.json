@@ -1,0 +1,151 @@
+{
+  "schema": "task054-pg-operator-readiness-v1",
+  "recorded_at_utc": "2026-10-09T01:07:53.849915+00:00",
+  "mandate": "8da5e50f-ba0f-4fd8-ab3c-9c4e0dd785c2",
+  "target": "jpgoimipbothfgkokyvm",
+  "preparation_status": "PASS",
+  "review_outcome": "APPROVED",
+  "review_scope": "PG_OPERATOR_PREPARATION_R2_ONLY",
+  "integrated_status": "BLOCKED",
+  "artifacts": {
+    "instructions": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator/README.md",
+      "sha256": "b2227f8936bf2b60d34e8186f618bca34844000a201e5ff921bfa804759bce46"
+    },
+    "driver": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator/pg_operator.py",
+      "sha256": "825ae0ae214d4dcfa1fe8f57a2bbcc0742e7f6799f8cf5c593488ead9bc708ba"
+    },
+    "batch_manifest": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator/batch-manifest.json",
+      "sha256": "db17d17d79831dc524b34bc8504974bb720df75121bff1ee8c1a65166c57e644"
+    },
+    "operator_command": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator/run-operator.sh",
+      "sha256": "bc7d02ffc1f09365d5b95d775c9ef9eb4f8b3386c24ce15fecd10209d52d9a93"
+    },
+    "readonly_introspection": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator/preapply-introspection.sql",
+      "sha256": "34ee6850388e00ee21abfc3629832b0ba6019be8bac56509c454478e3d3f648e"
+    },
+    "qualified_profile": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator/qualified-profile.json",
+      "sha256": "1bf4a44a54495cb76ef0712be29af936556f12025f9dc3f3742a4f5e2f9452e7"
+    },
+    "review_r2": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/operator-review/r2-review.json",
+      "sha256": "137babae1f23ba7bbc51b538b0ff112eb62ea3f3bb422746714bb45a79a77c4f"
+    },
+    "review_r2_md": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/operator-review/R2-REVIEW.md",
+      "sha256": "98ccf3d41ceb963eb5d57671a25a9338ff62f648adefa4a2f74fe5017572d71d"
+    },
+    "review_r1": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/operator-review/r1-review.json",
+      "sha256": "9d8eed18a70b77c4a0001e9f5fe4d16e87db6ebcdc68c9c1931bc91241805081"
+    }
+  },
+  "canonical_package_manifest_sha256": "49ef380397c06140a51aa3b2f76b1fa288b632300fd8f00303b71a42893f6b98",
+  "canonical_four": [
+    {
+      "version": "20260823023037",
+      "canonical_file": "20260823023037_client_commerce_journey_v1.sql",
+      "canonical_sha256": "741faa0f2d5480e9a38e29216555c182043234a3d8aec784f642e716e5da66cc",
+      "native_transaction": true,
+      "canonical_segment_unchanged": true
+    },
+    {
+      "version": "20260823150000",
+      "canonical_file": "20260823150000_customer_after_sales_order_lines_v1.sql",
+      "canonical_sha256": "18fbab7904dcecd901e9237b03164db7dd84f9e3e67619eeb19eccc2a2b55467",
+      "native_transaction": false,
+      "canonical_segment_unchanged": true
+    },
+    {
+      "version": "20260928200000",
+      "canonical_file": "20260928200000_customer_notification_hold_dedup.sql",
+      "canonical_sha256": "818d6d98976da46676ab2bfff20759cea50666d932d950346e324af630256b8e",
+      "native_transaction": true,
+      "canonical_segment_unchanged": true
+    },
+    {
+      "version": "20261008151018",
+      "canonical_file": "20261008151018_customer_address_create_intent_v3.sql",
+      "canonical_sha256": "b290c6373d2d49a3c9fb4847e5ee8f47f2ce11f4eeeb17da4d3fc4086a615e56",
+      "native_transaction": true,
+      "canonical_segment_unchanged": true
+    }
+  ],
+  "transaction_model": {
+    "native_transactions": 3,
+    "wrapper_only_order_lines": 1,
+    "canonical_bytes_changed": false,
+    "SQL_history_atomic_together": false,
+    "global_atomic": false,
+    "history_receipt": "Separate transaction after SQL exit0 and exact full57 stage readback; exact version/name/one-element full canonical UTF8 statements text[]",
+    "crash_gap": "Durable fsync pending before SQL; failure/unknown keeps pending; no automatic retry or repair",
+    "previous_history_preservation": "Digest excluding new version compared to pre-INSERT digest before completed/unlink pending"
+  },
+  "proof": {
+    "R1_primary": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator/local-rehearsal/summary.json",
+      "sha256": "aa42717e5765e32851db93ae3a8afea84de8acace9d666ca49eb70d820c90d27"
+    },
+    "R1_supplement": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator/local-rehearsal/additional-summary.json",
+      "sha256": "912762428a1c1449a3ba5f9996bb9663d086a573054d5c669538403cc637e233"
+    },
+    "R2_targeted_fix": {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator/fix-regression/summary.json",
+      "sha256": "df8147b871b637a81504d63a24d8ee146412541effee2404e1cc44e40ab77970"
+    },
+    "R1_real_local_result": {
+      "RPCs": 57,
+      "indexes": 2,
+      "history": 159,
+      "canonical_versions_added": 4
+    },
+    "R1_cases": {
+      "primary": 19,
+      "primary_commands": 66,
+      "supplement": 15,
+      "supplement_SQL_commands": 11
+    },
+    "R2_writer_cases": 13,
+    "R2_writer_local_readonly_commands": 2,
+    "R2_reviewer_offline_cases": 5,
+    "R2_reviewer_local_readonly_commands": 2,
+    "R2_peer_assertions": 170,
+    "association": "R1 real apply/rollback/crash cases belong to archived protocol. Current source R2 has targeted fix, offline full control-flow replay, two actual readonly queries, independent re-review. No complete source-R2 apply is claimed."
+  },
+  "closed_findings": [
+    "PG-01",
+    "PG-02"
+  ],
+  "remote": {
+    "operator_auth_TLS": "NOT_RUN",
+    "TEST_apply": "NOT_RUN",
+    "POST57_metadata": "NOT_RUN",
+    "PostgreSQL_readonly_role_TLS": "NOT_RUN",
+    "Client_AUTH_RLS_live": "NOT_RUN",
+    "blocker": "Missing verified official reachable endpoint and protected operator PostgreSQL service/passfile references; actual writer/cron window and fresh mutable recovery must be confirmed before execution",
+    "owner_input_already_requested_by_root": true,
+    "MCP_metadata": "PASS at previously recorded00:16UTC delta32/57+4missing+1/2+history155; distinct from PG TLS, writes and Client acceptance"
+  },
+  "correction": {
+    "global_transaction_suggestion": "Withdrawn; three canonical files have own BEGIN/COMMIT. Global TX was implementation suggestion, not user gate. Per-file protocol qualified with explicit commit gap.",
+    "initial_audit_preserved": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/superseded-initial-audit",
+    "R1_driver_and_manifest_preserved": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator/superseded-review-r1"
+  },
+  "safety": {
+    "root_is_only_remote_operator": true,
+    "remote_SQL_calls": 0,
+    "repository_changes": false,
+    "cron_changes": false,
+    "full_recovery_suites_repeated": false,
+    "new_downloads_or_containers": false,
+    "own_processes_terminal": true,
+    "permissions": "directories0700/files0600",
+    "secrets_or_real_customer_data_in_capsule": false
+  }
+}

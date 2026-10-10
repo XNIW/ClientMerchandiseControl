@@ -1,0 +1,25 @@
+{
+  "schema": "task054-local-native-review-association-v1",
+  "recorded_at_utc": "2026-10-09T23:40:29.900219+00:00",
+  "source_commit": "3f8d3d19a46d95bc7b7eb494a8f5b85a42372428",
+  "primary_review_sha256": "c132d2bee470c2edf4eb84df8849e34f51141cbeb2e111cb7f3165fb8e0be061",
+  "primary_checks_PASS": 26,
+  "peer_review_sha256": "32f1e46bbfd06bce99dd949be62e73b95a3cf97b801f93981eb53896f5dd4854",
+  "peer_checks_PASS": 13,
+  "qualification": "TERMINAL_NEGATIVE_EVIDENCE_FIDELITY_ONLY",
+  "integrated_verdict": "BLOCKED",
+  "version_metadata": {
+    "Xcode_version_plist_sha256": "99aa0f4ffa738d03c9d86b273745d4a3945c7cdc7462221033fb807463d895e9",
+    "Xcode_version": "27.0",
+    "Xcode_ProductBuildVersion": "27A266a",
+    "SDKSettings_sha256": "b8c86f02919d336244af1509b95b3bdaf9fd1151ee97ba188f5f77b301ed4a1e",
+    "SDK_canonical_name": "iphonesimulator27.0",
+    "SDK_MinimumDeploymentTarget": "15.0"
+  },
+  "runtime": "iOS26.5; Prepare PASS only",
+  "app_start": "NOT_TRAVERSED",
+  "source_minimum_iOS": "14.0 unchanged",
+  "negative_preserved": true,
+  "all_reviewer_and_peer_commands_terminal": true,
+  "no_reviewer_boot_UI_build_test_retry_simctl_SQL_CI": true
+}

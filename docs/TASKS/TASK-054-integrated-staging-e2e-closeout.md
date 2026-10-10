@@ -1093,3 +1093,114 @@ Il gate security completo1032 file PASS precede i delta editoriali finali;
 ricevute dello scan canonico ristretto, governance, link e hygiene finali nel
 percorso protetto `task054-completion-20261008/final-review/`.
 TASK-054 resta BLOCKED/REVIEW. Nessun merge, DONE o attivazione TASK-055.
+
+## Emendamento utente e ripresa Fix — attivazione TEST, 2026-10-08
+
+Il mandato `8da5e50f-ba0f-4fd8-ab3c-9c4e0dd785c2` autorizza l’adattamento
+minimo del gate DB a direct/session-pooler con target e TLS vincolati al progetto,
+le regressioni pertinenti e una variazione diagnostica iOS a Xcode26.5 se presente
+nel runner. Restano valide le autorizzazioni TEST precedenti. Si riprende FIX
+sui residui, senza riaprire gli scope o alterare R01–R30/E2E storici.
+
+Un owner per trasporto DB, un owner per runtime iOS, coordinatore unico per
+configurazione e DB/cron; owner Worker già assegnato, coordinato con W. N conserva
+repository e dispositivi dei gestionali. Il preapply verifica accesso/identità,
+privilegi operatore, recovery e delta atteso; la compatibilità57RPC è postapply.
+Si riusano package e prove valide. Apply/deploy procedono quando i rispettivi
+prerequisiti sono soddisfatti, senza dipendenza universale da iOS o firma mobile.
+
+Criteri del delta: endpoint Session pooler risolto da fonte autorizzata e vincolato
+al progetto; regressioni di endpoint/ruolo/ambiente/TLS; ricezione dell’identità
+readonly distinta dai privilegi apply; Prepare con toolchain inventariata e
+recensione mirata prima della matrice; journal e smoke finali solo se traversati.
+Le operazioni reali e le dipendenze residue confluiscono nel rapporto e registro
+esistenti. Ogni fix torna a review indipendente.
+
+**Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## Fix attivazione TEST — checkpoint pre-native, 2026-10-09
+
+Fotografia prima dell'avvio locale23:35UTC, superseduta dall'Handoff3f8 seguente.
+I NOT_RUN locali e l'assenza di un tentativo preapp descrivono questo checkpoint.
+
+Mandato8da5e50f ripreso esplicitamente dall'utente. Sorgente composto f513330:
+trasportoDB0cec105, diagnosi530260b e preflightTEST6461194 integrati con26file
+byte-identici alle review originarie. Il delta successivo8fc7f8d cambia soltanto
+Quality20→25min nei due workflow e aggiunge dispatch diagnostico quality_only;
+comandi/soglie, toolchain, app, script e ricette unsigned immutati. Review distinta
+24controlliPASS, più15del reviewer secondario; pin/diff e3testgovernance locali
+PASSexit0. Nessun aumento del timeout iOS, nessun nuovo tentativo preapp.
+
+| CA / test | Esito del delta / limite | Evidence |
+|---|---|---|
+| CA-01 / T-01 | PASS baseline/associazione26file e2YAML; PR29draftf326 preservata | activation-source-association e activation-source-reassociation |
+| CA-02 / T-02; CA-O1 / T-O1 | PASS trasporto/source30test e re-review10casi; preapply22:55 deltaattesoPASS/schema32/57FAIL; PGreadonlyTLS NOT_RUN | activation-db-transport/review, activation-preapply-current |
+| CA-03 / T-03; CA-O1 / T-O1 | PASS preparazione PG R2 APPROVEDscoped; R1realelocale57/2/159, R2targeted13+5 e170peer; apply/POST57remoti NOT_RUN | activation-pg-operator, prima/re-review e istruzioni; recovery acquisita non ripetuta |
+| CA-04 / T-04; CA-O3 / T-O3 | PASS source preflightTEST dopo RED e2P2chiusi;31test nuovi permanenti/32finali mirati; OAuth/config/signedTEST NOT_RUN | activation-release-fix e review; appconfig/attestation aggiornati, freezeUI16e riusato solo in scope invariato |
+| CA-05 / T-05; CA-O6 / T-O6 | PASS unsignedAndroid/iOSf513, iOS89fixture; Qualityprima cancellata20min conservata; Quality8fc38001393798 terminalePASS23step1095/1SKIP+11performance; host11PASS distinto; runner3f8 review+50test scoped | activation-ci-first-terminal, activation-quality-terminal, activation-ios-headless-source-review |
+| CA-O5 / T-O5 | FAIL iOSpreapp124, cleanupPASS;9step/0PNG e recensione/trio/journal/smoke/matriceNOT_RUN; Androidf326 riuso scoped | activation-ios/source-review/fidelity; niente diagnosi UI inferita |
+| CA-06 / T-06; CA-O6 / T-O6 | BLOCKED acceptanceintegrata; R01–R30 in31righe e25E2E storici conservati, dueoriginiR24NOT_RUN | rapporto corrente e residuals, activation-native-owner come report N |
+| CA-O7 / T-O7 | NOT_RUN mergeClient; nessun DONE/tasksuccessivo | PR29OPEN/DRAFTf326; ramo source8fc7f8d pubblicato separatamente |
+
+CA pubblica ufficiale pronta; procedura PG per-file concreta approvata, con SQL/history
+in transazioni distinte e markerpending durevole. Mancano host ufficiale e riferimenti
+protetti separati readonly/operatore; nessuna credenziale cercata fuori dai riferimenti
+noti. W conferma preparazione isolata e zero businesswriter propri; nessuna finestra
+DB/cron viene inferita. Root ha eseguito solo readback metadata TEST22:55 e Worker22:54:
+versione22107a6f100%,23binding/MiniAuth/catalogON invariati. Nessun apply/cron/deploy.
+
+Richiesta owner unica predisposta nel manifest: endpoint/passfilereadonly;
+service/passfileoperatorePG distinto; Mac locale compatibile da qualificare prima
+di richiedere una superficie diversa, senza requisito universale Xcode26.5 esatto;
+A/domain/accessopilota per primopercorso, B soltantoisolamento; firma/canale per
+piattaforma. Pilota/dataset sono generabili nell'autoritàTEST esistente; CA e
+Cloudflare già recuperati. Non sono prerequisiti universali del Worker/iOS.
+Quality terminale verificata; nessun processo CI root pendente. Runner headless
+3f8d3d1 APPROVED_SOURCE_DELTA_ONLY:50test GREEN, due blob hash-bound alla review;
+Prepare reale locale ancora NOT_RUN fino al rilascio dello slot W.
+
+
+## Handoff Fix attivazione — source3f8d3d1, 2026-10-09
+
+Quality8fc terminalePASS1095test/1SKIP+11performance,23step/18min46s; review
+28controlli distinta. Source3f8 aggiunge solo opt-in headless e3regressioni,
+50GREENexit0 dopoRED50/2errori, review17+9PASS e2blob associati al commit.
+Il coordinatore privato chiude5finding con20controlli review prima del native.
+
+| CA / test | Esito terminale / limite | Evidence |
+|---|---|---|
+| CA-05 / T-05; CA-O6 / T-O6 | PASS Quality8fc eunsignedf513 riuso byte-bound; sourceheadless50test scoped | activation-quality-terminal/review, activation-ios-headless-association/source-review |
+| CA-O5 / T-O5 | PASS Preparelocaleheadless/runtime26.5; FAIL buildSDK27target14 primaapp;6dipendentiNOT_RUN/0PNG; cleanupPASS | activation-ios-local-native, SDK e review26+13PASS di fedeltà negativa |
+| CA-06 / T-06; CA-O6 / T-O6 | BLOCKED accettazioneintegrata; NsingolaRetryiOSHTTP500/STATEMENT_TIMEOUT, catalogoreadonly5func/default8s; nessun piano/RPC/write inferito | activation-native-recovery-dependency; R24 dueoriginiNOT_RUN,30ID/31righe/25E2Estorici preservati |
+| CA-O7 / T-O7 | NOT_RUN merge/DONE/task055; nessunrootprocessattivo | PR29OPEN/DRAFTf326, branches8fc/3f8pubblicati separati, evidence worktree isolato |
+
+Native23:35:03→23:36:11UTC/68.059s entro35min; stessoUUIDproprio, risorsa
+restituita N/W. Il minimo14 e le ricette900s restano invariati. Mac locale
+qualificato perPrepare, incompatibile perbuild con14; nessuna SDK alternativa
+installata. Superficie diversa esistente/support14 ora è prerequisito concreto.
+
+Apply/TLS/POST57/Workerdeploy/ClientAuth/signedTEST/R24 e AT/profiling reali
+restano non conclusi per le dipendenze del registro; CA/Cloudflare/pilotgeneration
+e procedure tecniche preparate. Nessuncomandoverifica pendente, nessuna
+modifica ai repositoryN/W/originaledirty, nessun merge/DONE/tasksuccessivo.
+**Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## Review attivazione TEST — verdetto distinto, 2026-10-09
+
+- **Ruolo/fase**: CODEX_RE_REVIEWER / REVIEW; `/root/final_audit` distinto dai
+  writer, con peer read-only per matrice e fedeltà. Root trascrive il verbale.
+- **Esito**: BLOCKED, nessun finding aperto. Freeze R2 di59file:40controlli
+  matrice e177fedeltà PASS,52copie esatte,50JSONvalidi,262link senza file mancanti.
+  Criteri R01–R30, due originiR24 e25E2E storici preservati.
+- **Evidence**: [verbale](EVIDENCE/TASK-054/next-integration/activation-integrated-rereview.md)
+  e [capsula](EVIDENCE/TASK-054/next-integration/activation-integrated-rereview.json),
+  SHA256 JSON `cbac9191b689fed01e57e1336af377efc20d4e2560cb2d2112d13a03fe27d790`.
+- **Gate**: Quality8fc e source3f8 scoped; iOS PreparePASS/buildFAILprimaapp,
+  cleanupPASS e6dipendentiNOT_RUN. SchemaTEST32/57 FAIL; TLS/operator/apply,
+  Worker, Auth/firma/distribuzione, R24/AT/profiling restano non conclusi.
+- **Limite**: il verbale è associato al freeze pre-trascrizione R2. Controlli
+  documentali finali e associazione al commit pubblicato sono prove separate;
+  nessun nuovo gate prodotto, nuovo boot, SQL, CI, merge o DONE.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

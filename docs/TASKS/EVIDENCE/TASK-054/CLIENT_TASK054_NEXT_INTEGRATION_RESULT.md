@@ -1,5 +1,300 @@
 # CLIENT_TASK054_NEXT_INTEGRATION_RESULT
 
+## Rapporto corrente — attivazione TEST, 9 ottobre 2026
+
+Mandato `8da5e50f-ba0f-4fd8-ab3c-9c4e0dd785c2`; baseline PR29 `f326faa`
+e prove `7fc3643`. Questo blocco e il registro residui corrente prevalgono sui
+checkpoint storici successivi. FIX concluso nei perimetri autorizzati; TASK-054 è
+BLOCKED/REVIEW, handoff CODEX_REVIEW_BLOCKED dopo review distinta. Nessun DONE o merge Client.
+Il gate DB è corretto e revisionato; il singolo esperimento Xcode26.5 è terminale.
+Il preflight di distribuzione TEST ha superato la re-review dopo RED e due P2.
+Candidato composto `f513330fbeef6139a5b9d278cc6824ce5c6bcc63`, pubblicato su
+`codex/task054-test-activation-source`;26 file byte-identici ai sorgenti revisionati.
+[Associazione f513](next-integration/activation-source-association.json). La
+[CI37867138429](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37867138429)
+è terminale: Android/iOS release unsigned **PASS**; Quality cancellato dal limite
+di20min. Formatting/analyze e1095test+1SKIP PASS; tutti11marker benchmark positivi,
+ma il processo non è concluso e Performance resta **BLOCKED**, whitespaceCI NOT_RUN.
+La verifica host separata è PASS11test/exit0. [Capsula terminale](next-integration/activation-ci-first-terminal.json),
+[performance host](next-integration/activation-local-performance.json).
+
+Fix CI `8fc7f8dc5221f22a393ffbe73c4f5827654e171f`: solo due YAML, budgetQuality
+20→25min e dispatch diagnostico `quality_only` (defaultfalse). Review distinta24controlli
+PASS; comandi/soglie e tutti gli altri byte invariati. [Review](next-integration/activation-quality-budget-review.json),
+[riassociazione](next-integration/activation-source-reassociation.json). La
+[run38001393798](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38001393798)
+è terminale **PASS**:23 step conclusi,1095 test+1SKIP e11 test di prestazioni,
+whitespace PASS. Durata18min46s; la variazione di durata non dimostra una causa
+legata al nuovo budget. Due release SKIPPED espliciti, con riuso scoped dei PASS
+f513 per byte immutati. [Quality terminale](next-integration/activation-quality-terminal.json),
+[review28controlli](next-integration/activation-quality-terminal-review.json).
+Il successivo runner locale `3f8d3d19a46d95bc7b7eb494a8f5b85a42372428` cambia solo
+due script; la Quality8fc non viene estesa per inferenza al suo delta.
+[Associazione](next-integration/activation-ios-headless-association.json),
+[review sorgente](next-integration/activation-ios-headless-source-review.json).
+Nessuna migration, pausa cron o pubblicazione Worker eseguita in questa ripresa.
+
+### Re-review distinta dell’attivazione
+
+[Verbale indipendente](next-integration/activation-integrated-rereview.md) e
+[capsula](next-integration/activation-integrated-rereview.json): **BLOCKED /
+CODEX_REVIEW_BLOCKED**, nessun finding aperto. Freeze R2 di59file verificato:
+40controlli di accettazione,177 di fedeltà,52copie private esatte,50JSONvalidi e
+262link relativi senza file mancanti. R01–R30, due origini R24 e25E2E preservati.
+I successi source/host/CI e Prepare restano qualificati; i gate obbligatori
+schema/operazioni TEST, runtime iOS, Auth/distribuzione e prove live impediscono
+APPROVED. Il verbale precede la sola trascrizione di metadata e riferimenti;
+i controlli documentali finali sono registrati separatamente dal freeze R2.
+
+### Operazioni TEST e accesso
+
+Readback MCP readonly rinnovato il **2026-10-09 22:55:03 UTC**:32/57 RPC conformi,
+25 RPC e le quattro versioni canoniche assenti,1/2 indici,history155.
+**PASS confronto con il delta atteso**; **FAIL compatibilità completa dello schema**.
+Nessun errore di contratto inatteso nel confronto. Il controllo completo57/2 e
+history159, salvo ulteriori versioni legittime riconciliate, appartiene al postapply.
+[Readback corrente](next-integration/activation-preapply-current.json);
+[checkpoint00:16](next-integration/activation-preapply.json).
+
+Il nuovo trasporto DB `7177d30` + `0cec105` supporta direct e Session pooler5432:
+progetto/ambiente/host/ruolo/TLS verify-full vincolati, nessun fallback6543 o
+redirect tramite service. `--connection-only` separa identità readonly e schema;
+input mancanti sono NOT_RUN/attempted=false, errore di handshake/query BLOCKED,
+schema incompleto FAIL.30 test PASS; libpq reale offline e PostgreSQL17 locale
+PASS. Il finding DBT-R01 sulla classificazione degli input è corretto e chiuso
+da re-review indipendente, con10 casi autonomi PASS.
+[Consegna](next-integration/activation-db-transport.json),
+[prima review](next-integration/activation-db-first-review.json),
+[re-review](next-integration/activation-db-review.json).
+
+La CA pubblica ufficiale Supabase Root2021 è recuperata e verificata: PEM SHA256
+`700723581420dd1ac98fd7e9ac529f0ef210eadcaf87fc868a3ad7d114c2f3b7`.
+Non è più un input owner; ciò non attesta un handshake. Il browser richiede login;
+CLI link e la seconda lettura progetti hanno timeout60/25s, processi propri terminali.
+Hostname esatto pooler e riferimento protetto readonly mancano: connessione
+PostgreSQL **NOT_RUN**, non handshake FAIL. Nessuna password API reinterpretata
+come password DB e nessun cluster dedotto dalla regione.
+[CA](next-integration/activation-ca.json), [accesso](next-integration/activation-access.json).
+
+Il canale operatore MCP è già autenticato come postgres: lettura di identità e
+privilegi PASS in transazione readonly. Non è il ruolo PostgreSQL del gate e non
+è ancora una procedura apply qualificata: `apply_migration` non espone una
+versione canonica. L'audit conferma il limite; la procedura PG operatore separata
+è ora concreta e approvata **PG_OPERATOR_PREPARATION_R2_ONLY**.
+[Capsula](next-integration/activation-pg-operator.json),
+[istruzioni](next-integration/activation-pg-operator.md),
+[prima review](next-integration/activation-pg-operator-first-review.json),
+[re-review](next-integration/activation-pg-operator-review.json).
+Tre file conservano BEGIN/COMMIT propri; solo order_lines usa un wrapper. SQL e
+history hanno commit separati: marker pending durevole, stop sugli esiti ambigui,
+nessun retry/repair automatico o atomicità globale dichiarata. R1 ha eseguito
+localmente57RPC/2indici/history159; R2 chiude due P2 con13controlli writer,
+5casi reviewer, letture readonly reali e170assert peer. Nessun apply completo R2
+inferito dal replay. Mancano endpoint ufficiale e service/passfile protetto
+dell'operatore PG, distinto dal readonly; verifierTLS/apply/POST57 remoti NOT_RUN. Il ruolo readonly esistente
+ha BYPASSRLS: la verifica catalogo non dimostra isolamento Client. La mancanza
+TLS readonly non viene trasformata per inferenza in un requisito di ogni altro
+canale; occorre qualificare quello concretamente usato, recovery e finestra.
+
+Package canonico e recovery popolata acquisiti restano validi nei rispettivi
+perimetri. I quattro file sono nuovamente byte-identici ai digest del manifest.
+Prima di apply: snapshot/recovery modificabili freschi, esclusione dei writer
+interferenti, job e transazioni correnti. Alle22:55 i job1/2/3/4 erano attivi e
+non c'erano job inflight o write-lock osservati: è una fotografia, non una finestra.
+L'analisi richiede pausa/drain dei cron promotion/hold/quote1/2/3 se ancora attivi;
+tracking-cleanup4 resta escluso senza nuova interferenza dimostrata. Owner e
+scheduler del notification dispatcher non risultano attestati: W verifica0 Edge
+Function e0 run attive dei due workflow notifiche/pagamenti, senza receiver o
+scheduler deployed dimostrato. Questo non prova quiescenza globale e non aggiunge
+un blocco universale: nella finestra si coordinano eventuali consumer concreti
+interferenti. [Inventario W](next-integration/activation-w-writers.json). Nessuna
+pausa globale delle app. Ripristino degli stati originali anche in caso d'errore.
+Le due notifiche orfane e otto riferimenti restano un'anomalia distinta; nessun
+repair autorizzato per inferenza o eseguito.
+
+### Worker
+
+Cloudflare OAuth e scope write verificati; nessun nuovo input Cloudflare richiesto.
+Candidato `96758b899aac2ccde1a70aeda4bbe7983007fb18`, bundle
+`e1b2f30e3e1413e0404543cf2ddf21bb14157b9aa339121d8b3ba47d01542997`,
+manifest2.012 `c905fde55da03cfc0dca100ee6c8313b0a689e41b1f65ad87c204eda4a208b64`
+e53 asset qualificati sono preservati; nessun rebuild o upload.
+Readback readonly del **2026-10-09 22:54:06 UTC** conferma versione attiva
+`22107a6f-f515-44c4-8392-a8e5653ff0b8`
+al100%, deployment `f726de06-fb79-46f5-a1b3-1d35fdc9de69`,23 binding,
+Mini Auth/catalog mutations ON; digest descriptor23binding identico
+`094461fcb7df732f0dafbd1e94e48c8e5b93d2d519921d9785f2c537d140812b`.
+[Readback corrente](next-integration/activation-worker-current.json).
+La fotografia è distinta dalla finestra: va riletta immediatamente prima
+dell'upload, senza presumere assenza di drift.
+[Preparazione](next-integration/activation-worker.json),
+[review28 controlli](next-integration/activation-worker-review.json).
+
+Upload e rollback esatti sono pronti: dipendono da compatibilità backend verificata,
+canale/artifact/binding e finestra W. Firma mobile, iOS PASS, A/B, FCM/mappe/online
+payment non sono prerequisiti universali. Postupload: versione/binding/flag e
+byte53 asset, smoke commerce e Mini pertinenti; keep-vars da solo non è prova.
+**Deploy/rollback/smoke del nuovo Worker: NOT_RUN**.
+
+### iOS mirato e qualifica finale
+
+Unica [run37863497939](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37863497939)
+su `530260b`: inventario reale PASS, immagine macos-26-arm64 `20260907.0351.1`,
+Xcode26.5 build17F42, SDK/runtime26.5. Boot PASS; subito dopo,
+`simctl list devices --json` termina per timeout: **FAIL exit124 prima di Flutter**.
+Timeout comando30s invariato; durata wrapper osservata48.801s non è una diagnosi
+causale né un budget aumentato. Leader7056 vivo, zero output; pipe ereditata non
+dimostrata. Cleanup proprio PASS: TERM, stato zombie, reap−15, shutdown/delete e
+inventario finale. Nessun retry e nessuna correzione del dialogo senza riproduzione.
+[Capsula](next-integration/activation-ios.json).
+
+Recensione isolata, trio inbox+recensione, journal seed/kill/recover, smoke e matrice
+sono **NOT_RUN**:9 step saltati,0 PNG Flutter/OS/preview. Il logger esteso ha prove
+host17 runner+12 trace+3 casi e misura titolo/azioni quando montati; il PoC29px
+non localizza l'overflow storico24px. Review source distinta e review fedeltà
+terminale66 PASS,2 ZIP verificati,184 eventi.
+[Review source](next-integration/activation-ios-source-review.json),
+[review terminale](next-integration/activation-ios-review.json).
+Inventario self-hosted:zero runner. Il fallback autorizzato richiede una toolchain
+compatibile registrata; Xcode26.5 esatto riguarda il singolo esperimento hosted,
+non tutti i Mac. Il Mac locale è già disponibile: Xcode27.0 build27A266a, SDK27.0,
+Flutter3.44.8/revision058e, target14.0 invariato; runtime26.5 disponibile.
+Simulator.app manca e DeviceHub è il frontend corrente: il primo Prepare GUI
+locale termina exit2 prima di create, senza UUID/boot/UI, cleanupPASS.
+[Negativo locale](next-integration/activation-ios-local-prepare.json).
+
+Fix minimo opt-in `prepare --headless` su3f8d3d1: omette solo guard/open GUI,
+conserva ownership privata, filtro runtime26, boot/bootstatus, probe pronta,
+timeout e cleanup. RED50/2errori, GREEN50/OK exit0 e review distinta17+9PASS,
+**APPROVED_SOURCE_DELTA_ONLY**; commit e due blob sono associati. Nessuna
+nuova toolchain, shim o apertura DeviceHub. Il coordinatore privato ha chiuso5finding prima dell'invocazione, con20controlli
+statici distinti e8classificazioni offline delle ricevute. Prepare usa l'esatto
+entrypoint canonico in-process, senza un KILL esterno prima dell'ownership;
+le ricette mantengono900s e cleanup bounded. [Prima review](next-integration/activation-ios-local-wrapper-first-review.json),
+[re-review](next-integration/activation-ios-local-wrapper-review.json).
+
+Qualifica reale sul commit3f8: **2026-10-09 23:35:03→23:36:11 UTC**,68.059s entro
+il budget totale35min. [Slot N/W](next-integration/activation-ios-local-slot.json).
+Toolchain/lock PASS1.844s; **Prepare headless PASS27.241s**, nuovo UUID Client,
+iPhone17/runtime26.5, boot/bootstatus/probe finale pronta. Recensione isolata
+**FAIL exit1/35.101s durante build, prima dell'installazione/avvio app e del primo frame**:
+SDK27 accetta deployment target15→27, mentre Runner e vari Pod restano14 (un Pod13).
+L'inventario SDK locale conferma una sola SDK27, senza alternativa compatibile già
+installata. Nessun rialzo di14, soppressione del gate o nuovo retry.
+[Terminale](next-integration/activation-ios-local-native.json),
+[SDK](next-integration/activation-ios-local-sdk.json).
+
+Trio/journal/buildnormale/security/smoke/fullvisual:6dipendenti NOT_RUN;0PNG.
+Il controller e l'overflow24px storico sono **NOT_TRAVERSED/NOT_VERIFIED**.
+Cleanup canonico PASS3.868s, UUID eliminato, processCleanupFailed=false; risorsa
+restituita a N/W e tutti i processi terminali. Nessuna GUI, input ai target N5554/459C
+oppure quiete globale inferita. Review distinta26+13controlli PASS qualifica solo
+la fedeltà del negativo, non il runtime: [verbale](next-integration/activation-ios-local-native-review.json),
+[associazione](next-integration/activation-ios-local-native-review-association.json).
+Serve ora una superficie esistente nominata/autorizzata con SDK compatibile con14,
+runtime26.5 e Flutter/lock fissati; Xcode26.5 esatto non è requisito universale.
+
+### Client, UX e prestazioni
+
+Il runtime usa Google OAuth/PKCE e callback HTTPS. Config pubblico base e payload
+manuale sono recuperati; callback legacy, Google OFF e shop vuoto non costituiscono
+configurazione finale. A basta per il primo percorso; B serve all'isolamento A→B→A.
+Codex genera shop pilota `cmc054r-20261008-pilot` e dataset minimo sotto l'autorità
+TEST esistente appena disponibili accesso e scope dell'operatore; un eventuale shop
+esistente può essere designato. Si prepara prima il solo percorso disponibile,
+pickup/payAtPickup oppure delivery manuale/cashOnDelivery. FCM, mappe/GPS e online
+payment restano requisiti specifici delle rispettive prove.
+
+RED tecnico distinto dalla firma: i preflight upload accettavano soltanto production,
+mentre il runtime TEST richiede staging. Fix minimo TEST esplicito, attestazione
+config-artifact separata e binding callback nativo hanno superato review distinta SOURCE_CODE_ONLY su6461194;
+nessun successo hosted dell'associazione o OAuth viene dedotto da essi. Due P2
+riprodotti e corretti verificano il readback APK oltre all'AAB e rifiutano host
+duplicato/path assente.32 test finali mirati e31 nuovi test permanenti;21 mutazioni
+AST respinte e3 scenari compiled host. Nessun conteggio globale inferito.
+[Fix e uso operativo](next-integration/activation-release-fix.md),
+[prima review](next-integration/activation-release-initial-review.json),
+[re-review](next-integration/activation-release-review.json). La CI unsigned
+conserva la ricetta production; non compila o distribuisce il nuovo artifact TEST.
+Il delta applicativo riguarda solo configurazione/attestazione: UI/controller
+invariati, freeze16e storico riusato soltanto nel perimetro non modificato.
+[Inventario iniziale input](next-integration/activation-client-inputs.json),
+rettificato nei tre punti PI-01/02/03 dalla
+[review preparatoria](next-integration/activation-preparatory-review.json):
+pilota generabile, A distinto da B, dataset separato per percorso. Il solo indirizzo
+non richiede prodotto, punto pickup o zona/slot di consegna.
+
+Android conserva la prova locale f326:92 fixture,137 PNG Flutter+4 OS;73 Flutter+4 OS
+ispezionati nel delta,64 riusati per identità con limiti storici. Journal PID4492→4604,
+stesso APK/UID, PASS locale con backend NOT_RUN. Nessuna nuova prova autenticata
+indirizzo R04/R25 o ordine R13/R14; i due recuperi rimangono distinti. Nessun nuovo
+TalkBack/VoiceOver, tap→contenuto, frame o memoria fisici: NOT_RUN. Restano validi
+11 benchmark host e misura inbox500→5 configurati,5→5 costruiti,20→20 richieste
+nel loro scope; nessun miglioramento percepito su telefono inferito.
+
+Checkpoint N dell'8ottobre: Android mainbbbda83/CI1250PASS+7SKIP, APK74e75
+installato preservando; iOS mainb869c9b/CI1576+36SKIP+16UI, Proper2cb5de
+installato. [Ricevuta storica N](next-integration/activation-native-owner.json).
+Nella ripresa del9ottobre N riferisce avvio ordinario e **Cloud account connected**
+su entrambe, con Inventory/tab/Options raggiunte; nessun nuovo login/Retry manuale.
+Il reboot ha invalidato i vecchi PID e i timeout precedenti non descrivono la ripresa.
+Gli errori iOS persistiti datati8ottobre non sono attribuiti a un tentativo fresco.
+Autorità di scrittura, lease/scope e convergenza restano da provare.
+[Report corrente N](next-integration/activation-native-owner-current.json):
+provenance owner, nessuna interazione nativa root; non sono installazioni o Auth
+Client TEST né nuove catene R24. N ha poi prodotto una singola Retry iOS
+23:17:37→23:22:09, HTTP500; la sua proiezione bounded registra57014/STATEMENT_TIMEOUT
+su recovery_page→scoped_rows e marker→checkpoint. Il catalogo TEST readonly root
+alle23:40:59 conferma le due catene, default authenticated/authenticator8s e nessun
+override timeout nelle5funzioni; p_limit e payload bounded non provano tempo bounded.
+[Dipendenza corrente N](next-integration/activation-native-recovery-dependency.json).
+Correlazione per finestra/UAclasse, senza requestID unico o piano SQL qualificato;
+nessuna RPC pesante, EXPLAIN ANALYZE, scrittura o migration. È distinta dal blocco
+SDK Client e dalle quattro canoniche Storefront; nessun fix generico inferito.
+Nuova catena Save/ACK/publication fino al Client ancora NOT_RUN.
+
+### Matrice corrente dei requisiti
+
+| Requisito / percorso | Codice / prova locale | Configurazione TEST | Runtime Android / iOS | Integrata / esito |
+|---|---|---|---|---|
+| R01 / guest e readiness | PASS contratti/guard locali | FAIL schema32/57 | Integrata TEST NOT_RUN entrambe | BLOCKED: readiness reale |
+| R02 / sessione e callback | PASS parser/PKCE/guard | BLOCKED dominio/callback/A; B solo isolamento R03/R25 | Cold/warm TEST NOT_RUN entrambe | BLOCKED: OAuth reale |
+| R03 / revoca e A→B→A | PASS fence e race locali | BLOCKED sessioni A/B | Revoca/cambio account reali NOT_RUN entrambe | BLOCKED: revoca/cambio account reale |
+| R04 / indirizzi e default, A | PASS v3/journal; badge16e approvato | BLOCKED migration/pilota | JournalAndroidf326 restart PASS locale; pixel badge APPROVED scoped / iOS preappFAIL, journalNOT_RUN | BLOCKED: create/reconcile server |
+| R05 / ricerca, resolve, pin | PASS adapter/transport | OFF provider; input BLOCKED | Fixture acquisita; provider live NOT_RUN entrambe | NOT_RUN provider live |
+| R06 / delivery/pickup race | PASS lifecycle/adapter | BLOCKED shop/backend | Integrata TEST NOT_RUN entrambe | BLOCKED: contesto server |
+| R07 / zona, slot e stale | PASS controller/SQL locale | FAIL schema32/57 | Integrata TEST NOT_RUN entrambe | BLOCKED: zona/slot server |
+| R08 / carrello guest/merge, B | PASS persistenza/merge locali | BLOCKED account/backend | Integrata TEST NOT_RUN entrambe | BLOCKED: merge reale |
+| R09 / prezzi/disponibilità | PASS contratti locali | BLOCKED catalogo pilota/backend | Integrata TEST NOT_RUN entrambe | BLOCKED: disponibilità reale |
+| R10 / checkout pickup, B | PASS controller/idempotenza locale | FAIL schema32/57 | Integrata TEST NOT_RUN entrambe | BLOCKED: ordine server |
+| R11 / checkout delivery, B | PASS controller/indirizzo locale | FAIL schema32/57 | Integrata TEST NOT_RUN entrambe | BLOCKED: quote/ordine server |
+| R12 / hold e notifiche | PASS SQL/concorrenza locale | BLOCKED migration; orphan separati | Live NOT_RUN entrambe | BLOCKED: hold/notifiche reali |
+| R13 / ordine, risposta persa | PASS regressioni idempotenza locali | FAIL schema32/57 | Live NOT_RUN entrambe | BLOCKED: singolo ordine server |
+| R14 / kill/restart checkout e ambiguità, B | PASS test checkout draft/recovery acquisiti sui propri SHA | BLOCKED account/backend | Kill/restart checkout finale NOT_RUN entrambe; journal indirizzi distinto | BLOCKED: tentativo ordine persistito, ambiguo e singolo ordine server |
+| R15 / metodi previsti e OFF | PASS gate payAtPickup/cashOnDelivery | OFF pagamento online | Integrata TEST NOT_RUN entrambe | BLOCKED: conferma ordine; rete distinta |
+| R16 / ordini/timeline/cancel, B | PASS contratti/controller | FAIL schema32/57 | Integrata TEST NOT_RUN entrambe | BLOCKED: aggiornamento Admin |
+| R17 / tracking e provider | PASS fallback/stale locali | OFF provider tracking; ordine/owner TEST non qualificati | Fixture acquisita; tracking TEST NOT_RUN entrambe | BLOCKED tracking TEST/order-owner; provider live NOT_RUN |
+| R18 / inbox/pagine, B/D | PASS lazy/navigation/owner fence | BLOCKED backend/account | Fixture localeAndroidf326 PASS; pixel delta APPROVED scoped / iOSNOT_RUNpreappFAIL | BLOCKED: inbox reale |
+| R19 / consenso/link owner | PASS codec/guard locali | OFF link sensibili; dominio BLOCKED | Cold/warm TEST NOT_RUN entrambe | BLOCKED: consegna autorizzata |
+| R20 / riordino e differenze, B | PASS preview/owner fence | BLOCKED backend/account | Integrata TEST NOT_RUN entrambe | BLOCKED: riordino reale |
+| R21 / assistenza e Admin, B/D | PASS missing/retry/owner fence | BLOCKED Worker/backend | Fixture localeAndroidf326 PASS; pixel delta APPROVED scoped / iOSNOT_RUNpreappFAIL | BLOCKED: transizioni Admin reali |
+| R22 / recensioni/moderazione, B/D | PASS feedback/draft/fence locali | BLOCKED Worker/backend | Fixture localeAndroidf326 PASS; pixel delta APPROVED scoped / iOSNOT_RUNpreappFAIL | BLOCKED: recensione/moderazione reali |
+| R23 / ricerca assistita/link | PASS routing/query guard | BLOCKED catalogo/dominio | Integrata TEST NOT_RUN entrambe | BLOCKED: ricerca/link TEST |
+| R24 / authoring origine Android, C | N riferisce main bbbda83, CI 1250 PASS/7 SKIP | BLOCKED pilota/backend/Worker e write-authority N | Ricevuta APK74e75 storica; N9ott riferisce Cloud account connected, write/convergenza da provare | NOT_RUN nuova catena IDs→ACK→Admin→Client |
+| R24 / authoring origine iOS, C | N riferisce main b869c9b, CI1576/36SKIP/16UI PASS | BLOCKED pilota/backend/Worker e write-authority N | Ricevuta Proper2cb5de storica; Cloud connected, singolaRetry9ottHTTP500/STATEMENT_TIMEOUT, bounds nonrequestIDunico | NOT_RUN nuova catena, origine separata |
+| R25 / reconnect/isolamento, A/B | PASS lifecycle/race e recovery locale | BLOCKED account A/B/backend | Integrata TEST NOT_RUN entrambe | BLOCKED: isolamento trasversale reale |
+| R26 / fallback indirizzo/GPS | PASS manuale e fallback locali | OFF provider/mappe; manuale predisposto | Fixture acquisita; GPS live NOT_RUN entrambe | BLOCKED manuale integrato; provider NOT_RUN |
+| R27 / provider pagamento sandbox | PASS gate OFF; provider NOT_RUN | OFF; sandbox/input BLOCKED | NOT_RUN entrambe | NOT_RUN; requisito conservato |
+| R28 / push e cold/warm | PASS gate OFF; provider NOT_RUN | OFF; FCM/APNs/canale BLOCKED | NOT_RUN entrambe | NOT_RUN; requisito conservato |
+| R29 / artifact/firma/ambiente | Unsigned f513 PASS; preflight TEST source APPROVED; Quality8fc PASS1095/1SKIP+11performance; runner3f8 review50test scoped | BLOCKED riferimenti firma/canale/config | Firma/upload/install Client NOT_RUN, separati per piattaforma | BLOCKED: distribuzione Client |
+| R30 / smoke/visual D; E supplementare | PASS host200% e sourcefix approvati | BLOCKED dataset/sessioni fisici | Android92fixture/137PNG+4OS, 77delta APPROVED scoped,64riusi storici; iOS hosted26.5 preappFAIL124; locale3f8 PreparePASS ma buildSDK27min14FAIL,0PNG/smokeNOT_RUN | BLOCKED: finalpixel/AT/profile reali |
+
+I25 E2E storici conservano ID, stato BLOCKED e limiti di provenance. Nessuna prova
+locale o installazione gestionale è promossa a E2E Client TEST. La chiusura dipende
+dai risultati reali; i checkpoint sottostanti restano storici.
+
+## Checkpoint storico — completamento f326 dell'8 ottobre
+
 ## Completamento successivo — 8 ottobre 2026
 
 Questo overlay prevale sui checkpoint conservati sotto. Il mandato utente
@@ -262,7 +557,7 @@ PASS codice/fixture non è PASS dell'intero requisito.
 | Requisito / percorso | Codice / prova locale | Configurazione TEST | Runtime Android / iOS | Integrata / esito |
 |---|---|---|---|---|
 | R01 / guest e readiness | PASS contratti/guard locali | FAIL schema32/57 | Integrata TEST NOT_RUN entrambe | BLOCKED: readiness reale |
-| R02 / sessione e callback | PASS parser/PKCE/guard | BLOCKED dominio/callback/A/B | Cold/warm TEST NOT_RUN entrambe | BLOCKED: OAuth reale |
+| R02 / sessione e callback | PASS parser/PKCE/guard | BLOCKED dominio/callback/A; B solo isolamento R03/R25 | Cold/warm TEST NOT_RUN entrambe | BLOCKED: OAuth reale |
 | R03 / revoca e A→B→A | PASS fence e race locali | BLOCKED sessioni A/B | Revoca/cambio account reali NOT_RUN entrambe | BLOCKED: revoca/cambio account reale |
 | R04 / indirizzi e default, A | PASS v3/journal; badge16e approvato | BLOCKED migration/pilota | JournalAndroidf326 restart PASS locale; pixel badge APPROVED scoped / iOS preappFAIL, journalNOT_RUN | BLOCKED: create/reconcile server |
 | R05 / ricerca, resolve, pin | PASS adapter/transport | OFF provider; input BLOCKED | Fixture acquisita; provider live NOT_RUN entrambe | NOT_RUN provider live |
@@ -277,7 +572,7 @@ PASS codice/fixture non è PASS dell'intero requisito.
 | R14 / kill/restart checkout e ambiguità, B | PASS test checkout draft/recovery acquisiti sui propri SHA | BLOCKED account/backend | Kill/restart checkout finale NOT_RUN entrambe; journal indirizzi distinto | BLOCKED: tentativo ordine persistito, ambiguo e singolo ordine server |
 | R15 / metodi previsti e OFF | PASS gate payAtPickup/cashOnDelivery | OFF pagamento online | Integrata TEST NOT_RUN entrambe | BLOCKED: conferma ordine; rete distinta |
 | R16 / ordini/timeline/cancel, B | PASS contratti/controller | FAIL schema32/57 | Integrata TEST NOT_RUN entrambe | BLOCKED: aggiornamento Admin |
-| R17 / tracking e provider | PASS fallback/stale locali | OFF provider tracking | Fixture acquisita; live NOT_RUN entrambe | NOT_RUN provider live |
+| R17 / tracking e provider | PASS fallback/stale locali | OFF provider tracking; ordine/owner TEST non qualificati | Fixture acquisita; tracking TEST NOT_RUN entrambe | BLOCKED tracking TEST/order-owner; provider live NOT_RUN |
 | R18 / inbox/pagine, B/D | PASS lazy/navigation/owner fence | BLOCKED backend/account | Fixture localeAndroidf326 PASS; pixel delta APPROVED scoped / iOSNOT_RUNpreappFAIL | BLOCKED: inbox reale |
 | R19 / consenso/link owner | PASS codec/guard locali | OFF link sensibili; dominio BLOCKED | Cold/warm TEST NOT_RUN entrambe | BLOCKED: consegna autorizzata |
 | R20 / riordino e differenze, B | PASS preview/owner fence | BLOCKED backend/account | Integrata TEST NOT_RUN entrambe | BLOCKED: riordino reale |

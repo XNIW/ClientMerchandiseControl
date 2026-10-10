@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "revision": "3ef3d98013ca461e0c9f0d0c60b06c38513b91ff",
+  "base": "e05853c8a027102f2b5369864f0ce2ca7a8c4eb1",
+  "path": ".github/workflows/task054-source-release.yml",
+  "file_sha256": "879065eab86e444ef5066948b17d5c7e3181e44a91167524d77e0d82caa00751",
+  "yaml": "PASS",
+  "exact_jobs": [
+    {
+      "id": "quality",
+      "sha256": "c97ed59231adbd3c532d340e669dd4d82452ae2a02b21c5420f857876cb5e1ea",
+      "steps": 19,
+      "timeout_minutes": 20,
+      "byte_identical_embedded_block": true,
+      "yaml_identical": true
+    },
+    {
+      "id": "android-release",
+      "sha256": "4510c6e5b18d6044cdb89aebde9a2f9381e7d6ec5e063fc4beef32daf41b0ab5",
+      "steps": 8,
+      "timeout_minutes": 35,
+      "byte_identical_embedded_block": true,
+      "yaml_identical": true
+    },
+    {
+      "id": "ios-release",
+      "sha256": "1987641bda58e5cd21d30f04b3a4d60d9c61c2b40fd43519d8236ec764f1520d",
+      "steps": 11,
+      "timeout_minutes": 45,
+      "byte_identical_embedded_block": true,
+      "yaml_identical": true
+    }
+  ],
+  "ordinary_ci": "UNCHANGED",
+  "trigger": {
+    "push_only_branch": "codex/task054-test-activation-source",
+    "workflow_dispatch": true
+  },
+  "runtime_jobs": "NOT_INCLUDED",
+  "native_TEST_distribution": "NOT_RUN",
+  "scope": "Quality plus canonical production-like unsigned Android/iOS and adversarial fixtures only; staging compiled checks are host evidence",
+  "push": {
+    "result": "NOT_RUN",
+    "reason": "root composed freeze required"
+  },
+  "dispatch": {
+    "result": "NOT_RUN",
+    "reason": "root composed freeze required"
+  },
+  "historical_negative": {
+    "gate": "initial_diff_check",
+    "result": "FAIL",
+    "exit_code": 2,
+    "reason": "blank line at EOF after exact copied blocks",
+    "resolved": "scope comment requested by root appended after blocks; final diff check PASS"
+  },
+  "security_delta": {
+    "exit_code": 0,
+    "result": "PASS",
+    "tracked_files": 1
+  }
+}

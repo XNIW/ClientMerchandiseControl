@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "source_head": "f513330fbeef6139a5b9d278cc6824ce5c6bcc63",
+  "base": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "branch": "codex/task054-test-activation-source",
+  "source_association": "PASS",
+  "files": [
+    {
+      "path": "scripts/check-backend-compatibility.py",
+      "reviewed_source": "0cec105",
+      "sha256": "2db803a7080eb1d8796cc0bb7d3cf6d1121cb08d8d987d19b432a861aa2a9d07",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/test-backend-compatibility.py",
+      "reviewed_source": "0cec105",
+      "sha256": "185ae80463c2e0d6361af5d61f4ebaf199b331e76c9b55fa5de427d5e0264d38",
+      "result": "PASS"
+    },
+    {
+      "path": "docs/operations/BACKEND-CONNECTION-TRANSPORT.md",
+      "reviewed_source": "0cec105",
+      "sha256": "9e6668c544b8bb452774ebfde713dbcfb14017f00c9ddcc8edf964727bc0e335",
+      "result": "PASS"
+    },
+    {
+      "path": ".github/workflows/task054-source-release.yml",
+      "reviewed_source": "3ef3d98",
+      "sha256": "879065eab86e444ef5066948b17d5c7e3181e44a91167524d77e0d82caa00751",
+      "result": "PASS"
+    },
+    {
+      "path": ".github/workflows/task054-ios-measured.yml",
+      "reviewed_source": "530260b",
+      "sha256": "60b20a21ee24ca54460a51ee350977e6247f9c60576d6dc8985898f9be27f1ce",
+      "result": "PASS"
+    },
+    {
+      "path": "integration_test/task054_next_integration_surfaces_test.dart",
+      "reviewed_source": "530260b",
+      "sha256": "42ff6f1b9d9bd99d3359a58be3abf7c2b2e89535a49787da201f2acf08ec904b",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/run-ios-preflight-measured.py",
+      "reviewed_source": "530260b",
+      "sha256": "951a4f1ef3fa395e74eba781630561efc95f2eb4bf58eb6b4248fdba3b2b80f7",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/test-ios-process-trace.py",
+      "reviewed_source": "530260b",
+      "sha256": "81bff1e92b68f915513394ff5c06b4535bdefcb32beabc5b0ea980c5525bffde",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/test-task054-visual-runner.py",
+      "reviewed_source": "530260b",
+      "sha256": "2082dfda95d7f9e0a673c8458a85a5f7b181e7d4c0981e96c2f971136cb04fe3",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/test-task054-visual.sh",
+      "reviewed_source": "530260b",
+      "sha256": "e46cedd99e215540b27167e82b35d26c85a69eb52d6c93c98239f4d05c395e08",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/core/config/app_config.dart",
+      "reviewed_source": "6461194",
+      "sha256": "6e909f29086fc884fe8146f28dddc9a70306c684dc90755b0e3f7140189b3601",
+      "result": "PASS"
+    },
+    {
+      "path": "lib/core/config/release_config_attestation.dart",
+      "reviewed_source": "6461194",
+      "sha256": "ba9b1899bd4c299a658dc6ee6b4b5ef8cfe5cc4a4d1788ac0c1e1855ddd4d2a6",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/check-android-release.sh",
+      "reviewed_source": "6461194",
+      "sha256": "6f620304bc176f144225c085f48c546514f16af5d3e76000b3d91fd6a450e369",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/check-android-runtime-binding.py",
+      "reviewed_source": "6461194",
+      "sha256": "1a790c081b8c9aa9078a55c762e16bd79f6c4c58bfaefb3f541648db577d47ce",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/check-ios-release.sh",
+      "reviewed_source": "6461194",
+      "sha256": "e426aa09f8f9398c15497eae60fd91a1baa84dbfffae99bc24bc8e44aaf03671",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/check-ios-test-callback.py",
+      "reviewed_source": "6461194",
+      "sha256": "433892a7435a0eff733e412e504214d73505928f15005184035a3e02092b0e9e",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/test-android-runtime-binding.py",
+      "reviewed_source": "6461194",
+      "sha256": "37c1c4527657e1ce3ffc584bff72d139328beb8178abc7712c342e5c0b806f9f",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/test-architecture-boundaries.sh",
+      "reviewed_source": "6461194",
+      "sha256": "518e237c741893d6eb6b2cf4b945768c6efaa81c85bf5d34f057708f349e5907",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/test-ios-test-callback.py",
+      "reviewed_source": "6461194",
+      "sha256": "c6d2b2c91883c2cd6c32c25d00b152a8ddfcbf2f2dbdaceac87ea6f2cb62c8ad",
+      "result": "PASS"
+    },
+    {
+      "path": "test/core/config/test_release_attestation_test.dart",
+      "reviewed_source": "6461194",
+      "sha256": "c5240dff681f7e01dce29d57235fd10ba34ee37b972ea41838b4404eaae46996",
+      "result": "PASS"
+    },
+    {
+      "path": "test/governance/android_bundle_manifest_validator_test.dart",
+      "reviewed_source": "6461194",
+      "sha256": "0ca54ffbb1b42440d361666ae45269acb5b9bd2fb77762ca7accde9ee5dd273f",
+      "result": "PASS"
+    },
+    {
+      "path": "test/governance/test_release_preflight_test.dart",
+      "reviewed_source": "6461194",
+      "sha256": "4e91a3f9971caf7a592c230ce4e24de7b7e4db1486e701c0852f1995e814ba21",
+      "result": "PASS"
+    },
+    {
+      "path": "tool/check_android_bundle_manifest.dart",
+      "reviewed_source": "6461194",
+      "sha256": "5f086ff9f32be7dbf5dd4ec53b03aded516975ff0b226eb5024c6c3064c3b9f4",
+      "result": "PASS"
+    },
+    {
+      "path": "tool/check_app_config_binding.dart",
+      "reviewed_source": "6461194",
+      "sha256": "8ab1d71e2732dfb46e27f5f77fe573f1c1d3af08f5677765cf947048d26c5b31",
+      "result": "PASS"
+    },
+    {
+      "path": "tool/check_ios_runtime_config.dart",
+      "reviewed_source": "6461194",
+      "sha256": "1e7c8d0fe565e4d71e5bb0f4e8fca7e007182c470af88828e78ac3c0fe23c8f6",
+      "result": "PASS"
+    },
+    {
+      "path": "scripts/check-android-test-callback.py",
+      "reviewed_source": "6461194",
+      "sha256": "079bf0dc03e0bf226ce47516f50e1ed00e6ce4ace5fd83c942443e093b52b8c4",
+      "result": "PASS"
+    }
+  ],
+  "application_delta": "Only app_config.dart and release_config_attestation.dart changed from application freeze16e; UI/controller unchanged. Prior runtime evidence reused only in unchanged scope.",
+  "CI": "NOT_RUN",
+  "CI_reason": "Awaiting first branch push after reviewed composition; selected quality and unsigned-release recipes only",
+  "native_TEST_artifact": "NOT_RUN"
+}

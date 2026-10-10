@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "scope": "W_READONLY_SOURCE_AND_SCHEDULER_INVENTORY",
+  "source_thread": "01a0d946-6dd0-70f1-9146-e65e8d3f6020",
+  "source_authority": "f16c5f4f37051e7876a847fb1ae2e544c89377d2",
+  "reported_observed_at": "2026-10-09T00:46:53Z",
+  "notification_dispatcher": {
+    "code_present": true,
+    "runtime_entrypoint_found": false,
+    "sole_non_foundation_test_importer": "scripts/testing/storefront-v1-order-notification-staging-e2e.mjs",
+    "provider_scope": "recording-only; providerCredentialUsed=false",
+    "worker_route_or_scheduled_handler_found": false,
+    "four_known_crons_call_dispatcher": false
+  },
+  "payment_webhook": {
+    "code_present": true,
+    "real_HTTP_receiver_found": false,
+    "processor_instantiated_only_in_foundation_test": true,
+    "base_provider": "unimplemented/disabled in source",
+    "RPC_service_role_guard": "definition is not an HTTP receiver; source provider none/onlinefalse does not attest live DB"
+  },
+  "runtime_metadata": {
+    "edge_function_slugs": 0,
+    "notification_workflow": {
+      "id": 326151709,
+      "active_runs": 0,
+      "trigger": "workflow_dispatch/path-push integration/storefront-v1; no schedule"
+    },
+    "payment_workflow": {
+      "id": 326211516,
+      "active_runs": 0,
+      "trigger": "workflow_dispatch/path-push integration/storefront-v1; no schedule"
+    }
+  },
+  "external_scheduler_or_live_owner": "NOT_ATTESTED",
+  "global_quiescence_proven": false,
+  "new_window": "NOT_RUN",
+  "pause_or_remote_mutations": "NOT_RUN",
+  "decision": "No demonstrated source/runtime overlap from deployed dispatcher/webhook; do not add a universal upload blocker. At actual DB window inspect real inflight writers/locks and coordinate only any concrete interfering consumer found.",
+  "protected_inputs_or_creds_read": false
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "task054-local-resource-slot-v1",
+  "release_received_at_utc": "2026-10-09T23:29:12.640399+00:00",
+  "source_thread": "01a0d946-6dd0-70f1-9146-e65e8d3f6020",
+  "message_kind": "codex_delegation_received",
+  "W_release": "explicit",
+  "W_slot_start_utc": "2026-10-09T23:20:26Z",
+  "W_heavy_active": false,
+  "W_installation": false,
+  "W_business_Save": false,
+  "W_DevTools": "IDE open/nonresponsive, no active heavy lane; no global quiescence inferred",
+  "N_grant": "new own Client UUID after scoped source review/guards; no DeviceHub/N input or target5554/459C; record start/UUID/deadline/release",
+  "Client_Prepare": "NOT_RUN",
+  "budget_minutes": 35,
+  "N_explicit_slot_confirmation_received_at_utc": "2026-10-09T23:31:27.385642+00:00",
+  "N_confirmation_source_thread": "01a0e903-0c9d-7583-8d62-4c25da6785e1",
+  "N_confirmation": "W release acknowledged; Client Prepare allowed once wrapper guards close, own UUID/35min/noNtargets/noGUI; N5554/459C QA without shared T0"
+}

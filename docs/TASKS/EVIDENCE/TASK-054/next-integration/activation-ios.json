@@ -1,0 +1,198 @@
+{
+  "schemaVersion": 1,
+  "scope": "single_hosted_xcode265_preflight_and_native_gates",
+  "revision": "530260b2db7ff29a81f14b7ec5f06f678a862ded",
+  "base": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "application_freeze": "16e46817d9da5f4a5ce0fbca89137f2652f52b56",
+  "run": {
+    "id": 37863497939,
+    "job_id": 113604594717,
+    "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/37863497939",
+    "event": "workflow_dispatch",
+    "attempt": 1,
+    "mode": "native",
+    "created_at": "2026-10-09T00:11:34Z",
+    "updated_at": "2026-10-09T00:16:54Z",
+    "status": "completed",
+    "result": "FAIL",
+    "exit_code": 124,
+    "budget_minutes": 35,
+    "retry_count": 0
+  },
+  "toolchain": {
+    "result": "PASS",
+    "image": "macos-26-arm64",
+    "image_version": "20260907.0351.1",
+    "os_version": "26.6.2",
+    "os_build": "25G83",
+    "developer_dir": "/Applications/Xcode_26.5.app/Contents/Developer",
+    "xcode_version": "Xcode 26.5\nBuild version 17F42",
+    "simulator_sdk": "26.5",
+    "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-5",
+    "inventory_source": "hosted initial job log and result.json; mock test printouts excluded"
+  },
+  "preflight": {
+    "result": "FAIL",
+    "initial_inventory": "PASS",
+    "bootstatus": "PASS",
+    "bootstatus_exit_code": 0,
+    "bootstatus_communicate_seconds": 172.030775083,
+    "failed_operation": "post-boot xcrun simctl list devices --json",
+    "command_timeout_seconds": 30,
+    "observed_communicate_seconds": 48.801089958,
+    "timing_scope": "trace monotonic wrapper duration; not an increased command budget or claim about OS scheduling cause",
+    "leader_pid": 7056,
+    "leader_state_at_timeout": "alive",
+    "stdout_bytes_at_timeout": 0,
+    "stderr_bytes_at_timeout": 0,
+    "output_complete": false,
+    "inherited_pipe": "not_demonstrated",
+    "trace_timeout_sequence": 126
+  },
+  "cleanup": {
+    "result": "PASS",
+    "device": "78CDC573-270C-4C4D-9AD2-FBC1C3BF55BB",
+    "attempts": [
+      {
+        "attempt": 1,
+        "result": "PASS",
+        "resourceCleanup": "PASS",
+        "processCleanupFailed": false
+      },
+      {
+        "attempt": 2,
+        "result": "PASS",
+        "resourceCleanup": "PASS",
+        "processCleanupFailed": false
+      }
+    ],
+    "failed_command_group": {
+      "term_sent": true,
+      "kernel_signal0": "EPERM",
+      "ps_after_term": "zombie_only",
+      "leader_reaped": true,
+      "leader_exit_code": -15,
+      "trace_ps_sequence": 138,
+      "trace_reap_sequence": 142,
+      "scope": "observed own group7056; EPERM alone is not quiescence evidence"
+    },
+    "resource": "owned shutdown/delete and final inventory successful",
+    "process_cleanup_flag": false
+  },
+  "native_gates": {
+    "flutter_setup": "NOT_RUN",
+    "critical_review_alone": "NOT_RUN",
+    "review_after_two_inbox": "NOT_RUN",
+    "journal_seed_kill_recover": "NOT_RUN",
+    "normal_build": "NOT_RUN",
+    "bundle_security": "NOT_RUN",
+    "smoke": "NOT_RUN",
+    "full_visual_matrix": "NOT_RUN",
+    "ios14_execution": "NOT_RUN",
+    "authenticated_TEST": "NOT_RUN"
+  },
+  "skipped_github_steps": [
+    "Set up Flutter",
+    "Validate Flutter toolchain and dependencies",
+    "Critical review alone on the same owned Simulator",
+    "Review after the two preceding inbox cases",
+    "Existing journal runner on the same owned Simulator",
+    "Build normal iOS Simulator app after journal",
+    "Validate normal iOS bundle security",
+    "Smoke after journal",
+    "Visual after smoke"
+  ],
+  "captures": {
+    "raw_flutter_png": 0,
+    "raw_os_png": 0,
+    "preview_png": 0,
+    "preview_status": "NOT_RUN",
+    "preview_reason": "nessuna cattura raw disponibile"
+  },
+  "source_checks": {
+    "result": "PASS",
+    "review": "APPROVED_SOURCE_CODE_ONLY",
+    "runner_tests": 17,
+    "trace_tests": 12,
+    "host_trio_tests": 3,
+    "independent_synthetic_logger_overflow_px": 29,
+    "independent_synthetic_logger_result": "FAIL",
+    "logger_scope": "first error while mounted preserved with title/actions/focus/scroll; host proof only",
+    "independent_synthetic_logger_failure_expected": true
+  },
+  "old_ios_24px_cause": "NOT_VERIFIED; not reached in this run",
+  "application_fix": "NONE",
+  "artifacts": [
+    {
+      "id": 11586988419,
+      "name": "task054-ios-measured-previews",
+      "sha256": "e497f0b8c7f12545d7e49e911b2d97949f2b8197d3fc5ce45e98b3e0c6c19b3b",
+      "bytes": 474,
+      "crc": "PASS",
+      "files": [
+        "manifest.json"
+      ]
+    },
+    {
+      "id": 11586988414,
+      "name": "task054-ios-measured",
+      "sha256": "76768e1d5d0d2c3dc965eb8d85b7d70a41d8150e0739dcaabae128d275be9196",
+      "bytes": 8674,
+      "crc": "PASS",
+      "files": [
+        "ios-measured/owner.json",
+        "ios-measured/processes.jsonl",
+        "ios-measured/result.json",
+        "ios-measured/simctl-help.txt"
+      ]
+    }
+  ],
+  "fallback": {
+    "result": "BLOCKED",
+    "registered_self_hosted_runners": 0,
+    "inventory_receipt": "self-hosted-runner-inventory.json",
+    "inventory_sha256": "1a65b166d82b25ab19702a5029fd15254f2cfde91a86ae7cd32439255595f366",
+    "missing_input": "reference to an existing authorized named compatible Mac/runner",
+    "owner": "operator/workstation owner via root coordinator",
+    "prepared": "diagnostic branch and same-owner sequence; no rerun until new surface reference"
+  },
+  "proofs": [
+    {
+      "path": "run-terminal.json",
+      "sha256": "81e476af5eeb289a4f5cba0a4e09587fd5037a99041aca53ab65c491b8382cae"
+    },
+    {
+      "path": "run-terminal.log",
+      "sha256": "d225a9b5e6485a60685c09a9ff0b6b88a3297bd950e94ba18b7e1fc1d0ffdc2a"
+    },
+    {
+      "path": "artifacts/task054-ios-measured/ios-measured/result.json",
+      "sha256": "f312d1de5eb0a476678443e9f5fbc6e0b5cf971035aa6954ecdba638de43549b"
+    },
+    {
+      "path": "artifacts/task054-ios-measured/ios-measured/owner.json",
+      "sha256": "13abf07395e6943ccee1dbff85651475f79dea1faeab8adb3d212a56bd05cde6"
+    },
+    {
+      "path": "artifacts/task054-ios-measured/ios-measured/processes.jsonl",
+      "sha256": "245765957f9e090c652f78fe2ec37feb328a4ca4e3e893d1581c19771e1b6587"
+    },
+    {
+      "path": "artifacts/metadata.json",
+      "sha256": "411056aea24ec40c67730440e5eecd83b4636ab5a767c76aa1035028b4dcb93f"
+    },
+    {
+      "path": "artifacts/download-receipts.json",
+      "sha256": "71d3d39c8b2c6df01895d44e2bd4287b660d346fa575a86705c188ff3d06a4bf"
+    },
+    {
+      "path": "artifacts/task054-ios-measured-previews/manifest.json",
+      "sha256": "14593f499c6184cc0aaf49d9fb1394d0b537b37348a6b2e71a9ee72678326ac2"
+    },
+    {
+      "path": "review/xcode265-source-review.json",
+      "sha256": "ca48d2a1343d20ad754bb328d266b5560ac19269287f4660ba9c0bc963d96855"
+    }
+  ],
+  "terminality": "all executor commands and hosted job terminal"
+}

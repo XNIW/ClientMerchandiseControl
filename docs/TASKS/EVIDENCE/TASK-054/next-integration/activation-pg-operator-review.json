@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "recorded_at_utc": "2026-10-09T01:07:00.693708+00:00",
+  "review_role": "CODEX_RE_REVIEWER_READ_ONLY",
+  "review_outcome": "APPROVED",
+  "scope": "PG_OPERATOR_PREPARATION_R2_ONLY",
+  "integrated_acceptance": "BLOCKED",
+  "remote_operator_TLS": "NOT_RUN",
+  "remote_apply": "NOT_RUN",
+  "source_hashes_sha256": {
+    "pg_operator.py": "825ae0ae214d4dcfa1fe8f57a2bbcc0742e7f6799f8cf5c593488ead9bc708ba",
+    "batch-manifest.json": "db17d17d79831dc524b34bc8504974bb720df75121bff1ee8c1a65166c57e644",
+    "qualified-profile.json": "1bf4a44a54495cb76ef0712be29af936556f12025f9dc3f3742a4f5e2f9452e7",
+    "README.md": "b2227f8936bf2b60d34e8186f618bca34844000a201e5ff921bfa804759bce46",
+    "fix-regression/summary.json": "df8147b871b637a81504d63a24d8ee146412541effee2404e1cc44e40ab77970",
+    "superseded-review-r1/pg_operator.py": "3b7b3743cc7c75f3ebb18c396f5527063143040cb15baea979ab8c893ceba120",
+    "superseded-review-r1/batch-manifest.json": "df43e83f73568d3702125906fe75bec91a12d49d6517400fa93db610dbfa6fb1"
+  },
+  "findings": [
+    {
+      "id": "PG-01",
+      "severity": "P2",
+      "status": "CLOSED_AT_R2",
+      "location": "pg_operator.py:36,76,156",
+      "verification": "SHA hard-pinned before endpoint/runner/first CLI query; non-learn apply rejects disk or in-memory profile drift before state/query. Independent peer negative sentinel harness and original mutation replay PASS."
+    },
+    {
+      "id": "PG-02",
+      "severity": "P2",
+      "status": "CLOSED_AT_R2",
+      "location": "pg_operator.py:21,33,107",
+      "verification": "Existing post-history readback now returns digest excluding only the new version, compared to before.history_digest before completed/pending unlink. Mismatch at first and fourth stage, missing digest, no automatic retry and exact four-stage replay PASS. Two actual READ ONLY local queries verify the new digest."
+    }
+  ],
+  "new_findings": [],
+  "independent_verification": {
+    "targeted_command": "python3 /Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/operator-review/r2-targeted-checks.py",
+    "command_exit_code": 0,
+    "offline_cases": 5,
+    "actual_local_READ_ONLY_commands": 2,
+    "clone_databases": [
+      "task054_pg_operator_ok",
+      "task054_pg_operator_histack"
+    ],
+    "per_query_timeout_seconds": 20,
+    "peer_static_assertions": 170,
+    "peer_negative_profile_harness_exit_code": 0,
+    "canonical_four_bytes_and_previews": "PASS",
+    "native_three_and_wrapper_one": "PASS unchanged; per-file SQL transaction only",
+    "contract57_and_gate": "PASS byte-identical to source 0cec1058748d1109a9b7a4516d54be6bc3224bab",
+    "sql_history_atomic_together": false,
+    "global_atomic": false,
+    "previous_R1_five_clone_reads": "PASS retained, not rerun",
+    "R1_PoCs": "Original archived driver imported with M.BASE set to current artifact base; confirms missing controls only, not actual DB corruption",
+    "processes_terminal": true
+  },
+  "evidence_association": {
+    "R1_primary_19_and_supplemental_15": "Writer real local execution belongs to archived R1 protocol/source; not a complete source-R2 apply",
+    "R2_writer_fix_13": "Targeted fix regression only; two additional actual readonly local commands; zero mutations",
+    "R2_reviewer_offline_positive": "Control flow replay of frozen local stdout with qualified prior digests; no SQL executed by replay",
+    "R2_reviewer_actual_readonly": "Two SQL commands against retained network-none local Docker clones; READ ONLY identity and prior digest checked"
+  },
+  "operational_limits": [
+    "Quattro canonici restano byte-identici e conservano i commit nativi; nessuna atomicità globale.",
+    "SQL e history sono transazioni separate: pending durevole conserva il gap e gli esiti ambigui; nessun retry o repair automatico.",
+    "Endpoint ufficiale, credenziali operatore, finestra writer/cron e recovery fresca restano prerequisiti remoti esterni.",
+    "Questa review approva esclusivamente la preparazione scoped; nessun DONE, merge o promozione della acceptance integrata."
+  ],
+  "prohibited_operations_performed": {
+    "remote_SQL": false,
+    "DB_mutation": false,
+    "implementation_or_repository_edit": false,
+    "fullsuite": false,
+    "emulator_or_hostedCI": false
+  },
+  "evidence_sha256": {
+    "r2-targeted-checks.py": "fdd93cccf08c065b59e53c0c4245ac07526c9ff5cc7ddc89b0559d3cdbfcd8df",
+    "r2-targeted-results.json": "82b277201562442b1ceb1be06112548694f76d2f4970f298ffb013ac2158873f",
+    "peer-hash-tx/r2/receipt.json": "4792a0972b99a9e3f9416e16e7deee855c979e992dc13721dd06920c1a1dd372",
+    "r1-review.json": "9d8eed18a70b77c4a0001e9f5fe4d16e87db6ebcdc68c9c1931bc91241805081",
+    "R1-REVIEW.md": "42f169820d33cb86bfdf19a77fe6ce929c979d957edf601014b7905769fff9c5",
+    "offline-pocs.py": "a7b1d456347a81a87fdfbbf52f1a8c91f5207db390f20beed51dfa3b1f40a9e8",
+    "offline-poc-results.json": "40a5fee2b6c7923844d0e99a92ae68a8d6561b03e6b831fcc333e010813395a6",
+    "clone-readonly.json": "d8129b8489916660669a1d91b661305627d8cecf5567d6a370a926004e9f4055",
+    "pending-readonly.json": "739147d6134f698571b1f3a141bb62b21d881af7931364db9dffbda79e31094d"
+  },
+  "R1_reproduction": {
+    "command": "python3 /Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/operator-review/offline-pocs.py",
+    "source": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator/superseded-review-r1/pg_operator.py",
+    "source_sha256": "3b7b3743cc7c75f3ebb18c396f5527063143040cb15baea979ab8c893ceba120",
+    "module_BASE": "/Users/minxiang/.codex/outputs/task054-activation-20261008/backend-channel-audit/pg-operator",
+    "reproduction": "2 expected original missing-control findings; offline replay only"
+  }
+}

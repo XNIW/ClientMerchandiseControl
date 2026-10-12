@@ -39,6 +39,11 @@ on:
         type: boolean
         default: false
         required: false
+      checkout_retry_baseline:
+        description: Riproduce soltanto la CTA Retry receipt sul sorgente34cc059
+        type: boolean
+        default: false
+        required: false
       focused:
         description: Regressioni Client su runner separato; non qualifica build o TEST live
         type: boolean
@@ -94,6 +99,9 @@ jobs:
       - name: Restore checkout journal causal baseline
         if: ${{ inputs.focused && inputs.checkout_journal_baseline }}
         run: git restore --source=16f6bd2 -- lib/features/checkout/application/checkout_controller.dart
+      - name: Restore checkout failure Retry causal baseline
+        if: ${{ inputs.focused && inputs.checkout_retry_baseline }}
+        run: git restore --source=34cc059 -- lib/features/checkout/presentation/checkout_screen.dart
       - name: Prepare focused source on hosted runner
         if: ${{ inputs.focused }}
         # subosito/flutter-action v2.23.0
@@ -125,13 +133,17 @@ jobs:
           CHECKOUT_SCOPE_BASELINE: ${{ inputs.checkout_scope_baseline }}
           CART_CONFLICT_BASELINE: ${{ inputs.cart_conflict_baseline }}
           CHECKOUT_JOURNAL_BASELINE: ${{ inputs.checkout_journal_baseline }}
+          CHECKOUT_RETRY_BASELINE: ${{ inputs.checkout_retry_baseline }}
         run: |
           bash scripts/resolve-flutter.sh
           flutter pub get --enforce-lockfile
           flutter gen-l10n
           dart format lib test integration_test
           git diff -- lib test integration_test > candidate-preparation.patch
-          if [[ "$CHECKOUT_SCOPE_BASELINE" == "true" ]]; then
+          if [[ "$CHECKOUT_RETRY_BASELINE" == "true" ]]; then
+            flutter analyze lib test/features/checkout/presentation/checkout_screen_test.dart
+            flutter test test/features/checkout/presentation/checkout_screen_test.dart --concurrency=1
+          elif [[ "$CHECKOUT_SCOPE_BASELINE" == "true" ]]; then
             flutter analyze lib test/features/checkout/application/checkout_order_scope_test.dart test/features/checkout/application/checkout_order_profile_update_test.dart
             flutter test test/features/checkout/application/checkout_order_scope_test.dart test/features/checkout/application/checkout_order_profile_update_test.dart --concurrency=1
           elif [[ "$CART_CONFLICT_BASELINE" == "true" ]]; then

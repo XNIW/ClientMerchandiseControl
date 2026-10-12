@@ -17,8 +17,21 @@ void main() {
   test('ticket tardivo dopo timeout non avvia upload o register', () async {
     final barrier = Completer<void>();
     final port = _Port()..ticketBarrier = barrier;
-    final repository = SupabaseCustomerAfterSalesRepository(port: port, timeout: const Duration(milliseconds: 5));
-    await expectLater(repository.uploadEvidence(caseId: _case, input: CustomerAfterSalesEvidenceInput(bytes: Uint8List.fromList([1]), extension: 'jpg', mimeType: 'image/jpeg')), throwsA(isA<CustomerAfterSalesException>()));
+    final repository = SupabaseCustomerAfterSalesRepository(
+      port: port,
+      timeout: const Duration(milliseconds: 5),
+    );
+    await expectLater(
+      repository.uploadEvidence(
+        caseId: _case,
+        input: CustomerAfterSalesEvidenceInput(
+          bytes: Uint8List.fromList([1]),
+          extension: 'jpg',
+          mimeType: 'image/jpeg',
+        ),
+      ),
+      throwsA(isA<CustomerAfterSalesException>()),
+    );
     barrier.complete();
     await Future<void>.delayed(const Duration(milliseconds: 10));
     expect(port.uploadedPath, isNull);
@@ -135,7 +148,8 @@ final class _Port implements CustomerAfterSalesPort {
     Map<String, Object?> parameters,
   ) async {
     functions.add(function);
-    if (function == 'customer_after_sales_evidence_upload_ticket_v1') await ticketBarrier?.future;
+    if (function == 'customer_after_sales_evidence_upload_ticket_v1')
+      await ticketBarrier?.future;
     return switch (function) {
       'customer_after_sales_order_lines_v1' =>
         orderLinesPayload ?? _orderLinesPayload(),

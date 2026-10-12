@@ -1256,10 +1256,15 @@ void main() {
             expect(repository.idempotencyKeys.toSet(), hasLength(1));
           } else {
             expect(repository.drafts, hasLength(1));
-            expect(
-              find.text(l10n.afterSalesEvidenceUploadFailure),
-              findsOneWidget,
-            );
+            final recovery = find.byKey(const ValueKey('after-sales-evidence-retry'));
+            expect(recovery, findsOneWidget);
+            await _reveal(tester, recovery);
+            await captureVisual(tester, 'assistance-evidence-partial-upload-failure');
+            await tester.tap(recovery);
+            await tester.pumpAndSettle();
+            expect(repository.uploads, hasLength(4));
+            expect(identical(repository.uploads.last, repository.uploads[1]), isTrue, reason: 'Si ritenta solo il file fallito');
+            expect(repository.drafts, hasLength(1), reason: 'Stessa pratica, nessuna seconda create');
           }
           expect(
             find.byKey(const ValueKey('after-sales-submit')),
@@ -1275,7 +1280,7 @@ void main() {
               .single;
           expect(created.note, text);
           expect(created.lines.single.quantity, 2);
-          expect(created.evidence, hasLength(partialUploadFailure ? 2 : 3));
+          expect(created.evidence, hasLength(3));
           expect(fixture.afterSales.createCalls, 1);
           if (partialUploadFailure) {
             await captureVisual(
@@ -1292,7 +1297,8 @@ void main() {
           );
           if (!partialUploadFailure) {
             await _reveal(tester, find.text(l10n.afterSalesEvidence));
-            expect(find.text('pending_scan'), findsNWidgets(3));
+            expect(find.text('pending_scan'), findsNothing);
+            expect(find.widgetWithText(ListTile, l10n.afterSalesEvidenceConfirmed), findsNWidgets(3));
             await captureVisual(
               tester,
               'assistance-submitted3-evidence-detail',

@@ -36,7 +36,7 @@ void main() {
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
-      addTearDown(semantics.dispose);
+      try {
       final repository = _ControlledReviews();
       final l10n = await _pump(tester, repository);
       await _open(tester, l10n, edit: action != 'submit');
@@ -63,7 +63,9 @@ void main() {
 
       expect(repository.attempts, hasLength(1));
       expect(find.byKey(const ValueKey('review-saving')), findsOneWidget);
-      final saving = tester.getSemantics(find.byKey(const ValueKey('review-saving')));
+      final saving = tester.getSemantics(
+        find.byKey(const ValueKey('review-saving')),
+      );
       expect(saving.flagsCollection.isLiveRegion, isTrue);
       expect(saving.label, l10n.reviewsSaving);
       expect(tester.widget<TextField>(_comment).enabled, isFalse);
@@ -107,6 +109,7 @@ void main() {
       expect(find.byType(AlertDialog), findsNothing);
       expect(repository.listCalls, 2, reason: 'Readback solo dopo ACK');
       expect(tester.takeException(), isNull);
+      } finally { semantics.dispose(); }
     });
   }
 

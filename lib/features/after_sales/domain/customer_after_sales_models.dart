@@ -112,7 +112,13 @@ final class CustomerAfterSalesEvidenceTransfer {
 }
 
 enum CustomerAfterSalesAttachmentStatus {
-  ready, reading, uploading, confirmed, failed, fileUnavailable, ambiguous,
+  ready,
+  reading,
+  uploading,
+  confirmed,
+  failed,
+  fileUnavailable,
+  ambiguous,
 }
 
 final class CustomerAfterSalesLocalAttachment {
@@ -127,7 +133,8 @@ final class CustomerAfterSalesLocalAttachment {
   final String extension;
   final String mimeType;
   final Future<Uint8List> Function() readBytes;
-  CustomerAfterSalesAttachmentStatus status = CustomerAfterSalesAttachmentStatus.ready;
+  CustomerAfterSalesAttachmentStatus status =
+      CustomerAfterSalesAttachmentStatus.ready;
   CustomerAfterSalesEvidenceInput? input;
   String? evidenceId;
 }

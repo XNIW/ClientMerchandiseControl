@@ -33,7 +33,8 @@ final class CustomerAfterSalesState {
     this.attachmentCaseId,
     this.attachmentOrderId,
     List<CustomerAfterSalesLocalAttachment> attachments = const [],
-  }) : cases = List.unmodifiable(cases), attachments = List.unmodifiable(attachments);
+  }) : cases = List.unmodifiable(cases),
+       attachments = List.unmodifiable(attachments);
 
   factory CustomerAfterSalesState.loading() => CustomerAfterSalesState(
     isLoading: true,
@@ -48,7 +49,9 @@ final class CustomerAfterSalesState {
   final String? attachmentCaseId;
   final String? attachmentOrderId;
   final List<CustomerAfterSalesLocalAttachment> attachments;
-  bool get hasIncompleteAttachments => attachments.any((file) => file.status != CustomerAfterSalesAttachmentStatus.confirmed);
+  bool get hasIncompleteAttachments => attachments.any(
+    (file) => file.status != CustomerAfterSalesAttachmentStatus.confirmed,
+  );
 
   CustomerAfterSalesState copyWith({
     bool? isLoading,
@@ -67,7 +70,9 @@ final class CustomerAfterSalesState {
       cases: cases ?? this.cases,
       failure: clearFailure ? null : failure ?? this.failure,
       attachmentCaseId: attachmentCaseId ?? this.attachmentCaseId,
-      attachmentOrderId: clearAttachmentOrderId ? null : attachmentOrderId ?? this.attachmentOrderId,
+      attachmentOrderId: clearAttachmentOrderId
+          ? null
+          : attachmentOrderId ?? this.attachmentOrderId,
       attachments: attachments ?? this.attachments,
     );
   }
@@ -80,7 +85,8 @@ final class CustomerAfterSalesController
   var _disposed = false;
   var _operationBusy = false;
   var _caseRevision = 0;
-  final _attachmentsByCase = <String, List<CustomerAfterSalesLocalAttachment>>{};
+  final _attachmentsByCase =
+      <String, List<CustomerAfterSalesLocalAttachment>>{};
   final _createdCasesByOrder = <String, CustomerAfterSalesCase>{};
   String? _pendingCreateSignature;
   String? _pendingCreateIdempotencyKey;
@@ -93,7 +99,10 @@ final class CustomerAfterSalesController
     });
     if (ref.exists(authControllerProvider)) {
       ref.listen(authControllerProvider, (previous, next) {
-        String? owner(AuthState? value) => switch (value) { AuthAuthenticated(:final customer) => customer.subjectId, _ => null };
+        String? owner(AuthState? value) => switch (value) {
+          AuthAuthenticated(:final customer) => customer.subjectId,
+          _ => null,
+        };
         if (owner(previous) != owner(next)) {
           ++_generation;
           _contextKey = null;
@@ -145,7 +154,10 @@ final class CustomerAfterSalesController
     }
   }
 
-  Future<CustomerAfterSalesCase?> _createCase(CustomerAfterSalesDraft draft, ({int generation, String key}) contextFence) async {
+  Future<CustomerAfterSalesCase?> _createCase(
+    CustomerAfterSalesDraft draft,
+    ({int generation, String key}) contextFence,
+  ) async {
     final signature = _createSignature(draft);
     if (_pendingCreateSignature != signature) {
       _pendingCreateSignature = signature;
@@ -246,8 +258,15 @@ final class CustomerAfterSalesController
       if (value == null || !_isCurrentContext(fence)) return null;
       // caseId viene conservato prima di leggere qualunque file locale.
       _createdCasesByOrder[draft.orderId] = value;
-      final files = _attachmentsByCase.putIfAbsent(value.id, () => attachments.toList());
-      state = state.copyWith(attachmentCaseId: value.id, attachmentOrderId: draft.orderId, attachments: files);
+      final files = _attachmentsByCase.putIfAbsent(
+        value.id,
+        () => attachments.toList(),
+      );
+      state = state.copyWith(
+        attachmentCaseId: value.id,
+        attachmentOrderId: draft.orderId,
+        attachments: files,
+      );
       if (!canContinue()) return value;
       await _completeAttachments(value.id, fence, canContinue);
       return _isCurrentContext(fence) ? value : null;
@@ -260,31 +279,71 @@ final class CustomerAfterSalesController
   }
 
   CustomerAfterSalesCase? openedCaseForOrder(String orderId) {
-    final value = _createdCasesByOrder[orderId];
-    return value != null && (_attachmentsByCase[value.id]?.any((file) => file.status != CustomerAfterSalesAttachmentStatus.confirmed) ?? false) ? value : null;
+    final stored = _createdCasesByOrder[orderId];
+    final value = state.cases.where((item) => item.id == stored?.id).firstOrNull ?? stored;
+    if (value == null || const {CustomerAfterSalesStatus.closed, CustomerAfterSalesStatus.rejected, CustomerAfterSalesStatus.refunded}.contains(value.status)) return null;
+    return value != null &&
+            (_attachmentsByCase[value.id]?.any(
+                  (file) =>
+                      file.status !=
+                      CustomerAfterSalesAttachmentStatus.confirmed,
+                ) ??
+                false)
+        ? value
+        : null;
   }
-  List<CustomerAfterSalesLocalAttachment> attachmentsFor(String caseId) => List.unmodifiable(_attachmentsByCase[caseId] ?? const <CustomerAfterSalesLocalAttachment>[]);
 
-  void selectAttachments(String caseId, List<CustomerAfterSalesLocalAttachment> values, {int? replaceIndex}) {
+  List<CustomerAfterSalesLocalAttachment> attachmentsFor(String caseId) =>
+      List.unmodifiable(
+        _attachmentsByCase[caseId] ??
+            const <CustomerAfterSalesLocalAttachment>[],
+      );
+
+  void selectAttachments(
+    String caseId,
+    List<CustomerAfterSalesLocalAttachment> values, {
+    int? replaceIndex,
+  }) {
     if (_operationBusy || _captureContextFence() == null) return;
-    final attachments = (_attachmentsByCase[caseId] ?? const <CustomerAfterSalesLocalAttachment>[]).toList();
-    if (replaceIndex != null && replaceIndex >= 0 && replaceIndex < attachments.length && values.isNotEmpty) {
+    final attachments =
+        (_attachmentsByCase[caseId] ??
+                const <CustomerAfterSalesLocalAttachment>[])
+            .toList();
+    if (replaceIndex != null &&
+        replaceIndex >= 0 &&
+        replaceIndex < attachments.length &&
+        values.isNotEmpty) {
       final old = attachments[replaceIndex];
-      if (old.status != CustomerAfterSalesAttachmentStatus.fileUnavailable && old.status != CustomerAfterSalesAttachmentStatus.ready) return;
+      if (old.status != CustomerAfterSalesAttachmentStatus.fileUnavailable &&
+          old.status != CustomerAfterSalesAttachmentStatus.ready)
+        return;
       attachments[replaceIndex] = values.first;
     } else {
       attachments.addAll(values.take(3 - attachments.length));
     }
     _attachmentsByCase[caseId] = attachments;
-    state = state.copyWith(attachmentCaseId: caseId, clearAttachmentOrderId: true, attachments: attachments);
+    state = state.copyWith(
+      attachmentCaseId: caseId,
+      clearAttachmentOrderId: true,
+      attachments: attachments,
+    );
   }
 
-  Future<void> completeAttachments(String caseId, bool Function() canContinue) async {
+  Future<void> completeAttachments(
+    String caseId,
+    bool Function() canContinue,
+  ) async {
     if (_operationBusy || !_attachmentsByCase.containsKey(caseId)) return;
     final fence = _captureContextFence();
     if (fence == null || !canContinue()) return;
     _operationBusy = true;
-    state = state.copyWith(isMutating: true, clearFailure: true, attachmentCaseId: caseId, clearAttachmentOrderId: true, attachments: _attachmentsByCase[caseId]);
+    state = state.copyWith(
+      isMutating: true,
+      clearFailure: true,
+      attachmentCaseId: caseId,
+      clearAttachmentOrderId: true,
+      attachments: _attachmentsByCase[caseId],
+    );
     try {
       await _completeAttachments(caseId, fence, canContinue);
     } finally {
@@ -295,7 +354,11 @@ final class CustomerAfterSalesController
     }
   }
 
-  Future<void> _completeAttachments(String caseId, ({int generation, String key}) fence, bool Function() canContinue) async {
+  Future<void> _completeAttachments(
+    String caseId,
+    ({int generation, String key}) fence,
+    bool Function() canContinue,
+  ) async {
     bool current() => _isCurrentContext(fence) && canContinue();
     for (final file in state.attachments.toList()) {
       if (!current()) return;
@@ -306,9 +369,14 @@ final class CustomerAfterSalesController
         try {
           final bytes = await file.readBytes();
           if (!current()) return;
-          file.input = CustomerAfterSalesEvidenceInput(bytes: bytes, extension: file.extension, mimeType: file.mimeType, ownerId: ref.read(customerAccountIdentityProvider)?.subjectId,
+          file.input = CustomerAfterSalesEvidenceInput(
+            bytes: bytes,
+            extension: file.extension,
+            mimeType: file.mimeType,
+            ownerId: ref.read(customerAccountIdentityProvider)?.subjectId,
             // Fence contesto durevole; il retry può avvenire su un'altra route.
-            canContinue: () => _isCurrentContext(fence));
+            canContinue: () => _isCurrentContext(fence),
+          );
         } on Object {
           if (!current()) return;
           file.status = CustomerAfterSalesAttachmentStatus.fileUnavailable;
@@ -320,13 +388,20 @@ final class CustomerAfterSalesController
       file.status = CustomerAfterSalesAttachmentStatus.uploading;
       state = state.copyWith();
       try {
-        file.evidenceId = await ref.read(customerAfterSalesRepositoryProvider).uploadEvidence(caseId: caseId, input: file.input!);
+        file.evidenceId = await ref
+            .read(customerAfterSalesRepositoryProvider)
+            .uploadEvidence(caseId: caseId, input: file.input!);
         if (!_isCurrentContext(fence)) return;
         file.status = CustomerAfterSalesAttachmentStatus.confirmed;
+        file.input = null; // La receipt basta: non trattenere i byte confermati.
       } on CustomerAfterSalesException catch (error) {
         if (!_isCurrentContext(fence)) return;
-        file.status = error.code == 'evidence_ambiguous' || error.code == 'timeout' || error.code == 'offline'
-            ? CustomerAfterSalesAttachmentStatus.ambiguous : CustomerAfterSalesAttachmentStatus.failed;
+        file.status =
+            error.code == 'evidence_ambiguous' ||
+                error.code == 'timeout' ||
+                error.code == 'offline'
+            ? CustomerAfterSalesAttachmentStatus.ambiguous
+            : CustomerAfterSalesAttachmentStatus.failed;
       } on Object {
         if (!_isCurrentContext(fence)) return;
         file.status = CustomerAfterSalesAttachmentStatus.ambiguous;
@@ -356,9 +431,15 @@ final class CustomerAfterSalesController
           .read(customerAfterSalesRepositoryProvider)
           .list(shopSlug: shopSlug);
       if (!_disposed && generation == _generation) {
-        final cases = caseRevision == _caseRevision ? values : [
-          ...state.cases, ...values.where((value) => !state.cases.any((existing) => existing.id == value.id)),
-        ];
+        final cases = caseRevision == _caseRevision
+            ? values
+            : [
+                ...state.cases,
+                ...values.where(
+                  (value) =>
+                      !state.cases.any((existing) => existing.id == value.id),
+                ),
+              ];
         state = state.copyWith(isLoading: false, cases: cases);
       }
     } on CustomerAfterSalesException catch (error) {

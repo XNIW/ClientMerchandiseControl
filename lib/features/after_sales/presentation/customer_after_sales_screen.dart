@@ -210,8 +210,16 @@ final class _AfterSalesCaseDetail extends ConsumerWidget {
               ),
             ),
           ],
-          if (!const {CustomerAfterSalesStatus.closed, CustomerAfterSalesStatus.rejected, CustomerAfterSalesStatus.refunded}.contains(item.status))
-            _EvidenceRecoveryPanel(caseId: item.id, state: state, serverEvidenceCount: item.evidence.length),
+          if (!const {
+            CustomerAfterSalesStatus.closed,
+            CustomerAfterSalesStatus.rejected,
+            CustomerAfterSalesStatus.refunded,
+          }.contains(item.status))
+            _EvidenceRecoveryPanel(
+              caseId: item.id,
+              state: state,
+              serverEvidenceCount: item.evidence.length,
+            ),
           const SizedBox(height: AppSpacing.md),
           Text(
             l10n.afterSalesTimeline,
@@ -333,26 +341,45 @@ final class _AfterSalesCreateFormState
   }
 
   Future<void> _submit() async {
-    if (!_isCurrent || ref.read(customerAfterSalesControllerProvider).isMutating) return;
+    if (!_isCurrent ||
+        ref.read(customerAfterSalesControllerProvider).isMutating)
+      return;
     final l10n = AppLocalizations.of(context);
     if (_selected.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.afterSalesSelectItem)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.afterSalesSelectItem)));
       return;
     }
     final controller = ref.read(customerAfterSalesControllerProvider.notifier);
     final value = await controller.submitWithEvidence(
-      draft: CustomerAfterSalesDraft(orderId: widget.orderId, type: _type, reason: _reason,
+      draft: CustomerAfterSalesDraft(
+        orderId: widget.orderId,
+        type: _type,
+        reason: _reason,
         note: _note.text.trim().isEmpty ? null : _note.text.trim(),
-        lines: _selected.entries.map((entry) => CustomerAfterSalesLineDraft(orderItemId: entry.key, quantity: entry.value)).toList()),
+        lines: _selected.entries
+            .map(
+              (entry) => CustomerAfterSalesLineDraft(
+                orderItemId: entry.key,
+                quantity: entry.value,
+              ),
+            )
+            .toList(),
+      ),
       attachments: _evidence.map(_localAttachment).toList(),
       canContinue: () => _isCurrent,
     );
     if (!_isCurrent) return;
     final state = ref.read(customerAfterSalesControllerProvider);
     if (value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.afterSalesFailure)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.afterSalesFailure)));
     } else if (!state.hasIncompleteAttachments) {
       context.go(AppRoutes.afterSalesLocation(value.id));
+      unawaited(controller.refresh());
+    } else {
       unawaited(controller.refresh());
     }
   }
@@ -387,12 +414,30 @@ final class _AfterSalesCreateFormState
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(customerAfterSalesControllerProvider);
     if (!_scopeValid) return Center(child: Text(l10n.afterSalesFailure));
-    final openedCase = ref.read(customerAfterSalesControllerProvider.notifier).openedCaseForOrder(widget.orderId);
+    final openedCase = ref
+        .read(customerAfterSalesControllerProvider.notifier)
+        .openedCaseForOrder(widget.orderId);
     if (openedCase != null) {
-      return ListView(padding: const EdgeInsets.all(AppSpacing.lg), children: [
-        _EvidenceRecoveryPanel(caseId: openedCase.id, state: state, canContinue: () => _isCurrent, onCompleted: () { if (_isCurrent) context.go(AppRoutes.afterSalesLocation(openedCase.id)); }),
-        TextButton(onPressed: state.isMutating ? null : () => context.go(AppRoutes.afterSalesLocation(openedCase.id)), child: Text(l10n.afterSalesTitle)),
-      ]);
+      return ListView(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          _EvidenceRecoveryPanel(
+            caseId: openedCase.id,
+            state: state,
+            canContinue: () => _isCurrent,
+            onCompleted: () {
+              if (_isCurrent)
+                context.go(AppRoutes.afterSalesLocation(openedCase.id));
+            },
+          ),
+          TextButton(
+            onPressed: state.isMutating
+                ? null
+                : () => context.go(AppRoutes.afterSalesLocation(openedCase.id)),
+            child: Text(l10n.afterSalesTitle),
+          ),
+        ],
+      );
     }
     return FutureBuilder<CustomerAfterSalesOrderLines>(
       future: _items,
@@ -540,13 +585,27 @@ final class _AfterSalesCreateFormState
 
 CustomerAfterSalesLocalAttachment _localAttachment(XFile file) {
   final extension = file.name.split('.').last.toLowerCase();
-  return CustomerAfterSalesLocalAttachment(name: file.name, extension: extension,
-    mimeType: switch (extension) { 'jpg' || 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp', _ => '' },
-    readBytes: file.readAsBytes);
+  return CustomerAfterSalesLocalAttachment(
+    name: file.name,
+    extension: extension,
+    mimeType: switch (extension) {
+      'jpg' || 'jpeg' => 'image/jpeg',
+      'png' => 'image/png',
+      'webp' => 'image/webp',
+      _ => '',
+    },
+    readBytes: file.readAsBytes,
+  );
 }
 
 final class _EvidenceRecoveryPanel extends ConsumerWidget {
-  const _EvidenceRecoveryPanel({required this.caseId, required this.state, this.serverEvidenceCount = 0, this.canContinue, this.onCompleted});
+  const _EvidenceRecoveryPanel({
+    required this.caseId,
+    required this.state,
+    this.serverEvidenceCount = 0,
+    this.canContinue,
+    this.onCompleted,
+  });
   final String caseId;
   final CustomerAfterSalesState state;
   final int serverEvidenceCount;
@@ -555,67 +614,148 @@ final class _EvidenceRecoveryPanel extends ConsumerWidget {
 
   Future<void> _recover(BuildContext context, WidgetRef ref) async {
     final controller = ref.read(customerAfterSalesControllerProvider.notifier);
-    await controller.completeAttachments(caseId, () => context.mounted && (canContinue?.call() ?? true));
-    if (context.mounted && (canContinue?.call() ?? true) && controller.attachmentsFor(caseId).every((file) => file.status == CustomerAfterSalesAttachmentStatus.confirmed)) onCompleted?.call();
+    await controller.completeAttachments(
+      caseId,
+      () => context.mounted && (canContinue?.call() ?? true),
+    );
+    if (context.mounted &&
+        (canContinue?.call() ?? true) &&
+        controller
+            .attachmentsFor(caseId)
+            .every(
+              (file) =>
+                  file.status == CustomerAfterSalesAttachmentStatus.confirmed,
+            ))
+      onCompleted?.call();
+    if (context.mounted && (canContinue?.call() ?? true)) unawaited(controller.refresh());
   }
 
-  Future<void> _pick(BuildContext context, WidgetRef ref, {int? replaceIndex}) async {
+  Future<void> _pick(
+    BuildContext context,
+    WidgetRef ref, {
+    int? replaceIndex,
+  }) async {
     final controller = ref.read(customerAfterSalesControllerProvider.notifier);
     final fence = controller.captureOperationContext();
     if (fence == null || state.isMutating) return;
     final l10n = AppLocalizations.of(context);
     try {
       final files = controller.attachmentsFor(caseId);
-      final confirmed = files.where((file) => file.status == CustomerAfterSalesAttachmentStatus.confirmed).length;
+      final confirmed = files
+          .where(
+            (file) =>
+                file.status == CustomerAfterSalesAttachmentStatus.confirmed,
+          )
+          .length;
       final pending = files.length - confirmed;
-      final capacity = replaceIndex != null ? 1 : 3 - (serverEvidenceCount > confirmed ? serverEvidenceCount : confirmed) - pending;
+      final capacity = replaceIndex != null
+          ? 1
+          : 3 -
+                (serverEvidenceCount > confirmed
+                    ? serverEvidenceCount
+                    : confirmed) -
+                pending;
       if (capacity <= 0) return;
-      final selected = await ImagePicker().pickMultiImage(limit: capacity < 2 ? null : capacity, imageQuality: 85, maxWidth: 2048, maxHeight: 2048, requestFullMetadata: false);
-      if (!context.mounted || !fence() || !(canContinue?.call() ?? true)) return;
-      controller.selectAttachments(caseId, selected.take(capacity).map(_localAttachment).toList(), replaceIndex: replaceIndex);
+      final selected = await ImagePicker().pickMultiImage(
+        limit: capacity < 2 ? null : capacity,
+        imageQuality: 85,
+        maxWidth: 2048,
+        maxHeight: 2048,
+        requestFullMetadata: false,
+      );
+      if (!context.mounted || !fence() || !(canContinue?.call() ?? true))
+        return;
+      controller.selectAttachments(
+        caseId,
+        selected.take(capacity).map(_localAttachment).toList(),
+        replaceIndex: replaceIndex,
+      );
     } on Object {
       if (!context.mounted || !fence()) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.afterSalesEvidencePickerFailure)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.afterSalesEvidencePickerFailure)),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final files = ref.read(customerAfterSalesControllerProvider.notifier).attachmentsFor(caseId);
-    final pending = files.any((file) => file.status != CustomerAfterSalesAttachmentStatus.confirmed);
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Semantics(liveRegion: true, child: Text(l10n.afterSalesCaseOpened)),
-      const SizedBox(height: AppSpacing.md),
-      for (final entry in files.indexed) ...[
-        Text(entry.$2.name),
-        Semantics(liveRegion: true, child: Text(switch (entry.$2.status) {
-          CustomerAfterSalesAttachmentStatus.confirmed => l10n.afterSalesEvidenceConfirmed,
-          CustomerAfterSalesAttachmentStatus.reading || CustomerAfterSalesAttachmentStatus.uploading => l10n.afterSalesEvidenceUploading,
-          CustomerAfterSalesAttachmentStatus.fileUnavailable => l10n.afterSalesEvidenceFileUnavailable,
-          CustomerAfterSalesAttachmentStatus.ambiguous => l10n.afterSalesEvidenceAmbiguous,
-          _ => l10n.afterSalesEvidencePending,
-        })),
-        if (entry.$2.status == CustomerAfterSalesAttachmentStatus.fileUnavailable)
-          OutlinedButton(key: ValueKey('after-sales-evidence-replace-${entry.$1}'), onPressed: state.isMutating ? null : () => _pick(context, ref, replaceIndex: entry.$1), child: Text(l10n.afterSalesEvidenceReplace)),
+    final files = ref
+        .read(customerAfterSalesControllerProvider.notifier)
+        .attachmentsFor(caseId);
+    final pending = files.any(
+      (file) => file.status != CustomerAfterSalesAttachmentStatus.confirmed,
+    );
+    final confirmed = files.where((file) => file.status == CustomerAfterSalesAttachmentStatus.confirmed).length;
+    final capacity = 3 - (serverEvidenceCount > confirmed ? serverEvidenceCount : confirmed) - (files.length - confirmed);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(liveRegion: true, child: Text(l10n.afterSalesCaseOpened)),
         const SizedBox(height: AppSpacing.md),
+        for (final entry in files.indexed) ...[
+          Text(entry.$2.name),
+          Semantics(
+            liveRegion: true,
+            child: Text(switch (entry.$2.status) {
+              CustomerAfterSalesAttachmentStatus.confirmed =>
+                l10n.afterSalesEvidenceConfirmed,
+              CustomerAfterSalesAttachmentStatus.reading ||
+              CustomerAfterSalesAttachmentStatus.uploading =>
+                l10n.afterSalesEvidenceUploading,
+              CustomerAfterSalesAttachmentStatus.fileUnavailable =>
+                l10n.afterSalesEvidenceFileUnavailable,
+              CustomerAfterSalesAttachmentStatus.ambiguous =>
+                l10n.afterSalesEvidenceAmbiguous,
+              _ => l10n.afterSalesEvidencePending,
+            }),
+          ),
+          if (entry.$2.status ==
+              CustomerAfterSalesAttachmentStatus.fileUnavailable)
+            OutlinedButton(
+              key: ValueKey('after-sales-evidence-replace-${entry.$1}'),
+              onPressed: state.isMutating
+                  ? null
+                  : () => _pick(context, ref, replaceIndex: entry.$1),
+              child: Text(l10n.afterSalesEvidenceReplace),
+            ),
+          const SizedBox(height: AppSpacing.md),
+        ],
+        if (pending)
+          FilledButton(
+            key: const ValueKey('after-sales-evidence-retry'),
+            onPressed: state.isMutating ? null : () => _recover(context, ref),
+            child: Text(
+              state.isMutating
+                  ? l10n.afterSalesEvidenceUploading
+                  : l10n.afterSalesEvidenceRetry,
+            ),
+          ),
+        if (capacity > 0)
+          OutlinedButton.icon(
+            key: const ValueKey('after-sales-evidence-add-existing'),
+            onPressed: state.isMutating ? null : () => _pick(context, ref),
+            icon: const Icon(Icons.add_photo_alternate_outlined),
+            label: Text(l10n.afterSalesEvidenceAttach),
+          ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          l10n.afterSalesEvidenceReopenHelp,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
       ],
-      if (pending)
-        FilledButton(key: const ValueKey('after-sales-evidence-retry'), onPressed: state.isMutating ? null : () => _recover(context, ref), child: Text(state.isMutating ? l10n.afterSalesEvidenceUploading : l10n.afterSalesEvidenceRetry)),
-      if (files.length < 3 && serverEvidenceCount < 3)
-        OutlinedButton.icon(key: const ValueKey('after-sales-evidence-add-existing'), onPressed: state.isMutating ? null : () => _pick(context, ref), icon: const Icon(Icons.add_photo_alternate_outlined), label: Text(l10n.afterSalesEvidenceAttach)),
-      const SizedBox(height: AppSpacing.sm),
-      Text(l10n.afterSalesEvidenceReopenHelp, style: Theme.of(context).textTheme.bodySmall),
-    ]);
+    );
   }
 }
 
-String _evidenceStatusLabel(AppLocalizations l10n, String status) => switch(status) {
-  'pending_scan' => l10n.afterSalesEvidenceConfirmed,
-  'safe' => l10n.afterSalesEvidenceSafe,
-  'rejected' => l10n.afterSalesEvidenceRejected,
-  _ => l10n.afterSalesEvidencePending,
-};
+String _evidenceStatusLabel(AppLocalizations l10n, String status) =>
+    switch (status) {
+      'pending_scan' => l10n.afterSalesEvidenceConfirmed,
+      'safe' => l10n.afterSalesEvidenceSafe,
+      'rejected' => l10n.afterSalesEvidenceRejected,
+      _ => l10n.afterSalesEvidencePending,
+    };
 
 final class _FailureBanner extends StatelessWidget {
   const _FailureBanner({required this.message});

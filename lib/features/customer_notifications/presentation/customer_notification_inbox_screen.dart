@@ -262,12 +262,17 @@ class _NotificationTile extends StatelessWidget {
     final dateLabel =
         '${MaterialLocalizations.of(context).formatShortDate(date)} · '
         '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(date))}';
-    final readLabel = item.isUnread ? l10n.notificationsUnread : l10n.notificationsRead;
+    final readLabel = item.isUnread
+        ? l10n.notificationsUnread
+        : l10n.notificationsRead;
     final destinationLabel = switch (item.destinationType) {
       CustomerNotificationDestinationType.order => l10n.notificationsOpenOrder,
-      CustomerNotificationDestinationType.afterSales => l10n.notificationsOpenSupport,
-      CustomerNotificationDestinationType.product => l10n.notificationsOpenProduct,
-      CustomerNotificationDestinationType.notifications => l10n.notificationsStayInInbox,
+      CustomerNotificationDestinationType.afterSales =>
+        l10n.notificationsOpenSupport,
+      CustomerNotificationDestinationType.product =>
+        l10n.notificationsOpenProduct,
+      CustomerNotificationDestinationType.notifications =>
+        l10n.notificationsStayInInbox,
     };
     return Card(
       key: ValueKey('notification-${item.id}'),

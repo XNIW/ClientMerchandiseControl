@@ -55,6 +55,12 @@ void main() {
               routerConfig: router,
               theme: AppTheme.light(),
               locale: const Locale('es', 'CL'),
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: const TextScaler.linear(2),
+                ),
+                child: child!,
+              ),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
             ),
@@ -165,7 +171,8 @@ void main() {
         expect(
           tester.takeException(),
           isNull,
-          reason: 'L indirizzo selezionato è informativo, senza radio non registrato',
+          reason:
+              'L indirizzo selezionato è informativo, senza radio non registrato',
         );
         final addressTile = tester.widget<ListTile>(
           find.widgetWithText(ListTile, created.label),

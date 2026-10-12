@@ -65,10 +65,12 @@ final class SupabaseCustomerAfterSalesRepository
   SupabaseCustomerAfterSalesRepository({
     required this.port,
     this.timeout = const Duration(seconds: 12),
+    this.now = DateTime.now,
   });
 
   final CustomerAfterSalesPort port;
   final Duration timeout;
+  final DateTime Function() now;
 
   @override
   Future<List<CustomerAfterSalesCase>> list({required String shopSlug}) {
@@ -262,25 +264,30 @@ final class SupabaseCustomerAfterSalesRepository
         if (transfer.objectPath != null) {
           final found = await receipt();
           if (found != null) return found;
-          if (transfer.uploadAttempted) {
+          if (!transfer.expiresAt!.isAfter(now().toUtc())) {
+            // Trasporto precedente terminale e receipt esatta assente: la vecchia
+            // prenotazione è scaduta. Il cleanup resta di competenza backend.
+            transfer.objectPath = null;
+            transfer.uploadAttempted = false;
+            transfer.uploaded = false;
+          } else if (transfer.uploadAttempted) {
             final registered = await register(allowMissing: !transfer.uploaded);
             if (registered != null) return registered;
           }
-          if (!transfer.uploadAttempted && transfer.expiresAt!.isBefore(DateTime.now().toUtc())) {
-            transfer.objectPath = null;
-          }
         }
         if (transfer.objectPath == null) {
-          if (transfer.ticketUncertainUntil?.isAfter(DateTime.now().toUtc()) ?? false) {
+          if (transfer.ticketUncertainUntil?.isAfter(now().toUtc()) ?? false) {
             throw const CustomerAfterSalesException('evidence_ambiguous');
           }
           fence();
           // Il ticket non è idempotente: una risposta persa riserva fino a20min.
-          transfer.ticketUncertainUntil = DateTime.now().toUtc().add(const Duration(minutes: 20));
+          transfer.ticketUncertainUntil = now().toUtc().add(const Duration(minutes: 20));
           final ticket = _payload(await port.invoke('customer_after_sales_evidence_upload_ticket_v1', {
             'p_case_id': caseId, 'p_extension': extension,
           }), const {'apiVersion', 'status', 'ticketId', 'objectPath', 'expiresAt'}, 'after_sales_evidence_ticket');
-          transfer.ticketUncertainUntil = null;
+          if (ticket['apiVersion'] == 'customer-after-sales.v1' && ticket['status'] != 'ok' && ticket['status'] is String) {
+            transfer.ticketUncertainUntil = null;
+          }
           _root(ticket);
           if (ticket.length != 5) throw const FormatException('after_sales_evidence_ticket_shape');
           final ticketId = _uuid(ticket, 'ticketId');
@@ -289,11 +296,13 @@ final class SupabaseCustomerAfterSalesRepository
             throw const FormatException('evidence_ticket_identity');
           }
           // Conservo una risposta tardiva, ma il fence vieta upload successivi.
+          final expiresAt = _date(ticket, 'expiresAt');
           transfer.objectPath = path;
-          transfer.expiresAt = _date(ticket, 'expiresAt');
+          transfer.expiresAt = expiresAt;
+          transfer.ticketUncertainUntil = null;
           fence();
         }
-        if (!transfer.expiresAt!.isAfter(DateTime.now().toUtc())) {
+        if (!transfer.expiresAt!.isAfter(now().toUtc())) {
           throw const CustomerAfterSalesException('evidence_ticket_expired');
         }
         fence();

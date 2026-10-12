@@ -19,6 +19,88 @@ const _caseId = '86000000-0000-4000-8000-000000000001';
 const _idempotencyKey = '87000000-0000-4000-8000-000000000001';
 
 void main() {
+
+  test('intera sequenza protegge lettura file, refresh e secondo invio', () async {
+    final repository = _Repository();
+    final identity = StateProvider<AuthenticatedCustomer?>((ref) => _customer(_ownerA));
+    final container = _container(repository, identity);
+    addTearDown(container.dispose);
+    container.listen(customerAfterSalesControllerProvider, (_, _) {});
+    await _settle();
+    final reader = Completer<Uint8List>();
+    final file = CustomerAfterSalesLocalAttachment(name: 'originale.png', extension: 'png', mimeType: 'image/png', readBytes: () => reader.future);
+    final controller = container.read(customerAfterSalesControllerProvider.notifier);
+    final pending = controller.submitWithEvidence(draft: _draft(), attachments: [file], canContinue: () => true);
+    await _settle();
+    expect(container.read(customerAfterSalesControllerProvider).isMutating, isTrue);
+    await controller.refresh();
+    expect(await controller.submitWithEvidence(draft: _draft(), attachments: [file], canContinue: () => true), isNull);
+    expect(repository.idempotencyKeys, hasLength(1));
+    reader.complete(Uint8List.fromList([1]));
+    expect((await pending)?.id, _caseId);
+    expect(file.status, CustomerAfterSalesAttachmentStatus.confirmed);
+    expect(repository.uploadCaseIds, [_caseId]);
+    expect(controller.openedCaseForOrder(_order), isNull, reason: 'Una nuova richiesta legittima resta possibile dopo completamento');
+    await controller.submitWithEvidence(draft: _draft(), attachments: [], canContinue: () => true);
+    expect(repository.idempotencyKeys, hasLength(2));
+  });
+
+  test('lista precedente non cancella ACK e retry conserva stessa pratica', () async {
+    final repository = _Repository()..listBarrier = Completer<List<CustomerAfterSalesCase>>();
+    final identity = StateProvider<AuthenticatedCustomer?>((ref) => _customer(_ownerA));
+    final container = _container(repository, identity);
+    addTearDown(container.dispose);
+    container.listen(customerAfterSalesControllerProvider, (_, _) {});
+    await _settle();
+    var fails = true;
+    final file = CustomerAfterSalesLocalAttachment(name: 'mancante.png', extension: 'png', mimeType: 'image/png', readBytes: () async { if (fails) throw StateError('File sintetico assente'); return Uint8List.fromList([1]); });
+    final controller = container.read(customerAfterSalesControllerProvider.notifier);
+    await controller.submitWithEvidence(draft: _draft(), attachments: [file], canContinue: () => true);
+    repository.listBarrier!.complete([]);
+    await _settle();
+    expect(container.read(customerAfterSalesControllerProvider).cases.single.id, _caseId);
+    expect(file.status, CustomerAfterSalesAttachmentStatus.fileUnavailable);
+    // Cambiare pratica non perde il checkpoint della prima.
+    const other = '86000000-0000-4000-8000-000000000002';
+    controller.selectAttachments(other, [CustomerAfterSalesLocalAttachment(name: 'altro.png', extension: 'png', mimeType: 'image/png', readBytes: () async => Uint8List.fromList([2]))]);
+    expect(controller.attachmentsFor(_caseId).single.name, 'mancante.png');
+    expect(controller.openedCaseForOrder(_order)?.id, _caseId);
+    fails = false;
+    await controller.completeAttachments(_caseId, () => true);
+    expect(repository.idempotencyKeys, hasLength(1));
+    expect(repository.uploadCaseIds, [_caseId]);
+  });
+
+  for (final change in ['account', 'navigation', 'dispose']) {
+    test('risposta lettura tardiva fermata dopo $change', () async {
+      final repository = _Repository();
+      final identity = StateProvider<AuthenticatedCustomer?>((ref) => _customer(_ownerA));
+      final container = _container(repository, identity);
+      container.listen(customerAfterSalesControllerProvider, (_, _) {});
+      await _settle();
+      var current = true;
+      final reader = Completer<Uint8List>();
+      final file = CustomerAfterSalesLocalAttachment(name: 'privato.png', extension: 'png', mimeType: 'image/png', readBytes: () => reader.future);
+      final controller = container.read(customerAfterSalesControllerProvider.notifier);
+      final pending = controller.submitWithEvidence(draft: _draft(), attachments: [file], canContinue: () => current);
+      await _settle();
+      if (change == 'account') {
+        container.read(identity.notifier).state = _customer(_ownerB);
+        container.read(customerAfterSalesControllerProvider);
+        await _settle();
+        container.read(identity.notifier).state = _customer(_ownerA);
+        container.read(customerAfterSalesControllerProvider);
+      } else if (change == 'dispose') {
+        container.dispose();
+      } else {
+        current = false;
+      }
+      reader.complete(Uint8List.fromList([1]));
+      await pending;
+      expect(repository.uploadCaseIds, isEmpty);
+      if (change != 'dispose') container.dispose();
+    });
+  }
   test('refresh durante create conserva mutex e ACK della pratica', () async {
     final repository = _Repository()..createBarrier = Completer<void>();
     final identity = StateProvider<AuthenticatedCustomer?>((ref) => _customer(_ownerA));
@@ -190,12 +272,13 @@ Future<void> _settle() async {
 
 final class _Repository implements CustomerAfterSalesRepository {
   Completer<void>? createBarrier;
+  Completer<List<CustomerAfterSalesCase>>? listBarrier;
+  final uploadCaseIds = <String>[];
   bool failFirstCreate = false;
   final List<String> idempotencyKeys = [];
 
   @override
-  Future<List<CustomerAfterSalesCase>> list({required String shopSlug}) async =>
-      const [];
+  Future<List<CustomerAfterSalesCase>> list({required String shopSlug}) async => listBarrier == null ? const [] : listBarrier!.future;
 
   @override
   Future<CustomerAfterSalesOrderLines> listOrderLines(String orderId) =>
@@ -227,6 +310,7 @@ final class _Repository implements CustomerAfterSalesRepository {
     required CustomerAfterSalesEvidenceInput input,
   }) async {
     expect(input.bytes, isA<Uint8List>());
+    uploadCaseIds.add(caseId);
     return '90000000-0000-4000-8000-000000000001';
   }
 }

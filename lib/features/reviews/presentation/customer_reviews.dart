@@ -204,15 +204,7 @@ final class _StorefrontProductReviewsSectionState
                             : Text(review.comment!),
                       ),
                     ),
-                  if (_busy) ...[
-              const SizedBox(height: AppSpacing.sm),
-              Semantics(
-                key: const ValueKey('review-saving'),
-                liveRegion: true,
-                child: Text(l10n.reviewsSaving),
-              ),
-            ],
-            if (_hasFailure) ...[
+                  if (_hasFailure) ...[
                     const SizedBox(height: AppSpacing.sm),
                     Semantics(
                       liveRegion: true,
@@ -691,6 +683,14 @@ final class _CustomerReviewDialogState
               enabled: !_busy,
               decoration: InputDecoration(labelText: l10n.reviewsComment),
             ),
+            if (_busy) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Semantics(
+                key: const ValueKey('review-saving'),
+                liveRegion: true,
+                child: Text(l10n.reviewsSaving),
+              ),
+            ],
             if (_hasFailure) ...[
               const SizedBox(height: AppSpacing.sm),
               Semantics(

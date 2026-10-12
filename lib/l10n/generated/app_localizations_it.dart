@@ -2282,4 +2282,59 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get customerAddressSending =>
       'Salvataggio in corso. Chiudere non lo annulla.';
+
+  @override
+  String get reviewsSaving => 'Salvataggio in corso…';
+
+  @override
+  String get notificationsRead => 'Letta';
+
+  @override
+  String get notificationsOpenOrder => 'Apri ordine';
+
+  @override
+  String get notificationsOpenSupport => 'Apri pratica di assistenza';
+
+  @override
+  String get notificationsOpenProduct => 'Apri prodotto';
+
+  @override
+  String get notificationsStayInInbox => 'Resta nelle notifiche';
+
+  @override
+  String get afterSalesCaseOpened =>
+      'Pratica aperta. Puoi completare gli allegati qui.';
+
+  @override
+  String get afterSalesEvidenceConfirmed => 'Ricevuto; in attesa di verifica';
+
+  @override
+  String get afterSalesEvidenceSafe => 'Verificato';
+
+  @override
+  String get afterSalesEvidenceRejected => 'Rifiutato';
+
+  @override
+  String get afterSalesEvidencePending => 'Da completare';
+
+  @override
+  String get afterSalesEvidenceUploading => 'Caricamento allegati…';
+
+  @override
+  String get afterSalesEvidenceAmbiguous =>
+      'Esito da verificare. Riprova per controllare lo stesso allegato.';
+
+  @override
+  String get afterSalesEvidenceFileUnavailable =>
+      'File locale non disponibile. Selezionalo di nuovo.';
+
+  @override
+  String get afterSalesEvidenceRetry => 'Completa allegati';
+
+  @override
+  String get afterSalesEvidenceReplace => 'Seleziona di nuovo';
+
+  @override
+  String get afterSalesEvidenceReopenHelp =>
+      'Alla riapertura restano gli allegati ricevuti. Dopo il riavvio dell’app, seleziona di nuovo i file mancanti.';
 }

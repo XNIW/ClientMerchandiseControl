@@ -35,6 +35,8 @@ void main() {
     testWidgets('$action conserva bozza, errore locale e retry fino ad ACK', (
       tester,
     ) async {
+      final semantics = tester.ensureSemantics();
+      addTearDown(semantics.dispose);
       final repository = _ControlledReviews();
       final l10n = await _pump(tester, repository);
       await _open(tester, l10n, edit: action != 'submit');
@@ -61,6 +63,9 @@ void main() {
 
       expect(repository.attempts, hasLength(1));
       expect(find.byKey(const ValueKey('review-saving')), findsOneWidget);
+      final saving = tester.getSemantics(find.byKey(const ValueKey('review-saving')));
+      expect(saving.flagsCollection.isLiveRegion, isTrue);
+      expect(saving.label, l10n.reviewsSaving);
       expect(tester.widget<TextField>(_comment).enabled, isFalse);
       expect(tester.widget<FilledButton>(_submit).onPressed, isNull);
       await tester.tap(actionButton);
@@ -82,6 +87,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       _expectFailureInDialog(tester, l10n);
+      expect(find.byKey(const ValueKey('review-saving')), findsNothing);
       expect(tester.widget<TextField>(_comment).controller!.text, _draft);
       expect(tester.widget<TextField>(_comment).enabled, isTrue);
       expect(tester.widget<FilledButton>(_submit).onPressed, isNotNull);

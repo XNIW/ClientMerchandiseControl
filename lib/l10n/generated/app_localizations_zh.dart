@@ -2278,6 +2278,61 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get customerAddressSending =>
       'Guardando. Cerrar el editor no cancela el guardado.';
+
+  @override
+  String get reviewsSaving => 'Guardando…';
+
+  @override
+  String get notificationsRead => 'Leída';
+
+  @override
+  String get notificationsOpenOrder => 'Abrir pedido';
+
+  @override
+  String get notificationsOpenSupport => 'Abrir solicitud de asistencia';
+
+  @override
+  String get notificationsOpenProduct => 'Abrir producto';
+
+  @override
+  String get notificationsStayInInbox => 'Permanecer en notificaciones';
+
+  @override
+  String get afterSalesCaseOpened =>
+      'Solicitud abierta. Puedes completar los adjuntos aquí.';
+
+  @override
+  String get afterSalesEvidenceConfirmed => 'Recibido; pendiente de revisión';
+
+  @override
+  String get afterSalesEvidenceSafe => 'Verificado';
+
+  @override
+  String get afterSalesEvidenceRejected => 'Rechazado';
+
+  @override
+  String get afterSalesEvidencePending => 'Por completar';
+
+  @override
+  String get afterSalesEvidenceUploading => 'Cargando adjuntos…';
+
+  @override
+  String get afterSalesEvidenceAmbiguous =>
+      'Resultado por verificar. Reintenta para comprobar el mismo adjunto.';
+
+  @override
+  String get afterSalesEvidenceFileUnavailable =>
+      'Archivo local no disponible. Selecciónalo de nuevo.';
+
+  @override
+  String get afterSalesEvidenceRetry => 'Completar adjuntos';
+
+  @override
+  String get afterSalesEvidenceReplace => 'Seleccionar de nuevo';
+
+  @override
+  String get afterSalesEvidenceReopenHelp =>
+      'Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4349,4 +4404,55 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get customerAddressSending => '正在保存。关闭编辑器不会取消保存。';
+
+  @override
+  String get reviewsSaving => '正在保存…';
+
+  @override
+  String get notificationsRead => '已读';
+
+  @override
+  String get notificationsOpenOrder => '打开订单';
+
+  @override
+  String get notificationsOpenSupport => '打开售后申请';
+
+  @override
+  String get notificationsOpenProduct => '打开商品';
+
+  @override
+  String get notificationsStayInInbox => '留在通知中';
+
+  @override
+  String get afterSalesCaseOpened => '申请已创建。可在此补充附件。';
+
+  @override
+  String get afterSalesEvidenceConfirmed => '已收到，待审核';
+
+  @override
+  String get afterSalesEvidenceSafe => '已审核';
+
+  @override
+  String get afterSalesEvidenceRejected => '已拒绝';
+
+  @override
+  String get afterSalesEvidencePending => '待补充';
+
+  @override
+  String get afterSalesEvidenceUploading => '正在上传附件…';
+
+  @override
+  String get afterSalesEvidenceAmbiguous => '结果待确认。重试以核对同一附件。';
+
+  @override
+  String get afterSalesEvidenceFileUnavailable => '本地文件不可用。请重新选择。';
+
+  @override
+  String get afterSalesEvidenceRetry => '补充附件';
+
+  @override
+  String get afterSalesEvidenceReplace => '重新选择';
+
+  @override
+  String get afterSalesEvidenceReopenHelp => '重新打开后，已收到的附件会保留。重启应用后，请重新选择缺失文件。';
 }

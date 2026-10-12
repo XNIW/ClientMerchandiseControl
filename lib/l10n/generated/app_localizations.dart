@@ -4026,6 +4026,108 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Guardando. Cerrar el editor no cancela el guardado.'**
   String get customerAddressSending;
+
+  /// No description provided for @reviewsSaving.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando…'**
+  String get reviewsSaving;
+
+  /// No description provided for @notificationsRead.
+  ///
+  /// In es, this message translates to:
+  /// **'Leída'**
+  String get notificationsRead;
+
+  /// No description provided for @notificationsOpenOrder.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir pedido'**
+  String get notificationsOpenOrder;
+
+  /// No description provided for @notificationsOpenSupport.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir solicitud de asistencia'**
+  String get notificationsOpenSupport;
+
+  /// No description provided for @notificationsOpenProduct.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir producto'**
+  String get notificationsOpenProduct;
+
+  /// No description provided for @notificationsStayInInbox.
+  ///
+  /// In es, this message translates to:
+  /// **'Permanecer en notificaciones'**
+  String get notificationsStayInInbox;
+
+  /// No description provided for @afterSalesCaseOpened.
+  ///
+  /// In es, this message translates to:
+  /// **'Solicitud abierta. Puedes completar los adjuntos aquí.'**
+  String get afterSalesCaseOpened;
+
+  /// No description provided for @afterSalesEvidenceConfirmed.
+  ///
+  /// In es, this message translates to:
+  /// **'Recibido; pendiente de revisión'**
+  String get afterSalesEvidenceConfirmed;
+
+  /// No description provided for @afterSalesEvidenceSafe.
+  ///
+  /// In es, this message translates to:
+  /// **'Verificado'**
+  String get afterSalesEvidenceSafe;
+
+  /// No description provided for @afterSalesEvidenceRejected.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazado'**
+  String get afterSalesEvidenceRejected;
+
+  /// No description provided for @afterSalesEvidencePending.
+  ///
+  /// In es, this message translates to:
+  /// **'Por completar'**
+  String get afterSalesEvidencePending;
+
+  /// No description provided for @afterSalesEvidenceUploading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando adjuntos…'**
+  String get afterSalesEvidenceUploading;
+
+  /// No description provided for @afterSalesEvidenceAmbiguous.
+  ///
+  /// In es, this message translates to:
+  /// **'Resultado por verificar. Reintenta para comprobar el mismo adjunto.'**
+  String get afterSalesEvidenceAmbiguous;
+
+  /// No description provided for @afterSalesEvidenceFileUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivo local no disponible. Selecciónalo de nuevo.'**
+  String get afterSalesEvidenceFileUnavailable;
+
+  /// No description provided for @afterSalesEvidenceRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Completar adjuntos'**
+  String get afterSalesEvidenceRetry;
+
+  /// No description provided for @afterSalesEvidenceReplace.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar de nuevo'**
+  String get afterSalesEvidenceReplace;
+
+  /// No description provided for @afterSalesEvidenceReopenHelp.
+  ///
+  /// In es, this message translates to:
+  /// **'Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan.'**
+  String get afterSalesEvidenceReopenHelp;
 }
 
 class _AppLocalizationsDelegate

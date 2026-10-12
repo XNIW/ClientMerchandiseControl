@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 
 import '../../../core/config/app_config.dart';
 import '../../account/application/customer_account_providers.dart';
@@ -56,6 +56,7 @@ final class CustomerAfterSalesState {
     List<CustomerAfterSalesCase>? cases,
     String? failure,
     bool clearFailure = false,
+    bool clearAttachmentOrderId = false,
     String? attachmentCaseId,
     String? attachmentOrderId,
     List<CustomerAfterSalesLocalAttachment>? attachments,
@@ -66,7 +67,7 @@ final class CustomerAfterSalesState {
       cases: cases ?? this.cases,
       failure: clearFailure ? null : failure ?? this.failure,
       attachmentCaseId: attachmentCaseId ?? this.attachmentCaseId,
-      attachmentOrderId: attachmentOrderId ?? this.attachmentOrderId,
+      attachmentOrderId: clearAttachmentOrderId ? null : attachmentOrderId ?? this.attachmentOrderId,
       attachments: attachments ?? this.attachments,
     );
   }
@@ -78,6 +79,9 @@ final class CustomerAfterSalesController
   var _generation = 0;
   var _disposed = false;
   var _operationBusy = false;
+  var _caseRevision = 0;
+  final _attachmentsByCase = <String, List<CustomerAfterSalesLocalAttachment>>{};
+  final _createdCasesByOrder = <String, CustomerAfterSalesCase>{};
   String? _pendingCreateSignature;
   String? _pendingCreateIdempotencyKey;
 
@@ -94,6 +98,8 @@ final class CustomerAfterSalesController
           ++_generation;
           _contextKey = null;
           _operationBusy = false;
+          _attachmentsByCase.clear();
+          _createdCasesByOrder.clear();
           _pendingCreateSignature = null;
           _pendingCreateIdempotencyKey = null;
           state = CustomerAfterSalesState.loading();
@@ -107,6 +113,8 @@ final class CustomerAfterSalesController
     if (_contextKey != key) {
       _contextKey = key;
       _operationBusy = false;
+      _attachmentsByCase.clear();
+      _createdCasesByOrder.clear();
       _pendingCreateSignature = null;
       _pendingCreateIdempotencyKey = null;
       final generation = ++_generation;
@@ -153,6 +161,7 @@ final class CustomerAfterSalesController
       if (!_isCurrentContext(contextFence)) return null;
       _pendingCreateSignature = null;
       _pendingCreateIdempotencyKey = null;
+      ++_caseRevision;
       state = state.copyWith(
         isMutating: true,
         cases: [value, ...state.cases.where((item) => item.id != value.id)],
@@ -177,6 +186,7 @@ final class CustomerAfterSalesController
           .cancel(caseId: value.id, expectedVersion: value.version);
       if (!_isCurrentContext(contextFence)) return;
       _operationBusy = false;
+      ++_caseRevision;
       state = state.copyWith(
         isMutating: false,
         cases: state.cases
@@ -231,14 +241,13 @@ final class CustomerAfterSalesController
     _operationBusy = true;
     state = state.copyWith(isMutating: true, clearFailure: true);
     try {
-      var value = state.attachmentOrderId == draft.orderId
-          ? state.cases.where((item) => item.id == state.attachmentCaseId).firstOrNull : null;
+      var value = openedCaseForOrder(draft.orderId);
       value ??= await _createCase(draft, fence);
       if (value == null || !_isCurrentContext(fence)) return null;
       // caseId viene conservato prima di leggere qualunque file locale.
-      if (state.attachmentCaseId != value.id) {
-        state = state.copyWith(attachmentCaseId: value.id, attachmentOrderId: draft.orderId, attachments: attachments);
-      }
+      _createdCasesByOrder[draft.orderId] = value;
+      final files = _attachmentsByCase.putIfAbsent(value.id, () => attachments.toList());
+      state = state.copyWith(attachmentCaseId: value.id, attachmentOrderId: draft.orderId, attachments: files);
       if (!canContinue()) return value;
       await _completeAttachments(value.id, fence, canContinue);
       return _isCurrentContext(fence) ? value : null;
@@ -250,29 +259,32 @@ final class CustomerAfterSalesController
     }
   }
 
+  CustomerAfterSalesCase? openedCaseForOrder(String orderId) {
+    final value = _createdCasesByOrder[orderId];
+    return value != null && (_attachmentsByCase[value.id]?.any((file) => file.status != CustomerAfterSalesAttachmentStatus.confirmed) ?? false) ? value : null;
+  }
+  List<CustomerAfterSalesLocalAttachment> attachmentsFor(String caseId) => List.unmodifiable(_attachmentsByCase[caseId] ?? const <CustomerAfterSalesLocalAttachment>[]);
+
   void selectAttachments(String caseId, List<CustomerAfterSalesLocalAttachment> values, {int? replaceIndex}) {
     if (_operationBusy || _captureContextFence() == null) return;
-    if (state.attachmentCaseId != caseId) {
-      state = state.copyWith(attachmentCaseId: caseId, attachments: values.take(3).toList());
-      return;
-    }
-    final attachments = state.attachments.toList();
-    if (replaceIndex != null && replaceIndex < attachments.length && values.isNotEmpty) {
+    final attachments = (_attachmentsByCase[caseId] ?? const <CustomerAfterSalesLocalAttachment>[]).toList();
+    if (replaceIndex != null && replaceIndex >= 0 && replaceIndex < attachments.length && values.isNotEmpty) {
       final old = attachments[replaceIndex];
       if (old.status != CustomerAfterSalesAttachmentStatus.fileUnavailable && old.status != CustomerAfterSalesAttachmentStatus.ready) return;
       attachments[replaceIndex] = values.first;
     } else {
       attachments.addAll(values.take(3 - attachments.length));
     }
-    state = state.copyWith(attachments: attachments);
+    _attachmentsByCase[caseId] = attachments;
+    state = state.copyWith(attachmentCaseId: caseId, clearAttachmentOrderId: true, attachments: attachments);
   }
 
   Future<void> completeAttachments(String caseId, bool Function() canContinue) async {
-    if (_operationBusy || state.attachmentCaseId != caseId) return;
+    if (_operationBusy || !_attachmentsByCase.containsKey(caseId)) return;
     final fence = _captureContextFence();
     if (fence == null || !canContinue()) return;
     _operationBusy = true;
-    state = state.copyWith(isMutating: true, clearFailure: true);
+    state = state.copyWith(isMutating: true, clearFailure: true, attachmentCaseId: caseId, clearAttachmentOrderId: true, attachments: _attachmentsByCase[caseId]);
     try {
       await _completeAttachments(caseId, fence, canContinue);
     } finally {
@@ -338,12 +350,16 @@ final class CustomerAfterSalesController
       return;
     }
     state = state.copyWith(isLoading: true, clearFailure: true);
+    final caseRevision = _caseRevision;
     try {
       final values = await ref
           .read(customerAfterSalesRepositoryProvider)
           .list(shopSlug: shopSlug);
       if (!_disposed && generation == _generation) {
-        state = state.copyWith(isLoading: false, cases: values);
+        final cases = caseRevision == _caseRevision ? values : [
+          ...state.cases, ...values.where((value) => !state.cases.any((existing) => existing.id == value.id)),
+        ];
+        state = state.copyWith(isLoading: false, cases: cases);
       }
     } on CustomerAfterSalesException catch (error) {
       if (!_disposed && generation == _generation) {

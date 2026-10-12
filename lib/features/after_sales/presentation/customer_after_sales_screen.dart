@@ -387,10 +387,11 @@ final class _AfterSalesCreateFormState
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(customerAfterSalesControllerProvider);
     if (!_scopeValid) return Center(child: Text(l10n.afterSalesFailure));
-    if (state.attachmentOrderId == widget.orderId && state.attachmentCaseId != null) {
+    final openedCase = ref.read(customerAfterSalesControllerProvider.notifier).openedCaseForOrder(widget.orderId);
+    if (openedCase != null) {
       return ListView(padding: const EdgeInsets.all(AppSpacing.lg), children: [
-        _EvidenceRecoveryPanel(caseId: state.attachmentCaseId!, state: state, canContinue: () => _isCurrent),
-        TextButton(onPressed: state.isMutating ? null : () => context.go(AppRoutes.afterSalesLocation(state.attachmentCaseId!)), child: Text(l10n.afterSalesTitle)),
+        _EvidenceRecoveryPanel(caseId: openedCase.id, state: state, canContinue: () => _isCurrent, onCompleted: () { if (_isCurrent) context.go(AppRoutes.afterSalesLocation(openedCase.id)); }),
+        TextButton(onPressed: state.isMutating ? null : () => context.go(AppRoutes.afterSalesLocation(openedCase.id)), child: Text(l10n.afterSalesTitle)),
       ]);
     }
     return FutureBuilder<CustomerAfterSalesOrderLines>(
@@ -545,11 +546,18 @@ CustomerAfterSalesLocalAttachment _localAttachment(XFile file) {
 }
 
 final class _EvidenceRecoveryPanel extends ConsumerWidget {
-  const _EvidenceRecoveryPanel({required this.caseId, required this.state, this.serverEvidenceCount = 0, this.canContinue});
+  const _EvidenceRecoveryPanel({required this.caseId, required this.state, this.serverEvidenceCount = 0, this.canContinue, this.onCompleted});
   final String caseId;
   final CustomerAfterSalesState state;
   final int serverEvidenceCount;
   final bool Function()? canContinue;
+  final VoidCallback? onCompleted;
+
+  Future<void> _recover(BuildContext context, WidgetRef ref) async {
+    final controller = ref.read(customerAfterSalesControllerProvider.notifier);
+    await controller.completeAttachments(caseId, () => context.mounted && (canContinue?.call() ?? true));
+    if (context.mounted && (canContinue?.call() ?? true) && controller.attachmentsFor(caseId).every((file) => file.status == CustomerAfterSalesAttachmentStatus.confirmed)) onCompleted?.call();
+  }
 
   Future<void> _pick(BuildContext context, WidgetRef ref, {int? replaceIndex}) async {
     final controller = ref.read(customerAfterSalesControllerProvider.notifier);
@@ -557,9 +565,14 @@ final class _EvidenceRecoveryPanel extends ConsumerWidget {
     if (fence == null || state.isMutating) return;
     final l10n = AppLocalizations.of(context);
     try {
-      final selected = await ImagePicker().pickMultiImage(limit: 3, imageQuality: 85, maxWidth: 2048, maxHeight: 2048, requestFullMetadata: false);
+      final files = controller.attachmentsFor(caseId);
+      final confirmed = files.where((file) => file.status == CustomerAfterSalesAttachmentStatus.confirmed).length;
+      final pending = files.length - confirmed;
+      final capacity = replaceIndex != null ? 1 : 3 - (serverEvidenceCount > confirmed ? serverEvidenceCount : confirmed) - pending;
+      if (capacity <= 0) return;
+      final selected = await ImagePicker().pickMultiImage(limit: capacity < 2 ? null : capacity, imageQuality: 85, maxWidth: 2048, maxHeight: 2048, requestFullMetadata: false);
       if (!context.mounted || !fence() || !(canContinue?.call() ?? true)) return;
-      controller.selectAttachments(caseId, selected.map(_localAttachment).toList(), replaceIndex: replaceIndex);
+      controller.selectAttachments(caseId, selected.take(capacity).map(_localAttachment).toList(), replaceIndex: replaceIndex);
     } on Object {
       if (!context.mounted || !fence()) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.afterSalesEvidencePickerFailure)));
@@ -569,7 +582,7 @@ final class _EvidenceRecoveryPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final files = state.attachmentCaseId == caseId ? state.attachments : const <CustomerAfterSalesLocalAttachment>[];
+    final files = ref.read(customerAfterSalesControllerProvider.notifier).attachmentsFor(caseId);
     final pending = files.any((file) => file.status != CustomerAfterSalesAttachmentStatus.confirmed);
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Semantics(liveRegion: true, child: Text(l10n.afterSalesCaseOpened)),
@@ -588,7 +601,7 @@ final class _EvidenceRecoveryPanel extends ConsumerWidget {
         const SizedBox(height: AppSpacing.md),
       ],
       if (pending)
-        FilledButton(key: const ValueKey('after-sales-evidence-retry'), onPressed: state.isMutating ? null : () => ref.read(customerAfterSalesControllerProvider.notifier).completeAttachments(caseId, () => context.mounted && (canContinue?.call() ?? true)), child: Text(state.isMutating ? l10n.afterSalesEvidenceUploading : l10n.afterSalesEvidenceRetry)),
+        FilledButton(key: const ValueKey('after-sales-evidence-retry'), onPressed: state.isMutating ? null : () => _recover(context, ref), child: Text(state.isMutating ? l10n.afterSalesEvidenceUploading : l10n.afterSalesEvidenceRetry)),
       if (files.length < 3 && serverEvidenceCount < 3)
         OutlinedButton.icon(key: const ValueKey('after-sales-evidence-add-existing'), onPressed: state.isMutating ? null : () => _pick(context, ref), icon: const Icon(Icons.add_photo_alternate_outlined), label: Text(l10n.afterSalesEvidenceAttach)),
       const SizedBox(height: AppSpacing.sm),

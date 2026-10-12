@@ -2278,4 +2278,59 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get customerAddressSending =>
       'Guardando. Cerrar el editor no cancela el guardado.';
+
+  @override
+  String get reviewsSaving => 'Guardando…';
+
+  @override
+  String get notificationsRead => 'Leída';
+
+  @override
+  String get notificationsOpenOrder => 'Abrir pedido';
+
+  @override
+  String get notificationsOpenSupport => 'Abrir solicitud de asistencia';
+
+  @override
+  String get notificationsOpenProduct => 'Abrir producto';
+
+  @override
+  String get notificationsStayInInbox => 'Permanecer en notificaciones';
+
+  @override
+  String get afterSalesCaseOpened =>
+      'Solicitud abierta. Puedes completar los adjuntos aquí.';
+
+  @override
+  String get afterSalesEvidenceConfirmed => 'Recibido; pendiente de revisión';
+
+  @override
+  String get afterSalesEvidenceSafe => 'Verificado';
+
+  @override
+  String get afterSalesEvidenceRejected => 'Rechazado';
+
+  @override
+  String get afterSalesEvidencePending => 'Por completar';
+
+  @override
+  String get afterSalesEvidenceUploading => 'Cargando adjuntos…';
+
+  @override
+  String get afterSalesEvidenceAmbiguous =>
+      'Resultado por verificar. Reintenta para comprobar el mismo adjunto.';
+
+  @override
+  String get afterSalesEvidenceFileUnavailable =>
+      'Archivo local no disponible. Selecciónalo de nuevo.';
+
+  @override
+  String get afterSalesEvidenceRetry => 'Completar adjuntos';
+
+  @override
+  String get afterSalesEvidenceReplace => 'Seleccionar de nuevo';
+
+  @override
+  String get afterSalesEvidenceReopenHelp =>
+      'Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan.';
 }

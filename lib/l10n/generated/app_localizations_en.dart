@@ -2255,4 +2255,59 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get customerAddressSending =>
       'Saving. Closing the editor does not cancel the save.';
+
+  @override
+  String get reviewsSaving => 'Saving…';
+
+  @override
+  String get notificationsRead => 'Read';
+
+  @override
+  String get notificationsOpenOrder => 'Open order';
+
+  @override
+  String get notificationsOpenSupport => 'Open support case';
+
+  @override
+  String get notificationsOpenProduct => 'Open product';
+
+  @override
+  String get notificationsStayInInbox => 'Stay in notifications';
+
+  @override
+  String get afterSalesCaseOpened =>
+      'Case opened. You can complete attachments here.';
+
+  @override
+  String get afterSalesEvidenceConfirmed => 'Received; awaiting review';
+
+  @override
+  String get afterSalesEvidenceSafe => 'Verified';
+
+  @override
+  String get afterSalesEvidenceRejected => 'Rejected';
+
+  @override
+  String get afterSalesEvidencePending => 'To complete';
+
+  @override
+  String get afterSalesEvidenceUploading => 'Uploading attachments…';
+
+  @override
+  String get afterSalesEvidenceAmbiguous =>
+      'Result needs verification. Retry to check the same attachment.';
+
+  @override
+  String get afterSalesEvidenceFileUnavailable =>
+      'Local file unavailable. Select it again.';
+
+  @override
+  String get afterSalesEvidenceRetry => 'Complete attachments';
+
+  @override
+  String get afterSalesEvidenceReplace => 'Select again';
+
+  @override
+  String get afterSalesEvidenceReopenHelp =>
+      'Received attachments remain when reopening. After restarting the app, select missing files again.';
 }

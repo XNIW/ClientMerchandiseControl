@@ -154,7 +154,7 @@ jobs:
             flutter test test/features/checkout/application/checkout_controller_test.dart --concurrency=1
           else
             flutter analyze
-            flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders test/features/product_detail/presentation/product_detail_screen_test.dart test/l10n/app_localizations_contract_test.dart --concurrency=1
+            flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders test/features/product_detail/presentation/product_detail_screen_test.dart test/l10n/app_localizations_contract_test.dart test/governance/ios_release_configuration_test.dart --concurrency=1
           fi
       - name: Preserve focused source preparation
         if: ${{ always() && inputs.focused }}

@@ -127,6 +127,39 @@ void main() {
     expect(() => _validateIosReleaseJob(workflow), returnsNormally);
   });
 
+  test('CI release selector rejects dispatch and release bypasses', () {
+    final workflow = File(
+      '$repositoryRoot/.github/workflows/ci.yml',
+    ).readAsStringSync();
+    final releaseOffset = workflow.indexOf('  ios-release:\n');
+    expect(releaseOffset, greaterThan(0));
+    final prefix = workflow.substring(0, releaseOffset);
+    final releaseJob = workflow.substring(releaseOffset);
+    const releaseCondition =
+        r"${{ github.event_name != 'workflow_dispatch' || inputs.gate == 'all' }}";
+    expect(releaseJob, contains('    if: $releaseCondition\n'));
+
+    final mutations = <String>[
+      workflow.replaceFirst('        type: choice\n', '        type: string\n'),
+      workflow.replaceFirst('        required: true\n', '        required: false\n'),
+      workflow.replaceFirst('        default: all\n', '        default: ios-visual\n'),
+      workflow.replaceFirst('          - ios-visual\n', '          - skip-release\n'),
+      prefix + releaseJob.replaceFirst(
+        '    if: $releaseCondition\n',
+        r"    if: ${{ inputs.gate == 'all' }}" '\n',
+      ),
+      prefix + releaseJob.replaceFirst('    if: $releaseCondition\n', ''),
+      workflow.replaceFirst(
+        r"-${{ inputs.gate || 'all' }}",
+        '',
+      ),
+    ];
+    for (final mutation in mutations) {
+      expect(mutation, isNot(workflow), reason: 'il controllo deve mutare il caso');
+      expect(() => _validateIosReleaseJob(mutation), throwsA(isA<StateError>()));
+    }
+  });
+
   test('TestFlight runbook preserves the CI reference attestation order', () {
     final runbook = File(
       '$repositoryRoot/docs/releases/IOS-TESTFLIGHT-RELEASE-RUNBOOK.md',
@@ -601,7 +634,7 @@ void _validateIosReleaseJob(String workflow) {
       }) ||
       !_isMainBranchTrigger(triggers['pull_request']) ||
       !_isMainBranchTrigger(triggers['push']) ||
-      triggers['workflow_dispatch'] != null ||
+      !_isCanonicalGateDispatch(triggers['workflow_dispatch']) ||
       permissions is! YamlMap ||
       !_hasExactKeys(permissions, const <String>{'contents'}) ||
       permissions['contents'] != 'read' ||
@@ -610,7 +643,9 @@ void _validateIosReleaseJob(String workflow) {
         'group',
         'cancel-in-progress',
       }) ||
-      concurrency['group'] != r'ci-${{ github.workflow }}-${{ github.ref }}' ||
+      concurrency['group'] !=
+          r'ci-${{ github.workflow }}-${{ github.ref }}'
+              r"-${{ inputs.gate || 'all' }}" ||
       concurrency['cancel-in-progress'] != true) {
     throw StateError('workflow trigger or permission boundary invalid');
   }
@@ -620,6 +655,7 @@ void _validateIosReleaseJob(String workflow) {
   }
   final job = jobs['ios-release'] as YamlMap;
   const allowedJobKeys = <String>{
+    'if',
     'name',
     'runs-on',
     'env',
@@ -627,7 +663,9 @@ void _validateIosReleaseJob(String workflow) {
     'steps',
   };
   final jobKeys = job.keys.map((key) => key.toString()).toSet();
-  if (job['name'] != 'iOS release candidate' ||
+  if (job['if'] !=
+          r"${{ github.event_name != 'workflow_dispatch' || inputs.gate == 'all' }}" ||
+      job['name'] != 'iOS release candidate' ||
       job['runs-on'] != 'macos-26' ||
       job['env'] is! YamlMap ||
       !_hasExactKeys(job['env'] as YamlMap, const {'DEVELOPER_DIR'}) ||
@@ -780,6 +818,38 @@ printf 'macho_sha256=%s\n' "${cmc_archive_digest}" >>"${GITHUB_OUTPUT}"
 bool _hasExactKeys(YamlMap map, Set<String> expected) {
   final keys = map.keys.map((key) => key.toString()).toSet();
   return keys.length == expected.length && keys.containsAll(expected);
+}
+
+bool _isCanonicalGateDispatch(Object? value) {
+  if (value is! YamlMap || !_hasExactKeys(value, const <String>{'inputs'})) {
+    return false;
+  }
+  final inputs = value['inputs'];
+  if (inputs is! YamlMap || !_hasExactKeys(inputs, const <String>{'gate'})) {
+    return false;
+  }
+  final gate = inputs['gate'];
+  if (gate is! YamlMap ||
+      !_hasExactKeys(gate, const <String>{
+        'description',
+        'type',
+        'required',
+        'default',
+        'options',
+      }) ||
+      gate['description'] != 'Gate da eseguire su un runner separato' ||
+      gate['type'] != 'choice' ||
+      gate['required'] != true ||
+      gate['default'] != 'all') {
+    return false;
+  }
+  final options = gate['options'];
+  return options is YamlList &&
+      options.length == 4 &&
+      options[0] == 'all' &&
+      options[1] == 'android-visual' &&
+      options[2] == 'ios-visual' &&
+      options[3] == 'ios-address-journal';
 }
 
 bool _isMainBranchTrigger(Object? value) {

@@ -8,16 +8,17 @@
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — gate autenticati/Maps/firma/AT; journal iOS e corpus in qualifica separata
-- **Prossima azione autorizzata**: re-review dell'addendum e gate PR29 sullo SHA
-  effettivo, senza nuovo SDK/UI Mac. App07649/source/widget APPROVED scoped,
-  Quality1242+11PASS; guest Android/iOS e corpus Android137PASS. Journal/corpus
-  iOS BLOCKED nei tentativi terminali1fb, Maps/R17 e acceptance autenticate aperti.
+- **Review integrata**: CHANGES_REQUIRED — QUALITY-RR-01; acceptance live BLOCKED
+- **Prossima azione autorizzata**: correggere QUALITY-RR-01 nel validatore della
+  release iOS, poi Quality su runner GitHub e re-review distinta. CI PR29 eb0dc22:
+  1241 PASS/1 FAIL/1 SKIP; performance NOT_RUN dopo il FAIL. App07649 invariata;
+  Android journal/corpus finale PASS. Journal iOS seed SDK FAIL e visual iOS
+  prepare/cleanup FAIL restano separati dai negativi storici; Maps/TEST/AT aperti.
   Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
   Checkpoint ba11/527/QAcb9 e negativi preservati; nessun SQL/deploy/input Admin/W/N.
 

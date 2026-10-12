@@ -5786,3 +5786,15 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   senzaqualificareanticipatamenteCI o procederea merge/DONE.
 - **Ruolo/fase**: CODEX_RE_REVIEWER/REVIEW,taskBLOCKED.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+## 2026-10-12 — TASK-054 re-review CI e QUALITY-RR-01
+
+- **Reviewer**: CODEX_RE_REVIEWER distinto, CI38320490620 sullo head eb0dc221.
+- **Finding**: QUALITY-RR-01 P2, validator release iOS incompatibile con il
+  selettore hosted canonico; 1241 PASS/1 FAIL/1 SKIP, exit1, performance NOT_RUN.
+  Positivo reale RED; formatter409/0 e analyze0 PASS.
+- **Esito**: CHANGES_REQUIRED per il finding correggibile; acceptance live BLOCKED.
+- **Fix autorizzato**: schema gate chiuso, group e if esatti, sette mutazioni
+  anti-bypass; source/config/native dell'app preservati, niente SDK/UI Mac.
+- **Ruolo/fase**: CODEX_RE_REVIEWER/REVIEW → CODEX_FIXER/FIX, task BLOCKED.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

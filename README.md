@@ -195,11 +195,11 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
+- **Review integrata**: CHANGES_REQUIRED — QUALITY-RR-01; gate live BLOCKED
 
 Addendum12ottobre: esito add scoped, riconciliazione cart/checkout e UI tracking
 corretti. [Dossier corrente](docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md):
@@ -208,6 +208,10 @@ freeze app07649, re-review source/widget APPROVED scoped; Quality1242PASS/1SKIP,
 superano storage/kill/restart; Android4b produce137Flutter+4OS. Per iOS il fix del
 collector è sourceapproved, ma nuovo corpus e journal restano BLOCKED in preparazione.
 Maps/R17, R13/R14 autenticati, Auth/firma/R24/AT e C04 restano aperti.
+La nuova CI PR29 eb0dc22 ha 1241 PASS/1 FAIL/1 SKIP: QUALITY-RR-01 riguarda
+il validatore del selettore hosted. Fix mirato in corso, senza delta applicativo.
+Android finale journal e corpus137+4 PASS; journal iOS SDK seed FAIL e visual
+iOS prepare/cleanup FAIL conservati con cause e limiti distinti.
 Il checkpoint precedente ba11/527/QAcb9 e tutti i negativi sono conservati nel
 [rapporto storico](docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md).
 

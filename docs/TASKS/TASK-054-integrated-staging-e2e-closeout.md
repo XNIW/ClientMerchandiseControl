@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -1422,3 +1422,27 @@ restano gate obbligatori aperti; CI nuovoheadNOT_RUN al cutoff, da raccogliere
 separatamente senza anticipare il risultato. Nessun SDK locale o edit reviewer.
 
 `CODEX_REVIEW_BLOCKED`.
+
+## Re-review CI PR29 — QUALITY-RR-01
+
+Il reviewer distinto ha osservato sulla CI38320490620, head eb0dc221, il positivo
+del validatore release iOS FAIL: 1241 PASS, 1 FAIL, 1 SKIP, exit1; formatter409/0
+e analyze0 PASS, performance NOT_RUN dopo il test fallito. Il selettore dei gate
+hosted introdotto in8ee1b19 non è riconosciuto dal validatore del test.
+[Finding P2](EVIDENCE/TASK-054/next-integration/client-cart-tracking-quality-finding.json).
+Esito CHANGES_REQUIRED per QUALITY-RR-01, acceptance integrata BLOCKED.
+Correzione nello scope: schema dispatch/gate, concurrency e condizione release
+esatti, conservando ref, pin, permessi, branch e regressioni contro bypass.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## Fix QUALITY-RR-01 — in verifica hosted
+
+Applicata la proposta del validatore dopo review source distinta: schema unico
+gate con choice/required/default e quattro opzioni esatte, concurrency isolata per
+gate e if release obbligatorio non-dispatch oppure all. Tutti gli altri confini
+release restano invariati. Aggiunto un test distinto con sette mutazioni contro
+bypass; il runner focused esistente include ora anche questo file governance.
+Formatter/analyze/test focused e Quality completo sono NOT_RUN prima dei nuovi
+runner. Il positivo RED reale eb0 resta preservato; il finding resta OPEN finché
+la re-review non qualifica i gate sul nuovo SHA. Nessun delta lib/native/config/deps.

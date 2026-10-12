@@ -903,6 +903,7 @@ CustomerCartSnapshot _snapshot({
   required CartSource source,
   int version = 0,
   String shopSlug = 'storefront-test',
+  bool idempotent = false,
   List<CartLine> items = const [],
 }) => CustomerCartSnapshot(
   shopSlug: shopSlug,
@@ -912,7 +913,7 @@ CustomerCartSnapshot _snapshot({
   quoteStatus: CartQuoteStatus.indicative,
   requiresCustomerReview: false,
   subtotalClp: items.fold(0, (total, item) => total + item.lineSubtotalClp),
-  idempotent: false,
+  idempotent: idempotent,
 );
 
 CartLine _line(String id, {bool isGuest = false}) => CartLine(

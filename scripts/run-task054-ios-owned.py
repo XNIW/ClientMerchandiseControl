@@ -18,6 +18,9 @@ UUID = re.compile(r'^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$')
 PREFIX = 'CMC-Task054-Owned-'
 OWNER_CONTEXT = ('GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_JOB', 'GITHUB_SHA')
 OWNED_ENVIRONMENT = 'owned-launchd-environment'
+OWNED_DESCRIPTOR = 'owned-descriptor-launchd'
+DESCRIPTOR_KIND = 'owned-descriptor-launchd.v1'
+OWNED_DEVICE_TYPE = 'com.apple.CoreSimulator.SimDeviceType.iPhone-17'
 READINESS_BUDGET = 30
 READINESS_KIND = 'owned-launchd-environment.v1'
 SMOKE = ['flutter', 'test', 'integration_test/app_shell_smoke_test.dart',
@@ -137,6 +140,45 @@ def owned_descriptor_observation(record, devices_root=None):
         'fileBytes': len(data), 'fileSha256': hashlib.sha256(data).hexdigest(),
         'fileOwnerMatches': True, 'fileIdentityStable': True, 'symlinkRejected': True,
         'topLevelKeys': sorted(payload), 'fields': selected,
+    }
+
+
+def validate_descriptor_readback(observation, record):
+    """Solo campi stringa confermati dalla cattura propria, mai state==3."""
+    if (not isinstance(observation, dict) or
+            observation.get('kind') != 'owned-device-descriptor-observation.v1' or
+            observation.get('descriptorRead') != 'PASS' or
+            any(observation.get(key) is not True for key in (
+                'fileOwnerMatches', 'fileIdentityStable', 'symlinkRejected')) or
+            type(observation.get('fileBytes')) is not int or
+            not 0 < observation['fileBytes'] <= 65536 or
+            not isinstance(observation.get('fileSha256'), str) or not re.fullmatch(
+                r'[0-9a-f]{64}', observation['fileSha256'])):
+        raise Failure(2, 'descriptor readback non qualificato')
+    expected = {'UDID': record['device'], 'name': record['name'],
+                'runtime': record['runtime'], 'deviceType': record['deviceType']}
+    fields = observation.get('fields', {})
+    if not isinstance(fields, dict):
+        raise Failure(2, 'descriptor fields non qualificati')
+    for key, wanted in expected.items():
+        field = fields.get(key, {})
+        if (not isinstance(wanted, str) or not isinstance(field, dict) or
+                field.get('present') is not True or not isinstance(field.get('value'), str) or
+                field.get('type') != 'str' or field.get('value') != wanted or
+                key != 'deviceType' and field.get('matchesExpected') is not True):
+            raise Failure(2, 'descriptor non coincide con ownership/runtime/type')
+
+
+def descriptor_attestation(before, after):
+    return {
+        'kind': DESCRIPTOR_KIND, 'bootstatusExitCode': 0,
+        'udidMatches': True, 'nameMatches': True, 'runtimeMatches': True,
+        'deviceTypeMatches': True, 'descriptorReadbacksQualified': True,
+        'descriptorBeforeSha256': before['fileSha256'],
+        'descriptorAfterSha256': after['fileSha256'],
+        'spawnExecutable': '/usr/bin/true', 'spawnStandalone': False,
+        'spawnExitCode': 0, 'commandBudgetSeconds': READINESS_BUDGET,
+        'globalPostBootInventory': 'NOT_RUN',
     }
 
 
@@ -373,12 +415,76 @@ class IosOwnedRunner:
         }
         return True
 
+    def check_owned_descriptor(self, device):
+        record = self.record
+        context = {key: os.environ.get(key) for key in OWNER_CONTEXT}
+        if (record is None or not isinstance(record.get('device'), str) or
+                device.lower() != record['device'].lower() or
+                record.get('readinessMethod') != OWNED_DESCRIPTOR or
+                record.get('creationStarted') is not True or
+                record.get('bootstatusCompleted') is not True or
+                record.get('cleanup') != 'NOT_RUN' or
+                record.get('processCleanupFailed') or self.process_cleanup_failed or
+                record.get('ownerContext') != context or
+                any(not isinstance(value, str) or not value for value in context.values()) or
+                not re.fullmatch(r'[0-9a-f]{32}', record.get('nonce', '')) or
+                record.get('name') != PREFIX + record['nonce'] or
+                record.get('deviceType') != OWNED_DEVICE_TYPE or
+                not isinstance(record.get('runtime'), str) or not re.fullmatch(
+                    r'com\.apple\.CoreSimulator\.SimRuntime\.iOS-26-[0-9]+(?:-[0-9]+)?',
+                    record['runtime'])):
+            raise Failure(2, 'descriptor readiness senza ownership/bootstatus attuale')
+        observation = record.get('ownedDescriptorObservation')
+        if ('ownedDescriptorObservation' in record and
+                (not isinstance(observation, dict) or observation.get('descriptorRead') != 'PASS')):
+            raise Failure(2, 'osservazione descriptor fallita: nessuna promozione')
+        was_ready = record.get('ready') is True
+        record['ready'] = False
+        record.pop('readinessAttestation', None)
+        record.pop('descriptorReadback', None)
+        self.persist()  # Nessuna proof durevole precedente copre questo recheck.
+        deadline = time.monotonic() + READINESS_BUDGET
+
+        def remaining_budget():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise Failure(124, 'budget descriptor readiness esaurito')
+            return min(READINESS_BUDGET, remaining)
+
+        remaining_budget()
+        before = owned_descriptor_observation(record)
+        validate_descriptor_readback(before, record)
+        # Spawn normale passa dal launchd del UUID proprio e richiede Booted;
+        # lo stato numerico del plist non viene interpretato come readiness.
+        self.command(['xcrun', 'simctl', 'spawn', record['device'], '/usr/bin/true'],
+                     remaining_budget(), capture=True)
+        remaining_budget()
+        after = owned_descriptor_observation(record)
+        validate_descriptor_readback(after, record)
+        remaining_budget()
+        # Ogni lettura ha il proprio pin FD/path/owner; CoreSimulator può
+        # riscrivere atomicamente il plist fra le letture mantenendo la stessa
+        # identità semantica. I due hash restano evidence separate, non equality.
+        if (record.get('ownerContext') != {key: os.environ.get(key) for key in OWNER_CONTEXT} or
+                record.get('cleanup') != 'NOT_RUN' or record.get('processCleanupFailed') or
+                self.process_cleanup_failed):
+            raise Failure(2, 'identità/context descriptor cambiati durante readiness')
+        record['descriptorReadback'] = {'before': before, 'after': after}
+        record['readinessAttestation'] = descriptor_attestation(before, after)
+        record['ready'] = was_ready
+        self.observed_device_state = 'Booted'
+        self.persist()
+        return True
+
     def check_device(self, device, ready=False, owned=False):
         if not UUID.fullmatch(device):
             raise Failure(2, 'UUID simulatore invalido')
         if ready and owned and self.record is not None and \
                 self.record.get('readinessMethod') == OWNED_ENVIRONMENT:
             return self.check_owned_environment(device)
+        if ready and owned and self.record is not None and \
+                self.record.get('readinessMethod') == OWNED_DESCRIPTOR:
+            return self.check_owned_descriptor(device)
         entry, runtime = self.device_record(device)
         self.observed_device_state = entry.get('state') if entry else None
         if entry is None:
@@ -395,10 +501,12 @@ class IosOwnedRunner:
     def prepare(self, headless=False, readiness_attestation='inventory', observe_descriptor=False):
         self.record = {'schemaVersion': 1, 'nonce': uuid.uuid4().hex,
                        'device': None, 'creationStarted': False, 'cleanup': 'NOT_RUN'}
-        if readiness_attestation not in ('inventory', OWNED_ENVIRONMENT):
+        if readiness_attestation not in ('inventory', OWNED_ENVIRONMENT, OWNED_DESCRIPTOR):
             raise Failure(2, 'metodo readiness non autorizzato')
-        if readiness_attestation == OWNED_ENVIRONMENT:
-            self.record['readinessMethod'] = OWNED_ENVIRONMENT
+        if readiness_attestation != 'inventory':
+            self.record['readinessMethod'] = readiness_attestation
+        if readiness_attestation == OWNED_DESCRIPTOR:
+            self.record['deviceType'] = OWNED_DEVICE_TYPE
         self.record['ownerContext'] = {key: os.environ.get(key) for key in OWNER_CONTEXT}
         self.record['name'] = PREFIX + self.record['nonce']
         if headless:
@@ -418,7 +526,7 @@ class IosOwnedRunner:
             raise Failure(2, 'runtime iOS26 compatibile assente')
         runtime = max(available, key=lambda row: tuple(map(int, row['version'].split('.'))))
         self.record['runtime'] = runtime['identifier']
-        if readiness_attestation == OWNED_ENVIRONMENT:
+        if readiness_attestation != 'inventory':
             self.record['runtimeVersion'] = runtime['version']
         self.record['creationStarted'] = True
         self.persist()
@@ -445,7 +553,7 @@ class IosOwnedRunner:
         if not headless:
             self.command(['open', '-a', simulator, '--args', '-CurrentDeviceUDID', device], 60)
         self.command(['xcrun', 'simctl', 'bootstatus', device, '-b'], 300)
-        if readiness_attestation == OWNED_ENVIRONMENT or observe_descriptor:
+        if readiness_attestation != 'inventory' or observe_descriptor:
             self.record['bootstatusCompleted'] = True
             self.persist()
         if observe_descriptor:
@@ -478,7 +586,7 @@ class IosOwnedRunner:
         if record.get('ownerContext') != {key: os.environ.get(key) for key in OWNER_CONTEXT}:
             raise Failure(2, 'receipt di altra run/job/revisione: nessuna mutazione')
         method = record.get('readinessMethod')
-        if method is not None and method != OWNED_ENVIRONMENT:
+        if method is not None and method not in (OWNED_ENVIRONMENT, OWNED_DESCRIPTOR):
             raise Failure(2, 'receipt metodo readiness invalido')
         if method == OWNED_ENVIRONMENT and record.get('ready'):
             expected = {
@@ -490,6 +598,20 @@ class IosOwnedRunner:
             if record.get('bootstatusCompleted') is not True or \
                     record.get('readinessAttestation') != expected:
                 raise Failure(2, 'receipt readiness per-device non attestata')
+        if method == OWNED_DESCRIPTOR and record.get('ready'):
+            readback = record.get('descriptorReadback')
+            if (record.get('bootstatusCompleted') is not True or
+                    record.get('creationStarted') is not True or
+                    record.get('deviceType') != OWNED_DEVICE_TYPE or
+                    not isinstance(readback, dict) or set(readback) != {'before', 'after'}):
+                raise Failure(2, 'receipt descriptor readiness non attestata')
+            validate_descriptor_readback(readback['before'], record)
+            validate_descriptor_readback(readback['after'], record)
+            expected = descriptor_attestation(readback['before'], readback['after'])
+            actual = record.get('readinessAttestation')
+            if (not isinstance(actual, dict) or actual != expected or
+                    any(type(actual.get(key)) is not type(value) for key, value in expected.items())):
+                raise Failure(2, 'receipt descriptor attestazione invalida')
         self.record = record
 
     def cleanup(self):
@@ -588,7 +710,7 @@ def main(argv=None):
     prepare.add_argument('--headless', action='store_true',
                          help='prepara il solo simulatore proprio via simctl, senza interfaccia GUI')
     prepare.add_argument('--readiness-attestation',
-                         choices=('inventory', OWNED_ENVIRONMENT), default='inventory',
+                         choices=('inventory', OWNED_ENVIRONMENT, OWNED_DESCRIPTOR), default='inventory',
                          help='opt-in per-device; inventory globale resta il comportamento storico')
     prepare.add_argument('--observe-owned-descriptor', action='store_true',
                          help='osserva solo metadata del UUID creato; non sostituisce readiness')

@@ -15,6 +15,8 @@ on:
       - scripts/run-guest-cart-restart-ios.py
       - scripts/test-guest-cart-process-restart.py
       - scripts/test-task054-ios-readiness.py
+      - scripts/test-task054-ios-descriptor-observation.py
+      - scripts/test-task054-ios-descriptor-launchd.py
       - scripts/run-address-journal-android.py
       - scripts/run-address-journal-ios.py
       - scripts/run-task054-android-visual.py
@@ -59,6 +61,8 @@ jobs:
           bash scripts/check-action-pins.sh
           python3 scripts/test-guest-cart-process-restart.py
           python3 scripts/test-task054-ios-readiness.py
+          python3 scripts/test-task054-ios-descriptor-observation.py
+          python3 scripts/test-task054-ios-descriptor-launchd.py
       - name: Set up Flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
@@ -110,6 +114,8 @@ jobs:
           bash scripts/check-action-pins.sh
           python3 scripts/test-guest-cart-process-restart.py
           python3 scripts/test-task054-ios-readiness.py
+          python3 scripts/test-task054-ios-descriptor-observation.py
+          python3 scripts/test-task054-ios-descriptor-launchd.py
       - name: Set up Flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
@@ -128,8 +134,7 @@ jobs:
           mkdir -p build/task054
           python3 scripts/run-task054-ios-owned.py prepare \
             --receipt build/task054/ios-guest-cart-owned-receipt.json --headless \
-            --readiness-attestation owned-launchd-environment \
-            --observe-owned-descriptor
+            --readiness-attestation owned-descriptor-launchd
       - name: Seed terminate and restore guest cart without VM transport
         run: >-
           python3 scripts/run-guest-cart-restart-ios.py

@@ -811,6 +811,84 @@ void main() {
     expect(container.read(cartControllerProvider).snapshot!.items.single.quantity, 9);
     expect(remote.mutationRequests, isEmpty);
   });
+
+  test('readback fallito del replay mantiene pending e blocca add storico', () async {
+    final initial = CartRemoteResponse(
+      status: CartRemoteStatus.ok,
+      snapshot: _snapshot(source: CartSource.account, version: 4),
+    );
+    final historical = CartRemoteResponse(
+      status: CartRemoteStatus.ok,
+      snapshot: _snapshot(
+        source: CartSource.account,
+        version: 5,
+        idempotent: true,
+        items: [_line(_publicationId)],
+      ),
+    );
+    final current = CartRemoteResponse(
+      status: CartRemoteStatus.ok,
+      snapshot: _snapshot(
+        source: CartSource.account,
+        version: 6,
+        items: [_line(_publicationId).copyWith(quantity: 9)],
+      ),
+    );
+    final remote = _FakeRemoteRepository(
+      readResponse: current,
+      readOutcomes: [
+        initial,
+        const CartRepositoryException(CartFailureKind.offline),
+        current,
+      ],
+      mutationOutcomes: [
+        const CartRepositoryException(CartFailureKind.timeout),
+        historical,
+        historical,
+        CartRemoteResponse(
+          status: CartRemoteStatus.ok,
+          snapshot: _snapshot(
+            source: CartSource.account,
+            version: 7,
+            items: [_line(_publicationId).copyWith(quantity: 10)],
+          ),
+        ),
+      ],
+    );
+    final container = _container(
+      guest: _FakeGuestStore(),
+      remote: remote,
+      identity: _identity(),
+    );
+    addTearDown(container.dispose);
+    await _waitFor(container, (state) => state.status == CartViewStatus.ready);
+    final controller = container.read(cartControllerProvider.notifier);
+    await controller.addProduct(_product());
+    await controller.retry();
+
+    final failedReadback = container.read(cartControllerProvider);
+    expect(failedReadback.failureKind, CartFailureKind.offline);
+    expect(failedReadback.hasPendingRetry, isTrue);
+    // Nessuna pubblicazione dell'ACK storico v5 durante il readback fallito.
+    expect(failedReadback.snapshot!.version, 4);
+    final blocked = await controller.addProduct(_product());
+    expect(blocked.outcome, CartActionOutcome.pendingConfirmation);
+    expect(remote.mutationRequests, hasLength(2));
+
+    await controller.retry();
+    expect(container.read(cartControllerProvider).snapshot!.version, 6);
+    expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 9);
+    expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
+    expect(remote.mutationRequests.take(3).map((request) => request.idempotencyKey)
+        .toSet(), hasLength(1));
+    final added = await controller.addProduct(_product());
+    expect(added.outcome, CartActionOutcome.accountConfirmed);
+    expect(remote.mutationRequests, hasLength(4));
+    expect(remote.mutationRequests.last.expectedVersion, 6);
+    expect(remote.mutationRequests.last.quantity, 10);
+    expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 10);
+  });
+
 }
 
 ProviderContainer _container({

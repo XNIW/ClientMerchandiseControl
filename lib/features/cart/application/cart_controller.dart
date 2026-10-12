@@ -554,6 +554,7 @@ final class CartController extends Notifier<CartState> {
     _PendingMutation pending, {
     required _CartInvocationContext context,
     required bool allowConflictRetry,
+    bool readCurrentBeforeCompletion = false,
   }) async {
     if (!_isCurrentContext(context)) {
       return _result(context, CartActionOutcome.contextChanged);
@@ -591,37 +592,53 @@ final class CartController extends Notifier<CartState> {
           retry,
           context: context,
           allowConflictRetry: false,
+          readCurrentBeforeCompletion: readCurrentBeforeCompletion,
         );
       }
-      if (response.status == CartRemoteStatus.unavailable ||
-          response.status == CartRemoteStatus.limitReached) {
+      final rejected = response.status == CartRemoteStatus.unavailable ||
+          response.status == CartRemoteStatus.limitReached;
+      if (!rejected &&
+          (response.status != CartRemoteStatus.ok ||
+              (pending.request.operation == CartMutationOperation.set &&
+              !snapshot.items.any(
+                (line) =>
+                    line.publicationId == pending.request.publicationId &&
+                    line.quantity == pending.request.quantity &&
+                    line.isAvailable,
+              )))) {
+        throw const CartRepositoryException(CartFailureKind.unexpected);
+      }
+      var current = snapshot;
+      if (readCurrentBeforeCompletion || snapshot.idempotent) {
+        // Il retry riconferma l'intent ma non rende corrente l'ACK del ledger.
+        // Tenere il pending fino alla read evita nuovi add su quantità storiche.
+        final readback = await _readCurrentAccount(
+          context,
+          minimumVersion: snapshot.version,
+        );
+        if (readback == null) {
+          return _result(context, CartActionOutcome.contextChanged);
+        }
+        current = readback;
+      }
+      if (rejected) {
         _pendingMutation = null;
         final failure = response.status == CartRemoteStatus.unavailable
             ? CartFailureKind.unavailable
             : CartFailureKind.limitReached;
         _setReady(
-          snapshot,
+          current,
           notice: failure == CartFailureKind.unavailable
               ? CartNoticeKind.unavailable
               : CartNoticeKind.limitReached,
         );
         return _result(context, CartActionOutcome.rejected, failure: failure);
       }
-      if (response.status != CartRemoteStatus.ok ||
-          (pending.request.operation == CartMutationOperation.set &&
-              !snapshot.items.any(
-                (line) =>
-                    line.publicationId == pending.request.publicationId &&
-                    line.quantity == pending.request.quantity &&
-                    line.isAvailable,
-              ))) {
-        throw const CartRepositoryException(CartFailureKind.unexpected);
-      }
       _pendingMutation = null;
       // AddToCartButton riceve il risultato direttamente: nessun listener può
       // cancellare l'ACK leggendo/azzerando una notice condivisa.
       _setReady(
-        snapshot,
+        current,
         notice: pending.notice == CartNoticeKind.added ? null : pending.notice,
       );
       return _result(context, CartActionOutcome.accountConfirmed);
@@ -650,18 +667,12 @@ final class CartController extends Notifier<CartState> {
     );
     final context = _captureContext(generation: generation);
     if (context == null) return;
-    final result = await _executeMutation(
+    await _executeMutation(
       pending,
       context: context,
       allowConflictRetry: true,
+      readCurrentBeforeCompletion: true,
     );
-    if (!_isCurrentContext(context)) return;
-    if (result.outcome == CartActionOutcome.accountConfirmed ||
-        result.outcome == CartActionOutcome.rejected) {
-      // Il ledger può restituire l'ACK storico. Una read successiva recupera il
-      // carrello attuale senza cancellare modifiche di altri dispositivi/ordini.
-      await _load(generation, preserveData: true);
-    }
   }
 
   Future<void> _executeRevalidation(

@@ -1,5 +1,36 @@
 # TASK-054 — Addendum carrello e consegna
 
+## Candidato dopo QUALITY-RR-01
+
+Snapshot prima del nuovo fast-forward PR29: `BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
+La CI [38320490620](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38320490620)
+sullo head eb0dc221 è terminale: quattro job riusciti e tre falliti. Il FAIL Quality
+è causale: il validatore release iOS rifiutava il selettore hosted autorizzato.
+[Capsula dei sette job](next-integration/client-cart-tracking-ci-eb0dc221.json):
+16 annotation ispezionate, cinque artifact ZIP con digest verificato.
+[Finding P2](next-integration/client-cart-tracking-quality-finding.json) preservato;
+[fix source/focused](next-integration/client-cart-tracking-quality-fix-host.json)
+su ec40596 con formatter esatto21a: 497 PASS, 1 SKIP, analyze0. Review distinta
+del validator e dei sette mutanti; tutti13test precedenti conservati.
+Il finding attende Quality completo sul nuovo head PR. Questo snapshot non
+anticipa i Checks successivi, che avranno ricevuta e SHA propri.
+
+| Capacità / gate | Prova nuova e risultato | Residuo |
+|---|---|---|
+| Quality eb0 | 1241 PASS/1 FAIL/1 SKIP, exit1; format409/0 e analyze0 PASS | Performance NOT_RUN dopo FAIL; negativo conservato |
+| Fix QUALITY-RR-01 | Focused38323150416,497 PASS/1 SKIP/analyze0; format400/1 adottato esattamente in21a | Quality canonico nuovo PRhead NOT_RUN al cutoff |
+| Journal Android eb0 | Due PID4178→4278, stesso APK/UID10209, publisher SDK terminale | PASS storage/restart/cleanup; backend NOT_RUN |
+| Corpus Android eb0 | 93 body e driver PASS;137Flutter+4OS decodificati, hash installato/prebuilt uguali,cleanup PASS | Pixel/IME/AT/Google/backend separati |
+| Visual iOS eb0 | Probe owned timeout/exit124 prima app;0PNG,smoke/body/driver NOT_RUN | Cleanup FAIL1: resource finale rimosso, quiescenza processi non provata |
+| Journal iOS eb0 | Prepare/readiness PASS, app installata/PID23663; publisher SDK terminale FAIL durante seed | Seed acceptance FAIL; restart/recover NOT_RUN; causa specifica non conservata; process/log/owner cleanup PASS distinti |
+| Release unsigned eb0 | Android12 fixture firma e iOS89/89 fixture validator PASS, hash/seal/attestazioni verificati | Firma/distribuzione TEST, push/Universal Links e upload production non qualificati |
+| Maps/TEST/AT/firma | Prerequisiti e gate reali restano aperti | Owner e condizioni di chiusura nel registro residui |
+
+App lib/native/config/deps e test delle feature sono invariati rispetto07649.
+Le sole superfici nuove sono il test governance e il target focused che lo esegue.
+Ledger37,26digest source e negativi storici restano preservati. Le sezioni seguenti
+mantengono il cutoff e le revisioni precedenti, senza ereditare risultati fra SHA.
+
 ## Esito e revisioni
 
 Checkpoint terminale del12ottobre2026, prima dell'aggiornamento della PR29:

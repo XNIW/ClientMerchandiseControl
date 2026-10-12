@@ -8,17 +8,18 @@
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: CHANGES_REQUIRED — QUALITY-RR-01; acceptance live BLOCKED
-- **Prossima azione autorizzata**: correggere QUALITY-RR-01 nel validatore della
-  release iOS, poi Quality su runner GitHub e re-review distinta. CI PR29 eb0dc22:
-  1241 PASS/1 FAIL/1 SKIP; performance NOT_RUN dopo il FAIL. App07649 invariata;
-  Android journal/corpus finale PASS. Journal iOS seed SDK FAIL e visual iOS
-  prepare/cleanup FAIL restano separati dai negativi storici; Maps/TEST/AT aperti.
+- **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
+- **Prossima azione autorizzata**: pubblicare il fix QUALITY-RR-01 sulla PR29 draft
+  con fast-forward normale e verificare la CI canonica sul nuovo head. Focused
+  ec40596+formatter21a:497 PASS/1 SKIP/analyze0, review distinta source/focused;
+  finding pending Quality completo. CIeb0 terminale4SUCCESS/3FAIL preservata.
+  App07649 invariata; Android journal/corpus PASS. Journal iOS seed SDK FAIL e
+  visual iOS prepare/cleanup FAIL restano distinti; Maps/TEST/AT/firma aperti.
   Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
   Checkpoint ba11/527/QAcb9 e negativi preservati; nessun SQL/deploy/input Admin/W/N.
 

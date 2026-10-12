@@ -56,10 +56,10 @@
   },
   "scope": "Read-only review, no WT/app edit/retry. Root unico writer e reviewer distinto richiesto dopo Fix.",
   "supersedes": {
-    "path": "/Users/minxiang/Projects/_codex-private/task054-cart-tracking-20261012/re-review/pr29-eb0dc221/quality-finding/QUALITY-RR-01.json",
+    "path": "re-review/pr29-eb0dc221/quality-finding/QUALITY-RR-01.json",
     "sha256": "b4272a7b62c4043c9cf4f9ed3388efb7e8509dc02543d3e9a34f0cc292e8f1f4",
     "reason": "Corregge soltanto il comando esatto dalla primaria970; finding/severità/risultati/source/regression immutati"
   },
   "reviewer_receipt_sha256": "b11194e35aabf996209878682879fa062b8693e4b42f42ec93692130ebcb979b",
-  "sanitization": "Solo path della patch privata relativo; finding e risultati del reviewer preservati."
+  "sanitization": "Path privati relativi, compreso supersedes; finding, hash e risultati del reviewer preservati."
 }

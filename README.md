@@ -195,21 +195,24 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: CHANGES_REQUIRED — QUALITY-RR-01; gate live BLOCKED
+- **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
 
 Addendum12ottobre: esito add scoped, riconciliazione cart/checkout e UI tracking
 corretti. [Dossier corrente](docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md):
 freeze app07649, re-review source/widget APPROVED scoped; Quality1242PASS/1SKIP,
 11performance e due release unsigned PASS. Guest Android/iOS e journal indirizzi Android
-superano storage/kill/restart; Android4b produce137Flutter+4OS. Per iOS il fix del
-collector è sourceapproved, ma nuovo corpus e journal restano BLOCKED in preparazione.
+superano storage/kill/restart; Android4b produce137Flutter+4OS. Il collector iOS
+è sourceapproved; la nuova CIeb0 conserva visual prepare/cleanup FAIL e journal
+SDK seed FAIL dopo avvio app, con restart/recover NOT_RUN e cause distinte.
 Maps/R17, R13/R14 autenticati, Auth/firma/R24/AT e C04 restano aperti.
 La nuova CI PR29 eb0dc22 ha 1241 PASS/1 FAIL/1 SKIP: QUALITY-RR-01 riguarda
-il validatore del selettore hosted. Fix mirato in corso, senza delta applicativo.
+il validatore del selettore hosted. Fix mirato source/focused qualificato con
+497 PASS/1 SKIP/analyze0 e formatter adottato in21a; Quality sul nuovo head PR
+da leggere separatamente nei Checks. Nessun delta applicativo lib/native/config/deps.
 Android finale journal e corpus137+4 PASS; journal iOS SDK seed FAIL e visual
 iOS prepare/cleanup FAIL conservati con cause e limiti distinti.
 Il checkpoint precedente ba11/527/QAcb9 e tutti i negativi sono conservati nel

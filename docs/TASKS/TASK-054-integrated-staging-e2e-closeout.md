@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_REVIEW_BLOCKED
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -1436,13 +1436,28 @@ esatti, conservando ref, pin, permessi, branch e regressioni contro bypass.
 
 `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
-## Fix QUALITY-RR-01 — in verifica hosted
+## Fix QUALITY-RR-01 — handoff e re-review scoped
 
 Applicata la proposta del validatore dopo review source distinta: schema unico
 gate con choice/required/default e quattro opzioni esatte, concurrency isolata per
 gate e if release obbligatorio non-dispatch oppure all. Tutti gli altri confini
 release restano invariati. Aggiunto un test distinto con sette mutazioni contro
 bypass; il runner focused esistente include ora anche questo file governance.
-Formatter/analyze/test focused e Quality completo sono NOT_RUN prima dei nuovi
-runner. Il positivo RED reale eb0 resta preservato; il finding resta OPEN finché
-la re-review non qualifica i gate sul nuovo SHA. Nessun delta lib/native/config/deps.
+Focused38323150416 su ec40596: 497 PASS/1 SKIP, analyze0; formatter400/1,
+soltanto l'elenco dei mutanti. Patch1510bcca applicata esattamente in21a738d,
+digest del file uguale ai byte hosted verificati. [Associazione](EVIDENCE/TASK-054/next-integration/client-cart-tracking-quality-fix-host.json).
+Review distinta del validator e dei sette mutanti, tutti13test preesistenti
+preservati; [re-review focused](EVIDENCE/TASK-054/next-integration/client-cart-tracking-quality-focused-review.json)
+qualifica il fix source/host, finding OPEN_PENDING_CANONICAL_FULL_QUALITY.
+Il positivo RED eb0 e la CI terminale4SUCCESS/3FAIL restano preservati.
+Nessun delta lib/native/config/deps o nei test delle feature. Quality completo
+NOT_RUN al cutoff prima della nuova pubblicazione PR; sarà letto dal proprio SHA.
+Gate iOS/native/live obbligatori esposti, nessun merge/DONE.
+
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+La re-review distinta assegna BLOCKED per i gate obbligatori, conservando il
+source/focused PASS del fix. Il verbale precedente23:02:57 e i negativi eb0
+restano immutati. Il supplemento dei Checks finali non riscrive questo cutoff.
+
+`CODEX_REVIEW_BLOCKED`.

@@ -1,7 +1,7 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
@@ -12,8 +12,12 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 ## Addendum carrello e tracking — mandato12ottobre
 
 Aggiornamento CI PR29 eb0dc22: [QUALITY-RR-01 P2](next-integration/client-cart-tracking-quality-finding.json)
-richiede un fix del validatore del selettore hosted. 1241 PASS/1 FAIL/1 SKIP;
-performance NOT_RUN dopo FAIL. Il checkpoint sotto conserva il proprio SHA.
+ha richiesto un fix del validatore del selettore hosted. 1241 PASS/1 FAIL/1 SKIP;
+performance NOT_RUN dopo FAIL. [Fix source/focused](next-integration/client-cart-tracking-quality-fix-host.json):
+497 PASS/1 SKIP/analyze0 e formatter esatto21a; review distinta scoped,
+finding pending Quality canonico sul nuovo head PR. Snapshot prima di pubblicarlo:
+i Checks successivi sono associati al loro SHA, senza anticiparne il risultato.
+Il checkpoint sotto conserva il proprio SHA.
 Nuovo Android journal/corpus137+4 PASS; journal iOS seed SDK FAIL dopo avvio,
 visual iOS prepare/cleanup FAIL prima dell'app, senza ereditarne i cleanup storici.
 

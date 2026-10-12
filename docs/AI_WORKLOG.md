@@ -5798,3 +5798,32 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   anti-bypass; source/config/native dell'app preservati, niente SDK/UI Mac.
 - **Ruolo/fase**: CODEX_RE_REVIEWER/REVIEW → CODEX_FIXER/FIX, task BLOCKED.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-10-12 — TASK-054 Fix QUALITY-RR-01 e handoff
+
+- **Fonte**: ec40596 e formatter esatto21a738d; solo test governance e target
+  focused. lib/native/config/deps e test delle feature immutati07649.
+- **Gate**: focused38323150416,497 PASS/1 SKIP/analyze0; format400/1, patch1510bcca
+  applicata con digest dd1ad12d uguale ai byte hosted. Fonte e sette mutanti
+  revisionati da reviewer distinti; 13 test precedenti preservati,14 totali.
+- **Negativi**: CIeb0 terminale4SUCCESS/3FAIL conservata con16 annotation e5ZIP
+  verificati. Quality1241/1FAIL/1SKIP eperformance NOT_RUN; iOSvisual prepare124/
+  cleanup1,0PNG; iOSjournal SDK seedFAIL dopo app, recoverNOT_RUN e cleanupPASS
+  distinti. Android journal/corpus137+4 e unsigned12/89 PASS, acceptance separata.
+- **Evidence**: capsula eb0 e associazione fix/host persistenti; P3 pathprivato
+  supersedes reso relativo senza cambiare finding/hash. Ledger37 e30caseR intatti.
+- **Limite**: Quality canonico del prossimo PRhead NOT_RUN al cutoff; Maps/TEST,
+  nativi iOS/AT/firma e gate degli altri owner aperti. Nessun SDK/UI Mac,SQL/deploy.
+- **Ruolo/fase**: CODEX_FIXER/FIX → CODEX_RE_REVIEWER/REVIEW, task BLOCKED.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-10-12 — TASK-054 re-review source e focused QUALITY-RR-01
+
+- **Reviewer**: CODEX_RE_REVIEWER distinto, review byte21a e receipt245046eb;
+  peer distinto del validator e dei sette mutanti, source/focused qualificato.
+- **Esito**: BLOCKED per gate obbligatori; QUALITY-RR-01 source/focused risolto,
+  finding OPEN_PENDING_CANONICAL_FULL_QUALITY fino ai Checks del nuovo head.
+- **Preservazione**: verbale23:02:57 e CIeb0 restano immutabili; nessun transfer
+  fixture→TEST/Google/AT, nessun merge/DONE. Nuovo CIhead da raccogliere separato.
+- **Ruolo/fase**: CODEX_RE_REVIEWER/REVIEW, task BLOCKED.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

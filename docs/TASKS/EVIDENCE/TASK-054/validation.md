@@ -1,5 +1,19 @@
 # Verifiche TASK-054
 
+## CI eb0 e fix QUALITY-RR-01 — snapshot prima della nuova PRhead
+
+[Capsula terminale eb0](next-integration/client-cart-tracking-ci-eb0dc221.json):
+CI38320490620,4SUCCESS/3FAIL e16 annotation ispezionate. Quality1241/1FAIL/1SKIP,
+format409/0 e analyze0; performance NOT_RUN dopo il FAIL. Android journal/restart
+e corpus93body/driver/137Flutter+4OS PASS; release unsigned Android12/iOS89 PASS.
+Visual iOS prepare124/cleanup1 FAIL,0PNG e quiescenza non provata; journal iOS
+ready/app avviata/PID23663 ma publisher seed SDK FAIL, recover NOT_RUN, cleanup
+process/log/owner PASS separati. Nessun trasferimento dai tentativi storici.
+[Fix e associazione hosted](next-integration/client-cart-tracking-quality-fix-host.json):
+ec40596+formatter21a,497PASS/1SKIP/analyze0,14test governance compresi; review
+distinta source/focused. CA-05/T-05 resta da qualificare con Quality canonico sul
+nuovo head PR; i successivi Checks saranno letti con SHA e ricevuta propri.
+
 ## Addendum carrello e tracking — checkpoint12ottobre
 
 Il [dossier corrente](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md) e il

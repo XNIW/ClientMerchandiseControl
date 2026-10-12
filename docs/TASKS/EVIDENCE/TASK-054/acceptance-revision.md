@@ -2,7 +2,16 @@
 
 Nuova revisione autorizzata dal mandato successivo del 2026-09-28. Non ricostruisce né certifica retroattivamente E2E-01…25: la loro provenance assente e lo stato storico BLOCKED restano nel task. Fonti: TASK-050–053, CA del nuovo emendamento TASK-054, test Client/Admin indicati. La ricerca mirata già registrata non è stata ripetuta. Questa matrice deve essere approvata dai reviewer prima del closeout.
 
-## Addendum12ottobre — associazione delle prove
+## CI eb0 e fix QUALITY-RR-01 — nuova associazione parziale
+
+[Dossier](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md): eb0 conserva QualityFAIL e
+iOS visual/journal FAIL distinti; Android journal/corpus137+4 PASS e unsigned
+Android12/iOS89 PASS. Fix21a source/focused497PASS/1SKIP/analyze0,14test governance
+compresi, con review distinta. Quality canonico del nuovo head PR NOT_RUN al
+cutoff; nessuna acceptance anticipata. R13/R14 ordine TEST, R17 reale, matrice
+native/AT e due origini R24 restano aperti. I30casi sotto non cambiano.
+
+## Addendum12ottobre — associazione delle prove precedenti
 
 Il [dossier carrello e tracking](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md) aggiorna
 le prove parziali di R03/R04/R08/R10–14/R17/R25. Source/widget APPROVED scoped,

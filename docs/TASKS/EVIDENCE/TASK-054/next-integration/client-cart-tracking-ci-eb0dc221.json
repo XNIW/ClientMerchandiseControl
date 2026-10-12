@@ -1,0 +1,311 @@
+{
+  "schemaVersion": 1,
+  "scope": "Snapshot CI pubblicata eb0; raccolta indipendente read-only. Non sostituisce i negativi storici e non assegna approvazione source.",
+  "run": {
+    "id": 38320490620,
+    "attempt": 1,
+    "event": "pull_request",
+    "headSHA": "eb0dc221f142ed02e9b9652672c1f5a91d425a78",
+    "branch": "codex/task054-next-integration",
+    "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38320490620",
+    "status": "completed",
+    "conclusion": "failure",
+    "jobs": {
+      "success": 4,
+      "failure": 3,
+      "total": 7
+    }
+  },
+  "sourceAssociation": {
+    "docsOnlyFrom": "1fb6aecff5985a3d7b71b22cfeb475fcd4ee1fcb",
+    "docsOnlyFiles": 14,
+    "appNativeByteEquivalent": "07649a1253db705091b915adf98b4a7b6028af90",
+    "scriptsFixturesByteEquivalent": "4b473764c7a98611a40119c7560a945067454329",
+    "ownerMergeContextSHA": "0ad757e1351cf60690886ac6d7c4a2e9a063ac19",
+    "mergeParentsIncludeCheckout": true,
+    "associationReceiptSHA256": "f98a7783f592d4e9cfa9a7129f385ed6753b4700dd98fddf31843874eb048576"
+  },
+  "jobs": [
+    {
+      "id": 115047155090,
+      "name": "Quality",
+      "conclusion": "failure",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38320490620/job/115047155090",
+      "annotations": {
+        "failure": 2,
+        "warning": 0,
+        "notice": 1
+      },
+      "privateReceiptSHA256": "ed1b30b09e44bf11b5b4d4324295f583237b8413603cc1a7bfeb8bc23edabe4f"
+    },
+    {
+      "id": 115047155073,
+      "name": "Android debug build",
+      "conclusion": "success",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38320490620/job/115047155073",
+      "annotations": {
+        "failure": 0,
+        "warning": 1,
+        "notice": 1
+      },
+      "privateReceiptSHA256": "081d1a49ccfd97dc56dfeda1d21daad110391c704aa98c1a9ea3c68db8d96b33"
+    },
+    {
+      "id": 115047154930,
+      "name": "iOS Simulator debug build",
+      "conclusion": "failure",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38320490620/job/115047154930",
+      "annotations": {
+        "failure": 2,
+        "warning": 1,
+        "notice": 1
+      },
+      "privateReceiptSHA256": "5c455778069b228a27e06e9e163a0d93451bf95d3e25e2580be1c57395ae8a83"
+    },
+    {
+      "id": 115047155011,
+      "name": "Android address journal restart",
+      "conclusion": "success",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38320490620/job/115047155011",
+      "annotations": {
+        "failure": 0,
+        "warning": 1,
+        "notice": 1
+      },
+      "privateReceiptSHA256": "ee1d6277ecd2b754601b35d93df86a91a6d8dff15ef02b3a00d8e56ee64ffdba"
+    },
+    {
+      "id": 115047154834,
+      "name": "iOS address journal restart",
+      "conclusion": "failure",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38320490620/job/115047154834",
+      "annotations": {
+        "failure": 1,
+        "warning": 1,
+        "notice": 1
+      },
+      "privateReceiptSHA256": "965be8cd18e12be93a6823c9582fdca795dfa3cadf6b141e50aacf41a8acffe9"
+    },
+    {
+      "id": 115047154954,
+      "name": "Android release candidate",
+      "conclusion": "success",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38320490620/job/115047154954",
+      "annotations": {
+        "failure": 0,
+        "warning": 0,
+        "notice": 1
+      },
+      "privateReceiptSHA256": "57583d020b32f4514dba6ae322ad57e21cfe87e1dcf90578b206a14c770d81a8"
+    },
+    {
+      "id": 115047154979,
+      "name": "iOS release candidate",
+      "conclusion": "success",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38320490620/job/115047154979",
+      "annotations": {
+        "failure": 0,
+        "warning": 0,
+        "notice": 1
+      },
+      "privateReceiptSHA256": "91138b034fe8ecd17b47f0c18451fc28c8424305ba766be530d3b1fac39cb05d"
+    }
+  ],
+  "gates": {
+    "Quality": {
+      "result": "FAIL",
+      "hostPassed": 1241,
+      "hostFailed": 1,
+      "hostSkipped": 1,
+      "exitCode": 1,
+      "analyze": "PASS",
+      "analyzeIssues": 0,
+      "format": "PASS",
+      "formattedFiles": 409,
+      "changedFiles": 0,
+      "performance": "NOT_RUN",
+      "performanceReason": "Step skipped dopo testcoverage FAIL",
+      "whitespace": "NOT_RUN",
+      "primaryFailure": "ios_release_configuration_test.dart:127, workflow trigger or permission boundary invalid",
+      "separateReviewerFinding": "QUALITY-RR-01"
+    },
+    "AndroidVisual": {
+      "result": "PASS",
+      "bodyStdoutPassed": 93,
+      "bodyCountIncludesTearDownAll": true,
+      "driverTerminal": "PASS",
+      "actualFlutterPNG": 137,
+      "actualOSPNG": 4,
+      "corpusCompleteness": "PASS",
+      "indices1to137": true,
+      "accountAddress01to04Present": true,
+      "installedAPKSHAAndUID": "PASS",
+      "ownedCleanup": "PASS",
+      "IMEAcceptance": "NOT_RUN",
+      "pixelQA": "NOT_RUN"
+    },
+    "iOSVisual": {
+      "result": "NOT_RUN",
+      "reason": "Owned simulator prepare FAIL exit124; visual/smoke skipped",
+      "goldens": "PASS",
+      "goldenPassed": 2,
+      "actualFlutterPNG": 0,
+      "actualOSPNG": 0,
+      "ownedPrepare": "FAIL",
+      "ownedCleanup": "FAIL",
+      "cleanupReason": "processCleanupFailed sticky; tentativo resourceFAIL poi resourcePASS non cancella processFAIL",
+      "remoteProcessQuiescence": "BLOCKED"
+    },
+    "AndroidAddressJournal": {
+      "result": "PASS",
+      "transport": "app_support_run_as_terminal_sdk",
+      "nativeWriteRead": "PASS",
+      "twoProcessRestartRead": "PASS",
+      "seedPID": 4178,
+      "recoverPID": 4278,
+      "sameAPKSHAAndUID": "PASS",
+      "cleanup": "PASS",
+      "backend": "NOT_RUN"
+    },
+    "iOSAddressJournal": {
+      "result": "FAIL",
+      "stage": "journal-seed",
+      "exitCode": 1,
+      "ownedPrepare": "PASS",
+      "nativeAppInstall": "PASS",
+      "seedProcessPID": 23663,
+      "seedProcessObserved": "alive",
+      "terminalPublisher": "FAIL",
+      "acceptedSeedSuccess": "NOT_RUN",
+      "restart": "NOT_RUN",
+      "recover": "NOT_RUN",
+      "failureCause": "BLOCKED",
+      "failureCauseReason": "ErrorType e motivo body/postTest/SDK non conservati; non inferire crash/Keychain/filesystem",
+      "processCleanup": "PASS",
+      "privateLogCleanup": "PASS",
+      "ownerSimulatorCleanup": "PASS",
+      "runnerSimulatorCleanup": "NOT_RUN",
+      "runnerSimulatorCleanupReason": "Delegato alla receipt owner; originale preservato",
+      "missingVMURICause": "VM service publication disabilitata; non gatecausa",
+      "backend": "NOT_RUN"
+    },
+    "AndroidUnsignedRelease": {
+      "result": "PASS",
+      "adversarialSignatureFixtureCount": 12,
+      "productionSigningUpload": "NOT_RUN",
+      "ownedAppLinks": "BLOCKED"
+    },
+    "iOSUnsignedRelease": {
+      "unsignedSourceAppArchive": {
+        "result": "PASS",
+        "scope": "APIsteps6–11 terminalSUCCESS, primary source347 and candidate9011"
+      },
+      "referenceAndArchiveAttestations": {
+        "result": "PASS",
+        "scope": "APIsteps8/10 terminalSUCCESS and release validator11; actual candidate hashes stdout",
+        "hashes": {
+          "IOS_RELEASE_EXECUTABLE_SHA256": "38b1a25589c5f7122723d13a6d9e0d99d20da1f280e73197aa8bc336c1cab6b2",
+          "IOS_RELEASE_NATIVE_WRAPPER_SHA256": "ec9f6fbeef0a99f5196dcd90a86a7d098569d64216bbdd120e3f9c01383bacc2",
+          "IOS_RELEASE_ARTIFACT_TREE_SHA256": "5e3a47a9e905040eb179238c6eaae8a97c9b7e6ff22c6d7003b087a01377dc32",
+          "IOS_RELEASE_SEALED_APP_SHA256": "727971f1cb1f6d044fa3c5f0a6e5d4d35b8f6394fdadda7273b249d67f73247c"
+        },
+        "primaryLogLines": [
+          9001,
+          9011,
+          9012,
+          9013,
+          9014,
+          9015,
+          9016
+        ],
+        "referenceMachOAttestation": [
+          "728b8d02438d68b856ea7d0d2e7b2a80de4d8b36a9d26356168c005358ac082b",
+          "d1756c1031e3a0661f80dee4f6341b7c678021e571bf7026e1e1a1d61dac6868",
+          "aff4fc764ce7a78c4bec19dd499741967e17cdb7c008986facde88f37ce333c7",
+          "e4f81ee4a9dc0cbdbc7ce78b8a7f0a76b4412ef6d53b6750656f0a123bdfb52b"
+        ],
+        "archiveRunnerAttestation": "2ad2517589dee12a48bb0ca6df43aae109950b627daf06cdffc6c63c31de877c"
+      },
+      "adversarialReleaseBoundaries": {
+        "result": "PASS",
+        "passed": 89,
+        "total": 89,
+        "primaryLogLine": 9029,
+        "scope": "synthetic validator negative/positive fixtures; negative expected outputs are not app/live FAIL"
+      },
+      "productionSigningTestFlightUpload": {
+        "result": "NOT_RUN",
+        "reason": "Actual release candidate remains UNSIGNED; synthetic signing profiles/fixtures are not production signing/distribution proof"
+      },
+      "bundleSecurity": {
+        "result": "PASS",
+        "trackedSourceFiles": 1145,
+        "artifactFiles": 213,
+        "primaryLogLines": [
+          9009,
+          9010
+        ],
+        "scope": "actual release scan; no signed production acceptance"
+      },
+      "pushActivation": {
+        "result": "BLOCKED",
+        "reason": "REVIEWED_ENTITLEMENT_AND_APNS_REQUIRED",
+        "primaryLogLine": 9017
+      },
+      "universalLinksActivation": {
+        "result": "BLOCKED",
+        "reason": "OWNED_DOMAIN_AND_ASSOCIATION_FILE_REQUIRED",
+        "primaryLogLine": 9018
+      }
+    }
+  },
+  "artifacts": [
+    {
+      "id": 11779218833,
+      "name": "task054-android-visual-fixtures",
+      "bytes": 4910173,
+      "digest": "sha256:f142b88de4905471f72336df78d134dc03d3b5f12e4a09ec1fa8d9515abe5400",
+      "downloadDigestVerified": true
+    },
+    {
+      "id": 11778873692,
+      "name": "task054-ios-visual-fixtures",
+      "bytes": 958,
+      "digest": "sha256:62f14ab98c64e7e96055d8740c84bf5cdb4c092d6cff853c7874c2716863bfcc",
+      "downloadDigestVerified": true
+    },
+    {
+      "id": 11778594392,
+      "name": "task054-ios-address-journal",
+      "bytes": 1956,
+      "digest": "sha256:3facbcf26d6c6558a5933129cfe73324fbd3de6f5bb8840941335b1a036542cc",
+      "downloadDigestVerified": true
+    },
+    {
+      "id": 11778533979,
+      "name": "task054-ios-visual-previews",
+      "bytes": 479,
+      "digest": "sha256:83c42c968342559804dd108e14f46f237eb16e1a7460272d75db345c36250ab3",
+      "downloadDigestVerified": true
+    },
+    {
+      "id": 11778443584,
+      "name": "task054-android-address-journal",
+      "bytes": 5133,
+      "digest": "sha256:73b889bcee287c949889ac31fbf5752eba4711a7a51ce24bbe97bd6197c3842d",
+      "downloadDigestVerified": true
+    }
+  ],
+  "privateTerminalReceiptSHA256": "76bab83e3343a3d196cf67742057a70e1b6745ab6acd83f6ea24288af88238b6",
+  "preservedHistoricalSummarySHA256": "e39aa6a3b654c48ca1c92091ed8c54fdabda55473a347597a8f7cc1e0da85596",
+  "limits": [
+    "Quality FAIL non sostituito dai 497 host PASS del fix successivo.",
+    "iOS visual cleanup remoto FAIL; nessuna dichiarazione di processi remoti assenti.",
+    "Journal iOS seed terminale FAIL dopo avvio app; causa dettagliata non conservata e recover NOT_RUN.",
+    "137 Flutter + 4 OS Android prova corpus; pixel QA, IME acceptance, scroll e AT runtime distinti e non eseguiti.",
+    "Storefront TEST/C04 live, Google Maps/provider/attribution, firme e distribuzione production restano aperti.",
+    "Tutti i job/step/annotation e digest degli artifact controllati. Raw, log e PNG completi privati fuori Git.",
+    "Nessun SDK locale, gate rieseguito, edit del worktree, Git mutation, deploy o approvazione source propria. Download e comandi del collector conclusi."
+  ],
+  "acceptance": "BLOCKED"
+}

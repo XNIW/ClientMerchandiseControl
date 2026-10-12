@@ -1,6 +1,25 @@
 # TASK-054 — Registro unico dei residui operativi
 
-## Stato corrente — addendum carrello e tracking12ottobre
+## Stato corrente — fix QUALITY-RR-01 dopo CI eb0
+
+[Dossier e capsula](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md): CIeb0 terminale
+4SUCCESS/3FAIL; fix21a source/focused PASS497/1SKIP/analyze0. Snapshot prima
+della pubblicazione: Quality sul nuovo head PR NOT_RUN al cutoff, da leggere nei
+Checks con ricevuta separata. Le sezioni sotto conservano i propri SHA.
+
+| Residuo / stato | Owner | Prossimo passo e condizione di chiusura |
+|---|---|---|
+| QUALITY-RR-01 / pending Quality completo | Client/reviewer | CI canonica del nuovo head, positivo e sette mutanti, format/analyze/suite/performance; chiusura distinta dopo prova reale |
+| Visual iOS / BLOCKED | Runner/provider | Superficie con prepare e quiescenza propri attestabili, smoke/corpus137+4; eb0 prepare124/cleanup1 e0PNG preservati |
+| Journal iOS / FAIL seed, recupero NOT_RUN | Client/runner | Qualificare il seed SDK su superficie propria conservando causa sanitizzata; poi kill/recover della stessa app/container; eb0 ha readiness e cleanup PASS ma seed FAIL |
+| Maps/R17 / BLOCKED | Maps TEST, courier e backend owner | Riferimenti protetti approvati con restrizioni native, ordine TEST assegnato/sessione e producer autorizzato; due posizioni reali e readback nel Client Android/iOS |
+| R13/R14/Auth/R24/C04 e firma/AT / BLOCKED | Owner già registrati | Contratti TEST qualificati e prove autenticate, superfici native/AT e firma autorizzate; fixture e unsigned restano livelli separati |
+
+Android eb0 journal/restart/corpus137+4 e due release unsigned PASS non chiudono
+questi residui. Route/ETA dinamica/background mantengono la proposta owner;
+nessun SDK/UI Mac, nuova spesa, SQL/deploy o input nelle app degli altri owner.
+
+## Checkpoint precedente — addendum carrello e tracking12ottobre
 
 [Dossier corrente](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md): app07649,
 source/widget APPROVED scoped, integrata BLOCKED. Quality1242PASS/1SKIP più

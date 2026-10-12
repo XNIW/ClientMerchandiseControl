@@ -320,7 +320,8 @@ final class CustomerAfterSalesController
         values.isNotEmpty) {
       final old = attachments[replaceIndex];
       if (old.status != CustomerAfterSalesAttachmentStatus.fileUnavailable &&
-          old.status != CustomerAfterSalesAttachmentStatus.ready)
+          old.status != CustomerAfterSalesAttachmentStatus.ready &&
+          old.status != CustomerAfterSalesAttachmentStatus.invalidFile)
         return;
       attachments[replaceIndex] = values.first;
     } else {
@@ -401,8 +402,9 @@ final class CustomerAfterSalesController
         file.input = null; // La receipt basta: non trattenere i byte confermati.
       } on CustomerAfterSalesException catch (error) {
         if (!_isCurrentContext(fence)) return;
-        file.status =
-            error.code == 'evidence_ambiguous' ||
+        file.status = error.code == 'invalid_evidence' && file.input?.transfer.objectPath == null
+            ? CustomerAfterSalesAttachmentStatus.invalidFile
+            : error.code == 'evidence_ambiguous' ||
                 error.code == 'timeout' ||
                 error.code == 'offline'
             ? CustomerAfterSalesAttachmentStatus.ambiguous

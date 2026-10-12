@@ -682,5 +682,7 @@
   "afterSalesEvidenceFileUnavailable": "File locale non disponibile. Selezionalo di nuovo.",
   "afterSalesEvidenceRetry": "Completa allegati",
   "afterSalesEvidenceReplace": "Seleziona di nuovo",
-  "afterSalesEvidenceReopenHelp": "Alla riapertura restano gli allegati ricevuti. Dopo il riavvio dell’app, seleziona di nuovo i file mancanti."
+  "afterSalesEvidenceReopenHelp": "Alla riapertura restano gli allegati ricevuti. Dopo il riavvio dell’app, seleziona di nuovo i file mancanti.",
+  "afterSalesCreating": "Apertura della pratica…",
+  "afterSalesEvidenceInvalid": "File non supportato o troppo grande. Selezionane un altro."
 }

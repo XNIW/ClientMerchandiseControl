@@ -118,6 +118,7 @@ enum CustomerAfterSalesAttachmentStatus {
   confirmed,
   failed,
   fileUnavailable,
+  invalidFile,
   ambiguous,
 }
 

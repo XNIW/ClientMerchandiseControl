@@ -682,5 +682,7 @@
   "afterSalesEvidenceFileUnavailable": "本地文件不可用。请重新选择。",
   "afterSalesEvidenceRetry": "补充附件",
   "afterSalesEvidenceReplace": "重新选择",
-  "afterSalesEvidenceReopenHelp": "重新打开后，已收到的附件会保留。重启应用后，请重新选择缺失文件。"
+  "afterSalesEvidenceReopenHelp": "重新打开后，已收到的附件会保留。重启应用后，请重新选择缺失文件。",
+  "afterSalesCreating": "正在创建申请…",
+  "afterSalesEvidenceInvalid": "文件格式不支持或文件过大。请选择其他文件。"
 }

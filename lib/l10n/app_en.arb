@@ -682,5 +682,7 @@
   "afterSalesEvidenceFileUnavailable": "Local file unavailable. Select it again.",
   "afterSalesEvidenceRetry": "Complete attachments",
   "afterSalesEvidenceReplace": "Select again",
-  "afterSalesEvidenceReopenHelp": "Received attachments remain when reopening. After restarting the app, select missing files again."
+  "afterSalesEvidenceReopenHelp": "Received attachments remain when reopening. After restarting the app, select missing files again.",
+  "afterSalesCreating": "Opening case…",
+  "afterSalesEvidenceInvalid": "Unsupported file or too large. Select another."
 }

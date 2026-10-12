@@ -1010,5 +1010,7 @@
   "afterSalesEvidenceFileUnavailable": "Archivo local no disponible. Selecciónalo de nuevo.",
   "afterSalesEvidenceRetry": "Completar adjuntos",
   "afterSalesEvidenceReplace": "Seleccionar de nuevo",
-  "afterSalesEvidenceReopenHelp": "Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan."
+  "afterSalesEvidenceReopenHelp": "Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan.",
+  "afterSalesCreating": "Abriendo solicitud…",
+  "afterSalesEvidenceInvalid": "Archivo no compatible o demasiado grande. Selecciona otro."
 }

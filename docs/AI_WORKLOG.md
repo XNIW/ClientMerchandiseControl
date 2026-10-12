@@ -5745,4 +5745,4 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
 - **Gate**: nuova regressione NOT_RUN prima del runner; review integrata BLOCKED.
 - **Ruolo/fase**: CODEX_FIXER/FIX, TASK-054 unico ACTIVE.
 
-- **Handoff corrente**: `CODEX_FIX_IN_PROGRESS`.
+- **Handoff**: `CODEX_FIX_IN_PROGRESS`.

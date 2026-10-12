@@ -91,7 +91,7 @@ jobs:
           dart format lib test integration_test
           git diff -- lib test integration_test > candidate-preparation.patch
           flutter analyze
-          flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout/customer_delivery_address_journey_test.dart test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1
+          flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1
       - name: Preserve focused source preparation
         if: ${{ always() && inputs.focused }}
         # actions/upload-artifact v4.6.2

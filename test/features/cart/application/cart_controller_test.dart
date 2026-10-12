@@ -9,6 +9,7 @@ import 'package:client_merchandise_control/features/auth/domain/authenticated_cu
 import 'package:client_merchandise_control/features/cart/application/cart_controller.dart';
 import 'package:client_merchandise_control/features/cart/application/cart_providers.dart';
 import 'package:client_merchandise_control/features/cart/application/cart_state.dart';
+import 'package:client_merchandise_control/features/cart/domain/cart_action_result.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_failure.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_models.dart';
 import 'package:client_merchandise_control/features/cart/domain/cart_repository.dart';
@@ -215,6 +216,98 @@ void main() {
   );
 
   test(
+    'ACK merge perso blocca add, retry preserva guest e successivo add incrementa',
+    () async {
+      final guest = _FakeGuestStore(
+        snapshot: _snapshot(
+          source: CartSource.guest,
+          items: [_line(_publicationId, isGuest: true).copyWith(quantity: 5)],
+        ),
+      );
+      final merged = _snapshot(
+        source: CartSource.account,
+        version: 5,
+        items: [_line(_publicationId).copyWith(quantity: 5)],
+      );
+      final remote = _FakeRemoteRepository(
+        readResponse: CartRemoteResponse(
+          status: CartRemoteStatus.ok,
+          snapshot: _snapshot(
+            source: CartSource.account,
+            version: 4,
+            items: [_line(_publicationId)],
+          ),
+        ),
+        mergeOutcomes: [
+          const CartRepositoryException(CartFailureKind.timeout),
+          CartRemoteResponse(status: CartRemoteStatus.merged, snapshot: merged),
+        ],
+        mutationOutcomes: [
+          CartRemoteResponse(
+            status: CartRemoteStatus.ok,
+            snapshot: _snapshot(
+              source: CartSource.account,
+              version: 6,
+              items: [_line(_publicationId).copyWith(quantity: 6)],
+            ),
+          ),
+        ],
+      );
+      final keys = <String>[
+        '60000000-0000-4000-8000-000000000001',
+        '60000000-0000-4000-8000-000000000002',
+      ];
+      final container = _container(
+        guest: guest,
+        remote: remote,
+        identity: _identity(),
+        keyFactory: () => keys.removeAt(0),
+      );
+      addTearDown(container.dispose);
+      await _waitFor(
+        container,
+        (state) => state.failureKind == CartFailureKind.timeout,
+      );
+      final controller = container.read(cartControllerProvider.notifier);
+
+      final blocked = await controller.addProduct(_product());
+
+      expect(remote.mutationRequests, isEmpty);
+      expect(blocked.outcome, CartActionOutcome.pendingConfirmation);
+      expect(guest.snapshot.items.single.quantity, 5);
+      expect(guest.retainedIds, isNull);
+      expect(container.read(cartControllerProvider).hasPendingRetry, isTrue);
+
+      // Il server ha accettato max(account1, guest5); l'ACK perso viene ripreso
+      // con la stessa chiave/versione. Il nuovo add si calcola solo dopo questo ACK.
+      remote.readResponse = CartRemoteResponse(
+        status: CartRemoteStatus.ok,
+        snapshot: merged,
+      );
+      await controller.retry();
+
+      expect(remote.mergeKeys, hasLength(2));
+      expect(remote.mergeKeys.toSet(), hasLength(1));
+      expect(remote.mergeVersions, [4, 4]);
+      expect(guest.snapshot.items, isEmpty);
+      expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 5);
+      expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
+
+      final added = await controller.addProduct(_product());
+
+      expect(added.outcome, CartActionOutcome.accountConfirmed);
+      expect(remote.mutationRequests, hasLength(1));
+      expect(remote.mutationRequests.single.quantity, 6);
+      expect(remote.mutationRequests.single.expectedVersion, 5);
+      expect(
+        remote.mutationRequests.single.idempotencyKey,
+        '60000000-0000-4000-8000-000000000002',
+      );
+      expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 6);
+    },
+  );
+
+  test(
     'version conflict effettua un solo retry con nuova chiave/versione',
     () async {
       final guest = _FakeGuestStore(
@@ -327,6 +420,26 @@ void main() {
       expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
     },
   );
+
+  test('replay ACK storico esegue readback senza perdere modifiche successive', () async {
+    final remote = _FakeRemoteRepository(
+      readResponse: CartRemoteResponse(status: CartRemoteStatus.ok,
+          snapshot: _snapshot(source: CartSource.account, version: 4)),
+      mutationOutcomes: [const CartRepositoryException(CartFailureKind.timeout),
+        CartRemoteResponse(status: CartRemoteStatus.ok, snapshot: _snapshot(
+          source: CartSource.account, version: 5, items: [_line(_publicationId)]))],
+    );
+    final container = _container(guest: _FakeGuestStore(), remote: remote, identity: _identity());
+    addTearDown(container.dispose);
+    await _waitFor(container, (state) => state.status == CartViewStatus.ready);
+    await container.read(cartControllerProvider.notifier).addProduct(_product());
+    remote.readResponse = CartRemoteResponse(status: CartRemoteStatus.ok, snapshot: _snapshot(
+        source: CartSource.account, version: 6, items: [_line(_publicationId).copyWith(quantity: 9)]));
+    await container.read(cartControllerProvider.notifier).retry();
+    expect(remote.mutationRequests.map((request) => request.idempotencyKey).toSet(), hasLength(1));
+    expect(container.read(cartControllerProvider).snapshot!.version, 6);
+    expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 9);
+  });
 
   test('doppio tap account produce una sola mutation autorevole', () async {
     final barrier = Completer<CartRemoteResponse>();
@@ -892,7 +1005,12 @@ final class _FakeRemoteRepository implements CustomerCartRepository {
   @override
   Future<CartRemoteResponse> mutate(CartMutationRequest request) async {
     mutationRequests.add(request);
-    return _outcome(mutationOutcomes);
+    final response = await _outcome(mutationOutcomes);
+    if (response.status == CartRemoteStatus.ok &&
+        (response.snapshot?.version ?? -1) >= (readResponse.snapshot?.version ?? -1)) {
+      readResponse = response;
+    }
+    return response;
   }
 
   @override

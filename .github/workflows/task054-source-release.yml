@@ -14,6 +14,11 @@ on:
       - .github/workflows/task054-source-release.yml
   workflow_dispatch:
     inputs:
+      baseline:
+        description: Confronto causale con sorgente 3f8d3d19, solo nei test mirati
+        type: boolean
+        default: false
+        required: false
       focused:
         description: Regressioni Client su runner separato; non qualifica build o TEST live
         type: boolean
@@ -43,6 +48,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+      - name: Restore immutable causal baseline
+        if: ${{ inputs.focused && inputs.baseline }}
+        run: git restore --source=3f8d3d19a46d95bc7b7eb494a8f5b85a42372428 -- lib
       - name: Prepare focused source on hosted runner
         if: ${{ inputs.focused }}
         # subosito/flutter-action v2.23.0

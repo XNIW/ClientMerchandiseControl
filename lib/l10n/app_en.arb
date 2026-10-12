@@ -665,5 +665,22 @@
   "customerAddressJournalUnavailable": "We cannot read the recovery information saved on this device. You can view your account; adding addresses is paused. Retry to recover access without deleting data.",
   "customerAddressVerify": "Check save",
   "customerAddressCloseEditor": "Close",
-  "customerAddressSending": "Saving. Closing the editor does not cancel the save."
+  "customerAddressSending": "Saving. Closing the editor does not cancel the save.",
+  "reviewsSaving": "Saving…",
+  "notificationsRead": "Read",
+  "notificationsOpenOrder": "Open order",
+  "notificationsOpenSupport": "Open support case",
+  "notificationsOpenProduct": "Open product",
+  "notificationsStayInInbox": "Stay in notifications",
+  "afterSalesCaseOpened": "Case opened. You can complete attachments here.",
+  "afterSalesEvidenceConfirmed": "Received; awaiting review",
+  "afterSalesEvidenceSafe": "Verified",
+  "afterSalesEvidenceRejected": "Rejected",
+  "afterSalesEvidencePending": "To complete",
+  "afterSalesEvidenceUploading": "Uploading attachments…",
+  "afterSalesEvidenceAmbiguous": "Result needs verification. Retry to check the same attachment.",
+  "afterSalesEvidenceFileUnavailable": "Local file unavailable. Select it again.",
+  "afterSalesEvidenceRetry": "Complete attachments",
+  "afterSalesEvidenceReplace": "Select again",
+  "afterSalesEvidenceReopenHelp": "Received attachments remain when reopening. After restarting the app, select missing files again."
 }

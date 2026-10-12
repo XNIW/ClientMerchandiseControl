@@ -993,5 +993,22 @@
   "customerAddressJournalUnavailable": "No podemos leer la información de recuperación guardada en este dispositivo. Puedes consultar tu cuenta; añadir direcciones está en pausa. Vuelve a intentar para recuperar el acceso sin borrar datos.",
   "customerAddressVerify": "Verificar",
   "customerAddressCloseEditor": "Cerrar",
-  "customerAddressSending": "Guardando. Cerrar el editor no cancela el guardado."
+  "customerAddressSending": "Guardando. Cerrar el editor no cancela el guardado.",
+  "reviewsSaving": "Guardando…",
+  "notificationsRead": "Leída",
+  "notificationsOpenOrder": "Abrir pedido",
+  "notificationsOpenSupport": "Abrir solicitud de asistencia",
+  "notificationsOpenProduct": "Abrir producto",
+  "notificationsStayInInbox": "Permanecer en notificaciones",
+  "afterSalesCaseOpened": "Solicitud abierta. Puedes completar los adjuntos aquí.",
+  "afterSalesEvidenceConfirmed": "Recibido; pendiente de revisión",
+  "afterSalesEvidenceSafe": "Verificado",
+  "afterSalesEvidenceRejected": "Rechazado",
+  "afterSalesEvidencePending": "Por completar",
+  "afterSalesEvidenceUploading": "Cargando adjuntos…",
+  "afterSalesEvidenceAmbiguous": "Resultado por verificar. Reintenta para comprobar el mismo adjunto.",
+  "afterSalesEvidenceFileUnavailable": "Archivo local no disponible. Selecciónalo de nuevo.",
+  "afterSalesEvidenceRetry": "Completar adjuntos",
+  "afterSalesEvidenceReplace": "Seleccionar de nuevo",
+  "afterSalesEvidenceReopenHelp": "Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan."
 }

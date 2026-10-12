@@ -21,12 +21,14 @@ void main() {
       final directory = Directory.systemTemp.createTempSync('cmc-evidence-recovery-');
       addTearDown(() => directory.deleteSync(recursive: true));
       final files = List.generate(3, (index) => File('${directory.path}/originale-$index.png')..writeAsBytesSync([index + 1]));
+      var picks = 0;
+      List<String> selection() => (++picks == 1 ? files : [files[1]]).map((f) => f.path).toList();
       final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       const channel = MethodChannel('plugins.flutter.io/image_picker');
-      messenger.setMockMethodCallHandler(channel, (_) async => files.map((f) => f.path).toList());
+      messenger.setMockMethodCallHandler(channel, (_) async => selection());
       addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
       for (final name in ['dev.flutter.pigeon.image_picker_android.ImagePickerApi.pickImages', 'dev.flutter.pigeon.image_picker_ios.ImagePickerApi.pickMultiImage']) {
-        messenger.setMockMessageHandler(name, (_) async => const StandardMessageCodec().encodeMessage([files.map((f) => f.path).toList()]));
+        messenger.setMockMessageHandler(name, (_) async => const StandardMessageCodec().encodeMessage([selection()]));
         addTearDown(() => messenger.setMockMessageHandler(name, null));
       }
       final fixture = Task054VisualFixtures();
@@ -67,7 +69,10 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.scrollUntilVisible(finder, 200, scrollable: find.byType(Scrollable).first);
   await tester.ensureVisible(finder);
   await tester.pumpAndSettle();
-  await tester.tap(finder);
+  await tester.runAsync(() async {
+    await tester.tap(finder);
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+  });
   await tester.pumpAndSettle();
 }
 

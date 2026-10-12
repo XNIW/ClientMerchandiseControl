@@ -262,18 +262,32 @@ class _NotificationTile extends StatelessWidget {
     final dateLabel =
         '${MaterialLocalizations.of(context).formatShortDate(date)} · '
         '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(date))}';
+    final readLabel = item.isUnread ? l10n.notificationsUnread : l10n.notificationsRead;
+    final destinationLabel = switch (item.destinationType) {
+      CustomerNotificationDestinationType.order => l10n.notificationsOpenOrder,
+      CustomerNotificationDestinationType.afterSales => l10n.notificationsOpenSupport,
+      CustomerNotificationDestinationType.product => l10n.notificationsOpenProduct,
+      CustomerNotificationDestinationType.notifications => l10n.notificationsStayInInbox,
+    };
     return Card(
       key: ValueKey('notification-${item.id}'),
       color: item.isUnread
           ? Theme.of(context).colorScheme.primaryContainer
           : null,
-      child: ListTile(
-        minTileHeight: AppSizes.minimumTouchTarget,
-        leading: Badge(isLabelVisible: item.isUnread, child: Icon(icon)),
-        title: Text(title),
-        subtitle: Text([body, ?safeCode, dateLabel].join('\n')),
-        trailing: const Icon(Icons.chevron_right),
+      child: Semantics(
+        label: [title, readLabel, body, ?safeCode, dateLabel].join('. '),
+        hint: destinationLabel,
+        button: true,
         onTap: onTap,
+        excludeSemantics: true,
+        child: ListTile(
+          minTileHeight: AppSizes.minimumTouchTarget,
+          leading: Badge(isLabelVisible: item.isUnread, child: Icon(icon)),
+          title: Text(title),
+          subtitle: Text([readLabel, body, ?safeCode, dateLabel].join('\n')),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: onTap,
+        ),
       ),
     );
   }

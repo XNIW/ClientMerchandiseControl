@@ -665,5 +665,22 @@
   "customerAddressJournalUnavailable": "暂时无法读取此设备保存的恢复信息。你仍可查看账户，新增地址已暂停。请重试以恢复访问，无需删除数据。",
   "customerAddressVerify": "验证保存",
   "customerAddressCloseEditor": "关闭",
-  "customerAddressSending": "正在保存。关闭编辑器不会取消保存。"
+  "customerAddressSending": "正在保存。关闭编辑器不会取消保存。",
+  "reviewsSaving": "正在保存…",
+  "notificationsRead": "已读",
+  "notificationsOpenOrder": "打开订单",
+  "notificationsOpenSupport": "打开售后申请",
+  "notificationsOpenProduct": "打开商品",
+  "notificationsStayInInbox": "留在通知中",
+  "afterSalesCaseOpened": "申请已创建。可在此补充附件。",
+  "afterSalesEvidenceConfirmed": "已收到，待审核",
+  "afterSalesEvidenceSafe": "已审核",
+  "afterSalesEvidenceRejected": "已拒绝",
+  "afterSalesEvidencePending": "待补充",
+  "afterSalesEvidenceUploading": "正在上传附件…",
+  "afterSalesEvidenceAmbiguous": "结果待确认。重试以核对同一附件。",
+  "afterSalesEvidenceFileUnavailable": "本地文件不可用。请重新选择。",
+  "afterSalesEvidenceRetry": "补充附件",
+  "afterSalesEvidenceReplace": "重新选择",
+  "afterSalesEvidenceReopenHelp": "重新打开后，已收到的附件会保留。重启应用后，请重新选择缺失文件。"
 }

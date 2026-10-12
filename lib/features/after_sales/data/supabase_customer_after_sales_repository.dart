@@ -17,10 +17,27 @@ abstract interface class CustomerAfterSalesPort {
   });
 }
 
-final class PlatformCustomerAfterSalesPort implements CustomerAfterSalesPort {
+// Lettura puntuale della superficie cliente già concessa da GRANT + FORCE RLS.
+abstract interface class CustomerAfterSalesEvidenceReceiptPort {
+  String? get currentOwnerId;
+  Future<Object?> readEvidenceReceipt({required String caseId, required String objectPath});
+}
+
+final class PlatformCustomerAfterSalesPort implements CustomerAfterSalesPort, CustomerAfterSalesEvidenceReceiptPort {
   PlatformCustomerAfterSalesPort(this.client);
 
   final SupabaseClient client;
+
+  @override
+  String? get currentOwnerId => client.auth.currentUser?.id;
+
+  @override
+  Future<Object?> readEvidenceReceipt({required String caseId, required String objectPath}) => client
+      .from('customer_service_case_evidence')
+      .select('id,case_id,user_id,object_path,scan_status')
+      .eq('case_id', caseId)
+      .eq('object_path', objectPath)
+      .maybeSingle();
 
   @override
   Future<Object?> invoke(String function, Map<String, Object?> parameters) {
@@ -192,66 +209,121 @@ final class SupabaseCustomerAfterSalesRepository
   }
 
   @override
-  Future<String> uploadEvidence({
-    required String caseId,
-    required CustomerAfterSalesEvidenceInput input,
-  }) {
-    return _guard(() async {
-      _inputUuid(caseId);
-      final extension = input.extension.toLowerCase();
-      const mimeTypes = {
-        'jpg': 'image/jpeg',
-        'jpeg': 'image/jpeg',
-        'png': 'image/png',
-        'webp': 'image/webp',
-      };
-      if (input.bytes.isEmpty ||
-          input.bytes.lengthInBytes > 8 * 1024 * 1024 ||
-          mimeTypes[extension] != input.mimeType) {
-        throw const CustomerAfterSalesException('invalid_evidence');
-      }
-      final ticket = _payload(
-        await port.invoke('customer_after_sales_evidence_upload_ticket_v1', {
-          'p_case_id': caseId,
-          'p_extension': extension,
-        }),
-        const {'apiVersion', 'status', 'ticketId', 'objectPath', 'expiresAt'},
-        'after_sales_evidence_ticket',
-      );
-      _root(ticket);
-      if (ticket.length != 5) {
-        throw const FormatException('after_sales_evidence_ticket_shape');
-      }
-      _uuid(ticket, 'ticketId');
-      final objectPath = _evidenceObjectPath(ticket, caseId, extension);
-      final expiresAt = _date(ticket, 'expiresAt');
-      if (!expiresAt.isAfter(DateTime.now().toUtc())) {
-        throw const CustomerAfterSalesException('evidence_ticket_expired');
-      }
-      await port.uploadPrivate(
-        objectPath: objectPath,
-        bytes: input.bytes,
-        mimeType: input.mimeType,
-      );
-      final registered = _payload(
-        await port.invoke('customer_after_sales_evidence_register_v1', {
-          'p_case_id': caseId,
-          'p_object_path': objectPath,
-        }),
-        const {'apiVersion', 'status', 'evidenceId'},
-        'after_sales_evidence_register',
-      );
-      if (registered['apiVersion'] != 'customer-after-sales.v1' ||
-          registered['status'] != 'pending_scan' ||
-          registered.length != 3) {
-        final status = registered['status'];
-        if (status is String && status.isNotEmpty) {
-          throw CustomerAfterSalesException(status);
+  Future<String> uploadEvidence({required String caseId, required CustomerAfterSalesEvidenceInput input}) async {
+    final transfer = input.transfer;
+    if (transfer.inFlight) throw const CustomerAfterSalesException('evidence_ambiguous');
+    final receiptPort = port is CustomerAfterSalesEvidenceReceiptPort
+        ? port as CustomerAfterSalesEvidenceReceiptPort : null;
+    final owner = input.ownerId ?? receiptPort?.currentOwnerId;
+    var active = true;
+    bool current() => active && (input.canContinue?.call() ?? true) &&
+        (receiptPort == null || owner != null && receiptPort.currentOwnerId == owner);
+    void fence() {
+      if (!current()) throw const CustomerAfterSalesException('context_changed');
+    }
+    transfer.inFlight = true;
+    Future<String> operation() async {
+      try {
+        fence();
+        _inputUuid(caseId);
+        final extension = input.extension.toLowerCase();
+        const mimeTypes = {'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png', 'webp': 'image/webp'};
+        if (input.bytes.isEmpty || input.bytes.lengthInBytes > 8 * 1024 * 1024 || mimeTypes[extension] != input.mimeType) {
+          throw const CustomerAfterSalesException('invalid_evidence');
         }
-        throw const FormatException('after_sales_evidence_register_shape');
+        if (transfer.evidenceId != null) return transfer.evidenceId!;
+        Future<String?> receipt() async {
+          if (receiptPort == null || transfer.objectPath == null) return null;
+          fence();
+          final raw = await receiptPort.readEvidenceReceipt(caseId: caseId, objectPath: transfer.objectPath!);
+          fence();
+          if (raw == null) return null;
+          final value = _strict(raw, const {'id', 'case_id', 'user_id', 'object_path', 'scan_status'}, 'evidence_receipt');
+          if (_uuid(value, 'case_id') != caseId || _uuid(value, 'user_id') != owner ||
+              _string(value, 'object_path') != transfer.objectPath ||
+              !const {'pending_scan', 'safe', 'rejected'}.contains(_string(value, 'scan_status'))) {
+            throw const FormatException('evidence_receipt_identity');
+          }
+          return transfer.evidenceId = _uuid(value, 'id');
+        }
+        Future<String?> register({bool allowMissing = false}) async {
+          fence();
+          final value = _payload(await port.invoke('customer_after_sales_evidence_register_v1', {
+            'p_case_id': caseId, 'p_object_path': transfer.objectPath,
+          }), const {'apiVersion', 'status', 'evidenceId'}, 'after_sales_evidence_register');
+          fence();
+          if (value['apiVersion'] != 'customer-after-sales.v1') throw const FormatException('evidence_register_version');
+          if (value['status'] == 'pending_scan' && value.length == 3) return transfer.evidenceId = _uuid(value, 'evidenceId');
+          final found = await receipt();
+          if (found != null) return found;
+          if (allowMissing && value['status'] == 'invalid_evidence') return null;
+          throw CustomerAfterSalesException(value['status'] is String ? value['status'] as String : 'evidence_ambiguous');
+        }
+        if (transfer.objectPath != null) {
+          final found = await receipt();
+          if (found != null) return found;
+          if (transfer.uploadAttempted) {
+            final registered = await register(allowMissing: !transfer.uploaded);
+            if (registered != null) return registered;
+          }
+          if (!transfer.uploadAttempted && transfer.expiresAt!.isBefore(DateTime.now().toUtc())) {
+            transfer.objectPath = null;
+          }
+        }
+        if (transfer.objectPath == null) {
+          if (transfer.ticketUncertainUntil?.isAfter(DateTime.now().toUtc()) ?? false) {
+            throw const CustomerAfterSalesException('evidence_ambiguous');
+          }
+          fence();
+          // Il ticket non è idempotente: una risposta persa riserva fino a20min.
+          transfer.ticketUncertainUntil = DateTime.now().toUtc().add(const Duration(minutes: 20));
+          final ticket = _payload(await port.invoke('customer_after_sales_evidence_upload_ticket_v1', {
+            'p_case_id': caseId, 'p_extension': extension,
+          }), const {'apiVersion', 'status', 'ticketId', 'objectPath', 'expiresAt'}, 'after_sales_evidence_ticket');
+          transfer.ticketUncertainUntil = null;
+          _root(ticket);
+          if (ticket.length != 5) throw const FormatException('after_sales_evidence_ticket_shape');
+          final ticketId = _uuid(ticket, 'ticketId');
+          final path = _evidenceObjectPath(ticket, caseId, extension);
+          if (path.split('/')[2].split('.').first != ticketId || owner != null && path.split('/').first != owner) {
+            throw const FormatException('evidence_ticket_identity');
+          }
+          // Conservo una risposta tardiva, ma il fence vieta upload successivi.
+          transfer.objectPath = path;
+          transfer.expiresAt = _date(ticket, 'expiresAt');
+          fence();
+        }
+        if (!transfer.expiresAt!.isAfter(DateTime.now().toUtc())) {
+          throw const CustomerAfterSalesException('evidence_ticket_expired');
+        }
+        fence();
+        transfer.uploadAttempted = true;
+        try {
+          await port.uploadPrivate(objectPath: transfer.objectPath!, bytes: input.bytes, mimeType: input.mimeType);
+          transfer.uploaded = true;
+        } on Object {
+          fence();
+          // Anche un errore di trasporto può seguire un upload memorizzato.
+          final registered = await register(allowMissing: true);
+          if (registered != null) return registered;
+          throw const CustomerAfterSalesException('evidence_ambiguous');
+        }
+        fence();
+        return (await register())!;
+      } finally {
+        transfer.inFlight = false;
       }
-      return _uuid(registered, 'evidenceId');
-    });
+    }
+    try {
+      return await _guard(operation);
+    } on CustomerAfterSalesException catch (error) {
+      if (const {'timeout', 'offline', 'unexpected'}.contains(error.code)) {
+        throw const CustomerAfterSalesException('evidence_ambiguous');
+      }
+      rethrow;
+    } finally {
+      active = false;
+    }
   }
 
   Future<T> _guard<T>(Future<T> Function() operation) async {

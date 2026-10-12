@@ -62,6 +62,9 @@ class CheckoutScreen extends ConsumerWidget {
         CheckoutViewStatus.failure => _CheckoutFailureView(state: state),
         CheckoutViewStatus.ready => _CheckoutFlow(state: state),
       },
+      bottomNavigationBar: state.status == CheckoutViewStatus.ready
+          ? _CheckoutActions(state: state)
+          : null,
     );
   }
 }
@@ -223,7 +226,6 @@ class _CheckoutFlow extends ConsumerWidget {
               ),
             ),
           ),
-          _CheckoutActions(state: state),
         ],
       ),
     );
@@ -1087,6 +1089,7 @@ class _CheckoutActions extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: Center(
+            heightFactor: 1,
             child: ConstrainedBox(
               constraints: const BoxConstraints(
                 maxWidth: AppSizes.contentMaxWidth,

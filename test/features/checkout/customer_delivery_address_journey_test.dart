@@ -192,17 +192,21 @@ void main() {
         );
         expect(addressTile.selected, isTrue);
         expect(addressTile.onTap, isNull);
+        expect(find.byType(SnackBar), findsOneWidget);
         if (Platform.environment['CMC_CLIENT_CAPTURE_DIR'] != null) {
           await tester.runAsync(() async {
             final boundary = tester.renderObject<RenderRepaintBoundary>(
               find.byKey(const ValueKey('delivery-journey-capture')),
             );
             final image = await boundary.toImage();
-            final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+            final bytes = await image.toByteData(
+              format: ui.ImageByteFormat.png,
+            );
             final directory = Platform.environment['CMC_CLIENT_CAPTURE_DIR']!;
             await Directory(directory).create(recursive: true);
-            await File('$directory/delivery-checkout-return-compact200.png')
-                .writeAsBytes(bytes!.buffer.asUint8List());
+            await File(
+              '$directory/delivery-checkout-return-compact200.png',
+            ).writeAsBytes(bytes!.buffer.asUint8List());
             image.dispose();
           });
         }

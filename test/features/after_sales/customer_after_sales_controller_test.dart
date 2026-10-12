@@ -46,7 +46,12 @@ void main() {
       canContinue: () => true,
     );
     subscription.close();
-    container.read(identity.notifier).state = _customer(_ownerA);
+    container.read(identity.notifier).state =
+        AuthenticatedCustomer.fromUntrustedIdentity(
+          subjectId: _ownerA,
+          email: null,
+          metadata: const {'full_name': 'Profilo sintetico aggiornato'},
+        );
     // Nessun read/listener finché la schermata viene riaperta.
     await _settle();
     final reopened = container.read(

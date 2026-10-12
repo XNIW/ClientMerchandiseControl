@@ -402,6 +402,7 @@ final class FakeCheckoutRepository implements CheckoutRepository {
   int loadPaymentOptionsCalls = 0;
   int readCalls = 0;
   int readOrderCalls = 0;
+  final List<String> readOrderIds = [];
 
   @override
   Future<CheckoutOrderRemoteResponse> createOrder({
@@ -486,6 +487,7 @@ final class FakeCheckoutRepository implements CheckoutRepository {
     required String orderId,
   }) async {
     readOrderCalls++;
+    readOrderIds.add(orderId);
     final outcome = readOrderOutcome;
     if (outcome == null) {
       return checkoutTestOrderResponse(

@@ -125,10 +125,11 @@ void main() {
     );
   }
 
-  for (final failureSource in ['journalRead', 'readOrder', 'noJournal']) {
+  for (final failureSource in ['journalRead', 'readOrder', 'readOrderUnavailable', 'noJournal']) {
     testWidgets('failure CTA senza cart distingue recovery da assenza journal: $failureSource', (tester) async {
       final pending = failureSource == 'journalRead';
       final noJournal = failureSource == 'noJournal';
+      final readOrderUnavailable = failureSource == 'readOrderUnavailable';
       final order = checkoutTestOrderSnapshot(
         idempotent: true,
         fulfillment: CheckoutOrderFulfillment(
@@ -175,7 +176,9 @@ void main() {
         store.readError = StateError('synthetic journal read failure');
         repository.orderOutcomes.add(checkoutTestOrderResponse(order: order, idempotent: true));
       } else if (!noJournal) {
-        repository.readOrderOutcome = const CheckoutRepositoryException(CheckoutFailureKind.offline);
+        repository.readOrderOutcome = readOrderUnavailable
+            ? checkoutTestOrderResponse(status: CheckoutOrderRemoteStatus.unavailable)
+            : const CheckoutRepositoryException(CheckoutFailureKind.offline);
       }
       final cartState = CartState.failure(
         isAuthenticated: true,
@@ -194,7 +197,8 @@ void main() {
       expect(failure.cart, isNull);
       expect(failure.failureKind, pending
           ? CheckoutFailureKind.unexpected
-          : noJournal ? CheckoutFailureKind.cartUnavailable : CheckoutFailureKind.offline);
+          : noJournal ? CheckoutFailureKind.cartUnavailable
+          : readOrderUnavailable ? CheckoutFailureKind.unavailable : CheckoutFailureKind.offline);
       final l10n = AppLocalizations.of(tester.element(find.byType(CheckoutScreen)));
       final action = find.byKey(const ValueKey('checkout-failure-action'));
       expect(action, findsOneWidget);
@@ -230,6 +234,7 @@ void main() {
           expect(repository.orderCartVersions, [7]);
         } else {
           expect(repository.readOrderCalls, 2);
+          expect(repository.readOrderIds, [checkoutTestOrder, checkoutTestOrder]);
           expect(repository.orderRequests, isEmpty);
         }
       }

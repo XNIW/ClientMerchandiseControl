@@ -1365,7 +1365,7 @@
   ],
   "consumer_sources": {
     "lib/features/account/data/supabase_customer_account_repository.dart": "11ef13e1be34f2ca0fdaa14ed4e36193855f4beee301bc62286e67feb4d32d51",
-    "lib/features/after_sales/data/supabase_customer_after_sales_repository.dart": "66a3d11bbaa016cbfa8beda0a5fce2dd12ba1b6edbdfa854396e22e97e578486",
+    "lib/features/after_sales/data/supabase_customer_after_sales_repository.dart": "481757a5cfa3111621cfd9b18bb0e685689fccc6af7f4356a71026ba20ef1f35",
     "lib/features/cart/data/supabase_customer_cart_repository.dart": "8b9f39aefcc9a129a8cb41e8e4a33a2f3214896b5079723bf3a6365da2d2cf40",
     "lib/features/catalog/data/search_assist_data.dart": "31ebf3a0b4bbd735d21fe371cfe3708f382006572aeffd1503b0a6ed1df188cd",
     "lib/features/checkout/data/supabase_checkout_repository.dart": "cfb72b9d6c811cb3ad3001a07573c7bf4562984b6f0682f3c01118f1e1c02375",

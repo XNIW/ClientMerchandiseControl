@@ -220,4 +220,5 @@ final class CustomerAfterSalesCase {
   final List<CustomerAfterSalesEvent> timeline;
 
   bool get canCancel => status == CustomerAfterSalesStatus.submitted;
+  bool get canAttachEvidence => !const {CustomerAfterSalesStatus.closed, CustomerAfterSalesStatus.rejected, CustomerAfterSalesStatus.refunded}.contains(status);
 }

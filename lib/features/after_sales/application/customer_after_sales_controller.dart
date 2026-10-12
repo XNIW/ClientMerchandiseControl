@@ -207,6 +207,7 @@ final class CustomerAfterSalesController
       if (!_isCurrentContext(contextFence)) return;
       _operationBusy = false;
       ++_caseRevision;
+      if (_createdCasesByOrder[updated.orderId]?.id == updated.id) _createdCasesByOrder[updated.orderId] = updated;
       state = state.copyWith(
         isMutating: false,
         cases: state.cases
@@ -320,7 +321,7 @@ final class CustomerAfterSalesController
     List<CustomerAfterSalesLocalAttachment> values, {
     int? replaceIndex,
   }) {
-    if (_operationBusy || _captureContextFence() == null) return;
+    if (_operationBusy || _captureContextFence() == null || state.cases.any((value) => value.id == caseId && !value.canAttachEvidence)) return;
     final attachments =
         (_attachmentsByCase[caseId] ??
                 const <CustomerAfterSalesLocalAttachment>[])
@@ -350,7 +351,7 @@ final class CustomerAfterSalesController
     String caseId,
     bool Function() canContinue,
   ) async {
-    if (_operationBusy || !_attachmentsByCase.containsKey(caseId)) return;
+    if (_operationBusy || !_attachmentsByCase.containsKey(caseId) || state.cases.any((value) => value.id == caseId && !value.canAttachEvidence)) return;
     final fence = _captureContextFence();
     if (fence == null || !canContinue()) return;
     _operationBusy = true;
@@ -461,6 +462,10 @@ final class CustomerAfterSalesController
                       !state.cases.any((existing) => existing.id == value.id),
                 ),
               ];
+        for (final value in cases) {
+          final stored = _createdCasesByOrder[value.orderId];
+          if (stored?.id == value.id && value.version >= stored!.version) _createdCasesByOrder[value.orderId] = value;
+        }
         state = state.copyWith(isLoading: false, cases: cases);
       }
     } on CustomerAfterSalesException catch (error) {

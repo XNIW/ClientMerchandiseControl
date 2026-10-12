@@ -139,7 +139,11 @@ void main() {
         expect(repository.caseIds.toSet(), {task054VisualCase});
         router.go('/new');
         await tester.pumpAndSettle();
-        expect(find.byType(Checkbox), findsWidgets, reason: 'Nuova richiesta legittima dopo completamento');
+        expect(
+          find.byType(Checkbox),
+          findsWidgets,
+          reason: 'Nuova richiesta legittima dopo completamento',
+        );
         expect(tester.takeException(), isNull);
       },
     );

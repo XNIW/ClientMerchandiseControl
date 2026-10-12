@@ -77,6 +77,7 @@ jobs:
           path: |
             candidate-preparation.patch
             build/task054-client-ui/*.png
+            build/task054-client-ui/host-fonts.json
           if-no-files-found: error
       - name: Validate workflow action pins
         if: ${{ !inputs.focused }}

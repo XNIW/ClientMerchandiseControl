@@ -10,29 +10,15 @@ import 'package:client_merchandise_control/features/reviews/domain/customer_revi
 import 'package:client_merchandise_control/features/reviews/presentation/customer_reviews.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/commerce_surface_fixtures.dart';
+import '../../support/client_host_visual_fonts.dart';
 
 const _draft = 'Comentario sintético conservado después de un error de envío.';
 
 void main() {
-  setUpAll(() async {
-    // Il font Ahem dei widget test non riproduce l'altezza del messaggio mobile.
-    // Flutter esporta FLUTTER_ROOT; usa lo stesso Roboto del SDK pinned.
-    final flutterRoot = Platform.environment['FLUTTER_ROOT'];
-    expect(flutterRoot, isNotNull);
-    final fontFile = File.fromUri(
-      Directory(
-        flutterRoot!,
-      ).uri.resolve('bin/cache/artifacts/material_fonts/Roboto-Regular.ttf'),
-    );
-    final bytes = await fontFile.readAsBytes();
-    await (FontLoader(
-      'Roboto',
-    )..addFont(Future.value(ByteData.sublistView(bytes)))).load();
-  });
+  setUpAll(loadClientHostVisualFonts);
   for (final action in ['submit', 'edit', 'withdraw']) {
     testWidgets('$action conserva bozza, errore locale e retry fino ad ACK', (
       tester,
@@ -352,7 +338,7 @@ Future<AppLocalizations> _pump(
   await tester.pumpWidget(
     Task054VisualFixtures().wrap(
       MaterialApp(
-        theme: dark ? AppTheme.dark() : AppTheme.light(),
+        theme: clientHostVisualTheme(dark ? AppTheme.dark() : AppTheme.light()),
         locale: locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

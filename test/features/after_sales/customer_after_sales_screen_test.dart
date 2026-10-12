@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:client_merchandise_control/features/after_sales/application/customer_after_sales_controller.dart';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
@@ -13,13 +12,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/commerce_surface_fixtures.dart';
+import '../../support/client_host_visual_fonts.dart';
 
 void main() {
-  setUpAll(() async {
-    final root = Platform.environment['FLUTTER_ROOT']!;
-    final bytes = await File('$root/bin/cache/artifacts/material_fonts/Roboto-Regular.ttf').readAsBytes();
-    await (FontLoader('Roboto')..addFont(Future.value(ByteData.sublistView(bytes)))).load();
-  });
+  setUpAll(loadClientHostVisualFonts);
   for (final locale in const [
     Locale('es', 'CL'),
     Locale('it'),
@@ -38,7 +34,7 @@ void main() {
             await tester.pumpWidget(
               fixture.wrap(
                 MaterialApp(
-                  theme: dark ? AppTheme.dark() : AppTheme.light(),
+                  theme: clientHostVisualTheme(dark ? AppTheme.dark() : AppTheme.light()),
                   locale: locale,
                   localizationsDelegates:
                       AppLocalizations.localizationsDelegates,
@@ -97,9 +93,28 @@ void main() {
               tester.element(find.byType(CustomerAfterSalesScreen)),
             );
             expect(find.text('pending_scan'), findsNothing);
-            await tester.scrollUntilVisible(find.text(l10n.afterSalesCaseOpened), 200, scrollable: find.byType(Scrollable).first);
+            await tester.scrollUntilVisible(
+              find.text(l10n.afterSalesCaseOpened),
+              200,
+              scrollable: find.byType(Scrollable).first,
+            );
             await tester.pumpAndSettle();
             expect(find.text(l10n.afterSalesCaseOpened), findsOneWidget);
+            final replace = find.byKey(const ValueKey('after-sales-evidence-replace-1'));
+            if (locale.languageCode == 'es' && Platform.environment['CMC_CLIENT_CAPTURE_DIR'] != null) {
+              await tester.scrollUntilVisible(replace,200,scrollable:find.byType(Scrollable).first);
+              await tester.ensureVisible(replace);
+              await tester.pumpAndSettle();
+              await tester.runAsync(()async {
+                final boundary=tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('after-sales-capture')));
+                final image=await boundary.toImage();
+                final bytes=await image.toByteData(format:ui.ImageByteFormat.png);
+                final directory=Platform.environment['CMC_CLIENT_CAPTURE_DIR']!;
+                await Directory(directory).create(recursive:true);
+                await File('$directory/after-sales-file-unavailable-es-CL-$dark.png').writeAsBytes(bytes!.buffer.asUint8List());
+                image.dispose();
+              });
+            }
             final retry = find.byKey(
               const ValueKey('after-sales-evidence-retry'),
             );

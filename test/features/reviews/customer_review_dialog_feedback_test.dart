@@ -60,6 +60,7 @@ void main() {
       await _tap(tester, actionButton);
 
       expect(repository.attempts, hasLength(1));
+      expect(find.byKey(const ValueKey('review-saving')), findsOneWidget);
       expect(tester.widget<TextField>(_comment).enabled, isFalse);
       expect(tester.widget<FilledButton>(_submit).onPressed, isNull);
       await tester.tap(actionButton);

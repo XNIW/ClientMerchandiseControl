@@ -19,6 +19,23 @@ const _caseId = '86000000-0000-4000-8000-000000000001';
 const _idempotencyKey = '87000000-0000-4000-8000-000000000001';
 
 void main() {
+  test('refresh durante create conserva mutex e ACK della pratica', () async {
+    final repository = _Repository()..createBarrier = Completer<void>();
+    final identity = StateProvider<AuthenticatedCustomer?>((ref) => _customer(_ownerA));
+    final container = _container(repository, identity);
+    addTearDown(container.dispose);
+    final subscription = container.listen(customerAfterSalesControllerProvider, (_, _) {}, fireImmediately: true);
+    addTearDown(subscription.close);
+    await _settle();
+    final controller = container.read(customerAfterSalesControllerProvider.notifier);
+    final pending = controller.create(_draft());
+    await controller.refresh();
+    expect(container.read(customerAfterSalesControllerProvider).isMutating, isTrue);
+    expect(await controller.create(_draft()), isNull);
+    expect(repository.idempotencyKeys, hasLength(1));
+    repository.createBarrier!.complete();
+    expect((await pending)?.id, _caseId);
+  });
   test(
     'account switch scarta risposta create del proprietario precedente',
     () async {

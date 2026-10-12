@@ -14,6 +14,11 @@ on:
       - .github/workflows/task054-source-release.yml
   workflow_dispatch:
     inputs:
+      focused:
+        description: Regressioni Client su runner separato; non qualifica build o TEST live
+        type: boolean
+        default: false
+        required: false
       quality_only:
         description: Riesegue Quality riusando i rilasci invariati già qualificati
         type: boolean
@@ -38,11 +43,37 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+      - name: Prepare focused source on hosted runner
+        if: ${{ inputs.focused }}
+        # subosito/flutter-action v2.23.0
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Focused regressions
+        if: ${{ inputs.focused }}
+        run: |
+          flutter pub get --enforce-lockfile
+          flutter gen-l10n
+          dart format lib test
+          git diff -- lib test > candidate-preparation.patch
+          flutter test test/features/after_sales test/features/reviews test/features/customer_notifications --concurrency=1
+      - name: Preserve focused source preparation
+        if: ${{ always() && inputs.focused }}
+        # actions/upload-artifact v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: candidate-preparation
+          path: candidate-preparation.patch
+          if-no-files-found: error
       - name: Validate workflow action pins
+        if: ${{ !inputs.focused }}
         run: bash scripts/check-action-pins.sh
       - name: Validate shell scripts
+        if: ${{ !inputs.focused }}
         run: bash -n scripts/*.sh
       - name: Validate backend consumer contract
+        if: ${{ !inputs.focused }}
         run: |
           python3 scripts/check-backend-compatibility.py --source-only
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-backend-compatibility.py
@@ -55,34 +86,44 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-preview.py
       - name: Validate client security boundary
+        if: ${{ !inputs.focused }}
         run: |
           bash scripts/check-client-security.sh
           bash scripts/test-client-security-scan.sh
       - name: Validate governance state
+        if: ${{ !inputs.focused }}
         run: |
           bash scripts/check-governance-state.sh
           bash scripts/test-governance-release-train.sh
       - name: Set up Flutter
+        if: ${{ !inputs.focused }}
         # subosito/flutter-action v2.23.0
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
       - name: Validate Flutter toolchain
+        if: ${{ !inputs.focused }}
         run: bash scripts/resolve-flutter.sh
       - name: Resolve dependencies
+        if: ${{ !inputs.focused }}
         run: flutter pub get --enforce-lockfile
       - name: Validate synchronized OS capture bridge
+        if: ${{ !inputs.focused }}
         run: dart scripts/test-task054-os-sync.dart
       - name: Validate architecture boundaries
+        if: ${{ !inputs.focused }}
         run: |
           bash scripts/check-architecture-boundaries.sh
           bash scripts/test-architecture-boundaries.sh
       - name: Generate localizations
+        if: ${{ !inputs.focused }}
         run: flutter gen-l10n
       - name: Validate release metadata and native assets
+        if: ${{ !inputs.focused }}
         run: bash scripts/check-release-metadata.sh
       - name: Verify generated and locked files
+        if: ${{ !inputs.focused }}
         run: |
           git diff --exit-code -- pubspec.lock lib/l10n/generated
           if [[ -n "$(git status --porcelain --untracked-files=all -- pubspec.lock lib/l10n/generated)" ]]; then
@@ -90,19 +131,24 @@ jobs:
             exit 1
           fi
       - name: Check formatting
+        if: ${{ !inputs.focused }}
         run: dart format --output=none --set-exit-if-changed .
       - name: Analyze
+        if: ${{ !inputs.focused }}
         run: flutter analyze
       - name: Test with coverage
+        if: ${{ !inputs.focused }}
         run: flutter test --coverage --exclude-tags performance
       - name: Performance gate
+        if: ${{ !inputs.focused }}
         run: flutter test --tags performance --concurrency=1
       - name: Check whitespace errors
+        if: ${{ !inputs.focused }}
         run: git diff --check
 
   android-release:
     name: Android release candidate
-    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.quality_only }}
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.quality_only && !inputs.focused }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -142,7 +188,7 @@ jobs:
 
   ios-release:
     name: iOS release candidate
-    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.quality_only }}
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.quality_only && !inputs.focused }}
     runs-on: macos-26
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer

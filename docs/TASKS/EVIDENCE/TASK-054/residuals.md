@@ -1,41 +1,42 @@
 # TASK-054 — Registro unico dei residui operativi
 
-## Stato corrente — candidate Client, 12 ottobre 2026
+## Stato corrente — consegna Client, 12 ottobre 2026
 
-Il mandato corrente avanza l'implementazione: allegati recuperabili sulla stessa
-pratica, file locale perso gestito, ACK ambiguo esplicito, mutex/fence, saving
-recensione e semantic tree inbox. Regressioni164PASS su927 e4ee, fixture hosted.
-Sameowner e554586/38269537442:165PASS; nuovo journey20a4b68/38273865407:166PASS.
-Checkpoint6709 terminale: CI3PASS/4FAIL, iOSalternativaCANCELLED35min con
-build/smoke/two-reviewPASS e journalFAIL;0PNG. Nuovo fullfreeze e review da associare. Il rapporto corrente conserva
-la matrice compatta; i vecchi PASS restano dei propri SHA.
+Fix applicativi nella candidate ba11b0f/PR29 draft. CI38279556447 terminale:
+5PASS/2FAILjournal;1137hostPASS/1goldenAndroidSKIP,11performancehost,2goldenmacOS,
+92fixture/137FlutterPNG+4OS per Android/iOS, unsigned2PASS. Source/pixel review
+scoped senza finding P0/P1/P2 aperti; integrata BLOCKED. QAfontcb9/38283244297
+166PASS e4CJKhost leggibili; i4tofu precedenti restano FAIL storici. SDK/runtime
+Client iOS compatibile qualificato su CI Xcode26.6/minimum14, distinto dai journal.
 
 | Residuo / stato | Owner | Prossimo passo e condizione di chiusura |
 |---|---|---|
-| Gate finali candidate / NOT_RUN in preparazione | Client / CI | Freeze dopo review/fix, CI completa exact-SHA e sette job terminali; native fixture distinta dal TEST |
-| Runtime iOS / NOT_RUN candidate | Client / runner GitHub | Surface macos15/Xcode26.3 giàinstallata: prepare headless, build/avvio, recensione isolata, journal/matrice e cleanup; preservare minimum14 e tutti FAIL storici |
-| Glifi zh-Hans host / FAIL harness | QA Client | QuattroPNG tofu conservati; verificare font/leggibilita su runtime nativo disponibile, niente install locale |
-| Schema TEST / BLOCKED per prova corrente; ultimo gate FAIL storico | Backend owner | Riferimento operator protetto nel manifest esistente, verifier TLS/catalago readonly; poi recovery/profile/current-window, quattrocanoniche e POST57/2 qualificati dall'owner |
-| Worker selettivo / BLOCKED | W/backend owner | Riconciliare sorgente/live POS e delta Client senza rollback storico; build/source/servedversion e sessione Client da attestare |
-| Percorso Client A / BLOCKED | Owner Auth/domain/pilota + Client | Riferimenti A, HTTPS/callback/appassociations/accesso operator; setup pilota generabile, indirizzi prima, poi pickup/delivery manuale |
-| R13/R14 ordine / BLOCKED | Client + backend owner | Ordine autenticato, perdita ACK e vero kill/restart, stessa chiave e singolo readback server; journal indirizzi non sostituisce |
-| R24 Android / NOT_RUN | N Android + W/Admin + Client | Nuova correlazione origineAndroid fino adACK, pubblicazione/prezzi/immagini Admin e lettura Client |
-| R24 iOS / NOT_RUN | N iOS + W/Admin + Client | Catena distinta origineiOS; stessi gate server/Client, nessun LocalSave inferito completo |
-| Artifact TEST Android / BLOCKED | Owner signer/canale + Client | Config reale/marker/callback bound, firma/install/avvio/login qualificati; unsigned production-like separato |
-| Artifact TEST iOS / BLOCKED | Owner team/profilo/canale + Client | Associazioni/config/marker/firma e install/login sulla superficie approvata |
-| AT e prestazioni fisiche / NOT_RUN | QA/device owner | TalkBack/VoiceOver, focus/tastiera/200%, frame/tap/memoria su dataset Client e piattaforme assegnate |
+| Journal Android / FAIL | Client/runner | Diagnosticare seed150s con VM pronta e cleanupforward; seed/kill/recover stessi APK/UID e2PID, receipt reale; codice journal byte-identico al checkpoint6709, nessuna causa app inferita |
+| Journal iOS / FAIL | Client/runner | Trasporto VM attestato del processo proprio (alive/executablematched ma URI assente30s); seed/kill/recover stesso bundle e2PID, Keychain receipt; cleanup attualePASS |
+| Pixel nativi residui / NOT_RUN | QA Client | FileUnavailable→SelectAgain, nuovo tile delivery200, inboxriga read; frame mirati su superficie controllata, non dedotti da altri capture |
+| Schema TEST / BLOCKED | Backend owner | Riferimento PGprotetto, TLS/identità/catalogo57RPC/2indici+RLS/helper; recovery/profile/window correnti, quattrocanoniche ePOST manifest+ledger |
+| Worker selettivo / BLOCKED | W/backend owner | Riconciliare sorgente/live POS e delta Client, build/source/servedversion e sessione Client; nessun rollback storico |
+| Percorso Client A / BLOCKED | Auth/domain/pilota + Client | Riferimenti A, callbackHTTPS/appassociations/accesso operator; setup pilota generabile, indirizzi poi pickup/delivery manuale |
+| R13/R14 ordine / BLOCKED | Client + backend owner | Ordine autenticato, perditaACK e kill/restart, stessa chiave e singolo readback server; journal indirizzi distinto |
+| R24 Android / NOT_RUN | N Android + W/Admin + Client | OrigineAndroid→ACK→Adminpubblicazione/prezzi/immagini→Client correlati |
+| R24 iOS / NOT_RUN | N iOS + W/Admin + Client | Catena distinta origineiOS, senza inferire da LocalSave; nessun inputN da Client |
+| Artifact TEST Android / BLOCKED | Signer/canale + Client | Config/marker/callback reali bound, firma/install/avvio/login; unsigned production-like distinto |
+| Artifact TEST iOS / BLOCKED | Team/profilo/canale + Client | Config/associazioni/marker/firma e install/login sulla superficie approvata |
+| AT e prestazioni fisiche / NOT_RUN | QA/device owner | TalkBack/VoiceOver, focus/IME/200% e frame/tap/memoria su datasetClient e piattaforme assegnate |
 
-Ledger12ottobre via APIreadonly:161ricevute e4canonicheClient assenti; postapply165
-solo se baseline invariata. SourceAdmin6d2bcf1/PR136/CI38243799965 distinta dal
-catalogo RPC/RLS attuale NOT_RUN. Storico32/57 e1/2 del10ott resta preservato.
+Ledger12ott viaAPIreadonly:161ricevute,4canonicheClientassenti; postapply165 solo
+se161 invariato. SourceAdmin6d2bcf1/PR136/CI38243799965 non è catalogo attuale.
+Storico32/57 e1/2 del10ott preservato. Profilo155/recovery da rinnovare.
 
-Una sola richiesta di input esterno utile resta il riferimento protetto PG operator
-gia richiesto; CA/Cloudflare non vengono richieste di nuovo. Endpoint/current
-catalog non qualificati bloccano il relativo percorso, non i fix Client indipendenti.
-Gli allegati temporanei restano in memoria: dopo processo nuovo richiedono
-riselezione; gli allegati server confermati restano della stessa pratica.
-I provider facoltativi restano NOT_RUN secondo scope esistente e non bloccano il
-percorso manuale. Nessun requisito storico eliminato, nessun merge/DONE.
+Una sola richiesta esterna utile: ownerbackend associa endpoint ufficiale TEST e
+service/passfile operator protetti al manifest esistente, esegue verifierreadonly
+TLS/identità/catalogo. CA/Cloudflare già disponibili. Gli altri prerequisiti non
+vengono richiesti in blocco. Nessun SQL/apply/cron/deploy/N da Client.
+
+Checkpoint allegati in memoria: navigazione/riapertura stessa sessione supportate;
+dopo processo nuovo riselezionare i file temporanei mancanti, confermati letti dal
+server. Provider facoltativi NOT_RUN secondo scope esistente, non bloccano manuale.
+Nessun requisito storico eliminato, nessun merge/DONE.
 
 ## Checkpoint storico — attivazione TEST, mandato8da5e50f (10 ottobre)
 

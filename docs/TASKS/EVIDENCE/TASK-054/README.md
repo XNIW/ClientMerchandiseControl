@@ -1,7 +1,7 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
@@ -11,11 +11,14 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 
 ## Candidate Client — mandato12ottobre
 
-Recupero allegati/nuova selezione, mutex/fence, Saving accessibile e inbox semantics
-implementati. Journey continuo indirizzo→checkout corregge assert del tile dopoBack.
-Prove e limiti nel [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md).
-LedgerTEST APIreadonly161, quattro Clientversioni assenti; catalogoattualeNOT_RUN,
-postapply165 condizionato. Mac SDK resta all'owner N; Client usa runner separati.
+Sorgente applicativo ba11b0f, PR29 draft: CI38279556447 terminale5PASS/2FAILjournal.
+Quality1137/1SKIP+11performance; Android/iOS92fixture ciascuno,137FlutterPNG+4OS,
+unsigned2PASS. Recensioni e recupero parziale nativi revisionati;54+4originali per
+piattaforma ispezionati. QAfontcb9/38283244297:166PASS,4CJKhost leggibili; app/test/
+native byte-identici a ba11. [Capsula](next-integration/client-recovery-validation-20261012.json)
+e [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md) sono terminali.
+LedgerTEST APIreadonly161/quattrocanonicheassenti; RPC/RLSattualeNOT_RUN.
+Nativejournal, Auth/TEST/firma/R24/AT/profile restano aperti. Nessun SDK/UI Mac.
 
 ## Attivazione TEST — mandato8da5e50f, aggiornamento10ottobre
 

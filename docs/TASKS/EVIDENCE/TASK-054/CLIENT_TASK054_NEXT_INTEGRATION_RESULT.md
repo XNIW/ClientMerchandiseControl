@@ -1,119 +1,166 @@
 # CLIENT_TASK054_NEXT_INTEGRATION_RESULT
 
-## Rapporto corrente — recupero Client, 12 ottobre 2026
+## Rapporto corrente — candidate Client, 12 ottobre 2026
 
-Mandato d47f4743: implementazione nel task esistente, candidate isolata da
-3f8d3d19 e registri da744cd49e. Main remoto bfbfc0b6 e PR29 draft f326faa
-verificati prima del lavoro; checkout originale8423c868 e supabase/ preservati.
-I sorgenti del ramo documentale non sostituiscono quelli del runner/attivazione.
-Nessun SDK/UI sul Mac: l'utente autorizza scegliere superfici che permettano ai
-progetti di procedere contemporaneamente; Client usa runner GitHub separati.
+I fix applicativi sono consegnati nella PR29 draft, sul sorgente congelato
+`ba11b0f7f5bb9f751df7fa14d091ff75ee844b65`. La CI canonica
+[38279556447](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38279556447)
+è terminale: **5 job PASS e 2 FAIL**, entrambi journal. TASK-054 resta
+**BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED**. Nessun merge o DONE.
 
-La baseline causale38260104850 (lib3f8, test8f52) termina121PASS/7FAIL, exit1:
-parziale senza recupero persistente, PathNotFoundException dopo create, refresh
-che rilascia busy durante create, ticket tardivo post-timeout che avvia Storage,
-feedback saving assente per submit/edit/withdraw. Le prime attese I/O incomplete
-e i successivi FAIL di teardown/semantics/font/capture sono distinti, conservati
-come limiti del harness. Nessun duplicato server osservato o dichiarato.
+La candidate deriva da3f8d3d19; i registri importati da744cd49e mantengono
+provenienza e 80 capsule byte-identiche. Il checkout originale8423c868 con
+supabase/ non tracciato è preservato. L'utente autorizza scegliere superfici che
+consentano avanzamento contemporaneo: Client usa runner GitHub separati; nessun
+SDK o input UI sul Mac e nessuna autorità SQL/cron/Worker/N trasferita.
 
-La candidate conserva caseId prima della lettura locale, checkpoint per file e
-pratica, mutex dell'intera sequenza e azioni retry/nuova selezione nel dettaglio.
-Upload confermati saltati; ACK ambiguo riconciliato con SELECT owner-scoped esatto
-del contratto esistente. Ticket/path riusati, trasporto in corso non sovrapposto;
-nessuna nuova RPC/DDL. Stati e19chiavi nuove localizzati in quattro lingue; nomi
-originali preservati. Saving recensione visibile/liveRegion, bozza/errori/fence
-esistenti conservati; inbox annuncia lettura e destinazione senza icone duplicate.
+La pratica appena creata conserva caseId e checkpoint per file: recupero sulla
+stessa pratica, confermati saltati, errore locale sanitizzato e nuova selezione.
+Mutex e fence proteggono tutta la sequenza; ACK ambiguo riconciliato con receipt
+SELECT esatta del contratto esistente, senza nuove RPC/DDL. Ticket/path riusati;
+trasporto ancora in corso non sovrapposto. Stati e 19 chiavi nuove localizzati,
+nomi originali conservati. Saving recensioni visibile/liveRegion; inbox unifica
+lettura e destinazione senza annunci duplicati. I comportamenti già presenti
+Verify/journal senza erase, Wrap indirizzi, draft/errori, paging e navigazione
+indipendente da markRead sono preservati.
 
-Il checkpoint è in memoria: navigazione e riapertura nella stessa sessione sono
-supportate. Dopo riavvio di processo sono disponibili gli allegati confermati
-dal server; i file temporanei non conservati vanno riselezionati. Non è promessa
-di persistenza dei byte/file o prova di ordine reale R13/R14.
+I checkpoint degli allegati sono in memoria: navigazione e riapertura nella stessa
+sessione sono supportate. Dopo un processo nuovo, gli allegati confermati sono
+letti dal server; i file temporanei mancanti vanno riselezionati. Non è una promessa
+di persistenza dei byte e non è prova di ordine reale R13/R14.
 
-| Requisito / prova | Stato osservato | Revisione, ambiente e tipo | Risultato e limite |
+| Requisito / flusso | Stato | SHA, ambiente e tipo | Risultato / limite |
 |---|---|---|---|
-| R21 parziale e file locale perso | PASS | 9272599; GitHub Ubuntu; unit/widget fixture, run38266245871 exit0 | Stessa pratica, confermati saltati, selezione sostitutiva; parte di164test, non upload TEST |
-| R21 ACK perso/timeout/TTL | PASS | 9272599; mock port esistente, otto transport recovery | Path e receipt esatti; late-work interrotto; nessun dato remoto |
-| R03/R25 account/shop/navigation | PASS | 9272599; controller + AuthController/router reali con repository fixture | A-B-A nello stesso frame, expiry/shop durante read; nessun upload stale |
-| R22 saving e R18 inbox | PASS | 4ee1546; run38267522135 exit0,164test mirati | Feedback/accessibility tree/viewport; AT reale distinto |
-| R30 geometria 320x568,200%,temi | PASS scoped | 4ee1546;18PNG host, fixture/font SDK | Quattordici frame latini; QA reviewer separato. Quattro frame zh-Hans esclusi per glifi del harness |
-| R30 leggibilita cinese nativa | NOT_RUN | Host cjkAvailable false; native candidate ancora da eseguire | FAIL glifi host conservato, nessuna causa app inferita |
-| CA-05/T-05 checkpoint6709 | FAIL | CI38270164415 terminale,3jobPASS/4FAIL | Analyze26info; iOSpreapp timeout; Androidcapture VMpersa. Releaseunsigned2 e journalAndroidPASS distinti |
-| CA-O5/T-O5 checkpoint6709 | FAIL / dipendentiNOT_RUN | run38270158993 CANCELLED al budget35min; macos15/Xcode26.3 | Prepare/build/security/smoke e due reviewfixturePASS; journalPIDnonassociatoFAIL,0PNG e matriceNOT_RUN |
-| CA-02/03 e T-02/03 TEST completo | BLOCKED | Ultimo catalogo reale10ott20:49UTC, non rinnovato qui |32/57,25mancanti,4canoniche,1/2,history158 sono storici; endpoint operator protetto e verifica corrente necessari |
-| R02/R04/R10/R11/R13/R14 autenticati | BLOCKED | Account A/callback/pilota/backend da qualificare | Indirizzi prima, poi ritiro/consegna manuale e ordine/readback/nuovoPID distinti |
-| R24 origine Android e origine iOS | NOT_RUN | Owner N/W; due catene conservate | ACK cloud, Admin e immagini Client correlati; nessun input N autorizzato qui |
-| R29 TEST firmato/install/login | BLOCKED | Config/procedure protette predisposte; nessun artifact TEST nuovo | Firma/canale e associazioni/callback approvati mancanti; unsigned production-like distinto |
-| R30 TalkBack/VoiceOver/profile fisico | NOT_RUN | Nessuna superficie fisica assegnata | Semantics e benchmark host non sono AT o latenza percepita |
+| R21 parziale/read locale/ACK/timeout/TTL | PASS | ba11; focused38279049882, Ubuntu/Flutter3.44.8, unit/widget/port fake | Stessa pratica, confermati saltati, retry/reselect; nessun upload TEST |
+| R03/R25 owner/shop/navigation | PASS | ba11; controller + AuthController/router produzione con repository fixture | A→B→A nello stesso frame, scadenza/shop/read tardivo; nessuna sessione OAuth reale |
+| R18 inbox e R22 saving | PASS | ba11; focused166, semantics e frame host/native selezionati | Feedback persistente, liveRegion e destinazioni; AT distinto |
+| R04 indirizzo→checkout | PASS | ba11; host320×568/es-CL/light/200%, fixture | Validazione→create con ACK perso→unica reconcile→Back→slot/cashOnDelivery/riepilogo; nessuna quote/orderrequest |
+| CA-05/T-05 Quality | PASS | ba11; CI38279556447 Ubuntu, exit0 | format397/0changed, analyze0issues,1137PASS/1SKIP +11 performance host; golden Android saltato,2golden macOS PASS |
+| Android native fixture | PASS | ba11; API35/x86_64,92 test, exit0 |137FlutterPNG+4OS, cleanupPASS;54originali+4OS revisionati, fixture non TEST |
+| iOS native fixture / CA-O5 | PASS | ba11; macos26/Xcode26.6/SDK/runtime26.5, minimum14 | build/security/2golden/smoke1/92fixture PASS;137FlutterPNG+4OS, cleanupPASS;54+4originali revisionati |
+| Release unsigned Android/iOS | PASS | ba11; ricette canoniche production-like, exit0 | AAB/APK e app/archive; iOS89/89validatorfixture PASS; non artifact TEST firmato |
+| Journal Android | FAIL | ba11; seed exit124 dopo150s, app/VM avviati | restartNOT_RUN, backendNOT_RUN; cleanupFAIL per forward già assente, causa seed non stabilita |
+| Journal iOS | FAIL | ba11; processo proprio alive/executable matched | URI VM non osservata entro30s, exit124; restart/backendNOT_RUN; process+simulatorcleanupPASS, crash non confermato |
+| Alternativa iOS matrix | FAIL | ba11; macos15/Xcode26.3/SDK26.2 | prepare/build/securityPASS; install/launch eseguiti, smoke124/debug-log-reader dopo900s; captureNOT_RUN/0PNG, cleanupPASS |
+| Alternativa iOS journal | FAIL | ba11; stessa toolchain, runner distinto | postboot census timeout30s/124 prima Flutter; appNOT_RUN/0PNG, cleanupFAIL/quiescenzaNOT_RUN |
+| R30 renderer host quattro lingue/due temi/200% | PASS | app/test byte-identici a ba11; toolscb9, run38283244297 |166PASS/analyze0issues/patch0;19PNG,15latini invariati +4CJK nuovi senza tofu, review scoped |
+| CA-02/03 e T-02/03 TEST completo | BLOCKED | ledgerAPI12ott161; catalogo RPC/RLS attualeNOT_RUN |4versioni Client assenti;32/57 e1/2 sono fotografia10ott, non gate corrente |
+| R02/R04/R10/R11/R13/R14 autenticati | BLOCKED | A/callback/pilota/backend non qualificati | Indirizzi prima, poi ordine pickup/delivery e readback/newPID; journal fixture non sostituisce ordini |
+| R24 Android e R24 iOS | NOT_RUN | N/W/Admin/Client, due origini separate | ACK cloud→pubblicazione/prezzi→immagini/consumo Client; nessun input N |
+| R29 artifact TEST firmato/install/login | BLOCKED | riferimenti/procedure protetti predisposti | Config/callback/marker/firma/canale da qualificare; unsigned production-like distinto |
+| R30 AT/prestazioni fisiche | NOT_RUN | nessuna superficie fisica assegnata | Semantics/benchmark host/IME visibile non sono TalkBack/VoiceOver o latenza telefono |
 
-### Fix della review distinta prima del freeze
+[Capsula terminale](next-integration/client-recovery-validation-20261012.json)
+associa SHA, comandi/esiti, negativi, font e inventari. Le quattro metadata OS per
+piattaforma mantengono ime_acceptance NOT_RUN: tastiera e porzioni visibili sono
+osservazioni scoped. Su iOS il probe è NOT_RUN, non sostituito da flag inventati.
+Il GITHUB_SHA31c16e… del contesto CI è distinto dal checkout/appba11 verificato.
+Job, step e annotazioni dei7check ispezionati:2failure124 dei journal; altri avvisi
+Node20/24, capacitàmacOS e migrazione etichettaUbuntu sono warning di piattaforma,
+conservati senza attribuirli a difetti app. Re-reviewevidence distinta: fedeltàPASS,
+74JSON/80capsule/13digest/matrici/link/hash verificati,0nuoviP0/P1/P2/P3.
 
-Run38268961126 suaf0da0a:164PASS/1FAIL exit1. Stesso owner, profilo aggiornato
-con schermata non osservata: alla riapertura Riverpod segnala provider non
-inizializzato, prima delle assertion sui checkpoint. Questo errore è riprodotto;
-la cancellazione delle mappe resta rischio sorgente distinto, non perdita dati
-osservata dal RED. Il probe7dd9 con identita uguale era165PASS e non invalidava.
-Fixe554586: select subject/shop e nessun erase differito in onDispose; fence
-owner/shop/late-response invariati. GREEN38269537442/e554586:165PASS exit0; fullgate nuovo da associare. Il reviewer
-UI trova un duplicato di capture dopo successo nel nuovo test nativo: rimosso;
-resta la cattura parziale prima retry e la cardinalita137 prescritta.
+### Causalità e review distinta
 
-La workflow iOS measured esistente aggiunge soltanto l'opzione compatible:
-macos15/Xcode26.3 e prepare headless con runner gia approvato, poi build/security/
-smoke prima recensione, journal e matrice. Defaulthistorical non rieseguito;
-timeout35 e minimum14 invariati. Metadata [ufficiali runner](https://raw.githubusercontent.com/actions/runner-images/main/images/macos/macos-15-arm64-Readme.md)
-letti12ott indicano SDK/runtime26.2 installati; disponibilita osservata sul job
-e runtime dell'app sono gate distinti: checkpoint6709 terminale sopra.
-La modalità separata matrix/journal/review in9f460ac conserva ogni gate e budget35;
-ciascuno gira su runner proprio, senza mescolare sequenze dipendenti dopoFAIL.
-Reviewread-only YAML/Bash/actionpin/12combinazioni PASS source-only.
+Baseline38260104850: lib3f8/test8f52,121PASS/7FAIL exit1; parziale senza recupero,
+PathNotFoundException dopo create, refresh che rilascia busy, ticket tardivo che
+avvia Storage dopo timeout e saving assente nei tre submit/edit/withdraw.
+Nessun duplicato server osservato. FAIL di compilazione, I/O/teardown/semantics e
+capture del harness restano distinti dalle cause applicative.
 
-R01–R30 in31righe e i25E2E storici sotto conservano definizioni e provenance;
-questo overlay integra soltanto le prove del delta. I percorsi del harness non
-sono una percorrenza live di tutte le superfici. Push/mappe/online restano secondo
-le decisioni esistenti: non bloccano ritiro/consegna manuale; provider non qualificati
-mantengono NOT_RUN, nessun nuovo N/A o PASS per OFF.
+Sameowner/unobserved: af0da0a/38268961126 riproduce provider non inizializzato
+alla riapertura, prima delle assertion sui checkpoint. Il wipe resta rischio
+sorgente distinto. e554586 elimina erase differito e seleziona subject/shop;
+GREEN38269537442:165PASS. Nuovo journey e5ad/38272961135 riproduce assert del
+RadioListTile senza gruppo dopo Back;20a4b68 usa tile informativo. Il frame Roboto
+7cb/38277766880 prova SnackBar sopra Continua al200%. a245 sposta le azioni in
+bottomNavigationBar: tap con SnackBar visibile riuscito. Il successivo FAIL sul
+centro pagamento non ha frame causale; ba11 lascia trascorrere la durata prevista
+solo dopo il tap critico e completa il percorso. Tutti i negativi sono conservati.
 
-### Percorso indirizzo → checkout
+Reviewer read-only distinti hanno verificato contratti/isolamento, source checkout,
+prove e pixel. Nessun finding P0/P1/P2 aperto sul delta applicativo; approvazioni
+limitate allo scope, esito integrato BLOCKED. L'overflow storico recensioni iOS ha
+nuova prova positiva scoped nel frame122/fixture92; non viene chiuso come
+accettazione AT o TEST. Margini neri del viewport compatto sono del harness.
+Restano non catturati nativamente fileUnavailable→SelectAgain, nuovo tile delivery
+al200% e riga inbox read “Leída”; gli assert host sono separati.
 
-Journey host continuo aggiunto: creazione manuale, validazione locale, risposta
-persa dopo commit del fake, Verify dello stesso indirizzo, selezione delivery,
-Back al checkout, slot e riepilogo cashOnDelivery. Nessuna quote o orderrequest.
-Ripro38272961135/e5ad:165PASS/1FAIL per assert RadioListTile non registrato nel
-checkout dopoBack. Fix20a4b68 usa ListTile selezionato informativo; GREEN38273865407
-166PASS/analyze0issues. Run38276453669/9f: hitTestable0 al200% con fontAhem, causa non conclusa.
-Run38277766880/7cb:165PASS/1FAIL, analyze0issues; Roboto e frame reale del harness
-confermano SnackBar di ripristino sopra Continua (pulsante y448–496, overlay da420).
-Fixa2456a2 pone azioni ready in Scaffold.bottomNavigationBar e shrinkwrap Center;
-nessun messaggio nascosto/attesa o testo ridotto. Regressione conserva SnackBar
-visibile e richiede tap raggiungibili mode→destination→slot→summary al200%.
-GREEN/fullgate nuovo da associare.
+### CJK del renderer
 
-### Readback ledger aggiornato — 12 ottobre
+I quattro tofu ba11 restano FAIL storici. Il solo delta toolscb9 è l'opzione del
+workflow focused: asset [NotoCJK fissato](https://github.com/notofonts/noto-cjk/blob/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTC/NotoSansCJK-Regular.ttc),
+checksum del [manifest SPDX](https://github.com/notofonts/noto-cjk/blob/f8d157532fbfaeda587e826d4cd5b21a49186f7c/_manifest/spdx_2.2/manifest.spdx.json)
+e [licenza OFL](https://github.com/notofonts/noto-cjk/blob/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/LICENSE)
+conservata nell'artifact. Nessuna modifica lib/test/integration/native o font asset
+client. Quattro nuovi CJK originali revisionati: saving/recovery/guida leggibili
+nei due temi; TTC face regionale SC e parità nativa non certificati. Il CJK nativo
+fulfillment/missing/detail-retry ha prova positiva distinta.
 
-L'API Supabase list_migrations(TEST), tool senza errore, restituisce161ricevute
-e tre nuove versioni POS:20261012115442/115728/115959. Quattro versioni canoniche
-Client ancora assenti nella ledger. [Capsula](next-integration/client-recovery-test-ledger-20261012.json)
-associa versioni/nomi a sorgenti/hash Adminmain6d2bcf1, PR136/CI38243799965.
-Source/CI e preservazione riferita owner non provano i byte SQL applicati; nessun
-execute_sql/apply/cron/Worker eseguito da Client. RPC32/57 e indici1/2 restano
-readback10ottobre, non verifica corrente. Conteggio postapply165 solo se161 resta
-invariato; profilo/recovery155 storici da rinnovare prima dell'apply.
+### Copertura delle superfici — lettura distinta del freeze ba11b0f
 
-### Preparazione TEST e prossimo intervento
+Questa tabella descrive gli assert presenti, non attribuisce un PASS runtime al
+sorgente. L'esito della suite host finale e delle fixture native va associato alla
+capsula terminale. Capture/no-exception non certifica retry, Back o risultato.
 
-Il pacchetto canonico e i57RPC/2indici sono già preparati. I quattro SQL esatti
-sono invariati rispetto alla main Admin6d2bcf1a letta in sola lettura il12ottobre;
-profilo operator storico155 e recovery richiedono riconciliazione prima dell'apply.
-La vecchia attesa162 e baseline158 sono supersedute dal readback ledger161:
-postapply165 è condizionato, mai prova dello schema. I nuovi delta POS non sono applicati da Client. CA e Cloudflare già
-disponibili; pilota sintetico e config TEST esistenti0600, setup remoto NOT_RUN.
+| Superficie | Assert funzionali definiti | Limite della qualifica |
+|---|---|---|
+| Home | [vuoto/loading/offline→retry e CTA](../../../../test/features/home/home_storefront_data_test.dart) | Canonica generale soprattutto capture; nessun percorso live |
+| Catalogo/ricerca | [single-flight e pagina fallita→retry](../../../../test/features/catalog/catalog_screen_test.dart); query/focus nella fixture | Back OS non provato |
+| Prodotto | [route→detail→Back e timeout→retry](../../../../test/features/product_detail/presentation/product_detail_screen_test.dart) | Capture di stati non equivale a tutti gli errori |
+| Preferiti | [add/remove→empty, orphan e errore storage](../../../../test/features/favorites/favorites_screen_test.dart) | Non incluso nell'aggregatore nativo; loading/retry/Back non esercitati qui |
+| Carrello | [empty→Catalogo, mutazioni offline e nuovo tentativo](../../../../test/features/cart/cart_screen_test.dart) | Nessun kill/restart o ordine TEST |
+| Checkout | [pickup quote/ordine/riprezzo con fake](../../../../integration_test/customer_checkout_flow_test.dart); [delivery Verify→Back→slot/riepilogo](../../../../test/features/checkout/customer_delivery_address_journey_test.dart) | Delivery termina prima quote/ordine; R13/R14 reali separati |
+| Ordini | [history→detail→confirm cancellation](../../../../integration_test/customer_order_history_flow_test.dart) | Fake readback; lista empty/loading/retry e Back non percorsi dal flow |
+| Account/indirizzi | [CRUD/privacy](../../../../integration_test/customer_account_flow_test.dart), draft/error/Verify/journal | TestTextInput non è IME OS; journal fixture non è addressTEST |
+| Inbox | [paging/cache/purge/router e semantics](../../../../test/features/customer_notifications/customer_notification_inbox_accessibility_test.dart) | Nessun TalkBack/VoiceOver o destinazione TEST |
+| Assistenza | [samecase/retry/reselect/confermati](../../../../test/features/after_sales/customer_after_sales_evidence_recovery_test.dart) | File/fake sintetici, nessuno StorageTEST |
+| Recensioni | [saving liveRegion, errori/bozza/edit/withdraw](../../../../test/features/reviews/customer_review_dialog_feedback_test.dart) | Frame host; overflow/pixel iOS distinto |
+| Deep link/Back | [cold/warm/dedup e scope fail-closed](../../../../test/app/router/storefront_deep_link_router_test.dart) | Gateway fake, associazioni/callback OS non qualificati |
 
-Unico prossimo riferimento utile, già richiesto: owner backend associa endpoint
-ufficiale TEST e service/passfile operator protetti al manifest esistente; esegue
-il verifier readonly di identità TLS e catalogo. Il pacchetto/driver è pronto;
-poi si rinnovano recovery, profilo e finestra writer/cron. Nessun valore in chat,
-nessun apply/deploy o rollback del Worker POS eseguito da Client. Workeracb3e4ac/
-fdfb3a7e resta ultimo readback verificato10ottobre;96758b89 non è una live proof.
+L'aggregatore [task054_visual_flow](../../../../integration_test/task054_visual_flow_test.dart)
+include account/checkout/orders/commerce/storefront/next, non preferiti/deep-link/
+guest. La presenza di app_guest_flow_test non ne prova l'esecuzione canonica.
+Le verifiche generali empty/loading/error sono spesso capture/no-exception; gli
+assert causali e i percorsi citati hanno scope più ristretto e distinto dal live.
+
+1. Scoperta→carrello: copertura host causale di query/retry/route/mutazioni;
+   percorso continuo nativo/live da qualificare.
+2. Indirizzo→checkout: difetti radio e coperturaCTA riprodotti; focusedba11
+   PASS166/analyze0issues, tap di Continua con SnackBar visibile. Solo dopo quel
+   tap trascorre la durata configurata; slot/pagamento/riepilogo in stato stabile.
+3. Post-acquisto: recovery e feedback/semantics con regressioni reali fixture;
+   15 frame latini e 4 nuovi CJK host qualificati; i 4 tofu precedenti conservati.
+
+[Capsula del freeze e associazione19frame](next-integration/client-recovery-validation-20261012.json).
+Il frame checkout è byte-identico ad a245 revisionato; i 15 latini restano
+byte-identici anche nella nuova run CJK. I quattro nuovi CJK cb9 sono revisionati
+separatamente; non certificano faccia regionale SC o parità tipografica nativa. I FAIL9f/7cb/a245 restano distinti nel registro:
+a245 raggiunge Continua, poi fallisce il centro pagamento senza frame causale;
+ba11 aggiunge la scadenza naturale soltanto dopo il tap critico e completa il flow.
+
+### TEST e prossimo intervento
+
+LedgerAPI readonly12ott:161ricevute, tre nuove POS, quattro versioni Client assenti.
+[Capsula ledger](next-integration/client-recovery-test-ledger-20261012.json) associa
+nomi/versioni a Adminmain6d2bcf1/PR136/CI38243799965. SourceCI non prova byte SQL
+applicati o catalogo RPC/RLS corrente. Postapply165 solo se161 invariato; il conteggio
+non certifica schema. I quattro SQL e manifest57RPC/2indici sono già preparati e
+invariati; recovery e profilo155 storici da rinnovare prima dell'apply.
+
+Unico prossimo riferimento esterno già richiesto: owner backend associa endpoint
+ufficiale TEST e service/passfile PG operatore protetti al manifest esistente;
+esegue verifier readonly TLS/identità/catalogo, poi rinnova recovery/profile e
+finestra writer/cron. CA/Cloudflare già disponibili; pilota/config sintetici
+predisposti0600, setup remotoNOT_RUN. Nessun SQL/apply/cron/deploy da Client.
+Workeracb3e4ac/fdfb3a7e è l'ultimo readback10ott,96758b89 solo candidato Client;
+preservare POS, nessun rollback del pin storico22107. Per journal, Client/runner
+raccoglie diagnostica su una superficie controllata con trasporto VM attestato e
+riesegue seed/kill/recover: stesso bundle/APK/UID, duePID e receipt effettiva.
+
+R01–R30 in31righe, due originiR24 e25E2E mantengono definizioni/provenienza.
+Push/mappe/online restano secondo decisioni esistenti, senza bloccare il percorso
+manuale; provider non qualificati NOT_RUN, nessun PASS o N/A inventato per OFF.
 
 ## Checkpoint storico — riconciliazione TEST, 10 ottobre 2026
 

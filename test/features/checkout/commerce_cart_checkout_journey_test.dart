@@ -1,5 +1,6 @@
 import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
+import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
 import 'package:client_merchandise_control/features/account/domain/customer_account_models.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';

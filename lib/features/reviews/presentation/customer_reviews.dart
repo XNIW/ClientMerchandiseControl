@@ -523,6 +523,7 @@ final class _CustomerReviewDialogState
   late int _rating;
   late final TextEditingController _comment;
   final _failureKey = GlobalKey();
+  final _savingKey = GlobalKey();
   var _busy = false;
   var _hasFailure = false;
   var _ownerInvalidated = false;
@@ -578,6 +579,12 @@ final class _CustomerReviewDialogState
     setState(() {
       _busy = true;
       _hasFailure = false;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final savingContext = _savingKey.currentContext;
+      if (_busy && _ownerIsCurrent && savingContext != null) {
+        unawaited(Scrollable.ensureVisible(savingContext, alignment: 1));
+      }
     });
     try {
       final comment = _comment.text.trim().isEmpty
@@ -688,7 +695,7 @@ final class _CustomerReviewDialogState
               Semantics(
                 key: const ValueKey('review-saving'),
                 liveRegion: true,
-                child: Text(l10n.reviewsSaving),
+                child: Text(l10n.reviewsSaving, key: _savingKey),
               ),
             ],
             if (_hasFailure) ...[

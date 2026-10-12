@@ -4128,6 +4128,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan.'**
   String get afterSalesEvidenceReopenHelp;
+
+  /// No description provided for @afterSalesCreating.
+  ///
+  /// In es, this message translates to:
+  /// **'Abriendo solicitud…'**
+  String get afterSalesCreating;
+
+  /// No description provided for @afterSalesEvidenceInvalid.
+  ///
+  /// In es, this message translates to:
+  /// **'Archivo no compatible o demasiado grande. Selecciona otro.'**
+  String get afterSalesEvidenceInvalid;
 }
 
 class _AppLocalizationsDelegate

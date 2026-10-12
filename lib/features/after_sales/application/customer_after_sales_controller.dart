@@ -99,7 +99,10 @@ final class CustomerAfterSalesController
       scheduleMicrotask(() {
         // Una ricostruzione per lo stesso owner riattiva subito il notifier.
         // Solo il vero dispose libera i checkpoint senza perdere un retry.
-        if (_disposed) { _attachmentsByCase.clear(); _createdCasesByOrder.clear(); }
+        if (_disposed) {
+          _attachmentsByCase.clear();
+          _createdCasesByOrder.clear();
+        }
       });
     });
     {
@@ -285,8 +288,16 @@ final class CustomerAfterSalesController
 
   CustomerAfterSalesCase? openedCaseForOrder(String orderId) {
     final stored = _createdCasesByOrder[orderId];
-    final value = state.cases.where((item) => item.id == stored?.id).firstOrNull ?? stored;
-    if (value == null || const {CustomerAfterSalesStatus.closed, CustomerAfterSalesStatus.rejected, CustomerAfterSalesStatus.refunded}.contains(value.status)) return null;
+    final value =
+        state.cases.where((item) => item.id == stored?.id).firstOrNull ??
+        stored;
+    if (value == null ||
+        const {
+          CustomerAfterSalesStatus.closed,
+          CustomerAfterSalesStatus.rejected,
+          CustomerAfterSalesStatus.refunded,
+        }.contains(value.status))
+      return null;
     return value != null &&
             (_attachmentsByCase[value.id]?.any(
                   (file) =>
@@ -399,14 +410,17 @@ final class CustomerAfterSalesController
             .uploadEvidence(caseId: caseId, input: file.input!);
         if (!_isCurrentContext(fence)) return;
         file.status = CustomerAfterSalesAttachmentStatus.confirmed;
-        file.input = null; // La receipt basta: non trattenere i byte confermati.
+        file.input =
+            null; // La receipt basta: non trattenere i byte confermati.
       } on CustomerAfterSalesException catch (error) {
         if (!_isCurrentContext(fence)) return;
-        file.status = error.code == 'invalid_evidence' && file.input?.transfer.objectPath == null
+        file.status =
+            error.code == 'invalid_evidence' &&
+                file.input?.transfer.objectPath == null
             ? CustomerAfterSalesAttachmentStatus.invalidFile
             : error.code == 'evidence_ambiguous' ||
-                error.code == 'timeout' ||
-                error.code == 'offline'
+                  error.code == 'timeout' ||
+                  error.code == 'offline'
             ? CustomerAfterSalesAttachmentStatus.ambiguous
             : CustomerAfterSalesAttachmentStatus.failed;
       } on Object {

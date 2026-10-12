@@ -2333,6 +2333,13 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get afterSalesEvidenceReopenHelp =>
       'Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan.';
+
+  @override
+  String get afterSalesCreating => 'Abriendo solicitud…';
+
+  @override
+  String get afterSalesEvidenceInvalid =>
+      'Archivo no compatible o demasiado grande. Selecciona otro.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4455,4 +4462,10 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get afterSalesEvidenceReopenHelp => '重新打开后，已收到的附件会保留。重启应用后，请重新选择缺失文件。';
+
+  @override
+  String get afterSalesCreating => '正在创建申请…';
+
+  @override
+  String get afterSalesEvidenceInvalid => '文件格式不支持或文件过大。请选择其他文件。';
 }

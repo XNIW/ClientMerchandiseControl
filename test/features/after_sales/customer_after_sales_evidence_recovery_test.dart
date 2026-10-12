@@ -108,6 +108,9 @@ void main() {
               'Il fallimento locale diventa recuperabile, senza eccezione grezza',
         );
         expect(repository.uploaded, [1, if (!lostFile) 2, 3]);
+        router.go(AppRoutes.afterSalesLocation(task054VisualCase));
+        await tester.pumpAndSettle();
+        // Il checkpoint segue la pratica anche su una nuova route.
         final retry = find.byKey(const ValueKey('after-sales-evidence-retry'));
         expect(
           retry,
@@ -134,6 +137,9 @@ void main() {
           hasLength(lostFile ? 1 : 2),
         );
         expect(repository.caseIds.toSet(), {task054VisualCase});
+        router.go('/new');
+        await tester.pumpAndSettle();
+        expect(find.byType(Checkbox), findsWidgets, reason: 'Nuova richiesta legittima dopo completamento');
         expect(tester.takeException(), isNull);
       },
     );

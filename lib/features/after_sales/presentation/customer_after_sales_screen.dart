@@ -574,7 +574,11 @@ final class _AfterSalesCreateFormState
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(AppSizes.minimumTouchTarget),
               ),
-              child: Text(state.isMutating ? l10n.afterSalesCreating : l10n.afterSalesSubmit),
+              child: Text(
+                state.isMutating
+                    ? l10n.afterSalesCreating
+                    : l10n.afterSalesSubmit,
+              ),
             ),
           ],
         );
@@ -627,7 +631,8 @@ final class _EvidenceRecoveryPanel extends ConsumerWidget {
                   file.status == CustomerAfterSalesAttachmentStatus.confirmed,
             ))
       onCompleted?.call();
-    if (context.mounted && (canContinue?.call() ?? true)) unawaited(controller.refresh());
+    if (context.mounted && (canContinue?.call() ?? true))
+      unawaited(controller.refresh());
   }
 
   Future<void> _pick(
@@ -687,8 +692,15 @@ final class _EvidenceRecoveryPanel extends ConsumerWidget {
     final pending = files.any(
       (file) => file.status != CustomerAfterSalesAttachmentStatus.confirmed,
     );
-    final confirmed = files.where((file) => file.status == CustomerAfterSalesAttachmentStatus.confirmed).length;
-    final capacity = 3 - (serverEvidenceCount > confirmed ? serverEvidenceCount : confirmed) - (files.length - confirmed);
+    final confirmed = files
+        .where(
+          (file) => file.status == CustomerAfterSalesAttachmentStatus.confirmed,
+        )
+        .length;
+    final capacity =
+        3 -
+        (serverEvidenceCount > confirmed ? serverEvidenceCount : confirmed) -
+        (files.length - confirmed);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -706,13 +718,16 @@ final class _EvidenceRecoveryPanel extends ConsumerWidget {
                 l10n.afterSalesEvidenceUploading,
               CustomerAfterSalesAttachmentStatus.fileUnavailable =>
                 l10n.afterSalesEvidenceFileUnavailable,
-              CustomerAfterSalesAttachmentStatus.invalidFile => l10n.afterSalesEvidenceInvalid,
+              CustomerAfterSalesAttachmentStatus.invalidFile =>
+                l10n.afterSalesEvidenceInvalid,
               CustomerAfterSalesAttachmentStatus.ambiguous =>
                 l10n.afterSalesEvidenceAmbiguous,
               _ => l10n.afterSalesEvidencePending,
             }),
           ),
-          if (entry.$2.status == CustomerAfterSalesAttachmentStatus.fileUnavailable || entry.$2.status == CustomerAfterSalesAttachmentStatus.invalidFile)
+          if (entry.$2.status ==
+                  CustomerAfterSalesAttachmentStatus.fileUnavailable ||
+              entry.$2.status == CustomerAfterSalesAttachmentStatus.invalidFile)
             OutlinedButton(
               key: ValueKey('after-sales-evidence-replace-${entry.$1}'),
               onPressed: state.isMutating

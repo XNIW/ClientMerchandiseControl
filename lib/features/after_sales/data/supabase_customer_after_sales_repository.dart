@@ -352,7 +352,11 @@ final class SupabaseCustomerAfterSalesRepository
           );
           if (ticket['apiVersion'] == 'customer-after-sales.v1' &&
               ticket.length == 2 &&
-              const {'invalid', 'not_found', 'evidence_limit_reached'}.contains(ticket['status'])) {
+              const {
+                'invalid',
+                'not_found',
+                'evidence_limit_reached',
+              }.contains(ticket['status'])) {
             transfer.ticketUncertainUntil = null;
           }
           _root(ticket);

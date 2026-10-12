@@ -21,14 +21,27 @@ const _idempotencyKey = '87000000-0000-4000-8000-000000000001';
 void main() {
   test('refresh identità stesso owner conserva recovery e bozza', () async {
     final repository = _Repository();
-    final identity = StateProvider<AuthenticatedCustomer?>((ref) => _customer(_ownerA));
+    final identity = StateProvider<AuthenticatedCustomer?>(
+      (ref) => _customer(_ownerA),
+    );
     final container = _container(repository, identity);
     addTearDown(container.dispose);
     container.listen(customerAfterSalesControllerProvider, (_, _) {});
     await _settle();
-    final controller = container.read(customerAfterSalesControllerProvider.notifier);
-    final file = CustomerAfterSalesLocalAttachment(name: 'originale.png', extension: 'png', mimeType: 'image/png', readBytes: () async => throw StateError('File sintetico assente'));
-    await controller.submitWithEvidence(draft: _draft(), attachments: [file], canContinue: () => true);
+    final controller = container.read(
+      customerAfterSalesControllerProvider.notifier,
+    );
+    final file = CustomerAfterSalesLocalAttachment(
+      name: 'originale.png',
+      extension: 'png',
+      mimeType: 'image/png',
+      readBytes: () async => throw StateError('File sintetico assente'),
+    );
+    await controller.submitWithEvidence(
+      draft: _draft(),
+      attachments: [file],
+      canContinue: () => true,
+    );
     container.read(identity.notifier).state = _customer(_ownerA);
     container.read(customerAfterSalesControllerProvider);
     await _settle();
@@ -37,18 +50,35 @@ void main() {
   });
   test('pratica incompleta poi chiusa non blocca nuova richiesta', () async {
     final repository = _Repository();
-    final identity = StateProvider<AuthenticatedCustomer?>((ref) => _customer(_ownerA));
+    final identity = StateProvider<AuthenticatedCustomer?>(
+      (ref) => _customer(_ownerA),
+    );
     final container = _container(repository, identity);
     addTearDown(container.dispose);
     container.listen(customerAfterSalesControllerProvider, (_, _) {});
     await _settle();
-    final controller = container.read(customerAfterSalesControllerProvider.notifier);
-    final file = CustomerAfterSalesLocalAttachment(name: 'perso.png', extension: 'png', mimeType: 'image/png', readBytes: () async => throw StateError('File sintetico perso'));
-    final created = await controller.submitWithEvidence(draft: _draft(), attachments: [file], canContinue: () => true);
+    final controller = container.read(
+      customerAfterSalesControllerProvider.notifier,
+    );
+    final file = CustomerAfterSalesLocalAttachment(
+      name: 'perso.png',
+      extension: 'png',
+      mimeType: 'image/png',
+      readBytes: () async => throw StateError('File sintetico perso'),
+    );
+    final created = await controller.submitWithEvidence(
+      draft: _draft(),
+      attachments: [file],
+      canContinue: () => true,
+    );
     expect(controller.openedCaseForOrder(_order)?.id, _caseId);
     await controller.cancel(created!);
     expect(controller.openedCaseForOrder(_order), isNull);
-    await controller.submitWithEvidence(draft: _draft(), attachments: [], canContinue: () => true);
+    await controller.submitWithEvidence(
+      draft: _draft(),
+      attachments: [],
+      canContinue: () => true,
+    );
     expect(repository.idempotencyKeys, hasLength(2));
   });
   test(
@@ -95,7 +125,7 @@ void main() {
       reader.complete(Uint8List.fromList([1]));
       expect((await pending)?.id, _caseId);
       expect(file.status, CustomerAfterSalesAttachmentStatus.confirmed);
-    expect(file.input, isNull, reason: 'I byte ricevuti vengono liberati');
+      expect(file.input, isNull, reason: 'I byte ricevuti vengono liberati');
       expect(repository.uploadCaseIds, [_caseId]);
       expect(
         controller.openedCaseForOrder(_order),
@@ -354,7 +384,9 @@ CustomerAfterSalesDraft _draft() => CustomerAfterSalesDraft(
   ],
 );
 
-CustomerAfterSalesCase _case({CustomerAfterSalesStatus status = CustomerAfterSalesStatus.submitted}) => CustomerAfterSalesCase(
+CustomerAfterSalesCase _case({
+  CustomerAfterSalesStatus status = CustomerAfterSalesStatus.submitted,
+}) => CustomerAfterSalesCase(
   id: _caseId,
   caseCode: 'CS-1234567890ABCDEF',
   orderId: _order,
@@ -401,7 +433,9 @@ final class _Repository implements CustomerAfterSalesRepository {
 
   @override
   Future<List<CustomerAfterSalesCase>> list({required String shopSlug}) async =>
-      listBarrier == null ? (currentCase == null ? const [] : [currentCase!]) : listBarrier!.future;
+      listBarrier == null
+      ? (currentCase == null ? const [] : [currentCase!])
+      : listBarrier!.future;
 
   @override
   Future<CustomerAfterSalesOrderLines> listOrderLines(String orderId) =>

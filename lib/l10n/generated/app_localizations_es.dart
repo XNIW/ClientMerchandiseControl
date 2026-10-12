@@ -2333,4 +2333,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get afterSalesEvidenceReopenHelp =>
       'Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan.';
+
+  @override
+  String get afterSalesCreating => 'Abriendo solicitud…';
+
+  @override
+  String get afterSalesEvidenceInvalid =>
+      'Archivo no compatible o demasiado grande. Selecciona otro.';
 }

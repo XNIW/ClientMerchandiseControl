@@ -65,24 +65,56 @@ void main() {
   );
 
   for (final read in [false, true]) {
-    testWidgets('semantics tile stato e destinazione singoli read=$read', (tester) async {
+    testWidgets('semantics tile stato e destinazione singoli read=$read', (
+      tester,
+    ) async {
       final semantics = tester.ensureSemantics();
       try {
-      final fixture = Task054VisualFixtures();
-      fixture.inbox.read = read;
-      await tester.pumpWidget(fixture.wrap(MaterialApp(theme: AppTheme.light(), locale: const Locale('es', 'CL'), localizationsDelegates: AppLocalizations.localizationsDelegates, supportedLocales: AppLocalizations.supportedLocales, home: const CustomerNotificationInboxScreen())));
-      await tester.pumpAndSettle();
-      final l10n = AppLocalizations.of(tester.element(find.byType(CustomerNotificationInboxScreen)));
-      final tile = find.byKey(const ValueKey('notification-notification-order'));
-      final node = tester.getSemantics(tile);
-      expect(node.label, contains(read ? l10n.notificationsRead : l10n.notificationsUnread));
-      expect(node.hint, l10n.notificationsStayInInbox, reason: 'Destinazione notifications anche con categoria order');
-      expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
-      var children = 0;
-      node.visitChildren((_) { children++; return true; });
-      expect(children, 0, reason: 'Il nodo annunciabile non duplica icone o testo');
-      expect(tester.takeException(), isNull);
-      } finally { semantics.dispose(); }
+        final fixture = Task054VisualFixtures();
+        fixture.inbox.read = read;
+        await tester.pumpWidget(
+          fixture.wrap(
+            MaterialApp(
+              theme: AppTheme.light(),
+              locale: const Locale('es', 'CL'),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              home: const CustomerNotificationInboxScreen(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final l10n = AppLocalizations.of(
+          tester.element(find.byType(CustomerNotificationInboxScreen)),
+        );
+        final tile = find.byKey(
+          const ValueKey('notification-notification-order'),
+        );
+        final node = tester.getSemantics(tile);
+        expect(
+          node.label,
+          contains(read ? l10n.notificationsRead : l10n.notificationsUnread),
+        );
+        expect(
+          node.hint,
+          l10n.notificationsStayInInbox,
+          reason: 'Destinazione notifications anche con categoria order',
+        );
+        expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+        var children = 0;
+        node.visitChildren((_) {
+          children++;
+          return true;
+        });
+        expect(
+          children,
+          0,
+          reason: 'Il nodo annunciabile non duplica icone o testo',
+        );
+        expect(tester.takeException(), isNull);
+      } finally {
+        semantics.dispose();
+      }
     });
   }
 

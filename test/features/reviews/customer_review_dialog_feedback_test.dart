@@ -39,79 +39,84 @@ void main() {
     ) async {
       final semantics = tester.ensureSemantics();
       try {
-      final repository = _ControlledReviews();
-      final l10n = await _pump(tester, repository);
-      await _open(tester, l10n, edit: action != 'submit');
-      await _tap(tester, find.byType(DropdownButton<int>));
-      await _tap(
-        tester,
-        find
-            .ancestor(
-              of: find
-                  .byWidgetPredicate(
-                    (widget) =>
-                        widget is DropdownMenuItem<int> && widget.value == 3,
-                  )
-                  .last,
-              matching: find.byType(InkWell),
-            )
-            .first,
-      );
-      await tester.enterText(_comment, _draft);
-      final actionButton = action == 'withdraw'
-          ? find.widgetWithText(TextButton, l10n.reviewsWithdraw)
-          : _submit;
-      await _tap(tester, actionButton);
+        final repository = _ControlledReviews();
+        final l10n = await _pump(tester, repository);
+        await _open(tester, l10n, edit: action != 'submit');
+        await _tap(tester, find.byType(DropdownButton<int>));
+        await _tap(
+          tester,
+          find
+              .ancestor(
+                of: find
+                    .byWidgetPredicate(
+                      (widget) =>
+                          widget is DropdownMenuItem<int> && widget.value == 3,
+                    )
+                    .last,
+                matching: find.byType(InkWell),
+              )
+              .first,
+        );
+        await tester.enterText(_comment, _draft);
+        final actionButton = action == 'withdraw'
+            ? find.widgetWithText(TextButton, l10n.reviewsWithdraw)
+            : _submit;
+        await _tap(tester, actionButton);
 
-      expect(repository.attempts, hasLength(1));
-      expect(find.byKey(const ValueKey('review-saving')), findsOneWidget);
-      final saving = tester.getSemantics(
-        find.byKey(const ValueKey('review-saving')),
-      );
-      expect(saving.flagsCollection.isLiveRegion, isTrue);
-      expect(saving.label, l10n.reviewsSaving);
-      expect(tester.widget<TextField>(_comment).enabled, isFalse);
-      expect(tester.widget<FilledButton>(_submit).onPressed, isNull);
-      await tester.tap(actionButton);
-      await tester.pump();
-      expect(
-        repository.attempts,
-        hasLength(1),
-        reason: 'Nessuna write duplicata',
-      );
-      expect(repository.attempts.single.comment, _draft);
-      expect(repository.attempts.single.rating, 3);
-      expect(repository.attempts.single.withdraw, action == 'withdraw');
-      if (action != 'submit') {
-        expect(repository.attempts.single.expectedVersion, 1);
+        expect(repository.attempts, hasLength(1));
+        expect(find.byKey(const ValueKey('review-saving')), findsOneWidget);
+        final saving = tester.getSemantics(
+          find.byKey(const ValueKey('review-saving')),
+        );
+        expect(saving.flagsCollection.isLiveRegion, isTrue);
+        expect(saving.label, l10n.reviewsSaving);
+        expect(tester.widget<TextField>(_comment).enabled, isFalse);
+        expect(tester.widget<FilledButton>(_submit).onPressed, isNull);
+        await tester.tap(actionButton);
+        await tester.pump();
+        expect(
+          repository.attempts,
+          hasLength(1),
+          reason: 'Nessuna write duplicata',
+        );
+        expect(repository.attempts.single.comment, _draft);
+        expect(repository.attempts.single.rating, 3);
+        expect(repository.attempts.single.withdraw, action == 'withdraw');
+        if (action != 'submit') {
+          expect(repository.attempts.single.expectedVersion, 1);
+        }
+
+        repository.attempts.single.result.completeError(
+          const CustomerReviewException('unavailable'),
+        );
+        await tester.pumpAndSettle();
+        _expectFailureInDialog(tester, l10n);
+        expect(find.byKey(const ValueKey('review-saving')), findsNothing);
+        expect(tester.widget<TextField>(_comment).controller!.text, _draft);
+        expect(tester.widget<TextField>(_comment).enabled, isTrue);
+        expect(tester.widget<FilledButton>(_submit).onPressed, isNotNull);
+
+        await _tap(tester, actionButton);
+        expect(repository.attempts, hasLength(2));
+        expect(find.text(l10n.reviewsFailure), findsNothing);
+        expect(find.byType(AlertDialog), findsOneWidget);
+        expect(repository.attempts.last.comment, _draft);
+        expect(
+          repository.attempts.last.rating,
+          repository.attempts.first.rating,
+        );
+        expect(
+          repository.attempts.last.expectedVersion,
+          repository.attempts.first.expectedVersion,
+        );
+        repository.attempts.last.result.complete(_ack);
+        await tester.pumpAndSettle();
+        expect(find.byType(AlertDialog), findsNothing);
+        expect(repository.listCalls, 2, reason: 'Readback solo dopo ACK');
+        expect(tester.takeException(), isNull);
+      } finally {
+        semantics.dispose();
       }
-
-      repository.attempts.single.result.completeError(
-        const CustomerReviewException('unavailable'),
-      );
-      await tester.pumpAndSettle();
-      _expectFailureInDialog(tester, l10n);
-      expect(find.byKey(const ValueKey('review-saving')), findsNothing);
-      expect(tester.widget<TextField>(_comment).controller!.text, _draft);
-      expect(tester.widget<TextField>(_comment).enabled, isTrue);
-      expect(tester.widget<FilledButton>(_submit).onPressed, isNotNull);
-
-      await _tap(tester, actionButton);
-      expect(repository.attempts, hasLength(2));
-      expect(find.text(l10n.reviewsFailure), findsNothing);
-      expect(find.byType(AlertDialog), findsOneWidget);
-      expect(repository.attempts.last.comment, _draft);
-      expect(repository.attempts.last.rating, repository.attempts.first.rating);
-      expect(
-        repository.attempts.last.expectedVersion,
-        repository.attempts.first.expectedVersion,
-      );
-      repository.attempts.last.result.complete(_ack);
-      await tester.pumpAndSettle();
-      expect(find.byType(AlertDialog), findsNothing);
-      expect(repository.listCalls, 2, reason: 'Readback solo dopo ACK');
-      expect(tester.takeException(), isNull);
-      } finally { semantics.dispose(); }
     });
   }
 
@@ -177,43 +182,68 @@ void main() {
     );
   }
 
-  for (final locale in const [Locale('es','CL'), Locale('it'), Locale('en'), Locale.fromSubtags(languageCode:'zh',scriptCode:'Hans')]) {
+  for (final locale in const [
+    Locale('es', 'CL'),
+    Locale('it'),
+    Locale('en'),
+    Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+  ]) {
     for (final dark in [false, true]) {
-      testWidgets('feedback salvataggio visibile compact200 ${locale.toLanguageTag()} dark=$dark', (tester) async {
-        final semantics = tester.ensureSemantics();
-        try {
-          final repository = _ControlledReviews();
-          final l10n = await _pump(tester, repository, locale: locale, dark: dark, scale: 2);
-          await _open(tester, l10n);
-          await tester.enterText(_comment, _draft);
-          await tester.showKeyboard(_comment);
-          await _tap(tester, _submit);
-          final feedback = find.byKey(const ValueKey('review-saving'));
-          expect(feedback.hitTestable(), findsOneWidget);
-          final rect = tester.getRect(feedback);
-          for (final viewport in find.ancestor(of: feedback, matching: find.byType(Scrollable)).evaluate()) {
-            final bounds = tester.getRect(find.byWidget(viewport.widget));
-            expect(rect.top, greaterThanOrEqualTo(bounds.top - 1));
-            expect(rect.bottom, lessThanOrEqualTo(bounds.bottom + 1));
+      testWidgets(
+        'feedback salvataggio visibile compact200 ${locale.toLanguageTag()} dark=$dark',
+        (tester) async {
+          final semantics = tester.ensureSemantics();
+          try {
+            final repository = _ControlledReviews();
+            final l10n = await _pump(
+              tester,
+              repository,
+              locale: locale,
+              dark: dark,
+              scale: 2,
+            );
+            await _open(tester, l10n);
+            await tester.enterText(_comment, _draft);
+            await tester.showKeyboard(_comment);
+            await _tap(tester, _submit);
+            final feedback = find.byKey(const ValueKey('review-saving'));
+            expect(feedback.hitTestable(), findsOneWidget);
+            final rect = tester.getRect(feedback);
+            for (final viewport
+                in find
+                    .ancestor(of: feedback, matching: find.byType(Scrollable))
+                    .evaluate()) {
+              final bounds = tester.getRect(find.byWidget(viewport.widget));
+              expect(rect.top, greaterThanOrEqualTo(bounds.top - 1));
+              expect(rect.bottom, lessThanOrEqualTo(bounds.bottom + 1));
+            }
+            expect(tester.getSemantics(feedback).label, l10n.reviewsSaving);
+            final directory = Platform.environment['CMC_CLIENT_CAPTURE_DIR'];
+            if (directory != null) {
+              await tester.runAsync(() async {
+                final boundary = tester.renderObject<RenderRepaintBoundary>(
+                  find.byKey(const ValueKey('review-capture')),
+                );
+                final image = await boundary.toImage();
+                final bytes = await image.toByteData(
+                  format: ui.ImageByteFormat.png,
+                );
+                await Directory(directory).create(recursive: true);
+                await File(
+                  '$directory/review-saving-${locale.toLanguageTag()}-$dark.png',
+                ).writeAsBytes(bytes!.buffer.asUint8List());
+                image.dispose();
+              });
+            }
+            repository.attempts.single.result.complete(_ack);
+            await tester.pumpAndSettle();
+            expect(find.byType(AlertDialog), findsNothing);
+            expect(tester.takeException(), isNull);
+          } finally {
+            semantics.dispose();
           }
-          expect(tester.getSemantics(feedback).label, l10n.reviewsSaving);
-          final directory = Platform.environment['CMC_CLIENT_CAPTURE_DIR'];
-          if (directory != null) {
-            await tester.runAsync(() async {
-              final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('review-capture')));
-              final image = await boundary.toImage();
-              final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-              await Directory(directory).create(recursive: true);
-              await File('$directory/review-saving-${locale.toLanguageTag()}-$dark.png').writeAsBytes(bytes!.buffer.asUint8List());
-              image.dispose();
-            });
-          }
-          repository.attempts.single.result.complete(_ack);
-          await tester.pumpAndSettle();
-          expect(find.byType(AlertDialog), findsNothing);
-          expect(tester.takeException(), isNull);
-        } finally { semantics.dispose(); }
-      });
+        },
+      );
     }
   }
 
@@ -330,7 +360,10 @@ Future<AppLocalizations> _pump(
           data: MediaQuery.of(
             context,
           ).copyWith(textScaler: TextScaler.linear(scale)),
-          child: RepaintBoundary(key: const ValueKey('review-capture'), child: child!),
+          child: RepaintBoundary(
+            key: const ValueKey('review-capture'),
+            child: child!,
+          ),
         ),
         home: const CustomerReviewsScreen(),
       ),

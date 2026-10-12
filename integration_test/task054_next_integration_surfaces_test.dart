@@ -1295,12 +1295,6 @@ void main() {
           expect(created.lines.single.quantity, 2);
           expect(created.evidence, hasLength(3));
           expect(fixture.afterSales.createCalls, 1);
-          if (partialUploadFailure) {
-            await captureVisual(
-              tester,
-              'assistance-evidence-partial-upload-failure',
-            );
-          }
           await _reveal(tester, find.text(created.caseCode));
           await captureVisual(
             tester,

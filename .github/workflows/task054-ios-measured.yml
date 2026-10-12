@@ -19,6 +19,14 @@ on:
         options:
           - preflight
           - native
+      surface:
+        description: Superficie storica26.5 oppure alternativa hosted già installata26.2
+        required: true
+        default: historical
+        type: choice
+        options:
+          - historical
+          - compatible
 
 permissions:
   contents: read
@@ -26,10 +34,10 @@ permissions:
 jobs:
   measured-ios:
     name: Owned iOS measured preflight and native
-    runs-on: macos-26
+    runs-on: ${{ inputs.surface == 'compatible' && 'macos-15' || 'macos-26' }}
     timeout-minutes: 35
     env:
-      DEVELOPER_DIR: /Applications/Xcode_26.5.app/Contents/Developer
+      DEVELOPER_DIR: ${{ inputs.surface == 'compatible' && '/Applications/Xcode_26.3.app/Contents/Developer' || '/Applications/Xcode_26.5.app/Contents/Developer' }}
       FLUTTER_VERSION: 3.44.8
     steps:
       - name: Checkout exact candidate
@@ -41,6 +49,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py
           bash scripts/check-action-pins.sh
       - name: Minimal owned preflight
+        if: inputs.surface != 'compatible'
         run: |
           cmc_keep_ready=()
           if [[ '${{ inputs.mode }}' == native ]]; then
@@ -48,6 +57,14 @@ jobs:
           fi
           python3 scripts/run-ios-preflight-measured.py \
             --output build/task054/ios-measured "${cmc_keep_ready[@]}"
+      - name: Prepare alternative installed iOS surface headless
+        if: inputs.surface == 'compatible'
+        run: |
+          mkdir -p build/task054/ios-measured
+          xcodebuild -version
+          xcrun --sdk iphonesimulator --show-sdk-version
+          python3 scripts/run-task054-ios-owned.py prepare \
+            --receipt build/task054/ios-measured/owner.json --headless
       - name: Set up Flutter
         if: inputs.mode == 'native'
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
@@ -59,6 +76,18 @@ jobs:
         run: |
           bash scripts/resolve-flutter.sh
           flutter pub get --enforce-lockfile
+      - name: Build compatible iOS Simulator app before critical review
+        if: inputs.mode == 'native' && inputs.surface == 'compatible'
+        run: flutter build ios --simulator --debug
+      - name: Validate compatible iOS bundle security
+        if: inputs.mode == 'native' && inputs.surface == 'compatible'
+        run: bash scripts/check-client-security.sh --artifact build/ios/iphonesimulator/Runner.app
+      - name: Smoke compatible app before critical review
+        if: inputs.mode == 'native' && inputs.surface == 'compatible'
+        run: |
+          cmc_device="$(python3 -c 'import json; print(json.load(open("build/task054/ios-measured/owner.json"))["device"])')"
+          bash scripts/test-ios-shell-smoke.sh \
+            --device "$cmc_device" --receipt build/task054/ios-measured/owner.json
       - name: Critical review alone on the same owned Simulator
         if: inputs.mode == 'native'
         env:
@@ -97,7 +126,7 @@ jobs:
           CMC_OS_FRAME_PLATFORM=ios CMC_OS_FRAME_DEVICE="$cmc_device" \
             bash scripts/test-task054-visual.sh --device "$cmc_device"
       - name: Final owned cleanup
-        if: always() && inputs.mode == 'native'
+        if: always() && (inputs.mode == 'native' || inputs.surface == 'compatible')
         run: |
           if [[ -f build/task054/ios-measured/owner.json ]]; then
             python3 scripts/run-task054-ios-owned.py cleanup \

@@ -96,14 +96,6 @@ final class CustomerAfterSalesController
     _disposed = false;
     ref.onDispose(() {
       _disposed = true;
-      scheduleMicrotask(() {
-        // Una ricostruzione per lo stesso owner riattiva subito il notifier.
-        // Solo il vero dispose libera i checkpoint senza perdere un retry.
-        if (_disposed) {
-          _attachmentsByCase.clear();
-          _createdCasesByOrder.clear();
-        }
-      });
     });
     {
       ref.listen(authControllerProvider, (previous, next) {
@@ -124,9 +116,13 @@ final class CustomerAfterSalesController
         }
       });
     }
-    final identity = ref.watch(customerAccountIdentityProvider);
-    final shopSlug = ref.watch(appConfigProvider).storefrontShopSlug;
-    final key = '${identity?.subjectId}|$shopSlug';
+    final subjectId = ref.watch(
+      customerAccountIdentityProvider.select((identity) => identity?.subjectId),
+    );
+    final shopSlug = ref.watch(
+      appConfigProvider.select((config) => config.storefrontShopSlug),
+    );
+    final key = '$subjectId|$shopSlug';
     if (_contextKey != key) {
       _contextKey = key;
       _operationBusy = false;
@@ -301,10 +297,10 @@ final class CustomerAfterSalesController
         }.contains(value.status))
       return null;
     return (_attachmentsByCase[value.id]?.any(
-          (file) =>
-              file.status != CustomerAfterSalesAttachmentStatus.confirmed,
-        ) ??
-        false)
+              (file) =>
+                  file.status != CustomerAfterSalesAttachmentStatus.confirmed,
+            ) ??
+            false)
         ? value
         : null;
   }

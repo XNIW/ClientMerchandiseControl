@@ -19,6 +19,22 @@ const _caseId = '86000000-0000-4000-8000-000000000001';
 const _idempotencyKey = '87000000-0000-4000-8000-000000000001';
 
 void main() {
+  test('refresh identità stesso owner conserva recovery e bozza', () async {
+    final repository = _Repository();
+    final identity = StateProvider<AuthenticatedCustomer?>((ref) => _customer(_ownerA));
+    final container = _container(repository, identity);
+    addTearDown(container.dispose);
+    container.listen(customerAfterSalesControllerProvider, (_, _) {});
+    await _settle();
+    final controller = container.read(customerAfterSalesControllerProvider.notifier);
+    final file = CustomerAfterSalesLocalAttachment(name: 'originale.png', extension: 'png', mimeType: 'image/png', readBytes: () async => throw StateError('File sintetico assente'));
+    await controller.submitWithEvidence(draft: _draft(), attachments: [file], canContinue: () => true);
+    container.read(identity.notifier).state = _customer(_ownerA);
+    container.read(customerAfterSalesControllerProvider);
+    await _settle();
+    expect(controller.openedCaseForOrder(_order)?.id, _caseId);
+    expect(controller.attachmentsFor(_caseId).single.name, 'originale.png');
+  });
   test('pratica incompleta poi chiusa non blocca nuova richiesta', () async {
     final repository = _Repository();
     final identity = StateProvider<AuthenticatedCustomer?>((ref) => _customer(_ownerA));

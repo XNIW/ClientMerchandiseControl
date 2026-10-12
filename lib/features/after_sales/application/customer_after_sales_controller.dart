@@ -96,8 +96,13 @@ final class CustomerAfterSalesController
     _disposed = false;
     ref.onDispose(() {
       _disposed = true;
+      scheduleMicrotask(() {
+        // Una ricostruzione per lo stesso owner riattiva subito il notifier.
+        // Solo il vero dispose libera i checkpoint senza perdere un retry.
+        if (_disposed) { _attachmentsByCase.clear(); _createdCasesByOrder.clear(); }
+      });
     });
-    if (ref.exists(authControllerProvider)) {
+    {
       ref.listen(authControllerProvider, (previous, next) {
         String? owner(AuthState? value) => switch (value) {
           AuthAuthenticated(:final customer) => customer.subjectId,

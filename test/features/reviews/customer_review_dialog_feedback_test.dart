@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart';
 
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/features/reviews/application/customer_review_providers.dart';
@@ -175,6 +177,46 @@ void main() {
     );
   }
 
+  for (final locale in const [Locale('es','CL'), Locale('it'), Locale('en'), Locale.fromSubtags(languageCode:'zh',scriptCode:'Hans')]) {
+    for (final dark in [false, true]) {
+      testWidgets('feedback salvataggio visibile compact200 ${locale.toLanguageTag()} dark=$dark', (tester) async {
+        final semantics = tester.ensureSemantics();
+        try {
+          final repository = _ControlledReviews();
+          final l10n = await _pump(tester, repository, locale: locale, dark: dark, scale: 2);
+          await _open(tester, l10n);
+          await tester.enterText(_comment, _draft);
+          await tester.showKeyboard(_comment);
+          await _tap(tester, _submit);
+          final feedback = find.byKey(const ValueKey('review-saving'));
+          expect(feedback.hitTestable(), findsOneWidget);
+          final rect = tester.getRect(feedback);
+          for (final viewport in find.ancestor(of: feedback, matching: find.byType(Scrollable)).evaluate()) {
+            final bounds = tester.getRect(find.byWidget(viewport.widget));
+            expect(rect.top, greaterThanOrEqualTo(bounds.top - 1));
+            expect(rect.bottom, lessThanOrEqualTo(bounds.bottom + 1));
+          }
+          expect(tester.getSemantics(feedback).label, l10n.reviewsSaving);
+          final directory = Platform.environment['CMC_CLIENT_CAPTURE_DIR'];
+          if (directory != null) {
+            await tester.runAsync(() async {
+              final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('review-capture')));
+              final image = await boundary.toImage();
+              final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+              await Directory(directory).create(recursive: true);
+              await File('$directory/review-saving-${locale.toLanguageTag()}-$dark.png').writeAsBytes(bytes!.buffer.asUint8List());
+              image.dispose();
+            });
+          }
+          repository.attempts.single.result.complete(_ack);
+          await tester.pumpAndSettle();
+          expect(find.byType(AlertDialog), findsNothing);
+          expect(tester.takeException(), isNull);
+        } finally { semantics.dispose(); }
+      });
+    }
+  }
+
   for (final locale in const [
     Locale('es', 'CL'),
     Locale('it'),
@@ -288,7 +330,7 @@ Future<AppLocalizations> _pump(
           data: MediaQuery.of(
             context,
           ).copyWith(textScaler: TextScaler.linear(scale)),
-          child: child!,
+          child: RepaintBoundary(key: const ValueKey('review-capture'), child: child!),
         ),
         home: const CustomerReviewsScreen(),
       ),

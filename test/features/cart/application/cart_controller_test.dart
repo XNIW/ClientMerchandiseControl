@@ -25,6 +25,7 @@ const _publicationId = '50000000-0000-4000-8000-000000000001';
 const _rejectedId = '50000000-0000-4000-8000-000000000002';
 
 final _identityProvider = StateProvider<AuthenticatedCustomer?>((ref) => null);
+final _cartShopProvider = StateProvider<String>((ref) => 'storefront-test');
 
 void main() {
   test('telemetry add-to-cart non espone prodotto o publication id', () async {
@@ -404,6 +405,74 @@ void main() {
     },
   );
 
+  for (final changeShop in [false, true]) {
+    test(
+      'read vecchia non invia merge guest dopo cambio '
+      '${changeShop ? 'shop' : 'owner'}',
+      () async {
+        final staleRead = Completer<CartRemoteResponse>();
+        final guestBefore = _snapshot(
+          source: CartSource.guest,
+          items: [_line(_publicationId, isGuest: true)],
+        );
+        final guest = _FakeGuestStore(
+          snapshot: guestBefore,
+          readOutcomes: [
+            guestBefore,
+            _snapshot(
+              source: CartSource.guest,
+              shopSlug: changeShop ? 'storefront-other' : 'storefront-test',
+            ),
+          ],
+        );
+        final remote = _FakeRemoteRepository(
+          readResponse: CartRemoteResponse(
+            status: CartRemoteStatus.ok,
+            snapshot: _snapshot(source: CartSource.account),
+          ),
+          readOutcomes: [
+            staleRead.future,
+            CartRemoteResponse(
+              status: CartRemoteStatus.ok,
+              snapshot: _snapshot(
+                source: CartSource.account,
+                version: 9,
+                shopSlug: changeShop ? 'storefront-other' : 'storefront-test',
+              ),
+            ),
+          ],
+        );
+        final container = _container(
+          guest: guest,
+          remote: remote,
+          identity: _identity(),
+        );
+        addTearDown(container.dispose);
+        container.read(cartControllerProvider);
+        await _flushUntil(() => remote.readCalls == 1);
+        if (changeShop) {
+          container.read(_cartShopProvider.notifier).state = 'storefront-other';
+        } else {
+          container.read(_identityProvider.notifier).state = _identity(
+            subjectId: '10000000-0000-4000-8000-000000000002',
+          );
+        }
+        await _waitFor(container, (state) => state.snapshot?.version == 9);
+        staleRead.complete(CartRemoteResponse(
+          status: CartRemoteStatus.ok,
+          snapshot: _snapshot(source: CartSource.account, version: 4),
+        ));
+        await staleRead.future;
+        await Future<void>.delayed(Duration.zero);
+        expect(remote.mergeCalls, 0);
+        expect(guest.retainedIds, isNull);
+        expect(guest.snapshot.items.single.publicationId, _publicationId);
+        expect(container.read(cartControllerProvider).snapshot?.version, 9);
+        expect(remote.readCalls, 2);
+      },
+    );
+  }
+
   test('mutation account rilascia la reservation hold correlata', () async {
     final guest = _FakeGuestStore();
     final remote = _FakeRemoteRepository(
@@ -543,7 +612,9 @@ ProviderContainer _container({
 }) {
   final container = ProviderContainer(
     overrides: [
-      appConfigProvider.overrideWithValue(_config()),
+      appConfigProvider.overrideWith(
+        (ref) => _config(shopSlug: ref.watch(_cartShopProvider)),
+      ),
       guestCartStoreProvider.overrideWithValue(guest),
       customerCartRepositoryProvider.overrideWithValue(
         remote ??
@@ -598,13 +669,13 @@ Future<void> _flushUntil(bool Function() predicate) async {
   throw TestFailure('Condizione async non raggiunta');
 }
 
-AppConfig _config() => AppConfig.fromValues(
+AppConfig _config({String shopSlug = 'storefront-test'}) => AppConfig.fromValues(
   appEnvironment: 'staging',
   supabaseUrl: 'https://staging.example.invalid',
   supabasePublishableKey: 'sb_publishable_staging',
   authRedirectUri: AppConfig.allowedAuthRedirectUri,
   googleAuthEnabled: 'false',
-  storefrontShopSlug: 'storefront-test',
+  storefrontShopSlug: shopSlug,
 );
 
 AuthenticatedCustomer _identity({
@@ -618,9 +689,10 @@ AuthenticatedCustomer _identity({
 CustomerCartSnapshot _snapshot({
   required CartSource source,
   int version = 0,
+  String shopSlug = 'storefront-test',
   List<CartLine> items = const [],
 }) => CustomerCartSnapshot(
-  shopSlug: 'storefront-test',
+  shopSlug: shopSlug,
   version: version,
   items: items,
   source: source,
@@ -666,17 +738,27 @@ StorefrontProductSummary _product() => StorefrontProductSummary(
 );
 
 final class _FakeGuestStore implements GuestCartStore {
-  _FakeGuestStore({CustomerCartSnapshot? snapshot, this.setProductBarrier})
-    : snapshot = snapshot ?? _snapshot(source: CartSource.guest);
+  _FakeGuestStore({
+    CustomerCartSnapshot? snapshot,
+    this.setProductBarrier,
+    List<Object> readOutcomes = const [],
+  }) : snapshot = snapshot ?? _snapshot(source: CartSource.guest),
+       readOutcomes = [...readOutcomes];
 
   CustomerCartSnapshot snapshot;
+  final List<Object> readOutcomes;
   final Completer<CustomerCartSnapshot>? setProductBarrier;
   int setProductCalls = 0;
   Set<String>? retainedIds;
 
   @override
-  Future<CustomerCartSnapshot> read({required String shopSlug}) async =>
-      snapshot;
+  Future<CustomerCartSnapshot> read({required String shopSlug}) async {
+    if (readOutcomes.isEmpty) return snapshot;
+    final outcome = readOutcomes.removeAt(0);
+    if (outcome is CustomerCartSnapshot) return outcome;
+    if (outcome is Future<CustomerCartSnapshot>) return outcome;
+    throw outcome;
+  }
 
   @override
   Future<CustomerCartSnapshot> setProduct({
@@ -768,14 +850,18 @@ final class _FakeGuestStore implements GuestCartStore {
 final class _FakeRemoteRepository implements CustomerCartRepository {
   _FakeRemoteRepository({
     required this.readResponse,
+    List<Object> readOutcomes = const [],
     List<Object> mergeOutcomes = const [],
     List<Object> mutationOutcomes = const [],
     List<Object> revalidationOutcomes = const [],
-  }) : mergeOutcomes = [...mergeOutcomes],
+  }) : readOutcomes = [...readOutcomes],
+       mergeOutcomes = [...mergeOutcomes],
        mutationOutcomes = [...mutationOutcomes],
        revalidationOutcomes = [...revalidationOutcomes];
 
   CartRemoteResponse readResponse;
+  final List<Object> readOutcomes;
+  int readCalls = 0;
   final List<Object> mergeOutcomes;
   final List<Object> mutationOutcomes;
   final List<Object> revalidationOutcomes;
@@ -785,8 +871,10 @@ final class _FakeRemoteRepository implements CustomerCartRepository {
   int mergeCalls = 0;
 
   @override
-  Future<CartRemoteResponse> read({required String shopSlug}) async =>
-      readResponse;
+  Future<CartRemoteResponse> read({required String shopSlug}) async {
+    readCalls++;
+    return readOutcomes.isEmpty ? readResponse : _outcome(readOutcomes);
+  }
 
   @override
   Future<CartRemoteResponse> mergeGuest({

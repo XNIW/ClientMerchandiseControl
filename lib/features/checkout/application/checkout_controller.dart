@@ -148,7 +148,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
             cart.source != CartSource.account)) {
       // Il journal ordine è owner/shop scoped e non richiede un nuovo cart.
       // Uno snapshot guest non diventa il cart account dell'intent precedente.
-      final nextContext = '$shopSlug|${identity.subjectId}|journal|'
+      final nextContext =
+          '$shopSlug|${identity.subjectId}|journal|'
           '${cartState.status.name}|${cartState.failureKind?.name}|'
           '${cart?.shopSlug}|${cart?.source.name}|${cart?.version}';
       if (_contextKey == nextContext && _lastState != null) {
@@ -158,11 +159,9 @@ final class CheckoutController extends Notifier<CheckoutState> {
       final loading = CheckoutState.loading();
       _lastState = loading;
       final generation = ++_generation;
-      scheduleMicrotask(() => _loadReceipt(
-        generation,
-        cart: null,
-        preflightOnly: true,
-      ));
+      scheduleMicrotask(
+        () => _loadReceipt(generation, cart: null, preflightOnly: true),
+      );
       return loading;
     }
     if (cart == null || cart.shopSlug != shopSlug) {
@@ -889,12 +888,14 @@ final class CheckoutController extends Notifier<CheckoutState> {
       if (preflightOnly) {
         final currentCart = ref.read(checkoutCartStateProvider);
         if (!_isCurrentContext(context)) return;
-        _publish(currentCart.status == CartViewStatus.failure
-            ? CheckoutState.failure(
-                failureKind: CheckoutFailureKind.cartUnavailable,
-                cart: cart,
-              )
-            : CheckoutState.loading(cart: cart));
+        _publish(
+          currentCart.status == CartViewStatus.failure
+              ? CheckoutState.failure(
+                  failureKind: CheckoutFailureKind.cartUnavailable,
+                  cart: cart,
+                )
+              : CheckoutState.loading(cart: cart),
+        );
         return;
       }
       _publish(

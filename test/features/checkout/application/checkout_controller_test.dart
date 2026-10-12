@@ -429,7 +429,8 @@ void main() {
   ]) {
     test('recreate container dopo ACK ordine perso senza discovery riconcilia '
         '$cartKind con stessa key e versione originale', () async {
-      final incompleteCart = cartKind == 'noSnapshot' || cartKind == 'loadingGuest';
+      final incompleteCart =
+          cartKind == 'noSnapshot' || cartKind == 'loadingGuest';
       final store = MemoryCheckoutDraftStore();
       final committedKeys = <String>{};
       var serverCommits = 0;
@@ -478,11 +479,10 @@ void main() {
       expect(serverCommits, 1);
       var cartRefreshes = 0;
       final replay = FakeCheckoutRepository()
-        ..orderOutcomes.addAll(
-          [
-            if (incompleteCart)
-              const CheckoutRepositoryException(CheckoutFailureKind.timeout),
-            checkoutTestOrderResponse(
+        ..orderOutcomes.addAll([
+          if (incompleteCart)
+            const CheckoutRepositoryException(CheckoutFailureKind.timeout),
+          checkoutTestOrderResponse(
             order: checkoutTestOrderSnapshot(idempotent: true),
             idempotent: true,
           ),
@@ -498,27 +498,27 @@ void main() {
         _ => _accountCartAtVersion(9),
       };
       final cartState = switch (cartKind) {
-          'noSnapshot' => CartState.failure(
-              isAuthenticated: true,
-              failureKind: CartFailureKind.offline,
-            ),
-          'loadingGuest' => CartState.loading(
-              isAuthenticated: true,
-              previous: _initialGuestCart(),
-            ),
-          _ => CartState(
-              status: CartViewStatus.ready,
-              isAuthenticated: true,
-              snapshot: nextCart,
-            ),
-        };
-        final cartProvider = StateProvider<CartState>((ref) => cartState);
-        final restored = _container(
+        'noSnapshot' => CartState.failure(
+          isAuthenticated: true,
+          failureKind: CartFailureKind.offline,
+        ),
+        'loadingGuest' => CartState.loading(
+          isAuthenticated: true,
+          previous: _initialGuestCart(),
+        ),
+        _ => CartState(
+          status: CartViewStatus.ready,
+          isAuthenticated: true,
+          snapshot: nextCart,
+        ),
+      };
+      final cartProvider = StateProvider<CartState>((ref) => cartState);
+      final restored = _container(
         repository: replay,
         store: store,
         cart: nextCart,
         cartStateProvider: cartProvider,
-          accountState: cartKind == 'accountLoading'
+        accountState: cartKind == 'accountLoading'
             ? const CustomerAccountState.loading()
             : null,
         deliveryContextState: cartKind == 'deliveryLoading'
@@ -531,20 +531,25 @@ void main() {
       );
       addTearDown(restored.dispose);
       if (incompleteCart) {
-          final retryable = await _waitFor(restored,
-            (state) => state.status == CheckoutViewStatus.ready && !state.isBusy);
-          expect(retryable.order, isNull);
-          expect(retryable.cart, isNull);
-          expect(retryable.failureKind, CheckoutFailureKind.timeout);
-          expect(retryable.pendingOperation, same(originalIntent));
-          expect(store.draft!.pendingOperation, same(originalIntent));
-          expect(replay.orderRequests, hasLength(1));
-          expect(replay.orderCartVersions, [7]);
-          expect(restored.read(checkoutCartStateProvider), same(cartState));
-          expect(cartRefreshes, 0);
-          await restored.read(checkoutControllerProvider.notifier).retry().timeout(const Duration(seconds: 1));
-        }
-        final state = await _waitFor(
+        final retryable = await _waitFor(
+          restored,
+          (state) => state.status == CheckoutViewStatus.ready && !state.isBusy,
+        );
+        expect(retryable.order, isNull);
+        expect(retryable.cart, isNull);
+        expect(retryable.failureKind, CheckoutFailureKind.timeout);
+        expect(retryable.pendingOperation, same(originalIntent));
+        expect(store.draft!.pendingOperation, same(originalIntent));
+        expect(replay.orderRequests, hasLength(1));
+        expect(replay.orderCartVersions, [7]);
+        expect(restored.read(checkoutCartStateProvider), same(cartState));
+        expect(cartRefreshes, 0);
+        await restored
+            .read(checkoutControllerProvider.notifier)
+            .retry()
+            .timeout(const Duration(seconds: 1));
+      }
+      final state = await _waitFor(
         restored,
         (state) => state.status == CheckoutViewStatus.ready && !state.isBusy,
       );
@@ -552,11 +557,14 @@ void main() {
       expect(replay.loadOptionsCalls, 0);
       expect(replay.loadPaymentOptionsCalls, 0);
       expect(replay.orderRequests, hasLength(incompleteCart ? 2 : 1));
-      expect(replay.orderCartVersions, List.filled(incompleteCart ? 2 : 1, originalIntent.cartVersion));
+      expect(
+        replay.orderCartVersions,
+        List.filled(incompleteCart ? 2 : 1, originalIntent.cartVersion),
+      );
       expect(serverCommits, 1);
       expect(state.cart, incompleteCart ? isNull : same(nextCart));
       expect(restored.read(checkoutCartStateProvider), same(cartState));
-        expect(restored.read(cartProvider), same(cartState));
+      expect(restored.read(cartProvider), same(cartState));
       if (cartKind == 'unavailable') {
         expect(state.cart!.version, 9);
         expect(state.cart!.unavailableItemCount, 1);
@@ -574,9 +582,9 @@ void main() {
       );
       expect(replay.orderRequests.last.key, checkoutTestKey);
       if (incompleteCart) {
-          expect(replay.orderRequests.first, replay.orderRequests.last);
-        }
-        expect(replay.createRequests, isEmpty);
+        expect(replay.orderRequests.first, replay.orderRequests.last);
+      }
+      expect(replay.createRequests, isEmpty);
       expect(replay.readCalls, 0);
       expect(store.draft?.orderId, checkoutTestOrder);
       expect(store.draft?.pendingOperation, isNull);
@@ -585,96 +593,120 @@ void main() {
   }
 
   for (final noSnapshot in [false, true]) {
-  test(
-    'Retry dopo errore read journal senza self-await, noSnapshot=$noSnapshot', () async {
-      final store = MemoryCheckoutDraftStore()
-        ..readError = StateError('synthetic local journal read failure')
-        ..draft = CheckoutLocalDraft(
-          ownerSubjectId: checkoutTestOwner,
-          shopSlug: 'storefront-test',
-          step: CheckoutStep.confirmation,
-          selection: const CheckoutSelection(
-            mode: CheckoutFulfillmentMode.pickup,
-            pickupPointId: checkoutTestPoint,
-            slotId: checkoutTestPickupSlot,
-            paymentMethod: CheckoutPaymentMethod.payAtPickup,
-          ),
-          quoteId: checkoutTestQuote,
-          pendingOperation: const CheckoutPendingOperation(
-            kind: CheckoutPendingOperationKind.order,
-            idempotencyKey: checkoutTestKey,
-            cartVersion: 7,
+    test(
+      'Retry dopo errore read journal senza self-await, noSnapshot=$noSnapshot',
+      () async {
+        final store = MemoryCheckoutDraftStore()
+          ..readError = StateError('synthetic local journal read failure')
+          ..draft = CheckoutLocalDraft(
+            ownerSubjectId: checkoutTestOwner,
+            shopSlug: 'storefront-test',
+            step: CheckoutStep.confirmation,
+            selection: const CheckoutSelection(
+              mode: CheckoutFulfillmentMode.pickup,
+              pickupPointId: checkoutTestPoint,
+              slotId: checkoutTestPickupSlot,
+              paymentMethod: CheckoutPaymentMethod.payAtPickup,
+            ),
             quoteId: checkoutTestQuote,
-            expectedQuoteVersion: 2,
-            paymentMethod: CheckoutPaymentMethod.payAtPickup,
-          ),
-          updatedAt: checkoutTestNow,
+            pendingOperation: const CheckoutPendingOperation(
+              kind: CheckoutPendingOperationKind.order,
+              idempotencyKey: checkoutTestKey,
+              cartVersion: 7,
+              quoteId: checkoutTestQuote,
+              expectedQuoteVersion: 2,
+              paymentMethod: CheckoutPaymentMethod.payAtPickup,
+            ),
+            updatedAt: checkoutTestNow,
+          );
+        final repository = FakeCheckoutRepository()
+          ..orderOutcomes.add(
+            checkoutTestOrderResponse(
+              order: checkoutTestOrderSnapshot(idempotent: true),
+              idempotent: true,
+            ),
+          );
+        final cartState = noSnapshot
+            ? CartState.failure(
+                isAuthenticated: true,
+                failureKind: CartFailureKind.offline,
+              )
+            : CartState(
+                status: CartViewStatus.ready,
+                isAuthenticated: true,
+                snapshot: _accountCartAtVersion(9),
+              );
+        final cartProvider = StateProvider<CartState>((ref) => cartState);
+        final container = _container(
+          repository: repository,
+          store: store,
+          cartStateProvider: cartProvider,
         );
-      final repository = FakeCheckoutRepository()
-        ..orderOutcomes.add(
-          checkoutTestOrderResponse(
-            order: checkoutTestOrderSnapshot(idempotent: true),
-            idempotent: true,
-          ),
+        addTearDown(container.dispose);
+        await _waitFor(
+          container,
+          (state) => state.status == CheckoutViewStatus.failure,
         );
-      final cartState = noSnapshot
-        ? CartState.failure(isAuthenticated: true, failureKind: CartFailureKind.offline)
-        : CartState(status: CartViewStatus.ready, isAuthenticated: true,
-            snapshot: _accountCartAtVersion(9));
-    final cartProvider = StateProvider<CartState>((ref) => cartState);
-    final container = _container(
-        repository: repository,
-        store: store,
-        cartStateProvider: cartProvider);
-      addTearDown(container.dispose);
-      await _waitFor(
-        container,
-        (state) => state.status == CheckoutViewStatus.failure,
-      );
-      expect(repository.orderRequests, isEmpty);
-      store.readError = null;
-      await container
-          .read(checkoutControllerProvider.notifier)
-          .retry()
-          .timeout(const Duration(seconds: 1));
-      expect(
-        container.read(checkoutControllerProvider).order?.id,
-        checkoutTestOrder,
-      );
-      expect(repository.orderRequests.single.key, checkoutTestKey);
-      expect(repository.orderCartVersions, [7]);
-      expect(repository.loadOptionsCalls, 0);
-    expect(container.read(checkoutCartStateProvider), same(cartState));
-  },
-  );
-
+        expect(repository.orderRequests, isEmpty);
+        store.readError = null;
+        await container
+            .read(checkoutControllerProvider.notifier)
+            .retry()
+            .timeout(const Duration(seconds: 1));
+        expect(
+          container.read(checkoutControllerProvider).order?.id,
+          checkoutTestOrder,
+        );
+        expect(repository.orderRequests.single.key, checkoutTestKey);
+        expect(repository.orderCartVersions, [7]);
+        expect(repository.loadOptionsCalls, 0);
+        expect(container.read(checkoutCartStateProvider), same(cartState));
+      },
+    );
   }
 
   for (final loadingGuest in [false, true]) {
-    test('preflight senza journal preserva Cart incompleto, loadingGuest=$loadingGuest', () async {
-      final cartState = loadingGuest
-          ? CartState.loading(isAuthenticated: true, previous: _initialGuestCart())
-          : CartState.failure(isAuthenticated: true, failureKind: CartFailureKind.offline);
-      final cartProvider = StateProvider<CartState>((ref) => cartState);
-      final repository = FakeCheckoutRepository();
-      final container = _container(repository: repository, cartStateProvider: cartProvider);
-      addTearDown(container.dispose);
-      await Future<void>.delayed(Duration.zero);
-      await Future<void>.delayed(Duration.zero);
-      final state = container.read(checkoutControllerProvider);
-      await Future<void>.delayed(Duration.zero);
-      final settled = container.read(checkoutControllerProvider);
-      expect(settled.status, loadingGuest ? CheckoutViewStatus.loading : CheckoutViewStatus.failure);
-      expect(settled.cart, isNull);
-      expect(settled.pendingOperation, isNull);
-      expect(settled.order, isNull);
-      expect(repository.loadOptionsCalls, 0);
-      expect(repository.loadPaymentOptionsCalls, 0);
-      expect(repository.createRequests, isEmpty);
-      expect(repository.orderRequests, isEmpty);
-      expect(container.read(checkoutCartStateProvider), same(cartState));
-      expect(state.cart, isNull);
-    });
+    test(
+      'preflight senza journal preserva Cart incompleto, loadingGuest=$loadingGuest',
+      () async {
+        final cartState = loadingGuest
+            ? CartState.loading(
+                isAuthenticated: true,
+                previous: _initialGuestCart(),
+              )
+            : CartState.failure(
+                isAuthenticated: true,
+                failureKind: CartFailureKind.offline,
+              );
+        final cartProvider = StateProvider<CartState>((ref) => cartState);
+        final repository = FakeCheckoutRepository();
+        final container = _container(
+          repository: repository,
+          cartStateProvider: cartProvider,
+        );
+        addTearDown(container.dispose);
+        await Future<void>.delayed(Duration.zero);
+        await Future<void>.delayed(Duration.zero);
+        final state = container.read(checkoutControllerProvider);
+        await Future<void>.delayed(Duration.zero);
+        final settled = container.read(checkoutControllerProvider);
+        expect(
+          settled.status,
+          loadingGuest
+              ? CheckoutViewStatus.loading
+              : CheckoutViewStatus.failure,
+        );
+        expect(settled.cart, isNull);
+        expect(settled.pendingOperation, isNull);
+        expect(settled.order, isNull);
+        expect(repository.loadOptionsCalls, 0);
+        expect(repository.loadPaymentOptionsCalls, 0);
+        expect(repository.createRequests, isEmpty);
+        expect(repository.orderRequests, isEmpty);
+        expect(container.read(checkoutCartStateProvider), same(cartState));
+        expect(state.cart, isNull);
+      },
+    );
   }
 
   test(
@@ -859,7 +891,10 @@ void main() {
     null,
   ]) {
     test(
-      'receipt cold owner-scoped precede discovery con cart ${receiptCart == null ? 'noSnapshot' : receiptCart.isEmpty ? 'vuoto'
+      'receipt cold owner-scoped precede discovery con cart ${receiptCart == null
+          ? 'noSnapshot'
+          : receiptCart.isEmpty
+          ? 'vuoto'
           : receiptCart.unavailableItemCount > 0
           ? 'unavailable'
           : 'disponibile'}',
@@ -903,15 +938,22 @@ void main() {
             idempotent: true,
           );
         final cartState = receiptCart == null
-          ? CartState.failure(isAuthenticated: true, failureKind: CartFailureKind.offline)
-          : CartState(status: CartViewStatus.ready, isAuthenticated: true, snapshot: receiptCart);
-      final cartProvider = StateProvider<CartState>((ref) => cartState);
-      final container = _container(
+            ? CartState.failure(
+                isAuthenticated: true,
+                failureKind: CartFailureKind.offline,
+              )
+            : CartState(
+                status: CartViewStatus.ready,
+                isAuthenticated: true,
+                snapshot: receiptCart,
+              );
+        final cartProvider = StateProvider<CartState>((ref) => cartState);
+        final container = _container(
           repository: repository,
           store: store,
           cart: receiptCart,
           cartStateProvider: cartProvider,
-        accountState: const CustomerAccountState.loading(),
+          accountState: const CustomerAccountState.loading(),
           deliveryContextState: const DeliveryContextState(
             status: DeliveryContextViewStatus.loading,
             authenticated: true,
@@ -937,7 +979,7 @@ void main() {
         );
         expect(restored.order!.fulfillment!.slotLabel, 'Retiro confirmado');
         expect(restored.cart, receiptCart == null ? isNull : same(receiptCart));
-      expect(container.read(checkoutCartStateProvider), same(cartState));
+        expect(container.read(checkoutCartStateProvider), same(cartState));
         expect(store.draft!.orderId, checkoutTestOrder);
       },
     );

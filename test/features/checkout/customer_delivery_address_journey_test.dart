@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
@@ -11,14 +14,17 @@ import 'package:client_merchandise_control/features/checkout/presentation/checko
 import 'package:client_merchandise_control/features/delivery_context/presentation/delivery_context_screen.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../support/commerce_surface_fixtures.dart';
+import '../../support/client_host_visual_fonts.dart';
 import 'checkout_test_support.dart';
 
 void main() {
+  setUpAll(loadClientHostVisualFonts);
   testWidgets(
     'indirizzo manuale ambiguo verificato torna a checkout delivery e riepilogo',
     (tester) async {
@@ -42,7 +48,11 @@ void main() {
         final finder = find.byKey(ValueKey(key));
         await tester.ensureVisible(finder);
         await tester.pumpAndSettle();
-        expect(finder.hitTestable(), findsOneWidget);
+        expect(
+          finder.hitTestable(),
+          findsOneWidget,
+          reason: '$key rect=${tester.getRect(finder)}',
+        );
         await tester.tap(finder);
         await tester.pumpAndSettle();
       }
@@ -53,13 +63,16 @@ void main() {
           fixture.wrap(
             MaterialApp.router(
               routerConfig: router,
-              theme: AppTheme.light(),
+              theme: clientHostVisualTheme(AppTheme.light()),
               locale: const Locale('es', 'CL'),
               builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  textScaler: const TextScaler.linear(2),
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(textScaler: const TextScaler.linear(2)),
+                child: RepaintBoundary(
+                  key: const ValueKey('delivery-journey-capture'),
+                  child: child!,
                 ),
-                child: child!,
               ),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
@@ -179,6 +192,20 @@ void main() {
         );
         expect(addressTile.selected, isTrue);
         expect(addressTile.onTap, isNull);
+        if (Platform.environment['CMC_CLIENT_CAPTURE_DIR'] != null) {
+          await tester.runAsync(() async {
+            final boundary = tester.renderObject<RenderRepaintBoundary>(
+              find.byKey(const ValueKey('delivery-journey-capture')),
+            );
+            final image = await boundary.toImage();
+            final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+            final directory = Platform.environment['CMC_CLIENT_CAPTURE_DIR']!;
+            await Directory(directory).create(recursive: true);
+            await File('$directory/delivery-checkout-return-compact200.png')
+                .writeAsBytes(bytes!.buffer.asUint8List());
+            image.dispose();
+          });
+        }
         await tapKey('checkout-next-destination');
         await tapKey('checkout-slot-$checkoutTestDeliverySlot');
         await tapKey('checkout-next-slot');

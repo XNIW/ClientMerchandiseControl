@@ -156,7 +156,6 @@ void main() {
                 final boundary = tester.renderObject<RenderRepaintBoundary>(
                   find.byKey(const ValueKey('after-sales-capture')),
                 );
-            }
                 final image = await boundary.toImage();
                 final bytes = await image.toByteData(
                   format: ui.ImageByteFormat.png,
@@ -167,6 +166,7 @@ void main() {
                 ).writeAsBytes(bytes!.buffer.asUint8List());
                 image.dispose();
               });
+            }
           } finally {
             semantics.dispose();
           }

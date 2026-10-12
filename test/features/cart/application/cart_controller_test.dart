@@ -413,6 +413,35 @@ void main() {
     expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
   });
 
+  test('add oltre limite dopo conflict conserva quantità server e non riscrive', () async {
+    final remote = _FakeRemoteRepository(
+      readResponse: CartRemoteResponse(
+        status: CartRemoteStatus.ok,
+        snapshot: _snapshot(source: CartSource.account, version: 4,
+          items: [_line(_publicationId).copyWith(quantity: 2)]),
+      ),
+      mutationOutcomes: [
+        CartRemoteResponse(
+          status: CartRemoteStatus.versionConflict,
+          snapshot: _snapshot(source: CartSource.account, version: 5,
+            items: [_line(_publicationId).copyWith(quantity: customerCartMaximumQuantity)]),
+        ),
+      ],
+    );
+    final container = _container(guest: _FakeGuestStore(), remote: remote,
+      identity: _identity());
+    addTearDown(container.dispose);
+    await _waitFor(container, (state) => state.status == CartViewStatus.ready);
+
+    final result = await container.read(cartControllerProvider.notifier).addProduct(_product());
+    expect(remote.mutationRequests, hasLength(1));
+    expect(result.outcome, CartActionOutcome.rejected);
+    expect(result.failureKind, CartFailureKind.limitReached);
+    expect(container.read(cartControllerProvider).snapshot!.version, 5);
+    expect(container.read(cartControllerProvider).snapshot!.totalQuantity, customerCartMaximumQuantity);
+    expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
+  });
+
   test('setQuantity esplicita resta assoluta dopo conflict', () async {
     final remote = _FakeRemoteRepository(
       readResponse: CartRemoteResponse(

@@ -192,6 +192,7 @@ final class CartController extends Notifier<CartState> {
           operation: CartMutationOperation.set,
           publicationId: product.id,
           quantity: target,
+          quantityDelta: quantity,
           notice: CartNoticeKind.added,
         );
       } on CartRepositoryException catch (error) {
@@ -528,6 +529,7 @@ final class CartController extends Notifier<CartState> {
     required CartMutationOperation operation,
     String? publicationId,
     int? quantity,
+    int? quantityDelta,
     required CartNoticeKind notice,
   }) async {
     final snapshot = _requireSnapshot();
@@ -541,6 +543,7 @@ final class CartController extends Notifier<CartState> {
         idempotencyKey: ref.read(customerIdempotencyKeyFactoryProvider)(),
       ),
       notice: notice,
+      quantityDelta: quantityDelta,
     );
     _pendingMutation = pending;
     return _executeMutation(
@@ -576,16 +579,38 @@ final class CartController extends Notifier<CartState> {
         if (!allowConflictRetry) {
           throw const CartRepositoryException(CartFailureKind.conflict);
         }
+        var retryQuantity = pending.request.quantity;
+        final quantityDelta = pending.quantityDelta;
+        if (quantityDelta != null) {
+          // Add conserva l'intento incrementale. SetQuantity resta assoluto.
+          // Un versionConflict attesta che la richiesta non è stata applicata;
+          // soltanto qui si ricalcola il target sulla copia autorevole ricevuta.
+          final latestQuantity = snapshot.items
+              .where((line) => line.publicationId == pending.request.publicationId)
+              .firstOrNull
+              ?.quantity ?? 0;
+          retryQuantity = latestQuantity + quantityDelta;
+          if (retryQuantity > customerCartMaximumQuantity) {
+            _pendingMutation = null;
+            _setReady(snapshot, notice: CartNoticeKind.limitReached);
+            return _result(
+              context,
+              CartActionOutcome.rejected,
+              failure: CartFailureKind.limitReached,
+            );
+          }
+        }
         final retry = _PendingMutation(
           request: CartMutationRequest(
             shopSlug: pending.request.shopSlug,
             operation: pending.request.operation,
             publicationId: pending.request.publicationId,
-            quantity: pending.request.quantity,
+            quantity: retryQuantity,
             expectedVersion: snapshot.version,
             idempotencyKey: ref.read(customerIdempotencyKeyFactoryProvider)(),
           ),
           notice: pending.notice,
+          quantityDelta: quantityDelta,
         );
         _pendingMutation = retry;
         return _executeMutation(
@@ -987,10 +1012,15 @@ final class _PendingMerge {
 }
 
 final class _PendingMutation {
-  _PendingMutation({required this.request, required this.notice});
+  _PendingMutation({
+    required this.request,
+    required this.notice,
+    this.quantityDelta,
+  });
 
   final CartMutationRequest request;
   final CartNoticeKind notice;
+  final int? quantityDelta;
   CartFailureKind failureKind = CartFailureKind.timeout;
 }
 

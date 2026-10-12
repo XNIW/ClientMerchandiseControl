@@ -284,7 +284,10 @@ CheckoutRemoteResponse checkoutTestResponse({
   quote: quote,
 );
 
-CheckoutOrder checkoutTestOrderSnapshot({bool idempotent = false}) =>
+CheckoutOrder checkoutTestOrderSnapshot({
+  bool idempotent = false,
+  CheckoutOrderFulfillment? fulfillment,
+}) =>
     CheckoutOrder(
       id: checkoutTestOrder,
       code: checkoutTestOrderCode,
@@ -309,6 +312,7 @@ CheckoutOrder checkoutTestOrderSnapshot({bool idempotent = false}) =>
       placedAt: checkoutTestNow.add(const Duration(seconds: 30)),
       serverTime: checkoutTestNow.add(const Duration(seconds: 30)),
       idempotent: idempotent,
+      fulfillment: fulfillment,
     );
 
 CheckoutOrderRemoteResponse checkoutTestOrderResponse({
@@ -326,6 +330,7 @@ CheckoutOrderRemoteResponse checkoutTestOrderResponse({
 final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
   CheckoutLocalDraft? draft;
   Object? saveError;
+  Object? readError;
   Object? clearError;
   Completer<void>? saveBarrier;
   int saveCalls = 0;
@@ -349,6 +354,7 @@ final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
     required String ownerSubjectId,
     required String shopSlug,
   }) async {
+    if (readError case final error?) throw error;
     if (draft?.ownerSubjectId != ownerSubjectId ||
         draft?.shopSlug != shopSlug) {
       return null;
@@ -392,6 +398,7 @@ final class FakeCheckoutRepository implements CheckoutRepository {
     })
   >
   orderRequests = [];
+  final List<int> orderCartVersions = [];
   int loadOptionsCalls = 0;
   int loadPaymentOptionsCalls = 0;
   int readCalls = 0;
@@ -406,6 +413,7 @@ final class FakeCheckoutRepository implements CheckoutRepository {
     required CheckoutPaymentMethod paymentMethod,
     required String idempotencyKey,
   }) async {
+    orderCartVersions.add(cartVersion);
     orderRequests.add((
       quoteId: quoteId,
       version: expectedQuoteVersion,

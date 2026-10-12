@@ -37,8 +37,8 @@ di persistenza dei byte/file o prova di ordine reale R13/R14.
 | R22 saving e R18 inbox | PASS | 4ee1546; run38267522135 exit0,164test mirati | Feedback/accessibility tree/viewport; AT reale distinto |
 | R30 geometria 320x568,200%,temi | PASS scoped | 4ee1546;18PNG host, fixture/font SDK | Quattordici frame latini; QA reviewer separato. Quattro frame zh-Hans esclusi per glifi del harness |
 | R30 leggibilita cinese nativa | NOT_RUN | Host cjkAvailable false; native candidate ancora da eseguire | FAIL glifi host conservato, nessuna causa app inferita |
-| CA-05/T-05 qualita/fullsuite/build | NOT_RUN al freeze in preparazione | SHA finale da associare; CI canonica sette job | I PASS storici1095/11/f513 non qualificano il nuovo delta |
-| CA-O5/T-O5 runtime iOS | NOT_RUN al freeze in preparazione | Superficie hosted macos15/Xcode26.3 proposta | Build/avvio prima recensione isolata; niente target rialzato o retry identico26.5 |
+| CA-05/T-05 checkpoint6709 | FAIL | CI38270164415 terminale,3jobPASS/4FAIL | Analyze26info; iOSpreapp timeout; Androidcapture VMpersa. Releaseunsigned2 e journalAndroidPASS distinti |
+| CA-O5/T-O5 checkpoint6709 | FAIL / dipendentiNOT_RUN | run38270158993 CANCELLED al budget35min; macos15/Xcode26.3 | Prepare/build/security/smoke e due reviewfixturePASS; journalPIDnonassociatoFAIL,0PNG e matriceNOT_RUN |
 | CA-02/03 e T-02/03 TEST completo | BLOCKED | Ultimo catalogo reale10ott20:49UTC, non rinnovato qui |32/57,25mancanti,4canoniche,1/2,history158 sono storici; endpoint operator protetto e verifica corrente necessari |
 | R02/R04/R10/R11/R13/R14 autenticati | BLOCKED | Account A/callback/pilota/backend da qualificare | Indirizzi prima, poi ritiro/consegna manuale e ordine/readback/nuovoPID distinti |
 | R24 origine Android e origine iOS | NOT_RUN | Owner N/W; due catene conservate | ACK cloud, Admin e immagini Client correlati; nessun input N autorizzato qui |
@@ -53,7 +53,7 @@ inizializzato, prima delle assertion sui checkpoint. Questo errore è riprodotto
 la cancellazione delle mappe resta rischio sorgente distinto, non perdita dati
 osservata dal RED. Il probe7dd9 con identita uguale era165PASS e non invalidava.
 Fixe554586: select subject/shop e nessun erase differito in onDispose; fence
-owner/shop/late-response invariati. GREEN e fullgate da associare. Il reviewer
+owner/shop/late-response invariati. GREEN38269537442/e554586:165PASS exit0; fullgate nuovo da associare. Il reviewer
 UI trova un duplicato di capture dopo successo nel nuovo test nativo: rimosso;
 resta la cattura parziale prima retry e la cardinalita137 prescritta.
 
@@ -62,7 +62,10 @@ macos15/Xcode26.3 e prepare headless con runner gia approvato, poi build/securit
 smoke prima recensione, journal e matrice. Defaulthistorical non rieseguito;
 timeout35 e minimum14 invariati. Metadata [ufficiali runner](https://raw.githubusercontent.com/actions/runner-images/main/images/macos/macos-15-arm64-Readme.md)
 letti12ott indicano SDK/runtime26.2 installati; disponibilita osservata sul job
-e runtime dell'app sono gate distinti, ancora NOT_RUN.
+e runtime dell'app sono gate distinti: checkpoint6709 terminale sopra.
+La modalità separata matrix/journal/review in9f460ac conserva ogni gate e budget35;
+ciascuno gira su runner proprio, senza mescolare sequenze dipendenti dopoFAIL.
+Reviewread-only YAML/Bash/actionpin/12combinazioni PASS source-only.
 
 R01–R30 in31righe e i25E2E storici sotto conservano definizioni e provenance;
 questo overlay integra soltanto le prove del delta. I percorsi del harness non
@@ -70,13 +73,39 @@ sono una percorrenza live di tutte le superfici. Push/mappe/online restano secon
 le decisioni esistenti: non bloccano ritiro/consegna manuale; provider non qualificati
 mantengono NOT_RUN, nessun nuovo N/A o PASS per OFF.
 
+### Percorso indirizzo → checkout
+
+Journey host continuo aggiunto: creazione manuale, validazione locale, risposta
+persa dopo commit del fake, Verify dello stesso indirizzo, selezione delivery,
+Back al checkout, slot e riepilogo cashOnDelivery. Nessuna quote o orderrequest.
+Ripro38272961135/e5ad:165PASS/1FAIL per assert RadioListTile non registrato nel
+checkout dopoBack. Fix20a4b68 usa ListTile selezionato informativo; GREEN38273865407
+166PASS/analyze0issues. Run38276453669/9f: hitTestable0 al200% con fontAhem, causa non conclusa.
+Run38277766880/7cb:165PASS/1FAIL, analyze0issues; Roboto e frame reale del harness
+confermano SnackBar di ripristino sopra Continua (pulsante y448–496, overlay da420).
+Fixa2456a2 pone azioni ready in Scaffold.bottomNavigationBar e shrinkwrap Center;
+nessun messaggio nascosto/attesa o testo ridotto. Regressione conserva SnackBar
+visibile e richiede tap raggiungibili mode→destination→slot→summary al200%.
+GREEN/fullgate nuovo da associare.
+
+### Readback ledger aggiornato — 12 ottobre
+
+L'API Supabase list_migrations(TEST), tool senza errore, restituisce161ricevute
+e tre nuove versioni POS:20261012115442/115728/115959. Quattro versioni canoniche
+Client ancora assenti nella ledger. [Capsula](next-integration/client-recovery-test-ledger-20261012.json)
+associa versioni/nomi a sorgenti/hash Adminmain6d2bcf1, PR136/CI38243799965.
+Source/CI e preservazione riferita owner non provano i byte SQL applicati; nessun
+execute_sql/apply/cron/Worker eseguito da Client. RPC32/57 e indici1/2 restano
+readback10ottobre, non verifica corrente. Conteggio postapply165 solo se161 resta
+invariato; profilo/recovery155 storici da rinnovare prima dell'apply.
+
 ### Preparazione TEST e prossimo intervento
 
 Il pacchetto canonico e i57RPC/2indici sono già preparati. I quattro SQL esatti
 sono invariati rispetto alla main Admin6d2bcf1a letta in sola lettura il12ottobre;
 profilo operator storico155 e recovery richiedono riconciliazione prima dell'apply.
-History162 è solo attesa condizionata a baseline158 invariata, mai prova dello
-schema. I nuovi delta POS non sono applicati da Client. CA e Cloudflare già
+La vecchia attesa162 e baseline158 sono supersedute dal readback ledger161:
+postapply165 è condizionato, mai prova dello schema. I nuovi delta POS non sono applicati da Client. CA e Cloudflare già
 disponibili; pilota sintetico e config TEST esistenti0600, setup remoto NOT_RUN.
 
 Unico prossimo riferimento utile, già richiesto: owner backend associa endpoint

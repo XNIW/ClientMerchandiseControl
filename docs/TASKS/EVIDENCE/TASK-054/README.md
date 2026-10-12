@@ -9,6 +9,14 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
+## Candidate Client — mandato12ottobre
+
+Recupero allegati/nuova selezione, mutex/fence, Saving accessibile e inbox semantics
+implementati. Journey continuo indirizzo→checkout corregge assert del tile dopoBack.
+Prove e limiti nel [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md).
+LedgerTEST APIreadonly161, quattro Clientversioni assenti; catalogoattualeNOT_RUN,
+postapply165 condizionato. Mac SDK resta all'owner N; Client usa runner separati.
+
 ## Attivazione TEST — mandato8da5e50f, aggiornamento10ottobre
 
 Il rollout POS esterno sourceacb3e4ac/PR133/run38083172469 è associato al Worker

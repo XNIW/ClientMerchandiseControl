@@ -36,12 +36,13 @@
 - `XNIW/iOSMerchandiseControl` — owner N riferisce PR21 merged, mainb869c9b e Proper2cb5de installato; N riferisce primoSaveB localePASS/3pending, remotoB assente al solo readback00:28:52UTC del10ottobre; diagnostica errori8ott storica, ACK/convergenza da provare; R24 NOT_RUN.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
-- Supabase TEST — snapshot MCP readonly del10ottobre20:49UTC:
-  32/57RPC presenti e conformi,25assenti,quattro migration canoniche assenti,
-  1/2indici,history158 con tre aggiunte POS; delta Client atteso PASS. Gate TLS
-  distinto NOT_RUN per input assenti; nessun apply o repair Client remoto.
-  Recovery popolata57RPC/2indici/history159 PASS nel clone della precedente baseline;
-  dati/schema correnti e profilo operatore devono essere riconciliati prima di apply.
+- Supabase TEST — ledger readonly API del12ottobre:161ricevute, tre nuove
+  versioni POS e quattro versioni canoniche Client ancora assenti. Postapply165
+  solo se161 invariato; conteggio non certifica schema. RPC32/57,25mancanti e1/2
+  indici restano fotografia10ottobre20:49UTC/history158, non catalogo corrente.
+  Source Adminmain6d2bcf1/PR136/CI38243799965 riconciliata readonly; recovery,
+  profilo operator155 e TLS/catalago correnti da qualificare prima di apply.
+  Nessun apply/cron/Worker da Client; CA e Cloudflare già disponibili.
 - Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 
 ## Principi architetturali

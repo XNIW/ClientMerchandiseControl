@@ -1288,19 +1288,31 @@ Probe7dd9 PASS165 con identity uguale non invalida; af0da0a/38268961126
 164PASS/1FAIL exit1 con full_name cambiato riproduce provideruninitialized alla
 riapertura. Wipe delle mappe e rischio sorgente separato; il RED non raggiunge
 assertion di perdita. e554586 usa select subject/shop ed elimina erase differito;
-fence/mutex e rawAuthownerlistener conservati, GREEN/fullgate ancora da associare.
+fence/mutex e rawAuthownerlistener conservati; GREEN38269537442/e554586165PASS,
+fullgate nuovo da associare.
 
 Reviewer UI distinto ispeziona18PNG di4ee:14latini leggibili, inclusi file/errore/
 CTA nello stesso frame;4CJKFAILharness esclusi dalla qualifica. Duplicatecapture
 postsuccesso rimossa:137prescritti, unica snapshot partial primaRetry.
 Alternativa iOSmacos15/Xcode26.3 gia installata predisposta nello stesso workflow
 con prepareheadless, build/security/smoke prima review, journal/matrice e cleanup;
-minimum14/budget35/defaultstorico invariati. Nessuna prova nativa nuova ancora.
+minimum14/budget35/defaultstorico invariati. Checkpoint6709: CI3PASS/4FAIL;
+releaseunsigned2 e journalAndroidPASS; alternativaiOS realeprepare/build/security/
+smoke/tworeviewPASS, journalFAIL/CANCELLED35min, matriceNOT_RUN/0PNG. Split9f
+matrix/journal/review conserva gate/budget e ha reviewsource12combinazioniPASS.
+
+Journeyhost20a4b68: RadioListTileassert dopo ritorno da nuovoindirizzo riprodotto
+su e5ad e corretto con tileinformativo;166PASS/analyze0issues. Text2007cb/38277766880
+riproduce SnackBar restore sopraContinua con fontRoboto/frame; a2456a2 sposta le
+azioni ready in bottomNavigationBar, conservaSnackBardurantetap. GREEN da associare.
+Ledgerreadonly12ott161ricevute e4canonicheassenti; attesa165 solo se161invariato.
+RPC/RLS attualeNOT_RUN;32/57/1di2 restano10ott. Pacchetto/manifest/prerequisiti
+owner pronti, nessun nuovoSQL o apply da Client.
 
 | CA / T esistenti | Esito al freeze in preparazione | Evidence pertinente |
 |---|---|---|
-| CA-C1 / T-C1; R03/R21/R25 | PASS fixture164 su927/4ee; nuovoP2REDaf0da0a | Rapporto corrente, run38266245871/38267522135/38268961126; stessa pratica e owner fence, niente TEST |
-| CA-C2 / T-C2; R18/R22/R30 | PASS widget/semantics e14PNGlatini; FAIL4CJKhost | QA reviewer18frame, palette/200%; AT e nativo distinti NOT_RUN |
+| CA-04 / T-04; CA-C6 / T-C6; R03/R21/R25 | PASS fixture164 su927/4ee; nuovoP2REDaf0da0a | Rapporto corrente, run38266245871/38267522135/38268961126; stessa pratica e owner fence, niente TEST |
+| CA-04 / T-04; CA-C6 / T-C6; R18/R22/R30 | PASS widget/semantics e14PNGlatini; FAIL4CJKhost | QA reviewer18frame, palette/200%; AT e nativo distinti NOT_RUN |
 | CA-02/03 / T-02/03 | BLOCKED currentTEST; gate10ottFAIL storico | Manifest57/2 e quattroSQL canonici preparati, profilo155 da riconciliare, riferimento operator mancante |
 | CA-05 / T-05; CA-O5 / T-O5 | NOT_RUN finalfull/native | CI settejob e superficie alternativa predisposti, target14 preservato |
 | CA-06 / T-06; R24/R29/R30 | BLOCKED integrata | R01-R30/31righe e25E2E intatti; firma/Auth/live/R24/AT/profile mancanti |

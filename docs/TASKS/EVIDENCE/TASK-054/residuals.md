@@ -5,7 +5,9 @@
 Il mandato corrente avanza l'implementazione: allegati recuperabili sulla stessa
 pratica, file locale perso gestito, ACK ambiguo esplicito, mutex/fence, saving
 recensione e semantic tree inbox. Regressioni164PASS su927 e4ee, fixture hosted.
-Fullgate/freeze e review finale ancora da associare. Il rapporto corrente conserva
+Sameowner e554586/38269537442:165PASS; nuovo journey20a4b68/38273865407:166PASS.
+Checkpoint6709 terminale: CI3PASS/4FAIL, iOSalternativaCANCELLED35min con
+build/smoke/two-reviewPASS e journalFAIL;0PNG. Nuovo fullfreeze e review da associare. Il rapporto corrente conserva
 la matrice compatta; i vecchi PASS restano dei propri SHA.
 
 | Residuo / stato | Owner | Prossimo passo e condizione di chiusura |
@@ -22,6 +24,10 @@ la matrice compatta; i vecchi PASS restano dei propri SHA.
 | Artifact TEST Android / BLOCKED | Owner signer/canale + Client | Config reale/marker/callback bound, firma/install/avvio/login qualificati; unsigned production-like separato |
 | Artifact TEST iOS / BLOCKED | Owner team/profilo/canale + Client | Associazioni/config/marker/firma e install/login sulla superficie approvata |
 | AT e prestazioni fisiche / NOT_RUN | QA/device owner | TalkBack/VoiceOver, focus/tastiera/200%, frame/tap/memoria su dataset Client e piattaforme assegnate |
+
+Ledger12ottobre via APIreadonly:161ricevute e4canonicheClient assenti; postapply165
+solo se baseline invariata. SourceAdmin6d2bcf1/PR136/CI38243799965 distinta dal
+catalogo RPC/RLS attuale NOT_RUN. Storico32/57 e1/2 del10ott resta preservato.
 
 Una sola richiesta di input esterno utile resta il riferimento protetto PG operator
 gia richiesto; CA/Cloudflare non vengono richieste di nuovo. Endpoint/current

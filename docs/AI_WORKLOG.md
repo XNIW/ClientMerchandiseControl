@@ -5701,8 +5701,16 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   localizzato, saving liveRegion e inbox semantics.927/4ee focused164PASS exit0;
   QA18PNG host distingue14latini e4CJK glifi mancanti. Riapertura unobserved
   stessoowner/profile REDaf0da0a164/1fail, errore provider uninitialized riprodotto;
-  fixe554586 scoped, GREEN/full/freeze ancora da associare.
-- **Backend**: pacchetto canonico invariato, profilo155 storico; readback158/32su57
-  del10ott non rinnovato. PGoperator protetto è il prossimo riferimento giàrichiesto.
+  fixe554586 scoped, GREEN38269537442:165PASS; full/freeze da associare.
+- **Journey**: nuovo indirizzo manuale→Verify→Backcheckout→slot/riepilogo;
+  RadioListTileassert riprodotto e corretto20a4b68,166PASS/analyze0issues hosted.
+  Text2007cb/38277766880: SnackBar copreContinua conRoboto/frame osservato;
+  fixa2456a2 bottomNavigationBar, tap testato colmessaggiovisibile; GREEN pendente.
+- **CI6709**: terminale3PASS/4FAIL; releaseunsigned2 e journalAndroidPASS. Alternativa
+  iOSXcode26.3 realeprepare/build/smoke/tworeviewPASS, journalFAIL/CANCELLED35min,
+  matriceNOT_RUN/0PNG. Nuove modalità matrix/journal source-reviewPASS.
+- **Backend**: pacchetto canonico invariato, profilo155 storico; ledgerAPI12ott161
+  e4Clientcanonicheassenti, sourceAdmin6d2bcf1/PR136. RPC32/57 del10ott storico,
+  catalogoattualeNOT_RUN; attesa165 condizionata. PGoperator giàrichiesto.
 - **Limiti**: TEST/Auth/firma/R24/AT/profile fisico non conclusi; nessun SQL/deploy/N.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

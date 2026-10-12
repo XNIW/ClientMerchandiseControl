@@ -181,7 +181,8 @@ void main() {
         expect(
           (binding.reportData!['screenshots'] as List).length,
           previousScreenshotCount,
-          reason: 'Il report cart conserva il corpus raccolto prima del suo flow.',
+          reason:
+              'Il report cart conserva il corpus raccolto prima del suo flow.',
         );
       }
     },

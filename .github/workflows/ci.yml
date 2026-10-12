@@ -247,7 +247,8 @@ jobs:
           mkdir -p build/task054
           python3 scripts/run-task054-ios-owned.py prepare \
             --receipt build/task054/ios-owned-receipt.json \
-            --github-output "$GITHUB_OUTPUT"
+            --github-output "$GITHUB_OUTPUT" \
+            --readiness-attestation owned-descriptor-launchd
 
       - name: Smoke iOS on the declared deployment target
         run: >-
@@ -474,7 +475,8 @@ jobs:
         run: |
           mkdir -p build/task054
           python3 scripts/run-task054-ios-owned.py prepare \
-            --receipt build/task054/ios-journal-owned-receipt.json
+            --receipt build/task054/ios-journal-owned-receipt.json \
+            --readiness-attestation owned-descriptor-launchd
       - name: Verify synthetic Keychain journal across two iOS processes
         run: >-
           python3 scripts/run-address-journal-file-ios.py

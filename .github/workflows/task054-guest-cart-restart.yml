@@ -3,6 +3,7 @@ name: TASK054 guest cart process restart
 # Il push della sola branch isolata abilita la prima esecuzione anche prima che
 # una workflow_dispatch nuova sia registrata nella default branch.
 # Ogni piattaforma ha processo, sandbox e receipt distinti dal journal indirizzi.
+# Il marker [guest-restart] avvia il gate dopo format/analyze hosted del freeze.
 on:
   push:
     branches:
@@ -42,7 +43,9 @@ env:
 jobs:
   android-guest-cart:
     name: Guest cart Android two-process recovery
-    if: github.event_name != 'workflow_dispatch' || inputs.platform == 'both' || inputs.platform == 'android'
+    if: >-
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[guest-restart]')) ||
+      (github.event_name == 'workflow_dispatch' && (inputs.platform == 'both' || inputs.platform == 'android'))
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -88,7 +91,9 @@ jobs:
 
   ios-guest-cart:
     name: Guest cart iOS two-process recovery
-    if: github.event_name != 'workflow_dispatch' || inputs.platform == 'both' || inputs.platform == 'ios'
+    if: >-
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[guest-restart]')) ||
+      (github.event_name == 'workflow_dispatch' && (inputs.platform == 'both' || inputs.platform == 'ios'))
     runs-on: macos-26
     timeout-minutes: 30
     env:

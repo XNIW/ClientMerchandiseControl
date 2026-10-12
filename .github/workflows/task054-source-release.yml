@@ -24,6 +24,11 @@ on:
         type: boolean
         default: false
         required: false
+      checkout_scope_baseline:
+        description: Riproduce soltanto i confini checkout sul sorgente cb98b4e
+        type: boolean
+        default: false
+        required: false
       focused:
         description: Regressioni Client su runner separato; non qualifica build o TEST live
         type: boolean
@@ -64,6 +69,9 @@ jobs:
       - name: Restore cart checkout causal baseline
         if: ${{ inputs.focused && inputs.cart_checkout_baseline }}
         run: git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart lib/features/delivery_tracking/application/delivery_tracking_controller.dart lib/features/checkout/data/shared_preferences_checkout_draft_store.dart
+      - name: Restore checkout scope causal baseline
+        if: ${{ inputs.focused && inputs.checkout_scope_baseline }}
+        run: git restore --source=cb98b4e -- lib/features/checkout/application/checkout_controller.dart lib/features/checkout/presentation/checkout_screen.dart lib/features/cart/presentation/cart_screen.dart
       - name: Prepare focused source on hosted runner
         if: ${{ inputs.focused }}
         # subosito/flutter-action v2.23.0
@@ -92,14 +100,20 @@ jobs:
         if: ${{ inputs.focused }}
         env:
           CMC_CLIENT_CAPTURE_DIR: build/task054-client-ui
+          CHECKOUT_SCOPE_BASELINE: ${{ inputs.checkout_scope_baseline }}
         run: |
           bash scripts/resolve-flutter.sh
           flutter pub get --enforce-lockfile
           flutter gen-l10n
           dart format lib test integration_test
           git diff -- lib test integration_test > candidate-preparation.patch
-          flutter analyze
-          flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1
+          if [[ "$CHECKOUT_SCOPE_BASELINE" == "true" ]]; then
+            flutter analyze lib test/features/checkout/application/checkout_order_scope_test.dart
+            flutter test test/features/checkout/application/checkout_order_scope_test.dart --concurrency=1
+          else
+            flutter analyze
+            flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1
+          fi
       - name: Preserve focused source preparation
         if: ${{ always() && inputs.focused }}
         # actions/upload-artifact v4.6.2

@@ -234,12 +234,14 @@ void main() {
         expect(tester.takeException(), isNull);
         final path = Platform.environment['CMC_CLIENT_CAPTURE_DIR'];
         if (path != null) {
+          await tester.runAsync(() async {
           final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('cart-feedback-frame')));
           final frame = await boundary.toImage();
           final data = await frame.toByteData(format: ui.ImageByteFormat.png);
           await File('$path/cart-pending-${locale.toLanguageTag()}-${dark ? 'dark' : 'light'}-200.png')
               .writeAsBytes(data!.buffer.asUint8List());
           frame.dispose();
+          });
         }
       });
     }
@@ -366,11 +368,12 @@ final class Remote implements CustomerCartRepository {
   Remote(this.outcomes);
   final List<Object> outcomes;
   final List<CartMutationRequest> requests = [];
+  CustomerCartSnapshot? current;
   @override
   Future<CartRemoteResponse> read({required String shopSlug}) async =>
       CartRemoteResponse(
         status: CartRemoteStatus.ok,
-        snapshot: snapshot(slug: shopSlug),
+        snapshot: current?.shopSlug == shopSlug ? current : snapshot(slug: shopSlug),
       );
   @override
   Future<CartRemoteResponse> mutate(CartMutationRequest request) async {
@@ -378,7 +381,9 @@ final class Remote implements CustomerCartRepository {
     final outcome = outcomes.removeAt(0);
     if (outcome is CartRepositoryException) throw outcome;
     if (outcome is Future<CartRemoteResponse>) return outcome;
-    return outcome as CartRemoteResponse;
+    final response = outcome as CartRemoteResponse;
+    if (response.status == CartRemoteStatus.ok) current = response.snapshot;
+    return response;
   }
 
   @override

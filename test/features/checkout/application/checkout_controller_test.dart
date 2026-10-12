@@ -357,76 +357,77 @@ void main() {
   );
 
   for (final emptyCart in [false, true]) {
-    test(
-      'recreate container dopo ACK ordine perso riconcilia cart '
-      '${emptyCart ? 'vuoto' : 'nuovo non vuoto'} con stessa key',
-      () async {
-        final store = MemoryCheckoutDraftStore();
-        final firstRepository = FakeCheckoutRepository()
-          ..createOutcomes.add(
-            checkoutTestResponse(quote: checkoutTestQuoteSnapshot()),
-          )
-          ..confirmOutcomes.add(
-            checkoutTestResponse(
-              status: CheckoutRemoteStatus.confirmed,
-              quote: checkoutTestQuoteSnapshot(
-                status: CheckoutQuoteStatus.confirmed,
-              ),
+    test('recreate container dopo ACK ordine perso riconcilia cart '
+        '${emptyCart ? 'vuoto' : 'nuovo non vuoto'} con stessa key', () async {
+      final store = MemoryCheckoutDraftStore();
+      final firstRepository = FakeCheckoutRepository()
+        ..createOutcomes.add(
+          checkoutTestResponse(quote: checkoutTestQuoteSnapshot()),
+        )
+        ..confirmOutcomes.add(
+          checkoutTestResponse(
+            status: CheckoutRemoteStatus.confirmed,
+            quote: checkoutTestQuoteSnapshot(
+              status: CheckoutQuoteStatus.confirmed,
             ),
-          )
-          ..orderOutcomes.add(
-            const CheckoutRepositoryException(CheckoutFailureKind.timeout),
-          );
-        final first = _container(repository: firstRepository, store: store);
-        try {
-          await _waitFor(
-            first,
-            (state) => state.status == CheckoutViewStatus.ready,
-          );
-          await _reachConfirmedQuote(first);
-          await first.read(checkoutControllerProvider.notifier).createOrder();
-          expect(store.draft?.pendingOperation?.kind,
-              CheckoutPendingOperationKind.order);
-          expect(store.draft?.pendingOperation?.idempotencyKey, checkoutTestKey);
-        } finally {
-          first.dispose();
-        }
+          ),
+        )
+        ..orderOutcomes.add(
+          const CheckoutRepositoryException(CheckoutFailureKind.timeout),
+        );
+      final first = _container(repository: firstRepository, store: store);
+      try {
+        await _waitFor(
+          first,
+          (state) => state.status == CheckoutViewStatus.ready,
+        );
+        await _reachConfirmedQuote(first);
+        await first.read(checkoutControllerProvider.notifier).createOrder();
+        expect(
+          store.draft?.pendingOperation?.kind,
+          CheckoutPendingOperationKind.order,
+        );
+        expect(store.draft?.pendingOperation?.idempotencyKey, checkoutTestKey);
+      } finally {
+        first.dispose();
+      }
 
-        var cartRefreshes = 0;
-        final replay = FakeCheckoutRepository()
-          ..orderOutcomes.add(
-            checkoutTestOrderResponse(
-              order: checkoutTestOrderSnapshot(idempotent: true),
-              idempotent: true,
-            ),
-          );
-        // La quote non è più leggibile: il server l'ha consumata al commit.
-        // Il cart nuovo rappresenta una successiva aggiunta da un altro device.
-        final restored = _container(
-          repository: replay,
-          store: store,
-          cart: emptyCart ? _emptyAccountCart() : _accountCartAtVersion(9),
-          onCartRefresh: () async => cartRefreshes++,
+      var cartRefreshes = 0;
+      final replay = FakeCheckoutRepository()
+        ..orderOutcomes.add(
+          checkoutTestOrderResponse(
+            order: checkoutTestOrderSnapshot(idempotent: true),
+            idempotent: true,
+          ),
         );
-        addTearDown(restored.dispose);
-        final state = await _waitFor(
-          restored,
-          (state) => state.status == CheckoutViewStatus.ready && !state.isBusy,
-        );
-        expect(state.order?.id, checkoutTestOrder);
-        expect(replay.orderRequests, hasLength(1));
-        expect(replay.orderRequests.single.quoteId, checkoutTestQuote);
-        expect(replay.orderRequests.single.version, 2);
-        expect(replay.orderRequests.single.paymentMethod,
-            CheckoutPaymentMethod.payAtPickup);
-        expect(replay.orderRequests.single.key, checkoutTestKey);
-        expect(replay.createRequests, isEmpty);
-        expect(replay.readCalls, 0);
-        expect(store.draft?.orderId, checkoutTestOrder);
-        expect(store.draft?.pendingOperation, isNull);
-        expect(cartRefreshes, 1);
-      },
-    );
+      // La quote non è più leggibile: il server l'ha consumata al commit.
+      // Il cart nuovo rappresenta una successiva aggiunta da un altro device.
+      final restored = _container(
+        repository: replay,
+        store: store,
+        cart: emptyCart ? _emptyAccountCart() : _accountCartAtVersion(9),
+        onCartRefresh: () async => cartRefreshes++,
+      );
+      addTearDown(restored.dispose);
+      final state = await _waitFor(
+        restored,
+        (state) => state.status == CheckoutViewStatus.ready && !state.isBusy,
+      );
+      expect(state.order?.id, checkoutTestOrder);
+      expect(replay.orderRequests, hasLength(1));
+      expect(replay.orderRequests.single.quoteId, checkoutTestQuote);
+      expect(replay.orderRequests.single.version, 2);
+      expect(
+        replay.orderRequests.single.paymentMethod,
+        CheckoutPaymentMethod.payAtPickup,
+      );
+      expect(replay.orderRequests.single.key, checkoutTestKey);
+      expect(replay.createRequests, isEmpty);
+      expect(replay.readCalls, 0);
+      expect(store.draft?.orderId, checkoutTestOrder);
+      expect(store.draft?.pendingOperation, isNull);
+      expect(cartRefreshes, 1);
+    });
   }
 
   test(
@@ -477,11 +478,15 @@ void main() {
       expect(store.draft?.pendingOperation?.idempotencyKey, checkoutTestKey);
       expect(repository.readCalls, 0);
       await container.read(checkoutControllerProvider.notifier).retry();
-      expect(container.read(checkoutControllerProvider).order?.id,
-          checkoutTestOrder);
+      expect(
+        container.read(checkoutControllerProvider).order?.id,
+        checkoutTestOrder,
+      );
       expect(repository.orderRequests, hasLength(2));
-      expect(repository.orderRequests.map((request) => request.key),
-          everyElement(checkoutTestKey));
+      expect(
+        repository.orderRequests.map((request) => request.key),
+        everyElement(checkoutTestKey),
+      );
       expect(repository.createRequests, isEmpty);
     },
   );

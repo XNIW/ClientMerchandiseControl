@@ -970,112 +970,161 @@ void main() {
     tags: const ['performance'],
   );
   for (final failRead in [true, false]) {
-    test('cache ${failRead ? "read" : "delete"} fallibile non impedisce la RPC', () async {
-      final repository = FakeDeliveryTrackingRepository();
-      final preferences = _FaultingTrackingPreferences(failRead: failRead);
-      final cache = SecureDeliveryTrackingCache(preferences: preferences, clock: () => trackingTestNow);
-      final container = _container(repository: repository, cache: cache);
-      addTearDown(() async { container.dispose(); await repository.stream.close(); });
-      container.read(deliveryTrackingControllerProvider);
-      await container.read(deliveryTrackingControllerProvider.notifier).open(trackingTestOrder);
-      final state = container.read(deliveryTrackingControllerProvider);
-      expect(state.status, DeliveryTrackingStatus.ready);
-      expect(state.isRefreshing, isFalse);
-      expect(state.failure, isNull);
-      expect(state.snapshot?.orderId, trackingTestOrder);
-      expect(repository.loadCalls, 1);
-      expect(repository.watchCalls, 1);
-      expect(preferences.deleteCalls, failRead ? 0 : 1);
-    });
+    test(
+      'cache ${failRead ? "read" : "delete"} fallibile non impedisce la RPC',
+      () async {
+        final repository = FakeDeliveryTrackingRepository();
+        final preferences = _FaultingTrackingPreferences(failRead: failRead);
+        final cache = SecureDeliveryTrackingCache(
+          preferences: preferences,
+          clock: () => trackingTestNow,
+        );
+        final container = _container(repository: repository, cache: cache);
+        addTearDown(() async {
+          container.dispose();
+          await repository.stream.close();
+        });
+        container.read(deliveryTrackingControllerProvider);
+        await container
+            .read(deliveryTrackingControllerProvider.notifier)
+            .open(trackingTestOrder);
+        final state = container.read(deliveryTrackingControllerProvider);
+        expect(state.status, DeliveryTrackingStatus.ready);
+        expect(state.isRefreshing, isFalse);
+        expect(state.failure, isNull);
+        expect(state.snapshot?.orderId, trackingTestOrder);
+        expect(repository.loadCalls, 1);
+        expect(repository.watchCalls, 1);
+        expect(preferences.deleteCalls, failRead ? 0 : 1);
+      },
+    );
   }
 
   for (final cacheFirst in [true, false]) {
-    test('notFound invalida ${cacheFirst ? "cache fresh" : "live"} e il retry riapre Realtime', () async {
-      final scheduler = ManualAppScheduler(start: trackingTestNow);
-      final repository = FakeDeliveryTrackingRepository();
-      final cache = MemoryDeliveryTrackingCache();
-      if (cacheFirst) {
-        cache.snapshot = trackingLiveSnapshot();
-        repository.loadError = const DeliveryTrackingRepositoryException(DeliveryTrackingFailureKind.notFound);
-      }
-      final container = _container(repository: repository, cache: cache, scheduler: scheduler, clock: scheduler.now, pollInterval: const Duration(seconds: 15));
-      addTearDown(() async { container.dispose(); await repository.stream.close(); });
-      container.read(deliveryTrackingControllerProvider);
-      final controller = container.read(deliveryTrackingControllerProvider.notifier);
-      await controller.open(trackingTestOrder);
-      if (!cacheFirst) {
-        repository.loadError = const DeliveryTrackingRepositoryException(DeliveryTrackingFailureKind.notFound);
+    test(
+      'notFound invalida ${cacheFirst ? "cache fresh" : "live"} e il retry riapre Realtime',
+      () async {
+        final scheduler = ManualAppScheduler(start: trackingTestNow);
+        final repository = FakeDeliveryTrackingRepository();
+        final cache = MemoryDeliveryTrackingCache();
+        if (cacheFirst) {
+          cache.snapshot = trackingLiveSnapshot();
+          repository.loadError = const DeliveryTrackingRepositoryException(
+            DeliveryTrackingFailureKind.notFound,
+          );
+        }
+        final container = _container(
+          repository: repository,
+          cache: cache,
+          scheduler: scheduler,
+          clock: scheduler.now,
+          pollInterval: const Duration(seconds: 15),
+        );
+        addTearDown(() async {
+          container.dispose();
+          await repository.stream.close();
+        });
+        container.read(deliveryTrackingControllerProvider);
+        final controller = container.read(
+          deliveryTrackingControllerProvider.notifier,
+        );
+        await controller.open(trackingTestOrder);
+        if (!cacheFirst) {
+          repository.loadError = const DeliveryTrackingRepositoryException(
+            DeliveryTrackingFailureKind.notFound,
+          );
+          await controller.refresh();
+        }
+        var state = container.read(deliveryTrackingControllerProvider);
+        expect(state.status, DeliveryTrackingStatus.failure);
+        expect(state.failure, DeliveryTrackingFailureKind.notFound);
+        expect(state.orderId, trackingTestOrder);
+        expect(state.snapshot, isNull);
+        expect(state.isRefreshing, isFalse);
+        expect(state.isPollingFallback, isFalse);
+        expect(cache.snapshot, isNull);
+        expect(cache.clearCalls, 1);
+        expect(repository.watchCalls, cacheFirst ? 0 : 1);
+        expect(repository.watchCancelCalls, cacheFirst ? 0 : 1);
+        expect(scheduler.activeTaskCount, 0);
+        final callsAfterDenial = repository.loadCalls;
+        repository.stream.add(trackingLiveSnapshot(version: 99));
+        scheduler.advance(const Duration(seconds: 30));
+        await _flush();
+        expect(
+          container.read(deliveryTrackingControllerProvider).snapshot,
+          isNull,
+        );
+        expect(cache.snapshot, isNull);
+        expect(repository.loadCalls, callsAfterDenial);
+        repository
+          ..loadError = null
+          ..snapshot = trackingLiveSnapshot(version: 6);
         await controller.refresh();
-      }
-      var state = container.read(deliveryTrackingControllerProvider);
-      expect(state.status, DeliveryTrackingStatus.failure);
-      expect(state.failure, DeliveryTrackingFailureKind.notFound);
-      expect(state.orderId, trackingTestOrder);
-      expect(state.snapshot, isNull);
-      expect(state.isRefreshing, isFalse);
-      expect(state.isPollingFallback, isFalse);
-      expect(cache.snapshot, isNull);
-      expect(cache.clearCalls, 1);
-      expect(repository.watchCalls, cacheFirst ? 0 : 1);
-      expect(repository.watchCancelCalls, cacheFirst ? 0 : 1);
-      expect(scheduler.activeTaskCount, 0);
-      final callsAfterDenial = repository.loadCalls;
-      repository.stream.add(trackingLiveSnapshot(version: 99));
-      scheduler.advance(const Duration(seconds: 30));
-      await _flush();
-      expect(container.read(deliveryTrackingControllerProvider).snapshot, isNull);
-      expect(cache.snapshot, isNull);
-      expect(repository.loadCalls, callsAfterDenial);
-      repository..loadError = null..snapshot = trackingLiveSnapshot(version: 6);
-      await controller.refresh();
-      state = container.read(deliveryTrackingControllerProvider);
-      expect(state.status, DeliveryTrackingStatus.ready);
-      expect(state.failure, isNull);
-      expect(state.snapshot?.version, 6);
-      expect(repository.loadCalls, callsAfterDenial + 1);
-      expect(repository.watchCalls, cacheFirst ? 1 : 2);
-      repository.stream.add(trackingLiveSnapshot(version: 7));
-      await _waitFor(container, (state) => state.snapshot?.version == 7);
-      expect(cache.snapshot?.version, 7);
-      expect(repository.watchCalls, cacheFirst ? 1 : 2);
-    });
+        state = container.read(deliveryTrackingControllerProvider);
+        expect(state.status, DeliveryTrackingStatus.ready);
+        expect(state.failure, isNull);
+        expect(state.snapshot?.version, 6);
+        expect(repository.loadCalls, callsAfterDenial + 1);
+        expect(repository.watchCalls, cacheFirst ? 1 : 2);
+        repository.stream.add(trackingLiveSnapshot(version: 7));
+        await _waitFor(container, (state) => state.snapshot?.version == 7);
+        expect(cache.snapshot?.version, 7);
+        expect(repository.watchCalls, cacheFirst ? 1 : 2);
+      },
+    );
   }
 
-  test('notFound invalida un save live in volo e il purge viene dopo il save', () async {
-    final repository = FakeDeliveryTrackingRepository();
-    final cache = _PausedLiveTrackingCache();
-    final scheduler = ManualAppScheduler(start: trackingTestNow);
-    final container = _container(repository: repository, cache: cache, scheduler: scheduler, clock: scheduler.now);
-    addTearDown(() async {
-      if (!cache.releaseSave.isCompleted) cache.releaseSave.complete();
-      container.dispose(); await repository.stream.close();
-    });
-    container.read(deliveryTrackingControllerProvider);
-    final controller = container.read(deliveryTrackingControllerProvider.notifier);
-    await controller.open(trackingTestOrder);
-    cache.pauseNextSave = true;
-    repository.stream.add(trackingLiveSnapshot(version: 5));
-    await cache.saveStarted.future;
-    repository.loadError = const DeliveryTrackingRepositoryException(DeliveryTrackingFailureKind.notFound);
-    final refresh = controller.refresh();
-    try {
+  test(
+    'notFound invalida un save live in volo e il purge viene dopo il save',
+    () async {
+      final repository = FakeDeliveryTrackingRepository();
+      final cache = _PausedLiveTrackingCache();
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        scheduler: scheduler,
+        clock: scheduler.now,
+      );
+      addTearDown(() async {
+        if (!cache.releaseSave.isCompleted) cache.releaseSave.complete();
+        container.dispose();
+        await repository.stream.close();
+      });
+      container.read(deliveryTrackingControllerProvider);
+      final controller = container.read(
+        deliveryTrackingControllerProvider.notifier,
+      );
+      await controller.open(trackingTestOrder);
+      cache.pauseNextSave = true;
+      repository.stream.add(trackingLiveSnapshot(version: 5));
+      await cache.saveStarted.future;
+      repository.loadError = const DeliveryTrackingRepositoryException(
+        DeliveryTrackingFailureKind.notFound,
+      );
+      final refresh = controller.refresh();
+      try {
+        await _flush();
+        final denied = container.read(deliveryTrackingControllerProvider);
+        expect(denied.status, DeliveryTrackingStatus.failure);
+        expect(denied.failure, DeliveryTrackingFailureKind.notFound);
+        expect(denied.snapshot, isNull);
+      } finally {
+        if (!cache.releaseSave.isCompleted) cache.releaseSave.complete();
+        await refresh;
+      }
       await _flush();
-      final denied = container.read(deliveryTrackingControllerProvider);
-      expect(denied.status, DeliveryTrackingStatus.failure);
-      expect(denied.failure, DeliveryTrackingFailureKind.notFound);
-      expect(denied.snapshot, isNull);
-    } finally {
-      if (!cache.releaseSave.isCompleted) cache.releaseSave.complete();
-      await refresh;
-    }
-    await _flush();
-    expect(container.read(deliveryTrackingControllerProvider).snapshot, isNull);
-    expect(cache.snapshot, isNull);
-    expect(cache.clearCalls, 1);
-    expect(repository.watchCancelCalls, 1);
-    expect(scheduler.activeTaskCount, 0);
-  });
-
+      expect(
+        container.read(deliveryTrackingControllerProvider).snapshot,
+        isNull,
+      );
+      expect(cache.snapshot, isNull);
+      expect(cache.clearCalls, 1);
+      expect(repository.watchCancelCalls, 1);
+      expect(scheduler.activeTaskCount, 0);
+    },
+  );
 }
 
 DeliveryTrackingSnapshot _terminalSnapshot({required int version}) {
@@ -1233,7 +1282,8 @@ int _percentileMicros(List<int> values, double percentile) {
   return sorted[((sorted.length - 1) * percentile).ceil()];
 }
 
-final class _FaultingTrackingPreferences implements DeliveryTrackingSecurePreferences {
+final class _FaultingTrackingPreferences
+    implements DeliveryTrackingSecurePreferences {
   _FaultingTrackingPreferences({required this.failRead});
   final bool failRead;
   String? value = '{';
@@ -1243,8 +1293,12 @@ final class _FaultingTrackingPreferences implements DeliveryTrackingSecurePrefer
     if (failRead) throw StateError('synthetic_secure_read_failure');
     return value;
   }
+
   @override
-  Future<void> write(String key, String value) async { this.value = value; }
+  Future<void> write(String key, String value) async {
+    this.value = value;
+  }
+
   @override
   Future<void> delete(String key) async {
     deleteCalls++;
@@ -1257,12 +1311,20 @@ final class _PausedLiveTrackingCache extends MemoryDeliveryTrackingCache {
   final saveStarted = Completer<void>();
   final releaseSave = Completer<void>();
   @override
-  Future<void> save({required String ownerSubjectId, required String shopSlug, required DeliveryTrackingSnapshot snapshot}) async {
+  Future<void> save({
+    required String ownerSubjectId,
+    required String shopSlug,
+    required DeliveryTrackingSnapshot snapshot,
+  }) async {
     if (pauseNextSave) {
       pauseNextSave = false;
       saveStarted.complete();
       await releaseSave.future;
     }
-    await super.save(ownerSubjectId: ownerSubjectId, shopSlug: shopSlug, snapshot: snapshot);
+    await super.save(
+      ownerSubjectId: ownerSubjectId,
+      shopSlug: shopSlug,
+      snapshot: snapshot,
+    );
   }
 }

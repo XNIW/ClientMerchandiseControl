@@ -2324,4 +2324,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get cartPendingConfirmationNotice =>
       'The change is not confirmed. Retry from the cart. After restarting, check quantities before adding again.';
+
+  @override
+  String get deliveryTrackingEtaUnavailable =>
+      'The store has not provided an estimated delivery window yet.';
+
+  @override
+  String get deliveryTrackingEtaExpired =>
+      'The previous estimated window has ended. Awaiting an update from the store.';
+
+  @override
+  String get deliveryTrackingMapExpand => 'Expand the delivery map';
+
+  @override
+  String get deliveryTrackingMapCollapse => 'Collapse the delivery map';
 }

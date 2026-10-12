@@ -2352,4 +2352,18 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get cartPendingConfirmationNotice =>
       'La modifica non è confermata. Riprova dal carrello. Dopo un riavvio, verifica le quantità prima di aggiungere di nuovo.';
+
+  @override
+  String get deliveryTrackingEtaUnavailable =>
+      'Il negozio non ha ancora comunicato una finestra stimata.';
+
+  @override
+  String get deliveryTrackingEtaExpired =>
+      'La finestra stimata precedente è terminata. Attendiamo un aggiornamento dal negozio.';
+
+  @override
+  String get deliveryTrackingMapExpand => 'Espandi la mappa della consegna';
+
+  @override
+  String get deliveryTrackingMapCollapse => 'Riduci la mappa della consegna';
 }

@@ -553,7 +553,7 @@
   "deliveryTrackingModeStatusOnly": "Status updates",
   "deliveryTrackingModeExternalCarrier": "External carrier",
   "deliveryTrackingModeLiveCourier": "Live courier",
-  "deliveryTrackingWindow": "Expected between {start} and {end}",
+  "deliveryTrackingWindow": "Estimated, not guaranteed, delivery between {start} and {end}",
   "deliveryTrackingLastUpdated": "Last location update {date}",
   "deliveryTrackingLiveWaiting": "Live location will appear after the courier starts the delivery.",
   "deliveryTrackingFresh": "Location is updating",

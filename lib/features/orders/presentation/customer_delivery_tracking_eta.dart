@@ -44,7 +44,8 @@ class _CustomerDeliveryTrackingEtaState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _visible = TickerMode.of(context) && ModalRoute.of(context)?.isCurrent != false;
+    _visible =
+        TickerMode.valuesOf(context).enabled && ModalRoute.of(context)?.isCurrent != false;
     _resetDeadline();
   }
 
@@ -59,8 +60,13 @@ class _CustomerDeliveryTrackingEtaState
     _expiry = null;
     _now = ref.read(deliveryTrackingClockProvider)();
     final end = widget.snapshot.etaEndsAt;
-    if (!_visible || !widget.isForeground ||
-        widget.orderTerminal || widget.snapshot.isTerminal || end == null) return;
+    if (!_visible ||
+        !widget.isForeground ||
+        widget.orderTerminal ||
+        widget.snapshot.isTerminal ||
+        end == null) {
+      return;
+    }
     final remaining = end.difference(_now);
     if (remaining <= Duration.zero) return;
     _expiry = Timer(remaining, () {
@@ -98,9 +104,9 @@ class _CustomerDeliveryTrackingEtaState
         liveRegion: true,
         child: Text(
           label,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
       ),
     );

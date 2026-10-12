@@ -25,121 +25,118 @@ final _shop = StateProvider<String>((ref) => 'storefront-test');
 
 void main() {
   for (final guestReadFails in [false, true]) {
-    test(
-      'receipt confermata resta dopo refresh cart vero fallito su '
-      '${guestReadFails ? 'store guest' : 'read account'}',
-      () async {
-        final guest = _ReceiptGuestStore(failSecondRead: guestReadFails);
-        final cartRepository = _ReceiptCartRepository(
-          failSecondRead: !guestReadFails,
+    test('receipt confermata resta dopo refresh cart vero fallito su '
+        '${guestReadFails ? 'store guest' : 'read account'}', () async {
+      final guest = _ReceiptGuestStore(failSecondRead: guestReadFails);
+      final cartRepository = _ReceiptCartRepository(
+        failSecondRead: !guestReadFails,
+      );
+      final repository = FakeCheckoutRepository()
+        ..createOutcomes.add(
+          checkoutTestResponse(quote: checkoutTestQuoteSnapshot()),
+        )
+        ..confirmOutcomes.add(
+          checkoutTestResponse(
+            status: CheckoutRemoteStatus.confirmed,
+            quote: checkoutTestQuoteSnapshot(
+              status: CheckoutQuoteStatus.confirmed,
+            ),
+          ),
+        )
+        ..orderOutcomes.add(
+          checkoutTestOrderResponse(order: checkoutTestOrderSnapshot()),
         );
-        final repository = FakeCheckoutRepository()
-          ..createOutcomes.add(
-            checkoutTestResponse(quote: checkoutTestQuoteSnapshot()),
-          )
-          ..confirmOutcomes.add(
-            checkoutTestResponse(
-              status: CheckoutRemoteStatus.confirmed,
-              quote: checkoutTestQuoteSnapshot(
-                status: CheckoutQuoteStatus.confirmed,
+      final store = MemoryCheckoutDraftStore();
+      final container = ProviderContainer(
+        overrides: [
+          appConfigProvider.overrideWith((ref) => _config(ref.watch(_shop))),
+          customerAccountIdentityProvider.overrideWith(
+            (ref) => ref.watch(_identity),
+          ),
+          guestCartStoreProvider.overrideWithValue(guest),
+          customerCartRepositoryProvider.overrideWithValue(cartRepository),
+          checkoutAccountStateProvider.overrideWithValue(
+            CustomerAccountState(
+              status: CustomerAccountStatus.ready,
+              snapshot: CustomerAccountSnapshot(
+                profile: null,
+                addresses: [checkoutTestCustomerAddress()],
+                deletionRequest: null,
+                loadedAt: checkoutTestNow,
               ),
             ),
-          )
-          ..orderOutcomes.add(
-            checkoutTestOrderResponse(order: checkoutTestOrderSnapshot()),
-          );
-        final store = MemoryCheckoutDraftStore();
-        final container = ProviderContainer(
-          overrides: [
-            appConfigProvider.overrideWith(
-              (ref) => _config(ref.watch(_shop)),
-            ),
-            customerAccountIdentityProvider.overrideWith(
-              (ref) => ref.watch(_identity),
-            ),
-            guestCartStoreProvider.overrideWithValue(guest),
-            customerCartRepositoryProvider.overrideWithValue(cartRepository),
-            checkoutAccountStateProvider.overrideWithValue(
-              CustomerAccountState(
-                status: CustomerAccountStatus.ready,
-                snapshot: CustomerAccountSnapshot(
-                  profile: null,
-                  addresses: [checkoutTestCustomerAddress()],
-                  deletionRequest: null,
-                  loadedAt: checkoutTestNow,
-                ),
-              ),
-            ),
-            deliveryContextControllerProvider.overrideWith(
-              TestDeliveryContextController.new,
-            ),
-            checkoutRepositoryProvider.overrideWithValue(repository),
-            checkoutDraftStoreProvider.overrideWithValue(store),
-            checkoutClockProvider.overrideWithValue(() => checkoutTestNow),
-            customerIdempotencyKeyFactoryProvider.overrideWithValue(
-              () => checkoutTestKey,
-            ),
-            // checkoutCartStateProvider e checkoutCartRefreshProvider reali.
-          ],
-        );
-        addTearDown(container.dispose);
-        final subscription = container.listen(
-          checkoutControllerProvider,
-          (_, _) {},
-          fireImmediately: true,
-        );
-        addTearDown(subscription.close);
-        await _waitFor(
-          container,
-          (state) => state.status == CheckoutViewStatus.ready,
-        );
-        final controller = container.read(checkoutControllerProvider.notifier);
-        await controller.selectMode(CheckoutFulfillmentMode.pickup);
-        await controller.nextStep();
-        await controller.selectPickupPoint(checkoutTestPoint);
-        await controller.nextStep();
-        await controller.selectSlot(checkoutTestPickupSlot);
-        await controller.nextStep();
-        await controller.selectPaymentMethod(CheckoutPaymentMethod.payAtPickup);
-        await controller.createQuote();
-        await controller.confirmQuote();
-        await controller.createOrder();
-        await Future<void>.delayed(Duration.zero);
+          ),
+          deliveryContextControllerProvider.overrideWith(
+            TestDeliveryContextController.new,
+          ),
+          checkoutRepositoryProvider.overrideWithValue(repository),
+          checkoutDraftStoreProvider.overrideWithValue(store),
+          checkoutClockProvider.overrideWithValue(() => checkoutTestNow),
+          customerIdempotencyKeyFactoryProvider.overrideWithValue(
+            () => checkoutTestKey,
+          ),
+          // checkoutCartStateProvider e checkoutCartRefreshProvider reali.
+        ],
+      );
+      addTearDown(container.dispose);
+      final subscription = container.listen(
+        checkoutControllerProvider,
+        (_, _) {},
+        fireImmediately: true,
+      );
+      addTearDown(subscription.close);
+      await _waitFor(
+        container,
+        (state) => state.status == CheckoutViewStatus.ready,
+      );
+      final controller = container.read(checkoutControllerProvider.notifier);
+      await controller.selectMode(CheckoutFulfillmentMode.pickup);
+      await controller.nextStep();
+      await controller.selectPickupPoint(checkoutTestPoint);
+      await controller.nextStep();
+      await controller.selectSlot(checkoutTestPickupSlot);
+      await controller.nextStep();
+      await controller.selectPaymentMethod(CheckoutPaymentMethod.payAtPickup);
+      await controller.createQuote();
+      await controller.confirmQuote();
+      await controller.createOrder();
+      await Future<void>.delayed(Duration.zero);
 
-        final cartFailure = container.read(cartControllerProvider);
-        expect(cartFailure.status, CartViewStatus.failure);
-        expect(cartFailure.failureKind, CartFailureKind.timeout);
-        expect(guest.readCalls, 2);
-        expect(cartRepository.readCalls, guestReadFails ? 1 : 2);
-        final receipt = container.read(checkoutControllerProvider);
-        expect(receipt.order?.id, checkoutTestOrder);
-        expect(receipt.pendingOperation, isNull);
-        expect(receipt.failureKind, isNull);
-        expect(store.draft?.orderId, checkoutTestOrder);
-        expect(repository.orderRequests, hasLength(1));
+      final cartFailure = container.read(cartControllerProvider);
+      expect(cartFailure.status, CartViewStatus.failure);
+      expect(cartFailure.failureKind, CartFailureKind.timeout);
+      expect(guest.readCalls, 2);
+      expect(cartRepository.readCalls, guestReadFails ? 1 : 2);
+      final receipt = container.read(checkoutControllerProvider);
+      expect(receipt.order?.id, checkoutTestOrder);
+      expect(receipt.pendingOperation, isNull);
+      expect(receipt.failureKind, isNull);
+      expect(store.draft?.orderId, checkoutTestOrder);
+      expect(repository.orderRequests, hasLength(1));
 
-        // Il recupero del cart è una read: non produce un nuovo ordine o clear.
-        await container.read(cartControllerProvider.notifier).retry();
-        expect(container.read(cartControllerProvider).snapshot?.isEmpty, isTrue);
-        expect(container.read(checkoutControllerProvider).order?.id,
-            checkoutTestOrder);
-        expect(repository.orderRequests, hasLength(1));
-        expect(cartRepository.mutationCalls, 0);
-        expect(guest.clearCalls, 0);
+      // Il recupero del cart è una read: non produce un nuovo ordine o clear.
+      await container.read(cartControllerProvider.notifier).retry();
+      expect(container.read(cartControllerProvider).snapshot?.isEmpty, isTrue);
+      expect(
+        container.read(checkoutControllerProvider).order?.id,
+        checkoutTestOrder,
+      );
+      expect(repository.orderRequests, hasLength(1));
+      expect(cartRepository.mutationCalls, 0);
+      expect(guest.clearCalls, 0);
 
-        // La precedenza receipt non si estende a owner/shop differenti.
-        if (guestReadFails) {
-          container.read(_shop.notifier).state = 'storefront-other';
-        } else {
-          container.read(_identity.notifier).state = _customer(
-            subjectId: '10000000-0000-4000-8000-000000000002',
-          );
-        }
-        await _waitFor(container, (state) => state.order == null);
-        expect(container.read(checkoutControllerProvider).order, isNull);
-        expect(repository.orderRequests, hasLength(1));
-      },
-    );
+      // La precedenza receipt non si estende a owner/shop differenti.
+      if (guestReadFails) {
+        container.read(_shop.notifier).state = 'storefront-other';
+      } else {
+        container.read(_identity.notifier).state = _customer(
+          subjectId: '10000000-0000-4000-8000-000000000002',
+        );
+      }
+      await _waitFor(container, (state) => state.order == null);
+      expect(container.read(checkoutControllerProvider).order, isNull);
+      expect(repository.orderRequests, hasLength(1));
+    });
   }
 }
 
@@ -234,7 +231,10 @@ final class _ReceiptGuestStore implements GuestCartStore {
     if (failSecondRead && readCalls == 2) {
       throw const CartRepositoryException(CartFailureKind.timeout);
     }
-    return CustomerCartSnapshot.empty(shopSlug: shopSlug, source: CartSource.guest);
+    return CustomerCartSnapshot.empty(
+      shopSlug: shopSlug,
+      source: CartSource.guest,
+    );
   }
 
   @override

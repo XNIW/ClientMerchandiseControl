@@ -421,25 +421,58 @@ void main() {
     },
   );
 
-  test('replay ACK storico esegue readback senza perdere modifiche successive', () async {
-    final remote = _FakeRemoteRepository(
-      readResponse: CartRemoteResponse(status: CartRemoteStatus.ok,
-          snapshot: _snapshot(source: CartSource.account, version: 4)),
-      mutationOutcomes: [const CartRepositoryException(CartFailureKind.timeout),
-        CartRemoteResponse(status: CartRemoteStatus.ok, snapshot: _snapshot(
-          source: CartSource.account, version: 5, items: [_line(_publicationId)]))],
-    );
-    final container = _container(guest: _FakeGuestStore(), remote: remote, identity: _identity());
-    addTearDown(container.dispose);
-    await _waitFor(container, (state) => state.status == CartViewStatus.ready);
-    await container.read(cartControllerProvider.notifier).addProduct(_product());
-    remote.readResponse = CartRemoteResponse(status: CartRemoteStatus.ok, snapshot: _snapshot(
-        source: CartSource.account, version: 6, items: [_line(_publicationId).copyWith(quantity: 9)]));
-    await container.read(cartControllerProvider.notifier).retry();
-    expect(remote.mutationRequests.map((request) => request.idempotencyKey).toSet(), hasLength(1));
-    expect(container.read(cartControllerProvider).snapshot!.version, 6);
-    expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 9);
-  });
+  test(
+    'replay ACK storico esegue readback senza perdere modifiche successive',
+    () async {
+      final remote = _FakeRemoteRepository(
+        readResponse: CartRemoteResponse(
+          status: CartRemoteStatus.ok,
+          snapshot: _snapshot(source: CartSource.account, version: 4),
+        ),
+        mutationOutcomes: [
+          const CartRepositoryException(CartFailureKind.timeout),
+          CartRemoteResponse(
+            status: CartRemoteStatus.ok,
+            snapshot: _snapshot(
+              source: CartSource.account,
+              version: 5,
+              items: [_line(_publicationId)],
+            ),
+          ),
+        ],
+      );
+      final container = _container(
+        guest: _FakeGuestStore(),
+        remote: remote,
+        identity: _identity(),
+      );
+      addTearDown(container.dispose);
+      await _waitFor(
+        container,
+        (state) => state.status == CartViewStatus.ready,
+      );
+      await container
+          .read(cartControllerProvider.notifier)
+          .addProduct(_product());
+      remote.readResponse = CartRemoteResponse(
+        status: CartRemoteStatus.ok,
+        snapshot: _snapshot(
+          source: CartSource.account,
+          version: 6,
+          items: [_line(_publicationId).copyWith(quantity: 9)],
+        ),
+      );
+      await container.read(cartControllerProvider.notifier).retry();
+      expect(
+        remote.mutationRequests
+            .map((request) => request.idempotencyKey)
+            .toSet(),
+        hasLength(1),
+      );
+      expect(container.read(cartControllerProvider).snapshot!.version, 6);
+      expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 9);
+    },
+  );
 
   test('doppio tap account produce una sola mutation autorevole', () async {
     final barrier = Completer<CartRemoteResponse>();
@@ -519,71 +552,70 @@ void main() {
   );
 
   for (final changeShop in [false, true]) {
-    test(
-      'read vecchia non invia merge guest dopo cambio '
-      '${changeShop ? 'shop' : 'owner'}',
-      () async {
-        final staleRead = Completer<CartRemoteResponse>();
-        final guestBefore = _snapshot(
-          source: CartSource.guest,
-          items: [_line(_publicationId, isGuest: true)],
-        );
-        final guest = _FakeGuestStore(
-          snapshot: guestBefore,
-          readOutcomes: [
-            guestBefore,
-            _snapshot(
-              source: CartSource.guest,
+    test('read vecchia non invia merge guest dopo cambio '
+        '${changeShop ? 'shop' : 'owner'}', () async {
+      final staleRead = Completer<CartRemoteResponse>();
+      final guestBefore = _snapshot(
+        source: CartSource.guest,
+        items: [_line(_publicationId, isGuest: true)],
+      );
+      final guest = _FakeGuestStore(
+        snapshot: guestBefore,
+        readOutcomes: [
+          guestBefore,
+          _snapshot(
+            source: CartSource.guest,
+            shopSlug: changeShop ? 'storefront-other' : 'storefront-test',
+          ),
+        ],
+      );
+      final remote = _FakeRemoteRepository(
+        readResponse: CartRemoteResponse(
+          status: CartRemoteStatus.ok,
+          snapshot: _snapshot(source: CartSource.account),
+        ),
+        readOutcomes: [
+          staleRead.future,
+          CartRemoteResponse(
+            status: CartRemoteStatus.ok,
+            snapshot: _snapshot(
+              source: CartSource.account,
+              version: 9,
               shopSlug: changeShop ? 'storefront-other' : 'storefront-test',
             ),
-          ],
-        );
-        final remote = _FakeRemoteRepository(
-          readResponse: CartRemoteResponse(
-            status: CartRemoteStatus.ok,
-            snapshot: _snapshot(source: CartSource.account),
           ),
-          readOutcomes: [
-            staleRead.future,
-            CartRemoteResponse(
-              status: CartRemoteStatus.ok,
-              snapshot: _snapshot(
-                source: CartSource.account,
-                version: 9,
-                shopSlug: changeShop ? 'storefront-other' : 'storefront-test',
-              ),
-            ),
-          ],
+        ],
+      );
+      final container = _container(
+        guest: guest,
+        remote: remote,
+        identity: _identity(),
+      );
+      addTearDown(container.dispose);
+      container.read(cartControllerProvider);
+      await _flushUntil(() => remote.readCalls == 1);
+      if (changeShop) {
+        container.read(_cartShopProvider.notifier).state = 'storefront-other';
+      } else {
+        container.read(_identityProvider.notifier).state = _identity(
+          subjectId: '10000000-0000-4000-8000-000000000002',
         );
-        final container = _container(
-          guest: guest,
-          remote: remote,
-          identity: _identity(),
-        );
-        addTearDown(container.dispose);
-        container.read(cartControllerProvider);
-        await _flushUntil(() => remote.readCalls == 1);
-        if (changeShop) {
-          container.read(_cartShopProvider.notifier).state = 'storefront-other';
-        } else {
-          container.read(_identityProvider.notifier).state = _identity(
-            subjectId: '10000000-0000-4000-8000-000000000002',
-          );
-        }
-        await _waitFor(container, (state) => state.snapshot?.version == 9);
-        staleRead.complete(CartRemoteResponse(
+      }
+      await _waitFor(container, (state) => state.snapshot?.version == 9);
+      staleRead.complete(
+        CartRemoteResponse(
           status: CartRemoteStatus.ok,
           snapshot: _snapshot(source: CartSource.account, version: 4),
-        ));
-        await staleRead.future;
-        await Future<void>.delayed(Duration.zero);
-        expect(remote.mergeCalls, 0);
-        expect(guest.retainedIds, isNull);
-        expect(guest.snapshot.items.single.publicationId, _publicationId);
-        expect(container.read(cartControllerProvider).snapshot?.version, 9);
-        expect(remote.readCalls, 2);
-      },
-    );
+        ),
+      );
+      await staleRead.future;
+      await Future<void>.delayed(Duration.zero);
+      expect(remote.mergeCalls, 0);
+      expect(guest.retainedIds, isNull);
+      expect(guest.snapshot.items.single.publicationId, _publicationId);
+      expect(container.read(cartControllerProvider).snapshot?.version, 9);
+      expect(remote.readCalls, 2);
+    });
   }
 
   test('mutation account rilascia la reservation hold correlata', () async {
@@ -782,14 +814,15 @@ Future<void> _flushUntil(bool Function() predicate) async {
   throw TestFailure('Condizione async non raggiunta');
 }
 
-AppConfig _config({String shopSlug = 'storefront-test'}) => AppConfig.fromValues(
-  appEnvironment: 'staging',
-  supabaseUrl: 'https://staging.example.invalid',
-  supabasePublishableKey: 'sb_publishable_staging',
-  authRedirectUri: AppConfig.allowedAuthRedirectUri,
-  googleAuthEnabled: 'false',
-  storefrontShopSlug: shopSlug,
-);
+AppConfig _config({String shopSlug = 'storefront-test'}) =>
+    AppConfig.fromValues(
+      appEnvironment: 'staging',
+      supabaseUrl: 'https://staging.example.invalid',
+      supabasePublishableKey: 'sb_publishable_staging',
+      authRedirectUri: AppConfig.allowedAuthRedirectUri,
+      googleAuthEnabled: 'false',
+      storefrontShopSlug: shopSlug,
+    );
 
 AuthenticatedCustomer _identity({
   String subjectId = '10000000-0000-4000-8000-000000000001',
@@ -1007,7 +1040,8 @@ final class _FakeRemoteRepository implements CustomerCartRepository {
     mutationRequests.add(request);
     final response = await _outcome(mutationOutcomes);
     if (response.status == CartRemoteStatus.ok &&
-        (response.snapshot?.version ?? -1) >= (readResponse.snapshot?.version ?? -1)) {
+        (response.snapshot?.version ?? -1) >=
+            (readResponse.snapshot?.version ?? -1)) {
       readResponse = response;
     }
     return response;

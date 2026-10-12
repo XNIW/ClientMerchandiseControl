@@ -372,7 +372,9 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
             final media = MediaQuery.of(context);
             final available = math.max(
               128.0,
-              media.size.height - media.padding.vertical - media.viewInsets.bottom,
+              media.size.height -
+                  media.padding.vertical -
+                  media.viewInsets.bottom,
             );
             final compactHeight = math.max(
               64.0,
@@ -386,65 +388,71 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
             return SizedBox(
               height: _expanded ? expandedHeight : compactHeight,
               child: ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadii.surface),
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                IgnorePointer(
-                  ignoring: !providerRuntimeReady,
-                  child: ExcludeSemantics(child: surface),
+                borderRadius: BorderRadius.circular(AppRadii.surface),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    IgnorePointer(
+                      ignoring: !providerRuntimeReady,
+                      child: ExcludeSemantics(child: surface),
+                    ),
+                    if (!providerRuntimeReady)
+                      ColoredBox(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
+                        child: const Center(child: CircularProgressIndicator()),
+                      )
+                    else ...[
+                      PositionedDirectional(
+                        start: 8,
+                        top: 8,
+                        child: Material(
+                          color: Theme.of(context).colorScheme.surface,
+                          elevation: 2,
+                          shape: const CircleBorder(),
+                          child: IconButton(
+                            key: const ValueKey('delivery-map-expand'),
+                            tooltip: _expanded
+                                ? l10n.deliveryTrackingMapCollapse
+                                : l10n.deliveryTrackingMapExpand,
+                            constraints: const BoxConstraints.tightFor(
+                              width: AppSizes.minimumTouchTarget,
+                              height: AppSizes.minimumTouchTarget,
+                            ),
+                            onPressed: _toggleExpanded,
+                            icon: Icon(
+                              _expanded
+                                  ? Icons.fullscreen_exit
+                                  : Icons.fullscreen,
+                            ),
+                          ),
+                        ),
+                      ),
+                      PositionedDirectional(
+                        end: 8,
+                        bottom: 8,
+                        child: Material(
+                          color: Theme.of(context).colorScheme.surface,
+                          elevation: 2,
+                          shape: const CircleBorder(),
+                          child: IconButton(
+                            key: const ValueKey('delivery-map-recenter'),
+                            tooltip: widget.recenterLabel,
+                            constraints: const BoxConstraints.tightFor(
+                              width: AppSizes.minimumTouchTarget,
+                              height: AppSizes.minimumTouchTarget,
+                            ),
+                            onPressed: _recenter,
+                            icon: const Icon(
+                              Icons.center_focus_strong_outlined,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                if (!providerRuntimeReady)
-                  ColoredBox(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
-                    child: const Center(child: CircularProgressIndicator()),
-                  )
-                else ...[
-                  PositionedDirectional(
-                    start: 8,
-                    top: 8,
-                    child: Material(
-                      color: Theme.of(context).colorScheme.surface,
-                      elevation: 2,
-                      shape: const CircleBorder(),
-                      child: IconButton(
-                        key: const ValueKey('delivery-map-expand'),
-                        tooltip: _expanded
-                            ? l10n.deliveryTrackingMapCollapse
-                            : l10n.deliveryTrackingMapExpand,
-                        constraints: const BoxConstraints.tightFor(
-                          width: AppSizes.minimumTouchTarget,
-                          height: AppSizes.minimumTouchTarget,
-                        ),
-                        onPressed: _toggleExpanded,
-                        icon: Icon(_expanded ? Icons.fullscreen_exit : Icons.fullscreen),
-                      ),
-                    ),
-                  ),
-                  PositionedDirectional(
-                    end: 8,
-                    bottom: 8,
-                    child: Material(
-                      color: Theme.of(context).colorScheme.surface,
-                      elevation: 2,
-                      shape: const CircleBorder(),
-                      child: IconButton(
-                        key: const ValueKey('delivery-map-recenter'),
-                        tooltip: widget.recenterLabel,
-                        constraints: const BoxConstraints.tightFor(
-                          width: AppSizes.minimumTouchTarget,
-                          height: AppSizes.minimumTouchTarget,
-                        ),
-                        onPressed: _recenter,
-                        icon: const Icon(Icons.center_focus_strong_outlined),
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
               ),
             );
           },

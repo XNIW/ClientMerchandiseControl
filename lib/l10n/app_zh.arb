@@ -876,7 +876,7 @@
   "deliveryTrackingModeStatusOnly": "Actualizaciones de estado",
   "deliveryTrackingModeExternalCarrier": "Empresa de transporte externa",
   "deliveryTrackingModeLiveCourier": "Repartidor en vivo",
-  "deliveryTrackingWindow": "Entrega prevista entre {start} y {end}",
+  "deliveryTrackingWindow": "Entrega estimada, no garantizada, entre {start} y {end}",
   "@deliveryTrackingWindow": {"placeholders": {"start": {"type": "String"}, "end": {"type": "String"}}},
   "deliveryTrackingLastUpdated": "Última actualización de ubicación: {date}",
   "@deliveryTrackingLastUpdated": {"placeholders": {"date": {"type": "String"}}},

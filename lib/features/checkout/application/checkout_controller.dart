@@ -48,7 +48,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
     final cart = cartState.snapshot;
     final remembered = _lastState;
     final rememberedOrder = remembered?.order;
-    final sameOwnerShop = identity != null &&
+    final sameOwnerShop =
+        identity != null &&
         shopSlug != null &&
         _ownerSubjectId == identity.subjectId &&
         _shopSlug == shopSlug &&
@@ -194,6 +195,9 @@ final class CheckoutController extends Notifier<CheckoutState> {
     });
   }
 
+  bool get _hasPendingOrder =>
+      state.pendingOperation?.kind == CheckoutPendingOperationKind.order;
+
   Future<void> selectMode(CheckoutFulfillmentMode mode) async {
     final options = state.options;
     if (state.isBusy || options == null || !options.isEnabled(mode)) return;
@@ -209,6 +213,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
   }
 
   Future<void> selectPickupPoint(String pointId) async {
+    if (_hasPendingOrder) return;
     final options = state.options;
     final mode = state.selection.mode;
     if (state.isBusy ||
@@ -240,6 +245,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
   }
 
   Future<void> selectAddress(String addressId) async {
+    if (_hasPendingOrder) return;
     if (state.isBusy ||
         state.selection.mode != CheckoutFulfillmentMode.delivery ||
         !state.addresses.any((address) => address.id == addressId)) {
@@ -325,6 +331,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
     if (context == null) return Future<void>.value();
     return _serialize(() async {
       if (!_isCurrentContext(context)) return;
+      if (_hasPendingOrder || state.hasOrder) return;
       final cart = state.cart;
       if (cart == null || !_selectionComplete(state)) return;
       final existing = state.pendingOperation;
@@ -353,6 +360,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
     if (context == null) return Future<void>.value();
     return _serialize(() async {
       if (!_isCurrentContext(context)) return;
+      if (_hasPendingOrder || state.hasOrder) return;
       final quote = state.quote;
       final cart = state.cart;
       if (quote == null || cart == null || quote.isExpired) return;
@@ -425,6 +433,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
     if (context == null) return Future<void>.value();
     return _serialize(() async {
       if (!_isCurrentContext(context)) return;
+      if (_hasPendingOrder || state.hasOrder) return;
       try {
         await ref
             .read(checkoutDraftStoreProvider)
@@ -986,6 +995,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
   }
 
   Future<void> _replaceDraftState(CheckoutState next) async {
+    if (_hasPendingOrder || state.hasOrder) return;
     final context = _captureContext();
     if (context != null && await _persist(next, context: context)) {
       _publish(next);

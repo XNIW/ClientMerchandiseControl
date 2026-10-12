@@ -2348,6 +2348,20 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get cartPendingConfirmationNotice =>
       'El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.';
+
+  @override
+  String get deliveryTrackingEtaUnavailable =>
+      'La tienda aún no informó una ventana estimada.';
+
+  @override
+  String get deliveryTrackingEtaExpired =>
+      'La ventana estimada anterior terminó. Esperamos una actualización de la tienda.';
+
+  @override
+  String get deliveryTrackingMapExpand => 'Ampliar el mapa de la entrega';
+
+  @override
+  String get deliveryTrackingMapCollapse => 'Reducir el mapa de la entrega';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4483,4 +4497,16 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   @override
   String get cartPendingConfirmationNotice =>
       '尚未确认此次更改。请在购物车中重试。重启后，请先检查数量，再次添加。';
+
+  @override
+  String get deliveryTrackingEtaUnavailable => '商店尚未提供预计送达时间段。';
+
+  @override
+  String get deliveryTrackingEtaExpired => '此前的预计送达时间段已结束，正在等待商店更新。';
+
+  @override
+  String get deliveryTrackingMapExpand => '展开配送地图';
+
+  @override
+  String get deliveryTrackingMapCollapse => '收起配送地图';
 }

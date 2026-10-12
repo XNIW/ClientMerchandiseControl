@@ -214,39 +214,65 @@ void main() {
       expect(find.text(l10n.cartAddedNotice), findsNothing);
     },
   );
-  for (final locale in const [Locale('es', 'CL'), Locale('it'), Locale('en'),
-      Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans')]) {
+  for (final locale in const [
+    Locale('es', 'CL'),
+    Locale('it'),
+    Locale('en'),
+    Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+  ]) {
     for (final dark in [false, true]) {
-      testWidgets('feedback pending ${locale.toLanguageTag()} dark=$dark testo200 e semantics', (tester) async {
-        await tester.binding.setSurfaceSize(const Size(320, 568));
-        addTearDown(() => tester.binding.setSurfaceSize(null));
-        final semantics = tester.ensureSemantics();
-        addTearDown(semantics.dispose);
-        await mount(tester, Remote([const CartRepositoryException(CartFailureKind.timeout)]),
-            locale: locale, dark: dark, scaled: true);
-        final l10n = AppLocalizations.of(tester.element(find.byType(AddToCartButton)));
-        await tester.tap(find.byType(FilledButton));
-        await tester.pumpAndSettle();
-        expect(find.text(l10n.cartPendingConfirmationNotice), findsOneWidget);
-        expect(find.text(l10n.cartAddedNotice), findsNothing);
-        expect(tester.getSemantics(find.text(l10n.cartPendingConfirmationNotice)).getSemanticsData().label,
-            contains(l10n.cartPendingConfirmationNotice));
-        expect(tester.takeException(), isNull);
-        final path = Platform.environment['CMC_CLIENT_CAPTURE_DIR'];
-        if (path != null) {
-          await tester.runAsync(() async {
-          final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('cart-feedback-frame')));
-          final frame = await boundary.toImage();
-          final data = await frame.toByteData(format: ui.ImageByteFormat.png);
-          await File('$path/cart-pending-${locale.toLanguageTag()}-${dark ? 'dark' : 'light'}-200.png')
-              .writeAsBytes(data!.buffer.asUint8List());
-          frame.dispose();
-          });
-        }
-      });
+      testWidgets(
+        'feedback pending ${locale.toLanguageTag()} dark=$dark testo200 e semantics',
+        (tester) async {
+          await tester.binding.setSurfaceSize(const Size(320, 568));
+          addTearDown(() => tester.binding.setSurfaceSize(null));
+          final semantics = tester.ensureSemantics();
+          try {
+          await mount(
+            tester,
+            Remote([const CartRepositoryException(CartFailureKind.timeout)]),
+            locale: locale,
+            dark: dark,
+            scaled: true,
+          );
+          final l10n = AppLocalizations.of(
+            tester.element(find.byType(AddToCartButton)),
+          );
+          await tester.tap(find.byType(FilledButton));
+          await tester.pumpAndSettle();
+          expect(find.text(l10n.cartPendingConfirmationNotice), findsOneWidget);
+          expect(find.text(l10n.cartAddedNotice), findsNothing);
+          expect(
+            tester
+                .getSemantics(find.text(l10n.cartPendingConfirmationNotice))
+                .getSemanticsData()
+                .label,
+            contains(l10n.cartPendingConfirmationNotice),
+          );
+          expect(tester.takeException(), isNull);
+          final path = Platform.environment['CMC_CLIENT_CAPTURE_DIR'];
+          if (path != null) {
+            await tester.runAsync(() async {
+              final boundary = tester.renderObject<RenderRepaintBoundary>(
+                find.byKey(const ValueKey('cart-feedback-frame')),
+              );
+              final frame = await boundary.toImage();
+              final data = await frame.toByteData(
+                format: ui.ImageByteFormat.png,
+              );
+              await File(
+                '$path/cart-pending-${locale.toLanguageTag()}-${dark ? 'dark' : 'light'}-200.png',
+              ).writeAsBytes(data!.buffer.asUint8List());
+              frame.dispose();
+            });
+          }
+          } finally {
+            semantics.dispose();
+          }
+        },
+      );
     }
   }
-
 }
 
 Future<ProviderContainer> mount(
@@ -295,9 +321,16 @@ Future<ProviderContainer> mount(
         theme: clientHostVisualTheme(AppTheme.light()),
         darkTheme: clientHostVisualTheme(AppTheme.dark()),
         themeMode: dark ? ThemeMode.dark : ThemeMode.light,
-        builder: (context, child) => RepaintBoundary(key: const ValueKey('cart-feedback-frame'),
-          child: MediaQuery(data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(scaled ? 2 : 1), disableAnimations: true), child: child!)),
+        builder: (context, child) => RepaintBoundary(
+          key: const ValueKey('cart-feedback-frame'),
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(scaled ? 2 : 1),
+              disableAnimations: true,
+            ),
+            child: child!,
+          ),
+        ),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(body: AddToCartButton(product: product())),
@@ -373,7 +406,9 @@ final class Remote implements CustomerCartRepository {
   Future<CartRemoteResponse> read({required String shopSlug}) async =>
       CartRemoteResponse(
         status: CartRemoteStatus.ok,
-        snapshot: current?.shopSlug == shopSlug ? current : snapshot(slug: shopSlug),
+        snapshot: current?.shopSlug == shopSlug
+            ? current
+            : snapshot(slug: shopSlug),
       );
   @override
   Future<CartRemoteResponse> mutate(CartMutationRequest request) async {

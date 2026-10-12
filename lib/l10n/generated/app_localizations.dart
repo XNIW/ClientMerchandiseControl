@@ -4152,6 +4152,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.'**
   String get cartPendingConfirmationNotice;
+
+  /// No description provided for @deliveryTrackingEtaUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'La tienda aún no informó una ventana estimada.'**
+  String get deliveryTrackingEtaUnavailable;
+
+  /// No description provided for @deliveryTrackingEtaExpired.
+  ///
+  /// In es, this message translates to:
+  /// **'La ventana estimada anterior terminó. Esperamos una actualización de la tienda.'**
+  String get deliveryTrackingEtaExpired;
+
+  /// No description provided for @deliveryTrackingMapExpand.
+  ///
+  /// In es, this message translates to:
+  /// **'Ampliar el mapa de la entrega'**
+  String get deliveryTrackingMapExpand;
+
+  /// No description provided for @deliveryTrackingMapCollapse.
+  ///
+  /// In es, this message translates to:
+  /// **'Reducir el mapa de la entrega'**
+  String get deliveryTrackingMapCollapse;
 }
 
 class _AppLocalizationsDelegate

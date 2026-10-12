@@ -553,7 +553,7 @@
   "deliveryTrackingModeStatusOnly": "状态更新",
   "deliveryTrackingModeExternalCarrier": "外部承运商",
   "deliveryTrackingModeLiveCourier": "配送员实时位置",
-  "deliveryTrackingWindow": "预计在 {start} 至 {end} 之间送达",
+  "deliveryTrackingWindow": "预计送达时间为 {start} 至 {end}，并非保证时间",
   "deliveryTrackingLastUpdated": "上次位置更新时间：{date}",
   "deliveryTrackingLiveWaiting": "配送员开始配送后将显示实时位置。",
   "deliveryTrackingFresh": "位置正在更新",

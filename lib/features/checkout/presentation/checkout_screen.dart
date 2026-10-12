@@ -1121,7 +1121,9 @@ class _CheckoutActions extends ConsumerWidget {
                     const SizedBox(height: AppSpacing.xs),
                     TextButton(
                       key: const ValueKey('checkout-back-step'),
-                      onPressed: state.isBusy ? null : controller.previousStep,
+                      onPressed: state.isBusy ||
+                          state.pendingOperation?.kind == CheckoutPendingOperationKind.order
+                          ? null : controller.previousStep,
                       child: Text(l10n.checkoutBackAction),
                     ),
                   ],

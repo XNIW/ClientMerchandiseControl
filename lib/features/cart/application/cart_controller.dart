@@ -249,8 +249,10 @@ final class CartController extends Notifier<CartState> {
       result.shopSlug == ref.read(appConfigProvider).storefrontShopSlug &&
       result.subjectId == ref.read(customerAccountIdentityProvider)?.subjectId;
 
-  CartFailureKind? get _pendingFailure => _pendingMutation?.failureKind ??
-      _pendingMerge?.failureKind ?? _pendingRevalidation?.failureKind;
+  CartFailureKind? get _pendingFailure =>
+      _pendingMutation?.failureKind ??
+      _pendingMerge?.failureKind ??
+      _pendingRevalidation?.failureKind;
 
   CartActionResult _result(
     _CartInvocationContext context,
@@ -381,10 +383,7 @@ final class CartController extends Notifier<CartState> {
         ? state.snapshot
         : null;
     _publish(
-      CartState.loading(
-        isAuthenticated: authenticated,
-        previous: previous,
-      ),
+      CartState.loading(isAuthenticated: authenticated, previous: previous),
     );
     CustomerCartSnapshot guest;
     try {
@@ -640,7 +639,11 @@ final class CartController extends Notifier<CartState> {
     );
     final context = _captureContext(generation: generation);
     if (context == null) return;
-    final result = await _executeMutation(pending, context: context, allowConflictRetry: true);
+    final result = await _executeMutation(
+      pending,
+      context: context,
+      allowConflictRetry: true,
+    );
     if (!_isCurrentContext(context)) return;
     if (result.outcome == CartActionOutcome.accountConfirmed ||
         result.outcome == CartActionOutcome.rejected) {

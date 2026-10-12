@@ -148,9 +148,19 @@ void main() {
     expect(find.textContaining('supplier'), findsNothing);
   });
 
-  testWidgets('righe indisponibili non generano sconto nel subtotal', (tester) async {
-    await tester.pumpWidget(buildApp(store: _FakeGuestCartStore(snapshot: _cartSnapshot(
-        availability: StorefrontAvailability.unavailable, compareAtPriceClp: 1800))));
+  testWidgets('righe indisponibili non generano sconto nel subtotal', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildApp(
+        store: _FakeGuestCartStore(
+          snapshot: _cartSnapshot(
+            availability: StorefrontAvailability.unavailable,
+            compareAtPriceClp: 1800,
+          ),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
     final l10n = AppLocalizations.of(tester.element(find.byType(CartScreen)));
     expect(find.text(l10n.cartSavingsLabel), findsNothing);

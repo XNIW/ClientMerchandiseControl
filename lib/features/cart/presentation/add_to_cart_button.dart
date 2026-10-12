@@ -81,8 +81,12 @@ class AddToCartButton extends ConsumerWidget {
     final message = switch (result.outcome) {
       CartActionOutcome.localSaved => l10n.cartLocalSavedNotice,
       CartActionOutcome.accountConfirmed => l10n.cartAddedNotice,
-      CartActionOutcome.rejected => cartFailureMessage(l10n, result.failureKind!),
-      CartActionOutcome.pendingConfirmation => l10n.cartPendingConfirmationNotice,
+      CartActionOutcome.rejected => cartFailureMessage(
+        l10n,
+        result.failureKind!,
+      ),
+      CartActionOutcome.pendingConfirmation =>
+        l10n.cartPendingConfirmationNotice,
       CartActionOutcome.ignored || CartActionOutcome.contextChanged => null,
     };
     if (message == null) return;

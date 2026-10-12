@@ -1262,7 +1262,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get cartTimeoutError =>
-      'Il negozio ha impiegato troppo tempo. Riprova senza duplicare l’operazione.';
+      'La modifica non è confermata. Riprova dal carrello. Dopo un riavvio, verifica le quantità prima di aggiungere di nuovo.';
 
   @override
   String get cartUnauthorizedError =>
@@ -2344,4 +2344,12 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get afterSalesEvidenceInvalid =>
       'File non supportato o troppo grande. Selezionane un altro.';
+
+  @override
+  String get cartLocalSavedNotice =>
+      'Salvato nel carrello di questo dispositivo.';
+
+  @override
+  String get cartPendingConfirmationNotice =>
+      'La modifica non è confermata. Riprova dal carrello. Dopo un riavvio, verifica le quantità prima di aggiungere di nuovo.';
 }

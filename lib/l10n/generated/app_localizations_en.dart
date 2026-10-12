@@ -1247,7 +1247,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cartTimeoutError =>
-      'The store took too long. Retry without duplicating the operation.';
+      'The change is not confirmed. Retry from the cart. After restarting, check quantities before adding again.';
 
   @override
   String get cartUnauthorizedError => 'Sign in again to sync the cart.';
@@ -2317,4 +2317,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get afterSalesEvidenceInvalid =>
       'Unsupported file or too large. Select another.';
+
+  @override
+  String get cartLocalSavedNotice => 'Saved in this device’s cart.';
+
+  @override
+  String get cartPendingConfirmationNotice =>
+      'The change is not confirmed. Retry from the cart. After restarting, check quantities before adding again.';
 }

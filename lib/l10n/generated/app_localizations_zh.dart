@@ -1264,7 +1264,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get cartTimeoutError =>
-      'La tienda tardó demasiado. Reintenta sin duplicar la operación.';
+      'El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.';
 
   @override
   String get cartUnauthorizedError =>
@@ -2340,6 +2340,14 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get afterSalesEvidenceInvalid =>
       'Archivo no compatible o demasiado grande. Selecciona otro.';
+
+  @override
+  String get cartLocalSavedNotice =>
+      'Guardado en el carrito de este dispositivo.';
+
+  @override
+  String get cartPendingConfirmationNotice =>
+      'El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -3476,7 +3484,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get cartOfflineError => '当前离线，本地购物车仍可使用。';
 
   @override
-  String get cartTimeoutError => '商店响应超时。重试不会重复执行该操作。';
+  String get cartTimeoutError => '尚未确认此次更改。请在购物车中重试。重启后，请先检查数量，再次添加。';
 
   @override
   String get cartUnauthorizedError => '请重新登录以同步购物车。';
@@ -4468,4 +4476,11 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get afterSalesEvidenceInvalid => '文件格式不支持或文件过大。请选择其他文件。';
+
+  @override
+  String get cartLocalSavedNotice => '已保存到此设备的购物车。';
+
+  @override
+  String get cartPendingConfirmationNotice =>
+      '尚未确认此次更改。请在购物车中重试。重启后，请先检查数量，再次添加。';
 }

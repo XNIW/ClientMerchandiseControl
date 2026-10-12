@@ -2236,7 +2236,7 @@ abstract class AppLocalizations {
   /// No description provided for @cartTimeoutError.
   ///
   /// In es, this message translates to:
-  /// **'La tienda tardó demasiado. Reintenta sin duplicar la operación.'**
+  /// **'El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.'**
   String get cartTimeoutError;
 
   /// No description provided for @cartUnauthorizedError.
@@ -4140,6 +4140,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Archivo no compatible o demasiado grande. Selecciona otro.'**
   String get afterSalesEvidenceInvalid;
+
+  /// No description provided for @cartLocalSavedNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardado en el carrito de este dispositivo.'**
+  String get cartLocalSavedNotice;
+
+  /// No description provided for @cartPendingConfirmationNotice.
+  ///
+  /// In es, this message translates to:
+  /// **'El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.'**
+  String get cartPendingConfirmationNotice;
 }
 
 class _AppLocalizationsDelegate

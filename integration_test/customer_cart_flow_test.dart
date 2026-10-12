@@ -159,7 +159,9 @@ void main() {
       expect(tester.takeException(), isNull);
 
       binding.reportData = <String, Object?>{
-        'guestPersistenceRestart': 'PASS',
+        'guestStoreCloseReopenSameProcess': 'PASS',
+        'guestProcessKillRestart': 'NOT_RUN',
+        'backendAccountMerge': 'NOT_RUN',
         'availabilityProjectionRefresh': 'PASS',
         'loginMerge': 'PASS',
         'mergeCleanupAfterAck': 'PASS',

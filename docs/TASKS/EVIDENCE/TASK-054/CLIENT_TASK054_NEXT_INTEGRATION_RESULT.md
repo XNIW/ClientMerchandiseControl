@@ -1,6 +1,17 @@
 # CLIENT_TASK054_NEXT_INTEGRATION_RESULT
 
-## Rapporto corrente — candidate Client, 12 ottobre 2026
+## Ripresa corrente — addendum carrello e tracking
+
+TASK-054 è **ACTIVE / FIX / CODEX_FIX_IN_PROGRESS** per emendamento diretto utente.
+Le prove precedenti sotto restano legate a ba11 e non qualificano il nuovo delta.
+Runner GitHub separati; nessun SDK/UI Mac. RED widget38292306683 sul cart
+precedente:313PASS/3FAIL/1SKIP, exit1; falsi successi unavailable/limit/timeout.
+Primo fix64fb:gate Analyze FAIL (due importCompleter mancanti/unif senza blocco),
+regressioni NOT_RUN; corretta preparazione in corso. Qualifica finale pendente.
+Tracking TEST metadata:RPC/feed presenti/RLS enabled; Google OFF/prerequisiti
+provider e consumer→producer autentico NOT_RUN. Review integrata BLOCKED.
+
+## Checkpoint preservato — candidate Client, 12 ottobre 2026
 
 I fix applicativi sono consegnati nella PR29 draft, sul sorgente congelato
 `ba11b0f7f5bb9f751df7fa14d091ff75ee844b65`. La CI canonica

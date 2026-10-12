@@ -25,7 +25,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:integration_test/common.dart' as integration_results;
 import 'package:integration_test/integration_test.dart';
+// Il gate deve leggere anche gli errori postTest/tearDownAll del runner pinned.
+// ignore: depend_on_referenced_packages, implementation_imports
+import 'package:test_api/src/backend/invoker.dart' show Invoker;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
@@ -40,7 +44,14 @@ const _secondName = 'Té sintético';
 final _nativeResources = <Object>[];
 
 void main() {
-  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final publisher = _NativeCartTerminalPublisher(
+    const String.fromEnvironment('CMC_GUEST_CART_RUN_ID'),
+  );
+  late final _NativeCartTestBinding binding;
+  // test_api esegue tearDownAll LIFO. Registrato prima del costruttore SDK,
+  // questo Future atteso parte dopo postTest e dopo cleanup/report native SDK.
+  tearDownAll(() => publisher.publish(binding));
+  binding = _NativeCartTestBinding();
   testWidgets('carrello guest recuperato dopo processo nativo terminato', (
     tester,
   ) async {
@@ -62,12 +73,14 @@ void main() {
         path.join(support.path, 'task054-guest-cart-$runId'),
       );
       await runDirectory.create(recursive: true);
+      publisher.directory = runDirectory;
       final marker = File(path.join(runDirectory.path, 'marker.json'));
       final seedReceipt = File(path.join(runDirectory.path, 'seed.json'));
       final recoverReceipt = File(path.join(runDirectory.path, 'recover.json'));
       final int seedProcessId;
       if (await marker.exists()) {
         phase = 'recover';
+        publisher.phase = phase;
         seedProcessId = await _readMarker(marker, runId, shopSlug);
         expect(pid, isNot(seedProcessId), reason: 'Serve un nuovo processo.');
         expect(await seedReceipt.exists(), isTrue);
@@ -120,16 +133,17 @@ void main() {
         // Shop fresco: mai cancellare una fixture precedente per farla passare.
         expect((await store.read(shopSlug: shopSlug)).items, isEmpty);
         expect(container.read(cartControllerProvider).snapshot!.items, isEmpty);
-        await container.read(cartControllerProvider.notifier).addProduct(
-          _product(_firstId, _firstName, 1200),
-          quantity: 2,
-        );
-        await container.read(cartControllerProvider.notifier).addProduct(
-          _product(_secondId, _secondName, 800),
-          quantity: 1,
-        );
+        await container
+            .read(cartControllerProvider.notifier)
+            .addProduct(_product(_firstId, _firstName, 1200), quantity: 2);
+        await container
+            .read(cartControllerProvider.notifier)
+            .addProduct(_product(_secondId, _secondName, 800), quantity: 1);
         _assertSnapshot(await store.read(shopSlug: shopSlug), shopSlug);
-        _assertSnapshot(container.read(cartControllerProvider).snapshot!, shopSlug);
+        _assertSnapshot(
+          container.read(cartControllerProvider).snapshot!,
+          shopSlug,
+        );
         // Scrittura dopo gli await delle transazioni SQLite/read. Il marker
         // non sostituisce il contenuto carrello e non viene mai sovrascritto.
         await _writeNewJson(marker, {
@@ -140,7 +154,10 @@ void main() {
       } else {
         // Recover non contiene addProduct/setProduct o riparazioni del seed.
         _assertSnapshot(await store.read(shopSlug: shopSlug), shopSlug);
-        _assertSnapshot(container.read(cartControllerProvider).snapshot!, shopSlug);
+        _assertSnapshot(
+          container.read(cartControllerProvider).snapshot!,
+          shopSlug,
+        );
         await _assertRestoredCartUi(tester);
         expect(tester.takeException(), isNull);
         await container.read(cartControllerProvider.notifier).clear();
@@ -168,38 +185,114 @@ void main() {
         'cleanup': phase == 'recover' ? 'PASS' : 'NOT_RUN',
         'backend': 'NOT_RUN',
       };
-      await _writeNewJson(
-        phase == 'seed' ? seedReceipt : recoverReceipt,
-        receipt,
-      );
-      binding.reportData = receipt;
+      // Il body conserva soltanto la candidate; nessun successJSON è visibile.
+      publisher.successCandidate = Map<String, Object?>.unmodifiable(receipt);
     } catch (error) {
-      // Il runner rifiuta ogni receipt con status FAIL o schema diverso dagli
-      // undici campi success. Nessun valore di eccezione/path/URI viene salvato.
-      if (runDirectory != null) {
-        try {
-          await _writeNewJson(
-            File(path.join(runDirectory.path, '$phase.json')),
-            {
-              'apiVersion': _apiVersion,
-              'phase': phase,
-              'runId': runId,
-              'processId': pid,
-              'status': 'FAIL',
-              'errorType': error is TestFailure
-                  ? 'assertion'
-                  : error is FileSystemException
-                  ? 'filesystem'
-                  : 'unexpected',
-            },
-          );
-        } on Object {
-          // Receipt assente/preesistente => runner FAIL; nessun fallback PASS.
-        }
-      }
+      publisher.errorType = error is TestFailure
+          ? 'assertion'
+          : error is FileSystemException
+          ? 'filesystem'
+          : 'unexpected';
       rethrow;
     }
   });
+}
+
+
+// allTestsPassed SDK viene completato prima del report native e non cambia
+// dopo un errore di postTest. Il binding registra quel ramo come Failure prima
+// della closure SDK; il publisher controlla anche il risultato del tearDownAll.
+class _NativeCartTestBinding extends IntegrationTestWidgetsFlutterBinding {
+  bool postTestCompleted = false;
+  bool postTestFailed = false;
+
+  void _recordPostTestFailure() {
+    postTestFailed = true;
+    results['guest-cart-postTest'] = integration_results.Failure(
+      'guest-cart-postTest',
+      'sanitized_post_test_failure',
+    );
+  }
+
+  @override
+  void postTest() {
+    if (Invoker.current?.liveTest.state.result.isFailing ?? true) {
+      _recordPostTestFailure();
+    }
+    try {
+      super.postTest();
+    } catch (_) {
+      _recordPostTestFailure();
+      rethrow;
+    } finally {
+      postTestCompleted = true;
+    }
+  }
+}
+
+class _NativeCartTerminalPublisher {
+  _NativeCartTerminalPublisher(this.runId);
+
+  final String runId;
+  Directory? directory;
+  String phase = 'seed';
+  String? errorType;
+  Map<String, Object?>? successCandidate;
+  bool _started = false;
+
+  Future<void> publish(_NativeCartTestBinding binding) async {
+    if (_started) {
+      throw StateError('Publisher terminale già avviato.');
+    }
+    _started = true;
+    // Nessuna .then scartata: il test runner attende questo callback completo.
+    final sdkPassed = await binding.allTestsPassed.future;
+    // Il loop LIFO SDK usa whenComplete: prima della lettura del risultato,
+    // lascia propagare le failure microtask della precedente callback.
+    await Future<void>.delayed(Duration.zero);
+    final teardownFailed = Invoker.current?.liveTest.state.result.isFailing ?? true;
+    final terminalPassed = sdkPassed &&
+        binding.postTestCompleted &&
+        !binding.postTestFailed &&
+        !teardownFailed &&
+        binding.failureMethodsDetails.isEmpty &&
+        errorType == null &&
+        successCandidate != null;
+    final targetDirectory = directory;
+    if (targetDirectory == null) {
+      // Setup senza sandbox attestato: nessun file success, runner FAIL/timeout.
+      return;
+    }
+    final result = terminalPassed
+        ? successCandidate!
+        : <String, Object?>{
+            'apiVersion': _apiVersion,
+            'phase': phase,
+            'runId': runId,
+            'processId': pid,
+            'status': 'FAIL',
+            'errorType': errorType ?? 'assertion',
+          };
+    binding.reportData = result;
+    await _publishTerminalJson(
+      File(path.join(targetDirectory.path, '$phase.json')),
+      result,
+    );
+  }
+}
+
+Future<void> _publishTerminalJson(File target, Map<String, Object?> value) async {
+  // Unico publisher nel sandbox/run proprio. Prima si chiude il record completo;
+  // il rename finale lo rende osservabile. Un record precedente è preservato.
+  final pending = File('${target.path}.pending-$pid');
+  if (await target.exists()) {
+    throw StateError('Record terminale già presente.');
+  }
+  await _writeNewJson(pending, value);
+  if (await target.exists()) {
+    throw StateError('Record terminale già presente.');
+  }
+  await pending.rename(target.path);
 }
 
 Future<int> _readMarker(File marker, String runId, String shopSlug) async {
@@ -219,7 +312,9 @@ Future<int> _readMarker(File marker, String runId, String shopSlug) async {
 Future<void> _writeNewJson(File file, Map<String, Object?> value) async {
   // dart:io non espone O_EXCL portabile. Lock esclusivo, verifica length==0
   // e append evitano truncate/sovrascrittura; il runner possiede l'unico bundle.
-  if (await file.exists()) throw StateError('Record fixture già presente.');
+  if (await file.exists()) {
+    throw StateError('Record fixture già presente.');
+  }
   final output = await file.open(mode: FileMode.append);
   var locked = false;
   try {
@@ -236,7 +331,10 @@ Future<void> _writeNewJson(File file, Map<String, Object?> value) async {
   }
 }
 
-Future<void> _waitForReady(WidgetTester tester, ProviderContainer container) async {
+Future<void> _waitForReady(
+  WidgetTester tester,
+  ProviderContainer container,
+) async {
   for (var attempt = 0; attempt < 500; attempt++) {
     final state = container.read(cartControllerProvider);
     if (state.status == CartViewStatus.ready && state.snapshot != null) {
@@ -277,14 +375,21 @@ Future<void> _assertRestoredCartUi(WidgetTester tester) async {
   expect(find.byType(CartScreen), findsOneWidget);
   final context = tester.element(find.byType(CartScreen));
   final l10n = AppLocalizations.of(context);
-  for (final expected in [(_firstId, _firstName, 2), (_secondId, _secondName, 1)]) {
+  for (final expected in [
+    (_firstId, _firstName, 2),
+    (_secondId, _secondName, 1),
+  ]) {
     expect(find.byKey(ValueKey('cart-line-${expected.$1}')), findsOneWidget);
     expect(find.text(expected.$2), findsOneWidget);
     final quantity = find.byKey(ValueKey('cart-quantity-${expected.$1}'));
     await tester.ensureVisible(quantity);
     await tester.pumpAndSettle();
-    expect(tester.widget<Text>(quantity).data, l10n.cartQuantityLabel(expected.$3));
-    final viewport = Offset.zero & tester.view.physicalSize / tester.view.devicePixelRatio;
+    expect(
+      tester.widget<Text>(quantity).data,
+      l10n.cartQuantityLabel(expected.$3),
+    );
+    final viewport =
+        Offset.zero & tester.view.physicalSize / tester.view.devicePixelRatio;
     expect(tester.getRect(quantity).overlaps(viewport), isTrue);
   }
   final subtotal = find.byKey(const ValueKey('cart-subtotal'));

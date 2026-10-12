@@ -480,7 +480,7 @@ void main() {
         );
         expect(state.order?.id, checkoutTestOrder);
         expect(replay.loadOptionsCalls, 0);
-      expect(replay.orderRequests, hasLength(1));
+        expect(replay.orderRequests, hasLength(1));
         expect(replay.orderRequests.single.quoteId, checkoutTestQuote);
         expect(replay.orderRequests.single.version, 2);
         expect(

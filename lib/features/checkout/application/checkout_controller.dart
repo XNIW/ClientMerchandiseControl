@@ -125,7 +125,11 @@ final class CheckoutController extends Notifier<CheckoutState> {
       _lastState = recovery;
       final recoveryContext = _captureContext();
       if (active != null && recoveryContext != null) {
-        _finishOrderTransport(active, recoveryContext, rememberedPending!.idempotencyKey);
+        _finishOrderTransport(
+          active,
+          recoveryContext,
+          rememberedPending!.idempotencyKey,
+        );
       }
       return recovery;
     }
@@ -137,6 +141,29 @@ final class CheckoutController extends Notifier<CheckoutState> {
           cart: cart,
         ),
       );
+    }
+    if (identity != null &&
+        (cart == null ||
+            cart.shopSlug != shopSlug ||
+            cart.source != CartSource.account)) {
+      // Il journal ordine è owner/shop scoped e non richiede un nuovo cart.
+      // Uno snapshot guest non diventa il cart account dell'intent precedente.
+      final nextContext = '$shopSlug|${identity.subjectId}|journal|'
+          '${cartState.status.name}|${cartState.failureKind?.name}|'
+          '${cart?.shopSlug}|${cart?.source.name}|${cart?.version}';
+      if (_contextKey == nextContext && _lastState != null) {
+        return _lastState!;
+      }
+      _contextKey = nextContext;
+      final loading = CheckoutState.loading();
+      _lastState = loading;
+      final generation = ++_generation;
+      scheduleMicrotask(() => _loadReceipt(
+        generation,
+        cart: null,
+        preflightOnly: true,
+      ));
+      return loading;
     }
     if (cart == null || cart.shopSlug != shopSlug) {
       return _remember(CheckoutState.loading());
@@ -181,7 +208,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
       return loading;
     }
     final accountSnapshot = accountState.snapshot;
-    final checkoutContextReady = accountSnapshot != null &&
+    final checkoutContextReady =
+        accountSnapshot != null &&
         !(deliveryContextState.status == DeliveryContextViewStatus.loading &&
             deliveryContext == null);
     final addresses = accountSnapshot?.addresses ?? const <CustomerAddress>[];
@@ -241,14 +269,23 @@ final class CheckoutController extends Notifier<CheckoutState> {
         return;
       }
       final cart = state.cart;
-      if (cart == null) return;
+      if (cart == null) {
+        await _loadReceipt(
+          ++_generation,
+          cart: null,
+          preflightOnly: true,
+          ownsOperation: true,
+        );
+        return;
+      }
       await _load(
         ++_generation,
         cart: cart,
         addresses: state.addresses,
         deliveryContext: state.deliveryContext,
         restoreNotice: false,
-        checkoutContextReady: ref.read(checkoutAccountStateProvider).snapshot != null &&
+        checkoutContextReady:
+            ref.read(checkoutAccountStateProvider).snapshot != null &&
             !(ref.read(checkoutDeliveryContextStateProvider).status ==
                     DeliveryContextViewStatus.loading &&
                 ref.read(checkoutDeliveryContextStateProvider).context == null),
@@ -703,10 +740,11 @@ final class CheckoutController extends Notifier<CheckoutState> {
       }
       if (!_isCurrentContext(context)) return;
       if (!checkoutContextReady) {
-        _publish(CheckoutState.loading(cart: cart).copyWith(
-          addresses: addresses,
-          deliveryContext: deliveryContext,
-        ));
+        _publish(
+          CheckoutState.loading(
+            cart: cart,
+          ).copyWith(addresses: addresses, deliveryContext: deliveryContext),
+        );
         return;
       }
       final results = await Future.wait<Object?>([
@@ -807,7 +845,9 @@ final class CheckoutController extends Notifier<CheckoutState> {
 
   Future<void> _loadReceipt(
     int generation, {
-    required CustomerCartSnapshot cart,
+    required CustomerCartSnapshot? cart,
+    bool preflightOnly = false,
+    bool ownsOperation = false,
   }) async {
     final owner = _ownerSubjectId;
     final shop = _shopSlug;
@@ -831,6 +871,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
         options: null,
         paymentOptions: null,
         deliveryContext: null,
+        serializeOrder: !ownsOperation,
       )) {
         return;
       }
@@ -845,6 +886,17 @@ final class CheckoutController extends Notifier<CheckoutState> {
         return;
       }
       if (!_isCurrentContext(context)) return;
+      if (preflightOnly) {
+        final currentCart = ref.read(checkoutCartStateProvider);
+        if (!_isCurrentContext(context)) return;
+        _publish(currentCart.status == CartViewStatus.failure
+            ? CheckoutState.failure(
+                failureKind: CheckoutFailureKind.cartUnavailable,
+                cart: cart,
+              )
+            : CheckoutState.loading(cart: cart));
+        return;
+      }
       _publish(
         CheckoutState.failure(
           failureKind: CheckoutFailureKind.cartUnavailable,
@@ -881,22 +933,23 @@ final class CheckoutController extends Notifier<CheckoutState> {
       }
       // Il trasporto precedente è terminale. Un suo ACK invalidato non è
       // una receipt: l'intent resta disponibile per Retry con la stessa key.
-      _publish(state.copyWith(
-        isBusy: false,
-        failureKind: CheckoutFailureKind.timeout,
-      ));
+      _publish(
+        state.copyWith(isBusy: false, failureKind: CheckoutFailureKind.timeout),
+      );
     }
 
-    unawaited(active.then<void>(
-      (_) => finish(),
-      onError: (Object error, StackTrace stackTrace) => finish(),
-    ));
+    unawaited(
+      active.then<void>(
+        (_) => finish(),
+        onError: (Object error, StackTrace stackTrace) => finish(),
+      ),
+    );
   }
 
   Future<bool> _restoreConfirmedOrder(
     CheckoutLocalDraft? draft, {
     required _CheckoutContext context,
-    required CustomerCartSnapshot cart,
+    required CustomerCartSnapshot? cart,
     required List<CustomerAddress> addresses,
     required CustomerDeliveryContext? deliveryContext,
     required bool restoreNotice,
@@ -904,17 +957,18 @@ final class CheckoutController extends Notifier<CheckoutState> {
     if (!_isCurrentContext(context)) return true;
     final orderId = draft?.orderId;
     if (orderId == null) return false;
-    final response = await ref.read(checkoutRepositoryProvider).readOrder(
-      shopSlug: context.shopSlug,
-      orderId: orderId,
-    );
+    final response = await ref
+        .read(checkoutRepositoryProvider)
+        .readOrder(shopSlug: context.shopSlug, orderId: orderId);
     if (!_isCurrentContext(context)) return true;
     final order = response.order;
     if (response.status != CheckoutOrderRemoteStatus.ok || order == null) {
-      _publish(CheckoutState.failure(
-        failureKind: _failureForOrder(response.status),
-        cart: cart,
-      ));
+      _publish(
+        CheckoutState.failure(
+          failureKind: _failureForOrder(response.status),
+          cart: cart,
+        ),
+      );
       return true;
     }
     // La receipt contiene fulfillment e pagamento server-authoritative;
@@ -938,7 +992,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
   Future<bool> _restorePendingOrder(
     CheckoutLocalDraft? draft, {
     required _CheckoutContext context,
-    required CustomerCartSnapshot cart,
+    required CustomerCartSnapshot? cart,
     required List<CustomerAddress> addresses,
     required StorefrontFulfillmentOptions? options,
     required StorefrontPaymentOptions? paymentOptions,
@@ -971,6 +1025,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
       if (!_isCurrentContext(context)) return;
       await _executeOrder(pending!, context);
     }
+
     if (serializeOrder) {
       await _serialize(execute);
     } else {

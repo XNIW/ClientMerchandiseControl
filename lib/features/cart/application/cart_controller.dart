@@ -585,10 +585,15 @@ final class CartController extends Notifier<CartState> {
           // Add conserva l'intento incrementale. SetQuantity resta assoluto.
           // Un versionConflict attesta che la richiesta non è stata applicata;
           // soltanto qui si ricalcola il target sulla copia autorevole ricevuta.
-          final latestQuantity = snapshot.items
-              .where((line) => line.publicationId == pending.request.publicationId)
-              .firstOrNull
-              ?.quantity ?? 0;
+          final latestQuantity =
+              snapshot.items
+                  .where(
+                    (line) =>
+                        line.publicationId == pending.request.publicationId,
+                  )
+                  .firstOrNull
+                  ?.quantity ??
+              0;
           retryQuantity = latestQuantity + quantityDelta;
           if (retryQuantity > customerCartMaximumQuantity) {
             _pendingMutation = null;

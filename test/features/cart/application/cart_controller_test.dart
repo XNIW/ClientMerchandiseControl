@@ -359,88 +359,129 @@ void main() {
     },
   );
 
-  test('add incrementale dopo conflict preserva la nuova quantità server', () async {
-    final remote = _FakeRemoteRepository(
-      readResponse: CartRemoteResponse(
-        status: CartRemoteStatus.ok,
-        snapshot: _snapshot(
-          source: CartSource.account,
-          version: 4,
-          items: [_line(_publicationId).copyWith(quantity: 2)],
-        ),
-      ),
-      mutationOutcomes: [
-        CartRemoteResponse(
-          status: CartRemoteStatus.versionConflict,
-          snapshot: _snapshot(
-            source: CartSource.account,
-            version: 5,
-            items: [_line(_publicationId).copyWith(quantity: 5)],
-          ),
-        ),
-        CartRemoteResponse(
+  test(
+    'add incrementale dopo conflict preserva la nuova quantità server',
+    () async {
+      final remote = _FakeRemoteRepository(
+        readResponse: CartRemoteResponse(
           status: CartRemoteStatus.ok,
           snapshot: _snapshot(
             source: CartSource.account,
-            version: 6,
-            items: [_line(_publicationId).copyWith(quantity: 6)],
+            version: 4,
+            items: [_line(_publicationId).copyWith(quantity: 2)],
           ),
         ),
-      ],
-    );
-    final keys = [
-      '60000000-0000-4000-8000-000000000001',
-      '60000000-0000-4000-8000-000000000002',
-    ];
-    final container = _container(
-      guest: _FakeGuestStore(),
-      remote: remote,
-      identity: _identity(),
-      keyFactory: () => keys.removeAt(0),
-    );
-    addTearDown(container.dispose);
-    await _waitFor(container, (state) => state.status == CartViewStatus.ready);
+        mutationOutcomes: [
+          CartRemoteResponse(
+            status: CartRemoteStatus.versionConflict,
+            snapshot: _snapshot(
+              source: CartSource.account,
+              version: 5,
+              items: [_line(_publicationId).copyWith(quantity: 5)],
+            ),
+          ),
+          CartRemoteResponse(
+            status: CartRemoteStatus.ok,
+            snapshot: _snapshot(
+              source: CartSource.account,
+              version: 6,
+              items: [_line(_publicationId).copyWith(quantity: 6)],
+            ),
+          ),
+        ],
+      );
+      final keys = [
+        '60000000-0000-4000-8000-000000000001',
+        '60000000-0000-4000-8000-000000000002',
+      ];
+      final container = _container(
+        guest: _FakeGuestStore(),
+        remote: remote,
+        identity: _identity(),
+        keyFactory: () => keys.removeAt(0),
+      );
+      addTearDown(container.dispose);
+      await _waitFor(
+        container,
+        (state) => state.status == CartViewStatus.ready,
+      );
 
-    final result = await container
-        .read(cartControllerProvider.notifier)
-        .addProduct(_product());
+      final result = await container
+          .read(cartControllerProvider.notifier)
+          .addProduct(_product());
 
-    expect(remote.mutationRequests.map((request) => request.quantity), [3, 6]);
-    expect(remote.mutationRequests.map((request) => request.expectedVersion), [4, 5]);
-    expect(remote.mutationRequests.map((request) => request.idempotencyKey).toSet(), hasLength(2));
-    expect(result.outcome, CartActionOutcome.accountConfirmed);
-    expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 6);
-    expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
-  });
+      expect(remote.mutationRequests.map((request) => request.quantity), [
+        3,
+        6,
+      ]);
+      expect(
+        remote.mutationRequests.map((request) => request.expectedVersion),
+        [4, 5],
+      );
+      expect(
+        remote.mutationRequests
+            .map((request) => request.idempotencyKey)
+            .toSet(),
+        hasLength(2),
+      );
+      expect(result.outcome, CartActionOutcome.accountConfirmed);
+      expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 6);
+      expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
+    },
+  );
 
-  test('add oltre limite dopo conflict conserva quantità server e non riscrive', () async {
-    final remote = _FakeRemoteRepository(
-      readResponse: CartRemoteResponse(
-        status: CartRemoteStatus.ok,
-        snapshot: _snapshot(source: CartSource.account, version: 4,
-          items: [_line(_publicationId).copyWith(quantity: 2)]),
-      ),
-      mutationOutcomes: [
-        CartRemoteResponse(
-          status: CartRemoteStatus.versionConflict,
-          snapshot: _snapshot(source: CartSource.account, version: 5,
-            items: [_line(_publicationId).copyWith(quantity: customerCartMaximumQuantity)]),
+  test(
+    'add oltre limite dopo conflict conserva quantità server e non riscrive',
+    () async {
+      final remote = _FakeRemoteRepository(
+        readResponse: CartRemoteResponse(
+          status: CartRemoteStatus.ok,
+          snapshot: _snapshot(
+            source: CartSource.account,
+            version: 4,
+            items: [_line(_publicationId).copyWith(quantity: 2)],
+          ),
         ),
-      ],
-    );
-    final container = _container(guest: _FakeGuestStore(), remote: remote,
-      identity: _identity());
-    addTearDown(container.dispose);
-    await _waitFor(container, (state) => state.status == CartViewStatus.ready);
+        mutationOutcomes: [
+          CartRemoteResponse(
+            status: CartRemoteStatus.versionConflict,
+            snapshot: _snapshot(
+              source: CartSource.account,
+              version: 5,
+              items: [
+                _line(
+                  _publicationId,
+                ).copyWith(quantity: customerCartMaximumQuantity),
+              ],
+            ),
+          ),
+        ],
+      );
+      final container = _container(
+        guest: _FakeGuestStore(),
+        remote: remote,
+        identity: _identity(),
+      );
+      addTearDown(container.dispose);
+      await _waitFor(
+        container,
+        (state) => state.status == CartViewStatus.ready,
+      );
 
-    final result = await container.read(cartControllerProvider.notifier).addProduct(_product());
-    expect(remote.mutationRequests, hasLength(1));
-    expect(result.outcome, CartActionOutcome.rejected);
-    expect(result.failureKind, CartFailureKind.limitReached);
-    expect(container.read(cartControllerProvider).snapshot!.version, 5);
-    expect(container.read(cartControllerProvider).snapshot!.totalQuantity, customerCartMaximumQuantity);
-    expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
-  });
+      final result = await container
+          .read(cartControllerProvider.notifier)
+          .addProduct(_product());
+      expect(remote.mutationRequests, hasLength(1));
+      expect(result.outcome, CartActionOutcome.rejected);
+      expect(result.failureKind, CartFailureKind.limitReached);
+      expect(container.read(cartControllerProvider).snapshot!.version, 5);
+      expect(
+        container.read(cartControllerProvider).snapshot!.totalQuantity,
+        customerCartMaximumQuantity,
+      );
+      expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
+    },
+  );
 
   test('setQuantity esplicita resta assoluta dopo conflict', () async {
     final remote = _FakeRemoteRepository(
@@ -484,11 +525,19 @@ void main() {
     addTearDown(container.dispose);
     await _waitFor(container, (state) => state.status == CartViewStatus.ready);
 
-    await container.read(cartControllerProvider.notifier).setQuantity(_publicationId, 3);
+    await container
+        .read(cartControllerProvider.notifier)
+        .setQuantity(_publicationId, 3);
 
     expect(remote.mutationRequests.map((request) => request.quantity), [3, 3]);
-    expect(remote.mutationRequests.map((request) => request.expectedVersion), [4, 5]);
-    expect(remote.mutationRequests.map((request) => request.idempotencyKey).toSet(), hasLength(2));
+    expect(remote.mutationRequests.map((request) => request.expectedVersion), [
+      4,
+      5,
+    ]);
+    expect(
+      remote.mutationRequests.map((request) => request.idempotencyKey).toSet(),
+      hasLength(2),
+    );
     expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 3);
     expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
   });

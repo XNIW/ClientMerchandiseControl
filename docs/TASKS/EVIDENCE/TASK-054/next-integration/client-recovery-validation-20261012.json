@@ -1,0 +1,466 @@
+{
+  "schema_version": 1,
+  "scope": "TASK054_CLIENT_RECOVERY_VALIDATION",
+  "verification_source_sha": "ba11b0f7f5bb9f751df7fa14d091ff75ee844b65",
+  "base_source_sha": "3f8d3d19a46d95bc7b7eb494a8f5b85a42372428",
+  "imported_evidence_sha": "744cd49e3e4c2caaca3a9812f30b744557140bfb",
+  "pull_request": "https://github.com/XNIW/ClientMerchandiseControl/pull/29",
+  "host_surface": {
+    "platform": "GitHub Ubuntu hosted",
+    "flutter": "3.44.8",
+    "locale_and_geometry": "four locales; light/dark; 320x568; text200",
+    "fonts": {
+      "cjkAvailable": false,
+      "sha256": {
+        "Roboto": "79e851404657dac2106b3d22ad256d47824a9a5765458edb72c9102a45816d95",
+        "MaterialIcons": "d9865b671a09d683d13a863089d8825e0f61a37696ce5d7d448bc8023aa62453"
+      },
+      "scope": "widget_host_existing_fonts_not_native_platform"
+    },
+    "native_platform_acceptance": false
+  },
+  "focused": {
+    "run_id": 38279049882,
+    "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38279049882",
+    "status": "PASS",
+    "exit_code": 0,
+    "analyze": "No issues found",
+    "passed": 166,
+    "formatter_generated_patch_bytes": 0,
+    "formatter_generated_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "causal_negatives": [
+    {
+      "run_id": 38260104850,
+      "source": "lib3f8/test8f52",
+      "status": "FAIL",
+      "exit_code": 1,
+      "passed": 121,
+      "failed": 7,
+      "observation": "partial evidence recovery absent; local read exception after case; refresh clears mutex; late ticket starts Storage; three saving feedback absent"
+    },
+    {
+      "run_id": 38268961126,
+      "source": "af0da0a",
+      "status": "FAIL",
+      "exit_code": 1,
+      "passed": 164,
+      "failed": 1,
+      "observation": "same owner profile update while unobserved; uninitialized provider on reopen before checkpoint assertions"
+    },
+    {
+      "run_id": 38272961135,
+      "source": "e5ad",
+      "status": "FAIL",
+      "exit_code": 1,
+      "passed": 165,
+      "failed": 1,
+      "observation": "RadioListTile without registered group on checkout return"
+    },
+    {
+      "run_id": 38276453669,
+      "source": "9f460ac",
+      "status": "FAIL",
+      "exit_code": 1,
+      "passed": 165,
+      "failed": 1,
+      "observation": "Continua center not hit-testable under Ahem; no causal conclusion"
+    },
+    {
+      "run_id": 38277766880,
+      "source": "7cb79a2",
+      "status": "FAIL",
+      "exit_code": 1,
+      "passed": 165,
+      "failed": 1,
+      "observation": "Roboto frame shows restore SnackBar over Continua; rect448-496 under overlay420-568"
+    },
+    {
+      "run_id": 38278446729,
+      "source": "a2456a2",
+      "status": "FAIL",
+      "exit_code": 1,
+      "passed": 165,
+      "failed": 1,
+      "observation": "Continua tap succeeds with visible SnackBar; later payment-card center not hit-testable; no frame for payment cause"
+    }
+  ],
+  "host_pixels": {
+    "count": 19,
+    "latin_scoped_pass": 15,
+    "cjk_harness_fail": 4,
+    "all_byte_identical_to_a245_reviewed_frames": true,
+    "frames": [
+      {
+        "file": "after-sales-file-unavailable-es-CL-false.png",
+        "sha256": "034d40687395fc831cc275f5e7e5bf71ed618733b61e9fe78d2a0f476bf877b7",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "after-sales-file-unavailable-es-CL-true.png",
+        "sha256": "7d3680d44d43993d3d6a56a67b6c4413070ab9460098a1563fd58e81c7913671",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "after-sales-recovery-en-false.png",
+        "sha256": "3f69c560861afbcc5934fa6a5f6feeb7a4354a5b3871641f349c7f7af3a0ea45",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "after-sales-recovery-en-true.png",
+        "sha256": "fa4a211eea3564176cad09e174c569c39092b79fcc0c4683818f2293f208c06e",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "after-sales-recovery-es-CL-false.png",
+        "sha256": "a3f0c6101046b90394b217923d856c2c0a12ff796393453d2c527325f5eb314d",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "after-sales-recovery-es-CL-true.png",
+        "sha256": "831f89725b692a6faa39335b8b24c8aba0639f202941157cf01ad539a73f58f0",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "after-sales-recovery-it-false.png",
+        "sha256": "2c9758652731948f2876872d25b3510f54a1fed73aeefc36e45ad2b242c691a1",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "after-sales-recovery-it-true.png",
+        "sha256": "541cffe0597041531e71e2d7267d5550f2d87a517a62e654dff99d3e88f1a9ee",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "after-sales-recovery-zh-Hans-false.png",
+        "sha256": "79f38a3999de33fac4c96f782c90bbab1512c72e70dd4ed2d97ac7e6f1ffc93a",
+        "status": "FAIL",
+        "scope": "harness_missing_cjk_glyphs"
+      },
+      {
+        "file": "after-sales-recovery-zh-Hans-true.png",
+        "sha256": "024cb148f54334ba57f09e343de90f75eae50ed6e962325cae4bdf10fda85f1b",
+        "status": "FAIL",
+        "scope": "harness_missing_cjk_glyphs"
+      },
+      {
+        "file": "delivery-checkout-return-compact200.png",
+        "sha256": "e02c018cf1ac44e77c42afc99cfc06eb4442ac98b600741155394e436f0b29ec",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "review-saving-en-false.png",
+        "sha256": "5196990f3646c02ad799de133161b752c2ace53f1946a9715e237959d87a4bf9",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "review-saving-en-true.png",
+        "sha256": "9179ddeac04796ea99adb5bff8151c4b28adb55c5cfdf84ae422c2dc286f14c3",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "review-saving-es-CL-false.png",
+        "sha256": "ad200dca3feab2d01f4f067c3decdd0df34057324c11972069d28ae49ad5a727",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "review-saving-es-CL-true.png",
+        "sha256": "2c24ec0175620156ad7a0fbac0f442b3e26ddc2f1a16ea72796eb1a1ffa2f46c",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "review-saving-it-false.png",
+        "sha256": "4ead9cbf0fc5bdf85bea0278098d9e56d0c531632a341b72c9869bf7d6760f41",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "review-saving-it-true.png",
+        "sha256": "04d14b52d3c53b3ef9c58b6f4571681625b7b4dbafeb0bb2d935a1cc9c68eb20",
+        "status": "PASS",
+        "scope": "scoped_host_pixels"
+      },
+      {
+        "file": "review-saving-zh-Hans-false.png",
+        "sha256": "b6e9d66be13ecd26aa429843a81ce6fd0381ffe0f03f73f14fd4036be7f55f40",
+        "status": "FAIL",
+        "scope": "harness_missing_cjk_glyphs"
+      },
+      {
+        "file": "review-saving-zh-Hans-true.png",
+        "sha256": "6d96a589086ca298329ddbb76a5364e319d9ae5f72ed7d84b550e33058d9f732",
+        "status": "FAIL",
+        "scope": "harness_missing_cjk_glyphs"
+      }
+    ]
+  },
+  "full_candidate_ci": {
+    "run_id": 38279556447,
+    "source_sha": "ba11b0f7f5bb9f751df7fa14d091ff75ee844b65",
+    "status": "FAIL",
+    "provider_conclusion": "failure",
+    "jobs": [
+      {
+        "name": "iOS Simulator debug build",
+        "status": "PASS",
+        "job_id": 114913221899,
+        "steps": []
+      },
+      {
+        "name": "Android release candidate",
+        "status": "PASS",
+        "job_id": 114913222038,
+        "steps": []
+      },
+      {
+        "name": "iOS address journal restart",
+        "status": "FAIL",
+        "job_id": 114913222089,
+        "steps": [
+          {
+            "name": "Verify synthetic Keychain journal across two iOS processes",
+            "provider_conclusion": "failure"
+          }
+        ]
+      },
+      {
+        "name": "Quality",
+        "status": "PASS",
+        "job_id": 114913222097,
+        "steps": []
+      },
+      {
+        "name": "Android debug build",
+        "status": "PASS",
+        "job_id": 114913222195,
+        "steps": []
+      },
+      {
+        "name": "Android address journal restart",
+        "status": "FAIL",
+        "job_id": 114913222229,
+        "steps": [
+          {
+            "name": "Verify durable synthetic journal across two Android processes",
+            "provider_conclusion": "failure"
+          }
+        ]
+      },
+      {
+        "name": "iOS release candidate",
+        "status": "PASS",
+        "job_id": 114913222310,
+        "steps": []
+      }
+    ],
+    "quality": {
+      "status": "PASS",
+      "formatted_files": 397,
+      "format_changed": 0,
+      "analyze_issues": 0,
+      "host_passed": 1137,
+      "host_skipped": 1,
+      "performance_passed": 11,
+      "scope": "host_budgets_not_physical_phone_latency",
+      "host_skipped_reason": "Android variant delivery-detail golden intentionally skipped; required macOS golden comparison2PASS in iOS job"
+    },
+    "annotations_inspected": {
+      "checks": 7,
+      "failure_annotations": 2,
+      "failure_exit_codes": [
+        124,
+        124
+      ],
+      "other_annotations": "Node20 forced24 upload-artifact; macOSarm64 capacity; Ubuntu label migration notices",
+      "new_application_finding_from_annotations": false
+    }
+  },
+  "ios_compatible_matrix": {
+    "run_id": 38279551486,
+    "status": "FAIL",
+    "exit_code": 124,
+    "surface": "macos15/Xcode26.3/SDK26.2/runtime26.2/minimum14",
+    "prepare": "PASS",
+    "build": "PASS",
+    "security": "PASS",
+    "install_launch": "executed",
+    "smoke": "FAIL",
+    "cause_observed": "debug log reader failed while waiting for VM Service;900s command budget",
+    "full_capture": "NOT_RUN",
+    "png": 0,
+    "cleanup": "PASS",
+    "job_cap_reached": false
+  },
+  "ios_compatible_journal": {
+    "run_id": 38279555420,
+    "status": "FAIL",
+    "surface": "macos15/Xcode26.3/SDK26.2/runtime26.2/minimum14",
+    "phase": "PRE_APP_POSTBOOT_INVENTORY",
+    "command_exit_code": 124,
+    "cause_observed": "simctl list devices --json timed out30s after bootstatus Finished",
+    "app_journal": "NOT_RUN",
+    "png": 0,
+    "cleanup": "FAIL",
+    "quiescence": "NOT_RUN",
+    "job_cap_reached": false
+  },
+  "live_acceptance": "BLOCKED",
+  "signed_test_artifacts": "BLOCKED",
+  "real_assistive_technology": "NOT_RUN",
+  "physical_performance": "NOT_RUN",
+  "historical_preservation": {
+    "capsules_byte_identical_to_744": 80,
+    "consumer_source_digests_verified": 13,
+    "rpc_expected": 57,
+    "indexes_expected": 2,
+    "composite_rows_per_matrix": 31,
+    "distinct_composite_ids": 30,
+    "r24_origins": 2,
+    "historical_e2e_ids": 25
+  },
+  "client_actions_not_performed": [
+    "Mac SDK/UI",
+    "C04/T0/QuietGlobal",
+    "SQL/apply/cron",
+    "Worker/deploy",
+    "inventory native input",
+    "merge/DONE"
+  ],
+  "native_android_fixture": {
+    "status": "PASS",
+    "source_sha": "ba11b0f7f5bb9f751df7fa14d091ff75ee844b65",
+    "test_passed": 92,
+    "flutter_png": 137,
+    "os_png": 4,
+    "pixel_reviewed_flutter": 54,
+    "pixel_reviewed_os": 4,
+    "pixel_review_status": "APPROVED",
+    "pixel_review_scope": "selected_original_pixels_not_live_or_AT",
+    "ime_acceptance": "NOT_RUN",
+    "cleanup": "PASS",
+    "artifact_id": 11761746322,
+    "toolchain": "API35/x86_64/Flutter3.44.8",
+    "inventory_sha256": "b4e51376eac5c9fce002dc7f8f50d693ae092b1fdbc9d1a592dbf525c66ce7d7"
+  },
+  "native_ios_fixture": {
+    "status": "PASS",
+    "source_sha": "ba11b0f7f5bb9f751df7fa14d091ff75ee844b65",
+    "test_passed": 92,
+    "flutter_png": 137,
+    "os_png": 4,
+    "pixel_reviewed_flutter": 54,
+    "pixel_reviewed_os": 4,
+    "pixel_review_status": "APPROVED",
+    "pixel_review_scope": "selected_original_pixels_not_live_or_AT",
+    "ime_acceptance": "NOT_RUN",
+    "cleanup": "PASS",
+    "artifact_id": 11762585176,
+    "toolchain": "macos26/Xcode26.6/SDK26.5/runtime26.5/minimum14/Flutter3.44.8",
+    "inventory_sha256": "a553ad14ab96ae1aba189552b77664671708df6a75253421315ffa2277ebb1b0"
+  },
+  "native_pixel_residuals": [
+    "fileUnavailable_reselection",
+    "new_delivery_checkout_informational_tile_at_200",
+    "inbox_read_row_label"
+  ],
+  "native_pixel_residuals_scope": "not_present_in_canonical_capture; host assertions distinct",
+  "durable_journal": {
+    "android": {
+      "status": "FAIL",
+      "exit_code": 124,
+      "phase": "journal-seed",
+      "observation": "app identity and VM ready; driver seed timeout150s; no causal conclusion",
+      "restart": "NOT_RUN",
+      "backend": "NOT_RUN",
+      "cleanup": "FAIL",
+      "cleanup_observation": "owned forward already absent reported as error; receipt does not attest cleanup success"
+    },
+    "ios": {
+      "status": "FAIL",
+      "exit_code": 124,
+      "phase": "journal-seed",
+      "observation": "own process alive and executable matched; VM URI absent within30s; crash cause NOT_CONFIRMED",
+      "restart": "NOT_RUN",
+      "backend": "NOT_RUN",
+      "process_cleanup": "PASS",
+      "simulator_cleanup": "PASS"
+    }
+  },
+  "cjk_renderer_fixture": {
+    "tools_source_sha": "cb9e9db9f51cbff90a35783b22ff20f65b5f40ea",
+    "run_id": 38283244297,
+    "status": "PASS",
+    "exit_code": 0,
+    "analyze_issues": 0,
+    "tests_passed": 166,
+    "formatter_patch_bytes": 0,
+    "source_pin": "f8d157532fbfaeda587e826d4cd5b21a49186f7c",
+    "font_sha256": "b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a",
+    "spdx_manifest": "https://github.com/notofonts/noto-cjk/blob/f8d157532fbfaeda587e826d4cd5b21a49186f7c/_manifest/spdx_2.2/manifest.spdx.json",
+    "license": "OFL-1.1",
+    "license_reference": "https://github.com/notofonts/noto-cjk/blob/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/LICENSE",
+    "cjk_available": true,
+    "new_cjk_pixels_review_status": "APPROVED",
+    "old_4_cjk_failures_preserved": true,
+    "latin_15_byte_identical_to_ba": true,
+    "regional_sc_face_or_native_parity": "NOT_RUN",
+    "app_test_native_inputs_byte_identical_to_ba": true,
+    "changed_source_paths": [
+      ".github/workflows/task054-source-release.yml"
+    ],
+    "frames": [
+      {
+        "file": "after-sales-recovery-zh-Hans-false.png",
+        "sha256": "a60a4962a77fe8976b7f76a20aae7dc283c4ad35e54304da9ff6d4c163bff059"
+      },
+      {
+        "file": "after-sales-recovery-zh-Hans-true.png",
+        "sha256": "81773b202a99d9aa861b480921d734ad7d6b135819a261359a597f0c4fa88bb7"
+      },
+      {
+        "file": "review-saving-zh-Hans-false.png",
+        "sha256": "f8790c0f14ab7fdc05429a123b4e2c6c2a9bdacd32a798d9634595f433a979ee"
+      },
+      {
+        "file": "review-saving-zh-Hans-true.png",
+        "sha256": "7c505d2571ac458a2aaa4f2bc54e5fb035483dfd0a937548e41dc8375355907e"
+      }
+    ]
+  },
+  "independent_review": {
+    "source_contract": "APPROVED",
+    "source_scope": "source_only",
+    "native_selected_pixels": "APPROVED",
+    "host_cjk_pixels": "APPROVED",
+    "evidence_final": "PASS",
+    "global": "BLOCKED",
+    "reason": "mandatory journal/live/schema/Auth/artifact/AT/physical gates not accepted",
+    "evidence_scope": "fidelity_hygiene_provenance_not_global_acceptance",
+    "new_findings": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 0,
+      "P3": 0
+    }
+  },
+  "unsigned_release": {
+    "android": "PASS",
+    "ios": "PASS",
+    "ios_adversarial_validator_fixtures": 89,
+    "source_sha": "ba11b0f7f5bb9f751df7fa14d091ff75ee844b65",
+    "scope": "production_like_unsigned_not_TEST_configuration_signing_install_login"
+  }
+}

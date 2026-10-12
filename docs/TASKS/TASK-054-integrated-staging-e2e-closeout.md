@@ -1,10 +1,10 @@
 # TASK-054 — Integrated staging E2E and closeout
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_REVIEW_BLOCKED
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -1319,3 +1319,39 @@ owner pronti, nessun nuovoSQL o apply da Client.
 
 Nessun merge/DONE/tasksuccessivo; runtime e autenticazione non ereditati dai PASS
 precedenti. Handoff corrente resta CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.
+
+## Fix — consegna terminale del mandato12ottobre
+
+Candidate applicativa ba11b0f, PR29 draft. CI38279556447 terminale5PASS/2FAIL:
+Quality1137/1SKIP+11performancehost,2goldenmacOS, Android/iOS92fixture ciascuno,
+137FlutterPNG+4OS e unsigned2PASS. Journalseed Android/iOSFAIL124, restartNOT_RUN;
+nessuna causaapp inferita. QAtoolscb9/38283244297:166PASS/0analyze/0patch,4CJKnuovi
+leggibili con fixturefont ufficiale; app/test/native e CIcanon byte-identici a ba11.
+I4tofu precedenti restano FAIL storici. AlternativeiOSmatrix/journal FAIL separati,
+cleanup e passi saltati esposti nella capsula, minimum14/budget invariati.
+
+| CA / T esistenti | Esito scoped | Evidence |
+|---|---|---|
+| CA-04/T-04;CA-C6/T-C6;R03/R21/R25 | PASS fixture |166focused, receipt/mutex/reselect/ownerfence, stessa pratica e confermati |
+| CA-04/T-04;CA-C6/T-C6;R18/R22/R30 | PASS host/pixel selezionati |19host,54Flutter+4OS per piattaforma;4CJKnuovi approvati; AT distinto |
+| CA-C1/C2;T-C1/C2 | FAIL mandatoryrestart, PASS journeyhost | journal124; Verify→Backcheckout→slot/riepilogo al200%, nessun ordine |
+| CA-05/T-05;CA-O5/T-O5 | PASS Quality/build/nativefixture; FAIL CIoverall |5PASS/2FAILjournal; goldens e iOSoverflow fixture scoped, non live |
+| CA-02/03;T-02/03 | BLOCKED TEST | ledger161, quattrocanonicheassenti; catalogoattualeNOT_RUN |
+| CA-06/T-06;R24/R29/R30 | BLOCKED integrata | Auth/callback/TESTfirma/R13R14/R24/AT/profile aperti |
+
+[Capsula terminale](EVIDENCE/TASK-054/next-integration/client-recovery-validation-20261012.json)
+e [rapporto](EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md) conservano
+negativi, comandi/esiti/SHA, matrici e owner. FIX consegnato con
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`, nessun APPROVED globale/DONE/merge.
+
+## Review distinta — mandato12ottobre
+
+Trascrizione dei reviewer read-only distinti dall'unico writer: source/contratto
+approvedscoped (repositorya3bc541…/13digest), sourcecheckout proporzionato aiRED,
+54Flutter+4OS originali Android e altrettanti iOS APPROVED_SCOPED;4nuoviCJKhost
+APPROVED_SCOPED, niente tofu. Nessun P0/P1/P2 aperto nel deltaapp; limiti pixel
+nativi espliciti: fileUnavailable/reselect, tiledelivery200 e rigainboxread.
+Re-review evidence distinta conclusa:74JSON,80capsule,13digest, matrici, link e
+hash PNG verificati; fedeltàPASS,0nuoviP0/P1/P2/P3. Esito globale
+`BLOCKED / CODEX_REVIEW_BLOCKED`: gate obbligatori journal/live/schema/Auth/firma/
+AT/profile non chiusi. Nessun DONE/merge/tasksuccessivo.

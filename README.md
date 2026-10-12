@@ -192,17 +192,22 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Stato task**: BLOCKED
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
 
-Mandato12ottobre2026: candidate coerente da3f8d3d19, recupero degli allegati
-assistenza sulla stessa pratica, feedback salvataggio recensione e inbox accessibile.
-Le prove della candidate sono nel rapporto corrente; CI/native/TEST sono gate
-distinti. I checkpoint seguenti restano storici.
+Mandato12ottobre: recupero allegati sulla stessa pratica, saving accessibile,
+semantics inbox e percorso indirizzo→checkout corretti. Candidate applicativa
+ba11b0f: CI38279556447 terminale5PASS/2FAILjournal;1137hostPASS/1goldenSKIP,
+11performancehost,92fixture/137PNG+4OS per Android e iOS; unsigned2PASS.
+QAfontcb9:166PASS/19PNGhost,4CJKnuovi leggibili. Review distinte scoped;
+[rapporto corrente](docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md)
+e [residui](docs/TASKS/EVIDENCE/TASK-054/residuals.md) distinguono gate/provenienza.
+Il limiteSDK27 storico è superato dalla qualifica CI Xcode26.6/minimum14;
+journal, TEST/Auth/firma/R24/AT/profile restano aperti. I checkpoint sotto sono storici.
 
 Il checkpoint PR29 `43fd7af` conserva CI43 terminale: cinque job PASS,
 journal iOS FAIL in preparazione e job smoke/visual CANCELLED30min. Lo smoke

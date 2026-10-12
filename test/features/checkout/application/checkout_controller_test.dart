@@ -356,6 +356,39 @@ void main() {
     },
   );
 
+  test('ordine ambiguo non viene sostituito da Back, selezioni, quote o restart', () async {
+    final repository = FakeCheckoutRepository()
+      ..createOutcomes.add(checkoutTestResponse(quote: checkoutTestQuoteSnapshot()))
+      ..confirmOutcomes.add(checkoutTestResponse(status: CheckoutRemoteStatus.confirmed,
+          quote: checkoutTestQuoteSnapshot(status: CheckoutQuoteStatus.confirmed)))
+      ..orderOutcomes.addAll([const CheckoutRepositoryException(CheckoutFailureKind.timeout),
+          checkoutTestOrderResponse(order: checkoutTestOrderSnapshot(idempotent: true), idempotent: true)]);
+    final store = MemoryCheckoutDraftStore();
+    final container = _container(repository: repository, store: store);
+    addTearDown(container.dispose);
+    await _waitFor(container, (state) => state.status == CheckoutViewStatus.ready);
+    await _reachConfirmedQuote(container);
+    final controller = container.read(checkoutControllerProvider.notifier);
+    await controller.createOrder();
+    final pending = store.draft!.pendingOperation!;
+    await controller.previousStep();
+    await controller.selectMode(CheckoutFulfillmentMode.delivery);
+    await controller.selectSlot(checkoutTestPickupSlot);
+    await controller.createQuote();
+    await controller.confirmQuote();
+    await controller.restart();
+    expect(store.draft!.pendingOperation, same(pending));
+    expect(container.read(checkoutControllerProvider).pendingOperation, same(pending));
+    expect(container.read(checkoutControllerProvider).step, CheckoutStep.confirmation);
+    expect(repository.createRequests, hasLength(1));
+    expect(repository.confirmRequests, hasLength(1));
+    expect(repository.orderRequests, hasLength(1));
+    await controller.retry();
+    expect(repository.orderRequests, hasLength(2));
+    expect(repository.orderRequests.map((request) => request.key).toSet(), {pending.idempotencyKey});
+    expect(store.draft!.orderId, checkoutTestOrder);
+  });
+
   for (final emptyCart in [false, true]) {
     test('recreate container dopo ACK ordine perso riconcilia cart '
         '${emptyCart ? 'vuoto' : 'nuovo non vuoto'} con stessa key', () async {

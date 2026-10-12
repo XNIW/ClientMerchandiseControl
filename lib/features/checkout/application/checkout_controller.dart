@@ -433,7 +433,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
     if (context == null) return Future<void>.value();
     return _serialize(() async {
       if (!_isCurrentContext(context)) return;
-      if (_hasPendingOrder || state.hasOrder) return;
+      if (_hasPendingOrder) return;
       try {
         await ref
             .read(checkoutDraftStoreProvider)
@@ -995,7 +995,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
   }
 
   Future<void> _replaceDraftState(CheckoutState next) async {
-    if (_hasPendingOrder || state.hasOrder) return;
+    if (_hasPendingOrder) return;
     final context = _captureContext();
     if (context != null && await _persist(next, context: context)) {
       _publish(next);

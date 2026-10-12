@@ -1256,15 +1256,28 @@ void main() {
             expect(repository.idempotencyKeys.toSet(), hasLength(1));
           } else {
             expect(repository.drafts, hasLength(1));
-            final recovery = find.byKey(const ValueKey('after-sales-evidence-retry'));
+            final recovery = find.byKey(
+              const ValueKey('after-sales-evidence-retry'),
+            );
             expect(recovery, findsOneWidget);
             await _reveal(tester, recovery);
-            await captureVisual(tester, 'assistance-evidence-partial-upload-failure');
+            await captureVisual(
+              tester,
+              'assistance-evidence-partial-upload-failure',
+            );
             await tester.tap(recovery);
             await tester.pumpAndSettle();
             expect(repository.uploads, hasLength(4));
-            expect(identical(repository.uploads.last, repository.uploads[1]), isTrue, reason: 'Si ritenta solo il file fallito');
-            expect(repository.drafts, hasLength(1), reason: 'Stessa pratica, nessuna seconda create');
+            expect(
+              identical(repository.uploads.last, repository.uploads[1]),
+              isTrue,
+              reason: 'Si ritenta solo il file fallito',
+            );
+            expect(
+              repository.drafts,
+              hasLength(1),
+              reason: 'Stessa pratica, nessuna seconda create',
+            );
           }
           expect(
             find.byKey(const ValueKey('after-sales-submit')),
@@ -1298,7 +1311,10 @@ void main() {
           if (!partialUploadFailure) {
             await _reveal(tester, find.text(l10n.afterSalesEvidence));
             expect(find.text('pending_scan'), findsNothing);
-            expect(find.widgetWithText(ListTile, l10n.afterSalesEvidenceConfirmed), findsNWidgets(3));
+            expect(
+              find.widgetWithText(ListTile, l10n.afterSalesEvidenceConfirmed),
+              findsNWidgets(3),
+            );
             await captureVisual(
               tester,
               'assistance-submitted3-evidence-detail',

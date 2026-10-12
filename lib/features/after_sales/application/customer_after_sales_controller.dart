@@ -300,13 +300,11 @@ final class CustomerAfterSalesController
           CustomerAfterSalesStatus.refunded,
         }.contains(value.status))
       return null;
-    return value != null &&
-            (_attachmentsByCase[value.id]?.any(
-                  (file) =>
-                      file.status !=
-                      CustomerAfterSalesAttachmentStatus.confirmed,
-                ) ??
-                false)
+    return (_attachmentsByCase[value.id]?.any(
+          (file) =>
+              file.status != CustomerAfterSalesAttachmentStatus.confirmed,
+        ) ??
+        false)
         ? value
         : null;
   }

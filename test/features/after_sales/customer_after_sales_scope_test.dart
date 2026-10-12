@@ -35,7 +35,9 @@ void main() {
           location: AppRoutes.afterSalesCreateLocation(orderTestOrder),
           overrides: [
             appConfigProvider.overrideWith((ref) => ref.watch(config)),
-            backendReadinessRepositoryProvider.overrideWithValue(const _NoNetworkReadiness()),
+            backendReadinessRepositoryProvider.overrideWithValue(
+              const _NoNetworkReadiness(),
+            ),
             customerAfterSalesRepositoryProvider.overrideWithValue(repository),
           ],
         );
@@ -259,5 +261,7 @@ class _NoNetworkReadiness implements BackendReadinessRepository {
   @override
   bool get canCheck => false;
   @override
-  Future<BackendReadinessState> check({required BackendProbeCancellation cancellation}) async => BackendReadinessState.offline;
+  Future<BackendReadinessState> check({
+    required BackendProbeCancellation cancellation,
+  }) async => BackendReadinessState.offline;
 }

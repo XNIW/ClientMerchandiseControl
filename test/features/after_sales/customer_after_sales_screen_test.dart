@@ -112,7 +112,10 @@ void main() {
                 200,
                 scrollable: find.byType(Scrollable).first,
               );
-              await tester.ensureVisible(replace);
+              await Scrollable.ensureVisible(
+                tester.element(replace),
+                alignment: 1,
+              );
               await tester.pumpAndSettle();
               await tester.runAsync(() async {
                 final boundary = tester.renderObject<RenderRepaintBoundary>(

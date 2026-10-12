@@ -365,7 +365,7 @@
   "cartRemovedNotice": "Prodotto rimosso dal carrello.",
   "cartClearedNotice": "Carrello svuotato.",
   "cartOfflineError": "Sei offline. Il carrello locale resta disponibile.",
-  "cartTimeoutError": "Il negozio ha impiegato troppo tempo. Riprova senza duplicare l’operazione.",
+  "cartTimeoutError": "La modifica non è confermata. Riprova dal carrello. Dopo un riavvio, verifica le quantità prima di aggiungere di nuovo.",
   "cartUnauthorizedError": "Accedi di nuovo per sincronizzare il carrello.",
   "cartConflictError": "Il carrello è cambiato altrove. Aggiorna e riprova.",
   "cartUnavailableError": "Non possiamo aggiornare il carrello in questo momento.",
@@ -684,5 +684,7 @@
   "afterSalesEvidenceReplace": "Seleziona di nuovo",
   "afterSalesEvidenceReopenHelp": "Alla riapertura restano gli allegati ricevuti. Dopo il riavvio dell’app, seleziona di nuovo i file mancanti.",
   "afterSalesCreating": "Apertura della pratica…",
-  "afterSalesEvidenceInvalid": "File non supportato o troppo grande. Selezionane un altro."
+  "afterSalesEvidenceInvalid": "File non supportato o troppo grande. Selezionane un altro.",
+  "cartLocalSavedNotice": "Salvato nel carrello di questo dispositivo.",
+  "cartPendingConfirmationNotice": "La modifica non è confermata. Riprova dal carrello. Dopo un riavvio, verifica le quantità prima di aggiungere di nuovo."
 }

@@ -677,7 +677,7 @@
   "cartRemovedNotice": "Producto eliminado del carrito.",
   "cartClearedNotice": "Carrito vaciado.",
   "cartOfflineError": "Estás sin conexión. Tu carrito local sigue disponible.",
-  "cartTimeoutError": "La tienda tardó demasiado. Reintenta sin duplicar la operación.",
+  "cartTimeoutError": "El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.",
   "cartUnauthorizedError": "Inicia sesión nuevamente para sincronizar el carrito.",
   "cartConflictError": "El carrito cambió en otro lugar. Actualiza y vuelve a intentarlo.",
   "cartUnavailableError": "No pudimos actualizar el carrito por el momento.",
@@ -1012,5 +1012,7 @@
   "afterSalesEvidenceReplace": "Seleccionar de nuevo",
   "afterSalesEvidenceReopenHelp": "Al reabrir, se conservan los adjuntos recibidos. Tras reiniciar la app, selecciona de nuevo los archivos que faltan.",
   "afterSalesCreating": "Abriendo solicitud…",
-  "afterSalesEvidenceInvalid": "Archivo no compatible o demasiado grande. Selecciona otro."
+  "afterSalesEvidenceInvalid": "Archivo no compatible o demasiado grande. Selecciona otro.",
+  "cartLocalSavedNotice": "Guardado en el carrito de este dispositivo.",
+  "cartPendingConfirmationNotice": "El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar."
 }

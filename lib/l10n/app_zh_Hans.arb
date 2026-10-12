@@ -365,7 +365,7 @@
   "cartRemovedNotice": "商品已从购物车移除。",
   "cartClearedNotice": "购物车已清空。",
   "cartOfflineError": "当前离线，本地购物车仍可使用。",
-  "cartTimeoutError": "商店响应超时。重试不会重复执行该操作。",
+  "cartTimeoutError": "尚未确认此次更改。请在购物车中重试。重启后，请先检查数量，再次添加。",
   "cartUnauthorizedError": "请重新登录以同步购物车。",
   "cartConflictError": "购物车已在其他位置更改，请刷新后重试。",
   "cartUnavailableError": "暂时无法更新购物车。",
@@ -684,5 +684,7 @@
   "afterSalesEvidenceReplace": "重新选择",
   "afterSalesEvidenceReopenHelp": "重新打开后，已收到的附件会保留。重启应用后，请重新选择缺失文件。",
   "afterSalesCreating": "正在创建申请…",
-  "afterSalesEvidenceInvalid": "文件格式不支持或文件过大。请选择其他文件。"
+  "afterSalesEvidenceInvalid": "文件格式不支持或文件过大。请选择其他文件。",
+  "cartLocalSavedNotice": "已保存到此设备的购物车。",
+  "cartPendingConfirmationNotice": "尚未确认此次更改。请在购物车中重试。重启后，请先检查数量，再次添加。"
 }

@@ -10,6 +10,9 @@ import '../../account/application/customer_account_providers.dart';
 import '../../reservations/application/reservation_hold_controller.dart';
 import '../../reservations/application/reservation_hold_providers.dart';
 import '../../storefront/domain/storefront_models.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_state.dart';
+import '../domain/cart_action_result.dart';
 import '../domain/cart_failure.dart';
 import '../domain/cart_models.dart';
 import 'cart_providers.dart';
@@ -26,6 +29,7 @@ final class CartController extends Notifier<CartState> {
   var _generation = 0;
   var _disposed = false;
   Future<void>? _operation;
+  final _adding = <(int, String)>{};
   _PendingMerge? _pendingMerge;
   _PendingMutation? _pendingMutation;
   _PendingRevalidation? _pendingRevalidation;
@@ -37,10 +41,29 @@ final class CartController extends Notifier<CartState> {
       _disposed = true;
       _generation++;
     });
-    final config = ref.watch(appConfigProvider);
-    final identity = ref.watch(customerAccountIdentityProvider);
-    final shopSlug = config.storefrontShopSlug;
-    final contextKey = '$shopSlug|${identity?.subjectId ?? 'guest'}';
+    ref.listen(authControllerProvider, (previous, next) {
+      String? owner(AuthState? value) => switch (value) {
+        AuthAuthenticated(:final customer) => customer.subjectId,
+        _ => null,
+      };
+      if (owner(previous) != owner(next)) {
+        ++_generation;
+        _contextKey = null;
+        _lastState = null;
+        _pendingMerge = null;
+        _pendingMutation = null;
+        _pendingRevalidation = null;
+        state = CartState.loading(isAuthenticated: owner(next) != null);
+        ref.invalidateSelf();
+      }
+    });
+    final shopSlug = ref.watch(
+      appConfigProvider.select((config) => config.storefrontShopSlug),
+    );
+    final subjectId = ref.watch(
+      customerAccountIdentityProvider.select((identity) => identity?.subjectId),
+    );
+    final contextKey = '$shopSlug|${subjectId ?? 'guest'}';
     if (_contextKey == contextKey && _lastState != null) {
       return _lastState!;
     }
@@ -49,7 +72,7 @@ final class CartController extends Notifier<CartState> {
     _pendingMerge = null;
     _pendingMutation = null;
     _pendingRevalidation = null;
-    final authenticated = identity != null;
+    final authenticated = subjectId != null;
     if (shopSlug == null) {
       final failure = CartState.failure(
         isAuthenticated: authenticated,
@@ -66,7 +89,9 @@ final class CartController extends Notifier<CartState> {
   }
 
   Future<void> retry() {
+    final context = _captureContext();
     return _serialize(() async {
+      if (context == null || !_isCurrentContext(context)) return;
       final generation = ++_generation;
       if (_pendingMutation != null) {
         await _retryMutation(generation);
@@ -79,88 +104,119 @@ final class CartController extends Notifier<CartState> {
   }
 
   Future<void> refresh() {
+    final context = _captureContext();
     return _serialize(() async {
+      if (context == null || !_isCurrentContext(context)) return;
       final generation = ++_generation;
-      _pendingMutation = null;
+      if (_pendingMutation != null) {
+        await _retryMutation(generation);
+        return;
+      }
       _pendingRevalidation = null;
       await _load(generation, preserveData: true);
     });
   }
 
-  Future<void> addProduct(
+  Future<CartActionResult> addProduct(
     StorefrontProductSummary product, {
     int quantity = 1,
   }) async {
-    final clock = ref.read(appClockProvider);
-    if (state.busyPublicationIds.contains(product.id)) {
-      _recordAddOutcome(
-        occurredAt: clock(),
-        quantity: quantity,
-        outcome: ObservabilityOutcome.ignored,
-      );
-      return;
+    final context = _captureContext();
+    if (context == null) {
+      return CartActionResult(outcome: CartActionOutcome.rejected,
+          generation: _generation, shopSlug: null, subjectId: null,
+          failureKind: CartFailureKind.invalidInput);
     }
-    try {
-      await _withPublicationBusy(product.id, (context) async {
+    final slot = (context.generation, product.id);
+    if (state.busyPublicationIds.contains(product.id) || !_adding.add(slot)) {
+      return _result(context, CartActionOutcome.ignored);
+    }
+    final clock = ref.read(appClockProvider);
+    final result = await _serialize(() async {
+      if (!_isCurrentContext(context)) {
+        return _result(context, CartActionOutcome.contextChanged);
+      }
+      // Il retry riconcilia la mutation ambigua con la stessa chiave. Un nuovo
+      // add non può sostituire l'intent o sommare di nuovo una quantità già accettata.
+      final pending = _pendingMutation;
+      if (pending != null) {
+        return _result(context, CartActionOutcome.pendingConfirmation,
+            failure: pending.failureKind);
+      }
+      _publish(state.copyWith(
+        busyPublicationIds: {...state.busyPublicationIds, product.id},
+        clearFailure: true, clearNotice: true,
+      ));
+      try {
         final snapshot = _requireSnapshot();
         final current = snapshot.items
-            .where((item) => item.publicationId == product.id)
-            .firstOrNull;
+            .where((item) => item.publicationId == product.id).firstOrNull;
         final target = (current?.quantity ?? 0) + quantity;
         if (quantity < 1 || target > customerCartMaximumQuantity) {
-          throw const CartRepositoryException(CartFailureKind.invalidInput);
+          throw const CartRepositoryException(CartFailureKind.limitReached);
         }
-        if (!state.isAuthenticated) {
-          final updated = await ref
-              .read(guestCartStoreProvider)
-              .setProduct(
-                shopSlug: context.shopSlug,
-                product: product,
-                quantity: target,
-              );
-          if (!_isCurrentContext(context)) return;
-          _setReady(updated, notice: CartNoticeKind.added);
-          return;
+        if (context.subjectId == null) {
+          final updated = await ref.read(guestCartStoreProvider).setProduct(
+            shopSlug: context.shopSlug, product: product, quantity: target,
+          );
+          if (!_isCurrentContext(context)) {
+            return _result(context, CartActionOutcome.contextChanged);
+          }
+          _setReady(updated);
+          return _result(context, CartActionOutcome.localSaved);
         }
         await _prepareReservationMutation(context, product.id);
-        if (!_isCurrentContext(context)) return;
-        await _runMutation(
-          context: context,
-          operation: CartMutationOperation.set,
-          publicationId: product.id,
-          quantity: target,
-          notice: CartNoticeKind.added,
+        if (!_isCurrentContext(context)) {
+          return _result(context, CartActionOutcome.contextChanged);
+        }
+        return await _runMutation(context: context,
+          operation: CartMutationOperation.set, publicationId: product.id,
+          quantity: target, notice: CartNoticeKind.added,
         );
-      });
-      final failure = state.failureKind;
-      _recordAddOutcome(
-        occurredAt: clock(),
-        quantity: quantity,
-        outcome: state.notice == CartNoticeKind.added
-            ? ObservabilityOutcome.success
-            : failure != null
-            ? ObservabilityOutcome.failure
-            : ObservabilityOutcome.ignored,
-        failure: failure == null ? null : _cartFailureCategory(failure),
-      );
-    } on CartRepositoryException catch (error) {
-      _recordAddOutcome(
-        occurredAt: clock(),
-        quantity: quantity,
-        outcome: ObservabilityOutcome.failure,
-        failure: _cartFailureCategory(error.kind),
-      );
-      rethrow;
-    } on Object {
-      _recordAddOutcome(
-        occurredAt: clock(),
-        quantity: quantity,
-        outcome: ObservabilityOutcome.failure,
-        failure: BackendFailureCategory.unexpected,
-      );
-      rethrow;
-    }
+      } on CartRepositoryException catch (error) {
+        if (!_isCurrentContext(context)) {
+          return _result(context, CartActionOutcome.contextChanged);
+        }
+        _setFailure(error.kind, previous: state.snapshot);
+        return _result(context, CartActionOutcome.rejected, failure: error.kind);
+      } on Object {
+        if (!_isCurrentContext(context)) {
+          return _result(context, CartActionOutcome.contextChanged);
+        }
+        _setFailure(CartFailureKind.unexpected, previous: state.snapshot);
+        return _result(context, CartActionOutcome.rejected,
+            failure: CartFailureKind.unexpected);
+      } finally {
+        if (_isCurrentContext(context)) {
+          _publish(state.copyWith(busyPublicationIds:
+              {...state.busyPublicationIds}..remove(product.id)));
+        }
+      }
+    }).whenComplete(() => _adding.remove(slot));
+    _recordAddOutcome(occurredAt: clock(), quantity: quantity,
+      outcome: switch (result.outcome) {
+        CartActionOutcome.localSaved || CartActionOutcome.accountConfirmed =>
+          ObservabilityOutcome.success,
+        CartActionOutcome.rejected || CartActionOutcome.pendingConfirmation =>
+          ObservabilityOutcome.failure,
+        _ => ObservabilityOutcome.ignored,
+      },
+      failure: result.failureKind == null ? null : _cartFailureCategory(result.failureKind!),
+    );
+    return result;
   }
+
+  bool isCurrentActionResult(CartActionResult result) =>
+      !_disposed && result.generation == _generation &&
+      result.shopSlug == _shopSlug &&
+      result.subjectId == ref.read(customerAccountIdentityProvider)?.subjectId;
+
+  CartActionResult _result(_CartInvocationContext context,
+      CartActionOutcome outcome, {CartFailureKind? failure}) => CartActionResult(
+        outcome: outcome, generation: context.generation,
+        shopSlug: context.shopSlug, subjectId: context.subjectId,
+        failureKind: failure,
+      );
 
   void _recordAddOutcome({
     required DateTime occurredAt,
@@ -391,7 +447,7 @@ final class CartController extends Notifier<CartState> {
     }
   }
 
-  Future<void> _runMutation({
+  Future<CartActionResult> _runMutation({
     required _CartInvocationContext context,
     required CartMutationOperation operation,
     String? publicationId,
@@ -411,64 +467,68 @@ final class CartController extends Notifier<CartState> {
       notice: notice,
     );
     _pendingMutation = pending;
-    await _executeMutation(pending, context: context, allowConflictRetry: true);
+    return _executeMutation(pending, context: context, allowConflictRetry: true);
   }
 
-  Future<void> _executeMutation(
+  Future<CartActionResult> _executeMutation(
     _PendingMutation pending, {
     required _CartInvocationContext context,
     required bool allowConflictRetry,
   }) async {
-    if (!_isCurrentContext(context)) return;
-    final generation = context.generation;
+    if (!_isCurrentContext(context)) {
+      return _result(context, CartActionOutcome.contextChanged);
+    }
     try {
-      final response = await ref
-          .read(customerCartRepositoryProvider)
-          .mutate(pending.request);
-      if (!_isCurrentContext(context)) return;
+      final response = await ref.read(customerCartRepositoryProvider).mutate(pending.request);
+      if (!_isCurrentContext(context)) {
+        return _result(context, CartActionOutcome.contextChanged);
+      }
       final snapshot = response.snapshot;
-      if (snapshot == null) {
-        throw const FormatException('cart_mutation_snapshot');
+      if (snapshot == null || snapshot.shopSlug != context.shopSlug ||
+          snapshot.source != CartSource.account) {
+        throw const CartRepositoryException(CartFailureKind.unexpected);
       }
       if (response.status == CartRemoteStatus.versionConflict) {
         if (!allowConflictRetry) {
           throw const CartRepositoryException(CartFailureKind.conflict);
         }
-        final retry = _PendingMutation(
-          request: CartMutationRequest(
-            shopSlug: pending.request.shopSlug,
-            operation: pending.request.operation,
-            publicationId: pending.request.publicationId,
-            quantity: pending.request.quantity,
-            expectedVersion: snapshot.version,
-            idempotencyKey: ref.read(customerIdempotencyKeyFactoryProvider)(),
-          ),
-          notice: pending.notice,
-        );
+        final retry = _PendingMutation(request: CartMutationRequest(
+          shopSlug: pending.request.shopSlug, operation: pending.request.operation,
+          publicationId: pending.request.publicationId, quantity: pending.request.quantity,
+          expectedVersion: snapshot.version,
+          idempotencyKey: ref.read(customerIdempotencyKeyFactoryProvider)(),
+        ), notice: pending.notice);
         _pendingMutation = retry;
-        await _executeMutation(
-          retry,
-          context: context,
-          allowConflictRetry: false,
-        );
-        return;
+        return _executeMutation(retry, context: context, allowConflictRetry: false);
+      }
+      if (response.status == CartRemoteStatus.unavailable ||
+          response.status == CartRemoteStatus.limitReached) {
+        _pendingMutation = null;
+        final failure = response.status == CartRemoteStatus.unavailable
+            ? CartFailureKind.unavailable : CartFailureKind.limitReached;
+        _setReady(snapshot, notice: failure == CartFailureKind.unavailable
+            ? CartNoticeKind.unavailable : CartNoticeKind.limitReached);
+        return _result(context, CartActionOutcome.rejected, failure: failure);
+      }
+      if (response.status != CartRemoteStatus.ok ||
+          (pending.request.operation == CartMutationOperation.set &&
+           !snapshot.items.any((line) => line.publicationId == pending.request.publicationId &&
+               line.quantity == pending.request.quantity && line.isAvailable))) {
+        throw const CartRepositoryException(CartFailureKind.unexpected);
       }
       _pendingMutation = null;
-      if (response.status == CartRemoteStatus.unavailable) {
-        _setReady(snapshot, notice: CartNoticeKind.unavailable);
-      } else if (response.status == CartRemoteStatus.limitReached) {
-        _setReady(snapshot, notice: CartNoticeKind.limitReached);
-      } else {
-        _setReady(snapshot, notice: pending.notice);
+      // AddToCartButton riceve il risultato direttamente: nessun listener può
+      // cancellare l'ACK leggendo/azzerando una notice condivisa.
+      _setReady(snapshot, notice: pending.notice == CartNoticeKind.added ? null : pending.notice);
+      return _result(context, CartActionOutcome.accountConfirmed);
+    } on Object catch (error) {
+      if (!_isCurrentContext(context)) {
+        return _result(context, CartActionOutcome.contextChanged);
       }
-    } on CartRepositoryException catch (error) {
-      if (!_isCurrentContext(context)) return;
-      _setFailure(
-        error.kind,
-        generation: generation,
-        previous: state.snapshot,
-        hasPendingRetry: true,
-      );
+      final failure = error is CartRepositoryException ? error.kind : CartFailureKind.unexpected;
+      pending.failureKind = failure;
+      _setFailure(failure, previous: state.snapshot, hasPendingRetry: true);
+      return _result(context, CartActionOutcome.pendingConfirmation, failure: failure);
     }
   }
 
@@ -582,6 +642,11 @@ final class CartController extends Notifier<CartState> {
     if (context == null) return Future<void>.value();
     return _serialize(() async {
       if (!_isCurrentContext(context)) return;
+      final pending = _pendingMutation;
+      if (pending != null) {
+        _setFailure(pending.failureKind, previous: state.snapshot, hasPendingRetry: true);
+        return;
+      }
       _publish(
         state.copyWith(
           busyPublicationIds: {...state.busyPublicationIds, publicationId},
@@ -611,6 +676,11 @@ final class CartController extends Notifier<CartState> {
     if (context == null) return Future<void>.value();
     return _serialize(() async {
       if (!_isCurrentContext(context)) return;
+      final pending = _pendingMutation;
+      if (pending != null) {
+        _setFailure(pending.failureKind, previous: state.snapshot, hasPendingRetry: true);
+        return;
+      }
       _publish(
         state.copyWith(
           isGlobalBusy: true,
@@ -632,23 +702,18 @@ final class CartController extends Notifier<CartState> {
     });
   }
 
-  Future<void> _serialize(Future<void> Function() action) {
+  Future<T> _serialize<T>(Future<T> Function() action) {
     final previous = _operation;
-    late final Future<void> next;
-    next =
-        (() async {
-          if (previous != null) {
-            try {
-              await previous;
-            } on Object {
-              // La nuova azione non eredita l'errore dell'azione precedente.
-            }
-          }
-          await action();
-        })().whenComplete(() {
-          if (identical(_operation, next)) _operation = null;
-        });
-    _operation = next;
+    final next = (() async {
+      if (previous != null) await previous;
+      return action();
+    })();
+    // La coda attende anche gli errori senza trasferirli alla richiesta seguente.
+    late final Future<void> tail;
+    tail = next.then<void>((_) {}, onError: (Object _, StackTrace _) {}).whenComplete(() {
+      if (identical(_operation, tail)) _operation = null;
+    });
+    _operation = tail;
     return next;
   }
 
@@ -756,10 +821,11 @@ final class _PendingMerge {
 }
 
 final class _PendingMutation {
-  const _PendingMutation({required this.request, required this.notice});
+  _PendingMutation({required this.request, required this.notice});
 
   final CartMutationRequest request;
   final CartNoticeKind notice;
+  CartFailureKind failureKind = CartFailureKind.timeout;
 }
 
 final class _PendingRevalidation {

@@ -79,9 +79,93 @@ void main() {
     expect(find.text(l10n.cartAddedNotice), findsOneWidget);
     expect(remote.requests, hasLength(1));
   });
+  testWidgets('guest conferma salvataggio locale distinto da ACK server', (tester) async {
+    final remote = Remote([]);
+    final container = await mount(tester, remote, guest: true);
+    final l10n = AppLocalizations.of(tester.element(find.byType(AddToCartButton)));
+    await tester.tap(find.byType(FilledButton));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.cartLocalSavedNotice), findsOneWidget);
+    expect(find.text(l10n.cartAddedNotice), findsNothing);
+    expect(remote.requests, isEmpty);
+    expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 1);
+  });
+  testWidgets('due tap nello stesso frame inviano una sola richiesta', (tester) async {
+    final barrier = Completer<CartRemoteResponse>();
+    final remote = Remote([barrier.future]);
+    await mount(tester, remote);
+    await tester.tap(find.byType(FilledButton));
+    await tester.tap(find.byType(FilledButton));
+    await tester.pump();
+    expect(remote.requests, hasLength(1));
+    barrier.complete(CartRemoteResponse(status: CartRemoteStatus.ok,
+        snapshot: snapshot(quantity: 1, version: 5)));
+    await tester.pumpAndSettle();
+    expect(remote.requests, hasLength(1));
+  });
+  for (final change in ['account', 'shop']) {
+    testWidgets('ACK tardivo dopo cambio $change non annuncia successo', (tester) async {
+      final barrier = Completer<CartRemoteResponse>();
+      final remote = Remote([barrier.future]);
+      final container = await mount(tester, remote);
+      final l10n = AppLocalizations.of(tester.element(find.byType(AddToCartButton)));
+      await tester.tap(find.byType(FilledButton));
+      await tester.pump();
+      expect(remote.requests, hasLength(1));
+      if (change == 'account') {
+        container.read(identity.notifier).state = customer(suffix: '2');
+      } else {
+        container.read(shop.notifier).state = 'other-store';
+      }
+      await tester.pumpAndSettle();
+      barrier.complete(CartRemoteResponse(status: CartRemoteStatus.ok,
+          snapshot: snapshot(quantity: 1, version: 5)));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsNothing);
+      expect(find.text(l10n.cartAddedNotice), findsNothing);
+      expect(container.read(cartControllerProvider).snapshot!.items, isEmpty);
+    });
+  }
+  testWidgets('timeout poi add non sostituisce intent; retry riconcilia lo stesso ACK', (tester) async {
+    final remote = Remote([
+      const CartRepositoryException(CartFailureKind.timeout),
+      CartRemoteResponse(status: CartRemoteStatus.ok,
+          snapshot: snapshot(quantity: 1, version: 5)),
+    ]);
+    final container = await mount(tester, remote);
+    final l10n = AppLocalizations.of(tester.element(find.byType(AddToCartButton)));
+    await tester.tap(find.byType(FilledButton));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(FilledButton));
+    await tester.pumpAndSettle();
+    expect(remote.requests, hasLength(1));
+    expect(find.text(l10n.cartAddedNotice), findsNothing);
+    await tester.runAsync(() => container.read(cartControllerProvider.notifier).retry());
+    await tester.pumpAndSettle();
+    expect(remote.requests, hasLength(2));
+    expect(remote.requests[1].idempotencyKey, remote.requests[0].idempotencyKey);
+    expect(remote.requests[1].quantity, remote.requests[0].quantity);
+    expect(remote.requests[1].expectedVersion, remote.requests[0].expectedVersion);
+    expect(container.read(cartControllerProvider).snapshot!.totalQuantity, 1);
+    expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
+  });
+  testWidgets('clearNotice di altro listener non converte un rifiuto in successo', (tester) async {
+    final remote = Remote([CartRemoteResponse(status: CartRemoteStatus.unavailable,
+        snapshot: snapshot())]);
+    final container = await mount(tester, remote);
+    container.listen(cartControllerProvider, (previous, next) {
+      if (next.notice != null) container.read(cartControllerProvider.notifier).clearNotice();
+    });
+    final l10n = AppLocalizations.of(tester.element(find.byType(AddToCartButton)));
+    await tester.tap(find.byType(FilledButton));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.cartProductUnavailable), findsOneWidget);
+    expect(find.text(l10n.cartAddedNotice), findsNothing);
+  });
+
 }
 
-Future<ProviderContainer> mount(WidgetTester tester, Remote remote) async {
+Future<ProviderContainer> mount(WidgetTester tester, Remote remote, {bool guest = false}) async {
   final container = ProviderContainer(
     overrides: [
       appConfigProvider.overrideWith(
@@ -110,6 +194,7 @@ Future<ProviderContainer> mount(WidgetTester tester, Remote remote) async {
       ),
     ],
   );
+  if (guest) container.read(identity.notifier).state = null;
   addTearDown(container.dispose);
   await tester.pumpWidget(
     UncontrolledProviderScope(
@@ -217,32 +302,29 @@ final class Remote implements CustomerCartRepository {
 }
 
 final class Guest implements GuestCartStore {
+  CustomerCartSnapshot? saved;
   @override
   Future<CustomerCartSnapshot> read({required String shopSlug}) async =>
-      CustomerCartSnapshot.empty(shopSlug: shopSlug, source: CartSource.guest);
+      saved ?? CustomerCartSnapshot.empty(shopSlug: shopSlug, source: CartSource.guest);
   @override
-  Future<CustomerCartSnapshot> setProduct({
-    required String shopSlug,
-    required StorefrontProductSummary product,
-    required int quantity,
-  }) async => throw UnimplementedError();
+  Future<CustomerCartSnapshot> setProduct({required String shopSlug,
+    required StorefrontProductSummary product, required int quantity}) async {
+    final account = snapshot(quantity: quantity, version: 0, slug: shopSlug);
+    saved = CustomerCartSnapshot(shopSlug: shopSlug, version: 0,
+      source: CartSource.guest, quoteStatus: CartQuoteStatus.indicative,
+      requiresCustomerReview: false, subtotalClp: account.subtotalClp,
+      idempotent: true, items: account.items.map((line) => line.copyWith(isGuest: true)).toList());
+    return saved!;
+  }
   @override
-  Future<CustomerCartSnapshot> setQuantity({
-    required String shopSlug,
-    required String publicationId,
-    required int quantity,
-  }) async => throw UnimplementedError();
+  Future<CustomerCartSnapshot> setQuantity({required String shopSlug,
+    required String publicationId, required int quantity}) async => throw UnimplementedError();
   @override
-  Future<CustomerCartSnapshot> remove({
-    required String shopSlug,
-    required String publicationId,
-  }) async => throw UnimplementedError();
+  Future<CustomerCartSnapshot> remove({required String shopSlug,
+    required String publicationId}) async => throw UnimplementedError();
   @override
-  Future<CustomerCartSnapshot> clear({required String shopSlug}) async =>
-      throw UnimplementedError();
+  Future<CustomerCartSnapshot> clear({required String shopSlug}) async => throw UnimplementedError();
   @override
-  Future<CustomerCartSnapshot> retainOnly({
-    required String shopSlug,
-    required Set<String> publicationIds,
-  }) async => throw UnimplementedError();
+  Future<CustomerCartSnapshot> retainOnly({required String shopSlug,
+    required Set<String> publicationIds}) async => throw UnimplementedError();
 }

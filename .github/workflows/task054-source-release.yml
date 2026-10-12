@@ -34,6 +34,11 @@ on:
         type: boolean
         default: false
         required: false
+      checkout_journal_baseline:
+        description: Riproduce il recupero journal prima del fix 2f5096c
+        type: boolean
+        default: false
+        required: false
       focused:
         description: Regressioni Client su runner separato; non qualifica build o TEST live
         type: boolean
@@ -80,6 +85,9 @@ jobs:
       - name: Restore cart conflict causal baseline
         if: ${{ inputs.focused && inputs.cart_conflict_baseline }}
         run: git restore --source=a373392 -- lib/features/cart/application/cart_controller.dart
+      - name: Restore checkout journal causal baseline
+        if: ${{ inputs.focused && inputs.checkout_journal_baseline }}
+        run: git restore --source=16f6bd2 -- lib/features/checkout/application/checkout_controller.dart
       - name: Prepare focused source on hosted runner
         if: ${{ inputs.focused }}
         # subosito/flutter-action v2.23.0
@@ -110,6 +118,7 @@ jobs:
           CMC_CLIENT_CAPTURE_DIR: build/task054-client-ui
           CHECKOUT_SCOPE_BASELINE: ${{ inputs.checkout_scope_baseline }}
           CART_CONFLICT_BASELINE: ${{ inputs.cart_conflict_baseline }}
+          CHECKOUT_JOURNAL_BASELINE: ${{ inputs.checkout_journal_baseline }}
         run: |
           bash scripts/resolve-flutter.sh
           flutter pub get --enforce-lockfile
@@ -122,6 +131,9 @@ jobs:
           elif [[ "$CART_CONFLICT_BASELINE" == "true" ]]; then
             flutter analyze lib test/features/cart/application/cart_controller_test.dart
             flutter test test/features/cart/application/cart_controller_test.dart --concurrency=1
+          elif [[ "$CHECKOUT_JOURNAL_BASELINE" == "true" ]]; then
+            flutter analyze lib test/features/checkout/application/checkout_controller_test.dart
+            flutter test test/features/checkout/application/checkout_controller_test.dart --concurrency=1
           else
             flutter analyze
             flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1

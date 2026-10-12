@@ -8,6 +8,7 @@ import '../../../core/observability/observability_providers.dart';
 import '../../../core/time/app_scheduler.dart';
 import '../../account/application/customer_account_providers.dart';
 import '../../account/domain/customer_account_models.dart';
+import '../../cart/application/cart_state.dart';
 import '../../cart/domain/cart_models.dart';
 import '../../delivery_context/application/delivery_context_controller.dart';
 import '../../delivery_context/domain/delivery_context_models.dart';
@@ -45,6 +46,20 @@ final class CheckoutController extends Notifier<CheckoutState> {
     final deliveryContext = deliveryContextState.context;
     final shopSlug = config.storefrontShopSlug;
     final cart = cartState.snapshot;
+    final remembered = _lastState;
+    final rememberedOrder = remembered?.order;
+    final sameOwnerShop = identity != null &&
+        shopSlug != null &&
+        _ownerSubjectId == identity.subjectId &&
+        _shopSlug == shopSlug &&
+        (_contextKey?.startsWith('$shopSlug|${identity.subjectId}|') ?? false);
+    if (sameOwnerShop &&
+        rememberedOrder != null &&
+        rememberedOrder.shopSlug == shopSlug &&
+        (cartState.status != CartViewStatus.ready || cart == null)) {
+      // L'ACK ordine è definitivo; un errore di refresh cart non lo annulla.
+      return remembered!;
+    }
 
     if (shopSlug == null) {
       return _remember(
@@ -500,6 +515,19 @@ final class CheckoutController extends Notifier<CheckoutState> {
           return;
         }
       }
+      // Il cart può essere cambiato o la quote consumata mentre l'ACK ordine
+      // andava perso. Il replay v2 riconcilia quote/version/metodo/key originali.
+      if (await _restorePendingOrder(
+        draft,
+        context: context,
+        cart: cart,
+        addresses: addresses,
+        options: options,
+        paymentOptions: paymentOptions,
+        deliveryContext: deliveryContext,
+      )) {
+        return;
+      }
       if (options.status != FulfillmentOptionsStatus.ok ||
           !options.modes.any((mode) => mode.enabled) ||
           paymentOptions.status != PaymentOptionsStatus.ok ||
@@ -636,24 +664,15 @@ final class CheckoutController extends Notifier<CheckoutState> {
           return;
         }
       }
-      final pending = draft?.pendingOperation;
-      if (pending?.kind == CheckoutPendingOperationKind.order &&
-          pending?.paymentMethod != null &&
-          pending?.paymentMethod == draft?.selection.paymentMethod) {
-        final recovery = CheckoutState(
-          status: CheckoutViewStatus.ready,
-          step: CheckoutStep.confirmation,
-          selection: draft!.selection,
-          addresses: const [],
-          cart: cart,
-          options: options,
-          paymentOptions: paymentOptions,
-          pendingOperation: pending,
-          failureKind: CheckoutFailureKind.timeout,
-          notice: CheckoutNoticeKind.restored,
-        );
-        _publish(recovery);
-        await _executeOrder(pending!, context);
+      if (await _restorePendingOrder(
+        draft,
+        context: context,
+        cart: cart,
+        addresses: const [],
+        options: options,
+        paymentOptions: paymentOptions,
+        deliveryContext: null,
+      )) {
         return;
       }
       _publish(
@@ -676,6 +695,41 @@ final class CheckoutController extends Notifier<CheckoutState> {
         );
       }
     }
+  }
+
+  Future<bool> _restorePendingOrder(
+    CheckoutLocalDraft? draft, {
+    required _CheckoutContext context,
+    required CustomerCartSnapshot cart,
+    required List<CustomerAddress> addresses,
+    required StorefrontFulfillmentOptions options,
+    required StorefrontPaymentOptions paymentOptions,
+    required CustomerDeliveryContext? deliveryContext,
+  }) async {
+    if (!_isCurrentContext(context)) return false;
+    final pending = draft?.pendingOperation;
+    if (pending?.kind != CheckoutPendingOperationKind.order ||
+        pending?.paymentMethod == null ||
+        pending?.paymentMethod != draft?.selection.paymentMethod) {
+      return false;
+    }
+    _publish(
+      CheckoutState(
+        status: CheckoutViewStatus.ready,
+        step: CheckoutStep.confirmation,
+        selection: draft!.selection,
+        addresses: addresses,
+        cart: cart,
+        options: options,
+        paymentOptions: paymentOptions,
+        deliveryContext: deliveryContext,
+        pendingOperation: pending,
+        failureKind: CheckoutFailureKind.timeout,
+        notice: CheckoutNoticeKind.restored,
+      ),
+    );
+    await _executeOrder(pending!, context);
+    return true;
   }
 
   Future<void> _executeCreate(

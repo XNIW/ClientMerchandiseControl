@@ -138,6 +138,35 @@ void main() {
       );
     },
   );
+  test('feed aggiorna marker senza fit e recenter usa la scena più recente', () async {
+    final adapter = GoogleDeliveryMapAdapter();
+    final controller = _CameraController();
+    await adapter.render(scene);
+    await adapter.attachController(controller);
+    expect(controller.moveCalls, 1);
+    final updated = DeliveryMapScene(
+      store: scene.store, destination: scene.destination,
+      courier: const DeliveryCoordinate(latitude: -33.50, longitude: -70.70),
+      snapshotVersion: scene.snapshotVersion + 1,
+    );
+    await adapter.render(updated);
+    expect(controller.moveCalls, 1);
+    expect(controller.animateCalls, 0);
+    await adapter.recenter(animated: false);
+    final expected = CameraUpdate.newLatLngBounds(
+      LatLngBounds(
+        southwest: const LatLng(-33.50, -70.70),
+        northeast: LatLng(scene.store.latitude > scene.destination.latitude ? scene.store.latitude : scene.destination.latitude, scene.store.longitude > scene.destination.longitude ? scene.store.longitude : scene.destination.longitude),
+      ), 40,
+    );
+    expect(controller.moves.last.toJson(), expected.toJson());
+    expect(controller.moveCalls, 2);
+    await adapter.recenter(animated: true);
+    expect(controller.animateCalls, 1);
+    expect(controller.animations.last.toJson(), expected.toJson());
+    await adapter.dispose();
+  });
+
 }
 
 final class _CameraController implements DeliveryMapCameraController {
@@ -155,10 +184,13 @@ final class _CameraController implements DeliveryMapCameraController {
   var moveCalls = 0;
   var animateCalls = 0;
   var disposeCalls = 0;
+  final moves = <CameraUpdate>[];
+  final animations = <CameraUpdate>[];
 
   @override
   Future<void> animateCamera(CameraUpdate update) async {
     animateCalls++;
+    animations.add(update);
   }
 
   @override
@@ -170,6 +202,7 @@ final class _CameraController implements DeliveryMapCameraController {
   @override
   Future<void> moveCamera(CameraUpdate update) async {
     moveCalls++;
+    moves.add(update);
     if (moveStarted != null && !moveStarted!.isCompleted) {
       moveStarted!.complete();
     }

@@ -1014,5 +1014,9 @@
   "afterSalesCreating": "Abriendo solicitud…",
   "afterSalesEvidenceInvalid": "Archivo no compatible o demasiado grande. Selecciona otro.",
   "cartLocalSavedNotice": "Guardado en el carrito de este dispositivo.",
-  "cartPendingConfirmationNotice": "El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar."
+  "cartPendingConfirmationNotice": "El cambio no está confirmado. Reintenta desde el carrito. Si reinicias, revisa las cantidades antes de volver a agregar.",
+  "deliveryTrackingEtaUnavailable": "La tienda aún no informó una ventana estimada.",
+  "deliveryTrackingEtaExpired": "La ventana estimada anterior terminó. Esperamos una actualización de la tienda.",
+  "deliveryTrackingMapExpand": "Ampliar el mapa de la entrega",
+  "deliveryTrackingMapCollapse": "Reducir el mapa de la entrega"
 }

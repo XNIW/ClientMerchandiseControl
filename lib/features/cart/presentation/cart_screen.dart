@@ -612,7 +612,7 @@ class _CartSummary extends ConsumerWidget {
     final savingsClp = snapshot.items.fold<int>(0, (total, line) {
       final compareAt = line.compareAtPriceClp;
       return total +
-          (compareAt != null && compareAt > line.priceClp
+          (line.isAvailable && compareAt != null && compareAt > line.priceClp
               ? (compareAt - line.priceClp) * line.quantity
               : 0);
     });
@@ -721,6 +721,8 @@ class _CartSummary extends ConsumerWidget {
                     key: const ValueKey('cart-checkout'),
                     onPressed: state.isBusy
                         ? null
+                        : state.hasPendingRetry
+                        ? ref.read(cartControllerProvider.notifier).retry
                         : contextReady
                         ? () => context.push(AppRoutes.checkoutLocation)
                         : () => context.push(AppRoutes.deliveryContextLocation),
@@ -731,7 +733,9 @@ class _CartSummary extends ConsumerWidget {
                           )
                         : const Icon(Icons.shopping_bag_outlined),
                     label: Text(
-                      !contextReady
+                      state.hasPendingRetry
+                          ? l10n.cartRetryAction
+                          : !contextReady
                           ? l10n.cartChooseDelivery
                           : state.isAuthenticated
                           ? l10n.cartCheckoutAction

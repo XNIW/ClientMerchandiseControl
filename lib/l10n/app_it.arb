@@ -686,5 +686,9 @@
   "afterSalesCreating": "Apertura della pratica…",
   "afterSalesEvidenceInvalid": "File non supportato o troppo grande. Selezionane un altro.",
   "cartLocalSavedNotice": "Salvato nel carrello di questo dispositivo.",
-  "cartPendingConfirmationNotice": "La modifica non è confermata. Riprova dal carrello. Dopo un riavvio, verifica le quantità prima di aggiungere di nuovo."
+  "cartPendingConfirmationNotice": "La modifica non è confermata. Riprova dal carrello. Dopo un riavvio, verifica le quantità prima di aggiungere di nuovo.",
+  "deliveryTrackingEtaUnavailable": "Il negozio non ha ancora comunicato una finestra stimata.",
+  "deliveryTrackingEtaExpired": "La finestra stimata precedente è terminata. Attendiamo un aggiornamento dal negozio.",
+  "deliveryTrackingMapExpand": "Espandi la mappa della consegna",
+  "deliveryTrackingMapCollapse": "Riduci la mappa della consegna"
 }

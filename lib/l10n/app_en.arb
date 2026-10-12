@@ -686,5 +686,9 @@
   "afterSalesCreating": "Opening case…",
   "afterSalesEvidenceInvalid": "Unsupported file or too large. Select another.",
   "cartLocalSavedNotice": "Saved in this device’s cart.",
-  "cartPendingConfirmationNotice": "The change is not confirmed. Retry from the cart. After restarting, check quantities before adding again."
+  "cartPendingConfirmationNotice": "The change is not confirmed. Retry from the cart. After restarting, check quantities before adding again.",
+  "deliveryTrackingEtaUnavailable": "The store has not provided an estimated delivery window yet.",
+  "deliveryTrackingEtaExpired": "The previous estimated window has ended. Awaiting an update from the store.",
+  "deliveryTrackingMapExpand": "Expand the delivery map",
+  "deliveryTrackingMapCollapse": "Collapse the delivery map"
 }

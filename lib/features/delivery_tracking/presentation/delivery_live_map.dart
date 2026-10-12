@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/services.dart';
 import '../../../app/design_system/tokens/app_radii.dart';
 import '../../../app/design_system/tokens/app_sizes.dart';
 import '../../../app/design_system/tokens/app_spacing.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../application/delivery_map_adapter.dart';
 import '../domain/delivery_tracking_models.dart';
 import 'google_delivery_map_adapter.dart';
@@ -100,6 +102,7 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
   DeliveryMapAdapter? _runtimeBoundAdapter;
   bool? _nativeConfigurationReady;
   var _providerRuntimeReady = false;
+  var _expanded = false;
   var _generation = 0;
   var _providerGeneration = 0;
 
@@ -251,6 +254,7 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
 
   Future<void> _releaseProvider() async {
     _providerGeneration++;
+    _expanded = false;
     _providerReadyTimer?.cancel();
     _providerReadyTimer = null;
     final runtimeSubscription = _runtimeSubscription;
@@ -267,6 +271,11 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
     } else {
       await adapter?.dispose();
     }
+  }
+
+  void _toggleExpanded() {
+    // Cambia soltanto il layout: il viewport scelto dal cliente resta invariato.
+    setState(() => _expanded = !_expanded);
   }
 
   Future<void> _recenter() async {
@@ -358,9 +367,25 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
         label: providerRuntimeReady
             ? widget.semanticsLabel
             : widget.loadingLabel,
-        child: AspectRatio(
-          aspectRatio: 16 / 9,
-          child: ClipRRect(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final media = MediaQuery.of(context);
+            final available = math.max(
+              128.0,
+              media.size.height - media.padding.vertical - media.viewInsets.bottom,
+            );
+            final compactHeight = math.max(
+              64.0,
+              math.min(constraints.maxWidth * 9 / 16, available * 0.55),
+            );
+            final expandedHeight = math.max(
+              compactHeight,
+              math.min(constraints.maxWidth, available * 0.75),
+            );
+            final l10n = AppLocalizations.of(context);
+            return SizedBox(
+              height: _expanded ? expandedHeight : compactHeight,
+              child: ClipRRect(
             borderRadius: BorderRadius.circular(AppRadii.surface),
             child: Stack(
               fit: StackFit.expand,
@@ -376,7 +401,28 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
                     ).colorScheme.surfaceContainerHighest,
                     child: const Center(child: CircularProgressIndicator()),
                   )
-                else
+                else ...[
+                  PositionedDirectional(
+                    start: 8,
+                    top: 8,
+                    child: Material(
+                      color: Theme.of(context).colorScheme.surface,
+                      elevation: 2,
+                      shape: const CircleBorder(),
+                      child: IconButton(
+                        key: const ValueKey('delivery-map-expand'),
+                        tooltip: _expanded
+                            ? l10n.deliveryTrackingMapCollapse
+                            : l10n.deliveryTrackingMapExpand,
+                        constraints: const BoxConstraints.tightFor(
+                          width: AppSizes.minimumTouchTarget,
+                          height: AppSizes.minimumTouchTarget,
+                        ),
+                        onPressed: _toggleExpanded,
+                        icon: Icon(_expanded ? Icons.fullscreen_exit : Icons.fullscreen),
+                      ),
+                    ),
+                  ),
                   PositionedDirectional(
                     end: 8,
                     bottom: 8,
@@ -396,9 +442,12 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
                       ),
                     ),
                   ),
+                ],
               ],
             ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

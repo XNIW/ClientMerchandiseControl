@@ -170,13 +170,18 @@ final class DeliveryTrackingController
     );
 
     if (!forceRefresh) {
-      final cached = await ref
-          .read(deliveryTrackingCacheProvider)
-          .read(
-            ownerSubjectId: subjectId,
-            shopSlug: shopSlug,
-            orderId: orderId,
-          );
+      DeliveryTrackingSnapshot? cached;
+      try {
+        cached = await ref
+            .read(deliveryTrackingCacheProvider)
+            .read(
+              ownerSubjectId: subjectId,
+              shopSlug: shopSlug,
+              orderId: orderId,
+            );
+      } on Object {
+        // La cache fallibile non impedisce la lettura autorevole.
+      }
       if (!_isCurrent(generation, orderId)) return;
       if (cached != null) {
         _publish(
@@ -199,8 +204,16 @@ final class DeliveryTrackingController
   Future<void> refresh() async {
     final orderId = _orderId;
     if (orderId == null) return;
+    final generation = _generation;
     _publish(state.copyWith(isRefreshing: true, failure: null));
-    await _load(_generation, orderId);
+    await _load(generation, orderId);
+    if (_isCurrent(generation, orderId) &&
+        _runtimeAllowed &&
+        _subscription == null &&
+        state.status == DeliveryTrackingStatus.ready &&
+        state.snapshot?.isTerminal == false) {
+      _startRuntime(generation, orderId);
+    }
   }
 
   Future<void> close({bool clearCache = false}) async {
@@ -299,6 +312,22 @@ final class DeliveryTrackingController
             ),
           );
         }
+        final stopRuntime = _stopRuntime();
+        final purgeCache = _clearCacheAfterSnapshots(subjectId, cache);
+        await Future.wait([stopRuntime, purgeCache]);
+        return;
+      }
+      if (failure == DeliveryTrackingFailureKind.notFound) {
+        // Invalida i callback precedenti, conservando l ordine per il retry.
+        _generation++;
+        _publish(
+          DeliveryTrackingViewState(
+            status: DeliveryTrackingStatus.failure,
+            orderId: orderId,
+            failure: DeliveryTrackingFailureKind.notFound,
+            isForeground: _foreground,
+          ),
+        );
         final stopRuntime = _stopRuntime();
         final purgeCache = _clearCacheAfterSnapshots(subjectId, cache);
         await Future.wait([stopRuntime, purgeCache]);

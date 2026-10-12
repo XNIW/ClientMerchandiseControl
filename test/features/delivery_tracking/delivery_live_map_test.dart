@@ -375,6 +375,46 @@ void main() {
       expect(tester.takeException(), isNull, reason: '$testCase');
     }
   });
+  testWidgets('espansione in-place conserva adapter e freshness rimuove la mappa', (tester) async {
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.binding.setSurfaceSize(const Size(320, 568));
+    final adapter = FakeDeliveryMapAdapter();
+    var factoryCalls = 0;
+    DeliveryMapAdapter factory() { factoryCalls++; return adapter; }
+    final DeliveryMapSurfaceBuilder surface = ({required adapter, required scene, required labels, required brightness}) => const ColoredBox(color: Colors.teal);
+    Future<void> pump(DeliveryTrackingSnapshot snapshot) async {
+      await tester.pumpWidget(_mapApp(
+        snapshot: snapshot, configuration: enabledConfiguration,
+        adapterFactory: factory, surfaceBuilder: surface,
+        textScaler: const TextScaler.linear(2),
+      ));
+      await tester.pumpAndSettle();
+    }
+    await pump(trackingLiveSnapshot());
+    final map = find.byKey(const ValueKey('delivery-live-map'));
+    final expand = find.byKey(const ValueKey('delivery-map-expand'));
+    final initialHeight = tester.getSize(map).height;
+    expect(tester.getSize(expand), const Size(48, 48));
+    await tester.tap(expand);
+    await tester.pumpAndSettle();
+    expect(tester.getSize(map).height, greaterThan(initialHeight));
+    expect(factoryCalls, 1);
+    expect(adapter.disposeCalls, 0);
+    expect(adapter.recenterCalls, 0);
+    await tester.tap(find.byKey(const ValueKey('delivery-map-recenter')));
+    await tester.pumpAndSettle();
+    expect(adapter.recenterCalls, 1);
+    await pump(trackingLiveSnapshot(version: 5));
+    expect(adapter.scenes.last.snapshotVersion, 5);
+    expect(factoryCalls, 1);
+    await pump(trackingLiveSnapshot(version: 6, freshness: 'stale'));
+    expect(map, findsNothing);
+    expect(expand, findsNothing);
+    expect(adapter.disposeCalls, 1);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
 }
 
 Widget _mapApp({

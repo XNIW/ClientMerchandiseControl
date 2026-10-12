@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Un simulatore iOS proprio, riusabile fra smoke e visual in step separati."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
+import plistlib
 import re
 import signal
 import stat
@@ -26,6 +28,116 @@ class Failure(Exception):
     def __init__(self, code, reason, output=''):
         super().__init__(reason)
         self.code, self.output = code, output
+
+
+def owned_descriptor_observation(record, devices_root=None):
+    """Metadata del solo UUID creato, non attestazione readiness o schema nativo."""
+    device = record.get('device', '')
+    if (not isinstance(device, str) or not UUID.fullmatch(device) or
+            record.get('creationStarted') is not True or
+            record.get('bootstatusCompleted') is not True or
+            record.get('cleanup') != 'NOT_RUN' or
+            record.get('processCleanupFailed') or
+            record.get('ownerContext') != {key: os.environ.get(key) for key in OWNER_CONTEXT} or
+            not re.fullmatch(r'[0-9a-f]{32}', record.get('nonce', '')) or
+            record.get('name') != PREFIX + record['nonce']):
+        raise Failure(2, 'descriptor observation senza ownership/bootstatus')
+    # Parametro interno solo per test filesystem sintetici; CLI senza override.
+    base = Path(devices_root) if devices_root is not None else (
+        Path.home() / 'Library/Developer/CoreSimulator/Devices')
+    owner = os.geteuid()
+    base_before = base.lstat()
+    if not stat.S_ISDIR(base_before.st_mode) or base_before.st_uid != owner:
+        raise Failure(2, 'directory descriptor non propria/regolare')
+    fds = []
+    try:
+        # Openat ancorato a FD propri: O_NOFOLLOW sul solo file finale non
+        # impedisce una sostituzione symlink della directory UUID intermedia.
+        base_fd = os.open(base, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY)
+        fds.append(base_fd)
+        base_opened = os.fstat(base_fd)
+        if (base_opened.st_dev, base_opened.st_ino, base_opened.st_uid) != (
+                base_before.st_dev, base_before.st_ino, owner):
+            raise Failure(2, 'directory base cambiata prima della lettura')
+        device_before = os.stat(device, dir_fd=base_fd, follow_symlinks=False)
+        if not stat.S_ISDIR(device_before.st_mode) or device_before.st_uid != owner:
+            raise Failure(2, 'directory UUID non propria/regolare')
+        device_fd = os.open(device, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY,
+                            dir_fd=base_fd)
+        fds.append(device_fd)
+        device_opened = os.fstat(device_fd)
+        if (device_opened.st_dev, device_opened.st_ino, device_opened.st_uid) != (
+                device_before.st_dev, device_before.st_ino, owner):
+            raise Failure(2, 'directory UUID cambiata prima della lettura')
+        before = os.stat('device.plist', dir_fd=device_fd, follow_symlinks=False)
+        if not stat.S_ISREG(before.st_mode) or before.st_uid != owner or before.st_size > 65536:
+            raise Failure(2, 'descriptor non proprio/regolare/bounded')
+        # O_NONBLOCK evita attese su FIFO/device sostituiti tra stat e open;
+        # fstat sotto mantiene accettabile soltanto il file regolare bounded.
+        descriptor = os.open('device.plist', os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                             dir_fd=device_fd)
+        fds.append(descriptor)
+        opened = os.fstat(descriptor)
+        if (not stat.S_ISREG(opened.st_mode) or opened.st_size > 65536 or
+                (opened.st_dev, opened.st_ino, opened.st_uid) != (
+                    before.st_dev, before.st_ino, owner)):
+            raise Failure(2, 'descriptor sostituito prima della lettura')
+        data = os.read(descriptor, 65537)
+        if len(data) > 65536:
+            raise Failure(2, 'descriptor oltre il limite')
+        after = os.stat('device.plist', dir_fd=device_fd, follow_symlinks=False)
+        device_after = os.stat(device, dir_fd=base_fd, follow_symlinks=False)
+        base_after = base.lstat()
+        if (not stat.S_ISDIR(base_after.st_mode) or
+                not stat.S_ISDIR(device_after.st_mode) or
+                not stat.S_ISREG(after.st_mode) or
+                (base_after.st_dev, base_after.st_ino, base_after.st_uid) != (
+                    base_opened.st_dev, base_opened.st_ino, owner) or
+                (device_after.st_dev, device_after.st_ino, device_after.st_uid) != (
+                    device_opened.st_dev, device_opened.st_ino, owner) or
+                (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns) != (
+                    opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns)):
+            raise Failure(2, 'descriptor/namespace cambiato durante la lettura')
+    finally:
+        for descriptor in reversed(fds):
+            os.close(descriptor)
+    try:
+        payload = plistlib.loads(data)
+    except Failure:
+        raise
+    except Exception:
+        # ExpatError XML e gli altri errori parser non sono tutti ValueError.
+        # Normalizzare in Failure mantiene il cleanup del UUID già creato.
+        raise Failure(2, 'descriptor plist non decodificabile') from None
+    if not isinstance(payload, dict) or len(payload) > 128 or any(
+            not isinstance(key, str) or not re.fullmatch(r'[A-Za-z][A-Za-z0-9_]{0,63}', key)
+            for key in payload):
+        raise Failure(2, 'schema descriptor non bounded/oggetto')
+    selected = {}
+    expected = {'UDID': device, 'name': record['name'], 'runtime': record.get('runtime')}
+    for key in ('UDID', 'name', 'runtime', 'deviceType', 'deviceTypeIdentifier', 'state'):
+        field = {'present': key in payload}
+        if key in payload:
+            value = payload[key]
+            field['type'] = type(value).__name__
+            if key in expected:
+                field['matchesExpected'] = value == expected[key]
+            if (key == 'UDID' and isinstance(value, str) and value == device or
+                    key == 'name' and isinstance(value, str) and value == record['name'] or
+                    key in ('runtime', 'deviceType', 'deviceTypeIdentifier') and
+                    isinstance(value, str) and re.fullmatch(
+                        r'com\.apple\.CoreSimulator\.Sim(?:Runtime|DeviceType)\.[A-Za-z0-9._-]{1,100}', value) or
+                    key == 'state' and type(value) is int and 0 <= value <= 16 or
+                    key == 'state' and value in ('Booted', 'Shutdown', 'Booting', 'Creating')):
+                field['value'] = value
+        selected[key] = field
+    return {
+        'kind': 'owned-device-descriptor-observation.v1',
+        'descriptorRead': 'PASS', 'readiness': 'NOT_RUN', 'nativeApp': 'NOT_RUN',
+        'fileBytes': len(data), 'fileSha256': hashlib.sha256(data).hexdigest(),
+        'fileOwnerMatches': True, 'fileIdentityStable': True, 'symlinkRejected': True,
+        'topLevelKeys': sorted(payload), 'fields': selected,
+    }
 
 
 def process_diagnostic(operation, error=None, **metadata):
@@ -280,7 +392,7 @@ class IosOwnedRunner:
             raise Failure(2, 'simulatore richiesto non Booted/disponibile')
         return True
 
-    def prepare(self, headless=False, readiness_attestation='inventory'):
+    def prepare(self, headless=False, readiness_attestation='inventory', observe_descriptor=False):
         self.record = {'schemaVersion': 1, 'nonce': uuid.uuid4().hex,
                        'device': None, 'creationStarted': False, 'cleanup': 'NOT_RUN'}
         if readiness_attestation not in ('inventory', OWNED_ENVIRONMENT):
@@ -333,8 +445,20 @@ class IosOwnedRunner:
         if not headless:
             self.command(['open', '-a', simulator, '--args', '-CurrentDeviceUDID', device], 60)
         self.command(['xcrun', 'simctl', 'bootstatus', device, '-b'], 300)
-        if readiness_attestation == OWNED_ENVIRONMENT:
+        if readiness_attestation == OWNED_ENVIRONMENT or observe_descriptor:
             self.record['bootstatusCompleted'] = True
+            self.persist()
+        if observe_descriptor:
+            try:
+                self.record['ownedDescriptorObservation'] = owned_descriptor_observation(self.record)
+            except (Failure, OSError, ValueError) as error:
+                if isinstance(error, Failure) and error.code >= 128:
+                    raise
+                self.record['ownedDescriptorObservation'] = {
+                    'kind': 'owned-device-descriptor-observation.v1',
+                    'descriptorRead': 'FAIL', 'readiness': 'NOT_RUN', 'nativeApp': 'NOT_RUN',
+                    'errorType': type(error).__name__,
+                }
             self.persist()
         self.check_device(device, ready=True, owned=True)
         self.record['ready'] = True
@@ -466,6 +590,8 @@ def main(argv=None):
     prepare.add_argument('--readiness-attestation',
                          choices=('inventory', OWNED_ENVIRONMENT), default='inventory',
                          help='opt-in per-device; inventory globale resta il comportamento storico')
+    prepare.add_argument('--observe-owned-descriptor', action='store_true',
+                         help='osserva solo metadata del UUID creato; non sostituisce readiness')
     cleanup = subcommands.add_parser('cleanup')
     cleanup.add_argument('--receipt', required=True)
     smoke = subcommands.add_parser('smoke')
@@ -485,7 +611,8 @@ def main(argv=None):
         if options.action == 'prepare' or standalone:
             device = runner.prepare(
                 headless=getattr(options, 'headless', False),
-                readiness_attestation=getattr(options, 'readiness_attestation', 'inventory'))
+                readiness_attestation=getattr(options, 'readiness_attestation', 'inventory'),
+                observe_descriptor=getattr(options, 'observe_owned_descriptor', False))
             if options.action == 'prepare' and options.github_output:
                 with open(options.github_output, 'a') as output:
                     output.write('device_id=' + device + '\n')

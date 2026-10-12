@@ -128,7 +128,8 @@ jobs:
           mkdir -p build/task054
           python3 scripts/run-task054-ios-owned.py prepare \
             --receipt build/task054/ios-guest-cart-owned-receipt.json --headless \
-            --readiness-attestation owned-launchd-environment
+            --readiness-attestation owned-launchd-environment \
+            --observe-owned-descriptor
       - name: Seed terminate and restore guest cart without VM transport
         run: >-
           python3 scripts/run-guest-cart-restart-ios.py

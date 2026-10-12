@@ -1,6 +1,25 @@
 # TASK-054 — Registro unico dei residui operativi
 
-## Stato corrente — consegna Client, 12 ottobre 2026
+## Stato corrente — addendum carrello e tracking12ottobre
+
+[Dossier corrente](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md): app07649,
+source/widget APPROVED scoped, integrata BLOCKED. Quality1242PASS/1SKIP più
+11performance e due release unsigned PASS; guest e journal Android restart PASS.
+Il checkpoint precedente e i suoi FAIL rimangono sotto, con la propria data/fonte.
+
+| Residuo / stato | Owner | Condizione di chiusura |
+|---|---|---|
+| Export visuale / FAIL | Client/runner | Corpus137Flutter+4OS; cart076 cancella01–04account. Fixfixture153+formatterec sourceapproved; Android4b137PASS, nuovo iOS1fb probe124/BLOCKED |
+| Visual Android / PASS scoped | QA/device owner | 4b/38316402128:93body+driver,137Flutter+4OS,hashAPK/UIDuguali ecleanupPASS; QA subset/AT/IME/backend restano separati |
+| Guest iOS / PASS scoped | Client/runner | 4b/38315958950:19700→21193,stesso bundle/container,SDKterminal/readback/cleanupPASS; non prova ordine TEST |
+| Journal/corpus iOS / BLOCKED | Runner/provider | 1fb postbootprobe124 per visual; precreateruntimes124 per journal e repeat; Keychain/captureNOT_RUN,cleanupPASS. Superficie stabile necessaria |
+| UI native/AT / BLOCKED | QA/device owner | Matrice4locale×2tema×200%, gesto scroll/Retry, VoiceOver/TalkBack/reducedmotion;18originali076 non la sostituiscono |
+| Google Maps/R17 / BLOCKED | Maps TEST + courier/backend owner | Config approvata con package/cert/bundle restrictions, stessoordineowner/assignment, posizioni writer autorizzato e feed Client; nessun input approvato recuperato |
+| Backend runtime / BLOCKED | Backend owner | Policies/grant/publication/session/version verificati tramite percorso autorizzato; metadata RPC/6RLSflags eledger161 non bastano |
+| Route/ETA dinamica/background / NOT_RUN | Server/courier owner | Proposta owner versionata e bounded pronta; nuova fonte/capability/runtime e prove device; nessuna activation/spesa implicita |
+| R13/R14,Auth,R24,firma/distribuzione e C04 / BLOCKED | Owner già registrati | Restano requisiti reali distinti; fixture e build unsigned non sostituiscono acceptance |
+
+## Checkpoint precedente — consegna Client,12ottobre2026
 
 Fix applicativi nella candidate ba11b0f/PR29 draft. CI38279556447 terminale:
 5PASS/2FAILjournal;1137hostPASS/1goldenAndroidSKIP,11performancehost,2goldenmacOS,

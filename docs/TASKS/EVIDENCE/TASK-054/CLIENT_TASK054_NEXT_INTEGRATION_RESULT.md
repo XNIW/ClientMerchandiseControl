@@ -2,14 +2,15 @@
 
 ## Ripresa corrente — addendum carrello e tracking
 
-TASK-054 è **ACTIVE / FIX / CODEX_FIX_IN_PROGRESS** per emendamento diretto utente.
-Le prove precedenti sotto restano legate a ba11 e non qualificano il nuovo delta.
-Runner GitHub separati; nessun SDK/UI Mac. RED widget38292306683 sul cart
-precedente:313PASS/3FAIL/1SKIP, exit1; falsi successi unavailable/limit/timeout.
-Primo fix64fb:gate Analyze FAIL (due importCompleter mancanti/unif senza blocco),
-regressioni NOT_RUN; corretta preparazione in corso. Qualifica finale pendente.
-Tracking TEST metadata:RPC/feed presenti/RLS enabled; Google OFF/prerequisiti
-provider e consumer→producer autentico NOT_RUN. Review integrata BLOCKED.
+TASK-054 è **BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED** dopo il Fix
+addendum diretto. [Dossier terminale](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md):
+app07649 e source/widget review distinta APPROVED scoped; Quality1242PASS/1SKIP,
+11performance, due release unsigned PASS. Guest Android/iOS e journal Android
+superano due processi/storage/cleanup; Android4b93body+driver e137Flutter+4OS.
+CI0765SUCCESS/2FAIL provider, corpus iOS133/137FAIL corretto nel collector; nuovi
+journal/corpus iOS1fb BLOCKED in preparazione. Maps/R17 e acceptance autenticate
+restano aperti. Le nuove run PR sono leggibili nei Checks con il loro SHA: questa
+fotografia non ne anticipa l'esito. I checkpoint sotto restano storici.
 
 ## Checkpoint preservato — candidate Client, 12 ottobre 2026
 

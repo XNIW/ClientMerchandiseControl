@@ -2,11 +2,13 @@
 
 Applicazione Flutter Android/iOS destinata ai clienti dei negozi dell'ecosistema
 Merchandise Control. Il codice include catalogo, account, carrello, checkout,
-ordini, consegna, inbox, assistenza e recensioni. Il readback TEST TASK-054
-dell'8 ottobre 2026 rileva32/57RPC conformi,25 mancanti e quattro migration non
-applicate; risorse esterne restano da configurare per OAuth, indirizzi assistiti e push: il prodotto non è dichiarato
-operativamente completo. Il [rapporto verificabile](docs/TASKS/EVIDENCE/TASK-054/README.md)
-separa codice, SQL locale, staging, dispositivi e distribuzione.
+ordini, consegna, inbox, assistenza e recensioni. Il ledger TEST readonly del
+12 ottobre contiene161ricevute e quattro migration Client canoniche ancora assenti.
+Il dato32/57RPC è storico del10ottobre; non descrive il catalogo corrente.
+OAuth, mappa TEST, push, percorsi autenticati e distribuzione restano da qualificare:
+il prodotto non è dichiarato operativamente completo. Il
+[rapporto verificabile](docs/TASKS/EVIDENCE/TASK-054/README.md) separa sorgenti,
+fixture, staging, dispositivi e distribuzione.
 
 ## Relazione con Merchandise Control
 
@@ -192,22 +194,22 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Indicatore**: CODEX_FIX_IN_PROGRESS
+- **Stato task**: BLOCKED
+- **Fase**: REVIEW
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
 
-Mandato12ottobre: recupero allegati sulla stessa pratica, saving accessibile,
-semantics inbox e percorso indirizzo→checkout corretti. Candidate applicativa
-ba11b0f: CI38279556447 terminale5PASS/2FAILjournal;1137hostPASS/1goldenSKIP,
-11performancehost,92fixture/137PNG+4OS per Android e iOS; unsigned2PASS.
-QAfontcb9:166PASS/19PNGhost,4CJKnuovi leggibili. Review distinte scoped;
-[rapporto corrente](docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md)
-e [residui](docs/TASKS/EVIDENCE/TASK-054/residuals.md) distinguono gate/provenienza.
-Il limiteSDK27 storico è superato dalla qualifica CI Xcode26.6/minimum14;
-journal, TEST/Auth/firma/R24/AT/profile restano aperti. I checkpoint sotto sono storici.
+Addendum12ottobre: esito add scoped, riconciliazione cart/checkout e UI tracking
+corretti. [Dossier corrente](docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md):
+freeze app07649, re-review source/widget APPROVED scoped; Quality1242PASS/1SKIP,
+11performance e due release unsigned PASS. Guest Android/iOS e journal indirizzi Android
+superano storage/kill/restart; Android4b produce137Flutter+4OS. Per iOS il fix del
+collector è sourceapproved, ma nuovo corpus e journal restano BLOCKED in preparazione.
+Maps/R17, R13/R14 autenticati, Auth/firma/R24/AT e C04 restano aperti.
+Il checkpoint precedente ba11/527/QAcb9 e tutti i negativi sono conservati nel
+[rapporto storico](docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md).
 
 Il checkpoint PR29 `43fd7af` conserva CI43 terminale: cinque job PASS,
 journal iOS FAIL in preparazione e job smoke/visual CANCELLED30min. Lo smoke

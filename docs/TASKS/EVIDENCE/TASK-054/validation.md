@@ -1,5 +1,25 @@
 # Verifiche TASK-054
 
+## Addendum carrello e tracking — checkpoint12ottobre
+
+Il [dossier corrente](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md) e il
+[ledger37run](next-integration/client-cart-tracking-host-run-ledger.json) governano
+questo delta. Le sezioni sotto mantengono fonte/data/esito storici.
+
+| CA / test | Comando e revisione | Risultato / limite |
+|---|---|---|
+| CA-05/T-05 Quality | CI38309453984/app07649: format409/0, analyze0, coverage1242/1SKIP, performance11 | PASS/exit0 host, nessuna acceptance TEST |
+| Add/outcome e journal checkout | focused38308535239/695+preparation076,483PASS/1SKIP; RED/GREEN immutabili | PASS host/source distinta; R13/R14 autenticati NOT_RUN |
+| Guest restart Android | GCR38309453440/07649,4152→4363,stessoAPK/UID | PASS storage/UI/cleanup, due processi reali |
+| Journal indirizzi Android | CI38309453984/07649,file terminale,4289→4396 | PASS native storage/restart/cleanup; ordine journal distinto |
+| iOS visual | CI38309453984/07649,93body+driver,2golden,1smoke | PASS esecuzione; FAIL corpus133/137,4OS separati; fix fixture153+formatterec ripristina137Android; nuovo iOS1fb probe124/BLOCKED |
+| Android visual | 4b/38316402128,93body+driver,137Flutter+4OS,prebuilt/installhashidentici | PASS/exit0 ecleanup; vecchi076connect/153sdkZIP FAIL preservati |
+| GCR/readiness iOS | inventory124,environmentmismatch2 e descriptor diagnostico7a85 storici | PASS native guest v2; v1hosttrueFAIL124/dyld preservato; v2 4b/38315958950:19700→21193/14checks/ownercleanupPASS |
+| Pixel tracking4locale×2tema×200% | 16frame host originali revisionati, fonte16f | PASS scoped; 18frame native076 QA parziale, matrice native/AT/Google BLOCKED |
+| Release Android/iOS | CI38309453984/07649 unsigned,12signature/89validatorfixture | PASS unsigned; signing/distribuzione NOT_RUN |
+| R17 reale e funzionalità avanzate | metadata RPC/feed+RLSflags, ricerca configurazioni bounded e proposta owner | BLOCKED Google/ordine/producer; route/ETA/background NOT_RUN |
+
+
 ## Provenance
 
 Client base `493c2c9bc73c2788e97d4141a4fe01216dc8a39a`, candidato sul branch

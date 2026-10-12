@@ -1,10 +1,10 @@
 # TASK-054 — Integrated staging E2E and closeout
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Handoff**: CODEX_FIX_IN_PROGRESS
+- **Stato**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_REVIEW_BLOCKED
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -1372,8 +1372,53 @@ fixture qualifica Google/GPS/TEST e nessuna capacità avanzata viene inferita.
 
 ## Fix — addendum carrello e tracking
 
-Prima attività: regressione widget sui rifiuti unavailable/limitReached e timeout
-che completano normalmente la Future. Sorgente cart precedente invariato durante
-la riproduzione; esito ancora NOT_RUN in attesa del runner. Read-only parallelo dei
-contratti e prerequisiti tracking, unico writer Client. I gate obbligatori e la
-review integrata precedenti restano aperti e non sono riscritti.
+Riproduzione38292306683:313PASS/3FAIL/1SKIP sul sorgente cart precedente,
+falsi successi unavailable/limitReached/timeout. Il fix restituisce outcome per
+richiesta owner/shop; guest locale distinto da ACK account, pending bloccante e
+readback autorevole prima di cancellare intent ambigui. Conflitto incrementale
+ricalcolato dal cart server, limite99; setQuantity assoluta preservata.
+
+Checkout: journal scoped v5 senza erase di altri owner/shop, intent ordine letto
+prima di cart/discovery/account/delivery; replay stessa key, quote, payment e
+cartVersion originali anche con cart nullo/guest o modifiche successive. Receipt
+precede discovery; nuovo acquisto esplicito mantiene il cart successivo. Profilo
+stesso owner selezionato per subjectId, con guard Auth raw per A→B→A. Il precedente
+claim P1 Auth è ritirato: baseline3/3PASS, cart.loading mascherava il cambio Auth;
+il RED profile distinto3PASS/1FAIL e il fix subjectId restano qualificati separatamente.
+
+Tracking: ETA server assente/scaduta/aggiornata, camera manuale/recenter e mappa
+espansa nello stesso adapter; fallback/retry provider, stale/terminal/lifecycle,
+purge serial e cold-cache senza coordinate precise prima del readback autorizzato.
+QA scoped16card host (quattro lingue/due temi/200%) distinta da Google/OS/AT.
+
+Re-review source/widget distinta chiude CART-RR-01 e CHECKOUT-RR-01/02/03;
+26digest sul freeze app07649 e37run RED/GREEN preservati. Dossier e matrice:
+[EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md](EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md).
+Quality0761242PASS/1SKIP+11performance/format409/0/analyze0,2unsignedPASS;
+focused153+formatterec483PASS/1SKIP/analyze0. Guest Android076 e iOS4b superano
+due processi/storage/UI/cleanup. Android4bcorpus137Flutter+4OS/93body+driver,
+APKhash/UIDuguali/cleanupPASS. Il vecchio iOS076133/137FAIL resta e il collector
+corretto conserva4screenshot; nuovi tentativi1fb bloccati prima capture/Keychain.
+
+Readiness v1hosttrueFAIL/dyld corretta da v2PATHdevice launchctl, source/mock review
+distinta e vero GCR4bPASS prima promozioneCI2. Visual1fb postbootspawn124; journal
+1fb e repeat precreateRuntimes124; noapp/0PNG/cleanupPASS, nessun timeout aumentato.
+Maps/R17, ordini TEST/R13/R14, Auth/firma/AT/R24/C04 restano gate reali aperti.
+Route/ETA/background hanno proposta owner esplicita, nessuna nuova capability
+attivata. Tutti i tentativi elencati terminali; CI PRhead da qualificare separatamente.
+Nessun SDK Mac, SQL/deploy/input esterno, DONE/merge; riconsegna con gate esposti.
+
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## Re-review finale — addendum12ottobre
+
+Verbale CODEX_RE_REVIEWER distinto, read-only, cutoff23:02:57UTC prima del commit
+finale e dei nuovi Checks PR29. [Capsula](EVIDENCE/TASK-054/next-integration/client-cart-tracking-re-review.json).
+Esito BLOCKED, nessun nuovo finding applicativo/evidence.26digest e24refs,
+37run/36prefix,30case e30righeR preservati;18link nuovi senza errori. Androidraw
+137+4 e guest iOS19700→21193 verificati autonomamente, runnerNOT_RUNdelegato
+all'ownercleanupPASS mantenuto. Nuovo corpus/KeychainiOS e Maps/TEST/AT/firma
+restano gate obbligatori aperti; CI nuovoheadNOT_RUN al cutoff, da raccogliere
+separatamente senza anticipare il risultato. Nessun SDK locale o edit reviewer.
+
+`CODEX_REVIEW_BLOCKED`.

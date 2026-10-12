@@ -1,0 +1,2643 @@
+{
+  "schema_version": 2,
+  "scope": "TASK054_CART_CHECKOUT_TRACKING_HOST_ADDENDUM_FINAL_RUN_LEDGER",
+  "recorded_at_utc": "2026-10-12T22:14:45.125378+00:00",
+  "cutoff_run_id": 38314876090,
+  "repo": "XNIW/ClientMerchandiseControl",
+  "summary": {
+    "latest_host_run": 38314876090,
+    "latest_checkout_sha": "153646d5c48ca21d6fa579491c3649e5e3ac3467",
+    "latest_host_result": "PASS",
+    "analyze_issues": 0,
+    "passed": 483,
+    "failed": 0,
+    "skipped": 1,
+    "format_files": 400,
+    "format_changed": 1,
+    "source_qualification": "New run hosted prepared patch is recorded separately; lib/test/native app source checked against freeze076 below, integration fixture native execution remains outside host ledger.",
+    "source_run_count": 37,
+    "source_provider_counts": {
+      "failure": 25,
+      "cancelled": 3,
+      "success": 9
+    },
+    "native_receipt_result": "NOT_RUN",
+    "live_receipt_result": "NOT_RUN",
+    "global_task_acceptance": "BLOCKED",
+    "native_scope_note": "Native CI/guest results are deliberately outside this host ledger and have separate receipts; NOT_RUN here means not a gate of this ledger, not a current global native claim.",
+    "failure_classes": {
+      "analyze": 11,
+      "host_terminal_assertions_including_causal": 14,
+      "cancelled_partial_host": 2,
+      "writer_cancelled_before_host": 1
+    }
+  },
+  "finding_state": {
+    "auth_scope_prior_P1": "WITHDRAWN",
+    "reason": "Baseline38300548254 masked dalla variazione cart.loading; il PASS3 non conferma il precedente P1 Auth. Il finding non resta aperto.",
+    "review_evidence": {
+      "path": "/Users/minxiang/Projects/_codex-private/task054-cart-tracking-20261012/re-review/source.initial-a373392.json",
+      "sha256": "5fa740745344b0444d4ae9ffa8e529a92ddadd3516343280158d219512e783d8",
+      "observed_lines": [
+        {
+          "line": 126,
+          "text": "\"Auth P1 precedente ritirato: baseline38300548254 masked dalla variazione cart.loading; non e un finding aperto.\""
+        }
+      ]
+    },
+    "causal_same_owner_profile": {
+      "run_id": 38301237763,
+      "result": "FAIL",
+      "passed": 3,
+      "failed": 1
+    },
+    "causal_cart_conflict": {
+      "run_id": 38302542833,
+      "result": "FAIL",
+      "passed": 19,
+      "failed": 1
+    },
+    "causal_checkout_journal": {
+      "run_id": 38303669829,
+      "result": "FAIL",
+      "passed": 24,
+      "failed": 7
+    },
+    "causal_receipt_utc": {
+      "run_id": 38306397597,
+      "result": "FAIL",
+      "passed": 460,
+      "failed": 2,
+      "skipped": 1,
+      "fix_run_id": 38306577956,
+      "fix_result": "PASS",
+      "fix_passed": 462,
+      "fix_failed": 0,
+      "fix_skipped": 1
+    },
+    "causal_retry_three_cases": {
+      "run_id": 38307649330,
+      "result": "FAIL",
+      "passed": 9,
+      "failed": 2,
+      "fix_run_id": 38307656740,
+      "fix_result": "PASS",
+      "fix_passed": 465,
+      "fix_failed": 0,
+      "fix_skipped": 1
+    },
+    "causal_retry_four_cases": {
+      "run_id": 38308368515,
+      "result": "FAIL",
+      "passed": 9,
+      "failed": 3,
+      "fix_run_id": 38308535239,
+      "fix_result": "PASS",
+      "fix_passed": 483,
+      "fix_failed": 0,
+      "fix_skipped": 1
+    },
+    "latest_scoped_review_reference": {
+      "sha256": "93ec8d3f9dd842a8a854752b25c4379d851c41e2fc6d6bc46e2e4269a397d2a1",
+      "private_relative_path": "re-review/source.69589dc.json",
+      "verdict": "APPROVED_SOURCE_WIDGET_SCOPED",
+      "integrated_verdict": "BLOCKED"
+    }
+  },
+  "qualification_limits": [
+    "Tutti i FAIL e i CANCELLED della branch fino al cutoff sono preservati; nessun FAIL storico sostituito da successi successivi.",
+    "Analyze, suite host, native restart e live restano gate distinti.",
+    "I test causal restore verificano una combinazione baseline sorgenti + nuove fixture, non l intero checkout immutabile.",
+    "Il formatter nei job prepara sorgenti; la patch generata deve essere associata prima di rivendicare identità byte del checkout.",
+    "Provider conclusion verde non chiude review globale, AT, Google attribution, authenticated TEST o production.",
+    "Provider cancellation38308436034 interrupted analyze before test; result BLOCKED, host NOT_RUN, exit code unobserved. It is retained and never counted PASS."
+  ],
+  "full_private_ledger_sha256": "63f25601b04eedd898684688a916e65b12ee2253361a46e44eba6afb88531a12",
+  "surface": "GitHub hosted Ubuntu; Flutter3.44.8; unit/widget with synthetic ports. No SDK/native UI on Mac; no authenticated TEST.",
+  "runs": [
+    {
+      "run_id": 38291911331,
+      "source_checkout_sha": "7e16e6a680be7a2d5b7898d60661deb9c15e17cf",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38291911331",
+      "result": "FAIL",
+      "classification": "analyzer_failure_tests_not_run",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "FAIL",
+        "issues": 1,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 389,
+        "changed": 1,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "bc7f86d8f561d85605fe8d60ff47a04352a803692518add72c954568daae0724",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "5b67c73501bafda21b2c89c10444e3f4ae2c32196fab6ce5bd39045038c50a3d"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38292306683,
+      "source_checkout_sha": "41d689f9f8b30e117c9722b6f8d4673ff33cd09e",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38292306683",
+      "result": "FAIL",
+      "classification": "host_test_assertion_failure",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 389,
+        "changed": 0,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 313,
+        "failed": 3,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [
+        "test/features/cart/add_to_cart_button_test.dart: rifiuto unavailable non annuncia aggiunta",
+        "test/features/cart/add_to_cart_button_test.dart: rifiuto limitReached non annuncia aggiunta",
+        "test/features/cart/add_to_cart_button_test.dart: ACK perso conserva errore, nessun falso successo"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "621026229cb6dd8ac61fb1f47d8af7952fe3bb19db5b5efb22828ea560564dac",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "d76f873b7be96be7e032a46b8fff0274217b338650a44e530d404fe4fe15e778"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38292527785,
+      "source_checkout_sha": "64fbdd8a049a402a8e734bac91b7cbf80d00a6e4",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38292527785",
+      "result": "FAIL",
+      "classification": "analyzer_failure_tests_not_run",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "FAIL",
+        "issues": 3,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 390,
+        "changed": 3,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "262a0befcc1489dad32b41b72a3daf363540589948222342ffd6254a04537a12",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "33e414a37f58215335d201f8cf00beb8abe0f850c2e5a7dad2446a01e0412bec"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38292885269,
+      "source_checkout_sha": "ff212e98a2c3943fcb88eed5240846b39ff5f147",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38292885269",
+      "result": "FAIL",
+      "classification": "analyzer_failure_tests_not_run",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "FAIL",
+        "issues": 1,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 390,
+        "changed": 0,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "5a3012e55e739d3efa83893fbd87b0bdd1c940ac32df68812a99b273f7a4f5e9",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "2ab9c83eb73c6d516d8604de33e1c277b36c45abfbbb816f2d913e74d243aec0"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38292947540,
+      "source_checkout_sha": "f38a67bba391946e4ead56b5f28e478f29e7a8f0",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38292947540",
+      "result": "FAIL",
+      "classification": "analyzer_failure_tests_not_run",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "FAIL",
+        "issues": 1,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 390,
+        "changed": 1,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "7052782b6a8a221492f18d5a3c3bbc2d8ee1fae5aa7a15b10a94f9d395ab551d",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "920978bba0beadabe81134b51b75afb449b8f55f8a7fb68afa20be98f665ab23"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38293066935,
+      "source_checkout_sha": "30c418c49d1b69b8b5217274e48b642f89b640ae",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38293066935",
+      "result": "FAIL",
+      "classification": "analyzer_failure_tests_not_run",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "FAIL",
+        "issues": 1,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 390,
+        "changed": 2,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "87f1e1513d08f185606f6f3061ddcb5a277df8b9152bc30d2bdb224fdd1e080c",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "9b7f44f442c09e10c602c59e87405ebef0b0e2e2121da5aad836360c50d68f12"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38293687451,
+      "source_checkout_sha": "2f48a2b0d3396fcd0e8a4dd731cc26778be5cf88",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38293687451",
+      "result": "BLOCKED",
+      "classification": "cancelled_partial_host",
+      "provider_status": "completed",
+      "provider_conclusion": "cancelled",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 390,
+        "changed": 3,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "BLOCKED",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [
+        "git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart",
+        "git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart"
+      ],
+      "failures_observed": [
+        "test/features/checkout/application/checkout_controller_test.dart: recreate container dopo ACK ordine perso riconcilia cart nuovo non vuoto con stessa key",
+        "test/features/checkout/application/checkout_controller_test.dart: replay ordine con cart nuovo mantiene intent se secondo ACK va perso"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "cancelled"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "102c779d4cf40a62497fa6da66af08a00ef786400943872507008c394fe48c9a",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "fcfc9a0310a0af2f35419007fe513f6f16e82dce63d5f90eb4b3347ddd0e0597"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38294058798,
+      "source_checkout_sha": "5c97193b42d140adfbc48b5130f84b5d6d324f35",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38294058798",
+      "result": "BLOCKED",
+      "classification": "cancelled_partial_host",
+      "provider_status": "completed",
+      "provider_conclusion": "cancelled",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 391,
+        "changed": 4,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "BLOCKED",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [
+        "git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart",
+        "git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart"
+      ],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "cancelled"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "240c95fb7597f4f52dac9ab1901972ea09d24a103b720ce852c4f768b8b22c1c",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "9e3a040a17f94aa70bb42fd889c61ea45dcab88eaeecc4eeeea3fc6800aa2674"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38294289125,
+      "source_checkout_sha": "829cba1458102f12b5aff9fbbc0cb6babf8057ff",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38294289125",
+      "result": "FAIL",
+      "classification": "host_test_assertion_failure",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 391,
+        "changed": 4,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 372,
+        "failed": 16,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [
+        "git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart",
+        "git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart"
+      ],
+      "failures_observed": [
+        "test/features/checkout/application/checkout_cart_receipt_refresh_test.dart: receipt confermata resta dopo refresh cart vero fallito su read account",
+        "test/features/checkout/application/checkout_cart_receipt_refresh_test.dart: receipt confermata resta dopo refresh cart vero fallito su store guest",
+        "test/features/checkout/application/checkout_controller_test.dart: recreate container dopo ACK ordine perso riconcilia cart nuovo non vuoto con stessa key",
+        "test/features/checkout/application/checkout_controller_test.dart: replay ordine con cart nuovo mantiene intent se secondo ACK va perso",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending es-CL dark=false testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending es-CL dark=true testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending it dark=false testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending it dark=true testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending en dark=false testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending en dark=true testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending zh-Hans dark=false testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending zh-Hans dark=true testo200 e semantics",
+        "test/features/cart/application/cart_controller_test.dart: ACK merge perso blocca add, retry preserva guest e successivo add incrementa",
+        "test/features/cart/application/cart_controller_test.dart: replay ACK storico esegue readback senza perdere modifiche successive",
+        "test/features/cart/application/cart_controller_test.dart: read vecchia non invia merge guest dopo cambio owner",
+        "test/features/cart/application/cart_controller_test.dart: read vecchia non invia merge guest dopo cambio shop"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "5d23d4ff5e9e517b4c9310960661c3935945198bef9b76fd42301c586864703c",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "45e81d66aba48c73c0ebeb79249625b5b15127921ffed9675246acc89991edec"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38294589682,
+      "source_checkout_sha": "6eea331a90b069764dbf71081f6098c2cc3c4310",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38294589682",
+      "result": "FAIL",
+      "classification": "host_test_assertion_failure",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 391,
+        "changed": 5,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 372,
+        "failed": 21,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [
+        "git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart lib/features/delivery_tracking/application/delivery_tracking_controller.dart",
+        "git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart lib/features/delivery_tracking/application/delivery_tracking_controller.dart"
+      ],
+      "failures_observed": [
+        "test/features/checkout/application/checkout_cart_receipt_refresh_test.dart: receipt confermata resta dopo refresh cart vero fallito su read account",
+        "test/features/checkout/application/checkout_cart_receipt_refresh_test.dart: receipt confermata resta dopo refresh cart vero fallito su store guest",
+        "test/features/checkout/application/checkout_controller_test.dart: recreate container dopo ACK ordine perso riconcilia cart nuovo non vuoto con stessa key",
+        "test/features/checkout/application/checkout_controller_test.dart: replay ordine con cart nuovo mantiene intent se secondo ACK va perso",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending es-CL dark=false testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending es-CL dark=true testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending it dark=false testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending it dark=true testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending en dark=false testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending en dark=true testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending zh-Hans dark=false testo200 e semantics",
+        "test/features/cart/add_to_cart_button_test.dart: feedback pending zh-Hans dark=true testo200 e semantics",
+        "test/features/cart/application/cart_controller_test.dart: ACK merge perso blocca add, retry preserva guest e successivo add incrementa",
+        "test/features/cart/application/cart_controller_test.dart: replay ACK storico esegue readback senza perdere modifiche successive",
+        "test/features/cart/application/cart_controller_test.dart: read vecchia non invia merge guest dopo cambio owner",
+        "test/features/cart/application/cart_controller_test.dart: read vecchia non invia merge guest dopo cambio shop",
+        "test/features/delivery_tracking/delivery_tracking_controller_test.dart: cache read fallibile non impedisce la RPC",
+        "test/features/delivery_tracking/delivery_tracking_controller_test.dart: cache delete fallibile non impedisce la RPC",
+        "test/features/delivery_tracking/delivery_tracking_controller_test.dart: notFound invalida cache fresh e il retry riapre Realtime",
+        "test/features/delivery_tracking/delivery_tracking_controller_test.dart: notFound invalida live e il retry riapre Realtime",
+        "test/features/delivery_tracking/delivery_tracking_controller_test.dart: notFound invalida un save live in volo e il purge viene dopo il save"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "696a8cd7dfbb2a52f6b487c776c52edf595b0cdb1d5659ebfa0dc1b16a777ed1",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "e95fd5d72039bbca894496185757884aadd82295600b1c35d3321c89ba58fc07"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38294842963,
+      "source_checkout_sha": "9e4f81be620be29590e74efb5cc4d6a482078d5c",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38294842963",
+      "result": "FAIL",
+      "classification": "analyzer_failure_tests_not_run",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "FAIL",
+        "issues": 3,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 394,
+        "changed": 14,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "73634b5769300791bfedf635b7f4896dd2bedbf6b078e099a85b7d6298db9fff",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "630133b4b50a9b666785f62dee38a55035495e30849e5cc7e913c14d5ae79abb"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38295186666,
+      "source_checkout_sha": "a68c969856cb686eeed06ce028d6d8e25310b13a",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38295186666",
+      "result": "FAIL",
+      "classification": "host_test_assertion_failure",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 394,
+        "changed": 4,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 397,
+        "failed": 1,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [
+        "test/features/orders/presentation/customer_delivery_tracking_eta_test.dart: ETA assente, superata e aggiornata resta server-side"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "822869174cfdfc1c4ef041b979fbd6f52b3f127dc502e8fe40fa8e9302c81e87",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "646c6844e6fbb9dd02a94821477d83633ee77ca1350c71b7a16e5f494eba8da2"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38295510100,
+      "source_checkout_sha": "f91d66bd93581f1b1c88c21efa1736ec045cfdbe",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38295510100",
+      "result": "FAIL",
+      "classification": "causal_restore_four_production_files_25_host_failures",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 395,
+        "changed": 6,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 384,
+        "failed": 25,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [
+        "git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart lib/features/delivery_tracking/application/delivery_tracking_controller.dart lib/features/checkout/data/shared_preferences_checkout_draft_store.dart",
+        "git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart lib/features/delivery_tracking/application/delivery_tracking_controller.dart lib/features/checkout/data/shared_preferences_checkout_draft_store.dart"
+      ],
+      "failures_observed": [
+        "test/features/checkout/application/checkout_cart_receipt_refresh_test.dart: receipt confermata resta dopo refresh cart vero fallito su read account",
+        "test/features/checkout/application/checkout_cart_receipt_refresh_test.dart: receipt confermata resta dopo refresh cart vero fallito su store guest",
+        "test/features/checkout/application/checkout_controller_test.dart: ordine ambiguo non viene sostituito da Back, selezioni, quote o restart",
+        "test/features/checkout/application/checkout_controller_test.dart: recreate container dopo ACK ordine perso riconcilia cart nuovo non vuoto con stessa key",
+        "test/features/checkout/application/checkout_controller_test.dart: replay ordine con cart nuovo mantiene intent se secondo ACK va perso",
+        "test/features/checkout/data/checkout_draft_scope_persistence_test.dart: A-B-A dopo riavvio conserva identico intent ordine ambiguo",
+        "test/features/checkout/data/checkout_draft_scope_persistence_test.dart: cambio shop e clear del secondo non cancellano pending del primo",
+        "test/features/checkout/data/checkout_draft_scope_persistence_test.dart: clear di B preserva ordine ambiguo di A e ultimo clear rimuove key",
+        "test/features/checkout/data/checkout_draft_scope_persistence_test.dart: legacy v4 migra atomicamente senza cambiare chiave idempotente",
+        "test/features/checkout/data/checkout_draft_scope_persistence_test.dart: errore scrittura migrazione conserva byte legacy e retry recupera",
+        "test/features/checkout/data/checkout_draft_scope_persistence_test.dart: errore salvataggio B non sostituisce il legacy pendente di A",
+        "test/features/checkout/data/checkout_draft_scope_persistence_test.dart: limite16 scope fallisce prima di espellere o inviare nuovi intenti",
+        "test/features/checkout/data/checkout_draft_scope_persistence_test.dart: salvataggi concorrenti sullo store conservano entrambi gli scope",
+        "test/features/checkout/data/checkout_draft_scope_persistence_test.dart: envelope corrotto non viene cancellato né sovrascritto da altro account",
+        "test/features/checkout/data/checkout_draft_scope_persistence_test.dart: scope duplicato o envelope oltre limite non viene riscritto",
+        "test/features/cart/application/cart_controller_test.dart: ACK merge perso blocca add, retry preserva guest e successivo add incrementa",
+        "test/features/cart/application/cart_controller_test.dart: replay ACK storico esegue readback senza perdere modifiche successive",
+        "test/features/cart/application/cart_controller_test.dart: read vecchia non invia merge guest dopo cambio owner",
+        "test/features/cart/application/cart_controller_test.dart: read vecchia non invia merge guest dopo cambio shop",
+        "test/features/delivery_tracking/delivery_tracking_controller_test.dart: cache read fallibile non impedisce la RPC",
+        "test/features/delivery_tracking/delivery_tracking_controller_test.dart: cache delete fallibile non impedisce la RPC",
+        "test/features/delivery_tracking/delivery_tracking_controller_test.dart: notFound invalida cache fresh e il retry riapre Realtime",
+        "test/features/delivery_tracking/delivery_tracking_controller_test.dart: notFound invalida live e il retry riapre Realtime",
+        "test/features/delivery_tracking/delivery_tracking_controller_test.dart: notFound invalida un save live in volo e il purge viene dopo il save",
+        "test/features/orders/presentation/customer_delivery_tracking_eta_test.dart: ETA assente, superata e aggiornata resta server-side"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "fffd9c0949ec0b126469e5365e7658683ae8f2b1895a628831818fe036576100",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "251d79990a711e6bc4e2f4bf7e1c88d5e66d09f55fbaaa9472ce035e66900c01"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38295749311,
+      "source_checkout_sha": "85bfe23d71d048ecec9bd3b1a5503929985a4d66",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38295749311",
+      "result": "FAIL",
+      "classification": "analyzer_failure_tests_not_run",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "FAIL",
+        "issues": 1,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 396,
+        "changed": 9,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "c1fd0374f9fc74db525e3ed01fd45a5ea58856ce3b98cac30dc8cf654bec0933",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "71dba6c5fc7217a385c5062d7c24c0372c24becfd8c8220b0641a64534dab36b"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38296263782,
+      "source_checkout_sha": "c8a9cd66bfd630ae8655ba59df18d9a0f4d3719a",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38296263782",
+      "result": "FAIL",
+      "classification": "analyzer_failure_tests_not_run",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "FAIL",
+        "issues": 2,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 396,
+        "changed": 3,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "f741b584fca18185929833942aa1993b36ce1873a491653145a07a37c1c86e6f",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "42c0a5bdfe7de80378ebcdf03c36910be2a99f9d5662eb123fa8c5c8b2219256"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38296640306,
+      "source_checkout_sha": "3ba34bb1c81f9801f6cdfbc0b44446d970767f20",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38296640306",
+      "result": "FAIL",
+      "classification": "analyzer_failure_tests_not_run",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "FAIL",
+        "issues": 2,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 397,
+        "changed": 3,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "325dff5919bdfe2f28ee6c19234ef9c7576b2f325cf6c4fddd933676c0a607df",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "795b56767d53f0c494b6af7e1a9cce824ec3868623e4f89d76ce9755a60ac1e8"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38296717379,
+      "source_checkout_sha": "f04cea845b438a6a6691042894815aacf65df141",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38296717379",
+      "result": "FAIL",
+      "classification": "analyzer_failure_tests_not_run",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "FAIL",
+        "issues": 1,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 397,
+        "changed": 3,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "c368f1cd7955e1ede4e76cbc0bf75548391b25d4db23160c95663bd0794d716b",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "32c4f393485f7c88b791ce2014cbec628875742cd26d4583ac40089a0a72561f"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38298281974,
+      "source_checkout_sha": "7b563b615b9cb9ad18f7a25bfee901e0d15281bf",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38298281974",
+      "result": "PASS",
+      "classification": "host_focused_green_prepared_source",
+      "provider_status": "completed",
+      "provider_conclusion": "success",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 397,
+        "changed": 1,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "PASS",
+        "passed": 414,
+        "failed": 0,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "053847db8ceeb2e01d358d4946a1ac0f07d7cd030c77c88c17128b1b28c2d96f",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "133b17eb666e893934abba0ae92c1e56fac757c49f5c048c2f315a06cdbb51fe"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38299277587,
+      "source_checkout_sha": "04841d4ecc053abe79b48bdf20805557569be039",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38299277587",
+      "result": "PASS",
+      "classification": "host_focused_green_prepared_source",
+      "provider_status": "completed",
+      "provider_conclusion": "success",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 397,
+        "changed": 1,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "PASS",
+        "passed": 416,
+        "failed": 0,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "76527088acf827ad757d812c8f64b461bb3d96ce7b14586eb1203f726cb31933",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "b9fe96b6d7ffc230616caf7f2a84d78894e13b63eecbe626f0f6d4284a1a17da"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38300167268,
+      "source_checkout_sha": "9e573e1c5e2d10ef8ef243021216edf4e52bcf10",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38300167268",
+      "result": "FAIL",
+      "classification": "analyzer_failure_tests_not_run",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "FAIL",
+        "issues": 1,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 398,
+        "changed": 7,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "11815ad675507fd3672c92976ce52cc027df9d7f9bb0433dc21f9bf82168c4e7",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "11ac86b1b6491d54bdb24608c2d613df2ce40af5ef6538bc8e654a5cd52fdaae"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38300548254,
+      "source_checkout_sha": "1c8dfa0bb4f74a8093ad5721f3293ddcffbc8aff",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38300548254",
+      "result": "PASS",
+      "classification": "causal_auth_scope_candidate_not_confirming_prior_P1",
+      "provider_status": "completed",
+      "provider_conclusion": "success",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze lib test/features/checkout/application/checkout_order_scope_test.dart test/features/checkout/application/checkout_order_profile_update_test.dart"
+      },
+      "format": {
+        "files": 399,
+        "changed": 8,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "PASS",
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/checkout/application/checkout_order_scope_test.dart test/features/checkout/application/checkout_order_profile_update_test.dart --concurrency=1"
+      },
+      "restore_commands": [
+        "git restore --source=cb98b4e -- lib/features/checkout/application/checkout_controller.dart lib/features/checkout/presentation/checkout_screen.dart lib/features/cart/presentation/cart_screen.dart",
+        "git restore --source=cb98b4e -- lib/features/checkout/application/checkout_controller.dart lib/features/checkout/presentation/checkout_screen.dart lib/features/cart/presentation/cart_screen.dart"
+      ],
+      "failures_observed": [],
+      "failed_steps": [],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "0c2da9a0abec880d14a6170b52f97f6dca079f3c34a57ffdfb55f2b3a694977f",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "4a32b21892b631e132b4a437f150ad347bf71d65e56c3f31b015d5dc98068b39"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38300908763,
+      "source_checkout_sha": "80de02cac085820459fb5549bb9d8dc6f97e07e1",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38300908763",
+      "result": "FAIL",
+      "classification": "host_test_assertion_failure",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 399,
+        "changed": 1,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 432,
+        "failed": 9,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [
+        "test/features/delivery_tracking/delivery_live_map_test.dart: runtime failed dopo ready recupera sullo stesso snapshot con retry locale",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback es-CL dark=false testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback es-CL dark=true testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback it dark=false testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback it dark=true testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback en dark=false testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback en dark=true testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback zh-Hans dark=false testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback zh-Hans dark=true testo200"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "ac479acf744c67f69d3d57817d7442ee59647f8e197151517123eab8eb3c2f36",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "46cde9b9965a769f9bb86b5388b07e0dce898524348230e5e02d1743046cc5c3"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38301143365,
+      "source_checkout_sha": "43a2374a1f14f07b5e3189e54884ef97d0c2a6d0",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38301143365",
+      "result": "FAIL",
+      "classification": "host_test_assertion_failure",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 399,
+        "changed": 4,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 432,
+        "failed": 9,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [
+        "test/features/delivery_tracking/delivery_live_map_test.dart: runtime failed dopo ready recupera sullo stesso snapshot con retry locale",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback es-CL dark=false testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback es-CL dark=true testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback it dark=false testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback it dark=true testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback en dark=false testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback en dark=true testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback zh-Hans dark=false testo200",
+        "test/features/orders/customer_delivery_tracking_visual_test.dart: consegna fixture ETA mappa espansa e fallback zh-Hans dark=true testo200"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "4bea77b9bff7c54dc581409ef7aacc1d858205576fc1bab2c29efe92ecca2b78",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "0fed56ca4a681a52ec14eb3a9b3216febb0cca262d390f3b3c2c32b634ae7182"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38301237763,
+      "source_checkout_sha": "a3733924002486147ad3d1e67330e2bffc07be4a",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38301237763",
+      "result": "FAIL",
+      "classification": "causal_same_owner_profile_red",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze lib test/features/checkout/application/checkout_order_scope_test.dart test/features/checkout/application/checkout_order_profile_update_test.dart"
+      },
+      "format": {
+        "files": 400,
+        "changed": 3,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 3,
+        "failed": 1,
+        "skipped": 0,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/checkout/application/checkout_order_scope_test.dart test/features/checkout/application/checkout_order_profile_update_test.dart --concurrency=1"
+      },
+      "restore_commands": [
+        "git restore --source=cb98b4e -- lib/features/checkout/application/checkout_controller.dart lib/features/checkout/presentation/checkout_screen.dart lib/features/cart/presentation/cart_screen.dart",
+        "git restore --source=cb98b4e -- lib/features/checkout/application/checkout_controller.dart lib/features/checkout/presentation/checkout_screen.dart lib/features/cart/presentation/cart_screen.dart"
+      ],
+      "failures_observed": [
+        "test/features/checkout/application/checkout_order_profile_update_test.dart: profile stesso owner mantiene ACK ordine e conclude busy"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "9cee8188e0c04dae3a8b72d7e6754ae61d1fcda381dbdcc5ed52fc999d5463a4",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "1ad1d7addb934370b8972c8bdba18753decd99b9c57bdd85964f3ee57e1be3ce"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38302537267,
+      "source_checkout_sha": "16f6bd2afe825470d643e7d9e4aeecb1877097e7",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38302537267",
+      "result": "FAIL",
+      "classification": "host_test_assertion_failure",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 400,
+        "changed": 5,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 444,
+        "failed": 1,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [
+        "test/features/cart/application/cart_controller_test.dart: add incrementale dopo conflict preserva la nuova quantità server"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "ca9f014c47e6e2a37d661e317dbca90b503bb7d414724887d2f0363176edb2dd",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "9790df990e5a5cd02c6ae3acf946dbf8c468c08de98703e51a79878e3abb8225"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38302542833,
+      "source_checkout_sha": "16f6bd2afe825470d643e7d9e4aeecb1877097e7",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38302542833",
+      "result": "FAIL",
+      "classification": "causal_cart_conflict_red",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze lib test/features/cart/application/cart_controller_test.dart"
+      },
+      "format": {
+        "files": 400,
+        "changed": 5,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 19,
+        "failed": 1,
+        "skipped": 0,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/cart/application/cart_controller_test.dart --concurrency=1"
+      },
+      "restore_commands": [
+        "git restore --source=a373392 -- lib/features/cart/application/cart_controller.dart",
+        "git restore --source=a373392 -- lib/features/cart/application/cart_controller.dart"
+      ],
+      "failures_observed": [
+        "add incrementale dopo conflict preserva la nuova quantità server"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "e1317795ab5b5e209c9ec480a0d459b6ee63c02e85d524fe8b3d0bd108f73f9e",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "07f1ed8e5a06a49ee787097c7f6ca418256484bdbc1a2369dafaba9bff1f874e"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38303666122,
+      "source_checkout_sha": "4a18d63d739b80fb8f83011a4509b30257df171c",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38303666122",
+      "result": "PASS",
+      "classification": "host_focused_green_prepared_source",
+      "provider_status": "completed",
+      "provider_conclusion": "success",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 400,
+        "changed": 5,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "PASS",
+        "passed": 454,
+        "failed": 0,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "e5bc9aa707acfb162c2ef187ecd53904677af29eb10d9204e57c8e365dd7116d",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "f864cd06ef0acc200afeb8b8323d50b38323d1bc1a474b471788d76aa25368c8"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38303669829,
+      "source_checkout_sha": "4a18d63d739b80fb8f83011a4509b30257df171c",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38303669829",
+      "result": "FAIL",
+      "classification": "causal_checkout_journal_red",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze lib test/features/checkout/application/checkout_controller_test.dart"
+      },
+      "format": {
+        "files": 400,
+        "changed": 4,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 24,
+        "failed": 7,
+        "skipped": 0,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/checkout/application/checkout_controller_test.dart --concurrency=1"
+      },
+      "restore_commands": [
+        "git restore --source=16f6bd2 -- lib/features/checkout/application/checkout_controller.dart",
+        "git restore --source=16f6bd2 -- lib/features/checkout/application/checkout_controller.dart"
+      ],
+      "failures_observed": [
+        "recreate container dopo ACK ordine perso senza discovery riconcilia unavailable con stessa key e versione originale",
+        "recreate container dopo ACK ordine perso senza discovery riconcilia accountLoading con stessa key e versione originale",
+        "recreate container dopo ACK ordine perso senza discovery riconcilia deliveryLoading con stessa key e versione originale",
+        "cart cambia durante trasporto ordine: niente replay parallelo, Retry dopo terminale",
+        "receipt cold owner-scoped precede discovery con cart vuoto",
+        "receipt cold owner-scoped precede discovery con cart unavailable",
+        "receipt cold owner-scoped precede discovery con cart disponibile"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "7f9aacca404d52319d1f8584403450949c42338c06bf0b77ea0b66c51a7d6e6c",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "8a45e5b0694769e63d6a3583ffc27f664a9e0e4094e99ca8bf72607c6e2fc401"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38305193764,
+      "source_checkout_sha": "e8558ae4b48b3a693ddeb5a9b2e34eee731a382b",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38305193764",
+      "result": "PASS",
+      "classification": "host_focused_green_prepared_source",
+      "provider_status": "completed",
+      "provider_conclusion": "success",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze"
+      },
+      "format": {
+        "files": 400,
+        "changed": 2,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false
+      },
+      "host_tests": {
+        "result": "PASS",
+        "passed": 460,
+        "failed": 0,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [],
+      "retrieval": [
+        {
+          "exit_code": 0,
+          "metadata_sha256": "270321452afe13b5d6fc6e8e370248556ad18670ea9a040da5fd9d3b911d7401",
+          "log_sha256": null
+        },
+        {
+          "exit_code": 0,
+          "metadata_sha256": null,
+          "log_sha256": "28ba8034c3dad18a499d3720aa78f052c89f4d908bfe31720a2d0a0fd7748e5c"
+        }
+      ],
+      "failure_or_cancellation_cause": "NOT_CONFIRMED"
+    },
+    {
+      "run_id": 38306397597,
+      "source_checkout_sha": "9037bf7cafe9a5592ec77b65eb86c275b4866097",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38306397597",
+      "result": "FAIL",
+      "classification": "causal_checkout_receipt_utc_red",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "provider_created_at": "2026-10-12T20:46:36Z",
+      "provider_updated_at": "2026-10-12T20:50:47Z",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze",
+        "exit_code": 0,
+        "terminal_summary_observed": true,
+        "exit_evidence": "provider Focused regressions step success or explicit following test exit; No issues found observed"
+      },
+      "format": {
+        "result": "PASS",
+        "command": "dart format lib test integration_test",
+        "files": 400,
+        "changed": 1,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false,
+        "exit_code": 0,
+        "exit_evidence": "formatter terminal summary followed by analyze; shell -e -o pipefail",
+        "generated_localizations_command": "flutter gen-l10n",
+        "patch_sha256": "2cb1bf459683c87c2f006602c0a67655e7ea2e8d9586fa07adfa2eb472ddc1da",
+        "patch_private_relative_path": "fix15/preparation/candidate-preparation.patch",
+        "prepared_blobs": {
+          "test/features/checkout/presentation/checkout_screen_test.dart": {
+            "checkout_sha256": "d7199020c5c1a241d5b038264bbacba1a19808504276987bb7824ee1279ada27",
+            "prepared_sha256": "4823fe5787191a18867805ab98a1e9cd854de7bd29a98182520c8abb33d9d9a8"
+          }
+        }
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 460,
+        "failed": 2,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1",
+        "exit_code": 1,
+        "exit_evidence": "explicit Process completed with exit code 1"
+      },
+      "restore_commands": [],
+      "failures_observed": [
+        "receipt ripristinata senza cart/opzioni usa UTC, pending=false",
+        "receipt ripristinata senza cart/opzioni usa UTC, pending=true"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "command": "gh run view 38306397597 --repo XNIW/ClientMerchandiseControl --json databaseId,headSha,status,conclusion,url,event,name,createdAt,updatedAt,jobs",
+          "exit_code": 0,
+          "metadata_sha256": "6460bbb87ce8b549d6eedd684dc8c128b4a02ccb0481c3a07b10a1c14208bc04",
+          "metadata_private_relative_path": "proposals/ledger-closeout-inputs/38306397597.metadata.json"
+        },
+        {
+          "command": "gh run view 38306397597 --repo XNIW/ClientMerchandiseControl --log",
+          "exit_code": 0,
+          "log_sha256": "1ebd584f6a3d26d0035dd059e56f9999e7734f49e330b4e941c0aac8685a3369",
+          "log_private_relative_path": "fix15/baseline.log"
+        }
+      ],
+      "failure_or_cancellation_cause": "causal production widget assertion",
+      "scope_note": "host synthetic unit/widget only; no native receipt/live Maps/TEST acceptance"
+    },
+    {
+      "run_id": 38306577956,
+      "source_checkout_sha": "34cc05916d3cce999641e75ac0e53991ac244d1a",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38306577956",
+      "result": "PASS",
+      "classification": "host_focused_green_receipt_utc",
+      "provider_status": "completed",
+      "provider_conclusion": "success",
+      "provider_created_at": "2026-10-12T20:48:17Z",
+      "provider_updated_at": "2026-10-12T20:52:07Z",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze",
+        "exit_code": 0,
+        "terminal_summary_observed": true,
+        "exit_evidence": "provider Focused regressions step success or explicit following test exit; No issues found observed"
+      },
+      "format": {
+        "result": "PASS",
+        "command": "dart format lib test integration_test",
+        "files": 400,
+        "changed": 1,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false,
+        "exit_code": 0,
+        "exit_evidence": "formatter terminal summary followed by analyze; shell -e -o pipefail",
+        "generated_localizations_command": "flutter gen-l10n",
+        "patch_sha256": "2cb1bf459683c87c2f006602c0a67655e7ea2e8d9586fa07adfa2eb472ddc1da",
+        "patch_private_relative_path": "fix16/preparation/candidate-preparation.patch",
+        "prepared_blobs": {
+          "test/features/checkout/presentation/checkout_screen_test.dart": {
+            "checkout_sha256": "d7199020c5c1a241d5b038264bbacba1a19808504276987bb7824ee1279ada27",
+            "prepared_sha256": "4823fe5787191a18867805ab98a1e9cd854de7bd29a98182520c8abb33d9d9a8"
+          }
+        }
+      },
+      "host_tests": {
+        "result": "PASS",
+        "passed": 462,
+        "failed": 0,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1",
+        "exit_code": 0,
+        "exit_evidence": "provider Focused regressions terminal success after tests summary"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [],
+      "retrieval": [
+        {
+          "command": "gh run view 38306577956 --repo XNIW/ClientMerchandiseControl --json databaseId,headSha,status,conclusion,url,event,name,createdAt,updatedAt,jobs",
+          "exit_code": 0,
+          "metadata_sha256": "07cbe1144c89f4acd23c17d3eff496ca07d2a8be6f77bca43ba8be460d97ed0d",
+          "metadata_private_relative_path": "proposals/ledger-closeout-inputs/38306577956.metadata.json"
+        },
+        {
+          "command": "gh run view 38306577956 --repo XNIW/ClientMerchandiseControl --log",
+          "exit_code": 0,
+          "log_sha256": "f45ee8d4b0dbc4a1162f84aa0424ce818395f00267cf6d3dc0b5b2ed4062b183",
+          "log_private_relative_path": "fix16/fix.log"
+        }
+      ],
+      "failure_or_cancellation_cause": "NONE",
+      "scope_note": "host synthetic unit/widget only; no native receipt/live Maps/TEST acceptance"
+    },
+    {
+      "run_id": 38307649330,
+      "source_checkout_sha": "89e16e2b5479a4ee9a3f3bdfa70b383e02de6459",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38307649330",
+      "result": "FAIL",
+      "classification": "causal_checkout_retry_three_cases_red",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "provider_created_at": "2026-10-12T20:58:20Z",
+      "provider_updated_at": "2026-10-12T21:00:11Z",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze lib test/features/checkout/presentation/checkout_screen_test.dart",
+        "exit_code": 0,
+        "terminal_summary_observed": true,
+        "exit_evidence": "provider Focused regressions step success or explicit following test exit; No issues found observed"
+      },
+      "format": {
+        "result": "PASS",
+        "command": "dart format lib test integration_test",
+        "files": 400,
+        "changed": 1,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false,
+        "exit_code": 0,
+        "exit_evidence": "formatter terminal summary followed by analyze; shell -e -o pipefail",
+        "generated_localizations_command": "flutter gen-l10n",
+        "patch_sha256": "88f629eb826fa75f2d211beac251c4faecd15aa4e9f76c6fc30980bbcd270f70",
+        "patch_private_relative_path": "proposals/ledger-closeout-inputs/38307649330.candidate-preparation.patch",
+        "prepared_blobs": {
+          "test/features/checkout/presentation/checkout_screen_test.dart": {
+            "checkout_sha256": "b6399c9a131da55259fe5aaec661b9312a29708daa64d9e0158e86bf82d5cd21",
+            "prepared_sha256": "ab001fb991b3902f10016b44fc1ec7cee263a19dd5cebf097992e0ff7843597a"
+          }
+        }
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 9,
+        "failed": 2,
+        "skipped": 0,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/checkout/presentation/checkout_screen_test.dart --concurrency=1",
+        "exit_code": 1,
+        "exit_evidence": "explicit Process completed with exit code 1"
+      },
+      "restore_commands": [
+        "git restore --source=34cc059 -- lib/features/checkout/presentation/checkout_screen.dart"
+      ],
+      "failures_observed": [
+        "failure CTA senza cart distingue recovery da assenza journal: journalRead",
+        "failure CTA senza cart distingue recovery da assenza journal: readOrder"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "command": "gh run view 38307649330 --repo XNIW/ClientMerchandiseControl --json databaseId,headSha,status,conclusion,url,event,name,createdAt,updatedAt,jobs",
+          "exit_code": 0,
+          "metadata_sha256": "abb56071bbe3ec669039ca947cde5a0bab1d68e27e77792177ffbc590cb4c642",
+          "metadata_private_relative_path": "proposals/ledger-closeout-inputs/38307649330.metadata.json"
+        },
+        {
+          "command": "gh run view 38307649330 --repo XNIW/ClientMerchandiseControl --log",
+          "exit_code": 0,
+          "log_sha256": "7ffa00805e90e136d185aaf6785d5648f7f78bd2aad2b4eda5f643be9483943b",
+          "log_private_relative_path": "fix16/retry-baseline.log"
+        }
+      ],
+      "failure_or_cancellation_cause": "causal production widget assertion",
+      "scope_note": "host synthetic unit/widget only; no native receipt/live Maps/TEST acceptance",
+      "preparation_artifact_retrieval": {
+        "artifact_id": 11773425985,
+        "name": "candidate-preparation",
+        "expired": false,
+        "commands": [
+          "gh api repos/XNIW/ClientMerchandiseControl/actions/runs/38307649330/artifacts",
+          "gh api repos/XNIW/ClientMerchandiseControl/actions/artifacts/11773425985/zip"
+        ],
+        "exit_codes": [
+          0,
+          0
+        ],
+        "metadata_sha256": "5fff014c7656adaca25f8964120f25601f373cd940e989224442d8d179e8d94d",
+        "archive_sha256": "6e8141d17cd072645ef16a245a78720f0ed3905b2747f3df9d501d031e21a209",
+        "patch_extraction": "Python zipfile read exact member candidate-preparation.patch; no WT write",
+        "patch_applied_to_worktree": false
+      }
+    },
+    {
+      "run_id": 38307656740,
+      "source_checkout_sha": "634f0a18072e67aa9dd67573737e8095b93777b8",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38307656740",
+      "result": "PASS",
+      "classification": "host_focused_green_retry_three_cases",
+      "provider_status": "completed",
+      "provider_conclusion": "success",
+      "provider_created_at": "2026-10-12T20:58:25Z",
+      "provider_updated_at": "2026-10-12T21:02:04Z",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze",
+        "exit_code": 0,
+        "terminal_summary_observed": true,
+        "exit_evidence": "provider Focused regressions step success or explicit following test exit; No issues found observed"
+      },
+      "format": {
+        "result": "PASS",
+        "command": "dart format lib test integration_test",
+        "files": 400,
+        "changed": 2,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false,
+        "exit_code": 0,
+        "exit_evidence": "formatter terminal summary followed by analyze; shell -e -o pipefail",
+        "generated_localizations_command": "flutter gen-l10n",
+        "patch_sha256": "44f993c4c693b1edacd6281472d35ea0019ee77883ed59a568166b82cc7098f9",
+        "patch_private_relative_path": "proposals/ledger-closeout-inputs/38307656740.candidate-preparation.patch",
+        "prepared_blobs": {
+          "lib/features/checkout/presentation/checkout_screen.dart": {
+            "checkout_sha256": "cfb444d6d283fc3c61451caf520211efe11f5b55bffe111eaaa937f9855783f1",
+            "prepared_sha256": "4bfb0a64f8334c2e106e78ba83f8f0d847f15915122fde0b64555cee89c5dd77"
+          },
+          "test/features/checkout/presentation/checkout_screen_test.dart": {
+            "checkout_sha256": "b6399c9a131da55259fe5aaec661b9312a29708daa64d9e0158e86bf82d5cd21",
+            "prepared_sha256": "ab001fb991b3902f10016b44fc1ec7cee263a19dd5cebf097992e0ff7843597a"
+          }
+        }
+      },
+      "host_tests": {
+        "result": "PASS",
+        "passed": 465,
+        "failed": 0,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1",
+        "exit_code": 0,
+        "exit_evidence": "provider Focused regressions terminal success after tests summary"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [],
+      "retrieval": [
+        {
+          "command": "gh run view 38307656740 --repo XNIW/ClientMerchandiseControl --json databaseId,headSha,status,conclusion,url,event,name,createdAt,updatedAt,jobs",
+          "exit_code": 0,
+          "metadata_sha256": "c9a6ab34fe137be01c9a247ae3ce22c74abb1f7cd505dcdb0eb1f8d695b07161",
+          "metadata_private_relative_path": "proposals/ledger-closeout-inputs/38307656740.metadata.json"
+        },
+        {
+          "command": "gh run view 38307656740 --repo XNIW/ClientMerchandiseControl --log",
+          "exit_code": 0,
+          "log_sha256": "c58c561fc2cc7a651ede2be787003eef75c6dc76bde7f71de24857ba393e443e",
+          "log_private_relative_path": "fix17/retry-three-fix.log"
+        }
+      ],
+      "failure_or_cancellation_cause": "NONE",
+      "scope_note": "host synthetic unit/widget only; no native receipt/live Maps/TEST acceptance",
+      "preparation_artifact_retrieval": {
+        "artifact_id": 11773326537,
+        "name": "candidate-preparation",
+        "expired": false,
+        "commands": [
+          "gh api repos/XNIW/ClientMerchandiseControl/actions/runs/38307656740/artifacts",
+          "gh api repos/XNIW/ClientMerchandiseControl/actions/artifacts/11773326537/zip"
+        ],
+        "exit_codes": [
+          0,
+          0
+        ],
+        "metadata_sha256": "b6a24713617548cfca738d757e6d3c21887151dd28c66d8dc8ca2f02874e29ca",
+        "archive_sha256": "01bc2fb366bf5823a85e679880dac53d117d1738078d5531468a0dbf31fc7e7e",
+        "patch_extraction": "Python zipfile read exact member candidate-preparation.patch; no WT write",
+        "patch_applied_to_worktree": false
+      }
+    },
+    {
+      "run_id": 38308368515,
+      "source_checkout_sha": "b2d72e7566a05d8d4f8e3a7a5e867b9e367900d4",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38308368515",
+      "result": "FAIL",
+      "classification": "causal_checkout_retry_four_cases_red",
+      "provider_status": "completed",
+      "provider_conclusion": "failure",
+      "provider_created_at": "2026-10-12T21:04:59Z",
+      "provider_updated_at": "2026-10-12T21:06:59Z",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze lib test/features/checkout/presentation/checkout_screen_test.dart",
+        "exit_code": 0,
+        "terminal_summary_observed": true,
+        "exit_evidence": "provider Focused regressions step success or explicit following test exit; No issues found observed"
+      },
+      "format": {
+        "result": "PASS",
+        "command": "dart format lib test integration_test",
+        "files": 400,
+        "changed": 2,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false,
+        "exit_code": 0,
+        "exit_evidence": "formatter terminal summary followed by analyze; shell -e -o pipefail",
+        "generated_localizations_command": "flutter gen-l10n",
+        "patch_sha256": "db53c76ce855b6d7d4b0f24f707b11a7f4c7ee46ac344f4aa3fbd5208f9f7b2b",
+        "patch_private_relative_path": "proposals/ledger-closeout-inputs/38308368515.candidate-preparation.patch",
+        "prepared_blobs": {
+          "lib/features/checkout/presentation/checkout_screen.dart": {
+            "checkout_sha256": "cfb444d6d283fc3c61451caf520211efe11f5b55bffe111eaaa937f9855783f1",
+            "prepared_sha256": "d6912a6ac8cf0f8edea25bece3ad76299e83886199d9935eee33888a02c424cb"
+          },
+          "lib/l10n/generated/app_localizations_zh.dart": {
+            "checkout_sha256": "7031c8963504eb4f5f63d39f18ba03a92d6a60fcce79e3b944ae7f51dddceefb",
+            "prepared_sha256": "afdd06997b0595d30f7ddd21e2d52561b1a44944942239ddd8c9eb64367b1394"
+          },
+          "test/features/checkout/presentation/checkout_screen_test.dart": {
+            "checkout_sha256": "ef80b8aa1daab1f849cd7b809543404fa86eb7990b5aa679cdc3bb11de8a545f",
+            "prepared_sha256": "83d0cf6d5a58afa36f74bff1c815fe7195b51405fdd6e80c2be02757bf08d8d6"
+          },
+          "test/features/product_detail/presentation/product_detail_screen_test.dart": {
+            "checkout_sha256": "fd6e6f049e238ed2615865b95ff40ba5a138192d05853648bf545a471c77c2d4",
+            "prepared_sha256": "a855dcbd168dc7939c9da29ce01bb36f5dcd99fa23807a4273e284c93bb00cf6"
+          }
+        }
+      },
+      "host_tests": {
+        "result": "FAIL",
+        "passed": 9,
+        "failed": 3,
+        "skipped": 0,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/checkout/presentation/checkout_screen_test.dart --concurrency=1",
+        "exit_code": 1,
+        "exit_evidence": "explicit Process completed with exit code 1"
+      },
+      "restore_commands": [
+        "git restore --source=34cc059 -- lib/features/checkout/presentation/checkout_screen.dart"
+      ],
+      "failures_observed": [
+        "failure CTA senza cart distingue recovery da assenza journal: journalRead",
+        "failure CTA senza cart distingue recovery da assenza journal: readOrder",
+        "failure CTA senza cart distingue recovery da assenza journal: readOrderUnavailable"
+      ],
+      "failed_steps": [
+        {
+          "job": "Quality",
+          "steps": [
+            {
+              "name": "Focused regressions",
+              "conclusion": "failure"
+            }
+          ]
+        }
+      ],
+      "retrieval": [
+        {
+          "command": "gh run view 38308368515 --repo XNIW/ClientMerchandiseControl --json databaseId,headSha,status,conclusion,url,event,name,createdAt,updatedAt,jobs",
+          "exit_code": 0,
+          "metadata_sha256": "6afe0c6506202620947df1a3790de47e4d7f4418fb061314e2b2c48cd9112cf1",
+          "metadata_private_relative_path": "proposals/ledger-closeout-inputs/38308368515.metadata.json"
+        },
+        {
+          "command": "gh run view 38308368515 --repo XNIW/ClientMerchandiseControl --log",
+          "exit_code": 0,
+          "log_sha256": "1cf1319805aa944618ec5626857009c9e14b7418899d41d2720ce45dba50c0f7",
+          "log_private_relative_path": "fix17/retry-fourth-baseline.log"
+        }
+      ],
+      "failure_or_cancellation_cause": "causal production widget assertion",
+      "scope_note": "host synthetic unit/widget only; no native receipt/live Maps/TEST acceptance",
+      "preparation_artifact_retrieval": {
+        "artifact_id": 11773941203,
+        "name": "candidate-preparation",
+        "expired": false,
+        "commands": [
+          "gh api repos/XNIW/ClientMerchandiseControl/actions/runs/38308368515/artifacts",
+          "gh api repos/XNIW/ClientMerchandiseControl/actions/artifacts/11773941203/zip"
+        ],
+        "exit_codes": [
+          0,
+          0
+        ],
+        "metadata_sha256": "219cd39374e5ed472e3b855b61c98784768f0362fcb9471f40d1395a1244bb67",
+        "archive_sha256": "e5983ac135cc55153e45e598a1e99db2896e26c5797010026aff42d554a97718",
+        "patch_extraction": "Python zipfile read exact member candidate-preparation.patch; no WT write",
+        "patch_applied_to_worktree": false
+      }
+    },
+    {
+      "run_id": 38308436034,
+      "source_checkout_sha": "64abb0576b57a18de43b9f62191ae56ddbd9ea21",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38308436034",
+      "result": "BLOCKED",
+      "classification": "writer_cancelled_redundant_host_no_qualification",
+      "provider_status": "completed",
+      "provider_conclusion": "cancelled",
+      "provider_created_at": "2026-10-12T21:05:35Z",
+      "provider_updated_at": "2026-10-12T21:07:11Z",
+      "analyze": {
+        "result": "BLOCKED",
+        "issues": null,
+        "command": "flutter analyze",
+        "exit_code": null,
+        "terminal_summary_observed": false,
+        "exit_evidence": "interrupted during analyze, no terminal outcome"
+      },
+      "format": {
+        "result": "PASS",
+        "command": "dart format lib test integration_test",
+        "files": 400,
+        "changed": 3,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false,
+        "exit_code": 0,
+        "exit_evidence": "formatter terminal summary followed by analyze; shell -e -o pipefail",
+        "generated_localizations_command": "flutter gen-l10n",
+        "patch_sha256": "0017e8671143860bc57afd4e0779cac12a95d4305eb1f09725418eaf257b9dfb",
+        "patch_private_relative_path": "proposals/ledger-closeout-inputs/38308436034.candidate-preparation.patch",
+        "prepared_blobs": {
+          "lib/features/checkout/presentation/checkout_screen.dart": {
+            "checkout_sha256": "7f0a754772ff1d9279075134b3b479eca8fadcb9f4e363da472d038e0df5432e",
+            "prepared_sha256": "cd918d248d2c449ac2235739d20a54f75d71eecbe7a59d89683761b453109e0a"
+          },
+          "lib/l10n/generated/app_localizations_zh.dart": {
+            "checkout_sha256": "7031c8963504eb4f5f63d39f18ba03a92d6a60fcce79e3b944ae7f51dddceefb",
+            "prepared_sha256": "afdd06997b0595d30f7ddd21e2d52561b1a44944942239ddd8c9eb64367b1394"
+          },
+          "test/features/checkout/presentation/checkout_screen_test.dart": {
+            "checkout_sha256": "ef80b8aa1daab1f849cd7b809543404fa86eb7990b5aa679cdc3bb11de8a545f",
+            "prepared_sha256": "83d0cf6d5a58afa36f74bff1c815fe7195b51405fdd6e80c2be02757bf08d8d6"
+          },
+          "test/features/product_detail/presentation/product_detail_screen_test.dart": {
+            "checkout_sha256": "fd6e6f049e238ed2615865b95ff40ba5a138192d05853648bf545a471c77c2d4",
+            "prepared_sha256": "a855dcbd168dc7939c9da29ce01bb36f5dcd99fa23807a4273e284c93bb00cf6"
+          }
+        }
+      },
+      "host_tests": {
+        "result": "NOT_RUN",
+        "passed": null,
+        "failed": null,
+        "skipped": null,
+        "terminal_summary_observed": false,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1",
+        "exit_code": null,
+        "exit_evidence": "command not started before analyzer cancellation"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [],
+      "retrieval": [
+        {
+          "command": "gh run view 38308436034 --repo XNIW/ClientMerchandiseControl --json databaseId,headSha,status,conclusion,url,event,name,createdAt,updatedAt,jobs",
+          "exit_code": 0,
+          "metadata_sha256": "efcc7fef3e2b4f5547eabbfe3d1c51359c5929c6304c067e3b3075600233dce4",
+          "metadata_private_relative_path": "proposals/ledger-closeout-inputs/38308436034.metadata.json"
+        },
+        {
+          "command": "gh run view 38308436034 --repo XNIW/ClientMerchandiseControl --log",
+          "exit_code": 0,
+          "log_sha256": "44c5a86198b597bc2137a30c7792812552cc2b4a36c56b6137f7d8fa97bf168f",
+          "log_private_relative_path": "proposals/ledger-closeout-inputs/38308436034.log"
+        }
+      ],
+      "failure_or_cancellation_cause": "writer-cancelled redundant dispatch; no host qualification; source unchanged by cancellation",
+      "scope_note": "host synthetic unit/widget only; no native receipt/live Maps/TEST acceptance",
+      "cancellation_reason_provenance": "Root session record: cancellation of redundant dispatch64abb after wrong test-filename staging attempt; provider confirms cancelled but does not encode writer motive.",
+      "preparation_artifact_retrieval": {
+        "artifact_id": 11772864959,
+        "name": "candidate-preparation",
+        "expired": false,
+        "commands": [
+          "gh api repos/XNIW/ClientMerchandiseControl/actions/runs/38308436034/artifacts",
+          "gh api repos/XNIW/ClientMerchandiseControl/actions/artifacts/11772864959/zip"
+        ],
+        "exit_codes": [
+          0,
+          0
+        ],
+        "metadata_sha256": "245cafa6b2a99351631fdc6dd475fd526c9aad4185c2de895dd0418a0e76df4c",
+        "archive_sha256": "c915b9bf79375497e775dfea21dc502c1444abf9e93069a65386e240dde2d66d",
+        "patch_extraction": "Python zipfile read exact member candidate-preparation.patch; no WT write",
+        "patch_applied_to_worktree": false
+      }
+    },
+    {
+      "run_id": 38308535239,
+      "source_checkout_sha": "69589dcf49dfe6211bf39e4a888e9eed07d7874e",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38308535239",
+      "result": "PASS",
+      "classification": "host_focused_green_final_prepared_source",
+      "provider_status": "completed",
+      "provider_conclusion": "success",
+      "provider_created_at": "2026-10-12T21:06:30Z",
+      "provider_updated_at": "2026-10-12T21:10:43Z",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze",
+        "exit_code": 0,
+        "terminal_summary_observed": true,
+        "exit_evidence": "provider Focused regressions step success or explicit following test exit; No issues found observed"
+      },
+      "format": {
+        "result": "PASS",
+        "command": "dart format lib test integration_test",
+        "files": 400,
+        "changed": 3,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false,
+        "exit_code": 0,
+        "exit_evidence": "formatter terminal summary followed by analyze; shell -e -o pipefail",
+        "generated_localizations_command": "flutter gen-l10n",
+        "patch_sha256": "0017e8671143860bc57afd4e0779cac12a95d4305eb1f09725418eaf257b9dfb",
+        "patch_private_relative_path": "fix17/preparation/candidate-preparation.patch",
+        "prepared_blobs": {
+          "lib/features/checkout/presentation/checkout_screen.dart": {
+            "checkout_sha256": "7f0a754772ff1d9279075134b3b479eca8fadcb9f4e363da472d038e0df5432e",
+            "prepared_sha256": "cd918d248d2c449ac2235739d20a54f75d71eecbe7a59d89683761b453109e0a"
+          },
+          "lib/l10n/generated/app_localizations_zh.dart": {
+            "checkout_sha256": "7031c8963504eb4f5f63d39f18ba03a92d6a60fcce79e3b944ae7f51dddceefb",
+            "prepared_sha256": "afdd06997b0595d30f7ddd21e2d52561b1a44944942239ddd8c9eb64367b1394"
+          },
+          "test/features/checkout/presentation/checkout_screen_test.dart": {
+            "checkout_sha256": "ef80b8aa1daab1f849cd7b809543404fa86eb7990b5aa679cdc3bb11de8a545f",
+            "prepared_sha256": "83d0cf6d5a58afa36f74bff1c815fe7195b51405fdd6e80c2be02757bf08d8d6"
+          },
+          "test/features/product_detail/presentation/product_detail_screen_test.dart": {
+            "checkout_sha256": "fd6e6f049e238ed2615865b95ff40ba5a138192d05853648bf545a471c77c2d4",
+            "prepared_sha256": "a855dcbd168dc7939c9da29ce01bb36f5dcd99fa23807a4273e284c93bb00cf6"
+          }
+        }
+      },
+      "host_tests": {
+        "result": "PASS",
+        "passed": 483,
+        "failed": 0,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders test/features/product_detail/presentation/product_detail_screen_test.dart test/l10n/app_localizations_contract_test.dart --concurrency=1",
+        "exit_code": 0,
+        "exit_evidence": "provider Focused regressions terminal success after tests summary"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [],
+      "retrieval": [
+        {
+          "command": "gh run view 38308535239 --repo XNIW/ClientMerchandiseControl --json databaseId,headSha,status,conclusion,url,event,name,createdAt,updatedAt,jobs",
+          "exit_code": 0,
+          "metadata_sha256": "4bb4651841a7089dad5eeafad21106e97730f2661ddbc0cf6a2e3e1d145ec241",
+          "metadata_private_relative_path": "proposals/ledger-closeout-inputs/38308535239.metadata.json"
+        },
+        {
+          "command": "gh run view 38308535239 --repo XNIW/ClientMerchandiseControl --log",
+          "exit_code": 0,
+          "log_sha256": "4dca40a0ee7b21858a79ca0fbc8a204cdf05968bca00b293dd99bd561a43bba1",
+          "log_private_relative_path": "fix17/final-host.log"
+        }
+      ],
+      "failure_or_cancellation_cause": "NONE",
+      "scope_note": "host synthetic unit/widget only; no native receipt/live Maps/TEST acceptance"
+    },
+    {
+      "run_id": 38314876090,
+      "source_checkout_sha": "153646d5c48ca21d6fa579491c3649e5e3ac3467",
+      "url": "https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38314876090",
+      "result": "PASS",
+      "classification": "host_focused_after_infrastructure_and_native_fixture_report_preservation",
+      "provider_status": "completed",
+      "provider_conclusion": "success",
+      "provider_created_at": "2026-10-12T22:08:08Z",
+      "provider_updated_at": "2026-10-12T22:12:14Z",
+      "analyze": {
+        "result": "PASS",
+        "issues": 0,
+        "command": "flutter analyze",
+        "exit_code": 0,
+        "terminal_summary_observed": true,
+        "exit_evidence": "No issues found and subsequent test execution in shell -e -o pipefail"
+      },
+      "format": {
+        "result": "PASS",
+        "command": "dart format lib test integration_test",
+        "files": 400,
+        "changed": 1,
+        "is_preparation": true,
+        "exact_checkout_bytes_qualified": false,
+        "exit_code": 0,
+        "exit_evidence": "formatter terminal summary followed by analyze",
+        "generated_localizations_command": "flutter gen-l10n",
+        "patch_sha256": "8ce2afd23a15b930cdc384176b90b7a86ab6dc1d0a1b26381abdbd9ed00417a4",
+        "patch_private_relative_path": "proposals/ledger-closeout-inputs/38314876090.candidate-preparation.patch",
+        "prepared_blobs": {
+          "integration_test/customer_cart_flow_test.dart": {
+            "checkout_sha256": "efab2a6b507da552f1e7e69b505cc55026aeca42cf6ea9cfe6116b5de14cd233",
+            "prepared_sha256": "5a85fc52336ec73e4e29ecd0800f66b39d108c62dafe6d0abac501d2f33e5f01"
+          }
+        }
+      },
+      "host_tests": {
+        "result": "PASS",
+        "passed": 483,
+        "failed": 0,
+        "skipped": 1,
+        "terminal_summary_observed": true,
+        "command": "flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders test/features/product_detail/presentation/product_detail_screen_test.dart test/l10n/app_localizations_contract_test.dart --concurrency=1",
+        "exit_code": 0,
+        "exit_evidence": "provider Focused regressions terminal success after observed tests summary"
+      },
+      "restore_commands": [],
+      "failures_observed": [],
+      "failed_steps": [],
+      "retrieval": [
+        {
+          "command": "gh run view 38314876090 --repo XNIW/ClientMerchandiseControl --json databaseId,headSha,status,conclusion,url,event,name,createdAt,updatedAt,jobs",
+          "exit_code": 0,
+          "metadata_sha256": "93dd0de7a4f4207c7d256061d26d4873dbcad9fb3124b167d5bc259aa66e6b3c",
+          "metadata_private_relative_path": "proposals/ledger-closeout-inputs/38314876090.metadata.json"
+        },
+        {
+          "command": "gh run view 38314876090 --repo XNIW/ClientMerchandiseControl --log",
+          "exit_code": 0,
+          "log_sha256": "60afd128e701a99a8b1066f26f006f24792344864c09904b152c1b3502ce45df",
+          "log_private_relative_path": "proposals/ledger-closeout-inputs/38314876090.log"
+        }
+      ],
+      "failure_or_cancellation_cause": "NONE",
+      "scope_note": "Host unit/widget suite; modified integration fixture is formatted/analyzed but is not executed by this host command. Native CI/guest receipts remain separate.",
+      "preparation_artifact_retrieval": {
+        "artifact_id": 11776756569,
+        "name": "candidate-preparation",
+        "expired": false,
+        "commands": [
+          "gh api repos/XNIW/ClientMerchandiseControl/actions/runs/38314876090/artifacts",
+          "gh api repos/XNIW/ClientMerchandiseControl/actions/artifacts/11776756569/zip"
+        ],
+        "exit_codes": [
+          0,
+          0
+        ],
+        "metadata_sha256": "a485d5497a316f256591c59fe050a37c6fdf67f4554d5388c9623da952cb10cc",
+        "archive_sha256": "fcb1bdd3d643b8bf8c7ad39caf2a7fb92d9bc0e8880354e6f1e09ffcf0681ec0",
+        "patch_extraction": "Python zipfile exact member; no WT write",
+        "patch_applied_to_worktree": false
+      }
+    }
+  ],
+  "append_provenance": {
+    "source_private_or_workspace_relative_path": "docs/TASKS/EVIDENCE/TASK-054/next-integration/client-cart-tracking-host-run-ledger.json",
+    "source_ledger_sha256": "5d87901c2a467b8fe75c52fd1e973f4d6df767ddefeca05c62a6fde826a6826d",
+    "preserved_original_rows": 29,
+    "original_rows_exactly_equal": true,
+    "appended_rows": 7,
+    "original_cutoff_run_id": 38305193764,
+    "original_summary": {
+      "latest_host_run": 38305193764,
+      "latest_checkout_sha": "e8558ae4b48b3a693ddeb5a9b2e34eee731a382b",
+      "latest_host_result": "PASS",
+      "analyze_issues": 0,
+      "passed": 460,
+      "failed": 0,
+      "skipped": 1,
+      "format_files": 400,
+      "format_changed": 2,
+      "source_qualification": "formatter preparation presente: checkout SHA non equivale ai byte preparati senza associare patch",
+      "source_run_count": 29,
+      "source_provider_counts": {
+        "success": 5,
+        "failure": 22,
+        "cancelled": 2
+      },
+      "native_receipt_result": "NOT_RUN",
+      "live_receipt_result": "NOT_RUN",
+      "global_task_acceptance": "BLOCKED",
+      "native_scope_note": "Nessuna native guest receipt qualificata in questo ledger fino a run38305193764. Run38305914196 ddba07a è una raccolta separata non terminale al primo controllo.",
+      "failure_classes": {
+        "analyze": 11,
+        "host_terminal_assertions_including_causal": 11,
+        "cancelled_partial_host": 2
+      }
+    }
+  },
+  "prepared_source_association": {
+    "host_run": 38308535239,
+    "checkout_sha": "69589dcf49dfe6211bf39e4a888e9eed07d7874e",
+    "prepared_patch_sha256": "0017e8671143860bc57afd4e0779cac12a95d4305eb1f09725418eaf257b9dfb",
+    "frozen_app_sha": "07649a1253db705091b915adf98b4a7b6028af90",
+    "result": "PASS",
+    "scope_paths": [
+      "lib",
+      "test",
+      "integration_test",
+      "android",
+      "ios",
+      "pubspec.yaml",
+      "pubspec.lock"
+    ],
+    "changed_paths_equal_to_prepared_patch": [
+      "lib/features/checkout/presentation/checkout_screen.dart",
+      "lib/l10n/generated/app_localizations_zh.dart",
+      "test/features/checkout/presentation/checkout_screen_test.dart",
+      "test/features/product_detail/presentation/product_detail_screen_test.dart"
+    ],
+    "unchanged_scope_paths_proven_by_git_diff": true,
+    "digest_checks": [
+      {
+        "path": "lib/features/checkout/presentation/checkout_screen.dart",
+        "host_prepared_sha256": "cd918d248d2c449ac2235739d20a54f75d71eecbe7a59d89683761b453109e0a",
+        "frozen_sha256": "cd918d248d2c449ac2235739d20a54f75d71eecbe7a59d89683761b453109e0a",
+        "result": "PASS",
+        "command": "git show 07649a1253db705091b915adf98b4a7b6028af90:lib/features/checkout/presentation/checkout_screen.dart",
+        "exit_code": 0,
+        "digest_computation": "Python hashlib.sha256 of successful git show stdout; no SDK execution"
+      },
+      {
+        "path": "lib/l10n/generated/app_localizations_zh.dart",
+        "host_prepared_sha256": "afdd06997b0595d30f7ddd21e2d52561b1a44944942239ddd8c9eb64367b1394",
+        "frozen_sha256": "afdd06997b0595d30f7ddd21e2d52561b1a44944942239ddd8c9eb64367b1394",
+        "result": "PASS",
+        "command": "git show 07649a1253db705091b915adf98b4a7b6028af90:lib/l10n/generated/app_localizations_zh.dart",
+        "exit_code": 0,
+        "digest_computation": "Python hashlib.sha256 of successful git show stdout; no SDK execution"
+      },
+      {
+        "path": "test/features/checkout/presentation/checkout_screen_test.dart",
+        "host_prepared_sha256": "83d0cf6d5a58afa36f74bff1c815fe7195b51405fdd6e80c2be02757bf08d8d6",
+        "frozen_sha256": "83d0cf6d5a58afa36f74bff1c815fe7195b51405fdd6e80c2be02757bf08d8d6",
+        "result": "PASS",
+        "command": "git show 07649a1253db705091b915adf98b4a7b6028af90:test/features/checkout/presentation/checkout_screen_test.dart",
+        "exit_code": 0,
+        "digest_computation": "Python hashlib.sha256 of successful git show stdout; no SDK execution"
+      },
+      {
+        "path": "test/features/product_detail/presentation/product_detail_screen_test.dart",
+        "host_prepared_sha256": "a855dcbd168dc7939c9da29ce01bb36f5dcd99fa23807a4273e284c93bb00cf6",
+        "frozen_sha256": "a855dcbd168dc7939c9da29ce01bb36f5dcd99fa23807a4273e284c93bb00cf6",
+        "result": "PASS",
+        "command": "git show 07649a1253db705091b915adf98b4a7b6028af90:test/features/product_detail/presentation/product_detail_screen_test.dart",
+        "exit_code": 0,
+        "digest_computation": "Python hashlib.sha256 of successful git show stdout; no SDK execution"
+      }
+    ],
+    "review_receipt_private_relative_path": "re-review/source.69589dc.json",
+    "review_receipt_sha256": "93ec8d3f9dd842a8a854752b25c4379d851c41e2fc6d6bc46e2e4269a397d2a1",
+    "review_verdict": "APPROVED_SOURCE_WIDGET_SCOPED",
+    "integrated_verdict": "BLOCKED",
+    "note": "App byte association only; excludes scripts/workflow/docs and transfers no separate native/live gate."
+  },
+  "causal_fixture_identity_checks": [
+    {
+      "baseline_run": 38306397597,
+      "fix_run": 38306577956,
+      "test_path": "test/features/checkout/presentation/checkout_screen_test.dart",
+      "command": "git diff --exit-code 9037bf7 34cc059 -- test/features/checkout/presentation/checkout_screen_test.dart",
+      "exit_code": 0,
+      "result": "PASS",
+      "committed_test_sha256": "d7199020c5c1a241d5b038264bbacba1a19808504276987bb7824ee1279ada27",
+      "prepared_test_sha256": "4823fe5787191a18867805ab98a1e9cd854de7bd29a98182520c8abb33d9d9a8",
+      "prepared_test_identity": true
+    },
+    {
+      "baseline_run": 38307649330,
+      "fix_run": 38307656740,
+      "test_path": "test/features/checkout/presentation/checkout_screen_test.dart",
+      "command": "git diff --exit-code 89e16e2 634f0a1 -- test/features/checkout/presentation/checkout_screen_test.dart",
+      "exit_code": 0,
+      "result": "PASS",
+      "committed_test_sha256": "b6399c9a131da55259fe5aaec661b9312a29708daa64d9e0158e86bf82d5cd21",
+      "prepared_test_sha256": "ab001fb991b3902f10016b44fc1ec7cee263a19dd5cebf097992e0ff7843597a",
+      "prepared_test_identity": true
+    },
+    {
+      "baseline_run": 38308368515,
+      "fix_run": 38308535239,
+      "test_path": "test/features/checkout/presentation/checkout_screen_test.dart",
+      "command": "git diff --exit-code b2d72e7 69589dc -- test/features/checkout/presentation/checkout_screen_test.dart",
+      "exit_code": 0,
+      "result": "PASS",
+      "committed_test_sha256": "ef80b8aa1daab1f849cd7b809543404fa86eb7990b5aa679cdc3bb11de8a545f",
+      "prepared_test_sha256": "83d0cf6d5a58afa36f74bff1c815fe7195b51405fdd6e80c2be02757bf08d8d6",
+      "prepared_test_identity": true
+    }
+  ],
+  "followup_append_provenance": {
+    "source_ledger_sha256": "eda95da155e2debd401321e71f94b966cfb2535bc57a1a5ce86c3ab63691a89f",
+    "source_cutoff_run_id": 38308535239,
+    "preserved_rows": 36,
+    "appended_rows": 1,
+    "original_rows_exactly_equal": true
+  },
+  "followup_app_source_association": {
+    "host_run": 38314876090,
+    "checkout_sha": "153646d5c48ca21d6fa579491c3649e5e3ac3467",
+    "frozen_app_sha": "07649a1253db705091b915adf98b4a7b6028af90",
+    "command": "git diff --exit-code 07649a1 153646d5c48ca21d6fa579491c3649e5e3ac3467 -- lib test android ios pubspec.yaml pubspec.lock",
+    "exit_code": 0,
+    "result": "PASS",
+    "scope_paths": [
+      "lib",
+      "test",
+      "android",
+      "ios",
+      "pubspec.yaml",
+      "pubspec.lock"
+    ],
+    "integration_changed_paths": [
+      "integration_test/customer_cart_flow_test.dart"
+    ],
+    "host_prepared_patch_paths": [
+      "integration_test/customer_cart_flow_test.dart"
+    ],
+    "integration_native_execution_in_this_ledger": "NOT_RUN",
+    "note": "Unchanged app bytes preserve previous source scope only; no native/Maps/live qualification transfers."
+  }
+}

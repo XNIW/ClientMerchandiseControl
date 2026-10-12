@@ -1,7 +1,7 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`ACTIVE / FIX / CODEX_FIX_IN_PROGRESS`.
+`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
@@ -9,7 +9,19 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
-## Candidate Client — mandato12ottobre
+## Addendum carrello e tracking — mandato12ottobre
+
+[Dossier e matrice correnti](CLIENT_TASK054_CART_TRACKING_ADDENDUM.md): app07649,
+source/widget re-review APPROVED scoped, integrata BLOCKED. Quality1242PASS/1SKIP
+più11performance, release unsigned2PASS, guest e journal Android restartPASS.
+CI0765SUCCESS/2FAIL; iOS body93/driverPASS ma completezza133/137FlutterFAIL.
+Guest iOS4b e corpusAndroid137PASS; nuovi journal/corpus iOSBLOCKED nei tentativi
+terminali1fb. Nessun SDK/UI Mac o claim Google/AT/TEST.
+[Ledger37run](next-integration/client-cart-tracking-host-run-ledger.json) e
+[review/digest](next-integration/client-cart-tracking-review-association.json)
+conservano RED/GREEN e provenance. Mappa reale e gate esterni restano aperti.
+
+## Checkpoint precedente — mandato12ottobre
 
 Sorgente applicativo ba11b0f, PR29 draft: CI38279556447 terminale5PASS/2FAILjournal.
 Quality1137/1SKIP+11performance; Android/iOS92fixture ciascuno,137FlutterPNG+4OS,

@@ -5746,3 +5746,43 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
 - **Ruolo/fase**: CODEX_FIXER/FIX, TASK-054 unico ACTIVE.
 
 - **Handoff**: `CODEX_FIX_IN_PROGRESS`.
+
+## 2026-10-12 — TASK-054 addendum Fix e handoff bloccato
+
+- **Autorizzazione**: addendum e scelta runner paralleli; unico writer Client.
+- **Fonte**: app07649, fixture153+formatterec, helper4b e promozioneCI1fb;
+  superfici app/lib/test/native/config/dependency byte-identiche076.26digest,
+  37run/29storiche immutate,80capsule e30caseR preservati.
+- **Comportamento**: outcome add scoped,readback pending/conflitto,checkoutdraftv5
+  prima cart/discovery,receiptUTC/Retrynullable,ETA/camera/espansione/cacheprivacy.
+- **Review tecnica**: source/widget APPROVED scoped distinta,RRcart echeckout01–03
+  chiusi; QA host16card/4locale×2tema×200% distinta da native/Google/AT.
+- **Gate reali**: Quality0761242/1SKIP+11performance/0issues/409format0changed,
+  2releaseunsignedPASS; focused153+formatterec483/1SKIP/0issues. Guest Android
+  4152→4363 e iOS19700→21193 storage/UI/cleanupPASS; journalAndroid4289→4396PASS.
+  Android4b93body+driver/137Flutter+4OS,hashAPK/UIDuguali/cleanupPASS.
+- **Negativi**: iOS076corpus133/137FAIL,4screenshotpersi reportData cart corretto;
+  v1hosttrueFAIL124/dyld,sdkZIPAndroidFAIL1 e vecchiVM/inventory/offline preservati.
+  Visual1fb postbootspawn124;journal1fb+repeatprecreateRuntimes124;fixture/appNOT_RUN,
+  cleanupPASS. Nessun targeting/app/timeout cambiato per mascherare infrastruttura.
+- **Residui**: Maps/R17/producer/ordineassegnato,grant/publication/runtimeAuth,
+  R13/R14,R24,C04,firma/distribuzione,AT/fisico e matrice native restano aperti;
+  route/ETA/background hanno proposta owner pronta,non attivazione.
+- **Preservazione**: originale8423c868/supabase/ nontracciato;nessun SDK/UI Mac,
+  SQL/cron/Worker/N/inputesterno o merge. Nuova CI PRhead letta separatamente.
+- **Ruolo/fase**: CODEX_FIXER/FIX→CODEX_RE_REVIEWER/REVIEW, taskBLOCKED.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-10-12 — TASK-054 re-review finale addendum
+
+- **Reviewer**: CODEX_RE_REVIEWER distinto e read-only; verbale JSON in evidence,
+  cutoff23:02:57UTC prima dell'aggiornamento PR/CIhead.
+- **Esito**: BLOCKED,0nuovi finding app/evidence.26digest/24refs,37run/36prefix,
+ 30caseR e18newlinks verificati;rawAndroid137+4/identity/cleanup e rawguestiOS
+ 19700→21193/SDKterminal/ownercleanup qualificati,NOT_RUNdelegati preservati.
+- **Limite**: nuovo corpus/KeychainiOS,Maps/R17,Auth/TEST/R13/R14/R24/C04,
+  AT/IME/matricenative/signing restano aperti;nessunaapprovazioneglobale.
+- **PR**: draft29 ancora527 al cutoff;FForiginario eChecksnuovoSHA da verificare,
+  senzaqualificareanticipatamenteCI o procederea merge/DONE.
+- **Ruolo/fase**: CODEX_RE_REVIEWER/REVIEW,taskBLOCKED.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

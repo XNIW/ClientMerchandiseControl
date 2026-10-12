@@ -7,18 +7,21 @@
 - **Stato globale**: ACTIVE
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: ACTIVE
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_FIX_IN_PROGRESS
+- **Stato task**: BLOCKED
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — runtime iOS e gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: addendum utente12ottobre carrello e mappa reale,
-  unico writer Client in FIX e runner GitHub separati. Riproduzione widget del falso
-  successo, outcome per richiesta/account/shop, percorso cart/checkout e qualifica
-  tracking mirata. Checkpoint ba11/527 e QAcb9 preservati con tutti i gate aperti;
-  review integrata BLOCKED. Nessuna nuova richiesta slot Mac, SQL/deploy/input Admin/W/N.
+- **Review integrata**: BLOCKED — gate autenticati/Maps/firma/AT; journal iOS e corpus in qualifica separata
+- **Prossima azione autorizzata**: re-review dell'addendum e gate PR29 sullo SHA
+  effettivo, senza nuovo SDK/UI Mac. App07649/source/widget APPROVED scoped,
+  Quality1242+11PASS; guest Android/iOS e corpus Android137PASS. Journal/corpus
+  iOS BLOCKED nei tentativi terminali1fb, Maps/R17 e acceptance autenticate aperti.
+  Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
+  Checkpoint ba11/527/QAcb9 e negativi preservati; nessun SQL/deploy/input Admin/W/N.
+
+
 
 
 ## Repository coinvolti
@@ -123,7 +126,7 @@
 | TASK-051 | Cart, checkout and payment journey completion | DONE | TASK-050, TASK-023, TASK-026, TASK-027, TASK-032 | Client, Admin, Supabase | Checkout e payment/recovery completi |
 | TASK-052 | Notification inbox and reorder | DONE | TASK-051, TASK-028, TASK-031 | Client, Admin, Supabase | Inbox persistente e riacquisto validato |
 | TASK-053 | After-sales, verified reviews and search assist | DONE | TASK-052 | Client, Admin, Supabase | Assistenza, recensioni verificate e ricerca assistita |
-| TASK-054 | Integrated staging E2E and closeout | ACTIVE | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
+| TASK-054 | Integrated staging E2E and closeout | BLOCKED | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
 
 ## Dipendenze e blocchi
 

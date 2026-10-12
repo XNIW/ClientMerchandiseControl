@@ -24,6 +24,11 @@ on:
         type: boolean
         default: false
         required: false
+      cjk_fixture:
+        description: Font Noto CJK verificato per le catture del renderer host nei soli test mirati
+        type: boolean
+        default: false
+        required: false
       quality_only:
         description: Riesegue Quality riusando i rilasci invariati già qualificati
         type: boolean
@@ -58,6 +63,23 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
+      - name: Preparare il font CJK del renderer
+        if: ${{ inputs.focused && inputs.cjk_fixture }}
+        run: |
+          mkdir -p build/task054-host-fonts build/task054-client-ui
+          curl --fail --location --silent --show-error --connect-timeout 15 --max-time 120 \
+            https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTC/NotoSansCJK-Regular.ttc \
+            --output build/task054-host-fonts/NotoSansCJK-Regular.ttc
+          printf '%s  %s\n' \
+            b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a \
+            build/task054-host-fonts/NotoSansCJK-Regular.ttc | sha256sum --check --strict
+          curl --fail --location --silent --show-error --connect-timeout 15 --max-time 120 \
+            https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/LICENSE \
+            --output build/task054-client-ui/cjk-fixture-license.txt
+          # Asset del solo renderer QA nel runner effimero, senza package o asset client.
+          sudo mkdir -p /usr/share/fonts/opentype/noto
+          sudo cp build/task054-host-fonts/NotoSansCJK-Regular.ttc \
+            /usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc
       - name: Focused regressions
         if: ${{ inputs.focused }}
         env:
@@ -80,6 +102,7 @@ jobs:
             candidate-preparation.patch
             build/task054-client-ui/*.png
             build/task054-client-ui/host-fonts.json
+            build/task054-client-ui/cjk-fixture-license.txt
           if-no-files-found: error
       - name: Validate workflow action pins
         if: ${{ !inputs.focused }}

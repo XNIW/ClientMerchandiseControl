@@ -34,7 +34,9 @@ void main() {
             await tester.pumpWidget(
               fixture.wrap(
                 MaterialApp(
-                  theme: clientHostVisualTheme(dark ? AppTheme.dark() : AppTheme.light()),
+                  theme: clientHostVisualTheme(
+                    dark ? AppTheme.dark() : AppTheme.light(),
+                  ),
                   locale: locale,
                   localizationsDelegates:
                       AppLocalizations.localizationsDelegates,
@@ -100,18 +102,32 @@ void main() {
             );
             await tester.pumpAndSettle();
             expect(find.text(l10n.afterSalesCaseOpened), findsOneWidget);
-            final replace = find.byKey(const ValueKey('after-sales-evidence-replace-1'));
-            if (locale.languageCode == 'es' && Platform.environment['CMC_CLIENT_CAPTURE_DIR'] != null) {
-              await tester.scrollUntilVisible(replace,200,scrollable:find.byType(Scrollable).first);
+            final replace = find.byKey(
+              const ValueKey('after-sales-evidence-replace-1'),
+            );
+            if (locale.languageCode == 'es' &&
+                Platform.environment['CMC_CLIENT_CAPTURE_DIR'] != null) {
+              await tester.scrollUntilVisible(
+                replace,
+                200,
+                scrollable: find.byType(Scrollable).first,
+              );
               await tester.ensureVisible(replace);
               await tester.pumpAndSettle();
-              await tester.runAsync(()async {
-                final boundary=tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('after-sales-capture')));
-                final image=await boundary.toImage();
-                final bytes=await image.toByteData(format:ui.ImageByteFormat.png);
-                final directory=Platform.environment['CMC_CLIENT_CAPTURE_DIR']!;
-                await Directory(directory).create(recursive:true);
-                await File('$directory/after-sales-file-unavailable-es-CL-$dark.png').writeAsBytes(bytes!.buffer.asUint8List());
+              await tester.runAsync(() async {
+                final boundary = tester.renderObject<RenderRepaintBoundary>(
+                  find.byKey(const ValueKey('after-sales-capture')),
+                );
+                final image = await boundary.toImage();
+                final bytes = await image.toByteData(
+                  format: ui.ImageByteFormat.png,
+                );
+                final directory =
+                    Platform.environment['CMC_CLIENT_CAPTURE_DIR']!;
+                await Directory(directory).create(recursive: true);
+                await File(
+                  '$directory/after-sales-file-unavailable-es-CL-$dark.png',
+                ).writeAsBytes(bytes!.buffer.asUint8List());
                 image.dispose();
               });
             }

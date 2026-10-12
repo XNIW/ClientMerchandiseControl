@@ -63,10 +63,11 @@ jobs:
         env:
           CMC_CLIENT_CAPTURE_DIR: build/task054-client-ui
         run: |
+          bash scripts/resolve-flutter.sh
           flutter pub get --enforce-lockfile
           flutter gen-l10n
-          dart format lib test
-          git diff -- lib test > candidate-preparation.patch
+          dart format lib test integration_test
+          git diff -- lib test integration_test > candidate-preparation.patch
           flutter test test/features/after_sales test/features/reviews test/features/customer_notifications --concurrency=1
       - name: Preserve focused source preparation
         if: ${{ always() && inputs.focused }}

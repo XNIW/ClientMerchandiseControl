@@ -141,22 +141,37 @@ void main() {
 
     final mutations = <String>[
       workflow.replaceFirst('        type: choice\n', '        type: string\n'),
-      workflow.replaceFirst('        required: true\n', '        required: false\n'),
-      workflow.replaceFirst('        default: all\n', '        default: ios-visual\n'),
-      workflow.replaceFirst('          - ios-visual\n', '          - skip-release\n'),
-      prefix + releaseJob.replaceFirst(
-        '    if: $releaseCondition\n',
-        r"    if: ${{ inputs.gate == 'all' }}" '\n',
-      ),
-      prefix + releaseJob.replaceFirst('    if: $releaseCondition\n', ''),
       workflow.replaceFirst(
-        r"-${{ inputs.gate || 'all' }}",
-        '',
+        '        required: true\n',
+        '        required: false\n',
       ),
+      workflow.replaceFirst(
+        '        default: all\n',
+        '        default: ios-visual\n',
+      ),
+      workflow.replaceFirst(
+        '          - ios-visual\n',
+        '          - skip-release\n',
+      ),
+      prefix +
+          releaseJob.replaceFirst(
+            '    if: $releaseCondition\n',
+            r"    if: ${{ inputs.gate == 'all' }}"
+                '\n',
+          ),
+      prefix + releaseJob.replaceFirst('    if: $releaseCondition\n', ''),
+      workflow.replaceFirst(r"-${{ inputs.gate || 'all' }}", ''),
     ];
     for (final mutation in mutations) {
-      expect(mutation, isNot(workflow), reason: 'il controllo deve mutare il caso');
-      expect(() => _validateIosReleaseJob(mutation), throwsA(isA<StateError>()));
+      expect(
+        mutation,
+        isNot(workflow),
+        reason: 'il controllo deve mutare il caso',
+      );
+      expect(
+        () => _validateIosReleaseJob(mutation),
+        throwsA(isA<StateError>()),
+      );
     }
   });
 

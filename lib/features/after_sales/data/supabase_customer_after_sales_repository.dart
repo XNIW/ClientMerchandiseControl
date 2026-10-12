@@ -223,8 +223,9 @@ final class SupabaseCustomerAfterSalesRepository
     required CustomerAfterSalesEvidenceInput input,
   }) async {
     final transfer = input.transfer;
-    if (transfer.inFlight)
+    if (transfer.inFlight) {
       throw const CustomerAfterSalesException('evidence_ambiguous');
+    }
     final receiptPort = port is CustomerAfterSalesEvidenceReceiptPort
         ? port as CustomerAfterSalesEvidenceReceiptPort
         : null;
@@ -236,8 +237,9 @@ final class SupabaseCustomerAfterSalesRepository
         (receiptPort == null ||
             owner != null && receiptPort.currentOwnerId == owner);
     void fence() {
-      if (!current())
+      if (!current()) {
         throw const CustomerAfterSalesException('context_changed');
+      }
     }
 
     transfer.inFlight = true;
@@ -298,14 +300,17 @@ final class SupabaseCustomerAfterSalesRepository
             'after_sales_evidence_register',
           );
           fence();
-          if (value['apiVersion'] != 'customer-after-sales.v1')
+          if (value['apiVersion'] != 'customer-after-sales.v1') {
             throw const FormatException('evidence_register_version');
-          if (value['status'] == 'pending_scan' && value.length == 3)
+          }
+          if (value['status'] == 'pending_scan' && value.length == 3) {
             return transfer.evidenceId = _uuid(value, 'evidenceId');
+          }
           final found = await receipt();
           if (found != null) return found;
-          if (allowMissing && value['status'] == 'invalid_evidence')
+          if (allowMissing && value['status'] == 'invalid_evidence') {
             return null;
+          }
           throw CustomerAfterSalesException(
             value['status'] is String
                 ? value['status'] as String
@@ -360,8 +365,9 @@ final class SupabaseCustomerAfterSalesRepository
             transfer.ticketUncertainUntil = null;
           }
           _root(ticket);
-          if (ticket.length != 5)
+          if (ticket.length != 5) {
             throw const FormatException('after_sales_evidence_ticket_shape');
+          }
           final ticketId = _uuid(ticket, 'ticketId');
           final path = _evidenceObjectPath(ticket, caseId, extension);
           if (path.split('/')[2].split('.').first != ticketId ||

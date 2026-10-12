@@ -198,7 +198,7 @@ class _Port
     caseIds.add(parameters['p_case_id']! as String);
     if (function == 'customer_after_sales_evidence_upload_ticket_v1') {
       tickets++;
-      final ticketId = _ticket.substring(0, _ticket.length - 1) + '$tickets';
+      final ticketId = '${_ticket.substring(0, _ticket.length - 1)}$tickets';
       path = '$_owner/$_case/$ticketId.png';
       return {
         'apiVersion': 'customer-after-sales.v1',
@@ -213,11 +213,12 @@ class _Port
     expect(function, 'customer_after_sales_evidence_register_v1');
     expect(parameters['p_object_path'], path);
     registers++;
-    if (!stored || registered)
+    if (!stored || registered) {
       return {
         'apiVersion': 'customer-after-sales.v1',
         'status': 'invalid_evidence',
       };
+    }
     registered = true;
     registeredPath = path;
     if (loseRegisterAck) {
@@ -240,8 +241,9 @@ class _Port
     uploads++;
     expect(objectPath, path);
     await uploadBarrier?.future;
-    if (failWithoutObject)
+    if (failWithoutObject) {
       throw const SocketException('Trasporto sintetico senza commit');
+    }
     stored = true;
     if (loseUploadAck) {
       loseUploadAck = false;

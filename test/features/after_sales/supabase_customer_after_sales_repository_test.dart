@@ -148,8 +148,9 @@ final class _Port implements CustomerAfterSalesPort {
     Map<String, Object?> parameters,
   ) async {
     functions.add(function);
-    if (function == 'customer_after_sales_evidence_upload_ticket_v1')
+    if (function == 'customer_after_sales_evidence_upload_ticket_v1') {
       await ticketBarrier?.future;
+    }
     return switch (function) {
       'customer_after_sales_order_lines_v1' =>
         orderLinesPayload ?? _orderLinesPayload(),

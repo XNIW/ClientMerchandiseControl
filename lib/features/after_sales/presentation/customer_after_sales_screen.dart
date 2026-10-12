@@ -342,8 +342,9 @@ final class _AfterSalesCreateFormState
 
   Future<void> _submit() async {
     if (!_isCurrent ||
-        ref.read(customerAfterSalesControllerProvider).isMutating)
+        ref.read(customerAfterSalesControllerProvider).isMutating) {
       return;
+    }
     final l10n = AppLocalizations.of(context);
     if (_selected.isEmpty) {
       ScaffoldMessenger.of(
@@ -370,7 +371,7 @@ final class _AfterSalesCreateFormState
       attachments: _evidence.map(_localAttachment).toList(),
       canContinue: () => _isCurrent,
     );
-    if (!_isCurrent) return;
+    if (!mounted || !_isCurrent) return;
     final state = ref.read(customerAfterSalesControllerProvider);
     if (value == null) {
       ScaffoldMessenger.of(
@@ -426,8 +427,9 @@ final class _AfterSalesCreateFormState
             state: state,
             canContinue: () => _isCurrent,
             onCompleted: () {
-              if (_isCurrent)
+              if (_isCurrent) {
                 context.go(AppRoutes.afterSalesLocation(openedCase.id));
+              }
             },
           ),
           TextButton(
@@ -629,10 +631,12 @@ final class _EvidenceRecoveryPanel extends ConsumerWidget {
             .every(
               (file) =>
                   file.status == CustomerAfterSalesAttachmentStatus.confirmed,
-            ))
+            )) {
       onCompleted?.call();
-    if (context.mounted && (canContinue?.call() ?? true))
+    }
+    if (context.mounted && (canContinue?.call() ?? true)) {
       unawaited(controller.refresh());
+    }
   }
 
   Future<void> _pick(
@@ -668,8 +672,9 @@ final class _EvidenceRecoveryPanel extends ConsumerWidget {
         maxHeight: 2048,
         requestFullMetadata: false,
       );
-      if (!context.mounted || !fence() || !(canContinue?.call() ?? true))
+      if (!context.mounted || !fence() || !(canContinue?.call() ?? true)) {
         return;
+      }
       controller.selectAttachments(
         caseId,
         selected.take(capacity).map(_localAttachment).toList(),

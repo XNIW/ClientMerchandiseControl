@@ -151,11 +151,12 @@ void main() {
             );
             expect(tester.takeException(), isNull);
             final directory = Platform.environment['CMC_CLIENT_CAPTURE_DIR'];
-            if (directory != null)
+            if (directory != null) {
               await tester.runAsync(() async {
                 final boundary = tester.renderObject<RenderRepaintBoundary>(
                   find.byKey(const ValueKey('after-sales-capture')),
                 );
+            }
                 final image = await boundary.toImage();
                 final bytes = await image.toByteData(
                   format: ui.ImageByteFormat.png,

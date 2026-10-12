@@ -19,6 +19,48 @@ const _caseId = '86000000-0000-4000-8000-000000000001';
 const _idempotencyKey = '87000000-0000-4000-8000-000000000001';
 
 void main() {
+  test('refresh stesso owner senza schermata conserva la pratica incompleta', () async {
+    final repository = _Repository();
+    final identity = StateProvider<AuthenticatedCustomer?>(
+      (ref) => _customer(_ownerA),
+    );
+    final container = _container(repository, identity);
+    addTearDown(container.dispose);
+    final subscription = container.listen(
+      customerAfterSalesControllerProvider,
+      (_, _) {},
+    );
+    await _settle();
+    final controller = container.read(
+      customerAfterSalesControllerProvider.notifier,
+    );
+    final file = CustomerAfterSalesLocalAttachment(
+      name: 'originale.png',
+      extension: 'png',
+      mimeType: 'image/png',
+      readBytes: () async => throw StateError('File sintetico assente'),
+    );
+    await controller.submitWithEvidence(
+      draft: _draft(),
+      attachments: [file],
+      canContinue: () => true,
+    );
+    subscription.close();
+    container.read(identity.notifier).state = _customer(_ownerA);
+    // Nessun read/listener finché la schermata viene riaperta.
+    await _settle();
+    final reopened = container.read(
+      customerAfterSalesControllerProvider.notifier,
+    );
+    expect(reopened.openedCaseForOrder(_order)?.id, _caseId);
+    expect(reopened.attachmentsFor(_caseId).single, same(file));
+    await reopened.submitWithEvidence(
+      draft: _draft(),
+      attachments: [],
+      canContinue: () => true,
+    );
+    expect(repository.idempotencyKeys, hasLength(1));
+  });
   test('refresh identità stesso owner conserva recovery e bozza', () async {
     final repository = _Repository();
     final identity = StateProvider<AuthenticatedCustomer?>(

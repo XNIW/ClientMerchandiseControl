@@ -108,8 +108,8 @@ jobs:
           dart format lib test integration_test
           git diff -- lib test integration_test > candidate-preparation.patch
           if [[ "$CHECKOUT_SCOPE_BASELINE" == "true" ]]; then
-            flutter analyze lib test/features/checkout/application/checkout_order_scope_test.dart
-            flutter test test/features/checkout/application/checkout_order_scope_test.dart --concurrency=1
+            flutter analyze lib test/features/checkout/application/checkout_order_scope_test.dart test/features/checkout/application/checkout_order_profile_update_test.dart
+            flutter test test/features/checkout/application/checkout_order_scope_test.dart test/features/checkout/application/checkout_order_profile_update_test.dart --concurrency=1
           else
             flutter analyze
             flutter test test/features/after_sales test/features/reviews test/features/customer_notifications test/features/checkout test/features/cart test/features/delivery_tracking test/features/orders --concurrency=1

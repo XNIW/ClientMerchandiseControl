@@ -49,6 +49,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-preview.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-guest-cart-process-restart.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-native-file.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-readiness.py
       - name: Validate client security boundary
         run: |
           bash scripts/check-client-security.sh

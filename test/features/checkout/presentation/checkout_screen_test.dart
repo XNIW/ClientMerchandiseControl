@@ -125,127 +125,177 @@ void main() {
     );
   }
 
-  for (final failureSource in ['journalRead', 'readOrder', 'readOrderUnavailable', 'noJournal']) {
-    testWidgets('failure CTA senza cart distingue recovery da assenza journal: $failureSource', (tester) async {
-      final pending = failureSource == 'journalRead';
-      final noJournal = failureSource == 'noJournal';
-      final readOrderUnavailable = failureSource == 'readOrderUnavailable';
-      final order = checkoutTestOrderSnapshot(
-        idempotent: true,
-        fulfillment: CheckoutOrderFulfillment(
-          destinationTitle: 'Receipt recuperata',
-          addressLine1: 'Avenida Uno 123',
-          commune: 'Santiago',
-          recipientName: null,
-          recipientPhoneMasked: null,
-          deliveryInstructions: null,
-          slotLabel: 'Retiro confirmado',
-          slotStartsAt: checkoutTestNow.add(const Duration(days: 1)),
-          slotEndsAt: checkoutTestNow.add(const Duration(days: 1, hours: 2)),
-        ),
-      );
-      final store = MemoryCheckoutDraftStore();
-      if (!noJournal) {
-        store.draft = CheckoutLocalDraft(
-          ownerSubjectId: checkoutTestOwner,
-          shopSlug: 'storefront-test',
-          step: CheckoutStep.confirmation,
-          selection: const CheckoutSelection(
-            mode: CheckoutFulfillmentMode.pickup,
-            pickupPointId: checkoutTestPoint,
-            slotId: checkoutTestPickupSlot,
-            paymentMethod: CheckoutPaymentMethod.payAtPickup,
+  for (final failureSource in [
+    'journalRead',
+    'readOrder',
+    'readOrderUnavailable',
+    'noJournal',
+  ]) {
+    testWidgets(
+      'failure CTA senza cart distingue recovery da assenza journal: $failureSource',
+      (tester) async {
+        final pending = failureSource == 'journalRead';
+        final noJournal = failureSource == 'noJournal';
+        final readOrderUnavailable = failureSource == 'readOrderUnavailable';
+        final order = checkoutTestOrderSnapshot(
+          idempotent: true,
+          fulfillment: CheckoutOrderFulfillment(
+            destinationTitle: 'Receipt recuperata',
+            addressLine1: 'Avenida Uno 123',
+            commune: 'Santiago',
+            recipientName: null,
+            recipientPhoneMasked: null,
+            deliveryInstructions: null,
+            slotLabel: 'Retiro confirmado',
+            slotStartsAt: checkoutTestNow.add(const Duration(days: 1)),
+            slotEndsAt: checkoutTestNow.add(const Duration(days: 1, hours: 2)),
           ),
-          quoteId: checkoutTestQuote,
-          orderId: pending ? null : checkoutTestOrder,
-          pendingOperation: pending ? const CheckoutPendingOperation(
-            kind: CheckoutPendingOperationKind.order,
-            idempotencyKey: checkoutTestKey,
-            cartVersion: 7,
-            quoteId: checkoutTestQuote,
-            expectedQuoteVersion: 2,
-            paymentMethod: CheckoutPaymentMethod.payAtPickup,
-          ) : null,
-          updatedAt: checkoutTestNow,
         );
-      }
-      final originalIntent = store.draft?.pendingOperation;
-      final repository = FakeCheckoutRepository()
-        ..optionsError = const CheckoutRepositoryException(CheckoutFailureKind.offline);
-      if (pending) {
-        store.readError = StateError('synthetic journal read failure');
-        repository.orderOutcomes.add(checkoutTestOrderResponse(order: order, idempotent: true));
-      } else if (!noJournal) {
-        repository.readOrderOutcome = readOrderUnavailable
-            ? checkoutTestOrderResponse(status: CheckoutOrderRemoteStatus.unavailable)
-            : const CheckoutRepositoryException(CheckoutFailureKind.offline);
-      }
-      final cartState = CartState.failure(
-        isAuthenticated: true,
-        failureKind: CartFailureKind.offline,
-      );
-      await tester.pumpWidget(buildApp(
-        repository: repository,
-        draftStore: store,
-        cartState: cartState,
-      ));
-      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
-      await tester.pumpAndSettle();
-      final container = ProviderScope.containerOf(tester.element(find.byType(CheckoutScreen)));
-      final failure = container.read(checkoutControllerProvider);
-      expect(failure.status, CheckoutViewStatus.failure);
-      expect(failure.cart, isNull);
-      expect(failure.failureKind, pending
-          ? CheckoutFailureKind.unexpected
-          : noJournal ? CheckoutFailureKind.cartUnavailable
-          : readOrderUnavailable ? CheckoutFailureKind.unavailable : CheckoutFailureKind.offline);
-      final l10n = AppLocalizations.of(tester.element(find.byType(CheckoutScreen)));
-      final action = find.byKey(const ValueKey('checkout-failure-action'));
-      expect(action, findsOneWidget);
-      expect(find.descendant(of: action,
-        matching: find.text(noJournal ? l10n.cartExploreCatalog : l10n.checkoutRetryAction)), findsOneWidget);
-      expect(repository.orderRequests, isEmpty);
-      expect(store.draft?.pendingOperation, same(originalIntent));
-      expect(container.read(checkoutCartStateProvider), same(cartState));
-      store.readError = null;
-      repository.readOrderOutcome = checkoutTestOrderResponse(order: order, idempotent: true);
-      await tester.ensureVisible(action);
-      await tester.tap(action);
-      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
-      await tester.pumpAndSettle();
-      if (noJournal) {
-        expect(router.state.uri.path, AppRoutes.catalogLocation);
-        expect(find.text('catalog-destination'), findsOneWidget);
-        expect(repository.readOrderCalls, 0);
-        expect(repository.orderRequests, isEmpty);
-        expect(store.draft, isNull);
-      } else {
-        expect(router.state.uri.path, AppRoutes.checkoutLocation);
-        expect(find.byKey(const ValueKey('checkout-order-receipt')), findsOneWidget);
-        expect(find.text(checkoutTestOrderCode), findsOneWidget);
-        expect(container.read(checkoutControllerProvider).order, same(order));
-        expect(store.draft!.orderId, checkoutTestOrder);
-        expect(store.draft!.pendingOperation, isNull);
-        if (pending) {
-          expect(repository.orderRequests.single.key, originalIntent!.idempotencyKey);
-          expect(repository.orderRequests.single.quoteId, checkoutTestQuote);
-          expect(repository.orderRequests.single.version, 2);
-          expect(repository.orderRequests.single.paymentMethod, CheckoutPaymentMethod.payAtPickup);
-          expect(repository.orderCartVersions, [7]);
-        } else {
-          expect(repository.readOrderCalls, 2);
-          expect(repository.readOrderIds, [checkoutTestOrder, checkoutTestOrder]);
-          expect(repository.orderRequests, isEmpty);
+        final store = MemoryCheckoutDraftStore();
+        if (!noJournal) {
+          store.draft = CheckoutLocalDraft(
+            ownerSubjectId: checkoutTestOwner,
+            shopSlug: 'storefront-test',
+            step: CheckoutStep.confirmation,
+            selection: const CheckoutSelection(
+              mode: CheckoutFulfillmentMode.pickup,
+              pickupPointId: checkoutTestPoint,
+              slotId: checkoutTestPickupSlot,
+              paymentMethod: CheckoutPaymentMethod.payAtPickup,
+            ),
+            quoteId: checkoutTestQuote,
+            orderId: pending ? null : checkoutTestOrder,
+            pendingOperation: pending
+                ? const CheckoutPendingOperation(
+                    kind: CheckoutPendingOperationKind.order,
+                    idempotencyKey: checkoutTestKey,
+                    cartVersion: 7,
+                    quoteId: checkoutTestQuote,
+                    expectedQuoteVersion: 2,
+                    paymentMethod: CheckoutPaymentMethod.payAtPickup,
+                  )
+                : null,
+            updatedAt: checkoutTestNow,
+          );
         }
-      }
-      expect(repository.loadOptionsCalls, 0);
-      expect(repository.loadPaymentOptionsCalls, 0);
-      expect(repository.createRequests, isEmpty);
-      expect(container.read(checkoutCartStateProvider), same(cartState));
-      expect(tester.takeException(), isNull);
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pumpAndSettle();
-    });
+        final originalIntent = store.draft?.pendingOperation;
+        final repository = FakeCheckoutRepository()
+          ..optionsError = const CheckoutRepositoryException(
+            CheckoutFailureKind.offline,
+          );
+        if (pending) {
+          store.readError = StateError('synthetic journal read failure');
+          repository.orderOutcomes.add(
+            checkoutTestOrderResponse(order: order, idempotent: true),
+          );
+        } else if (!noJournal) {
+          repository.readOrderOutcome = readOrderUnavailable
+              ? checkoutTestOrderResponse(
+                  status: CheckoutOrderRemoteStatus.unavailable,
+                )
+              : const CheckoutRepositoryException(CheckoutFailureKind.offline);
+        }
+        final cartState = CartState.failure(
+          isAuthenticated: true,
+          failureKind: CartFailureKind.offline,
+        );
+        await tester.pumpWidget(
+          buildApp(
+            repository: repository,
+            draftStore: store,
+            cartState: cartState,
+          ),
+        );
+        await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+        await tester.pumpAndSettle();
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(CheckoutScreen)),
+        );
+        final failure = container.read(checkoutControllerProvider);
+        expect(failure.status, CheckoutViewStatus.failure);
+        expect(failure.cart, isNull);
+        expect(
+          failure.failureKind,
+          pending
+              ? CheckoutFailureKind.unexpected
+              : noJournal
+              ? CheckoutFailureKind.cartUnavailable
+              : readOrderUnavailable
+              ? CheckoutFailureKind.unavailable
+              : CheckoutFailureKind.offline,
+        );
+        final l10n = AppLocalizations.of(
+          tester.element(find.byType(CheckoutScreen)),
+        );
+        final action = find.byKey(const ValueKey('checkout-failure-action'));
+        expect(action, findsOneWidget);
+        expect(
+          find.descendant(
+            of: action,
+            matching: find.text(
+              noJournal ? l10n.cartExploreCatalog : l10n.checkoutRetryAction,
+            ),
+          ),
+          findsOneWidget,
+        );
+        expect(repository.orderRequests, isEmpty);
+        expect(store.draft?.pendingOperation, same(originalIntent));
+        expect(container.read(checkoutCartStateProvider), same(cartState));
+        store.readError = null;
+        repository.readOrderOutcome = checkoutTestOrderResponse(
+          order: order,
+          idempotent: true,
+        );
+        await tester.ensureVisible(action);
+        await tester.tap(action);
+        await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+        await tester.pumpAndSettle();
+        if (noJournal) {
+          expect(router.state.uri.path, AppRoutes.catalogLocation);
+          expect(find.text('catalog-destination'), findsOneWidget);
+          expect(repository.readOrderCalls, 0);
+          expect(repository.orderRequests, isEmpty);
+          expect(store.draft, isNull);
+        } else {
+          expect(router.state.uri.path, AppRoutes.checkoutLocation);
+          expect(
+            find.byKey(const ValueKey('checkout-order-receipt')),
+            findsOneWidget,
+          );
+          expect(find.text(checkoutTestOrderCode), findsOneWidget);
+          expect(container.read(checkoutControllerProvider).order, same(order));
+          expect(store.draft!.orderId, checkoutTestOrder);
+          expect(store.draft!.pendingOperation, isNull);
+          if (pending) {
+            expect(
+              repository.orderRequests.single.key,
+              originalIntent!.idempotencyKey,
+            );
+            expect(repository.orderRequests.single.quoteId, checkoutTestQuote);
+            expect(repository.orderRequests.single.version, 2);
+            expect(
+              repository.orderRequests.single.paymentMethod,
+              CheckoutPaymentMethod.payAtPickup,
+            );
+            expect(repository.orderCartVersions, [7]);
+          } else {
+            expect(repository.readOrderCalls, 2);
+            expect(repository.readOrderIds, [
+              checkoutTestOrder,
+              checkoutTestOrder,
+            ]);
+            expect(repository.orderRequests, isEmpty);
+          }
+        }
+        expect(repository.loadOptionsCalls, 0);
+        expect(repository.loadPaymentOptionsCalls, 0);
+        expect(repository.createRequests, isEmpty);
+        expect(container.read(checkoutCartStateProvider), same(cartState));
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pumpAndSettle();
+      },
+    );
   }
 
   testWidgets('guest vede gate Google senza perdere il carrello', (

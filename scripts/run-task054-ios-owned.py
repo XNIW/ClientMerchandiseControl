@@ -15,6 +15,9 @@ import uuid
 UUID = re.compile(r'^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$')
 PREFIX = 'CMC-Task054-Owned-'
 OWNER_CONTEXT = ('GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_JOB', 'GITHUB_SHA')
+OWNED_ENVIRONMENT = 'owned-launchd-environment'
+READINESS_BUDGET = 30
+READINESS_KIND = 'owned-launchd-environment.v1'
 SMOKE = ['flutter', 'test', 'integration_test/app_shell_smoke_test.dart',
          '--no-pub', '--reporter', 'expanded', '--verbose']
 
@@ -213,9 +216,57 @@ class IosOwnedRunner:
             raise Failure(2, 'identità simulatore ambigua')
         return found[0] if found else (None, None)
 
+    def check_owned_environment(self, device):
+        record = self.record
+        if (record is None or
+                device.lower() != str(record.get('device')).lower() or
+                record.get('readinessMethod') != OWNED_ENVIRONMENT or
+                record.get('bootstatusCompleted') is not True or
+                record.get('cleanup') != 'NOT_RUN' or
+                record.get('processCleanupFailed')):
+            raise Failure(2, 'readiness per-device priva di ownership/bootstatus attuale')
+        runtime_version = record.get('runtimeVersion')
+        if (not isinstance(runtime_version, str) or not re.fullmatch(
+                r'26\.[0-9]+(?:\.[0-9]+)?', runtime_version) or
+                record.get('runtime') != 'com.apple.CoreSimulator.SimRuntime.iOS-' +
+                runtime_version.replace('.', '-') or
+                record.get('name') != PREFIX + record.get('nonce', '')):
+            raise Failure(2, 'identità runtime/name per-device invalida')
+        expected = (
+            ('SIMULATOR_UDID', device),
+            ('SIMULATOR_DEVICE_NAME', record['name']),
+            ('SIMULATOR_RUNTIME_VERSION', runtime_version),
+        )
+        # Un budget totale equivalente all'inventory precedente, mai 3x30s.
+        # Spawn senza --standalone richiede il launchd del device Booted: il
+        # semplice simctl getenv consente anche Booting e qui non è sufficiente.
+        deadline = time.monotonic() + READINESS_BUDGET
+        for variable, wanted in expected:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise Failure(124, 'budget readiness per-device esaurito')
+            observed = self.command(
+                ['xcrun', 'simctl', 'spawn', device, 'launchctl', 'getenv', variable],
+                min(READINESS_BUDGET, remaining), capture=True).strip()
+            matches = (observed.lower() == wanted.lower()
+                       if variable == 'SIMULATOR_UDID' else observed == wanted)
+            if not matches:
+                raise Failure(2, 'readiness per-device non coincide con ownership/runtime')
+        self.observed_device_state = 'Booted'
+        record['readinessAttestation'] = {
+            'kind': READINESS_KIND, 'bootstatusExitCode': 0,
+            'udidMatches': True, 'nameMatches': True, 'runtimeVersionMatches': True,
+            'commandBudgetSeconds': READINESS_BUDGET,
+            'globalPostBootInventory': 'NOT_RUN',
+        }
+        return True
+
     def check_device(self, device, ready=False, owned=False):
         if not UUID.fullmatch(device):
             raise Failure(2, 'UUID simulatore invalido')
+        if ready and owned and self.record is not None and \
+                self.record.get('readinessMethod') == OWNED_ENVIRONMENT:
+            return self.check_owned_environment(device)
         entry, runtime = self.device_record(device)
         self.observed_device_state = entry.get('state') if entry else None
         if entry is None:
@@ -229,9 +280,13 @@ class IosOwnedRunner:
             raise Failure(2, 'simulatore richiesto non Booted/disponibile')
         return True
 
-    def prepare(self, headless=False):
+    def prepare(self, headless=False, readiness_attestation='inventory'):
         self.record = {'schemaVersion': 1, 'nonce': uuid.uuid4().hex,
                        'device': None, 'creationStarted': False, 'cleanup': 'NOT_RUN'}
+        if readiness_attestation not in ('inventory', OWNED_ENVIRONMENT):
+            raise Failure(2, 'metodo readiness non autorizzato')
+        if readiness_attestation == OWNED_ENVIRONMENT:
+            self.record['readinessMethod'] = OWNED_ENVIRONMENT
         self.record['ownerContext'] = {key: os.environ.get(key) for key in OWNER_CONTEXT}
         self.record['name'] = PREFIX + self.record['nonce']
         if headless:
@@ -251,6 +306,8 @@ class IosOwnedRunner:
             raise Failure(2, 'runtime iOS26 compatibile assente')
         runtime = max(available, key=lambda row: tuple(map(int, row['version'].split('.'))))
         self.record['runtime'] = runtime['identifier']
+        if readiness_attestation == OWNED_ENVIRONMENT:
+            self.record['runtimeVersion'] = runtime['version']
         self.record['creationStarted'] = True
         self.persist()
         self.phase = 'create'
@@ -276,6 +333,9 @@ class IosOwnedRunner:
         if not headless:
             self.command(['open', '-a', simulator, '--args', '-CurrentDeviceUDID', device], 60)
         self.command(['xcrun', 'simctl', 'bootstatus', device, '-b'], 300)
+        if readiness_attestation == OWNED_ENVIRONMENT:
+            self.record['bootstatusCompleted'] = True
+            self.persist()
         self.check_device(device, ready=True, owned=True)
         self.record['ready'] = True
         self.persist()
@@ -293,6 +353,19 @@ class IosOwnedRunner:
             raise Failure(2, 'receipt ownership invalida')
         if record.get('ownerContext') != {key: os.environ.get(key) for key in OWNER_CONTEXT}:
             raise Failure(2, 'receipt di altra run/job/revisione: nessuna mutazione')
+        method = record.get('readinessMethod')
+        if method is not None and method != OWNED_ENVIRONMENT:
+            raise Failure(2, 'receipt metodo readiness invalido')
+        if method == OWNED_ENVIRONMENT and record.get('ready'):
+            expected = {
+                'kind': READINESS_KIND, 'bootstatusExitCode': 0,
+                'udidMatches': True, 'nameMatches': True, 'runtimeVersionMatches': True,
+                'commandBudgetSeconds': READINESS_BUDGET,
+                'globalPostBootInventory': 'NOT_RUN',
+            }
+            if record.get('bootstatusCompleted') is not True or \
+                    record.get('readinessAttestation') != expected:
+                raise Failure(2, 'receipt readiness per-device non attestata')
         self.record = record
 
     def cleanup(self):
@@ -390,6 +463,9 @@ def main(argv=None):
     prepare.add_argument('--github-output')
     prepare.add_argument('--headless', action='store_true',
                          help='prepara il solo simulatore proprio via simctl, senza interfaccia GUI')
+    prepare.add_argument('--readiness-attestation',
+                         choices=('inventory', OWNED_ENVIRONMENT), default='inventory',
+                         help='opt-in per-device; inventory globale resta il comportamento storico')
     cleanup = subcommands.add_parser('cleanup')
     cleanup.add_argument('--receipt', required=True)
     smoke = subcommands.add_parser('smoke')
@@ -407,7 +483,9 @@ def main(argv=None):
     must_cleanup = options.action == 'cleanup'
     try:
         if options.action == 'prepare' or standalone:
-            device = runner.prepare(headless=getattr(options, 'headless', False))
+            device = runner.prepare(
+                headless=getattr(options, 'headless', False),
+                readiness_attestation=getattr(options, 'readiness_attestation', 'inventory'))
             if options.action == 'prepare' and options.github_output:
                 with open(options.github_output, 'a') as output:
                     output.write('device_id=' + device + '\n')

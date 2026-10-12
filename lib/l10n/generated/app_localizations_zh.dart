@@ -2364,14 +2364,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deliveryTrackingMapCollapse => 'Reducir el mapa de la entrega';
 
   @override
-  String get deliveryTrackingMapUnavailable => '地图暂不可用。你仍可在此查看配送状态。';
+  String get deliveryTrackingMapUnavailable =>
+      'El mapa no está disponible. Puedes seguir el estado de la entrega aquí.';
 
   @override
-  String get deliveryTrackingMapRetry => '重试地图';
+  String get deliveryTrackingMapRetry => 'Reintentar el mapa';
 
   @override
   String get deliveryTrackingCacheCleanupFailed =>
-      '未能删除已保存的位置。此前的位置仍被隐藏，请重试更新。';
+      'No se pudo quitar la ubicación guardada. Sigue oculta; reintenta la actualización.';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).

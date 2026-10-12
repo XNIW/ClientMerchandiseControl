@@ -155,12 +155,14 @@ class _CheckoutFailureView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final canRetry = const {
-      CheckoutFailureKind.offline,
-      CheckoutFailureKind.timeout,
-      CheckoutFailureKind.unexpected,
-      CheckoutFailureKind.unavailable,
-    }.contains(state.failureKind) || !(state.cart?.isEmpty ?? true);
+    final canRetry =
+        const {
+          CheckoutFailureKind.offline,
+          CheckoutFailureKind.timeout,
+          CheckoutFailureKind.unexpected,
+          CheckoutFailureKind.unavailable,
+        }.contains(state.failureKind) ||
+        !(state.cart?.isEmpty ?? true);
     return StorefrontPage(
       maxWidth: AppSizes.accountContentMaxWidth,
       child: StorefrontEmptyState(

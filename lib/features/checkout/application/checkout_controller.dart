@@ -10,6 +10,8 @@ import '../../account/application/customer_account_providers.dart';
 import '../../account/domain/customer_account_models.dart';
 import '../../cart/application/cart_state.dart';
 import '../../cart/domain/cart_models.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_state.dart';
 import '../../delivery_context/application/delivery_context_controller.dart';
 import '../../delivery_context/domain/delivery_context_models.dart';
 import '../domain/checkout_failure.dart';
@@ -36,8 +38,47 @@ final class CheckoutController extends Notifier<CheckoutState> {
       _disposed = true;
       _generation++;
     });
+    ref.listen(authControllerProvider, (previous, next) {
+      String? owner(AuthState? value) => switch (value) {
+        AuthAuthenticated(:final customer) => customer.subjectId,
+        _ => null,
+      };
+      if (owner(previous) != owner(next)) {
+        // Ogni confine Auth invalida anche A-B-A prima del rebuild successivo.
+        ++_generation;
+        _ownerSubjectId = null;
+        _shopSlug = null;
+        _contextKey = null;
+        _lastState = null;
+        state = CheckoutState.loading();
+        ref.invalidateSelf();
+      }
+    });
+    ref.listen(
+      appConfigProvider.select((config) => config.storefrontShopSlug),
+      (previous, next) {
+        if (previous == next) return;
+        ++_generation;
+        _ownerSubjectId = null;
+        _shopSlug = null;
+        _contextKey = null;
+        _lastState = null;
+        state = CheckoutState.loading();
+        ref.invalidateSelf();
+      },
+    );
     final config = ref.watch(appConfigProvider);
     final identity = ref.watch(customerAccountIdentityProvider);
+    final nextOwner = identity?.subjectId;
+    final nextShop = config.storefrontShopSlug;
+    if (_ownerSubjectId != nextOwner || _shopSlug != nextShop) {
+      // Anche i rami loading/guest/config invalida devono chiudere lo scope.
+      ++_generation;
+      _ownerSubjectId = nextOwner;
+      _shopSlug = nextShop;
+      _contextKey = null;
+      _lastState = null;
+    }
     final cartState = ref.watch(checkoutCartStateProvider);
     final accountState = ref.watch(checkoutAccountStateProvider);
     final deliveryContextState = ref.watch(
@@ -70,7 +111,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
         ),
       );
     }
-    if (cart == null) {
+    if (cart == null || cart.shopSlug != shopSlug) {
       return _remember(CheckoutState.loading());
     }
     if (cart.isEmpty && identity == null) {
@@ -1129,7 +1170,10 @@ final class CheckoutController extends Notifier<CheckoutState> {
   bool _isCurrentContext(_CheckoutContext context) {
     return _isCurrent(context.generation) &&
         _ownerSubjectId == context.ownerSubjectId &&
-        _shopSlug == context.shopSlug;
+        _shopSlug == context.shopSlug &&
+        ref.read(customerAccountIdentityProvider)?.subjectId ==
+            context.ownerSubjectId &&
+        ref.read(appConfigProvider).storefrontShopSlug == context.shopSlug;
   }
 }
 

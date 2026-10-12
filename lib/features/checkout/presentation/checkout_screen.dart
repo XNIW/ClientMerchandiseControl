@@ -159,6 +159,7 @@ class _CheckoutFailureView extends ConsumerWidget {
       CheckoutFailureKind.offline,
       CheckoutFailureKind.timeout,
       CheckoutFailureKind.unexpected,
+      CheckoutFailureKind.unavailable,
     }.contains(state.failureKind) || !(state.cart?.isEmpty ?? true);
     return StorefrontPage(
       maxWidth: AppSizes.accountContentMaxWidth,

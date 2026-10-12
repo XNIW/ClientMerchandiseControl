@@ -1143,7 +1143,9 @@ void main() {
         await repository.stream.close();
       });
       container.read(deliveryTrackingControllerProvider);
-      final controller = container.read(deliveryTrackingControllerProvider.notifier);
+      final controller = container.read(
+        deliveryTrackingControllerProvider.notifier,
+      );
       final opening = controller.open(trackingTestOrder);
       await repository.loadStarted.future;
       if (lifecycle == 'foreground') {
@@ -1182,7 +1184,9 @@ void main() {
         await repository.stream.close();
       });
       container.read(deliveryTrackingControllerProvider);
-      final controller = container.read(deliveryTrackingControllerProvider.notifier);
+      final controller = container.read(
+        deliveryTrackingControllerProvider.notifier,
+      );
       await controller.open(trackingTestOrder);
       cache.pauseNextSave = true;
       repository.stream.add(trackingLiveSnapshot(version: 5));
@@ -1204,7 +1208,10 @@ void main() {
       }
       expect(repository.watchCalls, 2);
       expect(scheduler.activeTaskCount, 1);
-      expect(container.read(deliveryTrackingControllerProvider).snapshot?.version, 5);
+      expect(
+        container.read(deliveryTrackingControllerProvider).snapshot?.version,
+        5,
+      );
       await controller.close();
       expect(scheduler.activeTaskCount, 0);
     });
@@ -1215,14 +1222,102 @@ void main() {
     (version: 3, olderTimestamp: false),
     (version: 4, olderTimestamp: true),
   ]) {
-    test('cache cold e RPC $reply non mostrano GPS prima di admission', () async {
-      final payload = trackingLivePayload(version: reply.version);
-      if (reply.olderTimestamp) {
-        payload
-          ..['observedAt'] = trackingTestNow.subtract(const Duration(seconds: 4)).toIso8601String()
-          ..['receivedAt'] = trackingTestNow.subtract(const Duration(seconds: 3)).toIso8601String();
-      }
-      final serverSnapshot = parseDeliveryTrackingSnapshot(payload);
+    test(
+      'cache cold e RPC $reply non mostrano GPS prima di admission',
+      () async {
+        final payload = trackingLivePayload(version: reply.version);
+        if (reply.olderTimestamp) {
+          payload
+            ..['observedAt'] = trackingTestNow
+                .subtract(const Duration(seconds: 4))
+                .toIso8601String()
+            ..['receivedAt'] = trackingTestNow
+                .subtract(const Duration(seconds: 3))
+                .toIso8601String();
+        }
+        final serverSnapshot = parseDeliveryTrackingSnapshot(payload);
+        final preferences = _FailingCleanupPreferences();
+        final cache = SecureDeliveryTrackingCache(
+          preferences: preferences,
+          clock: () => trackingTestNow,
+        );
+        await cache.save(
+          ownerSubjectId: trackingTestOwner,
+          shopSlug: trackingTestShop,
+          snapshot: trackingLiveSnapshot(),
+        );
+        final repository = _PausedTrackingLoadRepository();
+        final container = _container(repository: repository, cache: cache);
+        addTearDown(() async {
+          if (!repository.releaseLoad.isCompleted) {
+            repository.releaseLoad.complete(serverSnapshot);
+          }
+          container.dispose();
+          await repository.stream.close();
+        });
+        container.read(deliveryTrackingControllerProvider);
+        final opening = container
+            .read(deliveryTrackingControllerProvider.notifier)
+            .open(trackingTestOrder);
+        await repository.loadStarted.future;
+        final cached = container.read(deliveryTrackingControllerProvider);
+        expect(cached.snapshot?.version, 4);
+        expect(cached.snapshot?.courierCoordinate, isNull);
+        expect(cached.snapshot?.destinationCoordinate, isNull);
+        expect(cached.snapshot?.hasFreshLiveLocation, isFalse);
+        repository.releaseLoad.complete(serverSnapshot);
+        await opening;
+        final ready = container.read(deliveryTrackingControllerProvider);
+        expect(ready.status, DeliveryTrackingStatus.ready);
+        expect(ready.snapshot?.version, 4);
+        expect(
+          ready.snapshot?.hasFreshLiveLocation,
+          reply.version == 4 && !reply.olderTimestamp,
+        );
+        expect(
+          ready.snapshot?.courierCoordinate != null,
+          reply.version == 4 && !reply.olderTimestamp,
+        );
+        expect(repository.watchCalls, 1);
+      },
+    );
+  }
+
+  test(
+    'cleanup di cache invalida doppio fallibile resta esposto dopo RPC valida',
+    () async {
+      final preferences = _FailingCleanupPreferences()
+        ..value = '{'
+        ..failDelete = true
+        ..failWrite = true;
+      final repository = FakeDeliveryTrackingRepository();
+      final container = _container(
+        repository: repository,
+        cache: SecureDeliveryTrackingCache(
+          preferences: preferences,
+          clock: () => trackingTestNow,
+        ),
+      );
+      addTearDown(() async {
+        container.dispose();
+        await repository.stream.close();
+      });
+      container.read(deliveryTrackingControllerProvider);
+      await container
+          .read(deliveryTrackingControllerProvider.notifier)
+          .open(trackingTestOrder);
+      final state = container.read(deliveryTrackingControllerProvider);
+      expect(state.status, DeliveryTrackingStatus.ready);
+      expect(state.cacheCleanupFailed, isTrue);
+      expect(state.snapshot?.hasFreshLiveLocation, isTrue);
+      expect(repository.loadCalls, 1);
+      expect(repository.watchCalls, 1);
+    },
+  );
+
+  test(
+    'notFound con purge doppio fallibile resta hidden e retry risolve cleanup',
+    () async {
       final preferences = _FailingCleanupPreferences();
       final cache = SecureDeliveryTrackingCache(
         preferences: preferences,
@@ -1233,116 +1328,56 @@ void main() {
         shopSlug: trackingTestShop,
         snapshot: trackingLiveSnapshot(),
       );
-      final repository = _PausedTrackingLoadRepository();
-      final container = _container(repository: repository, cache: cache);
+      preferences
+        ..failDelete = true
+        ..failWrite = true;
+      final repository = FakeDeliveryTrackingRepository()
+        ..loadError = const DeliveryTrackingRepositoryException(
+          DeliveryTrackingFailureKind.notFound,
+        );
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        scheduler: scheduler,
+        clock: scheduler.now,
+      );
       addTearDown(() async {
-        if (!repository.releaseLoad.isCompleted) {
-          repository.releaseLoad.complete(serverSnapshot);
-        }
         container.dispose();
         await repository.stream.close();
       });
       container.read(deliveryTrackingControllerProvider);
-      final opening = container.read(deliveryTrackingControllerProvider.notifier).open(trackingTestOrder);
-      await repository.loadStarted.future;
-      final cached = container.read(deliveryTrackingControllerProvider);
-      expect(cached.snapshot?.version, 4);
-      expect(cached.snapshot?.courierCoordinate, isNull);
-      expect(cached.snapshot?.destinationCoordinate, isNull);
-      expect(cached.snapshot?.hasFreshLiveLocation, isFalse);
-      repository.releaseLoad.complete(serverSnapshot);
-      await opening;
-      final ready = container.read(deliveryTrackingControllerProvider);
-      expect(ready.status, DeliveryTrackingStatus.ready);
-      expect(ready.snapshot?.version, 4);
-      expect(ready.snapshot?.hasFreshLiveLocation, reply.version == 4 && !reply.olderTimestamp);
-      expect(ready.snapshot?.courierCoordinate != null, reply.version == 4 && !reply.olderTimestamp);
+      final controller = container.read(
+        deliveryTrackingControllerProvider.notifier,
+      );
+      await controller.open(trackingTestOrder);
+      var state = container.read(deliveryTrackingControllerProvider);
+      expect(state.failure, DeliveryTrackingFailureKind.notFound);
+      expect(state.cacheCleanupFailed, isTrue);
+      expect(state.snapshot, isNull);
+      expect(repository.watchCalls, 0);
+      expect(scheduler.activeTaskCount, 0);
+      repository.loadError = const DeliveryTrackingRepositoryException(
+        DeliveryTrackingFailureKind.offline,
+      );
+      await controller.open(trackingTestOrder);
+      state = container.read(deliveryTrackingControllerProvider);
+      expect(state.cacheCleanupFailed, isTrue);
+      expect(state.snapshot, isNull);
+      await controller.setForeground(false);
+      preferences.failWrite = false;
+      repository.loadError = null;
+      await controller.refresh();
+      state = container.read(deliveryTrackingControllerProvider);
+      expect(state.cacheCleanupFailed, isFalse);
+      expect(state.snapshot?.hasFreshLiveLocation, isTrue);
       expect(repository.watchCalls, 1);
-    });
-  }
-
-  test('cleanup di cache invalida doppio fallibile resta esposto dopo RPC valida', () async {
-    final preferences = _FailingCleanupPreferences()
-      ..value = '{'
-      ..failDelete = true
-      ..failWrite = true;
-    final repository = FakeDeliveryTrackingRepository();
-    final container = _container(
-      repository: repository,
-      cache: SecureDeliveryTrackingCache(
-        preferences: preferences,
-        clock: () => trackingTestNow,
-      ),
-    );
-    addTearDown(() async {
-      container.dispose();
-      await repository.stream.close();
-    });
-    container.read(deliveryTrackingControllerProvider);
-    await container.read(deliveryTrackingControllerProvider.notifier).open(trackingTestOrder);
-    final state = container.read(deliveryTrackingControllerProvider);
-    expect(state.status, DeliveryTrackingStatus.ready);
-    expect(state.cacheCleanupFailed, isTrue);
-    expect(state.snapshot?.hasFreshLiveLocation, isTrue);
-    expect(repository.loadCalls, 1);
-    expect(repository.watchCalls, 1);
-  });
-
-  test('notFound con purge doppio fallibile resta hidden e retry risolve cleanup', () async {
-    final preferences = _FailingCleanupPreferences();
-    final cache = SecureDeliveryTrackingCache(
-      preferences: preferences,
-      clock: () => trackingTestNow,
-    );
-    await cache.save(
-      ownerSubjectId: trackingTestOwner,
-      shopSlug: trackingTestShop,
-      snapshot: trackingLiveSnapshot(),
-    );
-    preferences
-      ..failDelete = true
-      ..failWrite = true;
-    final repository = FakeDeliveryTrackingRepository()
-      ..loadError = const DeliveryTrackingRepositoryException(DeliveryTrackingFailureKind.notFound);
-    final scheduler = ManualAppScheduler(start: trackingTestNow);
-    final container = _container(
-      repository: repository,
-      cache: cache,
-      scheduler: scheduler,
-      clock: scheduler.now,
-    );
-    addTearDown(() async {
-      container.dispose();
-      await repository.stream.close();
-    });
-    container.read(deliveryTrackingControllerProvider);
-    final controller = container.read(deliveryTrackingControllerProvider.notifier);
-    await controller.open(trackingTestOrder);
-    var state = container.read(deliveryTrackingControllerProvider);
-    expect(state.failure, DeliveryTrackingFailureKind.notFound);
-    expect(state.cacheCleanupFailed, isTrue);
-    expect(state.snapshot, isNull);
-    expect(repository.watchCalls, 0);
-    expect(scheduler.activeTaskCount, 0);
-    repository.loadError = const DeliveryTrackingRepositoryException(DeliveryTrackingFailureKind.offline);
-    await controller.open(trackingTestOrder);
-    state = container.read(deliveryTrackingControllerProvider);
-    expect(state.cacheCleanupFailed, isTrue);
-    expect(state.snapshot, isNull);
-    await controller.setForeground(false);
-    preferences.failWrite = false;
-    repository.loadError = null;
-    await controller.refresh();
-    state = container.read(deliveryTrackingControllerProvider);
-    expect(state.cacheCleanupFailed, isFalse);
-    expect(state.snapshot?.hasFreshLiveLocation, isTrue);
-    expect(repository.watchCalls, 1);
-    await controller.setForeground(true);
-    expect(repository.watchCalls, 2);
-    await controller.refresh();
-    expect(repository.watchCalls, 2);
-  });
-
+      await controller.setForeground(true);
+      expect(repository.watchCalls, 2);
+      await controller.refresh();
+      expect(repository.watchCalls, 2);
+    },
+  );
 }
 
 DeliveryTrackingSnapshot _terminalSnapshot({required int version}) {
@@ -1547,7 +1582,8 @@ final class _PausedLiveTrackingCache extends MemoryDeliveryTrackingCache {
   }
 }
 
-final class _FailingCleanupPreferences implements DeliveryTrackingSecurePreferences {
+final class _FailingCleanupPreferences
+    implements DeliveryTrackingSecurePreferences {
   String? value;
   var failDelete = false;
   var failWrite = false;
@@ -1568,7 +1604,8 @@ final class _FailingCleanupPreferences implements DeliveryTrackingSecurePreferen
   }
 }
 
-final class _PausedTrackingLoadRepository implements DeliveryTrackingRepository {
+final class _PausedTrackingLoadRepository
+    implements DeliveryTrackingRepository {
   final loadStarted = Completer<void>();
   final releaseLoad = Completer<DeliveryTrackingSnapshot>();
   final stream = StreamController<DeliveryTrackingSnapshot>.broadcast();
@@ -1576,7 +1613,10 @@ final class _PausedTrackingLoadRepository implements DeliveryTrackingRepository 
   var watchCalls = 0;
 
   @override
-  Future<DeliveryTrackingSnapshot> load({required String shopSlug, required String orderId}) async {
+  Future<DeliveryTrackingSnapshot> load({
+    required String shopSlug,
+    required String orderId,
+  }) async {
     loadCalls++;
     if (loadCalls == 1) {
       loadStarted.complete();

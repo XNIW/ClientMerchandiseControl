@@ -2368,11 +2368,13 @@ class AppLocalizationsIt extends AppLocalizations {
   String get deliveryTrackingMapCollapse => 'Riduci la mappa della consegna';
 
   @override
-  String get deliveryTrackingMapUnavailable => 'La mappa non è disponibile. Puoi seguire lo stato della consegna qui.';
+  String get deliveryTrackingMapUnavailable =>
+      'La mappa non è disponibile. Puoi seguire lo stato della consegna qui.';
 
   @override
   String get deliveryTrackingMapRetry => 'Riprova la mappa';
 
   @override
-  String get deliveryTrackingCacheCleanupFailed => 'Non è stato possibile rimuovere la posizione salvata. Rimane nascosta; riprova l’aggiornamento.';
+  String get deliveryTrackingCacheCleanupFailed =>
+      'Non è stato possibile rimuovere la posizione salvata. Rimane nascosta; riprova l’aggiornamento.';
 }

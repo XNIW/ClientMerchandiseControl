@@ -197,10 +197,10 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
             DateTime? end,
           ) => parseDeliveryTrackingSnapshot(
             trackingLivePayload(
-              orderId: orderTestOrder,
-              version: version,
-              orderStatusVersion: 2,
-            )
+                orderId: orderTestOrder,
+                version: version,
+                orderStatusVersion: 2,
+              )
               ..['etaStartsAt'] = start?.toIso8601String()
               ..['etaEndsAt'] = end?.toIso8601String(),
           );
@@ -274,7 +274,8 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
                   darkTheme: clientHostVisualTheme(AppTheme.dark()),
                   themeMode: dark ? ThemeMode.dark : ThemeMode.light,
                   locale: locale,
-                  localizationsDelegates: AppLocalizations.localizationsDelegates,
+                  localizationsDelegates:
+                      AppLocalizations.localizationsDelegates,
                   supportedLocales: AppLocalizations.supportedLocales,
                   builder: (context, child) => MediaQuery(
                     data: MediaQuery.of(context).copyWith(
@@ -299,9 +300,15 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
             final timeline = tester.element(
               find.byKey(const ValueKey('order-detail-timeline')),
             );
-            expect(find.text(l10n.deliveryTrackingEtaUnavailable), findsOneWidget);
+            expect(
+              find.text(l10n.deliveryTrackingEtaUnavailable),
+              findsOneWidget,
+            );
             await _showTrackingControl(tester, eta);
-            expect(tester.getSemantics(eta).flagsCollection.isLiveRegion, isTrue);
+            expect(
+              tester.getSemantics(eta).flagsCollection.isLiveRegion,
+              isTrue,
+            );
 
             tracking.stream.add(
               snapshot(
@@ -312,7 +319,10 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
             );
             await _pumpUntil(
               tester,
-              () => find.text(l10n.deliveryTrackingEtaExpired).evaluate().isNotEmpty,
+              () => find
+                  .text(l10n.deliveryTrackingEtaExpired)
+                  .evaluate()
+                  .isNotEmpty,
             );
             final start = trackingTestNow.add(const Duration(minutes: 5));
             final end = trackingTestNow.add(const Duration(minutes: 20));
@@ -322,8 +332,16 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
               () => adapters.single.delegate.scenes.last.snapshotVersion == 3,
             );
             final window = l10n.deliveryTrackingWindow(
-              customerOrderDate(tester.element(card), start, timeZone: 'America/Santiago'),
-              customerOrderDate(tester.element(card), end, timeZone: 'America/Santiago'),
+              customerOrderDate(
+                tester.element(card),
+                start,
+                timeZone: 'America/Santiago',
+              ),
+              customerOrderDate(
+                tester.element(card),
+                end,
+                timeZone: 'America/Santiago',
+              ),
             );
             expect(find.text(window), findsOneWidget);
             expect(find.text(l10n.deliveryTrackingEtaExpired), findsNothing);
@@ -333,11 +351,16 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
               contains(l10n.checkoutOrderStatusOutForDelivery),
             );
             final expand = find.byKey(const ValueKey('delivery-map-expand'));
-            final recenter = find.byKey(const ValueKey('delivery-map-recenter'));
+            final recenter = find.byKey(
+              const ValueKey('delivery-map-recenter'),
+            );
             final compactHeight = tester.getSize(map).height;
             await _showTrackingControl(tester, expand);
             expect(tester.getSize(expand), const Size(48, 48));
-            expect(tester.getSemantics(expand).label, contains(l10n.deliveryTrackingMapExpand));
+            expect(
+              tester.getSemantics(expand).label,
+              contains(l10n.deliveryTrackingMapExpand),
+            );
             await tester.tap(expand);
             await tester.pumpAndSettle();
             expect(tester.getSize(map).height, greaterThan(compactHeight));
@@ -345,16 +368,23 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
             expect(adapters.single.delegate.disposeCalls, 0);
             expect(adapters.single.delegate.recenterCalls, 0);
             await _showTrackingControl(tester, expand);
-            expect(tester.getSemantics(expand).label, contains(l10n.deliveryTrackingMapCollapse));
+            expect(
+              tester.getSemantics(expand).label,
+              contains(l10n.deliveryTrackingMapCollapse),
+            );
             await _showTrackingControl(tester, recenter);
             expect(tester.getSize(recenter), const Size(48, 48));
-            expect(tester.getSemantics(recenter).label, contains(l10n.deliveryTrackingMapRecenter));
+            expect(
+              tester.getSemantics(recenter).label,
+              contains(l10n.deliveryTrackingMapRecenter),
+            );
             await tester.tap(recenter);
             await tester.pump();
             expect(adapters.single.delegate.recenterCalls, 1);
             expect(adapters.single.delegate.lastRecenterAnimated, isFalse);
             expect(tester.takeException(), isNull);
-            final suffix = '${locale.toLanguageTag()}-${dark ? 'dark' : 'light'}-200';
+            final suffix =
+                '${locale.toLanguageTag()}-${dark ? 'dark' : 'light'}-200';
             await _captureTrackingHostCard(
               tester,
               card,
@@ -370,28 +400,56 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
                 trackingTestNow.subtract(const Duration(minutes: 1)),
               ),
             );
-            final unavailable = find.byKey(const ValueKey('delivery-map-unavailable'));
+            final unavailable = find.byKey(
+              const ValueKey('delivery-map-unavailable'),
+            );
             final retry = find.byKey(const ValueKey('delivery-map-retry'));
             await _pumpUntil(tester, () => unavailable.evaluate().isNotEmpty);
             expect(map, findsNothing);
             expect(expand, findsNothing);
             expect(recenter, findsNothing);
-            expect(find.byKey(const ValueKey('tracking-fixture-provider-surface')), findsNothing);
+            expect(
+              find.byKey(const ValueKey('tracking-fixture-provider-surface')),
+              findsNothing,
+            );
             expect(adapters.single.delegate.disposeCalls, 1);
-            expect(find.text(l10n.deliveryTrackingMapUnavailable), findsOneWidget);
+            expect(
+              find.text(l10n.deliveryTrackingMapUnavailable),
+              findsOneWidget,
+            );
             expect(find.text(l10n.deliveryTrackingMapRetry), findsOneWidget);
             expect(find.text(l10n.deliveryTrackingEtaExpired), findsOneWidget);
             await _showTrackingControl(tester, unavailable);
-            expect(tester.getSemantics(unavailable).flagsCollection.isLiveRegion, isTrue);
+            expect(
+              tester.getSemantics(unavailable).flagsCollection.isLiveRegion,
+              isTrue,
+            );
             await _showTrackingControl(tester, eta);
-            expect(tester.getSemantics(eta).flagsCollection.isLiveRegion, isTrue);
-            expect(tester.state(find.byType(OrderDetailScreen)), same(detailState));
-            expect(tester.element(find.byKey(const ValueKey('order-detail-header'))), same(header));
-            expect(tester.element(find.byKey(const ValueKey('order-detail-timeline'))), same(timeline));
+            expect(
+              tester.getSemantics(eta).flagsCollection.isLiveRegion,
+              isTrue,
+            );
+            expect(
+              tester.state(find.byType(OrderDetailScreen)),
+              same(detailState),
+            );
+            expect(
+              tester.element(find.byKey(const ValueKey('order-detail-header'))),
+              same(header),
+            );
+            expect(
+              tester.element(
+                find.byKey(const ValueKey('order-detail-timeline')),
+              ),
+              same(timeline),
+            );
             await _showTrackingControl(tester, retry);
             expect(tester.getSize(retry).width, greaterThanOrEqualTo(48));
             expect(tester.getSize(retry).height, greaterThanOrEqualTo(48));
-            expect(tester.getSemantics(retry).label, contains(l10n.deliveryTrackingMapRetry));
+            expect(
+              tester.getSemantics(retry).label,
+              contains(l10n.deliveryTrackingMapRetry),
+            );
             expect(tester.getSemantics(retry).flagsCollection.isButton, isTrue);
             expect(tester.takeException(), isNull);
             await _captureTrackingHostCard(
@@ -401,7 +459,9 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
             );
 
             // Retry della sola mappa: stesso snapshot, nessuna RPC ordine/tracking extra.
-            final snapshotBeforeRetry = container.read(deliveryTrackingControllerProvider).snapshot;
+            final snapshotBeforeRetry = container
+                .read(deliveryTrackingControllerProvider)
+                .snapshot;
             final loadsBeforeRetry = tracking.loadCalls;
             final orderLoadsBeforeRetry = orders.detailRequests.length;
             await tester.tap(retry);
@@ -409,19 +469,34 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
             expect(adapters, hasLength(2));
             expect(adapters.first.delegate.disposeCalls, 1);
             expect(adapters.last.delegate.disposeCalls, 0);
-            expect(container.read(deliveryTrackingControllerProvider).snapshot, same(snapshotBeforeRetry));
-            expect(tester.widget<CustomerDeliveryTrackingEta>(find.byType(CustomerDeliveryTrackingEta)).snapshot, same(snapshotBeforeRetry));
+            expect(
+              container.read(deliveryTrackingControllerProvider).snapshot,
+              same(snapshotBeforeRetry),
+            );
+            expect(
+              tester
+                  .widget<CustomerDeliveryTrackingEta>(
+                    find.byType(CustomerDeliveryTrackingEta),
+                  )
+                  .snapshot,
+              same(snapshotBeforeRetry),
+            );
             expect(tracking.loadCalls, loadsBeforeRetry);
             expect(orders.detailRequests, hasLength(orderLoadsBeforeRetry));
             expect(unavailable, findsNothing);
             expect(retry, findsNothing);
             expect(find.text(l10n.deliveryTrackingEtaExpired), findsOneWidget);
-            expect(tester.state(find.byType(OrderDetailScreen)), same(detailState));
+            expect(
+              tester.state(find.byType(OrderDetailScreen)),
+              same(detailState),
+            );
             expect(tester.takeException(), isNull);
           } finally {
             await tester.pumpWidget(const SizedBox.shrink());
             await tester.pump();
-            await container.read(deliveryTrackingControllerProvider.notifier).close();
+            await container
+                .read(deliveryTrackingControllerProvider.notifier)
+                .close();
             container.dispose();
             await tracking.stream.close();
             semantics.dispose();
@@ -430,7 +505,6 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
       );
     }
   }
-
 }
 
 Future<void> _pumpUntil(WidgetTester tester, bool Function() condition) async {
@@ -490,8 +564,8 @@ Map<String, Object?> _payload({
   };
 }
 
-
-final class _VisualTrackingMapAdapter implements RecenterableDeliveryMapAdapter {
+final class _VisualTrackingMapAdapter
+    implements RecenterableDeliveryMapAdapter {
   final delegate = FakeDeliveryMapAdapter();
   var failRender = false;
 
@@ -512,10 +586,7 @@ final class _VisualTrackingMapAdapter implements RecenterableDeliveryMapAdapter 
 }
 
 Future<void> _showTrackingControl(WidgetTester tester, Finder control) async {
-  await Scrollable.ensureVisible(
-    tester.element(control),
-    alignment: 1,
-  );
+  await Scrollable.ensureVisible(tester.element(control), alignment: 1);
   await tester.pumpAndSettle();
   expect(control.hitTestable(), findsOneWidget);
 }
@@ -540,7 +611,7 @@ Future<void> _captureTrackingHostCard(
   if (ancestor is! RenderRepaintBoundary) {
     throw StateError('tracking_fixture_repaint_boundary_missing');
   }
-  final layer = ancestor.layer;
+  final layer = ancestor.debugLayer;
   if (layer is! OffsetLayer) {
     throw StateError('tracking_fixture_offset_layer_missing');
   }
@@ -554,7 +625,9 @@ Future<void> _captureTrackingHostCard(
         throw StateError('tracking_fixture_png_missing');
       }
       await Directory(directory).create(recursive: true);
-      await File('$directory/$name.png').writeAsBytes(bytes.buffer.asUint8List());
+      await File(
+        '$directory/$name.png',
+      ).writeAsBytes(bytes.buffer.asUint8List());
     } finally {
       frame.dispose();
     }

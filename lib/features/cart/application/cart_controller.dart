@@ -595,17 +595,18 @@ final class CartController extends Notifier<CartState> {
           readCurrentBeforeCompletion: readCurrentBeforeCompletion,
         );
       }
-      final rejected = response.status == CartRemoteStatus.unavailable ||
+      final rejected =
+          response.status == CartRemoteStatus.unavailable ||
           response.status == CartRemoteStatus.limitReached;
       if (!rejected &&
           (response.status != CartRemoteStatus.ok ||
               (pending.request.operation == CartMutationOperation.set &&
-              !snapshot.items.any(
-                (line) =>
-                    line.publicationId == pending.request.publicationId &&
-                    line.quantity == pending.request.quantity &&
-                    line.isAvailable,
-              )))) {
+                  !snapshot.items.any(
+                    (line) =>
+                        line.publicationId == pending.request.publicationId &&
+                        line.quantity == pending.request.quantity &&
+                        line.isAvailable,
+                  )))) {
         throw const CartRepositoryException(CartFailureKind.unexpected);
       }
       var current = snapshot;

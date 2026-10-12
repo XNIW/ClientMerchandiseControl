@@ -466,7 +466,10 @@ void main() {
       );
       await tester.pump();
       await tester.pump();
-      expect(find.byKey(const ValueKey('delivery-map-loading')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('delivery-map-loading')),
+        findsOneWidget,
+      );
       expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
       expect(factoryCalls, 1);
 
@@ -483,7 +486,9 @@ void main() {
       failedAdapter.emit(DeliveryMapRuntimeState.failed);
       await tester.pump();
       await tester.pump();
-      final unavailable = find.byKey(const ValueKey('delivery-map-unavailable'));
+      final unavailable = find.byKey(
+        const ValueKey('delivery-map-unavailable'),
+      );
       final retry = find.byKey(const ValueKey('delivery-map-retry'));
       expect(unavailable, findsOneWidget);
       expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
@@ -550,7 +555,6 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
-
 }
 
 Widget _mapApp({

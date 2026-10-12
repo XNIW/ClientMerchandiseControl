@@ -65,81 +65,87 @@ void main() {
     );
     expect(preferences.value, isNull);
   });
-  test('delete fallibile usa tombstone senza coordinate anche dopo reopen', () async {
-    final preferences = _RevocationTrackingPreferences();
-    final cache = SecureDeliveryTrackingCache(
-      preferences: preferences,
-      clock: () => trackingTestNow,
-    );
-    await cache.save(
-      ownerSubjectId: trackingTestOwner,
-      shopSlug: trackingTestShop,
-      snapshot: trackingLiveSnapshot(),
-    );
-    preferences.failDelete = true;
-    await cache.clear(ownerSubjectId: trackingTestOwner);
-    expect(jsonDecode(preferences.value!), {'version': 1, 'revoked': true});
-    expect(preferences.value, isNot(contains(trackingTestOwner)));
-    expect(preferences.value, isNot(contains('-33.')));
-    final reopened = SecureDeliveryTrackingCache(
-      preferences: preferences,
-      clock: () => trackingTestNow,
-    );
-    expect(
-      await reopened.read(
+  test(
+    'delete fallibile usa tombstone senza coordinate anche dopo reopen',
+    () async {
+      final preferences = _RevocationTrackingPreferences();
+      final cache = SecureDeliveryTrackingCache(
+        preferences: preferences,
+        clock: () => trackingTestNow,
+      );
+      await cache.save(
         ownerSubjectId: trackingTestOwner,
         shopSlug: trackingTestShop,
-        orderId: trackingTestOrder,
-      ),
-      isNull,
-    );
-    expect(preferences.deleteCalls, 1);
-  });
+        snapshot: trackingLiveSnapshot(),
+      );
+      preferences.failDelete = true;
+      await cache.clear(ownerSubjectId: trackingTestOwner);
+      expect(jsonDecode(preferences.value!), {'version': 1, 'revoked': true});
+      expect(preferences.value, isNot(contains(trackingTestOwner)));
+      expect(preferences.value, isNot(contains('-33.')));
+      final reopened = SecureDeliveryTrackingCache(
+        preferences: preferences,
+        clock: () => trackingTestNow,
+      );
+      expect(
+        await reopened.read(
+          ownerSubjectId: trackingTestOwner,
+          shopSlug: trackingTestShop,
+          orderId: trackingTestOrder,
+        ),
+        isNull,
+      );
+      expect(preferences.deleteCalls, 1);
+    },
+  );
 
-  test('doppio failure espone errore e nessuna cache riattiva GPS preciso', () async {
-    final preferences = _RevocationTrackingPreferences();
-    final cache = SecureDeliveryTrackingCache(
-      preferences: preferences,
-      clock: () => trackingTestNow,
-    );
-    await cache.save(
-      ownerSubjectId: trackingTestOwner,
-      shopSlug: trackingTestShop,
-      snapshot: trackingLiveSnapshot(),
-    );
-    preferences
-      ..failDelete = true
-      ..failWrite = true;
-    await expectLater(
-      cache.clear(ownerSubjectId: trackingTestOwner),
-      throwsA(isA<DeliveryTrackingCacheCleanupException>()),
-    );
-    expect(
-      await cache.read(
+  test(
+    'doppio failure espone errore e nessuna cache riattiva GPS preciso',
+    () async {
+      final preferences = _RevocationTrackingPreferences();
+      final cache = SecureDeliveryTrackingCache(
+        preferences: preferences,
+        clock: () => trackingTestNow,
+      );
+      await cache.save(
+        ownerSubjectId: trackingTestOwner,
+        shopSlug: trackingTestShop,
+        snapshot: trackingLiveSnapshot(),
+      );
+      preferences
+        ..failDelete = true
+        ..failWrite = true;
+      await expectLater(
+        cache.clear(ownerSubjectId: trackingTestOwner),
+        throwsA(isA<DeliveryTrackingCacheCleanupException>()),
+      );
+      expect(
+        await cache.read(
+          ownerSubjectId: trackingTestOwner,
+          shopSlug: trackingTestShop,
+          orderId: trackingTestOrder,
+        ),
+        isNull,
+      );
+      final reopened = SecureDeliveryTrackingCache(
+        preferences: preferences,
+        clock: () => trackingTestNow,
+      );
+      final context = await reopened.read(
         ownerSubjectId: trackingTestOwner,
         shopSlug: trackingTestShop,
         orderId: trackingTestOrder,
-      ),
-      isNull,
-    );
-    final reopened = SecureDeliveryTrackingCache(
-      preferences: preferences,
-      clock: () => trackingTestNow,
-    );
-    final context = await reopened.read(
-      ownerSubjectId: trackingTestOwner,
-      shopSlug: trackingTestShop,
-      orderId: trackingTestOrder,
-    );
-    expect(context?.version, 4);
-    expect(context?.courierCoordinate, isNull);
-    expect(context?.destinationCoordinate, isNull);
-    expect(context?.storeCoordinate, isNull);
-    expect(context?.hasFreshLiveLocation, isFalse);
-    preferences.failWrite = false;
-    await cache.clear(ownerSubjectId: trackingTestOwner);
-    expect(jsonDecode(preferences.value!), {'version': 1, 'revoked': true});
-  });
+      );
+      expect(context?.version, 4);
+      expect(context?.courierCoordinate, isNull);
+      expect(context?.destinationCoordinate, isNull);
+      expect(context?.storeCoordinate, isNull);
+      expect(context?.hasFreshLiveLocation, isFalse);
+      preferences.failWrite = false;
+      await cache.clear(ownerSubjectId: trackingTestOwner);
+      expect(jsonDecode(preferences.value!), {'version': 1, 'revoked': true});
+    },
+  );
 }
 
 final class _RevocationTrackingPreferences

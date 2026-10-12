@@ -2370,7 +2370,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deliveryTrackingMapRetry => '重试地图';
 
   @override
-  String get deliveryTrackingCacheCleanupFailed => '未能删除已保存的位置。此前的位置仍被隐藏，请重试更新。';
+  String get deliveryTrackingCacheCleanupFailed =>
+      '未能删除已保存的位置。此前的位置仍被隐藏，请重试更新。';
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hans`).
@@ -4526,5 +4527,6 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get deliveryTrackingMapRetry => '重试地图';
 
   @override
-  String get deliveryTrackingCacheCleanupFailed => '未能删除已保存的位置。此前的位置仍被隐藏，请重试更新。';
+  String get deliveryTrackingCacheCleanupFailed =>
+      '未能删除已保存的位置。此前的位置仍被隐藏，请重试更新。';
 }

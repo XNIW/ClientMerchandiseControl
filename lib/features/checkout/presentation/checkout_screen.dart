@@ -1049,7 +1049,11 @@ class _CheckoutActions extends ConsumerWidget {
         key: 'checkout-order-continue',
         label: l10n.checkoutContinueShoppingAction,
         enabled: true,
-        action: () async => context.go(AppRoutes.catalogLocation),
+        action: () async {
+          final prepared = await controller.prepareCheckoutFromCart();
+          if (!context.mounted || !prepared) return;
+          context.go(AppRoutes.catalogLocation);
+        },
       ),
       CheckoutStep.confirmation
           when state.pendingOperation?.kind ==

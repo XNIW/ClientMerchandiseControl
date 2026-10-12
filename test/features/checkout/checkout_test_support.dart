@@ -326,6 +326,7 @@ CheckoutOrderRemoteResponse checkoutTestOrderResponse({
 final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
   CheckoutLocalDraft? draft;
   Object? saveError;
+  Object? clearError;
   Completer<void>? saveBarrier;
   int saveCalls = 0;
   int clearCalls = 0;
@@ -336,6 +337,7 @@ final class MemoryCheckoutDraftStore implements CheckoutDraftStore {
     required String shopSlug,
   }) async {
     clearCalls++;
+    if (clearError case final error?) throw error;
     if (draft?.ownerSubjectId == ownerSubjectId &&
         draft?.shopSlug == shopSlug) {
       draft = null;

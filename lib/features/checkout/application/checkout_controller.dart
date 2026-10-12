@@ -28,6 +28,7 @@ final class CheckoutController extends Notifier<CheckoutState> {
   String? _ownerSubjectId;
   String? _shopSlug;
   Future<void>? _operation;
+  var _preparingCheckout = false;
   var _generation = 0;
   var _disposed = false;
 
@@ -97,9 +98,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
         (_contextKey?.startsWith('$shopSlug|${identity.subjectId}|') ?? false);
     if (sameOwnerShop &&
         rememberedOrder != null &&
-        rememberedOrder.shopSlug == shopSlug &&
-        (cartState.status != CartViewStatus.ready || cart == null)) {
-      // L'ACK ordine è definitivo; un errore di refresh cart non lo annulla.
+        rememberedOrder.shopSlug == shopSlug) {
+      // La receipt resta definitiva finché l'utente avvia una nuova spesa.
       return remembered!;
     }
 
@@ -467,6 +467,114 @@ final class CheckoutController extends Notifier<CheckoutState> {
       _publish(pendingState);
       await _executeOrder(pending, context);
     });
+  }
+
+  /// Prepara un ingresso dal carrello senza cancellarne le righe.
+  /// Un ordine in attesa conserva il draft e apre il percorso di recupero.
+  /// Una receipt locale viene chiusa soltanto dopo il clear scoped riuscito.
+  Future<bool> prepareCheckoutFromCart() async {
+    if (_disposed || _preparingCheckout) {
+      return false;
+    }
+    final context = _captureContext();
+    if (context == null) {
+      return state.status == CheckoutViewStatus.authRequired &&
+          ref.read(customerAccountIdentityProvider) == null &&
+          ref.read(appConfigProvider).storefrontShopSlug == state.cart?.shopSlug;
+    }
+    bool currentScope() {
+      if (_disposed) {
+        return false;
+      }
+      final owner = ref.read(customerAccountIdentityProvider)?.subjectId;
+      final shop = ref.read(appConfigProvider).storefrontShopSlug;
+      return _isCurrentContext(context) &&
+          owner == context.ownerSubjectId &&
+          shop == context.shopSlug;
+    }
+
+    bool usableCart(CartState cart) =>
+        cart.status == CartViewStatus.ready &&
+        !cart.isBusy &&
+        !cart.hasPendingRetry &&
+        cart.snapshot?.source == CartSource.account &&
+        cart.snapshot?.shopSlug == context.shopSlug;
+
+    if (!currentScope()) {
+      return false;
+    }
+    if (_hasPendingOrder) {
+      return true;
+    }
+    // Non interferisce con una richiesta corrente; Checkout ne mostra l'esito.
+    if (_operation != null) {
+      return !state.hasOrder;
+    }
+    _preparingCheckout = true;
+    var prepared = false;
+    try {
+      await _serialize(() async {
+        if (!currentScope()) {
+          return;
+        }
+        try {
+          // Legge anche il draft durabile: la receipt potrebbe non essere ancora
+          // ripristinata nel controller al primo ingresso dal carrello.
+          final draft = await ref.read(checkoutDraftStoreProvider).read(
+            ownerSubjectId: context.ownerSubjectId,
+            shopSlug: context.shopSlug,
+          );
+          if (!currentScope()) {
+            return;
+          }
+          if (_hasPendingOrder ||
+              draft?.pendingOperation?.kind == CheckoutPendingOperationKind.order) {
+            prepared = true;
+            return;
+          }
+          if (!state.hasOrder && draft?.orderId == null) {
+            prepared = true;
+            return;
+          }
+          if (!usableCart(ref.read(checkoutCartStateProvider))) {
+            return;
+          }
+          await ref.read(checkoutDraftStoreProvider).clear(
+            ownerSubjectId: context.ownerSubjectId,
+            shopSlug: context.shopSlug,
+          );
+          if (!currentScope()) {
+            return;
+          }
+          final cart = ref.read(checkoutCartStateProvider);
+          final addresses = ref.read(checkoutAccountStateProvider).snapshot?.addresses ??
+              const <CustomerAddress>[];
+          final deliveryContext = ref.read(checkoutDeliveryContextStateProvider).context;
+          if (!currentScope() || !usableCart(cart)) {
+            return;
+          }
+          _contextKey = null;
+          _publish(CheckoutState.loading(cart: cart.snapshot).copyWith(
+            addresses: addresses,
+            deliveryContext: deliveryContext,
+          ));
+          // Un nuovo build rivalida opzioni e selezione con il cart corrente.
+          ref.invalidateSelf();
+          prepared = true;
+        } on Object {
+          if (!currentScope()) {
+            return;
+          }
+          _publish(state.copyWith(
+            failureKind: CheckoutFailureKind.unexpected,
+            isBusy: false,
+          ));
+        }
+      });
+      return prepared;
+    } finally {
+      _preparingCheckout = false;
+    }
   }
 
   Future<void> restart() {

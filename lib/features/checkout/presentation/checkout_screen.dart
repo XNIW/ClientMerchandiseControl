@@ -445,10 +445,10 @@ class _AddressChoice extends StatelessWidget {
     return Card(
       key: ValueKey('checkout-address-${address.id}'),
       clipBehavior: Clip.antiAlias,
-      child: RadioListTile<String>(
-        value: address.id,
+      child: ListTile(
+        selected: enabled,
         enabled: enabled,
-        secondary: Icon(
+        trailing: Icon(
           enabled ? Icons.location_on_outlined : Icons.location_off_outlined,
         ),
         title: Text(address.label),

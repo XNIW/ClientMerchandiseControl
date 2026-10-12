@@ -46,6 +46,7 @@ void main() {
         await tester.tap(finder);
         await tester.pumpAndSettle();
       }
+
       await tester.binding.setSurfaceSize(const Size(320, 568));
       try {
         await tester.pumpWidget(
@@ -78,9 +79,11 @@ void main() {
         await tapKey('checkout-mode-delivery');
         await tapKey('checkout-next-mode');
         expect(
-          tester.widget<FilledButton>(
-            find.byKey(const ValueKey('checkout-next-destination')),
-          ).onPressed,
+          tester
+              .widget<FilledButton>(
+                find.byKey(const ValueKey('checkout-next-destination')),
+              )
+              .onPressed,
           isNull,
         );
         await tapKey('checkout-manage-addresses');
@@ -89,7 +92,10 @@ void main() {
         // Validazione locale prima di qualsiasi richiesta.
         await tapKey('customer-address-submit');
         expect(fixture.account.createAddressAttempts, 0);
-        expect(find.byKey(const ValueKey('customer-address-dialog')), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('customer-address-dialog')),
+          findsOneWidget,
+        );
         for (final entry in const {
           'label': 'Casa entrega',
           'recipient': 'Cliente sintético',
@@ -97,45 +103,75 @@ void main() {
           'commune': 'Santiago',
           'region': 'Metropolitana',
         }.entries) {
-          final field = find.byKey(ValueKey('customer-address-field-${entry.key}'));
+          final field = find.byKey(
+            ValueKey('customer-address-field-${entry.key}'),
+          );
           await tester.ensureVisible(field);
           await tester.enterText(field, entry.value);
         }
-        final line1 = find.byKey(const ValueKey('customer-address-field-line1'));
+        final line1 = find.byKey(
+          const ValueKey('customer-address-field-line1'),
+        );
         await tester.showKeyboard(line1);
         expect(tester.testTextInput.isVisible, isTrue);
         // Il fake conserva l'indirizzo, poi perde la risposta.
-        fixture.account.addressResponseError = const CustomerAccountRepositoryException(
-          CustomerAccountFailureKind.offline,
-        );
+        fixture.account.addressResponseError =
+            const CustomerAccountRepositoryException(
+              CustomerAccountFailureKind.offline,
+            );
         await tapKey('customer-address-submit');
         expect(fixture.account.createAddressCalls, 1);
         expect(fixture.delivery.selected, isNull);
-        expect(tester.widget<TextFormField>(line1).controller!.text, 'Calle manual sintética 456');
+        expect(
+          tester.widget<TextFormField>(line1).controller!.text,
+          'Calle manual sintética 456',
+        );
         final l10n = AppLocalizations.of(tester.element(line1));
-        expect(find.widgetWithText(FilledButton, l10n.customerAddressVerify), findsOneWidget);
+        expect(
+          find.widgetWithText(FilledButton, l10n.customerAddressVerify),
+          findsOneWidget,
+        );
         fixture.account.addressResponseError = null;
         await tapKey('customer-address-submit');
         expect(fixture.account.createAddressAttempts, 1);
         expect(fixture.account.reconcileCalls, 1);
         expect(fixture.account.addresses, hasLength(1));
-        expect(find.byKey(const ValueKey('customer-address-dialog')), findsNothing);
+        expect(
+          find.byKey(const ValueKey('customer-address-dialog')),
+          findsNothing,
+        );
         final created = fixture.account.addresses.single;
         expect(created.locationSource, CustomerAddressLocationSource.manual);
         expect(fixture.delivery.selected?.addressId, created.id);
-        final deliveryContext = tester.element(find.byType(DeliveryContextScreen));
-        await tester.tap(find.byTooltip(
-          MaterialLocalizations.of(deliveryContext).backButtonTooltip,
-        ));
+        final deliveryContext = tester.element(
+          find.byType(DeliveryContextScreen),
+        );
+        await tester.tap(
+          find.byTooltip(
+            MaterialLocalizations.of(deliveryContext).backButtonTooltip,
+          ),
+        );
         await tester.pumpAndSettle();
         expect(router.state.uri.path, AppRoutes.checkoutLocation);
-        final container = ProviderScope.containerOf(tester.element(find.byType(CheckoutScreen)));
+        final container = ProviderScope.containerOf(
+          tester.element(find.byType(CheckoutScreen)),
+        );
         final returned = container.read(checkoutControllerProvider);
         expect(returned.step, CheckoutStep.destination);
         expect(returned.selection.mode, CheckoutFulfillmentMode.delivery);
         expect(returned.selectedAddress?.id, created.id);
         expect(returned.hasValidDeliveryContext, isTrue);
         expect(returned.deliveryContext?.deliveryZoneId, checkoutTestZone);
+        expect(
+          tester.takeException(),
+          isNull,
+          reason: 'L indirizzo selezionato è informativo, senza radio non registrato',
+        );
+        final addressTile = tester.widget<ListTile>(
+          find.widgetWithText(ListTile, created.label),
+        );
+        expect(addressTile.selected, isTrue);
+        expect(addressTile.onTap, isNull);
         await tapKey('checkout-next-destination');
         await tapKey('checkout-slot-$checkoutTestDeliverySlot');
         await tapKey('checkout-next-slot');
@@ -144,8 +180,14 @@ void main() {
         expect(summary.step, CheckoutStep.review);
         expect(summary.selection.addressId, created.id);
         expect(summary.selection.slotId, checkoutTestDeliverySlot);
-        expect(summary.selection.paymentMethod, CheckoutPaymentMethod.cashOnDelivery);
-        expect(find.text('${created.label} · ${created.commune}'), findsOneWidget);
+        expect(
+          summary.selection.paymentMethod,
+          CheckoutPaymentMethod.cashOnDelivery,
+        );
+        expect(
+          find.text('${created.label} · ${created.commune}'),
+          findsOneWidget,
+        );
         expect(find.text(summary.selectedSlot!.label), findsOneWidget);
         expect(store.draft?.selection.addressId, created.id);
         // Riepilogo locale: nessuna conferma server inventata.

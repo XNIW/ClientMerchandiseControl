@@ -490,13 +490,21 @@ final class CheckoutController extends Notifier<CheckoutState> {
       ).copyWith(addresses: addresses, deliveryContext: deliveryContext),
     );
     try {
-      final draft = await ref.read(checkoutDraftStoreProvider).read(
-        ownerSubjectId: owner, shopSlug: shop,
-      );
+      final draft = await ref
+          .read(checkoutDraftStoreProvider)
+          .read(ownerSubjectId: owner, shopSlug: shop);
       if (!_isCurrentContext(context)) return;
-      if (await _restorePendingOrder(draft, context: context, cart: cart,
-          addresses: addresses, options: null, paymentOptions: null,
-          deliveryContext: deliveryContext)) return;
+      if (await _restorePendingOrder(
+        draft,
+        context: context,
+        cart: cart,
+        addresses: addresses,
+        options: null,
+        paymentOptions: null,
+        deliveryContext: deliveryContext,
+      )) {
+        return;
+      }
       final results = await Future.wait<Object?>([
         ref.read(checkoutRepositoryProvider).loadOptions(shopSlug: shop),
         ref.read(checkoutRepositoryProvider).loadPaymentOptions(shopSlug: shop),
@@ -526,19 +534,6 @@ final class CheckoutController extends Notifier<CheckoutState> {
           _publish(receipt);
           return;
         }
-      }
-      // Il cart può essere cambiato o la quote consumata mentre l'ACK ordine
-      // andava perso. Il replay v2 riconcilia quote/version/metodo/key originali.
-      if (await _restorePendingOrder(
-        draft,
-        context: context,
-        cart: cart,
-        addresses: addresses,
-        options: options,
-        paymentOptions: paymentOptions,
-        deliveryContext: deliveryContext,
-      )) {
-        return;
       }
       if (options.status != FulfillmentOptionsStatus.ok ||
           !options.modes.any((mode) => mode.enabled) ||
@@ -642,13 +637,21 @@ final class CheckoutController extends Notifier<CheckoutState> {
       generation: generation,
     );
     try {
-      final draft = await ref.read(checkoutDraftStoreProvider).read(
-        ownerSubjectId: owner, shopSlug: shop,
-      );
+      final draft = await ref
+          .read(checkoutDraftStoreProvider)
+          .read(ownerSubjectId: owner, shopSlug: shop);
       if (!_isCurrentContext(context)) return;
-      if (await _restorePendingOrder(draft, context: context, cart: cart,
-          addresses: const [], options: null, paymentOptions: null,
-          deliveryContext: null)) return;
+      if (await _restorePendingOrder(
+        draft,
+        context: context,
+        cart: cart,
+        addresses: const [],
+        options: null,
+        paymentOptions: null,
+        deliveryContext: null,
+      )) {
+        return;
+      }
       final restored = await Future.wait<Object?>([
         ref.read(checkoutRepositoryProvider).loadOptions(shopSlug: shop),
         ref.read(checkoutRepositoryProvider).loadPaymentOptions(shopSlug: shop),
@@ -678,17 +681,6 @@ final class CheckoutController extends Notifier<CheckoutState> {
           _publish(receipt);
           return;
         }
-      }
-      if (await _restorePendingOrder(
-        draft,
-        context: context,
-        cart: cart,
-        addresses: const [],
-        options: options,
-        paymentOptions: paymentOptions,
-        deliveryContext: null,
-      )) {
-        return;
       }
       _publish(
         CheckoutState.failure(

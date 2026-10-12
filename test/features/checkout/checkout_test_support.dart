@@ -376,6 +376,7 @@ final class FakeCheckoutRepository implements CheckoutRepository {
   final List<Object> createOutcomes = [];
   final List<Object> confirmOutcomes = [];
   final List<Object> orderOutcomes = [];
+  Future<void> Function()? beforeOrderResponse;
   Object? readOutcome;
   Object? readOrderOutcome;
   final List<CheckoutQuoteCreateRequest> createRequests = [];
@@ -409,6 +410,7 @@ final class FakeCheckoutRepository implements CheckoutRepository {
       paymentMethod: paymentMethod,
       key: idempotencyKey,
     ));
+    await beforeOrderResponse?.call();
     return _resolveOrder(orderOutcomes);
   }
 

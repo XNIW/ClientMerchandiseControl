@@ -158,7 +158,12 @@ void main() {
 
       expect(tester.takeException(), isNull);
 
+      final previousScreenshots = binding.reportData?['screenshots'];
+      final previousScreenshotCount = previousScreenshots is List
+          ? previousScreenshots.length
+          : null;
       binding.reportData = <String, Object?>{
+        ...?binding.reportData,
         'guestStoreCloseReopenSameProcess': 'PASS',
         'guestProcessKillRestart': 'NOT_RUN',
         'backendAccountMerge': 'NOT_RUN',
@@ -171,6 +176,14 @@ void main() {
         'internalIdentifiers': 'absent',
         'processAlive': 'PASS',
       };
+      if (previousScreenshotCount != null) {
+        expect(binding.reportData?['screenshots'], same(previousScreenshots));
+        expect(
+          (binding.reportData!['screenshots'] as List).length,
+          previousScreenshotCount,
+          reason: 'Il report cart conserva il corpus raccolto prima del suo flow.',
+        );
+      }
     },
   );
 }

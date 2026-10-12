@@ -63,7 +63,7 @@ jobs:
         run: git restore --source=3f8d3d19a46d95bc7b7eb494a8f5b85a42372428 -- lib
       - name: Restore cart checkout causal baseline
         if: ${{ inputs.focused && inputs.cart_checkout_baseline }}
-        run: git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart lib/features/delivery_tracking/application/delivery_tracking_controller.dart
+        run: git restore --source=30c418c -- lib/features/cart/application/cart_controller.dart lib/features/checkout/application/checkout_controller.dart lib/features/delivery_tracking/application/delivery_tracking_controller.dart lib/features/checkout/data/shared_preferences_checkout_draft_store.dart
       - name: Prepare focused source on hosted runner
         if: ${{ inputs.focused }}
         # subosito/flutter-action v2.23.0

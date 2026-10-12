@@ -270,6 +270,8 @@ jobs:
             build/task054/os-visual/*.json
             build/task054/ios-owned-receipt.json
             build/task054/ios-visual-step-result.json
+            test/features/checkout/presentation/failures/*.png
+            test/features/orders/presentation/failures/*.png
           if-no-files-found: warn
           retention-days: 7
 

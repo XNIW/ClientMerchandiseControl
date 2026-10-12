@@ -49,6 +49,11 @@ on:
         type: boolean
         default: false
         required: false
+      refresh_goldens:
+        description: Preparare i riferimenti macOS per review pixel distinta, senza approvarli
+        type: boolean
+        default: false
+        required: false
       quality_only:
         description: Riesegue Quality riusando i rilasci invariati già qualificati
         type: boolean
@@ -64,6 +69,7 @@ env:
 jobs:
   quality:
     name: Quality
+    if: ${{ !inputs.refresh_goldens }}
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -233,7 +239,7 @@ jobs:
 
   android-release:
     name: Android release candidate
-    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.quality_only && !inputs.focused }}
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.quality_only && !inputs.focused && !inputs.refresh_goldens }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -273,7 +279,7 @@ jobs:
 
   ios-release:
     name: iOS release candidate
-    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.quality_only && !inputs.focused }}
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.quality_only && !inputs.focused && !inputs.refresh_goldens }}
     runs-on: macos-26
     env:
       DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
@@ -362,3 +368,39 @@ jobs:
 
 # Queste build restano production-like unsigned; i test del ramo staging
 # eseguiti su host non qualificano un artifact TEST nativo o la sua distribuzione.
+
+  golden-reference:
+    name: Prepare macOS golden references for independent pixel review
+    if: ${{ inputs.refresh_goldens }}
+    runs-on: macos-26
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Set up pinned Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Verify locked and generated files
+        run: |
+          bash scripts/resolve-flutter.sh
+          flutter pub get --enforce-lockfile
+          flutter gen-l10n
+          git diff --exit-code -- pubspec.lock lib/l10n/generated
+      - name: Capture proposed golden references
+        run: |
+          flutter test --update-goldens --plain-name golden test/features/checkout/presentation/checkout_screen_test.dart test/features/orders/presentation/customer_orders_screen_test.dart
+          git diff --numstat -- test/features/checkout/presentation/goldens test/features/orders/presentation/goldens > golden-delta.txt
+      - name: Preserve proposed frames without automatic adoption
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: candidate-macos-golden-references
+          path: |
+            test/features/checkout/presentation/goldens/*.png
+            test/features/orders/presentation/goldens/*.png
+            test/features/checkout/presentation/failures/*.png
+            test/features/orders/presentation/failures/*.png
+            golden-delta.txt
+          if-no-files-found: error

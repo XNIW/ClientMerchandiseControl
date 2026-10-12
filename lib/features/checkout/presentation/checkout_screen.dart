@@ -635,7 +635,10 @@ class _ConfirmationStep extends StatelessWidget {
     final formatter = ClpCurrencyFormatter();
     final order = state.order;
     if (order != null) {
-      return _OrderReceipt(order: order, timeZone: state.options!.timeZone!);
+      return _OrderReceipt(
+        order: order,
+        timeZone: state.options?.timeZone ?? 'UTC',
+      );
     }
     final quote = state.quote;
     if (quote == null) {

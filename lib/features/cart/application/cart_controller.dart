@@ -487,6 +487,17 @@ final class CartController extends Notifier<CartState> {
         );
         return;
       }
+      var current = remote;
+      if (remote.idempotent) {
+        // Il ledger riconferma l'intent, ma il suo snapshot può precedere un
+        // ordine o un edit di un altro dispositivo. La read non avvia un merge.
+        final readback = await _readCurrentAccount(
+          context,
+          minimumVersion: remote.version,
+        );
+        if (readback == null) return;
+        current = readback;
+      }
       final rejected = response.rejectedPublicationIds.toSet();
       final retained = await ref
           .read(guestCartStoreProvider)
@@ -494,7 +505,7 @@ final class CartController extends Notifier<CartState> {
       if (!_isCurrentContext(context)) return;
       _pendingMerge = null;
       _setReady(
-        remote.withGuestRetained(retained.items),
+        current.withGuestRetained(retained.items),
         generation: context.generation,
         notice: rejected.isEmpty
             ? CartNoticeKind.merged
@@ -689,8 +700,17 @@ final class CartController extends Notifier<CartState> {
         );
         return;
       }
+      var current = snapshot;
+      if (snapshot.idempotent) {
+        final readback = await _readCurrentAccount(
+          context,
+          minimumVersion: snapshot.version,
+        );
+        if (readback == null) return;
+        current = readback;
+      }
       _pendingRevalidation = null;
-      _setReady(snapshot, notice: CartNoticeKind.revalidated);
+      _setReady(current, notice: CartNoticeKind.revalidated);
     } on CartRepositoryException catch (error) {
       if (!_isCurrentContext(context)) return;
       pending.failureKind = error.kind;
@@ -717,6 +737,26 @@ final class CartController extends Notifier<CartState> {
       allowConflictRetry: true,
     );
     if (!_isCurrent(generation)) return;
+  }
+
+  Future<CustomerCartSnapshot?> _readCurrentAccount(
+    _CartInvocationContext context, {
+    required int minimumVersion,
+  }) async {
+    if (!_isCurrentContext(context)) return null;
+    final response = await ref
+        .read(customerCartRepositoryProvider)
+        .read(shopSlug: context.shopSlug);
+    if (!_isCurrentContext(context)) return null;
+    final snapshot = response.snapshot;
+    if (response.status != CartRemoteStatus.ok ||
+        snapshot == null ||
+        snapshot.shopSlug != context.shopSlug ||
+        snapshot.source != CartSource.account ||
+        snapshot.version < minimumVersion) {
+      throw const CartRepositoryException(CartFailureKind.unexpected);
+    }
+    return snapshot;
   }
 
   Future<void> _prepareReservationMutation(

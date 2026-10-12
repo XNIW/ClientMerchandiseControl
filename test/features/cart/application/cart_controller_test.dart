@@ -744,6 +744,73 @@ void main() {
       expect(remote.mutationRequests, hasLength(1));
     },
   );
+  test('merge ACK storico non sovrascrive il cart remoto corrente dopo retry', () async {
+    final guest = _FakeGuestStore(snapshot: _snapshot(source: CartSource.guest,
+      items: [_line(_publicationId, isGuest: true)]));
+    final replay = _snapshot(source: CartSource.account, version: 5, idempotent: true,
+      items: [_line(_publicationId)]);
+    final remote = _FakeRemoteRepository(
+      readResponse: CartRemoteResponse(status: CartRemoteStatus.ok,
+        snapshot: _snapshot(source: CartSource.account, version: 4)),
+      mergeOutcomes: [const CartRepositoryException(CartFailureKind.timeout),
+        CartRemoteResponse(status: CartRemoteStatus.merged, snapshot: replay)]);
+    final container = _container(guest: guest, remote: remote, identity: _identity());
+    addTearDown(container.dispose);
+    await _waitFor(container, (state) => state.failureKind == CartFailureKind.timeout);
+    final controller = container.read(cartControllerProvider.notifier);
+    expect((await controller.addProduct(_product())).outcome,
+      CartActionOutcome.pendingConfirmation);
+    expect(remote.mutationRequests, isEmpty);
+    expect(guest.snapshot.items, isNotEmpty);
+
+    // Il ledger conserva l'ACK v5, ma un edit successivo sul server è già v6.
+    remote.readResponse = CartRemoteResponse(status: CartRemoteStatus.ok,
+      snapshot: _snapshot(source: CartSource.account, version: 6,
+        items: [_line(_publicationId).copyWith(quantity: 9)]));
+    await controller.retry();
+
+    expect(remote.mergeKeys, hasLength(2));
+    expect(remote.mergeKeys.toSet(), hasLength(1));
+    expect(remote.mergeVersions, [4, 4]);
+    expect(guest.snapshot.items, isEmpty);
+    expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
+    expect(container.read(cartControllerProvider).snapshot!.version, 6);
+    expect(container.read(cartControllerProvider).snapshot!.items.single.quantity, 9);
+    expect(remote.mutationRequests, isEmpty);
+  });
+
+  test('revalidation ACK storico rilegge cart corrente dopo retry', () async {
+    final replay = _snapshot(source: CartSource.account, version: 5, idempotent: true,
+      items: [_line(_publicationId)]);
+    final remote = _FakeRemoteRepository(
+      readResponse: CartRemoteResponse(status: CartRemoteStatus.ok,
+        snapshot: _snapshot(source: CartSource.account, version: 4,
+          items: [_line(_publicationId)])),
+      revalidationOutcomes: [const CartRepositoryException(CartFailureKind.timeout),
+        CartRemoteResponse(status: CartRemoteStatus.revalidated, snapshot: replay)]);
+    final container = _container(guest: _FakeGuestStore(), remote: remote, identity: _identity());
+    addTearDown(container.dispose);
+    await _waitFor(container, (state) => state.status == CartViewStatus.ready);
+    final controller = container.read(cartControllerProvider.notifier);
+    await controller.revalidate();
+    expect(container.read(cartControllerProvider).hasPendingRetry, isTrue);
+    expect((await controller.addProduct(_product())).outcome,
+      CartActionOutcome.pendingConfirmation);
+    expect(remote.mutationRequests, isEmpty);
+
+    remote.readResponse = CartRemoteResponse(status: CartRemoteStatus.ok,
+      snapshot: _snapshot(source: CartSource.account, version: 6,
+        items: [_line(_publicationId).copyWith(quantity: 9)]));
+    await controller.retry();
+
+    expect(remote.revalidationKeys, hasLength(2));
+    expect(remote.revalidationKeys.toSet(), hasLength(1));
+    expect(remote.revalidationVersions, [4, 4]);
+    expect(container.read(cartControllerProvider).hasPendingRetry, isFalse);
+    expect(container.read(cartControllerProvider).snapshot!.version, 6);
+    expect(container.read(cartControllerProvider).snapshot!.items.single.quantity, 9);
+    expect(remote.mutationRequests, isEmpty);
+  });
 }
 
 ProviderContainer _container({
@@ -1013,6 +1080,8 @@ final class _FakeRemoteRepository implements CustomerCartRepository {
   final List<Object> revalidationOutcomes;
   final List<String> mergeKeys = [];
   final List<int> mergeVersions = [];
+  final List<String> revalidationKeys = [];
+  final List<int> revalidationVersions = [];
   final List<CartMutationRequest> mutationRequests = [];
   int mergeCalls = 0;
 
@@ -1053,6 +1122,8 @@ final class _FakeRemoteRepository implements CustomerCartRepository {
     required int expectedVersion,
     required String idempotencyKey,
   }) async {
+    revalidationKeys.add(idempotencyKey);
+    revalidationVersions.add(expectedVersion);
     return _outcome(revalidationOutcomes);
   }
 

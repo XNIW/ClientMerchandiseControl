@@ -48,6 +48,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-preview.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-guest-cart-process-restart.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-address-journal-native-file.py
       - name: Validate client security boundary
         run: |
           bash scripts/check-client-security.sh
@@ -405,7 +406,7 @@ jobs:
           sudo -n chown "$(id -u):$(id -g)" /dev/kvm
           sudo -n chmod u+rw /dev/kvm
       - name: Verify durable synthetic journal across two Android processes
-        run: python3 scripts/run-address-journal-android.py
+        run: python3 scripts/run-address-journal-file-android.py
       - name: Save journal restart receipts
         if: always()
         # actions/upload-artifact v4.6.2
@@ -450,7 +451,7 @@ jobs:
             --receipt build/task054/ios-journal-owned-receipt.json
       - name: Verify synthetic Keychain journal across two iOS processes
         run: >-
-          python3 scripts/run-address-journal-ios.py
+          python3 scripts/run-address-journal-file-ios.py
           --owner-receipt build/task054/ios-journal-owned-receipt.json
       - name: Clean up the owned journal Simulator
         if: always()

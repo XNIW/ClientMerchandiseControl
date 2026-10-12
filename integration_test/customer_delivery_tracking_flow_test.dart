@@ -357,8 +357,9 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
             final compactHeight = tester.getSize(map).height;
             await _showTrackingControl(tester, expand);
             expect(tester.getSize(expand), const Size(48, 48));
-            final expandSemantics =
-                tester.getSemantics(expand).getSemanticsData();
+            final expandSemantics = tester
+                .getSemantics(expand)
+                .getSemanticsData();
             expect(expandSemantics.tooltip, l10n.deliveryTrackingMapExpand);
             expect(expandSemantics.flagsCollection.isButton, isTrue);
             expect(expandSemantics.hasAction(ui.SemanticsAction.tap), isTrue);
@@ -369,15 +370,17 @@ void registerCustomerDeliveryTrackingTests({bool hostRenderer = false}) {
             expect(adapters.single.delegate.disposeCalls, 0);
             expect(adapters.single.delegate.recenterCalls, 0);
             await _showTrackingControl(tester, expand);
-            final collapseSemantics =
-                tester.getSemantics(expand).getSemanticsData();
+            final collapseSemantics = tester
+                .getSemantics(expand)
+                .getSemanticsData();
             expect(collapseSemantics.tooltip, l10n.deliveryTrackingMapCollapse);
             expect(collapseSemantics.flagsCollection.isButton, isTrue);
             expect(collapseSemantics.hasAction(ui.SemanticsAction.tap), isTrue);
             await _showTrackingControl(tester, recenter);
             expect(tester.getSize(recenter), const Size(48, 48));
-            final recenterSemantics =
-                tester.getSemantics(recenter).getSemanticsData();
+            final recenterSemantics = tester
+                .getSemantics(recenter)
+                .getSemanticsData();
             expect(recenterSemantics.tooltip, l10n.deliveryTrackingMapRecenter);
             expect(recenterSemantics.flagsCollection.isButton, isTrue);
             expect(recenterSemantics.hasAction(ui.SemanticsAction.tap), isTrue);

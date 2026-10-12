@@ -441,118 +441,122 @@ void main() {
       var factoryCalls = 0;
       final semantics = tester.ensureSemantics();
       try {
+        DeliveryMapAdapter factory() {
+          factoryCalls++;
+          return useRecoveredAdapter ? recoveredAdapter : failedAdapter;
+        }
 
-      DeliveryMapAdapter factory() {
-        factoryCalls++;
-        return useRecoveredAdapter ? recoveredAdapter : failedAdapter;
-      }
+        await tester.pumpWidget(
+          _mapApp(
+            snapshot: snapshot,
+            configuration: enabledConfiguration,
+            adapterFactory: factory,
+            surfaceBuilder:
+                ({
+                  required adapter,
+                  required scene,
+                  required labels,
+                  required brightness,
+                }) => const ColoredBox(
+                  key: ValueKey('fake-delivery-map-surface'),
+                  color: Colors.teal,
+                ),
+          ),
+        );
+        await tester.pump();
+        await tester.pump();
+        expect(
+          find.byKey(const ValueKey('delivery-map-loading')),
+          findsOneWidget,
+        );
+        expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
+        expect(factoryCalls, 1);
 
-      await tester.pumpWidget(
-        _mapApp(
-          snapshot: snapshot,
-          configuration: enabledConfiguration,
-          adapterFactory: factory,
-          surfaceBuilder:
-              ({
-                required adapter,
-                required scene,
-                required labels,
-                required brightness,
-              }) => const ColoredBox(
-                key: ValueKey('fake-delivery-map-surface'),
-                color: Colors.teal,
-              ),
-        ),
-      );
-      await tester.pump();
-      await tester.pump();
-      expect(
-        find.byKey(const ValueKey('delivery-map-loading')),
-        findsOneWidget,
-      );
-      expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
-      expect(factoryCalls, 1);
+        failedAdapter.emit(DeliveryMapRuntimeState.ready);
+        await tester.pump();
+        expect(find.byKey(const ValueKey('delivery-live-map')), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('fake-delivery-map-surface')),
+          findsOneWidget,
+        );
+        expect(failedAdapter.scenes.single.snapshotVersion, snapshot.version);
+        expect(failedAdapter.disposeCalls, 0);
 
-      failedAdapter.emit(DeliveryMapRuntimeState.ready);
-      await tester.pump();
-      expect(find.byKey(const ValueKey('delivery-live-map')), findsOneWidget);
-      expect(
-        find.byKey(const ValueKey('fake-delivery-map-surface')),
-        findsOneWidget,
-      );
-      expect(failedAdapter.scenes.single.snapshotVersion, snapshot.version);
-      expect(failedAdapter.disposeCalls, 0);
+        failedAdapter.emit(DeliveryMapRuntimeState.failed);
+        await tester.pump();
+        await tester.pump();
+        final unavailable = find.byKey(
+          const ValueKey('delivery-map-unavailable'),
+        );
+        final retry = find.byKey(const ValueKey('delivery-map-retry'));
+        expect(unavailable, findsOneWidget);
+        expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
+        expect(
+          find.byKey(const ValueKey('fake-delivery-map-surface')),
+          findsNothing,
+        );
+        final l10n = AppLocalizations.of(tester.element(unavailable));
+        expect(find.text(l10n.deliveryTrackingMapUnavailable), findsOneWidget);
+        expect(find.text(l10n.deliveryTrackingMapRetry), findsOneWidget);
+        expect(retry, findsOneWidget);
+        expect(tester.getSize(retry).width, greaterThanOrEqualTo(48));
+        expect(tester.getSize(retry).height, greaterThanOrEqualTo(48));
+        expect(
+          tester.getSemantics(retry).label,
+          contains(l10n.deliveryTrackingMapRetry),
+        );
+        expect(tester, meetsGuideline(labeledTapTargetGuideline));
+        expect(tester, meetsGuideline(androidTapTargetGuideline));
+        expect(tester, meetsGuideline(iOSTapTargetGuideline));
+        expect(factoryCalls, 1);
+        expect(failedAdapter.disposeCalls, 1);
+        expect(recoveredAdapter.disposeCalls, 0);
+        expect(tester.takeException(), isNull);
 
-      failedAdapter.emit(DeliveryMapRuntimeState.failed);
-      await tester.pump();
-      await tester.pump();
-      final unavailable = find.byKey(
-        const ValueKey('delivery-map-unavailable'),
-      );
-      final retry = find.byKey(const ValueKey('delivery-map-retry'));
-      expect(unavailable, findsOneWidget);
-      expect(find.byKey(const ValueKey('delivery-live-map')), findsNothing);
-      expect(
-        find.byKey(const ValueKey('fake-delivery-map-surface')),
-        findsNothing,
-      );
-      final l10n = AppLocalizations.of(tester.element(unavailable));
-      expect(find.text(l10n.deliveryTrackingMapUnavailable), findsOneWidget);
-      expect(find.text(l10n.deliveryTrackingMapRetry), findsOneWidget);
-      expect(retry, findsOneWidget);
-      expect(tester.getSize(retry).width, greaterThanOrEqualTo(48));
-      expect(tester.getSize(retry).height, greaterThanOrEqualTo(48));
-      expect(
-        tester.getSemantics(retry).label,
-        contains(l10n.deliveryTrackingMapRetry),
-      );
-      expect(tester, meetsGuideline(labeledTapTargetGuideline));
-      expect(tester, meetsGuideline(androidTapTargetGuideline));
-      expect(tester, meetsGuideline(iOSTapTargetGuideline));
-      expect(factoryCalls, 1);
-      expect(failedAdapter.disposeCalls, 1);
-      expect(recoveredAdapter.disposeCalls, 0);
-      expect(tester.takeException(), isNull);
+        // Cambia solo il risultato della factory già montata: nessun pumpWidget,
+        // nuova versione, nuovo punto o nuova istanza di snapshot abilita il retry.
+        useRecoveredAdapter = true;
+        await tester.tap(retry);
+        await tester.pumpAndSettle();
+        expect(find.byKey(const ValueKey('delivery-live-map')), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('fake-delivery-map-surface')),
+          findsOneWidget,
+        );
+        expect(unavailable, findsNothing);
+        expect(retry, findsNothing);
+        expect(factoryCalls, 2);
+        expect(failedAdapter.disposeCalls, 1);
+        expect(recoveredAdapter.disposeCalls, 0);
+        expect(
+          recoveredAdapter.scenes.single.snapshotVersion,
+          snapshot.version,
+        );
+        expect(
+          recoveredAdapter.scenes.single.courier.latitude,
+          snapshot.courierCoordinate!.latitude,
+        );
+        expect(
+          recoveredAdapter.scenes.single.courier.longitude,
+          snapshot.courierCoordinate!.longitude,
+        );
+        expect(
+          identical(
+            tester
+                .widget<DeliveryLiveMap>(find.byType(DeliveryLiveMap))
+                .snapshot,
+            snapshot,
+          ),
+          isTrue,
+        );
+        expect(tester.takeException(), isNull);
 
-      // Cambia solo il risultato della factory già montata: nessun pumpWidget,
-      // nuova versione, nuovo punto o nuova istanza di snapshot abilita il retry.
-      useRecoveredAdapter = true;
-      await tester.tap(retry);
-      await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('delivery-live-map')), findsOneWidget);
-      expect(
-        find.byKey(const ValueKey('fake-delivery-map-surface')),
-        findsOneWidget,
-      );
-      expect(unavailable, findsNothing);
-      expect(retry, findsNothing);
-      expect(factoryCalls, 2);
-      expect(failedAdapter.disposeCalls, 1);
-      expect(recoveredAdapter.disposeCalls, 0);
-      expect(recoveredAdapter.scenes.single.snapshotVersion, snapshot.version);
-      expect(
-        recoveredAdapter.scenes.single.courier.latitude,
-        snapshot.courierCoordinate!.latitude,
-      );
-      expect(
-        recoveredAdapter.scenes.single.courier.longitude,
-        snapshot.courierCoordinate!.longitude,
-      );
-      expect(
-        identical(
-          tester.widget<DeliveryLiveMap>(find.byType(DeliveryLiveMap)).snapshot,
-          snapshot,
-        ),
-        isTrue,
-      );
-      expect(tester.takeException(), isNull);
-
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pump();
-      expect(failedAdapter.disposeCalls, 1);
-      expect(recoveredAdapter.disposeCalls, 1);
-      expect(factoryCalls, 2);
-      expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump();
+        expect(failedAdapter.disposeCalls, 1);
+        expect(recoveredAdapter.disposeCalls, 1);
+        expect(factoryCalls, 2);
+        expect(tester.takeException(), isNull);
       } finally {
         semantics.dispose();
       }

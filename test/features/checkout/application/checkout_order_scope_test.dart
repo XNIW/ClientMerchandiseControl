@@ -45,23 +45,29 @@ void main() {
         await rig.auth.dispose();
       });
       await _until(
-        () => rig.container.read(checkoutControllerProvider).status ==
+        () =>
+            rig.container.read(checkoutControllerProvider).status ==
             CheckoutViewStatus.ready,
       );
-      final controller = rig.container.read(checkoutControllerProvider.notifier);
+      final controller = rig.container.read(
+        checkoutControllerProvider.notifier,
+      );
       await _reachConfirmedQuote(rig.container);
       final pending = controller.createOrder();
       await _until(() => repository.orderRequests.isNotEmpty);
       final savesBeforeBoundary = rig.store.saveCalls;
       expect(rig.store.draft?.ownerSubjectId, routeFixtureOwnerA);
-      expect(rig.store.draft?.pendingOperation?.kind,
-          CheckoutPendingOperationKind.order);
+      expect(
+        rig.store.draft?.pendingOperation?.kind,
+        CheckoutPendingOperationKind.order,
+      );
 
       // Il caso ready isola Auth senza l'invalidazione dovuta al cart loading.
       // Non leggere Checkout fra il confine e la completion tardiva.
       if (boundary != 'ownerA-B-A-ready') {
-        rig.container.read(rig.cart.notifier).state =
-          CartState.loading(isAuthenticated: true);
+        rig.container.read(rig.cart.notifier).state = CartState.loading(
+          isAuthenticated: true,
+        );
       }
       switch (boundary) {
         case 'ownerB':
@@ -73,20 +79,22 @@ void main() {
           await Future<void>.delayed(Duration.zero);
           expect(_owner(rig.container), routeFixtureOwnerA);
         case 'shop':
-          rig.container.read(rig.config.notifier).state = AppConfig.authFlowTest(
-            storefrontShopSlug: 'storefront-other',
-          );
+          rig.container.read(rig.config.notifier).state =
+              AppConfig.authFlowTest(storefrontShopSlug: 'storefront-other');
       }
-      response.complete(checkoutTestOrderResponse(
-        order: checkoutTestOrderSnapshot(),
-      ));
+      response.complete(
+        checkoutTestOrderResponse(order: checkoutTestOrderSnapshot()),
+      );
       await pending;
 
       // Il server può aver committato A: il suo journal resta per una successiva
       // riconciliazione autorizzata, senza publish o refresh sotto un altro scope.
       expect(rig.store.saveCalls, savesBeforeBoundary);
       expect(rig.store.draft?.orderId, isNull);
-      expect(rig.store.draft?.pendingOperation?.idempotencyKey, checkoutTestKey);
+      expect(
+        rig.store.draft?.pendingOperation?.idempotencyKey,
+        checkoutTestKey,
+      );
       expect(rig.refreshCount(), 0);
       expect(repository.orderRequests, hasLength(1));
       expect(rig.container.read(checkoutControllerProvider).order, isNull);
@@ -107,39 +115,48 @@ String? _owner(ProviderContainer container) =>
   StateProvider<CartState> cart,
   StateProvider<AppConfig> config,
   int Function() refreshCount,
-}) _rig(FakeCheckoutRepository repository) {
+})
+_rig(FakeCheckoutRepository repository) {
   final auth = RouteFixtureAuthRepository();
   final store = MemoryCheckoutDraftStore();
   final config = StateProvider<AppConfig>((ref) => AppConfig.authFlowTest());
-  final cart = StateProvider<CartState>((ref) => CartState(
-    status: CartViewStatus.ready,
-    isAuthenticated: true,
-    snapshot: checkoutTestCart(),
-  ));
-  var refreshes = 0;
-  final container = ProviderContainer(overrides: [
-    appConfigProvider.overrideWith((ref) => ref.watch(config)),
-    authRepositoryFactoryProvider.overrideWithValue((_) async => auth),
-    authCallbackSourceProvider.overrideWithValue(const _NoCallbacks()),
-    checkoutCartStateProvider.overrideWith((ref) => ref.watch(cart)),
-    checkoutAccountStateProvider.overrideWithValue(CustomerAccountState(
-      status: CustomerAccountStatus.ready,
-      snapshot: CustomerAccountSnapshot(
-        profile: null,
-        addresses: [checkoutTestCustomerAddress()],
-        deletionRequest: null,
-        loadedAt: checkoutTestNow,
-      ),
-    )),
-    deliveryContextControllerProvider.overrideWith(
-      TestDeliveryContextController.new,
+  final cart = StateProvider<CartState>(
+    (ref) => CartState(
+      status: CartViewStatus.ready,
+      isAuthenticated: true,
+      snapshot: checkoutTestCart(),
     ),
-    checkoutCartRefreshProvider.overrideWithValue(() async => refreshes++),
-    checkoutRepositoryProvider.overrideWithValue(repository),
-    checkoutDraftStoreProvider.overrideWithValue(store),
-    checkoutClockProvider.overrideWithValue(() => checkoutTestNow),
-    customerIdempotencyKeyFactoryProvider.overrideWithValue(() => checkoutTestKey),
-  ]);
+  );
+  var refreshes = 0;
+  final container = ProviderContainer(
+    overrides: [
+      appConfigProvider.overrideWith((ref) => ref.watch(config)),
+      authRepositoryFactoryProvider.overrideWithValue((_) async => auth),
+      authCallbackSourceProvider.overrideWithValue(const _NoCallbacks()),
+      checkoutCartStateProvider.overrideWith((ref) => ref.watch(cart)),
+      checkoutAccountStateProvider.overrideWithValue(
+        CustomerAccountState(
+          status: CustomerAccountStatus.ready,
+          snapshot: CustomerAccountSnapshot(
+            profile: null,
+            addresses: [checkoutTestCustomerAddress()],
+            deletionRequest: null,
+            loadedAt: checkoutTestNow,
+          ),
+        ),
+      ),
+      deliveryContextControllerProvider.overrideWith(
+        TestDeliveryContextController.new,
+      ),
+      checkoutCartRefreshProvider.overrideWithValue(() async => refreshes++),
+      checkoutRepositoryProvider.overrideWithValue(repository),
+      checkoutDraftStoreProvider.overrideWithValue(store),
+      checkoutClockProvider.overrideWithValue(() => checkoutTestNow),
+      customerIdempotencyKeyFactoryProvider.overrideWithValue(
+        () => checkoutTestKey,
+      ),
+    ],
+  );
   return (
     container: container,
     auth: auth,

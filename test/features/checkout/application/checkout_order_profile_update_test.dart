@@ -45,35 +45,44 @@ void main() {
       isAuthenticated: true,
       snapshot: checkoutTestCart(),
     );
-    final container = ProviderContainer(overrides: [
-      appConfigProvider.overrideWithValue(AppConfig.authFlowTest()),
-      authRepositoryFactoryProvider.overrideWithValue((_) async => auth),
-      authCallbackSourceProvider.overrideWithValue(const _NoCallbacks()),
-      checkoutCartStateProvider.overrideWithValue(cartState),
-      checkoutAccountStateProvider.overrideWithValue(CustomerAccountState(
-        status: CustomerAccountStatus.ready,
-        snapshot: CustomerAccountSnapshot(
-          profile: null,
-          addresses: [checkoutTestCustomerAddress()],
-          deletionRequest: null,
-          loadedAt: checkoutTestNow,
+    final container = ProviderContainer(
+      overrides: [
+        appConfigProvider.overrideWithValue(AppConfig.authFlowTest()),
+        authRepositoryFactoryProvider.overrideWithValue((_) async => auth),
+        authCallbackSourceProvider.overrideWithValue(const _NoCallbacks()),
+        checkoutCartStateProvider.overrideWithValue(cartState),
+        checkoutAccountStateProvider.overrideWithValue(
+          CustomerAccountState(
+            status: CustomerAccountStatus.ready,
+            snapshot: CustomerAccountSnapshot(
+              profile: null,
+              addresses: [checkoutTestCustomerAddress()],
+              deletionRequest: null,
+              loadedAt: checkoutTestNow,
+            ),
+          ),
         ),
-      )),
-      deliveryContextControllerProvider.overrideWith(
-        TestDeliveryContextController.new,
-      ),
-      checkoutCartRefreshProvider.overrideWithValue(() async => refreshes++),
-      checkoutRepositoryProvider.overrideWithValue(repository),
-      checkoutDraftStoreProvider.overrideWithValue(store),
-      checkoutClockProvider.overrideWithValue(() => checkoutTestNow),
-      customerIdempotencyKeyFactoryProvider.overrideWithValue(() => checkoutTestKey),
-    ]);
+        deliveryContextControllerProvider.overrideWith(
+          TestDeliveryContextController.new,
+        ),
+        checkoutCartRefreshProvider.overrideWithValue(() async => refreshes++),
+        checkoutRepositoryProvider.overrideWithValue(repository),
+        checkoutDraftStoreProvider.overrideWithValue(store),
+        checkoutClockProvider.overrideWithValue(() => checkoutTestNow),
+        customerIdempotencyKeyFactoryProvider.overrideWithValue(
+          () => checkoutTestKey,
+        ),
+      ],
+    );
     addTearDown(() async {
       container.dispose();
       await auth.dispose();
     });
-    await _until(() => container.read(checkoutControllerProvider).status ==
-        CheckoutViewStatus.ready);
+    await _until(
+      () =>
+          container.read(checkoutControllerProvider).status ==
+          CheckoutViewStatus.ready,
+    );
     final controller = container.read(checkoutControllerProvider.notifier);
     await controller.selectMode(CheckoutFulfillmentMode.pickup);
     await controller.nextStep();
@@ -84,7 +93,10 @@ void main() {
     await controller.selectPaymentMethod(CheckoutPaymentMethod.payAtPickup);
     await controller.createQuote();
     await controller.confirmQuote();
-    expect(container.read(checkoutControllerProvider).quote!.isConfirmed, isTrue);
+    expect(
+      container.read(checkoutControllerProvider).quote!.isConfirmed,
+      isTrue,
+    );
     final pending = controller.createOrder();
     await _until(() => repository.orderRequests.isNotEmpty);
     expect(container.read(checkoutControllerProvider).isBusy, isTrue);
@@ -99,9 +111,9 @@ void main() {
     });
     expect(container.read(checkoutCartStateProvider), same(cartState));
     expect(container.read(checkoutControllerProvider).isBusy, isTrue);
-    response.complete(checkoutTestOrderResponse(
-      order: checkoutTestOrderSnapshot(),
-    ));
+    response.complete(
+      checkoutTestOrderResponse(order: checkoutTestOrderSnapshot()),
+    );
     await pending;
 
     final state = container.read(checkoutControllerProvider);
@@ -132,10 +144,12 @@ final class _ProfileAuthRepository implements AuthRepository {
 
   void updateProfile(String name) {
     currentCustomer = _customer(name);
-    _events.add(AuthSessionEvent(
-      type: AuthSessionEventType.userUpdated,
-      customer: currentCustomer,
-    ));
+    _events.add(
+      AuthSessionEvent(
+        type: AuthSessionEventType.userUpdated,
+        customer: currentCustomer,
+      ),
+    );
   }
 
   static AuthenticatedCustomer _customer(String name) =>
@@ -153,6 +167,7 @@ final class _ProfileAuthRepository implements AuthRepository {
   Future<void> signOutLocal() async {
     currentCustomer = null;
   }
+
   @override
   Future<void> retryPendingRemoteRevocations() async {}
   @override

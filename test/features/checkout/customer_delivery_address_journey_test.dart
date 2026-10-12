@@ -211,6 +211,13 @@ void main() {
           });
         }
         await tapKey('checkout-next-destination');
+        // Il tap critico è riuscito con il messaggio visibile. Prima dei campi
+        // successivi trascorre la durata reale del feedback transitorio.
+        await tester.pump(
+          tester.widget<SnackBar>(find.byType(SnackBar)).duration,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(SnackBar), findsNothing);
         await tapKey('checkout-slot-$checkoutTestDeliverySlot');
         await tapKey('checkout-next-slot');
         await tapKey('checkout-payment-cashOnDelivery');

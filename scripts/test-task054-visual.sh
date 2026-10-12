@@ -8,6 +8,7 @@ source "${cmc_visual_script_dir}/resolve-flutter.sh"
   exit 2
 }
 CMC_TASK054_SCRIPTS_DIR="${cmc_visual_script_dir}" python3 - "$@" <<'PYCODE'
+import hashlib
 import importlib.util
 import json
 import os
@@ -119,11 +120,40 @@ try:
         print('FAIL: contesto OS frame non corrisponde al device esplicito', flush=True)
         raise SystemExit(2)
     selection = os.environ.get('CMC_TASK054_VISUAL_SELECTION', 'full')
+    prebuilt = os.environ.get('CMC_TASK054_VISUAL_APK')
+    expected_digest = os.environ.get('CMC_TASK054_VISUAL_APK_SHA256')
+    budget = os.environ.get('CMC_TASK054_VISUAL_TIMEOUT_SECONDS')
+    drive_timeout = 900
+    if prebuilt or expected_digest or budget:
+        if (not prebuilt or not expected_digest or not budget or owns_device or
+                selection != 'full' or not os_capture or
+                os.environ['CMC_OS_FRAME_PLATFORM'] != 'android' or
+                not re.fullmatch(r'[0-9a-f]{64}', expected_digest) or
+                not re.fullmatch(r'[1-9][0-9]{0,2}', budget) or int(budget) > 900):
+            raise SystemExit('FAIL: contesto APK prebuilt o budget non conforme')
+        binary = Path(prebuilt)
+        owned_root = (Path.cwd() / 'build/task054/android-visual-fixture').resolve()
+        if (not binary.is_file() or binary.is_symlink() or
+                owned_root not in binary.resolve().parents):
+            raise SystemExit('FAIL: APK prebuilt fuori dalla fixture propria')
+        digest = hashlib.sha256()
+        with binary.open('rb') as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                digest.update(chunk)
+        if digest.hexdigest() != expected_digest:
+            raise SystemExit('FAIL: APK prebuilt modificato dopo build')
+        drive_timeout = int(budget)
     if selection == 'full':
-        run(['flutter', 'drive', '--no-pub', '--driver=test_driver/task054_visual.dart',
+        command = ['flutter', 'drive', '--no-pub', '--driver=test_driver/task054_visual.dart',
              '--target=integration_test/task054_visual_flow_test.dart', '-d', device,
              '--dart-define=CMC_VISUAL_CAPTURE=true',
-             '--dart-define=CMC_OS_FRAME_CAPTURE=' + str(os_capture).lower()], 900)
+             '--dart-define=CMC_OS_FRAME_CAPTURE=' + str(os_capture).lower()]
+        if prebuilt:
+            # La receipt post-drive attesta l'APK installato. Il default Flutter
+            # prebuilt lo disinstalla; il cleanup resta al solo owner dell'AVD.
+            command += ['--use-application-binary=' + str(binary.resolve()),
+                        '--keep-app-running']
+        run(command, drive_timeout)
     elif selection in ('review', 'review-after-inbox'):
         # Selezione nativa ufficiale Flutter: nessuno skip o cambio della fixture.
         names = ['recensione submit busy failure retry edit conserva commento']

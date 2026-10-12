@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Processi/SDK simulati: verifica ownership e failure, senza build o emulatori."""
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -117,11 +118,21 @@ class AndroidVisualRunnerTest(unittest.TestCase):
                     output = '34' if wrong_api else '35'
                 elif arguments[-1] == 'ro.product.cpu.abi':
                     output = 'x86_64'
-                elif arguments[0] == 'bash' and not child.returncode:
+                elif arguments[:2] == ['bash', 'scripts/build-task054-android-visual.sh'] and not child.returncode:
+                    apk = Path(directory) / 'build/app/outputs/flutter-apk/app-debug.apk'
+                    apk.parent.mkdir(parents=True)
+                    apk.write_bytes(b'fixture apk sintetico')
+                elif arguments[:2] == ['bash', 'scripts/test-task054-visual.sh'] and not child.returncode:
                     captures = Path(kwargs['env']['CMC_VISUAL_OUTPUT_DIR'])
                     captures.mkdir(parents=True)
                     for index in range(capture_count):
                         (captures / f'fake-{index}.png').write_bytes(b'fake')
+                elif arguments[-6:] == ['cmd', 'package', 'list', 'packages', '-U', 'com.xniw.clientmerchandisecontrol']:
+                    output = 'package:com.xniw.clientmerchandisecontrol uid:10123'
+                elif arguments[-3:] == ['pm', 'path', 'com.xniw.clientmerchandisecontrol']:
+                    output = 'package:/data/app/owned/base.apk'
+                elif 'sha256sum' in arguments:
+                    output = hashlib.sha256(b'fixture apk sintetico').hexdigest() + '  /data/app/owned/base.apk'
                 child.communicate.return_value = (output, None)
                 return child
 
@@ -154,9 +165,22 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         self.assertIsNone(receipt['emulator_before_cleanup'])
         self.assertEqual(receipt['revision'], 'a' * 40)
         self.assertEqual(receipt['capture_count'], 137)
-        self.assertEqual(environments[-2]['CMC_OS_FRAME_PLATFORM'], 'android')
-        self.assertEqual(environments[-2]['CMC_OS_FRAME_DEVICE'], runner.serial)
-        drive = next(args for args in calls if args[0] == 'bash')
+        build_index = next(index for index, args in enumerate(calls)
+            if args[:2] == ['bash', 'scripts/build-task054-android-visual.sh'])
+        emulator_index = next(index for index, args in enumerate(calls) if '-avd' in args)
+        drive_index = next(index for index, args in enumerate(calls)
+            if args[:2] == ['bash', 'scripts/test-task054-visual.sh'])
+        self.assertLess(build_index, emulator_index)
+        self.assertLess(emulator_index, drive_index)
+        self.assertEqual(environments[drive_index]['CMC_OS_FRAME_PLATFORM'], 'android')
+        self.assertEqual(environments[drive_index]['CMC_OS_FRAME_DEVICE'], runner.serial)
+        self.assertTrue(1 <= int(environments[drive_index]['CMC_TASK054_VISUAL_TIMEOUT_SECONDS']) <= 900)
+        self.assertTrue(receipt['build_before_emulator'])
+        self.assertEqual(receipt['fixture_apk_sha256'],
+            hashlib.sha256(b'fixture apk sintetico').hexdigest())
+        self.assertEqual(receipt['installed_fixture'],
+            {'uid': 10123, 'apk_sha256': receipt['fixture_apk_sha256']})
+        drive = calls[drive_index]
         self.assertEqual(drive, ['bash', 'scripts/test-task054-visual.sh',
             '--device', runner.serial])
         self.assertEqual(runner.serial, 'emulator-5554')
@@ -199,10 +223,23 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         code, calls, _, killed, receipt, runner = self.execute(failure='sdk-install')
         self.assertEqual(code, 7)
         self.assertEqual(receipt['failed_phase'], 'sdk-install')
-        self.assertEqual(len(calls), 2)
+        self.assertEqual(len(calls), 4)
         self.assertEqual([call.args for call in killed],
-            [(54321, signal.SIGTERM), (54321, signal.SIGTERM)])
+            [(54321, signal.SIGTERM)] * 4)
         self.assertFalse(runner.owned_directory.exists())
+
+    def test_fixture_build_failure_blocks_sdk_avd_and_capture(self):
+        code, calls, _, killed, receipt, runner = self.execute(failure='visual-fixture-build')
+        self.assertEqual(code, 7)
+        self.assertEqual(receipt['failed_phase'], 'visual-fixture-build')
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(calls[0], ['git', 'rev-parse', 'HEAD'])
+        self.assertEqual(calls[1], ['bash', 'scripts/build-task054-android-visual.sh'])
+        self.assertEqual([call.args for call in killed], [(54321, signal.SIGTERM)] * 2)
+        self.assertIsNone(runner.owned_directory)
+        self.assertIsNone(runner.emulator)
+        self.assertFalse(receipt['build_before_emulator'])
+        self.assertIsNone(receipt['installed_fixture'])
 
     def test_emulator_is_installed_with_image_before_it_is_required(self):
         code, calls, _, _, _, _ = self.execute()
@@ -215,28 +252,28 @@ class AndroidVisualRunnerTest(unittest.TestCase):
         code, calls, _, killed, receipt, _ = self.execute(emulator_install_failure=True)
         self.assertEqual(code, 2)
         self.assertEqual(receipt['failed_phase'], 'sdk-install')
-        self.assertFalse(any('-avd' in args or args[0] == 'bash' for args in calls))
+        self.assertFalse(any('-avd' in args or args[:2] == ['bash', 'scripts/test-task054-visual.sh'] for args in calls))
         self.assertEqual([call.args for call in killed],
-            [(54321, signal.SIGTERM), (54321, signal.SIGTERM)])
+            [(54321, signal.SIGTERM)] * 4)
 
     def test_foreign_identity_is_never_used_or_stopped_via_adb(self):
         code, calls, _, killed, receipt, _ = self.execute(foreign=True)
         self.assertEqual(code, 2)
         self.assertEqual(receipt['failed_phase'], 'device-identity')
-        self.assertFalse(any('shell' in args or args[0] == 'bash' for args in calls))
+        self.assertFalse(any('shell' in args or args[:2] == ['bash', 'scripts/test-task054-visual.sh'] for args in calls))
         self.assertTrue(all(call.args[0] in (12345, 54321) for call in killed))
 
     def test_early_emulator_exit_stops_dependent_phases(self):
         code, calls, _, _, receipt, _ = self.execute(early_exit=True)
         self.assertEqual(code, 19)
         self.assertEqual(receipt['failed_phase'], 'adb-online')
-        self.assertFalse(any('get-state' in args or args[0] == 'bash' for args in calls))
+        self.assertFalse(any('get-state' in args or args[:2] == ['bash', 'scripts/test-task054-visual.sh'] for args in calls))
 
     def test_wrong_device_api_fails_before_capture(self):
         code, calls, _, _, receipt, _ = self.execute(wrong_api=True)
         self.assertEqual(code, 2)
         self.assertEqual(receipt['failed_phase'], 'device-platform')
-        self.assertFalse(any(args[0] == 'bash' for args in calls))
+        self.assertFalse(any(args[:2] == ['bash', 'scripts/test-task054-visual.sh'] for args in calls))
 
     def test_partial_capture_is_not_promoted_to_success(self):
         for count in (113, 136):

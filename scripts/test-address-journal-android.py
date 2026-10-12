@@ -207,12 +207,18 @@ with patch.object(runner, 'service_uri', return_value='http://127.0.0.1:1234/fix
             runner.environment['CMC_VISUAL_OUTPUT_DIR'] = str(visual)
             runner.serial = 'emulator-5554'
             sequence = []
-            with patch.object(runner, 'prepare_device', side_effect=lambda:
+            with patch.object(runner, 'preflight_visual_host', side_effect=lambda:
+                    sequence.append('preflight')), \
+                 patch.object(runner, 'build_fixture_binary', side_effect=lambda:
+                    sequence.append('build')), \
+                 patch.object(runner, 'prepare_device', side_effect=lambda:
                     sequence.append('prepare') or Path('/owned/adb')), \
                  patch.object(runner, 'command', side_effect=lambda *_args, **_kwargs:
-                    sequence.append('capture') or (0, '')):
+                    sequence.append('capture') or (0, '')), \
+                 patch.object(runner, 'attest_fixture_installed', side_effect=lambda _adb:
+                    sequence.append('attest')):
                 runner.execute()
-            self.assertEqual(sequence, ['prepare', 'capture'])
+            self.assertEqual(sequence, ['preflight', 'build', 'prepare', 'capture', 'attest'])
             self.assertEqual(runner.capture_count, 137)
 
 

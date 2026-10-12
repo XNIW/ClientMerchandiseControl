@@ -5,10 +5,13 @@ CLI verificata: developer.android.com/tools/{sdkmanager,avdmanager,variables}
 e developer.android.com/studio/run/emulator-{commandline,acceleration}.
 Nessuna prova backend autenticato o su device fisico deriva da questo runner.
 """
+import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import signal
 import socket
@@ -216,6 +219,10 @@ class AndroidVisualRunner:
         self.cleanup_failed = False
         self.revision = None
         self.capture_count = 0
+        self.fixture_apk = None
+        self.fixture_apk_sha256 = None
+        self.installed_fixture = None
+        self.build_before_emulator = False
 
     def command(self, arguments, timeout, *, input_text=None, capture=True,
                 check=True):
@@ -397,7 +404,81 @@ class AndroidVisualRunner:
         self.command(target + ['shell', 'input', 'keyevent', '82'], 10)
         return adb
 
+    def preflight_visual_host(self):
+        # Lo stesso gate read-only originale deve precedere anche la nuova build.
+        self.phase = 'preflight'
+        if platform.system() != 'Linux' or platform.machine() != 'x86_64':
+            raise Failure(self.phase, 2, 'richiede runner Linux x86_64')
+        _, self.revision = self.command(['git', 'rev-parse', 'HEAD'], 15)
+        if len(self.revision) != 40 or any(char not in '0123456789abcdef' for char in self.revision):
+            raise Failure(self.phase, 2, 'revision Git non verificabile')
+        if not os.access('/dev/kvm', os.R_OK | os.W_OK):
+            raise Failure(self.phase, 2, 'KVM non accessibile al runner')
+
+    def build_fixture_binary(self):
+        self.phase = 'visual-fixture-build'
+        if self.emulator is not None:
+            raise Failure(self.phase, 2, 'build fixture richiede emulatore non avviato')
+        if self.environment.get('CMC_TASK054_VISUAL_SELECTION', 'full') != 'full':
+            raise Failure(self.phase, 2, 'runner canonico richiede matrice completa')
+        target = self.repository / 'build/task054/android-visual-fixture/app-debug.apk'
+        if target.exists() or target.is_symlink():
+            raise Failure(self.phase, 2, 'APK fixture precedente; nessuna sovrascrittura')
+        started = time.monotonic()
+        self.command(['bash', 'scripts/build-task054-android-visual.sh'],
+            600, capture=False)
+        source = self.repository / 'build/app/outputs/flutter-apk/app-debug.apk'
+        if not source.is_file() or source.is_symlink():
+            raise Failure(self.phase, 1, 'APK fixture build assente o non regolare')
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with source.open('rb') as incoming, target.open('xb') as frozen:
+            shutil.copyfileobj(incoming, frozen, length=1024 * 1024)
+        target.chmod(0o400)
+        self.fixture_apk = target.resolve()
+        self.fixture_apk_sha256 = self.fixture_digest()
+        # Il cap originale900 comprendeva build+drive. Il nuovo ordine conserva
+        # quella somma: il boot AVD continua ad avere i suoi gate separati.
+        remaining = 900 - math.ceil(time.monotonic() - started)
+        if remaining < 1:
+            raise Failure(self.phase, 124, 'budget build+drive900s esaurito')
+        self.environment.update(CMC_TASK054_VISUAL_APK=str(self.fixture_apk),
+            CMC_TASK054_VISUAL_APK_SHA256=self.fixture_apk_sha256,
+            CMC_TASK054_VISUAL_TIMEOUT_SECONDS=str(remaining))
+        self.build_before_emulator = True
+
+    def fixture_digest(self):
+        if self.fixture_apk is None:
+            raise Failure(self.phase, 1, 'APK fixture non attestato')
+        digest = hashlib.sha256()
+        with self.fixture_apk.open('rb') as stream:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                digest.update(chunk)
+        return digest.hexdigest()
+
+    def attest_fixture_installed(self, adb):
+        self.phase = 'fixture-apk-identity'
+        if self.fixture_digest() != self.fixture_apk_sha256:
+            raise Failure(self.phase, 1, 'APK fixture modificato durante capture')
+        package = 'com.xniw.clientmerchandisecontrol'
+        target = [str(adb), '-s', self.serial]
+        _, packages = self.command(target +
+            ['shell', 'cmd', 'package', 'list', 'packages', '-U', package], 15)
+        match = re.fullmatch(r'package:' + re.escape(package) + r' uid:([0-9]+)', packages)
+        if match is None:
+            raise Failure(self.phase, 1, 'UID fixture installata non verificabile')
+        _, installed = self.command(target + ['shell', 'pm', 'path', package], 15)
+        if not re.fullmatch(r'package:/data/app/[A-Za-z0-9_./=+~-]+/base\.apk', installed):
+            raise Failure(self.phase, 1, 'APK fixture installato non univoco')
+        _, checksum = self.command(target +
+            ['shell', 'sha256sum', installed.removeprefix('package:')], 15)
+        digest = checksum.split()[0] if checksum else ''
+        if digest != self.fixture_apk_sha256:
+            raise Failure(self.phase, 1, 'APK installato differente dalla fixture congelata')
+        self.installed_fixture = {'uid': int(match.group(1)), 'apk_sha256': digest}
+
     def execute(self):
+        self.preflight_visual_host()
+        self.build_fixture_binary()
         adb = self.prepare_device()
         visual_output = Path(self.environment['CMC_VISUAL_OUTPUT_DIR'])
         self.phase = 'native-fixture-capture'
@@ -406,6 +487,7 @@ class AndroidVisualRunner:
         # Il runner visuale esistente possiede già il timeout drive900 e i suoi figli.
         self.command(['bash', 'scripts/test-task054-visual.sh', '--device', self.serial],
             None, capture=False)
+        self.attest_fixture_installed(adb)
         self.phase = 'capture-completeness'
         self.capture_count = len(list(visual_output.glob('*.png')))
         if self.capture_count != 137:
@@ -492,6 +574,9 @@ class AndroidVisualRunner:
         receipt.parent.mkdir(parents=True, exist_ok=True)
         receipt.write_text(json.dumps({'evidence_level': 'native_android_fixture',
             'revision': self.revision, 'capture_count': self.capture_count,
+            'build_before_emulator': self.build_before_emulator,
+            'fixture_apk_sha256': self.fixture_apk_sha256,
+            'installed_fixture': self.installed_fixture,
             'api': 35, 'abi': 'x86_64', 'exit_code': code,
             'failed_phase': failed_phase, 'emulator_before_cleanup': emulator_before_cleanup,
             'cleanup': 'FAIL' if self.cleanup_failed else 'PASS'},

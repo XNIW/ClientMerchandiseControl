@@ -1,0 +1,117 @@
+{
+  "generated_at_utc": "2026-10-09T00:27:50.495723+00:00",
+  "reviewer": "/root/db_pooler/transport_review",
+  "verdict": "APPROVED_SOURCE_CODE_ONLY",
+  "review_outcome": "APPROVED",
+  "approval_scope": "DB transport source delta and its local regression proofs only",
+  "candidate": "0cec1058748d1109a9b7a4516d54be6bc3224bab",
+  "fix_base": "7177d3059fb2cc6c32b91f2446bb681e6d28c501",
+  "original_base": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "files": {
+    "scripts/check-backend-compatibility.py": "2db803a7080eb1d8796cc0bb7d3cf6d1121cb08d8d987d19b432a861aa2a9d07",
+    "scripts/test-backend-compatibility.py": "185ae80463c2e0d6361af5d61f4ebaf199b331e76c9b55fa5de427d5e0264d38",
+    "docs/operations/BACKEND-CONNECTION-TRANSPORT.md": "9e6668c544b8bb452774ebfde713dbcfb14017f00c9ddcc8edf964727bc0e335"
+  },
+  "findings": [
+    {
+      "id": "DBT-R01",
+      "severity": "P2",
+      "status": "RESOLVED",
+      "resolution": "Input di configurazione/endpoint assenti o non leggibili e endpoint pooler omesso classificati NOT_RUN attempted=false prima di psql, con motivo sanitizzato e exit2.",
+      "proof": "Same independent regression file: RED exit1 on7177d30 with6 negative subcases; GREEN exit0 on0cec105 withsame6 subcases. Additional4 PermissionError cases coverconfig/endpoint andbothlive modes, psql_calls0."
+    }
+  ],
+  "open_findings": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0
+  },
+  "independent_checks": {
+    "permanent_suite": {
+      "result": "PASS",
+      "tests": 30,
+      "exit_code": 0
+    },
+    "independent_regression": {
+      "result": "PASS",
+      "test_methods": 1,
+      "subcases": 6,
+      "exit_code": 0
+    },
+    "additional_permission_errors": {
+      "result": "PASS",
+      "cases": 4,
+      "input_exit_code_each": 2,
+      "psql_calls_each": 0
+    },
+    "source_contract": {
+      "result": "PASS",
+      "expected_rpcs": 57,
+      "exit_code": 0
+    },
+    "diff": {
+      "result": "PASS",
+      "exit_code": 0
+    },
+    "function_AST_preservation": {
+      "result": "PASS",
+      "functions": [
+        "source_errors",
+        "schema_errors",
+        "query",
+        "connection_target",
+        "target_connection",
+        "connection_errors",
+        "live_receipt"
+      ]
+    },
+    "git_freeze": {
+      "result": "PASS",
+      "head": "0cec1058748d1109a9b7a4516d54be6bc3224bab",
+      "worktree": "CLEAN"
+    }
+  },
+  "reused_proofs": {
+    "libpq_effective_parameters": {
+      "result": "PASS",
+      "original_candidate": "7177d3059fb2cc6c32b91f2446bb681e6d28c501",
+      "modes": [
+        "direct",
+        "session-pooler"
+      ],
+      "scope": "real installed libpq parameter precedence;9fields per mode, PQsocket-1, deliberate failure beforeDNS/socket. Reused after AST invariance of connection_target andtarget_connection."
+    },
+    "caller_review": {
+      "result": "PASS",
+      "reviewer": "/root/db_pooler/transport_review/callers_readonly",
+      "scope": "static only; wrappers inherited env and no receipt consumer; caller code andreceipt implementation unchanged."
+    },
+    "executor_SQL_proof": {
+      "result": "PASS",
+      "scope": "executor local isolated PostgreSQL17; not reviewer rerun; query AST identical throughfix. No live TLS proof."
+    }
+  },
+  "documentation": "Clarifies rpcs as expected manifest count and endpoint_metadata_sha256 as normalized JSON digest, not input file bytes; source metadata remains operator-attested.",
+  "limits": {
+    "live_tls": "NOT_RUN",
+    "TEST_authentication": "NOT_RUN",
+    "operator_apply_authorization": "NOT_RUN",
+    "remote_apply": "NOT_RUN",
+    "TEST_schema_runtime": "NOT_RUN",
+    "production": "NOT_RUN",
+    "integrated_TASK054_acceptance": "NOT_RUN"
+  },
+  "evidence_sha256": {
+    "transport-review.json": "297f8db63c09afe5fb7c530829e3db6db72466b017f22b6c03da8d6f2a18ed1c",
+    "rereview-independent-gates.json": "719d20f9939299d4e14704eefe949871808c05f9e3ae1f78197df6cc84d81c66",
+    "test_missing_input_classification.py": "4a6bf6ba23515a7a4e1776b29221460de9c9682e19419ab428c0f2ed3c566d31",
+    "missing-input-regression-red.log": "a3cd3f5804f882e076ab9e5377f5bd6fefbc47893b39284415b98f2f79fb5cc0",
+    "rereview-independent-missing-input.log": "e8f24040515fd7040c5ee5addb8d69d42a864c74c4cebcc07e6e6bc8a32575b3",
+    "libpq-independent.json": "9a7f1ba0e253e1ddecf85c9e74a9735bc89502c9178360b6ae4647d459b6a53d",
+    "source-integrity.json": "01c8bf3ef15e7d987a98956b0466b5f515cac30c837e70de0fdf4cd4b03fa6d5"
+  },
+  "negative_history_preserved": true,
+  "repository_modified_by_reviewer": false,
+  "all_commands_terminal": true
+}

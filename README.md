@@ -199,6 +199,11 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate live; integrazione sviluppo separata e condizionata
 
+Mandato12ottobre2026: candidate coerente da3f8d3d19, recupero degli allegati
+assistenza sulla stessa pratica, feedback salvataggio recensione e inbox accessibile.
+Le prove della candidate sono nel rapporto corrente; CI/native/TEST sono gate
+distinti. I checkpoint seguenti restano storici.
+
 Il checkpoint PR29 `43fd7af` conserva CI43 terminale: cinque job PASS,
 journal iOS FAIL in preparazione e job smoke/visual CANCELLED30min. Lo smoke
 è PASS; visual91PASS/1FAIL resta distinto dal budget. Badge predefinito al200%

@@ -13,35 +13,35 @@
 - **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — CI nativa iOS e gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: completare i finding R30 emersi dalla CI
-  `37839967964` su PR29 `43fd7af`: cinque job PASS, journal iOS FAIL prima
-  dell'app e job smoke/visual CANCELLED al limite globale di30min. Lo smoke
-  nativo è PASS; il test recensioni registra campo non hitTestable e overflow
-  24px, causa in diagnosi. Badge predefinito corretto in16e4681 dopo RED e
-  review distinta; proiezione degli inset nel solo harness bf9be05 approvato e integrato in2327948.
-  Preview iOS7e approvata e integrata in d4a7e97; job35min misurato,
-  timeout comandi invariati. Avviare una nuova CI esatta del composto e
-  ispezionare i nuovi pixel hash-bound. Recovery v3 popolata e bundle workerd sono PASS locali;
-  apply/deploy TEST restano condizionati a TLS, accessi/configurazione e finestra
-  DB/cron attestata. W/N e dispositivi assegnati preservati; TASK-054 aperta,
-  nessun TASK-055, DONE o production.
+- **Review integrata**: BLOCKED — runtime iOS e gate live; integrazione sviluppo separata e condizionata
+- **Prossima azione autorizzata**: mandato del12ottobre2026: comporre candidate
+  coerente, correggere e verificare recupero allegati, feedback recensioni e inbox
+  accessibile; riusare registri/matrici. L'utente autorizza scegliere una superficie
+  che permetta lavoro contemporaneo dei progetti: runner GitHub separati per Client,
+  senza SDK/UI Mac e senza autorità SQL/cron/Worker/N. Gate TEST e piattaforme reali
+  restano distinti. Candidate parte da3f8d3d19, registri aggiornati da744cd49e;
+  checkoutmain8423c868 dirtyuntracked supabase/ preservato. Review indipendenti
+  prima del freeze e gate completi exact-SHA; nessun closeout senza prove obbligatorie.
+
 
 ## Repository coinvolti
 
 - `XNIW/ClientMerchandiseControl` — repository corrente e unico writer del client.
 - `XNIW/merchandise-control-admin-web` — control plane e migration/server contract
-  authority canonica; main verificata02ea44b9,159sorgenti e155receipt TEST;
+  authority canonica; snapshot storico main02ea44b9,159sorgenti e155receipt TEST;
+  rollout POS corrente daacb3e4ac/PR133 (OPEN), distinto dal candidato Client96758b89;
   TASK159/Worker selettivo appartiene a W, modifiche concorrenti preservate.
   Le riconciliazioni4532831b/f21339bb precedenti rimangono nelle evidence storiche.
-- `XNIW/MerchandiseControlSplitView` — fonte operativa Android, owner N; PR23 integrata in main9d5c270b il8ottobre; runtime aggiornato e R24 non qualificati.
-- `XNIW/iOSMerchandiseControl` — fonte operativa iOS, owner N; PR21 corrente3212799e aperta al checkpoint8ottobre18:17UTC; main433e7daf è il riferimento storico, non prova runtime nuova.
+- `XNIW/MerchandiseControlSplitView` — owner N riferisce PR26 merged, mainbbbda83 e APK74e75 installato con preservazione; N riferisce SaveA locale e1riga/2prezzi remoti nel readback00:28:52UTC del10ottobre, HTTPACK non provato/peerA0; R24 NOT_RUN.
+- `XNIW/iOSMerchandiseControl` — owner N riferisce PR21 merged, mainb869c9b e Proper2cb5de installato; N riferisce primoSaveB localePASS/3pending, remotoB assente al solo readback00:28:52UTC del10ottobre; diagnostica errori8ott storica, ACK/convergenza da provare; R24 NOT_RUN.
 - `XNIW/Win7POS` — POS e stock operativo; TASK-030 validato nel worktree release
   train, nessun writer corrente per TASK-031 e checkout originale dirty preservato.
-- Supabase TEST — snapshot Management API readonly dell'8 ottobre19:59UTC:
+- Supabase TEST — snapshot MCP readonly del10ottobre20:49UTC:
   32/57RPC presenti e conformi,25assenti,quattro migration canoniche assenti,
-  1/2indici,history155. Gate TLS distinto BLOCKED; nessun apply o repair remoto.
-  Recovery popolata57RPC/2indici/history159 PASS esclusivamente nel clone isolato.
+  1/2indici,history158 con tre aggiunte POS; delta Client atteso PASS. Gate TLS
+  distinto NOT_RUN per input assenti; nessun apply o repair Client remoto.
+  Recovery popolata57RPC/2indici/history159 PASS nel clone della precedente baseline;
+  dati/schema correnti e profilo operatore devono essere riconciliati prima di apply.
 - Workspace Supabase storico non-Git — sola provenance, nessuna authority o scrittura.
 
 ## Principi architetturali

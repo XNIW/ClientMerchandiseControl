@@ -1,0 +1,171 @@
+{
+  "at_utc": "2026-10-09T23:37:10.293096+00:00",
+  "scope": "readonly installed iOS Simulator SDK paths; no build/retry/toolchain changes",
+  "root": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs",
+  "SDKs": [
+    {
+      "name": "iPhoneSimulator.sdk",
+      "symlink": false,
+      "resolved": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk",
+      "version": "27.0",
+      "canonical_name": "iphonesimulator27.0",
+      "deployment_targets": {
+        "SystemPrefix": "",
+        "ClangRuntimeLibraryPlatformName": "iossim",
+        "BuildVersionPlatformID": "7",
+        "SwiftSpanMinimumDeploymentTarget": "26.0",
+        "LLVMTargetTripleVendor": "apple",
+        "MaximumDeploymentTarget": "27.0.99",
+        "SwiftCompatibilityLibraryNotNeededStartingIn": {
+          "libswiftCompatibilitySpan.dylib": "26.0",
+          "libswift_Concurrency.dylib": "15.0"
+        },
+        "SwiftConcurrencyMinimumDeploymentTarget": "15.0",
+        "SwiftOSRuntimeMinimumDeploymentTarget": "12.2",
+        "LLVMTargetTripleSys": "ios",
+        "DeviceFamilies": [
+          {
+            "Identifier": "1",
+            "Name": "phone",
+            "DisplayName": "iPhone"
+          },
+          {
+            "Identifier": "2",
+            "Name": "pad",
+            "DisplayName": "iPad"
+          }
+        ],
+        "PlatformFamilyDisplayName": "iOS",
+        "LLVMTargetTripleEnvironment": "simulator",
+        "ValidDeploymentTargets": [
+          "15.0",
+          "15.1",
+          "15.2",
+          "15.3",
+          "15.4",
+          "15.5",
+          "15.6",
+          "16.0",
+          "16.1",
+          "16.2",
+          "16.3",
+          "16.4",
+          "16.5",
+          "16.6",
+          "17.0",
+          "17.1",
+          "17.2",
+          "17.3",
+          "17.4",
+          "17.5",
+          "17.6",
+          "18.0",
+          "18.1",
+          "18.2",
+          "18.3",
+          "18.4",
+          "18.5",
+          "18.6",
+          "26.0",
+          "26.2",
+          "26.3",
+          "26.4",
+          "26.5",
+          "26.6",
+          "27.0"
+        ],
+        "DefaultDeploymentTarget": "27.0",
+        "MinimumDeploymentTarget": "15.0",
+        "DeploymentTargetSettingName": "IPHONEOS_DEPLOYMENT_TARGET",
+        "Archs": [
+          "arm64",
+          "x86_64"
+        ],
+        "RecommendedDeploymentTarget": "17.0",
+        "PlatformFamilyName": "iOS"
+      }
+    },
+    {
+      "name": "iPhoneSimulator27.0.sdk",
+      "symlink": true,
+      "resolved": "/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk",
+      "version": "27.0",
+      "canonical_name": "iphonesimulator27.0",
+      "deployment_targets": {
+        "SystemPrefix": "",
+        "ClangRuntimeLibraryPlatformName": "iossim",
+        "BuildVersionPlatformID": "7",
+        "SwiftSpanMinimumDeploymentTarget": "26.0",
+        "LLVMTargetTripleVendor": "apple",
+        "MaximumDeploymentTarget": "27.0.99",
+        "SwiftCompatibilityLibraryNotNeededStartingIn": {
+          "libswiftCompatibilitySpan.dylib": "26.0",
+          "libswift_Concurrency.dylib": "15.0"
+        },
+        "SwiftConcurrencyMinimumDeploymentTarget": "15.0",
+        "SwiftOSRuntimeMinimumDeploymentTarget": "12.2",
+        "LLVMTargetTripleSys": "ios",
+        "DeviceFamilies": [
+          {
+            "Identifier": "1",
+            "Name": "phone",
+            "DisplayName": "iPhone"
+          },
+          {
+            "Identifier": "2",
+            "Name": "pad",
+            "DisplayName": "iPad"
+          }
+        ],
+        "PlatformFamilyDisplayName": "iOS",
+        "LLVMTargetTripleEnvironment": "simulator",
+        "ValidDeploymentTargets": [
+          "15.0",
+          "15.1",
+          "15.2",
+          "15.3",
+          "15.4",
+          "15.5",
+          "15.6",
+          "16.0",
+          "16.1",
+          "16.2",
+          "16.3",
+          "16.4",
+          "16.5",
+          "16.6",
+          "17.0",
+          "17.1",
+          "17.2",
+          "17.3",
+          "17.4",
+          "17.5",
+          "17.6",
+          "18.0",
+          "18.1",
+          "18.2",
+          "18.3",
+          "18.4",
+          "18.5",
+          "18.6",
+          "26.0",
+          "26.2",
+          "26.3",
+          "26.4",
+          "26.5",
+          "26.6",
+          "27.0"
+        ],
+        "DefaultDeploymentTarget": "27.0",
+        "MinimumDeploymentTarget": "15.0",
+        "DeploymentTargetSettingName": "IPHONEOS_DEPLOYMENT_TARGET",
+        "Archs": [
+          "arm64",
+          "x86_64"
+        ],
+        "RecommendedDeploymentTarget": "17.0",
+        "PlatformFamilyName": "iOS"
+      }
+    }
+  ]
+}

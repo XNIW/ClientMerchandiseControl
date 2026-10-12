@@ -1,0 +1,450 @@
+{
+  "schema": "task054-preapply-inputs-readonly-review-v1",
+  "reviewer": "/root/final_audit",
+  "created_at_utc": "2026-10-09T00:40:37.005264+00:00",
+  "mandate": "8da5e50f-ba0f-4fd8-ab3c-9c4e0dd785c2",
+  "scope": "READ_ONLY_PREPARATORY_PREAPPLY_AND_RESIDUAL_INPUTS_NOT_FINAL_DOC_OR_PRODUCT_REVIEW",
+  "review_verdict": "CHANGES_REQUIRED",
+  "qualification": "Three editorial/input classification corrections; no new demonstrated product defect",
+  "integrated_acceptance": "BLOCKED",
+  "preapply_operational": "BLOCKED",
+  "inputs": {
+    "access/preapply-metadata-summary.json": {
+      "sha256": "296629fa95ebc59b38b6fe602a75d13a29c00ce63ff8a3e4b70e0253d62344f2",
+      "bytes": 2903
+    },
+    "access/certs/certificate-receipt.json": {
+      "sha256": "3a61373892d7924853973a52c1f50653cd84f5f1fe41fd17726defe1d8e4ce62",
+      "bytes": 1448
+    },
+    "operator-reference-manifest.prepared.json": {
+      "sha256": "853116c669f760ecd8d38db436c2a6da0260c6f6c10ede65163a0df550c263ac",
+      "bytes": 3863
+    },
+    "db-gate/executor-final-handoff.json": {
+      "sha256": "0b7d0a50bc20697dc4997e5149b43502866130bc2281a98e93744d080b4ad973",
+      "bytes": 2617
+    },
+    "worker/activation-preparation-capsule.json": {
+      "sha256": "5271020cf4153e56c98d2467a9456d26c99fa2a65820f508840caae90de323d0",
+      "bytes": 9565
+    },
+    "worker/root-handoff.prepared.json": {
+      "sha256": "f4a1239bff218d0cc67781cdcc4bf94fe23ef912e1d95232d34d90c0a4c86ee7",
+      "bytes": 2274
+    },
+    "ios/xcode265-terminal-capsule.json": {
+      "sha256": "fddb4bb2cc4f2be68d1b6a8d1cceae5319398ec3b557a947f67f6a11a84a4905",
+      "bytes": 6831
+    },
+    "client-inputs/client-inputs-operational.json": {
+      "sha256": "e4aff6b053e4592cc57334ed849b17e86aba56d1d5b98f0184c9802799c8bef2",
+      "bytes": 18887
+    },
+    "owner-request.md": {
+      "sha256": "0ad58de2467e103efd8680c889b3ebe52a7c3c51198be49b4168cdee5f7936f6",
+      "bytes": 1525
+    }
+  },
+  "source_candidate": "0cec1058748d1109a9b7a4516d54be6bc3224bab",
+  "ios_candidate": "530260b2db7ff29a81f14b7ec5f06f678a862ded",
+  "checks": {
+    "PASS": 56,
+    "FAIL": 0,
+    "items": [
+      {
+        "check": "private_permissions:access/preapply-metadata-summary.json",
+        "result": "PASS",
+        "detail": "0o600"
+      },
+      {
+        "check": "json_valid:access/preapply-metadata-summary.json",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "private_permissions:access/certs/certificate-receipt.json",
+        "result": "PASS",
+        "detail": "0o600"
+      },
+      {
+        "check": "json_valid:access/certs/certificate-receipt.json",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "private_permissions:operator-reference-manifest.prepared.json",
+        "result": "PASS",
+        "detail": "0o600"
+      },
+      {
+        "check": "json_valid:operator-reference-manifest.prepared.json",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "private_permissions:db-gate/executor-final-handoff.json",
+        "result": "PASS",
+        "detail": "0o600"
+      },
+      {
+        "check": "json_valid:db-gate/executor-final-handoff.json",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "private_permissions:worker/activation-preparation-capsule.json",
+        "result": "PASS",
+        "detail": "0o600"
+      },
+      {
+        "check": "json_valid:worker/activation-preparation-capsule.json",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "private_permissions:worker/root-handoff.prepared.json",
+        "result": "PASS",
+        "detail": "0o600"
+      },
+      {
+        "check": "json_valid:worker/root-handoff.prepared.json",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "private_permissions:ios/xcode265-terminal-capsule.json",
+        "result": "PASS",
+        "detail": "0o600"
+      },
+      {
+        "check": "json_valid:ios/xcode265-terminal-capsule.json",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "private_permissions:client-inputs/client-inputs-operational.json",
+        "result": "PASS",
+        "detail": "0o600"
+      },
+      {
+        "check": "json_valid:client-inputs/client-inputs-operational.json",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "private_permissions:owner-request.md",
+        "result": "PASS",
+        "detail": "0o600"
+      },
+      {
+        "check": "worker_evidence:exact-inputs.json",
+        "result": "PASS",
+        "detail": "1182056b9d288c9511132d0e2c4848fe67eaf98a20d87b44621c8278f23b0894"
+      },
+      {
+        "check": "worker_evidence:cloudflare-channel.json",
+        "result": "PASS",
+        "detail": "8a8a9d214a3b29c10407feff489f5eb385c7330c7f042ec8338f8d8752faf3f4"
+      },
+      {
+        "check": "worker_evidence:activation-plan.json",
+        "result": "PASS",
+        "detail": "3e0c7d60c423c08cc1106edeb3cd7282d28959230944bd4d977e6820ed03d463"
+      },
+      {
+        "check": "worker_evidence:root-handoff.prepared.json",
+        "result": "PASS",
+        "detail": "f4a1239bff218d0cc67781cdcc4bf94fe23ef912e1d95232d34d90c0a4c86ee7"
+      },
+      {
+        "check": "worker_evidence:activation-plan-offline-review.json",
+        "result": "PASS",
+        "detail": "a0dad090cd8a8c21ee9369a907bb3c879bc76aa6e9e19a9ab411acbe0001cdcd"
+      },
+      {
+        "check": "worker_evidence:commerce-writer-cron-offline.json",
+        "result": "PASS",
+        "detail": "a185a6717d5a8c53d2202477bee21cd780731df4188c9f3b294883bae8087a53"
+      },
+      {
+        "check": "worker_evidence:window-readonly-template.sql",
+        "result": "PASS",
+        "detail": "f18029a1edc58604bf21d716aeacf54728e62b07b1482d3b7a3c30d9d2340806"
+      },
+      {
+        "check": "worker_evidence:mini-smoke-offline.json",
+        "result": "PASS",
+        "detail": "a7c5d9ba78d2b94c281143a413edcb1b5ffcecc3422bdc85e1d41b0ec9da33ae"
+      },
+      {
+        "check": "ios_proof:run-terminal.json",
+        "result": "PASS",
+        "detail": "81e476af5eeb289a4f5cba0a4e09587fd5037a99041aca53ab65c491b8382cae"
+      },
+      {
+        "check": "ios_proof:run-terminal.log",
+        "result": "PASS",
+        "detail": "d225a9b5e6485a60685c09a9ff0b6b88a3297bd950e94ba18b7e1fc1d0ffdc2a"
+      },
+      {
+        "check": "ios_proof:artifacts/task054-ios-measured/ios-measured/result.json",
+        "result": "PASS",
+        "detail": "f312d1de5eb0a476678443e9f5fbc6e0b5cf971035aa6954ecdba638de43549b"
+      },
+      {
+        "check": "ios_proof:artifacts/task054-ios-measured/ios-measured/owner.json",
+        "result": "PASS",
+        "detail": "13abf07395e6943ccee1dbff85651475f79dea1faeab8adb3d212a56bd05cde6"
+      },
+      {
+        "check": "ios_proof:artifacts/task054-ios-measured/ios-measured/processes.jsonl",
+        "result": "PASS",
+        "detail": "245765957f9e090c652f78fe2ec37feb328a4ca4e3e893d1581c19771e1b6587"
+      },
+      {
+        "check": "ios_proof:artifacts/metadata.json",
+        "result": "PASS",
+        "detail": "411056aea24ec40c67730440e5eecd83b4636ab5a767c76aa1035028b4dcb93f"
+      },
+      {
+        "check": "ios_proof:artifacts/download-receipts.json",
+        "result": "PASS",
+        "detail": "71d3d39c8b2c6df01895d44e2bd4287b660d346fa575a86705c188ff3d06a4bf"
+      },
+      {
+        "check": "ios_proof:artifacts/task054-ios-measured-previews/manifest.json",
+        "result": "PASS",
+        "detail": "14593f499c6184cc0aaf49d9fb1394d0b537b37348a6b2e71a9ee72678326ac2"
+      },
+      {
+        "check": "ios_proof:review/xcode265-source-review.json",
+        "result": "PASS",
+        "detail": "ca48d2a1343d20ad754bb328d266b5560ac19269287f4660ba9c0bc963d96855"
+      },
+      {
+        "check": "client_secondary:receipt",
+        "result": "PASS",
+        "detail": "736a82146044454df93f2dcd6052e7427e591e240825227ab1f80842dfa6cc03"
+      },
+      {
+        "check": "client_secondary:report",
+        "result": "PASS",
+        "detail": "b496ace6e1783aca7dee29d2f758ffaf7b0b9976ea85baed5f1ca52173af22fb"
+      },
+      {
+        "check": "CA_bytes",
+        "result": "PASS",
+        "detail": "700723581420dd1ac98fd7e9ac529f0ef210eadcaf87fc868a3ad7d114c2f3b7"
+      },
+      {
+        "check": "CA_official_template_render",
+        "result": "PASS",
+        "detail": "https://supabase-downloads.s3-ap-southeast-1.amazonaws.com/prod/ssl/prod-ca-2021.crt"
+      },
+      {
+        "check": "CA_pinned_official_archive_exact",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "CA_openssl_metadata",
+        "result": "PASS",
+        "detail": "exit=0"
+      },
+      {
+        "check": "MCP_response_opaque_digest",
+        "result": "PASS",
+        "detail": "f7164c9b8f08a4b024e6d0c57ac3a3b13b27450454dd20ebcfaae2d4c5cda4f4"
+      },
+      {
+        "check": "expected_delta_distinct_full_schema",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "metadata_operator_distinct_from_readonly_role",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "preapply_not_GO",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "Worker_not_deployed",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "Worker_has_no_universal_mobile_prereqs",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "cron_candidates_three_cleanup_distinct",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "iOS_native_not_traversed",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "Client_no_mutations",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "DB_immutable_blob:scripts/check-backend-compatibility.py",
+        "result": "PASS",
+        "detail": "git_exit=0"
+      },
+      {
+        "check": "DB_immutable_blob:scripts/test-backend-compatibility.py",
+        "result": "PASS",
+        "detail": "git_exit=0"
+      },
+      {
+        "check": "DB_immutable_blob:docs/operations/BACKEND-CONNECTION-TRANSPORT.md",
+        "result": "PASS",
+        "detail": "git_exit=0"
+      },
+      {
+        "check": "schema_errors_recomputed_exact",
+        "result": "PASS",
+        "detail": "25 missing RPC +4 versions +1 index;30 errors"
+      },
+      {
+        "check": "schema_contract_counts",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "MCP_apply_no_version_input",
+        "result": "PASS",
+        "detail": ""
+      },
+      {
+        "check": "MCP_API_passes_name_query_only",
+        "result": "PASS",
+        "detail": ""
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "PI-01",
+      "severity": "P3",
+      "status": "OPEN",
+      "position": "client-inputs/client-inputs-operational.json inputs[PILOT_SHOP_SELECTION], pilot_proposal.fallback_authority; owner-request.md gruppo3",
+      "description": "La nuova creazione del pilota TEST isolato è classificata OWNER_REQUIRED o subordinata a ulteriore scope approval, benché il mandato autorizzi già provisioning TEST. Mancanza di provisioner nel Client non prova mancanza di canale Admin.",
+      "impact": "Può fermare attività generabili da Codex con una richiesta di approvazione ridondante.",
+      "requested_fix": "Classificare creazione e dataset come GENERABILE_CODEX_DOPO_ACCESSO/FINESTRA. Per shop esistente chiedere designazione; per nuovo shop chiedere solo il riferimento al canale/ruolo TEST se davvero assente. Conservare setup NOT_RUN finché non eseguito.",
+      "verification": "La matrice input deve distinguere creazione generabile, designazione owner del riuso e accesso mancante, senza un nuovo consenso generico."
+    },
+    {
+      "id": "PI-02",
+      "severity": "P3",
+      "status": "OPEN",
+      "position": "client-inputs/client-inputs-operational.json inputs[GOOGLE_TEST_IDENTITY_A/B]; owner-request.md gruppo3",
+      "description": "La voce B contiene scope base A e testo copiato; A chiede erroneamente la seconda identità. Il primo percorso con A non richiede B.",
+      "impact": "La seconda identità può diventare un blocco artificiale di login, indirizzo e primo ordine.",
+      "requested_fix": "A blocca il primo percorso autenticato; B solo A→B/A→B→A e isolamento. Correggere i testi duplicati; mantenere entrambe necessarie per completare la specifica prova sessione.",
+      "verification": "La tabella operazione→input mostra A sufficiente al primo flusso; B ancora NOT_RUN/BLOCKED nella prova isolamento."
+    },
+    {
+      "id": "PI-03",
+      "severity": "P3",
+      "status": "OPEN",
+      "position": "client-inputs/client-inputs-operational.json inputs[PILOT_COMMERCE_DATA] e pilot_proposal.dataset",
+      "description": "Il dataset è descritto come un insieme unico di pubblicazione, pickup, zona e slot per entrambe le modalità.",
+      "impact": "Può imporre la preparazione di entrambe le modalità prima della prima prova disponibile.",
+      "requested_fix": "Separare i dati per percorso: address write non dipende da prodotto/pickup/zona; pickup richiede prodotto/punto/slot/payAtPickup; delivery richiede indirizzo/zona/slot/cashOnDelivery. Preservare il payload strutturale dei tre metodi con online OFF.",
+      "verification": "Avanzamento indipendente per percorso senza promuovere un ramo assente; nessun provider online aggiunto come prerequisito base."
+    }
+  ],
+  "operator_procedure_guard": {
+    "result": "BLOCKED",
+    "scope": "MCP alternative apply procedure not yet qualified",
+    "tool_input": "name/project_id/query; no version parameter",
+    "official_implementation": "forwards only name/query to Management POST database/migrations",
+    "risk": "Canonical version preservation and transaction/history semantics are unproven. Name with timestamp is not proof. Do not make a trial DDL call to discover behavior on TEST.",
+    "required_resolution": "Qualify a version-preserving operator path and history/recovery procedure before GO; preserve exact four SQL hashes and versions, no duplicate/generated-only history accepted. This review makes no SQL mutation and approves no alternative procedure.",
+    "sources": [
+      {
+        "title": "Supabase MCP database tools",
+        "url": "https://github.com/supabase/mcp/blob/main/packages/mcp-server-supabase/src/tools/database-operation-tools.ts"
+      },
+      {
+        "title": "Supabase MCP API platform",
+        "url": "https://github.com/supabase/mcp/blob/main/packages/mcp-server-supabase/src/platform/api-platform.ts"
+      },
+      {
+        "title": "Management API apply migration",
+        "url": "https://supabase.com/docs/reference/api/v1-apply-a-migration"
+      }
+    ]
+  },
+  "proposed_italian_prose": {
+    "preapply": "Il readback Management del progetto TEST osserva il delta atteso PASS e lo schema finale FAIL:32/57RPC,25assenti,quattro versioni canoniche assenti,1/2indici,history155. Il controllo completo57RPC è postapply. Il canale MCP osservato usa postgres in transazione READ ONLY; il ruolo PostgreSQL supabase_read_only_user è distinto e ha BYPASSRLS, perciò non dimostra Auth Client/RLS con identità sintetiche. PREAPPLY complessivo resta BLOCKED: finestra/esclusione writer non attestate, snapshot recovery modificabile da aggiornare e procedura apply/versioning del canale effettivo da qualificare. Nessun GO o apply è inferito.",
+    "tls": "La CA pubblica ufficiale è già acquisita e verificata localmente; non è un input owner. Il certificato usa il template hosted Supabase prod, distinto da APP_ENVstaging. Host esatto del Session pooler e riferimento all’autenticazione PostgreSQL protetta mancano: bloccano il gate TLS readonly, che resta NOT_RUN, non un handshake FAIL. Codex genera il metadata endpoint dal riferimento ufficiale. La lane TLS resta esplicita anche se il coordinatore qualifica un diverso canale operatore per apply; nessuna equivalenza o deroga silenziosa.",
+    "artifact": "Nel manifest storico, approved artifact configuration significa per PREAPPLY identità TEST deterministica già disponibile APP_ENVstaging+SUPABASE_URL. Callback Google, pilota, firma e canali completi restano input delle rispettive lane Client e non diventano condizioni universali DB/Worker. Il manifest storico resta immutato; l’interpretazione corrente è registrata nell’overlay del nuovo mandato.",
+    "cron": "I tre candidati statici sono checkout-quote-expire, reservation-hold-expire e promotion-reconcile. Delivery-tracking-cleanup non ha overlap statico dimostrato e non viene sospeso per default. La finestra reale richiede jobID/stati/schedule/command hash, drain dei job già in corso e writer interferenti concreti; lo snapshot READ ONLY senza cron inflight/write lock è puntuale e non prova esclusione, né copre automaticamente job sconosciuti. Salvare e ripristinare esattamente gli stati originali anche su errore.",
+    "worker": "Worker upload richiede schema compatibile qualificato, canale Cloudflare, artifact/binding e finestra W/root validi. Una ricevuta Management postapply completa e fresca può qualificare lo schema per questa lane se applica gli stessi controlli manifest e security pertinenti ed è distinta da TLS readonly e Auth Client. Il conteggio57 da solo non basta. La review corrente non approva una procedura alternativa apply o un GO. iOS, firma mobile, B e provider opzionali non sono prerequisiti universali dell’upload. Mini_smoke_targets storico è risolto dalla receipt finale worker/review/mini-smoke-offline.json, già hash-bound nella capsula corrente.",
+    "client": "Codex prepara il nuovo pilota TEST isolato e i dati sintetici attraverso il canale Admin autorizzato appena dispone dell’accesso e della finestra pertinenti. Per riusare uno shop esistente occorre la designazione dell’owner. Per il primo percorso autenticato basta l’identità Google TEST controllata A; B serve alla prova di isolamento. L’owner indica il dominio callback posseduto e, separatamente per piattaforma, firma, canale Client TEST e destinazione autorizzata. Codex genera config, associazioni, manifest e percorso tecnico staging, preservando i controlli production. Il mismatch production-only dei preflight upload rispetto a staging+GoogleON è lavoro tecnico da qualificare, non un pacchetto umano aggiuntivo. Usare il certificato dell’app Android effettivamente installata nelle associazioni; una upload key non equivale automaticamente al signer del canale. ASCAPIkey è necessaria solo al canale automatico che la usa, non a ogni upload manuale owner.",
+    "owner_request": "La domanda già presentata resta l’unica richiesta pendente; non serve reinviarla genericamente. Precisare nei residui:1) hostname ufficiale e riferimento di autenticazione PostgreSQL soltanto per il gate TLS readonly, CA già pronta;2) riferimento a Mac/runner già autorizzato, disponibile e compatibile con la ricetta, accesso protetto;3) Client per percorso/piattaforma: A per primo login, B per isolamento, designazione solo del pilota esistente o accesso provisioning mancante, dominio posseduto e delega pubblicazione, firma/canale/destinazione. Nessuna password/token in chat. Se il passfile non esiste, l’owner lo predispone dal canale credenziali autorizzato, con accesso locale0600; una APIkey Supabase non è una password PostgreSQL."
+  },
+  "owner_request_review": {
+    "request_sha256": "0ad58de2467e103efd8680c889b3ebe52a7c3c51198be49b4168cdee5f7936f6",
+    "groups": 3,
+    "DB_group": "pertinent to TLS readonly; qualify operator metadata readiness instead of full apply readiness",
+    "named_Mac_group": "pertinent after one Xcode26.5 controlled variation terminal preapp FAIL; no unchanged rerun",
+    "Client_group": "correctly says respective lanes, not DB/Worker; narrow B/shop creation/dataset as PI01–03; do not ask again generically"
+  },
+  "retained_lanes": {
+    "expected_delta": "PASS",
+    "full_schema": "FAIL32/57",
+    "TLS_readonly": "NOT_RUN_missing_exact_endpoint_and_protected_auth",
+    "Client_Auth": "NOT_RUN",
+    "apply": "NOT_RUN",
+    "Worker_deploy": "NOT_RUN",
+    "iOS_native": "NOT_RUN_preflight_FAIL_cleanup_PASS",
+    "data_orphan_repair": "separate_NOT_RUN_not_migration_blocker"
+  },
+  "reviewer_self_corrections": [
+    {
+      "kind": "audit_assertion",
+      "initial": "CA archived URL comparison failed because archive contains ${env} template",
+      "resolution": "Render platform env prod per receipt; exact official pinned archive fetched and byte-identical; corrected check PASS",
+      "product_finding": false
+    },
+    {
+      "kind": "path_resolution",
+      "initial": "TASK file uppercase directory and worker/root-handoff path resolved after missing path",
+      "resolution": "Read exact files; no product inference from path error",
+      "product_finding": false
+    }
+  ],
+  "independent_secondary_review": {
+    "reviewer": "/root/final_audit/capsule_integrity",
+    "scope": "Client source/input classification",
+    "terminal": true,
+    "findings": "PI01–03 + signer/channel qualifications",
+    "remote_SQL_CI_secrets_repo_writes": false
+  },
+  "actions": {
+    "private_review_outputs_only": true,
+    "repository_or_Git_mutations": false,
+    "remote_SQL": false,
+    "CI_launch_or_rerun": false,
+    "secret_or_Auth_sensitive_metadata_read": false,
+    "public_uncredentialed_GET_only": true,
+    "tests_or_builds_repeated": false,
+    "all_own_commands_terminal": true,
+    "all_child_commands_terminal": true
+  },
+  "handoff": "Root corregge soltanto classificazione/prosa, qualifica eventuale procedura apply/versioning e congela i docs per successiva review distinta; nessun APPROVED integrato o GO da questa capsula."
+}

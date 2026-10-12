@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "scope": "two iOS runtime jobs on final candidate; no rerun",
+  "runId": 37848510649,
+  "runAttempt": 1,
+  "checkoutHead": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "eventMergeSha": "ae5a8d9282c75d994f1a407c0a1b15d26b7ffcea",
+  "mergeParents": [
+    "bfbfc0b6a7122f29b8d8f6e2c2263d77b252749c",
+    "f326faa19af29399d54c8e7de2867e86ee6ebecb"
+  ],
+  "treeEqual": "9247cde201471e57c5c188dcf3bd8ead303ff8ca",
+  "sourceCandidate": "d4a7e97ff4ef9f05b7932019e10813eddfd046de",
+  "appFreeze": "16e46817d9da5f4a5ce0fbca89137f2652f52b56",
+  "journal": {
+    "jobId": 113555309631,
+    "runnerId": 1000004460,
+    "status": "FAIL",
+    "exitCode": 124,
+    "phase": "postboot global inventory",
+    "keychainTwoProcesses": "NOT_RUN",
+    "cleanupReceipt": "PASS",
+    "cleanupStep": "PASS",
+    "processQuiescenceIndependent": "NOT_VERIFIED",
+    "capsule": "capsules/ci-f326-journal-first-capsule.md",
+    "evidenceFidelityReview": "APPROVED_EVIDENCE_FIDELITY"
+  },
+  "debug": {
+    "jobId": 113555309494,
+    "runnerId": 1000004459,
+    "status": "FAIL",
+    "startedAt": "2026-10-08T21:41:25Z",
+    "completedAt": "2026-10-08T21:56:32Z",
+    "prepare": "FAIL",
+    "exitCode": 124,
+    "phase": "postboot global inventory",
+    "build": "PASS",
+    "bundleSecurity": "PASS",
+    "smoke": "NOT_RUN",
+    "capture": "NOT_RUN",
+    "cleanupReceipt": "PASS",
+    "cleanupAttempts": 2,
+    "cleanupStep": "PASS",
+    "processCleanupFailed": false,
+    "processQuiescenceIndependent": "NOT_VERIFIED",
+    "commandDisplayToFailureWallSeconds": 39.17069,
+    "internalMonotonicDuration": "NOT_VERIFIED",
+    "configuredInventoryTimeoutSeconds": 30,
+    "jobBudgetMinutes": 35,
+    "jobBudgetHit": false,
+    "bootstatusFinishedAt": "2026-10-08T21:55:06.699028Z",
+    "inventoryDisplayedAt": "2026-10-08T21:55:16.788788Z",
+    "timeoutMarkerAt": "2026-10-08T21:55:55.959478Z"
+  },
+  "visualArtifacts": {
+    "raw": {
+      "id": 11581797444,
+      "zipBytes": 808,
+      "sha256": "dffe5da84d9b6a5b56013722769f9bbb78f946d8198f03598d28c2afeda06b67",
+      "zipDigestAndCrc": "PASS",
+      "files": 2,
+      "pngFiles": 0
+    },
+    "preview": {
+      "id": 11580689097,
+      "zipBytes": 478,
+      "sha256": "d1775317639688500590bf3b229388367df4d4fca32b4486be3c221eaab6c643",
+      "zipDigestAndCrc": "PASS",
+      "manifestStatus": "NOT_RUN",
+      "reason": "nessuna cattura raw disponibile",
+      "sourceCheckout": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+      "visualPng": 0,
+      "osPng": 0,
+      "transformExecuted": false
+    },
+    "native137Plus4Review": "NOT_RUN"
+  },
+  "old43": {
+    "realUiFailurePreserved": true,
+    "twentyFourPixelCauseOnNative": "NOT_VERIFIED",
+    "geometryLoggerOnFinalNative": "NOT_RUN",
+    "oldNativePixelFinalAcceptance": false
+  },
+  "runtimeMinimum14": "NOT_VERIFIED; deployment target14 unchanged, observed runner runtime26.5",
+  "authenticatedTEST": "NOT_RUN",
+  "IME_AT": "NOT_RUN",
+  "retry": "NOT_RUN; root decision no unchanged rerun",
+  "privateRangeReader": {
+    "use": "NOT_RUN",
+    "realAuthentication": "NOT_RUN",
+    "externalNetwork": "NOT_RUN",
+    "sourceReview": "CHANGES_REQUIRED_SOURCE_CODE_ONLY",
+    "finding": "ARR-SECONDARY-001 P2 SIGTERM own auth child survives",
+    "withdrawnFromUse": true,
+    "repositoryFiles": false,
+    "reviewerPocCleanup": "PASS"
+  },
+  "localProcesses": "Overall terminality and monitor exit0 reported by executor from tool outputs; seven recent acquisition receipts explicitly record reaped=true and subsequent own PID probes all absent. Earlier journal acquisition has no separate persistent command receipt. Utility PoC cleanup PASS independently reported by reviewer.",
+  "hostedProcesses": "Both assigned iOS jobs completed; no assigned iOS pending job",
+  "localDeviceOrSimulatorMutation": "NONE",
+  "files": [
+    {
+      "path": "raw/final-f326/simulator-hosted.raw",
+      "bytes": 87842,
+      "sha256": "8e0dfa36308bee4178f255a56a8fc4f1b665269ee2603a3684d649b87ab48bb4"
+    },
+    {
+      "path": "raw/final-f326/simulator-hosted.log",
+      "bytes": 87388,
+      "sha256": "bfa32aec76ed3dd2b730a72d44e207ea4497bf655e21e8e5f0233edb90091ea6"
+    },
+    {
+      "path": "raw/final-f326/simulator-status.json",
+      "bytes": 4007,
+      "sha256": "34975118b5076d4c1a062e1ae4ccb9065364c4a5154968954f6b82b43598ce5f"
+    },
+    {
+      "path": "raw/final-f326/simulator-annotations.json",
+      "bytes": 1246,
+      "sha256": "21dbc3bd685802ece17cc306fcba3eabc5be537112356ba009764ff5d8c0c149"
+    },
+    {
+      "path": "raw/final-f326/simulator-log-acquisition.json",
+      "bytes": 301,
+      "sha256": "e4a69cd9eb0f277624c3f1d15d4d1c48426cadafaaca4aba7531ff32af0fe209"
+    },
+    {
+      "path": "raw/final-f326/visual-raw.zip",
+      "bytes": 808,
+      "sha256": "dffe5da84d9b6a5b56013722769f9bbb78f946d8198f03598d28c2afeda06b67"
+    },
+    {
+      "path": "raw/final-f326/visual-raw-acquisition.json",
+      "bytes": 472,
+      "sha256": "f79200f30aa8d12c7399e242e73157ad97db9d95d0e8a9807d045528b17c035f"
+    },
+    {
+      "path": "raw/final-f326/visual-raw-artifact/ios-owned-receipt.json",
+      "bytes": 792,
+      "sha256": "d756645313c639f3c9cbdb2b5f47dcda38bf51b487613d1c78f0aa30b0e1d88d"
+    },
+    {
+      "path": "raw/final-f326/visual-raw-artifact/ios-visual-step-result.json",
+      "bytes": 141,
+      "sha256": "7ee9a1baa7db586d7f1c1e6e76cf35524a8af5da8f53931cdaab4ba26a0317b0"
+    },
+    {
+      "path": "raw/final-f326/visual-preview.zip",
+      "bytes": 478,
+      "sha256": "d1775317639688500590bf3b229388367df4d4fca32b4486be3c221eaab6c643"
+    },
+    {
+      "path": "raw/final-f326/visual-preview-acquisition.json",
+      "bytes": 428,
+      "sha256": "0d859678cf03f3583d53f96a06884d1ffba137b5563fab5ac584856484dd4650"
+    },
+    {
+      "path": "raw/final-f326/visual-preview-artifact/manifest.json",
+      "bytes": 551,
+      "sha256": "c9c47702f48cba4a460ec3cfd585b4bfa04b188a17c2e4213795e4b01836edf4"
+    },
+    {
+      "path": "raw/final-f326/event-merge-commit.json",
+      "bytes": 2710,
+      "sha256": "d6ae58c7019480823b75dad0e3415b1cbef8a03404f3e339351a5eba9636f8c5"
+    },
+    {
+      "path": "raw/final-f326/monitor-terminal-receipt.json",
+      "bytes": 1843,
+      "sha256": "12b7516270a817d2459eebd4791f8072b95d16a710b9c4096bb738347d6878e3"
+    }
+  ],
+  "localProcessEvidence": "raw/final-f326/local-process-terminal-receipt.json; scope limited to seven acquisition PIDs, no remote group proof"
+}

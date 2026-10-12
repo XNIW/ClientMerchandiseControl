@@ -169,5 +169,21 @@
   "writer_worktree_clean": true,
   "remote_push": false,
   "processes_terminal": true,
-  "observed_at_utc": "2026-10-08T21:03:42.404468+00:00"
+  "observed_at_utc": "2026-10-08T21:03:42.404468+00:00",
+  "independent_source_review": {
+    "status": "APPROVED",
+    "scope": "SOURCE_CODE_ONLY",
+    "reviewer": "/root/client_ux/journal_source_review",
+    "receipt": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge-source-review.json",
+    "receipt_sha256": "f21f706b89932694ef75816a342799c40576fc17c34721c4febc3c6e7b3fe40b",
+    "review_md": "/Users/minxiang/.codex/outputs/task054-completion-20261008/client/native-review/badge-source-review.md",
+    "candidate_pass": 59,
+    "baseline_red_suites": 2,
+    "baseline_each_suite": {
+      "pass": 6,
+      "fail": 2,
+      "exit_code": 1
+    },
+    "native_after": "NOT_RUN"
+  }
 }

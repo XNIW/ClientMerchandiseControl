@@ -11,4 +11,4 @@ Il commit `9fe418a95defd0a5b595e4c2b5604d5c70ac509f` sostituisce soltanto il bad
 | Format3file | PASS/exit0 |
 | Diffcheck commit | PASS/exit0 |
 
-Review sorgente distinta in corso. Pixel nativi dopo il fix, TEST autenticato, assistive technology e profiling fisico **NOT_RUN**. I 24 nuovi frame e i cinque comuni mutati di43fd hanno già una review distinta: conservare il finding e ricatturare soltanto la prova invalidata dal nuovo freeze. I tre file con blob/SHA sono elencati nella receipt JSON; worktree writer pulito, nessun push, tutti i processi terminali.
+Review sorgente distinta **APPROVED / SOURCE_CODE_ONLY**: 59 test autonomi PASS (35 mirati, 16 PoC width240/280, 8 hostfixture); due RED baseline distinti ciascuno2FAIL/6PASS. Pixel nativi dopo il fix, TEST autenticato, assistive technology e profiling fisico **NOT_RUN**. I 24 nuovi frame e i cinque comuni mutati di43fd hanno già una review distinta: conservare il finding e ricatturare soltanto la prova invalidata dal nuovo freeze. I tre file con blob/SHA sono elencati nella receipt JSON; worktree writer pulito, nessun push, tutti i processi terminali.

@@ -1,5 +1,32 @@
 # AI worklog
 
+## 2026-10-10 — TASK-054, lineage TEST dopo rollout POS esterno
+
+- **Ruolo/fase**: CODEX_RE_REVIEWER / REVIEW; checkpoint di sola evidence.
+- **Azioni**: Cloudflare deployments/version readonly20:44UTC, query GitHub sul
+  workflow38083172469 e PR133, lettura del solo log deploy già esistente. Source
+  acb3e4ac e versionIDfdfb3a7e coincidono con Worker servito100%; stagingPASS,
+  productionSKIPPED. ExecutorAsus e ricevuta Windows sono riferiti da chat distinta,
+  non lettura diretta della ricevuta. Nessun secret/update/deploy/rollback root.
+- **TEST**: un SELECT MCP BEGIN READ ONLY/timeout5s20:49:33UTC, toolSUCCESS senza
+  exitcode di processo; history158/tre aggiuntePOS. Prefisso155 versione/nome e
+  ultimo statementMD5 coincidono con19:11UTC, non tutti gli statement/dati.
+  Evaluator canonico locale exit0:32/57 conformi,25missing,1/2indici,quattro
+  canonichemissing, zero incompatibilità inattese. DeltaattesoPASS/schemaFAIL;
+  nuovo postapplyatteso162 se nessun cambio ulteriore.
+- **Negativi preservati**: compare GitHub vecchia annotation1f0679→acb3 HTTP404;
+  due parsing locali del wrapper SQL non estraggono snapshot. Risposta salvata
+  decodificata correttamente, zero retry SQL. Primo patch documentale non applicato
+  per context mismatch, poi corretto senza modifiche sorgente.
+- **Consegna**: tre capsule concise e rapporto/registro aggiornati. Vecchio pin
+  Worker22107a6f e piano upload/rollback, snapshot/recovery/profilo155 da
+  riconciliare prima delle operazioni. C04 gestito da W; zero SDK/UI/heavy root,
+  nessun nuovo GO/pin/R24/T0 o prova Client live. BLOCKED/REVIEW e
+  CODEX_REVIEW_BLOCKED invariati; nessun APPROVED, DONE o merge Client.
+- **Controlli del delta**:3JSON validi,282link relativi risolti e2copie private
+  byte-identiche; security sui9file, governance e whitespace PASS/exit0.
+  Nessuna nuova suite Flutter richiesta per il solo delta di evidence/metadata.
+
 ## 2026-07-29 — Bootstrap avviato
 
 - **Agente**: Codex
@@ -4474,6 +4501,7 @@
 - **Transizione**: `ACTIVE / FIX -> BLOCKED / REVIEW`.
 - **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
 
+
 ## 2026-08-19 — TASK-040 Fix 42 re-review
 
 - **Exact HEAD**: `f59cf91a288ff97c3899e235c843192bce6aca7d`.
@@ -5506,4 +5534,175 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   hash-bound separata, benchmark sintetico7,42s distinto da pixel nativi.
 - **Gate**: runner14test e architecture sul232 PASS; nuovaCI/pixel NOT_RUN
   prima del push. VecchiaCI43 preservata con5PASS/journalFAIL/visualcancel.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+## 2026-10-08 — TASK-054 Fix concluso, CI f326 terminale, consegna bloccata
+
+- **Ruolo/fase**: CODEX_FIXER→CODEX_RE_REVIEWER / FIX→REVIEW.
+- **Candidato**: PR29f326faa, source d4a7e97/appfreeze16e4681; clean/tracking
+  allineati. CI37848510649attempt1 terminale5PASS/2FAILpostbootinventoryiOS.
+- **Gate**: Quality1064PASS+1SKIP,11benchmark; Android92native/137PNG+4OS
+  e restartPID4492→4604 PASSlocale. UnsignedAndroid/iOSPASS.
+- **Limiti**: iOS0PNG/0OSverificati, Keychain/smoke/visualNOT_RUN; cleanup
+  PASSscoped, nessun rerun. PixelAndroid77delta APPROVED scoped,64byteidentici
+  riusati con scope storico. Auth/live/distribuzione non eseguiti.
+- **TEST**: readback21:58conferma32/57conformi,25assenti,4migrationassenti,
+ 1/2indici/history155; cron4attivi. TLS/input/IPv6/finestraBLOCKED.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-10-08 — TASK-054 allineamenti editoriali e riconsegna
+
+- **Review preliminare**: CHANGES_REQUIRED limitato a3righe obsolete di stato
+  e2capsulebadge conservate prima della review59PASS. Nessun finding prodotto.
+- **Fix**: R04/report, ultimaentryworklog, riepilogoREADMEevidence riallineati;
+  badgeJSON/MD copiati dalle fonti finali. Ciclo logico REVIEW→FIX→REVIEW;
+  implementazione/f326 e risultatiCI invariati, nessuna nuova suiteapplicativa.
+- **Hygiene**: fullsecurity1032filePASS prima di questi delta; scan canonico
+  ristretto dei soli file modificati dopo il freeze al termine del verbale.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## 2026-10-08 — TASK-054 re-review distinta conclusiva BLOCKED
+
+- **Ruolo/fase**: CODEX_RE_REVIEWER / REVIEW. Verdetto di `/root/final_audit`
+  read-only distinto; il coordinatore ne trascrive esito e limiti.
+- **Review**:77 controlli autonomi PASS,115 comandi Git terminali exit0,
+ 55 file staged esatti,33 JSON validi,220 link relativi senza file mancanti.
+  Due rilievi editoriali chiusi dopo fix e recheck; nessun nuovo finding prodotto
+  nel perimetro eseguito. PR29 OPEN/DRAFT f326 e CI5PASS/2FAIL verificati via API.
+- **Gate**: iOS preapp FAIL, TEST schema FAIL; TLS/input/finestra, Auth/live,
+  Worker aggiornato, R24 due origini, AT/profile e distribuzione non conclusi.
+  Approvazioni source/Androidpixel/fidelity conservano il proprio scope.
+- **Hygiene**: fullsecurity1032file PASS; ricevute dei controlli finali sul solo
+  delta documentale, governance/link/diff e Git nel percorso protetto
+  `task054-completion-20261008/final-review/`. Nessuna suite app ripetuta.
+- **Correzione documentale**: governance finale inizialmente FAIL exit1 perché
+  il parser richiede la riga Handoff isolata; riga normalizzata senza cambiare
+  protocollo, stato o risultati applicativi. Receipt negativo conservato.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.
+  TASK-054 BLOCKED/REVIEW, nessun merge, DONE, TASK-055, apply/deploy/install
+  Client o attività production.
+
+## 2026-10-08 — TASK-054 ripresa attivazione TEST e runtime iOS
+
+- **Ruolo/fase**: CODEX_FIXER / FIX, mandato utente8da5e50f già autorizzato.
+- **Baseline**: PR29f326faa, freezeapp16e4681, sourced4a7e97, evidence7fc3643.
+- **Piano autorizzato**: trasporto DB direct/session-pooler e controlli del target;
+  preapply distinto dalla compatibilità finale; un esperimento Xcode26.5 prima
+  delle prove native costose. Riuso recovery/workerd/Android nei propri scope.
+- **Ownership**: due filoni separati; coordinatore DB/cron/config e owner Worker
+  coordinato con W. Dispositivi N preservati.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-09 — TASK-054 attivazione preparata e Quality corretto
+
+- **Ruolo/fase**: CODEX_FIXER / FIX; ripresa esplicita dell'utente.
+- **Source**: f513330 associa26file già revisionati;8fc7f8d modifica solo2YAML,
+  Quality20→25min, dispatchquality_only/defaultfalse. Review24+15PASS scoped;
+  pin/diff/3testgovernance exit0, sourceworktreeclean/trackingallineati.
+- **CI**:37867138429 terminaleunsignedAndroid/iOSPASS, iOS89fixture;
+  Qualitycancelled20min dopo1095PASS/1SKIP/analyzePASS.11marker non bastano per
+  PerformancePASS; host11testexit0/55s distinto.38001393798 Qualitycompleto in corso,
+  release2SKIPPED con riusobyteimmutati f513, nessun retryruntimeiOS.
+- **DB**: gate30test/re-review10PASS; CAufficialePASS; proceduraPG R2 APPROVEDscoped,
+  P2PG01/02chiusi, SQL/historycommit separati e pendingdurevole; zeroSQLremoto nel
+  driver. SoloMCPmetadatareadonly22:55: deltaattesoPASS, schema32/57/1indice/history155FAIL.
+- **Worker**: readbackCLIreadonly22:54PASS:22107a6f100%,23binding/digestinvariati,
+  MiniAuth/catalogON. Nessun deploy/finestraGO. Wcoordination senza devicesN.
+- **iOS/Client**: unica37863497939FAIL124primaFlutter/cleanupPASS/0PNG;27.0 è
+  l'unicoXcodelocale22:50, nessuna superficie26.5 inferita dal Mac disponibile.
+  ConfigTESTpreflightAPPROVEDsource dopo2P2chiusi; Auth/signedartifact/liveNOT_RUN.
+- **Input**: unico manifest pronto, canalePGoperatore distinto esplicitato; Afirst,
+  Bsolo isolamento, pilot/dataset generabili dopoaccesso; provider specifici.
+- **Consegna**: attesa Qualityterminale e re-review distinta del nuovo freeze.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-09 — TASK-054 Quality terminale e fallback locale preparato
+
+- **Ruolo/fase**: CODEX_FIXER / FIX; autorizzazione già ricevuta.
+- **Quality**:38001393798/8fc7f8d SUCCESS,23step terminali,1095PASS/1SKIP,
+  11performance e whitespace PASS,18min46s; nessuna causalità della durata inferita.
+- **Source headless**:3f8d3d1 pubblicato; solo runner/test, opt-in omette guard/openGUI.
+  RED50/2errori e GREEN50/OK exit0; review distinta17+9PASS SOURCE_DELTA_ONLY,
+  associazione dei due blob e trackingclean PASS. Nessun nuovo tentativo hosted.
+- **Locale**:Xcode27.0/27A266a SDK27.0, Flutter3.44.8/058e, target14 invariato,
+  runtime26.5 disponibile. PrepareGUI reale exit2 prima create/UUID, cleanupPASS;
+  non prova incompatibilità del percorso simctl headless.
+- **Risorse**:N riserva ora il breve slot MiniW; nessun Prepare/UUIDClient reale.
+  Root attende il rilascio esplicito e poi usa35min/UUID proprio/noDeviceHub/N.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-09 — TASK-054 Fix concluso con native negativo qualificato
+
+- **Ruolo/fase**: CODEX_FIXER→CODEX_RE_REVIEWER / FIX→REVIEW.
+- **Source**:3f8d3d19 runnerheadless,2script/50testGREEN/review17+9PASS, source
+  clean/trackingesatto. Quality8fc SUCCESS1095/1SKIP+11performance,23step;
+  reviewer28checksPASS e2releaseSKIPPED byte-bound unsignedf513.
+- **Wrapper**:5finding privati chiusi primaavvio, review20staticPASS e8offline
+  classifications; nessun timeout900 o minimo14 cambiati, ownershipcanonico.
+- **Native**:77733exit1 terminale23:36:11; elapsed68.059s entro35min,
+  PreparePASS27.241/runtime26.5, reviewaloneFAIL1/35.101 buildSDK27min15 vs14
+  primaapp;6dependentNOT_RUN/0PNG. CleanupPASS3.868/UUIDgone/processiPASS.
+  Review26+13PASS solo fedeltà negativa; UI24pxNOT_TRAVERSED/NOT_VERIFIED.
+- **N**: singolaRetryiOSHTTP500/57014STATEMENT_TIMEOUTproiezioneowner; root
+  catalogoreadonly23:40:59 conferma5func/callchains/defaults8s/nooverride.
+  Nessuna RPCheavy/piano/write/migration; noexactrequestcorrelation oR24PASS.
+- **Input**: operator-reference-manifest protetto aggiornato conlocalnativeFAIL
+  eSDKinventario; superficie esistente/support14 necessaria dopo prova reale,
+  endpoint/service/passfilePGdistinti e A/domain/pilota/firma ancora mancanti.
+- **Stato**:BLOCKED/REVIEW; nessunprocessorootattivo odevicesW/Nmutati.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-09 — TASK-054 re-review distinta dell’attivazione
+
+- **Ruolo/fase**: CODEX_RE_REVIEWER / REVIEW, reviewer `/root/final_audit`
+  distinto dai writer; root trascrive soltanto il verdetto e l’handoff.
+- **Esito**: BLOCKED, zero finding aperti. Freeze R2:59file esatti,52copie,
+  50JSONvalidi,262link;40controlli matrice e177fedeltà PASS. Receipt JSON
+  `cbac9191b689fed01e57e1336af377efc20d4e2560cb2d2112d13a03fe27d790`.
+- **Gate aperti**: schemaTESTFAIL32/57; apply/finestra/Worker/Auth/distribuzione
+  e prove live non concluse; iOSSDK27/target14FAILprimaapp, cleanupPASS,
+  6dipendentiNOT_RUN. Nessun APPROVED integrato, merge o DONE.
+- **Evidence**: [verbale distinto](TASKS/EVIDENCE/TASK-054/next-integration/activation-integrated-rereview.md)
+  e [capsula](TASKS/EVIDENCE/TASK-054/next-integration/activation-integrated-rereview.json).
+- **Controlli documentali**: governance/diff e51JSON/271link PASS; scanner
+  canonico del delta finale9file PASS (7documenti+2capsule verbale), distinto
+  dalla scansione precedente61file. Questa sola annotazione ha verifica separata.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-09 — TASK-054 aggiornamento owner N dopo il checkpoint
+
+- **Ruolo/fase**: CODEX_RE_REVIEWER / REVIEW; integrazione di metadata owner,
+  nessuna implementazione o riapertura dei gate prodotto.
+- **Evidence**: [capsula](TASKS/EVIDENCE/TASK-054/next-integration/activation-native-owner-save-update.json),
+  projectionN SHA256 `c205fd9381e51cbe6d6145d97b74d91e68a9cb25991c882bcd2c68981ebf1a84`.
+- **Confine**: A1riga/2prezzi remoti, OwnHTTPACKnonprovato/peerA0; SaveB locale
+  PASS riferito owner,3pending/lastAttemptassente e remotoB assente all’istante.
+  Contesti4corpiSQL PASS associazione offline; helperline2 soloN. Metadataindici
+  presente, nessun missing-index/slow-plan/stream-completeness inferito.
+- **Gate**: R24dueoriginiNOT_RUN, ClientAuth/publication non provati;0rootSQL,
+  RPCheavy, EXPLAINANALYZE, UI, apply/deploy/cron e0domandehumanunlock duplicate.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-12 — TASK-054 FIX Client e superfici parallele
+
+- **Ruolo/fase**: CODEX_FIXER / FIX; unico writer Client, reviewer read-only distinti.
+- **Mandato**: d47f4743; risposta utente allo slot SDK autorizza scelta che consenta
+  avanzamento contemporaneo. Scelti runner GitHub separati, nessun SDK/UI Mac.
+- **Candidate**: base3f8d3d19, docs744cd49e; originale8423c868 e supabase/ preservati.
+- **Prove causali**: run38260104850 lib3f8/test8f52 exit1,121PASS/7FAIL; parziale,
+  read locale, busyrefresh, ticketlate e tre feedback saving. FAIL harness separati.
+- **Fix/prove**: caseId/checkpoint/mutex/fence e receipt esistente; recupero/reselect
+  localizzato, saving liveRegion e inbox semantics.927/4ee focused164PASS exit0;
+  QA18PNG host distingue14latini e4CJK glifi mancanti. Riapertura unobserved
+  stessoowner/profile REDaf0da0a164/1fail, errore provider uninitialized riprodotto;
+  fixe554586 scoped, GREEN/full/freeze ancora da associare.
+- **Backend**: pacchetto canonico invariato, profilo155 storico; readback158/32su57
+  del10ott non rinnovato. PGoperator protetto è il prossimo riferimento giàrichiesto.
+- **Limiti**: TEST/Auth/firma/R24/AT/profile fisico non conclusi; nessun SQL/deploy/N.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

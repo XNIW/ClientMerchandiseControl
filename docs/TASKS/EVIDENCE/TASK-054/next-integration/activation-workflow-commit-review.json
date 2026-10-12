@@ -1,0 +1,112 @@
+{
+  "schema": "task054-workflow-commit-association-review-v1",
+  "created_at_utc": "2026-10-09T22:54:50.378031+00:00",
+  "reviewer": "/root/final_audit",
+  "verdict": "APPROVED",
+  "qualification": "APPROVED_SOURCE_WORKFLOW_DELTA_ONLY",
+  "base": "f513330fbeef6139a5b9d278cc6824ce5c6bcc63",
+  "source_commit": "8fc7f8dc5221f22a393ffbe73c4f5827654e171f",
+  "patch_sha256": "d94c8a43f41b0f6a6f8e130d0474fcf0373bbaff5e9850e3b968b1830dfa6d4c",
+  "files": {
+    ".github/workflows/ci.yml": "e68c3cb61dcc52342ea52acc7f22d5094164a09cde970de05c3a6b38e7185dd2",
+    ".github/workflows/task054-source-release.yml": "c12bae4b1f82a69f7e27d5ef458fdd1370c91d4e1a04b2e3be5c77fe3f06e196"
+  },
+  "checks": {
+    "PASS": 6,
+    "FAIL": 0,
+    "items": [
+      {
+        "name": "exact_two_reviewed_paths",
+        "result": "PASS"
+      },
+      {
+        "name": "commit_patch_exact_reviewed_sha256",
+        "result": "PASS"
+      },
+      {
+        "name": "reviewed_blob:.github/workflows/ci.yml",
+        "result": "PASS"
+      },
+      {
+        "name": "reviewed_blob:.github/workflows/task054-source-release.yml",
+        "result": "PASS"
+      },
+      {
+        "name": "working_tree_clean",
+        "result": "PASS"
+      },
+      {
+        "name": "commit_diffcheck",
+        "result": "PASS"
+      }
+    ]
+  },
+  "terminal_commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63",
+        "8fc7f8dc5221f22a393ffbe73c4f5827654e171f"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--binary",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63",
+        "8fc7f8dc5221f22a393ffbe73c4f5827654e171f"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "8fc7f8dc5221f22a393ffbe73c4f5827654e171f:.github/workflows/ci.yml"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "8fc7f8dc5221f22a393ffbe73c4f5827654e171f:.github/workflows/task054-source-release.yml"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "f513330fbeef6139a5b9d278cc6824ce5c6bcc63",
+        "8fc7f8dc5221f22a393ffbe73c4f5827654e171f"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "new_CI": "NOT_RUN by reviewer; awaiting writer terminal capsule",
+  "integrated_verdict": "BLOCKED",
+  "all_own_commands_terminal": true
+}

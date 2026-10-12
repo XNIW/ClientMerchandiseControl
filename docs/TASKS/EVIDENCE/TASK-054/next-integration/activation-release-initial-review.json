@@ -1,0 +1,157 @@
+{
+  "schema": "task054.test-release-preflight.source-review.v1",
+  "outcome": "CHANGES_REQUIRED",
+  "scope": "SOURCE_CODE_ONLY",
+  "revision": "02d089d4e9a0e893df328feffaee2ab891dfe602",
+  "parent": "f326faa19af29399d54c8e7de2867e86ee6ebecb",
+  "reviewer": "/root/client_ux/journal_source_review",
+  "author_distinct": true,
+  "source_association": {
+    "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/immutable-source-association.json",
+    "sha256": "25f760af695becf93b836646ee75e562c31b5dd4917f3f8f06658f9962e5521c"
+  },
+  "findings": [
+    {
+      "id": "TEST-PREFLIGHT-01",
+      "severity": "P2",
+      "status": "OPEN_AT_REVIEWED_COMMIT",
+      "title": "Il callback HTTPS dell’APK non viene vincolato alla configurazione TEST",
+      "source": "scripts/check-android-release.sh",
+      "source_lines": [
+        406,
+        430
+      ],
+      "description": "Il nuovo host attestato viene passato soltanto al validator protobuf AAB. I controlli sul readback APK non verificano il filtro HTTPS; identità dei libapp.so e del signer non implica identità del manifest.",
+      "reproduction": "Il blocco shell immutabile 411–430 accetta tre XML sintetici: callback corretto, host diverso e callback HTTPS assente. Exit 0 in tutti e tre; gli ultimi due devono essere respinti per il contratto TEST.",
+      "impact": "Il gate può dichiarare callback nativo vincolato per una coppia AAB/APK il cui APK non supporta il callback richiesto. Nessuna prova di upload o runtime reale è inferita.",
+      "required_fix": "Applicare anche al manifest compilato APK la policy TEST esatta: unico filtro HTTPS, autoVerify=true, VIEW/DEFAULT/BROWSABLE, host attestato e path esatto /auth-callback/, senza varianti o dati aggiuntivi. Conservare il ramo production.",
+      "regression": "XML canonico accettato; host diverso, callback assente, pathPrefix/pathPattern/port/wildcard, filtri multipli e attributi ambigui respinti. Verificare il collegamento reale del caller al nuovo helper.",
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/native-peer/android-apk-callback-poc.json",
+        "sha256": "34c0dacd943da5788ad9ea9e74aa6cb22b0cce59af9f09978bd497741f28526f"
+      }
+    },
+    {
+      "id": "TEST-PREFLIGHT-02",
+      "severity": "P2",
+      "status": "OPEN_AT_REVIEWED_COMMIT",
+      "title": "Il parser AAB accetta host duplicato con path assente",
+      "source": "tool/check_android_bundle_manifest.dart",
+      "source_lines": [
+        250,
+        256
+      ],
+      "description": "_hasExactAttributes verifica cardinalità e valori, ma non unicità o completezza delle chiavi. Tre attributi scheme=https,host=atteso,host=atteso soddisfano il controllo previsto per scheme/host/path.",
+      "reproduction": "PoC Dart reale sul tool immutabile: manifest canonico expected 0/actual 0; manifest con host duplicato e path assente expected 1/actual 0. Driver PoC exit 1.",
+      "impact": "Il gate TEST può attestare un callback esatto senza verificare la restrizione di path richiesta. Il PoC è un manifest protobuf sintetico, non prova di artifact installabile.",
+      "required_fix": "Richiedere unicità e uguaglianza dell’insieme namespace/nome degli attributi attesi prima del confronto dei valori.",
+      "regression": "Conservare caso positivo e aggiungere host duplicato/path assente; verificare analoghi duplicati e chiavi mancanti.",
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/red-duplicate-host-missing-path.log",
+        "sha256": "a6a9e8dd4622aa95007e954a9211c27609528865ed5f9d470c9bf8e9618ea72c"
+      },
+      "poc": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/duplicate-host-missing-path-poc.dart",
+        "sha256": "fcb0469634a8ae8f6ce8b91a29eeea7e10286e662ed63a20cbc012ee4bcfb3cd"
+      }
+    }
+  ],
+  "independent_checks": [
+    {
+      "name": "config_cli_and_bounded_reader",
+      "result": "PASS",
+      "exit_code": 0,
+      "flutter_tests": 57,
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/independent-config-cli.log",
+        "sha256": "0ccaf4b79035a0ae12e601385bba617c198548377e4b57c9fe3984ca83384a24"
+      }
+    },
+    {
+      "name": "compiled_match_mismatch_cross_environment",
+      "result": "PASS",
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "flutter_tests": 3,
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/compiled-and-ast-checks.json",
+        "sha256": "c65dd2a485c7709731f53a6bf0a7bf8856e0b9375dc6052668307f29fe139f17"
+      }
+    },
+    {
+      "name": "ast_canonical_binding",
+      "result": "PASS",
+      "exit_code": 0,
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/compiled-and-ast-checks.json",
+        "sha256": "c65dd2a485c7709731f53a6bf0a7bf8856e0b9375dc6052668307f29fe139f17"
+      }
+    },
+    {
+      "name": "shell_opt_in_and_default_source_only",
+      "result": "PASS",
+      "cases": 10,
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/independent-shell-marker-checks.json",
+        "sha256": "f83d83dc6c9fe48d083d2af8d7f3a3285885e390db584c484a847e850ebd356e"
+      }
+    },
+    {
+      "name": "ios_marker_synthetic_byte_checker",
+      "result": "PASS",
+      "cases": 10,
+      "evidence": {
+        "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/client-release-preflight/source-review/independent-shell-marker-checks.json",
+        "sha256": "f83d83dc6c9fe48d083d2af8d7f3a3285885e390db584c484a847e850ebd356e"
+      }
+    }
+  ],
+  "counts": {
+    "changed_files_verified_against_immutable_git": 15,
+    "independent_flutter_tests_passed": 60,
+    "independent_shell_cases_passed": 10,
+    "synthetic_ios_byte_checker_cases_passed": 10,
+    "confirmed_P2_findings": 2
+  },
+  "review_notes": [
+    "Attestazione TEST separata: nove chiavi, progetto pinned, GoogleON/mapsOFF; marker/hash distinti dalla production.",
+    "AppConfig mantiene staging ordinario senza hash TEST; il factory compilato verifica digest e marker quando presenti.",
+    "La policy iOS distingue claim esatto nell’app e grant del profilo wildcard/esatto; nessun profilo reale letto.",
+    "La copia snapshot è confrontata con digest+host; la possibile sostituzione del path fra lettura e cp resta nota non qualificata e non è un finding confermato.",
+    "La review riguarda esclusivamente 02d089d; i fix concorrenti successivi del writer non sono inclusi."
+  ],
+  "limitations": [
+    {
+      "lane": "native_artifact_and_signature_validation",
+      "result": "NOT_RUN",
+      "reason": "Mandato solo source/host; nessun artifact reale o profilo/credenziale consultato."
+    },
+    {
+      "lane": "native_build_device_upload",
+      "result": "NOT_RUN",
+      "reason": "Fuori scope e non autorizzato in questa review."
+    },
+    {
+      "lane": "backend_live_TLS_RPC_and_authenticated_TEST",
+      "result": "NOT_RUN",
+      "reason": "Nessun accesso remoto o prova autenticata; test sintetici non sostituiscono acceptance."
+    },
+    {
+      "lane": "hosted_assetlinks_AASA_and_callback_ownership",
+      "result": "NOT_VERIFIED",
+      "reason": "Il preflight locale attesta configurazione dichiarata, non associazione o ownership server."
+    },
+    {
+      "lane": "global_quality_suite_and_CI",
+      "result": "NOT_RUN",
+      "reason": "Solo regressioni mirate autorizzate; nessuna suite globale o CI duplicata."
+    }
+  ],
+  "source_edits": false,
+  "all_review_processes_terminal": true,
+  "protected_directory_mode": "0700",
+  "receipt_file_mode": "0600"
+}

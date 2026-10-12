@@ -9,6 +9,68 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
+## Attivazione TEST — mandato8da5e50f, aggiornamento10ottobre
+
+Il rollout POS esterno sourceacb3e4ac/PR133/run38083172469 è associato al Worker
+fdfb3a7e servito100%; root non ha deployato. [Provenienza](next-integration/activation-external-worker-source.json)
+e [readback](next-integration/activation-external-worker-readback.json).
+MCP readonly20:49UTC riconcilia history158/tre aggiuntePOS; Client32/57,1/2,
+quattro canoniche ancora assenti: deltaattesoPASS/schemaFAIL. [Lineage](next-integration/activation-external-worker-lineage.json).
+Postapply atteso162 se invariato; recovery/profilo e vecchio piano upload/rollback
+con pin22107a6f richiedono riconciliazione. Nessun nuovo GO/pin/APPROVED inferito.
+Le fotografie9ottobre sotto mantengono i propri perimetri.
+
+Il [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md) e la prima
+sezione del [registro unico](residuals.md) prevalgono sulle fotografie storiche.
+Candidato source composto `f513330`,26 file esatti rispetto alle review:
+trasporto DB direct/session-pooler, diagnosi iOS Xcode26.5 e preflight TEST
+esplicito dopo due P2 corretti. CI37867138429: due release unsignedPASS, Quality
+cancellato dal budget20min; fix8fc7f8d Quality25min revisionato24controlliPASS,
+run38001393798 terminalePASS23step,1095test/1SKIP+11performance e whitespace;
+due release SKIPPED con riuso f513. Non è una build TEST autenticata.
+Runner locale headless3f8d3d1: solo2script, review scoped17+9PASS e50test GREEN;
+Quality8fc resta distinta dal nuovo delta.
+
+Readback9ottobre22:55UTC:delta atteso PASS, schema32/57/1indice/history155 FAIL.
+CA recuperata; readonlyPG NOT_RUN per endpoint/auth, distinto dal canale MCP
+metadata postgres e dalla procedura PG operatore approvata R2 scoped per history
+canonica; auth/TLS/apply remoti NOT_RUN, commit SQL/history separati. Nessun apply/cron/deploy. Worker readback9ottobre22:54UTC conferma22107a6f,
+23 binding e MiniAuth/catalogON, canale Cloudflare disponibile.
+
+iOS37863497939 terminale FAIL124 dopo boot e prima Flutter; cleanupPASS,
+0PNG. Mac attuale Xcode27.0/runtime26.5 disponibile; GUI assente riprodotta
+prima create, fix headless revisionato. Qualifica locale reale3f8: PreparePASS/runtime26.5 ma recensioneisolataFAIL
+primaapp/SDK27min15 contro target14; cleanupPASS,6dipendentiNOT_RUN/0PNG.
+Run68.059s entro35min suUUIDproprio dopo rilascioW/N, senzaGUI/targetN.
+Serve superficie esistente compatibile con14; nessun requisito universale26.5.
+R24 separato per origine, Auth reale, AT/profiling e firma Client restano aperti;
+richiesta owner e file tecnici già preparati.
+
+Review distinta corrente: **BLOCKED / CODEX_REVIEW_BLOCKED**, zero finding
+aperti. Freeze R2:59file esatti,52copie,40controlli matrice e177di fedeltà PASS;
+[verbale](next-integration/activation-integrated-rereview.md) e
+[capsula](next-integration/activation-integrated-rereview.json). La fedeltà delle
+prove non chiude i gate live. La trascrizione finale è un delta documentale
+separato; nessun nuovo test applicativo, boot, SQL o CI.
+
+## Checkpoint storico — candidato f326faa
+
+
+CI37848510649 terminale5PASS/2FAILiOSpreapp. Quality1064PASS+1SKIP e11benchmark;
+Android92fixture/137PNG+4OS e journalrestartPASS; unsignedAndroid/iOSPASS.
+Reviewpixel77delta APPROVEDscoped,64riusi con limiti storici; badge risolto
+negli8stati journal. iOS0PNG/0OSverificati, Keychain/smoke/visualNOT_RUN.
+Backendreadback21:58 e Workerreadback22:13 confermano prerequisiti mancanti
+e nessunapply/deploy/installClient. [Rapporto](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md),
+[CI](next-integration/completion-ci-f326-assigned.json),
+[pixel](next-integration/completion-ci-f326-android-pixel-review.md),
+[iOS](next-integration/completion-ci-f326-ios.md).
+
+La [re-review integrata distinta](next-integration/completion-integrated-rereview.md)
+è conclusa BLOCKED:77 controlli autonomi PASS, rilievi editoriali chiusi,
+nessun nuovo finding prodotto nel perimetro eseguito. CI iOS, TEST autenticato,
+Worker aggiornato, R24 e distribuzione impediscono APPROVED/merge/DONE.
+
 ## Completamento successivo — 8 ottobre 2026
 
 Il [rapporto corrente](CLIENT_TASK054_NEXT_INTEGRATION_RESULT.md#completamento-successivo--8-ottobre-2026)
@@ -22,7 +84,7 @@ CANCELLED30min con smokePASS e visual91PASS/1FAIL; nuovaCI dopo i fix R30.
 Nuovo freeze applicativo16e4681; harness2327948 e preview7e→d4a7e97
 approvati separatamente. [Preview/budget](next-integration/completion-ios-preview-budget.md)
 e [review](next-integration/completion-ios-preview-budget-review.md).
-NuovaCI del composto da avviare; nessun PASS integrato dedotto.
+CI37848510649 del composto terminale5PASS/2FAILpreapp; nessun PASS integrato dedotto.
 
 [CI43 raccolta distinta](next-integration/completion-ci43-assigned.json),
 [checkpoint iOS](next-integration/completion-ci43-ios-checkpoint.md),

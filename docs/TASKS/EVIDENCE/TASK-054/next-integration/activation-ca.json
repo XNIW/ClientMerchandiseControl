@@ -1,0 +1,27 @@
+{
+  "source_url": "https://supabase-downloads.s3-ap-southeast-1.amazonaws.com/prod/ssl/prod-ca-2021.crt",
+  "official_source_commit": "1ee88e0fee292d7f13324daf30e438ab74175eb8",
+  "official_source_path": "apps/studio/hooks/custom-content/custom-content.json",
+  "official_key": "ssl:certificate_url",
+  "template_environment": "prod (Supabase hosted platform; not project APP_ENV)",
+  "sha256": "700723581420dd1ac98fd7e9ac529f0ef210eadcaf87fc868a3ad7d114c2f3b7",
+  "certificate_metadata_command": [
+    "openssl",
+    "x509",
+    "-in",
+    "/Users/minxiang/.codex/outputs/task054-activation-20261008/access/certs/supabase-ca-2021.crt",
+    "-noout",
+    "-subject",
+    "-issuer",
+    "-dates",
+    "-fingerprint",
+    "-sha256"
+  ],
+  "certificate_metadata_exit": 0,
+  "certificate_metadata": "subject=C=US, ST=Delware, L=New Castle, O=Supabase Inc, CN=Supabase Root 2021 CA\nissuer=C=US, ST=Delware, L=New Castle, O=Supabase Inc, CN=Supabase Root 2021 CA\nnotBefore=Apr 28 10:56:53 2021 GMT\nnotAfter=Apr 26 10:56:53 2031 GMT\nsha256 Fingerprint=80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA\n",
+  "valid_next_24h_exit": 0,
+  "valid_next_24h_output": "Certificate will not expire\n",
+  "download_tls_verification": "system default HTTPS certificate/hostname verification",
+  "global_trust_modified": false,
+  "endpoint_tls_handshake": "NOT_RUN; official project session endpoint still needed"
+}

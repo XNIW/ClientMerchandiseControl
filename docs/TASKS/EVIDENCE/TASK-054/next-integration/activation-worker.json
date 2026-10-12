@@ -1,0 +1,196 @@
+{
+  "schema": "TASK054_WORKER_ACTIVATION_PREPARATION_V1",
+  "created_at_utc": "2026-10-09T00:14:57.700110+00:00",
+  "scope": "SELECTIVE_TEST_WORKER_UPLOAD_PREPARATION_ONLY",
+  "preparation": "PASS",
+  "operational_gate": "BLOCKED",
+  "source_sha": "96758b899aac2ccde1a70aeda4bbe7983007fb18",
+  "candidate_head_checked_once": "a771cee43b0c43ec844e60282ea764646905996e",
+  "candidate_clean_checked_once": true,
+  "candidate_source_docs_git_modified": false,
+  "target_worker": "merchandise-control-admin-web-staging",
+  "artifact": {
+    "manifest_sha256": "c905fde55da03cfc0dca100ee6c8313b0a689e41b1f65ad87c204eda4a208b64",
+    "stored_manifest_entries": 2012,
+    "stored_manifest_seal_checked": true,
+    "all_2012_actual_inputs_rehashed": false,
+    "bundle_sha256": "e1b2f30e3e1413e0404543cf2ddf21bb14157b9aa339121d8b3ba47d01542997",
+    "bundle_bytes": 11307949,
+    "current_upload_assets_checked": 53,
+    "upload_asset_manifest_sha256": "e04fb7640da65035e7dec39341485a7ad4f059d7d577c690d162929cd393e338",
+    "deployment_config_sha256": "7794c8aefafc5db05752833c7f017034a598dbc563cef671c21a16f46eacddaa"
+  },
+  "cloudflare_channel": {
+    "status": "PASS",
+    "observed_at_utc": "2026-10-09T00:05:48.403299+00:00",
+    "readonly_command": "wrangler whoami --config <exactconfig> --env staging --json",
+    "exit_code": 0,
+    "duration_seconds": 2.92,
+    "logged_in": true,
+    "auth_type": "OAuth Token",
+    "account_count": 1,
+    "configured_account_match": null,
+    "workers_write_scope_present": true,
+    "target_association": "REUSED_SUCCESSFUL_TARGET_SPECIFIC_READBACK; no configured account_id asserted",
+    "actual_upload_executed": false,
+    "human_cloudflare_credential_input_missing": false
+  },
+  "review": {
+    "verdict": "APPROVED",
+    "qualification": "OFFLINE_PLAN_APPLICABILITY_AND_LOCAL_EVIDENCE_FIDELITY_ONLY",
+    "checks_pass": 28,
+    "checks_fail": 0,
+    "findings": []
+  },
+  "pending_operational_inputs": [
+    {
+      "owner": "root",
+      "input": "Final TEST backend compatibility PASS receipt path + SHA, exact target identity, expected 57 RPC / 2 indexes / four migrations and reconciled history; grants/RLS/signatures/defaults/helpers/ledger plus recovery and cron restoration evidence"
+    },
+    {
+      "owner": "root/W",
+      "input": "Confirmed new UTC writer window with W acknowledgement, actual overlapping writers/cron exclusion and no concurrent Worker deployment"
+    },
+    {
+      "owner": "root",
+      "input": "Explicit trusted GO referencing those receipts and the active window; prepared handoff template is not GO"
+    }
+  ],
+  "not_universal_upload_prerequisites": [
+    "iOS runtime PASS",
+    "mobile signing",
+    "Client A/B sessions",
+    "FCM/maps/payment credentials",
+    "authenticated Client commerce acceptance"
+  ],
+  "commands": {
+    "cwd": "/Users/minxiang/.codex/worktrees/task054-worker-commerce-candidate/merchandise-control-admin-web",
+    "deploy_argv": [
+      "/Users/minxiang/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node",
+      "node_modules/wrangler/bin/wrangler.js",
+      "deploy",
+      "--config",
+      "/Users/minxiang/.codex/outputs/task054-completion-20261008/worker/wrangler-deploy-exact.json",
+      "--env",
+      "staging",
+      "--no-bundle",
+      "--keep-vars",
+      "--no-autoconfig",
+      "--containers-rollout",
+      "none",
+      "--tag",
+      "task054-96758b89",
+      "--message",
+      "TASK054_SOURCE_96758b899aac2ccde1a70aeda4bbe7983007fb18_BUNDLE_e1b2f30e3e1413e0404543cf2ddf21bb14157b9aa339121d8b3ba47d01542997"
+    ],
+    "rollback_argv": [
+      "/Users/minxiang/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin/node",
+      "node_modules/wrangler/bin/wrangler.js",
+      "rollback",
+      "22107a6f-f515-44c4-8392-a8e5653ff0b8",
+      "--config",
+      "/Users/minxiang/.codex/outputs/task054-completion-20261008/worker/wrangler-deploy-exact.json",
+      "--env",
+      "staging",
+      "--message",
+      "TASK054 rollback to preserved previous TEST version",
+      "--yes"
+    ],
+    "runtime_environment_reference": "/Users/minxiang/.codex/outputs/task054-activation-20261008/worker/activation-plan.json"
+  },
+  "runtime_readback": {
+    "last_reused_observation_utc": "2026-10-08T22:13:44.874001+00:00",
+    "baseline_version": "22107a6f-f515-44c4-8392-a8e5653ff0b8",
+    "baseline_percentage": 100,
+    "baseline_bindings": 23,
+    "baseline_bindings_sha256": "094461fcb7df732f0dafbd1e94e48c8e5b93d2d519921d9785f2c537d140812b",
+    "fresh_mutable_baseline": "NOT_RUN; one readback within confirmed window before upload",
+    "semantic_binding_preservation": "Preserve binding names, secret names, service target and plaintext flag values. ASSETS release identifier may legitimately change with this release; compare semantically and verify all 53 new static asset bytes. Record full before/after descriptor hashes without falsely requiring release identifier equality.",
+    "mini_auth_and_catalog_mutations": "ON_PRESERVED"
+  },
+  "cron_and_writers": {
+    "analysis": "STATIC_ONLY; no current inventory asserted",
+    "pause_drain_candidates_if_present_active": [
+      "storefront-checkout-quote-expire-v1",
+      "storefront-reservation-hold-expire-v1",
+      "storefront-promotion-reconcile-v1"
+    ],
+    "no_static_overlap": "storefront-delivery-tracking-cleanup-v1",
+    "notification_writer": "Actual dispatcher/process owner must be identified by root/W and excluded across dedup migration commit; no repo cron inferred",
+    "disable_is_not_drain": true,
+    "restore": "root only, exact saved active/schedule/command hash including originally disabled state",
+    "global_application_stop": false,
+    "readonly_root_template": "/Users/minxiang/.codex/outputs/task054-activation-20261008/worker/review/window-readonly-template.sql"
+  },
+  "mini_smoke": {
+    "offline_plan_targets": 10,
+    "new_runtime_results": "NOT_RUN",
+    "public_target": "GET /api/auth/wechat/status before/after compare current protocol, provider and readiness; no legacy universal 503 expectation",
+    "authenticated_readonly_targets": [
+      "GET /api/mini-program/v1/account",
+      "GET /api/mini-program/v1/shops",
+      "GET /api/mini-program/v1/catalog",
+      "GET /api/mini-program/v1/catalog/detail",
+      "GET /api/mini-program/v1/sales/summary",
+      "GET /api/mini-program/v1/sync/checkpoint",
+      "GET /api/mini-program/v1/sync/delta using actual returned cursor/scope/watermark"
+    ],
+    "post_upload_operator_input": "W controlled dedicated synthetic Mini session/fixture reference; credential stays with operator, not universal upload prerequisite",
+    "mutative_smoke_and_cleanup": "Only authorized root/W Mini operator; Worker owner performs no UI/DB mutations. Dedicated fixture cleanup and dedicated-session logout only; archive is not proof of zero DB residue.",
+    "fresh_provider_login_and_image": "Conditional on actual applicable protocol and synthetic image fixture, separately reported"
+  },
+  "execution": {
+    "deploy": "NOT_RUN",
+    "rollback": "NOT_RUN",
+    "new_worker_runtime_smoke": "NOT_RUN",
+    "UI_DB_mutation": false,
+    "tests_builds_package_2012probes_repeated": false,
+    "credentials_values_read_or_persisted": false,
+    "all_commands_started_in_activation_terminal": true,
+    "child_reviewers_terminal": true
+  },
+  "governance_divergence": "Isolated Admin TASK159 REVIEW / flags-OFF baseline is historical and differs from new explicit TASK054 mandate plus actual remote Mini-ON baseline. Escalated to root, no Admin governance rewrite or flag reset.",
+  "evidence": [
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/worker/exact-inputs.json",
+      "sha256": "1182056b9d288c9511132d0e2c4848fe67eaf98a20d87b44621c8278f23b0894",
+      "bytes": 11338
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/worker/cloudflare-channel.json",
+      "sha256": "8a8a9d214a3b29c10407feff489f5eb385c7330c7f042ec8338f8d8752faf3f4",
+      "bytes": 2094
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/worker/activation-plan.json",
+      "sha256": "3e0c7d60c423c08cc1106edeb3cd7282d28959230944bd4d977e6820ed03d463",
+      "bytes": 6964
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/worker/root-handoff.prepared.json",
+      "sha256": "f4a1239bff218d0cc67781cdcc4bf94fe23ef912e1d95232d34d90c0a4c86ee7",
+      "bytes": 2274
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/worker/review/activation-plan-offline-review.json",
+      "sha256": "a0dad090cd8a8c21ee9369a907bb3c879bc76aa6e9e19a9ab411acbe0001cdcd",
+      "bytes": 6208
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/worker/review/commerce-writer-cron-offline.json",
+      "sha256": "a185a6717d5a8c53d2202477bee21cd780731df4188c9f3b294883bae8087a53",
+      "bytes": 13276
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/worker/review/window-readonly-template.sql",
+      "sha256": "f18029a1edc58604bf21d716aeacf54728e62b07b1482d3b7a3c30d9d2340806",
+      "bytes": 4387
+    },
+    {
+      "path": "/Users/minxiang/.codex/outputs/task054-activation-20261008/worker/review/mini-smoke-offline.json",
+      "sha256": "a7c5d9ba78d2b94c281143a413edcb1b5ffcecc3422bdc85e1d41b0ec9da33ae",
+      "bytes": 26258
+    }
+  ],
+  "protection": "Private directory 0700 and files 0600. No real credentials, credential raw output, customer data, or build artifacts in Git capsule."
+}

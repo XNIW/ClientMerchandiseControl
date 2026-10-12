@@ -1027,3 +1027,283 @@ APPROVED_SOURCE_CODE_ONLY (53test mirati+5PoC PASS). Artifact raw invariato,
 preview separata full-frame con hash/dimensioni; job35min misurato, timeout
 comandi invariati. NuovaCI del composto/pixel ancora NOT_RUN prima del push.
 Questo delta non corregge per inferenza il FAIL UI né qualifica TEST/live.
+
+### Matrice del completamento operativo — checkpoint prima dei terminali f326
+
+I risultati della CI37848510649 sono ancora in corso; questa matrice non
+assegna PASS nativi nuovi. I riferimenti indicano capsule e ambito effettivi.
+
+| CA / test | Risultato al checkpoint | Evidence / limite |
+|---|---|---|
+| CA-C1 / T-C1 | PASS source/recovery popolata locale; live BLOCKED | Journal/v3 e account preservati; recovery33casi54comandi con ledger popolato e inverseguard, review50controlli39comandi. Android43 restart locale; iOSf326 prepareFAIL, KeychainNOT_RUN. |
+| CA-C2 / T-C2 | PASS host/source; pixel finali NOT_RUN | Badge16e dopo2RED, review59PASS; helper232 review32PASS,137capture invariati. CI43 Androidpixel P3 conservato; nuovaCI in corso. |
+| CA-C3 / T-C3 | PASS recovery/package; FAIL schema/integrità; BLOCKED TLS/apply/live | Quattro canoniche hash-bound; TEST32/57RPC,1/2indici,history155 al19:59UTC. Service readonly preparato; passfile/trust/IPv6/window mancanti. Orphan non impediscono migration nel clone; repair distinto. |
+| CA-C4 / T-C4 | PASS runtime/packaging Worker locale; shared/R24 BLOCKED | Workerd9HTTPprobe e reader/writer invocati;2.012artifact esatti,23binding/rollback pronti. Worker remoto22107a6f non sostituito; due origini N e catene R24 separate NOT_RUN. |
+| CA-C5 / T-C5 | PASS benchmark host; profiling fisico NOT_RUN |11benchmark e500→5config/5→5build/20→20request acquisiti; nessun tap/frame/memoria fisico inferito. |
+| CA-C6 / T-C6 | PASS sourceassociation/gate checkpoint; nuovaCI in corso; integrata BLOCKED | Manifest552path e3cherry esatti,38reviewchecks;1049Mac/70race/35gate sucheckpoint5a, nuovi fix mirati approvati. CI f326 e reviewpixel finali devono terminare; auth/distribuzione ancora mancanti. |
+
+La matrice completa R01–R30 è nel rapporto corrente; R14 riguarda checkout
+kill/restart, distinto dal journal indirizzi A/R04/R25. I25E2Estorici conservano
+ID e statoBLOCKED, senza ricostruzione della provenance. Nessun criterio cambiato.
+
+## Handoff Fix finale — f326faa, 2026-10-08
+
+Source d4a7e97/appfreeze16e4681, PR29draftf326faa. Tutti7jobCIterminali:5PASS
+e2FAILiOSpreappinventory;0PNG/0OSiOSverificati, Keychain/smoke/visualNOT_RUN.
+Le capsule iOS e CI hanno review autonome della fedeltà APPROVED, non review
+integrata del prodotto. Nessunretryinvariato e nessunappfixinferito.
+
+| CA / test | Esito corrente | Evidence e limite |
+|---|---|---|
+| CA-C1 / T-C1 | PASS source/SQLlocale/Androidjournal; iOS/liveBLOCKED | Recoverypopolata33casi54comandi, inverseguard; AndroidPID4492→4604 stessoAPK/UID, backendNOT_RUN. |
+| CA-C2 / T-C2 | PASS host/Androiddelta scoped; iOS/ATNOT_RUN |73Flutter+4OSispezionati,64riusiperhashscope storico; badgecorretto8journal, sourcehelperreview32PASS. |
+| CA-C3 / T-C3 | FAIL schema/integrità; BLOCKED TLS/apply/live | Readback21:58:32/57conformi,25assenti,4canonicheassenti,1/2indici/history155; recoverypopolata/packagePASSlocali. |
+| CA-C4 / T-C4 | PASS workerd/package locale; shared/R24BLOCKED | Worker22:13:22107a6f100%/23bindinginvariati; candidato96758 nondeployed, duecateneR24NOT_RUN. |
+| CA-C5 / T-C5 | PASS11benchmarkhost; profilefisicoNOT_RUN | Inbox500→5config/5→5build/20→20request acquisiti; nessunframe/memoria/tapfisico. |
+| CA-C6 / T-C6 | PASS source/Quality/release/Androidscoped; integrataBLOCKED | Manifest552e3cherryesatti, Quality1064PASS+1SKIP; CI5PASS/2FAIL, gateiOSruntime e auth/distribuzione mancanti. |
+
+Source/fix conclusi nei perimetri approvati. Backend/Workerapply/configTEST
+e accettazione autentica non conclusi per dipendenze reali. Registro unico e
+rapporto contengono30ID, dueoriginiR24 e25E2EstoriciBLOCKED. NessunDONE,
+mergeClient, TASK055 oproduction. **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## Re-review integrata finale distinta — f326faa, 2026-10-08
+
+Il reviewer read-only distinto `/root/final_audit` assegna **BLOCKED**, con
+handoff `CODEX_REVIEW_BLOCKED`. Il coordinatore trascrive il verdetto senza
+approvare il proprio lavoro. Nessun nuovo finding di prodotto nei controlli
+eseguiti; rilievi editoriali chiusi dopo fix e verifica autonoma delle copie.
+
+Verifiche autonome:77 controlli PASS,115 comandi Git terminali exit0,
+55 file staged byte-identici,33 JSON validi,220 link relativi senza file
+mancanti;30 ID in31 righe, R24 distinto per origine e25 E2E storici preservati.
+GitHub readonly conferma PR29 OPEN/DRAFT e CI37848510649 sul freeze f326:
+cinque job PASS e due FAIL iOS prima dell'app;0 PNG/0 OS iOS verificati.
+
+Il badge è risolto nei frame Android verificati;73 Flutter e4 OS nuovi/delta
+sono ispezionati,64 byte-identici riusati con i limiti delle review storiche.
+Queste approvazioni scoped non sostituiscono iOS, Auth/live, AT o profiling.
+TEST32/57 RPC e quattro canoniche assenti mantengono FAIL schema; TLS,
+finestra DB/cron, sessioni/configurazione Client, Worker TEST aggiornato,
+R24 dalle due origini e distribuzione restano prerequisiti non soddisfatti.
+
+[Verbale distinto](EVIDENCE/TASK-054/next-integration/completion-integrated-rereview.md)
+e [capsula](EVIDENCE/TASK-054/next-integration/completion-integrated-rereview.json).
+Il gate security completo1032 file PASS precede i delta editoriali finali;
+ricevute dello scan canonico ristretto, governance, link e hygiene finali nel
+percorso protetto `task054-completion-20261008/final-review/`.
+TASK-054 resta BLOCKED/REVIEW. Nessun merge, DONE o attivazione TASK-055.
+
+## Emendamento utente e ripresa Fix — attivazione TEST, 2026-10-08
+
+Il mandato `8da5e50f-ba0f-4fd8-ab3c-9c4e0dd785c2` autorizza l’adattamento
+minimo del gate DB a direct/session-pooler con target e TLS vincolati al progetto,
+le regressioni pertinenti e una variazione diagnostica iOS a Xcode26.5 se presente
+nel runner. Restano valide le autorizzazioni TEST precedenti. Si riprende FIX
+sui residui, senza riaprire gli scope o alterare R01–R30/E2E storici.
+
+Un owner per trasporto DB, un owner per runtime iOS, coordinatore unico per
+configurazione e DB/cron; owner Worker già assegnato, coordinato con W. N conserva
+repository e dispositivi dei gestionali. Il preapply verifica accesso/identità,
+privilegi operatore, recovery e delta atteso; la compatibilità57RPC è postapply.
+Si riusano package e prove valide. Apply/deploy procedono quando i rispettivi
+prerequisiti sono soddisfatti, senza dipendenza universale da iOS o firma mobile.
+
+Criteri del delta: endpoint Session pooler risolto da fonte autorizzata e vincolato
+al progetto; regressioni di endpoint/ruolo/ambiente/TLS; ricezione dell’identità
+readonly distinta dai privilegi apply; Prepare con toolchain inventariata e
+recensione mirata prima della matrice; journal e smoke finali solo se traversati.
+Le operazioni reali e le dipendenze residue confluiscono nel rapporto e registro
+esistenti. Ogni fix torna a review indipendente.
+
+**Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## Fix attivazione TEST — checkpoint pre-native, 2026-10-09
+
+Fotografia prima dell'avvio locale23:35UTC, superseduta dall'Handoff3f8 seguente.
+I NOT_RUN locali e l'assenza di un tentativo preapp descrivono questo checkpoint.
+
+Mandato8da5e50f ripreso esplicitamente dall'utente. Sorgente composto f513330:
+trasportoDB0cec105, diagnosi530260b e preflightTEST6461194 integrati con26file
+byte-identici alle review originarie. Il delta successivo8fc7f8d cambia soltanto
+Quality20→25min nei due workflow e aggiunge dispatch diagnostico quality_only;
+comandi/soglie, toolchain, app, script e ricette unsigned immutati. Review distinta
+24controlliPASS, più15del reviewer secondario; pin/diff e3testgovernance locali
+PASSexit0. Nessun aumento del timeout iOS, nessun nuovo tentativo preapp.
+
+| CA / test | Esito del delta / limite | Evidence |
+|---|---|---|
+| CA-01 / T-01 | PASS baseline/associazione26file e2YAML; PR29draftf326 preservata | activation-source-association e activation-source-reassociation |
+| CA-02 / T-02; CA-O1 / T-O1 | PASS trasporto/source30test e re-review10casi; preapply22:55 deltaattesoPASS/schema32/57FAIL; PGreadonlyTLS NOT_RUN | activation-db-transport/review, activation-preapply-current |
+| CA-03 / T-03; CA-O1 / T-O1 | PASS preparazione PG R2 APPROVEDscoped; R1realelocale57/2/159, R2targeted13+5 e170peer; apply/POST57remoti NOT_RUN | activation-pg-operator, prima/re-review e istruzioni; recovery acquisita non ripetuta |
+| CA-04 / T-04; CA-O3 / T-O3 | PASS source preflightTEST dopo RED e2P2chiusi;31test nuovi permanenti/32finali mirati; OAuth/config/signedTEST NOT_RUN | activation-release-fix e review; appconfig/attestation aggiornati, freezeUI16e riusato solo in scope invariato |
+| CA-05 / T-05; CA-O6 / T-O6 | PASS unsignedAndroid/iOSf513, iOS89fixture; Qualityprima cancellata20min conservata; Quality8fc38001393798 terminalePASS23step1095/1SKIP+11performance; host11PASS distinto; runner3f8 review+50test scoped | activation-ci-first-terminal, activation-quality-terminal, activation-ios-headless-source-review |
+| CA-O5 / T-O5 | FAIL iOSpreapp124, cleanupPASS;9step/0PNG e recensione/trio/journal/smoke/matriceNOT_RUN; Androidf326 riuso scoped | activation-ios/source-review/fidelity; niente diagnosi UI inferita |
+| CA-06 / T-06; CA-O6 / T-O6 | BLOCKED acceptanceintegrata; R01–R30 in31righe e25E2E storici conservati, dueoriginiR24NOT_RUN | rapporto corrente e residuals, activation-native-owner come report N |
+| CA-O7 / T-O7 | NOT_RUN mergeClient; nessun DONE/tasksuccessivo | PR29OPEN/DRAFTf326; ramo source8fc7f8d pubblicato separatamente |
+
+CA pubblica ufficiale pronta; procedura PG per-file concreta approvata, con SQL/history
+in transazioni distinte e markerpending durevole. Mancano host ufficiale e riferimenti
+protetti separati readonly/operatore; nessuna credenziale cercata fuori dai riferimenti
+noti. W conferma preparazione isolata e zero businesswriter propri; nessuna finestra
+DB/cron viene inferita. Root ha eseguito solo readback metadata TEST22:55 e Worker22:54:
+versione22107a6f100%,23binding/MiniAuth/catalogON invariati. Nessun apply/cron/deploy.
+
+Richiesta owner unica predisposta nel manifest: endpoint/passfilereadonly;
+service/passfileoperatorePG distinto; Mac locale compatibile da qualificare prima
+di richiedere una superficie diversa, senza requisito universale Xcode26.5 esatto;
+A/domain/accessopilota per primopercorso, B soltantoisolamento; firma/canale per
+piattaforma. Pilota/dataset sono generabili nell'autoritàTEST esistente; CA e
+Cloudflare già recuperati. Non sono prerequisiti universali del Worker/iOS.
+Quality terminale verificata; nessun processo CI root pendente. Runner headless
+3f8d3d1 APPROVED_SOURCE_DELTA_ONLY:50test GREEN, due blob hash-bound alla review;
+Prepare reale locale ancora NOT_RUN fino al rilascio dello slot W.
+
+
+## Handoff Fix attivazione — source3f8d3d1, 2026-10-09
+
+Quality8fc terminalePASS1095test/1SKIP+11performance,23step/18min46s; review
+28controlli distinta. Source3f8 aggiunge solo opt-in headless e3regressioni,
+50GREENexit0 dopoRED50/2errori, review17+9PASS e2blob associati al commit.
+Il coordinatore privato chiude5finding con20controlli review prima del native.
+
+| CA / test | Esito terminale / limite | Evidence |
+|---|---|---|
+| CA-05 / T-05; CA-O6 / T-O6 | PASS Quality8fc eunsignedf513 riuso byte-bound; sourceheadless50test scoped | activation-quality-terminal/review, activation-ios-headless-association/source-review |
+| CA-O5 / T-O5 | PASS Preparelocaleheadless/runtime26.5; FAIL buildSDK27target14 primaapp;6dipendentiNOT_RUN/0PNG; cleanupPASS | activation-ios-local-native, SDK e review26+13PASS di fedeltà negativa |
+| CA-06 / T-06; CA-O6 / T-O6 | BLOCKED accettazioneintegrata; NsingolaRetryiOSHTTP500/STATEMENT_TIMEOUT, catalogoreadonly5func/default8s; nessun piano/RPC/write inferito | activation-native-recovery-dependency; R24 dueoriginiNOT_RUN,30ID/31righe/25E2Estorici preservati |
+| CA-O7 / T-O7 | NOT_RUN merge/DONE/task055; nessunrootprocessattivo | PR29OPEN/DRAFTf326, branches8fc/3f8pubblicati separati, evidence worktree isolato |
+
+Native23:35:03→23:36:11UTC/68.059s entro35min; stessoUUIDproprio, risorsa
+restituita N/W. Il minimo14 e le ricette900s restano invariati. Mac locale
+qualificato perPrepare, incompatibile perbuild con14; nessuna SDK alternativa
+installata. Superficie diversa esistente/support14 ora è prerequisito concreto.
+
+Apply/TLS/POST57/Workerdeploy/ClientAuth/signedTEST/R24 e AT/profiling reali
+restano non conclusi per le dipendenze del registro; CA/Cloudflare/pilotgeneration
+e procedure tecniche preparate. Nessuncomandoverifica pendente, nessuna
+modifica ai repositoryN/W/originaledirty, nessun merge/DONE/tasksuccessivo.
+**Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## Review attivazione TEST — verdetto distinto, 2026-10-09
+
+- **Ruolo/fase**: CODEX_RE_REVIEWER / REVIEW; `/root/final_audit` distinto dai
+  writer, con peer read-only per matrice e fedeltà. Root trascrive il verbale.
+- **Esito**: BLOCKED, nessun finding aperto. Freeze R2 di59file:40controlli
+  matrice e177fedeltà PASS,52copie esatte,50JSONvalidi,262link senza file mancanti.
+  Criteri R01–R30, due originiR24 e25E2E storici preservati.
+- **Evidence**: [verbale](EVIDENCE/TASK-054/next-integration/activation-integrated-rereview.md)
+  e [capsula](EVIDENCE/TASK-054/next-integration/activation-integrated-rereview.json),
+  SHA256 JSON `cbac9191b689fed01e57e1336af377efc20d4e2560cb2d2112d13a03fe27d790`.
+- **Gate**: Quality8fc e source3f8 scoped; iOS PreparePASS/buildFAILprimaapp,
+  cleanupPASS e6dipendentiNOT_RUN. SchemaTEST32/57 FAIL; TLS/operator/apply,
+  Worker, Auth/firma/distribuzione, R24/AT/profiling restano non conclusi.
+- **Limite**: il verbale è associato al freeze pre-trascrizione R2. Controlli
+  documentali finali e associazione al commit pubblicato sono prove separate;
+  nessun nuovo gate prodotto, nuovo boot, SQL, CI, merge o DONE.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## Review — aggiornamento owner N, 9 ottobre locale
+
+Proiezione N `c205fd93…` acquisita senza nuova RPC/SQL/rootUI. A remoto1riga/2prezzi
+non prova OwnHTTPACK/peer/Client; B localePASS è riferito owner, remotoB assente
+al solo readback00:28:52UTC del10ottobre. Log postB senza RPC corrispondenti non
+provano stream completo o upload mai tentato. Contesti57014 associati offline a
+4corpi archiviati, helperSHA256 riferito solo N; indici recovery presenti secondo
+metadata N, nessun missing-index/slow-plan inferito. R24dueoriginiNOT_RUN,
+BLOCKED/REVIEW e CODEX_REVIEW_BLOCKED invariati.
+[Capsula](EVIDENCE/TASK-054/next-integration/activation-native-owner-save-update.json).
+
+## Review — riconciliazione rollout POS esterno, 10 ottobre
+
+Root verifica in sola lettura la nuova versione Workerfdfb3a7e100% alle20:44UTC:
+sourceacb3e4ac/PR133/run38083172469 e versionID nel log originale del job deploy
+coincidono con il readback Cloudflare. ExecutorAsus è riferito dalla chat rollout;
+receipt Windows non letta direttamente. Evento secret distinto; root non legge
+né confronta valori. Nessun deploy/rollback o adozione pin da root.
+
+Il solo SELECT MCP20:49:33UTC in BEGIN READ ONLY/timeout5s osserva history158 e
+tre additions POS. Prefisso155 versione/nome e ultimo statementMD5 coincidono
+col precedente19:11UTC; il confronto non copre tutti gli statement o dati.
+Manifest Client32/57,1/2 e quattro canoniche assenti: expecteddeltaPASS,
+schemaFAIL, zero incompatibilità inattese; postapplyatteso162 se invariato.
+[Lineage](EVIDENCE/TASK-054/next-integration/activation-external-worker-lineage.json),
+[source→run→versione](EVIDENCE/TASK-054/next-integration/activation-external-worker-source.json),
+[readback](EVIDENCE/TASK-054/next-integration/activation-external-worker-readback.json).
+
+Piano Worker col vecchio pin e recovery/profilo sulla baseline155 restano storici:
+riconciliare il delta POS e recuperabilità corrente prima di qualsiasi apply/upload.
+Nessun nuovo gate C04/Client/Auth/iOS/R24, nessuna nuova review APPROVED o suite
+applicativa sul delta di metadata. Stato BLOCKED/REVIEW, handoff
+`CODEX_REVIEW_BLOCKED` invariati; nessun DONE/merge/tasksuccessivo.
+
+## Emendamento utente — completamento Client, 12 ottobre 2026
+
+L'incarico d47f4743 autorizza source/fix/test/review e candidate coerente nel task
+esistente. Il recupero allegati sulla stessa pratica ha priorità; nessuna API/DDL
+nuova, nessuna authority backend/W/N trasferita. Conservare R01–R30,25E2E e due
+originiR24; non attribuire prove di altri SHA a PR29. Alla richiesta slot l'utente
+risponde «Decidi te la scelta migliore, che possa fare i vari progetti proseguendo
+in maniera contemporanea»: root sceglie runner GitHub separati. Nessun SDK Mac,
+input gestionale, C04/T0/QuietGlobal/SQL/deploy è autorizzato per implicazione.
+
+## Fix — candidate e regressioni causali, 12 ottobre 2026
+
+Base applicativa3f8d3d19 discendente di PR29f326; registri aggiornati744cd49e
+copiati senza sostituire il sorgente. Worktree managedisolato sul branch
+codex/task054-client-recovery-20261012; originale8423c868 con supabase/ nontracciato
+preservato. I delta application/source/config/runner già approvati conservano
+provenienza; la qualifica precedente non si estende al delta nuovo.
+
+Hostedcausalbaseline38260104850 su codice3f8 e test8f52:121PASS/7FAIL exit1.
+Parziale: gli upload1/3 sono eseguiti ma manca azione persistente di recupero.
+Filelocaleperso: PathNotFoundException grezza dopo create, terzo file non caricato.
+Refreshdurantecreate: isMutatingfalse; tickettardivoposttimeout avvia Storage.
+Feedbackrecensione assente nei tre submit/edit/withdraw differiti. Le prime probe
+widget3a2d avevano attesa I/O incompleta:FAILharness preservati, non usati comebug.
+Firstcandidate8f52 compileFAIL(AuthStateambigua/busy nella classeerrata); corretti.
+
+Fix: caseId e checkpoint perfile/percase in memoria, mutex interasequenza, errori
+locali recuperabili/nuova selezione; receipt SELECT esatta tramite GRANT/FORCE RLS
+canonici, niente countdiff o nuova RPC; timeout interrompe fasiremote successive.
+Ticketperso/malformato mantiene ambiguità; ticket nonconfermato scaduto rinnovabile
+solo dopo trasporto terminale/receipt assente; confermati non ricaricati. Account/shop
+fence, snapshot precedente non cancellaACK, nuove richieste restano possibili dopo
+completamento. Stati/azioni19chiavi localizzati4lingue, zh fallbackes conservato.
+Recensione savingliveRegion e inbox read/unread/hint unificati restano qualificabili
+con test semantics; non sostituiscono AT o pixelnativi.
+
+Reviewread-only preparatorie distinte identificano5P2recovery e1errorecompileUI;
+rootcorregge e aggiunge regressioni mirate. Re-review e fullgate finali pendenti;
+nessun APPROVED globale, merge o DONE.
+
+
+### Fix e qualifica della riapertura
+
+Reviewer distinto identifica rebuild sameowner quando la schermata non ha listener.
+Probe7dd9 PASS165 con identity uguale non invalida; af0da0a/38268961126
+164PASS/1FAIL exit1 con full_name cambiato riproduce provideruninitialized alla
+riapertura. Wipe delle mappe e rischio sorgente separato; il RED non raggiunge
+assertion di perdita. e554586 usa select subject/shop ed elimina erase differito;
+fence/mutex e rawAuthownerlistener conservati, GREEN/fullgate ancora da associare.
+
+Reviewer UI distinto ispeziona18PNG di4ee:14latini leggibili, inclusi file/errore/
+CTA nello stesso frame;4CJKFAILharness esclusi dalla qualifica. Duplicatecapture
+postsuccesso rimossa:137prescritti, unica snapshot partial primaRetry.
+Alternativa iOSmacos15/Xcode26.3 gia installata predisposta nello stesso workflow
+con prepareheadless, build/security/smoke prima review, journal/matrice e cleanup;
+minimum14/budget35/defaultstorico invariati. Nessuna prova nativa nuova ancora.
+
+| CA / T esistenti | Esito al freeze in preparazione | Evidence pertinente |
+|---|---|---|
+| CA-C1 / T-C1; R03/R21/R25 | PASS fixture164 su927/4ee; nuovoP2REDaf0da0a | Rapporto corrente, run38266245871/38267522135/38268961126; stessa pratica e owner fence, niente TEST |
+| CA-C2 / T-C2; R18/R22/R30 | PASS widget/semantics e14PNGlatini; FAIL4CJKhost | QA reviewer18frame, palette/200%; AT e nativo distinti NOT_RUN |
+| CA-02/03 / T-02/03 | BLOCKED currentTEST; gate10ottFAIL storico | Manifest57/2 e quattroSQL canonici preparati, profilo155 da riconciliare, riferimento operator mancante |
+| CA-05 / T-05; CA-O5 / T-O5 | NOT_RUN finalfull/native | CI settejob e superficie alternativa predisposti, target14 preservato |
+| CA-06 / T-06; R24/R29/R30 | BLOCKED integrata | R01-R30/31righe e25E2E intatti; firma/Auth/live/R24/AT/profile mancanti |
+
+Nessun merge/DONE/tasksuccessivo; runtime e autenticazione non ereditati dai PASS
+precedenti. Handoff corrente resta CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.

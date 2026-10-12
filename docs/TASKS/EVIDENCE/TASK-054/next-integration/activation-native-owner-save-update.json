@@ -1,0 +1,195 @@
+{
+  "schema": "task054-n-owner-backend-and-save-update-v1",
+  "recorded_at_utc": "2026-10-10T00:37:39.723041+00:00",
+  "qualification": "OWNER_REPORTED_NATIVE_SAVE_AND_READONLY_PROJECTION_PLUS_OFFLINE_CATALOG_ASSOCIATION",
+  "N_projection": {
+    "path": "/Users/minxiang/Projects/MerchandiseControl-Ecosistema/evidence/native-local-availability-20261004/native-residuals-continuation-20261007-01/native-resume-20261009-01/test-backend-B-and-branch-projection.json",
+    "sha256": "c205fd9381e51cbe6d6145d97b74d91e68a9cb25991c882bcd2c68981ebf1a84",
+    "bytes": 10032
+  },
+  "saved_root_catalog": {
+    "sha256": "fc7e8323a397220ceb0575242b74445e78587dc5ebfa94ec796b17c79dc48b96",
+    "observed_at_utc": "2026-10-09T23:40:59.610608+00:00",
+    "fresh_remote_catalog_query": false
+  },
+  "local_checks": [
+    {
+      "function": "app_private.shop_sync_scoped_rows_v1",
+      "saved_definition_md5": "ee931fc661fc2a86d4d5acffc226f744",
+      "body_line": 213,
+      "fragment": "return query",
+      "result": "PASS",
+      "qualification": "Saved 23:40UTC catalog static association, no fresh remote query or executed plan"
+    },
+    {
+      "function": "public.shop_sync_recovery_page_v1",
+      "saved_definition_md5": "64af07acdba360133bf36be198fae1ea",
+      "body_line": 141,
+      "fragment": "with candidates as materialized (",
+      "result": "PASS",
+      "qualification": "Saved 23:40UTC catalog static association, no fresh remote query or executed plan"
+    },
+    {
+      "function": "public.shop_sync_recovery_checkpoint_v1",
+      "saved_definition_md5": "f7b56c90e15461b67d06c8f4093c73dd",
+      "body_line": 529,
+      "fragment": "with scalar_contract as materialized (",
+      "result": "PASS",
+      "qualification": "Saved 23:40UTC catalog static association, no fresh remote query or executed plan"
+    },
+    {
+      "function": "public.shop_sync_convergence_marker_v1",
+      "saved_definition_md5": "ff0591f3b2bd3284be3dc8519a65de48",
+      "body_line": 7,
+      "fragment": "v_checkpoint := public.shop_sync_recovery_checkpoint_v1(",
+      "result": "PASS",
+      "qualification": "Saved 23:40UTC catalog static association, no fresh remote query or executed plan"
+    },
+    {
+      "id": "owner-projection-sha256",
+      "result": "PASS",
+      "sha256": "c205fd9381e51cbe6d6145d97b74d91e68a9cb25991c882bcd2c68981ebf1a84"
+    }
+  ],
+  "57014_contexts": {
+    "groups": [
+      {
+        "eventCount": 1,
+        "functions": [
+          "app_private.sync_checkpoint_sha256",
+          "shop_sync_recovery_checkpoint_v1",
+          "shop_sync_convergence_marker_v1"
+        ],
+        "lineNumbers": [
+          2,
+          529,
+          7
+        ],
+        "staticTableBranch": "PRICES"
+      },
+      {
+        "eventCount": 1,
+        "functions": [
+          "shop_sync_scoped_rows_v1",
+          "shop_sync_recovery_page_v1"
+        ],
+        "lineNumbers": [
+          213,
+          141
+        ],
+        "staticTableBranch": "PRODUCTS"
+      }
+    ],
+    "limits": "Temporal and function branch correlation, no unique request ID, no slow plan demonstrated",
+    "source": "postgres_logs",
+    "transcriptionOfObservedToolResult": true,
+    "windowEndUTC": "2026-10-09T23:22:15Z",
+    "windowStartUTC": "2026-10-09T23:22:00Z"
+  },
+  "checkpoint_static_branch": {
+    "reported_context_line": 529,
+    "actual_start": "with scalar_contract as materialized (",
+    "raw_prices_body_line": 533,
+    "helper_sync_checkpoint_sha256_line2": "N_REPORTED_ONLY; helper body is not among archived five definitions",
+    "runtime_plan": "NOT_PROVEN"
+  },
+  "reported_recovery_indices": [
+    {
+      "table": "inventory_products",
+      "key_prefix": "shop_id_id_prefix",
+      "matching_index_names": [
+        "inventory_products_shop_recovery_id_idx"
+      ],
+      "qualification": "N metadata only; predicates, plan use and actual latency not inferred"
+    },
+    {
+      "table": "inventory_products",
+      "key_prefix": "owner_id_id_prefix",
+      "matching_index_names": [
+        "inventory_products_legacy_recovery_id_idx"
+      ],
+      "qualification": "N metadata only; predicates, plan use and actual latency not inferred"
+    },
+    {
+      "table": "inventory_product_prices",
+      "key_prefix": "shop_id_id_prefix",
+      "matching_index_names": [
+        "inventory_product_prices_shop_recovery_id_idx"
+      ],
+      "qualification": "N metadata only; predicates, plan use and actual latency not inferred"
+    },
+    {
+      "table": "inventory_product_prices",
+      "key_prefix": "owner_id_id_prefix",
+      "matching_index_names": [
+        "inventory_product_prices_legacy_recovery_id_idx"
+      ],
+      "qualification": "N metadata only; predicates, plan use and actual latency not inferred"
+    }
+  ],
+  "new_Save_A": {
+    "native_local_save": "N_REPORTED_ONLY",
+    "save_time_utc": "2026-10-09T23:46:32Z",
+    "remote_observed_utc": "2026-10-10 00:28:52.882536+00",
+    "remote_product_count": 1,
+    "remote_price_count": 2,
+    "expected_product_fields_match": true,
+    "own_HTTP_ACK_proof": false,
+    "iOS_peer_A_count": {
+      "value": 0,
+      "qualification": "N_REPORTED_ONLY"
+    }
+  },
+  "new_Save_B": {
+    "native_local_save": "PASS_N_REPORTED_ONLY",
+    "save_time_utc": "2026-10-10T00:17:26Z",
+    "pending": 3,
+    "lastAttempt": "ABSENT_N_REPORTED_ONLY",
+    "scope": "N reports coherent with real manifest; no independent root UI validation",
+    "remote_presence": "ABSENT_AT_2026_10_10_00_28_52_POINT",
+    "meaning": "Point-in-time absence; no proof of no upload attempt"
+  },
+  "post_B_available_logs": {
+    "boundary": "No matching RPC in available logs for this bounded window; does not prove client execution path or completeness of the remote log stream",
+    "rpcProjection": {
+      "result": []
+    },
+    "sourceCounts": {
+      "result": [
+        {
+          "event_count": 5,
+          "rpc_path_count": 0,
+          "source": "edge_logs"
+        },
+        {
+          "event_count": 70,
+          "rpc_path_count": 0,
+          "source": "postgres_logs"
+        },
+        {
+          "event_count": 1,
+          "rpc_path_count": 0,
+          "source": "postgrest_logs"
+        }
+      ]
+    },
+    "windowEndUTC": "2026-10-10T00:28:30Z",
+    "windowStartUTC": "2026-10-10T00:17:25Z"
+  },
+  "root_remote_queries": 0,
+  "root_SQL_writes": 0,
+  "root_heavy_RPC": 0,
+  "root_EXPLAIN_ANALYZE": 0,
+  "root_native_input": 0,
+  "status_boundary": {
+    "R24_Android": "NOT_RUN",
+    "R24_iOS": "NOT_RUN",
+    "A_ACK_or_peer_convergence": "NOT_PROVEN",
+    "B_remote_ACK_or_convergence": "NOT_PROVEN",
+    "missing_index_root_cause": "NOT_PROVEN",
+    "Client_TEST_Auth_or_publication": "NOT_RUN",
+    "integrated": "BLOCKED"
+  },
+  "operator_boundary": "N reports an existing pending human unlock/reopen request on another owner surface; root adds no duplicate question/retry/install",
+  "relationship": "Separate from four canonical Storefront migrations and Client SDK14 build gate; no fix/apply/deploy inferred"
+}

@@ -1,0 +1,24 @@
+{
+  "scope": "COORDINATION_STATUS_ONLY",
+  "observedAtUtc": "2026-10-08T21:50:16Z",
+  "W": {
+    "threadId": "01a0d946-6dd0-70f1-9146-e65e8d3f6020",
+    "title": "Completa attivazione WECHAT-010",
+    "revision": 5,
+    "changed": false,
+    "state": "idle",
+    "newInputs": false
+  },
+  "N": {
+    "threadId": "01a0e903-0c9d-7583-8d62-4c25da6785e1",
+    "title": "Correggi sync e parit\u00e0 Android/iOS",
+    "revision": 557,
+    "state": "active",
+    "reportedActivity": "Updated Android screen visual inspection at100% text; preparing eight language/size checks",
+    "sourceShaInLatestMessage": null,
+    "scopeLimit": "Native management app UI activity; does not qualify Client installation or R24 chain"
+  },
+  "writesToOtherThreads": false,
+  "deviceActions": false,
+  "writerWindowConfirmed": false
+}

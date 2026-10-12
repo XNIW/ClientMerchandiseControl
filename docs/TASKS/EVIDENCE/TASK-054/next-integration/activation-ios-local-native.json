@@ -1,0 +1,181 @@
+{
+  "schema": "task054-local-ios-native-terminal-v1",
+  "created_at_utc": "2026-10-09T23:38:21.030372+00:00",
+  "source": "3f8d3d19a46d95bc7b7eb494a8f5b85a42372428",
+  "branch": "codex/task054-ios-local-owned",
+  "source_worktree_clean": true,
+  "wrapper_sha256": "67978a6a9fb8ee1669e6a80145b153b70a44b354b5bda7cac63d52925f2506dc",
+  "wrapper_review_sha256": "2a64751d9fab078305ad6c18c0b1d16a60820bfd3617b6faf3de6be315f90a02",
+  "source_review_sha256": "d130a0fd660a4c4ab7c6d28d59c327123a8a14ee3255ee29d28dad159ddfb9dc",
+  "slot_sha256": "46eb202ce4d27f487a3a889c9b07fa77e9bb107cf4dac1130823df0581ffb8ec",
+  "toolchain": {
+    "Xcode": "27.0",
+    "build": "27A266a",
+    "simulator_SDK": "27.0",
+    "minimum_iOS_preserved": "14.0",
+    "Flutter": "3.44.8",
+    "Flutter_revision": "058e0af2c2b57e369d905a03ac9748b0ebf543c6",
+    "pubspec_lock_sha256": "360f0222bb529970e33dd5d83e52a0a7313e3323044095626156cd009b42a75e"
+  },
+  "started_at_utc": "2026-10-09T23:35:03.821702+00:00",
+  "finished_at_utc": "2026-10-09T23:36:11.880360+00:00",
+  "deadline_at_utc": "2026-10-10T00:10:03.821860+00:00",
+  "elapsed_seconds": 68.059,
+  "budget_seconds": 2100,
+  "wrapper_session": 77733,
+  "wrapper_tool_chunk": "74dec0",
+  "wrapper_exit_code": 1,
+  "steps": [
+    {
+      "name": "toolchain-lock",
+      "command": [
+        "bash",
+        "-c",
+        "source scripts/resolve-flutter.sh && flutter pub get --enforce-lockfile"
+      ],
+      "started_at_utc": "2026-10-09T23:35:03.822349+00:00",
+      "timeout_seconds": 180,
+      "result": "PASS",
+      "exit_code": 0,
+      "duration_seconds": 1.844,
+      "log_sha256": "506d96d13ac83603e1ba5c1c650bf07aa9760d63ebaf7240aa5d121fcef7d7ae",
+      "own_process_cleanup": "PASS",
+      "outer_transport_cleanup": "PASS"
+    },
+    {
+      "name": "prepare",
+      "started_at_utc": "2026-10-09T23:35:05.666751+00:00",
+      "timeout_seconds": null,
+      "result": "PASS",
+      "execution": "canonical main entrypoint in-process; no outer child/kill lifecycle",
+      "internal_timeouts": "runtimes30/create30/check30/boot60/bootstatus300/finalcheck30 unchanged",
+      "entrypoint_args": [
+        "prepare",
+        "--headless",
+        "--receipt",
+        "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/local-headless-20261009/owner.json"
+      ],
+      "required_residual_budget_seconds": 1080,
+      "source_command_equivalent": [
+        "python3",
+        "scripts/run-task054-ios-owned.py",
+        "prepare",
+        "--headless",
+        "--receipt",
+        "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/local-headless-20261009/owner.json"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 27.241,
+      "log_sha256": "b159629f4e6b09a93e5e26e2aba4ec17b9d1a715f35d858c09d2bfeb2214af64",
+      "own_process_cleanup": "PASS",
+      "outer_transport_cleanup": "PASS"
+    },
+    {
+      "name": "review-alone",
+      "command": [
+        "bash",
+        "scripts/test-task054-visual.sh",
+        "--device",
+        "AD5AF8A4-8D2B-45AC-BA56-C3E0725124D1"
+      ],
+      "started_at_utc": "2026-10-09T23:35:32.909026+00:00",
+      "timeout_seconds": 960,
+      "result": "FAIL",
+      "exit_code": 1,
+      "duration_seconds": 35.101,
+      "log_sha256": "e4c4408458a1204a4b618356f0395c8d81abd95c9e27a822e0ae677ca29eca5c",
+      "own_process_cleanup": "PASS",
+      "outer_transport_cleanup": "PASS"
+    },
+    {
+      "name": "review-after-inbox",
+      "result": "NOT_RUN",
+      "reason": "dependent on review-alone"
+    },
+    {
+      "name": "address-journal",
+      "result": "NOT_RUN",
+      "reason": "dependent on review-alone"
+    },
+    {
+      "name": "normal-build",
+      "result": "NOT_RUN",
+      "reason": "dependent on review-alone"
+    },
+    {
+      "name": "bundle-security",
+      "result": "NOT_RUN",
+      "reason": "dependent on review-alone"
+    },
+    {
+      "name": "smoke",
+      "result": "NOT_RUN",
+      "reason": "dependent on review-alone"
+    },
+    {
+      "name": "full-visual",
+      "result": "NOT_RUN",
+      "reason": "dependent on review-alone"
+    },
+    {
+      "name": "cleanup",
+      "command": [
+        "python3",
+        "scripts/run-task054-ios-owned.py",
+        "cleanup",
+        "--receipt",
+        "/Users/minxiang/.codex/outputs/task054-activation-20261008/ios/local-headless-20261009/owner.json"
+      ],
+      "started_at_utc": "2026-10-09T23:36:08.011847+00:00",
+      "timeout_seconds": 150,
+      "result": "PASS",
+      "exit_code": 0,
+      "duration_seconds": 3.868,
+      "log_sha256": "9c1fadac494122bcb857d2e71af6598127bf0e3b608aedffa8b69eb1cd689cca",
+      "own_process_cleanup": "PASS",
+      "outer_transport_cleanup": "PASS"
+    }
+  ],
+  "owner": {
+    "device": "AD5AF8A4-8D2B-45AC-BA56-C3E0725124D1",
+    "runtime": "com.apple.CoreSimulator.SimRuntime.iOS-26-5",
+    "headless": true,
+    "ready_before_review": true,
+    "cleanup": "PASS",
+    "processCleanupFailed": false,
+    "owner_sha256": "589cd855e43e111cfd4db60bfcb419a2a7dad6ee3feecccd330e66f5d22e89a0"
+  },
+  "failure": {
+    "stage": "review-alone",
+    "classification": "build Target Integrity before app install/launch and first Flutter frame",
+    "exit_code": 1,
+    "simulator_SDK_supported_deployment_minimum": "15.0",
+    "preserved_Runner_target": "14.0",
+    "additional_Pod_target": "13.0",
+    "log_sha256": "e4c4408458a1204a4b618356f0395c8d81abd95c9e27a822e0ae677ca29eca5c",
+    "actual_selected_tests_started": 0,
+    "historical_24px_cause": "NOT_VERIFIED",
+    "review_UI": "NOT_TRAVERSED"
+  },
+  "dependent_trio_journal_smoke_full_visual": "NOT_RUN due first build failure",
+  "PNG_counts": {
+    "visual": 0,
+    "os-visual": 0,
+    "ios-visual-preview": 0
+  },
+  "process_trace": {
+    "events": 118,
+    "sha256": "61cddd08e172f4838129b2b8693933c003463cbf0a660bc02d1680d2412638dd"
+  },
+  "own_process_cleanup": "PASS",
+  "resource_release": {
+    "N_and_W_notified": true,
+    "no_new_unchanged_retry": true,
+    "no_GUI_or_N_target_input": true,
+    "no_global_quiescence_inferred": true
+  },
+  "backend": "NOT_RUN",
+  "Client_Auth": "NOT_RUN",
+  "signed_TEST": "NOT_RUN",
+  "integrated_verdict": "BLOCKED"
+}

@@ -69,7 +69,12 @@ final class CheckoutController extends Notifier<CheckoutState> {
       },
     );
     final config = ref.watch(appConfigProvider);
-    final identity = ref.watch(customerAccountIdentityProvider);
+    final subjectId = ref.watch(
+      customerAccountIdentityProvider.select((identity) => identity?.subjectId),
+    );
+    final identity = subjectId == null
+        ? null
+        : ref.read(customerAccountIdentityProvider);
     final nextOwner = identity?.subjectId;
     final nextShop = config.storefrontShopSlug;
     if (_ownerSubjectId != nextOwner || _shopSlug != nextShop) {
@@ -480,7 +485,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
     if (context == null) {
       return state.status == CheckoutViewStatus.authRequired &&
           ref.read(customerAccountIdentityProvider) == null &&
-          ref.read(appConfigProvider).storefrontShopSlug == state.cart?.shopSlug;
+          ref.read(appConfigProvider).storefrontShopSlug ==
+              state.cart?.shopSlug;
     }
     bool currentScope() {
       if (_disposed) {
@@ -520,15 +526,18 @@ final class CheckoutController extends Notifier<CheckoutState> {
         try {
           // Legge anche il draft durabile: la receipt potrebbe non essere ancora
           // ripristinata nel controller al primo ingresso dal carrello.
-          final draft = await ref.read(checkoutDraftStoreProvider).read(
-            ownerSubjectId: context.ownerSubjectId,
-            shopSlug: context.shopSlug,
-          );
+          final draft = await ref
+              .read(checkoutDraftStoreProvider)
+              .read(
+                ownerSubjectId: context.ownerSubjectId,
+                shopSlug: context.shopSlug,
+              );
           if (!currentScope()) {
             return;
           }
           if (_hasPendingOrder ||
-              draft?.pendingOperation?.kind == CheckoutPendingOperationKind.order) {
+              draft?.pendingOperation?.kind ==
+                  CheckoutPendingOperationKind.order) {
             prepared = true;
             return;
           }
@@ -539,25 +548,31 @@ final class CheckoutController extends Notifier<CheckoutState> {
           if (!usableCart(ref.read(checkoutCartStateProvider))) {
             return;
           }
-          await ref.read(checkoutDraftStoreProvider).clear(
-            ownerSubjectId: context.ownerSubjectId,
-            shopSlug: context.shopSlug,
-          );
+          await ref
+              .read(checkoutDraftStoreProvider)
+              .clear(
+                ownerSubjectId: context.ownerSubjectId,
+                shopSlug: context.shopSlug,
+              );
           if (!currentScope()) {
             return;
           }
           final cart = ref.read(checkoutCartStateProvider);
-          final addresses = ref.read(checkoutAccountStateProvider).snapshot?.addresses ??
+          final addresses =
+              ref.read(checkoutAccountStateProvider).snapshot?.addresses ??
               const <CustomerAddress>[];
-          final deliveryContext = ref.read(checkoutDeliveryContextStateProvider).context;
+          final deliveryContext = ref
+              .read(checkoutDeliveryContextStateProvider)
+              .context;
           if (!currentScope() || !usableCart(cart)) {
             return;
           }
           _contextKey = null;
-          _publish(CheckoutState.loading(cart: cart.snapshot).copyWith(
-            addresses: addresses,
-            deliveryContext: deliveryContext,
-          ));
+          _publish(
+            CheckoutState.loading(
+              cart: cart.snapshot,
+            ).copyWith(addresses: addresses, deliveryContext: deliveryContext),
+          );
           // Un nuovo build rivalida opzioni e selezione con il cart corrente.
           ref.invalidateSelf();
           prepared = true;
@@ -565,10 +580,12 @@ final class CheckoutController extends Notifier<CheckoutState> {
           if (!currentScope()) {
             return;
           }
-          _publish(state.copyWith(
-            failureKind: CheckoutFailureKind.unexpected,
-            isBusy: false,
-          ));
+          _publish(
+            state.copyWith(
+              failureKind: CheckoutFailureKind.unexpected,
+              isBusy: false,
+            ),
+          );
         }
       });
       return prepared;

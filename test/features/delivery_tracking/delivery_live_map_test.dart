@@ -440,7 +440,7 @@ void main() {
       var useRecoveredAdapter = false;
       var factoryCalls = 0;
       final semantics = tester.ensureSemantics();
-      addTearDown(semantics.dispose);
+      try {
 
       DeliveryMapAdapter factory() {
         factoryCalls++;
@@ -553,6 +553,9 @@ void main() {
       expect(recoveredAdapter.disposeCalls, 1);
       expect(factoryCalls, 2);
       expect(tester.takeException(), isNull);
+      } finally {
+        semantics.dispose();
+      }
     },
   );
 }

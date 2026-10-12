@@ -740,18 +740,25 @@ class _CartSummary extends ConsumerWidget {
                                 .prepareCheckoutFromCart();
                             if (!context.mounted) return;
                             if (!prepared) {
-                              final sameScope = owner != null &&
-                                  owner == ref
-                                      .read(customerAccountIdentityProvider)
-                                      ?.subjectId &&
-                                  shop == ref
-                                      .read(appConfigProvider)
-                                      .storefrontShopSlug;
+                              final sameScope =
+                                  owner != null &&
+                                  owner ==
+                                      ref
+                                          .read(customerAccountIdentityProvider)
+                                          ?.subjectId &&
+                                  shop ==
+                                      ref
+                                          .read(appConfigProvider)
+                                          .storefrontShopSlug;
                               if (sameScope &&
-                                  ref.read(checkoutControllerProvider).failureKind ==
+                                  ref
+                                          .read(checkoutControllerProvider)
+                                          .failureKind ==
                                       CheckoutFailureKind.unexpected) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(l10n.checkoutUnexpectedError)),
+                                  SnackBar(
+                                    content: Text(l10n.checkoutUnexpectedError),
+                                  ),
                                 );
                               }
                               return;

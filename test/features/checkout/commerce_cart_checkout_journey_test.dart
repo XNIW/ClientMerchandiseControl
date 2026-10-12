@@ -46,464 +46,561 @@ void main() {
     CheckoutFulfillmentMode.pickup,
     CheckoutFulfillmentMode.delivery,
   ]) {
-    testWidgets('journey sintetico AddToCart pubblico, SQLite same-process, merge, '
-        '${mode.name}, ACK perso, recovery CTA e prossimo checkout conservato', (tester) async {
-      final database = StorefrontCacheDatabase(NativeDatabase.memory());
-      final guest = DriftGuestCartStore(database);
-      final authority = _CartAuthority();
-      final checkout = FakeCheckoutRepository();
-      final draftStore = MemoryCheckoutDraftStore();
-      var keyNumber = 0;
-      String newKey() =>
-          '60000000-0000-4000-8000-'
-          '${(++keyNumber).toString().padLeft(12, '0')}';
-      ProviderContainer openSession() => ProviderContainer(
-        overrides: [
-          appConfigProvider.overrideWithValue(reservationTestConfig()),
-          customerAccountIdentityProvider.overrideWith(
-            (ref) => ref.watch(_identity),
-          ),
-          customerAccountRepositoryProvider.overrideWithValue(
-            FakeCustomerAccountRepository(
-              profile: CustomerProfile(
-                userId: checkoutTestOwner,
-                displayName: 'Cliente sintético',
-                locale: 'es-CL',
-                privacyConsentVersion: null,
-                privacyConsentedAt: null,
-                updatedAt: checkoutTestNow,
-              ),
-              addresses: [checkoutTestCustomerAddress()],
+    testWidgets(
+      'journey sintetico AddToCart pubblico, SQLite same-process, merge, '
+      '${mode.name}, ACK perso, recovery CTA e prossimo checkout conservato',
+      (tester) async {
+        final database = StorefrontCacheDatabase(NativeDatabase.memory());
+        final guest = DriftGuestCartStore(database);
+        final authority = _CartAuthority();
+        final checkout = FakeCheckoutRepository();
+        final draftStore = MemoryCheckoutDraftStore();
+        var keyNumber = 0;
+        String newKey() =>
+            '60000000-0000-4000-8000-'
+            '${(++keyNumber).toString().padLeft(12, '0')}';
+        ProviderContainer openSession() => ProviderContainer(
+          overrides: [
+            appConfigProvider.overrideWithValue(reservationTestConfig()),
+            customerAccountIdentityProvider.overrideWith(
+              (ref) => ref.watch(_identity),
             ),
-          ),
-          guestCartStoreProvider.overrideWithValue(guest),
-          customerCartRepositoryProvider.overrideWithValue(authority),
-          homeControllerProvider.overrideWith(_EmptyHome.new),
-          deliveryContextControllerProvider.overrideWith(
-            TestDeliveryContextController.new,
-          ),
-          reservationHoldLocalStoreProvider.overrideWithValue(
-            MemoryReservationHoldStore(),
-          ),
-          reservationHoldRepositoryProvider.overrideWithValue(
-            FakeReservationHoldRepository(),
-          ),
-          checkoutRepositoryProvider.overrideWithValue(checkout),
-          checkoutDraftStoreProvider.overrideWithValue(draftStore),
-          checkoutClockProvider.overrideWithValue(() => checkoutTestNow),
-          customerIdempotencyKeyFactoryProvider.overrideWithValue(newKey),
-          // CartController, CheckoutController, cart state e refresh NON sovrascritti.
-        ],
-      );
-      var container = openSession();
-      var router = _router(AppRoutes.catalogLocation);
-      await tester.binding.setSurfaceSize(const Size(430, 932));
-      try {
-        await _mount(tester, container, router);
-        final l10n = AppLocalizations.of(
-          tester.element(find.byType(AddToCartButton).first),
+            customerAccountRepositoryProvider.overrideWithValue(
+              FakeCustomerAccountRepository(
+                profile: CustomerProfile(
+                  userId: checkoutTestOwner,
+                  displayName: 'Cliente sintético',
+                  locale: 'es-CL',
+                  privacyConsentVersion: null,
+                  privacyConsentedAt: null,
+                  updatedAt: checkoutTestNow,
+                ),
+                addresses: [checkoutTestCustomerAddress()],
+              ),
+            ),
+            guestCartStoreProvider.overrideWithValue(guest),
+            customerCartRepositoryProvider.overrideWithValue(authority),
+            homeControllerProvider.overrideWith(_EmptyHome.new),
+            deliveryContextControllerProvider.overrideWith(
+              TestDeliveryContextController.new,
+            ),
+            reservationHoldLocalStoreProvider.overrideWithValue(
+              MemoryReservationHoldStore(),
+            ),
+            reservationHoldRepositoryProvider.overrideWithValue(
+              FakeReservationHoldRepository(),
+            ),
+            checkoutRepositoryProvider.overrideWithValue(checkout),
+            checkoutDraftStoreProvider.overrideWithValue(draftStore),
+            checkoutClockProvider.overrideWithValue(() => checkoutTestNow),
+            customerIdempotencyKeyFactoryProvider.overrideWithValue(newKey),
+            // CartController, CheckoutController, cart state e refresh NON sovrascritti.
+          ],
         );
-        await _tap(
-          tester,
-          find.byKey(const ValueKey('add-to-cart-$checkoutTestPublication')),
-        );
-        expect(find.text(l10n.cartLocalSavedNotice), findsOneWidget);
-        await _tap(tester, find.byKey(const ValueKey('add-to-cart-$_other')));
-        await _tap(tester, find.byKey(const ValueKey('journey-open-cart')));
-        expect(find.byType(CartScreen), findsOneWidget);
-        await _tap(
-          tester,
-          find.byKey(const ValueKey('cart-increase-$checkoutTestPublication')),
-        );
-        await _tap(tester, find.byKey(const ValueKey('cart-remove-$_other')));
-        var cart = container.read(cartControllerProvider).snapshot!;
-        expect(cart.items.single.quantity, 2);
-        expect(cart.source, CartSource.guest);
-
-        // Chiude widget/controller, mantiene SQLite e store nello stesso processo.
-        // Non è un nuovo PID, app kill, storage di device o login Google.
-        await tester.pumpWidget(const SizedBox.shrink());
-        await _settle(tester);
-        container.dispose();
-        router.dispose();
-        container = openSession();
-        router = _router(AppRoutes.cartLocation);
-        await _mount(tester, container, router);
-        cart = container.read(cartControllerProvider).snapshot!;
-        expect(cart.items.single.publicationId, checkoutTestPublication);
-        expect(cart.items.single.quantity, 2);
-        final persisted = await tester.runAsync(
-          () => guest.read(shopSlug: 'storefront-test'),
-        );
-        expect(persisted!.items.single.quantity, 2);
-        await _tap(tester, find.byKey(const ValueKey('journey-public-entry')));
-        await _tap(tester, find.byKey(const ValueKey('add-to-cart-$_other')));
-        await _tap(tester, find.byKey(const ValueKey('journey-open-cart')));
-
-        // Cambio identity controllato: esercita il merge production, senza OAuth.
-        container
-            .read(_identity.notifier)
-            .state = AuthenticatedCustomer.fromUntrustedIdentity(
-          subjectId: checkoutTestOwner,
-          email: 'customer@example.invalid',
-          metadata: const {'name': 'Cliente sintético'},
-        );
-        await _settle(tester);
-        cart = container.read(cartControllerProvider).snapshot!;
-        expect(cart.source, CartSource.account);
-        expect(authority.mergeCalls, 1);
-        expect(
-          cart.items
-              .singleWhere(
-                (line) => line.publicationId == checkoutTestPublication,
-              )
-              .quantity,
-          2,
-        );
-        expect(
-          (await tester.runAsync(
-            () => guest.read(shopSlug: 'storefront-test'),
-          ))!.items,
-          isEmpty,
-        );
-        await _tap(tester, find.byKey(const ValueKey('cart-revalidate')));
-        expect(find.text(l10n.cartPriceChangedLine), findsOneWidget);
-        expect(find.text(l10n.cartUnavailableLine), findsOneWidget);
-        expect(
-          container.read(cartControllerProvider).snapshot!.unavailableItemCount,
-          1,
-        );
-        final unavailableIncrease = find.descendant(
-          of: find.byKey(const ValueKey('cart-increase-$_other')),
-          matching: find.byType(IconButton),
-        );
-        expect(
-          tester.widget<IconButton>(unavailableIncrease).onPressed,
-          isNull,
-        );
-        await _tap(tester, find.byKey(const ValueKey('cart-remove-$_other')));
-        await _tap(tester, find.byKey(const ValueKey('cart-revalidate')));
-        expect(
-          container.read(cartControllerProvider).snapshot!.subtotalClp,
-          2200,
-        );
-
-        await _tap(
-          tester,
-          find.byKey(const ValueKey('cart-change-delivery-context')),
-        );
-        expect(find.byType(DeliveryContextScreen), findsOneWidget);
-        if (mode == CheckoutFulfillmentMode.delivery) {
+        var container = openSession();
+        var router = _router(AppRoutes.catalogLocation);
+        await tester.binding.setSurfaceSize(const Size(430, 932));
+        try {
+          await _mount(tester, container, router);
+          final l10n = AppLocalizations.of(
+            tester.element(find.byType(AddToCartButton).first),
+          );
           await _tap(
             tester,
-            find.descendant(
-              of: find.byType(SegmentedButton<CustomerDeliveryMode>),
-              matching: find.text(l10n.deliveryContextDelivery),
+            find.byKey(const ValueKey('add-to-cart-$checkoutTestPublication')),
+          );
+          expect(find.text(l10n.cartLocalSavedNotice), findsOneWidget);
+          await _tap(tester, find.byKey(const ValueKey('add-to-cart-$_other')));
+          await _tap(tester, find.byKey(const ValueKey('journey-open-cart')));
+          expect(find.byType(CartScreen), findsOneWidget);
+          await _tap(
+            tester,
+            find.byKey(
+              const ValueKey('cart-increase-$checkoutTestPublication'),
             ),
           );
-        }
-        await _tap(
-          tester,
-          find.widgetWithText(
-            FilledButton,
-            mode == CheckoutFulfillmentMode.delivery
-                ? l10n.deliveryContextSelect
-                : l10n.deliveryContextSelected,
-          ),
-        );
-        final context = container
-            .read(deliveryContextControllerProvider)
-            .context!;
-        expect(
-          context.mode,
-          mode == CheckoutFulfillmentMode.delivery
-              ? CustomerDeliveryMode.delivery
-              : CustomerDeliveryMode.pickup,
-        );
-        if (mode == CheckoutFulfillmentMode.delivery) {
-          expect(context.addressId, checkoutTestAddress);
-        }
-        await _tap(
-          tester,
-          find.byTooltip(
-            MaterialLocalizations.of(
-              tester.element(find.byType(DeliveryContextScreen)),
-            ).backButtonTooltip,
-          ),
-        );
-        await _tap(tester, find.byKey(const ValueKey('cart-checkout')));
-        expect(find.byType(CheckoutScreen), findsOneWidget);
-        await _tap(tester, find.byKey(ValueKey('checkout-mode-${mode.name}')));
-        await _tap(tester, find.byKey(const ValueKey('checkout-next-mode')));
-        await _tap(
-          tester,
-          find.byKey(const ValueKey('checkout-next-destination')),
-        );
-        final slot = mode == CheckoutFulfillmentMode.delivery
-            ? checkoutTestDeliverySlot
-            : checkoutTestPickupSlot;
-        await _tap(tester, find.byKey(ValueKey('checkout-slot-$slot')));
-        await _tap(tester, find.byKey(const ValueKey('checkout-next-slot')));
-        final payment = mode == CheckoutFulfillmentMode.delivery
-            ? CheckoutPaymentMethod.cashOnDelivery
-            : CheckoutPaymentMethod.payAtPickup;
-        await _tap(
-          tester,
-          find.byKey(ValueKey('checkout-payment-${payment.name}')),
-        );
-        final quote = _quote(authority.snapshot(), mode, confirmed: false);
-        final confirmed = _quote(authority.snapshot(), mode, confirmed: true);
-        final receipt = _order(confirmed, payment);
-        checkout.createOutcomes.add(
-          checkoutTestResponse(
-            status: CheckoutRemoteStatus.requiresReview,
-            quote: quote,
-          ),
-        );
-        checkout.confirmOutcomes.add(
-          checkoutTestResponse(
-            status: CheckoutRemoteStatus.confirmed,
-            quote: confirmed,
-          ),
-        );
-        checkout.orderOutcomes.addAll([
-          const CheckoutRepositoryException(CheckoutFailureKind.timeout),
-          checkoutTestOrderResponse(order: receipt, idempotent: true),
-        ]);
-        checkout.readOrderOutcome = checkoutTestOrderResponse(
-          order: receipt,
-          idempotent: true,
-        );
-        checkout.beforeOrderResponse = () async {
-          if (checkout.orderRequests.length == 1) {
-            authority.commitOrder();
-          } else {
-            // Edit successivo di un altro device, prima del read post-ACK.
-            authority.addNextEdit();
-            if (mode == CheckoutFulfillmentMode.delivery) {
-              // Un guasto discovery non deve sostituire l'ACK già definitivo.
-              checkout.optionsError = const CheckoutRepositoryException(
-                CheckoutFailureKind.offline,
-              );
-            }
-          }
-        };
-        await _tap(tester, find.byKey(const ValueKey('checkout-create-quote')));
-        expect(
-          find.byKey(const ValueKey('checkout-authoritative-total')),
-          findsOneWidget,
-        );
-        expect(checkout.createRequests.single.cartVersion, quote.cartVersion);
-        expect(checkout.createRequests.single.selection.mode, mode);
-        expect(checkout.createRequests.single.selection.slotId, slot);
-        expect(
-          checkout.createRequests.single.selection.deliveryContextVersion,
-          context.version,
-        );
-        expect(
-          checkout.createRequests.single.selection.addressId,
-          mode == CheckoutFulfillmentMode.delivery ? checkoutTestAddress : null,
-        );
-        await _tap(
-          tester,
-          find.byKey(const ValueKey('checkout-confirm-quote')),
-        );
-        await _tap(tester, find.byKey(const ValueKey('checkout-open-payment')));
-        expect(find.byType(CheckoutPaymentScreen), findsOneWidget);
-        expect(
-          find.byKey(const ValueKey('payment-online-not-configured')),
-          findsOneWidget,
-        );
-        final readsBeforeOrder = authority.readCalls;
-        final optionsBeforeOrder = checkout.loadOptionsCalls;
-        await _tap(tester, find.byKey(const ValueKey('payment-confirm-order')));
-        expect(authority.orderCommits, 1);
-        expect(authority.quantities, isEmpty);
-        expect(container.read(checkoutControllerProvider).order, isNull);
-        expect(
-          container.read(checkoutControllerProvider).pendingOperation!.kind,
-          CheckoutPendingOperationKind.order,
-        );
-        expect(
-          draftStore.draft!.pendingOperation!.idempotencyKey,
-          checkout.orderRequests.first.key,
-        );
-        // Prima di receipt il cart locale conserva l'intent, non annuncia empty.
-        expect(
-          container
-              .read(cartControllerProvider)
-              .snapshot!
-              .items
-              .single
-              .quantity,
-          2,
-        );
-        expect(authority.readCalls, readsBeforeOrder);
-        final pendingKey = draftStore.draft!.pendingOperation!.idempotencyKey;
-        final clearsBeforeRecovery = draftStore.clearCalls;
-        // Ritorno controllato alla tab Cart nella stessa sessione: la CTA di
-        // produzione deve aprire Checkout recovery, senza resettare l'ordine.
-        router.go(AppRoutes.cartLocation);
-        await _settle(tester);
-        await _tap(tester, find.byKey(const ValueKey('cart-checkout')));
-        expect(find.byType(CheckoutScreen), findsOneWidget);
-        expect(checkout.orderRequests, hasLength(1));
-        expect(authority.orderCommits, 1);
-        expect(draftStore.clearCalls, clearsBeforeRecovery);
-        expect(draftStore.draft!.pendingOperation!.idempotencyKey, pendingKey);
-        expect(
-          container.read(checkoutControllerProvider).pendingOperation!.idempotencyKey,
-          pendingKey,
-        );
-        await _tap(tester, find.byKey(const ValueKey('checkout-order-retry')));
-        expect(
-          find.byKey(const ValueKey('checkout-order-receipt')),
-          findsOneWidget,
-        );
-        expect(find.text(checkoutTestOrderCode), findsOneWidget);
-        expect(checkout.orderRequests, hasLength(2));
-        expect(checkout.orderRequests.first, checkout.orderRequests.last);
-        expect(authority.orderCommits, 1);
-        expect(authority.readCalls, readsBeforeOrder + 1);
-        expect(draftStore.draft!.orderId, checkoutTestOrder);
-        expect(draftStore.draft!.pendingOperation, isNull);
-        expect(checkout.loadOptionsCalls, optionsBeforeOrder);
-        expect(container.read(checkoutControllerProvider).order, same(receipt));
-        expect(
-          container.read(cartControllerProvider).snapshot!.version,
-          authority.version,
-        );
-        expect(
-          container
-              .read(cartControllerProvider)
-              .snapshot!
-              .items
-              .single
-              .publicationId,
-          _next,
-        );
+          await _tap(tester, find.byKey(const ValueKey('cart-remove-$_other')));
+          var cart = container.read(cartControllerProvider).snapshot!;
+          expect(cart.items.single.quantity, 2);
+          expect(cart.source, CartSource.guest);
 
-        if (mode == CheckoutFulfillmentMode.delivery) {
-          checkout.optionsError = null;
-          // ContinueShopping chiude soltanto il draft locale dopo clear riuscito.
-          draftStore.clearError = StateError('synthetic confirmed draft clear failure');
-          await _tap(tester, find.byKey(const ValueKey('checkout-order-continue')));
-          expect(find.byType(CheckoutScreen), findsOneWidget);
-          expect(find.byKey(const ValueKey('checkout-order-receipt')), findsOneWidget);
-          expect(draftStore.draft!.orderId, checkoutTestOrder);
-          expect(container.read(checkoutControllerProvider).order, same(receipt));
-          expect(find.text(l10n.checkoutUnexpectedError), findsOneWidget);
-          draftStore.clearError = null;
-          await _tap(tester, find.byKey(const ValueKey('checkout-order-continue')));
-          expect(find.byType(AddToCartButton), findsNWidgets(2));
-          expect(container.read(checkoutControllerProvider).order, isNull);
-          expect(draftStore.draft?.orderId, isNull);
-          expect(container.read(cartControllerProvider).snapshot!.items.single.publicationId, _next);
-          expect(authority.clearRequests, 0);
+          // Chiude widget/controller, mantiene SQLite e store nello stesso processo.
+          // Non è un nuovo PID, app kill, storage di device o login Google.
+          await tester.pumpWidget(const SizedBox.shrink());
+          await _settle(tester);
+          container.dispose();
+          router.dispose();
+          container = openSession();
+          router = _router(AppRoutes.cartLocation);
+          await _mount(tester, container, router);
+          cart = container.read(cartControllerProvider).snapshot!;
+          expect(cart.items.single.publicationId, checkoutTestPublication);
+          expect(cart.items.single.quantity, 2);
+          final persisted = await tester.runAsync(
+            () => guest.read(shopSlug: 'storefront-test'),
+          );
+          expect(persisted!.items.single.quantity, 2);
+          await _tap(
+            tester,
+            find.byKey(const ValueKey('journey-public-entry')),
+          );
+          await _tap(tester, find.byKey(const ValueKey('add-to-cart-$_other')));
           await _tap(tester, find.byKey(const ValueKey('journey-open-cart')));
-        } else {
-          // Back di produzione, non salto a uno stato Cart precostruito.
+
+          // Cambio identity controllato: esercita il merge production, senza OAuth.
+          container
+              .read(_identity.notifier)
+              .state = AuthenticatedCustomer.fromUntrustedIdentity(
+            subjectId: checkoutTestOwner,
+            email: 'customer@example.invalid',
+            metadata: const {'name': 'Cliente sintético'},
+          );
+          await _settle(tester);
+          cart = container.read(cartControllerProvider).snapshot!;
+          expect(cart.source, CartSource.account);
+          expect(authority.mergeCalls, 1);
+          expect(
+            cart.items
+                .singleWhere(
+                  (line) => line.publicationId == checkoutTestPublication,
+                )
+                .quantity,
+            2,
+          );
+          expect(
+            (await tester.runAsync(
+              () => guest.read(shopSlug: 'storefront-test'),
+            ))!.items,
+            isEmpty,
+          );
+          await _tap(tester, find.byKey(const ValueKey('cart-revalidate')));
+          expect(find.text(l10n.cartPriceChangedLine), findsOneWidget);
+          expect(find.text(l10n.cartUnavailableLine), findsOneWidget);
+          expect(
+            container
+                .read(cartControllerProvider)
+                .snapshot!
+                .unavailableItemCount,
+            1,
+          );
+          final unavailableIncrease = find.descendant(
+            of: find.byKey(const ValueKey('cart-increase-$_other')),
+            matching: find.byType(IconButton),
+          );
+          expect(
+            tester.widget<IconButton>(unavailableIncrease).onPressed,
+            isNull,
+          );
+          await _tap(tester, find.byKey(const ValueKey('cart-remove-$_other')));
+          await _tap(tester, find.byKey(const ValueKey('cart-revalidate')));
+          expect(
+            container.read(cartControllerProvider).snapshot!.subtotalClp,
+            2200,
+          );
+
+          await _tap(
+            tester,
+            find.byKey(const ValueKey('cart-change-delivery-context')),
+          );
+          expect(find.byType(DeliveryContextScreen), findsOneWidget);
+          if (mode == CheckoutFulfillmentMode.delivery) {
+            await _tap(
+              tester,
+              find.descendant(
+                of: find.byType(SegmentedButton<CustomerDeliveryMode>),
+                matching: find.text(l10n.deliveryContextDelivery),
+              ),
+            );
+          }
+          await _tap(
+            tester,
+            find.widgetWithText(
+              FilledButton,
+              mode == CheckoutFulfillmentMode.delivery
+                  ? l10n.deliveryContextSelect
+                  : l10n.deliveryContextSelected,
+            ),
+          );
+          final context = container
+              .read(deliveryContextControllerProvider)
+              .context!;
+          expect(
+            context.mode,
+            mode == CheckoutFulfillmentMode.delivery
+                ? CustomerDeliveryMode.delivery
+                : CustomerDeliveryMode.pickup,
+          );
+          if (mode == CheckoutFulfillmentMode.delivery) {
+            expect(context.addressId, checkoutTestAddress);
+          }
           await _tap(
             tester,
             find.byTooltip(
               MaterialLocalizations.of(
-                tester.element(find.byType(CheckoutScreen)),
+                tester.element(find.byType(DeliveryContextScreen)),
               ).backButtonTooltip,
             ),
           );
-        }
-        expect(find.byType(CartScreen), findsOneWidget);
-        expect(
-          find.byKey(const ValueKey('cart-line-$checkoutTestPublication')),
-          findsNothing,
-        );
-        expect(find.byKey(const ValueKey('cart-line-$_next')), findsOneWidget);
-        await _tap(tester, find.byKey(const ValueKey('cart-increase-$_next')));
-        expect(authority.quantities[_next], 2);
-        expect(
-          container
+          await _tap(tester, find.byKey(const ValueKey('cart-checkout')));
+          expect(find.byType(CheckoutScreen), findsOneWidget);
+          await _tap(
+            tester,
+            find.byKey(ValueKey('checkout-mode-${mode.name}')),
+          );
+          await _tap(tester, find.byKey(const ValueKey('checkout-next-mode')));
+          await _tap(
+            tester,
+            find.byKey(const ValueKey('checkout-next-destination')),
+          );
+          final slot = mode == CheckoutFulfillmentMode.delivery
+              ? checkoutTestDeliverySlot
+              : checkoutTestPickupSlot;
+          await _tap(tester, find.byKey(ValueKey('checkout-slot-$slot')));
+          await _tap(tester, find.byKey(const ValueKey('checkout-next-slot')));
+          final payment = mode == CheckoutFulfillmentMode.delivery
+              ? CheckoutPaymentMethod.cashOnDelivery
+              : CheckoutPaymentMethod.payAtPickup;
+          await _tap(
+            tester,
+            find.byKey(ValueKey('checkout-payment-${payment.name}')),
+          );
+          final quote = _quote(authority.snapshot(), mode, confirmed: false);
+          final confirmed = _quote(authority.snapshot(), mode, confirmed: true);
+          final receipt = _order(confirmed, payment);
+          checkout.createOutcomes.add(
+            checkoutTestResponse(
+              status: CheckoutRemoteStatus.requiresReview,
+              quote: quote,
+            ),
+          );
+          checkout.confirmOutcomes.add(
+            checkoutTestResponse(
+              status: CheckoutRemoteStatus.confirmed,
+              quote: confirmed,
+            ),
+          );
+          checkout.orderOutcomes.addAll([
+            const CheckoutRepositoryException(CheckoutFailureKind.timeout),
+            checkoutTestOrderResponse(order: receipt, idempotent: true),
+          ]);
+          checkout.readOrderOutcome = checkoutTestOrderResponse(
+            order: receipt,
+            idempotent: true,
+          );
+          checkout.beforeOrderResponse = () async {
+            if (checkout.orderRequests.length == 1) {
+              authority.commitOrder();
+            } else {
+              // Edit successivo di un altro device, prima del read post-ACK.
+              authority.addNextEdit();
+              if (mode == CheckoutFulfillmentMode.delivery) {
+                // Un guasto discovery non deve sostituire l'ACK già definitivo.
+                checkout.optionsError = const CheckoutRepositoryException(
+                  CheckoutFailureKind.offline,
+                );
+              }
+            }
+          };
+          await _tap(
+            tester,
+            find.byKey(const ValueKey('checkout-create-quote')),
+          );
+          expect(
+            find.byKey(const ValueKey('checkout-authoritative-total')),
+            findsOneWidget,
+          );
+          expect(checkout.createRequests.single.cartVersion, quote.cartVersion);
+          expect(checkout.createRequests.single.selection.mode, mode);
+          expect(checkout.createRequests.single.selection.slotId, slot);
+          expect(
+            checkout.createRequests.single.selection.deliveryContextVersion,
+            context.version,
+          );
+          expect(
+            checkout.createRequests.single.selection.addressId,
+            mode == CheckoutFulfillmentMode.delivery
+                ? checkoutTestAddress
+                : null,
+          );
+          await _tap(
+            tester,
+            find.byKey(const ValueKey('checkout-confirm-quote')),
+          );
+          await _tap(
+            tester,
+            find.byKey(const ValueKey('checkout-open-payment')),
+          );
+          expect(find.byType(CheckoutPaymentScreen), findsOneWidget);
+          expect(
+            find.byKey(const ValueKey('payment-online-not-configured')),
+            findsOneWidget,
+          );
+          final readsBeforeOrder = authority.readCalls;
+          final optionsBeforeOrder = checkout.loadOptionsCalls;
+          await _tap(
+            tester,
+            find.byKey(const ValueKey('payment-confirm-order')),
+          );
+          expect(authority.orderCommits, 1);
+          expect(authority.quantities, isEmpty);
+          expect(container.read(checkoutControllerProvider).order, isNull);
+          expect(
+            container.read(checkoutControllerProvider).pendingOperation!.kind,
+            CheckoutPendingOperationKind.order,
+          );
+          expect(
+            draftStore.draft!.pendingOperation!.idempotencyKey,
+            checkout.orderRequests.first.key,
+          );
+          // Prima di receipt il cart locale conserva l'intent, non annuncia empty.
+          expect(
+            container
+                .read(cartControllerProvider)
+                .snapshot!
+                .items
+                .single
+                .quantity,
+            2,
+          );
+          expect(authority.readCalls, readsBeforeOrder);
+          final pendingKey = draftStore.draft!.pendingOperation!.idempotencyKey;
+          final clearsBeforeRecovery = draftStore.clearCalls;
+          // Ritorno controllato alla tab Cart nella stessa sessione: la CTA di
+          // produzione deve aprire Checkout recovery, senza resettare l'ordine.
+          router.go(AppRoutes.cartLocation);
+          await _settle(tester);
+          await _tap(tester, find.byKey(const ValueKey('cart-checkout')));
+          expect(find.byType(CheckoutScreen), findsOneWidget);
+          expect(checkout.orderRequests, hasLength(1));
+          expect(authority.orderCommits, 1);
+          expect(draftStore.clearCalls, clearsBeforeRecovery);
+          expect(
+            draftStore.draft!.pendingOperation!.idempotencyKey,
+            pendingKey,
+          );
+          expect(
+            container
+                .read(checkoutControllerProvider)
+                .pendingOperation!
+                .idempotencyKey,
+            pendingKey,
+          );
+          await _tap(
+            tester,
+            find.byKey(const ValueKey('checkout-order-retry')),
+          );
+          expect(
+            find.byKey(const ValueKey('checkout-order-receipt')),
+            findsOneWidget,
+          );
+          expect(find.text(checkoutTestOrderCode), findsOneWidget);
+          expect(checkout.orderRequests, hasLength(2));
+          expect(checkout.orderRequests.first, checkout.orderRequests.last);
+          expect(authority.orderCommits, 1);
+          expect(authority.readCalls, readsBeforeOrder + 1);
+          expect(draftStore.draft!.orderId, checkoutTestOrder);
+          expect(draftStore.draft!.pendingOperation, isNull);
+          expect(checkout.loadOptionsCalls, optionsBeforeOrder);
+          expect(
+            container.read(checkoutControllerProvider).order,
+            same(receipt),
+          );
+          expect(
+            container.read(cartControllerProvider).snapshot!.version,
+            authority.version,
+          );
+          expect(
+            container
+                .read(cartControllerProvider)
+                .snapshot!
+                .items
+                .single
+                .publicationId,
+            _next,
+          );
+
+          if (mode == CheckoutFulfillmentMode.delivery) {
+            checkout.optionsError = null;
+            // ContinueShopping chiude soltanto il draft locale dopo clear riuscito.
+            draftStore.clearError = StateError(
+              'synthetic confirmed draft clear failure',
+            );
+            await _tap(
+              tester,
+              find.byKey(const ValueKey('checkout-order-continue')),
+            );
+            expect(find.byType(CheckoutScreen), findsOneWidget);
+            expect(
+              find.byKey(const ValueKey('checkout-order-receipt')),
+              findsOneWidget,
+            );
+            expect(draftStore.draft!.orderId, checkoutTestOrder);
+            expect(
+              container.read(checkoutControllerProvider).order,
+              same(receipt),
+            );
+            expect(find.text(l10n.checkoutUnexpectedError), findsOneWidget);
+            draftStore.clearError = null;
+            await _tap(
+              tester,
+              find.byKey(const ValueKey('checkout-order-continue')),
+            );
+            expect(find.byType(AddToCartButton), findsNWidgets(2));
+            expect(container.read(checkoutControllerProvider).order, isNull);
+            expect(draftStore.draft?.orderId, isNull);
+            expect(
+              container
+                  .read(cartControllerProvider)
+                  .snapshot!
+                  .items
+                  .single
+                  .publicationId,
+              _next,
+            );
+            expect(authority.clearRequests, 0);
+            await _tap(tester, find.byKey(const ValueKey('journey-open-cart')));
+          } else {
+            // Back di produzione, non salto a uno stato Cart precostruito.
+            await _tap(
+              tester,
+              find.byTooltip(
+                MaterialLocalizations.of(
+                  tester.element(find.byType(CheckoutScreen)),
+                ).backButtonTooltip,
+              ),
+            );
+          }
+          expect(find.byType(CartScreen), findsOneWidget);
+          expect(
+            find.byKey(const ValueKey('cart-line-$checkoutTestPublication')),
+            findsNothing,
+          );
+          expect(
+            find.byKey(const ValueKey('cart-line-$_next')),
+            findsOneWidget,
+          );
+          await _tap(
+            tester,
+            find.byKey(const ValueKey('cart-increase-$_next')),
+          );
+          expect(authority.quantities[_next], 2);
+          expect(
+            container
+                .read(cartControllerProvider)
+                .snapshot!
+                .items
+                .single
+                .quantity,
+            2,
+          );
+          expect(authority.clearRequests, 0);
+          expect(checkout.orderRequests, hasLength(2));
+          expect(receipt.items.single.quantity, 2);
+          expect(receipt.items.single.publicationId, checkoutTestPublication);
+          final nextCartVersion = container
               .read(cartControllerProvider)
               .snapshot!
-              .items
-              .single
-              .quantity,
-          2,
-        );
-        expect(authority.clearRequests, 0);
-        expect(checkout.orderRequests, hasLength(2));
-        expect(receipt.items.single.quantity, 2);
-        expect(receipt.items.single.publicationId, checkoutTestPublication);
-        final nextCartVersion = container.read(cartControllerProvider).snapshot!.version;
-        if (mode == CheckoutFulfillmentMode.pickup) {
-          expect(container.read(checkoutControllerProvider).order, same(receipt));
-          draftStore.clearError = StateError('synthetic confirmed draft clear failure');
+              .version;
+          if (mode == CheckoutFulfillmentMode.pickup) {
+            expect(
+              container.read(checkoutControllerProvider).order,
+              same(receipt),
+            );
+            draftStore.clearError = StateError(
+              'synthetic confirmed draft clear failure',
+            );
+            await _tap(tester, find.byKey(const ValueKey('cart-checkout')));
+            expect(find.byType(CartScreen), findsOneWidget);
+            expect(find.byType(CheckoutScreen), findsNothing);
+            expect(find.text(l10n.checkoutUnexpectedError), findsOneWidget);
+            expect(draftStore.draft!.orderId, checkoutTestOrder);
+            expect(
+              container.read(checkoutControllerProvider).order,
+              same(receipt),
+            );
+            draftStore.clearError = null;
+          }
+          // Un nuovo ingresso esplicito usa il cart corrente; la receipt precedente
+          // non deve riapparire e nessuna riga del prossimo acquisto viene cancellata.
           await _tap(tester, find.byKey(const ValueKey('cart-checkout')));
-          expect(find.byType(CartScreen), findsOneWidget);
-          expect(find.byType(CheckoutScreen), findsNothing);
-          expect(find.text(l10n.checkoutUnexpectedError), findsOneWidget);
-          expect(draftStore.draft!.orderId, checkoutTestOrder);
-          expect(container.read(checkoutControllerProvider).order, same(receipt));
-          draftStore.clearError = null;
-        }
-        // Un nuovo ingresso esplicito usa il cart corrente; la receipt precedente
-        // non deve riapparire e nessuna riga del prossimo acquisto viene cancellata.
-        await _tap(tester, find.byKey(const ValueKey('cart-checkout')));
-        expect(find.byType(CheckoutScreen), findsOneWidget);
-        expect(find.byKey(const ValueKey('checkout-order-receipt')), findsNothing);
-        final nextCheckout = container.read(checkoutControllerProvider);
-        expect(nextCheckout.order, isNull);
-        expect(nextCheckout.pendingOperation, isNull);
-        expect(nextCheckout.cart!.version, nextCartVersion);
-        expect(nextCheckout.cart!.items.single.publicationId, _next);
-        expect(nextCheckout.cart!.items.single.quantity, 2);
-        expect(draftStore.draft?.orderId, isNull);
-        expect(authority.clearRequests, 0);
-        expect(authority.orderCommits, 1);
-        expect(checkout.orderRequests, hasLength(2));
+          expect(find.byType(CheckoutScreen), findsOneWidget);
+          expect(
+            find.byKey(const ValueKey('checkout-order-receipt')),
+            findsNothing,
+          );
+          final nextCheckout = container.read(checkoutControllerProvider);
+          expect(nextCheckout.order, isNull);
+          expect(nextCheckout.pendingOperation, isNull);
+          expect(nextCheckout.cart!.version, nextCartVersion);
+          expect(nextCheckout.cart!.items.single.publicationId, _next);
+          expect(nextCheckout.cart!.items.single.quantity, 2);
+          expect(draftStore.draft?.orderId, isNull);
+          expect(authority.clearRequests, 0);
+          expect(authority.orderCommits, 1);
+          expect(checkout.orderRequests, hasLength(2));
 
-        await _tap(tester, find.byKey(ValueKey('checkout-mode-${mode.name}')));
-        await _tap(tester, find.byKey(const ValueKey('checkout-next-mode')));
-        await _tap(tester, find.byKey(const ValueKey('checkout-next-destination')));
-        await _tap(tester, find.byKey(ValueKey('checkout-slot-$slot')));
-        await _tap(tester, find.byKey(const ValueKey('checkout-next-slot')));
-        await _tap(tester, find.byKey(ValueKey('checkout-payment-${payment.name}')));
-        final nextQuote = _quote(
-          authority.snapshot(),
-          mode,
-          confirmed: false,
-          quoteId: '54000000-0000-4000-8000-000000000002',
-        );
-        checkout.createOutcomes.add(checkoutTestResponse(
-          status: CheckoutRemoteStatus.quoted,
-          quote: nextQuote,
-        ));
-        await _tap(tester, find.byKey(const ValueKey('checkout-create-quote')));
-        expect(checkout.createRequests, hasLength(2));
-        expect(checkout.createRequests.last.cartVersion, nextCartVersion);
-        expect(checkout.createRequests.last.idempotencyKey,
-          isNot(checkout.createRequests.first.idempotencyKey));
-        final nextCreatedQuote = container.read(checkoutControllerProvider).quote!;
-        expect(nextCreatedQuote.id, nextQuote.id);
-        expect(nextCreatedQuote.id, isNot(quote.id));
-        expect(nextCreatedQuote.items.single.publicationId, _next);
-        expect(nextCreatedQuote.items.single.quantity, 2);
-        expect(nextCreatedQuote.subtotalClp, 1800);
-        expect(nextCreatedQuote.changes, isEmpty);
-        expect(receipt.items.single.publicationId, checkoutTestPublication);
-        expect(receipt.items.single.quantity, 2);
-        expect(checkout.orderRequests, hasLength(2));
-        expect(authority.orderCommits, 1);
-        expect(authority.clearRequests, 0);
-        expect(tester.takeException(), isNull);
-      } finally {
-        await tester.pumpWidget(const SizedBox.shrink());
-        await _settle(tester);
-        router.dispose();
-        container.dispose();
-        await tester.runAsync(database.close);
-        await tester.binding.setSurfaceSize(null);
-      }
-    });
+          await _tap(
+            tester,
+            find.byKey(ValueKey('checkout-mode-${mode.name}')),
+          );
+          await _tap(tester, find.byKey(const ValueKey('checkout-next-mode')));
+          await _tap(
+            tester,
+            find.byKey(const ValueKey('checkout-next-destination')),
+          );
+          await _tap(tester, find.byKey(ValueKey('checkout-slot-$slot')));
+          await _tap(tester, find.byKey(const ValueKey('checkout-next-slot')));
+          await _tap(
+            tester,
+            find.byKey(ValueKey('checkout-payment-${payment.name}')),
+          );
+          final nextQuote = _quote(
+            authority.snapshot(),
+            mode,
+            confirmed: false,
+            quoteId: '54000000-0000-4000-8000-000000000002',
+          );
+          checkout.createOutcomes.add(
+            checkoutTestResponse(
+              status: CheckoutRemoteStatus.quoted,
+              quote: nextQuote,
+            ),
+          );
+          await _tap(
+            tester,
+            find.byKey(const ValueKey('checkout-create-quote')),
+          );
+          expect(checkout.createRequests, hasLength(2));
+          expect(checkout.createRequests.last.cartVersion, nextCartVersion);
+          expect(
+            checkout.createRequests.last.idempotencyKey,
+            isNot(checkout.createRequests.first.idempotencyKey),
+          );
+          final nextCreatedQuote = container
+              .read(checkoutControllerProvider)
+              .quote!;
+          expect(nextCreatedQuote.id, nextQuote.id);
+          expect(nextCreatedQuote.id, isNot(quote.id));
+          expect(nextCreatedQuote.items.single.publicationId, _next);
+          expect(nextCreatedQuote.items.single.quantity, 2);
+          expect(nextCreatedQuote.subtotalClp, 1800);
+          expect(nextCreatedQuote.changes, isEmpty);
+          expect(receipt.items.single.publicationId, checkoutTestPublication);
+          expect(receipt.items.single.quantity, 2);
+          expect(checkout.orderRequests, hasLength(2));
+          expect(authority.orderCommits, 1);
+          expect(authority.clearRequests, 0);
+          expect(tester.takeException(), isNull);
+        } finally {
+          await tester.pumpWidget(const SizedBox.shrink());
+          await _settle(tester);
+          router.dispose();
+          container.dispose();
+          await tester.runAsync(database.close);
+          await tester.binding.setSurfaceSize(null);
+        }
+      },
+    );
   }
 }
 

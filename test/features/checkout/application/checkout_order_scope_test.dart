@@ -23,7 +23,7 @@ import '../checkout_test_support.dart';
 // AuthController e CheckoutController sono reali; repository/callback sintetici.
 // Questi test non certificano sessioni, ordini o riavvii native del backend TEST.
 void main() {
-  for (final boundary in ['ownerB', 'ownerA-B-A', 'shop']) {
+  for (final boundary in ['ownerB', 'ownerA-B-A', 'ownerA-B-A-ready', 'shop']) {
     test('ACK ordine non attraversa $boundary prima del rebuild checkout', () async {
       final response = Completer<CheckoutOrderRemoteResponse>();
       final repository = FakeCheckoutRepository()
@@ -57,15 +57,17 @@ void main() {
       expect(rig.store.draft?.pendingOperation?.kind,
           CheckoutPendingOperationKind.order);
 
-      // Non leggere il checkout dopo la variazione: la completion precede il
-      // prossimo rebuild, mentre il cart del nuovo scope è ancora in loading.
-      rig.container.read(rig.cart.notifier).state =
+      // Il caso ready isola Auth senza l'invalidazione dovuta al cart loading.
+      // Non leggere Checkout fra il confine e la completion tardiva.
+      if (boundary != 'ownerA-B-A-ready') {
+        rig.container.read(rig.cart.notifier).state =
           CartState.loading(isAuthenticated: true);
+      }
       switch (boundary) {
         case 'ownerB':
           rig.auth.signIn(routeFixtureOwnerB);
           await _until(() => _owner(rig.container) == routeFixtureOwnerB);
-        case 'ownerA-B-A':
+        case 'ownerA-B-A' || 'ownerA-B-A-ready':
           rig.auth.signIn(routeFixtureOwnerB);
           rig.auth.signIn(routeFixtureOwnerA);
           await Future<void>.delayed(Duration.zero);

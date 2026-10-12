@@ -45,7 +45,8 @@ class _CustomerDeliveryTrackingEtaState
   void didChangeDependencies() {
     super.didChangeDependencies();
     _visible =
-        TickerMode.valuesOf(context).enabled && ModalRoute.of(context)?.isCurrent != false;
+        TickerMode.valuesOf(context).enabled &&
+        ModalRoute.of(context)?.isCurrent != false;
     _resetDeadline();
   }
 

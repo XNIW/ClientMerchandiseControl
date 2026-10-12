@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/core/backend/backend_health_service.dart';
+import 'package:client_merchandise_control/core/backend/backend_readiness_controller.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_repository.dart';
 import 'package:client_merchandise_control/core/backend/backend_readiness_state.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
@@ -69,7 +70,8 @@ void main() {
 
     rig.auth.updateProfile('Cliente actualizado');
     await tester.idle();
-    final auth = rig.container.read(authControllerProvider) as AuthAuthenticated;
+    final auth =
+        rig.container.read(authControllerProvider) as AuthAuthenticated;
     expect(auth.customer.subjectId, routeFixtureOwnerA);
     expect(auth.customer.displayName, 'Cliente actualizado');
     barrier.complete(_ack());
@@ -78,11 +80,17 @@ void main() {
 
     expect(result.outcome, CartActionOutcome.accountConfirmed);
     expect(controller.isCurrentActionResult(result), isTrue);
-    expect(rig.container.read(cartControllerProvider).snapshot!.totalQuantity, 1);
+    expect(
+      rig.container.read(cartControllerProvider).snapshot!.totalQuantity,
+      1,
+    );
     expect(remote.requests, hasLength(1));
     await _mountButton(tester, rig.container);
     await tester.pumpAndSettle();
-    expect(rig.container.read(cartControllerProvider).snapshot!.totalQuantity, 1);
+    expect(
+      rig.container.read(cartControllerProvider).snapshot!.totalQuantity,
+      1,
+    );
     expect(tester.takeException(), isNull);
   });
 
@@ -116,11 +124,14 @@ void main() {
   });
 }
 
-Future<({
-  ProviderContainer container,
-  _ProfileAuthRepository auth,
-  StateProvider<AppConfig> config,
-})> _mount(WidgetTester tester, fixtures.Remote remote) async {
+Future<
+  ({
+    ProviderContainer container,
+    _ProfileAuthRepository auth,
+    StateProvider<AppConfig> config,
+  })
+>
+_mount(WidgetTester tester, fixtures.Remote remote) async {
   final auth = _ProfileAuthRepository();
   addTearDown(auth.dispose);
   final config = StateProvider<AppConfig>((ref) => AppConfig.authFlowTest());
@@ -150,20 +161,18 @@ Future<({
   return (container: rig.container, auth: auth, config: config);
 }
 
-Future<void> _mountButton(
-  WidgetTester tester,
-  ProviderContainer container,
-) => tester.pumpWidget(
-  UncontrolledProviderScope(
-    container: container,
-    child: MaterialApp(
-      locale: const Locale('es', 'CL'),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(body: AddToCartButton(product: fixtures.product())),
-    ),
-  ),
-);
+Future<void> _mountButton(WidgetTester tester, ProviderContainer container) =>
+    tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          locale: const Locale('es', 'CL'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(body: AddToCartButton(product: fixtures.product())),
+        ),
+      ),
+    );
 
 Future<void> _untilRequest(WidgetTester tester, fixtures.Remote remote) async {
   for (var frame = 0; frame < 30; frame++) {
@@ -211,18 +220,22 @@ final class _ProfileAuthRepository implements AuthRepository {
 
   void signIn(String owner) {
     currentCustomer = _customer(owner, 'Cliente inicial');
-    _events.add(AuthSessionEvent(
-      type: AuthSessionEventType.signedIn,
-      customer: currentCustomer,
-    ));
+    _events.add(
+      AuthSessionEvent(
+        type: AuthSessionEventType.signedIn,
+        customer: currentCustomer,
+      ),
+    );
   }
 
   void updateProfile(String name) {
     currentCustomer = _customer(currentCustomer!.subjectId, name);
-    _events.add(AuthSessionEvent(
-      type: AuthSessionEventType.userUpdated,
-      customer: currentCustomer,
-    ));
+    _events.add(
+      AuthSessionEvent(
+        type: AuthSessionEventType.userUpdated,
+        customer: currentCustomer,
+      ),
+    );
   }
 
   static AuthenticatedCustomer _customer(String owner, String name) =>
@@ -237,7 +250,10 @@ final class _ProfileAuthRepository implements AuthRepository {
   @override
   Future<void> completeSignOut() => signOutLocal();
   @override
-  Future<void> signOutLocal() async { currentCustomer = null; }
+  Future<void> signOutLocal() async {
+    currentCustomer = null;
+  }
+
   @override
   Future<void> retryPendingRemoteRevocations() =>
       _delegate.retryPendingRemoteRevocations();

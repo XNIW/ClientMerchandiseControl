@@ -228,44 +228,47 @@ void main() {
           addTearDown(() => tester.binding.setSurfaceSize(null));
           final semantics = tester.ensureSemantics();
           try {
-          await mount(
-            tester,
-            Remote([const CartRepositoryException(CartFailureKind.timeout)]),
-            locale: locale,
-            dark: dark,
-            scaled: true,
-          );
-          final l10n = AppLocalizations.of(
-            tester.element(find.byType(AddToCartButton)),
-          );
-          await tester.tap(find.byType(FilledButton));
-          await tester.pumpAndSettle();
-          expect(find.text(l10n.cartPendingConfirmationNotice), findsOneWidget);
-          expect(find.text(l10n.cartAddedNotice), findsNothing);
-          expect(
-            tester
-                .getSemantics(find.text(l10n.cartPendingConfirmationNotice))
-                .getSemanticsData()
-                .label,
-            contains(l10n.cartPendingConfirmationNotice),
-          );
-          expect(tester.takeException(), isNull);
-          final path = Platform.environment['CMC_CLIENT_CAPTURE_DIR'];
-          if (path != null) {
-            await tester.runAsync(() async {
-              final boundary = tester.renderObject<RenderRepaintBoundary>(
-                find.byKey(const ValueKey('cart-feedback-frame')),
-              );
-              final frame = await boundary.toImage();
-              final data = await frame.toByteData(
-                format: ui.ImageByteFormat.png,
-              );
-              await File(
-                '$path/cart-pending-${locale.toLanguageTag()}-${dark ? 'dark' : 'light'}-200.png',
-              ).writeAsBytes(data!.buffer.asUint8List());
-              frame.dispose();
-            });
-          }
+            await mount(
+              tester,
+              Remote([const CartRepositoryException(CartFailureKind.timeout)]),
+              locale: locale,
+              dark: dark,
+              scaled: true,
+            );
+            final l10n = AppLocalizations.of(
+              tester.element(find.byType(AddToCartButton)),
+            );
+            await tester.tap(find.byType(FilledButton));
+            await tester.pumpAndSettle();
+            expect(
+              find.text(l10n.cartPendingConfirmationNotice),
+              findsOneWidget,
+            );
+            expect(find.text(l10n.cartAddedNotice), findsNothing);
+            expect(
+              tester
+                  .getSemantics(find.text(l10n.cartPendingConfirmationNotice))
+                  .getSemanticsData()
+                  .label,
+              contains(l10n.cartPendingConfirmationNotice),
+            );
+            expect(tester.takeException(), isNull);
+            final path = Platform.environment['CMC_CLIENT_CAPTURE_DIR'];
+            if (path != null) {
+              await tester.runAsync(() async {
+                final boundary = tester.renderObject<RenderRepaintBoundary>(
+                  find.byKey(const ValueKey('cart-feedback-frame')),
+                );
+                final frame = await boundary.toImage();
+                final data = await frame.toByteData(
+                  format: ui.ImageByteFormat.png,
+                );
+                await File(
+                  '$path/cart-pending-${locale.toLanguageTag()}-${dark ? 'dark' : 'light'}-200.png',
+                ).writeAsBytes(data!.buffer.asUint8List());
+                frame.dispose();
+              });
+            }
           } finally {
             semantics.dispose();
           }

@@ -1892,7 +1892,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deliveryTrackingWindow(String start, String end) {
-    return 'Expected between $start and $end';
+    return 'Estimated, not guaranteed, delivery between $start and $end';
   }
 
   @override

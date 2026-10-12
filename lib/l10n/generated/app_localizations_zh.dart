@@ -1913,7 +1913,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deliveryTrackingWindow(String start, String end) {
-    return 'Entrega prevista entre $start y $end';
+    return 'Entrega estimada, no garantizada, entre $start y $end';
   }
 
   @override
@@ -4087,7 +4087,7 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String deliveryTrackingWindow(String start, String end) {
-    return '预计在 $start 至 $end 之间送达';
+    return '预计送达时间为 $start 至 $end，并非保证时间';
   }
 
   @override

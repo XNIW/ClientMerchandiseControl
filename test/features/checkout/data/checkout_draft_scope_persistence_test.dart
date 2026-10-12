@@ -32,7 +32,10 @@ void main() {
       ownerSubjectId: _ownerA,
       shopSlug: 'storefront-test',
     );
-    expect(restored?.pendingOperation?.kind, CheckoutPendingOperationKind.order);
+    expect(
+      restored?.pendingOperation?.kind,
+      CheckoutPendingOperationKind.order,
+    );
     expect(restored?.pendingOperation?.idempotencyKey, _key);
     expect(restored?.pendingOperation?.cartVersion, 7);
     expect(restored?.pendingOperation?.quoteId, _quoteId);
@@ -51,177 +54,210 @@ void main() {
     );
   });
 
-  test('cambio shop e clear del secondo non cancellano pending del primo', () async {
-    await store.save(_pendingOrder());
-    await store.save(_pendingOrder(shop: 'storefront-other'));
-    await store.clear(ownerSubjectId: _ownerA, shopSlug: 'storefront-other');
-    final restarted = SharedPreferencesCheckoutDraftStore(
-      preferences: preferences,
-    );
+  test(
+    'cambio shop e clear del secondo non cancellano pending del primo',
+    () async {
+      await store.save(_pendingOrder());
+      await store.save(_pendingOrder(shop: 'storefront-other'));
+      await store.clear(ownerSubjectId: _ownerA, shopSlug: 'storefront-other');
+      final restarted = SharedPreferencesCheckoutDraftStore(
+        preferences: preferences,
+      );
 
-    expect(
-      (await restarted.read(
-        ownerSubjectId: _ownerA,
-        shopSlug: 'storefront-test',
-      ))?.pendingOperation?.idempotencyKey,
-      _key,
-    );
-    expect(
-      await restarted.read(
-        ownerSubjectId: _ownerA,
-        shopSlug: 'storefront-other',
-      ),
-      isNull,
-    );
-  });
-
-  test('clear di B preserva ordine ambiguo di A e ultimo clear rimuove key', () async {
-    await store.save(_pendingOrder());
-    await store.save(_pendingOrder(owner: _ownerB));
-    await store.clear(ownerSubjectId: _ownerB, shopSlug: 'storefront-test');
-    expect(
-      (await store.read(
-        ownerSubjectId: _ownerA,
-        shopSlug: 'storefront-test',
-      ))?.pendingOperation?.idempotencyKey,
-      _key,
-    );
-    await store.clear(ownerSubjectId: _ownerA, shopSlug: 'storefront-test');
-    expect(preferences.values, isEmpty);
-  });
-
-  test('legacy v4 migra atomicamente senza cambiare chiave idempotente', () async {
-    preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] =
-        _legacyOrder();
-    final restored = await store.read(
-      ownerSubjectId: _ownerA,
-      shopSlug: 'storefront-test',
-    );
-
-    expect(restored?.pendingOperation?.idempotencyKey, _key);
-    final encoded = preferences.values.values.single;
-    expect(jsonDecode(encoded)['version'], 5);
-    final restarted = SharedPreferencesCheckoutDraftStore(
-      preferences: preferences,
-    );
-    await restarted.save(_pendingOrder(owner: _ownerB));
-    expect(
-      (await restarted.read(
-        ownerSubjectId: _ownerA,
-        shopSlug: 'storefront-test',
-      ))?.pendingOperation?.idempotencyKey,
-      _key,
-    );
-    expect(encoded, isNot(contains('addressLine1')));
-    expect(encoded, isNot(contains('priceClp')));
-    expect(encoded, isNot(contains('totalClp')));
-  });
-
-  test('errore scrittura migrazione conserva byte legacy e retry recupera', () async {
-    final legacy = _legacyOrder();
-    preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] = legacy;
-    preferences.failNextWrite = true;
-
-    await expectLater(
-      store.read(ownerSubjectId: _ownerA, shopSlug: 'storefront-test'),
-      throwsStateError,
-    );
-    expect(
-      preferences.values[SharedPreferencesCheckoutDraftStore.storageKey],
-      legacy,
-    );
-    expect(
-      (await store.read(
-        ownerSubjectId: _ownerA,
-        shopSlug: 'storefront-test',
-      ))?.pendingOperation?.idempotencyKey,
-      _key,
-    );
-  });
-
-  test('errore salvataggio B non sostituisce il legacy pendente di A', () async {
-    final legacy = _legacyOrder();
-    preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] = legacy;
-    preferences.failNextWrite = true;
-
-    await expectLater(store.save(_pendingOrder(owner: _ownerB)), throwsStateError);
-    expect(
-      preferences.values[SharedPreferencesCheckoutDraftStore.storageKey],
-      legacy,
-    );
-    await store.save(_pendingOrder(owner: _ownerB));
-    expect(
-      (await store.read(
-        ownerSubjectId: _ownerA,
-        shopSlug: 'storefront-test',
-      ))?.pendingOperation?.idempotencyKey,
-      _key,
-    );
-  });
-
-  test('limite16 scope fallisce prima di espellere o inviare nuovi intenti', () async {
-    for (var index = 0; index < 16; index++) {
-      await store.save(_pendingOrder(shop: 'storefront-scope-$index'));
-    }
-    final before = preferences.values.values.single;
-    await expectLater(
-      store.save(_pendingOrder(shop: 'storefront-scope-16')),
-      throwsStateError,
-    );
-    expect(preferences.values.values.single, before);
-    for (var index = 0; index < 16; index++) {
       expect(
-        (await store.read(
+        (await restarted.read(
           ownerSubjectId: _ownerA,
-          shopSlug: 'storefront-scope-$index',
+          shopSlug: 'storefront-test',
         ))?.pendingOperation?.idempotencyKey,
         _key,
       );
-    }
-  });
+      expect(
+        await restarted.read(
+          ownerSubjectId: _ownerA,
+          shopSlug: 'storefront-other',
+        ),
+        isNull,
+      );
+    },
+  );
 
-  test('salvataggi concorrenti sullo store conservano entrambi gli scope', () async {
-    await Future.wait([
-      store.save(_pendingOrder()),
-      store.save(_pendingOrder(owner: _ownerB)),
-    ]);
-    expect(
-      (await store.read(
+  test(
+    'clear di B preserva ordine ambiguo di A e ultimo clear rimuove key',
+    () async {
+      await store.save(_pendingOrder());
+      await store.save(_pendingOrder(owner: _ownerB));
+      await store.clear(ownerSubjectId: _ownerB, shopSlug: 'storefront-test');
+      expect(
+        (await store.read(
+          ownerSubjectId: _ownerA,
+          shopSlug: 'storefront-test',
+        ))?.pendingOperation?.idempotencyKey,
+        _key,
+      );
+      await store.clear(ownerSubjectId: _ownerA, shopSlug: 'storefront-test');
+      expect(preferences.values, isEmpty);
+    },
+  );
+
+  test(
+    'legacy v4 migra atomicamente senza cambiare chiave idempotente',
+    () async {
+      preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] =
+          _legacyOrder();
+      final restored = await store.read(
         ownerSubjectId: _ownerA,
         shopSlug: 'storefront-test',
-      ))?.ownerSubjectId,
-      _ownerA,
-    );
-    expect(
-      (await store.read(
-        ownerSubjectId: _ownerB,
-        shopSlug: 'storefront-test',
-      ))?.ownerSubjectId,
-      _ownerB,
-    );
-  });
+      );
 
-  test('envelope corrotto non viene cancellato né sovrascritto da altro account', () async {
-    final corrupt = jsonEncode({
-      'version': 5,
-      'drafts': [jsonDecode(_legacyOrder()), {'version': 4, 'totalClp': 1}],
-    });
-    preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] = corrupt;
+      expect(restored?.pendingOperation?.idempotencyKey, _key);
+      final encoded = preferences.values.values.single;
+      expect(jsonDecode(encoded)['version'], 5);
+      final restarted = SharedPreferencesCheckoutDraftStore(
+        preferences: preferences,
+      );
+      await restarted.save(_pendingOrder(owner: _ownerB));
+      expect(
+        (await restarted.read(
+          ownerSubjectId: _ownerA,
+          shopSlug: 'storefront-test',
+        ))?.pendingOperation?.idempotencyKey,
+        _key,
+      );
+      expect(encoded, isNot(contains('addressLine1')));
+      expect(encoded, isNot(contains('priceClp')));
+      expect(encoded, isNot(contains('totalClp')));
+    },
+  );
 
-    expect(
-      await store.read(ownerSubjectId: _ownerA, shopSlug: 'storefront-test'),
-      isNull,
-    );
-    await expectLater(
-      store.save(_pendingOrder(owner: _ownerB)),
-      throwsFormatException,
-    );
-    await expectLater(
-      store.clear(ownerSubjectId: _ownerB, shopSlug: 'storefront-test'),
-      throwsFormatException,
-    );
-    expect(preferences.values.values.single, corrupt);
-  });
+  test(
+    'errore scrittura migrazione conserva byte legacy e retry recupera',
+    () async {
+      final legacy = _legacyOrder();
+      preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] =
+          legacy;
+      preferences.failNextWrite = true;
+
+      await expectLater(
+        store.read(ownerSubjectId: _ownerA, shopSlug: 'storefront-test'),
+        throwsStateError,
+      );
+      expect(
+        preferences.values[SharedPreferencesCheckoutDraftStore.storageKey],
+        legacy,
+      );
+      expect(
+        (await store.read(
+          ownerSubjectId: _ownerA,
+          shopSlug: 'storefront-test',
+        ))?.pendingOperation?.idempotencyKey,
+        _key,
+      );
+    },
+  );
+
+  test(
+    'errore salvataggio B non sostituisce il legacy pendente di A',
+    () async {
+      final legacy = _legacyOrder();
+      preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] =
+          legacy;
+      preferences.failNextWrite = true;
+
+      await expectLater(
+        store.save(_pendingOrder(owner: _ownerB)),
+        throwsStateError,
+      );
+      expect(
+        preferences.values[SharedPreferencesCheckoutDraftStore.storageKey],
+        legacy,
+      );
+      await store.save(_pendingOrder(owner: _ownerB));
+      expect(
+        (await store.read(
+          ownerSubjectId: _ownerA,
+          shopSlug: 'storefront-test',
+        ))?.pendingOperation?.idempotencyKey,
+        _key,
+      );
+    },
+  );
+
+  test(
+    'limite16 scope fallisce prima di espellere o inviare nuovi intenti',
+    () async {
+      for (var index = 0; index < 16; index++) {
+        await store.save(_pendingOrder(shop: 'storefront-scope-$index'));
+      }
+      final before = preferences.values.values.single;
+      await expectLater(
+        store.save(_pendingOrder(shop: 'storefront-scope-16')),
+        throwsStateError,
+      );
+      expect(preferences.values.values.single, before);
+      for (var index = 0; index < 16; index++) {
+        expect(
+          (await store.read(
+            ownerSubjectId: _ownerA,
+            shopSlug: 'storefront-scope-$index',
+          ))?.pendingOperation?.idempotencyKey,
+          _key,
+        );
+      }
+    },
+  );
+
+  test(
+    'salvataggi concorrenti sullo store conservano entrambi gli scope',
+    () async {
+      await Future.wait([
+        store.save(_pendingOrder()),
+        store.save(_pendingOrder(owner: _ownerB)),
+      ]);
+      expect(
+        (await store.read(
+          ownerSubjectId: _ownerA,
+          shopSlug: 'storefront-test',
+        ))?.ownerSubjectId,
+        _ownerA,
+      );
+      expect(
+        (await store.read(
+          ownerSubjectId: _ownerB,
+          shopSlug: 'storefront-test',
+        ))?.ownerSubjectId,
+        _ownerB,
+      );
+    },
+  );
+
+  test(
+    'envelope corrotto non viene cancellato né sovrascritto da altro account',
+    () async {
+      final corrupt = jsonEncode({
+        'version': 5,
+        'drafts': [
+          jsonDecode(_legacyOrder()),
+          {'version': 4, 'totalClp': 1},
+        ],
+      });
+      preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] =
+          corrupt;
+
+      expect(
+        await store.read(ownerSubjectId: _ownerA, shopSlug: 'storefront-test'),
+        isNull,
+      );
+      await expectLater(
+        store.save(_pendingOrder(owner: _ownerB)),
+        throwsFormatException,
+      );
+      await expectLater(
+        store.clear(ownerSubjectId: _ownerB, shopSlug: 'storefront-test'),
+        throwsFormatException,
+      );
+      expect(preferences.values.values.single, corrupt);
+    },
+  );
 
   test('scope duplicato o envelope oltre limite non viene riscritto', () async {
     for (final entries in [
@@ -229,7 +265,8 @@ void main() {
       [for (var index = 0; index < 17; index++) jsonDecode(_legacyOrder())],
     ]) {
       final invalid = jsonEncode({'version': 5, 'drafts': entries});
-      preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] = invalid;
+      preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] =
+          invalid;
       expect(
         await store.read(ownerSubjectId: _ownerA, shopSlug: 'storefront-test'),
         isNull,

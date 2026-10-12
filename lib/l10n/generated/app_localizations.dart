@@ -3364,7 +3364,7 @@ abstract class AppLocalizations {
   /// No description provided for @deliveryTrackingWindow.
   ///
   /// In es, this message translates to:
-  /// **'Entrega prevista entre {start} y {end}'**
+  /// **'Entrega estimada, no garantizada, entre {start} y {end}'**
   String deliveryTrackingWindow(String start, String end);
 
   /// No description provided for @deliveryTrackingLastUpdated.

@@ -490,17 +490,20 @@ final class CheckoutController extends Notifier<CheckoutState> {
       ).copyWith(addresses: addresses, deliveryContext: deliveryContext),
     );
     try {
+      final draft = await ref.read(checkoutDraftStoreProvider).read(
+        ownerSubjectId: owner, shopSlug: shop,
+      );
+      if (!_isCurrentContext(context)) return;
+      if (await _restorePendingOrder(draft, context: context, cart: cart,
+          addresses: addresses, options: null, paymentOptions: null,
+          deliveryContext: deliveryContext)) return;
       final results = await Future.wait<Object?>([
         ref.read(checkoutRepositoryProvider).loadOptions(shopSlug: shop),
         ref.read(checkoutRepositoryProvider).loadPaymentOptions(shopSlug: shop),
-        ref
-            .read(checkoutDraftStoreProvider)
-            .read(ownerSubjectId: owner, shopSlug: shop),
       ]);
       if (!_isCurrentContext(context)) return;
       final options = results[0]! as StorefrontFulfillmentOptions;
       final paymentOptions = results[1]! as StorefrontPaymentOptions;
-      final draft = results[2] as CheckoutLocalDraft?;
       if (draft?.orderId != null) {
         final response = await ref
             .read(checkoutRepositoryProvider)
@@ -639,16 +642,19 @@ final class CheckoutController extends Notifier<CheckoutState> {
       generation: generation,
     );
     try {
+      final draft = await ref.read(checkoutDraftStoreProvider).read(
+        ownerSubjectId: owner, shopSlug: shop,
+      );
+      if (!_isCurrentContext(context)) return;
+      if (await _restorePendingOrder(draft, context: context, cart: cart,
+          addresses: const [], options: null, paymentOptions: null,
+          deliveryContext: null)) return;
       final restored = await Future.wait<Object?>([
-        ref
-            .read(checkoutDraftStoreProvider)
-            .read(ownerSubjectId: owner, shopSlug: shop),
         ref.read(checkoutRepositoryProvider).loadOptions(shopSlug: shop),
         ref.read(checkoutRepositoryProvider).loadPaymentOptions(shopSlug: shop),
       ]);
-      final draft = restored[0] as CheckoutLocalDraft?;
-      final options = restored[1] as StorefrontFulfillmentOptions;
-      final paymentOptions = restored[2] as StorefrontPaymentOptions;
+      final options = restored[0] as StorefrontFulfillmentOptions;
+      final paymentOptions = restored[1] as StorefrontPaymentOptions;
       if (!_isCurrentContext(context)) return;
       if (draft?.orderId case final String orderId) {
         final response = await ref
@@ -711,8 +717,8 @@ final class CheckoutController extends Notifier<CheckoutState> {
     required _CheckoutContext context,
     required CustomerCartSnapshot cart,
     required List<CustomerAddress> addresses,
-    required StorefrontFulfillmentOptions options,
-    required StorefrontPaymentOptions paymentOptions,
+    required StorefrontFulfillmentOptions? options,
+    required StorefrontPaymentOptions? paymentOptions,
     required CustomerDeliveryContext? deliveryContext,
   }) async {
     if (!_isCurrentContext(context)) return false;

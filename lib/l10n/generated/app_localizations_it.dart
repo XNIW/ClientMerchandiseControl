@@ -1915,7 +1915,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String deliveryTrackingWindow(String start, String end) {
-    return 'Consegna prevista tra $start e $end';
+    return 'Consegna stimata, non garantita, tra $start e $end';
   }
 
   @override

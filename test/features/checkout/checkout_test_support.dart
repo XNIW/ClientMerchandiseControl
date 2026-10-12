@@ -371,6 +371,7 @@ final class FakeCheckoutRepository implements CheckoutRepository {
        paymentOptions = paymentOptions ?? checkoutTestPaymentOptions();
 
   StorefrontFulfillmentOptions options;
+  Object? optionsError;
   StorefrontPaymentOptions paymentOptions;
   final List<Object> createOutcomes = [];
   final List<Object> confirmOutcomes = [];
@@ -440,6 +441,7 @@ final class FakeCheckoutRepository implements CheckoutRepository {
     required String shopSlug,
   }) async {
     loadOptionsCalls++;
+    if (optionsError case final error?) throw error;
     return options;
   }
 

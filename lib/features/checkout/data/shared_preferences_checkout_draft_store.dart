@@ -142,8 +142,8 @@ String _encodeDrafts(List<CheckoutLocalDraft> drafts) => jsonEncode({
 });
 
 List<CheckoutLocalDraft> _decodeDrafts(String encoded) {
-  if (encoded.length > SharedPreferencesCheckoutDraftStore.maximumDrafts * 8192 +
-      512) {
+  if (encoded.length >
+      SharedPreferencesCheckoutDraftStore.maximumDrafts * 8192 + 512) {
     throw const FormatException('checkout_drafts_size');
   }
   final decoded = jsonDecode(encoded);

@@ -106,15 +106,17 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
   var _generation = 0;
   var _providerGeneration = 0;
 
+  bool get _trackingEligible => isDeliveryLiveMapEligible(
+    widget.snapshot,
+    ownerAuthenticated: widget.ownerAuthenticated,
+    orderStatusCompatible: widget.orderStatusCompatible,
+  );
+
   bool get _potentiallyEligible {
     final configuration = ref.read(deliveryMapConfigurationProvider);
     return configuration.enabled &&
         configuration.nativeConfigurationPresent &&
-        isDeliveryLiveMapEligible(
-          widget.snapshot,
-          ownerAuthenticated: widget.ownerAuthenticated,
-          orderStatusCompatible: widget.orderStatusCompatible,
-        );
+        _trackingEligible;
   }
 
   @override
@@ -273,6 +275,45 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
     }
   }
 
+  void _retryProvider() {
+    if (!_potentiallyEligible) return;
+    setState(() {
+      _nativeConfigurationReady = null;
+      _presentation = null;
+    });
+    scheduleMicrotask(_present);
+  }
+
+  Widget _unavailable(BuildContext context, {required bool retryAllowed}) {
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.md),
+      child: Semantics(
+        key: const ValueKey('delivery-map-unavailable'),
+        container: true,
+        liveRegion: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.deliveryTrackingMapUnavailable),
+            if (retryAllowed)
+              TextButton.icon(
+                key: const ValueKey('delivery-map-retry'),
+                onPressed: _retryProvider,
+                icon: const Icon(Icons.refresh),
+                label: Text(l10n.deliveryTrackingMapRetry),
+                style: TextButton.styleFrom(
+                  minimumSize: const Size.fromHeight(
+                    AppSizes.minimumTouchTarget,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _toggleExpanded() {
     // Cambia soltanto il layout: il viewport scelto dal cliente resta invariato.
     setState(() => _expanded = !_expanded);
@@ -306,10 +347,13 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_potentiallyEligible) return const SizedBox.shrink();
+    if (!_trackingEligible) return const SizedBox.shrink();
+    if (!_potentiallyEligible) {
+      return _unavailable(context, retryAllowed: false);
+    }
     final presentation = _presentation;
     if (presentation is DeliveryMapUnavailable) {
-      return const SizedBox.shrink(key: ValueKey('delivery-map-unavailable'));
+      return _unavailable(context, retryAllowed: true);
     }
     if (presentation is! DeliveryMapReady || _adapter == null) {
       return Padding(
@@ -353,7 +397,7 @@ class _DeliveryLiveMapState extends ConsumerState<DeliveryLiveMap> {
           ),
         );
       });
-      return const SizedBox.shrink(key: ValueKey('delivery-map-unavailable'));
+      return _unavailable(context, retryAllowed: true);
     }
     final providerRuntimeReady = _providerRuntimeReady;
     return Padding(

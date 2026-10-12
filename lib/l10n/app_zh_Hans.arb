@@ -690,5 +690,8 @@
   "deliveryTrackingEtaUnavailable": "商店尚未提供预计送达时间段。",
   "deliveryTrackingEtaExpired": "此前的预计送达时间段已结束，正在等待商店更新。",
   "deliveryTrackingMapExpand": "展开配送地图",
-  "deliveryTrackingMapCollapse": "收起配送地图"
+  "deliveryTrackingMapCollapse": "收起配送地图",
+  "deliveryTrackingMapUnavailable": "地图暂不可用。你仍可在此查看配送状态。",
+  "deliveryTrackingMapRetry": "重试地图",
+  "deliveryTrackingCacheCleanupFailed": "未能删除已保存的位置。此前的位置仍被隐藏，请重试更新。"
 }

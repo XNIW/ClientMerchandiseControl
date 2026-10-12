@@ -1125,6 +1125,224 @@ void main() {
       expect(scheduler.activeTaskCount, 0);
     },
   );
+  for (final lifecycle in ['foreground', 'route']) {
+    test('RPC tardiva non riattiva timer dopo pausa $lifecycle', () async {
+      final repository = _PausedTrackingLoadRepository();
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final container = _container(
+        repository: repository,
+        cache: MemoryDeliveryTrackingCache(),
+        scheduler: scheduler,
+        clock: scheduler.now,
+      );
+      addTearDown(() async {
+        if (!repository.releaseLoad.isCompleted) {
+          repository.releaseLoad.complete(trackingLiveSnapshot());
+        }
+        container.dispose();
+        await repository.stream.close();
+      });
+      container.read(deliveryTrackingControllerProvider);
+      final controller = container.read(deliveryTrackingControllerProvider.notifier);
+      final opening = controller.open(trackingTestOrder);
+      await repository.loadStarted.future;
+      if (lifecycle == 'foreground') {
+        await controller.setForeground(false);
+      } else {
+        await controller.setRouteVisible(false);
+      }
+      repository.releaseLoad.complete(trackingLiveSnapshot());
+      await opening;
+      expect(scheduler.activeTaskCount, 0);
+      expect(repository.watchCalls, 0);
+      if (lifecycle == 'foreground') {
+        await controller.setForeground(true);
+      } else {
+        await controller.setRouteVisible(true);
+      }
+      expect(repository.watchCalls, 1);
+      expect(scheduler.activeTaskCount, 1);
+      await controller.close();
+      expect(scheduler.activeTaskCount, 0);
+    });
+
+    test('save tardivo non riattiva timer dopo pausa $lifecycle', () async {
+      final repository = FakeDeliveryTrackingRepository();
+      final cache = _PausedLiveTrackingCache();
+      final scheduler = ManualAppScheduler(start: trackingTestNow);
+      final container = _container(
+        repository: repository,
+        cache: cache,
+        scheduler: scheduler,
+        clock: scheduler.now,
+      );
+      addTearDown(() async {
+        if (!cache.releaseSave.isCompleted) cache.releaseSave.complete();
+        container.dispose();
+        await repository.stream.close();
+      });
+      container.read(deliveryTrackingControllerProvider);
+      final controller = container.read(deliveryTrackingControllerProvider.notifier);
+      await controller.open(trackingTestOrder);
+      cache.pauseNextSave = true;
+      repository.stream.add(trackingLiveSnapshot(version: 5));
+      await cache.saveStarted.future;
+      if (lifecycle == 'foreground') {
+        await controller.setForeground(false);
+      } else {
+        await controller.setRouteVisible(false);
+      }
+      cache.releaseSave.complete();
+      await _waitFor(container, (state) => state.snapshot?.version == 5);
+      expect(scheduler.activeTaskCount, 0);
+      expect(repository.watchCancelCalls, 1);
+      expect(repository.loadCalls, 1);
+      if (lifecycle == 'foreground') {
+        await controller.setForeground(true);
+      } else {
+        await controller.setRouteVisible(true);
+      }
+      expect(repository.watchCalls, 2);
+      expect(scheduler.activeTaskCount, 1);
+      expect(container.read(deliveryTrackingControllerProvider).snapshot?.version, 5);
+      await controller.close();
+      expect(scheduler.activeTaskCount, 0);
+    });
+  }
+
+  for (final reply in [
+    (version: 4, olderTimestamp: false),
+    (version: 3, olderTimestamp: false),
+    (version: 4, olderTimestamp: true),
+  ]) {
+    test('cache cold e RPC $reply non mostrano GPS prima di admission', () async {
+      final payload = trackingLivePayload(version: reply.version);
+      if (reply.olderTimestamp) {
+        payload
+          ..['observedAt'] = trackingTestNow.subtract(const Duration(seconds: 4)).toIso8601String()
+          ..['receivedAt'] = trackingTestNow.subtract(const Duration(seconds: 3)).toIso8601String();
+      }
+      final serverSnapshot = parseDeliveryTrackingSnapshot(payload);
+      final preferences = _FailingCleanupPreferences();
+      final cache = SecureDeliveryTrackingCache(
+        preferences: preferences,
+        clock: () => trackingTestNow,
+      );
+      await cache.save(
+        ownerSubjectId: trackingTestOwner,
+        shopSlug: trackingTestShop,
+        snapshot: trackingLiveSnapshot(),
+      );
+      final repository = _PausedTrackingLoadRepository();
+      final container = _container(repository: repository, cache: cache);
+      addTearDown(() async {
+        if (!repository.releaseLoad.isCompleted) {
+          repository.releaseLoad.complete(serverSnapshot);
+        }
+        container.dispose();
+        await repository.stream.close();
+      });
+      container.read(deliveryTrackingControllerProvider);
+      final opening = container.read(deliveryTrackingControllerProvider.notifier).open(trackingTestOrder);
+      await repository.loadStarted.future;
+      final cached = container.read(deliveryTrackingControllerProvider);
+      expect(cached.snapshot?.version, 4);
+      expect(cached.snapshot?.courierCoordinate, isNull);
+      expect(cached.snapshot?.destinationCoordinate, isNull);
+      expect(cached.snapshot?.hasFreshLiveLocation, isFalse);
+      repository.releaseLoad.complete(serverSnapshot);
+      await opening;
+      final ready = container.read(deliveryTrackingControllerProvider);
+      expect(ready.status, DeliveryTrackingStatus.ready);
+      expect(ready.snapshot?.version, 4);
+      expect(ready.snapshot?.hasFreshLiveLocation, reply.version == 4 && !reply.olderTimestamp);
+      expect(ready.snapshot?.courierCoordinate != null, reply.version == 4 && !reply.olderTimestamp);
+      expect(repository.watchCalls, 1);
+    });
+  }
+
+  test('cleanup di cache invalida doppio fallibile resta esposto dopo RPC valida', () async {
+    final preferences = _FailingCleanupPreferences()
+      ..value = '{'
+      ..failDelete = true
+      ..failWrite = true;
+    final repository = FakeDeliveryTrackingRepository();
+    final container = _container(
+      repository: repository,
+      cache: SecureDeliveryTrackingCache(
+        preferences: preferences,
+        clock: () => trackingTestNow,
+      ),
+    );
+    addTearDown(() async {
+      container.dispose();
+      await repository.stream.close();
+    });
+    container.read(deliveryTrackingControllerProvider);
+    await container.read(deliveryTrackingControllerProvider.notifier).open(trackingTestOrder);
+    final state = container.read(deliveryTrackingControllerProvider);
+    expect(state.status, DeliveryTrackingStatus.ready);
+    expect(state.cacheCleanupFailed, isTrue);
+    expect(state.snapshot?.hasFreshLiveLocation, isTrue);
+    expect(repository.loadCalls, 1);
+    expect(repository.watchCalls, 1);
+  });
+
+  test('notFound con purge doppio fallibile resta hidden e retry risolve cleanup', () async {
+    final preferences = _FailingCleanupPreferences();
+    final cache = SecureDeliveryTrackingCache(
+      preferences: preferences,
+      clock: () => trackingTestNow,
+    );
+    await cache.save(
+      ownerSubjectId: trackingTestOwner,
+      shopSlug: trackingTestShop,
+      snapshot: trackingLiveSnapshot(),
+    );
+    preferences
+      ..failDelete = true
+      ..failWrite = true;
+    final repository = FakeDeliveryTrackingRepository()
+      ..loadError = const DeliveryTrackingRepositoryException(DeliveryTrackingFailureKind.notFound);
+    final scheduler = ManualAppScheduler(start: trackingTestNow);
+    final container = _container(
+      repository: repository,
+      cache: cache,
+      scheduler: scheduler,
+      clock: scheduler.now,
+    );
+    addTearDown(() async {
+      container.dispose();
+      await repository.stream.close();
+    });
+    container.read(deliveryTrackingControllerProvider);
+    final controller = container.read(deliveryTrackingControllerProvider.notifier);
+    await controller.open(trackingTestOrder);
+    var state = container.read(deliveryTrackingControllerProvider);
+    expect(state.failure, DeliveryTrackingFailureKind.notFound);
+    expect(state.cacheCleanupFailed, isTrue);
+    expect(state.snapshot, isNull);
+    expect(repository.watchCalls, 0);
+    expect(scheduler.activeTaskCount, 0);
+    repository.loadError = const DeliveryTrackingRepositoryException(DeliveryTrackingFailureKind.offline);
+    await controller.open(trackingTestOrder);
+    state = container.read(deliveryTrackingControllerProvider);
+    expect(state.cacheCleanupFailed, isTrue);
+    expect(state.snapshot, isNull);
+    await controller.setForeground(false);
+    preferences.failWrite = false;
+    repository.loadError = null;
+    await controller.refresh();
+    state = container.read(deliveryTrackingControllerProvider);
+    expect(state.cacheCleanupFailed, isFalse);
+    expect(state.snapshot?.hasFreshLiveLocation, isTrue);
+    expect(repository.watchCalls, 1);
+    await controller.setForeground(true);
+    expect(repository.watchCalls, 2);
+    await controller.refresh();
+    expect(repository.watchCalls, 2);
+  });
+
 }
 
 DeliveryTrackingSnapshot _terminalSnapshot({required int version}) {
@@ -1222,7 +1440,7 @@ AuthenticatedCustomer _customer(String subjectId) {
 }
 
 ProviderContainer _container({
-  required FakeDeliveryTrackingRepository repository,
+  required DeliveryTrackingRepository repository,
   required DeliveryTrackingCacheStore cache,
   Duration pollInterval = const Duration(hours: 1),
   Duration reconnectBase = const Duration(seconds: 1),
@@ -1326,5 +1544,50 @@ final class _PausedLiveTrackingCache extends MemoryDeliveryTrackingCache {
       shopSlug: shopSlug,
       snapshot: snapshot,
     );
+  }
+}
+
+final class _FailingCleanupPreferences implements DeliveryTrackingSecurePreferences {
+  String? value;
+  var failDelete = false;
+  var failWrite = false;
+
+  @override
+  Future<String?> read(String key) async => value;
+
+  @override
+  Future<void> write(String key, String next) async {
+    if (failWrite) throw StateError('synthetic_cache_write_failure');
+    value = next;
+  }
+
+  @override
+  Future<void> delete(String key) async {
+    if (failDelete) throw StateError('synthetic_cache_delete_failure');
+    value = null;
+  }
+}
+
+final class _PausedTrackingLoadRepository implements DeliveryTrackingRepository {
+  final loadStarted = Completer<void>();
+  final releaseLoad = Completer<DeliveryTrackingSnapshot>();
+  final stream = StreamController<DeliveryTrackingSnapshot>.broadcast();
+  var loadCalls = 0;
+  var watchCalls = 0;
+
+  @override
+  Future<DeliveryTrackingSnapshot> load({required String shopSlug, required String orderId}) async {
+    loadCalls++;
+    if (loadCalls == 1) {
+      loadStarted.complete();
+      return releaseLoad.future;
+    }
+    return trackingLiveSnapshot();
+  }
+
+  @override
+  Stream<DeliveryTrackingSnapshot> watch({required String orderId}) {
+    watchCalls++;
+    return stream.stream;
   }
 }

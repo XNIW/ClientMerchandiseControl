@@ -690,5 +690,8 @@
   "deliveryTrackingEtaUnavailable": "The store has not provided an estimated delivery window yet.",
   "deliveryTrackingEtaExpired": "The previous estimated window has ended. Awaiting an update from the store.",
   "deliveryTrackingMapExpand": "Expand the delivery map",
-  "deliveryTrackingMapCollapse": "Collapse the delivery map"
+  "deliveryTrackingMapCollapse": "Collapse the delivery map",
+  "deliveryTrackingMapUnavailable": "The map is unavailable. You can follow the delivery status here.",
+  "deliveryTrackingMapRetry": "Retry the map",
+  "deliveryTrackingCacheCleanupFailed": "Could not remove the saved position. It remains hidden; retry the update."
 }

@@ -32,6 +32,10 @@ final class PlatformDeliveryTrackingSecurePreferences
       _storage.write(key: key, value: value);
 }
 
+final class DeliveryTrackingCacheCleanupException implements Exception {
+  const DeliveryTrackingCacheCleanupException();
+}
+
 final class SecureDeliveryTrackingCache implements DeliveryTrackingCacheStore {
   SecureDeliveryTrackingCache({
     DeliveryTrackingSecurePreferences? preferences,
@@ -42,11 +46,13 @@ final class SecureDeliveryTrackingCache implements DeliveryTrackingCacheStore {
 
   static const storageKey = 'cmc.delivery-tracking-cache.v1';
   static const maximumEncodedBytes = 32768;
+  static const _revocationTombstone = '{"version":1,"revoked":true}';
   static const maximumRetention = Duration(minutes: 15);
 
   final DeliveryTrackingSecurePreferences _preferences;
   final DateTime Function() _clock;
   Future<void> _tail = Future<void>.value();
+  var _quarantined = false;
 
   @override
   Future<DeliveryTrackingSnapshot?> read({
@@ -55,8 +61,9 @@ final class SecureDeliveryTrackingCache implements DeliveryTrackingCacheStore {
     required String orderId,
   }) {
     return _serialized(() async {
+      if (_quarantined) return null;
       final encoded = await _preferences.read(storageKey);
-      if (encoded == null) return null;
+      if (encoded == null || encoded == _revocationTombstone) return null;
       try {
         if (utf8.encode(encoded).length > maximumEncodedBytes) {
           throw const FormatException('delivery_tracking_cache_size');
@@ -90,9 +97,17 @@ final class SecureDeliveryTrackingCache implements DeliveryTrackingCacheStore {
         if (snapshot.orderId != orderId) {
           throw const FormatException('delivery_cache_order');
         }
-        return snapshot;
+        // Una cache cold conserva il contesto, mai l’ammissione al GPS preciso.
+        // La posizione torna soltanto dopo una lettura server autorevole.
+        return snapshot.copyWith(
+          freshness: snapshot.freshness == DeliveryTrackingFreshness.fresh
+              ? DeliveryTrackingFreshness.stale
+              : snapshot.freshness,
+          clearPreciseLocation: true,
+          clearSafeCoordinates: true,
+        );
       } on Object {
-        await _preferences.delete(storageKey);
+        await _purgeStoredValue();
         return null;
       }
     });
@@ -122,7 +137,24 @@ final class SecureDeliveryTrackingCache implements DeliveryTrackingCacheStore {
 
   @override
   Future<void> clear({required String ownerSubjectId}) {
-    return _serialized(() => _preferences.delete(storageKey));
+    _quarantined = true;
+    return _serialized(_purgeStoredValue);
+  }
+
+  Future<void> _purgeStoredValue() async {
+    _quarantined = true;
+    try {
+      await _preferences.delete(storageKey);
+    } on Object {
+      // L’overwrite elimina il punto anche quando delete non è disponibile.
+      // Se fallisce anch’esso, la quarantena resta attiva e l’errore è esposto.
+      try {
+        await _preferences.write(storageKey, _revocationTombstone);
+      } on Object {
+        throw const DeliveryTrackingCacheCleanupException();
+      }
+    }
+    _quarantined = false;
   }
 
   Future<T> _serialized<T>(Future<T> Function() operation) {

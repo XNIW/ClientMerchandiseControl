@@ -2362,4 +2362,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deliveryTrackingMapCollapse => 'Reducir el mapa de la entrega';
+
+  @override
+  String get deliveryTrackingMapUnavailable => 'El mapa no está disponible. Puedes seguir el estado de la entrega aquí.';
+
+  @override
+  String get deliveryTrackingMapRetry => 'Reintentar el mapa';
+
+  @override
+  String get deliveryTrackingCacheCleanupFailed => 'No se pudo quitar la ubicación guardada. Sigue oculta; reintenta la actualización.';
 }

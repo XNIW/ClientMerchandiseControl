@@ -4176,6 +4176,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Reducir el mapa de la entrega'**
   String get deliveryTrackingMapCollapse;
+
+  /// No description provided for @deliveryTrackingMapUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'El mapa no está disponible. Puedes seguir el estado de la entrega aquí.'**
+  String get deliveryTrackingMapUnavailable;
+
+  /// No description provided for @deliveryTrackingMapRetry.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar el mapa'**
+  String get deliveryTrackingMapRetry;
+
+  /// No description provided for @deliveryTrackingCacheCleanupFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo quitar la ubicación guardada. Sigue oculta; reintenta la actualización.'**
+  String get deliveryTrackingCacheCleanupFailed;
 }
 
 class _AppLocalizationsDelegate

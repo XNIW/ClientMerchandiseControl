@@ -690,5 +690,8 @@
   "deliveryTrackingEtaUnavailable": "Il negozio non ha ancora comunicato una finestra stimata.",
   "deliveryTrackingEtaExpired": "La finestra stimata precedente è terminata. Attendiamo un aggiornamento dal negozio.",
   "deliveryTrackingMapExpand": "Espandi la mappa della consegna",
-  "deliveryTrackingMapCollapse": "Riduci la mappa della consegna"
+  "deliveryTrackingMapCollapse": "Riduci la mappa della consegna",
+  "deliveryTrackingMapUnavailable": "La mappa non è disponibile. Puoi seguire lo stato della consegna qui.",
+  "deliveryTrackingMapRetry": "Riprova la mappa",
+  "deliveryTrackingCacheCleanupFailed": "Non è stato possibile rimuovere la posizione salvata. Rimane nascosta; riprova l’aggiornamento."
 }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/observability/observability_event.dart';
 import '../../../core/observability/observability_providers.dart';
 import '../../../core/time/app_scheduler.dart';
+import '../data/secure_delivery_tracking_cache.dart';
 import '../data/supabase_delivery_tracking_repository.dart';
 import '../domain/delivery_tracking_failure.dart';
 import '../domain/delivery_tracking_models.dart';
@@ -31,6 +32,7 @@ final class DeliveryTrackingViewState {
     this.isRefreshing = false,
     this.isPollingFallback = false,
     this.isForeground = true,
+    this.cacheCleanupFailed = false,
   });
 
   const DeliveryTrackingViewState.signedOut()
@@ -46,6 +48,7 @@ final class DeliveryTrackingViewState {
   final bool isRefreshing;
   final bool isPollingFallback;
   final bool isForeground;
+  final bool cacheCleanupFailed;
 
   DeliveryTrackingViewState copyWith({
     DeliveryTrackingStatus? status,
@@ -55,6 +58,7 @@ final class DeliveryTrackingViewState {
     bool? isRefreshing,
     bool? isPollingFallback,
     bool? isForeground,
+    bool? cacheCleanupFailed,
   }) {
     return DeliveryTrackingViewState(
       status: status ?? this.status,
@@ -70,6 +74,7 @@ final class DeliveryTrackingViewState {
       isRefreshing: isRefreshing ?? this.isRefreshing,
       isPollingFallback: isPollingFallback ?? this.isPollingFallback,
       isForeground: isForeground ?? this.isForeground,
+      cacheCleanupFailed: cacheCleanupFailed ?? this.cacheCleanupFailed,
     );
   }
 }
@@ -94,6 +99,8 @@ final class DeliveryTrackingController
   var _foreground = true;
   var _routeVisible = true;
   Future<void> _snapshotCommitTail = Future<void>.value();
+  final Set<String> _pendingCacheClearSubjects = {};
+  var _cacheContextOnly = false;
 
   @override
   DeliveryTrackingViewState build() {
@@ -139,6 +146,7 @@ final class DeliveryTrackingController
     _subjectId = subjectId;
     _shopSlug = effectiveShopSlug;
     _orderId = null;
+    _cacheContextOnly = false;
     _generation++;
     _publish(
       subjectId == null || effectiveShopSlug == null
@@ -158,6 +166,7 @@ final class DeliveryTrackingController
     if (subjectId == null || shopSlug == null) return;
     final generation = ++_generation;
     _orderId = orderId;
+    _cacheContextOnly = false;
     await _stopRuntime();
     if (!_isCurrent(generation, orderId)) return;
     _publish(
@@ -166,8 +175,16 @@ final class DeliveryTrackingController
         orderId: orderId,
         isRefreshing: true,
         isForeground: _foreground,
+        cacheCleanupFailed: _pendingCacheClearSubjects.contains(subjectId),
       ),
     );
+    if (_pendingCacheClearSubjects.contains(subjectId)) {
+      await _clearCacheAfterSnapshots(
+        subjectId,
+        ref.read(deliveryTrackingCacheProvider),
+      );
+      if (!_isCurrent(generation, orderId)) return;
+    }
 
     if (!forceRefresh) {
       DeliveryTrackingSnapshot? cached;
@@ -179,11 +196,17 @@ final class DeliveryTrackingController
               shopSlug: shopSlug,
               orderId: orderId,
             );
+      } on DeliveryTrackingCacheCleanupException {
+        _pendingCacheClearSubjects.add(subjectId);
+        if (_isCurrent(generation, orderId)) {
+          _publish(state.copyWith(cacheCleanupFailed: true));
+        }
       } on Object {
         // La cache fallibile non impedisce la lettura autorevole.
       }
       if (!_isCurrent(generation, orderId)) return;
       if (cached != null) {
+        _cacheContextOnly = true;
         _publish(
           state.copyWith(
             status: DeliveryTrackingStatus.offline,
@@ -206,6 +229,14 @@ final class DeliveryTrackingController
     if (orderId == null) return;
     final generation = _generation;
     _publish(state.copyWith(isRefreshing: true, failure: null));
+    final subjectId = _subjectId;
+    if (subjectId != null && _pendingCacheClearSubjects.contains(subjectId)) {
+      await _clearCacheAfterSnapshots(
+        subjectId,
+        ref.read(deliveryTrackingCacheProvider),
+      );
+      if (!_isCurrent(generation, orderId)) return;
+    }
     await _load(generation, orderId);
     if (_isCurrent(generation, orderId) &&
         _runtimeAllowed &&
@@ -223,6 +254,7 @@ final class DeliveryTrackingController
         : null;
     _generation++;
     _orderId = null;
+    _cacheContextOnly = false;
     await Future<void>.microtask(() {});
     if (!_disposed) {
       _publish(
@@ -296,11 +328,13 @@ final class DeliveryTrackingController
         snapshot,
         subjectId: subjectId,
         shopSlug: shopSlug,
+        authoritative: true,
       );
     } on Object catch (error) {
       if (!_isCurrent(generation, orderId)) return;
       final failure = _failure(error);
       if (failure == DeliveryTrackingFailureKind.unauthorized) {
+        _cacheContextOnly = false;
         _generation++;
         _orderId = null;
         if (!_disposed && _subjectId == subjectId && _shopSlug == shopSlug) {
@@ -319,6 +353,7 @@ final class DeliveryTrackingController
       }
       if (failure == DeliveryTrackingFailureKind.notFound) {
         // Invalida i callback precedenti, conservando l ordine per il retry.
+        _cacheContextOnly = false;
         _generation++;
         _publish(
           DeliveryTrackingViewState(
@@ -464,6 +499,7 @@ final class DeliveryTrackingController
     required String subjectId,
     required String shopSlug,
     bool realtimeHealthy = false,
+    bool authoritative = false,
   }) async {
     final previous = _snapshotCommitTail;
     final turn = Completer<void>();
@@ -472,8 +508,21 @@ final class DeliveryTrackingController
     try {
       if (!_isCurrent(generation, orderId)) return false;
       final current = state.snapshot;
+      final rehydrateCachedContext =
+          authoritative &&
+          _cacheContextOnly &&
+          current != null &&
+          current.courierCoordinate == null &&
+          snapshot.hasFreshLiveLocation &&
+          current.orderStatusVersion == snapshot.orderStatusVersion &&
+          current.trackingSessionId == snapshot.trackingSessionId &&
+          current.version == snapshot.version &&
+          current.observedAt == snapshot.observedAt &&
+          current.receivedAt == snapshot.receivedAt &&
+          !snapshot.serverTime.isBefore(current.serverTime);
       if (current != null &&
-          !isNewerDeliveryTrackingSnapshot(current, snapshot)) {
+          !isNewerDeliveryTrackingSnapshot(current, snapshot) &&
+          !rehydrateCachedContext) {
         final adjustedCurrent = _freshnessAdjusted(current);
         _publish(
           state.copyWith(
@@ -498,6 +547,7 @@ final class DeliveryTrackingController
       }
       await _accept(snapshot, subjectId: subjectId, shopSlug: shopSlug);
       if (!_isCurrent(generation, orderId)) return false;
+      _cacheContextOnly = false;
       _publish(
         state.copyWith(
           status: DeliveryTrackingStatus.ready,
@@ -525,6 +575,15 @@ final class DeliveryTrackingController
     await previous;
     try {
       await cache.clear(ownerSubjectId: subjectId);
+      _pendingCacheClearSubjects.remove(subjectId);
+      if (!_disposed && _subjectId == subjectId && state.cacheCleanupFailed) {
+        _publish(state.copyWith(cacheCleanupFailed: false));
+      }
+    } on Object {
+      _pendingCacheClearSubjects.add(subjectId);
+      if (!_disposed && _subjectId == subjectId) {
+        _publish(state.copyWith(cacheCleanupFailed: true));
+      }
     } finally {
       turn.complete();
     }
@@ -559,6 +618,7 @@ final class DeliveryTrackingController
   ) {
     _freshnessTimer?.cancel();
     _freshnessTimer = null;
+    if (!_runtimeAllowed) return;
     final receivedAt = snapshot.receivedAt;
     if (snapshot.freshness != DeliveryTrackingFreshness.fresh ||
         receivedAt == null) {

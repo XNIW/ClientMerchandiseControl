@@ -2338,4 +2338,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deliveryTrackingMapCollapse => 'Collapse the delivery map';
+
+  @override
+  String get deliveryTrackingMapUnavailable => 'The map is unavailable. You can follow the delivery status here.';
+
+  @override
+  String get deliveryTrackingMapRetry => 'Retry the map';
+
+  @override
+  String get deliveryTrackingCacheCleanupFailed => 'Could not remove the saved position. It remains hidden; retry the update.';
 }

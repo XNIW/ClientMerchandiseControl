@@ -624,6 +624,10 @@ class _DeliveryTrackingCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Text(l10n.deliveryTrackingUnavailable),
+                      if (state.cacheCleanupFailed) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(l10n.deliveryTrackingCacheCleanupFailed),
+                      ],
                       const SizedBox(height: AppSpacing.sm),
                       TextButton.icon(
                         key: const ValueKey('delivery-tracking-retry'),

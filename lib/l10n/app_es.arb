@@ -1018,5 +1018,8 @@
   "deliveryTrackingEtaUnavailable": "La tienda aún no informó una ventana estimada.",
   "deliveryTrackingEtaExpired": "La ventana estimada anterior terminó. Esperamos una actualización de la tienda.",
   "deliveryTrackingMapExpand": "Ampliar el mapa de la entrega",
-  "deliveryTrackingMapCollapse": "Reducir el mapa de la entrega"
+  "deliveryTrackingMapCollapse": "Reducir el mapa de la entrega",
+  "deliveryTrackingMapUnavailable": "El mapa no está disponible. Puedes seguir el estado de la entrega aquí.",
+  "deliveryTrackingMapRetry": "Reintentar el mapa",
+  "deliveryTrackingCacheCleanupFailed": "No se pudo quitar la ubicación guardada. Sigue oculta; reintenta la actualización."
 }

@@ -198,7 +198,6 @@ void main() {
   });
 }
 
-
 // allTestsPassed SDK viene completato prima del report native e non cambia
 // dopo un errore di postTest. Il binding registra quel ramo come Failure prima
 // della closure SDK; il publisher controlla anche il risultato del tearDownAll.
@@ -250,8 +249,10 @@ class _NativeCartTerminalPublisher {
     // Il loop LIFO SDK usa whenComplete: prima della lettura del risultato,
     // lascia propagare le failure microtask della precedente callback.
     await Future<void>.delayed(Duration.zero);
-    final teardownFailed = Invoker.current?.liveTest.state.result.isFailing ?? true;
-    final terminalPassed = sdkPassed &&
+    final teardownFailed =
+        Invoker.current?.liveTest.state.result.isFailing ?? true;
+    final terminalPassed =
+        sdkPassed &&
         binding.postTestCompleted &&
         !binding.postTestFailed &&
         !teardownFailed &&
@@ -281,7 +282,10 @@ class _NativeCartTerminalPublisher {
   }
 }
 
-Future<void> _publishTerminalJson(File target, Map<String, Object?> value) async {
+Future<void> _publishTerminalJson(
+  File target,
+  Map<String, Object?> value,
+) async {
   // Unico publisher nel sandbox/run proprio. Prima si chiude il record completo;
   // il rename finale lo rende osservabile. Un record precedente è preservato.
   final pending = File('${target.path}.pending-$pid');

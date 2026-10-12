@@ -1,0 +1,143 @@
+name: TASK054 guest cart process restart
+
+# Il push della sola branch isolata abilita la prima esecuzione anche prima che
+# una workflow_dispatch nuova sia registrata nella default branch.
+# Ogni piattaforma ha processo, sandbox e receipt distinti dal journal indirizzi.
+on:
+  push:
+    branches:
+      - codex/task054-cart-tracking-*
+    paths:
+      - .github/workflows/task054-guest-cart-restart.yml
+      - integration_test/guest_cart_native_restart_test.dart
+      - scripts/run-guest-cart-restart-android.py
+      - scripts/run-guest-cart-restart-ios.py
+      - scripts/test-guest-cart-process-restart.py
+      - scripts/run-address-journal-android.py
+      - scripts/run-address-journal-ios.py
+      - scripts/run-task054-android-visual.py
+      - scripts/run-task054-ios-owned.py
+      - lib/**
+      - pubspec.yaml
+      - pubspec.lock
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Gate separato senza backend; ogni piattaforma usa il proprio runner
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - android
+          - ios
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: 3.44.8
+  PYTHONDONTWRITEBYTECODE: 1
+
+jobs:
+  android-guest-cart:
+    name: Guest cart Android two-process recovery
+    if: github.event_name != 'workflow_dispatch' || inputs.platform == 'both' || inputs.platform == 'android'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+      - name: Validate receipt and ownership failure boundaries
+        run: |
+          bash scripts/check-action-pins.sh
+          python3 scripts/test-guest-cart-process-restart.py
+      - name: Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate toolchain and resolve locked dependencies
+        run: |
+          bash scripts/resolve-flutter.sh
+          flutter pub get --enforce-lockfile
+          flutter gen-l10n
+          git diff --exit-code -- pubspec.lock lib/l10n/generated
+          dart format --output=none --set-exit-if-changed integration_test/guest_cart_native_restart_test.dart
+          flutter analyze
+      - name: Enable access to owned KVM runner
+        run: |
+          test -c /dev/kvm
+          sudo -n chown "$(id -u):$(id -g)" /dev/kvm
+          sudo -n chmod u+rw /dev/kvm
+      - name: Seed force-stop and restore guest cart without VM transport
+        run: python3 scripts/run-guest-cart-restart-android.py
+      - name: Save independent guest cart evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-android-guest-cart-restart
+          path: |
+            build/task054/guest-cart-restart/*.json
+            build/task054/guest-cart-restart-receipt.json
+            build/task054/android-emulator.log
+          if-no-files-found: warn
+          retention-days: 7
+
+  ios-guest-cart:
+    name: Guest cart iOS two-process recovery
+    if: github.event_name != 'workflow_dispatch' || inputs.platform == 'both' || inputs.platform == 'ios'
+    runs-on: macos-26
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+      - name: Validate receipt and ownership failure boundaries
+        run: |
+          bash scripts/check-action-pins.sh
+          python3 scripts/test-guest-cart-process-restart.py
+      - name: Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: Validate toolchain and resolve locked dependencies
+        run: |
+          bash scripts/resolve-flutter.sh
+          flutter pub get --enforce-lockfile
+          flutter gen-l10n
+          git diff --exit-code -- pubspec.lock lib/l10n/generated
+          dart format --output=none --set-exit-if-changed integration_test/guest_cart_native_restart_test.dart
+          flutter analyze
+      - name: Prepare a new owned Simulator headless
+        run: |
+          mkdir -p build/task054
+          python3 scripts/run-task054-ios-owned.py prepare \
+            --receipt build/task054/ios-guest-cart-owned-receipt.json --headless
+      - name: Seed terminate and restore guest cart without VM transport
+        run: >-
+          python3 scripts/run-guest-cart-restart-ios.py
+          --owner-receipt build/task054/ios-guest-cart-owned-receipt.json
+      - name: Clean up the owned guest cart Simulator
+        if: always()
+        run: |
+          if [[ -f build/task054/ios-guest-cart-owned-receipt.json ]]; then
+            python3 scripts/run-task054-ios-owned.py cleanup \
+              --receipt build/task054/ios-guest-cart-owned-receipt.json
+          fi
+      - name: Save independent guest cart evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: task054-ios-guest-cart-restart
+          path: |
+            build/task054/ios-guest-cart-restart/*.json
+            build/task054/ios-guest-cart-owned-receipt.json
+          if-no-files-found: warn
+          retention-days: 7

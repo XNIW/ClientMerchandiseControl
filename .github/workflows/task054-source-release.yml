@@ -131,6 +131,7 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-owned.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-task054-ios-preview.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-guest-cart-process-restart.py
       - name: Validate client security boundary
         if: ${{ !inputs.focused }}
         run: |

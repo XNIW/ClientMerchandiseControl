@@ -19,7 +19,7 @@ PREFIX = 'CMC-Task054-Owned-'
 OWNER_CONTEXT = ('GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_JOB', 'GITHUB_SHA')
 OWNED_ENVIRONMENT = 'owned-launchd-environment'
 OWNED_DESCRIPTOR = 'owned-descriptor-launchd'
-DESCRIPTOR_KIND = 'owned-descriptor-launchd.v1'
+DESCRIPTOR_KIND = 'owned-descriptor-launchd.v2'
 OWNED_DEVICE_TYPE = 'com.apple.CoreSimulator.SimDeviceType.iPhone-17'
 READINESS_BUDGET = 30
 READINESS_KIND = 'owned-launchd-environment.v1'
@@ -176,7 +176,7 @@ def descriptor_attestation(before, after):
         'deviceTypeMatches': True, 'descriptorReadbacksQualified': True,
         'descriptorBeforeSha256': before['fileSha256'],
         'descriptorAfterSha256': after['fileSha256'],
-        'spawnExecutable': '/usr/bin/true', 'spawnStandalone': False,
+        'spawnExecutable': 'launchctl', 'spawnArguments': ['list'], 'spawnStandalone': False,
         'spawnExitCode': 0, 'commandBudgetSeconds': READINESS_BUDGET,
         'globalPostBootInventory': 'NOT_RUN',
     }
@@ -454,9 +454,10 @@ class IosOwnedRunner:
         remaining_budget()
         before = owned_descriptor_observation(record)
         validate_descriptor_readback(before, record)
-        # Spawn normale passa dal launchd del UUID proprio e richiede Booted;
-        # lo stato numerico del plist non viene interpretato come readiness.
-        self.command(['xcrun', 'simctl', 'spawn', record['device'], '/usr/bin/true'],
+        # Nome senza slash: simctl cerca il PATH del device, non il root host.
+        # Spawn normale conserva il requisito launchd/Booted; output della
+        # sola list non viene pubblicato. Lo stato del plist non è readiness.
+        self.command(['xcrun', 'simctl', 'spawn', record['device'], 'launchctl', 'list'],
                      remaining_budget(), capture=True)
         remaining_budget()
         after = owned_descriptor_observation(record)

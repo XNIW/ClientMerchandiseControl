@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Qualificazione descriptor/spawn: filesystem host reale, simctl soltanto mock."""
+import argparse
 import importlib.util
 import json
 import os
 from pathlib import Path
 import plistlib
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -14,6 +16,15 @@ spec = importlib.util.spec_from_file_location('descriptor_qualification_base',
 BASE = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(BASE)
 M = BASE.MODULE
+source_options = argparse.ArgumentParser(add_help=False)
+source_options.add_argument('--source', type=Path)
+source_choice, remaining_arguments = source_options.parse_known_args()
+sys.argv[1:] = remaining_arguments
+if source_choice.source:
+    source_spec = importlib.util.spec_from_file_location('descriptor_target_source', source_choice.source)
+    M = importlib.util.module_from_spec(source_spec)
+    source_spec.loader.exec_module(M)
+    BASE.MODULE = M
 
 
 class DescriptorFixture(BASE.Fixture):
@@ -28,6 +39,7 @@ class DescriptorFixture(BASE.Fixture):
         self.spawn_callback = None
         self.cold_after_bootstatus = False
         self.observations = 0
+        self.spawn_output = ''
 
     def write_descriptor(self, runner, atomic=False):
         payload = {'UDID': BASE.DEVICE, 'name': runner.record['name'],
@@ -44,15 +56,19 @@ class DescriptorFixture(BASE.Fixture):
         if arguments[:3] == ['xcrun', 'simctl', 'spawn']:
             self.runner = runner
             self.calls.append((arguments, timeout))
-            if arguments != ['xcrun', 'simctl', 'spawn', BASE.DEVICE, '/usr/bin/true']:
-                raise AssertionError('Spawn fuori dal solo UUID/true proprio.')
+            if arguments == ['xcrun', 'simctl', 'spawn', BASE.DEVICE, '/usr/bin/true']:
+                # Causa reale GCR38314239143 preservata: path assoluto host,
+                # dyld macOS incompatibile con librerie iOS-simulator.
+                raise M.Failure(124, 'dyld host true incompatibile con runtime simulatore')
+            if arguments != ['xcrun', 'simctl', 'spawn', BASE.DEVICE, 'launchctl', 'list']:
+                raise AssertionError('Spawn fuori dal solo UUID/launchctl list proprio.')
             if not self.booted:
                 raise M.Failure(1, 'spawn normale richiede Booted')
             if self.spawn_failure:
                 raise self.spawn_failure
             if self.spawn_callback:
                 self.spawn_callback(runner)
-            return ''
+            return self.spawn_output
         if (arguments[:4] == ['xcrun', 'simctl', 'list', 'devices'] and
                 self.booted and runner.phase != 'cleanup'):
             self.calls.append((arguments, timeout))
@@ -127,7 +143,7 @@ class OwnedDescriptorLaunchdTest(unittest.TestCase):
             self.assertEqual(fixture.record_before_boot['deviceType'], M.OWNED_DEVICE_TYPE)
             self.assertFalse(any(BASE.FOREIGN in args for args, _ in fixture.calls))
 
-    def test_state_numeric_or_absent_never_replaces_spawn(self):
+    def test_state_numeric_never_replaces_spawn(self):
         for state in (0, 3, 999):
             with self.subTest(state=state), tempfile.TemporaryDirectory() as directory:
                 fixture = DescriptorFixture(directory)
@@ -280,7 +296,7 @@ class OwnedDescriptorLaunchdTest(unittest.TestCase):
     def test_old_environment_negative_is_preserved(self):
         with tempfile.TemporaryDirectory() as directory:
             fixture = DescriptorFixture(directory)
-            # Questa fixture permette solo true; la vecchia modalità viene
+            # Questa fixture permette solo launchctl list; la vecchia modalità viene
             # controllata anche dalla suite environment dedicata, immutata.
             actual_command = fixture.command
             def env_command(runner, arguments, timeout, capture=False):
@@ -293,6 +309,42 @@ class OwnedDescriptorLaunchdTest(unittest.TestCase):
             fixture.command = env_command
             self.assertEqual(fixture.execute(method=M.OWNED_ENVIRONMENT), 2)
             self.assert_not_ready(fixture)
+
+    def test_probe_resolves_device_launchctl_and_discards_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = DescriptorFixture(directory)
+            fixture.spawn_output = 'synthetic-process-data-do-not-publish\n'
+            self.assertEqual(fixture.execute(), 0)
+            saved = fixture.saved()
+            proof = saved['readinessAttestation']
+            self.assertEqual(proof['kind'], 'owned-descriptor-launchd.v2')
+            self.assertEqual(proof['spawnExecutable'], 'launchctl')
+            self.assertEqual(proof['spawnArguments'], ['list'])
+            self.assertIs(proof['spawnStandalone'], False)
+            self.assertNotIn(fixture.spawn_output.strip(), json.dumps(saved))
+            self.assertEqual(fixture.spawns()[0][0],
+                ['xcrun', 'simctl', 'spawn', BASE.DEVICE, 'launchctl', 'list'])
+
+    def test_v1_or_altered_executable_arguments_are_not_v2_receipts(self):
+        for altered in ('v1', 'host', 'arguments'):
+            with self.subTest(altered=altered), tempfile.TemporaryDirectory() as directory:
+                fixture = DescriptorFixture(directory)
+                self.assertEqual(fixture.execute(), 0)
+                saved = fixture.saved()
+                proof = saved['readinessAttestation']
+                if altered == 'v1':
+                    proof['kind'] = 'owned-descriptor-launchd.v1'
+                    proof['spawnExecutable'] = '/usr/bin/true'
+                    proof.pop('spawnArguments')
+                elif altered == 'host':
+                    proof['spawnExecutable'] = '/bin/launchctl'
+                else:
+                    proof['spawnArguments'] = ['getenv', 'SIMULATOR_UDID']
+                fixture.path.write_text(json.dumps(saved))
+                runner = M.IosOwnedRunner(fixture.path)
+                with patch.dict(os.environ, fixture.owner_environment, clear=True):
+                    with self.assertRaises(M.Failure):
+                        runner.load()
 
 
 if __name__ == '__main__':

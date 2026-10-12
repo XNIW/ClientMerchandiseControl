@@ -4,13 +4,17 @@ import 'package:client_merchandise_control/app/design_system/tokens/app_sizes.da
 import 'package:client_merchandise_control/app/router/app_routes.dart';
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:client_merchandise_control/core/config/app_config.dart';
+import 'package:client_merchandise_control/core/formatting/shop_date_time_formatter.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_controller.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
 import 'package:client_merchandise_control/features/account/domain/customer_account_models.dart';
 import 'package:client_merchandise_control/features/auth/domain/authenticated_customer.dart';
 import 'package:client_merchandise_control/features/cart/application/cart_state.dart';
+import 'package:client_merchandise_control/features/cart/domain/cart_failure.dart';
+import 'package:client_merchandise_control/features/checkout/application/checkout_controller.dart';
 import 'package:client_merchandise_control/features/checkout/application/checkout_providers.dart';
 import 'package:client_merchandise_control/features/checkout/domain/checkout_models.dart';
+import 'package:client_merchandise_control/features/checkout/domain/checkout_failure.dart';
 import 'package:client_merchandise_control/features/delivery_context/application/delivery_context_controller.dart';
 import 'package:client_merchandise_control/features/checkout/presentation/checkout_screen.dart';
 import 'package:client_merchandise_control/features/checkout/presentation/checkout_payment_screen.dart';
@@ -32,6 +36,8 @@ void main() {
     Locale locale = const Locale('es', 'CL'),
     ThemeMode themeMode = ThemeMode.light,
     TextScaler textScaler = TextScaler.noScaling,
+    MemoryCheckoutDraftStore? draftStore,
+    CartState? cartState,
   }) {
     router = GoRouter(
       initialLocation: AppRoutes.checkoutLocation,
@@ -69,7 +75,7 @@ void main() {
         appConfigProvider.overrideWithValue(_config()),
         customerAccountIdentityProvider.overrideWithValue(identity),
         checkoutCartStateProvider.overrideWithValue(
-          CartState(
+          cartState ?? CartState(
             status: CartViewStatus.ready,
             isAuthenticated: authenticated,
             snapshot: cart,
@@ -94,7 +100,7 @@ void main() {
         checkoutCartRefreshProvider.overrideWithValue(() async {}),
         checkoutRepositoryProvider.overrideWithValue(repository),
         checkoutDraftStoreProvider.overrideWithValue(
-          MemoryCheckoutDraftStore(),
+          draftStore ?? MemoryCheckoutDraftStore(),
         ),
         checkoutClockProvider.overrideWithValue(() => checkoutTestNow),
         customerIdempotencyKeyFactoryProvider.overrideWithValue(
@@ -140,6 +146,117 @@ void main() {
     await tester.pumpAndSettle();
     expect(router.state.uri.path, AppRoutes.cartLocation);
   });
+
+  for (final pending in [false, true]) {
+    testWidgets('receipt ripristinata senza cart/opzioni usa UTC, pending=$pending', (tester) async {
+      final order = checkoutTestOrderSnapshot(
+        idempotent: true,
+        fulfillment: CheckoutOrderFulfillment(
+          destinationTitle: 'Tienda confirmada en receipt',
+          addressLine1: 'Avenida Uno 123',
+          commune: 'Santiago',
+          recipientName: null,
+          recipientPhoneMasked: null,
+          deliveryInstructions: null,
+          slotLabel: 'Retiro confirmado',
+          slotStartsAt: checkoutTestNow.add(const Duration(days: 1)),
+          slotEndsAt: checkoutTestNow.add(const Duration(days: 1, hours: 2)),
+        ),
+      );
+      final store = MemoryCheckoutDraftStore()
+        ..draft = CheckoutLocalDraft(
+          ownerSubjectId: checkoutTestOwner,
+          shopSlug: 'storefront-test',
+          step: CheckoutStep.confirmation,
+          selection: const CheckoutSelection(
+            mode: CheckoutFulfillmentMode.pickup,
+            pickupPointId: checkoutTestPoint,
+            slotId: checkoutTestPickupSlot,
+            paymentMethod: CheckoutPaymentMethod.payAtPickup,
+          ),
+          quoteId: checkoutTestQuote,
+          orderId: pending ? null : checkoutTestOrder,
+          pendingOperation: pending ? const CheckoutPendingOperation(
+            kind: CheckoutPendingOperationKind.order,
+            idempotencyKey: checkoutTestKey,
+            cartVersion: 7,
+            quoteId: checkoutTestQuote,
+            expectedQuoteVersion: 2,
+            paymentMethod: CheckoutPaymentMethod.payAtPickup,
+          ) : null,
+          updatedAt: checkoutTestNow,
+        );
+      final repository = FakeCheckoutRepository()
+        ..optionsError = const CheckoutRepositoryException(CheckoutFailureKind.offline)
+        ..readOrderOutcome = checkoutTestOrderResponse(order: order, idempotent: true);
+      if (pending) {
+        repository.orderOutcomes.addAll([
+          const CheckoutRepositoryException(CheckoutFailureKind.timeout),
+          checkoutTestOrderResponse(order: order, idempotent: true),
+        ]);
+      }
+      final cartState = CartState.failure(
+        isAuthenticated: true,
+        failureKind: CartFailureKind.offline,
+      );
+      await tester.pumpWidget(buildApp(
+        repository: repository,
+        draftStore: store,
+        cartState: cartState,
+      ));
+      await tester.pumpAndSettle();
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(CheckoutScreen)),
+      );
+      if (pending) {
+        final restored = container.read(checkoutControllerProvider);
+        expect(restored.options, isNull);
+        expect(restored.cart, isNull);
+        expect(restored.pendingOperation!.idempotencyKey, checkoutTestKey);
+        expect(repository.orderRequests, hasLength(1));
+        expect(tester.takeException(), isNull);
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpAndSettle();
+        final retry = find.byKey(const ValueKey('checkout-order-retry'));
+        expect(retry, findsOneWidget);
+        await tester.ensureVisible(retry);
+        await tester.tap(retry);
+        await tester.pumpAndSettle();
+      }
+      expect(tester.takeException(), isNull);
+      final restored = container.read(checkoutControllerProvider);
+      expect(restored.order, same(order));
+      expect(restored.options, isNull);
+      expect(restored.paymentOptions, isNull);
+      expect(restored.cart, isNull);
+      expect(find.byKey(const ValueKey('checkout-order-receipt')), findsOneWidget);
+      expect(find.text(checkoutTestOrderCode), findsOneWidget);
+      expect(find.text(order.fulfillment!.destinationTitle), findsOneWidget);
+      expect(find.text(order.fulfillment!.slotLabel), findsOneWidget);
+      final expectedUtc = ShopDateTimeFormatter.format(
+        tester.element(find.byType(CheckoutScreen)),
+        order.placedAt,
+        timeZone: 'UTC',
+      );
+      expect(find.textContaining(expectedUtc), findsOneWidget);
+      expect(find.textContaining(' · UTC'), findsOneWidget);
+      expect(repository.loadOptionsCalls, 0);
+      expect(repository.loadPaymentOptionsCalls, 0);
+      expect(container.read(checkoutCartStateProvider), same(cartState));
+      expect(store.draft!.orderId, checkoutTestOrder);
+      expect(store.draft!.pendingOperation, isNull);
+      if (pending) {
+        expect(repository.orderRequests, hasLength(2));
+        expect(repository.orderRequests.first, repository.orderRequests.last);
+        expect(repository.orderCartVersions, [7, 7]);
+      } else {
+        expect(repository.orderRequests, isEmpty);
+        expect(repository.readOrderCalls, 1);
+      }
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+    });
+  }
 
   testWidgets('pickup crea ordine server-side e mostra receipt accessibile', (
     tester,

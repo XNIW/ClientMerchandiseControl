@@ -68,7 +68,7 @@ void main() {
     final end = now.add(const Duration(minutes: 1));
     await pump(snapshot(now.add(const Duration(seconds: 10)), end, 6));
     expect(find.text(l10n.deliveryTrackingEtaExpired), findsNothing);
-    expect(find.textContaining('Entrega prevista entre'), findsOneWidget);
+    expect(find.textContaining('Entrega estimada, no garantizada, entre'), findsOneWidget);
     now = end;
     await tester.pump(const Duration(minutes: 1));
     expect(find.text(l10n.deliveryTrackingEtaExpired), findsOneWidget);
@@ -80,7 +80,7 @@ void main() {
       ),
     );
     expect(find.text(l10n.deliveryTrackingEtaExpired), findsNothing);
-    expect(find.textContaining('Entrega prevista entre'), findsOneWidget);
+    expect(find.textContaining('Entrega estimada, no garantizada, entre'), findsOneWidget);
     await pump(snapshot(null, null, 8), terminal: true);
     expect(find.byKey(const ValueKey('delivery-tracking-eta')), findsNothing);
     expect(tester.takeException(), isNull);

@@ -139,7 +139,7 @@ void main() {
     expect(restored?.selection.paymentMethod, isNull);
   });
 
-  test('record corrotto viene rimosso e non provoca crash', () async {
+  test('record corrotto resta intatto e non provoca crash', () async {
     preferences.values[SharedPreferencesCheckoutDraftStore.storageKey] =
         '{"version":1,"totalClp":1}';
 
@@ -147,7 +147,10 @@ void main() {
       await store.read(ownerSubjectId: _owner, shopSlug: 'storefront-test'),
       isNull,
     );
-    expect(preferences.values, isEmpty);
+    expect(
+      preferences.values[SharedPreferencesCheckoutDraftStore.storageKey],
+      '{"version":1,"totalClp":1}',
+    );
   });
 
   test('clear è scoped e serializzato', () async {

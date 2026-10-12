@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:client_merchandise_control/core/config/app_config.dart';
 import 'package:client_merchandise_control/features/account/application/customer_account_providers.dart';
@@ -12,17 +14,21 @@ import 'package:client_merchandise_control/features/cart/presentation/add_to_car
 import 'package:client_merchandise_control/features/reservations/application/reservation_hold_providers.dart';
 import 'package:client_merchandise_control/features/storefront/domain/storefront_models.dart';
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
+import 'package:client_merchandise_control/app/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../reservations/reservation_hold_test_support.dart';
+import '../../support/client_host_visual_fonts.dart';
 
 const publication = '50000000-0000-4000-8000-000000000001';
 final identity = StateProvider<AuthenticatedCustomer?>((ref) => customer());
 final shop = StateProvider<String>((ref) => 'storefront-test');
 
 void main() {
+  setUpAll(loadClientHostVisualFonts);
   for (final status in [
     CartRemoteStatus.unavailable,
     CartRemoteStatus.limitReached,
@@ -195,8 +201,9 @@ void main() {
       ]);
       final container = await mount(tester, remote);
       container.listen(cartControllerProvider, (previous, next) {
-        if (next.notice != null)
+        if (next.notice != null) {
           container.read(cartControllerProvider.notifier).clearNotice();
+        }
       });
       final l10n = AppLocalizations.of(
         tester.element(find.byType(AddToCartButton)),
@@ -207,12 +214,46 @@ void main() {
       expect(find.text(l10n.cartAddedNotice), findsNothing);
     },
   );
+  for (final locale in const [Locale('es', 'CL'), Locale('it'), Locale('en'),
+      Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans')]) {
+    for (final dark in [false, true]) {
+      testWidgets('feedback pending ${locale.toLanguageTag()} dark=$dark testo200 e semantics', (tester) async {
+        await tester.binding.setSurfaceSize(const Size(320, 568));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        final semantics = tester.ensureSemantics();
+        addTearDown(semantics.dispose);
+        await mount(tester, Remote([const CartRepositoryException(CartFailureKind.timeout)]),
+            locale: locale, dark: dark, scaled: true);
+        final l10n = AppLocalizations.of(tester.element(find.byType(AddToCartButton)));
+        await tester.tap(find.byType(FilledButton));
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.cartPendingConfirmationNotice), findsOneWidget);
+        expect(find.text(l10n.cartAddedNotice), findsNothing);
+        expect(tester.getSemantics(find.text(l10n.cartPendingConfirmationNotice)).getSemanticsData().label,
+            contains(l10n.cartPendingConfirmationNotice));
+        expect(tester.takeException(), isNull);
+        final path = Platform.environment['CMC_CLIENT_CAPTURE_DIR'];
+        if (path != null) {
+          final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(const ValueKey('cart-feedback-frame')));
+          final frame = await boundary.toImage();
+          final data = await frame.toByteData(format: ui.ImageByteFormat.png);
+          await File('$path/cart-pending-${locale.toLanguageTag()}-${dark ? 'dark' : 'light'}-200.png')
+              .writeAsBytes(data!.buffer.asUint8List());
+          frame.dispose();
+        }
+      });
+    }
+  }
+
 }
 
 Future<ProviderContainer> mount(
   WidgetTester tester,
   Remote remote, {
   bool guest = false,
+  Locale locale = const Locale('es', 'CL'),
+  bool dark = false,
+  bool scaled = false,
 }) async {
   final container = ProviderContainer(
     overrides: [
@@ -248,7 +289,13 @@ Future<ProviderContainer> mount(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        locale: const Locale('es', 'CL'),
+        locale: locale,
+        theme: clientHostVisualTheme(AppTheme.light()),
+        darkTheme: clientHostVisualTheme(AppTheme.dark()),
+        themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+        builder: (context, child) => RepaintBoundary(key: const ValueKey('cart-feedback-frame'),
+          child: MediaQuery(data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(scaled ? 2 : 1), disableAnimations: true), child: child!)),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(body: AddToCartButton(product: product())),

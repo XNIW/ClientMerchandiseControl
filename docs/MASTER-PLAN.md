@@ -7,22 +7,18 @@
 - **Stato globale**: ACTIVE
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
-- **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Stato task**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_FIX_IN_PROGRESS
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — runtime iOS e gate live; integrazione sviluppo separata e condizionata
-- **Prossima azione autorizzata**: sorgente applicativo ba11b0f nella PR29 draft;
-  CI38279556447 terminale5PASS/2FAIL (journal), Quality1137/1SKIP+11performance,
- 92fixture/137PNG+4OS per piattaforma e unsigned2PASS. Review distinte scoped,
-  integrataBLOCKED. QAfontcb9/38283244297:166PASS e4CJKhost leggibili, nessun
-  deltaapp/test/native. Registri e80capsule storiche preservati; runner GitHub
-  separati, zeroSDK/UI Mac. Owner backend associa riferimento PG protetto e
-  verifica TLS/identità/catalogo corrente, recovery/profile/window; Client/runner
-  qualifica trasporto e seed/kill/recover del journal. Auth/callback, TEST firmato,
-  R13/R14, due originiR24, AT e profilo fisico ancora aperti; nessun DONE/merge.
+- **Prossima azione autorizzata**: addendum utente12ottobre carrello e mappa reale,
+  unico writer Client in FIX e runner GitHub separati. Riproduzione widget del falso
+  successo, outcome per richiesta/account/shop, percorso cart/checkout e qualifica
+  tracking mirata. Checkpoint ba11/527 e QAcb9 preservati con tutti i gate aperti;
+  review integrata BLOCKED. Nessuna nuova richiesta slot Mac, SQL/deploy/input Admin/W/N.
 
 
 ## Repository coinvolti
@@ -127,7 +123,7 @@
 | TASK-051 | Cart, checkout and payment journey completion | DONE | TASK-050, TASK-023, TASK-026, TASK-027, TASK-032 | Client, Admin, Supabase | Checkout e payment/recovery completi |
 | TASK-052 | Notification inbox and reorder | DONE | TASK-051, TASK-028, TASK-031 | Client, Admin, Supabase | Inbox persistente e riacquisto validato |
 | TASK-053 | After-sales, verified reviews and search assist | DONE | TASK-052 | Client, Admin, Supabase | Assistenza, recensioni verificate e ricerca assistita |
-| TASK-054 | Integrated staging E2E and closeout | BLOCKED | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
+| TASK-054 | Integrated staging E2E and closeout | ACTIVE | TASK-050–TASK-053 | Client, Admin, Supabase | E2E-01…25, review integrata e closeout |
 
 ## Dipendenze e blocchi
 

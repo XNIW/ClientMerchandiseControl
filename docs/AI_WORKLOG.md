@@ -5734,3 +5734,13 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
 - **Preservazione**:80capsule744byte-identiche,13consumerdigest,2matrici31righe/
  30ID/dueR24 e25E2E intatti; originale8423c868/supabase/ preservati; noSDK/UI Mac.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+## 2026-10-12 — TASK-054 ripresa Fix addendum carrello e tracking
+
+- **Autorizzazione**: addendum utente diretto; runner GitHub separati persistenti.
+- **Freeze**: ba11 applicativo,527 receiptPR29,cb9 toolQA preservati. Branch addendum
+  discende da527 e riporta soltanto il toolQA con cherry-pick; originale dirty intatto.
+- **Attività**: riproduzione widget del falso successo, verifiche contrattuali e
+  tracking in parallelo read-only; nessun SDK/UI Mac, SQL/deploy/input esterni.
+- **Gate**: nuova regressione NOT_RUN prima del runner; review integrata BLOCKED.
+- **Ruolo/fase**: CODEX_FIXER/FIX, TASK-054 unico ACTIVE.

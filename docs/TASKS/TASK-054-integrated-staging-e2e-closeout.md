@@ -1,10 +1,10 @@
 # TASK-054 — Integrated staging E2E and closeout
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
-- **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Stato**: ACTIVE
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Handoff**: CODEX_FIX_IN_PROGRESS
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -1355,3 +1355,25 @@ Re-review evidence distinta conclusa:74JSON,80capsule,13digest, matrici, link e
 hash PNG verificati; fedeltàPASS,0nuoviP0/P1/P2/P3. Esito globale
 `BLOCKED / CODEX_REVIEW_BLOCKED`: gate obbligatori journal/live/schema/Auth/firma/
 AT/profile non chiusi. Nessun DONE/merge/tasksuccessivo.
+
+## Emendamento utente — carrello affidabile e mappa reale, 12 ottobre 2026
+
+L'addendum diretto autorizza la ripresa in FIX nella stessa linea TASK-054 dopo il
+freeze applicativoba11, receipt527 e toolQAcb9. Si preservano assistenza, recensioni,
+inbox, checkout, review e negativi precedenti. Runner GitHub separati già autorizzati;
+nessun SDK/UI Mac né trasferimento di autorità SQL/deploy/input Admin/W/N.
+
+Scope aggiuntivo: feedback add legato a esito specifico owner/shop (guest locale
+distinto da ACK account); persistenza e percorso cart→checkout→ordine; UI tracking
+con camera manuale, ETA server, freshness e lifecycle; qualifica mirata consumer
+Google/backend/producer e R17 Android/iOS. Route ed ETA dinamica dipendono da fonte
+server autorizzata; courier web foreground resta distinto dal background. Nessuna
+fixture qualifica Google/GPS/TEST e nessuna capacità avanzata viene inferita.
+
+## Fix — addendum carrello e tracking
+
+Prima attività: regressione widget sui rifiuti unavailable/limitReached e timeout
+che completano normalmente la Future. Sorgente cart precedente invariato durante
+la riproduzione; esito ancora NOT_RUN in attesa del runner. Read-only parallelo dei
+contratti e prerequisiti tracking, unico writer Client. I gate obbligatori e la
+review integrata precedenti restano aperti e non sono riscritti.

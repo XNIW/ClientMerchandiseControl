@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:client_merchandise_control/app/theme/app_theme.dart';
@@ -9,6 +10,7 @@ import 'package:client_merchandise_control/features/after_sales/presentation/cus
 import 'package:client_merchandise_control/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -98,7 +100,12 @@ void main() {
           tester,
           find.byKey(const ValueKey('after-sales-evidence-picker')),
         );
-        await _tap(tester, find.byKey(const ValueKey('after-sales-submit')));
+        await _tapMutation(
+          tester,
+          find.byKey(const ValueKey('after-sales-submit')),
+          repository,
+          holdThirdUpload: true,
+        );
         expect(repository.createCalls, 1);
         expect(
           tester.takeException(),
@@ -123,7 +130,7 @@ void main() {
             find.byKey(const ValueKey('after-sales-evidence-replace-1')),
           );
         }
-        await _tap(tester, retry);
+        await _tapMutation(tester, retry, repository);
         expect(
           repository.createCalls,
           1,
@@ -164,12 +171,92 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> _tapMutation(
+  WidgetTester tester,
+  Finder finder,
+  _RecoveryRepository repository, {
+  bool holdThirdUpload = false,
+}) async {
+  await tester.scrollUntilVisible(
+    finder,
+    200,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.runAsync(() async {
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(CustomerAfterSalesScreen).first),
+      listen: false,
+    );
+    // Il Future e i gate nascono nel clock reale usato dalle letture XFile.
+    final completed = Completer<void>();
+    var sawMutation = false;
+    final subscription = container.listen(
+      customerAfterSalesControllerProvider,
+      (_, next) {
+        sawMutation = sawMutation || next.isMutating;
+        if (sawMutation && !next.isMutating && !completed.isCompleted) {
+          completed.complete();
+        }
+      },
+    );
+    final gate = holdThirdUpload ? _ThirdUploadGate() : null;
+    repository.thirdUploadGate = gate;
+    try {
+      await tester.tap(finder);
+      expect(
+        sawMutation,
+        isTrue,
+        reason: 'Il tap avvia la mutation osservata',
+      );
+      if (gate != null) {
+        // Anche un ritorno prematuro a idle deve raggiungere l'assertion [1,2,3].
+        await Future.any<void>([gate.started.future, completed.future]);
+        if (gate.started.isCompleted) {
+          expect(completed.isCompleted, isFalse);
+          expect(
+            container.read(customerAfterSalesControllerProvider).isMutating,
+            isTrue,
+          );
+          expect(repository.uploaded, [1, if (repository.lostFile == null) 2]);
+          expect(
+            container
+                .read(customerAfterSalesControllerProvider)
+                .attachments
+                .last
+                .status,
+            CustomerAfterSalesAttachmentStatus.uploading,
+          );
+          gate.release.complete();
+        }
+      }
+      await completed.future;
+      expect(
+        container.read(customerAfterSalesControllerProvider).isMutating,
+        isFalse,
+      );
+    } finally {
+      if (gate != null && !gate.release.isCompleted) gate.release.complete();
+      repository.thirdUploadGate = null;
+      subscription.close();
+    }
+  });
+  await tester.pumpAndSettle();
+}
+
+final class _ThirdUploadGate {
+  final started = Completer<void>();
+  final release = Completer<void>();
+}
+
 class _RecoveryRepository implements CustomerAfterSalesRepository {
   _RecoveryRepository(this.delegate, this.lostFile);
   final Task054AfterSalesRepository delegate;
   final File? lostFile;
   int createCalls = 0;
   bool failed = false;
+  _ThirdUploadGate? thirdUploadGate;
   final uploaded = <int>[];
   final caseIds = <String>[];
   @override
@@ -199,6 +286,11 @@ class _RecoveryRepository implements CustomerAfterSalesRepository {
     required CustomerAfterSalesEvidenceInput input,
   }) async {
     expect(input.bytes, isA<Uint8List>());
+    final gate = thirdUploadGate;
+    if (input.bytes.first == 3 && gate != null) {
+      gate.started.complete();
+      await gate.release.future;
+    }
     uploaded.add(input.bytes.first);
     caseIds.add(caseId);
     if (lostFile == null && input.bytes.first == 2 && !failed) {

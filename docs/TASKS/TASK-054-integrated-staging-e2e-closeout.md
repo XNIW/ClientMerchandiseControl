@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -1512,3 +1512,25 @@ sezione corrente PR29; nessun PASS anticipato o trasferimento alla app.
 
 Fix riconsegnato con gate reali aperti: CODEX_FIX_BLOCKED_TO_RE_REVIEW.
 Re-review globale BLOCKED / CODEX_REVIEW_BLOCKED, nessun merge/DONE.
+
+
+## Review Quality — QUALITY-RR-02, 16 ottobre
+
+La CI38841333617 su9d4fe2f termina QualityFAIL:1242PASS/1FAIL/1SKIP,
+format409/0 e analyze0. Il test recupero stessa pratica lostFile=false
+(customer_after_sales_evidence_recovery_test.dart:109) osserva uploaded[1,2]
+invece di[1,2,3]. Performance e whitespace NOT_RUN dopo il FAIL; i14test
+release metadata PASS confermano QUALITY-RR-01 distinto e chiuso.
+
+Review source distinta: P2 harness QUALITY-RR-02. Il tap del
+test attende100ms e non il Future dell'azione; pumpAndSettle non attesta il
+completamento delle letture file reali. Il controller mantiene isMutating
+fino al finally e il catch del secondo allegato continua sul terzo. Il log
+non registra mutating/stadioI/O: race compatibile, perdita prodotto non provata.
+
+Fix test-only autorizzato: attesa dell'operazione reale dentro runAsync con
+subscription prima del tap, regressione controllata, tutte le assertion su
+upload/retry/case/route conservate. Gate GitHub focused e Quality esistenti;
+nessun SDK locale o modifica prodotto per mascherare l'esito.
+
+CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.

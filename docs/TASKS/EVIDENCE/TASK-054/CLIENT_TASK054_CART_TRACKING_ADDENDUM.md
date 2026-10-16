@@ -1,5 +1,27 @@
 # TASK-054 — Addendum carrello e consegna
 
+## Ripresa 16 ottobre — QUALITY-RR-02
+
+CI38841333617 su9d4fe2f terminale4SUCCESS/3FAIL, tutti job nuovi sullo stesso
+SHA. Journal indirizzi Android e iOS PASS su due processi, stesso binario e
+contenitori/UID, publisher SDK terminale e cleanupPASS; backendNOT_RUN.
+Release unsigned Android e iOS PASS. Visual AndroidFAIL nel resume del driver
+(Sentinel Collected), prima del corpo suite; iOSFAIL readinesslaunchctl dopo
+bootstatusPASS. Entrambi zero nuove catture e cleanupPASS.
+
+Quality1242PASS/1FAIL/1SKIP: il test recupero allegati lostFile=false osserva
+[1,2] invece di[1,2,3]. Format409/0 e analyze0,14metadataPASS; performance e
+whitespace NOT_RUN dopoFAIL. Review distinta QUALITY-RR-02/P2: manca una
+barriera terminale nel test, che attende100ms mentre il flusso legge file
+reali. La causa esatta del vecchio snapshot resta non dimostrata dal solo log.
+
+[Fix test-only](next-integration/client-quality-rr02-recovery-barrier.json):
+attendere l'operazione reale, gate controllato terzo upload e assertion
+originali preservate. Scope limitato al test; nessun cambiamento prodotto.
+Runner focused e Quality esistenti, nessun nuovo slot Mac. Le prove native
+restano associate a9d; nessun PASS trasferito al nuovo head per inferenza.
+
+
 ## Ripresa 15 ottobre — CI corrente e diagnosi mirata
 
 PR29 draft, branch esistente codex/task054-next-integration, baseline8f17774;

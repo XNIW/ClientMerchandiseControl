@@ -8,23 +8,22 @@
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: proseguire la qualifica dei gate iOS/app e
-  Maps/TEST dai Checks e dalla sezione corrente PR29, preservando i negativi.
-  Profilo cold preflight separato, senza SDK/UI Mac; fix IOS-COLD-RR-01
-  source/mock revisionato: Xcode26.6 usa SDKsim26.5 sulla superficie osservata.
-  Prima prova38840611837 FAIL2 nel guard diagnostico, inventory/boot NOT_RUN;
-  guard corretto dopo RED/GREEN e review distinta. Esito hosted corretto da
-  leggere nel proprio run/SHA, senza retry identico o acceptance inferita.
-  CI38324733546/attempt2 su8f:5SUCCESS/2FAIL, quattro successi ereditati;
-  QUALITY-RR-01 chiuso,1243PASS/1SKIP/11performance. CI del nuovo head separata.
-  App07649 invariata, PR29 draft e merge HOLD; Maps/TEST/AT/firma aperti.
-  Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
+- **Prossima azione autorizzata**: correggere QUALITY-RR-02, barriera
+  terminale mancante nel test del recupero allegati. Quality9d:1242PASS/1FAIL/
+  1SKIP; formato409/0 e analyze0, metadata14PASS. Aspettative su terzo allegato,
+  stesso case e retry immutate; nessun difetto prodotto inferito dal log.
+  Runner GitHub focused e Quality esistenti, nessun SDK/UI Mac. App07649 invariata.
+  Journal indirizzi Android e iOS9d PASS su due processi, backend NOT_RUN;
+  visual Android FAIL attachdriver e iOS FAIL readinesslaunchd dopo boot,
+  cleanupPASS distinti. Source/review dei profili cold e fix SDK preservati.
+  PR29 draft, merge HOLD; Maps/TEST/AT/firma ancora aperti. Dossier corrente:
+  docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
   Nessun SQL/deploy/input Admin/W/N o trasferimento di ownership mobile.
 
 

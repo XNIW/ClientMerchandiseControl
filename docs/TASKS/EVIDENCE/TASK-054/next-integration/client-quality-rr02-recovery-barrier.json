@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "dateLocal": "2026-10-16",
+  "id": "QUALITY-RR-02",
+  "severity": "P2",
+  "category": "harness",
+  "status": "FIX_SOURCE_APPROVED_PENDING_HOSTED",
+  "baseline": "9d4fe2f386bee12cacae24110eeec88c6ae1a1b2",
+  "run": 38841333617,
+  "job": 116782524133,
+  "canonicalResult": {
+    "success": 4,
+    "failure": 3,
+    "inherited": 0,
+    "quality": {
+      "result": "FAIL",
+      "pass": 1242,
+      "fail": 1,
+      "skip": 1,
+      "format": "409/0",
+      "analyze": 0,
+      "releaseMetadataTests": 14,
+      "performance": "NOT_RUN",
+      "whitespace": "NOT_RUN"
+    },
+    "native": {
+      "androidJournal": "PASS",
+      "iosJournal": "PASS",
+      "androidReleaseUnsigned": "PASS",
+      "iosReleaseUnsigned": "PASS",
+      "androidVisual": "FAIL",
+      "iosVisual": "FAIL"
+    }
+  },
+  "failingTest": {
+    "file": "test/features/after_sales/customer_after_sales_evidence_recovery_test.dart",
+    "line": 109,
+    "name": "recupero stessa pratica, confermati conservati lostFile=false",
+    "expected": [
+      1,
+      2,
+      3
+    ],
+    "actual": [
+      1,
+      2
+    ]
+  },
+  "sourceFinding": {
+    "missingBarrier": "_tap attende gesture+100ms, non il Future submit/completamento isMutating; pumpAndSettle non attesta I/O reale",
+    "controller": "isMutating resta true fino al finally; catch unavailable del secondo file prosegue sul terzo",
+    "limit": "il log non registra isMutating o stadioI/O; nessuna precisa latenza o perdita prodotto dimostrata"
+  },
+  "independentFindingReceiptSha256": "344c245e1423157fc3b999292a0bacd9615e8fb02f73bb65fd10b6904ee6dfc7",
+  "fixScope": "solo un file test, nessun lib/native/config/deps o contract change",
+  "sourceTestSha256": {
+    "baseline": "1b0f87b05d4383b03addc49dbdb8afb3ca082d214ceffe12b54e1017b9541c25",
+    "candidate": "2ee5fe1428fa58f09d02c8431908258f56bc3aa43fa9b9d81ec37bf7732e0db5"
+  },
+  "fix": [
+    "subscription e Completer nel runAsync reale prima del tap",
+    "attesa transizione isMutating true→false per submit e retry",
+    "gate terzo upload prima del suo add, con prefisso e stato uploading/busy verificati",
+    "early return a idle raggiunge ancora assertion[1,2,3] e fallisce",
+    "assenza di avvio mutazione fallisce immediatamente",
+    "assertion case/retry/upload/route originarie preservate",
+    "picker e helper relativo invariati"
+  ],
+  "hostedChecks": {
+    "result": "NOT_RUN",
+    "reason": "cutoff precedente alla pubblicazione del fix",
+    "workflow": "task054-source-release.yml",
+    "sequence": [
+      "focused=true per format/analyze/regressioni",
+      "quality_only=true sul freeze finale"
+    ],
+    "runtimePolicy": "app source invariata; le prove native9d conservano il loro SHA e i due FAIL. CI automatiche ridondanti di questo delta test-only saranno annullate, senza assegnare PASS ai gate non eseguiti"
+  },
+  "macSdk": "NOT_RUN per ownership mobile concorrente",
+  "globalAcceptance": "BLOCKED",
+  "sourceFixReview": {
+    "outcome": "APPROVED",
+    "findings": 0,
+    "receiptSha256": "b069b6e55cf4c551af0b25ff45cbae92058c3c7365fc5c911b3e7f9a52d0f5ca",
+    "preservedOriginalExpectations": 12,
+    "newCausalExpectations": 6
+  }
+}

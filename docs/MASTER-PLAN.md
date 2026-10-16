@@ -14,25 +14,25 @@
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: freeze e re-review del fix composito
-  IOS-BOOT-OBS-RR-02/304d89a6 e IOS-JOURNAL-OBS-RR-02/5ba8f1c0; entrambi
-  approvati source/pure da due reviewer distinti, sei postimage esatti,
-  root12suite248PASS. ESRCH finale sul gruppo proprio più wait riuscito
-  omettono solo ps ridondante; segnali riusciti, errno non qualificato,
-  EPERM e reap irrisolto restano fail-closed. FAILv3 aggiunge solo
-  failureOrigin body|terminal_gate; SUCCESSv2 e legacyFAILv2 preservati.
-  Quality hosted format/analyze/fullhost NOT_RUN al freeze; soltanto dopo
-  PASS una domanda ios-visual sul runner corretto e una journal sul nuovo
-  discriminante, medesimo candidato e worker separati. Nessun nuovo input,
-  budget, guard, accesso o SDKMac; nessun Androidrepeat o retry identico.
-  FullCI7 nuovoheadNOT_RUN, non sostituita dai selector con altri6SKIPPED.
-  I due run a2a38869800564/38869808912 restano FAIL propri: visualboot0 poi
-  observercleanup2/cleanupFAIL/appNOT_RUN; journalseedPASS/recoverassertion
-  FAIL, cleanupPASS separato/backendNOT_RUN. Causa e specifica sottoproba
-  non qualificate. Canonicald19538862344656 conserva5SUCCESS/2FAIL propri,
-  negativi e cutoff immutati; nessun A/B, causa o stabilità da verde.
-  Maps/live TEST/Auth/C04/R24/AT/IME/firma distinti; PR29draft, mergeHOLD.
-  Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
+- **Prossima azione autorizzata**: re-review finale del freeze b350aa96
+  conclusa BLOCKED per i gate obbligatori del candidato ancora NOT_RUN;
+  9 source e 7 documenti verificati per hash, senza nuovi test o scan.
+  Approval dc0d9927 resta limitata a source/pure/privacy: root 284 Python
+  in 12 suite e reviewer 51 test/176 casi indipendenti, senza sommarli.
+  Security locale 1157/zero/exit0 precede gli ultimi metadati di handoff;
+  pin4, governance del Fix e whitespace PASS da ricevute terminali.
+  Pubblicare il freeze sul ramo esistente con commit ordinario skipautomatico,
+  poi Quality hosted format/analyze/fullhost sul nuovo SHA, senza SDK Mac.
+  Solo dopo PASS, due domande native distinte sullo stesso candidato: visual
+  reason/PGID/SID/reap e journal passivo/checkpoint. I nuovi gate e fullCI7
+  sono NOT_RUN; e77 conserva Quality PASS e due FAIL propri, senza transfer.
+  Stessi budget300/30, owner/attestazioni/privacy; EPERM non viene ignorato,
+  nessun segnale alternativo o prova di quiescenza dal reap del leader.
+  V1/finding IOS-OBS-LIFECYCLE-RR-01, RED/setupfail e cutoff preservati.
+  Nessuna causa boot/EPERM/Keychain o acceptance nativa/live dichiarata.
+  Nessun retry identico, reset, nuovo branch/WT/accesso, SDK/device/inputMac
+  o Asus, SQL/deploy/merge/DONE. Maps/TEST/Auth/C04/R24/AT/IME/firma distinti;
+  task BLOCKED/REVIEW, PR29 draft, merge HOLD.
 
 ## Repository coinvolti
 

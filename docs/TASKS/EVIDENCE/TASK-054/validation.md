@@ -337,3 +337,72 @@ backend-reconciliation.md e operational-provenance.json. Nessun apply condiviso.
 Le ricevute della CI sul freeze documentale e del merge successivo sono registrate
 nella PR27 e nel rapporto finale locale dopo la loro conclusione; non si anticipa
 un esito sullo SHA futuro.
+
+
+## Fix diagnostico pre-app — ripresa 16 ottobre 2026
+
+Baseline e77e108 e tre run terminali restano associati al proprio SHA:
+Quality38874967013 PASS, visual38877119329 FAIL124/bootstatus e observerEPERM,
+journal38877142210 FAIL124/readiness prima fixture; fullCI7e77 NOT_RUN.
+Le capsule cc1981eb/9324ed6d/37f1b9d6 e aggregate3cf0217c sono immutate.
+
+Tre nuovi freeze privati revisionati: observerV2/84e099c4, passivo904eb892,
+checkpoint1248b45de181. Seconda review composita dc0d9927 APPROVED solo
+source/pure/privacy:51test e176casi indipendenti PASS, nove postimage esatti.
+Il writer applica esattamente composite1ad30c7006ad su9path; nessun cambio
+lib/android/ios/config/deps/test_driver/test rispetto a e77. La sola fixture
+Dart aggiunge metadatafailure/checkpoint; nessun valore/expect cambiato.
+
+| CA / T | Comando/evidence | Esito al cutoff applicazione |
+|---|---|---|
+| CA-04 / T-04 | root12suitePython su9postimageesatti; receipt9ba375f6 | PASS284test/exit0, SDKMac0 |
+| CA-04 / T-04 | reviewobserver1a012478, passivoc2771ff9, checkpoint44043986, composita dc0d9927 | PASS source/pure/privacy; globaleBLOCKED |
+| CA-05 / T-05 | check-action-pins.sh / check-governance-state.sh / gitdiffcheck | PASS exit0; pin4workflow e faseFIX coerente |
+| CA-05 / T-05 | check-client-security.sh / log89c49d8a | PASS1157file/zero/exit0 prima del handoff documentale; exactSHAhostedNOT_RUN |
+| CA-05 / T-05 | format/analyze/fullhost sul futuro SHA | NOT_RUN; prima pubblicazione e Qualityhosted richieste |
+| CA-06 / T-06 | nuova visual reason/identity/reap e journalpassiva+checkpoint | NOT_RUN; sourcequality/review prima, nessun retry identico |
+
+IOS-OBS-LIFECYCLE-RR-01/P2 V1CHANGES_REQUIRED preservato; V2 distingue
+last_operation/failed_operation per OGGETTOerrore propagato e conserva flow.
+I repro RED/test/setupfail e fixprivati restano tracciabili; non sono FAIL
+prodotto o cause dei runhosted storici. Un wait.25 dopo primoTERMEPERM non
+cancella errore/cleanupFAIL né prova quiescenza gruppo; nessuna nuova sonda
+alternativa dopo rifiuto. PGID/SID misurati distinti dai richiesti, UNKNOWN
+se non osservabili. CAP2048metadata e privacy non esportano valori/raw.
+
+Il passivo usa medesimoPopen/argv/budget300/30; os.getpgid/poll/I/O della
+trace non sono temporalmente neutri. PIDhost, streamlocali aperti e pipe
+possible non provano guestPID/EOF/writer/causa. FAILv4exact8 ha checkpoint
+nullable delle5expectrecover, solo body/recover/assertion, senza promuovere
+SUCCESSv2/FAILv2/v3 o earlyseed/terminalgate. NextQuality/nativi e Maps/live
+restano distinti BLOCKED/NOT_RUN; nessun SDK/inputMac, reset, nuovo accesso,
+SQL/deploy, guarddisabling/timeoutpadding, merge o DONE.
+
+
+HandoffFix:16path(9source+7doc) a re-review distinta; CODEX_FIX_BLOCKED_TO_RE_REVIEW.
+La fase source/pure è qualificata; formatter/analyze/Quality/newnative/fullCI7
+sul candidato da pubblicare sono NOT_RUN. Checksecuritylocale1157/zero/exit0
+precede gli ultimi soli metadati del handoff: nessuna attestazione del futuro
+SHA prima della nuova Quality. Tutti i comandi locali sono terminali.
+
+
+### Re-review finale del freeze diagnostico - 2026-10-16
+
+Review documentale e hash sul freeze Fix b350aa96: esito BLOCKED globale,
+CODEX_REVIEW_BLOCKED. Nove source postimage coincidono con composite1ad30c7006ad
+e approval dc0d9927 scoped; sette documenti di handoff verificati per hash.
+
+| CA / T | Evidence letta, senza riesecuzione | Esito della re-review |
+|---|---|---|
+| CA-04 / T-04 | 9 postimage, 7 doc, source review dc0d9927; root284/12 e reviewer51/176 con provenienze separate | PASS source/pure/statico; globale BLOCKED |
+| CA-05 / T-05 | Security log89c49d8a e ricevute pin4/governance Fix/whitespace | PASS exit0 ai cutoff dichiarati, nessun nuovo gate |
+| CA-05 / T-05 | format/analyze/fullhost/Quality sul futuro SHA | NOT_RUN; richiesti dopo pubblicazione ordinaria |
+| CA-06 / T-06 | nuove domande visual reason/identity/reap e journal passivo/checkpoint | NOT_RUN; solo dopo Quality PASS |
+
+Security1157/zero/exit0 precede gli ultimi metadati di handoff, non attesta
+il docpatch o futuro SHA. Il writer controlla governance/diff dopo apply;
+nessun test/scan/API/SDK eseguito da questa re-review. FullCI7 NOT_RUN, Maps e
+live BLOCKED distinti. Nessun PASS e77 trasferito, nessuna causa o quiescenza
+inferita; V1/RED/setupfail, errata e sezioni storiche Fix/Review preservati.
+
+`CODEX_REVIEW_BLOCKED`

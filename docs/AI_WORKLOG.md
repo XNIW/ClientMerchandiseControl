@@ -6088,3 +6088,87 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   storico; nessun A/B, retry identico, PASS trasferito o merge/DONE.
 - **Ruolo/fase**: CODEX_RE_REVIEWER/REVIEW, task BLOCKED; Fix storici intatti.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-16 — TASK-054 ripresa diagnosi recuperabile pre-app
+
+- **Ruolo/fase**: CODEX_FIXER / FIX; task BLOCKED, ownership writer riacquisita.
+- **Mandato**: continuazione originaria riconfermata dal coordinamento; nessuno
+  stop per i soli due FAIL. Solo ipotesi falsificabili, fix recuperabili e runner
+  già autorizzati. Vecchi terminali/cutoff e merge HOLD preservati.
+- **Baseline reale**: e77HEAD/upstream, clean0/0; originale mainbfbfc0b e
+  ??supabase preservati, stash assenti. Inventario worktree read-only, nessuna
+  pulizia delle entry obsolete. Nessun SDK/device/input Mac o Asus.
+- **Ipotesi**: primoSIGTERM/EPERM nell'observer perde motivo budget/readerror
+  e osservazione wait. Test storico copre solo ramo finale dopo leaderreaped.
+  Nuovo RED puro separato e patch privata in preparazione, gate NOT_RUN.
+- **Limiti**: EPERM non prova assenza/zombie o causa del boot; eventuale wait
+  osservativo non cancella FAIL e non autorizza nuovi segnali. Nessun timeout
+  padding, guard disabilitata, retry identico, nuovo accesso/reset/deploy/merge.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+- **Seconda domanda della ripresa16ottobre**: sola telemetria passiva sul medesimo
+  Popen del journal; PID hostxcrun/simctl e pipe/timing, senza observer/sample o
+  comandi aggiunti. Budget30/residuo25.778s coerente, nessun bug già dimostrato.
+  Candidato privato4path e RED in preparazione; pollpuòreap esplicito, nessun A/B.
+
+- **Negativo governance preservato**: primo check di ripresa exit1/5violazioni,
+  soli metadata README/snapshot e forma heading/Handoff; riallineati prima di
+  qualunque source dipendente. Ricevuta privata governance-resume-negative.json.
+
+- **Review privata observerV1**: CHANGES_REQUIRED/P2 IOS-OBS-LIFECYCLE-RR-01,
+  receipt2bfea2a6; operationultimaazione poteva mascherare fasecommunicatefallita.
+  V1/repro preservati, V2soloattribuzionemetadata in preparazione.
+- **Terzo freeze diagnostico**: checkpoint finito delle5expectrecover per rendere
+  stessa futuraprova azionabile; Dart/parser/bridge metadata, legacycompatibili,
+  nessun valore/expect modificato o runextra. Candidato/review NOT_RUN al piano.
+
+- **Qualifica composita privata**: freeze1ad30c7006ad,9path; tre primaryreview
+  source/pure APPROVED1a012478/c2771ff9/44043986. Root12suite284PASS/exit0,
+  receipt9ba375f6, tutti terminali. SourceWT non applicati, secondareview
+  composita in corso; nuovi gate hosted/native NOT_RUN. SDKMac mai acquisito.
+
+- **Applicazione writer**:9sourcepostimage esatti composite1ad30c7006ad dopo
+  review dc0d9927 source/pure/privacy (51test+176casi PASS). Nessun codice
+  app/native/config/deps/unitDart cambiato; fixtureDart solo metadatafailure.
+  Pin4/governanceFIX/whitespacePASS; Security ancora attivo al cutoff, nessun
+  PASS anticipato o handoff prima del terminale. Quality/newnativeNOT_RUN.
+
+
+## 2026-10-16 — TASK-054 Fix diagnostico e handoff
+
+- **Applicazione**:9postimage esatti composite1ad30c7006ad, solo strumenti e
+  metadatafixture. Tre review primary1a012478/c2771ff9/44043986 e seconda
+  compositadc0d9927 APPROVED source/pure/privacy; findingV1P2 chiuso scoped.
+- **Gate reali**:12suite284PythonPASS/exit0, receipt9ba375f6; Security1157/
+  zero/exit0, log89c49d8a, pin4/governanceFIX/whitespacePASS. Scansione locale
+  precedente al delta documentale di handoff, futuro exactSHAQualityNOT_RUN.
+- **Preservazione**: sourceapp/native/config/deps/unitDart invariati da e77;
+  negativiV1/setupfail/rootgovernance e capsulee77 immutati. Nessuna causa
+  nativa o quiescenza gruppo inferita. Tutti comandi terminali, SDKMac0.
+- **Prossimo passo**: re-review finale16path(9source+7doc), commit normale
+  skipautomatico; Qualityhosted prima delle due domande native discriminanti.
+  FullCI7NOT_RUN, Maps/live e altri gate distinti. No retry identico, budget/
+  guardchange, reset, accesso, SDK/deviceinputMac/Asus, deploy/merge/DONE.
+- **Ruolo/fase**: CODEX_FIXER/FIX → CODEX_RE_REVIEWER/REVIEW, task BLOCKED.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-16 — TASK-054 Re-review finale del freeze diagnostico
+
+- **Ruolo/esito**: CODEX_RE_REVIEWER, BLOCKED globale; source/pure/privacy
+  dc0d9927 APPROVED resta scoped, nessuna approvazione operativa o DONE.
+- **Verifica**: freeze Fix b350aa96, 9 source postimage e 7 documenti esatti;
+  composite1ad30c7006ad e ricevute terminali preservati. Root 284 Python/12
+  suite e reviewer 51 test/176 casi PASS hanno provenienze separate.
+- **Gate letti**: Security1157/zero/exit0, pin4, governance del Fix e diff
+  PASS/exit0 da ricevute; nessun nuovo test/scan/API/SDK. Security precede gli
+  ultimi metadati del handoff; il docpatch richiede controllo writer e la
+  nuova Quality sul futuro SHA resta NOT_RUN, come format/analyze/host Dart.
+- **Limiti**: nuovi visual/journal e fullCI7 NOT_RUN, Maps/live e altri gate
+  BLOCKED o NOT_RUN; nessun PASS/causa/quiescenza trasferito. V1/RED/setupfail,
+  errata e precedenti Fix/Review rimangono immutati; zero comandi pendenti.
+- **Prossimo passo**: commit ordinario skipautomatico sul ramo esistente e
+  Quality hosted; soltanto dopo PASS le due domande native discriminanti.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

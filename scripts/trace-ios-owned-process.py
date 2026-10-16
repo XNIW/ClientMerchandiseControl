@@ -26,7 +26,7 @@ def operation(arguments):
         action = arguments[2]
         return 'simctl-' + action if action in (
             'help', 'list', 'create', 'boot', 'bootstatus', 'shutdown', 'delete',
-            'listapps', 'install', 'launch', 'terminate', 'get_app_container') else 'simctl'
+            'listapps', 'install', 'launch', 'terminate', 'get_app_container', 'spawn') else 'simctl'
     return {'ps': 'ps-probe', 'open': 'simulator-open', 'xcode-select': 'developer-path',
             'flutter': 'flutter', 'git': 'revision', 'plutil': 'plist-conversion'}.get(
                 arguments[0] if arguments else '', 'subprocess')
@@ -67,6 +67,7 @@ def owned_ps_metadata(output, groups):
 class ReadinessObservation:
     THREAD_NAME = 'owned-readiness-observer'
     CAP = 65536
+    LIFECYCLE_CAP = 2048
     UUID = re.compile(r'^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$')
 
     def __init__(self, process, device, timeout, emit, popen):
@@ -80,14 +81,76 @@ class ReadinessObservation:
         self.cleanup_error = None
         self.thread.start()
 
+    @staticmethod
+    def error_metadata(error):
+        if error is None:
+            return None
+        category = ('TimeoutExpired' if isinstance(error, subprocess.TimeoutExpired) else
+                    'PermissionError' if isinstance(error, PermissionError) else
+                    'ProcessLookupError' if isinstance(error, ProcessLookupError) else
+                    'OSError' if isinstance(error, OSError) else
+                    'SubprocessError' if isinstance(error, subprocess.SubprocessError) else
+                    'ValueError' if isinstance(error, ValueError) else 'other')
+        number = getattr(error, 'errno', None)
+        return {'type': category, 'errno': number if type(number) is int and 0 <= number <= 4095 else None}
+
+    @staticmethod
+    def probe_identity(process_id):
+        observed = {'pgid': None, 'sid': None, 'errors': {'pgid': None, 'sid': None}}
+        for key, reader in (('pgid', os.getpgid), ('sid', os.getsid)):
+            try:
+                value = reader(process_id)
+                observed[key] = value if type(value) is int and 0 < value <= 2147483647 else None
+            except OSError as error:
+                observed['errors'][key] = ReadinessObservation.error_metadata(error)
+        return observed
+
+    def emit_probe(self, event, probe_operation, **metadata):
+        payload = dict(schema_version=1, operation=probe_operation, **metadata)
+        if len(json.dumps(payload).encode()) > self.LIFECYCLE_CAP:
+            payload = dict(schema_version=1, operation=probe_operation,
+                           diagnostic_status='BLOCKED', reason='lifecycleByteCap')
+        self.emit(event, **payload)
+
     def capture(self, arguments, seconds):
         """Un solo comando proprio, output bounded in RAM e reap anche su cancel."""
         if self.stop.is_set():
             return {'status': 'NOT_RUN', 'reason': 'gateCompleted'}, b'', b''
-        child = self.popen(arguments, start_new_session=True, stdout=subprocess.PIPE,
-                           stderr=subprocess.PIPE)
+        probe_operation = {'/bin/ps': 'observer-state', '/usr/bin/sample': 'observer-stack',
+                           '/usr/bin/log': 'observer-logs'}.get(
+            arguments[0] if isinstance(arguments, (list, tuple)) and arguments and
+                isinstance(arguments[0], str) else '', 'subprocess')
+        spawn_started = time.monotonic_ns()
+        try:
+            child = self.popen(arguments, start_new_session=True, stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        except (OSError, subprocess.SubprocessError, ValueError) as error:
+            self.emit_probe('readiness-probe-spawn-error', probe_operation,
+                pid=None, requested_pgid=None, requested_sid=None, observed_spawn_pgid=None,
+                observed_spawn_sid=None, error=self.error_metadata(error),
+                spawn_started_ns=spawn_started, spawn_finished_ns=time.monotonic_ns())
+            raise
+        spawn_finished = time.monotonic_ns()
         result, output, errors = {'status': 'PASS'}, bytearray(), bytearray()
+        # Budget reader invariato, successivo a Popen; lo spawn ha span separato.
         deadline = time.monotonic() + seconds
+        capture_started = time.monotonic_ns()
+        observed = self.probe_identity(child.pid)
+        process_id = child.pid if type(child.pid) is int and 0 < child.pid <= 2147483647 else None
+        identity = {'pid': process_id, 'requested_pgid': process_id, 'requested_sid': process_id,
+                    'observed_spawn_pgid': observed['pgid'], 'observed_spawn_sid': observed['sid'],
+                    'spawn_identity_errors': observed['errors']}
+        before_signal_identity = None
+        phases = {'spawn_started': spawn_started, 'spawn_finished': spawn_finished,
+                  'capture_started': capture_started, 'spawn_observed': time.monotonic_ns(),
+                  'pre_cleanup': None, 'pre_signal_identity_started': None,
+                  'pre_signal_identity_finished': None, 'cleanup_error': None, 'post_error_wait': None,
+                  'cleanup_finished': None}
+        capture_error = cleanup_error = None
+        failed_error, failed_operation = None, None
+        cleanup_operation = 'not-started'
+        after_error = {'attempted': False, 'timeout_seconds': .25, 'reaped': False,
+                       'exit_code': None, 'error': None}
         try:
             with selectors.DefaultSelector() as selected:
                 selected.register(child.stdout, selectors.EVENT_READ, output)
@@ -108,7 +171,14 @@ class ReadinessObservation:
                             key.data.extend(data)
                     if result['status'] != 'PASS':
                         break
+        except (OSError, subprocess.SubprocessError, ValueError) as error:
+            capture_error = error
+            raise
         finally:
+            phases['pre_cleanup'] = time.monotonic_ns()
+            capture_metadata = {'status': 'BLOCKED' if capture_error is not None else result['status'],
+                'reason': 'observerReadError' if capture_error is not None else result.get('reason'),
+                'error': self.error_metadata(capture_error)}
             # Segnali solo al gruppo creato da questo observer, mai al target.
             # Anche un leader già terminato può avere discendenti nel gruppo.
             try:
@@ -116,58 +186,126 @@ class ReadinessObservation:
                 # naturale bounded prima di segnalare un normale successo.
                 if result['status'] == 'PASS':
                     try:
+                        cleanup_operation = 'natural-wait'
                         child.wait(timeout=.5)
                     except subprocess.TimeoutExpired:
                         pass
+                cleanup_operation = 'leader-poll'
                 if child.poll() is None:
+                    phases['pre_signal_identity_started'] = time.monotonic_ns()
+                    before_signal_identity = self.probe_identity(child.pid)
+                    phases['pre_signal_identity_finished'] = time.monotonic_ns()
                     try:
+                        cleanup_operation = 'signal-term'
                         os.killpg(child.pid, signal.SIGTERM)
                     except ProcessLookupError:
                         pass
+                    except PermissionError as error:
+                        if error.errno != errno.EPERM:
+                            raise
+                        failed_error, failed_operation = error, cleanup_operation
+                        phases['cleanup_error'] = time.monotonic_ns()
+                        after_error['attempted'] = True
+                        try:
+                            code = child.wait(timeout=.25)
+                            after_error['reaped'] = True
+                            after_error['exit_code'] = code if type(code) is int and -255 <= code <= 255 else None
+                        except (OSError, subprocess.SubprocessError) as wait_error:
+                            after_error['error'] = self.error_metadata(wait_error)
+                        finally:
+                            phases['post_error_wait'] = time.monotonic_ns()
+                        # Reap del leader non qualifica il gruppo né cancella EPERM.
+                        # Nessun altro segnale/probe dopo il rifiuto del primo TERM.
+                        raise
                     try:
+                        cleanup_operation = 'term-wait'
                         child.wait(timeout=.25)
                     except subprocess.TimeoutExpired:
                         try:
+                            cleanup_operation = 'signal-kill'
                             os.killpg(child.pid, signal.SIGKILL)
                         except ProcessLookupError:
                             pass
+                        cleanup_operation = 'kill-wait'
                         child.wait(timeout=.5)
                 # Il leader reaped non prova assenza di figli nel suo gruppo.
                 group_absent = False
                 try:
+                    cleanup_operation = 'group-final-kill'
                     os.killpg(child.pid, signal.SIGKILL)
                 except ProcessLookupError as error:
                     group_absent = error.errno == errno.ESRCH
+                cleanup_operation = 'leader-final-wait'
                 child.wait(timeout=.5)
                 # ESRCH prova assenza dell'intero gruppo; il wait resta obbligatorio.
                 # Negli altri casi ps verifica ancora il solo gruppo proprio.
                 if not group_absent:
+                    cleanup_operation = 'group-probe-spawn'
                     probe = self.popen(['/bin/ps', '-g', str(child.pid), '-o', 'pgid=,stat='],
                                        start_new_session=True, stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)
                     try:
+                        cleanup_operation = 'group-probe-communicate'
                         states, probe_errors = probe.communicate(timeout=.5)
+                        cleanup_operation = 'group-probe-validate'
                         fields = [line.split() for line in states.splitlines()]
                         if (len(states) > self.CAP or probe_errors or probe.returncode not in (0, 1) or any(
                                 len(row) != 2 or not row[0].isdigit() or int(row[0]) != child.pid or
                                 not row[1].startswith(b'Z') for row in fields)):
                             raise OSError(errno.EBUSY, 'owned observer group not quiescent')
+                    except (OSError, subprocess.SubprocessError) as error:
+                        # Il finally esegue altre operazioni: ricordare la fase
+                        # solo finché si propaga questo stesso oggetto errore.
+                        failed_error, failed_operation = error, cleanup_operation
+                        raise
                     finally:
                         # ps non deve lasciare un leader irrisolto su timeout.
+                        cleanup_operation = 'group-probe-poll'
                         if probe.poll() is None:
                             try:
+                                cleanup_operation = 'group-probe-kill'
                                 os.killpg(probe.pid, signal.SIGKILL)
                             except ProcessLookupError:
                                 pass
+                            cleanup_operation = 'group-probe-wait'
                             probe.wait(timeout=.5)
+                        cleanup_operation = 'group-probe-close'
                         probe.stdout.close()
                         probe.stderr.close()
             except (OSError, subprocess.SubprocessError) as error:
+                cleanup_error = error
+                if failed_error is not error:
+                    failed_error, failed_operation = error, cleanup_operation
+                phases['cleanup_error'] = phases['cleanup_error'] or time.monotonic_ns()
                 self.cleanup_error = error
                 raise
             finally:
-                child.stdout.close()
-                child.stderr.close()
+                try:
+                    cleanup_operation = 'child-stdout-close'
+                    child.stdout.close()
+                    cleanup_operation = 'child-stderr-close'
+                    child.stderr.close()
+                except (OSError, subprocess.SubprocessError) as error:
+                    # Conservare la propagazione/flag V1, descrivendo il nuovo
+                    # errore se il close esterno sostituisce quello del try.
+                    cleanup_error = error
+                    if failed_error is not error:
+                        failed_error, failed_operation = error, cleanup_operation
+                    phases['cleanup_error'] = time.monotonic_ns()
+                    raise
+                finally:
+                    # Una sola ricevuta bounded: mai argv/output/messaggi/stack.
+                    # Descrive il try di cleanup; non certifica cleanup globale.
+                    phases['cleanup_finished'] = time.monotonic_ns()
+                    self.emit_probe('readiness-probe-lifecycle', probe_operation, **identity,
+                        capture=capture_metadata, cleanup={'last_operation': cleanup_operation,
+                            'failed_operation': failed_operation,
+                            'error': self.error_metadata(cleanup_error), 'post_error_wait': after_error,
+                            'pre_signal_identity': before_signal_identity},
+                        phase_ns=phases, duration_ns={
+                            'spawn': spawn_finished - spawn_started,
+                            'capture': phases['pre_cleanup'] - capture_started,
+                            'cleanup': phases['cleanup_finished'] - phases['pre_cleanup']})
         result['exitCode'] = child.returncode
         result['bytes'] = len(output) + len(errors)
         private = bytes(output) + bytes(errors)
@@ -455,13 +593,18 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
                 self.trace_owned = kwargs.get('start_new_session') is True
                 self.trace_spawn_ns = time.monotonic_ns()
                 self.trace_emit('spawn-start', operation=self.trace_operation, owned_session=self.trace_owned)
+                popen_started = time.monotonic_ns()
                 try:
                     super().__init__(arguments, *args, **kwargs)
                 except BaseException as error:
+                    popen_completed = time.monotonic_ns()
                     self.trace_emit('spawn-error', operation=self.trace_operation,
                          duration_ns=time.monotonic_ns() - self.trace_spawn_ns,
+                         popen_started_ns=popen_started, popen_completed_ns=popen_completed,
+                         popen_duration_ns=popen_completed - popen_started,
                          error_type=type(error).__name__)
                     raise
+                popen_completed = time.monotonic_ns()
                 try:
                     observed_group = os.getpgid(self.pid)
                 except OSError:
@@ -471,12 +614,25 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
                     group_emitters[self.pid] = self.trace_emit
                 self.trace_emit('spawn-end', **self.identity(),
                      duration_ns=time.monotonic_ns() - self.trace_spawn_ns,
+                     popen_started_ns=popen_started, popen_completed_ns=popen_completed,
+                     popen_duration_ns=popen_completed - popen_started,
+                     returncode_after_spawn=self.returncode, pipe_state=self.pipe_state(),
                      observed_pgid=observed_group,
                      owned_pgid_confirmed=self.trace_owned and observed_group == self.pid)
 
             def identity(self):
                 return dict(operation=self.trace_operation, pid=self.pid,
-                            owned_pgid=self.pid if self.trace_owned else None)
+                            owned_pgid=self.pid if self.trace_owned else None,
+                            pid_scope='host_subprocess_leader', guest_pid_observed=False,
+                            host_command='xcrun-simctl' if isinstance(self.trace_arguments, (list, tuple)) and
+                                tuple(self.trace_arguments[:2]) == ('xcrun', 'simctl') else 'other-host-process')
+
+            def pipe_state(self):
+                # Stato dei soli oggetti stream locali: open non prova un holder
+                # ereditato, dati disponibili o assenza di EOF nel kernel.
+                return {name: 'not_exposed' if getattr(self, name, None) is None else
+                        'closed' if getattr(self, name).closed else 'open'
+                        for name in ('stdin', 'stdout', 'stderr')}
 
             def communicate(self, *args, **kwargs):
                 nonlocal readiness_consumed, bootstatus_consumed
@@ -539,17 +695,21 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
             def measured_communicate(self, *args, **kwargs):
                 start = time.monotonic_ns()
                 timeout = kwargs.get('timeout', args[1] if len(args) > 1 else None)
-                self.trace_emit('communicate-start', **self.identity(), timeout_seconds=timeout)
+                self.trace_emit('communicate-start', **self.identity(), timeout_seconds=timeout,
+                     known_returncode=self.returncode, pipe_state=self.pipe_state())
                 try:
                     result = super().communicate(*args, **kwargs)
                 except subprocess.TimeoutExpired as error:
                     before = self.returncode
+                    pipes_before_poll = self.pipe_state()
                     # Discrimina leader vivo/uscito; poll può fare reap del leader.
                     observed = super().poll()
                     self.trace_emit('communicate-timeout', **self.identity(),
                          duration_ns=time.monotonic_ns() - start,
                          timeout_seconds=timeout, returncode_before_poll=before,
                          returncode_after_poll=observed, observer_poll_may_reap=True,
+                         pipe_state_before_poll=pipes_before_poll,
+                         pipe_state_after_poll=self.pipe_state(),
                          leader_state='alive' if observed is None else 'terminated',
                          inherited_pipe='possible' if observed is not None and
                              any(pipe is not None and not pipe.closed for pipe in
@@ -566,6 +726,7 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
                     self.trace_operation == 'ps-probe') else {}
                 self.trace_emit('communicate-end', **self.identity(), **metadata,
                      duration_ns=time.monotonic_ns() - start, exit_code=self.returncode,
+                     pipe_state=self.pipe_state(),
                      output_complete=True, stdout=output_metadata(result[0]),
                      stderr=output_metadata(result[1]))
                 return result

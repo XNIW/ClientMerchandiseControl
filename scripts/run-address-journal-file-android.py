@@ -21,6 +21,8 @@ PHASE_TIMEOUT = 150
 MAX_RECEIPT_BYTES = 8192
 NATIVE_ERROR_TYPES = ('assertion', 'filesystem', 'unexpected')
 NATIVE_FAILURE_ORIGINS = ('body', 'terminal_gate')
+NATIVE_FAILURE_CHECKPOINTS = ('recover_marker', 'recover_process',
+    'restored_identity', 'restored_payload', 'cleared_readback')
 
 
 def receipt_relative_path(run_id, phase):
@@ -37,15 +39,23 @@ def validate_native_receipt(data, phase, run_id, process_id, seed_pid):
         raise Failure('journal-' + phase, 1, 'ricevuta non oggetto')
     if data.get('status') == 'FAIL':
         expected_keys = {'apiVersion', 'phase', 'runId', 'processId', 'status', 'errorType'}
-        # V2 storica: enum senza origine disponibile. V3: origine obbligatoria,
-        # schema esatto e fallback terminale compatibile solo con assertion.
+        # V2/V3 storiche restano esatte. V4 aggiunge un checkpoint nullable:
+        # solo una assertion body/recover puo attribuire una delle cinque verifiche.
         legacy_failure = (set(data) == expected_keys
             and data.get('apiVersion') == 'address-journal-native-evidence.v2')
         origin_failure = (set(data) == expected_keys | {'failureOrigin'}
             and data.get('apiVersion') == 'address-journal-native-evidence.v3'
             and data.get('failureOrigin') in NATIVE_FAILURE_ORIGINS
             and (data['failureOrigin'] != 'terminal_gate' or data.get('errorType') == 'assertion'))
-        if (not (legacy_failure or origin_failure)
+        checkpoint = data.get('failureCheckpoint')
+        checkpoint_failure = (set(data) == expected_keys | {'failureOrigin', 'failureCheckpoint'}
+            and data.get('apiVersion') == 'address-journal-native-evidence.v4'
+            and data.get('failureOrigin') in NATIVE_FAILURE_ORIGINS
+            and (data['failureOrigin'] != 'terminal_gate' or data.get('errorType') == 'assertion')
+            and (checkpoint is None or (checkpoint in NATIVE_FAILURE_CHECKPOINTS
+                and data.get('failureOrigin') == 'body' and phase == 'recover'
+                and data.get('errorType') == 'assertion')))
+        if (not (legacy_failure or origin_failure or checkpoint_failure)
                 or data.get('phase') != phase or data.get('runId') != run_id
                 or data.get('processId') != process_id
                 or data.get('errorType') not in NATIVE_ERROR_TYPES):
@@ -53,8 +63,10 @@ def validate_native_receipt(data, phase, run_id, process_id, seed_pid):
         failure = Failure('journal-' + phase, 1, 'fixture nativa segnala failure sanitizzata')
         # Solo enum gia validati; mai payload, messaggi, stack o log nativi.
         failure.native_error_type = data['errorType']
-        if origin_failure:
+        if origin_failure or checkpoint_failure:
             failure.native_failure_origin = data['failureOrigin']
+        if checkpoint_failure and checkpoint is not None:
+            failure.native_failure_checkpoint = checkpoint
         raise failure
     return ADDRESS.validate_receipt(data, phase, run_id, process_id, seed_pid)
 

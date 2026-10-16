@@ -1997,3 +1997,199 @@ Nessuna causa/stabilità trasferita tra revisioni. Maps/live TEST/Auth,
 C04/R24, AT/IME e firma restano gate separati. Nessun merge o DONE.
 
 `CODEX_REVIEW_BLOCKED`
+
+
+## Ripresa operativa del mandato corrente — 2026-10-16
+
+Il coordinamento riconferma il mandato umano originario: i due FAIL pre-app non
+sono da soli uno stop. Proseguire diagnosi, fix recuperabili e verifica sui runner
+hosted già autorizzati; ogni nuova prova deve avere un'ipotesi falsificabile diversa
+dai tentativi precedenti. Stop soltanto su un impedimento concreto che non consenta
+ulteriore progresso autorizzato, con risorsa/prerequisito precisi. Il precedente
+handoff terminale e77 resta valido al proprio cutoff; la vecchia restrizione di
+stop a fine capsula non sostituisce il mandato di completamento.
+
+Root riacquisisce l'unica ownership writer dopo verifica e77HEAD/upstream0/0,
+worktree pulito; originale mainbfbfc0b/??supabase preservato. Nessun altro writer
+Client attivo riferito dal coordinamento. Il controllo non ripete l'audit prodotto.
+
+### Fix diagnostico autorizzato e criteri
+
+Qualitye77/run38874967013 PASS1252/1SKIP+11performance, format411/0/analyze0.
+Visual38877119329 FAIL124/300.069s, bootstatus26910 poi reaped−15; observer
+primoSIGTERM/EPERM, resource cleanup duePASS/nessun Simulator residuo attestato,
+processCleanupFailedsticky e quiescenza observer non dimostrata. Non è prova di
+processo ancora vivo/leak. Journal38877142210 FAIL124/readiness dopo bootcompleto,
+fixture/origin NOT_RUN, ownercleanupPASS. FullCI7e77NOT_RUN. Negativi immutati.
+
+Il reviewer di coordinamento individua un gap recuperabile: capture nasconde il
+motivo precedente (observerBudget o readerror) quando il primo SIGTERM con pollNone
+solleva EPERM; il successivo wait non viene osservato. Il test esistente EPERM
+copre leader già reaped/SIGKILL, non questo primo ramo. Nessun PGID errato dimostrato.
+EPERM è reale ma non identifica la causa: il sorgente Apple filtra anche zombie;
+versione kernel/stato del processo storico non qualificati. Non inferire assenza,
+zombie o un particolare diniego autorizzativo senza identity/state attuali.
+
+1. Riprodurre separatamente budget e readerror, primoSIGTERM/EPERM, in Python/mock.
+2. Conservare motivo/errore iniziale e cleanup distinti, con identity osservata
+   distinta dal PGID richiesto, metadati finiti e nessun raw argv/output/stack.
+3. Valutare un wait bounded solo osservativo dopo il rifiuto, senza segnali
+   alternativi/escalation; l'eventuale reap non cancella EPERM o cleanupFAIL.
+4. Review indipendente del freeze e regressioni fail-closed; poi Quality pertinente
+   prima di qualunque prova nativa correttiva su ipotesi esplicita e discriminante.
+5. Readiness/bootstatus mantengono budget300/30 e attestazioni. Nessun nuovo SDK
+   Mac, input/device, Asus, branch/worktree, accesso persistente, reset, migrazione,
+   deploy, bypass, retry identico, merge o DONE. Maps/live restano gate separati.
+
+| CA / T | Nuova verifica | Stato al piano di ripresa |
+|---|---|---|
+| CA-04 / T-04 | Repro primo SIGTERM EPERM e receipt distinta; review patch | NOT_RUN; riproduzione in preparazione |
+| CA-05 / T-05 | Gate impattati sul futuro candidato | NOT_RUN; nessun nuovo candidato pubblicato |
+| CA-06 / T-06 | Ipotesi hosted discriminante e prerequisiti esterni | BLOCKED nativo/live; diagnosi source/pure prosegue |
+
+Ruolo CODEX_FIXER, fase FIX; task BLOCKED per gate esterni ancora aperti.
+Le sezioni Review precedenti non vengono riscritte. Ownership acquisita con
+ricevuta privata task054-ios-diagnostic-resume-20261016/ownership-acquisition.json.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`
+
+
+### Seconda domanda di ripresa — telemetria passiva journal
+
+La review readiness del coordinamento non trova bug dimostrati di comando/budget:
+25.778819875s è il residuo monotonic corretto del budget30 dopo descriptorbefore.
+Image20261013.0424.1/Xcode26.6/iOS26.5/iPhone17 comuni; il runtime ha anche prove
+storiche riuscite, senza dimostrare la causa di questa failure. launchctl list
+qualifica spawn/launchd del device, non appready. Il journal non ha observer;
+abilitare sample aggiungerebbe un fattore e cleanup non ancora qualificato.
+
+Il fix autorizzato espone solo trace passiva del medesimo Popen: tempi pre/postspawn,
+communicate, returncode pre/postpoll al timeout, byte metadata e stato pipe. PID
+riguarda xcrun/simctl HOST, non launchctl guest. Nessun comando/probe/observer extra,
+nessun nuovo budget/selector/workflowinput. Opt-in prepare e artifact jsonl esclusivo
+0600; defaultlegacy invariato. Il poll al timeout può fare reap: limite esplicito,
+nessuna neutralità temporale o A/B dichiarati. Fallimenti di persistenza non devono
+nascondere primary124 né interrompere cleanup proprio. RED e review indipendente
+sul candidato privato prima di applicazione writer/Quality/prova discriminante.
+
+| CA / T | Seconda domanda | Stato al piano |
+|---|---|---|
+| CA-04 / T-04 | CLIpassiva senzaobserver, metadata, errori persistenzafailclosed | NOT_RUN; candidato privato in preparazione |
+| CA-05 / T-05 | stessi argv/timeout/cleanup/attestazioni e nuovaQuality | NOT_RUN nuovo candidato |
+| CA-06 / T-06 | HOSTleader vivo vs exit+pipeaperta vs costospawn/metadata | NOT_RUN futura prova strumentata; nessuna causa inferita |
+
+
+Il piano diagnostico riceve APPROVED scoped dal coordinamento, condizionato al
+freeze: identità osservativa deve distinguere PIDfiglio/PGID/sessione richiesti da
+PGID/sessione misurati prima del segnale, con fase/timestamp o mancata osservazione
+UNKNOWN. Non basta start_new_sessionTrue/owned_pgid. Preferire primitive passive
+bounded, nessun subprocess di sonda o misura dopoEPERM; reapleader non prova
+quiescenza gruppo. Non è approvazione della patch né di risultati nativi futuri.
+
+
+### Qualifica privata e diagnosi journal azionabile
+
+ObserverV1/7c053961 resta immutata: reviewcold2bfea2a6 CHANGES_REQUIRED,
+IOS-OBS-LIFECYCLE-RR-01/P2. Timeout di probecommunicate seguito da closePASS
+veniva associato a operationultimaazione. REDavverso3test/2subcaseFAIL; V2
+richiede last_operation e failed_operation distinti, riferiti all'errore
+propagato anche se il finally lo cambia. Nessun lifecycle/timeout/segnale
+modificato per tale rilievo. GREEN67 source/pure non chiude il finding V1.
+
+Il coordinamento segnala inoltre che un futuro recover/body/assertion resta
+ambiguo tra cinqueexpect. Il writer include un terzo freeze diagnostico separato,
+prima della stessa futura Quality/prova journal: failureCheckpoint allowlist
+recover_marker|recover_process|restored_identity|restored_payload|cleared_readback.
+Solo verifica attiva, azzerata dopo success; nessuna attribuzione a operazioni
+esterne/precedenti. Proposta FAILv4strict con checkpointnullable se non osservato,
+non-null solo body/recover/assertion, legacyFAILv2/v3 e SUCCESSv2 invariati.
+Nessun valore/messaggio/stack o comportamento/assertion cambiato; review distinta
+necessaria. Il pending.id iniziale precede phase=recover e non è origine della
+receipt recover accettata a2a; earlyfailure e markerletto restano limiti separati.
+Nessun run nativo extra o nuovo requisito per qualificare il timeout.
+
+
+### Qualifica privata composita — prima di applicazione WT
+
+Tre freeze separati: observerV2/84e099c4, passivo904eb892 e checkpoint1248b45de181.
+Review primary source/pure distinte APPROVED1a012478/c2771ff9/44043986;
+IOS-OBS-LIFECYCLE-RR-01 chiuso scoped V2, V1/RED e setupfail privati preservati.
+Composizione privata1ad30c7006ad su9path: ReadinessObservation identica a V2,
+operation/trace_processes identici al passivo, altre top-level tracer baseline.
+Otto postimage non condivisi esatti, solo tracer composto da due domini separati.
+Nessun nuovo branch/worktree o SDK: sandbox non-Git con soli1157filetracked.
+
+Root12suite284PythonPASS/exit0, receipt9ba375f6;71tracer,17readiness,27nativefile,
+più regressioni ownership/descriptor/cold/Android/iOS. Nessun comando root pendente.
+Reviewsecondacomposita in corso; applicazione sourceWT, formatter/analyze/Quality
+hosted e nuove prove native NOT_RUN al cutoff. Qualifica source/pure non acceptance
+nativa/live e non dimostra causa boot/EPERM/Keychain. Stesso300/30, nessun reset,
+guarddisabling/refusalbypass/nuovo accesso/input Mac/Asus/merge/DONE.
+
+
+### Fix applicato dal writer — composito1ad30c7006ad
+
+Seconda review dc0d9927 APPROVED source/pure/privacy,51test/176casi indipendenti;
+nessun finding nuovo. Applicati9postimageesatti dopo sourcepin/preimagecheck:
+tracer+CLIpassiva+workflowartifact+testPython e sola fixtureDartfailuremetadata.
+Nessun lib/native/config/deps/unitDart mutato da e77. Root12suite284PASS,
+Security in corso al cutoff; pin4/governanceFIX/whitespace PASSexit0.
+Nuovi Qualityhosted e due domande native NOT_RUN; nessuna accettazione futura
+anticipata. Dettaglio CA/T in validation.md, negative/setupfail e V1 preservati.
+
+
+## Handoff Fix — diagnosi pre-app composta, 2026-10-16
+
+Applicati9postimageesatti composite1ad30c7006ad dopo tre review primary e
+seconda compositadc0d9927 source/pure/privacy. Root12suite284PythonPASS/exit0,
+Security1157file/zero/exit0, pin4workflow/governanceFIX/whitespacePASS. Tutti
+i comandi terminali; nessun SDK Mac acquisito. Il codice applicato coincide
+byte-per-byte con il sandbox testato, senza rerun locale duplicato; nessuna
+modifica lib/native/config/deps/unitDart, solo metadatafailure fixtureDart.
+La scansione locale precede questo handoff documentale; Quality hosted
+rieseguirà security e gate completi sul futuro SHA esatto, NOT_RUN al freeze.
+
+CA-04/T-04 PASS source/pure/statico, CA-05/T-05 Qualityhosted/fullCI7 futuro
+NOT_RUN, CA-06/T-06 nuove domande native NOT_RUN e Maps/live BLOCKED separati.
+Nessuna causa boot/EPERM/Keychain o accettazione nativa da source/pure. Il
+prossimo gate nativo è condizionato a nuova QualityPASS; nessun budget/guard,
+reset, retry identico, nuovo accesso/inputMac/Asus/SQL/deploy/merge/DONE.
+
+Task BLOCKED / REVIEW, CODEX_RE_REVIEWER. Richiesta re-review finale di16path
+(9source+7doc) e handoff; niente approvazione globale anticipata.
+
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`
+
+
+## Re-review finale - freeze diagnostico composito, 2026-10-16
+
+Ruolo CODEX_RE_REVIEWER. Esito globale BLOCKED: formatter/analyze/Quality hosted
+sul nuovo candidato e nuove prove native sono NOT_RUN. Non costituisce approvazione del
+task, acceptance operativa, merge o DONE.
+
+Freeze Fix b350aa96 verificato in sola lettura: 9 source postimage identici al
+composito1ad30c7006ad approvato scoped dc0d9927, e 7 documenti di handoff con
+hash esatti. Root 284 Python/12 suite PASS/exit0; review indipendente 51 test e
+176 casi PASS, con provenienze separate. Nessun gate nuovo eseguito in questa
+re-review documentale. Ricevute Security1157/zero/exit0, pin4, governance del
+Fix e whitespace PASS/exit0 lette e verificate per hash; tutti i comandi sono
+terminali. Security locale precede gli ultimi soli metadati del handoff e
+non attesta il futuro SHA. Il writer controlla governance/diff del docpatch;
+la Quality hosted deve rieseguire i gate completi sul nuovo commit esatto.
+
+Source/pure/privacy APPROVED rimane il perimetro della review dc0d9927, senza
+nuovi finding. IOS-OBS-LIFECYCLE-RR-01 chiuso soltanto source/pure V2; V1/RED,
+setupfail, errata, e77 e cutoff precedenti sono preservati. Nessuna causa
+storica o quiescenza gruppo inferita; reap leader non prova assenza di figli.
+Nuovo failureCheckpoint nullable non inventa label per legacy/early failure.
+Format/analyze/host Dart e comportamento nativo del nuovo candidato restano
+da qualificare: nessun PASS trasferito da e77 o dai test Python.
+
+CA-04/T-04 PASS source/pure e verifica hash; CA-05/T-05 nuovi Quality/format/
+analyze/fullCI7 NOT_RUN; CA-06/T-06 nuove domande native NOT_RUN e Maps/live
+BLOCKED distinti. Dopo pubblicazione ordinaria skipautomatico sul ramo attuale,
+Quality hosted precede le due domande visual e journal sul medesimo candidato.
+Nessun nuovo SDK/input Mac/Asus, branch/WT, reset, accesso, retry identico,
+budget/guard/refusal bypass, SQL/deploy, firma, merge o DONE autorizzati qui.
+
+`CODEX_REVIEW_BLOCKED`

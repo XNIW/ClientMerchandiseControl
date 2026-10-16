@@ -483,7 +483,8 @@ jobs:
           mkdir -p build/task054
           python3 scripts/run-task054-ios-owned.py prepare \
             --receipt build/task054/ios-journal-owned-receipt.json \
-            --readiness-attestation owned-descriptor-launchd
+            --readiness-attestation owned-descriptor-launchd \
+            --trace-processes
       - name: Verify synthetic Keychain journal across two iOS processes
         run: >-
           python3 scripts/run-address-journal-file-ios.py
@@ -504,5 +505,6 @@ jobs:
           path: |
             build/task054/ios-address-journal/*.json
             build/task054/ios-journal-owned-receipt.json
+            build/task054/ios-journal-owned-receipt.processes.jsonl
           if-no-files-found: warn
           retention-days: 7

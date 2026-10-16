@@ -201,6 +201,35 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
 
+Re-review finale del freeze diagnostico b350aa96: 9 source e 7 documenti
+verificati per hash; esito globale BLOCKED, CODEX_REVIEW_BLOCKED. Il composito
+1ad30c7006ad conserva approval dc0d9927 solo source/pure/privacy: root 284
+Python/12 suite e reviewer 51 test/176 casi, con provenienze distinte. Security
+1157/zero/exit0 precede gli ultimi metadati di handoff; pin4, governance e
+whitespace PASS da ricevute terminali. Nessun nuovo test, scan o SDK Mac.
+Quality hosted format/analyze/fullhost sul futuro SHA e nuove domande native
+restano NOT_RUN; soltanto dopo Quality PASS saranno eseguite sul medesimo
+candidato visual reason/identity/reap e journal passivo/checkpoint. FullCI7
+NOT_RUN, budget300/30 e guard invariati; nessuna acceptance nativa/live o causa
+storica inferita. e77 conserva i propri PASS/FAIL, V1/RED/setupfail e cutoff
+restano immutati. PR29 draft/HOLD; Maps/live e gli altri gate restano distinti.
+
+
+Il paragrafo seguente conserva il piano di ripresa precedente all'applicazione.
+
+Ripresa corrente16ottobre sul baseline e77 dopo tre run terminali: Quality
+PASS1252/1SKIP+11performance, visualFAIL124/observerEPERM, journalFAIL124
+readiness prima app/fixture. Nessun Simulator residuo attestato; quiescenza
+observer non dimostrata, senza leak inferito. Il mandato continuativo è
+riconfermato: diagnosi recuperabile source/pure e fix revisionati, poi nuove
+prove hosted solo con ipotesi falsificabile. PrimoTERM/EPERM: conservare
+motivo precleanup e wait; journal: trace passiva sul medesimo Popen senza
+observer/sample. Budget300/30 e attestazioni invariati. Nessun SDK/device
+Mac, reset, retry identico, nuovo accesso/deploy/merge o DONE. FullCI7e77
+NOT_RUN, Maps/live e altri gate distinti; root unico writer, PR29draft/HOLD.
+
+Il paragrafo seguente conserva il freeze precedente ai tre run e77.
+
 Candidato successivo ad a2a: fix IOS-BOOT-OBS-RR-02 dopo ESRCH e nuovo
 failureOrigin journal body|terminal_gate, entrambi con due review distinte
 APPROVED soltanto source/pure. Root: 12 suite Python, 248 PASS, exit0.

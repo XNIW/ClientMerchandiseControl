@@ -545,6 +545,364 @@ class ReadinessObservationTest(unittest.TestCase):
                                 if row['event'] == 'communicate-start'))
 
 
+class ObserverFirstTermRegressionTest(unittest.TestCase):
+    """Primo TERM negato: solo mock, nessuna permission o processo privilegiato."""
+
+    def scenario(self, kind, cause, *, wait_timeout=False, denied=True,
+                 observed_group=321, identity_error=None, session_error=None,
+                 wait_exit=0, signal_errno=TRACE.errno.EPERM):
+        observer = object.__new__(kind)
+        observer.stop = Mock(is_set=Mock(return_value=False))
+        if cause == 'cancel':
+            observer.stop.is_set.side_effect = [False, True, True, True]
+        observer.authorize = Mock(return_value=True)
+        observer.cleanup_error = None
+        observer.emit = Mock()
+        child = Mock(pid=321, returncode=None, stdout=Mock(), stderr=Mock())
+        child.poll.return_value = None
+        original_error = PermissionError(signal_errno, 'PRIVATE_ERROR_MESSAGE')
+        read_error = OSError(TRACE.errno.EIO, 'PRIVATE_READ_MESSAGE')
+        waits = [subprocess.TimeoutExpired('PRIVATE_CMD', .5)] if cause == 'readerror' else []
+        if wait_timeout:
+            waits.append(subprocess.TimeoutExpired('PRIVATE_CMD', .25))
+        else:
+            waits.append(wait_exit)
+        if not denied:
+            waits.append(0)
+        child.wait.side_effect = waits
+        observer.popen = Mock(return_value=child)
+        key = Mock(fileobj=child.stdout, data=bytearray())
+        selector = Mock(get_map=Mock(return_value={1: key}), select=Mock(return_value=[(key, None)]))
+        failure = result = None
+        clocks = [0, 2] if cause == 'budget' else None
+        def kill(group, signum):
+            if denied:
+                raise original_error
+            if signum == signal.SIGKILL:
+                raise ProcessLookupError(TRACE.errno.ESRCH, 'PRIVATE_ABSENT_MESSAGE')
+        with patch.object(TRACE.selectors, 'DefaultSelector') as factory, \
+             patch.object(TRACE.os, 'read', side_effect=read_error), \
+             patch.object(TRACE.os, 'getpgid', return_value=observed_group, side_effect=identity_error) as group_read, \
+             patch.object(TRACE.os, 'getsid', return_value=321, side_effect=session_error) as session_read, \
+             patch.object(TRACE.os, 'killpg', side_effect=kill) as signal_group, \
+             patch.object(TRACE.time, 'monotonic', side_effect=clocks, return_value=0):
+            factory.return_value.__enter__.return_value = selector
+            try:
+                result = observer.capture(['/usr/bin/sample', '123', 'PRIVATE_ARGV'], 1)
+            except (OSError, subprocess.SubprocessError) as error:
+                failure = error
+        observer.fixture_identity_calls = (group_read.call_count, session_read.call_count)
+        return observer, child, signal_group, result, failure, original_error
+
+    def assert_denied(self, kind, cause, wait_timeout):
+        observer, child, kill, result, failure, original_error = self.scenario(
+            kind, cause, wait_timeout=wait_timeout)
+        self.assertIs(failure, original_error)
+        self.assertIs(observer.cleanup_error, original_error)
+        self.assertIsNone(result)
+        kill.assert_called_once_with(321, signal.SIGTERM)
+        expected_waits = [.5, .25] if cause == 'readerror' else [.25]
+        self.assertEqual([call.kwargs['timeout'] for call in child.wait.call_args_list], expected_waits)
+        observer.popen.assert_called_once_with(['/usr/bin/sample', '123', 'PRIVATE_ARGV'],
+            start_new_session=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        child.stdout.close.assert_called_once_with()
+        child.stderr.close.assert_called_once_with()
+        records = [call.kwargs for call in observer.emit.call_args_list
+            if call.args[0] == 'readiness-probe-lifecycle']
+        self.assertEqual(len(records), 1)
+        record = records[0]
+        self.assertEqual(record['schema_version'], 1)
+        self.assertEqual(record['operation'], 'observer-stack')
+        self.assertEqual((record['pid'], record['requested_pgid'], record['observed_spawn_pgid']),
+            (321, 321, 321))
+        self.assertEqual(record['capture']['reason'],
+            {'budget': 'observerBudget', 'readerror': 'observerReadError', 'cancel': 'gateCompleted'}[cause])
+        self.assertEqual(record['capture']['status'], 'NOT_RUN' if cause == 'cancel' else 'BLOCKED')
+        self.assertEqual(record['capture']['error'],
+            {'type': 'OSError', 'errno': TRACE.errno.EIO} if cause == 'readerror' else None)
+        self.assertEqual(record['requested_sid'], 321)
+        self.assertEqual(record['observed_spawn_sid'], 321)
+        self.assertEqual(record['cleanup']['pre_signal_identity'],
+            {'pgid': 321, 'sid': 321, 'errors': {'pgid': None, 'sid': None}})
+        self.assertEqual(observer.fixture_identity_calls, (2, 2))
+        self.assertEqual(record['cleanup']['last_operation'], 'child-stderr-close')
+        self.assertEqual(record['cleanup']['failed_operation'], 'signal-term')
+        self.assertEqual(record['cleanup']['error'], {'type': 'PermissionError', 'errno': TRACE.errno.EPERM})
+        after = record['cleanup']['post_error_wait']
+        self.assertTrue(after['attempted'])
+        self.assertEqual(after['timeout_seconds'], .25)
+        self.assertEqual(after['reaped'], not wait_timeout)
+        self.assertEqual(after['exit_code'], None if wait_timeout else 0)
+        self.assertEqual(after['error'], {'type': 'TimeoutExpired', 'errno': None} if wait_timeout else None)
+        self.assertLessEqual(record['phase_ns']['spawn_observed'], record['phase_ns']['pre_cleanup'])
+        self.assertLessEqual(record['phase_ns']['pre_cleanup'], record['phase_ns']['pre_signal_identity_started'])
+        self.assertLessEqual(record['phase_ns']['pre_signal_identity_started'],
+            record['phase_ns']['pre_signal_identity_finished'])
+        self.assertLessEqual(record['phase_ns']['pre_signal_identity_finished'], record['phase_ns']['cleanup_error'])
+        self.assertLessEqual(record['phase_ns']['cleanup_error'], record['phase_ns']['post_error_wait'])
+        self.assertLessEqual(len(json.dumps(record).encode()), 2048)
+        self.assertNotIn('PRIVATE_', json.dumps(record))
+
+    def test_first_term_eperm_after_budget_preserves_reason_and_bounded_reap(self):
+        for kind in (TRACE.ReadinessObservation, TRACE.BootstatusObservation):
+            for wait_timeout in (False, True):
+                with self.subTest(kind=kind.__name__, wait_timeout=wait_timeout):
+                    self.assert_denied(kind, 'budget', wait_timeout)
+
+    def test_first_term_eperm_after_readerror_preserves_initial_error_and_bounded_reap(self):
+        for kind in (TRACE.ReadinessObservation, TRACE.BootstatusObservation):
+            for wait_timeout in (False, True):
+                with self.subTest(kind=kind.__name__, wait_timeout=wait_timeout):
+                    self.assert_denied(kind, 'readerror', wait_timeout)
+
+    def test_cancel_first_term_eperm_cannot_hide_cleanup_failure_after_reap_zero(self):
+        for kind in (TRACE.ReadinessObservation, TRACE.BootstatusObservation):
+            with self.subTest(kind=kind.__name__):
+                self.assert_denied(kind, 'cancel', False)
+
+    def test_successful_cancellation_retains_same_signals_waits_and_not_run(self):
+        observer, child, kill, result, failure, _ = self.scenario(
+            TRACE.ReadinessObservation, 'cancel', denied=False)
+        self.assertIsNone(failure)
+        self.assertIsNone(observer.cleanup_error)
+        self.assertEqual(result[0]['status'], 'NOT_RUN')
+        self.assertEqual(result[0]['reason'], 'gateCompleted')
+        self.assertEqual([call.args for call in kill.call_args_list],
+            [(321, signal.SIGTERM), (321, signal.SIGKILL)])
+        self.assertEqual([call.kwargs['timeout'] for call in child.wait.call_args_list], [.25, .5])
+        observer.popen.assert_called_once()
+        child.stdout.close.assert_called_once_with()
+        child.stderr.close.assert_called_once_with()
+
+
+    def test_observed_spawn_group_or_identity_error_never_retargets_signals(self):
+        for observed, identity_error in ((999, None),
+                (None, ProcessLookupError(TRACE.errno.ESRCH, 'PRIVATE_IDENTITY_ERROR'))):
+            with self.subTest(observed=observed):
+                observer, child, kill, result, failure, original = self.scenario(
+                    TRACE.ReadinessObservation, 'budget', observed_group=observed,
+                    identity_error=identity_error)
+                self.assertIs(failure, original)
+                kill.assert_called_once_with(321, signal.SIGTERM)
+                record = [call.kwargs for call in observer.emit.call_args_list
+                    if call.args[0] == 'readiness-probe-lifecycle'][0]
+                self.assertEqual(record['requested_pgid'], 321)
+                self.assertEqual(record['observed_spawn_pgid'], observed)
+                self.assertEqual(record['spawn_identity_errors']['pgid'], None if identity_error is None else
+                    {'type': 'ProcessLookupError', 'errno': TRACE.errno.ESRCH})
+                self.assertEqual(record['cleanup']['pre_signal_identity']['pgid'], observed)
+                self.assertEqual(record['requested_sid'], 321)
+                self.assertEqual(record['observed_spawn_sid'], 321)
+                self.assertEqual(observer.fixture_identity_calls, (2, 2))
+                self.assertNotIn('PRIVATE_', json.dumps(record))
+
+    def test_error_metadata_has_finite_types_bounded_errno_and_no_message(self):
+        private_kind = type('PRIVATE_CLASS_NAME', (PermissionError,), {})
+        for error, expected in ((private_kind(TRACE.errno.EPERM, 'PRIVATE_ERROR'),
+                    {'type': 'PermissionError', 'errno': TRACE.errno.EPERM}),
+                (OSError(100000, 'PRIVATE_ERROR'), {'type': 'OSError', 'errno': None}),
+                (RuntimeError('PRIVATE_ERROR'), {'type': 'other', 'errno': None})):
+            with self.subTest(expected=expected):
+                value = TRACE.ReadinessObservation.error_metadata(error)
+                self.assertEqual(value, expected)
+                self.assertNotIn('PRIVATE_', json.dumps(value))
+
+    def test_lifecycle_byte_cap_preserves_original_failure_and_compact_receipt(self):
+        with patch.object(TRACE.time, 'monotonic_ns', return_value=10 ** 1000):
+            observer, child, kill, result, failure, original = self.scenario(
+                TRACE.ReadinessObservation, 'budget')
+        self.assertIs(failure, original)
+        kill.assert_called_once_with(321, signal.SIGTERM)
+        record = [call.kwargs for call in observer.emit.call_args_list
+            if call.args[0] == 'readiness-probe-lifecycle'][0]
+        self.assertEqual(record, {'schema_version': 1, 'operation': 'observer-stack',
+            'diagnostic_status': 'BLOCKED', 'reason': 'lifecycleByteCap'})
+        self.assertLessEqual(len(json.dumps(record).encode()), 2048)
+
+    def test_spawn_span_is_separate_from_reader_and_cleanup_without_changing_budget(self):
+        ticks = iter(range(100, 10000, 100))
+        with patch.object(TRACE.time, 'monotonic_ns', side_effect=lambda: next(ticks)):
+            observer, child, kill, result, failure, original = self.scenario(
+                TRACE.ReadinessObservation, 'budget')
+        self.assertIs(failure, original)
+        record = [call.kwargs for call in observer.emit.call_args_list
+            if call.args[0] == 'readiness-probe-lifecycle'][0]
+        phase = record['phase_ns']
+        self.assertLessEqual(phase['spawn_started'], phase['spawn_finished'])
+        self.assertLessEqual(phase['spawn_finished'], phase['capture_started'])
+        self.assertLessEqual(phase['capture_started'], phase['spawn_observed'])
+        self.assertLessEqual(phase['spawn_observed'], phase['pre_cleanup'])
+        self.assertLessEqual(phase['post_error_wait'], phase['cleanup_finished'])
+        self.assertEqual(record['duration_ns'], {
+            'spawn': phase['spawn_finished'] - phase['spawn_started'],
+            'capture': phase['pre_cleanup'] - phase['capture_started'],
+            'cleanup': phase['cleanup_finished'] - phase['pre_cleanup']})
+        self.assertEqual([call.kwargs['timeout'] for call in child.wait.call_args_list], [.25])
+
+    def test_spawn_failure_retains_same_error_and_reports_no_invented_pid(self):
+        observer = object.__new__(TRACE.ReadinessObservation)
+        observer.stop = Mock(is_set=Mock(return_value=False))
+        observer.emit = Mock()
+        original = OSError(TRACE.errno.EAGAIN, 'PRIVATE_SPAWN_ERROR')
+        observer.popen = Mock(side_effect=original)
+        with patch.object(TRACE.os, 'getpgid') as identity, \
+             patch.object(TRACE.os, 'killpg') as signal_group, \
+             patch.object(TRACE.time, 'monotonic_ns', side_effect=[10, 20]):
+            with self.assertRaises(OSError) as caught:
+                observer.capture(['/usr/bin/sample', '123', 'PRIVATE_ARGV'], 3)
+        self.assertIs(caught.exception, original)
+        identity.assert_not_called()
+        signal_group.assert_not_called()
+        observer.emit.assert_called_once_with('readiness-probe-spawn-error', schema_version=1,
+            operation='observer-stack', pid=None, requested_pgid=None, requested_sid=None,
+            observed_spawn_pgid=None, observed_spawn_sid=None,
+            error={'type': 'OSError', 'errno': TRACE.errno.EAGAIN},
+            spawn_started_ns=10, spawn_finished_ns=20)
+        self.assertNotIn('PRIVATE_', json.dumps(observer.emit.call_args.kwargs))
+
+    def test_missing_session_observation_is_explicit_and_not_requested_identity(self):
+        observer, child, kill, result, failure, original = self.scenario(
+            TRACE.ReadinessObservation, 'budget', session_error=PermissionError(
+                TRACE.errno.EPERM, 'PRIVATE_SESSION_ERROR'))
+        self.assertIs(failure, original)
+        kill.assert_called_once_with(321, signal.SIGTERM)
+        record = [call.kwargs for call in observer.emit.call_args_list
+            if call.args[0] == 'readiness-probe-lifecycle'][0]
+        self.assertEqual(record['requested_sid'], 321)
+        self.assertIsNone(record['observed_spawn_sid'])
+        self.assertIsNone(record['cleanup']['pre_signal_identity']['sid'])
+        self.assertEqual(record['spawn_identity_errors']['sid'],
+            {'type': 'PermissionError', 'errno': TRACE.errno.EPERM})
+        self.assertEqual(record['cleanup']['pre_signal_identity']['errors']['sid'],
+            {'type': 'PermissionError', 'errno': TRACE.errno.EPERM})
+        self.assertEqual(observer.fixture_identity_calls, (2, 2))
+        self.assertNotIn('PRIVATE_', json.dumps(record))
+
+    def test_nonzero_or_signal_exit_after_eperm_is_only_reap_metadata(self):
+        for code in (2, -15):
+            with self.subTest(exit_code=code):
+                observer, child, kill, result, failure, original = self.scenario(
+                    TRACE.ReadinessObservation, 'budget', wait_exit=code)
+                self.assertIs(failure, original)
+                self.assertIs(observer.cleanup_error, original)
+                kill.assert_called_once_with(321, signal.SIGTERM)
+                record = [call.kwargs for call in observer.emit.call_args_list
+                    if call.args[0] == 'readiness-probe-lifecycle'][0]
+                self.assertTrue(record['cleanup']['post_error_wait']['reaped'])
+                self.assertEqual(record['cleanup']['post_error_wait']['exit_code'], code)
+                self.assertEqual(record['cleanup']['error'],
+                    {'type': 'PermissionError', 'errno': TRACE.errno.EPERM})
+                self.assertEqual(observer.fixture_identity_calls, (2, 2))
+
+    def test_other_signal_errno_keeps_existing_no_wait_no_retry_failure(self):
+        observer, child, kill, result, failure, original = self.scenario(
+            TRACE.ReadinessObservation, 'budget', signal_errno=TRACE.errno.EACCES)
+        self.assertIs(failure, original)
+        self.assertIs(observer.cleanup_error, original)
+        kill.assert_called_once_with(321, signal.SIGTERM)
+        child.wait.assert_not_called()
+        record = [call.kwargs for call in observer.emit.call_args_list
+            if call.args[0] == 'readiness-probe-lifecycle'][0]
+        self.assertEqual(record['cleanup']['error'],
+            {'type': 'PermissionError', 'errno': TRACE.errno.EACCES})
+        self.assertFalse(record['cleanup']['post_error_wait']['attempted'])
+        self.assertIsNone(record['phase_ns']['post_error_wait'])
+
+class ObserverCleanupPhaseRegressionTest(unittest.TestCase):
+    """Errore propagato e ultimo passo di finally sono osservabili distinti."""
+
+    def scenario(self, kind, *, inner_close_error=False, outer_close_error=False,
+                 invalid_group=False):
+        observer = object.__new__(kind)
+        observer.stop = Mock(is_set=Mock(return_value=False))
+        observer.authorize = Mock(return_value=True)
+        observer.cleanup_error = None
+        observer.emit = Mock()
+        child = Mock(pid=321, returncode=0, stdout=Mock(), stderr=Mock())
+        child.poll.return_value = 0
+        child.wait.return_value = 0
+        probe = Mock(pid=322, returncode=1, stdout=Mock(), stderr=Mock())
+        probe.poll.return_value = 1
+        original = subprocess.TimeoutExpired('PRIVATE_PROBE_ARGV', .5)
+        replacement = OSError(TRACE.errno.EIO, 'PRIVATE_INNER_CLOSE') if inner_close_error else (
+            OSError(TRACE.errno.EBADF, 'PRIVATE_OUTER_CLOSE') if outer_close_error else None)
+        if invalid_group:
+            probe.communicate.return_value = (b'321 R\n', b'')
+        else:
+            probe.communicate.side_effect = original
+        if inner_close_error:
+            probe.stdout.close.side_effect = replacement
+        if outer_close_error:
+            child.stderr.close.side_effect = replacement
+        observer.popen = Mock(side_effect=[child, probe])
+        selected = Mock(get_map=Mock(return_value={}))
+        caught = None
+        with patch.object(TRACE.selectors, 'DefaultSelector') as factory, \
+             patch.object(TRACE.os, 'getpgid', return_value=321), \
+             patch.object(TRACE.os, 'getsid', return_value=321), \
+             patch.object(TRACE.os, 'killpg') as kill:
+            factory.return_value.__enter__.return_value = selected
+            try:
+                observer.capture(['/bin/ps', 'PRIVATE_ARGV'], 1)
+            except (OSError, subprocess.SubprocessError) as error:
+                caught = error
+        if invalid_group:
+            self.assertIsInstance(caught, OSError)
+            self.assertEqual(caught.errno, TRACE.errno.EBUSY)
+        else:
+            self.assertIs(caught, replacement or original)
+        # Nessuna variazione del flag V1: il close esterno è fuori dal try cleanup.
+        self.assertIs(observer.cleanup_error, caught if invalid_group else (
+            replacement if inner_close_error else original))
+        kill.assert_called_once_with(321, signal.SIGKILL)
+        self.assertEqual([call.kwargs['timeout'] for call in child.wait.call_args_list], [.5, .5])
+        probe.communicate.assert_called_once_with(timeout=.5)
+        probe.poll.assert_called_once_with()
+        probe.stdout.close.assert_called_once_with()
+        self.assertEqual(probe.stderr.close.call_count, 0 if inner_close_error else 1)
+        child.stdout.close.assert_called_once_with()
+        child.stderr.close.assert_called_once_with()
+        self.assertEqual(observer.popen.call_count, 2)
+        records = [call.kwargs for call in observer.emit.call_args_list
+            if call.args[0] == 'readiness-probe-lifecycle']
+        self.assertEqual(len(records), 1)
+        self.assertNotIn('PRIVATE_', json.dumps(records[0]))
+        return records[0], caught
+
+    def test_communicate_timeout_survives_successful_inner_finally_with_own_failed_phase(self):
+        for kind in (TRACE.ReadinessObservation, TRACE.BootstatusObservation):
+            with self.subTest(kind=kind.__name__):
+                record, caught = self.scenario(kind)
+                self.assertEqual(record['cleanup'].get('failed_operation'), 'group-probe-communicate')
+                self.assertEqual(record['cleanup'].get('last_operation'), 'child-stderr-close')
+                self.assertNotIn('operation', record['cleanup'])
+                self.assertEqual(record['cleanup']['error'], {'type': 'TimeoutExpired', 'errno': None})
+
+    def test_new_error_in_inner_finally_is_attributed_to_its_close_site(self):
+        for kind in (TRACE.ReadinessObservation, TRACE.BootstatusObservation):
+            with self.subTest(kind=kind.__name__):
+                record, caught = self.scenario(kind, inner_close_error=True)
+                self.assertEqual(record['cleanup'].get('failed_operation'), 'group-probe-close')
+                self.assertEqual(record['cleanup'].get('last_operation'), 'child-stderr-close')
+                self.assertEqual(record['cleanup']['error'], {'type': 'OSError', 'errno': TRACE.errno.EIO})
+
+    def test_new_error_in_outer_pipe_close_is_the_diagnostic_propagated_error(self):
+        for kind in (TRACE.ReadinessObservation, TRACE.BootstatusObservation):
+            with self.subTest(kind=kind.__name__):
+                record, caught = self.scenario(kind, outer_close_error=True)
+                self.assertEqual(record['cleanup'].get('failed_operation'), 'child-stderr-close')
+                self.assertEqual(record['cleanup'].get('last_operation'), 'child-stderr-close')
+                self.assertEqual(record['cleanup']['error'], {'type': 'OSError', 'errno': TRACE.errno.EBADF})
+
+
+    def test_group_validation_error_is_separate_from_successful_communicate(self):
+        for kind in (TRACE.ReadinessObservation, TRACE.BootstatusObservation):
+            with self.subTest(kind=kind.__name__):
+                record, caught = self.scenario(kind, invalid_group=True)
+                self.assertEqual(record['cleanup'].get('failed_operation'), 'group-probe-validate')
+                self.assertEqual(record['cleanup'].get('last_operation'), 'child-stderr-close')
+                self.assertEqual(record['cleanup']['error'], {'type': 'OSError', 'errno': TRACE.errno.EBUSY})
+
 class ObserverReapRegressionTest(unittest.TestCase):
     """ESRCH sul gruppo e reap del leader: prove distinte, nessun comando reale."""
 

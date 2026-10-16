@@ -54,6 +54,9 @@ class IosAddressJournalFileRunner(ADDRESS.IosJournalRunner):
                 native_failure_origin = getattr(error, 'native_failure_origin', None)
                 if native_failure_origin in FILE.NATIVE_FAILURE_ORIGINS:
                     self.diagnostics[phase]['native_terminal_failure_origin'] = native_failure_origin
+                native_failure_checkpoint = getattr(error, 'native_failure_checkpoint', None)
+                if native_failure_checkpoint in FILE.NATIVE_FAILURE_CHECKPOINTS:
+                    self.diagnostics[phase]['native_terminal_failure_checkpoint'] = native_failure_checkpoint
             # I moduli ereditati hanno classi Failure distinte: il run() base
             # deve ricevere la propria classe per conservare exit/cleanup/receipt.
             raise ADDRESS.Failure(self.phase, error.code, str(error)) from None

@@ -18,7 +18,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 const _apiVersion = 'address-journal-native-evidence.v2';
-const _failureApiVersion = 'address-journal-native-evidence.v3';
+const _failureApiVersion = 'address-journal-native-evidence.v4';
 const _fixtureOwner = 'f0540000-0000-4000-8000-000000000001';
 
 CustomerAddressDraft _draft(String runId, int seedPid) => CustomerAddressDraft(
@@ -85,16 +85,31 @@ void main() {
         final marker = RegExp(
           '^fixture-run:$runId;seed-pid:([1-9][0-9]*)\$',
         ).firstMatch(pending.draft.deliveryInstructions ?? '');
-        expect(marker, isNotNull);
+        publisher.checkRecover('recover_marker', () {
+          expect(marker, isNotNull);
+        });
         seedPid = int.parse(marker!.group(1)!);
-        expect(pid, isNot(seedPid), reason: 'Serve un processo nativo nuovo.');
+        publisher.checkRecover('recover_process', () {
+          expect(
+            pid,
+            isNot(seedPid),
+            reason: 'Serve un processo nativo nuovo.',
+          );
+        });
       }
       final restored = await SecureAddressCreationJournal().read(_fixtureOwner);
-      expect(restored?.id, runId);
-      expect(restored?.matches(_draft(runId, seedPid)), isTrue);
+      publisher.checkRecover('restored_identity', () {
+        expect(restored?.id, runId);
+      });
+      publisher.checkRecover('restored_payload', () {
+        expect(restored?.matches(_draft(runId, seedPid)), isTrue);
+      });
       if (phase == 'recover') {
         await journal.clear(_fixtureOwner);
-        expect(await journal.read(_fixtureOwner), isNull);
+        final cleared = await journal.read(_fixtureOwner);
+        publisher.checkRecover('cleared_readback', () {
+          expect(cleared, isNull);
+        });
       }
       final candidate = <String, Object?>{
         'apiVersion': _apiVersion,
@@ -157,8 +172,17 @@ class _NativeAddressTerminalPublisher {
   Directory? directory;
   String phase = 'seed';
   String? errorType;
+  String? failureCheckpoint;
   Map<String, Object?>? successCandidate;
   bool _started = false;
+
+  // Solo il singolo expect recover resta attribuibile se solleva TestFailure.
+  // Letture/clear async e failure terminali conservano checkpoint non osservato.
+  void checkRecover(String checkpoint, void Function() check) {
+    failureCheckpoint = phase == 'recover' ? checkpoint : null;
+    check();
+    failureCheckpoint = null;
+  }
 
   Future<void> publish(_NativeAddressTestBinding binding) async {
     if (_started) {
@@ -194,6 +218,9 @@ class _NativeAddressTerminalPublisher {
             'processId': pid,
             'status': 'FAIL',
             'failureOrigin': errorType == null ? 'terminal_gate' : 'body',
+            'failureCheckpoint': errorType == 'assertion' && phase == 'recover'
+                ? failureCheckpoint
+                : null,
             'errorType': errorType ?? 'assertion',
           };
     binding.reportData = result;

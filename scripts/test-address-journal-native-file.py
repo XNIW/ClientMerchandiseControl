@@ -2,6 +2,7 @@
 """Confini del trasporto file; nessun SDK, emulatore o Keychain reale."""
 import importlib.util
 import json
+import re
 from pathlib import Path
 import tempfile
 import unittest
@@ -258,6 +259,198 @@ class NativeAddressFileTest(unittest.TestCase):
                 {'apiVersion': 'address-journal-native-evidence.v3', 'failureOrigin': 'terminal_gate'}):
             with self.subTest(changes=changes), self.assertRaises(A.Failure):
                 A.validate_native_receipt({**receipt(), **changes}, 'seed', RUN_ID, 12, 12)
+
+    def checkpoint_failure(self, checkpoint, *, phase='recover', origin='body', category='assertion'):
+        return {'apiVersion': 'address-journal-native-evidence.v4', 'phase': phase,
+            'runId': RUN_ID, 'processId': 13 if phase == 'recover' else 12,
+            'status': 'FAIL', 'errorType': category, 'failureOrigin': origin,
+            'failureCheckpoint': checkpoint}
+
+    def test_v4_recover_assertion_distinguishes_each_validated_checkpoint(self):
+        for checkpoint in ('recover_marker', 'recover_process', 'restored_identity',
+                'restored_payload', 'cleared_readback'):
+            with self.subTest(checkpoint=checkpoint), self.assertRaises(A.Failure) as raised:
+                A.validate_native_receipt(self.checkpoint_failure(checkpoint), 'recover', RUN_ID, 13, 12)
+            self.assertEqual(raised.exception.code, 1)
+            self.assertEqual(getattr(raised.exception, 'native_error_type', None), 'assertion')
+            self.assertEqual(getattr(raised.exception, 'native_failure_origin', None), 'body')
+            self.assertEqual(getattr(raised.exception, 'native_failure_checkpoint', None), checkpoint)
+            self.assertIn('fixture nativa segnala failure sanitizzata', str(raised.exception))
+
+    def test_v4_null_checkpoint_preserves_known_origin_without_inference(self):
+        for phase in ('seed', 'recover'):
+            for origin, category in (('body', 'assertion'), ('body', 'filesystem'),
+                    ('body', 'unexpected'), ('terminal_gate', 'assertion')):
+                with self.subTest(phase=phase, origin=origin, category=category), \
+                     self.assertRaises(A.Failure) as raised:
+                    A.validate_native_receipt(self.checkpoint_failure(None, phase=phase,
+                        origin=origin, category=category), phase, RUN_ID,
+                        13 if phase == 'recover' else 12, 12)
+                self.assertEqual(getattr(raised.exception, 'native_error_type', None), category)
+                self.assertEqual(getattr(raised.exception, 'native_failure_origin', None), origin)
+                self.assertFalse(hasattr(raised.exception, 'native_failure_checkpoint'))
+
+    def test_v4_nonnull_checkpoint_requires_body_recover_assertion(self):
+        for checkpoint in ('recover_marker', 'recover_process', 'restored_identity',
+                'restored_payload', 'cleared_readback'):
+            for phase, origin, category in (('seed', 'body', 'assertion'),
+                    ('recover', 'terminal_gate', 'assertion'), ('recover', 'body', 'filesystem'),
+                    ('recover', 'body', 'unexpected')):
+                with self.subTest(checkpoint=checkpoint, phase=phase, origin=origin, category=category), \
+                     self.assertRaises(A.Failure) as raised:
+                    A.validate_native_receipt(self.checkpoint_failure(checkpoint, phase=phase,
+                        origin=origin, category=category), phase, RUN_ID,
+                        13 if phase == 'recover' else 12, 12)
+                self.assertFalse(hasattr(raised.exception, 'native_error_type'))
+                self.assertFalse(hasattr(raised.exception, 'native_failure_origin'))
+                self.assertFalse(hasattr(raised.exception, 'native_failure_checkpoint'))
+
+    def test_v4_exact_schema_identity_and_checkpoint_allowlist_fail_closed(self):
+        cases = (
+            {'failureCheckpoint': 'SECRET_RAW_CHECKPOINT'}, {'failureCheckpoint': ['recover_marker']},
+            {'failureCheckpoint': {'recover_marker': True}}, {'failureCheckpoint': 1},
+            {'failureOrigin': None}, {'failureOrigin': 'SECRET_RAW_ORIGIN'},
+            {'failureOrigin': ['body']}, {'failureOrigin': 'terminal_gate', 'errorType': 'filesystem',
+                'failureCheckpoint': None}, {'errorType': 'SECRET_RAW_ERROR'},
+            {'apiVersion': 'address-journal-native-evidence.v2'},
+            {'apiVersion': 'address-journal-native-evidence.v3'},
+            {'apiVersion': 'address-journal-native-evidence.v5'}, {'runId': 'foreign'},
+            {'processId': 99}, {'phase': 'seed'}, {'rawMessage': 'SECRET_RAW_MESSAGE'},
+            {'status': 'PASS'},
+        )
+        for changes in cases:
+            data = {**self.checkpoint_failure('recover_marker'), **changes}
+            with self.subTest(changes=changes), self.assertRaises(A.Failure) as raised:
+                A.validate_native_receipt(data, 'recover', RUN_ID, 13, 12)
+            for field in ('native_error_type', 'native_failure_origin', 'native_failure_checkpoint'):
+                self.assertFalse(hasattr(raised.exception, field))
+            self.assertNotIn('SECRET_RAW', str(raised.exception))
+        for missing in ('failureCheckpoint', 'failureOrigin', 'errorType', 'status'):
+            data = self.checkpoint_failure(None)
+            del data[missing]
+            with self.subTest(missing=missing), self.assertRaises(A.Failure) as raised:
+                A.validate_native_receipt(data, 'recover', RUN_ID, 13, 12)
+            self.assertFalse(hasattr(raised.exception, 'native_failure_checkpoint'))
+
+    def test_v4_does_not_add_checkpoint_to_strict_legacy_failure_contracts(self):
+        for version, origin in (('v2', None), ('v3', 'body')):
+            data = {'apiVersion': 'address-journal-native-evidence.' + version, 'phase': 'recover',
+                'runId': RUN_ID, 'processId': 13, 'status': 'FAIL', 'errorType': 'assertion'}
+            if origin:
+                data['failureOrigin'] = origin
+            with self.subTest(version=version), self.assertRaises(A.Failure) as raised:
+                A.validate_native_receipt(data, 'recover', RUN_ID, 13, 12)
+            self.assertEqual(getattr(raised.exception, 'native_error_type', None), 'assertion')
+            self.assertFalse(hasattr(raised.exception, 'native_failure_checkpoint'))
+            for checkpoint in (None, 'recover_marker'):
+                with self.subTest(version=version, checkpoint=checkpoint), self.assertRaises(A.Failure) as invalid:
+                    A.validate_native_receipt({**data, 'failureCheckpoint': checkpoint}, 'recover', RUN_ID, 13, 12)
+                self.assertFalse(hasattr(invalid.exception, 'native_error_type'))
+
+    def test_success_v2_never_accepts_failure_checkpoint_or_v4(self):
+        for changes in ({'failureCheckpoint': None}, {'failureCheckpoint': 'recover_marker'},
+                {'apiVersion': 'address-journal-native-evidence.v4'},
+                {'apiVersion': 'address-journal-native-evidence.v4', 'failureCheckpoint': None}):
+            with self.subTest(changes=changes), self.assertRaises(A.Failure):
+                A.validate_native_receipt({**receipt(), **changes}, 'seed', RUN_ID, 12, 12)
+
+    def test_ios_v4_checkpoints_survive_only_as_validated_enums_and_failure(self):
+        for checkpoint in ('recover_marker', 'recover_process', 'restored_identity',
+                'restored_payload', 'cleared_readback'):
+            with self.subTest(checkpoint=checkpoint):
+                artifact, text = self.failure_artifact('assertion', expected_phase='recover',
+                    apiVersion='address-journal-native-evidence.v4', failureOrigin='body',
+                    failureCheckpoint=checkpoint)
+                diagnostics = artifact['diagnostics'].get('recover', {})
+                self.assertEqual(diagnostics.get('native_terminal_error_type'), 'assertion')
+                self.assertEqual(diagnostics.get('native_terminal_failure_origin'), 'body')
+                self.assertEqual(diagnostics.get('native_terminal_failure_checkpoint'), checkpoint)
+                self.assertNotIn('same_bundle_and_containers', artifact['results'])
+                self.assertEqual(artifact['restart'], 'FAIL')
+
+    def test_ios_v4_null_checkpoint_does_not_imply_unobserved_check(self):
+        for phase in ('seed', 'recover'):
+            for origin, category in (('body', 'assertion'), ('body', 'filesystem'),
+                    ('body', 'unexpected'), ('terminal_gate', 'assertion')):
+                with self.subTest(phase=phase, origin=origin, category=category):
+                    artifact, text = self.failure_artifact(category, expected_phase=phase,
+                        apiVersion='address-journal-native-evidence.v4', failureOrigin=origin,
+                        failureCheckpoint=None)
+                    diagnostics = artifact['diagnostics'].get(phase, {})
+                    self.assertEqual(diagnostics.get('native_terminal_error_type'), category)
+                    self.assertEqual(diagnostics.get('native_terminal_failure_origin'), origin)
+                    self.assertNotIn('native_terminal_failure_checkpoint', diagnostics)
+
+    def test_ios_invalid_v4_checkpoint_exports_neither_metadata_nor_raw_value(self):
+        cases = (
+            ('assertion', 'recover', {'failureCheckpoint': 'SECRET_RAW_CHECKPOINT'}),
+            ('assertion', 'recover', {'failureCheckpoint': ['recover_marker']}),
+            ('assertion', 'recover', {'failureOrigin': 'terminal_gate'}),
+            ('filesystem', 'recover', {}), ('unexpected', 'recover', {}),
+            ('assertion', 'seed', {}), ('assertion', 'recover', {'runId': 'foreign'}),
+            ('assertion', 'recover', {'processId': 99}),
+            ('assertion', 'recover', {'phase': 'seed'}),
+            ('assertion', 'recover', {'rawMessage': 'SECRET_RAW_MESSAGE'}),
+            ('assertion', 'recover', {'apiVersion': 'address-journal-native-evidence.v3'}),
+        )
+        for category, phase, changes in cases:
+            fields = {'apiVersion': 'address-journal-native-evidence.v4', 'failureOrigin': 'body',
+                'failureCheckpoint': 'recover_marker', **changes}
+            with self.subTest(category=category, phase=phase, changes=changes):
+                artifact, text = self.failure_artifact(category, expected_phase=phase, **fields)
+                diagnostics = artifact['diagnostics'].get(phase, {})
+                for field in ('native_terminal_error_type', 'native_terminal_failure_origin',
+                        'native_terminal_failure_checkpoint'):
+                    self.assertNotIn(field, diagnostics)
+                self.assertNotIn('SECRET_RAW', text)
+                self.assertIn('ricevuta failure non conforme', artifact['failure_reason'])
+
+    def fixture_source(self):
+        return (Path(__file__).resolve().parent.parent / 'integration_test' /
+            'address_creation_journal_native_test.dart').read_text(encoding='utf-8')
+
+    def test_fixture_wraps_exactly_five_existing_recover_assertions(self):
+        source = self.fixture_source()
+        self.assertEqual(re.findall(r"publisher\.checkRecover\(\s*'([^']+)'", source),
+            ['recover_marker', 'recover_process', 'restored_identity', 'restored_payload', 'cleared_readback'])
+        expected = {
+            'recover_marker': 'expect(marker, isNotNull);',
+            'recover_process': "expect(pid, isNot(seedPid), reason: 'Serve un processo nativo nuovo.',);",
+            'restored_identity': 'expect(restored?.id, runId);',
+            'restored_payload': 'expect(restored?.matches(_draft(runId, seedPid)), isTrue);',
+            'cleared_readback': 'expect(cleared, isNull);',
+        }
+        for checkpoint, assertion in expected.items():
+            block = re.search(r"publisher\.checkRecover\(\s*'" + checkpoint +
+                r"',\s*\(\)\s*\{(.*?)\}\s*\);", source, re.S)
+            self.assertIsNotNone(block, checkpoint)
+            self.assertEqual(re.sub(r'\s+', '', block.group(1)), re.sub(r'\s+', '', assertion))
+        self.assertEqual(len(re.findall(r'\bexpect\(', source)), 8)
+        self.assertLess(source.index("reason: 'Nessun journal precedente va riusato.'"),
+            source.index('publisher.phase = phase;'))
+        self.assertLess(source.index('publisher.phase = phase;'),
+            source.index("publisher.checkRecover('recover_marker'"))
+
+    def test_fixture_checkpoint_reset_and_read_boundary_prevent_false_attribution(self):
+        source = self.fixture_source()
+        helper = re.search(r'void checkRecover\(String checkpoint, void Function\(\) check\)\s*\{(.*?)\}', source, re.S)
+        self.assertIsNotNone(helper)
+        self.assertEqual(re.sub(r'\s+', '', helper.group(1)),
+            "failureCheckpoint=phase=='recover'?checkpoint:null;check();failureCheckpoint=null;")
+        self.assertNotIn('async', helper.group(0))
+        self.assertLess(source.index('await journal.clear(_fixtureOwner);'),
+            source.index('final cleared = await journal.read(_fixtureOwner);'))
+        self.assertLess(source.index('final cleared = await journal.read(_fixtureOwner);'),
+            source.index("publisher.checkRecover('cleared_readback'"))
+        self.assertLess(source.index('final restored = await SecureAddressCreationJournal().read(_fixtureOwner);'),
+            source.index("publisher.checkRecover('restored_identity'"))
+
+    def test_fixture_v4_export_guards_error_type_and_phase_and_keeps_origin(self):
+        compact = re.sub(r'\s+', '', self.fixture_source())
+        self.assertIn("const_failureApiVersion='address-journal-native-evidence.v4';", compact)
+        self.assertIn("'failureCheckpoint':errorType=='assertion'&&phase=='recover'?failureCheckpoint:null,", compact)
+        self.assertIn("'failureOrigin':errorType==null?'terminal_gate':'body',", compact)
+        self.assertIn("const_apiVersion='address-journal-native-evidence.v2';", compact)
 
     def test_paths_cannot_escape_run_scope(self):
         for run, phase in [('../other', 'seed'), (RUN_ID, '../recover'), (RUN_ID, 'other')]:

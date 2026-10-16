@@ -362,3 +362,54 @@ né budget/guard alterati. FullCI7 resta NOT_RUN; selector e worker distinti
 non sostituiscono la CI né costituiscono A/B. Nessun PASS/cause/stabilità
 trasferito; tutti i FAIL e cleanup negativi sono preservati. Maps/TEST/live,
 Auth/R13/R14/R24/C04/AT/IME/firma restano distinti, nessun SDKMac o merge/DONE.
+
+
+## Ripresa diagnostica dopo terminali e77 — 2026-10-16
+
+Baseline e77 clean0/0; Quality38874967013 PASS1252/1SKIP+11perf e316Python/16suite,
+format411/0/analyze0. Visual38877119329 FAIL124/300.069s, primoSIGTERMobserverEPERM;
+journal38877142210 FAIL124/readiness, fixture e failureOrigin NOT_RUN, ownercleanupPASS.
+I due cleanup risorsa visualPASS non qualificano quiescenza observer né dimostrano
+un leak. Bootstatus26910 reaped−15. FullCI7e77NOT_RUN; nessun PASS trasferito.
+Capsule terminali immutate: aggregate3cf0217c, Qualitycc1981eb, visual9324ed6d,
+journal37f1b9d6; handoff precedente e ownershiprelease9ebe1459 preservati.
+
+Il mandato continuativo è riconfermato dal coordinamento: la diagnosi source/pure
+prosegue dopo nuova ownership. Ipotesi recuperabile primoSIGTERMEPERM: perdita del
+motivo precleanup e osservazione reap. RED separati budget/readerror e review della
+patch minima prima di nuovi runner. Nessun retry identico o modifica dei budget,
+dell'attestazione/guard o dei confini di autorizzazione. Nessuna causa storica EPERM,
+boot, Keychain o stabilità già acquisita; Maps/live e altri gate restano distinti.
+
+
+### HandoffFix diagnostico composto —16ottobre
+
+Applicati9postimage exactcomposite1ad30c7006ad dopo reviewsource/pure distinte
+1a012478/c2771ff9/44043986 e secondacompositadc0d9927. Root284Python/12suite
+PASS/exit0, Security1157/zero/exit0, pin4/governance/whitespacePASS; logsource
+privati e negativiV1/setup preservati. Il delta handoff documentale è successivo
+alla scansione locale; nuova Quality sul futuro SHA NOT_RUN. Niente SDKMac,
+nuovo branch/WT, app/native/config/deps/unitDart modificato, input o deploy.
+FIX→REVIEW con CODEX_FIX_BLOCKED_TO_RE_REVIEW; 16path a re-review finale.
+Nuove domande visualreason/PGID/SID/reap e journalpassiva/checkpoint restano
+NOT_RUN fino a QualityPASS. FullCI7NOT_RUN, globaleBLOCKED, Maps/live distinti.
+
+
+### Re-review finale del freeze diagnostico - 2026-10-16
+
+Esito globale BLOCKED, CODEX_REVIEW_BLOCKED. Freeze Fix b350aa96: 16 pin
+(9 source e 7 documenti) verificati in sola lettura, composito1ad30c7006ad
+identico ai postimage della review dc0d9927 APPROVED solo source/pure/privacy.
+Root 284 Python/12 suite e reviewer 51 test/176 casi PASS restano evidence con
+provenienze distinte. Receipt Security1157/zero/exit0, pin4, governance del
+Fix e whitespace PASS/exit0 verificati per hash, nessun nuovo gate eseguito.
+La scansione locale precede gli ultimi metadati di handoff; docpatch e futuro
+exactSHA Quality non ricevono PASS anticipato. Tutti i comandi sono terminali.
+
+Nuovi format/analyze/Quality hosted e visual/journal restano NOT_RUN, fullCI7
+NOT_RUN; nessuna acceptance nativa/live. Solo dopo Quality PASS le due domande
+discriminanti sullo stesso candidato, budget300/30 e attestazioni invariati.
+V1/RED/setupfail, errata e capsule e77 non vengono riscritti; nessuna causa
+boot/EPERM/Keychain o quiescenza inferita. Maps/TEST/Auth/C04/R24/AT/IME/firma
+restano distinti. Nessun SDK/inputMac/Asus, reset, nuovo accesso, SQL/deploy,
+retry identico, merge o DONE; PR29 resta draft/HOLD.

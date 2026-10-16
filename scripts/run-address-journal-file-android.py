@@ -19,6 +19,7 @@ ADDRESS = module('address_native_file_android_owner', 'run-address-journal-andro
 Failure = ADDRESS.Failure
 PHASE_TIMEOUT = 150
 MAX_RECEIPT_BYTES = 8192
+NATIVE_ERROR_TYPES = ('assertion', 'filesystem', 'unexpected')
 
 
 def receipt_relative_path(run_id, phase):
@@ -38,9 +39,12 @@ def validate_native_receipt(data, phase, run_id, process_id, seed_pid):
         if (set(data) != expected_keys or data.get('apiVersion') != 'address-journal-native-evidence.v2'
                 or data.get('phase') != phase or data.get('runId') != run_id
                 or data.get('processId') != process_id
-                or data.get('errorType') not in ('assertion', 'filesystem', 'unexpected')):
+                or data.get('errorType') not in NATIVE_ERROR_TYPES):
             raise Failure('journal-' + phase, 1, 'ricevuta failure non conforme')
-        raise Failure('journal-' + phase, 1, 'fixture nativa segnala failure sanitizzata')
+        failure = Failure('journal-' + phase, 1, 'fixture nativa segnala failure sanitizzata')
+        # Solo enum gia validato; mai payload, messaggi, stack o log nativi.
+        failure.native_error_type = data['errorType']
+        raise failure
     return ADDRESS.validate_receipt(data, phase, run_id, process_id, seed_pid)
 
 

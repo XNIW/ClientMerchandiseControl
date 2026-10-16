@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_REVIEW_BLOCKED
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -1651,3 +1651,165 @@ risultato terminale al proprio head; questo è un cutoff precedente ai gate.
 Nessun SDK/UI Mac, merge/DONE, accesso persistente o acceptance Maps/live.
 Task BLOCKED/FIX; CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX fino all'handoff
 dopo i risultati reali, senza dichiarare completata la verifica obbligatoria.
+
+
+## Fix IOS-JOURNAL-OBS-RR-01 e handoff
+
+Canonical38862344656/d195602 terminaleFAILURE:7/7job freschi,5SUCCESS/2FAIL.
+Quality1252PASS/1SKIP,11performance,14metadata,format411/0/analyze0;
+Androidvisual93body+driverPASS,corpus137Flutter+4OS,cleanupPASS. VM connessa
+in2.959s,PID2774 prima/dopo; lifecyclevuoto non dimostra assenzaexit né
+causa del Sentinel storico. JournalAndroidPASS,releaseunsigned2PASS.
+
+iOSvisual fallisce bootstatus300.457s prima launchctl: zero readinesseventi,
+smoke/visualNOT_RUN;cleanupresourceFAIL1 e successivoPASS2 conservati con
+esitoFAIL storico. JournaliOS supera readiness, raggiunge app/publisher e
+pubblica FAIL seed valido; restartNOT_RUN,process/privateLog/ownedcleanupPASS.
+Causa e categoria nativeUNKNOWN: enumassertion/filesystem/unexpected era
+validato e poi perso dal trasporto prima della ricevuta persistente.
+
+Finding P2 IOS-JOURNAL-OBS-RR-01 corretto soltanto in trePythonfile: conserva
+lo stesso Failure/code/messaggio e registra solo enum già validato nei
+diagnostics iOS. Nessun dato grezzo né modifica di budget,comandi,cleanup,
+fixtureDart o prodotto. RED11test/4assertFAIL suld195, GREEN11PASS e owner21
+PASS indipendenti; root applica byte revisionati e verifica11+21+13=45PASS.
+Review source distinta746ac2ff… APPROVED SOURCE_PURE_OBSERVABILITY_ONLY,
+nessuna causa storica recuperata e nessun nuovoPASSnativo attribuito.
+
+| CA / T | Evidence | Stato al freeze del nuovo fix |
+|---|---|---|
+| CA-04 / T-04 | enumfix a8bdd372,review746ac2ff,45testpuri | PASS source/pure soltanto |
+| CA-05 / T-05 | canonicald1955SUCCESS/2FAIL,nuovohead distinto | BLOCKED; fullCI7nuovoheadNOT_RUN |
+| CA-06 / T-06 | primarie d195 e domanda enum mirata | BLOCKED globale; nativejournalnuovoNOT_RUN |
+
+Una sola prova successiva nel gate esistente ios-address-journal sul nuovo
+head distingue eventuale categoria nativa con enum preservato. Un futuro
+PASS non recupera la categoria o causa precedenti. Gli altri sei job della
+prova mirata restano SKIPPED e non sostituiscono fullCI7. Commit skip
+automatico per conservare l'unico esperimento visual d195. Nessun SDKMac,
+nuovo accesso/branch/worktree, SQL/deploy, merge o DONE. Maps/live/AT/firma
+sono gate distinti. TaskBLOCKED/REVIEW, CODEX_FIX_BLOCKED_TO_RE_REVIEW.
+
+
+## Fix — supplemento durante bootstatus owned
+
+La re-review enum-only ce01e818…/patchglobaleae9c797a… rimane un cutoff
+privato precedente: sourcefix746ac2ff… approvato, globaleBLOCKED; patchglobale
+non applicata prima della nuova domanda. Audit readonly identifica un passo
+causale ancora nello scope, senza chiamare esterno un limite non diagnosticato.
+
+Visuald195 mostra CoreLocationMigrator06:47:52→timeout06:51:26. Anche9dvisual
+attraversava il migratore e build→prepare ma completava bootstatus: ordine
+non prova causa. Journalprepareprima/build e coldheadless sono confronti
+noncontrollati. L'osservatore readiness attuale è strutturalmente dopo
+bootstatusCompleted e non può osservare questo nuovoFAIL precedente.
+
+Preparare osservazione bounded DURANTE bootstatusOWNED pendente, stack del
+soloPIDproprio e logCoreSimulator filtratiUUID, stesso300s/guard/cleanup e
+sequenzavisual. Serve distinguere attesa migrazione da servizio, senza
+aumentaretimeout,warmup,reset,skipguard,retryidentico o bypassrefusal.
+Source e puretest pertinenti più review distinta prima di una sola nuova
+prova ios-visual, coordinata sullo stesso candidato con una sola domanda
+separata journalenum. Nessun nuovo inputworkflow e nessuna ripetizione
+Android. Nuove proveNOT_RUN; fullCI7nuovoheadNOT_RUN, nessunPASStrasferito.
+Erratumimmagine visual:V1preservata,V2de6c0746… corregge con joblog18
+20261013.0424.1;20260907.0351.1 appartiene aljournal. Non è prova causale.
+
+TaskBLOCKED/FIX; CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.
+
+
+## Fix boot observer — review privata V1
+
+V1privata54e545c9… non applicata nel WT e nessuna CI nativa. Due reviewer
+indipendenti trovano P2 IOS-BOOT-OBS-RR-01: check_device può restituireFalse
+quando UUID assente nell'inventory, ma nuova proof dichiara matchTrue.
+Review32c224a5… CHANGES_REQUIRED e repro35d6a8ca… con helperreale;
+125testpuriPASS non coprivano il caso e non chiudono il finding.
+
+Richiesta V2minima: proof e osservatore autorizzati soltanto dal ritorno
+positivo reale già interrogato, senza nuovaquery/reorder/budgetchange.
+False+boot0 conserva sequenza/primariolegacy e non crea proofmatched.
+REDV1→GREENV2 e re-review distinte prima di apply/esperimento. Tutte le
+primarie V1 restano; sourceenum45PASS e review precedente restano validi.
+
+TaskBLOCKED/FIX; CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.
+
+
+## Fix composito bootV2 e enum — handoff
+
+BOOTV2 fullpatch1e21f62eeb15bac1cb77351ab504a62f279dfd5033f30a721fb4e11e3585fe39
+approvata source/pure da due reviewer distinti1d85e68c… e4940ccc3….
+IOS-BOOT-OBS-RR-01 risolto: realecheck_deviceFalse conboot0 non genera
+proof né autorizzaobserver; registraNOT_RUN, primaria124 eSDKsequenza
+legacyinvariati. REDV1/GREENV2 conhelperreale,126puri indipendentiPASS.
+V1 e relativifinding/repro preservati,maiapplicati/CI.
+
+Applicati root soltanto4fileBOOTV2 byteesatti revisionati e3fileenum già
+approvati;12suitePython240PASS/exit0 nelcomposito. Pin4workflow,whitespace
+e diffquietapp/native/config/deps/fixtureDartPASS; nessun SDK locale.
+UnsoloPopenpatch, dueJSONL distinti perboot/readiness, profili one-shot,
+bootstrapproofdurabileprima bootstatusCompleted;guardricontrollata prima
+delleprobe. Stesso300sboot e30sreadiness,caps/refusal/EOF/quiescenzaV3 e
+cleanup/erroriprimariconservati. Solo due editworkflow: flagvisual e artifact
+bootstatusJSONL; nessun inputnuovo o modifica dei jobjournal/release/Android.
+
+| CA / T | Evidence | Stato al freeze composito |
+|---|---|---|
+| CA-04 / T-04 | bootV2 ed enumreviewdistinte,12suite240puri | PASS source/pure;app/nativeacceptance distinta |
+| CA-05 / T-05 | due futuri gateiOS esistenti,nuovohead | NOT_RUN mirati;fullCI7nuovoNOT_RUN/BLOCKED |
+| CA-06 / T-06 | d1955/2 e limiti/negativi preservati | BLOCKED globale,nessunPASStrasferito |
+
+Dopo reviewdel freeze un commit skipautomatico conserva d195 come ultimo
+canonical7. Seguono due sole domande sullo stesso nuovoSHA: gateios-visual
+perattesa bootpending constack/logUUID, gateios-address-journal perenum
+sefailurenativa. Ciascunmanuale lascia altri6jobSKIPPED:non è fullCI7.
+Stackcampione può perturbaretiming;nessunwarmup/reset/aumentobudget o
+bypassrefusal. Se gatePASS o campionenonraggiunto,causa storicanondiventa
+chiusa. Workerdisgiunti non sonoAB. Risultatipropri nei Checks/rapportocorrente,
+nessunpush successivo solodocumentale/nuovoesperimentoidentico. Maps/live,
+Auth/C04/R24/AT/IME/firma restano distinti,noSDKMac,nuovibranch/accessi,
+SQL/deploy/merge/DONE. TaskBLOCKED/REVIEW,CODEX_FIX_BLOCKED_TO_RE_REVIEW.
+
+
+## Re-review indipendente — freeze composito BOOTV2 e enum
+
+- **Esito globale**: `BLOCKED`; task `BLOCKED / REVIEW`, responsabile
+  `CODEX_RE_REVIEWER`, handoff `CODEX_REVIEW_BLOCKED`.
+- **Scope approvato**: solo source/pure dei due fix osservativi. I sette
+  postimage applicati coincidono con BOOTV2/1e21f62e e enum/a8bdd372 già
+  revisionati. Ricevute boot1d85e68c/4940ccc3 ed enum746ac2ff; nessuna
+  approvazione nuova del prodotto o dei percorsi legacy.
+- **Finding**: IOS-BOOT-OBS-RR-01 chiuso scoped dopo REDV1/GREENV2 con
+  helperreale: UUIDmissing restituisceFalse, nessuna proof/autorizzazione,
+  NOT_RUN e stessa primaria124/sequenza. V1/finding/repro restano preservati.
+  IOS-JOURNAL-OBS-RR-01 conserva solo enum già qualificato; categoria e causa
+  storiche non recuperate. Entrambi i fix mantengono fallimento chiuso.
+- **Verifica composita**: controllati hash/output/exit0 di12suite root,
+  240testpuri PASS (ricevuta cf87a01c); codice uguale ai freeze approvati.
+  Il reviewer aveva eseguito126puri BOOTV2 e RED/GREEN enum indipendenti.
+  Nessun nuovo SDK, app/native/config/deps/fixtureDart modificato.
+
+| CA / T | Evidence della re-review | Esito al cutoff composito |
+|---|---|---|
+| CA-04 / T-04 | sette postimage, review distinte e240puri | PASS source/pure soltanto |
+| CA-05 / T-05 | nuovo candidato distinto da d195 | BLOCKED; fullCI7 nuovohead NOT_RUN |
+| CA-06 / T-06 | d195iOSFAIL, due future domande e Maps/live separati | BLOCKED; entrambi i gate mirati NOT_RUN |
+
+Canonicald195/run38862344656 conserva5SUCCESS/2FAIL propri: visualiOS
+bootstatus300FAIL prima readiness/app e cleanupFAIL storico; journaliOS
+seedFAIL dopo readinessPASS, restartNOT_RUN e causaUNKNOWN. I PASS Quality,
+Android, journalAndroid e releaseunsigned di d195 non passano al nuovo head.
+
+Dopo pubblicazione, una sola domanda nel gate esistente ios-visual osserva
+bootstatus owned pendente; una distinta domanda ios-address-journal osserva
+l'enum di un eventuale nuovo errore. Stesso candidato, worker disgiunti;
+non è un A/B. I sei altri job sono attesi SKIPPED per ciascun selector e
+nessun esito futuro è già acquisito: i due gate non sostituiscono fullCI7.
+Nessun Androidrepeat, warmup/reset, nuovoinput, aumento300/30 o bypassrefusal.
+Il sample può perturbare il target; anche un futuro verde o NOT_TRAVERSED
+non chiude causa/stabilità storiche. Maps/live TEST/Auth/C04/R24/AT/IME/firma
+restano gate distinti. Nessuna approvazione globale, DONE o merge.
+I gate separati dell'executor conservano la propria ricevuta terminale;
+questa review non ne anticipa un PASS. Fix e handoff storici restano intatti.
+
+`CODEX_REVIEW_BLOCKED`

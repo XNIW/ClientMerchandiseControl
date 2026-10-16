@@ -278,6 +278,7 @@ class IosOwnedRunner:
         self.process_cleanup_signal = None
         self.process_cleanup_failed = False
         self.observed_device_state = None
+        self.observe_bootstatus = False
 
     def interrupted(self, signum, _frame):
         if self.phase == 'process_cleanup':
@@ -551,10 +552,24 @@ class IosOwnedRunner:
             raise creation_failure
         if not self.record['device']:
             raise Failure(2, 'create non ha restituito un UUID verificabile')
-        self.check_device(device, owned=True)
+        created_identity_matched = self.check_device(device, owned=True)
         self.command(['xcrun', 'simctl', 'boot', device], 60)
         if not headless:
             self.command(['open', '-a', simulator, '--args', '-CurrentDeviceUDID', device], 60)
+        if self.observe_bootstatus:
+            if created_identity_matched is True:
+                # Fatti della sequenza esistente: create0, check identita proprio,
+                # boot0; nessuna nuova query o attestazione di completamento boot.
+                proof = {key: self.record[key] for key in (
+                    'device', 'name', 'nonce', 'runtime', 'deviceType', 'ownerContext')}
+                proof.update(kind='owned-created-boot-command.v1', createExitCode=0,
+                             inventoryIdentityMatched=True, bootCommandExitCode=0)
+                self.record['bootstatusObservationOwnership'] = proof
+            else:
+                self.record['bootstatusObservation'] = {
+                    'result': 'NOT_RUN', 'reason': 'createdIdentityNotMatched',
+                }
+            self.persist()
         self.command(['xcrun', 'simctl', 'bootstatus', device, '-b'], 300)
         if readiness_attestation != 'inventory' or observe_descriptor:
             self.record['bootstatusCompleted'] = True
@@ -719,6 +734,8 @@ def main(argv=None):
                          help='osserva solo metadata del UUID creato; non sostituisce readiness')
     prepare.add_argument('--observe-readiness', action='store_true',
                          help='un campione bounded del solo PID/UUID readiness; non sostituisce il gate')
+    prepare.add_argument('--observe-bootstatus', action='store_true',
+                         help='un campione bounded del solo PID/UUID durante bootstatus300 proprio')
     cleanup = subcommands.add_parser('cleanup')
     cleanup.add_argument('--receipt', required=True)
     smoke = subcommands.add_parser('smoke')
@@ -733,16 +750,25 @@ def main(argv=None):
     for signum in (signal.SIGTERM, signal.SIGINT):
         signal.signal(signum, runner.interrupted)
     trace_context = contextlib.nullcontext()
-    if getattr(options, 'observe_readiness', False):
+    observe_readiness = getattr(options, 'observe_readiness', False)
+    observe_bootstatus = getattr(options, 'observe_bootstatus', False)
+    if observe_bootstatus:
+        runner.observe_bootstatus = True
+    if observe_readiness or observe_bootstatus:
         if options.readiness_attestation != OWNED_DESCRIPTOR:
-            parser.error('--observe-readiness richiede owned-descriptor-launchd')
+            parser.error('le osservazioni native richiedono owned-descriptor-launchd')
         spec = importlib.util.spec_from_file_location(
             'ios_readiness_trace', Path(__file__).with_name('trace-ios-owned-process.py'))
         trace = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(trace)
         trace_context = trace.trace_processes(
-            Path(receipt).with_suffix('.readiness.jsonl'), readiness_record=lambda: runner.record,
-            readiness_cleanup_failed=lambda: setattr(runner, 'process_cleanup_failed', True))
+            Path(receipt).with_suffix('.readiness.jsonl' if observe_readiness else '.bootstatus.jsonl'),
+            readiness_record=(lambda: runner.record) if observe_readiness else None,
+            readiness_cleanup_failed=lambda: setattr(runner, 'process_cleanup_failed', True),
+            bootstatus_record=(lambda: runner.record if runner.owns_receipt else None)
+                if observe_bootstatus else None,
+            bootstatus_destination=Path(receipt).with_suffix('.bootstatus.jsonl')
+                if observe_readiness and observe_bootstatus else None)
     primary = 0
     must_cleanup = options.action == 'cleanup'
     cleanup_attempted = False
@@ -793,10 +819,12 @@ def main(argv=None):
         if primary == 0:
             primary = error.code if isinstance(error, Failure) else 2
         if runner.owns_receipt and isinstance(runner.record, dict):
-            runner.record['readinessTraceEvidence'] = {
-                'result': 'FAIL', 'errorType': type(error).__name__,
-                'phase': 'exit' if trace_entered else 'enter',
-            }
+            detail = {'result': 'FAIL', 'errorType': type(error).__name__,
+                      'phase': 'exit' if trace_entered else 'enter'}
+            if observe_readiness and getattr(error, 'trace_kind', 'readiness') == 'readiness':
+                runner.record['readinessTraceEvidence'] = detail
+            if observe_bootstatus and getattr(error, 'trace_kind', 'bootstatus') == 'bootstatus':
+                runner.record['bootstatusTraceEvidence'] = detail
         # Se __exit__ fallisce dopo prepare PASS il finally interno non aveva
         # motivo di distruggere il device: farlo ora con le stesse guardie.
         if runner.owns_receipt and not cleanup_attempted:

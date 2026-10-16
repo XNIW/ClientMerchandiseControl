@@ -8,25 +8,30 @@
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: freeze ordinario del supplemento diagnostico
-  e unica CI canonica7job sul nuovo head, senza dispatch visual sovrapposti.
-  Preflight90f3807/run38861373311 PASS506/1SKIP,9nuovi unit inclusi,
-  format405/0/analyze0; primo focusedc559/run38860609181 FAIL3lint conservato.
-  Android osserva VM/lifecycle/PID/APK, iOS processo proprio/stack/UUID;
-  source revisionata distintamente,9suitePython178PASS. Budget20s connect e
-  30s readiness, ownership/guard/cleanup invariati. Esperimento nativo NOT_RUN
-  al freeze: esito associato al nuovo SHA nei Checks PR29 e rapporto corrente.
-  Quality2e9/run38845283993 e native9d/run38841333617 restano propri;
-  eventuale verde non prova causa o stabilità. Nessun SDK/UI Mac, nuovo
-  branch/worktree, merge/deploy o accesso persistente. PR29 draft/merge HOLD.
-  Maps/live TEST/Auth/C04/R24/AT/firma sono gate distinti; dopo raccolta e
-  re-review l'handoff resta BLOCKED se un gate obbligatorio non è superato.
+- **Prossima azione autorizzata**: dopo re-review del freeze composito, una
+  sola domanda bootstatus nel gate ios-visual e una sola domanda enum nel
+  gate ios-address-journal, sullo stesso nuovo candidato; due worker distinti
+  non sono un A/B. BOOTV2/1e21f62e approvato da due reviewer source/pure,
+  P2FalseInventory chiuso dopo REDV1/GREENV2; UUIDmissing produceNOT_RUN,
+  proofsoloactualisTrue. Enumfixa8bdd372 source/pureAPPROVED. Rootcomposito
+  12suite/240testPASS, nessunSDKMac. StacksoloPIDowned e logCoreSimulatorUUID
+  durante bootstatus300s pendente, readiness30 invariata; stessa sequenza/
+  guard/cleanup, no nuovequery/warmup/reset/bypassrefusal o Androidrepeat.
+  Entrambe nuoveproveNOT_RUN al freeze; publish skipautomatico poi due gate
+  esistenti,nessun nuovo inputworkflow. FullCI7nuovoheadNOT_RUN: non viene
+  sostituita dai due targeted, ciascuno con altri6SKIPPED. Canonicald195
+  run38862344656 resta5SUCCESS/2FAIL, tutti7freschi:Quality1252/1SKIP+11perf,
+  Androidvisual137+4,journalAndroid,unsigned2PASS; visualiOSbootstatus300FAIL
+  prima readiness/cleanupFAILpreservato e journaliOSseedFAIL/causeUNKNOWN.
+  NessunPASStrasferito o causa/stabilità inferita da futuroverde. Maps/live
+  TEST/Auth/C04/R24/AT/firma distinti; no nuovoaccesso/branch/worktree,SQL/
+  deploy,merge/DONE. PR29draft/mergeHOLD; risultato proprio nei Checks/rapporto.
   Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
 
 ## Repository coinvolti

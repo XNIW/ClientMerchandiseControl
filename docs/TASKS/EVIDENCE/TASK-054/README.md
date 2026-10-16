@@ -1,13 +1,38 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
 Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
+
+## Freeze composito revisionato
+
+BOOTV2/1e21f62e e enumfixa8bdd372 source/pureAPPROVED, due reviewerboot
+distinti;P2FalseInventory corretto prima apply/CI. Root12suite240puriPASS,
+sourcepostimage esatti. Due nuove domande targeted iOSNOT_RUN;fullCI7nuovo
+headNOT_RUN,nessunPASStrasferitod195. PianoJSONconserva V1/RED e receipt.
+
+## Supplemento bootstatus owned
+
+Nuova osservazione DURANTE bootstatus pendente,stesso300s/guard/cleanup/
+sequenza; stacksoloPID e logCoreSimulatorUUID. Source/puretest/review prima
+dell'unica nuova domanda visual, coordinata con domandaenumjournal separata.
+EntrambeNOT_RUN, nessunAndroidrepeat o nuovoinputworkflow. Erratumimagevisual
+V2de6c0746… mantieneV1 e non prova causalità.
+
+## Risultati d195 e fix osservabilità journal
+
+Canonical38862344656/d195 terminale5SUCCESS/2FAIL:Quality1252/1SKIP+11perf,
+Androidvisual137+4,journalAndroid e releaseunsigned2PASS. iOSvisual fallisce
+bootstatus300 prima readiness, journaliOSfallisce seed nativa dopo readiness;
+cleanup negativo visual preservato, causalità seedUNKNOWN. IOS-JOURNAL-OBS-RR-01
+conserva enum già validato nei diagnostics,45testpuriPASS/review distinta.
+Nuova prova miratajournalNOT_RUN al freeze:non sostituiscefullCI7 sul nuovo
+head e non trasferisce PASSd195. [Piano/receipt](next-integration/client-visual-diagnostic-plan-20261016.json).
 
 ## Diagnosi visual — 16 ottobre
 

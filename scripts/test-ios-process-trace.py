@@ -443,17 +443,21 @@ class ReadinessObservationTest(unittest.TestCase):
             self.assertFalse(any(c.args[0] == 'readiness-owned-coresimulator'
                                  for c in observer.emit.call_args_list))
 
-    def trace_write_fault(self, *, prepare_code, owned=True):
+    def trace_write_fault(self, *, prepare_code, owned=True,
+                          trace_flags=('--observe-readiness',), fault_index=0):
         directory = tempfile.TemporaryDirectory()
         self.addCleanup(directory.cleanup)
         receipt = Path(directory.name) / 'owned.json'
         owner = PREFLIGHT.IOS.IosOwnedRunner(receipt)
         real_fdopen, trace_fds = os.fdopen, []
+        fdopen_count = 0
 
         @contextlib.contextmanager
         def fdopen(fd, *args, **kwargs):
+            nonlocal fdopen_count
+            index, fdopen_count = fdopen_count, fdopen_count + 1
             with real_fdopen(fd, *args, **kwargs) as stream:
-                if not trace_fds:
+                if index == fault_index:
                     trace_fds.append(fd)
                     yield Mock(write=Mock(side_effect=OSError('SECRET_TRACE_PAYLOAD')))
                 else:
@@ -473,7 +477,7 @@ class ReadinessObservationTest(unittest.TestCase):
              patch.object(owner, 'cleanup_device', return_value='PASS') as cleanup, \
              patch.object(os, 'fdopen', side_effect=fdopen), patch('sys.stdout', output):
             code = PREFLIGHT.IOS.main(['prepare', '--receipt', str(receipt),
-                '--readiness-attestation', 'owned-descriptor-launchd', '--observe-readiness'])
+                '--readiness-attestation', 'owned-descriptor-launchd', *trace_flags])
         self.assertEqual(prepared.call_count, 1)
         self.assertEqual(len(trace_fds), 1)
         with self.assertRaises(OSError):
@@ -540,6 +544,321 @@ class ReadinessObservationTest(unittest.TestCase):
             self.assertTrue(all(row['timeout_seconds'] == 1 for row in rows
                                 if row['event'] == 'communicate-start'))
 
+
+class BootstatusObservationTest(unittest.TestCase):
+    DEVICE = ReadinessObservationTest.DEVICE
+    CONTEXT = ReadinessObservationTest.CONTEXT
+
+    def record(self):
+        record = ReadinessObservationTest.record(self)
+        record.pop('bootstatusCompleted')
+        record['runtimeVersion'] = '26.5'
+        proof = {key: record[key] for key in (
+            'device', 'name', 'nonce', 'runtime', 'deviceType', 'ownerContext')}
+        proof.update(kind='owned-created-boot-command.v1', createExitCode=0,
+                     inventoryIdentityMatched=True, bootCommandExitCode=0)
+        record['bootstatusObservationOwnership'] = proof
+        return record
+
+    def observer(self):
+        result = ReadinessObservationTest.observer(self)
+        result.__class__ = TRACE.BootstatusObservation
+        result.authorize = Mock(return_value=True)
+        return result
+
+    # Stesse primitive V3, con la nuova classe e autorizzazione bootstrap.
+    test_byte_cap = ReadinessObservationTest.test_capture_cap_terminates_only_own_group_and_reaps
+    test_eof = ReadinessObservationTest.test_capture_eof_before_exit_allows_natural_exit_before_group_teardown
+    test_refusal = ReadinessObservationTest.test_every_nonpass_sample_stops_without_afterstate_logs_or_retry
+    test_cleanup = ReadinessObservationTest.test_close_cancel_joins_and_unresolved_cleanup_is_an_error
+    test_fast_return = ReadinessObservationTest.test_fast_return_or_short_budget_has_no_observing_command
+
+    def test_boot_owner_requires_new_created_proof_and_current_context_before_any_probe(self):
+        args = ['xcrun', 'simctl', 'bootstatus', self.DEVICE, '-b']
+        with patch.dict(os.environ, self.CONTEXT):
+            self.assertEqual(TRACE.bootstatus_owner(self.record(), args), self.DEVICE)
+            for change in ({'creationStarted': False}, {'bootstatusCompleted': True},
+                    {'ready': True}, {'ready': 0}, {'bootstatusCompleted': 0}, {'device': 'invalid'}, {'ownerContext': {}},
+                    {'name': 'foreign'}, {'nonce': 'bad'}, {'cleanup': 'PASS'},
+                    {'runtimeVersion': '26.6'}, {'runtime': 'foreign'},
+                    {'deviceType': 'foreign'}, {'processCleanupFailed': True},
+                    {'bootstatusObservationOwnership': {}},
+                    {'bootstatusObservationOwnership': {'device': 'foreign'}}):
+                with self.subTest(change=change):
+                    record = self.record()
+                    record.update(change)
+                    self.assertIsNone(TRACE.bootstatus_owner(record, args))
+            self.assertIsNone(TRACE.bootstatus_owner(self.record(), args[:-1]))
+            self.assertIsNone(TRACE.bootstatus_owner(self.record(), args[:3] + ['foreign', '-b']))
+            self.assertNotIn('bootstatusCompleted', self.record())
+
+    def test_boot_guard_rechecked_before_each_probe_and_refuses_without_spawning(self):
+        observer = self.observer()
+        observer.capture = TRACE.BootstatusObservation.capture.__get__(observer)
+        observer.authorize.side_effect = [True, False]
+        with patch.object(TRACE.ReadinessObservation, 'capture', return_value=({'status': 'PASS'}, b'', b'')) as capture:
+            self.assertEqual(observer.capture(['/bin/ps', '-p', '123'], 1)[0]['status'], 'PASS')
+            self.assertEqual(observer.capture(['/usr/bin/sample', '123'], 3)[0]['reason'], 'ownershipChanged')
+        capture.assert_called_once()
+        self.assertEqual(observer.authorize.call_count, 2)
+
+    def test_trigger_is_during_pending_300_not_after_timeout_or_completed_boot(self):
+        observer = self.observer()
+        observer.timeout = 300
+        record = self.record()
+        active = []
+
+        def trigger(seconds):
+            self.assertEqual(seconds, 100)
+            self.assertIsNone(observer.process.returncode)
+            self.assertFalse(observer.stop.is_set())
+            self.assertNotIn('bootstatusCompleted', record)
+            active.append('during-pending')
+            return False
+
+        observer.stop.wait.side_effect = trigger
+        observer.state = Mock(return_value=({'status': 'PASS'}, {'startIdentitySha256': 'a'}))
+        observer.capture.side_effect = [({'status': 'PASS'}, b'Process: simctl [123]\n', b''),
+                                       ({'status': 'PASS'}, b'', b'')]
+        observer.run()
+        self.assertEqual(active, ['during-pending'])
+        self.assertEqual(observer.timeout, 300)
+        self.assertEqual(observer.capture.call_count, 2)
+        self.assertNotIn('bootstatusCompleted', record)
+
+    def test_dual_profiles_have_separate_jsonl_and_one_observer_each_no_nested_patch(self):
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, self.CONTEXT):
+            ready, boot = Path(directory) / 'ready.jsonl', Path(directory) / 'boot.jsonl'
+            def for_boot(record, args):
+                return self.DEVICE if args[-1] == 'pass # boot' else None
+            def for_ready(record, args):
+                return self.DEVICE if args[-1] == 'pass # ready' else None
+            with patch.object(TRACE, 'bootstatus_owner', side_effect=for_boot), \
+                 patch.object(TRACE, 'readiness_owner', side_effect=for_ready), \
+                 patch.object(TRACE, 'BootstatusObservation', autospec=True) as boot_observer, \
+                 patch.object(TRACE, 'ReadinessObservation', autospec=True) as ready_observer:
+                def observed(*args, **_kwargs):
+                    args[3]('readiness-owned-stack', synthetic=True)
+                    return Mock()
+                boot_observer.side_effect = ready_observer.side_effect = observed
+                with TRACE.trace_processes(ready, readiness_record=self.record,
+                        bootstatus_record=self.record, bootstatus_destination=boot):
+                    wrapper = subprocess.Popen
+                    for kind, timeout in [('boot', 300), ('ready', 30), ('boot', 300), ('ready', 30)]:
+                        child = subprocess.Popen([sys.executable, '-c', 'pass # ' + kind], start_new_session=True)
+                        child.communicate(timeout=timeout)
+                        self.assertIs(subprocess.Popen, wrapper)
+                boot_observer.assert_called_once()
+                ready_observer.assert_called_once()
+                self.assertEqual(boot_observer.call_args.args[2], 300)
+                self.assertEqual(ready_observer.call_args.args[2], 30)
+            ready_rows = [json.loads(line) for line in ready.read_text().splitlines()]
+            boot_rows = [json.loads(line) for line in boot.read_text().splitlines()]
+            self.assertTrue(any(row['event'] == 'readiness-owned-stack' for row in ready_rows))
+            self.assertTrue(any(row['event'] == 'bootstatus-owned-stack' for row in boot_rows))
+            self.assertFalse(any(row['event'].startswith('bootstatus-') for row in ready_rows))
+            self.assertFalse(any(row['event'].startswith('readiness-') for row in boot_rows))
+            ready_pids = {row['pid'] for row in ready_rows if row['event'] == 'spawn-end'}
+            boot_pids = {row['pid'] for row in boot_rows if row['event'] == 'spawn-end'}
+            self.assertFalse(ready_pids & boot_pids)
+            for rows in (ready_rows, boot_rows):
+                self.assertEqual([row['sequence'] for row in rows], list(range(1, len(rows) + 1)))
+            self.assertEqual(ready.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(boot.stat().st_mode & 0o777, 0o600)
+
+    def test_boot_timeout300_preserved_as_124_when_observer_cleanup_fails(self):
+        class Process:
+            pid = 99001
+            returncode = None
+            stdout = stderr = None
+            def __init__(self, *_args, **_kwargs):
+                pass
+            def communicate(self, *_args, **kwargs):
+                raise subprocess.TimeoutExpired('owned synthetic bootstatus', kwargs['timeout'])
+            def poll(self):
+                return None
+        with tempfile.TemporaryDirectory() as directory:
+            owner = PREFLIGHT.IOS.IosOwnedRunner()
+            with patch.object(TRACE.subprocess, 'Popen', Process), \
+                 patch.object(TRACE.os, 'getpgid', return_value=99001), \
+                 patch.object(TRACE, 'bootstatus_owner', return_value=self.DEVICE), \
+                 patch.object(TRACE, 'BootstatusObservation', autospec=True) as observer, \
+                 patch.object(PREFLIGHT.IOS, 'stop_owned_process'):
+                observer.return_value.close.side_effect = OSError('synthetic observer cleanup')
+                with TRACE.trace_processes(Path(directory) / 'boot.jsonl', bootstatus_record=self.record,
+                        readiness_cleanup_failed=lambda: setattr(owner, 'process_cleanup_failed', True)):
+                    with self.assertRaises(PREFLIGHT.IOS.Failure) as raised:
+                        owner.command(['synthetic-bootstatus'], 300)
+                self.assertEqual(raised.exception.code, 124)
+                self.assertTrue(owner.process_cleanup_failed)
+                observer.assert_called_once()
+                self.assertEqual(observer.call_args.args[2], 300)
+            rows = [json.loads(line) for line in (Path(directory) / 'boot.jsonl').read_text().splitlines()]
+            timeout = next(row for row in rows if row['event'] == 'communicate-timeout')
+            self.assertEqual(timeout['timeout_seconds'], 300)
+            failure = next(row for row in rows if row['event'] == 'bootstatus-observation-cleanup')
+            self.assertEqual(failure['status'], 'FAIL')
+            self.assertTrue(failure['primary_preserved'])
+
+    def test_boot_config_rejects_missing_secondary_or_same_trace_before_open(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'trace'
+            for options in ({'readiness_record': self.record, 'bootstatus_record': self.record},
+                            {'bootstatus_record': self.record, 'bootstatus_destination': path},
+                            {'bootstatus_destination': path.with_suffix('.other')}):
+                with self.subTest(options=options), self.assertRaises(ValueError):
+                    with TRACE.trace_processes(path, **options):
+                        self.fail('invalid config cannot enter')
+                self.assertFalse(path.exists())
+
+    def test_boot_cli_rejects_non_descriptor_before_prepare(self):
+        with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'prepare') as prepare, patch('sys.stderr'):
+            with self.assertRaises(SystemExit) as error:
+                PREFLIGHT.IOS.main(['prepare', '--receipt', '/unused', '--observe-bootstatus'])
+            self.assertEqual(error.exception.code, 2)
+            prepare.assert_not_called()
+
+    def test_cli_proof_is_durable_before_pending_boot_and_sdk_sequence_is_unchanged(self):
+        spec = importlib.util.spec_from_file_location('boot_owner_fixture',
+            Path(__file__).with_name('test-task054-ios-owned.py'))
+        fixtures = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fixtures)
+        sequences = []
+        for observed in (False, True):
+            with tempfile.TemporaryDirectory() as directory:
+                fixture = fixtures.Fixture(directory)
+                seen = []
+
+                def command(runner, arguments, timeout, capture=False):
+                    if arguments[:3] == ['xcrun', 'simctl', 'bootstatus']:
+                        fixture.calls.append((arguments, timeout))
+                        record = json.loads(fixture.path.read_text())
+                        self.assertNotIn('bootstatusCompleted', record)
+                        if observed:
+                            self.assertEqual(TRACE.bootstatus_owner(record, arguments), fixtures.DEVICE)
+                            self.assertTrue(record['bootstatusObservationOwnership']['inventoryIdentityMatched'])
+                        else:
+                            self.assertNotIn('bootstatusObservationOwnership', record)
+                        self.assertEqual(timeout, 300)
+                        seen.append('pending owned bootstatus')
+                        raise PREFLIGHT.IOS.Failure(124, 'synthetic bootstatus300 timeout')
+                    return fixture.command(runner, arguments, timeout, capture)
+
+                args = ['prepare', '--receipt', str(fixture.path),
+                        '--readiness-attestation', 'owned-descriptor-launchd']
+                if observed:
+                    args += ['--observe-readiness', '--observe-bootstatus']
+                with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command', command), \
+                     patch.object(PREFLIGHT.IOS.Path, 'is_dir', return_value=True), \
+                     patch.object(PREFLIGHT.IOS.signal, 'signal'), \
+                     patch.object(PREFLIGHT.IOS.uuid, 'uuid4', return_value=Mock(hex='b' * 32)), \
+                     patch.dict(os.environ, self.CONTEXT):
+                    code = PREFLIGHT.IOS.main(args)
+                self.assertEqual(code, 124)
+                self.assertEqual(seen, ['pending owned bootstatus'])
+                saved = json.loads(fixture.path.read_text())
+                self.assertEqual(saved['cleanup'], 'PASS')
+                self.assertFalse(saved['processCleanupFailed'])
+                self.assertNotIn('bootstatusCompleted', saved)
+                sequences.append(fixture.calls)
+        self.assertEqual(sequences[0], sequences[1])
+
+    def test_missing_created_uuid_inventory_never_claims_match_or_authorizes_observer(self):
+        spec = importlib.util.spec_from_file_location('boot_missing_owner_fixture',
+            Path(__file__).with_name('test-task054-ios-owned.py'))
+        fixtures = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fixtures)
+        sequences, observed_record = [], None
+        for observed in (False, True):
+            with tempfile.TemporaryDirectory() as directory:
+                fixture = fixtures.Fixture(directory)
+                before_bootstatus = []
+                checked = []
+                real_check = PREFLIGHT.IOS.IosOwnedRunner.check_device
+
+                def check(runner, *args, **kwargs):
+                    result = real_check(runner, *args, **kwargs)
+                    if kwargs.get('owned') and not kwargs.get('ready'):
+                        checked.append(result)
+                    return result
+
+                def command(runner, arguments, timeout, capture=False):
+                    if arguments[:4] == ['xcrun', 'simctl', 'list', 'devices']:
+                        fixture.calls.append((arguments, timeout))
+                        return json.dumps({'devices': {fixtures.RUNTIME: []}})
+                    if arguments[:3] == ['xcrun', 'simctl', 'bootstatus']:
+                        fixture.calls.append((arguments, timeout))
+                        before_bootstatus.append(json.loads(fixture.path.read_text()))
+                        raise PREFLIGHT.IOS.Failure(124, 'synthetic bootstatus300 timeout')
+                    return fixture.command(runner, arguments, timeout, capture)
+
+                args = ['prepare', '--receipt', str(fixture.path),
+                        '--readiness-attestation', 'owned-descriptor-launchd']
+                if observed:
+                    args += ['--observe-readiness', '--observe-bootstatus']
+                with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'command', command), \
+                     patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'check_device', check), \
+                     patch.object(PREFLIGHT.IOS.Path, 'is_dir', return_value=True), \
+                     patch.object(PREFLIGHT.IOS.signal, 'signal'), \
+                     patch.object(PREFLIGHT.IOS.uuid, 'uuid4', return_value=Mock(hex='b' * 32)), \
+                     patch.dict(os.environ, self.CONTEXT):
+                    code = PREFLIGHT.IOS.main(args)
+                    self.assertEqual(code, 124)
+                    self.assertTrue(checked)
+                    self.assertIs(checked[0], False)  # helper reale, non ritorno mock
+                    self.assertEqual(len(before_bootstatus), 1)
+                    if observed:
+                        observed_record = before_bootstatus[0]
+                        self.assertIsNone(TRACE.bootstatus_owner(observed_record,
+                            ['xcrun', 'simctl', 'bootstatus', fixtures.DEVICE, '-b']))
+                saved = json.loads(fixture.path.read_text())
+                self.assertNotIn('bootstatusCompleted', saved)
+                self.assertEqual(saved['cleanup'], 'PASS')
+                sequences.append(fixture.calls)
+        self.assertEqual(sequences[0], sequences[1])
+        self.assertNotIn('bootstatusObservationOwnership', observed_record)
+        self.assertEqual(observed_record['bootstatusObservation'], {
+            'result': 'NOT_RUN', 'reason': 'createdIdentityNotMatched'})
+
+    def test_boot_second_sink_write_fault_preserves_primary_and_failure_scope(self):
+        code, owner, cleanup, _ = ReadinessObservationTest.trace_write_fault(self,
+            prepare_code=124, trace_flags=('--observe-readiness', '--observe-bootstatus'), fault_index=1)
+        self.assertEqual(code, 124)
+        cleanup.assert_called_once_with()
+        receipt = json.loads(owner.receipt.read_text())
+        self.assertEqual(receipt['bootstatusTraceEvidence']['result'], 'FAIL')
+        self.assertNotIn('readinessTraceEvidence', receipt)
+
+    def test_trace_fdopen_failure_closes_real_untransferred_fd(self):
+        with tempfile.TemporaryDirectory() as directory:
+            original_open = os.open
+            descriptors = []
+            def opened(*args, **kwargs):
+                fd = original_open(*args, **kwargs)
+                descriptors.append(fd)
+                return fd
+            with patch.object(TRACE.os, 'open', side_effect=opened), \
+                 patch.object(TRACE.os, 'fdopen', side_effect=OSError('synthetic enter')):
+                with self.assertRaises(OSError):
+                    with TRACE.trace_processes(Path(directory) / 'boot.jsonl', bootstatus_record=self.record):
+                        self.fail('enter cannot finish')
+            self.assertEqual(len(descriptors), 1)
+            with self.assertRaises(OSError):
+                os.fstat(descriptors[0])
+
+    def test_boot_second_trace_enter_failure_never_prepares_and_closes_first_fd(self):
+        with tempfile.TemporaryDirectory() as directory:
+            receipt = Path(directory) / 'owned.json'
+            occupied = receipt.with_suffix('.bootstatus.jsonl')
+            occupied.write_text('preserve boot evidence')
+            with patch.object(PREFLIGHT.IOS.IosOwnedRunner, 'prepare') as prepare, patch('sys.stdout'):
+                code = PREFLIGHT.IOS.main(['prepare', '--receipt', str(receipt),
+                    '--readiness-attestation', 'owned-descriptor-launchd',
+                    '--observe-readiness', '--observe-bootstatus'])
+            self.assertNotEqual(code, 0)
+            prepare.assert_not_called()
+            self.assertEqual(occupied.read_text(), 'preserve boot evidence')
+            self.assertFalse(receipt.exists())
 
 class PreflightLifecycleTest(unittest.TestCase):
     def exercise(self, directory, *, failure=None, cleanup=True, keep=False,

@@ -5937,3 +5937,73 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   Maps/live/AT/firma separati. Rapporto correntePR29 dopo le run terminali.
 - **Ruolo/fase**: CODEX_FIXER/FIX, task BLOCKED in attesa dei gate propri.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-16 — TASK-054 enum journal e handoff bloccato
+
+- **Canonical**:38862344656/d195602,7freschi terminali5SUCCESS/2FAIL.
+  Quality1252/1SKIP+11perf;Androidvisual137+4,journalAndroid,unsigned2PASS.
+- **Negativi**:iOSvisualbootstatus300FAIL prima readiness e cleanupFAIL
+  preservato; journaliOSreadyPASS ma seednativaFAIL,causaUNKNOWN/restartNOT_RUN.
+- **Fix**:IOS-JOURNAL-OBS-RR-01 preserva solo enum già validato,3Pythonfile;
+  RED11/4assertFAIL→GREEN11+owner21;root11+21+13=45PASS/exit0.
+- **Review source**:746ac2ff… APPROVED scoped,nessuna causa storica recuperata.
+- **Da eseguire**:unica provamirata ios-address-journal,nuovohead distinto;
+  fullCI7nuovoNOT_RUN,nessunPASStrasferito,d195visual non ripetuti.
+- **Ruolo/fase**:CODEX_FIXER/FIX → CODEX_RE_REVIEWER/REVIEW,taskBLOCKED.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-16 — TASK-054 nuova domanda bootstatus owned
+
+- **Ripresa**: auditreadonly individua osservatoreattuale dopo bootCompleted,
+  quindi nuovoFAIL300s nonosservato; mancaancora unpassocausalenelloscope.
+- **Piano**: stacksoloPIDowned/logCoreSimulatorUUID durante attesa,300s e
+  sequenza/guard/cleanup invariati,puretest+review prima di1ios-visual.
+- **Coordinamento**: enumfixa8bdd372 giàapplicato/45puriPASS,review746ac2ff;
+ 1ios-address-journal separato sulcandidato comune,nessuna prova giàavviata.
+- **Preservazione**: d1955/2 e tutti negativi; erratumimageV2 preservaV1.
+  Sourceenumreviewce01e818 rimane cutoffprivato,patchglobaleae9c nonapplicata.
+- **Ruolo/fase**: CODEX_FIXER/FIX,taskBLOCKED; nessun nuovoinput/SDKMac/merge.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-16 — TASK-054 bootV1 finding prima dell'esperimento
+
+- **Review**:2reviewer,IOS-BOOT-OBS-RR-01/P2 CHANGES_REQUIRED:proofTrue
+  anche con check_deviceFalse perUUIDassente; helperreale riproduce.
+- **Fonte**:54e545c9privata,maiapplicata/CI;review32c224a5 e repro35d6a8ca.
+  125puriPASS noncoprivano ilcaso e nonchiudono ilfinding.
+- **Fix richiesto**:V2condizionata al ritorno reale,nessunaquery/reorder/
+  budgetchange;REDV1/GREENV2 e re-reviewdistinteprima apply/probe.
+- **Ruolo/fase**:CODEX_FIXER/FIX,taskBLOCKED,enumsourceapprovedpreservato.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-16 — TASK-054 freeze composito bootV2 e enum
+
+- **Fonte**:bootV2/1e21f62e approvata1d85e68c e4940ccc3 source/pure,
+  P2FalseInventory chiuso conREDV1/GREENV2 reale,V1preservata/maiCI.
+- **Applicazione**:root4postimagebootesatti+3enumreviewed,12suite240puri
+  PASS/exit0;pin4workflow/whitespace/appnativefixtureDartdiffquietPASS.
+- **Prossimo gate**:1ios-visualboot+1ios-address-journalenum,samefuturehead,
+  entrambiNOT_RUN alfreeze;fullCI7nuovoNOT_RUN,d1955/2nontrasferito.
+- **Limiti**:300/30/sequence/guard/cleanup invariati,noAndroidrepeat o
+  nuovoinputworkflow;noSDKMac/accesso/SQL/deploy/merge/DONE.
+- **Ruolo/fase**:CODEX_FIXER/FIX → CODEX_RE_REVIEWER/REVIEW,taskBLOCKED.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-16 — TASK-054 re-review indipendente del composito
+
+- **Esito**:BLOCKED globale; approvazione soltanto source/pure BOOTV2+enum.
+- **Verifica**:sette postimage esatti;12log/root240puri hash/output/exit0
+  controllati,receiptcf87a01c. Reviewboot1d85e68c/4940ccc3 ed enum746ac2ff;
+  P2FalseInventory chiuso scoped conREDV1/GREENV2, V1preservata/maiCI.
+- **Gate**:d195/run38862344656 conserva5SUCCESS/2FAIL; nuovoheadfullCI7NOT_RUN,
+  due future domande ios-visualboot e ios-address-journalenum NOT_RUN.
+  Sei altri job attesiSKIPPED perselector, nessunPASStrasferito/Androidrepeat.
+- **Limiti**:iOSvisualFAIL/cleanupFAIL e journalseedFAIL storici preservati;
+  nessuna causa/stabilità daverde oABfraworker. Maps/live/AT/firma distinti.
+- **Ruolo/fase**:CODEX_RE_REVIEWER/REVIEW,taskBLOCKED; Fix storici intatti.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

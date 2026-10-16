@@ -48,6 +48,9 @@ class IosAddressJournalFileRunner(ADDRESS.IosJournalRunner):
                 time.sleep(min(0.25, max(0, deadline - time.monotonic())))
             raise ADDRESS.Failure(self.phase, 124, 'ricevuta journal non pubblicata entro150s')
         except FILE.Failure as error:
+            native_error_type = getattr(error, 'native_error_type', None)
+            if native_error_type in FILE.NATIVE_ERROR_TYPES:
+                self.diagnostics.setdefault(phase, {})['native_terminal_error_type'] = native_error_type
             # I moduli ereditati hanno classi Failure distinte: il run() base
             # deve ricevere la propria classe per conservare exit/cleanup/receipt.
             raise ADDRESS.Failure(self.phase, error.code, str(error)) from None

@@ -42,7 +42,23 @@
     "independent source review of new diagnostic delta only",
     "single instrumented attempt for each question"
   ],
-  "experiment": "NOT_RUN at normal source freeze; one automatic canonical CI7job after this commit",
+  "experiment": {
+    "revision": "d195602bddf3b23c04530f32ae6ddf06fdd39c15",
+    "run": 38862344656,
+    "status": "FAIL",
+    "jobs": {
+      "success": 5,
+      "failure": 2,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "quality": "1252PASS/1SKIP,11performance,14metadata,format411/0,analyze0",
+    "androidVisual": "PASS93body+driver,corpus137+4,cleanupPASS;VMconnected samePID; lifecycleempty limits",
+    "iosVisual": "FAIL bootstatus300 before readiness,observer target NOT_TRAVERSED; cleanupFAIL preserved",
+    "iosJournal": "readinessPASS, native seedFAIL, restartNOT_RUN, causeUNKNOWN, ownedcleanupPASS",
+    "releaseUnsignedBoth": "PASS",
+    "androidJournal": "PASS"
+  },
   "globalAcceptance": "BLOCKED",
   "externalGates": [
     "Maps/live TEST",
@@ -256,5 +272,190 @@
   "testFindingsClosedScoped": [
     "ANDROID-OBS-RR-01 test/harness",
     "ANDROID-OBS-ANALYZE-01 analyze"
-  ]
+  ],
+  "journalFailureEnumFix": {
+    "finding": "IOS-JOURNAL-OBS-RR-01",
+    "patchSha256": "a8bdd37295c66bab321d9e6708433a37f15c4a00fb9dc3b1b51f8afeaff2171d",
+    "reviewSha256": "746ac2ffab631935ebeff9aabc7fd3067e1b1d39175701cbe8790f3a93087e3c",
+    "review": "APPROVED SOURCE_PURE_OBSERVABILITY_ONLY",
+    "pureRed": "11tests/4assertFAIL on d195",
+    "pureGreenIndependent": "11+21PASS",
+    "rootPureGreen": {
+      "nativeFile": 11,
+      "iosOwner": 21,
+      "androidOwner": 13,
+      "exitCodes": [
+        0,
+        0,
+        0
+      ]
+    },
+    "scope": "Preserve only validated enum; same error/code and failclosed semantics; no native fixture or product change",
+    "historicalNativeCategory": "NOT_AVAILABLE_NOT_RECOVERED",
+    "nextQuestion": "Which validated safe enum does a future native journal failure emit? Future green does not recover historical cause/category",
+    "targetedNative": "NOT_RUN at new source freeze; one gate=ios-address-journal on new head",
+    "fullCanonicalNewHead": "NOT_RUN; no transfer from d195; six other targeted jobs SKIPPED"
+  },
+  "bootstatusSupplement": {
+    "question": "Distinguish migration wait from service wait during own pending bootstatus before readiness observer exists; no causal inference from build/prepare order or uncontrolled workers",
+    "scope": "bounded own PID stack and UUID-filtered CoreSimulator log during bootstatus; same300s/sequence/guard/cleanup; no warmup/reset/refusalbypass",
+    "nativeExperiment": "NOT_RUN; one future existing gate=ios-visual after source/pure/distinct review",
+    "coordination": "same source candidate as approved enum fix; one separate gate=ios-address-journal; no Android repeat or new workflow inputs",
+    "imageErratum": {
+      "originalReviewPreserved": "467d484b80f85cd4744a4a7a744f6de5aaca0899d4856de265f304f43d1760b3",
+      "correctedReview": "de6c074606499191ea8a0f8d3e68a195269f893078de77067f31a90177c67f08",
+      "visualImage": "20261013.0424.1",
+      "journalImage": "20260907.0351.1",
+      "causality": "NOT_CONFIRMED"
+    },
+    "preExperimentReviewHistory": [
+      {
+        "freezeSha256": "54e545c9a66e06b1d27fd4da0daced9744eb16d9b197590420a95c6259d2659b",
+        "outcome": "CHANGES_REQUIRED",
+        "finding": "IOS-BOOT-OBS-RR-01/P2",
+        "scope": "Proof true despite actual check_device False for UUID absent; two independent reviewers and realhelper reproduction",
+        "reviewSha256": "32c224a5848251367f14a8599120b4d7ff693104f8866f24dfdb41ee556d6881",
+        "reproSha256": "35d6a8ca720a4c16db8273db6f7ae6acca27398727014e6ac1ac4b45da027e9b",
+        "independentPurePassed": 125,
+        "findingNotClosedByTests": true,
+        "rootApplied": false,
+        "nativeExperiment": "NOT_RUN",
+        "fixRequest": "V2 depends on actual existing positive identity result; no newquery/reorder/budget change; False+boot0 never authorizes observer; RED/GREEN and distinct re-review required"
+      },
+      {
+        "freezeSha256": "1e21f62eeb15bac1cb77351ab504a62f279dfd5033f30a721fb4e11e3585fe39",
+        "outcome": "APPROVED SCOPED_SOURCE_PURE_ONLY",
+        "findingClosedScoped": "IOS-BOOT-OBS-RR-01",
+        "independentReviewSha256": [
+          "1d85e68c7a1d66280747f14c9d877727b04e55dd8b26266cc6b73bad0a190d3e",
+          "4940ccc3c0c4e3ec8bc9b4f9f2710cc6a8f29272d2a8e61080a539d79005b72f"
+        ],
+        "realHelperRedGreen": "V1 missingUUID new testFAIL;V2 False+boot0 no proof/auth,NOT_RUN,same124/SDKsequence",
+        "independentPurePassed": 126,
+        "rootApplied": true,
+        "nativeExperiment": "NOT_RUN at composite freeze"
+      }
+    ]
+  },
+  "rootCompositeBootAndEnum": {
+    "result": "PASS",
+    "suites": 12,
+    "passed": 240,
+    "commands": [
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-android-startup-diagnostics.py"
+        ],
+        "tests": 11,
+        "exitCode": 0,
+        "logSha256": "d2fb41082e408e2f5f8300e0c9aff827e840b3ea83198866cf636f19a4657296"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-android-runner.py"
+        ],
+        "tests": 28,
+        "exitCode": 0,
+        "logSha256": "94f44160ea5d6d284ef9e4f758b03638b221b7cedc18a147bd66290916b99d1f"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-visual-prebuilt.py"
+        ],
+        "tests": 8,
+        "exitCode": 0,
+        "logSha256": "a28a10fe6afe4790f4554f54f3cee2a55a4bb85691557d6c0ed6430480324fc8"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-ios-process-trace.py"
+        ],
+        "tests": 51,
+        "exitCode": 0,
+        "logSha256": "fa5f0a984f60d5033df0a4e2923f57bcbe51cf1b27ff36eb961aa1fc86ccc73d"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-descriptor-launchd.py"
+        ],
+        "tests": 16,
+        "exitCode": 0,
+        "logSha256": "9203a6dcb8430c8d3ca50aa302e24528d2bb1ca14bec4e64353cbb8713245b1d"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-descriptor-observation.py"
+        ],
+        "tests": 13,
+        "exitCode": 0,
+        "logSha256": "a5cfd21a632ed9972dd90f3bb99fd518dfd2b8f7ce03951b1839a689ac6ce0b8"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-readiness.py"
+        ],
+        "tests": 9,
+        "exitCode": 0,
+        "logSha256": "58e44cab695d7d07b31b56db9d15dfa2b29de6c21aa9a133ee95e1cf7b4aaa4f"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-ios-canonical-cold.py"
+        ],
+        "tests": 9,
+        "exitCode": 0,
+        "logSha256": "7fc5f2f21d548c41100beac4e406a660cb9de1f9215153fa438389d418d8eb81"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-task054-ios-owned.py"
+        ],
+        "tests": 50,
+        "exitCode": 0,
+        "logSha256": "7e67c006850bf69de9399d2e43bb8a0c18cf00690404c4dade7314c7578721f2"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-address-journal-native-file.py"
+        ],
+        "tests": 11,
+        "exitCode": 0,
+        "logSha256": "6ca39c1958c0c58711f7abd39d3a13bfa23c5d6b6e5ee25cb02e058fd6597a2a"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-address-journal-ios.py"
+        ],
+        "tests": 21,
+        "exitCode": 0,
+        "logSha256": "25aab7a044d8632e09f81203c4ce4f9e95d3a0c2ef88e4df20096d37cbde3b65"
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/test-address-journal-android.py"
+        ],
+        "tests": 13,
+        "exitCode": 0,
+        "logSha256": "1bea6429e372f0d5239deaac148c4d1b70446026791ce2389e8303dc838c6a3e"
+      }
+    ],
+    "scope": "Python/mocks only; exact approved postimage code; no local SDK",
+    "futureQuestions": [
+      "one existing gate=ios-visual on new head",
+      "one existing gate=ios-address-journal on same new head"
+    ],
+    "fullCanonicalNewHead": "NOT_RUN; no transfer from d195; other6jobs each targeted SKIPPED"
+  }
 }

@@ -65,6 +65,7 @@ def owned_ps_metadata(output, groups):
 # sample sospende brevemente il target: il run strumentato non è una replica
 # temporale neutra né un AB con run su altri worker/immagini.
 class ReadinessObservation:
+    THREAD_NAME = 'owned-readiness-observer'
     CAP = 65536
     UUID = re.compile(r'^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$')
 
@@ -73,7 +74,7 @@ class ReadinessObservation:
         self.emit, self.popen = emit, popen
         self.stop = threading.Event()
         self.started = datetime.datetime.now(datetime.timezone.utc)
-        self.thread = threading.Thread(target=self.run, name='owned-readiness-observer')
+        self.thread = threading.Thread(target=self.run, name=self.THREAD_NAME)
         self.thread.daemon = False
         self.failure = None
         self.cleanup_error = None
@@ -323,43 +324,138 @@ def readiness_owner(record, arguments):
     return device
 
 
+class BootstatusObservation(ReadinessObservation):
+    """Stesse probe bounded; autorizzazione bootstrap ricontrollata prima di ogni probe."""
+    THREAD_NAME = 'owned-bootstatus-observer'
+
+    def __init__(self, process, device, timeout, emit, popen, authorize):
+        self.authorize = authorize
+        super().__init__(process, device, timeout, emit, popen)
+
+    def capture(self, arguments, seconds):
+        if not self.authorize():
+            self.emit('readiness-observation-skipped', reason='ownershipChanged')
+            return {'status': 'NOT_RUN', 'reason': 'ownershipChanged'}, b'', b''
+        return super().capture(arguments, seconds)
+
+
+def bootstatus_owner(record, arguments):
+    """Solo UUID appena creato e verificato; nessun requisito bootstatusCompleted."""
+    if not isinstance(record, dict):
+        return None
+    device, nonce, version = record.get('device'), record.get('nonce'), record.get('runtimeVersion')
+    context = {key: os.environ.get(key) for key in (
+        'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_JOB', 'GITHUB_SHA')}
+    if (not isinstance(device, str) or not ReadinessObservation.UUID.fullmatch(device) or
+            not isinstance(nonce, str) or not re.fullmatch(r'[0-9a-f]{32}', nonce) or
+            arguments != ['xcrun', 'simctl', 'bootstatus', device, '-b'] or
+            record.get('name') != 'CMC-Task054-Owned-' + nonce or
+            record.get('readinessMethod') != 'owned-descriptor-launchd' or
+            record.get('deviceType') != 'com.apple.CoreSimulator.SimDeviceType.iPhone-17' or
+            not isinstance(version, str) or not re.fullmatch(r'26\.[0-9]+(?:\.[0-9]+)?', version) or
+            record.get('runtime') != 'com.apple.CoreSimulator.SimRuntime.iOS-' + version.replace('.', '-') or
+            record.get('creationStarted') is not True or
+            ('bootstatusCompleted' in record and record['bootstatusCompleted'] is not False) or
+            ('ready' in record and record['ready'] is not False) or record.get('cleanup') != 'NOT_RUN' or
+            record.get('processCleanupFailed', False) is not False or record.get('ownerContext') != context or
+            any(not value for value in context.values())):
+        return None
+    expected = {key: record[key] for key in (
+        'device', 'name', 'nonce', 'runtime', 'deviceType', 'ownerContext')}
+    expected.update(kind='owned-created-boot-command.v1', createExitCode=0,
+                    inventoryIdentityMatched=True, bootCommandExitCode=0)
+    proof = record.get('bootstatusObservationOwnership')
+    if (proof != expected or not isinstance(proof, dict) or any(
+            type(proof[key]) is not type(value) for key, value in expected.items())):
+        return None
+    return device
+
+
 @contextlib.contextmanager
-def trace_processes(destination, readiness_record=None, readiness_cleanup_failed=None):
-    path = Path(destination)
-    # Nessuna operazione se la trace non è acquisibile esclusivamente.
+def exclusive_trace_stream(path):
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    transferred = False
+    try:
+        with os.fdopen(descriptor, 'w', buffering=1) as stream:
+            transferred = True
+            yield stream
+    finally:
+        if not transferred:
+            try:
+                os.close(descriptor)
+            except OSError as error:
+                if error.errno != errno.EBADF:
+                    raise
+
+
+@contextlib.contextmanager
+def trace_processes(destination, readiness_record=None, readiness_cleanup_failed=None,
+                    bootstatus_record=None, bootstatus_destination=None):
+    path = Path(destination)
+    if bootstatus_destination is not None and not callable(bootstatus_record):
+        raise ValueError('bootstatus trace senza owner callback')
+    if callable(bootstatus_record) and callable(readiness_record) and bootstatus_destination is None:
+        raise ValueError('bootstatus e readiness richiedono trace distinte')
+    if bootstatus_destination is not None and Path(bootstatus_destination).absolute() == path.absolute():
+        raise ValueError('trace bootstatus e readiness non possono coincidere')
+    # Nessuna operazione se la trace non è acquisibile esclusivamente.
     original_popen, original_killpg = subprocess.Popen, os.killpg
     origin = time.monotonic_ns()
-    sequence = 0
     trace_error = None
     owned_groups = set()
     readiness_consumed = False
-    write_lock = threading.Lock()
+    bootstatus_consumed = False
+    group_emitters = {}
 
-    with os.fdopen(descriptor, 'w', buffering=1) as stream:
-        def emit(event, **metadata):
-            nonlocal sequence, trace_error
-            with write_lock:
-                sequence += 1
-                row = dict(sequence=sequence, monotonic_ns=time.monotonic_ns(),
-                           elapsed_ns=time.monotonic_ns() - origin, event=event, **metadata)
-                try:
-                    stream.write(json.dumps(row, sort_keys=True) + '\n')
-                except OSError as error:
-                    # Non perdere l'handle del processo per un errore di evidence.
-                    trace_error = trace_error or error
+    with contextlib.ExitStack() as opened:
+        stream = opened.enter_context(exclusive_trace_stream(path))
+        boot_stream = stream
+        if bootstatus_destination is not None:
+            boot_stream = opened.enter_context(exclusive_trace_stream(bootstatus_destination))
+
+        def emitter(target, kind):
+            counter = 0
+            write_lock = threading.Lock()
+
+            def write(event, **metadata):
+                nonlocal counter, trace_error
+                with write_lock:
+                    counter += 1
+                    row = dict(sequence=counter, monotonic_ns=time.monotonic_ns(),
+                               elapsed_ns=time.monotonic_ns() - origin, event=event, **metadata)
+                    try:
+                        target.write(json.dumps(row, sort_keys=True) + '\n')
+                    except OSError as error:
+                        error.trace_kind = kind
+                        trace_error = trace_error or error
+            return write
+
+        emit = emitter(stream, 'readiness' if callable(readiness_record) else
+                       'bootstatus' if callable(bootstatus_record) else 'process')
+        boot_emit = emitter(boot_stream, 'bootstatus') if boot_stream is not stream else emit
+
+        def boot_observation_emit(event, **metadata):
+            boot_emit(event.replace('readiness-', 'bootstatus-', 1), **metadata)
+
+        def boot_popen(*args, **kwargs):
+            child = original_popen(*args, **kwargs)
+            group_emitters[child.pid] = boot_emit
+            return child
 
         class MeasuredPopen(original_popen):
             def __init__(self, arguments, *args, **kwargs):
                 self.trace_arguments = arguments
+                boot_device = bootstatus_owner(bootstatus_record(), arguments) if (
+                    callable(bootstatus_record) and kwargs.get('start_new_session') is True) else None
+                self.trace_emit = boot_emit if boot_device is not None else emit
                 self.trace_operation = operation(arguments)
                 self.trace_owned = kwargs.get('start_new_session') is True
                 self.trace_spawn_ns = time.monotonic_ns()
-                emit('spawn-start', operation=self.trace_operation, owned_session=self.trace_owned)
+                self.trace_emit('spawn-start', operation=self.trace_operation, owned_session=self.trace_owned)
                 try:
                     super().__init__(arguments, *args, **kwargs)
                 except BaseException as error:
-                    emit('spawn-error', operation=self.trace_operation,
+                    self.trace_emit('spawn-error', operation=self.trace_operation,
                          duration_ns=time.monotonic_ns() - self.trace_spawn_ns,
                          error_type=type(error).__name__)
                     raise
@@ -369,7 +465,8 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
                     observed_group = None
                 if self.trace_owned:
                     owned_groups.add(self.pid)
-                emit('spawn-end', **self.identity(),
+                    group_emitters[self.pid] = self.trace_emit
+                self.trace_emit('spawn-end', **self.identity(),
                      duration_ns=time.monotonic_ns() - self.trace_spawn_ns,
                      observed_pgid=observed_group,
                      owned_pgid_confirmed=self.trace_owned and observed_group == self.pid)
@@ -379,14 +476,32 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
                             owned_pgid=self.pid if self.trace_owned else None)
 
             def communicate(self, *args, **kwargs):
-                nonlocal readiness_consumed
+                nonlocal readiness_consumed, bootstatus_consumed
                 observer = None
+                observer_emit = emit
                 primary = None
                 timeout = kwargs.get('timeout', args[1] if len(args) > 1 else None)
                 device = readiness_owner(readiness_record(), self.trace_arguments) if (
                     callable(readiness_record) and not readiness_consumed and self.trace_owned) else None
+                boot_device = bootstatus_owner(bootstatus_record(), self.trace_arguments) if (
+                    callable(bootstatus_record) and not bootstatus_consumed and self.trace_owned) else None
                 try:
-                    if device is not None and type(timeout) in (int, float) and 0 < timeout <= 30:
+                    if boot_device is not None and type(timeout) in (int, float) and timeout == 300:
+                        try:
+                            group = os.getpgid(self.pid)
+                        except ProcessLookupError:
+                            group = None
+                        if group == self.pid:
+                            bootstatus_consumed = True
+                            boot_emit('bootstatus-observation-start', pid=self.pid,
+                                      device_uuid=boot_device, command_budget_seconds=timeout,
+                                      trigger_seconds=timeout / 3)
+                            observer_emit = boot_observation_emit
+                            observer = BootstatusObservation(self, boot_device, timeout,
+                                boot_observation_emit, boot_popen,
+                                authorize=lambda: bootstatus_owner(
+                                    bootstatus_record(), self.trace_arguments) == boot_device)
+                    elif device is not None and type(timeout) in (int, float) and 0 < timeout <= 30:
                         try:
                             group = os.getpgid(self.pid)
                         except ProcessLookupError:
@@ -404,7 +519,7 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
                         try:
                             observer.close()
                         except BaseException as error:
-                            emit('readiness-observation-cleanup', status='FAIL',
+                            observer_emit('readiness-observation-cleanup', status='FAIL',
                                  error_type=type(error).__name__,
                                  errno=error.errno if isinstance(error, OSError) else None,
                                  primary_preserved=primary is not None)
@@ -412,7 +527,7 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
                                 try:
                                     readiness_cleanup_failed()
                                 except BaseException as mark_error:
-                                    emit('readiness-observation-cleanup-flag', status='FAIL',
+                                    observer_emit('readiness-observation-cleanup-flag', status='FAIL',
                                          error_type=type(mark_error).__name__)
                             if primary is None:
                                 raise
@@ -421,14 +536,14 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
             def measured_communicate(self, *args, **kwargs):
                 start = time.monotonic_ns()
                 timeout = kwargs.get('timeout', args[1] if len(args) > 1 else None)
-                emit('communicate-start', **self.identity(), timeout_seconds=timeout)
+                self.trace_emit('communicate-start', **self.identity(), timeout_seconds=timeout)
                 try:
                     result = super().communicate(*args, **kwargs)
                 except subprocess.TimeoutExpired as error:
                     before = self.returncode
                     # Discrimina leader vivo/uscito; poll può fare reap del leader.
                     observed = super().poll()
-                    emit('communicate-timeout', **self.identity(),
+                    self.trace_emit('communicate-timeout', **self.identity(),
                          duration_ns=time.monotonic_ns() - start,
                          timeout_seconds=timeout, returncode_before_poll=before,
                          returncode_after_poll=observed, observer_poll_may_reap=True,
@@ -440,13 +555,13 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
                          stderr=output_metadata(error.stderr))
                     raise
                 except BaseException as error:
-                    emit('communicate-error', **self.identity(),
+                    self.trace_emit('communicate-error', **self.identity(),
                          duration_ns=time.monotonic_ns() - start,
                          error_type=type(error).__name__)
                     raise
                 metadata = owned_ps_metadata(result[0], owned_groups) if (
                     self.trace_operation == 'ps-probe') else {}
-                emit('communicate-end', **self.identity(), **metadata,
+                self.trace_emit('communicate-end', **self.identity(), **metadata,
                      duration_ns=time.monotonic_ns() - start, exit_code=self.returncode,
                      output_complete=True, stdout=output_metadata(result[0]),
                      stderr=output_metadata(result[1]))
@@ -455,46 +570,51 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
             def wait(self, *args, **kwargs):
                 start = time.monotonic_ns()
                 timeout = kwargs.get('timeout', args[0] if args else None)
-                emit('wait-start', **self.identity(), timeout_seconds=timeout)
+                self.trace_emit('wait-start', **self.identity(), timeout_seconds=timeout)
                 try:
                     result = super().wait(*args, **kwargs)
                 except BaseException as error:
-                    emit('wait-error', **self.identity(),
+                    self.trace_emit('wait-error', **self.identity(),
                          duration_ns=time.monotonic_ns() - start,
                          error_type=type(error).__name__)
                     raise
-                emit('wait-end', **self.identity(), duration_ns=time.monotonic_ns() - start,
+                self.trace_emit('wait-end', **self.identity(), duration_ns=time.monotonic_ns() - start,
                      exit_code=result, reaped=True)
                 return result
 
             def send_signal(self, signum):
-                emit('leader-signal-start', **self.identity(), signal=int(signum))
+                self.trace_emit('leader-signal-start', **self.identity(), signal=int(signum))
                 try:
                     return super().send_signal(signum)
                 finally:
-                    emit('leader-signal-end', **self.identity(), signal=int(signum),
+                    self.trace_emit('leader-signal-end', **self.identity(), signal=int(signum),
                          known_exit_code=self.returncode)
 
         def killpg(group, signum):
+            signal_emit = group_emitters.get(group, emit)
             start = time.monotonic_ns()
-            emit('group-signal-start', owned_pgid=group, signal=int(signum))
+            signal_emit('group-signal-start', owned_pgid=group, signal=int(signum))
             try:
                 result = original_killpg(group, signum)
             except OSError as error:
-                emit('group-signal-error', owned_pgid=group, signal=int(signum),
+                signal_emit('group-signal-error', owned_pgid=group, signal=int(signum),
                      duration_ns=time.monotonic_ns() - start,
                      error_type=type(error).__name__, errno=error.errno)
                 raise
-            emit('group-signal-end', owned_pgid=group, signal=int(signum),
+            signal_emit('group-signal-end', owned_pgid=group, signal=int(signum),
                  duration_ns=time.monotonic_ns() - start)
             return result
 
         emit('trace-start', schema_version=1, observer_poll_may_reap_at_timeout=True)
+        if boot_emit is not emit:
+            boot_emit('trace-start', schema_version=1, observer_poll_may_reap_at_timeout=True)
         subprocess.Popen, os.killpg = MeasuredPopen, killpg
         try:
             yield emit
         finally:
             subprocess.Popen, os.killpg = original_popen, original_killpg
             emit('trace-end')
+            if boot_emit is not emit:
+                boot_emit('trace-end')
             if trace_error is not None:
                 raise trace_error

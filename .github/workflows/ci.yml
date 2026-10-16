@@ -253,7 +253,7 @@ jobs:
           python3 scripts/run-task054-ios-owned.py prepare \
             --receipt build/task054/ios-owned-receipt.json \
             --github-output "$GITHUB_OUTPUT" \
-            --readiness-attestation owned-descriptor-launchd --observe-readiness
+            --readiness-attestation owned-descriptor-launchd --observe-readiness --observe-bootstatus
 
       - name: Smoke iOS on the declared deployment target
         run: >-
@@ -300,6 +300,7 @@ jobs:
             build/task054/os-visual/*.json
             build/task054/ios-owned-receipt.json
             build/task054/ios-owned-receipt.readiness.jsonl
+            build/task054/ios-owned-receipt.bootstatus.jsonl
             build/task054/ios-visual-step-result.json
             test/features/checkout/presentation/failures/*.png
             test/features/orders/presentation/failures/*.png

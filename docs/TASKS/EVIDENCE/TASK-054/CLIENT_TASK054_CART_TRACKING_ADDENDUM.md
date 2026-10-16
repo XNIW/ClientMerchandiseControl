@@ -1,5 +1,51 @@
 # TASK-054 — Addendum carrello e consegna
 
+## Freeze composito — BOOTV2 e enum
+
+BOOTV2/1e21f62e approvato source/pure da due reviewer distinti:1d85e68c…
+e4940ccc3…. P2FalseInventory corretto: proofsoloactualcheckisTrue,False
+registraNOT_RUN;REDV1/GREENV2 conhelperreale, V1maiapplicata/CI preservata.
+Rootapplied4postimagesesatti+3enumfile,12suite240puriPASS/exit0. Nessun
+deltaapp/native/config/deps/fixtureDart;workflow2editflag+bootJSONL.
+
+Una nuova domanda ios-visualboot e una separata ios-address-journalenum,
+sullo stesso futurohead, entrambeNOT_RUN al freeze. Budget300/30,sequenza/
+guard/cleanup invariati,noAndroidrepeat/warmup/reset/refusalbypass.
+Manuali con6altrijobSKIPPED non sostituiscono fullCI7nuovoheadNOT_RUN.
+D1955/2rimaneproprio;nessuna causa/stabilità daeventualeverde oABfraworker.
+
+
+## Supplemento bootstatus — nuova domanda causale
+
+Il visuald195 raggiunge CoreLocationMigrator e termina300s prima del punto
+osservato dalla readinessV3. Anche9d completava bootstatus attraversando
+migratore e build→prepare:nessuna causalità d'ordine o AB con altriworker.
+Osservazione bounded durante il bootstatus proprio,stacksoloPID e logUUID,
+stesso300s/guard/cleanup/sequence,da preparare/testare/revisionare prima
+dell'unica nuova prova visual. Coordinata col fixenum sourceapprovato e
+una domanda journalseparata;nuoveproveNOT_RUN,no nuoviinputworkflow o
+Androidrepeat. ErratumimagevisualV2de6c0746… preservaV1:20261013.0424.1
+alvisual,20260907.0351.1 aljournal;nessuna causa dedotta.
+
+
+## Canonical d195 terminale e fix enum journal
+
+Run38862344656/d195602 ha7job freschi terminali,5SUCCESS/2FAIL.
+Quality1252/1SKIP+11performance,14metadata,format411/0/analyze0.
+Androidvisual93body+driverPASS,corpus137+4/cleanupPASS; stessaPID2774 nel
+connect e nel postdriver, lifecyclevuoto/0byte non dimostra assenzaexit.
+JournalAndroid e unsignedAndroid/iOSPASS, senza firma/distribuzione/live.
+
+iOSvisualFAIL bootstatus300s prima readiness:osservatorelaunchctl/sample
+NOT_TRAVERSED,cleanup1FAIL+resource2PASS non cancellano il negativo.
+JournaliOSreadyPASS poi seedFAIL dal publisher nativo; causaUNKNOWN e
+restartNOT_RUN. Trovato drop dell'enum già validato prima dell'aggregate:
+fix minimo3Pythonfile a8bdd372,review distinta746ac2ff… APPROVED scoped,
+RED4asserzioni→GREEN11 e owner21,root45puriPASS. Solo diagnostica enum,
+nessuna causa storica recuperata. Unica prova successivajournal sul nuovo
+head NOT_RUN a questo freeze; fullCI7 nuovoheadNOT_RUN, nessunPASStrasferito.
+
+
 ## Diagnostica — freeze ordinario dopo preflight hosted
 
 Focused38861373311 su90f3807 PASS506/1SKIP:497precedenti e9nuovi unit

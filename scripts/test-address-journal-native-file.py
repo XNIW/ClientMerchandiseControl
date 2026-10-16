@@ -121,6 +121,70 @@ class NativeAddressFileTest(unittest.TestCase):
             self.assertEqual(runner.results, {})
             self.assertFalse((runner.output / 'seed.json').exists())
 
+    def failure_artifact(self, error_type, **changes):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            runner = I.IosAddressJournalFileRunner(root, root / 'owner.json')
+            runner.run_id, runner.data = RUN_ID, root / 'owned-data'
+            runner.revision = 'd195602bddf3b23c04530f32ae6ddf06fdd39c15'
+            source = runner.data / 'Library/Application Support' / A.receipt_relative_path(RUN_ID, 'seed')
+            source.parent.mkdir(parents=True)
+            data = {'apiVersion': 'address-journal-native-evidence.v2', 'phase': 'seed',
+                    'runId': RUN_ID, 'processId': 12, 'status': 'FAIL', 'errorType': error_type}
+            data.update(changes)
+            source.write_text(json.dumps(data))
+
+            def execute():
+                runner.output.mkdir(parents=True)
+                runner.owns_output = True
+                runner.drive('seed', 12, 12, [])
+
+            with patch.object(runner, 'execute', side_effect=execute), \
+                 patch.object(runner, 'attest_pid') as attest, \
+                 patch.object(runner, 'command', side_effect=AssertionError('native command forbidden')):
+                code = runner.run()
+            artifact_text = (runner.output / 'runner.json').read_text()
+            artifact = json.loads(artifact_text)
+            self.assertEqual(code, 1)
+            self.assertEqual(artifact['exit_code'], 1)
+            self.assertEqual(artifact['failed_phase'], 'journal-seed')
+            self.assertEqual(artifact['restart'], 'NOT_RUN')
+            self.assertEqual(artifact['backend'], 'NOT_RUN')
+            self.assertNotIn('seed', artifact['results'])
+            self.assertFalse((runner.output / 'seed.json').exists())
+            attest.assert_called_once_with(12)
+            return artifact, artifact_text
+
+    def test_ios_native_failure_safe_enum_survives_into_runner_artifact(self):
+        for category in ('assertion', 'filesystem', 'unexpected'):
+            with self.subTest(category=category):
+                artifact, text = self.failure_artifact(category)
+                self.assertEqual(artifact['diagnostics'].get('seed', {}).get(
+                    'native_terminal_error_type'), category)
+                self.assertIn('fixture nativa segnala failure sanitizzata', artifact['failure_reason'])
+                self.assertNotIn('PASS', artifact['results'].values())
+
+    def test_ios_unknown_or_unqualified_failure_never_exports_enum_or_raw_data(self):
+        for category, changes in (
+                ('SECRET_RAW_MESSAGE', {}), ('assertion', {'rawMessage': 'SECRET_RAW_MESSAGE'}),
+                ('filesystem', {'runId': 'foreign'}), ('unexpected', {'processId': 99})):
+            with self.subTest(category=category, changes=changes):
+                artifact, text = self.failure_artifact(category, **changes)
+                self.assertNotIn('native_terminal_error_type', artifact['diagnostics'].get('seed', {}))
+                self.assertNotIn('SECRET_RAW_MESSAGE', text)
+                self.assertIn('ricevuta failure non conforme', artifact['failure_reason'])
+
+    def test_native_validator_failure_exposes_only_validated_enum_on_original_failure(self):
+        for category in ('assertion', 'filesystem', 'unexpected'):
+            data = {'apiVersion': 'address-journal-native-evidence.v2', 'phase': 'seed',
+                    'runId': RUN_ID, 'processId': 12, 'status': 'FAIL', 'errorType': category}
+            with self.assertRaises(A.Failure) as raised:
+                A.validate_native_receipt(data, 'seed', RUN_ID, 12, 12)
+            self.assertIs(type(raised.exception), A.Failure)
+            self.assertEqual(raised.exception.code, 1)
+            self.assertEqual(getattr(raised.exception, 'native_error_type', None), category)
+            self.assertEqual(str(raised.exception), 'journal-seed: fixture nativa segnala failure sanitizzata')
+
     def test_paths_cannot_escape_run_scope(self):
         for run, phase in [('../other', 'seed'), (RUN_ID, '../recover'), (RUN_ID, 'other')]:
             with self.subTest(run=run, phase=phase), self.assertRaises(A.Failure):

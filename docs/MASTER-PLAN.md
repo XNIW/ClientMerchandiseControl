@@ -8,22 +8,24 @@
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: preparare e revisionare il profilo diagnostico
-  cold preflight nel workflow misurato esistente, poi una sola prova GitHub
-  sul branch PR29 esistente. Nessun SDK/UI Mac: ownership mobile concorrente.
-  CI38324733546/attempt2 su8f17774:5SUCCESS/2FAIL, quattro successi ereditati
-  attempt1 sullo stesso SHA. Quality1243 PASS/1 SKIP/11performance, format409/0,
-  analyze0. Due FAIL iOS hosted prima dell'app: runtime inventory30s e
-  bootstatus300s/Data Migration; cleanup corrente PASS, negativi storici intatti.
-  App07649 invariata; Maps/TEST/AT/firma aperti, PR29 draft e merge HOLD.
+- **Prossima azione autorizzata**: proseguire la qualifica dei gate iOS/app e
+  Maps/TEST dai Checks e dalla sezione corrente PR29, preservando i negativi.
+  Profilo cold preflight separato, senza SDK/UI Mac; fix IOS-COLD-RR-01
+  source/mock revisionato: Xcode26.6 usa SDKsim26.5 sulla superficie osservata.
+  Prima prova38840611837 FAIL2 nel guard diagnostico, inventory/boot NOT_RUN;
+  guard corretto dopo RED/GREEN e review distinta. Esito hosted corretto da
+  leggere nel proprio run/SHA, senza retry identico o acceptance inferita.
+  CI38324733546/attempt2 su8f:5SUCCESS/2FAIL, quattro successi ereditati;
+  QUALITY-RR-01 chiuso,1243PASS/1SKIP/11performance. CI del nuovo head separata.
+  App07649 invariata, PR29 draft e merge HOLD; Maps/TEST/AT/firma aperti.
   Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
-  Checkpoint ba11/527/QAcb9 e negativi preservati; nessun SQL/deploy/input Admin/W/N.
+  Nessun SQL/deploy/input Admin/W/N o trasferimento di ownership mobile.
 
 
 

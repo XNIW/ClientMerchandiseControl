@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_REVIEW_BLOCKED
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -1493,3 +1493,22 @@ identico e nessuna qualifica app/Google/GPS dedotta dalla readiness.
 9 nuovi test e12 trasporto/legacy PASS, action pin e governancePASS; reviewer
 distinto APPROVED scoped, zero finding. Prova hosted NOT_RUN al freeze,
 acceptance integrataBLOCKED; nessuna auto-approvazione del prodotto.
+
+
+## Fix e re-review — IOS-COLD-RR-01
+
+La prima prova38840611837 su77976a1 terminaFAIL2 nel guard diagnostico,
+prima di ogni simctl: Xcode26.6/build17F113 espone SDKsim26.5, mentre la
+nuova ipotesi richiedeva26.6. Catalogo0, nessuna receipt/device, cleanupNOT_RUN;
+processCleanupFailedfalse non vale come cleanupPASS. Finding P2 tooling
+IOS-COLD-RR-01 riprodotto indipendentemente, distinto dai timeout storici.
+
+Corretto soltanto il guard SDK sulla metadata reale, con fixture17F113/26.5:
+RED su77976a1, GREEN9 test;12 trasporto/legacy PASS. SDK26.4/26.6 rifiutati,
+ownerhelper/tracer/workflow/parser/budget invariati. Re-review distinta
+APPROVED scoped source/mock; prova corretta hosted NOT_RUN a questo freeze.
+Esito effettivo consultabile nel run misurato associato allo SHA e nella
+sezione corrente PR29; nessun PASS anticipato o trasferimento alla app.
+
+Fix riconsegnato con gate reali aperti: CODEX_FIX_BLOCKED_TO_RE_REVIEW.
+Re-review globale BLOCKED / CODEX_REVIEW_BLOCKED, nessun merge/DONE.

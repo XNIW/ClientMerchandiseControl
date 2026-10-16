@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "dateLocal": "2026-10-15",
-  "role": "CODEX_FIXER",
+  "role": "CODEX_RE_REVIEWER",
   "task": "TASK-054",
   "scope": "diagnostica hosted precedente ad app e Flutter",
   "baseline": "8f17774c9924522d346c1500182b285a2bc7589d",
@@ -9,8 +9,8 @@
   "pr": "https://github.com/XNIW/ClientMerchandiseControl/pull/29",
   "sourceSha256": {
     ".github/workflows/task054-ios-measured.yml": "05633cf882b3597093fd0874186633247b3ffeaf8aee3ae2e1a72af76ca15a8a",
-    "scripts/run-ios-preflight-measured.py": "80469a4ed68671acb0f4fa014754500ad4f85b2bbaf697f4bc8197c0ead5f0b9",
-    "scripts/test-ios-canonical-cold.py": "28f4eb0d6b1778d0e654b7b91c3a5669a3464fee487c19f95062325e5488a6b0",
+    "scripts/run-ios-preflight-measured.py": "396b424711f9c5ce0c655dfcc3b9ae5f67faf6fdc2720a327c292b28233fc43b",
+    "scripts/test-ios-canonical-cold.py": "035da3395c016e8f0c47bbdacf363ac66aa1ee4a048dd4bc9d00b216bdab4d73",
     "scripts/run-task054-ios-owned.py": "7b25957b11545649d1d3145f91cffcd0064e9f8078e8a3e46f622241aa0d9bea",
     "scripts/trace-ios-owned-process.py": "9827d8173a4aee131d45025c392ecbe791f3bb86b159acdf77738b87816d7883"
   },
@@ -83,9 +83,20 @@
     "receiptSha256": "3456f07c906744c3b777f074238d99768af6a4fdfee505e078595d6ac2f6e12a",
     "checks": "9 cold + 6 legacy + 2 probe indipendenti, tutti PASS"
   },
-  "experiment": {
-    "result": "NOT_RUN",
-    "reason": "freeze precedente alla pubblicazione e alla singola prova autorizzata",
+  "acceptance": {
+    "application": "NOT_RUN",
+    "googleMaps": "BLOCKED",
+    "backendTest": "BLOCKED",
+    "merge": "HOLD"
+  },
+  "limits": [
+    "non e confronto A/B controllato",
+    "PASS preflight non qualifica app o causalita",
+    "no SDK/UI Mac eseguiti"
+  ],
+  "firstExperiment": {
+    "result": "FAIL",
+    "reason": "guard diagnostico assumeva SDK26.6; SDK osservato26.5 con Xcode26.6/17F113",
     "workflow": "task054-ios-measured.yml",
     "inputs": {
       "mode": "preflight",
@@ -101,17 +112,55 @@
       "budget30/300 invariati",
       "cleanup e primary preservati",
       "nessun retry automatico"
-    ]
+    ],
+    "run": 38840611837,
+    "job": 116779589667,
+    "revision": "77976a182ca8c6e5f4a3bf43ec95f5859312da85",
+    "exitCode": 2,
+    "catalogCommandCount": 0,
+    "resourceCleanup": "NOT_RUN",
+    "cleanupReason": "nessuna receipt/device creata",
+    "processCleanupFailed": false,
+    "toolchain": {
+      "xcode": "26.6",
+      "build": "17F113",
+      "sdk": "26.5",
+      "image": "20260907.0351.1"
+    },
+    "sourceSha256": "80469a4ed68671acb0f4fa014754500ad4f85b2bbaf697f4bc8197c0ead5f0b9",
+    "artifact": {
+      "id": 12021066823,
+      "bytes": 1655,
+      "sha256": "9ce68149723ffd7ef7e02202f6d66e0040c7665abdb0b43d83691eb8cd81d3f1",
+      "publishedDigestMatches": true,
+      "crc": "PASS"
+    }
   },
-  "acceptance": {
-    "application": "NOT_RUN",
-    "googleMaps": "BLOCKED",
-    "backendTest": "BLOCKED",
-    "merge": "HOLD"
+  "finding": {
+    "id": "IOS-COLD-RR-01",
+    "severity": "P2",
+    "category": "tooling",
+    "status": "RESOLVED_SOURCE_MOCK",
+    "independentReceiptSha256": "f5930377b0628392d36931e899f2d9c3b77545159e6ca7d979a2f534ae156239",
+    "impact": "CoreSimulator non attraversato; causa timeout storico non verificata",
+    "fix": "distinguere Xcode26.6 da SDKsim26.5 attestato",
+    "red": "fixture reale su77976a1 termina2 prima di inventory",
+    "fixReviewSha256": "b7045ebb2d8764f45363fc2c3fc78a9571b0787a163512c7d593b6770a022793",
+    "green": {
+      "coldTests": 9,
+      "transportLegacyTests": 12,
+      "exitCode": 0
+    },
+    "hostedCorrected": "NOT_RUN"
   },
-  "limits": [
-    "non e confronto A/B controllato",
-    "PASS preflight non qualifica app o causalita",
-    "no SDK/UI Mac eseguiti"
-  ]
+  "correctedExperiment": {
+    "result": "NOT_RUN",
+    "reason": "cutoff precedente alla pubblicazione del fix causale e alla prima traversata CoreSimulator",
+    "profile": "canonical",
+    "mode": "preflight",
+    "expectedXcode": "26.6",
+    "expectedSdk": "26.5",
+    "results": "ricevute del workflow misurato e sezione corrente PR29, associate al loro SHA"
+  },
+  "handoff": "CODEX_REVIEW_BLOCKED"
 }

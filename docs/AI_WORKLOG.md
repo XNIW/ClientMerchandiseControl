@@ -5842,3 +5842,18 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   esistente; test Python e review distinta prima della pubblicazione/prova unica.
 - **Ruolo/fase**: CODEX_FIXER/FIX, task BLOCKED per gate obbligatori esterni.
 - **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-15 — TASK-054 IOS-COLD-RR-01, fix e re-review
+
+- **Negativo preservato**: run38840611837 su77976a1 FAIL2, Xcode26.6/17F113
+  e SDK26.5; guard diagnostico errato, zero simctl, nessuna receipt/device,
+  cleanupNOT_RUN. Non verifica il timeout storico o il prodotto.
+- **Finding/fix**: P2 tooling IOS-COLD-RR-01, RED fixture reale contro779,
+  GREEN9cold+12trasporto/legacy PASS; SDKguard26.5 corretto, altri confini intatti.
+- **Review**: distinta APPROVED solo source/mock; hosted corretto NOT_RUN al
+  freeze, ricevuta futura nei Checks del proprio SHA e nella sezione PR29.
+- **Maps**: nessuna configurazione approvata riusabile recuperata; Console senza
+  progetto qualificabile. Producer web foreground esistente, TEST/R17 BLOCKED.
+- **Ruolo/fase**: CODEX_FIXER/FIX → CODEX_RE_REVIEWER/REVIEW, task BLOCKED.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

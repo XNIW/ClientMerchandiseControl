@@ -93,8 +93,10 @@ def canonical_cold_preflight(output):
                 sdk = owner.command(['xcrun', '--sdk', 'iphonesimulator', '--show-sdk-version'],
                                     30, capture=True).strip()
                 result['toolchain'].update(xcode_version=version[:256], simulator_sdk=sdk[:80])
-                if version.splitlines()[:1] != ['Xcode 26.6'] or sdk != '26.6':
-                    raise IOS.Failure(2, 'Xcode/SDK non coincide con superficie26.6')
+                # Xcode26.6 usa SDKsim26.5 sulla superficie attestata; il
+                # runtime viene selezionato separatamente dal catalogo.
+                if version.splitlines()[:1] != ['Xcode 26.6'] or sdk != '26.5':
+                    raise IOS.Failure(2, 'Superficie richiede Xcode26.6/SDKsim26.5')
                 emit('canonical-cold-prepare-start')
                 owner.prepare(headless=True, readiness_attestation=IOS.OWNED_DESCRIPTOR)
                 result['preflight'] = 'PASS'

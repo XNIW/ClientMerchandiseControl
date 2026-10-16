@@ -33,8 +33,8 @@ class Fixture:
         self.failure_code = 124
         self.cleanup_type_error = False
         self.cleanup_failure = cleanup_failure
-        self.xcode = 'Xcode 26.6\nBuild version synthetic'
-        self.sdk = '26.6'
+        self.xcode = 'Xcode 26.6\nBuild version 17F113'
+        self.sdk = '26.5'
         self.catalog = {'runtimes': [{'identifier': RUNTIME, 'version': '26.5',
             'buildversion': 'synthetic26F', 'isAvailable': True,
             'privateMetadata': 'private-fixture-do-not-publish'}]}
@@ -109,7 +109,8 @@ class CanonicalColdTest(unittest.TestCase):
             self.assertEqual(result['app'], 'NOT_RUN')
             self.assertEqual(result['preflight'], 'PASS')
             self.assertEqual(result['selectedRuntimeVersion'], '26.5')
-            self.assertEqual(result['toolchain']['simulator_sdk'], '26.6')
+            self.assertEqual(result['toolchain']['simulator_sdk'], '26.5')
+            self.assertEqual(result['toolchain']['xcode_version'], 'Xcode 26.6\nBuild version 17F113')
             self.assertEqual(result['catalog']['commandCount'], 1)
             self.assertEqual(result['catalog']['runtimesType'], 'list')
             self.assertEqual(result['cleanup'], 'PASS')
@@ -173,15 +174,17 @@ class CanonicalColdTest(unittest.TestCase):
             self.assertEqual(fixture.result()['exit_code'], 143)
 
     def test_wrong_toolchain_fails_closed_before_simctl(self):
-        for invalid in ('developer', 'xcode', 'sdk'):
+        for invalid in ('developer', 'xcode', 'sdk26.4', 'sdk26.6'):
             with self.subTest(invalid=invalid), tempfile.TemporaryDirectory() as directory:
                 fixture = Fixture(directory)
                 if invalid == 'developer':
                     fixture.environment['DEVELOPER_DIR'] = '/Applications/Xcode_26.5.app/Contents/Developer'
                 elif invalid == 'xcode':
                     fixture.xcode = 'Xcode 26.5'
+                elif invalid == 'sdk26.4':
+                    fixture.sdk = '26.4'
                 else:
-                    fixture.sdk = '26.5'
+                    fixture.sdk = '26.6'
                 self.assertEqual(fixture.execute(), 2)
                 self.assertEqual(fixture.result()['preflight'], 'FAIL')
                 self.assertFalse(any(args[:2] == ['xcrun', 'simctl'] for args, _ in fixture.calls))

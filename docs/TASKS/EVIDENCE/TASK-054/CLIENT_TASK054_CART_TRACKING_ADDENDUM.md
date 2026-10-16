@@ -27,6 +27,14 @@ chiave approvata recuperata; producer esistente Courier Mode web foreground,
 ordine/sessione e configurazione TEST ancora BLOCKED. Nessun nuovo provider,
 accesso, billing o writer esterno. I cutoff sotto restano storici.
 
+La prima prova [38840611837](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38840611837)
+ha prodotto FAIL2 nel guard diagnostico: Xcode26.6/build17F113 espone SDKsim26.5.
+Nessuna query simctl/receipt/device; cleanupNOT_RUN. IOS-COLD-RR-01 è stato
+riprodotto RED e corretto con fixture reale:9cold+12trasporto/legacy PASS,
+re-review distinta source/mock APPROVED. La prova corretta è NOT_RUN al
+freeze del fix; risultati nel proprio run/SHA e nella sezione corrente PR29.
+Nessuna conclusione sulla causa dei timeout precedenti prima della traversata.
+
 ## Candidato dopo QUALITY-RR-01
 
 Snapshot prima del nuovo fast-forward PR29: `BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.

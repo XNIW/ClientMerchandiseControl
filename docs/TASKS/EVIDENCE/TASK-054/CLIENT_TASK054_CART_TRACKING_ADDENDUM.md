@@ -1,5 +1,28 @@
 # TASK-054 — Addendum carrello e consegna
 
+## Diagnostica visual — 16 ottobre, freeze source intermedio
+
+I due FAIL visual9d hanno ancora domande causali nello scope. Il nuovo delta
+osserva VM/lifecycle/PID/APK Android e PID/stack/UUID durante readiness iOS,
+senza modificare il prodotto o indebolire gate, budget e cleanup. Il [piano e
+le review](next-integration/client-visual-diagnostic-plan-20261016.json) conservano
+5finding iOS privati e1Android, relativi fix e tutte le primarie negative.
+Source re-review distinta APPROVED scoped su iOSV3/3616909a e AndroidV2/1f475cab;
+nessuna approvazione globale. Applicazione composita WT:9suite Python/178testPASS,
+exit0. NoveunitDart, formatter e analyze NOT_RUN a questo freeze: saranno
+eseguiti nel focused esteso esistente, senza nativi. Dopo receipt/formatter
+revisionati, il solo commit finale ordinario avvierà la CI7job completa, con
+una esecuzione strumentata per domanda e nessun dispatch visual duplicato.
+
+Il precedente Quality2e9/run38845283993 è terminalePASS1243/1SKIP+11performance,
+14metadata,format409/0,analyze0; QUALITY-RR-02 chiuso scoped. I native9d restano
+propri4SUCCESS/3FAIL. Il nuovo osservatore può perturbare il timing: nessuna
+causa o stabilità da un eventuale verde. installed_fixture:null resta un
+controllo postdriver non attraversato. Maps/TEST/live/AT/firma sono gate distinti.
+Tutti i FAIL e cutoff sottostanti restano storici. Nessun SDK/UI Mac, nuovo
+branch/worktree, merge/deploy, accesso persistente o operazione Asus.
+
+
 ## Ripresa 16 ottobre — QUALITY-RR-02
 
 CI38841333617 su9d4fe2f terminale4SUCCESS/3FAIL, tutti job nuovi sullo stesso

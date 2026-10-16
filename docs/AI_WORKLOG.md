@@ -5885,3 +5885,29 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   SHA nel workflow quality_only esistente. Maps/TEST/AT/firma aperti.
 - **Ruolo/fase**: CODEX_FIXER/FIX → CODEX_RE_REVIEWER/REVIEW, task BLOCKED.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-16 — TASK-054 supplemento diagnostico visual
+
+- **Ripresa**: domande causali entro scope dei due FAIL9d, non blocker esauriti.
+  AndroidVM/lifecycle/PID/APK; iOSstato/stack proprio e log UUID durante readiness.
+- **Vincoli**: budget/guard/cleanup invariati, una esecuzione strumentata per
+  domanda dopo test e review distinta; nessun SDKMac, nuovo WT/branch, deploy,
+  accesso persistente, Asus, merge o DONE.
+- **Precedente Quality**: re-review distinta RR02CLOSED su2e9/38845283993,
+  1243PASS/1SKIP+11performance,14metadata,format409/0,analyze0. Native9d distinte.
+- **Ruolo/fase**: CODEX_RE_REVIEWER/REVIEW → CODEX_FIXER/FIX, task BLOCKED.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-16 — TASK-054 source diagnostica revisionata e preflight
+
+- **Fix**: iOSV3 e AndroidV2 applicati dopo review distinteAPPROVEDscoped;
+  5P2iOS e1P2Android privati risolti source, negativi immutati.
+- **Composito**:9suitePython178PASS/exit0; nessunaCLI SDK eseguita.
+- **Da eseguire**:9unitDart/format/analyze nel focused esistente esteso; publish
+  intermedio senza CIautomatica, poi unica CI7job ordinaria dopo reviewreceipt.
+- **Limiti**: nessun rootcause/acceptance da eventualeverde, Maps/live separati.
+- **Ruolo/fase**: CODEX_FIXER/FIX, taskBLOCKED; nessun merge/DONE.
+- **Gate documentale**: primo check governance FAIL per handoff mancante in questa voce; aggiunto prima del commit, negativo preservato.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

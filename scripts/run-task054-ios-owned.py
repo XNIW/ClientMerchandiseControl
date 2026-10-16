@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Un simulatore iOS proprio, riusabile fra smoke e visual in step separati."""
 import argparse
+import contextlib
+import importlib.util
 import hashlib
 import json
 import os
@@ -715,6 +717,8 @@ def main(argv=None):
                          help='opt-in per-device; inventory globale resta il comportamento storico')
     prepare.add_argument('--observe-owned-descriptor', action='store_true',
                          help='osserva solo metadata del UUID creato; non sostituisce readiness')
+    prepare.add_argument('--observe-readiness', action='store_true',
+                         help='un campione bounded del solo PID/UUID readiness; non sostituisce il gate')
     cleanup = subcommands.add_parser('cleanup')
     cleanup.add_argument('--receipt', required=True)
     smoke = subcommands.add_parser('smoke')
@@ -728,38 +732,81 @@ def main(argv=None):
     runner = IosOwnedRunner(receipt)
     for signum in (signal.SIGTERM, signal.SIGINT):
         signal.signal(signum, runner.interrupted)
+    trace_context = contextlib.nullcontext()
+    if getattr(options, 'observe_readiness', False):
+        if options.readiness_attestation != OWNED_DESCRIPTOR:
+            parser.error('--observe-readiness richiede owned-descriptor-launchd')
+        spec = importlib.util.spec_from_file_location(
+            'ios_readiness_trace', Path(__file__).with_name('trace-ios-owned-process.py'))
+        trace = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(trace)
+        trace_context = trace.trace_processes(
+            Path(receipt).with_suffix('.readiness.jsonl'), readiness_record=lambda: runner.record,
+            readiness_cleanup_failed=lambda: setattr(runner, 'process_cleanup_failed', True))
     primary = 0
     must_cleanup = options.action == 'cleanup'
+    cleanup_attempted = False
+
+    def cleanup_owned():
+        nonlocal primary, cleanup_attempted
+        cleanup_attempted = True
+        # Non interrompere il cleanup proprio per un secondo TERM/INT.
+        for signum in (signal.SIGTERM, signal.SIGINT):
+            signal.signal(signum, signal.SIG_IGN)
+        try:
+            if not runner.cleanup() and primary == 0:
+                primary = 1
+        except (Failure, OSError, ValueError, KeyError) as error:
+            print(f'FAIL: cleanup non verificato ({type(error).__name__})', flush=True)
+            if primary == 0:
+                primary = 1
+
+    trace_entered = False
     try:
-        if options.action == 'prepare' or standalone:
-            device = runner.prepare(
-                headless=getattr(options, 'headless', False),
-                readiness_attestation=getattr(options, 'readiness_attestation', 'inventory'),
-                observe_descriptor=getattr(options, 'observe_owned_descriptor', False))
-            if options.action == 'prepare' and options.github_output:
-                with open(options.github_output, 'a') as output:
-                    output.write('device_id=' + device + '\n')
-            if options.action == 'prepare':
-                print('READY: simulatore proprio preparato per smoke e visual', flush=True)
-        if options.action == 'smoke':
-            runner.smoke(device if standalone else options.device)
-    except (Failure, OSError, ValueError, KeyError) as error:
-        primary = error.code if isinstance(error, Failure) else 2
-        print(f'FAIL: {error}', flush=True)
-        must_cleanup = must_cleanup or runner.owns_receipt
-    finally:
-        must_cleanup = must_cleanup or (standalone and runner.owns_receipt)
-        if must_cleanup:
-            # Non interrompere il cleanup proprio per un secondo TERM/INT.
-            for signum in (signal.SIGTERM, signal.SIGINT):
-                signal.signal(signum, signal.SIG_IGN)
+        with trace_context:
+            trace_entered = True
             try:
-                if not runner.cleanup() and primary == 0:
-                    primary = 1
+                if options.action == 'prepare' or standalone:
+                    device = runner.prepare(
+                        headless=getattr(options, 'headless', False),
+                        readiness_attestation=getattr(options, 'readiness_attestation', 'inventory'),
+                        observe_descriptor=getattr(options, 'observe_owned_descriptor', False))
+                    if options.action == 'prepare' and options.github_output:
+                        with open(options.github_output, 'a') as output:
+                            output.write('device_id=' + device + '\n')
+                    if options.action == 'prepare':
+                        print('READY: simulatore proprio preparato per smoke e visual', flush=True)
+                if options.action == 'smoke':
+                    runner.smoke(device if standalone else options.device)
             except (Failure, OSError, ValueError, KeyError) as error:
-                print(f'FAIL: cleanup non verificato ({type(error).__name__})', flush=True)
-                if primary == 0:
-                    primary = 1
+                primary = error.code if isinstance(error, Failure) else 2
+                print(f'FAIL: {error}', flush=True)
+                must_cleanup = must_cleanup or runner.owns_receipt
+            finally:
+                must_cleanup = must_cleanup or (standalone and runner.owns_receipt)
+                if must_cleanup:
+                    cleanup_owned()
+    except (Failure, OSError, ValueError, KeyError) as error:
+        # Il codice primario gia ottenuto non viene sostituito da un errore
+        # di persistenza/chiusura del tracer. Nessun output privato dell'errore.
+        print('FAIL: evidence trace (' + type(error).__name__ + ')', flush=True)
+        if primary == 0:
+            primary = error.code if isinstance(error, Failure) else 2
+        if runner.owns_receipt and isinstance(runner.record, dict):
+            runner.record['readinessTraceEvidence'] = {
+                'result': 'FAIL', 'errorType': type(error).__name__,
+                'phase': 'exit' if trace_entered else 'enter',
+            }
+        # Se __exit__ fallisce dopo prepare PASS il finally interno non aveva
+        # motivo di distruggere il device: farlo ora con le stesse guardie.
+        if runner.owns_receipt and not cleanup_attempted:
+            cleanup_owned()
+        if runner.owns_receipt and isinstance(runner.record, dict):
+            try:
+                runner.persist()
+            except (Failure, OSError, ValueError, KeyError) as persistence_error:
+                print('FAIL: evidence trace non persistita (' +
+                      type(persistence_error).__name__ + ')', flush=True)
     return primary
 
 

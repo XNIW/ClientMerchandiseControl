@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -1559,3 +1559,59 @@ restano proprie: due journal e unsigned2PASS, due visualFAIL, sourceapp invariat
 
 CODEX_FIX_BLOCKED_TO_RE_REVIEW; esito integrato BLOCKED, handoff
 CODEX_REVIEW_BLOCKED. Nessun merge/DONE o nuovo SDK/UI Mac.
+
+
+## Fix diagnostico visual — ripresa 16 ottobre 2026
+
+Le primarie9d lasciano due domande causali ancora verificabili nel mandato
+originale; i FAIL visual non sono classificati come blocker esterno esaurito.
+Android trova un isolate prima di ApplicationInfo out-of-date e detach activity,
+poi resume ritorna SentinelCollected. Non sono attestati IsolateExit, morte PID
+o OOM. installed_fixture:null nasce dalla verifica successiva al driver, non è
+una prova di installazione fallita. iOS journal9d supera proprio spawn launchctl
+list; il confronto con visual/cold su worker e immagini diversi non è un A/B.
+
+Scope del fix strumentale: eventi VM prima connect e lifecycle package proprio
+correlati a PID/hash APK; fotografia bounded stato/stack PID proprio durante
+readiness e diagnostica CoreSimulator filtrata UUID owned. Nessun reconnect,
+sleep arbitrario, retry identico, budget aumentato o guard/gate escluso. Raw
+log/stack non versionati; output sanitizzato e limitato. Un eventuale verde
+non dimostra causa o stabilità. Permission refusal registrato senza bypass.
+
+Prima dell'esperimento: test puri e review distinta del solo delta; nuovo Dart
+verificato sul runner separato senza nativi. L'eventuale commit intermedio con
+skip automatico è soltanto preparazione, full CI NOT_RUN. Il commit finale
+ordinario avvia una sola CI canonica7job, senza dispatch visual concorrenti.
+Ogni prova mantiene SHA, limiti e cleanup propri. Maps/live restano separati.
+Nessun SDK/device Mac, nuovo branch/worktree, merge/deploy, Asus o accesso
+persistente. Il planning e il ciclo Fix già autorizzati coprono questa diagnosi.
+
+Riconciliata la re-review distinta QUALITY-RR-02 su2e9/run38845283993:
+CLOSED/APPROVED soltanto harness e full host Quality,1243PASS/1SKIP,
+11performance,14metadata,format409/0,analyze0. Receipt9bdd1052… e
+capsula f4233af7… conservano i negativi9d e tutte le revisioni; nessuna
+approvazione globale. Il precedente freeze NOT_RUN resta un cutoff storico.
+
+CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX. Task BLOCKED/FIX, unico writer Client.
+
+
+## Fix diagnostico — freeze source revisionato
+
+Applicati i soli delta source approvati: iOSV3/3616909a e AndroidV2/1f475cab,
+review distinte1ca7bfa0…/9384f22f…. I5finding iOS e1Android dei candidati
+privati, inclusi primary/EOF/refusal/activation/evidenceIO e pendingreply,
+restano nel piano con V1/V2/RED preservati. Nessun difetto prodotto dedotto.
+Applicazione composita verificata con9suitePython/178testPASS, tutti exit0.
+NoveunitDart/format/analyze NOT_RUN al freeze prima della preparazione focused
+hosted estesa a test_driver e nuovo testgovernance; nessuna suite precedente
+rimossa. Full Quality e nativi successivi appartengono al loro SHA finale.
+
+| CA / T | Evidence | Stato al freeze source |
+|---|---|---|
+| CA-04 / T-04 | piano diagnostico,9suitePython178test,review source distinte | PASS source/pure;9DartNOT_RUN |
+| CA-05 / T-05 | workflowfocused esistente e futura unicaCI7job | NOT_RUN prima pubblicazione intermedia; nessun gate escluso |
+| CA-06 / T-06 | native9d,Quality2e9 e limiti osservatori separati | BLOCKED globale, sperimentazione nativaNOT_RUN |
+
+Task BLOCKED/FIX: nessun handoff finale o approvazione globale prima dei
+risultati propri; dopo focused verde e reviewformatter segue freeze ordinario
+per unicaCI7job. Nessun SDKMac o nuovo accesso. CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.

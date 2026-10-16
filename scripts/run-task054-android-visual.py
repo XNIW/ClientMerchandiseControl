@@ -6,6 +6,7 @@ e developer.android.com/studio/run/emulator-{commandline,acceleration}.
 Nessuna prova backend autenticato o su device fisico deriva da questo runner.
 """
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -223,6 +224,7 @@ class AndroidVisualRunner:
         self.fixture_apk_sha256 = None
         self.installed_fixture = None
         self.build_before_emulator = False
+        self.startup_diagnostics = None
 
     def command(self, arguments, timeout, *, input_text=None, capture=True,
                 check=True):
@@ -485,8 +487,27 @@ class AndroidVisualRunner:
         self.environment.update(CMC_OS_FRAME_PLATFORM='android',
             CMC_OS_FRAME_DEVICE=self.serial, CMC_OS_FRAME_ADB=str(adb))
         # Il runner visuale esistente possiede già il timeout drive900 e i suoi figli.
-        self.command(['bash', 'scripts/test-task054-visual.sh', '--device', self.serial],
-            None, capture=False)
+        observe = self.environment.get('CMC_TASK054_ANDROID_STARTUP_OBSERVER') == 'true'
+        deadline = (time.monotonic() +
+            int(self.environment['CMC_TASK054_VISUAL_TIMEOUT_SECONDS'])) if observe else None
+        try:
+            self.command(['bash', 'scripts/test-task054-visual.sh', '--device', self.serial],
+                None, capture=False)
+        finally:
+            if observe:
+                # Indipendente dal gate post-driver: installed_fixture resta null
+                # quando il driver fallisce; il dump non modifica quell'acceptance.
+                try:
+                    spec = importlib.util.spec_from_file_location('cmc_android_startup',
+                        Path(__file__).with_name('task054-android-startup-diagnostics.py'))
+                    diagnostic = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(diagnostic)
+                    self.startup_diagnostics = diagnostic.collect(self, adb, deadline)
+                except Exception as error:
+                    if getattr(error, 'phase', None) == 'signal':
+                        raise
+                    self.startup_diagnostics = {'status': 'FAIL',
+                        'error_type': type(error).__name__}
         self.attest_fixture_installed(adb)
         self.phase = 'capture-completeness'
         self.capture_count = len(list(visual_output.glob('*.png')))
@@ -577,6 +598,7 @@ class AndroidVisualRunner:
             'build_before_emulator': self.build_before_emulator,
             'fixture_apk_sha256': self.fixture_apk_sha256,
             'installed_fixture': self.installed_fixture,
+            'startup_diagnostics': self.startup_diagnostics,
             'api': 35, 'abi': 'x86_64', 'exit_code': code,
             'failed_phase': failed_phase, 'emulator_before_cleanup': emulator_before_cleanup,
             'cleanup': 'FAIL' if self.cleanup_failed else 'PASS'},

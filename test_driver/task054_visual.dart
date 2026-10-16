@@ -5,6 +5,7 @@ import 'package:flutter_driver/flutter_driver.dart';
 import 'package:integration_test/integration_test_driver_extended.dart';
 
 import '../integration_test/support/os_frame_sync.dart';
+import 'support/android_startup_observer.dart';
 
 Future<void> main() async {
   final output = Directory(
@@ -16,9 +17,7 @@ Future<void> main() async {
   if ((platform == null) != (device == null)) {
     throw StateError('BLOCKED: configurazione OS frame incompleta');
   }
-  final driver = await FlutterDriver.connect(
-    logCommunicationToFile: false,
-  ).timeout(const Duration(seconds: 20));
+  final driver = await connectVisualDriver(platform);
   StreamSubscription<dynamic>? osFrames;
   final osJobs = <Future<void>>{};
 
@@ -154,4 +153,25 @@ Future<void> main() async {
       stderr.writeln('FAIL: driver cleanup ${error.runtimeType}');
     }
   }
+}
+
+// Una sola finestra20s comprende observer e connect originario. Il socket
+// diagnostico aggiunge timing: un verde non dimostra la causa del FAIL storico.
+Future<FlutterDriver> connectVisualDriver(String? platform) async {
+  if (platform != 'android' ||
+      Platform.environment['CMC_TASK054_ANDROID_STARTUP_OBSERVER'] != 'true') {
+    return FlutterDriver.connect(
+      logCommunicationToFile: false,
+    ).timeout(const Duration(seconds: 20));
+  }
+  return connectObservedAndroidDriver(
+    AndroidStartupObserver(
+      File('build/task054/android-startup-vm.jsonl'),
+      Platform.environment['CMC_TASK054_VISUAL_APK_SHA256'] ?? '',
+      Uri.parse(Platform.environment['VM_SERVICE_URL'] ?? ''),
+    ),
+    connect: (remaining) => FlutterDriver.connect(
+      logCommunicationToFile: false,
+    ).timeout(remaining),
+  );
 }

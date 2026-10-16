@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Regressioni della misura: solo processi Python propri, nessun simulatore."""
+import contextlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -119,6 +121,424 @@ class ProcessTraceTest(unittest.TestCase):
         self.assertNotIn('333', json.dumps(result))
         self.assertEqual(TRACE.owned_ps_metadata('111 Z SECRET_SENTINEL', {111}),
                          {'ps_shape': 'invalid', 'owned_groups': []})
+
+
+class ReadinessObservationTest(unittest.TestCase):
+    DEVICE = '12345678-1234-1234-1234-123456789ABC'
+    CONTEXT = {'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1',
+               'GITHUB_JOB': 'ios-build', 'GITHUB_SHA': 'a' * 40}
+
+    def record(self):
+        return dict(device=self.DEVICE, nonce='b' * 32, name='CMC-Task054-Owned-' + 'b' * 32,
+                    readinessMethod='owned-descriptor-launchd',
+                    deviceType='com.apple.CoreSimulator.SimDeviceType.iPhone-17',
+                    runtime='com.apple.CoreSimulator.SimRuntime.iOS-26-5', creationStarted=True,
+                    bootstatusCompleted=True, cleanup='NOT_RUN', ownerContext=self.CONTEXT)
+
+    def observer(self):
+        result = object.__new__(TRACE.ReadinessObservation)
+        result.process = Mock(pid=123, returncode=None)
+        result.device, result.timeout = self.DEVICE, 30
+        result.stop = Mock(is_set=Mock(return_value=False), wait=Mock(return_value=False))
+        result.emit = Mock()
+        result.capture = Mock()
+        result.failure = result.cleanup_error = None
+        result.started = TRACE.datetime.datetime(2026, 10, 16, tzinfo=TRACE.datetime.timezone.utc)
+        return result
+
+    def test_ownership_is_exact_and_fails_closed_without_probe(self):
+        args = ['xcrun', 'simctl', 'spawn', self.DEVICE, 'launchctl', 'list']
+        with patch.dict(os.environ, self.CONTEXT):
+            self.assertEqual(TRACE.readiness_owner(self.record(), args), self.DEVICE)
+            for change in ({'device': 'not-uuid'}, {'bootstatusCompleted': False},
+                           {'ownerContext': {}}, {'cleanup': 'PASS'}, {'nonce': 'private'},
+                           {'processCleanupFailed': True}, {'creationStarted': False},
+                           {'readinessMethod': 'inventory'}, {'name': 'foreign'}):
+                with self.subTest(change=change):
+                    record = self.record()
+                    record.update(change)
+                    self.assertIsNone(TRACE.readiness_owner(record, args))
+            self.assertIsNone(TRACE.readiness_owner(self.record(), args[:-1] + ['getenv']))
+            self.assertIsNone(TRACE.readiness_owner(self.record(), args + ['foreign']))
+
+    def test_state_accepts_only_numeric_own_pid_parent_group_uid(self):
+        observer = self.observer()
+        good = f'123 {os.getpid()} 123 {os.geteuid()} S Fri Oct 16 00:00:00 2026\n'.encode()
+        observer.capture.return_value = ({'status': 'PASS'}, good, b'')
+        _, state = observer.state()
+        self.assertEqual(state['pid'], 123)
+        self.assertEqual(observer.capture.call_args.args[0][:4], ['/bin/ps', '-p', '123', '-o'])
+        for bad in (good.replace(b'123 ', b'124 ', 1), b'123 1 123 501 S private-path',
+                    good.replace(b' S ', b' SECRET_PATH '), good + b'124 foreign process'):
+            observer.capture.return_value = ({'status': 'PASS'}, bad, b'')
+            self.assertIsNone(observer.state()[1])
+
+    def test_stack_drops_paths_binary_images_arguments_unknown_images_and_wrong_pid(self):
+        raw = (b'Process: simctl [123]\nPath: /Users/SECRET_PATH/simctl\n'
+               b'Command: SECRET_TOKEN\nCall graph:\n'
+               b'    + 100 mach_msg2_trap (in libsystem_kernel.dylib) + 8 [0x123]\n'
+               b'    ! 100 -[SimDevice spawn:] (in CoreSimulator) + 9\n'
+               b'    ! 100 SECRET_TOKEN (in CustomerData) + 9\n'
+               b'    ! 100 /Users/SECRET_PATH (in CoreSimulator) + 9\n'
+               b'Binary Images:\n    /Users/SECRET_PATH\n')
+        result = TRACE.ReadinessObservation.frames(raw, 123)
+        self.assertTrue(result['qualified'])
+        self.assertEqual(len(result['frames']), 2)
+        self.assertNotIn('SECRET', json.dumps(result))
+        self.assertFalse(TRACE.ReadinessObservation.frames(raw, 124)['qualified'])
+
+    def test_core_logs_filter_uuid_subsystem_and_keep_only_safe_metadata(self):
+        selected = {'eventMessage': self.DEVICE + ' spawn timeout /Users/SECRET_PATH TOKEN',
+                    'subsystem': 'com.apple.CoreSimulator.SimDevice', 'category': 'SECRET_CATEGORY',
+                    'processImagePath': '/Users/SECRET_PATH', 'messageType': 'Error',
+                    'timestamp': '2026-10-16 00:00:01+0000'}
+        foreign = dict(selected, eventMessage='FOREIGN uuid SECRET_TOKEN')
+        wrong = dict(selected, subsystem='com.apple.CoreSimulatorMalicious')
+        raw = b'\n'.join(json.dumps(value).encode() for value in (selected, foreign, wrong, []))
+        result = TRACE.ReadinessObservation.logs(raw, self.DEVICE)
+        self.assertEqual(len(result['rows']), 1)
+        self.assertEqual(result['rejected'], 3)
+        self.assertEqual(result['rows'][0]['tokens'], ['spawn', 'timeout'])
+        self.assertNotIn('SECRET', json.dumps(result))
+        self.assertLessEqual(len(TRACE.ReadinessObservation.logs(
+            b'\n'.join(json.dumps(selected).encode() for _ in range(100)), self.DEVICE)['rows']), 64)
+
+    def test_fast_return_or_short_budget_has_no_observing_command(self):
+        for short in (True, False):
+            observer = self.observer()
+            observer.timeout = 23 if short else 30
+            observer.stop.wait.return_value = True
+            observer.run()
+            observer.capture.assert_not_called()
+            self.assertIsNone(observer.failure)
+
+    def test_one_sample_and_uuid_filtered_window_with_unchanged_timeout(self):
+        observer = self.observer()
+        state = {'startIdentitySha256': 'c' * 64}
+        observer.state = Mock(return_value=({'status': 'PASS'}, state))
+        observer.capture.side_effect = [({'status': 'PASS'}, b'Process: simctl [123]\n', b''),
+                                       ({'status': 'PASS'}, b'', b'')]
+        observer.run()
+        self.assertEqual(observer.timeout, 30)
+        observer.stop.wait.assert_called_once_with(10)
+        self.assertEqual(observer.state.call_count, 2)
+        sample, logs = [call.args for call in observer.capture.call_args_list]
+        self.assertEqual(sample, (['/usr/bin/sample', '123', '1', '10', '-file', '/dev/stdout'], 3))
+        self.assertEqual(logs[0][:4], ['/usr/bin/log', 'show', '--style', 'ndjson'])
+        self.assertIn(self.DEVICE, logs[0][5])
+        self.assertIn('subsystem BEGINSWITH', logs[0][5])
+        self.assertIn('--start', logs[0])
+        self.assertIn('--end', logs[0])
+        self.assertEqual(logs[1], 3)
+        self.assertIsNone(observer.failure)
+
+    def test_identity_change_discards_stack_and_stops_before_logs(self):
+        observer = self.observer()
+        observer.state = Mock(side_effect=[({'status': 'PASS'}, {'startIdentitySha256': 'a'}),
+                                           ({'status': 'PASS'}, {'startIdentitySha256': 'b'})])
+        observer.capture.return_value = ({'status': 'PASS'}, b'Process: simctl [123]\n', b'')
+        observer.run()
+        self.assertEqual(observer.capture.call_count, 1)
+        stack = [c.kwargs for c in observer.emit.call_args_list if c.args[0] == 'readiness-owned-stack'][0]
+        self.assertFalse(stack['identityStable'])
+        self.assertFalse(stack['sample']['qualified'])
+
+    def test_permission_refusal_has_no_retry_or_alternate_stack_tool(self):
+        observer = self.observer()
+        observer.state = Mock(return_value=({'status': 'PASS'}, {'startIdentitySha256': 'a'}))
+        observer.capture.side_effect = [({'status': 'BLOCKED', 'permissionRefused': True}, b'', b''),
+                                       ({'status': 'BLOCKED', 'permissionRefused': True}, b'', b'')]
+        observer.run()
+        self.assertEqual(observer.capture.call_count, 1)
+        self.assertEqual([c.args[0][0] for c in observer.capture.call_args_list],
+                         ['/usr/bin/sample'])
+        self.assertFalse(any('sudo' in str(c) for c in observer.capture.call_args_list))
+
+    def test_close_cancel_joins_and_unresolved_cleanup_is_an_error(self):
+        observer = self.observer()
+        observer.thread = Mock(is_alive=Mock(return_value=False))
+        observer.close()
+        observer.stop.set.assert_called_once_with()
+        observer.thread.join.assert_called_once_with(timeout=2.5)
+        observer.thread.is_alive.return_value = True
+        with self.assertRaises(OSError):
+            observer.close()
+        observer.thread.is_alive.return_value = False
+        observer.cleanup_error = OSError('synthetic cleanup')
+        with self.assertRaises(OSError):
+            observer.close()
+
+    def test_capture_cap_terminates_only_own_group_and_reaps(self):
+        observer = self.observer()
+        # Restore the real bounded reader, while every OS/process call is mock.
+        observer.capture = TRACE.ReadinessObservation.capture.__get__(observer)
+        child = Mock(pid=321, returncode=0, stdout=Mock(), stderr=Mock(), poll=Mock(return_value=None))
+        probe = Mock(pid=322, returncode=1, stdout=Mock())
+        probe.communicate.return_value = (b'', None)
+        observer.popen = Mock(side_effect=[child, probe])
+        selector = Mock()
+        selector.get_map.return_value = {1: 'present'}
+        selector.select.return_value = [(Mock(fileobj=child.stdout, data=bytearray()), None)]
+        with patch.object(TRACE.selectors, 'DefaultSelector') as factory, \
+             patch.object(TRACE.os, 'read', return_value=b'x' * (observer.CAP + 1)), \
+             patch.object(TRACE.os, 'killpg') as kill:
+            factory.return_value.__enter__.return_value = selector
+            meta, output, errors = observer.capture(['/usr/bin/sample', '123'], 3)
+        self.assertEqual(meta['reason'], 'byteCap')
+        self.assertLessEqual(len(output) + len(errors), observer.CAP)
+        self.assertEqual([call.args[0] for call in kill.call_args_list], [321, 321])
+        self.assertEqual([call.kwargs['timeout'] for call in child.wait.call_args_list], [.25, .5])
+        self.assertEqual(observer.popen.call_args_list[1].args[0],
+                         ['/bin/ps', '-g', '321', '-o', 'pgid=,stat='])
+        self.assertTrue(child.stdout.close.called)
+        self.assertTrue(child.stderr.close.called)
+
+    def test_capture_recognizes_sample_permission_phrase_without_exposing_it(self):
+        observer = self.observer()
+        observer.capture = TRACE.ReadinessObservation.capture.__get__(observer)
+        child = Mock(pid=321, returncode=1, stdout=Mock(), stderr=Mock())
+        probe = Mock(pid=322, returncode=1, stdout=Mock(), stderr=Mock())
+        probe.communicate.return_value = (b'', b'')
+        observer.popen = Mock(side_effect=[child, probe])
+        output = bytearray()
+        key = Mock(fileobj=child.stdout, data=output)
+        selector = Mock()
+        selector.get_map.side_effect = [{1: key}, {1: key}, {}]
+        selector.register.side_effect = lambda file, _events, data: (
+            setattr(key, 'data', data) if file is child.stdout else None)
+        selector.select.return_value = [(key, None)]
+        phrase = b'You do not have permission to sample process 123'
+        with patch.object(TRACE.selectors, 'DefaultSelector') as factory, \
+             patch.object(TRACE.os, 'read', side_effect=[phrase, b'']), \
+             patch.object(TRACE.os, 'killpg'):
+            factory.return_value.__enter__.return_value = selector
+            meta, _, _ = observer.capture(['/usr/bin/sample', '123'], 3)
+        self.assertEqual(meta['status'], 'BLOCKED')
+        self.assertTrue(meta['permissionRefused'])
+        self.assertNotIn('permission to sample', json.dumps(meta))
+
+    def test_capture_cancel_before_spawn_never_starts_a_process(self):
+        observer = self.observer()
+        observer.capture = TRACE.ReadinessObservation.capture.__get__(observer)
+        observer.stop.is_set.return_value = True
+        observer.popen = Mock()
+        meta, _, _ = observer.capture(['/usr/bin/sample', '123'], 3)
+        self.assertEqual(meta['reason'], 'gateCompleted')
+        observer.popen.assert_not_called()
+
+    def test_cli_rejects_opt_in_outside_descriptor_before_any_command(self):
+        with patch.object(PREFLIGHT.IOS.subprocess, 'Popen') as popen, \
+             patch('sys.stderr'):
+            with self.assertRaises(SystemExit) as raised:
+                PREFLIGHT.IOS.main(['prepare', '--receipt', '/unused', '--observe-readiness'])
+            self.assertEqual(raised.exception.code, 2)
+            popen.assert_not_called()
+
+    def test_cli_opt_in_uses_same_prepare_and_restores_trace_after_failure(self):
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, self.CONTEXT):
+            receipt = Path(directory) / 'owned.json'
+            owner = Mock(record=None, owns_receipt=False)
+            owner.prepare.side_effect = PREFLIGHT.IOS.Failure(124, 'synthetic gate timeout')
+            original = subprocess.Popen
+            with patch.object(PREFLIGHT.IOS, 'IosOwnedRunner', return_value=owner):
+                self.assertEqual(PREFLIGHT.IOS.main(['prepare', '--receipt', str(receipt),
+                    '--readiness-attestation', 'owned-descriptor-launchd', '--observe-readiness']), 124)
+            owner.prepare.assert_called_once_with(headless=False,
+                readiness_attestation='owned-descriptor-launchd', observe_descriptor=False)
+            self.assertIs(subprocess.Popen, original)
+            self.assertTrue(receipt.with_suffix('.readiness.jsonl').is_file())
+
+    def test_owner_timeout_primary_124_survives_observer_cleanup_failure_durably(self):
+        with tempfile.TemporaryDirectory() as directory:
+            owner = PREFLIGHT.IOS.IosOwnedRunner(Path(directory) / 'owned.json')
+            owner.record = self.record()
+            owner.persist(exclusive=True)
+            with patch.object(TRACE, 'readiness_owner', return_value=self.DEVICE), \
+                 patch.object(TRACE, 'ReadinessObservation', autospec=True) as observation, \
+                 patch.object(PREFLIGHT.IOS, 'group_has_live_members', return_value=False):
+                observation.return_value.close.side_effect = OSError('synthetic observer reap')
+                with TRACE.trace_processes(Path(directory) / 'trace.jsonl',
+                        readiness_record=lambda: owner.record,
+                        readiness_cleanup_failed=lambda: setattr(owner, 'process_cleanup_failed', True)):
+                    with self.assertRaises(PREFLIGHT.IOS.Failure) as raised:
+                        owner.command([sys.executable, '-c', 'import time; time.sleep(1)'], .01, capture=True)
+                self.assertEqual(raised.exception.code, 124)
+                # Il processo Python fixture e reaped; chiudere la PIPE che
+                # communicate ha lasciato aperta al timeout prima del testend.
+                observed_process = observation.call_args.args[0]
+                if observed_process.stdout is not None:
+                    observed_process.stdout.close()
+                self.assertTrue(owner.process_cleanup_failed)
+                with patch.object(owner, 'cleanup_device', return_value='PASS'):
+                    self.assertFalse(owner.cleanup())
+            receipt = json.loads(owner.receipt.read_text())
+            self.assertTrue(receipt['processCleanupFailed'])
+            self.assertEqual(receipt['cleanup'], 'FAIL')
+            self.assertEqual(receipt['cleanupAttempts'][-1]['resourceCleanup'], 'PASS')
+            rows = [json.loads(line) for line in (Path(directory) / 'trace.jsonl').read_text().splitlines()]
+            failed = [row for row in rows if row['event'] == 'readiness-observation-cleanup']
+            self.assertEqual(len(failed), 1)
+            self.assertEqual(failed[0]['status'], 'FAIL')
+            self.assertTrue(failed[0]['primary_preserved'])
+
+    def test_owner_success_cannot_hide_observer_cleanup_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            owner = PREFLIGHT.IOS.IosOwnedRunner()
+            with patch.object(TRACE, 'readiness_owner', return_value=self.DEVICE), \
+                 patch.object(TRACE, 'ReadinessObservation', autospec=True) as observation, \
+                 patch.object(PREFLIGHT.IOS, 'group_has_live_members', return_value=False):
+                observation.return_value.close.side_effect = OSError('synthetic observer reap')
+                with TRACE.trace_processes(Path(directory) / 'trace.jsonl',
+                        readiness_record=lambda: self.record(),
+                        readiness_cleanup_failed=lambda: setattr(owner, 'process_cleanup_failed', True)):
+                    with self.assertRaises(OSError):
+                        owner.command([sys.executable, '-c', 'pass'], 1, capture=True)
+                self.assertTrue(owner.process_cleanup_failed)
+
+    def test_capture_eof_before_exit_allows_natural_exit_before_group_teardown(self):
+        observer = self.observer()
+        observer.capture = TRACE.ReadinessObservation.capture.__get__(observer)
+        child = Mock(pid=321, returncode=None, stdout=Mock(), stderr=Mock())
+        probe = Mock(pid=322, returncode=1, stdout=Mock(), stderr=Mock())
+        probe.communicate.return_value = (b'', b'')
+        observer.popen = Mock(side_effect=[child, probe])
+        order = []
+
+        def wait(**_kwargs):
+            order.append('wait')
+            child.returncode = 0
+            return 0
+
+        def kill(group, signum):
+            order.append(('kill', group, signum))
+            if child.returncode is None:
+                child.returncode = -signum
+
+        child.wait.side_effect = wait
+        child.poll.side_effect = lambda: child.returncode
+        selector = Mock(get_map=Mock(return_value={}))
+        with patch.object(TRACE.selectors, 'DefaultSelector') as factory, \
+             patch.object(TRACE.os, 'killpg', side_effect=kill):
+            factory.return_value.__enter__.return_value = selector
+            meta, _, _ = observer.capture(['/usr/bin/sample', '123'], 3)
+        self.assertEqual(meta['status'], 'PASS')
+        self.assertEqual(meta['exitCode'], 0)
+        self.assertEqual(order[0], 'wait')
+        self.assertNotIn(('kill', 321, signal.SIGTERM), order)
+        # Il gruppo dei discendenti rimane terminato e verificato, anche su0.
+        self.assertIn(('kill', 321, signal.SIGKILL), order)
+        self.assertEqual(observer.popen.call_args_list[1].args[0],
+                         ['/bin/ps', '-g', '321', '-o', 'pgid=,stat='])
+
+    def test_every_nonpass_sample_stops_without_afterstate_logs_or_retry(self):
+        for detail in ({'permissionRefused': True}, {'permissionRefused': False},
+                       {'reason': 'byteCap'}, {'reason': 'observerBudget'}):
+            observer = self.observer()
+            observer.state = Mock(return_value=({'status': 'PASS'}, {'startIdentitySha256': 'a'}))
+            observer.capture.return_value = (dict(status='BLOCKED', **detail),
+                b'You do not have permission to sample process 123', b'')
+            observer.run()
+            observer.state.assert_called_once_with()
+            observer.capture.assert_called_once()
+            self.assertFalse(any(c.args[0] == 'readiness-owned-coresimulator'
+                                 for c in observer.emit.call_args_list))
+
+    def trace_write_fault(self, *, prepare_code, owned=True):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        receipt = Path(directory.name) / 'owned.json'
+        owner = PREFLIGHT.IOS.IosOwnedRunner(receipt)
+        real_fdopen, trace_fds = os.fdopen, []
+
+        @contextlib.contextmanager
+        def fdopen(fd, *args, **kwargs):
+            with real_fdopen(fd, *args, **kwargs) as stream:
+                if not trace_fds:
+                    trace_fds.append(fd)
+                    yield Mock(write=Mock(side_effect=OSError('SECRET_TRACE_PAYLOAD')))
+                else:
+                    yield stream
+
+        def prepare(**_kwargs):
+            if owned:
+                owner.record = self.record()
+                owner.persist(exclusive=True)
+            if prepare_code:
+                raise PREFLIGHT.IOS.Failure(prepare_code, 'synthetic prepare failure')
+            return self.DEVICE
+
+        output = io.StringIO()
+        with patch.object(PREFLIGHT.IOS, 'IosOwnedRunner', return_value=owner), \
+             patch.object(owner, 'prepare', side_effect=prepare) as prepared, \
+             patch.object(owner, 'cleanup_device', return_value='PASS') as cleanup, \
+             patch.object(os, 'fdopen', side_effect=fdopen), patch('sys.stdout', output):
+            code = PREFLIGHT.IOS.main(['prepare', '--receipt', str(receipt),
+                '--readiness-attestation', 'owned-descriptor-launchd', '--observe-readiness'])
+        self.assertEqual(prepared.call_count, 1)
+        self.assertEqual(len(trace_fds), 1)
+        with self.assertRaises(OSError):
+            os.fstat(trace_fds[0])
+        self.assertNotIn('SECRET_TRACE_PAYLOAD', output.getvalue())
+        return code, owner, cleanup, output.getvalue()
+
+    def test_cli_trace_exit_write_failure_keeps_primary_124_owned_or_unowned(self):
+        for owned in (False, True):
+            with self.subTest(owned=owned):
+                code, owner, cleanup, output = self.trace_write_fault(prepare_code=124, owned=owned)
+                self.assertEqual(code, 124)
+                self.assertIn('FAIL: evidence trace (OSError)', output)
+                self.assertEqual(cleanup.call_count, 1 if owned else 0)
+                if owned:
+                    receipt = json.loads(owner.receipt.read_text())
+                    self.assertEqual(receipt['cleanup'], 'PASS')
+                    self.assertEqual(receipt['readinessTraceEvidence'], {
+                        'result': 'FAIL', 'errorType': 'OSError', 'phase': 'exit'})
+
+    def test_cli_trace_exit_failure_after_prepare_pass_fails_and_cleans_owned(self):
+        code, owner, cleanup, output = self.trace_write_fault(prepare_code=0)
+        self.assertNotEqual(code, 0)
+        cleanup.assert_called_once_with()
+        receipt = json.loads(owner.receipt.read_text())
+        self.assertEqual(receipt['cleanup'], 'PASS')
+        self.assertEqual(receipt['readinessTraceEvidence']['result'], 'FAIL')
+        self.assertEqual(receipt['readinessTraceEvidence']['phase'], 'exit')
+        self.assertIn('FAIL: evidence trace (OSError)', output)
+
+    def test_cli_trace_enter_failure_never_prepares_or_cleans_unowned(self):
+        with tempfile.TemporaryDirectory() as directory:
+            receipt = Path(directory) / 'owned.json'
+            occupied = receipt.with_suffix('.readiness.jsonl')
+            occupied.write_text('retained trace')
+            owner = PREFLIGHT.IOS.IosOwnedRunner(receipt)
+            original_popen = subprocess.Popen
+            with patch.object(PREFLIGHT.IOS, 'IosOwnedRunner', return_value=owner), \
+                 patch.object(owner, 'prepare') as prepared, \
+                 patch.object(owner, 'cleanup') as cleanup, patch('sys.stdout'):
+                code = PREFLIGHT.IOS.main(['prepare', '--receipt', str(receipt),
+                    '--readiness-attestation', 'owned-descriptor-launchd', '--observe-readiness'])
+            self.assertNotEqual(code, 0)
+            prepared.assert_not_called()
+            cleanup.assert_not_called()
+            self.assertIs(subprocess.Popen, original_popen)
+            self.assertEqual(occupied.read_text(), 'retained trace')
+            self.assertFalse(receipt.exists())
+
+    def test_opt_in_never_changes_call_timeout_and_observer_is_one_shot(self):
+        owner = self.record()
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, self.CONTEXT), \
+             patch.object(TRACE, 'ReadinessObservation', autospec=True) as observation:
+            # Pure Python child; argv/context are synthetic, no simctl execution.
+            with patch.object(TRACE, 'readiness_owner', return_value=self.DEVICE), \
+                 TRACE.trace_processes(Path(directory) / 'trace.jsonl', readiness_record=lambda: owner):
+                for _ in range(2):
+                    child = subprocess.Popen([sys.executable, '-c', 'pass'], start_new_session=True)
+                    child.communicate(timeout=1)
+            observation.assert_called_once()
+            self.assertEqual(observation.call_args.args[2], 1)
+            observation.return_value.close.assert_called_once_with()
+            rows = [json.loads(line) for line in (Path(directory) / 'trace.jsonl').read_text().splitlines()]
+            self.assertTrue(all(row['timeout_seconds'] == 1 for row in rows
+                                if row['event'] == 'communicate-start'))
 
 
 class PreflightLifecycleTest(unittest.TestCase):

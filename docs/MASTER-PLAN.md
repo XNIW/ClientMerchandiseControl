@@ -8,27 +8,26 @@
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: qualificare i gate residui dalle ricevute
-  exact-SHA della PR29. QUALITY-RR-02 source/focused risolto:497PASS/1SKIP,
-  analyze0, due casi recupero con gate controllato PASS; formatter400/1
-  applicato byte-identico al runner. Full Quality del freeze finale nel
-  workflow esistente quality_only, esito da leggere sul proprio SHA.
-  Il FAIL Quality9d resta preservato1242/1/1, come i due visualFAIL: Android
-  attachdriver e iOS readinesslaunchctl dopo boot; cleanupPASS distinti.
-  Journal indirizzi Android/iOS9d e unsigned2PASS, backendNOT_RUN.
-  App07649 invariata, delta corrente solo test; nessun nuovo ciclo nativo
-  invariato, nessun SDK/UI Mac. PR29 draft e merge HOLD; Maps/TEST/AT/firma
-  aperti. Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
-  Nessun SQL/deploy/input Admin/W/N o trasferimento di ownership mobile.
-
-
-
+- **Prossima azione autorizzata**: supplemento diagnostico dei due visual FAIL,
+  entro il mandato originale. Android: osservare IsolateStart/Exit prima del
+  connect e lifecycle del solo package, correlati a PID/hash APK; iOS: stato/stack
+  del processo proprio durante readiness e log CoreSimulator filtrati UUID.
+  Una sola esecuzione strumentata per domanda dopo test pertinenti e review
+  distinta; budget20s connect e30s readiness, guard e cleanup invariati.
+  Se nuovo Dart, verifica hosted senza nativi prima dell'unica CI7job finale;
+  nessun rerun visual sovrapposto. QUALITY-RR-02 chiuso dalla re-review distinta
+  su2e9f7a9/run38845283993:1243PASS/1SKIP,11performance,14metadata,format409/0,
+  analyze0. Native9d/run38841333617 restano4SUCCESS/3FAIL con due visual FAIL,
+  due journal e unsigned2PASS. I negativi precedenti e i loro cutoffs restano.
+  Nessun SDK/UI Mac, nuovo branch/worktree, merge/deploy o accesso persistente.
+  PR29 draft/merge HOLD; Maps/TEST/AT/firma sono blocker distinti.
+  Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
 
 ## Repository coinvolti
 

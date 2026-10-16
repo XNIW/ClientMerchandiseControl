@@ -1,13 +1,22 @@
 # TASK-054 — Completamento operativo
 
 Snapshot di handoff:
-`BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.
+`BLOCKED / FIX / CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
 
 Il mandato successivo autorizza implementazione, review distinte, PR coordinate, merge
 di sviluppo condizionato e apply staging dopo recovery/finestra. TASK-054 resta aperta.
 Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
+
+## Diagnosi visual — 16 ottobre
+
+QUALITY-RR-02 chiuso da re-review distinta su2e9/run38845283993:
+1243PASS/1SKIP,11performance,14metadata,format409/0,analyze0. Due visual9d
+restano FAIL con prossimi passi causali: osservazione VM/lifecycle Android e
+processo owned/UUID iOS. [Piano](next-integration/client-visual-diagnostic-plan-20261016.json).
+Test e review prima dell'unico esperimento per domanda, nessun SDK Mac o
+indebolimento gate; Maps/live e tutti i FAIL precedenti restano distinti.
 
 ## Addendum carrello e tracking — mandato12ottobre
 

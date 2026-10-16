@@ -545,6 +545,107 @@ class ReadinessObservationTest(unittest.TestCase):
                                 if row['event'] == 'communicate-start'))
 
 
+class ObserverReapRegressionTest(unittest.TestCase):
+    """ESRCH sul gruppo e reap del leader: prove distinte, nessun comando reale."""
+
+    def scenario(self, kind, group_error=None, final_wait_error=False):
+        observer = object.__new__(kind)
+        observer.stop = Mock(is_set=Mock(return_value=False))
+        observer.cleanup_error = None
+        observer.thread = Mock(is_alive=Mock(return_value=False))
+        observer.emit = Mock()
+        observer.authorize = Mock(return_value=True)
+        child = Mock(pid=321, returncode=0, stdout=Mock(), stderr=Mock())
+        child.poll.return_value = 0
+        child.wait.side_effect = [0, subprocess.TimeoutExpired('owned-fixture', .5)] if (
+            final_wait_error) else [0, 0]
+        probe = Mock(pid=322, returncode=1, stdout=Mock(), stderr=Mock())
+        probe.poll.return_value = 1
+        probe.communicate.side_effect = subprocess.TimeoutExpired('owned-group-fixture', .5)
+        observer.popen = Mock(side_effect=[child, probe])
+        selector = Mock(get_map=Mock(return_value={}))
+        result, failure = None, None
+        with patch.object(TRACE.selectors, 'DefaultSelector') as factory, \
+             patch.object(TRACE.os, 'killpg', side_effect=group_error) as kill:
+            factory.return_value.__enter__.return_value = selector
+            try:
+                result = observer.capture(['owned-state-fixture'], 1)
+            except (OSError, subprocess.SubprocessError) as error:
+                failure = error
+        return observer, child, probe, kill, result, failure
+
+    def test_esrch_and_successful_wait_skip_redundant_group_probe(self):
+        for kind in (TRACE.ReadinessObservation, TRACE.BootstatusObservation):
+            with self.subTest(kind=kind.__name__):
+                observer, child, probe, kill, result, failure = self.scenario(
+                    kind, ProcessLookupError(TRACE.errno.ESRCH, 'synthetic absence'))
+                self.assertIsNone(failure)
+                self.assertEqual(result, ({'status': 'PASS', 'exitCode': 0,
+                    'bytes': 0, 'permissionRefused': False}, b'', b''))
+                observer.popen.assert_called_once_with(['owned-state-fixture'],
+                    start_new_session=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.assertEqual([call.kwargs['timeout'] for call in child.wait.call_args_list], [.5, .5])
+                kill.assert_called_once_with(child.pid, signal.SIGKILL)
+                child.stdout.close.assert_called_once_with()
+                child.stderr.close.assert_called_once_with()
+                probe.communicate.assert_not_called()
+                self.assertIsNone(observer.cleanup_error)
+                observer.close()
+
+    def test_reaped_leader_without_kernel_absence_still_requires_group_probe(self):
+        for kind in (TRACE.ReadinessObservation, TRACE.BootstatusObservation):
+            for group_error in (None, ProcessLookupError()):
+                with self.subTest(kind=kind.__name__, errno=getattr(group_error, 'errno', None)):
+                    observer, child, probe, kill, result, failure = self.scenario(kind, group_error)
+                    self.assertIsInstance(failure, subprocess.TimeoutExpired)
+                    self.assertIs(observer.cleanup_error, failure)
+                    self.assertIsNone(result)
+                    self.assertEqual(observer.popen.call_count, 2)
+                    self.assertEqual(observer.popen.call_args_list[1].args[0],
+                        ['/bin/ps', '-g', str(child.pid), '-o', 'pgid=,stat='])
+                    probe.communicate.assert_called_once_with(timeout=.5)
+                    self.assertEqual(probe.poll.return_value, 1)
+                    probe.stdout.close.assert_called_once_with()
+                    probe.stderr.close.assert_called_once_with()
+                    child.stdout.close.assert_called_once_with()
+                    child.stderr.close.assert_called_once_with()
+                    kill.assert_called_once_with(child.pid, signal.SIGKILL)
+                    with self.assertRaisesRegex(OSError, 'process reap unresolved'):
+                        observer.close()
+
+    def test_esrch_does_not_skip_required_leader_wait_or_hide_failure(self):
+        for kind in (TRACE.ReadinessObservation, TRACE.BootstatusObservation):
+            with self.subTest(kind=kind.__name__):
+                observer, child, probe, kill, result, failure = self.scenario(kind,
+                    ProcessLookupError(TRACE.errno.ESRCH, 'synthetic absence'), final_wait_error=True)
+                self.assertIsInstance(failure, subprocess.TimeoutExpired)
+                self.assertIs(observer.cleanup_error, failure)
+                self.assertIsNone(result)
+                self.assertEqual(observer.popen.call_count, 1)
+                self.assertEqual([call.kwargs['timeout'] for call in child.wait.call_args_list], [.5, .5])
+                child.stdout.close.assert_called_once_with()
+                child.stderr.close.assert_called_once_with()
+                probe.communicate.assert_not_called()
+                with self.assertRaisesRegex(OSError, 'process reap unresolved'):
+                    observer.close()
+
+    def test_permission_failure_does_not_qualify_group_absence_or_retry(self):
+        for kind in (TRACE.ReadinessObservation, TRACE.BootstatusObservation):
+            with self.subTest(kind=kind.__name__):
+                observer, child, probe, kill, result, failure = self.scenario(
+                    kind, PermissionError(TRACE.errno.EPERM, 'synthetic refusal'))
+                self.assertIsInstance(failure, PermissionError)
+                self.assertIs(observer.cleanup_error, failure)
+                self.assertIsNone(result)
+                self.assertEqual(observer.popen.call_count, 1)
+                self.assertEqual(child.wait.call_count, 1)
+                child.stdout.close.assert_called_once_with()
+                child.stderr.close.assert_called_once_with()
+                probe.communicate.assert_not_called()
+                with self.assertRaisesRegex(OSError, 'process reap unresolved'):
+                    observer.close()
+
+
 class BootstatusObservationTest(unittest.TestCase):
     DEVICE = ReadinessObservationTest.DEVICE
     CONTEXT = ReadinessObservationTest.CONTEXT

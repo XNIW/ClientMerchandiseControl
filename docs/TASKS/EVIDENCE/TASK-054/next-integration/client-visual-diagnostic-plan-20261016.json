@@ -457,5 +457,67 @@
       "one existing gate=ios-address-journal on same new head"
     ],
     "fullCanonicalNewHead": "NOT_RUN; no transfer from d195; other6jobs each targeted SKIPPED"
+  },
+  "postTargetedFix": {
+    "base": "a2a7e6db8dbb0f24f604efb43d6252660f052395",
+    "targetedResults": {
+      "iosVisual": {
+        "run": 38869800564,
+        "result": "FAIL",
+        "bootstatus": "EXIT0/117.566083s",
+        "prepare": "FAIL2 observercleanup reap unresolved",
+        "app": "NOT_RUN",
+        "cleanup": "FAIL sticky",
+        "reviewSha256": "e0390b77cba2f1b997245e17c1b95c0d1d8af528b6c25c50b1ed2f1c2143f039"
+      },
+      "iosJournal": {
+        "run": 38869808912,
+        "result": "FAIL",
+        "seed": "PASS23482",
+        "recover": "assertionFAIL23761",
+        "cleanup": "PASS separateowner",
+        "backend": "NOT_RUN",
+        "reviewSha256": "44a82aab13c21af3d74858a0cedaa3276faaa2ef022607665a162c920a358f49"
+      }
+    },
+    "observerFix": {
+      "finding": "IOS-BOOT-OBS-RR-02",
+      "patchSha256": "304d89a6610c5dc51a325333e28262cfe2069d32414765ca77bc1a558d82b14a",
+      "reviews": [
+        "c792eeeb22aaa1e4568383b908f0a7c4e4b1e47a9d5b0fb3056bbd66447bf237",
+        "871e3f120303160bb9b490e8a54c42e3656fc09f33c7a215dc81f4860ab39d26"
+      ],
+      "closure": "SOURCE_PURE_ONLY; cause hostedUNKNOWN"
+    },
+    "journalOrigin": {
+      "finding": "IOS-JOURNAL-OBS-RR-02",
+      "patchSha256": "5ba8f1c01a73df489c3689bc703c4863ece92d05893d18ce8382a1817b74782f",
+      "reviews": [
+        "7906850be4f461706599bc0648113a13f8653ea5195ac99539bd281382985682",
+        "c8fa4dc7c02ecf4bdf4d908f2185b3a48004dc69c5c6841f871619d912bc0ddd"
+      ],
+      "failureSchema": "v3exact7 finitebody|terminal_gate; success/legacyfailurev2 unchanged",
+      "metadataFinalV2Sha256": "9239343de007bd22fdb75433ac2eb6d3ff60578e6387095bb3c47c14e0764ea9",
+      "metadataErratumSha256": "e60ffbc71f915cc55cc25fe81b3c1dff6d7c8439604da5d0bf8d9e1dc158cf2e"
+    },
+    "rootPure": {
+      "result": "PASS",
+      "suites": 12,
+      "tests": 248,
+      "exitCode": 0,
+      "receiptSha256": "634523bab1c43ebdba45db1018651434ed72237481cb3ccb7cbb69340de5c102"
+    },
+    "futureGates": {
+      "qualityHosted": "NOT_RUN",
+      "iosVisualCorrectedCleanup": "NOT_RUN only afterQualityPASS once",
+      "iosJournalOrigin": "NOT_RUN only afterQualityPASS once",
+      "fullCanonicalCI7": "NOT_RUN; targeteddoesnotsubstitute"
+    },
+    "limits": [
+      "NoSDKMac/Androidrepeat/newinputs/guardbudgetchanges/refusalbypass/identicalretry",
+      "a2a2FAIL/d1955SUCCESS2FAIL retainownSHA; noAB/cause/stabilitytransfer",
+      "Origin identifies branch only; historicalcategory/cause not recovered",
+      "Maps/live/Auth/C04/R24/AT/IME/signing separate"
+    ]
   }
 }

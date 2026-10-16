@@ -20,6 +20,7 @@ Failure = ADDRESS.Failure
 PHASE_TIMEOUT = 150
 MAX_RECEIPT_BYTES = 8192
 NATIVE_ERROR_TYPES = ('assertion', 'filesystem', 'unexpected')
+NATIVE_FAILURE_ORIGINS = ('body', 'terminal_gate')
 
 
 def receipt_relative_path(run_id, phase):
@@ -36,14 +37,24 @@ def validate_native_receipt(data, phase, run_id, process_id, seed_pid):
         raise Failure('journal-' + phase, 1, 'ricevuta non oggetto')
     if data.get('status') == 'FAIL':
         expected_keys = {'apiVersion', 'phase', 'runId', 'processId', 'status', 'errorType'}
-        if (set(data) != expected_keys or data.get('apiVersion') != 'address-journal-native-evidence.v2'
+        # V2 storica: enum senza origine disponibile. V3: origine obbligatoria,
+        # schema esatto e fallback terminale compatibile solo con assertion.
+        legacy_failure = (set(data) == expected_keys
+            and data.get('apiVersion') == 'address-journal-native-evidence.v2')
+        origin_failure = (set(data) == expected_keys | {'failureOrigin'}
+            and data.get('apiVersion') == 'address-journal-native-evidence.v3'
+            and data.get('failureOrigin') in NATIVE_FAILURE_ORIGINS
+            and (data['failureOrigin'] != 'terminal_gate' or data.get('errorType') == 'assertion'))
+        if (not (legacy_failure or origin_failure)
                 or data.get('phase') != phase or data.get('runId') != run_id
                 or data.get('processId') != process_id
                 or data.get('errorType') not in NATIVE_ERROR_TYPES):
             raise Failure('journal-' + phase, 1, 'ricevuta failure non conforme')
         failure = Failure('journal-' + phase, 1, 'fixture nativa segnala failure sanitizzata')
-        # Solo enum gia validato; mai payload, messaggi, stack o log nativi.
+        # Solo enum gia validati; mai payload, messaggi, stack o log nativi.
         failure.native_error_type = data['errorType']
+        if origin_failure:
+            failure.native_failure_origin = data['failureOrigin']
         raise failure
     return ADDRESS.validate_receipt(data, phase, run_id, process_id, seed_pid)
 

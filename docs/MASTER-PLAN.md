@@ -14,24 +14,24 @@
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: dopo re-review del freeze composito, una
-  sola domanda bootstatus nel gate ios-visual e una sola domanda enum nel
-  gate ios-address-journal, sullo stesso nuovo candidato; due worker distinti
-  non sono un A/B. BOOTV2/1e21f62e approvato da due reviewer source/pure,
-  P2FalseInventory chiuso dopo REDV1/GREENV2; UUIDmissing produceNOT_RUN,
-  proofsoloactualisTrue. Enumfixa8bdd372 source/pureAPPROVED. Rootcomposito
-  12suite/240testPASS, nessunSDKMac. StacksoloPIDowned e logCoreSimulatorUUID
-  durante bootstatus300s pendente, readiness30 invariata; stessa sequenza/
-  guard/cleanup, no nuovequery/warmup/reset/bypassrefusal o Androidrepeat.
-  Entrambe nuoveproveNOT_RUN al freeze; publish skipautomatico poi due gate
-  esistenti,nessun nuovo inputworkflow. FullCI7nuovoheadNOT_RUN: non viene
-  sostituita dai due targeted, ciascuno con altri6SKIPPED. Canonicald195
-  run38862344656 resta5SUCCESS/2FAIL, tutti7freschi:Quality1252/1SKIP+11perf,
-  Androidvisual137+4,journalAndroid,unsigned2PASS; visualiOSbootstatus300FAIL
-  prima readiness/cleanupFAILpreservato e journaliOSseedFAIL/causeUNKNOWN.
-  NessunPASStrasferito o causa/stabilità inferita da futuroverde. Maps/live
-  TEST/Auth/C04/R24/AT/firma distinti; no nuovoaccesso/branch/worktree,SQL/
-  deploy,merge/DONE. PR29draft/mergeHOLD; risultato proprio nei Checks/rapporto.
+- **Prossima azione autorizzata**: freeze e re-review del fix composito
+  IOS-BOOT-OBS-RR-02/304d89a6 e IOS-JOURNAL-OBS-RR-02/5ba8f1c0; entrambi
+  approvati source/pure da due reviewer distinti, sei postimage esatti,
+  root12suite248PASS. ESRCH finale sul gruppo proprio più wait riuscito
+  omettono solo ps ridondante; segnali riusciti, errno non qualificato,
+  EPERM e reap irrisolto restano fail-closed. FAILv3 aggiunge solo
+  failureOrigin body|terminal_gate; SUCCESSv2 e legacyFAILv2 preservati.
+  Quality hosted format/analyze/fullhost NOT_RUN al freeze; soltanto dopo
+  PASS una domanda ios-visual sul runner corretto e una journal sul nuovo
+  discriminante, medesimo candidato e worker separati. Nessun nuovo input,
+  budget, guard, accesso o SDKMac; nessun Androidrepeat o retry identico.
+  FullCI7 nuovoheadNOT_RUN, non sostituita dai selector con altri6SKIPPED.
+  I due run a2a38869800564/38869808912 restano FAIL propri: visualboot0 poi
+  observercleanup2/cleanupFAIL/appNOT_RUN; journalseedPASS/recoverassertion
+  FAIL, cleanupPASS separato/backendNOT_RUN. Causa e specifica sottoproba
+  non qualificate. Canonicald19538862344656 conserva5SUCCESS/2FAIL propri,
+  negativi e cutoff immutati; nessun A/B, causa o stabilità da verde.
+  Maps/live TEST/Auth/C04/R24/AT/IME/firma distinti; PR29draft, mergeHOLD.
   Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
 
 ## Repository coinvolti

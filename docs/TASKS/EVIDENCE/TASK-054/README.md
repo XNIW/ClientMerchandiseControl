@@ -9,6 +9,22 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
+## Fix successivo ai due run a2a
+
+Candidato successivo ad a2a: fix IOS-BOOT-OBS-RR-02 dopo ESRCH e nuovo
+failureOrigin journal body|terminal_gate, entrambi con due review distinte
+APPROVED soltanto source/pure. Root: 12 suite Python, 248 PASS, exit0.
+Quality hosted (format/analyze/full host) NOT_RUN al freeze; solo dopo PASS
+una verifica ios-visual del cleanup corretto e una ios-address-journal del
+nuovo discriminante, sul medesimo candidato e runner separati. FullCI7
+nuovo head NOT_RUN; sei altri job SKIPPED per selector, nessun Androidrepeat.
+I due run a2a sono terminali FAIL: bootstatus0/117.566s poi observercleanup2
+con cleanupFAIL; journal seedPASS23482→recover23761 assertionFAIL e cleanup
+PASS separato. Causa e sottoproba precise non qualificate; nessun PASS
+trasferito o retry identico. Maps/live e gli altri gate restano distinti.
+
+Il freeze seguente precede quelle due prove.
+
 ## Freeze composito revisionato
 
 BOOTV2/1e21f62e e enumfixa8bdd372 source/pureAPPROVED, due reviewerboot

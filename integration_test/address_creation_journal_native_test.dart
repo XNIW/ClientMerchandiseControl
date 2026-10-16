@@ -18,6 +18,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 const _apiVersion = 'address-journal-native-evidence.v2';
+const _failureApiVersion = 'address-journal-native-evidence.v3';
 const _fixtureOwner = 'f0540000-0000-4000-8000-000000000001';
 
 CustomerAddressDraft _draft(String runId, int seedPid) => CustomerAddressDraft(
@@ -187,11 +188,12 @@ class _NativeAddressTerminalPublisher {
     final result = terminalPassed
         ? successCandidate!
         : <String, Object?>{
-            'apiVersion': _apiVersion,
+            'apiVersion': _failureApiVersion,
             'phase': phase,
             'runId': runId,
             'processId': pid,
             'status': 'FAIL',
+            'failureOrigin': errorType == null ? 'terminal_gate' : 'body',
             'errorType': errorType ?? 'assertion',
           };
     binding.reportData = result;

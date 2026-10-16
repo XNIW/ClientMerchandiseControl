@@ -1,5 +1,17 @@
 # TASK-054 — Addendum carrello e consegna
 
+## Snapshot corrente di re-review — cleanup e origine
+
+Stato `CODEX_REVIEW_BLOCKED`, task BLOCKED / REVIEW. Sei postimage corrispondono
+ai fix304d89a6/5ba8f1c0 approvati source/pure da due reviewer ciascuno;
+controllati12log/248PythonPASS e Security1157/zero con exit0 terminali.
+Quality hosted format/analyze/fullhost NOT_RUN; solo dopo PASS una domanda
+visualcleanup e una journalorigin, stesso candidato, nessun PASS anticipato.
+FullCI7 nuovohead NOT_RUN; a2a2FAIL e d1955/2 conservano i propri esiti,
+causa/sottoproba non qualificate. Maps/live e gli altri gate restano distinti.
+Le sezioni seguenti mantengono i cutoff storici; nessun merge o DONE.
+
+
 ## Freeze composito — BOOTV2 e enum
 
 BOOTV2/1e21f62e approvato source/pure da due reviewer distinti:1d85e68c…
@@ -301,3 +313,52 @@ versione stabile distinta da feed.version,TTL/privacy/payload/timeout/quota/budg
 background nella superficie courier con consenso/revoca/Stop/lifecycle/energia.
 Sono criteri proposti,non capacità implementate. Nessun SQL/cron/Worker/N/input
 esterno,nessun merge/DONE. Handoff con gate obbligatori esposti:REVIEW/BLOCKED.
+
+
+## Due prove a2a e fix causali successivi — 16 ottobre
+
+Su a2a7e6d, due dispatch unici workflow_dispatch/attempt1, ognuno con sei
+job SKIPPED: ios-visual38869800564 e journal38869808912, entrambi FAIL.
+VisualbootstatusPID25276 termina0 in117.566083s entro300; prepare2 è poi
+observer capture/close reap unresolved, nessuno stato/stack/logUUID utile.
+Readiness/app/smoke/visual NOT_RUN. Cleanup1resourceFAIL e2resourcePASS,
+aggregateFAIL sticky/processCleanupFailedtrue. La sottoprobe esatta non è
+attestata; non è il timeout300 di d195 né la sua causa risolta. Capsula
+indipendente e0390b77, artifact5522B API/publisherSHA+CRC PASS.
+
+Journal: readiness e seed nativeWriteRead PASS conPID23482; seed terminato,
+recoverPID23761 pubblica FAIL con enum assertion. Recover success e gate
+finale identità non accettati, restartFAIL; private/processcleanupPASS e
+ownerSimulatorPASS separato, backendNOT_RUN. Phase recover qualifica solo
+il primo read decodificato con ID corrente prima di impostare quella fase;
+non qualifica marker/PID/seconda lettura/cancellazione o terminal gate.
+Assertion include body e fallback SDK/postTest/teardown; nessuna causa
+Keychain o specifica assertion provata. Capsula44a82aab, ZIP2456B/3JSON,
+digestAPI/publisher+CRC PASS. Categoria storica d195 non recuperata.
+
+Il successivo fix IOS-BOOT-OBS-RR-02/304d89a6 è riprodotto indipendentemente
+RED4test/2subcaseFAIL→GREEN4/full55PASS. Skip della sola ps dopo ESRCH del
+SIGKILL finale sul gruppo proprio e wait obbligatorio riuscito; ogni stato
+incerto resta FAIL. Compatibile con il run, non sua causa dimostrata.
+Due review source/pure c792eeeb/871e3f12; originali46body+5alias invariati.
+
+IOS-JOURNAL-OBS-RR-02/5ba8f1c0 aggiunge FAILv3 exact7keys con origin finita
+body|terminal_gate, derivata prima di errorType??assertion. terminal_gate
+ammette solo assertion; SUCCESSv2 e legacyFAILv2exact6 restano invariati,
+legacyorigin non inferita. Export soltanto dopo schema/run/phase/PID;
+malformati/versionimiste/extras/foreign non esportano metadati. Due review
+7906850b/c8fa4dc7, RED15/12FAIL→GREEN49 e146probe indipendenti. Origine è un
+ramo, non asserzione/OSStatus o specifico terminal gate, e body può coesistere
+con errori terminali. Setup directory/pubblicazione possono restare senza
+ricevuta. Metadataerratum e60ffbc7: prima receipt394cc9f7 osservata, preimage
+non conservato; finale v2 9239343d con aggiunte narrative/statiche esplicite.
+Patch/postimage e log invariati, nessuna ricostruzione del v1.
+
+Root applica sei postimage esatti: 12suite248PythonPASS/exit0. Quality
+format/analyze/fullhost resta NOT_RUN al freeze; solo dopo verde una prova
+visual del cleanup corretto e una journal del nuovo discriminante sullo
+stesso nuovo head, una volta ciascuna, senza warmup/reset/bypass/nuoviinput
+né budget/guard alterati. FullCI7 resta NOT_RUN; selector e worker distinti
+non sostituiscono la CI né costituiscono A/B. Nessun PASS/cause/stabilità
+trasferito; tutti i FAIL e cleanup negativi sono preservati. Maps/TEST/live,
+Auth/R13/R14/R24/C04/AT/IME/firma restano distinti, nessun SDKMac o merge/DONE.

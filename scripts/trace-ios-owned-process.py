@@ -133,32 +133,35 @@ class ReadinessObservation:
                             pass
                         child.wait(timeout=.5)
                 # Il leader reaped non prova assenza di figli nel suo gruppo.
+                group_absent = False
                 try:
                     os.killpg(child.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
+                except ProcessLookupError as error:
+                    group_absent = error.errno == errno.ESRCH
                 child.wait(timeout=.5)
-                # ps legge soltanto il gruppo osservativo proprio e solo stato.
-                probe = self.popen(['/bin/ps', '-g', str(child.pid), '-o', 'pgid=,stat='],
-                                   start_new_session=True, stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-                try:
-                    states, probe_errors = probe.communicate(timeout=.5)
-                    fields = [line.split() for line in states.splitlines()]
-                    if (len(states) > self.CAP or probe_errors or probe.returncode not in (0, 1) or any(
-                            len(row) != 2 or not row[0].isdigit() or int(row[0]) != child.pid or
-                            not row[1].startswith(b'Z') for row in fields)):
-                        raise OSError(errno.EBUSY, 'owned observer group not quiescent')
-                finally:
-                    # ps non deve lasciare un leader irrisolto su timeout.
-                    if probe.poll() is None:
-                        try:
-                            os.killpg(probe.pid, signal.SIGKILL)
-                        except ProcessLookupError:
-                            pass
-                        probe.wait(timeout=.5)
-                    probe.stdout.close()
-                    probe.stderr.close()
+                # ESRCH prova assenza dell'intero gruppo; il wait resta obbligatorio.
+                # Negli altri casi ps verifica ancora il solo gruppo proprio.
+                if not group_absent:
+                    probe = self.popen(['/bin/ps', '-g', str(child.pid), '-o', 'pgid=,stat='],
+                                       start_new_session=True, stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)
+                    try:
+                        states, probe_errors = probe.communicate(timeout=.5)
+                        fields = [line.split() for line in states.splitlines()]
+                        if (len(states) > self.CAP or probe_errors or probe.returncode not in (0, 1) or any(
+                                len(row) != 2 or not row[0].isdigit() or int(row[0]) != child.pid or
+                                not row[1].startswith(b'Z') for row in fields)):
+                            raise OSError(errno.EBUSY, 'owned observer group not quiescent')
+                    finally:
+                        # ps non deve lasciare un leader irrisolto su timeout.
+                        if probe.poll() is None:
+                            try:
+                                os.killpg(probe.pid, signal.SIGKILL)
+                            except ProcessLookupError:
+                                pass
+                            probe.wait(timeout=.5)
+                        probe.stdout.close()
+                        probe.stderr.close()
             except (OSError, subprocess.SubprocessError) as error:
                 self.cleanup_error = error
                 raise

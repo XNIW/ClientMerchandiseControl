@@ -121,23 +121,27 @@ class NativeAddressFileTest(unittest.TestCase):
             self.assertEqual(runner.results, {})
             self.assertFalse((runner.output / 'seed.json').exists())
 
-    def failure_artifact(self, error_type, **changes):
+    def failure_artifact(self, error_type, *, expected_phase='seed', **changes):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             runner = I.IosAddressJournalFileRunner(root, root / 'owner.json')
             runner.run_id, runner.data = RUN_ID, root / 'owned-data'
             runner.revision = 'd195602bddf3b23c04530f32ae6ddf06fdd39c15'
-            source = runner.data / 'Library/Application Support' / A.receipt_relative_path(RUN_ID, 'seed')
+            current_pid = 12 if expected_phase == 'seed' else 13
+            source = runner.data / 'Library/Application Support' / A.receipt_relative_path(RUN_ID, expected_phase)
             source.parent.mkdir(parents=True)
-            data = {'apiVersion': 'address-journal-native-evidence.v2', 'phase': 'seed',
-                    'runId': RUN_ID, 'processId': 12, 'status': 'FAIL', 'errorType': error_type}
+            data = {'apiVersion': 'address-journal-native-evidence.v2', 'phase': expected_phase,
+                    'runId': RUN_ID, 'processId': current_pid, 'status': 'FAIL', 'errorType': error_type}
             data.update(changes)
             source.write_text(json.dumps(data))
 
             def execute():
                 runner.output.mkdir(parents=True)
                 runner.owns_output = True
-                runner.drive('seed', 12, 12, [])
+                if expected_phase == 'recover':
+                    runner.results['seed'] = receipt()
+                    runner.results['seed_terminated'] = 'PASS'
+                runner.drive(expected_phase, current_pid, 12, [])
 
             with patch.object(runner, 'execute', side_effect=execute), \
                  patch.object(runner, 'attest_pid') as attest, \
@@ -147,12 +151,12 @@ class NativeAddressFileTest(unittest.TestCase):
             artifact = json.loads(artifact_text)
             self.assertEqual(code, 1)
             self.assertEqual(artifact['exit_code'], 1)
-            self.assertEqual(artifact['failed_phase'], 'journal-seed')
-            self.assertEqual(artifact['restart'], 'NOT_RUN')
+            self.assertEqual(artifact['failed_phase'], 'journal-' + expected_phase)
+            self.assertEqual(artifact['restart'], 'FAIL' if expected_phase == 'recover' else 'NOT_RUN')
             self.assertEqual(artifact['backend'], 'NOT_RUN')
-            self.assertNotIn('seed', artifact['results'])
-            self.assertFalse((runner.output / 'seed.json').exists())
-            attest.assert_called_once_with(12)
+            self.assertNotIn(expected_phase, artifact['results'])
+            self.assertFalse((runner.output / (expected_phase + '.json')).exists())
+            attest.assert_called_once_with(current_pid)
             return artifact, artifact_text
 
     def test_ios_native_failure_safe_enum_survives_into_runner_artifact(self):
@@ -161,6 +165,7 @@ class NativeAddressFileTest(unittest.TestCase):
                 artifact, text = self.failure_artifact(category)
                 self.assertEqual(artifact['diagnostics'].get('seed', {}).get(
                     'native_terminal_error_type'), category)
+                self.assertNotIn('native_terminal_failure_origin', artifact['diagnostics'].get('seed', {}))
                 self.assertIn('fixture nativa segnala failure sanitizzata', artifact['failure_reason'])
                 self.assertNotIn('PASS', artifact['results'].values())
 
@@ -184,6 +189,75 @@ class NativeAddressFileTest(unittest.TestCase):
             self.assertEqual(raised.exception.code, 1)
             self.assertEqual(getattr(raised.exception, 'native_error_type', None), category)
             self.assertEqual(str(raised.exception), 'journal-seed: fixture nativa segnala failure sanitizzata')
+
+    def test_ios_v3_failure_origin_survives_to_terminal_artifact_without_success(self):
+        for phase in ('seed', 'recover'):
+            for origin, category in (('body', 'assertion'), ('body', 'filesystem'),
+                    ('body', 'unexpected'), ('terminal_gate', 'assertion')):
+                with self.subTest(phase=phase, origin=origin, category=category):
+                    artifact, text = self.failure_artifact(category, expected_phase=phase,
+                        apiVersion='address-journal-native-evidence.v3', failureOrigin=origin)
+                    diagnostics = artifact['diagnostics'].get(phase, {})
+                    self.assertEqual(diagnostics.get('native_terminal_error_type'), category)
+                    self.assertEqual(diagnostics.get('native_terminal_failure_origin'), origin)
+                    self.assertIn('fixture nativa segnala failure sanitizzata', artifact['failure_reason'])
+                    self.assertNotIn('same_bundle_and_containers', artifact['results'])
+
+    def test_ios_invalid_v3_and_mixed_version_failures_export_no_metadata(self):
+        cases = (
+            ('assertion', {'apiVersion': 'address-journal-native-evidence.v3'}),
+            ('assertion', {'failureOrigin': 'body'}),
+            ('assertion', {'apiVersion': 'address-journal-native-evidence.v3',
+                'failureOrigin': 'SECRET_RAW_MESSAGE'}),
+            ('assertion', {'apiVersion': 'address-journal-native-evidence.v3',
+                'failureOrigin': None}),
+            ('assertion', {'apiVersion': 'address-journal-native-evidence.v3',
+                'failureOrigin': ['body']}),
+            ('filesystem', {'apiVersion': 'address-journal-native-evidence.v3',
+                'failureOrigin': 'terminal_gate'}),
+            ('unexpected', {'apiVersion': 'address-journal-native-evidence.v3',
+                'failureOrigin': 'terminal_gate'}),
+            ('SECRET_RAW_MESSAGE', {'apiVersion': 'address-journal-native-evidence.v3',
+                'failureOrigin': 'body'}),
+            ('assertion', {'apiVersion': 'address-journal-native-evidence.v3',
+                'failureOrigin': 'body', 'rawMessage': 'SECRET_RAW_MESSAGE'}),
+            ('assertion', {'apiVersion': 'address-journal-native-evidence.v3',
+                'failureOrigin': 'body', 'runId': 'foreign'}),
+            ('assertion', {'apiVersion': 'address-journal-native-evidence.v3',
+                'failureOrigin': 'body', 'processId': 99}),
+            ('assertion', {'apiVersion': 'address-journal-native-evidence.v3',
+                'failureOrigin': 'body', 'phase': 'recover'}),
+        )
+        for category, changes in cases:
+            with self.subTest(category=category, changes=changes):
+                artifact, text = self.failure_artifact(category, **changes)
+                diagnostics = artifact['diagnostics'].get('seed', {})
+                self.assertNotIn('native_terminal_error_type', diagnostics)
+                self.assertNotIn('native_terminal_failure_origin', diagnostics)
+                self.assertNotIn('SECRET_RAW_MESSAGE', text)
+                self.assertIn('ricevuta failure non conforme', artifact['failure_reason'])
+
+    def test_native_v3_validated_failure_carries_origin_on_same_failure(self):
+        for origin, category in (('body', 'assertion'), ('body', 'filesystem'),
+                ('body', 'unexpected'), ('terminal_gate', 'assertion')):
+            with self.subTest(origin=origin, category=category):
+                data = {'apiVersion': 'address-journal-native-evidence.v3', 'phase': 'recover',
+                    'runId': RUN_ID, 'processId': 13, 'status': 'FAIL',
+                    'errorType': category, 'failureOrigin': origin}
+                with self.assertRaises(A.Failure) as raised:
+                    A.validate_native_receipt(data, 'recover', RUN_ID, 13, 12)
+                self.assertIs(type(raised.exception), A.Failure)
+                self.assertEqual(raised.exception.code, 1)
+                self.assertEqual(getattr(raised.exception, 'native_error_type', None), category)
+                self.assertEqual(getattr(raised.exception, 'native_failure_origin', None), origin)
+                self.assertEqual(str(raised.exception), 'journal-recover: fixture nativa segnala failure sanitizzata')
+
+    def test_success_contract_never_accepts_failure_origin_or_v3(self):
+        for changes in ({'failureOrigin': 'body'},
+                {'apiVersion': 'address-journal-native-evidence.v3'},
+                {'apiVersion': 'address-journal-native-evidence.v3', 'failureOrigin': 'terminal_gate'}):
+            with self.subTest(changes=changes), self.assertRaises(A.Failure):
+                A.validate_native_receipt({**receipt(), **changes}, 'seed', RUN_ID, 12, 12)
 
     def test_paths_cannot_escape_run_scope(self):
         for run, phase in [('../other', 'seed'), (RUN_ID, '../recover'), (RUN_ID, 'other')]:

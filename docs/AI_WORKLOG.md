@@ -6007,3 +6007,84 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   nessuna causa/stabilità daverde oABfraworker. Maps/live/AT/firma distinti.
 - **Ruolo/fase**:CODEX_RE_REVIEWER/REVIEW,taskBLOCKED; Fix storici intatti.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-16 — TASK-054 review finding reap observer
+
+- **Review**: IOS-BOOT-OBS-RR-02/P2, baseline a2a7e6d CHANGES_REQUIRED:
+  ps ridondante dopo killpg ESRCH sul gruppo proprio e wait riuscito può
+  produrre cleanup_error per timeout sintetico.
+- **Verifica distinta**: RED quattro test/due subcase FAIL; GREEN quattro
+  e full55 PASS/exit0. Hash18/18 e46 body/cinque alias originali invariati.
+  Checks f626d6cd…; fix privato304d89a6 APPROVED soltanto source/pure,
+  applicazione e seconda review affidate al writer.
+- **Controlli**: kill riuscito/errno non qualificato più psTimeout,
+  waitTimeout e EPERM restano FAIL; primario124/FD/privacy/guard invariati.
+- **Limiti**: bootstatus a2a exit0 precede observer reap FAIL; sottoproba
+  hosted non attestata, causa UNKNOWN, FAIL originali preservati. FullCI7
+  nuovohead NOT_RUN; Maps/live distinti. Nuove domande native autorizzate
+  solo dopo Quality hosted verde, senza PASS anticipato o retry identico.
+- **Ruolo/fase proposta**: CODEX_RE_REVIEWER/REVIEW → CODEX_FIXER/FIX,
+  task BLOCKED; sole append Review/worklog, Fix storici intatti.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-16 — TASK-054 review finding origine FAIL journal
+
+- **Baseline**: IOS-JOURNAL-OBS-RR-02/P2, a2a7/run38869808912,
+  CHANGES_REQUIRED sul gap diagnostico: assertion non distingue catch body
+  dal fallback del gate terminale; nessuna causa Keychain provata.
+- **Fix privato**:5ba8f1c0, quattro file; FAIL v3 strict7 con origine
+  coerente, body precedence, SUCCESS v2 e legacy FAIL v2 preservati.
+  Identità/schema estranei respinti, nessun dato raw esportato.
+- **Review distinte**:7906850b… e c8fa4dc7… APPROVED source/pure soltanto;
+  prima indipendente RED15/12 failure→GREEN49 e146 probe PASS, seconda49
+  puri PASS. Finding CLOSED_SCOPED_SOURCE_PURE; applicazione e verifica
+  composita del writer registrate soltanto nella successiva Fix.
+- **Erratum**: metadata v1/394cc9f7… osservata e poi modificata, finale
+  esplicita v2/9239343d…; patch/postimage invariati, v1 non ricostruita.
+- **Gate/limiti**: formatter/analyze/Quality e origin v3 nativo NOT_RUN;
+  globale BLOCKED, fullCI7 nuovo candidato NOT_RUN. Negativi d195/a2a
+  preservati, nessuna causa/stabilità o nuova accettazione prodotto.
+  Due future domande native condizionate a Quality verde, nessun PASS
+  anticipato; nessun SDK, WT/Git, dispatch, merge o DONE del reviewer.
+- **Ruolo/fase proposta**: CODEX_RE_REVIEWER/REVIEW → CODEX_FIXER/FIX,
+  task BLOCKED; sole append Review/worklog, campi globali e Fix intatti.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-16 — TASK-054 Fix cleanup e origine journal
+
+- **Fixer**: applicati sei postimage esatti di304d89a6/5ba8f1c0 dopo due
+  review distinte ciascuno; nessuna modifica app/native/config/deps/unit-test.
+  Fixture Dart cambia solo metadata del FAIL, successo/legacyv2 preservati.
+- **Gate reali**:12suite248PythonPASS/exit0, receipt634523ba; Security1157/
+  zero vietati/exit0, pin4workflow, whitespace ed equivalenza app PASS.
+  Governance negativo solo markup Handoff reviewer preservato e corretto.
+- **Residui**: Quality hosted format/analyze/fullhost NOT_RUN; poi, solo
+  sePASS, una visualcleanup/readiness/app e una journalorigin sullo stesso
+  futuro head. FullCI7NOT_RUN, source/pure non è acceptance nativa/live.
+- **Limiti**: due FAIL a2a e d1955/2 preservati; causa sottoprobe e cause
+  native non qualificate. Nessun A/B, retry identico, SDK Mac o nuoviaccessi.
+  Maps/TEST/Auth/R13/R14/C04/R24/AT/IME/firma separati; no merge/DONE.
+- **Ruolo/fase**: CODEX_FIXER/FIX → CODEX_RE_REVIEWER/REVIEW, taskBLOCKED.
+- **Handoff**: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+
+## 2026-10-16 — TASK-054 re-review composita cleanup e origine
+
+- **Esito**: BLOCKED globale; fix IOS-BOOT-OBS-RR-02 e
+  IOS-JOURNAL-OBS-RR-02 approvati soltanto source/pure.
+- **Identità**: freeze e3cb0db0, tredici hash verificati; sei postimage
+  uguali a304d89a6/5ba8f1c0, quattro review distinte preservate.
+- **Ricevute controllate**:12log con hash/outputOK/exit0,248PythonPASS,
+  receipt634523ba; Security1157/zero, log89c49d8a/exit0 terminale.
+  Nessun nuovo test/SDK in questa re-review.
+- **Gate aperti**: Quality hosted format/analyze/fullhost NOT_RUN; solo
+  dopo PASS una visualcleanup e una journalorigin sullo stesso candidato.
+  FullCI7 nuovohead NOT_RUN, Maps/live e gli altri gate distinti.
+- **Preservazione**: a2a2FAIL/d1955SUCCESS2FAIL e cleanup negativi, causa
+  UNKNOWN/sottoproba non attestata, errata metadata e governance FAIL
+  storico; nessun A/B, retry identico, PASS trasferito o merge/DONE.
+- **Ruolo/fase**: CODEX_RE_REVIEWER/REVIEW, task BLOCKED; Fix storici intatti.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

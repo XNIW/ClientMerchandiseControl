@@ -1813,3 +1813,187 @@ I gate separati dell'executor conservano la propria ricevuta terminale;
 questa review non ne anticipa un PASS. Fix e handoff storici restano intatti.
 
 `CODEX_REVIEW_BLOCKED`
+
+
+## Review finding IOS-BOOT-OBS-RR-02 — reap observer, 2026-10-16
+
+- **Baseline revisionata**: a2a7e6db8dbb0f24f604efb43d6252660f052395.
+  Esito del finding: CHANGES_REQUIRED; severità P2, problema correggibile
+  nel tooling diagnostico già nello scope.
+- **Posizione**: scripts/trace-ios-owned-process.py, capture, teardown del
+  gruppo osservativo (killpg finale, wait e successiva query ps).
+- **Difetto riprodotto**: il killpg finale sul gruppo proprio restituisce
+  ESRCH e il wait del leader riesce, ma il source avvia comunque un secondo
+  ps. Il timeout sintetico di questa query ridondante imposta cleanup_error
+  e close fallisce con process reap unresolved. Può bloccare prepare pur
+  avendo già qualificato l'assenza del gruppo e il reap del leader.
+- **Correzione richiesta**: omettere soltanto quel ps se errno è esattamente
+  ESRCH e il successivo wait riesce. Il solo leader reaped, un segnale
+  riuscito o un errno non qualificato non autorizzano lo skip. EPERM,
+  wait irrisolto e kill riuscito seguito da ps timeout restano FAIL.
+  Pipe, primario124, guard, privacy, caps, budget300/30 e sequenza invariati.
+- **Regressione indipendente**: quattro test del candidato privato contro
+  tracer a2a producono exit1 e due subcase FAIL, uno per profilo boot e uno
+  readiness; postimage corretto: quattro PASS e suite completa55 PASS,
+  exit0. Tutti i46 body originali e cinque alias conservati. Esecuzione
+  Python/mocks e figli Python propri, senza rete o SDK; comandi terminali.
+  Ricevuta checks f626d6cd71e9dc09c1567282dda06868c3d1f5eba4268aa5e0f99880c7d13b9a.
+- **Review del fix privato**: patch304d89a6610c5dc51a325333e28262cfe2069d32414765ca77bc1a558d82b14a,
+  due file tracer/test, APPROVED esclusivamente source/pure. L'applicazione
+  e la chiusura formale richiedono il writer e la seconda review distinta;
+  nessuna modifica dell'implementazione effettuata dal reviewer.
+
+Nel run38869800564/a2a il bootstatus osservato termina exit0 in117.566s;
+il wrapper fallisce poi per observer reap unresolved, prepare2 e cleanup1.
+La sottoproba che genera il TimeoutExpired non è attestata: il repro è
+compatibile, la causa del run rimane UNKNOWN. Nessuna causalità storica
+recuperata, nessun A/B o acceptance da verde. I FAIL a2a e d195 sono
+preservati; fullCI7 del nuovo head NOT_RUN e Maps/live distinti.
+
+Transizione proposta al writer: BLOCKED / FIX, CODEX_FIXER,
+CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX. Dopo applicazione esatta e gate puri,
+Quality hosted pertinente deve essere verde prima di qualsiasi nuova
+domanda nativa autorizzata. Una domanda ios-visual sul runner corretto e
+una separata journal sullo stesso candidato restano NOT_RUN a questo
+cutoff; non sostituiscono i gate obbligatori. Nessun SDKMac, nuovo accesso,
+bypass, aumento budget, Androidrepeat, merge o DONE.
+
+CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+
+
+## Review finding IOS-JOURNAL-OBS-RR-02 — origine FAIL, 2026-10-16
+
+- **Baseline revisionata**: a2a7e6db8dbb0f24f604efb43d6252660f052395,
+  run38869808912: seed PASS, recover FAIL con enum assertion. Finding P2,
+  CHANGES_REQUIRED sul gap diagnostico: il FAIL v2 non distingue un errore
+  catturato nel body dal fallback SDK/postTest/teardown del gate terminale.
+  Non è prova di una precisa assertion o di un errore Keychain.
+- **Fix privato revisionato**: patch5ba8f1c01a73df489c3689bc703c4863ece92d05893d18ce8382a1817b74782f,
+  quattro file. FAIL v3 richiede esattamente sette chiavi e failureOrigin
+  body|terminal_gate; terminal_gate ammette soltanto assertion, mentre il
+  catch del body mantiene la precedenza. SUCCESS v2 invariato; legacy
+  FAIL v2 resta FAIL con enum e origine NOT_AVAILABLE, senza inferirla.
+  Schema misto, origine incoerente, run/fase/PID estranei o chiavi extra
+  sono respinti prima di esportare metadata; nessun dato raw aggiunto.
+- **Re-review distinte**:7906850be4f461706599bc0648113a13f8653ea5195ac99539bd281382985682
+  e c8fa4dc7… APPROVED esclusivamente source/pure. Prima review indipendente:
+  RED15/12 failure, GREEN15+21+13=49 PASS ed ulteriori146 probe PASS;
+  seconda review49 puri PASS. Chiusura del finding limitata a
+  CLOSED_SCOPED_SOURCE_PURE, senza approvazione del prodotto o dei percorsi
+  legacy authored dal reviewer. Applicazione e gate compositi del writer
+  restano nella sua successiva sezione Fix.
+- **Erratum metadata**: result.json v1/394cc9f7… osservata e poi modificata;
+  finale esplicita result-final-v2/9239343d… . Patch e quattro postimage
+  invariati; nessuna copia v1 ricostruita. La review usa la ricevuta v2.
+
+Formatter, analyze, Quality hosted e nuovo origin v3 nativo NOT_RUN al
+cutoff di questa review. body significa errore registrato dal catch;
+terminal_gate significa assenza di tale errore mentre fallisce il gate
+composito, senza isolare una causa. Errori initialdir o pubblicazione
+terminale possono lasciare receipt mancante. Nessuna retroattribuzione
+agli errori v2 di d195/a2a e nessuna causa Keychain o stabilità dimostrata.
+FullCI7 del nuovo candidato NOT_RUN; globale BLOCKED, Maps/live e gli
+altri gate distinti restano aperti. Nessun SDK, modifica WT/Git, dispatch,
+merge o DONE da questa review; comandi di verifica tutti terminali.
+
+Transizione proposta al writer: BLOCKED / FIX, CODEX_FIXER; campi globali
+intatti. Dopo integrazione esatta e gate puri, Quality hosted deve essere
+verde prima delle due domande native correttive autorizzate, entrambe
+ancora NOT_RUN e distinte da fullCI7. Nessun PASS anticipato.
+
+`CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`
+
+
+## Fix — cleanup osservatore e origine FAIL journal, 2026-10-16
+
+- **Ruolo**: CODEX_FIXER. Scope limitato ai finding già nello stesso task
+  IOS-BOOT-OBS-RR-02 e IOS-JOURNAL-OBS-RR-02, senza modifica del prodotto.
+- **Applicazione**: observer304d89a6 dopo review c792eeeb/871e3f12;
+  origin5ba8f1c0 dopo review7906850b/c8fa4dc7. Sei postimage esatti rispetto
+  ai freeze privati. Cambiano cinque Python e la sola metadata failure
+  della fixture Dart; lib/native/config/deps/test unitari invariati da a2a.
+- **Verifica composita reale**:12suite248PythonPASS, exit0, receipt
+  634523bab1c43ebdba45db1018651434ed72237481cb3ccb7cbb69340de5c102.
+  Comprende55tracer,15nativefile,21iOS/13Android e ownership/descriptor/
+  readiness/cold/profili Android. Nessun SDK Mac eseguito.
+- **Statici**:pin4workflow PASS, diffcheck PASS, equivalenza percorsi app/
+  native/config/deps/unit-test PASS. Security1157tracked/zero vietati,
+  exit0. Governance FIX PASS; il primo controllo era FAIL soltanto per il
+  markup backtick mancante nell'Handoff della append reviewer: negativo
+  conservato, forma corretta prima di applicare il codice dipendente.
+
+| CA / T | Evidence del fix | Esito al cutoff |
+|---|---|---|
+| CA-04 / T-04 | sei postimage, quattro review source/pure,12suite248 e Security | PASS source/pure/static soltanto |
+| CA-05 / T-05 | candidato successivo ad a2a, Quality hosted e fullCI7 | NOT_RUN; gate obbligatori non qualificati |
+| CA-06 / T-06 | due nuove verifiche correttive e Maps/live distinti | NOT_RUN nuove prove, BLOCKED globale |
+
+Il fix ESRCH elimina solo la query ridondante dopo assenza qualificata del
+gruppo proprio e reap riuscito; stato incerto, EPERM, wait irrisolto e
+kill riuscito+psTimeout restano FAIL. Non prova la causa della sottoprobe
+non attestata nel run a2a. L'origine journal è solo un ramo, body oppure
+terminal_gate, senza assertion specifica, Keychain OSStatus o root cause.
+
+Dopo re-review del composito, un unico commit skipautomatico sul branch
+esistente. Una Quality hosted esistente quality_only qualifica format,
+analyze e host completo. Solo dopo PASS, una domanda ios-visual verifica
+il runner corretto fino a readiness/app/cleanup e una ios-address-journal
+osserva l'origine dell'eventuale nuovo FAIL: stesso candidato, worker
+separati, nessun retry identico. Quality_only e selector non sono fullCI7.
+Nessun nuovo input/workflow, budget300/30, guard o refusal bypass; nessun
+SDK Mac, Androidrepeat, nuovo accesso, SQL/deploy, merge o DONE.
+
+I due FAIL a2a sono preservati (visual observercleanup e journal recover
+assertion), come d1955SUCCESS/2FAIL e relativi cleanup negativi. Nessun
+PASS o causa/stabilità trasferiti tra revisioni o worker; non è A/B.
+Maps/R17, TEST/Auth/R13/R14, C04/R24, AT/IME e firma restano separati.
+Gate hosted obbligatori NOT_RUN al freeze: riconsegna BLOCKED / REVIEW,
+CODEX_RE_REVIEWER, senza approvazione globale o chiusura del task.
+
+`CODEX_FIX_BLOCKED_TO_RE_REVIEW`
+
+
+## Re-review composita — cleanup observer e origine journal, 2026-10-16
+
+- **Esito globale**: BLOCKED; task BLOCKED / REVIEW, responsabile
+  CODEX_RE_REVIEWER, handoff `CODEX_REVIEW_BLOCKED`.
+- **Scope verificato**: tredici hash del freeze e3cb0db0 corrispondono
+  al WT; sei postimage uguali ai candidati source/pure già approvati.
+  Observer304d89a6 ha review c792eeeb/871e3f12, origin5ba8f1c0 ha review
+  7906850b/c8fa4dc7. Nessuna nuova approvazione del prodotto o del legacy.
+- **Finding**: IOS-BOOT-OBS-RR-02 e IOS-JOURNAL-OBS-RR-02 risolti soltanto
+  source/pure. ESRCH esatto sul gruppo proprio e wait riuscito evitano
+  solo ps ridondante; ogni stato non qualificato resta FAIL. FAILv3
+  esporta soltanto origine finita già validata; successo e FAILv2 legacy
+  mantengono il contratto, senza inferire origine o causa precedenti.
+- **Verifica indipendente del composito**: hash di receipt634523ba e dei
+  dodici log, conteggi, output finali OK ed exit0 verificati:248 test
+  Python PASS. Security1157/zero vietati, log89c49d8a ed exit0 terminale
+  verificati. Nessun nuovo test o SDK eseguito in questa re-review.
+- **Preservazione**: metadata origin finaleV2/9239343d e relativo erratum,
+  primo governance FAIL del markup Handoff e successiva correzione sono
+  espliciti; tutte le precedenti sezioni Review/Fix e cutoff rimangono.
+
+| CA / T | Evidence della re-review | Esito al cutoff |
+|---|---|---|
+| CA-04 / T-04 | sei postimage, quattro review distinte,12log/248puri e Security | PASS source/pure/static soltanto |
+| CA-05 / T-05 | candidato ancora da pubblicare, Quality hosted e fullCI7 | BLOCKED; NOT_RUN sul nuovo head |
+| CA-06 / T-06 | FAIL a2a/d195 e due nuove domande native, Maps/live separati | BLOCKED; nuove prove NOT_RUN |
+
+Quality hosted deve qualificare format/analyze e suite host completa prima
+di qualsiasi nuovo nativo. Solo dopo PASS sono autorizzate una domanda
+ios-visual del runner corretto fino a readiness/app/cleanup e una distinta
+ios-address-journal dell'origine FAIL, sullo stesso candidato e worker
+separati. Non è un A/B e non sostituisce fullCI7 del nuovo head, NOT_RUN.
+Nessun PASS futuro anticipato, retry identico, Androidrepeat, nuovo input,
+aumento300/30, modifica guard o bypass refusal.
+
+I run a2a38869800564/38869808912 restano FAIL propri. Bootstatus0 precede
+observer reap FAIL: sottoproba non attestata e causa UNKNOWN. Journal
+seedPASS/recover assertionFAIL conserva cleanupPASS separato, backendNOT_RUN;
+failureOrigin identifica un ramo, non un'asserzione o causa Keychain.
+Canonicald19538862344656 mantiene5SUCCESS/2FAIL e cleanup negativi propri.
+Nessuna causa/stabilità trasferita tra revisioni. Maps/live TEST/Auth,
+C04/R24, AT/IME e firma restano gate separati. Nessun merge o DONE.
+
+`CODEX_REVIEW_BLOCKED`

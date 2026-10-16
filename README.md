@@ -201,6 +201,20 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
 
+Candidato successivo ad a2a: fix IOS-BOOT-OBS-RR-02 dopo ESRCH e nuovo
+failureOrigin journal body|terminal_gate, entrambi con due review distinte
+APPROVED soltanto source/pure. Root: 12 suite Python, 248 PASS, exit0.
+Quality hosted (format/analyze/full host) NOT_RUN al freeze; solo dopo PASS
+una verifica ios-visual del cleanup corretto e una ios-address-journal del
+nuovo discriminante, sul medesimo candidato e runner separati. FullCI7
+nuovo head NOT_RUN; sei altri job SKIPPED per selector, nessun Androidrepeat.
+I due run a2a sono terminali FAIL: bootstatus0/117.566s poi observercleanup2
+con cleanupFAIL; journal seedPASS23482→recover23761 assertionFAIL e cleanup
+PASS separato. Causa e sottoproba precise non qualificate; nessun PASS
+trasferito o retry identico. Maps/live e gli altri gate restano distinti.
+
+Il freeze seguente precede i run mirati a2a e conserva quel cutoff.
+
 Freeze composito: BOOTV2 e enumfix approvati source/pure da reviewer
 distinti,12suitePython240PASS. P2FalseInventory corretto prima di apply/CI.
 Due nuove domande mirate iOS sul futuro stessohead NOT_RUN al cutoff;

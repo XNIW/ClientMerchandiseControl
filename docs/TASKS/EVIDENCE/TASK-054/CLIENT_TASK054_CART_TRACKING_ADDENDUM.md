@@ -1,5 +1,32 @@
 # TASK-054 — Addendum carrello e consegna
 
+## Ripresa 15 ottobre — CI corrente e diagnosi mirata
+
+PR29 draft, branch esistente codex/task054-next-integration, baseline8f17774;
+main bfbfc0b6 distinto. [CI38324733546/attempt2](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38324733546/attempts/2)
+terminale:5SUCCESS/2FAIL, quattro successi ereditati attempt1 sul medesimoSHA.
+QUALITY-RR-01 chiuso scoped:1243PASS/1SKIP,11performance,format409/0,analyze0.
+Visual iOS fallisce bootstatus300s/Data Migration, journal iOS inventory30s prima
+di create; entrambi cleanup correntePASS. Sono due worker hosted distinti
+macos-26, immagine20260907.0351.1; non una diagnosi sul Mac locale. Xcode
+selezionato26.6 e runtime visual26.5 restano distinti. Android visual nuovoPASS
+body/driver; in questa ripresa indice/JSON qualificati, pixel PNG non revisionati.
+
+[Profilo diagnostico](next-integration/client-ios-cold-preflight-20261015.json):
+canonical cold nel workflow misurato esistente, prima di Flutter/app/GUI,
+prepare headless/descriptor canonico, nessun inventario aggiuntivo. Ownerhelper,
+tracer e budget invariati;9 nuovi test e12 trasporto/legacy PASS, review distinta
+APPROVED soltanto sul diff. Prova hosted NOT_RUN al freeze, singolo dispatch
+autorizzato dopo pubblicazione; nessun retry identico né acceptance inferita.
+
+Maps: metadata GitHub correnti secrets/vars/environments vuoti; injection native
+assenti nel candidato e nessuna proprietà Maps nel local.properties originale
+(verificati solo i nomi). Console Maps disponibile senza progetto/selector o
+contenuto centrale qualificabile, anche dopo navigazione credenziali. Nessuna
+chiave approvata recuperata; producer esistente Courier Mode web foreground,
+ordine/sessione e configurazione TEST ancora BLOCKED. Nessun nuovo provider,
+accesso, billing o writer esterno. I cutoff sotto restano storici.
+
 ## Candidato dopo QUALITY-RR-01
 
 Snapshot prima del nuovo fast-forward PR29: `BLOCKED / REVIEW / CODEX_REVIEW_BLOCKED`.

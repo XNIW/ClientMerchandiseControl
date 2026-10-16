@@ -23,13 +23,14 @@ on:
           - matrix
           - journal
       surface:
-        description: Superficie storica26.5 oppure alternativa hosted già installata26.2
+        description: Superficie storica, alternativa o canonical cold solo preflight
         required: true
         default: historical
         type: choice
         options:
           - historical
           - compatible
+          - canonical
 
 permissions:
   contents: read
@@ -37,10 +38,11 @@ permissions:
 jobs:
   measured-ios:
     name: Owned iOS measured preflight and native
+    if: inputs.surface != 'canonical' || inputs.mode == 'preflight'
     runs-on: ${{ inputs.surface == 'compatible' && 'macos-15' || 'macos-26' }}
     timeout-minutes: 35
     env:
-      DEVELOPER_DIR: ${{ inputs.surface == 'compatible' && '/Applications/Xcode_26.3.app/Contents/Developer' || '/Applications/Xcode_26.5.app/Contents/Developer' }}
+      DEVELOPER_DIR: ${{ inputs.surface == 'canonical' && '/Applications/Xcode_26.6.app/Contents/Developer' || inputs.surface == 'compatible' && '/Applications/Xcode_26.3.app/Contents/Developer' || '/Applications/Xcode_26.5.app/Contents/Developer' }}
       FLUTTER_VERSION: 3.44.8
     steps:
       - name: Checkout exact candidate
@@ -50,9 +52,10 @@ jobs:
       - name: Validate measured transport
         run: |
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-canonical-cold.py
           bash scripts/check-action-pins.sh
       - name: Minimal owned preflight
-        if: inputs.surface != 'compatible'
+        if: inputs.surface != 'compatible' && inputs.surface != 'canonical'
         run: |
           cmc_keep_ready=()
           case '${{ inputs.mode }}' in
@@ -60,6 +63,11 @@ jobs:
           esac
           python3 scripts/run-ios-preflight-measured.py \
             --output build/task054/ios-measured "${cmc_keep_ready[@]}"
+      - name: Cold canonical owned preflight without Flutter or app
+        if: inputs.surface == 'canonical'
+        run: |
+          python3 scripts/run-ios-preflight-measured.py \
+            --profile canonical --output build/task054/ios-measured
       - name: Prepare alternative installed iOS surface headless
         if: inputs.surface == 'compatible'
         run: |

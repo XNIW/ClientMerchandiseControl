@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 import signal
 
@@ -20,11 +21,128 @@ IOS = module('ios_preflight_owner', 'run-task054-ios-owned.py')
 TRACE = module('ios_preflight_trace', 'trace-ios-owned-process.py')
 
 
+def canonical_cold_preflight(output):
+    """Ricetta minima osservabile; nessuna app, warm-up o query aggiuntiva."""
+    output = Path(output)
+    output.mkdir(mode=0o700, parents=True, exist_ok=False)
+    owner = IOS.IosOwnedRunner(output / 'owner.json')
+    result = {'schemaVersion': 1, 'scope': 'canonical_cold_owned_preflight',
+              'app': 'NOT_RUN', 'preflight': 'NOT_RUN', 'cleanup': 'NOT_RUN',
+              'catalog': {'commandCount': 0, 'result': 'NOT_RUN'}}
+    original_command = owner.command
+
+    def observe_command(arguments, timeout, capture=False):
+        catalog = arguments == ['xcrun', 'simctl', 'list', 'runtimes', '--json']
+        if catalog:
+            result['catalog']['commandCount'] += 1
+            result['catalog']['result'] = 'FAIL'
+        value = original_command(arguments, timeout, capture=capture)
+        if catalog:
+            observation = result['catalog']
+            observation.update(bytes=len(value.encode()),
+                               sha256=hashlib.sha256(value.encode()).hexdigest())
+            try:
+                payload = json.loads(value)
+                rows = payload.get('runtimes') if isinstance(payload, dict) else None
+                observation.update(jsonRootType=type(payload).__name__,
+                                   runtimesType=type(rows).__name__)
+                if isinstance(rows, list):
+                    observation['rowCount'] = len(rows)
+                    selected = []
+                    for row in rows:
+                        if not isinstance(row, dict):
+                            continue
+                        identifier = row.get('identifier')
+                        if not isinstance(identifier, str) or not re.fullmatch(
+                                r'com\.apple\.CoreSimulator\.SimRuntime\.iOS-26-[0-9]+(?:-[0-9]+)?',
+                                identifier):
+                            continue
+                        item = {'identifier': identifier}
+                        for key in ('version', 'buildversion', 'isAvailable'):
+                            value_field = row.get(key)
+                            item[key + 'Type'] = type(value_field).__name__
+                            if (key == 'isAvailable' and type(value_field) is bool or
+                                    key != 'isAvailable' and isinstance(value_field, str) and
+                                    re.fullmatch(r'[A-Za-z0-9._-]{1,80}', value_field)):
+                                item[key] = value_field
+                        selected.append(item)
+                    observation['ios26'] = selected[:32]
+                observation['jsonValid'] = True
+                observation['result'] = 'PASS' if isinstance(rows, list) else 'FAIL'
+            except (ValueError, TypeError):
+                observation['jsonValid'] = False
+            # Osservazione soltanto: il parser/selector canonico riceve gli
+            # stessi byte e resta responsabile di accettare o fallire.
+        return value
+
+    owner.command = observe_command
+    handlers = {sig: signal.getsignal(sig) for sig in (signal.SIGTERM, signal.SIGINT)}
+    for sig in handlers:
+        signal.signal(sig, owner.interrupted)
+    primary = 0
+    try:
+        with TRACE.trace_processes(output / 'processes.jsonl') as emit:
+            try:
+                developer = '/Applications/Xcode_26.6.app/Contents/Developer'
+                result['toolchain'] = {'image_os': os.environ.get('ImageOS'),
+                    'image_version': os.environ.get('ImageVersion'),
+                    'developer_dir': os.environ.get('DEVELOPER_DIR')}
+                if os.environ.get('DEVELOPER_DIR') != developer or not Path(developer).is_dir():
+                    raise IOS.Failure(2, 'Xcode26.6 richiesto non presente/selezionato')
+                version = owner.command(['xcodebuild', '-version'], 30, capture=True).strip()
+                sdk = owner.command(['xcrun', '--sdk', 'iphonesimulator', '--show-sdk-version'],
+                                    30, capture=True).strip()
+                result['toolchain'].update(xcode_version=version[:256], simulator_sdk=sdk[:80])
+                if version.splitlines()[:1] != ['Xcode 26.6'] or sdk != '26.6':
+                    raise IOS.Failure(2, 'Xcode/SDK non coincide con superficie26.6')
+                emit('canonical-cold-prepare-start')
+                owner.prepare(headless=True, readiness_attestation=IOS.OWNED_DESCRIPTOR)
+                result['preflight'] = 'PASS'
+                emit('canonical-cold-prepare-end', result='PASS')
+            except (IOS.Failure, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
+                primary = error.code if isinstance(error, IOS.Failure) else 2
+                result.update(preflight='FAIL', error_type=type(error).__name__)
+                emit('canonical-cold-error', error_type=type(error).__name__, exit_code=primary)
+            finally:
+                if owner.record is not None:
+                    result['selectedRuntime'] = owner.record.get('runtime')
+                    result['selectedRuntimeVersion'] = owner.record.get('runtimeVersion')
+                    result['bootstatusCompleted'] = owner.record.get('bootstatusCompleted') is True
+                if owner.owns_receipt:
+                    for sig in handlers:
+                        signal.signal(sig, signal.SIG_IGN)
+                    try:
+                        result['cleanup'] = 'PASS' if owner.cleanup() else 'FAIL'
+                    except (IOS.Failure, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
+                        result.update(cleanup='FAIL', cleanup_error_type=type(error).__name__)
+                    if result['cleanup'] != 'PASS':
+                        primary = primary or 1
+                else:
+                    result['cleanup_reason'] = 'no_owned_receipt_or_device_created'
+                result['processCleanupFailed'] = bool(owner.process_cleanup_failed or
+                    owner.record is not None and owner.record.get('processCleanupFailed'))
+                if result['processCleanupFailed']:
+                    primary = primary or 1
+                result['exit_code'] = primary
+                with os.fdopen(os.open(output / 'result.json',
+                        os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), 'w') as saved:
+                    saved.write(json.dumps(result, indent=2) + '\n')
+    finally:
+        for sig, handler in handlers.items():
+            signal.signal(sig, handler)
+    return primary
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True)
     parser.add_argument('--keep-ready', action='store_true')
+    parser.add_argument('--profile', choices=('historical', 'canonical'), default='historical')
     options = parser.parse_args(argv)
+    if options.profile == 'canonical':
+        if options.keep_ready:
+            parser.error('canonical preflight vieta keep-ready e non esegue app')
+        return canonical_cold_preflight(options.output)
     output = Path(options.output)
     output.mkdir(parents=True, exist_ok=False)
     owner = IOS.IosOwnedRunner(output / 'owner.json')

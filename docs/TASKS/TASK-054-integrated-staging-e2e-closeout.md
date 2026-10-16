@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Handoff**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -1461,3 +1461,35 @@ source/focused PASS del fix. Il verbale precedente23:02:57 e i negativi eb0
 restano immutati. Il supplemento dei Checks finali non riscrive questo cutoff.
 
 `CODEX_REVIEW_BLOCKED`.
+
+
+## Emendamento operativo — ripresa 15 ottobre 2026
+
+Il mandato originale e l'addendum autorizzano runner GitHub separati e PR
+revisionabile; la scelta non richiede uno slot Mac. La ripresa conserva il
+branch esistente codex/task054-next-integration, PR29 draft, main bfbfc0b6 e
+candidate8f17774. Nessun nuovo branch/worktree, merge, deploy o accesso cloud.
+La risposta utente sugli input Maps autorizza il recupero di configurazioni
+TEST approvate esistenti; non sostituisce restrizioni, billing o authority owner.
+
+## Fix — diagnosi hosted precedente all'app
+
+La verifica distinta del run38324733546/attempt2 conferma5SUCCESS/2FAIL e
+quattro successi ereditati attempt1, sul medesimo8f. QUALITY-RR-01 chiuso nel
+perimetro Quality canonico:1243PASS/1SKIP,11performance,format409/0,analyze0.
+I due FAIL correnti sono hosted macos-26, su worker distinti: inventory runtime
+30s/exit124 prima di create nel journal; bootstatus300s/exit124 in Data Migration
+nel visual. Entrambi cleanupPASS; i negativi precedenti restano immutabili.
+
+Fix strumentale autorizzato nello scope: profilo canonical cold preflight nel
+workflow misurato esistente, Xcode26.6 su macos-26, niente Flutter/app/GUI o
+query simctl preliminari, prepare headless con descriptor canonico e cleanup.
+Ownerhelper, parser runtime, budget30/300 e gate canonici restano invariati.
+Il runtime osservato in attempt2 è iOS26.5, distinto dalla toolchain26.6.
+Prova remota unica dopo test Python e review distinta del diff; nessun retry
+identico e nessuna qualifica app/Google/GPS dedotta dalla readiness.
+
+[Capsula del fix diagnostico](EVIDENCE/TASK-054/next-integration/client-ios-cold-preflight-20261015.json):
+9 nuovi test e12 trasporto/legacy PASS, action pin e governancePASS; reviewer
+distinto APPROVED scoped, zero finding. Prova hosted NOT_RUN al freeze,
+acceptance integrataBLOCKED; nessuna auto-approvazione del prodotto.

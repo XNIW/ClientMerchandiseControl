@@ -8,18 +8,20 @@
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: REVIEW
-- **Responsabile**: CODEX_RE_REVIEWER
-- **Indicatore**: CODEX_REVIEW_BLOCKED
+- **Fase**: FIX
+- **Responsabile**: CODEX_FIXER
+- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
-- **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
-- **Prossima azione autorizzata**: pubblicare il fix QUALITY-RR-01 sulla PR29 draft
-  con fast-forward normale e verificare la CI canonica sul nuovo head. Focused
-  ec40596+formatter21a:497 PASS/1 SKIP/analyze0, review distinta source/focused;
-  finding pending Quality completo. CIeb0 terminale4SUCCESS/3FAIL preservata.
-  App07649 invariata; Android journal/corpus PASS. Journal iOS seed SDK FAIL e
-  visual iOS prepare/cleanup FAIL restano distinti; Maps/TEST/AT/firma aperti.
+- **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
+- **Prossima azione autorizzata**: preparare e revisionare il profilo diagnostico
+  cold preflight nel workflow misurato esistente, poi una sola prova GitHub
+  sul branch PR29 esistente. Nessun SDK/UI Mac: ownership mobile concorrente.
+  CI38324733546/attempt2 su8f17774:5SUCCESS/2FAIL, quattro successi ereditati
+  attempt1 sullo stesso SHA. Quality1243 PASS/1 SKIP/11performance, format409/0,
+  analyze0. Due FAIL iOS hosted prima dell'app: runtime inventory30s e
+  bootstatus300s/Data Migration; cleanup corrente PASS, negativi storici intatti.
+  App07649 invariata; Maps/TEST/AT/firma aperti, PR29 draft e merge HOLD.
   Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
   Checkpoint ba11/527/QAcb9 e negativi preservati; nessun SQL/deploy/input Admin/W/N.
 

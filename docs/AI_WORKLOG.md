@@ -5827,3 +5827,18 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   fixture→TEST/Google/AT, nessun merge/DONE. Nuovo CIhead da raccogliere separato.
 - **Ruolo/fase**: CODEX_RE_REVIEWER/REVIEW, task BLOCKED.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-15 — TASK-054 ripresa diagnostica hosted
+
+- **Mandato**: addendum, runner GitHub separati e PR revisionabile già autorizzati;
+  una prova discriminante prima dell'app, nessun SDK/UI Mac concorrente.
+- **Stato effettivo**: branch esistente codex/task054-next-integration,8f17774,
+  PR29 draft; main bfbfc0b6 e supabase/ non tracciato preservati.
+- **Verifica distinta**: CI38324733546/attempt2 terminale5SUCCESS/2FAIL, quattro
+  successi ereditati attempt1 exactSHA. QUALITY-RR-01 chiuso Quality1243/1SKIP,
+  11performance; due FAIL iOS hosted precedenti all'app, cleanup correntePASS.
+- **Fix nello scope**: profilo canonical cold preflight nel workflow misurato
+  esistente; test Python e review distinta prima della pubblicazione/prova unica.
+- **Ruolo/fase**: CODEX_FIXER/FIX, task BLOCKED per gate obbligatori esterni.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.

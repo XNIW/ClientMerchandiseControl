@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "dateLocal": "2026-10-15",
+  "role": "CODEX_FIXER",
+  "task": "TASK-054",
+  "scope": "diagnostica hosted precedente ad app e Flutter",
+  "baseline": "8f17774c9924522d346c1500182b285a2bc7589d",
+  "branch": "codex/task054-next-integration",
+  "pr": "https://github.com/XNIW/ClientMerchandiseControl/pull/29",
+  "sourceSha256": {
+    ".github/workflows/task054-ios-measured.yml": "05633cf882b3597093fd0874186633247b3ffeaf8aee3ae2e1a72af76ca15a8a",
+    "scripts/run-ios-preflight-measured.py": "80469a4ed68671acb0f4fa014754500ad4f85b2bbaf697f4bc8197c0ead5f0b9",
+    "scripts/test-ios-canonical-cold.py": "28f4eb0d6b1778d0e654b7b91c3a5669a3464fee487c19f95062325e5488a6b0",
+    "scripts/run-task054-ios-owned.py": "7b25957b11545649d1d3145f91cffcd0064e9f8078e8a3e46f622241aa0d9bea",
+    "scripts/trace-ios-owned-process.py": "9827d8173a4aee131d45025c392ecbe791f3bb86b159acdf77738b87816d7883"
+  },
+  "priorCanonical": {
+    "run": 38324733546,
+    "attempt": 2,
+    "success": 5,
+    "failure": 2,
+    "inheritedSuccessesFromAttempt1": 4,
+    "quality": {
+      "result": "PASS",
+      "testsPass": 1243,
+      "skipped": 1,
+      "performance": 11,
+      "format": "409/0",
+      "analyze": 0
+    },
+    "iosVisual": {
+      "result": "FAIL",
+      "operation": "bootstatus",
+      "seconds": 300,
+      "exitCode": 124,
+      "stage": "Data Migration",
+      "cleanup": "PASS"
+    },
+    "iosJournal": {
+      "result": "FAIL",
+      "operation": "list runtimes --json",
+      "seconds": 30,
+      "exitCode": 124,
+      "creationStarted": false,
+      "cleanup": "PASS"
+    }
+  },
+  "localChecks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-canonical-cold.py",
+      "result": "PASS",
+      "exitCode": 0,
+      "tests": 9
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-ios-process-trace.py",
+      "result": "PASS",
+      "exitCode": 0,
+      "tests": 12
+    },
+    {
+      "command": "bash scripts/check-action-pins.sh",
+      "result": "PASS",
+      "exitCode": 0
+    },
+    {
+      "command": "bash scripts/check-governance-state.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "setupFailureCorrected": "quattro campi di transizione inizialmente non ancora allineati"
+    },
+    {
+      "command": "bash scripts/check-client-security.sh",
+      "result": "PASS",
+      "exitCode": 0,
+      "trackedFiles": 1149
+    }
+  ],
+  "independentReview": {
+    "result": "APPROVED",
+    "scope": "solo diff diagnostico",
+    "findings": 0,
+    "receiptSha256": "3456f07c906744c3b777f074238d99768af6a4fdfee505e078595d6ac2f6e12a",
+    "checks": "9 cold + 6 legacy + 2 probe indipendenti, tutti PASS"
+  },
+  "experiment": {
+    "result": "NOT_RUN",
+    "reason": "freeze precedente alla pubblicazione e alla singola prova autorizzata",
+    "workflow": "task054-ios-measured.yml",
+    "inputs": {
+      "mode": "preflight",
+      "surface": "canonical"
+    },
+    "runner": "macos-26",
+    "developerDir": "/Applications/Xcode_26.6.app/Contents/Developer",
+    "policy": [
+      "nessun Flutter/app/GUI",
+      "nessun simctl help/list preliminare",
+      "ownerhelper e tracer invariati",
+      "runtime iOS26 disponibile scelto dal parser canonico",
+      "budget30/300 invariati",
+      "cleanup e primary preservati",
+      "nessun retry automatico"
+    ]
+  },
+  "acceptance": {
+    "application": "NOT_RUN",
+    "googleMaps": "BLOCKED",
+    "backendTest": "BLOCKED",
+    "merge": "HOLD"
+  },
+  "limits": [
+    "non e confronto A/B controllato",
+    "PASS preflight non qualifica app o causalita",
+    "no SDK/UI Mac eseguiti"
+  ]
+}

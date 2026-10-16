@@ -1402,5 +1402,230 @@ class PreflightLifecycleTest(unittest.TestCase):
             owner.cleanup.assert_not_called()
 
 
+class ReadinessResourceFirstTest(unittest.TestCase):
+    DEVICE = ReadinessObservationTest.DEVICE
+    CONTEXT = ReadinessObservationTest.CONTEXT
+
+    def observer(self):
+        observer = ReadinessObservationTest.observer(self)
+        observer.resource_authorize = Mock(return_value=True)
+        order = []
+        state = {'startIdentitySha256': 'c' * 64}
+        def read_state():
+            order.append('state')
+            return {'status': 'PASS'}, state
+        def capture(arguments, seconds):
+            kind = 'log' if arguments[0] == '/usr/bin/log' else 'sample'
+            order.append(kind)
+            if kind == 'log':
+                raw = json.dumps({'subsystem': 'com.apple.CoreSimulator.SimDevice',
+                    'eventMessage': self.DEVICE + ' spawn SECRET_SENTINEL',
+                    'timestamp': '2026-10-16 00:00:01+0000'}).encode()
+            else:
+                raw = b'Process: simctl [123]\n'
+            return {'status': 'PASS'}, raw, b''
+        observer.state = Mock(side_effect=read_state)
+        observer.capture.side_effect = capture
+        return observer, order
+
+    def test_existing_uuid_query_survives_state_budget_without_sampling(self):
+        observer, order = self.observer()
+        def blocked_state():
+            order.append('state')
+            return {'status': 'BLOCKED', 'reason': 'observerBudget'}, None
+        observer.state.side_effect = blocked_state
+        observer.run()
+        self.assertEqual(order, ['log', 'state'])
+        observer.resource_authorize.assert_called_once_with()
+        observer.stop.wait.assert_called_once_with(10)
+        observer.capture.assert_called_once()
+        args, seconds = observer.capture.call_args.args
+        self.assertEqual(args[:4], ['/usr/bin/log', 'show', '--style', 'ndjson'])
+        self.assertEqual(seconds, 3)
+        self.assertEqual(args[5], 'subsystem BEGINSWITH "com.apple.CoreSimulator" AND '
+                         'eventMessage CONTAINS[c] "' + self.DEVICE + '"')
+        event = next(call.kwargs for call in observer.emit.call_args_list
+                     if call.args[0] == 'readiness-owned-coresimulator')
+        self.assertEqual(len(event['logs']['rows']), 1)
+        self.assertEqual(event['logs']['rows'][0]['tokens'], ['spawn'])
+        self.assertNotIn('SECRET_SENTINEL', str(observer.emit.call_args_list))
+        self.assertFalse(any(call.args[0] == 'readiness-owned-stack'
+                             for call in observer.emit.call_args_list))
+
+    def test_success_keeps_pid_guards_and_one_query_with_same_budgets(self):
+        observer, order = self.observer()
+        observer.run()
+        self.assertEqual(order, ['log', 'state', 'sample', 'state'])
+        self.assertEqual(observer.state.call_count, 2)
+        self.assertEqual([call.args[1] for call in observer.capture.call_args_list], [3, 3])
+        self.assertEqual(observer.capture.call_args_list[1].args[0],
+                         ['/usr/bin/sample', '123', '1', '10', '-file', '/dev/stdout'])
+        self.assertEqual(sum(call.args[0] == 'readiness-owned-coresimulator'
+                             for call in observer.emit.call_args_list), 1)
+        stack = next(call.kwargs for call in observer.emit.call_args_list
+                     if call.args[0] == 'readiness-owned-stack')
+        self.assertTrue(stack['identityStable'])
+        self.assertTrue(stack['sample']['qualified'])
+        self.assertEqual(observer.timeout, 30)
+
+    def test_fresh_authorization_must_be_true_and_errors_are_finite(self):
+        for callback in (Mock(return_value=False), Mock(return_value=1),
+                         Mock(side_effect=RuntimeError('SECRET_SENTINEL')), 'not-callable'):
+            with self.subTest(callback=type(callback).__name__):
+                observer, _ = self.observer()
+                observer.resource_authorize = callback
+                observer.run()
+                observer.capture.assert_not_called()
+                observer.state.assert_not_called()
+                event = next(call.kwargs for call in observer.emit.call_args_list
+                             if call.args[0] == 'readiness-resource-authorization')
+                self.assertEqual(event['status'], 'NOT_RUN')
+                self.assertIn(event['reason'], ('ownershipChanged', 'callbackError'))
+                self.assertNotIn('SECRET_SENTINEL', str(observer.emit.call_args_list))
+
+    def test_completed_gate_before_or_during_authorization_does_not_query(self):
+        for when in ('before-target', 'before-stop', 'during-target', 'during-stop'):
+            with self.subTest(when=when):
+                observer, _ = self.observer()
+                def complete():
+                    if when.endswith('target'):
+                        observer.process.returncode = 0
+                    else:
+                        observer.stop.is_set.return_value = True
+                    return True
+                if when.startswith('before'):
+                    complete()
+                else:
+                    observer.resource_authorize.side_effect = complete
+                observer.run()
+                observer.capture.assert_not_called()
+                observer.state.assert_not_called()
+                self.assertEqual(observer.resource_authorize.call_count,
+                                 0 if when.startswith('before') else 1)
+
+    def test_completed_gate_after_query_does_not_start_pid_probes(self):
+        for target in (True, False):
+            observer, order = self.observer()
+            capture = observer.capture.side_effect
+            def complete(arguments, seconds):
+                result = capture(arguments, seconds)
+                if target:
+                    observer.process.returncode = 0
+                else:
+                    observer.stop.is_set.return_value = True
+                return result
+            observer.capture.side_effect = complete
+            observer.run()
+            self.assertEqual(order, ['log'])
+            observer.state.assert_not_called()
+
+    def test_query_nonpass_refusal_cap_or_timeout_stops_without_fallback(self):
+        for meta in ({'status': 'BLOCKED', 'reason': 'observerBudget'},
+                     {'status': 'BLOCKED', 'reason': 'byteCap'},
+                     {'status': 'NOT_RUN', 'reason': 'gateCompleted'},
+                     {'status': 'BLOCKED', 'permissionRefused': True},
+                     {'status': 'PASS', 'permissionRefused': True}):
+            with self.subTest(meta=meta):
+                observer, _ = self.observer()
+                observer.capture.side_effect = None
+                observer.capture.return_value = (meta, b'', b'')
+                observer.run()
+                observer.capture.assert_called_once()
+                self.assertEqual(observer.capture.call_args.args[0][0], '/usr/bin/log')
+                observer.state.assert_not_called()
+                self.assertIsNone(observer.failure)
+        observer, _ = self.observer()
+        observer.capture.side_effect = subprocess.TimeoutExpired('SECRET_SENTINEL', 3)
+        observer.run()
+        observer.capture.assert_called_once()
+        observer.state.assert_not_called()
+        self.assertIsInstance(observer.failure, subprocess.TimeoutExpired)
+        self.assertNotIn('SECRET_SENTINEL', str(observer.emit.call_args_list))
+
+    def test_pid_guard_and_sample_failure_after_query_still_stop(self):
+        observer, order = self.observer()
+        observer.state.return_value = ({'status': 'PASS'}, None)
+        observer.state.side_effect = None
+        observer.run()
+        self.assertEqual(order, ['log'])
+        self.assertEqual(observer.state.call_count, 1)
+        observer.capture.assert_called_once()
+        observer, order = self.observer()
+        capture = observer.capture.side_effect
+        def refuse_sample(arguments, seconds):
+            if arguments[0] == '/usr/bin/sample':
+                order.append('sample')
+                return {'status': 'BLOCKED', 'permissionRefused': True}, b'', b''
+            return capture(arguments, seconds)
+        observer.capture.side_effect = refuse_sample
+        observer.run()
+        self.assertEqual(order, ['log', 'state', 'sample'])
+        self.assertEqual(observer.state.call_count, 1)
+        observer, order = self.observer()
+        observer.state.side_effect = [({'status': 'PASS'}, {'startIdentitySha256': 'a'}),
+                                      ({'status': 'PASS'}, {'startIdentitySha256': 'b'})]
+        observer.run()
+        self.assertEqual(order, ['log', 'sample'])
+        self.assertEqual(observer.state.call_count, 2)
+        self.assertEqual(observer.capture.call_count, 2)
+        stack = next(call.kwargs for call in observer.emit.call_args_list
+                     if call.args[0] == 'readiness-owned-stack')
+        self.assertFalse(stack['identityStable'])
+        self.assertFalse(stack['sample']['qualified'])
+
+    def test_default_and_boot_keep_legacy_order_and_separate_authorizer(self):
+        for boot in (False, True):
+            observer, order = self.observer()
+            del observer.resource_authorize
+            if boot:
+                observer.__class__ = TRACE.BootstatusObservation
+                observer.authorize = Mock(return_value=True)
+                observer.timeout = 300
+            observer.run()
+            self.assertEqual(order, ['state', 'sample', 'state', 'log'])
+            self.assertFalse(any(call.args[0] == 'readiness-resource-authorization'
+                                 for call in observer.emit.call_args_list))
+        with patch.object(TRACE.threading.Thread, 'start'):
+            boot_authorize = Mock(return_value=True)
+            boot = TRACE.BootstatusObservation(Mock(), self.DEVICE, 300, Mock(), Mock(), boot_authorize)
+            self.assertIsNone(boot.resource_authorize)
+            self.assertIs(boot.authorize, boot_authorize)
+            self.assertEqual(boot.thread.name, 'owned-bootstatus-observer')
+
+    def test_visual_factory_callback_revalidates_exact_record_and_context(self):
+        class Process:
+            pid = 99001
+            returncode = None
+            stdout = stderr = stdin = None
+            def __init__(self, *_args, **_kwargs):
+                pass
+            def communicate(self, *_args, **_kwargs):
+                self.returncode = 0
+                return b'', b''
+            def poll(self):
+                return self.returncode
+        record = ReadinessObservationTest.record(self)
+        arguments = ['xcrun', 'simctl', 'spawn', self.DEVICE, 'launchctl', 'list']
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, self.CONTEXT), \
+             patch.object(TRACE.subprocess, 'Popen', Process), \
+             patch.object(TRACE.os, 'getpgid', return_value=99001), \
+             patch.object(TRACE.ReadinessObservation, '__init__', return_value=None) as constructor, \
+             patch.object(TRACE.ReadinessObservation, 'close'):
+            with TRACE.trace_processes(Path(directory) / 'ready.jsonl', readiness_record=lambda: record):
+                child = subprocess.Popen(arguments, start_new_session=True)
+                child.communicate(timeout=30)
+            constructor.assert_called_once()
+            callback = constructor.call_args.kwargs['resource_authorize']
+            self.assertIs(callback(), True)
+            record['cleanup'] = 'PASS'
+            self.assertIs(callback(), False)
+            record['cleanup'] = 'NOT_RUN'
+            with patch.dict(os.environ, GITHUB_RUN_ID='foreign'):
+                self.assertIs(callback(), False)
+            self.assertIs(callback(), True)
+            arguments[-1] = 'foreign'
+            self.assertIs(callback(), False)
+
+
 if __name__ == '__main__':
     unittest.main()

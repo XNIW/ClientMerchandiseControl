@@ -14,25 +14,25 @@
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: re-review finale del freeze b350aa96
-  conclusa BLOCKED per i gate obbligatori del candidato ancora NOT_RUN;
-  9 source e 7 documenti verificati per hash, senza nuovi test o scan.
-  Approval dc0d9927 resta limitata a source/pure/privacy: root 284 Python
-  in 12 suite e reviewer 51 test/176 casi indipendenti, senza sommarli.
-  Security locale 1157/zero/exit0 precede gli ultimi metadati di handoff;
-  pin4, governance del Fix e whitespace PASS da ricevute terminali.
-  Pubblicare il freeze sul ramo esistente con commit ordinario skipautomatico,
-  poi Quality hosted format/analyze/fullhost sul nuovo SHA, senza SDK Mac.
-  Solo dopo PASS, due domande native distinte sullo stesso candidato: visual
-  reason/PGID/SID/reap e journal passivo/checkpoint. I nuovi gate e fullCI7
-  sono NOT_RUN; e77 conserva Quality PASS e due FAIL propri, senza transfer.
-  Stessi budget300/30, owner/attestazioni/privacy; EPERM non viene ignorato,
-  nessun segnale alternativo o prova di quiescenza dal reap del leader.
-  V1/finding IOS-OBS-LIFECYCLE-RR-01, RED/setupfail e cutoff preservati.
-  Nessuna causa boot/EPERM/Keychain o acceptance nativa/live dichiarata.
-  Nessun retry identico, reset, nuovo branch/WT/accesso, SDK/device/inputMac
-  o Asus, SQL/deploy/merge/DONE. Maps/TEST/Auth/C04/R24/AT/IME/firma distinti;
-  task BLOCKED/REVIEW, PR29 draft, merge HOLD.
+- **Prossima azione autorizzata**: pubblicare sul ramo esistente il candidato
+  successivo a dd9c0b2, con quattro postimage source e sette documenti.
+  Fix P2 IOS-OWNED-KILL-EPERM-RR-01: patch 27ac8561, review 7be308cb
+  APPROVED source/pure/privacy; dopo il solo KILL/EPERM, wait proprio 2s e
+  stesso errore, primary 124 e cleanup FAIL. Possibile costo nuovo 2s in quel
+  ramo; nessun ulteriore segnale/probe o quiescenza inferita dal reap.
+  Resource-first dd199b8d, review b178343f APPROVED solo source/pure:
+  una query CoreSimulator UUID già prevista prima di ps, callback ownership
+  fresca e STOP su errore/rifiuto; Boot/default/journal passivo invariati.
+  Recupera evidenza UUID, non prova guest PID o sito d'attesa dai token.
+  Autore: tracer 80 e readiness 17 PASS; reviewer: RED causale 1/1 FAIL,
+  17 test mirati PASS; prove con provenienze distinte, non sommate.
+  Nuova Quality exact-SHA NOT_RUN, poi due nuove domande native motivate
+  soltanto dopo PASS: visual resource-first e journal wait KILL/EPERM.
+  Full CI7 NOT_RUN; budget 300/30, guard e cap invariati, nessun retry identico.
+  dd9 conserva Quality 38887332867 PASS e i due FAIL 38889394269/38889397834
+  dopo bootstatus 0; app/fixture NOT_RUN, cleanup visual PASS/journal FAIL.
+  Niente SDK Mac, nuovo branch/WT/accesso, reset, SQL/deploy/merge/DONE.
+  Maps/live e altri gate distinti; root writer attivo, PR29 draft, merge HOLD.
 
 ## Repository coinvolti
 

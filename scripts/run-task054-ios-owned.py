@@ -2,6 +2,7 @@
 """Un simulatore iOS proprio, riusabile fra smoke e visual in step separati."""
 import argparse
 import contextlib
+import errno
 import importlib.util
 import hashlib
 import json
@@ -247,6 +248,16 @@ def stop_owned_process(process):
             os.killpg(process.pid, sig)
         except ProcessLookupError:
             pass
+        except PermissionError as error:
+            if sig != signal.SIGKILL or error.errno != errno.EPERM:
+                raise
+            # Il rifiuto non prova quiescenza. Tentare solo il wait proprio
+            # già bounded2 e mantenere lo stesso EPERM anche se il leader esce.
+            try:
+                process.wait(timeout=2)
+            except (OSError, subprocess.SubprocessError, Failure):
+                pass
+            raise
         deadline = time.monotonic() + 5
         while True:
             try:

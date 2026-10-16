@@ -406,3 +406,55 @@ live BLOCKED distinti. Nessun PASS e77 trasferito, nessuna causa o quiescenza
 inferita; V1/RED/setupfail, errata e sezioni storiche Fix/Review preservati.
 
 `CODEX_REVIEW_BLOCKED`
+
+
+## Terminali dd9c0b2 e successivo fix cleanup — 16 ottobre
+
+Le tre ricette sono terminali sul solo
+`dd9c0b2b56cc16478df85f79dc5242313c07160f`; non sono una CI canonica
+con sette job e non trasferiscono PASS a revisioni successive.
+
+| CA / T | Comando o run | Risultato e limite |
+|---|---|---|
+| CA-05 / T-05 | Quality `38887332867`, ricetta canonica equivalente di 19 step | PASS: 1252 test, 1 SKIP, 11 performance, 352 Python in 16 suite; format 411/0, analyze 0, security 1157/zero, governance coerente. Receipt `20239566`, exit 0 dai singoli step SUCCESS |
+| CA-06 / T-06 | Visual iOS `38889394269` | FAIL: bootstatus EXIT0/126.850s, poi readiness 124; cleanup PASS. Smoke, app e visual NOT_RUN. Receipt `3a6fb9c1` |
+| CA-06 / T-06 | Journal iOS `38889397834` | FAIL: bootstatus EXIT0/156.452s, poi readiness 124; cleanup FAIL, secondo resource cleanup PASS. Fixture, seed/recover/checkpoint NOT_RUN. Receipt V2 `09dc2bca` |
+| CA-04 / T-04 | Repro e fix privato `IOS-OWNED-KILL-EPERM-RR-01` | PASS source/pure: autore RED 4 test/8 subcase FAIL exit 1, GREEN 4 PASS exit 0; reviewer distinto stessi RED/GREEN e 3 avversi PASS. Patch `27ac8561`, review `7be308cb`; nuovo hosted e native fix NOT_RUN |
+
+Le trace mostrano i leader HOST 31261 e 5246 ancora attivi al poll del
+timeout; non sono PID guest attestati. Popen separati 3.308/3.469s;
+communicate 28.611/26.874s sui residui 28.408/26.151s. Non si deduce un
+walltime totale di readiness entro 30s dal solo timeout passato a communicate.
+Nessuna inherited-pipe o causa trasporto/guest dimostrata.
+
+Visual: tre lifecycle finite, identità richieste e misurate coerenti, observer
+quiescent espliciti. Sample boot e state readiness oltre il loro budget;
+nessun frame o log UUID acquisito. EPERM/wait dopo EPERM NOT_TRAVERSED.
+Journal: il KILL/EPERM salta il wait esplicito, riprodotto puro; lo stato
+finale individuale del leader resta UNKNOWN e zombie_only del gruppo non
+identifica il PID del membro. Il fix conserva lo stesso EPERM, primary 124 e
+cleanup FAIL, tenta soltanto wait2; può aggiungere fino a 2s in quel ramo.
+
+Artifact visual 8435B e journal 7128B: digest API e publisher, CRC e privacy
+JSON/JSONL PASS. Nessun PNG, app o corpus nuovo. Immagini/worker distinti,
+nessun A/B. I warning stdout Quality (2 drag/hit-test, 32 Drift) e lo SKIP
+golden Linux restano espliciti, senza acceptance UX/database dal verde.
+La V1 journal con sole linee checkout errate resta preservata; V2 corregge
+39/124 senza cambiare gli esiti. Tutti i run e i collector sono terminali.
+
+Il lavoro continua sul fix applicato ai due postimage verificati e sul piano
+minimo per recuperare l'unica query CoreSimulator UUID già prevista prima
+della probe ps. Fonte/pure e source non qualificano quei futuri gate.
+Full CI7, Maps/TEST/Auth e gli altri gate restano distinti BLOCKED o NOT_RUN.
+
+
+Successivo freeze source: resource-first `dd199b8d` applicato dopo review
+indipendente `b178343f`, insieme al fix owner `27ac8561` già revisionato.
+Una query UUID allo stesso milestone, prima di ps, con callback ownership
+fresca e STOP su errore/rifiuto; stessi guard PID prima di sample. Parser e
+cap, budget300/30, default/Boot/journal passivo invariati. Scopo limitato a
+recuperare evidenza UUID, nessuna distinzione garantita trasporto/guest.
+Autore tracer80/readiness17 PASS; reviewer13mirati+4avversi PASS. RED causale
+isolato1/1FAIL senza errore API; setup mancanti preservati separatamente.
+Quattro source e sette documenti del writer; nuova Quality/native exact-SHA
+NOT_RUN. Review globale BLOCKED/CODEX_REVIEW_BLOCKED, PR29 draft/HOLD.

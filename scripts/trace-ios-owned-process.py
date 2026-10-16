@@ -70,9 +70,10 @@ class ReadinessObservation:
     LIFECYCLE_CAP = 2048
     UUID = re.compile(r'^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$')
 
-    def __init__(self, process, device, timeout, emit, popen):
+    def __init__(self, process, device, timeout, emit, popen, resource_authorize=None):
         self.process, self.device, self.timeout = process, device, timeout
         self.emit, self.popen = emit, popen
+        self.resource_authorize = resource_authorize
         self.stop = threading.Event()
         self.started = datetime.datetime.now(datetime.timezone.utc)
         self.thread = threading.Thread(target=self.run, name=self.THREAD_NAME)
@@ -392,6 +393,18 @@ class ReadinessObservation:
             rows.append(row)
         return {'rows': rows, 'rejected': rejected, 'rowLimit': 64}
 
+    def coresimulator_logs(self):
+        end = datetime.datetime.now(datetime.timezone.utc)
+        predicate = ('subsystem BEGINSWITH "com.apple.CoreSimulator" AND '
+                     'eventMessage CONTAINS[c] "' + self.device + '"')
+        meta, logs, _ = self.capture(
+            ['/usr/bin/log', 'show', '--style', 'ndjson', '--predicate', predicate,
+             '--start', self.started.strftime('%Y-%m-%d %H:%M:%S%z'),
+             '--end', end.strftime('%Y-%m-%d %H:%M:%S%z'), '--info', '--debug', '--no-pager'], 3)
+        self.emit('readiness-owned-coresimulator', probe=meta,
+                  logs=self.logs(logs, self.device) if meta['status'] == 'PASS' else None)
+        return meta
+
     def run(self):
         try:
             # Un milestone diagnostico al primo terzo del budget del comando esistente:
@@ -400,6 +413,30 @@ class ReadinessObservation:
             if self.timeout < 28 or self.stop.wait(self.timeout / 3):
                 self.emit('readiness-observation-skipped', reason='gateCompletedOrShortBudget')
                 return
+            resource_authorize = getattr(self, 'resource_authorize', None)
+            resource_first = resource_authorize is not None
+            if resource_first:
+                # Solo evidenza UUID correlata: nessuna identità HOST/guest o
+                # risposta specifica è deducibile da token o assenza di log.
+                if self.stop.is_set() or self.process.returncode is not None:
+                    self.emit('readiness-observation-skipped', reason='gateCompleted')
+                    return
+                try:
+                    authorized = callable(resource_authorize) and resource_authorize() is True
+                except Exception:
+                    self.emit('readiness-resource-authorization', status='NOT_RUN', reason='callbackError')
+                    return
+                if not authorized:
+                    self.emit('readiness-resource-authorization', status='NOT_RUN', reason='ownershipChanged')
+                    return
+                if self.stop.is_set() or self.process.returncode is not None:
+                    self.emit('readiness-observation-skipped', reason='gateCompleted')
+                    return
+                self.emit('readiness-resource-authorization', status='PASS', scope='ownedUUID')
+                meta = self.coresimulator_logs()
+                if (meta['status'] != 'PASS' or meta.get('permissionRefused') or
+                        self.stop.is_set() or self.process.returncode is not None):
+                    return
             before_meta, before = self.state()
             self.emit('readiness-owned-state', phase='before', probe=before_meta, state=before)
             if before is None or self.stop.is_set() or self.process.returncode is not None:
@@ -418,15 +455,8 @@ class ReadinessObservation:
                       sample_meta['status'] == 'PASS' else {'qualified': False, 'frames': []})
             if not stable or self.stop.is_set() or self.process.returncode is not None:
                 return
-            end = datetime.datetime.now(datetime.timezone.utc)
-            predicate = ('subsystem BEGINSWITH "com.apple.CoreSimulator" AND '
-                         'eventMessage CONTAINS[c] "' + self.device + '"')
-            meta, logs, _ = self.capture(
-                ['/usr/bin/log', 'show', '--style', 'ndjson', '--predicate', predicate,
-                 '--start', self.started.strftime('%Y-%m-%d %H:%M:%S%z'),
-                 '--end', end.strftime('%Y-%m-%d %H:%M:%S%z'), '--info', '--debug', '--no-pager'], 3)
-            self.emit('readiness-owned-coresimulator', probe=meta,
-                      logs=self.logs(logs, self.device) if meta['status'] == 'PASS' else None)
+            if not resource_first:
+                self.coresimulator_logs()
         except (OSError, subprocess.SubprocessError, ValueError) as error:
             self.failure = error
             self.emit('readiness-observation-error', error_type=type(error).__name__,
@@ -668,7 +698,9 @@ def trace_processes(destination, readiness_record=None, readiness_cleanup_failed
                         if group == self.pid:
                             readiness_consumed = True
                             observer = ReadinessObservation(
-                                self, device, timeout, emit, original_popen)
+                                self, device, timeout, emit, original_popen,
+                                resource_authorize=lambda: readiness_owner(
+                                    readiness_record(), self.trace_arguments) == device)
                     return self.measured_communicate(*args, **kwargs)
                 except BaseException as error:
                     primary = error

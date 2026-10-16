@@ -2193,3 +2193,65 @@ Nessun nuovo SDK/input Mac/Asus, branch/WT, reset, accesso, retry identico,
 budget/guard/refusal bypass, SQL/deploy, firma, merge o DONE autorizzati qui.
 
 `CODEX_REVIEW_BLOCKED`
+
+
+## Fix — 16 ottobre, wait proprio dopo KILL/EPERM
+
+Finding P2 `IOS-OWNED-KILL-EPERM-RR-01` dalle primarie journal dd9:
+`stop_owned_process` propaga EPERM sul KILL prima del wait esplicito.
+Source e trace non provano lo stato finale individuale del leader o che lo
+zombie del gruppo coincida col leader; nessuna causalità readiness.
+Autore privato: RED 4 test/8 subcase FAIL exit1, GREEN 4 PASS exit0. Reviewer
+cart distinto: stessi RED/GREEN e3 avversi PASS, sei percorsi legacy
+confrontati identici. Review7be308cb APPROVED solo source/pure/privacy.
+
+Writer root applica patch 27ac8561 su preimage dd9 esatti: solo owner e
+relative regressioni. Il nuovo ramo SIGKILL/errno EPERM tenta un wait2
+sull'handle proprio e rilancia lo stesso errore, anche con reap0 o waitFAIL
+previsti. TERM/EPERM ed EACCES invariati; nessun ulteriore segnale/probe.
+Primary124 e processCleanupFailed restano sticky. Il ramo può aggiungere
+fino a2s con il boundwait già esistente, non costo zero; budget300/30 e
+attestazioni invariati. Native fix/nuova Quality NOT_RUN al cutoff.
+
+I terminali dd9 restano distinti: Quality38887332867 PASS1252/1SKIP+
+11performance/352Python; visual 38889394269 boot0/126.850s poi readiness124
+HOST31261 alive/cleanup PASS; journal38889397834 boot0/156.452s poi124
+HOST5246 alive/cleanup FAIL, attempt2 resource PASS. App/fixture NOT_RUN.
+Nessun frame readiness acquisito: budget della probe ps, quindi diagnosi del sito
+di attesa ancora aperta; nessun retryidentico o blocco piattaforma inventato.
+
+Handoff corrente: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## Fix — 16 ottobre, query UUID prima della probe host
+
+Patch `dd199b8d`, due path tracer/test. La sola query CoreSimulator già
+prevista viene eseguita prima di ps al medesimo milestone, nel solo percorso
+readiness opt-in visual. La callback fresca deve confermare UUID e contesto;
+false/non-callable/errore fermano l'osservazione senza probe. Query non-PASS
+o rifiuto fermano senza fallback; dopo PASS, gate/returncode ricontrollati e
+identici guard PID/PPID/PGID/UID/start prima di sample, con identico postguard.
+Default, Bootstatus e journal passivo conservano il flusso precedente.
+
+Query unica/cap65536/budgetquery3s/trigger invariati; nessun nuovo CLI, input,
+dipendenza, ABI o permesso. Il costo diagnostico non è neutro. Il parser
+conserva UUID-match/timestamp/hash/token, non guest PID o risposta specifica;
+un token o l'assenza di eventi non prova causa o sito d'attesa.
+
+Autore: RED causale isolato 1 test/1 assertion FAIL senza errore API; nuovi9
+contro vecchio contratto:18subcaseFAIL e2errori distinti. GREEN tracer80 e
+readiness17 PASS/exit0, support owner post27ac verificato. Due failure setup
+private per supporti mancanti restano preservate, senza modifica del workflow.
+Reviewer cold distinto: RED isolato1/1FAIL,13mirati e4avversiPASS/exit0;
+manifest36/36, capture/state/parser/close/Boot e querybody invariati.
+Receipt `b178343f`: APPROVED soltanto source/pure; globale BLOCKED.
+
+Writer applica i due postimage dopo preimage/hash/applycheck. Composito con
+il fix owner27ac: quattro source esatti e sette documenti. Nessun codice app,
+fixture Dart, configurazione nativa o dipendenza cambiato da dd9. Consegna del
+Fix: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`; la review distinta assegna globale
+`CODEX_REVIEW_BLOCKED` perché nuovi gate hosted/native sono NOT_RUN.
+Prossimo passo: commit ordinario sul ramo esistente, Quality sul nuovo SHA;
+solo dopo PASS, una domanda visual resource-first e una journal wait su EPERM.
+
+Handoff corrente: `CODEX_REVIEW_BLOCKED`.

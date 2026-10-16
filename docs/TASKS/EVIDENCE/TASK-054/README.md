@@ -9,7 +9,32 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
-## Handoff diagnostico composto
+## Candidato successivo ai terminali dd9c0b2
+
+Quattro postimage source e sette documenti del writer. Fix KILL/EPERM
+27ac8561 con review 7be308cb APPROVED source/pure/privacy: un wait proprio
+2s, stesso EPERM/primary124/cleanupFAIL, nessun altro segnale o probe.
+Resource-first dd199b8d con review b178343f APPROVED source/pure: la sola
+query UUID già prevista precede ps, con ownership fresca e STOP; default,
+Boot e journal passivo invariati. Query/cap/trigger/budget300/30 invariati.
+Autore 80 tracer e 17 readiness PASS; reviewer 17 mirati PASS, con provenienze
+distinte. Callback/parse non qualificano guest PID o sito d'attesa dai token.
+
+Quality hosted sul futuro SHA e le due domande native motivate sono NOT_RUN;
+solo dopo Quality PASS: visual resource-first, journal wait KILL/EPERM.
+Review globale BLOCKED, CODEX_REVIEW_BLOCKED; PR29 draft e merge HOLD.
+Nessuna nuova suite o scan duplicata sul WT a byte identici; gli ultimi gate
+di governance e whitespace del writer saranno registrati nella ricevuta finale.
+
+I terminali dd9 restano propri: Quality38887332867 PASS1252/1SKIP+
+11performance/352Python, format411/0, analyze0; visual38889394269 e journal
+38889397834 FAIL124 dopo bootstatus0. Leader HOST vivo, guest/app/fixture
+non osservati. Cleanup visual PASS; journal FAIL, secondo resource PASS.
+Capsule 3a6fb9c1/09dc2bca e tutti i negativi sono preservati. Nessun SDK Mac,
+reset, nuovo accesso, SQL/deploy/merge/DONE. Maps e gate live distinti.
+
+## Freeze diagnostico precedente ai run dd9
+
 
 Re-review finale del freeze diagnostico b350aa96: 9 source e 7 documenti
 verificati per hash; esito globale BLOCKED, CODEX_REVIEW_BLOCKED. Il composito

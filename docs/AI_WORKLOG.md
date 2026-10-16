@@ -6172,3 +6172,40 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
 - **Prossimo passo**: commit ordinario skipautomatico sul ramo esistente e
   Quality hosted; soltanto dopo PASS le due domande native discriminanti.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-16 — TASK-054 Fix wait proprio dopo KILL EPERM
+
+- **Ruolo/fase**: CODEX_FIXER / FIX; task BLOCKED, unico writer root.
+- **Primarie**: dd9 Quality 38887332867 PASS; visual 38889394269 e journal
+  38889397834 FAIL 124 dopo boot0. leader HOST alive, app/fixture NOT_RUN;
+  cleanup visual PASS, journal FAIL con attempt2 resource PASS. Capsule integre.
+- **Finding/fix**: P2 IOS-OWNED-KILL-EPERM-RR-01, patch 27ac8561. Autore
+  RED4/8subcaseFAIL→GREEN 4 PASS; review distinta 7be308cb scoped APPROVED,
+  stessi4regressioni+3 avversi PASS,6legacyidentici;50 vecchi test AST invariati.
+  Root verifica pre/postimage e applica 2 path: solo KILL/EPERM → wait2 → stesso errore.
+  Primary 124/sticky FAIL restano; nessun altro segnale/probe o quiescenza inferita.
+- **Limiti**: possibile nuovo costo2s nel ramo prima immediato, budget300/30
+  invariati. Nuova Quality/native fix NOT_RUN; diagnosi readiness in corso
+  prima della prossima domanda motivata, nessun retry identico. Nessun SDK Mac, nuovo
+  accesso/reset/SQL/deploy/merge/DONE; PR29 draft/HOLD, writer attivo.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-16 — TASK-054 Fix cleanup e resource-first consegnato
+
+- **Applicazione**: quattro postimage source verificati, patch27ac8561 e
+  dd199b8d; due review distinte7be308cb/b178343f APPROVED solo source/pure.
+  Owner wait2 conserva EPERM/primary124/stickyFAIL; resource-first mantiene
+  unica query, fresh ownership e STOP, guard PID/Boot/journal invariati.
+- **Evidence**: owner autore4regressioni e reviewer3avversi PASS; resource
+  autore80tracer+17readiness PASS, reviewer17mirati PASS. RED causale1/1FAIL
+  senza mismatch API, negativi/harness precedenti preservati. Nessun native
+  o SDK Mac e nessuna somma di conteggi con provenienze sovrapposte.
+- **Limiti**: query/cap/trigger/budget300/30 invariati, possibile costo2s
+  nel ramo KILL/EPERM. Token log non provano guestPID o sito d'attesa.
+  Nuova Quality e native sul successivo SHA NOT_RUN; fullCI7 NOT_RUN.
+- **Transizione**: CODEX_FIX_BLOCKED_TO_RE_REVIEW, poi esito globale BLOCKED
+  della review cold b178343f. Root unico writer attivo per commit ordinario,
+  Quality e due domande native motivate, senza retry identico o nuovi accessi.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

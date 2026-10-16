@@ -860,5 +860,101 @@ class IosOwnedTest(unittest.TestCase):
                         except ProcessLookupError: pass
 
 
+class OwnedKillEpermReapTest(unittest.TestCase):
+    """Solo mock: KILL EPERM deve conservare errore e tentare il wait proprio."""
+
+    def scenario(self, outcome=0, *, term_error=False, error_number=1):
+        process = Mock(pid=5246, returncode=None, stdout=Mock())
+        process.wait.side_effect = outcome if isinstance(outcome, BaseException) else None
+        process.wait.return_value = outcome if not isinstance(outcome, BaseException) else None
+        signal_error = PermissionError(error_number, 'SECRET_SIGNAL_MESSAGE', 'SECRET_FILENAME')
+        probe_error = subprocess.TimeoutExpired('SECRET_PROBE_ARGV', 2)
+        order = []
+        def signal_group(group, sig):
+            order.append(('signal', group, int(sig)))
+            if term_error or sig == signal.SIGKILL:
+                raise signal_error
+        def group_probe(group):
+            order.append(('probe', group))
+            raise probe_error
+        def wait(*, timeout):
+            order.append(('wait', timeout))
+            if isinstance(outcome, BaseException):
+                raise outcome
+            return outcome
+        process.wait.side_effect = wait
+        with patch.object(MODULE.os, 'killpg', side_effect=signal_group) as kill, \
+             patch.object(MODULE, 'group_has_live_members', side_effect=group_probe) as probe, \
+             patch.object(MODULE.time, 'sleep') as sleep, \
+             patch.object(MODULE, 'process_diagnostic') as diagnostic:
+            with self.assertRaises(PermissionError) as caught:
+                MODULE.stop_owned_process(process)
+        self.assertIs(caught.exception, signal_error)
+        process.poll.assert_not_called()
+        process.communicate.assert_not_called()
+        sleep.assert_not_called()
+        diagnostic.assert_not_called()
+        return process, kill, probe, order
+
+    def test_kill_eperm_attempts_same_bounded_wait_for_zero_nonzero_and_signal_exit(self):
+        for code in (0, 2, -15):
+            with self.subTest(exit_code=code):
+                process, kill, probe, order = self.scenario(code)
+                process.wait.assert_called_once_with(timeout=2)
+                probe.assert_called_once_with(5246)
+                self.assertEqual(order, [('signal', 5246, int(signal.SIGTERM)), ('probe', 5246),
+                    ('signal', 5246, int(signal.SIGKILL)), ('wait', 2)])
+                self.assertEqual([call.args for call in kill.call_args_list],
+                    [(5246, signal.SIGTERM), (5246, signal.SIGKILL)])
+
+    def test_wait_failure_never_masks_original_kill_eperm_or_retries(self):
+        for error in (subprocess.TimeoutExpired('SECRET_WAIT_ARGV', 2),
+                OSError(5, 'SECRET_WAIT_MESSAGE'), subprocess.SubprocessError('SECRET_WAIT_MESSAGE'),
+                MODULE.Failure(9, 'SECRET_WAIT_MESSAGE')):
+            with self.subTest(error_type=type(error).__name__):
+                process, kill, probe, order = self.scenario(error)
+                process.wait.assert_called_once_with(timeout=2)
+                self.assertEqual(order[-1], ('wait', 2))
+                self.assertEqual(kill.call_count, 2)
+                self.assertEqual(probe.call_count, 1)
+
+    def test_term_eperm_and_other_kill_errno_keep_existing_no_wait_branch(self):
+        for term_error, number in ((True, 1), (False, 13)):
+            with self.subTest(term_error=term_error, errno=number):
+                process, kill, probe, order = self.scenario(term_error=term_error, error_number=number)
+                process.wait.assert_not_called()
+                self.assertEqual(kill.call_count, 1 if term_error else 2)
+                self.assertEqual(probe.call_count, 0 if term_error else 1)
+
+    def test_command_keeps_primary_124_sticky_cleanup_failure_and_sanitized_diagnostics(self):
+        runner = MODULE.IosOwnedRunner()
+        process = Mock(pid=5246, returncode=None)
+        process.communicate.side_effect = subprocess.TimeoutExpired(
+            'SECRET_READINESS_ARGV', 26.1, output='SECRET_PARTIAL_OUTPUT')
+        process.wait.return_value = 0
+        original = PermissionError(1, 'SECRET_SIGNAL_MESSAGE', 'SECRET_FILENAME')
+        output = io.StringIO()
+        with patch.object(MODULE.subprocess, 'Popen', return_value=process) as popen, \
+             patch.object(MODULE.os, 'killpg', side_effect=[None, original]) as kill, \
+             patch.object(MODULE, 'group_has_live_members', side_effect=subprocess.TimeoutExpired(
+                 'SECRET_PROBE_ARGV', 2)) as probe, \
+             contextlib.redirect_stdout(output):
+            with self.assertRaises(MODULE.Failure) as caught:
+                runner.command(['owned-fixture'], 26.1, capture=True)
+        self.assertEqual(caught.exception.code, 124)
+        self.assertTrue(runner.process_cleanup_failed)
+        process.wait.assert_called_once_with(timeout=2)
+        process.communicate.assert_called_once_with(timeout=26.1)
+        self.assertEqual(kill.call_count, 2)
+        probe.assert_called_once_with(5246)
+        popen.assert_called_once_with(['owned-fixture'], start_new_session=True,
+            stdout=subprocess.PIPE, text=True)
+        events = [json.loads(line.removeprefix('DIAGNOSTIC: '))
+            for line in output.getvalue().splitlines() if line.startswith('DIAGNOSTIC: ')]
+        self.assertEqual(events, [{'operation': 'commandCleanup', 'ownedPgid': 5246,
+            'errorType': 'PermissionError', 'errno': 1}])
+        self.assertNotIn('SECRET_', output.getvalue())
+
+
 if __name__ == '__main__':
     unittest.main()

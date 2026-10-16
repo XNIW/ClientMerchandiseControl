@@ -413,3 +413,47 @@ V1/RED/setupfail, errata e capsule e77 non vengono riscritti; nessuna causa
 boot/EPERM/Keychain o quiescenza inferita. Maps/TEST/Auth/C04/R24/AT/IME/firma
 restano distinti. Nessun SDK/inputMac/Asus, reset, nuovo accesso, SQL/deploy,
 retry identico, merge o DONE; PR29 resta draft/HOLD.
+
+
+## Aggiornamento verificato — terminali dd9 e fix cleanup
+
+Sul candidato `dd9c0b2`, Quality `38887332867` PASS: 1252 test/1 SKIP,
+11 performance, 352 Python, format 411/0 e analyze 0. Source e fixture
+rimangono distinti dall'accettazione nativa/live.
+
+Entrambe le nuove prove completano bootstatus e falliscono nella successiva
+readiness `launchctl list`: visual `38889394269` (boot 126.850s, cleanup PASS)
+e journal `38889397834` (boot 156.452s, cleanup FAIL; secondo resource cleanup
+PASS). I poll qualificano leader HOST ancora attivi, non processi guest.
+App, smoke/visual e journal seed/recover/checkpoint restano NOT_RUN. Nessun
+PNG/corpus nuovo; artifact JSON/JSONL verificati con digest API/publisher e CRC.
+
+Il journal rende riproducibile il finding P2
+`IOS-OWNED-KILL-EPERM-RR-01`: KILL/EPERM esce prima del wait esplicito.
+Patch privata `27ac8561`, review distinta `7be308cb` APPROVED soltanto
+source/pure/privacy, applicata dal writer dopo verifica dei due pre/postimage.
+RED 4 test/8 subcase FAIL → GREEN 4 PASS; reviewer 3 avversi PASS. Un solo
+wait2 sul child proprio; stesso errore, primary 124 e cleanup FAIL, nessun
+altro segnale o probe. Il costo può crescere di 2s in quel ramo; budget
+300/30 invariati. Nuovo hosted/native fix NOT_RUN. Nessuna causa della
+readiness o quiescenza dedotta dal reap o dagli stati del gruppo.
+
+La diagnosi prosegue per recuperare i log della UUID posseduta prima che
+una probe ps oltre budget li renda non attraversati. I token generici del
+parser attuale non attestano guest PID o risposta specifica: sito d'attesa
+ancora UNKNOWN. Nessun retry identico o nuova domanda senza discriminante.
+Maps reale, ordine TEST/corriere/producer, Auth, C04/R24, AT/IME/fisico e
+firma/distribuzione restano separati. PR29 draft, merge HOLD; niente SDK Mac,
+nuovo accesso persistente, billing, SQL/deploy, merge o DONE.
+
+
+Successivo freeze source: resource-first `dd199b8d` applicato dopo review
+indipendente `b178343f`, insieme al fix owner `27ac8561` già revisionato.
+Una query UUID allo stesso milestone, prima di ps, con callback ownership
+fresca e STOP su errore/rifiuto; stessi guard PID prima di sample. Parser e
+cap, budget300/30, default/Boot/journal passivo invariati. Scopo limitato a
+recuperare evidenza UUID, nessuna distinzione garantita trasporto/guest.
+Autore tracer80/readiness17 PASS; reviewer13mirati+4avversi PASS. RED causale
+isolato1/1FAIL senza errore API; setup mancanti preservati separatamente.
+Quattro source e sette documenti del writer; nuova Quality/native exact-SHA
+NOT_RUN. Review globale BLOCKED/CODEX_REVIEW_BLOCKED, PR29 draft/HOLD.

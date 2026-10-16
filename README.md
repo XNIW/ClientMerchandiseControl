@@ -201,6 +201,27 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
 
+Sul commit pubblicato `dd9c0b2`, Quality `38887332867` è PASS: 1252 test,
+1 SKIP, 11 performance, 352 Python, format 411/0 e analyze 0. Visual
+`38889394269` e journal `38889397834` completano bootstatus e falliscono
+nella successiva readiness; app e fixture non sono state eseguite. Cleanup
+visual PASS; journal FAIL, con secondo cleanup della risorsa PASS. I leader
+osservati sono HOST, senza PID guest o causa del timeout qualificati.
+
+Il finding P2 `IOS-OWNED-KILL-EPERM-RR-01` è riprodotto e corretto nel
+worktree: dopo il solo KILL/EPERM, un wait proprio bounded 2s e lo stesso
+errore propagato. Patch `27ac8561`, review distinta `7be308cb` APPROVED
+soltanto source/pure/privacy; primary 124 e cleanup FAIL restano preservati.
+I gate sul successivo candidato sono NOT_RUN. È applicato anche il riordino
+minimo dell'unica query CoreSimulator UUID già prevista, con ownership fresca
+e STOP su errore/rifiuto, per recuperare evidenza prima censurata dalla ps.
+Patch `dd199b8d`, review distinta `b178343f` APPROVED solo source/pure: 80
+tracer e 17 readiness PASS dell'autore; 17 mirati PASS indipendenti.
+Nessun token generico dimostra guest PID o sito d'attesa. Budget 300/30
+invariati; PR29 draft, merge HOLD, nessun SDK Mac o nuovo accesso.
+
+Il paragrafo seguente conserva il freeze precedente ai run dd9.
+
 Re-review finale del freeze diagnostico b350aa96: 9 source e 7 documenti
 verificati per hash; esito globale BLOCKED, CODEX_REVIEW_BLOCKED. Il composito
 1ad30c7006ad conserva approval dc0d9927 solo source/pure/privacy: root 284

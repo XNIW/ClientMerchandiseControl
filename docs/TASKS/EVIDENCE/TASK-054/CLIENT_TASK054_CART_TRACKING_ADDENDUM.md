@@ -457,3 +457,40 @@ Autore tracer80/readiness17 PASS; reviewer13mirati+4avversi PASS. RED causale
 isolato1/1FAIL senza errore API; setup mancanti preservati separatamente.
 Quattro source e sette documenti del writer; nuova Quality/native exact-SHA
 NOT_RUN. Review globale BLOCKED/CODEX_REVIEW_BLOCKED, PR29 draft/HOLD.
+
+
+## Terminali 516 — 16 ottobre
+
+Sul solo `516bb9e`, [Quality38893955534](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38893955534)
+PASS:1252/1SKIP,+11performance,365Python,format411/0,analyze0.
+[Visual38895852835](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38895852835)
+FAIL124 readiness dopo boot0: query UUID BLOCKED3.409s/0B, ownership/STOP
+attraversati; cleanupPASS, app/visualNOT_RUN.
+[Journal38895857215](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38895857215)
+FAIL1 recover dopo prepare e seed36545PASS; recover37155 terminal_gate/assertion
+senza sottopredicati conservati. CleanupPASS non certifica clear/readback;
+guard finale bundle/containerNOT_RUN. Nessuna causa app/Keychain dimostrata.
+
+Capsule Quality58034f45/visualV2d6c8fa64/journala4ee9e22 e consolidamento37748031;
+API/publisher/CRC verificati. KILL/EPERM non attraversato, worker/immagini distinti,
+nessun A/B. FullCI7 NOT_RUN; dettagli nella validation e nel Fix del task.
+
+R13/R14 TEST tra processi e R17 Maps reale restano distinti BLOCKED; i riferimenti
+protetti già richiesti non sono recuperati, senza inferire inesistenza. Nessuna
+nuova richiesta duplicata, discovery o account/billing. La diagnosi source/pure
+prosegue nel ciclo Fix con metadati finiti e osservazione live bounded.
+
+
+## Discriminanti successivi a516 — freeze source/pure
+
+Applicati6source dopo review distinte: journalV5 `218b49a8`/`4397c850`, querylive
+`4fa45f1e`/`9467c7d4`. Concessa approval solo source/pure: reviewer journal
+RED1/1FAIL e39+6PASS; query RED1/1FAIL e12+3PASS, exit0. V5conserva7predicati,
+8expect e I/O, aggiungendo solo snapshot/maskqualificata95valori/64implica8.
+V1/findingstatico80b2237 preservato, bangtolto inV2; SDK/analyzeNOT_RUN.
+Solo resource-first usa streamnominale1s/capture3, ownership/cap/STOP invariati,
+legacy/Boot/parser/cleanup immutati. Live cambia coverage;0righeUNKNOWN,
+nessuna causa/guestPID/sitoattesa inferiti. Supporttestowner storico50 dichiarato,
+non equivalenza o esecuzione54. NuoviQuality/native exact-SHA NOT_RUN alfreeze;
+app/config/deps invariati. GlobaleBLOCKED/CODEX_REVIEW_BLOCKED, draft/HOLD;
+Maps e R13/R14 reali restano distinti, nessun SDKMac/accesso/deploy/merge/DONE.

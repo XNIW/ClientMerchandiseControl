@@ -1440,7 +1440,7 @@ class ReadinessResourceFirstTest(unittest.TestCase):
         observer.stop.wait.assert_called_once_with(10)
         observer.capture.assert_called_once()
         args, seconds = observer.capture.call_args.args
-        self.assertEqual(args[:4], ['/usr/bin/log', 'show', '--style', 'ndjson'])
+        self.assertEqual(args[:4], ['/usr/bin/log', 'stream', '--style', 'ndjson'])
         self.assertEqual(seconds, 3)
         self.assertEqual(args[5], 'subsystem BEGINSWITH "com.apple.CoreSimulator" AND '
                          'eventMessage CONTAINS[c] "' + self.DEVICE + '"')
@@ -1625,6 +1625,205 @@ class ReadinessResourceFirstTest(unittest.TestCase):
             self.assertIs(callback(), True)
             arguments[-1] = 'foreign'
             self.assertIs(callback(), False)
+
+
+class ReadinessLiveQueryTest(unittest.TestCase):
+    DEVICE = ReadinessObservationTest.DEVICE
+    CONTEXT = ReadinessObservationTest.CONTEXT
+
+    def scenario(self, *, output=b'', exit_code=0, mode='eof'):
+        observer, _ = ReadinessResourceFirstTest.observer(self)
+        observer.capture = TRACE.ReadinessObservation.capture.__get__(observer)
+        observer.state = Mock(return_value=({'status': 'BLOCKED', 'reason': 'observerBudget'}, None))
+        child = Mock(pid=321, returncode=None, stdout=Mock(), stderr=Mock())
+        child.stdout.fileno.return_value = 11
+        child.stderr.fileno.return_value = 12
+        child.poll.side_effect = lambda: child.returncode
+        def wait(**_kwargs):
+            child.returncode = exit_code
+            return exit_code
+        child.wait.side_effect = wait
+        observer.popen = Mock(return_value=child)
+        chunks = [output[i:i + 4096] for i in range(0, len(output), 4096)] + [b'']
+        reads = {11: chunks, 12: [b'']}
+        class Selector:
+            def __init__(self):
+                self.mapping = {}
+            def __enter__(self):
+                return self
+            def __exit__(self, *_args):
+                return False
+            def register(self, pipe, _events, data):
+                self.mapping[pipe.fileno()] = Mock(fileobj=pipe, data=data)
+            def unregister(self, pipe):
+                self.mapping.pop(pipe.fileno())
+            def get_map(self):
+                return self.mapping
+            def select(self, _timeout):
+                if mode == 'cancel':
+                    observer.stop.is_set.return_value = True
+                    return []
+                return [(key, None) for key in list(self.mapping.values())]
+        def read(descriptor, count):
+            self.assertEqual(count, 4096)
+            if mode == 'readerror':
+                raise OSError(TRACE.errno.EIO, 'SECRET_READ_MESSAGE')
+            return reads[descriptor].pop(0)
+        def signal_group(group, signum):
+            if signum == signal.SIGKILL:
+                if mode == 'cleanuperror':
+                    raise PermissionError(TRACE.errno.EPERM, 'SECRET_CLEANUP_MESSAGE')
+                raise ProcessLookupError(TRACE.errno.ESRCH, 'SECRET_ABSENT_MESSAGE')
+        with patch.object(TRACE.selectors, 'DefaultSelector', Selector), \
+             patch.object(TRACE.os, 'read', side_effect=read), \
+             patch.object(TRACE.os, 'getpgid', return_value=321), \
+             patch.object(TRACE.os, 'getsid', return_value=321), \
+             patch.object(TRACE.os, 'killpg', side_effect=signal_group) as kill, \
+             patch.object(TRACE.time, 'monotonic', side_effect=[0, 4] if mode == 'budget' else None,
+                          return_value=0):
+            observer.run()
+        observer.fixture_kill_calls = list(kill.call_args_list)
+        return observer, child
+
+    def log_event(self, observer):
+        return next(call.kwargs for call in observer.emit.call_args_list
+                    if call.args[0] == 'readiness-owned-coresimulator')
+
+    def test_resource_query_replaces_historical_show_with_one_self_timed_stream(self):
+        observer, order = ReadinessResourceFirstTest.observer(self)
+        observer.state.side_effect = None
+        observer.state.return_value = ({'status': 'BLOCKED'}, None)
+        observer.run()
+        arguments, seconds = observer.capture.call_args.args
+        self.assertEqual(arguments, ['/usr/bin/log', 'stream', '--style', 'ndjson', '--predicate',
+            'subsystem BEGINSWITH "com.apple.CoreSimulator" AND eventMessage CONTAINS[c] "' + self.DEVICE + '"',
+            '--level', 'debug', '--timeout', '1'])
+        self.assertEqual(seconds, 3)
+        observer.capture.assert_called_once()
+        observer.resource_authorize.assert_called_once_with()
+        observer.stop.wait.assert_called_once_with(10)
+        self.assertEqual(order, ['log'])
+
+    def test_real_capture_finite_eof_zero_exit_without_uuid_is_collection_only(self):
+        for raw in (b'', b'Filtering data using predicate\n{"finished":true}\n'):
+            with self.subTest(bytes=len(raw)):
+                observer, child = self.scenario(output=raw)
+                event = self.log_event(observer)
+                self.assertEqual(event['probe']['status'], 'PASS')
+                self.assertEqual(event['probe']['exitCode'], 0)
+                self.assertEqual(event['logs']['rows'], [])
+                self.assertEqual(set(event), {'probe', 'logs', 'queryMode', 'nominalWindowSeconds'})
+                self.assertEqual((event['queryMode'], event['nominalWindowSeconds']), ('live', 1))
+                self.assertNotIn('eventCoverage', event)
+                # Zero rows qualifica solo la raccolta: nessuna prova di assenza.
+                observer.state.assert_called_once_with()
+                observer.popen.assert_called_once()
+                self.assertEqual([call.kwargs['timeout'] for call in child.wait.call_args_list], [.5, .5])
+                child.stdout.close.assert_called_once_with()
+                child.stderr.close.assert_called_once_with()
+                self.assertEqual([(call.args[0], call.args[1]) for call in observer.fixture_kill_calls],
+                                 [(321, signal.SIGKILL)])
+
+    def test_existing_parser_keeps_only_uuid_metadata_and_rejects_service_partial_foreign_rows(self):
+        good = {'subsystem': 'com.apple.CoreSimulator.SimDevice',
+                'eventMessage': self.DEVICE + ' spawn SECRET_SENTINEL',
+                'timestamp': '2026-10-16 00:00:01+0000', 'processID': 999,
+                'processImagePath': '/Users/SECRET_SENTINEL'}
+        raw = b'\n'.join([json.dumps(good).encode(),
+            json.dumps(dict(good, eventMessage='FOREIGN_UUID SECRET_SENTINEL')).encode(),
+            b'Filtering data using predicate', b'{"finished":true}',
+            b'{"eventMessage":"SECRET_PARTIAL',
+            json.dumps(dict(good, subsystem='com.apple.CustomerData')).encode()])
+        observer, _ = self.scenario(output=raw)
+        event = self.log_event(observer)
+        self.assertEqual(len(event['logs']['rows']), 1)
+        self.assertEqual(event['logs']['rejected'], 5)
+        self.assertEqual(event['logs']['rows'][0]['tokens'], ['spawn'])
+        self.assertNotIn('SECRET_', str(observer.emit.call_args_list))
+        self.assertNotIn('processID', json.dumps(event))
+        self.assertNotIn('processImagePath', json.dumps(event))
+
+    def test_real_capture_nonzero_including_internal_timeout_never_becomes_pass_or_fallback(self):
+        for code in (1, 64, 124, -15):
+            with self.subTest(exit_code=code):
+                observer, child = self.scenario(exit_code=code)
+                event = self.log_event(observer)
+                self.assertEqual(event['probe']['status'], 'BLOCKED')
+                self.assertEqual(event['probe']['reason'], 'observerExit')
+                self.assertEqual(event['probe']['exitCode'], code)
+                self.assertIsNone(event['logs'])
+                observer.state.assert_not_called()
+                observer.popen.assert_called_once()
+                child.stdout.close.assert_called_once_with()
+                child.stderr.close.assert_called_once_with()
+
+    def test_real_capture_refusal_cap_budget_and_readerror_stop_without_pid_or_second_query(self):
+        for mode, raw, reason in [('eof', b'Operation not permitted', None),
+                                 ('bytecap', b'x' * (TRACE.ReadinessObservation.CAP + 1), 'byteCap'),
+                                 ('budget', b'', 'observerBudget'),
+                                 ('readerror', b'', 'observerReadError')]:
+            with self.subTest(mode=mode):
+                observer, child = self.scenario(mode=mode, output=raw)
+                observer.state.assert_not_called()
+                observer.popen.assert_called_once()
+                child.stdout.close.assert_called_once_with()
+                child.stderr.close.assert_called_once_with()
+                if mode == 'readerror':
+                    self.assertIsInstance(observer.failure, OSError)
+                    lifecycle = next(call.kwargs for call in observer.emit.call_args_list
+                                     if call.args[0] == 'readiness-probe-lifecycle')
+                    self.assertEqual(lifecycle['capture']['reason'], reason)
+                    self.assertFalse(any(call.args[0] == 'readiness-owned-coresimulator'
+                                         for call in observer.emit.call_args_list))
+                else:
+                    event = self.log_event(observer)
+                    self.assertIsNone(event['logs'])
+                    if reason is None:
+                        self.assertTrue(event['probe']['permissionRefused'])
+                    else:
+                        self.assertEqual(event['probe']['reason'], reason)
+                        self.assertEqual(event['probe']['status'], 'BLOCKED')
+                self.assertNotIn('SECRET_', str(observer.emit.call_args_list))
+
+    def test_real_capture_cancellation_and_failed_cleanup_remain_unqualified(self):
+        observer, child = self.scenario(mode='cancel')
+        event = self.log_event(observer)
+        self.assertEqual(event['probe']['status'], 'NOT_RUN')
+        self.assertEqual(event['probe']['reason'], 'gateCompleted')
+        observer.state.assert_not_called()
+        observer.popen.assert_called_once()
+        self.assertEqual([(call.args[0], call.args[1]) for call in observer.fixture_kill_calls],
+                         [(321, signal.SIGTERM), (321, signal.SIGKILL)])
+        observer, child = self.scenario(mode='cleanuperror')
+        self.assertIsInstance(observer.failure, PermissionError)
+        self.assertIs(observer.cleanup_error, observer.failure)
+        observer.state.assert_not_called()
+        observer.popen.assert_called_once()
+        observer.thread = Mock(is_alive=Mock(return_value=False))
+        with self.assertRaises(OSError):
+            observer.close()
+        child.stdout.close.assert_called_once_with()
+        child.stderr.close.assert_called_once_with()
+        self.assertNotIn('SECRET_', str(observer.emit.call_args_list))
+
+    def test_default_and_boot_still_query_show_without_live_metadata(self):
+        for boot in (False, True):
+            observer, order = ReadinessResourceFirstTest.observer(self)
+            del observer.resource_authorize
+            if boot:
+                observer.__class__ = TRACE.BootstatusObservation
+                observer.authorize = Mock(return_value=True)
+                observer.timeout = 300
+            observer.run()
+            self.assertEqual(order, ['state', 'sample', 'state', 'log'])
+            arguments, seconds = observer.capture.call_args.args
+            self.assertEqual(arguments[:4], ['/usr/bin/log', 'show', '--style', 'ndjson'])
+            self.assertIn('--start', arguments)
+            self.assertIn('--end', arguments)
+            self.assertIn('--no-pager', arguments)
+            self.assertNotIn('--timeout', arguments)
+            self.assertEqual(seconds, 3)
+            self.assertEqual(set(self.log_event(observer)), {'probe', 'logs'})
 
 
 if __name__ == '__main__':

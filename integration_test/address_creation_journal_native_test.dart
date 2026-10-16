@@ -18,7 +18,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 const _apiVersion = 'address-journal-native-evidence.v2';
-const _failureApiVersion = 'address-journal-native-evidence.v4';
+const _failureApiVersion = 'address-journal-native-evidence.v5';
 const _fixtureOwner = 'f0540000-0000-4000-8000-000000000001';
 
 CustomerAddressDraft _draft(String runId, int seedPid) => CustomerAddressDraft(
@@ -194,34 +194,50 @@ class _NativeAddressTerminalPublisher {
     // Il loop LIFO SDK usa whenComplete: prima della lettura del risultato,
     // lascia propagare le failure microtask della precedente callback.
     await Future<void>.delayed(Duration.zero);
-    final teardownFailed =
-        Invoker.current?.liveTest.state.result.isFailing ?? true;
+    final teardownResult = Invoker.current?.liveTest.state.result.isFailing;
+    final teardownFailed = teardownResult ?? true;
+    // Un solo snapshot sincrono: il gate e la diagnosi usano gli stessi valori.
+    final postTestCompleted = binding.postTestCompleted;
+    final postTestFailed = binding.postTestFailed;
+    final failureMethodsEmpty = binding.failureMethodsDetails.isEmpty;
+    final candidate = successCandidate;
+    final bodyErrorType = errorType;
     final terminalPassed =
         sdkPassed &&
-        binding.postTestCompleted &&
-        !binding.postTestFailed &&
+        postTestCompleted &&
+        !postTestFailed &&
         !teardownFailed &&
-        binding.failureMethodsDetails.isEmpty &&
-        errorType == null &&
-        successCandidate != null;
+        failureMethodsEmpty &&
+        bodyErrorType == null &&
+        candidate != null;
+    final terminalGateMask =
+        (sdkPassed ? 0 : 1) |
+        (postTestCompleted ? 0 : 2) |
+        (postTestFailed ? 4 : 0) |
+        (teardownFailed ? 8 : 0) |
+        (failureMethodsEmpty ? 0 : 16) |
+        (candidate != null ? 0 : 32) |
+        (teardownResult == null ? 64 : 0);
+    final checkpoint = bodyErrorType == 'assertion' && phase == 'recover'
+        ? failureCheckpoint
+        : null;
     final targetDirectory = directory;
     if (targetDirectory == null) {
       // Setup senza sandbox attestato: nessun file success, runner FAIL/timeout.
       return;
     }
     final result = terminalPassed
-        ? successCandidate!
+        ? candidate
         : <String, Object?>{
             'apiVersion': _failureApiVersion,
             'phase': phase,
             'runId': runId,
             'processId': pid,
             'status': 'FAIL',
-            'failureOrigin': errorType == null ? 'terminal_gate' : 'body',
-            'failureCheckpoint': errorType == 'assertion' && phase == 'recover'
-                ? failureCheckpoint
-                : null,
-            'errorType': errorType ?? 'assertion',
+            'failureOrigin': bodyErrorType == null ? 'terminal_gate' : 'body',
+            'failureCheckpoint': checkpoint,
+            'terminalGateMask': bodyErrorType == null ? terminalGateMask : null,
+            'errorType': bodyErrorType ?? 'assertion',
           };
     binding.reportData = result;
     await _publishTerminalJson(

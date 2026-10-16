@@ -14,24 +14,19 @@
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: pubblicare sul ramo esistente il candidato
-  successivo a dd9c0b2, con quattro postimage source e sette documenti.
-  Fix P2 IOS-OWNED-KILL-EPERM-RR-01: patch 27ac8561, review 7be308cb
-  APPROVED source/pure/privacy; dopo il solo KILL/EPERM, wait proprio 2s e
-  stesso errore, primary 124 e cleanup FAIL. Possibile costo nuovo 2s in quel
-  ramo; nessun ulteriore segnale/probe o quiescenza inferita dal reap.
-  Resource-first dd199b8d, review b178343f APPROVED solo source/pure:
-  una query CoreSimulator UUID già prevista prima di ps, callback ownership
-  fresca e STOP su errore/rifiuto; Boot/default/journal passivo invariati.
-  Recupera evidenza UUID, non prova guest PID o sito d'attesa dai token.
-  Autore: tracer 80 e readiness 17 PASS; reviewer: RED causale 1/1 FAIL,
-  17 test mirati PASS; prove con provenienze distinte, non sommate.
-  Nuova Quality exact-SHA NOT_RUN, poi due nuove domande native motivate
-  soltanto dopo PASS: visual resource-first e journal wait KILL/EPERM.
-  Full CI7 NOT_RUN; budget 300/30, guard e cap invariati, nessun retry identico.
-  dd9 conserva Quality 38887332867 PASS e i due FAIL 38889394269/38889397834
-  dopo bootstatus 0; app/fixture NOT_RUN, cleanup visual PASS/journal FAIL.
-  Niente SDK Mac, nuovo branch/WT/accesso, reset, SQL/deploy/merge/DONE.
+- **Prossima azione autorizzata**: pubblicare il candidato successivo a516bb9e,
+  sei postimage source e sette documenti. Journal218b49a8, review4397c850
+  APPROVED source/pure/privacy: metadata finiti dei sei input terminali, congiunto
+  invariato e teardown indisponibile distinto da fallito;95mask,64implica8.
+  Finding statico candidate-promotion chiuso solo sorgente; nuovi SDK NOT_RUN.
+  Querylive4fa45f1e, review9467c7d4 APPROVED source/pure: sola query resource-first
+  nominale1s entro capture3s, stessaownership/cap/STOP, legacy/Boot invariati.
+  Copertura diversa dallo storico;0righe UNKNOWN, nessuna causa dimostrata.
+  Nuova Quality exact-SHA NOT_RUN, poi solo dopo PASS le due nuove domande
+  native motivate. FullCI7 NOT_RUN; budget300/30 e guard invariati.
+  Solo516 conserva Quality38893955534 PASS, visual38895852835 FAIL124 e
+  journal38895857215 recoverFAIL1 dopo prepare/seedPASS; cleanupPASS separato.
+  Nessun SDK Mac, nuovo branch/WT/accesso, reset, SQL/deploy/merge/DONE.
   Maps/live e altri gate distinti; root writer attivo, PR29 draft, merge HOLD.
 
 ## Repository coinvolti

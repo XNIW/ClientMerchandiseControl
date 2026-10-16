@@ -6209,3 +6209,44 @@ composto pendenti. TASK054BLOCKED; nessunDONE/TASK055/merge dei freeze falliti.
   della review cold b178343f. Root unico writer attivo per commit ordinario,
   Quality e due domande native motivate, senza retry identico o nuovi accessi.
 - **Handoff**: `CODEX_REVIEW_BLOCKED`.
+
+
+## 2026-10-16 — TASK-054 Terminali 516 e diagnosi delimitata
+
+- **Quality**: 38893955534 PASS sul solo516:1252/1SKIP,+11performance,
+  365Python/16suite, format411/0 e analyze0; receipt58034f45.
+- **Native**: visual38895852835 FAIL124; resource-first/auth/STOP attraversati,
+  queryUUID BLOCKED3.409s/0byte, cleanupPASS/appNOT_RUN. Journal38895857215
+  prepare/seed36545PASS, recover37155 terminal_gate/assertionFAIL1,
+  cleanupPASS ma clear e guard finale non qualificati.
+- **Evidence**: capsulevisualV2d6c8fa64/journala4ee9e22, consolidamento37748031;
+  tutti comandi terminali, artifactAPI/publisher/CRCverificati, errata preservati.
+- **Diagnosi**: metadata finiti dei sei input journal e teardown disponibilità;
+  querylive1s entro capture3s come ipotesi documentata con coverage distinta.
+  Candidate private, review distinte prima di apply; nessun nuovo gate/SDKMac.
+- **Transizione**: BLOCKED/FIX/CODEX_FIXER, stesso ramo e root writer; nessuna
+  causa app/Keychain o piattaforma dimostrata, nessun retry identico.
+- **Handoff**: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## 2026-10-16 — TASK-054 Nuovi discriminanti source/pure consegnati
+
+- **Delta**: sei source applicati dopo pre/postimage e apply-check. JournalV5
+  218b49a8 con snapshot/congiunto7invariato,95mask/64implica8; solo intero
+  qualificato nel runner. Querylive4fa45f1e soloresourcefirst, nominale1s/capture3s,
+  due metadata finiti, nessun fallback; legacy/Boot/parser/cleanup invariati.
+- **Review distinte**: cart4397c850 APPROVED source/pure/privacy; RED1/1FAIL,
+  39mirati+6avversiPASS. Cold9467c7d4 APPROVED source/pure; RED1/1FAIL,
+  12mirati+3avversiPASS. Autori39 e29 separati, non sommati alle prove reviewer.
+- **Negativi/limiti**: V1journalCHANGES_REQUIRED80b2237 preservata, finding P2
+  promotion chiuso solo sorgente rimuovendo bang; ANALYZE non eseguito localmente.
+  Supporttestowner storico50 dichiarato,54attuali demandati a Quality futura.
+  Live cambia coverage; rc0/cleanup non prova eventi,0righeUNKNOWN.
+- **Transizione**: CODEX_FIX_BLOCKED_TO_RE_REVIEW e due esiti attribuiti globali
+  BLOCKED/CODEX_REVIEW_BLOCKED. NuovaQuality exact-SHA prima di due domande
+  native motivate; gate nuoviNOT_RUN, fullCI7NOT_RUN, nessun retry identico.
+- **Preservazione**: app/nativeconfig/deps/unitDart/test_driver/workflow invariati;
+  nessun SDKMac/accesso/SQL/deploy/merge/DONE; root writer rimane attivo.
+- **Negativo governance**: primo check exit1 per riga handoff canonica mancante;
+  FAIL preservato, formato del worklog riallineato senza modifica ai gate.
+- **Handoff**: `CODEX_REVIEW_BLOCKED`.

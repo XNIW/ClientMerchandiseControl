@@ -458,3 +458,44 @@ Autore tracer80/readiness17 PASS; reviewer13mirati+4avversi PASS. RED causale
 isolato1/1FAIL senza errore API; setup mancanti preservati separatamente.
 Quattro source e sette documenti del writer; nuova Quality/native exact-SHA
 NOT_RUN. Review globale BLOCKED/CODEX_REVIEW_BLOCKED, PR29 draft/HOLD.
+
+
+## Terminali 516 e nuove domande diagnostiche — 16 ottobre
+
+| CA / T | Run o verifica | Risultato e limite |
+|---|---|---|
+| CA-05 / T-05 | Quality38893955534, 19step canonici equivalenti | PASS sul516:1252PASS/1SKIP,+11performance,365Python/16suite,format411/0,analyze0; receipt58034f45; stepcoreSUCCESS/exit0 |
+| CA-06 / T-06 | Visual38895852835 | FAILexit124 dopo boot0/218.075s; queryUUID BLOCKED3.409s/0B, freshauth/query-first/STOP attraversati; cleanupPASS, smoke/visualNOT_RUN; capsuleV2d6c8fa64 |
+| CA-06 / T-06 | Journal38895857215 | FAILexit1 recover dopo preparePASS e seed36545PASS/v2; recover37155 terminal_gate/assertion, sottopredicati non conservati; cleanupPASS, uguaglianza finaleNOT_RUN; capsulea4ee9e22 |
+| CA-04 / T-04 | Nuovi metadata terminali e querylive | NOT_RUN sul futuroSHA; candidate private source/pure da revisionare, nessun dispatch identico |
+
+Le capsule indipendenti qualificano digestAPI/publisher e CRC dei JSON/JSONL.
+VisualV1 e relativa correzione BLOCKED/NOT_RUN sono preservati. Nessun evento
+UUID/frame readiness qualificato e nessuna probe dopo STOP. Journal: assertion
+è fallback con errorType nullo, non prova body completato, tutti i cinque check
+PASS o difetto Keychain. Sei input terminali e versione raw non acquisiti;
+checkpoint non attribuito. Cleanup PROCESS/LOG/SIMULATOR non certifica
+clear/readback. KILL/EPERM non attraversato; immagini/worker diversi, nessun A/B.
+
+Il consolidamento37748031 non chiude i FAIL storici o la causa corrente.
+Budget300/30 e guard invariati; nessun SDK/device/input Mac o Asus. FullCI7,
+Maps/TEST/Auth e altri gate distinti BLOCKED o NOT_RUN. Candidato futuro:
+Quality reali prima di nuove domande native motivate, mai PASS inferiti.
+
+
+## Freeze successivo a516 — metadata terminali e raccolta live
+
+| CA / T | Verifica | Risultato e limite |
+|---|---|---|
+| CA-04 / T-04 | JournalV5 patch218b49a8/review4397c850 | PASS source/pure: RED1test/1FAIL exit1, reviewer39mirati+6avversi PASS exit0.95mask,64implica8; congiunto7/8expect/bodyI/O invariati. FindingstaticoP2chiuso solo sorgente; analyzeNOT_RUN |
+| CA-04 / T-04 | Querylive patch4fa45f1e/review9467c7d4 | PASS source/pure: RED1/1FAIL/0error, reviewer12mirati+3avversi PASS exit0. Unica stream1s/capture3s, cap/ownership/STOP identici, nessun fallback; legacy/Boot/parser/cleanup invariati |
+| CA-05 / T-05 | Nuova Quality exact-SHA | NOT_RUN al freeze: format/analyze/fullhost richiesti sul futuro commit, inclusi54owner/87tracer; la receipt Quality516 non viene trasferita |
+| CA-06 / T-06 | Nuove domande native journalmask/livecollection | NOT_RUN al freeze, solo dopo QualityPASS sul medesimo candidato; fullCI7NOT_RUN |
+
+Autorejournal39V2 e13/21soloV1, autorequery29: provenienze distinte dai reviewer,
+non sommate. Source6postimage esatti, app/nativeconfig/deps/unitDart/test_driver
+invariati. Supporttestowner della query è storico dbc129/50, non equivalenza54.
+V1/finding/negativi harness preservati; nessun falsoFAILSDK dimostrato.
+Live non equivale allo storico; rc0/cleanup è raccolta,0righe coverageUNKNOWN,
+nonzero/rifiuto/errore STOP. Maschera non attribuisce causaKeychain/SDK.
+`CODEX_REVIEW_BLOCKED`; PR29draft/HOLD, Maps/live distinti, rootwriterattivo.

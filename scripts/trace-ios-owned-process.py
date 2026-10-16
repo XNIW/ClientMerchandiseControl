@@ -393,7 +393,20 @@ class ReadinessObservation:
             rows.append(row)
         return {'rows': rows, 'rejected': rejected, 'rowLimit': 64}
 
-    def coresimulator_logs(self):
+    def coresimulator_logs(self, live=False):
+        if live:
+            # Finestra live nominale, diversa dallo storico show. Il timeout
+            # interno non garantisce startup/flush/cleanup entro capture3s.
+            predicate = ('subsystem BEGINSWITH "com.apple.CoreSimulator" AND '
+                         'eventMessage CONTAINS[c] "' + self.device + '"')
+            meta, logs, _ = self.capture(
+                ['/usr/bin/log', 'stream', '--style', 'ndjson', '--predicate', predicate,
+                 '--level', 'debug', '--timeout', '1'], 3)
+            safe = self.logs(logs, self.device) if (
+                meta['status'] == 'PASS' and not meta.get('permissionRefused')) else None
+            self.emit('readiness-owned-coresimulator', probe=meta, logs=safe,
+                      queryMode='live', nominalWindowSeconds=1)
+            return meta
         end = datetime.datetime.now(datetime.timezone.utc)
         predicate = ('subsystem BEGINSWITH "com.apple.CoreSimulator" AND '
                      'eventMessage CONTAINS[c] "' + self.device + '"')
@@ -433,7 +446,7 @@ class ReadinessObservation:
                     self.emit('readiness-observation-skipped', reason='gateCompleted')
                     return
                 self.emit('readiness-resource-authorization', status='PASS', scope='ownedUUID')
-                meta = self.coresimulator_logs()
+                meta = self.coresimulator_logs(live=True)
                 if (meta['status'] != 'PASS' or meta.get('permissionRefused') or
                         self.stop.is_set() or self.process.returncode is not None):
                     return

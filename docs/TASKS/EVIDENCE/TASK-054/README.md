@@ -9,6 +9,29 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 [validation](validation.md#ripresa-operativa--candidato-successivo-a0990c80),
 [acceptance R01–R30](acceptance-revision.md), [recovery](backend-reconciliation.md).
 
+## Terminali 516 e diagnosi corrente
+
+Sul solo `516bb9e`, [Quality38893955534](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38893955534)
+PASS:1252/1SKIP,+11performance,365Python,format411/0,analyze0.
+[Visual38895852835](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38895852835)
+FAIL124 readiness dopo boot0: query UUID BLOCKED3.409s/0B, ownership/STOP
+attraversati; cleanupPASS, app/visualNOT_RUN.
+[Journal38895857215](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38895857215)
+FAIL1 recover dopo prepare e seed36545PASS; recover37155 terminal_gate/assertion
+senza sottopredicati conservati. CleanupPASS non certifica clear/readback;
+guard finale bundle/containerNOT_RUN. Nessuna causa app/Keychain dimostrata.
+
+Capsule Quality58034f45/visualV2d6c8fa64/journala4ee9e22 e consolidamento37748031;
+API/publisher/CRC verificati. KILL/EPERM non attraversato, worker/immagini distinti,
+nessun A/B. FullCI7 NOT_RUN; dettagli nella validation e nel Fix del task.
+
+Applicati6source: journal218b49a8/review4397c850 e live4fa45f1e/review9467c7d4,
+APPROVED soltanto source/pure. V5mask95valori/64implica8, sette predicati e
+bodyI/O invariati; live1s entro capture3s con copertura diversa,0righeUNKNOWN.
+V1/finding statico e supporttestowner storico dichiarati nel task. Nuova
+Quality/native exact-SHA NOT_RUN; budget300/30, guard, cap e STOP invariati.
+GlobaleBLOCKED/CODEX_REVIEW_BLOCKED, PR29 draft/HOLD, root writer attivo.
+
 ## Candidato successivo ai terminali dd9c0b2
 
 Quattro postimage source e sette documenti del writer. Fix KILL/EPERM

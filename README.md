@@ -201,6 +201,22 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
 
+Sul pubblicato `516bb9e`, Quality `38893955534` è PASS: 1252 test/1 SKIP,
+11 performance e 365 Python; format 411/0, analyze 0. Visual `38895852835`
+è FAIL124 readiness: la query UUID parte ma resta BLOCKED/0 byte; cleanup
+PASS, app/visual NOT_RUN. Journal `38895857215` supera prepare e seed, poi
+recover fallisce con terminal_gate/assertion; il sottocontrollo non è conservato.
+Cleanup PASS non certifica il clear del journal; nessuna causa app dimostrata.
+
+Applicati sei postimage dopo review distinte: metadata terminali finiti del
+journal (218b49a8/4397c850) e unica query live readiness nominale1s entro
+capture3s (4fa45f1e/9467c7d4). Approval solo source/pure; congiunto di successo,
+budget300/30, guard e cap invariati. La finestra live cambia copertura;0righe
+UNKNOWN. Nuova Quality exact-SHA e native NOT_RUN al freeze; nessun retry
+identico o SDK Mac. Globale BLOCKED, PR29 draft, merge HOLD.
+
+Il paragrafo seguente conserva il cutoff precedente ai terminali 516.
+
 Sul commit pubblicato `dd9c0b2`, Quality `38887332867` è PASS: 1252 test,
 1 SKIP, 11 performance, 352 Python, format 411/0 e analyze 0. Visual
 `38889394269` e journal `38889397834` completano bootstatus e falliscono

@@ -2255,3 +2255,120 @@ Prossimo passo: commit ordinario sul ramo esistente, Quality sul nuovo SHA;
 solo dopo PASS, una domanda visual resource-first e una journal wait su EPERM.
 
 Handoff corrente: `CODEX_REVIEW_BLOCKED`.
+
+
+## Fix — 16 ottobre, diagnosi dopo i terminali 516
+
+Su `516bb9e1aa4ca9f5dfc9af3b93097839ea055768`, Quality
+[38893955534](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38893955534)
+è PASS: format 411/0, analyze 0, 1252 test PASS/1 SKIP, 11 performance,
+365 Python in 16 suite. I 19 step della ricetta conservano comandi, pin e
+opzioni; un job SUCCESS e tre SKIPPED. Full CI canonica a sette job NOT_RUN.
+
+Visual [38895852835](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38895852835)
+è FAIL exit124: bootstatus EXIT0/218.075s, readiness HOST30400 al timeout.
+Ownership fresca, query-first e STOP sono attraversati: query UUID BLOCKED
+al budget di cattura, 3.409s/0 byte. Nessun evento UUID o frame readiness
+qualificato; nessuna probe readiness successiva. Cleanup PASS; smoke e visual
+NOT_RUN. Il limite osservativo non dimostra assenza di eventi o causa del timeout.
+
+Journal [38895857215](https://github.com/XNIW/ClientMerchandiseControl/actions/runs/38895857215)
+è FAIL exit1 nella fixture recover, dopo prepare PASS: seed36545 PASS/v2,
+recover37155 `terminal_gate/assertion`. I sei input del gate non sono conservati;
+checkpoint non attribuito e versione del record FAIL non acquisita. `assertion`
+è il fallback diagnostico con errorType nullo: non prova il completamento del
+corpo, il PASS dei cinque controlli o un difetto Keychain. Cleanup PROCESS/LOG/
+SIMULATOR PASS non certifica clear/readback del journal; uguaglianza finale
+bundle/container NOT_RUN. Il ramo KILL/EPERM non è attraversato in nessuna
+delle due run. Immagini/worker distinti, nessun A/B o PASS trasferito.
+
+Capsule indipendenti: Quality `58034f45`, visual V2 `d6c8fa64`, journal
+`a4ee9e22`; consolidamento root `37748031`. Digest API/publisher e CRC degli
+artifact JSON/JSONL verificati; nessun PNG/app scaricato. V1 visual ed erratum
+BLOCKED/NOT_RUN, FAIL e negativi storici restano preservati.
+
+Il mandato continuativo copre la diagnosi recuperabile. Candidato privato journal:
+FAILv5 con maschera finita degli stessi input terminali, snapshot sincrono e
+congiunto originale; distingue Invoker teardown indisponibile e fallito.
+Nessuna modifica a body I/O, otto expect, fallback fail-closed o SUCCESSv2.
+Legacy FAILv2–4 strict; review distinta richiesta prima di apply. L'audit SDK
+read-only non dimostra perdita deterministica di Invoker o falso FAIL:
+allTestsPassed può precedere un errore del successivo callback SDK.
+
+Candidato privato readiness: sostituire la sola query resource-first con una
+sottoscrizione live nominale1s, stessa capture3s/cap65536/ownership/STOP,
+nessun fallback storico. Il manuale Apple log.1 documenta la sintassi; eventi
+precedenti alla sottoscrizione non sono coperti. Nessuna garanzia rc0, dati o
+completamento entro3s; zero righe significa copertura UNKNOWN. Boot/default e
+journal passivo invariati. Fonte/piano privato c6024115, review ancora NOT_RUN.
+
+Nessuna nuova run o SDK Mac in questa diagnosi. Nuovi format/analyze/host e
+native sul futuro SHA NOT_RUN. PR29 draft/HOLD, Maps/live distinti.
+Handoff corrente: `CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX`.
+
+
+## Fix — 16 ottobre, discriminanti terminali e raccolta live consegnati
+
+Sei postimage source applicati dopo hash/preimage e apply-check, sul baseline516.
+Journal patch `218b49a8`: FAILv5 esatto9 con terminalGateMask nullable; solo
+terminal_gate/assertion richiede int1..127 non bool,95valori ammessi. Bit1 SDKfalse,
+2 postTestIncomplete,4 postTestFailed,8 teardownFailed,16 failureDetailsNonempty,
+32 candidateMissing,64 InvokerUnavailable (implica8). BODY richiede masknull;
+checkpoint e legacy FAILv2–4/SUCCESSv2 strict invariati. Uno snapshot sincrono
+alimenta congiunto originale e mask separata: nessun nuovo await o indebolimento,
+otto expect/body I/O invariati. Il bridge conserva solo l'intero qualificato nel
+runner FAIL; nessun raw record fallito o stack. Non attribuisce cause Keychain/SDK.
+
+V1 `3b3f158d` resta CHANGES_REQUIRED per il rischio statico P2
+`JOURNAL-V5-CANDIDATE-PROMOTION-RR-01`: il locale candidate può essere promosso
+dall'alias booleano ([fonte primaria Dart](https://github.com/dart-lang/language/issues/1785)).
+V2 rimuove soltanto il bang superfluo e l'aspettativa corrispondente; non è un
+ANALYZE FAIL eseguito. Autore V2 39 PASS; Android13/iOS21 restano prove V1
+su implementazioni Python/supporti identici, non nuove esecuzioni V2.
+Reviewer cart: RED1/1FAIL exit1 sul baseline con stessi test finali,39mirati e
+6avversi PASS/exit0. Receipt4397c850 APPROVED solo source/pure/privacy;
+finding chiuso solo sul sorgente. SDK/format/analyze nuovi NOT_RUN al freeze.
+
+Readiness patch `4fa45f1e`: solo resource-first usa log stream con timeout
+interno nominale1s entro capture3s; query unica, ownership fresca, cap65536,
+trigger e STOP invariati, nessun fallback show. Due metadata finiti indicano
+live/window; parser, legacy show, Boot/default, cleanup e journal passivo invariati.
+La finestra live perde lo storico; rc0/cleanup qualifica solo raccolta,
+0righe significa coverage UNKNOWN, nonzero/rifiuto/errore resta STOP.
+Nessuna garanzia di durata wall-clock3s/30s, eventi, guestPID o sito d'attesa.
+Autore RED1/1FAIL e29miratiPASS; reviewer distinto RED1/1FAIL/0error e
+12mirati+3avversi PASS, exit0. Receipt9467c7d4 APPROVED solo source/pure.
+Support test owner congelato dbc129/50 è storico; l'attuale8c1abc69/54 non è
+stato rieseguito o dichiarato equivalente dal reviewer. La nuova Quality sul WT
+attuale eseguirà54owner e87tracer; questo non è ancora PASS.
+
+Source applicata: fixture integration Dart, validator/bridge/test journal e
+tracer/test. App lib, configurazioni native, dipendenze, unit Dart e test_driver
+invariati; nessuna modifica workflow, API, permessi o timeout300/30.
+I gate nuovi sul futuro SHA sono NOT_RUN: pubblicazione ordinaria sul ramo
+esistente, Quality exact-SHA e soltanto dopo PASS due domande native motivate
+sui predicati journal e sulla raccolta live. Nessun retry identico.
+
+Handoff del fixer: `CODEX_FIX_BLOCKED_TO_RE_REVIEW`.
+
+## Re-review attribuita — delta journal V2
+
+Re-review distinta `/root/cart_review`: **APPROVED solo source/pure/privacy** del freeze V2 `218b49a8`.
+`JOURNAL-V5-CANDIDATE-PROMOTION-RR-01` chiuso solo nel sorgente: rimosso `!` e allineata l’aspettativa statica.
+Quattro postimage ricostruite esattamente dai preimage `516bb9e1`; V1 preservato come `CHANGES_REQUIRED`.
+Prove indipendenti: RED 1/1 FAIL exit1 → 39 PASS exit0; ulteriori 6 avversi PASS exit0, tutti terminali.
+V5 richiede 9 chiavi esatte e 95 mask ammesse; bit64 implica bit8, BODY richiede mask null.
+Legacy FAIL v2–v4 e SUCCESS v2 invariati; sette predicati, otto expect e I/O della fixture conservati.
+PID/run/fase e privacy verificati; mask esportata solo qualificata, senza attribuire cause SDK/Invoker o acceptance nativa.
+TASK-054 **BLOCKED**, handoff `CODEX_REVIEW_BLOCKED`: Quality exact-SHA e nuovi gate nativi **NOT_RUN**.
+
+## Re-review attribuita — delta query live readiness
+
+Review distinta `/root/cold_preflight_reviewer`, limitata al delta query live readiness.
+Esito **APPROVED solo SOURCE/PURE**, nessun finding nuovo.
+Patch `4fa45f1e562472c38fdfe167030a46cdf4112b26f0d54e6f65ed35c98414b8f7`; manifest 29/29 e postimage verificati.
+RED indipendente: 1 test, 1 FAIL, 0 errori; GREEN: 12 mirati + 3 avversi = 15 PASS, exit 0; comandi terminali.
+Solo resource-first usa stream/self-timeout 1s entro capture 3s; show legacy, Boot, guard, parser, budget e cleanup invariati.
+Exit 0/cleanup qualifica la raccolta: 0 righe mantiene coverage UNKNOWN; nonzero/refusal/errore resta STOP, senza fallback o causa inferita.
+Support test owner dbc129/50 casi è storico: attuale 516 usa 8c1abc69/54; nessuna equivalenza o riesecuzione dei 54 dichiarata.
+Globale **BLOCKED**, handoff `CODEX_REVIEW_BLOCKED`; nuova Quality/native exact-SHA `NOT_RUN`; FAIL 516 e precedenti preservati.

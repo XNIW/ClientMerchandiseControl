@@ -25,6 +25,12 @@ NATIVE_FAILURE_CHECKPOINTS = ('recover_marker', 'recover_process',
     'restored_identity', 'restored_payload', 'cleared_readback')
 
 
+def valid_terminal_gate_mask(value):
+    # Bit64 (Invoker assente) conserva il fail-closed bit8; mai un esito positivo.
+    return (type(value) is int and 1 <= value <= 127
+        and (not value & 64 or bool(value & 8)))
+
+
 def receipt_relative_path(run_id, phase):
     if not re.fullmatch(r'[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}', run_id):
         raise Failure('journal-receipt-path', 2, 'run UUID non valido')
@@ -55,7 +61,19 @@ def validate_native_receipt(data, phase, run_id, process_id, seed_pid):
             and (checkpoint is None or (checkpoint in NATIVE_FAILURE_CHECKPOINTS
                 and data.get('failureOrigin') == 'body' and phase == 'recover'
                 and data.get('errorType') == 'assertion')))
-        if (not (legacy_failure or origin_failure or checkpoint_failure)
+        terminal_gate_mask = data.get('terminalGateMask')
+        terminal_mask_failure = (set(data) == expected_keys | {
+                'failureOrigin', 'failureCheckpoint', 'terminalGateMask'}
+            and data.get('apiVersion') == 'address-journal-native-evidence.v5'
+            and data.get('failureOrigin') in NATIVE_FAILURE_ORIGINS
+            and (data['failureOrigin'] != 'terminal_gate' or data.get('errorType') == 'assertion')
+            and (checkpoint is None or (checkpoint in NATIVE_FAILURE_CHECKPOINTS
+                and data.get('failureOrigin') == 'body' and phase == 'recover'
+                and data.get('errorType') == 'assertion'))
+            and ((data['failureOrigin'] == 'body' and terminal_gate_mask is None)
+                or (data['failureOrigin'] == 'terminal_gate'
+                    and valid_terminal_gate_mask(terminal_gate_mask))))
+        if (not (legacy_failure or origin_failure or checkpoint_failure or terminal_mask_failure)
                 or data.get('phase') != phase or data.get('runId') != run_id
                 or data.get('processId') != process_id
                 or data.get('errorType') not in NATIVE_ERROR_TYPES):
@@ -63,10 +81,12 @@ def validate_native_receipt(data, phase, run_id, process_id, seed_pid):
         failure = Failure('journal-' + phase, 1, 'fixture nativa segnala failure sanitizzata')
         # Solo enum gia validati; mai payload, messaggi, stack o log nativi.
         failure.native_error_type = data['errorType']
-        if origin_failure or checkpoint_failure:
+        if origin_failure or checkpoint_failure or terminal_mask_failure:
             failure.native_failure_origin = data['failureOrigin']
-        if checkpoint_failure and checkpoint is not None:
+        if (checkpoint_failure or terminal_mask_failure) and checkpoint is not None:
             failure.native_failure_checkpoint = checkpoint
+        if terminal_mask_failure and terminal_gate_mask is not None:
+            failure.native_terminal_gate_mask = terminal_gate_mask
         raise failure
     return ADDRESS.validate_receipt(data, phase, run_id, process_id, seed_pid)
 

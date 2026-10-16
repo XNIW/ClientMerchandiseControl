@@ -205,11 +205,7 @@ Future<void> _tapMutation(
     repository.thirdUploadGate = gate;
     try {
       await tester.tap(finder);
-      expect(
-        sawMutation,
-        isTrue,
-        reason: 'Il tap avvia la mutation osservata',
-      );
+      expect(sawMutation, isTrue, reason: 'Il tap avvia la mutation osservata');
       if (gate != null) {
         // Anche un ritorno prematuro a idle deve raggiungere l'assertion [1,2,3].
         await Future.any<void>([gate.started.future, completed.future]);

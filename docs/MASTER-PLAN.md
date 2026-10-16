@@ -8,22 +8,23 @@
 - **Task attivo**: TASK-054
 - **File task**: docs/TASKS/TASK-054-integrated-staging-e2e-closeout.md
 - **Stato task**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Indicatore**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Indicatore**: CODEX_REVIEW_BLOCKED
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: correggere QUALITY-RR-02, barriera
-  terminale mancante nel test del recupero allegati. Quality9d:1242PASS/1FAIL/
-  1SKIP; formato409/0 e analyze0, metadata14PASS. Aspettative su terzo allegato,
-  stesso case e retry immutate; nessun difetto prodotto inferito dal log.
-  Runner GitHub focused e Quality esistenti, nessun SDK/UI Mac. App07649 invariata.
-  Journal indirizzi Android e iOS9d PASS su due processi, backend NOT_RUN;
-  visual Android FAIL attachdriver e iOS FAIL readinesslaunchd dopo boot,
-  cleanupPASS distinti. Source/review dei profili cold e fix SDK preservati.
-  PR29 draft, merge HOLD; Maps/TEST/AT/firma ancora aperti. Dossier corrente:
-  docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
+- **Prossima azione autorizzata**: qualificare i gate residui dalle ricevute
+  exact-SHA della PR29. QUALITY-RR-02 source/focused risolto:497PASS/1SKIP,
+  analyze0, due casi recupero con gate controllato PASS; formatter400/1
+  applicato byte-identico al runner. Full Quality del freeze finale nel
+  workflow esistente quality_only, esito da leggere sul proprio SHA.
+  Il FAIL Quality9d resta preservato1242/1/1, come i due visualFAIL: Android
+  attachdriver e iOS readinesslaunchctl dopo boot; cleanupPASS distinti.
+  Journal indirizzi Android/iOS9d e unsigned2PASS, backendNOT_RUN.
+  App07649 invariata, delta corrente solo test; nessun nuovo ciclo nativo
+  invariato, nessun SDK/UI Mac. PR29 draft e merge HOLD; Maps/TEST/AT/firma
+  aperti. Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
   Nessun SQL/deploy/input Admin/W/N o trasferimento di ownership mobile.
 
 

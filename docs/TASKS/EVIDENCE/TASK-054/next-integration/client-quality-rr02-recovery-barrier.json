@@ -4,7 +4,7 @@
   "id": "QUALITY-RR-02",
   "severity": "P2",
   "category": "harness",
-  "status": "FIX_SOURCE_APPROVED_PENDING_HOSTED",
+  "status": "RESOLVED_SOURCE_FOCUSED_PENDING_FULL_QUALITY",
   "baseline": "9d4fe2f386bee12cacae24110eeec88c6ae1a1b2",
   "run": 38841333617,
   "job": 116782524133,
@@ -55,7 +55,8 @@
   "fixScope": "solo un file test, nessun lib/native/config/deps o contract change",
   "sourceTestSha256": {
     "baseline": "1b0f87b05d4383b03addc49dbdb8afb3ca082d214ceffe12b54e1017b9541c25",
-    "candidate": "2ee5fe1428fa58f09d02c8431908258f56bc3aa43fa9b9d81ec37bf7732e0db5"
+    "candidate": "2ee5fe1428fa58f09d02c8431908258f56bc3aa43fa9b9d81ec37bf7732e0db5",
+    "formatted": "8d09728546cf5c359896a6c1fd6344e1c71a05ba084f20a7d8dac0bfb970965c"
   },
   "fix": [
     "subscription e Completer nel runAsync reale prima del tap",
@@ -67,14 +68,42 @@
     "picker e helper relativo invariati"
   ],
   "hostedChecks": {
-    "result": "NOT_RUN",
-    "reason": "cutoff precedente alla pubblicazione del fix",
-    "workflow": "task054-source-release.yml",
-    "sequence": [
-      "focused=true per format/analyze/regressioni",
-      "quality_only=true sul freeze finale"
-    ],
-    "runtimePolicy": "app source invariata; le prove native9d conservano il loro SHA e i due FAIL. CI automatiche ridondanti di questo delta test-only saranno annullate, senza assegnare PASS ai gate non eseguiti"
+    "focused": {
+      "run": 38844478084,
+      "revision": "28022aad59925130069f65132640453bad6897f3",
+      "result": "PASS",
+      "pass": 497,
+      "skip": 1,
+      "analyze": 0,
+      "recoveryCases": "lostFile=false/true PASS con gate",
+      "baselineRestores": "6 SKIPPED",
+      "format": "400/1",
+      "formatterPatchSha256": "31fc978fc4bde716752f7c3e0ec25bee5afb0c522de087fee3af0ee67010049d",
+      "sourceBytesEqualApplied": true,
+      "artifactZip": {
+        "bytes": 2201483,
+        "sha256": "685e5fb3d678e19804ca3d4b5d6d4c2113042d5d3f926df9fa4a0372781015bb",
+        "publisherMatches": true,
+        "crc": "PASS",
+        "pngExtracted": 0,
+        "pixelQA": "NOT_RUN"
+      }
+    },
+    "fullQuality": {
+      "result": "NOT_RUN",
+      "reason": "cutoff prima del dispatch sul freeze finale",
+      "workflow": "task054-source-release.yml",
+      "input": "quality_only=true",
+      "results": "run proprio e sezione corrente PR29"
+    },
+    "cancelledAutomaticCi": {
+      "run": 38844471200,
+      "revision": "28022aad59925130069f65132640453bad6897f3",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "jobsCancelled": 7,
+      "qualification": "NOT_RUN; source prodotto invariata e gate native9dFAIL preservati"
+    }
   },
   "macSdk": "NOT_RUN per ownership mobile concorrente",
   "globalAcceptance": "BLOCKED",
@@ -84,5 +113,7 @@
     "receiptSha256": "b069b6e55cf4c551af0b25ff45cbae92058c3c7365fc5c911b3e7f9a52d0f5ca",
     "preservedOriginalExpectations": 12,
     "newCausalExpectations": 6
-  }
+  },
+  "handoff": "CODEX_REVIEW_BLOCKED",
+  "focusedReviewReceiptSha256": "cebce1ae9145bc65fc5a239a01677740689b08d3795717750737d73ac1782f3f"
 }

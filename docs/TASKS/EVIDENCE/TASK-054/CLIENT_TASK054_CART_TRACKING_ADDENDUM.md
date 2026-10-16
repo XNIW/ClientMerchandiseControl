@@ -18,6 +18,10 @@ reali. La causa esatta del vecchio snapshot resta non dimostrata dal solo log.
 [Fix test-only](next-integration/client-quality-rr02-recovery-barrier.json):
 attendere l'operazione reale, gate controllato terzo upload e assertion
 originali preservate. Scope limitato al test; nessun cambiamento prodotto.
+Focused38844478084/280:497PASS/1SKIP, analyze0; entrambe varianti con
+gate controllato PASS. Formatter400/1 solo test applicato esattamente,
+re-review source/host/formatter APPROVED scoped. Full Quality del freeze
+finale NOT_RUN al cutoff; ricevuta successiva nel proprio run/SHA e PR29.
 Runner focused e Quality esistenti, nessun nuovo slot Mac. Le prove native
 restano associate a9d; nessun PASS trasferito al nuovo head per inferenza.
 

@@ -2,9 +2,9 @@
 
 - **Release train**: `CLIENT_COMMERCE_JOURNEY_COMPLETION`
 - **Stato**: BLOCKED
-- **Fase**: FIX
-- **Responsabile**: CODEX_FIXER
-- **Handoff**: CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX
+- **Fase**: REVIEW
+- **Responsabile**: CODEX_RE_REVIEWER
+- **Handoff**: CODEX_REVIEW_BLOCKED
 - **Evidence directory**: docs/TASKS/EVIDENCE/TASK-054/
 - **Dipende da**: TASK-050–053 e merge Admin/Client
 - **Planning**: usa esclusivamente architecture/file map di TASK-050
@@ -1534,3 +1534,28 @@ upload/retry/case/route conservate. Gate GitHub focused e Quality esistenti;
 nessun SDK locale o modifica prodotto per mascherare l'esito.
 
 CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.
+
+
+## Fix e re-review scoped — QUALITY-RR-02
+
+Applicato il solo test dopo review source distinta: tutte12aspettative
+originarie preservate, con6nuove verifiche causali e listener/completer nel
+runAsync reale prima del tap. Il terzo upload resta pending tramite gate
+controllato; il test verifica busy/prefisso e attende il ritorno a idle.
+Un return prematuro a2 o nessun avvio della mutation non diventa PASS.
+
+Focused38844478084 su28022aa:497PASS/1SKIP,analyze0; entrambi lostFilefalse/true
+PASS. Baseline restore6SKIPPED e nessun CJK/pixel QA nuovo. Formatter400/1,
+solo questo test: patch875B SHA31fc978fc4bde716752f7c3e0ec25bee5afb0c522de087fee3af0ee67010049d,
+ZIP2.2MB digest publisher e CRC intero verificati, nessun PNG estratto.
+Byte formattati8d09728546cf5c359896a6c1fd6344e1c71a05ba084f20a7d8dac0bfb970965c
+applicati esattamente; re-review source/focused/formatter APPROVED scoped.
+
+Full Quality finale NOT_RUN a questo freeze: una prova quality_only nel
+workflow esistente dopo pubblicazione, ricevuta nel suo run/SHA e nella
+sezione corrente PR29. La CI automatica28038844471200 è CANCELLED7job per
+delta test-only; nessuna qualifica nativa assegnata. Le prove native9d
+restano proprie: due journal e unsigned2PASS, due visualFAIL, sourceapp invariata.
+
+CODEX_FIX_BLOCKED_TO_RE_REVIEW; esito integrato BLOCKED, handoff
+CODEX_REVIEW_BLOCKED. Nessun merge/DONE o nuovo SDK/UI Mac.

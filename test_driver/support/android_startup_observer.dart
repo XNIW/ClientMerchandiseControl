@@ -7,7 +7,10 @@ import 'package:flutter_driver/flutter_driver.dart';
 // Connessione diagnostica one-shot: nessun resume, retry o selezione isolate.
 // Non registra URL VM, token, nomi isolate, stack, RPC payload o dati applicativi.
 class AndroidStartupObserver {
-  AndroidStartupObserver(this.output, this.expectedApkSha256, this.uri, {
+  AndroidStartupObserver(
+    this.output,
+    this.expectedApkSha256,
+    this.uri, {
     Future<WebSocket> Function(Uri, HttpClient)? connectSocket,
   }) : _connectSocket = connectSocket ?? _openSocket;
 
@@ -45,12 +48,7 @@ class AndroidStartupObserver {
     _count++;
     try {
       output.writeAsStringSync(
-      '${jsonEncode({
-        'kind': kind,
-        'host_epoch_us': DateTime.now().toUtc().microsecondsSinceEpoch,
-        'observer_elapsed_us': _clock.elapsedMicroseconds,
-        ...fields,
-      })}\n',
+        '${jsonEncode({'kind': kind, 'host_epoch_us': DateTime.now().toUtc().microsecondsSinceEpoch, 'observer_elapsed_us': _clock.elapsedMicroseconds, ...fields})}\n',
         mode: FileMode.append,
       );
     } on FileSystemException {
@@ -64,7 +62,14 @@ class AndroidStartupObserver {
     final reply = Completer<Map<String, dynamic>>();
     _pending[id] = reply;
     try {
-      _socket!.add(jsonEncode({'jsonrpc': '2.0', 'id': id, 'method': method, 'params': args}));
+      _socket!.add(
+        jsonEncode({
+          'jsonrpc': '2.0',
+          'id': id,
+          'method': method,
+          'params': args,
+        }),
+      );
     } on Object {
       // add può lanciare prima che il caller riceva il Future: il cleanup non
       // deve completeError su una reply che nessuno ha potuto ascoltare.
@@ -96,19 +101,28 @@ class AndroidStartupObserver {
       final parameters = message['params'];
       if (parameters is! Map || parameters['streamId'] != 'Isolate') return;
       final event = parameters['event'];
-      if (event is! Map || !const {
-        'IsolateStart', 'IsolateRunnable', 'IsolateExit',
-      }.contains(event['kind'])) return;
+      if (event is! Map ||
+          !const {
+            'IsolateStart',
+            'IsolateRunnable',
+            'IsolateExit',
+          }.contains(event['kind'])) {
+        return;
+      }
       final isolate = event['isolate'];
       final ownId = isolate is Map ? isolateId(isolate['id']) : null;
       if (ownId == null) return;
       _record('isolate-event', {
         'event': event['kind'] as String,
         'isolate_id': ownId,
-        'vm_epoch_ms': event['timestamp'] is int ? event['timestamp'] as int : null,
+        'vm_epoch_ms': event['timestamp'] is int
+            ? event['timestamp'] as int
+            : null,
       });
     } on Object catch (error) {
-      _record('observer-message-failure', {'error_type': error.runtimeType.toString()});
+      _record('observer-message-failure', {
+        'error_type': error.runtimeType.toString(),
+      });
     }
   }
 
@@ -119,8 +133,11 @@ class AndroidStartupObserver {
       if (!RegExp(r'^[a-f0-9]{64}$').hasMatch(expectedApkSha256) ||
           !const {'http', 'ws'}.contains(uri.scheme) ||
           !const {'127.0.0.1', 'localhost', '::1'}.contains(uri.host) ||
-          uri.userInfo.isNotEmpty || uri.hasQuery || uri.hasFragment ||
-          output.existsSync() || FileSystemEntity.isLinkSync(output.path)) {
+          uri.userInfo.isNotEmpty ||
+          uri.hasQuery ||
+          uri.hasFragment ||
+          output.existsSync() ||
+          FileSystemEntity.isLinkSync(output.path)) {
         throw StateError('observer context rejected');
       }
       output.parent.createSync(recursive: true);
@@ -136,7 +153,8 @@ class AndroidStartupObserver {
         'ws',
       ];
       final socketFuture = _connectSocket(
-        uri.replace(scheme: 'ws', pathSegments: segments), _client,
+        uri.replace(scheme: 'ws', pathSegments: segments),
+        _client,
       );
       // Il timeout non cancella un Future: chiude anche un socket tardivo proprio.
       _connectionTask = socketFuture.then<void>((socket) async {
@@ -144,12 +162,18 @@ class AndroidStartupObserver {
       }, onError: (Object error) {});
       _socket = await socketFuture;
       if (_closed) return;
-      _subscription = _socket!.listen(_message, onError: (Object error) {
-        _record('observer-stream-failure', {'error_type': error.runtimeType.toString()});
-      }, onDone: () {
-        _record('observer-stream-closed');
-        _failPending();
-      });
+      _subscription = _socket!.listen(
+        _message,
+        onError: (Object error) {
+          _record('observer-stream-failure', {
+            'error_type': error.runtimeType.toString(),
+          });
+        },
+        onDone: () {
+          _record('observer-stream-closed');
+          _failPending();
+        },
+      );
       await _call('streamListen', {'streamId': 'Isolate'});
       _record('isolate-subscription-ready');
       final vm = await _call('getVM', const {});
@@ -157,29 +181,49 @@ class AndroidStartupObserver {
       final isolates = vm['isolates'];
       _record('vm-snapshot', {
         'pid': pid is int && pid > 0 ? pid : null,
-        'vm_start_epoch_ms': vm['startTime'] is int ? vm['startTime'] as int : null,
+        'vm_start_epoch_ms': vm['startTime'] is int
+            ? vm['startTime'] as int
+            : null,
         'isolates': isolates is List
-            ? isolates.whereType<Map>().where((item) => isolateId(item['id']) != null).take(32).map((item) => {
-                'id': isolateId(item['id']),
-                'number': item['number'] is String && RegExp(r'^[0-9]{1,32}$').hasMatch(item['number'] as String)
-                    ? item['number'] as String : null,
-              }).toList()
+            ? isolates
+                  .whereType<Map>()
+                  .where((item) => isolateId(item['id']) != null)
+                  .take(32)
+                  .map(
+                    (item) => {
+                      'id': isolateId(item['id']),
+                      'number':
+                          item['number'] is String &&
+                              RegExp(
+                                r'^[0-9]{1,32}$',
+                              ).hasMatch(item['number'] as String)
+                          ? item['number'] as String
+                          : null,
+                    },
+                  )
+                  .toList()
             : <Map<String, Object?>>[],
       });
     } on Object catch (error) {
-      _record('observer-start-failure', {'error_type': error.runtimeType.toString()});
+      _record('observer-start-failure', {
+        'error_type': error.runtimeType.toString(),
+      });
       rethrow;
     }
   }
 
   void driverPhase(String source, String message) {
     if (source != 'VMServiceFlutterDriver') return;
-    final found = RegExp(r'^Isolate found with number: ([0-9]{1,32})$').firstMatch(message);
+    final found = RegExp(
+      r'^Isolate found with number: ([0-9]{1,32})$',
+    ).firstMatch(message);
     if (found != null) {
       _record('driver-isolate-found', {'isolate_number': found[1]});
       return;
     }
-    final runnable = RegExp(r'^Isolate ([0-9]{1,32}) is runnable\.$').firstMatch(message);
+    final runnable = RegExp(
+      r'^Isolate ([0-9]{1,32}) is runnable\.$',
+    ).firstMatch(message);
     if (runnable != null) {
       _record('driver-isolate-runnable', {'isolate_number': runnable[1]});
       return;
@@ -216,7 +260,9 @@ class AndroidStartupObserver {
       await socket.close().timeout(const Duration(seconds: 1));
     } on Object catch (error) {
       cleanupFailed = true;
-      _record('observer-cleanup-failure', {'error_type': error.runtimeType.toString()});
+      _record('observer-cleanup-failure', {
+        'error_type': error.runtimeType.toString(),
+      });
     }
   }
 
@@ -231,10 +277,14 @@ class AndroidStartupObserver {
       await _connectionTask?.timeout(const Duration(seconds: 1));
     } on Object catch (error) {
       cleanupFailed = true;
-      _record('observer-cleanup-failure', {'error_type': error.runtimeType.toString()});
+      _record('observer-cleanup-failure', {
+        'error_type': error.runtimeType.toString(),
+      });
     } finally {
-      _record('observer-stop', {'omitted_records': _omitted,
-        'cleanup': cleanupFailed ? 'FAIL' : 'PASS'});
+      _record('observer-stop', {
+        'omitted_records': _omitted,
+        'cleanup': cleanupFailed ? 'FAIL' : 'PASS',
+      });
     }
   }
 }
@@ -258,7 +308,9 @@ Future<FlutterDriver> connectObservedAndroidDriver(
       originalLog(source, message);
     };
     final remaining = const Duration(seconds: 20) - clock.elapsed;
-    if (remaining <= Duration.zero) throw TimeoutException('driver connect budget');
+    if (remaining <= Duration.zero) {
+      throw TimeoutException('driver connect budget');
+    }
     final driver = await connect(remaining);
     observer.connectResult('connected', selectedIsolate: driver.appIsolate.id);
     return driver;

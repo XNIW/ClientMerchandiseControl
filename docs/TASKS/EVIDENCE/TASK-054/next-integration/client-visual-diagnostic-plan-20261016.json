@@ -211,11 +211,34 @@
     ]
   },
   "hostedFocused": {
-    "result": "NOT_RUN at intermediate source freeze",
+    "result": "NOT_RUN on updated lint fix; prior analyze FAIL preserved in hostedPreparationHistory",
     "newDartUnitTests": 9,
     "formatIncludesTestDriver": true,
     "baselineFlags": false,
     "newNativeTests": false,
     "finalCanonicalCi": "NOT_RUN at intermediate freeze; all7 required on normal final commit"
-  }
+  },
+  "hostedPreparationHistory": [
+    {
+      "revision": "c55995ad61019ea88d0f11b29de94a81ea2aa6a1",
+      "run": 38860609181,
+      "result": "FAIL",
+      "boundary": "analyze: three lint diagnostics; tests not started",
+      "format": {
+        "files": 405,
+        "changed": 3,
+        "patchSha256": "e12d0e444fd8f455b2cad1f7ca3b71ae17ac47d645be69c8a006402d2c579371",
+        "archiveDigestCrc": "PASS"
+      },
+      "dartNewTests": "NOT_RUN",
+      "priorFocusedTests": "NOT_RUN",
+      "nativeExperiment": "NOT_RUN",
+      "fix": "apply reviewed actual formatter patch; two braces and local function declaration",
+      "fixReview": {
+        "outcome": "APPROVED SOURCE_ONLY",
+        "receiptSha256": "94263ad0df23ede854b9f8ef07771de0b5435e45aa33b45525510c6c25088030",
+        "nativeRuntime": "NOT_RUN"
+      }
+    }
+  ]
 }

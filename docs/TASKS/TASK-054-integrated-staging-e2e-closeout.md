@@ -1615,3 +1615,16 @@ rimossa. Full Quality e nativi successivi appartengono al loro SHA finale.
 Task BLOCKED/FIX: nessun handoff finale o approvazione globale prima dei
 risultati propri; dopo focused verde e reviewformatter segue freeze ordinario
 per unicaCI7job. Nessun SDKMac o nuovo accesso. CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.
+
+
+## Fix preparazione hosted — tre lint
+
+Focused38860609181 su c55995ad FAIL ad analyze con tre lint: due condizioni
+senza graffe e dichiarazione closure locale nel nuovo test. Format405/3;
+9nuovi test Dart e497precedenti NOT_RUN, nessuna prova nativa avviata.
+Patch reale formatter28728B/e12d0e44… verificata con digest publisher e CRC,
+revisionata distintamente e applicata. Corrette soltanto le graffe e la
+dichiarazione della funzione; review e nuovo focused sul codice aggiornato
+prima dell'unica CI7job nativa. Non è un retry invariato.
+
+Task BLOCKED/FIX; CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.

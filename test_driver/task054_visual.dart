@@ -170,8 +170,7 @@ Future<FlutterDriver> connectVisualDriver(String? platform) async {
       Platform.environment['CMC_TASK054_VISUAL_APK_SHA256'] ?? '',
       Uri.parse(Platform.environment['VM_SERVICE_URL'] ?? ''),
     ),
-    connect: (remaining) => FlutterDriver.connect(
-      logCommunicationToFile: false,
-    ).timeout(remaining),
+    connect: (remaining) =>
+        FlutterDriver.connect(logCommunicationToFile: false).timeout(remaining),
   );
 }

@@ -201,6 +201,17 @@ prompt del 2026-08-01 e resta soggetta a checkpoint e review integrata reali.
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — Quality finale e gate nativi/live distinti
 
+Ripresa16ottobre: diagnostica source AndroidVM/lifecycle/PID/APK e iOS
+PID/stack/UUID revisionata distintamente;9suitePython178PASS. Il primo
+focused38860609181/c559 fallisce ad analyze per3lint, testNOT_RUN; patch
+formatter autentica e lint corretti dopo review distinta. Nuovo focused
+38861373311 su90f3807 PASS506/1SKIP,format405/0/analyze0:9unit nuovi
+inclusi. Unica CI7job strumentata NOT_RUN al freeze; esiti nei Checks PR29.
+Quality2e9/run38845283993 resta PASS1243/1SKIP+11performance; native9d
+restano4SUCCESS/3FAIL. Nessuna nuova acceptance nativa o Maps/live.
+
+I checkpoint seguenti sono storici e mantengono i propri cutoff.
+
 Addendum12ottobre: esito add scoped, riconciliazione cart/checkout e UI tracking
 corretti. [Dossier corrente](docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md):
 freeze app07649, re-review source/widget APPROVED scoped; Quality1242PASS/1SKIP,

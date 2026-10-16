@@ -14,19 +14,19 @@
 - **Release train**: CLIENT_COMMERCE_JOURNEY_COMPLETION
 - **Stato release train**: OPERATIONAL_COMPLETION
 - **Review integrata**: BLOCKED — gate nativi/live distinti; QUALITY-RR-01 chiuso
-- **Prossima azione autorizzata**: supplemento diagnostico dei due visual FAIL,
-  entro il mandato originale. Android: osservare IsolateStart/Exit prima del
-  connect e lifecycle del solo package, correlati a PID/hash APK; iOS: stato/stack
-  del processo proprio durante readiness e log CoreSimulator filtrati UUID.
-  Una sola esecuzione strumentata per domanda dopo test pertinenti e review
-  distinta; budget20s connect e30s readiness, guard e cleanup invariati.
-  Se nuovo Dart, verifica hosted senza nativi prima dell'unica CI7job finale;
-  nessun rerun visual sovrapposto. QUALITY-RR-02 chiuso dalla re-review distinta
-  su2e9f7a9/run38845283993:1243PASS/1SKIP,11performance,14metadata,format409/0,
-  analyze0. Native9d/run38841333617 restano4SUCCESS/3FAIL con due visual FAIL,
-  due journal e unsigned2PASS. I negativi precedenti e i loro cutoffs restano.
-  Nessun SDK/UI Mac, nuovo branch/worktree, merge/deploy o accesso persistente.
-  PR29 draft/merge HOLD; Maps/TEST/AT/firma sono blocker distinti.
+- **Prossima azione autorizzata**: freeze ordinario del supplemento diagnostico
+  e unica CI canonica7job sul nuovo head, senza dispatch visual sovrapposti.
+  Preflight90f3807/run38861373311 PASS506/1SKIP,9nuovi unit inclusi,
+  format405/0/analyze0; primo focusedc559/run38860609181 FAIL3lint conservato.
+  Android osserva VM/lifecycle/PID/APK, iOS processo proprio/stack/UUID;
+  source revisionata distintamente,9suitePython178PASS. Budget20s connect e
+  30s readiness, ownership/guard/cleanup invariati. Esperimento nativo NOT_RUN
+  al freeze: esito associato al nuovo SHA nei Checks PR29 e rapporto corrente.
+  Quality2e9/run38845283993 e native9d/run38841333617 restano propri;
+  eventuale verde non prova causa o stabilità. Nessun SDK/UI Mac, nuovo
+  branch/worktree, merge/deploy o accesso persistente. PR29 draft/merge HOLD.
+  Maps/live TEST/Auth/C04/R24/AT/firma sono gate distinti; dopo raccolta e
+  re-review l'handoff resta BLOCKED se un gate obbligatorio non è superato.
   Dossier:docs/TASKS/EVIDENCE/TASK-054/CLIENT_TASK054_CART_TRACKING_ADDENDUM.md.
 
 ## Repository coinvolti

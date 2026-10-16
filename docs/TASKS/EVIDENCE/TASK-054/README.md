@@ -11,6 +11,11 @@ Stato corrente nel [registro residui](residuals.md), prove nuove in
 
 ## Diagnosi visual — 16 ottobre
 
+Preflight38861373311/90f3807 PASS506/1SKIP,9nuovi unit inclusi,
+format405/0/analyze0. Primo focused38860609181/c559 FAIL3lint preservato;
+actualformatter e3lintfix revisionati. UnicaCI7job strumentata NOT_RUN al
+freeze ordinario; receipt finale nel proprio run/SHA e Checks PR29.
+
 QUALITY-RR-02 chiuso da re-review distinta su2e9/run38845283993:
 1243PASS/1SKIP,11performance,14metadata,format409/0,analyze0. Due visual9d
 restano FAIL con prossimi passi causali: osservazione VM/lifecycle Android e

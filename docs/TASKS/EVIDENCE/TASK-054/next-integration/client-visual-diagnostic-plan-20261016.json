@@ -42,7 +42,7 @@
     "independent source review of new diagnostic delta only",
     "single instrumented attempt for each question"
   ],
-  "experiment": "NOT_RUN at planning cutoff",
+  "experiment": "NOT_RUN at normal source freeze; one automatic canonical CI7job after this commit",
   "globalAcceptance": "BLOCKED",
   "externalGates": [
     "Maps/live TEST",
@@ -211,12 +211,24 @@
     ]
   },
   "hostedFocused": {
-    "result": "NOT_RUN on updated lint fix; prior analyze FAIL preserved in hostedPreparationHistory",
+    "result": "PASS",
     "newDartUnitTests": 9,
     "formatIncludesTestDriver": true,
     "baselineFlags": false,
     "newNativeTests": false,
-    "finalCanonicalCi": "NOT_RUN at intermediate freeze; all7 required on normal final commit"
+    "finalCanonicalCi": "NOT_RUN at normal source freeze; all7 required on final commit",
+    "revision": "90f380707674c0f683cdff69fa124698e711b006",
+    "run": 38861373311,
+    "passed": 506,
+    "skipped": 1,
+    "failed": 0,
+    "priorTests": 497,
+    "formatFiles": 405,
+    "formatChanged": 0,
+    "analyzeIssues": 0,
+    "review": "APPROVED FOCUSED_HOSTED_TEST_HARNESS_ONLY",
+    "reviewReceiptSha256": "9a81aed9cd6199df1eeb9174966119f419a2fe53d63224cfa5c21e343fd9fed2",
+    "terminalCapsuleSha256": "e19f1b10fccd5bd4775672b65c840948b31688826b89aa627a42dcb93bd1c32a"
   },
   "hostedPreparationHistory": [
     {
@@ -240,5 +252,9 @@
         "nativeRuntime": "NOT_RUN"
       }
     }
+  ],
+  "testFindingsClosedScoped": [
+    "ANDROID-OBS-RR-01 test/harness",
+    "ANDROID-OBS-ANALYZE-01 analyze"
   ]
 }

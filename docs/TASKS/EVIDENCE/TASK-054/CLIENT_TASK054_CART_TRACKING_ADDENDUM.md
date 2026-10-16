@@ -1,5 +1,17 @@
 # TASK-054 — Addendum carrello e consegna
 
+## Diagnostica — freeze ordinario dopo preflight hosted
+
+Focused38861373311 su90f3807 PASS506/1SKIP:497precedenti e9nuovi unit
+osservatore. Format405/0 e analyze0. Primo focused38860609181/c559 FAIL3lint
+prima dei test; patchformatter28728B/e12d0e44… autentica revisionata e
+3lintfix source94263ad0… preservati. Nessun difetto prodotto dedotto.
+L'unica CI7job completa e l'esperimento strumentato sono NOT_RUN a questo
+freeze: il commit ordinario avvia i gate; receipt nel run proprio/ChecksPR29.
+Nessun dispatchvisual aggiuntivo. Risultati terminali e re-review aggiornano
+il rapporto corrente senza un ulteriore push che replicherebbe l'esperimento.
+
+
 ## Diagnostica visual — 16 ottobre, freeze source intermedio
 
 I due FAIL visual9d hanno ancora domande causali nello scope. Il nuovo delta

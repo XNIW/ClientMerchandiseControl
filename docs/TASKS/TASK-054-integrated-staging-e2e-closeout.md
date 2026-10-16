@@ -1628,3 +1628,26 @@ dichiarazione della funzione; review e nuovo focused sul codice aggiornato
 prima dell'unica CI7job nativa. Non è un retry invariato.
 
 Task BLOCKED/FIX; CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX.
+
+
+## Fix diagnostico — preflight e freeze ordinario
+
+Focused38861373311 su90f380707674c0f683cdff69fa124698e711b006 terminalePASS:
+506PASS/1SKIP,9unit nuovi e497precedenti, format405/0 e analyze0.
+Tutti i restore e i tre job nonfocused SKIPPED; non è fullQuality o CI7job.
+Il finding sendthrow è verificato nel runtime unit/harness; nessuna causa
+applicativa storica dimostrata. Primo focusedc559 FAIL3lint resta conservato.
+
+| CA / T | Evidence | Stato al freeze ordinario |
+|---|---|---|
+| CA-04 / T-04 |9suitePython178PASS;focused506/1SKIP incluse9unit nuove | PASS diagnostica source/pure/host; acceptanceapp distinta |
+| CA-05 / T-05 | unica CI7job successiva al commit ordinario | NOT_RUN al freeze; tutti7gate obbligatori conservati |
+| CA-06 / T-06 | osservatori bounded e negativi preservati | BLOCKED globale; native nuove NOT_RUN |
+
+Dopo la pubblicazione si raccolgono le primarie e la re-review distinta
+dell'unico esperimento per domanda, senza dispatch visual duplicati o
+nuovo push solo documentale. Il rapporto corrente e PR29 associano ogni
+risultato terminale al proprio head; questo è un cutoff precedente ai gate.
+Nessun SDK/UI Mac, merge/DONE, accesso persistente o acceptance Maps/live.
+Task BLOCKED/FIX; CODEX_REVIEW_CHANGES_REQUIRED_TO_FIX fino all'handoff
+dopo i risultati reali, senza dichiarare completata la verifica obbligatoria.
